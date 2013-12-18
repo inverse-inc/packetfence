@@ -105,10 +105,18 @@ use warnings;
 use Log::Log4perl;
 use Net::SNMP;
 use Net::Telnet;
+use Try::Tiny;
 
-use base ('pf::Switch::WLC');
+use base ('pf::Switch::Cisco::WLC');
 
 use pf::config;
+use pf::Switch::constants;
+use pf::util;
+use pf::roles::custom;
+use pf::accounting qw(node_accounting_current_sessionid);
+use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::node qw(node_attributes);
+
 
 sub description { 'Cisco Wireless Controller (WLC)' }
 
@@ -136,7 +144,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
     
 De-authenticate a MAC address from wireless network (including 802.1x).
     
-New implementation using RADIUS Disconnect-Request.
+Need to implement the CoA to remove the ACL and the redirect URL.
 
 =cut
 
@@ -152,169 +160,9 @@ sub deauthenticateMacDefault {
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
     # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this 
     # (not done because it doesn't exist in current branch)
-    return $self->radiusDisconnect( $mac, { 'Service-Type' => 'Login-User'} );
+    return $self->radiusDisconnect( $mac );
 }
 
-=item _deauthenticateMacSNMP
-
-deauthenticate a MAC address from wireless network (including 802.1x)
-
-This implementation is deprecated since RADIUS Disconnect-Request (aka 
-RFC3576 aka CoA) is better and also it no longer worked with firmware 7.2 and up.
-See L<BUGS AND LIMITATIONS> for details.
-
-=cut
-
-sub _deauthenticateMacSNMP {
-    my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $OID_bsnMobileStationDeleteAction = '1.3.6.1.4.1.14179.2.1.4.1.22';
-
-    if ( !$this->isProductionMode() ) {
-        $logger->info(
-            "not in production mode ... we won't write to the bnsMobileStationTable"
-        );
-        return 1;
-    }
-
-    if ( !$this->connectWrite() ) {
-        return 0;
-    }
-
-    #format MAC
-    if ( length($mac) == 17 ) {
-        my @macArray = split( /:/, $mac );
-        my $completeOid = $OID_bsnMobileStationDeleteAction;
-        foreach my $macPiece (@macArray) {
-            $completeOid .= "." . hex($macPiece);
-        }
-        $logger->trace(
-            "SNMP set_request for bsnMobileStationDeleteAction: $completeOid"
-        );
-        my $result = $this->{_sessionWrite}->set_request(
-            -varbindlist => [ $completeOid, Net::SNMP::INTEGER, 1 ] );
-        # TODO: validate result
-        $logger->info("deauthenticate mac $mac from controller: ".$this->{_ip});
-        return ( defined($result) );
-    } else {
-        $logger->error(
-            "ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx"
-        );
-        return 1;
-    }
-}
-
-sub blacklistMac {
-    my ( $this, $mac, $description ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    if ( length($mac) == 17 ) {
-
-        my $session;
-        eval {
-            $session = Net::Telnet->new(
-                Host    => $this->{_ip},
-                Timeout => 5,
-                Prompt  => '/[\$%#>]$/'
-            );
-            $session->waitfor('/User: /');
-            $session->put( $this->{_cliUser} . "\n" );
-            $session->waitfor('/Password:/');
-            $session->put( $this->{_cliPwd} . "\n" );
-            $session->waitfor( $session->prompt );
-        };
-
-        if ($@) {
-            $logger->error(
-                "ERROR: Can not connect to access point $this->{'_ip'} using telnet"
-            );
-            return 1;
-        }
-        $logger->info("Blacklisting mac $mac");
-        $session->cmd("config exclusionlist add $mac");
-        $session->cmd(
-            "config exclusionlist description $mac \"$description\"");
-        $session->close();
-    }
-    return 1;
-}
-
-sub isLearntTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
-    return ( 0 == 1 );
-}
-
-sub setLearntTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub isRemovedTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
-    return ( 0 == 1 );
-}
-
-sub setRemovedTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub getVmVlanType {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub setVmVlanType {
-    my ( $this, $ifIndex, $type ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub isTrunkPort {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub getVlans {
-    my ($this) = @_;
-    my $vlans  = {};
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return $vlans;
-}
-
-sub isDefinedVlan {
-    my ( $this, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return 0;
-}
-
-sub isVoIPEnabled {
-    my ($this) = @_;
-    return 0;
-}
-
-=item returnRoleAttribute
-
-What RADIUS Attribute (usually VSA) should the role returned into.
-
-=cut
-
-sub returnRoleAttribute {
-    my ($this) = @_;
-
-    return 'Airespace-ACL-Name';
-}
 
 =item deauthTechniques
 
@@ -328,7 +176,6 @@ sub deauthTechniques {
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => \&deauthenticateMacDefault,
-        $SNMP::SNMP  => \&_deauthenticateMacSNMP,
     );
 
     if (!defined($method) || !defined($tech{$method})) {
@@ -378,10 +225,8 @@ sub returnRadiusAccessAccept {
 
         # Roles are configured and the user should have one
         if (defined($role)) {
-
             $radius_reply_ref = {
-                'Cisco-AVPair' => "$this->returnRoleAttribute => $role"
-                $this->returnRoleAttribute => $role,
+                'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=http://172.16.0.250"],
             };
 
             $logger->info("Returning ACCEPT with Role: $role");
@@ -417,6 +262,110 @@ sub returnRadiusAccessAccept {
 
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
+
+=item radiusDisconnect
+
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
+
+Optionally you can provide other attributes as an hashref.
+
+Uses L<pf::util::radius> for the low-level RADIUS stuff.
+
+=cut
+
+# TODO consider whether we should handle retries or not?
+
+
+sub radiusDisconnect {
+    my ($self, $mac, $add_attributes_ref) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    # initialize
+    $add_attributes_ref = {} if (!defined($add_attributes_ref));
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    $logger->info("deauthenticating $mac");
+
+    # Where should we send the RADIUS CoA-Request?
+    # to network device by default
+    my $send_disconnect_to = $self->{'_ip'};
+    # but if controllerIp is set, we send there
+    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $send_disconnect_to = $self->{'_controllerIp'};
+    }
+    # allowing client code to override where we connect with NAS-IP-Address
+    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
+        if (defined($add_attributes_ref->{'NAS-IP-Address'}));
+
+    my $response;
+    try {
+        my $connection_info = {
+            nas_ip => $send_disconnect_to,
+            secret => $self->{'_radiusSecret'},
+            LocalAddr => $management_network->tag('vip'),
+        };
+
+        $logger->debug("network device supports roles. Evaluating role to be returned");
+        my $roleResolver = pf::roles::custom->instance();
+        my $role = $roleResolver->getRoleForNode($mac, $self);
+
+        my $acctsessionid = node_accounting_current_sessionid($mac);
+        my $node_info = node_attributes($mac);
+        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        $mac = uc($mac);
+        $mac =~ s/:/-/g;
+
+        # Standard Attributes
+        my $attributes_ref = {
+            'Calling-Station-Id' => $mac,
+            'NAS-IP-Address' => $send_disconnect_to,
+            'Acct-Session-Id' => $acctsessionid,
+        };
+
+        # merging additional attributes provided by caller to the standard attributes
+        $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
+
+        # Roles are configured and the user should have one
+        if (defined($role) && (defined($node_info->{'status'}) ) ) {
+
+            $logger->info("Returning ACCEPT with Role: $role");
+            my $vsa = [
+                {
+                vendor => "Cisco",
+                attribute => "Cisco-AVPair",
+                value => "url-redirect-acl=$role",
+                }
+            ];
+            $response = perform_coa($connection_info, $attributes_ref, $vsa);
+
+        }
+        else {
+            $response = perform_disconnect($connection_info, $attributes_ref);
+        }
+    } catch {
+        chomp;
+        $logger->warn("Unable to perform RADIUS CoA-Request: $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
+
+    $logger->warn(
+        "Unable to perform RADIUS Disconnect-Request."
+        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
+}
+
 
 =back
 
