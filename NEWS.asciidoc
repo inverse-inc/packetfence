@@ -17,12 +17,13 @@ Version 4.1.1 released on YYYY-MM-DD
 New Features
 ++++++++++++
 
-* 
+* Bulk Actions for users
 
 Enhancements
 ++++++++++++
 
-* 
+* Mandatory fields are per profiles
+* Expanded fields for person field
 
 Bug Fixes
 +++++++++
