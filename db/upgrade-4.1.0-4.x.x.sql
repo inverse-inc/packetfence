@@ -1,10 +1,13 @@
+--
+-- Added a new columns to store in person field
+--
+
 ALTER TABLE person 
   ADD `anniversary` varchar(255) NULL DEFAULT NULL,
   ADD `birthday` varchar(255) NULL DEFAULT NULL,
   ADD `gender` char(1) NULL DEFAULT NULL,
   ADD `lang` varchar(255) NULL DEFAULT NULL,
   ADD `nickname` varchar(255) NULL DEFAULT NULL,
-  ADD `organization` varchar(255) NULL DEFAULT NULL,
   ADD `cell_phone` varchar(255) NULL DEFAULT NULL,
   ADD `work_phone` varchar(255) NULL DEFAULT NULL,
   ADD `title` varchar(255) NULL DEFAULT NULL,
