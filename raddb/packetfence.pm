@@ -122,8 +122,8 @@ sub post_auth {
             # Return: 
             # rlm_perl: Added pair Cisco-AVPair = url-redirect-acl=Web-acl
             # rlm_perl: Added pair Cisco-AVPair = url-redirect=http://172.16.0.249/captive-portal.html
-            foreach my $key (keys $attributes) {
-               if (ref(%$attributes->{$key}) eq 'HASH') {
+            foreach my $key (keys %$attributes) {
+               if (ref($attributes->{$key}) eq 'HASH') {
                    $attributes->{$key} = $attributes->{$key}->{'item'};
                }
             }
