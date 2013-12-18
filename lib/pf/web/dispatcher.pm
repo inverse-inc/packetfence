@@ -51,7 +51,6 @@ sub handler {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace("hitting translator with URL: " . $r->uri);
-
     # Test if the hostname is include in the proxy_passthroughs configuration
     # In this case forward to mad_proxy
     if ( ( $r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') || ($r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') ) {
@@ -124,7 +123,7 @@ sub external_captive_portal {
         $portalSession->setClientMac($client_mac) if (defined($client_mac));
         $portalSession->setDestinationUrl($redirect_url) if (defined($redirect_url));
         $portalSession->setGrantUrl($grant_url) if (defined($grant_url));
-        $portalSession->cgi->param("do_not_deauth", $TRUE) if (defined($grant_url));
+        #$portalSession->cgi->param("do_not_deauth", $TRUE) if (defined($grant_url));
         iplog_update($client_mac,$client_ip,100) if (defined ($client_ip) && defined ($client_mac));
         # Have to update location_log ...
         return $portalSession->session->id();
@@ -138,61 +137,77 @@ For simplicity and performance this doesn't consume and leverage
 L<pf::Portal::Session>.
 
 =cut
-
 sub redirect {
-    my ($r) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-    $logger->trace('hitting redirector');
-    my $captivePortalDomain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
-    my $destination_url = '';
-    my $url = $r->construct_url;
-    if ($url !~ m#://\Q$captivePortalDomain\E/#) {
-        $destination_url = Apache2::Util::escape_path($url,$r->pool);
-    }
-    my $orginal_url = Apache2::Util::escape_path($url,$r->pool);
+   my ($r) = @_;
+   my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+   $logger->trace('hitting redirector');
+   my $captivePortalDomain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
+   my $destination_url = '';
+   my $url = $r->construct_url;
+   if ($url !~ m#://\Q$captivePortalDomain\E/#) {
+       $destination_url = Apache2::Util::escape_path($url,$r->pool);
+   }
+   my $orginal_url = Apache2::Util::escape_path($url,$r->pool);
 
-    # External Captive Portal Detection
+   # External Captive Portal Detection
 
-    my $req = Apache2::Request->new($r);
-    foreach my $param ($req->param) {
-        if ($param =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
-            my $cgi_session_id = external_captive_portal($req->param($param),$req,$r);
-            if ($cgi_session_id ne '0') {
-                # Set the cookie for the captive portal
-                $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
-            }
-            last;
-        }
-    }
+   my $req = Apache2::Request->new($r);
+   my $is_external_portal;
+   foreach my $param ($req->param) {
+       if ($param =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
+           my $cgi_session_id = external_captive_portal($req->param($param),$req,$r);
+           if ($cgi_session_id ne '0') {
+               # Set the cookie for the captive portal
+               $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
+               $logger->warn("Dumping session id: $cgi_session_id");
+           }
+           $is_external_portal = 1;
+           last;
+       }
+   }
 
-    my $proto;
-    # Google chrome hack redirect in http
-    if ($r->uri =~ /\/generate_204/) {
-        $proto = $HTTP;
-    } else {
-        $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
-    }
+   my $proto;
+   # Google chrome hack redirect in http
+   if ($r->uri =~ /\/generate_204/) {
+       $proto = $HTTP;
+   } else {
+       $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+   }
 
+   my $captiv_url;
+   my $wispr_url;
+   if ( $is_external_portal ) {
+      $captiv_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/captive-portal");
+      $captiv_url->query($r->args);
+      $wispr_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/wispr");
+      $wispr_url->query($r->args);
+   }
+   else {
+      $captiv_url = APR::URI->parse($r->pool,"$proto://".${captivePortalDomain}."/captive-portal");
+      $captiv_url->query($r->args);
+      $wispr_url = APR::URI->parse($r->pool,"$proto://".${captivePortalDomain}."/wispr");
+      $wispr_url->query($r->args);
+   }
     my $stash = {
-        'login_url' => "${proto}://${captivePortalDomain}/captive-portal?destination_url=$destination_url",
-        'login_url_wispr' => "${proto}://${captivePortalDomain}/wispr"
+        'login_url' => $captiv_url->unparse()."?destination_url=$destination_url",
+        'login_url_wispr' => $wispr_url->unparse(),
     };
 
-    # prepare custom REDIRECT response
-    my $response;
-    my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
-    });
-    $template->process( "redirection.tt", $stash, \$response ) || $logger->error($template->error());;
+   # prepare custom REDIRECT response
+   my $response;
+   my $template = Template->new({
+       INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+   });
+   $template->process( "redirection.tt", $stash, \$response ) || $logger->error($template->error());;
 
-    # send out the redirection in a custom response
-    # a custom response is required otherwise Apache take over the rendering
-    # of redirects and we are unable to inject the WISPR XML
-    $r->headers_out->set('Location' => $stash->{'login_url'});
-    $r->content_type('text/html');
-    $r->no_cache(1);
-    $r->custom_response(Apache2::Const::HTTP_MOVED_TEMPORARILY, $response);
-    return Apache2::Const::HTTP_MOVED_TEMPORARILY;
+   # send out the redirection in a custom response
+   # a custom response is required otherwise Apache take over the rendering
+   # of redirects and we are unable to inject the WISPR XML
+   $r->headers_out->set('Location' => $stash->{'login_url'});
+   $r->content_type('text/html');
+   $r->no_cache(1);
+   $r->custom_response(Apache2::Const::HTTP_MOVED_TEMPORARILY, $response);
+   return Apache2::Const::HTTP_MOVED_TEMPORARILY;
 }
 
 =item html_redirect
@@ -207,8 +222,12 @@ sub html_redirect {
     $logger->trace('hitting html redirector');
 
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+
+     my $captiv_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/captive-portal");
+    $captiv_url->query($r->args);
+
     my $stash = {
-        'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal",
+        'login_url' => $captiv_url->unparse(),
     };
 
     # prepare custom REDIRECT response
@@ -269,4 +288,3 @@ USA.
 =cut
 
 1;
-
