@@ -110,6 +110,23 @@ sub post_auth {
 
             # Merging returned values with RAD_REPLY, right-hand side wins on conflicts
             my $attributes = {@$elements};
+
+            # If attribute is a reference to a HASH (Multivalue attribute) we overwrite the value and point to list reference
+            # 'Cisco-AVPair',
+            #   {
+            #    'item' => [
+            #               'url-redirect-acl=Web-acl',
+            #               'url-redirect=http://172.16.0.249/captive-portal.html'
+            #               ]
+            #    }
+            # Return: 
+            # rlm_perl: Added pair Cisco-AVPair = url-redirect-acl=Web-acl
+            # rlm_perl: Added pair Cisco-AVPair = url-redirect=http://172.16.0.249/captive-portal.html
+            foreach my $key (keys $attributes) {
+               if (ref(%$attributes->{$key}) eq 'HASH') {
+                   $attributes->{$key} = $attributes->{$key}->{'item'};
+               }
+            }
             %RAD_REPLY = (%RAD_REPLY, %$attributes); # the rest of result is the reply hash passed by the radius_authorize
         } else {
             return server_error_handler();
