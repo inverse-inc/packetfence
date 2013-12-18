@@ -431,7 +431,8 @@ sub validate_password {
     if ($temppass_record->{'password'} eq $password) {
         # password is valid but not yet valid
         # valid_from is in unix timestamp format so an int comparison is enough
-        if ($temppass_record->{'valid_from'} > time) {
+        my $valid_from = $temppass_record->{'valid_from'};
+        if (defined $valid_from && $valid_from > time) {
             $logger->info("Password validation failed for $pid: password not yet valid");
             return $AUTH_FAILED_NOT_YET_VALID;
         }
