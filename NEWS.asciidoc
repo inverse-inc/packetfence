@@ -24,6 +24,7 @@ Enhancements
 
 * Mandatory fields are per profiles
 * Expanded fields for person field
+* Allow pfcmd error/warning/success messages to be configurable
 
 Bug Fixes
 +++++++++
