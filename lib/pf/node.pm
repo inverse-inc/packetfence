@@ -653,7 +653,7 @@ sub node_view_all {
             my $like = $params{'where'}{'like'};
             $like =~ s/^ *//;
             $like =~ s/ *$//;
-            if (valid_mac($like)) {
+            if (valid_mac($like) && !valid_ip($like)) {
                 my $mac = get_db_handle->quote(clean_mac($like));
                 $node_view_all_sql .= " HAVING node.mac = $mac";
             }

@@ -30,6 +30,7 @@ Bug Fixes
 +++++++++
 
 * Fixed SQL query of connection types report in Web admin
+* Fixed nodes simple search by IP address
 
 Version 4.1.0 released on 2013-12-11
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
