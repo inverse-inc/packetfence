@@ -12,7 +12,6 @@
         'admin/searches',
         'admin/configuration/interfaces',
         'admin/configuration/switches',
-        'admin/configuration/items',
         'admin/configuration/floatingdevices',
         'admin/configuration/adminroles',
         'admin/configuration/authentication',
