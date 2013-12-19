@@ -17,7 +17,6 @@
       <li><a href="#switchSNMP" data-toggle="tab">[% l('SNMP') %]</a></li>
       <li><a href="#switchCLI" data-toggle="tab">[% l('CLI') %]</a></li>
       <li><a href="#switchWS" data-toggle="tab">[% l('Web Services') %]</a></li>
-      <li><a href="#switchWRIX" data-toggle="tab">[% l('WRIX Information') %]</a></li>
     </ul>
 
     <div class="tab-content">
@@ -84,10 +83,6 @@
 
       <div class="tab-pane fade" id="switchWS">
         [% form.block('ws').render %]
-      </div><!--tab-pane-->
-
-      <div class="tab-pane fade" id="switchWRIX">
-        [% form.block('wrix').render %]
       </div><!--tab-pane-->
 
     </div><!--tab-content-->
