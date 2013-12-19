@@ -11,6 +11,10 @@ var Items = function() {
 
 Items.prototype.id = "#items";
 
+Items.prototype.formName = "modalItem";
+
+Items.prototype.modalId = "#modalItem";
+
 Items.prototype.get = function(options) {
     $.ajax({
         url: options.url
@@ -51,14 +55,15 @@ ItemView.prototype.setupItem = function(options) {
     this.items = items;
     this.disableToggle = false;
     var id = items.id;
+    var formName = items.formName;
 
     // Display the switch in a modal
     var read = $.proxy(this.readItem, this);
-    options.parent.on('click', id + ' [href$="/read"], ' + id + ' [href$="/clone"], [href*=/create], #createItem', read);
+    options.parent.on('click', id + ' [href$="/read"], ' + id + ' [href$="/clone"], #createItem', read);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateItem, this);
-    options.parent.on('submit', 'form[name="modalItem"]', update);
+    options.parent.on('submit', 'form[name="' + formName + '"]', update);
 
     // Delete the switch
     var delete_item = $.proxy(this.deleteItem, this);
@@ -70,7 +75,7 @@ ItemView.prototype.readItem = function(e) {
     e.preventDefault();
 
     var that = this;
-    var modal = $('#modalItem');
+    var modal = $(this.items.modalId);
     var section = $('#section');
     var loader = section.prev('.loader');
     loader.show();
