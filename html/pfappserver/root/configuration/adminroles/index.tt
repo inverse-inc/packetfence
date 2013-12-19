@@ -1,4 +1,4 @@
-      <div class="modal fade hide" id="modalAdminRoles">
+      <div class="modal fade hide" id="modalItem">
       </div>
 
       <div class="modal fade hide" id="deleteAdminRoles">
@@ -27,6 +27,6 @@
 
       [%- IF can_access("ADMIN_ROLES_CREATE") %]
       <div class="form-actions">
-        <a id="createAdminRoles" class="btn" href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('create')) %]">[% l('Add admin role') %]</a>
+        <a id="createItem" class="btn" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add admin role') %]</a>
       </div>
       [%- END %]
