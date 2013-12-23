@@ -195,7 +195,8 @@ sub HasChanged {
         $imported_expired = $imported->HasChanged() if defined $imported;
     }
     my $last_mod_timestamp = $self->GetLastModTimestamp;
-    return ($imported_expired || (defined $last_mod_timestamp && $last_mod_timestamp != $self->GetCurrentModTimestamp ));
+    my $result = $imported_expired || (defined $last_mod_timestamp && $last_mod_timestamp != $self->GetCurrentModTimestamp );
+    return $result;
 }
 
 
