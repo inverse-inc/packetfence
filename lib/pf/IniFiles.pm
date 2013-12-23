@@ -177,7 +177,8 @@ sub HasChanged {
         $imported_expired = $imported->HasChanged() if defined $imported;
     }
     my $last_mod_timestamp = $self->GetLastModTimestamp;
-    return ($imported_expired || (defined $last_mod_timestamp && $last_mod_timestamp != $self->GetCurrentModTimestamp ));
+    my $result = $imported_expired || (defined $last_mod_timestamp && $last_mod_timestamp != $self->GetCurrentModTimestamp );
+    return $result;
 }
 
 =head2 SetLastModTimestamp
@@ -209,7 +210,12 @@ Gets the current typestamp of the file
 sub GetCurrentModTimestamp {
     my ($self) = @_;
     my $timestamp = (stat($self->GetFileName))[9];
-    $timestamp = -1 unless defined $timestamp;
+    if (defined $timestamp) {
+        $timestamp *= 1000;
+        $timestamp = int($timestamp)
+    } else {
+        $timestamp = -1;
+    }
     return $timestamp;
 }
 
