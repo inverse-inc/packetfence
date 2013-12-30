@@ -755,6 +755,8 @@ fi
 %doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/captive-portal
+%attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
+                        /usr/local/pf/html/captive-portal/Changes
                         /usr/local/pf/html/captive-portal/Makefile.PL
                         /usr/local/pf/html/captive-portal/README
 %config(noreplace)      /usr/local/pf/html/captive-portal/captive_portal.conf
