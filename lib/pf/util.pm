@@ -219,6 +219,9 @@ our $VALID_PF_MAC_REGEX = qr/^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/;
 sub valid_mac {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
+    if ( !defined($mac) ) {
+        return(0);
+    }
     if ( $mac !~ $VALID_MAC_REGEX) {
         $logger->debug("invalid MAC: $mac");
         return (0);
