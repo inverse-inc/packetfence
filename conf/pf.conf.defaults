@@ -37,6 +37,11 @@ timezone=America/Montreal
 # Interval at which Packetfence runs its maintenance tasks.
 maintenance_interval=60s
 #
+# general.cache_update_interval
+#
+# Interval at which Packetfence runs its maintenance tasks.
+cache_update_interval=5s
+#
 # general.memcached
 #
 # Server list of the memcached server
