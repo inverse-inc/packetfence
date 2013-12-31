@@ -633,6 +633,28 @@ sub ReadConfig {
     return $result;
 }
 
+=head2 RefreshConfig
+
+Will reload the config only from the cache
+
+=cut
+
+sub RefreshConfig {
+    my ($self) = @_;
+    my $config = $self->config;
+    my $file   = $config->GetFileName;
+    my $reloaded_from_cache = 0;
+    my $logger = get_logger();
+    $logger->trace("RefreshConfig for $file");
+    $$self = $self->computeFromPath(
+        $file,
+        sub {  $config }
+    );
+    $reloaded_from_cache = refaddr($config) != refaddr($$self);
+    $self->doCallbacks(0,$reloaded_from_cache);
+    return 1;
+}
+
 =head2 TIEHASH
 
 Creating a tied C<pf::config::cached> object
@@ -716,6 +738,20 @@ Get the global CHI object for configfilesdata
 
 sub cacheForData {
     return pf::CHI->new(namespace => 'configfilesdata' );
+}
+
+=head2 RefreshConfigs
+
+RefreshConfigs reload all configs and call any register callbacks
+
+=cut
+
+sub RefreshConfigs {
+    my $logger = get_logger();
+    $logger->trace("Refreshing all configs");
+    foreach my $config (@LOADED_CONFIGS) {
+        $config->RefreshConfig();
+    }
 }
 
 =head2 ReloadConfigs

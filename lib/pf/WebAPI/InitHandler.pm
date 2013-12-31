@@ -21,7 +21,7 @@ use Apache2::Const -compile => 'OK';
 
 sub handler {
     my $r = shift;
-    pf::config::cached::ReloadConfigs();
+    pf::config::cached::RefreshConfigs();
     return Apache2::Const::OK;
 }
 

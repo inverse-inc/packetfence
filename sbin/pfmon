@@ -197,7 +197,7 @@ sub cleanup {
             acct_maintenance();
 
             #reload all cached configs after each iteration
-            pf::config::cached::ReloadConfigs();
+            pf::config::cached::RefreshConfigs();
         };
         if ($@) {
             $logger->error("Error restarting pfmon: $@");
