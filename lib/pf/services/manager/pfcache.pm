@@ -21,6 +21,8 @@ has '+name' => ( default => sub { 'pfcache' } );
 
 has '+launcher' => (default => sub { '%1$s -d' } );
 
+has '+shouldCheckup' => ( default => sub { 0 }  );
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
