@@ -632,9 +632,7 @@ Will reload the config when changed on the filesystem and call any register call
 sub ReadConfig {
     my ($self) = @_;
     my $config = $self->config;
-    my $cache  = $self->cache;
     my $file   = $config->GetFileName;
-    my $reloaded;
     my $reloaded_from_cache = 0;
     my $reloaded_from_file = 0;
     #If considered latest version of file it is always succesful
@@ -654,6 +652,28 @@ sub ReadConfig {
     $reloaded_from_cache = refaddr($config) != refaddr($$self);
     $self->doCallbacks($reloaded_from_file,$reloaded_from_cache);
     return $result;
+}
+
+=head2 RefreshConfig
+
+Will reload the config only from the cache
+
+=cut
+
+sub RefreshConfig {
+    my ($self) = @_;
+    my $config = $self->config;
+    my $file   = $config->GetFileName;
+    my $reloaded_from_cache = 0;
+    my $logger = get_logger();
+    $logger->trace("RefreshConfig for $file");
+    $$self = $self->computeFromPath(
+        $file,
+        sub {  $config }
+    );
+    $reloaded_from_cache = refaddr($config) != refaddr($$self);
+    $self->doCallbacks(0,$reloaded_from_cache);
+    return 1;
 }
 
 =head2 TIEHASH
@@ -743,6 +763,20 @@ Builds the CHI object
 
 sub _cache {
     return pf::CHI->new(namespace => 'configfiles' );
+}
+
+=head2 RefreshConfigs
+
+RefreshConfigs reload all configs and call any register callbacks
+
+=cut
+
+sub RefreshConfigs {
+    my $logger = get_logger();
+    $logger->trace("Refreshing all configs");
+    foreach my $config (@LOADED_CONFIGS) {
+        $config->RefreshConfig();
+    }
 }
 
 =head2 ReloadConfigs
