@@ -14,14 +14,12 @@ pfappserver::Model::Config::Wrix;
 
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
-use pf::config;
-use pf::ConfigStore::Wrix;
+use pf::DB::Wrix::Manager;
 use HTTP::Status qw(:constants is_error is_success);
 
-extends 'pfappserver::Base::Model::Config';
+extends 'pfappserver::Base::Model::DB';
 
-sub _buildConfigStore {return pf::ConfigStore::Wrix->new;}
+has '+manager' => (default => 'pf::DB::Wrix::Manager');
 
 =head1 METHODS
 
