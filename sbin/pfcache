@@ -77,6 +77,7 @@ our $running = 1;
 daemonize() if ($daemonize);
 
 # run the cleanup
+pf::violation_config::readViolationConfigFile();
 cleanup();
 
 END {
