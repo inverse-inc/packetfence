@@ -841,10 +841,9 @@ sub import_data {
         pf::import::nodes($file);
         $result = 1;
     } elsif (lc($type) eq 'wrix') {
-        require pf::ConfigStore::Wrix;
-        my $config = pf::ConfigStore::Wrix->new;
-        $config->importCsv($file);
-        $result = $config->commit();
+        require pf::DB::Wrix::Manager;
+        pf::DB::Wrix::Manager->import;
+        $result = pf::DB::Wrix::Manager->importCsv($file);
     }
     if($result) {
         print "Import process complete\n";
