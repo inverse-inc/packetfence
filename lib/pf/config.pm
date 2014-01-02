@@ -478,7 +478,7 @@ sub readPfConfigFiles {
                 $config->toHash(\%Config);
                 $config->cleanupWhitespace(\%Config);
                 #clearing older interfaces infor
-                $monitor_int = $management_network = undef;
+                $monitor_int = $management_network = '';
                 @listen_ints = @dhcplistener_ints = @ha_ints =
                   @internal_nets = @external_nets =
                   @inline_enforcement_nets = @vlan_enforcement_nets = ();
