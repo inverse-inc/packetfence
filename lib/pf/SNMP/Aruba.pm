@@ -62,7 +62,6 @@ use POSIX;
 use Log::Log4perl;
 use Net::Telnet;
 use Try::Tiny;
-use Data::Dumper;
 
 use pf::config;
 use pf::SNMP::constants;
@@ -552,15 +551,12 @@ sub radiusDisconnect {
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
         # Roles are configured and the user should have one
-        $logger->warn(Dumper $node_info);
         if (defined($role) && (defined($node_info->{'status'}) ) ) {
 
             $attributes_ref = {
                 %$attributes_ref,
                 'Filter-Id' => $role,
             };
-            $logger->warn(Dumper($connection_info));
-            $logger->warn(Dumper($attributes_ref));
             $logger->info("Returning ACCEPT with Role: $role");
             $response = perform_coa($connection_info, $attributes_ref);
 
