@@ -326,7 +326,6 @@ sub radiusDisconnect {
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
-            'Acct-Session-Id' => $acctsessionid,
         };
 
         # merging additional attributes provided by caller to the standard attributes
@@ -340,7 +339,15 @@ sub radiusDisconnect {
                 {
                 vendor => "Cisco",
                 attribute => "Cisco-AVPair",
-                value => "url-redirect-acl=$role",
+                value => "audit-session-id=$acctsessionid",
+                },
+                vendor => "Cisco",
+                attribute => "Cisco-AVPair",
+                value => "subscriber:command=reauthenticate",
+                },
+                vendor => "Cisco",
+                attribute => "Cisco-AVPair",
+                value => "subscriber:reauthenticate-type=last",
                 }
             ];
             $response = perform_coa($connection_info, $attributes_ref, $vsa);
