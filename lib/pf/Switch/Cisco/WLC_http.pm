@@ -116,7 +116,7 @@ use pf::roles::custom;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::node qw(node_attributes);
-
+use pf::web::util;
 
 sub description { 'Cisco Wireless Controller (WLC)' }
 
@@ -209,9 +209,8 @@ Overloading L<pf::Switch>'s implementation because AeroHIVE doesn't support
 assigning VLANs and Roles at the same time.
 
 =cut
-
 sub returnRadiusAccessAccept {
-    my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     my $radius_reply_ref = {};
@@ -219,17 +218,18 @@ sub returnRadiusAccessAccept {
     # TODO this is experimental
     try {
 
-        $logger->debug("network device supports roles. Evaluating role to be returned");
-        my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $this);
-
         # Roles are configured and the user should have one
-        if (defined($role)) {
+        if (defined($user_role)) {
+            my (%session_id);
+            pf::web::util::session(\%session_id);
+            $session_id{client_mac} = $mac;
+            $session_id{wlan} = $ssid;
+            $session_id{switch} = \$this;
             $radius_reply_ref = {
-                'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=http://172.16.0.250"],
+                'Cisco-AVPair' => ["url-redirect-acl=$user_role","url-redirect=http://172.16.0.250/cisco_external_portal$session_id{_session_id}"],
             };
 
-            $logger->info("Returning ACCEPT with Role: $role");
+            $logger->info("Returning ACCEPT with Role: $user_role");
         }
 
 
