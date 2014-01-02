@@ -25,7 +25,7 @@ Verify if the trapping engine
 
 sub isManaged {
     my ($self) = @_;
-    return isenabled($Config{'trapping'}{'detection'}) && $Config{'trapping'}{'detection_engine'} eq $self->name;
+    return $monitor_int && isenabled($Config{'trapping'}{'detection'}) && $Config{'trapping'}{'detection_engine'} eq $self->name;
 }
 
 =head2 dependsOnServices
