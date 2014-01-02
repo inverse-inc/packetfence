@@ -341,10 +341,12 @@ sub radiusDisconnect {
                 attribute => "Cisco-AVPair",
                 value => "audit-session-id=$acctsessionid",
                 },
+                {
                 vendor => "Cisco",
                 attribute => "Cisco-AVPair",
                 value => "subscriber:command=reauthenticate",
                 },
+                {
                 vendor => "Cisco",
                 attribute => "Cisco-AVPair",
                 value => "subscriber:reauthenticate-type=last",
