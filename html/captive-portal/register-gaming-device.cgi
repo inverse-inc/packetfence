@@ -103,7 +103,7 @@ sub register_device {
     my (%info,$result);
     my $logger = Log::Log4perl->get_logger('register-gaming-device.cgi');
     $info{'pid'} = $pid;
-    my $device_mac = $params->{'device_mac'};
+    my $device_mac = clean_mac($params->{'device_mac'});
     if(pf::web::gaming::is_allowed_gaming_mac($device_mac)) {
         $portalSession->stash->{device_mac} = $device_mac;
         my $role = $Config{'registration'}{'gaming_devices_registration_role'};
