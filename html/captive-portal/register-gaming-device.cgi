@@ -110,8 +110,16 @@ sub register_device {
     my $device_mac = $params->{'device_mac'};
     if(pf::web::gaming::is_allowed_gaming_mac($device_mac)) {
         $portalSession->stash->{device_mac} = $device_mac;
+        my $role = $Config{'registration'}{'gaming_devices_registration_role'};
+        if ($role) {
+            $logger->trace("Gaming devices role is $role (from pf.conf)");
+        } else {
+            # Use role of user
+            $role = &pf::authentication::match(&pf::authentication::getInternalAuthenticationSources(), {username => $pid}, $Actions::SET_ROLE);
+            $logger->trace("Gaming devices role is $role (from username $pid)") if ($role);
+        }
     # register gaming device
-        $info{'category'} = $Config{'gaming_devices_registration'}{'category'};
+        $info{'category'} = $role if (defined $role);
         $info{'notes'} = $params->{'console_type'};
         $info{'mac'} = $device_mac;
         $info{'auto_registered'} = 1;
