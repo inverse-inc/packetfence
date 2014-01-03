@@ -44,12 +44,14 @@ Readonly our @GAMING_CONSOLE_TYPES => _load_file_into_array($allowed_gaming_cons
 
 sub generate_login_page {
     my ($portalSession, $err) = @_;
-    _generate_page($portalSession, $GAMING_LOGIN_TEMPLATE,
+    pf::web::generate_generic_page(
+        $portalSession, $GAMING_LOGIN_TEMPLATE, {
         txt_auth_error => ( (defined $err) ? i18n($err) : undef ),
         username => encode_entities($portalSession->cgi->param("username")),
         oauth2_google => is_in_list($SELFREG_MODE_GOOGLE, $portalSession->getProfile->getGuestModes),
         oauth2_facebook => is_in_list($SELFREG_MODE_FACEBOOK, $portalSession->getProfile->getGuestModes),
         oauth2_github => is_in_list($SELFREG_MODE_GITHUB, $portalSession->getProfile->getGuestModes),
+        }
     );
 }
 
