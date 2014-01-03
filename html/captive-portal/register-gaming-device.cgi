@@ -42,11 +42,6 @@ if ( isdisabled($Config{'registration'}{'gaming_devices_registration'}) ) {
     exit(0);
 }
 
-if (! nodecategory_exist($Config{'gaming_device_registration'}{'category'}) ) {
-    pf::web::generate_error_page($portalSession, i18n("gaming_device_registration.category does not exist");
-    exit(0);
-}
-
 # Pull parameters from query string
 foreach my $param  (grep {$_} $cgi->url_param()) {
     $params{$param} = $cgi->url_param($param);
@@ -106,6 +101,7 @@ sub user_is_logged_in {
 sub register_device {
     my ($portalSession,$session,$params,$pid) = @_;
     my (%info,$result);
+    my $logger = Log::Log4perl->get_logger('register-gaming-device.cgi');
     $info{'pid'} = $pid;
     my $device_mac = $params->{'device_mac'};
     if(pf::web::gaming::is_allowed_gaming_mac($device_mac)) {
