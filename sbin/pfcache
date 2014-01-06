@@ -18,7 +18,6 @@ pfcache [options]
 use warnings;
 use strict;
 use Getopt::Std;
-#use English qw( ‐no_match_vars ); # no match avoids regex performance penalty
 use File::Basename qw(basename);
 use POSIX qw(:signal_h pause);
 use Pod::Usage;
@@ -46,17 +45,26 @@ use pf::ConfigStore::SwitchOverlay;
 use pf::ConfigStore::Switch;
 use pf::ConfigStore::Violations;
 use pf::ConfigStore::Wrix;
+use pf::freeradius;
 
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = basename($0);
+our $0 = basename($0);
+
+#Repopulating the radius data
+$pf::ConfigStore::Switch::switches_cached_config->addPostReloadCallbacks(
+    pfcache_on_switches_reload => sub {
+        my ( $config, $name ) = @_;
+        freeradius_populate_nas_config( \%SwitchConfig );
+    },
+);
 
 # log4perl init
 Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
-my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
-Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
-Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
+my $logger = Log::Log4perl->get_logger( basename($0) );
+Log::Log4perl::MDC->put( 'proc', basename($0) );
+Log::Log4perl::MDC->put( 'tid',  $$);
 
 $SIG{HUP} = \&normal_sighandler;
 $SIG{INT} = \&normal_sighandler;
@@ -78,7 +86,7 @@ daemonize() if ($daemonize);
 
 # run the cleanup
 pf::violation_config::readViolationConfigFile();
-cleanup();
+loop();
 
 END {
     if ( !$args{h} ) {
@@ -91,11 +99,11 @@ exit(0);
 
 =head1 SUBROUTINES
 
-=head2 cleanup
+=head2 loop
 
 =cut
 
-sub cleanup {
+sub loop {
     while ($running) {
         pf::config::cached::ReloadConfigs();
         alarm $Config{'general'}{'cache_update_interval'};
