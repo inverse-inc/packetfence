@@ -10,6 +10,7 @@ use strict;
 use warnings;
 
 use Apache2::MPM ();
+use Apache2::RequestRec;
 use Log::Log4perl;
 use ModPerl::Util;
 use threads;
@@ -39,7 +40,14 @@ if (exists($ENV{MOD_PERL})) {
 }
 
 my $server = SOAP::Transport::HTTP::Apache->dispatch_to('PFAPI');
-sub handler { $server->handler(@_) }
+
+sub handler {
+    my ($r) = @_;
+    if (defined($r->headers_in->{Request})) {
+        $r->user($r->headers_in->{Request});
+    }
+    $server->handler($r);
+}
 
 sub log_faults {
     my $logger = Log::Log4perl->get_logger('pf::WebAPI');
