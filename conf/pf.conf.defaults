@@ -40,7 +40,7 @@ maintenance_interval=60s
 # general.cache_update_interval
 #
 # Interval at which Packetfence runs its maintenance tasks.
-cache_update_interval=5s
+cache_update_interval=10s
 #
 # general.memcached
 #
