@@ -49,7 +49,6 @@ sub generate_suricata_conf {
     $tags{'template'}      = "$conf_dir/suricata.yaml";
     $tags{'trapping-range'} = $Config{'trapping'}{'range'};
     $tags{'install_dir'}   = $install_dir;
-    readViolationConfigFile();
 
     my @rules;
     if (exists $Violation_Config{'defaults'}{'snort_rules'}) {
