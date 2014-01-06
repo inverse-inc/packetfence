@@ -24,14 +24,6 @@ has '+name' => ( default => sub { 'radiusd' } );
 
 has '+launcher' => ( default => sub { "sudo %1\$s -d $install_dir/raddb/"} );
 
-sub preStartSetup {
-    my ($self,$quick) = @_;
-    require pf::freeradius;
-    require pf::SwitchFactory;
-    pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig);
-    $self->SUPER::preStartSetup($quick);
-}
-
 sub generateConfig {
     my ($self,$quick) = @_;
     generate_radiusd_conf();
