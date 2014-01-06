@@ -110,6 +110,20 @@ Readonly::Scalar our $ETHERNET => 6;
 
 =back
 
+=head1 RADIUS-related violations
+
+Specific violations IDs related to RADIUS
+
+=over
+
+=item RADIUS Accounting
+
+=cut
+
+Readonly::Scalar our $EXPIRATION_VID => 1200002;
+
+=back
+
 =back
 
 =head1 AUTHOR

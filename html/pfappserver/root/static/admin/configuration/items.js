@@ -1,15 +1,21 @@
 $(function() { // DOM ready
-    var adminroles = new AdminRoles();
-    var view = new AdminRolesView({ adminroles: adminroles, parent: $('#section') });
+    var items = new Items();
+    var view = new ItemView({ items: items, parent: $('#section') });
 });
 
 /*
- * The AdminRoles class defines the operations available from the controller.
+ * The Items class defines the operations available from the controller.
  */
-var AdminRoles = function() {
+var Items = function() {
 };
 
-AdminRoles.prototype.get = function(options) {
+Items.prototype.id = "#items";
+
+Items.prototype.formName = "modalItem";
+
+Items.prototype.modalId = "#modalItem";
+
+Items.prototype.get = function(options) {
     $.ajax({
         url: options.url
     })
@@ -21,7 +27,7 @@ AdminRoles.prototype.get = function(options) {
         });
 };
 
-AdminRoles.prototype.post = function(options) {
+Items.prototype.post = function(options) {
     $.ajax({
         url: options.url,
         type: 'POST',
@@ -36,38 +42,42 @@ AdminRoles.prototype.post = function(options) {
 };
 
 /*
- * The AdminRolesView class defines the DOM operations from the Web interface.
+ * The ItemView class defines the DOM operations from the Web interface.
  */
-var AdminRolesView = function(options) {
-    var that = this;
+var ItemView = function(options) {
     this.parent = options.parent;
-    this.adminroles = options.adminroles;
+    var items = options.items
+    this.items = items;
+    this.disableToggle = false;
+    var id = items.id;
+    var formName = items.formName;
 
-    // Display the adminroles in a modal
-    var read = $.proxy(this.readAdminRoles, this);
-    options.parent.on('click', '#adminroles [href$="/read"], #adminroles [href$="/clone"], #createAdminRoles', read);
+    // Display the switch in a modal
+    var read = $.proxy(this.readItem, this);
+    options.parent.on('click', id + ' [href$="/read"], ' + id + ' [href$="/clone"], #createItem', read);
 
     // Save the modifications from the modal
-    var update = $.proxy(this.updateAdminRoles, this);
-    options.parent.on('submit', 'form[name="modalAdminRoles"]', update);
+    var update = $.proxy(this.updateItem, this);
+    options.parent.on('submit', 'form[name="' + formName + '"]', update);
 
-    // Delete the adminroles
-    var delete_s = $.proxy(this.deleteAdminRoles, this);
-    options.parent.on('click', '#adminroles [href$="/delete"]', delete_s);
-
+    // Delete the switch
+    var delete_item = $.proxy(this.deleteItem, this);
+    options.parent.on('click', id + ' [href$="/delete"]', delete_item);
 };
 
-AdminRolesView.prototype.readAdminRoles = function(e) {
+
+ItemView.prototype.readItem = function(e) {
     e.preventDefault();
 
     var that = this;
-    var modal = $('#modalAdminRoles');
+    var modal = $(this.items.modalId);
     var section = $('#section');
     var loader = section.prev('.loader');
     loader.show();
     section.fadeTo('fast', 0.5);
     modal.empty();
-    this.adminroles.get({
+    $('.chzn-drop').remove(); // fixes a chzn bug with optgroups
+    this.items.get({
         url: $(e.target).attr('href'),
         always: function() {
             loader.hide();
@@ -76,9 +86,10 @@ AdminRolesView.prototype.readAdminRoles = function(e) {
         },
         success: function(data) {
             modal.append(data);
+            modal.find('.chzn-select').chosen();
+            modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
             modal.one('shown', function() {
                 modal.find(':input:visible').first().focus();
-                updateDynamicRowsAfterRemove(modal.find('#actions'));
             });
             modal.modal({ shown: true });
         },
@@ -86,54 +97,61 @@ AdminRolesView.prototype.readAdminRoles = function(e) {
     });
 };
 
-AdminRolesView.prototype.updateAdminRoles = function(e) {
+ItemView.prototype.updateItem = function(e) {
     e.preventDefault();
 
     var that = this;
     var form = $(e.target);
+    var table = $(this.items.id);
+    var btn = form.find('.btn-primary');
     var modal = form.closest('.modal');
     var valid = isFormValid(form);
     if (valid) {
         var modal_body = modal.find('.modal-body').first();
         resetAlert(modal_body);
+        btn.button('loading');
         form.find('tr.hidden :input').attr('disabled', 'disabled');
-        this.adminroles.post({
+        this.items.post({
             url: form.attr('action'),
             data: form.serialize(),
             always: function() {
                 // Restore hidden/template rows
                 form.find('tr.hidden :input').removeAttr('disabled');
+                btn.button('reset');
             },
             success: function(data) {
-                modal.on('hidden', function() {
-                    $('#noRole:visible').addClass('hidden');
-                    $('#adminroles').replaceWith(data);
-                });
-                modal.modal('hide');
+                modal.modal('toggle');
+                showSuccess(table, data.status_msg);
+                that.list();
             },
             errorSibling: modal_body.children().first()
         });
     }
 };
 
-AdminRolesView.prototype.deleteAdminRoles = function(e) {
-    e.preventDefault();
+ItemView.prototype.list = function() {
+    var table = $(this.items.id);
+    this.items.get({
+        url: table.attr('data-list-uri'),
+        success: function(data) {
+            table.html(data);
+        },
+        errorSibling: table
+    });
+};
 
+ItemView.prototype.deleteItem = function(e) {
+    e.preventDefault();
+    var table = $(this.items.id);
     var btn = $(e.target);
     var row = btn.closest('tr');
     var url = btn.attr('href');
-    this.adminroles.get({
+    this.items.get({
         url: url,
         success: function(data) {
-            var table = $('#adminroles');
             showSuccess(table, data.status_msg);
-            row.remove();
-            if (table.find('tbody tr').length == 0) {
-                // No more filters
-                table.addClass('hidden');
-                $('#noRole').removeClass('hidden');
-            }
+            row.fadeOut('slow', function() { $(this).remove(); });
         },
-        errorSibling: $('#adminroles')
+        errorSibling: table
     });
 };

@@ -25,7 +25,6 @@ use pf::services;
 use pf::trigger;
 use pf::authentication;
 use NetAddr::IP;
-use File::Slurp qw(read_file);
 
 use lib $conf_dir;
 
@@ -471,7 +470,7 @@ If some interfaces are configured to run in inline enforcement then these tests 
 
 sub inline {
 
-    my $result = read_file("/proc/sys/net/ipv4/ip_forward");
+    my $result = pf_run("cat /proc/sys/net/ipv4/ip_forward");
     if ($result ne "1\n") {
         add_problem( $WARN,
             "inline mode needs ip_forward enabled to work properly. " .
@@ -813,7 +812,7 @@ sub switches {
                 add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
             }
         # check for valid switch IP
-        if ( !valid_ip($section) ) {
+        unless ( valid_mac_or_ip($section) ) {
             add_problem( $WARN, "switches.conf | Switch IP is invalid for switch $section" );
         }
 
@@ -961,7 +960,7 @@ Make sure only one external authentication source is selected for each type.
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub portal_profiles {
 
-    my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources|redirecturl|always_use_redirecturl)/;
+    my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources|redirecturl|always_use_redirecturl|mandatory_fields)/;
 
     foreach my $portal_profile ( $cached_profiles_config->Sections) {
 

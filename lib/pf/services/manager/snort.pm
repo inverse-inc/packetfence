@@ -15,19 +15,30 @@ use strict;
 use warnings;
 use Moo;
 extends 'pf::services::manager';
-with 'pf::services::manager::roles::is_managed_by_pf_conf';
+with 'pf::services::manager::roles::pf_conf_trapping_engine';
 use pf::file_paths;
 use pf::config;
+use pf::services::snort qw(generate_snort_conf);
 
 has '+name' => ( default => sub { 'snort' } );
 
 has '+launcher' => (
     default => sub {
-        "%1\$s -u pf -c $generated_conf_dir/snort.conf -i $monitor_int " .
+        "%1\$s -u pf -m 0137 -c $generated_conf_dir/snort.conf -i $monitor_int " .
         "-N -D -l $install_dir/var --pid-path $install_dir/var/run"
     },
     lazy => 1
 );
+
+sub generateConfig {
+    generate_snort_conf();
+}
+
+sub pidFile {
+    my ($self) = @_;
+    my $name = $self->name;
+    return "$var_dir/run/${name}_${monitor_int}.pid";
+}
 
 =head1 AUTHOR
 

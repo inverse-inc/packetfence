@@ -1,53 +1,55 @@
 server packetfence {
 
-authorize {
+    authorize {
         suffix
         preprocess
         eap {
-                ok = return
+            ok = return
         }
         files
         expiration
         logintime
-	packetfence
-}
+        packetfence
+    }
 
-authenticate {
+    authenticate {
         Auth-Type MS-CHAP {
-                mschap
+            mschap
         }
         eap
-}
+    }
 
-preacct {
+    preacct {
         preprocess
         acct_unique
         suffix
         files
-}
+    }
 
-accounting {
+    accounting {
         sql
         attr_filter.accounting_response
-}
+        packetfence
+    }
 
-session {
-}
+    session {
+    }
 
-post-auth {
+    post-auth {
         exec
         if (!EAP-Type || (EAP-Type != 21 && EAP-Type != 25)) {
-             packetfence
+            packetfence
         }
         Post-Auth-Type REJECT {
-                attr_filter.access_reject
+            attr_filter.access_reject
         }
-}
+    }
 
-pre-proxy {
-}
+    pre-proxy {
+    }
 
-post-proxy {
+    post-proxy {
         eap
-}
+    }
+
 }

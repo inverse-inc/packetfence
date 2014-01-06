@@ -10,10 +10,10 @@
         'app/pf-bootstrap-swap-class',
         'admin/configuration',
         'admin/searches',
+        'admin/configuration/items',
         'admin/configuration/interfaces',
         'admin/configuration/switches',
         'admin/configuration/floatingdevices',
-        'admin/configuration/adminroles',
         'admin/configuration/authentication',
         'admin/configuration/portal_profile',
         'admin/configuration/violations',
@@ -95,6 +95,7 @@ table.sources {
               [%- IF can_access("PORTAL_PROFILES_READ") %]
               [% list_entry('Portal::Profile', 'index', 'Portal Profiles') %]
               [%- END %]
+              [% list_entry('ConfigStore::Mdm', 'index', 'Mobile Device Management') %]
               [%- IF can_access("ADMIN_ROLES_READ") %]
               [% pf_section_entry('adminroles', 'Admin Access') %]
               [%- END %]
@@ -106,6 +107,7 @@ table.sources {
               [%- IF can_access("SWITCHES_READ") %]
               [% pf_section_entry( 'switches', 'Switches') %]
               [%- END %]
+              [% list_entry('Configuration::Wrix', 'index', 'Wrix') %]
               [%- IF can_access("FLOATING_DEVICES_READ") %]
               [% pf_section_entry( 'floating_devices', 'Floating devices') %]
               [%- END %]

@@ -19,6 +19,8 @@ use UNIVERSAL::require;
 use lib '/usr/local/pf/lib';
 use Test::More;
 use Test::NoWarnings;
+use Test::MockModule;
+use Test::MockObject::Extends;
 
 use TestUtils;
 
@@ -32,6 +34,14 @@ foreach my $networkdevice_class (TestUtils::get_networkdevices_classes()) {
         push(@wireless_devices, $networkdevice_object);
     }
 }
+
+my $mock = new Test::MockModule('pf::roles');
+
+$mock->mock('node_attributes', sub {
+    return { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
+        lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
+        last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''}
+});
 
 # + no warnings
 plan tests => scalar @wireless_devices * 2 + 1;

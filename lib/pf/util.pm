@@ -27,6 +27,7 @@ use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all);
+use Try::Tiny;
 
 our ( %local_mac );
 
@@ -55,12 +56,14 @@ BEGIN {
         generate_id load_oui download_oui
         trim_path format_bytes log_of ordinal_suffix
         untaint_chain read_dir_recursive all_defined
+        valid_mac_or_ip
     );
 }
 
 # TODO pf::util shouldn't rely on pf::config as this prevent pf::config from
 #      being able to use pf::util
 use pf::config;
+use pf::log;
 
 =head1 SUBROUTINES
 
@@ -86,11 +89,13 @@ sub valid_date {
     }
 }
 
+our $VALID_IP_REGEX = qr/^(?:\d{1,3}\.){3}\d{1,3}$/;
+our $NON_VALID_IP_REGEX = qr/^(?:0\.){3}0$/;
+
 sub valid_ip {
     my ($ip) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
-    if ( !$ip || $ip !~ /^(?:\d{1,3}\.){3}\d{1,3}$/ || $ip =~ /^0\.0\.0\.0$/ )
-    {
+    if ( !$ip || $ip !~ $VALID_IP_REGEX || $ip =~ $NON_VALID_IP_REGEX) {
         my $caller = ( caller(1) )[3] || basename($0);
         $caller =~ s/^(pf::\w+|main):://;
         $logger->debug("invalid IP: $ip from $caller");
@@ -144,7 +149,7 @@ Returns an untainted string with MAC in format: xx:xx:xx:xx:xx:xx
 
 sub clean_mac {
     my ($mac) = @_;
-    return if ( !$mac );
+    return (0) if ( !$mac );
 
     # trim garbage
     $mac =~ s/[\s\-\.:]//g;
@@ -207,19 +212,22 @@ Accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxx
 
 =cut
 
+our $VALID_MAC_REGEX = qr/^[0-9a-f:\.-]+$/i;
+our $NON_VALID_MAC_REGEX = qr/^(00|ff)(:\g1){5}$/;
+our $VALID_PF_MAC_REGEX = qr/^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/;
+
 sub valid_mac {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
-    if (! ($mac && $mac =~ /^[0-9a-f:\.-]+$/i)) {
-        $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
+    if ( !defined($mac) ) {
+        return(0);
+    }
+    if ( $mac !~ $VALID_MAC_REGEX) {
+        $logger->debug("invalid MAC: $mac");
         return (0);
     }
     $mac = clean_mac($mac);
-    if (  !$mac
-        || $mac =~ /^ff:ff:ff:ff:ff:ff$/
-        || $mac =~ /^00:00:00:00:00:00$/
-        || $mac !~ /^([0-9a-f]{2}(:|$)){6}$/i )
-    {
+    if( !$mac || $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
         $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
         return (0);
     } else {
@@ -363,6 +371,10 @@ sub mac2oid {
     }
 }
 
+=item pfmailer - send an email
+
+=cut
+
 sub pfmailer {
     my (%data)     = @_;
     my $logger     = Log::Log4perl::get_logger('pf::util');
@@ -391,6 +403,49 @@ sub pfmailer {
         $logger->error("can not connect to SMTP server $smtpserver!");
     }
     return 1;
+}
+
+=item send_email - Send an email using a template
+
+=cut
+
+sub send_email {
+    my ($template, $email, $subject, $data) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::util');
+
+    my $smtpserver = $Config{'alerting'}{'smtpserver'};
+    $data->{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn unless ($data->{'from'});
+
+    my %options;
+    $options{INCLUDE_PATH} = "$conf_dir/templates/";
+
+    try {
+        require MIME::Lite::TT;
+    } catch {
+        $logger->error("Could not send email because I couldn't load a module. ".
+                       "Are you sure you have MIME::Lite::TT installed?");
+        return $FALSE;
+    };
+    my $msg = MIME::Lite::TT->new(
+        From        =>  $data->{'from'},
+        To          =>  $email,
+        Cc          =>  $data->{'cc'} || '',
+        Subject     =>  $subject,
+        Template    =>  "emails-$template.txt.tt",
+        TmplOptions =>  \%options,
+        TmplParams  =>  $data,
+    );
+
+    my $result = 0;
+    try {
+      $msg->send('smtp', $smtpserver, Timeout => 20);
+      $result = $msg->last_send_successful();
+      $logger->info("Email sent to $email ($subject)");
+    } catch {
+      $logger->error("Can't send email to $email: $@");
+    };
+
+    return $result;
 }
 
 =item  isenabled
@@ -1116,6 +1171,18 @@ sub untaint_chain {
         return $1;
     }
 }
+
+sub valid_mac_or_ip {
+    my ($mac_or_ip) = @_;
+    return 1 if($mac_or_ip =~ $VALID_IP_REGEX && $mac_or_ip !~ $NON_VALID_IP_REGEX) ;
+    if ($mac_or_ip !~ $NON_VALID_IP_REGEX && $mac_or_ip =~ $VALID_MAC_REGEX) {
+        my ($mac) = clean_mac($mac_or_ip);
+        return 1 if($mac && $mac !~ $NON_VALID_MAC_REGEX && $mac =~ $VALID_PF_MAC_REGEX);
+    }
+    get_logger()->error("invalid MAC or IP: $mac_or_ip");
+    return 0;
+}
+
 
 =item read_dir_recursive
 

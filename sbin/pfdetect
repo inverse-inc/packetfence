@@ -80,6 +80,7 @@ getopts( 'dhp:', \%args );
 my $daemonize = $args{d};
 my $snortpipe = $args{p};
 my $snortpipe_fh;
+my $portscan_sid = 1200003;
 
 pod2usage( -verbose => 1 ) if ( $args{h} || !$args{p} );
 

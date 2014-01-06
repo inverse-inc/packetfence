@@ -43,6 +43,8 @@ my $portalSession = pf::Portal::Session->new();
 my $cgi = $portalSession->getCgi();
 my $session = $portalSession->getSession();
 
+our @PERSON_FIELDS = grep { $_ ne 'pid' && $_ ne 'notes'  } @pf::person::FIELDS;
+
 # if self registration is not enabled, redirect to portal entrance
 print $cgi->redirect("/captive-portal?destination_url=".uri_escape($portalSession->getDestinationUrl()))
     if ( @{$portalSession->getProfile->getGuestModes} == 0 );
@@ -106,14 +108,8 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
       $info{'category'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ROLE);
 
       # form valid, adding person (using modify in case person already exists)
-      person_modify($pid, (
-          'firstname'   => $session->param("firstname"),
-          'lastname'    => $session->param("lastname"),
-          'company'     => $session->param('company'),
-          'email'       => $email,
-          'telephone'   => $session->param("phone"),
-          'notes'       => 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time),
-      ));
+      my $note = 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
+      _update_person($pid,$session,$note);
 
       # if we are on-site: register the node
       if (!$session->param("preregistration")) {
@@ -176,14 +172,8 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
           # form valid, adding person (using modify in case person already exists)
           $logger->info("Adding guest person " . $session->param('guest_pid') . "(" . $session->param("phone") . ")");
-          person_modify($pid, (
-              'firstname' => $session->param("firstname"),
-              'lastname' => $session->param("lastname"),
-              'company' => $session->param('company'),
-              'email' => $session->param("email"),
-              'telephone' => $phone,
-              'notes' => 'sms confirmation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time),
-          ));
+          my $note = 'sms confirmation Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
+          _update_person($pid,$session,$note);
 
           $logger->info("redirecting to mobile confirmation page");
 
@@ -220,15 +210,8 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
       $info{'pid'} = $pid;
 
       # form valid, adding person (using modify in case person already exists)
-      person_modify($pid, (
-          'firstname' => $session->param("firstname"),
-          'lastname' => $session->param("lastname"),
-          'company' => $session->param('company'),
-          'email' => $email,
-          'telephone' => $session->param("phone"),
-          'sponsor' => $session->param("sponsor"),
-          'notes' => 'sponsored guest. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time)
-      ));
+      my $note = 'sponsored guest. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
+      _update_person($pid,$session,$note);
       $logger->info("Adding guest person " . $session->param('guest_pid'));
 
       my $sponsor_type = pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default;
@@ -299,6 +282,16 @@ else {
 
     # by default, show guest registration page
     pf::web::guest::generate_selfregistration_page($portalSession);
+}
+
+sub _update_person {
+  my ($pid,$session,$note) = @_;
+  my @info = (
+      (map { my $v = $session->param($_); defined $v ? ($_ => $session->param($_)) :() } @PERSON_FIELDS),
+      'telephone'   => $session->param("phone"),
+      'notes'       => $note,
+  );
+  person_modify($pid, @info);
 }
 
 =head1 AUTHOR

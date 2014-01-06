@@ -95,7 +95,7 @@ our %TYPE_TO_SOURCE = (
     'facebook'      => pf::Authentication::Source::FacebookSource->meta->name,
     'google'        => pf::Authentication::Source::GoogleSource->meta->name,
     'github'        => pf::Authentication::Source::GithubSource->meta->name,
-    'null'          => pf::Authentication::Source::NullSource->meta->name
+    'null'          => pf::Authentication::Source::NullSource->meta->name,
 );
 
 our $logger = get_logger();

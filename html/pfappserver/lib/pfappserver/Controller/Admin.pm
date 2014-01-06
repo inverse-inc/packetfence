@@ -16,6 +16,7 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use namespace::autoclean;
 use Moose;
+use pf::admin_roles;
 use pfappserver::Form::SavedSearch;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
@@ -111,14 +112,25 @@ sub logout :Local :Args(0) {
 
 =head2 index
 
-Status
-
 =cut
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
+    my $action;
 
-    $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
+    if (admin_can([$c->user->roles], ('REPORTS')) == 1) {
+        $action = $c->controller('Admin')->action_for('status');
+    }
+    elsif (admin_can([$c->user->roles], ('NODES_READ')) == 1) {
+        $action = $c->controller('Admin')->action_for('nodes');
+    }
+    elsif (admin_can([$c->user->roles], ('USERS_READ')) == 1) {
+        $action = $c->controller('Admin')->action_for('users');
+    }
+    else {
+        $action = $c->controller('Admin')->action_for('configuration');
+    }
+    $c->response->redirect($c->uri_for($action));
 }
 
 =head2 object

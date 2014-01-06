@@ -25,7 +25,11 @@ use List::MoreUtils qw(uniq);
 our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1) or die;
 
 sub chiConfigFromIniFile {
-    my %args;
+    my %args = (
+        defaults => {
+            serializer => 'Storable'
+        }
+    );
     my @keys = uniq map { s/ .*$//; $_; } $chi_config->Sections;
     foreach my $key (@keys) {
         $args{$key} = sectionData($chi_config,$key);

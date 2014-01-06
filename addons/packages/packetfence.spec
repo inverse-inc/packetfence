@@ -214,6 +214,7 @@ Requires: perl(File::Slurp)
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
 Requires: perl(CHI)
+Requires: perl(Data::Serializer)
 Requires: perl(HTML::FormHandler)
 Requires: perl(Cache::Memcached)
 Requires: perl(CHI::Driver::Memcached)
@@ -343,7 +344,7 @@ gcc -g0 src/pfcmd.c -o bin/pfcmd
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/run
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
@@ -434,6 +435,7 @@ ln -s ../sites-available/inner-tunnel inner-tunnel
 ln -s ../sites-available/packetfence packetfence
 ln -s ../sites-available/packetfence-soh packetfence-soh
 ln -s ../sites-available/packetfence-tunnel packetfence-tunnel
+ln -s ../sites-available/dynamic-clients dynamic-clients
 
 cd $curdir
 #end create symlinks
@@ -725,6 +727,7 @@ fi
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
+%config(noreplace)      /usr/local/pf/conf/mdm.conf
 %config(noreplace)      /usr/local/pf/conf/popup.msg
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
@@ -753,13 +756,24 @@ fi
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/captive-portal
 %attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
+                        /usr/local/pf/html/captive-portal/Changes
+                        /usr/local/pf/html/captive-portal/Makefile.PL
+                        /usr/local/pf/html/captive-portal/README
+%config(noreplace)      /usr/local/pf/html/captive-portal/captive_portal.conf
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/responsive.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
+                        /usr/local/pf/html/captive-portal/content/countdown.min.js
                         /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
+%dir                    /usr/local/pf/html/captive-portal/lib
+                        /usr/local/pf/html/captive-portal/lib/*
+%dir                    /usr/local/pf/html/captive-portal/script
+                        /usr/local/pf/html/captive-portal/script/*
+%dir                    /usr/local/pf/html/captive-portal/t
+                        /usr/local/pf/html/captive-portal/t/*
 %dir                    /usr/local/pf/html/captive-portal/templates
 %config(noreplace)      /usr/local/pf/html/captive-portal/templates/*
 %dir                    /usr/local/pf/html/common

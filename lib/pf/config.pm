@@ -63,7 +63,7 @@ our (
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
-    $portscan_sid, $thread, $default_pid, $fqdn,
+    $thread, $default_pid, $fqdn,
     %CAPTIVE_PORTAL,
 
 );
@@ -84,7 +84,7 @@ BEGIN {
         %Config
         %ConfigNetworks %ConfigOAuth
         %ConfigFloatingDevices
-        $portscan_sid $WIPS_VID @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
+        $WIPS_VID @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
@@ -144,7 +144,6 @@ Readonly our @VALID_TRIGGER_TYPES =>
    "vendormac"
   );
 
-$portscan_sid = 1200003;
 $default_pid  = "admin";
 
 Readonly our $WIPS_VID => '1100020';
@@ -478,7 +477,7 @@ sub readPfConfigFiles {
                 $config->toHash(\%Config);
                 $config->cleanupWhitespace(\%Config);
                 #clearing older interfaces infor
-                $monitor_int = $management_network = undef;
+                $monitor_int = $management_network = '';
                 @listen_ints = @dhcplistener_ints = @ha_ints =
                   @internal_nets = @external_nets =
                   @inline_enforcement_nets = @vlan_enforcement_nets = ();
@@ -597,16 +596,20 @@ sub readProfileConfigFile {
     $cached_profiles_config = pf::config::cached->new(
             -file => $profiles_config_file,
             -allowempty => 1,
+            -default => 'default',
             -onreload => [ 'reload_profile_config' => sub {
                 my ($config,$name) = @_;
                 $config->toHash(\%Profiles_Config);
                 $config->cleanupWhitespace(\%Profiles_Config);
+                my $default_description = $Profiles_Config{'default'}{'description'};
                 while (my ($profile_id, $profile) = each %Profiles_Config) {
-                    $profile->{'filter'} = [split(/\s*,\s*/, $profile->{'filter'} || "")];
+                    $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
+                    foreach my $field (qw(mandatory_fields sources filter) ) {
+                        $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || "")];
+                    }
                     foreach my $filter (@{$profile->{'filter'}}) {
                         $Profile_Filters{$filter} = $profile_id;
                     }
-                    $profile->{'sources'} = [split(/\s*,\s*/, $profile->{'sources'} || "")];
                 }
             }]
     );

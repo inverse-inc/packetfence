@@ -832,11 +832,21 @@ sub import_data {
     my $type = $cmd{command}[1];
     my $file = $cmd{command}[2];
     $logger->info("Import requested. Type: $type, file to import: $file");
-
+    my $result;
     if (lc($type) eq 'nodes') {
         pf::import::nodes($file);
+        $result = 1;
+    } elsif (lc($type) eq 'wrix') {
+        require pf::ConfigStore::Wrix;
+        my $config = pf::ConfigStore::Wrix->new;
+        $config->importCsv($file);
+        $result = $config->commit();
     }
-    print "Import process complete\n";
+    if($result) {
+        print "Import process complete\n";
+    } else {
+        print "Error importing $file for $type\n";
+    }
 }
 
 sub interfaceconfig {
@@ -1173,9 +1183,9 @@ sub service {
     $SERVICE_HEADER ="service|command\n";
     $IS_INTERACTIVE = is_interactive();
     $RESET_COLOR =  $IS_INTERACTIVE ? color 'reset' : '';
-    $WARNING_COLOR =  $IS_INTERACTIVE ? color 'yellow' : '';
-    $ERROR_COLOR =  $IS_INTERACTIVE ? color 'red' : '';
-    $SUCCESS_COLOR =  $IS_INTERACTIVE ? color 'green' : '';
+    $WARNING_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_warning_color} : '';
+    $ERROR_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_error_color} : '';
+    $SUCCESS_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_success_color} : '';
 
     my $actionHandler;
     $action =~ /^(.*)$/;

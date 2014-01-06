@@ -65,20 +65,23 @@ Prepares all the SQL statements related to this module
 sub freeradius_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
     $logger->debug("Preparing pf::freeradius database queries");
+    my $dbh = get_db_handle();
+    if($dbh) {
 
-    $freeradius_statements->{'freeradius_delete_all_sql'} = get_db_handle()->prepare(qq[
-        DELETE FROM radius_nas
-    ]);
+        $freeradius_statements->{'freeradius_delete_all_sql'} = $dbh->prepare(qq[
+            DELETE FROM radius_nas
+        ]);
 
-    $freeradius_statements->{'freeradius_insert_nas'} = get_db_handle()->prepare(qq[
-        INSERT INTO radius_nas (
-            nasname, shortname, secret, description
-        ) VALUES (
-            ?, ?, ?, ?
-        )
-    ]);
+        $freeradius_statements->{'freeradius_insert_nas'} = $dbh->prepare(qq[
+            INSERT INTO radius_nas (
+                nasname, shortname, secret, description
+            ) VALUES (
+                ?, ?, ?, ?
+            )
+        ]);
 
-    $freeradius_db_prepared = 1;
+        $freeradius_db_prepared = 1;
+    }
 }
 
 =item _delete_all_nas

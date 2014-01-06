@@ -12,7 +12,7 @@ RADIUS related functions necessary to send, receive and understand RADIUS packet
 
 RFC2882 Network Access Servers Requirements: Extended RADIUS Practices
 
-  Disconnect-Request 
+  Disconnect-Request
   Disconnect-ACK
   Disconnect-NAK
 
@@ -72,7 +72,7 @@ $vsa (vendor specific attributes) is an arrayref like this:
 
   { attribute => $attribute_name, vendor => $vendor_name, value => $value }
 
-Returns an hashref with 
+Returns an hashref with
 
   Code => RADIUS reply code
 
@@ -85,8 +85,8 @@ for every attribute returned.
 =cut
 
 # TODO Proper handling of multiple identical attributes could be done like Net::SNMP
-# ex: perform_dynauth( 
-#         { nas_ip => 127.0.0.1, secret => qwerty }, 
+# ex: perform_dynauth(
+#         { nas_ip => 127.0.0.1, secret => qwerty },
 #         'Disconnect-Message',
 #         [ Attribute1 => Value1,
 #           Attribute2 => Value2, ],
@@ -104,8 +104,8 @@ sub perform_dynauth {
 
     # Warning: original code had Reuse => 1 (Note: Reuse is deprecated in favor of ReuseAddr)
     my $socket = IO::Socket::INET->new(
-        LocalAddr => $connection_info->{'LocalAddr'}, 
-        PeerAddr => $connection_info->{'nas_ip'}, 
+        LocalAddr => $connection_info->{'LocalAddr'},
+        PeerAddr => $connection_info->{'nas_ip'},
         PeerPort => $connection_info->{'nas_port'},
         Proto => 'udp',
     ) or die ("Couldn't create UDP connection: $@");
@@ -120,6 +120,7 @@ sub perform_dynauth {
     # pushing attributes
     # TODO deal with attribute merging
     foreach my $attr (keys %$attributes) {
+        next unless defined $attributes->{$attr};
         $radius_request->set_attr($attr, $attributes->{$attr});
     }
 
@@ -132,8 +133,8 @@ sub perform_dynauth {
     # applying shared-secret signing then send
     $socket->send(auth_resp($radius_request->pack(), $connection_info->{'secret'}));
 
-    # Listen for the response. 
-    # Using IO::Select because otherwise we can't do timeout without using alarm() 
+    # Listen for the response.
+    # Using IO::Select because otherwise we can't do timeout without using alarm()
     # and signals don't play nice with threads
     my $select = IO::Select->new($socket);
     while (1) {
@@ -142,14 +143,14 @@ sub perform_dynauth {
             my $rad_data;
             my $MAX_TO_READ = 2048;
             die("No answer from $connection_info->{'nas_ip'} on port $connection_info->{'nas_port'}")
-                if (!$socket->recv($rad_data, $MAX_TO_READ)); 
+                if (!$socket->recv($rad_data, $MAX_TO_READ));
 
             my $radius_reply = Net::Radius::Packet->new($dictionary, $rad_data);
             # identifies if the reply is related to the request? damn you udp...
-            if ($radius_reply->identifier() != $radius_request->identifier()) { 
+            if ($radius_reply->identifier() != $radius_request->identifier()) {
                 die("Received an invalid RADIUS packet identifier: " . $radius_reply->identifier());
             }
-    
+
             my %return = ( 'Code' => $radius_reply->code() );
             # TODO deal with attribute merging
             # TODO deal with vsa attributes merging
@@ -183,7 +184,7 @@ $vsa (vendor specific attributes) is an arrayref like this:
 
   { attribute => $attribute_name, vendor => $vendor_name, value => $value }
 
-Returns an hashref with 
+Returns an hashref with
 
   Code => RADIUS reply code
 
@@ -221,7 +222,7 @@ $vsa (vendor specific attributes) is an arrayref like this:
 
   { attribute => $attribute_name, vendor => $vendor_name, value => $value }
 
-Returns an hashref with 
+Returns an hashref with
 
   Code => RADIUS reply code
 
