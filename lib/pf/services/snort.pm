@@ -46,7 +46,6 @@ BEGIN {
 sub generate_snort_conf {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my %tags;
-    readViolationConfigFile();
     $tags{'template'}      = "$conf_dir/snort.conf";
     $tags{'trapping-range'} = $Config{'trapping'}{'range'};
     $tags{'dhcp_servers'}  = $Config{'general'}{'dhcpservers'};
