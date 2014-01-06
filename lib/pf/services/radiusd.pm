@@ -60,11 +60,6 @@ sub generate_radiusd_conf {
     generate_radiusd_eapconf();
     generate_radiusd_sqlconf();
 
-    #Build the nas table for RADIUS
-    require pf::freeradius;
-    require pf::ConfigStore::SwitchOverlay;
-    pf::freeradius::freeradius_populate_nas_config(\%pf::ConfigStore::SwitchOverlay::SwitchConfig);
-
     return 1;
 }
 
