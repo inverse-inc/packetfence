@@ -32,7 +32,6 @@ $switches_cached_config = pf::config::cached->new(
         on_switches_reload => sub {
             my ( $config, $name ) = @_;
             populateSwitchConfig( $config, $name );
-            freeradius_populate_nas_config( \%SwitchConfig );
         },
     ],
     -oncachereload => [
