@@ -92,18 +92,6 @@ sub get_service_manager {
     return $sm;
 }
 
-=head2 read_violations_conf
-
-reload the violation config
-
-=cut
-
-sub read_violations_conf {
-    require pf::violation_config;
-    pf::violation_config::readViolationConfigFile();
-    return 1;
-}
-
 =head2 _make_service_manager_module_name
 
 make the service manager module name
