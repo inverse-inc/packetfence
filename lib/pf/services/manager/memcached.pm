@@ -25,6 +25,8 @@ has '+launcher' => (default => sub { "%1\$s -d -p 11211 -u pf -m 64 -c 1024 -P $
 
 has '+shouldCheckup' => ( default => sub { 0 }  );
 
+has '+dependsOnServices' => (is => 'ro', default => sub { [] } );
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
