@@ -23,6 +23,8 @@ has '+launcher' => (default => sub { '%1$s -d' } );
 
 has '+shouldCheckup' => ( default => sub { 0 }  );
 
+has '+dependsOnServices' => (is => 'ro', default => sub { [qw(memcached)] } );
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
