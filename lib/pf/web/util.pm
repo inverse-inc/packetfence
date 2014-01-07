@@ -303,12 +303,16 @@ generate or retreive an apache session
 =cut
 
 sub session {
-    my ($session, $id) = @_;
+    my ($session, $id, $idlength) = @_;
+    if (!defined($idlength)) {
+        $idlength = 32;
+    }
     eval {
         tie %{$session}, 'Apache::Session::Flex', $id, {
                           Store => 'Memcached',
                           Lock => 'Null',
                           Generate => 'MD5',
+                          IDLength => $idlength,
                           Serialize => 'Storable',
                           Servers => get_memcached_conf(),
                           };

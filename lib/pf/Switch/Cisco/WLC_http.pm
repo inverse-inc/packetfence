@@ -221,7 +221,7 @@ sub returnRadiusAccessAccept {
         # Roles are configured and the user should have one
         if (defined($user_role)) {
             my (%session_id);
-            pf::web::util::session(\%session_id);
+            pf::web::util::session(\%session_id,undef,6);
             $session_id{client_mac} = $mac;
             $session_id{wlan} = $ssid;
             $session_id{switch} = \$this;
@@ -338,17 +338,17 @@ sub radiusDisconnect {
             my $vsa = [
                 {
                 vendor => "Cisco",
-                attribute => "Cisco-AVPair",
+                attribute => "Cisco:AVPair",
                 value => "audit-session-id=$acctsessionid",
                 },
                 {
                 vendor => "Cisco",
-                attribute => "Cisco-AVPair",
+                attribute => "Cisco:AVPair",
                 value => "subscriber:command=reauthenticate",
                 },
                 {
                 vendor => "Cisco",
-                attribute => "Cisco-AVPair",
+                attribute => "Cisco:AVPair",
                 value => "subscriber:reauthenticate-type=last",
                 }
             ];
