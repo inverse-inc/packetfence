@@ -70,7 +70,7 @@ sub freeradius_db_prepare {
     if($dbh) {
 
         $freeradius_statements->{'freeradius_delete_all_sql'} = $dbh->prepare(qq[
-            DELETE FROM radius_nas
+            TRUNCATE TABLE radius_nas
         ]);
 
         $freeradius_statements->{'freeradius_insert_nas'} = $dbh->prepare(qq[
