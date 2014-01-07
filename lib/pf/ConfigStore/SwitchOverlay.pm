@@ -35,12 +35,12 @@ $switches_overlay_cached_config = pf::config::cached->new(
     -oncachereload => [
         on_cached_overlay_reload => sub  {
             my ($config, $name) = @_;
-            my $data = $config->fromCacheUntainted("SwitchConfig");
+            my $data = $config->fromCacheForDataUntainted("SwitchConfig");
             if($data) {
                 %SwitchConfig = %$data;
             } else {
                 #if not found then repopulate switch
-                $config->doCallbacks(1,0);
+                $config->_callFileReloadCallbacks();
             }
         },
     ]
@@ -56,7 +56,7 @@ sub overlaySwitchConfig {
             $switch->{$key} = $config->val($switchId,$key);
         }
     }
-    $config->cache->set( "SwitchConfig", \%SwitchConfig );
+    $config->cacheForData->set( "SwitchConfig", \%SwitchConfig );
 }
 
 =head1 METHODS
