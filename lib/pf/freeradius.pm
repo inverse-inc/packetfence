@@ -25,6 +25,7 @@ use warnings;
 use Carp;
 use Log::Log4perl;
 use Readonly;
+use List::MoreUtils qw(natatime);
 
 use constant FREERADIUS => 'freeradius';
 use constant SWITCHES_CONF => '/switches.conf';
@@ -99,6 +100,26 @@ sub _delete_all_nas {
     return 1;
 }
 
+=item _insert_nas_bulk
+
+Add a new NAS (FreeRADIUS client) record
+
+=cut
+
+sub _insert_nas_bulk {
+    my (@rows) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::freeradius');
+    return 0 unless @rows;
+    my $row_count = @rows;
+    my $sql = "INSERT INTO radius_nas ( nasname, shortname, secret, description) VALUES ( ?, ?, ?, ?)" . ",( ?, ?, ?, ?)" x ($row_count -1)    ;
+    $freeradius_statements->{'freeradius_insert_nas_bulk'} = $sql;
+
+    db_query_execute(
+        FREERADIUS, $freeradius_statements, 'freeradius_insert_nas_bulk', map  { @$_ } @rows
+    ) || return 0;
+    return 1;
+}
+
 =item _insert_nas
 
 Add a new NAS (FreeRADIUS client) record
@@ -138,11 +159,14 @@ sub freeradius_populate_nas_config {
     if (!_delete_all_nas()) {
         $logger->info("Problem emptying FreeRADIUS nas clients table.");
     }
-
-    foreach my $switch (@switches) {
-        my $sw_radiussecret = $switch_config->{$switch}{'radiusSecret'};
+    my $it = natatime 100,@switches;
+    while (my @ids = $it->() ) {
+        my @rows = map {
+            my $data = $switch_config->{$_};
+            [ $_, $_, $data->{radiusSecret}, $_ . " (" . $data->{'type'} .")"  ]
+        } @ids;
         # insert NAS
-        _insert_nas( $switch, $switch, $sw_radiussecret, $switch . " (" . $switch_config->{$switch}{'type'} .")");
+        _insert_nas_bulk( @rows );
     }
 }
 
