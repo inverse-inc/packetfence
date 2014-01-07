@@ -26,7 +26,6 @@ use constant INSTALL_DIR => '/usr/local/pf';
 
 use lib INSTALL_DIR . "/lib";
 
-
 #$thread=1;
 
 use pf::config;
@@ -46,13 +45,38 @@ use pf::ConfigStore::Switch;
 use pf::ConfigStore::Violations;
 use pf::ConfigStore::Wrix;
 use pf::freeradius;
+use pf::violation_config;
 
 # initialization
 # --------------
 # assign process name (see #1464)
 our $0 = basename($0);
 
-#Repopulating the radius data
+# log4perl init
+Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf",
+    $LOG4PERL_RELOAD_TIMER );
+my $logger = Log::Log4perl->get_logger( basename($0) );
+Log::Log4perl::MDC->put( 'proc', basename($0) );
+Log::Log4perl::MDC->put( 'tid',  $$ );
+
+$SIG{HUP}  = \&normal_sighandler;
+$SIG{INT}  = \&normal_sighandler;
+$SIG{TERM} = \&normal_sighandler;
+$SIG{ALRM} = sub { };
+
+my %args;
+getopts( 'dhvr', \%args );
+
+pod2usage( -verbose => 1, -exit => 0 ) if ( $args{h} );
+
+my $daemonize = $args{d};
+my $verbose   = $args{v};
+my $restart   = $args{r};
+our $running = 1;
+
+#Repopulating the radius data on startup
+freeradius_populate_nas_config( \%SwitchConfig );
+#Repoluating data on the file or cache has changed
 $pf::ConfigStore::Switch::switches_cached_config->addPostReloadCallbacks(
     pfcache_on_switches_reload => sub {
         my ( $config, $name ) = @_;
@@ -60,32 +84,16 @@ $pf::ConfigStore::Switch::switches_cached_config->addPostReloadCallbacks(
     },
 );
 
-# log4perl init
-Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
-my $logger = Log::Log4perl->get_logger( basename($0) );
-Log::Log4perl::MDC->put( 'proc', basename($0) );
-Log::Log4perl::MDC->put( 'tid',  $$);
-
-$SIG{HUP} = \&normal_sighandler;
-$SIG{INT} = \&normal_sighandler;
-$SIG{TERM} = \&normal_sighandler;
-$SIG{ALRM} = sub {};
-
-my %args;
-getopts( 'dhvr', \%args );
-
-pod2usage( -verbose => 1 ) if ( $args{h} );
-
-my $daemonize = $args{d};
-my $verbose   = $args{v};
-my $restart   = $args{r};
-our $running = 1;
+#Repopulating the violation data on startup
+pf::violation_config::loadViolationsIntoDb();
+#Repoluating data on the file or cache has changed
+$pf::violation_config::cached_violations_config->addPostReloadCallbacks(
+    pfcache_on_violations_postreload =>
+      \&pf::violation_config::loadViolationsIntoDb );
 
 # standard signals and daemonize
 daemonize() if ($daemonize);
 
-# run the cleanup
-pf::violation_config::readViolationConfigFile();
 loop();
 
 END {
@@ -114,15 +122,17 @@ sub loop {
 sub daemonize {
     chdir '/' or $logger->logdie("Can't chdir to /: $!");
     open STDIN, '<', '/dev/null'
-        or $logger->logdie("Can't read /dev/null: $!");
-    my ($login,$pass,$uid,$gid) = getpwnam('pf')
-        or die "pf not in passwd file";
+      or $logger->logdie("Can't read /dev/null: $!");
+    my ( $login, $pass, $uid, $gid ) = getpwnam('pf')
+      or die "pf not in passwd file";
     my $log_file = "$install_dir/logs/pfcache";
     open STDOUT, '>>', "$log_file"
-        or $logger->logdie("Can't write to $log_file: $!");
+      or $logger->logdie("Can't write to $log_file: $!");
     chown $uid, $gid, $log_file;
-    defined( my $pid = fork ) or $logger->logdie("pfcache could not fork: $!");
+    defined( my $pid = fork )
+      or $logger->logdie("pfcache could not fork: $!");
     POSIX::_exit(0) if ($pid);
+
     if ( !POSIX::setsid() ) {
         $logger->error("could not start a new session: $!");
     }
