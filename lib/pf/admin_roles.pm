@@ -116,7 +116,7 @@ sub reloadConfig {
     }
     $ADMIN_ROLES{NONE} = {};
     $ADMIN_ROLES{ALL} = { map {$_ => undef} @ADMIN_ACTIONS };
-    $config->cache->set("ADMIN_ROLES", \%ADMIN_ROLES);
+    $config->cacheForData->set("ADMIN_ROLES", \%ADMIN_ROLES);
 }
 
 our $cached_adminroles_config = pf::config::cached->new(
@@ -128,7 +128,7 @@ our $cached_adminroles_config = pf::config::cached->new(
     -oncachereload => [
         cache_reload_violation_config => sub {
             my ($config,$name) = @_;
-            my $data = $config->cache->get("ADMIN_ROLES");
+            my $data = $config->fromCacheForDataUntainted("ADMIN_ROLES");
             if ($data) {
                 %ADMIN_ROLES = %$data;
             } else {
