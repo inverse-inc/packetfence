@@ -461,11 +461,25 @@ sub readPfConfigFiles {
     # load default and override by local config (most common case)
     $cached_pf_default_config = pf::config::cached->new(
                 -file => $default_config_file,
-                -onreload => [ 'reload_pf_default_config' =>  sub {
-                    my ($config) = @_;
-                    $config->toHash(\%Default_Config);
-                    $config->cleanupWhitespace(\%Default_Config);
-                }]
+                -onfilereload => [
+                    onfile_pf_defaults_reload => sub {
+                        my ( $config, $name ) = @_;
+                        $config->toHash(\%Default_Config);
+                        $config->cleanupWhitespace(\%Default_Config);
+                        $config->cacheForData->set( "Default_Config", \%Default_Config );
+                    },
+                ],
+                -oncachereload => [
+                    oncache_pf_defaults_reload => sub {
+                        my ( $config, $name ) = @_;
+                        my $data = $config->fromCacheForDataUntainted("Default_Config");
+                        if($data) {
+                            %Default_Config = %$data;
+                        } else {
+                            $config->_callFileReloadCallbacks();
+                        }
+                    },
+                ],
     );
 
     if ( -e $default_config_file || -e $config_file ) {
@@ -473,10 +487,27 @@ sub readPfConfigFiles {
             -file   => $config_file,
             -import => $cached_pf_default_config,
             -allowempty => 1,
-            -onreload => [ 'reload_pf_config' =>  sub {
+            -onfilereload => [
+                onfile_pf_reload => sub {
+                    my ( $config, $name ) = @_;
+                    $config->toHash(\%Config);
+                    $config->cleanupWhitespace(\%Config);
+                    $config->cacheForData->set( "Config", \%Config );
+                },
+            ],
+            -oncachereload => [
+                oncache_pf_defaults_reload => sub {
+                    my ( $config, $name ) = @_;
+                    my $data = $config->fromCacheForDataUntainted("Config");
+                    if($data) {
+                        %Config = %$data;
+                    } else {
+                        $config->_callFileReloadCallbacks();
+                    }
+                },
+            ],
+            -onpostreload => [ 'reload_pf_config' =>  sub {
                 my ($config) = @_;
-                $config->toHash(\%Config);
-                $config->cleanupWhitespace(\%Config);
                 #clearing older interfaces infor
                 $monitor_int = $management_network = undef;
                 @listen_ints = @dhcplistener_ints = @ha_ints =
