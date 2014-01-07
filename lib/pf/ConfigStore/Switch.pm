@@ -37,7 +37,7 @@ $switches_cached_config = pf::config::cached->new(
     -oncachereload => [
         on_cached_overlay_reload => sub {
             my ( $config, $name ) = @_;
-            unless ( $config->cache->is_valid("SwitchConfig") ) {
+            unless ( $config->cacheForData->is_valid("SwitchConfig") ) {
                 #if not found then repopulate switch
                 populateSwitchConfig( $config, $name );
             }
