@@ -222,7 +222,7 @@ sub readAuthenticationConfigFile {
                         @authentication_sources = @$authentication_sources_ref;
                         %authentication_lookup = map { $_->id => $_ } @authentication_sources;
                     } else {
-                        $config->doCallbacks(1,0);
+                        $config->_callFileReloadCallbacks();
                     }
                 },
             ],

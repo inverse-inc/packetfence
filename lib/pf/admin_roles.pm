@@ -132,7 +132,7 @@ our $cached_adminroles_config = pf::config::cached->new(
             if ($data) {
                 %ADMIN_ROLES = %$data;
             } else {
-                $config->doCallbacks(1,0);
+                $config->_callFileReloadCallbacks();
             }
         }
     ],
