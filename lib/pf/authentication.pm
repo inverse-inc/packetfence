@@ -212,12 +212,12 @@ sub readAuthenticationConfigFile {
                     push(@authentication_sources, $current_source);
                     $authentication_lookup{$source_id} = $current_source;
                 }
-                $config->cache->set("authentication_sources",\@authentication_sources);
+                $config->cacheForData->set("authentication_sources",\@authentication_sources);
             }],
             -oncachereload => [
                 on_cache_authentication_reload => sub {
                     my ($config, $name) = @_;
-                    my $authentication_sources_ref = $config->fromCacheUntainted("authentication_sources");
+                    my $authentication_sources_ref = $config->fromCacheForDataUntainted("authentication_sources");
                     if( defined($authentication_sources_ref) ) {
                         @authentication_sources = @$authentication_sources_ref;
                         %authentication_lookup = map { $_->id => $_ } @authentication_sources;
