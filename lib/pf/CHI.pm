@@ -28,7 +28,8 @@ sub chiConfigFromIniFile {
     my %args = (
         defaults => {
             serializer => 'Storable'
-        }
+        },
+        memoize_cache_objects => 1,
     );
     my @keys = uniq map { s/ .*$//; $_; } $chi_config->Sections;
     foreach my $key (@keys) {
