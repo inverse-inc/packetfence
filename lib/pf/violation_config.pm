@@ -101,7 +101,7 @@ $cached_violations_config = pf::config::cached->new(
             if($data) {
                 %Violation_Config = %$data;
             } else {
-                $config->doCallbacks(1,0);
+                $config->_callFileReloadCallbacks();
             }
         }
     ],
