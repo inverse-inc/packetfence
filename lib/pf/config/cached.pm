@@ -349,51 +349,33 @@ sub new {
     my $onCacheReload = delete $params{'-oncachereload'} || [];
     my $onPostReload = delete $params{'-onpostreload'} || [];
     my $reload_onfile;
-    if($file) {
-        $self = first { $_->GetFileName eq $file} @LOADED_CONFIGS;
-        if( defined $self) {
-            #Adding the reload and filereload callbacks
-            $self->addReloadCallbacks(@$onReload) if @$onReload;
-            $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
-            $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
-            $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
-            #Rereading the config to ensure the latest version
-            $self->ReadConfig();
-        } else {
-            delete $params{'-file'} unless -e $file;
-            $config = $class->computeFromPath(
-                $file,
-                sub {
-                    my $lock = lockFileForReading($file);
-                    my $config = pf::IniFiles->new(%params);
-                    die "$file cannot be loaded" unless $config;
-                    $config->SetFileName($file);
-                    $config->SetWriteMode($WRITE_PERMISSIONS);
-                    my $mode = oct($config->GetWriteMode);
-                    chmod $mode, $file;
-                    $reload_onfile = 1;
-                    return $config;
-                }
-            );
+    die "param -file missing or empty" unless $file;
+    delete $params{'-file'} unless -e $file;
+    $config = $class->computeFromPath(
+        $file,
+        sub {
+            my $lock = lockFileForReading($file);
+            my $config = pf::IniFiles->new(%params);
+            die "$file cannot be loaded" unless $config;
+            $config->SetFileName($file);
+            $config->SetWriteMode($WRITE_PERMISSIONS);
+            $reload_onfile = 1;
+            return $config;
         }
-    } else {
-        die "param -file missing or empty";
-    }
-    if ($config) {
-        untaint($config) unless $reload_onfile;
-        $self = \$config;
-        $ON_RELOAD{$file} = [];
-        $ON_FILE_RELOAD{$file} = [];
-        $ON_CACHE_RELOAD{$file} = [];
-        $ON_POST_RELOAD{$file} = [];
-        bless $self,$class;
-        push @LOADED_CONFIGS, $self;
-        $self->addReloadCallbacks(@$onReload) if @$onReload;
-        $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
-        $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
-        $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
-        $self->doCallbacks($reload_onfile,!$reload_onfile);
-    }
+    );
+    untaint($config) unless $reload_onfile;
+    $self = \$config;
+    $ON_RELOAD{$file} = [];
+    $ON_FILE_RELOAD{$file} = [];
+    $ON_CACHE_RELOAD{$file} = [];
+    $ON_POST_RELOAD{$file} = [];
+    bless $self,$class;
+    push @LOADED_CONFIGS, $self;
+    $self->addReloadCallbacks(@$onReload) if @$onReload;
+    $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
+    $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
+    $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
+    $self->doCallbacks($reload_onfile,!$reload_onfile);
     return $self;
 }
 
@@ -529,13 +511,13 @@ sub _callPostReloadCallbacks {
 }
 
 sub doCallbacks {
-    my ($self,$file_reloaded,$cache_reloaded) = @_;
+    my ($self,$file_reloaded,$cache_reloaded,$skipPrePostReload) = @_;
     if($file_reloaded || $cache_reloaded) {
-        get_logger()->trace("doing callbacks file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
-        $self->_callReloadCallbacks;
+        get_logger()->trace("doing callbacks for " . $self->GetFileName . " file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
+        $self->_callReloadCallbacks unless $skipPrePostReload;
         $self->_callFileReloadCallbacks if $file_reloaded;
         $self->_callCacheReloadCallbacks if $cache_reloaded;
-        $self->_callPostReloadCallbacks;
+        $self->_callPostReloadCallbacks unless $skipPrePostReload;
     }
 }
 
@@ -743,26 +725,22 @@ sub computeFromPath {
 
 =head2 cache
 
-Get the global CHI object
+Get the global CHI object for configfiles
 
 =cut
 
 sub cache {
-    my ($self) = @_;
-    unless (defined($CACHE)) {
-        $CACHE = $self->_cache();
-    }
-    return $CACHE;
+    return pf::CHI->new(namespace => 'configfiles' );
 }
 
-=head2 _cache
+=head2 cacheForData
 
-Builds the CHI object
+Get the global CHI object for configfilesdata
 
 =cut
 
-sub _cache {
-    return pf::CHI->new(namespace => 'configfiles' );
+sub cacheForData {
+    return pf::CHI->new(namespace => 'configfilesdata' );
 }
 
 =head2 RefreshConfigs
@@ -947,8 +925,13 @@ sub toHash {
 
 sub fromCacheUntainted {
     my ($self, $key) = @_;
-    $self->removeFromSubcaches($key);
+#    $self->removeFromSubcaches($key);
     return untaint($self->cache->get($key));
+}
+
+sub fromCacheForDataUntainted {
+    my ($self, $key) = @_;
+    return untaint($self->cacheForData->get($key));
 }
 
 sub removeFromSubcaches {
@@ -956,7 +939,6 @@ sub removeFromSubcaches {
     my $cache = $self->cache;
     if($cache->has_subcaches) {
         get_logger->trace("Removing from subcache");
-        $cache->l1_cache->expire($key);
         $cache->l1_cache->remove($key);
     }
 }
