@@ -41,21 +41,21 @@ sub assign {
     $db = $dbHandler->quote_identifier($db);
 
     # Create global PF user
-    my $sql_query = "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES ON $db.* TO ?\@'%' IDENTIFIED BY ?";
-    $dbHandler->do($sql_query, undef, $user, $password);
-    if ( $DBI::errstr ) {
-        $status_msg = "Error creating the user $user on database $db";
-        $logger->warn("$DBI::errstr");
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-    }
-
-    # Create localhost PF user
-    $sql_query = "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES ON $db.* TO ?\@localhost IDENTIFIED BY ?";
-    $dbHandler->do($sql_query, undef, $user, $password);
-    if ( $DBI::errstr ) {
-        $status_msg = ["Error creating the user [_1] on database [_2]",$user,$db];
-        $logger->warn("$DBI::errstr");
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    foreach my $host ("'%'","localhost") {
+        my $sql_query = "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES ON $db.* TO ?\@${host} IDENTIFIED BY ?";
+        $dbHandler->do($sql_query, undef, $user, $password);
+        if ( $DBI::errstr ) {
+            $status_msg = "Error creating the user $user on database $db";
+            $logger->warn("$DBI::errstr");
+            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        }
+        my $sql_query = "GRANT DROP ON $db.radius_nas TO ?\@${host} IDENTIFIED BY ?";
+        $dbHandler->do($sql_query, undef, $user, $password);
+        if ( $DBI::errstr ) {
+            $status_msg = "Error creating the user $user on database $db";
+            $logger->warn("$DBI::errstr");
+            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        }
     }
 
     # Apply the new privileges
