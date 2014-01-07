@@ -34,7 +34,7 @@ pfcmd <command> [options]
  nodecategory                | nodecategory manipulation
  nodeuseragent               | View User-Agent information associated to a node
  person                      | person manipulation
- reload                      | rebuild fingerprint or violations tables without restart
+ reload                      | rebuild fingerprints without restart
  report                      | current usage reports
  schedule                    | Nessus scan scheduling
  service                     | start/stop/restart and get PF daemon status
@@ -1750,11 +1750,6 @@ sub reload {
         my $fp_total = pf::os::import_dhcp_fingerprints({ force => $TRUE });
         $logger->info("$fp_total DHCP fingerprints reloaded");
         print "$fp_total DHCP fingerprints reloaded\n";
-    } elsif ( $option eq "violations" ) {
-        require pf::services;
-        pf::services::read_violations_conf();
-        $logger->info("Violation classes reloaded");
-        print "Violation classes reloaded\n";
     }
     exit;
 }
