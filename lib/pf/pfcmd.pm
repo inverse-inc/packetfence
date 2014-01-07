@@ -275,7 +275,7 @@ sub parseCommandLine {
                                        ( all ) | $pid_re
                                    )
                                  $ }xms,
-        'reload'          => qr{ ^ ( fingerprints | violations ) $  }xms,
+        'reload'          => qr{ ^ ( fingerprints ) $  }xms,
         'report'          => qr{ ^ (?: #for grouping only
                                      ( active | inactive | openviolations
                                        | os | osclass | registered | statics | ssid
