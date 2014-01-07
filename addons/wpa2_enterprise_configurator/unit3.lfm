@@ -1,7 +1,7 @@
 object Form3: TForm3
-  Left = 641
+  Left = 540
   Height = 147
-  Top = 321
+  Top = 295
   Width = 422
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
@@ -237,7 +237,7 @@ object Form3: TForm3
     F2C1C5253E34A442F91F1F040084233143344B793DF078E081879B8FFF07EA76
     93E8B2DB38510000000049454E44AE426082
   }
-  LCLVersion = '1.0.1.3'
+  LCLVersion = '1.0.14.0'
   object Fermer: TButton
     Left = 320
     Height = 24
