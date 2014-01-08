@@ -4,10 +4,14 @@
 *.local
 .#*
 
+# Configuration git
+.gitignore
+.gitconfig
 # Configuration not in git
 conf/admin.conf
 conf/httpd.conf
 conf/named.conf
+conf/networks.conf
 conf/pf.conf
 conf/*.lock
 conf/nessus/

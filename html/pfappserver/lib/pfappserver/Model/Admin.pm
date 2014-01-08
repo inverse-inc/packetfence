@@ -53,7 +53,6 @@ Example of first line
 =cut
 
 sub fingerbank_version {
-    # TODO : Move the code in a better place
     my ($filehandler, $line, $version);
     open( $filehandler, '<', "$conf_dir/dhcp_fingerprints.conf" )
         || print "Unable to open $conf_dir/dhcp_fingerprints.conf: $!";
