@@ -80,7 +80,7 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
 
-    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id) = $switch->parseRequest($radius_request);
+    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
 
     $logger->trace("received a radius authorization request with parameters: ".
         "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
@@ -107,6 +107,10 @@ sub authorize {
 
     # There is activity from that mac, call node wakeup
     node_mac_wakeup($mac);
+
+    if (defined($session_id)) {
+         node_modify($mac, ('sessionid' => $session_id));
+    }
 
     my $switch_id =  $switch->{_id};
 
