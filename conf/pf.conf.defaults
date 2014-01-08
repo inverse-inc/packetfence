@@ -477,6 +477,16 @@ arp_binary=/sbin/arp
 # 
 # Location of the memcached binary. Only necessary to change if you are not running the pre-packaged version.
 memcached_binary=/usr/bin/memcached
+# 
+# services.memcached_memory_usage
+# 
+# The maximum of memory that memcached will use
+memcached_memory_usage=64
+# 
+# services.memcached_max_item_size
+# 
+# The maximum of size of the items allowed to be stored
+memcached_max_item_size=1M
 
 [vlan]
 #
