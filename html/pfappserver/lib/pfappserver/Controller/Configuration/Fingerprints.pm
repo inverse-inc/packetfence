@@ -45,25 +45,6 @@ sub index :Path :Args(0) {
 
 sub simple_search :Local :Args() :SimpleSearch('OS') :AdminRole('FINGERPRINTS_READ') { }
 
-=head2 get fingerbank version
-
-=cut
-use IO::File;
-sub fb_version {
-    # TODO : Move the code in a better place
-    my ( $dhcp_fing_fh, @array_tmp, $fb_version, $line);
-    open( $dhcp_fing_fh, '<', "$conf_dir/dhcp_fingerprints.conf" )
-        || print "Unable to open $conf_dir/dhcp_fingerprints.conf: $!";
-    $line = <$dhcp_fing_fh>; # discard the first line
-    $line = <$dhcp_fing_fh>; # read the first line
-    close $dhcp_fing_fh;
-
-    @array_tmp= split('# ',$line);
-    foreach my $val (@array_tmp) {
-		$fb_version=$val;
-    }
-}
-
 =head2 update
 
 =cut
@@ -84,6 +65,10 @@ sub update :Local :Args(0) :AdminRole('FINGERPRINTS_UPDATE') {
 =cut
 
 sub upload :Local :Args(0) :AdminRole('FINGERPRINTS_READ') {
+	use Log::Log4perl;
+	Log::Log4perl->init("$conf_dir/log.conf");
+	my $logger = Log::Log4perl->get_logger('fingerbank.pm');
+
     my ( $self, $c ) = @_;
     $c->stash->{current_view} = 'JSON';
 
@@ -105,10 +90,11 @@ sub upload :Local :Args(0) :AdminRole('FINGERPRINTS_READ') {
           );
     if ($content) {
         my $release = $c->model('Admin')->pf_release();
-		my fb_version=fb_version();
+		my $fingerbank_version = $c->model('Admin')->fingerbank_version();
+		my $logger->warn("LOICK - fingerVerion is : $fingerbank_version";
         $content .= '&ref=' . uri_escape($c->uri_for($c->action->name)) .
                     '&pf_release=' . uri_escape($release) .
-                    '&fb_version=' . uri_escape($fb_version) .
+                    '&fingerbank_version=' . uri_escape($fingerbank_version) .
                     '&submit=Submit%20Fingerprints';
         require LWP::UserAgent;
         my $browser  = LWP::UserAgent->new;
