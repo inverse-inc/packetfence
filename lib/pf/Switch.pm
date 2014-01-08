@@ -2941,7 +2941,8 @@ sub parseRequest {
     if (defined($radius_request->{'NAS-Port-Id'})) {
         $nas_port_id = $radius_request->{'NAS-Port-Id'};
     }
-    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id);
+    my $session_id;
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id);
 }
 
 =item parseUrl
