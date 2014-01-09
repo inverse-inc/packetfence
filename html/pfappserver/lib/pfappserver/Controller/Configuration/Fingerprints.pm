@@ -86,7 +86,7 @@ sub upload :Local :Args(0) :AdminRole('FINGERPRINTS_READ') {
           );
     if ($content) {
         my $release = $c->model('Admin')->pf_release();
-		my $fingerbank_version = $c->model('Admin')->fingerbank_version();
+        my $fingerbank_version = "Fingerbank version " . $c->model('Admin')->fingerbank_version();
         $content .= '&ref=' . uri_escape($c->uri_for($c->action->name)) .
                     '&pf_release=' . uri_escape($release) .
                     '&fingerbank_version=' . uri_escape($fingerbank_version) .
