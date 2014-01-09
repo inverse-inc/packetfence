@@ -237,7 +237,7 @@ sub supports_windowsconfig_provisioning {
     # TODO get rid of hardcoded targets like that
     my $node_attributes = node_attributes($portalSession->getClientMac);
     my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
-    return $FALSE if ((!defined($fingerprint[0]->{'os'})) || $fingerprint[0]->{'os'} !~ /Microsoft Windows (XP|Vista).*/);
+    return $FALSE if ((!defined($fingerprint[0]->{'os'})) || $fingerprint[0]->{'os'} !~ /Microsoft Windows (XP|Vista|8).*/);
     # do we perform provisioning for this category?
     my $config_category = $Config{'provisioning'}{'category'};
     my $node_cat = $node_attributes->{'category'};
