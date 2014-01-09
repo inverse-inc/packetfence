@@ -99,7 +99,7 @@ sub post_auth {
         my $data = send_soap_request("radius_authorize",\%RAD_REQUEST);
         if ($data) {
 
-            my $elements = $data->{'soap:Body'}->{'radius_authorizeResponse'}->{'soapenc:Array'}->{'item'};
+            my $elements = listify($data->{'soap:Body'}->{'radius_authorizeResponse'}->{'soapenc:Array'}->{'item'});
 
             # Get RADIUS return code
             $radius_return_code = shift @$elements;
@@ -248,7 +248,7 @@ sub accounting {
 
         my $data = send_soap_request("radius_accounting", \%RAD_REQUEST);
         if ($data) {
-            my $elements = $data->{'soap:Body'}->{'radius_accountingResponse'}->{'soapenc:Array'}->{'item'};
+            my $elements = listify($data->{'soap:Body'}->{'radius_accountingResponse'}->{'soapenc:Array'}->{'item'});
 
             # Get RADIUS return code
             $rc = shift @$elements;
@@ -332,6 +332,10 @@ sub log_request_attributes {
         for (keys %RAD_REQUEST) {
                 &radiusd::radlog($RADIUS::L_INFO, "RAD_REQUEST: $_ = $RAD_REQUEST{$_}");
         }
+}
+
+sub listify($) {
+    ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
 }
 
 =back
