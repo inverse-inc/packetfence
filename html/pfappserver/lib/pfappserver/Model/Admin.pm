@@ -43,6 +43,22 @@ sub pf_release {
     return $release;
 }
 
+=head2 fingerbank_version
+
+Returns the version of Fingerbank from conf/dhcp_fingerprins.conf
+
+=cut
+
+sub fingerbank_version {
+    my ($filehandler, $line, $version);
+    open( $filehandler, '<', "$conf_dir/dhcp_fingerprints.conf" )
+        || print "Unable to open $conf_dir/dhcp_fingerprints.conf: $!";
+    $line = <$filehandler>; # read the first line
+    close $filehandler;
+	($version) = $line =~ m/version ([0-9\.]+)/i;
+	return $version;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
