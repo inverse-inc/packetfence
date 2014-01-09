@@ -62,7 +62,6 @@ use POSIX;
 use Log::Log4perl;
 use Net::Telnet;
 use Try::Tiny;
-use Data::Dumper;
 
 use pf::config;
 use pf::Switch::constants;
