@@ -18,7 +18,8 @@ use pf::util qw(sort_ip);
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
-    with 'pfappserver::Base::Controller::Crud::Config';
+    with 'pfappserver::Base::Controller::Crud::Config' => { -excludes => [qw(list)] };
+    with 'pfappserver::Base::Controller::Crud::Pagination';
     with 'pfappserver::Base::Controller::Crud::Config::Clone';
 }
 
@@ -74,16 +75,12 @@ after list => sub {
     foreach my $switch (@{$c->stash->{items}}) {
         my $id = $switch->{id};
         if ($id) {
-            push(@ips, $id) if $id ne 'default';
-            $switches{$id} = $switch;
             ($status, $floatingdevice) = $floatingDeviceModel->search('ip', $id);
             if (is_success($status)) {
                 $switch->{floatingdevice} = pop @$floatingdevice;
             }
         }
     }
-
-    $c->stash->{items} = [@switches{'default',sort_ip(@ips)}];
 };
 
 =head2 after create
