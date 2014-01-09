@@ -16,7 +16,9 @@ use Moo;
 use namespace::autoclean;
 use pf::log;
 use pf::file_paths;
+use pf::util;
 use HTTP::Status qw(:constants is_error is_success);
+use List::MoreUtils qw(part);
 
 extends qw(pf::ConfigStore Exporter);
 
@@ -171,6 +173,21 @@ sub remove {
     }
     return $self->SUPER::remove($id);
 }
+
+before rewriteConfig => sub {
+    my ($self) = @_;
+    my $config = $self->cachedConfig;
+    #partioning my their ids
+    # default which is also first
+    # ip address which is next
+    # everything else
+    my ($default,$ips,$rest) = part { $_ eq 'default' ? 0  : valid_ip($_) ? 1 : 2 } $config->Sections;
+    my @newSections;
+    push @newSections, @$default if defined $default;
+    push @newSections, sort_ip(@$ips) if defined $ips;
+    push @newSections, sort @$rest if defined $rest;
+    $config->{sects} = \@newSections;
+};
 
 __PACKAGE__->meta->make_immutable;
 
