@@ -56,7 +56,7 @@ BEGIN {
         generate_id load_oui download_oui
         trim_path format_bytes log_of ordinal_suffix
         untaint_chain read_dir_recursive all_defined
-        valid_mac_or_ip
+        valid_mac_or_ip listify
     );
 }
 
@@ -1207,6 +1207,16 @@ sub read_dir_recursive {
 
 sub all_defined {
     all { defined $_ } @_;
+}
+
+=item listify
+
+Will change a scalar to an array ref if it is not one already
+
+=cut
+
+sub listify($) {
+    ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
 }
 
 =back
