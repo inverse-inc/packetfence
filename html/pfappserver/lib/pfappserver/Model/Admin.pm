@@ -17,6 +17,7 @@ use Moose;
 use namespace::autoclean;
 
 use pf::file_paths;
+use pf::log;
 
 =head1 METHODS
 
@@ -50,9 +51,10 @@ Returns the version of Fingerbank from conf/dhcp_fingerprins.conf
 =cut
 
 sub fingerbank_version {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($filehandler, $line, $version);
     open( $filehandler, '<', "$conf_dir/dhcp_fingerprints.conf" )
-        || print "Unable to open $conf_dir/dhcp_fingerprints.conf: $!";
+        || $logger->error("Unable to open $conf_dir/dhcp_fingerprints.conf: $!");
     $line = <$filehandler>; # read the first line
     close $filehandler;
 	($version) = $line =~ m/version ([0-9\.]+)/i;
