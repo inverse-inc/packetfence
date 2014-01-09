@@ -47,9 +47,6 @@ sub pf_release {
 
 Returns the version of Fingerbank from conf/dhcp_fingerprins.conf
 
-Example of first line
-# dhcp_fingerprints.conf: version 5.52, 2012/01/11
-# dhcp_fingerprints.conf  Version 6.3.2  Date 20140107
 =cut
 
 sub fingerbank_version {
