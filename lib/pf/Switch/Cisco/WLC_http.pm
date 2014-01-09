@@ -1,12 +1,13 @@
 package pf::Switch::Cisco::WLC_http;
 =head1 NAME
 
-pf::Switch::Cisco::WLC - Object oriented module to parse SNMP traps and manage
-Cisco Wireless Controllers (WLC) and Wireless Service Modules (WiSM)
+pf::Switch::Cisco::WLC_http - Object oriented module to parse manage
+Cisco Wireless Controllers (WLC) and Wireless Service Modules (WiSM) with http redirect
 
 =head1 STATUS
 
-Developed and tested on firmware version 4.2.130 altought the new RADIUS RFC3576 support requires firmware v5 and later.
+Developed and tested on firmware version 7.6.100 (should work on 7.4.100).
+With CWA mode (not available for LWA)
 
 =over
 
@@ -15,8 +16,6 @@ Developed and tested on firmware version 4.2.130 altought the new RADIUS RFC3576
 =over
 
 =item Deauthentication with RADIUS Disconnect (RFC3576)
-
-=item Deauthentication with SNMP
 
 =back
 
@@ -30,70 +29,11 @@ Developed and tested on firmware version 4.2.130 altought the new RADIUS RFC3576
 
 =over
 
-=item < 5.x
-
-Issue with Windows 7: 802.1x+WPA2. It's not a PacketFence issue.
-
-=item 6.0.182.0
-
-We had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not 
-a PacketFence issue.
-
-=item 7.0.116 and 7.0.220
-
-SNMP deassociation is not working in WPA2.  It only works if using an Open 
-(unencrypted) SSID.
-
-NOTE: This is no longer relevant since we rely on RADIUS Disconnect by 
-default now.
-
-=item 7.2.103.0 (and maybe up but it is currently the latest firmware)
-
-SNMP de-authentication no longer works. It it believed to be caused by the 
-new firmware not accepting SNMP requests with 2 bytes request-id. Doing the 
-same SNMP set with `snmpset` command issues a 4 bytes request-id and the 
-controllers are happy with these. Not a PacketFence issue. I would think it
-relates to the following open caveats CSCtw87226:
-http://www.cisco.com/en/US/docs/wireless/controller/release/notes/crn7_2.html#wp934687
-
-NOTE: This is no longer relevant since we rely on RADIUS Disconnect by 
-default now.
-
-=back
-
-=item FlexConnect (H-REAP) limitations before firmware 7.2
-
-Access Points in Hybrid Remote Edge Access Point (H-REAP) mode, now known as 
-FlexConnect, don't support RADIUS dynamic VLAN assignments (AAA override).
-
-Customer specific work-arounds are possible. For example: per-SSID 
-registration, auto-registration, etc. The goal being that only one VLAN
-is ever 'assigned' and that is the local VLAN set on the AP for the SSID.
-
-Update: L<FlexConnect AAA Override support was introduced in firmware 7.2 series|https://supportforums.cisco.com/message/3605608#3605608>
-
-=item FlexConnect issues with firmware 7.2.103.0
-
-There's an issue with this firmware regarding the AAA Override functionality
-required by PacketFence. The issue is fixed in 7.2.104.16 which is not 
-released as the time of this writing.
-
-The workaround mentioned by Cisco is to downgrade to 7.0.230.0 but it 
-doesn't support the FlexConnect AAA Override feature...
-
-So you can use 7.2.103.0 with PacketFence but not in FlexConnect mode.
-
-Caveat CSCty44701
-
 =back
 
 =head1 SEE ALSO
 
 =over 
-
-=item L<Version 7.2 - Configuring AAA Overrides for FlexConnect|http://www.cisco.com/en/US/docs/wireless/controller/7.2/configuration/guide/cg_flexconnect.html#wp1247954>
-
-=item L<Cisco's RADIUS Packet of Disconnect documentation|http://www.cisco.com/en/US/docs/ios/12_2t/12_2t8/feature/guide/ft_pod1.html>
 
 =back
 
@@ -112,13 +52,15 @@ use base ('pf::Switch::Cisco::WLC');
 use pf::config;
 use pf::Switch::constants;
 use pf::util;
+
 use pf::roles::custom;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::util::radius qw(perform_coa perform_disconnect);
-use pf::node qw(node_attributes);
+use pf::node qw(node_attributes node_view);
 use pf::web::util;
 
-sub description { 'Cisco Wireless Controller (WLC)' }
+
+sub description { 'Cisco Wireless Controller (WLC HTTP)' }
 
 =head1 SUBROUTINES
 
@@ -209,27 +151,39 @@ Overloading L<pf::Switch>'s implementation because AeroHIVE doesn't support
 assigning VLANs and Roles at the same time.
 
 =cut
+
 sub returnRadiusAccessAccept {
     my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     my $radius_reply_ref = {};
-
     # TODO this is experimental
     try {
 
-        # Roles are configured and the user should have one
-        if (defined($user_role)) {
-            my (%session_id);
-            pf::web::util::session(\%session_id,undef,6);
-            $session_id{client_mac} = $mac;
-            $session_id{wlan} = $ssid;
-            $session_id{switch} = \$this;
-            $radius_reply_ref = {
-                'Cisco-AVPair' => ["url-redirect-acl=$user_role","url-redirect=http://172.16.0.250/cisco_external_portal$session_id{_session_id}"],
-            };
+        my $roleResolver = pf::roles::custom->instance();
+        my $role = $roleResolver->getRoleForNode($mac, $this);
 
-            $logger->info("Returning ACCEPT with Role: $user_role");
+        # Roles are configured and the user should have one
+        if (defined($role)) {
+            my $node_info = node_view($mac);
+            if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED) {
+                $radius_reply_ref = {
+                    'User-Name' => $mac,
+                    $this->returnRoleAttribute => $role,
+                };
+            }
+            else {
+                my (%session_id);
+                pf::web::util::session(\%session_id,undef,6);
+                $session_id{client_mac} = $mac;
+                $session_id{wlan} = $ssid;
+                $session_id{switch} = \$this;
+                $radius_reply_ref = {
+                    'User-Name' => $mac,
+                    'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}/"],
+                };
+            }
+            $logger->info("Returning ACCEPT with Role: $role");
         }
 
 
@@ -310,6 +264,7 @@ sub radiusDisconnect {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $management_network->tag('vip'),
+            nas_port => '1700',
         };
 
         $logger->debug("network device supports roles. Evaluating role to be returned");
@@ -317,15 +272,16 @@ sub radiusDisconnect {
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
         my $acctsessionid = node_accounting_current_sessionid($mac);
-        my $node_info = node_attributes($mac);
+        my $node_info = node_view($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
-
         # Standard Attributes
+
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
+            'NAS-Port' => $node_info->{'last_port'},
         };
 
         # merging additional attributes provided by caller to the standard attributes
@@ -335,20 +291,21 @@ sub radiusDisconnect {
         if (defined($role) && (defined($node_info->{'status'}) ) ) {
 
             $logger->info("Returning ACCEPT with Role: $role");
+
             my $vsa = [
                 {
                 vendor => "Cisco",
-                attribute => "Cisco:AVPair",
-                value => "audit-session-id=$acctsessionid",
+                attribute => "Cisco-AVPair",
+                value => "audit-session-id=$node_info->{'sessionid'}",
                 },
                 {
                 vendor => "Cisco",
-                attribute => "Cisco:AVPair",
+                attribute => "Cisco-AVPair",
                 value => "subscriber:command=reauthenticate",
                 },
                 {
                 vendor => "Cisco",
-                attribute => "Cisco:AVPair",
+                attribute => "Cisco-AVPair",
                 value => "subscriber:reauthenticate-type=last",
                 }
             ];
@@ -374,6 +331,7 @@ sub radiusDisconnect {
     );
     return;
 }
+
 
 =item parseRequest
 
@@ -404,11 +362,12 @@ sub parseRequest {
     my $session_id;
     if (defined($radius_request->{'Cisco-AVPair'})) {
         if ($radius_request->{'Cisco-AVPair'} =~ /audit-session-id=(.*)/ig ) {
-            $session_id = $1;
+            $session_id =$1;
         }
     }
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id);
 }
+
 
 =back
 
@@ -444,3 +403,4 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+

@@ -211,7 +211,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort) ],
+   render_list => [ qw(description type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
   );
 has_field 'SNMPVersion' =>
   (
@@ -400,6 +400,16 @@ has_field controllerPort =>
     tags => {
         after_element => \&help_list,
         help => 'Only for Wi-fi , if the deauth request must be send to another device than the access point then set the ip of the controller'
+    },
+  );
+
+has_field 'portalURL' =>
+  (
+   type => 'Text',
+   label => 'Portal URL',
+   tags => {
+       after_element => \&help_list,
+       help => 'Only for external captive portal, specify the url of the captive portal that will be send back as a radius attribute'
     },
   );
 

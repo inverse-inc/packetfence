@@ -263,6 +263,7 @@ sub new {
         '_deauthMethod'             => undef,
         '_switchIp'                 => undef,
         '_ip'                       => undef,
+        '_portalURL'                => undef,
         '_switchMac'                => undef,
     }, $class;
 
@@ -355,6 +356,8 @@ sub new {
             $this->{_switchIp} = $argv{$_};
         } elsif (/^-?switchMac$/i) {
             $this->{_switchMac} = $argv{$_};
+        } elsif (/^-?portalURL$/i) {
+            $this->{_portalURL} = $argv{$_};
         }
         # customVlan members are now dynamically generated. 0 to 99 supported.
         elsif (/^-?(\w+)Vlan$/i) {
