@@ -95,7 +95,7 @@ sub _initialize {
     );
 
     $self->{'_destination_url'} = $self->_restoreFromSession("_destination_url",sub {
-            return $self->getDestinationUrl();
+            return $self->_getDestinationUrl();
         }
     );
 
@@ -193,7 +193,7 @@ sub _getDestinationUrl {
     }
 
     # Respect the user's initial destination URL
-    return decode_entities(uri_unescape($self->cgi->param("destination_url")));
+    return $self->{'_destination_url'} || decode_entities(uri_unescape($self->cgi->param("destination_url")));
 }
 
 =item _resolveIp

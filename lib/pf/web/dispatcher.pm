@@ -140,6 +140,7 @@ sub external_captive_portal {
             if (defined($session_id{switch}) && $session_id{switch}->supportsExternalPortal) {
                 my $portalSession = pf::Portal::Session->new();
                 $portalSession->setClientMac($session_id{client_mac}) if (defined($session_id{client_mac}));
+                $portalSession->setDestinationUrl($r->headers_in->{'Referer'}) if (defined($r->headers_in->{'Referer'}));
                 return $portalSession->session->id();
             } else {
                 return 0;
