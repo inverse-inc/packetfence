@@ -198,7 +198,8 @@ sub redirect {
            # Set the cookie for the captive portal
            $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
            $logger->warn("Dumping session id: $cgi_session_id");
-       $is_external_portal = 1;
+           $destination_url=$r->headers_in->{'Referer'} if (defined($r->headers_in->{'Referer'}));
+           $is_external_portal = 1;
        }
    }
 
