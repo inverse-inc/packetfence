@@ -16,7 +16,7 @@ use warnings;
 use Moo;
 use pf::config;
 use pf::util;
-use List::MoreUtils qw(any all);
+use List::MoreUtils qw(any all uniq);
 use Linux::Inotify2;
 use pf::log;
 
@@ -36,7 +36,7 @@ sub _build_pfdhcplistenerManagers {
             name => "pfdhcplistener_$_",
             launcher => "sudo %1\$s -i '$_' -d &"
         })
-    } @listen_ints, @dhcplistener_ints;
+    } uniq @listen_ints, @dhcplistener_ints;
     return \@managers;
 }
 
