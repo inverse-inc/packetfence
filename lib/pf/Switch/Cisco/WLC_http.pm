@@ -160,9 +160,7 @@ sub returnRadiusAccessAccept {
     # TODO this is experimental
     try {
 
-        my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $this);
-
+        my $role = $this->getRoleByName($user_role);
         # Roles are configured and the user should have one
         if (defined($role)) {
             my $node_info = node_view($mac);
