@@ -281,8 +281,10 @@ sub update {
     }
     if ($result) {
         my $isDot1x = defined($previous_node_ref->{last_dot1x_username}) && length($previous_node_ref->{last_dot1x_username}) > 0;
+        my $category_id = $node_ref->{category_id} || '';
+        my $previous_category_id = $previous_node_ref->{category_id} || '';
         if ($previous_node_ref->{status} ne $node_ref->{status} ||
-            $previous_node_ref->{category_id} ne $node_ref->{category_id} && !$isDot1x) {
+            $previous_category_id ne $category_id && !$isDot1x) {
             # Node has been registered or deregistered
             # or the role has changed and is not currently using 802.1X
             reevaluate_access($mac, "node_modify");
@@ -713,18 +715,18 @@ sub bulkRegister {
 =cut
 
 sub bulkDeregister {
-    my ($self,@macs) = @_;
+    my ($self, @macs) = @_;
     my $count = 0;
     foreach my $mac (@macs) {
         my $node = node_attributes($mac);
-        if($node->{status} eq $pf::node::STATUS_REGISTERED) {
-            if(node_deregister($mac, $node->{pid}, %{$node})) {
+        if ($node->{status} eq $pf::node::STATUS_REGISTERED) {
+            if (node_deregister($mac, $node->{pid}, %{$node})) {
                 reevaluate_access($mac, "node_modify");
                 $count++;
             }
         }
     }
-    return ($STATUS::OK, ["[_1] node(s) were deregistered.",$count]);
+    return ($STATUS::OK, ["[_1] node(s) were deregistered.", $count]);
 }
 
 =head2 bulkApplyRole
