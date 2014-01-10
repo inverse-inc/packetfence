@@ -15,8 +15,7 @@
     </div>
   </div><!-- cancelEdit -->
 
-<form id="update_profile" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('update'),[id])  %]"  class="form-horizontal">
-  <div class="span10">
+  <form id="update_profile" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('update'),[id])  %]"  class="form-horizontal">
     <ul class="breadcrumb">
       <li>
         <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]" >[% l('Portal Profiles and Pages') %]</a>
@@ -37,7 +36,7 @@
           <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[id]) %]" >[% l('Files')  %]</a>
         </li>
       </ul>
-      <div class="tab-pane fade in [% tab == 'settings'  %]active[% END %]" id="settings">
+      <div class="tab-pane fade in [% 'active' IF tab == 'settings'  %]" id="settings">
           [% form.block('definition').render %]
           [% IF form.field('filter') %]
           <div class="control-group">
@@ -88,11 +87,10 @@
           </div>
           [%- END %]
       </div>
-    </div>
-    <div class="tab-pane fade in [% IF provisioning_tab  %]active[% END %]" id="provisioning">
+      <div class="tab-pane fade in [% 'active' IF tab == 'provisioning' %]" id="provisioning">
         [% form.block('provisioning').render %]
+      </div>
     </div>
-  </div>
-</form>
+  </form>
 
 </div>
