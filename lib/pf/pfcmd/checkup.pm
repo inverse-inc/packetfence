@@ -194,7 +194,7 @@ sub interfaces {
     my %seen;
     my @network_interfaces;
     push @network_interfaces, get_internal_devs();
-    push @network_interfaces, $management_network->tag("int") if ($management_network);
+    push @network_interfaces, $management_network->tag("int") if (defined($management_network) && $management_network ne '');
     foreach my $interface (@network_interfaces) {
         my $device = "interface " . $interface;
 
