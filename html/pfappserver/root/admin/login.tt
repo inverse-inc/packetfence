@@ -1,4 +1,4 @@
-[%  jsFiles = ['app/application', 'admin/login'] %]
+[%  jsFiles = ['admin/login'] %]
 
     <div class="container-fluid">
       <div class="row-fluid">
