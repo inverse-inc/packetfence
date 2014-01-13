@@ -139,10 +139,15 @@ sub _initialize {
         );
     }
 
-    $self->{'_destination_url'} = $self->_restoreFromSession("_destination_url",sub {
-            return $self->_getDestinationUrl();
-        }
-    );
+    if ($self->getClientIp eq $management_network->{'Tip'} ) {
+        if (defined ($cgi->param('PROFILE'))) {
+            $self->{'_profile'} = pf::Portal::ProfileFactory-> _from_profile($cgi->param('PROFILE'));
+         } else {
+            $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+    } else {
+        $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+    }
+
 
     $self->{'_grant_url'} = $self->_restoreFromSession("_grant_url",sub {
             return $self->getGrantUrl;
