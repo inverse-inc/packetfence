@@ -84,10 +84,13 @@ sub person_db_prepare {
     $person_statements->{'person_exist_sql'} = get_db_handle()->prepare(qq[ select count(*) from person where pid=? ]);
 
     $person_statements->{'person_add_sql'} = get_db_handle()->prepare(
-        qq[ insert into person(pid,firstname,lastname,email,telephone,company,address,notes,sponsor,anniversary,
-             birthday,gender,lang,nickname,cell_phone,work_phone,title,building_number,apartment_number,
-             room_number,custom_field_1,custom_field_2,custom_field_3,custom_field_4,custom_field_5,custom_field_6,
-             custom_field_7,custom_field_8,custom_field_9) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]);
+        qq[ INSERT INTO person
+                   (pid, firstname, lastname, email, telephone, company, address, notes, sponsor, anniversary,
+                    birthday, gender, lang, nickname, cell_phone, work_phone, title,
+                    building_number, apartment_number, room_number,
+                    custom_field_1, custom_field_2, custom_field_3, custom_field_4, custom_field_5,
+                    custom_field_6, custom_field_7, custom_field_8, custom_field_9)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]);
 
     $person_statements->{'person_view_sql'} = get_db_handle()->prepare(
         qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address,
@@ -130,7 +133,7 @@ sub person_db_prepare {
 
     $person_statements->{'person_modify_sql'} = get_db_handle()->prepare(
         qq[ UPDATE person
-            SET pid=?,firstname=?,lastname=?,email=?,telephone=?,company=?,address=?,notes=?,sponsor=?,
+            SET pid=?, firstname=?, lastname=?, email=?, telephone=?, company=?, address=?, notes=?, sponsor=?,
                 anniversary=?, birthday=?, gender=?, lang=?, nickname=?, cell_phone=?, work_phone=?,
                 title=?, building_number=?, apartment_number=?, room_number=?, custom_field_1=?, custom_field_2=?,
                 custom_field_3=?, custom_field_4=?, custom_field_5=?, custom_field_6=?, custom_field_7=?, custom_field_8=?,
