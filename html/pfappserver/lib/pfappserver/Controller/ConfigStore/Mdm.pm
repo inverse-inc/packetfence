@@ -23,11 +23,18 @@ BEGIN {
 
 __PACKAGE__->config(
     action => {
-#Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'configstore/mdm', CaptureArgs => 1 }
+        # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
+        object => { Chained => '/', PathPart => 'configstore/mdm', CaptureArgs => 1 },
+        # Configure access rights
+        view   => { AdminRole => 'MDM_READ' },
+        list   => { AdminRole => 'MDM_READ' },
+        create => { AdminRole => 'MDM_CREATE' },
+        clone  => { AdminRole => 'MDM_CREATE' },
+        update => { AdminRole => 'MDM_UPDATE' },
+        remove => { AdminRole => 'MDM_DELETE' },
     },
     action_args => {
-#Setting the global model and form for all actions
+        # Setting the global model and form for all actions
         '*' => { model => "ConfigStore::Mdm",form => "ConfigStore::Mdm" },
     },
 );

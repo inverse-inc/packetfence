@@ -19,7 +19,8 @@
 
       [% INCLUDE configstore/mdm/list.tt %]
 
+      [%- IF can_access("MDM_CREATE") %]
       <div class="form-actions">
         <a id="createItem" class="btn" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Mdm Entry') %]</a>
       </div>
-
+      [%- END %]
