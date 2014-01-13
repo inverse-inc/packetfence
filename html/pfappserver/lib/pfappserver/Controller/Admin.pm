@@ -74,9 +74,19 @@ sub login :Local :Args(0) {
         eval {
             if ($c->authenticate( {username => $c->req->params->{'username'},
                                    password => $c->req->params->{'password'}} )) {
-                $c->session->{user_roles} = [$c->user->roles]; # Save the roles to the session
-                $c->persist_user(); # Save the updated roles data
-                $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
+                # Save the roles to the session
+                $c->session->{user_roles} = [$c->user->roles];
+                # Save the updated roles data
+                $c->persist_user();
+                # Don't send a standard 302 redirect code; let the JavaScript catch the Location header
+                # and perform the redirection on the client side
+                $c->response->status(HTTP_NO_CONTENT);
+                if ($c->req->params->{'redirect_url'}) {
+                    $c->response->header('Location' => $c->req->params->{'redirect_url'});
+                }
+                else {
+                    $c->response->header('Location' => $c->uri_for($c->controller()->action_for('index')));
+              }
             }
             else {
                 $c->response->status(HTTP_UNAUTHORIZED);
@@ -89,8 +99,8 @@ sub login :Local :Args(0) {
         }
         $c->stash->{current_view} = 'JSON';
     }
-    elsif ($c->user_in_realm( 'admin' )) {
-        $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
+    elsif ($c->user_in_realm('admin')) {
+        $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('index')));
         $c->detach();
     }
     elsif ($c->req->params->{'redirect_action'}) {
@@ -119,16 +129,16 @@ sub index :Path :Args(0) {
     my $action;
 
     if (admin_can([$c->user->roles], ('REPORTS')) == 1) {
-        $action = $c->controller('Admin')->action_for('status');
+        $action = $c->controller()->action_for('status');
     }
     elsif (admin_can([$c->user->roles], ('NODES_READ')) == 1) {
-        $action = $c->controller('Admin')->action_for('nodes');
+        $action = $c->controller()->action_for('nodes');
     }
     elsif (admin_can([$c->user->roles], ('USERS_READ')) == 1) {
-        $action = $c->controller('Admin')->action_for('users');
+        $action = $c->controller()->action_for('users');
     }
     else {
-        $action = $c->controller('Admin')->action_for('configuration');
+        $action = $c->controller()->action_for('configuration');
     }
     $c->response->redirect($c->uri_for($action));
 }

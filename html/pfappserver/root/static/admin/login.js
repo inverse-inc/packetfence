@@ -1,6 +1,7 @@
 function init() {
     /* Perform authentication using AJAX */
     $('form[name="login"]').submit(function(event) {
+        event.stopPropagation();
         var form = $(this),
         form_control = form.children('.control-group').first(),
         btn = form.find('[type="submit"]'),
@@ -18,9 +19,11 @@ function init() {
             $.ajax({
                 type: 'POST',
                 url: action,
-                data: { 'username': username.val(), 'password': password.val() }
-            }).done(function(data) {
-                window.location.href = form.find('[name="redirect_url"]').val();
+                data: form.serialize()
+            }).done(function(data, textStatus, jqXHR) {
+                var location = jqXHR.getResponseHeader('Location');
+                if (location)
+                    window.location.href = location;
             }).fail(function(jqXHR) {
                 btn.button('reset');
                 var obj = $.parseJSON(jqXHR.responseText);
