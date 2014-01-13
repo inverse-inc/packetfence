@@ -117,7 +117,7 @@ function initCollapse(element) {
         tr.swap_class('toggle');
         var link = element.find('[data-target="#' + that.attr('id') + '"]');
         link.find('[data-swap]').swap_class('toggle');
-        event.stopPropagation();//To stop the event from closing parents
+        event.stopPropagation(); //To stop the event from closing parents
     });
 }
 

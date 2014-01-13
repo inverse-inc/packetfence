@@ -30,7 +30,7 @@ Returns the content of conf/pf-release
 sub pf_release {
     my ($self) = @_;
 
-    my $cache = pf::CHI->new(namespace => 'configfiles' );
+    my $cache = pf::CHI->new(namespace => 'configfiles');
     my $filename = "$conf_dir/pf-release";
     my $release = $cache->compute($filename, undef, sub {
                                       my $filehandler;
