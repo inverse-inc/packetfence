@@ -27,6 +27,7 @@ use URI::Escape qw(uri_escape);
 use pf::config;
 use pf::util;
 use pf::web::constants;
+use pf::web::util;
 use pf::proxypassthrough::constants;
 use pf::Portal::Session;
 use pf::iplog qw(iplog_update);
@@ -134,25 +135,25 @@ sub external_captive_portal {
     }
     elsif (defined($session)) {
         my (%session_id);
-        my $session_cook = pf::web::util::getcookie($session);
-        if (defined($session_cook)) {
-            pf::web::util::session(\%session_id,$session_cook);
-            if (defined($session_id{switch}) && $session_id{switch}->supportsExternalPortal) {
+        pf::web::util::session(\%session_id,$session);
+        if (defined($session_id{switch})) {
+            my $switch = $session_id{switch};
+            #if ($$switch->supportsExternalPortal) {
                 my $portalSession = pf::Portal::Session->new();
                 $portalSession->setClientMac($session_id{client_mac}) if (defined($session_id{client_mac}));
                 $portalSession->setDestinationUrl($r->headers_in->{'Referer'}) if (defined($r->headers_in->{'Referer'}));
                 return $portalSession->session->id();
-            } else {
-                return 0;
-            }
+            #}
+        } else {
+            return 0;
         }
     }
     else {
         return 0;
     }
 }
-
-=item handler
+ 
+=item redirect
 
 For simplicity and performance this doesn't consume and leverage
 L<pf::Portal::Session>.
@@ -176,7 +177,7 @@ sub redirect {
    my $is_external_portal;
    foreach my $param ($req->param) {
        if ($param =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
-           my $cgi_session_id = external_captive_portal($req->param($param),$req,$r);
+           my $cgi_session_id = external_captive_portal($req->param($param),$req,$r,undef);
            if ($cgi_session_id ne '0') {
                # Set the cookie for the captive portal
                $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
@@ -188,16 +189,16 @@ sub redirect {
    }
 
    # Try to fetch the parameters in the session
-
    if ($r->uri =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
+       $logger->warn($1);
        my $cgi_session_id = external_captive_portal(undef,undef,$r,$1);
-       if ($cgi_session_id ne '0') {
-           # Set the cookie for the captive portal
-           $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
-           $logger->warn("Dumping session id: $cgi_session_id");
-           $destination_url=$r->headers_in->{'Referer'} if (defined($r->headers_in->{'Referer'}));
+           if ($cgi_session_id ne '0') {
+               # Set the cookie for the captive portal
+               $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
+               $logger->warn("Dumping session id: $cgi_session_id");
+               $destination_url=$r->headers_in->{'Referer'} if (defined($r->headers_in->{'Referer'}));
+           }
            $is_external_portal = 1;
-       }
    }
 
    my $proto;
@@ -264,6 +265,9 @@ sub html_redirect {
         'login_url' => $captiv_url->unparse(),
     };
 
+
+
+
     # prepare custom REDIRECT response
     my $response;
     my $template = Template->new({
@@ -322,3 +326,4 @@ USA.
 =cut
 
 1;
+
