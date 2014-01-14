@@ -17,7 +17,7 @@ Version 4.X.Y released on YYYY-MM-DD
 New Features
 ++++++++++++
 
-* Bulk Actions for users
+* Bulk actions for users
 * New pfcmd "import wrix" command
 
 Enhancements
@@ -33,6 +33,7 @@ Bug Fixes
 
 * Fixed SQL query of connection types report in Web admin
 * Fixed nodes simple search by IP address
+* Fix access reevaluation when changing the status of a pending node
 
 Version 4.1.0 released on 2013-12-11
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -695,13 +695,13 @@ sub _graphIplogHistory {
 =cut
 
 sub bulkRegister {
-    my ($self,@macs) = @_;
+    my ($self, @macs) = @_;
     my $count = 0;
-    my ($status,$status_msg);
+    my ($status, $status_msg);
     foreach my $mac (@macs) {
         my $node = node_attributes($mac);
-        if($node->{status} eq $pf::node::STATUS_UNREGISTERED) {
-            if(node_register($mac, $node->{pid}, %{$node})) {
+        if ($node->{status} ne $pf::node::STATUS_REGISTERED) {
+            if (node_register($mac, $node->{pid}, %{$node})) {
                 reevaluate_access($mac, "node_modify");
                 $count++;
             }
@@ -719,7 +719,7 @@ sub bulkDeregister {
     my $count = 0;
     foreach my $mac (@macs) {
         my $node = node_attributes($mac);
-        if ($node->{status} eq $pf::node::STATUS_REGISTERED) {
+        if ($node->{status} ne $pf::node::STATUS_UNREGISTERED) {
             if (node_deregister($mac, $node->{pid}, %{$node})) {
                 reevaluate_access($mac, "node_modify");
                 $count++;
@@ -750,7 +750,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2013-2014 Inverse inc.
 
 =head1 LICENSE
 
