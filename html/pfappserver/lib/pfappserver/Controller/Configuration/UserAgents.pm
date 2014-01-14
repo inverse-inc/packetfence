@@ -18,6 +18,8 @@ use Moose;
 use namespace::autoclean;
 use URI::Escape;
 
+use pf::config;
+
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head2 index
@@ -70,6 +72,7 @@ sub upload :Local :Args(0) :AdminRole('USERAGENTS_READ') {
               {
                 useragent_fingerprints => encode_base64($gziped),
                 'ref' => $c->uri_for($c->action),
+                email => $Config{'alerting'}{'emailaddr'},
                 pf_release => $release
               }
             );

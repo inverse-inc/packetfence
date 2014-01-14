@@ -88,6 +88,7 @@ sub upload :Local :Args(0) :AdminRole('FINGERPRINTS_READ') {
     if ($content) {
         my $release = $c->model('Admin')->pf_release();
         $content .= '&ref=' . uri_escape($c->uri_for($c->action->name)) .
+                    '&email=' . uri_escape($Config{'alerting'}{'emailaddr'}) .
                     '&pf_release=' . uri_escape($release) .
                     '&submit=Submit%20Fingerprints';
         require LWP::UserAgent;
