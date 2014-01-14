@@ -734,14 +734,23 @@ sub bulkDeregister {
 =cut
 
 sub bulkApplyRole {
-    my ($self,$role,@macs) = @_;
+    my ($self, $role, @macs) = @_;
     my $count = 0;
     foreach my $mac (@macs) {
-        my $node = node_attributes($mac);
-        $node->{category_id} = $role;
-        $count++ if node_modify($mac, %{$node});
+        my $node = node_view($mac);
+        if ($node->{category_id} != $role) {
+            # Role has changed
+            $node->{category_id} = $role;
+            if (node_modify($mac, %{$node})) {
+                $count++;
+                if (!defined($node->{last_dot1x_username}) || length($node->{last_dot1x_username}) == 0) {
+                    # The role has changed and is not currently using 802.1X
+                    reevaluate_access($mac, "node_modify");
+                }
+            }
+        }
     }
-    return ($STATUS::OK, ["Role was changed for [_1] node(s)",$count]);
+    return ($STATUS::OK, ["Role was changed for [_1] node(s)", $count]);
 }
 
 =head1 AUTHOR
