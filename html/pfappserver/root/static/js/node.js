@@ -330,7 +330,11 @@ NodeView.prototype.advancedSearchUpdater = function(e) {
         // Add checked columns to the form
         form.find('[name="column"]').remove();
         $('#columns').find(':checked').each(function() {
-            form.append($('<input>', { type: 'checkbox', checked: 'checked', name: 'column', class: 'hidden', value: $(this).val()}));
+            form.append($('<input>', { type: 'checkbox',
+                                       checked: 'checked',
+                                       name: 'column',
+                                       'class': 'hidden',
+                                       value: $(this).val() }));
         });
         form.submit();
     }
