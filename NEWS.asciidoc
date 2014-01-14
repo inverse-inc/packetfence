@@ -11,16 +11,40 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version 4.1.0 released on 2013-MM-DD
+Version 4.1.X released on 2013-MM-DD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
 
-* Portal profiles can be filtered by switches
-* Proxy interception
-* New pfcmd command fixpermissions
-* Added a Null Authenication Source
+* Bulk actions for users
+* New pfcmd "import wrix" command
+
+Enhancements
+++++++++++++
+
+* Mandatory fields are per profiles
+* Expanded fields for person field
+* Allow pfcmd error/warning/success messages to be configurable
+* Landing page of Web admin interface now depends on the user's access rights
+
+Bug Fixes
++++++++++
+
+* Fixed SQL query of connection types report in Web admin
+* Fixed nodes simple search by IP address
+* Fix access reevaluation when changing the status of a pending node
+
+Version 4.1.0 released on 2013-12-11
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Portal profiles can now be filtered by switches
+* Proxy interception support
+* New pfcmd "fixpermissions" command
+* Added a "Null" authentication source for simple "Click to connect" portals
 * Displayed columns of nodes are now customizable
 * Create a single node or import multiple nodes from a CSV file from the Web admin
 * LDAP authentication sources can now filter by group membership using a second LDAP query
