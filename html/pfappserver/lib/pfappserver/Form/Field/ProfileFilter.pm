@@ -46,6 +46,7 @@ has_field 'type' =>
                {value => 'ssid', label => 'SSID'},
                {value => 'vlan', label => 'VLAN'},
                {value => 'switch', label => 'SWITCH'},
+               {value => 'uri', label => 'URI'},
               ],
   );
 

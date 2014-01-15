@@ -70,9 +70,9 @@ sub new {
 # in session expensive components to look for.
 sub _initialize {
     my ($self) = @_;
-
     my $cgi = new CGI;
     $cgi->charset("UTF-8");
+ 
     $self->{'_cgi'} = $cgi;
 
     my $sid = $cgi->param('CGISESSID') || $cgi;
@@ -84,12 +84,40 @@ sub _initialize {
 
     $self->{'_guest_node_mac'} = undef;
 
-    $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+    #If PROFILE param is defined then force the profile
+    if (defined ($cgi->param('PROFILE'))) {
+        $self->session->param('_profile',pf::Portal::ProfileFactory->_from_profile($cgi->param('PROFILE')));
+        $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
+                return pf::Portal::ProfileFactory->_from_profile($cgi->param('PROFILE'));
+            }
+        );
+    } else {
+        $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
+                return pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+            }
+        );
+    }
 
     $self->{'_destination_url'} = $self->_getDestinationUrl();
 
     $self->_initializeStash();
     $self->_initializeI18n();
+}
+
+=item _restoreFromSession
+
+Restore an item from the session if it does not exists compute the value
+
+=cut
+
+sub _restoreFromSession {
+    my ($self,$key,$compute) = @_;
+    my $value = $self->session->param($key);
+    unless ($value) {
+        $value = $compute->();
+        $self->session->param($key,$value);
+    }
+    return $value;
 }
 
 =item _initializeStash
@@ -138,7 +166,7 @@ sub _getDestinationUrl {
     my ($self) = @_;
 
     # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
-    if (!defined($self->cgi->param("destination_url")) || isenabled($self->getProfile->forceRedirectURL)) {
+    if (!defined($self->cgi->param("destination_url")) || $self->getProfile->forceRedirectURL) {
         return $self->getProfile->getRedirectURL;
     }
 
@@ -499,3 +527,4 @@ USA.
 =cut
 
 1;
+
