@@ -472,7 +472,7 @@ sub generate_violation_page {
     my ( $portalSession, $template ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $langs = $portalSession->getRequestLanguages();
+    my @langs = $portalSession->getLanguages();
     my $mac = $portalSession->getClientMac();
     my $paths = $portalSession->getTemplateIncludePath();
 
@@ -488,8 +488,8 @@ sub generate_violation_page {
     $portalSession->stash->{'last_ssid'} =  $node_info->{'last_ssid'};
     $portalSession->stash->{'username'} = $node_info->{'pid'};
 
-    push(@$langs, ''); # default template
-    foreach my $lang (@$langs) {
+    push(@langs, ''); # default template
+    foreach my $lang (@langs) {
         my $file = "violations/$template" . ($lang?".$lang":"") . ".html";
         foreach my $dir (@$paths) {
             if ( -f "$dir/$file" ) {

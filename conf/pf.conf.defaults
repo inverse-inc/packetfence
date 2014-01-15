@@ -20,12 +20,6 @@ dnsservers=127.0.0.1
 # Comma-delimited list of DHCP servers.  Passthroughs are created to allow DHCP transactions from even "trapped" nodes.
 dhcpservers=127.0.0.1
 #
-# general.locale
-#
-# Locale used for message translation
-# more than 1 can be specified
-locale=en_US
-#
 # general.timezone
 #
 # System's timezone in string format. Supported list:

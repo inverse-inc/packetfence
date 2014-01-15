@@ -146,6 +146,19 @@ foreach (@components_mod_perl) { s{([^/])$}{$1\$} };
 my $allow_mod_perl = join('|', @components_mod_perl);
 Readonly::Scalar our $ALLOWED_RESOURCES_MOD_PERL => qr/ ^(?: $allow_mod_perl ) /xo; # eXtended pattern, compile Once
 
+=item LOCALES
+
+Supported locales must be generated on the server and also have their binary catalog (.mo) under
+/usr/local/pf/conf/locale/. Notice that a PacketFence translation generated for a two-letter language
+code (ex: fr) will be used for any locale matching the language code (ex: fr_FR and fr_CA).
+
+=cut
+
+Readonly::Array our @LOCALES =>
+  (
+   qw(de_DE en_US es_ES fr_FR fr_CA he_IL it_IT nl_NL pl_PL pt_BR)
+  );
+
 =item _clean_urls_match
 
 Return a regex that would match all the captive portal allowed clean URLs

@@ -70,14 +70,14 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(sources filter mandatory_fields allowed_devices);
+    return qw(sources filter locale mandatory_fields allowed_devices);
 }
 
 __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2013-2014 Inverse inc.
 
 =head1 LICENSE
 

@@ -604,8 +604,8 @@ sub readProfileConfigFile {
                 my $default_description = $Profiles_Config{'default'}{'description'};
                 while (my ($profile_id, $profile) = each %Profiles_Config) {
                     $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
-                    foreach my $field (qw(mandatory_fields sources filter) ) {
-                        $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || "")];
+                    foreach my $field (qw(locale mandatory_fields sources filter) ) {
+                        $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
                     }
                     foreach my $filter (@{$profile->{'filter'}}) {
                         $Profile_Filters{$filter} = $profile_id;

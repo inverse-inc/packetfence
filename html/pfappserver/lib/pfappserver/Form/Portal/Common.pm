@@ -14,10 +14,13 @@ pfappserver::Form::Portal::Common
 
 use strict;
 use warnings;
+
 use HTML::FormHandler::Moose::Role;
 use List::MoreUtils qw(uniq);
+
 use pf::authentication;
 use pf::ConfigStore::Mdm;
+use pf::web::constants;
 with 'pfappserver::Base::Form::Role::Help';
 
 =head1 Fields
@@ -47,6 +50,24 @@ has_field 'description' =>
    type => 'Text',
    label => 'Profile Description',
   );
+
+=head2 locale
+
+Accepted languages for the profile
+
+=cut
+
+has_field 'locale' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Languages',
+   localize_labels => 1,
+   element_class => ['chzn-select', 'input-xxlarge'],
+   element_attr => {'data-placeholder' => 'Click to add a locale' },
+   tags => { after_element => \&help,
+             help => 'If no language is specified, all supported locales will be available.' },
+);
 
 =head2 redirecturl
 
@@ -167,7 +188,15 @@ has_block provisioning => (
     render_list => [qw(authorizer allowed_devices)]
 );
 
-=head1 Methods
+=head1 METHODS
+
+=head2 options_locale
+
+=cut
+
+sub options_locale {
+    return map { { value => $_, label => $_ } } @WEB::LOCALES;
+}
 
 =head2 options_authorizer
 
