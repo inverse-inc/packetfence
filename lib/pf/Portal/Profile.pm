@@ -129,6 +129,20 @@ sub getDescripton {
 
 *description = \&getDescripton;
 
+=item getLocales
+
+Returns the locales for the profile.
+
+=cut
+
+sub getLocales {
+    my ($self) = @_;
+    #return $self->{'_locale'};
+    return grep { $_ } @{$self->{'_locale'}};
+}
+
+*locale = \&getLocales;
+
 sub getRedirectURL {
     my ($self) = @_;
     return $self->{'_redirecturl'};

@@ -152,19 +152,18 @@ foreach (@components_mod_perl) { s{([^/])$}{$1\$} };
 my $allow_mod_perl = join('|', @components_mod_perl);
 Readonly::Scalar our $ALLOWED_RESOURCES_MOD_PERL => qr/ ^(?: $allow_mod_perl ) /xo; # eXtended pattern, compile Once
 
-=item EXTERNAL_PORTAL_PARAM
+=item LOCALES
 
-Build a regex that will decide what is considered as a external portal var parameter.
-
-This parameter should be something that contain the mac or ip address of the switch.
+Supported locales must be generated on the server and also have their binary catalog (.mo) under
+/usr/local/pf/conf/locale/. Notice that a PacketFence translation generated for a two-letter language
+code (ex: fr) will be used for any locale matching the language code (ex: fr_FR and fr_CA).
 
 =cut
 
-my @components_req =  _clean_urls_match_req();
-foreach (@components_req) { s{([^/])$}{$1\$} };
-my $allow_req = join('|', @components_req);
-Readonly::Scalar our $EXTERNAL_PORTAL_PARAM => qr/ ^(?: $allow_req ) /xo; # eXtended pattern, compile Once
-
+Readonly::Array our @LOCALES =>
+  (
+   qw(de_DE en_US es_ES fr_FR fr_CA he_IL it_IT nl_NL pl_PL pt_BR)
+  );
 
 =item _clean_urls_match
 

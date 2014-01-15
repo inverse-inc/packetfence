@@ -62,14 +62,22 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $profile) = @_;
-    $self->flatten_list($profile, qw(sources filter));
+    $self->flatten_list($profile, $self->_fields_expanded);
+}
+
+=head2 _fields_expanded
+
+=cut
+
+sub _fields_expanded {
+    return qw(sources filter locale);
 }
 
 __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2013-2014 Inverse inc.
 
 =head1 LICENSE
 
