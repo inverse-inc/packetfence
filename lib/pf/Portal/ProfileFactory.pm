@@ -64,6 +64,7 @@ sub _from_profile {
         ];
     }
     $profile{guest_modes} = _guest_modes_from_sources($sources);
+    $profile{name} = $profile_name;
     return pf::Portal::Profile->new( \%profile );
 }
 
