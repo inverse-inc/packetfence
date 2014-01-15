@@ -28,6 +28,7 @@ Enhancements
 * Allow pfcmd error/warning/success messages to be configurable
 * Landing page of Web admin interface now depends on the user's access rights
 * Reevaluate access when changing the role of multiple nodes (#1757)
+* Each portal profile can now use its own set of locales
 
 Bug Fixes
 +++++++++

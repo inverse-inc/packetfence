@@ -26,7 +26,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id description logo redirecturl always_use_redirecturl billing_engine) ],
+   render_list => [ qw(id description logo locale redirecturl always_use_redirecturl billing_engine) ],
   );
 
 
