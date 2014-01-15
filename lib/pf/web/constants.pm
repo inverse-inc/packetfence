@@ -52,7 +52,6 @@ sub to_hash {
 
 package WEB;
 
-use pf::config;
 
 =head2 URLs
 
@@ -220,7 +219,7 @@ Return a regex that would match all the portal profile uri: filter
 
 sub _clean_urls_match_filter {
     my @urls;
-    foreach my $filter ( grep { /^uri:/ } keys %Profile_Filters ) {
+    foreach my $filter ( grep { /^uri:/ } keys %pf::config::Profile_Filters ) {
         $filter =~ s/^uri://;
          push @urls, $filter;
     }

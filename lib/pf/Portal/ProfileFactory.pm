@@ -67,6 +67,7 @@ sub _from_profile {
     my $profile_ref    = $Profiles_Config{$profile_name};
     my %profile        = %$profile_ref;
     my $sources        = $profile{'sources'};
+    $profile{'name'}   = $profile_name;
     unless ( defined $sources && ref($sources) eq 'ARRAY' && @$sources ) {
         $profile{'sources'} = $sources = [
             map    { $_->id }
