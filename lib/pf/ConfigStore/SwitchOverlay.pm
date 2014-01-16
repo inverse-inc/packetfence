@@ -53,6 +53,7 @@ sub overlaySwitchConfig {
         my $switch = $SwitchConfig{$switchId};
         # Overlaying switch configation
         foreach my $key (qw(ip controllerIp)) {
+            next unless $config->exists($switchId,$key);
             $switch->{$key} = $config->val($switchId,$key);
         }
     }
