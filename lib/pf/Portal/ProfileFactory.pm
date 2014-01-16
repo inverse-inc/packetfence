@@ -33,14 +33,14 @@ Create a new pf::Portal::Profile instance based on parameters given.
 
 =cut
 
-our @MATCHES_TYPE = qw(ssid vlan switch);
+our @MATCHES_TYPE = qw(uri ssid vlan switch);
 our @MATCHES_LAST_TYPE = map {"last_$_"} @MATCHES_TYPE;
 
 sub instantiate {
     my ( $self, $mac, $options ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # We apply portal profiles based on the SSID, VLAN and switch. We check the last_(ssid|vlan|switch) for the given MAC
+    # We apply portal profiles based on the uri, SSID, VLAN and switch. We check the last_(ssid|vlan|switch) for the given MAC
     # and try to match a portal profile using the previously fetched filters.
     # If no match, we instantiate the default portal profile.
     my $node_info = $options || node_view($mac);

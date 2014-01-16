@@ -65,16 +65,8 @@ sub translate {
     #          to reload Apache dynamically. pf::web::constants will need some
     #          rework also
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o) {
-        my $profile = $r->uri;
-        $profile =~ s/\///;
-        my $captiv_url = APR::URI->parse($r->pool,"https://".$r->hostname."/captive-portal");
-        $captiv_url->hostname($r->hostname);
-        $captiv_url->scheme('http');
-        $captiv_url->scheme('https') if $r->is_https;
-        $captiv_url->query("PROFILE=$profile");
-        $r->status(200);
-        $r->headers_out->set('Location' => $captiv_url->unparse());
-        return Apache2::Const::REDIRECT;
+        $r->uri("/captive-portal");
+        return Apache2::Const::DECLINED;
     }
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES/o) {
         my $s = $r->server();

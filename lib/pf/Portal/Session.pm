@@ -35,6 +35,7 @@ use pf::Portal::ProfileFactory;
 use pf::util;
 use pf::web::constants;
 use pf::web::util;
+use pf::web::constants;
 
 =head1 CONSTANTS
 
@@ -84,11 +85,13 @@ sub _initialize {
 
     $self->{'_guest_node_mac'} = undef;
 
-    #If PROFILE param is defined then force the profile
-    if (defined ($cgi->param('PROFILE'))) {
-        $self->session->param('_profile',pf::Portal::ProfileFactory->_from_profile($cgi->param('PROFILE')));
+    if (defined ($cgi->url(-absolute=>1)) && $cgi->url(-absolute=>1) =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o) {
+        my $option = {
+            'last_uri' => $cgi->url(-absolute=>1),
+        };
+        $self->session->param('_profile',pf::Portal::ProfileFactory->instantiate($self->getClientMac,$option));
         $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-                return pf::Portal::ProfileFactory->_from_profile($cgi->param('PROFILE'));
+                return pf::Portal::ProfileFactory->instantiate($self->getClientMac,$option);
             }
         );
     } else {
