@@ -69,7 +69,7 @@ var NodeView = function(options) {
             source: $.proxy(this.searchUser, this),
             minLength: 2,
             items: 11,
-            matcher: function(item) { return true; },
+            matcher: function(item) { return true; }
         });
         /* Disable checked columns from import tab since they are required */
         $('form["nodes"] .columns :checked').attr('disabled', 'disabled');
@@ -132,7 +132,7 @@ NodeView.prototype.showNode = function(e) {
         source: $.proxy(that.searchUser, that),
         minLength: 2,
         items: 11,
-        matcher: function(item) { return true; },
+        matcher: function(item) { return true; }
     });
     modal.on('hidden', function (e) {
         if ($(e.target).hasClass('modal')) {
@@ -165,7 +165,7 @@ NodeView.prototype.searchUser = function(query, process) {
             else
                 control.removeClass('error');
             process(results);
-        },
+        }
     });
 };
 

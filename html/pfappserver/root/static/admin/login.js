@@ -18,9 +18,11 @@ function init() {
             $.ajax({
                 type: 'POST',
                 url: action,
-                data: { 'username': username.val(), 'password': password.val() }
+                data: form.serialize()
             }).done(function(data) {
-                window.location.href = form.find('[name="redirect_url"]').val();
+                var location = data.success;
+                if (location)
+                    window.location.href = location;
             }).fail(function(jqXHR) {
                 btn.button('reset');
                 var obj = $.parseJSON(jqXHR.responseText);
@@ -28,7 +30,7 @@ function init() {
                 showError(form_control, obj.status_msg);
             });
         }
-            
+
         return false;
     });
 
