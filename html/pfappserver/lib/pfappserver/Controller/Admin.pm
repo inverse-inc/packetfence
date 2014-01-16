@@ -78,14 +78,14 @@ sub login :Local :Args(0) {
                 $c->session->{user_roles} = [$c->user->roles];
                 # Save the updated roles data
                 $c->persist_user();
-                # Don't send a standard 302 redirect code; let the JavaScript catch the Location header
+                # Don't send a standard 302 redirect code; return the redirection URL in the JSON payload
                 # and perform the redirection on the client side
-                $c->response->status(HTTP_NO_CONTENT);
+                $c->response->status(HTTP_ACCEPTED);
                 if ($c->req->params->{'redirect_url'}) {
-                    $c->response->header('Location' => $c->req->params->{'redirect_url'});
+                    $c->stash->{success} = $c->req->params->{'redirect_url'};
                 }
                 else {
-                    $c->response->header('Location' => $c->uri_for($c->controller()->action_for('index')));
+                    $c->stash->{success} = $c->uri_for($c->controller()->action_for('index'));
               }
             }
             else {

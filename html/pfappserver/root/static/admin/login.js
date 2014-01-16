@@ -20,8 +20,8 @@ function init() {
                 type: 'POST',
                 url: action,
                 data: form.serialize()
-            }).done(function(data, textStatus, jqXHR) {
-                var location = jqXHR.getResponseHeader('Location');
+            }).done(function(data) {
+                var location = data.success;
                 if (location)
                     window.location.href = location;
             }).fail(function(jqXHR) {
