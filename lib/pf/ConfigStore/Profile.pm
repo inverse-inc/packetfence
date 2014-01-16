@@ -51,7 +51,7 @@ Clean up switch data
 
 sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
-    $self->expand_list($profile, qw(sources filter));
+    $self->expand_list($profile, $self->_fields_expanded);
 }
 
 =head2 cleanupBeforeCommit
