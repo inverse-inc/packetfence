@@ -14,7 +14,7 @@ function updateAction(type, keep_value) {
     value_new.attr('name', value.attr('name'));
     value_new.attr('data-required', 1);
     if (keep_value && value.val()) {
-        if(value_new.attr('multiple')  ) {
+        if (value_new.attr('multiple')) {
             value_new.val(value.val().split(","));
         }
         else {
@@ -113,8 +113,8 @@ function updateSection(ajax_data) {
                         $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
                     });
                     if (section.chosen) {
-                        section.find('.chzn-select').chosen();
-                        section.find('.chzn-deselect').chosen({allow_single_deselect: true});
+                        section.find('.chzn-select:visible').chosen();
+                        section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true});
                     }
                     if (section.bootstrapSwitch)
                         section.find('.switch').bootstrapSwitch();
