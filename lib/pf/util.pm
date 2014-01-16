@@ -148,7 +148,7 @@ Returns an untainted string with MAC in format: xx:xx:xx:xx:xx:xx
 
 sub clean_mac {
     my ($mac) = @_;
-    return (0) if ( !$mac );
+    return undef if ( !$mac );
 
     # trim garbage
     $mac =~ s/[\s\-\.:]//g;
