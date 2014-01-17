@@ -909,3 +909,26 @@ msgstr "The MAC address %s provided is invalid please try again"
 
 msgid "This module is not enabled"
 msgstr "This module is not enabled"
+
+## TELUS messages
+
+msgid "telus_welcome"
+msgstr "Welcome to TELUS Wi-Fi"
+
+msgid "telus_subwelcome"
+msgstr "TELUS keeps you connected to wi-fi on your smartphone, tablet or laptop when on&nbsp;the&nbsp;go."
+
+msgid "Email address"
+msgstr "Email address"
+
+msgid "telus_enter_email_address"
+msgstr "Enter your email address to obtain TELUS wireless access."
+
+msgid "telus_aup_agree"
+msgstr "I agree with the <a href=\"/aup\">Service Terms</a> and authorize TELUS to use my email to send me product updates, promotions and collect feedback."
+
+msgid "Submit"
+msgstr "Submit"
+
+msgid "telus_help"
+msgstr "Having trouble connecting? <a href=\"http://beta.telus.com/get-help/\">Get Help</a> or call us on <a href=\"tel:+1-855-200-9434\">1-855-200-WIFI (9434)"

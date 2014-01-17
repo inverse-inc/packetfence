@@ -1,0 +1,31 @@
+[% title = i18n("Confirm Mobile Phone Number") %]
+[% INCLUDE header.html
+    body_attributes = 'onload="$(\'pin\').focus();"';
+%]
+
+        [%# Welcome text %]
+        <div id="about" class="underlined">
+          <img src="/content/images/unlock.png" alt="Access information" />
+          <h1>[% title %]</h1>
+          <p>[% i18n("Please enter the PIN code received on your mobile phone in order to gain access to the network.") %]</p>
+          <hr/>
+        </div>
+
+        [% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
+
+        <form method="post" action="[% post_uri %]" id="loginForm">
+        <input type="hidden" name="destination_url" value="[% destination_url %]" />
+
+        [%# PIN %]
+        <div class="input">
+          <span>[% i18n("PIN") %]</span>
+          <input class="field" name="pin" id="pin" type="text" value="[% pin %]" />
+        </div>
+    
+        [%# submit %]
+        <div class="input">
+          <input type="submit" class="btn" name="action_confirm" value="[% i18n("Confirm") %]" class="submitButton" />
+        </div>
+        </form>
+
+[% INCLUDE footer.html %]

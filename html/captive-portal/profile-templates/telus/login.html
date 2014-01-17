@@ -1,0 +1,35 @@
+[% title = i18n("Login") %]
+[% INCLUDE header.html %]
+
+        [%# Error %]
+        [% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
+
+        <form name="login" method="post" action="/authenticate">
+          <input type="hidden" name="destination_url" value="[% destination_url %]" />
+          <input type="hidden" name="CGISESSID" value="[% session_id %]" />
+
+          <div class="input">
+            <label for="email">[% i18n('telus_enter_email_address') %]</label>
+            <input type="text" id="email" name="email" value="[% email | html %]" placeholder="[% i18n('Email address') %]" />
+          </div>
+
+          [%# AUP %]
+          <div class="input">
+           <div>
+             <input name="aup_signed" type="checkbox" />[% i18n('telus_aup_agree') %]
+           </div>
+          </div>
+          
+          [%# submit %]
+          <div class="input">
+            <input type="submit" class="btn" name="submit" value="[% i18n('Submit') %]" />
+          </div>
+        </form>
+
+        <div>
+          <img src="/content/images/TELUS-help.png" style="vertical-align: middle" /> [% i18n('telus_help') %]</a>.
+          </div>
+
+        <div id="billc28">10050001_20130718</div>
+
+[% INCLUDE footer.html %]

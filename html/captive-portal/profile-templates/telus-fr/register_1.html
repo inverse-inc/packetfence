@@ -1,0 +1,33 @@
+[%# TODO: generalize language selector and auto-detection %]
+<script type="text/javascript">
+function reloadLanguage(languageCode) {
+    var currentRef = window.location.href;
+    if (window.location.search.length == 0) {
+        window.location.replace(currentRef + '?lang=' + languageCode);
+    } else {
+        if (window.location.search.indexOf('lang=') == -1) {
+            window.location.replace(currentRef + '&lang=' + languageCode);
+        } else {
+            window.location.replace(currentRef.replace(/lang=.{5}/, 'lang=' + languageCode));
+        }
+    }
+}
+</script>
+
+[% IF list_locales.size > 1 %]
+  <p id="languages">
+    [% FOREACH locale_info IN list_locales %]
+      <a href="javascript:reloadLanguage('[% locale_info.value %]')">[% i18n(locale_info.value) %]</a>&nbsp;
+    [% END %]
+  </p>
+[% END %]
+
+        <div id="about">
+          <img src="/content/images/lock.png" alt="You are not authorized" />
+          <h1>Registration process</h1>
+          <p>We require all systems connecting to our network to be registered. 
+    The following pages will provide you with information regarding the acceptable use of computing resources on the network.
+    All users must read and agree to these policies prior to gaining network access. By clicking "I accept" on each page, you are agreeing that you have read and accept the terms of these policies.</p>
+           <p>This system will require you to enter your full e-mail address prior to registering your machine. This will tie each machine you register to your account.</p>
+          <hr/>
+        </div>

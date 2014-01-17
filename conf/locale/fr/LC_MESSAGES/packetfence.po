@@ -1025,3 +1025,26 @@ msgstr "L'adresse MAC %s n'est pas valide. Veuillez réessayer."
 
 msgid "This module is not enabled"
 msgstr "Ce module n'est pas activé"
+
+## TELUS messages
+
+msgid "telus_welcome"
+msgstr "Bienvenue au Wi-Fi de TELUS"
+
+msgid "telus_subwelcome"
+msgstr "TELUS vous permet de brancher votre téléphone intelligent, votre tablette ou votre ordinateur portable au réseau wi-fi à la maison et en déplacement."
+
+msgid "Email address"
+msgstr "Adresse courriel"
+
+msgid "telus_enter_email_address"
+msgstr "Entrez votre adresse de courriel pour obtenir l'accès au réseau sans-fil de TELUS."
+
+msgid "telus_aup_agree"
+msgstr "J'accepte les <a href=\"/aup\">modalités</a> et j'autorise TELUS à utiliser mon adresse courriel pour m'envoyer des mises à jour sur les produits et des offres promotionnelles, ainsi que pour recueillir mes commentaires."
+
+msgid "Submit"
+msgstr "Envoyer"
+
+msgid "telus_help"
+msgstr "Aide non traduite"

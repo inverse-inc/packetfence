@@ -1,0 +1,9 @@
+[%# Footer %]
+    </div>
+    <div id="footer">
+      [% IF username %]<img src="/content/images/user.png" alt="Help" />
+      <p>[% i18n("You are logged in as") %] <strong>[% username %]</strong> (<a href="[% post_uri %]?action=logout">[% i18n("Logout") %]</a>)</p>[% END %]
+    </div>
+  </div>
+  </body>
+</html>
