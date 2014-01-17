@@ -22,7 +22,7 @@ use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use CGI::Session::Driver::memcached;
 use HTML::Entities;
-use Locale::gettext qw(bindtextdomain textdomain);
+use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use Log::Log4perl;
 use POSIX qw(locale_h); #qw(setlocale);
 use Readonly;
@@ -122,7 +122,9 @@ sub _initializeI18n {
     if ($newlocale !~ m/^$locale/) {
         $logger->error("Error while setting locale to $locale.utf8. Is the locale generated on your system?");
     }
+    $self->stash->{locale} = $newlocale;
     bindtextdomain( "packetfence", "$conf_dir/locale" );
+    bind_textdomain_codeset( "packetfence", "utf-8" );
     textdomain("packetfence");
 }
 
@@ -414,10 +416,8 @@ sub getLanguages {
     if ( defined($self->getCgi->url_param('lang')) ) {
         my $user_chosen_language = $self->getCgi->url_param('lang');
         $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
-        $logger->debug("URL language is " . $user_chosen_language);
         if (grep(/^$user_chosen_language$/, @authorized_locales)) {
             $lang = $user_chosen_language;
-            push(@languages, $lang);
             # Store the language in the session
             $self->getSession->param("lang", $lang);
             $logger->debug("locale from the URL is $lang");
