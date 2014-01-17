@@ -595,6 +595,9 @@ sub readPfConfigFiles {
                             } elsif (is_type_inline($Config{$interface}{'enforcement'})) {
                                 push @inline_enforcement_nets, $int_obj;
                             }
+                            if ($int =~ m/(\w+):\d+/) {
+                                $int = $1;
+                            }
                             push @listen_ints, $int if ( $int !~ /:\d+$/ );
                         } elsif ( $type eq 'managed' || $type eq 'management' ) {
                             $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
