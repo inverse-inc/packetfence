@@ -19,7 +19,7 @@ RETVAL=0
 
 start() {
 	echo -n $"Starting ${prog_base}: "
-	if [ -f /usr/local/pf/var/pfdetect_remote.pid ]; then
+  if [ -f /usr/local/pf/var/pfdetect_remote.pid ] && ps -p $(cat /usr/local/pf/var/pfdetect_remote.pid) > /dev/null; then
 		echo -n $"${prog_base}: already running"
 		echo
 		return 0
