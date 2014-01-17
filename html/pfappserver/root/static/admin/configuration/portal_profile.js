@@ -210,39 +210,42 @@ function initCreatePage(element) {
 }
 
 function initReadPage(element) {
+    updateDynamicRowsAfterRemove($('#locale'));
     updateDynamicRowsAfterRemove($('#filter'));
     updateDynamicRowsAfterRemove($('#mandatory_fields'));
-    $('#sources,#mandatory_fields').on('admin.added','tr', function(event) {
+    $('#locale, #sources, #mandatory_fields').on('admin.added','tr', function(event) {
         var row = $(this);
         var siblings = row.siblings(':not(.hidden)');
         var selected_options = siblings.find("select option:selected");
         var select = row.find("select");
         select.find("option:selected").removeAttr("selected");
         var options = select.find('option[value!=""]');
+        // Select the next option that was not yet selected
         try {
             options.each(function(index,element) {
                 var selector = '[value="' + element.value   + '"]';
                 if(selected_options.filter(selector).length == 0) {
-                    $(element).attr("selected","selected");
+                    $(element).attr("selected", "selected");
                     throw "";
                 }
             });
         }
         catch(e) {};
+        // If all options have been added, remove the add button
         var rows = row.siblings(':not(.hidden)').andSelf();
-        if( rows.length == options.length){
+        if (rows.length == options.length) {
             rows.find('[href="#add"]').addClass('hidden');
         }
     });
-    $('#sources').on('admin.deleted','tbody', function(event) {
-        var tbody = $(this);
-        var rows = tbody.children(':not(.hidden)');
-        var row = rows.first();
-        var options = row.find("select option");
-        if (options.filter(':selected').attr('data-source-class') == 'exclusive') {
-            row.find('[href="#add"]').addClass('hidden');
-        } else if( rows.length < options.length ) {
-            rows.find('[href="#add"]').removeClass('hidden');
+    // When selecting an exclusive source, remove all other sources
+    $('#sources').on('change', 'select', function(event) {
+        var that = $(this);
+        var tr = that.closest('tr');
+        if (that.find(':selected').attr('data-source-class') == 'exclusive') {
+            tr.siblings(':not(.hidden)').find('[href="#delete"]').click();
+            tr.find('[href="#add"]').addClass('hidden');
+        } else {
+            tr.find('[href="#add"]').removeClass('hidden');
         }
     });
     $('#mandatory_fields').on('admin.deleted','tbody', function(event) {
@@ -254,25 +257,13 @@ function initReadPage(element) {
             rows.find('[href="#add"]').removeClass('hidden');
         }
     });
-    $('#sourcesEmpty').on('click','[href="#add"]', function(event) {
-        $('#sources').trigger('addrow');
-        $('#sourcesEmpty').addClass('hidden');
+    $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {
+        var match = /(.+)Empty/.exec(event.delegateTarget.id);
+        var id = match[1];
+        var emptyId = match[0];
+        $('#'+id).trigger('addrow');
+        $('#'+emptyId).addClass('hidden');
         return false;
-    });
-    $('#mandatory_fieldsEmpty').on('click','[href="#add"]', function(event) {
-        $('#mandatory_fields').trigger('addrow');
-        $('#mandatory_fieldsEmpty').addClass('hidden');
-        return false;
-    });
-    $('#sources').on('change','select', function(event) {
-        var that = $(this);
-        var tr = that.closest('tr');
-        if(that.find(':selected').attr('data-source-class') == 'exclusive') {
-            tr.siblings(':not(.hidden)').find('[href="#delete"]').click();
-            tr.find('[href="#add"]').addClass('hidden');
-        } else {
-            tr.find('[href="#add"]').removeClass('hidden');
-        }
     });
 }
 

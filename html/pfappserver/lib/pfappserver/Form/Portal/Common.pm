@@ -58,15 +58,17 @@ Accepted languages for the profile
 =cut
 
 has_field 'locale' =>
-  (
-   type => 'Select',
-   multiple => 1,
-   label => 'Languages',
-   localize_labels => 1,
-   element_class => ['chzn-select', 'input-xxlarge'],
-   element_attr => {'data-placeholder' => 'Click to add a locale' },
-   tags => { after_element => \&help,
-             help => 'If no language is specified, all supported locales will be available.' },
+(
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+);
+
+has_field 'locale.contains' =>
+(
+    type => 'Select',
+    options_method => \&options_locale,
+    widget_wrapper => 'DynamicTableRow',
 );
 
 =head2 redirecturl
@@ -245,10 +247,14 @@ Remove duplicates and make sure only one external authentication source is selec
 sub validate {
     my $self = shift;
 
-    my @all = uniq @{$self->value->{'sources'}};
-    $self->field('sources')->value(\@all);
+    my @uniq_locales = uniq @{$self->value->{'locale'}};
+    $self->field('locale')->value(\@uniq_locales);
+
+    my @uniq_sources = uniq @{$self->value->{'sources'}};
+    $self->field('sources')->value(\@uniq_sources);
+
     my %external;
-    foreach my $source_id (@all) {
+    foreach my $source_id (@uniq_sources) {
         my $source = &pf::authentication::getAuthenticationSource($source_id);
         next unless $source && $source->class eq 'external';
         $external{$source->{'type'}} = 0 unless (defined $external{$source->{'type'}});
@@ -267,7 +273,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
