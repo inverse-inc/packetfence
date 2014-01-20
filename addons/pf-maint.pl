@@ -79,7 +79,7 @@ apply_patch( $patch_data, $base, $head );
 
 sub get_release {
     chomp( my $release = read_file( catfile( $PF_DIR, 'conf/pf-release' ) ) );
-    die unless $release =~ m/.*?(\d+(\.\d+){2})$/;
+    die unless $release =~ m/.*?(\d+(\.\d+){2}(-\d+)?)$/;
     return $1;
 }
 
