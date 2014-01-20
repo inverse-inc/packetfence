@@ -58,7 +58,12 @@ sub new {
 
     my $self = bless {}, $class;
 
-    $self->_initialize() unless ($argv{'testing'});
+    if (defined($argv{'client_mac'})) {
+        $self->_initialize($argv{'client_mac'});
+    } else {
+        $self->_initialize() unless ($argv{'testing'});
+    }
+
     return $self;
 }
 
@@ -70,7 +75,7 @@ sub new {
 # run on every portal hit. We should profile then re-architect to store
 # in session expensive components to look for.
 sub _initialize {
-    my ($self) = @_;
+    my ($self,$mac) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $cgi = new CGI;
     $cgi->charset("UTF-8");
@@ -86,7 +91,7 @@ sub _initialize {
         }
     );
 
-    $self->{'_client_mac'} = $self->session->param("_client_mac") || $self->_restoreFromSession("_client_mac",sub {
+    $self->{'_client_mac'} = $mac || $self->session->param("_client_mac") || $self->_restoreFromSession("_client_mac",sub {
             return $self->getClientMac;
         }
     );
