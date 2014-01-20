@@ -213,6 +213,7 @@ Requires: perl(File::Slurp)
 # I shall file upstream tickets to openfusion before we integrate
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
+Requires: perl(Moose) <= 2.1005
 Requires: perl(CHI)
 Requires: perl(HTML::FormHandler)
 Requires: perl(Cache::Memcached)
@@ -801,6 +802,7 @@ fi
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfcache
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
