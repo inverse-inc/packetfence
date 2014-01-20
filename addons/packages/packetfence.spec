@@ -218,6 +218,7 @@ Requires: perl(MooseX::Types::LoadableClass)
 Requires: perl(Moose) <= 2.1005
 Requires: perl(CHI) >= 0.58
 Requires: perl(Data::Serializer)
+>>>>>>> Spec file modification
 Requires: perl(HTML::FormHandler)
 Requires: perl(Cache::Memcached)
 Requires: perl(CHI::Driver::Memcached)
