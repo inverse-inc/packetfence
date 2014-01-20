@@ -762,12 +762,17 @@ fi
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/responsive.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
+%config(noreplace)      /usr/local/pf/html/captive-portal/content/telus-responsive.css
+%config(noreplace)      /usr/local/pf/html/captive-portal/content/telus-style.css
                         /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
+%dir                    /usr/local/pf/html/captive-portal/content/fonts
+                        /usr/local/pf/html/captive-portal/content/fonts/*
 %dir                    /usr/local/pf/html/captive-portal/templates
 %config(noreplace)      /usr/local/pf/html/captive-portal/templates/*
+%config(noreplace)      /usr/local/pf/html/captive-portal/profile-templates/*
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
                         /usr/local/pf/html/pfappserver/
