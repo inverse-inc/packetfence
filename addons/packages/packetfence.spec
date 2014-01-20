@@ -213,6 +213,7 @@ Requires: perl(File::Slurp)
 # I shall file upstream tickets to openfusion before we integrate
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
+Requires: perl(Moose) <= 2.1005
 Requires: perl(CHI)
 Requires: perl(Data::Serializer)
 Requires: perl(HTML::FormHandler)
