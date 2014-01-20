@@ -378,8 +378,8 @@ sub getNormalVlan {
         $role = $node_info->{'category'};
         $logger->info("Username was NOT defined or unable to match a role - returning node based role '$role'");
     }
-
-    return ($switch->getVlanByName($role), $role);
+    my $vlan = $switch->getVlanByName($role);
+    return ($vlan, $role);
 }
 
 =item getInlineVlan
