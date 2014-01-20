@@ -152,6 +152,19 @@ foreach (@components_mod_perl) { s{([^/])$}{$1\$} };
 my $allow_mod_perl = join('|', @components_mod_perl);
 Readonly::Scalar our $ALLOWED_RESOURCES_MOD_PERL => qr/ ^(?: $allow_mod_perl ) /xo; # eXtended pattern, compile Once
 
+=item EXTERNAL_PORTAL_PARAM
+
+Build a regex that will decide what is considered as a external portal var parameter.
+
+This parameter should be something that contain the mac or ip address of the switch.
+
+=cut
+
+my @components_req =  _clean_urls_match_req();
+foreach (@components_req) { s{([^/])$}{$1\$} };
+my $allow_req = join('|', @components_req);
+Readonly::Scalar our $EXTERNAL_PORTAL_PARAM => qr/ ^(?: $allow_req ) /xo; # eXtended pattern, compile Once
+
 =item LOCALES
 
 Supported locales must be generated on the server and also have their binary catalog (.mo) under
