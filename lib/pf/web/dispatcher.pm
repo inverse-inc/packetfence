@@ -140,7 +140,7 @@ sub external_captive_portal {
     elsif (defined($session)) {
         my (%session_id);
         pf::web::util::session(\%session_id,$session);
-        if (defined($session_id{switch})) {
+        if ($session_id{_session_id} eq $session) {
             my $switch = $session_id{switch};
             #if ($$switch->supportsExternalPortal) {
                 my $portalSession = pf::Portal::Session->new();
