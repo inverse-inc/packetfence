@@ -97,7 +97,7 @@ Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
 Readonly::Scalar our $REQ_MERAKI                => 'node_mac';
 Readonly::Scalar our $REQ_CISCO                 => 'ap_mac';
 Readonly::Scalar our $REQ_ARUBA                 => 'apname';
-Readonly::Scalar our $REQ_CISCO_PORTAL          => 'cisco_external_portal(.*)';
+Readonly::Scalar our $REQ_CISCO_PORTAL          => 'cep(.*)';
 
 =head2 Apache Config related
 
