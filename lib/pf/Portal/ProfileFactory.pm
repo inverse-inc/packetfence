@@ -48,11 +48,11 @@ sub instantiate {
           grep { defined $_ && exists $Profile_Filters{$_} }
           @filter_ids) || 'default' ;
 
-    return _from_profile($profile_name);
+    return $self->_from_profile($profile_name);
 }
 
 sub _from_profile {
-    my ($profile_name) = @_;
+    my ($self,$profile_name) = @_;
     my $profile_ref    = $Profiles_Config{$profile_name};
     my %profile        = %$profile_ref;
     my $sources        = $profile{'sources'};
@@ -65,6 +65,7 @@ sub _from_profile {
     }
     $profile{guest_modes} = _guest_modes_from_sources($sources);
     $profile{name} = $profile_name;
+    $profile{template_path} = $profile_name;
     return pf::Portal::Profile->new( \%profile );
 }
 
