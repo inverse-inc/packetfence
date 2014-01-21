@@ -190,7 +190,6 @@ sub redirect {
 
    # Try to fetch the parameters in the session
    if ($r->uri =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
-       $logger->warn($1);
        my $cgi_session_id = external_captive_portal(undef,undef,$r,$1);
            if ($cgi_session_id ne '0') {
                # Set the cookie for the captive portal
