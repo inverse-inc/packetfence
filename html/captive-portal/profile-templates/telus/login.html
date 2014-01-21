@@ -10,7 +10,7 @@
 
           <div class="input">
             <label for="email">[% i18n('telus_enter_email_address') %]</label>
-            <input type="text" id="username" name="username" value="[% email | html %]" placeholder="[% i18n('Email address') %]" />
+            <input type="text" id="username" name="username" value="[% username | html %]" placeholder="[% i18n('Email address') %]" />
           </div>
 
           [%# AUP %]
@@ -19,7 +19,7 @@
              <input name="aup_signed" type="checkbox" />[% i18n('telus_aup_agree') %]
            </div>
           </div>
-          
+
           [%# submit %]
           <div class="input">
             <input type="submit" class="btn" name="submit" value="[% i18n('Submit') %]" />

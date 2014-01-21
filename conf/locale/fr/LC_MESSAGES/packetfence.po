@@ -52,7 +52,7 @@ msgid "error: invalid login or password"
 msgstr "Nom d'utilisateur ou mot de passe invalide"
 
 msgid "Invalid login or password"
-msgstr "Nom d'utilisateur ou mot de passe invalide"
+msgstr "Veuillez sp&eacute;cifier une adresse valide."
 
 msgid "error: invalid page number"
 msgstr "Num&eacute;ro de page invalide"

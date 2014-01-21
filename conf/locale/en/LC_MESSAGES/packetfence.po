@@ -51,7 +51,7 @@ msgid "error: invalid login or password"
 msgstr "Invalid login or password"
 
 msgid "Invalid login or password"
-msgstr ""
+msgstr "Please enter a valid email address."
 
 msgid "error: invalid page number"
 msgstr "Invalid page number"
