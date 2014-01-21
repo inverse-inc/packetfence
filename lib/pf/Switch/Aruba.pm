@@ -532,7 +532,7 @@ sub radiusDisconnect {
         };
 
         $logger->debug("network device supports roles. Evaluating role to be returned");
-        my $role = $this->getRoleByName($user_role);
+        my $role = $self->getRoleByName($user_role);
 
         my $acctsessionid = node_accounting_current_sessionid($mac);
         my $node_info = node_attributes($mac);
