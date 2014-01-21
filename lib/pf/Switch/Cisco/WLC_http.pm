@@ -178,7 +178,7 @@ sub returnRadiusAccessAccept {
                 $session_id{switch} = \$this;
                 $radius_reply_ref = {
                     'User-Name' => $mac,
-                    'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}/"],
+                    'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}"],
                 };
             }
             $logger->info("Returning ACCEPT with Role: $role");
