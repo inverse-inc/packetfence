@@ -399,7 +399,7 @@ assigning VLANs and Roles at the same time.
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     my $radius_reply_ref = {};
@@ -408,8 +408,7 @@ sub returnRadiusAccessAccept {
     try {
 
         $logger->debug("network device supports roles. Evaluating role to be returned");
-        my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $this);
+        my $role = $this->getRoleByName($user_role);
 
         # Roles are configured and the user should have one
         if (defined($role)) {
@@ -533,8 +532,7 @@ sub radiusDisconnect {
         };
 
         $logger->debug("network device supports roles. Evaluating role to be returned");
-        my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $self);
+        my $role = $this->getRoleByName($user_role);
 
         my $acctsessionid = node_accounting_current_sessionid($mac);
         my $node_info = node_attributes($mac);
