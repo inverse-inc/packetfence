@@ -51,7 +51,7 @@ our (
     $mdm_config_file,
     $admin_roles_config_file,
     $wrix_config_file,
-    $switches_overlay_file
+    $switches_overlay_file,
     $allowed_gaming_oui_file, $allowed_gaming_console_types_file
 );
 
