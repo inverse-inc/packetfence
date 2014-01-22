@@ -16,11 +16,13 @@ use Apache2::RequestUtil;
 use Apache2::URI;
 use Apache2::Filter();
 use Apache2::Request;
+use Apache2::Connection;
 
 use APR::URI;
 use Log::Log4perl;
 
 use pf::config;
+use pf::util;
 
 use constant BUFF_LEN => 1024;
 
@@ -37,8 +39,9 @@ sub rewrite {
     if ($r->content_type =~ /text\/html(.*)/) {
         unless ($f->ctx) {
             my @valhead = $r->headers_out->get('Location');
-            my $value = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
-            my $replacementheader = $r->hostname.":".$r->get_server_port."/portail";
+            my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+            my $value = $proto.'://'.$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
+            my $replacementheader = 'https://'.$r->hostname.":".$r->get_server_port."/portail";
             my $headval;
             foreach $headval (@valhead) {
                 if ($headval && $headval =~ /$value/x) {
