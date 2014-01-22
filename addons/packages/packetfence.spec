@@ -114,6 +114,7 @@ Requires: perl(Config::IniFiles) >= 2.40
 Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
 Requires: perl(DBI)
 Requires: perl(Rose::DB)
+Requires: perl(Rose::DB::Object)
 Requires: perl(File::Tail)
 Requires: perl(IPC::Cmd)
 Requires: perl(IPTables::ChainMgr)
