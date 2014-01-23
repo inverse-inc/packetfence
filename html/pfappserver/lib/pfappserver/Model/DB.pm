@@ -50,7 +50,7 @@ sub assign {
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
-        my $sql_query = "GRANT DROP ON $db.radius_nas TO ?\@${host} IDENTIFIED BY ?";
+        $sql_query = "GRANT DROP ON $db.radius_nas TO ?\@${host} IDENTIFIED BY ?";
         $dbHandler->do($sql_query, undef, $user, $password);
         if ( $DBI::errstr ) {
             $status_msg = "Error creating the user $user on database $db";
