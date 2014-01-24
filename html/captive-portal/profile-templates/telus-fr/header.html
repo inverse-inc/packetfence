@@ -9,7 +9,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>[% title %]</title>
     <link href="/content/telus-style.css" media="screen" rel="stylesheet" type="text/css" />
-    <link href="/content/telus-responsive.css" media="screen" rel="stylesheet" type="text/css" />
     <script src="/common/prototype.js" type="text/javascript"></script>
     <script src="/common/pf.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -24,6 +23,7 @@
     </script>
   </head>
   <body [% body_attributes %]>
+    <div id="language">[% IF locale.substr(0, 3) == 'en_' %]<span class="btn-small disabled">EN</span>[% ELSE %]<a href="[% URL_CAPTIVE_PORTAL %]?lang=en_US" class="btn-small">EN</a>[% END %][% IF locale.substr(0, 3) == 'fr_' %]<span class="btn-small disabled">FR</span>[% ELSE %]<a href="[% URL_CAPTIVE_PORTAL %]?lang=fr_CA" class="btn-small[% ' disabled' IF locale.substr(0, 3) == 'fr_' %]">FR</a>[% END %]<hr/></div>
     <div id="wrapper">
       <div id="header">
         <img class="logo" src="/content/images/TELUS-logo.svg" alt="TELUS"/>
