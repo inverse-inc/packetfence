@@ -33,6 +33,9 @@ Create a new pf::Portal::Profile instance based on parameters given.
 
 =cut
 
+our @MATCHES_TYPE = qw(ssid vlan switch);
+our @MATCHES_LAST_TYPE = map {"last_$_"} @MATCHES_TYPE;
+
 sub instantiate {
     my ( $self, $mac, $options ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -41,7 +44,15 @@ sub instantiate {
     # and try to match a portal profile using the previously fetched filters.
     # If no match, we instantiate the default portal profile.
     my $node_info = $options || node_view($mac);
-    my @filter_ids = ((map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan switch)), @{$node_info}{'last_ssid','last_vlan','last_switch'});
+
+    my @filter_ids = (
+        (   map {
+                my $val = $node_info->{ "last_$_" };
+                defined $val ? ("${_}:$val") : ()
+            } @MATCHES_TYPE
+        ),
+        grep { $_ } @{ $node_info }{ @MATCHES_LAST_TYPE }
+    );
     my $profile_name =
         first( sub{ exists $Profiles_Config{$_} },
         map { $Profile_Filters{$_} }
