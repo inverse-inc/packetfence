@@ -345,6 +345,7 @@ gcc -g0 src/pfcmd.c -o bin/pfcmd
 %{__install} -d -m2775 $RPM_BUILD_ROOT%logdir
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
