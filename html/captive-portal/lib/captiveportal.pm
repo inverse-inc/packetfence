@@ -139,8 +139,10 @@ sub add_deferred_actions {
     }
 }
 
-__PACKAGE__->log(
-    Log::Log4perl::Catalyst->new( INSTALL_DIR . '/conf/log.conf' ) );
+__PACKAGE__->log( Log::Log4perl::Catalyst->new( INSTALL_DIR . '/conf/log.conf' ) );
+
+# Handle warnings from Perl as error log messages
+$SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
 
 # Start the application
 __PACKAGE__->setup();
