@@ -119,10 +119,13 @@ sub external_captive_portal {
             $switch = pf::SwitchFactory->getInstance()->instantiate({switch_mac => $switchId});
         }
         if (defined($switch) && $switch->supportsExternalPortal) {
-            my $portalSession = pf::Portal::Session->new();
             my ($client_mac,$client_ssid,$client_ip,$redirect_url,$grant_url,$status_code) = $switch->parseUrl(\$req);
+            my %info = (
+                'client_mac' => $client_mac,
+            );
+            my $portalSession = pf::Portal::Session->new(%info);
             $portalSession->setClientIp($client_ip) if (defined($client_ip));
-            $portalSession->setClientMac($client_mac) if (defined($client_mac));
+            #$portalSession->setClientMac($client_mac) if (defined($client_mac));
             $portalSession->setDestinationUrl($redirect_url) if (defined($redirect_url));
             $portalSession->setGrantUrl($grant_url) if (defined($grant_url));
             #$portalSession->cgi->param("do_not_deauth", $TRUE) if (defined($grant_url));
