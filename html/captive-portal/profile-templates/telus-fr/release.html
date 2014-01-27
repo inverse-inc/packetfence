@@ -21,7 +21,7 @@ document.observe("dom:loaded", function() {
   }
   
   detectNetworkAccess.delay([% initial_delay %], 
-    [% retry_delay %], "[% destination_url %]", "[% redirect_url %]", "[% external_ip %]"
+    [% retry_delay %], "[% destination_url %]", "[% external_ip %]"
   );
   [% END %]
 });
