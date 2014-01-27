@@ -177,10 +177,17 @@ sub regzone {
             push @ans, $rr;
             $rcode = "NOERROR";
         }
-        else {
+        elsif ($query =~ /$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}/) {
             my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
             my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
             push @ans, $rr;
+            $rcode = "NOERROR";
+        } else {
+            my ($ttl, $rdata) = ($TTL, $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}.".");
+            my $rr = new Net::DNS::RR("$qname $ttl IN CNAME $rdata");
+            my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $conn->{sockhost}");
+            push @ans, $rr;
+            push @ans, $rr2;
             $rcode = "NOERROR";
         }
     }else{
