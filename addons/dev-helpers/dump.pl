@@ -10,7 +10,7 @@ dump add documentation
 
 =head1 SYNOPSIS
 
-dump.pl <config|floatingdevices|profiles_filters|profiles|sources>
+dump.pl <config|floatingdevices|profiles_filters|profiles|sources|switch|switches>
 
 =head1 DESCRIPTION
 
