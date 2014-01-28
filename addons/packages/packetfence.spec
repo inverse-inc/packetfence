@@ -216,7 +216,7 @@ Requires: perl(File::Slurp)
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
 Requires: perl(Moose) <= 2.1005
-Requires: perl(CHI)
+Requires: perl(CHI) >= 0.58
 Requires: perl(Data::Serializer)
 Requires: perl(HTML::FormHandler)
 Requires: perl(Cache::Memcached)
@@ -224,7 +224,7 @@ Requires: perl(CHI::Driver::Memcached)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
 Requires: perl(Cache::FastMmap)
-Requires: perl(Moo) >= 1.0
+Requires: perl(Moo) >= 1.003001
 Requires: perl(Term::ANSIColor)
 Requires: perl(IO::Interactive)
 Requires: perl(Module::Loaded)

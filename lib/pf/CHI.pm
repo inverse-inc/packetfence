@@ -36,9 +36,15 @@ sub chiConfigFromIniFile {
         $args{$key} = sectionData($chi_config,$key);
     }
     foreach my $storage (values %{$args{storage}}) {
-        foreach my $param (qw(servers traits)) {
+        foreach my $param (qw(servers traits roles)) {
             if(exists $storage->{$param}) {
                 $storage->{$param} = [split /\s*,\s*/,$storage->{$param}];
+            }
+        }
+        foreach my $param (qw(dir_create_mode file_create_mode umask_on_store)) {
+            if(exists $storage->{$param}) {
+                my $val = $storage->{$param};
+                $storage->{$param} = oct($val) if $val =~  /^0/;
             }
         }
     }
