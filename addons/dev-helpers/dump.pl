@@ -10,7 +10,7 @@ dump add documentation
 
 =head1 SYNOPSIS
 
-dump.pl <config|floatingdevices|profiles_filters|profiles|sources>
+dump.pl <config|floatingdevices|profiles_filters|profiles|sources|switch|switches>
 
 =head1 DESCRIPTION
 
@@ -64,6 +64,30 @@ use Data::Dumper;
 sub _run {
     require pf::authentication;
     print Dumper(\@pf::authentication::authentication_sources);
+}
+
+package pf::dump::switchconfig;
+use base qw(pf::cmd);
+use Data::Dumper;
+
+sub _run {
+    require pf::ConfigStore::SwitchOverlay;
+    print Dumper(\%pf::ConfigStore::Switch::SwitchConfig);
+}
+
+package pf::dump::switch;
+use base qw(pf::cmd);
+use Data::Dumper;
+
+sub parseArgs {
+    my ($self) = @_;
+    return $self->args == 1;
+}
+
+sub _run {
+    require pf::SwitchFactory;
+    my ($switch) = $_[0]->args;
+    print Dumper(pf::SwitchFactory->instantiate($switch));
 }
 
 package main;
