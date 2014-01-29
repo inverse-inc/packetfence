@@ -120,7 +120,7 @@ sub external_captive_portal {
     if (defined($switchId)) {
         $switch = pf::SwitchFactory->getInstance()->instantiate($switchId);
         if ($switch eq '0') {
-            my $locationlog_entry = locationlog_view_open_mac($mac);
+            my $locationlog_entry = locationlog_view_open_mac($switchId);
             $switch = pf::SwitchFactory->getInstance()->instantiate($locationlog_entry->{'switch'});
         }
 
