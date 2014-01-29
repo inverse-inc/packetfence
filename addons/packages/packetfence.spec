@@ -437,6 +437,7 @@ ln -s ../sites-available/inner-tunnel inner-tunnel
 ln -s ../sites-available/packetfence packetfence
 ln -s ../sites-available/packetfence-soh packetfence-soh
 ln -s ../sites-available/packetfence-tunnel packetfence-tunnel
+ln -s ../sites-available/dynamic-clients dynamic-clients
 
 cd $curdir
 #end create symlinks
