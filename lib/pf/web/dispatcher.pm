@@ -31,6 +31,7 @@ use pf::web::util;
 use pf::proxypassthrough::constants;
 use pf::Portal::Session;
 use pf::iplog qw(iplog_update);
+use pf::locationlog qw(locationlog_view_open_mac);
 
 =head1 SUBROUTINES
 
@@ -117,12 +118,13 @@ sub external_captive_portal {
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $switch;
     if (defined($switchId)) {
-        if (valid_ip($switchId)) {
-            $switch = pf::SwitchFactory->getInstance()->instantiate({switch_ip => $switchId});
-        } elsif (valid_mac($switchId)) {
-            $switch = pf::SwitchFactory->getInstance()->instantiate({switch_mac => $switchId});
+        $switch = pf::SwitchFactory->getInstance()->instantiate($switchId);
+        if ($switch eq '0') {
+            my $locationlog_entry = locationlog_view_open_mac($mac);
+            $switch = pf::SwitchFactory->getInstance()->instantiate($locationlog_entry->{'switch'});
         }
-        if (defined($switch) && $switch->supportsExternalPortal) {
+
+        if (defined($switch) && $switch ne '0' && $switch->supportsExternalPortal) {
             my ($client_mac,$client_ssid,$client_ip,$redirect_url,$grant_url,$status_code) = $switch->parseUrl(\$req);
             my %info = (
                 'client_mac' => $client_mac,
@@ -184,14 +186,16 @@ sub redirect {
    my $is_external_portal;
    foreach my $param ($req->param) {
        if ($param =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
-           my $cgi_session_id = external_captive_portal($req->param($param),$req,$r,undef);
-           if ($cgi_session_id ne '0') {
-               # Set the cookie for the captive portal
-               $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
-               $logger->warn("Dumping session id: $cgi_session_id");
+           if (valid_mac($req->param($param)) || valid_ip($req->param($param))) {
+               my $cgi_session_id = external_captive_portal($req->param($param),$req,$r,undef);
+               if ($cgi_session_id ne '0') {
+                   # Set the cookie for the captive portal
+                   $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
+                   $logger->warn("Dumping session id: $cgi_session_id");
+                   $is_external_portal = 1;
+                   last;
+               }
            }
-           $is_external_portal = 1;
-           last;
        }
    }
 

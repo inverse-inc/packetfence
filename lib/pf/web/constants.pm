@@ -96,6 +96,7 @@ Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
 # External Captive Portal detection constant
 Readonly::Scalar our $REQ_MERAKI                => 'node_mac';
 Readonly::Scalar our $REQ_CISCO                 => 'ap_mac';
+Readonly::Scalar our $REQ_MAC                   => 'mac';
 Readonly::Scalar our $REQ_ARUBA                 => 'apname';
 Readonly::Scalar our $REQ_CISCO_PORTAL          => '/cep(.*)';
 
