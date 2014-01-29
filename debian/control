@@ -77,7 +77,7 @@ Depends: ${misc:Depends}, vlan, make,
  libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl,
  libsort-naturally-perl, libhtml-formhandler-perl, libchi-perl (>=0.58),
  libchi-driver-memcached-perl,libcache-memcached-perl, libdata-serializer-perl,
- libcache-fastmmap-perl, libmoo-perl (>=1.003001),
+ libcache-fastmmap-perl, libmoo-perl (>=1.003000),
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl,
 # i18n
