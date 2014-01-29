@@ -148,7 +148,7 @@ Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
 # pfdns
-Requires: perl(Net::DNS) = 0.65-4
+Requires: perl(Net::DNS) = 0.65
 Requires: perl(Net::DNS::Nameserver) = 749
 # RADIUS CoA support
 Requires: perl(Net::Radius::Dictionary), perl(Net::Radius::Packet)
@@ -213,7 +213,7 @@ Requires: perl(File::Slurp)
 # I shall file upstream tickets to openfusion before we integrate
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
-Requires: perl(Moose) <= 2.1005
+Requires: perl(Moose) < 2.1006
 Requires: perl(Data::Serializer)
 Requires: perl(CHI) >= 0.58
 Requires: perl(HTML::FormHandler)
@@ -222,7 +222,7 @@ Requires: perl(CHI::Driver::Memcached)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
 Requires: perl(Cache::FastMmap)
-Requires: perl(Moo) >= 1.003001
+Requires: perl(Moo) >= 1.003000
 Requires: perl(Term::ANSIColor)
 Requires: perl(IO::Interactive)
 Requires: perl(Module::Loaded)
