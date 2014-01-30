@@ -1,4 +1,5 @@
 package pf::Role::CHI::Driver::FileUmask;
+
 =head1 NAME
 
 pf::Role::CHI::Driver::FileUmask add documentation
@@ -14,19 +15,14 @@ pf::Role::CHI::Driver::FileUmask
 use strict;
 use warnings;
 use Moo::Role;
+use MooX::Types::MooseLike::Base qw(:all);
 
-has old_umask => (is => 'rw');
-
-has umask_on_store => (is => 'rw', default => sub {oct(0007)} );
+has umask_on_store =>
+  ( is => 'rw', isa => Int, default => sub { oct( 0002 ) } );
 
 before store => sub {
-    my ($self) = @_;
-    $self->old_umask(umask oct($self->umask_on_store));
-};
-
-after store => sub {
-    my ($self) = @_;
-    umask $self->old_umask;
+    my ( $self ) = @_;
+    umask $self->umask_on_store;
 };
 
 =head1 AUTHOR
