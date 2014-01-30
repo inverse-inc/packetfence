@@ -18,10 +18,15 @@ dump
 
 =cut
 
+package pf::dump::cmd;
+use base qw(pf::cmd);
+use Module::Loaded qw(mark_as_loaded);
+
 
 package pf::dump::config;
-use base qw(pf::cmd);
+use base qw(pf::dump::cmd);
 use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
 
 sub _run {
     require pf::config;
@@ -30,8 +35,9 @@ sub _run {
 
 
 package pf::dump::floatingdevices;
-use base qw(pf::cmd);
+use base qw(pf::dump::cmd);
 use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
 
 sub _run {
     require pf::config;
@@ -39,8 +45,9 @@ sub _run {
 }
 
 package pf::dump::profiles;
-use base qw(pf::cmd);
+use base qw(pf::dump::cmd);
 use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
 
 sub _run {
     require pf::config;
@@ -49,8 +56,9 @@ sub _run {
 
 
 package pf::dump::profiles_filters;
-use base qw(pf::cmd);
+use base qw(pf::dump::cmd);
 use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
 
 sub _run {
     require pf::config;
@@ -58,12 +66,23 @@ sub _run {
 }
 
 package pf::dump::sources;
-use base qw(pf::cmd);
+use base qw(pf::dump::cmd);
 use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
 
 sub _run {
     require pf::authentication;
     print Dumper(\@pf::authentication::authentication_sources);
+}
+
+package pf::dump::chiconfig;
+use base qw(pf::dump::cmd);
+use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
+
+sub _run {
+    require pf::CHI;
+    print Dumper(pf::CHI::chiConfigFromIniFile());
 }
 
 package main;
