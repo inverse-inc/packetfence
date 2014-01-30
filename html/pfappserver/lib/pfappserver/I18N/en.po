@@ -4025,11 +4025,17 @@ msgstr "iptables"
 
 # conf/documentation.conf
 msgid "services.memcached"
-msgstr ""
+msgstr "memcached"
 
 # conf/documentation.conf
 msgid "services.memcached_binary"
-msgstr ""
+msgstr "memcached path"
+
+msgid "services.memcached_memory_usage"
+msgstr "memcached memory"
+
+msgid "services.memcached_max_item_size"
+msgstr "memcached item size"
 
 # conf/documentation.conf
 msgid "services.pfdns"
