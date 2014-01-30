@@ -86,7 +86,6 @@ sub _initialize {
             return $self->_resolveIp();
         }
     );
-    $logger->warn($self->session->param("_client_mac"));
 
     $self->{'_client_mac'} = $mac || $self->session->param("_client_mac") || $self->_restoreFromSession("_client_mac",sub {
             return $self->getClientMac;
