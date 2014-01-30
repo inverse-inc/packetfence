@@ -478,7 +478,7 @@ will return qw(en_US en fr fr_CA no es)
 
 sub getRequestLanguages {
     my ($self) = @_;
-    my $s = $self->getCgi->http('Accept-language');
+    my $s = $self->getCgi->http('Accept-language') || 'en_US';
     my @l = split(/,/, $s);
     map { s/;.+// } @l;
     map {  s/-/_/g } @l;

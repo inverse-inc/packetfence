@@ -86,7 +86,7 @@ sub trigger_db_prepare {
         qq[ select tid_start,tid_end,class.vid,type,description from `trigger`,class where class.vid=`trigger`.vid ]);
 
     $trigger_statements->{'trigger_view_type_sql'} = get_db_handle()->prepare(
-        qq[ select tid_start,tid_end,class.vid,type,description from `trigger`,class where class.vid=`trigger`.vid and type=?]);
+        qq[ select tid_start,tid_end,class.vid,type,description,enabled from `trigger`,class where class.vid=`trigger`.vid and type=?]);
 
     $trigger_statements->{'trigger_exist_sql'} = get_db_handle()->prepare(
         qq [ select vid,tid_start,tid_end,type,whitelisted_categories from `trigger` where vid=? and tid_start<=? and tid_end>=? and type=? and whitelisted_categories=? ]
