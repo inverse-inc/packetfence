@@ -446,14 +446,15 @@ $(function () { // DOM ready
         if (row_model) {
             var row_new = row_model.clone();
             row_new.removeClass('hidden');
-            row_new.find(':input').removeAttr("disabled");
-            if(row.length > 0) {
+            row_new.find(':input').removeAttr('disabled');
+            row_new.find('.btn').removeClass('disabled');
+            if (row.length > 0) {
                 row_new.insertAfter(row);
             } else {
                 row_new.insertBefore(row_model);
             }
             var rows = tbody.children(':not(.hidden)');
-            if(table.hasClass("table-sortable") ) {
+            if (table.hasClass("table-sortable") ) {
                 rows = rows.filter(":has(.sort-handle)");
             }
             updateDynamicRows(rows);
