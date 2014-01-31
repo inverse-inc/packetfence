@@ -402,6 +402,7 @@ sub RewriteConfig {
         die "Config $file was modified from last loading\n";
     }
     my $result;
+    umask 2;
     my $lock = lockFileForWriting($file);
     if ( exists $config->{imported} && defined $config->{imported}) {
         #localizing for saving only what is in
@@ -420,9 +421,6 @@ sub RewriteConfig {
         $result = $config->RewriteConfig();
     }
     if($result) {
-        $config->SetWriteMode($WRITE_PERMISSIONS);
-        my $mode = oct($config->GetWriteMode);
-        chmod $mode, $file;
         $config = $self->computeFromPath(
             $file,
             sub { return $config; }, 1
@@ -585,9 +583,8 @@ helper function for locking files
 
 sub _lockFileFor {
     my ($file, $mode) = @_;
-    my $old_mask = umask 2;
+    umask 2;
     my $flock = File::Flock->new(_makeFileLock($file),$mode);
-    umask $old_mask;
     return $flock;
 }
 
@@ -634,28 +631,6 @@ sub ReadConfig {
     $reloaded_from_cache = refaddr($config) != refaddr($$self);
     $self->doCallbacks($reloaded_from_file,$reloaded_from_cache);
     return $result;
-}
-
-=head2 RefreshConfig
-
-Will reload the config only from the cache
-
-=cut
-
-sub RefreshConfig {
-    my ($self) = @_;
-    my $config = $self->config;
-    my $file   = $config->GetFileName;
-    my $reloaded_from_cache = 0;
-    my $logger = get_logger();
-    $logger->trace("RefreshConfig for $file");
-    $$self = $self->computeFromPath(
-        $file,
-        sub {  $config }
-    );
-    $reloaded_from_cache = refaddr($config) != refaddr($$self);
-    $self->doCallbacks(0,$reloaded_from_cache);
-    return 1;
 }
 
 =head2 TIEHASH
@@ -741,20 +716,6 @@ Get the global CHI object for configfilesdata
 
 sub cacheForData {
     return pf::CHI->new(namespace => 'configfilesdata' );
-}
-
-=head2 RefreshConfigs
-
-RefreshConfigs reload all configs and call any register callbacks
-
-=cut
-
-sub RefreshConfigs {
-    my $logger = get_logger();
-    $logger->trace("Refreshing all configs");
-    foreach my $config (@LOADED_CONFIGS) {
-        $config->RefreshConfig();
-    }
 }
 
 =head2 ReloadConfigs
