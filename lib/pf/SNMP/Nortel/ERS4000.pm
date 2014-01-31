@@ -23,6 +23,9 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Nortel');
 
+sub supportsRadiusVoip { return $TRUE; }
+sub supportsWiredMacAuth { return $TRUE; }
+
 sub description { 'Nortel ERS 4000 Series' }
 
 =head1 AUTHOR

@@ -98,7 +98,7 @@ sub parseTrap {
         =~ /\|\.1\.3\.6\.1\.4\.1\.45\.1\.6\.5\.3\.12\.1\.3\.(\d+)\.(\d+) = $SNMP::MAC_ADDRESS_FORMAT/) {
 
         $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
-        $trapHashRef->{'trapIfIndex'} = ( $1 - $this->getFirstBoardIndex() ) * $this->getBoardIndexWidth() + $2;
+        $trapHashRef->{'trapIfIndex'} = $this->getIfIndex($1,$2);
         $trapHashRef->{'trapMac'} = parse_mac_from_trap($3);
         $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
 
@@ -119,6 +119,24 @@ sub parseTrap {
         $trapHashRef->{'trapType'} = 'unknown';
     }
     return $trapHashRef;
+}
+
+sub getIfIndex {
+    my ($this, $ifDesc_param,$param2) = @_;
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+
+    my $OID_ifDesc = '1.3.6.1.2.1.31.1.1.1.1';
+    my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
+    foreach my $key ( keys %{$result} ) {
+        my $ifDesc = $result->{$key};
+        if ( $ifDesc =~ /\(Slot:\s$ifDesc_param\sPort:\s$param2\)/i ) {
+            $key =~ /^$OID_ifDesc\.(\d+)$/;
+            return $1;
+        }
+    }
 }
 
 =item isTrunkPort
@@ -453,9 +471,15 @@ sub getFirstBoardIndex {
 sub getBoardPortFromIfIndex {
     my ( $this, $ifIndex ) = @_;
 
-    my $board = ($this->getFirstBoardIndex() + int( $ifIndex / $this->getBoardIndexWidth() )); 
-    my $port = ( $ifIndex % $this->getBoardIndexWidth() );
-    return ( $board, $port );
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+
+    my $OID_ifDesc = '1.3.6.1.2.1.31.1.1.1.1';
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_ifDesc.$ifIndex"] );
+    if ($result->{"$OID_ifDesc.$ifIndex"} =~ /Slot:\s(\d+)\sPort:\s(\d+)/) {
+        return ($1,$2);
+    }
 }
 
 =item getBoardPortFromIfIndexForSecurityStatus
@@ -470,15 +494,9 @@ To be used by method which read or write to security status related MIBs.
 sub getBoardPortFromIfIndexForSecurityStatus {
     my ( $this, $ifIndex ) = @_;
 
-    my $board = (1 + int( $ifIndex / $this->getBoardIndexWidth() ));
-    my $port = ( $ifIndex % $this->getBoardIndexWidth() );
+    my ($board, $port) = $this->getBoardPortFromIfIndex($ifIndex);
 
     return ( $board, $port );
-}
-
-sub getIfIndexFromBoardPort {
-    my ( $this, $board, $port ) = @_;
-    return ( ( $board - $this->getFirstBoardIndex() ) * $this->getBoardIndexWidth() + $port );
 }
 
 sub getAllSecureMacAddresses {
@@ -501,7 +519,7 @@ sub getAllSecureMacAddresses {
 
                 my $boardIndx = $1;
                 my $portIndx  = $2;
-                my $ifIndex = $this->getIfIndexFromBoardPort( $boardIndx, $portIndx );
+                my $ifIndex = $this->getIfIndex( $boardIndx, $portIndx );
                 my $oldMac = oid2mac($3);
                 push @{ $secureMacAddrHashRef->{$oldMac}->{$ifIndex} }, $this->getVlan($ifIndex);
         }
@@ -748,14 +766,14 @@ sub getPhonesLLDPAtIfIndex {
     $logger->trace(
         "SNMP get_next_request for lldpRemSysDesc: $oid_lldpRemSysDesc");
     my $result = $this->{_sessionRead}
-        ->get_next_request( -varbindlist => ["$oid_lldpRemSysDesc"] );
+        ->get_table( -baseoid => $oid_lldpRemSysDesc );
     foreach my $oid ( keys %{$result} ) {
         if ( $oid =~ /^$oid_lldpRemSysDesc\.([0-9]+)\.([0-9]+)\.([0-9]+)$/ ) {
             if ( $ifIndex eq $2 ) {
                 my $cache_lldpRemTimeMark     = $1;
                 my $cache_lldpRemLocalPortNum = $2;
                 my $cache_lldpRemIndex        = $3;
-                if ( $result->{$oid} =~ /^Nortel IP Telephone/ ) {
+                if ( $result->{$oid} =~ /phone/i ) {
                     $logger->trace(
                         "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                     );
