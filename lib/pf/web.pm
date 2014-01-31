@@ -723,7 +723,7 @@ sub end_portal_session {
     }
 
     # We are in a external portal set, let´s forward the device to the grant url
-    if ($portalSession->getGrantUrl ne '') {
+    if (defined($portalSession->getGrantUrl) && $portalSession->getGrantUrl ne '') {
         print $portalSession->cgi->redirect($portalSession->getGrantUrl);
         exit(0);
     }
