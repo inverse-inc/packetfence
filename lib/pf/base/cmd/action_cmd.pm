@@ -27,13 +27,14 @@ sub parseArgs {
 
 sub _parseArgs {
     my ($self,@args) = @_;
+    my $result = 1;
     my $action = $self->{action};
     my $parse_action = "parse_$action";
     if ($self->can($parse_action)) {
-        return $self->$parse_action;
+        $result = $self->$parse_action(@args);
     }
     $self->{action_args} = \@args;
-    return 1;
+    return $result;
 }
 
 sub is_valid_action {
@@ -46,6 +47,11 @@ sub _run {
     my $action = $self->{action};
     my $method = "action_$action";
     return $self->$method;
+}
+
+sub action_args {
+    my ($self) = @_;
+    return @{ $self->{action_args} || []  }
 }
 
 =head1 AUTHOR
