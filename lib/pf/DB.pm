@@ -16,44 +16,33 @@ use strict;
 use warnings;
 
 use Rose::DB;
-use pf::config;
+use pf::db;
 use List::MoreUtils qw(any);
 our @ISA = qw(Rose::DB);
 
 __PACKAGE__->use_private_registry;
 
 # Register your lone data source using the default type and domain
-our $DB_Config = $Config{'database'};
-
-#Adding a config reload callback that will disconnect the database when a change in the db configuration has been found
-$cached_pf_config->addPostReloadCallbacks(
-    'reload_db_config' => sub {
-        pf::DB->new->disconnect;
-        my $new_db_config = $pf::config::Config{'database'};
-        if ( any { $DB_Config->{$_} ne $new_db_config->{$_} }
-            qw(host port user pass db) ) {
-            pf::DB->modify_db(
-                database => $new_db_config->{db},
-                host     => $new_db_config->{host},
-                username => $new_db_config->{user},
-                password => $new_db_config->{pass},
-                port     => $new_db_config->{port},
-            );
-        }
-        $DB_Config = $new_db_config;
-    }
-);
+our $DB_Config = $pf::Config{'database'};
 
 __PACKAGE__->register_db(
     domain   => pf::DB->default_domain,
     type     => pf::DB->default_type,
     driver   => 'mysql',
-    database => $DB_Config->{db},
-    host     => $DB_Config->{host},
-    username => $DB_Config->{user},
-    password => $DB_Config->{pass},
-    port     => $DB_Config->{port},
+    connect_options => {
+        RaiseError => 0,
+        PrintError => 0,
+        mysql_auto_reconnect => 0,
+    },
 );
+
+sub dbh {
+    my $dbh;
+    eval {
+        $dbh = db_connect(); 
+    };
+    return $dbh;
+}
 
 =head1 AUTHOR
 
