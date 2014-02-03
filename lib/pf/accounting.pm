@@ -365,7 +365,7 @@ sub acct_maintenance {
         my @tid = trigger_view_tid($acct_policy);
         my $vid = $tid[0]{'vid'};
 
-        if ($acct_policy =~ /$ACCOUNTING_TRIGGER_RE/ && isdisabled($acct_triggers->{'enabled'})) {
+        if ($acct_policy =~ /$ACCOUNTING_TRIGGER_RE/ && isenabled($acct_triggers->{'enabled'})) {
 
             my $direction = $1;
             my $bwInBytes = pf::util::unpretty_bandwidth($2,$3);
