@@ -240,7 +240,7 @@ sub redirect {
     };
 
     # prepare custom REDIRECT response
-    my $response;
+    my $response = '';
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
     });
