@@ -353,7 +353,7 @@ Web-based Administration Interface
 
 PacketFence provides a web-based administration interface for easy configuration and operational management. If you went through PacketFence's web-based configuration tool, you should have set the password for the `admin` user. If not, the default password is also `admin`.
 
-Once PacketFence is started, the administration interface is available at: https://@ip_of_packetfence>:1443/
+Once PacketFence is started, the administration interface is available at: https://@ip_of_packetfence:1443/
 
 Global configuration file (pf.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
