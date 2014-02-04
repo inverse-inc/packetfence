@@ -307,7 +307,7 @@ sub commit {
     }
     else {
         $status = HTTP_INTERNAL_SERVER_ERROR;
-        $status_msg = $@;
+        $status_msg = "Unable to commit changes to file please run pfcmd fixpermissions and try again";
     }
     return ($status,$status_msg);
 }
