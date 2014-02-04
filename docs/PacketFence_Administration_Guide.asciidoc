@@ -2263,12 +2263,24 @@ DRBD and Linux-HA Installation
 CentOS 6
 ++++++++
 
-Download the drbd-8.3 and drbd-kmdl-*-8.3 RPMs from http://dl.atrpms.net/el6-x86_64/atrpms/stable/ (for 64bit) 
-or http://dl.atrpms.net/el6-386/atrpms/stable/ (for 32bit).
+Add the repository ELREPO.
+	rpm -Uvh http://www.elrepo.org/elrepo-release-6-5.el6.elrepo.noarch.rpm
 
-Use the following line to install the required packages.
+Edit the repo file to disable ELREPO by default :
 
-  yum install ./drbd*.rpm heartbeat heartbeat-pils heartbeat-stonith
+	/etc/yum.repos.d/elrepo.repo
+
+	[elrepo]
+	name=ELRepo.org Community Enterprise Linux Repository - el6
+	baseurl=http://elrepo.org/linux/elrepo/el6/$basearch/
+	mirrorlist=http://elrepo.org/mirrors-elrepo.el6
+	enabled=1
+	gpgcheck=1
+	gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+	protect=0
+
+Install now the package DRBD v8.4 enabling .
+	yum install kmod-drbd84 --enablerepo=elrepo
 
 DRBD Configuration and setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
