@@ -2367,7 +2367,7 @@ Start DRBD on both servers:
 
   # /etc/init.d/drbd start
 
-Make sure you see something like this in `/proc/drbd`:
+Make sure you see something like running `cat /proc/drbd`:
 
   ...
    0: cs:Connected ro:Secondary/Secondary ds:Inconsistent/Inconsistent C r----
@@ -2375,13 +2375,13 @@ Make sure you see something like this in `/proc/drbd`:
 
 Synchronize the servers by forcing one to become the primary. So on pf1 do:
 
-  # drbdadm -- --overwrite-data-of-peer primary mysql
+  # drbdadm primary --force mysql
 
 After issuing this command, the initial full synchronization will start. You will be able to monitor its progress via `/proc/drbd`. It may take some time depending on the size of the device. Wait until it completes.
 
 When the sync is complete, create the filesystem on the primary node only:
 
-  # mkfs.ext3 /dev/drbd0
+  # mkfs.ext4 /dev/drbd0
 
 Make sure DRBD is started at boot time:
 
@@ -2410,7 +2410,7 @@ On the master server (the server you are working on), tell DRBD to become the pr
 
 `mysql` being the name of the DRBD partition.
 
-In `/proc/drbd` you should see something like:
+The command `cat /proc/drbd` should display something like:
 
   ...
    0: cs:Connected ro:Primary/Secondary ds:UpToDate/UpToDate C r----
