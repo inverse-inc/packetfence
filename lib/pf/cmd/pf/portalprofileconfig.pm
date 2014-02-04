@@ -30,6 +30,10 @@ use pf::ConfigStore::Profile;
 
 sub configStoreName { "pf::ConfigStore::Profile" }
 
+sub display_fields { qw(profile description logo billing_engine redirecturl always_use_redirecturl mandatory_fields locale) }
+
+sub idKey { 'profile' }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
