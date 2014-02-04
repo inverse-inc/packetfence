@@ -2350,7 +2350,7 @@ where:
 
 [options="compact"]
 * `mysql` is the name of the partition you created when installing the OS
-* `pf1_server_name` and `pf2_server_name` by the real server names (FQDN)
+* `pf1_server_name` and `pf2_server_name` by the real server names (http://en.wikipedia.org/wiki/Fully_qualified_domain_name[FQDN])
 * `ha_interface_ip_address_1` and `ha_interface_ip_address_2` by the IP addresses dedicated to DRBD on each server (use a dedicated NIC for this, not the main one with all the IPs)
 * `storage_device` is the device to use for the MySQL partition (ie. `/dev/sda2`)
 
