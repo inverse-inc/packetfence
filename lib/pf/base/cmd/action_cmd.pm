@@ -33,7 +33,7 @@ sub _parseArgs {
     if ($self->can($parse_action)) {
         $result = $self->$parse_action(@args);
     }
-    $self->{action_args} = \@args;
+    $self->{action_args} = \@args unless exists $self->{action_args};
     return $result;
 }
 
