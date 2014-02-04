@@ -803,13 +803,17 @@ sub switches {
         if ( ref($switches_conf{$section}{'type'}) eq 'ARRAY' || ref($switches_conf{$section}{'mode'}) eq 'ARRAY' ) {
             add_problem( $WARN, "switches.conf | Error around $section Did you define the same switch twice?" );
         }
-
-        # check type
-        my $type = "pf::Switch::" . ( $switches_conf{$section}{'type'} || $switches_conf{'default'}{'type'} );
-        $type = untaint_chain($type);
-        if ( !(eval "$type->require()" ) ) {
+        my $type = $switches_conf{$section}{'type'} ;
+        if ( (!defined $type) || $type eq '' ) {
+            add_problem( $FATAL, "switches.conf | Switch type for switch ($section) is not defined");
+        } else {
+            # check type
+            $type = "pf::Switch::$type";
+            $type = untaint_chain($type);
+            if ( !(eval "$type->require()" ) ) {
                 add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
             }
+        }
         # check for valid switch IP
         unless ( valid_mac_or_ip($section) ) {
             add_problem( $WARN, "switches.conf | Switch IP is invalid for switch $section" );
