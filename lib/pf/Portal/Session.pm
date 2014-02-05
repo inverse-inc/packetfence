@@ -95,6 +95,7 @@ sub _initialize {
             return $self->getClientMac;
         }
     );
+    $self->session->param("_client_mac",$self->{'_client_mac'});
 
     $self->{'_guest_node_mac'} = undef;
     $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
