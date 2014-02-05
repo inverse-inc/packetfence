@@ -182,8 +182,11 @@ sub redirect {
    my $is_external_portal;
    foreach my $param ($req->param) {
        if ($param =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
-           if (valid_mac($req->param($param)) || valid_ip($req->param($param))) {
-               my $cgi_session_id = external_captive_portal($req->param($param),$req,$r,undef);
+           my $value;
+           $value = clean_mac($req->param($param)) if valid_mac($req->param($param));
+           $value = $req->param($param) if  valid_ip($req->param($param));
+           if (defined($value)) {
+               my $cgi_session_id = external_captive_portal($value,$req,$r,undef);
                if ($cgi_session_id ne '0') {
                    # Set the cookie for the captive portal
                    $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");

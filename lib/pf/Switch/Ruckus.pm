@@ -57,6 +57,7 @@ sub description { 'Ruckus Wireless Controllers' }
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $FALSE; }
+sub supportsExternalPortal { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
@@ -155,6 +156,24 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
+=item parseUrl
+
+This is called when we receive a http request from the device and return specific attributes:
+
+client mac address
+SSID
+client ip address
+redirect url
+grant url
+status code
+
+=cut
+
+sub parseUrl {
+    my($this, $req) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    return (clean_mac($$req->param('client_mac')),$$req->param('ssid'),$$req->param('uip'),$$req->param('url'),undef,undef);
+}
 
 =back
 

@@ -119,7 +119,7 @@ sub instantiate {
 
     $requestedSwitch = first {exists $SwitchConfig{$_} } @requestedSwitches;
     unless ($requestedSwitch) {
-        $logger->error("ERROR ! Unknown switch(es) ". join(" ",@requestedSwitches));
+        $logger->error("WARNING ! Unknown switch(es) ". join(" ",@requestedSwitches));
         return 0;
     }
     my $switch_data = $SwitchConfig{$requestedSwitch};
