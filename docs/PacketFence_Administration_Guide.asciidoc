@@ -2263,11 +2263,11 @@ DRBD and Linux-HA Installation
 CentOS 6
 ++++++++
 
-Add the repository ELREPO.
+Add the repository ELRepo.
 	
 	rpm -Uvh http://www.elrepo.org/elrepo-release-6-5.el6.elrepo.noarch.rpm
 
-Edit the repo file to disable ELREPO by default :
+Edit the repo file to disable ELRepo by default :
 
 	/etc/yum.repos.d/elrepo.repo
 
