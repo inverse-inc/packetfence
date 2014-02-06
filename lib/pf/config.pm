@@ -700,7 +700,7 @@ sub readFloatingNetworkDeviceFile {
             $config->toHash(\%ConfigFloatingDevices);
             $config->cleanupWhitespace(\%ConfigFloatingDevices);
             foreach my $section ( keys %ConfigFloatingDevices) {
-                if ($ConfigFloatingDevices{$section}{"trunkPort"} =~ /^\s*(y|yes|true|enabled|1)\s*$/i) {
+                if (defined($ConfigFloatingDevices{$section}{"trunkPort"}) && $ConfigFloatingDevices{$section}{"trunkPort"} =~ /^\s*(y|yes|true|enabled|1)\s*$/i) {
                     $ConfigFloatingDevices{$section}{"trunkPort"} = '1';
                 } else {
                     $ConfigFloatingDevices{$section}{"trunkPort"} = '0';
