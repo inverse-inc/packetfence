@@ -41,6 +41,13 @@ install: build
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
+
+	#copying example files with the extention
+	find * -name '*.example' -print0 | while read -d $'\0' file
+	do
+	  echo cp $file "$(dirname $file)/$(basename $file .example)"
+	done
+
 	# Install all except debian and t directory
 	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 't/*' ! -path 't' -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
@@ -54,6 +61,8 @@ install: build
 	for i in `find * -path 't*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/$$i; \
 	done
+	
+
 	# generate translations
 	# TODO this is duplicated in our RPM spec, we should aim to consolidate in a 'make' style step
 	for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do \

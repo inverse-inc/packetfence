@@ -332,6 +332,12 @@ done
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
 
+
+find -name '*.example' -print0 | while read -d $'\0' file
+do
+  cp $file "$(dirname $file)/$(basename $file .example)"
+done
+
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
