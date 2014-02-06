@@ -17,3 +17,13 @@ UPDATE temporary_password SET access_level = 'NONE' WHERE access_level = '0';
 --
 
 ALTER TABLE `node` ADD `autoreg` enum('no','yes') NOT NULL DEFAULT 'no' AFTER voip;
+
+---
+--- Add a column to store the time balance of a node
+---
+ALTER TABLE node ADD `time_balance` int unsigned AFTER `lastskip`;
+
+---
+--- Add a column to store the bandwidth balance of a node
+---
+ALTER TABLE node ADD `bandwidth_balance` int unsigned AFTER `time_balance`;

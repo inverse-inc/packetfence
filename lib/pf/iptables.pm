@@ -189,7 +189,7 @@ sub generate_filter_if_src_to_chain {
             }
 
         # inline enforcement
-        } elsif ($enforcement_type eq $IF_ENFORCEMENT_INLINE) {
+        } elsif (is_type_inline($enforcement_type)) {
             my $mgmt_ip = $management_network->tag("ip");
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
@@ -354,7 +354,7 @@ sub generate_inline_if_src_to_chain {
         my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
 
         # inline enforcement
-        if ($enforcement_type eq $IF_ENFORCEMENT_INLINE) {
+        if (is_type_inline($enforcement_type)) {
             # send everything from inline interfaces to the inline chain
             $rules .= "-A PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_INLINE\n";
         }

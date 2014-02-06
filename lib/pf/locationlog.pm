@@ -481,7 +481,7 @@ sub locationlog_synchronize {
 
     # if we are in a wired environment, close any conflicting switchport entry
     # but paying attention to VoIP vs non-VoIP entries (we close the same type that we are asked to add)
-    if (($connection_type & $WIRED) == $WIRED) {
+    if ($connection_type && ($connection_type & $WIRED) == $WIRED) {
 
         my @locationlog_switchport = locationlog_view_open_switchport($switch, $ifIndex, $voip_status);
         if (!(@locationlog_switchport && scalar(@locationlog_switchport) > 0)) {

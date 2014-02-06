@@ -493,7 +493,7 @@ msgstr ""
 # conf/documentation.conf (trapping.whitelist)
 msgid ""
   "Comma-delimited list of MAC addresses that are immune to isolation. In "
-  "inline enforcement, the firewall is opened for them as if they were "
+  "inline Level 2 enforcement, the firewall is opened for them as if they were "
   "registered. This \"feature\" will probably be reworked in the future."
 msgstr ""
 
@@ -3588,7 +3588,13 @@ msgstr ""
 # conf/documentation.conf (interface.enforcement options)
 # pf::config (Network types)
 msgid "inline"
-msgstr "Inline"
+msgstr "inline"
+
+msgid "inlinel2"
+msgstr "Inline Level 2"
+
+msgid "inlinel3"
+msgstr "Inline Level 3"
 
 # conf/documentation.conf
 msgid "inline.interfaceSNAT"

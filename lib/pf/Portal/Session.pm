@@ -288,6 +288,17 @@ sub getClientMac {
     return $self->{'_client_mac'};
 }
 
+=item setClientMac
+
+Set the MAC of the captive portal client.
+
+=cut
+
+sub setClientMac {
+    my ($self, $new_mac) = @_;
+    $self->{'_client_mac'} = $new_mac;
+}
+
 =item getDestinationUrl
 
 Returns the original destination URL requested by the client.

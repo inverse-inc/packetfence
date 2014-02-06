@@ -84,7 +84,9 @@ BEGIN {
         %Config
         %ConfigNetworks %ConfigOAuth
         %ConfigFloatingDevices
-        $WIPS_VID @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
+        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC @VALID_TRIGGER_TYPES
+        $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
+        $WIPS_VID $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
@@ -100,7 +102,7 @@ BEGIN {
         $HTTP $HTTPS
         normalize_time $TIME_MODIFIER_RE $ACCT_TIME_MODIFIER_RE $DEADLINE_UNIT access_duration
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
-        is_vlan_enforcement_enabled is_inline_enforcement_enabled
+        is_vlan_enforcement_enabled is_inline_enforcement_enabled is_type_inline
         is_in_list
         $LOG4PERL_RELOAD_TIMER
         init_config
@@ -129,20 +131,36 @@ Readonly::Scalar our $TRUE => 1;
 Readonly::Scalar our $YES => 'yes';
 Readonly::Scalar our $NO => 'no';
 
+# Violation trigger types
+Readonly::Scalar our $TRIGGER_TYPE_ACCOUNTING => 'accounting';
+Readonly::Scalar our $TRIGGER_TYPE_DETECT => 'detect';
+Readonly::Scalar our $TRIGGER_TYPE_INTERNAL => 'internal';
+Readonly::Scalar our $TRIGGER_TYPE_MAC => 'mac';
+Readonly::Scalar our $TRIGGER_TYPE_NESSUS => 'nessus';
+Readonly::Scalar our $TRIGGER_TYPE_OPENVAS => 'openvas';
+Readonly::Scalar our $TRIGGER_TYPE_OS => 'os';
+Readonly::Scalar our $TRIGGER_TYPE_SOH => 'soh';
+Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
+Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
 
 Readonly our @VALID_TRIGGER_TYPES =>
   (
-   "accounting",
-   "detect",
-   "internal",
-   "mac",
-   "nessus",
-   "openvas",
-   "os",
-   "soh",
-   "useragent",
-   "vendormac"
+   $TRIGGER_TYPE_ACCOUNTING,
+   $TRIGGER_TYPE_DETECT,
+   $TRIGGER_TYPE_INTERNAL,
+   $TRIGGER_TYPE_MAC,
+   $TRIGGER_TYPE_NESSUS,
+   $TRIGGER_TYPE_OPENVAS,
+   $TRIGGER_TYPE_OS,
+   $TRIGGER_TYPE_SOH,
+   $TRIGGER_TYPE_USERAGENT,
+   $TRIGGER_TYPE_VENDORMAC
   );
+
+# Accounting trigger policies
+Readonly::Scalar our $ACCOUNTING_POLICY_TIME => 'TimeExpired';
+Readonly::Scalar our $ACCOUNTING_POLICY_BANDWIDTH => 'BandwidthExpired';
+
 
 $default_pid  = "admin";
 
@@ -157,11 +175,20 @@ Readonly our $IF_INTERNAL => 'internal';
 # Interface enforcement techniques
 Readonly our $IF_ENFORCEMENT_VLAN => 'vlan';
 Readonly our $IF_ENFORCEMENT_INLINE => 'inline';
+Readonly our $IF_ENFORCEMENT_INLINE_L2 => 'inlinel2';
+Readonly our $IF_ENFORCEMENT_INLINE_L3 => 'inlinel3';
 
-# Network configuration parameters
+# Network configuration parameters.
 Readonly our $NET_TYPE_VLAN_REG => 'vlan-registration';
 Readonly our $NET_TYPE_VLAN_ISOL => 'vlan-isolation';
 Readonly our $NET_TYPE_INLINE => 'inline';
+Readonly our $NET_TYPE_INLINE_L2 => 'inlinel2';
+Readonly our $NET_TYPE_INLINE_L3 => 'inlinel3';
+Readonly our %NET_INLINE_TYPES =>  (
+    $NET_TYPE_INLINE    => undef,
+    $NET_TYPE_INLINE_L2 => undef,
+    $NET_TYPE_INLINE_L3 => undef,
+);
 
 # connection type constants
 Readonly our $WIRELESS_802_1X   => 0b110000001;
@@ -563,13 +590,12 @@ sub readPfConfigFiles {
                         if ( $type eq 'internal' ) {
                             push @internal_nets, $int_obj;
                             if ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
-                              push @vlan_enforcement_nets, $int_obj;
-                            } elsif ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) {
+                                push @vlan_enforcement_nets, $int_obj;
+                            } elsif (is_type_inline($Config{$interface}{'enforcement'})) {
                                 push @inline_enforcement_nets, $int_obj;
                             }
                             push @listen_ints, $int if ( $int !~ /:\d+$/ );
                         } elsif ( $type eq 'managed' || $type eq 'management' ) {
-
                             $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
                             $management_network = $int_obj;
                             # adding management to dhcp listeners by default (if it's not already there)
@@ -925,7 +951,7 @@ sub is_inline_enforcement_enabled {
     foreach my $interface (@internal_nets) {
         my $device = "interface " . $interface->tag("int");
 
-        if (defined($Config{$device}{'enforcement'}) && $Config{$device}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) {
+        if (defined($Config{$device}{'enforcement'}) && is_type_inline($Config{$device}{'enforcement'})) {
             # cache the answer for future access
             $cache_inline_enforcement_enabled = $TRUE;
             return $TRUE;
@@ -936,6 +962,15 @@ sub is_inline_enforcement_enabled {
     # cache the answer for future access
     $cache_inline_enforcement_enabled = $FALSE;
     return $FALSE;
+}
+
+=item is_type_inline
+
+=cut
+
+sub is_type_inline {
+    my ($type) = @_;
+    return exists $NET_INLINE_TYPES{$type};
 }
 
 =item get_newtork_type
@@ -950,29 +985,28 @@ Returns undef on unrecognized types.
 sub get_network_type {
     my ($network) = @_;
 
-
-    if (!defined($ConfigNetworks{$network}{'type'})) {
+    my $type = $ConfigNetworks{$network}{'type'};
+    if (!defined($type)) {
         # not defined
         return;
-
-    } elsif ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_VLAN_REG$/i) {
+    } elsif ($type =~ /^$NET_TYPE_VLAN_REG$/i) {
         # vlan-registration
         return $NET_TYPE_VLAN_REG;
 
-    } elsif ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_VLAN_ISOL$/i) {
+    } elsif ($type =~ /^$NET_TYPE_VLAN_ISOL$/i) {
         # vlan-isolation
         return $NET_TYPE_VLAN_ISOL;
 
-    } elsif ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE$/i) {
+    } elsif (is_type_inline($type)) {
         # inline
-        return $NET_TYPE_INLINE;;
+        return $NET_TYPE_INLINE;
 
-    } elsif ($ConfigNetworks{$network}{'type'} =~ /^registration$/i) {
+    } elsif ($type =~ /^registration$/i) {
         # deprecated registration
         $logger->warn("networks.conf network type registration is deprecated use vlan-registration instead");
         return $NET_TYPE_VLAN_REG;
 
-    } elsif ($ConfigNetworks{$network}{'type'} =~ /^isolation$/i) {
+    } elsif ($type =~ /^isolation$/i) {
         # deprecated isolation
         $logger->warn("networks.conf network type isolation is deprecated use vlan-isolation instead");
         return $NET_TYPE_VLAN_ISOL;

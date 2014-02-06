@@ -28,6 +28,7 @@ use pf::node;
 use pf::SNMP;
 use pf::SwitchFactory;
 use pf::util;
+use pf::trigger;
 use pf::violation;
 use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
@@ -231,18 +232,23 @@ sub accounting {
             my $session_time = int $radius_request->{'Acct-Session-Time'};
             if ($session_time > 0) {
                 my $node_attributes = node_attributes($mac);
-                if (defined $node_attributes->{'timeleft'}) {
-                    my $timeleft = $node_attributes->{'timeleft'} - $session_time;
-                    $timeleft = 0 if ($timeleft < 0);
+                if (defined $node_attributes->{'time_balance'}) {
+                    my $time_balance = $node_attributes->{'time_balance'} - $session_time;
+                    $time_balance = 0 if ($time_balance < 0);
                     # Only update the node table on a Stop
-                    if ($isStop && node_modify($mac, ('timeleft' => $timeleft))) {
-                        $logger->info("Session stopped for $mac: duration was $session_time secs ($timeleft secs left)");
+                    if ($isStop && node_modify($mac, ('time_balance' => $time_balance))) {
+                        $logger->info("Session stopped for $mac: duration was $session_time secs ($time_balance secs left)");
                     }
                     elsif ($isUpdate) {
-                        $logger->info("Session status for $mac: duration is $session_time secs ($timeleft secs left)");
+                        $logger->info("Session status for $mac: duration is $session_time secs ($time_balance secs left)");
                     }
-                    if ($timeleft == 0) {
-                        violation_add($mac, $RADIUS::EXPIRATION_VID);
+                    if ($time_balance == 0) {
+                        # Check if there's at least a violation using the 'Accounting::BandwidthExpired' trigger
+                        my @tid = trigger_view_tid($ACCOUNTING_POLICY_TIME);
+                        if (scalar(@tid) > 0) {
+                            # Trigger violation
+                            violation_trigger($mac, $ACCOUNTING_POLICY_TIME, $TRIGGER_TYPE_ACCOUNTING);
+                        }
                     }
                 }
             }

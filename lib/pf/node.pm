@@ -123,7 +123,7 @@ sub node_db_prepare {
     $node_statements->{'node_modify_sql'} = get_db_handle()->prepare(qq[
         UPDATE node SET
             mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?,
-            detect_date=?, regdate=?, unregdate=?, lastskip=?, timeleft=?,
+            detect_date=?, regdate=?, unregdate=?, lastskip=?, time_balance=?, bandwidth_balance=?,
             user_agent=?, computername=?, dhcp_fingerprint=?,
             last_arp=?, last_dhcp=?,
             notes=?, autoreg=? 
@@ -133,7 +133,7 @@ sub node_db_prepare {
     $node_statements->{'node_attributes_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, pid, voip, status, bypass_vlan,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
-            detect_date, regdate, unregdate, lastskip, timeleft,
+            detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             node.notes, autoreg 
@@ -180,7 +180,7 @@ sub node_db_prepare {
     $node_statements->{'node_view_sql'} = get_db_handle()->prepare(<<'    SQL');
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status, node.category_id,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
-            node.detect_date, node.regdate, node.unregdate, node.lastskip, node.timeleft,
+            node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
             node.user_agent, node.computername, node.dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
             node.notes, autoreg,
@@ -323,6 +323,11 @@ sub node_db_prepare {
     $node_statements->{'node_search_sql'} = get_db_handle()->prepare(qq [ select mac from node where mac LIKE CONCAT(?,'%') ]);
 
     $node_statements->{'node_last_reg_sql'} = get_db_handle()->prepare(qq [ select mac from node order by regdate DESC LIMIT 1,1 ]);
+
+    $node_statements->{'node_update_bandwidth_sql'} = get_db_handle()->prepare(qq[
+        UPDATE node SET bandwidth_balance = COALESCE(bandwidth_balance, 0) + ?
+        WHERE mac = ?
+    ]);
 
     $node_db_prepared = 1;
     return 1;
@@ -777,7 +782,7 @@ sub node_modify {
         $new_mac, $existing->{pid}, $existing->{category_id}, $existing->{status}, $existing->{voip},
         $existing->{bypass_vlan},
         $existing->{detect_date}, $existing->{regdate}, $existing->{unregdate},
-        $existing->{lastskip}, $existing->{timeleft},
+        $existing->{lastskip}, $existing->{time_balance}, $existing->{bandwidth_balance},
         $existing->{user_agent}, $existing->{computername}, $existing->{dhcp_fingerprint},
         $existing->{last_arp}, $existing->{last_dhcp},
         $existing->{notes},$existing->{autoreg},
@@ -967,6 +972,37 @@ sub node_update_lastarp {
     my ($mac) = @_;
     db_query_execute(NODE, $node_statements, 'node_update_lastarp_sql', $mac) || return (0);
     return (1);
+}
+
+=item * node_update_bandwidth - update the bandwidth balance of a node
+
+Updates the bandwidth balance of a node and close the violations that use the bandwidth trigger.
+
+=cut
+
+sub node_update_bandwidth {
+    my ($mac, $bytes) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # Validate arguments
+    $mac = clean_mac($mac);
+    $logger->logdie("Invalid MAC address") unless (valid_mac($mac));
+    $logger->logdie("Invalid number of bytes") unless ($bytes =~ m/^\d+$/);
+
+    # Upate node table
+    my $sth = db_query_execute(NODE, $node_statements, 'node_update_bandwidth_sql', $bytes, $mac);
+    unless ($sth) {
+        $logger->logdie(get_db_handle()->errstr);
+    }
+    elsif ($sth->rows == 1) {
+        # Close any existing violation related to bandwidth
+        my @tid = pf::trigger::trigger_view_tid($pf::config::ACCOUNTING_POLICY_BANDWIDTH);
+        foreach my $violation (@tid) {
+            violation_force_close($mac, $violation->{'vid'});
+        }
+    }
+
+    return ($sth->rows);
 }
 
 =item * node_mac_wakeup
