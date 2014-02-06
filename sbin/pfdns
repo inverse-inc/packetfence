@@ -6,7 +6,12 @@ pfdns - PacketFence DNS server
 
 =head1 SYNOPSIS
 
-pfdns
+pfdns [options]
+
+ Options:
+   -d      Daemonize
+   -h      Help
+   -v      Verbose
 
 =cut
 
@@ -36,8 +41,6 @@ use pf::web::util qw(set_memcached get_memcached get_memcached_conf);
 # initialization
 # --------------
 # assign process name (see #1464)
-$PROGRAM_NAME = basename($PROGRAM_NAME);
-
 # log4perl init
 Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
@@ -74,6 +77,11 @@ getopts( 'dhi:', \%args );
 my $daemonize = $args{d};
 
 pod2usage( -verbose => 1 ) if ( $args{h} );
+
+$PROGRAM_NAME = basename($PROGRAM_NAME);
+
+our $RUNNING = 1;
+
 
 # standard signals and daemonize
 daemonize() if ($daemonize);
@@ -120,7 +128,14 @@ my $ns = new Net::DNS::Nameserver(
     Verbose      => 0
     ) || die "couldn't create nameserver object\n";
 
-$ns->main_loop;
+
+while($RUNNING) {
+    $ns->loop_once(10);
+}
+
+END {
+    deletepid("pfdns") unless $args{h};
+}
 
 sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
@@ -239,11 +254,8 @@ sub daemonize {
 }
 
 sub normal_sighandler {
-    deletepid("pfdns");
-    if ( threads->self->tid() == 0 ) {
-        $logger->logdie(
-            "pfdns: caught SIG" . $_[0] . " - terminating" );
-    }
+    $RUNNING = 0;
+    $logger->debug( "pfdns: caught SIG" . $_[0] . " - terminating" );
 }
 
 
