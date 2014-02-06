@@ -23,12 +23,12 @@
     </script>
   </head>
   <body [% body_attributes %]>
-    <div id="language">
+    [% IF page != 'release' %]<div id="language">
       [%- # mobile version %]
       <span class="mobile">[%- IF locale.substr(0, 3) == 'en_' %]<span class="btn-small disabled">EN</span>[% ELSE %]<a href="[% URL_CAPTIVE_PORTAL %]?lang=en_US" class="btn-small">EN</a>[% END %][% IF locale.substr(0, 3) == 'fr_' %]<span class="btn-small disabled">FR</span>[% ELSE %]<a href="[% URL_CAPTIVE_PORTAL %]?lang=fr_CA" class="btn-small">FR</a>[% END %]</span>
       [%- # desktop version %]
       <span class="notmobile">[%- IF locale.substr(0, 3) == 'en_' %]<span class="btn btn-white btn-right disabled">English</span>[% ELSE %]<a href="[% URL_CAPTIVE_PORTAL %]?lang=en_US" class="btn btn-white btn-right">English</a>[% END %][% IF locale.substr(0, 3) == 'fr_' %]<span class="btn btn-white btn-left disabled">Français</span>[% ELSE %]<a href="[% URL_CAPTIVE_PORTAL %]?lang=fr_CA" class="btn btn-white btn-left">Français</a>[% END %]</span>
-    <hr/></div>
+    <hr/></div>[% END %]
     <div id="wrapper">
       <div id="header">
         <img class="logo" src="/content/images/TELUS-logo.svg" alt="TELUS"/>
