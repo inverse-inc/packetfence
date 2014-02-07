@@ -25,6 +25,21 @@ has '+type' => (default => 'Null');
 has '+unique' => (default => 1);
 has 'email_required' => (isa => 'Str', is => 'rw', default => 'no');
 
+=head2 available_attributes
+
+Allow to make a condition on the user's email address.
+
+=cut
+
+sub available_attributes {
+  my $self = shift;
+
+  my $super_attributes = $self->SUPER::available_attributes;
+  my $own_attributes = [{ value => "username", type => $Conditions::SUBSTRING }];
+
+  return [@$super_attributes, @$own_attributes];
+}
+
 =head2 available_actions
 
 For an Null source, we limit the available actions to B<set role>, B<set access duration>, and B<set unreg date>.
