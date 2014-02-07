@@ -149,7 +149,7 @@ Returns an untainted string with MAC in format: xx:xx:xx:xx:xx:xx
 
 sub clean_mac {
     my ($mac) = @_;
-    return unless defined $mac;
+    return "0" unless defined $mac;
 
     # trim garbage
     $mac =~ s/[\s\-\.:]//g;
@@ -162,7 +162,7 @@ sub clean_mac {
         return $1;
     }
 
-    return;
+    return "0";
 }
 
 =item format_mac_for_acct
