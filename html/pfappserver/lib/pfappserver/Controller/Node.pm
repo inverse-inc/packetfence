@@ -120,7 +120,7 @@ Create one node or import a CSV file.
 
 =cut
 
-sub create :Local {
+sub create :Local : AdminRole('NODES_CREATE') {
     my ($self, $c) = @_;
 
     my ($roles, $node_status, $form_single, $form_import, $params, $type);
