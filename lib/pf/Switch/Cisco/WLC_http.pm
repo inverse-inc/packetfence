@@ -285,9 +285,13 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        # Roles are configured and the user should have one
-        if (defined($role) && (defined($node_info->{'status'}) ) ) {
-
+        # Roles are configured and the user should have one.
+        # We send a regular disconnect if there is an open trapping violation
+        # to ensure the VLAN is actually changed to the isolation VLAN.   
+        if (  defined($role) && 
+            ( violation_count_trap($mac) == 0 )  &&
+            ( $node_info->{'status'} eq 'reg' ) 
+           ) {
             $logger->info("Returning ACCEPT with Role: $role");
 
             my $vsa = [
@@ -311,6 +315,12 @@ sub radiusDisconnect {
 
         }
         else {
+            $connection_info = {
+                nas_ip => $send_disconnect_to,
+                secret => $self->{'_radiusSecret'},
+                LocalAddr => $management_network->tag('vip'),
+                nas_port => '3799',
+            };
             $response = perform_disconnect($connection_info, $attributes_ref);
         }
     } catch {
