@@ -60,7 +60,9 @@ form {
             <ul class="nav nav-list">
               <li class="nav-header">[% l('Nodes') %]</li>
               <li class="active"><a href="#">[% l('Search') %]</a></li>
+              [% IF can_access('NODES_CREATE') %]
               <li><a href="[% c.pf_hash_for(c.controller('Node').action_for('create')) %]">[% l('Create') %]</a></li>
+              [% END %]
               <li class="nav-header">[% l('Saved Searches') %]</li>
               [%FOR ss IN saved_searches%]
                 [% form = ss.form %]
