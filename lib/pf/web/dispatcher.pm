@@ -248,7 +248,7 @@ sub redirect {
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
     });
-    if($r->headers_in->{'User-Agent'} !~ /WISPR\!Microsoft Hotspot Authentication/g) {
+    if(defined ($r->headers_in->{'User-Agent'}) && $r->headers_in->{'User-Agent'} !~ /WISPR\!Microsoft Hotspot Authentication/g) {
         $template->process( "redirection.tt", $stash, \$response ) || $logger->error($template->error());;
     }
 
