@@ -20,35 +20,86 @@ use CHI::Driver::RawMemory;
 #use pf::CHI::Driver::Role::Memcached::Clear;
 use pf::file_paths;
 use pf::IniFiles;
+use Hash::Merge;
 use List::MoreUtils qw(uniq);
 
+Hash::Merge::specify_behavior(
+    {
+    'SCALAR' => {
+        'SCALAR' => sub {$_[1]},
+        'ARRAY'  => sub {[$_[0], @{$_[1]}]},
+        'HASH'   => sub {$_[1]},
+      },
+      'ARRAY' => {
+        'SCALAR' => sub {$_[1]},
+        'ARRAY'  => sub {[uniq @{$_[0]}, @{$_[1]}]},
+        'HASH'   => sub {$_[1]},
+      },
+      'HASH' => {
+        'SCALAR' => sub {$_[1]},
+        'ARRAY'  => sub {[values %{$_[0]}, @{$_[1]}]},
+        'HASH' => sub {
+            Hash::Merge::_merge_hashes($_[0], $_[1]);
+        },
+      },
+    },
+    'PF_CHI_MERGE'
+);
+
 our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1) or die;
+our %DEFAULT_CONFIG = (
+    'namespace' => {
+        'configfilesdata' => {'storage' => 'configfilesdata'},
+        'configfiles'     => {'storage' => 'configfiles'}
+    },
+    'memoize_cache_objects' => 1,
+    'defaults'              => {'serializer' => 'Storable'},
+    'storage'               => {
+        'raw' => {
+            'global' => '1',
+            'driver' => 'RawMemory'
+        }
+    }
+);
 
 sub chiConfigFromIniFile {
-    my %args = (
-        defaults => {
-            serializer => 'Storable'
-        },
-        memoize_cache_objects => 1,
-    );
     my @keys = uniq map { s/ .*$//; $_; } $chi_config->Sections;
+    my %args;
     foreach my $key (@keys) {
         $args{$key} = sectionData($chi_config,$key);
     }
     foreach my $storage (values %{$args{storage}}) {
+        setFileDriverParams($storage) if($storage->{driver} eq 'File');
         foreach my $param (qw(servers traits roles)) {
             if(exists $storage->{$param}) {
-                $storage->{$param} = [split /\s*,\s*/,$storage->{$param}];
+                my $value =  listify($storage->{$param});
+                $storage->{$param} = [ map { split /\s*,\s*/, $_ } @$value ];
             }
         }
-        foreach my $param (qw(dir_create_mode file_create_mode umask_on_store)) {
-            if(exists $storage->{$param}) {
-                my $val = $storage->{$param};
-                $storage->{$param} = oct($val) if $val =~  /^0/;
-            }
+        if ( exists $storage->{traits} ) {
+            $storage->{param_name} = $storage->{traits};
         }
     }
-    return \%args;
+    setRawL1CacheAsLast($args{storage}{configfiles});
+    my $merge = Hash::Merge->new('PF_CHI_MERGE');
+    return $merge->merge( \%DEFAULT_CONFIG, \%args );
+}
+
+sub setFileDriverParams {
+    my ($storage) = @_;
+    $storage->{dir_create_mode} = oct('02775');
+    $storage->{file_create_mode} = oct('00664');
+    $storage->{umask_on_store} = oct('00007');
+    $storage->{traits} = ['+pf::Role::CHI::Driver::FileUmask'];
+}
+
+sub setRawL1CacheAsLast {
+    my ($storage) = @_;
+    if ( exists $storage->{l1_cache} ) {
+        setRawL1CacheAsLast($storage->{l1_cache});
+    } else {
+        $storage->{l1_cache} = { 'storage' => 'raw' };
+    }
 }
 
 sub sectionData {
@@ -65,6 +116,17 @@ sub sectionData {
 }
 
 __PACKAGE__->config(chiConfigFromIniFile());
+
+=head2 listify
+
+Will change a scalar to an array ref if it is not one already
+
+=cut
+
+sub listify($) {
+    ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
+}
+
 
 =head1 AUTHOR
 
