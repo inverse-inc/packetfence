@@ -25,7 +25,12 @@ BEGIN {
 __PACKAGE__->config(
     action => {
         # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'savedsearch/user', CaptureArgs => 1 }
+        object => { Chained => '/', PathPart => 'savedsearch/user', CaptureArgs => 1 },
+        view   => { AdminRole => 'USERS_READ' },
+        list   => { AdminRole => 'USERS_READ' },
+        create => { AdminRole => 'USERS_READ' },
+        update => { AdminRole => 'USERS_READ' },
+        remove => { AdminRole => 'USERS_READ' },
     },
     action_args => {
         '*' => { model => 'SavedSearch::User', form => 'SavedSearch'}
@@ -33,8 +38,6 @@ __PACKAGE__->config(
 );
 
 =head1 METHODS
-
-=over
 
 =head2 before create
 
@@ -47,8 +50,6 @@ before 'create' => sub {
 
 
 __PACKAGE__->meta->make_immutable;
-
-=back
 
 =head1 COPYRIGHT
 
