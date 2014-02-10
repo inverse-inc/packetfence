@@ -51,6 +51,7 @@ sub available_actions {
             $Actions::SET_ROLE,
             $Actions::SET_ACCESS_DURATION,
             $Actions::SET_UNREG_DATE,
+            $Actions::SET_ACCESS_LEVEL,
            ];
 }
 
@@ -60,7 +61,15 @@ sub available_actions {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    return $self->email_required ? $params->{'username'} : $default_pid;
+    my $username =  $self->email_required ? $params->{'username'} : $default_pid;
+    foreach my $condition (@{ $own_conditions }) {
+        if ($condition->{'attribute'} eq "username") {
+            if ( $condition->matches("username", $username) ) {
+                push(@{ $matching_conditions }, $condition);
+            }
+        }
+    }
+    return $username;
 }
 
 =head2 authenticate
