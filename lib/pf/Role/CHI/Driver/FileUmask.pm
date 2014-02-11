@@ -15,10 +15,9 @@ pf::Role::CHI::Driver::FileUmask
 use strict;
 use warnings;
 use Moo::Role;
-use MooX::Types::MooseLike::Base qw(:all);
 
 has umask_on_store =>
-  ( is => 'rw', isa => Int, default => sub { oct( 0002 ) } );
+  ( is => 'rw', default => sub { oct( 0002 ) } );
 
 before store => sub {
     my ( $self ) = @_;
