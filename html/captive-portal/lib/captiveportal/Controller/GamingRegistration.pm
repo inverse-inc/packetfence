@@ -3,8 +3,10 @@ use Moose;
 use namespace::autoclean;
 use pf::config;
 use pf::log;
+use pf::node;
 use pf::util;
 use pf::web;
+use pf::web::gaming;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -29,6 +31,7 @@ sub begin : Hookable('Private') {
         $self->showError( $c, "This module is not enabled" );
         $c->detach;
     }
+    $c->stash->{console_types} = @pf::web::gaming::GAMING_CONSOLE_TYPES;
 }
 
 =head2 index
@@ -40,19 +43,11 @@ sub index : Path : Args(0) {
     my $logger  = get_logger;
     my $pid     = $c->session->{"username"};
     my $request = $c->request;
-    my $info    = $c->stash->{info} || {};
 
     # See if user is trying to login and if is not already authenticated
-    if (   ( !$pid )
-        && ( $request->param('username') ne '' )
-        && ( $request->param('password') ne '' ) ) {
-        $c->forward( Authenticate => 'authenticationLogin' );
-        if ( $c->stash->{txt_auth_error} ) {
-            $c->detach('login');
-        }
-    } elsif ( !$pid ) {
+    if ( ( !$pid ) ) {
         # Verify if user is authenticated
-        $c->detach('login');
+        $c->forward('userNotLoggedIn');
     } elsif ( $request->param('cancel') ) {
         $c->delete_session;
         $c->stash->{txt_auth_error} =
@@ -60,82 +55,94 @@ sub index : Path : Args(0) {
         $c->detach('login');
     } elsif ( $request->param('device_mac') ) {
         # User is authenticated and requesting to register gaming device
-        my $device_mac = $request->param('device_mac');
-        $c->stash->{device_mac} = $device_mac;
-        # Get role for gaming device
-        my $role =
-          $Config{'registration'}{'gaming_devices_registration_role'};
-        if ($role) {
-            $logger->trace("Gaming devices role is $role (from pf.conf)");
+        my $device_mac = clean_mac($request->param('device_mac'));
+        if(valid_mac($device_mac)) {
+            # Register gaming device
+            $c->forward('registerNode', [ $pid, $device_mac ]);
+            unless ($c->stash->{txt_auth_error}) {
+                $c->stash(status_msg  => i18n_format("The MAC address %s has been successfully registered.", $device_mac));
+                $c->detach('landing');
+            }
         } else {
-            # Use role of user
-            $role = &pf::authentication::match(
-                &pf::authentication::getInternalAuthenticationSources(),
-                { username => $pid },
-                $Actions::SET_ROLE
-            );
-            $logger->trace(
-                "Gaming devices role is $role (from username $pid)");
-        }
-        $info->{'category'} = $role if ( defined $role );
-        $info->{'auto_registered'} = 1;
-        # Register gaming device
-        my ( $result, $msg ) =
-          $c->forward( 'registerNode', [ $pid, $device_mac, %$info ] );
-        unless ($result) {
-            $c->stash->{txt_auth_error} = $msg;
+            $c->stash(txt_auth_error => "Please verify the provided MAC address.");
         }
     }
     # User is authenticated so display registration page
-    $c->stash( template => 'gaming-registration.html' );
+    $c->stash(template => 'gaming-registration.html');
 }
 
-sub login : Local : Args(0) : Hookable {
+
+=head2 userNotLoggedIn
+
+TODO: documention
+
+=cut
+
+sub userNotLoggedIn : Hookable('Private') {
+    my ($self, $c) = @_;
+    my $request = $c->request;
+    my $username = $request->param('username');
+    my $password = $request->param('password');
+    if (   $request->param('username') ne ''
+        && $request->param('password') ne '') {
+        $c->forward(Authenticate => 'authenticationLogin');
+        if ($c->stash->{txt_auth_error}) {
+            $c->detach('login');
+        }
+    } else {
+        $c->detach('login');
+    }
+}
+
+=head2 login
+
+Display the gaming login
+
+=cut
+
+sub login : Local : Args(0) : Hookable('Private') {
     my ( $self, $c ) = @_;
     $c->stash( template => 'gaming-login.html' );
 }
 
-sub landing : Local : Args(0) : Hookable {
+sub landing : Local : Args(0) : Hookable('Private') {
     my ( $self, $c ) = @_;
-    $c->stash( template => 'gaming-langing.html' );
+    $c->stash( template => 'gaming-landing.html' );
 }
 
 sub registerNode : Hookable('Private') {
-    my ( $self, $c, $pid, $mac, %info ) = @_;
+    my ( $self, $c, $pid, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ( $msg, $result );
-    if ( !valid_mac($mac) || !is_gaming_mac($mac) ) {
-        $msg = "Please verify the provided MAC address.";
-    } elsif ( !defined( $info{'category'} ) ) {
-        $msg =
-          "Can't determine the role. Please contact your system administrator.";
-    } elsif ( is_max_reg_nodes_reached( $mac, $pid, $info{'category'} ) ) {
-        $msg =
-          "You have reached the maximum number of devices you are able to register with this username.";
+    if ( pf::web::gaming::is_allowed_gaming_mac($mac) ) {
+        my ($node) = node_view($mac);
+        if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
+            $c->stash(txt_auth_error => "$mac is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator");
+        } else {
+            my %info;
+            $c->stash->{device_mac} = $mac;
+            # Get role for gaming device
+            my $role =
+              $Config{'registration'}{'gaming_devices_registration_role'};
+            if ($role) {
+                $logger->trace("Gaming devices role is $role (from pf.conf)");
+            } else {
+                # Use role of user
+                $role = &pf::authentication::match(
+                    &pf::authentication::getInternalAuthenticationSources(),
+                    { username => $pid },
+                    $Actions::SET_ROLE
+                );
+                $logger->trace(
+                    "Gaming devices role is $role (from username $pid)");
+            }
+            $info{'category'} = $role if ( defined $role );
+            $info{'auto_registered'} = 1;
+            $info{'mac'} = $mac;
+            $c->forward( 'Root' => 'webNodeRegister', [ $pid, %info ] );
+        }
     } else {
-        ( $result, $msg ) =
-          _sanitize_and_register( $mac, $pid,
-            %info );
+        $c->stash(txt_auth_error => "Please verify the provided MAC address.");
     }
-    return ( $result, $msg );
-}
-
-sub _sanitize_and_register {
-    my (  $mac, $pid, %info ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ( $result, $msg );
-    if ( valid_mac($mac) ) {
-        $info{'auto_registered'} = 1;
-        $logger->info("performing node registration MAC: $mac pid: $pid");
-        node_register( $mac, $pid, %info );
-        reevaluate_access( $mac, 'manage_register' );
-        $result = $TRUE;
-        $msg    = "The MAC address %s has been successfully registered.";
-    } else {
-        $msg = "The MAC address %s provided is invalid please try again";
-    }
-    $msg = i18n_format( $msg, $mac );
-    return ( $result, $msg );
 }
 
 =head1 AUTHOR
