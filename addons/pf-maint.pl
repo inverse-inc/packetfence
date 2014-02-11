@@ -22,6 +22,7 @@ pf-maint.pl [options]
    -r --github-repo        The github repo: default packetfence
    -n --no-ask             Do not ask to patch
    -d --pf-dir             The packetfence directory
+   -p --patch-bin          The patch binary default /usr/bin/patch
 
 =cut
 
@@ -41,18 +42,22 @@ our $help;
 our $COMMIT;
 our $BASE_COMMIT;
 our $NO_ASK;
+our $PATCH_BIN = '/usr/bin/patch';
 
 GetOptions(
     "github-user|u=s" => \$GITHUB_USER,    # string
     "github-repo|r=s" => \$GITHUB_REPO,    # string
     "git-dir|d=s"     => \$PF_DIR,         # string
     "commit|c=s"      => \$COMMIT,         # string
+    "patch-bin|p=s"   => \$PATCH_BIN,    # string
     "base-commit|b=s" => \$BASE_COMMIT,    # string
-    "no-ask|n" => \$NO_ASK,    # string
+    "no-ask|n"        => \$NO_ASK,       # string
     "help|h"          => \$help
 ) or podusage(2);
 
 pod2usage(1) if $help;
+
+die "$PATCH_BIN does not exists or is not executable" unless patch_bin_exists();
 
 our $PATCHES_DIR = catdir( $PF_DIR, '.patches' );
 mkdir $PATCHES_DIR or die "cannot create $PATCHES_DIR" unless -d $PATCHES_DIR;
@@ -123,7 +128,7 @@ sub apply_patch {
     my ( $data, $base, $head ) = @_;
     my $file = make_patch_filename( $base, $head );
     chdir $PF_DIR or die "cannot change directory $PF_DIR\n";
-    system "/usr/bin/patch -b -p1 < $file";
+    system "$PATCH_BIN -b -p1 < $file";
     write_file( $LAST_COMMIT, $head );
 }
 
@@ -139,6 +144,10 @@ sub get_url {
         die $response->status_line . "\n";
     }
     return $response_body;
+}
+
+sub patch_bin_exists {
+     -x $PATCH_BIN
 }
 
 sub show_patch {
