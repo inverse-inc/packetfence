@@ -83,8 +83,7 @@ sub userNotLoggedIn : Hookable('Private') {
     my $request = $c->request;
     my $username = $request->param('username');
     my $password = $request->param('password');
-    if (   $request->param('username') ne ''
-        && $request->param('password') ne '') {
+    if ( all_defined( $username, $password ) ) {
         $c->forward(Authenticate => 'authenticationLogin');
         if ($c->stash->{txt_auth_error}) {
             $c->detach('login');
