@@ -76,9 +76,6 @@ sub iplog_db_prepare {
     $iplog_statements->{'iplog_view_open_mac_sql'} = get_db_handle()->prepare(
         qq [ select mac,ip,start_time,end_time from iplog where mac=? and (end_time=0 or end_time > now()) order by start_time desc]);
 
-    $iplog_statements->{'iplog_view_open_mac_sql'} = get_db_handle()->prepare(
-        qq [select mac,ip,start_time,end_time from iplog where mac=? and (end_time=0 or end_time > now()) order by start_time desc]);
-
     $iplog_statements->{'iplog_view_all_sql'} = get_db_handle()->prepare(qq [ select mac,ip,start_time,end_time from iplog ]);
 
     $iplog_statements->{'iplog_history_ip_date_sql'} = get_db_handle()->prepare(
