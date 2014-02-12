@@ -34,7 +34,12 @@ services that the trapping engine depends on
 
 =cut
 
-has '+dependsOnServices' => ( is => 'rw', default => sub { [qw(memcached httpd.admin pfdetect)] } );
+around dependsOnServices => sub {
+    my ($orig, $self) = (shift, shift);
+    my $dependsOnServices = $self->$orig(@_);
+    push @$dependsOnServices,'pfdetect';
+    return $dependsOnServices;
+};
 
 =head1 AUTHOR
 
