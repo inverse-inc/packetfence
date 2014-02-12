@@ -13,8 +13,9 @@ pf::services::manager::radiusd
 
 use strict;
 use warnings;
-use pf::services::radiusd qw(generate_radiusd_conf);
 use pf::file_paths;
+use pf::util;
+use pf::config;
 use Moo;
 
 extends 'pf::services::manager';
@@ -26,7 +27,61 @@ has '+launcher' => ( default => sub { "sudo %1\$s -d $install_dir/raddb/"} );
 
 sub generateConfig {
     my ($self,$quick) = @_;
-    generate_radiusd_conf();
+    generate_radiusd_mainconf();
+    generate_radiusd_eapconf();
+    generate_radiusd_sqlconf();
+}
+
+=head2 generate_radiusd_mainconf
+
+Generates the radiusd.conf configuration file
+
+=cut
+
+sub generate_radiusd_mainconf {
+    my %tags;
+
+    $tags{'template'}    = "$conf_dir/radiusd/radiusd.conf";
+    $tags{'install_dir'} = $install_dir;
+    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    $tags{'arch'} = `uname -m` eq "x86_64" ? "64" : "";
+
+    parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
+}
+
+=head2 generate_radiusd_eapconf
+
+Generates the eap.conf configuration file
+
+=cut
+
+sub generate_radiusd_eapconf {
+   my %tags;
+
+   $tags{'template'}    = "$conf_dir/radiusd/eap.conf";
+   $tags{'install_dir'} = $install_dir;
+
+   parse_template( \%tags, "$conf_dir/radiusd/eap.conf", "$install_dir/raddb/eap.conf" );
+}
+
+=head2 generate_radiusd_sqlconf
+
+Generates the sql.conf configuration file
+
+=cut
+
+sub generate_radiusd_sqlconf {
+   my %tags;
+
+   $tags{'template'}    = "$conf_dir/radiusd/sql.conf";
+   $tags{'install_dir'} = $install_dir;
+   $tags{'db_host'} = $Config{'database'}{'host'};
+   $tags{'db_port'} = $Config{'database'}{'port'};
+   $tags{'db_database'} = $Config{'database'}{'db'};
+   $tags{'db_username'} = $Config{'database'}{'user'};
+   $tags{'db_password'} = $Config{'database'}{'pass'};
+
+   parse_template( \%tags, "$conf_dir/radiusd/sql.conf", "$install_dir/raddb/sql.conf" );
 }
 
 =head1 AUTHOR
