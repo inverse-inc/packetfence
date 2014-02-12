@@ -484,31 +484,29 @@ For other switches, add placeholders with values from default switch.
 
 sub update_fields {
     my $self = shift;
-
-    if ($self->{init_object} && $self->init_object->{id} eq 'default') {
+    my $init_object = $self->init_object;
+    my $id = $init_object->{id} if $init_object;
+    if (defined $id && $id eq 'default') {
         foreach my $role (@SNMP::ROLES) {
             $self->field($role.'Vlan')->required(1);
         }
-    }
-    elsif ($self->placeholders) {
+    } elsif ($self->placeholders) {
         foreach my $field ($self->fields) {
-            if ($self->placeholders->{$field->name} && length $self->placeholders->{$field->name}) {
+            my $placeholder = $self->placeholders->{$field->name};
+            if (defined $placeholder && length $placeholder) {
                 if ($field->type eq 'Select') {
                     if ($field->name eq 'type') {
-                        $field->default($self->placeholders->{$field->name});
-                    }
-                    else {
-                        my $val = sprintf "%s (%s)", $self->_localize('Default'), $self->placeholders->{$field->name};
+                        $field->default($placeholder);
+                    } else {
+                        my $val = sprintf "%s (%s)", $self->_localize('Default'), $placeholder;
                         $field->element_attr({ 'data-placeholder' => $val });
                     }
-                }
-                elsif ($field->name ne 'id') {
-                    $field->element_attr({ placeholder => $self->placeholders->{$field->name} });
+                } elsif ($field->name ne 'id') {
+                    $field->element_attr({ placeholder => $placeholder });
                 }
             }
         }
     }
-
     $self->SUPER::update_fields();
 }
 
