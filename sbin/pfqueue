@@ -1,0 +1,77 @@
+#!/usr/bin/perl 
+#
+use strict;
+use warnings;
+use feature "say";
+use POSIX 'WNOHANG';
+use IPC::SysV qw(S_IRUSR S_IWUSR);
+use IPC::Msg;
+use Data::Dumper;
+
+## SIGNAL HANDLERS
+my $quit = 0;
+
+$SIG{CHLD} = \&reaper;
+$SIG{INT} = sub { $quit++ };
+
+sub reaper {
+    while ( ( my $kid = waitpid( -1, WNOHANG ) ) > 0 ) {
+        warn "Reaped child with PID $kid\n";
+    }
+}
+
+# EVENT HANDLERS
+# IN THE FINAL VERSION THESE WOULD BE DYNAMICALLY INCLUDED AS PLUGINS
+my $snmptrap_handler = sub {
+    my $event = shift;
+
+    use Switch;
+    switch ( $event->{'VARBINDS: SNMPv2-MIB::snmpTrapOID.0'} ) {
+        case 'type=6  value=OID: IF-MIB::linkUp'   { say "I saw a linkUp trap. Handling it" }
+        case 'type=6  value=OID: IF-MIB::linkDown' { say "I saw a linkDown trap. Handling it" }
+        else                                       { say "I did not understand that trap. Ignoring it." }
+    }
+};
+
+my $dhcp_handler = sub { undef; };
+my $log_handler  = sub { undef; };
+
+# HANDLERS DISPATCH TABLE
+my %handler_for = (
+    "snmptrap" => $snmptrap_handler,
+    "dhcp"     => $dhcp_handler,
+    "log"      => $log_handler,
+);
+
+## GET THE QUEUE (NOTE THAT THE KEY MUST MATCH THAT OF THE QUEUE CREATED BY SNMPTRAPD).
+my $key = 101;
+my $msg = IPC::Msg->new( $key, S_IRUSR | S_IWUSR );
+die "Message queue error" unless defined $msg;
+
+# start looping and pick up messages from the queue
+while ( !$quit ) {
+
+    my $data;
+    $msg->rcv( $data, 4096, 1 );
+    next if not defined $data;
+
+    unless ( my $child = fork ) {    # i'm the child
+        die "cannot fork: $!" unless defined $child;
+        handle($data);
+        exit;
+    }
+
+}
+
+sub handle {
+    my ( $data, $event1 );
+    $data = shift;
+    eval $data;                      # will populate event1
+
+    say "Handling event in a child process, pid: $$";
+
+    $handler_for{ $event1->{'PFtype'} }->($event1);
+
+    #say Dumper $event1;
+}
+

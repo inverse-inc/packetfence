@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use feature "say";
+use IPC::SysV qw(S_IRUSR S_IWUSR IPC_CREAT);
+use IPC::Msg;
+
+use Data::Dumper;
+$Data::Dumper::Varname = 'event';
+$Data::Dumper::Indent  = 0;
+
+print STDERR "Loaded the example perl snmptrapd handler\n";
+
+NetSNMP::TrapReceiver::register( "all", \&trap_receiver )
+    || warn "failed to register our perl trap handler\n";
+
+my $key = 101;
+my $msg = IPC::Msg->new( $key,  S_IRUSR | S_IWUSR | IPC_CREAT );
+die "Message queue is not defined" unless defined $msg;
+
+sub trap_receiver {
+    my %PDU      = %{ $_[0] };
+    my @VARBINDS = @{ $_[1] };
+    my %trap;
+
+    %PDU = map { "PDU: " . $_ => $PDU{$_} } keys %PDU;
+    my %VARBINDS
+        = map { "VARBINDS: " . $_->[0] => ( sprintf "type=%-2d value=%s", $_->[2], $_->[1] ); } @VARBINDS;
+
+    %trap = ( %PDU, %VARBINDS );
+    $trap{"PFtype"} = "snmptrap";
+    $msg->snd( 1, Dumper( \%trap ) ) or die "Queue write error: $!";
+}
