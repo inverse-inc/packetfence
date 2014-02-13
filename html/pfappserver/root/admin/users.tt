@@ -47,8 +47,13 @@ form {
               <div class="sidebar-nav well">
                 <ul class="nav nav-list">
                   <li class="nav-header">[% l('Users') %]</li>
+                  [%- IF can_access('USERS_READ') -%]
                   <li class="active"><a href="#">[% l('Search') %]</a></li>
+                  [%- END -%]
+                  [%- IF can_access('USERS_CREATE') -%]
                   <li><a href="#user/create">[% l('Create') %]</a></li>
+                  [%- END -%]
+                  [%- IF can_access('USERS_READ') -%]
                   <li class="nav-header">[% l('Saved Searches') %]</li>
                   [% FOR ss IN saved_searches %]
                   [% form = ss.form %]
@@ -67,6 +72,7 @@ form {
                     </form>
                   </li>
                   [%END%]
+                  [%- END -%]
                 </ul>
               </div>
             </div>
