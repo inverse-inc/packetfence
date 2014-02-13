@@ -1,8 +1,5 @@
 package pf::Role::CHI::Driver::FileUmask;
-<<<<<<< HEAD
 
-=======
->>>>>>> Fix pfcache file permissions
 =head1 NAME
 
 pf::Role::CHI::Driver::FileUmask add documentation
