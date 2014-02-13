@@ -125,6 +125,7 @@ sub instantiate {
     my $switch_data = $SwitchConfig{$requestedSwitch};
 
     # find the module to instantiate
+    my $switchOverlay = $switch_overlay_config->read($requestedSwitch) || {};
     my $type;
     if ($requestedSwitch ne 'default') {
         $type = "pf::SNMP::" . $switch_data->{'type'};
@@ -146,7 +147,8 @@ sub instantiate {
          ip => $switch_ip,
          switchIp => $switch_ip,
          switchMac => $switch_mac,
-         %$switch_data
+         %$switch_data,
+         %$switchOverlay
     );
 }
 
