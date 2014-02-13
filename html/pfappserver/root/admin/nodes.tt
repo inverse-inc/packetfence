@@ -43,8 +43,13 @@ form {
           <div class="sidebar-nav well">
             <ul class="nav nav-list">
               <li class="nav-header">[% l('Nodes') %]</li>
+              [%- IF can_access("NODES_READ") -%]
               <li class="active"><a href="#">[% l('Search') %]</a></li>
+              [%- END -%]
+              [%- IF can_access("NODES_CREATE") -%]
               <li><a href="[% c.pf_hash_for(c.controller('Node').action_for('create')) %]">[% l('Create') %]</a></li>
+              [%- END -%]
+              [%- IF can_access("NODES_READ") -%]
               <li class="nav-header">[% l('Saved Searches') %]</li>
               [%FOR ss IN saved_searches%]
                 [% form = ss.form %]
@@ -63,6 +68,7 @@ form {
                 </form>
               </li>
               [%END%]
+              [%- END -%]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
