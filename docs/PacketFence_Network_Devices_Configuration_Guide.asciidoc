@@ -263,22 +263,22 @@ Global config settings:
 
 On each interface with VoIP:
 
-interface Ethernet1/0/1
- stp edged-port enable
- lldp compliance admin-status cdp txrx
- port link-type hybrid
- port hybrid vlan 416 tagged
- port hybrid vlan 1 116 216 316 2001 3001 untagged
- broadcast-suppression pps 3000
- undo jumboframe enable
- undo voice vlan mode auto
- voice vlan enable
- port-security max-mac-count 3
- port-security port-mode mac-authentication
- port-security intrusion-mode blockmac
- packet-filter inbound link-group 4999 rule 0
- packet-filter inbound ip-group 3000 rule 3
- undo enable snmp trap updown
+ interface Ethernet1/0/1
+  stp edged-port enable
+  lldp compliance admin-status cdp txrx
+  port link-type hybrid
+  port hybrid vlan 416 tagged
+  port hybrid vlan 1 116 216 316 2001 3001 untagged
+  broadcast-suppression pps 3000
+  undo jumboframe enable
+  undo voice vlan mode auto
+  voice vlan enable
+  port-security max-mac-count 3
+  port-security port-mode mac-authentication
+  port-security intrusion-mode blockmac
+  packet-filter inbound link-group 4999 rule 0
+  packet-filter inbound ip-group 3000 rule 3
+  undo enable snmp trap updown
 
 E4800G
 ^^^^^^
