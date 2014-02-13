@@ -209,7 +209,13 @@ function init() {
     });
 
     /* Hash change handler */
-    $(window).hashchange(pfOnHashChange(updateSection, '/graph/dashboard/'));
+    var href =  $('.sidebar-nav .nav-list a').first().attr('href');
+    if(href) {
+        href = href.replace(/^.*#/,"/");
+    } else {
+        href = "/graph/dashboard/";
+    }
+    $(window).hashchange(pfOnHashChange(updateSection,href));
     $(window).hashchange();
     activateNavLink();
 }

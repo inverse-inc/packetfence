@@ -54,10 +54,12 @@
           [%- IF c.user_in_realm( 'admin' ) %]
           <div class="nav-collapse">
             <ul class="nav">
-              [%- IF can_access("REPORTS") %]
+              [%- IF can_access_any("REPORTS","SERVICES") %]
               <li[% ' class="active"' IF c.action.name == 'status' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('status')) %]">[% l('Status') %]</a>
               </li>
+              [%- END %]
+              [%- IF can_access("REPORTS") %]
               <li[% ' class="active"' IF c.action.name == 'reports' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('reports')) %]">[% l('Reports') %]</a>
               </li>
