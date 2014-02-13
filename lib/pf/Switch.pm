@@ -2898,26 +2898,6 @@ sub extractVLAN {
     return;
 }
 
-
-
-sub synchronize_locationlog {
-    my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid) = @_;
-    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid);
-}
-
-=item extractVLAN
-
-Extract VLAN from the radius attributes.
-
-=cut
-
-sub extractVLAN {
-    my ($self, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
-    $logger->warn("Not implemented");
-    return;
-}
-
 =item parseRequest
 
 Takes FreeRADIUS' RAD_REQUEST hash and process it to return

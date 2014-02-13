@@ -181,24 +181,6 @@ sub HasChanged {
     return $result;
 }
 
-=head1 HasChanged
-
-Verify if the has
-
-=cut
-
-sub HasChanged {
-    my ($self,$no_check_imported) = @_;
-    my $imported_expired = 0;
-    if(!$no_check_imported && exists $self->{imported}) {
-        my $imported = $self->{imported};
-        $imported_expired = $imported->HasChanged() if defined $imported;
-    }
-    my $last_mod_timestamp = $self->GetLastModTimestamp;
-    my $result = $imported_expired || (defined $last_mod_timestamp && $last_mod_timestamp != $self->GetCurrentModTimestamp );
-    return $result;
-}
-
 
 =head2 SetLastModTimestamp
 

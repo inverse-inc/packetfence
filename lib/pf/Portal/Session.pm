@@ -397,17 +397,6 @@ sub setGrantUrl {
     $self->session->param('_grant_url',$url);
 }
 
-=item setClientMac
-
-Set the MAC of the captive portal client.
-
-=cut
-
-sub setClientMac {
-    my ($self, $new_mac) = @_;
-    $self->{'_client_mac'} = $new_mac;
-}
-
 =item getDestinationUrl
 
 Returns the original destination URL requested by the client.
