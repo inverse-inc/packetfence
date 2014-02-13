@@ -20,7 +20,7 @@ use pf::file_paths;
 use List::MoreUtils qw(any all);
 use pf::config::cached;
 
-our @EXPORT = qw(admin_can admin_can_do_any @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config);
+our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config);
 our %ADMIN_ROLES;
 our @ADMIN_ACTIONS = qw(
     SERVICES
@@ -81,6 +81,22 @@ our @ADMIN_ACTIONS = qw(
     MAC_READ
     MAC_UPDATE
 );
+
+
+our %ADMIN_GROUP_ACTIONS = (
+    CONFIGURATION_GROUP_READ => [
+        qw( CONFIGURATION_MAIN_READ PORTAL_PROFILES_READ
+          ADMIN_ROLES_READ  INTERFACES_READ SWITCHES_READ FLOATING_DEVICES_READ
+          USERS_ROLES_READ  USERS_SOURCES_READ VIOLATIONS_READ SOH_READ
+          FINGERPRINTS_READ USERAGENTS_READ MAC_READ)
+      ]
+);
+
+sub admin_can_do_any_in_group {
+    my ($roles,$group) = @_;
+    my $actions = $ADMIN_GROUP_ACTIONS{$group} if exists $ADMIN_GROUP_ACTIONS{$group};
+    return ref $actions eq 'ARRAY' && admin_can_do_any($roles,@$actions);
+}
 
 sub admin_can {
     my ($roles, @actions) = @_;
