@@ -237,7 +237,7 @@ sub index :Path : Args(0) {
 
 =cut
 
-sub dashboard :Local {
+sub dashboard :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $DASHBOARD, $start, $end);
