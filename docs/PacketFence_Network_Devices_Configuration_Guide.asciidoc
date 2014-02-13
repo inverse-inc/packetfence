@@ -228,6 +228,58 @@ On each interface:
   port-security intrusion-mode blockmac
   undo enable snmp trap updown
 
+In Mac Auth 
++++++++++++
+
+Global config settings:
+
+ lldp enable
+ lldp timer tx-interval 5
+ lldp compliance cdp
+ lldp compliance cdp
+
+ port-security enable
+ MAC-authentication domain packetfence
+
+ radius scheme system
+ radius scheme packetfence
+  server-type extended
+  primary authentication 192.168.1.5
+  primary accounting 1192.168.1.5
+  key authentication P@cketfence
+  key accounting cipher P@cketfence
+  user-name-format without-domain
+
+ domain packetfence
+  authentication radius-scheme packetfence
+  accounting radius-scheme packetfence
+  vlan-assignment-mode string
+  accounting optional
+ domain system
+
+ voice vlan mac-address f4ea-6700-0000 mask ffff-ff00-0000 description Cisco IP Phone
+ undo voice vlan security enable
+ voice vlan 6 enable
+
+On each interface with VoIP:
+
+interface Ethernet1/0/1
+ stp edged-port enable
+ lldp compliance admin-status cdp txrx
+ port link-type hybrid
+ port hybrid vlan 416 tagged
+ port hybrid vlan 1 116 216 316 2001 3001 untagged
+ broadcast-suppression pps 3000
+ undo jumboframe enable
+ undo voice vlan mode auto
+ voice vlan enable
+ port-security max-mac-count 3
+ port-security port-mode mac-authentication
+ port-security intrusion-mode blockmac
+ packet-filter inbound link-group 4999 rule 0
+ packet-filter inbound ip-group 3000 rule 3
+ undo enable snmp trap updown
+
 E4800G
 ^^^^^^
 
