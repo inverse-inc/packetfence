@@ -37,9 +37,12 @@ $switches_cached_config = pf::config::cached->new(
     -oncachereload => [
         on_cached_overlay_reload => sub {
             my ( $config, $name ) = @_;
-            unless ( $config->cacheForData->is_valid("SwitchConfig") ) {
+            my $data = $config->fromCacheForDataUntainted("SwitchConfig");
+            if($data) {
+                %SwitchConfig = %$data;
+            } else {
                 #if not found then repopulate switch
-                populateSwitchConfig( $config, $name );
+                $config->_callFileReloadCallbacks();
             }
         },
     ]
@@ -93,6 +96,7 @@ sub populateSwitchConfig {
         SNMPVersionTrap   => '1',
         SNMPCommunityTrap => 'public'
     };
+    $config->cacheForData->set( "SwitchConfig", \%SwitchConfig );
 }
 
 sub _buildCachedConfig { $switches_cached_config }

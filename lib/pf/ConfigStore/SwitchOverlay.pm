@@ -24,40 +24,7 @@ extends qw(pf::ConfigStore Exporter);
 $switches_overlay_cached_config = pf::config::cached->new(
     -file => $switches_overlay_file,
     -allowempty => 1,
-    -import => $pf::ConfigStore::Switch::switches_cached_config,
-    -default => 'default',
-    -onfilereload => [
-        on_switches_reload => sub  {
-            my ($config, $name) = @_;
-            overlaySwitchConfig($config,$name);
-        },
-    ],
-    -oncachereload => [
-        on_cached_overlay_reload => sub  {
-            my ($config, $name) = @_;
-            my $data = $config->fromCacheForDataUntainted("SwitchConfig");
-            if($data) {
-                %SwitchConfig = %$data;
-            } else {
-                #if not found then repopulate switch
-                $config->_callFileReloadCallbacks();
-            }
-        },
-    ]
 );
-
-sub overlaySwitchConfig {
-    my ( $config, $name ) = @_;
-    my @switches = grep { exists $SwitchConfig{$_} } $config->Sections;
-    foreach my $switchId ( @switches ) {
-        my $switch = $SwitchConfig{$switchId};
-        # Overlaying switch configation
-        foreach my $key (qw(ip controllerIp)) {
-            $switch->{$key} = $config->val($switchId,$key);
-        }
-    }
-    $config->cacheForData->set( "SwitchConfig", \%SwitchConfig );
-}
 
 =head1 METHODS
 
