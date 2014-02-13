@@ -17,6 +17,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use namespace::autoclean;
 use Moose;
 use pfappserver::Form::SavedSearch;
+use pf::admin_roles;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -75,7 +76,7 @@ sub login :Local :Args(0) {
                                    password => $c->req->params->{'password'}} )) {
                 $c->session->{user_roles} = [$c->user->roles]; # Save the roles to the session
                 $c->persist_user(); # Save the updated roles data
-                $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
+                $c->response->redirect($c->uri_for($c->controller->action_for('index')));
             }
             else {
                 $c->response->status(HTTP_UNAUTHORIZED);
@@ -89,7 +90,7 @@ sub login :Local :Args(0) {
         $c->stash->{current_view} = 'JSON';
     }
     elsif ($c->user_in_realm( 'admin' )) {
-        $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
+        $c->response->redirect($c->uri_for($c->controller->action_for('index')));
         $c->detach();
     }
     elsif ($c->req->params->{'redirect_action'}) {
@@ -117,8 +118,20 @@ Status
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
-
-    $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
+    my @roles = $c->user->roles();
+    my $action;
+    if (admin_can_do_any(\@roles,qw(SERVICES REPORTS))) {
+        $action = 'status';
+    } elsif( admin_can_do_any(\@roles,qw(USERS_READ))) {
+        $action = 'users';
+    } elsif( admin_can_do_any(\@roles,qw(NODES_READ))) {
+        $action = 'nodes';
+    } elsif( admin_can_do_any_in_group(\@roles, 'CONFIGURATION_GROUP_READ' ) ) {
+        $action = 'configuration';
+    } else {
+        $action = 'logout';
+    }
+    $c->response->redirect($c->uri_for($c->controller->action_for($action)));
 }
 
 =head2 object
