@@ -21,8 +21,10 @@ enabled 3COM 4200G Switch
 
 =item VoIP
 
-Voice over IP with MAC Auth / 802.1X could work but was not attempted.
+Voice over IP with 802.1X could work but was not attempted.
 Although current limitation regarding 802.1X re-authentication could imply lost calls on VLAN changes.
+
+Voice over IP with MAC Auth works
 
 =back
 
@@ -56,6 +58,11 @@ Since this is critical for PacketFence's operation, as a work-around,
 we decided to bounce the port which will force the client to re-authenticate and do DHCP.
 Because of the port bounce PCs behind IP phones aren't recommended.
 This behavior was experienced on a Windows 7 client on the 4200G with the latest firmware.
+
+=item Mac Auth and VoIP
+
+V3.03.02s168p15 has bug when radius returns the vlan corrected in V3.03.02s168p19
+OS V3.03.02s168p21 works well, we did lot of tests on it.
 
 =back
 
@@ -98,6 +105,9 @@ sub description { '3COM 4200G' }
 
 sub supportsWiredMacAuth { return $TRUE; } 
 sub supportsWiredDot1x { return $TRUE; } 
+sub supportsRadiusVoip { return $SNMP::TRUE; }
+sub supportsLldp { return $TRUE; }
+
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 
@@ -150,6 +160,127 @@ sub dot1xPortReauthenticate {
     return $this->bouncePort($ifIndex);
 }
 
+=item getIndex
+
+We extract the index from SNMP request to the switch
+
+=cut
+
+sub getIndex {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+    use Data::Dumper;
+    
+    my $OID_ifDesc = "1.3.6.1.2.1.31.1.1.1.1.$ifIndex";
+    $logger->warn(Dumper $OID_ifDesc);
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifDesc" ] );
+    $logger->warn(Dumper $result);
+
+    my $desc = $result->{"1.3.6.1.2.1.31.1.1.1.1.$ifIndex"};
+    $logger->warn(Dumper $desc);
+
+    $desc =~ /(\d+)$/;
+
+    return $1;
+}
+
+=item getPhonesLLDPAtIfIndex 
+
+Using SNMP and LLDP we determine if there is VoIP connected on the switch port
+=cut
+
+sub getPhonesLLDPAtIfIndex {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my @phones;
+    if ( !$this->isVoIPEnabled() ) {
+        $logger->debug( "VoIP not enabled on switch "
+                . $this->{_ip}
+                . ". getPhonesLLDPAtIfIndex will return empty list." );
+        return @phones;
+    }
+
+    my $index = $this->getIndex($ifIndex);
+    $logger->warn("INDEX ".$index);
+
+    my $oid_lldpRemPortId = '1.0.8802.1.1.2.1.4.1.1.7';
+    my $oid_lldpRemSysDesc = '1.0.8802.1.1.2.1.4.1.1.10';
+
+    if ( !$this->connectRead() ) {
+        return @phones;
+    }
+    sleep(4);
+    $logger->trace(
+        "SNMP get_next_request for lldpRemSysDesc: $oid_lldpRemSysDesc");
+    my $result = $this->{_sessionRead}
+        ->get_table( -baseoid => $oid_lldpRemSysDesc );
+    $logger->warn(Dumper $result);
+    foreach my $oid ( keys %{$result} ) {
+        if ( $oid =~ /^$oid_lldpRemSysDesc\.([0-9]+)\.([0-9]+)\.([0-9]+)$/ ) {
+            $logger->warn($oid);
+            if ( $index eq $2 ) {
+                my $cache_lldpRemTimeMark = $1;
+                my $cache_lldpRemLocalPortNum = $2;
+                my $cache_lldpRemIndex = $3;
+                $logger->warn($oid);
+                if ( $result->{$oid} =~ /phone/i ) {
+                    $logger->trace(
+                        "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
+                    );
+                    my $MACresult = $this->{_sessionRead}->get_request(
+                        -varbindlist => [
+                            "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
+                        ]
+                    );
+                    $logger->warn(Dumper $MACresult);
+                    if ($MACresult
+                        && ($MACresult->{
+                                "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
+                            }
+                            =~ /^([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})/i
+                        )
+                        )
+                    {
+                        push @phones, lc("$1:$2:$3:$4:$5:$6");
+                    }
+                }
+            }
+        }
+    }
+    return @phones;
+}
+
+=item isVoIPEnabled
+
+Returns 1 if VoIP is enabled
+
+=cut
+
+sub isVoIPEnabled {
+    my ($this) = @_;
+    return ( $this->{_VoIPEnabled} == 1 );
+}
+
+=item getVoipVsa
+
+We do not returns RADIUS attributes for voip phone devices
+because the switch does not handles how to PF send its vlan
+
+=cut
+
+#sub getVoipVsa {
+#    my ($this) = @_;
+#    my $logger = Log::Log4perl::get_logger(ref($this));
+#    return (
+#        'Tunnel-Type'               => $RADIUS::VLAN,
+#        'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
+#        'Tunnel-Private-Group-ID'   => $this->getVlanByName('voice'),
+#    );
+#}
 
 =back
 
