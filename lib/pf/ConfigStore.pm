@@ -372,6 +372,7 @@ sub commit {
     eval {
         $result = $self->rewriteConfig();
     };
+    get_logger->error($@) if $@;
     unless($result) {
         $self->rollback();
     }

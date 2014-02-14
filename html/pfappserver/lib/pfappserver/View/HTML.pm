@@ -15,7 +15,7 @@ __PACKAGE__->config(
         js => \&js_filter,
     },
     render_die => 1,
-    expose_methods => [qw(can_access can_access_any)],
+    expose_methods => [qw(can_access can_access_any can_access_group_any)],
     COMPILE_DIR => $tt_compile_cache_dir
 );
 
@@ -75,6 +75,17 @@ sub can_access_any {
     my $roles = [];
     $roles = [$c->user->roles] if $c->user_exists;
     return admin_can_do_any($roles,@actions);
+}
+
+=head2 can_access_group_any
+
+=cut
+
+sub can_access_group_any {
+    my ($self, $c, $group) = @_;
+    my $roles = [];
+    $roles = [$c->user->roles] if $c->user_exists;
+    return admin_can_do_any_in_group($roles,$group);
 }
 
 =head1 COPYRIGHT

@@ -99,7 +99,7 @@ sub post_auth {
         my $data = send_soap_request("radius_authorize",\%RAD_REQUEST);
         if ($data) {
 
-            my $elements = $data->{'soap:Body'}->{'radius_authorizeResponse'}->{'soapenc:Array'}->{'item'};
+            my $elements = listify($data->{'soap:Body'}->{'radius_authorizeResponse'}->{'soapenc:Array'}->{'item'});
 
             # Get RADIUS return code
             $radius_return_code = shift @$elements;
@@ -229,9 +229,60 @@ sub preacct {
 
 # Function to handle accounting
 sub accounting {
-        # For debugging purposes only
-#       &log_request_attributes;
+    my $radius_return_code = eval {
+        my $rc = $RADIUS::RLM_MODULE_REJECT;
+        my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+        my $port = $RAD_REQUEST{'NAS-Port'};
 
+        # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
+        if ( length($mac) != 17 ) {
+            &radiusd::radlog($RADIUS::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
+            return $RADIUS::RLM_MODULE_OK;
+        }
+
+        # We only perform a SOAP call on stop/update types
+        unless ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop' ||
+                $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update') {
+            return $RADIUS::RLM_MODULE_OK;
+        }
+
+        my $data = send_soap_request("radius_accounting", \%RAD_REQUEST);
+        if ($data) {
+            my $elements = listify($data->{'soap:Body'}->{'radius_accountingResponse'}->{'soapenc:Array'}->{'item'});
+
+            # Get RADIUS return code
+            $rc = shift @$elements;
+
+            if ( !defined($rc) || !($rc > $RADIUS::RLM_MODULE_REJECT && $rc < $RADIUS::RLM_MODULE_NUMCODES) ) {
+                return invalid_answer_handler();
+            }
+
+            # Merging returned values with RAD_REPLY, right-hand side wins on conflicts
+            my $attributes = {@$elements};
+            %RAD_REPLY = (%RAD_REPLY, %$attributes); # the rest of result is the reply hash passed by the radius_authorize
+        } else {
+            return server_error_handler();
+        }
+
+        return $rc;
+    };
+    if ($@) {
+        &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize SOAP request: $@");
+        $radius_return_code = server_error_handler();
+    }
+
+    # For debugging purposes
+    #&radiusd::radlog($RADIUS::L_INFO, "radius_return_code: $radius_return_code");
+
+    &radiusd::radlog($RADIUS::L_DBG, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
+
+    # Uncomment for verbose debugging with radius -X
+    # Warning: This is a native module so you shouldn't run it with radiusd in threaded mode (default)
+    # use Data::Dumper;
+    # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
+    # &radiusd::radlog($RADIUS::L_DBG, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
+
+    return $radius_return_code;
 }
 
 # Function to handle checksimul
@@ -281,6 +332,10 @@ sub log_request_attributes {
         for (keys %RAD_REQUEST) {
                 &radiusd::radlog($RADIUS::L_INFO, "RAD_REQUEST: $_ = $RAD_REQUEST{$_}");
         }
+}
+
+sub listify($) {
+    ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
 }
 
 =back

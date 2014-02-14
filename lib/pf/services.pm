@@ -39,6 +39,7 @@ use pf::services::manager::snmptrapd;
 use pf::services::manager::pfsetvlan;
 use pf::services::manager::pfdhcplistener;
 use pf::services::manager::pfmon;
+use pf::services::manager::pfcache;
 use Module::Loaded qw(is_loaded);
 
 our @APACHE_SERVICES = (
@@ -46,7 +47,7 @@ our @APACHE_SERVICES = (
 );
 
 our @ALL_SERVICES = (
-    'memcached', @APACHE_SERVICES, 'pfdns', 'dhcpd', 'pfdetect', 'snort', 'suricata', 'radiusd',
+    'memcached', 'pfcache', @APACHE_SERVICES, 'pfdns', 'dhcpd', 'pfdetect', 'snort', 'suricata', 'radiusd',
     'snmptrapd', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
 
@@ -89,18 +90,6 @@ sub get_service_manager {
         $sm = $module->new;
     }
     return $sm;
-}
-
-=head2 read_violations_conf
-
-reload the violation config
-
-=cut
-
-sub read_violations_conf {
-    require pf::violation_config;
-    pf::violation_config::readViolationConfigFile();
-    return 1;
 }
 
 =head2 _make_service_manager_module_name

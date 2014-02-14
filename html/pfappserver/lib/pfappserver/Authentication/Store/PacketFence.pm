@@ -26,7 +26,7 @@ sub find_user {
   my ($self, $authinfo, $c) = @_;
   my $username = $authinfo->{$self->user_field};
   my $roles = $c->session->{user_roles};
-  $self->user_class->new( $self, $username,$roles );
+  $self->user_class->new($self, $username, $roles);
 }
 
 sub user_supports {
@@ -35,8 +35,8 @@ sub user_supports {
 }
 
 sub from_session {
-  my ( $self, $c, $username) = @_;
-  $self->find_user( { username => $username },$c);
+  my ($self, $c, $username) = @_;
+  $self->find_user({ username => $username }, $c);
 }
 
 =head1 COPYRIGHT

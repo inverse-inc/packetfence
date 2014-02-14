@@ -1,4 +1,4 @@
-[%  jsFiles = ['app/application', 'admin/login'] %]
+[%  jsFiles = ['admin/login'] %]
 
     <div class="container-fluid">
       <div class="row-fluid">
@@ -11,8 +11,8 @@
             <strong>Warning!</strong> <span>[% status_msg %]</span>
           </div>
 [% END %]
-          <form name="login" class="form-horizontal" action="[% c.uri_for(c.controller('Admin').action_for('login')) %]" method="post">
-            <input type="hidden" name="redirect_url" value="[% redirect_action || c.uri_for(c.controller('Admin').action_for('status')) %]">
+          <form name="login" class="form-horizontal" action="[% c.uri_for(c.controller.action_for('login')) %]" method="post">
+            <input type="hidden" name="redirect_url" value="[% redirect_action || c.uri_for(c.controller.action_for('index')) %]">
             <div class="control-group">
               <label class="control-label" for="username">[% l('Username') %]</label>
               <div class="controls">

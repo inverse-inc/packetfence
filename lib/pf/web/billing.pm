@@ -62,17 +62,17 @@ sub generate_billing_page {
 
     my $billingObj  = new pf::billing::custom();
     my %tiers       = $billingObj->getAvailableTiers();
+    my $cgi         = $portalSession->getCgi();
 
     $portalSession->stash({
         'tiers' => \%tiers,
-        'selected_tier' => $portalSession->cgi->param("tier"),
-        'firstname' => $portalSession->cgi->param("firstname"),
-        'lastname' => $portalSession->cgi->param("lastname"),
-        'email' => $portalSession->cgi->param("email"),
-        'ccnumber' => $portalSession->cgi->param("ccnumber"),
-        'ccexpiration' => $portalSession->cgi->param("ccexpiration"),
-        'ccverification' => $portalSession->cgi->param("ccverification"),
-
+        'selected_tier' => $cgi->param("tier") || '',
+        'firstname' => $cgi->param("firstname") || '',
+        'lastname' => $cgi->param("lastname") || '',
+        'email' => $cgi->param("email") || '',
+        'ccnumber' => $cgi->param("ccnumber") || '',
+        'ccexpiration' => $cgi->param("ccexpiration") || '',
+        'ccverification' => $cgi->param("ccverification") || '',
     });
 
     # Error management

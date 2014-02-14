@@ -70,7 +70,7 @@ nodeaccounting               | RADIUS accounting information
 nodecategory                 | nodecategory manipulation
 nodeuseragent                | View User-Agent information associated to a node
 person                       | person manipulation
-reload                       | rebuild fingerprint or violations tables without restart
+reload                       | rebuild fingerprints without restart
 report                       | current usage reports
 schedule                     | Nessus scan scheduling
 service                      | start/stop/restart and get PF daemon status
@@ -477,9 +477,9 @@ EOT
 
 sub help_reload {
     print STDERR << "EOT";
-Usage: pfcmd reload <fingerprints|violations>
+Usage: pfcmd reload <fingerprints>
 
-reload fingerprints or violations database tables without restart
+reload fingerprints database tables without restart
 EOT
     return 1;
 }
@@ -633,7 +633,7 @@ pid, category and voip status assigned to the imported nodes can be modified
 in pf.conf.
 
 Supported format:
-- nodes
+- nodes wrix
 
 Nodes import format:
 <MAC>

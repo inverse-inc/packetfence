@@ -122,7 +122,7 @@ sub field_list {
                    no_value => 1,
                    element_attr => {'foo' => 'bar'},
                    wrapper_class => ['compound-input-btn-group', 'extended-duration', 'well'],
-                   tags => { after_element => '<div class="controls"><a href="#" id="addExtendedTime" class="btn btn-info" data-target="#access_duration_choices">' . $self->_localize("Add to Duration Choices") . '</a></div>' }
+                   tags => { after_element => '<div class="controls"><a href="#" id="addExtendedTime" class="btn btn-info" data-target="#access_duration_choices">' . $self->_localize("Add to Duration Choices") . '</a>' }
                   };
                 last;
             };

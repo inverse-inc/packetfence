@@ -113,6 +113,8 @@ Requires: perl(Class::Gomor)
 Requires: perl(Config::IniFiles) >= 2.40
 Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
 Requires: perl(DBI)
+Requires: perl(Rose::DB)
+Requires: perl(Rose::DB::Object)
 Requires: perl(File::Tail)
 Requires: perl(IPC::Cmd)
 Requires: perl(IPTables::ChainMgr)
@@ -213,20 +215,23 @@ Requires: perl(File::Slurp)
 # I shall file upstream tickets to openfusion before we integrate
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
-Requires: perl(CHI)
+Requires: perl(Moose) <= 2.1005
+Requires: perl(CHI) >= 0.58
+Requires: perl(Data::Serializer)
 Requires: perl(HTML::FormHandler)
 Requires: perl(Cache::Memcached)
 Requires: perl(CHI::Driver::Memcached)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
 Requires: perl(Cache::FastMmap)
-Requires: perl(Moo) >= 1.0
+Requires: perl(Moo) >= 1.003001
 Requires: perl(Term::ANSIColor)
 Requires: perl(IO::Interactive)
 Requires: perl(Module::Loaded)
 Requires: perl(Linux::FD)
 Requires: perl(Linux::Inotify2)
 Requires: perl(File::Touch)
+Requires: perl(Hash::Merge)
 # configuration-wizard
 Requires: iproute, vconfig
 #
@@ -328,6 +333,12 @@ done
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
 
+
+find -name '*.example' -print0 | while read -d $'\0' file
+do
+  cp $file "$(dirname $file)/$(basename $file .example)"
+done
+
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
@@ -341,9 +352,10 @@ gcc -g0 src/pfcmd.c -o bin/pfcmd
 %{__install} -d -m2775 $RPM_BUILD_ROOT%logdir
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/run
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
@@ -434,6 +446,7 @@ ln -s ../sites-available/inner-tunnel inner-tunnel
 ln -s ../sites-available/packetfence packetfence
 ln -s ../sites-available/packetfence-soh packetfence-soh
 ln -s ../sites-available/packetfence-tunnel packetfence-tunnel
+ln -s ../sites-available/dynamic-clients dynamic-clients
 
 cd $curdir
 #end create symlinks
@@ -651,12 +664,18 @@ fi
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
+                        /usr/local/pf/conf/adminroles.conf.example
+%config(noreplace)      /usr/local/pf/conf/allowed-gaming-oui.txt
+                        /usr/local/pf/conf/allowed-gaming-oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
+                        /usr/local/pf/conf/authentication.conf.example
 %config                 /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
+                        /usr/local/pf/conf/floating_network_device.conf.example
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
+                        /usr/local/pf/conf/guest-managers.conf.example
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
@@ -695,23 +714,33 @@ fi
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.mo
 %config(noreplace)      /usr/local/pf/conf/log.conf
+                        /usr/local/pf/conf/log.conf.example
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
+                        /usr/local/pf/conf/nessus/remotescan.nessus.example
 %config(noreplace)      /usr/local/pf/conf/networks.conf
+                        /usr/local/pf/conf/networks.conf.example
 %config                 /usr/local/pf/conf/openssl.cnf
 %config                 /usr/local/pf/conf/oui.txt
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
+                        /usr/local/pf/conf/radiusd/eap.conf.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/radiusd.conf
+                        /usr/local/pf/conf/radiusd/radiusd.conf.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/sql.conf
+                        /usr/local/pf/conf/radiusd/sql.conf.example
 %dir                    /usr/local/pf/conf/snort
 %config(noreplace)      /usr/local/pf/conf/snort/classification.config
+                        /usr/local/pf/conf/snort/classification.config.example
 %config(noreplace)      /usr/local/pf/conf/snort/local.rules
+                        /usr/local/pf/conf/snort/local.rules.example
 %config(noreplace)      /usr/local/pf/conf/snort/reference.config
+                        /usr/local/pf/conf/snort/reference.config.example
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
+                        /usr/local/pf/conf/switches.conf.example
 %config                 /usr/local/pf/conf/dhcpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/block-unwanted.conf
@@ -723,21 +752,34 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
+                        /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
+                        /usr/local/pf/conf/iptables.conf.example
 %config(noreplace)      /usr/local/pf/conf/listener.msg
+                        /usr/local/pf/conf/listener.msg.example
+%config(noreplace)      /usr/local/pf/conf/mdm.conf
+                        /usr/local/pf/conf/mdm.conf.example
 %config(noreplace)      /usr/local/pf/conf/popup.msg
+                        /usr/local/pf/conf/popup.msg.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
+                        /usr/local/pf/conf/profiles.conf.example
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
+                        /usr/local/pf/conf/snmptrapd.conf.example
 %config(noreplace)      /usr/local/pf/conf/snort.conf
+                        /usr/local/pf/conf/snort.conf.example
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
+                        /usr/local/pf/conf/snort.conf.pre_snort-2.8.example
 %config(noreplace)      /usr/local/pf/conf/suricata.yaml
+                        /usr/local/pf/conf/suricata.yaml.example
 %dir                    /usr/local/pf/conf/templates
 %config(noreplace)      /usr/local/pf/conf/templates/*
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
+                        /usr/local/pf/conf/ui-global.conf.example
 %dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
+                        /usr/local/pf/conf/violations.conf.example
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
@@ -753,13 +795,25 @@ fi
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/captive-portal
 %attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
+                        /usr/local/pf/html/captive-portal/Changes
+                        /usr/local/pf/html/captive-portal/Makefile.PL
+                        /usr/local/pf/html/captive-portal/README
+%config(noreplace)      /usr/local/pf/html/captive-portal/captive_portal.conf
+                        /usr/local/pf/html/captive-portal/captive_portal.conf.example
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/responsive.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
+                        /usr/local/pf/html/captive-portal/content/countdown.min.js
                         /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
+%dir                    /usr/local/pf/html/captive-portal/lib
+                        /usr/local/pf/html/captive-portal/lib/*
+%dir                    /usr/local/pf/html/captive-portal/script
+                        /usr/local/pf/html/captive-portal/script/*
+%dir                    /usr/local/pf/html/captive-portal/t
+                        /usr/local/pf/html/captive-portal/t/*
 %dir                    /usr/local/pf/html/captive-portal/templates
 %config(noreplace)      /usr/local/pf/html/captive-portal/templates/*
 %dir                    /usr/local/pf/html/common
@@ -801,6 +855,8 @@ fi
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfcache
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns

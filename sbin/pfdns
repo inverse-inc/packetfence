@@ -6,7 +6,12 @@ pfdns - PacketFence DNS server
 
 =head1 SYNOPSIS
 
-pfdns
+pfdns [options]
+
+ Options:
+   -d      Daemonize
+   -h      Help
+   -v      Verbose
 
 =cut
 
@@ -36,8 +41,6 @@ use pf::web::util qw(set_memcached get_memcached get_memcached_conf);
 # initialization
 # --------------
 # assign process name (see #1464)
-$PROGRAM_NAME = basename($PROGRAM_NAME);
-
 # log4perl init
 Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
@@ -75,6 +78,11 @@ my $daemonize = $args{d};
 
 pod2usage( -verbose => 1 ) if ( $args{h} );
 
+$PROGRAM_NAME = basename($PROGRAM_NAME);
+
+our $RUNNING = 1;
+
+
 # standard signals and daemonize
 daemonize() if ($daemonize);
 
@@ -91,7 +99,7 @@ Readonly::Scalar our $HTTP_PORT         => '80';
 
 foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
     my $ip = $Config{$interface}{'ip'};
-    if ( defined ($Config{$interface}{'enforcement'}) && ( ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) || ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) ) ) {
+    if ( defined ($Config{$interface}{'enforcement'}) && ( ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) || is_type_inline($Config{$interface}{'enforcement'}) ) ) {
         push @ip_addr, $ip;
     }
 }
@@ -120,7 +128,14 @@ my $ns = new Net::DNS::Nameserver(
     Verbose      => 0
     ) || die "couldn't create nameserver object\n";
 
-$ns->main_loop;
+
+while($RUNNING) {
+    $ns->loop_once(10);
+}
+
+END {
+    deletepid("pfdns") unless $args{h};
+}
 
 sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
@@ -177,10 +192,17 @@ sub regzone {
             push @ans, $rr;
             $rcode = "NOERROR";
         }
-        else {
+        elsif ($query =~ /$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}/) {
             my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
             my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
             push @ans, $rr;
+            $rcode = "NOERROR";
+        } else {
+            my ($ttl, $rdata) = ($TTL, $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}.".");
+            my $rr = new Net::DNS::RR("$qname $ttl IN CNAME $rdata");
+            my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $conn->{sockhost}");
+            push @ans, $rr;
+            push @ans, $rr2;
             $rcode = "NOERROR";
         }
     }else{
@@ -232,11 +254,8 @@ sub daemonize {
 }
 
 sub normal_sighandler {
-    deletepid("pfdns");
-    if ( threads->self->tid() == 0 ) {
-        $logger->logdie(
-            "pfdns: caught SIG" . $_[0] . " - terminating" );
-    }
+    $RUNNING = 0;
+    $logger->debug( "pfdns: caught SIG" . $_[0] . " - terminating" );
 }
 
 

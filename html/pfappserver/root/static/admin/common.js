@@ -14,7 +14,7 @@ function updateAction(type, keep_value) {
     value_new.attr('name', value.attr('name'));
     value_new.attr('data-required', 1);
     if (keep_value && value.val()) {
-        if(value_new.attr('multiple')  ) {
+        if (value_new.attr('multiple')) {
             value_new.val(value.val().split(","));
         }
         else {
@@ -113,8 +113,8 @@ function updateSection(ajax_data) {
                         $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
                     });
                     if (section.chosen) {
-                        section.find('.chzn-select').chosen();
-                        section.find('.chzn-deselect').chosen({allow_single_deselect: true});
+                        section.find('.chzn-select:visible').chosen();
+                        section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true});
                     }
                     if (section.bootstrapSwitch)
                         section.find('.switch').bootstrapSwitch();
@@ -446,14 +446,15 @@ $(function () { // DOM ready
         if (row_model) {
             var row_new = row_model.clone();
             row_new.removeClass('hidden');
-            row_new.find(':input').removeAttr("disabled");
-            if(row.length > 0) {
+            row_new.find(':input').removeAttr('disabled');
+            row_new.find('.btn').removeClass('disabled');
+            if (row.length > 0) {
                 row_new.insertAfter(row);
             } else {
                 row_new.insertBefore(row_model);
             }
             var rows = tbody.children(':not(.hidden)');
-            if(table.hasClass("table-sortable") ) {
+            if (table.hasClass("table-sortable") ) {
                 rows = rows.filter(":has(.sort-handle)");
             }
             updateDynamicRows(rows);

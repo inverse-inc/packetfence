@@ -333,6 +333,35 @@ sub generate_aup_standalone_page {
     render_template($portalSession, 'aup.html');
 }
 
+=item generate_status_page
+
+Called when someone accesses /status
+
+=cut
+
+sub generate_status_page {
+    my ( $portalSession ) = @_;
+    my $node_info = node_view($portalSession->getClientMac());
+    if ($node_info->{'last_start_timestamp'} > 0) {
+        if ($node_info->{'time_balance'} > 0) {
+            # Node has a usage duration
+            $node_info->{'expiration'} = $node_info->{'last_start_timestamp'} + $node_info->{'time_balance'};
+            if ($node_info->{'expiration'} < time) {
+                # No more access time; RADIUS accounting should have triggered a violation
+                delete $node_info->{'expiration'};
+                $node_info->{'time_balance'} = 0;
+            }
+        }
+    }
+
+    $portalSession->stash({
+        node => $node_info,
+        billing => isenabled($portalSession->getProfile->getBillingEngine),
+    });
+
+    render_template($portalSession, 'status.html');
+}
+
 sub generate_scan_status_page {
     my ( $portalSession, $scan_start_time, $r ) = @_;
 
@@ -443,7 +472,7 @@ sub generate_violation_page {
     my ( $portalSession, $template ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $langs = $portalSession->getRequestLanguages();
+    my @langs = $portalSession->getLanguages();
     my $mac = $portalSession->getClientMac();
     my $paths = $portalSession->getTemplateIncludePath();
 
@@ -459,8 +488,8 @@ sub generate_violation_page {
     $portalSession->stash->{'last_ssid'} =  $node_info->{'last_ssid'};
     $portalSession->stash->{'username'} = $node_info->{'pid'};
 
-    push(@$langs, ''); # default template
-    foreach my $lang (@$langs) {
+    push(@langs, ''); # default template
+    foreach my $lang (@langs) {
         my $file = "violations/$template" . ($lang?".$lang":"") . ".html";
         foreach my $dir (@$paths) {
             if ( -f "$dir/$file" ) {
@@ -486,7 +515,10 @@ sub web_node_register {
 
     # FIXME quick and hackish fix for #1505. A proper, more intrusive, API changing, fix should hit devel.
     my $mac;
-    if (defined($portalSession->getGuestNodeMac)) {
+    if(exists $info{'mac'} && defined $info{'mac'})  {
+        $mac = $info{'mac'};
+    }
+    elsif (defined($portalSession->getGuestNodeMac)) {
         $mac = $portalSession->getGuestNodeMac;
     }
     else {

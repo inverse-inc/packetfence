@@ -52,6 +52,7 @@ sub to_hash {
 
 package WEB;
 
+
 =head2 URLs
 
 See conf/httpd.conf.d/captive-portal-cleanurls.conf to see to which
@@ -72,6 +73,7 @@ Readonly::Scalar our $URL_OAUTH2_GITHUB         => '/oauth2/github';
 Readonly::Scalar our $URL_OAUTH2_GOOGLE         => '/oauth2/google';
 Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
 Readonly::Scalar our $URL_RELEASE               => '/release';
+Readonly::Scalar our $URL_STATUS                => '/status';
 Readonly::Scalar our $URL_WIRELESS_PROFILE      => '/wireless-profile.mobileconfig';
 
 # guest related
@@ -145,6 +147,38 @@ foreach (@components_mod_perl) { s{([^/])$}{$1\$} };
 my $allow_mod_perl = join('|', @components_mod_perl);
 Readonly::Scalar our $ALLOWED_RESOURCES_MOD_PERL => qr/ ^(?: $allow_mod_perl ) /xo; # eXtended pattern, compile Once
 
+=item LOCALES
+
+Supported locales must be generated on the server and also have their binary catalog (.mo) under
+/usr/local/pf/conf/locale/. Notice that a PacketFence translation generated for a two-letter language
+code (ex: fr) will be used for any locale matching the language code (ex: fr_FR and fr_CA).
+
+=cut
+
+Readonly::Array our @LOCALES =>
+  (
+   qw(de_DE en_US es_ES fr_FR fr_CA he_IL it_IT nl_NL pl_PL pt_BR)
+  );
+
+=item ALLOWED_RESOURCES_PROFILE_FILTER
+
+Build a regex that will decide what is considered a local ressource
+(allowed to Apache's further processing).
+
+URL ending with / will only be anchored at the beginning (^/path/) otherwise
+an ending anchor is also installed (^/file$).
+
+Anything else should be redirected. This happens in L<pf::web::dispatcher>.
+
+=cut
+
+my @components_profile_filter =  _clean_urls_match_filter();
+# add $ to non-slash ending URLs
+foreach (@components_profile_filter) { s{([^/])$}{$1\$} };
+my $allow_profile = join('|', @components_profile_filter);
+Readonly::Scalar our $ALLOWED_RESOURCES_PROFILE_FILTER => qr/ ^(?: $allow_profile ) /xo; # eXtended pattern, compile Once
+
+
 =item _clean_urls_match
 
 Return a regex that would match all the captive portal allowed clean URLs
@@ -176,6 +210,22 @@ sub _clean_urls_match_mod_perl {
     }
     return (@urls);
 }
+
+=item _clean_urls_match_filter
+
+Return a regex that would match all the portal profile uri: filter
+
+=cut
+
+sub _clean_urls_match_filter {
+    my @urls;
+    foreach my $filter ( grep { /^uri:/ } keys %pf::config::Profile_Filters ) {
+        $filter =~ s/^uri://;
+         push @urls, $filter;
+    }
+    return (@urls);
+}
+
 
 =back
 

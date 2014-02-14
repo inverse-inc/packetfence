@@ -157,7 +157,7 @@ sub parseCommandLine {
                                    )?
                                  $ }xms,
         'import' => qr{ ^
-                            ( nodes )                # import nodes
+                            ( nodes | wrix )                # import nodes
                             \s+
                             ( [a-zA-Z0-9_\-\.\/]+ )   # strict filename with path regexp
                         $  }xms,
@@ -275,7 +275,7 @@ sub parseCommandLine {
                                        ( all ) | $pid_re
                                    )
                                  $ }xms,
-        'reload'          => qr{ ^ ( fingerprints | violations ) $  }xms,
+        'reload'          => qr{ ^ ( fingerprints ) $  }xms,
         'report'          => qr{ ^ (?: #for grouping only
                                      ( active | inactive | openviolations
                                        | os | osclass | registered | statics | ssid
@@ -309,7 +309,7 @@ sub parseCommandLine {
                                      ( \d+ )
                                    )
                                  $ }xms,
-        'service'         => qr{ ^ ( dhcpd | pfdns | pfdetect
+        'service'         => qr{ ^ ( dhcpd | pfdns | pfdetect | pfcache
                                      | pf | pfdhcplistener | pfmon
                                      | pfsetvlan | radiusd | snmptrapd
                                      | snort | suricata | httpd\.webservices | httpd\.admin | httpd\.portal | httpd\.proxy | memcached)

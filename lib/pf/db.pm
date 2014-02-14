@@ -34,7 +34,7 @@ use constant PREPARE_SUB       => '_db_prepare';  # sub with <modulename>_db_pre
 use constant PREPARED_VAR      => '_db_prepared'; # prepare flag with <modulename>_db_prepared
 use constant PREPARE_PF_PREFIX => 'pf::';         # prefix to access exported _prepare(d) variables
 
-our ( %dbh, %last_connect, $DB_Config );
+our ( %dbh, %last_connect, $DB_Config, $NO_DIE_ON_DBH_ERROR );
 
 BEGIN {
     use Exporter ();
@@ -57,6 +57,7 @@ $cached_pf_config->addPostReloadCallbacks( 'reload_db_config' => sub {
     }
     $DB_Config = $new_db_config;
 });
+
 
 =head1 SUBROUTINES
 
@@ -113,7 +114,8 @@ sub db_connect {
         return ($mydbh);
 
     } else {
-        $logger->logcroak("unable to connect to database: " . $DBI::errstr);
+        $logger->logcroak("unable to connect to database: " . $DBI::errstr) unless $NO_DIE_ON_DBH_ERROR;
+        $logger->error("unable to connect to database: " . $DBI::errstr);
         return ();
     }
 }
@@ -265,9 +267,10 @@ sub db_query_execute {
         my $valid_prepared_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));
         # hack! for statements that we can't prepare, we have put the SQL statement in the statement ref
         # and we will prepare it now
-        if (!$valid_prepared_statement && $db_statement !~ /^$/) {
+        my $dbh = get_db_handle;
+        if ($dbh && !$valid_prepared_statement && $db_statement !~ /^$/) {
             $logger->debug("statement provided is a SQL string, preparing statement...");
-            $db_statement = get_db_handle()->prepare($db_statement);
+            $db_statement = $dbh->prepare($db_statement);
         }
 
         my $valid_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));

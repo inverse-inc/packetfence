@@ -10,6 +10,7 @@ use strict;
 use warnings;
 
 use Apache2::MPM ();
+use Apache2::RequestRec;
 use Log::Log4perl;
 use ModPerl::Util;
 use threads;
@@ -39,7 +40,14 @@ if (exists($ENV{MOD_PERL})) {
 }
 
 my $server = SOAP::Transport::HTTP::Apache->dispatch_to('PFAPI');
-sub handler { $server->handler(@_) }
+
+sub handler {
+    my ($r) = @_;
+    if (defined($r->headers_in->{Request})) {
+        $r->user($r->headers_in->{Request});
+    }
+    $server->handler($r);
+}
 
 sub log_faults {
     my $logger = Log::Log4perl->get_logger('pf::WebAPI');
@@ -71,7 +79,7 @@ sub event_add {
   if ($srcmac) {
 
     # trigger a violation
-    violation_trigger($srcmac, $id, $type, ( ip => $srcip ));
+    violation_trigger($srcmac, $id, $type);
 
   } else {
     $logger->info("violation on IP $srcip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
@@ -91,6 +99,21 @@ sub radius_authorize {
   };
   if ($@) {
       $logger->error("radius authorize failed with error: $@");
+  }
+  return $return;
+}
+
+sub radius_accounting {
+  my ($class, %radius_request) = @_;
+  my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+
+  my $radius = new pf::radius::custom();
+  my $return;
+  eval {
+      $return = $radius->accounting(\%radius_request);
+  };
+  if ($@) {
+      $logger->logdie("radius accounting failed with error: $@");
   }
   return $return;
 }

@@ -209,6 +209,7 @@ sub list :Local :Args(0) {
         my $itemsKey = $model->itemsKey;
         $c->stash(
             $itemsKey => $result,
+            itemsKey  => $itemsKey,
         )
     }
 }

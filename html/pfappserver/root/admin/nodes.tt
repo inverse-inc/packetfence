@@ -15,7 +15,6 @@
         'admin/nodes',
         'admin/searches',
         'js/bootstrapSwitch',
-        'js/moment.min',
         'js/node',
         'js/user',
         ]
@@ -37,30 +36,20 @@ form {
 }
 </style>
 
-      <div class="modal fade hide" id="savedSearch">
-        <div class="modal-header">
-          <a class="close" data-dismiss="modal">&times;</a>
-          <h3>[% l('Save Search') %]</h3>
-        </div>
-        <div class="modal-body">
-          <form id="savedSearchForm" class="form-horizontal" method="POST" action="[% c.uri_for(c.controller('SavedSearch::Node').action_for('create'))  %]">
-                [% saved_search_form.render %]
-          </form>
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-          <a class="btn btn-primary" >[% l('Save') %]</a>
-        </div>
-      </div>
-      
+    [% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::Node" method="POST" %] 
     <div class="container-fluid">
       <div class="row-fluid">
         <div class="span2">
           <div class="sidebar-nav well">
             <ul class="nav nav-list">
               <li class="nav-header">[% l('Nodes') %]</li>
+              [%- IF can_access("NODES_READ") -%]
               <li class="active"><a href="#">[% l('Search') %]</a></li>
+              [%- END -%]
+              [%- IF can_access("NODES_CREATE") -%]
               <li><a href="[% c.pf_hash_for(c.controller('Node').action_for('create')) %]">[% l('Create') %]</a></li>
+              [%- END -%]
+              [%- IF can_access("NODES_READ") -%]
               <li class="nav-header">[% l('Saved Searches') %]</li>
               [%FOR ss IN saved_searches%]
                 [% form = ss.form %]
@@ -79,6 +68,7 @@ form {
                 </form>
               </li>
               [%END%]
+              [%- END -%]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->

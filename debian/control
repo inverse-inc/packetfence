@@ -13,6 +13,7 @@ Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
 Pre-Depends:  freeradius, freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server
+Suggests: ulogd2
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra,
  mysql-server, memcached,
@@ -44,7 +45,7 @@ Depends: ${misc:Depends}, vlan, make,
  libtest-pod-coverage-perl, libthread-pool-simple-perl,
  libuniversal-require-perl, libuniversal-exports-perl, libnet-rawip-perl,
  libcgi-session-perl, libcgi-session-driver-memcached-perl, libconfig-inifiles-perl (>= 2.78.0),
- libdatetime-format-dateparse-perl, libdbi-perl,
+ libdatetime-format-dateparse-perl, libdbi-perl,librose-db-perl,librose-db-object-perl,
  libnet-telnet-perl, libregexp-common-perl,
  libreadonly-perl, libtemplate-perl, libterm-readkey-perl,
  libuniversal-require-perl, libthread-serialize-perl,
@@ -53,7 +54,7 @@ Depends: ${misc:Depends}, vlan, make,
  libiptables-libiptc-perl, libload-perl, libmime-lite-tt-perl, libmime-lite-perl,
  libconfig-general-perl, libproc-processtable-perl, libfile-flock-perl, libperl-version-perl,
  perl-modules,
- liblinux-fd-perl, liblinux-inotify2-perl, libfile-touch-perl,
+ liblinux-fd-perl, liblinux-inotify2-perl, libfile-touch-perl, libhash-merge-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313
@@ -75,9 +76,9 @@ Depends: ${misc:Depends}, vlan, make,
  libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl, 
  libcatalyst-authentication-store-htpasswd-perl,
  libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl,
- libsort-naturally-perl, libhtml-formhandler-perl, libchi-perl,
- libchi-driver-memcached-perl,libcache-memcached-perl,
- libcache-fastmmap-perl, libmoo-perl (>=1.0),
+ libsort-naturally-perl, libhtml-formhandler-perl, libchi-perl (>=0.58),
+ libchi-driver-memcached-perl,libcache-memcached-perl, libdata-serializer-perl,
+ libcache-fastmmap-perl, libmoo-perl (>=1.003000),
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl,
 # i18n

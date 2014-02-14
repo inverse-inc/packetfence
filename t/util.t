@@ -19,9 +19,9 @@ is(clean_mac("aa-bb-cc-dd-ee-ff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of th
 is(clean_mac("aabb-ccdd-eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx-xxxx-xxxx");
 is(clean_mac("aabb.ccdd.eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx.xxxx.xxxx");
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");
-is(clean_mac("abc"), undef, "clean invalid MAC address of the form xxx");
-is(clean_mac(""), undef, "clean empty MAC address");
-is(clean_mac(undef), undef, "clean undefined MAC address");
+is(clean_mac("abc"), "0", "clean invalid MAC address of the form xxx");
+is(clean_mac(""), "0", "clean empty MAC address");
+is(clean_mac(undef), "0", "clean undefined MAC address");
 
 # valid_mac
 ok(valid_mac("aa:bb:cc:dd:ee:ff"), "validate MAC address of the form xx:xx:xx:xx:xx:xx");

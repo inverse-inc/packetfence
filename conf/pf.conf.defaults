@@ -20,12 +20,6 @@ dnsservers=127.0.0.1
 # Comma-delimited list of DHCP servers.  Passthroughs are created to allow DHCP transactions from even "trapped" nodes.
 dhcpservers=127.0.0.1
 #
-# general.locale
-#
-# Locale used for message translation
-# more than 1 can be specified
-locale=en_US
-#
 # general.timezone
 #
 # System's timezone in string format. Supported list:
@@ -36,6 +30,11 @@ timezone=America/Montreal
 #
 # Interval at which Packetfence runs its maintenance tasks.
 maintenance_interval=60s
+#
+# general.cache_update_interval
+#
+# Interval at which Packetfence runs its maintenance tasks.
+cache_update_interval=10s
 #
 # general.memcached
 #
@@ -103,7 +102,7 @@ redirtimer=20s
 # trapping.whitelist
 #
 # Comma-delimited list of MAC addresses that are immune to isolation. In 
-# inline enforcement, the firewall is opened for them as if they were 
+# inline level 2 enforcement, the firewall is opened for them as if they were 
 # registered. This "feature" will probably be reworked in the future.
 whitelist=
 #
@@ -188,14 +187,6 @@ gaming_devices_registration=disabled
 gaming_devices_registration_role=
 
 [guests_self_registration]
-#
-# guests_self_registration.mandatory_fields
-#
-# Fields required to be filled in the self-registration form. Valid values are:
-# firstname, lastname, organization, phone, mobileprovider, email, 
-# sponsor_email. Basic validation of minimally required values per guest mode 
-# is provided by default.
-mandatory_fields=firstname,lastname,phone,email
 #
 # guests_self_registration.guest_pid
 #
@@ -486,6 +477,16 @@ arp_binary=/sbin/arp
 # 
 # Location of the memcached binary. Only necessary to change if you are not running the pre-packaged version.
 memcached_binary=/usr/bin/memcached
+# 
+# services.memcached_memory_usage
+# 
+# The maximum of memory that memcached will use
+memcached_memory_usage=64
+# 
+# services.memcached_max_item_size
+# 
+# The maximum of size of the items allowed to be stored
+memcached_max_item_size=1M
 
 [vlan]
 #
@@ -555,6 +556,22 @@ should_reauth_on_vlan_change = disabled
 # Choose the interface(s) you want to use to enable snat (by default it´s the management interface)
 interfaceSNAT=
 
+# inline.accounting_session_timeout
+# 
+# Accounting 'sessions' (rows in the memory table used by ulogd) that haven't
+# been updated for more than this amount of seconds will be dropped from the
+# memory table. When the client connects again, he'll simply get a new entry
+# in the (real) accounting table.
+# This should be higher than the interval at which pfmon runs
+# Defaults to 300 - 5 minutes
+accounting_session_timeout=300
+
+# inline.accounting
+#
+# Should we handle accouting data for inline clients?
+# This controls inline accouting tasks in pfmon.
+accounting = disabled
+
 [servicewatch]
 #
 # servicewatch.email
@@ -618,6 +635,21 @@ secure_redirect=enabled
 #
 # After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
 reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan
+#
+# advanced.pfcmd_error_color
+#
+# Color of the error text for pfcmd
+pfcmd_error_color=red
+#
+# advanced.pfcmd_warning_color
+#
+# Color of the warning text for pfcmd
+pfcmd_warning_color=yellow
+#
+# advanced.pfcmd_success_color
+#
+# Color of the success text for pfcmd
+pfcmd_success_color=green
 
 [provisioning]
 #
@@ -659,6 +691,16 @@ authorizenet_login =
 #
 # The merchant's unique Transaction Key (Provided by Authorize.net)
 authorizenet_trankey =
+
+mirapay_url = https://ms1.eigendev.com/OFT/EigenOFT_d.php
+
+mirapay_currency = USD
+
+mirapay_terminal_id =
+
+mirapay_terminal_id_group =
+
+mirapay_hash_password =
 
 [node_import]
 #

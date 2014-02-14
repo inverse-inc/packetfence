@@ -23,7 +23,7 @@ my @mechanisms           = qw/vlan inline option/;
 # TODO once we display option we should move 'other' over to there
 my %types   = (
     vlan        => [ 'management', 'vlan-registration', 'vlan-isolation' ],
-    inline      => [ 'management', 'inline' ],
+    inline      => [ 'management', 'inline', 'inlinel2', 'inlinel3' ], # inline is kept for backwards compat.
 #    option      => [ 'high-availability', 'dhcp-listener', 'monitor' ],
 );
 

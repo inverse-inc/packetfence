@@ -341,57 +341,41 @@ sub new {
     my $class = ref($proto) || $proto;
     my $self;
     my $file = $params{'-file'};
+    $file =~ /^(.*)$/;
+    $file = $1;
     my $config;
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
     my $onCacheReload = delete $params{'-oncachereload'} || [];
     my $onPostReload = delete $params{'-onpostreload'} || [];
     my $reload_onfile;
-    if($file) {
-        $self = first { $_->GetFileName eq $file} @LOADED_CONFIGS;
-        if( defined $self) {
-            #Adding the reload and filereload callbacks
-            $self->addReloadCallbacks(@$onReload) if @$onReload;
-            $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
-            $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
-            $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
-            #Rereading the config to ensure the latest version
-            $self->ReadConfig();
-        } else {
-            delete $params{'-file'} unless -e $file;
-            $config = $class->computeFromPath(
-                $file,
-                sub {
-                    my $lock = lockFileForReading($file);
-                    my $config = pf::IniFiles->new(%params);
-                    die "$file cannot be loaded" unless $config;
-                    unlockFilehandle($lock);
-                    $config->SetFileName($file);
-                    $config->SetWriteMode($WRITE_PERMISSIONS);
-                    my $mode = oct($config->GetWriteMode);
-                    chmod $mode, $file;
-                    $reload_onfile = 1;
-                    return $config;
-                }
-            );
+    die "param -file missing or empty" unless $file;
+    delete $params{'-file'} unless -e $file;
+    $config = $class->computeFromPath(
+        $file,
+        sub {
+            my $lock = lockFileForReading($file);
+            my $config = pf::IniFiles->new(%params);
+            die "$file cannot be loaded" unless $config;
+            $config->SetFileName($file);
+            $config->SetWriteMode($WRITE_PERMISSIONS);
+            $reload_onfile = 1;
+            return $config;
         }
-    } else {
-        die "param -file missing or empty";
-    }
-    if ($config) {
-        $self = \$config;
-        push @LOADED_CONFIGS, $self;
-        $ON_RELOAD{$file} = [];
-        $ON_FILE_RELOAD{$file} = [];
-        $ON_CACHE_RELOAD{$file} = [];
-        $ON_POST_RELOAD{$file} = [];
-        bless $self,$class;
-        $self->addReloadCallbacks(@$onReload) if @$onReload;
-        $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
-        $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
-        $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
-        $self->doCallbacks($reload_onfile,!$reload_onfile);
-    }
+    );
+    untaint($config) unless $reload_onfile;
+    $self = \$config;
+    $ON_RELOAD{$file} = [];
+    $ON_FILE_RELOAD{$file} = [];
+    $ON_CACHE_RELOAD{$file} = [];
+    $ON_POST_RELOAD{$file} = [];
+    bless $self,$class;
+    push @LOADED_CONFIGS, $self;
+    $self->addReloadCallbacks(@$onReload) if @$onReload;
+    $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
+    $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
+    $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
+    $self->doCallbacks($reload_onfile,!$reload_onfile);
     return $self;
 }
 
@@ -414,10 +398,11 @@ sub RewriteConfig {
     my $logger = get_logger();
     my $config = $self->config;
     my $file = $config->GetFileName;
-    if( $config->IsExpired(1) ) {
+    if( $config->HasChanged(1) ) {
         die "Config $file was modified from last loading\n";
     }
     my $result;
+    umask 2;
     my $lock = lockFileForWriting($file);
     if ( exists $config->{imported} && defined $config->{imported}) {
         #localizing for saving only what is in
@@ -440,12 +425,8 @@ sub RewriteConfig {
             $file,
             sub { return $config; }, 1
         );
-        $config->SetWriteMode($WRITE_PERMISSIONS);
-        my $mode = oct($config->GetWriteMode);
-        chmod $mode, $file;
         $self->doCallbacks(1,0);
     }
-    unlockFilehandle($lock);
     return $result;
 }
 
@@ -528,13 +509,13 @@ sub _callPostReloadCallbacks {
 }
 
 sub doCallbacks {
-    my ($self,$file_reloaded,$cache_reloaded) = @_;
+    my ($self,$file_reloaded,$cache_reloaded,$skipPrePostReload) = @_;
     if($file_reloaded || $cache_reloaded) {
-        get_logger()->trace("doing callbacks file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
-        $self->_callReloadCallbacks;
+        get_logger()->trace("doing callbacks for " . $self->GetFileName . " file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
+        $self->_callReloadCallbacks unless $skipPrePostReload;
         $self->_callFileReloadCallbacks if $file_reloaded;
         $self->_callCacheReloadCallbacks if $cache_reloaded;
-        $self->_callPostReloadCallbacks;
+        $self->_callPostReloadCallbacks unless $skipPrePostReload;
     }
 }
 
@@ -577,11 +558,7 @@ sub lockFileForWriting {
     my ($file) = @_;
     my $logger = get_logger();
     $logger->trace("locking file for writing $file");
-    my $old_mask = umask 2;
-    my $flock = File::Flock->new(_makeFileLock($file));
-    umask $old_mask;
-    return $flock;
-
+    return _lockFileFor($file);
 }
 
 =head2 lockFileForReading
@@ -594,23 +571,21 @@ sub lockFileForReading {
     my ($file) = @_;
     my $logger = get_logger();
     $logger->trace("locking file for reading $file");
-    my $old_mask = umask 2;
-    my $flock = File::Flock->new(_makeFileLock($file),'shared');
-    umask $old_mask;
-    return $flock;
+    return _lockFileFor($file,'shared');
 }
 
-=head2 unlockFilehandle
+=head2 _lockFileFor
 
-Unlock the file handle returned from lockFileForWriting or lockFileForReading
+helper function for locking files
 
 =cut
 
-sub unlockFilehandle {
-    my ($lock) = @_;
-    my $logger = get_logger();
-    $logger->trace("unlocking file");
-    $lock->unlock;
+
+sub _lockFileFor {
+    my ($file, $mode) = @_;
+    umask 2;
+    my $flock = File::Flock->new(_makeFileLock($file),$mode);
+    return $flock;
 }
 
 =head2 _makeFileLock
@@ -621,7 +596,9 @@ will create the name of the lock file
 
 sub _makeFileLock {
     my ($file) = @_;
-    return "$file.lock";
+    $file =~ /^(.*)$/;
+    my $lock_file = "${1}.lock";
+    return $lock_file;
 }
 
 
@@ -634,9 +611,7 @@ Will reload the config when changed on the filesystem and call any register call
 sub ReadConfig {
     my ($self) = @_;
     my $config = $self->config;
-    my $cache  = $self->cache;
     my $file   = $config->GetFileName;
-    my $reloaded;
     my $reloaded_from_cache = 0;
     my $reloaded_from_file = 0;
     #If considered latest version of file it is always succesful
@@ -649,7 +624,6 @@ sub ReadConfig {
             #reread files
             my $lock = lockFileForReading($file);
             $result = $config->ReadConfig();
-            unlockFilehandle($lock);
             $reloaded_from_file = 1;
             return $config;
         }
@@ -715,7 +689,7 @@ sub computeFromPath {
     my $result = $self->cache->compute(
         $file,
         {
-            expire_if => sub { return $expire || $_[0]->value->IsExpired(); },
+            expire_if => sub { return $expire || $_[0]->value->HasChanged(); },
         },
         $computeWrapper
     );
@@ -726,26 +700,22 @@ sub computeFromPath {
 
 =head2 cache
 
-Get the global CHI object
+Get the global CHI object for configfiles
 
 =cut
 
 sub cache {
-    my ($self) = @_;
-    unless (defined($CACHE)) {
-        $CACHE = $self->_cache();
-    }
-    return $CACHE;
+    return pf::CHI->new(namespace => 'configfiles' );
 }
 
-=head2 _cache
+=head2 cacheForData
 
-Builds the CHI object
+Get the global CHI object for configfilesdata
 
 =cut
 
-sub _cache {
-    return pf::CHI->new(namespace => 'configfiles' );
+sub cacheForData {
+    return pf::CHI->new(namespace => 'configfilesdata' );
 }
 
 =head2 ReloadConfigs
@@ -916,8 +886,13 @@ sub toHash {
 
 sub fromCacheUntainted {
     my ($self, $key) = @_;
-    $self->removeFromSubcaches($key);
+#    $self->removeFromSubcaches($key);
     return untaint($self->cache->get($key));
+}
+
+sub fromCacheForDataUntainted {
+    my ($self, $key) = @_;
+    return untaint($self->cacheForData->get($key));
 }
 
 sub removeFromSubcaches {
@@ -925,7 +900,6 @@ sub removeFromSubcaches {
     my $cache = $self->cache;
     if($cache->has_subcaches) {
         get_logger->trace("Removing from subcache");
-        $cache->l1_cache->expire($key);
         $cache->l1_cache->remove($key);
     }
 }

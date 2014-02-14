@@ -18,10 +18,14 @@ This module is currently only a placeholder, see pf::SNMP::Nortel.
 use strict;
 use warnings;
 
+use pf::SNMP::constants;
 use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::SNMP::Nortel');
+
+sub supportsRadiusVoip { return $SNMP::TRUE; }
+sub supportsWiredMacAuth { return $SNMP::TRUE; }
 
 sub description { 'Nortel ERS 4000 Series' }
 

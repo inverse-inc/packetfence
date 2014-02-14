@@ -20,19 +20,22 @@ use CGI;
 # TODO reconsider logging or showing generic error instead of this..
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
+use CGI::Session::Driver::memcached;
 use HTML::Entities;
-use Locale::gettext qw(bindtextdomain textdomain);
+use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use Log::Log4perl;
-use POSIX qw(setlocale);
+use POSIX qw(locale_h); #qw(setlocale);
 use Readonly;
 use URI::Escape qw(uri_escape uri_unescape);
 use File::Spec::Functions;
+
 use pf::config;
 use pf::iplog qw(ip2mac);
 use pf::Portal::ProfileFactory;
 use pf::util;
-use CGI::Session::Driver::memcached;
+use pf::web::constants;
 use pf::web::util;
+use pf::web::constants;
 
 =head1 CONSTANTS
 
@@ -68,9 +71,9 @@ sub new {
 # in session expensive components to look for.
 sub _initialize {
     my ($self) = @_;
-
     my $cgi = new CGI;
     $cgi->charset("UTF-8");
+ 
     $self->{'_cgi'} = $cgi;
 
     my $sid = $cgi->param('CGISESSID') || $cgi;
@@ -82,12 +85,42 @@ sub _initialize {
 
     $self->{'_guest_node_mac'} = undef;
 
-    $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+    if (defined ($cgi->url(-absolute=>1)) && $cgi->url(-absolute=>1) =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o) {
+        my $option = {
+            'last_uri' => $cgi->url(-absolute=>1),
+        };
+        $self->session->param('_profile',pf::Portal::ProfileFactory->instantiate($self->getClientMac,$option));
+        $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
+                return pf::Portal::ProfileFactory->instantiate($self->getClientMac,$option);
+            }
+        );
+    } else {
+        $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
+                return pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+            }
+        );
+    }
 
     $self->{'_destination_url'} = $self->_getDestinationUrl();
 
     $self->_initializeStash();
     $self->_initializeI18n();
+}
+
+=item _restoreFromSession
+
+Restore an item from the session if it does not exists compute the value
+
+=cut
+
+sub _restoreFromSession {
+    my ($self,$key,$compute) = @_;
+    my $value = $self->session->param($key);
+    unless ($value) {
+        $value = $compute->();
+        $self->session->param($key,$value);
+    }
+    return $value;
 }
 
 =item _initializeStash
@@ -113,34 +146,16 @@ sub _initializeI18n {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $authorized_locale_txt = $Config{'general'}{'locale'};
-    my @authorized_locale_array = split(/\s*,\s*/, $authorized_locale_txt);
-
-    # assign to session if explicit lang was requested
-    if ( defined($self->getCgi->url_param('lang')) ) {
-        $logger->debug("url_param('lang') is " . $self->getCgi->url_param('lang'));
-        my $user_chosen_language = $self->getCgi->url_param('lang');
-        if (grep(/^$user_chosen_language$/, @authorized_locale_array) == 1) {
-            $logger->debug("setting language to user chosen language $user_chosen_language");
-            $self->getSession->param("lang", $user_chosen_language);
-        }
-    }
-
-    # look at override from session and log
-    my $override_lang;
-    if ( defined($self->getSession->param("lang")) ) {
-        $logger->debug("returning language " . $self->getSession->param("lang") . " from session");
-        $override_lang = $self->getSession->param("lang");
-    }
-
-    # if it's overridden take it otherwise we take the first locale specified in config
-    my $locale = defined($override_lang) ? $override_lang : $authorized_locale_array[0];
+    my ($locale) = $self->getLanguages();
+    $logger->debug("Setting locale to $locale");
     setlocale( POSIX::LC_MESSAGES, "$locale.utf8" );
     my $newlocale = setlocale(POSIX::LC_MESSAGES);
     if ($newlocale !~ m/^$locale/) {
-        $logger->error("Error while setting locale to $locale.utf8.");
+        $logger->error("Error while setting locale to $locale.utf8. Is the locale generated on your system?");
     }
+    $self->stash->{locale} = $newlocale;
     bindtextdomain( "packetfence", "$conf_dir/locale" );
+    bind_textdomain_codeset( "packetfence", "utf-8" );
     textdomain("packetfence");
 }
 
@@ -154,7 +169,7 @@ sub _getDestinationUrl {
     my ($self) = @_;
 
     # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
-    if (!defined($self->cgi->param("destination_url")) || isenabled($self->getProfile->forceRedirectURL)) {
+    if (!defined($self->cgi->param("destination_url")) || $self->getProfile->forceRedirectURL) {
         return $self->getProfile->getRedirectURL;
     }
 
@@ -304,6 +319,17 @@ sub getClientMac {
     return $self->{'_client_mac'};
 }
 
+=item setClientMac
+
+Set the MAC of the captive portal client.
+
+=cut
+
+sub setClientMac {
+    my ($self, $new_mac) = @_;
+    $self->{'_client_mac'} = $new_mac;
+}
+
 =item getDestinationUrl
 
 Returns the original destination URL requested by the client.
@@ -390,10 +416,88 @@ sub getRequestLanguages {
     my $s = $self->getCgi->http('Accept-language');
     my @l = split(/,/, $s);
     map { s/;.+// } @l;
-    map {  s/-/_/g } @l;
-    @l = map { m/^en(_US)?/? ():$_ } @l;
+    map { s/-/_/g } @l;
+    #@l = map { m/^en(_US)?/? ():$_ } @l;
 
     return \@l;
+}
+
+=item getLanguages
+
+Retrieve the user prefered languages from the following ordered sources:
+
+=over
+
+=item 1. the 'lang' URL parameter
+
+=item 2. the 'lang' parameter of the Web session
+
+=item 3. the browser accepted languages
+
+=back
+
+If no language matches the authorized locales from the configuration, the first locale
+of the configuration is returned.
+
+=cut
+
+sub getLanguages {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($lang, @languages);
+    #my $authorized_locales_txt = $Config{'general'}{'locale'};
+    my @authorized_locales = $self->getProfile->getLocales();
+    unless (scalar @authorized_locales > 0) {
+        @authorized_locales = @WEB::LOCALES;
+    }
+    #my @authorized_locales = split(/\s*,\s*/, $authorized_locales_txt);
+    $logger->debug("Authorized locale(s) are " . join(', ', @authorized_locales));
+
+    # 1. Check if a language is specified in the URL
+    if ( defined($self->getCgi->url_param('lang')) ) {
+        my $user_chosen_language = $self->getCgi->url_param('lang');
+        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        if (grep(/^$user_chosen_language$/, @authorized_locales)) {
+            $lang = $user_chosen_language;
+            # Store the language in the session
+            $self->getSession->param("lang", $lang);
+            $logger->debug("locale from the URL is $lang");
+        }
+        else {
+            $logger->warn("locale from the URL $user_chosen_language is not supported");
+        }
+    }
+
+    # 2. Check if the language is set in the session
+    if ( defined($self->getSession->param("lang")) ) {
+        $lang = $self->getSession->param("lang");
+        push(@languages, $lang) unless (grep/^$lang$/, @languages);
+        $logger->debug("locale from the session is $lang");
+    }
+
+    # 3. Check the accepted languages of the browser
+    my $browser_languages = $self->getRequestLanguages();
+    foreach my $browser_language (@$browser_languages) {
+        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        if (grep(/^$browser_language$/, @authorized_locales)) {
+            $lang = $browser_language;
+            push(@languages, $lang) unless (grep/^$lang$/, @languages);
+            $logger->debug("locale from the browser is $lang");
+        }
+        else {
+            $logger->trace("locale from the browser $browser_language is not supported");
+        }
+    }
+
+    if (scalar @languages > 0) {
+        $logger->trace("prefered user languages are " . join(", ", @languages));
+    }
+    else {
+        push(@languages, $authorized_locales[0]);
+    }
+
+    return @languages;
 }
 
 =back
@@ -404,7 +508,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
@@ -426,3 +530,4 @@ USA.
 =cut
 
 1;
+

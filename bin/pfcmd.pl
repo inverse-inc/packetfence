@@ -34,7 +34,7 @@ pfcmd <command> [options]
  nodecategory                | nodecategory manipulation
  nodeuseragent               | View User-Agent information associated to a node
  person                      | person manipulation
- reload                      | rebuild fingerprint or violations tables without restart
+ reload                      | rebuild fingerprints without restart
  report                      | current usage reports
  schedule                    | Nessus scan scheduling
  service                     | start/stop/restart and get PF daemon status
@@ -832,11 +832,21 @@ sub import_data {
     my $type = $cmd{command}[1];
     my $file = $cmd{command}[2];
     $logger->info("Import requested. Type: $type, file to import: $file");
-
+    my $result;
     if (lc($type) eq 'nodes') {
         pf::import::nodes($file);
+        $result = 1;
+    } elsif (lc($type) eq 'wrix') {
+        require pf::ConfigStore::Wrix;
+        my $config = pf::ConfigStore::Wrix->new;
+        $config->importCsv($file);
+        $result = $config->commit();
     }
-    print "Import process complete\n";
+    if($result) {
+        print "Import process complete\n";
+    } else {
+        print "Error importing $file for $type\n";
+    }
 }
 
 sub interfaceconfig {
@@ -1173,9 +1183,9 @@ sub service {
     $SERVICE_HEADER ="service|command\n";
     $IS_INTERACTIVE = is_interactive();
     $RESET_COLOR =  $IS_INTERACTIVE ? color 'reset' : '';
-    $WARNING_COLOR =  $IS_INTERACTIVE ? color 'yellow' : '';
-    $ERROR_COLOR =  $IS_INTERACTIVE ? color 'red' : '';
-    $SUCCESS_COLOR =  $IS_INTERACTIVE ? color 'green' : '';
+    $WARNING_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_warning_color} : '';
+    $ERROR_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_error_color} : '';
+    $SUCCESS_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_success_color} : '';
 
     my $actionHandler;
     $action =~ /^(.*)$/;
@@ -1278,12 +1288,14 @@ sub stopService {
     my ($service,@services) = @_;
     my @managers = getManagers(\@services);
     #push memcached to back of the list
-    my $manager = first { $_->name eq 'memcached' } @managers;
-    if($manager) {
-        @managers = grep { $_->name ne 'memcached' } @managers;
-        push @managers, $manager;
-    }
-
+    my %exclude = (
+        memcached => undef,
+        pfcache   => undef,
+    );
+    my ($push_managers,$infront_managers) = part { exists $exclude{ $_->name eq 'memcached' } ? 0 : 1 } @managers;
+    @managers = ();
+    @managers = @$infront_managers if $infront_managers;
+    push @managers, @$push_managers if $push_managers;
     print $SERVICE_HEADER;
     foreach my $manager (@managers) {
         my $command;
@@ -1738,11 +1750,6 @@ sub reload {
         my $fp_total = pf::os::import_dhcp_fingerprints({ force => $TRUE });
         $logger->info("$fp_total DHCP fingerprints reloaded");
         print "$fp_total DHCP fingerprints reloaded\n";
-    } elsif ( $option eq "violations" ) {
-        require pf::services;
-        pf::services::read_violations_conf();
-        $logger->info("Violation classes reloaded");
-        print "Violation classes reloaded\n";
     }
     exit;
 }

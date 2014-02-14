@@ -57,7 +57,7 @@ In Band (Inline Enforcement)::
   PacketFence can also be configured to be in-band, especially when you have non-manageable network switches or access points. PacketFence can also work with both VLAN and Inline enforcement activated for maximum scalability and security while allowing older hardware to still be secured using Inline enforcement.
 
 Hybrid support (Inline Enforcement with RADIUS support)::
-  PacketFence can also be configured as hybrid, if you have a manageable device that supports 802.1x and/or mac-auth. This feature can be enabled using a RADIUS attribute (MAC address, SSID, port) or using full inline mode on the equipment.
+  PacketFence can also be configured as hybrid, if you have a manageable device that supports 802.1X and/or MAC-authentication. This feature can be enabled using a RADIUS attribute (MAC address, SSID, port) or using full inline mode on the equipment.
 
 Voice over IP (VoIP) support::
   Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Edge-Core, HP, LinkSys, Nortel Networks and many more).
@@ -135,9 +135,9 @@ The following table provides recommendations for the required components, togeth
 |========================================
 |MySQL server     |MySQL 5.1
 |Web server       |Apache 2.2
-|DHCP server      |DHCP 3
-|RADIUS server    |FreeRADIUS 2.1.12
-|Snort            |Snort 2.8 or 2.9
+|DHCP server      |DHCP 4.1
+|RADIUS server    |FreeRADIUS 2.2.0
+|Snort            |Snort 2.9.1
 |Suricata         |Suricata 1.4.1
 |========================================
 
@@ -432,7 +432,7 @@ Moreover, PacketFence can also authenticate users defined in its own internal SQ
 
 Each authentication sources you define will have a set of rules, conditions and actions.
 
-Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging it around). Eeach source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criterias. If the criterias match (one ore more), action are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
+Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging it around). Each source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criterias. If the criterias match (one ore more), action are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
 
 When no condition is defined, the rule will be considered as a fallback. When a fallback is defined, all actions will be applied fory any users that match in the authentication source.
 
@@ -649,23 +649,22 @@ Inline enforcement configuration
 
 This section applies only for Inline enforcement. Users planning to do VLAN enforcement only can skip this section.
 
-The inline enforcement is a very convenient method of performing access control on older network hardware who is not capable of doing VLAN enforcement or who is not compatible with PacketFence. This technique is covered in details in the <<_technical_introduction_to_inline_enforcement,"Technical introduction to Inline enforcement" section>>.
+The inline enforcement is a very convenient method of performing access control on older network hardware that is not capable of doing VLAN enforcement or that is not supported by PacketFence. This technique is covered in details in the <<_technical_introduction_to_inline_enforcement,"Technical introduction to Inline enforcement" section>>.
 
-An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by this users should be your actual production DNS server. The next section shows you how to configure the proper inline interface and it is there that you should refer to the proper production DNS. 
+An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by these users should be your actual production DNS server - which shouldn't be in the same broadcast domain as your inline users. The next section shows you how to configure the proper inline interface and it is in this section that you should refer to the proper production DNS. 
 
 Inline enforcement uses `ipset` to mark nodes as registered, unregistered and isolated.
-It is also now possible to use multiple inline interfaces, a node registered on the first inline interface is mark with is couple ip:mac, so when the node try to register on an other inline interface PacketFence detect that the node is already registered on the first VLAN.
-It is also possible to enable inline.should_reauth_on_vlan_change to force user to reauthenticate when they change VLAN.
-ipset also provides a better reponse time under inline enforcement and now we just have to wait 10s after the registration to access to internet. 
+It is also now possible to use multiple inline interfaces. A node registered on the first inline interface is marked with an ip:mac tuple (for L2, only ip for L3), so when the node tries to register on an other inline interface, PacketFence detects that the node is already registered on the first VLAN.
+It is also possible to enable inline.should_reauth_on_vlan_change to force users to reauthenticate when they change VLAN.
 
-The outgoing interface should be specified by adding in pf.conf the option interfaceSNAT in inline section. It is a comma delimited list of network interfaces like eth0,eth0.100. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network section.
+The outgoing interface should be specified by adding in pf.conf the option interfaceSNAT in inline section. It is a comma delimited list of network interfaces like eth0,eth0.100. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network sections.
 
-Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface ip address, it is mandatory to set it to this ip (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
+Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface IP address, it is mandatory to set it to this IP (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
 
 Hybrid mode
 ~~~~~~~~~~
 
-This section applies for hybrid support for the manageable devices that support 802.1x or mac-auth.
+This section applies for hybrid support for the manageable devices that support 802.1X or MAC-authenticationentication.
 
 Hybrid enforcement is a mixed method that offers the use of inline enforcement mode with VLAN enforcement mode on the same device.
 This technique is covered in details in the <<_technical_introduction_to_hybrid_enforcement,"Technical introduction to Hybrid enforcement" section>>
@@ -1167,12 +1166,11 @@ These two methods can be used together but DNS-based passthroughs have higher pr
 Proxy Interception
 ~~~~~~~~~~~~~~~~~~
 
-In PacketFence you are now able to intercept proxy request and forward them to the captive portal. It only work in layer 2 network because packetfence must be the default gateway of your device.
+PacketFence enables you to intercept proxy requests and forward them to the captive portal. It only works in layer 2 network because PacketFence must be the default gateway.
 In order to use the Proxy Interception feature, you need to enable it from the GUI in
 *Configuration -> Trapping* and check *Proxy Interception*.
 
-Add the port you want to intercept, like 8080 3128 and add a new entry in the /etc/hosts file to resolv the fqdn of the captive portal to 127.0.0.1.
-The modification of the hosts file is really important because apache try to resolv the fqdn of the captive portal and it must be 127.0.0.1.
+Add the port you want to intercept (like 8080 or 3128) and add a new entry in the `/etc/hosts` file to resolve the fully qualified domain name (fqdn) of the captive portal to the IP address of the registration interface. This modification is mandatory in order for Apache to receives the proxy requests.
 
 
 Configuration by example
@@ -1701,7 +1699,7 @@ Scan on registration
 ^^^^^^^^^^^^^^^^^^^^
 
 To perform a system scan before giving access to a host on the network you need to enable the `scan.registration` parameter in `pf.conf`.
-If you want to scan a device that have been auto-registered as a 802.1x connection, you need to enable `scan.dot1x` parameter in `pf.conf`. 
+If you want to scan a device that have been auto-registered as a 802.1X connection, you need to enable `scan.dot1x` parameter in `pf.conf`. 
 The default EAP-Type that will be scanned is MS-CHAP-V2 but you can configure other EAP-Type (such as MD5-Challenge) by adding them to `scan.dot1x_type` as a comma-separated list of values (look at `dictionary.freeradius.internal` file bundled with FreeRADIUS for the list of EAP-Type).
 
 It is also recommended to adjust `scan.duration` to reflect how long the scan takes. A progress bar of this duration will be shown to the user while he is waiting. By default, we set this variable to 60s.
@@ -2749,7 +2747,7 @@ Technical introduction to Inline enforcement
 Introduction
 ~~~~~~~~~~~~
 
-Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices. So in other words, PacketFence will become the gateway of that inline network, and NAT or route the traffic using IPTables to the Internet (or to another section of the network). Let see how it works.
+Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices. So in other words, PacketFence would become the gateway of that inline network, and NAT or route the traffic using IPTables to the Internet (or to another section of the network). Let see how it works.
 
 Device configuration
 ~~~~~~~~~~~~~~~~~~~~
@@ -2780,12 +2778,12 @@ Technical introduction to Hybrid enforcement
 Introduction
 ~~~~~~~~~~~
 
-Before version 3.6 of PacketFence, it was not possible to have RADIUS enabled for inline enforcement mode. Now with the new hybrid mode, all the devices that supports 802.1x or mac-auth can work with this mode. Let's see how it works.
+Before version 3.6 of PacketFence, it was not possible to have RADIUS enabled for inline enforcement mode. Now with the new hybrid mode, all the devices that supports 802.1X or MAC-authentication can work with this mode. Let's see how it works.
 
 Device configuration
 ~~~~~~~~~~~~~~~~~~~~
 
-You need to configure inline enforcement mode in PacketFence and configure your switch(es) / access point(s) to use the VLAN assignement techniques (802.1x, mac-auth). You also need to take care of a specific parameter in the switch configuration window, "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to define different sort of trigger:
+You need to configure inline enforcement mode in PacketFence and configure your switch(es) / access point(s) to use the VLAN assignement techniques (802.1X or MAC-authentication). You also need to take care of a specific parameter in the switch configuration window, "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to define different sort of trigger:
 
   ALWAYS::
   PORT::

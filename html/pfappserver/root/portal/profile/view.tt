@@ -1,4 +1,5 @@
 <h2></h2>
+[%-  tab =  c.req.param('tab') || 'settings' -%]
 <div id="portal_profile_read">
 
   <div class="modal fade hide" id="saveProfile">
@@ -14,7 +15,7 @@
     </div>
   </div><!-- cancelEdit -->
 
-  <div class="span10">
+  <form id="update_profile" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('update'),[id])  %]"  class="form-horizontal">
     <ul class="breadcrumb">
       <li>
         <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]" >[% l('Portal Profiles and Pages') %]</a>
@@ -25,16 +26,31 @@
     <h2><!-- first sibling of alerts --></h2>
     <div class="tab-content">
       <ul class="nav nav-tabs">
-        <li class="active">
-          <a href="" data-toggle="tab">[% l('Settings') %]</a>
+        <li [% IF tab == 'settings' %]class="active" [% END %]>
+          <a href="#settings" data-toggle="tab">[% l('Settings') %]</a>
+        </li>
+        <li [% IF tab == 'provisioning' %]class="active" [% END %]>
+          <a href="#provisioning" data-toggle="tab" >[% l('Provisioning')  %]</a>
         </li>
         <li>
           <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[id]) %]" >[% l('Files')  %]</a>
         </li>
       </ul>
-      <div class="tab-pane fade in active" id="settings">
-        <form id="update_profile" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('update'),[id])  %]"  class="form-horizontal">
+      <div class="tab-pane fade in [% 'active' IF tab == 'settings'  %]" id="settings">
           [% form.block('definition').render %]
+          <div class="control-group">
+            <label class="control-label" for="locale">[% l('Languages') %]</label>
+            <div class="controls">
+              [% form.field('locale').render %]
+              <div id="localeEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('locale').index > 1 %]">
+                <p>
+                  <i class="icon-comments icon-large"></i>
+                  [% l('With no language specified, all supported locales will be available.') %]
+                  <a href="#add">[% l('Add a language.') %]</a>
+                </p>
+              </div>
+            </div>
+          </div>
           [% IF form.field('filter') %]
           <div class="control-group">
             <label class="control-label" for="sources">[% l('Filter') %]</label>
@@ -60,15 +76,34 @@
               </div>
             </div>
           </div>
+          <div class="control-group">
+            <label class="control-label" for="mandatory_fields">[% l('Mandatory Fields') %]</label>
+            <div class="controls">
+              [% form.field('mandatory_fields').render %]
+              <div id="mandatory_fieldsEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('mandatory_fields').index > 1 %]">
+                <p>
+                  <i class="icon-keyboard icon-large"></i>
+                  [%- IF form.isa('pfappserver::Form::Portal::Profile::Default') -%]
+                  [% l('No mandatory fields specified.') %]
+                  [%- ELSE -%]
+                  [% l('With no mandatory fields specified, the mandatory fields of the default profile will be used.') %]
+                  [%- END -%]<br/>
+                  <a href="#add">[% l('Add a mandatory field.') %]</a>
+                </p>
+              </div>
+            </div>
+          </div>
           [%- IF can_access("PORTAL_PROFILES_UPDATE") %]
           <div class="form-actions">
             <a data-modal="saveProfile" data-modal-content="[% id %]" class="btn btn-primary call-modal-confirm-form">[% l('Save') %]</a>
             <button type="reset" class="btn">[% l('Reset') %]</button>
           </div>
           [%- END %]
-        </form>
+      </div>
+      <div class="tab-pane fade in [% 'active' IF tab == 'provisioning' %]" id="provisioning">
+        [% form.block('provisioning').render %]
       </div>
     </div>
-  </div>
+  </form>
 
 </div>

@@ -42,6 +42,10 @@ use base ('pf::SNMP');
 use pf::config;
 use pf::SNMP::constants;
 use pf::util;
+use pf::accounting qw(node_accounting_current_sessionid);
+use pf::node qw(node_attributes);
+use pf::util::radius qw(perform_coa perform_disconnect);
+
 
 =head1 CAPABILITIES
 
@@ -98,7 +102,7 @@ sub parseTrap {
         =~ /\|\.1\.3\.6\.1\.4\.1\.45\.1\.6\.5\.3\.12\.1\.3\.(\d+)\.(\d+) = $SNMP::MAC_ADDRESS_FORMAT/) {
 
         $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
-        $trapHashRef->{'trapIfIndex'} = ( $1 - $this->getFirstBoardIndex() ) * $this->getBoardIndexWidth() + $2;
+        $trapHashRef->{'trapIfIndex'} = $this->getIfIndex($1,$2);
         $trapHashRef->{'trapMac'} = parse_mac_from_trap($3);
         $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
 
@@ -119,6 +123,24 @@ sub parseTrap {
         $trapHashRef->{'trapType'} = 'unknown';
     }
     return $trapHashRef;
+}
+
+sub getIfIndex {
+    my ($this, $ifDesc_param,$param2) = @_;
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+
+    my $OID_ifDesc = '1.3.6.1.2.1.31.1.1.1.1';
+    my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
+    foreach my $key ( keys %{$result} ) {
+        my $ifDesc = $result->{$key};
+        if ( $ifDesc =~ /\(Slot:\s$ifDesc_param\sPort:\s$param2\)/i ) {
+            $key =~ /^$OID_ifDesc\.(\d+)$/;
+            return $1;
+        }
+    }
 }
 
 =item isTrunkPort
@@ -453,9 +475,15 @@ sub getFirstBoardIndex {
 sub getBoardPortFromIfIndex {
     my ( $this, $ifIndex ) = @_;
 
-    my $board = ($this->getFirstBoardIndex() + int( $ifIndex / $this->getBoardIndexWidth() )); 
-    my $port = ( $ifIndex % $this->getBoardIndexWidth() );
-    return ( $board, $port );
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+
+    my $OID_ifDesc = '1.3.6.1.2.1.31.1.1.1.1';
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_ifDesc.$ifIndex"] );
+    if ($result->{"$OID_ifDesc.$ifIndex"} =~ /Slot:\s(\d+)\sPort:\s(\d+)/) {
+        return ($1,$2);
+    }
 }
 
 =item getBoardPortFromIfIndexForSecurityStatus
@@ -470,15 +498,9 @@ To be used by method which read or write to security status related MIBs.
 sub getBoardPortFromIfIndexForSecurityStatus {
     my ( $this, $ifIndex ) = @_;
 
-    my $board = (1 + int( $ifIndex / $this->getBoardIndexWidth() ));
-    my $port = ( $ifIndex % $this->getBoardIndexWidth() );
+    my ($board, $port) = $this->getBoardPortFromIfIndex($ifIndex);
 
     return ( $board, $port );
-}
-
-sub getIfIndexFromBoardPort {
-    my ( $this, $board, $port ) = @_;
-    return ( ( $board - $this->getFirstBoardIndex() ) * $this->getBoardIndexWidth() + $port );
 }
 
 sub getAllSecureMacAddresses {
@@ -501,7 +523,7 @@ sub getAllSecureMacAddresses {
 
                 my $boardIndx = $1;
                 my $portIndx  = $2;
-                my $ifIndex = $this->getIfIndexFromBoardPort( $boardIndx, $portIndx );
+                my $ifIndex = $this->getIfIndex( $boardIndx, $portIndx );
                 my $oldMac = oid2mac($3);
                 push @{ $secureMacAddrHashRef->{$oldMac}->{$ifIndex} }, $this->getVlan($ifIndex);
         }
@@ -748,14 +770,14 @@ sub getPhonesLLDPAtIfIndex {
     $logger->trace(
         "SNMP get_next_request for lldpRemSysDesc: $oid_lldpRemSysDesc");
     my $result = $this->{_sessionRead}
-        ->get_next_request( -varbindlist => ["$oid_lldpRemSysDesc"] );
+        ->get_table( -baseoid => $oid_lldpRemSysDesc );
     foreach my $oid ( keys %{$result} ) {
         if ( $oid =~ /^$oid_lldpRemSysDesc\.([0-9]+)\.([0-9]+)\.([0-9]+)$/ ) {
             if ( $ifIndex eq $2 ) {
                 my $cache_lldpRemTimeMark     = $1;
                 my $cache_lldpRemLocalPortNum = $2;
                 my $cache_lldpRemIndex        = $3;
-                if ( $result->{$oid} =~ /^Nortel IP Telephone/ ) {
+                if ( $result->{$oid} =~ /phone/i ) {
                     $logger->trace(
                         "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                     );
@@ -876,6 +898,215 @@ sub setTaggedVlans {
     return $this->setTagVlansByIfIndex($ifIndex, $TRUE, $switch_locker_ref, @vlans);
 }
 
+=item parseRequest
+
+Takes FreeRADIUS' RAD_REQUEST hash and process it to return
+NAS Port type (Ethernet, Wireless, etc.)
+Network Device IP
+EAP
+MAC
+NAS-Port (port)
+User-Name
+
+=cut
+
+sub parseRequest {
+    my ($this, $radius_request) = @_;
+    my $client_mac = clean_mac($radius_request->{'User-Name'});
+    my $user_name = $radius_request->{'User-Name'};
+    my $nas_port_type = $radius_request->{'NAS-Port-Type'};
+    my $port = $radius_request->{'NAS-Port'};
+    my $eap_type = 0;
+    if (exists($radius_request->{'EAP-Type'})) {
+        $eap_type = $radius_request->{'EAP-Type'};
+    }
+    my $nas_port_id;
+    if (defined($radius_request->{'NAS-Port-Id'})) {
+        $nas_port_id = $radius_request->{'NAS-Port-Id'};
+    }
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef);
+}
+
+=item deauthenticateMac
+
+Actual implementation.
+ 
+Allows callers to refer to this implementation even though someone along the way override the above call.
+
+=cut
+
+sub deauthenticateMac {
+    my ($this, $IfIndex, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+
+    my $oid_bseePortConfigMultiHostClearNeap = "1.3.6.1.4.1.45.5.3.3.1.19";
+    if (!$this->connectWrite()) {
+        return 0;
+    }
+    $mac =~ s/://g;
+    $mac =~ s/([a-fA-F0-9]{2})/chr(hex $1)/eg;
+    #my $mic = mac2oid($mac);
+    $logger->trace("SNMP set_request force port to reauthenticateon mac: $mac");
+    my $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+        "$oid_bseePortConfigMultiHostClearNeap.$IfIndex", Net::SNMP::OCTET_STRING, $mac 
+    ]);
+
+    if (!defined($result)) {
+        $logger->error("got an SNMP error trying to force mac auth re authenticate: ".$this->{_sessionWrite}->error);
+    }
+
+    return (defined($result));
+}
+
+=item wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($this, $method, $connection_type) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::SNMP => \&deauthenticateMac,
+            $SNMP::RADIUS => \&deauthenticateMacRadius,
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::SNMP => \&deauthenticateMac,
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+}
+
+=item deauthenticateMacRadius
+
+Method to deauth a wired node with CoA.
+
+=cut
+sub deauthenticateMacRadius {
+    my ($this, $ifIndex,$mac) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+
+    # perform CoA
+    $this->radiusDisconnect($mac);
+}
+
+=item radiusDisconnect
+
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
+
+Optionally you can provide other attributes as an hashref.
+
+Uses L<pf::util::radius> for the low-level RADIUS stuff.
+
+=cut
+
+# TODO consider whether we should handle retries or not?
+
+sub radiusDisconnect {
+    my ($self, $mac, $add_attributes_ref) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    # initialize
+    $add_attributes_ref = {} if (!defined($add_attributes_ref));
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    $logger->info("deauthenticating $mac");
+
+    # Where should we send the RADIUS CoA-Request?
+    # to network device by default
+    my $send_disconnect_to = $self->{'_ip'};
+    # but if controllerIp is set, we send there
+    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $send_disconnect_to = $self->{'_controllerIp'};
+    }
+    # allowing client code to override where we connect with NAS-IP-Address
+    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
+        if (defined($add_attributes_ref->{'NAS-IP-Address'}));
+
+    my $response;
+    try {
+        my $connection_info = {
+            nas_ip => $send_disconnect_to,
+            secret => $self->{'_radiusSecret'},
+            LocalAddr => $management_network->tag('vip'),
+        };
+
+        $logger->debug("network device supports roles. Evaluating role to be returned");
+        my $roleResolver = pf::roles::custom->instance();
+        my $role = $roleResolver->getRoleForNode($mac, $self);
+
+        my $acctsessionid = node_accounting_current_sessionid($mac);
+        my $node_info = node_attributes($mac);
+        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        $mac = uc($mac);
+        $mac =~ s/:/-/g;
+
+        # Standard Attributes
+        my $attributes_ref = {
+            #'Calling-Station-Id' => $mac,
+            'NAS-IP-Address' => $send_disconnect_to,
+            'Acct-Session-Id' => $acctsessionid,
+        };
+
+        # merging additional attributes provided by caller to the standard attributes
+        $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
+
+        # Roles are configured and the user should have one
+        if (defined($role) && (defined($node_info->{'status'}) ) ) {
+
+            $attributes_ref = {
+                %$attributes_ref,
+                'Filter-Id' => $role,
+            };
+            $logger->info("Returning ACCEPT with Role: $role");
+            $response = perform_coa($connection_info, $attributes_ref);
+
+        }
+        else {
+            $response = perform_disconnect($connection_info, $attributes_ref);
+        }
+    } catch {
+        chomp;
+        $logger->warn("Unable to perform RADIUS CoA-Request: $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
+
+    $logger->warn(
+        "Unable to perform RADIUS Disconnect-Request."
+        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
+}
+
+
 =back
 
 =head1 AUTHOR
@@ -910,3 +1141,4 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+

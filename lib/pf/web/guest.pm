@@ -53,6 +53,7 @@ use pf::web::util;
 use pf::sms_activation;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
+use pf::person;
 
 our $VERSION = 1.41;
 
@@ -97,25 +98,55 @@ sub generate_selfregistration_page {
     $logger->info('generate_selfregistration_page');
 
     my $sms_type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
-    my $source = $portalSession->getProfile->getSourceByType($sms_type);
+    my $cgi        = $portalSession->cgi;
+    my $profile    = $portalSession->getProfile;
+    my $source     = $profile->getSourceByType($sms_type);
+    my $guestModes = $profile->getGuestModes;
+    my @mandatory_fields    = @{$profile->getMandatoryFields};
+    my $email_guest_allowed = is_in_list( $SELFREG_MODE_EMAIL, $guestModes );
+    my $sms_guest_allowed   = is_in_list( $SELFREG_MODE_SMS, $guestModes );
+    my $sponsored_guest_allowed =
+      is_in_list( $SELFREG_MODE_SPONSOR, $guestModes );
+    my %field_names = (
+        anniversary      => 'Anniversary',
+        birthday         => 'Birthday',
+        gender           => 'Gender',
+        lang             => 'Lang',
+        nickname         => 'Nickname',
+        organization     => 'Organization',
+        cell_phone       => 'Cell Phone',
+        work_phone       => 'Work Phone',
+        title            => 'Title',
+        building_number  => 'Building Number',
+        apartment_number => 'Apartment Number',
+        room_number      => 'Room Number',
+        custom_field_1   => 'Custom Field 1',
+        custom_field_2   => 'Custom Field 2',
+        custom_field_3   => 'Custom Field 3',
+        custom_field_4   => 'Custom Field 4',
+        custom_field_5   => 'Custom Field 5',
+        custom_field_6   => 'Custom Field 6',
+        custom_field_7   => 'Custom Field 7',
+        custom_field_8   => 'Custom Field 8',
+        custom_field_9   => 'Custom Field 9',
+    );
 
     $portalSession->stash({
-        post_uri => "$WEB::URL_SIGNUP?mode=$GUEST_REGISTRATION",
-
-        firstname => $portalSession->cgi->param("firstname") || '',
-        lastname => $portalSession->cgi->param("lastname") || '',
-        organization => $portalSession->cgi->param("organization") || '',
-        phone => $portalSession->cgi->param("phone") || '',
-        mobileprovider => $portalSession->cgi->param("mobileprovider") || '',
-        email => lc($portalSession->cgi->param("email") || ''),
-        sponsor_email => lc($portalSession->cgi->param("sponsor_email") || ''),
-
-        sms_carriers => sms_carrier_view_all($source),
-        email_guest_allowed => is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes),
-        sms_guest_allowed => is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes),
-        sponsored_guest_allowed => is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes),
-
+        post_uri       => "$WEB::URL_SIGNUP?mode=$GUEST_REGISTRATION",
+        firstname      => $cgi->param("firstname") || '',
+        lastname       => $cgi->param("lastname") || '',
+        organization   => $cgi->param("organization") || '',
+        phone          => $cgi->param("phone") || '',
+        mobileprovider => $cgi->param("mobileprovider") || '',
+        email          => lc( $cgi->param("email") || '' ),
+        sponsor_email  => lc( $cgi->param("sponsor_email") || '' ),
+        mandatory_fields  => \@mandatory_fields,
+        sms_carriers   => sms_carrier_view_all($source),
+        email_guest_allowed => $email_guest_allowed,
+        sms_guest_allowed => $sms_guest_allowed,
+        sponsored_guest_allowed => $sponsored_guest_allowed,
         is_preregistration => $portalSession->session->param('preregistration'),
+        field_names => \%field_names,
     });
 
     # Error management
@@ -142,6 +173,7 @@ sub validate_selfregistration {
     # First blast at consuming portalSession object
     my $cgi     = $portalSession->getCgi();
     my $session = $portalSession->getSession();
+    my $profile = $portalSession->getProfile();
 
     # is preregistration allowed?
     if ($session->param("preregistration") && isdisabled($Config{'guests_self_registration'}{'preregistration'})) {
@@ -149,7 +181,7 @@ sub validate_selfregistration {
     }
 
     # mandatory parameters are defined in config
-    my @mandatory_fields = split( /\s*,\s*/, $Config{'guests_self_registration'}{'mandatory_fields'} );
+    my @mandatory_fields = @{$profile->getMandatoryFields || []};
 
     # no matter what is defined as mandatory, these are the minimum fields required per mode
     push @mandatory_fields, ('email') if (defined($cgi->param('by_email')));
@@ -209,12 +241,21 @@ sub validate_selfregistration {
     }
 
     # auth accepted, save login information in session (we will use them to put the guest in the db)
-    $session->param("firstname", $cgi->param("firstname"));
-    $session->param("lastname", $cgi->param("lastname"));
     $session->param("company", $cgi->param("organization"));
     $session->param("phone", pf::web::util::validate_phone_number($cgi->param("phone")));
     $session->param("email", lc($cgi->param("email")));
     $session->param("sponsor", lc($cgi->param("sponsor_email")));
+    my %exclude = (
+        pid => undef,
+        telephone => undef,
+        email => undef,
+        sponsor_email => undef,
+        organization => undef,
+    );
+    foreach my $param ( grep { ! exists $exclude{$_} && exists $mandatory_fields{$_} } @pf::person::FIELDS) {
+            my $value = $cgi->param($param);
+            $session->param($param, $value) if defined $value;
+    }
     # guest pid is configurable (defaults to email)
     $session->param("guest_pid", $session->param($Config{'guests_self_registration'}{'guest_pid'}));
     return ($TRUE, 0);

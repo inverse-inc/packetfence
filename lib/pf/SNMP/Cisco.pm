@@ -1522,7 +1522,7 @@ sub _radiusBounceMac {
 
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
-            "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+            "Unable to perform RADIUS CoA-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );
         return;
     }
@@ -1536,7 +1536,7 @@ sub _radiusBounceMac {
     my $response;
     try {
         my $connection_info = {
-            nas_ip => $self->{'_ip'},
+            nas_ip => $self->{'_controllerIp'} || $self->{'_ip'},
             secret => $self->{'_radiusSecret'},
             LocalAddr => $management_network->tag('vip'),
         };
@@ -1544,7 +1544,7 @@ sub _radiusBounceMac {
         $response = perform_coa( $connection_info,
             {
                 'Acct-Terminate-Cause' => 'Admin-Reset',
-                'NAS-IP-Address' => $self->{'_ip'},
+                'NAS-IP-Address' => $self->{'_switchIp'},
                 'Calling-Station-Id' => $mac,
             },
             [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=bounce-host-port' }],

@@ -137,18 +137,18 @@ sub doWeActOnThisTrap {
     if ( ( $ifType == $SNMP::ETHERNET_CSMACD ) || ( $ifType == $SNMP::GIGABIT_ETHERNET ) ) {
         my @upLinks = $switch->getUpLinks();
         if ( @upLinks && $upLinks[0] == -1 ) {
-            $logger->warn("Can't determine Uplinks for the switch $switch->{_ip} -> do nothing");
+            $logger->warn("Can't determine Uplinks for the switch $switch->{_id} -> do nothing");
         } else {
             if ( grep( { $_ == $ifIndex } @upLinks ) == 0 ) {
                 $weActOnThisTrap = 1;
             } else {
-                $logger->info( "$trapType trap received on $switch->{_ip} "
+                $logger->info( "$trapType trap received on $switch->{_id} "
                     . "ifindex $ifIndex which is uplink and we don't manage uplinks"
                 );
             }
         }
     } else {
-        $logger->info( "$trapType trap received on $switch->{_ip} "
+        $logger->info( "$trapType trap received on $switch->{_id} "
             . "ifindex $ifIndex which is not ethernetCsmacd"
         );
     }

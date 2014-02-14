@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use List::Util qw(first);
-use List::MoreUtils qw(all none);
+use List::MoreUtils qw(all none any);
 use pf::config qw($TRUE $FALSE);
 use pf::log;
 
@@ -129,6 +129,19 @@ sub getDescripton {
 
 *description = \&getDescripton;
 
+=item getLocales
+
+Returns the locales for the profile.
+
+=cut
+
+sub getLocales {
+    my ($self) = @_;
+    return grep { $_ } @{$self->{'_locale'}};
+}
+
+*locale = \&getLocales;
+
 sub getRedirectURL {
     my ($self) = @_;
     return $self->{'_redirecturl'};
@@ -155,6 +168,19 @@ sub getSources {
 }
 
 *sources = \&getSources;
+
+=item getMandatoryFields
+
+Returns the mandatory fields for the profile
+
+=cut
+
+sub getMandatoryFields {
+    my ($self) = @_;
+    return $self->{'_mandatory_fields'};
+}
+
+*mandatoryFields = \&getMandatoryFields;
 
 =item getSourcesAsObjects
 
@@ -238,6 +264,17 @@ sub guestRegistrationOnly {
     my $result = all { exists $registration_types{$_->{'type'}} } @sources;
 
     return $result;
+}
+
+=item guestModeAllowed
+
+Verify if the guest mode is allowed for the profile
+
+=cut
+
+sub guestModeAllowed {
+    my ($self, $mode) = @_;
+    return any { $mode eq $_} @{$self->getGuestModes} ;
 }
 
 =back

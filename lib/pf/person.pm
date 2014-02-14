@@ -64,6 +64,13 @@ in pf::pfcmd and pf::pfcmd::pfcmd
 
 our $PID_RE = qr{ [a-zA-Z0-9\-\_\.\@\/\\]+ }x;
 
+our @FIELDS = qw(
+    pid firstname lastname email telephone company address notes sponsor anniversary
+    birthday gender lang nickname cell_phone work_phone title building_number apartment_number
+    room_number custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5 custom_field_6
+    custom_field_7 custom_field_8 custom_field_9
+);
+
 =back
 
 =head1 SUBROUTINES
@@ -77,10 +84,21 @@ sub person_db_prepare {
     $person_statements->{'person_exist_sql'} = get_db_handle()->prepare(qq[ select count(*) from person where pid=? ]);
 
     $person_statements->{'person_add_sql'} = get_db_handle()->prepare(
-        qq[ insert into person(pid,firstname,lastname,email,telephone,company,address,notes,sponsor) values(?,?,?,?,?,?,?,?,?) ]);
+        qq[ INSERT INTO person
+                   (pid, firstname, lastname, email, telephone, company, address, notes, sponsor, anniversary,
+                    birthday, gender, lang, nickname, cell_phone, work_phone, title,
+                    building_number, apartment_number, room_number,
+                    custom_field_1, custom_field_2, custom_field_3, custom_field_4, custom_field_5,
+                    custom_field_6, custom_field_7, custom_field_8, custom_field_9)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]);
 
     $person_statements->{'person_view_sql'} = get_db_handle()->prepare(
-        qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
+        qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address,
+                   p.notes, p.sponsor, p.anniversary, p.birthday, p.gender, p.lang, p.nickname,
+                   p.cell_phone, p.work_phone, p.title, p.building_number,
+                   p.apartment_number, p.room_number, p.custom_field_1, p.custom_field_2,
+                   p.custom_field_3, p.custom_field_4, p.custom_field_5, p.custom_field_6,
+                   p.custom_field_7, p.custom_field_8, p.custom_field_9,
                    count(n.mac) as nodes,
                    t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
                    t.access_duration as 'access_duration', t.access_level as 'access_level',
@@ -93,7 +111,12 @@ sub person_db_prepare {
             WHERE p.pid = ? ]);
 
     $person_statements->{'person_view_all_sql'} =
-        qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
+        qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address,
+                   p.notes, p.sponsor, p.anniversary, p.birthday, p.gender, p.lang, p.nickname,
+                   p.cell_phone, p.work_phone, p.title, p.building_number,
+                   p.apartment_number, p.room_number, p.custom_field_1, p.custom_field_2,
+                   p.custom_field_3, p.custom_field_4, p.custom_field_5, p.custom_field_6,
+                   p.custom_field_7, p.custom_field_8, p.custom_field_9,
                    count(n.mac) as nodes,
                    t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
                    t.access_duration as 'access_duration', t.access_level as 'access_level',
@@ -110,7 +133,11 @@ sub person_db_prepare {
 
     $person_statements->{'person_modify_sql'} = get_db_handle()->prepare(
         qq[ UPDATE person
-            SET pid=?,firstname=?,lastname=?,email=?,telephone=?,company=?,address=?,notes=?,sponsor=?
+            SET pid=?, firstname=?, lastname=?, email=?, telephone=?, company=?, address=?, notes=?, sponsor=?,
+                anniversary=?, birthday=?, gender=?, lang=?, nickname=?, cell_phone=?, work_phone=?,
+                title=?, building_number=?, apartment_number=?, room_number=?, custom_field_1=?, custom_field_2=?,
+                custom_field_3=?, custom_field_4=?, custom_field_5=?, custom_field_6=?, custom_field_7=?, custom_field_8=?,
+                custom_field_9=?
             WHERE pid=? ]);
 
     $person_statements->{'person_nodes_sql'} = get_db_handle()->prepare(
@@ -183,7 +210,8 @@ sub person_add {
         $logger->error("attempt to add existing person $pid");
         return (2);
     }
-    db_query_execute(PERSON, $person_statements, 'person_add_sql', $pid, $data{'firstname'},$data{'lastname'},$data{'email'}, $data{'telephone'}, $data{'company'}, $data{'address'}, $data{'notes'}, $data{'sponsor'}) || return (0);
+    $data{pid} = $pid;
+    db_query_execute(PERSON, $person_statements, 'person_add_sql', @data{@FIELDS}) || return (0);
     $logger->info("person $pid added");
     return (1);
 }
@@ -302,7 +330,6 @@ sub person_modify {
         $existing->{$item} = $data{$item};
     }
     my $new_pid   = $existing->{'pid'};
-    my $new_notes = $existing->{'notes'};
 
     if ( $pid ne $new_pid && person_exist($new_pid) ) {
         $logger->error(
@@ -310,14 +337,7 @@ sub person_modify {
         return (0);
     }
 
-    db_query_execute(PERSON, $person_statements, 'person_modify_sql',
-        $new_pid,                 $existing->{'firstname'},
-        $existing->{'lastname'},  $existing->{'email'},
-        $existing->{'telephone'}, $existing->{'company'},
-        $existing->{'address'},   $new_notes,
-        $existing->{'sponsor'},
-        $pid
-    ) || return (0);
+    db_query_execute(PERSON, $person_statements, 'person_modify_sql', @{$existing}{@FIELDS}, $pid) || return (0);
     $logger->info("person $pid modified to $new_pid");
     return (1);
 }

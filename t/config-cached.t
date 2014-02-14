@@ -25,7 +25,6 @@ our (%DATA,%DATA1,%DATA2,%DATA3,$filename);
 
 BEGIN {
     use PfFilePaths;
-    remove_tree('/tmp/chi');
 }
 use pf::log;
 

@@ -117,7 +117,7 @@ function initCollapse(element) {
         tr.swap_class('toggle');
         var link = element.find('[data-target="#' + that.attr('id') + '"]');
         link.find('[data-swap]').swap_class('toggle');
-        event.stopPropagation();//To stop the event from closing parents
+        event.stopPropagation(); //To stop the event from closing parents
     });
 }
 
@@ -210,54 +210,60 @@ function initCreatePage(element) {
 }
 
 function initReadPage(element) {
-    $('#sources').on('admin.added','tr', function(event) {
+    updateDynamicRowsAfterRemove($('#locale'));
+    updateDynamicRowsAfterRemove($('#filter'));
+    updateDynamicRowsAfterRemove($('#mandatory_fields'));
+    $('#locale, #sources, #mandatory_fields').on('admin.added','tr', function(event) {
         var row = $(this);
         var siblings = row.siblings(':not(.hidden)');
         var selected_options = siblings.find("select option:selected");
         var select = row.find("select");
         select.find("option:selected").removeAttr("selected");
         var options = select.find('option[value!=""]');
+        // Select the next option that was not yet selected
         try {
             options.each(function(index,element) {
                 var selector = '[value="' + element.value   + '"]';
                 if(selected_options.filter(selector).length == 0) {
-                    $(element).attr("selected","selected");
+                    $(element).attr("selected", "selected");
                     throw "";
                 }
             });
         }
         catch(e) {};
+        // If all options have been added, remove the add button
         var rows = row.siblings(':not(.hidden)').andSelf();
-        if( rows.length == options.length){
+        if (rows.length == options.length) {
             rows.find('[href="#add"]').addClass('hidden');
         }
     });
-    updateDynamicRowsAfterRemove($('#filter'));
-    $('#sources').on('admin.deleted','tbody', function(event) {
-        var tbody = $(this);
-        var rows = tbody.children(':not(.hidden)');
-        var row = rows.first();
-        var options = row.find("select option");
-        if (options.filter(':selected').attr('data-source-class') == 'exclusive') {
-            row.find('[href="#add"]').addClass('hidden');
-        } else if( rows.length < options.length ) {
-            rows.find('[href="#add"]').removeClass('hidden');
-        }
-    });
-    $('#sourcesEmpty').on('click','[href="#add"]', function(event) {
-        $('#sources').trigger('addrow');
-        $('#sourcesEmpty').addClass('hidden');
-        return false;
-    });
-    $('#sources').on('change','select', function(event) {
+    // When selecting an exclusive source, remove all other sources
+    $('#sources').on('change', 'select', function(event) {
         var that = $(this);
         var tr = that.closest('tr');
-        if(that.find(':selected').attr('data-source-class') == 'exclusive') {
+        if (that.find(':selected').attr('data-source-class') == 'exclusive') {
             tr.siblings(':not(.hidden)').find('[href="#delete"]').click();
             tr.find('[href="#add"]').addClass('hidden');
         } else {
             tr.find('[href="#add"]').removeClass('hidden');
         }
+    });
+    $('#mandatory_fields').on('admin.deleted','tbody', function(event) {
+        var tbody = $(this);
+        var rows = tbody.children(':not(.hidden)');
+        var row = rows.first();
+        var options = row.find("select option");
+        if( rows.length < options.length ) {
+            rows.find('[href="#add"]').removeClass('hidden');
+        }
+    });
+    $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {
+        var match = /(.+)Empty/.exec(event.delegateTarget.id);
+        var id = match[1];
+        var emptyId = match[0];
+        $('#'+id).trigger('addrow');
+        $('#'+emptyId).addClass('hidden');
+        return false;
     });
 }
 
@@ -268,6 +274,7 @@ function initTemplatesPage(element) {
 }
 
 function portalProfileGlobalInit(element) {
+    initWidgets(element.find('.chzn-select'));
     disabledLinks(element);
 }
 

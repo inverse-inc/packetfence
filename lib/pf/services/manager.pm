@@ -61,7 +61,7 @@ services that this service needs in order to start
 
 =cut
 
-has dependsOnServices => (is => 'ro', default => sub { [qw(memcached httpd.admin)] } );
+has dependsOnServices => (is => 'ro', default => sub { [qw(memcached pfcache httpd.admin)] } );
 
 =head2 executable
 
@@ -362,6 +362,7 @@ sub launchService {
     if ($cmdLine =~ /^(.+)$/) {
         $cmdLine = $1;
         my $logger = get_logger();
+        $logger->debug(sprintf("Starting Daemon %s with command %s",$self->name,$cmdLine));
         my $t0 = Time::HiRes::time();
         my $return_value = system($cmdLine);
         my $elapsed = Time::HiRes::time() - $t0;
