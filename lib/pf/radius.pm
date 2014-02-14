@@ -398,7 +398,7 @@ sub _identifyConnectionType {
     $eap_type = 0 if (not defined($eap_type));
     if (defined($nas_port_type)) {
 
-        if ($nas_port_type =~ /^Wireless-802\.11/) {
+        if ($nas_port_type =~ /^Wireless-802\.11/ || $nas_port_type =~ /^Wireless-Other/) {
 
             if ($eap_type) {
                 return $WIRELESS_802_1X;

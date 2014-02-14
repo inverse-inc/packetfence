@@ -44,7 +44,7 @@ ATTRIBUTE	Login-LAT-Group				36	octets
 ATTRIBUTE	Framed-AppleTalk-Link			37	integer
 ATTRIBUTE	Framed-AppleTalk-Network		38	integer
 ATTRIBUTE	Framed-AppleTalk-Zone			39	string
-
+ATTRIBUTE       Event-Timestamp                         55      date
 ATTRIBUTE	CHAP-Challenge				60	octets
 ATTRIBUTE	NAS-Port-Type				61	integer
 ATTRIBUTE	Port-Limit				62	integer
@@ -254,5 +254,4 @@ VENDOR          Cisco                           9
 
 VENDORATTR      Cisco                           Cisco-AVPair    1       string
 VENDORATTR      Cisco                           Cisco-NAS-Port  2       string
-
 

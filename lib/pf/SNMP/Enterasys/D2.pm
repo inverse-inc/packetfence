@@ -22,6 +22,14 @@ use base ('pf::SNMP::Enterasys');
 
 sub description { 'Enterasys Standalone D2' }
 
+=item supportsWiredAuth
+
+This switch module supports wired MAC authentication.
+
+=cut
+
+sub supportsWiredMacAuth { return $TRUE; }
+
 =head1 SUBROUTINES
 
 =over
