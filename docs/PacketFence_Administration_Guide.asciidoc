@@ -1170,8 +1170,8 @@ In PacketFence you are now able to intercept proxy request and forward them to t
 In order to use the Proxy Interception feature, you need to enable it from the GUI in
 *Configuration -> Trapping* and check *Proxy Interception*.
 
-Add the port you want to intercept, like 8080 3128 and add a new entry in the /etc/hosts file to resolv the fqdn of the captive portal to 127.0.0.1.
-The modification of the hosts file is really important because apache try to resolv the fqdn of the captive portal and it must be 127.0.0.1.
+Add the port you want to intercept, like 8080 3128 and add a new entry in the /etc/hosts file to resolv the fqdn of the captive portal to the ip address of the registration interface.
+The modification of the hosts file is really important because apache try to resolv the fqdn of the captive portal and it must be the ip address the registration interface.
 
 
 Configuration by example
