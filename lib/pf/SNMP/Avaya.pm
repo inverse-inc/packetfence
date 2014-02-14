@@ -117,13 +117,6 @@ sub getIfIndex {
     }
 }
 
-
-
-
-
-
-s
-
 sub getBoardPortFromIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
