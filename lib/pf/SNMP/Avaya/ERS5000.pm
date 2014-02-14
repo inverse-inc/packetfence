@@ -11,9 +11,7 @@ oriented interface to access SNMP enabled Avaya::ERS5000 switches.
 
 =head1 STATUS
 
-Avaya bought Nortel's wired switching division so this is a re-branded Nortel. 
-
-This module is currently only a placeholder, see pf::SNMP::Nortel.
+This module is currently only a placeholder, see pf::SNMP::Avaya.
 
 =cut
 
@@ -23,7 +21,9 @@ use warnings;
 use Log::Log4perl;
 use Net::SNMP;
 
-use base ('pf::SNMP::Nortel');
+use base ('pf::SNMP::Avaya');
+
+sub description { 'Avaya ERS 5000 Series' }
 
 =head1 AUTHOR
 

@@ -1,23 +1,32 @@
-package pf::SNMP::Avaya::ERS5000_6x;
+package pf::SNMP::Avaya::ERS2500;
 
 =head1 NAME
 
-pf::SNMP::Avaya::ERS5000_6x
+pf::SNMP::Avaya::ERS2500 - Object oriented module to access SNMP enabled Avaya ERS2500 switches
 
-=head1 DESCRIPTION
+=head1 SYNOPSIS
 
-Object oriented module to access SNMP enabled Avaya ERS5000 switches running software code >= 6.x.
-
-Starting with firmware 6.x ifIndex handling changed and this module takes care of this change.
+The pf::SNMP::Avaya::ERS2500 module implements an object 
+oriented interface to access SNMP enabled Avaya::ERS2500 switches.
 
 =head1 STATUS
 
-Aside from ifIndex handling this module is identical to pf::SNMP::Avaya.
+This module is currently only a placeholder, see L<pf::SNMP::Avaya>.
+
+Recommended firmware 4.3
 
 =head1 BUGS AND LIMITATIONS
 
-There is a potential regresion when you use the ERS5500 switches with port-security on firmware 6.2.4.
-If the switch is stacked, the trap will come with the wrong ifIndex number.
+=over
+
+=item ERS 25xx firmware 4.1
+
+We received reports saying that port authorization / de-authorization in port-security did not work.
+At this point we do not know exactly which firmwares are affected by the issue.
+
+Firmware series 4.3 is apparently fine.
+
+=back
 
 =cut
 
@@ -29,28 +38,7 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Avaya');
 
-sub description { 'Avaya ERS 5000 Series w/ firmware 6.x' }
-
-=head1 METHODS
-
-TODO: This list is incomplete
-
-=over
-
-=item getBoardIndexWidth
-
-How many ifIndex there is per board.
-It changed with a firmware upgrade so it is encapsulated per switch module.
-
-This module has 128.
-
-=cut
-
-sub getBoardIndexWidth {
-    return 128;
-}
-
-=back
+sub description { 'Avaya ERS 2500 Series' }
 
 =head1 AUTHOR
 

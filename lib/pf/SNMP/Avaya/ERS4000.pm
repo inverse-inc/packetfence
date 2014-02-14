@@ -1,56 +1,33 @@
-package pf::SNMP::Avaya::ERS5000_6x;
+package pf::SNMP::Avaya::ERS4000;
 
 =head1 NAME
 
-pf::SNMP::Avaya::ERS5000_6x
+pf::SNMP::Avaya::ERS4000 - Object oriented module to access SNMP enabled Avaya ERS 4000 switches
 
-=head1 DESCRIPTION
+=head1 SYNOPSIS
 
-Object oriented module to access SNMP enabled Avaya ERS5000 switches running software code >= 6.x.
-
-Starting with firmware 6.x ifIndex handling changed and this module takes care of this change.
+The pf::SNMP::Avaya::ERS4000 module implements an object 
+oriented interface to access SNMP enabled Avaya::ERS4000 switches.
 
 =head1 STATUS
 
-Aside from ifIndex handling this module is identical to pf::SNMP::Avaya.
-
-=head1 BUGS AND LIMITATIONS
-
-There is a potential regresion when you use the ERS5500 switches with port-security on firmware 6.2.4.
-If the switch is stacked, the trap will come with the wrong ifIndex number.
+This module is currently only a placeholder, see pf::SNMP::Avaya.
 
 =cut
 
 use strict;
 use warnings;
 
+use pf::SNMP::constants;
 use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::SNMP::Avaya');
 
-sub description { 'Avaya ERS 5000 Series w/ firmware 6.x' }
+sub supportsRadiusVoip { return $SNMP::TRUE; }
+sub supportsWiredMacAuth { return $SNMP::TRUE; }
 
-=head1 METHODS
-
-TODO: This list is incomplete
-
-=over
-
-=item getBoardIndexWidth
-
-How many ifIndex there is per board.
-It changed with a firmware upgrade so it is encapsulated per switch module.
-
-This module has 128.
-
-=cut
-
-sub getBoardIndexWidth {
-    return 128;
-}
-
-=back
+sub description { 'Avaya ERS 4000 Series' }
 
 =head1 AUTHOR
 
