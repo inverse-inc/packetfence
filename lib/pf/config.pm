@@ -742,6 +742,8 @@ sub readFloatingNetworkDeviceFile {
 
 =item normalize_time - formats date
 
+Returns the number of seconds represented by the time period.
+
 Months and years are approximate. Do not use for anything serious about time.
 
 =cut

@@ -322,7 +322,7 @@ Perform advanced search for user
 
 sub advanced_search :Local :Args() :AdminRole('USERS_READ') {
     my ($self, $c, @args) = @_;
-    my ($status,$status_msg,$result);
+    my ($status, $status_msg, $result);
     my %search_results;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
@@ -330,21 +330,20 @@ sub advanced_search :Local :Args() :AdminRole('USERS_READ') {
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
-        $c->stash(
-            current_view => 'JSON',
-        );
-    } else {
+        $c->stash(current_view => 'JSON');
+    }
+    else {
         my $query = $form->value;
-        ($status,$result) = $model->search($query);
-        if(is_success($status)) {
-            $c->stash( form => $form);
-            $c->stash( $result);
+        ($status, $result) = $model->search($query);
+        if (is_success($status)) {
+            $c->stash(form => $form);
+            $c->stash($result);
         }
         $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
     }
     my ( $roles, $violations );
-    ( undef, $roles ) = $c->model('Roles')->list();
-    ( undef, $violations ) = $c->model('Config::Violations')->readAll();
+    (undef, $roles) = $c->model('Roles')->list();
+    (undef, $violations) = $c->model('Config::Violations')->readAll();
     $c->stash(
         status_msg => $status_msg,
         roles => $roles,

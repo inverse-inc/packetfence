@@ -43,10 +43,10 @@ has_field 'type' =>
    wrapper_attr => {'data-toggle' => 'buttons-radio'},
    default => 'ssid',
    options => [
-               {value => 'ssid', label => 'SSID'},
-               {value => 'vlan', label => 'VLAN'},
-               {value => 'switch', label => 'SWITCH'},
-               {value => 'uri', label => 'URI'},
+               { value => 'ssid', label => 'SSID' },
+               { value => 'vlan', label => 'VLAN' },
+               { value => 'switch', label => 'SWITCH' },
+               { value => 'uri', label => 'URI' },
               ],
   );
 
@@ -54,11 +54,11 @@ sub filter_inflate {
     my ($self, $value) = @_;
     my $hash = {};
     if (defined $value) {
-        if($value =~ m/^([^:]+):(.+)$/) {
-            @{$hash}{'type','match'} = ($1, $2);
+        if ($value =~ m/^([^:]+):(.+)$/) {
+            @{$hash}{'type', 'match'} = ($1, $2);
         }
         else {
-            @{$hash}{'type','match'} = ('ssid', $value);
+            @{$hash}{'type', 'match'} = ('ssid', $value);
         }
     }
     return $hash;

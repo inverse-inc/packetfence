@@ -46,7 +46,7 @@ sub instantiate {
     my $node_info = $options || node_view($mac);
 
     my @filter_ids = (
-        (   map {
+        ( map {
                 my $val = $node_info->{ "last_$_" };
                 defined $val ? ("${_}:$val") : ()
             } @MATCHES_TYPE

@@ -137,7 +137,6 @@ Returns the locales for the profile.
 
 sub getLocales {
     my ($self) = @_;
-    #return $self->{'_locale'};
     return grep { $_ } @{$self->{'_locale'}};
 }
 
