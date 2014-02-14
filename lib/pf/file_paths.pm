@@ -138,7 +138,9 @@ $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
     $authentication_config_file, $floating_devices_config_file,
     $dhcp_fingerprints_file, $profiles_config_file,
     $oui_file, $floating_devices_file,
-    $chi_config_file,
+    $chi_config_file,$allowed_gaming_oui_file,$allowed_gaming_console_types_file,
+    $ui_config_file,$mdm_config_file,$oauth_ip_file,$log_config_file,
+    $admin_roles_config_file,$wrix_config_file
 );
 
 $switches_overlay_file   = catfile($var_dir, "switches.conf");
