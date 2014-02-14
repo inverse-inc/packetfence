@@ -94,7 +94,7 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item deauthenticateMacDefault 
+=item deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1x).
 
@@ -112,7 +112,7 @@ sub deauthenticateMacRadius {
     my $acctsessionid = node_accounting_current_sessionid($mac);
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
-    return $self->radiusDisconnect( $mac, { 'Acct-Session-Id' => $acctsessionid } ); 
+    return $self->radiusDisconnect( $mac, { 'Acct-Session-Id' => $acctsessionid } );
 }
 
 =item radiusDisconnect
