@@ -1,17 +1,17 @@
-package pf::SNMP::Enterasys::V2110;
+package pf::Switch::Huawei;
 
 
 =head1 NAME
 
-V2110
+pf::Switch::Huawei
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Enterasys::V2110 module manages access to Enterasys controller
+The pf::Switch::Huawei module manages access to Huawei
 
 =head1 STATUS
 
-Should work on the hostapd version started 2.0
+Should work on the Huawei version started 2.0
 
 =cut
 
@@ -22,15 +22,16 @@ use Log::Log4perl;
 use POSIX;
 use Try::Tiny;
 
-use base ('pf::SNMP::Enterasys');
+use base ('pf::Switch');
 
 use pf::config;
-sub description { 'Enterasys V2110' }
+sub description { 'Huawei AC6605' }
 
 # importing switch constants
-use pf::SNMP::constants;
+use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
+use pf::accounting qw(node_accounting_current_sessionid);
 
 =head1 SUBROUTINES
 
@@ -42,7 +43,6 @@ use pf::util::radius qw(perform_disconnect);
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsRoleBasedEnforcement { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
@@ -94,7 +94,7 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item deauthenticateMacDefault 
+=item deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1x).
 
@@ -109,9 +109,10 @@ sub deauthenticateMacRadius {
         $logger->info("not in production mode... we won't perform deauthentication");
         return 1;
     }
+    my $acctsessionid = node_accounting_current_sessionid($mac);
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
-    return $self->radiusDisconnect($mac);
+    return $self->radiusDisconnect( $mac, { 'Acct-Session-Id' => $acctsessionid } );
 }
 
 =item radiusDisconnect
@@ -164,16 +165,15 @@ sub radiusDisconnect {
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
-        my $time = time;
 
         # Standard Attributes
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
-	    'Event-Timestamp' => $time, 
         };
 
         # merging additional attributes provided by caller to the standard attributes
-        $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
+        $attributes_ref = { %$add_attributes_ref };
+        #$attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
         $response = perform_disconnect($connection_info, $attributes_ref);
     } catch {
@@ -182,7 +182,6 @@ sub radiusDisconnect {
         $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
-
     return $TRUE if ($response->{'Code'} eq 'Disconnect-ACK');
 
     $logger->warn(
@@ -193,12 +192,9 @@ sub radiusDisconnect {
     return;
 }
 
+=item extractSsid
 
-=bacctSsid
-
-Find RADIUS SSID parameter out of RADIUS REQUEST parameters
-
-Enterasys specific parser. See pf::SNMP for base implementation.
+Find RADIUS SSID parameter on the Huawei AC6605 controller
 
 =cut
 
@@ -206,27 +202,15 @@ sub extractSsid {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    if (defined($radius_request->{'Siemens-SSID'})) {
-        return $radius_request->{'Siemens-SSID'};
+    if (defined($radius_request->{'Called-Station-Id'})) {
+        return $radius_request->{'Called-Station-Id'};
+    } else {
+        $logger->info("Unable to extract SSID of Called-Station-Id");
+        return;
     }
-
-    $logger->warn(
-        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
-        . "Please let us know so we can add support for it."
-    );
-    return;
 }
 
-=item returnRoleAttribute
-
-What RADIUS Attribute (usually VSA) should the role returned into.
-
-=cut
-sub returnRoleAttribute {
-    my ($this) = @_;
-
-    return 'Filter-Id';
-}
+=back
 
 =head1 AUTHOR
 

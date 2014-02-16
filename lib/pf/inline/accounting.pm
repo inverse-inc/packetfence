@@ -79,7 +79,7 @@ sub accounting_db_prepare {
     $accounting_statements->{'accounting_update_session_for_ip'} =
       get_db_handle()->prepare(qq[
         UPDATE $accounting_table SET inbytes = inbytes + ?, outbytes = outbytes + ?, lastmodified = FROM_UNIXTIME(?)
-	  WHERE ip = ? AND status = $ACTIVE
+            WHERE ip = ? AND status = $ACTIVE
       ]);
 
     $accounting_statements->{'accounting_insert_session_for_ip'} =
@@ -173,7 +173,7 @@ sub inline_accounting_update_session_for_ip {
                          'accounting_insert_session_for_ip',
                          $ip, $inbytes, $outbytes, $firstseen, $lastmodified) || return(0);
     }
-   
+
     return 1;
 }
 

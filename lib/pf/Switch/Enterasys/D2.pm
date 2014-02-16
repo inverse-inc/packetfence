@@ -18,6 +18,8 @@ use warnings;
 use Log::Log4perl;
 use Net::SNMP;
 use Net::Telnet;
+use pf::Switch::constants;
+
 use base ('pf::Switch::Enterasys');
 
 sub description { 'Enterasys Standalone D2' }
@@ -28,7 +30,7 @@ This switch module supports wired MAC authentication.
 
 =cut
 
-sub supportsWiredMacAuth { return $TRUE; }
+sub supportsWiredMacAuth { return $SNMP::TRUE; }
 
 =head1 SUBROUTINES
 
@@ -52,7 +54,7 @@ sub _setVlan {
     my $result;
 
     $logger->trace("locking - trying to lock \$switch_locker{".$this->{_ip}."} in _setVlan");
-    {   
+    {
         lock %{ $switch_locker_ref->{$this->{_ip}} };
         $logger->trace("locking - \$switch_locker{".$this->{_ip}."} locked in _setVlan");
 
@@ -108,7 +110,7 @@ sub _setVlan {
                            .$this->{_sessionWrite}->error );
         }
 
-    }       
+    }
     $logger->trace("locking - \$switch_locker{".$this->{_ip}."} unlocked in _setVlan");
     return (defined($result));
 }

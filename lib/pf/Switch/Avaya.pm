@@ -40,7 +40,7 @@ use Net::SNMP;
 use base ('pf::Switch::Nortel');
 
 use pf::config;
-use pf::SNMP::constants;
+use pf::Switch::constants;
 use pf::util;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
