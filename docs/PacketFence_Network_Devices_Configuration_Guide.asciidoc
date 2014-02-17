@@ -267,6 +267,7 @@ Global config settings:
 
 On each interface with VoIP:
 
+
  interface Ethernet1/0/1
   stp edged-port enable
   lldp compliance admin-status cdp txrx
