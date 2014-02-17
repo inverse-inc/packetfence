@@ -122,10 +122,10 @@ sub index :Path :Args(0) {
     my $action;
     if (admin_can_do_any(\@roles,qw(SERVICES REPORTS))) {
         $action = 'status';
-    } elsif( admin_can_do_any(\@roles,qw(USERS_READ))) {
-        $action = 'users';
     } elsif( admin_can_do_any(\@roles,qw(NODES_READ))) {
         $action = 'nodes';
+    } elsif( admin_can_do_any(\@roles,qw(USERS_READ))) {
+        $action = 'users';
     } elsif( admin_can_do_any_in_group(\@roles, 'CONFIGURATION_GROUP_READ' ) ) {
         $action = 'configuration';
     } else {
