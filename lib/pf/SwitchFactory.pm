@@ -65,6 +65,14 @@ sub new {
     return bless \$self, $class;
 }
 
+=item hasId
+
+Checks if switch id exists
+
+=cut
+
+sub hasId { exists $SwitchConfig{$_[0]} }
+
 =item instantiate - create new pf::Switch (or subclass) object
 
   $switch = SwitchFactory->instantiate( <switchIdentifier> );
