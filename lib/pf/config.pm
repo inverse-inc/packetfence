@@ -633,6 +633,7 @@ sub readProfileConfigFile {
                 my ($config,$name) = @_;
                 $config->toHash(\%Profiles_Config);
                 $config->cleanupWhitespace(\%Profiles_Config);
+                %Profile_Filters = ();
                 while (my ($profile_id, $profile) = each %Profiles_Config) {
                     $profile->{'filter'} = [split(/\s*,\s*/, $profile->{'filter'} || "")];
                     foreach my $filter (@{$profile->{'filter'}}) {
