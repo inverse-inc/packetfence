@@ -82,9 +82,9 @@ sub description { '3COM SS4500' }
 
 =cut
 
-sub supportsWiredMacAuth { return $TRUE; } 
+sub supportsWiredMacAuth { return $SNMP::TRUE; } 
 sub supportsRadiusVoip { return $SNMP::TRUE; }
-sub supportsLldp { return $TRUE; }
+sub supportsLldp { return $SNMP::TRUE; }
 
 
 sub getVersion {
@@ -609,28 +609,23 @@ sub getSecureMacAddresses {
     return $secureMacAddrHashRef;
 }
 
-=item getIndex
+=item _getLLDPIndex
 
-We extract the index from SNMP request to the switch
+We extract the LLDP index from SNMP request to the switch
 
 =cut
 
-sub getIndex {
+sub _getLLDPIndex {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->connectRead() ) {
         return 0;
     }
-    use Data::Dumper;
     
     my $OID_ifDesc = "1.3.6.1.2.1.31.1.1.1.1.$ifIndex";
-    $logger->warn(Dumper $OID_ifDesc);
     my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifDesc" ] );
-    $logger->warn(Dumper $result);
-
     my $desc = $result->{"1.3.6.1.2.1.31.1.1.1.1.$ifIndex"};
-    $logger->warn(Dumper $desc);
 
     $desc =~ /(\d+)$/;
 
@@ -653,8 +648,7 @@ sub getPhonesLLDPAtIfIndex {
         return @phones;
     }
 
-    my $index = $this->getIndex($ifIndex);
-    $logger->warn("INDEX ".$index);
+    my $index = $this->_getLLDPIndex($ifIndex);
 
     my $oid_lldpRemPortId = '1.0.8802.1.1.2.1.4.1.1.7';
     my $oid_lldpRemSysDesc = '1.0.8802.1.1.2.1.4.1.1.10';
@@ -662,12 +656,13 @@ sub getPhonesLLDPAtIfIndex {
     if ( !$this->connectRead() ) {
         return @phones;
     }
+    #What a little bit to have lldp info in SNMP oid
     sleep(4);
+
     $logger->trace(
         "SNMP get_next_request for lldpRemSysDesc: $oid_lldpRemSysDesc");
     my $result = $this->{_sessionRead}
         ->get_table( -baseoid => $oid_lldpRemSysDesc );
-    $logger->warn(Dumper $result);
     foreach my $oid ( keys %{$result} ) {
         if ( $oid =~ /^$oid_lldpRemSysDesc\.([0-9]+)\.([0-9]+)\.([0-9]+)$/ ) {
             $logger->warn($oid);
@@ -685,7 +680,6 @@ sub getPhonesLLDPAtIfIndex {
                             "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                         ]
                     );
-                    $logger->warn(Dumper $MACresult);
                     if ($MACresult
                         && ($MACresult->{
                                 "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
@@ -694,42 +688,10 @@ sub getPhonesLLDPAtIfIndex {
                         )
                         )
                     {
-                        push @phones, lc("$1:$2:$3:$4:$5:$6");
-                    }
-                }
-            }
-        }
-    }
-    return @phones;
-}
-
-=item isVoIPEnabled
-
-Returns 1 if VoIP is enabled
-
-=cut
-
-sub isVoIPEnabled {
     my ($this) = @_;
     return ( $this->{_VoIPEnabled} == 1 );
 }
 
-=item getVoipVsa
-
-We do not returns RADIUS attributes for voip phone devices
-because the switch does not handles how to PF send its vlan
-
-=cut
-
-#sub getVoipVsa {
-#    my ($this) = @_;
-#    my $logger = Log::Log4perl::get_logger(ref($this));
-#    return (
-#        'Tunnel-Type'               => $RADIUS::VLAN,
-#        'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
-#        'Tunnel-Private-Group-ID'   => $this->getVlanByName('voice'),
-#    );
-#}
 =back
 
 =head1 AUTHOR
