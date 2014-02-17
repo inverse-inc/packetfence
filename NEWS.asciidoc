@@ -19,6 +19,12 @@ New Features
 
 * Bulk actions for users
 * New pfcmd "import wrix" command
+* Added Android provisioning
+* Support Hotspot for cisco WLC and Aruba IAP
+* Support for Huawei AC6605
+* Support for Enterasys V2110
+* Inline layer 3 support
+
 
 Enhancements
 ++++++++++++
@@ -30,6 +36,10 @@ Enhancements
 * Reevaluate access when changing the role of multiple nodes (#1757)
 * Each portal profile can now use its own set of locales
 * Added a new uri filter in portal profile
+* LLDP support for 3com 4000 Series
+* Multiple dns server in the network configuration
+* Allow alias interface as captive portal
+* Mac Authentication support for Enterasuys D2 switch
 
 Bug Fixes
 +++++++++
@@ -37,6 +47,7 @@ Bug Fixes
 * Fixed SQL query of connection types report in Web admin
 * Fixed nodes simple search by IP address
 * Fix access reevaluation when changing the status of a pending node
+* Fix Wispr blank page
 
 Version 4.1.0 released on 2013-12-11
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
