@@ -58,7 +58,7 @@ use pf::accounting qw(node_accounting_current_sessionid);
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::node qw(node_attributes node_view);
 use pf::web::util;
-
+use pf::violation qw(violation_count_trap);
 
 sub description { 'Cisco Wireless Controller (WLC HTTP)' }
 
