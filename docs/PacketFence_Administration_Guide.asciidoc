@@ -2267,7 +2267,7 @@ Add the repository ELRepo.
 	
 	rpm -Uvh http://www.elrepo.org/elrepo-release-6-5.el6.elrepo.noarch.rpm
 
-Edit the repo file to disable ELRepo by default :
+Edit the repo file to disable ELRepo by default:
 
 	/etc/yum.repos.d/elrepo.repo
 
@@ -2323,7 +2323,7 @@ common {
 ----
 
 
-Edit `/etc/drbd.d/mysql.res` and put the following content:
+Create the file /etc/drbd.d/mysql.res with the following content:
 
 ----
 resource mysql {
@@ -2367,7 +2367,7 @@ Start DRBD on both servers:
 
   # /etc/init.d/drbd start
 
-Make sure you see something like running `cat /proc/drbd`:
+You should see something similar to this when typing cat /proc/drbd:
 
   ...
    0: cs:Connected ro:Secondary/Secondary ds:Inconsistent/Inconsistent C r----
