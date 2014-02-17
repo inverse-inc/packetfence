@@ -114,8 +114,7 @@ sub external_captive_portal {
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $switch;
     if (defined($switchId)) {
-        $switch = pf::SwitchFactory->getInstance()->instantiate($switchId);
-        if ($switch eq '0') {
+        unless (pf::SwitchFactory::hasId($switch)) {
             my $locationlog_entry = locationlog_view_open_mac($switchId);
             $switch = pf::SwitchFactory->getInstance()->instantiate($locationlog_entry->{'switch'});
         }
@@ -157,13 +156,14 @@ sub external_captive_portal {
         return 0;
     }
 }
- 
+
 =item redirect
 
 For simplicity and performance this doesn't consume and leverage
 L<pf::Portal::Session>.
 
 =cut
+
 sub redirect {
    my ($r) = @_;
    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
