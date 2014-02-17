@@ -628,6 +628,7 @@ sub readProfileConfigFile {
     $cached_profiles_config = pf::config::cached->new(
             -file => $profiles_config_file,
             -allowempty => 1,
+            -default => 'default',
             -onreload => [ 'reload_profile_config' => sub {
                 my ($config,$name) = @_;
                 $config->toHash(\%Profiles_Config);
