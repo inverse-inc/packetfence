@@ -44,61 +44,6 @@ sub new {
    return $self;
 }
 
-=item windows_provisioning
-
-This handler get the session from memcached and if the node is reg it answer for the wifi xml profile
-for the soh profil and the certificate.
-
-=cut
-
-sub windows_provisioning {
-    my ($this, $r) = @_;
-    my $req = Apache2::Request->new($r);
-    Log::Log4perl->init("$conf_dir/log.conf");
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-    my $portalSession = pf::Portal::Session->new();
-    
-
-    
-    my $response;
-    my $mac;
-    my $type;
-
-    if (defined($portalSession->getGuestNodeMac)) {
-        $mac = $portalSession->getGuestNodeMac;
-    }
-    else {
-        $mac = $portalSession->getClientMac;
-    }
-    my $result = pf::web::util::get_memcached($mac,pf::web::util::get_memcached_conf());
-    if (defined($result->{status}) && $result->{status} eq "reg") {
-        if ($req->pnotes->{uri_winprofil} =~ /xml/) {
-            $response = pf::web::generate_windows_provisioning_xml($portalSession);
-            $req->content_type('text/xml');
-            $req->no_cache(1);
-            $req->print($response);
-        }
-        if ($req->pnotes->{uri_winprofil} =~ /soh/) {
-            $response = pf::web::generate_windows_soh_xml($portalSession);
-            $req->content_type('text/xml');
-            $req->no_cache(1);
-            $req->print($response);
-            pf::web::util::del_memcached($mac,pf::web::util::get_memcached_conf());
-        }
-        if ($req->pnotes->{uri_winprofil} =~ /cert/) {
-            ($response,$type) = pf::web::send_radius_certificate($portalSession);
-            $req->content_type($type);
-            $req->no_cache(1);
-            $req->print($response);
-        }
-        return Apache2::Const::OK;
-    }
-    else {
-        return Apache2::Const::FORBIDDEN;
-    }
-
-}
-
 =item apple_provisioning
 
 This handler generate the xml provisioning profil for apple stuff.
@@ -159,11 +104,17 @@ sub android_provisioning {
 
 =head1 AUTHOR
 
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
+
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010, 2011, 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
+
+Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 
@@ -185,3 +136,7 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

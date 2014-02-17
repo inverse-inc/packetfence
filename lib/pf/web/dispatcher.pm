@@ -101,15 +101,6 @@ sub handler {
             $r->pnotes->{session_id} = $1;
             $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
         }
-        if ($r->uri =~ /$WEB::MOD_PERL_WINPROFIL/o) {
-            $r->pnotes->{uri_winprofil} = $1;
-            $r->set_handlers( PerlResponseHandler =>
-                sub {
-                    my $r = shift;
-                    $provisioning->windows_provisioning($r);
-                }
-            );
-        }
         if ($r->uri =~ /$WEB::MOD_PERL_WIRELESS_PROFILE/o) {
             $r->set_handlers( PerlResponseHandler =>
                 sub {
