@@ -59,7 +59,7 @@ $info{'pid'} = $cgi->remote_user || "admin";
 # Pull browser user-agent string
 $info{'user_agent'} = $cgi->user_agent;
 
-my $no_password_needed = List::MoreUtils::any {$_ eq 'null' } @{$portalSession->getProfile->getGuestModes});
+my $no_password_needed = List::MoreUtils::any {$_ eq 'null' } @{$portalSession->getProfile->getGuestModes};
 my $no_username_needed = pf::web::_no_username($portalSession);
 
 if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "next_page") {
