@@ -79,7 +79,7 @@ if (defined($portalSession->getCgi->user_agent)) {
 }
 
 # if we are going to provide a provisionned wi-fi profile then we should not deauth the user
-if (pf::web::supports_mobileconfig_provisioning($portalSession) || pf::web::supports_windowsconfig_provisioning($portalSession) || pf::web::supports_androidconfig_provisioning($portalSession)) {
+if (pf::web::supports_mobileconfig_provisioning($portalSession) || pf::web::supports_androidconfig_provisioning($portalSession)) {
   $portalSession->getSession->param("do_not_deauth", $TRUE);
 }
 
