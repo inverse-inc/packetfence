@@ -41,7 +41,6 @@ can_ok($radius, qw(
     _doWeActOnThisCall
     _doWeActOnThisCallWireless
     _doWeActOnThisCallWired
-    _identifyConnectionType
     _authorizeVoip
     _translateNasPortToIfIndex
     _isSwitchSupported

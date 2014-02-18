@@ -33,6 +33,7 @@ can_ok($SNMP, qw(
     _setVlanByOnlyModifyingPvid
     setVlanByName
     setMacDetectionVlan
+    _identifyConnectionType
   ));
 
 # SNMP object tests
