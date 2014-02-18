@@ -114,7 +114,9 @@ sub external_captive_portal {
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $switch;
     if (defined($switchId)) {
-        unless (pf::SwitchFactory::hasId($switch)) {
+        if (defined(pf::SwitchFactory::hasId($switchId))) {
+            $switch =  pf::SwitchFactory->getInstance()->instantiate($switchId);
+        } else {
             my $locationlog_entry = locationlog_view_open_mac($switchId);
             $switch = pf::SwitchFactory->getInstance()->instantiate($locationlog_entry->{'switch'});
         }
