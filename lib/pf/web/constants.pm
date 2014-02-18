@@ -186,7 +186,7 @@ my @components_profile_filter =  _clean_urls_match_filter();
 # add $ to non-slash ending URLs
 foreach (@components_profile_filter) { s{([^/])$}{$1\$} };
 my $allow_profile = join('|', @components_profile_filter);
-Readonly::Scalar our $ALLOWED_RESOURCES_PROFILE_FILTER => qr/ ^(?: $allow_profile ) /xo; # eXtended pattern, compile Once
+Readonly::Scalar our $ALLOWED_RESOURCES_PROFILE_FILTER => qr/ ^(?: $allow_profile ) /xo if($allow_profile ne ''); # eXtended pattern, compile Once
 
 =item EXTERNAL_PORTAL_PARAM
 
