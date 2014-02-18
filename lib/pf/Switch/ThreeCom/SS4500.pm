@@ -632,7 +632,7 @@ sub _getLLDPIndex {
     return $1;
 }
 
-=item getPhonesLLDPAtIfIndex 
+=item getPhonesLLDPAtIfIndex
 
 Using SNMP and LLDP we determine if there is VoIP connected on the switch port
 =cut
@@ -648,7 +648,7 @@ sub getPhonesLLDPAtIfIndex {
         return @phones;
     }
 
-    my $index = $this->_getLLDPIndex($ifIndex);
+    my $index = $this->getLLDPIndex($ifIndex);
 
     my $oid_lldpRemPortId = '1.0.8802.1.1.2.1.4.1.1.7';
     my $oid_lldpRemSysDesc = '1.0.8802.1.1.2.1.4.1.1.10';
@@ -656,21 +656,17 @@ sub getPhonesLLDPAtIfIndex {
     if ( !$this->connectRead() ) {
         return @phones;
     }
-    #What a little bit to have lldp info in SNMP oid
     sleep(4);
-
     $logger->trace(
         "SNMP get_next_request for lldpRemSysDesc: $oid_lldpRemSysDesc");
     my $result = $this->{_sessionRead}
         ->get_table( -baseoid => $oid_lldpRemSysDesc );
     foreach my $oid ( keys %{$result} ) {
         if ( $oid =~ /^$oid_lldpRemSysDesc\.([0-9]+)\.([0-9]+)\.([0-9]+)$/ ) {
-            $logger->warn($oid);
             if ( $index eq $2 ) {
                 my $cache_lldpRemTimeMark = $1;
                 my $cache_lldpRemLocalPortNum = $2;
                 my $cache_lldpRemIndex = $3;
-                $logger->warn($oid);
                 if ( $result->{$oid} =~ /phone/i ) {
                     $logger->trace(
                         "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
@@ -688,6 +684,22 @@ sub getPhonesLLDPAtIfIndex {
                         )
                         )
                     {
+                        push @phones, lc("$1:$2:$3:$4:$5:$6");
+                    }
+                }
+            }
+        }
+    }
+    return @phones;
+}
+
+=item isVoIPEnabled
+
+Returns 1 if VoIP is enabled
+
+=cut
+
+sub isVoIPEnabled {
     my ($this) = @_;
     return ( $this->{_VoIPEnabled} == 1 );
 }
