@@ -303,6 +303,7 @@ sub generate_login_page {
 sub _no_username {
     my ($portalSession) = @_;
     return any {$_->type eq 'Null' && isdisabled($_->email_required)  }
+        grep { $_ }
         map { getAuthenticationSource($_) }
         @{$portalSession->getProfile->getSources};
 }
