@@ -76,7 +76,15 @@ sub login :Local :Args(0) {
                                    password => $c->req->params->{'password'}} )) {
                 $c->session->{user_roles} = [$c->user->roles]; # Save the roles to the session
                 $c->persist_user(); # Save the updated roles data
-                $c->response->redirect($c->uri_for($c->controller->action_for('index')));
+                # Don't send a standard 302 redirect code; return the redirection URL in the JSON payload
+                #                     # and perform the redirection on the client side
+                #                                         $c->response->status(HTTP_ACCEPTED);
+                if ($c->req->params->{'redirect_url'}) {
+                    $c->stash->{success} = $c->req->params->{'redirect_url'};
+                } else {
+                    $c->stash->{success} =
+                      $c->uri_for($c->controller()->action_for('index'));
+                }
             }
             else {
                 $c->response->status(HTTP_UNAUTHORIZED);
