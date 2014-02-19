@@ -640,11 +640,12 @@ sub readProfileConfigFile {
                 %Profile_Filters = ();
                 my $default_description = $Profiles_Config{'default'}{'description'};
                 while (my ($profile_id, $profile) = each %Profiles_Config) {
-                    $profile->{'filter'} = [split(/\s*,\s*/, $profile->{'filter'} || "")];
+                    foreach my $param (qw(sources filter locale)) {
+                        $profile->{$param} = [split(/\s*,\s*/, $profile->{$param} || "")];
+                    }
                     foreach my $filter (@{$profile->{'filter'}}) {
                         $Profile_Filters{$filter} = $profile_id;
                     }
-                    $profile->{'sources'} = [split(/\s*,\s*/, $profile->{'sources'} || "")];
                 }
             }]
     );
