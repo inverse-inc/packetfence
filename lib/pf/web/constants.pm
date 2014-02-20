@@ -246,6 +246,7 @@ sub _clean_urls_match_filter {
         $filter =~ s/^uri://;
          push @urls, $filter;
     }
+    return (@urls);
 }
 
 =item _clean_urls_match_mod_perl
