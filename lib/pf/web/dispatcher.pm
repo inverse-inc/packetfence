@@ -192,7 +192,6 @@ sub redirect {
                if ($cgi_session_id ne '0') {
                    # Set the cookie for the captive portal
                    $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
-                   $logger->warn("Dumping session id: $cgi_session_id");
                    $is_external_portal = 1;
                    last;
                }
@@ -206,7 +205,6 @@ sub redirect {
            if ($cgi_session_id ne '0') {
                # Set the cookie for the captive portal
                $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
-               $logger->warn("Dumping session id: $cgi_session_id");
                $destination_url=$r->headers_in->{'Referer'} if (defined($r->headers_in->{'Referer'}));
            }
            $is_external_portal = 1;
