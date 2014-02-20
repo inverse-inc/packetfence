@@ -47,8 +47,28 @@ CREATE TABLE person (
   `telephone` varchar(255) default NULL,
   `company` varchar(255) default NULL,
   `address` varchar(255) default NULL,
-  notes varchar(255),
-  sponsor varchar(255) default NULL,
+  `notes` varchar(255),
+  `sponsor` varchar(255) default NULL,
+  `anniversary` varchar(255) default NULL,
+  `birthday` varchar(255) default NULL,
+  `gender` char(1) default NULL,
+  `lang` varchar(255) default NULL,
+  `nickname` varchar(255) default NULL,
+  `cell_phone` varchar(255) default NULL,
+  `work_phone` varchar(255) default NULL,
+  `title` varchar(255) default NULL,
+  `building_number` varchar(255) default NULL,
+  `apartment_number` varchar(255) default NULL,
+  `room_number` varchar(255) default NULL,
+  `custom_field_1` varchar(255) default NULL,
+  `custom_field_2` varchar(255) default NULL,
+  `custom_field_3` varchar(255) default NULL,
+  `custom_field_4` varchar(255) default NULL,
+  `custom_field_5` varchar(255) default NULL,
+  `custom_field_6` varchar(255) default NULL,
+  `custom_field_7` varchar(255) default NULL,
+  `custom_field_8` varchar(255) default NULL,
+  `custom_field_9` varchar(255) default NULL,
   PRIMARY KEY (pid)
 ) ENGINE=InnoDB;
 
@@ -95,6 +115,8 @@ CREATE TABLE node (
   regdate datetime NOT NULL default "0000-00-00 00:00:00",
   unregdate datetime NOT NULL default "0000-00-00 00:00:00",
   lastskip datetime NOT NULL default "0000-00-00 00:00:00",
+  time_balance int(10) unsigned DEFAULT NULL,
+  bandwidth_balance int(10) unsigned DEFAULT NULL,
   status varchar(15) NOT NULL default "unreg",
   user_agent varchar(255) default NULL,
   computername varchar(255) default NULL,
@@ -102,10 +124,10 @@ CREATE TABLE node (
   last_arp datetime NOT NULL default "0000-00-00 00:00:00",
   last_dhcp datetime NOT NULL default "0000-00-00 00:00:00",
   dhcp_fingerprint varchar(255) default NULL,
-  `bypass_vlan` varchar(50) default NULL,
-  `voip` enum('no','yes') NOT NULL DEFAULT 'no',
-  `autoreg` enum('no','yes') NOT NULL DEFAULT 'no',
-  `sessionid` varchar(30) default NULL,
+  bypass_vlan varchar(50) default NULL,
+  voip enum('no','yes') NOT NULL DEFAULT 'no',
+  autoreg enum('no','yes') NOT NULL DEFAULT 'no',
+  sessionid varchar(30) default NULL,
   PRIMARY KEY (mac),
   KEY pid (pid),
   KEY category_id (category_id),
@@ -809,3 +831,19 @@ CREATE TABLE savedsearch (
   in_dashboard tinyint,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB;
+
+--
+-- Table structure for table 
+--
+
+CREATE TABLE inline_accounting (
+   outbytes bigint unsigned NOT NULL DEFAULT '0' COMMENT 'orig_raw_pktlen',
+   inbytes bigint unsigned NOT NULL DEFAULT '0' COMMENT 'reply_raw_pktlen',
+   ip varchar(16) NOT NULL,
+   firstseen DATETIME NOT NULL,
+   lastmodified DATETIME NOT NULL,
+   status int unsigned NOT NULL default 0,
+   PRIMARY KEY (ip, firstseen),
+   INDEX (ip)
+ ) ENGINE=InnoDB;
+
