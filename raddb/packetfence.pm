@@ -87,7 +87,12 @@ Once we authenticated the user's identity, we perform PacketFence's Network Acce
 sub post_auth {
     my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
     eval {
-        my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+        if (defined($RAD_REQUEST{'User-Name'})) {
+            $mac = clean_mac($RAD_REQUEST{'User-Name'});
+            if ( length($mac) != 17 ) {
+               $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+            }
+        }
         my $port = $RAD_REQUEST{'NAS-Port'};
 
         # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
