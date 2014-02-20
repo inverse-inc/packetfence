@@ -22,7 +22,7 @@ group = pf
 
 max_request_time = 30
 cleanup_delay = 5
-max_requests = 1024
+max_requests = 20000
 
 listen {
         type = auth
