@@ -19,6 +19,7 @@ use HTML::Entities;
 use Log::Log4perl;
 use WWW::Curl::Easy;
 use XML::Simple;
+use Encode qw(decode);
 
 use base qw(Exporter);
 our @EXPORT = qw(send_soap_request build_soap_request);
@@ -129,7 +130,7 @@ sub build_soap_elements {
 
 sub build_soap_string {
     my ($name,$value) = @_;
-    $value = encode_entities($value);
+    $value = encode_entities(decode('utf8',$value));
     return "<$name xsi:type=\"xsd:string\">$value</$name>";
 }
 
