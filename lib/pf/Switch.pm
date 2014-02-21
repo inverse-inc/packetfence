@@ -630,26 +630,11 @@ sub setVlan {
 
     #handle some exceptions
 
-    # old VLAN is not a VLAN we manage
-    if (!$this->isManagedVlan($vlan)) {
-        $logger->warn("old VLAN $vlan is not a managed VLAN -> Do nothing");
-        return 1;
-    }
-
     # VLAN -1 handling
     # TODO at some point we should create a new blackhole / blacklist API
     # it would take advantage of per-switch features
     if ($newVlan == -1) {
         $logger->warn("VLAN -1 is not supported in SNMP-Traps mode. Returning the switch's mac-detection VLAN.");
-        $newVlan = $macDetectionVlan;
-    }
-
-    # unmanaged VLAN
-    if (!$this->isManagedVlan($newVlan)) {
-        $logger->warn(
-            "new VLAN $newVlan is not a managed VLAN -> replacing VLAN $newVlan with MAC detection VLAN "
-            . $macDetectionVlan
-        );
         $newVlan = $macDetectionVlan;
     }
 
