@@ -173,11 +173,6 @@ elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->pa
       %info = (%info, (unregdate => $value));
   }
   my $nodeattributes = node_attributes($portalSession->getClientMac);
-  if (pf::web::supports_windowsconfig_provisioning($portalSession)) {
-      $cgi->param("do_not_deauth", $TRUE);
-      $nodeattributes->{'status'} = 'reg';
-      pf::web::util::set_memcached($portalSession->getClientMac(), $nodeattributes, undef, pf::web::util::get_memcached_conf());
-  }
 
   pf::web::web_node_register($portalSession, $pid, %info);
   pf::web::end_portal_session($portalSession);
