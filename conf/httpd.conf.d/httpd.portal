@@ -38,6 +38,12 @@
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
   </IfModule>
+  <IfModule !mod_unique_id.c>
+    LoadModule unique_id_module /usr/lib/apache2/modules/mod_unique_id.so
+  </IfModule>
+  <IfModule !mod_qos.c>
+    LoadModule qos_module /usr/lib/apache2/modules/mod_qos.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -77,6 +83,12 @@
   </IfModule>
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module modules/mod_apreq2.so
+  </IfModule>
+  <IfModule !mod_unique_id.c>
+    LoadModule unique_id_module modules/mod_unique_id.so
+  </IfModule>
+  <IfModule !mod_qos.c>
+    LoadModule qos_module modules/mod_qos.so
   </IfModule>
 </IfDefine>
 
@@ -150,6 +162,10 @@ $MaxClients = pf::services::apache::calculate_max_clients(pf::services::apache::
 $StartServers =  pf::services::apache::calculate_start_servers($MaxClients);
 $MinSpareServers = pf::services::apache::calculate_min_spare_servers($MaxClients);
 
+my $qos = $MaxClients * .7;
+$QS_SrvMaxConnClose = $qos;
+$QS_SrvMaxConnPerIP = '5';
+
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 $PerlInitHandler = "pf::WebAPI::InitHandler";
@@ -178,8 +194,6 @@ foreach my $interface (@internal_nets) {
          Include => $var_dir.'/conf/captive-portal-common.conf',
          Include => $var_dir.'/conf/block-unwanted.conf',
          Include => $var_dir.'/conf/captive-portal-cleanurls.conf',
-         ProxyPassReverse => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
-         ProxyPass => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
     ));
     push (@{ $VirtualHost{$interface->{'Tip'}.":443"} }, gen_conf(
          ServerName => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
@@ -192,8 +206,6 @@ foreach my $interface (@internal_nets) {
          Include => $var_dir.'/conf/captive-portal-common.conf',
          Include => $var_dir.'/conf/block-unwanted.conf',
          Include => $var_dir.'/conf/captive-portal-cleanurls.conf',
-         ProxyPassReverse => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
-         ProxyPass => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
     ));
 }
 
@@ -217,8 +229,6 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
          Include             => $var_dir.'/conf/captive-portal-common.conf',
          Include             => $var_dir.'/conf/block-unwanted.conf',
          Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
-         ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
-         ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
     );
     push @{ $VirtualHost{$host.":443"} }, gen_conf(
          ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
@@ -230,8 +240,6 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
          Include             => $var_dir.'/conf/captive-portal-common.conf',
          Include             => $var_dir.'/conf/block-unwanted.conf',
          Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
-         ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
-         ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
     );
 
 } 
