@@ -1,5 +1,6 @@
 package pf::services;
 
+
 =head1 NAME
 
 pf::services - module to manage the PacketFence services and daemons.
@@ -40,6 +41,7 @@ use pf::services::manager::pfsetvlan;
 use pf::services::manager::pfdhcplistener;
 use pf::services::manager::pfmon;
 use pf::services::manager::pfcache;
+use pf::services::manager::pfbandwidthd;
 use Module::Loaded qw(is_loaded);
 
 our @APACHE_SERVICES = (
@@ -48,7 +50,7 @@ our @APACHE_SERVICES = (
 
 our @ALL_SERVICES = (
     'memcached', 'pfcache', @APACHE_SERVICES, 'pfdns', 'dhcpd', 'pfdetect', 'snort', 'suricata', 'radiusd',
-    'snmptrapd', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
+    'snmptrapd', 'pfsetvlan', 'pfdhcplistener', 'pfmon', 'pfbandwidthd'
 );
 
 our %ALLOWED_ACTIONS = (

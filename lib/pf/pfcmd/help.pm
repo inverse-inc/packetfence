@@ -120,6 +120,7 @@ Services managed by PacketFence:
   httpd.portal     | Apache Captive Portal
   httpd.proxy      | Apache Proxy Interception
   pf               | all services that should be running based on your config
+  pfbandwidthd     | A pf service to monitor bandwidth usages
   pfdetect         | PF snort alert parser
   pfdhcplistener   | PF DHCP monitoring daemon
   pfdns            | DNS daemon
