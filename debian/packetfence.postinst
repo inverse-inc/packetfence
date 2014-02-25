@@ -87,7 +87,6 @@ case "$1" in
         set -e
 
         update-rc.d mysql defaults
-        update-rc.d memcached defaults
 
         # add sudo entry
         if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
