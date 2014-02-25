@@ -43,9 +43,8 @@ install: build
 	dh_installdirs
 
 	#copying example files with the extention
-	find * -name '*.example' -print0 | while read -d $'\0' file
-	do
-	  echo cp $file "$(dirname $file)/$(basename $file .example)"
+	for i in `find * -name "*.example"`; do \
+	  echo cp $i "$(dirname $i)/$(basename $i .example)"; \
 	done
 
 	# Install all except debian and t directory
