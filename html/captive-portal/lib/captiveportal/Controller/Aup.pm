@@ -1,29 +1,17 @@
 package captiveportal::Controller::Aup;
 use Moose;
-use namespace::autoclean;
 
-BEGIN { extends 'Catalyst::Controller'; }
+BEGIN { extends 'captiveportal::PacketFence::Controller::Aup'; }
 
 =head1 NAME
 
-captiveportal::Controller::Aup - Catalyst Controller
+captiveportal::Controller::Root - Root Controller for captiveportal
 
 =head1 DESCRIPTION
 
-Catalyst Controller.
-
-=head1 METHODS
+[enter your description here]
 
 =cut
-
-=head2 index
-
-=cut
-
-sub index : Path : Args(0) {
-    my ( $self, $c ) = @_;
-    $c->stash->{template} = 'aup.html';
-}
 
 =head1 AUTHOR
 

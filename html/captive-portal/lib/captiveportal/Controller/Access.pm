@@ -1,29 +1,17 @@
 package captiveportal::Controller::Access;
 use Moose;
-use namespace::autoclean;
 
-BEGIN { extends 'Catalyst::Controller'; }
+BEGIN { extends 'captiveportal::PacketFence::Controller::Access'; }
 
 =head1 NAME
 
-captiveportal::Controller::Access - Catalyst Controller
+captiveportal::Controller::Root - Root Controller for captiveportal
 
 =head1 DESCRIPTION
 
-Catalyst Controller.
-
-=head1 METHODS
+[enter your description here]
 
 =cut
-
-=head2 index
-
-=cut
-
-sub index : Path : Args(0) {
-    my ( $self, $c ) = @_;
-    $c->detach('/authentication/release');
-}
 
 =head1 AUTHOR
 

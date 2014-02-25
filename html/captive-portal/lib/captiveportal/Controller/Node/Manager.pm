@@ -1,45 +1,17 @@
 package captiveportal::Controller::Node::Manager;
 use Moose;
-use namespace::autoclean;
-use pf::node;
 
-BEGIN {extends 'captiveportal::Base::Controller'; }
+BEGIN { extends 'captiveportal::PacketFence::Controller::Node::Manager'; }
 
 =head1 NAME
 
-captiveportal::Controller::Node::Manager - Catalyst Controller
+captiveportal::Controller::Root - Root Controller for captiveportal
 
 =head1 DESCRIPTION
 
-Catalyst Controller.
-
-=head1 METHODS
+[enter your description here]
 
 =cut
-
-
-=head2 index
-
-=cut
-
-sub unreg :Local :Args(1) {
-    my ( $self, $c, $mac ) = @_;
-    my $username = $c->session->{username};
-    my $node = node_view($mac);
-    if($username && $mac) {
-        if($username eq $node->{pid}) {
-            node_unregistered($c);
-            $c->response->redirect("/status");
-            $c->detach;
-        } else {
-            $self->showError($c,"Not allowed to deregister $mac");
-        }
-
-    } else {
-        $self->showError($c,"Not logged in or node ID $mac is not known");
-    }
-}
-
 
 =head1 AUTHOR
 

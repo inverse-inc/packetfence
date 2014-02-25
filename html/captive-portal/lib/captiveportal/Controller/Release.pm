@@ -1,55 +1,17 @@
 package captiveportal::Controller::Release;
 use Moose;
-use namespace::autoclean;
-use pf::config;
-use pf::util;
 
-BEGIN { extends 'captiveportal::Base::Controller'; }
+BEGIN { extends 'captiveportal::PacketFence::Controller::Release'; }
 
 =head1 NAME
 
-captiveportal::Controller::Release - Catalyst Controller
+captiveportal::Controller::Root - Root Controller for captiveportal
 
 =head1 DESCRIPTION
 
-Catalyst Controller.
-
-=head1 METHODS
+[enter your description here]
 
 =cut
-
-=head2 index
-
-=cut
-
-sub index : Path : Args(0) {
-    my ( $self, $c ) = @_;
-    my $request = $c->request;
-    if ( $request->secure ) {
-        $c->response->redirect( "http://"
-              . $Config{'general'}{'hostname'} . "."
-              . $Config{'general'}{'domain'}
-              . '/access?destination_url='
-              . uri_escape( $c->stash->{destination_url} ) );
-    } else {
-        $c->stash(
-            timer         => $Config{'trapping'}{'redirtimer'},
-            redirect_url  => $Config{'trapping'}{'redirecturl'},
-            initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
-            retry_delay   => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
-            external_ip => $Config{'captive_portal'}{'network_detection_ip'},
-            auto_redirect => $Config{'captive_portal'}{'network_detection'},
-        );
-
-        # override destination_url if we enabled the always_use_redirecturl option
-        if ( isenabled( $Config{'trapping'}{'always_use_redirecturl'} ) ) {
-            $c->stash->{'destination_url'} =
-              $Config{'trapping'}{'redirecturl'};
-        }
-        $c->stash->{template} = 'release.html';
-        $c->detach;
-    }
-}
 
 =head1 AUTHOR
 

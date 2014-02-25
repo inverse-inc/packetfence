@@ -1,52 +1,17 @@
 package captiveportal::Controller::Enabler;
 use Moose;
-use namespace::autoclean;
-use pf::violation;
-use pf::class;
 
-BEGIN { extends 'captiveportal::Base::Controller'; }
+BEGIN { extends 'captiveportal::PacketFence::Controller::Enabler'; }
 
 =head1 NAME
 
-captiveportal::Controller::Enabler - Catalyst Controller
+captiveportal::Controller::Root - Root Controller for captiveportal
 
 =head1 DESCRIPTION
 
-Catalyst Controller.
-
-=head1 METHODS
+[enter your description here]
 
 =cut
-
-=head2 index
-
-=cut
-
-sub index : Path : Args(0) {
-    my ( $self, $c ) = @_;
-    my $portalSession = $c->portalSession;
-    my $mac           = $portalSession->clientMac;
-
-    $c->stash->{'user_agent'} = $c->request->user_agent;
-
-    # check for open violations
-    my $violation = violation_view_top($mac);
-
-    if ($violation) {
-
-        # There is a violation, redirect the user
-        # FIXME: there is not enough validation below
-        my $vid   = $violation->{'vid'};
-        my $class = class_view($vid);
-        $c->stash(
-            violation_id => $vid,
-            enable_text  => $class->{button_text},
-            template     => 'enabler.html',
-        );
-    } else {
-        $self->showError( $c, "error: not found in the database" );
-    }
-}
 
 =head1 AUTHOR
 

@@ -1,42 +1,17 @@
 package captiveportal::Controller::WirelessProfile;
 use Moose;
-use namespace::autoclean;
 
-BEGIN { extends 'Catalyst::Controller'; }
-use pf::config;
-
-__PACKAGE__->config( namespace => 'wireless-profile.mobileconfig', );
+BEGIN { extends 'captiveportal::PacketFence::Controller::WirelessProfile'; }
 
 =head1 NAME
 
-captiveportal::Controller::WirelessProfile - Catalyst Controller
+captiveportal::Controller::Root - Root Controller for captiveportal
 
 =head1 DESCRIPTION
 
-Catalyst Controller.
-
-=head1 METHODS
+[enter your description here]
 
 =cut
-
-=head2 index
-
-=cut
-
-sub index : Path : Args(0) {
-    my ( $self, $c ) = @_;
-    my $username = $c->session->{username} || 'admin';
-    if ( defined $username ) {
-        $c->stash(
-            template     => 'wireless-profile.xml',
-            current_view => 'MobileConfig',
-            ssid         => $Config{'provisioning'}{'ssid'},
-            username     => $username
-        );
-    } else {
-        $c->detach( Root => 'error' );
-    }
-}
 
 =head1 AUTHOR
 
