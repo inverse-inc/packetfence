@@ -35,6 +35,7 @@ use Try::Tiny;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
+use lib INSTALL_DIR . "/html/captive-portal/custom-lib";
 use pf::config::cached;
 use pf::node
   qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
