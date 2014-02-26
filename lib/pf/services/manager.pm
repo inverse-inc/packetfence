@@ -11,6 +11,33 @@ pf::services::manager
 
 This module encapsulates the service actions/commands for pfcmd tool
 
+=head1 EXAMPLES
+
+An example of a new service foo
+
+    package pf::services::manager::moo;
+
+    use strict;
+    use warnings;
+    use Moo;
+
+    extends 'pf::services::manager';
+
+    has '+name' => ( default => sub { 'foo' } );
+
+    has '+launcher' => (default => sub { '%1$s -d' } );
+
+
+To include the new service in pfcmd service
+
+* Add service name to the service regex in pf::pfcmd
+
+* Update the help if pf::pfcmd::help
+
+* Add service to the pf::services::ALL_SERVICES array
+
+* import the pf::services::manager::<servicename> module in pf::services
+
 =cut
 
 use strict;
@@ -26,6 +53,7 @@ use Linux::Inotify2;
 use Errno qw(EINTR EAGAIN);
 use Time::HiRes qw (alarm);
 use Linux::FD::Timer;
+use IO::Poll qw(POLLRDNORM POLLWRNORM POLLIN POLLHUP);
 
 =head1 Attributes
 
