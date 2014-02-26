@@ -47,7 +47,7 @@ captiveportal::PacketFence::Controller::Root - Root Controller for captiveportal
 
 =cut
 
-sub auto : Hookable('Private') {
+sub auto : {
     my ( $self, $c ) = @_;
     $c->forward('setupCommonStash');
     return 1;
@@ -59,7 +59,7 @@ TODO: documention
 
 =cut
 
-sub checkForViolation : Hookable('Private') {
+sub checkForViolation : {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
@@ -138,7 +138,7 @@ TODO: documention
 
 =cut
 
-sub nodeRecordUserAgent : Hookable('Private') {
+sub nodeRecordUserAgent : {
     my ( $self, $c ) = @_;
     my $user_agent    = $c->request->user_agent;
     my $logger        = get_logger;
@@ -171,7 +171,7 @@ TODO: documention
 
 =cut
 
-sub supportsMobileconfigProvisioning : Hookable('Private') {
+sub supportsMobileconfigProvisioning : {
     my ( $self, $c ) = @_;
     my $do_not_deauth = $FALSE;
     if ( isenabled( $Config{'provisioning'}{'autoconfig'} ) ) {
@@ -205,7 +205,7 @@ TODO: documention
 
 =cut
 
-sub setupCommonStash : Hookable('Private') {
+sub setupCommonStash : {
     my ( $self, $c ) = @_;
     my $portalSession   = $c->portalSession;
     my $destination_url = $c->request->param('destination_url');
@@ -235,7 +235,7 @@ TODO: documention
 
 =cut
 
-sub validateMac : Hookable('Private') {
+sub validateMac : {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
@@ -246,7 +246,7 @@ sub validateMac : Hookable('Private') {
     }
 }
 
-sub endPortalSession : Hookable('Private') {
+sub endPortalSession : {
     my ( $self, $c ) = @_;
     my $logger        = get_logger;
     my $portalSession = $c->portalSession;
@@ -278,7 +278,7 @@ sub endPortalSession : Hookable('Private') {
     $c->forward( 'Release' => 'index' );
 }
 
-sub mobileconfig_provisioning : Hookable('Private') {
+sub mobileconfig_provisioning : {
     my ( $self, $c ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
 
@@ -309,7 +309,7 @@ sub mobileconfig_provisioning : Hookable('Private') {
     }
 }
 
-sub checkIfPending : Hookable('Private') {
+sub checkIfPending : {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $profile       = $c->profile;
@@ -394,7 +394,7 @@ See F<pf::web::custom> for examples.
 
 =cut
 
-sub webNodeRegister : Hookable('Private') {
+sub webNodeRegister : {
     my ($self, $c, $pid, %info ) = @_;
     my $logger        = Log::Log4perl::get_logger(__PACKAGE__);
     my $portalSession = $c->portalSession;
@@ -428,14 +428,14 @@ TODO: documention
 
 =cut
 
-sub maxRegNodesReached : Hookable('Private') {
+sub maxRegNodesReached : {
     my ( $self, $c ) = @_;
     $self->showError($c, "You have reached the maximum number of devices you are able to register with this username.");
 }
 
 
 
-sub web_user_authenticate : Hookable('Private') {
+sub web_user_authenticate : {
     my ( $self, $c ) = @_;
     my $profile = $c->profile;
     my $request = $c->request;
@@ -463,7 +463,7 @@ Standard 404 error page
 
 =cut
 
-sub default : Path : Hookable {
+sub default : Path : {
     my ( $self, $c ) = @_;
     $c->response->body('Page not found');
     $c->response->status(404);

@@ -43,7 +43,7 @@ The root page (/)
 
 =cut
 
-sub index : Path : Args(0) : Hookable {
+sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     $c->forward( Root => 'checkForViolation' );
     $c->forward( Root => 'checkIfPending' );
@@ -54,7 +54,7 @@ sub index : Path : Args(0) : Hookable {
     );
 }
 
-sub checkIfCanRegistration : Hookable('Private') {
+sub checkIfCanRegistration {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $profile       = $c->profile;
@@ -84,7 +84,7 @@ sub checkIfCanRegistration : Hookable('Private') {
     }
 }
 
-sub unknownState : Hookable('Private') {
+sub unknownState {
     my ( $self, $c ) = @_;
     my $portalSession      = $c->portalSession;
     my $mac                = $portalSession->clientMac;

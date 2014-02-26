@@ -23,7 +23,7 @@ Catalyst Controller.
 
 =cut
 
-sub index : Path : Args(0) : Hookable {
+sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $node_info     = node_view( $portalSession->clientMac() );

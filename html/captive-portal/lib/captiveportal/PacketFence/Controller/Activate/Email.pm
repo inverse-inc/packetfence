@@ -101,7 +101,7 @@ TODO: documention
 
 =cut
 
-sub login : Hookable('Private') {
+sub login {
     my ( $self, $c ) = @_;
     $c->stash(
         template => $pf::web::guest::SPONSOR_LOGIN_TEMPLATE,
@@ -115,7 +115,7 @@ TODO: documention
 
 =cut
 
-sub doEmailRegistration : Hookable('Private') {
+sub doEmailRegistration {
     my ( $self, $c, $code ) = @_;
     my $request           = $c->request;
     my $logger            = get_logger;
@@ -226,7 +226,7 @@ TODO: documention
 
 =cut
 
-sub doSponsorRegistration : Hookable('Private') {
+sub doSponsorRegistration {
     my ( $self, $c, $code ) = @_;
     my $logger            = get_logger;
     my $request           = $c->request;

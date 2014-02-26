@@ -106,7 +106,7 @@ TODO: documention
 
 =cut
 
-sub showSmsConfirmation : Hookable('Private') {
+sub showSmsConfirmation {
     my ( $self, $c ) = @_;
     $c->stash(
         template => 'guest/sms_confirmation.html',

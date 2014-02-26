@@ -59,7 +59,7 @@ TODO: documention
 
 =cut
 
-sub validateMac : Hookable('Private') {
+sub validateMac {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $logger        = get_logger;
@@ -84,7 +84,7 @@ TODO: documention
 
 =cut
 
-sub checkPreregistration : Hookable('Private') {
+sub checkPreregistration {
     my ( $self, $c ) = @_;
     my $request = $c->request;
 
@@ -103,7 +103,7 @@ TODO: documention
 
 =cut
 
-sub setupGuestMac : Hookable('Private') {
+sub setupGuestMac {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     # Clearing the MAC if in pre-registration
@@ -139,7 +139,7 @@ TODO: documention
 
 =cut
 
-sub doSelfRegistration : Hookable('Private') {
+sub doSelfRegistration {
     my ( $self, $c ) = @_;
     my $request = $c->request;
     my $profile = $c->profile;
@@ -163,7 +163,7 @@ TODO: documention
 
 =cut
 
-sub doEmailSelfRegistration : Hookable('Private') {
+sub doEmailSelfRegistration {
     my ( $self, $c ) = @_;
     my $logger        = get_logger;
     my $portalSession = $c->portalSession;
@@ -273,7 +273,7 @@ TODO: documention
 
 =cut
 
-sub doSponsorSelfRegistration : Hookable('Private') {
+sub doSponsorSelfRegistration {
     my ( $self, $c ) = @_;
     my $logger        = get_logger;
     my $profile       = $c->profile;
@@ -390,7 +390,7 @@ TODO: documention
 
 =cut
 
-sub doSmsSelfRegistration : Hookable('Private') {
+sub doSmsSelfRegistration {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     if ( $c->session->{"preregistration"} ) {
@@ -454,7 +454,7 @@ sub doSmsSelfRegistration : Hookable('Private') {
     }
 }    # SMS
 
-sub checkGuestModes : Hookable('Private') {
+sub checkGuestModes {
     my ( $self, $c ) = @_;
     if ( @{ $c->profile->getGuestModes } == 0 ) {
         $c->response->redirect( "/captive-portal?destination_url="
@@ -469,7 +469,7 @@ TODO: documention
 
 =cut
 
-sub validateSelfRegistration : Hookable('Private') {
+sub validateSelfRegistration {
     my ( $self, $c ) = @_;
     $c->forward('validatePreregistration');
     $c->forward('validateMandatoryFields');
@@ -485,7 +485,7 @@ TODO: documention
 
 =cut
 
-sub setupSelfRegistrationSession : Hookable('Private') {
+sub setupSelfRegistrationSession {
     my ( $self, $c ) = @_;
     my $request = $c->request;
     $c->session->{firstname} = $request->param("firstname");
@@ -508,7 +508,7 @@ TODO: documention
 
 =cut
 
-sub validatePreregistration : Hookable('Private') {
+sub validatePreregistration {
     my ( $self, $c ) = @_;
     if ( $c->session->{preregistration}
         && isdisabled(
@@ -523,7 +523,7 @@ TODO: documention
 
 =cut
 
-sub validateBySponsorSource : Hookable('Private') {
+sub validateBySponsorSource {
     my ( $self, $c ) = @_;
     my $profile = $c->profile;
     my $request = $c->request;
@@ -551,7 +551,7 @@ TODO: documention
 
 =cut
 
-sub validateByEmailSource : Hookable('Private') {
+sub validateByEmailSource {
     my ( $self, $c ) = @_;
     my $profile = $c->profile;
     my $request = $c->request;
@@ -580,7 +580,7 @@ TODO: documention
 
 =cut
 
-sub validateMandatoryFields : Hookable('Private') {
+sub validateMandatoryFields {
     my ( $self, $c ) = @_;
     my $request = $c->request;
     my ( $error_code, @error_args );
@@ -621,12 +621,12 @@ TODO: documention
 
 =cut
 
-sub authenticateSelfRegistration : Hookable('Private') {
+sub authenticateSelfRegistration {
     my ( $self, $c ) = @_;
     return;
 }
 
-sub showSelfRegistrationPage : Hookable('Private') {
+sub showSelfRegistrationPage {
     my ( $self, $c ) = @_;
     my $logger  = get_logger;
     my $profile = $c->profile;

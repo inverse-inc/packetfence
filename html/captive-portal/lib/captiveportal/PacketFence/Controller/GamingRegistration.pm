@@ -24,7 +24,7 @@ Catalyst Controller.
 
 =cut
 
-sub begin : Hookable('Private') {
+sub begin {
     my ( $self, $c ) = @_;
     if (isdisabled( $Config{'registration'}{'gaming_devices_registration'} ) )
     {
@@ -78,7 +78,7 @@ TODO: documention
 
 =cut
 
-sub userNotLoggedIn : Hookable('Private') {
+sub userNotLoggedIn {
     my ($self, $c) = @_;
     my $request = $c->request;
     my $username = $request->param('username');
@@ -99,17 +99,17 @@ Display the gaming login
 
 =cut
 
-sub login : Local : Args(0) : Hookable('Private') {
+sub login : Local : Args(0) {
     my ( $self, $c ) = @_;
     $c->stash( template => 'gaming-login.html' );
 }
 
-sub landing : Local : Args(0) : Hookable('Private') {
+sub landing : Local : Args(0) {
     my ( $self, $c ) = @_;
     $c->stash( template => 'gaming-landing.html' );
 }
 
-sub registerNode : Hookable('Private') {
+sub registerNode {
     my ( $self, $c, $pid, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     if ( pf::web::gaming::is_allowed_gaming_mac($mac) ) {
