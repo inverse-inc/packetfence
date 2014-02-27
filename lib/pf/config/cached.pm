@@ -738,6 +738,7 @@ Check to see if the config file needs to be reread
 
 sub _expireIf {
     my ($self,$cache_object,$file) = @_;
+    return 0 unless $cache_object && defined $cache_object->value;
     my $imported_expired = 0;
     my $timestamp = $cache_object->value->{_timestamp} || 0;
     #checking to see if the imported file needs to be reimported also
