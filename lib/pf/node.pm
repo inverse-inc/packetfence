@@ -1152,15 +1152,18 @@ sub is_max_reg_nodes_reached {
             if ( $max_for_category == 0 || $nb_nodes < $max_for_category ) {
                 return $FALSE;
             }
+            $logger->info("per-role max nodes per-user limit reached: $nb_nodes are already registered to pid $pid for role "
+                          . $category_info->{'name'});
         }
-        $logger->info("per-role max nodes per-user limit reached: $nb_nodes are already registered to pid $pid for role "
-                     . $category_info->{'name'});
+        else {
+            $logger->warn("Specified role ".($category?$category:$category_id)." doesn't exist for pid $pid (MAC $mac); assume maximum number of registered nodes is reached");
+        }
     }
     else {
-        # fallback to maximum reached
         $logger->warn("No role specified or found for pid $pid (MAC $mac); assume maximum number of registered nodes is reached");
     }
 
+    # fallback to maximum reached
     return $TRUE;
 }
 
