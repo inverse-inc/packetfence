@@ -48,6 +48,7 @@ Bug Fixes
 * Fixed nodes simple search by IP address
 * Fix access reevaluation when changing the status of a pending node
 * Fix Wispr blank page
+* Aironet APs now handle multiple Cisco VSA ( Cisco-AVPair ) when detecting SSID.
 
 Version 4.1.0 released on 2013-12-11
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
