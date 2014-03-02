@@ -202,9 +202,17 @@ sub extractSsid {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
+    # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
     if (defined($radius_request->{'Cisco-AVPair'})) {
-
-        if ($radius_request->{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
+        # check if Cisco-AVpair is a list or a single element
+        if ( ref $radius_request->{'Cisco-AVPair'} eq ARRAY ) { 
+            my @avpairs = @{ $radius_request->{'Cisco-AVPair'} };
+            for my $avpair ( @avpairs ) { 
+                next unless $avpair =~ /^ssid=(.*)$/;
+                return $1; # found ssid, returning it
+            }
+        }
+        elsif ($radius_request->{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { 
             return $1;
         } else {
             $logger->info("Unable to extract SSID of Cisco-AVPair: ".$radius_request->{'Cisco-AVPair'});
