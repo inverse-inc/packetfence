@@ -205,7 +205,7 @@ sub extractSsid {
     # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
     if (defined($radius_request->{'Cisco-AVPair'})) {
         # check if Cisco-AVpair is a list or a single element
-        if ( ref $radius_request->{'Cisco-AVPair'} eq ARRAY ) { 
+        if ( ref $radius_request->{'Cisco-AVPair'} eq 'ARRAY' ) { 
             my @avpairs = @{ $radius_request->{'Cisco-AVPair'} };
             for my $avpair ( @avpairs ) { 
                 next unless $avpair =~ /^ssid=(.*)$/;
