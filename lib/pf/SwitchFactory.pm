@@ -77,8 +77,9 @@ sub instantiate {
     my $requestedSwitch;
     my $switch_ip;
     my $switch_mac;
-    my $switch_overlay_config = pf::ConfigStore::SwitchOverlay->new;
     my $switch_config = pf::ConfigStore::Switch->new;
+    my $switch_overlay_config = pf::ConfigStore::SwitchOverlay->new;
+    my $switchOverlay;
 
     if(ref($switchId) eq 'HASH') {
         if(exists $switchId->{switch_mac} && defined $switchId->{switch_mac}) {
@@ -99,9 +100,9 @@ sub instantiate {
     }
 
     if($switch_config->hasId($switch_mac) && ref($switchId) eq 'HASH') {
-        my $switch = $switch_overlay_config->read($switch_mac);
+        $switchOverlay = $switch_overlay_config->read($switch_mac);
         my $controllerIp = $switchId->{controllerIp};
-        if($controllerIp && (  !defined $switch->{controllerIp} || $controllerIp ne $switch->{controllerIp} )) {
+        if($controllerIp && (  !defined $switchOverlay->{controllerIp} || $controllerIp ne $switchOverlay->{controllerIp} )) {
 #            $switch_overlay_config->remove($switch->{controllerIp}) if defined $switch->{controllerIp};
             $switch_overlay_config->update_or_create(
                 $switch_mac,
@@ -110,6 +111,8 @@ sub instantiate {
                     ip => $switch_ip
                 }
             );
+            $switchOverlay->{controllerIp} = $controllerIp;
+            $switchOverlay->{ip} = $switch_ip;
 #            $switch_overlay_config->copy($switch_mac, $switch_ip);
 #            $switch_overlay_config->update($switch_ip,{id=>$switch_mac});
             $switch_overlay_config->commit();
@@ -122,6 +125,7 @@ sub instantiate {
         return 0;
     }
     my $switch_data = $SwitchConfig{$requestedSwitch};
+    $switchOverlay = $switch_overlay_config->read($requestedSwitch) || {};
 
     # find the module to instantiate
     my $type;
@@ -145,7 +149,8 @@ sub instantiate {
          ip => $switch_ip,
          switchIp => $switch_ip,
          switchMac => $switch_mac,
-         %$switch_data
+         %$switch_data,
+         %$switchOverlay,
     );
 }
 

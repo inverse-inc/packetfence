@@ -32,7 +32,7 @@ use Readonly;
 
 use pf::config;
 use pf::util;
-use pf::ConfigStore::SwitchOverlay;
+use pf::ConfigStore::Switch;
 
 BEGIN {
     use Exporter ();

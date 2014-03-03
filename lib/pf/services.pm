@@ -178,8 +178,8 @@ sub service_ctl {
                             my $pid = service_ctl( $daemon, "status" );
                             # TODO: push all these per-daemon initialization into pf::services::...
                             require pf::freeradius;
-                            require pf::ConfigStore::SwitchOverlay;
-                            pf::freeradius::freeradius_populate_nas_config(\%pf::ConfigStore::SwitchOverlay::SwitchConfig);
+                            require pf::ConfigStore::Switch;
+                            pf::freeradius::freeradius_populate_nas_config(\%pf::ConfigStore::Switch::SwitchConfig);
 
                         }
                         if ($service_launchers{$daemon} =~ /^(.+)$/) {

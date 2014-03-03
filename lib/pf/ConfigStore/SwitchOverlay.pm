@@ -16,74 +16,15 @@ use namespace::autoclean;
 use pf::log;
 use pf::file_paths;
 use pf::ConfigStore::Switch;
-use pf::freeradius;
 use HTTP::Status qw(:constants is_error is_success);
-our (%SwitchConfig, $switches_overlay_cached_config);
+our ($switches_overlay_cached_config);
 
-extends qw(pf::ConfigStore Exporter);
+extends qw(pf::ConfigStore);
 
-our @EXPORT = qw(%SwitchConfig);
 
 $switches_overlay_cached_config = pf::config::cached->new(
     -file => $switches_overlay_file,
     -allowempty => 1,
-    -import => $pf::ConfigStore::Switch::switches_cached_config,
-    -default => 'default',
-    -onfilereload => [
-        on_switches_reload => sub  {
-            my ($config, $name) = @_;
-            my $logger = get_logger;
-            $config->toHash(\%SwitchConfig);
-            $config->cleanupWhitespace(\%SwitchConfig);
-            my $imported = $config->{imported};
-            delete @SwitchConfig { grep { !$imported->SectionExists($_) } keys %SwitchConfig };
-            foreach my $switch (values %SwitchConfig) {
-                # transforming uplink and inlineTrigger to arrays
-                foreach my $key (qw(uplink inlineTrigger)) {
-                    my $value = $switch->{$key} || "";
-                    $switch->{$key} = [split /\s*,\s*/,$value ];
-                }
-                # transforming vlans and roles to hashes
-                my %merged = ( Vlan => {}, Role => {});
-                foreach my $key ( grep { /(Vlan|Role)$/ } keys %{$switch}) {
-                    next unless my $value = $switch->{$key};
-                    if (my ($type_key,$type) = ($key =~ /^(.+)(Vlan|Role)$/)) {
-                        $merged{$type}{$type_key} = $value;
-                    }
-                }
-                $switch->{roles} = $merged{Role};
-                $switch->{vlans} = $merged{Vlan};
-                $switch->{VoIPEnabled} =  ($switch->{VoIPEnabled} =~ /^\s*(y|yes|true|enabled|1)\s*$/i ? 1 : 0);
-                $switch->{mode} =  lc($switch->{mode});
-                $switch->{'wsUser'} ||= $switch->{'htaccessUser'};
-                $switch->{'wsPwd'}  ||= $switch->{'htaccessPwd'} || '';
-                foreach my $cli_default (qw(EnablePwd Pwd User)) {
-                    $switch->{"cli${cli_default}"}  ||= $switch->{"telnet${cli_default}"};
-                }
-                foreach my $snmpDefault (qw(communityRead communityTrap communityWrite version)) {
-                    my $snmpkey = "SNMP" . ucfirst($snmpDefault);
-                    $switch->{$snmpkey}  ||= $switch->{$snmpDefault};
-                }
-            }
-            $SwitchConfig{'127.0.0.1'} = { %{$SwitchConfig{default}}, type => 'PacketFence', mode => 'production', uplink => ['dynamic'], SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
-            freeradius_populate_nas_config(\%SwitchConfig);
-            $config->cache->set("SwitchConfig",\%SwitchConfig);
-        },
-    ],
-    -oncachereload => [
-        on_cached_overlay_reload => sub  {
-            my ($config, $name) = @_;
-            my $cache = $config->cache;
-            my $data = $cache->get("SwitchConfig");
-            if($data) {
-                %SwitchConfig = %$data;
-            } else {
-                #if not found then call the onfilereload callback
-                $config->_callReloadCallbacks();
-                $config->_callFileReloadCallbacks();
-            }
-        },
-    ]
 );
 
 =head1 METHODS
