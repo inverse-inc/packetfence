@@ -14,74 +14,102 @@ overload
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use Net::Radius::Packet;
 use pf::ConfigStore::Switch;
-use Net::Radius::Dictionary;
-use IO::Select;
-use IO::Socket qw/:DEFAULT :crlf/;
+use pf::ConfigStore::SwitchOverlay;
+use pf::SwitchFactory;
+use pf::log;
+use Time::HiRes qw(sleep);
+use POSIX qw(:sys_wait_h pause);
+my @switchIds = grep { defined $SwitchConfig{$_}{radiusSecret} && $SwitchConfig{$_}{radiusSecret} !~ /^\s+$/ } keys %SwitchConfig;
 
-my $dictionary = Net::Radius::Dictionary->new("/usr/local/pf/lib/pf/util/dictionary");
+my $DEFAULT_CHILDREN_COUNT = $ARGV[0] || 10;
 
-my %radiusDefaultData = (
-    'NAS-IP-Address'        => '209.53.121.70',
-    'NAS-Port'              => 0,
-    'NAS-Port-Type'         => 'Wireless-802.11',
-    'Service-Type'          => 'Login-User',
-    'Calling-Station-Id'    => "00C6106FF98D",
-    'Called-Station-Id'     => "9C1C12C1E5C6",
-);
+our %CHILDREN;
+our $childPid;
+our $currentCount = 0;
+our $amountOfInteration;
 
+our $running = 1;
+our $childDied = 0;
 
-my $socket = IO::Socket::INET->new(
-    LocalAddr => '127.0.0.1',
-    PeerAddr => '127.0.0.1',
-    PeerPort => 3799,
-    Proto => 'udp',
-) or die ("Couldn't create UDP connection: $@");
+$SIG{INT} = $SIG{TERM} = sub {
+    $running = 0;
+};
 
-my $radius_code = 'Login-User';
+$SIG{CHLD} = sub {
+    $childDied = 1;
+};
 
-use Data::Dumper;
-print Dumper($dictionary);
-while(1) {
-    foreach my $switchId (keys %SwitchConfig) {
-        my $switchData = $SwitchConfig{$switchId};
-        my $secret = $switchData->{radiusSecret};
-        next unless defined $secret && $secret !~ /^\s+$/;
-        my $randomNameByte = int(rand(256));
-        my $randomName = sprintf("00c6106ff9%x",$randomNameByte);
-        my $callingStationId = uc($randomName);
-        my $calledStationId = uc($switchId);
-        $calledStationId =~ s/://g;
-        my $radius_request = Net::Radius::Packet->new($dictionary);
-        $radius_request->set_code($radius_code);
-        # sets a random byte into id
-        $radius_request->set_identifier( int(rand(256)) );
-        # avoids unnecessary warnings
-        $radius_request->set_authenticator("");
-
-        # pushing attributes
-        # TODO deal with attribute merging
-        while( my ($attr,$val) = each %radiusDefaultData) {
-            $radius_request->set_attr($attr, $val);
+sub startChildren {
+    while ( $currentCount < $DEFAULT_CHILDREN_COUNT ) {
+        my $childPid = fork();
+        if($childPid > 0) {
+            $currentCount++;
+            print "$childPid\n";
+            $CHILDREN{$childPid} = undef;
+        } elsif($childPid == 0) {
+            overloadPf();
+            exit 0;
+        } else {
+            killChildren();
+            exit 1;
         }
-        $radius_request->set_attr('User-Name',$randomName);
-        $radius_request->set_attr('User-Password',$randomName);
-        $radius_request->set_attr('Calling-Station-Id',$callingStationId);
-        $radius_request->set_attr('Called-Station-Id',$calledStationId);
+    }
+}
 
-        $socket->send(auth_resp($radius_request->pack(), $secret));
+startChildren();
 
-        # Listen for the response.
-        # Using IO::Select because otherwise we can't do timeout without using alarm()
-        # and signals don't play nice with threads
-        my $select = IO::Select->new($socket);
-        if ($select->can_read(10)) {
-            my $rad_data;
-            my $MAX_TO_READ = 2048;
-            print("No answer from radius\n")
-                if (!$socket->recv($rad_data, $MAX_TO_READ));
+while($running) {
+    pause;
+    if($childDied) {
+        reapChildren();
+        startChildren();
+        $childDied = 0;
+    }
+}
+
+killChildren();
+while ($currentCount) {
+#    print "$currentCount\n";
+    reapChildren();
+}
+
+sub killChildren {
+    my @kids = keys %CHILDREN;
+    print "killing ",join(' ',@kids),"\n";
+    my $cnt = kill 'TERM', @kids;
+    print "$cnt Got it\n";
+}
+
+sub reapChildren {
+    my $child;
+    my $count = 0;
+    while(1) {
+        $child = waitpid(-1, &POSIX::WNOHANG);
+        last unless $child > 0;
+        $currentCount--;
+        delete $CHILDREN{$child};
+    }
+}
+
+
+sub overloadPf {
+    my $amountOfInteration = int(rand(50)) + 51;
+    my $logger = get_logger();
+    RUNNING: while($running && $amountOfInteration) {
+        foreach my $switchId (@switchIds) {
+            last RUNNING unless $running;
+            my $randomNameByte = int(rand(253)) + 1;
+            my $controllerIp = "192.0.2.$randomNameByte";
+            $randomNameByte = int(rand(253)) + 1;
+            my $switchIp = "192.0.1.$randomNameByte";
+            my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switchId, switch_ip => $switchIp, controllerIp => $controllerIp });
+            my $sleepTime = int(rand(10)) + 3;
+            sleep($sleepTime);
+            pf::config::cached::ReloadConfigs();
+            $logger->info("Finsih reloading configs");
         }
+        $amountOfInteration--;
     }
 }
 
