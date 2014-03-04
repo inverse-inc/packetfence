@@ -655,6 +655,7 @@ fi
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
+%config(noreplace)      /usr/local/pf/conf/apache_filters.conf
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config                 /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf

@@ -27,6 +27,7 @@ New Features
 * Extended definition of access durations
 * FreeRADIUS does not need to be restarted after adding a switch
 * New customizable ACLs for Web admin interface
+* Filters for HTTP request on the portal
 
 Enhancements
 ++++++++++++
