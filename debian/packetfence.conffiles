@@ -23,7 +23,6 @@
 /usr/local/pf/conf/snort/reference.config
 /usr/local/pf/conf/switches.conf
 /usr/local/pf/conf/dhcpd.conf
-/usr/local/pf/conf/httpd.conf.d/block-unwanted.conf
 /usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf

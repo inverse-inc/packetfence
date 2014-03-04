@@ -49,7 +49,8 @@ our (
     $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file,
     @stored_config_files, @log_files,
     $admin_roles_config_file,
-    $switches_overlay_file
+    $switches_overlay_file,
+    $apache_filters_config_file,
 );
 
 BEGIN {
@@ -77,6 +78,7 @@ BEGIN {
         @stored_config_files @log_files
         $admin_roles_config_file
         $switches_overlay_file
+        $apache_filters_config_file
     );
 }
 
@@ -112,6 +114,7 @@ $admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
 $violations_config_file       = catfile($conf_dir, "violations.conf");
 $authentication_config_file   = catfile($conf_dir, "authentication.conf");
 $floating_devices_config_file = catfile($conf_dir, "floating_network_device.conf"); # TODO: Adjust to /floating_devices.conf when $floating_devices_file will be deprecated
+$apache_filters_config_file = catfile($conf_dir, "apache_filters.conf");
 
 @log_files =
     map { catfile($log_dir,$_) }

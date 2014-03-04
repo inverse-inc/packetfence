@@ -10,13 +10,22 @@ dump add documentation
 
 =head1 SYNOPSIS
 
-dump.pl <config|floatingdevices|profiles_filters|profiles|sources|switch|switches>
+dump.pl <apachefilters|config|floatingdevices|profiles_filters|profiles|sources|switch|switches>
 
 =head1 DESCRIPTION
 
 dump
 
 =cut
+
+package pf::dump::apachefilters;
+use base qw(pf::cmd);
+use Data::Dumper;
+
+sub _run {
+    require pf::config;
+    print Dumper(\%pf::config::ConfigApacheFilters);
+}
 
 
 package pf::dump::config;
