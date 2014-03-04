@@ -104,6 +104,7 @@ my $parse_alert_for = {
     snort    => \&parse_snort_alert,
     tippingp => \&parse_tippingp_alert,
     trend    => \&parse_trend_alert,
+    fortigate    => \&parse_fortigate_alert,
 };
 
 my $currentLine;
