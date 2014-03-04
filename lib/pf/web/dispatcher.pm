@@ -64,6 +64,14 @@ sub handler {
         return proxy_redirect($r, $parsed_request->unparse);
     }
 
+    #Apache Filtering
+    foreach my $rule  ( sort keys %ConfigApacheFilters ) {
+        my $return = $filter->dispatch_rule($r,$ConfigApacheFilters{$rule});
+        if ($return) {
+            return($return);
+        }
+    }
+
     # be careful w/ performance here
     # Warning: we might want to revisit the /o (compile Once) if we ever want
     #          to reload Apache dynamically. pf::web::constants will need some

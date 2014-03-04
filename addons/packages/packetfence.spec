@@ -757,7 +757,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/switches.conf
 %config                 /usr/local/pf/conf/dhcpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
-%config                 /usr/local/pf/conf/httpd.conf.d/block-unwanted.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin
