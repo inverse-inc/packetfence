@@ -14,9 +14,12 @@ pf::ConfigStore::Switch;
 use Moo;
 use namespace::autoclean;
 use pf::log;
+use IO::File;
 use pf::file_paths;
 use pf::freeradius;
 use HTTP::Status qw(:constants is_error is_success);
+use File::Spec::Functions qw(catfile);
+use Fcntl qw(:flock :DEFAULT);
 
 extends qw(pf::ConfigStore Exporter);
 
@@ -33,8 +36,9 @@ $switches_cached_config = pf::config::cached->new(
     -onfilereload => [
         on_switches_reload => sub  {
             my ($config, $name) = @_;
+            get_logger->info("Loading for $$");
             populateSwitchConfig ($config,$name);
-            freeradius_populate_nas_config(\%SwitchConfig);
+            populateRadiusNas ($config,$name);
         },
     ],
     -oncachereload => [
@@ -51,6 +55,48 @@ $switches_cached_config = pf::config::cached->new(
         },
     ]
 );
+
+
+sub lockForPopulateRadiusNas {
+    my ($config, $name) = @_;
+    my $logger = get_logger();
+    my $fh = IO::File->new;
+    my $old_umask = umask(002);
+    if (sysopen($fh,catfile($var_dir,"radiusnas.lock"),O_CREAT|O_RDWR) ) {
+        if( flock($fh,LOCK_EX | LOCK_NB) ) {
+            my $previousTimestamp;
+            sysread $fh,$previousTimestamp,12;
+            $previousTimestamp ||= 0;
+            my $currentTimeStamp = $config->{_timestamp} || -1;
+            if($currentTimeStamp == $previousTimestamp) {
+                close($fh);
+                flock($fh,LOCK_UN);
+                $fh = undef;
+            } else {
+                syswrite $fh,$currentTimeStamp;
+            }
+        } else {
+            close($fh);
+            $fh = undef;
+        }
+    } else {
+        $fh = undef;
+    }
+    umask($old_umask);
+    return $fh;
+}
+
+sub populateRadiusNas {
+    my ($config, $name) = @_;
+    my $lockFile = lockForPopulateRadiusNas($config, $name);
+    if ($lockFile) {
+        my $logger = get_logger();
+        $logger->info("repopulating radius nas $$");
+        freeradius_populate_nas_config(\%SwitchConfig);
+        flock($lockFile,LOCK_UN);
+        close($lockFile);
+    }
+}
 
 sub populateSwitchConfig {
     my ($config, $name) = @_;

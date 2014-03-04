@@ -688,10 +688,10 @@ Will load the C<Config::IniFiles> object from cache or filesystem and update the
 
 sub computeFromPath {
     my ($self,$file,$computeSub,$expire) = @_;
-    my $mod_time = getModTimestamp($file);
     my $computeWrapper = sub {
         my $config = $computeSub->();
-        $config->{_timestamp} = time;
+        my $mod_time = getModTimestamp($file);
+        $config->{_timestamp} = $mod_time;
         return $config;
     };
     my $result = $self->cache->compute(
@@ -744,9 +744,9 @@ sub _expireIf {
     #checking to see if the imported file needs to be reimported also
     my $imported;
     if ( ref($self) && exists $self->{imported} && ($imported = $self->{imported} )) {
-        $imported_expired = ($timestamp < getModTimestamp($imported->GetFileName));
+        $imported_expired = ($timestamp != getModTimestamp($imported->GetFileName));
     }
-    return ($imported_expired ||  !-e $file ||  ( $timestamp < getModTimestamp($file)));
+    return ($imported_expired ||  !-e $file ||  ( $timestamp != getModTimestamp($file)));
 }
 
 =head2 getModTimestamp
@@ -756,7 +756,13 @@ Simple utility function for getting the modification timestamp
 =cut
 
 sub getModTimestamp {
-    my $timestamp = (stat($_[0]))[9];
+    my $file = $_[0];
+    my $timestamp = (stat($file))[9];
+    if (defined $timestamp) {
+        $timestamp = int($timestamp * 1000);
+    } else {
+        $timestamp = -1;
+    }
     return $timestamp;
 }
 
