@@ -1,4 +1,5 @@
 /usr/local/pf/conf/adminroles.conf
+/usr/local/pf/conf/apache_filters.conf
 /usr/local/pf/conf/authentication.conf
 /usr/local/pf/conf/profiles.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf

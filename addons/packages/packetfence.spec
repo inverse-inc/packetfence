@@ -681,10 +681,10 @@ fi
 %dir                    /usr/local/pf/conf
                         /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
-%config(noreplace)      /usr/local/pf/conf/allowed-gaming-oui.txt
-                        /usr/local/pf/conf/allowed-gaming-oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
                         /usr/local/pf/conf/allowed_device_oui.txt.example
+%config(noreplace)      /usr/local/pf/conf/apache_filters.conf
+                        /usr/local/pf/conf/apache_filters.conf.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
