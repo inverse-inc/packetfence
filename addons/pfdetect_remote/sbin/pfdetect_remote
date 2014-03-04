@@ -364,42 +364,19 @@ sub parse_fortigate_alert {
     chomp( my $currentLine = shift );
 	my %event;
 
-	my $date = qr/
-		date=(([^\s]+))
-	/x;
-	my $time = qr/
-		^(\w+\s+\d+\s+\d+:\d+:\d+)
-	/x;
-	my $fortigate_date = "$date - $time";
-	my $fortigate_ip = qr/
-		ˆ*(\d{0,3}\.\d{0,3}\.\d{0,3}\.\d{0,3}).*date
-	/x;
-	
+	my $date = $currentLine =~ /date=(([^\s]+))/;
+	my $time = $currentLine =~ /^(\w+\s+\d+\s+\d+:\d+:\d+)/;
 
-	$event{"date"} = $currentLine =~ qr/
-		^(\w+\s+\d+\s+\d+:\d+:\d+)
-	/x;
-	$event{"srcip"} = $currentLine =~ qr/
-		srcip=(([^\s]+))
-	/x;
-	$event{"srcport"} = $currentLine =~ qr/
-		srcport=(([^\s]+))
-	/x;
-	$event{"dstip"} = $currentLine =~ qr/
-		dstip=(([^\s]+))
-	/x;
-	$event{"dstport"} = $currentLine =~ qr/
-		dstport=(([^\s]+))
-	/x;
-	$event{"catid"} = $currentLine =~ qr/
-		cat=(([^\s]+))
-	/x;
-	$event{"catdesc"} = $currentLine =~ qr/
-		catdesc=(([^\s]+))
-	/x;
-	$event{"msg"} = $currentLine =~ qr/
-		msg=(([^\s]+))
-	/x;
+	( $event{"fortigate_date"} ) = "$date - $time";
+	( $event{"fortigate_ip"} ) = $currentLine =~ / ˆ*(\d+\.\d+\.\d+\.\d+).*date/;
+    ( $event{"date"} ) = $currentLine =~ /^(\w+\s+\d+\s+\d+:\d+:\d+)/;
+    ( $event{"srcip"} ) = $currentLine =~ /srcip=(([^\s]+))/;
+    ( $event{"srcport"} ) = $currentLine =~ /srcport=(([^\s]+))/;
+    ( $event{"dstip"} ) = $currentLine =~ /dstip=(([^\s]+))/;
+    ( $event{"dstport"} ) = $currentLine =~ /dstport=(([^\s]+))/;
+    ( $event{"catid"} ) = $currentLine =~ /cat=(([^\s]+))/;
+    ( $event{"catdesc"} ) = $currentLine =~ /catdesc=(([^\s]+))/;
+    ( $event{"msg"} ) = $currentLine =~ /msg="(.*)"/;
 
     return %event;
 }
