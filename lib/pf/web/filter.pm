@@ -1,4 +1,3 @@
-#!/usr/bin/perl
 package pf::web::filter;
 
 =head1 NAME
@@ -82,14 +81,14 @@ sub uri_parser {
     my $logger = Log::Log4perl::get_logger( ref($self) );
     my $action;
     if ($rule->{'operator'} eq 'is') {
-        if (($r->uri =~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
+        if ((($r->uri =~ /$rule->{'regexp'}/) || ($r->args =~  /$rule->{'regexp'}/)) && ($r->method eq $rule->{'method'})) {
             $action = $self->dispatch_action($rule);
             return $action->($self,$r,$rule);
         } elsif (!$rule->{'action'}) {
             return 0;
         }
     } else {
-        if (($r->uri !~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
+        if ((($r->uri =~ /$rule->{'regexp'}/) || ($r->args =~  /$rule->{'regexp'}/)) && ($r->method eq $rule->{'method'})) {
            $action = $self->dispatch_action($rule);
            return $action->($self,$r,$rule);
         } elsif (!$rule->{'action'}) {
