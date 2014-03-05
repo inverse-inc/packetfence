@@ -759,7 +759,7 @@ sub getModTimestamp {
     my $file = $_[0];
     my $timestamp = (stat($file))[9];
     if (defined $timestamp) {
-        $timestamp = int($timestamp * 1000);
+        $timestamp = int($timestamp * 1000000000);
     } else {
         $timestamp = -1;
     }
