@@ -66,9 +66,24 @@ sub handler {
 
     #Apache Filtering
     foreach my $rule  ( sort keys %ConfigApacheFilters ) {
-        my $return = $filter->dispatch_rule($r,$ConfigApacheFilters{$rule});
-        if ($return) {
-            return($return);
+        if ($ConfigApacheFilters{$rule}->{'action'}) {
+            # For simple rule
+            if ($rule =~ /^\d+$/) {
+                my $return = $filter->dispatch_rule($r,$ConfigApacheFilters{$rule});
+                if ($return) {
+                    return($return);
+                }
+            #For complex rule
+            } else {
+                my $rule_sav = $rule;
+                $rule =~ s/([0-9]+)/$filter->dispatch_rule($r,$ConfigApacheFilters{$1})/gee;
+                $rule =~ s/\|/ \|\| /g;
+                $rule =~ s/\&/ \&\& /g;
+                if (eval $rule) {
+                    my $action = $filter->dispatch_action($ConfigApacheFilters{$rule_sav});
+                    return ($action->($filter,$r,$ConfigApacheFilters{$rule_sav}));
+                }
+            }
         }
     }
 
