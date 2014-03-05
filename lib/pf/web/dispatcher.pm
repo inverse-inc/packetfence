@@ -27,6 +27,7 @@ use URI::Escape qw(uri_escape);
 use pf::config;
 use pf::util;
 use pf::web::constants;
+use pf::web::filter;
 use pf::web::util;
 use pf::proxypassthrough::constants;
 use pf::Portal::Session;
@@ -65,6 +66,7 @@ sub handler {
     }
 
     #Apache Filtering
+    my $filter = new pf::web::filter;
     foreach my $rule  ( sort keys %ConfigApacheFilters ) {
         if ($ConfigApacheFilters{$rule}->{'action'}) {
             # For simple rule
