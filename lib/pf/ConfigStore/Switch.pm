@@ -65,15 +65,17 @@ sub lockForPopulateRadiusNas {
     if (sysopen($fh,catfile($var_dir,"radiusnas.lock"),O_CREAT|O_RDWR) ) {
         if( flock($fh,LOCK_EX | LOCK_NB) ) {
             my $previousTimestamp;
-            sysread $fh,$previousTimestamp,12;
+            sysread $fh,$previousTimestamp,20;
             $previousTimestamp ||= 0;
             my $currentTimeStamp = $config->{_timestamp} || -1;
             if($currentTimeStamp == $previousTimestamp) {
-                close($fh);
                 flock($fh,LOCK_UN);
+                close($fh);
                 $fh = undef;
             } else {
-                syswrite $fh,$currentTimeStamp;
+                truncate($fh,0);
+                sysseek($fh,0,SEEK_SET);
+                syswrite $fh,sprintf("%-20d",$currentTimeStamp);
             }
         } else {
             close($fh);
