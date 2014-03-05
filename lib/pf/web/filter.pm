@@ -31,6 +31,7 @@ use Log::Log4perl;
 sub new {
    my $logger = Log::Log4perl::get_logger("pf::web::filter");
    $logger->debug("instantiating new pf::web::filter");
+
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
    return $self;
@@ -80,16 +81,20 @@ sub uri_parser {
     my ($self, $r, $rule) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     my $action;
-    if ($rule->{'operator'}eq 'is') {
+    if ($rule->{'operator'} eq 'is') {
         if (($r->uri =~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
             $action = $self->dispatch_action($rule);
             return $action->($self,$r,$rule);
+        } elsif (!$rule->{'action'}) {
+            return 0;
         }
     } else {
         if (($r->uri !~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
            $action = $self->dispatch_action($rule);
            return $action->($self,$r,$rule);
-        }    
+        } elsif (!$rule->{'action'}) {
+            return 0;
+        }
     }
 }
 
@@ -108,11 +113,15 @@ sub user_agent_parser {
         if (($r->headers_in->{'User-Agent'} =~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
             $action = $self->dispatch_action($rule);
             return $action->($self,$r,$rule);
+        } elsif (!$rule->{'action'}) {
+            return 0;
         }
     } else {
         if (($r->headers_in->{'User-Agent'} !~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
            $action = $self->dispatch_action($rule);
            return $action->($self,$r,$rule);
+        } elsif (!$rule->{'action'}) {
+            return 0;
         }
     }
 }
@@ -127,9 +136,13 @@ sub redirect {
     my ($self,$r,$rule) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    $r->status(200);
-    $r->headers_out->set('Location' => $rule->{'redirect_url'});
-    return $rule->{'action'};
+    if ($rule->{'action'}) {
+        $r->status(200);
+        $r->headers_out->set('Location' => $rule->{'redirect_url'});
+        return $rule->{'action'};
+    } else {
+        return 1;
+    }
 }
 
 =item code
@@ -141,8 +154,12 @@ Return the apache code
 sub code {
     my ($self,$r,$rule)= @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
-    $logger->warn($rule->{'action'});
-    return $rule->{'action'};
+
+    if ($rule->{'action'}) {
+        return $rule->{'action'};
+    } else {
+        return 1;
+    }
 }
 
 =back
