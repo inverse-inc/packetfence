@@ -744,7 +744,7 @@ sub _expireIf {
     #checking to see if the imported file needs to be reimported also
     my $imported;
     if ( ref($self) && exists $self->{imported} && ($imported = $self->{imported} )) {
-        $imported_expired = ($timestamp != getModTimestamp($imported->GetFileName));
+        $imported_expired = $imported->{_timestamp} != getModTimestamp($imported->GetFileName);
     }
     return ($imported_expired ||  !-e $file ||  ( $timestamp != getModTimestamp($file)));
 }
