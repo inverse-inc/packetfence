@@ -1,5 +1,5 @@
 package captiveportal::PacketFence::Model::Portal::Session;
-use Moo;
+use Moose;
 
 use pf::iplog qw(ip2mac);
 use pf::config;
@@ -26,9 +26,21 @@ it under the same terms as Perl itself.
 
 =cut
 
-has [qw(clientIp clientMac profile)] => (
+has clientIp => (
     is      => 'rw',
-    builder => 1,
+    builder => '_build_clientIp',
+    lazy    => 1,
+);
+
+has clientMac => (
+    is      => 'rw',
+    builder => '_build_clientMac',
+    lazy    => 1,
+);
+
+has profile => (
+    is      => 'rw',
+    builder => '_build_profile',
     lazy    => 1,
 );
 
@@ -40,7 +52,7 @@ has remoteAddress => (
 has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
 
 sub ACCEPT_CONTEXT {
-    my ( $self, $c ) = @_;
+    my ( $self, $c, @args ) = @_;
     my $class = ref $self || $self;
     return $c->stash->{current_model_instances}{$class}
         if exists $c->stash->{current_model_instances}{$class} && $c->stash->{current_model_instances}{$class}->isa($class);
@@ -50,6 +62,7 @@ sub ACCEPT_CONTEXT {
     my $model =  $self->new(
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
+        @args,
     );
     $c->stash->{current_model_instances}{$class} = $model;
     return $model;
@@ -96,7 +109,25 @@ sub _build_clientIp {
 
 sub _build_clientMac {
     my ($self) = @_;
-    return ip2mac( $self->clientIp );
+    my $clientIp = $self->clientIp;
+    if (defined $clientIp) {
+        $clientIp = clean_ip($clientIp);
+        while ( my ($network,$network_config) = each %ConfigNetworks ) {
+            next if isdisabled($network_config->{'generate_fake_mac'});
+            next if !pf::config::is_network_type_inline($network);
+            my $net_addr = NetAddr::IP->new($network,$network_config->{'netmask'});
+            my $ip = new NetAddr::IP::Lite $clientIp;
+            if ($net_addr->contains($ip)) {
+                my $fake_mac = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $ip->addr());
+                my $gateway = $network_config->{'gateway'};
+                locationlog_synchronize($gateway, $gateway, undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
+                iplog_open($fake_mac, $ip->addr());
+                return $fake_mac;
+            }
+        }
+        return ip2mac( $clientIp );
+    }
+    return undef;
 }
 
 sub _build_profile {
