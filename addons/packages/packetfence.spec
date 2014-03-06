@@ -760,6 +760,9 @@ fi
                         /usr/local/pf/conf/snort/reference.config.example
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
+                        /usr/local/pf/conf/switches.conf.example
+%config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
+                        /usr/local/pf/conf/vlan_filters.conf.example
 %config                 /usr/local/pf/conf/dhcpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
