@@ -27,6 +27,7 @@ use pf::violation qw(violation_count_trap violation_exist_open violation_view_to
 use pf::authentication;
 use pf::Authentication::constants;
 use pf::Portal::ProfileFactory;
+use pf::vlan::filter;
 
 our $VERSION = 1.04;
 
@@ -77,16 +78,17 @@ sub fetchVlanForNode {
         return ( $inline, 1 );
     }
 
+    my ($violation,$registration,$role);
     # violation handling
-    my $violation = $this->getViolationVlan($switch, $ifIndex, $mac, $connection_type, $user_name, $ssid);
+    ($violation,$role) = $this->getViolationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
     if (defined($violation) && $violation != 0) {
-        return ( $violation, 0, "isolation");
+        return ( $violation, 0, $role);
     } elsif (!defined($violation)) {
         $logger->warn("There was a problem identifying vlan for violation. Will act as if there was no violation.");
     }
 
     # there were no violation, now onto registration handling
-    my $registration = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    ($registration,$role) = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
     if (defined($registration) && $registration != 0) {
         if ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
             if (isenabled($node_info->{'autoreg'})) {
@@ -94,7 +96,7 @@ sub fetchVlanForNode {
                 node_modify($mac, ('autoreg' => 'no'));
             }
         }
-        return ( $registration, 0, "registration" );
+        return ( $registration, 0, $role );
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
@@ -184,7 +186,7 @@ sub getViolationVlan {
     # $conn_type is set to the connnection type expressed as the constant in pf::config
     # $user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     # $ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     my $open_violation_count = violation_count_trap($mac);
@@ -194,6 +196,35 @@ sub getViolationVlan {
 
     $logger->debug("$mac has $open_violation_count open violations(s) with action=trap; ".
                    "it might belong into another VLAN (isolation or other).");
+
+    my $filter = new pf::vlan::filter;
+    foreach my $rule  ( sort keys %ConfigVlanFilters ) {
+        if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq 'ViolationVlan') {
+            if ($ConfigVlanFilters{$rule}->{'action'}) {
+                # For simple rule
+                if ($rule =~ /^\d+$/) {
+                    my $return = $filter->dispatch_rule($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid);
+                    if ($return) {
+                        $logger->info("Match rule: ".$rule." in ViolationVlan");
+                        my $vlan = $switch->getVlanByName($return);
+                        return ($vlan,$return);
+                    }
+                #For complex rule
+                } else {
+                    my $rule_sav = $rule;
+                    $rule =~ s/([0-9]+)/$filter->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid)/gee;
+                    $rule =~ s/\|/ \|\| /g;
+                    $rule =~ s/\&/ \&\& /g;
+                    if (eval $rule) {
+                        $logger->info("Match rule: ".$rule." in ViolationVlan");
+                        my $role = $filter->action($ConfigVlanFilters{$rule_sav});
+                        my $vlan = $switch->getVlanByName($role);
+                        return ($vlan,$role);
+                    }
+                }
+            }
+        }
+    }
 
     # By default we assume that we put the user in isolation vlan unless proven otherwise
     my $vlan = "isolation";
@@ -206,7 +237,7 @@ sub getViolationVlan {
 
         $logger->warn("Could not find highest priority open violation for $mac. ".
                       "Setting target vlan to switches.conf's isolationVlan");
-        return $switch->getVlanByName($vlan);
+        return ($switch->getVlanByName($vlan), $vlan);
     }
 
     # get violation id
@@ -220,7 +251,7 @@ sub getViolationVlan {
 
         $logger->warn("Could not find class entry for violation $vid. ".
                       "Setting target vlan to switches.conf's isolationVlan");
-        return $switch->getVlanByName($vlan);
+        return ($switch->getVlanByName($vlan),$vlan);
     }
 
     # override violation destination vlan
@@ -235,7 +266,7 @@ sub getViolationVlan {
     if (defined($vlan_number)) {
         $logger->info("highest priority violation for $mac is $vid. Target VLAN for violation: $vlan ($vlan_number)");
     }
-    return $vlan_number;
+    return ($vlan_number,$vlan);
 }
 
 
@@ -271,6 +302,36 @@ sub getRegistrationVlan {
     my $logger = Log::Log4perl->get_logger();
 
     # trapping on registration is enabled
+
+    my $filter = new pf::vlan::filter;
+    foreach my $rule  ( sort keys %ConfigVlanFilters ) {
+        if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq 'RegistrationVlan') {
+            if ($ConfigVlanFilters{$rule}->{'action'}) {
+                # For simple rule
+                if ($rule =~ /^\d+$/) {
+                    my $return = $filter->dispatch_rule($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid);
+                    if ($return) {
+                        $logger->info("Match rule: ".$rule." in RegistrationVlan");
+                        my $vlan = $switch->getVlanByName($return);
+                        return ($vlan, $return);
+                    }
+                #For complex rule
+                } else {
+                    my $rule_sav = $rule;
+                    $rule =~ s/([0-9]+)/$filter->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid)/gee;
+                    $rule =~ s/\|/ \|\| /g;
+                    $rule =~ s/\&/ \&\& /g;
+		    if (eval $rule) {
+                        $logger->info("Match rule: ".$rule." in RegistrationVlan");
+			my $role = $ConfigVlanFilters{$rule_sav}->{'action'};
+                        my $vlan = $switch->getVlanByName($role);
+                        return ($vlan, $role);
+                    }
+                }
+            }
+        }
+    }
+
     if (!isenabled($Config{'trapping'}{'registration'})) {
         $logger->debug("Registration trapping disabled: skipping node is registered test");
         return 0;
@@ -278,13 +339,13 @@ sub getRegistrationVlan {
 
     if (!defined($node_info)) {
         $logger->info("MAC: $mac doesn't have a node entry; belongs into registration VLAN");
-        return $switch->getVlanByName('registration');
+        return ($switch->getVlanByName('registration'),'registration');
     }
 
     my $n_status = $node_info->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
         $logger->info("MAC: $mac is of status $n_status; belongs into registration VLAN");
-        return $switch->getVlanByName('registration');
+        return ($switch->getVlanByName('registration'),'registration');
     }
     return 0;
 }
@@ -333,6 +394,36 @@ sub getNormalVlan {
     }
 
     $logger->debug("Trying to determine VLAN from role.");
+
+    my $filter = new pf::vlan::filter;
+    foreach my $rule  ( sort keys %ConfigVlanFilters ) {
+        if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq 'NormalVlan') {
+            if ($ConfigVlanFilters{$rule}->{'action'}) {
+                # For simple rule
+                if ($rule =~ /^\d+$/) {
+                    my $return = $filter->dispatch_rule($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid);
+                    if ($return) {
+                        $logger->info("Match rule: ".$rule." in NormalVlan");
+                        my $vlan = $switch->getVlanByName($return);
+                        return ($vlan, $return);
+                    }
+                #For complex rule
+                } else {
+                    my $rule_sav = $rule;
+                    $rule =~ s/([0-9]+)/$filter->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid)/gee;
+                    $rule =~ s/\|/ \|\| /g;
+                    $rule =~ s/\&/ \&\& /g;
+                    $logger->warn($rule);
+                    if (eval $rule) {
+                        $logger->info("Match rule: ".$rule." in NormalVlan");
+                        my $role = $ConfigVlanFilters{$rule_sav}->{'action'};
+                        my $vlan = $switch->getVlanByName($role);
+                        return ($vlan, $role);
+                    }
+                }
+            }
+        }
+    }
 
     my $role = "";
 
@@ -433,6 +524,35 @@ sub getInlineVlan {
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
 
+    my $filter = new pf::vlan::filter;
+    foreach my $rule  ( sort keys %ConfigVlanFilters ) {
+        if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq 'InlinelVlan') {
+            if ($ConfigVlanFilters{$rule}->{'action'}) {
+                # For simple rule
+                if ($rule =~ /^\d+$/) {
+                    my $return = $filter->dispatch_rule($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid);
+                    if ($return) {
+                        $logger->info("Match rule: ".$rule." in InlineVlan");
+                        my $vlan = $switch->getVlanByName($return);
+                        return ($vlan, $return);
+                    }
+                #For complex rule
+                } else {
+                    my $rule_sav = $rule;
+                    $rule =~ s/([0-9]+)/$filter->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid)/gee;
+                    $rule =~ s/\|/ \|\| /g;
+                    $rule =~ s/\&/ \&\& /g;
+                    if (eval $rule) {
+                        $logger->info("Match rule: ".$rule." in InlineVlan");
+                        my $role = $filter->action($ConfigVlanFilters{$rule_sav});
+                        my $vlan = $switch->getVlanByName($role);
+                        return ($vlan, $role);
+                    }
+                }
+            }
+        }
+    }
+
     return $switch->getVlanByName('inline');
 }
 
@@ -516,6 +636,7 @@ sub shouldAutoRegister {
     my $logger = Log::Log4perl->get_logger();
 
     $logger->trace("asked if should auto-register device");
+
     # handling switch-config first because I think it's the most important to honor
     if (defined($switch_in_autoreg_mode) && $switch_in_autoreg_mode) {
         $logger->trace("returned yes because it's from the switch's config");
