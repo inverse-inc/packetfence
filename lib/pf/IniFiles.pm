@@ -212,7 +212,7 @@ sub GetCurrentModTimestamp {
     my ($self) = @_;
     my $timestamp = (stat($self->GetFileName))[9];
     if (defined $timestamp) {
-        $timestamp *= 1000;
+        $timestamp *= 1000000;
         $timestamp = int($timestamp)
     } else {
         $timestamp = -1;
