@@ -1,4 +1,4 @@
-package captiveportal::PacketFence::Controller::GamingRegistration;
+package captiveportal::PacketFence::Controller::DeviceRegistration;;
 use Moose;
 use namespace::autoclean;
 use pf::config;
@@ -10,11 +10,11 @@ use pf::web::gaming;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
-__PACKAGE__->config( namespace => 'gaming-registration' );
+__PACKAGE__->config( namespace => 'device-registration' );
 
 =head1 NAME
 
-captiveportal::PacketFence::Controller::GamingRegistration - Catalyst Controller
+captiveportal::PacketFence::Controller::DeviceRegistration - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -26,7 +26,7 @@ Catalyst Controller.
 
 sub begin {
     my ( $self, $c ) = @_;
-    if (isdisabled( $Config{'registration'}{'gaming_devices_registration'} ) )
+    if (isdisabled( $Config{'registration'}{'device_registration'} ) )
     {
         $self->showError( $c, "This module is not enabled" );
         $c->detach;
@@ -69,6 +69,11 @@ sub index : Path : Args(0) {
     }
     # User is authenticated so display registration page
     $c->stash(template => 'gaming-registration.html');
+}
+
+sub gaming_registration: Local('gaming-registration') {
+    my ( $self, $c ) = @_;
+    $c->forward('index');
 }
 
 
@@ -121,7 +126,7 @@ sub registerNode {
             $c->stash->{device_mac} = $mac;
             # Get role for gaming device
             my $role =
-              $Config{'registration'}{'gaming_devices_registration_role'};
+              $Config{'registration'}{'device_registration_role'};
             if ($role) {
                 $logger->trace("Gaming devices role is $role (from pf.conf)");
             } else {
