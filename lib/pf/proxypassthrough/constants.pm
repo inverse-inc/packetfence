@@ -59,7 +59,6 @@ sub proxy_passthrough_remediation {
 package PROXYPASSTHROUGH;
 
 my @passthrough_domains =  pf::proxypassthrough::constants::proxy_passthrough();
-foreach (@passthrough_domains) { s{([^/])$}{$1\$} };
 foreach (@passthrough_domains) { s{(\*).(.*)}{\(\.\*\)\.$2} };
 
 my $allow_passthrough_domains = join('|', @passthrough_domains) if (@passthrough_domains ne '0');
