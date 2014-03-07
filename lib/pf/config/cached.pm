@@ -218,15 +218,6 @@ Example:
   );
 
 
-=head2 Catalyst
-
-=head3 When to Reload
-
-This ideally should be done in the begin action of a Catalyst controller
-
-sub begin :Private { pf::config::cached::ReloadConfigs(); }
-
-
 =head2 HTML::FormHandler
 
 =head3 Default values
@@ -785,7 +776,7 @@ sub addFileReloadCallbacks {
 
 =head2 addCacheReloadCallbacks
 
-$self->addFileReloadCallbacks('name' => sub {...});
+$self->addCacheReloadCallbacks('name' => sub {...});
 Add named callbacks to the onfilereload array
 Called in insert order
 If callback already exists, previous callback is replaced and previous position is preserved
