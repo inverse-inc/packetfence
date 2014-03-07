@@ -67,27 +67,8 @@ sub handler {
 
     #Apache Filtering
     my $filter = new pf::web::filter;
-    foreach my $rule  ( sort keys %ConfigApacheFilters ) {
-        if ($ConfigApacheFilters{$rule}->{'action'}) {
-            # For simple rule
-            if ($rule =~ /^\d+$/) {
-                my $return = $filter->dispatch_rule($r,$ConfigApacheFilters{$rule});
-                if ($return) {
-                    return($return);
-                }
-            #For complex rule
-            } else {
-                my $rule_sav = $rule;
-                $rule =~ s/([0-9]+)/$filter->dispatch_rule($r,$ConfigApacheFilters{$1})/gee;
-                $rule =~ s/\|/ \|\| /g;
-                $rule =~ s/\&/ \&\& /g;
-                if (eval $rule) {
-                    my $action = $filter->dispatch_action($ConfigApacheFilters{$rule_sav});
-                    return ($action->($filter,$r,$ConfigApacheFilters{$rule_sav}));
-                }
-            }
-        }
-    }
+    my $result = $filter->test($r);
+    return $result if $result;
 
     # be careful w/ performance here
     # Warning: we might want to revisit the /o (compile Once) if we ever want

@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 package pf::web::filter;
 
 =head1 NAME
@@ -18,6 +19,7 @@ use warnings;
 use Apache2::Const -compile => qw(:http);
 use Apache2::Request;
 use Log::Log4perl;
+use pf::config;
 
 =head1 SUBROUTINES
 
@@ -30,10 +32,41 @@ use Log::Log4perl;
 sub new {
    my $logger = Log::Log4perl::get_logger("pf::web::filter");
    $logger->debug("instantiating new pf::web::filter");
-
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
    return $self;
+}
+
+
+=item test
+
+Test all the rules
+
+=cut
+
+sub test {
+    my ($self, $r) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    foreach my $rule  ( sort keys %ConfigApacheFilters ) {
+        if ($ConfigApacheFilters{$rule}->{'action'}) {
+            if ($rule =~ /^\d+$/) {
+                my $return = $self->dispatch_rule($r,$ConfigApacheFilters{$rule});
+                if ($return) {
+                    return($return);
+                }
+            } else {
+                my $rule_sav = $rule;
+                $rule =~ s/([0-9]+)/$self->dispatch_rule($r,$ConfigApacheFilters{$1})/gee;
+                $rule =~ s/\|/ \|\| /g;
+                $rule =~ s/\&/ \&\& /g;
+                if (eval $rule) {
+                    my $action = $self->dispatch_action($ConfigApacheFilters{$rule_sav});
+                    return ($action->($self,$r,$ConfigApacheFilters{$rule_sav}));
+                }
+            }
+        }
+    }
 }
 
 =item dispatch_rules
@@ -88,7 +121,7 @@ sub uri_parser {
             return 0;
         }
     } else {
-        if ((($r->uri =~ /$rule->{'regexp'}/) || ($r->args =~  /$rule->{'regexp'}/)) && ($r->method eq $rule->{'method'})) {
+        if ((($r->uri !~ /$rule->{'regexp'}/) && ($r->args !~  /$rule->{'regexp'}/)) && ($r->method eq $rule->{'method'})) {
            $action = $self->dispatch_action($rule);
            return $action->($self,$r,$rule);
         } elsif (!$rule->{'action'}) {
