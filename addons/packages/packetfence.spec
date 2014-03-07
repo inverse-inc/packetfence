@@ -510,7 +510,7 @@ done
 
 #Make ssl certificate
 if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
-    openssl req -x509 -new -nodes -days 365 -batch\
+    omvpenssl req -x509 -new -nodes -days 365 -batch\
     	-out /usr/local/pf/conf/ssl/server.crt\
     	-keyout /usr/local/pf/conf/ssl/server.key\
     	-nodes -config /usr/local/pf/conf/openssl.cnf
@@ -858,7 +858,6 @@ fi
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfcache
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns

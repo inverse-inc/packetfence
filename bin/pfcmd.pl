@@ -1291,9 +1291,8 @@ sub stopService {
     #push memcached to back of the list
     my %exclude = (
         memcached => undef,
-        pfcache   => undef,
     );
-    my ($push_managers,$infront_managers) = part { exists $exclude{ $_->name eq 'memcached' } ? 0 : 1 } @managers;
+    my ($push_managers,$infront_managers) = part { exists $exclude{ $_->name  } ? 0 : 1 } @managers;
     @managers = ();
     @managers = @$infront_managers if $infront_managers;
     push @managers, @$push_managers if $push_managers;

@@ -36,6 +36,12 @@ $switches_cached_config = pf::config::cached->new(
             populateSwitchConfig( $config, $name );
         },
     ],
+    -onfilereloadonce => [
+        reload_switches_conf => sub {
+            my ( $config, $name ) = @_;
+            freeradius_populate_nas_config( \%SwitchConfig, $config->GetLastModTimestamp );
+        }
+    ],
     -oncachereload => [
         on_cached_overlay_reload => sub {
             my ( $config, $name ) = @_;

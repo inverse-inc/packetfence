@@ -32,11 +32,7 @@ To include the new service in pfcmd service
 
 * Add service name to the service regex in pf::pfcmd
 
-* Update the help if pf::pfcmd::help
-
-* Add service to the pf::services::ALL_SERVICES array
-
-* import the pf::services::manager::<servicename> module in pf::services
+* Update the help in pf::pfcmd::help
 
 =cut
 
@@ -89,7 +85,7 @@ services that this service needs in order to start
 
 =cut
 
-has dependsOnServices => (is => 'ro', default => sub { [qw(memcached pfcache httpd.admin)] } );
+has dependsOnServices => (is => 'ro', default => sub { [qw(memcached httpd.admin)] } );
 
 =head2 executable
 

@@ -94,6 +94,7 @@ $cached_violations_config = pf::config::cached->new(
     -allowempty => 1,
     -default => 'defaults',
     -onfilereload => [file_reload_violation_config => \&fileReloadViolationConfig ],
+    -onfilereloadonce => [ file_reload_once_violation_config => \&loadViolationsIntoDb ];
     -oncachereload => [
         cache_reload_violation_config => sub {
             my ($config,$name) = @_;
