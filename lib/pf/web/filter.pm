@@ -1,4 +1,3 @@
-#!/usr/bin/perl
 package pf::web::filter;
 
 =head1 NAME
