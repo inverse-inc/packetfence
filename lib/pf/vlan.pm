@@ -197,34 +197,10 @@ sub getViolationVlan {
     $logger->debug("$mac has $open_violation_count open violations(s) with action=trap; ".
                    "it might belong into another VLAN (isolation or other).");
 
+    # Vlan Filter
     my $filter = new pf::vlan::filter;
-    foreach my $rule  ( sort keys %ConfigVlanFilters ) {
-        if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq 'ViolationVlan') {
-            if ($ConfigVlanFilters{$rule}->{'action'}) {
-                # For simple rule
-                if ($rule =~ /^\d+$/) {
-                    my $return = $filter->dispatch_rule($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid);
-                    if ($return) {
-                        $logger->info("Match rule: ".$rule." in ViolationVlan");
-                        my $vlan = $switch->getVlanByName($return);
-                        return ($vlan,$return);
-                    }
-                #For complex rule
-                } else {
-                    my $rule_sav = $rule;
-                    $rule =~ s/([0-9]+)/$filter->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid)/gee;
-                    $rule =~ s/\|/ \|\| /g;
-                    $rule =~ s/\&/ \&\& /g;
-                    if (eval $rule) {
-                        $logger->info("Match rule: ".$rule." in ViolationVlan");
-                        my $role = $filter->action($ConfigVlanFilters{$rule_sav});
-                        my $vlan = $switch->getVlanByName($role);
-                        return ($vlan,$role);
-                    }
-                }
-            }
-        }
-    }
+    my ($result,$role) = $filter->test('ViolationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    return ($result,$role) if $result;
 
     # By default we assume that we put the user in isolation vlan unless proven otherwise
     my $vlan = "isolation";
@@ -303,34 +279,10 @@ sub getRegistrationVlan {
 
     # trapping on registration is enabled
 
+    # Vlan Filter
     my $filter = new pf::vlan::filter;
-    foreach my $rule  ( sort keys %ConfigVlanFilters ) {
-        if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq 'RegistrationVlan') {
-            if ($ConfigVlanFilters{$rule}->{'action'}) {
-                # For simple rule
-                if ($rule =~ /^\d+$/) {
-                    my $return = $filter->dispatch_rule($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid);
-                    if ($return) {
-                        $logger->info("Match rule: ".$rule." in RegistrationVlan");
-                        my $vlan = $switch->getVlanByName($return);
-                        return ($vlan, $return);
-                    }
-                #For complex rule
-                } else {
-                    my $rule_sav = $rule;
-                    $rule =~ s/([0-9]+)/$filter->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid)/gee;
-                    $rule =~ s/\|/ \|\| /g;
-                    $rule =~ s/\&/ \&\& /g;
-		    if (eval $rule) {
-                        $logger->info("Match rule: ".$rule." in RegistrationVlan");
-			my $role = $ConfigVlanFilters{$rule_sav}->{'action'};
-                        my $vlan = $switch->getVlanByName($role);
-                        return ($vlan, $role);
-                    }
-                }
-            }
-        }
-    }
+    my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    return ($result,$role) if $result;
 
     if (!isenabled($Config{'trapping'}{'registration'})) {
         $logger->debug("Registration trapping disabled: skipping node is registered test");
@@ -395,37 +347,10 @@ sub getNormalVlan {
 
     $logger->debug("Trying to determine VLAN from role.");
 
+    # Vlan Filter
     my $filter = new pf::vlan::filter;
-    foreach my $rule  ( sort keys %ConfigVlanFilters ) {
-        if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq 'NormalVlan') {
-            if ($ConfigVlanFilters{$rule}->{'action'}) {
-                # For simple rule
-                if ($rule =~ /^\d+$/) {
-                    my $return = $filter->dispatch_rule($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid);
-                    if ($return) {
-                        $logger->info("Match rule: ".$rule." in NormalVlan");
-                        my $vlan = $switch->getVlanByName($return);
-                        return ($vlan, $return);
-                    }
-                #For complex rule
-                } else {
-                    my $rule_sav = $rule;
-                    $rule =~ s/([0-9]+)/$filter->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid)/gee;
-                    $rule =~ s/\|/ \|\| /g;
-                    $rule =~ s/\&/ \&\& /g;
-                    $logger->warn($rule);
-                    if (eval $rule) {
-                        $logger->info("Match rule: ".$rule." in NormalVlan");
-                        my $role = $ConfigVlanFilters{$rule_sav}->{'action'};
-                        my $vlan = $switch->getVlanByName($role);
-                        return ($vlan, $role);
-                    }
-                }
-            }
-        }
-    }
-
-    my $role = "";
+    my ($result,$role) = $filter->test('NormalVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    return ($result,$role) if $result;
 
     # Try MAC_AUTH, then other EAP methods and finally anything else.
     if ( $connection_type && ($connection_type & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) {
@@ -525,33 +450,8 @@ sub getInlineVlan {
     my $logger = Log::Log4perl->get_logger();
 
     my $filter = new pf::vlan::filter;
-    foreach my $rule  ( sort keys %ConfigVlanFilters ) {
-        if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq 'InlinelVlan') {
-            if ($ConfigVlanFilters{$rule}->{'action'}) {
-                # For simple rule
-                if ($rule =~ /^\d+$/) {
-                    my $return = $filter->dispatch_rule($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid);
-                    if ($return) {
-                        $logger->info("Match rule: ".$rule." in InlineVlan");
-                        my $vlan = $switch->getVlanByName($return);
-                        return ($vlan, $return);
-                    }
-                #For complex rule
-                } else {
-                    my $rule_sav = $rule;
-                    $rule =~ s/([0-9]+)/$filter->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid)/gee;
-                    $rule =~ s/\|/ \|\| /g;
-                    $rule =~ s/\&/ \&\& /g;
-                    if (eval $rule) {
-                        $logger->info("Match rule: ".$rule." in InlineVlan");
-                        my $role = $filter->action($ConfigVlanFilters{$rule_sav});
-                        my $vlan = $switch->getVlanByName($role);
-                        return ($vlan, $role);
-                    }
-                }
-            }
-        }
-    }
+    my ($result,$role) = $filter->test('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    return $result if $result;
 
     return $switch->getVlanByName('inline');
 }

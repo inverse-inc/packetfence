@@ -16,8 +16,8 @@ use strict;
 use warnings;
 
 use Log::Log4perl;
-use pf::config qw(%connection_type_to_str);
 use Time::Period;
+use pf::config qw(%connection_type_to_str %ConfigVlanFilters);
 
 =head1 SUBROUTINES
 
@@ -33,6 +33,45 @@ sub new {
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
    return $self;
+}
+
+=item test
+
+Test all the rules
+
+=cut
+
+sub test {
+    my ($self, $scope, $switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    foreach my $rule  ( sort keys %ConfigVlanFilters ) {
+        if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq $scope) {
+            if ($ConfigVlanFilters{$rule}->{'action'}) {
+                # For simple rule
+                if ($rule =~ /^\d+$/) {
+                    my $return = $self->dispatch_rule($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid);
+                    if ($return) {
+                        $logger->info("Match rule: ".$rule);
+                        my $vlan = $switch->getVlanByName($return);
+                        return ($vlan, $return);
+                    }
+                #For complex rule
+                } else {
+                    my $rule_sav = $rule;
+                    $rule =~ s/([0-9]+)/$self->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid)/gee;
+                    $rule =~ s/\|/ \|\| /g;
+                    $rule =~ s/\&/ \&\& /g;
+                    if (eval $rule) {
+                        $logger->info("Match rule: ".$rule_sav);
+                        my $role = $ConfigVlanFilters{$rule_sav}->{'action'};
+                        my $vlan = $switch->getVlanByName($role);
+                        return ($vlan, $role);
+                    }
+                }
+            }
+        }
+    }
 }
 
 =item dispatch_rules
