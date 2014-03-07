@@ -280,6 +280,7 @@ our $CACHE;
 our @LOADED_CONFIGS;
 our %ON_RELOAD;
 our %ON_FILE_RELOAD;
+our %ON_FILE_RELOAD_ONCE;
 our %ON_CACHE_RELOAD;
 our %ON_POST_RELOAD;
 our @ON_DESTROY_REFS = (
@@ -337,6 +338,7 @@ sub new {
     my $config;
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
+    my $onFileReloadOnce = delete $params{'-onfilereloadone'} || [];
     my $onCacheReload = delete $params{'-oncachereload'} || [];
     my $onPostReload = delete $params{'-onpostreload'} || [];
     my $reload_onfile;
@@ -364,6 +366,7 @@ sub new {
     push @LOADED_CONFIGS, $self;
     $self->addReloadCallbacks(@$onReload) if @$onReload;
     $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
+    $self->addFileReloadOnceCallbacks(@$onFileReloadOnce) if @$onFileReloadOnce;
     $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
     $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
     $self->doCallbacks($reload_onfile,!$reload_onfile);
@@ -477,6 +480,17 @@ sub _callFileReloadCallbacks {
     $self->_callCallbacks(\%ON_FILE_RELOAD);
 }
 
+=head2 _callFileReloadOnceCallbacks
+
+Call all the file reload callbacks that should be called only once
+
+=cut
+
+sub _callFileReloadOnceCallbacks {
+    my ($self) = @_;
+    $self->_callCallbacks(\%ON_FILE_RELOAD_ONCE);
+}
+
 =head2 _callCacheReloadCallbacks
 
 Call all the cache reload callbacks
@@ -505,6 +519,7 @@ sub doCallbacks {
         get_logger()->trace("doing callbacks for " . $self->GetFileName . " file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
         $self->_callReloadCallbacks unless $skipPrePostReload;
         $self->_callFileReloadCallbacks if $file_reloaded;
+        $self->_callFileReloadOnceCallbacks if $file_reloaded;
         $self->_callCacheReloadCallbacks if $cache_reloaded;
         $self->_callPostReloadCallbacks unless $skipPrePostReload;
     }
@@ -772,6 +787,20 @@ If callback already exists, previous callback is replaced and previous position 
 sub addFileReloadCallbacks {
     my ($self,@args) = @_;
     $self->_addCallbacks($ON_FILE_RELOAD{$self->GetFileName},@args);
+}
+
+=head2 addFileReloadOnceCallbacks
+
+$self->addFileReloadOnceCallbacks('name' => sub {...});
+Add named callbacks to the onfilereloadonce array
+Called in insert order
+If callback already exists, previous callback is replaced and previous position is preserved
+
+=cut
+
+sub addFileReloadOnceCallbacks {
+    my ($self,@args) = @_;
+    $self->_addCallbacks($ON_FILE_RELOAD_ONCE{$self->GetFileName},@args);
 }
 
 =head2 addCacheReloadCallbacks
