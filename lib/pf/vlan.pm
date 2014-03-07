@@ -532,7 +532,7 @@ sub shouldAutoRegister {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type) = @_;
+    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     $logger->trace("asked if should auto-register device");
@@ -552,6 +552,10 @@ sub shouldAutoRegister {
         $logger->trace("returned yes because it's an ip phone");
         return $isPhone;
     }
+
+    my $filter = new pf::vlan::filter;
+    my ($result,$role) = $filter->test('AutoRegister',$switch, $port, $mac, $node_info, $connection_type, $user_name, $ssid);
+    return 1 if $role;
 
     # custom example: auto-register 802.1x users
     # Since they already have validated credentials through EAP to do 802.1X
