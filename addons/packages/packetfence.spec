@@ -911,6 +911,7 @@ fi
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
 %dir                    /usr/local/pf/var
+%dir                    /usr/local/pf/var/run
 
 # Remote arp sensor file list
 %files -n %{real_name}-remote-arp-sensor
@@ -921,12 +922,16 @@ fi
 %config(noreplace)      /usr/local/pf/conf/pfarp_remote.conf
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfarp_remote
+%dir                    /usr/local/pf/var/run
 %dir
 
 %files -n %{real_name}-pfcmd-suid
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Fri Mar 07 2014 Loick Pelet <lpelet@inverse.ca> - 4.1.0-1
+- Moved pid for pfarp_remote and pfdetect_remote
+
 * Wed Dec 11 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.1.0-1
 - New release 4.1.0
 
