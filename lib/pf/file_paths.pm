@@ -52,7 +52,8 @@ our (
     $admin_roles_config_file,
     $wrix_config_file,
     $switches_overlay_file,
-    $allowed_gaming_oui_file, $allowed_gaming_console_types_file
+    $allowed_gaming_oui_file, $allowed_gaming_console_types_file,
+    $cache_control_file
 );
 
 BEGIN {
@@ -84,6 +85,7 @@ BEGIN {
         @stored_config_files
         $switches_overlay_file
         $allowed_gaming_oui_file $allowed_gaming_console_types_file
+        $cache_control_file
     );
 }
 
@@ -124,10 +126,10 @@ $wrix_config_file = catfile($conf_dir, "wrix.conf");
 $allowed_gaming_oui_file      = catfile($conf_dir,"allowed-gaming-oui.txt");
 $allowed_gaming_console_types_file = catfile($conf_dir,"allowed-gaming-console_types.txt");
 
-@log_files =
-    map { catfile($log_dir,$_) }
-    qw( access_log error_log admin_access_log admin_error_log packetfence.log catalyst.log )
-;
+@log_files = map {catfile($log_dir, $_)}
+  qw( access_log error_log admin_access_log admin_error_log
+  packetfence.log catalyst.log pfbandwidthd.log pfdetect.log
+  pfdhcplistener.log pfdns.log pfmon.log);
 
 @stored_config_files = (
     $pf_config_file, $network_config_file,
@@ -141,6 +143,8 @@ $allowed_gaming_console_types_file = catfile($conf_dir,"allowed-gaming-console_t
 );
 
 $switches_overlay_file   = catfile($var_dir, "switches.conf");
+
+$cache_control_file = catfile($var_dir, "cache_control");
 
 
 =head1 AUTHOR
