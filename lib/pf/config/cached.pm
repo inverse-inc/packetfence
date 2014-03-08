@@ -274,6 +274,7 @@ use Readonly;
 use Sub::Name;
 use List::Util qw(first);
 use List::MoreUtils qw(uniq);
+use Fcntl qw(:flock :DEFAULT :seek);
 
 
 our $CACHE;
@@ -338,7 +339,7 @@ sub new {
     my $config;
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
-    my $onFileReloadOnce = delete $params{'-onfilereloadone'} || [];
+    my $onFileReloadOnce = delete $params{'-onfilereloadonce'} || [];
     my $onCacheReload = delete $params{'-oncachereload'} || [];
     my $onPostReload = delete $params{'-onpostreload'} || [];
     my $reload_onfile;
@@ -518,11 +519,55 @@ sub doCallbacks {
     if($file_reloaded || $cache_reloaded) {
         get_logger()->trace("doing callbacks for " . $self->GetFileName . " file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
         $self->_callReloadCallbacks unless $skipPrePostReload;
-        $self->_callFileReloadCallbacks if $file_reloaded;
-        $self->_callFileReloadOnceCallbacks if $file_reloaded;
+        if($file_reloaded) {
+            $self->_callFileReloadCallbacks;
+            $self->_doLockOnce( sub { $self->_callFileReloadOnceCallbacks } );
+        }
         $self->_callCacheReloadCallbacks if $cache_reloaded;
         $self->_callPostReloadCallbacks unless $skipPrePostReload;
     }
+}
+
+sub _doLockOnce {
+    my ($self,$callback) = @_;
+    my $lockFile = $self->getOnReloadOnceLock();
+    if ($lockFile) {
+        $callback->();
+        flock($lockFile,LOCK_UN);
+        close($lockFile);
+    }
+    return;
+}
+sub getOnReloadOnceLock {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $fh = IO::File->new;
+    my $old_umask = umask(002);
+    my $lockFile = $self->GetFileName() . ".lockone" ;
+    if (sysopen($fh,$lockFile,O_CREAT|O_RDWR) ) {
+        if( flock($fh,LOCK_EX | LOCK_NB) ) {
+            my $previousTimestamp;
+            sysread $fh,$previousTimestamp,20;
+            $previousTimestamp ||= 0;
+            my $currentTimeStamp = $self->{_timestamp} || -1;
+            if($currentTimeStamp == $previousTimestamp) {
+                flock($fh,LOCK_UN);
+                close($fh);
+                $fh = undef;
+            } else {
+                truncate($fh,0);
+                sysseek($fh,0,SEEK_SET);
+                syswrite $fh,sprintf("%-20d",$currentTimeStamp);
+            }
+        } else {
+            close($fh);
+            $fh = undef;
+        }
+    } else {
+        $fh = undef;
+    }
+    umask($old_umask);
+    return $fh;
 }
 
 
@@ -690,18 +735,33 @@ sub computeFromPath {
     my $computeWrapper = sub {
         my $config = $computeSub->();
         $config->SetLastModTimestamp();
+        SetControlFileTimestamp($config);
         return $config;
     };
     my $result = $self->cache->compute(
         $file,
         {
-            expire_if => sub { return $expire || $_[0]->value->HasChanged(); },
+            expire_if => sub {
+                return 1 if $expire;
+                my $control_file_timestamp = $_[0]->value->{_control_file_timestamp} || -1;
+                return  ( controlFileExpired($control_file_timestamp) && $_[0]->value->HasChanged() ) ;
+            },
         },
         $computeWrapper
     );
     $computeWrapper = undef;
     $computeSub = undef;
     return $result;
+}
+#controlFileExpired($_[0]->value->{_control_file_timestamp}) &&
+sub SetControlFileTimestamp {
+    my ($self) = @_;
+    $self->{_control_file_timestamp} = pf::IniFiles::_getFileTimestamp($cache_control_file);
+}
+
+sub controlFileExpired {
+    my ($timestamp) = @_;
+    return $timestamp != pf::IniFiles::_getFileTimestamp($cache_control_file);
 }
 
 =head2 cache
@@ -961,6 +1021,22 @@ sub cleanupWhitespace {
 sub clearAllConfigs {
     my ($class) = @_;
     $class->cache->remove_multi(\@stored_config_files);
+}
+
+sub updateCacheControl {
+    my ($dontCreate) = @_;
+    if ( !-e $cache_control_file && !$dontCreate) {
+        my $fh;
+        open($fh,">$cache_control_file") or die "cannot create $cache_control_file\nplease pfcmd fixpermissions";
+        __changeFilesToOwner('pf',$cache_control_file);
+        close($fh);
+    }
+    if(-e $cache_control_file) {
+        my ($atime,$mtime);
+        $atime = $mtime = time;
+        utime $atime, $mtime, $cache_control_file;
+    }
+    return 0;
 }
 
 =head1 AUTHOR
