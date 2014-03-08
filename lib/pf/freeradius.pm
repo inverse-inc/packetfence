@@ -26,6 +26,7 @@ use Carp;
 use Log::Log4perl;
 use Readonly;
 use List::MoreUtils qw(natatime);
+use Time::HiRes qw(time);
 
 use constant FREERADIUS => 'freeradius';
 use constant SWITCHES_CONF => '/switches.conf';
@@ -73,6 +74,10 @@ sub freeradius_db_prepare {
             TRUNCATE TABLE radius_nas
         ]);
 
+        $freeradius_statements->{'freeradius_delete_expired_sql'} = $dbh->prepare(qq[
+            DELETE FROM radius_nas WHERE config_timestamp != ?;
+        ]);
+
         $freeradius_statements->{'freeradius_insert_nas'} = $dbh->prepare(qq[
             INSERT INTO radius_nas (
                 nasname, shortname, secret, description
@@ -100,6 +105,16 @@ sub _delete_all_nas {
     return 1;
 }
 
+sub _delete_expired {
+    my ($timestamp) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::freeradius');
+    $logger->debug("emptying radius_nas table");
+
+    db_query_execute(FREERADIUS, $freeradius_statements, 'freeradius_delete_expired_sql', $timestamp)
+        || return 0;;
+    return 1;
+}
+
 =item _insert_nas_bulk
 
 Add a new NAS (FreeRADIUS client) record
@@ -111,7 +126,7 @@ sub _insert_nas_bulk {
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
     return 0 unless @rows;
     my $row_count = @rows;
-    my $sql = "INSERT INTO radius_nas ( nasname, shortname, secret, description) VALUES ( ?, ?, ?, ?)" . ",( ?, ?, ?, ?)" x ($row_count -1)    ;
+    my $sql = "REPLACE INTO radius_nas ( nasname, shortname, secret, description, config_timestamp) VALUES ( ?, ?, ?, ?, ?)" . ",( ?, ?, ?, ?, ?)" x ($row_count -1)    ;
     $freeradius_statements->{'freeradius_insert_nas_bulk'} = $sql;
 
     db_query_execute(
@@ -146,7 +161,7 @@ Populates the radius_nas table with switches in switches.conf.
 sub freeradius_populate_nas_config {
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
     return unless db_ping;
-    my ($switch_config) = @_;
+    my ($switch_config,$timestamp) = @_;
     my %skip = (default => undef, '127.0.0.1' => undef );
     my $radiusSecret;
     my @switches = grep {
@@ -155,19 +170,20 @@ sub freeradius_populate_nas_config {
           && $radiusSecret =~ /\S/
     } keys %$switch_config;
     return unless @switches;
-
-    if (!_delete_all_nas()) {
-        $logger->info("Problem emptying FreeRADIUS nas clients table.");
+    unless (defined $timestamp ) {
+        $timestamp = int (time * 1000000);
     }
+
     my $it = natatime 100,@switches;
     while (my @ids = $it->() ) {
         my @rows = map {
             my $data = $switch_config->{$_};
-            [ $_, $_, $data->{radiusSecret}, $_ . " (" . $data->{'type'} .")"  ]
+            [ $_, $_, $data->{radiusSecret}, $_ . " (" . $data->{'type'} .")", $timestamp ]
         } @ids;
         # insert NAS
         _insert_nas_bulk( @rows );
     }
+    _delete_expired($timestamp);
 }
 
 =back

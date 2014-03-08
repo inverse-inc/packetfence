@@ -57,3 +57,10 @@ CREATE TABLE inline_accounting (
    PRIMARY KEY (ip, firstseen),
    INDEX (ip)
  ) ENGINE=InnoDB;
+
+ALTER TABLE radius_nas 
+  ADD config_timestamp BIGINT AFTER description,
+  DROP PRIMARY KEY,
+  DROP COLUMN id,
+  ADD PRIMARY KEY (nasname)
+;

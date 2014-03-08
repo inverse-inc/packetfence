@@ -482,7 +482,6 @@ VALUES
 -- Adding RADIUS nas client table
 
 CREATE TABLE radius_nas (
-  id int(10) NOT NULL AUTO_INCREMENT,
   nasname varchar(128) NOT NULL,
   shortname varchar(32),
   type varchar(30) default 'other',
@@ -490,8 +489,8 @@ CREATE TABLE radius_nas (
   secret varchar(60) default 'secret' NOT NULL,
   community varchar(50),
   description varchar(200) default 'RADIUS Client',
-  PRIMARY KEY (id),
-  KEY nasname (nasname)
+  config_timestamp BIGINT,
+  PRIMARY KEY nasname (nasname)
 ) ENGINE=InnoDB;
 
 -- Adding RADIUS accounting table
@@ -847,3 +846,13 @@ CREATE TABLE inline_accounting (
    INDEX (ip)
  ) ENGINE=InnoDB;
 
+--
+-- Table structure for cache 
+--
+
+CREATE TABLE cache_configfiles (
+   key  VARCHAR(255),
+   value MEDIUMBLOB,
+   last_updated BIGINT, 
+   INDEX (key)
+ ) ENGINE=InnoDB;
