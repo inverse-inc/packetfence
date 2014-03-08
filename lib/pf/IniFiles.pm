@@ -210,7 +210,11 @@ Gets the current typestamp of the file
 
 sub GetCurrentModTimestamp {
     my ($self) = @_;
-    my $timestamp = (stat($self->GetFileName))[9];
+    return _getFileTimestamp($self->GetFileName);
+}
+
+sub _getFileTimestamp {
+    my $timestamp = (stat($_[0]))[9];
     if (defined $timestamp) {
         $timestamp *= 1000000;
         $timestamp = int($timestamp)
