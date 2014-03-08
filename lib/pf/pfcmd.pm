@@ -54,6 +54,7 @@ sub parseCommandLine {
                                    \s+
                                    ( [ a-zA-Z0-9_@\.\:=/\-,?]+)
                                  $ }xms,
+        'configreload'    => qr{ ^ $ }xms,
         'fixpermissions'         => qr{ ^ $ }xms,
         'configfiles'     => qr{ ^ ( push | pull ) $ }xms,
         'fingerprint'     => qr{ ^ (view)

@@ -489,7 +489,8 @@ Call all the file reload callbacks that should be called only once
 
 sub _callFileReloadOnceCallbacks {
     my ($self) = @_;
-    $self->_callCallbacks(\%ON_FILE_RELOAD_ONCE);
+    my $callbacks =  $ON_FILE_RELOAD_ONCE{$self->GetFileName} || [];
+    $self->_doLockOnce( sub { $self->_callCallbacks(\%ON_FILE_RELOAD_ONCE) } ) if @$callbacks;
 }
 
 =head2 _callCacheReloadCallbacks
@@ -521,7 +522,7 @@ sub doCallbacks {
         $self->_callReloadCallbacks unless $skipPrePostReload;
         if($file_reloaded) {
             $self->_callFileReloadCallbacks;
-            $self->_doLockOnce( sub { $self->_callFileReloadOnceCallbacks } );
+            $self->_callFileReloadOnceCallbacks;
         }
         $self->_callCacheReloadCallbacks if $cache_reloaded;
         $self->_callPostReloadCallbacks unless $skipPrePostReload;
@@ -761,7 +762,7 @@ sub SetControlFileTimestamp {
 
 sub controlFileExpired {
     my ($timestamp) = @_;
-    return $timestamp != pf::IniFiles::_getFileTimestamp($cache_control_file);
+    return $timestamp == -1 || $timestamp != pf::IniFiles::_getFileTimestamp($cache_control_file);
 }
 
 =head2 cache

@@ -160,6 +160,7 @@ if (! exists($cmd_tmp{'grammar'})) {
             exit(1);
         },
         'fixpermissions' => sub { exit (fixpermissions()) },
+        'configreload' => sub { exit (configreload()) },
         'class' => sub { class(); exit(1); },
         'config' => sub { config(); exit(0); },
         'configfiles' => sub { configfiles(); exit(1); },
@@ -2461,6 +2462,11 @@ sub _changeFilesToOwner {
     my ($user,@files) = @_;
     my ($login,$pass,$uid,$gid) = getpwnam($user);
     chown $uid,$gid,@files;
+}
+
+sub configreload {
+    pf::config::cached::updateCacheControl();
+    return 0;
 }
 
 

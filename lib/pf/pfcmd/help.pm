@@ -49,6 +49,7 @@ checkup                      | perform a sanity checkup and report any problems 
 class                        | view violation classes
 config                       | query, set, or get help on pf.conf configuration paramaters
 configfiles                  | push or pull configfiles into/from database
+configreload                 | reloads the configuration into the cache
 floatingnetworkdeviceconfig  | query/modify floating network device configuration parameters
 fingerprint                  | view DHCP Fingerprints
 fixpermissions               | fix permissions of files
@@ -87,6 +88,15 @@ violationconfig              | query/modify violations.conf configuration parame
 
 Please view "$command help <command>" for details on each option
 EOF
+    return 1;
+}
+
+sub help_configreload {
+    print STDERR << "EOT";
+Usage: pfcmd configreload
+
+force the configuration to be reloaded
+EOT
     return 1;
 }
 
