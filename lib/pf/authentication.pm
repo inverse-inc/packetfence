@@ -24,19 +24,12 @@ use pf::Authentication::Condition;
 use pf::Authentication::Rule;
 use pf::Authentication::Source;
 
-use pf::Authentication::Source::ADSource;
-use pf::Authentication::Source::EmailSource;
-use pf::Authentication::Source::SponsorEmailSource;
-use pf::Authentication::Source::HtpasswdSource;
-use pf::Authentication::Source::KerberosSource;
-use pf::Authentication::Source::LDAPSource;
-use pf::Authentication::Source::RADIUSSource;
-use pf::Authentication::Source::SMSSource;
-use pf::Authentication::Source::SQLSource;
-use pf::Authentication::Source::FacebookSource;
-use pf::Authentication::Source::GoogleSource;
-use pf::Authentication::Source::GithubSource;
-use pf::Authentication::Source::NullSource;
+use Module::Pluggable
+  'search_path' => [qw(pf::Authentication::Source)],
+  'sub_name'    => 'sources',
+  'require'     => 1,
+  ;
+
 use List::Util qw(first);
 use List::MoreUtils qw(none any);
 use pf::util;
@@ -82,21 +75,9 @@ BEGIN {
 
 }
 
-our %TYPE_TO_SOURCE = (
-    'sql'           => pf::Authentication::Source::SQLSource->meta->name,
-    'ad'            => pf::Authentication::Source::ADSource->meta->name,
-    'htpasswd'      => pf::Authentication::Source::HtpasswdSource->meta->name,
-    'kerberos'      => pf::Authentication::Source::KerberosSource->meta->name,
-    'ldap'          => pf::Authentication::Source::LDAPSource->meta->name,
-    'radius'        => pf::Authentication::Source::RADIUSSource->meta->name,
-    'email'         => pf::Authentication::Source::EmailSource->meta->name,
-    'sponsoremail'  => pf::Authentication::Source::SponsorEmailSource->meta->name,
-    'sms'           => pf::Authentication::Source::SMSSource->meta->name,
-    'facebook'      => pf::Authentication::Source::FacebookSource->meta->name,
-    'google'        => pf::Authentication::Source::GoogleSource->meta->name,
-    'github'        => pf::Authentication::Source::GithubSource->meta->name,
-    'null'          => pf::Authentication::Source::NullSource->meta->name,
-);
+our @SOURCES = __PACKAGE__->sources();
+
+our %TYPE_TO_SOURCE = map { lc($_->meta->get_attribute('type')->default) => $_ } @SOURCES;
 
 our $logger = get_logger();
 
