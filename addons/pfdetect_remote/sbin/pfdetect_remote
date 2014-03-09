@@ -365,19 +365,11 @@ sub parse_fortigate_alert {
     chomp( my $currentLine = shift );
 	my %event;
 
-	my $date = $currentLine =~ /date=(([^\s]+))/;
-	my $time = $currentLine =~ /^(\w+\s+\d+\s+\d+:\d+:\d+)/;
-
-	( $event{"fortigate_date"} ) = "$date - $time";
-	( $event{"fortigate_ip"} ) = $currentLine =~ / ˆ*(\d+\.\d+\.\d+\.\d+).*date/;
-    ( $event{"date"} ) = $currentLine =~ /^(\w+\s+\d+\s+\d+:\d+:\d+)/;
-    ( $event{"srcip"} ) = $currentLine =~ /srcip=(([^\s]+))/;
-    ( $event{"srcport"} ) = $currentLine =~ /srcport=(([^\s]+))/;
-    ( $event{"dstip"} ) = $currentLine =~ /dstip=(([^\s]+))/;
-    ( $event{"dstport"} ) = $currentLine =~ /dstport=(([^\s]+))/;
-    ( $event{"catid"} ) = $currentLine =~ /cat=(([^\s]+))/;
-    ( $event{"catdesc"} ) = $currentLine =~ /catdesc=(([^\s]+))/;
-    ( $event{"msg"} ) = $currentLine =~ /msg="(.*)"/;
+    my @fields = grep  /\=/ ,  split( /\s+/, $currentLine );
+    my %fields = map { split /\=/ } @fields;
+    $event{"date"} = $fields{date};
+    $event{"srcip"} = $fields{date};
+    $event{"catid"} = $fields{cat};
 
     return %event;
 }
