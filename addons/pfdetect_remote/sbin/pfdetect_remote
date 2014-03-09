@@ -368,7 +368,7 @@ sub parse_fortigate_alert {
     my @fields = grep  /\=/ ,  split( /\s+/, $currentLine );
     my %fields = map { split /\=/ } @fields;
     $event{"date"} = $fields{date};
-    $event{"srcip"} = $fields{date};
+    $event{"srcip"} = $fields{srcip};
     $event{"catid"} = $fields{cat};
 
     return %event;
