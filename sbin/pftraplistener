@@ -2,32 +2,55 @@
 use strict;
 use warnings;
 use feature "say";
-use IPC::SysV qw(S_IRUSR S_IWUSR IPC_CREAT);
-use IPC::Msg;
+use JSON;
+use Log::Log4perl;
+use WWW::Curl::Easy;
 
-use Data::Dumper;
-$Data::Dumper::Varname = 'event';
-$Data::Dumper::Indent  = 0;
+# Configuration parameter
+use constant SOAP_PORT => '9090';
+use constant SOAP_HOST => '172.20.125.1';
+    use constant SOAP_USER => 'pf';
+use constant SOAP_PASS => 'pf';
 
-print STDERR "Loaded the example perl snmptrapd handler\n";
+print STDERR "Loaded the perl snmptrapd handler\n";
 
 NetSNMP::TrapReceiver::register( "all", \&trap_receiver )
     || warn "failed to register our perl trap handler\n";
 
-my $key = 101;
-my $msg = IPC::Msg->new( $key,  S_IRUSR | S_IWUSR | IPC_CREAT );
-die "Message queue is not defined" unless defined $msg;
-
 sub trap_receiver {
     my %PDU      = %{ $_[0] };
     my @VARBINDS = @{ $_[1] };
-    my %trap;
 
-    %PDU = map { "PDU: " . $_ => $PDU{$_} } keys %PDU;
     my %VARBINDS
-        = map { "VARBINDS: " . $_->[0] => ( sprintf "type=%-2d value=%s", $_->[2], $_->[1] ); } @VARBINDS;
+        = map { $_->[0] => ( sprintf "type=%-2d value=%s", $_->[2], $_->[1] ); } @VARBINDS;
 
-    %trap = ( %PDU, %VARBINDS );
-    $trap{"PFtype"} = "snmptrap";
-    $msg->snd( 1, Dumper( \%trap ) ) or die "Queue write error: $!";
+    # build and encode the trap as a json object.
+    my %trap = (
+        PDU      => \%PDU,
+        VARBINDS => \%VARBINDS,
+        PFTYPE   => undef,
+    );
+    $trap{"PFTYPE"} = "snmptrap";
+
+    my $json    = JSON->new->pretty();
+    my $request = $json->encode( \%trap );
+
+    #say $json_text;
+
+    # prepare the CURL request
+    my $function = 'add_snmp_trap';
+    my $curl     = WWW::Curl::Easy->new;
+    my $response_body;
+    $curl->setopt( CURLOPT_HEADER,               0 );
+    $curl->setopt( CURLOPT_DNS_USE_GLOBAL_CACHE, 0 );
+    $curl->setopt( CURLOPT_NOSIGNAL,             1 );
+    $curl->setopt( CURLOPT_URL, 'http://' . SOAP_USER . ':' . SOAP_PASS . '@' . SOAP_HOST . ':' . SOAP_PORT );
+    $curl->setopt( CURLOPT_HTTPHEADER,
+        [ 'Content-Type: application/json; charset=UTF-8', "Request: $function" ] );
+    $curl->setopt( CURLOPT_POSTFIELDS, $request );
+    $curl->setopt( CURLOPT_WRITEDATA,  \$response_body );
+
+    # Starts the actual request
+    my $curl_return_code = $curl->perform;
+
 }

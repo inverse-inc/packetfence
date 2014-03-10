@@ -172,6 +172,16 @@ sub update_iplog {
 }
 
 
+sub add_snmp_trap { 
+    my ( $class, $trap ); 
+    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+    
+    use JSON;
+    my $json = JSON->new->pretty();
+    $logger->warn($json->decode($trap));
+
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
