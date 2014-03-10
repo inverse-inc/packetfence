@@ -244,6 +244,8 @@ Requires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception)
 Requires: perl(Test::NoWarnings)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
+# For managing the number of connections per device
+Requires: mod_qos
 
 %description -n %{real_name}
 

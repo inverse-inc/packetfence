@@ -487,6 +487,16 @@ memcached_memory_usage=64
 # 
 # The maximum of size of the items allowed to be stored
 memcached_max_item_size=1M
+# 
+# services.httpd_mod_qos
+# 
+# Enable mod_qos
+httpd_mod_qos=disabled
+# 
+# services.httpd_mod_qos_maximum_users
+# 
+# The maximum connections per device 
+httpd_mod_qos_maximum_connections_per_device=5
 
 [vlan]
 #
