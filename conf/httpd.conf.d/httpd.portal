@@ -162,9 +162,11 @@ $MaxClients = pf::services::apache::calculate_max_clients(pf::services::apache::
 $StartServers =  pf::services::apache::calculate_start_servers($MaxClients);
 $MinSpareServers = pf::services::apache::calculate_min_spare_servers($MaxClients);
 
-my $qos = $MaxClients * .7;
-$QS_SrvMaxConnClose = $qos;
-$QS_SrvMaxConnPerIP = '5';
+if( pf::config::isenabled ($PfConfig->{services}{httpd_mod_qos})) {
+    my $qos = $MaxClients * .7;
+    $QS_SrvMaxConnClose = $qos;
+    $QS_SrvMaxConnPerIP = $PfConfig->{services}{httpd_mod_qos_maximum_connections_per_device};
+}
 
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
