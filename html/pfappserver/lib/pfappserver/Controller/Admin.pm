@@ -125,6 +125,7 @@ sub logout :Local :Args(0) {
     my ( $self, $c ) = @_;
 
     $c->logout();
+    $c->delete_session();
     $c->stash->{'template'} = 'admin/login.tt';
     $c->stash->{'status_msg'} = $c->loc("You have been logged out.");
 }
