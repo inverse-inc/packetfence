@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 94;
+use Test::More tests => 95;
 use Test::NoWarnings;
 
 use English '-no_match_vars';
