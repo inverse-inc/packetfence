@@ -39,7 +39,7 @@ Delegating generateConfig startService postStartCleanup stop watch to sub manage
 
 around [qw(generateConfig startService postStartCleanup watch stop)] => sub {
     my ($orig,$self,$quick) = @_;
-    my $count;
+    my $count = 0;
     my $pass = true {$count++; $_->$orig($quick) } $self->managers;
     return $pass == $count;
 };
