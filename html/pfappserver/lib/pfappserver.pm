@@ -33,8 +33,11 @@ use Catalyst qw/
 
 use Try::Tiny;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
+BEGIN {
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log service => 'httpd.admin';
+}
 use pf::config::cached;
 
 extends 'Catalyst';
@@ -264,7 +267,7 @@ sub pf_localize {
 }
 
 # Logging
-__PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf'));
+__PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.admin.conf',watch_delay => 5 * 60));
 
 # Handle warnings from Perl as error log messages
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };

@@ -36,14 +36,16 @@ use English qw( ‐no_match_vars ); # no match avoids regex performance penalty
 use File::Basename qw(basename);
 use File::Tail;
 use Getopt::Long;
-use Log::Log4perl;
 use Net::SMTP;
 use Pod::Usage;
 use POSIX;
-use threads;
-use threads::shared;
 
-use constant INSTALL_DIR => '/usr/local/pf';
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfsetvlan');
+}
 
 use constant {
     LOG_FILE   => INSTALL_DIR . "/logs/packetfence.log",
@@ -64,6 +66,8 @@ use pf::traplog;
 use pf::util;
 use pf::violation;
 use pf::vlan::custom $VLAN_API_LEVEL;
+use threads;
+use threads::shared;
 $thread = 1;
 
 # }}}1
@@ -73,11 +77,7 @@ $thread = 1;
 # assign process name (see #1464)
 $PROGRAM_NAME = basename($PROGRAM_NAME);
 
-# log4perl init
-Log::Log4perl->init_and_watch( INSTALL_DIR . '/conf/log.conf', $LOG4PERL_RELOAD_TIMER );
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
-Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
-Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
 
 # Initialize a new cache for the traps sent from switches IfIndex
 our $traps_switchIfIndex_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitSwitchIfIndex'} );

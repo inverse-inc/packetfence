@@ -21,16 +21,17 @@ use Readonly;
 use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
 use Getopt::Std;
-use Log::Log4perl;
 use Pod::Usage;
 use POSIX qw(:signal_h);
 use Try::Tiny;
 use Net::DNS::Nameserver;
 use NetAddr::IP;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-
-use lib INSTALL_DIR . "/lib";
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfdns')
 
 use pf::config;
 use pf::config::cached;
@@ -41,12 +42,6 @@ use pf::CHI;
 # initialization
 # --------------
 # assign process name (see #1464)
-# log4perl init
-Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
-my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
-Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
-# storing process id instead of thread id in tid (more useful)
-Log::Log4perl::MDC->put( 'tid',  $PID );
 
 # init signal handlers
 POSIX::sigaction(
@@ -79,6 +74,8 @@ my $daemonize = $args{d};
 pod2usage( -verbose => 1 ) if ( $args{h} );
 
 $PROGRAM_NAME = basename($PROGRAM_NAME);
+
+my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
 
 our $RUNNING = 1;
 

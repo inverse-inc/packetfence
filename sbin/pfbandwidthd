@@ -16,7 +16,6 @@ use Readonly;
 use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
 use Getopt::Std;
-use Log::Log4perl;
 use Pod::Usage;
 use POSIX qw(:signal_h);
 
@@ -27,9 +26,12 @@ use NetPacket::Ethernet;
 use NetPacket::IP;
 use Socket;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-
-use lib INSTALL_DIR . "/lib";
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfdetect');
+}
 
 use pf::config;
 use pf::util;
@@ -40,12 +42,7 @@ use pf::inline::accounting;
 # assign process name (see #1464)
 $PROGRAM_NAME = basename($PROGRAM_NAME);
 
-# log4perl init
-Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
-Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
-# storing process id instead of thread id in tid (more useful)
-Log::Log4perl::MDC->put( 'tid',  $PID );
 
 # init signal handlers
 POSIX::sigaction(
@@ -163,8 +160,8 @@ sub process_packet {
         $logger->debug("saving stats");
         &save_stats($header);
         Net::Pcap::stats($pcap, \%pcap_stats);
-        $logger->debug("pcap stats ps_recv:" . $pcap_stats{ps_recv} . 
-                       " ps_drop: " . $pcap_stats{ps_drop} . 
+        $logger->debug("pcap stats ps_recv:" . $pcap_stats{ps_recv} .
+                       " ps_drop: " . $pcap_stats{ps_drop} .
                        " ps_ifdrop:" .  $pcap_stats{ps_ifdrop});
     }
 }
@@ -202,9 +199,9 @@ sub save_stats {
     my $inbytes = $ip_stats{$ip}{inbytes} ? $ip_stats{$ip}{inbytes} : 0;
     my $outbytes = $ip_stats{$ip}{outbytes} ? $ip_stats{$ip}{outbytes} : 0;
     my $ret = inline_accounting_update_session_for_ip($ip, $inbytes, $outbytes,
-                                                      $ip_stats{$ip}{firstseen}, $ip_stats{$ip}{lastmodified}); 
+                                                      $ip_stats{$ip}{firstseen}, $ip_stats{$ip}{lastmodified});
     $logger->warn("Error saving stats for $ip: $!") if (!$ret);
-  } 
+  }
   # FIXME what should we do if we had an error inserting? drop everything except those with error?
   %ip_stats=();
   $last_stats_dump = $pcap_header->{tv_sec};

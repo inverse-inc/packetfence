@@ -116,6 +116,9 @@ SetEnvIf User-Agent ".*MSIE.*" \
 TypesConfig /etc/mime.types
 
 <Perl>
+BEGIN {
+    use pf::log 'service' => 'httpd.portal';
+}
 use pf::config qw();
 use Tie::DxHash;
 use pf::services::manager::httpd();

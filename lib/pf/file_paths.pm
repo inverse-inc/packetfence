@@ -53,7 +53,8 @@ our (
     $wrix_config_file,
     $switches_overlay_file,
     $allowed_gaming_oui_file, $allowed_gaming_console_types_file,
-    $cache_control_file
+    $cache_control_file,
+    $log_conf_dir,
 );
 
 BEGIN {
@@ -86,6 +87,7 @@ BEGIN {
         $switches_overlay_file
         $allowed_gaming_oui_file $allowed_gaming_console_types_file
         $cache_control_file
+        $log_conf_dir
     );
 }
 
@@ -97,6 +99,7 @@ $conf_dir = catdir( $install_dir,"conf" );
 $var_dir  = catdir( $install_dir,"var" );
 $lib_dir  = catdir( $install_dir,"lib" );
 $log_dir  = catdir( $install_dir,"logs" );
+$log_conf_dir  = catdir( $conf_dir,"log.conf.d" );
 
 $generated_conf_dir   = catdir( $var_dir,"conf");
 $tt_compile_cache_dir = catdir( $var_dir,"tt_compile_cache");

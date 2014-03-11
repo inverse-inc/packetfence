@@ -17,13 +17,27 @@ use warnings;
 use Log::Log4perl;
 use pf::file_paths;
 use File::Basename qw(basename);
-use base qw(Exporter);
-
-our @EXPORT = qw(get_logger);
 
 Log::Log4perl->wrapper_register(__PACKAGE__);
-Log::Log4perl->init($log_config_file);
-Log::Log4perl::MDC->put( 'proc', basename($0) );
+sub import {
+    my ($self,%args) = @_;
+    my ($package, $filename, $line) = caller;
+    unless(Log::Log4perl->initialized) {
+        my $service = $args{service} if defined $args{service};
+        if($service) {
+            Log::Log4perl->init_and_watch("$log_conf_dir/${service}.conf",5 * 60);
+            Log::Log4perl::MDC->put( 'proc', $service );
+        } else {
+            Log::Log4perl->init($log_config_file);
+            Log::Log4perl::MDC->put( 'proc', basename($0) );
+        }
+    }
+    Log::Log4perl::MDC->put( 'tid', $$ );
+    {
+        no strict qw(refs);
+        *{"${package}::get_logger"} = \&get_logger;
+    }
+}
 
 sub get_logger { Log::Log4perl->get_logger(@_); }
 

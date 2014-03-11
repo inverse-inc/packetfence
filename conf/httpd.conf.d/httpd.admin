@@ -42,6 +42,9 @@ PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/pfappserver/lib
 
 <Perl>
+BEGIN {
+    use pf::log 'service' => 'httpd.admin';
+}
 
 use pf::config qw();
 

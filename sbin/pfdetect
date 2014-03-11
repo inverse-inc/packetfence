@@ -19,13 +19,16 @@ use warnings;
 use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
 use Getopt::Std;
-use Log::Log4perl;
 use Pod::Usage;
 use POSIX qw(:signal_h);
 
-use constant INSTALL_DIR => '/usr/local/pf';
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfdetect');
+}
 
-use lib INSTALL_DIR . "/lib";
 use pf::action;
 use pf::class;
 use pf::config;
@@ -44,11 +47,7 @@ use pf::violation;
 # assign process name (see #1464)
 $PROGRAM_NAME = basename($PROGRAM_NAME);
 
-# log4perl init
-Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
-Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
-Log::Log4perl::MDC->put( 'tid',  $PID );
 
 # init signal handlers
 POSIX::sigaction(
@@ -170,8 +169,6 @@ sub daemonize {
     open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
     my $daemon_pid = createpid();
 
-    # updating Log4perl's pid info
-    Log::Log4perl::MDC->put( 'tid',  $daemon_pid );
 }
 
 sub normal_sighandler {
