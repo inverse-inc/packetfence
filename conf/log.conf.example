@@ -3,31 +3,6 @@
 # specified using the additivity parameter
 log4perl.rootLogger = INFO, LOGFILE
 
-### Catalyst logger ###
-# Used to separate Catalyst framework logs in a different log file
-log4perl.category.Catalyst       = INFO, CATALYST
-log4perl.category.pfbandwidthd   = INFO, PFBANDWIDTHD
-log4perl.category.pfdetect       = INFO, PFDETECT
-log4perl.category.pfdhcplistener = INFO, PFDHCPLISTENER
-log4perl.category.pfdns          = INFO, PFDNS
-log4perl.category.pfmon          = INFO, PFMON
-
-#Uncomment if you want pfsetvlan in it's own seperate log
-#log4perl.category.pfsetvlan = INFO, PFSETVLAN
-
-# Prevent the message from bubbling up to it's parents
-log4perl.additivity.Catalyst       = 0
-
-log4perl.additivity.pfbandwidthd   = 0
-log4perl.additivity.pfdetect       = 0
-log4perl.additivity.pfdhcplistener = 0
-log4perl.additivity.pfdns          = 0
-log4perl.additivity.pfmon          = 0
-
-# Logs by default we want to bubble up to the main log
-log4perl.additivity.pfsetvlan      = 1
-
-
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
 #log4perl.category.pf.SNMP = WARN
@@ -43,74 +18,3 @@ log4perl.appender.LOGFILE.layout.ConversionPattern      = %d{MMM dd HH:mm:ss} %X
 log4perl.appender.LOGFILE.umask                         = 0002
 log4perl.appender.LOGFILE.user                          = pf
 log4perl.appender.LOGFILE.group                         = pf
-
-### General Catalyst (pfappserver) log facility configuration ###
-### Not meant to be modified ###
-log4perl.appender.CATALYST                              = Log::Log4perl::Appender::File
-log4perl.appender.CATALYST.filename                     = /usr/local/pf/logs/catalyst.log
-log4perl.appender.CATALYST.mode                         = append
-log4perl.appender.CATALYST.layout                       = PatternLayout
-log4perl.appender.CATALYST.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
-log4perl.appender.CATALYST.umask                        = 0002
-log4perl.appender.CATALYST.user                         = pf
-log4perl.appender.CATALYST.group                        = pf
-
-### Logging for pfbandwidthd
-log4perl.appender.PFBANDWIDTHD                              = Log::Log4perl::Appender::File
-log4perl.appender.PFBANDWIDTHD.filename                     = /usr/local/pf/logs/pfbandwidthd.log
-log4perl.appender.PFBANDWIDTHD.mode                         = append
-log4perl.appender.PFBANDWIDTHD.layout                       = PatternLayout
-log4perl.appender.PFBANDWIDTHD.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
-log4perl.appender.PFBANDWIDTHD.umask                        = 0002
-log4perl.appender.PFBANDWIDTHD.user                         = pf
-log4perl.appender.PFBANDWIDTHD.group                        = pf
-
-### Logging for pfdetect
-log4perl.appender.PFDETECT                              = Log::Log4perl::Appender::File
-log4perl.appender.PFDETECT.filename                     = /usr/local/pf/logs/pfdetect.log
-log4perl.appender.PFDETECT.mode                         = append
-log4perl.appender.PFDETECT.layout                       = PatternLayout
-log4perl.appender.PFDETECT.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
-log4perl.appender.PFDETECT.umask                        = 0002
-log4perl.appender.PFDETECT.user                         = pf
-log4perl.appender.PFDETECT.group                        = pf
-
-### Logging for pfdhcplistener
-log4perl.appender.PFDHCPLISTENER                              = Log::Log4perl::Appender::File
-log4perl.appender.PFDHCPLISTENER.filename                     = /usr/local/pf/logs/pfdhcplistener.log
-log4perl.appender.PFDHCPLISTENER.mode                         = append
-log4perl.appender.PFDHCPLISTENER.layout                       = PatternLayout
-log4perl.appender.PFDHCPLISTENER.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
-log4perl.appender.PFDHCPLISTENER.umask                        = 0002
-log4perl.appender.PFDHCPLISTENER.user                         = pf
-log4perl.appender.PFDHCPLISTENER.group                        = pf
-
-### Logging for pfdns
-log4perl.appender.PFDNS                              = Log::Log4perl::Appender::File
-log4perl.appender.PFDNS.filename                     = /usr/local/pf/logs/pfdns.log
-log4perl.appender.PFDNS.mode                         = append
-log4perl.appender.PFDNS.layout                       = PatternLayout
-log4perl.appender.PFDNS.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
-log4perl.appender.PFDNS.umask                        = 0002
-log4perl.appender.PFDNS.user                         = pf
-log4perl.appender.PFDNS.group                        = pf
-
-### Logging for pfmon
-log4perl.appender.PFMON                              = Log::Log4perl::Appender::File
-log4perl.appender.PFMON.filename                     = /usr/local/pf/logs/pfmon.log
-log4perl.appender.PFMON.mode                         = append
-log4perl.appender.PFMON.layout                       = PatternLayout
-log4perl.appender.PFMON.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
-log4perl.appender.PFMON.umask                        = 0002
-log4perl.appender.PFMON.user                         = pf
-log4perl.appender.PFMON.group                        = pf
-
-### Logging for pfsetvlan
-log4perl.appender.PFSETVLAN                              = Log::Log4perl::Appender::File
-log4perl.appender.PFSETVLAN.filename                     = /usr/local/pf/logs/pfsetvlan.log
-log4perl.appender.PFSETVLAN.mode                         = append
-log4perl.appender.PFSETVLAN.layout                       = PatternLayout
-log4perl.appender.PFSETVLAN.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
-log4perl.appender.PFSETVLAN.umask                        = 0002
-log4perl.appender.PFSETVLAN.user                         = pf
-log4perl.appender.PFSETVLAN.group                        = pf
