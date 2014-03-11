@@ -18,7 +18,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC=packetfence-remote-snort-sensor             # Introduce a short description here
 NAME=packetfence-remote-snort-sensor            # Introduce the short server's name here
 DAEMON=/usr/local/pf/sbin/pfdetect_remote # Introduce the server's location here
-PIDFILE=/usr/local/pf/var/pfdetect_remote.pid
+PIDFILE=/usr/local/pf/var/run/pfdetect_remote.pid
 SCRIPTNAME=/etc/init.d/$NAME
 PROGBASE="$(basename ${DAEMON})"
 
