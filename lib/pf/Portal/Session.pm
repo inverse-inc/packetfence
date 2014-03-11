@@ -20,7 +20,8 @@ use CGI;
 # TODO reconsider logging or showing generic error instead of this..
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
-use CGI::Session::Driver::memcached;
+use CGI::Session::Driver::chi;
+use pf::CHI;
 use HTML::Entities;
 use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use Log::Log4perl;
@@ -79,12 +80,12 @@ sub _initialize {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $cgi = new CGI;
     $cgi->charset("UTF-8");
- 
+
     $self->{'_cgi'} = $cgi;
 
     my $sid = $cgi->cookie('CGISESSID') || $cgi->param('CGISESSID') || $cgi;
-    
-    $self->{'_session'} = new CGI::Session( "driver:memcached", $sid, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } );
+
+    $self->{'_session'} = new CGI::Session( "driver:chi", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
 
     $self->{'_client_ip'} = $self->_restoreFromSession("_client_ip",sub {
             return $self->_resolveIp();
