@@ -26,7 +26,7 @@ use Catalyst qw/
     Authentication
     +pfappserver::Authentication::Store::PacketFence
     Session
-    Session::Store::File
+    Session::Store::CHI2
     Session::State::Cookie
     StackTrace
 /;
@@ -80,7 +80,8 @@ __PACKAGE__->config(
     },
 
     'Plugin::Session' => {
-        storage => '/usr/local/pf/var/session'
+        chi_class => 'pf::CHI',
+        namespace => 'httpd.admin',
     },
 
     'View::JSON' => {
