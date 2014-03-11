@@ -29,6 +29,7 @@ our $VERSION = '0.01';
     use Catalyst qw/Session Session::Store::CHI::File Session::State::Foo/;
 
     MyApp->config->{'Plugin::Session'} = {
+        <session args>
         <chi args>
     };
 
