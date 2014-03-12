@@ -218,15 +218,6 @@ Example:
   );
 
 
-=head2 Catalyst
-
-=head3 When to Reload
-
-This ideally should be done in the begin action of a Catalyst controller
-
-sub begin :Private { pf::config::cached::ReloadConfigs(); }
-
-
 =head2 HTML::FormHandler
 
 =head3 Default values
@@ -283,12 +274,14 @@ use Readonly;
 use Sub::Name;
 use List::Util qw(first);
 use List::MoreUtils qw(uniq);
+use Fcntl qw(:flock :DEFAULT :seek);
 
 
 our $CACHE;
 our @LOADED_CONFIGS;
 our %ON_RELOAD;
 our %ON_FILE_RELOAD;
+our %ON_FILE_RELOAD_ONCE;
 our %ON_CACHE_RELOAD;
 our %ON_POST_RELOAD;
 our @ON_DESTROY_REFS = (
@@ -346,6 +339,7 @@ sub new {
     my $config;
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
+    my $onFileReloadOnce = delete $params{'-onfilereloadonce'} || [];
     my $onCacheReload = delete $params{'-oncachereload'} || [];
     my $onPostReload = delete $params{'-onpostreload'} || [];
     my $reload_onfile;
@@ -373,6 +367,7 @@ sub new {
     push @LOADED_CONFIGS, $self;
     $self->addReloadCallbacks(@$onReload) if @$onReload;
     $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
+    $self->addFileReloadOnceCallbacks(@$onFileReloadOnce) if @$onFileReloadOnce;
     $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
     $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
     $self->doCallbacks($reload_onfile,!$reload_onfile);
@@ -486,6 +481,18 @@ sub _callFileReloadCallbacks {
     $self->_callCallbacks(\%ON_FILE_RELOAD);
 }
 
+=head2 _callFileReloadOnceCallbacks
+
+Call all the file reload callbacks that should be called only once
+
+=cut
+
+sub _callFileReloadOnceCallbacks {
+    my ($self) = @_;
+    my $callbacks =  $ON_FILE_RELOAD_ONCE{$self->GetFileName} || [];
+    $self->_doLockOnce( sub { $self->_callCallbacks(\%ON_FILE_RELOAD_ONCE) } ) if @$callbacks;
+}
+
 =head2 _callCacheReloadCallbacks
 
 Call all the cache reload callbacks
@@ -513,10 +520,55 @@ sub doCallbacks {
     if($file_reloaded || $cache_reloaded) {
         get_logger()->trace("doing callbacks for " . $self->GetFileName . " file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
         $self->_callReloadCallbacks unless $skipPrePostReload;
-        $self->_callFileReloadCallbacks if $file_reloaded;
+        if($file_reloaded) {
+            $self->_callFileReloadCallbacks;
+            $self->_callFileReloadOnceCallbacks;
+        }
         $self->_callCacheReloadCallbacks if $cache_reloaded;
         $self->_callPostReloadCallbacks unless $skipPrePostReload;
     }
+}
+
+sub _doLockOnce {
+    my ($self,$callback) = @_;
+    my $lockFile = $self->getOnReloadOnceLock();
+    if ($lockFile) {
+        $callback->();
+        flock($lockFile,LOCK_UN);
+        close($lockFile);
+    }
+    return;
+}
+sub getOnReloadOnceLock {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $fh = IO::File->new;
+    my $old_umask = umask(002);
+    my $lockFile = $self->GetFileName() . ".lockone" ;
+    if (sysopen($fh,$lockFile,O_CREAT|O_RDWR) ) {
+        if( flock($fh,LOCK_EX | LOCK_NB) ) {
+            my $previousTimestamp;
+            sysread $fh,$previousTimestamp,20;
+            $previousTimestamp ||= 0;
+            my $currentTimeStamp = $self->{_timestamp} || -1;
+            if($currentTimeStamp == $previousTimestamp) {
+                flock($fh,LOCK_UN);
+                close($fh);
+                $fh = undef;
+            } else {
+                truncate($fh,0);
+                sysseek($fh,0,SEEK_SET);
+                syswrite $fh,sprintf("%-20d",$currentTimeStamp);
+            }
+        } else {
+            close($fh);
+            $fh = undef;
+        }
+    } else {
+        $fh = undef;
+    }
+    umask($old_umask);
+    return $fh;
 }
 
 
@@ -684,18 +736,33 @@ sub computeFromPath {
     my $computeWrapper = sub {
         my $config = $computeSub->();
         $config->SetLastModTimestamp();
+        SetControlFileTimestamp($config);
         return $config;
     };
     my $result = $self->cache->compute(
         $file,
         {
-            expire_if => sub { return $expire || $_[0]->value->HasChanged(); },
+            expire_if => sub {
+                return 1 if $expire;
+                my $control_file_timestamp = $_[0]->value->{_control_file_timestamp} || -1;
+                return  ( controlFileExpired($control_file_timestamp) && $_[0]->value->HasChanged() ) ;
+            },
         },
         $computeWrapper
     );
     $computeWrapper = undef;
     $computeSub = undef;
     return $result;
+}
+#controlFileExpired($_[0]->value->{_control_file_timestamp}) &&
+sub SetControlFileTimestamp {
+    my ($self) = @_;
+    $self->{_control_file_timestamp} = pf::IniFiles::_getFileTimestamp($cache_control_file);
+}
+
+sub controlFileExpired {
+    my ($timestamp) = @_;
+    return $timestamp == -1 || $timestamp != pf::IniFiles::_getFileTimestamp($cache_control_file);
 }
 
 =head2 cache
@@ -783,9 +850,23 @@ sub addFileReloadCallbacks {
     $self->_addCallbacks($ON_FILE_RELOAD{$self->GetFileName},@args);
 }
 
+=head2 addFileReloadOnceCallbacks
+
+$self->addFileReloadOnceCallbacks('name' => sub {...});
+Add named callbacks to the onfilereloadonce array
+Called in insert order
+If callback already exists, previous callback is replaced and previous position is preserved
+
+=cut
+
+sub addFileReloadOnceCallbacks {
+    my ($self,@args) = @_;
+    $self->_addCallbacks($ON_FILE_RELOAD_ONCE{$self->GetFileName},@args);
+}
+
 =head2 addCacheReloadCallbacks
 
-$self->addFileReloadCallbacks('name' => sub {...});
+$self->addCacheReloadCallbacks('name' => sub {...});
 Add named callbacks to the onfilereload array
 Called in insert order
 If callback already exists, previous callback is replaced and previous position is preserved
@@ -941,6 +1022,22 @@ sub cleanupWhitespace {
 sub clearAllConfigs {
     my ($class) = @_;
     $class->cache->remove_multi(\@stored_config_files);
+}
+
+sub updateCacheControl {
+    my ($dontCreate) = @_;
+    if ( !-e $cache_control_file && !$dontCreate) {
+        my $fh;
+        open($fh,">$cache_control_file") or die "cannot create $cache_control_file\nplease pfcmd fixpermissions";
+        __changeFilesToOwner('pf',$cache_control_file);
+        close($fh);
+    }
+    if(-e $cache_control_file) {
+        my ($atime,$mtime);
+        $atime = $mtime = time;
+        utime $atime, $mtime, $cache_control_file;
+    }
+    return 0;
 }
 
 =head1 AUTHOR
