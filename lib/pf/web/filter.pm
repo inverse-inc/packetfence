@@ -95,7 +95,7 @@ sub dispatch_action {
     my ($self, $rule) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    if ($rule->{'action'} =~ /30\d/) {
+    if (defined $rule->{'action'} && $rule->{'action'} =~ /30\d/) {
         return \&redirect;
     } else {
         return \&code;
