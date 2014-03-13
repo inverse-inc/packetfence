@@ -846,13 +846,3 @@ CREATE TABLE inline_accounting (
    INDEX (ip)
  ) ENGINE=InnoDB;
 
---
--- Table structure for cache 
---
-
-CREATE TABLE cache_configfiles (
-   key  VARCHAR(255),
-   value MEDIUMBLOB,
-   last_updated BIGINT, 
-   INDEX (key)
- ) ENGINE=InnoDB;
