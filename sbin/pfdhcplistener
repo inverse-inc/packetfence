@@ -437,7 +437,9 @@ sub rogue_dhcp_handling {
 
     # ignore local DHCP servers
     return if ( grep({$_ eq $dhcp_srv_ip} get_local_dhcp_servers_by_ip()) );
-    return if ( grep({$_ eq $dhcp_srv_mac} get_local_dhcp_servers_by_mac()) );
+    if ( defined($dhcp_srv_mac) ) {
+        return if ( grep({$_ eq $dhcp_srv_mac} get_local_dhcp_servers_by_mac()) );
+    }
 
     # ignore whitelisted DHCP servers
     return if ( grep({$_ eq $dhcp_srv_ip} split(/\s*,\s*/, $Config{'general'}{'dhcpservers'})) );
