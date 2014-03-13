@@ -22,6 +22,7 @@ use pf::file_paths;
 use pf::IniFiles;
 use Hash::Merge;
 use List::MoreUtils qw(uniq);
+use DBI;
 
 Hash::Merge::specify_behavior(
     {
@@ -69,8 +70,14 @@ sub chiConfigFromIniFile {
     foreach my $key (@keys) {
         $args{$key} = sectionData($chi_config,$key);
     }
+    my $dbi = delete $args{dbi};
     foreach my $storage (values %{$args{storage}}) {
-        setFileDriverParams($storage) if($storage->{driver} eq 'File');
+        my $driver = $storage->{driver};
+        if($driver eq 'File') {
+            setFileDriverParams($storage);
+        } elsif($driver eq 'DBI') {
+            setDBIDriverParams($storage, $dbi);
+        }
         foreach my $param (qw(servers traits roles)) {
             if(exists $storage->{$param}) {
                 my $value =  listify($storage->{$param});
@@ -92,6 +99,16 @@ sub setFileDriverParams {
     $storage->{file_create_mode} = oct('00664');
     $storage->{umask_on_store} = oct('00007');
     $storage->{traits} = ['+pf::Role::CHI::Driver::FileUmask'];
+}
+
+sub setDBIDriverParams {
+    my ($storage, $dbi) = @_;
+    $storage->{table_prefix} = 'cache_';
+    $storage->{dbh} = sub {
+        my ($db,$host,$port,$user,$pass) = @{$dbi}{qw(db host port user pass)};
+        return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
+        $user, $pass, { RaiseError => 0, PrintError => 0 } );
+    }
 }
 
 sub setRawL1CacheAsLast {
