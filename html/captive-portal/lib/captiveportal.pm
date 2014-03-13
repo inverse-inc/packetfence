@@ -26,7 +26,7 @@ use Catalyst qw/
   I18N
   Authentication
   Session
-  Session::Store::File
+  Session::Store::CHI
   Session::State::Cookie
   StackTrace
   /;
@@ -79,7 +79,12 @@ __PACKAGE__->config(
         ],
         ignore_extensions => [qw/cgi php inc tt html xml/],
     },
-    'Plugin::Session'          => { storage => '/usr/local/pf/var/session' },
+    'Plugin::Session'          => {
+        chi_class => 'pf::CHI',
+        chi_args => {
+            namespace => 'httpd_portal',
+        },
+    },
     default_view               => 'HTML',
 );
 
