@@ -672,7 +672,7 @@ fi
                         /usr/local/pf/conf/allowed-gaming-oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
                         /usr/local/pf/conf/authentication.conf.example
-%config                 /usr/local/pf/conf/chi.conf
+%config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
