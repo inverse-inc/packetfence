@@ -26,7 +26,7 @@ use Catalyst qw/
     Authentication
     +pfappserver::Authentication::Store::PacketFence
     Session
-    Session::Store::CHI2
+    Session::Store::CHI
     Session::State::Cookie
     StackTrace
 /;
@@ -39,6 +39,7 @@ BEGIN {
     use pf::log service => 'httpd.admin';
 }
 use pf::config::cached;
+use pf::CHI;
 
 extends 'Catalyst';
 
@@ -85,7 +86,7 @@ __PACKAGE__->config(
     'Plugin::Session' => {
         chi_class => 'pf::CHI',
         chi_args => {
-            namespace => 'httpd_admin',
+            namespace => 'httpd.admin',
         }
     },
 
