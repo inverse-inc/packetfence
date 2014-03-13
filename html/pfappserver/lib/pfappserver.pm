@@ -84,7 +84,9 @@ __PACKAGE__->config(
 
     'Plugin::Session' => {
         chi_class => 'pf::CHI',
-        namespace => 'httpd.admin',
+        chi_args => {
+            namespace => 'httpd_admin',
+        }
     },
 
     'View::JSON' => {

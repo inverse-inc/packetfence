@@ -18,18 +18,17 @@ Catalyst::Plugin::Session::Store::CHI - The great new Catalyst::Plugin::Session:
 
 =head1 VERSION
 
-Version 0.01
+Version 0.10
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
     use Catalyst qw/Session Session::Store::CHI::File Session::State::Foo/;
 
     MyApp->config->{'Plugin::Session'} = {
-        <session args>
         <chi args>
     };
 
@@ -108,49 +107,59 @@ sub setup_session {
     my $c = shift;
     $c->maybe::next::method(@_);
     my $config = $c->_session_plugin_config;
-    my %args = %$config;
-    foreach my $param (qw(expires expiry_threshold verify_address verify_user_agent flash_to_stash)) {
-        delete $args{$param}
-    }
-    my $chi_class = delete $args{chi_class} || "CHI";
-    my $chi = $chi_class->new(%args);
+    my $args = $config->{chi_args};
+    #deleting Catalyst::Plugin::Session variables
+    my $chi_class = $config->{chi_class} || "CHI";
+    my $chi = $chi_class->new(%$args);
     $c->_chi($chi);
 }
 
 =head1 CONFIGURATION
 
     $c->config('Plugin::Session' => {
-        expires => 1234,
-        driver => 'Memory',
-        global => 1
+        chi_args =>  {
+            expires => 1234,
+            driver => 'Memory',
+            global => 1
+        }
     });
 
     $c->config('Plugin::Session' => {
-        driver => 'File',
-        root_dir => '/path/to/root'
+        chi_args =>  {
+            driver => 'File',
+            root_dir => '/path/to/root'
+        }
     });
 
 
     $c->config('Plugin::Session' => {
-        driver => 'FastMmap',
-        root_dir => '/path/to/root',
-        cache_size => '1k'
+        chi_args =>  {
+            driver => 'FastMmap',
+            root_dir => '/path/to/root',
+            cache_size => '1k'
+        }
     });
 
     $c->config('Plugin::Session' => {
-        driver  => 'Memcached::libmemcached',
-        servers => [ "10.0.0.15:11211", "10.0.0.15:11212" ],
-        l1_cache => { driver => 'FastMmap', root_dir => '/path/to/root' }
+        chi_args =>  {
+            driver  => 'Memcached::libmemcached',
+            servers => [ "10.0.0.15:11211", "10.0.0.15:11212" ],
+            l1_cache => { driver => 'FastMmap', root_dir => '/path/to/root' }
+        }
     });
 
     $c->config('Plugin::Session' => {
-        driver  => 'DBI',
-        dbh => $dbh
+        chi_args =>  {
+            driver  => 'DBI',
+            dbh => $dbh
+        }
     });
 
     $c->config('Plugin::Session' => {
-        driver  => 'BerkeleyDB',
-        root_dir => '/path/to/root'
+        chi_args =>  {
+            driver  => 'BerkeleyDB',
+            root_dir => '/path/to/root'
+        }
     });
 
 =head2 chi_class
