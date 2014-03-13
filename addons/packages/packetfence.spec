@@ -717,7 +717,9 @@ fi
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.mo
 %config(noreplace)      /usr/local/pf/conf/log.conf
+%config(noreplace)      /usr/local/pf/conf/log.conf.d/*.conf
                         /usr/local/pf/conf/log.conf.example
+                        /usr/local/pf/conf/log.conf.d/*.example
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
                         /usr/local/pf/conf/nessus/remotescan.nessus.example
