@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 4.0.7\n"
+"Project-Id-Version: 4.1.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2013-11-13 15:40-0400\n"
+"PO-Revision-Date: 2014-03-13 16:27-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -48,23 +48,19 @@ msgstr ""
 msgid "A manual start from the command line will be required. Are you sure you want to continue?"
 msgstr ""
 
-# pf::admin_roles (Groups)
-msgid "ADMIN_ROLES"
-msgstr "Admin Roles"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "ADMIN_ROLES_CREATE"
 msgstr "Admin Roles - Create"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "ADMIN_ROLES_DELETE"
 msgstr "Admin Roles - Delete"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "ADMIN_ROLES_READ"
 msgstr "Admin Roles - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "ADMIN_ROLES_UPDATE"
 msgstr "Admin Roles - Update"
 
@@ -132,9 +128,8 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
-# html/pfappserver/root/user/create.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Actions"
@@ -155,6 +150,10 @@ msgstr ""
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "Add a condition."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/view.tt
+msgid "Add a language."
 msgstr ""
 
 # html/pfappserver/root/portal/profile/create.tt
@@ -267,6 +266,7 @@ msgid "All imported nodes will be registered. If a MAC matches an existing node,
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SponsorEmail.pm
 msgid "Allow Local Domain"
 msgstr ""
 
@@ -380,19 +380,15 @@ msgstr ""
 msgid "CLI"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
-# pf::admin_roles (Groups)
-msgid "CONFIGURATION_MAIN"
-msgstr "Main Configuration"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "CONFIGURATION_MAIN_READ"
 msgstr "Main Configuration - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "CONFIGURATION_MAIN_UPDATE"
 msgstr "Main Configuration - Update"
 
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "CSV File"
 msgstr ""
@@ -573,6 +569,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Controller IP Address"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Controller Port"
 msgstr ""
 
 # conf/documentation.conf (vlan.trap_limit)
@@ -845,6 +845,10 @@ msgstr ""
 msgid "Drop"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
+msgid "Duration"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Dynamic Uplinks"
 msgstr ""
@@ -923,6 +927,10 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
+# conf/documentation.conf (services.httpd_mod_qos)
+msgid "Enables mod_qos for the portal "
+msgstr ""
+
 # conf/documentation.conf (trapping.detection)
 msgid ""
   "Enables snort-based worm detection.  If you don't have a span"
@@ -968,6 +976,10 @@ msgstr ""
 msgid "Error!"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
+msgid "Example"
+msgstr ""
+
 # html/pfappserver/root/configuration/authentication.tt
 msgid "Exclusive"
 msgstr ""
@@ -988,37 +1000,29 @@ msgstr ""
 msgid "External Sources"
 msgstr ""
 
-# pf::admin_roles (Groups)
-msgid "FINGERPRINTS"
-msgstr "Fingerprints"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "FINGERPRINTS_READ"
 msgstr "Fingerprints - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "FINGERPRINTS_UPDATE"
 msgstr "Fingerprints - Update"
 
-# pf::admin_roles (Groups)
-msgid "FLOATING_DEVICES"
-msgstr "Floating Devices"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "FLOATING_DEVICES_CREATE"
 msgstr "Floating Devices - Create"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "FLOATING_DEVICES_DELETE"
 msgstr "Floating Devices - Delete"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "FLOATING_DEVICES_READ"
 msgstr "Floating Devices - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "FLOATING_DEVICES_UPDATE"
-msgstr "Floating Devices - Update"
+msgstr "Floating Devices - UpdateFields required to be filled in the self-registration form. Valid values are:firstname, lastname, organization, phone, mobileprovider, email, sponsor_email. Basic validation of minimally required values per guest mode is provided by default."
 
 # conf/documentation.conf (guests_self_registration.mandatory_fields)
 msgid ""
@@ -1136,23 +1140,19 @@ msgstr ""
 msgid "ID of the scanning configuration on the OpenVAS server"
 msgstr ""
 
-# pf::admin_roles (Groups)
-msgid "INTERFACES"
-msgstr "Interfaces"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "INTERFACES_CREATE"
 msgstr "Interfaces - Create"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "INTERFACES_DELETE"
 msgstr "Interfaces - Delete"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "INTERFACES_READ"
 msgstr "Interfaces - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "INTERFACES_UPDATE"
 msgstr "Interfaces - Update"
 
@@ -1161,13 +1161,16 @@ msgid "IP"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 # html/pfappserver/root/configuration/floatingdevice/list.tt
 # html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/interface/list.tt
 # html/pfappserver/root/node/view.tt
 msgid "IP Address"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "IP Address/Mac Address"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
@@ -1292,6 +1295,10 @@ msgstr ""
 msgid "Interval at which Packetfence runs its maintenance tasks."
 msgstr ""
 
+# conf/documentation.conf (general.cache_update_interval)
+msgid "Interval at which Packetfence update the config cache"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Is a device"
 msgstr ""
@@ -1314,6 +1321,10 @@ msgstr ""
 msgid "Keep The Same"
 msgstr ""
 
+# html/pfappserver/root/portal/profile/view.tt
+msgid "Languages"
+msgstr ""
+
 # html/pfappserver/root/admin/users.tt
 msgid "Last Name"
 msgstr ""
@@ -1327,10 +1338,6 @@ msgstr ""
 
 # html/pfappserver/root/admin/users.tt
 msgid "Legend"
-msgstr ""
-
-# conf/documentation.conf (general.locale)
-msgid "Locale used for message translation. More than one can be specified."
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -1415,7 +1422,6 @@ msgstr ""
 # html/pfappserver/root/configuration/floatingdevice/list.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/user/violations.tt
-# pf::admin_roles (Groups)
 msgid "MAC"
 msgstr ""
 
@@ -1436,11 +1442,11 @@ msgstr ""
 msgid "MAC address"
 msgstr ""
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "MAC_READ"
 msgstr "MAC Addresses - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "MAC_UPDATE"
 msgstr "MAC Addresses - Update"
 
@@ -1484,23 +1490,19 @@ msgstr ""
 msgid "Multiple"
 msgstr ""
 
-# pf::admin_roles (Groups)
-msgid "NODES"
-msgstr "Nodes"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "NODES_CREATE"
 msgstr "Nodes - Create"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "NODES_DELETE"
 msgstr "Nodes - Delete"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "NODES_READ"
 msgstr "Nodes - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "NODES_UPDATE"
 msgstr "Nodes - Update"
 
@@ -1736,23 +1738,19 @@ msgstr ""
 msgid "Owner"
 msgstr ""
 
-# pf::admin_roles (Groups)
-msgid "PORTAL_PROFILES"
-msgstr "Portal Profiles"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "PORTAL_PROFILES_CREATE"
 msgstr "Portal Profiles - Create"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "PORTAL_PROFILES_DELETE"
 msgstr "Portal Profiles - Delete"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "PORTAL_PROFILES_READ"
 msgstr "Portal Profiles - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "PORTAL_PROFILES_UPDATE"
 msgstr "Portal Profiles - Update"
 
@@ -1832,7 +1830,7 @@ msgid "Please specify the DNS server"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "Please specify the IP address of the switch."
+msgid "Please specify the IP address/Mac Address of the switch."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
@@ -1917,6 +1915,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Portal URL"
 msgstr ""
 
@@ -2003,8 +2002,7 @@ msgstr ""
 msgid "RADIUS"
 msgstr ""
 
-# pf::admin_roles (Actions)
-# pf::admin_roles (Groups)
+# pf::admin_roles (Admin roles actions)
 msgid "REPORTS"
 msgstr "Reports"
 
@@ -2085,6 +2083,14 @@ msgstr ""
 # html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
 msgid "Registration Window"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
+msgid "Relative to the beginning of the day"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
+msgid "Relative to the beginning of the period"
 msgstr ""
 
 # html/pfappserver/root/node/violations.tt
@@ -2218,8 +2224,7 @@ msgstr ""
 msgid "Rules"
 msgstr ""
 
-# pf::admin_roles (Actions)
-# pf::admin_roles (Groups)
+# pf::admin_roles (Admin roles actions)
 msgid "SERVICES"
 msgstr "Services"
 
@@ -2231,23 +2236,19 @@ msgstr ""
 msgid "SNMP"
 msgstr ""
 
-# pf::admin_roles (Groups)
-msgid "SOH"
-msgstr "SoH Filters"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "SOH_CREATE"
 msgstr "SoH Filters - Create"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "SOH_DELETE"
 msgstr "SoH Filters - Delete"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "SOH_READ"
 msgstr "SoH Filters - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "SOH_UPDATE"
 msgstr "SoH Filters - Update"
 
@@ -2264,23 +2265,19 @@ msgstr ""
 msgid "SWITCH"
 msgstr ""
 
-# pf::admin_roles (Groups)
-msgid "SWITCHES"
-msgstr "Switches"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "SWITCHES_CREATE"
 msgstr "Switches - Create"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "SWITCHES_DELETE"
 msgstr "Switches - Delete"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "SWITCHES_READ"
 msgstr "Switches - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "SWITCHES_UPDATE"
 msgstr "Switches - Update"
 
@@ -2653,6 +2650,10 @@ msgstr ""
 msgid "The hidden SSID where the user should connect to after registration"
 msgstr ""
 
+# conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device)
+msgid "The maximum connections per device "
+msgstr ""
+
 # conf/documentation.conf (billing.authorizenet_login)
 msgid "The merchant's unique API Login ID (Provided by Authorize.net)"
 msgstr ""
@@ -2804,80 +2805,57 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-# pf::admin_roles (Groups)
-msgid "USERAGENTS"
-msgstr "Useragents"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERAGENTS_READ"
 msgstr "Useragents - Read"
 
-# pf::admin_roles (Groups)
-msgid "USERS"
-msgstr "Users"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERS_CREATE"
 msgstr "Users - Create"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERS_DELETE"
 msgstr "Users - Delete"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERS_READ"
 msgstr "Users - Read"
 
-# pf::admin_roles (Groups)
-msgid "USERS_ROLES"
-msgstr "Users Roles"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERS_ROLES_CREATE"
 msgstr "Users Roles - Create"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERS_ROLES_DELETE"
 msgstr "Users Roles - Delete"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERS_ROLES_READ"
 msgstr "Users Roles - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERS_ROLES_UPDATE"
 msgstr "Users Roles - Update"
 
-# pf::admin_roles (Groups)
-msgid "USERS_SOURCES"
-msgstr "Users Sources"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERS_SOURCES_CREATE"
 msgstr "Users Sources - Create"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERS_SOURCES_DELETE"
 msgstr "Users Sources - Delete"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERS_SOURCES_READ"
 msgstr "Users Sources - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERS_SOURCES_UPDATE"
 msgstr "Users Sources - Update"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "USERS_UPDATE"
-msgstr "Users - Update"
-
-# conf/documentation.conf (trapping.always_use_redirecturl)
-msgid ""
-  "Under most circumstances we can redirect the user to the URL he originally "
-  "intended to visit. When enabled, always_use_redirecturl forces the captive "
-  "portal to redirect the user to the URL defined in trapping.redirecturl instead."
-msgstr ""
+msgstr "Users - UpdateUnder most circumstances we can redirect the user to the URL he originally intended to visit. When enabled, always_use_redirecturl forces the captive portal to redirect the user to the URL defined in trapping.redirecturl instead."
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Unregistration"
@@ -2983,23 +2961,19 @@ msgstr ""
 msgid "Users"
 msgstr ""
 
-# pf::admin_roles (Groups)
-msgid "VIOLATIONS"
-msgstr "Violations"
-
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "VIOLATIONS_CREATE"
 msgstr "Violations - Create"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "VIOLATIONS_DELETE"
 msgstr "Violations - Delete"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "VIOLATIONS_READ"
 msgstr "Violations - Read"
 
-# pf::admin_roles (Actions)
+# pf::admin_roles (Admin roles actions)
 msgid "VIOLATIONS_UPDATE"
 msgstr "Violations - Update"
 
@@ -3110,6 +3084,10 @@ msgid "With no condition, the inline mode will never be activated."
 msgstr ""
 
 # html/pfappserver/root/portal/profile/view.tt
+msgid "With no language specified, all supported locales will be available."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/view.tt
 msgid "With no source specified, all internal sources will be used."
 msgstr ""
 
@@ -3145,6 +3123,10 @@ msgstr "Output"
 # pf::pfcmd::report (report_nodebandwidth)
 msgid "accttotal"
 msgstr "Total"
+
+# html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+msgid "add"
+msgstr ""
 
 # conf/documentation.conf
 msgid "advanced"
@@ -3194,6 +3176,10 @@ msgstr ""
 # pf::config (Inline triggers)
 msgid "always"
 msgstr "Always"
+
+# html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
+msgid "and"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
@@ -3305,10 +3291,6 @@ msgstr "User"
 msgid "days"
 msgstr ""
 
-# conf/documentation.conf (general.locale options)
-msgid "de_DE"
-msgstr ""
-
 # html/pfappserver/root/portal/profile/index.tt
 msgid "default"
 msgstr ""
@@ -3350,6 +3332,8 @@ msgstr ""
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.httpd_mod_qos options)
+# conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device options)
 # conf/documentation.conf (services.iptables options)
 # conf/documentation.conf (services.memcached options)
 # conf/documentation.conf (services.pfdns options)
@@ -3391,10 +3375,6 @@ msgstr ""
 msgid "email_action"
 msgstr "Send email"
 
-# conf/documentation.conf (general.locale options)
-msgid "en_US"
-msgstr ""
-
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (guests_self_registration.preregistration options)
@@ -3407,6 +3387,8 @@ msgstr ""
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.httpd_mod_qos options)
+# conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device options)
 # conf/documentation.conf (services.iptables options)
 # conf/documentation.conf (services.memcached options)
 # conf/documentation.conf (services.pfdns options)
@@ -3434,10 +3416,6 @@ msgstr ""
 
 # pf::Authentication::constants (Conditions)
 msgid "equals"
-msgstr ""
-
-# conf/documentation.conf (general.locale options)
-msgid "es_ES"
 msgstr ""
 
 # conf/documentation.conf
@@ -3468,13 +3446,13 @@ msgstr "External command"
 msgid "firstname"
 msgstr ""
 
-# conf/documentation.conf (general.locale options)
-msgid "fr_FR"
-msgstr ""
-
 # conf/documentation.conf
 msgid "general"
 msgstr "General"
+
+# conf/documentation.conf
+msgid "general.cache_update_interval"
+msgstr "Cache update interval"
 
 # conf/documentation.conf
 msgid "general.dhcpservers"
@@ -3491,10 +3469,6 @@ msgstr "Domain"
 # conf/documentation.conf
 msgid "general.hostname"
 msgstr "Hostname"
-
-# conf/documentation.conf
-msgid "general.locale"
-msgstr "Locale"
 
 # conf/documentation.conf
 msgid "general.maintenance_interval"
@@ -3544,10 +3518,6 @@ msgstr "Preregistration"
 # conf/documentation.conf
 msgid "guests_self_registration.sponsorship_cc"
 msgstr "Sponsorship CC"
-
-# conf/documentation.conf (general.locale options)
-msgid "he_IL"
-msgstr ""
 
 # conf/documentation.conf (interface.type options)
 msgid "high-availability"
@@ -3629,10 +3599,6 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
-msgstr ""
-
-# conf/documentation.conf (general.locale options)
-msgid "it_IT"
 msgstr ""
 
 # conf/documentation.conf (guests_self_registration.mandatory_fields options)
@@ -3754,10 +3720,6 @@ msgstr "Rogue DHCP detection"
 msgid "network.rogueinterval"
 msgstr "Rogue interval"
 
-# conf/documentation.conf (general.locale options)
-msgid "nl_NL"
-msgstr ""
-
 # conf/documentation.conf (node_import.voip options)
 msgid "no"
 msgstr ""
@@ -3821,10 +3783,6 @@ msgstr ""
 msgid "phonenumber"
 msgstr ""
 
-# conf/documentation.conf (general.locale options)
-msgid "pl_PL"
-msgstr ""
-
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
 msgid "port"
@@ -3865,10 +3823,6 @@ msgstr "SSID"
 # conf/documentation.conf
 msgid "proxies"
 msgstr "Proxies"
-
-# conf/documentation.conf (general.locale options)
-msgid "pt_BR"
-msgstr ""
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "redir.cgi"
@@ -4000,16 +3954,24 @@ msgid "services.httpd_binary"
 msgstr "httpd path"
 
 # conf/documentation.conf
+msgid "services.httpd_mod_qos"
+msgstr "QOS"
+
+# conf/documentation.conf
+msgid "services.httpd_mod_qos_maximum_connections_per_device"
+msgstr "QOS max connections"
+
+# conf/documentation.conf
 msgid "services.iptables"
 msgstr "iptables"
 
 # conf/documentation.conf
 msgid "services.memcached"
-msgstr ""
+msgstr "memcached"
 
 # conf/documentation.conf
 msgid "services.memcached_binary"
-msgstr ""
+msgstr "memcached path"
 
 # conf/documentation.conf
 msgid "services.pfdns"
@@ -4095,6 +4057,10 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 msgid "starts with"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+msgid "subtract"
 msgstr ""
 
 # conf/documentation.conf (trapping.detection_engine options)
@@ -4193,6 +4159,7 @@ msgstr "UserAgent"
 
 # pf::Authentication::Source::HtpasswdSource (available_attributes)
 # pf::Authentication::Source::KerberosSource (available_attributes)
+# pf::Authentication::Source::NullSource (available_attributes)
 # pf::Authentication::Source::RADIUSSource (available_attributes)
 msgid "username"
 msgstr ""

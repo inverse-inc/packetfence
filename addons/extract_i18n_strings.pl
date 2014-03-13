@@ -17,6 +17,7 @@ use File::Find;
 use lib qw(/usr/local/pf/lib /usr/local/pf/html/pfappserver/lib);
 use pf::config;
 use pf::action;
+use pf::admin_roles;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::Switch::constants;
@@ -225,6 +226,8 @@ sub extract_modules {
     const('pf::config', 'VALID_TRIGGER_TYPES', \@pf::config::VALID_TRIGGER_TYPES);
     const('pf::config', 'Inline triggers', [$pf::config::MAC, $pf::config::PORT, $pf::config::SSID, $pf::config::ALWAYS]);
     const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
+
+    const('pf::admin_roles', 'Admin roles actions', \@ADMIN_ACTIONS);
 
     my @values = map { "${_}_action" } @pf::action::VIOLATION_ACTIONS;
     const('pf::action', 'VIOLATION_ACTIONS', \@values);
