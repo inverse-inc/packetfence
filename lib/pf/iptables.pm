@@ -246,11 +246,16 @@ sub generate_inline_rules {
 
     $logger->info("Adding DNS DNAT rules for unregistered and isolated inline clients.");
 
-    my $rule = "--protocol udp --destination-port 53";
-    $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
-            . "--jump REDIRECT\n";
-    $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
-            . "--jump REDIRECT\n";
+    foreach my $network ( keys %ConfigNetworks ) {
+        # We skip non-inline networks/interfaces
+        next if ( !pf::config::is_network_type_inline($network) );
+
+        my $rule = "--protocol udp --destination-port 53";
+        $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
+            . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+        $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
+            . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+    }
 
     if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
         $logger->info("Adding Proxy interception rules");
@@ -424,19 +429,23 @@ sub generate_nat_redirect_rules {
     foreach my $redirectport ( split( /\s*,\s*/, $Config{'inline'}{'ports_redirect'} ) ) {
         my ( $port, $protocol ) = split( "/", $redirectport );
 
-        # Destination NAT to the portal on the UNREG mark if trapping.registration is enabled
-        if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
+        foreach my $network ( keys %ConfigNetworks ) {
+            # We skip non-inline networks/interfaces
+            next if ( !pf::config::is_network_type_inline($network) );
+
+            # Destination NAT to the portal on the UNREG mark if trapping.registration is enabled
+            if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
+                $rules .=
+                    "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " .
+                    "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $ConfigNetworks{$network}{'gateway'}";
+            }
+
+            # Destination NAT to the portal on the ISOLATION mark
             $rules .=
                 "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " .
-                "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump REDIRECT\n"
-            ;
+                "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $ConfigNetworks{$network}{'gateway'}";
         }
 
-        # Destination NAT to the portal on the ISOLATION mark
-        $rules .=
-            "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " .
-            "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump REDIRECT\n"
-        ;
     }
     return $rules;
 }
@@ -623,4 +632,5 @@ USA.
 =cut
 
 1;
+
 
