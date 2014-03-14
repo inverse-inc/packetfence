@@ -4,9 +4,9 @@
                 <div class="nav-collapse collapse navbar-responsive-collapse">
 
                   <form class="navbar-search pull-left input-daterange datepicker" action="">
-                    <input type="text" class="search-query input-small" name="start" value="[% c.session.reports.start %]" data-date-format="yyyy-mm-dd" />
+                    <input type="text" class="search-query input-small" name="start" value="[% c.session.reports.start | html %]" data-date-format="yyyy-mm-dd" />
                     <i class="icon-arrow-right"></i>
-                    <input type="text" class="search-query input-small" name="end" value="[% c.session.reports.end %]" data-date-format="yyyy-mm-dd" date-datestart="[% c.session.reports.start %]" />
+                    <input type="text" class="search-query input-small" name="end" value="[% c.session.reports.end | html %]" data-date-format="yyyy-mm-dd" date-datestart="[% c.session.reports.start | html %]" />
                   </form>
                 </div>
 

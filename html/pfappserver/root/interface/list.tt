@@ -14,16 +14,16 @@
           <tbody>
            [% FOREACH i IN interfaces.keys.sort %]
             <tr>
-              <td><div class="switch switch-mini"><input type="checkbox" id="[% i %]" name="[% i %]"[% IF interfaces.$i.is_running %] checked="checked"[% END %]/></div></td>
-              <td><a href="[% c.uri_for(c.controller('Interface').action_for('view'), [i]) %]">[% interfaces.$i.name %]</a>[% IF interfaces.$i.vlan %] <span class="label">vlan [% interfaces.$i.vlan %]</span>[% END %]</td>
-              <td>[% interfaces.$i.ipaddress %]</td>
-              <td class="hidden-phone">[% interfaces.$i.netmask %]</td>
+              <td><div class="switch switch-mini"><input type="checkbox" id="[% i | html %]" name="[% i | html %]"[% IF interfaces.$i.is_running %] checked="checked"[% END %]/></div></td>
+              <td><a href="[% c.uri_for(c.controller('Interface').action_for('view'), [i]) %]">[% interfaces.$i.name | html %]</a>[% IF interfaces.$i.vlan %] <span class="label">vlan [% interfaces.$i.vlan | html %]</span>[% END %]</td>
+              <td>[% interfaces.$i.ipaddress | html %]</td>
+              <td class="hidden-phone">[% interfaces.$i.netmask | html %]</td>
               <td class="hidden-phone">[% l(interfaces.$i.type) %]</td>
               <td>
                 [% IF interfaces.$i.vlan -%]
-                [% IF can_access("INTERFACES_DELETE") %]<a class="btn btn-mini btn-danger" interface="[% i %]" href="[% c.uri_for(c.controller('Interface').action_for('delete'), [i]) %]">[% l('Delete') %]</a>[% END %]
+                [% IF can_access("INTERFACES_DELETE") %]<a class="btn btn-mini btn-danger" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('delete'), [i]) %]">[% l('Delete') %]</a>[% END %]
                 [% ELSE -%]
-                [% IF can_access("INTERFACES_CREATE") %]<a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="[% c.uri_for(c.controller('Interface').action_for('create'), [i]) %]">[% l('Add VLAN') %]</a>[% END %]
+                [% IF can_access("INTERFACES_CREATE") %]<a class="btn btn-mini" data-toggle="modal" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('create'), [i]) %]">[% l('Add VLAN') %]</a>[% END %]
                 [% END -%]
               </td>
             </tr>
@@ -31,10 +31,10 @@
             <tr class="network">
               <td></td>
               <td colspan="3">
-                  [% l('default network:') %] [% IF interfaces.$i.network_iseditable %]<a href="[% c.uri_for(c.controller('Config::Networks').action_for('view'), [interfaces.$i.network]) %]">[% interfaces.$i.network %]</a>[% ELSE %][% interfaces.$i.network %][% END %]
+                  [% l('default network:') %] [% IF interfaces.$i.network_iseditable %]<a href="[% c.uri_for(c.controller('Config::Networks').action_for('view'), [interfaces.$i.network]) %]">[% interfaces.$i.network | html %]</a>[% ELSE %][% interfaces.$i.network | html %][% END %]
                   [%- IF interfaces.$i.networks %], [% l('routed networks:') %]
                     [%- FOREACH network IN interfaces.$i.networks %]
-                      <a href="[% c.uri_for(c.controller('Config::Networks').action_for('view'), [network]) %]">[% network %]</a>[% ', ' IF NOT loop.last %]
+                      <a href="[% c.uri_for(c.controller('Config::Networks').action_for('view'), [network]) %]">[% network | html %]</a>[% ', ' IF NOT loop.last %]
                     [%- END %]
                   [%- END %]
               </td>

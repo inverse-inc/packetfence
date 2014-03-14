@@ -35,8 +35,8 @@
         <tbody>
           [% FOREACH filter IN filters %]
           <tr>
-            <td>[% filter.filter_id %]</td>
-            <td><a href="[% c.uri_for(c.controller('SoH').action_for('read'), [ filter.filter_id ]) %]#modalFilter">[% filter.name %]</a></td>
+            <td>[% filter.filter_id | html %]</td>
+            <td><a href="[% c.uri_for(c.controller('SoH').action_for('read'), [ filter.filter_id ]) %]#modalFilter">[% filter.name | html %]</a></td>
             <td class="hidden-phone">[% l(filter.action) %]</td>
             <td>
               [%- IF can_access("SOH_DELETE") %]

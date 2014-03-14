@@ -24,12 +24,12 @@
               <tbody>
                 [%- FOREACH user IN items -%]
                 <tr>
-                  <td><a href="[% c.uri_for(c.controller('User').action_for('view'), [ user.pid ]) %]">[% user.pid %] [% IF user.password %]<i class="icon-pencil"></i>[% END %]</a></td>
-                  <td class="hidden-phone">[% user.firstname %]</td>
-                  <td class="hidden-phone">[% user.lastname %]</td>
-                  <td>[% user.email %]</td>
-                  <td>[% user.telephone %]</td>
-                  <td>[% IF user.nodes > 0 %]<span class="badge">[% user.nodes %]</span>[% END %]</td>
+                  <td><a href="[% c.uri_for(c.controller('User').action_for('view'), [ user.pid ]) %]">[% user.pid | html %] [% IF user.password %]<i class="icon-pencil"></i>[% END %]</a></td>
+                  <td class="hidden-phone">[% user.firstname | html %]</td>
+                  <td class="hidden-phone">[% user.lastname | html %]</td>
+                  <td>[% user.email | html %]</td>
+                  <td>[% user.telephone | html %]</td>
+                  <td>[% IF user.nodes > 0 %]<span class="badge">[% user.nodes | html %]</span>[% END %]</td>
                 </tr>
                 [%- END -%]
               </tbody>

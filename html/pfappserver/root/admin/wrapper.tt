@@ -82,13 +82,13 @@
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-info-sign icon-white"></i></a>
                 <ul class="dropdown-menu">
-                  <li class="disabled"><a href="#">[% pf_release %]</a></li>
+                  <li class="disabled"><a href="#">[% pf_release | html %]</a></li>
                 </ul>
               </li>
             </ul>
             <ul class="nav pull-right">
               <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user icon-white"></i> [% c.user %]<b class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user icon-white"></i> [% c.user | html %]<b class="caret"></b></a>
                 <ul class="dropdown-menu">
                   <li><a href="[% c.uri_for(c.controller('Admin').action_for('logout')) %]"><i class="icon-off"></i> [% l('Log out') %]</a></li>
                 </ul>

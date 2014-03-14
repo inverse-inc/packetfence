@@ -1,6 +1,6 @@
 <div class="piegraph">
   <h2>[% title %]</h2>
-  <h6>[% range.start %] <i class="icon-arrow-right"></i> [% range.end %]</h6>
+  <h6>[% range.start | html %] <i class="icon-arrow-right"></i> [% range.end | html %]</h6>
   [% IF options.size %]<i class="icon-bar-chart"></i>
   [% FOREACH o IN options -%]
   <a href="[% c.pf_hash_for(c.action, o) %]"[% IF option == o %] class="active"[% END %]>[% l(o) %]</a>
@@ -13,14 +13,14 @@
 [%- IF labels.size > 0 %]
 <div class="row-fluid">
   <div class="span8">
-    <div id="[% id %]" class="chart"></div>
+    <div id="[% id | html %]" class="chart"></div>
     <script type="text/javascript">
-graphs.charts['[% id %]'] = {
-    type: '[% graphtype %]',
-    labels: ['[% labels.join("','") %]'],
+graphs.charts['[% id | html %]'] = {
+    type: '[% graphtype | html %]',
+    labels: ['[% labels.join("','") | html %]'],
     series: {
     [% FOREACH set IN series.keys -%]
-      '[% set %]' : [[% series.$set.join(',') %]][% UNLESS loop.last %],[% END %]
+      '[% set | html %]' : [[% series.$set.join(',') | html %]][% UNLESS loop.last %],[% END %]
     [%- END %]
     }
 };
@@ -36,8 +36,8 @@ graphs.charts['[% id %]'] = {
       <tbody>
         [% FOREACH label IN labels -%]
         <tr id="[% label | css %]"[% IF loop.count > piecut %] class="muted"[% END %]>
-          <td>[% label %]</td>
-          <td>[% i = loop.index %][% values.$i %]</td>
+          <td>[% label | html %]</td>
+          <td>[% i = loop.index %][% values.$i | html %]</td>
         </tr>
         [%- END %]
       </tbody>

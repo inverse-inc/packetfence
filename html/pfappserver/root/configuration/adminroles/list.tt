@@ -9,7 +9,7 @@
         <tbody>
           [% FOREACH adminrole IN items %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('view'), [ adminrole.id ]) %]">[% adminrole.id %]</a></td>
+            <td><a href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('view'), [ adminrole.id ]) %]">[% adminrole.id | html %]</a></td>
             <td>[% adminrole.description | html%]</td>
             <td>
               [% IF can_access("ADMIN_ROLES_CREATE") %]<a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('clone'), [ adminrole.id]) %]">[% l('Clone') %]</a>[% END %]
