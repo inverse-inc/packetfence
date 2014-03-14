@@ -34,7 +34,6 @@
               [% list_entry('graph/ssid','SSIDs')%]
               <li class="nav-header">[% l('Accounting') %]</li>
               [% list_entry('graph/nodebandwidth', 'Top 25 Bandwith Consumers')%]
-              [% list_entry('graph/osclassbandwidth', 'Bandwith per Operating System')%]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
