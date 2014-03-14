@@ -1,23 +1,23 @@
 <div class="linegraph">
   [% FOREACH counter IN counters %]
-  <div id="[% counter.id %]" class="counter">
-    <h3>[% counter.count.nb %]</h3>
+  <div id="[% counter.id | html %]" class="counter">
+    <h3>[% counter.count.nb | html %]</h3>
     <h6>[% l(counter.title) %]</h6>
   </div>
   [% END %]
   [% IF section == 'reports' -%]
-  <h2>[% title %]</h2>
-  <h6>[% range.start %] <i class="icon-arrow-right"></i> [% range.end %]</h6>
+  <h2>[% title | html %]</h2>
+  <h6>[% range.start | html %] <i class="icon-arrow-right"></i> [% range.end | html %]</h6>
   [%- END %]
   [%- IF labels.size > 0 %]
-  <div id="[% id %]" class="chart"></div>
+  <div id="[% id | html %]" class="chart"></div>
   <script type="text/javascript">
-    graphs.charts['[% id %]'] = {
-      type: '[% graphtype %]',
-      labels: ['[% labels.join("','") %]'],
+    graphs.charts['[% id | html %]'] = {
+      type: '[% graphtype | html %]',
+      labels: ['[% labels.join("','") | html %]'],
       series: {
         [% FOREACH set IN series.keys -%]
-        '[% set %]' : [[% series.$set.join(',') %]][% UNLESS loop.last %],[% END %]
+        '[% set | html %]' : [[% series.$set.join(',') | html %]][% UNLESS loop.last %],[% END %]
         [%- END %]
       }
     };

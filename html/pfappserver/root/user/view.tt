@@ -4,7 +4,7 @@
 
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
-          <h3><i>[% l('User') %]</i> [% user.pid %][% IF user.password %] <i class="icon-pencil"></i>[% END %]</h3>
+          <h3><i>[% l('User') %]</i> [% user.pid | html %][% IF user.password %] <i class="icon-pencil"></i>[% END %]</h3>
         </div>
 
         <div class="modal-body">
@@ -125,10 +125,10 @@
                 <tbody>
                 [% FOR node IN nodes %]
                 <tr>
-                  <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
-                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a></td>
-                  <td>[% node.computername %]</td>
-                  <td>[% node.dhcp_fingerprint %]</td>
+                  <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) | html %]</span></td>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac | html %]</a></td>
+                  <td>[% node.computername | html %]</td>
+                  <td>[% node.dhcp_fingerprint | html %]</td>
                 </tr>
                 [% END %]
                 </tbody>

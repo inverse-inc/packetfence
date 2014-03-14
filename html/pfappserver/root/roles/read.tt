@@ -1,8 +1,8 @@
 <form name="role" class="form-horizontal" action="[% action_uri %]">
-  [%- IF role %]<input type="hidden" name="id" value="[% role.category_id %]">[% END %]
+  [%- IF role %]<input type="hidden" name="id" value="[% role.category_id | html %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF role %]<i>[% l('Role') %]</i> [% role.name || role.category_id %][% ELSE %][% l('New Role') %][% END %]</h3>
+    <h3>[% IF role %]<i>[% l('Role') %]</i> [% (role.name || role.category_id) | html %][% ELSE %][% l('New Role') %][% END %]</h3>
   </div>
 
   <div class="modal-body">

@@ -60,10 +60,10 @@ form {
                     tab ='simple';
                 END%]
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="[% tab %]">[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::Node').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
+                <a href="#" data-toggle="pf-search-form" data-target="[% tab | html %]">[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::Node').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
                 <form>
                   [%FOREACH input IN form.keys.sort%]
-                  <input type="hidden" name="[%input%]" value="[%form.$input%]"/>
+                  <input type="hidden" name="[%input | html %]" value="[%form.$input | html%]"/>
                   [%END%]
                 </form>
               </li>

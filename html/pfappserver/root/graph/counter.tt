@@ -1,4 +1,4 @@
-<span id="[% id %]" class="counter">
-  <h3>[% count.nb %]</h3>
+<span id="[% id | html %]" class="counter">
+  <h3>[% count.nb | html %]</h3>
   <h6>[% l(title) %]</h6>
 </span>

@@ -66,20 +66,20 @@
         <span class="divider"><i class="icon-chevron-right"/></span>
       </li>
       <li>
-        <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [id]) %]" >[% id %]</a>
+        <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [id]) %]" >[% id | html %]</a>
         <span class="divider"><i class="icon-chevron-right"/></span>
       </li>
       <li>
         <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[id])  %]">[% l('Files') %]</a>
         <span class="divider"><i class="icon-chevron-right"/></span>
       </li>
-      <li class="active"> [% file_name %] </li>
+      <li class="active"> [% file_name | html %] </li>
     </ul>
     <div>
       <form class="form-inline" id="rename_file" autocomplete="off" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('rename'),[id], paths ) %]" >
-        <span class="inline" id="file_name"><h3 class="inline">[% directory %]<a title="Click to rename">[% file_name %]</a></h3></span>
-        <span class="hidden inline"><input class="inline" type="text" value="[% file_name %]" id="new_file_name" name="to"/></span>
-        <span class="invisible" id="width">[% file_name %]</span>
+        <span class="inline" id="file_name"><h3 class="inline">[% directory | html %]<a title="Click to rename">[% file_name | html %]</a></h3></span>
+        <span class="hidden inline"><input class="inline" type="text" value="[% file_name | html %]" id="new_file_name" name="to"/></span>
+        <span class="invisible" id="width">[% file_name | html %]</span>
       </form>
     </div>
     <div>

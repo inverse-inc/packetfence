@@ -62,7 +62,7 @@
             <div class="control-group">
               <label class="control-label" for="root_user">[% l('Username') %]</label>
               <div class="controls">
-                <input id="root_user" class="text" type="text" value="[% c.session.root_user %]">
+                <input id="root_user" class="text" type="text" value="[% c.session.root_user | html %]">
               </div>
             </div>
             <div class="control-group">

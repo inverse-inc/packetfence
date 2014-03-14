@@ -57,20 +57,20 @@ dd.aup {
           <hr/>
           <dl class="dl-horizontal">
             <dt>[% l('Username') %]</dt>
-            <dd>[% user.pid %]</dd>
+            <dd>[% user.pid | html %]</dd>
             <dt>[% l('Password') %]</dt>
-            <dd>[% user.password %]</dd>
+            <dd>[% user.password | html %]</dd>
             [% IF user.email -%]
             <dt>[% l('Email address') %]</dt>
-            <dd>[% user.email %]</dd>
+            <dd>[% user.email | html %]</dd>
             [% END -%]
             [% IF user.txt_valid_from -%]
             <dt>[% l('Activation') %]</dt>
-            <dd>[% user.txt_valid_from %]</dd>
+            <dd>[% user.txt_valid_from | html %]</dd>
             [% END -%]
             [% IF user.txt_duration -%]
             <dt>[% l('Expiration') %]</dt>
-            <dd>[% user.txt_duration %]</dd>
+            <dd>[% user.txt_duration | html %]</dd>
             [% END -%]
             <dt class="aup">[% l('Acceptable Use Policy') %]</dt>
             <dd class="aup">[% aup %]</dd>

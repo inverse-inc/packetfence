@@ -11,9 +11,9 @@
         <tbody>
           [% FOREACH item IN items %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a></td>
+            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
             <td>[% item.ip %][% IF item.switch %] <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('view'), [ item.switch.id ]) %]">[% l('Edit switch') %]</a>[% END %]</td>
-            <td class="hidden-phone">[% item.pvid %]</td>
+            <td class="hidden-phone">[% item.pvid | html %]</td>
             <td class="hidden-phone">[% IF item.trunkPort == 'yes' %]<i class=" icon-ok"></i>[% END %]</td>
             <td>
               [%- IF can_access("FLOATING_DEVICES_CREATE") %]

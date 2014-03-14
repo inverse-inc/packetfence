@@ -11,9 +11,9 @@
     <tbody>
     [%- FOR item IN items %]
     <tr[% ' class="muted"' IF item.status != 'open' %]>
-      <td>[% item.description %]</td>
-      <td>[% item.start_date %]</td>
-      <td>[% item.release_date %]</td>
+      <td>[% item.description | html %]</td>
+      <td>[% item.start_date | html %]</td>
+      <td>[% item.release_date | html %]</td>
       <td>[% IF item.status == 'open' && can_access("NODES_UPDATE") %]<a href="[% c.uri_for(c.controller('Node').action_for('closeViolation'), [item.id]) %]" class="btn btn-mini">[% l('Release') %]</a>[% END %]</td>
     </tr>
     [%- END %]
@@ -29,7 +29,7 @@
   <div class="controls pull-right">
   <select name="vid" id="vid" class="" data-placeholder="[% l('Select a violation') %]">
       [%- FOREACH violation IN violations %]
-      [% IF violation.desc %]<option value="[% violation.id %]">[% violation.desc %]</option>[% END %]
+      [% IF violation.desc %]<option value="[% violation.id | html %]">[% violation.desc | html %]</option>[% END %]
       [%- END -%]
   </select>
   <a id="addViolation" class="btn btn-warning" href="[% c.uri_for(c.controller('Node').action_for('triggerViolation'), [mac]) %]">[% l('Trigger') %]</a>

@@ -7,10 +7,10 @@
 [%END%]
 <ul class="breadcrumb">
   <li><a href="[% c.uri_for(c.controller('Admin').action_for('configuration')) %]#authentication">[% l('User Sources') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
-  <li class="active">[% heading %]</li>
+  <li class="active">[% heading | html %]</li>
 </ul>
 
-<h3>[% heading %] <small>[% source.type %]</small></h3>
+<h3>[% heading | html %] <small>[% source.type | html %]</small></h3>
 
     [% IF message %]<div class="alert alert-success">
       <button class="close" data-dismiss="alert">&times;</button>
