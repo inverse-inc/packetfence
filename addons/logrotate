@@ -5,7 +5,6 @@
     rotate 52
     missingok
     compress
-    delaycompress
     su pf pf
     copytruncate
 }
