@@ -666,19 +666,16 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
+                        /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
-                        /usr/local/pf/conf/adminroles.conf.example
 %config(noreplace)      /usr/local/pf/conf/allowed-gaming-oui.txt
                         /usr/local/pf/conf/allowed-gaming-oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
-                        /usr/local/pf/conf/authentication.conf.example
 %config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
-                        /usr/local/pf/conf/floating_network_device.conf.example
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
-                        /usr/local/pf/conf/guest-managers.conf.example
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
@@ -718,13 +715,11 @@ fi
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.mo
 %config(noreplace)      /usr/local/pf/conf/log.conf
 %config(noreplace)      /usr/local/pf/conf/log.conf.d/*.conf
-                        /usr/local/pf/conf/log.conf.example
                         /usr/local/pf/conf/log.conf.d/*.example
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
                         /usr/local/pf/conf/nessus/remotescan.nessus.example
 %config(noreplace)      /usr/local/pf/conf/networks.conf
-                        /usr/local/pf/conf/networks.conf.example
 %config                 /usr/local/pf/conf/openssl.cnf
 %config                 /usr/local/pf/conf/oui.txt
 %config                 /usr/local/pf/conf/pf.conf.defaults
@@ -745,7 +740,6 @@ fi
                         /usr/local/pf/conf/snort/reference.config.example
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
-                        /usr/local/pf/conf/switches.conf.example
 %config                 /usr/local/pf/conf/dhcpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/block-unwanted.conf
@@ -759,19 +753,14 @@ fi
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
-                        /usr/local/pf/conf/iptables.conf.example
 %config(noreplace)      /usr/local/pf/conf/listener.msg
                         /usr/local/pf/conf/listener.msg.example
 %config(noreplace)      /usr/local/pf/conf/mdm.conf
-                        /usr/local/pf/conf/mdm.conf.example
 %config(noreplace)      /usr/local/pf/conf/popup.msg
                         /usr/local/pf/conf/popup.msg.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
-                        /usr/local/pf/conf/profiles.conf.example
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
-                        /usr/local/pf/conf/snmptrapd.conf.example
 %config(noreplace)      /usr/local/pf/conf/snort.conf
-                        /usr/local/pf/conf/snort.conf.example
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
                         /usr/local/pf/conf/snort.conf.pre_snort-2.8.example
 %config(noreplace)      /usr/local/pf/conf/suricata.yaml
@@ -781,10 +770,8 @@ fi
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
-                        /usr/local/pf/conf/ui-global.conf.example
 %dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
-                        /usr/local/pf/conf/violations.conf.example
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
