@@ -499,6 +499,29 @@ sub wiredeauthTechniques {
     }
 }
 
+=item handleReAssignVlanTrapForWiredMacAuth
+
+Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authentication.
+
+Default behavior is to bounce the port
+
+=cut
+
+sub handleReAssignVlanTrapForWiredMacAuth {
+    my ($this, $ifIndex, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
+
+    $logger->warn("Until CoA is implemented we will bounce the port on VLAN re-assignment traps for MAC-Auth");
+
+    # TODO perform CoA instead (when implemented)
+    # actually once CoA will be implemented, we should consider offering the same option to users
+    # as we currently do with port-security and VoIP which is bounce or not bounce and suffer consequences
+    # this should be a choice exposed in configuration and not hidden in code
+    $this->bouncePort($ifIndex);
+}
+
 =back
 
 =head1 AUTHOR
