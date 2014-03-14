@@ -40,7 +40,8 @@ server packetfence {
 
     post-auth {
         exec
-        if (!EAP-Type || (EAP-Type != 21 && EAP-Type != 25)) {
+        # skip packetfence if we have already treated it in the inner-tunnel
+        if (!EAP-Type || (EAP-Type != EAP-TTLS  && EAP-Type != PEAP)) {
             packetfence
         }
         Post-Auth-Type REJECT {
