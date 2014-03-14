@@ -44,6 +44,9 @@
   <IfModule !mod_qos.c>
     LoadModule qos_module /usr/lib/apache2/modules/mod_qos.so
   </IfModule>
+  <IfModule !mod_deflate.c>
+    LoadModule deflate_module /usr/lib/apache2/modules/mod_deflate.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -89,6 +92,9 @@
   </IfModule>
   <IfModule !mod_qos.c>
     LoadModule qos_module modules/mod_qos.so
+  </IfModule>
+  <IfModule !mod_deflate.c>
+    LoadModule deflate_module modules/mod_deflate.so
   </IfModule>
 </IfDefine>
 
@@ -193,6 +199,7 @@ foreach my $interface (@internal_nets) {
          DocumentRoot => $install_dir.'/html/captive-portal',
          ErrorLog => $install_dir.'/logs/portal_error_log',
          CustomLog => $install_dir.'/logs/portal_access_log combined',
+         AddOutputFilterByType => 'DEFLATE text/css text/javascript application/javascript',
          Include => $var_dir.'/conf/captive-portal-common.conf',
          Include => $var_dir.'/conf/captive-portal-cleanurls.conf',
     ));
@@ -203,6 +210,7 @@ foreach my $interface (@internal_nets) {
          CustomLog => $install_dir.'/logs/portal_access_log combined',
          SSLEngine => 'on',
          SSLProxyEngine    => 'on',
+         AddOutputFilterByType => 'DEFLATE text/css text/javascript application/javascript',
          Include => $var_dir.'/conf/ssl-certificates.conf',
          Include => $var_dir.'/conf/captive-portal-common.conf',
          Include => $var_dir.'/conf/captive-portal-cleanurls.conf',
@@ -243,5 +251,4 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
 } 
 
 </Perl>
-
 
