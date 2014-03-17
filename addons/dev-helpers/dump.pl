@@ -10,7 +10,7 @@ dump add documentation
 
 =head1 SYNOPSIS
 
-dump.pl <config|floatingdevices|profiles_filters|profiles|sources|switch|switches>
+dump.pl <config|floatingdevices|profiles_filters|profiles|sources|switch <id>|switches>
 
 =head1 DESCRIPTION
 
@@ -73,6 +73,32 @@ __PACKAGE__->mark_as_loaded();
 sub _run {
     require pf::authentication;
     print Dumper(\@pf::authentication::authentication_sources);
+}
+
+package pf::dump::switch;
+use base qw(pf::dump::cmd);
+use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
+
+sub parseArgs {
+    my ($self) = @_;
+    return $self->args == 1;
+}
+
+sub _run {
+    my ($self) = @_;
+    require pf::SwitchFactory;
+    print Dumper(pf::SwitchFactory->getInstance->instantiate($self->args));
+}
+
+package pf::dump::switches;
+use base qw(pf::dump::cmd);
+use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
+
+sub _run {
+    require pf::ConfigStore::Switch;
+    print Dumper(\%pf::ConfigStore::Switch::SwitchConfig);
 }
 
 package pf::dump::chiconfig;
