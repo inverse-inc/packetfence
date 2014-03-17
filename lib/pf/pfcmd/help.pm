@@ -93,14 +93,19 @@ EOF
 }
 
 sub help_cache {
+    require pf::CHI;
+    my $namespaces = join("\n  ",@pf::CHI::CACHE_NAMESPACES);
     print STDERR << "EOT";
 Usage: pfcmd cache <namespace> <options>
 
-manage the cache subsystem
+Options:
   list           | list all keys in the cache
   clear          | clear the cache
   remove <key>   | remove the key from the cache
   dump <key>     | dump value the key from the cache
+
+Namespaces:
+  $namespaces
 
 EOT
     return 1;
