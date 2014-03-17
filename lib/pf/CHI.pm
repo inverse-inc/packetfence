@@ -21,8 +21,10 @@ use CHI::Driver::RawMemory;
 use pf::file_paths;
 use pf::IniFiles;
 use Hash::Merge;
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(uniq any);
+use List::Util qw(first);
 use DBI;
+use Scalar::Util qw(tainted reftype);
 
 Hash::Merge::specify_behavior(
     {
@@ -90,7 +92,8 @@ sub chiConfigFromIniFile {
     }
     setRawL1CacheAsLast($args{storage}{configfiles});
     my $merge = Hash::Merge->new('PF_CHI_MERGE');
-    return $merge->merge( \%DEFAULT_CONFIG, \%args );
+    my $config = $merge->merge( \%DEFAULT_CONFIG, \%args );
+    return $config;
 }
 
 sub setFileDriverParams {
@@ -124,7 +127,8 @@ sub sectionData {
     my ($config,$section) = @_;
     my %args;
     foreach my $param ($config->Parameters($section)) {
-        $args{$param} = $config->val($section,$param);
+        my $val = $config->val($section,$param);
+        $args{$param} = $1 if $val =~ /^(.*)$/;
     }
     my @sections = uniq map { s/^$section ([^ ]+).*$//;$1 } grep { /^$section / } $config->Sections;
     foreach my $name (@sections) {
