@@ -88,10 +88,10 @@ form {
             <div class="tabbable">
               <div class="tab-content">
                 <ul class="nav nav-tabs">
-                  <li class="active"><a href="#simple" data-toggle="tab">[% l('Simple') %]</a></li>
-                  <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
+                  <!--li class="active"><a href="#simple" data-toggle="tab">[% l('Simple') %]</a></li-->
+                  <li class="active"><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
                 </ul>
-                <div class="tab-pane active well" id="simple">
+                <!--div class="tab-pane active well" id="simple">
                   <form id="simpleSearch" method="POST" name="simpleSearch" class="form-inline" action="[% c.pf_hash_for(c.controller('Node').action_for('simple_search')) %]">
                   <input type="text" name="filter" placeholder="Search..." value="[% filter | html %]">
                   <div class="btn-group pull-right">
@@ -102,8 +102,8 @@ form {
                     </ul>
                   </div>
                   </form>
-                </div>
-                <div class="tab-pane well" id="advanced">
+                </div-->
+                <div class="tab-pane active well" id="advanced">
                   <form id="advancedSearch" name="advancedSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
                     <input type="hidden" name="page_num">
                     <input type="hidden" name="per_page">
