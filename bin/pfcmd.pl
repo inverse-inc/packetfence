@@ -69,7 +69,8 @@ use Date::Parse;
 use File::Basename qw(basename);
 use Log::Log4perl;
 use Try::Tiny;
-use List::MoreUtils qw(part);
+use List::MoreUtils qw(part any);
+use Scalar::Util qw(tainted);
 
 use constant {
     INSTALL_DIR        => '/usr/local/pf',
@@ -154,6 +155,7 @@ if (! exists($cmd_tmp{'grammar'})) {
     %cmd = %cmd_tmp;
     # TODO minor refactoring: call method using exit( method() ) instead of appending an exit(1)
     my %commands = (
+        'cache' => sub { exit (cache()) },
         'checkup' => sub {
             my $return = checkup();
             print "Nothing to report.\n" if ($return == $FALSE);
@@ -2466,6 +2468,35 @@ sub _changeFilesToOwner {
 
 sub configreload {
     pf::config::cached::updateCacheControl();
+    return 0;
+}
+
+sub cache {
+    require pf::CHI;
+    my $namespace  = $cmd{command}[1];
+    my $action  = $cmd{command}[2];
+    $namespace = $1 if $namespace =~ /^(.*+)$/;
+    $action = $1 if $action =~ /^(.*+)$/;
+    unless ( any { $namespace eq $_ } @pf::CHI::CACHE_NAMESPACES ) {
+        print "the namespace '$namespace' does not exist\n";
+        return 1;
+    }
+    my $cache = pf::CHI->new( namespace => $namespace);
+    if ($action eq 'list' ) {
+        print join("\n",$cache->get_keys),"\n";
+    } elsif ($action eq 'clear') {
+        $cache->remove($_) for map { /^(.*)$/;$1  } $cache->get_keys;
+    } elsif ($action eq 'remove') {
+        my $key   = $cmd{command}[3];
+        $key = $1 if $key =~ /^(.*)$/;
+        $cache->remove($key);
+    } elsif ($action eq 'dump') {
+        my $key   = $cmd{command}[3];
+        $key = $1 if $key =~ /^(.*)$/;
+        require Data::Dumper;
+        print Data::Dumper::Dumper($cache->get($key));
+    }
+
     return 0;
 }
 

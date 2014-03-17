@@ -45,6 +45,7 @@ sub usage {
     print { $to_stdout ? *STDOUT : *STDERR } << "EOF";
 Usage: $command <command> [options]
 
+cache                        | manage the cache subsystem
 checkup                      | perform a sanity checkup and report any problems or warnings
 class                        | view violation classes
 config                       | query, set, or get help on pf.conf configuration paramaters
@@ -88,6 +89,20 @@ violationconfig              | query/modify violations.conf configuration parame
 
 Please view "$command help <command>" for details on each option
 EOF
+    return 1;
+}
+
+sub help_cache {
+    print STDERR << "EOT";
+Usage: pfcmd cache <namespace> <options>
+
+manage the cache subsystem
+  list           | list all keys in the cache
+  clear          | clear the cache
+  remove <key>   | remove the key from the cache
+  dump <key>     | dump value the key from the cache
+
+EOT
     return 1;
 }
 
