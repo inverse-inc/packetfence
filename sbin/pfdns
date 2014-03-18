@@ -18,7 +18,6 @@ pfdns [options]
 use warnings;
 use strict;
 use Readonly;
-use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
 use Getopt::Std;
 use Pod::Usage;
@@ -37,6 +36,7 @@ BEGIN {
 use pf::config;
 use pf::config::cached;
 use pf::util;
+use pf::services::util;
 use pf::pfdns::constants;
 use pf::CHI;
 
@@ -45,6 +45,10 @@ use pf::CHI;
 # assign process name (see #1464)
 
 # init signal handlers
+our $PROGRAM_NAME = $0 = basename($0);
+
+my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+
 POSIX::sigaction(
     &POSIX::SIGHUP,
     POSIX::SigAction->new(
@@ -74,15 +78,11 @@ my $daemonize = $args{d};
 
 pod2usage( -verbose => 1 ) if ( $args{h} );
 
-$PROGRAM_NAME = basename($PROGRAM_NAME);
-
-my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
-
 our $RUNNING = 1;
 
 
 # standard signals and daemonize
-daemonize() if ($daemonize);
+daemonize($PROGRAM_NAME) if ($daemonize);
 
 my @ip_addr;
 my @routed_inline_nets_named;
@@ -224,27 +224,6 @@ sub isolzone {
 
     # mark the answer as authoritive (by setting the 'aa' flag
     return ($rcode, \@ans, \@auth, \@add, { aa => 1 });
-}
-
-
-sub daemonize {
-    chdir '/' or $logger->logdie("Can't chdir to /: $!");
-    open STDIN, '<', '/dev/null'
-        or $logger->logdie("Can't read /dev/null: $!");
-    open STDOUT, '>', '/dev/null'
-        or $logger->logdie("Can't write to /dev/null: $!");
-
-    defined( my $pid = fork )
-        or $logger->logdie("pfdns: could not fork: $!");
-    POSIX::_exit(0) if ($pid);
-    if ( !POSIX::setsid() ) {
-        $logger->error("could not start a new session: $!");
-    }
-    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-    my $daemon_pid = createpid("pfdns");
-
-    # updating Log4perl's pid info
-    Log::Log4perl::MDC->put( 'tid',  $daemon_pid );
 }
 
 sub normal_sighandler {

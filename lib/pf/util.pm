@@ -618,24 +618,6 @@ sub get_internal_info {
     return;
 }
 
-sub createpid {
-    my ($pname) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    $pname = basename($0) if ( !$pname );
-    my $pid     = $$;
-    my $pidfile = $var_dir . "/run/$pname.pid";
-    $logger->info("$pname starting and writing $pid to $pidfile");
-    my $outfile = new FileHandle ">$pidfile";
-    if ( defined($outfile) ) {
-        print $outfile $pid;
-        $outfile->close;
-        return ($pid);
-    } else {
-        $logger->error("$pname: unable to open $pidfile for writing: $!");
-        return (-1);
-    }
-}
-
 sub readpid {
     my ($pname) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');

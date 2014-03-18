@@ -1,3 +1,22 @@
+package pf::log::trapper;
+use Log::Log4perl;
+Log::Log4perl->wrapper_register(__PACKAGE__);
+
+sub TIEHANDLE {
+    my $class = shift;
+    my $level = shift;
+    bless [Log::Log4perl->get_logger(),$level], $class;
+}
+
+sub OPEN {}
+
+sub PRINT {
+    my $self = shift;
+    local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
+    $self->[0]->log($self->[1],@_);
+}
+1;
+
 package pf::log;
 
 =head1 NAME
@@ -15,6 +34,7 @@ pf::log
 use strict;
 use warnings;
 use Log::Log4perl;
+use Log::Log4perl::Level;
 use pf::file_paths;
 use File::Basename qw(basename);
 
@@ -27,6 +47,8 @@ sub import {
         if($service) {
             Log::Log4perl->init_and_watch("$log_conf_dir/${service}.conf",5 * 60);
             Log::Log4perl::MDC->put( 'proc', $service );
+            tie *STDERR,'pf::log::trapper',$ERROR;
+            tie *STDOUT,'pf::log::trapper',$DEBUG;
         } else {
             Log::Log4perl->init($log_config_file);
             Log::Log4perl::MDC->put( 'proc', basename($0) );
@@ -41,6 +63,8 @@ sub import {
 
 sub get_logger { Log::Log4perl->get_logger(@_); }
 
+sub redirectStdIo {
+}
 
 =head1 AUTHOR
 

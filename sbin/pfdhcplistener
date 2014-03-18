@@ -16,7 +16,6 @@ pfdhcplistener -i <interface> [options]
 
 use warnings;
 use strict;
-use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
 use Getopt::Std;
 use Net::Pcap 0.16;
@@ -28,7 +27,7 @@ BEGIN {
     # log4perl init
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
-    use pf::log(service => 'pfdetect');
+    use pf::log(service => 'pfdhcplistener');
 }
 
 use pf::config;
@@ -49,7 +48,7 @@ use List::MoreUtils qw(any);
 # initialization
 # --------------
 # assign process name (see #1464)
-$PROGRAM_NAME = basename($PROGRAM_NAME);
+our $PROGRAM_NAME = $0 = basename($0);
 
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
 
@@ -94,7 +93,7 @@ my @local_dhcp_servers;
 my $pcap;
 
 # standard signals and daemonize
-daemonize() if ($daemonize);
+daemonize($PROGRAM_NAME) if ($daemonize);
 
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
@@ -568,26 +567,6 @@ sub process_fingerprint {
     }
 
     return $fingerprint_data;
-}
-
-sub daemonize {
-    chdir '/' or $logger->logdie("Can't chdir to /: $!");
-    open STDIN, '<', '/dev/null'
-        or $logger->logdie("Can't read /dev/null: $!");
-    open STDOUT, '>', '/dev/null'
-        or $logger->logdie("Can't write to /dev/null: $!");
-
-    defined( my $pid = fork )
-        or $logger->logdie("pfdhcplistener: could not fork: $!");
-    POSIX::_exit(0) if ($pid);
-    if ( !POSIX::setsid() ) {
-        $logger->error("could not start a new session: $!");
-    }
-    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-    my $daemon_pid = createpid("pfdhcplistener_$interface");
-
-    # updating Log4perl's pid info
-    Log::Log4perl::MDC->put( 'tid',  $daemon_pid );
 }
 
 sub normal_sighandler {

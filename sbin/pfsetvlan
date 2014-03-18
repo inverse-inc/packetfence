@@ -32,7 +32,6 @@ require 5.8.8;
 
 use Cache::FileCache;
 use Data::Dumper;
-use English qw( ‐no_match_vars ); # no match avoids regex performance penalty
 use File::Basename qw(basename);
 use File::Tail;
 use Getopt::Long;
@@ -48,7 +47,6 @@ BEGIN {
 }
 
 use constant {
-    LOG_FILE   => INSTALL_DIR . "/logs/packetfence.log",
     PFCMD_FILE => INSTALL_DIR . "/bin/pfcmd"
 };
 
@@ -64,6 +62,7 @@ use pf::Switch::constants;
 use pf::SwitchFactory;
 use pf::traplog;
 use pf::util;
+use pf::services::util;
 use pf::violation;
 use pf::vlan::custom $VLAN_API_LEVEL;
 use threads;
@@ -75,9 +74,9 @@ $thread = 1;
 # initialization
 # --------------
 # assign process name (see #1464)
-$PROGRAM_NAME = basename($PROGRAM_NAME);
+our $PROGRAM_NAME = $0 = basename($0);
 
-my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
 
 # Initialize a new cache for the traps sent from switches IfIndex
 our $traps_switchIfIndex_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitSwitchIfIndex'} );
@@ -145,32 +144,7 @@ my $fh = new File::Tail(
     'maxinterval' => 2
 );
 
-if ($daemonize) {
-
-# Begin - Daemonize the program (see http://www.webreference.com/perl/tutorial/9/index.html)
-
-    chdir('/') or $logger->logdie("Can't chdir to /: $!");
-    open( STDIN, '<', '/dev/null' )
-        or $logger->logdie("Can't read /dev/null: $!");
-    open STDERR, '>>', LOG_FILE
-        or $logger->logdie( "Can't open " . LOG_FILE );
-    open STDOUT, '>>', LOG_FILE
-        or $logger->logdie( "Can't open " . LOG_FILE );
-
-    # (at this point STDOUT and STDERR should be redirected to files)
-
-    defined( my $pid = fork ) or $logger->logdie("Can't fork: $!");
-    POSIX::_exit(0) if $pid;
-    POSIX::setsid() or $logger->logdie("Can't start a new session: $!");
-    umask 0;
-
-    # Write the PID
-    if ( !createpid() ) {
-        $logger->logdie("unable to daemonize");
-    }
-}
-
-# End - Daemonize...
+daemonize($PROGRAM_NAME) if $daemonize;
 
 $logger->info("Process started");
 

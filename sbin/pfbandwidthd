@@ -13,7 +13,6 @@ pfbandwidthd
 use warnings;
 use strict;
 use Readonly;
-use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
 use Getopt::Std;
 use Pod::Usage;
@@ -30,17 +29,18 @@ BEGIN {
     # log4perl init
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
-    use pf::log(service => 'pfdetect');
+    use pf::log(service => 'pfbandwidthd');
 }
 
 use pf::config;
 use pf::util;
+use pf::services::util;
 use pf::inline::accounting;
 
 # initialization
 # --------------
 # assign process name (see #1464)
-$PROGRAM_NAME = basename($PROGRAM_NAME);
+our $PROGRAM_NAME = $0 = basename($0);
 
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
 
@@ -75,7 +75,7 @@ my $daemonize = $args{d};
 pod2usage( -verbose => 1 ) if ( $args{h} );
 
 # standard signals and daemonize
-daemonize() if ($daemonize);
+daemonize($PROGRAM_NAME) if ($daemonize);
 
 my %ip_stats = ();
 my %seen_inline_ips;
@@ -249,26 +249,6 @@ sub dropprivs {
 
   POSIX::setgid($gid) or $logger->logdie("Can't setgid to $group: $!");;
   POSIX::setuid($uid) or $logger->logdie("Can't setuid to $user: $!");
-}
-
-sub daemonize {
-    chdir '/' or $logger->logdie("Can't chdir to /: $!");
-    open STDIN, '<', '/dev/null'
-        or $logger->logdie("Can't read /dev/null: $!");
-    open STDOUT, '>', '/dev/null'
-        or $logger->logdie("Can't write to /dev/null: $!");
-
-    defined( my $pid = fork )
-        or $logger->logdie("pfbandwidthd: could not fork: $!");
-    POSIX::_exit(0) if ($pid);
-    if ( !POSIX::setsid() ) {
-        $logger->error("could not start a new session: $!");
-    }
-    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-    my $daemon_pid = createpid("pfbandwidthd");
-
-    # updating Log4perl's pid info
-    Log::Log4perl::MDC->put( 'tid',  $daemon_pid );
 }
 
 sub normal_sighandler {

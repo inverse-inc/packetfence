@@ -16,7 +16,6 @@ pfdetect -p <snortpipe> [options]
 
 use strict;
 use warnings;
-use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
 use Getopt::Std;
 use Pod::Usage;
@@ -40,14 +39,15 @@ use pf::os;
 use pf::person;
 use pf::trigger;
 use pf::util;
+use pf::services::util;
 use pf::violation;
 
 # initialization
 # --------------
 # assign process name (see #1464)
-$PROGRAM_NAME = basename($PROGRAM_NAME);
+our $PROGRAM_NAME = $0 = basename($0);
 
-my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
 
 # init signal handlers
 POSIX::sigaction(
@@ -85,7 +85,7 @@ pod2usage( -verbose => 1 ) if ( $args{h} || !$args{p} );
 
 my ($line, $sid, $descr, $priority, $date, $srcmac, $srcip, $dstip);
 
-daemonize() if ($daemonize);
+daemonize($PROGRAM_NAME) if ($daemonize);
 
 $logger->info("initialized");
 
@@ -151,25 +151,6 @@ END {
 }
 
 exit(0);
-
-sub daemonize {
-    chdir '/' or $logger->logdie("Can't chdir to /: $!");
-    open STDIN, '<', '/dev/null'
-        or $logger->logdie("Can't read /dev/null: $!");
-    my $log_file = "$install_dir/logs/pfdetect";
-    open STDOUT, '>>', $log_file
-        or $logger->logdie("Can't write to $log_file: $!");
-
-    defined( my $pid = fork )
-        or $logger->logdie("pfdetect: could not fork: $!");
-    POSIX::_exit(0) if ($pid);
-    if ( !POSIX::setsid() ) {
-        $logger->warn("could not start a new session: $!");
-    }
-    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-    my $daemon_pid = createpid();
-
-}
 
 sub normal_sighandler {
     deletepid();

@@ -19,11 +19,9 @@ use warnings;
 use strict;
 use Getopt::Std;
 use Net::Pcap 0.16;
-#use English qw( ‐no_match_vars ); # no match avoids regex performance penalty
 use File::Basename qw(basename);
 use POSIX qw(:signal_h pause);
 use Pod::Usage;
-
 
 #pf::log must always be initilized first
 BEGIN {
@@ -32,6 +30,7 @@ BEGIN {
     use lib INSTALL_DIR . "/lib";
     use pf::log(service => 'pfmon');
 }
+
 use pf::accounting qw(acct_maintenance);
 use pf::config;
 use pf::config::cached;
@@ -42,12 +41,13 @@ use pf::node;
 use pf::services;
 use pf::traplog;
 use pf::util;
+use pf::services::util;
 use pf::violation qw(violation_maintenance);
 
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = basename($0);
+our $PROGRAM_NAME = $0 = basename($0);
 
 my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
 
@@ -67,7 +67,7 @@ my $restart   = $args{r};
 our $running = 1;
 
 # standard signals and daemonize
-daemonize() if ($daemonize);
+daemonize($PROGRAM_NAME) if ($daemonize);
 
 # run the cleanup
 cleanup();
@@ -220,26 +220,6 @@ sub decode {
     return ($opcode, clean_mac($sha), int2ip($spa), clean_mac($tha), int2ip($tpa));
 }
 
-sub daemonize {
-    chdir '/' or $logger->logdie("Can't chdir to /: $!");
-    open STDIN, '<', '/dev/null'
-        or $logger->logdie("Can't read /dev/null: $!");
-    my ($login,$pass,$uid,$gid) = getpwnam('pf')
-        or die "pf not in passwd file";
-    my $log_file = "$install_dir/logs/pfmon";
-    open STDOUT, '>>', "$log_file"
-        or $logger->logdie("Can't write to $log_file: $!");
-    chown $uid, $gid, $log_file;
-    defined( my $pid = fork ) or $logger->logdie("pfmon: could not fork: $!");
-    POSIX::_exit(0) if ($pid);
-    if ( !POSIX::setsid() ) {
-        $logger->error("could not start a new session: $!");
-
-        #    die("pfmon: could not start a new session: $!\n");
-    }
-    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-    createpid();
-}
 
 sub normal_sighandler {
     $running = 0;
