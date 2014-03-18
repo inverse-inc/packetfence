@@ -1,34 +1,29 @@
 [storage configfiles]
-driver=File
-root_dir=/usr/local/pf/var/cache
+storage=file
 
 [storage configfiles l1_cache]
 storage=memcached
 
 [storage configfilesdata]
-driver=File
-root_dir=/usr/local/pf/var/cache
+storage=file
 
 [storage configfilesdata l1_cache]
 storage=memcached
 
 [storage httpd.admin]
-driver=File
-root_dir=/usr/local/pf/var/cache
+storage=file
 
 [storage httpd.admin l1_cache]
 storage=memcached
 
 [storage httpd.portal]
-driver=File
-root_dir=/usr/local/pf/var/cache
+storage=file
 
 [storage httpd.portal l1_cache]
 storage=memcached
 
 [storage pfdns]
-driver=File
-root_dir=/usr/local/pf/var/cache
+storage=file
 
 [storage pfdns l1_cache]
 storage=memcached

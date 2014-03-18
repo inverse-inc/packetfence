@@ -73,6 +73,7 @@ sub chiConfigFromIniFile {
         $args{$key} = sectionData($chi_config,$key);
     }
     my $dbi = delete $args{dbi};
+    copyStorage($args{storage});
     foreach my $storage (values %{$args{storage}}) {
         my $driver = $storage->{driver};
         if($driver eq 'File') {
@@ -81,10 +82,9 @@ sub chiConfigFromIniFile {
             setDBIDriverParams($storage, $dbi);
         }
         foreach my $param (qw(servers traits roles)) {
-            if(exists $storage->{$param}) {
-                my $value =  listify($storage->{$param});
-                $storage->{$param} = [ map { split /\s*,\s*/, $_ } @$value ];
-            }
+            next unless exists $storage->{$param};
+            my $value =  listify($storage->{$param});
+            $storage->{$param} = [ map { split /\s*,\s*/, $_ } @$value ];
         }
         if ( exists $storage->{traits} ) {
             $storage->{param_name} = $storage->{traits};
@@ -94,6 +94,16 @@ sub chiConfigFromIniFile {
     my $merge = Hash::Merge->new('PF_CHI_MERGE');
     my $config = $merge->merge( \%DEFAULT_CONFIG, \%args );
     return $config;
+}
+
+sub copyStorage {
+    my ($storageUnits) = @_;
+    foreach my $storageUnit (values %$storageUnits) {
+        next unless exists $storageUnit->{storage} &&
+            defined $storageUnit->{storage};
+        my $useStorage = delete $storageUnit->{storage};
+        %$storageUnit = %{$storageUnits->{$useStorage}};
+    }
 }
 
 sub setFileDriverParams {
