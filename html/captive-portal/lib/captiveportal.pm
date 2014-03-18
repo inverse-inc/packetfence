@@ -82,7 +82,7 @@ __PACKAGE__->config(
     'Plugin::Session'          => {
         chi_class => 'pf::CHI',
         chi_args => {
-            namespace => 'httpd_portal',
+            namespace => 'httpd.portal',
         },
     },
     default_view               => 'HTML',
