@@ -10,6 +10,8 @@ conf/httpd.conf
 conf/named.conf
 conf/pf.conf
 conf/*.lock
+conf/*.lockonce
+conf/log.conf.d/*.conf
 conf/nessus/
 conf/currently-at
 bin/pfcmd
