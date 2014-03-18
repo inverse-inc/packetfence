@@ -1,22 +1,3 @@
-package pf::log::trapper;
-use Log::Log4perl;
-Log::Log4perl->wrapper_register(__PACKAGE__);
-
-sub TIEHANDLE {
-    my $class = shift;
-    my $level = shift;
-    bless [Log::Log4perl->get_logger(),$level], $class;
-}
-
-sub OPEN {}
-
-sub PRINT {
-    my $self = shift;
-    local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
-    $self->[0]->log($self->[1],@_);
-}
-1;
-
 package pf::log;
 
 =head1 NAME
@@ -36,6 +17,7 @@ use warnings;
 use Log::Log4perl;
 use Log::Log4perl::Level;
 use pf::file_paths;
+use pf::log::trapper;
 use File::Basename qw(basename);
 
 Log::Log4perl->wrapper_register(__PACKAGE__);
