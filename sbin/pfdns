@@ -31,7 +31,8 @@ BEGIN {
     # log4perl init
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
-    use pf::log(service => 'pfdns')
+    use pf::log(service => 'pfdns');
+}
 
 use pf::config;
 use pf::config::cached;
