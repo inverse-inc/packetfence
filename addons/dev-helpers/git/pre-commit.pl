@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 use strict;
+use Template::Parser;
+use File::Slurp qw(read_file);
 
 our $GIT_COMMAND = q[/usr/bin/git];
 our @ERRORS;
@@ -7,6 +9,7 @@ our $STASHED;
 
 END {
     if($STASHED) {
+        local $?;
         git_cmd (qw(reset --hard));
         git_cmd (qw(stash apply --index));
         git_cmd (qw(stash drop --index));
@@ -46,6 +49,16 @@ sub perl_compile {
         $file_name = quotemeta($file_name);
         my $results = qx{/usr/bin/perl -c -Ilib -Ihtml/pfappserver/lib -Ihtml/captive-portal/lib $file_name 2>&1};
         push @ERRORS,$results if $? != 0;
+    }
+}
+
+sub template_compile {
+    my ($file_name) = @_;
+    if(does_file_match({file_match => qr/\.(tt)$/},$file_name)) {
+        my $parser = Template::Parser->new({});
+        my $file = read_file($file_name);
+        my $data = $parser->parse($file);
+        push @ERRORS,$parser->error() unless $data;
     }
 }
 
@@ -101,6 +114,7 @@ if(has_changed_files()) {
         match_no_add ($file_name);
         runner ($file_name);
         perl_compile ($file_name);
+        template_compile($file_name);
     }
 }
 
@@ -192,6 +206,3 @@ sub has_changed_files {
 }
 
 
-END {
-#    my ($ret,$result) = git_cmd(qw{stash pop}) if $STASHED;
-}
