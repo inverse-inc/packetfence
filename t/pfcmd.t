@@ -14,8 +14,8 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 95;
 use Test::NoWarnings;
+use Test::More;
 
 use English '-no_match_vars';
 use File::Basename qw(basename);
@@ -25,6 +25,17 @@ Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
+
+my @output = `/usr/local/pf/bin/pfcmd.pl help`;
+my @main_args;
+foreach my $line (@output) {
+    if ($line =~ /^([^ ]+) +\|/) {
+        push @main_args, $1;
+    }
+}
+
+my $test = 55 + scalar @main_args;
+plan tests => $test;
 
 =head1 TESTS
 
@@ -352,13 +363,6 @@ is_deeply(\%main::cmd,
 =item command line help tests
 
 =cut
-my @output = `/usr/local/pf/bin/pfcmd.pl help`;
-my @main_args;
-foreach my $line (@output) {
-    if ($line =~ /^([^ ]+) +\|/) {
-        push @main_args, $1;
-    }
-}
 
 foreach my $help_arg (@main_args) {
     my @output = `/usr/local/pf/bin/pfcmd.pl help $help_arg 2>&1`;
