@@ -29,6 +29,7 @@ conf/authentication.conf
 conf/floating_network_device.conf
 conf/guest-managers.conf
 conf/log.conf
+conf/chi.conf
 conf/nessus/remotescan.nessus
 conf/networks.conf
 conf/radiusd/eap.conf
