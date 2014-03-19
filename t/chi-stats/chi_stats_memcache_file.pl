@@ -18,13 +18,20 @@ use lib qw(/usr/local/pf/lib);
 use pf::IniFiles;
 use pf::file_paths;
 use Benchmark;
+use File::Path qw(remove_tree);
 use CHI;
 
+
+remove_tree('/tmp/chistats');
 my $chi_memcache = CHI->new(
-    driver => 'Memcached',
-    servers => [qw(127.0.0.1:11211)],
-    compress_threshold => 1000000,
-    namespace => 'chistats',
+    driver => 'File',
+    root_dir => '/tmp/chistats',
+    l1_cache => {
+        driver => 'Memcached',
+        servers => [qw(127.0.0.1:11211)],
+        compress_threshold => 1000000,
+        namespace => 'chistats',
+    }
 );
 
 $chi_memcache->remove('configfile');
@@ -37,6 +44,10 @@ timethese (-5, {
             my $config = $chi_memcache->compute('configfile', sub { pf::IniFiles->new( -file => $pf_config_file,  -import => pf::IniFiles->new( -file => $default_config_file)) })  ;
         }
 });
+
+END {
+    remove_tree('/tmp/chistats');
+}
 
 =head1 AUTHOR
 
