@@ -132,7 +132,8 @@ $allowed_gaming_console_types_file = catfile($conf_dir,"allowed-gaming-console_t
 @log_files = map {catfile($log_dir, $_)}
   qw( access_log error_log admin_access_log admin_error_log
   packetfence.log catalyst.log pfbandwidthd.log pfdetect.log
-  pfdhcplistener.log pfdns.log pfmon.log);
+  pfdhcplistener.log pfdns.log pfmon.log httpd.admin.log httpd.portal.log
+);
 
 @stored_config_files = (
     $pf_config_file, $network_config_file,
