@@ -57,5 +57,8 @@ permissions:
 raddb/certs/dh:
 	cd raddb/certs; make dh
 
+lib/pf/pfcmd/pfcmd_pregrammar.pm:
+	/usr/bin/perl -Ilib -MParse::RecDescent -Mpf::pfcmd::pfcmd -w -e 'Parse::RecDescent->Precompile($grammar, "pfcmd_pregrammar");'
+	mv pfcmd_pregrammar.pm lib/pf/pfcmd/
 
-devel: configurations conf/ssl/server.crt bin/pfcmd permissions raddb/certs/dh sudo
+devel: configurations conf/ssl/server.crt bin/pfcmd permissions raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm
