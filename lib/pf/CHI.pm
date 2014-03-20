@@ -105,7 +105,7 @@ sub copyStorage {
         next unless exists $storageUnit->{storage} &&
             defined $storageUnit->{storage};
         my $useStorage = delete $storageUnit->{storage};
-        %$storageUnit = %{$storageUnits->{$useStorage}};
+        %$storageUnit = (%{$storageUnits->{$useStorage}},%$storageUnit);
     }
 }
 
