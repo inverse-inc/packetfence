@@ -247,7 +247,7 @@ sub node_db_prepare {
             LEFT JOIN os_type ON dhcp_fingerprint.os_id = os_type.os_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
             LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
-            LEFT JOIN iplog ON node.mac=iplog.mac AND iplog.end_time = '0000-00-00 00:00:00'
+            LEFT JOIN iplog ON node.mac=iplog.mac AND (iplog.end_time = '0000-00-00 00:00:00' OR iplog.end_time > NOW())
         GROUP BY node.mac
     ];
 
