@@ -64,7 +64,7 @@ package OAUTH;
 
 my @oauth_domains =  pf::pfdns::constants::oauth_domain();
 foreach (@oauth_domains) { s{([^/])$}{$1\$} };
-foreach (@oauth_domains) { s{(\*).(.*)}{\(\.\*\)\.$2} };
+foreach (@oauth_domains) { s{(\*)(.*)}{\(\.\*\)\Q$2\E} };
 
 my $allow_oauth_domains = join('|', @oauth_domains) if (@oauth_domains ne '0');
 
@@ -83,7 +83,7 @@ package PASSTHROUGH;
 
 my @passthrough_domains =  pf::pfdns::constants::passthrough();
 foreach (@passthrough_domains) { s{([^/])$}{$1\$} };
-foreach (@passthrough_domains) { s{(\*).(.*)}{\(\.\*\)\.$2} };
+foreach (@passthrough_domains) { s{(\*)(.*)}{\(\.\*\)\Q$2\E} };
 
 my $allow_passthrough_domains = join('|', @passthrough_domains) if (@passthrough_domains ne '0');
 
@@ -100,7 +100,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2013-2014 Inverse inc.
 
 =head1 LICENSE
 
