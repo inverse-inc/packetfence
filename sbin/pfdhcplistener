@@ -40,6 +40,7 @@ use pf::lookup::node;
 use pf::node;
 use pf::os;
 use pf::util;
+use pf::services::util;
 use pf::util::dhcp;
 use pf::violation qw(violation_trigger);
 use pf::ipset;
@@ -93,7 +94,7 @@ my @local_dhcp_servers;
 my $pcap;
 
 # standard signals and daemonize
-daemonize($PROGRAM_NAME) if ($daemonize);
+daemonize("${PROGRAM_NAME}_${interface}") if ($daemonize);
 
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
