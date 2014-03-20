@@ -25,6 +25,9 @@ use List::MoreUtils qw(uniq any);
 use List::Util qw(first);
 use DBI;
 use Scalar::Util qw(tainted reftype);
+use pf::log;
+use Log::Any::Adapter;
+Log::Any::Adapter->set('Log4perl');
 
 Hash::Merge::specify_behavior(
     {
