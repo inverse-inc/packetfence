@@ -15,7 +15,6 @@ use diagnostics;
 use lib '/usr/local/pf/lib';
 
 use Test::NoWarnings;
-use Test::More;
 
 use English '-no_match_vars';
 use File::Basename qw(basename);
@@ -25,17 +24,19 @@ Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
-
-my @output = `/usr/local/pf/bin/pfcmd.pl help`;
-my @main_args;
-foreach my $line (@output) {
-    if ($line =~ /^([^ ]+) +\|/) {
-        push @main_args, $1;
+our (@output,@main_args,$tests);
+BEGIN {
+    @output = `/usr/local/pf/bin/pfcmd.pl help`;
+    foreach my $line (@output) {
+        if ($line =~ /^([^ ]+) +\|/) {
+            push @main_args, $1;
+        }
     }
+    $tests = 55 + scalar @main_args;
 }
 
-my $test = 55 + scalar @main_args;
-plan tests => $test;
+
+use Test::More tests => $tests;
 
 =head1 TESTS
 
