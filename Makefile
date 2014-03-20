@@ -32,5 +32,30 @@ conf/ssl/server.crt:
 
 bin/pfcmd: src/pfcmd
 	cp src/pfcmd bin/pfcmd
+
+.PHONY:sudo
+
+sudo:
+	if (grep "^Defaults.*requiretty" /etc/sudoers > /dev/null  ) ;\
+		then sed -i 's/^Defaults.*requiretty/#Defaults requiretty/g' /etc/sudoers;\
+	fi
+	if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ;\
+		then sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers;\
+	fi
+	if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/sbin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/radiusd.*/usr/sbin/snort.*/usr/sbin/suricata" /etc/sudoers > /dev/null  ) ; then\
+		echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd, /usr/sbin/snort, /usr/bin/suricata" >> /etc/sudoers;\
+	fi
+	if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then\
+		echo 'Defaults:pf !requiretty' >> /etc/sudoers;\
+	fi
+
+.PHONY:permissions
+
+permissions:
+	./bin/pfcmd fixpermissions
 	
-devel: configurations conf/ssl/server.crt bin/pfcmd
+raddb/certs/dh:
+	cd raddb/certs; make dh
+
+
+devel: configurations conf/ssl/server.crt bin/pfcmd permissions raddb/certs/dh sudo
