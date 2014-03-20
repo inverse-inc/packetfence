@@ -21,3 +21,16 @@ doc-networkdevices-pdf:
 
 configurations:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp -n $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
+
+.PHONY: ssl-certs
+
+conf/ssl/server.crt:
+	openssl req -x509 -new -nodes -days 365 -batch\
+    	-out /usr/local/pf/conf/ssl/server.crt\
+    	-keyout /usr/local/pf/conf/ssl/server.key\
+    	-nodes -config /usr/local/pf/conf/openssl.cnf
+
+bin/pfcmd: src/pfcmd
+	cp src/pfcmd bin/pfcmd
+	
+devel: configurations conf/ssl/server.crt bin/pfcmd
