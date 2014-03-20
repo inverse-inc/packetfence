@@ -519,7 +519,7 @@ if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
 fi
 
 
-for service in snortd httpd snmptrapd
+for service in snortd httpd snmptrapd memcached
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
@@ -527,7 +527,7 @@ do
   fi
 done
 
-for service in mysqld memcached
+for service in mysqld
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Enabling $service startup script"
