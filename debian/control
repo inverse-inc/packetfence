@@ -86,6 +86,9 @@ Depends: ${misc:Depends}, vlan, make,
  liblocale-gettext-perl, 
 # logging framework
  liblog-log4perl-perl,
+ liblog-any-perl,
+ liblog-any-adapter-perl,
+ liblog-any-adapter-log4perl-perl,
 # oauth2
  libnet-oauth2-perl,
 # pfdns
