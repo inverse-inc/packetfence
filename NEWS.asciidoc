@@ -25,7 +25,6 @@ New Features
 * Support for Enterasys V2110
 * Inline layer 3 support
 
-
 Enhancements
 ++++++++++++
 
@@ -46,8 +45,9 @@ Bug Fixes
 
 * Fixed SQL query of connection types report in Web admin
 * Fixed nodes simple search by IP address
-* Fix access reevaluation when changing the status of a pending node
-* Fix Wispr blank page
+* Fixed access reevaluation when changing the status of a pending node
+* Fixed Wispr blank page
+* Fixed network access for users with no "set role" action (#1778)
 
 Version 4.1.0 released on 2013-12-11
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

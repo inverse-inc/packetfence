@@ -158,6 +158,12 @@ elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->pa
   if (defined $value) {
       %info = (%info, (category => $value));
   }
+  else {
+      $error = 'Wrong username or password.';
+      $logger->info("No role associated to $pid for " . $portalSession->getClientMac());
+      pf::web::generate_login_page($portalSession, $error);
+      exit(0);
+  }
 
   # If an access duration is defined, use it to compute the unregistration date;
   # otherwise, use the unregdate when defined.
