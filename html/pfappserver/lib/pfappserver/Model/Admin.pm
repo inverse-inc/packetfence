@@ -57,8 +57,8 @@ sub fingerbank_version {
         || $logger->error("Unable to open $conf_dir/dhcp_fingerprints.conf: $!");
     $line = <$filehandler>; # read the first line
     close $filehandler;
-	($version) = $line =~ m/version ([0-9\.]+)/i;
-	return $version;
+    ($version) = $line =~ m/version ([0-9\.]+)/i;
+    return $version;
 }
 
 =head1 AUTHOR
