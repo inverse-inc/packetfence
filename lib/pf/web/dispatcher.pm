@@ -74,6 +74,10 @@ sub handler {
     # Warning: we might want to revisit the /o (compile Once) if we ever want
     #          to reload Apache dynamically. pf::web::constants will need some
     #          rework also
+    if ($r->uri =~ /\/apache_status/) {
+        $r->handler('server-status');
+        return Apache2::Const::DECLINED;
+    }
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES/o) {
         my $s = $r->server();
         my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
