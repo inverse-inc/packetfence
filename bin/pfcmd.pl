@@ -2495,6 +2495,8 @@ sub cache {
         $key = $1 if $key =~ /^(.*)$/;
         require Data::Dumper;
         print Data::Dumper::Dumper($cache->get($key));
+    } elsif ($action eq 'expire') {
+        pf::CHI::expireCache($cache);
     }
 
     return 0;
