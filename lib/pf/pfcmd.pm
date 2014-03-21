@@ -48,7 +48,7 @@ sub parseCommandLine {
     $params = '' if (! defined($params));
 
     my %regexp = (
-        'cache'           => qr{ ^ ([a-zA-Z0-9\.-_]+) \s+ (?: ( clear | list) | (?: (dump | remove) \s+ ([^\s]+)  ) ) $ }xms,
+        'cache'           => qr{ ^ ([a-zA-Z0-9\.-_]+) \s+ (?: ( clear | list | expire ) | (?: (dump | remove) \s+ ([^\s]+)  ) ) $ }xms,
         'checkup'         => qr{ ^ $ }xms,
         'class'           => qr{ ^ (view) \s+ ( all | \d+ ) $ }xms,
         'config'          => qr{ ^ ( get | set | help )
