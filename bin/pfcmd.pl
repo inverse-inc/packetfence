@@ -2496,7 +2496,7 @@ sub cache {
         require Data::Dumper;
         print Data::Dumper::Dumper($cache->get($key));
     } elsif ($action eq 'expire') {
-        pf::CHI::expireCache($cache);
+        $cache->purge();
     }
 
     return 0;

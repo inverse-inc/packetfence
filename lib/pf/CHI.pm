@@ -150,31 +150,6 @@ sub sectionData {
     return \%args;
 }
 
-=head2 expireCacheFromNamespace
-
-Expires all items in the cache given a namespace
-
-=cut
-
-sub expireCacheFromNamespace {
-    my ($namespace) = @_;
-    my $cache = pf::CHI( namespace => $namespace);
-    expireCache($cache);
-}
-
-=head2 expireCache
-
-Expires all items from a cache
-
-=cut
-
-sub expireCache {
-    my ($cache) = @_;
-    for my $key ( map { /^(.*)$/;$1  } $cache->get_keys) {
-        $cache->remove($key) if $cache->exists_and_is_expired($key);
-    }
-}
-
 __PACKAGE__->config(chiConfigFromIniFile());
 
 =head2 listify
