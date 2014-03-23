@@ -48,21 +48,14 @@ sub test {
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     foreach my $rule  ( sort keys %ConfigApacheFilters ) {
-        if ($ConfigApacheFilters{$rule}->{'action'}) {
-            if ($rule =~ /^\d+$/) {
-                my $return = $self->dispatch_rule($r,$ConfigApacheFilters{$rule});
-                if ($return) {
-                    return($return);
-                }
-            } else {
-                my $rule_sav = $rule;
-                $rule =~ s/([0-9]+)/$self->dispatch_rule($r,$ConfigApacheFilters{$1})/gee;
-                $rule =~ s/\|/ \|\| /g;
-                $rule =~ s/\&/ \&\& /g;
-                if (eval $rule) {
-                    my $action = $self->dispatch_action($ConfigApacheFilters{$rule_sav});
-                    return ($action->($self,$r,$ConfigApacheFilters{$rule_sav}));
-                }
+        if ($rule =~ /^\d+:(.*)$/) {
+            my $test = $1;
+            $test =~ s/([0-9]+)/$self->dispatch_rule($r,$ConfigApacheFilters{$1})/gee;
+            $test =~ s/\|/ \|\| /g;
+            $test =~ s/\&/ \&\& /g;
+            if (eval $test) {
+                my $action = $self->dispatch_action($ConfigApacheFilters{$rule});
+                return ($action->($self,$r,$ConfigApacheFilters{$rule}));
             }
         }
     }
