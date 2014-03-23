@@ -47,27 +47,16 @@ sub test {
 
     foreach my $rule  ( sort keys %ConfigVlanFilters ) {
         if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq $scope) {
-            if ($ConfigVlanFilters{$rule}->{'action'}) {
-                # For simple rule
-                if ($rule =~ /^\d+$/) {
-                    my $return = $self->dispatch_rule($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid);
-                    if ($return) {
-                        $logger->info("Match rule: ".$rule);
-                        my $vlan = $switch->getVlanByName($return);
-                        return ($vlan, $return);
-                    }
-                #For complex rule
-                } else {
-                    my $rule_sav = $rule;
-                    $rule =~ s/([0-9]+)/$self->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid)/gee;
-                    $rule =~ s/\|/ \|\| /g;
-                    $rule =~ s/\&/ \&\& /g;
-                    if (eval $rule) {
-                        $logger->info("Match rule: ".$rule_sav);
-                        my $role = $ConfigVlanFilters{$rule_sav}->{'action'};
-                        my $vlan = $switch->getVlanByName($role);
-                        return ($vlan, $role);
-                    }
+            if ($rule =~ /^\d+:(.*)$/) {
+                my $test = $1;
+                $test =~ s/([0-9]+)/$self->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid)/gee;
+                $test =~ s/\|/ \|\| /g;
+                $test =~ s/\&/ \&\& /g;
+                if (eval $test) {
+                    $logger->info("Match rule: ".$rule);
+                    my $role = $ConfigVlanFilters{$rule}->{'action'};
+                    my $vlan = $switch->getVlanByName($role);
+                    return ($vlan, $role);
                 }
             }
         }

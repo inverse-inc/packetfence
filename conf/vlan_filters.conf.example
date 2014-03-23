@@ -5,10 +5,13 @@
 # Make simple rule like:
 #
 # [1]
-# scope = NormalVlan
 # filter = node_info
-# attribute = is
+# operator = is
+# attribute = category
 # regexp = default
+#
+# [1:1]
+# scope = NormalVlan
 # action = nointernet
 #
 # Mean when PacketFence try to get the normal Vlan for the node and if the category of the node is
@@ -32,7 +35,7 @@
 # operator = is
 # regexp = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
 #
-# [2&3&4]
+# [2:2&3&4]
 # scope = NormalVlan
 # action = nointernet
 #
