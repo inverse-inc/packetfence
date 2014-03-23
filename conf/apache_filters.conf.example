@@ -32,7 +32,7 @@ regexp = /wpad.dat
 action = 501
 redirect_url =
 
-# Accpetd Davlik user agent only for /generate_204 uri
+# Accept Davlik user agent only for /generate_204 uri
 [4]
 filter = user_agent
 method = GET
