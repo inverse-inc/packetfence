@@ -1,17 +1,23 @@
 # Refuse undefined useragent
+# Define the test
 [1]
 filter = user_agent
 method = GET
 operator = is
 regexp = ^$
+# Define the logic and the action
+[1:1]
 action = 501
-redirect_url = 
+redirect_url =
 
+# Refuse empty user agent
 [2]
 filter = user_agent
 method = POST
 operator = is
 regexp = ^$
+
+[2:2]
 action = 501
 redirect_url =
 
@@ -21,9 +27,12 @@ filter = uri
 method = GET
 operator = is
 regexp = /wpad.dat
+
+[3:3]
 action = 501
 redirect_url =
 
+# Accpetd Davlik user agent only for /generate_204 uri
 [4]
 filter = user_agent
 method = GET
@@ -36,8 +45,7 @@ method = GET
 operator = is_not
 regexp = /generate_204
 
-# Only accept portal detection from android device
-[4&5]
+[4:4&5]
 action = 501
 redirect_url =
 
@@ -47,14 +55,14 @@ redirect_url =
 #method = POST
 #operator = is_not
 #regexp = Mozilla|Microsoft|Dalvik|collectd|CaptiveNetworkSupport|BlackBerry
-#action = 501
-#redirect_url =
 
 #[7]
 #filter = user_agent
 #method = GET
 #operator = is_not
 #regexp = Mozilla|Microsoft|Dalvik|collectd|CaptiveNetworkSupport|BlackBerry
+
+#[5:6|7]
 #action = 501
 #redirect_url =
 
