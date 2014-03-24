@@ -42,6 +42,7 @@ sub auto :Private {
             $c->stash->{status_msg} = 'Your session has expired.';
             $c->stash->{'redirect_action'} = $c->uri_for($c->action, @args);
         }
+        $c->delete_session();
         $c->detach();
         return 0;
     }
