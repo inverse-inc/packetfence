@@ -15,12 +15,12 @@ can be localized.
 
 use File::Find;
 use lib qw(/usr/local/pf/lib /usr/local/pf/html/pfappserver/lib);
-use pf::config;
 use pf::action;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::Switch::constants;
 use pfappserver::Model::Node;
+use pf::config;
 
 use constant {
     APP => 'html/pfappserver',
@@ -106,12 +106,12 @@ sub parse_tt {
     my $dir = APP.'/root';
     my @templates = ();
 
-    sub tt {
+    my $tt = sub {
         return unless -f && m/\.(tt|inc)$/;
         push(@templates, $File::Find::name);
-    }
+    };
 
-    find(\&tt, $dir);
+    find($tt, $dir);
 
     my $line;
     foreach my $template (@templates) {
@@ -136,12 +136,12 @@ sub parse_forms {
     my $dir = APP.'/lib/pfappserver/Form';
     my @forms = ();
 
-    sub pm {
+    my $pm = sub {
         return unless -f && m/\.pm$/;
         push(@forms, $File::Find::name);
-    }
+    };
 
-    find(\&pm, $dir);
+    find($pm, $dir);
 
     my $line;
     foreach my $form (@forms) {
@@ -315,9 +315,10 @@ EOT
         foreach my $file (sort @{$strings{$string}}) {
             print "# $file\n";
         }
-        if (scalar(split("\n", $string)) > 1) {
+        my @lines = split("\n", $string);
+        if (@lines > 1) {
             print "msgid \"\"\n";
-            print join("\n", map { "  \"$_\"" } split("\n", $string)), "\n";
+            print join("\n", map { "  \"$_\"" } @lines), "\n";
         }
         else {
             print "msgid \"$string\"\n";
