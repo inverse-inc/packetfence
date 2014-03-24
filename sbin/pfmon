@@ -180,10 +180,10 @@ sub cleanup {
             traplog_cleanup( $Config{'expire'}{'traplog'} )
               if ( $Config{'expire'}{'traplog'} );
 
-            pf::CHI->new( namespace => 'httpd.admin' )->purge()
+            purge_cache('httpd.admin')
               if ( isenabled($Config{'expire'}{'httpd_admin'}) );
 
-            pf::CHI->new( namespace => 'httpd.portal' )->purge()
+            purge_cache('httpd.portal')
               if ( isenabled($Config{'expire'}{'httpd_portal'}) );
 
             $logger->info("checking registered nodes for expiration");
@@ -209,6 +209,14 @@ sub cleanup {
         }
         alarm $Config{'general'}{'maintenance_interval'};
         pause;
+    }
+}
+
+sub purge_cache {
+    my ($namespace) = @_;
+    my $cache = pf::CHI->new( namespace => $namespace );
+    for my $key ($cache->get_keys) {
+        $cache->remove($key) if $cache->exists_and_is_expired($key);
     }
 }
 
