@@ -2496,7 +2496,9 @@ sub cache {
         require Data::Dumper;
         print Data::Dumper::Dumper($cache->get($key));
     } elsif ($action eq 'expire') {
-        $cache->purge();
+        for my $key ($cache->get_keys) {
+            $cache->remove($key) if $cache->exists_and_is_expired($key);
+        }
     }
 
     return 0;
