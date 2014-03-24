@@ -18,6 +18,7 @@ pf::log::trapper traps print to filehandles to a log
 
 use strict;
 use warnings;
+use base qw(Tie::Handle);
 use Log::Log4perl;
 Log::Log4perl->wrapper_register(__PACKAGE__);
 
@@ -31,6 +32,12 @@ sub PRINT {
     my $self = shift;
     local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
     $self->[0]->log($self->[1],@_);
+}
+
+sub PRINTF {
+    my $self = shift;
+    my $buf = sprintf(@_);
+    $self->PRINT($buf);
 }
 
 =head1 AUTHOR
