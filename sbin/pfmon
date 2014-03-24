@@ -180,6 +180,12 @@ sub cleanup {
             traplog_cleanup( $Config{'expire'}{'traplog'} )
               if ( $Config{'expire'}{'traplog'} );
 
+            pf::CHI->new( namespace => 'httpd.admin' )->purge()
+              if ( isenabled($Config{'expire'}{'httpd_admin'}) );
+
+            pf::CHI->new( namespace => 'httpd.portal' )->purge()
+              if ( isenabled($Config{'expire'}{'httpd_portal'}) );
+
             $logger->info("checking registered nodes for expiration");
             nodes_maintenance();
 
