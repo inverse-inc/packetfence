@@ -59,6 +59,7 @@
       
       <div class="tab-pane fade" id="violationAdvanced">
         [% form.field('vlan').render %]
+        [% form.field('redirect_url').render %]
       </div><!--tab-pane-->
 
     </div><!--tab-content-->
