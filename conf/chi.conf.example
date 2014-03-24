@@ -12,15 +12,19 @@ storage=memcached
 
 [storage httpd.admin]
 storage=file
+expires_in=1d
 
 [storage httpd.admin l1_cache]
 storage=memcached
+expires_on_backend=1
 
 [storage httpd.portal]
 storage=file
+expires_in=30m
 
 [storage httpd.portal l1_cache]
 storage=memcached
+expires_on_backend=1
 
 [storage pfdns]
 storage=file
