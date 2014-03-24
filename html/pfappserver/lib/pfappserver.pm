@@ -84,6 +84,7 @@ __PACKAGE__->config(
     },
 
     'Plugin::Session' => {
+        #chi will set the expire time
         chi_class => 'pf::CHI',
         chi_args => {
             namespace => 'httpd.admin',
