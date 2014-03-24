@@ -35,6 +35,15 @@ sub import {
             Log::Log4perl->init($log_config_file);
             Log::Log4perl::MDC->put( 'proc', basename($0) );
         }
+        #Install logging in the die handler
+        $SIG{__DIE__} = sub {
+            # We're in an eval {} and don't want log
+            return if $^S;
+            $Log::Log4perl::caller_depth++;
+            my $logger = get_logger("");
+            $logger->fatal(@_);
+            die @_; # Now terminate really
+        };
     }
     Log::Log4perl::MDC->put( 'tid', $$ );
     {
