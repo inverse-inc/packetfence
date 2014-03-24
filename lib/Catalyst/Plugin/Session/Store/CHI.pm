@@ -62,9 +62,7 @@ store session data into chi
 
 sub store_session_data {
     my ($c, $key, $data) = @_;
-    my $expires = $c->session_expires;
-    my %options = (expires_at => $expires) if $expires;
-    $c->_chi->set($key, $data, \%options);
+    $c->_chi->set($key, $data);
 }
 
 =head2 delete_session_data
@@ -82,7 +80,10 @@ unsupported
 
 =cut
 
-sub delete_expired_sessions { }    # unsupported
+sub delete_expired_sessions {
+    my ($c) = @_;
+    $c->_chi->purge();
+}
 
 =head2 get_and_set_session_data
 This is the optional method for atomic write semantics. See
@@ -92,9 +93,7 @@ L<Catalyst::Plugin::Session::AtomicWrite>.
 
 sub get_and_set_session_data {
     my ($c, $sid, $sub) = @_;
-    my $expires = $c->session_expires;
-    my %options = (expires_at => $expires) if $expires;
-    $c->_chi->compute($sid,\%$expires, $sub);
+    $c->_chi->compute($sid,undef, $sub);
 }
 
 =head2 setup_session
@@ -108,10 +107,18 @@ sub setup_session {
     $c->maybe::next::method(@_);
     my $config = $c->_session_plugin_config;
     my $args = $config->{chi_args};
-    #deleting Catalyst::Plugin::Session variables
     my $chi_class = $config->{chi_class} || "CHI";
     my $chi = $chi_class->new(%$args);
     $c->_chi($chi);
+    #if the chi did not define a expire_in then use the one defined in session
+    my $expire = delete $config->{expire};
+    my $expires_in = $chi->expires_in;
+    if($expires_in) {
+        $expire = ref($expires_in) ? $expires_in->seconds : $expires_in;
+    } else {
+        $chi->expire_in($expire);
+    }
+    $config->{expires} = $expire;
 }
 
 =head1 CONFIGURATION
