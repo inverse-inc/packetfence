@@ -114,7 +114,7 @@ sub setFileDriverParams {
     $storage->{dir_create_mode} = oct('02775');
     $storage->{file_create_mode} = oct('00664');
     $storage->{umask_on_store} = oct('00007');
-    $storage->{traits} = ['+pf::Role::CHI::Driver::FileUmask'];
+    $storage->{traits} = ['+pf::Role::CHI::Driver::FileUmask', '+pf::Role::CHI::Driver::Untaint'];
 }
 
 sub setDBIDriverParams {
