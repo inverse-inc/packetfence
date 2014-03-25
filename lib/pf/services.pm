@@ -25,6 +25,7 @@ use strict;
 use warnings;
 
 use pf::config;
+use pf::services::manager;
 use Module::Pluggable
   'search_path' => [qw(pf::services::manager)],
   'sub_name'    => 'managers',
