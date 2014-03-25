@@ -320,7 +320,7 @@ Web-based Administration Interface
 
 PacketFence provides a web-based administration interface for easy configuration and operational management. If you went through PacketFence's web-based configuration tool, you should have set the password for the `admin` user. If not, the default password is also `admin`.
 
-Once PacketFence is started, the administration interface is available at: https://@ip_of_packetfence>:1443/
+Once PacketFence is started, the administration interface is available at: https://@ip_of_packetfence:1443/
 
 Global configuration file (pf.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2850,26 +2850,33 @@ Avoid captive portal overload due to non-browser HTTP requests
 
 By default we allow every query to be redirected and reach PacketFence for the captive portal operation. In a lot of cases, this means that a lot of non-user initiated queries reach PacketFence and waste its resources for nothing since they are not from browsers. (iTunes, Windows update, MSN Messenger, Google Desktop, ...).
 
-So far, we blacklisted clients known to be misbehaving. However, a completely different approach can be taken: whitelist only known browsers.
+Since PacketFence 4.2 we introduced Apache filter directly in the configuration.
 
-This has the nasty side-effect of being unfriendly with (blocking) less popular browsers and devices so this is disabled by default.
+By default some rules has been enabled like refuse request from empty user-agent but you can have a look in the file apache_filters.conf to see samples.
 
-If you want to enable this feature, edit `conf/httpd.conf.d/block-unwanted.conf`, and uncomment the following lines:
+Filters are define with 2 blocks, the first one like [1] define a simple test, like:
 
-  RewriteCond %{HTTP_USER_AGENT} !^Mozilla
-  RewriteCond %{HTTP_USER_AGENT} !^Opera
-  RewriteCond %{HTTP_USER_AGENT} !^BlackBerry
-  RewriteRule ^.*$ - [L,forbidden]
+  [1]
+  filter = user_agent
+  method = GET
+  operator = is
+  regexp = Dalvik
+  
+  [2]
+  filter = uri
+  method = GET
+  operator = is_not
+  regexp = /generate_204
+  
+and the second one like [1:1&2] define the logic and the action, like:
 
-This will allow the following browsers to reach the captive portal (but nothing else):
+  [1:1&2]
+  action = 501
+  redirect_url =
 
-[options="compact"]
-* BlackBerry
-* Firefox
-* Google Chrome
-* Internet Explorer
-* Opera
-* Safari
+A human readeable definition of this rule is:
+If user agent is Dalvik and uri is not /generate_204 then return the http code 501.
+
 
 Frequently Asked Questions
 --------------------------
