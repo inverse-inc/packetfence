@@ -20,6 +20,13 @@ has '+name' => (default => sub { 'pfsetvlan' } );
 
 has '+launcher' => (default => sub { '%1$s -d ' } );
 
+around dependsOnServices => sub {
+    my ($orig, $self) = (shift, shift);
+    my $dependsOnServices = $self->$orig(@_);
+    push @$dependsOnServices,'snmptrapd';
+    return $dependsOnServices;
+};
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
