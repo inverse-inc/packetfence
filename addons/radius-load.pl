@@ -80,7 +80,6 @@ our @SWITCHES = grep {
 our %CHILDREN;
 our $childPid;
 our $currentCount = 0;
-our $amountOfInteration;
 
 our $running = 1;
 our $childDied = 0;
@@ -158,6 +157,7 @@ sub sendRadiusRequest {
         $called .= ":TEST";
         print "Sending request for $mac to switch $switch $called\n";
         perform_dynauth(
+            $secret,
             { Name => 'User-Name', Value => $user },
             { Name => 'User-Password', Value => $pass },
             { Name => 'Called-Station-Id', Value => $called },
