@@ -443,7 +443,7 @@ DICT
 }
 
 END {
-    unlink($dictionaryFilename) if -e $dictionaryFilename;
+    unlink($dictionaryFilename) if defined $dictionaryFilename && -e $dictionaryFilename;
 }
 
 sub perform_dynauth {
