@@ -121,6 +121,7 @@ is_deeply(\%DATA1,\%DATA3,"on post file reload after rollback");
 $pid = fork();
 if($pid == 0) {
     $config->setval("section1","param1","newval");
+    sleep (1);
     $config->RewriteConfig;
     exit;
 } elsif ( $pid == -1 ){
