@@ -262,7 +262,7 @@ When using a value that was dervived from a configuration use a sub routine to c
 use strict;
 use warnings;
 use pf::file_paths;
-use Time::HiRes qw(stat time);
+use Time::HiRes qw(stat time gettimeofday);
 use pf::log;
 use pf::CHI;
 use pf::IniFiles;
@@ -275,6 +275,7 @@ use Sub::Name;
 use List::Util qw(first);
 use List::MoreUtils qw(uniq);
 use Fcntl qw(:flock :DEFAULT :seek);
+use POSIX::2008;
 
 
 our $CACHE;
@@ -418,7 +419,11 @@ sub RewriteConfig {
     if($result) {
         $config = $self->computeFromPath(
             $file,
-            sub { return $config; }, 1
+            sub {
+                $self->updateCacheControl();
+                return $config;
+            },
+            1
         );
         $self->doCallbacks(1,0);
     }
@@ -519,13 +524,13 @@ sub doCallbacks {
     my ($self,$file_reloaded,$cache_reloaded,$skipPrePostReload) = @_;
     if($file_reloaded || $cache_reloaded) {
         get_logger()->trace("doing callbacks for " . $self->GetFileName . " file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
-        $self->_callReloadCallbacks unless $skipPrePostReload;
+        $self->_callReloadCallbacks;
         if($file_reloaded) {
             $self->_callFileReloadCallbacks;
             $self->_callFileReloadOnceCallbacks;
         }
         $self->_callCacheReloadCallbacks if $cache_reloaded;
-        $self->_callPostReloadCallbacks unless $skipPrePostReload;
+        $self->_callPostReloadCallbacks;
     }
 }
 
@@ -754,16 +759,19 @@ sub computeFromPath {
     $computeSub = undef;
     return $result;
 }
-#controlFileExpired($_[0]->value->{_control_file_timestamp}) &&
+
 sub SetControlFileTimestamp {
     my ($self) = @_;
-    $self->{_control_file_timestamp} = pf::IniFiles::_getFileTimestamp($cache_control_file);
+    $self->{_control_file_timestamp} = GetControlFileTimestamp();
 }
+
+sub GetControlFileTimestamp { int((stat($cache_control_file))[9]) * 1000000000 }
 
 sub controlFileExpired {
     my ($timestamp) = @_;
-    return $timestamp == -1 || $timestamp != pf::IniFiles::_getFileTimestamp($cache_control_file);
+    $timestamp != GetControlFileTimestamp();
 }
+
 
 =head2 cache
 
@@ -1028,14 +1036,18 @@ sub updateCacheControl {
     my ($dontCreate) = @_;
     if ( !-e $cache_control_file && !$dontCreate) {
         my $fh;
-        open($fh,">$cache_control_file") or die "cannot create $cache_control_file\nplease pfcmd fixpermissions";
+        open($fh,">$cache_control_file") or die "cannot create $cache_control_file\nplease run pfcmd fixpermissions";
         __changeFilesToOwner('pf',$cache_control_file);
         close($fh);
     }
     if(-e $cache_control_file) {
-        my ($atime,$mtime);
-        $atime = $mtime = time;
-        utime $atime, $mtime, $cache_control_file;
+        sysopen(my $fh,$cache_control_file,O_RDWR | O_CREAT);
+        my ($seconds) = time();
+        my ($usec, $s) = POSIX::modf($seconds);
+        my $nanosec = int($usec * 1000000000) + int(rand(1000)) + 1000;
+        $s = int($s);
+        POSIX::2008::futimens(fileno $fh, $s, $nanosec, $s, $nanosec);
+        close($fh);
     }
     return 0;
 }
