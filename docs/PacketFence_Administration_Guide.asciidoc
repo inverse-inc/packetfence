@@ -2376,6 +2376,55 @@ realm ntdomain {
 }
 ----
 
+Vlan Filter Definition
+~~~~~~~~~~~~~~~~~~~~~~
+
+We added the ability to specify filters directly in the portion of code that revaluate the vlan. 
+
+These rules are available in different scope: 
+
+  tViolationVlan
+  tRegistrationVlan
+  tNormalVlan
+  tInlineVlan
+  shouldAutoRegister
+
+And can be defined based on differents criteria like:
+
+  node_info
+  switch
+  ifIndex
+  mac
+  connection_type
+  username
+  ssid
+  time
+
+Per example let's define a rule that doesn't allow the connection to a device when his category is default and the ssid is SECURE and the current date is between 11am and 2pm
+from Monday to Friday when it try to connect as a registered device :
+
+  [1]
+  filter = node_info
+  attribute = category
+  operator = is
+  regexp = default
+
+  [2]
+  filter = ssid
+  operator = is
+  regexp = SECURE
+
+  [3]
+  filter = time
+  operator = is
+  regexp = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
+
+  [1:1&2&3]
+  scope = NormalVlan
+  action = nointernet
+
+You can have a look in the file vlan_filters.conf, there are some example how to use and define filters.
+
 Operating System Best Practices
 -------------------------------
 
