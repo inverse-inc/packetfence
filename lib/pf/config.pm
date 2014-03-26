@@ -752,10 +752,10 @@ sub readFloatingNetworkDeviceFile {
 =cut
 
 sub readVlanFiltersFile {
-    $cached_vlane_filters_config = pf::config::cached->new(
+    $cached_vlan_filters_config = pf::config::cached->new(
         -file => $vlan_filters_config_file,
         -allowempty => 1,
-        -onreload => [ reload_apache_filters_config => sub {
+        -onreload => [ reload_vlan_filters_config => sub {
             my ($config) = @_;
             $config->toHash(\%ConfigVlanFilters);
             $config->cleanupWhitespace(\%ConfigVlanFilters);
