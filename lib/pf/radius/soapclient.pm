@@ -20,6 +20,7 @@ use Log::Log4perl;
 use WWW::Curl::Easy;
 use XML::Simple;
 use Encode qw(decode);
+$XML::Simple::PREFERRED_PARSER = 'XML::LibXML::SAX';
 
 use base qw(Exporter);
 our @EXPORT = qw(send_soap_request build_soap_request);
