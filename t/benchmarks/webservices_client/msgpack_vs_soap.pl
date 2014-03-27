@@ -28,7 +28,7 @@ timethese(-5, {
     }
 );
 
-timethese(1000, {
+timethese(100, {
     send_msgpack_request => sub { send_msgpack_request('echo',\%DATA) },
     send_soap_request => sub { send_soap_request('echo',\%DATA) },
     }
