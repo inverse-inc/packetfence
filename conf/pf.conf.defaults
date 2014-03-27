@@ -401,6 +401,15 @@ iplog=0D
 # traplog=180D
 traplog=0D
 #
+# expire.locationlog
+#
+# Time which you would like to keep logs on location information
+# Please note that this table should not become too big since it 
+# could degrade pfsetvlan performance.
+# A value of 0D disables expiration.
+# example:
+# locationlog=180D
+locationlog=0D
 # expire.httpd_portal
 #
 # Time which you would like to keep logs on location information
