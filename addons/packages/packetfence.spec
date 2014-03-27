@@ -229,6 +229,8 @@ Requires: perl(Module::Loaded)
 Requires: perl(Linux::FD)
 Requires: perl(Linux::Inotify2)
 Requires: perl(File::Touch)
+Requires: perl(XML::Simple)
+Requires: perl(XML::LibXML)
 # configuration-wizard
 Requires: iproute, vconfig
 #
