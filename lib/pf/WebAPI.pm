@@ -20,6 +20,7 @@ use pf::config;
 #uncomment for more debug information
 #use SOAP::Lite +trace => [ fault => \&log_faults ];
 use SOAP::Transport::HTTP;
+use pf::WebAPI::MsgPack;
 
 Log::Log4perl->init_and_watch("$conf_dir/log.conf", $LOG4PERL_RELOAD_TIMER);
 Log::Log4perl::MDC->put('proc', 'pf::WebAPI');
@@ -40,13 +41,21 @@ if (exists($ENV{MOD_PERL})) {
 }
 
 my $server = SOAP::Transport::HTTP::Apache->dispatch_to('PFAPI');
+my $server_msgpack = pf::WebAPI::MsgPack->new({dispatch_to => 'PFAPI'});
 
 sub handler {
     my ($r) = @_;
+    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
     if (defined($r->headers_in->{Request})) {
         $r->user($r->headers_in->{Request});
     }
-    $server->handler($r);
+    my $content_type = $r->headers_in->{'Content-Type'};
+    if( $content_type eq 'application/x-msgpack') {
+        $logger->debug("Calling server_msgpack");
+        return $server_msgpack->handler($r);
+    } else {
+        return $server->handler($r);
+    }
 }
 
 sub log_faults {
@@ -86,6 +95,12 @@ sub event_add {
     return(0);
   }
   return (1);
+}
+
+sub echo {
+    my ($class, @args) = @_;
+    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+    return @args;
 }
 
 sub radius_authorize {
@@ -136,7 +151,7 @@ sub soh_authorize {
 sub update_iplog {
     my ( $class, $srcmac, $srcip, $lease_length ) = @_;
     my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-    
+
     return (pf::iplog::iplog_update($srcmac, $srcip, $lease_length));
 }
 
