@@ -165,8 +165,7 @@ sub sendRadiusRequest {
             { Name => 'NAS-Port-Type', Value => 19 },
             { Name => 'Connect-Info', Value => "CONNECT 11Mbps 802.11b" },
         );
-        my $sleepTime = int(rand(2)) + 1;
-        alarm($sleepTime);
+        alarm(int(rand(2)) + 1);
         pause;
     }
 }
