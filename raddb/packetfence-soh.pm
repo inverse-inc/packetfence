@@ -38,7 +38,7 @@ use lib '/usr/local/pf/lib/';
 
 #use pf::config; # TODO: See note1
 use pf::radius::constants;
-use pf::radius::soapclient;
+use pf::radius::msgpackclient;
 
 
 require 5.8.8;
@@ -61,10 +61,10 @@ the only callback available inside an SoH virtual server.
 sub authorize {
     my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
     eval {
-        my $data = send_soap_request("soh_authorize", \%RAD_REQUEST);
+        my $data = send_msgpack_request("soh_authorize", \%RAD_REQUEST);
         if ($data) {
 
-            my $elements = $data->{'soap:Body'}->{'soh_authorizeResponse'}->{'soapenc:Array'}->{'item'};
+            my $elements = $data->[0];
 
             $elements = [$elements] unless ref($elements) eq 'ARRAY';
             # Get RADIUS SoH return code

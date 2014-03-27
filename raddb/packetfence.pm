@@ -39,6 +39,7 @@ use lib '/usr/local/pf/lib/';
 #use pf::config; # TODO: See note1
 use pf::radius::constants;
 use pf::radius::soapclient;
+use pf::radius::msgpackclient;
 use pf::util::freeradius qw(clean_mac);
 
 # Configuration parameter
@@ -104,10 +105,10 @@ sub post_auth {
             return $RADIUS::RLM_MODULE_OK;
         }
 
-        my $data = send_soap_request("radius_authorize",\%RAD_REQUEST);
+        my $data = send_msgpack_request("radius_authorize",\%RAD_REQUEST);
         if ($data) {
 
-            my $elements = listify($data->{'soap:Body'}->{'radius_authorizeResponse'}->{'soapenc:Array'}->{'item'});
+            my $elements = $data->[0];
 
             # Get RADIUS return code
             $radius_return_code = shift @$elements;
@@ -127,7 +128,7 @@ sub post_auth {
             #               'url-redirect=http://172.16.0.249/captive-portal.html'
             #               ]
             #    }
-            # Return: 
+            # Return:
             # rlm_perl: Added pair Cisco-AVPair = url-redirect-acl=Web-acl
             # rlm_perl: Added pair Cisco-AVPair = url-redirect=http://172.16.0.249/captive-portal.html
             foreach my $key (keys %$attributes) {
@@ -271,9 +272,9 @@ sub accounting {
             return $RADIUS::RLM_MODULE_OK;
         }
 
-        my $data = send_soap_request("radius_accounting", \%RAD_REQUEST);
+        my $data = send_msgpack_request("radius_accounting", \%RAD_REQUEST);
         if ($data) {
-            my $elements = listify($data->{'soap:Body'}->{'radius_accountingResponse'}->{'soapenc:Array'}->{'item'});
+            my $elements = $data->[0];
 
             # Get RADIUS return code
             $rc = shift @$elements;
