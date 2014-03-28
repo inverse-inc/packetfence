@@ -53,7 +53,7 @@ sub test {
                 $test =~ s/\|/ \|\| /g;
                 $test =~ s/\&/ \&\& /g;
                 if (eval $test) {
-                    $logger->info("Match rule: ".$rule);
+                    $logger->info("Match Vlan rule: ".$rule);
                     my $role = $ConfigVlanFilters{$rule}->{'action'};
                     my $vlan = $switch->getVlanByName($role);
                     return ($vlan, $role);
@@ -71,7 +71,6 @@ Return the reference to the function that parse the rule.
 
 sub dispatch_rule {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     my $key = {
         node_info => \&node_info_parser,
@@ -94,7 +93,6 @@ Return the reference to the function that do the action.
 
 sub action {
     my ($self, $rule) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ($rule->{'action'}) {
         return $rule->{'action'};
@@ -111,7 +109,6 @@ Parse the node_info attribute and compare to the rule. If it match then take the
 
 sub node_info_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ($rule->{'operator'} eq 'is') {
         if ($node_info->{$rule->{'attribute'}} =~ /$rule->{'regexp'}/) {
@@ -136,7 +133,6 @@ Parse the switch attribute and compare to the rule. If it match then take the ac
 
 sub switch_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ($rule->{'operator'} eq 'is') {
         if ($switch->{$rule->{'attribute'}} =~ /$rule->{'regexp'}/) {
@@ -161,7 +157,6 @@ Parse the ifindex value and compare to the rule. If it match then take the actio
 
 sub ifindex_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ($rule->{'operator'} eq 'is') {
         if ($ifIndex =~ /$rule->{'regexp'}/) {
@@ -186,7 +181,6 @@ Parse the mac value and compare to the rule. If it match then take the action
 
 sub mac_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ($rule->{'operator'} eq 'is') {
         if ($mac =~ /$rule->{'regexp'}/) {
@@ -211,7 +205,6 @@ Parse the connection_type value and compare to the rule. If it match then take t
 
 sub connection_type_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
  
     if ($rule->{'operator'} eq 'is') {
         if ($connection_type_to_str{$connection_type} =~ /$rule->{'regexp'}/) {
@@ -236,7 +229,6 @@ Parse the ursername value and compare to the rule. If it match then take the act
 
 sub username_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ($rule->{'operator'} eq 'is') {
         if ($user_name =~ /$rule->{'regexp'}/) {
@@ -261,7 +253,6 @@ Parse the ssid valus and compare to the rule. If it match then take the action
 
 sub ssid_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ($rule->{'operator'} eq 'is') {
         if ($ssid =~ /$rule->{'regexp'}/) {
@@ -286,7 +277,6 @@ Check the current time and compare to the period
 
 sub time_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     my $time = time();
     if ($rule->{'operator'} eq 'is') {
