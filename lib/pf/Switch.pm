@@ -2915,12 +2915,12 @@ sub parseRequest {
     my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'});
     my $user_name = $radius_request->{'User-Name'};
     my $nas_port_type = $radius_request->{'NAS-Port-Type'};
-    my $port = $radius_request->{'NAS-Port'};
+    my $port = $radius_request->{'NAS-Port'} || 0;
     my $eap_type = 0;
     if (exists($radius_request->{'EAP-Type'})) {
         $eap_type = $radius_request->{'EAP-Type'};
     }
-    my $nas_port_id;
+    my $nas_port_id = '';
     if (defined($radius_request->{'NAS-Port-Id'})) {
         $nas_port_id = $radius_request->{'NAS-Port-Id'};
     }
