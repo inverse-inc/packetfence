@@ -12,7 +12,6 @@ use warnings;
 use Apache2::MPM ();
 use Log::Log4perl;
 use ModPerl::Util;
-use threads;
 
 use pf::config;
 
@@ -34,6 +33,7 @@ if (exists($ENV{MOD_PERL})) {
         Log::Log4perl::MDC->put('tid', $$);
     }
 } else {
+    require threads;
     # process threads
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 }
@@ -113,7 +113,7 @@ sub soh_authorize {
 sub update_iplog {
     my ( $class, $srcmac, $srcip, $lease_length ) = @_;
     my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-    
+
     return (pf::iplog::iplog_update($srcmac, $srcip, $lease_length));
 }
 
