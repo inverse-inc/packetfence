@@ -54,6 +54,7 @@ sub test {
             $test =~ s/\|/ \|\| /g;
             $test =~ s/\&/ \&\& /g;
             if (eval $test) {
+                $logger->info("Match Apache rule: $rule");
                 my $action = $self->dispatch_action($ConfigApacheFilters{$rule});
                 return ($action->($self,$r,$ConfigApacheFilters{$rule}));
             }
@@ -69,7 +70,6 @@ Return the reference to the function that parse the rule.
 
 sub dispatch_rule {
     my ($self, $r, $rule) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     my $key = {
         uri => \&uri_parser,
@@ -86,7 +86,6 @@ Return the reference to the function that do the action.
 
 sub dispatch_action {
     my ($self, $rule) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ($rule->{'action'} =~ /30\d/) {
         return \&redirect;
@@ -103,7 +102,7 @@ Parse the uri parameter and compare to the rule. If it match then take the actio
 
 sub uri_parser {
     my ($self, $r, $rule) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+
     my $action;
     if ($rule->{'operator'} eq 'is') {
         if ((($r->uri =~ /$rule->{'regexp'}/) || ($r->args =~  /$rule->{'regexp'}/)) && ($r->method eq $rule->{'method'})) {
@@ -130,7 +129,6 @@ Parse user_agent parameter and compare to the rule. If it match take the action
 
 sub user_agent_parser {
     my ($self,$r,$rule) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     my $action;
     if ($rule->{'operator'}eq 'is') {
@@ -158,7 +156,6 @@ Redirect the user based on the code
 
 sub redirect {
     my ($self,$r,$rule) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ($rule->{'action'}) {
         $r->status(200);
@@ -177,7 +174,6 @@ Return the apache code
 
 sub code {
     my ($self,$r,$rule)= @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ($rule->{'action'}) {
         return $rule->{'action'};
