@@ -11,10 +11,11 @@ webservices_modperl_require
 
 =cut
 
-use pf::WebAPI();
 use pf::config();
 use pf::iplog();
 use pf::violation();
+use pf::radius::custom();
+use pf::soh::custom();
 use pf::ConfigStore::Switch();
 use pf::SwitchFactory();
 use pf::util();
