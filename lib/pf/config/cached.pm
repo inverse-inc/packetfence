@@ -500,7 +500,8 @@ Call all the file reload callbacks that should be called only once
 
 sub _callFileReloadOnceCallbacks {
     my ($self) = @_;
-    $self->_doLockOnce( sub { $self->_callCallbacks(\%ON_FILE_RELOAD_ONCE) } );
+    my $callbacks = $ON_FILE_RELOAD_ONCE{$self->GetFileName} ||= [];
+    $self->_doLockOnce( sub { $self->_callCallbacks(\%ON_FILE_RELOAD_ONCE) } ) if @$callbacks;
 }
 
 =head2 _callCacheReloadCallbacks
