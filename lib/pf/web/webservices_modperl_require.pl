@@ -15,6 +15,8 @@ use pf::WebAPI();
 use pf::config();
 use pf::iplog();
 use pf::violation();
+use pf::ConfigStore::Switch();
+use pf::SwitchFactory();
 use pf::util();
 
 1;
