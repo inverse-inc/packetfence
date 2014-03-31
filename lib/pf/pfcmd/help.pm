@@ -91,6 +91,16 @@ EOF
     return 1;
 }
 
+sub help_configreload {
+    print STDERR << "EOT";
+Usage: pfcmd configreload
+
+Makes modified config active
+
+EOT
+    return 1;
+}
+
 sub help_manage {
     print STDERR << "EOT";
 Usage: pfcmd manage <freemac|register|deregister|vclose|vopen> <mac> [options]
