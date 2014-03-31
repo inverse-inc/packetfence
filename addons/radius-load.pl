@@ -440,18 +440,18 @@ VENDOR          Cisco                           9
 VENDORATTR      Cisco                           Cisco-AVPair    1       string
 VENDORATTR      Cisco                           Cisco-NAS-Port  2       string
 
-VENDOR		Aruba				14823
+VENDOR      Aruba               14823
 
-VENDORATTR    Aruba    	Aruba-User-Role				1	string
-VENDORATTR    Aruba    	Aruba-User-Vlan				2	integer
-VENDORATTR    Aruba    	Aruba-Priv-Admin-User			3	integer
-VENDORATTR    Aruba    	Aruba-Admin-Role			4	string
-VENDORATTR    Aruba    	Aruba-Essid-Name			5	string
-VENDORATTR    Aruba    	Aruba-Location-Id			6	string
-VENDORATTR    Aruba    	Aruba-Port-Identifier			7	string
-VENDORATTR    Aruba    	Aruba-Template-User			8	string
-VENDORATTR    Aruba    	Aruba-Named-User-Vlan			9	string
-VENDORATTR    Aruba    	Aruba-AP-Group				10	string
+VENDORATTR    Aruba     Aruba-User-Role             1   string
+VENDORATTR    Aruba     Aruba-User-Vlan             2   integer
+VENDORATTR    Aruba     Aruba-Priv-Admin-User           3   integer
+VENDORATTR    Aruba     Aruba-Admin-Role            4   string
+VENDORATTR    Aruba     Aruba-Essid-Name            5   string
+VENDORATTR    Aruba     Aruba-Location-Id           6   string
+VENDORATTR    Aruba     Aruba-Port-Identifier           7   string
+VENDORATTR    Aruba     Aruba-Template-User         8   string
+VENDORATTR    Aruba     Aruba-Named-User-Vlan           9   string
+VENDORATTR    Aruba     Aruba-AP-Group              10  string
 
 DICT
 
