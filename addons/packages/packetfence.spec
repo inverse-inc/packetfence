@@ -231,6 +231,8 @@ Requires: perl(Linux::Inotify2)
 Requires: perl(File::Touch)
 Requires: perl(XML::Simple)
 Requires: perl(XML::LibXML)
+Requires: perl(Data::MessagePack)
+Requires: perl(POSIX::2008)
 # configuration-wizard
 Requires: iproute, vconfig
 #
