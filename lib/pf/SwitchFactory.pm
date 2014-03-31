@@ -120,7 +120,7 @@ sub instantiate {
     my $switch_data = $SwitchConfig{$requestedSwitch};
 
     # find the module to instantiate
-    my $switchOverlay = $cache->get( $switch_mac) || {};
+    my $switchOverlay = $cache->get( $requestedSwitch) || {};
     my $type;
     if ($requestedSwitch ne 'default') {
         $type = "pf::Switch::" . $switch_data->{'type'};
