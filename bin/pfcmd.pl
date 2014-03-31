@@ -162,6 +162,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'class' => sub { class(); exit(1); },
         'config' => sub { config(); exit(0); },
         'configfiles' => sub { configfiles(); exit(1); },
+        'configreload' => sub { exit(configreload()) },
         'floatingnetworkdeviceconfig' => sub { floatingnetworkdeviceconfig(); exit(1); },
         'fingerprint' => sub { fingerprint(); exit(1); },
         'graph' => sub { graph(); exit(1); },
@@ -2449,6 +2450,14 @@ sub _changeFilesToOwner {
     my ($user,@files) = @_;
     my ($login,$pass,$uid,$gid) = getpwnam($user);
     chown $uid,$gid,@files;
+}
+
+sub configreload {
+    require pf::ConfigStore::Switch;
+    require pf::violation_config;
+    pf::config::cached::updateCacheControl();
+    pf::config::cached::ReloadConfigs();
+    return 0;
 }
 
 

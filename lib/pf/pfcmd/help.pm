@@ -49,6 +49,7 @@ checkup                      | perform a sanity checkup and report any problems 
 class                        | view violation classes
 config                       | query, set, or get help on pf.conf configuration paramaters
 configfiles                  | push or pull configfiles into/from database
+configreload                 | reload configuration in the cache
 floatingnetworkdeviceconfig  | query/modify floating network device configuration parameters
 fingerprint                  | view DHCP Fingerprints
 fixpermissions               | fix permissions of files
