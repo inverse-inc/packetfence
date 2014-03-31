@@ -124,10 +124,10 @@ server dynamic_client_server {
                     }
                     if("%{control:Tmp-String-9}") {
                         update control {
-                            Tmp-String-8 = "%{sql: SELECT nasname FROM radius_nas WHERE nasname in ('%{control:Tmp-String-9}','%{Packet-Src-IP-Address}')}" 
+                            Tmp-String-8 = "%{sql: SELECT CONCAT_WS('%',shortname,type,secret) FROM radius_nas WHERE nasname in ('%{control:Tmp-String-9}','%{Packet-Src-IP-Address}')}" 
                         }
                     }
-                    if ("%{control:Tmp-String-8}") {
+                    if ("%{control:Tmp-String-8}" =~ /([^%]+)%([^%]+)%(.*)/) {
                         update control {
                             #
                             #  Echo the IP.
@@ -136,11 +136,12 @@ server dynamic_client_server {
                             #
                             #  Do multiple SELECT statements to grab
                             #  the various definitions.
-                            FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
+                            FreeRADIUS-Client-Shortname = "%{1}"
 
-                            FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
+                            FreeRADIUS-Client-NAS-Type = "%{2}"
 
-                            FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
+                            FreeRADIUS-Client-Secret = "%{3}"
+
 
                         }
                         ok
