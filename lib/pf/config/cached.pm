@@ -285,13 +285,18 @@ our %ON_FILE_RELOAD;
 our %ON_FILE_RELOAD_ONCE;
 our %ON_CACHE_RELOAD;
 our %ON_POST_RELOAD;
+
 our @ON_DESTROY_REFS = (
     \%ON_RELOAD,
     \%ON_FILE_RELOAD,
     \%ON_CACHE_RELOAD,
+    \%ON_FILE_RELOAD_ONCE,
+    \%ON_POST_RELOAD,
 );
 
 our %CONFIG_DATA;
+
+our $CACHE_CONTROL_TIMESTAMP = GetControlFileTimestamp();
 
 use overload "%{}" => \&config, fallback => 1;
 
@@ -359,11 +364,12 @@ sub new {
         }
     );
     untaint($config) unless $reload_onfile;
+    $ON_RELOAD{$file} ||= [];
+    $ON_FILE_RELOAD{$file} ||= [];
+    $ON_FILE_RELOAD_ONCE{$file} ||= [];
+    $ON_CACHE_RELOAD{$file} ||= [];
+    $ON_POST_RELOAD{$file} ||= [];
     $self = \$config;
-    $ON_RELOAD{$file} = [];
-    $ON_FILE_RELOAD{$file} = [];
-    $ON_CACHE_RELOAD{$file} = [];
-    $ON_POST_RELOAD{$file} = [];
     bless $self,$class;
     push @LOADED_CONFIGS, $self;
     $self->addReloadCallbacks(@$onReload) if @$onReload;
@@ -494,8 +500,7 @@ Call all the file reload callbacks that should be called only once
 
 sub _callFileReloadOnceCallbacks {
     my ($self) = @_;
-    my $callbacks =  $ON_FILE_RELOAD_ONCE{$self->GetFileName} || [];
-    $self->_doLockOnce( sub { $self->_callCallbacks(\%ON_FILE_RELOAD_ONCE) } ) if @$callbacks;
+    $self->_doLockOnce( sub { $self->_callCallbacks(\%ON_FILE_RELOAD_ONCE) } );
 }
 
 =head2 _callCacheReloadCallbacks
@@ -538,6 +543,8 @@ sub _doLockOnce {
     my ($self,$callback) = @_;
     my $lockFile = $self->getOnReloadOnceLock();
     if ($lockFile) {
+        my $logger = get_logger();
+        $logger->debug("Doing the callback");
         $callback->();
         flock($lockFile,LOCK_UN);
         close($lockFile);
@@ -550,12 +557,13 @@ sub getOnReloadOnceLock {
     my $fh = IO::File->new;
     my $old_umask = umask(002);
     my $lockFile = $self->GetFileName() . ".lockone" ;
+    $logger->debug("opening $lockFile");
     if (sysopen($fh,$lockFile,O_CREAT|O_RDWR) ) {
         if( flock($fh,LOCK_EX | LOCK_NB) ) {
             my $previousTimestamp;
             sysread $fh,$previousTimestamp,20;
             $previousTimestamp ||= 0;
-            my $currentTimeStamp = $self->{_timestamp} || -1;
+            my $currentTimeStamp = $self->GetLastModTimestamp();
             if($currentTimeStamp == $previousTimestamp) {
                 flock($fh,LOCK_UN);
                 close($fh);
@@ -800,6 +808,8 @@ ReloadConfigs reload all configs and call any register callbacks
 =cut
 
 sub ReloadConfigs {
+    return unless controlFileExpired($CACHE_CONTROL_TIMESTAMP);
+    $CACHE_CONTROL_TIMESTAMP = GetControlFileTimestamp();
     my $logger = get_logger();
     $logger->trace("Reloading all configs");
     foreach my $config (@LOADED_CONFIGS) {
