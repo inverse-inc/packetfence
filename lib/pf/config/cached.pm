@@ -774,7 +774,7 @@ sub SetControlFileTimestamp {
     $self->{_control_file_timestamp} = GetControlFileTimestamp();
 }
 
-sub GetControlFileTimestamp { int((stat($cache_control_file))[9]) * 1000000000 }
+sub GetControlFileTimestamp { int((stat($cache_control_file))[9] || 0) * 1000000000 }
 
 sub controlFileExpired {
     my ($timestamp) = @_;
