@@ -478,7 +478,7 @@ sub perform_dynauth {
     my $radius_request = Net::Radius::Packet->new($dictionary);
     $radius_request->set_code('Access-Request');
     # sets a random byte into id
-    $radius_request->set_identifier( int(rand(256)) );
+    $radius_request->set_identifier( $currentCount % 256 );
     # avoids unnecessary warnings
     $radius_request->set_authenticator("");
 
