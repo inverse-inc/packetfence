@@ -13,7 +13,6 @@ use Apache2::MPM ();
 use Apache2::RequestRec;
 use Log::Log4perl;
 use ModPerl::Util;
-use threads;
 
 use pf::config;
 
@@ -37,6 +36,7 @@ if (exists($ENV{MOD_PERL})) {
     }
 } else {
     # process threads
+    require threads;
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 }
 
