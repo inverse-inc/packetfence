@@ -13,37 +13,26 @@ pf::mdm
 
 use strict;
 use warnings;
-use Module::Load;
-use Module::Loaded;
+use Module::Pluggable search_path => __PACKAGE__, sub_name => 'authorizers' , require => 1;
+use List::MoreUtils qw(any);
+use pf::ConfigStore::Mdm;
 
+my @AUTHORIZERS = __PACKAGE__->authorizers;
 
-sub loadSubModule {
-    my ($self, $submodule) = @_;
-    my $module = $self->_subModuleName($submodule);
-    eval {
-        load $module unless is_loaded($module);
-    };
-    if($@) {
-        if ($@ =~ /Compilation failed/) {
-            die "module $module cannot be loaded";
-        } else {
-            die "unknown module $module";
-        }
+sub new {
+    my ($class,$name) = @_;
+    my $authorizer;
+    my $configStore = pf::ConfigStore::Mdm->new;
+    my $data = $configStore->read($name);
+    if ($data) {
+        my $type = $data->{type};
+        my $subclass = "${class}::${type}";
+        die "$type is not a valid type" unless any { $_ eq $subclass  } @AUTHORIZERS;
+        $authorizer = $subclass->new($data);
     }
+    return $authorizer;
 }
 
-sub newSubObject {
-    my ($self, $submodule, @args) = @_;
-    $self->loadSubModule($submodule);
-    my $module = $self->_subModuleName($submodule);
-    return $module->new(@args);
-}
-
-sub _subModuleName {
-    my ($self, $submodule) = @_;
-    my $base = ref($self) || $self;
-    return "${base}::${submodule}";
-}
 
 =head1 AUTHOR
 
