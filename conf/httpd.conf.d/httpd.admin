@@ -40,6 +40,7 @@
 
 PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/pfappserver/lib
+PerlLoadModule pfappserver;
 
 <Perl>
 BEGIN {
