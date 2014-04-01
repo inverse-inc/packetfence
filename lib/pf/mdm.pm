@@ -23,7 +23,7 @@ sub new {
     my ($class,$name) = @_;
     my $authorizer;
     my $configStore = pf::ConfigStore::Mdm->new;
-    my $data = $configStore->read($name);
+    my $data = $configStore->read($name,'id');
     if ($data) {
         my $type = $data->{type};
         my $subclass = "${class}::${type}";
