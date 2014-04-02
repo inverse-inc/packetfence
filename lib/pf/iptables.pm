@@ -131,10 +131,10 @@ sub iptables_generate {
 
     # per-feature firewall rules
     # self-registered guest by email or sponsored or gaming registration
-    my $gaming_enabled = isenabled($Config{'registration'}{'gaming_devices_registration'});
+    my $device_registration_enabled = isenabled($Config{'registration'}{'device_registration'});
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
-    if ( $email_enabled || $sponsor_enabled || $gaming_enabled ) {
+    if ( $email_enabled || $sponsor_enabled || $device_registration_enabled ) {
         $tags{'input_mgmt_guest_rules'} =
             "-A $FW_FILTER_INPUT_MGMT --protocol tcp --match tcp --dport 443 --jump ACCEPT"
         ;
@@ -203,8 +203,10 @@ sub generate_filter_if_src_to_chain {
     }
 
     # management interface handling
-    my $mgmt_int = $management_network->tag("int");
-    $rules .= "-A INPUT --in-interface $mgmt_int --jump $FW_FILTER_INPUT_MGMT\n";
+    if($management_network) {
+        my $mgmt_int = $management_network->tag("int");
+        $rules .= "-A INPUT --in-interface $mgmt_int --jump $FW_FILTER_INPUT_MGMT\n";
+    }
 
     # high-availability interfaces handling
     foreach my $interface (@ha_ints) {
