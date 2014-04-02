@@ -115,7 +115,7 @@ sub db_connect {
     if ($mydbh) {
 
         $logger->debug("connected");
-        $LAST_CONNECT = time() if $mydbh;
+        $LAST_CONNECT = time();
         $DBH = $mydbh;
         return ($mydbh);
 
@@ -134,11 +134,9 @@ checks if database is connected
 
 sub db_ping {
     my ($dbh,$result);
-    eval {
-        local $NO_DIE_ON_DBH_ERROR = 1;
-        my $dbh = db_connect;
-        $result = $dbh->ping;
-    };
+    local $NO_DIE_ON_DBH_ERROR = 1;
+    my $dbh = db_connect;
+    $result = $dbh->ping if $dbh;
     return $result;
 }
 
