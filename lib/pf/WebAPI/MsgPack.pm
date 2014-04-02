@@ -52,7 +52,7 @@ sub handler {
         }
         $r->content_type('application/x-msgpack');
         $content = Data::MessagePack->pack($response);
-        $r->print(\$content);
+        $r->print($content);
         return Apache2::Const::OK;
     } elsif ($argCount == 3) {
         my ($type, $method, $params) = @$data;
