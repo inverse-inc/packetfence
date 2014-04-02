@@ -173,6 +173,9 @@ Requires: perl(Regexp::Common)
 Requires: rrdtool, perl-rrdtool
 Requires: perl(SOAP::Lite) >= 1.0
 Requires: perl(WWW::Curl)
+Requires: perl(Data::MessagePack)
+Requires: perl(Data::MessagePack::Stream)
+Requires: perl(POSIX::2008)
 # Template::Toolkit - captive portal template system
 Requires: perl(Template)
 # Used by installer / configurator scripts
