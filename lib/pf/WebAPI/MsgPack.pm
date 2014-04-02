@@ -15,10 +15,10 @@ use strict;
 use warnings;
 use Data::MessagePack;
 use Log::Log4perl;
-use base qw(Class::Accessor);
-use Apache2::RequestIO ();
-use Apache2::RequestRec;
+use Apache2::RequestIO();
+use Apache2::RequestRec();
 use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE);
+use base qw(Class::Accessor);
 __PACKAGE__->mk_accessors(qw(dispatch_to));
 
 sub handler {
@@ -35,23 +35,38 @@ sub handler {
         $offset += $cnt;
     } while($cnt == 8192);
     my $data = Data::MessagePack->unpack($content);
-    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless ref($data) eq 'ARRAY' && @$data == 4;
-    my ($type, $msgid, $method, $params) = @$data;
-    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $type == 0;
-    my $dispatch_to = $self->dispatch_to;
-    return Apache2::Const::HTTP_NOT_IMPLEMENTED unless $dispatch_to->can($method);
-    my $response = [];
-    eval {
-        my @results = $dispatch_to->$method(@$params);
-        $response = [1,$msgid,undef,\@results];
-    };
-    if($@) {
-        $response = [1,$msgid,["$@"],undef];
+    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless ref($data) eq 'ARRAY';
+    my $argCount = @$data;
+    if ($argCount == 4) {
+        my ($type, $msgid, $method, $params) = @$data;
+        return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $type == 0;
+        my $dispatch_to = $self->dispatch_to;
+        return Apache2::Const::HTTP_NOT_IMPLEMENTED unless $dispatch_to->can($method);
+        my $response = [];
+        eval {
+            my @results = $dispatch_to->$method(@$params);
+            $response = [1,$msgid,undef,\@results];
+        };
+        if($@) {
+            $response = [1,$msgid,["$@"],undef];
+        }
+        $r->content_type('application/x-msgpack');
+        $content = Data::MessagePack->pack($response);
+        $r->print(\$content);
+        return Apache2::Const::OK;
+    } elsif ($argCount == 3) {
+        my ($type, $method, $params) = @$data;
+        return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $type == 2;
+        my $dispatch_to = $self->dispatch_to;
+        return Apache2::Const::HTTP_NOT_IMPLEMENTED unless $dispatch_to->can($method);
+        $r->push_handlers(PerlCleanupHandler => sub {
+            eval {
+                $dispatch_to->$method(@$params);
+            };
+        });
+        return Apache2::Const::OK;
     }
-    $r->content_type('application/x-msgpack');
-    $content = Data::MessagePack->pack($response);
-    $r->print($content);
-    return Apache2::Const::OK;
+    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
 }
 
 =head1 AUTHOR
