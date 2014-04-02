@@ -270,6 +270,7 @@ use Scalar::Util qw(refaddr reftype tainted);
 use Fcntl qw(:DEFAULT :flock);
 use Storable;
 use File::Flock;
+use File::Spec::Functions qw(splitpath catpath);
 use Readonly;
 use Sub::Name;
 use List::Util qw(first);
@@ -552,12 +553,24 @@ sub _doLockOnce {
     }
     return;
 }
+
+
+sub GetDotFileName {
+    return _makeIntoDotFile (shift->GetFileName);
+}
+
+sub _makeIntoDotFile {
+    my ($oldFileName) = @_;
+    my ($volume,$directories,$file) = splitpath( $oldFileName );
+    return catpath($volume,$directories,".$file");
+}
+
 sub getOnReloadOnceLock {
     my ($self) = @_;
     my $logger = get_logger();
     my $fh = IO::File->new;
     my $old_umask = umask(002);
-    my $lockFile = $self->GetFileName() . ".lockone" ;
+    my $lockFile = $self->GetDotFileName() . ".lockone" ;
     $logger->debug("opening $lockFile");
     if (sysopen($fh,$lockFile,O_CREAT|O_RDWR) ) {
         if( flock($fh,LOCK_EX | LOCK_NB) ) {
@@ -663,8 +676,8 @@ will create the name of the lock file
 sub _makeFileLock {
     my ($file) = @_;
     $file =~ /^(.*)$/;
-    my $lock_file = "${1}.lock";
-    return $lock_file;
+    $file = _makeIntoDotFile($1);
+    return "${file}.lock";
 }
 
 
