@@ -183,6 +183,11 @@ sub getMandatoryFields {
 
 *mandatoryFields = \&getMandatoryFields;
 
+sub getAuthorizer {
+    my ($self) = @_;
+    return $self->{'_authorizer'};
+}
+
 =item getSourcesAsObjects
 
 Returns the authentication sources objects for the current captive portal profile.
