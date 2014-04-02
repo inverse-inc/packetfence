@@ -54,9 +54,6 @@ sub import {
 
 sub get_logger { Log::Log4perl->get_logger(@_); }
 
-sub redirectStdIo {
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
