@@ -20,7 +20,16 @@ use pf::radius::soapclient;
 use Data::Dumper;
 use Benchmark;
 
-our %DATA = map { $_ => $_  } 0 .. 1000;
+our %DATA = (
+   'User-Name' => "10683f71d750",
+   'User-Password' => "10683f71d750",
+   'Called-Station-Id' => "9C-1C-12-C2-A2-DA:OpenWrt-OPEN",
+   'NAS-Port-Type' => 'Wireless-802.11',
+   'NAS-Port' => 0,
+   'Calling-Station-Id' => "10-68-3F-71-D7-50",
+   'Connect-Info' => "CONNECT 11Mbps 802.11b",
+   'Message-Authenticator' => "0x5f44baee6673fd097e6c649363e4876d",
+);
 
 timethese(-5, {
     send_msgpack_request => sub { send_msgpack_request('echo',\%DATA) },
