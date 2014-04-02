@@ -135,7 +135,7 @@ checks if database is connected
 sub db_ping {
     my ($dbh,$result);
     local $NO_DIE_ON_DBH_ERROR = 1;
-    my $dbh = db_connect;
+    $dbh = db_connect;
     $result = $dbh->ping if $dbh;
     return $result;
 }
