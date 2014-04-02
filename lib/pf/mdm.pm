@@ -26,6 +26,7 @@ sub new {
     my $data = $configStore->read($name,'id');
     if ($data) {
         my $type = $data->{type};
+        die "type is not defined for $name" unless defined $type;
         my $subclass = "${class}::${type}";
         die "$type is not a valid type" unless any { $_ eq $subclass  } @AUTHORIZERS;
         $authorizer = $subclass->new($data);
