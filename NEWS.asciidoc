@@ -49,6 +49,7 @@ Bug Fixes
 * Fixed Wispr blank page
 * Fixed network access for users with no "set role" action (#1778)
 * Fixed conversion of wildcards to regular expressions in domains passthroughs
+* Fixed display of last IP address of nodes when end_time is in the future
 
 Version 4.1.0 released on 2013-12-11
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

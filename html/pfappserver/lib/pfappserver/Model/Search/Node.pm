@@ -147,6 +147,7 @@ sub make_builder {
                             }
                         ],
                      [ 'AND' ],
+                     [ '(' ],
                         [
                             {
                                 'table'  => 'iplog',
@@ -155,6 +156,16 @@ sub make_builder {
                             '=',
                             '0000-00-00 00:00:00',
                          ],
+                     [ 'OR' ],
+                        [
+                            {
+                                'table'  => 'iplog',
+                                'name'   => 'end_time',
+                            },
+                            '>',
+                            'NOW()',
+                         ],
+                     [ ')' ],
                     ],
                 },
                 {
@@ -306,7 +317,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2013-2014 Inverse inc.
 
 =head1 LICENSE
 
