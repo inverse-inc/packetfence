@@ -12,8 +12,8 @@ server packetfence {
         update request {
             FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
         }
-	packetfence
-}
+        packetfence
+    }
 
     authenticate {
         Auth-Type MS-CHAP {
