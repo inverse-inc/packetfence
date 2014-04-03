@@ -61,4 +61,13 @@ lib/pf/pfcmd/pfcmd_pregrammar.pm:
 	/usr/bin/perl -Ilib -MParse::RecDescent -Mpf::pfcmd::pfcmd -w -e 'Parse::RecDescent->Precompile($$grammar, "pfcmd_pregrammar");'
 	mv pfcmd_pregrammar.pm lib/pf/pfcmd/
 
+.PHONY: raddb-sites-enabled
+
+raddb/sites-enabled:
+	mkdir raddb/sites-enabled
+	cd raddb/sites-enabled;\
+	for f in control-socket default inner-tunnel packetfence packetfence-soh packetfence-tunnel dynamic-clients;\
+		do ln -s ../sites-available/$$f $$f;\
+	done
+
 devel: configurations conf/ssl/server.crt bin/pfcmd permissions raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm
