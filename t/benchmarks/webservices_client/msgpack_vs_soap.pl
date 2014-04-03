@@ -23,7 +23,7 @@ use Benchmark;
 our %DATA = (
    'User-Name' => "10683f71d750",
    'User-Password' => "10683f71d750",
-   'Called-Station-Id' => "9C-1C-12-C2-A2-DA:OpenWrt-OPEN",
+   'Called-Station-Id' => "9C-1C-12-C2-A2-E8:OpenWrt-OPEN",
    'NAS-Port-Type' => 'Wireless-802.11',
    'NAS-Port' => 0,
    'Calling-Station-Id' => "10-68-3F-71-D7-50",
@@ -32,13 +32,13 @@ our %DATA = (
 );
 
 timethese(-5, {
-    send_msgpack_request => sub { send_msgpack_request('echo',\%DATA) },
+    send_msgpack_request => sub { send_msgpack_request('127.0.0.1',9090,'echo',\%DATA) },
     send_soap_request => sub { send_soap_request('echo',\%DATA) },
     }
 );
 
-timethese(100, {
-    send_msgpack_request => sub { send_msgpack_request('echo',\%DATA) },
+timethese(700, {
+    send_msgpack_request => sub { send_msgpack_request('127.0.0.1',9090,'echo',\%DATA) },
     send_soap_request => sub { send_soap_request('echo',\%DATA) },
     }
 );

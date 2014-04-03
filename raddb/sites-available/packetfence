@@ -42,6 +42,10 @@ server packetfence {
         exec
         # skip packetfence if we have already treated it in the inner-tunnel
         if (!EAP-Type || (EAP-Type != EAP-TTLS  && EAP-Type != PEAP)) {
+            update control {
+                Tmp-String-8 = ${soap_server}
+                Tmp-String-9 = ${soap_port}
+            }
             packetfence
         }
         Post-Auth-Type REJECT {

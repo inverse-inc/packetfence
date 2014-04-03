@@ -27,18 +27,12 @@ use constant SOAP_PORT => '9090'; #TODO: See note1
 
 sub send_msgpack_request {
     use bytes;
-    my ($function,$data) = @_;
+    my ($server,$port,$function,$data) = @_;
     my $response;
 
+    my $curl = _curlSetup("http://${server}:${port}");
     my $request = build_msgpack_request($function,$data);
-    my $curl = WWW::Curl::Easy->new;
     my $response_body;
-    $curl->setopt(CURLOPT_HEADER, 0);
-    $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
-    $curl->setopt(CURLOPT_NOSIGNAL, 1);
-    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT); # TODO: See note1
-#    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'}); # TODO: See note1
-    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/x-msgpack']);
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
     $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
@@ -48,7 +42,12 @@ sub send_msgpack_request {
 
     # Looking at the results...
     if ( $curl_return_code == 0 ) {
-        $response = Data::MessagePack->unpack($response_body);
+        my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
+        if($response_code == 200) {
+            $response = Data::MessagePack->unpack($response_body);
+        } else {
+            die "An error occured while processing the MessagePack request return code ($response_code)";
+        }
     } else {
         my $msg = "An error occured while sending a MessagePack request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
         die $msg;
@@ -57,10 +56,53 @@ sub send_msgpack_request {
     return $response->[3];
 }
 
+sub _curlSetup {
+    my ($url) = @_;
+    my $curl = WWW::Curl::Easy->new;
+    $curl->setopt(CURLOPT_HEADER, 0);
+    $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
+    $curl->setopt(CURLOPT_NOSIGNAL, 1);
+    $curl->setopt(CURLOPT_URL, $url);
+    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/x-msgpack']);
+    return $curl;
+}
+
 
 sub build_msgpack_request {
     my ($function,$hash) = @_;
     my $request = [0,0,$function,[%$hash]];
+    return Data::MessagePack->pack($request);
+}
+
+sub send_msgpack_notification {
+    use bytes;
+    my ($server,$port,$function,$data) = @_;
+    my $response;
+
+    my $curl = _curlSetup("http://${server}:${port}");
+    my $request = build_msgpack_notification($function,$data);
+    my $response_body;
+    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
+    $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
+
+    # Starts the actual request
+    my $curl_return_code = $curl->perform;
+
+    # Looking at the results...
+    if ( $curl_return_code != 0 ) {
+        my $msg = "An error occured while sending a MessagePack request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
+        die $msg;
+    }
+
+    return;
+}
+
+
+
+sub build_msgpack_notification {
+    my ($function,$hash) = @_;
+    my $request = [2,$function,[%$hash]];
     return Data::MessagePack->pack($request);
 }
 

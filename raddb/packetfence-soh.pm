@@ -44,7 +44,7 @@ use pf::radius::msgpackclient;
 require 5.8.8;
 
 # This is very important! Without this, the script will not get the filled hashes from FreeRADIUS.
-our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK);
+our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK, %RAD_CONFIG);
 
 
 =head1 SUBROUTINES
@@ -61,7 +61,7 @@ the only callback available inside an SoH virtual server.
 sub authorize {
     my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
     eval {
-        my $data = send_msgpack_request("soh_authorize", \%RAD_REQUEST);
+        my $data = send_msgpack_request($RAD_CONFIG{SOAP_SERVER_KEY()}, $RAD_CONFIG{SOAP_PORT_KEY()}, "soh_authorize",\%RAD_REQUEST);
         if ($data) {
 
             my $elements = $data->[0];

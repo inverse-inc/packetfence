@@ -43,13 +43,14 @@ use pf::radius::msgpackclient;
 use pf::util::freeradius qw(clean_mac);
 
 # Configuration parameter
-use constant SOAP_PORT => '9090'; #TODO: See note1
+use constant SOAP_PORT_KEY => 'Tmp-String-9'; #TODO: See note1
+use constant SOAP_SERVER_KEY => 'Tmp-String-8'; #TODO: See note1
 use constant API_URI => 'https://www.packetfence.org/PFAPI'; # don't change this unless you know what you are doing
 
 require 5.8.8;
 
 # This is very important! Without this, the script will not get the filled hashes from FreeRADIUS.
-our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK);
+our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK, %RAD_CONFIG);
 
 =head1 SUBROUTINES
 
@@ -105,7 +106,7 @@ sub post_auth {
             return $RADIUS::RLM_MODULE_OK;
         }
 
-        my $data = send_msgpack_request("radius_authorize",\%RAD_REQUEST);
+        my $data = send_msgpack_request($RAD_CONFIG{SOAP_SERVER_KEY()}, $RAD_CONFIG{SOAP_PORT_KEY()}, "radius_authorize",\%RAD_REQUEST);
         if ($data) {
 
             my $elements = $data->[0];
@@ -272,7 +273,7 @@ sub accounting {
             return $RADIUS::RLM_MODULE_OK;
         }
 
-        my $data = send_msgpack_request("radius_accounting", \%RAD_REQUEST);
+        my $data = send_msgpack_request($RAD_CONFIG{SOAP_SERVER_KEY()}, $RAD_CONFIG{SOAP_PORT_KEY()}, "radius_accounting",\%RAD_REQUEST);
         if ($data) {
             my $elements = $data->[0];
 
