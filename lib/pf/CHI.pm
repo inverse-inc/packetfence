@@ -83,6 +83,8 @@ sub chiConfigFromIniFile {
             setFileDriverParams($storage);
         } elsif($driver eq 'DBI') {
             setDBIDriverParams($storage, $dbi);
+        } elsif($driver eq 'BerkeleyDB') {
+            setBerkeleyDBDriverParams($storage);
         }
         foreach my $param (qw(servers traits roles)) {
             next unless exists $storage->{$param};
@@ -115,6 +117,13 @@ sub setFileDriverParams {
     $storage->{file_create_mode} = oct('00664');
     $storage->{umask_on_store} = oct('00007');
     $storage->{traits} = ['+pf::Role::CHI::Driver::FileUmask', '+pf::Role::CHI::Driver::Untaint'];
+}
+
+sub setBerkeleyDBDriverParams {
+    my ($storage) = @_;
+    $storage->{dir_create_mode} = oct('02775');
+    $storage->{umask_before} = oct('00007');
+    $storage->{traits} = ['+pf::Role::CHI::Driver::BerkeleyDBUmask'];
 }
 
 sub setDBIDriverParams {
