@@ -30,9 +30,8 @@ use pf::web::constants;
 use pf::web::util;
 use pf::proxypassthrough::constants;
 use pf::Portal::Session;
-use pf::iplog qw(iplog_update);
-use pf::locationlog qw(locationlog_view_open_mac);
 use pf::web::provisioning::custom;
+use pf::web::externalportal;
 
 =head1 SUBROUTINES
 
@@ -127,62 +126,6 @@ sub handler {
     return Apache2::Const::OK;
 }
 
-=item external_captive_portal
-
-Instantiate the switch module and use a specific captive portal
-
-=cut
-
-sub external_captive_portal {
-    my ($switchId, $req, $r, $session) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-    my $switch;
-    if (defined($switchId)) {
-        if (defined(pf::SwitchFactory::hasId($switchId))) {
-            $switch =  pf::SwitchFactory->getInstance()->instantiate($switchId);
-        } else {
-            my $locationlog_entry = locationlog_view_open_mac($switchId);
-            $switch = pf::SwitchFactory->getInstance()->instantiate($locationlog_entry->{'switch'});
-        }
-
-        if (defined($switch) && $switch ne '0' && $switch->supportsExternalPortal) {
-            my ($client_mac,$client_ssid,$client_ip,$redirect_url,$grant_url,$status_code) = $switch->parseUrl(\$req);
-            my %info = (
-                'client_mac' => $client_mac,
-            );
-            my $portalSession = pf::Portal::Session->new(%info);
-            $portalSession->setClientIp($client_ip) if (defined($client_ip));
-            #$portalSession->setClientMac($client_mac) if (defined($client_mac));
-            $portalSession->setDestinationUrl($redirect_url) if (defined($redirect_url));
-            $portalSession->setGrantUrl($grant_url) if (defined($grant_url));
-            #$portalSession->cgi->param("do_not_deauth", $TRUE) if (defined($grant_url));
-            iplog_update($client_mac,$client_ip,100) if (defined ($client_ip) && defined ($client_mac));
-            # Have to update location_log ...
-            return $portalSession->session->id();
-        } else {
-            return 0;
-        }
-    }
-    elsif (defined($session)) {
-        my (%session_id);
-        pf::web::util::session(\%session_id,$session);
-        if ($session_id{_session_id} eq $session) {
-            my $switch = $session_id{switch};
-            #if ($$switch->supportsExternalPortal) {
-                my $portalSession = pf::Portal::Session->new(%session_id);
-                $portalSession->setClientMac($session_id{client_mac}) if (defined($session_id{client_mac}));
-                $portalSession->setDestinationUrl($r->headers_in->{'Referer'}) if (defined($r->headers_in->{'Referer'}));
-                return $portalSession->session->id();
-            #}
-        } else {
-            return 0;
-        }
-    }
-    else {
-        return 0;
-    }
-}
-
 =item redirect
 
 For simplicity and performance this doesn't consume and leverage
@@ -203,37 +146,13 @@ sub redirect {
    my $orginal_url = Apache2::Util::escape_path($url,$r->pool);
 
    # External Captive Portal Detection
+   my $external_portal = pf::web::externalportal->new();
 
-   my $req = Apache2::Request->new($r);
+   my $cgi_session_id = $external_portal->handle($r);
    my $is_external_portal;
-   foreach my $param ($req->param) {
-       if ($param =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
-           my $value;
-           $value = clean_mac($req->param($param)) if valid_mac($req->param($param));
-           $value = $req->param($param) if  valid_ip($req->param($param));
-           if (defined($value)) {
-               my $cgi_session_id = external_captive_portal($value,$req,$r,undef);
-               if ($cgi_session_id ne '0') {
-                   # Set the cookie for the captive portal
-                   $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
-                   $logger->warn("Dumping session id: $cgi_session_id");
-                   $is_external_portal = 1;
-                   last;
-               }
-           }
-       }
-   }
-
-   # Try to fetch the parameters in the session
-   if ($r->uri =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
-       my $cgi_session_id = external_captive_portal(undef,undef,$r,$1);
-           if ($cgi_session_id ne '0') {
-               # Set the cookie for the captive portal
-               $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
-               $logger->warn("Dumping session id: $cgi_session_id");
-               $destination_url=$r->headers_in->{'Referer'} if (defined($r->headers_in->{'Referer'}));
-           }
-           $is_external_portal = 1;
+   if ($cgi_session_id) {
+      $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
+      $is_external_portal = 1;
    }
 
    my $proto;
