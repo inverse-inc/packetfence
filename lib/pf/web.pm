@@ -684,6 +684,21 @@ sub generate_pending_page {
     render_template($portalSession, 'pending.html');
 }
 
+sub generate_authorizer_page {
+    my ($portalSession, %info) = @_;
+    
+     $portalSession->stash({
+        destination_url => $portalSession->getDestinationUrl(),
+        initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
+        retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
+        external_ip => $Config{'captive_portal'}{'network_detection_ip'},
+    });
+
+    render_template($portalSession, 'authorizer.html');
+    
+}
+
+
 =item end_portal_session
 
 Call after you made your changes to the user / node.
