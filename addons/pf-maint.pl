@@ -35,6 +35,7 @@ use HTTP::Request;
 use Getopt::Long;
 use LWP::UserAgent;
 use Pod::Usage;
+use IO::Handle;
 our $GITHUB_USER = 'inverse-inc';
 our $GITHUB_REPO = 'packetfence';
 our $PF_DIR      = $ENV{PF_DIR} || '/usr/local/pf';
