@@ -82,16 +82,7 @@ sub reevaluate_access {
 
             my $inline = new pf::inline::custom();
             if ($inline->isInlineEnforcementRequired($mac)) {
-
-                # TODO avoidable load?
-                my $trapSender = pf::SwitchFactory->getInstance()->instantiate('127.0.0.1');
-                if ($trapSender) {
-                    $logger->debug("sending a local firewallRequest trap to force firewall change");
-                    $trapSender->sendLocalFirewallRequestTrap('127.0.0.1', $mac);
-                } else {
-                    $logger->error("Can't instantiate switch 127.0.0.1! It's critical for internal messages!");
-                }
-
+                $inline->performInlineEnforcement($mac);
             } else {
                 $logger->debug("MAC: $mac is already properly enforced in firewall, no change required");
             }
