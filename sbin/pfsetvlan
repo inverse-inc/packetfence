@@ -609,7 +609,7 @@ sub parseTrap {
                     # WARNING: always leave trapIfIndex because the trapLine parser expects it
                     $trapHashRef = {
                         'trapType'      => 'firewallRequest',
-                        'trapIfIndex'   => 'NA',
+                        'trapIfIndex'   => '0',
                         'trapMac'       => $1,
                     };
 
@@ -622,7 +622,7 @@ sub parseTrap {
                     # WARNING: always leave trapIfIndex because the trapLine parser expects it
                     $trapHashRef = {
                         'trapType'      => 'firewallRequest',
-                        'trapIfIndex'   => 'NA',
+                        'trapIfIndex'   => '0',
                         'trapMac'       => $1,
                     };
 
