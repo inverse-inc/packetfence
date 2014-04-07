@@ -39,6 +39,8 @@ Enhancements
 * Multiple dns server in the network configuration
 * Allow alias interface as captive portal
 * Mac Authentication support for Enterasuys D2 switch
+* Added support for json-rpc and msgpack rpc over http for webservices
+* Made msgpack the default rpc for radius
 
 Bug Fixes
 +++++++++
