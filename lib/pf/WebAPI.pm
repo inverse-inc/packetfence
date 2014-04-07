@@ -20,6 +20,7 @@ use pf::config;
 #use SOAP::Lite +trace => [ fault => \&log_faults ];
 use SOAP::Transport::HTTP;
 use pf::WebAPI::MsgPack;
+use pf::WebAPI::JSONRPC;
 
 Log::Log4perl->init_and_watch("$conf_dir/log.conf", $LOG4PERL_RELOAD_TIMER);
 Log::Log4perl::MDC->put('proc', 'pf::WebAPI');
@@ -40,8 +41,9 @@ if (exists($ENV{MOD_PERL})) {
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 }
 
-my $server = SOAP::Transport::HTTP::Apache->dispatch_to('PFAPI');
+my $server_soap = SOAP::Transport::HTTP::Apache->dispatch_to('PFAPI');
 my $server_msgpack = pf::WebAPI::MsgPack->new({dispatch_to => 'PFAPI'});
+my $server_jsonrpc = pf::WebAPI::JSONRPC->new({dispatch_to => 'PFAPI'});
 
 sub handler {
     my ($r) = @_;
@@ -50,11 +52,14 @@ sub handler {
         $r->user($r->headers_in->{Request});
     }
     my $content_type = $r->headers_in->{'Content-Type'};
+    $logger->debug("$content_type");
     if( $content_type eq 'application/x-msgpack') {
         $logger->debug("Calling server_msgpack");
         return $server_msgpack->handler($r);
+    } elsif (pf::WebAPI::JSONRPC::allowed($content_type)) {
+        return $server_jsonrpc->handler($r);
     } else {
-        return $server->handler($r);
+        return $server_soap->handler($r);
     }
 }
 
