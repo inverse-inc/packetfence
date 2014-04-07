@@ -2,7 +2,7 @@ package pf::api::msgpackclient;
 
 =head1 NAME
 
-pf::api::msgpackclient add documentation
+pf::api::msgpackclient
 
 =head1 SYNOPSIS
 
@@ -13,7 +13,7 @@ pf::api::msgpackclient add documentation
 
 =head1 DESCRIPTION
 
-pf::api::msgpackclient
+  pf::api::msgpackclient is a msgpacket client over http
 
 =cut
 
@@ -205,7 +205,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
