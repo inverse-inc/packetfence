@@ -193,7 +193,7 @@ sub build_msgpack_request {
 
 sub build_msgpack_notification {
     my ($self,$function,$args) = @_;
-    my $request = [NOTIFICATION,$function,[$args]];
+    my $request = [NOTIFICATION,$function,$args];
     return Data::MessagePack->pack($request);
 }
 
