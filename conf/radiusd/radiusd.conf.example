@@ -17,6 +17,10 @@ db_dir = ${raddbdir}
 libdir = /usr/lib%%arch%%/freeradius
 pidfile = ${run_dir}/${name}.pid
 
+soap_server = 127.0.0.1
+soap_port   = 9090
+
+
 user = pf
 group = pf
 
