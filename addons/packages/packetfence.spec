@@ -123,6 +123,7 @@ Requires: perl(Tie::DxHash)
 requires: perl(Proc::ProcessTable)
 requires: perl(Apache::SSLLookup)
 requires: perl(Crypt::OpenSSL::X509)
+requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode. Specific version matches system's iptables version.
@@ -271,7 +272,7 @@ as
 %package -n %{real_name}-remote-snort-sensor
 Group: System Environment/Daemons
 Requires: perl >= 5.8.0, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https)
-Requires: perl(SOAP::Lite)
+Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
 Conflicts: %{real_name}
 AutoReqProv: 0
 Summary: Files needed for sending snort alerts to packetfence
@@ -286,7 +287,7 @@ server.
 %package -n %{real_name}-remote-arp-sensor
 Group: System Environment/Daemons
 Requires: perl >= 5.8.0, perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
-Requires: perl(SOAP::Lite)
+Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
 Conflicts: %{real_name}
 AutoReqProv: 0
 Summary: Files needed for sending MAC and IP addresses from ARP requests to PacketFence
