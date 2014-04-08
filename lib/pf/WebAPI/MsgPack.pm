@@ -14,6 +14,7 @@ pf::WebAPI::MsgPack
 use strict;
 use warnings;
 use Data::MessagePack;
+use Data::MessagePack::Stream;
 use Log::Log4perl;
 use Apache2::RequestIO();
 use Apache2::RequestRec();
@@ -27,14 +28,13 @@ sub handler {
     my ($self,$r) = @_;
     my $content_type = $r->headers_in->{'Content-Type'};
     return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless ($content_type eq 'application/x-msgpack');
-    my $content = '';
     my $offset = 0;
     my $cnt = 0;
-    do {
-        $cnt = $r->read($content,8192,$offset);
-        $offset += $cnt;
-    } while($cnt == 8192);
-    my $data = Data::MessagePack->unpack($content);
+    my $unpacker = Data::MessagePack::Stream->new;
+    while ($r->read(my $buf,8192) ) {
+        $unpacker->feed($buf);
+    }
+    my $data = $unpacker->data if $unpacker->next;
     return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless ref($data) eq 'ARRAY';
     my $argCount = @$data;
     if ($argCount == 4) {
@@ -51,7 +51,7 @@ sub handler {
             $response = [1,$msgid,["$@"],undef];
         }
         $r->content_type('application/x-msgpack');
-        $content = Data::MessagePack->pack($response);
+        my $content = Data::MessagePack->pack($response);
         $r->print($content);
         return Apache2::Const::OK;
     } elsif ($argCount == 3) {
