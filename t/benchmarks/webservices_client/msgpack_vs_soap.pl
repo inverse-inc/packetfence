@@ -15,8 +15,9 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
 
-use pf::radius::msgpackclient;
 use pf::radius::soapclient;
+use pf::api::jsonrpcclient;
+use pf::api::msgpackclient;
 use Data::Dumper;
 use Benchmark;
 
@@ -31,17 +32,15 @@ our %DATA = (
    'Message-Authenticator' => "0x5f44baee6673fd097e6c649363e4876d",
 );
 
-timethese(-5, {
-    send_msgpack_request => sub { send_msgpack_request('127.0.0.1',9090,'echo',\%DATA) },
+our @DATA = ( 1 .. 1000);
+
+timethese(-10, {
+    send_msgpack_request => sub { pf::api::msgpackclient->new->call(echo => (\%DATA)) },
+    send_json_request => sub { pf::api::jsonrpcclient->new->call(echo => (\%DATA)) },
     send_soap_request => sub { send_soap_request('echo',\%DATA) },
     }
 );
 
-timethese(700, {
-    send_msgpack_request => sub { send_msgpack_request('127.0.0.1',9090,'echo',\%DATA) },
-    send_soap_request => sub { send_soap_request('echo',\%DATA) },
-    }
-);
 
 =head1 AUTHOR
 
