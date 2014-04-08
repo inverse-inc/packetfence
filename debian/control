@@ -32,7 +32,7 @@ Depends: ${misc:Depends}, vlan, make,
 # perl basic components
  liblist-moreutils-perl, libwww-perl, libtry-tiny-perl,
 # perl uncategorized modules
- libapache-htpasswd-perl, libbit-vector-perl, libtext-csv-perl,
+ libapache-htpasswd-perl, libbit-vector-perl, libtext-csv-perl, libtext-csv-xs-perl,
  libcgi-session-serialize-yaml-perl, libtimedate-perl, libapache-dbi-perl,
  libdbd-mysql-perl, libfile-tail-perl, libnetwork-ipv4addr-perl,
  libiptables-parse-perl, libiptables-chainmgr-perl, iptables (>= 1.4.0),
