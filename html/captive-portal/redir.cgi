@@ -26,7 +26,7 @@ use pf::locationlog;
 use pf::node;
 use pf::Portal::Session;
 use pf::scan qw($SCAN_VID);
-use pf::util qw(valid_mac);
+use pf::util qw(valid_mac clean_ip);
 use pf::violation;
 use pf::web;
 use pf::web::guest;
