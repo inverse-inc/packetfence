@@ -63,8 +63,9 @@ sub passthrough { @{ $Config{trapping}{passthroughs} }; }
 package OAUTH;
 
 my @oauth_domains =  pf::pfdns::constants::oauth_domain();
-foreach (@oauth_domains) { s{([^/])$}{$1\$} };
+foreach (@oauth_domains) { s{^([\d+|\w+](.*))}{\Q$1\E} };
 foreach (@oauth_domains) { s{(\*)(.*)}{\(\.\*\)\Q$2\E} };
+foreach (@oauth_domains) { s{([^/])$}{$1\$} };
 
 my $allow_oauth_domains = join('|', @oauth_domains) if (@oauth_domains ne '0');
 
@@ -82,8 +83,9 @@ if (defined($allow_oauth_domains)) {
 package PASSTHROUGH;
 
 my @passthrough_domains =  pf::pfdns::constants::passthrough();
-foreach (@passthrough_domains) { s{([^/])$}{$1\$} };
+foreach (@passthrough_domains) { s{^([\d+|\w+](.*))}{\Q$1\E} };
 foreach (@passthrough_domains) { s{(\*)(.*)}{\(\.\*\)\Q$2\E} };
+foreach (@passthrough_domains) { s{([^/])$}{$1\$} };
 
 my $allow_passthrough_domains = join('|', @passthrough_domains) if (@passthrough_domains ne '0');
 
