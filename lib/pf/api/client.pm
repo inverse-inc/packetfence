@@ -1,13 +1,13 @@
-package pf::api::jsonrpcclient;
+package pf::api::client;
 
 =head1 NAME
 
-pf::api::jsonrpcclient
+pf::api::client
 
 =head1 SYNOPSIS
 
-  use pf::api::jsonrpcclient;
-  my $client = pf::api::jsonrpcclient->new;
+  use pf::api::client;
+  my $client = pf::api::client->new;
   my @args = $client->call("echo","packet","fence");
 
   $client->notify("echo","packet","fence");
@@ -15,7 +15,7 @@ pf::api::jsonrpcclient
 
 =head1 DESCRIPTION
 
-  pf::api::jsonrpcclient is a jsonrpc client over http
+  pf::api::client is the base class for the pf http rpc client
 
 =cut
 
@@ -25,7 +25,6 @@ use warnings;
 use pf::config;
 use pf::log;
 use WWW::Curl::Easy;
-use JSON::XS;
 use Moo;
 
 =head1 Attributes
@@ -82,8 +81,10 @@ has port => (is => 'rw', default => sub {$Config{'webservices'}{'port'}} );
 
 has id => (is => 'rw', default => sub {0} );
 
+has content_type => (is => 'rw');
+
 use constant REQUEST => 0;
-use constant RESPONSE => 2;
+use constant RESPONSE => 1;
 use constant NOTIFICATION => 2;
 
 =head1 METHODS
@@ -99,7 +100,7 @@ sub call {
     my ($self,$function,@args) = @_;
     my $response;
     my $curl = $self->curl($function);
-    my $request = $self->build_jsonrpc_request($function,\@args);
+    my $request = $self->build_request($function,\@args);
     my $response_body;
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
     $curl->setopt(CURLOPT_POSTFIELDS, $request);
@@ -112,17 +113,39 @@ sub call {
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         if($response_code == 200) {
-            $response = decode_json($response_body);
+            $response = $self->decode(\$response_body);
         } else {
             $response = decode_json($response_body);
             die $response->{error}{message};
         }
     } else {
-        my $msg = "An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
+        my $msg = "An error occured while sending a rpc request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
         die $msg;
     }
 
-    return @{$response->{result}};
+    return $self->extractValues($response);
+}
+
+=head2 decode
+
+TODO: documention
+
+=cut
+
+sub decode {
+    my ($self) = @_;
+    return ;
+}
+
+=head2 encode
+
+TODO: documention
+
+=cut
+
+sub encode {
+    my ($self) = @_;
+    return ;
 }
 
 =head2 notify
@@ -136,7 +159,7 @@ sub notify {
     my ($self,$function,@args) = @_;
     my $response;
     my $curl = $self->curl($function);
-    my $request = $self->build_jsonrpc_notification($function,\@args);
+    my $request = $self->build_notification($function,\@args);
     my $response_body;
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
     $curl->setopt(CURLOPT_POSTFIELDS, $request);
@@ -194,31 +217,24 @@ sub url {
     return "${proto}://${host}:${port}";
 }
 
-=head2 build_jsonrpc_request
+=head2 build_request
 
   builds the jsonrpc request
 
 =cut
 
-sub build_jsonrpc_request {
+sub build_request {
     my ($self,$function,$args) = @_;
-    my $id = $self->id;
-    my $request = {method => $function, jsonrpc => '2.0', id => $id , params => $args };
-    $id++;
-    $self->id($id);
-    return encode_json $request;
 }
 
-=head2 build_jsonrpc_notification
+=head2 build_notification
 
   builds the jsonrpc notification request
 
 =cut
 
-sub build_jsonrpc_notification {
+sub build_notification {
     my ($self,$function,$args) = @_;
-    my $request = {method => $function, jsonrpc => '2.0', params => $args };
-    return encode_json $request;
 }
 
 
