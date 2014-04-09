@@ -112,14 +112,14 @@ sub node_info_parser {
 
     if ($rule->{'operator'} eq 'is') {
         if ($node_info->{$rule->{'attribute'}} =~ /$rule->{'regexp'}/) {
-            return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     } else {
         if ($node_info->{$rule->{'attribute'}} !~ /$rule->{'regexp'}/) {
-           return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     }
@@ -136,14 +136,14 @@ sub switch_parser {
 
     if ($rule->{'operator'} eq 'is') {
         if ($switch->{$rule->{'attribute'}} =~ /$rule->{'regexp'}/) {
-            return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     } else {
         if ($switch->{$rule->{'attribute'}} !~ /$rule->{'regexp'}/) {
-           return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     }
@@ -160,14 +160,14 @@ sub ifindex_parser {
 
     if ($rule->{'operator'} eq 'is') {
         if ($ifIndex =~ /$rule->{'regexp'}/) {
-           return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     } else {
         if ($ifIndex !~ /$rule->{'regexp'}/) {
-           return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     }
@@ -184,14 +184,14 @@ sub mac_parser {
 
     if ($rule->{'operator'} eq 'is') {
         if ($mac =~ /$rule->{'regexp'}/) {
-             return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     } else {
         if ($mac !~ /$rule->{'regexp'}/) {
-           return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     }
@@ -208,14 +208,14 @@ sub connection_type_parser {
  
     if ($rule->{'operator'} eq 'is') {
         if ($connection_type_to_str{$connection_type} =~ /$rule->{'regexp'}/) {
-             return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     } else {
         if ($connection_type_to_str{$connection_type} !~ /$rule->{'regexp'}/) {
-           return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     }
@@ -232,14 +232,14 @@ sub username_parser {
 
     if ($rule->{'operator'} eq 'is') {
         if ($user_name =~ /$rule->{'regexp'}/) {
-             return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     } else {
         if ($user_name !~ /$rule->{'regexp'}/) {
-           return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     }
@@ -256,14 +256,14 @@ sub ssid_parser {
 
     if ($rule->{'operator'} eq 'is') {
         if ($ssid =~ /$rule->{'regexp'}/) {
-             return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     } else {
         if ($ssid !~ /$rule->{'regexp'}/) {
-           return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     }
@@ -281,14 +281,14 @@ sub time_parser {
     my $time = time();
     if ($rule->{'operator'} eq 'is') {
         if (inPeriod($time,$rule->{'regexp'})) {
-             return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     } else {
         if (!inPeriod($time,$rule->{'regexp'})) {
-           return $self->action($rule);
-        } elsif (!$rule->{'action'}) {
+            return 1;
+        } else {
             return 0;
         }
     }
@@ -305,7 +305,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
