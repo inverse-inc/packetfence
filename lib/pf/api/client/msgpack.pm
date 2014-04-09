@@ -37,6 +37,9 @@ use constant REQUEST => 0;
 use constant RESPONSE => 2;
 use constant NOTIFICATION => 2;
 
+our $ENCODER = Data::MessagePack->new;
+our $DECODER = $ENCODER;
+
 =head1 METHODS
 
 =head2 decode
@@ -47,7 +50,7 @@ TODO: documention
 
 sub decode {
     my ($self,$data) = @_;
-    return Data::MessagePack->unpack($$data);
+    return $DECODER->decode($$data);
 }
 
 sub extractValues {
@@ -68,7 +71,7 @@ sub build_request {
     my $request = [REQUEST,$id,$function,$args];
     $id++;
     $self->id($id);
-    return Data::MessagePack->pack($request);
+    return $ENCODER->encode($request);
 }
 
 =head2 build_notification
@@ -80,7 +83,7 @@ sub build_request {
 sub build_notification {
     my ($self,$function,$args) = @_;
     my $request = [NOTIFICATION,$function,$args];
-    return Data::MessagePack->pack($request);
+    return $ENCODER->encode($request);
 }
 
 
