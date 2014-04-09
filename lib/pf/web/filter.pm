@@ -106,15 +106,13 @@ sub uri_parser {
     my $action;
     if ($rule->{'operator'} eq 'is') {
         if ((($r->uri =~ /$rule->{'regexp'}/) || ($r->args =~  /$rule->{'regexp'}/)) && ($r->method eq $rule->{'method'})) {
-            $action = $self->dispatch_action($rule);
-            return $action->($self,$r,$rule);
+            return 1;
         } elsif (!$rule->{'action'}) {
             return 0;
         }
     } else {
         if ((($r->uri !~ /$rule->{'regexp'}/) && ($r->args !~  /$rule->{'regexp'}/)) && ($r->method eq $rule->{'method'})) {
-           $action = $self->dispatch_action($rule);
-           return $action->($self,$r,$rule);
+           return 1;
         } elsif (!$rule->{'action'}) {
             return 0;
         }
@@ -131,17 +129,21 @@ sub user_agent_parser {
     my ($self,$r,$rule) = @_;
 
     my $action;
+    my $user_agent;
+    if (defined($r->headers_in->{'User-Agent'}) {
+        $user_agent = $r->headers_in->{'User-Agent'};
+    } else {
+        $user_agent = '';
+    }
     if ($rule->{'operator'}eq 'is') {
-        if (($r->headers_in->{'User-Agent'} =~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
-            $action = $self->dispatch_action($rule);
-            return $action->($self,$r,$rule);
+        if (($user_agent =~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
+            return 1;
         } elsif (!$rule->{'action'}) {
             return 0;
         }
     } else {
-        if (($r->headers_in->{'User-Agent'} !~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
-           $action = $self->dispatch_action($rule);
-           return $action->($self,$r,$rule);
+        if (($user_agent !~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
+           return 1;
         } elsif (!$rule->{'action'}) {
             return 0;
         }
