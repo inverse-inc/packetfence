@@ -19,9 +19,13 @@ use pf::log;
 use Apache2::RequestIO();
 use Apache2::RequestRec();
 use Apache2::Response ();
-use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE SERVER_ERROR HTTP_NOT_FOUND);
+use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE SERVER_ERROR HTTP_NO_CONTENT HTTP_NOT_FOUND);
 use base qw(Class::Accessor);
 __PACKAGE__->mk_accessors(qw(dispatch_to));
+
+our $ENCODER = Data::MessagePack->new;
+our $DECODER = $ENCODER;
+
 
 sub handler {
     my $logger = get_logger;
@@ -47,7 +51,6 @@ sub handler {
     if ($argCount == 4) {
         my $status_code = Apache2::Const::OK;
         my ($type, $msgid, $method, $params) = @$data;
-        return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $type == 0;
         my $dispatch_to = $self->dispatch_to;
         unless ($dispatch_to->can($method)) {
             $self->_set_error($r,$msgid,Apache2::Const::HTTP_NOT_FOUND,"method not found");
@@ -67,9 +70,8 @@ sub handler {
         $r->print($content);
         $r->content_type('application/x-msgpack');
         return Apache2::Const::OK;
-    } elsif ($argCount == 3) {
+    } elsif ($type == 2) {
         my ($type, $method, $params) = @$data;
-        return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $type == 2;
         my $dispatch_to = $self->dispatch_to;
         return Apache2::Const::HTTP_NOT_IMPLEMENTED unless $dispatch_to->can($method);
         $r->push_handlers(PerlCleanupHandler => sub {
@@ -77,7 +79,7 @@ sub handler {
                 $dispatch_to->$method(@$params);
             };
         });
-        return Apache2::Const::OK;
+        return Apache2::Const::HTTP_NO_CONTENT;
     }
     $self->_set_error($r,Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,"invalid content");
     return Apache2::Const::OK;
