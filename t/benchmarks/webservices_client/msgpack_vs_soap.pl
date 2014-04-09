@@ -16,10 +16,11 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 
 use pf::radius::soapclient;
-use pf::api::jsonrpcclient;
-use pf::api::msgpackclient;
+use pf::api::client::jsonrpc;
+use pf::api::client::msgpack;
+use pf::api::client::sereal;
 use Data::Dumper;
-use Benchmark;
+use Benchmark qw(timethese cmpthese);
 
 our %DATA = (
    'User-Name' => "10683f71d750",
@@ -30,17 +31,32 @@ our %DATA = (
    'Calling-Station-Id' => "10-68-3F-71-D7-50",
    'Connect-Info' => "CONNECT 11Mbps 802.11b",
    'Message-Authenticator' => "0x5f44baee6673fd097e6c649363e4876d",
+    X => [1 .. 10000]
 );
 
-our @DATA = ( 1 .. 1000);
-
-timethese(-10, {
-    send_msgpack_request => sub { pf::api::msgpackclient->new->call(echo => (\%DATA)) },
-    send_json_request => sub { pf::api::jsonrpcclient->new->call(echo => (\%DATA)) },
-    send_soap_request => sub { send_soap_request('echo',\%DATA) },
+my $bench = timethese(-5, {
+    mp => sub { pf::api::client::msgpack->new->call(echo => (\%DATA)) },
+    json => sub { pf::api::client::jsonrpc->new->call(echo => (\%DATA)) },
+    sereal => sub { pf::api::client::sereal->new->call(echo => (\%DATA)) },
+#    send_soap_request => sub { send_soap_request('echo',\%DATA) },
     }
 );
 
+print "\n";
+
+cmpthese($bench,'all');
+
+print "\n\n";
+$bench = timethese(-5, {
+    mp => sub { pf::api::client::msgpack->new->notify(echo => (\%DATA)) },
+    json => sub { pf::api::client::jsonrpc->new->notify(echo => (\%DATA)) },
+    sereal => sub { pf::api::client::sereal->new->notify(echo => (\%DATA)) },
+    }
+);
+
+print "\n";
+
+cmpthese($bench,'all');
 
 =head1 AUTHOR
 
