@@ -181,7 +181,6 @@ sub dhcp_fingerprint_view_all_searchable {
     # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
     # and pf::db will recognize it and prepare it as such
     $os_statements->{'dhcp_fingerprint_view_all_sql_custom'} = $sql;
-    $logger->debug($sql);
 
     return db_data(OS, $os_statements, 'dhcp_fingerprint_view_all_sql_custom');
 }
@@ -208,7 +207,6 @@ sub dhcp_fingerprint_count_searchable {
     # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
     # and pf::db will recognize it and prepare it as such
     $os_statements->{'dhcp_fingerprint_view_all_sql_custom'} = $sql;
-    $logger->debug($sql);
 
     my $query = db_query_execute(OS, $os_statements, 'dhcp_fingerprint_view_all_sql_custom');
     my ($val) = $query->fetchrow_array();
