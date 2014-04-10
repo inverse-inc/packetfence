@@ -58,9 +58,24 @@ CREATE TABLE inline_accounting (
    INDEX (ip)
  ) ENGINE=InnoDB;
 
+--
+-- Added a new column config_timestamp
+---
+
 ALTER TABLE radius_nas 
   ADD config_timestamp BIGINT AFTER description,
   DROP PRIMARY KEY,
   DROP COLUMN id,
   ADD PRIMARY KEY (nasname)
 ;
+
+--
+-- Alter for dynamic controller
+--
+
+ALTER TABLE locationlog 
+    ADD `switch_ip` varchar(17) DEFAULT NULL,
+    ADD `switch_mac` varchar(17) DEFAULT NULL;
+
+UPDATE locationlog SET switch_ip = switch;
+
