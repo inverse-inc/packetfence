@@ -5,6 +5,8 @@ use pf::iplog qw(ip2mac);
 use pf::config;
 use constant LOOPBACK_IPV4 => '127.0.0.1';
 use pf::log;
+use pf::util;
+use NetAddr::IP;
 use pf::Portal::ProfileFactory;
 
 =head1 NAME
