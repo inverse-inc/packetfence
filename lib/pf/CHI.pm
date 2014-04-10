@@ -17,6 +17,7 @@ use warnings;
 use base qw(CHI);
 use CHI::Driver::Memcached;
 use CHI::Driver::RawMemory;
+use BerkeleyDB;
 #use pf::CHI::Driver::Role::Memcached::Clear;
 use pf::file_paths;
 use pf::IniFiles;
@@ -121,9 +122,17 @@ sub setFileDriverParams {
 
 sub setBerkeleyDBDriverParams {
     my ($storage) = @_;
+    print $storage->{root_dir},"\n";
     $storage->{dir_create_mode} = oct('02775');
     $storage->{umask_before} = oct('00007');
     $storage->{traits} = ['+pf::Role::CHI::Driver::BerkeleyDBUmask'];
+    $storage->{env} = BerkeleyDB::Env->new(
+        '-Home'   => $storage->{root_dir},
+        '-Config' => {},
+        '-Flags'  => DB_CREATE | DB_INIT_CDB | DB_INIT_MPOOL | DB_CDB_ALLDB
+      ) or die sprintf( "cannot open Berkeley DB environment in '%s': %s",
+        $storage->{root_dir}, $BerkeleyDB::Error );
+
 }
 
 sub setDBIDriverParams {
