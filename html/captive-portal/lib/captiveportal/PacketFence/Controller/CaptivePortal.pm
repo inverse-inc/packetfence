@@ -54,7 +54,7 @@ sub index : Path : Args(0) {
     );
 }
 
-sub checkIfCanRegistration {
+sub checkIfCanRegistration : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $profile       = $c->profile;
@@ -84,7 +84,7 @@ sub checkIfCanRegistration {
     }
 }
 
-sub unknownState {
+sub unknownState : Private {
     my ( $self, $c ) = @_;
     my $portalSession      = $c->portalSession;
     my $mac                = $portalSession->clientMac;
