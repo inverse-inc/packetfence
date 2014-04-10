@@ -213,8 +213,13 @@ sub readAuthenticationConfigFile {
             -oncachereload => [
                 on_cache_authentication_reload => sub  {
                     my ($config, $name) = @_;
-                    @authentication_sources = @{$config->fromCacheUntainted("authentication_sources")};
-                    %authentication_lookup = map { $_->id => $_ } @authentication_sources;
+                    my $data = $config->fromCacheUntainted("authentication_sources");
+                    if($data) {
+                        @authentication_sources = @$data;
+                        %authentication_lookup = map { $_->id => $_ } @authentication_sources;
+                    } else {
+                        $config->doCallbacks(1,0);
+                    }
                 },
             ]
         );
