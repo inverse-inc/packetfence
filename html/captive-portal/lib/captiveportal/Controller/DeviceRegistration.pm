@@ -1,7 +1,7 @@
-package captiveportal::Controller::GamingRegistration;
+package captiveportal::Controller::DeviceRegistration;
 use Moose;
 
-BEGIN { extends 'captiveportal::PacketFence::Controller::GamingRegistration'; }
+BEGIN { extends 'captiveportal::PacketFence::Controller::DeviceRegistration'; }
 
 =head1 NAME
 
