@@ -1,7 +1,7 @@
 package captiveportal::Model::Portal::Session;
 use Moose;
 
-extends 'captiveportal::PackectFence::Model::Portal::Session';
+extends 'captiveportal::PacketFence::Model::Portal::Session';
 
 =head1 NAME
 
