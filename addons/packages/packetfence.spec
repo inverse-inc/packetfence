@@ -524,7 +524,7 @@ done
 
 #Make ssl certificate
 if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
-    omvpenssl req -x509 -new -nodes -days 365 -batch\
+    openssl req -x509 -new -nodes -days 365 -batch\
     	-out /usr/local/pf/conf/ssl/server.crt\
     	-keyout /usr/local/pf/conf/ssl/server.key\
     	-nodes -config /usr/local/pf/conf/openssl.cnf
