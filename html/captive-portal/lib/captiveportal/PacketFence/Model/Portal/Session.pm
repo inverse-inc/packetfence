@@ -8,6 +8,7 @@ use pf::log;
 use pf::util;
 use NetAddr::IP;
 use pf::Portal::ProfileFactory;
+use File::Spec::Functions qw(catdir);
 
 =head1 NAME
 
