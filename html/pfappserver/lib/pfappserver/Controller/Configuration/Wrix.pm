@@ -29,6 +29,7 @@ __PACKAGE__->config(
     action_args => {
 #Setting the global model and form for all actions
         '*' => { model => "Config::Wrix",form => "Config::Wrix" },
+        search => { model => "Config::Wrix", form => 'AdvancedSearch'}
     },
 );
 
@@ -56,6 +57,32 @@ sub export :Local {
         'now' => DateTime->now,
         'columns' => \@columns,
     );
+}
+
+sub search :Local :Args() {
+    my ($self, $c) = @_;
+    my ($status, $status_msg, $result);
+    my $form = $self->getForm($c);
+    if($c->request->method eq 'POST') {
+        $form->process(params => $c->request->params);
+        if ($form->has_errors) {
+            $status = HTTP_BAD_REQUEST;
+            $status_msg = $form->field_errors;
+            $c->stash(current_view => 'JSON');
+        } else {
+            my $model = $self->getModel($c);
+            my $query = $form->value;
+            ($status, $result) = $model->search($query);
+            if (is_success($status)) {
+                $c->stash(form => $form);
+                $c->stash($result);
+            }
+        }
+        $c->stash(status_msg => $status_msg);
+        $c->response->status($status);
+    } else {
+        $c->stash(form => $form);
+    }
 }
 
 =head1 COPYRIGHT

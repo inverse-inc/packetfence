@@ -37,6 +37,50 @@ sub remove {
     return $self->SUPER::remove($id);
 }
 
+sub search {
+    my ($self,$parameters) = @_;
+    my $manager = $self->manager;
+    my $all_or_any = $parameters->{all_or_any} || 'and';
+    $all_or_any = 'or' if $all_or_any eq 'any';
+    my @queries = map { $self->build_query($_) } @{$parameters->{searches}};
+    my $items = $manager->get_objects(
+        query => [$all_or_any => \@queries]
+    );
+    return { %$parameters,items => $items  };
+
+}
+my %OP_MAP = (
+    equal       => '=',
+    not_equal   => '<>',
+    not_like    => 'NOT LIKE',
+    like        => 'LIKE',
+    ends_with   => 'LIKE',
+    starts_with => 'LIKE',
+    in          => 'IN',
+    not_in      => 'NOT IN',
+);
+
+sub build_query {
+    my ($self,$search) = @_;
+    my $query;
+    my ($name,$op,$value) = @{$search}{qw(name op value)};
+    my $sql_op = $OP_MAP{$op};
+    if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
+        #escaping the % and _ charcaters
+        $value =~ s/([%_])/\\$1/g;
+        if($op eq 'like' || $op eq 'not_like') {
+            $value = "\%$value\%";
+        } elsif ($op eq 'starts_with') {
+            $value = "$value\%";
+        } elsif ($op eq 'ends_with') {
+            $value = "\%$value";
+        }
+    }
+    return ($name => {$op => $value});
+}
+
+
+
 __PACKAGE__->meta->make_immutable;
 
 
