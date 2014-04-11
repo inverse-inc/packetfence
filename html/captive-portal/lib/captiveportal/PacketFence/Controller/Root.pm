@@ -59,7 +59,7 @@ TODO: documention
 
 =cut
 
-sub checkForViolation : {
+sub checkForViolation : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
