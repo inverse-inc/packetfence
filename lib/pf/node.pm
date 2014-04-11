@@ -448,7 +448,6 @@ sub node_add_simple {
         'status'      => 'unreg',
         'last_dhcp'   => 0,
         'voip'        => 'no',
-        'autoreg'     => 'no'
     );
     if ( !node_add( $mac, %tmp ) ) {
         return (0);
