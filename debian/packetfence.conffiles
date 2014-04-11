@@ -29,6 +29,7 @@
 /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
 /usr/local/pf/conf/httpd.conf.d/httpd.portal
+/usr/local/pf/conf/httpd.conf.d/httpd.portal.catalyst
 /usr/local/pf/conf/httpd.conf.d/httpd.admin
 /usr/local/pf/conf/httpd.conf.d/log.conf
 /usr/local/pf/conf/iptables.conf
