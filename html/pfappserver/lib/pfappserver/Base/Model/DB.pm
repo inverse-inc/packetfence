@@ -27,7 +27,21 @@ BEGIN { extends 'Catalyst::Model'; }
 
 =cut
 
-has manager => ( is => 'ro', );
+=head2 manager
+
+The Rose::DB manager object
+
+=cut
+
+has manager => ( is => 'ro', lazy => 1, builder => '_build_manager' );
+
+=head2 managerClassName
+
+The name of the class of the Rose::DB
+
+=cut
+
+has managerClassName => ( is => 'ro' );
 
 =head2 idKey
 
@@ -54,6 +68,16 @@ The key of the list of items
 has itemsKey => ( is => 'ro', default => 'items' );
 
 =head1 METHODS
+
+=head2 _build_manager
+
+=cut
+
+sub _build_manager {
+    my ($self) = @_;
+    load $self->managerClassName;
+    return $self->managerClassName;
+}
 
 =head2 readAllIds
 
@@ -89,6 +113,11 @@ sub readAll {
         per_page => $perPage,
     );
     return ( HTTP_OK, $objects );
+}
+
+sub countAll {
+    my ( $self ) = @_;
+    $self->manager->get_objects_count();
 }
 
 =head2 hasId
