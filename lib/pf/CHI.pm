@@ -122,7 +122,6 @@ sub setFileDriverParams {
 
 sub setBerkeleyDBDriverParams {
     my ($storage) = @_;
-    print $storage->{root_dir},"\n";
     $storage->{dir_create_mode} = oct('02775');
     $storage->{umask_before} = oct('00007');
     $storage->{traits} = ['+pf::Role::CHI::Driver::BerkeleyDBUmask'];

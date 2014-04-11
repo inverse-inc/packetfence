@@ -367,6 +367,7 @@ done
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cachedb
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
@@ -899,6 +900,7 @@ fi
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/status
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/virtual.example.com
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/vmps
+%dir                    /usr/local/pf/var/cachedb
 %dir                    /usr/local/pf/var/run
 %dir                    /usr/local/pf/var/rrd
 %dir                    /usr/local/pf/var/session
