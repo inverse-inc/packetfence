@@ -1,17 +1,17 @@
 [storage configfiles]
-storage=berkeleydb
+storage=file
 
 [storage configfiles l1_cache]
 storage=memcached
 
 [storage configfilesdata]
-storage=berkeleydb
+storage=file
 
 [storage configfilesdata l1_cache]
 storage=memcached
 
 [storage httpd.admin]
-storage=berkeleydb
+storage=file
 expires_in=1d
 
 [storage httpd.admin l1_cache]
@@ -19,7 +19,7 @@ storage=memcached
 expires_on_backend=1
 
 [storage httpd.portal]
-storage=berkeleydb
+storage=file
 expires_in=30m
 
 [storage httpd.portal l1_cache]
@@ -27,7 +27,7 @@ storage=memcached
 expires_on_backend=1
 
 [storage pfdns]
-storage=berkeleydb
+storage=file
 
 [storage pfdns l1_cache]
 storage=memcached
@@ -37,10 +37,6 @@ driver=Memcached
 servers=127.0.0.1:11211
 global=1
 compress_threshold=10000
-
-[storage berkeleydb]
-driver=BerkeleyDB
-root_dir=/usr/local/pf/var/cachedb
 
 [storage file]
 driver=File
