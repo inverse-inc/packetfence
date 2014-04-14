@@ -675,7 +675,7 @@ sub permissions {
     }
     # and pfcmd needs to be setuid / setgid
     if (!($pfcmd_mode & S_ISUID && $pfcmd_mode & S_ISGID)) {
-        add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s pfcmd" );
+        add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s $bin_dir/pfcmd" );
     }
 
     # Disabled because it was causing too many false positives
