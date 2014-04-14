@@ -60,6 +60,8 @@
 PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/pfappserver/lib
 
+AcceptMutex posixsem
+
 <Perl>
 use pf::config qw();
 
