@@ -33,6 +33,7 @@ BEGIN {
 }
 
 use pf::config;
+use pf::config::cached;
 use pf::util;
 use pf::services::util;
 use pf::inline::accounting;
@@ -80,7 +81,7 @@ daemonize($PROGRAM_NAME) if ($daemonize);
 my %ip_stats = ();
 my %seen_inline_ips;
 my $last_stats_dump = 0;
-my $min_stats_dump_interval = 41;  # Stats will be written to the DB at ~this inverval
+my $min_stats_dump_interval = $Config{'inline'}{'level3_accounting_sync_interval'}; # Stats will be written to the DB at ~this inverval
 
 # setup our inline networks
 my @l3_accounting_networks;
@@ -94,11 +95,19 @@ foreach my $network ( keys %ConfigNetworks ) {
 # pcap setup
 my %pcap_stats;
 my $err = '';
-my $dev = "eth1.210";
-$dev = "eth0";
+my $dev;
 my $snaplen = 64; # Should be enough to get iphdr + tcphdr
 my $promisc = 0;
 my $to_ms = 0;
+
+# extract first inline interface
+foreach my $interface ( $cached_pf_config->GroupMembers('interface') ) {
+    if (pf::config::is_type_inline($Config{$interface}{'type'})) {
+        $dev = $interface;
+        last;
+    }
+}
+$logger->logdie('No inline network interface configured, aborting.') unless $dev;
 
 # open the device for live listening
 $logger->debug("pcap details: $dev, snaplen: $snaplen, promisc:$promisc, timeout: $to_ms");
