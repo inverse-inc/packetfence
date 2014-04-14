@@ -48,6 +48,18 @@ sub handler {
     return $self->handleUnknownRequestType($r,$methodSub,$args,$id);
 }
 
+sub handleMethodNotFound {
+    return Apache2::Const::HTTP_NOT_FOUND;
+}
+
+sub handleNotification {
+    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
+}
+
+sub handleRequest {
+    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
+}
+
 sub handleBulkRequest {
     return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
 }
