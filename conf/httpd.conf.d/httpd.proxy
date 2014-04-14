@@ -88,6 +88,7 @@
 
 PerlSwitches -I/usr/local/pf/lib
 PerlModule APR::Table
+AcceptMutex posixsem
 
 # Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
 Header always set X-DNS-Prefetch-Control off

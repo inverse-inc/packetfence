@@ -94,6 +94,8 @@ PerlSwitches -I/usr/local/pf/html/captive-portal/lib
 PerlPostConfigRequire /usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl
 PerlLoadModule captiveportal
 
+AcceptMutex posixsem
+
 Header always set X-DNS-Prefetch-Control off
 
 <Proxy *>
