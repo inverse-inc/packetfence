@@ -171,11 +171,15 @@ sub setup_session {
 
 =head2 chi_class
 
-Use this CHI subclass instead.
+Use this CHI subclass.
+
+=head2 chi_args
+
+Accepts any valid option from L<CHI/CONSTRUCTOR>
 
 =head2 Other Options
 
-Accepts L<Catalyst::Plugin::Session/CONFIGURATION> configurations and any valid option from L<CHI/CONSTRUCTOR>.
+Accepts any valid option from L<Catalyst::Plugin::Session/CONFIGURATION>
 
 =head1 SEE ALSO
 
@@ -183,53 +187,29 @@ L<Catalyst>, L<Catalyst::Plugin::Session>, L<CHI>.
 
 =head1 AUTHOR
 
-James Rouzier, C<< <rouzier at gmail.com> >>
+Inverse inc. <info@inverse.ca>
 
-=head1 BUGS
+=head1 COPYRIGHT
 
-Please report any bugs or feature requests to C<bug-catalyst-plugin-session-store-chi at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Catalyst-Plugin-Session-Store-CHI>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
+Copyright (C) 2005-2014 Inverse inc.
 
+=head1 LICENSE
 
-=head1 SUPPORT
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
-You can find documentation for this module with the perldoc command.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    perldoc Catalyst::Plugin::Session::Store::CHI
-
-
-You can also look for information at:
-
-
-=head2 * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Catalyst-Plugin-Session-Store-CHI>
-
-=head2 * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Catalyst-Plugin-Session-Store-CHI>
-
-=head2 * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Catalyst-Plugin-Session-Store-CHI>
-
-=head2 * Search CPAN
-
-L<http://search.cpan.org/dist/Catalyst-Plugin-Session-Store-CHI/>
-
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2014 James Rouzier.
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.
-
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 =cut
 
-1;    # End of Catalyst::Plugin::Session::Store::CHI
+1;
