@@ -10,9 +10,10 @@ use lib "/usr/local/pf/lib";
 use strict;
 use warnings;
 
-use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use Cache::FileCache();
-use Log::Log4perl();
+BEGIN {
+    use pf::log 'service' => 'httpd.portal', no_stderr_trapping => 1, no_stdout_trapping => 1;
+}
 
 use pf::config();
 use pf::useragent();
@@ -26,9 +27,6 @@ use pf::web::custom();
 # Testing it out but we might need to reconsider if we get adversely affected
 # by problem described here:
 # http://log4perl.sourceforge.net/releases/Log-Log4perl/docs/html/Log/Log4perl/FAQ.html#792b4
-Log::Log4perl->init("$pf::file_paths::conf_dir/log.conf");
-Log::Log4perl::MDC->put('proc', "Apache/mod_perl");
-Log::Log4perl::MDC->put('tid', $PID);
 
 our $useragent_cache = new Cache::FileCache( { 'namespace' => 'CaptivePortal_UserAgents' } );
 our $lost_devices_cache = new Cache::FileCache( { 'namespace' => 'CaptivePortal_LostDevices' } );
