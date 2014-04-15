@@ -1061,7 +1061,6 @@ sub updateCacheControl {
     if ( !-e $cache_control_file && !$dontCreate) {
         my $fh;
         open($fh,">$cache_control_file") or die "cannot create $cache_control_file\nplease run pfcmd fixpermissions";
-        __changeFilesToOwner('pf',$cache_control_file);
         close($fh);
     }
     if(-e $cache_control_file) {
@@ -1073,6 +1072,8 @@ sub updateCacheControl {
         POSIX::2008::futimens(fileno $fh, $s, $nanosec, $s, $nanosec);
         close($fh);
     }
+    my (undef,undef,$uid,$gid) = getpwnam('pf');
+    chown($uid,$gid,$cache_control_file);
     return 0;
 }
 
