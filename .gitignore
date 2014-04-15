@@ -2,6 +2,7 @@
 *.swp
 *.orig
 *.local
+*.lockone
 .#*
 
 # Configuration not in git
