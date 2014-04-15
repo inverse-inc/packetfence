@@ -32,13 +32,14 @@ has_field 'match' =>
    type => 'Text',
    do_label => 0,
    widget_wrapper => 'None',
+   required => 1,
   );
 has_field 'type' =>
   (
    type => 'Select',
    widget => 'ButtonGroup',
    do_label => 0,
-   tags => { no_errors => 1 },
+   required => 1,
    wrapper_class => ['btn-group'],
    wrapper_attr => {'data-toggle' => 'buttons-radio'},
    default => 'ssid',
