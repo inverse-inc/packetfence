@@ -164,4 +164,4 @@
 /usr/local/pf/raddb/sites-available/status
 /usr/local/pf/raddb/sites-available/virtual.example.com
 /usr/local/pf/raddb/sites-available/vmps
-
+/usr/local/pf/var/cache_control
