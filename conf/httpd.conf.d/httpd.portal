@@ -118,7 +118,7 @@ TypesConfig /etc/mime.types
 
 <Perl>
 BEGIN {
-    use pf::log 'service' => 'httpd.portal';
+    use pf::log 'service' => 'httpd.portal', no_stderr_trapping => 1, no_stdout_trapping => 1;
 }
 use pf::config qw();
 use Tie::DxHash;
