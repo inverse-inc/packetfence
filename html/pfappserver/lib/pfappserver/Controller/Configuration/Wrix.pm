@@ -60,7 +60,9 @@ sub export :Local {
 }
 
 sub search :Local :Args() {
-    my ($self, $c) = @_;
+    my ($self, $c,$pageNum,$perPage) = @_;
+    $pageNum = 1 unless $pageNum;
+    $perPage = 25 unless $perPage;
     my ($status, $status_msg, $result);
     my $form = $self->getForm($c);
     if($c->request->method eq 'POST') {
@@ -72,7 +74,7 @@ sub search :Local :Args() {
         } else {
             my $model = $self->getModel($c);
             my $query = $form->value;
-            ($status, $result) = $model->search($query);
+            ($status, $result) = $model->search($pageNum,$perPage,$query);
             if (is_success($status)) {
                 $c->stash(form => $form);
                 $c->stash($result);
@@ -81,7 +83,7 @@ sub search :Local :Args() {
         $c->stash(status_msg => $status_msg);
         $c->response->status($status);
     } else {
-        $c->stash(form => $form);
+        $c->forward('list');
     }
 }
 

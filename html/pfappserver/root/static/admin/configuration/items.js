@@ -63,6 +63,17 @@ var ItemView = function(options) {
     // Delete the switch
     var delete_item = $.proxy(this.deleteItem, this);
     options.parent.on('click', id + ' [href$="/delete"]', delete_item);
+
+    var list_items = $.proxy(this.listItems, this);
+    options.parent.on('click', id + ' [href*="/list/"]', list_items);
+    //
+    // Save the modifications from the modal
+    var search = $.proxy(this.search, this);
+    options.parent.on('submit', 'form[name="search"]', search);
+
+    var search_next = $.proxy(this.searchNext, this);
+    options.parent.on('click', id + ' [href*="/search/"]', search_next);
+
 };
 
 
@@ -144,14 +155,77 @@ ItemView.prototype.deleteItem = function(e) {
     e.preventDefault();
     var table = $(this.items.id);
     var btn = $(e.target);
+    var that = this;
     var row = btn.closest('tr');
     var url = btn.attr('href');
     this.items.get({
         url: url,
         success: function(data) {
             showSuccess(table, data.status_msg);
-            row.fadeOut('slow', function() { $(this).remove(); });
+            that.list(e);
         },
         errorSibling: table
+    });
+};
+
+ItemView.prototype.list = function() {
+    var table = $('#items');
+    this.listRefresh(table.attr('data-list-uri'));
+};
+
+ItemView.prototype.listItems = function(e) {
+    e.preventDefault();
+    var link = $(e.target);
+    this.listRefresh( link.attr('href'));
+};
+
+ItemView.prototype.listRefresh = function(list_url) {
+    var table = $('#items');
+    var that = this;
+    table.fadeTo('fast',0.5,function() {
+        that.items.get({
+            url: list_url,
+            always: function() {
+                table.fadeTo('fast',1.0);
+            },
+            success: function(data) {
+                table.replaceWith(data);
+            },
+            errorSibling: $('#items')
+        });
+    });
+};
+
+
+ItemView.prototype.search = function(e) {
+    e.preventDefault();
+    var form = $(e.target);
+    var url = form.attr('action');
+    this.searchRefresh(url,form);
+};
+
+ItemView.prototype.searchNext = function(e) {
+    e.preventDefault();
+    var form = $("#search");
+    var link = $(e.target);
+    var url = link.attr('href');
+    this.searchRefresh(url,form);
+};
+
+ItemView.prototype.searchRefresh = function(search_url,form) {
+    var table = $('#items');
+    var that = this;
+    table.fadeTo('fast',0.5,function() {
+        that.items.post({
+            url: search_url,
+            data: form.serialize(),
+            always: function() {
+                table.fadeTo('fast',1.0);
+            },
+            success: function(data) {
+                table.replaceWith(data);
+            },
+            errorSibling: $('#items')
+        });
     });
 };

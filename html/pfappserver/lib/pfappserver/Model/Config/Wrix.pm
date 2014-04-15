@@ -16,6 +16,18 @@ use Moose;
 use namespace::autoclean;
 use pf::DB::Wrix::Manager;
 use HTTP::Status qw(:constants is_error is_success);
+use pf::log;
+our %OP_MAP = (
+    equal       => '=',
+    not_equal   => '<>',
+    not_like    => 'NOT LIKE',
+    like        => 'LIKE',
+    ends_with   => 'LIKE',
+    starts_with => 'LIKE',
+    in          => 'IN',
+    not_in      => 'NOT IN',
+);
+
 
 extends 'pfappserver::Base::Model::DB';
 
@@ -38,28 +50,26 @@ sub remove {
 }
 
 sub search {
-    my ($self,$parameters) = @_;
+    my ($self,$pageNum,$perPage,$parameters) = @_;
     my $manager = $self->manager;
+    my $logger = get_logger();
     my $all_or_any = $parameters->{all_or_any} || 'and';
     $all_or_any = 'or' if $all_or_any eq 'any';
+    $all_or_any = 'and' if $all_or_any eq 'all';
     my @queries = map { $self->build_query($_) } @{$parameters->{searches}};
     my $items = $manager->get_objects(
+        page     => $pageNum,
+        per_page => $perPage,
         query => [$all_or_any => \@queries]
     );
-    return { %$parameters,items => $items  };
+    return (HTTP_OK, {
+        %$parameters,
+        pageNum => $pageNum,
+        perPage => $perPage,
+        items   => $items
+    });
 
 }
-my %OP_MAP = (
-    equal       => '=',
-    not_equal   => '<>',
-    not_like    => 'NOT LIKE',
-    like        => 'LIKE',
-    ends_with   => 'LIKE',
-    starts_with => 'LIKE',
-    in          => 'IN',
-    not_in      => 'NOT IN',
-);
-
 sub build_query {
     my ($self,$search) = @_;
     my $query;
@@ -76,7 +86,7 @@ sub build_query {
             $value = "\%$value";
         }
     }
-    return ($name => {$op => $value});
+    return ($name => {$sql_op => $value});
 }
 
 

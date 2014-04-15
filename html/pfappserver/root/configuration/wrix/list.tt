@@ -1,16 +1,23 @@
-        <ul class="pager">
-          [%IF pageNum <= 1 %]
-          <li class="previous disabled"><a>&larr; Previous</a></li>
-          [%ELSE%]
-          <li class="previous"><a href="[% c.pf_hash_for(c.controller.action_for('list'),pageNum - 1,perPage) %]">&larr; Previous</a></li>
-          [%END%]
-          <li class="next"><a href="[% c.pf_hash_for(c.controller.action_for('list'),pageNum + 1,perPage) %]">Next &rarr;</a></li>
-        </ul>
-      <table id="items" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list'),pageNum,perPage) %]">
+[% DEFAULT 
+   list_action = 'list'
+%]
+      <table id="items" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for(list_action),pageNum,perPage) %]">
         <thead>
           <tr>
+            <td colspan="2">
+              <ul class="pager">
+                [%IF pageNum <= 1 %]
+                <li class="previous disabled"><a>&larr; Previous</a></li>
+                [%ELSE%]
+                <li class="previous"><a href="[% c.uri_for(c.controller.action_for(list_action),pageNum - 1,perPage) %]">&larr; Previous</a></li>
+                [%END%]
+                <li class="next"><a href="[% c.uri_for(c.controller.action_for(list_action),pageNum + 1,perPage) %]">Next &rarr;</a></li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
             <th>[% l('WRIX Identifer') %]</th>
-            <th width="120"></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
