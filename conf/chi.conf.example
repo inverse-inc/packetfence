@@ -20,7 +20,7 @@ expires_on_backend=1
 
 [storage httpd.portal]
 storage=file
-expires_in=30m
+expires_in=10m
 
 [storage httpd.portal l1_cache]
 storage=memcached
