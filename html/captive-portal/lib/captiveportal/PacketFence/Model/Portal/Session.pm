@@ -6,7 +6,9 @@ use pf::config;
 use constant LOOPBACK_IPV4 => '127.0.0.1';
 use pf::log;
 use pf::util;
+use pf::locationlog qw(locationlog_synchronize);
 use NetAddr::IP;
+use pf::iplog qw(iplog_open);
 use pf::Portal::ProfileFactory;
 use File::Spec::Functions qw(catdir);
 
