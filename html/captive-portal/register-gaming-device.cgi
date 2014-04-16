@@ -37,7 +37,7 @@ my $cgi             = $portalSession->cgi;
 my $session         = $portalSession->session;
 
 # This module is not enabled so return an error accordingly
-if ( isdisabled($Config{'registration'}{'gaming_devices_registration'}) ) {
+if ( isdisabled($Config{'registration'}{'device_registration'}) ) {
     pf::web::generate_error_page($portalSession, i18n("This module is not enabled"));
     exit(0);
 }
@@ -106,7 +106,7 @@ sub register_device {
     my $device_mac = clean_mac($params->{'device_mac'});
     if(pf::web::gaming::is_allowed_gaming_mac($device_mac)) {
         $portalSession->stash->{device_mac} = $device_mac;
-        my $role = $Config{'registration'}{'gaming_devices_registration_role'};
+        my $role = $Config{'registration'}{'device_registration_role'};
         if ($role) {
             $logger->trace("Gaming devices role is $role (from pf.conf)");
         } else {
