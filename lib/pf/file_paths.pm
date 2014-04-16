@@ -129,6 +129,9 @@ $wrix_config_file = catfile($conf_dir, "wrix.conf");
 $allowed_gaming_oui_file      = catfile($conf_dir,"allowed-gaming-oui.txt");
 $allowed_gaming_console_types_file = catfile($conf_dir,"allowed-gaming-console_types.txt");
 
+$oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
+$dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
+
 @log_files = map {catfile($log_dir, $_)}
   qw( access_log error_log admin_access_log admin_error_log
   packetfence.log catalyst.log pfbandwidthd.log pfdetect.log
