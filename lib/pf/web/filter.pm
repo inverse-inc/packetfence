@@ -130,7 +130,7 @@ sub user_agent_parser {
 
     my $action;
     my $user_agent;
-    if (defined($r->headers_in->{'User-Agent'}) {
+    if (defined($r->headers_in->{'User-Agent'})) {
         $user_agent = $r->headers_in->{'User-Agent'};
     } else {
         $user_agent = '';
