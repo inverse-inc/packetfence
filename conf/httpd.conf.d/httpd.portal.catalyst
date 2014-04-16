@@ -188,11 +188,11 @@ $SSLCipherSuite = "ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eN
 $ErrorLog = $install_dir.'/logs/portal_error_log';
 
 foreach my $interface (@internal_nets) {
-    push (@Listen,$interface->{'Tip'}.":8080");
+    push (@Listen,$interface->{'Tip'}.":8181");
     push (@Listen,$interface->{'Tip'}.":9443");
-    push (@NameVirtualHost,$interface->{'Tip'}.":8080");
+    push (@NameVirtualHost,$interface->{'Tip'}.":8181");
     push (@NameVirtualHost,$interface->{'Tip'}.":9443");
-    push (@{ $VirtualHost{$interface->{'Tip'}.":8080"} }, gen_conf(
+    push (@{ $VirtualHost{$interface->{'Tip'}.":8181"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
          ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
@@ -254,12 +254,12 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
         $host = $management_network->{'Tip'};
     }
 
-    push (@Listen,$host.":8080");
+    push (@Listen,$host.":8181");
     push (@Listen,$host.":9443");
-    push (@NameVirtualHost,$host.":8080");
+    push (@NameVirtualHost,$host.":8181");
     push (@NameVirtualHost,$host.":9443");
 
-    push @{ $VirtualHost{$host.":8080"} }, gen_conf(
+    push @{ $VirtualHost{$host.":8181"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
          ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
