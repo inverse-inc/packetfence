@@ -447,6 +447,11 @@ iptables=enabled
 # Should memcached be managed by PacketFence?
 memcached=enabled
 #
+# services.pfbandwidthd
+#
+# Should pfbandwidthd be managed by PacketFence?
+pfbandwidthd=disabled
+#
 # services.snort_binary
 #
 # Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
