@@ -103,7 +103,7 @@ TypesConfig /etc/mime.types
 <Perl>
 use pf::config qw();
 use Tie::DxHash;
-use pf::services::apache;
+use pf::services::manager::httpd;
 
 sub gen_conf {
     my %conf;
@@ -139,9 +139,9 @@ $UseCanonicalName = "Off";
 $Timeout = "50";
 $KeepAliveTimeout = "10";
 
-$MaxClients = pf::services::apache::calculate_max_clients(pf::services::apache::get_total_system_memory());
-$StartServers = pf::services::apache::calculate_start_servers($MaxClients);
-$MinSpareServers = pf::services::apache::calculate_min_spare_servers($MaxClients);
+$MaxClients = pf::services::manager::httpd::calculate_max_clients(pf::services::manager::httpd::get_total_system_memory());
+$StartServers = pf::services::manager::httpd::calculate_start_servers($MaxClients);
+$MinSpareServers = pf::services::manager::httpd::calculate_min_spare_servers($MaxClients);
 
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
