@@ -86,6 +86,7 @@ sub _initialize {
     my $sid = $cgi->cookie('CGISESSID') || $cgi->param('CGISESSID') || $cgi;
 
     $self->{'_session'} = new CGI::Session( "driver:chi", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
+    $self->{'_session'}->expires(pf::CHI->config->{"storage"}{"httpd.portal"}{"expires_in"});
 
     $self->{'_client_ip'} = $self->_restoreFromSession("_client_ip",sub {
             return $self->_resolveIp();
