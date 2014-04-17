@@ -17,7 +17,7 @@ Suggests: ulogd2
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra,
  mysql-server, memcached,
- snmp, snmptrapfmt, snmp-mibs-downloader,
+ snmp, snmptrapfmt, snmp-mibs-downloader, conntrack,
 # apache related
  apache2, apache2.2-common, apache2-utils, libapache2-mod-proxy-html,
  apache2-mpm-prefork, libapache2-mod-apreq2, libapache2-mod-perl2,
