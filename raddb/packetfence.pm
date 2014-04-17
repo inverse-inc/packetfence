@@ -119,7 +119,7 @@ sub post_auth {
             return $RADIUS::RLM_MODULE_OK;
         }
         my ($server,$rpcport) = _get_rpc_host_port();
-        my $data = send_msgpack_request($server, $rpcport, "radius_authorize", \%RAD_REQUEST
+        my $data = send_msgpack_request($server, $rpcport, "radius_authorize", \%RAD_REQUEST);
 
         if ($data) {
 
@@ -288,7 +288,7 @@ sub accounting {
         }
 
         my ($server,$rpcport) = _get_rpc_host_port();
-        my $data = send_msgpack_request($server, $rpcport, "radius_accounting", \%RAD_REQUES
+        my $data = send_msgpack_request($server, $rpcport, "radius_accounting", \%RAD_REQUEST);
         if ($data) {
             my $elements = $data->[0];
 
