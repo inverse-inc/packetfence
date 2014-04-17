@@ -118,8 +118,8 @@ sub post_auth {
             &radiusd::radlog($RADIUS::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
             return $RADIUS::RLM_MODULE_OK;
         }
-        my ($server,$port) = _get_rpc_host_port();
-        my $data = send_msgpack_request($server, $port, "radius_authorize", \%RAD_REQUEST);
+        my ($server,$rpcport) = _get_rpc_host_port();
+        my $data = send_msgpack_request($server, $rpcport, "radius_authorize", \%RAD_REQUEST
 
         if ($data) {
 
@@ -287,8 +287,8 @@ sub accounting {
             return $RADIUS::RLM_MODULE_OK;
         }
 
-        my ($server,$port) = _get_rpc_host_port();
-        my $data = send_msgpack_request($server, $port, "radius_accounting", \%RAD_REQUEST);
+        my ($server,$rpcport) = _get_rpc_host_port();
+        my $data = send_msgpack_request($server, $rpcport, "radius_accounting", \%RAD_REQUES
         if ($data) {
             my $elements = $data->[0];
 
