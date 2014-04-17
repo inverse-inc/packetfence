@@ -84,6 +84,7 @@ __PACKAGE__->config(
         chi_args => {
             namespace => 'httpd.portal',
         },
+        cookie_name => 'CGISESSION',
     },
     default_view               => 'HTML',
 );
