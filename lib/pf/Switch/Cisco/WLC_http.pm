@@ -33,7 +33,7 @@ With CWA mode (not available for LWA)
 
 =head1 SEE ALSO
 
-=over 
+=over
 
 =back
 
@@ -83,9 +83,9 @@ sub supportsLldp { return $FALSE; }
 sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item deauthenticateMacDefault
-    
+
 De-authenticate a MAC address from wireless network (including 802.1x).
-    
+
 Need to implement the CoA to remove the ACL and the redirect URL.
 
 =cut
@@ -93,14 +93,14 @@ Need to implement the CoA to remove the ACL and the redirect URL.
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
-    
+
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
         return 1;
     }
-    
+
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
-    # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this 
+    # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this
     # (not done because it doesn't exist in current branch)
     return $self->radiusDisconnect( $mac );
 }
@@ -117,7 +117,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::RADIUS;
     my %tech = (
-        $SNMP::RADIUS => \&deauthenticateMacDefault,
+        $SNMP::RADIUS => 'deauthenticateMacDefault',
     );
 
     if (!defined($method) || !defined($tech{$method})) {
@@ -287,10 +287,10 @@ sub radiusDisconnect {
 
         # Roles are configured and the user should have one.
         # We send a regular disconnect if there is an open trapping violation
-        # to ensure the VLAN is actually changed to the isolation VLAN.   
-        if (  defined($role) && 
+        # to ensure the VLAN is actually changed to the isolation VLAN.
+        if (  defined($role) &&
             ( violation_count_trap($mac) == 0 )  &&
-            ( $node_info->{'status'} eq 'reg' ) 
+            ( $node_info->{'status'} eq 'reg' )
            ) {
             $logger->info("Returning ACCEPT with Role: $role");
 

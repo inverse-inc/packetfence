@@ -92,7 +92,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::SSH;
     my %tech = (
-        $SNMP::SSH  => \&_deauthenticateMacWithSSH,
+        $SNMP::SSH  => '_deauthenticateMacWithSSH',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

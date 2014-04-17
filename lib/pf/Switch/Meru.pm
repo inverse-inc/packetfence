@@ -43,22 +43,22 @@ This is a vendor issue and might be fixed in newer firmware versions.
 
 =item Caching problems on secure connections
 
-Performing a de-authentication does not clear the key cache. 
-Meaning that on reconnection the device's authorization is served straight from the cache 
+Performing a de-authentication does not clear the key cache.
+Meaning that on reconnection the device's authorization is served straight from the cache
 instead of creating a new RADIUS query.
 This defeats the reason why we perform de-authentication (to change VLAN or deny access).
 
 A client-side workaround exists: disable the PMK Caching on the client.
 However this could (and should in our opinion) be fixed by the vendor.
 
-We made some progress about this lately.  In fact, for the 4.0 version tree, you need 
+We made some progress about this lately.  In fact, for the 4.0 version tree, you need
 to get version 4.0-160 in order to disable the PMK caching at the AP level.  For the
 5.0 version tree, all versions including 5.0-87 are impacted.  Vendor is saying that
 in the 5.1 version, PMK will be disabled by default.  To be confirmed.
 
 =item Be careful with Roles access control support (Meru's firewall rules)
 
-Once written these are enforced automatically on the controller's primary 
+Once written these are enforced automatically on the controller's primary
 ethernet interface.
 
 =back
@@ -206,13 +206,13 @@ sub deauthenticateMacDefault {
     $logger->trace("sending CLI command '$command'");
     my @output;
     $session->in_privileged_mode(1);
-    eval { 
+    eval {
         $session->begin_configure();
         @output = $session->cmd(String => $command, Timeout => '10');
     };
     $session->in_privileged_mode(0);
     if ($@) {
-        $logger->error("Unable to deauthenticate $mac: $@");        
+        $logger->error("Unable to deauthenticate $mac: $@");
         $session->close();
         return;
     }
@@ -243,7 +243,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::TELNET;
     my %tech = (
-        $SNMP::TELNET => \&deauthenticateMacDefault,
+        $SNMP::TELNET => 'deauthenticateMacDefault',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

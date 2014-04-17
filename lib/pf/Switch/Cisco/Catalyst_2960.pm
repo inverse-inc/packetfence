@@ -61,9 +61,9 @@ approaches (MAC-Auth, 802.1X). This can affect fail-open scenarios.
 =item Status with IOS 15.x
 
 At the moment we faced regressions with the Cisco IOS 15.x series. Not a lot
-of investigation was performed but at this point consider this series as 
+of investigation was performed but at this point consider this series as
 broken with a Port-Security based configuration. At this moment, we recommend
-users who cannot use another IOS to configure their switch to do MAC 
+users who cannot use another IOS to configure their switch to do MAC
 Authentication instead (called MAC Authentication Bypass or MAB in Cisco's
 terms) or get in touch with us so we can investigate further.
 
@@ -72,13 +72,13 @@ terms) or get in touch with us so we can investigate further.
 12.2(50)SE, 12.2(55)SE were reported as malfunctioning for Port-Security operation.
 Avoid these IOS.
 
-12.2(44)SE6 is not sending security violation traps in a specific situation: 
+12.2(44)SE6 is not sending security violation traps in a specific situation:
 if a given MAC is authorized on a port/VLAN, no trap is sent if the device changes port
 if the target port has the same VLAN as where the MAC was first authorized.
 Without a security violation trap PacketFence can't authorize the port leaving the MAC unauthorized.
 Avoid this IOS.
 
-=item Delays sending security violation traps 
+=item Delays sending security violation traps
 
 Several IOS are affected by a bug that causes the security violation traps to take a long time before being sent.
 
@@ -476,8 +476,8 @@ sub wiredeauthTechniques {
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::SNMP;
         my %tech = (
-            $SNMP::SNMP => \&dot1xPortReauthenticate,
-            $SNMP::RADIUS => \&deauthenticateMacRadius,
+            $SNMP::SNMP => 'dot1xPortReauthenticate',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
         );
 
         if (!defined($method) || !defined($tech{$method})) {
@@ -488,8 +488,8 @@ sub wiredeauthTechniques {
     if ($connection_type == $WIRED_MAC_AUTH) {
         my $default = $SNMP::SNMP;
         my %tech = (
-            $SNMP::SNMP => \&handleReAssignVlanTrapForWiredMacAuth,
-            $SNMP::RADIUS => \&deauthenticateMacRadius,
+            $SNMP::SNMP => 'handleReAssignVlanTrapForWiredMacAuth',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
         );
 
         if (!defined($method) || !defined($tech{$method})) {
@@ -497,29 +497,6 @@ sub wiredeauthTechniques {
         }
         return $method,$tech{$method};
     }
-}
-
-=item handleReAssignVlanTrapForWiredMacAuth
-
-Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authentication.
-
-Default behavior is to bounce the port
-
-=cut
-
-sub handleReAssignVlanTrapForWiredMacAuth {
-    my ($this, $ifIndex, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-
-    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
-
-    $logger->warn("Until CoA is implemented we will bounce the port on VLAN re-assignment traps for MAC-Auth");
-
-    # TODO perform CoA instead (when implemented)
-    # actually once CoA will be implemented, we should consider offering the same option to users
-    # as we currently do with port-security and VoIP which is bounce or not bounce and suffer consequences
-    # this should be a choice exposed in configuration and not hidden in code
-    $this->bouncePort($ifIndex);
 }
 
 =back

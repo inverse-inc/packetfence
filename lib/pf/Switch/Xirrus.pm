@@ -90,7 +90,7 @@ sub parseTrap {
     if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.2\.1017[|].+[|]\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.1\.52\.[0-9]+ = $SNMP::MAC_ADDRESS_FORMAT/ ) {
         $trapHashRef->{'trapType'} = 'dot11Deauthentication';
         $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
-    
+
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';
@@ -133,9 +133,9 @@ sub deauthenticateMacDefault {
 }
 
 =item deauthenticateMacDefault
-    
+
 De-authenticate a MAC address from wireless network (including 802.1x).
-    
+
 New implementation using RADIUS Disconnect-Request.
 
 =cut
@@ -150,7 +150,7 @@ sub deauthenticateMacRadius {
     }
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
-    # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this 
+    # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this
     # (not done because it doesn't exist in current branch)
     return $self->radiusDisconnect( $mac );
 }
@@ -247,8 +247,8 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::SNMP;
     my %tech = (
-        $SNMP::SNMP => \&deauthenticateMacDefault,
-        $SNMP::RADIUS => \&deauthenticateMacRadius,
+        $SNMP::SNMP => 'deauthenticateMacDefault',
+        $SNMP::RADIUS => 'deauthenticateMacRadius',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

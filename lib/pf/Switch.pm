@@ -2796,7 +2796,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::SNMP;
     my %tech = (
-        $SNMP::SNMP => \&deauthenticateMacDefault,
+        $SNMP::SNMP => 'deauthenticateMacDefault',
     );
 
     if (!defined($method) || !defined($tech{$method})) {
@@ -2858,7 +2858,7 @@ sub wiredeauthTechniques {
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::SNMP;
         my %tech = (
-            $SNMP::SNMP => \&dot1xPortReauthenticate,
+            $SNMP::SNMP => 'dot1xPortReauthenticate',
         );
 
         if (!defined($method) || !defined($tech{$method})) {
@@ -2869,7 +2869,7 @@ sub wiredeauthTechniques {
     if ($connection_type == $WIRED_MAC_AUTH) {
         my $default = $SNMP::SNMP;
         my %tech = (
-            $SNMP::SNMP => \&handleReAssignVlanTrapForWiredMacAuth,
+            $SNMP::SNMP => 'handleReAssignVlanTrapForWiredMacAuth',
         );
 
         if (!defined($method) || !defined($tech{$method})) {

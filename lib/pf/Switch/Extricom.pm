@@ -84,10 +84,10 @@ sub parseTrap {
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     # EXTRICOM-SNMP-MIB::clientDisassociate: .1.3.6.1.4.1.23937.2.1
-    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.23937\.2\.1 = STRING: "[0-9]+:Client ([0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2})/ ) {   
+    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.23937\.2\.1 = STRING: "[0-9]+:Client ([0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2})/ ) {
         $trapHashRef->{'trapType'} = 'dot11Deauthentication';
         $trapHashRef->{'trapMac'} = lc($1);
-    
+
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';
@@ -95,7 +95,7 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item connectWrite 
+=item connectWrite
 
 WARNING: Overriding connectWrite {} because the default test write fails on these devices.
 Writing to the read community instead (then putting back appropriate in place)
@@ -230,7 +230,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::SNMP;
     my %tech = (
-        $SNMP::SNMP => \&deauthenticateMacDefault,
+        $SNMP::SNMP => 'deauthenticateMacDefault',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

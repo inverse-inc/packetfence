@@ -38,7 +38,7 @@ De-authentication of a Wireless user is based on CLI access (Telnet or SSH).
 This is a vendor issue and it might be fixed in newer firmware versions.
 
 =back
- 
+
 =head1 SUBROUTINES
 
 =over
@@ -166,7 +166,7 @@ sub deauthenticateMacDefault {
     };
     $session->in_privileged_mode(0);
     if ($@) {
-        $logger->error("Unable to deauthenticate $mac: $@");        
+        $logger->error("Unable to deauthenticate $mac: $@");
         $session->close();
         return;
     }
@@ -185,8 +185,8 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::TELNET;
     my %tech = (
-        $SNMP::TELNET => \&deauthenticateMacDefault,
-        $SNMP::SSH  => \&deauthenticateMacDefault,
+        $SNMP::TELNET => 'deauthenticateMacDefault',
+        $SNMP::SSH  => 'deauthenticateMacDefault',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

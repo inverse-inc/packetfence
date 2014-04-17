@@ -1598,7 +1598,7 @@ sub handleTrap {
             pf_run("/usr/local/pf/bin/pfcmd_vlan -$command -switch $switchId -mac $trapMac");
         }
         else {
-           $deauthTechniques->($switch,$trapMac);
+            $switch->$deauthTechniques($trapMac);
         }
 
         # }}}2
@@ -1610,7 +1610,7 @@ sub handleTrap {
 
         if (defined($connection_type) && ($connection_type == $WIRED_802_1X || $connection_type == $WIRED_MAC_AUTH) ) {
             my ($switchdeauthMethod, $deauthTechniques) = $switch->wiredeauthTechniques($switch->{_deauthMethod},$connection_type);
-            $deauthTechniques->($switch,$switch_port,$trapMac);
+            $switch->$deauthTechniques($switch_port,$trapMac);
         } else {
 
             my @locationlog = locationlog_view_open_switchport_no_VoIP( $switch_id, $switch_port );

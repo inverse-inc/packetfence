@@ -6,7 +6,7 @@ pf::Switch::Avaya::WC
 
 =head1 SYNOPSIS
 
-The pf::Switch::Avaya:WC module implements an object oriented interface to 
+The pf::Switch::Avaya:WC module implements an object oriented interface to
 manage Avaya Wireless Controllers
 
 =head1 BUGS AND LIMITATIONS
@@ -15,8 +15,8 @@ manage Avaya Wireless Controllers
 
 =item Caching problems on secure connections
 
-Performing a de-authentication does not clear the key cache. 
-Meaning that on reconnection the device's authorization is served straight from the cache 
+Performing a de-authentication does not clear the key cache.
+Meaning that on reconnection the device's authorization is served straight from the cache
 instead of creating a new RADIUS query.
 This defeats the reason why we perform de-authentication (to change VLAN or deny access).
 
@@ -152,7 +152,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::SNMP;
     my %tech = (
-        $SNMP::SNMP => \&deauthenticateMacDefault,
+        $SNMP::SNMP => 'deauthenticateMacDefault',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

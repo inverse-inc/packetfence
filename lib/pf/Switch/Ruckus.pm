@@ -6,7 +6,7 @@ pf::Switch::Ruckus
 
 =head1 SYNOPSIS
 
-The pf::Switch::Ruckus module implements an object oriented interface to 
+The pf::Switch::Ruckus module implements an object oriented interface to
 manage Ruckus Wireless Controllers
 
 =head1 STATUS
@@ -83,7 +83,7 @@ sub getVersion {
     if (defined($result)) {
         return $result->{$oid_ruckusVer};
     }
- 
+
     # none of the above worked
     $logger->warn("unable to fetch version information");
 }
@@ -126,7 +126,7 @@ sub deauthenticateMacDefault {
         $logger->info("not in production mode... we won't perform deauthentication");
         return 1;
     }
-    
+
     #Fetching the acct-session-id
     my $dynauth = node_accounting_dynauth_attr($mac);
 
@@ -147,7 +147,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::RADIUS;
     my %tech = (
-        $SNMP::RADIUS => \&deauthenticateMacDefault,
+        $SNMP::RADIUS => 'deauthenticateMacDefault',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

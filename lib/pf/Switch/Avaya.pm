@@ -15,11 +15,11 @@ to access SNMP enabled Avaya switches.
 
 =item BayStack stacking issues
 
-Sometimes switches that were previously in a stacked setup will report 
+Sometimes switches that were previously in a stacked setup will report
 security violations as if they were still stacked.
 You will notice security authorization made on wrong ifIndexes.
-A factory reset / reconfiguration will resolve the situation. 
-We experienced the issue with a BayStack 470 running 3.7.5.13 but we believe it affects other BayStacks and firmwares. 
+A factory reset / reconfiguration will resolve the situation.
+We experienced the issue with a BayStack 470 running 3.7.5.13 but we believe it affects other BayStacks and firmwares.
 
 =item Hard to predict OIDs seen on some variants
 
@@ -82,13 +82,13 @@ sub parseTrap {
 
         if ($trapHashRef->{'trapIfIndex'} <= 0) {
             $logger->warn(
-                "Trap ifIndex is invalid. Should this switch be factory-reset? " 
+                "Trap ifIndex is invalid. Should this switch be factory-reset? "
                 . "See Nortel's BayStack Stacking issues in module documentation for more information."
             );
         }
 
         $logger->debug(
-            "ifIndex for " . $trapHashRef->{'trapMac'} . " on switch " . $this->{_ip} 
+            "ifIndex for " . $trapHashRef->{'trapMac'} . " on switch " . $this->{_ip}
             . " is " . $trapHashRef->{'trapIfIndex'}
         );
 
@@ -132,7 +132,7 @@ sub getBoardPortFromIfIndex {
 
 =item getBoardPortFromIfIndexForSecurityStatus
 
-We noticed that the security status related OIDs always report their first boardIndex to 1 even though elsewhere 
+We noticed that the security status related OIDs always report their first boardIndex to 1 even though elsewhere
 it's all referenced as 0.
 I'm unsure if this is a bug or a feature so we created this hook that will always assume 1 as first board index.
 To be used by method which read or write to security status related MIBs.
@@ -159,7 +159,7 @@ sub getAllSecureMacAddresses {
 
     my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_s5SbsAuthCfgAccessCtrlType" );
     while ( my ( $oid_including_mac, $ctrlType ) = each( %{$result} ) ) {
-        if (( $oid_including_mac =~ 
+        if (( $oid_including_mac =~
             /^$OID_s5SbsAuthCfgAccessCtrlType
                 \.([0-9]+)\.([0-9]+)                                 # boardIndex, portIndex
                 \.([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)   # MAC address
@@ -196,7 +196,7 @@ sub getSecureMacAddresses {
     my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx" );
 
     while ( my ( $oid_including_mac, $ctrlType ) = each( %{$result} ) ) {
-        if ( $oid_including_mac =~ 
+        if ( $oid_including_mac =~
             /^$OID_s5SbsAuthCfgAccessCtrlType
                 \.$boardIndx\.$portIndx                             # boardIndex, portIndex
                 \.([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)  # MAC address
@@ -228,9 +228,9 @@ sub _authorizeMAC {
         return 0;
     }
 
-    # careful readers will notice that we don't use getBoardPortFromIfIndex here. 
+    # careful readers will notice that we don't use getBoardPortFromIfIndex here.
     # That's because Nortel thought that it made sense to start BoardIndexes differently for different OIDs
-    # on the same switch!!! 
+    # on the same switch!!!
     my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndexForSecurityStatus($ifIndex);
     $boardIndx = $boardIndx - 1;
     my $cfgStatus = ($authorize) ? 2 : 3;
@@ -350,7 +350,7 @@ sub parseRequest {
 =item deauthenticateMac
 
 Actual implementation.
- 
+
 Allows callers to refer to this implementation even though someone along the way override the above call.
 
 =cut
@@ -369,7 +369,7 @@ sub deauthenticateMac {
     #my $mic = mac2oid($mac);
     $logger->trace("SNMP set_request force port to reauthenticateon mac: $mac");
     my $result = $this->{_sessionWrite}->set_request(-varbindlist => [
-        "$oid_bseePortConfigMultiHostClearNeap.$IfIndex", Net::SNMP::OCTET_STRING, $mac 
+        "$oid_bseePortConfigMultiHostClearNeap.$IfIndex", Net::SNMP::OCTET_STRING, $mac
     ]);
 
     if (!defined($result)) {
@@ -391,8 +391,8 @@ sub wiredeauthTechniques {
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::SNMP;
         my %tech = (
-            $SNMP::SNMP => \&deauthenticateMac,
-            $SNMP::RADIUS => \&deauthenticateMacRadius,
+            $SNMP::SNMP => 'deauthenticateMac',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
         );
 
         if (!defined($method) || !defined($tech{$method})) {
@@ -403,7 +403,7 @@ sub wiredeauthTechniques {
     if ($connection_type == $WIRED_MAC_AUTH) {
         my $default = $SNMP::SNMP;
         my %tech = (
-            $SNMP::SNMP => \&deauthenticateMac,
+            $SNMP::SNMP => 'deauthenticateMac',
         );
 
         if (!defined($method) || !defined($tech{$method})) {

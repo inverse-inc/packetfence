@@ -6,7 +6,7 @@ pf::Switch::Belair
 
 =head1 SYNOPSIS
 
-The pf::Switch::Belair module implements an object oriented interface to 
+The pf::Switch::Belair module implements an object oriented interface to
 manage Belair Access Points
 
 =head1 STATUS
@@ -84,7 +84,7 @@ sub getVersion {
             return $result->{$oid_beBank};
         }
     }
- 
+
     # none of the above worked
     $logger->warn("unable to fetch version information");
 }
@@ -122,7 +122,7 @@ sub deauthenticateMacDefault {
         $logger->info("not in production mode... we won't perform deauthentication");
         return 1;
     }
-    
+
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
     return $self->radiusDisconnect($mac);
 }
@@ -138,7 +138,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::RADIUS;
     my %tech = (
-        $SNMP::RADIUS => \&deauthenticateMacDefault,
+        $SNMP::RADIUS => 'deauthenticateMacDefault',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

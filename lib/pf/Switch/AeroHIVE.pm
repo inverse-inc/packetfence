@@ -128,7 +128,7 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMacDefault 
+=item deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1x).
 
@@ -202,12 +202,12 @@ sub _deauthenticateMacTelnet {
     $logger->trace("sending CLI command '$command'");
     my @output;
     $session->in_privileged_mode(1);
-    eval { 
+    eval {
         @output = $session->cmd(String => $command, Timeout => '10');
     };
     $session->in_privileged_mode(0);
     if ($@) {
-        $logger->error("Unable to deauthenticate $mac: $@");        
+        $logger->error("Unable to deauthenticate $mac: $@");
         $session->close();
         return;
     }
@@ -217,7 +217,7 @@ sub _deauthenticateMacTelnet {
 
 =item returnRadiusAccessAccept
 
-Overloading L<pf::Switch>'s implementation because AeroHIVE doesn't support 
+Overloading L<pf::Switch>'s implementation because AeroHIVE doesn't support
 assigning VLANs and Roles at the same time.
 
 =cut
@@ -302,8 +302,8 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::RADIUS;
     my %tech = (
-        $SNMP::RADIUS => \&deauthenticateMacDefault,
-        $SNMP::TELNET  => \&_deauthenticateMacTelnet,
+        $SNMP::RADIUS => 'deauthenticateMacDefault',
+        $SNMP::TELNET  => '_deauthenticateMacTelnet',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

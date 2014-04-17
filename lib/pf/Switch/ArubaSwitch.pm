@@ -11,7 +11,7 @@ to access SNMP enabled Aruba switches.
 
 =head1 STATUS
 
-=over 
+=over
 
 =item Supports
 
@@ -94,7 +94,7 @@ sub getVersion {
 =item _dot1xPortReauthenticate
 
 Actual implementation.
- 
+
 Allows callers to refer to this implementation even though someone along the way override the above call.
 
 =cut
@@ -188,8 +188,8 @@ sub wiredeauthTechniques {
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::SNMP;
         my %tech = (
-            $SNMP::SNMP => \&dot1xPortReauthenticate,
-            $SNMP::RADIUS => \&deauthenticateMacRadius,
+            $SNMP::SNMP => 'dot1xPortReauthenticate',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
         );
 
         if (!defined($method) || !defined($tech{$method})) {
@@ -200,8 +200,8 @@ sub wiredeauthTechniques {
     if ($connection_type == $WIRED_MAC_AUTH) {
         my $default = $SNMP::SNMP;
         my %tech = (
-            $SNMP::SNMP => \&handleReAssignVlanTrapForWiredMacAuth,
-            $SNMP::RADIUS => \&deauthenticateMacRadius,
+            $SNMP::SNMP => 'handleReAssignVlanTrapForWiredMacAuth',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
         );
 
         if (!defined($method) || !defined($tech{$method})) {
@@ -242,7 +242,7 @@ sub returnRadiusAccessAccept {
             if ( defined($user_role) && $user_role ne "" ) {
                 $role = $self->getRoleByName($user_role);
             }
-            if ( defined($role) && $role ne "" ) { 
+            if ( defined($role) && $role ne "" ) {
                 $radius_reply_ref = {};
                 $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
                 $logger->info(

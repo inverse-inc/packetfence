@@ -36,37 +36,37 @@ Issue with Windows 7: 802.1x+WPA2. It's not a PacketFence issue.
 
 =item 6.0.182.0
 
-We had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not 
+We had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not
 a PacketFence issue.
 
 =item 7.0.116 and 7.0.220
 
-SNMP deassociation is not working in WPA2.  It only works if using an Open 
+SNMP deassociation is not working in WPA2.  It only works if using an Open
 (unencrypted) SSID.
 
-NOTE: This is no longer relevant since we rely on RADIUS Disconnect by 
+NOTE: This is no longer relevant since we rely on RADIUS Disconnect by
 default now.
 
 =item 7.2.103.0 (and maybe up but it is currently the latest firmware)
 
-SNMP de-authentication no longer works. It it believed to be caused by the 
-new firmware not accepting SNMP requests with 2 bytes request-id. Doing the 
-same SNMP set with `snmpset` command issues a 4 bytes request-id and the 
+SNMP de-authentication no longer works. It it believed to be caused by the
+new firmware not accepting SNMP requests with 2 bytes request-id. Doing the
+same SNMP set with `snmpset` command issues a 4 bytes request-id and the
 controllers are happy with these. Not a PacketFence issue. I would think it
 relates to the following open caveats CSCtw87226:
 http://www.cisco.com/en/US/docs/wireless/controller/release/notes/crn7_2.html#wp934687
 
-NOTE: This is no longer relevant since we rely on RADIUS Disconnect by 
+NOTE: This is no longer relevant since we rely on RADIUS Disconnect by
 default now.
 
 =back
 
 =item FlexConnect (H-REAP) limitations before firmware 7.2
 
-Access Points in Hybrid Remote Edge Access Point (H-REAP) mode, now known as 
+Access Points in Hybrid Remote Edge Access Point (H-REAP) mode, now known as
 FlexConnect, don't support RADIUS dynamic VLAN assignments (AAA override).
 
-Customer specific work-arounds are possible. For example: per-SSID 
+Customer specific work-arounds are possible. For example: per-SSID
 registration, auto-registration, etc. The goal being that only one VLAN
 is ever 'assigned' and that is the local VLAN set on the AP for the SSID.
 
@@ -75,10 +75,10 @@ Update: L<FlexConnect AAA Override support was introduced in firmware 7.2 series
 =item FlexConnect issues with firmware 7.2.103.0
 
 There's an issue with this firmware regarding the AAA Override functionality
-required by PacketFence. The issue is fixed in 7.2.104.16 which is not 
+required by PacketFence. The issue is fixed in 7.2.104.16 which is not
 released as the time of this writing.
 
-The workaround mentioned by Cisco is to downgrade to 7.0.230.0 but it 
+The workaround mentioned by Cisco is to downgrade to 7.0.230.0 but it
 doesn't support the FlexConnect AAA Override feature...
 
 So you can use 7.2.103.0 with PacketFence but not in FlexConnect mode.
@@ -89,7 +89,7 @@ Caveat CSCty44701
 
 =head1 SEE ALSO
 
-=over 
+=over
 
 =item L<Version 7.2 - Configuring AAA Overrides for FlexConnect|http://www.cisco.com/en/US/docs/wireless/controller/7.2/configuration/guide/cg_flexconnect.html#wp1247954>
 
@@ -133,9 +133,9 @@ sub supportsLldp { return $FALSE; }
 sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item deauthenticateMacDefault
-    
+
 De-authenticate a MAC address from wireless network (including 802.1x).
-    
+
 New implementation using RADIUS Disconnect-Request.
 
 =cut
@@ -143,14 +143,14 @@ New implementation using RADIUS Disconnect-Request.
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
-    
+
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
         return 1;
     }
-    
+
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
-    # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this 
+    # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this
     # (not done because it doesn't exist in current branch)
     return $self->radiusDisconnect( $mac, { 'Service-Type' => 'Login-User'} );
 }
@@ -159,7 +159,7 @@ sub deauthenticateMacDefault {
 
 deauthenticate a MAC address from wireless network (including 802.1x)
 
-This implementation is deprecated since RADIUS Disconnect-Request (aka 
+This implementation is deprecated since RADIUS Disconnect-Request (aka
 RFC3576 aka CoA) is better and also it no longer worked with firmware 7.2 and up.
 See L<BUGS AND LIMITATIONS> for details.
 
@@ -327,8 +327,8 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::RADIUS;
     my %tech = (
-        $SNMP::RADIUS => \&deauthenticateMacDefault,
-        $SNMP::SNMP  => \&_deauthenticateMacSNMP,
+        $SNMP::RADIUS => 'deauthenticateMacDefault',
+        $SNMP::SNMP  => '_deauthenticateMacSNMP',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

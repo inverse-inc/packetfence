@@ -85,7 +85,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::RADIUS;
     my %tech = (
-        $SNMP::RADIUS => \&deauthenticateMacRadius,
+        $SNMP::RADIUS => 'deauthenticateMacRadius',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

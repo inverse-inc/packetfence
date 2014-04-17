@@ -85,7 +85,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::RADIUS;
     my %tech = (
-        $SNMP::RADIUS => \&deauthenticateMacRadius,
+        $SNMP::RADIUS => 'deauthenticateMacRadius',
     );
 
     if (!defined($method) || !defined($tech{$method})) {
@@ -94,7 +94,7 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item deauthenticateMacDefault 
+=item deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1x).
 
@@ -169,7 +169,7 @@ sub radiusDisconnect {
         # Standard Attributes
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
-            'Event-Timestamp' => $time, 
+            'Event-Timestamp' => $time,
         };
 
         # merging additional attributes provided by caller to the standard attributes

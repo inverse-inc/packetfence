@@ -35,7 +35,7 @@ Using Pre-Shared Key and MAC filtering (RADIUS MAC Authentication) is not possib
 
 =item flexconnect (H-REAP) limitations
 
-Access Points in Hybrid Remote Edge Access Point (H-REAP) mode, now known as 
+Access Points in Hybrid Remote Edge Access Point (H-REAP) mode, now known as
 flexconnect, don't support RADIUS dynamic VLAN assignments (AAA override).
 
 Customer specific work-arounds are possible. For example: per-SSID registration, auto-registration, etc.
@@ -78,8 +78,8 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item deauthenticateMacDefault
 
-Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
-safe: 
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread
+safe:
 
 L<http://www.cpanforum.com/threads/6909/>
 
@@ -229,7 +229,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::TELNET;
     my %tech = (
-        $SNMP::TELNET => \&deauthenticateMacDefault,
+        $SNMP::TELNET => 'deauthenticateMacDefault',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

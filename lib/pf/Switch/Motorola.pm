@@ -6,7 +6,7 @@ pf::Switch::Motorola
 
 =head1 SYNOPSIS
 
-The pf::Switch::Motorola module implements an object oriented interface to 
+The pf::Switch::Motorola module implements an object oriented interface to
 manage Motorola RF Switches (Wireless Controllers)
 
 =head1 STATUS
@@ -42,7 +42,7 @@ Deauthentication against firmware 4.x series is done using SNMP
 
 Deauthentication against firmware 5.x series is done using RADIUS CoA.
 
-=item SNMPv3 
+=item SNMPv3
 
 SNMPv3 support is untested.
 
@@ -141,8 +141,8 @@ sub deauthenticateMacDefault {
         $logger->info("not in production mode... we won't perform deauthentication");
         return 1;
     }
-    
-    if ($self->getVersion() =~ /^5/) {    
+
+    if ($self->getVersion() =~ /^5/) {
         #Fetching the acct-session-id, mandatory for Motorola
         my $acctsessionid = node_accounting_current_sessionid($mac);
 
@@ -217,7 +217,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::SNMP;
     my %tech = (
-        $SNMP::SNMP => \&deauthenticateMacDefault,
+        $SNMP::SNMP => 'deauthenticateMacDefault',
     );
 
     if (!defined($method) || !defined($tech{$method})) {

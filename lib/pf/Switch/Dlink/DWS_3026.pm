@@ -21,8 +21,8 @@ Model 8600 version 3.0.0.16 is known to work fine with secure SSIDs only
 
 =item Caching problems on secure connections
 
-Performing a de-authentication does not clear the key cache. 
-Meaning that on reconnection the device's authorization is served straight from the cache 
+Performing a de-authentication does not clear the key cache.
+Meaning that on reconnection the device's authorization is served straight from the cache
 instead of creating a new RADIUS query.
 This defeats the reason why we perform de-authentication (to change VLAN or deny access).
 
@@ -160,7 +160,7 @@ sub deauthTechniques {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::SNMP;
     my %tech = (
-        $SNMP::SNMP => \&deauthenticateMacDefault,
+        $SNMP::SNMP => 'deauthenticateMacDefault',
     );
 
     if (!defined($method) || !defined($tech{$method})) {
