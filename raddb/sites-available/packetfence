@@ -12,6 +12,10 @@ server packetfence {
         update request {
             FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
         }
+        update control {
+            Tmp-String-8 = ${soap_server}
+            Tmp-String-9 = ${soap_port}
+        }
         packetfence
     }
 
@@ -32,6 +36,10 @@ server packetfence {
     accounting {
         sql
         attr_filter.accounting_response
+        update control {
+            Tmp-String-8 = ${soap_server}
+            Tmp-String-9 = ${soap_port}
+        }
         packetfence
     }
 

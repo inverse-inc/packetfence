@@ -45,6 +45,8 @@ use pf::util::freeradius qw(clean_mac);
 # Configuration parameter
 use constant SOAP_PORT_KEY => 'Tmp-String-9'; #TODO: See note1
 use constant SOAP_SERVER_KEY => 'Tmp-String-8'; #TODO: See note1
+use constant DEFAULT_SOAP_SERVER => '127.0.0.1'; #TODO: See note1
+use constant DEFAULT_SOAP_PORT => '9090'; #TODO: See note1
 use constant API_URI => 'https://www.packetfence.org/PFAPI'; # don't change this unless you know what you are doing
 
 require 5.8.8;
@@ -80,6 +82,17 @@ sub authorize {
     return $RADIUS::RLM_MODULE_NOOP;
 }
 
+=item * _get_rpc_host_port
+
+get the configured soap host and port
+
+=cut
+
+sub _get_rpc_host_port {
+    return (($RAD_CONFIG{SOAP_SERVER_KEY()} || DEFAULT_SOAP_SERVER) , ($RAD_CONFIG{SOAP_PORT_KEY()} || DEFAULT_SOAP_PORT));
+
+}
+
 =item * post_auth
 
 Once we authenticated the user's identity, we perform PacketFence's Network Access Control duties
@@ -105,8 +118,9 @@ sub post_auth {
             &radiusd::radlog($RADIUS::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
             return $RADIUS::RLM_MODULE_OK;
         }
+        my ($server,$port) = _get_rpc_host_port();
+        my $data = send_msgpack_request($server, $port, "radius_authorize", \%RAD_REQUEST);
 
-        my $data = send_msgpack_request($RAD_CONFIG{SOAP_SERVER_KEY()}, $RAD_CONFIG{SOAP_PORT_KEY()}, "radius_authorize",\%RAD_REQUEST);
         if ($data) {
 
             my $elements = $data->[0];
@@ -273,7 +287,8 @@ sub accounting {
             return $RADIUS::RLM_MODULE_OK;
         }
 
-        my $data = send_msgpack_request($RAD_CONFIG{SOAP_SERVER_KEY()}, $RAD_CONFIG{SOAP_PORT_KEY()}, "radius_accounting",\%RAD_REQUEST);
+        my ($server,$port) = _get_rpc_host_port();
+        my $data = send_msgpack_request($server, $port, "radius_accounting", \%RAD_REQUEST);
         if ($data) {
             my $elements = $data->[0];
 

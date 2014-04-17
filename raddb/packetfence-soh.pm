@@ -38,6 +38,10 @@ use lib '/usr/local/pf/lib/';
 
 #use pf::config; # TODO: See note1
 use pf::radius::constants;
+use constant SOAP_PORT_KEY => 'Tmp-String-9'; #TODO: See note1
+use constant SOAP_SERVER_KEY => 'Tmp-String-8'; #TODO: See note1
+use constant DEFAULT_SOAP_SERVER => '127.0.0.1'; #TODO: See note1
+use constant DEFAULT_SOAP_PORT => '9090'; #TODO: See note1
 use pf::radius::msgpackclient;
 
 
@@ -51,6 +55,17 @@ our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK, %RAD_CONFIG);
 
 =over
 
+=item * _get_rpc_host_port
+
+get the configured soap host and port
+
+=cut
+
+sub _get_rpc_host_port {
+    return (($RAD_CONFIG{SOAP_SERVER_KEY()} || DEFAULT_SOAP_SERVER) , ($RAD_CONFIG{SOAP_PORT_KEY()} || DEFAULT_SOAP_PORT));
+
+}
+
 =item * authorize
 
 This function is called to evaluate and react to an SoH packet. It is
@@ -61,7 +76,8 @@ the only callback available inside an SoH virtual server.
 sub authorize {
     my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
     eval {
-        my $data = send_msgpack_request($RAD_CONFIG{SOAP_SERVER_KEY()}, $RAD_CONFIG{SOAP_PORT_KEY()}, "soh_authorize",\%RAD_REQUEST);
+        my ($server,$port) = _get_rpc_host_port();
+        my $data = send_msgpack_request($server, $port, "soh_authorize", \%RAD_REQUEST);
         if ($data) {
 
             my $elements = $data->[0];

@@ -29,6 +29,10 @@ post-auth {
                     User-Name := "%{1}";
             }
         }
+        update control {
+            Tmp-String-8 = ${soap_server}
+            Tmp-String-9 = ${soap_port}
+        }
         packetfence
         Post-Auth-Type REJECT {
                 attr_filter.access_reject
