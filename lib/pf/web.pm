@@ -686,18 +686,31 @@ sub generate_pending_page {
 
 sub generate_authorizer_page {
     my ($portalSession, %info) = @_;
-    
-     $portalSession->stash({
+    my $authorizer_name = $portalSession->getProfile()->getAuthorizer();
+    my $authorizer = pf::mdm->new($authorizer_name); 
+    $portalSession->stash({
         destination_url => $portalSession->getDestinationUrl(),
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
+        agent_download_uri => $authorizer->{'agent_download_uri'},
     });
 
     render_template($portalSession, 'authorizer.html');
     
 }
 
+sub end_authorizer_isolation {
+    my ($portalSession, $mac) = @_;
+    my %info;
+    %info = (%info, (status=>$pf::node::STATUS_REGISTERED));
+    node_modify($mac, %info);
+    unless ( defined($portalSession->session->param("do_not_deauth")) && $portalSession->session->param("do_not_deauth") == $TRUE ) {
+        reevaluate_access( $mac, 'manage_register' );
+    }
+    
+    generate_release_page($portalSession); 
+}
 
 =item end_portal_session
 

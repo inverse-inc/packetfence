@@ -41,6 +41,7 @@ use pf::node qw(nodes_registered_not_violators);
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::authentication;
+use pf::ConfigStore::Mdm;
 
 # This is the content that needs to match in the iptable rules for the service
 # to be considered as running
@@ -339,6 +340,9 @@ sub generate_passthrough_rules {
         $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough src,src --jump ACCEPT\n";
     }
 
+    # add passthroughs required by the mdms
+    generate_mdm_passthroughs();
+
     $logger->info("Adding NAT Masquerade statement.");
     my $mgmt_int = $management_network->tag("int");
     my $SNAT_ip;
@@ -629,6 +633,15 @@ sub generate_interception_rules {
     }
 }
 
+sub generate_mdm_passthroughs {
+    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    foreach my $config (pf::ConfigStore::Mdm->new->search(type => 'sepm')) {
+        $logger->info("Adding passthrough for Symantec Endpoint Manager");
+        my $cmd = "LANG=C sudo ipset --add pfsession_passthrough $config->{'host'},8014 2>&1";
+        my @lines  = pf_run($cmd); 
+    }
+
+}
 
 =back
 
