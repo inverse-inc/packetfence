@@ -583,6 +583,7 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
 #Starting Packetfence.
 echo "Starting Packetfence..."
+/usr/local/pf/bin/pfcmd configreload
 /sbin/service packetfence start
 
 echo Installation complete
