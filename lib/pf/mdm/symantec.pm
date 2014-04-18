@@ -25,6 +25,14 @@ use pf::util qw(clean_mac);
 
 =head1 Atrributes
 
+=head2 id
+
+The id of the MDM
+
+=cut
+
+has id => (is => 'rw');
+
 =head2 username
 
 Username for MDM
