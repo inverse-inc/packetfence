@@ -393,7 +393,7 @@ sub extractSsid {
 
 =item returnRadiusAccessAccept
 
-Overloading L<pf::Switch>'s implementation because AeroHIVE doesn't support
+Overloading L<pf::Switch>'s implementation because Aruba doesn't support
 assigning VLANs and Roles at the same time.
 
 =cut
