@@ -385,7 +385,7 @@ sub commit {
 
 sub search {
     my ($self, $field, $value) = @_;
-    return grep { exists $_->{field} && defined $_->{field} && $_->{field} eq $value  } @{$self->readAll};
+    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } @{$self->readAll};
 
 }
 
