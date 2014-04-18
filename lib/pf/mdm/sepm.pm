@@ -80,6 +80,14 @@ The token to refresh the access token once it expires
 
 has refresh_token => (is => 'rw');
 
+=head2 agent_download_uri
+
+The URI to download the agent
+
+=cut
+
+has agent_download_uri => (is => 'rw');
+
 
 sub get_refresh_token {
     my ($self) = @_;
@@ -224,6 +232,7 @@ sub validate_ip_in_sepm {
         #$logger->info($response_body);
         my $xml = XML::Simple->new;
         my $response = $xml->XMLin($response_body, KeyAttr=>{item=>'Body'});
+       
         if( $response->{'S:Body'}->{'ns2:getComputersByIPResponse'}->{'ns2:ComputerResult'}->{'totalNumberOfResults'} >= 1){
             $logger->info("IP $ip_to_search has been found in the SEPM.");
             return 1;
@@ -240,27 +249,23 @@ sub authorize {
     my ($self,$mac) = @_;
     my $ip = mac2ip($mac); 
     if(defined($ip)){
-    my $logger = Log::Log4perl::get_logger( ref($self) );
-    my $result = $self->validate_ip_in_sepm($ip); 
-    if( $result == -1){
-        $logger->info("SEPM Oauth access token is not valid anymore.");
-        $self->refresh_access_token();
-        $result = $self->validate_ip_in_sepm($ip);
-    }
+        my $logger = Log::Log4perl::get_logger( ref($self) );
+        my $result = $self->validate_ip_in_sepm($ip); 
+        if( $result == -1){
+            $logger->info("SEPM Oauth access token is not valid anymore.");
+            $self->refresh_access_token();
+            $result = $self->validate_ip_in_sepm($ip);
+        }
 
-    if($result == -1){
-        $logger->error("Unable to contact SEPM to validate if IP $ip is registered.");
-        return 0;
+        if($result == -1){
+            $logger->error("Unable to contact SEPM to validate if IP $ip is registered.");
+            return 0;
+        }
+        else{
+            return $result;
+        }   
     }
-    else{
-        return $result;
-    }   
-    }
-    else{
-        $logger->error("Could not resolve $mac to an IP to validate it's in SEPM");
-        return 0;
-    }
-   
+       
 }
 
 =head1 AUTHOR
