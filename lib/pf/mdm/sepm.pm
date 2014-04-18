@@ -21,8 +21,17 @@ use JSON qw( decode_json );
 use XML::Simple;
 use Log::Log4perl;
 use pf::iplog;
+use pf::ConfigStore::Mdm;
 
 =head1 Atrributes
+
+=head2 client_id
+
+Client id to connect to the API
+
+=cut
+
+has id => (is => 'rw');
 
 =head2 client_id
 
@@ -92,21 +101,7 @@ has agent_download_uri => (is => 'rw');
 sub get_refresh_token {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
-    my $refresh_token;
-    #change
-    open (my $fh, '/usr/local/pf/refresh_token.txt');
-    while(<$fh>){
-        chomp;
-        $refresh_token = $_;
-    }
-    close($fh);
-    if (defined($refresh_token) && !$refresh_token eq ''){
-        return $refresh_token;
-    }
-    else{
-       $logger->error("Cannot get the refresh token to connect to the SEPM");
-       return "";
-    }
+    return $self->{'refresh_token'}
 }
 
 sub set_refresh_token {
@@ -116,9 +111,11 @@ sub set_refresh_token {
         $logger->error("Called set_refresh_token but the refresh token is invalid");
     } 
     else{
-        open (my $fh, '>/usr/local/pf/refresh_token.txt');
-        print $fh $refresh_token;
-        close ($fh);
+        $self->{'refresh_token'} = $refresh_token;
+        my $cs = pf::ConfigStore::Mdm->new;
+        $logger->info($self->{'id'});
+        $cs->update($self->{'id'}, {refresh_token => $refresh_token});
+        $cs->commit();
     }
     
 }
@@ -126,21 +123,7 @@ sub set_refresh_token {
 sub get_access_token {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
-    my $access_token;
-    #change
-    open (my $fh, '/usr/local/pf/access_token.txt');
-    while(<$fh>){
-        chomp;
-        $access_token = $_;
-    }
-    close($fh);
-    if (defined($access_token) && !$access_token eq ''){
-        return $access_token;
-    }
-    else{
-        $logger->error("Cannot get the access token to connect to the SEPM");
-        return "";
-    }
+    return $self->{'access_token'};   
 }
 
 sub set_access_token {
@@ -150,9 +133,11 @@ sub set_access_token {
         $logger->error("Called set_access_token but the access token is invalid.");
     }
     else{
-        open (my $fh, '>/usr/local/pf/access_token.txt');
-        print $fh $access_token;
-        close ($fh);
+        $self->{'access_token'} = $access_token;
+        my $cs = pf::ConfigStore::Mdm->new;
+        $logger->info($self->{'id'});
+        $cs->update($self->{'id'}, {access_token => $access_token});
+        $cs->commit();
     }
 }
 
