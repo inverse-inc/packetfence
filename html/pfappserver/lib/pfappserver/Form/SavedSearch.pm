@@ -61,6 +61,17 @@ has_field 'namespace' => (
    widget => 'NoRender',
 );
 
+=head2 Blocks
+
+=item search
+
+=cut
+
+has_block 'search' =>
+  (
+   render_list => [qw(name query)],
+  );
+
 
 =back
 
