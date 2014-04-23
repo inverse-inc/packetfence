@@ -2011,10 +2011,10 @@ Next, click on *Add a condition*, and select *Anti-virus*, *is*, and *disabled* 
 
 The last step is to create a new remediation template called `noantivirus.php` on the filesystem in the `html/captive-portal/violations` folder. Edit it to include the text you want to display to the users.
 
-Apple Wireless Profile Provisioning
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Apple Android Wireless Profile Provisioning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Apple devices such as iPhones, iPads, and iPods support wireless profile importation using a special XML file format (mobileconfig). In fact, installing such file on your phone will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to easy the configuration steps on the phone (because it is painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator desire, and we pre-populate the file with the user's credentials (without the password). The user simply need to install its generated file, and he will be able to use the new SSID.
+Apple devices such as iPhones, iPads, iPods and Mac OSX support wireless profile importation using a special XML file format (mobileconfig). Android is also able to support this feature by importing the wireless profile with the Android PacketFence Agent. In fact, installing such file on your phone will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to easy the configuration steps on the phone (because it is painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator desire, and we pre-populate the file with the user's credentials (without the password). The user simply need to install its generated file, and he will be able to use the new SSID.
 
 Configure the feature
 ^^^^^^^^^^^^^^^^^^^^^
@@ -2034,11 +2034,16 @@ Here is an example: We have an hidden WPA2-Enterprise SSID named HiddenSecure, a
 
 Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the *Configuration -> Provisioning* section.
 
+For Android, you must allow passthrough in your configuration like this:
+
+  [trapping]
+  passthrough=enabled
+  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com
 
 Profile generation
 ^^^^^^^^^^^^^^^^^^
 
-Upon registration, instead of showing the default release page, the user will be showing another version of the page saying that the wireless profile has been generated with a clickable link on it. To install the profile, the user simply need to click on that link, and follow the instructions on their device. It is that simple.
+Upon registration, instead of showing the default release page, the user will be showing another version of the page saying that the wireless profile has been generated with a clickable link on it. To install the profile, Apple user owner simply need to click on that link, and follow the instructions on their device. Android user owner simply click to the link and will be forwarded to Google Play to install PacketFence agent. Simply launch the application and click to configure will create the secure SSID profile. It is that simple.
 
 SNMP Traps Limit
 ~~~~~~~~~~~~~~~~

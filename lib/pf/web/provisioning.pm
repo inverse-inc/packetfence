@@ -86,11 +86,6 @@ sub android_provisioning {
 
     my $portalSession = pf::Portal::Session->new();
 
-    # if not logged in, disallow access
-    if (!defined($portalSession->session->param('username'))) {
-        return Apache2::Const::FORBIDDEN;
-    }
-
     my $response;
 
     $response = pf::web::generate_apple_mobileconfig_provisioning_xml($portalSession);
