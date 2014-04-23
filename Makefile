@@ -70,4 +70,12 @@ raddb/sites-enabled:
 		do ln -s ../sites-available/$$f $$f;\
 	done
 
-devel: configurations conf/ssl/server.crt bin/pfcmd permissions raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm
+.PHONY: translation
+
+translation:
+	for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do\
+		/usr/bin/msgfmt conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.po\
+		  --output-file conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.mo;\
+	done
+
+devel: configurations conf/ssl/server.crt bin/pfcmd permissions raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation
