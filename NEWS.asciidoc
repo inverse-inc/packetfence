@@ -53,6 +53,7 @@ Enhancements
 * Allow a self-registered node by SMS to go back to the registration page
 * Sponsor email authentication source can refuse email addresses of the local domain (as the email source)
 * Updated German (de) translation
+* Regexp filter for LDAP source is now case-insensitive
 
 Bug Fixes
 +++++++++
