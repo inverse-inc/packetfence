@@ -72,14 +72,6 @@ sub modeToPath {
     my $path   = 'default';
     if ( exists $action->{valid_modes}{$mode} ) {
         $path = $action->{valid_modes}{$mode};
-
-    } elsif (
-        exists $c->config->{'captiveportal::PacketFence::Custom'}{Authenticate}{modes}
-        {$mode}
-        && defined $c->config->{'captiveportal::PacketFence::Custom'}
-        ->{Authenticate}{modes}{$mode} ) {
-        $path = $c->config->{'captiveportal::PacketFence::Custom'}
-          ->{Authenticate}{modes}{$mode};
     }
     return $path;
 }
@@ -167,7 +159,7 @@ sub default : Path {
     }
 }
 
-sub login : Local : Args(0) : Hookable {
+sub login : Local : Args(0) {
     my ( $self, $c ) = @_;
     if ( $c->request->method eq 'POST' ) {
 
@@ -190,7 +182,7 @@ TODO: documention
 
 =cut
 
-sub postAuthentication : Hookable('Private') {
+sub postAuthentication : Private {
     my ( $self, $c ) = @_;
     my $logger = get_logger;
     $c->detach('showLogin') if $c->stash->{txt_auth_error};
@@ -243,7 +235,7 @@ sub postAuthentication : Hookable('Private') {
     $c->stash->{info} = $info;
 }
 
-sub validateLogin : Hookable('Private') {
+sub validateLogin : Private {
     my ( $self, $c ) = @_;
     my $logger  = get_logger;
     my $profile = $c->profile;
@@ -270,7 +262,7 @@ sub validateLogin : Hookable('Private') {
     }
 }
 
-sub authenticationLogin : Hookable('Private') {
+sub authenticationLogin : Private {
     my ( $self, $c ) = @_;
     my $logger  = get_logger;
     my $session = $c->session;
@@ -303,7 +295,7 @@ sub _no_username {
     $profile->getSourcesAsObjects;
 }
 
-sub showLogin : Hookable('Private') {
+sub showLogin : Private {
     my ( $self, $c ) = @_;
     my $profile    = $c->profile;
     my $guestModes = $profile->getGuestModes;
