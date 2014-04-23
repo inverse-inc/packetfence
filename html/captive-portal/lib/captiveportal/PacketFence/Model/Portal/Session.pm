@@ -118,7 +118,7 @@ sub _build_clientMac {
     if (defined $clientIp) {
         $clientIp = clean_ip($clientIp);
         while ( my ($network,$network_config) = each %ConfigNetworks ) {
-            next if isdisabled($network_config->{'generate_fake_mac'});
+            next unless defined $network_config->{'generate_fake_mac'} && enabled($network_config->{'generate_fake_mac'});
             next if !pf::config::is_network_type_inline($network);
             my $net_addr = NetAddr::IP->new($network,$network_config->{'netmask'});
             my $ip = new NetAddr::IP::Lite $clientIp;
