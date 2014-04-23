@@ -54,7 +54,6 @@ sub handler {
     my $content_type = $r->headers_in->{'Content-Type'};
     $logger->debug("$content_type");
     if( $content_type eq 'application/x-msgpack') {
-        $logger->debug("Calling server_msgpack");
         return $server_msgpack->handler($r);
     } elsif (pf::WebAPI::JSONRPC::allowed($content_type)) {
         return $server_jsonrpc->handler($r);
