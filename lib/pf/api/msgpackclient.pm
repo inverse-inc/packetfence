@@ -10,6 +10,8 @@ pf::api::msgpackclient
   my $client = pf::api::msgpackclient->new;
   my @args = $client->call("echo","packet","fence");
 
+  $client->notify("echo","packet","fence");
+
 
 =head1 DESCRIPTION
 

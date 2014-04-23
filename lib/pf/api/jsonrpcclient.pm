@@ -10,6 +10,8 @@ pf::api::jsonrpcclient
   my $client = pf::api::jsonrpcclient->new;
   my @args = $client->call("echo","packet","fence");
 
+  $client->notify("echo","packet","fence");
+
 
 =head1 DESCRIPTION
 
