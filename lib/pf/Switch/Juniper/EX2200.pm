@@ -265,7 +265,7 @@ sub wiredeauthTechniques {
         return $method,$tech{$method};
     }
     else{
-        $logger->error("Only RADIUS deauth is not supported on EX2200");
+        $logger->error("Only RADIUS deauth is supported on EX2200");
     }
 
 }
