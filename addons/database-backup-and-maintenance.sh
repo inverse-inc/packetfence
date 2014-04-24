@@ -15,15 +15,39 @@
 #
 # Installation: make sure you have locationlog_history (based on locationlog) and edit DB_PWD to fit your password.
 
-NB_DAYS_TO_KEEP=70
+NB_DAYS_TO_KEEP_DB=30
+NB_DAYS_TO_KEEP_FILES=30
 DB_USER='pf';
-# make sure access to this file is properly secured! (chmod a=,u=rwx)
 DB_PWD='';
 DB_NAME='pf';
-BACKUP_DIRECTORY='/root/backup'
+PF_DIRECTORY='/usr/local/pf/'
+PF_DIRECTORY_EXCLUDED='/usr/local/pf/logs'
+BACKUP_DIRECTORY='/root/backup/'
 BACKUP_DB_FILENAME='packetfence-db-dump'
+BACKUP_PF_FILENAME='packetfence-files-dump'
 ARCHIVE_DIRECTORY=$BACKUP_DIRECTORY
 ARCHIVE_DB_FILENAME='packetfence-archive'
+
+
+# Create the backup directory
+    if [ ! -d "$BACKUP_DIRECTORY" ]; then
+        mkdir -p $BACKUP_DIRECTORY
+                echo -e "$BACKUP_DIRECTORY , created. \n"
+        else
+                echo -e "$BACKUP_DIRECTORY , folder already created. \n"
+    fi
+
+# Backup pf File
+	current_tgz=$BACKUP_DIRECTORY/$BACKUP_PF_FILENAME-`date +%F_%Hh%M`.tgz
+     if [ ! -f $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ]; then
+         tar -czf $current_tgz $PF_DIRECTORY --exclude=$PF_DIRECTORY_EXCLUDED
+                echo -e $BACKUP_PF_FILENAME "have been created in  $BACKUP_DIRECTORY \n"
+                find $BACKUP_DIRECTORY -name "packetfence-files-dump-*.tgz" -mtime +$NB_DAYS_TO_KEEP_FILES -print0 | xargs -0r rm -f
+                echo -e "$BACKUP_PF_FILENAME older than $NB_DAYS_TO_KEEP_FILES days have been removed. \n"
+        else
+                echo -e $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ", file already created. \n"
+     fi
+
 
 # is MySQL running? meaning we are the live packetfence
 if [ -f /var/run/mysqld/mysqld.pid ]; then
@@ -36,12 +60,12 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
    # lets optimize on Sunday
    DOW=`date +%w`
    if [ $DOW -eq 0 ]
-   then 
+   then
         TABLENAMES=`mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "SHOW TABLES\G;"|grep 'Tables_in_'|sed -n 's/.*Tables_in_.*: \([_0-9A-Za-z]*\).*/\1/p'`
 
         # loop through the tables and optimize them
         for TABLENAME in $TABLENAMES
-        do  
+        do
             mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "OPTIMIZE TABLE $TABLENAME;"
         done
     fi
@@ -50,7 +74,7 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
     current_filename=$BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-`date +%F_%Hh%M`.sql
     mysqldump --opt -h 127.0.0.1 -u $DB_USER -p$DB_PWD $DB_NAME > $current_filename && \
     gzip $current_filename && \
-    find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP -print0 | xargs -0r rm -f
+    find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
 
     # let's archive on the first day of the month
     if [ `/bin/date +%d` -eq '01' ]; then
