@@ -23,6 +23,7 @@ New Features
 * Support Hotspot for cisco WLC and Aruba IAP
 * Support for Huawei AC6605
 * Support for Enterasys V2110
+* Support for Juniper EX2200 and EX4200
 * Inline layer 3 support
 
 Enhancements

@@ -92,7 +92,7 @@ sub getIfIndexByNasPortId{
         if ($portName eq $nas_port_id ){
             $key =~ /^$OID_ifName\.(\d+)$/;
             my $ifindex = $1;
-            $logger->info("Found ifindex $ifindex for nas port id $nas_port_id");
+            $logger->debug("Found ifindex $ifindex for nas port id $nas_port_id");
             return $ifindex;
         }
     }
@@ -256,7 +256,7 @@ sub wiredeauthTechniques {
     if ($connection_type == $WIRED_MAC_AUTH) {
         my $default = $SNMP::RADIUS;
         my %tech = (
-            $SNMP::RADIUS => \&deauthenticateMacRadius,
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
         );
 
         if (!defined($method) || !defined($tech{$method})) {
