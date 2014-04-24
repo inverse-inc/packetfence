@@ -414,7 +414,7 @@ sub endPortalSession : Private {
     }
 
     # handle mobile provisioning if relevant
-    $c->forward('mobileconfig_provisioning');
+    $c->forward('provisioning');
 
     # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
     if ( $c->request->secure ) {
@@ -426,6 +426,31 @@ sub endPortalSession : Private {
     }
 
     $c->forward( 'Release' => 'index' );
+}
+
+=head2 provisioning
+
+=cut
+
+sub provisioning : Private {
+    my ( $self, $c ) = @_;
+    if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad') ) {
+        $c->detach('release_with_xmlconfig');
+    } elsif($self->matchAnyOses($c,'Android') ) {
+        $c->detach('release_with_andriod');
+    }
+}
+
+sub release_with_xmlconfig : Private {
+    my ( $self, $c ) = @_;
+    $c->forward('setupCommonStash');
+    $c->stash( template => 'release_with_xmlconfig.html');
+}
+
+sub release_with_andriod : Private {
+    my ( $self, $c ) = @_;
+    $c->forward('setupCommonStash');
+    $c->stash( template => 'release_with_android.html');
 }
 
 =head2 proxy_redirect
