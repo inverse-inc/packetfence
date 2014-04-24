@@ -1,4 +1,5 @@
 package pf::ConfigStore::Pf;
+
 =head1 NAME
 
 pf::ConfigStore::PF add documentation
@@ -59,7 +60,16 @@ sub cleanupAfterRead {
             $data->{$key} = \@values;
         } elsif ($type eq 'list') {
             my $value = $data->{$key};
-            $data->{$key} = join("\n",split( /\s*,\s*/, $value )) if $value;
+            if ($value) {
+                $data->{$key} = join("\n", split( /\s*,\s*/, $value));
+            }
+            elsif ($defaults->{$key}) {
+                # No custom value, use default value
+                $data->{$key} = join("\n", split( /\s*,\s*/, $defaults->{$key}));
+            }
+        } elsif ($type eq 'text_with_editable_default') {
+            my $value = $data->{$key};
+            $data->{$key} = $defaults->{$key} unless $value;
         } elsif ( defined ($data->{$key}) && $data->{$key} eq $defaults->{$key}) {
             #remove default values
             $data->{$key} = undef;
