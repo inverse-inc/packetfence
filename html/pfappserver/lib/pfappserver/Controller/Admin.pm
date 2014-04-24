@@ -91,8 +91,7 @@ sub login :Local :Args(0) {
                     if ($c->req->params->{'redirect_url'}) {
                         $c->stash->{success} = $c->req->params->{'redirect_url'};
                     } else {
-                        $c->stash->{success} =
-                          $c->uri_for($c->controller()->action_for('index'));
+                        $c->stash->{success} = $c->uri_for($c->controller()->action_for('index'));
                     }
                 } else {
                     $c->response->status(HTTP_UNAUTHORIZED);

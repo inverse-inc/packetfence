@@ -271,7 +271,8 @@ $(function () { // DOM ready
     var redirectCallback =  function(jqXHR) {
         var location = jqXHR.getResponseHeader('Location');
         if (location)
-            window.location.href = location;
+            // Reload the page and let the server render the proper template (most likely the login page)
+            window.location.reload(true);
     };
     /* Default values for Ajax requests */
     $.ajaxSetup({
