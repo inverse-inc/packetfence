@@ -9,7 +9,7 @@ pf::SNMP::Juniper::EX - Object oriented module to manage Juniper's EX Series swi
 use strict;
 use warnings;
 
-use base ('pf::SNMP::Juniper');
+use base ('pf::Switch::Juniper');
 use Log::Log4perl;
 use Net::Appliance::Session;
 
@@ -17,7 +17,7 @@ use pf::config;
 sub description { 'Juniper EX 2200 Series' }
 
 # importing switch constants
-use pf::SNMP::constants;
+use pf::Switch::constants;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
