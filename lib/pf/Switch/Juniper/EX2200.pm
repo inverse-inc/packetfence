@@ -1,4 +1,4 @@
-package pf::SNMP::Juniper::EX2200;
+package pf::Switch::Juniper::EX2200;
 
 =head1 NAME
 
@@ -23,6 +23,7 @@ use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
 use Try::Tiny;
 
+sub supportsWiredMacAuth { return $TRUE; }
 sub supportsRadiusVoip { return $TRUE; }
 # special features
 sub supportsLldp { return $TRUE; }
