@@ -63,6 +63,3 @@
           </div>
           [%- END %]
       </div>
-      <div class="tab-pane fade in [% 'active' IF tab == 'provisioning' %]" id="provisioning">
-        [% form.block('provisioning').render %]
-      </div>

@@ -28,9 +28,6 @@
         <li class="active">
           <a href="#settings" data-toggle="tab">[% l('Settings') %]</a>
         </li>
-        <li>
-          <a href="#provisioning" data-toggle="tab" >[% l('Provisioning')  %]</a>
-        </li>
         <li class="disabled">
           <a>[% l('Files')  %]</a>
         </li>

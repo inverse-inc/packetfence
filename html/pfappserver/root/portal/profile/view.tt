@@ -29,9 +29,6 @@
         <li [% IF tab == 'settings' %]class="active" [% END %]>
           <a href="#settings" data-toggle="tab">[% l('Settings') %]</a>
         </li>
-        <li [% IF tab == 'provisioning' %]class="active" [% END %]>
-          <a href="#provisioning" data-toggle="tab" >[% l('Provisioning')  %]</a>
-        </li>
         <li>
           <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[id]) %]" >[% l('Files')  %]</a>
         </li>
