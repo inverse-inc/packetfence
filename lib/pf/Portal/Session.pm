@@ -89,9 +89,10 @@ sub _initialize {
 
     my $sid = $cgi->cookie(SESSION_ID) || $cgi->param(SESSION_ID) || $cgi;
     $logger->debug("using session id '$sid'" );
-
-    $self->{'_session'} = new CGI::Session( "driver:chi", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
-    $self->{'_session'}->expires($EXPIRES_IN);
+    my $session;
+    $self->{'_session'} = $session = new CGI::Session( "driver:chi", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
+    $logger->error(CGI::Session->errstr()) unless $session;
+    $session->expires($EXPIRES_IN);
 
     $self->{'_client_ip'} = $self->_restoreFromSession("_client_ip",sub {
             return $self->_resolveIp();
