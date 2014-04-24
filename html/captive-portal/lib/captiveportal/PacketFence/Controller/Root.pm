@@ -17,6 +17,7 @@ use pf::violation;
 use pf::class;
 use Cache::FileCache;
 use pf::sms_activation;
+use List::Util qw(first);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -69,7 +70,22 @@ Attempt to render a view, if needed.
 
 =cut
 
-sub end : ActionClass('RenderView') { }
+sub end : ActionClass('RenderView') {
+    my ( $self, $c ) = @_;
+    my $errors = $c->error;
+    if (scalar @$errors) {
+        for my $error ( @$errors ) {
+            $c->log->error($error);
+        }
+        my $txt_message = join(' ',grep { ref($_) eq '' } @$errors);
+        $c->stash->(
+            template => 'error.html',
+            txt_message => $txt_message,
+        );
+        $c->response->status(500);
+        $c->clear_errors;
+    }
+}
 
 =head1 AUTHOR
 
