@@ -44,6 +44,8 @@ use pf::web::constants;
 
 Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 
+use constant SESSION_ID => 'CGISESSID';
+
 =head1 METHODS
 
 =over
@@ -77,13 +79,14 @@ sub new {
 # in session expensive components to look for.
 sub _initialize {
     my ($self,$mac) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $cgi = new CGI;
     $cgi->charset("UTF-8");
 
     $self->{'_cgi'} = $cgi;
 
-    my $sid = $cgi->cookie('CGISESSID') || $cgi->param('CGISESSID') || $cgi;
+    my $sid = $cgi->cookie(SESSION_ID) || $cgi->param(SESSION_ID) || $cgi;
+    $logger->debug("using session id '$sid'" );
 
     $self->{'_session'} = new CGI::Session( "driver:chi", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
     $self->{'_session'}->expires(pf::CHI->config->{"storage"}{"httpd.portal"}{"expires_in"});
