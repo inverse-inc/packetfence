@@ -46,6 +46,8 @@ Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 
 use constant SESSION_ID => 'CGISESSID';
 
+our $EXPIRES_IN = pf::CHI->config->{"storage"}{"httpd.portal"}{"expires_in"};
+
 =head1 METHODS
 
 =over
@@ -89,7 +91,7 @@ sub _initialize {
     $logger->debug("using session id '$sid'" );
 
     $self->{'_session'} = new CGI::Session( "driver:chi", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
-    $self->{'_session'}->expires(pf::CHI->config->{"storage"}{"httpd.portal"}{"expires_in"});
+    $self->{'_session'}->expires($EXPIRES_IN);
 
     $self->{'_client_ip'} = $self->_restoreFromSession("_client_ip",sub {
             return $self->_resolveIp();
