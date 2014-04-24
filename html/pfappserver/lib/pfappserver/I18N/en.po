@@ -1174,7 +1174,7 @@ msgstr "Floating Devices - Read"
 
 # pf::admin_roles (Actions)
 msgid "FLOATING_DEVICES_UPDATE"
-msgstr "Floating Devices - UpdateFields required to be filled in the self-registration form. Valid values are:firstname, lastname, organization, phone, mobileprovider, email, sponsor_email. Basic validation of minimally required values per guest mode is provided by default."
+msgstr "Floating Devices - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "Fake MAC Address"
@@ -3192,7 +3192,7 @@ msgstr "Users Sources - Update"
 
 # pf::admin_roles (Actions)
 msgid "USERS_UPDATE"
-msgstr "Users - UpdateUnder most circumstances we can redirect the user to the URL he originally intended to visit. When enabled, always_use_redirecturl forces the captive portal to redirect the user to the URL defined in trapping.redirecturl instead."
+msgstr "Users - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Unregistration"
@@ -3510,15 +3510,15 @@ msgstr "Advanced"
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_error_color"
-msgstr ""
+msgstr "Error color"
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_success_color"
-msgstr ""
+msgstr "Warning color"
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_warning_color"
-msgstr ""
+msgstr "Success color"
 
 # conf/documentation.conf
 msgid "advanced.reevaluate_access_reasons"
@@ -3855,11 +3855,11 @@ msgstr "Expiration"
 
 # conf/documentation.conf
 msgid "expire.httpd_admin"
-msgstr ""
+msgstr "Admin sessions expiration"
 
 # conf/documentation.conf
 msgid "expire.httpd_portal"
-msgstr ""
+msgstr "Portal sessions expiration"
 
 # conf/documentation.conf
 msgid "expire.iplog"
@@ -3887,7 +3887,7 @@ msgstr "General"
 
 # conf/documentation.conf
 msgid "general.cache_update_interval"
-msgstr ""
+msgstr "Cache update interval"
 
 # conf/documentation.conf
 msgid "general.dhcpservers"
@@ -3987,11 +3987,11 @@ msgstr "SNAT Interface"
 
 # conf/documentation.conf
 msgid "inline.level3_accounting_session_timeout"
-msgstr ""
+msgstr "Accounting session timeout"
 
 # conf/documentation.conf
 msgid "inline.level3_accounting_sync_interval"
-msgstr ""
+msgstr "Accounting sync interval"
 
 # conf/documentation.conf
 msgid "inline.ports_redirect"
@@ -4272,7 +4272,7 @@ msgstr "Category"
 
 # conf/documentation.conf
 msgid "provisioning.certificate"
-msgstr ""
+msgstr "Certificate"
 
 # conf/documentation.conf
 msgid "provisioning.ssid"
@@ -4307,11 +4307,11 @@ msgstr "Button text"
 
 # conf/documentation.conf
 msgid "registration.device_registration"
-msgstr ""
+msgstr "Device registration"
 
 # conf/documentation.conf
 msgid "registration.device_registration_role"
-msgstr ""
+msgstr "Device registration role"
 
 # conf/documentation.conf
 msgid "registration.nbregpages"
@@ -4420,11 +4420,11 @@ msgstr "httpd path"
 
 # conf/documentation.conf
 msgid "services.httpd_mod_qos"
-msgstr ""
+msgstr "QoS"
 
 # conf/documentation.conf
 msgid "services.httpd_mod_qos_maximum_connections_per_device"
-msgstr ""
+msgstr "QoS max connections"
 
 # conf/documentation.conf
 msgid "services.iptables"
@@ -4448,7 +4448,7 @@ msgstr "memcached memory"
 
 # conf/documentation.conf
 msgid "services.pfbandwidthd"
-msgstr ""
+msgstr "pfbandwidthd"
 
 # conf/documentation.conf
 msgid "services.pfdns"
