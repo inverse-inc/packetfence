@@ -119,7 +119,7 @@ form {
                           <select name="searches.0.name" disabled="disabled" class="span4">
                             <option value="mac">[% l('Node MAC') %]</option>
                             <option value="last_ip">[% l('Node IP') %]</option>
-                            <option value="node_category">[% l('Node category') %]</option>
+                            <option value="node_category">[% l('Node role') %]</option>
                             <option value="notes">[% l('Notes') %]</option>
                             <option value="person_name">[% l('Person name') %]</option>
                             <option value="violation">[% l('Violation name') %]</option>
@@ -145,7 +145,7 @@ form {
                           <select name="searches.0.name" class="span4">
                             <option value="mac">[% l('Node MAC') %]</option>
                             <option value="last_ip">[% l('Node IP') %]</option>
-                            <option value="category">[% l('Node category') %]</option>
+                            <option value="category">[% l('Node role') %]</option>
                             <option value="notes">[% l('Notes') %]</option>
                             <option value="person_name">[% l('Person name') %]</option>
                             <option value="violation">[% l('Violation name') %]</option>
