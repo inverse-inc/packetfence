@@ -30,37 +30,37 @@ ARCHIVE_DB_FILENAME='packetfence-archive'
 
 
 # Create the backup directory
-    if [ ! -d "$BACKUP_DIRECTORY" ]; then
-        mkdir -p $BACKUP_DIRECTORY
-                echo -e "$BACKUP_DIRECTORY , created. \n"
-        else
-                echo -e "$BACKUP_DIRECTORY , folder already created. \n"
-    fi
+if [ ! -d "$BACKUP_DIRECTORY" ]; then
+    mkdir -p $BACKUP_DIRECTORY
+    echo -e "$BACKUP_DIRECTORY , created. \n"
+else
+    echo -e "$BACKUP_DIRECTORY , folder already created. \n"
+fi
 
-# Backup pf File
-	current_tgz=$BACKUP_DIRECTORY/$BACKUP_PF_FILENAME-`date +%F_%Hh%M`.tgz
-     if [ ! -f $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ]; then
-         tar -czf $current_tgz $PF_DIRECTORY --exclude=$PF_DIRECTORY_EXCLUDED
-                echo -e $BACKUP_PF_FILENAME "have been created in  $BACKUP_DIRECTORY \n"
-                find $BACKUP_DIRECTORY -name "packetfence-files-dump-*.tgz" -mtime +$NB_DAYS_TO_KEEP_FILES -print0 | xargs -0r rm -f
-                echo -e "$BACKUP_PF_FILENAME older than $NB_DAYS_TO_KEEP_FILES days have been removed. \n"
-        else
-                echo -e $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ", file already created. \n"
-     fi
+# Backup complete PacketFence installation except logs
+current_tgz=$BACKUP_DIRECTORY/$BACKUP_PF_FILENAME-`date +%F_%Hh%M`.tgz
+if [ ! -f $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ]; then
+    tar -czf $current_tgz $PF_DIRECTORY --exclude=$PF_DIRECTORY_EXCLUDED
+    echo -e $BACKUP_PF_FILENAME "have been created in  $BACKUP_DIRECTORY \n"
+    find $BACKUP_DIRECTORY -name "packetfence-files-dump-*.tgz" -mtime +$NB_DAYS_TO_KEEP_FILES -print0 | xargs -0r rm -f
+    echo -e "$BACKUP_PF_FILENAME older than $NB_DAYS_TO_KEEP_FILES days have been removed. \n"
+else
+    echo -e $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ", file already created. \n"
+fi
 
 
 # is MySQL running? meaning we are the live packetfence
 if [ -f /var/run/mysqld/mysqld.pid ]; then
 
-   # locationlog cleanup: all the closed entries older than a month are moved to locationlog_history
-   # in order to keep locationlog small
-   mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "INSERT INTO locationlog_history SELECT * FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
-   mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
+    # locationlog cleanup: all the closed entries older than a month are moved to locationlog_history
+    # in order to keep locationlog small
+    mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "INSERT INTO locationlog_history SELECT * FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
+    mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
 
-   # lets optimize on Sunday
-   DOW=`date +%w`
-   if [ $DOW -eq 0 ]
-   then
+    # lets optimize on Sunday
+    DOW=`date +%w`
+    if [ $DOW -eq 0 ]
+    then
         TABLENAMES=`mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "SHOW TABLES\G;"|grep 'Tables_in_'|sed -n 's/.*Tables_in_.*: \([_0-9A-Za-z]*\).*/\1/p'`
 
         # loop through the tables and optimize them
@@ -73,16 +73,16 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
     # dump the database, gzip and remove old files
     current_filename=$BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-`date +%F_%Hh%M`.sql
     mysqldump --opt -h 127.0.0.1 -u $DB_USER -p$DB_PWD $DB_NAME > $current_filename && \
-    gzip $current_filename && \
-    find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
+        gzip $current_filename && \
+        find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
 
     # let's archive on the first day of the month
     if [ `/bin/date +%d` -eq '01' ]; then
         # flushing old locationlog_history records into sql files for archival then removing from database
         current_filename=$ARCHIVE_DIRECTORY/$ARCHIVE_DB_FILENAME-`date +%Y%m%d`.sql
         mysqldump -u $DB_USER -p$DB_PWD $DB_NAME --tables locationlog_history --skip-opt --no-create-info --quick --where='((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR),"%Y-%m-01"))' > $current_filename && \
-        gzip $current_filename && \
-        mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'LOCK TABLES locationlog_history WRITE; DELETE FROM locationlog_history WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR),"%Y-%m-01")); UNLOCK TABLES;'
+            gzip $current_filename && \
+            mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'LOCK TABLES locationlog_history WRITE; DELETE FROM locationlog_history WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR),"%Y-%m-01")); UNLOCK TABLES;'
 
         #Clean Accounting for previous year... if needed
         mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'LOCK TABLES radacct WRITE; DELETE FROM radacct WHERE YEAR(acctstarttime) < YEAR(CURRENT_DATE()); UNLOCK TABLES;'
