@@ -91,9 +91,7 @@ Requires: mod_perl, mod_qos
 requires: libapreq2
 Requires: dhcp
 Requires: memcached
-# FreeRADIUS version >= 2.1.12 and the name changed between the RHEL 5 and 6 releases
-%{?el5:Requires: freeradius2 >= 2.1.12, freeradius2-mysql, freeradius2-perl, freeradius2-ldap, freeradius2-utils }
-%{?el6:Requires: freeradius >= 2.1.12, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils }
+Requires: freeradius >= 2.2.4, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
 Requires: make
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
