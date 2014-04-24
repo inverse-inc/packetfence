@@ -20,7 +20,6 @@ use warnings;
 use English qw( -no_match_vars );
 use File::Basename;
 use FileHandle;
-use Log::Log4perl;
 use Net::MAC::Vendor;
 use Net::SMTP;
 use POSIX();
@@ -75,7 +74,7 @@ TODO: This list is incomplete.
 
 sub valid_date {
     my ($date) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
     # kludgy but short
     if ( $date
@@ -94,7 +93,7 @@ our $NON_VALID_IP_REGEX = qr/^(?:0\.){3}0$/;
 
 sub valid_ip {
     my ($ip) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     if ( !$ip || $ip !~ $VALID_IP_REGEX || $ip =~ $NON_VALID_IP_REGEX) {
         my $caller = ( caller(1) )[3] || basename($0);
         $caller =~ s/^(pf::\w+|main):://;
@@ -131,7 +130,7 @@ Properly format an IPv4 address. Has the nice side-effect of untainting it also.
 
 sub clean_ip {
     my ($ip) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     if ($ip =~ /^((?:\d{1,3}\.){3}\d{1,3})$/) {
         return $1;
     }
@@ -219,7 +218,7 @@ our $VALID_PF_MAC_REGEX = qr/^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/;
 sub valid_mac {
     my ($mac) = @_;
     return (0) unless defined $mac;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     if ( !defined($mac) ) {
         return(0);
     }
@@ -282,7 +281,7 @@ sub mac2nb {
 
 sub whitelisted_mac {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     return (0) if ( !valid_mac($mac) );
     $mac = clean_mac($mac);
     foreach
@@ -298,7 +297,7 @@ sub whitelisted_mac {
 
 sub trappable_mac {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     return (0) if ( !$mac );
     $mac = clean_mac($mac);
 
@@ -344,7 +343,7 @@ out: comma-separated MAC address (ex: 00:12:f0:13:32:ba)
 
 sub oid2mac {
     my ($oid) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     if ($oid =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/) {
         return lc(sprintf( "%02X:%02X:%02X:%02X:%02X:%02X", $1, $2, $3, $4, $5, $6));
     } else {
@@ -363,7 +362,7 @@ out: 6 dot-separated digits (ex: 0.18.240.19.50.186)
 
 sub mac2oid {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     if ($mac =~ /^([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2})$/i) {
         return hex($1).".".hex($2).".".hex($3).".".hex($4).".".hex($5).".".hex($6);
     } else {
@@ -378,7 +377,7 @@ sub mac2oid {
 
 sub pfmailer {
     my (%data)     = @_;
-    my $logger     = Log::Log4perl::get_logger('pf::util');
+    my $logger     = get_logger();
     my $smtpserver = untaint_chain($Config{'alerting'}{'smtpserver'});
     my @to = split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'} );
     my $from = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
@@ -412,7 +411,7 @@ sub pfmailer {
 
 sub send_email {
     my ($template, $email, $subject, $data) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $data->{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn unless ($data->{'from'});
@@ -620,7 +619,7 @@ sub get_internal_info {
 
 sub readpid {
     my ($pname) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     $pname = basename($0) if ( !$pname );
     my $pidfile = $var_dir . "/run/$pname.pid";
     my $file    = new FileHandle "$pidfile";
@@ -645,7 +644,7 @@ sub deletepid {
 
 sub parse_template {
     my ( $tags, $template, $destination, $comment_char ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     my (@parsed);
     my $template_fh;
     open( $template_fh, '<', $template ) || $logger->logcroak("Unable to open template $template: $!");
@@ -693,14 +692,14 @@ sub oui_to_vendor {
 sub load_oui {
     my ($force) = @_;
     if ( !%$Net::MAC::Vendor::Cached || $force  ) {
-        my $logger = Log::Log4perl::get_logger('pf::util');
+        my $logger = get_logger();
         $logger->info("loading Net::MAC::Vendor cache from $oui_file");
         Net::MAC::Vendor::load_cache("file://$oui_file");
     }
 }
 
 sub download_oui {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     require LWP::UserAgent;
     my $browser = LWP::UserAgent->new;
     my $response = $browser->get($oui_url);
@@ -729,7 +728,7 @@ return connection_type string (as defined in pf::config) or an empty string if c
 
 sub connection_type_to_str {
     my ($conn_type) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
     # convert connection_type constant into a string for database
     if (defined($conn_type) && $conn_type ne '' && defined($connection_type_to_str{$conn_type})) {
@@ -753,7 +752,7 @@ return connection_type constant (as defined in pf::config) or undef if connectio
 
 sub str_to_connection_type {
     my ($conn_type_str) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
     # convert database string into connection_type constant
     if (defined($conn_type_str) && $conn_type_str ne '' && defined($connection_type{$conn_type_str})) {
@@ -778,7 +777,7 @@ Returns the total amount of memory in kilobytes. Undef if something went wrong o
 =cut
 
 sub get_total_system_memory {
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
 
     my $result = open(my $meminfo_fh , '<', '/proc/meminfo');
@@ -901,7 +900,7 @@ Returns the VLAN id for a given interface
 
 sub get_vlan_from_int {
     my ($eth) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
     my $result = open(my $vlaninfo_fh , '<', "/proc/net/vlan/$eth");
     if (!defined($result)) {
@@ -1004,7 +1003,7 @@ with code 1, 2 or 3 without reporting it as an error.
 
 sub pf_run {
     my ($command, %options) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
     local $OS_ERROR;
     # Using perl trickery to figure out what the caller expects so I can return him just that
@@ -1072,7 +1071,7 @@ The epoch will be used in database entries so we use the same to make sure it is
 
 sub generate_id {
     my ( $epoch, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("Generating a new ID with epoch $epoch and mac $mac");
 
