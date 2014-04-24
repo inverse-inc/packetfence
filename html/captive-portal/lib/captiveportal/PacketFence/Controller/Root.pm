@@ -43,6 +43,7 @@ captiveportal::PacketFence::Controller::Root - Root Controller for captiveportal
 
 sub auto : Private {
     my ( $self, $c ) = @_;
+    $c->forward('setupCommonStash');
     return 1;
 }
 
@@ -63,6 +64,37 @@ sub default : Path {
     $c->response->body('Page not found');
     $c->response->status(404);
 }
+
+=head2 setupCommonStash
+
+Add all the common variables in the stash
+
+=cut
+
+sub setupCommonStash : Private {
+    my ( $self, $c ) = @_;
+    my $portalSession   = $c->portalSession;
+    my $destination_url = $c->request->param('destination_url');
+    if ( defined $destination_url ) {
+        $destination_url = decode_entities( uri_unescape($destination_url) );
+    } else {
+        $destination_url = $Config{'trapping'}{'redirecturl'};
+    }
+    my @list_help_info;
+    push @list_help_info,
+      { name => i18n('IP'), value => $portalSession->clientIp }
+      if ( defined( $portalSession->clientIp ) );
+    push @list_help_info,
+      { name => i18n('MAC'), value => $portalSession->clientMac }
+      if ( defined( $portalSession->clientMac ) );
+    $c->stash(
+        pf::web::constants::to_hash(),
+        destination_url => $destination_url,
+        logo            => $c->profile->getLogo,
+        list_help_info  => \@list_help_info,
+    );
+}
+
 
 =head2 end
 

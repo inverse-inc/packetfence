@@ -52,7 +52,6 @@ index
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    $c->forward('setupCommonStash');
     $c->forward('validateMac');
     $c->forward('nodeRecordUserAgent');
     $c->forward('checkForProvisioningSupport');
@@ -368,36 +367,6 @@ sub unknownState : Private {
 }
 
 
-=head2 setupCommonStash
-
-Add all the common variables in the stash
-
-=cut
-
-sub setupCommonStash : Private {
-    my ( $self, $c ) = @_;
-    my $portalSession   = $c->portalSession;
-    my $destination_url = $c->request->param('destination_url');
-    if ( defined $destination_url ) {
-        $destination_url = decode_entities( uri_unescape($destination_url) );
-    } else {
-        $destination_url = $Config{'trapping'}{'redirecturl'};
-    }
-    my @list_help_info;
-    push @list_help_info,
-      { name => i18n('IP'), value => $portalSession->clientIp }
-      if ( defined( $portalSession->clientIp ) );
-    push @list_help_info,
-      { name => i18n('MAC'), value => $portalSession->clientMac }
-      if ( defined( $portalSession->clientMac ) );
-    $c->stash(
-        pf::web::constants::to_hash(),
-        destination_url => $destination_url,
-        logo            => $c->profile->getLogo,
-        list_help_info  => \@list_help_info,
-    );
-}
-
 sub endPortalSession : Private {
     my ( $self, $c ) = @_;
     my $logger        = get_logger;
@@ -445,13 +414,11 @@ sub provisioning : Private {
 
 sub release_with_xmlconfig : Private {
     my ( $self, $c ) = @_;
-    $c->forward('setupCommonStash');
     $c->stash( template => 'release_with_xmlconfig.html');
 }
 
 sub release_with_andriod : Private {
     my ( $self, $c ) = @_;
-    $c->forward('setupCommonStash');
     $c->stash( template => 'release_with_android.html');
 }
 
