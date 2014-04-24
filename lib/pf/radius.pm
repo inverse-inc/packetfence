@@ -178,16 +178,6 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
     }
 
-    #TODO: Get rid of this
-    #Bypass for Inline
-    if (!$switch->isManagedVlan($vlan) && !$wasInline ) {
-        $logger->warn("new VLAN $vlan is not a managed VLAN -> Returning FAIL. "
-                     ."Is the target vlan in the vlans=... list?");
-        $switch->disconnectRead();
-        $switch->disconnectWrite();
-        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "New VLAN is not a managed VLAN") ];
-    }
-
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
     $switch->synchronize_locationlog($port, $vlan, $mac,
