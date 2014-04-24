@@ -42,6 +42,7 @@ Enhancements
 * Added support for JSON-RPC and msgpack RPC over HTTP for webservices
 * Made msgpack the default RPC for RADIUS
 * Regexp filter for LDAP source is now case-insensitive
+* Improved maintenance database script
 
 Bug Fixes
 +++++++++
