@@ -291,7 +291,14 @@ sub db_query_execute {
 
             # is it a DBI error?
             if (defined($DBI::errstr) && defined($DBI::err)) {
-                $logger->warn("database query failed with: $DBI::errstr. (errno: $DBI::err), will try again");
+                if (int($DBI::err) == 1062) {
+                    # Duplicate entry -- don't retry
+                    $logger->info("database query failed with: $DBI::errstr (errno: $DBI::err)");
+                    $done = 1;
+                }
+                else {
+                    $logger->warn("database query failed with: $DBI::errstr (errno: $DBI::err), will try again");
+                }
             } else {
                 $logger->warn("database query failed because statement handler was undefined or invalid, "
                     ."will try again");
