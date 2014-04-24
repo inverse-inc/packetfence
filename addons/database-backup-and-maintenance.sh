@@ -85,7 +85,7 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
             mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'LOCK TABLES locationlog_history WRITE; DELETE FROM locationlog_history WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR),"%Y-%m-01")); UNLOCK TABLES;'
 
         #Clean Accounting for previous year... if needed
-        mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'LOCK TABLES radacct WRITE; DELETE FROM radacct WHERE YEAR(acctstarttime) < YEAR(CURRENT_DATE()); UNLOCK TABLES;'
-        mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'LOCK TABLES radacct_log WRITE; DELETE FROM radacct_log WHERE YEAR(timestamp) < YEAR(CURRENT_DATE()); UNLOCK TABLES;'
+        mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'DELETE FROM radacct WHERE YEAR(acctstarttime) < YEAR(CURRENT_DATE());'
+        mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'DELETE FROM radacct_log WHERE YEAR(timestamp) < YEAR(CURRENT_DATE());'
     fi
 fi
