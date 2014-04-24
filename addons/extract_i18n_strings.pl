@@ -16,6 +16,7 @@ can be localized.
 use File::Find;
 use lib qw(/usr/local/pf/lib /usr/local/pf/html/pfappserver/lib);
 use pf::action;
+use pf::admin_roles;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::Switch::constants;
@@ -228,6 +229,8 @@ sub extract_modules {
 
     my @values = map { "${_}_action" } @pf::action::VIOLATION_ACTIONS;
     const('pf::action', 'VIOLATION_ACTIONS', \@values);
+
+    const('pf::admin_roles', 'Actions', \@ADMIN_ACTIONS);
 
     my $attributes = pf::Authentication::Source->common_attributes();
     my @common = map { $_->{value} } @$attributes;
