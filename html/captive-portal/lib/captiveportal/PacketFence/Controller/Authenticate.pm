@@ -47,7 +47,7 @@ __PACKAGE__->config(
 
 sub begin {
     my ( $self, $c ) = @_;
-    $c->forward(Root => 'validateMac');
+    $c->forward(CaptivePortal => 'validateMac');
 }
 
 =head2 index
@@ -167,8 +167,8 @@ sub login : Local : Args(0) {
         $c->forward('validateLogin');
         $c->forward('authenticationLogin');
         $c->forward('postAuthentication');
-        $c->forward( 'Root' => 'webNodeRegister', [$c->session->{username}, %{$c->stash->{info}}] );
-        $c->forward( 'Root' => 'endPortalSession' );
+        $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->session->{username}, %{$c->stash->{info}}] );
+        $c->forward( 'CaptivePortal' => 'endPortalSession' );
     }
 
     # Return login

@@ -262,7 +262,7 @@ sub doSponsorRegistration {
 
             # User provided username and password: authenticate
             my ( $auth_return, $error ) =
-              $c->forward( Root => 'web_user_authenticate' );
+              $c->forward( CaptivePortal => 'web_user_authenticate' );
 
             if ( $auth_return != $TRUE ) {
                 $logger->info( "authentication failed for user "
@@ -315,7 +315,7 @@ sub doSponsorRegistration {
 
                 # register the node
                 %info = %{$node_info};
-                $c->forward( 'Root' => 'webNodeRegister', [ $pid, %info ] );
+                $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
 
                 # populating variables used to send email
                 $template =

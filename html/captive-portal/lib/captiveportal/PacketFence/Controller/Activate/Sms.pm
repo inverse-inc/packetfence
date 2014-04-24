@@ -81,11 +81,11 @@ sub index : Path : Args(0) {
               &pf::authentication::match( $source->{id}, $auth_params,
                 $Actions::SET_ROLE );
 
-            $c->forward( Root => 'webNodeRegister', [ $pid, %info ] );
+            $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
 
             # clear state that redirects to the Enter PIN page
             $c->session->{guest_pid} = undef;
-            $c->detach( 'Root', 'endPortalSession' );
+            $c->detach( 'CaptivePortal', 'endPortalSession' );
         } else {
             $logger->warn( "No active sms source for profile "
                   . $profile->getName

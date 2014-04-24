@@ -34,7 +34,7 @@ sub index : Path : Args(0) {
             username     => $username
         );
     } else {
-        $c->detach( Root => 'error' );
+        $c->detach( CaptivePortal => 'error' );
     }
 }
 

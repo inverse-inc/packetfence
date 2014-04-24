@@ -142,7 +142,7 @@ sub registerNode {
             $info{'category'} = $role if ( defined $role );
             $info{'auto_registered'} = 1;
             $info{'mac'} = $mac;
-            $c->forward( 'Root' => 'webNodeRegister', [ $pid, %info ] );
+            $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
         }
     } else {
         $c->stash(txt_auth_error => "Please verify the provided MAC address.");

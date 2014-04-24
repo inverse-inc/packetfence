@@ -220,7 +220,7 @@ sub doEmailSelfRegistration {
               . $pid
               . " is valid until "
               . $info{'unregdate'} );
-        $c->forward('Root' => 'webNodeRegister',[$pid, %info]);
+        $c->forward('CaptivePortal' => 'webNodeRegister',[$pid, %info]);
 
     }
 
@@ -243,7 +243,7 @@ sub doEmailSelfRegistration {
     if ( !$session->{preregistration} ) {
 
         # does the necessary captive portal escape sequence (violations, provisionning, etc.)
-        $c->detach( Root => 'endPortalSession') if $auth_return;
+        $c->detach( CaptivePortal => 'endPortalSession') if $auth_return;
     }
 
     # pregistration: we show a confirmation page
