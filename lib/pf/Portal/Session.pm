@@ -37,6 +37,7 @@ use pf::util;
 use pf::web::constants;
 use pf::web::util;
 use pf::web::constants;
+use pf::log;
 
 =head1 CONSTANTS
 
