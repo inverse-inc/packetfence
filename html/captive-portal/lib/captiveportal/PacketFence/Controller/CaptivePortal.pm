@@ -17,6 +17,8 @@ use pf::violation;
 use pf::class;
 use Cache::FileCache;
 use pf::sms_activation;
+use pf::os;
+use List::MoreUtils qw(any);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
