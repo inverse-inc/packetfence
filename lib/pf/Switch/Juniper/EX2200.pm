@@ -2,7 +2,26 @@ package pf::Switch::Juniper::EX2200;
 
 =head1 NAME
 
-pf::SNMP::Juniper::EX - Object oriented module to manage Juniper's EX Series switches
+pf::SNMP::Juniper::EX2200 - Object oriented module to manage Juniper's EX Series switches
+
+=head1 STATUS
+
+Supports 
+ MAC Authentication (MAC RADIUS in Juniper's terms)
+
+Developed and tested on Juniper ex2200 running on JUNOS 12.6
+Tested on ex4200 running on JUNOS 13.2
+
+=head1 BUGS AND LIMITATIONS
+ 
+=over
+
+=item VoIP is only supported in untagged mode
+
+VoIP devices will use the defined voiceVlan but in untagged mode.
+A computer and a phone in the same port can still be on two different VLANs since Juniper supports multiple VLANs per port.
+
+=back
 
 =cut
 
