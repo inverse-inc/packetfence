@@ -22,7 +22,7 @@ Catalyst Controller.
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    $c->detach('/authentication/release');
+    $c->detach('Release', 'index');
 }
 
 =head1 AUTHOR
