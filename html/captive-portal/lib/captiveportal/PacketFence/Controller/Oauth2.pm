@@ -27,13 +27,67 @@ our %VALID_OAUTH_PROVIDERS = (
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    $c->forward('Root' => 'validateMac');
+    $c->forward('CaptivePortal' => 'validateMac');
     my $logger        = $c->log;
     my $portalSession = pf::Portal::Session->new();
     my $request       = $c->request;
 
 
     my $source_type = undef;
+    my $provider = $request->query_params->{'provider'};
+
+    $c->detach('oauth2Page') if ( defined($provider) );
+    my $result = $request->query_params->{'result'};
+    $c->deatch('oauth2Result') if defined $result && exists $VALID_OAUTH_PROVIDERS{$result};
+}
+
+sub oauth2Page : Private {
+    my ($self, $c) = @_;
+    my $provider = $c->request->param('provider');
+    $c->response->redirect($self->oauth2_client($c,$provider)->authorize_url);
+}
+
+sub oauth2_client {
+    my ($self,$c,$provider) = @_;
+    my $logger = $c->log;
+    my $portalSession = $c->portalSession;
+    my $type;
+    {
+        if (lc($provider) eq 'facebook') {
+            $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
+        } elsif (lc($provider) eq 'github') {
+            $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
+        } elsif (lc($provider) eq 'google') {
+            $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
+        }
+    }
+    if ($type) {
+        my $source = $portalSession->profile->getSourceByType($type);
+        if ($source) {
+            return Net::OAuth2::Client->new(
+                $source->{'client_id'},
+                $source->{'client_secret'},
+                site => $source->{'site'},
+                authorize_path => $source->{'authorize_path'},
+                access_token_path => $source->{'access_token_path'},
+                access_token_method => $source->{'access_token_method'},
+                access_token_param => $source->{'access_token_param'},
+                scope => $source->{'scope'}
+          )->web_server(redirect_uri => $source->{'redirect_url'} );
+        }
+        else {
+            $logger->error(sprintf("No source of type '%s' defined for profile '%s'", $type, $portalSession->getProfile->getName));
+        }
+    }
+    $self->showError($c,"OAuth2 Error: Error loading provider");
+}
+
+sub oauth2Result : Private {
+    my ($self, $c) = @_;
+    my $logger        = $c->log;
+    my $portalSession = $c->portalSession;
+    my $request       = $c->request;
+    my $provider      = $request->query_param->{'request'};
     my %info;
     my $pid;
 
@@ -42,64 +96,98 @@ sub index : Path : Args(0) {
 
     # Pull browser user-agent string
     $info{'user_agent'} = $request->user_agent;
-    my $provider = $request->param('provider');
 
-    if ( defined($provider) ) {
-        $logger->info( "Sending "
-              . $portalSession->getClientMac()
-              . " to OAuth2 - Provider: $provider" );
-        pf::web::generate_oauth2_page($portalSession);
-        exit(0);
-    } else {
-        my $result = $request->param('result');
-        if ( exists $VALID_OAUTH_PROVIDERS{$result} ) {
+    my $code = $request->query_params->{'code'};
 
-            # Handle OAuth2
-            my ( $code, $username, $err ) =
-              pf::web::generate_oauth2_result( $portalSession, $result );
-            if ($code) {
-                $pid = $username;
-                if ( $result eq 'facebook' ) {
-                    $pid .= "\@facebook.com";
-                }
-            } else {
-                exit(0);
-            }
-        }
+    $logger->debug("API CODE: $code");
 
-        my $source = $portalSession->getProfile->getSourceByType($result);
+    #Get the token
+    my $token;
 
-        if ($source) {
+    eval {
+        $token = $self->oauth2_client($c,$provider)->get_access_token($code);
+    };
 
-            # Setting access timeout and role (category) dynamically
-            $info{'unregdate'} =
-              &pf::authentication::match( $source->{id}, { username => $pid },
-                $Actions::SET_ACCESS_DURATION );
+    if ($@) {
+        $logger->warn(
+            "OAuth2: failed to receive the token from the provider: $@");
+        $c->stash->{txt_auth_error} = "OAuth2 Error: Failed to get the token";
+        $c->detach(Authentication => 'showLogin');
+    }
 
-            if ( defined $info{'unregdate'} ) {
-                $info{'unregdate'} = POSIX::strftime(
-                    "%Y-%m-%d %H:%M:%S",
-                    localtime( time + normalize_time( $info{'unregdate'} ) )
+    my $response;
+
+    my $type;
+
+    # Validate the token
+    if (lc($provider) eq 'facebook') {
+        $type =
+          pf::Authentication::Source::FacebookSource->meta->get_attribute(
+            'type')->default;
+    } elsif (lc($provider) eq 'github') {
+        $type = pf::Authentication::Source::GithubSource->meta->get_attribute(
+            'type')->default;
+    } elsif (lc($provider) eq 'google') {
+        $type = pf::Authentication::Source::GoogleSource->meta->get_attribute(
+            'type')->default;
+    }
+    my $source = $portalSession->getProfile->getSourceByType($type);
+    if ($source) {
+        $response = $token->get($source->{'protected_resource_url'});
+        if ($response->is_success) {
+
+            # Grab JSON content
+            my $json      = new JSON;
+            my $json_text = $json->decode($response->content());
+            if ($provider eq 'google' || $provider eq 'github') {
+                $logger->info(
+                    "OAuth2 successfull, register and release for email $json_text->{email}"
                 );
-            } else {
-                $info{'unregdate'} =
-                  &pf::authentication::match( $source->{id},
-                    { username => $pid },
-                    $Actions::SET_UNREG_DATE );
+                $pid = $json_text->{email};
+            } elsif ($provider eq 'facebook') {
+                $logger->info(
+                    "OAuth2 successfull, register and release for username $json_text->{username}"
+                );
+                $pid = $json_text->{username} . '@facebook.com';
             }
-
-            $info{'category'} =
-              &pf::authentication::match( $source->{id}, { username => $pid },
-                $Actions::SET_ROLE );
-            $c->forward('Root' => 'webNodeRegister', [$pid, %info]);
-            $c->forward('Root' => 'endPortalSession');
         } else {
-            $logger->warn( "No active $source_type source for profile "
-                  . $portalSession->getProfile->getName
-                  . ", redirecting to "
-                  . $Config{'trapping'}{'redirecturl'} );
-            $c->response->redirect( $Config{'trapping'}{'redirecturl'} );
+            $logger->info(
+                "OAuth2: failed to validate the token, redireting to login page"
+            );
+            $c->stash->{txt_auth_error} = i18n("OAuth2 Error: Failed to validate the token, please retry");
+            $c->detach(Authentication => 'showLogin');
         }
+
+        # Setting access timeout and role (category) dynamically
+        $info{'unregdate'} =
+          &pf::authentication::match( $source->{id}, { username => $pid },
+            $Actions::SET_ACCESS_DURATION );
+
+        if ( defined $info{'unregdate'} ) {
+            $info{'unregdate'} = POSIX::strftime(
+                "%Y-%m-%d %H:%M:%S",
+                localtime( time + normalize_time( $info{'unregdate'} ) )
+            );
+        } else {
+            $info{'unregdate'} =
+              &pf::authentication::match( $source->{id},
+                { username => $pid },
+                $Actions::SET_UNREG_DATE );
+        }
+
+        $info{'category'} =
+          &pf::authentication::match( $source->{id}, { username => $pid },
+            $Actions::SET_ROLE );
+        $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %info]);
+        $c->forward('CaptivePortal' => 'endPortalSession');
+    } else {
+        $logger->error(
+            sprintf(
+                "No source of type '%s' defined for profile '%s'",
+                $type, $portalSession->getProfile->getName
+            )
+        );
+        $c->response->redirect( $Config{'trapping'}{'redirecturl'} );
     }
 }
 
