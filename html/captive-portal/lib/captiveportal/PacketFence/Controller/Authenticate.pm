@@ -45,7 +45,7 @@ __PACKAGE__->config(
 
 =cut
 
-sub begin {
+sub begin : Private {
     my ( $self, $c ) = @_;
     $c->forward(CaptivePortal => 'validateMac');
 }
@@ -124,7 +124,8 @@ sub next_page : Local : Args(0) {
 
 sub deregister : Local : Args(0) {
     my ( $self, $c ) = @_;
-    if ( $self->authenticateUser($c) ) {
+    $c->forward('authenticationLogin');
+    unless ( $c->has_errors ) {
         my $portalSession = $c->portalSession;
         my $mac           = $portalSession->clientMac;
         my $node_info     = node_view($mac);
@@ -168,13 +169,6 @@ sub login : Local : Args(0) {
     # Return login
     $c->forward('showLogin');
 
-}
-
-sub login_error : Local : Args(0) {
-    my ( $self, $c ) = @_;
-    $c->error("Here is an error");
-    # Return login
-    $c->forward('showLogin');
 }
 
 =head2 postAuthentication
