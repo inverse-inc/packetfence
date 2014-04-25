@@ -192,7 +192,6 @@ td a.btn { margin-left: 5px; }
   <div class="tab-content">
     <ul class="nav nav-tabs">
       <li><a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [id]) %]">[% l('Settings') %]</a></li>
-      <li><a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [id]) %]?tab=provisioning">[% l('Provisioning') %]</a></li>
       <li class="active"><a href="" data-toggle="tab">[% l('Files') %]</a></li>
     </ul>
     <div class="tab-pane well" id="settings">
