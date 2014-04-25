@@ -26,6 +26,9 @@ Catalyst Controller.
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $request = $c->request;
+    
+    $c->forward( 'Remediation' => 'release' );
+
     if ( $request->secure ) {
         $c->response->redirect( "http://"
               . $Config{'general'}{'hostname'} . "."
