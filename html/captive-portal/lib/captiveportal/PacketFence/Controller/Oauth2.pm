@@ -3,7 +3,7 @@ use Moose;
 use namespace::autoclean;
 use pf::config;
 
-BEGIN { extends 'Catalyst::Controller'; }
+BEGIN { extends 'captiveportal::Base::Controller'; }
 
 =head1 NAME
 
@@ -25,26 +25,15 @@ our %VALID_OAUTH_PROVIDERS = (
     github   => undef,
 );
 
-sub index : Path : Args(0) {
-    my ( $self, $c ) = @_;
-    $c->forward('CaptivePortal' => 'validateMac');
-    my $logger        = $c->log;
-    my $portalSession = pf::Portal::Session->new();
-    my $request       = $c->request;
-
-
-    my $source_type = undef;
-    my $provider = $request->query_params->{'provider'};
-
-    $c->detach('oauth2Page') if ( defined($provider) );
-    my $result = $request->query_params->{'result'};
-    $c->deatch('oauth2Result') if defined $result && exists $VALID_OAUTH_PROVIDERS{$result};
+sub auth : Local: Args(1) {
+    my ( $self, $c, $provider ) = @_;
+    $c->response->redirect($self->oauth2_client($c,$provider)->authorize_url);
 }
 
-sub oauth2Page : Private {
-    my ($self, $c) = @_;
-    my $provider = $c->request->param('provider');
-    $c->response->redirect($self->oauth2_client($c,$provider)->authorize_url);
+sub auth_provider : Local('auth'): Args(0) {
+    my ( $self, $c ) = @_;
+    my $provider = $c->request->params('provider');
+    $c->forward('auth',[$provider]);
 }
 
 sub oauth2_client {
@@ -52,14 +41,12 @@ sub oauth2_client {
     my $logger = $c->log;
     my $portalSession = $c->portalSession;
     my $type;
-    {
-        if (lc($provider) eq 'facebook') {
-            $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
-        } elsif (lc($provider) eq 'github') {
-            $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
-        } elsif (lc($provider) eq 'google') {
-            $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
-        }
+    if (lc($provider) eq 'facebook') {
+        $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
+    } elsif (lc($provider) eq 'github') {
+        $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
+    } elsif (lc($provider) eq 'google') {
+        $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
     }
     if ($type) {
         my $source = $portalSession->profile->getSourceByType($type);
@@ -76,16 +63,17 @@ sub oauth2_client {
           )->web_server(redirect_uri => $source->{'redirect_url'} );
         }
         else {
-            $logger->error(sprintf("No source of type '%s' defined for profile '%s'", $type, $portalSession->getProfile->getName));
+            $logger->error(sprintf("No source of type '%s' defined for profile '%s'", $type, $portalSession->profile->getName));
         }
     }
     $self->showError($c,"OAuth2 Error: Error loading provider");
 }
 
-sub oauth2Result : Private {
-    my ($self, $c) = @_;
+sub provider: Path : Args(1) {
+    my ($self, $c, $provider) = @_;
     my $logger        = $c->log;
     my $portalSession = $c->portalSession;
+    my $profile       = $portalSession->profile;
     my $request       = $c->request;
     my $provider      = $request->query_param->{'request'};
     my %info;
@@ -131,7 +119,7 @@ sub oauth2Result : Private {
         $type = pf::Authentication::Source::GoogleSource->meta->get_attribute(
             'type')->default;
     }
-    my $source = $portalSession->getProfile->getSourceByType($type);
+    my $source = $profile->getSourceByType($type);
     if ($source) {
         $response = $token->get($source->{'protected_resource_url'});
         if ($response->is_success) {
@@ -184,7 +172,7 @@ sub oauth2Result : Private {
         $logger->error(
             sprintf(
                 "No source of type '%s' defined for profile '%s'",
-                $type, $portalSession->getProfile->getName
+                $type, $profile->getName
             )
         );
         $c->response->redirect( $Config{'trapping'}{'redirecturl'} );
