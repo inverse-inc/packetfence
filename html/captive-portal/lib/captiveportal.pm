@@ -146,7 +146,12 @@ sub add_deferred_actions {
     }
 }
 
-__PACKAGE__->log( Log::Log4perl::Catalyst->new( INSTALL_DIR . '/conf/log.conf' ) );
+sub has_errors {
+    my ($c) = @_;
+    return scalar @{$c->error};
+}
+
+__PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.portal.conf',watch_delay => 5 * 60));
 
 # Handle warnings from Perl as error log messages
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
