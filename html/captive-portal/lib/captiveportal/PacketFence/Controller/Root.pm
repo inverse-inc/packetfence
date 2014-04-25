@@ -110,7 +110,7 @@ sub end : ActionClass('RenderView') {
             $c->log->error($error);
         }
         my $txt_message = join(' ',grep { ref($_) eq '' } @$errors);
-        $c->stash->(
+        $c->stash(
             template => 'error.html',
             txt_message => $txt_message,
         );
