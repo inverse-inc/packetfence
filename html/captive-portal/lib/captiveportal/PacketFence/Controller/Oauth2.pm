@@ -25,16 +25,44 @@ our %VALID_OAUTH_PROVIDERS = (
     github   => undef,
 );
 
-sub auth : Local: Args(1) {
+=head2 auth_provider
+
+/oauth2/auth/:provider
+
+=cut
+
+sub auth_provider : Local('auth'): Args(1) {
     my ( $self, $c, $provider ) = @_;
     $c->response->redirect($self->oauth2_client($c,$provider)->authorize_url);
 }
 
-sub auth_provider : Local('auth'): Args(0) {
+=head2 auth
+
+/oauth2/auth
+
+=cut
+
+sub auth : Local: Args(0) {
     my ( $self, $c ) = @_;
-    my $provider = $c->request->params('provider');
+    my $provider = $c->request->query_params->{'provider'};
     $c->forward('auth',[$provider]);
 }
+
+=head2 index
+
+/oauth2/auth
+
+=cut
+
+sub index :Path : Args(0) {
+    my ( $self, $c ) = @_;
+    my $provider = $c->request->query_params->{'request'};
+    $c->forward('oauth2Result',[$provider]);
+}
+
+=head2 oauth2_client
+
+=cut
 
 sub oauth2_client {
     my ($self,$c,$provider) = @_;
@@ -69,13 +97,20 @@ sub oauth2_client {
     $self->showError($c,"OAuth2 Error: Error loading provider");
 }
 
-sub provider: Path : Args(1) {
+=head2 oauth2Result
+
+/oauth2/:provider
+
+Handles the oauth request coming from the providers
+
+=cut
+
+sub oauth2Result : Path : Args(1) {
     my ($self, $c, $provider) = @_;
     my $logger        = $c->log;
     my $portalSession = $c->portalSession;
     my $profile       = $portalSession->profile;
     my $request       = $c->request;
-    my $provider      = $request->query_param->{'request'};
     my %info;
     my $pid;
 
