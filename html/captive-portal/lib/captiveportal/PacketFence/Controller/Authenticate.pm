@@ -3,7 +3,6 @@ package captiveportal::PacketFence::Controller::Authenticate;
 use Moose;
 use namespace::autoclean;
 use pf::config;
-use pf::log;
 use pf::web qw(i18n);
 use pf::node;
 use pf::util;
@@ -58,7 +57,6 @@ sub begin {
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $mode   = $c->request->param('mode');
-    my $action = $c->action;
     if ( defined $mode ) {
         my $path = $self->modeToPath( $c, $mode );
         $c->go($path);
@@ -75,6 +73,11 @@ sub modeToPath {
         $path = $action->{valid_modes}{$mode};
     }
     return $path;
+}
+
+sub default : Path {
+    my ( $self, $c ) = @_;
+    $c->error("error: incorrect mode");
 }
 
 sub next_page : Local : Args(0) {
@@ -115,7 +118,7 @@ sub next_page : Local : Args(0) {
 
         $c->stash->{template} = 'register.html';
     } else {
-        $self->showError( $c, "error: invalid page number" );
+        $c->error( "error: invalid page number" );
     }
 }
 
@@ -129,7 +132,7 @@ sub deregister : Local : Args(0) {
         if ( $c->session->{username} eq $pid ) {
             pf::node::node_deregister($mac);
         } else {
-            $self->showError( $c, "error: access denied not owner" );
+            $c->error( "error: access denied not owner" );
         }
     } else {
         $c->forward('login');
@@ -150,16 +153,6 @@ sub status : Local : Args(0) {
     $c->detach( 'Status', 'index' );
 }
 
-sub default : Path {
-    my ( $self, $c, $mode ) = @_;
-    my $path = $self->modeToPath( $c, $mode );
-    if ( $path eq 'default' ) {
-        $self->showError( $c, "error: incorrect mode" );
-    } else {
-        $c->go($path);
-    }
-}
-
 sub login : Local : Args(0) {
     my ( $self, $c ) = @_;
     if ( $c->request->method eq 'POST' ) {
@@ -177,6 +170,13 @@ sub login : Local : Args(0) {
 
 }
 
+sub login_error : Local : Args(0) {
+    my ( $self, $c ) = @_;
+    $c->error("Here is an error");
+    # Return login
+    $c->forward('showLogin');
+}
+
 =head2 postAuthentication
 
 TODO: documention
@@ -185,8 +185,8 @@ TODO: documention
 
 sub postAuthentication : Private {
     my ( $self, $c ) = @_;
-    my $logger = get_logger;
-    $c->detach('showLogin') if $c->stash->{txt_auth_error};
+    my $logger = $c->log;
+    $c->detach('showLogin') if $c->has_errors;
     my $portalSession = $c->portalSession;
     my $session = $c->session;
     my $info = $c->stash->{info} || {};
@@ -239,7 +239,7 @@ sub postAuthentication : Private {
 
 sub validateLogin : Private {
     my ( $self, $c ) = @_;
-    my $logger  = get_logger;
+    my $logger  = $c->log;
     my $profile = $c->profile;
     $logger->debug("form validation attempt");
 
@@ -255,8 +255,7 @@ sub validateLogin : Private {
         my $aup_signed = $request->param("aup_signed");
         if (   !defined($aup_signed)
             || !$aup_signed ) {
-            $c->stash->{txt_auth_error} =
-              'You need to accept the terms before proceeding any further.';
+            $c->error('You need to accept the terms before proceeding any further.');
             $c->detach('showLogin');
         }
     } else {
@@ -266,7 +265,7 @@ sub validateLogin : Private {
 
 sub authenticationLogin : Private {
     my ( $self, $c ) = @_;
-    my $logger  = get_logger;
+    my $logger  = $c->log;
     my $session = $c->session;
     my $request = $c->request;
     my $profile = $c->profile;
@@ -282,19 +281,17 @@ sub authenticationLogin : Private {
       pf::authentication::authenticate( $username, $password, @sources );
 
     if ( defined($return) && $return == 1 ) {
-
         # save login into session
         $c->session->{"username"} = $request->param("username");
         $c->session->{source_id} = $source_id;
     } else {
-        $c->stash( txt_auth_error => i18n($message) );
+        $c->error($message);
     }
 }
 
 sub _no_username {
     my ($profile) = @_;
-    return any { $_->type eq 'Null' && isdisabled( $_->email_required ) }
-    $profile->getSourcesAsObjects;
+    return any { $_->type eq 'Null' && isdisabled( $_->email_required ) } $profile->getSourcesAsObjects;
 }
 
 sub showLogin : Private {
@@ -305,6 +302,10 @@ sub showLogin : Private {
       any { is_in_list( $_, $guestModes ) } $SELFREG_MODE_EMAIL,
       $SELFREG_MODE_SMS, $SELFREG_MODE_SPONSOR;
     my $request = $c->request;
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
     $c->stash(
         template        => 'login.html',
         username        => encode_entities( $request->param("username") ),
