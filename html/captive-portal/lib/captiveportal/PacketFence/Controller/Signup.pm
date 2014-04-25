@@ -53,38 +53,13 @@ sub begin : Private {
     # if we can't resolve it and preregistration is disabled, generate an error
 }
 
-=head2 validateMac
-
-TODO: documention
-
-=cut
-
-sub validateMac {
-    my ( $self, $c ) = @_;
-    my $portalSession = $c->portalSession;
-    my $logger        = get_logger;
-    my $request       = $c->request;
-    my $is_valid_mac  = valid_mac( $portalSession->clientMac() );
-    if ( !$is_valid_mac
-        && isdisabled(
-            $Config{'guests_self_registration'}{'preregistration'} ) ) {
-        $logger->info( $portalSession->getClientIp()
-              . " not resolvable, generating error page" );
-            $self->showError($c, "error: not found in the database");
-    }
-    # we can't resolve the MAC and preregistration is enabled: pre-registration
-    elsif ( !$is_valid_mac ) {
-        $c->session->{"preregistration"} = $TRUE;
-    }
-}
-
 =head2 checkPreregistration
 
 TODO: documention
 
 =cut
 
-sub checkPreregistration {
+sub checkPreregistration : Private {
     my ( $self, $c ) = @_;
     my $request = $c->request;
 
@@ -103,7 +78,7 @@ TODO: documention
 
 =cut
 
-sub setupGuestMac {
+sub setupGuestMac : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     # Clearing the MAC if in pre-registration
@@ -121,7 +96,7 @@ sub setupGuestMac {
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    $c->forward('validateMac');
+    $c->forward( CaptivePortal => 'validateMac');
     $c->forward('checkGuestModes');
     $c->forward('checkPreregistration');
     $c->forward('setupGuestMac');
@@ -139,7 +114,7 @@ TODO: documention
 
 =cut
 
-sub doSelfRegistration {
+sub doSelfRegistration : Private {
     my ( $self, $c ) = @_;
     my $request = $c->request;
     my $profile = $c->profile;
@@ -163,7 +138,7 @@ TODO: documention
 
 =cut
 
-sub doEmailSelfRegistration {
+sub doEmailSelfRegistration : Private {
     my ( $self, $c ) = @_;
     my $logger        = get_logger;
     my $portalSession = $c->portalSession;
@@ -255,7 +230,7 @@ sub doEmailSelfRegistration {
 }
 
 
-sub prepareEmailGuestActivationInfo {
+sub prepareEmailGuestActivationInfo : Private {
     my ( $session, %info ) = @_;
 
     $info{'firstname'} = $session->{"firstname"};
@@ -273,7 +248,7 @@ TODO: documention
 
 =cut
 
-sub doSponsorSelfRegistration {
+sub doSponsorSelfRegistration : Private {
     my ( $self, $c ) = @_;
     my $logger        = get_logger;
     my $profile       = $c->profile;
@@ -390,7 +365,7 @@ TODO: documention
 
 =cut
 
-sub doSmsSelfRegistration {
+sub doSmsSelfRegistration : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     if ( $c->session->{"preregistration"} ) {
@@ -454,7 +429,7 @@ sub doSmsSelfRegistration {
     }
 }    # SMS
 
-sub checkGuestModes {
+sub checkGuestModes : Private {
     my ( $self, $c ) = @_;
     if ( @{ $c->profile->getGuestModes } == 0 ) {
         $c->response->redirect( "/captive-portal?destination_url="
@@ -469,7 +444,7 @@ TODO: documention
 
 =cut
 
-sub validateSelfRegistration {
+sub validateSelfRegistration : Private {
     my ( $self, $c ) = @_;
     $c->forward('validatePreregistration');
     $c->forward('validateMandatoryFields');
@@ -485,7 +460,7 @@ TODO: documention
 
 =cut
 
-sub setupSelfRegistrationSession {
+sub setupSelfRegistrationSession : Private {
     my ( $self, $c ) = @_;
     my $request = $c->request;
     $c->session->{firstname} = $request->param("firstname");
@@ -508,7 +483,7 @@ TODO: documention
 
 =cut
 
-sub validatePreregistration {
+sub validatePreregistration : Private {
     my ( $self, $c ) = @_;
     if ( $c->session->{preregistration}
         && isdisabled(
@@ -523,7 +498,7 @@ TODO: documention
 
 =cut
 
-sub validateBySponsorSource {
+sub validateBySponsorSource : Private {
     my ( $self, $c ) = @_;
     my $profile = $c->profile;
     my $request = $c->request;
@@ -551,7 +526,7 @@ TODO: documention
 
 =cut
 
-sub validateByEmailSource {
+sub validateByEmailSource : Private {
     my ( $self, $c ) = @_;
     my $profile = $c->profile;
     my $request = $c->request;
@@ -580,7 +555,7 @@ TODO: documention
 
 =cut
 
-sub validateMandatoryFields {
+sub validateMandatoryFields : Private {
     my ( $self, $c ) = @_;
     my $request = $c->request;
     my ( $error_code, @error_args );
@@ -621,17 +596,16 @@ TODO: documention
 
 =cut
 
-sub authenticateSelfRegistration {
+sub authenticateSelfRegistration : Private {
     my ( $self, $c ) = @_;
     return;
 }
 
-sub showSelfRegistrationPage {
+sub showSelfRegistrationPage : Private {
     my ( $self, $c ) = @_;
     my $logger  = get_logger;
     my $profile = $c->profile;
     my $request = $c->request;
-    $logger->info('generate_selfregistration_page');
 
     my $sms_type =
       pf::Authentication::Source::SMSSource->meta->get_attribute('type')
