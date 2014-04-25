@@ -104,8 +104,8 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
-    my $errors = $c->error;
-    if (scalar @$errors) {
+    if (scalar $c->has_errors) {
+        my $errors = $c->error;
         for my $error ( @$errors ) {
             $c->log->error($error);
         }
