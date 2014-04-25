@@ -256,16 +256,16 @@ sub wiredeauthTechniques {
     if ($connection_type == $WIRED_MAC_AUTH) {
         my $default = $SNMP::RADIUS;
         my %tech = (
+            $SNMP::TELNET => 'handleReAssignVlanTrapForWiredMacAuth',
             $SNMP::RADIUS => 'deauthenticateMacRadius',
-        );
-
+        ); 
         if (!defined($method) || !defined($tech{$method})) {
             $method = $default;
         }
         return $method,$tech{$method};
     }
     else{
-        $logger->error("Only RADIUS deauth is supported on EX2200");
+        $logger->error("Only wired mac authentication is supported on EX2200");
     }
 
 }
