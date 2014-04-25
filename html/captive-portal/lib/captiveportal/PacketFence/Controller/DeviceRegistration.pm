@@ -24,11 +24,11 @@ Catalyst Controller.
 
 =cut
 
-sub begin {
+sub begin : Private {
     my ( $self, $c ) = @_;
     if (isdisabled( $Config{'registration'}{'device_registration'} ) )
     {
-        $self->showError( $c, "This module is not enabled" );
+        $c->error( "Device registration module is not enabled" );
         $c->detach;
     }
     $c->stash->{console_types} = @pf::web::gaming::GAMING_CONSOLE_TYPES;
@@ -49,9 +49,8 @@ sub index : Path : Args(0) {
         # Verify if user is authenticated
         $c->forward('userNotLoggedIn');
     } elsif ( $request->param('cancel') ) {
+        $c->error('Registration canceled. Please try again.');
         $c->delete_session;
-        $c->stash->{txt_auth_error} =
-          'Registration canceled. Please try again.';
         $c->detach('login');
     } elsif ( $request->param('device_mac') ) {
         # User is authenticated and requesting to register gaming device
@@ -59,7 +58,7 @@ sub index : Path : Args(0) {
         if(valid_mac($device_mac)) {
             # Register gaming device
             $c->forward('registerNode', [ $pid, $device_mac ]);
-            unless ($c->stash->{txt_auth_error}) {
+            unless ($c->has_errors) {
                 $c->stash(status_msg  => i18n_format("The MAC address %s has been successfully registered.", $device_mac));
                 $c->detach('landing');
             }
@@ -83,14 +82,14 @@ TODO: documention
 
 =cut
 
-sub userNotLoggedIn {
+sub userNotLoggedIn : Private {
     my ($self, $c) = @_;
     my $request = $c->request;
     my $username = $request->param('username');
     my $password = $request->param('password');
     if ( all_defined( $username, $password ) ) {
         $c->forward(Authenticate => 'authenticationLogin');
-        if ($c->stash->{txt_auth_error}) {
+        if ($c->has_errors) {
             $c->detach('login');
         }
     } else {
@@ -106,6 +105,10 @@ Display the gaming login
 
 sub login : Local : Args(0) {
     my ( $self, $c ) = @_;
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
     $c->stash( template => 'gaming-login.html' );
 }
 
@@ -114,13 +117,13 @@ sub landing : Local : Args(0) {
     $c->stash( template => 'gaming-landing.html' );
 }
 
-sub registerNode {
+sub registerNode : Private {
     my ( $self, $c, $pid, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = $c->log;
     if ( pf::web::gaming::is_allowed_gaming_mac($mac) ) {
         my ($node) = node_view($mac);
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
-            $c->stash(txt_auth_error => "$mac is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator");
+            $c->error("$mac is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator");
         } else {
             my %info;
             $c->stash->{device_mac} = $mac;
@@ -145,7 +148,7 @@ sub registerNode {
             $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
         }
     } else {
-        $c->stash(txt_auth_error => "Please verify the provided MAC address.");
+        $c->error("Please verify the provided MAC address.");
     }
 }
 
