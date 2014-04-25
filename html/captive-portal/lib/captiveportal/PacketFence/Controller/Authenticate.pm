@@ -11,6 +11,7 @@ use pf::locationlog;
 use pf::authentication;
 use HTML::Entities;
 use List::MoreUtils qw(any);
+use pf::config;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -167,7 +168,7 @@ sub login : Local : Args(0) {
         $c->forward('validateLogin');
         $c->forward('authenticationLogin');
         $c->forward('postAuthentication');
-        $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->session->{username}, %{$c->stash->{info}}] );
+        $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
         $c->forward( 'CaptivePortal' => 'endPortalSession' );
     }
 
@@ -191,7 +192,8 @@ sub postAuthentication : Private {
     my $info = $c->stash->{info} || {};
     my $source_id = $session->{source_id};
     my $pid = $session->{"username"};
-#    $pid = $default_pid if $no_username_needed;
+    $pid = $default_pid if _no_username($c->profile);
+    $info->{pid} = $pid;
     my $params = { username => $pid };
     my $mac = $portalSession->clientMac;
 
