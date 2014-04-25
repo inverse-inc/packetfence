@@ -6,6 +6,8 @@ use pf::violation;
 use pf::class;
 use pf::node;
 use List::Util qw(first);
+use pf::config;
+use pf::enforcement qw(reevaluate_access);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -64,6 +66,27 @@ sub index : Path : Args(0) {
     }
 }
 
+sub release : Private {
+    my ( $self, $c ) = @_;
+    my $portalSession = $c->portalSession;
+    my $mac           = $portalSession->clientMac;
+    my $logger        = $c->log;
+    my $violation     = $self->getViolation($c);
+
+    if (violation_close($mac, $violation->{'vid'}) != -1){
+        if (violation_count($mac) eq 0){
+            unless ( defined($c->session->{"do_not_deauth"}) && $c->session->{"do_not_deauth"} == $TRUE ) {
+                reevaluate_access( $mac, 'manage_vclose' );
+            }
+        }
+        else{
+            $c->detach('CaptivePortal', 'index');
+        }
+    }
+    else{
+        $self->showError($c, "error: max re-enables reached");
+    }
+}
 
 sub scan_status : Private {
     my ( $self, $c, $scan_start_time ) = @_;
