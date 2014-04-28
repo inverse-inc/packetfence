@@ -423,7 +423,7 @@ sub authenticate {
         @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
     }
 
-    $logger->debug("Authenticating '$username' from source(s) ".join(', ', map { $_->id } @sources));
+    $logger->debug(sub {"Authenticating '$username' from source(s) ".join(', ', map { $_->id } @sources) });
 
     foreach my $current_source (@sources) {
         my ($result, $message);
