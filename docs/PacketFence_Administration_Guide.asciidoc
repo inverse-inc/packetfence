@@ -284,23 +284,19 @@ Software Installation
 RHEL / CentOS
 ^^^^^^^^^^^^^
 
-In order to use the repository, create a file named `/etc/yum.repos.d/PacketFence.repo` with the following content:
+In order to use the PacketFence repository :
 
-  [PacketFence]
-  name=PacketFence Repository
-  baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/$basearch
-  gpgcheck=0
-  enabled=0
+  # rpm -Uvh http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1.0-0.20140428_1.el6.x86_64.rpm
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database
 server, DHCP server, RADIUS server) using:
 
-  yum groupinstall --enablerepo=PacketFence,epel,rpmforge,of Packetfence-complete
+  yum groupinstall --enablerepo=packetfence,epel,rpmforge,of Packetfence-complete
 
 Or, if you prefer, to install only the core PacketFence without all the external services, you can use:
 
-  yum install --enablerepo=PacketFence,epel,rpmforge,of packetfence
+  yum install --enablerepo=packetfence,epel,rpmforge,of packetfence
 
 Debian and Ubuntu
 ^^^^^^^^^^^^^^^^^
