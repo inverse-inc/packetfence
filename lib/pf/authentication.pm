@@ -420,7 +420,7 @@ sub authenticate {
     my ($username, $password, @sources) = @_;
 
     unless (@sources) {
-        @sources = @authentication_sources;
+        @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
     }
 
     $logger->debug("Authenticating '$username' from source(s) ".join(', ', map { $_->id } @sources));
