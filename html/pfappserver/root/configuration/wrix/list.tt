@@ -2,7 +2,7 @@
         <thead>
           <tr>
             <th>[% l('WRIX Identifer') %]</th>
-            <th></th>
+            <th width="120"></th>
           </tr>
         </thead>
         <tbody>
