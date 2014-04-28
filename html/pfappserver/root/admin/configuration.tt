@@ -52,13 +52,13 @@ table.sources {
     table-layout: fixed;
 }
 </style>
-[% MACRO list_entry(controller_name,action,description) BLOCK %]
+[% MACRO list_entry(controller_name, action, description) BLOCK %]
               <li>
                 <a href="[%c.pf_hash_for(c.controller(controller_name).action_for(action),[]) %]">[% l(description || action || controller_name) %]</a>
               </li>
 [% END -%]
 
-[% MACRO pf_section_entry(section,description) BLOCK %]
+[% MACRO pf_section_entry(section, description) BLOCK %]
               <li>
                 <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('pf_section'),section) %]">[% l(description || section) %]</a>
               </li>
@@ -106,7 +106,7 @@ table.sources {
               [%- IF can_access("SWITCHES_READ") %]
               [% pf_section_entry( 'switches', 'Switches') %]
               [%- END %]
-              [% list_entry('Configuration::Wrix', 'index', 'Wrix') %]
+              [% list_entry('Configuration::Wrix', 'index', 'WRIX') %]
               [%- IF can_access("FLOATING_DEVICES_READ") %]
               [% pf_section_entry( 'floating_devices', 'Floating devices') %]
               [%- END %]
