@@ -429,7 +429,8 @@ sub generate_oauth2_page {
    # Generate the proper Client
    my $provider = $portalSession->getCgi()->url_param('provider');
 
-   print $portalSession->cgi->redirect(oauth2_client($portalSession, $provider)->authorize_url);
+   print $portalSession->cgi->redirect(oauth2_client($portalSession, $provider)->authorize);
+   exit(0);
 }
 
 =item generate_oauth2_result
@@ -808,17 +809,18 @@ sub oauth2_client {
     if ($type) {
         my $source = $portalSession->getProfile->getSourceByType($type);
         if ($source) {
-            Net::OAuth2::Client->new(
-                $source->{'client_id'},
-                $source->{'client_secret'},
+            return Net::OAuth2::Profile::WebServer->new(
+                client_id => $source->{'client_id'},
+                client_secret => $source->{'client_secret'},
                 site => $source->{'site'},
                 authorize_path => $source->{'authorize_path'},
                 access_token_path => $source->{'access_token_path'},
                 access_token_method => $source->{'access_token_method'},
-                access_token_param => $source->{'access_token_param'},
-                scope => $source->{'scope'}
-          )->web_server(redirect_uri => $source->{'redirect_url'} );
-        }
+                #access_token_param => $source->{'access_token_param'},
+                scope => $source->{'scope'},
+                redirect_uri => $source->{'redirect_url'} 
+          );
+       }
         else {
             $logger->error(sprintf("No source of type '%s' defined for profile '%s'", $type, $portalSession->getProfile->getName));
         }
