@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::Oauth2;
 use Moose;
 use namespace::autoclean;
 use pf::config;
+use Net::OAuth2::Client;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -33,7 +34,7 @@ our %VALID_OAUTH_PROVIDERS = (
 
 sub auth_provider : Local('auth'): Args(1) {
     my ( $self, $c, $provider ) = @_;
-    $c->response->redirect($self->oauth2_client($c,$provider)->authorize_url);
+    $c->response->redirect($self->oauth2_client($c,$provider)->authorize);
 }
 
 =head2 auth
@@ -45,7 +46,7 @@ sub auth_provider : Local('auth'): Args(1) {
 sub auth : Local: Args(0) {
     my ( $self, $c ) = @_;
     my $provider = $c->request->query_params->{'provider'};
-    $c->forward('auth',[$provider]);
+    $c->forward('auth_provider',[$provider]);
 }
 
 =head2 index
@@ -135,7 +136,7 @@ sub oauth2Result : Path : Args(1) {
         $logger->warn(
             "OAuth2: failed to receive the token from the provider: $@");
         $c->stash->{txt_auth_error} = "OAuth2 Error: Failed to get the token";
-        $c->detach(Authentication => 'showLogin');
+        $c->detach(Authenticate => 'showLogin');
     }
 
     my $response;
