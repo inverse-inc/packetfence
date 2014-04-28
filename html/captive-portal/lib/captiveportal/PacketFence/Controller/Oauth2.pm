@@ -80,16 +80,17 @@ sub oauth2_client {
     if ($type) {
         my $source = $portalSession->profile->getSourceByType($type);
         if ($source) {
-            return Net::OAuth2::Client->new(
-                $source->{'client_id'},
-                $source->{'client_secret'},
+            return Net::OAuth2::Profile::WebServer->new(
+                client_id => $source->{'client_id'},
+                client_secret => $source->{'client_secret'},
                 site => $source->{'site'},
                 authorize_path => $source->{'authorize_path'},
                 access_token_path => $source->{'access_token_path'},
                 access_token_method => $source->{'access_token_method'},
-                access_token_param => $source->{'access_token_param'},
-                scope => $source->{'scope'}
-          )->web_server(redirect_uri => $source->{'redirect_url'} );
+                #access_token_param => $source->{'access_token_param'},
+                scope => $source->{'scope'},
+                redirect_uri => $source->{'redirect_url'} 
+          );
         }
         else {
             $logger->error(sprintf("No source of type '%s' defined for profile '%s'", $type, $portalSession->profile->getName));
