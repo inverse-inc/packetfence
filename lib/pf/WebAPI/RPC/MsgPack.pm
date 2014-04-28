@@ -46,6 +46,31 @@ sub handleRequest {
     return Apache2::Const::OK;
 }
 
+sub handleNotification {
+    my ($self,$r,$methodSub,$args,$id) = @_;
+    my $dispatch_to = $self->dispatch_to;
+    $r->push_handlers(PerlCleanupHandler => sub {
+        eval {
+            $dispatch_to->$methodSub(@$args);
+        };
+    });
+    return Apache2::Const::HTTP_NO_CONTENT;
+}
+
+sub handler {
+    my ($self,$r) = @_;
+    my $content_type = $r->headers_in->{'Content-Type'};
+    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $self->allowed($content_type);
+    my ($requestType,$method,$args,$id) = $self->parseRequest($r);
+    return $self->handleParseError($r) unless defined $requestType;
+    return $self->handleBulkRequest($r,$args) if $requestType == BULK;
+    my $methodSub = $self->lookupMethod($r,$method);
+    return $self->handleMethodNotFound($r) unless $methodSub;
+    return $self->handleRequest($r,$methodSub,$args,$id) if $requestType == REQUEST;
+    return $self->handleNotification($r,$methodSub,$args,$id) if $requestType == NOTIFICATION;
+}
+
 sub handleParseError {
     return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
 }
