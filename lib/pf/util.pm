@@ -1197,7 +1197,7 @@ Will change a scalar to an array ref if it is not one already
 
 =cut
 
-sub listify($) {
+sub listify {
     ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
 }
 
