@@ -41,16 +41,6 @@ BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{rev}-root
 Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
-# if --define 'snapshot 1' not written when calling rpmbuild then we assume it is to package a release
-%define is_release %{?snapshot:0}%{!?snapshot:1}
-%if %{is_release}
-# used for official releases
-Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{version}.tar.gz
-%else
-# used for snapshot releases
-Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{version}-%{rev}.tar.gz
-%endif
-
 %description
 
 PacketFence release file. This package contains yum configuration
