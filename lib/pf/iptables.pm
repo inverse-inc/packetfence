@@ -22,6 +22,7 @@ use warnings;
 
 use IPTables::ChainMgr;
 use IPTables::Interface;
+use IO::Interface::Simple;
 use Log::Log4perl;
 use Readonly;
 
@@ -215,7 +216,7 @@ sub generate_filter_if_src_to_chain {
 
     # Allow the NAT back inside through the forwarding table if inline is enabled
     if (is_inline_enforcement_enabled()) {
-        my @values = split(',', get_snat_interface());
+        my @values = split(',', get_inline_snat_interface());
         foreach my $val (@values) {
             foreach my $network ( keys %ConfigNetworks ) {
                 next if ( !pf::config::is_network_type_inline($network) );
@@ -335,8 +336,14 @@ sub generate_passthrough_rules {
             $SNAT_ip = $management_network->{'Tip'};
        }
     }
-    $$nat_rules_ref .= "-A POSTROUTING -o $mgmt_int -j SNAT --to $SNAT_ip";
+    $$nat_rules_ref .= "-A POSTROUTING -o $mgmt_int -j SNAT --to $SNAT_ip\n";
 
+    # Enable nat if we defined another interface to route to internet
+    my @ints = split(',', get_network_snat_interface());
+    foreach my $int (@ints) {
+        my $if   = IO::Interface::Simple->new($int);
+        $$nat_rules_ref .= "-A POSTROUTING -o $int -j SNAT --to ".$if->address;
+    }
 }
 
 =item generate_inline_if_src_to_chain
@@ -369,7 +376,7 @@ sub generate_inline_if_src_to_chain {
         # Every marked packet should be NATed
         # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
         foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-            my @values = split(',', get_snat_interface());
+            my @values = split(',', get_inline_snat_interface());
             foreach my $val (@values) {
                 foreach my $network ( keys %ConfigNetworks ) {
                     next if ( !pf::config::is_network_type_inline($network) );
@@ -651,19 +658,33 @@ sub update_node {
     #Just to have an iptables method
 }
 
-=item get_snat_interface
+=item get_inline_snat_interface
 
 Return the list of network interface to enable SNAT.
 
 =cut
 
-sub get_snat_interface {
+sub get_inline_snat_interface {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     if (defined ($Config{'inline'}{'interfaceSNAT'}) && $Config{'inline'}{'interfaceSNAT'} ne '') {
         return $Config{'inline'}{'interfaceSNAT'};
     } else {
         return  $management_network->tag("int");
+    }
+}
+
+=item get_network_snat_interface
+
+Return the list of network interface to enable SNAT for passthrough.
+
+=cut
+
+sub get_network_snat_interface {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    if (defined ($Config{'network'}{'interfaceSNAT'}) && $Config{'network'}{'interfaceSNAT'} ne '') {
+        return $Config{'network'}{'interfaceSNAT'};
     }
 }
 
