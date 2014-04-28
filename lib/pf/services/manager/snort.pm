@@ -19,7 +19,7 @@ with 'pf::services::manager::roles::pf_conf_trapping_engine';
 use pf::file_paths;
 use pf::config;
 use pf::violation_config;
-use pf::util qw(get_all_internal_ips parse_template);
+use pf::util qw(get_all_internal_ips parse_template listify);
 
 has '+name' => ( default => sub { 'snort' } );
 
@@ -30,10 +30,6 @@ has '+launcher' => (
     },
     lazy => 1
 );
-
-sub listify($) {
-    ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
-}
 
 sub generateConfig {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
