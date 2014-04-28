@@ -92,13 +92,22 @@
 PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/captive-portal/lib
 # mod_perl handlers are virtually assigned to /perl/
-PerlModule pf::web::dispatcher
 # The TransHandler handles the 'captive-portal' core piece redirecting to the
 # portal if the URL is not otherwised allowed by passthrough or part of the
 # portal itself.
 PerlTransHandler pf::web::dispatcher::custom
 PerlPostConfigRequire /usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl
 PerlLoadModule captiveportal
+PerlLoadModule pf::web::dispatcher
+PerlLoadModule pf::web::release
+# The TransHandler handles the 'captive-portal' core piece redirecting to the
+# portal if the URL is not otherwised allowed by passthrough or part of the
+# portal itself.
+<Location ~ "/perl/release">
+  SetHandler modperl
+  PerlResponseHandler pf::web::release
+  PerlOptions +GlobalRequest +ParseHeaders
+</Location>
 
 AcceptMutex posixsem
 
