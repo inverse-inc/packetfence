@@ -3,9 +3,9 @@
 # NEW (since git migration):
 #
 #   Expecting a standard tarball with packetfence-<version>/...
-# 
+#
 # BUILDING FOR RELEASE
-# 
+#
 # - Build
 #  - define ver <version>
 #  - define dist based on target distro (for centos/rhel => .el5)
@@ -47,7 +47,6 @@ PacketFence release file. This package contains yum configuration
 for the PacketFence RPM Repository.
 
 %prep
-%setup -q -n %{real_name}-%{version}
 
 %{__cat} <<EOF >/etc/yum.repos.d/packetfence.repo
 ## PacketFence RPM Repository for RHEL/Centos 6
@@ -66,7 +65,11 @@ EOF
 
 %build
 %install
+rm -rf %{buildroot}
+mkdir -p %{buildroot}/etc/yum.repos.d/
+cp /etc/yum.repos.d/packetfence.repo $RPM_BUILD_ROOT/etc/yum.repos.d/packetfence.repo
 %clean
+rm -rf $RPM_BUILD_ROOT
 
 %files -n %{real_name}
 %defattr(0755, root, root)
@@ -75,4 +78,4 @@ EOF
 
 %changelog
 * Fri Apr 25 2014 Loick Pelet <lpelet@inverse.ca>
-- Release file created. 
+- Release file created.
