@@ -22,7 +22,7 @@
       <li class="active">[% l('Create') %]</li>
     </ul>
     <h2><!-- first sibling of alerts --></h2>
-    <form id="update_profile" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('update'),[id])  %]"  class="form-horizontal">
+    <form id="create_profile" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('create'))  %]"  class="form-horizontal">
     <div class="tab-content">
       <ul class="nav nav-tabs">
         <li class="active">
