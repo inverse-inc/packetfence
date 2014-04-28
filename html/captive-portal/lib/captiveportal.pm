@@ -36,9 +36,12 @@ use Try::Tiny;
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 use lib INSTALL_DIR . "/html/captive-portal/custom-lib";
+
+BEGIN {
+    use pf::log service => 'httpd.portal',no_stderr_trapping => 1,no_stdout_trapping => 1;
+}
+
 use pf::config::cached;
-use pf::node
-  qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
 use pf::file_paths;
 
 extends 'Catalyst';
@@ -77,7 +80,7 @@ __PACKAGE__->config(
               t profile-templates lib script
               )
         ],
-        ignore_extensions => [qw/cgi php inc tt html xml/],
+        ignore_extensions => [qw/cgi php inc tt html xml pl pm/],
     },
     'Plugin::Session'          => {
         chi_class => 'pf::CHI',
