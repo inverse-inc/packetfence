@@ -1741,7 +1741,7 @@ Let's explain each chunk properly:
 [options="compact"]
 * `DIRECTION`: You can either set a limit to inbound(IN), outbound(OUT), or total(TOT) bandwidth
 * `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megabytes(MB), gigabytes(GB), or petabytes(PB)
-* `INTERVAL`: This is actually the time window we will look for potential abuse.  You can set a number of seconds(s),minutes(m),hours(h),days(D),weeks(W),months(M), or years(Y).  This value is optional, if you set nothing, we will check in all the data we have since your packetfence install.
+* `INTERVAL`: This is actually the time window we will look for potential abuse.  You can set a number of days(D), weeks(W), months(M), or years(Y).
 
 Example triggers
 ++++++++++++++++
@@ -1750,13 +1750,13 @@ Example triggers
 
    Accounting::IN50GB1M
 
-* Look for Outgoing (Upload) traffic with a 500MB/hour
+* Look for Outgoing (Upload) traffic with a 500MB/day
 
-   Accounting::OUT500MB1h
+   Accounting::OUT500MB1D
 
-* Look for Total (Download+Upload) traffic with a 200GB limit (we will check all the accounting data)
+* Look for Total (Download + Upload) traffic with a 200GB limit in the last week
 
-   Accounting::TOT200GB
+   Accounting::TOT200GB1W
 
 Grace period
 ++++++++++++

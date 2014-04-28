@@ -392,12 +392,12 @@ sub acct_maintenance {
             my $releaseDate = "1";
             my @results;
             if ($direction eq $DIRECTION_IN) {
-                @results = node_acct_maintenance_bw_inbound($interval,$releaseDate,$bwInBytes);
+                @results = node_acct_maintenance_bw_inbound($interval, $releaseDate, $bwInBytes);
             } elsif ($direction eq $DIRECTION_OUT) {
-                @results = node_acct_maintenance_bw_outbound($interval,$releaseDate,$bwInBytes);
+                @results = node_acct_maintenance_bw_outbound($interval, $releaseDate, $bwInBytes);
             } else {
                 $logger->info("Calling node acct maintenance total with $interval and $releaseDate for $bwInBytes");
-                @results = node_acct_maintenance_bw_total($interval,$releaseDate,$bwInBytes);
+                @results = node_acct_maintenance_bw_total($interval, $releaseDate, $bwInBytes);
             }
 
             # Now that we have the results, loop on the mac.  While doing that, we need to re-check from the last violation if needed.
@@ -407,26 +407,26 @@ sub acct_maintenance {
                 #Do we have a closed violation for the current mac
                 $logger->info("Looking if we have a closed violation in the present window for mac $cleanedMac and vid $vid");
 
-                if (violation_exist_acct($cleanedMac,$vid,$interval)) {
+                if (violation_exist_acct($cleanedMac, $vid, $interval)) {
                     $logger->info("We have a closed violation in the interval window for node $cleanedMac, need to recalculate using the last violation release date");
                     my @violation = violation_view_last_closed($cleanedMac,$vid);
                     $releaseDate = $violation[0]{'release_date'};
 
                     if ($direction eq $DIRECTION_IN) {
                          if(node_acct_maintenance_bw_inbound_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
-                              violation_trigger($cleanedMac,$acct_policy,"accounting");
+                              violation_trigger($cleanedMac, $acct_policy, $TRIGGER_TYPE_ACCOUNTING);
                          }
                     } elsif ($direction eq $DIRECTION_OUT) {
                          if(node_acct_maintenance_bw_outbound_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
-                                 violation_trigger($cleanedMac,$acct_policy,"accounting");
+                                 violation_trigger($cleanedMac, $acct_policy, $TRIGGER_TYPE_ACCOUNTING);
                          }
                     } else {
                          if(node_acct_maintenance_bw_total_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
-                                 violation_trigger($cleanedMac,$acct_policy,"accounting");
+                                 violation_trigger($cleanedMac, $acct_policy, $TRIGGER_TYPE_ACCOUNTING);
                          }
                     }
                 } else {
-                    violation_trigger($cleanedMac,$acct_policy,"accounting");
+                    violation_trigger($cleanedMac, $acct_policy, $TRIGGER_TYPE_ACCOUNTING);
                 }
             }
         }
