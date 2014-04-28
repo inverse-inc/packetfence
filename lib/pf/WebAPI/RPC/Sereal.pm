@@ -15,108 +15,23 @@ use strict;
 use warnings;
 use Sereal::Encoder;
 use Sereal::Decoder;
-use Log::Log4perl;
-use List::MoreUtils qw(any);
-use Apache2::RequestIO();
-use Apache2::RequestRec();
-use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_NO_CONTENT HTTP_NOT_FOUND);
-use base qw(pf::WebAPI::RPC);
-__PACKAGE__->mk_accessors(qw(dispatch_to));
+use base qw(pf::WebAPI::RPC::MsgPack);
 
-our $encoder =  Sereal::Encoder->new( { snappy => 1 } );
-our $decoder =  Sereal::Decoder->new();
+our $ENCODER =  Sereal::Encoder->new();
+our $DECODER =  Sereal::Decoder->new();
 
 sub default_content_type { "application/x-sereal"  }
 
-sub handler {
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-    use bytes;
-    my ($self,$r) = @_;
-    my $content_type = $r->headers_in->{'Content-Type'};
-    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $self->allowed($content_type);
-    my $default_content_type = $self->default_content_type;
-    my $content = '';
-    my $offset = 0;
-    my $cnt = 0;
-    do {
-        $cnt = $r->read($content,8192,$offset);
-        $offset += $cnt;
-    } while($cnt == 8192);
-    my $data = $self->decode(\$content);
-    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless ref($data) eq 'ARRAY';
-    my $argCount = @$data;
-    my $type = $data->[0];
-    if ($type == 0) {
-        my ($type, $msgid, $method, $params) = @$data;
-        my $dispatch_to = $self->dispatch_to;
-        return Apache2::Const::HTTP_NOT_FOUND unless $dispatch_to->can($method);
-        my $response = [];
-        eval {
-            my @results = $dispatch_to->$method(@$params);
-            $response = [1,$msgid,undef,\@results];
-        };
-        if($@) {
-            $response = [1,$msgid,["$@"],undef];
-        }
-        $r->content_type($self->default_content_type);
-        $content = $self->encode($response);
-        $r->print($content);
-        return Apache2::Const::OK;
-    } elsif ($type == 2) {
-        my ($type, $method, $params) = @$data;
-        my $dispatch_to = $self->dispatch_to;
-        return Apache2::Const::HTTP_NOT_FOUND unless $dispatch_to->can($method);
-        $r->push_handlers(PerlCleanupHandler => sub {
-            eval {
-                $dispatch_to->$method(@$params);
-            };
-        });
-        return Apache2::Const::HTTP_NO_CONTENT;
-    }
-    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
-}
-
-sub handleRequest{
-
-}
-
-sub handler {
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-    use bytes;
-    my ($self,$r) = @_;
-    my $content_type = $r->headers_in->{'Content-Type'};
-    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $self->allowed($content_type);
-    my ($requestType,$method,$args,$id) = $self->parseRequest($r);
-    return $self->handleBulkRequest($r,$args) if $requestType == BULK;
-    my $methodSub = $self->lookupMethod($r,$method);
-    return $self->handleMethodNotFound($r) unless $methodSub;
-    return $self->handleRequest($r,$methodSub,$args,$id) if $requestType == REQUEST;
-    return $self->handleNotification($r,$methodSub,$args,$id) if $requestType == NOTIFICATION;
-    return $self->handleUnknownRequestType($r,$methodSub,$args,$id);
-}
-
-sub parseRequest {
-    my $content = '';
-    my $offset = 0;
-    my $cnt = 0;
-    do {
-        $cnt = $r->read($content,8192,$offset);
-        $offset += $cnt;
-    } while($cnt == 8192);
-    my $data = $self->decode(\$content);
-    my ($type, $msgid, $method, $params) = @$data;
-    return ($type,$method,$params,$msgid);
-}
 
 sub encode {
     my ($self,$data) = @_;
-    return $encoder->encode($data);
+    return $ENCODER->encode($data);
 }
 
 sub decode {
     my ($self,$data) = @_;
     my $out;
-    $decoder->decode($$data,$out);
+    $DECODER->decode($$data,$out);
     return $out;
 }
 
