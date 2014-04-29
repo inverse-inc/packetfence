@@ -86,7 +86,7 @@ Depends: ${misc:Depends}, vlan, make,
 # i18n
  liblocale-gettext-perl, 
 # logging framework
- liblog-log4perl-perl,
+ liblog-log4perl-perl (>=1.43),
  liblog-any-perl,
  liblog-any-adapter-perl,
  liblog-any-adapter-log4perl-perl,

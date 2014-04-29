@@ -136,7 +136,7 @@ Requires: perl(Net::LDAP)
 Requires: perl-libwww-perl, perl(LWP::Simple), perl(LWP::Protocol::https)
 Requires: perl(List::MoreUtils)
 Requires: perl(Locale::gettext)
-Requires: perl(Log::Log4perl) >= 1.11
+Requires: perl(Log::Log4perl) >= 1.43
 Requires: perl(Log::Any)
 Requires: perl(Log::Any::Adapter)
 Requires: perl(Log::Any::Adapter::Log4perl)
