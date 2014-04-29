@@ -17,6 +17,7 @@ use Moose;
 use namespace::autoclean;
 use pf::config::cached;
 use pf::log;
+use Module::Load;
 use HTTP::Status qw(:constants :is);
 
 BEGIN { extends 'Catalyst::Model'; }
