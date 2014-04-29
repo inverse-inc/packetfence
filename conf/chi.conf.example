@@ -32,6 +32,12 @@ storage=file
 [storage pfdns l1_cache]
 storage=memcached
 
+[storage switch.overlay]
+storage=file
+
+[storage switch.overlay l1_cache]
+storage=memcached
+
 [storage memcached]
 driver=Memcached
 servers=127.0.0.1:11211

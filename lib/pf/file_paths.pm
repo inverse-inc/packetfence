@@ -51,7 +51,6 @@ our (
     $mdm_config_file,
     $admin_roles_config_file,
     $wrix_config_file,
-    $switches_overlay_file,
     $allowed_gaming_oui_file, $allowed_gaming_console_types_file,
     $cache_control_file,
     $log_conf_dir,
@@ -84,7 +83,6 @@ BEGIN {
         $admin_roles_config_file
         $wrix_config_file
         @stored_config_files
-        $switches_overlay_file
         $allowed_gaming_oui_file $allowed_gaming_console_types_file
         $cache_control_file
         $log_conf_dir
@@ -149,7 +147,6 @@ $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
     $admin_roles_config_file,$wrix_config_file
 );
 
-$switches_overlay_file   = catfile($var_dir, "switches.conf");
 
 $cache_control_file = catfile($var_dir, "cache_control");
 
