@@ -17,6 +17,7 @@ use warnings;
 use base qw(CHI);
 use CHI::Driver::Memcached;
 use CHI::Driver::RawMemory;
+use Cache::Memcached;
 #use pf::CHI::Driver::Role::Memcached::Clear;
 use pf::file_paths;
 use pf::IniFiles;
@@ -150,6 +151,12 @@ sub sectionData {
     return \%args;
 }
 
+sub CLONE {
+    pf::CHI->clear_memoized_cache_objects;
+    Cache::Memcached->disconnect_all;
+}
+
+
 __PACKAGE__->config(chiConfigFromIniFile());
 
 =head2 listify
@@ -160,10 +167,6 @@ Will change a scalar to an array ref if it is not one already
 
 sub listify($) {
     ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
-}
-
-sub CLONE {
-    __PACKAGE__->clear_memoized_cache_objects;
 }
 
 
