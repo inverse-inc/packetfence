@@ -162,6 +162,10 @@ sub listify($) {
     ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
 }
 
+sub CLONE {
+    __PACKAGE__->clear_memoized_cache_objects;
+}
+
 
 =head1 AUTHOR
 
