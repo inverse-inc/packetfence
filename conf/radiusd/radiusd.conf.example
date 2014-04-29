@@ -64,6 +64,8 @@ security {
         max_attributes = 200
         reject_delay = 1
         status_server = yes
+        # On Centos, even if the openssl lib has been patched, freeradius refuse to start. Make sure you update openssl.
+        allow_vulnerable_openssl = yes
 }
 
 proxy_requests  = yes
