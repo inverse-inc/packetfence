@@ -29,10 +29,10 @@ has 'placeholders' => ( is => 'ro' );
 has_field 'id' =>
   (
    type => 'SwitchID',
-   label => 'IP Address/Mac Address',
+   label => 'IP Address/MAC Address',
    accept => ['default'],
    required => 1,
-   messages => { required => 'Please specify the IP address/Mac Address of the switch.' },
+   messages => { required => 'Please specify the IP address/MAC address of the switch.' },
   );
 has_field 'description' =>
   (
@@ -389,7 +389,7 @@ has_field controllerIp =>
     label => 'Controller IP Address',
     tags => {
         after_element => \&help,
-        help => 'Use instead this IP address for de-authentication requests. Normally used for WiFi only'
+        help => 'Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only'
     },
   );
 
@@ -399,7 +399,7 @@ has_field controllerPort =>
     label => 'Controller Port',
     tags => {
         after_element => \&help_list,
-        help => 'Only for Wi-fi , if the deauth request must be send to another device than the access point then set the ip of the controller'
+        help => 'Only for Wi-Fi , if the deauth request must be send to another device than the access point then set the ip of the controller'
     },
   );
 
@@ -409,7 +409,7 @@ has_field 'portalURL' =>
    label => 'Portal URL',
    tags => {
        after_element => \&help_list,
-       help => 'Only for external captive portal, specify the url of the captive portal that will be send back as a radius attribute'
+       help => 'Only for external captive portal, specify the URL of the captive portal that will be send back as a RADIUS attribute'
     },
   );
 

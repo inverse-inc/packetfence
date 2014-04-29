@@ -105,8 +105,8 @@ document.observe("dom:loaded", function() {
           [%- IF node.last_start_time AND billing %]
           <div id="buttons"><a href="[% URL_BILLING %]" target="_new" class="btn">[% i18n("Extend Access") %]</a></div>
           [%- END %]
-          [%- FOREACH node in nodes %]
-          <div id="buttons"><a href="[% c.uri_for(c.controller('Node::Manager').action_for('unreg'),node.mac) %]" target="_new" class="btn">[%node.mac%]</a></div>
+          [%- FOREACH n IN nodes %]
+          <div id="buttons"><a href="[% c.uri_for(c.controller('Node::Manager').action_for('unreg'), n.mac) %]" target="_new" class="btn">[% n.mac %]</a></div>
           [%- END %]
           <div id="popup"><a href="[% URL_STATUS %]" target="_new" alt="[% i18n("Open in new popup window") %]"><img src="/content/images/extract.png"/></a></div>
         </div>

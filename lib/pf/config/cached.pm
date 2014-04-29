@@ -297,7 +297,7 @@ our @ON_DESTROY_REFS = (
 
 our %CONFIG_DATA;
 
-our $CACHE_CONTROL_TIMESTAMP = GetControlFileTimestamp();
+our $CACHE_CONTROL_TIMESTAMP = getControlFileTimestamp();
 
 use overload "%{}" => \&config, fallback => 1;
 
@@ -763,7 +763,7 @@ sub computeFromPath {
     my $computeWrapper = sub {
         my $config = $computeSub->();
         $config->SetLastModTimestamp();
-        SetControlFileTimestamp($config);
+        setControlFileTimestamp($config);
         return $config;
     };
     my $result = $self->cache->compute(
@@ -782,16 +782,16 @@ sub computeFromPath {
     return $result;
 }
 
-sub SetControlFileTimestamp {
+sub setControlFileTimestamp {
     my ($self) = @_;
-    $self->{_control_file_timestamp} = GetControlFileTimestamp();
+    $self->{_control_file_timestamp} = getControlFileTimestamp();
 }
 
-sub GetControlFileTimestamp { int((stat($cache_control_file))[9] || 0) * 1000000000 }
+sub getControlFileTimestamp { int((stat($cache_control_file))[9] || 0) * 1000000000 }
 
 sub controlFileExpired {
     my ($timestamp) = @_;
-    $timestamp != GetControlFileTimestamp();
+    $timestamp != getControlFileTimestamp();
 }
 
 
@@ -823,7 +823,7 @@ ReloadConfigs reload all configs and call any register callbacks
 
 sub ReloadConfigs {
     return unless controlFileExpired($CACHE_CONTROL_TIMESTAMP);
-    $CACHE_CONTROL_TIMESTAMP = GetControlFileTimestamp();
+    $CACHE_CONTROL_TIMESTAMP = getControlFileTimestamp();
     my $logger = get_logger();
     $logger->trace("Reloading all configs");
     foreach my $config (@LOADED_CONFIGS) {
@@ -1060,7 +1060,7 @@ sub updateCacheControl {
     my ($dontCreate) = @_;
     if ( !-e $cache_control_file && !$dontCreate) {
         my $fh;
-        open($fh,">$cache_control_file") or die "cannot create $cache_control_file\nplease run pfcmd fixpermissions";
+        open($fh,">$cache_control_file") or die "Can't create $cache_control_file\nPlease run 'pfcmd fixpermissions'";
         close($fh);
     }
     if(-e $cache_control_file) {
@@ -1083,7 +1083,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
