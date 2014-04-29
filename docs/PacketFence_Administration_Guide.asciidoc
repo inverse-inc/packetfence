@@ -59,6 +59,10 @@ In Band (Inline Enforcement)::
 Hybrid support (Inline Enforcement with RADIUS support)::
   PacketFence can also be configured as hybrid, if you have a manageable device that supports 802.1X and/or MAC-authentication. This feature can be enabled using a RADIUS attribute (MAC address, SSID, port) or using full inline mode on the equipment.
 
+Hotspot support (Web Auth Enforcement)::
+  PacketFence can also be configured as hotspot, if you have a manageable device that support an external captive portal (like
+Cisco WLC or Aruba IAP).
+
 Voice over IP (VoIP) support::
   Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Edge-Core, HP, LinkSys, Nortel Networks and many more).
 
@@ -664,10 +668,19 @@ Another important setting is the `gateway` statement. Since it this the only way
 Hybrid mode
 ~~~~~~~~~~
 
-This section applies for hybrid support for the manageable devices that support 802.1X or MAC-authenticationentication.
+This section applies for hybrid support for the manageable devices that support 802.1X or MAC-authentication.
 
 Hybrid enforcement is a mixed method that offers the use of inline enforcement mode with VLAN enforcement mode on the same device.
 This technique is covered in details in the <<_technical_introduction_to_hybrid_enforcement,"Technical introduction to Hybrid enforcement" section>>
+
+Web Auth mode
+~~~~~~~~~~~~~
+
+This section applies for web authentication support for manageable devices that support web authentication with an external captive portal.
+
+Web authentication is a method on the switch that iforward http traffic of the device to the captive portal.
+With this mode, your device will never change of VLAN ID but only the ACL associated to your device will change.
+See PacketFence_Network_Devices_Configuration_Guide.pdf to see a configuration sample of web auth on a Cisco WLC.
 
 DHCP and DNS Server Configuration (networks.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
