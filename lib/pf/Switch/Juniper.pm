@@ -123,15 +123,15 @@ sub setAdminStatus {
         $logger->info("not in production mode ... we won't set the admin status for ifIndex $ifIndex");
         return 1;
     }   
-    
     my $session;
     eval {
         $session = Net::Appliance::Session->new(
             Host      => $this->{_ip},
-            Timeout   => 5,
-            Transport => $this->{_cliTransport},
-            Platform  => "JUNOS"
+            Timeout   => 20,
+            Transport => $this->{_cliTransport},        
+            Platform  => "JUNOS",    
         );
+        
         $session->connect(
             Name     => $this->{_cliUser},
             Password => $this->{_cliPwd}
@@ -146,7 +146,7 @@ sub setAdminStatus {
     my $port = $this->getIfName($ifIndex);
 
     my $command;
-    if ($enable) {
+    if ($enable eq 1) {
         $logger->info("Enabling port $port");
         $command = "delete interfaces $port disable";
     } else {
@@ -162,7 +162,7 @@ sub setAdminStatus {
 
         $logger->trace("sending CLI command '$command'");
         @output = $session->cmd(String => $command, Timeout => '5');
-        @output = $session->cmd(String => 'commit comment "admin link status change by PacketFence"', Timeout => '10');
+        @output = $session->cmd(String => 'commit comment "admin link status change by PacketFence"', Timeout => '30');
 
         $session->in_privileged_mode(0);
     };

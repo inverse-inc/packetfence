@@ -2004,7 +2004,8 @@ Exact command-line configuration to be contributed...
 Juniper
 ~~~~~~~
 
-PacketFence supports Juniper switches without VoIP in MAC Authentication (Juniper's MAC RADIUS) mode.
+PacketFence supports Juniper switches in MAC Authentication (Juniper's MAC RADIUS) mode.
+PacketFence supports VoIP on the EX2200 (JUNOS 12.6) and EX4200 (JUNOS 13.2)
 
 ----
 # load replace terminal
@@ -2058,11 +2059,68 @@ access {
     }
 }
 
+snmp {
+    name "EX 4200";
+    description juniper;
+    location EX;
+    contact "email@example.com";
+    client-list list0 {
+        192.168.1.5/32;
+    }
+    community public {
+        authorization read-only;
+        client-list-name list0;
+    }
+    community private {
+        authorization read-write;
+        client-list-name list0;
+    }
+}
+
 Ctrl-D
 # commit comment "packetfenced"
 ----
 
 Change the `interface-range` statement to reflect the ports you want to secure with PacketFence.
+
+VoIP configuration
+++++++++++++++++++
+
+----
+# load replace terminal
+[Type ^D at a new line to end input]
+protocols{
+    lldp {
+        advertisement-interval 5;
+        transmit-delay 1;
+        ptopo-configuration-trap-interval 1;
+        lldp-configuration-notification-interval 1;
+        interface all;
+    }
+    lldp-med {
+        interface all;
+    }
+}
+
+ethernet-switching-options { 
+    voip {
+        interface access-ports {
+            vlan voice;
+            forwarding-class voice;
+        }
+    }
+   }
+}
+
+vlans {
+    voice {
+        vlan-id 3;
+    }
+}
+
+Ctrl-D
+# commit comment "packetfenced VoIP"
+----
 
 LG-Ericsson
 ~~~~~~~~~~~
