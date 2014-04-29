@@ -3417,6 +3417,7 @@ NOTE: The Open SSID does *NOT* support dynamic VLAN assignments (Firmware 9.3.0.
 * Select the proper RADIUS server as the accounting server
 * Check the *Enable Dynamic VLAN* checkbox
 
+[float]
 WIPS
 ++++
 
