@@ -91,7 +91,7 @@ Requires: mod_perl, mod_qos
 requires: libapreq2
 Requires: dhcp
 Requires: memcached
-Requires: freeradius >= 2.2.4, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
+Requires: freeradius >= 2.2.5, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
 Requires: make
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
@@ -144,7 +144,7 @@ Requires: perl(Log::Any::Adapter::Log4perl)
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
 # We would need to port to the new 3.x API (tracked by #1313)
 Requires: perl(Net::Appliance::Session) = 1.36
-Requires: perl(Net::OAuth2)
+Requires: perl(Net::OAuth2) >= 0.57
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
 Requires: perl(Net::Netmask)

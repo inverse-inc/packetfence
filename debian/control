@@ -11,7 +11,7 @@ Homepage: http://www.packetfence.org/
 Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
-Pre-Depends:  freeradius (>= 2.2.4), freeradius-ldap, freeradius-postgresql,
+Pre-Depends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server
 Suggests: ulogd2
 Depends: ${misc:Depends}, vlan, make,
@@ -91,7 +91,7 @@ Depends: ${misc:Depends}, vlan, make,
  liblog-any-adapter-perl,
  liblog-any-adapter-log4perl-perl,
 # oauth2
- libnet-oauth2-perl,
+ libnet-oauth2-perl (>=0.57),
 # pfdns
  libnet-dns-perl (=0.66-3),
 # used by Captive Portal authentication modules
