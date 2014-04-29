@@ -678,7 +678,7 @@ Web Auth mode
 
 This section applies for web authentication support for manageable devices that support web authentication with an external captive portal.
 
-Web authentication is a method on the switch that iforward http traffic of the device to the captive portal.
+Web authentication is a method on the switch that forwards http traffic of the device to the captive portal.
 With this mode, your device will never change of VLAN ID but only the ACL associated to your device will change.
 See PacketFence_Network_Devices_Configuration_Guide.pdf to see a configuration sample of web auth on a Cisco WLC.
 
