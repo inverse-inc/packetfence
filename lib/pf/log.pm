@@ -38,7 +38,7 @@ sub import {
         #Install logging in the die handler
         $SIG{__DIE__} = sub {
             # We're in an eval {} and don't want log
-            return if $^S;
+            return unless defined $^S && $^S == 0;
             $Log::Log4perl::caller_depth++;
             my $logger = get_logger("");
             $logger->fatal(@_);
