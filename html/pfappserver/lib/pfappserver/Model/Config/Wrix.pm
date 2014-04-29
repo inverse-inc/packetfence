@@ -31,7 +31,7 @@ our %OP_MAP = (
 
 extends 'pfappserver::Base::Model::DB';
 
-has '+manager' => (default => 'pf::DB::Wrix::Manager');
+has '+managerClassName' => (default => 'pf::DB::Wrix::Manager');
 
 =head1 METHODS
 
