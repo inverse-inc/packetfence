@@ -635,11 +635,11 @@ first. In other words, you should consider the following order:
 . Port-Security 
 . linkUp/linkDown 
 
-2900XL Series and 3500XL Series 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2900XL / 3500XL Series
+^^^^^^^^^^^^^^^^^^^^^^
 
-linkUP/linkDown SNMP traps 
-++++++++++++++++++++++++++
+SNMP | linkUP/linkDown
+++++++++++++++++++++++
 
 Global config settings: 
 
@@ -667,7 +667,7 @@ On each interface _with VoIP_:
   snmp trap mac-notification added 
   snmp trap mac-notification removed 
 
-2950 
+2950
 ^^^^
 
 Those switches are now supported using 802.1X for networks with or without VoIP. 
@@ -676,17 +676,14 @@ a MAC on the data VLAN specifically so enable it if there is no VoIP, use
 linkUp/linkDown and MAC notification otherwise.So on setup that needs to 
 handle VoIP with this switch, go with a 802.1X configuration. 
 
-802.1X 
+802.1X
 ++++++
-
-Recently, we were able to add the support for 802.1X on those switch even if 
-they are not supporting RADIUS dynamic VLAN assignments.
 
 Global config settings:
 
   dot1x system-auth-control 
 
-AAA Groups and Configuration:
+AAA configuration:
 
   aaa new-model 
   aaa group server radius packetfence 
@@ -695,13 +692,13 @@ AAA Groups and Configuration:
   aaa authentication dot1x default group packetfence 
   aaa authorization network default group packetfence 
 
-Radius server configuration:
+RADIUS server configuration:
 
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 
   key useStrongerSecret 
   radius-server vsa send authentication 
 
-For ports _without VoIP_:
+On each interface _without VoIP_:
 
   switchport access vlan 4 
   switchport mode access 
@@ -709,7 +706,7 @@ For ports _without VoIP_:
   dot1x host-mode multi-host 
   dot1x reauthentication 
 
-For ports _with VoIP_:
+On each interface _with VoIP_:
 
   switchport access vlan 4 
   switchport mode access 
@@ -1005,6 +1002,27 @@ CoA configuration
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
   port 3799
+
+[NOTE]
+.dot1x on various models of 2960
+============================================================================
+There's a lot of different versions of the Catalyst 2960 serie. Some of them
+may not accept the command stated in this guide for 802.1x.
+
+We have found couple of commands that are working great or MAB:
+
+On each interface
+
+  switchport mode access
+  authentication order mab
+  authentication port-control auto
+  mab
+  dot1x pae authenticator
+
+But, as it is difficult for us to maintain the whole list of commands to 
+configure each and every different model of 2960 with different IOS, 
+please refer to Cisco documentation for very specific cases.
+============================================================================
 
 Port-­Security 
 ++++++++++++++
