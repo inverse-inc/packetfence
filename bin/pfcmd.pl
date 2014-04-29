@@ -162,7 +162,7 @@ if (! exists($cmd_tmp{'grammar'})) {
             exit(1);
         },
         'fixpermissions' => sub { exit (fixpermissions()) },
-        'configreload' => sub { exit (configreload()) },
+        'configreload' => sub { exit (configreload($cmd{command}[1])) },
         'class' => sub { class(); exit(1); },
         'config' => sub { config(); exit(0); },
         'configfiles' => sub { configfiles(); exit(1); },
@@ -1207,11 +1207,26 @@ sub service {
     return $FALSE;
 }
 
+sub pfStartService {
+    my ($managers) = @_;
+    if(-e $pf_config_file) {
+        $logger->info("saving current iptables to var/iptables.bak");
+        my $technique;
+        if(all { $_->status eq '0'  } @$managers) {
+            $technique = getIptablesTechnique();
+            $technique->iptables_save( $install_dir . '/var/iptables.bak' );
+        }
+        $technique ||= getIptablesTechnique();
+        $technique->iptables_generate();
+    }
+}
+
 sub startService {
     my ($service,@services) = @_;
     my @managers = getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
+    pfStartService(\@managers) if $service eq 'pf';
     if(isIptablesManaged($service) && -e $pf_config_file) {
         $logger->info("saving current iptables to var/iptables.bak");
         my $technique;
@@ -1223,7 +1238,7 @@ sub startService {
         $technique->iptables_generate();
     }
 
-    my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup} @managers;
+    my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup } @managers;
 
     if($noCheckupManagers && @$noCheckupManagers) {
         foreach my $manager (@$noCheckupManagers) {
@@ -1335,7 +1350,9 @@ sub isIptablesManaged {
 }
 
 sub restartService {
+    my ($service,@services) = @_;
     stopService(@_);
+    configreload('hard');
     local $SERVICE_HEADER = '';
     startService(@_);
 }
@@ -2466,7 +2483,25 @@ sub _changeFilesToOwner {
 }
 
 sub configreload {
+    my ($type)  = @_;
+    $type = 'soft' unless defined $type;
+    my $force = $type eq 'hard' ? 1 : 0;
+    require pf::violation_config;
+    require pf::authentication;
+    require pf::admin_roles;
+    require pf::ConfigStore::AdminRoles;
+    require pf::ConfigStore::Authentication;
+    require pf::ConfigStore::FloatingDevice;
+    require pf::ConfigStore::Interface;
+    require pf::ConfigStore::Mdm;
+    require pf::ConfigStore::Network;
+    require pf::ConfigStore::Pf;
+    require pf::ConfigStore::Profile;
+    require pf::ConfigStore::Switch;
+    require pf::ConfigStore::Violations;
+    require pf::ConfigStore::Wrix;
     pf::config::cached::updateCacheControl();
+    pf::config::cached::ReloadConfigs($force);
     return 0;
 }
 

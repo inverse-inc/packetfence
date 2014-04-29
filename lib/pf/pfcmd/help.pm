@@ -113,9 +113,15 @@ EOT
 
 sub help_configreload {
     print STDERR << "EOT";
-Usage: pfcmd configreload
+Usage: pfcmd configreload [soft|hard]
 
-force the configuration to be reloaded
+reloads the configuration
+
+  soft   | reload changed configuration files
+  hard   | reload all configuration files
+
+  defaults to soft
+
 EOT
     return 1;
 }

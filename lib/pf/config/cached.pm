@@ -500,9 +500,9 @@ Call all the file reload callbacks that should be called only once
 =cut
 
 sub _callFileReloadOnceCallbacks {
-    my ($self) = @_;
+    my ($self,$force) = @_;
     my $callbacks = $ON_FILE_RELOAD_ONCE{$self->GetFileName} ||= [];
-    $self->_doLockOnce( sub { $self->_callCallbacks(\%ON_FILE_RELOAD_ONCE) } ) if @$callbacks;
+    $self->_doLockOnce( sub { $self->_callCallbacks(\%ON_FILE_RELOAD_ONCE) }, $force ) if @$callbacks;
 }
 
 =head2 _callCacheReloadCallbacks
@@ -528,13 +528,13 @@ sub _callPostReloadCallbacks {
 }
 
 sub doCallbacks {
-    my ($self,$file_reloaded,$cache_reloaded,$skipPrePostReload) = @_;
+    my ($self,$file_reloaded,$cache_reloaded,$file_reloaded_once_force) = @_;
     if($file_reloaded || $cache_reloaded) {
         get_logger()->trace("doing callbacks for " . $self->GetFileName . " file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
         $self->_callReloadCallbacks;
         if($file_reloaded) {
             $self->_callFileReloadCallbacks;
-            $self->_callFileReloadOnceCallbacks;
+            $self->_callFileReloadOnceCallbacks($file_reloaded_once_force);
         }
         $self->_callCacheReloadCallbacks if $cache_reloaded;
         $self->_callPostReloadCallbacks;
@@ -542,8 +542,8 @@ sub doCallbacks {
 }
 
 sub _doLockOnce {
-    my ($self,$callback) = @_;
-    my $lockFile = $self->getOnReloadOnceLock();
+    my ($self,$callback,$force) = @_;
+    my $lockFile = $self->getOnReloadOnceLock($force);
     if ($lockFile) {
         my $logger = get_logger();
         $logger->debug("Doing the callback");
@@ -566,19 +566,20 @@ sub _makeIntoDotFile {
 }
 
 sub getOnReloadOnceLock {
-    my ($self) = @_;
+    my ($self,$force) = @_;
     my $logger = get_logger();
     my $fh = IO::File->new;
-    my $old_umask = umask(002);
     my $lockFile = $self->GetDotFileName() . ".lockone" ;
     $logger->debug("opening $lockFile");
+    my $old_umask = umask(002);
     if (sysopen($fh,$lockFile,O_CREAT|O_RDWR) ) {
-        if( flock($fh,LOCK_EX | LOCK_NB) ) {
+        my $options = $force ? (LOCK_EX) : (LOCK_EX | LOCK_NB);
+        if( flock($fh,$options) ) {
             my $previousTimestamp;
             sysread $fh,$previousTimestamp,20;
             $previousTimestamp ||= 0;
             my $currentTimeStamp = $self->GetLastModTimestamp();
-            if($currentTimeStamp == $previousTimestamp) {
+            if(!$force && $currentTimeStamp == $previousTimestamp) {
                 flock($fh,LOCK_UN);
                 close($fh);
                 $fh = undef;
@@ -688,7 +689,7 @@ Will reload the config when changed on the filesystem and call any register call
 =cut
 
 sub ReadConfig {
-    my ($self) = @_;
+    my ($self,$force) = @_;
     my $config = $self->config;
     my $file   = $config->GetFileName;
     my $reloaded_from_cache = 0;
@@ -705,10 +706,10 @@ sub ReadConfig {
             $result = $config->ReadConfig();
             $reloaded_from_file = 1;
             return $config;
-        }
+        },$force
     );
     $reloaded_from_cache = refaddr($config) != refaddr($$self);
-    $self->doCallbacks($reloaded_from_file,$reloaded_from_cache);
+    $self->doCallbacks($reloaded_from_file,$reloaded_from_cache,$force);
     return $result;
 }
 
@@ -822,12 +823,13 @@ ReloadConfigs reload all configs and call any register callbacks
 =cut
 
 sub ReloadConfigs {
+    my ($force) = @_;
     return unless controlFileExpired($CACHE_CONTROL_TIMESTAMP);
     $CACHE_CONTROL_TIMESTAMP = getControlFileTimestamp();
     my $logger = get_logger();
     $logger->trace("Reloading all configs");
     foreach my $config (@LOADED_CONFIGS) {
-        $config->ReadConfig();
+        $config->ReadConfig($force);
     }
 }
 
