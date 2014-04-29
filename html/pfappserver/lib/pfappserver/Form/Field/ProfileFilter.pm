@@ -32,6 +32,7 @@ has_field 'match' =>
    type => 'Text',
    do_label => 0,
    widget_wrapper => 'None',
+   element_class => ['input-medium'],
    required => 1,
   );
 has_field 'type' =>
