@@ -100,6 +100,7 @@ sub post_auth {
         if ($data) {
 
             my $elements = $data->{'soap:Body'}->{'radius_authorizeResponse'}->{'soapenc:Array'}->{'item'};
+            $elements = [$elements] unless ref($elements) eq 'ARRAY';
 
             # Get RADIUS return code
             $radius_return_code = shift @$elements;
