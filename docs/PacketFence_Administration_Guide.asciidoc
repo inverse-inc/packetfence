@@ -680,7 +680,7 @@ This section applies for web authentication support for manageable devices that 
 
 Web authentication is a method on the switch that forwards http traffic of the device to the captive portal.
 With this mode, your device will never change of VLAN ID but only the ACL associated to your device will change.
-See PacketFence_Network_Devices_Configuration_Guide.pdf to see a configuration sample of web auth on a Cisco WLC.
+Refer to Network Devices Configuration Guide to see a sample web auth configuration on a Cisco WLC.
 
 DHCP and DNS Server Configuration (networks.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
