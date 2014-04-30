@@ -23,7 +23,6 @@ use pf::log;
 use pf::util;
 
 extends 'pf::services::manager';
-with 'pf::services::manager::roles::is_managed_by_pf_conf';
 with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
 has '+name' => (default => sub { 'dhcpd' } );
 

@@ -23,10 +23,11 @@ Verify if the trapping engine
 
 =cut
 
-sub isManaged {
-    my ($self) = @_;
-    return $monitor_int && isenabled($Config{'trapping'}{'detection'}) && $Config{'trapping'}{'detection_engine'} eq $self->name;
-}
+around isManaged => sub {
+    my $orig = shift;
+    my $self = shift;
+    return $monitor_int && isenabled($Config{'trapping'}{'detection'}) && $Config{'trapping'}{'detection_engine'} eq $self->name && $self->$orig(@_);
+};
 
 =head2 dependsOnServices
 

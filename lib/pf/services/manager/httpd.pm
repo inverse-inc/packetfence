@@ -31,6 +31,13 @@ sub executable {
     return $service;
 }
 
+sub isManaged {
+    my ($self) = @_;
+    my $name = $self->name;
+    $name =~s/\./_/;
+    isenabled($Config{'services'}{$self->name})
+}
+
 sub _build_launcher {
     my ($self) = @_;
     my $name = $self->name;

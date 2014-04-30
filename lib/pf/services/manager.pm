@@ -506,7 +506,10 @@ return true is the service is currently managed by packetfence
 
 =cut
 
-sub isManaged { 1 }
+sub isManaged {
+    my ($self) = @_;
+    isenabled($Config{'services'}{$self->name})
+}
 
 
 =head1 AUTHOR
