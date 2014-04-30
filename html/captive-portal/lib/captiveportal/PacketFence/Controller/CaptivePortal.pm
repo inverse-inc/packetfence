@@ -416,7 +416,7 @@ sub provisioning : Private {
     if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad') ) {
         $c->detach('release_with_xmlconfig');
     } elsif($self->matchAnyOses($c,'Android') ) {
-        $c->detach('release_with_andriod');
+        $c->detach('release_with_android');
     }
 }
 
@@ -425,7 +425,7 @@ sub release_with_xmlconfig : Private {
     $c->stash( template => 'release_with_xmlconfig.html');
 }
 
-sub release_with_andriod : Private {
+sub release_with_android : Private {
     my ( $self, $c ) = @_;
     $c->stash( template => 'release_with_android.html');
 }
