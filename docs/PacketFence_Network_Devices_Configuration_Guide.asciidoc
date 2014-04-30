@@ -500,7 +500,7 @@ MAC-Authentication with VoIP
    voice-vlan 100
    cdp enable
 
-802.1x/MAC-Auth
+802.1X/MAC-Auth
 +++++++++++++++
 
 * Enable 802.1X globally
@@ -532,12 +532,12 @@ PacketFence supports Cisco switches with VoIP using three different trap types:
 On some recent models, we can also use more secure and robust features like: 
 
 * MAC Authentication (Cisco's MAC Authentication Bypass or MAB) 
-* 802.1x (Multi-Host or Multi-Domain) 
+* 802.1X (Multi-Host or Multi-Domain) 
 
 Depending of the switch model, we recommend the use of the most secure and reliable feature 
 first. In other words, you should consider the following order:
 
-. 802.1x/MAB 
+. 802.1X/MAB 
 . Port-Security 
 . linkUp/linkDown 
 
@@ -778,10 +778,10 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 2970, 3560, 3550, 3750
 ^^^^^^^^^^^^^^^^^^^^^^
 
-CAUTION: The Catalyst 3550 does *not* support 802.1x with Multi-Domain, it 
-can only support 802.1x with MAB using Multi-Host, MAB, and Port-Security. 
+CAUTION: The Catalyst 3550 does *not* support 802.1X with Multi-Domain, it 
+can only support 802.1X with MAB using Multi-Host, MAB, and Port-Security. 
 
-802.1x with MAC Authentication bypass (Multi­Domain) 
+802.1X with MAC Authentication bypass (Multi­Domain) 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Global config settings:
@@ -825,7 +825,7 @@ CoA configuration
    client 192.168.1.5 server-key useStrongerSecret
   port 3799
 
-802.1x with MAC Authentication bypass (Multi­Host)
+802.1X with MAC Authentication bypass (Multi­Host)
 ++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Global config settings:
@@ -910,10 +910,10 @@ CoA configuration
   port 3799
 
 [NOTE]
-.dot1x on various models of 2960
+.802.1X on various models of 2960
 ============================================================================
 There's a lot of different versions of the Catalyst 2960 serie. Some of them
-may not accept the command stated in this guide for 802.1x.
+may not accept the command stated in this guide for 802.1X.
 
 We have found couple of commands that are working great or MAB:
 
@@ -1109,7 +1109,7 @@ Dell
 Force 10
 ^^^^^^^^
 
-PacketFence supports this switch using RADIUS, MAC-Authentication and 802.1x.
+PacketFence supports this switch using RADIUS, MAC-Authentication and 802.1Xx.
 
 Global config settings
 
@@ -1125,7 +1125,7 @@ MAB interface configuration:
    dot1x auth-type mab-only 
    no shutdown
 
-802.1x interface configuration:
+802.1X interface configuration:
 
   interface GigabitEthernet 0/1
    no ip address
@@ -1517,7 +1517,7 @@ Configure radios for APs:
 	t value, are you sure to continue?[Y/N]: y
 	[AC-wlan-radio-1/0] quit
 	
-Configure a security profile named huawei-ap. Set the security policy to WPA authentication, authentication method to 802.1x+PEAP, and encryption mode to CCMP:
+Configure a security profile named huawei-ap. Set the security policy to WPA authentication, authentication method to 802.1X+PEAP, and encryption mode to CCMP:
 
 	[AC-wlan-view] security-profile name huawei-ap-wpa2
 	[AC-wlan-sec-prof-huawei-ap-wpa2] security-policy wpa2
@@ -1999,7 +1999,7 @@ PacketFence supports iPECS series switches _without VoIP_ using two different tr
 On some recent models, we can also use more secure and robust features, like:
 
 * MAC Authentication
-* 802.1x
+* 802.1X
 
 ES-4500G Series
 ^^^^^^^^^^^^^^^
