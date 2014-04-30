@@ -227,6 +227,7 @@ Requires: perl(CHI) >= 0.56
 Requires: perl(Data::Serializer)
 Requires: perl(HTML::FormHandler)
 Requires: perl(Cache::Memcached)
+Requires: perl(Cache::Memcached::GetParserXS)
 Requires: perl(CHI::Driver::Memcached)
 Requires: perl(BerkeleyDB)
 Requires: perl(CHI::Driver::BerkeleyDB)
