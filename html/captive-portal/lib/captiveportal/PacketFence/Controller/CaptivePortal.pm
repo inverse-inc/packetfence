@@ -138,7 +138,9 @@ TODO: documention
 
 sub supportsMobileConfigProvisioning : Private {
     my ( $self, $c ) = @_;
-    $c->session->{"do_not_deauth"} = $self->matchAnyOses($c,'Apple iPod, iPhone or iPad');
+    if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad')) {
+        $c->user_cache->set("mac:" . $c->portalSession->clientMac . ":do_not_deauth" ,1);
+    }
 }
 
 =head2 supportsAndriodConfigProvisioning
@@ -149,7 +151,9 @@ TODO: documention
 
 sub supportsAndriodConfigProvisioning : Private {
     my ( $self, $c ) = @_;
-    $c->session->{"do_not_deauth"} = $self->matchAnyOses($c,'Android');
+    if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad')) {
+        $c->user_cache->set("mac:" . $c->portalSession->clientMac . ":do_not_deauth" ,1);
+    }
 }
 
 sub matchAnyOses {
@@ -475,12 +479,11 @@ sub webNodeRegister : Private {
     }
 
     if ( is_max_reg_nodes_reached( $mac, $pid, $info{'category'} ) ) {
-        $c->forward('maxRegNodesReached');
-        $c->detach;
+        $c->detach('maxRegNodesReached');
     }
     node_register( $mac, $pid, %info );
 
-    unless ( defined($c->session->{"do_not_deauth"}) && $c->session->{"do_not_deauth"} == $TRUE ) {
+    unless ( $c->user_cache->get("mac:$mac:do_not_deauth") ) {
         reevaluate_access( $mac, 'manage_register' );
     }
 
