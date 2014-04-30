@@ -101,7 +101,7 @@ Readonly::Scalar our $REQ_ARUBA                 => 'apname';
 Readonly::Scalar our $REQ_CISCO_PORTAL          => '/cep(.*)';
 
 # Provisioning engine
-Readonly::Scalar our $MOD_PERL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
+Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
 Readonly::Scalar our $MOD_PERL_ANDROID_PROFILE  => '/profile.xml';
 
 =head2 Apache Config related
