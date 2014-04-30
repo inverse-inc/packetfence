@@ -124,8 +124,8 @@ checks if provisioning is supported support
 sub checkForProvisioningSupport : Private {
     my ( $self, $c ) = @_;
     if (isenabled($Config{'provisioning'}{'autoconfig'})) {
-        $c->forward('supportsMobileConfigProvisioning');
-        $c->forward('supportsAndriodConfigProvisioning');
+        return ( $c->forward('supportsMobileConfigProvisioning') ||
+                 $c->forward('supportsAndriodConfigProvisioning') );
     }
     return ;
 }
