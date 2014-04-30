@@ -2051,7 +2051,7 @@ For Android, you must allow passthrough in your configuration like this:
 
   [trapping]
   passthrough=enabled
-  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com
+  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com
 
 Profile generation
 ^^^^^^^^^^^^^^^^^^
