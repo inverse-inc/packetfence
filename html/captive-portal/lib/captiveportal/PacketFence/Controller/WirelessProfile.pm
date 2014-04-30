@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::WirelessProfile;
 use Moose;
 use namespace::autoclean;
 
-BEGIN { extends 'Catalyst::Controller'; }
+BEGIN { extends 'captiveportal::Base::Controller'; }
 use pf::config;
 
 __PACKAGE__->config( namespace => 'wireless-profile.mobileconfig', );
@@ -25,7 +25,7 @@ Catalyst Controller.
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $username = $c->session->{username} || 'admin';
+    my $username = $c->session->{username} || '';
     if ( defined $username ) {
         $c->stash(
             template     => 'wireless-profile.xml',
