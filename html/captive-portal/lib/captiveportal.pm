@@ -42,6 +42,7 @@ BEGIN {
 
 use pf::config::cached;
 use pf::file_paths;
+use pf::CHI;
 
 extends 'Catalyst';
 
@@ -103,6 +104,10 @@ sub loadCustomStatic {
         $dirs = $portalSession->templateIncludePath;
     }
     return $dirs;
+}
+
+sub user_cache {
+    return pf::CHI->new( namespace => 'httpd.portal');
 }
 
 has portalSession => (
