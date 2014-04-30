@@ -18,7 +18,7 @@ use base qw(CHI);
 use CHI::Driver::Memcached;
 use CHI::Driver::RawMemory;
 use Cache::Memcached;
-#use pf::CHI::Driver::Role::Memcached::Clear;
+use Clone();
 use pf::file_paths;
 use pf::IniFiles;
 use Hash::Merge;
@@ -66,7 +66,7 @@ our %DEFAULT_CONFIG = (
         'raw' => {
             'global' => '1',
             'driver' => 'RawMemory'
-        }
+        },
     }
 );
 
@@ -80,10 +80,12 @@ sub chiConfigFromIniFile {
     copyStorage($args{storage});
     foreach my $storage (values %{$args{storage}}) {
         my $driver = $storage->{driver};
-        if($driver eq 'File') {
-            setFileDriverParams($storage);
-        } elsif($driver eq 'DBI') {
-            setDBIDriverParams($storage, $dbi);
+        if (defined $driver) {
+            if($driver eq 'File') {
+                setFileDriverParams($storage);
+            } elsif($driver eq 'DBI') {
+                setDBIDriverParams($storage, $dbi);
+            }
         }
         foreach my $param (qw(servers traits roles)) {
             next unless exists $storage->{$param};
@@ -94,10 +96,23 @@ sub chiConfigFromIniFile {
             $storage->{param_name} = $storage->{traits};
         }
     }
+    setDefaultStorage($args{storage});
     setRawL1CacheAsLast($args{storage}{configfiles});
     my $merge = Hash::Merge->new('PF_CHI_MERGE');
     my $config = $merge->merge( \%DEFAULT_CONFIG, \%args );
     return $config;
+}
+
+sub setDefaultStorage {
+    my ($storageUnits) = @_;
+    my $defaults = delete $storageUnits->{DEFAULT};
+    my $merge = Hash::Merge->new('PF_CHI_MERGE');
+    foreach my $name (@CACHE_NAMESPACES) {
+        $storageUnits->{$name} = {} unless exists $storageUnits->{$name};
+        my $clonedDefaults = Clone::clone($defaults);
+        my $storage = $storageUnits->{$name};
+        %$storage = %{$merge->merge( $storage, $clonedDefaults )};
+    }
 }
 
 sub copyStorage {
