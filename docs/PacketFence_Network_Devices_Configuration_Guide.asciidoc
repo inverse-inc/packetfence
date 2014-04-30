@@ -915,7 +915,7 @@ CoA configuration
 There's a lot of different versions of the Catalyst 2960 serie. Some of them
 may not accept the command stated in this guide for 802.1X.
 
-We have found couple of commands that are working great or MAB:
+We have found a couple of commands that are working great or MAB:
 
 On each interface
 
