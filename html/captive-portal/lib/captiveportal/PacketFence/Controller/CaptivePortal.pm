@@ -140,7 +140,9 @@ sub supportsMobileConfigProvisioning : Private {
     my ( $self, $c ) = @_;
     if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad')) {
         $c->user_cache->set("mac:" . $c->portalSession->clientMac . ":do_not_deauth" ,1);
+        return 1;
     }
+    return 0;
 }
 
 =head2 supportsAndriodConfigProvisioning
@@ -153,7 +155,9 @@ sub supportsAndriodConfigProvisioning : Private {
     my ( $self, $c ) = @_;
     if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad')) {
         $c->user_cache->set("mac:" . $c->portalSession->clientMac . ":do_not_deauth" ,1);
+        return 1;
     }
+    return 0;
 }
 
 sub matchAnyOses {
