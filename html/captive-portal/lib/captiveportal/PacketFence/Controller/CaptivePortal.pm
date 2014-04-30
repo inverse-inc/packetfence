@@ -153,7 +153,7 @@ TODO: documention
 
 sub supportsAndriodConfigProvisioning : Private {
     my ( $self, $c ) = @_;
-    if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad')) {
+    if($self->matchAnyOses($c,'Android')) {
         $c->user_cache->set("mac:" . $c->portalSession->clientMac . ":do_not_deauth" ,1);
         return 1;
     }
