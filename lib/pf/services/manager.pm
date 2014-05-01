@@ -41,6 +41,7 @@ use strict;
 use pf::file_paths;
 use pf::log;
 use pf::config;
+use pf::util;
 use Moo;
 use File::Slurp qw(read_file);
 use Proc::ProcessTable;
