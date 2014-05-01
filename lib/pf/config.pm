@@ -463,7 +463,7 @@ sub readPfDocConfigFiles {
                     my $description = $doc_data->{description};
                     $description =~ s/</&lt;/g; # convert < to HTML entity
                     $description =~ s/>/&gt;/g; # convert > to HTML entity
-                    $description =~ s/(\S*(&lt;|&gt;)\S*)\b/<code>$1<\/code>/g; # enclose strings that contain < or >
+                    $description =~ s/(\S*(&lt;|&gt;)\S*)(?=[\s,\.])/<code>$1<\/code>/g; # enclose strings that contain < or >
                     $description =~ s/(\S+\.(html|tt|pm|pl|txt))\b(?!<\/code>)/<code>$1<\/code>/g; # enclose strings that ends with .html, .tt, etc
                     $description =~ s/^ \* (.+?)$/<li>$1<\/li>/mg; # create list elements for lines beginning with " * "
                     $description =~ s/(<li>.*<\/li>)/<ul>$1<\/ul>/s; # create lists from preceding substitution
