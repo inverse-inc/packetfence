@@ -2725,6 +2725,34 @@ msgstr ""
 msgid "Should memcached be managed by PacketFence? Keep enabled unless you know what you're doing."
 msgstr ""
 
+# conf/documentation.conf (services.httpd_admin)
+msgid "Should httpd.admin be started? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_portal)
+msgid "Should httpd.portal be started? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.httpd.webservices)
+msgid "Should httpd.webservices be started? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_proxy)
+msgid "Should httpd.proxy be started? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.pfmon)
+msgid "Should pfmon be started? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.pfsetvlan)
+msgid "Should pfsetvlan be started? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.pfdhcplistener)
+msgid "Should pfdhcplistener be started? Keep enabled unless you know what you're doing."
+msgstr ""
+
 # conf/documentation.conf (vlan.closelocationlogonstop)
 msgid ""
   "Should open locationlog entries be closed when pfsetvlan is"

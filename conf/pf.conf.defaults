@@ -456,6 +456,41 @@ memcached=enabled
 # Should pfbandwidthd be managed by PacketFence?
 pfbandwidthd=disabled
 #
+# services.httpd_admin
+#
+# Should httpd.admin be started?
+httpd_admin=enabled
+#
+# services.httpd_portal
+#
+# Should httpd.portal be started?
+httpd_portal=enabled
+#
+# services.httpd_webservices
+#
+# Should httpd.webservices be started?
+httpd_webservices=enabled
+#
+# services.httpd_proxy
+#
+# Should httpd.proxy be started?
+httpd_proxy=enabled
+#
+# services.pfsetvlan
+#
+# Should pfsetvlan be managed by PacketFence?
+pfsetvlan=enabled
+#
+# services.pfmon
+#
+# Should pfmon be managed by PacketFence?
+pfmon=enabled
+#
+# services.pfdhcplistener
+#
+# Should pfdhcplistener be started?
+pfdhcplistener=enabled
+#
 # services.snort_binary
 #
 # Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
