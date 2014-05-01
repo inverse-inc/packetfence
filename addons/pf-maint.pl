@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-pf-maint
+pf-maint.pl
 
 =cut
 
 =head1 DESCRIPTION
 
-pf-maint.pl is a script that allows user to donload and keep track of all patches from the maintenance version of packetfence
+pf-maint.pl is a script that allows user to download and keep track of all patches from the maintenance version of PacketFence
 
 =head1 SYNOPSIS
 
@@ -21,7 +21,7 @@ pf-maint.pl [options]
    -u --github-user        The github user: default inverse-inc
    -r --github-repo        The github repo: default packetfence
    -n --no-ask             Do not ask to patch
-   -d --pf-dir             The packetfence directory
+   -d --pf-dir             The PacketFence directory
    -p --patch-bin          The patch binary default /usr/bin/patch
 
 =cut
@@ -46,13 +46,13 @@ our $NO_ASK;
 our $PATCH_BIN = '/usr/bin/patch';
 
 GetOptions(
-    "github-user|u=s" => \$GITHUB_USER,    # string
-    "github-repo|r=s" => \$GITHUB_REPO,    # string
-    "git-dir|d=s"     => \$PF_DIR,         # string
-    "commit|c=s"      => \$COMMIT,         # string
-    "patch-bin|p=s"   => \$PATCH_BIN,    # string
-    "base-commit|b=s" => \$BASE_COMMIT,    # string
-    "no-ask|n"        => \$NO_ASK,       # string
+    "github-user|u=s" => \$GITHUB_USER,
+    "github-repo|r=s" => \$GITHUB_REPO,
+    "pf-dir|d=s"      => \$PF_DIR,
+    "commit|c=s"      => \$COMMIT,
+    "patch-bin|p=s"   => \$PATCH_BIN,
+    "base-commit|b=s" => \$BASE_COMMIT,
+    "no-ask|n"        => \$NO_ASK,
     "help|h"          => \$help
 ) or podusage(2);
 
