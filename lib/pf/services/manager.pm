@@ -509,7 +509,9 @@ return true is the service is currently managed by packetfence
 
 sub isManaged {
     my ($self) = @_;
-    isenabled($Config{'services'}{$self->name})
+    my $name = $self->name;
+    $name =~ s/\./_/g;
+    return isenabled($Config{'services'}{$name});
 }
 
 
