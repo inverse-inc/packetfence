@@ -53,7 +53,7 @@ sub index : Path : Args(0) {
         $c->detach('processBilling');
     } 
     for my $p ('firstname', 'lastname', 'email', 'ccnumber', 'ccexpiration', 'ccvalidation') {
-        $c->request($p => undef);
+        $c->request->param($p => undef);
     }
     $c->forward('showBilling');
 }
