@@ -481,6 +481,11 @@ httpd_proxy=enabled
 # Should pfsetvlan be managed by PacketFence?
 pfsetvlan=enabled
 #
+# services.snmptrapd
+#
+# Should snmptrapd be managed by PacketFence?
+snmptrapd=enabled
+#
 # services.pfmon
 #
 # Should pfmon be managed by PacketFence?
