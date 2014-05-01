@@ -4495,6 +4495,38 @@ msgid "services.radiusd"
 msgstr "radiusd"
 
 # conf/documentation.conf
+msgid "services.httpd_admin"
+msgstr "httpd.admin"
+
+# conf/documentation.conf
+msgid "services.httpd_portal"
+msgstr "httpd.portal"
+
+# conf/documentation.conf
+msgid "services.httpd_webservices"
+msgstr "httpd.webservices"
+
+# conf/documentation.conf
+msgid "services.httpd_proxy"
+msgstr "httpd.proxy"
+
+# conf/documentation.conf
+msgid "services.pfsetvlan"
+msgstr "pfsetvlan"
+
+# conf/documentation.conf
+msgid "services.snmptrapd"
+msgstr "snmptrapd"
+
+# conf/documentation.conf
+msgid "services.pfdhcplistener"
+msgstr "pfdhcplistener"
+
+# conf/documentation.conf
+msgid "services.pfmon"
+msgstr "pfmon"
+
+# conf/documentation.conf
 msgid "services.radiusd_binary"
 msgstr "radiusd path"
 
