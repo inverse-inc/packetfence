@@ -95,7 +95,6 @@ PerlSwitches -I/usr/local/pf/html/captive-portal/lib
 # The TransHandler handles the 'captive-portal' core piece redirecting to the
 # portal if the URL is not otherwised allowed by passthrough or part of the
 # portal itself.
-PerlTransHandler pf::web::dispatcher::custom
 PerlPostConfigRequire /usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl
 PerlLoadModule captiveportal
 PerlLoadModule pf::web::dispatcher
@@ -103,13 +102,9 @@ PerlLoadModule pf::web::release
 # The TransHandler handles the 'captive-portal' core piece redirecting to the
 # portal if the URL is not otherwised allowed by passthrough or part of the
 # portal itself.
-<Location ~ "/perl/release">
-  SetHandler modperl
-  PerlResponseHandler pf::web::release
-  PerlOptions +GlobalRequest +ParseHeaders
-</Location>
 
 AcceptMutex posixsem
+SSLMutex posixsem
 
 Header always set X-DNS-Prefetch-Control off
 
@@ -135,6 +130,9 @@ BEGIN {
     use pf::log 'service' => 'httpd.portal';
 }
 use pf::config qw();
+use pf::util qw();
+use pf::authentication();
+use pf::web::constants();
 use Tie::DxHash;
 use pf::services::manager::httpd();
 use Apache::SSLLookup;
@@ -202,6 +200,23 @@ $SSLCipherSuite = "ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eN
 
 $ErrorLog = $install_dir.'/logs/portal_error_log';
 
+my $routedNets = join(" ", pf::util::get_routed_isolation_nets(), pf::util::get_routed_registration_nets() , pf::util::get_inline_nets());
+my $loadbalancersIp = join(" ", keys %{$pf::config::CAPTIVE_PORTAL{'loadbalancers_ip'}});
+my $allowed_from_all_urls = "|$WEB::URL_STATUS";
+# signup and preregister if pre-registration is allowed
+my $guest_regist_allowed = scalar keys %pf::authentication::guest_self_registration;
+if ($guest_regist_allowed && isenabled($pf::config::Config{'guests_self_registration'}{'preregistration'})) {
+    # | is for a regexp "or" as this is pulled from a 'Location ~' statement
+    $allowed_from_all_urls .= "|$WEB::URL_SIGNUP|$WEB::CGI_SIGNUP|$WEB::URL_PREREGISTER";
+}
+# /activate/email allowed if sponsor or email mode enabled
+my $email_enabled = $pf::authentication::guest_self_registration{$SELFREG_MODE_EMAIL};
+my $sponsor_enabled = $pf::authentication::guest_self_registration{$SELFREG_MODE_SPONSOR};
+if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
+    # | is for a regexp "or" as this is pulled from a 'Location ~' statement
+    $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION";
+}
+
 foreach my $interface (@internal_nets) {
     push (@Listen,$interface->{'Tip'}.":80");
     push (@Listen,$interface->{'Tip'}.":443");
@@ -219,16 +234,37 @@ foreach my $interface (@internal_nets) {
          Alias        => "/static ${install_dir}/html/captive-portal/root/static",
          Alias        => "/common ${install_dir}/html/common",
          PerlModule   => 'captiveportal',
+         PerlTransHandler => 'pf::web::dispatcher::custom',
          Location     => {
              "/" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
                  SetHandler => 'modperl',
                  PerlResponseHandler => 'captiveportal',
              },
              "/static" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
                  SetHandler => 'default-handler',
              },
              "/common" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
                  SetHandler => 'default-handler',
+             },
+             "/release" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler =>  'modperl',
+                 PerlResponseHandler =>  'pf::web::release',
+                 PerlOptions => '+GlobalRequest +ParseHeaders'
+             },
+             "~ \"/content/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
              },
          },
     ));
@@ -244,16 +280,37 @@ foreach my $interface (@internal_nets) {
          Alias        => "/static ${install_dir}/html/captive-portal/root/static",
          Alias        => "/common ${install_dir}/html/common",
          PerlModule   => 'captiveportal',
+         PerlTransHandler => 'pf::web::dispatcher::custom',
          Location     => {
              "/" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
                  SetHandler => 'modperl',
                  PerlResponseHandler => 'captiveportal',
              },
              "/static" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
                  SetHandler => 'default-handler',
              },
              "/common" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
                  SetHandler => 'default-handler',
+             },
+             "/release" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler =>  'modperl',
+                 PerlResponseHandler =>  'pf::web::release',
+                 PerlOptions => '+GlobalRequest +ParseHeaders'
+             },
+             "~ \"/content/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
              },
          },
          SSLEngine => 'on',
@@ -286,16 +343,37 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
          Alias        => "/static ${install_dir}/html/captiveportal/root/static",
          Alias        => "/common ${install_dir}/html/common",
          PerlModule   => 'captiveportal',
+         PerlTransHandler => 'pf::web::dispatcher::custom',
          Location     => {
              "/" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
                  SetHandler => 'modperl',
                  PerlResponseHandler => 'captiveportal',
              },
              "/static" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
                  SetHandler => 'default-handler',
              },
              "/common" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
                  SetHandler => 'default-handler',
+             },
+             "/release" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler =>  'modperl',
+                 PerlResponseHandler =>  'pf::web::release',
+                 PerlOptions => '+GlobalRequest +ParseHeaders'
+             },
+             "~ \"/content/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
              },
          },
     );
@@ -311,17 +389,39 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
          Alias        => "/static ${install_dir}/html/captiveportal/root/static",
          Alias        => "/common ${install_dir}/html/common",
          PerlModule   => 'captiveportal',
+         PerlTransHandler => 'pf::web::dispatcher::custom',
          Location     => {
              "/" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
                  SetHandler => 'modperl',
                  PerlResponseHandler => 'captiveportal',
              },
              "/static" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
                  SetHandler => 'default-handler',
              },
              "/common" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
                  SetHandler => 'default-handler',
              },
+             "/release" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler =>  'modperl',
+                 PerlResponseHandler =>  'pf::web::release',
+                 PerlOptions => '+GlobalRequest +ParseHeaders'
+             },
+             "~ \"/content/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
+             },
+
          },
          SSLEngine => 'on',
          SSLProxyEngine    => 'on',
