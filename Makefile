@@ -78,4 +78,9 @@ translation:
 		  --output-file conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.mo;\
 	done
 
-devel: configurations conf/ssl/server.crt bin/pfcmd permissions raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation raddb/sites-enabled
+.PHONY: chown_pf
+
+chown_pf:
+	chown -R pf:pf *
+
+devel: configurations conf/ssl/server.crt bin/pfcmd permissions raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation raddb/sites-enabled chown_pf
