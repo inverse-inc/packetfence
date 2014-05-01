@@ -32,19 +32,26 @@ Log::Any::Adapter->set('Log4perl');
 
 Hash::Merge::specify_behavior(
     {
+    #Always take the value from the right side
     'SCALAR' => {
         'SCALAR' => sub {$_[1]},
-        'ARRAY'  => sub {[$_[0], @{$_[1]}]},
+        'ARRAY'  => sub {$_[1]},
         'HASH'   => sub {$_[1]},
       },
       'ARRAY' => {
-        'SCALAR' => sub {$_[1]},
-        'ARRAY'  => sub {[uniq @{$_[0]}, @{$_[1]}]},
-        'HASH'   => sub {$_[1]},
+        #Convert the scalar into an array
+        'SCALAR' => sub {[$_[1]]},
+        #Always take the value from the right side
+        'ARRAY'  => sub {$_[1]},
+        #Convert the hash into an array
+        'HASH'   => sub {[%{$_[1]}]},
       },
       'HASH' => {
+        #Always take the value from the right side
         'SCALAR' => sub {$_[1]},
+        #Always take the value of the hash and merge them into the array
         'ARRAY'  => sub {[values %{$_[0]}, @{$_[1]}]},
+        #Merge the hash
         'HASH' => sub {
             Hash::Merge::_merge_hashes($_[0], $_[1]);
         },
@@ -67,7 +74,24 @@ our %DEFAULT_CONFIG = (
             'global' => '1',
             'driver' => 'RawMemory'
         },
+        'memcached' => {
+            driver => 'Memcached',
+            servers => ['127.0.0.1:11211'],
+            compress_threshold => 10000,
+        },
+        'file' => {
+            driver => 'File',
+            root_dir => "$var_dir/cache",
+        },
     }
+);
+
+our %DEFAULT_STORAGE = (
+    driver => 'File',
+    root_dir => "$var_dir/cache",
+    l1_cache => {
+        storage => 'memcached',
+    },
 );
 
 sub chiConfigFromIniFile {
@@ -105,7 +129,7 @@ sub chiConfigFromIniFile {
 
 sub setDefaultStorage {
     my ($storageUnits) = @_;
-    my $defaults = delete $storageUnits->{DEFAULT};
+    my $defaults = delete $storageUnits->{DEFAULT} || \%DEFAULT_STORAGE;
     my $merge = Hash::Merge->new('PF_CHI_MERGE');
     foreach my $name (@CACHE_NAMESPACES) {
         $storageUnits->{$name} = {} unless exists $storageUnits->{$name};
