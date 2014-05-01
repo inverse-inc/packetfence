@@ -115,7 +115,7 @@ sub setupLanguage : Private {
 
 =head2 getLanguages
 
-Retrieve the user prefered languages from the following ordered sources:
+Retrieve the user preferred languages from the following ordered sources:
 
 =over
 
