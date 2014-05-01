@@ -13,6 +13,7 @@ use Apache2::MPM ();
 use Apache2::RequestRec;
 use Log::Log4perl;
 use ModPerl::Util;
+use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_NO_CONTENT HTTP_NOT_FOUND);
 
 BEGIN {
     use pf::log 'service' => 'httpd.webservices';
@@ -25,9 +26,8 @@ pf::client::setClient("pf::api::local");
 
 #uncomment for more debug information
 #use SOAP::Lite +trace => [ fault => \&log_faults ];
-use SOAP::Transport::HTTP;
 use pf::WebAPI::RPC::MsgPack;
-use pf::WebAPI::JSONRPC;
+use pf::WebAPI::RPC::JSON;
 use pf::WebAPI::RPC::Sereal;
 
 
@@ -47,9 +47,9 @@ if (exists($ENV{MOD_PERL})) {
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 }
 
-my $server_soap = SOAP::Transport::HTTP::Apache->dispatch_to('PFAPI');
 my $server_msgpack = pf::WebAPI::RPC::MsgPack->new({dispatch_to => 'pf::api'});
 my $server_sereal = pf::WebAPI::RPC::Sereal->new({dispatch_to => 'pf::api'});
+my $server_jsonrpc = pf::WebAPI::RPC::JSON->new({dispatch_to => 'pf::api'});
 
 sub handler {
     my ($r) = @_;
@@ -60,15 +60,14 @@ sub handler {
     }
     my $content_type = $r->headers_in->{'Content-Type'};
     $logger->debug("$content_type");
-    if( $content_type eq 'application/x-msgpack') {
+    if( $server_msgpack->allowed($content_type) ) {
         return $server_msgpack->handler($r);
-    } elsif (pf::WebAPI::JSONRPC::allowed($content_type)) {
+    } elsif ($server_jsonrpc->allowed($content_type)) {
         return $server_jsonrpc->handler($r);
     } elsif ($server_sereal->allowed($content_type)) {
         return $server_sereal->handler($r);
-    } else {
-        return $server_soap->handler($r);
     }
+    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
 }
 
 sub log_faults {
