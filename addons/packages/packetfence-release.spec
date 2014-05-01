@@ -3,9 +3,9 @@
 # NEW (since git migration):
 #
 #   Expecting a standard tarball with packetfence-<version>/...
-#
+# 
 # BUILDING FOR RELEASE
-#
+# 
 # - Build
 #  - define ver <version>
 #  - define dist based on target distro (for centos/rhel => .el5)
@@ -52,13 +52,13 @@ for the PacketFence RPM Repository.
 ## PacketFence RPM Repository for RHEL/Centos 6
 [packetfence]
 name=PacketFence Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/$basearch
+baseurl=http://inverse.ca/downloads/PacketFence/RHEL6/\$basearch
 gpgcheck=0
 enabled=0
 
 [packetfence-devel]
 name=PacketFence Devel Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/devel/$basearch
+baseurl=http://inverse.ca/downloads/PacketFence/RHEL6/devel/\$basearch
 gpgcheck=0
 enabled=0
 EOF
@@ -77,5 +77,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu May 01 2014 Loick Pelet <lpelet@inverse.ca>
+- fixed variable issue
 * Fri Apr 25 2014 Loick Pelet <lpelet@inverse.ca>
-- Release file created.
+- Release file created. 
