@@ -369,9 +369,7 @@ sub doSmsSelfRegistration : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     if ( $c->session->{"preregistration"} ) {
-        pf::web::generate_error_page( $portalSession,
-            i18n("Registration in advance by SMS is not supported.") );
-        exit(0);
+        $self->showError($c, i18n("Registration in advance by SMS is not supported.") );
     }
     my %info;
     my $profile        = $c->profile;
