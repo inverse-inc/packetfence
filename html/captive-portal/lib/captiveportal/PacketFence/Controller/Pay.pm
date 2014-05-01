@@ -112,7 +112,7 @@ sub validateBilling : Private {
     }
 }
 
-sub processTransaction {
+sub processTransaction : Private {
     my ($self, $c) = @_;
     my $billingObj = new pf::billing::custom();
     my $request = $c->request;
