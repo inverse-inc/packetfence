@@ -274,7 +274,7 @@ sub checkIfNeedsToRegister : Private {
         # Redirect to the billing engine if enabled
         if (isenabled($portalSession->profile->getBillingEngine)) {
             $logger->info("$mac redirected to billing page");
-            $c->detach('Billing' => 'index');
+            $c->detach('Pay' => 'index');
         } elsif ($portalSession->profile->guestRegistrationOnly) {
 
             # Redirect to the guests self registration page if configured to do so
