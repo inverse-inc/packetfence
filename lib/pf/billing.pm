@@ -234,17 +234,16 @@ This is meant to be overridden in L<pf::billing::custom>.
 =cut
 
 sub prepareConfirmationInfo {
-    my ( $self, $transaction_infos_ref, $portalSession ) = @_;
+    my ( $self, $transaction_infos_ref, $confirmationInfo ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my %info = ( pf::web::constants::to_hash() );
-    my $cgi = $portalSession->getCgi();
     my %tiers = $self->getAvailableTiers();
-    my $tier = $tiers{$cgi->param("tier")};
+    my $tier = $tiers{$confirmationInfo->{tier}};
 
-    $info{'firstname'} = $cgi->param("firstname");
-    $info{'lastname'} = $cgi->param("lastname");
-    $info{'email'} = $cgi->param("email");
+    $info{'firstname'} = $confirmationInfo->{firstname};
+    $info{'lastname'} = $confirmationInfo->{lastname};
+    $info{'email'} = $confirmationInfo->{email};
     $info{'tier_name'} = $tier->{'name'};
     $info{'tier_description'} = $tier->{'description'};
     $info{'tier_price'} = $tier->{'price'};

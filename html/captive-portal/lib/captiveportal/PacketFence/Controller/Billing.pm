@@ -199,11 +199,15 @@ sub processTransaction {
         pf::web::web_node_register($portalSession, $info{'pid'}, %info);
         $c->forward( 'CaptivePortal' => 'webNodeRegister', [$info{pid}, %info] ); 
     
-
+        my $confirmationInfo = {
+            tier => $request->param->{tier},
+            firstname => $request->param->{firstname},
+            lastname => $request->param->{lastname},
+            email => $request->param->{email},
+        };
         # Send confirmation email
         my %data =
-          $billingObj->prepareConfirmationInfo($transaction_infos_ref,
-            $portalSession);
+          $billingObj->prepareConfirmationInfo($transaction_infos_ref, $confirmationInfo);
         pf::util::send_email('billing_confirmation', $data{'email'},
             $data{'subject'}, \%data);
 
