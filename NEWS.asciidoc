@@ -20,11 +20,11 @@ New Features
 * New 'Apply violation' bulk action
 * The same bulk actions for nodes are now available for users
 * New WRIX data management
-* Added Android provisioning through a new PacketFence Agent for Android
+* Added PacketFence provisioning agent for Android
 * Support Hotspot for Cisco WLC and Aruba IAP
-* Support for Huawei AC6605
-* Support for Enterasys V2110
-* Support for Juniper EX2200 and EX4200
+* Support for Huawei AC6605 wireless controller
+* Support for Enterasys V2110 wireless controller
+* Support for Juniper EX2200 and EX4200 switches
 * Inline layer 3 support
 * New pfbandwidthd daemon for inline layer 3 accounting
 * New violation type based on time usage from RADIUS accounting information
