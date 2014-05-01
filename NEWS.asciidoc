@@ -50,10 +50,10 @@ Enhancements
 * Each portal profile can now use its own set of locales
 * Added a new URI filter for portal profiles
 * Switches configuration page is now paginated
-* LLDP support for 3com 4000 Series
+* LLDP support for 3Com 4000 Series
 * Multiple DNS server in the network configuration
 * Allow alias interface as captive portal
-* MAC Authentication support for Enterasuys D2 switch
+* MAC Authentication support for Enterasys D2 switch
 * Added support for JSON-RPC and msgpack RPC over HTTP for webservices
 * Made msgpack the default RPC for RADIUS
 * Improved performance of webservices by preloading Perl modules
