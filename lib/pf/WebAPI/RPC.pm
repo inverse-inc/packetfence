@@ -17,6 +17,7 @@ use Log::Log4perl;
 use List::MoreUtils qw(any);
 use Apache2::RequestIO();
 use Apache2::RequestRec();
+use Apache2::RequestUtil();
 use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_NO_CONTENT HTTP_NOT_FOUND);
 use base qw(Class::Accessor);
 __PACKAGE__->mk_accessors(qw(dispatch_to));
@@ -34,12 +35,12 @@ sub default_content_type { }
 sub allowed_content_types { ($_[0]->default_content_type ) }
 
 sub handler {
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-    use bytes;
     my ($self,$r) = @_;
+    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
     my $content_type = $r->headers_in->{'Content-Type'};
     return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $self->allowed($content_type);
     my ($requestType,$method,$args,$id) = $self->parseRequest($r);
+    return $self->handleParseError($r) unless defined $requestType;
     return $self->handleBulkRequest($r,$args) if $requestType == BULK;
     my $methodSub = $self->lookupMethod($r,$method);
     return $self->handleMethodNotFound($r) unless $methodSub;
@@ -53,8 +54,16 @@ sub handleMethodNotFound {
 }
 
 sub handleNotification {
-    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
+    my ($self,$r,$methodSub,$args,$id) = @_;
+    my $dispatch_to = $self->dispatch_to;
+    $r->push_handlers(PerlCleanupHandler => sub {
+        eval {
+            $dispatch_to->$methodSub(@$args);
+        };
+    });
+    return Apache2::Const::HTTP_NO_CONTENT;
 }
+
 
 sub handleRequest {
     return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
