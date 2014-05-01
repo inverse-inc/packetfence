@@ -16,7 +16,6 @@
         </div>
       </div>
 
-      <div class="pull-right"><a href="[%c.uri_for(c.controller.action_for('export'))%]">Export All</a></div>
       <h2>[% l('WRIX') %]</h2>
       <div class="well">
         [% INCLUDE configuration/wrix/search_form.tt %]
@@ -24,4 +23,5 @@
       [% INCLUDE configuration/wrix/list.tt %]
       <div class="form-actions">
         <a id="createItem" class="btn" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Wrix Entry') %]</a>
+        <a class="btn pull-right" href="[%c.uri_for(c.controller.action_for('export'))%]">[% l('Export All') %]</a>
       </div>
