@@ -155,7 +155,7 @@ my @internal_nets = @pf::config::internal_nets;
 my $host;
 my $vhost;
 
-$PidFile = $install_dir.'/var/run/httpd.portal.catalyst.pid';
+$PidFile = $install_dir.'/var/run/httpd.portal.pid';
 
 $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 
