@@ -26,16 +26,12 @@ Catalyst Controller.
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $username = $c->session->{username} || '';
-    if ( defined $username ) {
-        $c->stash(
-            template     => 'wireless-profile.xml',
-            current_view => 'MobileConfig',
-            ssid         => $Config{'provisioning'}{'ssid'},
-            username     => $username
-        );
-    } else {
-        $c->detach( CaptivePortal => 'error' );
-    }
+    $c->stash(
+        template     => 'wireless-profile.xml',
+        current_view => 'MobileConfig',
+        ssid         => $Config{'provisioning'}{'ssid'},
+        username     => $username
+    );
 }
 
 =head1 AUTHOR
