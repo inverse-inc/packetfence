@@ -100,14 +100,6 @@ sub handler {
             $r->pnotes->{session_id} = $1;
             $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
         }
-        if ($r->uri =~ /$WEB::MOD_PERL_WIRELESS_PROFILE/o) {
-            $r->set_handlers( PerlResponseHandler =>
-                sub {
-                    my $r = shift;
-                    $provisioning->apple_provisioning($r);
-                }
-            );
-        }
         if ($r->uri =~ /$WEB::MOD_PERL_ANDROID_PROFILE/o) {
             $r->set_handlers( PerlResponseHandler =>
                 sub {
