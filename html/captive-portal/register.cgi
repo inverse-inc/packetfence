@@ -125,7 +125,7 @@ elsif (defined($cgi->url_param('mode'))) {
   pf::web::generate_error_page($portalSession, i18n("error: incorrect mode"));
 }
 
-elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->param('username') ne '' || $no_password_needed )) {
+elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->param('password') ne '' || $no_password_needed )) {
   my ($form_return, $err) = pf::web::validate_form($portalSession);
   if ($form_return != 1) {
     $logger->trace("form validation failed or first time for " . $portalSession->getClientMac());
