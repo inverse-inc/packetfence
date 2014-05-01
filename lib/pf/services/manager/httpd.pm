@@ -35,7 +35,7 @@ sub isManaged {
     my ($self) = @_;
     my $name = $self->name;
     $name =~s/\./_/;
-    isenabled($Config{'services'}{$self->name})
+    isenabled($Config{'services'}{$name})
 }
 
 sub _build_launcher {
