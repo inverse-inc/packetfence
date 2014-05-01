@@ -183,47 +183,6 @@ sub generate_release_page {
     render_template($portalSession, 'release.html', $r);
 }
 
-=item supports_mobileconfig_provisioning
-
-Validating that the node supports mobile configuration provisioning, that it's configured
-and that the node's category matches the configuration.
-
-=cut
-
-sub supports_mobileconfig_provisioning {
-    my ( $portalSession ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
-
-    return $FALSE if (isdisabled($Config{'provisioning'}{'autoconfig'}));
-
-    # is this an iDevice?
-    # TODO get rid of hardcoded targets like that
-    my $node_attributes = node_attributes($portalSession->getClientMac);
-    my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
-    return $FALSE if (!defined($fingerprint[0]->{'os'}) || !($fingerprint[0]->{'os'} =~ /Apple iPod, iPhone or iPad/ || $fingerprint[0]->{'class'} =~ /Macintosh/)  ); 
-
-    # do we perform provisioning for this category?
-    my $config_category = $Config{'provisioning'}{'category'};
-    my $node_cat = $node_attributes->{'category'};
-
-    # validating that the node is under the proper category for mobile config provioning
-    return $TRUE if ( $config_category eq 'any' || (defined($node_cat) && $node_cat eq $config_category));
-
-    # otherwise
-    return $FALSE;
-}
-
-=item generate_mobileconfig_provisioning_page
-
-Offers a page that links to the proper provisioning XML.
-
-=cut
-
-sub generate_mobileconfig_provisioning_page {
-    my ( $portalSession ) = @_;
-    render_template($portalSession, 'release_with_xmlconfig.html');
-}
-
 =item supports_androidconfig_provisioning
 
 Validating that the node supports android configuration provisioning, that it's configured
@@ -265,13 +224,13 @@ sub generate_androidconfig_provisioning_page {
     render_template($portalSession, 'release_with_android.html');
 }
 
-=item generate_apple_mobileconfig_provisioning_xml
+=item generate_mobileconfig_provisioning_xml
 
-Generate the proper .mobileconfig XML to automatically configure Wireless for iOS devices.
+Generate the proper .mobileconfig XML to automatically configure Wireless devices.
 
 =cut
 
-sub generate_apple_mobileconfig_provisioning_xml {
+sub generate_mobileconfig_provisioning_xml {
     my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
     my $response;
@@ -285,7 +244,6 @@ sub generate_apple_mobileconfig_provisioning_xml {
     $template->process( "wireless-profile.xml", $portalSession->stash, \$response ) || $logger->error($template->error());
     return $response;
 }
-
 
 sub generate_scan_start_page {
     my ( $portalSession, $r ) = @_;
@@ -753,11 +711,6 @@ sub end_portal_session {
       exit(0);
     }
 
-    # handle mobile provisioning if relevant
-    if (pf::web::supports_mobileconfig_provisioning($portalSession)) {
-        pf::web::generate_mobileconfig_provisioning_page($portalSession);
-        exit(0);
-    }
     if (pf::web::supports_androidconfig_provisioning($portalSession)) {
         pf::web::generate_androidconfig_provisioning_page($portalSession);
         exit(0);

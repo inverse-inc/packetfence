@@ -44,34 +44,6 @@ sub new {
    return $self;
 }
 
-=item apple_provisioning
-
-This handler generate the xml provisioning profil for apple stuff.
-
-=cut
-
-sub apple_provisioning {
-    my ($this, $r) = @_;
-    my $req = Apache::SSLLookup->new($r);
-    Log::Log4perl->init("$conf_dir/log.conf");
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-
-    my $portalSession = pf::Portal::Session->new();
-
-    # if not logged in, disallow access
-    if (!defined($portalSession->session->param('username'))) {
-        return Apache2::Const::FORBIDDEN;
-    }
-
-    my $response;
-
-    $response = pf::web::generate_apple_mobileconfig_provisioning_xml($portalSession);
-    $req->content_type('application/x-apple-aspen-config; charset=utf-8');
-    $req->no_cache(1);
-    $req->print($response);
-    return Apache2::Const::OK;
-}
-
 =item android_provisioning
 
 This handler generate the xml provisioning profil for android stuff.
@@ -87,8 +59,7 @@ sub android_provisioning {
     my $portalSession = pf::Portal::Session->new();
 
     my $response;
-
-    $response = pf::web::generate_apple_mobileconfig_provisioning_xml($portalSession);
+    $response = pf::web::generate_mobileconfig_provisioning_xml($portalSession);
     $req->content_type('application/x-apple-aspen-config; charset=utf-8');
     $req->no_cache(1);
     $req->print($response);
