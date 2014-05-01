@@ -16,7 +16,7 @@ a subclass for handling a service the has multple sub services
 use strict;
 use warnings;
 use Moo;
-use List::MoreUtils qw(true any);
+use List::MoreUtils qw(true any all);
 
 extends 'pf::services::manager';
 
@@ -64,10 +64,9 @@ returns all the pids of the submanagers
 sub status {
     my ($self,$quick) = @_;
     my @results = map { $_->status($quick) } $self->managers;
-    if (@results == 0 || (!$quick && any { !defined($_) || $_ eq "0" } @results )) {
-       @results = ("0");
-    }
-    return join(" ",@results);
+    my $failed = true { $_ eq '0' } @results;
+    return join(" ",@results) if $failed == 0 || ($quick && @results != $failed);
+    return ("0");
 }
 
 =head1 AUTHOR
