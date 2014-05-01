@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.2.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-04-24 15:08-0400\n"
+"PO-Revision-Date: 2014-05-01 14:15-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -178,6 +178,10 @@ msgstr ""
 
 # html/pfappserver/root/portal/profile/tab-content.tt
 msgid "Add a mandatory field."
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Add a search condition."
 msgstr ""
 
 # html/pfappserver/root/portal/profile/tab-content.tt
@@ -488,9 +492,17 @@ msgstr ""
 msgid "Choose between our supported IDS engine."
 msgstr ""
 
+# conf/documentation.conf (network.interfaceSNAT)
+msgid "Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)"
+msgstr ""
+
 # html/pfappserver/root/admin/bulk_actions.inc
 msgid "Clear Violation"
 msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Client_Support"
+msgstr "Client Support"
 
 # html/pfappserver/root/configstore/mdm/list.tt
 # html/pfappserver/root/configuration/adminroles/list.tt
@@ -672,6 +684,10 @@ msgstr ""
 # html/pfappserver/root/portal/profile/files.tt
 msgid "Copy File"
 msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Coverage_Area"
+msgstr "Coverage Area"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
@@ -908,7 +924,7 @@ msgid "Delete Violation"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/index.tt
-msgid "Delete Wrix Entry"
+msgid "Delete WRIX Entry"
 msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
@@ -1114,6 +1130,14 @@ msgstr ""
 msgid "Engine ID"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "English_Location_City"
+msgstr "English Location City"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "English_Location_Name"
+msgstr "English Location Name"
+
 # html/pfappserver/root/violation/view.tt
 msgid "Enter the trigger ID"
 msgstr ""
@@ -1142,6 +1166,10 @@ msgstr ""
 
 # html/pfappserver/root/user/print.tt
 msgid "Expiration"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/index.tt
+msgid "Export All"
 msgstr ""
 
 # html/pfappserver/root/configuration/authentication.tt
@@ -1325,7 +1353,7 @@ msgid "IP Address"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "IP Address/Mac Address"
+msgid "IP Address/MAC Address"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
@@ -1339,6 +1367,7 @@ msgid ""
 msgstr ""
 
 # html/pfappserver/root/configstore/mdm/list.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/violation/list.tt
@@ -1498,6 +1527,10 @@ msgstr ""
 msgid "Lastname"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Latitude"
+msgstr ""
+
 # html/pfappserver/root/admin/users.tt
 msgid "Legend"
 msgstr ""
@@ -1567,6 +1600,42 @@ msgstr ""
 msgid "Location of the suricata binary."
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Address1"
+msgstr "Location Address1"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Address2"
+msgstr "Location Address2"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Country_Name"
+msgstr "Location Country Name"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Identifier"
+msgstr "Location Identifier"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Phone_Number"
+msgstr "Location Phone Number"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_State_Province_Name"
+msgstr "Location State Province Name"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Type"
+msgstr "Location Type"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_URL"
+msgstr "Location URL"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Zip_Postal_Code"
+msgstr "Location Zip Postal Code"
+
 # conf/documentation.conf (alerting.log)
 msgid "Log file where \"log\" actions are sent."
 msgstr ""
@@ -1593,6 +1662,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/status.tt
 msgid "Logs"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Longitude"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/view.tt
@@ -1622,6 +1695,10 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 msgid "MAC address"
 msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "MAC_Address"
+msgstr "MAC Address"
 
 # pf::admin_roles (Actions)
 msgid "MAC_READ"
@@ -1835,7 +1912,7 @@ msgid "New Violation"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/view.tt
-msgid "New Wrix Information"
+msgid "New WRIX Information"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
@@ -1955,6 +2032,7 @@ msgstr ""
 msgid "OS"
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/user/view.tt
 msgid "OS (DHCP)"
 msgstr ""
@@ -1962,6 +2040,34 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "One-level"
 msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Friday"
+msgstr "Open Friday"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Monday"
+msgstr "Open Monday"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Saturday"
+msgstr "Open Saturday"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Sunday"
+msgstr "Open Sunday"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Thursday"
+msgstr "Open Thursday"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Tuesday"
+msgstr "Open Tuesday"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Wednesday"
+msgstr "Open Wednesday"
 
 # html/pfappserver/root/admin/users.tt
 msgid "Organization"
@@ -2089,7 +2195,7 @@ msgid "Please specify the ID of the Mdm entry."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "Please specify the IP address/Mac Address of the switch."
+msgid "Please specify the IP address/MAC address of the switch."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
@@ -2253,9 +2359,9 @@ msgstr ""
 msgid "Profile Name"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
-msgid "Provisioning"
-msgstr ""
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Provider_Identifier"
+msgstr "Provider Identifier"
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 msgid "Quantity"
@@ -2423,6 +2529,10 @@ msgstr ""
 msgid "Restart All"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Restricted_Access"
+msgstr "Restricted Access"
+
 # html/pfappserver/root/node/advanced_search.tt
 # html/pfappserver/root/node/simple_search.tt
 # html/pfappserver/root/user/advanced_search.tt
@@ -2540,6 +2650,22 @@ msgstr "SoH Filters - Update"
 msgid "SSID"
 msgstr "SSID"
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "SSID_1X"
+msgstr "SSID 1X"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "SSID_1X_Broadcasted"
+msgstr "SSID 1X Broadcasted"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "SSID_Broadcasted"
+msgstr "SSID Broadcasted"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "SSID_Open_Auth"
+msgstr "SSID Open Auth"
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "SSL"
 msgstr ""
@@ -2643,6 +2769,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "Search"
 msgstr ""
 
@@ -2657,6 +2784,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Secret Passphrase"
 msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Security_Protocol_1X"
+msgstr "Security Protocol 1X"
 
 # html/pfappserver/root/node/violations.tt
 msgid "Select a violation"
@@ -2681,6 +2812,10 @@ msgid ""
   "default is localhost - be sure you're running an SMTP host locally if"
   "you don't change it!"
 msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Service_Provider_Brand"
+msgstr "Service Provider Brand"
 
 # html/pfappserver/root/admin/status.tt
 # html/pfappserver/root/service/status.tt
@@ -2717,40 +2852,28 @@ msgstr ""
 msgid "Should have to reauthenticate the node if vlan change"
 msgstr ""
 
+# conf/documentation.conf (services.httpd_admin)
+msgid "Should httpd.admin be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_portal)
+msgid "Should httpd.portal be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_proxy)
+msgid "Should httpd.proxy be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_webservices)
+msgid "Should httpd.webservices be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
 # conf/documentation.conf (services.iptables)
 msgid "Should iptables be managed by PacketFence? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # conf/documentation.conf (services.memcached)
 msgid "Should memcached be managed by PacketFence? Keep enabled unless you know what you're doing."
-msgstr ""
-
-# conf/documentation.conf (services.httpd_admin)
-msgid "Should httpd.admin be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
-# conf/documentation.conf (services.httpd_portal)
-msgid "Should httpd.portal be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
-# conf/documentation.conf (services.httpd.webservices)
-msgid "Should httpd.webservices be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
-# conf/documentation.conf (services.httpd_proxy)
-msgid "Should httpd.proxy be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
-# conf/documentation.conf (services.pfmon)
-msgid "Should pfmon be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
-# conf/documentation.conf (services.pfsetvlan)
-msgid "Should pfsetvlan be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
-# conf/documentation.conf (services.pfdhcplistener)
-msgid "Should pfdhcplistener be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # conf/documentation.conf (vlan.closelocationlogonstop)
@@ -2779,12 +2902,28 @@ msgid ""
   "*/5 * * * * /usr/local/pf/bin/pfcmd service pf watch"
 msgstr ""
 
+# conf/documentation.conf (services.pfdhcplistener)
+msgid "Should pfdhcplistener be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
 # conf/documentation.conf (services.pfdns)
 msgid "Should pfdns be managed by PacketFence?"
 msgstr ""
 
+# conf/documentation.conf (services.pfmon)
+msgid "Should pfmon be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.pfsetvlan)
+msgid "Should pfsetvlan be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
 # conf/documentation.conf (services.radiusd)
 msgid "Should radiusd be managed by PacketFence?"
+msgstr ""
+
+# conf/documentation.conf (services.snmptrapd)
+msgid "Should snmptrapd be started ? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # conf/documentation.conf (inline.accounting)
@@ -2888,6 +3027,10 @@ msgstr ""
 # html/pfappserver/root/service/status.tt
 msgid "Stop Anyway"
 msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Sub_Location_Type"
+msgstr "Sub Location Type"
 
 # conf/documentation.conf (alerting.subjectprefix)
 msgid ""
@@ -3222,6 +3365,10 @@ msgstr "Users Sources - Update"
 msgid "USERS_UPDATE"
 msgstr "Users - Update"
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "UTC_Timezone"
+msgstr "UTC Timezone"
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Unregistration"
 msgstr ""
@@ -3405,6 +3552,18 @@ msgstr ""
 msgid "Voice Over IP (yes/no)"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "WEP_Key"
+msgstr "WEP Key"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "WEP_Key_Entry_Method"
+msgstr "WEP Key Entry Method"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "WEP_Key_Size"
+msgstr "WEP Key Size"
+
 # conf/documentation.conf (alerting.wins_server)
 msgid ""
   "WINS server to  resolve NetBIOS name of administrative workstation to"
@@ -3417,6 +3576,18 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "WPA2"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/index.tt
+msgid "WRIX"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/list.tt
+msgid "WRIX Identifer"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/view.tt
+msgid "WRIX Information"
 msgstr ""
 
 # html/pfappserver/root/service/status.tt
@@ -3494,14 +3665,6 @@ msgstr ""
 
 # html/pfappserver/root/admin/users.tt
 msgid "Work phone"
-msgstr ""
-
-# html/pfappserver/root/configuration/wrix/list.tt
-msgid "Wrix Identifer"
-msgstr ""
-
-# html/pfappserver/root/configuration/wrix/view.tt
-msgid "Wrix Information"
 msgstr ""
 
 # html/pfappserver/root/configurator/networks.tt
@@ -3586,6 +3749,7 @@ msgstr "WINS server"
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "all"
 msgstr ""
 
@@ -3599,6 +3763,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "any"
 msgstr ""
 
@@ -3787,13 +3952,21 @@ msgstr ""
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.httpd_admin options)
 # conf/documentation.conf (services.httpd_mod_qos options)
 # conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device options)
+# conf/documentation.conf (services.httpd_portal options)
+# conf/documentation.conf (services.httpd_proxy options)
+# conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.iptables options)
 # conf/documentation.conf (services.memcached options)
 # conf/documentation.conf (services.pfbandwidthd options)
+# conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
+# conf/documentation.conf (services.pfmon options)
+# conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.radiusd options)
+# conf/documentation.conf (services.snmptrapd options)
 # conf/documentation.conf (servicewatch.email options)
 # conf/documentation.conf (servicewatch.restart options)
 # conf/documentation.conf (trapping.detection options)
@@ -3845,13 +4018,21 @@ msgstr "Send email"
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.httpd_admin options)
 # conf/documentation.conf (services.httpd_mod_qos options)
 # conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device options)
+# conf/documentation.conf (services.httpd_portal options)
+# conf/documentation.conf (services.httpd_proxy options)
+# conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.iptables options)
 # conf/documentation.conf (services.memcached options)
 # conf/documentation.conf (services.pfbandwidthd options)
+# conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
+# conf/documentation.conf (services.pfmon options)
+# conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.radiusd options)
+# conf/documentation.conf (services.snmptrapd options)
 # conf/documentation.conf (servicewatch.email options)
 # conf/documentation.conf (servicewatch.restart options)
 # conf/documentation.conf (trapping.detection options)
@@ -3870,6 +4051,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "ends with"
 msgstr ""
 
@@ -4007,7 +4189,7 @@ msgstr "inline"
 
 # conf/documentation.conf
 msgid "inline.accounting"
-msgstr ""
+msgstr "Accounting"
 
 # conf/documentation.conf
 msgid "inline.interfaceSNAT"
@@ -4064,6 +4246,7 @@ msgstr "Internal"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr ""
@@ -4082,6 +4265,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
 msgstr ""
@@ -4154,6 +4338,7 @@ msgstr "Mark as sponsor"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "matches"
 msgstr ""
 
@@ -4172,7 +4357,7 @@ msgstr ""
 
 # conf/documentation.conf (billing.gateway options)
 msgid "mirapay"
-msgstr ""
+msgstr "Mirapay"
 
 # conf/documentation.conf (interface.type options)
 msgid "monitor"
@@ -4200,20 +4385,16 @@ msgid "network.dhcpoption82logger"
 msgstr "DHCP option82"
 
 # conf/documentation.conf
+msgid "network.interfaceSNAT"
+msgstr "SNAT Interface"
+
+# conf/documentation.conf
 msgid "network.rogue_dhcp_detection"
 msgstr "Rogue DHCP detection"
 
 # conf/documentation.conf
 msgid "network.rogueinterval"
 msgstr "Rogue interval"
-
-# conf/documentation.conf
-msgid "network.interfaceSNAT"
-msgstr "SNAT Interface"
-
-# conf/documentation.conf (general.locale options)
-msgid "nl_NL"
-msgstr ""
 
 # conf/documentation.conf (node_import.voip options)
 msgid "no"
@@ -4451,6 +4632,10 @@ msgid "services.dhcpd_binary"
 msgstr "dhcpd path"
 
 # conf/documentation.conf
+msgid "services.httpd_admin"
+msgstr "httpd.admin"
+
+# conf/documentation.conf
 msgid "services.httpd_binary"
 msgstr "httpd path"
 
@@ -4461,6 +4646,18 @@ msgstr "QoS"
 # conf/documentation.conf
 msgid "services.httpd_mod_qos_maximum_connections_per_device"
 msgstr "QoS max connections"
+
+# conf/documentation.conf
+msgid "services.httpd_portal"
+msgstr "httpd.portal"
+
+# conf/documentation.conf
+msgid "services.httpd_proxy"
+msgstr "httpd.proxy"
+
+# conf/documentation.conf
+msgid "services.httpd_webservices"
+msgstr "httpd.webservices"
 
 # conf/documentation.conf
 msgid "services.iptables"
@@ -4487,48 +4684,32 @@ msgid "services.pfbandwidthd"
 msgstr "pfbandwidthd"
 
 # conf/documentation.conf
-msgid "services.pfdns"
-msgstr "pfdns"
-
-# conf/documentation.conf
-msgid "services.radiusd"
-msgstr "radiusd"
-
-# conf/documentation.conf
-msgid "services.httpd_admin"
-msgstr "httpd.admin"
-
-# conf/documentation.conf
-msgid "services.httpd_portal"
-msgstr "httpd.portal"
-
-# conf/documentation.conf
-msgid "services.httpd_webservices"
-msgstr "httpd.webservices"
-
-# conf/documentation.conf
-msgid "services.httpd_proxy"
-msgstr "httpd.proxy"
-
-# conf/documentation.conf
-msgid "services.pfsetvlan"
-msgstr "pfsetvlan"
-
-# conf/documentation.conf
-msgid "services.snmptrapd"
-msgstr "snmptrapd"
-
-# conf/documentation.conf
 msgid "services.pfdhcplistener"
 msgstr "pfdhcplistener"
+
+# conf/documentation.conf
+msgid "services.pfdns"
+msgstr "pfdns"
 
 # conf/documentation.conf
 msgid "services.pfmon"
 msgstr "pfmon"
 
 # conf/documentation.conf
+msgid "services.pfsetvlan"
+msgstr "pfsetvlan"
+
+# conf/documentation.conf
+msgid "services.radiusd"
+msgstr "radiusd"
+
+# conf/documentation.conf
 msgid "services.radiusd_binary"
 msgstr "radiusd path"
+
+# conf/documentation.conf
+msgid "services.snmptrapd"
+msgstr "snmptrapd"
 
 # conf/documentation.conf
 msgid "services.snmptrapd_binary"
@@ -4589,7 +4770,7 @@ msgstr "SoH Filters"
 
 # pf::config (Inline triggers)
 msgid "ssid"
-msgstr "Wifi Network SSID"
+msgstr "Wi-Fi Network SSID"
 
 # pf::Authentication::constants (Conditions)
 msgid "starts"
@@ -4597,6 +4778,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "starts with"
 msgstr ""
 
