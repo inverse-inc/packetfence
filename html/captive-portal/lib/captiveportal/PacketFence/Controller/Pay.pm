@@ -1,4 +1,4 @@
-package captiveportal::PacketFence::Controller::Billing;
+package captiveportal::PacketFence::Controller::Pay;
 use Moose;
 use namespace::autoclean;
 use pf::config;
@@ -19,7 +19,7 @@ BEGIN { extends 'captiveportal::Base::Controller'; }
 
 =head1 NAME
 
-captiveportal::PacketFence::Controller::Billing - Catalyst Controller
+captiveportal::PacketFence::Controller::Pay - Catalyst Controller
 
 =head1 DESCRIPTION
 
