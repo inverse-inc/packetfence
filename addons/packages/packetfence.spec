@@ -227,6 +227,7 @@ Requires: perl(CHI) >= 0.56
 Requires: perl(Data::Serializer)
 Requires: perl(HTML::FormHandler)
 Requires: perl(Cache::Memcached)
+Requires: perl(Cache::Memcached::GetParserXS)
 Requires: perl(CHI::Driver::Memcached)
 Requires: perl(BerkeleyDB)
 Requires: perl(CHI::Driver::BerkeleyDB)
@@ -758,7 +759,7 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal.catalyst
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal.cgi
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf

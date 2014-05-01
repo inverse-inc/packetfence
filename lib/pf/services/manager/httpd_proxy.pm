@@ -22,7 +22,8 @@ extends 'pf::services::manager::httpd';
 has '+name' => (default => sub { 'httpd.proxy' } );
 
 sub isManaged {
-    return  isenabled($Config{'trapping'}{'interception_proxy'});
+    my ($self) = @_;
+    return  isenabled($Config{'trapping'}{'interception_proxy'}) && $self->SUPER::isManaged();
 }
 
 =head1 AUTHOR

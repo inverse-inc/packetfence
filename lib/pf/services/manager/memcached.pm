@@ -18,7 +18,6 @@ use pf::file_paths;
 use pf::config;
 
 extends 'pf::services::manager';
-with 'pf::services::manager::roles::is_managed_by_pf_conf';
 
 has '+name' => (default => sub { 'memcached' } );
 

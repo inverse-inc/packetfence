@@ -53,6 +53,7 @@ use pf::enforcement qw(reevaluate_access);
 use pf::iplog qw(ip2mac);
 use pf::node qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
 use pf::os qw(dhcp_fingerprint_view);
+use pf::person qw(person_nodes);
 use pf::useragent;
 use pf::util;
 use pf::violation qw(violation_count);
@@ -138,6 +139,7 @@ sub render_template {
     }
 
     $logger->debug("rendering template named $template");
+
     my $tt = Template->new({
         INCLUDE_PATH => $portalSession->getTemplateIncludePath()
     });
@@ -385,9 +387,11 @@ sub generate_status_page {
             }
         }
     }
+    my @nodes = person_nodes($node_info->{pid});
 
     $portalSession->stash({
         node => $node_info,
+        nodes => \@nodes,
         billing => isenabled($portalSession->getProfile->getBillingEngine),
     });
 

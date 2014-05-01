@@ -1,3 +1,6 @@
+#Captive portal configuration file
+
+#Debian specific
 <IfDefine debian>
   <IfModule !mod_perl.c>
     LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
@@ -90,28 +93,13 @@
 </IfDefine>
 
 PerlSwitches -I/usr/local/pf/lib
-PerlSwitches -I/usr/local/pf/html/captive-portal/lib
-# mod_perl handlers are virtually assigned to /perl/
-# The TransHandler handles the 'captive-portal' core piece redirecting to the
-# portal if the URL is not otherwised allowed by passthrough or part of the
-# portal itself.
-PerlTransHandler pf::web::dispatcher::custom
-PerlPostConfigRequire /usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl
-PerlLoadModule captiveportal
-PerlLoadModule pf::web::dispatcher
-PerlLoadModule pf::web::release
-# The TransHandler handles the 'captive-portal' core piece redirecting to the
-# portal if the URL is not otherwised allowed by passthrough or part of the
-# portal itself.
-<Location ~ "/perl/release">
-  SetHandler modperl
-  PerlResponseHandler pf::web::release
-  PerlOptions +GlobalRequest +ParseHeaders
-</Location>
+#AddHandler perl-script .cgi
+#Options +ExecCGI
+#PerlHandler ModPerl::PerlRun
 
-AcceptMutex posixsem
-
+# Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
 Header always set X-DNS-Prefetch-Control off
+AcceptMutex posixsem
 
 <Proxy *>
   Order deny,allow
@@ -128,11 +116,9 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 TypesConfig /etc/mime.types
 
-
-
 <Perl>
 BEGIN {
-    use pf::log 'service' => 'httpd.portal';
+    use pf::log 'service' => 'httpd.portal', no_stderr_trapping => 1, no_stdout_trapping => 1;
 }
 use pf::config qw();
 use Tie::DxHash;
@@ -153,7 +139,6 @@ my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 my @internal_nets = @pf::config::internal_nets;
 my $host;
-my $vhost;
 
 $PidFile = $install_dir.'/var/run/httpd.portal.pid';
 
@@ -208,57 +193,25 @@ foreach my $interface (@internal_nets) {
     push (@NameVirtualHost,$interface->{'Tip'}.":80");
     push (@NameVirtualHost,$interface->{'Tip'}.":443");
     push (@{ $VirtualHost{$interface->{'Tip'}.":80"} }, gen_conf(
-         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
-         CustomLog    => "${install_dir}/logs/portal_catalyst_access_log combined",
-         Include => "${var_dir}/conf/captive-portal-common.conf",
-         Include => "${var_dir}/conf/block-unwanted.conf",
-         Include => "${var_dir}/conf/captive-portal-cleanurls.conf",
-         AllowEncodedSlashes => "on",
-         Alias        => "/static ${install_dir}/html/captive-portal/root/static",
-         Alias        => "/common ${install_dir}/html/common",
-         PerlModule   => 'captiveportal',
-         Location     => {
-             "/" => {
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-             "/static" => {
-                 SetHandler => 'default-handler',
-             },
-             "/common" => {
-                 SetHandler => 'default-handler',
-             },
-         },
+         ServerName => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+         DocumentRoot => $install_dir.'/html/captive-portal',
+         ErrorLog => $install_dir.'/logs/portal_error_log',
+         CustomLog => $install_dir.'/logs/portal_access_log combined',
+         Include => $var_dir.'/conf/captive-portal-common.conf',
+         Include => $var_dir.'/conf/block-unwanted.conf',
+         Include => $var_dir.'/conf/captive-portal-cleanurls.conf',
     ));
     push (@{ $VirtualHost{$interface->{'Tip'}.":443"} }, gen_conf(
-         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
-         CustomLog    => "${install_dir}/logs/portal_catalyst_access_log combined",
-         Include => "${var_dir}/conf/captive-portal-common.conf",
-         Include => "${var_dir}/conf/block-unwanted.conf",
-         Include => "${var_dir}/conf/captive-portal-cleanurls.conf",
-         AllowEncodedSlashes => "on",
-         Alias        => "/static ${install_dir}/html/captive-portal/root/static",
-         Alias        => "/common ${install_dir}/html/common",
-         PerlModule   => 'captiveportal',
-         Location     => {
-             "/" => {
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-             "/static" => {
-                 SetHandler => 'default-handler',
-             },
-             "/common" => {
-                 SetHandler => 'default-handler',
-             },
-         },
+         ServerName => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+         DocumentRoot => $install_dir.'/html/captive-portal',
+         ErrorLog => $install_dir.'/logs/portal_error_log',
+         CustomLog => $install_dir.'/logs/portal_access_log combined',
          SSLEngine => 'on',
          SSLProxyEngine    => 'on',
-         Include      => "${var_dir}/conf/ssl-certificates.conf",
+         Include => $var_dir.'/conf/ssl-certificates.conf',
+         Include => $var_dir.'/conf/captive-portal-common.conf',
+         Include => $var_dir.'/conf/block-unwanted.conf',
+         Include => $var_dir.'/conf/captive-portal-cleanurls.conf',
     ));
 }
 
@@ -275,60 +228,28 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
     push (@NameVirtualHost,$host.":443");
 
     push @{ $VirtualHost{$host.":80"} }, gen_conf(
-         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
-         CustomLog    => "${install_dir}/logs/portal_catalyst_access_log combined",
-         Include => "${var_dir}/conf/captive-portal-common.conf",
-         Include => "${var_dir}/conf/block-unwanted.conf",
-         Include => "${var_dir}/conf/captive-portal-cleanurls.conf",
-         AllowEncodedSlashes => "on",
-         Alias        => "/static ${install_dir}/html/captiveportal/root/static",
-         Alias        => "/common ${install_dir}/html/common",
-         PerlModule   => 'captiveportal',
-         Location     => {
-             "/" => {
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-             "/static" => {
-                 SetHandler => 'default-handler',
-             },
-             "/common" => {
-                 SetHandler => 'default-handler',
-             },
-         },
+         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+         DocumentRoot        => $install_dir.'/html/pfappserver/lib',
+         ErrorLog            => $install_dir.'/logs/portal_error_log',
+         CustomLog           => $install_dir.'/logs/portal_access_log combined',
+         Include             => $var_dir.'/conf/captive-portal-common.conf',
+         Include             => $var_dir.'/conf/block-unwanted.conf',
+         Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
     );
     push @{ $VirtualHost{$host.":443"} }, gen_conf(
-         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
-         CustomLog    => "${install_dir}/logs/portal_catalyst_access_log combined",
-         Include => "${var_dir}/conf/captive-portal-common.conf",
-         Include => "${var_dir}/conf/block-unwanted.conf",
-         Include => "${var_dir}/conf/captive-portal-cleanurls.conf",
-         AllowEncodedSlashes => "on",
-         Alias        => "/static ${install_dir}/html/captiveportal/root/static",
-         Alias        => "/common ${install_dir}/html/common",
-         PerlModule   => 'captiveportal',
-         Location     => {
-             "/" => {
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-             "/static" => {
-                 SetHandler => 'default-handler',
-             },
-             "/common" => {
-                 SetHandler => 'default-handler',
-             },
-         },
-         SSLEngine => 'on',
-         SSLProxyEngine    => 'on',
-         Include      => "${var_dir}/conf/ssl-certificates.conf",
+         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+         DocumentRoot        => $install_dir.'/html/pfappserver/lib',
+         ErrorLog            => $install_dir.'/logs/portal_error_log',
+         CustomLog           => $install_dir.'/logs/portal_access_log combined',
+         SSLEngine           => 'on',
+         Include             => $var_dir.'/conf/ssl-certificates.conf',
+         Include             => $var_dir.'/conf/captive-portal-common.conf',
+         Include             => $var_dir.'/conf/block-unwanted.conf',
+         Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
     );
 
 } 
 
 </Perl>
+
 

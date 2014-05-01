@@ -124,8 +124,8 @@ checks if provisioning is supported support
 sub checkForProvisioningSupport : Private {
     my ( $self, $c ) = @_;
     if (isenabled($Config{'provisioning'}{'autoconfig'})) {
-        $c->forward('supportsMobileConfigProvisioning');
-        $c->forward('supportsAndriodConfigProvisioning');
+        return ( $c->forward('supportsMobileConfigProvisioning') ||
+                 $c->forward('supportsAndriodConfigProvisioning') );
     }
     return ;
 }
@@ -138,7 +138,11 @@ TODO: documention
 
 sub supportsMobileConfigProvisioning : Private {
     my ( $self, $c ) = @_;
-    $c->session->{"do_not_deauth"} = $self->matchAnyOses($c,'Apple iPod, iPhone or iPad');
+    if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad')) {
+        $c->user_cache->set("mac:" . $c->portalSession->clientMac . ":do_not_deauth" ,1);
+        return 1;
+    }
+    return 0;
 }
 
 =head2 supportsAndriodConfigProvisioning
@@ -149,7 +153,11 @@ TODO: documention
 
 sub supportsAndriodConfigProvisioning : Private {
     my ( $self, $c ) = @_;
-    $c->session->{"do_not_deauth"} = $self->matchAnyOses($c,'Android');
+    if($self->matchAnyOses($c,'Android')) {
+        $c->user_cache->set("mac:" . $c->portalSession->clientMac . ":do_not_deauth" ,1);
+        return 1;
+    }
+    return 0;
 }
 
 sub matchAnyOses {
@@ -408,7 +416,7 @@ sub provisioning : Private {
     if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad') ) {
         $c->detach('release_with_xmlconfig');
     } elsif($self->matchAnyOses($c,'Android') ) {
-        $c->detach('release_with_andriod');
+        $c->detach('release_with_android');
     }
 }
 
@@ -417,7 +425,7 @@ sub release_with_xmlconfig : Private {
     $c->stash( template => 'release_with_xmlconfig.html');
 }
 
-sub release_with_andriod : Private {
+sub release_with_android : Private {
     my ( $self, $c ) = @_;
     $c->stash( template => 'release_with_android.html');
 }
@@ -475,12 +483,11 @@ sub webNodeRegister : Private {
     }
 
     if ( is_max_reg_nodes_reached( $mac, $pid, $info{'category'} ) ) {
-        $c->forward('maxRegNodesReached');
-        $c->detach;
+        $c->detach('maxRegNodesReached');
     }
     node_register( $mac, $pid, %info );
 
-    unless ( defined($c->session->{"do_not_deauth"}) && $c->session->{"do_not_deauth"} == $TRUE ) {
+    unless ( $c->user_cache->get("mac:$mac:do_not_deauth") ) {
         reevaluate_access( $mac, 'manage_register' );
     }
 

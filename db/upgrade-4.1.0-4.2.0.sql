@@ -78,3 +78,48 @@ ALTER TABLE locationlog
     ADD `switch_mac` varchar(17) DEFAULT NULL;
 
 UPDATE locationlog SET switch_ip = switch;
+
+--
+-- Table structure for wrix
+--
+
+CREATE TABLE wrix (
+  id varchar(255) NOT NULL,
+  `Provider_Identifier` varchar(255) NULL DEFAULT NULL,
+  `Location_Identifier` varchar(255) NULL DEFAULT NULL,
+  `Service_Provider_Brand` varchar(255) NULL DEFAULT NULL,
+  `Location_Type` varchar(255) NULL DEFAULT NULL,
+  `Sub_Location_Type` varchar(255) NULL DEFAULT NULL,
+  `English_Location_Name` varchar(255) NULL DEFAULT NULL,
+  `Location_Address1` varchar(255) NULL DEFAULT NULL,
+  `Location_Address2` varchar(255) NULL DEFAULT NULL,
+  `English_Location_City` varchar(255) NULL DEFAULT NULL,
+  `Location_Zip_Postal_Code` varchar(255) NULL DEFAULT NULL,
+  `Location_State_Province_Name` varchar(255) NULL DEFAULT NULL,
+  `Location_Country_Name` varchar(255) NULL DEFAULT NULL,
+  `Location_Phone_Number` varchar(255) NULL DEFAULT NULL,
+  `SSID_Open_Auth` varchar(255) NULL DEFAULT NULL,
+  `SSID_Broadcasted` varchar(255) NULL DEFAULT NULL,
+  `WEP_Key` varchar(255) NULL DEFAULT NULL,
+  `WEP_Key_Entry_Method` varchar(255) NULL DEFAULT NULL,
+  `WEP_Key_Size` varchar(255) NULL DEFAULT NULL,
+  `SSID_1X` varchar(255) NULL DEFAULT NULL,
+  `SSID_1X_Broadcasted` varchar(255) NULL DEFAULT NULL,
+  `Security_Protocol_1X` varchar(255) NULL DEFAULT NULL,
+  `Client_Support` varchar(255) NULL DEFAULT NULL,
+  `Restricted_Access` varchar(255) NULL DEFAULT NULL,
+  `Location_URL` varchar(255) NULL DEFAULT NULL,
+  `Coverage_Area` varchar(255) NULL DEFAULT NULL,
+  `Open_Monday` varchar(255) NULL DEFAULT NULL,
+  `Open_Tuesday` varchar(255) NULL DEFAULT NULL,
+  `Open_Wednesday` varchar(255) NULL DEFAULT NULL,
+  `Open_Thursday` varchar(255) NULL DEFAULT NULL,
+  `Open_Friday` varchar(255) NULL DEFAULT NULL,
+  `Open_Saturday` varchar(255) NULL DEFAULT NULL,
+  `Open_Sunday` varchar(255) NULL DEFAULT NULL,
+  `Longitude` varchar(255) NULL DEFAULT NULL,
+  `Latitude` varchar(255) NULL DEFAULT NULL,
+  `UTC_Timezone` varchar(255) NULL DEFAULT NULL,
+  `MAC_Address` varchar(255) NULL DEFAULT NULL,
+   PRIMARY KEY (id)
+) ENGINE=InnoDB;

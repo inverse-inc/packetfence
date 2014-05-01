@@ -1,42 +1,20 @@
-[storage configfiles]
+[storage DEFAULT]
 storage=file
 
-[storage configfiles l1_cache]
-storage=memcached
-
-[storage configfilesdata]
-storage=file
-
-[storage configfilesdata l1_cache]
+[storage DEFAULT l1_cache]
 storage=memcached
 
 [storage httpd.admin]
-storage=file
 expires_in=1d
 
 [storage httpd.admin l1_cache]
-storage=memcached
 expires_on_backend=1
 
 [storage httpd.portal]
-storage=file
 expires_in=10m
 
 [storage httpd.portal l1_cache]
-storage=memcached
 expires_on_backend=1
-
-[storage pfdns]
-storage=file
-
-[storage pfdns l1_cache]
-storage=memcached
-
-[storage switch.overlay]
-storage=file
-
-[storage switch.overlay l1_cache]
-storage=memcached
 
 [storage memcached]
 driver=Memcached
@@ -48,9 +26,3 @@ compress_threshold=10000
 driver=File
 root_dir=/usr/local/pf/var/cache
 
-[dbi]
-db=pf
-user=pf
-pass=packet
-port=3306
-host=localhost

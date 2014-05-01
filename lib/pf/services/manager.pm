@@ -41,6 +41,7 @@ use strict;
 use pf::file_paths;
 use pf::log;
 use pf::config;
+use pf::util;
 use Moo;
 use File::Slurp qw(read_file);
 use Proc::ProcessTable;
@@ -506,7 +507,10 @@ return true is the service is currently managed by packetfence
 
 =cut
 
-sub isManaged { 1 }
+sub isManaged {
+    my ($self) = @_;
+    isenabled($Config{'services'}{$self->name})
+}
 
 
 =head1 AUTHOR

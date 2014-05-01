@@ -19,7 +19,6 @@ use pf::config;
 use Moo;
 
 extends 'pf::services::manager';
-with 'pf::services::manager::roles::is_managed_by_pf_conf';
 
 has '+name' => ( default => sub { 'radiusd' } );
 
