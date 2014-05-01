@@ -63,9 +63,10 @@ Enhancements
 * Logging is now separated and configurable for each service
 * Added missing 'redirect_url' paramater when editing a violation in the Web admin
 * Complete rewrite of captive portal as a Catalyst application
-* Added a section documenting eduroam support to the Admin guide.
-* Controller ip address can be determined dynamically
+* Added a section documenting eduroam support to the Admin guide
+* Controller IP address can be determined dynamically
 * Added a file backing for the cache to decrease cache misses
+* Allow advanced search of nodes by OS type (#1790)
 
 Bug Fixes
 +++++++++
