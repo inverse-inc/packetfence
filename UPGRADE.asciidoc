@@ -23,6 +23,8 @@ The locationlog table has new columns to store the switch IP and MAC when using 
 
 New table for inline (level 3) accounting.
 
+New table for WRIX data.
+
 Make sure you run the following to update your schema:
 
   mysql -u root -p pf -v < db/upgrade-4.1.0-4.2.0.sql
