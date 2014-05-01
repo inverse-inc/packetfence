@@ -213,6 +213,7 @@ Requires: perl(Catalyst::Authentication::Store::Htpasswd)
 Requires: perl(Catalyst::Controller::HTML::FormFu)
 Requires: perl(Params::Validate) >= 0.97
 Requires: perl(Term::Size::Any)
+Requires: perl(aliased)
 # for Catalyst stand-alone server
 Requires: perl(Catalyst::Devel)
 Requires: perl(Sort::Naturally)
