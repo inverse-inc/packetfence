@@ -107,7 +107,7 @@ sub preStartSetup {
     my ($self,$quick) = @_;
     $self->SUPER::preStartSetup($quick);
     my $leases_file = "$var_dir/dhcpd/dhcpd.leases";
-    mkdir "$var_dir/dhcpd" unless -e "$var_dir/dhcpd";
+    mkdir "$var_dir/dhcpd" unless -d "$var_dir/dhcpd";
     touch ($leases_file) unless -f $leases_file;
     manageStaticRoute(1);
     return 1;
