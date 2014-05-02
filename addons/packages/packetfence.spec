@@ -98,7 +98,7 @@ Requires: net-snmp >= 5.3.2.2
 Requires: mysql, mysql-server, perl(DBD::mysql)
 Requires: perl >= 5.8.8
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
-PreReq: %{real_name}-pfcmd-suid
+Requires(pre): %{real_name}-pfcmd-suid
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON)
 Requires: perl(Apache2::Request)
@@ -213,7 +213,7 @@ Requires: perl(Catalyst::Authentication::Store::Htpasswd)
 Requires: perl(Catalyst::Controller::HTML::FormFu)
 Requires: perl(Params::Validate) >= 0.97
 Requires: perl(Term::Size::Any)
-PreReq: perl(aliased)
+Requires(pre): perl(aliased)
 # for Catalyst stand-alone server
 Requires: perl(Catalyst::Devel)
 Requires: perl(Sort::Naturally)
