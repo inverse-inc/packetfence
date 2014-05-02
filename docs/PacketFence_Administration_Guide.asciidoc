@@ -1060,14 +1060,14 @@ Note that for Debian and Ubuntu you will probably have this error:
   # kinit succeeded but ads_sasl_spnego_krb5_bind failed: Invalid credentials
   # Join to domain is not valid: Invalid credentials
 
+For Centos/RHEL:
+
+  # usermod -a -G wbpriv pf
+
 Finally, start `winbind`, and test the setup using `ntlm_auth` and `radtest`:
 
   # service winbind start
   # chkconfig --level 345 winbind on
-
-For Centos/RHEL:
-
-  # usermod -a -G wbpriv pf
 
 For Debian and Ubuntu:
 
