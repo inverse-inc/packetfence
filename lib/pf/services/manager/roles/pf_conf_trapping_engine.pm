@@ -26,7 +26,7 @@ Verify if the trapping engine
 around isManaged => sub {
     my $orig = shift;
     my $self = shift;
-    return $monitor_int && isenabled($Config{'trapping'}{'detection'}) && $Config{'trapping'}{'detection_engine'} eq $self->name && $self->$orig(@_);
+    return $monitor_int && isenabled($Config{'trapping'}{'detection'}) && $Config{'trapping'}{'detection_engine'} eq $self->name && $self->$orig(@_) ? 1 : 0;
 };
 
 =head2 dependsOnServices
