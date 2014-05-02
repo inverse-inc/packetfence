@@ -201,10 +201,10 @@ sub processTransaction : Private {
         $c->forward( 'CaptivePortal' => 'webNodeRegister', [$info{pid}, %info] ); 
     
         my $confirmationInfo = {
-            tier => $request->param->{tier},
-            firstname => $request->param->{firstname},
-            lastname => $request->param->{lastname},
-            email => $request->param->{email},
+            tier => $request->param('tier'),
+            firstname => $request->param('firstname'),
+            lastname => $request->param('lastname'),
+            email => $request->param('email'),
         };
         # Send confirmation email
         my %data =
