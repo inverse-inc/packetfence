@@ -84,7 +84,7 @@ sub processPayment {
     my %data = map { unpack 'a2 a*' } split /,/, $content;
     # Move code to constants
     my $approved_code = $data{AB};
-    my $display_msg   = $data{DM};
+    my $display_msg   = $data{DM} || 'Unknown error please contact your administrator';
     # The payment was not approved
     if ( !$approved_code || $approved_code ne 'Y' ) {
         $logger->error("The payment was not approved by the payment gateway: $display_msg");
