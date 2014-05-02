@@ -296,6 +296,8 @@ sub generate {
     # default expiration
     $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
 
+    push(@$actions, { type => 'valid_from', value => $data{'valid_from'} });
+    push(@$actions, { type => 'expiration', value => $data{'expiration'} });
     _update_from_actions(\%data, $actions);
 
     # if an entry of the same pid already exist, delete it
