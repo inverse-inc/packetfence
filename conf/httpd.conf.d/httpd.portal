@@ -130,7 +130,7 @@ BEGIN {
     use pf::log 'service' => 'httpd.portal';
 }
 use pf::config qw();
-use pf::util qw();
+use pf::util qw(isenabled);
 use pf::authentication();
 use pf::web::constants();
 use Tie::DxHash;
