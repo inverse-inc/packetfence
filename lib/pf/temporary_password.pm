@@ -281,23 +281,15 @@ Defaults to 0 (no per user limit)
 =cut
 
 sub generate {
-    my ($pid, $valid_from, $actions, $password) = @_;
+    my ($pid, $actions, $password) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my %data;
     $data{'pid'} = $pid;
 
-    # if $valid_from is set we use it, otherwise set to null which means valid from the begining of time
-    $data{'valid_from'} = $valid_from || undef;
-
     # generate password
     $data{'password'} = $password || _generate_password();
 
-    # default expiration
-    $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
-
-    push(@$actions, { type => 'valid_from', value => $data{'valid_from'} });
-    push(@$actions, { type => 'expiration', value => $data{'expiration'} });
     _update_from_actions(\%data, $actions);
 
     # if an entry of the same pid already exist, delete it
@@ -331,7 +323,7 @@ sub _update_from_actions {
     );
     _update_field_for_action(
         $data,$actions,'expiration',
-        'expiration',"0000-00-00 00:00:00"
+        'expiration',POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION))
     );
     _update_field_for_action(
         $data,$actions,$Actions::MARK_AS_SPONSOR,

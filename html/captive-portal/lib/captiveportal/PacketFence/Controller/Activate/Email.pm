@@ -194,7 +194,7 @@ sub doEmailRegistration : Private {
             my $actions =
               &pf::authentication::match( $source->{id}, $auth_params );
             $info{'password'} =
-              pf::temporary_password::generate( $pid, undef, $actions );
+              pf::temporary_password::generate( $pid, $actions );
 
             # send on-site guest credentials by email
             pf::web::guest::send_template_email(
@@ -355,7 +355,7 @@ sub doSponsorRegistration : Private {
             my $actions = &pf::authentication::match( $source->{id},
                 { username => $pid, user_email => $pid } );
             $info{'password'} =
-              pf::temporary_password::generate( $pid, undef, $actions );
+              pf::temporary_password::generate( $pid, $actions );
 
             # prepare welcome email for a guest who registered locally
             $info{'currentdate'} =

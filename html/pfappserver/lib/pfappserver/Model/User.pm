@@ -352,8 +352,7 @@ sub createSingle {
         # Add the registration window to the actions
         push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
         push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-        $result = pf::temporary_password::generate($pid,
-                                                   $data->{valid_from},
+        $result = pf::temporary_password::generate($pid, 
                                                    $data->{actions},
                                                    $data->{password});
         if ($result) {
@@ -404,8 +403,7 @@ sub createMultiple {
             # Add the registration window to the actions
             push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
             push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-            $result = pf::temporary_password::generate($pid,
-                                                       $data->{valid_from},
+            $result = pf::temporary_password::generate($pid, 
                                                        $data->{actions});
             if ($result) {
                 push(@users, { pid => $pid, email => $data->{email}, password => $result });
@@ -495,8 +493,7 @@ sub importCSV {
                 # The registration window is add to the actions
                 push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
                 push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-                $result = pf::temporary_password::generate($pid,
-                                                           $data->{valid_from},
+                $result = pf::temporary_password::generate($pid, 
                                                            $data->{actions},
                                                            $row->[$index{'c_password'}]);
                 push(@users, { pid => $pid, email => $person{email}, password => $result });
