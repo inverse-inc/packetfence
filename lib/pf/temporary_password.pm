@@ -324,14 +324,6 @@ sub _update_from_actions {
     my ($data, $actions) = @_;
 
     _update_field_for_action(
-        $data,$actions,'valid_from',
-        'valid_from',undef
-    );
-    _update_field_for_action(
-        $data,$actions,'expiration',
-        'expiration',"0000-00-00 00:00:00"
-    );
-    _update_field_for_action(
         $data,$actions,$Actions::MARK_AS_SPONSOR,
         'sponsor',0
     );
