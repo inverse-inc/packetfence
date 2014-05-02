@@ -2101,6 +2101,8 @@ For example, you may want to provide basic Internet access with a decent speed a
 
 To do so, some customizations is needed to the billing module. You'll need to redefined the `getAvailableTiers` method in the `lib/pf/billing/custom.pm` file. An example is already in place in the file.
 
+To assign a role by tiers (example: slow, medium and fast), edit the file `lib/pf/billing/custom.pm`
+
 CAUTION: The use of different billing tiers requires different roles in PacketFence. Make sure to create these roles first otherwise you will run into problems.
 
 Portal Profiles
