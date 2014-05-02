@@ -250,9 +250,7 @@ foreach my $interface (@internal_nets) {
                  SetHandler => 'default-handler',
              },
              "/common" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 "Allow" => "from all",
                  SetHandler => 'default-handler',
              },
              "/release" => {
@@ -263,8 +261,13 @@ foreach my $interface (@internal_nets) {
                  PerlResponseHandler =>  'pf::web::release',
                  PerlOptions => '+GlobalRequest +ParseHeaders'
              },
-             "~ \"/content/$allowed_from_all_urls\"" => {
+             "/content" => {
                 "Allow" => "from all",
+             },
+             "~ \"/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'captiveportal',
              },
          },
     ));
@@ -296,9 +299,7 @@ foreach my $interface (@internal_nets) {
                  SetHandler => 'default-handler',
              },
              "/common" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 "Allow" => "from all",
                  SetHandler => 'default-handler',
              },
              "/release" => {
@@ -309,8 +310,13 @@ foreach my $interface (@internal_nets) {
                  PerlResponseHandler =>  'pf::web::release',
                  PerlOptions => '+GlobalRequest +ParseHeaders'
              },
-             "~ \"/content/$allowed_from_all_urls\"" => {
+             "/content" => {
                 "Allow" => "from all",
+             },
+             "~ \"/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'captiveportal',
              },
          },
          SSLEngine => 'on',
@@ -359,9 +365,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
                  SetHandler => 'default-handler',
              },
              "/common" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 "Allow" => "from all",
                  SetHandler => 'default-handler',
              },
              "/release" => {
@@ -372,9 +376,14 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
                  PerlResponseHandler =>  'pf::web::release',
                  PerlOptions => '+GlobalRequest +ParseHeaders'
              },
-             "~ \"/content/$allowed_from_all_urls\"" => {
+             "/content" => {
                 "Allow" => "from all",
              },
+             "~ \"/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'captiveportal',
+             }, 
          },
     );
     push @{ $VirtualHost{$host.":443"} }, gen_conf(
@@ -405,9 +414,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
                  SetHandler => 'default-handler',
              },
              "/common" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 "Allow" => "from all",
                  SetHandler => 'default-handler',
              },
              "/release" => {
@@ -418,10 +425,14 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
                  PerlResponseHandler =>  'pf::web::release',
                  PerlOptions => '+GlobalRequest +ParseHeaders'
              },
-             "~ \"/content/$allowed_from_all_urls\"" => {
+             "/content" => {
                 "Allow" => "from all",
              },
-
+             "~ \"/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'captiveportal',
+             },
          },
          SSLEngine => 'on',
          SSLProxyEngine    => 'on',
