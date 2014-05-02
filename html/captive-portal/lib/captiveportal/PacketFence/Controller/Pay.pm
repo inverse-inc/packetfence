@@ -111,6 +111,10 @@ sub validateBilling : Private {
             );
         }
     }
+    else{
+        $c->stash->{'txt_validation_error'} = $BILLING::ERRORS{$BILLING::ERROR_INVALID_FORM};
+        $c->detach('showBilling');
+    }
 }
 
 sub processTransaction : Private {
