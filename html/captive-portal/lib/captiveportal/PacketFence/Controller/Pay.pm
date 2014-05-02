@@ -8,6 +8,7 @@ use pf::billing::custom;
 use pf::config;
 use pf::iplog;
 use pf::node;
+use pf::trigger;
 use pf::person qw(person_modify);
 use pf::Portal::Session;
 use pf::util;
@@ -197,7 +198,6 @@ sub processTransaction : Private {
         }
 
         # Register the node
-        pf::web::web_node_register($portalSession, $info{'pid'}, %info);
         $c->forward( 'CaptivePortal' => 'webNodeRegister', [$info{pid}, %info] ); 
     
         my $confirmationInfo = {
