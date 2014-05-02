@@ -67,6 +67,7 @@ Enhancements
 * Controller IP address can be determined dynamically
 * Added a file backing for the cache to decrease cache misses
 * Allow advanced search of nodes by OS type (#1790)
+* The PF RPC client can be configured in the conf/radiusd/radiusd.conf
 
 Bug Fixes
 +++++++++
