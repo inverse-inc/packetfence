@@ -140,7 +140,7 @@ sub processTransaction : Private {
     # Process the transaction
     my $paymentStatus =
       $billingObj->processTransaction($transaction_infos_ref);
-    my $pid = $c->session->param('login');
+    my $pid = $c->session->{'login'};
 
     if ($paymentStatus eq $BILLING::SUCCESS) {
 
