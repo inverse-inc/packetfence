@@ -78,9 +78,18 @@ translation:
 		  --output-file conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.mo;\
 	done
 
+.PHONY: mysql-schema
+
+mysql-schema:
+	if [ ! -f "/usr/local/pf/db/pf-schema.sql" ]; then\
+		cd /usr/local/pf/db;\
+		VERSIONSQL=$$(ls pf-schema-* |sort -r | head -1);\
+		ln -s $$VERSIONSQL ./pf-schema.sql;\
+	fi
+
 .PHONY: chown_pf
 
 chown_pf:
 	chown -R pf:pf *
 
-devel: configurations conf/ssl/server.crt bin/pfcmd permissions raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation raddb/sites-enabled chown_pf
+devel: configurations conf/ssl/server.crt bin/pfcmd permissions raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled chown_pf
