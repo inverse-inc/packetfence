@@ -2856,13 +2856,13 @@ Wireless LAN Controller (WLC) Web Auth
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In this section, we cover the basic configuration of the WLC Web Auth for PacketFence using the web interface.
-The principe is to forward the device to the captive portal with an ACL if the device is in an unreg state and 
-allow the device to reach internet by changing the ACL.
-In the unreg state, the WLC will intercept the http traffic and forward the device to the captive portal.
+The idea is to forward the device to the captive portal with an ACL if the device is in an unreg state and 
+allow the device to reach Internet (or the normal network) by changing the ACL once registered.
+In the unreg state, the WLC will intercept the HTTP traffic and forward the device to the captive portal.
 
-In this sample configuration, the captive Portal use the ip address 172.16.0.250, the administration interface
-use the ip address 172.16.0.249 and the WLC use the ip address 172.16.0.248.
-The DHCP and DNS server are not managed by PacketFence (WLC DHCP Server, Production DHCP Server)
+In this sample configuration, the captive portal uses the IP address 172.16.0.250, the administration interface
+uses the IP address 172.16.0.249 and the WLC uses the IP address 172.16.0.248.
+The DHCP and DNS servers are not managed by PacketFence (WLC DHCP Server, Production DHCP Server)
 
 * First, globally define the FreeRADIUS server running on PacketFence
   (PacketFence's Administration Interface) and make sure _Support for RFC 3576_ is enabled (if not present it is enabled by default)
@@ -2885,8 +2885,8 @@ image::docs/images/SSID_6.png[scaledwidth="100%",alt="SSID step 6"]
 
 image::docs/images/SSID_7.png[scaledwidth="100%",alt="SSID step 7"]
 
-* Then you have to create two ACL, one to deny all except the minimum to hit the portal (Pre-Auth-For-WebRedirect ) and the other
-one to allow any (Authorize_any) .
+* Then you have to create two ACLs - one to deny all traffic except the required one to hit the portal (Pre-Auth-For-WebRedirect ) and the other
+one to allow anything (Authorize_any) .
 
 image::docs/images/ACL.png[scaledwidth="100%",alt="ACL"]
 
