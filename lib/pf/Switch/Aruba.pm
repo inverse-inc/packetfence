@@ -622,15 +622,11 @@ sub parseUrl {
 
 =head1 AUTHOR
 
-Regis Balzard <rbalzard@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2012 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
