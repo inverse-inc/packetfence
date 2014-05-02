@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.2.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-05-01 14:15-0400\n"
+"PO-Revision-Date: 2014-05-02 13:47-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -3781,7 +3781,7 @@ msgstr "Billing"
 
 # conf/documentation.conf
 msgid "billing.authorizenet_login"
-msgstr "Authorize.net login"
+msgstr "Authorize.net API Login ID"
 
 # conf/documentation.conf
 msgid "billing.authorizenet_posturl"
@@ -3789,7 +3789,7 @@ msgstr "Authorize.net URL"
 
 # conf/documentation.conf
 msgid "billing.authorizenet_trankey"
-msgstr "Authorize.net key"
+msgstr "Authorize.net Transaction Key"
 
 # conf/documentation.conf
 msgid "billing.gateway"
