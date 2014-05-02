@@ -140,12 +140,13 @@ sub processTransaction : Private {
     # Process the transaction
     my $paymentStatus =
       $billingObj->processTransaction($transaction_infos_ref);
+    my $pid = $c->session->param('login');
 
     if ($paymentStatus eq $BILLING::SUCCESS) {
 
         # Adding person (using modify in case person already exists)
         person_modify(
-            $portalSession->getSession->param('login'),
+            $pid,
             (   'firstname' => $request->param('firstname'),
                 'lastname'  => $request->param('lastname'),
                 'email'     => lc($request->param('email')),
@@ -156,7 +157,7 @@ sub processTransaction : Private {
         # Grab additional infos about the node
         my %info;
         my $timeout = normalize_time($tiers_infos{$tier}{'timeout'});
-        $info{'pid'}      = $portalSession->getSession->param('login');
+        $info{'pid'}      = $pid;
         $info{'category'} = $tiers_infos{$tier}{'category'};
         $info{'unregdate'} =
           POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $timeout));
