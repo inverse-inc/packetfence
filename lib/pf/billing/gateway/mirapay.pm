@@ -86,7 +86,7 @@ sub processPayment {
     my $approved_code = $data{AB};
     my $display_msg   = $data{DM};
     # The payment was not approved
-    if ( $approved_code ne 'Y' ) {
+    if ( !$approved_code || $approved_code ne 'Y' ) {
         $logger->error("The payment was not approved by the payment gateway: $display_msg");
         return $BILLING::ERROR;
     }
