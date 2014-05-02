@@ -1,48 +1,25 @@
-package pf::DB;
-
+package pf::Base::RoseDB::Object;
 =head1 NAME
 
-pf::DB add documentation
+pf::Base::RoseDB::Object add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::DB
+pf::Base::RoseDB::Object
 
 =cut
 
 use strict;
 use warnings;
+use base 'Rose::DB::Object';
 
-use Rose::DB;
-use pf::db;
-use List::MoreUtils qw(any);
-our @ISA = qw(Rose::DB);
+use pf::RoseDB;
 
-__PACKAGE__->use_private_registry;
+sub init_db { pf::RoseDB->new() }
 
-# Register your lone data source using the default type and domain
-our $DB_Config = $pf::Config{'database'};
-
-__PACKAGE__->register_db(
-    domain   => pf::DB->default_domain,
-    type     => pf::DB->default_type,
-    driver   => 'mysql',
-    connect_options => {
-        RaiseError => 0,
-        PrintError => 0,
-        mysql_auto_reconnect => 0,
-    },
-);
-
-sub dbh {
-    my $dbh;
-    eval {
-        $dbh = db_connect(); 
-    };
-    return $dbh;
-}
+1;
 
 =head1 AUTHOR
 

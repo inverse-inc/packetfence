@@ -1,22 +1,22 @@
-package pf::DB::Wrix::Manager;
+package pf::RoseDB::Wrix::Manager;
 =head1 NAME
 
-pf::DB::Wrix::Manager add documentation
+pf::RoseDB::Wrix::Manager add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::DB::Wrix::Manager
+pf::RoseDB::Wrix::Manager
 
 =cut
 
 use strict;
 use warnings;
-use base qw(pf::Base::DB::Wrix::Manager);
-use pf::DB::Wrix;
+use base qw(pf::Base::RoseDB::Wrix::Manager);
+use pf::RoseDB::Wrix;
 
-sub object_class { "pf::DB::Wrix" }
+sub object_class { "pf::RoseDB::Wrix" }
 
 sub _build_csvImporter {
     my ($self,$file) = @_;

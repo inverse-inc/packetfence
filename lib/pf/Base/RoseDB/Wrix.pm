@@ -1,21 +1,21 @@
-package pf::Base::DB::Wrix;
+package pf::Base::RoseDB::Wrix;
 
 =head1 NAME
 
-pf::Base::DB::Wrix add documentation
+pf::Base::RoseDB::Wrix add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Base::DB::Wrix
+pf::Base::RoseDB::Wrix
 
 =cut
 
 
 use strict;
 
-use base qw(pf::Base::DB::Object);
+use base qw(pf::Base::RoseDB::Object);
 
 __PACKAGE__->meta->setup(
     table   => 'wrix',

@@ -1,32 +1,34 @@
-package pf::DB::Wrix;
+package pf::Base::RoseDB::Wrix::Manager;
+
 =head1 NAME
 
-pf::DB::Wrix add documentation
+pf::Base::RoseDB::Wrix::Manager add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::DB::Wrix
+pf::Base::RoseDB::Wrix::Manager
 
 =cut
 
 use strict;
-use warnings;
 
-use base qw(pf::Base::DB::Wrix);
+use base qw(Rose::DB::Object::Manager);
 
-=head1 AUTHOR
+use pf::Base::RoseDB::Wrix;
 
-Inverse inc. <info@inverse.ca>
+sub object_class { 'pf::Base::RoseDB::Wrix' }
+
+__PACKAGE__->make_manager_methods('wrix');
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -44,4 +46,3 @@ USA.
 =cut
 
 1;
-

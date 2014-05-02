@@ -14,7 +14,7 @@ pfappserver::Model::Config::Wrix;
 
 use Moose;
 use namespace::autoclean;
-use pf::DB::Wrix::Manager;
+use pf::RoseDB::Wrix::Manager;
 use HTTP::Status qw(:constants is_error is_success);
 use pf::log;
 our %OP_MAP = (
@@ -31,7 +31,7 @@ our %OP_MAP = (
 
 extends 'pfappserver::Base::Model::DB';
 
-has '+managerClassName' => (default => 'pf::DB::Wrix::Manager');
+has '+managerClassName' => (default => 'pf::RoseDB::Wrix::Manager');
 
 =head1 METHODS
 
