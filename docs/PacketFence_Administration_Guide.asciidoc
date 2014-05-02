@@ -2103,6 +2103,18 @@ To do so, some customizations is needed to the billing module. You'll need to re
 
 To assign a role by tiers (example: slow, medium and fast), edit the file `lib/pf/billing/custom.pm`
 
+    my %tiers = (
+            tier1 => {
+                id => "tier1",  # used as the item value of the billing table
+                name => "Tier 1",  # used on billing.html
+                price => "1.00",  # amount charged on the credit card
+                timeout => "7D",  # used to compute the unregistration date of the node
+                usage_duration => '1D',  # the amount of non-contignuous access time for the node, set as the time_balance value of the node table
+                category => '',  # the role in which to put the node
+                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org"  # used on billing.html
+            },
+    );
+
 CAUTION: The use of different billing tiers requires different roles in PacketFence. Make sure to create these roles first otherwise you will run into problems.
 
 Portal Profiles
