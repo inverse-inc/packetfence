@@ -20,6 +20,8 @@ has '+name' => (default => sub { 'pfsetvlan' } );
 
 has '+launcher' => (default => sub { '%1$s -d ' } );
 
+has dependsOnServices => (is => 'ro', default => sub { [qw(snmptrapd)] } );
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
