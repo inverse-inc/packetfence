@@ -1000,7 +1000,7 @@ Next, edit `/etc/samba/smb.conf`. Again, here is an example for our `DOMAIN.NET`
 ----
   [global]
   workgroup = DOMAIN
-  server string = pf_server_name
+  server string = %h
   security = ads
   passdb backend = tdbsam
   realm = DOMAIN.NET
@@ -1012,6 +1012,8 @@ Next, edit `/etc/samba/smb.conf`. Again, here is an example for our `DOMAIN.NET`
   local master = no
   load printers = no
   log level = 1 winbind:5 auth:3
+  winbind max clients = 750
+  winbind max domain connections = 15
 ----
 
 For Debian and Ubuntu:
