@@ -671,7 +671,7 @@ sub permissions {
     my (undef, undef, $pfcmd_mode, undef, $pfcmd_owner, $pfcmd_group) = stat($bin_dir . "/pfcmd");
     # pfcmd needs to be owned by root (owner id 0 / group id 0)
     if ($pfcmd_owner || $pfcmd_group) {
-        add_problem( $FATAL, "pfcmd needs to be owned by root. Fix with chown root:root pfcmd" );
+        add_problem( $FATAL, "pfcmd needs to be owned by root. Fix with chown root:root $bin_dir/pfcmd" );
     }
     # and pfcmd needs to be setuid / setgid
     if (!($pfcmd_mode & S_ISUID && $pfcmd_mode & S_ISGID)) {
@@ -702,7 +702,7 @@ sub permissions {
         # if log doesn't exist it is created correctly so no need to complain
         next if (!-f $log_dir . '/' . $log_file);
 
-        add_problem( $FATAL, "$log_file must be owned by user pf. Fix with chown pf -R logs/" )
+        add_problem( $FATAL, "$log_file must be owned by user pf. Fix with chown pf -R $log_dir/" )
             unless (getpwuid((stat($log_dir . '/' . $log_file))[4]) eq 'pf');
     }
 }
