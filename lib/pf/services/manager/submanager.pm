@@ -65,7 +65,7 @@ sub status {
     my ($self,$quick) = @_;
     my @results = map { $_->status($quick) } $self->managers;
     my $failed = true { $_ eq '0' } @results;
-    return join(" ",@results) if $failed == 0 || ($quick && @results != $failed);
+    return join(" ",@results) if ( @results && $failed == 0 ) || ($quick && @results != $failed);
     return ("0");
 }
 
