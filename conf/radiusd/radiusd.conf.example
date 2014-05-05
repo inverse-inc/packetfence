@@ -17,8 +17,11 @@ db_dir = ${raddbdir}
 libdir = /usr/lib%%arch%%/freeradius
 pidfile = ${run_dir}/${name}.pid
 
-soap_server = 127.0.0.1
-soap_port   = 9090
+rpc_user   = %%rpc_user%%
+rpc_pass   = %%rpc_pass%%
+rpc_port   = 9090
+rpc_server = 192.168.56.101
+rpc_proto  = https
 
 
 user = pf
