@@ -1,0 +1,17 @@
+# -*- text -*-
+# Copyright (C) 2012 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#       Inverse Inc.
+#
+##############################################################################
+
+VENDOR          PacketFence                        29464
+
+BEGIN-VENDOR    PacketFence
+
+ATTRIBUTE       PacketFence-Soap-Server                 1       string
+ATTRIBUTE       PacketFence-Soap-Port                   2       string
+
+END-VENDOR      PacketFence
+

@@ -1,8 +1,8 @@
 server soh-server {
         authorize {
                 update control {
-                    Tmp-String-8 = ${soap_server}
-                    Tmp-String-9 = ${soap_port}
+                    PacketFence-Soap-Server = ${soap_server}
+                    PacketFence-Soap-Port = ${soap_port}
                 }
                 packetfence-soh
                 update config {

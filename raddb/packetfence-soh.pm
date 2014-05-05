@@ -38,8 +38,8 @@ use lib '/usr/local/pf/lib/';
 
 #use pf::config; # TODO: See note1
 use pf::radius::constants;
-use constant SOAP_PORT_KEY => 'Tmp-String-9'; #TODO: See note1
-use constant SOAP_SERVER_KEY => 'Tmp-String-8'; #TODO: See note1
+use constant SOAP_PORT_KEY => 'PacketFence-Soap-Port'; #TODO: See note1
+use constant SOAP_SERVER_KEY => 'PacketFence-Soap-Server'; #TODO: See note1
 use constant DEFAULT_SOAP_SERVER => '127.0.0.1'; #TODO: See note1
 use constant DEFAULT_SOAP_PORT => '9090'; #TODO: See note1
 use pf::radius::msgpackclient;
