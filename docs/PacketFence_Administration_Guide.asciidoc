@@ -2174,7 +2174,7 @@ field : https://YOUR_PORTAL_HOSTNAME/oauth2/google.  Of course, replace the host
 
 You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
 
-Also, add the following Authorized domains : *.google.com,*.google.ca,*.google.fr,*.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
+Also, add the following Authorized domains : *.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
 
 Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from *Configuration -> Sources*.
 
