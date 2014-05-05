@@ -2172,6 +2172,10 @@ Google
 In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URI for the "Redirect URI"
 field : https://YOUR_PORTAL_HOSTNAME/oauth2/google.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
+You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
+
+Also, add the following Authorized domains : *.google.com,*.google.ca,*.google.fr,*.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that the the google from your country like Canada => *.google.ca, France => *.google.fr, etc...)
+
 Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from *Configuration -> Sources*.
 
 Moreover, don't forget to add Google as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
@@ -2181,7 +2185,11 @@ Facebook
 To use Facebook, you also need an API code and a secret key.  To get one, go here: https://developers.facebook.com/apps.  When you create your App, make sure you input the following as the Website URL:
 https://YOUR_PORTAL_HOSTNAME/oauth2/facebook
 
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`. 
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+You can keep the default configuration, modify the App ID & App Secret (Given by FaceBook on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
+
+Also, add the following Authorized domains : *.facebook.com, *.fbcdn.net, *.akamaihd.net (May change)
 
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from *Configuration -> Sources*.
 
