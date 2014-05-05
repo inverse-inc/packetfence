@@ -60,8 +60,9 @@
 -A input-internal-inline-if --protocol udp --match udp --dport 53  --match mark --mark 0x1 --jump DROP
 # HTTP (captive-portal) 
 # prevent registered users from reaching it
--A input-internal-inline-if --protocol tcp --match tcp --dport 80  --match mark --mark 0x1 --jump DROP
--A input-internal-inline-if --protocol tcp --match tcp --dport 443 --match mark --mark 0x1 --jump DROP
+# TODO: Must work in dispatcher and Catalyst to redirect registered client out of the portal
+#-A input-internal-inline-if --protocol tcp --match tcp --dport 80  --match mark --mark 0x1 --jump DROP
+#-A input-internal-inline-if --protocol tcp --match tcp --dport 443 --match mark --mark 0x1 --jump DROP
 # allow everyone else behind inline interface (not registered, isolated, etc.)
 -A input-internal-inline-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-internal-inline-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
