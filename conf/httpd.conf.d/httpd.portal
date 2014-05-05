@@ -82,9 +82,10 @@
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module modules/mod_apreq2.so
   </IfModule>
-  <IfModule !mod_unique_id.c>
-    LoadModule unique_id_module modules/mod_unique_id.so
-  </IfModule>
+  # To activate this module add an entry in /etc/hosts for this server hostname.
+  #<IfModule !mod_unique_id.c>
+  #  LoadModule unique_id_module modules/mod_unique_id.so
+  #</IfModule>
   <IfModule !mod_qos.c>
     LoadModule qos_module modules/mod_qos.so
   </IfModule>
