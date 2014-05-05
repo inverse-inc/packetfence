@@ -177,11 +177,11 @@ has_field 'allowed_devices' =>
     element_class => ['chzn-select', 'input-xxlarge'],
   );
 
-=head2 allow_andriod_devices
+=head2 allow_android_devices
 
 =cut
 
-has_field 'allow_andriod_devices' =>
+has_field 'allow_android_devices' =>
   (
     type => 'Checkbox',
   );

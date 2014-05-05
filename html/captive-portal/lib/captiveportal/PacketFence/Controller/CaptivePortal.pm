@@ -125,7 +125,7 @@ sub checkForProvisioningSupport : Private {
     my ( $self, $c ) = @_;
     if (isenabled($Config{'provisioning'}{'autoconfig'})) {
         return ( $c->forward('supportsMobileConfigProvisioning') ||
-                 $c->forward('supportsAndriodConfigProvisioning') );
+                 $c->forward('supportsAndroidConfigProvisioning') );
     }
     return 0;
 }
@@ -145,13 +145,13 @@ sub supportsMobileConfigProvisioning : Private {
     return 0;
 }
 
-=head2 supportsAndriodConfigProvisioning
+=head2 supportsAndroidConfigProvisioning
 
 TODO: documention
 
 =cut
 
-sub supportsAndriodConfigProvisioning : Private {
+sub supportsAndroidConfigProvisioning : Private {
     my ( $self, $c ) = @_;
     if($self->matchAnyOses($c,'Android')) {
         $c->user_cache->set("mac:" . $c->portalSession->clientMac . ":do_not_deauth" ,1);
@@ -415,7 +415,7 @@ sub provisioning : Private {
     my ( $self, $c ) = @_;
     if($c->forward('supportsMobileConfigProvisioning') ) {
         $c->detach('release_with_xmlconfig');
-    } elsif( $c->forward('supportsAndriodConfigProvisioning') ) {
+    } elsif( $c->forward('supportsAndroidConfigProvisioning') ) {
         $c->detach('release_with_android');
     }
 }
