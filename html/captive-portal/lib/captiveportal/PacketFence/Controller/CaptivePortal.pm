@@ -413,10 +413,12 @@ sub endPortalSession : Private {
 
 sub provisioning : Private {
     my ( $self, $c ) = @_;
-    if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad') ) {
-        $c->detach('release_with_xmlconfig');
-    } elsif($self->matchAnyOses($c,'Android') ) {
-        $c->detach('release_with_android');
+    if (isenabled($Config{'provisioning'}{'autoconfig'})) {
+        if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad') ) {
+            $c->detach('release_with_xmlconfig');
+        } elsif($self->matchAnyOses($c,'Android') ) {
+            $c->detach('release_with_android');
+        }
     }
 }
 
