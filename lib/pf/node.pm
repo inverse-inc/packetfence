@@ -755,7 +755,7 @@ sub node_modify {
         $existing->{autoreg} = 'no';
     }
 
-    my $new_mac    = lc( $existing->{'mac'} );
+    my $new_mac    = clean_mac(lc( $existing->{'mac'} ));
     my $new_status = $existing->{'status'};
 
     if ( $mac ne $new_mac && node_exist($new_mac) ) {
