@@ -48,7 +48,6 @@ function getStatus(href){
 }
 
 function escape_service(service){
-    console.log(service.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1'));
     return service.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1')
 }
 
