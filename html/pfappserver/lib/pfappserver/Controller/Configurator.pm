@@ -450,7 +450,17 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->detach(Service => 'pf_start'); 
         }
         else{ 
-            $c->controller('Service')->_process_model_results_as_json($c, $c->model('Services')->status);    
+            my ($HTTP_CODE, $services) = $c->model('Services')->status;
+            my $start_failed = 0;
+            foreach my $pid (values %{ $services->{services} }) {
+                if($pid eq "0"){
+                    $start_failed = 1;
+                }
+            }
+            if(!$start_failed){
+                $c->model('Configurator')->update_currently_at();
+            }
+            $c->controller('Service')->_process_model_results_as_json($c, $HTTP_CODE, $services);    
         }
     }
 }
