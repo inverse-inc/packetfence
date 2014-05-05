@@ -1,9 +1,12 @@
 server soh-server {
         authorize {
-                update control {
-                    PacketFence-RPC-Server = ${soap_server}
-                    PacketFence-RPC-Port = ${soap_port}
-                }
+            update control {
+                PacketFence-RPC-Server = ${rpc_server}
+                PacketFence-RPC-Port = ${rpc_port}
+                PacketFence-RPC-User = ${rpc_user}
+                PacketFence-RPC-Pass = ${rpc_pass}
+                PacketFence-RPC-Proto = ${rpc_proto}
+            }
                 packetfence-soh
                 update config {
                     Auth-Type = Accept

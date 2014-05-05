@@ -20,9 +20,9 @@ Once cleaned:
 
 - Uncommented line: use pf::config
 
-- Remove line: use constant SOAP_PORT => '9090';
+- Remove line: use constant RPC_PORT => '9090';
 
-- Remove line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT);
+- Remove line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . RPC_PORT);
 
 - Uncomment line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'});
 
@@ -39,15 +39,20 @@ use lib '/usr/local/pf/lib/';
 #use pf::config; # TODO: See note1
 use pf::radius::constants;
 use pf::radius::soapclient;
-use pf::radius::msgpackclient;
+use pf::radius::rpc;
 use pf::util::freeradius qw(clean_mac);
 
 # Configuration parameter
-use constant SOAP_PORT_KEY => 'PacketFence-RPC-Port'; #TODO: See note1
-use constant SOAP_SERVER_KEY => 'PacketFence-RPC-Server'; #TODO: See note1
-use constant DEFAULT_SOAP_SERVER => '127.0.0.1'; #TODO: See note1
-use constant DEFAULT_SOAP_PORT => '9090'; #TODO: See note1
-use constant API_URI => 'https://www.packetfence.org/PFAPI'; # don't change this unless you know what you are doing
+use constant RPC_PORT_KEY   => 'PacketFence-RPC-Port';
+use constant RPC_SERVER_KEY => 'PacketFence-RPC-Server';
+use constant RPC_PROTO_KEY  => 'PacketFence-RPC-Proto';
+use constant RPC_USER_KEY   => 'PacketFence-RPC-User';
+use constant RPC_PASS_KEY   => 'PacketFence-RPC-Pass';
+use constant DEFAULT_RPC_SERVER => '127.0.0.1';
+use constant DEFAULT_RPC_PORT   => '9090';
+use constant DEFAULT_RPC_PROTO  => '127.0.0.1';
+use constant DEFAULT_RPC_USER   => undef;
+use constant DEFAULT_RPC_PASS   => undef;
 
 require 5.8.8;
 
@@ -82,15 +87,20 @@ sub authorize {
     return $RADIUS::RLM_MODULE_NOOP;
 }
 
-=item * _get_rpc_host_port
+=item * _get_rpc_config
 
-get the configured soap host and port
+get the rpc configuration
 
 =cut
 
-sub _get_rpc_host_port {
-    return (($RAD_CONFIG{SOAP_SERVER_KEY()} || DEFAULT_SOAP_SERVER) , ($RAD_CONFIG{SOAP_PORT_KEY()} || DEFAULT_SOAP_PORT));
-
+sub _get_rpc_config {
+    return {
+        server => $RAD_CONFIG{RPC_SERVER_KEY()} || DEFAULT_RPC_SERVER,
+        port   => $RAD_CONFIG{RPC_PORT_KEY()}   || DEFAULT_RPC_PORT,
+        proto  => $RAD_CONFIG{RPC_PROTO_KEY()}  || DEFAULT_RPC_PROTO,
+        user   => $RAD_CONFIG{RPC_USER_KEY()}   || DEFAULT_RPC_USER,
+        pass   => $RAD_CONFIG{RPC_PASS_KEY()}   || DEFAULT_RPC_PASS,
+    };
 }
 
 =item * post_auth
@@ -118,8 +128,8 @@ sub post_auth {
             &radiusd::radlog($RADIUS::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
             return $RADIUS::RLM_MODULE_OK;
         }
-        my ($server,$rpcport) = _get_rpc_host_port();
-        my $data = send_msgpack_request($server, $rpcport, "radius_authorize", \%RAD_REQUEST);
+        my $config = _get_rpc_config();
+        my $data = send_rpc_request($config, "radius_authorize", \%RAD_REQUEST);
 
         if ($data) {
 
@@ -181,7 +191,7 @@ sub post_auth {
         # &radiusd::radlog($RADIUS::L_DBG, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
     };
     if ($@) {
-        &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize SOAP request: $@");
+        &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize RPC request: $@");
     }
 
     return $radius_return_code;
@@ -216,7 +226,7 @@ Called whenever an invalid answer is returned from the server
 =cut
 
 sub invalid_answer_handler {
-    &radiusd::radlog($RADIUS::L_ERR, "No or invalid reply in SOAP communication with server. Check server side logs for details.");
+    &radiusd::radlog($RADIUS::L_ERR, "No or invalid reply in RPC communication with server. Check server side logs for details.");
     &radiusd::radlog($RADIUS::L_DBG, "PacketFence UNDEFINED RESULT RESPONSE CODE");
     &radiusd::radlog($RADIUS::L_DBG, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
     return $RADIUS::RLM_MODULE_FAIL;
@@ -281,14 +291,14 @@ sub accounting {
             return $RADIUS::RLM_MODULE_OK;
         }
 
-        # We only perform a SOAP call on stop/update types
+        # We only perform a RPC call on stop/update types
         unless ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop' ||
                 $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update') {
             return $RADIUS::RLM_MODULE_OK;
         }
 
-        my ($server,$rpcport) = _get_rpc_host_port();
-        my $data = send_msgpack_request($server, $rpcport, "radius_accounting", \%RAD_REQUEST);
+        my $config = _get_rpc_config();
+        my $data = send_rpc_request($config, "radius_accounting", \%RAD_REQUEST);
         if ($data) {
             my $elements = $data->[0];
 
@@ -309,7 +319,7 @@ sub accounting {
         return $rc;
     };
     if ($@) {
-        &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize SOAP request: $@");
+        &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize RPC request: $@");
         $radius_return_code = server_error_handler();
     }
 

@@ -38,11 +38,18 @@ use lib '/usr/local/pf/lib/';
 
 #use pf::config; # TODO: See note1
 use pf::radius::constants;
-use constant SOAP_PORT_KEY => 'PacketFence-RPC-Port'; #TODO: See note1
-use constant SOAP_SERVER_KEY => 'PacketFence-RPC-Server'; #TODO: See note1
-use constant DEFAULT_SOAP_SERVER => '127.0.0.1'; #TODO: See note1
-use constant DEFAULT_SOAP_PORT => '9090'; #TODO: See note1
-use pf::radius::msgpackclient;
+# Configuration parameter
+use constant RPC_PORT_KEY   => 'PacketFence-RPC-Port';
+use constant RPC_SERVER_KEY => 'PacketFence-RPC-Server';
+use constant RPC_PROTO_KEY  => 'PacketFence-RPC-Proto';
+use constant RPC_USER_KEY   => 'PacketFence-RPC-User';
+use constant RPC_PASS_KEY   => 'PacketFence-RPC-Pass';
+use constant DEFAULT_RPC_SERVER => '127.0.0.1';
+use constant DEFAULT_RPC_PORT   => '9090';
+use constant DEFAULT_RPC_PROTO  => '127.0.0.1';
+use constant DEFAULT_RPC_USER   => undef;
+use constant DEFAULT_RPC_PASS   => undef;
+use pf::radius::rpc;
 
 
 require 5.8.8;
@@ -55,15 +62,20 @@ our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK, %RAD_CONFIG);
 
 =over
 
-=item * _get_rpc_host_port
+=item * _get_rpc_config
 
-get the configured soap host and port
+get the rpc configuration
 
 =cut
 
-sub _get_rpc_host_port {
-    return (($RAD_CONFIG{SOAP_SERVER_KEY()} || DEFAULT_SOAP_SERVER) , ($RAD_CONFIG{SOAP_PORT_KEY()} || DEFAULT_SOAP_PORT));
-
+sub _get_rpc_config {
+    return {
+        server => $RAD_CONFIG{RPC_SERVER_KEY()} || DEFAULT_RPC_SERVER,
+        port   => $RAD_CONFIG{RPC_PORT_KEY()}   || DEFAULT_RPC_PORT,
+        proto  => $RAD_CONFIG{RPC_PROTO_KEY()}  || DEFAULT_RPC_PROTO,
+        user   => $RAD_CONFIG{RPC_USER_KEY()}   || DEFAULT_RPC_USER,
+        pass   => $RAD_CONFIG{RPC_PASS_KEY()}   || DEFAULT_RPC_PASS,
+    };
 }
 
 =item * authorize
@@ -76,8 +88,8 @@ the only callback available inside an SoH virtual server.
 sub authorize {
     my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
     eval {
-        my ($server,$port) = _get_rpc_host_port();
-        my $data = send_msgpack_request($server, $port, "soh_authorize", \%RAD_REQUEST);
+        my $config = _get_rpc_config();
+        my $data = send_rpc_request($config, "soh_authorize", \%RAD_REQUEST);
         if ($data) {
 
             my $elements = $data->[0];

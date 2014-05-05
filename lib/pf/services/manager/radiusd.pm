@@ -44,6 +44,8 @@ sub generate_radiusd_mainconf {
     $tags{'install_dir'} = $install_dir;
     $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
     $tags{'arch'} = `uname -m` eq "x86_64" ? "64" : "";
+    $tags{'rpc_pass'} = $Config{webservices}{pass} || "''";
+    $tags{'rpc_user'} = $Config{webservices}{user} || "''";
 
     parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
 }
