@@ -623,7 +623,8 @@ sub readPfConfigFiles {
                             crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
                             crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                             ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
-                            ocsp.verisign.com ctldl.windowsupdate.com
+                            ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
+                            www.microsoft.com
                         )
                     ];
                 } else {
@@ -633,7 +634,8 @@ sub readPfConfigFiles {
                             crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
                             crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                             ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
-                            ocsp.verisign.com ctldl.windowsupdate.com
+                            ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
+                            www.microsoft.com
                         )
                     ];
                 }
