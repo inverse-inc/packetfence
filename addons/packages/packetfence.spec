@@ -226,7 +226,7 @@ Requires: perl(MooseX::Types::LoadableClass)
 Requires: perl(Moose) <= 2.1005
 Requires: perl(CHI) >= 0.56
 Requires: perl(Data::Serializer)
-Requires: perl(HTML::FormHandler)
+Requires: perl(HTML::FormHandler) = 0.40013
 Requires: perl(Cache::Memcached)
 Requires: perl(Cache::Memcached::GetParserXS)
 Requires: perl(CHI::Driver::Memcached)
