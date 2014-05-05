@@ -409,6 +409,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
 
     if ($c->request->method eq 'GET') {
 
+        $c->session->{started} = 0;
         my $completed = $c->session->{completed};
         $c->stash->{completed} = 1;
         foreach my $step (@steps) {
@@ -444,38 +445,13 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
 
     # Start the services
     elsif ($c->request->method eq 'POST') {
-
-        # actually try to start the services
-        my ($status, $service_start_output) = $c->model('Services')->start();
-        # if we detect an error later, we will be able to display the output
-        # this will be done on the client side
-        $c->stash->{'error'} = encode_entities($service_start_output);
-        if ( is_error($status) ) {
-            $c->response->status($status);
-            $c->stash->{status_msg} = $service_start_output;
+        if(!$c->session->{started}){
+            $c->session->{started} = 1;
+            $c->detach(Service => 'pf_start'); 
         }
-        # success: list the services
-        else {
-            my ($status, $services_status) = $c->model('Services')->status();
-            if ( is_success($status) ) {
-                $c->log->info("successfully listed services");
-                $c->stash->{'services'} = $services_status;
-                # a service has failed to start if its status is 0
-                my $start_failed = scalar(grep {int $_ == 0} values %{$services_status}) > 0;
-                if ($start_failed) {
-                    $c->log->warn("some services were not started");
-                }
-                else {
-                    $c->model('Configurator')->update_currently_at();
-                }
-            }
-            else {
-                $c->response->status($status);
-                $c->log->info('problem trying to list the services');
-                $c->stash->{status_msg} = $services_status;
-            }
+        else{ 
+            $c->controller('Service')->_process_model_results_as_json($c, $c->model('Services')->status);    
         }
-        $c->stash->{current_view} = 'JSON';
     }
 }
 
