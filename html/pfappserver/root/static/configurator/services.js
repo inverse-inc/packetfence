@@ -72,9 +72,6 @@ function servicesUpdate(data) {
         // added a delay for dramatic effect
         window.setTimeout(function() { $('#modalRedirection').modal({ show: true }); }, 2000 );
     }
-    else { 
-        //$('#serviceErrors pre').text(data.error).parent().slideDown();
-    }
 }
 
 function servicesError() {
