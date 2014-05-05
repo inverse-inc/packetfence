@@ -46,7 +46,7 @@ use constant RPC_USER_KEY   => 'PacketFence-RPC-User';
 use constant RPC_PASS_KEY   => 'PacketFence-RPC-Pass';
 use constant DEFAULT_RPC_SERVER => '127.0.0.1';
 use constant DEFAULT_RPC_PORT   => '9090';
-use constant DEFAULT_RPC_PROTO  => '127.0.0.1';
+use constant DEFAULT_RPC_PROTO  => 'http';
 use constant DEFAULT_RPC_USER   => undef;
 use constant DEFAULT_RPC_PASS   => undef;
 use pf::radius::rpc;
