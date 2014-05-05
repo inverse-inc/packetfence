@@ -127,7 +127,7 @@ sub checkForProvisioningSupport : Private {
         return ( $c->forward('supportsMobileConfigProvisioning') ||
                  $c->forward('supportsAndriodConfigProvisioning') );
     }
-    return ;
+    return 0;
 }
 
 =head2 supportsMobileConfigProvisioning
@@ -393,7 +393,7 @@ sub endPortalSession : Private {
     }
 
     # handle mobile provisioning if relevant
-    $c->forward('provisioning');
+    $c->forward('provisioning') if ( $c->forward('checkForProvisioningSupport') );
 
     # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
     if ( $c->request->secure ) {
@@ -413,12 +413,10 @@ sub endPortalSession : Private {
 
 sub provisioning : Private {
     my ( $self, $c ) = @_;
-    if (isenabled($Config{'provisioning'}{'autoconfig'})) {
-        if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad') ) {
-            $c->detach('release_with_xmlconfig');
-        } elsif($self->matchAnyOses($c,'Android') ) {
-            $c->detach('release_with_android');
-        }
+    if($c->forward('supportsMobileConfigProvisioning') ) {
+        $c->detach('release_with_xmlconfig');
+    } elsif( $c->forward('supportsAndriodConfigProvisioning') ) {
+        $c->detach('release_with_android');
     }
 }
 
