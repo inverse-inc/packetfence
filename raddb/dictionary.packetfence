@@ -10,8 +10,8 @@ VENDOR          PacketFence                        29464
 
 BEGIN-VENDOR    PacketFence
 
-ATTRIBUTE       PacketFence-Soap-Server                 1       string
-ATTRIBUTE       PacketFence-Soap-Port                   2       string
+ATTRIBUTE       PacketFence-RPC-Server                 1       string
+ATTRIBUTE       PacketFence-RPC-Port                   2       string
 
 END-VENDOR      PacketFence
 

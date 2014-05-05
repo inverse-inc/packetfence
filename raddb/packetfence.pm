@@ -43,8 +43,8 @@ use pf::radius::msgpackclient;
 use pf::util::freeradius qw(clean_mac);
 
 # Configuration parameter
-use constant SOAP_PORT_KEY => 'PacketFence-Soap-Port'; #TODO: See note1
-use constant SOAP_SERVER_KEY => 'PacketFence-Soap-Server'; #TODO: See note1
+use constant SOAP_PORT_KEY => 'PacketFence-RPC-Port'; #TODO: See note1
+use constant SOAP_SERVER_KEY => 'PacketFence-RPC-Server'; #TODO: See note1
 use constant DEFAULT_SOAP_SERVER => '127.0.0.1'; #TODO: See note1
 use constant DEFAULT_SOAP_PORT => '9090'; #TODO: See note1
 use constant API_URI => 'https://www.packetfence.org/PFAPI'; # don't change this unless you know what you are doing

@@ -24,6 +24,7 @@
 #	The filename given here should be an absolute path. 
 #
 $INCLUDE	/usr/share/freeradius/dictionary
+$INCLUDE	/usr/local/pf/raddb/dictionary.packetfence
 
 #
 #	Place additional attributes or $INCLUDEs here.  They will

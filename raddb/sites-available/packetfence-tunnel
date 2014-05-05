@@ -30,8 +30,8 @@ post-auth {
             }
         }
         update control {
-            PacketFence-Soap-Server = ${soap_server}
-            PacketFence-Soap-Port = ${soap_port}
+            PacketFence-RPC-Server = ${soap_server}
+            PacketFence-RPC-Port = ${soap_port}
         }
         packetfence
         Post-Auth-Type REJECT {

@@ -13,8 +13,8 @@ server packetfence {
             FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
         }
         update control {
-            PacketFence-Soap-Server = ${soap_server}
-            PacketFence-Soap-Port = ${soap_port}
+            PacketFence-RPC-Server = ${soap_server}
+            PacketFence-RPC-Port = ${soap_port}
         }
         packetfence
     }
@@ -37,8 +37,8 @@ server packetfence {
         sql
         attr_filter.accounting_response
         update control {
-            PacketFence-Soap-Server = ${soap_server}
-            PacketFence-Soap-Port = ${soap_port}
+            PacketFence-RPC-Server = ${soap_server}
+            PacketFence-RPC-Port = ${soap_port}
         }
         packetfence
     }
@@ -51,8 +51,8 @@ server packetfence {
         # skip packetfence if we have already treated it in the inner-tunnel
         if (!EAP-Type || (EAP-Type != EAP-TTLS  && EAP-Type != PEAP)) {
             update control {
-                PacketFence-Soap-Server = ${soap_server}
-                PacketFence-Soap-Port = ${soap_port}
+                PacketFence-RPC-Server = ${soap_server}
+                PacketFence-RPC-Port = ${soap_port}
             }
             packetfence
         }
