@@ -15,6 +15,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 
 use pf::config;
+use List::MoreUtils qw(all);
 #use namespace::autoclean;
 
 BEGIN { extends 'Catalyst::Controller'; }
@@ -451,13 +452,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
         }
         else{ 
             my ($HTTP_CODE, $services) = $c->model('Services')->status;
-            my $start_failed = 0;
-            foreach my $pid (values %{ $services->{services} }) {
-                if($pid eq "0"){
-                    $start_failed = 1;
-                }
-            }
-            if(!$start_failed){
+            if( all { $_ ne '0' } values %{ $services->{services} } ) {
                 $c->model('Configurator')->update_currently_at();
             }
             $c->controller('Service')->_process_model_results_as_json($c, $HTTP_CODE, $services);    
