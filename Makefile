@@ -92,4 +92,4 @@ mysql-schema:
 chown_pf:
 	chown -R pf:pf *
 
-devel: configurations conf/ssl/server.crt bin/pfcmd permissions raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled chown_pf
+devel: configurations conf/ssl/server.crt bin/pfcmd raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled chown_pf permissions
