@@ -1,3 +1,35 @@
+commit fa31a6528111d4b3c1cdaca502253a4b36335745
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue May 6 15:06:30 2014 -0400
+
+    Update UPGRADE file
+
+M	UPGRADE.asciidoc
+
+commit 2bb109cc806e2f4832b7b999fba6a87a6056c9b5
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue May 6 14:54:16 2014 -0400
+
+    Added timezones to Wrix
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+
+commit 7996f9a50ed852b94e946f2bb797fae21906a2a3
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue May 6 14:47:19 2014 -0400
+
+    Prepare release 4.2.0
+
+M	ChangeLog
+M	NEWS.asciidoc
+M	addons/packages/packetfence.spec
+M	debian/changelog
+M	docs/PacketFence_Administration_Guide-docinfo.xml
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+M	docs/docbook/xsl/titlepage-fo.xml
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
 commit d92d63b145109753c5e37a2c3c73647aee402371
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Tue May 6 14:34:41 2014 -0400
