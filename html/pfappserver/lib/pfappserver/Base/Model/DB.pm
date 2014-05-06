@@ -108,7 +108,7 @@ Get all the sections as an array of hash refs
 
 sub readAll {
     my ( $self, $pageNum, $perPage ) = @_;
-    get_logger->info("$pageNum, $perPage");
+    get_logger->debug("$pageNum, $perPage");
     my $objects = $self->manager->get_objects(
         page     => $pageNum,
         per_page => $perPage,

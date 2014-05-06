@@ -209,7 +209,7 @@ sub extractSsid {
             if ($ciscoAVPair =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
                 return $1;
             } else {
-                $logger->info("Unable to extract SSID of Cisco-AVPair: ".$ciscoAVPair);
+                $logger->warn("Unable to extract SSID of Cisco-AVPair: ".$ciscoAVPair);
             }
         }
      }
