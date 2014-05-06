@@ -220,36 +220,6 @@ RedHat-based systems
 
 NOTE: Includes CentOS and Scientific Linux. Both i386 and x86_64 architectures supported.
 
-Several third party repositories are required to pull all the proper PacketFence dependencies:
-
-[options="compact"]
-* http://repoforge.org/[Repoforge], also previously known as rpmforge
-* http://fedoraproject.org/wiki/EPEL/FAQ[EPEL], Extra Packages for Enterprise Linux
-* http://www.openfusion.net/linux/openfusion_rpm_repository[OpenFusion]
-
-Install the proper repositories in `yum` so it can directly lookup for packages:
-
-.For RHEL 6.x / CentOS 6.x
-
-  # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.`uname -m`.rpm
-  # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-8.noarch.rpm
-  # rpm -Uvh http://repo.openfusion.net/centos6-`uname -i`/openfusion-release-0.6.2-1.of.el6.noarch.rpm
-
-Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmforge.repo`, `epel.repo` and `openfusion.repo` and set `enabled` to 0 under every section like this:
-
-  enabled = 0
-
-Under RHEL 6.x / Centos 6.x, you must exclude perl-Apache-Test from rpmforge and openfusion repository. You also need to exclude perl-Net-DNS and perl-Moose from the openfusion repository.
-
-Edit `/etc/yum.repos.d/rpmforge.repo` and add to the section [rpmforge] the line:
-
-  exclude = perl-Apache-Test*
-
-
-Edit `/etc/yum.repos.d/openfusion.repo` and add to the section [of] the line:
-
-  exclude = perl-Apache-Test*,perl-Net-DNS*,perl-Moose*
-
 RHEL 6.x
 ^^^^^^^^
 
@@ -259,9 +229,6 @@ RedHat Enterprise Linux users need to take an additional setup step. If you are 
 
   rhn-channel --add --channel=rhel-`uname -m`-server-optional-6
 
-RedHat doesn't seem to provide `perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite` packages. PacketFence needs it so we will install it from the rpmforge-extras repository now: 
-
-  yum install perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite --enablerepo=rpmforge-extras,rpmforge
 
 Debian and Ubuntu
 ^^^^^^^^^^^^^^^^^
@@ -300,11 +267,11 @@ Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database
 server, DHCP server, RADIUS server) using:
 
-  yum groupinstall --enablerepo=PacketFence,epel,rpmforge,of Packetfence-complete
+  yum groupinstall --enablerepo=PacketFence Packetfence-complete
 
 Or, if you prefer, to install only the core PacketFence without all the external services, you can use:
 
-  yum install --enablerepo=PacketFence,epel,rpmforge,of packetfence
+  yum install --enablerepo=PacketFence packetfence
 
 Debian and Ubuntu
 ^^^^^^^^^^^^^^^^^
