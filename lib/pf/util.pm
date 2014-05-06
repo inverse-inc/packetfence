@@ -457,7 +457,7 @@ and enabled are all positive values for PacketFence.
 
 sub isenabled {
     my ($enabled) = @_;
-    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled)\s*$/i ) {
+    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i ) {
         return (1);
     } else {
         return (0);
@@ -473,7 +473,7 @@ disable and disabled are all negative values for PacketFence.
 
 sub isdisabled {
     my ($disabled) = @_;
-    if ( $disabled =~ /^\s*(n|no|false|disable|disabled)\s*$/i ) {
+    if ( $disabled =~ /^\s*(n|no|false|disable|disabled|0)\s*$/i ) {
         return (1);
     } else {
         return (0);
