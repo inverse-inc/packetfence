@@ -15,11 +15,13 @@ use strict;
 use warnings;
 use base qw(pf::Base::RoseDB::Wrix::Manager);
 use pf::RoseDB::Wrix;
+use Text::CSV;
+use DateTime;
 
 sub object_class { "pf::RoseDB::Wrix" }
 
-sub _build_csvImporter {
-    my ($self,$file) = @_;
+sub csvImporter {
+    my ($self) = @_;
     return Text::CSV->new ({
         quote_char          => '"',
         escape_char         => '"',
@@ -39,16 +41,26 @@ sub _build_csvImporter {
     });
 }
 
-sub importCsv {
+sub csvExporter {
     my ($self,$file) = @_;
-    my $rows = $self->getRows($file);
-    foreach my $row (@$rows) {
-        my $data = $self->makeEntry($row);
-        my $object = $self->object_class->new(%$data);
-        $object->load( speculative => 1);
-        $object->save;
-    }
-    return 1;
+    return Text::CSV->new ({
+        quote_char          => '"',
+        escape_char         => '"',
+        sep_char            => ',',
+        always_quote        => 1,
+        quote_space         => 1,
+        quote_null          => 1,
+        binary              => 0,
+        keep_meta_info      => 0,
+        allow_loose_quotes  => 0,
+        allow_loose_escapes => 0,
+        allow_whitespace    => 0,
+        blank_is_undef      => 0,
+        empty_is_undef      => 0,
+        verbatim            => 0,
+        auto_diag           => 0,
+        eol                 => "\r\n"
+    });
 }
 
 our @FIELDS = (
@@ -90,9 +102,35 @@ our @FIELDS = (
     'MAC_Address'
 );
 
+
+sub importCsv {
+    my ($self,$file) = @_;
+    my $rows = $self->getRows($file);
+    foreach my $row (@$rows) {
+        my $data = $self->makeEntry($row);
+        my $object = $self->object_class->new(%$data);
+        $object->load( speculative => 1);
+        $object->save;
+    }
+    return 1;
+}
+
+sub exportCsv {
+    my ($self,$fh) = @_;
+    my $it = $self->get_objects_iterator;
+    my $csvExporter = $self->csvExporter;
+    my $eol = $csvExporter->eol || $/;
+    print $fh  DateTime->now->strftime("Version 1.1 %B %d %Y$eol");
+    $csvExporter->print($fh,\@FIELDS);
+    while(my $row = $it->next) {
+       my @cols = map { $row->$_() } @FIELDS;
+       $csvExporter->print($fh,\@cols);
+    }
+}
+
 sub getRows {
     my ($self,$file) = @_;
-    my $csvImporter = $self->_build_csvImporter;
+    my $csvImporter = $self->csvImporter;
     my $row;
     my $fh;
     open($fh,"<$file") or die "unable to open $file";

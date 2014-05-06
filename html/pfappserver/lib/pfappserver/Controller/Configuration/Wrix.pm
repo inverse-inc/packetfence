@@ -13,6 +13,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use DateTime;
+use File::Temp qw/tempfile :seekable/;
 
 use pf::util qw(sort_ip);
 
@@ -49,15 +50,17 @@ sub index :Path :Args(0) {
 
 sub export :Local {
     my ($self,$c) = @_;
-    my $form = $self->getForm($c);
-    my @columns = grep { $_ ne 'id' }  map { $_->name  } $form->fields;
-    $c->forward('list');
-
-    $c->stash->{current_view} = 'CSV';
-    $c->stash(
-        'now' => DateTime->now,
-        'columns' => \@columns,
-    );
+    my $model = $self->getModel($c);
+    my $fh = File::Temp->new(UNLINK => 1);
+    $c->log->debug( sub { "tempfile for exporting is " . $fh->filename } );
+    $model->manager->exportCsv($fh);
+    #flushing all the changes
+    $fh->flush();
+    #Moving the file handle position to the begining of the file
+    $fh->seek(0,SEEK_SET);
+    $c->response->header( 'Content-Type' => "text/csv");
+    $c->response->header( 'Content-Disposition' => "attachment; filename=export.csv");
+    $c->response->body($fh);
 }
 
 sub search :Local :Args() {
