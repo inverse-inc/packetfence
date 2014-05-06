@@ -25,11 +25,11 @@ BEGIN {
 
 __PACKAGE__->config(
     action => {
-#Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
+        # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
         object => { Chained => '/', PathPart => 'configuration/wrix', CaptureArgs => 1 }
     },
     action_args => {
-#Setting the global model and form for all actions
+        # Setting the global model and form for all actions
         '*' => { model => "Config::Wrix",form => "Config::Wrix" },
         search => { model => "Config::Wrix", form => 'AdvancedSearch'}
     },
@@ -49,27 +49,27 @@ sub index :Path :Args(0) {
 }
 
 sub export :Local {
-    my ($self,$c) = @_;
+    my ($self, $c) = @_;
     my $model = $self->getModel($c);
     my $fh = File::Temp->new(UNLINK => 1);
     $c->log->debug( sub { "tempfile for exporting is " . $fh->filename } );
     $model->manager->exportCsv($fh);
-    #flushing all the changes
+    # Flushing all the changes
     $fh->flush();
-    #Moving the file handle position to the begining of the file
+    # Moving the file handle position to the begining of the file
     $fh->seek(0,SEEK_SET);
-    $c->response->header( 'Content-Type' => "text/csv");
-    $c->response->header( 'Content-Disposition' => "attachment; filename=export.csv");
+    $c->response->header('Content-Type' => "text/csv");
+    $c->response->header('Content-Disposition' => "attachment; filename=export.csv");
     $c->response->body($fh);
 }
 
 sub search :Local :Args() {
-    my ($self, $c,$pageNum,$perPage) = @_;
+    my ($self, $c, $pageNum, $perPage) = @_;
     $pageNum = 1 unless $pageNum;
     $perPage = 25 unless $perPage;
     my ($status, $status_msg, $result);
     my $form = $self->getForm($c);
-    if($c->request->method eq 'POST') {
+    if ($c->request->method eq 'POST') {
         $form->process(params => $c->request->params);
         if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;
@@ -78,10 +78,16 @@ sub search :Local :Args() {
         } else {
             my $model = $self->getModel($c);
             my $query = $form->value;
-            ($status, $result) = $model->search($pageNum,$perPage,$query);
-            if (is_success($status)) {
-                $c->stash(form => $form);
-                $c->stash($result);
+            if (grep { defined $_->{'value'} } @{$query->{'searches'}}) {
+                # At least one search criteria has a value
+                ($status, $result) = $model->search($pageNum, $perPage, $query);
+                if (is_success($status)) {
+                    $c->stash(form => $form);
+                    $c->stash($result);
+                }
+            }
+            else {
+                $c->forward('list');
             }
         }
         $c->stash(status_msg => $status_msg);
@@ -93,7 +99,7 @@ sub search :Local :Args() {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2013-2014 Inverse inc.
 
 =head1 LICENSE
 

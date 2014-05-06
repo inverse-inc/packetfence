@@ -1,9 +1,9 @@
-              <form id="search" name="search" method="POST" class="form-inline" action="[% c.uri_for(c.controller.action_for('search')) %]">
+              <form id="search" name="search" method="POST" class="form-inline" style="margin-bottom: 0px" action="[% c.uri_for(c.controller.action_for('search')) %]">
                 <input type="hidden" name="page_num">
                 <input type="hidden" name="per_page">
                 <input type="hidden" name="by">
                 <input type="hidden" name="direction">
-              <div id="all_or_any" class="hidden well">
+              <div id="all_or_any">
                       [% match_options = BLOCK %]
                       <select name="all_or_any" class="input-mini">
                         <option value="all">[% l('all') %]</option>
@@ -68,11 +68,10 @@
                       <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
                     </td>
                   </tr>
-                  <!--tr class="dynamic-row">
+                  <tr class="dynamic-row">
                     <td>
                       <select name="searches.0.name" class="span4">
                         <option value="id">[% l('Id') %]</option>
-                        <option value="Provider_Identifier">[% l('Provider_Identifier') %]</option>
                         <option value="Location_Identifier">[% l('Location_Identifier') %]</option>
                         <option value="Service_Provider_Brand">[% l('Service_Provider_Brand') %]</option>
                         <option value="Location_Type">[% l('Location_Type') %]</option>
@@ -109,22 +108,22 @@
                         <option value="UTC_Timezone">[% l('UTC_Timezone') %]</option>
                         <option value="MAC_Address">[% l('MAC_Address') %]</option>
                       </select>
-                      <select name="searches.0.op" class="span2">
+                      <select name="searches.0.op" class="span2" >
                         <option value="equal">[% l('is') %]</option>
                         <option value="not_equal">[% l('is not') %]</option>
                         <option value="starts_with">[% l('starts with') %]</option>
                         <option value="ends_with">[% l('ends with') %]</option>
                         <option value="like">[% l('matches') %]</option>
                       </select>
-                      <input name="searches.0.value" type="text" class="span6" placeholder="String..." />
+                      <input name="searches.0.value" type="text" class="span6" placeholder="String...">
                     </td>
                     <td class="action">
                       <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                      <!-- first condition cannot be deleted -->
+                      <a class="btn-icon hidden" href="#delete"><i class="icon-minus-sign"></i></a>
                     </td>
-                  </tr-->
+                  </tr>
                 </tbody>
-                <tfoot id="searchesFooter" class="hidden">
+                <tfoot id="searchesFooter">
                   <tr>
                     <td colspan="2" style="padding-top: 1em">
                       <div class="btn-group pull-right">
@@ -135,12 +134,6 @@
                 </tfoot>
               </table>
       </form>
-      <div id="searchesEmpty" class="unwell unwell-horizontal">
-        <p>
-          <i class="icon-search icon-large"></i>
-          <a href="#add">[% l('Add a search condition.') %]</a>
-        </p>
-      </div>
     <script>
     $('#searchesEmpty').on('click','[href="#add"]', function(event) {
         $('#searchesFooter').removeClass('hidden');
