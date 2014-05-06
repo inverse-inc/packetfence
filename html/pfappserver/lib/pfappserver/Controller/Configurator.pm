@@ -15,6 +15,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 
 use pf::config;
+use pf::os;
 use List::MoreUtils qw(all);
 #use namespace::autoclean;
 
@@ -442,15 +443,14 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->response->status($status);
             $c->stash->{'error'} = $services_status;
         }
-    }
-
-    # Start the services
-    elsif ($c->request->method eq 'POST') {
-        if(!$c->session->{started}){
+    } elsif ($c->request->method eq 'POST') {
+        # Start the services
+        if (!$c->session->{started}) {
             $c->session->{started} = 1;
+            #Loading the fingerprints into the database
+            read_dhcp_fingerprints_conf();
             $c->detach(Service => 'pf_start'); 
-        }
-        else{ 
+        } else { 
             my ($HTTP_CODE, $services) = $c->model('Services')->status;
             if( all { $_ ne '0' } values %{ $services->{services} } ) {
                 $c->model('Configurator')->update_currently_at();
