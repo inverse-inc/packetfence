@@ -935,7 +935,10 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
-* Tue Apr 1 2014 Francis Lachapelle <flachapelle@inverse.ca>
+* Tue May  6 2014 Inverse <info@inverse.ca> - 4.2.0-1
+- New release 4.2.0
+
+* Tue Apr 1 2014 Inverse <info@inverse.ca>
 - Removed dependency on Perl module PHP::Session
 
 * Wed Dec 11 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.1.0-1
