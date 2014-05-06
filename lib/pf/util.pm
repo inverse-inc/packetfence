@@ -473,7 +473,7 @@ disable and disabled are all negative values for PacketFence.
 
 sub isdisabled {
     my ($disabled) = @_;
-    if ( $disabled =~ /^\s*(n|no|false|disable|disabled|0)\s*$/i ) {
+    if ( !defined ($disabled) || $disabled =~ /^\s*(n|no|false|disable|disabled|0)\s*$/i ) {
         return (1);
     } else {
         return (0);
