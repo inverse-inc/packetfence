@@ -100,6 +100,12 @@ sub update_iplog {
 
     return (pf::iplog::iplog_update($srcmac, $srcip, $lease_length));
 }
+
+sub handle_trap {
+    my ($class,@args) = @_;
+    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+    use Data::Dumper;$logger->info(Dumper(\@args));
+}
  
 sub unreg_node_for_pid {
     my ($class, $pid) = @_;
