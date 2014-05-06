@@ -10,7 +10,7 @@ our @OS_TESTS = qw(
     windows mac   os2
     unix    linux vms
     bsd     amiga firefoxos
-    rimtabletos
+    bb10    rimtabletos
 );
 
 # More precise Windows
@@ -87,6 +87,7 @@ our @IE_TESTS = qw(
     ie55up      ie6         ie7
     ie8         ie9         ie10
     ie11
+    ie_compat_mode
 );
 
 our @OPERA_TESTS = qw(
@@ -118,6 +119,7 @@ our @ENGINE_TESTS = qw(
 # https://support.google.com/webmasters/answer/1061943?hl=en
 
 my %ROBOTS = (
+    ahrefs         => 'Ahrefs',
     altavista      => 'AltaVista',
     askjeeves      => 'AskJeeves',
     baidu          => 'Baidu Spider',
@@ -149,6 +151,7 @@ my %ROBOTS = (
     webtv          => 'WebTV',
     wget           => 'wget',
     yahoo          => 'Yahoo',
+    yandex         => 'Yandex',
     yandeximages   => 'YandexImages',
 );
 
@@ -165,6 +168,7 @@ our @ROBOT_TESTS = qw(
     askjeeves    googleadsense googlebotvideo
     googlebotnews googlebotimage google
     linkchecker  yandeximages specialarchiver
+    yandex       ahrefs
 );
 
 our @MISC_TESTS = qw(
@@ -278,6 +282,10 @@ sub _test {
 
     # Trident Engine (detect early for sniffing out IE)
     $tests->{TRIDENT} = ( index( $ua, "trident/" ) != -1 );
+
+    if ( $tests->{TRIDENT} && $ua =~ /trident\/([\w\.\d]*)/ ) {
+        $self->{engine_version} = $1;
+    }
 
     # Browser version
     my ( $major, $minor, $beta ) = (
@@ -496,6 +504,11 @@ sub _test {
     $tests->{IE10} = ( $tests->{IE} && $major == 10 );
     $tests->{IE11} = ( $tests->{IE} && $major == 11 );
 
+    $tests->{IE_COMPAT_MODE}
+        = (    $tests->{IE7}
+            && $tests->{TRIDENT}
+            && $self->{engine_version} + 0 >= 4 );
+
     # Neoplanet browsers
 
     $tests->{NEOPLANET} = ( index( $ua, "neoplanet" ) != -1 );
@@ -538,6 +551,7 @@ sub _test {
     # Devices
 
     $tests->{BLACKBERRY} = ( index( $ua, "blackberry" ) != -1
+            || index( $ua, "bb10" ) != -1
             || index( $ua, "rim tablet os" ) != -1 );
     $tests->{IPHONE}   = ( index( $ua, "iphone" ) != -1 );
     $tests->{WINCE}    = ( index( $ua, "windows ce" ) != -1 );
@@ -615,6 +629,8 @@ sub _test {
             || index( $ua, "fennec" ) != -1
             || index( $ua, "opera tablet" ) != -1
             || index( $ua, "rim tablet" ) != -1
+            || ( index( $ua, "bb10" ) != -1
+            && index( $ua, "mobile" ) != -1 )
             || $tests->{PSP}
             || $tests->{DSI}
             || $tests->{'N3DS'}
@@ -630,6 +646,7 @@ sub _test {
             || ( index( $ua, "android" ) != -1
             && index( $ua, "mobile" ) == -1
             && index( $ua, "opera" ) == -1 )
+            || ($tests->{FIREFOX} && index( $ua, "tablet" ) != -1)
             || index( $ua, "kindle" ) != -1
             || index( $ua, "xoom" ) != -1
             || index( $ua, "flyer" ) != -1
@@ -671,15 +688,8 @@ sub _test {
     if ( $tests->{GECKO} ) {
         if ( $ua =~ /\([^)]*rv:([\w.\d]*)/ ) {
             $self->{gecko_version} = $1;
+            $self->{engine_version} = $1;
         }
-    }
-
-    # Engines
-
-    $self->{engine_version} = $self->{gecko_version};
-
-    if ( $ua =~ /trident\/([\w\.\d]*)/ ) {
-        $self->{engine_version} = $1;
     }
 
     # RealPlayer
@@ -722,6 +732,14 @@ sub _test {
             pos( $ua ) - length $1, length $1;
         $self->{device_name} =~ s/; / /;
     }
+    elsif ( $ua
+        =~ /bb10; ([^;\)]+)/g
+        )
+    {
+        $self->{device_name} = 'BlackBerry ' . substr $self->{user_agent},
+            pos( $ua ) - length $1, length $1;
+        $self->{device_name} =~ s/Kbd/Q10/;
+    }
 
     $self->{major} = $major;
     $self->{minor} = $minor;
@@ -751,6 +769,7 @@ sub _robot_tests {
         ) != -1
     );
 
+    $tests->{AHREFS}         = ( index( $ua, "ahrefsbot" ) != -1 );
     $tests->{ALTAVISTA}      = ( index( $ua, "altavista" ) != -1 );
     $tests->{ASKJEEVES}      = ( index( $ua, "ask jeeves/teoma" ) != -1 );
     $tests->{BAIDU}          = ( index( $ua, "baiduspider" ) != -1 );
@@ -774,10 +793,12 @@ sub _robot_tests {
     $tests->{SPECIALARCHIVER}          = ( index( $ua, "special_archiver" ) != -1 );
     $tests->{WEBCRAWLER}     = ( index( $ua, "webcrawler" ) != -1 );
     $tests->{WGET}           = ( index( $ua, "wget" ) != -1 );
+    $tests->{YANDEX}         = ( index( $ua, "yandexbot" ) != -1 );
     $tests->{YANDEXIMAGES}   = ( index( $ua, "yandeximages" ) != -1 );
 
     $tests->{ROBOT}
-        = (    $tests->{ALTAVISTA}
+        = (    $tests->{AHREFS}
+            || $tests->{ALTAVISTA}
             || $tests->{ASKJEEVES}
             || $tests->{BAIDU}
             || $tests->{FACEBOOK}
@@ -803,6 +824,7 @@ sub _robot_tests {
             || $tests->{WEBCRAWLER}
             || $tests->{WGET}
             || $tests->{YAHOO}
+            || $tests->{YANDEX}
             || $tests->{YANDEXIMAGES} )
         || index( $ua, "agent" ) != -1
         || index( $ua, "bot" ) != -1
@@ -924,10 +946,12 @@ sub _os_tests {
     $tests->{EMACS} = ( index( $ua, 'emacs' ) != -1 );
     $tests->{OS2}   = ( index( $ua, 'os/2' ) != -1 );
 
-    $tests->{SUN}  = ( index( $ua, "sun" ) != -1 );
-    $tests->{SUN4} = ( index( $ua, "sunos 4" ) != -1 );
-    $tests->{SUN5} = ( index( $ua, "sunos 5" ) != -1 );
-    $tests->{SUNI86} = ( ( $tests->{SUN} ) && index( $ua, "i86" ) != -1 );
+    if (index($ua, "samsung") < 0) {
+        $tests->{SUN}  = ( index( $ua, "sun" ) != -1 );
+        $tests->{SUN4} = ( index( $ua, "sunos 4" ) != -1 );
+        $tests->{SUN5} = ( index( $ua, "sunos 5" ) != -1 );
+        $tests->{SUNI86} = ( ( $tests->{SUN} ) && index( $ua, "i86" ) != -1 );
+    }
 
     $tests->{IRIX}  = ( index( $ua, "irix" ) != -1 );
     $tests->{IRIX5} = ( index( $ua, "irix5" ) != -1 );
@@ -981,10 +1005,11 @@ sub _os_tests {
 
     $tests->{FIREFOXOS}
         = (    $tests->{FIREFOX}
-            && $tests->{MOBILE}
+            && ($tests->{MOBILE} || $tests->{TABLET})
             && !$tests->{ANDROID}
             && index( $ua, "fennec" ) == -1 );
 
+    $tests->{BB10} = ( index( $ua, "bb10" ) != -1 );
     $tests->{RIMTABLETOS} = ( index( $ua, "rim tablet os" ) != -1 );
 
     $tests->{PS3GAMEOS} = $tests->{PS3} && $tests->{NETFRONT};
@@ -1088,6 +1113,7 @@ sub os_string {
     return 'Linux'                       if $self->linux;
     return 'Unix'                        if $self->unix;
     return 'Firefox OS'                  if $self->firefoxos;
+    return 'BlackBerry 10'               if $self->bb10;
     return 'RIM Tablet OS'               if $self->rimtabletos;
     return 'Playstation 3 GameOS'        if $self->ps3gameos;
     return 'Playstation Portable GameOS' if $self->pspgameos;
@@ -1689,6 +1715,8 @@ mac68k macppc macosx ios
 
 =head2 os2()
 
+=head2 bb10()
+
 =head2 rimtabletos()
 
 =head2 unix()
@@ -1717,7 +1745,7 @@ compatibility with the L<HTTP::Headers::UserAgent> module.
   Win95, Win98, WinNT, Win2K, WinXP, Win2k3, WinVista, Win7, Win8,
   Win8.1, Windows Phone, Mac, Mac OS X, iOS, Win3x, OS2, Unix, Linux,
   Firefox OS, Playstation 3 GameOS, Playstation Portable GameOS,
-  RIM Tablet OS
+  RIM Tablet OS, BlackBerry 10
 
 =head1 Detecting Browser Vendor
 
@@ -1740,6 +1768,13 @@ version separately.
 =head3 icab
 
 =head3 ie ie3 ie4 ie4up ie5 ie55 ie6 ie7 ie8 ie9 ie10 ie11
+
+=head3 ie_compat_mode
+
+The ie_compat_mode is used to determine if the IE user agent is for
+the compatibility mode view, in which case the real version of IE is
+higher than that detected. The true version of IE can be inferred from
+the version of Trident in the engine_version method.
 
 =head3 java
 
@@ -1854,6 +1889,8 @@ automated Web client.
 The following additional methods are available, each returning a true or false
 value. This is by no means a complete list of robots that exist on the Web.
 
+=head3 ahrefs
+
 =head3 altavista
 
 =head3 askjeeves
@@ -1892,6 +1929,9 @@ value. This is by no means a complete list of robots that exist on the Web.
 
 =head3 yahoo
 
+=head3 yandex
+
+=head3 yandeximages
 
 =head1 CREDITS
 
@@ -1980,6 +2020,10 @@ Aran Deltac
 yeahoffline
 
 David Ihnen
+
+Hao Wu
+
+Perlover
 
 =head1 TO DO
 
