@@ -1,5 +1,7 @@
 %%userLines%%
 %%authLines%%
+perl do "/usr/local/pf/lib/pf/snmptrapd.pm";
+
 format1       %V|%#04.4y-%#02.2m-%02.2l|%#02.2h:%#02.2j:%#02.2k|%b|%a|BEGIN TYPE %w END TYPE BEGIN SUBTYPE %q END SUBTYPE BEGIN VARIABLEBINDINGS %v END VARIABLEBINDINGS\n
 format2       %V|%#04.4y-%#02.2m-%02.2l|%#02.2h:%#02.2j:%#02.2k|%b|%a|BEGIN TYPE %w END TYPE BEGIN SUBTYPE %q END SUBTYPE BEGIN VARIABLEBINDINGS %v END VARIABLEBINDINGS\n
 
