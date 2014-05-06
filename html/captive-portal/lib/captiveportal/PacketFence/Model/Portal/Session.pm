@@ -54,6 +54,10 @@ has remoteAddress => (
     required => 1,
 );
 
+has redirectURL => (
+    is       => 'rw',
+);
+
 has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
 
 sub ACCEPT_CONTEXT {
@@ -64,6 +68,7 @@ sub ACCEPT_CONTEXT {
     my $request       = $c->request;
     my $remoteAddress = $request->address;
     my $forwardedFor  = $request->header('HTTP_X_FORWARDED_FOR');
+    my $redirectURL;
     my $model =  $self->new(
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
@@ -71,6 +76,18 @@ sub ACCEPT_CONTEXT {
     );
     $c->stash->{current_model_instances}{$class} = $model;
     return $model;
+}
+
+sub _build_destinationUrl {
+    my ($self) = @_;
+
+    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
+    if (!defined($self->cgi->param("destination_url")) || $self->profile->forceRedirectURL) {
+        return $self->getProfile->getRedirectURL;
+    }
+
+    # Respect the user's initial destination URL
+    return $self->{'_destination_url'} || decode_entities(uri_unescape($self->cgi->param("destination_url")));
 }
 
 sub _build_clientIp {
@@ -118,7 +135,7 @@ sub _build_clientMac {
     if (defined $clientIp) {
         $clientIp = clean_ip($clientIp);
         while ( my ($network,$network_config) = each %ConfigNetworks ) {
-            next unless defined $network_config->{'generate_fake_mac'} && enabled($network_config->{'generate_fake_mac'});
+            next unless defined $network_config->{'fake_mac_enabled'} && enabled($network_config->{'fake_mac_enabled'});
             next if !pf::config::is_network_type_inline($network);
             my $net_addr = NetAddr::IP->new($network,$network_config->{'netmask'});
             my $ip = new NetAddr::IP::Lite $clientIp;
