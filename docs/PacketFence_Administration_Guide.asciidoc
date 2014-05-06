@@ -239,7 +239,7 @@ Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmf
 
   enabled = 0
 
-Under RHEL 6.x / Centos 6.x, you must exclude perl-Apache-Test from rpmforge and openfusion repository.
+Under RHEL 6.x / Centos 6.x, you must exclude perl-Apache-Test from rpmforge and openfusion repository. You also need to exclude perl-Net-DNS and perl-Moose from the openfusion repository.
 
 Edit `/etc/yum.repos.d/rpmforge.repo` and add to the section [rpmforge] the line:
 
@@ -248,7 +248,7 @@ Edit `/etc/yum.repos.d/rpmforge.repo` and add to the section [rpmforge] the line
 
 Edit `/etc/yum.repos.d/openfusion.repo` and add to the section [of] the line:
 
-  exclude = perl-Apache-Test*
+  exclude = perl-Apache-Test*,perl-Net-DNS*,perl-Moose*
 
 RHEL 6.x
 ^^^^^^^^
