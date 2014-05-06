@@ -68,7 +68,7 @@ Enhancements
 * Added a file backing for the cache to decrease cache misses
 * Allow advanced search of nodes by OS type (#1790)
 * The PF RPC client can be configured in the conf/radiusd/radiusd.conf
-* Added PacketFence radius dictionary
+* Added PacketFence RADIUS dictionary
 
 Bug Fixes
 +++++++++
