@@ -214,6 +214,7 @@ Requires: perl(Catalyst::Controller::HTML::FormFu)
 Requires: perl(Params::Validate) >= 0.97
 Requires: perl(Term::Size::Any)
 Requires(pre): perl-aliased => 0.30
+Requires(pre): perl-version
 # for Catalyst stand-alone server
 Requires: perl(Catalyst::Devel)
 Requires: perl(Sort::Naturally)
