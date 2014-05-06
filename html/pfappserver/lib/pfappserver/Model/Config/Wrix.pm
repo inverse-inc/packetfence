@@ -57,16 +57,21 @@ sub search {
     $all_or_any = 'or' if $all_or_any eq 'any';
     $all_or_any = 'and' if $all_or_any eq 'all';
     my @queries = map { $self->build_query($_) } @{$parameters->{searches}};
+    my $count = $manager->get_objects_count(
+        query => [$all_or_any => \@queries]
+    );
     my $items = $manager->get_objects(
         page     => $pageNum,
         per_page => $perPage,
         query => [$all_or_any => \@queries]
     );
+    my $pageCount = int ($count / $perPage) + ($count % $perPage  ? 1 : 0);
     return (HTTP_OK, {
         %$parameters,
         pageNum => $pageNum,
         perPage => $perPage,
-        items   => $items
+        items   => $items,
+        pageCount => $pageCount,
     });
 
 }
