@@ -12,7 +12,7 @@
         IF firstPage < 1; firstPage = 1; END;
       END
   -%]
-    <ul class="pager">
+    <ul>
       [%IF pageNum <= 1 %]
       <li class="disabled"><a>&larr;</a></li>
       [%ELSE%]
