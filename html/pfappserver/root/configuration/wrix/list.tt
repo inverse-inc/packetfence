@@ -1,18 +1,53 @@
 [% DEFAULT 
-   list_action = 'list'
+   list_action = 'list';
 %]
+[% pagination = BLOCK %]
+  <div class="pagination pagination-right">
+  [%- firstPage = pageNum - 3;
+      IF firstPage < 1; firstPage = 1; END;
+      lastPage = firstPage + 6;
+      IF lastPage > pageCount;
+        lastPage = pageCount;
+        firstPage = lastPage - 6;
+        IF firstPage < 1; firstPage = 1; END;
+      END
+  -%]
+    <ul class="pager">
+      [%IF pageNum <= 1 %]
+      <li class="disabled"><a>&larr;</a></li>
+      [%ELSE%]
+      <li><a href="[% c.uri_for(c.controller.action_for(list_action),pageNum - 1,perPage) %]">&larr;</a></li>
+      [%END%]
+      [%- IF firstPage > 1 -%]
+        <li><a href="[% c.uri_for(c.controller.action_for(list_action),1,perPage) %]" title="Page 1">1</a></li>
+        <li class="disabled"><a href="#">&hellip;</a></li>
+      [%- END -%]
+      [% page = firstPage; WHILE page <= lastPage -%]
+        [% params.page_num = page %]
+        <li[% IF page == pageNum %] class="disabled" [% END %] >
+          <a href="[% c.uri_for(c.controller.action_for(list_action),page,perPage)%]" title="Page [%page%]">[% page %]</a>
+        </li>
+        [%- page = page + 1 -%]
+      [%- END -%]
+      [%- IF lastPage < pagesCount -%]
+        <li class="disabled"><a href="#">&hellip;</a></li>
+          <a href="[% c.uri_for(c.controller.action_for(list_action),pagesCount,perPage)%]" title="Page [%pagesCount%]">[% pagesCount %]</a>
+      [%- END -%]
+      [% IF pageNum == pageCount %]
+      <li class="disabled"><a >&rarr;</a></li>
+      [% ELSE %]
+        <li>
+          <a href="[% c.uri_for(c.controller.action_for(list_action),pageNum + 1,perPage)%]" title="Page [%page%]">&rarr;</a>
+        </li>
+      [% END %]
+    </ul>
+  </div>
+[% END %]
       <table id="items" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for(list_action),pageNum,perPage) %]">
         <thead>
           <tr>
             <td colspan="2">
-              <ul class="pager">
-                [%IF pageNum <= 1 %]
-                <li class="previous disabled"><a>&larr; Previous</a></li>
-                [%ELSE%]
-                <li class="previous"><a href="[% c.uri_for(c.controller.action_for(list_action),pageNum - 1,perPage) %]">&larr; Previous</a></li>
-                [%END%]
-                <li class="next"><a href="[% c.uri_for(c.controller.action_for(list_action),pageNum + 1,perPage) %]">Next &rarr;</a></li>
-              </ul>
+              [% pagination %]
             </td>
           </tr>
           <tr>
@@ -31,4 +66,11 @@
           </tr>
           [% END -%]
         </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">
+              [% pagination %]
+            </td>
+          </tr>
+        </tfoot>
       </table>
