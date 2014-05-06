@@ -6,7 +6,7 @@ use pf::log;
 use pf::node;
 use pf::util;
 use pf::web;
-use pf::web::gaming;
+use pf::web::device_registration;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -31,7 +31,7 @@ sub begin : Private {
         $c->error( "Device registration module is not enabled" );
         $c->detach;
     }
-    $c->stash->{console_types} = @pf::web::gaming::GAMING_CONSOLE_TYPES;
+    $c->stash->{console_types} = @pf::web::device_registration::DEVICE_TYPES;
 }
 
 =head2 index
@@ -53,10 +53,10 @@ sub index : Path : Args(0) {
         $c->delete_session;
         $c->detach('login');
     } elsif ( $request->param('device_mac') ) {
-        # User is authenticated and requesting to register gaming device
+        # User is authenticated and requesting to register a device
         my $device_mac = clean_mac($request->param('device_mac'));
         if(valid_mac($device_mac)) {
-            # Register gaming device
+            # Register device
             $c->forward('registerNode', [ $pid, $device_mac ]);
             unless ($c->has_errors) {
                 $c->stash(status_msg  => i18n_format("The MAC address %s has been successfully registered.", $device_mac));
@@ -67,8 +67,16 @@ sub index : Path : Args(0) {
         }
     }
     # User is authenticated so display registration page
-    $c->stash(template => 'gaming-registration.html');
+    $c->stash(template => 'device-registration.html');
 }
+
+=head2 gaming_registration
+
+Backwards compatability
+
+/gaming-registration
+
+=cut
 
 sub gaming_registration: Local('gaming-registration') {
     my ( $self, $c ) = @_;
@@ -99,7 +107,7 @@ sub userNotLoggedIn : Private {
 
 =head2 login
 
-Display the gaming login
+Display the device registration login
 
 =cut
 
@@ -109,29 +117,29 @@ sub login : Local : Args(0) {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
         $c->clear_errors;
     }
-    $c->stash( template => 'gaming-login.html' );
+    $c->stash( template => 'device-registration-login.html' );
 }
 
 sub landing : Local : Args(0) {
     my ( $self, $c ) = @_;
-    $c->stash( template => 'gaming-landing.html' );
+    $c->stash( template => 'device-registration-landing.html' );
 }
 
 sub registerNode : Private {
     my ( $self, $c, $pid, $mac ) = @_;
     my $logger = $c->log;
-    if ( pf::web::gaming::is_allowed_gaming_mac($mac) ) {
+    if ( pf::web::device_registration::is_allowed($mac) ) {
         my ($node) = node_view($mac);
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
             $c->error("$mac is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator");
         } else {
             my %info;
             $c->stash->{device_mac} = $mac;
-            # Get role for gaming device
+            # Get role for device registration
             my $role =
               $Config{'registration'}{'device_registration_role'};
             if ($role) {
-                $logger->trace("Gaming devices role is $role (from pf.conf)");
+                $logger->trace("Device registration role is $role (from pf.conf)");
             } else {
                 # Use role of user
                 $role = &pf::authentication::match(

@@ -32,8 +32,8 @@ use List::MoreUtils qw(any);
 Readonly our $GAMING_LOGIN_TEMPLATE   => 'gaming-login.html';
 Readonly our $GAMING_LANDING_TEMPLATE => 'gaming-landing.html';
 Readonly our $GAMING_REGISTRATION_TEMPLATE => 'gaming-registration.html';
-Readonly our @GAMING_OUI => _load_file_into_array($allowed_gaming_oui_file);
-Readonly our @GAMING_CONSOLE_TYPES => _load_file_into_array($allowed_gaming_console_types_file);
+Readonly our @GAMING_OUI => _load_file_into_array($allowed_device_oui_file);
+Readonly our @GAMING_CONSOLE_TYPES => _load_file_into_array($allowed_device_types_file);
 
 =head1 SUBROUTINES
 
