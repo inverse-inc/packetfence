@@ -37,6 +37,8 @@ sub list :Local :Args {
     $perPage = 25 unless $perPage;
     my $model = $self->getModel($c);
     my ($status,$result) = $model->readAll($pageNum, $perPage);
+    my $count = $model->countAll;
+    my $pageCount = int($count / $perPage) + ( $count % $perPage ? 1 : 0  );
     if (is_error($status)) {
         $c->res->status($status);
         $c->error($c->loc($result));
@@ -47,6 +49,7 @@ sub list :Local :Args {
             itemsKey  => $itemsKey,
             pageNum   => $pageNum,
             perPage   => $perPage,
+            pageCount => $pageCount,
         )
     }
 }
