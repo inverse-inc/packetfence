@@ -122,6 +122,7 @@ requires: perl(Proc::ProcessTable)
 requires: perl(Apache::SSLLookup)
 requires: perl(Crypt::OpenSSL::X509)
 requires: perl(Const::Fast)
+requires: perl(NetSNMP-TrapReceiver)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode.
