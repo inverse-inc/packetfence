@@ -191,9 +191,9 @@ sub report_db_prepare {
     ]);
 
     $report_statements->{'report_connectiontype_sql'} = get_db_handle()->prepare(qq[
-        SELECT connection_type, count(*) AS connections,
-            ROUND(COUNT(*)/
-                (SELECT COUNT(*)
+        SELECT connection_type, COUNT(DISTINCT mac) AS connections,
+            ROUND(COUNT(DISTINCT mac)/
+                (SELECT COUNT(DISTINCT mac)
                     FROM locationlog
                     WHERE start_time BETWEEN ? AND ?
                 )*100,1

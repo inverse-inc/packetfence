@@ -16,7 +16,9 @@ use strict;
 use warnings;
 
 BEGIN {
+    use File::Path qw(remove_tree);
     use pf::file_paths;
+    remove_tree('/tmp/chi');
     $pf::file_paths::switches_config_file = './data/switches.conf';
     $pf::file_paths::chi_config_file = './data/chi.conf';
     $pf::file_paths::profiles_config_file = './data/profiles.conf';

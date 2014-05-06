@@ -35,6 +35,7 @@ use pf::billing::constants;
 use pf::config;
 use pf::db;
 use pf::util;
+use pf::web;
 
 use constant BILLING => 'billing';
 
@@ -147,8 +148,14 @@ sub getAvailableTiers {
 
     my %tiers = (
             tier1 => {
-                id => "tier1", name => "Tier 1", price => "1.00", timeout => "1D", category => '',
-                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org" },
+                id => "tier1",  # used as the item value of the billing table
+                name => "Tier 1",  # used on billing.html
+                price => "1.00",  # amount charged on the credit card
+                timeout => "7D",  # used to compute the unregistration date of the node
+                usage_duration => '1D',  # the amount of non-contignuous access time for the node, set as the time_balance value of the node table
+                category => '',  # the role in which to put the node
+                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org"  # used on billing.html
+            },
     );
 
     return %tiers;
@@ -216,6 +223,37 @@ sub updateTransactionStatus {
 
     db_query_execute(BILLING, $billing_statements, 'billing_update_sql', $status, $id ) 
         || return;
+}
+
+=item prepareConfirmationInfo
+
+Provides basic information for the billing confirmation email template.
+
+This is meant to be overridden in L<pf::billing::custom>.
+
+=cut
+
+sub prepareConfirmationInfo {
+    my ( $self, $transaction_infos_ref, $confirmationInfo ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my %info = ( pf::web::constants::to_hash() );
+    my %tiers = $self->getAvailableTiers();
+    my $tier = $tiers{$confirmationInfo->{tier}};
+
+    $info{'firstname'} = $confirmationInfo->{firstname};
+    $info{'lastname'} = $confirmationInfo->{lastname};
+    $info{'email'} = $confirmationInfo->{email};
+    $info{'tier_name'} = $tier->{'name'};
+    $info{'tier_description'} = $tier->{'description'};
+    $info{'tier_price'} = $tier->{'price'};
+    $info{'hostname'} = $Config{'general'}{'hostname'} || $Default_Config{'general'}{'hostname'};
+    $info{'domain'} = $Config{'general'}{'domain'} || $Default_Config{'general'}{'domain'};
+    $info{'subject'} = i18n_format("%s: Network Access Order Confirmation", $Config{'general'}{'domain'});
+
+    $info{'transaction_id'} = $transaction_infos_ref->{'id'};
+
+    return %info;
 }
 
 =back

@@ -248,6 +248,8 @@ sub get {
             ($status, $network) = $networks_model->read($result->{"$interface"}->{'network'});
             if (is_success($status)) {
                 $result->{"$interface"}->{'dns'} = $network->{dns};
+                $result->{"$interface"}->{'dhcpd_enabled'} = $network->{dhcpd};
+                $result->{"$interface"}->{'fake_mac_enabled'} = $network->{fake_mac_enabled};
             }
             #($status, undef) = $networks_model->hasId($result->{"$interface"}->{'network'});
             $result->{"$interface"}->{'network_iseditable'} = is_success($status);
@@ -399,7 +401,9 @@ sub getType {
             $type = ($type =~ /management|managed/i) ? 'management' : 'other';
         }
     }
-
+    
+    # we rewrite inline to inlinel2 for backwwards compatibility
+    $type =~ s/inline$/inlinel2/;
     return $type;
 }
 
@@ -462,6 +466,8 @@ sub setType {
             } else {
                 $network_ref->{dns} = $interface_ref->{'dns'};
             }
+            $network_ref->{dhcpd} = isenabled($interface_ref->{'dhcpd_enabled'}) ? 'enabled' : 'disabled';
+            $network_ref->{fake_mac_enabled} = isenabled($interface_ref->{'fake_mac_enabled'}) ? 'enabled' : 'disabled';
             $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
             $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
@@ -613,9 +619,13 @@ sub _prepare_interface_for_pfconf {
         $int_config_ref->{'type'} = 'internal';
         $int_config_ref->{'enforcement'} = 'vlan';
     }
-    elsif ($type =~ /^inline$/i) {
+    elsif ($type eq "inline") {
         $int_config_ref->{'type'} = 'internal';
-        $int_config_ref->{'enforcement'} = 'inline';
+        $int_config_ref->{'enforcement'} = "inlinel2";
+    }
+    elsif ($type =~ /^inlinel\d/i) {
+        $int_config_ref->{'type'} = 'internal';
+        $int_config_ref->{'enforcement'} = $type;
     }
     else {
         # here we oversimplify a bit, type supports multivalues but it's

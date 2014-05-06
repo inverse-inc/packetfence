@@ -21,7 +21,7 @@ use pf::config;
 use pf::locationlog;
 use pf::node;
 use pf::roles::custom;
-use pf::SNMP;
+use pf::Switch;
 use pf::SwitchFactory;
 use pf::util;
 

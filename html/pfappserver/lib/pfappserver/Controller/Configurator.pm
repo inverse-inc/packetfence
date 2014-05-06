@@ -15,6 +15,8 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 
 use pf::config;
+use pf::os;
+use List::MoreUtils qw(all);
 #use namespace::autoclean;
 
 BEGIN { extends 'Catalyst::Controller'; }
@@ -90,8 +92,8 @@ sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
 
     if ($c->action->name() ne $self->action_for('enforcement')->name &&
         (!exists($c->session->{enforcements}) || scalar($c->session->{enforcements}) == 0)) {
-        # Defaults to inline mode if no mechanism has been chosen so far
-        $c->session->{enforcements}->{inline} = 1;
+        # Defaults to inlinel2 mode if no mechanism has been chosen so far
+        $c->session->{enforcements}->{'inlinel2'} = 1;
     }
 }
 
@@ -169,7 +171,7 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
         }
         else {
             # Defaults to inline mode if no mechanism has been detected
-            $c->session->{enforcements}->{inline} = 1;
+            $c->session->{enforcements}->{inlinel2} = 1;
         }
     }
 
@@ -208,15 +210,17 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
             foreach my $type (@{$types_ref}) {
                 unless (exists $selected_types{$type} ||
                         $type eq 'other' ||
-                        grep {$_ eq $c->loc($type)} @missing) {
-                    push(@missing, $c->loc($type));
+                        $type =~ m/^inline/ && grep(/^inline/, keys %selected_types) ||
+                        grep {$_ eq $type || /^inline/ && $type =~ m/^inline/} @missing) {
+                    push(@missing, $type);
                 }
             }
         }
 
         if (scalar @missing > 0) {
             $c->response->status(HTTP_PRECONDITION_FAILED);
-            $c->stash->{status_msg} = $c->loc("You must assign an interface to the following types: [_1]", join(", ", @missing));
+            $c->stash->{status_msg} = $c->loc("You must assign an interface to the following types: [_1]",
+                                              join(", ", map { $c->loc($_) } @missing));
             delete $c->session->{completed}->{$c->action->name};
         }
         else {
@@ -407,6 +411,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
 
     if ($c->request->method eq 'GET') {
 
+        $c->session->{started} = 0;
         my $completed = $c->session->{completed};
         $c->stash->{completed} = 1;
         foreach my $step (@steps) {
@@ -438,42 +443,20 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->response->status($status);
             $c->stash->{'error'} = $services_status;
         }
-    }
-
-    # Start the services
-    elsif ($c->request->method eq 'POST') {
-
-        # actually try to start the services
-        my ($status, $service_start_output) = $c->model('Services')->start();
-        # if we detect an error later, we will be able to display the output
-        # this will be done on the client side
-        $c->stash->{'error'} = encode_entities($service_start_output);
-        if ( is_error($status) ) {
-            $c->response->status($status);
-            $c->stash->{status_msg} = $service_start_output;
-        }
-        # success: list the services
-        else {
-            my ($status, $services_status) = $c->model('Services')->status();
-            if ( is_success($status) ) {
-                $c->log->info("successfully listed services");
-                $c->stash->{'services'} = $services_status;
-                # a service has failed to start if its status is 0
-                my $start_failed = scalar(grep {int $_ == 0} values %{$services_status}) > 0;
-                if ($start_failed) {
-                    $c->log->warn("some services were not started");
-                }
-                else {
-                    $c->model('Configurator')->update_currently_at();
-                }
+    } elsif ($c->request->method eq 'POST') {
+        # Start the services
+        if (!$c->session->{started}) {
+            $c->session->{started} = 1;
+            #Loading the fingerprints into the database
+            read_dhcp_fingerprints_conf();
+            $c->detach(Service => 'pf_start'); 
+        } else { 
+            my ($HTTP_CODE, $services) = $c->model('Services')->status;
+            if( all { $_ ne '0' } values %{ $services->{services} } ) {
+                $c->model('Configurator')->update_currently_at();
             }
-            else {
-                $c->response->status($status);
-                $c->log->info('problem trying to list the services');
-                $c->stash->{status_msg} = $services_status;
-            }
+            $c->controller('Service')->_process_model_results_as_json($c, $HTTP_CODE, $services);    
         }
-        $c->stash->{current_view} = 'JSON';
     }
 }
 

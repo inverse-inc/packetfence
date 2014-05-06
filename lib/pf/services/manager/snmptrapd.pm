@@ -14,16 +14,84 @@ pf::services::manager::snmptrapd
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
-use pf::services::snmptrapd qw(generate_snmptrapd_conf);
+use pf::config;
+use pf::SwitchFactory;
+use pf::util;
+use pf::log;
+
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'snmptrapd' } );
 
 has '+launcher' => (default => sub { "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On" } );
 
+=head2 generateConfig
+
+generate the snmptrapd.conf configuration
+
+=cut
+
 sub generateConfig {
-   generate_snmptrapd_conf();
+    my $logger = get_logger();
+
+    my ($snmpv3_users, $snmp_communities) = _fetch_trap_users_and_communities();
+
+    my %tags;
+    $tags{'authLines'} = '';
+    $tags{'userLines'} = '';
+
+    foreach my $user_key ( sort keys %$snmpv3_users ) {
+        $tags{'userLines'} .= "createUser " . $snmpv3_users->{$user_key} . "\n";
+
+        # grabbing only the username portion of the key
+        my (undef, $username) = split(/ /, $user_key);
+        $tags{'authLines'} .= "authUser log $username priv\n";
+    }
+
+    foreach my $community ( sort keys %$snmp_communities ) {
+        $tags{'authLines'} .= "authCommunity log $community\n";
+    }
+
+    $tags{'template'} = "$conf_dir/snmptrapd.conf";
+    $logger->info("generating $generated_conf_dir/snmptrapd.conf");
+    parse_template( \%tags, "$conf_dir/snmptrapd.conf", "$generated_conf_dir/snmptrapd.conf" );
+    return $TRUE;
+}
+
+=head2 _fetch_trap_users_and_communities
+
+Returns a tuple of two hashref. One with SNMPv3 Trap Users Auth parameters and one with unique communities.
+
+=cut
+
+sub _fetch_trap_users_and_communities {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $switchFactory = pf::SwitchFactory->getInstance();
+    my %switchConfig = %{ $switchFactory->config };
+
+    my (%snmpv3_users, %snmp_communities);
+    foreach my $key ( sort keys %switchConfig ) {
+        next if ( $key =~ /^default$/i );
+
+        # TODO we can probably make this more performant if we avoid object instantiation (can we?)
+        my $switch = $switchFactory->instantiate($key);
+        if (!$switch) {
+            $logger->error("Can not instantiate switch $key!");
+        } else {
+            if ( $switch->{_SNMPVersionTrap} eq '3' ) {
+                $snmpv3_users{"$switch->{_SNMPEngineID} $switch->{_SNMPUserNameTrap}"} =
+                    '-e ' . $switch->{_SNMPEngineID} . ' ' . $switch->{_SNMPUserNameTrap} . ' '
+                    . $switch->{_SNMPAuthProtocolTrap} . ' ' . $switch->{_SNMPAuthPasswordTrap} . ' '
+                    . $switch->{_SNMPPrivProtocolTrap} . ' ' . $switch->{_SNMPPrivPasswordTrap}
+                ;
+            } else {
+                $snmp_communities{$switch->{_SNMPCommunityTrap}} = $TRUE;
+            }
+        }
+    }
+
+    return (\%snmpv3_users, \%snmp_communities);
 }
 
 =head1 AUTHOR

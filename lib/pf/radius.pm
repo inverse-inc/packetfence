@@ -19,13 +19,17 @@ use strict;
 use warnings;
 
 use Log::Log4perl;
+use Readonly;
 
+use pf::authentication;
 use pf::config;
 use pf::locationlog;
 use pf::node;
-use pf::SNMP;
+use pf::Switch;
 use pf::SwitchFactory;
 use pf::util;
+use pf::trigger;
+use pf::violation;
 use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
@@ -66,14 +70,26 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 sub authorize {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+    my($switch_mac, $switch_ip,$source_ip) = $this->_parseRequest($radius_request);
 
-    my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $nas_port_id) = $this->_parseRequest($radius_request);
+    $logger->debug("instantiating switch");
+    my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
+
+    # is switch object correct?
+    if (!$switch) {
+        $logger->warn(
+            "Can't instantiate switch $switch_ip. This request will be failed. "
+            ."Are you sure your switches.conf is correct?"
+        );
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+    }
+
+    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
 
     $logger->trace("received a radius authorization request with parameters: ".
         "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
         "mac => $mac, port => $port, username => $user_name");
-
-    my $connection_type = $this->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
+    my $connection_type = $switch->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
 
     # TODO maybe it's in there that we should do all the magic that happened in the FreeRADIUS module
     # meaning: the return should be decided by _doWeActOnThisCall, not always $RADIUS::RLM_MODULE_NOOP
@@ -84,8 +100,8 @@ sub authorize {
     }
 
     $logger->info("handling radius autz request: from switch_ip => $switch_ip, "
-        . "connection_type => " . connection_type_to_str($connection_type) . " "
-        . "mac => $mac, port => $port, username => $user_name");
+        . "connection_type => " . connection_type_to_str($connection_type) . ","
+        . "switch_mac => $switch_mac, mac => $mac, port => $port, username => $user_name");
 
     #add node if necessary
     if ( !node_exist($mac) ) {
@@ -96,17 +112,11 @@ sub authorize {
     # There is activity from that mac, call node wakeup
     node_mac_wakeup($mac);
 
-    $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_ip);
-
-    # is switch object correct?
-    if (!$switch) {
-        $logger->warn(
-            "Can't instantiate switch $switch_ip. This request will be failed. "
-            ."Are you sure your switches.conf is correct?"
-        );
-        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+    if (defined($session_id)) {
+         node_modify($mac, ('sessionid' => $session_id));
     }
+
+    my $switch_id =  $switch->{_id};
 
     # verify if switch supports this connection type
     if (!$this->_isSwitchSupported($switch, $connection_type)) {
@@ -131,14 +141,14 @@ sub authorize {
         $connection_type, $user_name, $ssid, $eap_type)) {
 
         # automatic registration
-        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $port,
+        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_id}, $port,
             $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid, $eap_type);
 
         $logger->debug("auto-registering node $mac");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node $mac failed");
         }
-        locationlog_synchronize($switch_ip, $port, undef, $mac,
+        locationlog_synchronize($switch, $switch_ip, $switch_mac, $port, undef, $mac,
             $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
         );
     }
@@ -150,7 +160,7 @@ sub authorize {
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
     if (!$switch->isProductionMode()) {
-        $logger->warn("Should perform access control on switch $switch_ip for mac $mac but the switch "
+        $logger->warn("Should perform access control on switch $switch_id for mac $mac but the switch "
             ."is not in production -> Returning ACCEPT");
         $switch->disconnectRead();
         $switch->disconnectWrite();
@@ -168,19 +178,9 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
     }
 
-    #TODO: Get rid of this
-    #Bypass for Inline
-    if (!$switch->isManagedVlan($vlan) && !$wasInline ) {
-        $logger->warn("new VLAN $vlan is not a managed VLAN -> Returning FAIL. "
-                     ."Is the target vlan in the vlans=... list?");
-        $switch->disconnectRead();
-        $switch->disconnectWrite();
-        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "New VLAN is not a managed VLAN") ];
-    }
-
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
-    locationlog_synchronize($switch_ip, $port, $vlan, $mac,
+    $switch->synchronize_locationlog($port, $vlan, $mac,
         $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
     ) if (!$wasInline);
 
@@ -188,7 +188,7 @@ sub authorize {
     if (!$switch->supportsRadiusDynamicVlanAssignment() && !$wasInline) {
         $logger->info(
             "Switch doesn't support Dynamic VLAN assignment. " .
-            "Setting VLAN with SNMP on " . $switch->{_ip} . " ifIndex $port to $vlan"
+            "Setting VLAN with SNMP on " . $switch->{_id} . " ifIndex $port to $vlan"
         );
         # WARNING: passing empty switch-lock for now
         # When the _setVlan of a switch who can't do RADIUS VLAN assignment uses the lock we will need to re-evaluate
@@ -210,39 +210,85 @@ sub authorize {
     return $RAD_REPLY_REF;
 }
 
+=item accounting
+
+=cut
+
+sub accounting {
+    my ($this, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my $isStop = $radius_request->{'Acct-Status-Type'} eq 'Stop';
+    my $isUpdate = $radius_request->{'Acct-Status-Type'} eq 'Interim-Update';
+
+    if ($isStop || $isUpdate) {
+        # On accounting stop/update, check the usage duration of the node
+        my ($nas_port_type, $switch_mac , $switch_ip, $eap_type, $mac, $port, $user_name, $nas_port_id, $source_ip) = $this->_parseRequest($radius_request);
+        if ($mac && $user_name) {
+            my $session_time = int $radius_request->{'Acct-Session-Time'};
+            if ($session_time > 0) {
+                my $node_attributes = node_attributes($mac);
+                if (defined $node_attributes->{'time_balance'}) {
+                    my $time_balance = $node_attributes->{'time_balance'} - $session_time;
+                    $time_balance = 0 if ($time_balance < 0);
+                    # Only update the node table on a Stop
+                    if ($isStop && node_modify($mac, ('time_balance' => $time_balance))) {
+                        $logger->info("Session stopped for $mac: duration was $session_time secs ($time_balance secs left)");
+                    }
+                    elsif ($isUpdate) {
+                        $logger->info("Session status for $mac: duration is $session_time secs ($time_balance secs left)");
+                    }
+                    if ($time_balance == 0) {
+                        # Check if there's at least a violation using the 'Accounting::BandwidthExpired' trigger
+                        my @tid = trigger_view_tid($ACCOUNTING_POLICY_TIME);
+                        if (scalar(@tid) > 0) {
+                            # Trigger violation
+                            violation_trigger($mac, $ACCOUNTING_POLICY_TIME, $TRIGGER_TYPE_ACCOUNTING);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
+}
+
 =item * _parseRequest
 
 Takes FreeRADIUS' RAD_REQUEST hash and process it to return
-  NAS Port type (Ethernet, Wireless, etc.)
+  AP-MAC
   Network Device IP
-  EAP
-  MAC
-  NAS-Port (port)
-  User-Name
+  Source-IP
 
 =cut
 
 sub _parseRequest {
     my ($this, $radius_request) = @_;
-
-    my $mac = clean_mac($radius_request->{'Calling-Station-Id'});
+    my $ap_mac = extractApMacFromRadiusRequest($radius_request);
     # freeradius 2 provides the client IP in NAS-IP-Address not Client-IP-Address (non-standard freeradius1 attribute)
     my $networkdevice_ip = $radius_request->{'NAS-IP-Address'} || $radius_request->{'Client-IP-Address'};
-    my $user_name = $radius_request->{'User-Name'};
-    my $nas_port_type = $radius_request->{'NAS-Port-Type'};
-    my $port = $radius_request->{'NAS-Port'};
+    my $source_ip = $radius_request->{'FreeRADIUS-Client-IP-Address'};
+    return ($ap_mac, $networkdevice_ip, $source_ip);
+}
 
-    my $eap_type = 0;
-    if (exists($radius_request->{'EAP-Type'})) {
-        $eap_type = $radius_request->{'EAP-Type'};
+sub extractApMacFromRadiusRequest {
+    my ($radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    # it's put in Called-Station-Id
+    # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
+    if (defined($radius_request->{'Called-Station-Id'})) {
+        if ($radius_request->{'Called-Station-Id'} =~ /^
+            # below is MAC Address with supported separators: :, - or nothing
+            ([a-f0-9]{2}([-:]?[a-f0-9]{2}){5})
+        /ix) {
+            return clean_mac($1);
+        } else {
+            $logger->info("Unable to extract SSID of Called-Station-Id: ".$radius_request->{'Called-Station-Id'});
+        }
     }
 
-    my $nas_port_id_key = first { exists $radius_request->{$_} &&  defined $radius_request->{$_} } qw(Aruba-Port-Identifier Cisco-NAS-Port NAS-Port-Id);
-    my $nas_port_id;
-    if ($nas_port_id_key) {
-        $nas_port_id = $radius_request->{$nas_port_id_key};
-    }
-    return ($nas_port_type, $networkdevice_ip, $eap_type, $mac, $port, $user_name, $nas_port_id);
+    return;
 }
 
 =item * _doWeActOnThisCall
@@ -316,60 +362,6 @@ sub _doWeActOnThisCallWired {
     return 1;
 }
 
-=item * _identifyConnectionType
-
-Identify the connection type based information provided by RADIUS call
-
-Returns the constants $WIRED or $WIRELESS. Undef if unable to identify.
-
-=cut
-
-sub _identifyConnectionType {
-    my ($this, $nas_port_type, $eap_type, $mac, $user_name) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-
-    $eap_type = 0 if (not defined($eap_type));
-    if (defined($nas_port_type)) {
-
-        if ($nas_port_type =~ /^Wireless-802\.11/) {
-
-            if ($eap_type) {
-                return $WIRELESS_802_1X;
-            } else {
-                return $WIRELESS_MAC_AUTH;
-            }
-
-        } elsif ($nas_port_type =~ /^Ethernet/ ) {
-
-            if ($eap_type) {
-
-                # some vendor do EAP-based Wired MAC Authentication, as far as PacketFence is concerned
-                # this is still MAC Authentication so we need to cheat a little bit here
-                # TODO: consider moving this logic later once the switch is initialized so we can ask it
-                # (supportsEAPMacAuth?)
-                $mac =~ s/[^[:xdigit:]]//g;
-                if (lc $mac eq lc $user_name) {
-                    return $WIRED_MAC_AUTH;
-                } else {
-                    return $WIRED_802_1X;
-                }
-
-            } else {
-                return $WIRED_MAC_AUTH;
-            }
-
-        } else {
-            # we didn't recognize request_type, this is a problem
-            $logger->warn("Unknown connection_type. NAS-Port-Type: $nas_port_type, EAP-Type: $eap_type.");
-            return;
-        }
-    } else {
-        $logger->warn("Request type was not set. There is a problem with the NAS, your radius config "
-            ."or rlm_perl packetfence.pm FreeRADIUS module.");
-        return;
-    }
-}
-
 =item * _authorizeVoip - RADIUS authorization of VoIP
 
 All of the parameters from the authorize method call are passed just in case someone who override this sub
@@ -394,10 +386,7 @@ sub _authorizeVoip {
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
         ];
     }
-
-    locationlog_synchronize(
-        $switch->{_ip}, $port, $switch->getVlanByName('voice'), $mac, $VOIP, $connection_type, $user_name, $ssid
-    );
+    $switch->synchronize_locationlog($port, $switch->getVlanByName('voice'), $mac, $VOIP, $connection_type, $user_name, $ssid);
 
     my %RAD_REPLY = $switch->getVoipVsa();
     $switch->disconnectRead();
@@ -482,7 +471,7 @@ sub _shouldRewriteAccessAccept {
 
 Allows to rewrite the Access-Accept RADIUS atributes arbitrarily.
 
-Return type should match L<pf::radius::authorize>'s return type. See its
+Return type should match L<pf::radius::authorize()>'s return type. See its
 documentation for details.
 
 This is meant to be overridden in L<pf::radius::custom>.

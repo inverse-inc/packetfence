@@ -59,8 +59,7 @@ sub proxy_passthrough_remediation {
 package PROXYPASSTHROUGH;
 
 my @passthrough_domains =  pf::proxypassthrough::constants::proxy_passthrough();
-foreach (@passthrough_domains) { s{([^/])$}{$1\$} };
-foreach (@passthrough_domains) { s{(\*).(.*)}{\(\.\*\)\.$2} };
+foreach (@passthrough_domains) { s{(\*)(.*)}{\(\.\*\)\Q$2\E} };
 
 my $allow_passthrough_domains = join('|', @passthrough_domains) if (@passthrough_domains ne '0');
 
@@ -72,7 +71,7 @@ if (defined($allow_passthrough_domains)) {
 
 my @passthrough_remediation_domains =  pf::proxypassthrough::constants::proxy_passthrough_remediation();
 foreach (@passthrough_remediation_domains) { s{([^/])$}{$1\$} };
-foreach (@passthrough_remediation_domains) { s{(\*).(.*)}{\(\.\*\)\.$2} };
+foreach (@passthrough_remediation_domains) { s{(\*)(.*)}{\(\.\*\)\Q$2\E} };
 
 my $allow_passthrough_remediation_domains = join('|', @passthrough_remediation_domains) if (@passthrough_remediation_domains ne '0');
 
@@ -89,7 +88,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2013-2014 Inverse inc.
 
 =head1 LICENSE
 

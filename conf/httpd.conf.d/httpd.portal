@@ -1,6 +1,3 @@
-#Captive portal configuration file
-
-#Debian specific
 <IfDefine debian>
   <IfModule !mod_perl.c>
     LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
@@ -37,6 +34,13 @@
   </IfModule>
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
+  </IfModule>
+  # To activate this module add an entry in /etc/hosts for this server hostname.
+  #<IfModule !mod_unique_id.c>
+  #  LoadModule unique_id_module /usr/lib/apache2/modules/mod_unique_id.so
+  #</IfModule>
+  <IfModule !mod_qos.c>
+    LoadModule qos_module /usr/lib/apache2/modules/mod_qos.so
   </IfModule>
 </IfDefine>
 
@@ -78,14 +82,32 @@
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module modules/mod_apreq2.so
   </IfModule>
+  # To activate this module add an entry in /etc/hosts for this server hostname.
+  #<IfModule !mod_unique_id.c>
+  #  LoadModule unique_id_module modules/mod_unique_id.so
+  #</IfModule>
+  <IfModule !mod_qos.c>
+    LoadModule qos_module modules/mod_qos.so
+  </IfModule>
 </IfDefine>
 
 PerlSwitches -I/usr/local/pf/lib
-#AddHandler perl-script .cgi
-#Options +ExecCGI
-#PerlHandler ModPerl::PerlRun
+PerlSwitches -I/usr/local/pf/html/captive-portal/lib
+# mod_perl handlers are virtually assigned to /perl/
+# The TransHandler handles the 'captive-portal' core piece redirecting to the
+# portal if the URL is not otherwised allowed by passthrough or part of the
+# portal itself.
+PerlPostConfigRequire /usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl
+PerlLoadModule captiveportal
+PerlLoadModule pf::web::dispatcher
+PerlLoadModule pf::web::release
+# The TransHandler handles the 'captive-portal' core piece redirecting to the
+# portal if the URL is not otherwised allowed by passthrough or part of the
+# portal itself.
 
-# Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
+AcceptMutex posixsem
+SSLMutex posixsem
+
 Header always set X-DNS-Prefetch-Control off
 
 <Proxy *>
@@ -103,10 +125,18 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 TypesConfig /etc/mime.types
 
+
+
 <Perl>
+BEGIN {
+    use pf::log 'service' => 'httpd.portal';
+}
 use pf::config qw();
+use pf::util qw(isenabled);
+use pf::authentication();
+use pf::web::constants();
 use Tie::DxHash;
-use pf::services::apache;
+use pf::services::manager::httpd();
 use Apache::SSLLookup;
 
 sub gen_conf {
@@ -123,6 +153,7 @@ my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 my @internal_nets = @pf::config::internal_nets;
 my $host;
+my $vhost;
 
 $PidFile = $install_dir.'/var/run/httpd.portal.pid';
 
@@ -146,9 +177,15 @@ $UseCanonicalName = "Off";
 $Timeout = "50";
 $KeepAliveTimeout = "10";
 
-$MaxClients = pf::services::apache::calculate_max_clients(pf::services::apache::get_total_system_memory());
-$StartServers =  pf::services::apache::calculate_start_servers($MaxClients);
-$MinSpareServers = pf::services::apache::calculate_min_spare_servers($MaxClients);
+$MaxClients = pf::services::manager::httpd::calculate_max_clients(pf::services::manager::httpd::get_total_system_memory());
+$StartServers =  pf::services::manager::httpd::calculate_start_servers($MaxClients);
+$MinSpareServers = pf::services::manager::httpd::calculate_min_spare_servers($MaxClients);
+
+if( pf::config::isenabled ($PfConfig->{services}{httpd_mod_qos})) {
+    my $qos = $MaxClients * .7;
+    $QS_SrvMaxConnClose = $qos;
+    $QS_SrvMaxConnPerIP = $PfConfig->{services}{httpd_mod_qos_maximum_connections_per_device};
+}
 
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
@@ -165,35 +202,128 @@ $SSLCipherSuite = "ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eN
 
 $ErrorLog = $install_dir.'/logs/portal_error_log';
 
+my $routedNets = join(" ", pf::util::get_routed_isolation_nets(), pf::util::get_routed_registration_nets() , pf::util::get_inline_nets());
+my $loadbalancersIp = join(" ", keys %{$pf::config::CAPTIVE_PORTAL{'loadbalancers_ip'}});
+my $allowed_from_all_urls = "|$WEB::URL_STATUS";
+# signup and preregister if pre-registration is allowed
+my $guest_regist_allowed = scalar keys %pf::authentication::guest_self_registration;
+if ($guest_regist_allowed && isenabled($pf::config::Config{'guests_self_registration'}{'preregistration'})) {
+    # | is for a regexp "or" as this is pulled from a 'Location ~' statement
+    $allowed_from_all_urls .= "|$WEB::URL_SIGNUP|$WEB::CGI_SIGNUP|$WEB::URL_PREREGISTER";
+}
+# /activate/email allowed if sponsor or email mode enabled
+my $email_enabled = $pf::authentication::guest_self_registration{$SELFREG_MODE_EMAIL};
+my $sponsor_enabled = $pf::authentication::guest_self_registration{$SELFREG_MODE_SPONSOR};
+if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
+    # | is for a regexp "or" as this is pulled from a 'Location ~' statement
+    $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION";
+}
+
 foreach my $interface (@internal_nets) {
     push (@Listen,$interface->{'Tip'}.":80");
     push (@Listen,$interface->{'Tip'}.":443");
     push (@NameVirtualHost,$interface->{'Tip'}.":80");
     push (@NameVirtualHost,$interface->{'Tip'}.":443");
     push (@{ $VirtualHost{$interface->{'Tip'}.":80"} }, gen_conf(
-         ServerName => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => $install_dir.'/html/captive-portal',
-         ErrorLog => $install_dir.'/logs/portal_error_log',
-         CustomLog => $install_dir.'/logs/portal_access_log combined',
-         Include => $var_dir.'/conf/captive-portal-common.conf',
-         Include => $var_dir.'/conf/block-unwanted.conf',
-         Include => $var_dir.'/conf/captive-portal-cleanurls.conf',
-         ProxyPassReverse => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
-         ProxyPass => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+         DocumentRoot => "${install_dir}/html/captive-portal/lib",
+         ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
+         CustomLog    => "${install_dir}/logs/portal_catalyst_access_log combined",
+         Include => "${var_dir}/conf/captive-portal-common.conf",
+         Include => "${var_dir}/conf/block-unwanted.conf",
+         Include => "${var_dir}/conf/captive-portal-cleanurls.conf",
+         AllowEncodedSlashes => "on",
+         Alias        => "/static ${install_dir}/html/captive-portal/root/static",
+         Alias        => "/common ${install_dir}/html/common",
+         PerlModule   => 'captiveportal',
+         PerlTransHandler => 'pf::web::dispatcher::custom',
+         Location     => {
+             "/" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'captiveportal',
+             },
+             "/static" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler => 'default-handler',
+             },
+             "/common" => {
+                 "Allow" => "from all",
+                 SetHandler => 'default-handler',
+             },
+             "/release" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler =>  'modperl',
+                 PerlResponseHandler =>  'pf::web::release',
+                 PerlOptions => '+GlobalRequest +ParseHeaders'
+             },
+             "/content" => {
+                "Allow" => "from all",
+             },
+             "~ \"/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'captiveportal',
+             },
+         },
     ));
     push (@{ $VirtualHost{$interface->{'Tip'}.":443"} }, gen_conf(
-         ServerName => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => $install_dir.'/html/captive-portal',
-         ErrorLog => $install_dir.'/logs/portal_error_log',
-         CustomLog => $install_dir.'/logs/portal_access_log combined',
+         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+         DocumentRoot => "${install_dir}/html/captive-portal/lib",
+         ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
+         CustomLog    => "${install_dir}/logs/portal_catalyst_access_log combined",
+         Include => "${var_dir}/conf/captive-portal-common.conf",
+         Include => "${var_dir}/conf/block-unwanted.conf",
+         Include => "${var_dir}/conf/captive-portal-cleanurls.conf",
+         AllowEncodedSlashes => "on",
+         Alias        => "/static ${install_dir}/html/captive-portal/root/static",
+         Alias        => "/common ${install_dir}/html/common",
+         PerlModule   => 'captiveportal',
+         PerlTransHandler => 'pf::web::dispatcher::custom',
+         Location     => {
+             "/" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'captiveportal',
+             },
+             "/static" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler => 'default-handler',
+             },
+             "/common" => {
+                 "Allow" => "from all",
+                 SetHandler => 'default-handler',
+             },
+             "/release" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler =>  'modperl',
+                 PerlResponseHandler =>  'pf::web::release',
+                 PerlOptions => '+GlobalRequest +ParseHeaders'
+             },
+             "/content" => {
+                "Allow" => "from all",
+             },
+             "~ \"/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'captiveportal',
+             },
+         },
          SSLEngine => 'on',
          SSLProxyEngine    => 'on',
-         Include => $var_dir.'/conf/ssl-certificates.conf',
-         Include => $var_dir.'/conf/captive-portal-common.conf',
-         Include => $var_dir.'/conf/block-unwanted.conf',
-         Include => $var_dir.'/conf/captive-portal-cleanurls.conf',
-         ProxyPassReverse => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
-         ProxyPass => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+         Include      => "${var_dir}/conf/ssl-certificates.conf",
     ));
 }
 
@@ -210,32 +340,108 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
     push (@NameVirtualHost,$host.":443");
 
     push @{ $VirtualHost{$host.":80"} }, gen_conf(
-         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot        => $install_dir.'/html/pfappserver/lib',
-         ErrorLog            => $install_dir.'/logs/portal_error_log',
-         CustomLog           => $install_dir.'/logs/portal_access_log combined',
-         Include             => $var_dir.'/conf/captive-portal-common.conf',
-         Include             => $var_dir.'/conf/block-unwanted.conf',
-         Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
-         ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
-         ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+         DocumentRoot => "${install_dir}/html/captive-portal/lib",
+         ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
+         CustomLog    => "${install_dir}/logs/portal_catalyst_access_log combined",
+         Include => "${var_dir}/conf/captive-portal-common.conf",
+         Include => "${var_dir}/conf/block-unwanted.conf",
+         Include => "${var_dir}/conf/captive-portal-cleanurls.conf",
+         AllowEncodedSlashes => "on",
+         Alias        => "/static ${install_dir}/html/captiveportal/root/static",
+         Alias        => "/common ${install_dir}/html/common",
+         PerlModule   => 'captiveportal',
+         PerlTransHandler => 'pf::web::dispatcher::custom',
+         Location     => {
+             "/" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'captiveportal',
+             },
+             "/static" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler => 'default-handler',
+             },
+             "/common" => {
+                 "Allow" => "from all",
+                 SetHandler => 'default-handler',
+             },
+             "/release" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler =>  'modperl',
+                 PerlResponseHandler =>  'pf::web::release',
+                 PerlOptions => '+GlobalRequest +ParseHeaders'
+             },
+             "/content" => {
+                "Allow" => "from all",
+             },
+             "~ \"/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'captiveportal',
+             }, 
+         },
     );
     push @{ $VirtualHost{$host.":443"} }, gen_conf(
-         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot        => $install_dir.'/html/pfappserver/lib',
-         ErrorLog            => $install_dir.'/logs/portal_error_log',
-         CustomLog           => $install_dir.'/logs/portal_access_log combined',
-         SSLEngine           => 'on',
-         Include             => $var_dir.'/conf/ssl-certificates.conf',
-         Include             => $var_dir.'/conf/captive-portal-common.conf',
-         Include             => $var_dir.'/conf/block-unwanted.conf',
-         Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
-         ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
-         ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+         DocumentRoot => "${install_dir}/html/captive-portal/lib",
+         ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
+         CustomLog    => "${install_dir}/logs/portal_catalyst_access_log combined",
+         Include => "${var_dir}/conf/captive-portal-common.conf",
+         Include => "${var_dir}/conf/block-unwanted.conf",
+         Include => "${var_dir}/conf/captive-portal-cleanurls.conf",
+         AllowEncodedSlashes => "on",
+         Alias        => "/static ${install_dir}/html/captiveportal/root/static",
+         Alias        => "/common ${install_dir}/html/common",
+         PerlModule   => 'captiveportal',
+         PerlTransHandler => 'pf::web::dispatcher::custom',
+         Location     => {
+             "/" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'captiveportal',
+             },
+             "/static" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler => 'default-handler',
+             },
+             "/common" => {
+                 "Allow" => "from all",
+                 SetHandler => 'default-handler',
+             },
+             "/release" => {
+                 "Order" => "deny,allow",
+                 "Deny" => "from all",
+                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                 SetHandler =>  'modperl',
+                 PerlResponseHandler =>  'pf::web::release',
+                 PerlOptions => '+GlobalRequest +ParseHeaders'
+             },
+             "/content" => {
+                "Allow" => "from all",
+             },
+             "~ \"/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'captiveportal',
+             },
+         },
+         SSLEngine => 'on',
+         SSLProxyEngine    => 'on',
+         Include      => "${var_dir}/conf/ssl-certificates.conf",
     );
 
 } 
 
 </Perl>
-
 

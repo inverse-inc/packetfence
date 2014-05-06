@@ -97,7 +97,7 @@ document.observe("dom:loaded", function() {
             [% IF guest_allowed && !null_source -%]
           <div class="input">
             <div class="separator"><div class="or_separator">or</div></div>
-              <a href="[% URL_SIGNUP %]">[% i18n("Sign up") %]</a>
+              <a href="[% URL_SIGNUP %]?destination_url=[% destination_url %]">[% i18n("Sign up") %]</a>
           </div>
             [% END -%]
         </form>

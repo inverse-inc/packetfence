@@ -1,0 +1,28 @@
+[storage DEFAULT]
+storage=file
+
+[storage DEFAULT l1_cache]
+storage=memcached
+
+[storage httpd.admin]
+expires_in=1d
+
+[storage httpd.admin l1_cache]
+expires_on_backend=1
+
+[storage httpd.portal]
+expires_in=10m
+
+[storage httpd.portal l1_cache]
+expires_on_backend=1
+
+[storage memcached]
+driver=Memcached
+servers=127.0.0.1:11211
+global=1
+compress_threshold=10000
+
+[storage file]
+driver=File
+root_dir=/usr/local/pf/var/cache
+

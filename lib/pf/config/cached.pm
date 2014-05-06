@@ -218,15 +218,6 @@ Example:
   );
 
 
-=head2 Catalyst
-
-=head3 When to Reload
-
-This ideally should be done in the begin action of a Catalyst controller
-
-sub begin :Private { pf::config::cached::ReloadConfigs(); }
-
-
 =head2 HTML::FormHandler
 
 =head3 Default values
@@ -271,7 +262,7 @@ When using a value that was dervived from a configuration use a sub routine to c
 use strict;
 use warnings;
 use pf::file_paths;
-use Time::HiRes qw(stat time);
+use Time::HiRes qw(stat time gettimeofday);
 use pf::log;
 use pf::CHI;
 use pf::IniFiles;
@@ -279,25 +270,34 @@ use Scalar::Util qw(refaddr reftype tainted);
 use Fcntl qw(:DEFAULT :flock);
 use Storable;
 use File::Flock;
+use File::Spec::Functions qw(splitpath catpath);
 use Readonly;
 use Sub::Name;
 use List::Util qw(first);
 use List::MoreUtils qw(uniq);
+use Fcntl qw(:flock :DEFAULT :seek);
+use POSIX::2008;
 
 
 our $CACHE;
 our @LOADED_CONFIGS;
 our %ON_RELOAD;
 our %ON_FILE_RELOAD;
+our %ON_FILE_RELOAD_ONCE;
 our %ON_CACHE_RELOAD;
 our %ON_POST_RELOAD;
+
 our @ON_DESTROY_REFS = (
     \%ON_RELOAD,
     \%ON_FILE_RELOAD,
     \%ON_CACHE_RELOAD,
+    \%ON_FILE_RELOAD_ONCE,
+    \%ON_POST_RELOAD,
 );
 
 our %CONFIG_DATA;
+
+our $CACHE_CONTROL_TIMESTAMP = getControlFileTimestamp();
 
 use overload "%{}" => \&config, fallback => 1;
 
@@ -341,57 +341,44 @@ sub new {
     my $class = ref($proto) || $proto;
     my $self;
     my $file = $params{'-file'};
+    $file =~ /^(.*)$/;
+    $file = $1;
     my $config;
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
+    my $onFileReloadOnce = delete $params{'-onfilereloadonce'} || [];
     my $onCacheReload = delete $params{'-oncachereload'} || [];
     my $onPostReload = delete $params{'-onpostreload'} || [];
     my $reload_onfile;
-    if($file) {
-        $self = first { $_->GetFileName eq $file} @LOADED_CONFIGS;
-        if( defined $self) {
-            #Adding the reload and filereload callbacks
-            $self->addReloadCallbacks(@$onReload) if @$onReload;
-            $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
-            $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
-            $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
-            #Rereading the config to ensure the latest version
-            $self->ReadConfig();
-        } else {
-            delete $params{'-file'} unless -e $file;
-            $config = $class->computeFromPath(
-                $file,
-                sub {
-                    my $lock = lockFileForReading($file);
-                    my $config = pf::IniFiles->new(%params);
-                    die "$file cannot be loaded" unless $config;
-                    unlockFilehandle($lock);
-                    $config->SetFileName($file);
-                    $config->SetWriteMode($WRITE_PERMISSIONS);
-                    my $mode = oct($config->GetWriteMode);
-                    chmod $mode, $file;
-                    $reload_onfile = 1;
-                    return $config;
-                }
-            );
+    die "param -file missing or empty" unless $file;
+    delete $params{'-file'} unless -e $file;
+    $config = $class->computeFromPath(
+        $file,
+        sub {
+            my $lock = lockFileForReading($file);
+            my $config = pf::IniFiles->new(%params);
+            die "$file cannot be loaded" unless $config;
+            $config->SetFileName($file);
+            $config->SetWriteMode($WRITE_PERMISSIONS);
+            $reload_onfile = 1;
+            return $config;
         }
-    } else {
-        die "param -file missing or empty";
-    }
-    if ($config) {
-        $self = \$config;
-        push @LOADED_CONFIGS, $self;
-        $ON_RELOAD{$file} = [];
-        $ON_FILE_RELOAD{$file} = [];
-        $ON_CACHE_RELOAD{$file} = [];
-        $ON_POST_RELOAD{$file} = [];
-        bless $self,$class;
-        $self->addReloadCallbacks(@$onReload) if @$onReload;
-        $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
-        $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
-        $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
-        $self->doCallbacks($reload_onfile,!$reload_onfile);
-    }
+    );
+    untaint($config) unless $reload_onfile;
+    $ON_RELOAD{$file} ||= [];
+    $ON_FILE_RELOAD{$file} ||= [];
+    $ON_FILE_RELOAD_ONCE{$file} ||= [];
+    $ON_CACHE_RELOAD{$file} ||= [];
+    $ON_POST_RELOAD{$file} ||= [];
+    $self = \$config;
+    bless $self,$class;
+    push @LOADED_CONFIGS, $self;
+    $self->addReloadCallbacks(@$onReload) if @$onReload;
+    $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
+    $self->addFileReloadOnceCallbacks(@$onFileReloadOnce) if @$onFileReloadOnce;
+    $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
+    $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
+    $self->doCallbacks($reload_onfile,!$reload_onfile);
     return $self;
 }
 
@@ -414,10 +401,11 @@ sub RewriteConfig {
     my $logger = get_logger();
     my $config = $self->config;
     my $file = $config->GetFileName;
-    if( $config->IsExpired(1) ) {
+    if( $config->HasChanged(1) ) {
         die "Config $file was modified from last loading\n";
     }
     my $result;
+    umask 2;
     my $lock = lockFileForWriting($file);
     if ( exists $config->{imported} && defined $config->{imported}) {
         #localizing for saving only what is in
@@ -438,14 +426,14 @@ sub RewriteConfig {
     if($result) {
         $config = $self->computeFromPath(
             $file,
-            sub { return $config; }, 1
+            sub {
+                $self->updateCacheControl();
+                return $config;
+            },
+            1
         );
-        $config->SetWriteMode($WRITE_PERMISSIONS);
-        my $mode = oct($config->GetWriteMode);
-        chmod $mode, $file;
         $self->doCallbacks(1,0);
     }
-    unlockFilehandle($lock);
     return $result;
 }
 
@@ -505,6 +493,18 @@ sub _callFileReloadCallbacks {
     $self->_callCallbacks(\%ON_FILE_RELOAD);
 }
 
+=head2 _callFileReloadOnceCallbacks
+
+Call all the file reload callbacks that should be called only once
+
+=cut
+
+sub _callFileReloadOnceCallbacks {
+    my ($self,$force) = @_;
+    my $callbacks = $ON_FILE_RELOAD_ONCE{$self->GetFileName} ||= [];
+    $self->_doLockOnce( sub { $self->_callCallbacks(\%ON_FILE_RELOAD_ONCE) }, $force ) if @$callbacks;
+}
+
 =head2 _callCacheReloadCallbacks
 
 Call all the cache reload callbacks
@@ -528,14 +528,75 @@ sub _callPostReloadCallbacks {
 }
 
 sub doCallbacks {
-    my ($self,$file_reloaded,$cache_reloaded) = @_;
+    my ($self,$file_reloaded,$cache_reloaded,$file_reloaded_once_force) = @_;
     if($file_reloaded || $cache_reloaded) {
-        get_logger()->trace("doing callbacks file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
+        get_logger()->trace("doing callbacks for " . $self->GetFileName . " file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
         $self->_callReloadCallbacks;
-        $self->_callFileReloadCallbacks if $file_reloaded;
+        if($file_reloaded) {
+            $self->_callFileReloadCallbacks;
+            $self->_callFileReloadOnceCallbacks($file_reloaded_once_force);
+        }
         $self->_callCacheReloadCallbacks if $cache_reloaded;
         $self->_callPostReloadCallbacks;
     }
+}
+
+sub _doLockOnce {
+    my ($self,$callback,$force) = @_;
+    my $lockFile = $self->getOnReloadOnceLock($force);
+    if ($lockFile) {
+        my $logger = get_logger();
+        $logger->debug("Doing the callback");
+        $callback->();
+        flock($lockFile,LOCK_UN);
+        close($lockFile);
+    }
+    return;
+}
+
+
+sub GetDotFileName {
+    return _makeIntoDotFile (shift->GetFileName);
+}
+
+sub _makeIntoDotFile {
+    my ($oldFileName) = @_;
+    my ($volume,$directories,$file) = splitpath( $oldFileName );
+    return catpath($volume,$directories,".$file");
+}
+
+sub getOnReloadOnceLock {
+    my ($self,$force) = @_;
+    my $logger = get_logger();
+    my $fh = IO::File->new;
+    my $lockFile = $self->GetDotFileName() . ".lockone" ;
+    $logger->debug("opening $lockFile");
+    my $old_umask = umask(002);
+    if (sysopen($fh,$lockFile,O_CREAT|O_RDWR) ) {
+        my $options = $force ? (LOCK_EX) : (LOCK_EX | LOCK_NB);
+        if( flock($fh,$options) ) {
+            my $previousTimestamp;
+            sysread $fh,$previousTimestamp,20;
+            $previousTimestamp ||= 0;
+            my $currentTimeStamp = $self->GetLastModTimestamp();
+            if(!$force && $currentTimeStamp == $previousTimestamp) {
+                flock($fh,LOCK_UN);
+                close($fh);
+                $fh = undef;
+            } else {
+                truncate($fh,0);
+                sysseek($fh,0,SEEK_SET);
+                syswrite $fh,sprintf("%-20d",$currentTimeStamp);
+            }
+        } else {
+            close($fh);
+            $fh = undef;
+        }
+    } else {
+        $fh = undef;
+    }
+    umask($old_umask);
+    return $fh;
 }
 
 
@@ -577,11 +638,7 @@ sub lockFileForWriting {
     my ($file) = @_;
     my $logger = get_logger();
     $logger->trace("locking file for writing $file");
-    my $old_mask = umask 2;
-    my $flock = File::Flock->new(_makeFileLock($file));
-    umask $old_mask;
-    return $flock;
-
+    return _lockFileFor($file);
 }
 
 =head2 lockFileForReading
@@ -594,23 +651,21 @@ sub lockFileForReading {
     my ($file) = @_;
     my $logger = get_logger();
     $logger->trace("locking file for reading $file");
-    my $old_mask = umask 2;
-    my $flock = File::Flock->new(_makeFileLock($file),'shared');
-    umask $old_mask;
-    return $flock;
+    return _lockFileFor($file,'shared');
 }
 
-=head2 unlockFilehandle
+=head2 _lockFileFor
 
-Unlock the file handle returned from lockFileForWriting or lockFileForReading
+helper function for locking files
 
 =cut
 
-sub unlockFilehandle {
-    my ($lock) = @_;
-    my $logger = get_logger();
-    $logger->trace("unlocking file");
-    $lock->unlock;
+
+sub _lockFileFor {
+    my ($file, $mode) = @_;
+    umask 2;
+    my $flock = File::Flock->new(_makeFileLock($file),$mode);
+    return $flock;
 }
 
 =head2 _makeFileLock
@@ -621,7 +676,9 @@ will create the name of the lock file
 
 sub _makeFileLock {
     my ($file) = @_;
-    return "$file.lock";
+    $file =~ /^(.*)$/;
+    $file = _makeIntoDotFile($1);
+    return "${file}.lock";
 }
 
 
@@ -632,11 +689,9 @@ Will reload the config when changed on the filesystem and call any register call
 =cut
 
 sub ReadConfig {
-    my ($self) = @_;
+    my ($self,$force) = @_;
     my $config = $self->config;
-    my $cache  = $self->cache;
     my $file   = $config->GetFileName;
-    my $reloaded;
     my $reloaded_from_cache = 0;
     my $reloaded_from_file = 0;
     #If considered latest version of file it is always succesful
@@ -649,13 +704,12 @@ sub ReadConfig {
             #reread files
             my $lock = lockFileForReading($file);
             $result = $config->ReadConfig();
-            unlockFilehandle($lock);
             $reloaded_from_file = 1;
             return $config;
-        }
+        },$force
     );
     $reloaded_from_cache = refaddr($config) != refaddr($$self);
-    $self->doCallbacks($reloaded_from_file,$reloaded_from_cache);
+    $self->doCallbacks($reloaded_from_file,$reloaded_from_cache,$force);
     return $result;
 }
 
@@ -710,12 +764,17 @@ sub computeFromPath {
     my $computeWrapper = sub {
         my $config = $computeSub->();
         $config->SetLastModTimestamp();
+        setControlFileTimestamp($config);
         return $config;
     };
     my $result = $self->cache->compute(
         $file,
         {
-            expire_if => sub { return $expire || $_[0]->value->IsExpired(); },
+            expire_if => sub {
+                return 1 if $expire;
+                my $control_file_timestamp = $_[0]->value->{_control_file_timestamp} || -1;
+                return  ( controlFileExpired($control_file_timestamp) && $_[0]->value->HasChanged() ) ;
+            },
         },
         $computeWrapper
     );
@@ -724,28 +783,37 @@ sub computeFromPath {
     return $result;
 }
 
+sub setControlFileTimestamp {
+    my ($self) = @_;
+    $self->{_control_file_timestamp} = getControlFileTimestamp();
+}
+
+sub getControlFileTimestamp { int((stat($cache_control_file))[9] || 0) * 1000000000 }
+
+sub controlFileExpired {
+    my ($timestamp) = @_;
+    $timestamp != getControlFileTimestamp();
+}
+
+
 =head2 cache
 
-Get the global CHI object
+Get the global CHI object for configfiles
 
 =cut
 
 sub cache {
-    my ($self) = @_;
-    unless (defined($CACHE)) {
-        $CACHE = $self->_cache();
-    }
-    return $CACHE;
+    return pf::CHI->new(namespace => 'configfiles' );
 }
 
-=head2 _cache
+=head2 cacheForData
 
-Builds the CHI object
+Get the global CHI object for configfilesdata
 
 =cut
 
-sub _cache {
-    return pf::CHI->new(namespace => 'configfiles' );
+sub cacheForData {
+    return pf::CHI->new(namespace => 'configfilesdata' );
 }
 
 =head2 ReloadConfigs
@@ -755,10 +823,13 @@ ReloadConfigs reload all configs and call any register callbacks
 =cut
 
 sub ReloadConfigs {
+    my ($force) = @_;
+    return unless controlFileExpired($CACHE_CONTROL_TIMESTAMP);
+    $CACHE_CONTROL_TIMESTAMP = getControlFileTimestamp();
     my $logger = get_logger();
     $logger->trace("Reloading all configs");
     foreach my $config (@LOADED_CONFIGS) {
-        $config->ReadConfig();
+        $config->ReadConfig($force);
     }
 }
 
@@ -813,9 +884,23 @@ sub addFileReloadCallbacks {
     $self->_addCallbacks($ON_FILE_RELOAD{$self->GetFileName},@args);
 }
 
+=head2 addFileReloadOnceCallbacks
+
+$self->addFileReloadOnceCallbacks('name' => sub {...});
+Add named callbacks to the onfilereloadonce array
+Called in insert order
+If callback already exists, previous callback is replaced and previous position is preserved
+
+=cut
+
+sub addFileReloadOnceCallbacks {
+    my ($self,@args) = @_;
+    $self->_addCallbacks($ON_FILE_RELOAD_ONCE{$self->GetFileName},@args);
+}
+
 =head2 addCacheReloadCallbacks
 
-$self->addFileReloadCallbacks('name' => sub {...});
+$self->addCacheReloadCallbacks('name' => sub {...});
 Add named callbacks to the onfilereload array
 Called in insert order
 If callback already exists, previous callback is replaced and previous position is preserved
@@ -916,8 +1001,13 @@ sub toHash {
 
 sub fromCacheUntainted {
     my ($self, $key) = @_;
-    $self->removeFromSubcaches($key);
+#    $self->removeFromSubcaches($key);
     return untaint($self->cache->get($key));
+}
+
+sub fromCacheForDataUntainted {
+    my ($self, $key) = @_;
+    return untaint($self->cacheForData->get($key));
 }
 
 sub removeFromSubcaches {
@@ -925,7 +1015,6 @@ sub removeFromSubcaches {
     my $cache = $self->cache;
     if($cache->has_subcaches) {
         get_logger->trace("Removing from subcache");
-        $cache->l1_cache->expire($key);
         $cache->l1_cache->remove($key);
     }
 }
@@ -969,13 +1058,34 @@ sub clearAllConfigs {
     $class->cache->remove_multi(\@stored_config_files);
 }
 
+sub updateCacheControl {
+    my ($dontCreate) = @_;
+    if ( !-e $cache_control_file && !$dontCreate) {
+        my $fh;
+        open($fh,">$cache_control_file") or die "Can't create $cache_control_file\nPlease run 'pfcmd fixpermissions'";
+        close($fh);
+    }
+    if(-e $cache_control_file) {
+        sysopen(my $fh,$cache_control_file,O_RDWR | O_CREAT);
+        my ($seconds) = time();
+        my ($usec, $s) = POSIX::modf($seconds);
+        my $nanosec = int($usec * 1000000000) + int(rand(1000)) + 1000;
+        $s = int($s);
+        POSIX::2008::futimens(fileno $fh, $s, $nanosec, $s, $nanosec);
+        close($fh);
+    }
+    my (undef,undef,$uid,$gid) = getpwnam('pf');
+    chown($uid,$gid,$cache_control_file);
+    return 0;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 

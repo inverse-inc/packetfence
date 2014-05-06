@@ -29,7 +29,7 @@ BEGIN { use PfFilePaths; }
 
 use pf::config;
 use pf::SwitchFactory;
-use pf::SNMP::constants;
+use pf::Switch::constants;
 
 BEGIN { use pf::violation; }
 BEGIN {

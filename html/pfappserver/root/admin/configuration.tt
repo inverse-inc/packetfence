@@ -10,10 +10,10 @@
         'app/pf-bootstrap-swap-class',
         'admin/configuration',
         'admin/searches',
+        'admin/configuration/items',
         'admin/configuration/interfaces',
         'admin/configuration/switches',
         'admin/configuration/floatingdevices',
-        'admin/configuration/adminroles',
         'admin/configuration/authentication',
         'admin/configuration/portal_profile',
         'admin/configuration/violations',
@@ -52,13 +52,13 @@ table.sources {
     table-layout: fixed;
 }
 </style>
-[% MACRO list_entry(controller_name,action,description) BLOCK %]
+[% MACRO list_entry(controller_name, action, description) BLOCK %]
               <li>
                 <a href="[%c.pf_hash_for(c.controller(controller_name).action_for(action),[]) %]">[% l(description || action || controller_name) %]</a>
               </li>
 [% END -%]
 
-[% MACRO pf_section_entry(section,description) BLOCK %]
+[% MACRO pf_section_entry(section, description) BLOCK %]
               <li>
                 <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('pf_section'),section) %]">[% l(description || section) %]</a>
               </li>
@@ -69,7 +69,7 @@ table.sources {
         <div class="span2">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
-              [%- IF can_access("CONFIGURATION_MAIN_READ") || can_access("PORTAL_PROFILES_READ") || can_access("ADMIN_ROLES_READ") %]
+              [%- IF can_access_any("CONFIGURATION_MAIN_READ","PORTAL_PROFILES_READ","ADMIN_ROLES_READ") -%]
               <li class="nav-header">[% l('Main') %]</li>
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
@@ -98,7 +98,7 @@ table.sources {
               [%- IF can_access("ADMIN_ROLES_READ") %]
               [% pf_section_entry('adminroles', 'Admin Access') %]
               [%- END %]
-              [%- IF can_access("INTERFACES_READ") || can_access("SWITCHES_READ") || can_access("FLOATING_DEVICES_READ") %]
+              [%- IF can_access_any("INTERFACES_READ","SWITCHES_READ","FLOATING_DEVICES_READ") %]
               <li class="nav-header">[% l('Network') %]<li>
               [%- IF can_access("INTERFACES_READ") %]
               [% pf_section_entry( 'interfaces', 'Interfaces') %]
@@ -106,11 +106,12 @@ table.sources {
               [%- IF can_access("SWITCHES_READ") %]
               [% pf_section_entry( 'switches', 'Switches') %]
               [%- END %]
+              [% list_entry('Configuration::Wrix', 'index', 'WRIX') %]
               [%- IF can_access("FLOATING_DEVICES_READ") %]
               [% pf_section_entry( 'floating_devices', 'Floating devices') %]
               [%- END %]
               [%- END %]
-              [%- IF can_access("USERS_ROLES_READ") || can_access("USERS_SOURCES_READ") %]
+              [%- IF can_access("USERS_ROLES_READ","USERS_SOURCES_READ") %]
               <li class="nav-header">[% l('Users') %]</li>
               [%- IF can_access("USERS_ROLES_READ") %]
               [% pf_section_entry( 'roles', 'Roles') %]
@@ -119,7 +120,7 @@ table.sources {
               [% list_entry('Authentication', 'index', 'Sources') %]
               [%- END %]
               [%- END %]
-              [%- IF can_access("VIOLATIONS_READ") || can_access("SOH_READ") %]
+              [%- IF can_access_any("VIOLATIONS_READ","SOH_READ") %]
               <li class="nav-header">[% l('Compliance') %]</li>
               [%- IF can_access("VIOLATIONS_READ") %]
               [% list_entry('Violation', 'index', 'Violations') %]
@@ -128,7 +129,7 @@ table.sources {
               [% pf_section_entry( 'soh', 'Statement of Health') %]
               [%- END %]
               [%- END %]
-              [%- IF can_access("FINGERPRINTS_READ") || can_access("USERAGENTS_READ") || can_access("MAC_READ") %]
+              [%- IF can_access_any("FINGERPRINTS_READ","USERAGENTS_READ","MAC_READ") %]
               <li class="nav-header">[% l('Identification') %]</li>
               [%- IF can_access("FINGERPRINTS_READ") %]
               [% list_entry('Configuration::FingerPrints', 'index', 'Fingerprints') %]

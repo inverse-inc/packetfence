@@ -36,6 +36,7 @@ use Log::Log4perl;
 use Readonly;
 use Template;
 use URI::Escape qw(uri_escape uri_unescape);
+use Crypt::OpenSSL::X509;
 use List::MoreUtils qw(any);
 
 BEGIN {
@@ -52,6 +53,7 @@ use pf::enforcement qw(reevaluate_access);
 use pf::iplog qw(ip2mac);
 use pf::node qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
 use pf::os qw(dhcp_fingerprint_view);
+use pf::person qw(person_nodes);
 use pf::useragent;
 use pf::util;
 use pf::violation qw(violation_count);
@@ -137,6 +139,7 @@ sub render_template {
     }
 
     $logger->debug("rendering template named $template");
+
     my $tt = Template->new({
         INCLUDE_PATH => $portalSession->getTemplateIncludePath()
     });
@@ -180,14 +183,14 @@ sub generate_release_page {
     render_template($portalSession, 'release.html', $r);
 }
 
-=item supports_mobileconfig_provisioning
+=item supports_androidconfig_provisioning
 
-Validating that the node supports mobile configuration provisioning, that it's configured
+Validating that the node supports android configuration provisioning, that it's configured
 and that the node's category matches the configuration.
 
 =cut
 
-sub supports_mobileconfig_provisioning {
+sub supports_androidconfig_provisioning {
     my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
 
@@ -197,7 +200,7 @@ sub supports_mobileconfig_provisioning {
     # TODO get rid of hardcoded targets like that
     my $node_attributes = node_attributes($portalSession->getClientMac);
     my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
-    return $FALSE if (!defined($fingerprint[0]->{'os'}) || $fingerprint[0]->{'os'} !~ /Apple iPod, iPhone or iPad/);
+    return $FALSE if (!defined($fingerprint[0]->{'os'}) || !( $fingerprint[0]->{'os'} =~ /Android/)  );
 
     # do we perform provisioning for this category?
     my $config_category = $Config{'provisioning'}{'category'};
@@ -210,47 +213,36 @@ sub supports_mobileconfig_provisioning {
     return $FALSE;
 }
 
-=item generate_mobileconfig_provisioning_page
+=item generate_androidconfig_provisioning_page
 
 Offers a page that links to the proper provisioning XML.
 
 =cut
 
-sub generate_mobileconfig_provisioning_page {
+sub generate_androidconfig_provisioning_page {
     my ( $portalSession ) = @_;
-    render_template($portalSession, 'release_with_xmlconfig.html');
+    render_template($portalSession, 'release_with_android.html');
 }
 
-=item generate_apple_mobileconfig_provisioning_xml
+=item generate_mobileconfig_provisioning_xml
 
-Generate the proper .mobileconfig XML to automatically configure Wireless for iOS devices.
+Generate the proper .mobileconfig XML to automatically configure Wireless devices.
 
 =cut
 
-sub generate_apple_mobileconfig_provisioning_xml {
+sub generate_mobileconfig_provisioning_xml {
     my ( $portalSession ) = @_;
-
-    # if not logged in, disallow access
-    if (!defined($portalSession->session->param('username'))) {
-        pf::web::generate_error_page(
-            $portalSession,
-            i18n("You need to be authenticated to access this page.")
-        );
-        exit(0);
-    }
+    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $response;
 
     $portalSession->stash->{'username'} = $portalSession->session->param('username');
     $portalSession->stash->{'ssid'} = $Config{'provisioning'}{'ssid'};
 
-    # Some required headers
-    # http://www.rootmanager.com/iphone-ota-configuration/iphone-ota-setup-with-signed-mobileconfig.html
-    my @headers = (
-        'Content-type: application/x-apple-aspen-config; chatset=utf-8',
-        'Content-Disposition: attachment; filename="wireless-profile.mobileconfig"',
-    );
-    $portalSession->stash->{'headers'} = @headers;
-
-    render_template($portalSession, 'wireless-profile.xml');
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+    });
+    $template->process( "wireless-profile.xml", $portalSession->stash, \$response ) || $logger->error($template->error());
+    return $response;
 }
 
 sub generate_scan_start_page {
@@ -333,6 +325,37 @@ sub generate_aup_standalone_page {
     render_template($portalSession, 'aup.html');
 }
 
+=item generate_status_page
+
+Called when someone accesses /status
+
+=cut
+
+sub generate_status_page {
+    my ( $portalSession ) = @_;
+    my $node_info = node_view($portalSession->getClientMac());
+    if ($node_info->{'last_start_timestamp'} > 0) {
+        if ($node_info->{'time_balance'} > 0) {
+            # Node has a usage duration
+            $node_info->{'expiration'} = $node_info->{'last_start_timestamp'} + $node_info->{'time_balance'};
+            if ($node_info->{'expiration'} < time) {
+                # No more access time; RADIUS accounting should have triggered a violation
+                delete $node_info->{'expiration'};
+                $node_info->{'time_balance'} = 0;
+            }
+        }
+    }
+    my @nodes = person_nodes($node_info->{pid});
+
+    $portalSession->stash({
+        node => $node_info,
+        nodes => \@nodes,
+        billing => isenabled($portalSession->getProfile->getBillingEngine),
+    });
+
+    render_template($portalSession, 'status.html');
+}
+
 sub generate_scan_status_page {
     my ( $portalSession, $scan_start_time, $r ) = @_;
 
@@ -368,7 +391,8 @@ sub generate_oauth2_page {
    # Generate the proper Client
    my $provider = $portalSession->getCgi()->url_param('provider');
 
-   print $portalSession->cgi->redirect(oauth2_client($portalSession, $provider)->authorize_url);
+   print $portalSession->cgi->redirect(oauth2_client($portalSession, $provider)->authorize);
+   exit(0);
 }
 
 =item generate_oauth2_result
@@ -443,7 +467,7 @@ sub generate_violation_page {
     my ( $portalSession, $template ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $langs = $portalSession->getRequestLanguages();
+    my @langs = $portalSession->getLanguages();
     my $mac = $portalSession->getClientMac();
     my $paths = $portalSession->getTemplateIncludePath();
 
@@ -459,8 +483,8 @@ sub generate_violation_page {
     $portalSession->stash->{'last_ssid'} =  $node_info->{'last_ssid'};
     $portalSession->stash->{'username'} = $node_info->{'pid'};
 
-    push(@$langs, ''); # default template
-    foreach my $lang (@$langs) {
+    push(@langs, ''); # default template
+    foreach my $lang (@langs) {
         my $file = "violations/$template" . ($lang?".$lang":"") . ".html";
         foreach my $dir (@$paths) {
             if ( -f "$dir/$file" ) {
@@ -486,7 +510,10 @@ sub web_node_register {
 
     # FIXME quick and hackish fix for #1505. A proper, more intrusive, API changing, fix should hit devel.
     my $mac;
-    if (defined($portalSession->getGuestNodeMac)) {
+    if(exists $info{'mac'} && defined $info{'mac'})  {
+        $mac = $info{'mac'};
+    }
+    elsif (defined($portalSession->getGuestNodeMac)) {
         $mac = $portalSession->getGuestNodeMac;
     }
     else {
@@ -684,12 +711,16 @@ sub end_portal_session {
       exit(0);
     }
 
-    # handle mobile provisioning if relevant
-    if (pf::web::supports_mobileconfig_provisioning($portalSession)) {
-        pf::web::generate_mobileconfig_provisioning_page($portalSession);
+    if (pf::web::supports_androidconfig_provisioning($portalSession)) {
+        pf::web::generate_androidconfig_provisioning_page($portalSession);
         exit(0);
     }
 
+    # We are in a external portal set, let´s forward the device to the grant url
+    if (defined($portalSession->getGrantUrl) && $portalSession->getGrantUrl ne '') {
+        print $portalSession->cgi->redirect($portalSession->getGrantUrl);
+        exit(0);
+    }
     # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
     if ($portalSession->cgi->https()) {
         print $portalSession->cgi->redirect(
@@ -735,17 +766,18 @@ sub oauth2_client {
     if ($type) {
         my $source = $portalSession->getProfile->getSourceByType($type);
         if ($source) {
-            Net::OAuth2::Client->new(
-                $source->{'client_id'},
-                $source->{'client_secret'},
+            return Net::OAuth2::Profile::WebServer->new(
+                client_id => $source->{'client_id'},
+                client_secret => $source->{'client_secret'},
                 site => $source->{'site'},
                 authorize_path => $source->{'authorize_path'},
                 access_token_path => $source->{'access_token_path'},
                 access_token_method => $source->{'access_token_method'},
-                access_token_param => $source->{'access_token_param'},
-                scope => $source->{'scope'}
-          )->web_server(redirect_uri => $source->{'redirect_url'} );
-        }
+                #access_token_param => $source->{'access_token_param'},
+                scope => $source->{'scope'},
+                redirect_uri => $source->{'redirect_url'} 
+          );
+       }
         else {
             $logger->error(sprintf("No source of type '%s' defined for profile '%s'", $type, $portalSession->getProfile->getName));
         }
@@ -792,3 +824,4 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+

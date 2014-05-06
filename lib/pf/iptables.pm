@@ -22,6 +22,7 @@ use warnings;
 
 use IPTables::ChainMgr;
 use IPTables::Interface;
+use IO::Interface::Simple;
 use Log::Log4perl;
 use Readonly;
 
@@ -131,10 +132,10 @@ sub iptables_generate {
 
     # per-feature firewall rules
     # self-registered guest by email or sponsored or gaming registration
-    my $gaming_enabled = isenabled($Config{'registration'}{'gaming_devices_registration'});
+    my $device_registration_enabled = isenabled($Config{'registration'}{'device_registration'});
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
-    if ( $email_enabled || $sponsor_enabled || $gaming_enabled ) {
+    if ( $email_enabled || $sponsor_enabled || $device_registration_enabled ) {
         $tags{'input_mgmt_guest_rules'} =
             "-A $FW_FILTER_INPUT_MGMT --protocol tcp --match tcp --dport 443 --jump ACCEPT"
         ;
@@ -189,7 +190,7 @@ sub generate_filter_if_src_to_chain {
             }
 
         # inline enforcement
-        } elsif ($enforcement_type eq $IF_ENFORCEMENT_INLINE) {
+        } elsif (is_type_inline($enforcement_type)) {
             my $mgmt_ip = $management_network->tag("ip");
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
@@ -203,8 +204,10 @@ sub generate_filter_if_src_to_chain {
     }
 
     # management interface handling
-    my $mgmt_int = $management_network->tag("int");
-    $rules .= "-A INPUT --in-interface $mgmt_int --jump $FW_FILTER_INPUT_MGMT\n";
+    if($management_network) {
+        my $mgmt_int = $management_network->tag("int");
+        $rules .= "-A INPUT --in-interface $mgmt_int --jump $FW_FILTER_INPUT_MGMT\n";
+    }
 
     # high-availability interfaces handling
     foreach my $interface (@ha_ints) {
@@ -213,7 +216,7 @@ sub generate_filter_if_src_to_chain {
 
     # Allow the NAT back inside through the forwarding table if inline is enabled
     if (is_inline_enforcement_enabled()) {
-        my @values = split(',', get_snat_interface());
+        my @values = split(',', get_inline_snat_interface());
         foreach my $val (@values) {
             foreach my $network ( keys %ConfigNetworks ) {
                 next if ( !pf::config::is_network_type_inline($network) );
@@ -333,8 +336,14 @@ sub generate_passthrough_rules {
             $SNAT_ip = $management_network->{'Tip'};
        }
     }
-    $$nat_rules_ref .= "-A POSTROUTING -o $mgmt_int -j SNAT --to $SNAT_ip";
+    $$nat_rules_ref .= "-A POSTROUTING -o $mgmt_int -j SNAT --to $SNAT_ip\n";
 
+    # Enable nat if we defined another interface to route to internet
+    my @ints = split(',', get_network_snat_interface());
+    foreach my $int (@ints) {
+        my $if   = IO::Interface::Simple->new($int);
+        $$nat_rules_ref .= "-A POSTROUTING -o $int -j SNAT --to ".$if->address;
+    }
 }
 
 =item generate_inline_if_src_to_chain
@@ -354,7 +363,7 @@ sub generate_inline_if_src_to_chain {
         my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
 
         # inline enforcement
-        if ($enforcement_type eq $IF_ENFORCEMENT_INLINE) {
+        if (is_type_inline($enforcement_type)) {
             # send everything from inline interfaces to the inline chain
             $rules .= "-A PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_INLINE\n";
         }
@@ -367,7 +376,7 @@ sub generate_inline_if_src_to_chain {
         # Every marked packet should be NATed
         # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
         foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-            my @values = split(',', get_snat_interface());
+            my @values = split(',', get_inline_snat_interface());
             foreach my $val (@values) {
                 foreach my $network ( keys %ConfigNetworks ) {
                     next if ( !pf::config::is_network_type_inline($network) );
@@ -649,19 +658,33 @@ sub update_node {
     #Just to have an iptables method
 }
 
-=item get_snat_interface
+=item get_inline_snat_interface
 
 Return the list of network interface to enable SNAT.
 
 =cut
 
-sub get_snat_interface {
+sub get_inline_snat_interface {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     if (defined ($Config{'inline'}{'interfaceSNAT'}) && $Config{'inline'}{'interfaceSNAT'} ne '') {
         return $Config{'inline'}{'interfaceSNAT'};
     } else {
         return  $management_network->tag("int");
+    }
+}
+
+=item get_network_snat_interface
+
+Return the list of network interface to enable SNAT for passthrough.
+
+=cut
+
+sub get_network_snat_interface {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    if (defined ($Config{'network'}{'interfaceSNAT'}) && $Config{'network'}{'interfaceSNAT'} ne '') {
+        return $Config{'network'}{'interfaceSNAT'};
     }
 }
 
@@ -689,7 +712,6 @@ sub generate_interception_rules {
     if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
         foreach my $intercept_port ( split( ',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
             my $rule = "--protocol tcp --destination-port $intercept_port";
-            $logger->warn($rule);
             $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump REDIRECT\n";
             $$input_inter_vlan_if .= "-A $FW_FILTER_INPUT_INT_VLAN $rule --jump ACCEPT\n";
         }

@@ -19,6 +19,8 @@ use HTML::Entities;
 use Log::Log4perl;
 use WWW::Curl::Easy;
 use XML::Simple;
+use Encode qw(decode);
+$XML::Simple::PREFERRED_PARSER = 'XML::LibXML::SAX';
 
 use base qw(Exporter);
 our @EXPORT = qw(send_soap_request build_soap_request);
@@ -35,9 +37,11 @@ sub send_soap_request {
     my $curl = WWW::Curl::Easy->new;
     my $response_body;
     $curl->setopt(CURLOPT_HEADER, 0);
+    $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
+    $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT); # TODO: See note1
 #    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'}); # TODO: See note1
-    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: text/xml; charset=UTF-8']);
+    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: text/xml; charset=UTF-8',"Request: $function"]);
     $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
@@ -129,7 +133,7 @@ sub build_soap_elements {
 
 sub build_soap_string {
     my ($name,$value) = @_;
-    $value = encode_entities($value);
+    $value = encode_entities(decode('utf8',$value));
     return "<$name xsi:type=\"xsd:string\">$value</$name>";
 }
 

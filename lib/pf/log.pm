@@ -15,20 +15,44 @@ pf::log
 use strict;
 use warnings;
 use Log::Log4perl;
+use Log::Log4perl::Level;
 use pf::file_paths;
+use pf::log::trapper;
 use File::Basename qw(basename);
-use threads;
-use base qw(Exporter);
-
-our @EXPORT = qw(get_logger);
 
 Log::Log4perl->wrapper_register(__PACKAGE__);
-Log::Log4perl->init($log_config_file);
-Log::Log4perl::MDC->put( 'proc', basename($0) );
-Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
+sub import {
+    my ($self,%args) = @_;
+    my ($package, $filename, $line) = caller;
+    unless(Log::Log4perl->initialized) {
+        my $service = $args{service} if defined $args{service};
+        if($service) {
+            Log::Log4perl->init_and_watch("$log_conf_dir/${service}.conf",5 * 60);
+            Log::Log4perl::MDC->put( 'proc', $service );
+            tie *STDERR,'pf::log::trapper',$ERROR unless $args{no_stderr_trapping};
+            tie *STDOUT,'pf::log::trapper',$DEBUG unless $args{no_stdout_trapping};
+        } else {
+            Log::Log4perl->init($log_config_file);
+            Log::Log4perl::MDC->put( 'proc', basename($0) );
+        }
+        #Install logging in the die handler
+        $SIG{__DIE__} = sub {
+            # We're in an eval {} and don't want log
+            return unless defined $^S && $^S == 0;
+            $Log::Log4perl::caller_depth++;
+            my $logger = get_logger("");
+            $logger->fatal(@_);
+            die @_; # Now terminate really
+        };
+    }
+    Log::Log4perl::MDC->put( 'tid', $$ );
+    {
+        no strict qw(refs);
+        *{"${package}::get_logger"} = \&get_logger;
+    }
+}
 
 sub get_logger { Log::Log4perl->get_logger(@_); }
-
 
 =head1 AUTHOR
 

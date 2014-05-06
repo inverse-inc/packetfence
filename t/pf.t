@@ -30,7 +30,7 @@ BEGIN {
     use Test::More;
     use Test::NoWarnings;
     our %exclude;
-    @exclude{qw(pf::WebAPI pf::pfdns::constants)} = ();
+    @exclude{qw(pf::WebAPI)} = ();
     our @files = grep { /\.pm$/  } _readDirRecursive('/usr/local/pf/lib');
     our @libs = grep {!exists $exclude{$_}}
         map {

@@ -1,6 +1,6 @@
                           PacketFence
 
-  Open Source Network Access Control (NAC)
+  Free and Open Source Network Access Control (NAC)
   Licensed under the GNU General Public License v2.
 
   What is PacketFence?
@@ -35,7 +35,7 @@
   More Information
   ----------------
 
-  Noteworthy changes since the last release see the NEWS file.
+  Noteworthy changes since the last release see the NEWS.asciidoc file.
 
   Upgrading? See the UPGRADE.asciidoc file.
 

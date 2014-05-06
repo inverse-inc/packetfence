@@ -44,7 +44,7 @@ has '+inflate_default_method'=> ( default => sub { \&duration_inflate } );
 has '+deflate_value_method'=> ( default => sub { \&duration_deflate } );
 has '+wrapper_class' => (builder => '_wrapper_class');
 
-sub _wrapper_class {[qw(compound-input-btn-group)] }
+sub _wrapper_class { [qw(compound-input-btn-group)] }
 
 has_field 'interval' =>
   (

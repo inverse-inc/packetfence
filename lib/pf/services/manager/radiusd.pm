@@ -13,28 +13,76 @@ pf::services::manager::radiusd
 
 use strict;
 use warnings;
-use pf::services::radiusd qw(generate_radiusd_conf);
 use pf::file_paths;
+use pf::util;
+use pf::config;
 use Moo;
 
 extends 'pf::services::manager';
-with 'pf::services::manager::roles::is_managed_by_pf_conf';
 
 has '+name' => ( default => sub { 'radiusd' } );
 
 has '+launcher' => ( default => sub { "sudo %1\$s -d $install_dir/raddb/"} );
 
-sub preStartSetup {
-    my ($self,$quick) = @_;
-    require pf::freeradius;
-    require pf::SwitchFactory;
-    pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig);
-    $self->SUPER::preStartSetup($quick);
-}
-
 sub generateConfig {
     my ($self,$quick) = @_;
-    generate_radiusd_conf();
+    generate_radiusd_mainconf();
+    generate_radiusd_eapconf();
+    generate_radiusd_sqlconf();
+}
+
+=head2 generate_radiusd_mainconf
+
+Generates the radiusd.conf configuration file
+
+=cut
+
+sub generate_radiusd_mainconf {
+    my %tags;
+
+    $tags{'template'}    = "$conf_dir/radiusd/radiusd.conf";
+    $tags{'install_dir'} = $install_dir;
+    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    $tags{'arch'} = `uname -m` eq "x86_64" ? "64" : "";
+    $tags{'rpc_pass'} = $Config{webservices}{pass} || "''";
+    $tags{'rpc_user'} = $Config{webservices}{user} || "''";
+
+    parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
+}
+
+=head2 generate_radiusd_eapconf
+
+Generates the eap.conf configuration file
+
+=cut
+
+sub generate_radiusd_eapconf {
+   my %tags;
+
+   $tags{'template'}    = "$conf_dir/radiusd/eap.conf";
+   $tags{'install_dir'} = $install_dir;
+
+   parse_template( \%tags, "$conf_dir/radiusd/eap.conf", "$install_dir/raddb/eap.conf" );
+}
+
+=head2 generate_radiusd_sqlconf
+
+Generates the sql.conf configuration file
+
+=cut
+
+sub generate_radiusd_sqlconf {
+   my %tags;
+
+   $tags{'template'}    = "$conf_dir/radiusd/sql.conf";
+   $tags{'install_dir'} = $install_dir;
+   $tags{'db_host'} = $Config{'database'}{'host'};
+   $tags{'db_port'} = $Config{'database'}{'port'};
+   $tags{'db_database'} = $Config{'database'}{'db'};
+   $tags{'db_username'} = $Config{'database'}{'user'};
+   $tags{'db_password'} = $Config{'database'}{'pass'};
+
+   parse_template( \%tags, "$conf_dir/radiusd/sql.conf", "$install_dir/raddb/sql.conf" );
 }
 
 =head1 AUTHOR

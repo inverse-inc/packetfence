@@ -2,7 +2,7 @@
 # xmlgraphics-fop fix to build our documentation on CentOS 5
 # taken from https://build.opensuse.org/request/show/68994
 #
-# Olivier Bilodeau <obilodeau@inverse.ca>
+# Inverse inc. <info@inverse.ca>
 #
 --- /usr/bin/xmlgraphics-fop.orig	2012-01-17 18:42:08.000000000 -0500
 +++ /usr/bin/xmlgraphics-fop	2012-01-17 18:42:18.000000000 -0500

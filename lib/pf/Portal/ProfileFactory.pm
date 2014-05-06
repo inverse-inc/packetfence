@@ -33,65 +33,57 @@ Create a new pf::Portal::Profile instance based on parameters given.
 
 =cut
 
+our @MATCHES_TYPE = qw(uri ssid vlan switch);
+our @MATCHES_LAST_TYPE = map {"last_$_"} @MATCHES_TYPE;
+
 sub instantiate {
-    my ( $self, $mac ) = @_;
+    my ( $self, $mac, $options ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # We apply portal profiles based on the SSID, VLAN and switch. We check the last_(ssid|vlan|switch) for the given MAC
+    # We apply portal profiles based on the uri, SSID, VLAN and switch. We check the last_(ssid|vlan|switch) for the given MAC
     # and try to match a portal profile using the previously fetched filters.
     # If no match, we instantiate the default portal profile.
     my $node_info = node_view($mac);
-    my @filter_ids = ((map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan switch)), @{$node_info}{'last_ssid','last_vlan','last_switch'});
-    my $filtered_profile =
-        first { exists $Profiles_Config{$_} }
+
+    if (defined($options)) {
+        $node_info = { %$options, %$node_info } ;
+    }
+
+    my @filter_ids = (
+        ( map {
+                my $val = $node_info->{ "last_$_" };
+                defined $val ? ("${_}:$val") : ()
+            } @MATCHES_TYPE
+        ),
+        grep { $_ } @{ $node_info }{ @MATCHES_LAST_TYPE }
+    );
+    my $profile_name =
+        first( sub{ exists $Profiles_Config{$_} },
         map { $Profile_Filters{$_} }
           grep { defined $_ && exists $Profile_Filters{$_} }
-          @filter_ids;
+          @filter_ids) || 'default' ;
 
-    return _from_custom_profile($filtered_profile) if $filtered_profile;
-
-    return _from_default_profile();
+    $logger->trace("Instantiate profile $profile_name");
+    return $self->_from_profile($profile_name);
 }
 
-sub _from_custom_profile {
-    return pf::Portal::Profile->new(_custom_profile($_[0]));
-}
-
-sub _from_default_profile {
-    return pf::Portal::Profile->new(_default_profile());
-}
-
-sub _default_profile {
-    my %default = %{$Profiles_Config{default}};
-    unless (defined $default{'sources'} && @{$default{'sources'}} > 0) {
-        # When no authentication source is selected, use all authentication sources except exclusive sources
-        my @sources = grep { $_->class ne 'exclusive' }  @{pf::authentication::getAllAuthenticationSources()};
-        my @sources_id = map { $_->id } @sources;
-        $default{'sources'} = \@sources_id;
+sub _from_profile {
+    my ($self,$profile_name) = @_;
+    my $profile_ref    = $Profiles_Config{$profile_name};
+    my %profile        = %$profile_ref;
+    my $sources        = $profile{'sources'};
+    $profile{'name'}   = $profile_name;
+    unless ( defined $sources && ref($sources) eq 'ARRAY' && @$sources ) {
+        $profile{'sources'} = $sources = [
+            map    { $_->id }
+              grep { $_->class ne 'exclusive' }
+              @{ pf::authentication::getAllAuthenticationSources() }
+        ];
     }
-    my %results =
-      (
-       %default,
-       name => 'default',
-       template_path => '/',
-       guest_modes => _guest_modes_from_sources($default{sources})
-      );
-    return \%results;
-}
-
-sub _custom_profile {
-    my ($name) = @_;
-    my $defaults = _default_profile();
-    my $profile = $Profiles_Config{$name};
-    my %results =
-      (
-       'name' => $name,
-       'template_path' => $name,
-       'description' => $profile->{'description'} || '',
-       map { $_ => ($profile->{$_} || $defaults->{$_}) } qw (logo guest_modes sources redirecturl always_use_redirecturl billing_engine filter)
-      );
-    $results{guest_modes} = _guest_modes_from_sources($results{sources});
-    return \%results;
+    $profile{guest_modes} = _guest_modes_from_sources($sources);
+    $profile{name} = $profile_name;
+    $profile{template_path} = $profile_name;
+    return pf::Portal::Profile->new( \%profile );
 }
 
 sub _guest_modes_from_sources {
@@ -142,3 +134,4 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+

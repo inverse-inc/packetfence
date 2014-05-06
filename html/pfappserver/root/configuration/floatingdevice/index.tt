@@ -21,6 +21,6 @@
 
       [%- IF can_access("FLOATING_DEVICES_CREATE") %]
       <div class="form-actions">
-        <a id="createFloatingDevice" class="btn" href="[% c.uri_for(c.controller('Configuration::FloatingDevice').action_for('create')) %]">[% l('Add floating device') %]</a>
+        <a id="createItem" class="btn" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add floating device') %]</a>
       </div>
       [%- END %]

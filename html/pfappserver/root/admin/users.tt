@@ -37,25 +37,7 @@ form {
 
 </style>
 
-    <div class="modal fade hide" id="savedSearch">
-      <form id="savedSearchForm" class="form-horizontal" action="[% c.uri_for(c.controller('SavedSearch::User').action_for('create'))  %]">
-
-        <div class="modal-header">
-          <a class="close" data-dismiss="modal">&times;</a>
-          <h3>[% l('Save Search') %]</h3>
-        </div>
-
-        <div class="modal-body">
-          [% saved_search_form.block('search').render %]
-        </div>
-
-        <div class="modal-footer">
-          <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-          <button class="btn btn-primary">[% l('Save') %]</button>
-        </div>
-
-      </form>
-    </div>
+    [% INCLUDE admin/saved_search.inc method="" savedSearchController="SavedSearch::User"%] 
 
     <div class="container-fluid">
       <div class="row-fluid">
@@ -65,8 +47,13 @@ form {
               <div class="sidebar-nav well">
                 <ul class="nav nav-list">
                   <li class="nav-header">[% l('Users') %]</li>
+                  [%- IF can_access('USERS_READ') -%]
                   <li class="active"><a href="#">[% l('Search') %]</a></li>
+                  [%- END -%]
+                  [%- IF can_access('USERS_CREATE') -%]
                   <li><a href="#user/create">[% l('Create') %]</a></li>
+                  [%- END -%]
+                  [%- IF can_access('USERS_READ') -%]
                   <li class="nav-header">[% l('Saved Searches') %]</li>
                   [% FOR ss IN saved_searches %]
                   [% form = ss.form %]
@@ -80,11 +67,12 @@ form {
                     <a href="#" data-toggle="pf-search-form" data-target="[%tab%]">[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::User').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span> </a>
                     <form>
                       [%FOREACH input IN form.keys.sort%]
-                      <input type="hidden" name="[%input%]" value="[%form.$input%]"/>
+                      <input type="hidden" name="[%input | html%]" value="[%form.$input | html%]"/>
                       [%END%]
                     </form>
                   </li>
                   [%END%]
+                  [%- END -%]
                 </ul>
               </div>
             </div>
@@ -153,6 +141,27 @@ form {
                             <option value="notes">[% l('Notes') %]</option>
                             <option value="ip_address">[% l('IP address') %]</option>
                             <option value="mac">[% l('MAC address') %]</option>
+                            <option value="anniversary">[% l('Anniversary') %]</option>
+                            <option value="birthday">[% l('Birthday') %]</option>
+                            <option value="gender">[% l('Gender') %]</option>
+                            <option value="lang">[% l('Lang') %]</option>
+                            <option value="nickname">[% l('Nickname') %]</option>
+                            <option value="organization">[% l('Organization') %]</option>
+                            <option value="cell_phone">[% l('Cellphone') %]</option>
+                            <option value="work_phone">[% l('Work phone') %]</option>
+                            <option value="title">[% l('Title') %]</option>
+                            <option value="building_number">[% l('Building Number') %]</option>
+                            <option value="apartment_number">[% l('Apartment Number') %]</option>
+                            <option value="room_number">[% l('Room Number') %]</option>
+                            <option value="custom_field_1">[% l('Custom Field 1') %]</option>
+                            <option value="custom_field_2">[% l('Custom Field 2') %]</option>
+                            <option value="custom_field_3">[% l('Custom Field 3') %]</option>
+                            <option value="custom_field_4">[% l('Custom Field 4') %]</option>
+                            <option value="custom_field_5">[% l('Custom Field 5') %]</option>
+                            <option value="custom_field_6">[% l('Custom Field 6') %]</option>
+                            <option value="custom_field_7">[% l('Custom Field 7') %]</option>
+                            <option value="custom_field_8">[% l('Custom Field 8') %]</option>
+                            <option value="custom_field_9">[% l('Custom Field 9') %]</option>
                           </select>
                           <select name="searches.0.op" disabled="disabled" class="span2" >
                             <option value="equal">[% l('is') %]</option>
@@ -181,6 +190,27 @@ form {
                             <option value="notes">[% l('Notes') %]</option>
                             <option value="ip_address">[% l('IP address') %]</option>
                             <option value="mac">[% l('MAC address') %]</option>
+                            <option value="anniversary">[% l('Anniversary') %]</option>
+                            <option value="birthday">[% l('Birthday') %]</option>
+                            <option value="gender">[% l('Gender') %]</option>
+                            <option value="lang">[% l('Lang') %]</option>
+                            <option value="nickname">[% l('Nickname') %]</option>
+                            <option value="organization">[% l('Organization') %]</option>
+                            <option value="cell_phone">[% l('Cellphone') %]</option>
+                            <option value="work_phone">[% l('Work phone') %]</option>
+                            <option value="title">[% l('Title') %]</option>
+                            <option value="building_number">[% l('Building Number') %]</option>
+                            <option value="apartment_number">[% l('Apartment Number') %]</option>
+                            <option value="room_number">[% l('Room Number') %]</option>
+                            <option value="custom_field_1">[% l('Custom Field 1') %]</option>
+                            <option value="custom_field_2">[% l('Custom Field 2') %]</option>
+                            <option value="custom_field_3">[% l('Custom Field 3') %]</option>
+                            <option value="custom_field_4">[% l('Custom Field 4') %]</option>
+                            <option value="custom_field_5">[% l('Custom Field 5') %]</option>
+                            <option value="custom_field_6">[% l('Custom Field 6') %]</option>
+                            <option value="custom_field_7">[% l('Custom Field 7') %]</option>
+                            <option value="custom_field_8">[% l('Custom Field 8') %]</option>
+                            <option value="custom_field_9">[% l('Custom Field 9') %]</option>
                           </select>
                           <select name="searches.0.op" class="span2" >
                             <option value="equal">[% l('is') %]</option>

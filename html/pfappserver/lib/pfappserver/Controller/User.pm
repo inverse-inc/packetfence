@@ -25,9 +25,11 @@ use pfappserver::Form::User::Create::Multiple;
 use pfappserver::Form::User::Create::Import;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
+with 'pfappserver::Role::Controller::BulkActions';
 
 __PACKAGE__->config(
     action_args => {
+        '*' => { model => 'User'},
         advanced_search => { model => 'Search::User', form => 'AdvancedSearch' },
     },
 );
@@ -50,6 +52,38 @@ sub index :Path :Args(0) :AdminRole('USERS_READ') {
 
 sub simple_search :SimpleSearch('User') :Local :Args() :AdminRole('USERS_READ') { }
 
+=head2 after _list_items
+
+The method _list_items comes from pfappserver::Base::Controller and is called from Base::Action::SimpleSearch.
+
+=cut
+
+after _list_items => sub {
+    my ( $self, $c ) = @_;
+    my ( $status, $roles, $violations );
+    ( $status, $roles ) = $c->model('Roles')->list();
+    $c->stash( roles => $roles );
+    ( $status, $violations ) = $c->model('Config::Violations')->readAll();
+    $c->stash( violations => $violations );
+
+};
+
+=head2 after _list_items
+
+The method _list_items comes from pfappserver::Base::Controller and is called from Base::Action::SimpleSearch.
+
+=cut
+
+after _list_items => sub {
+    my ( $self, $c ) = @_;
+    my ( $status, $roles, $violations );
+    ( $status, $roles ) = $c->model('Roles')->list();
+    $c->stash( roles => $roles );
+    ( $status, $violations ) = $c->model('Config::Violations')->readAll();
+    $c->stash( violations => $violations );
+
+};
+
 =head2 object
 
 User controller dispatcher
@@ -61,11 +95,11 @@ sub object :Chained('/') :PathPart('user') :CaptureArgs(1) {
 
     my ($status, $result);
 
-    ($status, $result) = $c->model('User')->read($c, [$pid]);
+    ($status, $result) = $self->getModel($c)->read($c, [$pid]);
     if (is_success($status)) {
         $c->stash->{user} = pop @{$result};
         # Fetch associated nodes
-        ($status, $result) = $c->model('User')->nodes($pid);
+        ($status, $result) = $self->getModel($c)->nodes($pid);
         if (is_success($status)) {
             $c->stash->{nodes} = $result;
         }
@@ -100,7 +134,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('USERS_READ') 
 sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('USERS_DELETE') {
     my ($self, $c) = @_;
 
-    my ($status, $result) = $c->model('User')->delete($c->stash->{user}->{pid});
+    my ($status, $result) = $self->getModel($c)->delete($c->stash->{user}->{pid});
     if (is_error($status)) {
         $c->response->status($status);
         $c->stash->{status_msg} = $result;
@@ -125,7 +159,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_UPD
         $message = $form->field_errors;
     }
     else {
-        ($status, $message) = $c->model('User')->update($c->stash->{user}->{pid}, $form->value);
+        ($status, $message) = $self->getModel($c)->update($c->stash->{user}->{pid}, $form->value);
     }
     if (is_error($status)) {
         $c->response->status($status);
@@ -140,7 +174,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_UPD
 
 sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
-    my ($status, $result) = $c->model('User')->violations($c->stash->{user}->{pid});
+    my ($status, $result) = $self->getModel($c)->violations($c->stash->{user}->{pid});
     if (is_success($status)) {
         $c->stash->{items} = $result;
     } else {
@@ -219,7 +253,7 @@ sub create :Local :AdminRole('USERS_CREATE') {
             }
             else {
                 %data = (%{$form->value}, %{$form_single->value});
-                ($status, $message) = $c->model('User')->createSingle(\%data, $c->user);
+                ($status, $message) = $self->getModel($c)->createSingle(\%data, $c->user);
                 @options = ('mail');
             }
         }
@@ -230,7 +264,7 @@ sub create :Local :AdminRole('USERS_CREATE') {
             }
             else {
                 %data = (%{$form->value}, %{$form_multiple->value});
-                ($status, $message) = $c->model('User')->createMultiple(\%data, $c->user);
+                ($status, $message) = $self->getModel($c)->createMultiple(\%data, $c->user);
             }
         }
         elsif ($type eq 'import') {
@@ -243,7 +277,7 @@ sub create :Local :AdminRole('USERS_CREATE') {
             }
             else {
                 %data = (%{$form->value}, %{$form_import->value});
-                ($status, $message) = $c->model('User')->importCSV(\%data, $c->user);
+                ($status, $message) = $self->getModel($c)->importCSV(\%data, $c->user);
                 @options = ('mail');
             }
         }
@@ -288,7 +322,7 @@ Perform advanced search for user
 
 sub advanced_search :Local :Args() :AdminRole('USERS_READ') {
     my ($self, $c, @args) = @_;
-    my ($status,$status_msg,$result);
+    my ($status, $status_msg, $result);
     my %search_results;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
@@ -296,20 +330,24 @@ sub advanced_search :Local :Args() :AdminRole('USERS_READ') {
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
-        $c->stash(
-            current_view => 'JSON',
-        );
-    } else {
+        $c->stash(current_view => 'JSON');
+    }
+    else {
         my $query = $form->value;
-        ($status,$result) = $model->search($query);
-        if(is_success($status)) {
-            $c->stash( form => $form);
-            $c->stash( $result);
+        ($status, $result) = $model->search($query);
+        if (is_success($status)) {
+            $c->stash(form => $form);
+            $c->stash($result);
         }
         $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
     }
+    my ( $roles, $violations );
+    (undef, $roles) = $c->model('Roles')->list();
+    (undef, $violations) = $c->model('Config::Violations')->readAll();
     $c->stash(
         status_msg => $status_msg,
+        roles => $roles,
+        violations => $violations,
     );
     $c->response->status($status);
 }
@@ -328,7 +366,7 @@ sub print :Local :AdminRole('USERS_UPDATE') {
     my ($status, $result);
     my @pids = split(/,/, $c->request->params->{pids});
 
-    ($status, $result) = $c->model('User')->read($c, \@pids);
+    ($status, $result) = $self->getModel($c)->read($c, \@pids);
     if (is_success($status)) {
         $c->stash->{users} = $result;
     }
@@ -351,7 +389,7 @@ sub mail :Local :AdminRole('USERS_UPDATE') {
     my ($status, $result);
     my @pids = split(/,/, $c->request->params->{pids});
 
-    ($status, $result) = $c->model('User')->mail($c, \@pids);
+    ($status, $result) = $self->getModel($c)->mail($c, \@pids);
     if (is_success($status)) {
         $c->stash->{status_msg} = $c->loc('An email was sent to [_1] out of [_2] users.',
                                           scalar @pids, scalar @$result);
@@ -363,6 +401,17 @@ sub mail :Local :AdminRole('USERS_UPDATE') {
     $c->response->status($status);
     $c->stash->{current_view} = 'JSON';
 }
+
+before [qw(delete)] => sub {
+   my ($self,$c,$role) = @_;
+   unless(admin_can($c->user,"USERS_REMOVE")) {
+        $c->log->info("Here");
+        $c->response->status(HTTP_UNAUTHORIZED);
+        $c->stash->{status_msg} = "You shall not pass";
+        $c->stash->{current_view} = 'JSON';
+        $c->detach();
+    }
+};
 
 =head1 COPYRIGHT
 

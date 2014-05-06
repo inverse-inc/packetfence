@@ -56,9 +56,18 @@ sub field_list {
                 $field->{element_class} = ['input-xxlarge'];
                 last;
             };
+            $type eq 'text_with_editable_default' && do {
+                $field->{type} = 'Text';
+                $field->{default} = $defaults->{$name};
+                last;
+            };
             $type eq 'list' && do {
                 $field->{type} = 'TextArea';
                 $field->{element_class} = ['input-xxlarge'];
+                # NOTE: line feeds in placeholder attribute are ignored, so we keep the commas and set
+                # the value to the default value when no value is defined (see pf::ConfigStore::Pf::cleanupAfterRead)
+                # $field->{element_attr}->{placeholder} = join("\n",split( /\s*,\s*/, $field->{element_attr}->{placeholder} ))
+                #   if $field->{element_attr}->{placeholder};
                 last;
             };
             $type eq 'numeric' && do {
@@ -122,7 +131,7 @@ sub field_list {
                    no_value => 1,
                    element_attr => {'foo' => 'bar'},
                    wrapper_class => ['compound-input-btn-group', 'extended-duration', 'well'],
-                   tags => { after_element => '<div class="controls"><a href="#" id="addExtendedTime" class="btn btn-info" data-target="#access_duration_choices">' . $self->_localize("Add to Duration Choices") . '</a></div>' }
+                   tags => { after_element => '<div class="controls"><a href="#" id="addExtendedTime" class="btn btn-info" data-target="#access_duration_choices">' . $self->_localize("Add to Duration Choices") . '</a>' }
                   };
                 last;
             };

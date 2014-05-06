@@ -4,7 +4,7 @@
 
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
-          <h3><i>[% l('User') %]</i> [% user.pid %][% IF user.password %] <i class="icon-pencil"></i>[% END %]</h3>
+          <h3><i>[% l('User') %]</i> [% user.pid | html %][% IF user.password %] <i class="icon-pencil"></i>[% END %]</h3>
         </div>
 
         <div class="modal-body">
@@ -19,6 +19,8 @@
             <li><a href="#userActions" data-toggle="tab">[% l('Actions') %]</a></li>
             [%- END %]
             [%- IF can_access("NODES_READ") %]
+            <li><a href="#userMiscellaneous" data-toggle="tab">[% l('Miscellaneous') %]</a></li>
+            <li><a href="#userCustomFields" data-toggle="tab">[% l('Custom Fields') %]</a></li>
             <li><a href="#userDevices" data-toggle="tab">[% l('Devices') %]</a></li>
             <li><a href="#userViolations" data-href="[% c.uri_for(c.controller('User').action_for('violations'), [user.pid]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
             [%- END %]
@@ -123,10 +125,10 @@
                 <tbody>
                 [% FOR node IN nodes %]
                 <tr>
-                  <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
-                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a></td>
-                  <td>[% node.computername %]</td>
-                  <td>[% node.dhcp_fingerprint %]</td>
+                  <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) | html %]</span></td>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac | html %]</a></td>
+                  <td>[% node.computername | html %]</td>
+                  <td>[% node.dhcp_fingerprint | html %]</td>
                 </tr>
                 [% END %]
                 </tbody>
@@ -141,6 +143,14 @@
             <div class="tab-pane fade" id="userViolations">
             </div><!--tab-pane-->
             [%- END %]
+
+            <div class="tab-pane fade" id="userMiscellaneous">
+              [% form.block('miscellaneous').render %]
+            </div><!--tab-pane-->
+
+            <div class="tab-pane fade" id="userCustomFields">
+              [% form.block('custom_fields').render %]
+            </div><!--tab-pane-->
 
           </div><!--tab-content-->
 

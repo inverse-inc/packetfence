@@ -6,46 +6,49 @@ pfdns - PacketFence DNS server
 
 =head1 SYNOPSIS
 
-pfdns
+pfdns [options]
+
+ Options:
+   -d      Daemonize
+   -h      Help
+   -v      Verbose
 
 =cut
 
 use warnings;
 use strict;
 use Readonly;
-use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
 use Getopt::Std;
-use Log::Log4perl;
 use Pod::Usage;
 use POSIX qw(:signal_h);
 use Try::Tiny;
 use Net::DNS::Nameserver;
 use NetAddr::IP;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-
-use lib INSTALL_DIR . "/lib";
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfdns');
+}
 
 use pf::config;
 use pf::config::cached;
 use pf::util;
+use pf::services::util;
 use pf::pfdns::constants;
-use pf::web::util qw(set_memcached get_memcached get_memcached_conf);
+use pf::CHI;
 
 # initialization
 # --------------
 # assign process name (see #1464)
-$PROGRAM_NAME = basename($PROGRAM_NAME);
-
-# log4perl init
-Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
-my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
-Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
-# storing process id instead of thread id in tid (more useful)
-Log::Log4perl::MDC->put( 'tid',  $PID );
 
 # init signal handlers
+our $PROGRAM_NAME = $0 = basename($0);
+
+my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+
 POSIX::sigaction(
     &POSIX::SIGHUP,
     POSIX::SigAction->new(
@@ -75,15 +78,18 @@ my $daemonize = $args{d};
 
 pod2usage( -verbose => 1 ) if ( $args{h} );
 
+our $RUNNING = 1;
+
+
 # standard signals and daemonize
-daemonize() if ($daemonize);
+daemonize($PROGRAM_NAME) if ($daemonize);
 
 my @ip_addr;
 my @routed_inline_nets_named;
 my @routed_isolation_nets_named;
 my @routed_registration_nets_named;
 
-my $memcached = get_memcached_conf();
+my $CHI_CACHE = pf::CHI->new( namespace => 'pfdns' );
 
 Readonly::Scalar our $TTL                => '15';
 Readonly::Scalar our $HTTPS_PORT         => '443';
@@ -91,7 +97,7 @@ Readonly::Scalar our $HTTP_PORT         => '80';
 
 foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
     my $ip = $Config{$interface}{'ip'};
-    if ( defined ($Config{$interface}{'enforcement'}) && ( ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) || ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) ) ) {
+    if ( defined ($Config{$interface}{'enforcement'}) && ( ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) || is_type_inline($Config{$interface}{'enforcement'}) ) ) {
         push @ip_addr, $ip;
     }
 }
@@ -120,7 +126,14 @@ my $ns = new Net::DNS::Nameserver(
     Verbose      => 0
     ) || die "couldn't create nameserver object\n";
 
-$ns->main_loop;
+
+while($RUNNING) {
+    $ns->loop_once(10);
+}
+
+END {
+    deletepid("pfdns") unless $args{h};
+}
 
 sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
@@ -156,11 +169,7 @@ sub regzone {
         if ( ($qname =~ /$OAUTH::ALLOWED_OAUTH_DOMAINS/o && $OAUTH::ALLOWED_OAUTH_DOMAINS ne '') || ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') ) {
             my ($ttl, $rdata);
             my $res   = Net::DNS::Resolver->new;
-            my $query = get_memcached($qname,$memcached);
-            if (!$query) {
-                $query = $res->search($qname);
-                set_memcached($qname,$query,undef,$memcached);
-            }
+            my $query = $CHI_CACHE->compute($qname, sub { $res->search($qname) });
             if ($query) {
                 foreach my $rr ($query->answer) {
                     next unless $rr->type eq "A";
@@ -177,10 +186,17 @@ sub regzone {
             push @ans, $rr;
             $rcode = "NOERROR";
         }
-        else {
+        elsif ($query =~ /$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}/) {
             my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
             my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
             push @ans, $rr;
+            $rcode = "NOERROR";
+        } else {
+            my ($ttl, $rdata) = ($TTL, $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}.".");
+            my $rr = new Net::DNS::RR("$qname $ttl IN CNAME $rdata");
+            my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $conn->{sockhost}");
+            push @ans, $rr;
+            push @ans, $rr2;
             $rcode = "NOERROR";
         }
     }else{
@@ -210,33 +226,9 @@ sub isolzone {
     return ($rcode, \@ans, \@auth, \@add, { aa => 1 });
 }
 
-
-sub daemonize {
-    chdir '/' or $logger->logdie("Can't chdir to /: $!");
-    open STDIN, '<', '/dev/null'
-        or $logger->logdie("Can't read /dev/null: $!");
-    open STDOUT, '>', '/dev/null'
-        or $logger->logdie("Can't write to /dev/null: $!");
-
-    defined( my $pid = fork )
-        or $logger->logdie("pfdns: could not fork: $!");
-    POSIX::_exit(0) if ($pid);
-    if ( !POSIX::setsid() ) {
-        $logger->error("could not start a new session: $!");
-    }
-    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-    my $daemon_pid = createpid("pfdns");
-
-    # updating Log4perl's pid info
-    Log::Log4perl::MDC->put( 'tid',  $daemon_pid );
-}
-
 sub normal_sighandler {
-    deletepid("pfdns");
-    if ( threads->self->tid() == 0 ) {
-        $logger->logdie(
-            "pfdns: caught SIG" . $_[0] . " - terminating" );
-    }
+    $RUNNING = 0;
+    $logger->debug( "pfdns: caught SIG" . $_[0] . " - terminating" );
 }
 
 

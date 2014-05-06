@@ -1,7 +1,7 @@
 <form name="modalEditInterface" class="form-horizontal form-condensed" action="[% action_uri %]">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF network %]<i>[% l('Network') %]</i> [% network %][% ELSE %][% l('New Network') %][% END %]</h3>
+    <h3>[% IF network %]<i>[% l('Network') %]</i> [% network | html %][% ELSE %][% l('New Network') %][% END %]</h3>
   </div>
 
   <div class="modal-body">

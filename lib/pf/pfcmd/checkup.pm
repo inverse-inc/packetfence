@@ -25,7 +25,6 @@ use pf::services;
 use pf::trigger;
 use pf::authentication;
 use NetAddr::IP;
-use File::Slurp qw(read_file);
 
 use lib $conf_dir;
 
@@ -195,7 +194,7 @@ sub interfaces {
     my %seen;
     my @network_interfaces;
     push @network_interfaces, get_internal_devs();
-    push @network_interfaces, $management_network->tag("int") if (defined($management_network));
+    push @network_interfaces, $management_network->tag("int") if ($management_network);
     foreach my $interface (@network_interfaces) {
         my $device = "interface " . $interface;
 
@@ -387,8 +386,10 @@ sub network {
 
         # validate dns entry if named is enabled
         if (exists $net{'named'} &&  $net{'named'} =~ /enabled/i) {
-            if (!valid_ip($net{'dns'})) {
-                add_problem( $FATAL, "networks.conf: DNS IP is not valid for network $network" );
+            for my $dns ( split( ",", $net{'dns'})) {
+                if (!valid_ip($dns)) {
+                    add_problem( $FATAL, "networks.conf: DNS IP is not valid for network $network" );
+                }
             }
         }
 
@@ -471,7 +472,7 @@ If some interfaces are configured to run in inline enforcement then these tests 
 
 sub inline {
 
-    my $result = read_file("/proc/sys/net/ipv4/ip_forward");
+    my $result = pf_run("cat /proc/sys/net/ipv4/ip_forward");
     if ($result ne "1\n") {
         add_problem( $WARN,
             "inline mode needs ip_forward enabled to work properly. " .
@@ -557,6 +558,7 @@ sub is_config_documented {
 
         next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
+        next if ( ( $group eq 'provisioning' ) && ( $item eq 'certificate') );
 
         if ( !exists $Config{$group} || !exists $Config{$group}{$item} ) {
             add_problem( $FATAL, "pf.conf value $group\.$item is not defined!" );
@@ -669,11 +671,11 @@ sub permissions {
     my (undef, undef, $pfcmd_mode, undef, $pfcmd_owner, $pfcmd_group) = stat($bin_dir . "/pfcmd");
     # pfcmd needs to be owned by root (owner id 0 / group id 0)
     if ($pfcmd_owner || $pfcmd_group) {
-        add_problem( $FATAL, "pfcmd needs to be owned by root. Fix with chown root:root pfcmd" );
+        add_problem( $FATAL, "pfcmd needs to be owned by root. Fix with chown root:root $bin_dir/pfcmd" );
     }
     # and pfcmd needs to be setuid / setgid
     if (!($pfcmd_mode & S_ISUID && $pfcmd_mode & S_ISGID)) {
-        add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s pfcmd" );
+        add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s $bin_dir/pfcmd" );
     }
 
     # Disabled because it was causing too many false positives
@@ -700,7 +702,7 @@ sub permissions {
         # if log doesn't exist it is created correctly so no need to complain
         next if (!-f $log_dir . '/' . $log_file);
 
-        add_problem( $FATAL, "$log_file must be owned by user pf. Fix with chown pf -R logs/" )
+        add_problem( $FATAL, "$log_file must be owned by user pf. Fix with chown pf -R $log_dir/" )
             unless (getpwuid((stat($log_dir . '/' . $log_file))[4]) eq 'pf');
     }
 }
@@ -748,7 +750,6 @@ Checking for violations configurations
 
 sub violations {
 
-    pf::violation_config::readViolationConfigFile();
     my $deprecated_disable_seen = $FALSE;
     foreach my $violation ( keys %Violation_Config ) {
 
@@ -805,15 +806,19 @@ sub switches {
         if ( ref($switches_conf{$section}{'type'}) eq 'ARRAY' || ref($switches_conf{$section}{'mode'}) eq 'ARRAY' ) {
             add_problem( $WARN, "switches.conf | Error around $section Did you define the same switch twice?" );
         }
-
-        # check type
-        my $type = "pf::SNMP::" . ( $switches_conf{$section}{'type'} || $switches_conf{'default'}{'type'} );
-        $type = untaint_chain($type);
-        if ( !(eval "$type->require()" ) ) {
+        my $type = $switches_conf{$section}{'type'} ;
+        if ( (!defined $type) || $type eq '' ) {
+            add_problem( $FATAL, "switches.conf | Switch type for switch ($section) is not defined");
+        } else {
+            # check type
+            $type = "pf::Switch::$type";
+            $type = untaint_chain($type);
+            if ( !(eval "$type->require()" ) ) {
                 add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
             }
+        }
         # check for valid switch IP
-        if ( !valid_ip($section) ) {
+        unless ( valid_mac_or_ip($section) ) {
             add_problem( $WARN, "switches.conf | Switch IP is invalid for switch $section" );
         }
 
@@ -961,7 +966,7 @@ Make sure only one external authentication source is selected for each type.
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub portal_profiles {
 
-    my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources|redirecturl|always_use_redirecturl)/;
+    my $profile_params = qr/(?:locale|filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources|redirecturl|always_use_redirecturl|mandatory_fields)/;
 
     foreach my $portal_profile ( $cached_profiles_config->Sections) {
 

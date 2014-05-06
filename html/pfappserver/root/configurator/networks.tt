@@ -40,7 +40,7 @@
             <h3>[% l('Default Gateway') %]</h3>
             <div class="control-group">
               <div class="controls">
-                <input id="gateway" name="gateway" type="text" class="input" placeholder="IP address" value="[% c.session.gateway %]" data-required="required">
+                <input id="gateway" name="gateway" type="text" class="input" placeholder="IP address" value="[% c.session.gateway | html %]" data-required="required">
                   <p class="help-block">[% l('Your gateway IP address to access Internet.') %]</p>
               </div>
             </div>
@@ -53,6 +53,6 @@
         </div>
       </div>
       <footer>
-        <p>&copy; Inverse 2013</p>
+        <p>&copy; Inverse 2014</p>
       </footer>
     </div><!--/container-->

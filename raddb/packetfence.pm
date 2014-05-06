@@ -20,9 +20,9 @@ Once cleaned:
 
 - Uncommented line: use pf::config
 
-- Remove line: use constant SOAP_PORT => '9090';
+- Remove line: use constant RPC_PORT => '9090';
 
-- Remove line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT);
+- Remove line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . RPC_PORT);
 
 - Uncomment line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'});
 
@@ -39,16 +39,25 @@ use lib '/usr/local/pf/lib/';
 #use pf::config; # TODO: See note1
 use pf::radius::constants;
 use pf::radius::soapclient;
+use pf::radius::rpc;
 use pf::util::freeradius qw(clean_mac);
 
 # Configuration parameter
-use constant SOAP_PORT => '9090'; #TODO: See note1
-use constant API_URI => 'https://www.packetfence.org/PFAPI'; # don't change this unless you know what you are doing
+use constant RPC_PORT_KEY   => 'PacketFence-RPC-Port';
+use constant RPC_SERVER_KEY => 'PacketFence-RPC-Server';
+use constant RPC_PROTO_KEY  => 'PacketFence-RPC-Proto';
+use constant RPC_USER_KEY   => 'PacketFence-RPC-User';
+use constant RPC_PASS_KEY   => 'PacketFence-RPC-Pass';
+use constant DEFAULT_RPC_SERVER => '127.0.0.1';
+use constant DEFAULT_RPC_PORT   => '9090';
+use constant DEFAULT_RPC_PROTO  => 'http';
+use constant DEFAULT_RPC_USER   => undef;
+use constant DEFAULT_RPC_PASS   => undef;
 
 require 5.8.8;
 
 # This is very important! Without this, the script will not get the filled hashes from FreeRADIUS.
-our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK);
+our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK, %RAD_CONFIG);
 
 =head1 SUBROUTINES
 
@@ -78,6 +87,22 @@ sub authorize {
     return $RADIUS::RLM_MODULE_NOOP;
 }
 
+=item * _get_rpc_config
+
+get the rpc configuration
+
+=cut
+
+sub _get_rpc_config {
+    return {
+        server => $RAD_CONFIG{RPC_SERVER_KEY()} || DEFAULT_RPC_SERVER,
+        port   => $RAD_CONFIG{RPC_PORT_KEY()}   || DEFAULT_RPC_PORT,
+        proto  => $RAD_CONFIG{RPC_PROTO_KEY()}  || DEFAULT_RPC_PROTO,
+        user   => $RAD_CONFIG{RPC_USER_KEY()}   || DEFAULT_RPC_USER,
+        pass   => $RAD_CONFIG{RPC_PASS_KEY()}   || DEFAULT_RPC_PASS,
+    };
+}
+
 =item * post_auth
 
 Once we authenticated the user's identity, we perform PacketFence's Network Access Control duties
@@ -87,7 +112,15 @@ Once we authenticated the user's identity, we perform PacketFence's Network Acce
 sub post_auth {
     my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
     eval {
-        my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+        my $mac;
+        if (defined($RAD_REQUEST{'User-Name'})) {
+            $mac = clean_mac($RAD_REQUEST{'User-Name'});
+            if ( length($mac) != 17 ) {
+               $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+            }
+        } else {
+            $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+        }
         my $port = $RAD_REQUEST{'NAS-Port'};
 
         # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
@@ -95,11 +128,12 @@ sub post_auth {
             &radiusd::radlog($RADIUS::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
             return $RADIUS::RLM_MODULE_OK;
         }
+        my $config = _get_rpc_config();
+        my $data = send_rpc_request($config, "radius_authorize", \%RAD_REQUEST);
 
-        my $data = send_soap_request("radius_authorize",\%RAD_REQUEST);
         if ($data) {
 
-            my $elements = $data->{'soap:Body'}->{'radius_authorizeResponse'}->{'soapenc:Array'}->{'item'};
+            my $elements = $data->[0];
 
             # Get RADIUS return code
             $radius_return_code = shift @$elements;
@@ -110,6 +144,23 @@ sub post_auth {
 
             # Merging returned values with RAD_REPLY, right-hand side wins on conflicts
             my $attributes = {@$elements};
+
+            # If attribute is a reference to a HASH (Multivalue attribute) we overwrite the value and point to list reference
+            # 'Cisco-AVPair',
+            #   {
+            #    'item' => [
+            #               'url-redirect-acl=Web-acl',
+            #               'url-redirect=http://172.16.0.249/captive-portal.html'
+            #               ]
+            #    }
+            # Return:
+            # rlm_perl: Added pair Cisco-AVPair = url-redirect-acl=Web-acl
+            # rlm_perl: Added pair Cisco-AVPair = url-redirect=http://172.16.0.249/captive-portal.html
+            foreach my $key (keys %$attributes) {
+               if (ref($attributes->{$key}) eq 'HASH') {
+                   $attributes->{$key} = $attributes->{$key}->{'item'};
+               }
+            }
             %RAD_REPLY = (%RAD_REPLY, %$attributes); # the rest of result is the reply hash passed by the radius_authorize
         } else {
             return server_error_handler();
@@ -140,7 +191,7 @@ sub post_auth {
         # &radiusd::radlog($RADIUS::L_DBG, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
     };
     if ($@) {
-        &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize SOAP request: $@");
+        &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize RPC request: $@");
     }
 
     return $radius_return_code;
@@ -175,7 +226,7 @@ Called whenever an invalid answer is returned from the server
 =cut
 
 sub invalid_answer_handler {
-    &radiusd::radlog($RADIUS::L_ERR, "No or invalid reply in SOAP communication with server. Check server side logs for details.");
+    &radiusd::radlog($RADIUS::L_ERR, "No or invalid reply in RPC communication with server. Check server side logs for details.");
     &radiusd::radlog($RADIUS::L_DBG, "PacketFence UNDEFINED RESULT RESPONSE CODE");
     &radiusd::radlog($RADIUS::L_DBG, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
     return $RADIUS::RLM_MODULE_FAIL;
@@ -229,9 +280,61 @@ sub preacct {
 
 # Function to handle accounting
 sub accounting {
-        # For debugging purposes only
-#       &log_request_attributes;
+    my $radius_return_code = eval {
+        my $rc = $RADIUS::RLM_MODULE_REJECT;
+        my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+        my $port = $RAD_REQUEST{'NAS-Port'};
 
+        # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
+        if ( length($mac) != 17 ) {
+            &radiusd::radlog($RADIUS::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
+            return $RADIUS::RLM_MODULE_OK;
+        }
+
+        # We only perform a RPC call on stop/update types
+        unless ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop' ||
+                $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update') {
+            return $RADIUS::RLM_MODULE_OK;
+        }
+
+        my $config = _get_rpc_config();
+        my $data = send_rpc_request($config, "radius_accounting", \%RAD_REQUEST);
+        if ($data) {
+            my $elements = $data->[0];
+
+            # Get RADIUS return code
+            $rc = shift @$elements;
+
+            if ( !defined($rc) || !($rc > $RADIUS::RLM_MODULE_REJECT && $rc < $RADIUS::RLM_MODULE_NUMCODES) ) {
+                return invalid_answer_handler();
+            }
+
+            # Merging returned values with RAD_REPLY, right-hand side wins on conflicts
+            my $attributes = {@$elements};
+            %RAD_REPLY = (%RAD_REPLY, %$attributes); # the rest of result is the reply hash passed by the radius_authorize
+        } else {
+            return server_error_handler();
+        }
+
+        return $rc;
+    };
+    if ($@) {
+        &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize RPC request: $@");
+        $radius_return_code = server_error_handler();
+    }
+
+    # For debugging purposes
+    #&radiusd::radlog($RADIUS::L_INFO, "radius_return_code: $radius_return_code");
+
+    &radiusd::radlog($RADIUS::L_DBG, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
+
+    # Uncomment for verbose debugging with radius -X
+    # Warning: This is a native module so you shouldn't run it with radiusd in threaded mode (default)
+    # use Data::Dumper;
+    # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
+    # &radiusd::radlog($RADIUS::L_DBG, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
+
+    return $radius_return_code;
 }
 
 # Function to handle checksimul
@@ -281,6 +384,10 @@ sub log_request_attributes {
         for (keys %RAD_REQUEST) {
                 &radiusd::radlog($RADIUS::L_INFO, "RAD_REQUEST: $_ = $RAD_REQUEST{$_}");
         }
+}
+
+sub listify($) {
+    ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
 }
 
 =back

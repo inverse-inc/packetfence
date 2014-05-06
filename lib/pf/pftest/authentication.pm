@@ -27,6 +27,8 @@ sub _run {
     my ($self) = @_;
     require pf::authentication;
     import pf::authentication;
+    require pf::config;
+    import pf::config;
     my $show_color = colors_supported();;
     my ($user,$pass,@source_ids) = $self->args;
     my @sources;
@@ -44,16 +46,16 @@ sub _run {
             my ($result,$message) = $source->authenticate($user,$pass);
             $message = '' unless defined $message;
             if ($result) {
-                print color 'green' if $show_color;
+                print color $pf::config::Config{advanced}{pfcmd_success_color} if $show_color;
                 print $indent,"Authentication SUCCEEDED against ",$source->id," ($message) \n";
             } else {
-                print color 'red' if $show_color;
+                print color $pf::config::Config{advanced}{pfcmd_error_color} if $show_color;
                 print $indent,"Authentication FAILED against ",$source->id," ($message) \n";
             }
             print color 'reset' if $show_color;
             my $actions;
             if( $actions = pf::authentication::match([$source], {username => $user})) {
-                print color 'green' if $show_color;
+                print color $pf::config::Config{advanced}{pfcmd_success_color} if $show_color;
                 print $indent ,"Matched against ",$source->id,"\n";
                 if(ref($actions)) {
                     local $indent = $indent x 2;
@@ -62,7 +64,7 @@ sub _run {
                     }
                 }
             } else {
-                print color 'red' if $show_color;
+                print color $pf::config::Config{advanced}{pfcmd_error_color} if $show_color;
                 print $indent,"Did not match against ",$source->id,"\n";
             }
             print color 'reset' if $show_color;

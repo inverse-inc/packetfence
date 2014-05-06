@@ -13,7 +13,7 @@ Exercizing pf::services and sub modules components.
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More tests => 14;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -23,47 +23,46 @@ my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
+BEGIN { use lib qw(/usr/local/pf/t); }
 BEGIN { use PfFilePaths; }
 BEGIN { use_ok('pf::services') }
-BEGIN { use_ok('pf::services::apache') }
-BEGIN { use_ok('pf::services::dhcpd') }
-BEGIN { use_ok('pf::services::snmptrapd') }
-BEGIN { use_ok('pf::services::snort') }
-BEGIN { use_ok('pf::services::suricata') }
+BEGIN { use_ok('pf::services::manager::httpd') }
+BEGIN { use_ok('pf::services::manager::dhcpd') }
+BEGIN { use_ok('pf::services::manager::snmptrapd') }
 
 use pf::config;
 
 =head1 CONFIGURATION VALIDATION
 
-=item pf::services::apache
+=item pf::services::manager::httpd
 
 =cut
 
 # performance config tests for a couple of RAM values
-my $max_clients = pf::services::apache::calculate_max_clients(2048 * 1024);
+my $max_clients = pf::services::manager::httpd::calculate_max_clients(2048 * 1024);
 ok(10 < $max_clients && $max_clients < 30, "MaxClients for 2Gb RAM");
 
-$max_clients = pf::services::apache::calculate_max_clients(4096 * 1024);
+$max_clients = pf::services::manager::httpd::calculate_max_clients(4096 * 1024);
 ok(40 < $max_clients && $max_clients < 60, "MaxClients for 4Gb RAM");
 
-$max_clients = pf::services::apache::calculate_max_clients(8192 * 1024);
+$max_clients = pf::services::manager::httpd::calculate_max_clients(8192 * 1024);
 ok(100 < $max_clients && $max_clients < 120, "MaxClients for 8Gb RAM");
 
-$max_clients = pf::services::apache::calculate_max_clients(16384 * 1024);
+$max_clients = pf::services::manager::httpd::calculate_max_clients(16384 * 1024);
 ok(200 < $max_clients && $max_clients < 250, "MaxClients for 16Gb RAM");
 
-$max_clients = pf::services::apache::calculate_max_clients(24576 * 1024);
+$max_clients = pf::services::manager::httpd::calculate_max_clients(24576 * 1024);
 ok(250 < $max_clients && $max_clients < 350, "MaxClients for 24Gb RAM");
 
 
-=item pf::services::snmptrapd
+=item pf::services::manager::snmptrapd
 
 =cut
 # forcing an switchFactory instance with the test config file
 pf::SwitchFactory->getInstance;
 
 # This tests proper config creation and also covers regression test #1354
-my ($snmpv3_users, $snmp_communities) = pf::services::snmptrapd::_fetch_trap_users_and_communities();
+my ($snmpv3_users, $snmp_communities) = pf::services::manager::snmptrapd::_fetch_trap_users_and_communities();
 is_deeply(
     [ $snmpv3_users, $snmp_communities ],
     [

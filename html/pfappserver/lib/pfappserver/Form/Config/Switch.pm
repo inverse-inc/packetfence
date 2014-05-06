@@ -18,7 +18,7 @@ use File::Find qw(find);
 use File::Spec::Functions;
 
 use pf::config;
-use pf::SNMP::constants;
+use pf::Switch::constants;
 use pf::util;
 use List::MoreUtils qw(any);
 
@@ -28,11 +28,11 @@ has 'placeholders' => ( is => 'ro' );
 ## Definition
 has_field 'id' =>
   (
-   type => 'IPAddress',
-   label => 'IP Address',
+   type => 'SwitchID',
+   label => 'IP Address/MAC Address',
    accept => ['default'],
    required => 1,
-   messages => { required => 'Please specify the IP address of the switch.' },
+   messages => { required => 'Please specify the IP address/MAC address of the switch.' },
   );
 has_field 'description' =>
   (
@@ -211,7 +211,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp) ],
+   render_list => [ qw(description type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
   );
 has_field 'SNMPVersion' =>
   (
@@ -389,7 +389,27 @@ has_field controllerIp =>
     label => 'Controller IP Address',
     tags => {
         after_element => \&help,
-        help => 'Use instead this IP address for de-authentication requests. Normally used for WiFi only'
+        help => 'Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only'
+    },
+  );
+
+has_field controllerPort =>
+  (
+    type => 'PosInteger',
+    label => 'Controller Port',
+    tags => {
+        after_element => \&help_list,
+        help => 'Only for Wi-Fi , if the deauth request must be send to another device than the access point then set the ip of the controller'
+    },
+  );
+
+has_field 'portalURL' =>
+  (
+   type => 'Text',
+   label => 'Portal URL',
+   tags => {
+       after_element => \&help_list,
+       help => 'Only for external captive portal, specify the URL of the captive portal that will be send back as a RADIUS attribute'
     },
   );
 
@@ -464,31 +484,29 @@ For other switches, add placeholders with values from default switch.
 
 sub update_fields {
     my $self = shift;
-
-    if ($self->{init_object} && $self->init_object->{id} eq 'default') {
+    my $init_object = $self->init_object;
+    my $id = $init_object->{id} if $init_object;
+    if (defined $id && $id eq 'default') {
         foreach my $role (@SNMP::ROLES) {
             $self->field($role.'Vlan')->required(1);
         }
-    }
-    elsif ($self->placeholders) {
+    } elsif ($self->placeholders) {
         foreach my $field ($self->fields) {
-            if ($self->placeholders->{$field->name} && length $self->placeholders->{$field->name}) {
+            my $placeholder = $self->placeholders->{$field->name};
+            if (defined $placeholder && length $placeholder) {
                 if ($field->type eq 'Select') {
                     if ($field->name eq 'type') {
-                        $field->default($self->placeholders->{$field->name});
-                    }
-                    else {
-                        my $val = sprintf "%s (%s)", $self->_localize('Default'), $self->placeholders->{$field->name};
+                        $field->default($placeholder);
+                    } else {
+                        my $val = sprintf "%s (%s)", $self->_localize('Default'), $placeholder;
                         $field->element_attr({ 'data-placeholder' => $val });
                     }
-                }
-                elsif ($field->name ne 'id') {
-                    $field->element_attr({ placeholder => $self->placeholders->{$field->name} });
+                } elsif ($field->name ne 'id') {
+                    $field->element_attr({ placeholder => $placeholder });
                 }
             }
         }
     }
-
     $self->SUPER::update_fields();
 }
 
@@ -529,7 +547,7 @@ sub options_type {
 
     my %paths = ();
     my $wanted = sub {
-        if ((my ($module, $pack, $switch) = $_ =~ m/$lib_dir\/((pf\/SNMP\/([A-Z0-9][\w\/]+))\.pm)\z/)) {
+        if ((my ($module, $pack, $switch) = $_ =~ m/$lib_dir\/((pf\/Switch\/([A-Z0-9][\w\/]+))\.pm)\z/)) {
             $pack =~ s/\//::/g; $switch =~ s/\//::/g;
 
             # Parent folder is the vendor name
@@ -544,7 +562,7 @@ sub options_type {
             }
         }
     };
-    find({ wanted => $wanted, no_chdir => 1 }, ("$lib_dir/pf/SNMP"));
+    find({ wanted => $wanted, no_chdir => 1 }, ("$lib_dir/pf/Switch"));
 
     # Sort vendors and switches for display
     my @modules;
@@ -636,7 +654,7 @@ sub validate {
     my $always = any { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
 
     if ($self->value->{type}) {
-        my $type = 'pf::SNMP::'. $self->value->{type};
+        my $type = 'pf::Switch::'. $self->value->{type};
         if ($type->require()) {
             @triggers = map { $_->{type} } @{$self->value->{inlineTrigger}};
             if ( @triggers && !$always) {

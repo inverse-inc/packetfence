@@ -1,5 +1,6 @@
 package pf::services;
 
+
 =head1 NAME
 
 pf::services - module to manage the PacketFence services and daemons.
@@ -24,31 +25,22 @@ use strict;
 use warnings;
 
 use pf::config;
-use pf::services::manager::memcached;
-use pf::services::manager::httpd_admin;
-use pf::services::manager::httpd_webservices;
-use pf::services::manager::httpd_portal;
-use pf::services::manager::httpd_proxy;
-use pf::services::manager::pfdns;
-use pf::services::manager::dhcpd;
-use pf::services::manager::pfdetect;
-use pf::services::manager::snort;
-use pf::services::manager::suricata;
-use pf::services::manager::radiusd;
-use pf::services::manager::snmptrapd;
-use pf::services::manager::pfsetvlan;
-use pf::services::manager::pfdhcplistener;
-use pf::services::manager::pfmon;
-use Module::Loaded qw(is_loaded);
+use Module::Pluggable
+  'search_path' => [qw(pf::services::manager)],
+  'sub_name'    => 'managers',
+  'require'     => 1,
+  'except'      => qr/^pf::services::manager::roles|^pf::services::manager::(httpd|submanager)$/,
+  ;
 
-our @APACHE_SERVICES = (
-    'httpd.admin', 'httpd.webservices', 'httpd.portal', 'httpd.proxy'
-);
 
-our @ALL_SERVICES = (
-    'memcached', @APACHE_SERVICES, 'pfdns', 'dhcpd', 'pfdetect', 'snort', 'suricata', 'radiusd',
-    'snmptrapd', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
-);
+
+our @MANAGERS = __PACKAGE__->managers;
+
+our %MANAGERS = map { $_->new->name => $_ } @MANAGERS;
+
+our @APACHE_SERVICES = map { $_ } grep { $_->isa('pf::services::manager::httpd') } @MANAGERS;
+
+our @ALL_SERVICES = sort map { $_->new->name } @MANAGERS;
 
 our %ALLOWED_ACTIONS = (
     stop    => undef,
@@ -83,39 +75,11 @@ Get service manager my service name
 
 sub get_service_manager {
     my ($service) = @_;
-    my $sm;
-    my $module = _make_service_manager_module_name($service);
-    if(is_loaded($module)) {
-        $sm = $module->new;
-    }
-    return $sm;
-}
-
-=head2 read_violations_conf
-
-reload the violation config
-
-=cut
-
-sub read_violations_conf {
-    require pf::violation_config;
-    pf::violation_config::readViolationConfigFile();
-    return 1;
-}
-
-=head2 _make_service_manager_module_name
-
-make the service manager module name
-
-=cut
-
-sub _make_service_manager_module_name {
-    my ($service) = @_;
-    my $module = "pf::services::manager::${service}";
-    $module =~ /^(.*)$/;
-    $module = $1;
-    $module =~ s/\./_/;
-    return $module;
+    $service =~ /^(.*)$/;
+    $service = $1;
+    my $module = $MANAGERS{$service} if exists $MANAGERS{$service};
+    my $manager = $module->new if $module;
+    return $manager;
 }
 
 =head2 service_list
@@ -126,8 +90,8 @@ Return the list of services that are allowed to be managed
 
 sub service_list {
     return grep {
-        my $module = _make_service_manager_module_name($_);
-        is_loaded($module) && $module->new->isManaged
+        my $manager = get_service_manager($_);
+        $manager ? $manager->isManaged : 0
     } @_;
 }
 

@@ -1,4 +1,4 @@
-      <table id="adminroles" class="table items[% ' hidden' UNLESS items.size %]">
+      <table id="items" class="table items[% ' hidden' UNLESS items.size %]" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
         <thead>
           <tr>
             <th>[% l('Role Name') %]</th>
@@ -7,13 +7,13 @@
           </tr>
         </thead>
         <tbody>
-          [% FOREACH adminrole IN items %]
+          [% FOREACH item IN items %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('view'), [ adminrole.id ]) %]">[% adminrole.id %]</a></td>
-            <td>[% adminrole.description | html%]</td>
+            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td>[% item.description | html%]</td>
             <td>
-              [% IF can_access("ADMIN_ROLES_CREATE") %]<a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('clone'), [ adminrole.id]) %]">[% l('Clone') %]</a>[% END %]
-              [% IF can_access("ADMIN_ROLES_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('remove'), [ adminrole.id ]) %]">[% l('Delete') %]</a>[% END %]
+              [% IF can_access("ADMIN_ROLES_CREATE") %]<a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>[% END %]
+              [% IF can_access("ADMIN_ROLES_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>[% END %]
             </td>
           </tr>
           [% END -%]

@@ -37,13 +37,14 @@ Log::Log4perl::MDC->put('tid', 0);
 
 my $portalSession = pf::Portal::Session->new();
 my $cgi = $portalSession->getCgi();
+my $mac = $portalSession->getClientMac();
 
 # If the billing engine isn't enabled (you shouldn't be here), redirect to portal entrance
 print $cgi->redirect("/captive-portal?destination_url=".uri_escape($portalSession->getDestinationUrl()))
     if ( isdisabled($Config{'registration'}{'billing_engine'}) );
 
 # we need a valid MAC to identify a node
-if ( !valid_mac($portalSession->getClientMac()) ) {
+if ( !valid_mac($mac) ) {
     $logger->info($portalSession->getClientIp() . " not resolvable, generating error page");
     pf::web::generate_error_page($portalSession, i18n("error: not found in the database"));
     exit(0);
@@ -64,7 +65,7 @@ if ( defined($cgi->param('submit')) ) {
         my %tiers_infos           = $billingObj->getAvailableTiers();
         my $transaction_infos_ref = {
                 ip              => $portalSession->getClientIp(),
-                mac             => $portalSession->getClientMac(),
+                mac             => $mac,
                 firstname       => $cgi->param('firstname'),
                 lastname        => $cgi->param('lastname'),
                 email           => lc($cgi->param('email')),
@@ -77,7 +78,7 @@ if ( defined($cgi->param('submit')) ) {
         };
 
         # Process the transaction
-        my $paymentStatus   = $billingObj->processTransaction($transaction_infos_ref);
+        my $paymentStatus = $billingObj->processTransaction($transaction_infos_ref);
 
         if ( $paymentStatus eq $BILLING::SUCCESS ) {
             # Adding person (using modify in case person already exists)
@@ -95,8 +96,41 @@ if ( defined($cgi->param('submit')) ) {
             $info{'category'}   = $tiers_infos{$tier}{'category'};
             $info{'unregdate'}  = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $timeout ));
 
+            if ($tiers_infos{$tier}{'usage_duration'}) {
+                $info{'time_balance'} = normalize_time($tiers_infos{$tier}{'usage_duration'});
+
+                # Check if node has some access time left; if so, add it to the new duration
+                my $node = node_view($mac);
+                if ($node && $node->{'time_balance'} > 0) {
+                    if ($node->{'last_start_timestamp'} > 0) {
+                        # Node is active; compute the actual access time left
+                        my $expiration = $node->{'last_start_timestamp'} + $node->{'time_balance'};
+                        my $now = time;
+                        if ($expiration > $now) {
+                            $info{'time_balance'} += ($expiration - $now);
+                        }
+                    }
+                    else {
+                        # Node is inactive; add the remaining access time to the purchased access time
+                        $info{'time_balance'} += $node->{'time_balance'};
+                    }
+                }
+                $logger->info("Usage duration for $mac is now " . $info{'time_balance'});
+            }
+
+            # Close violations that use the 'Accounting::BandwidthExpired' trigger
+            my @tid = trigger_view_tid($ACCOUNTING_POLICY_TIME);
+            foreach my $violation (@tid) {
+                # Close any existing violation
+                violation_force_close($mac, $violation->{'vid'});
+            }
+
             # Register the node
             pf::web::web_node_register($portalSession, $info{'pid'}, %info);
+
+            # Send confirmation email
+            my %data = $billingObj->prepareConfirmationInfo($transaction_infos_ref, $portalSession);
+            pf::util::send_email('billing_confirmation', $data{'email'}, $data{'subject'}, \%data);
 
             # Generate the release page
             # XXX Should be part of the portal profile

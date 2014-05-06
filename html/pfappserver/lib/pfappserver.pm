@@ -26,16 +26,20 @@ use Catalyst qw/
     Authentication
     +pfappserver::Authentication::Store::PacketFence
     Session
-    Session::Store::File
+    Session::Store::CHI
     Session::State::Cookie
     StackTrace
 /;
 
 use Try::Tiny;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
+BEGIN {
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log 'service' => 'httpd.admin', no_stderr_trapping => 1, no_stdout_trapping => 1;
+}
 use pf::config::cached;
+use pf::CHI;
 
 extends 'Catalyst';
 
@@ -80,7 +84,11 @@ __PACKAGE__->config(
     },
 
     'Plugin::Session' => {
-        storage => '/usr/local/pf/var/session'
+        #chi will set the expire time
+        chi_class => 'pf::CHI',
+        chi_args => {
+            namespace => 'httpd.admin',
+        }
     },
 
     'View::JSON' => {
@@ -263,7 +271,7 @@ sub pf_localize {
 }
 
 # Logging
-__PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf'));
+__PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.admin.conf',watch_delay => 5 * 60));
 
 # Handle warnings from Perl as error log messages
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };

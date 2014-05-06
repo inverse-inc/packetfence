@@ -909,3 +909,37 @@ msgstr "The MAC address %s provided is invalid please try again"
 
 msgid "This module is not enabled"
 msgstr "This module is not enabled"
+
+msgid "anniversary"
+msgstr "Anniversary"
+
+msgid "birthday"
+msgstr "Birthday"
+
+msgid "gender"
+msgstr "Gender"
+
+msgid "lang"
+msgstr "Language"
+
+msgid "nickname"
+msgstr "Nickname"
+
+msgid "cell_phone"
+msgstr "Cell Phone"
+
+msgid "work_phone"
+msgstr "Work Phone"
+
+msgid "title"
+msgstr "Title"
+
+msgid "building_number"
+msgstr "Building Number"
+
+msgid "apartment_number"
+msgstr "Apartment Number"
+
+msgid "room_number"
+msgstr "Room Number"
+

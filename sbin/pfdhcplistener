@@ -16,18 +16,19 @@ pfdhcplistener -i <interface> [options]
 
 use warnings;
 use strict;
-use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
 use Getopt::Std;
-use Log::Log4perl;
 use Net::Pcap 0.16;
 use Pod::Usage;
 use POSIX qw(:signal_h);
 use Try::Tiny;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-
-use lib INSTALL_DIR . "/lib";
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfdhcplistener');
+}
 
 use pf::config;
 use pf::config::cached;
@@ -39,6 +40,7 @@ use pf::lookup::node;
 use pf::node;
 use pf::os;
 use pf::util;
+use pf::services::util;
 use pf::util::dhcp;
 use pf::violation qw(violation_trigger);
 use pf::ipset;
@@ -47,14 +49,9 @@ use List::MoreUtils qw(any);
 # initialization
 # --------------
 # assign process name (see #1464)
-$PROGRAM_NAME = basename($PROGRAM_NAME);
+our $PROGRAM_NAME = basename($0);
 
-# log4perl init
-Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
-Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
-# storing process id instead of thread id in tid (more useful)
-Log::Log4perl::MDC->put( 'tid',  $PID );
 
 # init signal handlers
 POSIX::sigaction(
@@ -96,8 +93,10 @@ my $interface_vlan;
 my @local_dhcp_servers;
 my $pcap;
 
+$PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
+
 # standard signals and daemonize
-daemonize() if ($daemonize);
+daemonize($PROGRAM_NAME) if ($daemonize);
 
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
@@ -123,7 +122,7 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
 
 END {
     if ( defined($interface) ) {
-        deletepid("pfdhcplistener_$interface");
+        deletepid($PROGRAM_NAME);
         $logger->info("stopping pfdhcplistener for interface $interface");
     }
 }
@@ -354,7 +353,7 @@ sub parse_dhcp_request {
     }
 
     if ($is_inline_vlan) {
-        locationlog_synchronize($interface_ip, $NO_PORT, $interface_vlan, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
+        locationlog_synchronize($interface_ip,$interface_ip,undef, $NO_PORT, $interface_vlan, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
         $accessControl->performInlineEnforcement($dhcp->{'chaddr'});
     }
 }
@@ -571,26 +570,6 @@ sub process_fingerprint {
     }
 
     return $fingerprint_data;
-}
-
-sub daemonize {
-    chdir '/' or $logger->logdie("Can't chdir to /: $!");
-    open STDIN, '<', '/dev/null'
-        or $logger->logdie("Can't read /dev/null: $!");
-    open STDOUT, '>', '/dev/null'
-        or $logger->logdie("Can't write to /dev/null: $!");
-
-    defined( my $pid = fork )
-        or $logger->logdie("pfdhcplistener: could not fork: $!");
-    POSIX::_exit(0) if ($pid);
-    if ( !POSIX::setsid() ) {
-        $logger->error("could not start a new session: $!");
-    }
-    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-    my $daemon_pid = createpid("pfdhcplistener_$interface");
-
-    # updating Log4perl's pid info
-    Log::Log4perl::MDC->put( 'tid',  $daemon_pid );
 }
 
 sub normal_sighandler {

@@ -10,9 +10,9 @@
 
      This file is part of the PacketFence project.
      Authors: 
-       - Olivier Bilodeau <obilodeau@inverse.ca>
+       - Inverse inc. <info@inverse.ca>
 
-     Copyright (C) 2011 Inverse inc.
+     Copyright (C) 2011-2014 Inverse inc.
      License: GFDL 1.2 or later. http://www.gnu.org/licenses/fdl.html
 
      ******************************************************************** -->

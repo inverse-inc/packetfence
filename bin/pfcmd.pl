@@ -34,7 +34,7 @@ pfcmd <command> [options]
  nodecategory                | nodecategory manipulation
  nodeuseragent               | View User-Agent information associated to a node
  person                      | person manipulation
- reload                      | rebuild fingerprint or violations tables without restart
+ reload                      | rebuild fingerprints without restart
  report                      | current usage reports
  schedule                    | Nessus scan scheduling
  service                     | start/stop/restart and get PF daemon status
@@ -64,11 +64,13 @@ use Data::Dumper;
 use English qw( -no_match_vars ) ;  # Avoids regex performance penalty
 use POSIX();
 use Readonly;
+use File::Spec::Functions qw(catfile);
 use Date::Parse;
 use File::Basename qw(basename);
 use Log::Log4perl;
 use Try::Tiny;
-use List::MoreUtils qw(part);
+use List::MoreUtils qw(part any);
+use Scalar::Util qw(tainted);
 
 use constant {
     INSTALL_DIR        => '/usr/local/pf',
@@ -153,12 +155,14 @@ if (! exists($cmd_tmp{'grammar'})) {
     %cmd = %cmd_tmp;
     # TODO minor refactoring: call method using exit( method() ) instead of appending an exit(1)
     my %commands = (
+        'cache' => sub { exit (cache()) },
         'checkup' => sub {
             my $return = checkup();
             print "Nothing to report.\n" if ($return == $FALSE);
             exit(1);
         },
         'fixpermissions' => sub { exit (fixpermissions()) },
+        'configreload' => sub { exit (configreload($cmd{command}[1])) },
         'class' => sub { class(); exit(1); },
         'config' => sub { config(); exit(0); },
         'configfiles' => sub { configfiles(); exit(1); },
@@ -832,11 +836,20 @@ sub import_data {
     my $type = $cmd{command}[1];
     my $file = $cmd{command}[2];
     $logger->info("Import requested. Type: $type, file to import: $file");
-
+    my $result;
     if (lc($type) eq 'nodes') {
         pf::import::nodes($file);
+        $result = 1;
+    } elsif (lc($type) eq 'wrix') {
+        require pf::DB::Wrix::Manager;
+        pf::DB::Wrix::Manager->import;
+        $result = pf::DB::Wrix::Manager->importCsv($file);
     }
-    print "Import process complete\n";
+    if($result) {
+        print "Import process complete\n";
+    } else {
+        print "Error importing $file for $type\n";
+    }
 }
 
 sub interfaceconfig {
@@ -1173,9 +1186,9 @@ sub service {
     $SERVICE_HEADER ="service|command\n";
     $IS_INTERACTIVE = is_interactive();
     $RESET_COLOR =  $IS_INTERACTIVE ? color 'reset' : '';
-    $WARNING_COLOR =  $IS_INTERACTIVE ? color 'yellow' : '';
-    $ERROR_COLOR =  $IS_INTERACTIVE ? color 'red' : '';
-    $SUCCESS_COLOR =  $IS_INTERACTIVE ? color 'green' : '';
+    $WARNING_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_warning_color} : '';
+    $ERROR_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_error_color} : '';
+    $SUCCESS_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_success_color} : '';
 
     my $actionHandler;
     $action =~ /^(.*)$/;
@@ -1194,11 +1207,26 @@ sub service {
     return $FALSE;
 }
 
+sub pfStartService {
+    my ($managers) = @_;
+    if(-e $pf_config_file) {
+        $logger->info("saving current iptables to var/iptables.bak");
+        my $technique;
+        if(all { $_->status eq '0'  } @$managers) {
+            $technique = getIptablesTechnique();
+            $technique->iptables_save( $install_dir . '/var/iptables.bak' );
+        }
+        $technique ||= getIptablesTechnique();
+        $technique->iptables_generate();
+    }
+}
+
 sub startService {
     my ($service,@services) = @_;
     my @managers = getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
+    pfStartService(\@managers) if $service eq 'pf';
     if(isIptablesManaged($service) && -e $pf_config_file) {
         $logger->info("saving current iptables to var/iptables.bak");
         my $technique;
@@ -1210,7 +1238,7 @@ sub startService {
         $technique->iptables_generate();
     }
 
-    my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup} @managers;
+    my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup } @managers;
 
     if($noCheckupManagers && @$noCheckupManagers) {
         foreach my $manager (@$noCheckupManagers) {
@@ -1278,12 +1306,13 @@ sub stopService {
     my ($service,@services) = @_;
     my @managers = getManagers(\@services);
     #push memcached to back of the list
-    my $manager = first { $_->name eq 'memcached' } @managers;
-    if($manager) {
-        @managers = grep { $_->name ne 'memcached' } @managers;
-        push @managers, $manager;
-    }
-
+    my %exclude = (
+        memcached => undef,
+    );
+    my ($push_managers,$infront_managers) = part { exists $exclude{ $_->name  } ? 0 : 1 } @managers;
+    @managers = ();
+    @managers = @$infront_managers if $infront_managers;
+    push @managers, @$push_managers if $push_managers;
     print $SERVICE_HEADER;
     foreach my $manager (@managers) {
         my $command;
@@ -1321,7 +1350,9 @@ sub isIptablesManaged {
 }
 
 sub restartService {
+    my ($service,@services) = @_;
     stopService(@_);
+    configreload('hard');
     local $SERVICE_HEADER = '';
     startService(@_);
 }
@@ -1738,11 +1769,6 @@ sub reload {
         my $fp_total = pf::os::import_dhcp_fingerprints({ force => $TRUE });
         $logger->info("$fp_total DHCP fingerprints reloaded");
         print "$fp_total DHCP fingerprints reloaded\n";
-    } elsif ( $option eq "violations" ) {
-        require pf::services;
-        pf::services::read_violations_conf();
-        $logger->info("Violation classes reloaded");
-        print "Violation classes reloaded\n";
     }
     exit;
 }
@@ -2441,11 +2467,12 @@ sub field_order {
 
 sub fixpermissions {
     my $pfcmd = "${bin_dir}/pfcmd";
-    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir);
+    my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions);
+    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, @extra_var_dirs);
     _changeFilesToOwner('root',$pfcmd);
     chmod(06755,$pfcmd);
     chmod(0664, @stored_config_files);
-    chmod(02775, $conf_dir, $var_dir, $log_dir);
+    chmod(02775, $conf_dir, $var_dir, $log_dir, $generated_conf_dir,$install_dir, @extra_var_dirs);
     return 0;
 }
 
@@ -2453,6 +2480,62 @@ sub _changeFilesToOwner {
     my ($user,@files) = @_;
     my ($login,$pass,$uid,$gid) = getpwnam($user);
     chown $uid,$gid,@files;
+}
+
+sub configreload {
+    my ($type)  = @_;
+    $type = 'soft' unless defined $type;
+    my $force = $type eq 'hard' ? 1 : 0;
+    require pf::violation_config;
+    require pf::authentication;
+    require pf::admin_roles;
+    require pf::ConfigStore::AdminRoles;
+    require pf::ConfigStore::Authentication;
+    require pf::ConfigStore::FloatingDevice;
+    require pf::ConfigStore::Interface;
+    require pf::ConfigStore::Mdm;
+    require pf::ConfigStore::Network;
+    require pf::ConfigStore::Pf;
+    require pf::ConfigStore::Profile;
+    require pf::ConfigStore::Switch;
+    require pf::ConfigStore::Violations;
+    require pf::ConfigStore::Wrix;
+    pf::config::cached::updateCacheControl();
+    pf::config::cached::ReloadConfigs($force);
+    return 0;
+}
+
+sub cache {
+    require pf::CHI;
+    my $namespace  = $cmd{command}[1];
+    my $action  = $cmd{command}[2];
+    $namespace = $1 if $namespace =~ /^(.*+)$/;
+    $action = $1 if $action =~ /^(.*+)$/;
+    unless ( any { $namespace eq $_ } @pf::CHI::CACHE_NAMESPACES ) {
+        print "the namespace '$namespace' does not exist\n";
+        return 1;
+    }
+    my $cache = pf::CHI->new( namespace => $namespace);
+    if ($action eq 'list' ) {
+        print join("\n",$cache->get_keys),"\n";
+    } elsif ($action eq 'clear') {
+        $cache->remove($_) for map { /^(.*)$/;$1  } $cache->get_keys;
+    } elsif ($action eq 'remove') {
+        my $key   = $cmd{command}[3];
+        $key = $1 if $key =~ /^(.*)$/;
+        $cache->remove($key);
+    } elsif ($action eq 'dump') {
+        my $key   = $cmd{command}[3];
+        $key = $1 if $key =~ /^(.*)$/;
+        require Data::Dumper;
+        print Data::Dumper::Dumper($cache->get($key));
+    } elsif ($action eq 'expire') {
+        for my $key ($cache->get_keys) {
+            $cache->remove($key) if $cache->exists_and_is_expired($key);
+        }
+    }
+
+    return 0;
 }
 
 

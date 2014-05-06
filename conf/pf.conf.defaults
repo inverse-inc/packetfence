@@ -20,12 +20,6 @@ dnsservers=127.0.0.1
 # Comma-delimited list of DHCP servers.  Passthroughs are created to allow DHCP transactions from even "trapped" nodes.
 dhcpservers=127.0.0.1
 #
-# general.locale
-#
-# Locale used for message translation
-# more than 1 can be specified
-locale=en_US
-#
 # general.timezone
 #
 # System's timezone in string format. Supported list:
@@ -36,6 +30,11 @@ timezone=America/Montreal
 #
 # Interval at which Packetfence runs its maintenance tasks.
 maintenance_interval=60s
+#
+# general.cache_update_interval
+#
+# Interval at which Packetfence runs its maintenance tasks.
+cache_update_interval=10s
 #
 # general.memcached
 #
@@ -68,6 +67,10 @@ rogueinterval=10
 # If enabled PacketFence will monitor DHCP option82 location-based information.
 # This feature is only available if the dhcpdetector is activated.
 dhcpoption82logger=disabled
+#
+# network.interfaceSNAT
+# Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)
+interfaceSNAT=
 #
 #
 # This section allows you to configure locally proxied content.  We typically use this to proxy tools like Stinger rather 
@@ -103,7 +106,7 @@ redirtimer=20s
 # trapping.whitelist
 #
 # Comma-delimited list of MAC addresses that are immune to isolation. In 
-# inline enforcement, the firewall is opened for them as if they were 
+# inline level 2 enforcement, the firewall is opened for them as if they were 
 # registered. This "feature" will probably be reworked in the future.
 whitelist=
 #
@@ -177,25 +180,17 @@ button_text=Register
 # The number of registration pages to show to the user
 nbregpages=0
 #
-# registration.gaming_devices_registration
+# registration.device_registration
 #
 # Enable or Disable the ability to register a gaming device using the specific portal page designed to do it
-gaming_devices_registration=disabled
+device_registration=disabled
 #
-# registration.gaming_devices_registration_role
+# registration.device_registration_role
 #
 # The role to assign to gaming devices. If none is specified, the role of the registrant is used.
-gaming_devices_registration_role=
+device_registration_role=
 
 [guests_self_registration]
-#
-# guests_self_registration.mandatory_fields
-#
-# Fields required to be filled in the self-registration form. Valid values are:
-# firstname, lastname, organization, phone, mobileprovider, email, 
-# sponsor_email. Basic validation of minimally required values per guest mode 
-# is provided by default.
-mandatory_fields=firstname,lastname,phone,email
 #
 # guests_self_registration.guest_pid
 #
@@ -419,6 +414,15 @@ traplog=0D
 # example:
 # locationlog=180D
 locationlog=0D
+# expire.httpd_portal
+#
+# Time which you would like to keep logs on location information
+httpd_portal=enabled
+#
+# expire.httpd_admin
+#
+# Please note that this table should not become too big since it 
+httpd_admin=enabled
 
 [services]
 #
@@ -446,6 +450,51 @@ iptables=enabled
 #
 # Should memcached be managed by PacketFence?
 memcached=enabled
+#
+# services.pfbandwidthd
+#
+# Should pfbandwidthd be managed by PacketFence?
+pfbandwidthd=disabled
+#
+# services.httpd_admin
+#
+# Should httpd.admin be started?
+httpd_admin=enabled
+#
+# services.httpd_portal
+#
+# Should httpd.portal be started?
+httpd_portal=enabled
+#
+# services.httpd_webservices
+#
+# Should httpd.webservices be started?
+httpd_webservices=enabled
+#
+# services.httpd_proxy
+#
+# Should httpd.proxy be started?
+httpd_proxy=enabled
+#
+# services.pfsetvlan
+#
+# Should pfsetvlan be managed by PacketFence?
+pfsetvlan=enabled
+#
+# services.snmptrapd
+#
+# Should snmptrapd be managed by PacketFence?
+snmptrapd=enabled
+#
+# services.pfmon
+#
+# Should pfmon be managed by PacketFence?
+pfmon=enabled
+#
+# services.pfdhcplistener
+#
+# Should pfdhcplistener be started?
+pfdhcplistener=enabled
 #
 # services.snort_binary
 #
@@ -486,6 +535,26 @@ arp_binary=/sbin/arp
 # 
 # Location of the memcached binary. Only necessary to change if you are not running the pre-packaged version.
 memcached_binary=/usr/bin/memcached
+# 
+# services.memcached_memory_usage
+# 
+# The maximum of memory that memcached will use
+memcached_memory_usage=64
+# 
+# services.memcached_max_item_size
+# 
+# The maximum of size of the items allowed to be stored
+memcached_max_item_size=1M
+# 
+# services.httpd_mod_qos
+# 
+# Enable mod_qos
+httpd_mod_qos=disabled
+# 
+# services.httpd_mod_qos_maximum_users
+# 
+# The maximum connections per device 
+httpd_mod_qos_maximum_connections_per_device=5
 
 [vlan]
 #
@@ -555,6 +624,27 @@ should_reauth_on_vlan_change = disabled
 # Choose the interface(s) you want to use to enable snat (by default it´s the management interface)
 interfaceSNAT=
 
+# inline.accounting
+#
+# Should we handle accouting data for inline clients?
+# This controls inline accouting tasks in pfmon.
+accounting = disabled
+
+# inline.level3_accounting_session_timeout
+#
+# Accounting 'sessions' created by pfbandwidthd (level 3 traffic only) that haven't been updated for more than this
+# amount of seconds will be considered inactive.
+# This should be higher than the interval at which pfmon runs
+# Defaults to 300 - 5 minutes
+level3_accounting_session_timeout = 300
+
+# inline.level3_accounting_sync_interval
+#
+# Interval at which pfbandwidthd (level 3 traffic only) should dump collected information into the database.
+# This should be lower than the interval at which pfmon runs
+# Defaults to 41 seconds
+level3_accounting_sync_interval = 41
+
 [servicewatch]
 #
 # servicewatch.email
@@ -618,6 +708,21 @@ secure_redirect=enabled
 #
 # After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
 reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan
+#
+# advanced.pfcmd_error_color
+#
+# Color of the error text for pfcmd
+pfcmd_error_color=red
+#
+# advanced.pfcmd_warning_color
+#
+# Color of the warning text for pfcmd
+pfcmd_warning_color=yellow
+#
+# advanced.pfcmd_success_color
+#
+# Color of the success text for pfcmd
+pfcmd_success_color=green
 
 [provisioning]
 #
@@ -637,6 +742,12 @@ ssid = SSID-Hidden
 #
 # Accessible to node that are member of this category
 category = any
+
+#
+# provisioning.certificate
+#
+# Certificate to send to the node
+certificate = 
 
 [billing]
 #
@@ -659,6 +770,16 @@ authorizenet_login =
 #
 # The merchant's unique Transaction Key (Provided by Authorize.net)
 authorizenet_trankey =
+
+mirapay_url = https://ms1.eigendev.com/OFT/EigenOFT_d.php
+
+mirapay_currency = USD
+
+mirapay_terminal_id =
+
+mirapay_terminal_id_group =
+
+mirapay_hash_password =
 
 [node_import]
 #

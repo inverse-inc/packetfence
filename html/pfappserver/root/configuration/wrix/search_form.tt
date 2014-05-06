@@ -1,0 +1,154 @@
+              <form id="search" name="search" method="POST" class="form-inline" style="margin-bottom: 0px" action="[% c.uri_for(c.controller.action_for('search')) %]">
+                <input type="hidden" name="page_num">
+                <input type="hidden" name="per_page">
+                <input type="hidden" name="by">
+                <input type="hidden" name="direction">
+              <div id="all_or_any">
+                      [% match_options = BLOCK %]
+                      <select name="all_or_any" class="input-mini">
+                        <option value="all">[% l('all') %]</option>
+                        <option value="any">[% l('any') %]</option>
+                      </select>
+                      [% END %]
+                      [% l('Match [_1] of the following conditions:', [match_options]) %]
+              </div>
+              <table class="table-dynamic" id="searches">
+                <tbody>
+                  <tr class="hidden dynamic-row">
+                    <td>
+                      <select name="searches.0.name" disabled="disabled" class="span4">
+                        <option value="id">[% l('Id') %]</option>
+                        <option value="Location_Identifier">[% l('Location_Identifier') %]</option>
+                        <option value="Service_Provider_Brand">[% l('Service_Provider_Brand') %]</option>
+                        <option value="Location_Type">[% l('Location_Type') %]</option>
+                        <option value="Sub_Location_Type">[% l('Sub_Location_Type') %]</option>
+                        <option value="English_Location_Name">[% l('English_Location_Name') %]</option>
+                        <option value="Location_Address1">[% l('Location_Address1') %]</option>
+                        <option value="Location_Address2">[% l('Location_Address2') %]</option>
+                        <option value="English_Location_City">[% l('English_Location_City') %]</option>
+                        <option value="Location_Zip_Postal_Code">[% l('Location_Zip_Postal_Code') %]</option>
+                        <option value="Location_State_Province_Name">[% l('Location_State_Province_Name') %]</option>
+                        <option value="Location_Country_Name">[% l('Location_Country_Name') %]</option>
+                        <option value="Location_Phone_Number">[% l('Location_Phone_Number') %]</option>
+                        <option value="SSID_Open_Auth">[% l('SSID_Open_Auth') %]</option>
+                        <option value="SSID_Broadcasted">[% l('SSID_Broadcasted') %]</option>
+                        <option value="WEP_Key">[% l('WEP_Key') %]</option>
+                        <option value="WEP_Key_Entry_Method">[% l('WEP_Key_Entry_Method') %]</option>
+                        <option value="WEP_Key_Size">[% l('WEP_Key_Size') %]</option>
+                        <option value="SSID_1X">[% l('SSID_1X') %]</option>
+                        <option value="SSID_1X_Broadcasted">[% l('SSID_1X_Broadcasted') %]</option>
+                        <option value="Security_Protocol_1X">[% l('Security_Protocol_1X') %]</option>
+                        <option value="Client_Support">[% l('Client_Support') %]</option>
+                        <option value="Restricted_Access">[% l('Restricted_Access') %]</option>
+                        <option value="Location_URL">[% l('Location_URL') %]</option>
+                        <option value="Coverage_Area">[% l('Coverage_Area') %]</option>
+                        <option value="Open_Monday">[% l('Open_Monday') %]</option>
+                        <option value="Open_Tuesday">[% l('Open_Tuesday') %]</option>
+                        <option value="Open_Wednesday">[% l('Open_Wednesday') %]</option>
+                        <option value="Open_Thursday">[% l('Open_Thursday') %]</option>
+                        <option value="Open_Friday">[% l('Open_Friday') %]</option>
+                        <option value="Open_Saturday">[% l('Open_Saturday') %]</option>
+                        <option value="Open_Sunday">[% l('Open_Sunday') %]</option>
+                        <option value="Longitude">[% l('Longitude') %]</option>
+                        <option value="Latitude">[% l('Latitude') %]</option>
+                        <option value="UTC_Timezone">[% l('UTC_Timezone') %]</option>
+                        <option value="MAC_Address">[% l('MAC_Address') %]</option>
+                      </select>
+                      <select name="searches.0.op" disabled="disabled" class="span2" >
+                        <option value="equal">[% l('is') %]</option>
+                        <option value="not_equal">[% l('is not') %]</option>
+                        <option value="starts_with">[% l('starts with') %]</option>
+                        <option value="ends_with">[% l('ends with') %]</option>
+                        <option value="like">[% l('matches') %]</option>
+                      </select>
+                      <input name="searches.0.value" disabled="disabled" type="text" class="span6" placeholder="String...">
+                    </td>
+                    <td class="action">
+                      <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                      <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                    </td>
+                  </tr>
+                  <tr class="dynamic-row">
+                    <td>
+                      <select name="searches.0.name" class="span4">
+                        <option value="id">[% l('Id') %]</option>
+                        <option value="Location_Identifier">[% l('Location_Identifier') %]</option>
+                        <option value="Service_Provider_Brand">[% l('Service_Provider_Brand') %]</option>
+                        <option value="Location_Type">[% l('Location_Type') %]</option>
+                        <option value="Sub_Location_Type">[% l('Sub_Location_Type') %]</option>
+                        <option value="English_Location_Name">[% l('English_Location_Name') %]</option>
+                        <option value="Location_Address1">[% l('Location_Address1') %]</option>
+                        <option value="Location_Address2">[% l('Location_Address2') %]</option>
+                        <option value="English_Location_City">[% l('English_Location_City') %]</option>
+                        <option value="Location_Zip_Postal_Code">[% l('Location_Zip_Postal_Code') %]</option>
+                        <option value="Location_State_Province_Name">[% l('Location_State_Province_Name') %]</option>
+                        <option value="Location_Country_Name">[% l('Location_Country_Name') %]</option>
+                        <option value="Location_Phone_Number">[% l('Location_Phone_Number') %]</option>
+                        <option value="SSID_Open_Auth">[% l('SSID_Open_Auth') %]</option>
+                        <option value="SSID_Broadcasted">[% l('SSID_Broadcasted') %]</option>
+                        <option value="WEP_Key">[% l('WEP_Key') %]</option>
+                        <option value="WEP_Key_Entry_Method">[% l('WEP_Key_Entry_Method') %]</option>
+                        <option value="WEP_Key_Size">[% l('WEP_Key_Size') %]</option>
+                        <option value="SSID_1X">[% l('SSID_1X') %]</option>
+                        <option value="SSID_1X_Broadcasted">[% l('SSID_1X_Broadcasted') %]</option>
+                        <option value="Security_Protocol_1X">[% l('Security_Protocol_1X') %]</option>
+                        <option value="Client_Support">[% l('Client_Support') %]</option>
+                        <option value="Restricted_Access">[% l('Restricted_Access') %]</option>
+                        <option value="Location_URL">[% l('Location_URL') %]</option>
+                        <option value="Coverage_Area">[% l('Coverage_Area') %]</option>
+                        <option value="Open_Monday">[% l('Open_Monday') %]</option>
+                        <option value="Open_Tuesday">[% l('Open_Tuesday') %]</option>
+                        <option value="Open_Wednesday">[% l('Open_Wednesday') %]</option>
+                        <option value="Open_Thursday">[% l('Open_Thursday') %]</option>
+                        <option value="Open_Friday">[% l('Open_Friday') %]</option>
+                        <option value="Open_Saturday">[% l('Open_Saturday') %]</option>
+                        <option value="Open_Sunday">[% l('Open_Sunday') %]</option>
+                        <option value="Longitude">[% l('Longitude') %]</option>
+                        <option value="Latitude">[% l('Latitude') %]</option>
+                        <option value="UTC_Timezone">[% l('UTC_Timezone') %]</option>
+                        <option value="MAC_Address">[% l('MAC_Address') %]</option>
+                      </select>
+                      <select name="searches.0.op" class="span2" >
+                        <option value="equal">[% l('is') %]</option>
+                        <option value="not_equal">[% l('is not') %]</option>
+                        <option value="starts_with">[% l('starts with') %]</option>
+                        <option value="ends_with">[% l('ends with') %]</option>
+                        <option value="like">[% l('matches') %]</option>
+                      </select>
+                      <input name="searches.0.value" type="text" class="span6" placeholder="String...">
+                    </td>
+                    <td class="action">
+                      <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                      <a class="btn-icon hidden" href="#delete"><i class="icon-minus-sign"></i></a>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot id="searchesFooter">
+                  <tr>
+                    <td colspan="2" style="padding-top: 1em">
+                      <div class="btn-group pull-right">
+                        <button class="btn btn-primary" type="submit"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+      </form>
+    <script>
+    $('#searchesEmpty').on('click','[href="#add"]', function(event) {
+        $('#searchesFooter').removeClass('hidden');
+        $('#all_or_any').removeClass('hidden');
+        $('#searches').trigger('addrow');
+        $('#searchesEmpty').addClass('hidden');
+        return false;
+    });
+    $('#searches').on('admin.deleted','tbody', function(event) {
+        var that = $(this);
+        var rows = that.children(':not(.hidden)');
+        if(rows.length == 0 ) {
+            $('#searchesFooter').addClass('hidden');
+            $('#all_or_any').addClass('hidden');
+        }
+        return false;
+    });
+    </script>

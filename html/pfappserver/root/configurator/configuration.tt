@@ -27,21 +27,21 @@
             <div class="control-group">
               <label class="control-label" for="general_domain">Domain</label>
               <div class="controls">
-                <input type="text" class="input" id="general_domain" value="[% config.${"general.domain"} %]">
+                <input type="text" class="input" id="general_domain" value="[% config.${"general.domain"} | html %]">
                 <p class="help-block">Domain name of the PacketFence server.</p>
               </div>
             </div>
             <div class="control-group">
               <label class="control-label" for="general_hostname">Hostname</label>
               <div class="controls">
-                <input type="text" class="input" id="general_hostname" value="[% config.${"general.hostname"} %]">
+                <input type="text" class="input" id="general_hostname" value="[% config.${"general.hostname"} | html %]">
                 <p class="help-block">Hostname of this PacketFence server. This value is concatenated with the above domain name and therefore must be resolvable by devices on your network.</p>
               </div>
             </div>
             <div class="control-group">
               <label class="control-label" for="general_dhcpservers">DHCP Servers</label>
               <div class="controls">
-                <textarea class="input-xlarge" id="general_dhcpservers" rows="3">[% config.${"general.dhcpservers"} %]</textarea>
+                <textarea class="input-xlarge" id="general_dhcpservers" rows="3">[% config.${"general.dhcpservers"} | html %]</textarea>
                 <p class="help-block">Comma-delimited list of DHCP servers in your production environment.</p>
               </div>
             </div>
@@ -49,7 +49,7 @@
             <div class="control-group">
               <label class="control-label" for="alerting_emailaddr"></label>
               <div class="controls">
-                <input type="text" class="input" id="alerting_emailaddr" value="[% config.${"alerting.emailaddr"} %]">
+                <input type="text" class="input" id="alerting_emailaddr" value="[% config.${"alerting.emailaddr"} | html %]">
                 <p class="help-block">Email address to which notifications for rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related messages goes to.</p>
               </div>
             </div>
@@ -62,6 +62,6 @@
         </div>
       </div>
       <footer>
-        <p>&copy; Inverse 2013</p>
+        <p>&copy; Inverse 2014</p>
       </footer>
     </div><!--/container-->

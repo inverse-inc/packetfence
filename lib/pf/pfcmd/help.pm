@@ -45,10 +45,12 @@ sub usage {
     print { $to_stdout ? *STDOUT : *STDERR } << "EOF";
 Usage: $command <command> [options]
 
+cache                        | manage the cache subsystem
 checkup                      | perform a sanity checkup and report any problems or warnings
 class                        | view violation classes
 config                       | query, set, or get help on pf.conf configuration paramaters
 configfiles                  | push or pull configfiles into/from database
+configreload                 | reloads the configuration into the cache
 floatingnetworkdeviceconfig  | query/modify floating network device configuration parameters
 fingerprint                  | view DHCP Fingerprints
 fixpermissions               | fix permissions of files
@@ -70,7 +72,7 @@ nodeaccounting               | RADIUS accounting information
 nodecategory                 | nodecategory manipulation
 nodeuseragent                | View User-Agent information associated to a node
 person                       | person manipulation
-reload                       | rebuild fingerprint or violations tables without restart
+reload                       | rebuild fingerprints without restart
 report                       | current usage reports
 schedule                     | Nessus scan scheduling
 service                      | start/stop/restart and get PF daemon status
@@ -87,6 +89,40 @@ violationconfig              | query/modify violations.conf configuration parame
 
 Please view "$command help <command>" for details on each option
 EOF
+    return 1;
+}
+
+sub help_cache {
+    require pf::CHI;
+    my $namespaces = join("\n  ",@pf::CHI::CACHE_NAMESPACES);
+    print STDERR << "EOT";
+Usage: pfcmd cache <namespace> <options>
+
+Options:
+  list           | list all keys in the cache
+  clear          | clear the cache
+  remove <key>   | remove the key from the cache
+  dump <key>     | dump value the key from the cache
+
+Namespaces:
+  $namespaces
+
+EOT
+    return 1;
+}
+
+sub help_configreload {
+    print STDERR << "EOT";
+Usage: pfcmd configreload [soft|hard]
+
+reloads the configuration
+
+  soft   | reload changed configuration files
+  hard   | reload all configuration files
+
+  defaults to soft
+
+EOT
     return 1;
 }
 
@@ -120,6 +156,7 @@ Services managed by PacketFence:
   httpd.portal     | Apache Captive Portal
   httpd.proxy      | Apache Proxy Interception
   pf               | all services that should be running based on your config
+  pfbandwidthd     | A pf service to monitor bandwidth usages
   pfdetect         | PF snort alert parser
   pfdhcplistener   | PF DHCP monitoring daemon
   pfdns            | DNS daemon
@@ -477,9 +514,9 @@ EOT
 
 sub help_reload {
     print STDERR << "EOT";
-Usage: pfcmd reload <fingerprints|violations>
+Usage: pfcmd reload <fingerprints>
 
-reload fingerprints or violations database tables without restart
+reload fingerprints database tables without restart
 EOT
     return 1;
 }
@@ -633,7 +670,7 @@ pid, category and voip status assigned to the imported nodes can be modified
 in pf.conf.
 
 Supported format:
-- nodes
+- nodes wrix
 
 Nodes import format:
 <MAC>

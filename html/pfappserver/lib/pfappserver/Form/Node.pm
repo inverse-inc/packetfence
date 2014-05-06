@@ -57,6 +57,16 @@ has_field 'unregdate' =>
    type => '+DateTimePicker',
    label => 'Unregistration',
   );
+has_field 'time_balance' =>
+  (
+   type => 'PosInteger',
+   label => 'Remaining Access Time',
+  );
+has_field 'bandwidth_balance' =>
+  (
+   type => 'PosInteger',
+   label => 'Remaining Bandwidth',
+  );
 has_field 'notes' =>
   (
    type => 'TextArea',

@@ -7,7 +7,7 @@ pf::SwitchFactory - Object oriented factory to instantiate objects
 =head1 SYNOPSIS
 
 The pf::SwitchFactory module implements an object oriented factory to
-instantiate objects of type pf::SNMP or subclasses of this. This module
+instantiate objects of type pf::Switch or subclasses of this. This module
 is meant to read in a switches.conf configuration file containing all
 the necessary information needed to actually instantiate the objects.
 
@@ -18,70 +18,20 @@ use warnings;
 
 use Carp;
 use UNIVERSAL::require;
-use Log::Log4perl qw(get_logger);
-
-use pf::config;
+use pf::log;
 use pf::config::cached;
 use pf::util;
 use pf::freeradius;
+use pf::file_paths;
+use Time::HiRes qw(gettimeofday);
+use Benchmark qw(:all);
+use List::Util qw(first);
+use pf::ConfigStore::Switch;
+use pf::CHI;
 
-our ($singleton, %SwitchConfig, $switches_cached_config);
+our ($singleton);
 
-$switches_cached_config  = pf::config::cached->new(
-    -file => $switches_config_file,
-    -allowempty => 1,
-    -default => 'default',
-    -onfilereload => [
-        on_switches_reload => sub  {
-            my ($config, $name) = @_;
-            $config->toHash(\%SwitchConfig);
-            $config->cleanupWhitespace(\%SwitchConfig);
-            foreach my $switch (values %SwitchConfig) {
-                # transforming uplink and inlineTrigger to arrays
-                foreach my $key (qw(uplink inlineTrigger)) {
-                    my $value = $switch->{$key} || "";
-                    $switch->{$key} = [split /\s*,\s*/,$value ];
-                }
-                # transforming vlans and roles to hashes
-                my %merged = ( Vlan => {}, Role => {});
-                foreach my $key ( grep { /(Vlan|Role)$/ } keys %{$switch}) {
-                    next unless my $value = $switch->{$key};
-                    if (my ($type_key,$type) = ($key =~ /^(.+)(Vlan|Role)$/)) {
-                        $merged{$type}{$type_key} = $value;
-                    }
-                }
-                $switch->{roles} = $merged{Role};
-                $switch->{vlans} = $merged{Vlan};
-                $switch->{VoIPEnabled} =  ($switch->{VoIPEnabled} =~ /^\s*(y|yes|true|enabled|1)\s*$/i ? 1 : 0);
-                $switch->{mode} =  lc($switch->{mode});
-                $switch->{'wsUser'} ||= $switch->{'htaccessUser'};
-                $switch->{'wsPwd'}  ||= $switch->{'htaccessPwd'} || '';
-                foreach my $cli_default (qw(EnablePwd Pwd User)) {
-                    $switch->{"cli${cli_default}"}  ||= $switch->{"telnet${cli_default}"};
-                }
-                foreach my $snmpDefault (qw(communityRead communityTrap communityWrite version)) {
-                    my $snmpkey = "SNMP" . ucfirst($snmpDefault);
-                    $switch->{$snmpkey}  ||= $switch->{$snmpDefault};
-                }
-            }
-            $SwitchConfig{'127.0.0.1'} = { %{$SwitchConfig{default}}, type => 'PacketFence', mode => 'production', uplink => ['dynamic'], SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
-            freeradius_populate_nas_config(\%SwitchConfig);
-            $config->cache->set("SwitchConfig",\%SwitchConfig);
-        },
-    ],
-    -oncachereload => [
-        on_cache_switches_reload => sub  {
-            my ($config, $name) = @_;
-            my $data = $config->fromCacheUntainted("SwitchConfig");
-            if($data) {
-                %SwitchConfig = %$data;
-            } else {
-                #if not found then call the onfilereload callback
-                $config->doCallbacks(1,0);
-            }
-        },
-    ]
-);
+our $SWITCH_OVERLAY_CACHE = pf::CHI->new(namespace => 'switch.overlay');
 
 =head1 METHODS
 
@@ -113,10 +63,19 @@ sub new {
     my $logger = get_logger();
     $logger->debug("instantiating new SwitchFactory object");
     my ( $class, %argv ) = @_;
-    return bless \$singleton, $class;
+    my $self;
+    return bless \$self, $class;
 }
 
-=item instantiate - create new pf::SNMP (or subclass) object
+=item hasId
+
+Checks if switch id exists
+
+=cut
+
+sub hasId { exists $SwitchConfig{$_[0]} }
+
+=item instantiate - create new pf::Switch (or subclass) object
 
   $switch = SwitchFactory->instantiate( <switchIdentifier> );
 
@@ -124,19 +83,60 @@ sub new {
 
 sub instantiate {
     my $logger = get_logger();
-    my ( $this, $requestedSwitch ) = @_;
-    if ( !exists $SwitchConfig{$requestedSwitch} ) {
-        $logger->error("ERROR ! Unknown switch $requestedSwitch");
+    my ( $self, $switchId ) = @_;
+    my @requestedSwitches;
+    my $requestedSwitch;
+    my $switch_ip;
+    my $switch_mac;
+    my $switch_config = pf::ConfigStore::Switch->new;
+
+    if(ref($switchId) eq 'HASH') {
+        if(exists $switchId->{switch_mac} && defined $switchId->{switch_mac}) {
+            $switch_mac = $switchId->{switch_mac};
+            push @requestedSwitches,$switch_mac;
+        }
+        if(exists $switchId->{switch_ip} && defined $switchId->{switch_ip}) {
+            $switch_ip = $switchId->{switch_ip};
+            push @requestedSwitches,$switch_ip;
+        }
+    } else {
+        @requestedSwitches = ($switchId);
+        if(valid_ip($switchId)) {
+            $switch_ip = $switchId;
+        } elsif (valid_mac($switchId)) {
+            $switch_mac = $switchId;
+        }
+    }
+
+    if($switch_config->hasId($switch_mac) && ref($switchId) eq 'HASH') {
+        my $switch = $SWITCH_OVERLAY_CACHE->get($switch_mac) || {};
+        my $controllerIp = $switchId->{controllerIp};
+        if($controllerIp && (  !defined $switch->{controllerIp} || $controllerIp ne $switch->{controllerIp} )) {
+#            $switch_overlay_config->remove($switch->{controllerIp}) if defined $switch->{controllerIp};
+            $SWITCH_OVERLAY_CACHE->set(
+                $switch_mac,
+                {
+                    controllerIp => $controllerIp,
+                    ip => $switch_ip
+                }
+            );
+        }
+    }
+
+    $requestedSwitch = first {exists $SwitchConfig{$_} } @requestedSwitches;
+    unless ($requestedSwitch) {
+        $logger->error("WARNING ! Unknown switch(es) ". join(" ",@requestedSwitches));
         return 0;
     }
     my $switch_data = $SwitchConfig{$requestedSwitch};
 
     # find the module to instantiate
+    my $switchOverlay = $SWITCH_OVERLAY_CACHE->get($requestedSwitch) || {};
     my $type;
     if ($requestedSwitch ne 'default') {
-        $type = "pf::SNMP::" . $switch_data->{'type'};
+        $type = "pf::Switch::" . $switch_data->{'type'};
     } else {
-        $type = "pf::SNMP";
+        $type = "pf::Switch";
     }
     $type = untaint_chain($type);
     # load the module to instantiate
@@ -148,7 +148,14 @@ sub instantiate {
     }
 
     $logger->debug("creating new $type object");
-    return $type->new( 'ip' => $requestedSwitch, %$switch_data);
+    return $type->new(
+         id => $requestedSwitch,
+         ip => $switch_ip,
+         switchIp => $switch_ip,
+         switchMac => $switch_mac,
+         %$switch_data,
+         %$switchOverlay
+    );
 }
 
 sub config {

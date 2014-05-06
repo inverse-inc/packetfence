@@ -38,7 +38,7 @@ Sample getNormalVlan, see pf::vlan for getNormalVlan interface description
 =cut
 
 #sub getNormalVlan {
-#    #$switch is the switch object (pf::SNMP)
+#    #$switch is the switch object (pf::Switch)
 #    #$ifIndex is the ifIndex of the computer connected to
 #    #$mac is the mac connected
 #    #$node_info is the node info hashref (result of pf::node's node_attributes on $mac)

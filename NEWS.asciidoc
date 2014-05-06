@@ -11,22 +11,100 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.2.0 released on 2014-05-06
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* New 'Apply violation' bulk action
+* The same bulk actions for nodes are now available for users
+* New WRIX data management
+* Added PacketFence provisioning agent for Android
+* Support Hotspot for Cisco WLC and Aruba IAP
+* Support for Huawei AC6605 wireless controller
+* Support for Enterasys V2110 wireless controller
+* Support for Juniper EX2200 and EX4200 switches
+* Inline layer 3 support
+* New pfbandwidthd daemon for inline layer 3 accounting
+* New violation type based on time usage from RADIUS accounting information
+* New violation type based on bandwidth usage from pfbandwidthd information
+* New Mirapay online payment as a billing option
+* Billing tiers can now be defined with a real usage duration (instead of simply a timeout)
+* Billing: A confirmation email is sent when purchasing a tier
+* New status page with options to extend the network access (when billing is enabled with access duration)
+  and to unregister any node associated to the current user
+* Integration of mod_qos in the Apache configuration of the captive portal
+* New pfcmd "cache" command
+* New pfcmd "configreload" command
+
+Enhancements
+++++++++++++
+
+* Mandatory fields during registration are now configured per portal profile
+* Expanded fields for person field
+* Allow pfcmd error/warning/success messages colors to be configurable
+* Allow rules on username for null authentication sources
+* Landing page of Web admin interface now depends on the user's access rights
+* Reevaluate access when changing the role of multiple nodes (#1757)
+* Each portal profile can now use its own set of locales
+* Added a new URI filter for portal profiles
+* Switches configuration page is now paginated
+* LLDP support for 3Com 4000 Series
+* Multiple DNS server in the network configuration
+* Allow alias interface as captive portal
+* MAC Authentication support for Enterasys D2 switch
+* Added support for JSON-RPC and msgpack RPC over HTTP for webservices
+* Made msgpack the default RPC for RADIUS
+* Improved performance of webservices by preloading Perl modules
+* Regexp filter for LDAP source is now case-insensitive
+* Improved maintenance database script
+* Preserve and restore the URL fragment when the web session expires in Web admin (#1780)
+* Logging is now separated and configurable for each service
+* Added missing 'redirect_url' paramater when editing a violation in the Web admin
+* Complete rewrite of captive portal as a Catalyst application
+* Added a section documenting eduroam support to the Admin guide
+* Controller IP address can be determined dynamically
+* Added a file backing for the cache to decrease cache misses
+* Allow advanced search of nodes by OS type (#1790)
+* The PF RPC client can be configured in the conf/radiusd/radiusd.conf
+* Added PacketFence RADIUS dictionary
+
+Bug Fixes
++++++++++
+
+* Fixed retrieval of ifIndex in Cisco Catalyst 2950 module
+* Fixed Snort and Suricata services management
+* Fixed issue when saving a users search in Web admin
+* Fixed JavaScript error with IE8 on Web admin users page
+* Fixed Web admin access restrictions for users and nodes creation
+* Fixed SQL query of connection types report in Web admin
+* Fixed blank page with WISPr on OS X
+* Fixed nodes simple search by IP address
+* Fixed access reevaluation when changing the status of a pending node
+* Fixed network access for users with no "set role" action (#1778)
+* Fixed conversion of wildcards to regular expressions in domains passthroughs
+* Fixed display of last IP address of nodes when end_time is in the future
+* Fixed XSS issues in Web admin
+* Fixed extractSsid for Cisco Aironet and Cisco Aironet WDS
+
 Version 4.1.0 released on 2013-12-11
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
 
-* Portal profiles can be filtered by switches
-* Proxy interception
-* New pfcmd command fixpermissions
-* Added a "Null" authenication source
+* Portal profiles can now be filtered by switches
+* Proxy interception support
+* New pfcmd "fixpermissions" command
+* Added a "Null" authentication source for simple "Click to connect" portals
 * Displayed columns of nodes are now customizable
-* Create a single node or import multiple nodes from a CSV file from the Web admin
+* Create a single node or import multiple nodes from a CSV file from the Web admin interface
 * LDAP authentication sources can now filter by group membership using a second LDAP query
 * Extended definition of access durations
-* FreeRADIUS does not need to be restarted after adding a switch
-* New customizable ACLs for Web admin interface
+* FreeRADIUS no longer needs to be restarted after adding a switch
+* New customizable ACLs for the Web admin interface
+* Force10 switches support
 
 Enhancements
 ++++++++++++

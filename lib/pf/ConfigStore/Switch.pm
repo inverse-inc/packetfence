@@ -1,4 +1,5 @@
 package pf::ConfigStore::Switch;
+
 =head1 NAME
 
 pf::ConfigStore::Switch add documentation
@@ -13,13 +14,100 @@ pf::ConfigStore::Switch;
 
 use Moo;
 use namespace::autoclean;
-use pf::file_paths;
 use pf::log;
+use pf::file_paths;
+use pf::util;
 use HTTP::Status qw(:constants is_error is_success);
+use List::MoreUtils qw(part);
 
-extends 'pf::ConfigStore';
+extends qw(pf::ConfigStore Exporter);
 
-sub configFile { $pf::file_paths::switches_config_file };
+our ( $switches_cached_config, %SwitchConfig );
+our @EXPORT = qw(%SwitchConfig);
+use pf::freeradius;
+
+$switches_cached_config = pf::config::cached->new(
+    -file         => $switches_config_file,
+    -allowempty   => 1,
+    -default      => 'default',
+    -onfilereload => [
+        on_switches_reload => sub {
+            my ( $config, $name ) = @_;
+            populateSwitchConfig( $config, $name );
+        },
+    ],
+    -onfilereloadonce => [
+        reload_switches_conf => sub {
+            my ( $config, $name ) = @_;
+            freeradius_populate_nas_config( \%SwitchConfig, $config->GetLastModTimestamp );
+        }
+    ],
+    -oncachereload => [
+        on_cached_overlay_reload => sub {
+            my ( $config, $name ) = @_;
+            my $data = $config->fromCacheForDataUntainted("SwitchConfig");
+            if($data) {
+                %SwitchConfig = %$data;
+            } else {
+                #if not found then repopulate switch
+                $config->_callFileReloadCallbacks();
+            }
+        },
+    ]
+);
+
+sub populateSwitchConfig {
+    my ( $config, $name ) = @_;
+    $config->toHash( \%SwitchConfig );
+    $config->cleanupWhitespace( \%SwitchConfig );
+    foreach my $switch ( values %SwitchConfig ) {
+
+        # transforming uplink and inlineTrigger to arrays
+        foreach my $key (qw(uplink inlineTrigger)) {
+            my $value = $switch->{$key} || "";
+            $switch->{$key} = [ split /\s*,\s*/, $value ];
+        }
+
+        # transforming vlans and roles to hashes
+        my %merged = ( Vlan => {}, Role => {} );
+        foreach my $key ( grep {/(Vlan|Role)$/} keys %{$switch} ) {
+            next unless my $value = $switch->{$key};
+            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role)$/ ) ) {
+                $merged{$type}{$type_key} = $value;
+            }
+        }
+        $switch->{roles}       = $merged{Role};
+        $switch->{vlans}       = $merged{Vlan};
+        $switch->{VoIPEnabled} = (
+            $switch->{VoIPEnabled} =~ /^\s*(y|yes|true|enabled|1)\s*$/i
+            ? 1
+            : 0
+        );
+        $switch->{mode} = lc( $switch->{mode} );
+        $switch->{'wsUser'} ||= $switch->{'htaccessUser'};
+        $switch->{'wsPwd'} ||= $switch->{'htaccessPwd'} || '';
+        foreach my $cli_default (qw(EnablePwd Pwd User)) {
+            $switch->{"cli${cli_default}"}
+              ||= $switch->{"telnet${cli_default}"};
+        }
+        foreach my $snmpDefault (
+            qw(communityRead communityTrap communityWrite version)) {
+            my $snmpkey = "SNMP" . ucfirst($snmpDefault);
+            $switch->{$snmpkey} ||= $switch->{$snmpDefault};
+        }
+    }
+    $SwitchConfig{'127.0.0.1'} = {
+        %{ $SwitchConfig{default} },
+        type              => 'PacketFence',
+        mode              => 'production',
+        uplink            => ['dynamic'],
+        SNMPVersionTrap   => '1',
+        SNMPCommunityTrap => 'public'
+    };
+    $config->cacheForData->set( "SwitchConfig", \%SwitchConfig );
+}
+
+sub _buildCachedConfig { $switches_cached_config }
 
 =head2 Methods
 
@@ -32,23 +120,24 @@ Clean up switch data
 =cut
 
 sub cleanupAfterRead {
-    my ( $self,$id, $switch ) = @_;
+    my ( $self, $id, $switch ) = @_;
     my $logger = get_logger();
 
-    if ($switch->{uplink} && $switch->{uplink} eq 'dynamic') {
+    if ( $switch->{uplink} && $switch->{uplink} eq 'dynamic' ) {
         $switch->{uplink_dynamic} = 'dynamic';
-        $switch->{uplink} = undef;
+        $switch->{uplink}         = undef;
     }
-    $self->expand_list($switch,'inlineTrigger');
-    if (exists $switch->{inlineTrigger}) {
-        $switch->{inlineTrigger} = [ map { _splitInlineTrigger($_) } @{$switch->{inlineTrigger}}  ];
+    $self->expand_list( $switch, 'inlineTrigger' );
+    if ( exists $switch->{inlineTrigger} ) {
+        $switch->{inlineTrigger} =
+          [ map { _splitInlineTrigger($_) } @{ $switch->{inlineTrigger} } ];
     }
 }
 
 sub _splitInlineTrigger {
     my ($trigger) = @_;
     my ( $type, $value ) = split( /::/, $trigger );
-    return { type=> $type,value => $value };
+    return { type => $type, value => $value };
 }
 
 =item cleanupBeforeCommit
@@ -60,16 +149,20 @@ Clean data before update or creating
 sub cleanupBeforeCommit {
     my ( $self, $id, $switch ) = @_;
 
-    if ($switch->{uplink_dynamic}) {
-        $switch->{uplink} = 'dynamic';
+    if ( $switch->{uplink_dynamic} ) {
+        $switch->{uplink}         = 'dynamic';
         $switch->{uplink_dynamic} = undef;
     }
-    if (exists $switch->{inlineTrigger}) {
+    if ( exists $switch->{inlineTrigger} ) {
+
         # Build string definition for inline triggers (see pf::vlan::isInlineTrigger)
         my $has_always;
-        my @triggers = map { $has_always = 1 if $_->{type} eq 'always';  $_->{type} . '::' . ($_->{value} || '1') } @{$switch->{inlineTrigger}};
+        my @triggers = map {
+            $has_always = 1 if $_->{type} eq 'always';
+            $_->{type} . '::' . ( $_->{value} || '1' )
+        } @{ $switch->{inlineTrigger} };
         @triggers = ('always::1') if $has_always;
-        $switch->{inlineTrigger} = join(',', @triggers);
+        $switch->{inlineTrigger} = join( ',', @triggers );
     }
 }
 
@@ -80,15 +173,29 @@ Delete an existing item
 =cut
 
 sub remove {
-    my ($self,$id) = @_;
-    if( defined $id && $id eq 'default') {
+    my ( $self, $id ) = @_;
+    if ( defined $id && $id eq 'default' ) {
         return undef;
     }
     return $self->SUPER::remove($id);
 }
 
-__PACKAGE__->meta->make_immutable;
+before rewriteConfig => sub {
+    my ($self) = @_;
+    my $config = $self->cachedConfig;
+    #partioning my their ids
+    # default which is also first
+    # ip address which is next
+    # everything else
+    my ($default,$ips,$rest) = part { $_ eq 'default' ? 0  : valid_ip($_) ? 1 : 2 } $config->Sections;
+    my @newSections;
+    push @newSections, @$default if defined $default;
+    push @newSections, sort_ip(@$ips) if defined $ips;
+    push @newSections, sort @$rest if defined $rest;
+    $config->{sects} = \@newSections;
+};
 
+__PACKAGE__->meta->make_immutable;
 
 =back
 

@@ -2,6 +2,7 @@
 *.swp
 *.orig
 *.local
+*.lockone
 .#*
 
 # Configuration not in git
@@ -10,6 +11,8 @@ conf/httpd.conf
 conf/named.conf
 conf/pf.conf
 conf/*.lock
+conf/*.lockonce
+conf/log.conf.d/*.conf
 conf/nessus/
 conf/currently-at
 bin/pfcmd
@@ -21,6 +24,39 @@ db/pf-schema.sql
 raddb/eap.conf
 raddb/radiusd.conf
 raddb/sql.conf
+conf/templates/*
+conf/adminroles.conf
+conf/authentication.conf
+conf/floating_network_device.conf
+conf/guest-managers.conf
+conf/log.conf
+conf/chi.conf
+conf/nessus/remotescan.nessus
+conf/networks.conf
+conf/radiusd/eap.conf
+conf/radiusd/radiusd.conf
+conf/radiusd/sql.conf
+conf/snort/classification.config
+conf/snort/local.rules
+conf/snort/reference.config
+conf/switches.conf
+conf/httpd.conf.d/ssl-certificates.conf
+conf/iptables.conf
+conf/listener.msg
+conf/mdm.conf
+conf/popup.msg
+conf/profiles.conf
+conf/snmptrapd.conf
+conf/snort.conf
+conf/snort.conf.pre_snort-2.8
+conf/suricata.yaml
+conf/ui-global.conf
+conf/violations.conf
+html/captive-portal/captive_portal.conf
+conf/pfdetect_remote.conf
+conf/pfarp_remote.conf
+conf/allowed-gaming-oui.txt
+
 
 # translations
 conf/locale/*/*/*.mo

@@ -17,3 +17,13 @@ UPDATE temporary_password SET access_level = 'NONE' WHERE access_level = '0';
 --
 
 ALTER TABLE `node` ADD `autoreg` enum('no','yes') NOT NULL DEFAULT 'no' AFTER voip;
+
+--
+-- Alter for dynamic controller
+--
+
+ALTER TABLE locationlog 
+    ADD `switch_ip` varchar(17) DEFAULT NULL,
+    ADD `switch_mac` varchar(17) DEFAULT NULL;
+
+UPDATE locationlog SET switch_ip = switch;

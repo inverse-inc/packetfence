@@ -24,6 +24,10 @@ use pf::Authentication::constants;
 use pf::temporary_password;
 use pf::error qw(is_error is_success);
 use pf::person;
+use pf::log;
+use pf::node;
+use pf::violation;
+use pf::enforcement qw(reevaluate_access);
 use pf::util qw(get_translatable_time);
 
 
@@ -348,8 +352,7 @@ sub createSingle {
         # Add the registration window to the actions
         push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
         push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-        $result = pf::temporary_password::generate($pid,
-                                                   $data->{valid_from},
+        $result = pf::temporary_password::generate($pid, 
                                                    $data->{actions},
                                                    $data->{password});
         if ($result) {
@@ -400,8 +403,7 @@ sub createMultiple {
             # Add the registration window to the actions
             push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
             push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-            $result = pf::temporary_password::generate($pid,
-                                                       $data->{valid_from},
+            $result = pf::temporary_password::generate($pid, 
                                                        $data->{actions});
             if ($result) {
                 push(@users, { pid => $pid, email => $data->{email}, password => $result });
@@ -491,8 +493,7 @@ sub importCSV {
                 # The registration window is add to the actions
                 push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
                 push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-                $result = pf::temporary_password::generate($pid,
-                                                           $data->{valid_from},
+                $result = pf::temporary_password::generate($pid, 
                                                            $data->{actions},
                                                            $row->[$index{'c_password'}]);
                 push(@users, { pid => $pid, email => $person{email}, password => $result });
@@ -517,6 +518,92 @@ sub importCSV {
     $logger->info("CSV file ($filename) import $count users, skip $skipped users. Sponsored by $user");
 
     return ($status, $message);
+}
+
+=head2 bulkRegister
+
+=cut
+
+sub bulkRegister {
+    my ($self,@ids) = @_;
+    my $count = 0;
+    my ($status,$status_msg);
+    foreach my $node (map {person_nodes($_)} @ids  ) {
+        if($node->{status} eq $pf::node::STATUS_UNREGISTERED) {
+            my $mac = $node->{mac};
+            if(node_register($mac, $node->{pid}, %{$node})) {
+                reevaluate_access($mac, "node_modify");
+                $count++;
+            }
+        }
+    }
+    return ($STATUS::OK, ["[_1] node(s) were registered.",$count]);
+}
+
+=head2 bulkDeregister
+
+=cut
+
+sub bulkDeregister {
+    my ($self,@ids) = @_;
+    my $count = 0;
+    foreach my $node (map {person_nodes($_)} @ids  ) {
+        if($node->{status} eq $pf::node::STATUS_REGISTERED) {
+            my $mac = $node->{mac};
+            if(node_deregister($mac, $node->{pid}, %{$node})) {
+                reevaluate_access($mac, "node_modify");
+                $count++;
+            }
+        }
+    }
+    return ($STATUS::OK, ["[_1] node(s) were deregistered.",$count]);
+}
+
+=head2 bulkApplyRole
+
+=cut
+
+sub bulkApplyRole {
+    my ($self,$role,@ids) = @_;
+    my $count = 0;
+    foreach my $node (map {person_nodes($_)} @ids  ) {
+        $node->{category_id} = $role;
+        $count++ if node_modify($node->{mac}, %{$node});
+    }
+    return ($STATUS::OK, ["Role was changed for [_1] node(s)",$count]);
+}
+
+=head2 bulkApplyViolation
+
+=cut
+
+sub bulkApplyViolation {
+    my ($self, $violation_id, @ids) = @_;
+    my $count = 0;
+    my $logger = get_logger;
+    foreach my $mac (map {$_->{mac}} map {person_nodes($_)} @ids  ) {
+        my ($last_id) = violation_add( $mac, $violation_id);
+        $count++ if $last_id > 0;;
+    }
+    return ($STATUS::OK, ["[_1] violation(s) were opened.",$count]);
+}
+
+=head2 closeViolations
+
+=cut
+
+sub bulkCloseViolations {
+    my ($self, @ids) = @_;
+    my $count = 0;
+    foreach my $mac (map {$_->{mac}} map {person_nodes($_)} @ids  ) {
+        foreach my $violation (violation_view_open_desc($mac)) {
+            if (violation_force_close( $mac, $violation->{vid})) {
+                pf::enforcement::reevaluate_access($mac, 'manage_vclose');
+                $count++;
+            }
+        }
+    }
+    return ($STATUS::OK, ["[_1] violation(s) were closed.",$count]);
 }
 
 =over

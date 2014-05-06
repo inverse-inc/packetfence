@@ -63,7 +63,7 @@ our (
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
-    $portscan_sid, $thread, $default_pid, $fqdn,
+    $thread, $default_pid, $fqdn,
     %CAPTIVE_PORTAL,
 
 );
@@ -84,10 +84,13 @@ BEGIN {
         %Config
         %ConfigNetworks %ConfigOAuth
         %ConfigFloatingDevices
-        $portscan_sid $WIPS_VID @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
+        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC @VALID_TRIGGER_TYPES
+        $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
+        $WIPS_VID $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
+        $NET_TYPE_INLINE $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3
         $WIRELESS $WIRED $EAP
         $WEB_ADMIN_NONE $WEB_ADMIN_ALL
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
@@ -100,7 +103,7 @@ BEGIN {
         $HTTP $HTTPS
         normalize_time $TIME_MODIFIER_RE $ACCT_TIME_MODIFIER_RE $DEADLINE_UNIT access_duration
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
-        is_vlan_enforcement_enabled is_inline_enforcement_enabled
+        is_vlan_enforcement_enabled is_inline_enforcement_enabled is_type_inline
         is_in_list
         $LOG4PERL_RELOAD_TIMER
         init_config
@@ -129,22 +132,37 @@ Readonly::Scalar our $TRUE => 1;
 Readonly::Scalar our $YES => 'yes';
 Readonly::Scalar our $NO => 'no';
 
+# Violation trigger types
+Readonly::Scalar our $TRIGGER_TYPE_ACCOUNTING => 'accounting';
+Readonly::Scalar our $TRIGGER_TYPE_DETECT => 'detect';
+Readonly::Scalar our $TRIGGER_TYPE_INTERNAL => 'internal';
+Readonly::Scalar our $TRIGGER_TYPE_MAC => 'mac';
+Readonly::Scalar our $TRIGGER_TYPE_NESSUS => 'nessus';
+Readonly::Scalar our $TRIGGER_TYPE_OPENVAS => 'openvas';
+Readonly::Scalar our $TRIGGER_TYPE_OS => 'os';
+Readonly::Scalar our $TRIGGER_TYPE_SOH => 'soh';
+Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
+Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
 
 Readonly our @VALID_TRIGGER_TYPES =>
   (
-   "accounting",
-   "detect",
-   "internal",
-   "mac",
-   "nessus",
-   "openvas",
-   "os",
-   "soh",
-   "useragent",
-   "vendormac"
+   $TRIGGER_TYPE_ACCOUNTING,
+   $TRIGGER_TYPE_DETECT,
+   $TRIGGER_TYPE_INTERNAL,
+   $TRIGGER_TYPE_MAC,
+   $TRIGGER_TYPE_NESSUS,
+   $TRIGGER_TYPE_OPENVAS,
+   $TRIGGER_TYPE_OS,
+   $TRIGGER_TYPE_SOH,
+   $TRIGGER_TYPE_USERAGENT,
+   $TRIGGER_TYPE_VENDORMAC
   );
 
-$portscan_sid = 1200003;
+# Accounting trigger policies
+Readonly::Scalar our $ACCOUNTING_POLICY_TIME => 'TimeExpired';
+Readonly::Scalar our $ACCOUNTING_POLICY_BANDWIDTH => 'BandwidthExpired';
+
+
 $default_pid  = "admin";
 
 Readonly our $WIPS_VID => '1100020';
@@ -158,11 +176,20 @@ Readonly our $IF_INTERNAL => 'internal';
 # Interface enforcement techniques
 Readonly our $IF_ENFORCEMENT_VLAN => 'vlan';
 Readonly our $IF_ENFORCEMENT_INLINE => 'inline';
+Readonly our $IF_ENFORCEMENT_INLINE_L2 => 'inlinel2';
+Readonly our $IF_ENFORCEMENT_INLINE_L3 => 'inlinel3';
 
-# Network configuration parameters
+# Network configuration parameters.
 Readonly our $NET_TYPE_VLAN_REG => 'vlan-registration';
 Readonly our $NET_TYPE_VLAN_ISOL => 'vlan-isolation';
 Readonly our $NET_TYPE_INLINE => 'inline';
+Readonly our $NET_TYPE_INLINE_L2 => 'inlinel2';
+Readonly our $NET_TYPE_INLINE_L3 => 'inlinel3';
+Readonly our %NET_INLINE_TYPES =>  (
+    $NET_TYPE_INLINE    => undef,
+    $NET_TYPE_INLINE_L2 => undef,
+    $NET_TYPE_INLINE_L3 => undef,
+);
 
 # connection type constants
 Readonly our $WIRELESS_802_1X   => 0b110000001;
@@ -342,8 +369,6 @@ my $cache_vlan_enforcement_enabled;
 my $cache_inline_enforcement_enabled;
 
 # Accepted time modifier values
-# if you change these, make sure to change:
-# html/admin/common/helpers.inc's get_time_units_for_dropdown and get_time_regexp()
 our $TIME_MODIFIER_RE = qr/[smhDWMY]/;
 our $ACCT_TIME_MODIFIER_RE = qr/[DWMY]/;
 our $DEADLINE_UNIT = qr/[RF]/;
@@ -438,7 +463,7 @@ sub readPfDocConfigFiles {
                     my $description = $doc_data->{description};
                     $description =~ s/</&lt;/g; # convert < to HTML entity
                     $description =~ s/>/&gt;/g; # convert > to HTML entity
-                    $description =~ s/(\S*(&lt;|&gt;)\S*)\b/<code>$1<\/code>/g; # enclose strings that contain < or >
+                    $description =~ s/(\S*(&lt;|&gt;)\S*)(?=[\s,\.])/<code>$1<\/code>/g; # enclose strings that contain < or >
                     $description =~ s/(\S+\.(html|tt|pm|pl|txt))\b(?!<\/code>)/<code>$1<\/code>/g; # enclose strings that ends with .html, .tt, etc
                     $description =~ s/^ \* (.+?)$/<li>$1<\/li>/mg; # create list elements for lines beginning with " * "
                     $description =~ s/(<li>.*<\/li>)/<ul>$1<\/ul>/s; # create lists from preceding substitution
@@ -461,11 +486,25 @@ sub readPfConfigFiles {
     # load default and override by local config (most common case)
     $cached_pf_default_config = pf::config::cached->new(
                 -file => $default_config_file,
-                -onreload => [ 'reload_pf_default_config' =>  sub {
-                    my ($config) = @_;
-                    $config->toHash(\%Default_Config);
-                    $config->cleanupWhitespace(\%Default_Config);
-                }]
+                -onfilereload => [
+                    onfile_pf_defaults_reload => sub {
+                        my ( $config, $name ) = @_;
+                        $config->toHash(\%Default_Config);
+                        $config->cleanupWhitespace(\%Default_Config);
+                        $config->cacheForData->set( "Default_Config", \%Default_Config );
+                    },
+                ],
+                -oncachereload => [
+                    oncache_pf_defaults_reload => sub {
+                        my ( $config, $name ) = @_;
+                        my $data = $config->fromCacheForDataUntainted("Default_Config");
+                        if($data) {
+                            %Default_Config = %$data;
+                        } else {
+                            $config->_callFileReloadCallbacks();
+                        }
+                    },
+                ],
     );
 
     if ( -e $default_config_file || -e $config_file ) {
@@ -473,12 +512,29 @@ sub readPfConfigFiles {
             -file   => $config_file,
             -import => $cached_pf_default_config,
             -allowempty => 1,
-            -onreload => [ 'reload_pf_config' =>  sub {
+            -onfilereload => [
+                onfile_pf_reload => sub {
+                    my ( $config, $name ) = @_;
+                    $config->toHash(\%Config);
+                    $config->cleanupWhitespace(\%Config);
+                    $config->cacheForData->set( "Config", \%Config );
+                },
+            ],
+            -oncachereload => [
+                oncache_pf_defaults_reload => sub {
+                    my ( $config, $name ) = @_;
+                    my $data = $config->fromCacheForDataUntainted("Config");
+                    if($data) {
+                        %Config = %$data;
+                    } else {
+                        $config->_callFileReloadCallbacks();
+                    }
+                },
+            ],
+            -onpostreload => [ 'reload_pf_config' =>  sub {
                 my ($config) = @_;
-                $config->toHash(\%Config);
-                $config->cleanupWhitespace(\%Config);
                 #clearing older interfaces infor
-                $monitor_int = $management_network = undef;
+                $monitor_int = $management_network = '';
                 @listen_ints = @dhcplistener_ints = @ha_ints =
                   @internal_nets = @external_nets =
                   @inline_enforcement_nets = @vlan_enforcement_nets = ();
@@ -533,13 +589,15 @@ sub readPfConfigFiles {
                         if ( $type eq 'internal' ) {
                             push @internal_nets, $int_obj;
                             if ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
-                              push @vlan_enforcement_nets, $int_obj;
-                            } elsif ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) {
+                                push @vlan_enforcement_nets, $int_obj;
+                            } elsif (is_type_inline($Config{$interface}{'enforcement'})) {
                                 push @inline_enforcement_nets, $int_obj;
+                            }
+                            if ($int =~ m/(\w+):\d+/) {
+                                $int = $1;
                             }
                             push @listen_ints, $int if ( $int !~ /:\d+$/ );
                         } elsif ( $type eq 'managed' || $type eq 'management' ) {
-
                             $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
                             $management_network = $int_obj;
                             # adding management to dhcp listeners by default (if it's not already there)
@@ -565,7 +623,8 @@ sub readPfConfigFiles {
                             crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
                             crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                             ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
-                            ocsp.verisign.com ctldl.windowsupdate.com
+                            ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
+                            www.microsoft.com
                         )
                     ];
                 } else {
@@ -575,7 +634,8 @@ sub readPfConfigFiles {
                             crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
                             crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                             ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
-                            ocsp.verisign.com ctldl.windowsupdate.com
+                            ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
+                            www.microsoft.com
                         )
                     ];
                 }
@@ -597,16 +657,20 @@ sub readProfileConfigFile {
     $cached_profiles_config = pf::config::cached->new(
             -file => $profiles_config_file,
             -allowempty => 1,
+            -default => 'default',
             -onreload => [ 'reload_profile_config' => sub {
                 my ($config,$name) = @_;
                 $config->toHash(\%Profiles_Config);
                 $config->cleanupWhitespace(\%Profiles_Config);
+                my $default_description = $Profiles_Config{'default'}{'description'};
                 while (my ($profile_id, $profile) = each %Profiles_Config) {
-                    $profile->{'filter'} = [split(/\s*,\s*/, $profile->{'filter'} || "")];
+                    $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
+                    foreach my $field (qw(locale mandatory_fields sources filter) ) {
+                        $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
+                    }
                     foreach my $filter (@{$profile->{'filter'}}) {
                         $Profile_Filters{$filter} = $profile_id;
                     }
-                    $profile->{'sources'} = [split(/\s*,\s*/, $profile->{'sources'} || "")];
                 }
             }]
     );
@@ -666,7 +730,7 @@ sub readFloatingNetworkDeviceFile {
             $config->toHash(\%ConfigFloatingDevices);
             $config->cleanupWhitespace(\%ConfigFloatingDevices);
             foreach my $section ( keys %ConfigFloatingDevices) {
-                if ($ConfigFloatingDevices{$section}{"trunkPort"} =~ /^\s*(y|yes|true|enabled|1)\s*$/i) {
+                if (defined($ConfigFloatingDevices{$section}{"trunkPort"}) && $ConfigFloatingDevices{$section}{"trunkPort"} =~ /^\s*(y|yes|true|enabled|1)\s*$/i) {
                     $ConfigFloatingDevices{$section}{"trunkPort"} = '1';
                 } else {
                     $ConfigFloatingDevices{$section}{"trunkPort"} = '0';
@@ -680,6 +744,8 @@ sub readFloatingNetworkDeviceFile {
 }
 
 =item normalize_time - formats date
+
+Returns the number of seconds represented by the time period.
 
 Months and years are approximate. Do not use for anything serious about time.
 
@@ -891,7 +957,7 @@ sub is_inline_enforcement_enabled {
     foreach my $interface (@internal_nets) {
         my $device = "interface " . $interface->tag("int");
 
-        if (defined($Config{$device}{'enforcement'}) && $Config{$device}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) {
+        if (defined($Config{$device}{'enforcement'}) && is_type_inline($Config{$device}{'enforcement'})) {
             # cache the answer for future access
             $cache_inline_enforcement_enabled = $TRUE;
             return $TRUE;
@@ -902,6 +968,15 @@ sub is_inline_enforcement_enabled {
     # cache the answer for future access
     $cache_inline_enforcement_enabled = $FALSE;
     return $FALSE;
+}
+
+=item is_type_inline
+
+=cut
+
+sub is_type_inline {
+    my ($type) = @_;
+    return exists $NET_INLINE_TYPES{$type};
 }
 
 =item get_newtork_type
@@ -916,29 +991,28 @@ Returns undef on unrecognized types.
 sub get_network_type {
     my ($network) = @_;
 
-
-    if (!defined($ConfigNetworks{$network}{'type'})) {
+    my $type = $ConfigNetworks{$network}{'type'};
+    if (!defined($type)) {
         # not defined
         return;
-
-    } elsif ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_VLAN_REG$/i) {
+    } elsif ($type =~ /^$NET_TYPE_VLAN_REG$/i) {
         # vlan-registration
         return $NET_TYPE_VLAN_REG;
 
-    } elsif ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_VLAN_ISOL$/i) {
+    } elsif ($type =~ /^$NET_TYPE_VLAN_ISOL$/i) {
         # vlan-isolation
         return $NET_TYPE_VLAN_ISOL;
 
-    } elsif ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE$/i) {
+    } elsif (is_type_inline($type)) {
         # inline
-        return $NET_TYPE_INLINE;;
+        return $NET_TYPE_INLINE;
 
-    } elsif ($ConfigNetworks{$network}{'type'} =~ /^registration$/i) {
+    } elsif ($type =~ /^registration$/i) {
         # deprecated registration
         $logger->warn("networks.conf network type registration is deprecated use vlan-registration instead");
         return $NET_TYPE_VLAN_REG;
 
-    } elsif ($ConfigNetworks{$network}{'type'} =~ /^isolation$/i) {
+    } elsif ($type =~ /^isolation$/i) {
         # deprecated isolation
         $logger->warn("networks.conf network type isolation is deprecated use vlan-isolation instead");
         return $NET_TYPE_VLAN_ISOL;

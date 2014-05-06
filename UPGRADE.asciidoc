@@ -5,6 +5,43 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to 4.2.0
+---------------------------------------
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+The person table has many new columns that can be used for registration.
+
+The node table has new columns to store the time and bandwidth balances of a node.
+
+The node table has also a new column to keep the audit-session-id from the RADIUS request to use with the CoA.
+
+Added a new column config_timestamp in radius_nas table.
+
+The locationlog table has new columns to store the switch IP and MAC when using dynamic controllers.
+
+New table for inline (layer 3) accounting.
+
+New table for WRIX data.
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < db/upgrade-4.1.0-4.2.0.sql
+
+Configuration changes
+^^^^^^^^^^^^^^^^^^^^^
+
+The parameter `guests_self_registration.mandatory_fields` from `pf.conf` (or `pf.conf.defaults`) was moved to the
+default portal profile in `profiles.conf`.
+
+Adjust your configuration files accordingly.
+
+The captive portal has been rewritten using the Catalyst MVC framework. Any customization to the previous CGI scripts
+will need to be ported to the new architecture.
+
+Once the configuration completed, update the file /usr/local/pf/conf/currently-at to match the new release number.
+
 Upgrading from a version prior to 4.1.0
 ---------------------------------------
 
@@ -29,6 +66,8 @@ The action `set_access_level` of authentication sources in `authentication.conf`
 defined in `adminroles.conf`. The previous level `4294967295` must be replaced by *ALL* and the level `0` by *NONE*.
 
 Adjust your configuration files accordingly.
+
+Once the configuration completed, update the file /usr/local/pf/conf/currently-at to match the new release number.
 
 Upgrading from a version prior to 4.0.6
 ---------------------------------------

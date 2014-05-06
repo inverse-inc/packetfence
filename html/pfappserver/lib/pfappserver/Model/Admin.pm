@@ -17,6 +17,7 @@ use Moose;
 use namespace::autoclean;
 
 use pf::file_paths;
+use pf::log;
 
 =head1 METHODS
 
@@ -30,7 +31,7 @@ Returns the content of conf/pf-release
 sub pf_release {
     my ($self) = @_;
 
-    my $cache = pf::CHI->new(namespace => 'configfiles' );
+    my $cache = pf::CHI->new(namespace => 'configfiles');
     my $filename = "$conf_dir/pf-release";
     my $release = $cache->compute($filename, undef, sub {
                                       my $filehandler;
@@ -41,6 +42,23 @@ sub pf_release {
                                   });
 
     return $release;
+}
+
+=head2 fingerbank_version
+
+Returns the version of Fingerbank from conf/dhcp_fingerprins.conf
+
+=cut
+
+sub fingerbank_version {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($filehandler, $line, $version);
+    open( $filehandler, '<', "$conf_dir/dhcp_fingerprints.conf" )
+        || $logger->error("Unable to open $conf_dir/dhcp_fingerprints.conf: $!");
+    $line = <$filehandler>; # read the first line
+    close $filehandler;
+    ($version) = $line =~ m/version ([0-9\.]+)/i;
+    return $version;
 }
 
 =head1 AUTHOR

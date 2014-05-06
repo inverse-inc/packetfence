@@ -82,27 +82,25 @@ BuildArch: noarch
 # TODO we might consider re-enabling this to simplify our SPEC
 AutoReqProv: 0
 
-Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
+Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext, conntrack-tools
 # for process management
 Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
-Requires: mod_perl
+Requires: mod_perl, mod_qos
 requires: libapreq2
 Requires: dhcp
 Requires: memcached
-# FreeRADIUS version >= 2.1.12 and the name changed between the RHEL 5 and 6 releases
-%{?el5:Requires: freeradius2 >= 2.1.12, freeradius2-mysql, freeradius2-perl, freeradius2-ldap, freeradius2-utils }
-%{?el6:Requires: freeradius >= 2.1.12, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils }
+Requires: freeradius >= 2.2.5, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
 Requires: make
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, mysql-server, perl(DBD::mysql)
 Requires: perl >= 5.8.8
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
-Requires: %{real_name}-pfcmd-suid
+Requires(pre): %{real_name}-pfcmd-suid
 Requires: perl(Bit::Vector)
-Requires: perl(CGI::Session), perl(CGI::Session::Driver::memcached), perl(JSON), perl(PHP::Session)
+Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON)
 Requires: perl(Apache2::Request)
 Requires: perl(Apache::Session)
 Requires: perl(Apache::Session::Memcached)
@@ -113,6 +111,8 @@ Requires: perl(Class::Gomor)
 Requires: perl(Config::IniFiles) >= 2.40
 Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
 Requires: perl(DBI)
+Requires: perl(Rose::DB)
+Requires: perl(Rose::DB::Object)
 Requires: perl(File::Tail)
 Requires: perl(IPC::Cmd)
 Requires: perl(IPTables::ChainMgr)
@@ -120,6 +120,8 @@ Requires: perl(IPTables::Parse)
 Requires: perl(Tie::DxHash)
 requires: perl(Proc::ProcessTable)
 requires: perl(Apache::SSLLookup)
+requires: perl(Crypt::OpenSSL::X509)
+requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode. Specific version matches system's iptables version.
@@ -134,12 +136,15 @@ Requires: perl(Net::LDAP)
 Requires: perl-libwww-perl, perl(LWP::Simple), perl(LWP::Protocol::https)
 Requires: perl(List::MoreUtils)
 Requires: perl(Locale::gettext)
-Requires: perl(Log::Log4perl) >= 1.11
+Requires: perl(Log::Log4perl) >= 1.43
+Requires: perl(Log::Any)
+Requires: perl(Log::Any::Adapter)
+Requires: perl(Log::Any::Adapter::Log4perl)
 # Required by switch modules
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
 # We would need to port to the new 3.x API (tracked by #1313)
 Requires: perl(Net::Appliance::Session) = 1.36
-Requires: perl(Net::OAuth2)
+Requires: perl(Net::OAuth2) >= 0.57
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
 Requires: perl(Net::Netmask)
@@ -148,7 +153,7 @@ Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
 # pfdns
-Requires: perl(Net::DNS) = 0.65-4
+Requires: perl(Net::DNS) = 0.65
 Requires: perl(Net::DNS::Nameserver) = 749
 # RADIUS CoA support
 Requires: perl(Net::Radius::Dictionary), perl(Net::Radius::Packet)
@@ -167,6 +172,9 @@ Requires: perl(Regexp::Common)
 Requires: rrdtool, perl-rrdtool
 Requires: perl(SOAP::Lite) >= 1.0
 Requires: perl(WWW::Curl)
+Requires: perl(Data::MessagePack)
+Requires: perl(Data::MessagePack::Stream)
+Requires: perl(POSIX::2008)
 # Template::Toolkit - captive portal template system
 Requires: perl(Template)
 # Used by installer / configurator scripts
@@ -204,6 +212,9 @@ Requires: perl(Catalyst::Authentication::Credential::HTTP)
 Requires: perl(Catalyst::Authentication::Store::Htpasswd)
 Requires: perl(Catalyst::Controller::HTML::FormFu)
 Requires: perl(Params::Validate) >= 0.97
+Requires: perl(Term::Size::Any)
+Requires(pre): perl-aliased => 0.30
+Requires(pre): perl-version
 # for Catalyst stand-alone server
 Requires: perl(Catalyst::Devel)
 Requires: perl(Sort::Naturally)
@@ -213,20 +224,26 @@ Requires: perl(File::Slurp)
 # I shall file upstream tickets to openfusion before we integrate
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
-Requires: perl(CHI)
-Requires: perl(HTML::FormHandler)
+Requires: perl(Moose) <= 2.1005
+Requires: perl(CHI) >= 0.56
+Requires: perl(Data::Serializer)
+Requires: perl(HTML::FormHandler) = 0.40013
 Requires: perl(Cache::Memcached)
+Requires: perl(Cache::Memcached::GetParserXS)
 Requires: perl(CHI::Driver::Memcached)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
 Requires: perl(Cache::FastMmap)
-Requires: perl(Moo) >= 1.0
+Requires: perl(Moo) >= 1.003000
 Requires: perl(Term::ANSIColor)
 Requires: perl(IO::Interactive)
 Requires: perl(Module::Loaded)
 Requires: perl(Linux::FD)
 Requires: perl(Linux::Inotify2)
 Requires: perl(File::Touch)
+Requires: perl(Hash::Merge)
+Requires: perl(IO::Socket::INET6)
+Requires: perl(IO::Interface)
 # configuration-wizard
 Requires: iproute, vconfig
 #
@@ -238,6 +255,8 @@ Requires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception)
 Requires: perl(Test::NoWarnings)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
+# For managing the number of connections per device
+Requires: mod_qos
 
 %description -n %{real_name}
 
@@ -255,7 +274,7 @@ as
 %package -n %{real_name}-remote-snort-sensor
 Group: System Environment/Daemons
 Requires: perl >= 5.8.0, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https)
-Requires: perl(SOAP::Lite)
+Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
 Conflicts: %{real_name}
 AutoReqProv: 0
 Summary: Files needed for sending snort alerts to packetfence
@@ -270,7 +289,7 @@ server.
 %package -n %{real_name}-remote-arp-sensor
 Group: System Environment/Daemons
 Requires: perl >= 5.8.0, perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
-Requires: perl(SOAP::Lite)
+Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
 Conflicts: %{real_name}
 AutoReqProv: 0
 Summary: Files needed for sending MAC and IP addresses from ARP requests to PacketFence
@@ -328,6 +347,12 @@ done
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
 
+
+find -name '*.example' -print0 | while read -d $'\0' file
+do
+  cp $file "$(dirname $file)/$(basename $file .example)"
+done
+
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
@@ -341,12 +366,14 @@ gcc -g0 src/pfcmd.c -o bin/pfcmd
 %{__install} -d -m2775 $RPM_BUILD_ROOT%logdir
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/run
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
+touch $RPM_BUILD_ROOT/usr/local/pf/var/cache_control
 cp Makefile $RPM_BUILD_ROOT/usr/local/pf/
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -434,6 +461,7 @@ ln -s ../sites-available/inner-tunnel inner-tunnel
 ln -s ../sites-available/packetfence packetfence
 ln -s ../sites-available/packetfence-soh packetfence-soh
 ln -s ../sites-available/packetfence-tunnel packetfence-tunnel
+ln -s ../sites-available/dynamic-clients dynamic-clients
 
 cd $curdir
 #end create symlinks
@@ -503,7 +531,7 @@ if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
 fi
 
 
-for service in snortd httpd snmptrapd
+for service in snortd httpd snmptrapd memcached
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
@@ -511,7 +539,7 @@ do
   fi
 done
 
-for service in mysqld memcached
+for service in mysqld
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Enabling $service startup script"
@@ -541,8 +569,8 @@ if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /de
   # Comment out entry from a previous version of PF (< 4.0)
   sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers
 fi
-if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/sbin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/radiusd.*/usr/sbin/snort.*/usr/sbin/suricata" /etc/sudoers > /dev/null  ) ; then
-  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd, /usr/sbin/snort, /usr/bin/suricata" >> /etc/sudoers
+if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/sbin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/radiusd.*/usr/sbin/snort.*/usr/sbin/suricata.*/usr/sbin/conntrack" /etc/sudoers > /dev/null  ) ; then
+  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd, /usr/sbin/snort, /usr/bin/suricata, /usr/sbin/conntrack" >> /etc/sudoers
 fi
 if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
   echo 'Defaults:pf !requiretty' >> /etc/sudoers
@@ -555,6 +583,7 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
 #Starting Packetfence.
 echo "Starting Packetfence..."
+/usr/local/pf/bin/pfcmd configreload
 /sbin/service packetfence start
 
 echo Installation complete
@@ -650,9 +679,14 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
+                        /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
+%config(noreplace)      /usr/local/pf/conf/allowed-gaming-oui.txt
+                        /usr/local/pf/conf/allowed-gaming-oui.txt.example
+%config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
+                        /usr/local/pf/conf/allowed_device_oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
-%config                 /usr/local/pf/conf/chi.conf
+%config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
@@ -695,8 +729,11 @@ fi
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.mo
 %config(noreplace)      /usr/local/pf/conf/log.conf
+%config(noreplace)      /usr/local/pf/conf/log.conf.d/*.conf
+                        /usr/local/pf/conf/log.conf.d/*.example
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
+                        /usr/local/pf/conf/nessus/remotescan.nessus.example
 %config(noreplace)      /usr/local/pf/conf/networks.conf
 %config                 /usr/local/pf/conf/openssl.cnf
 %config                 /usr/local/pf/conf/oui.txt
@@ -704,12 +741,18 @@ fi
                         /usr/local/pf/conf/pf-release
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
+                        /usr/local/pf/conf/radiusd/eap.conf.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/radiusd.conf
+                        /usr/local/pf/conf/radiusd/radiusd.conf.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/sql.conf
+                        /usr/local/pf/conf/radiusd/sql.conf.example
 %dir                    /usr/local/pf/conf/snort
 %config(noreplace)      /usr/local/pf/conf/snort/classification.config
+                        /usr/local/pf/conf/snort/classification.config.example
 %config(noreplace)      /usr/local/pf/conf/snort/local.rules
+                        /usr/local/pf/conf/snort/local.rules.example
 %config(noreplace)      /usr/local/pf/conf/snort/reference.config
+                        /usr/local/pf/conf/snort/reference.config.example
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
 %config                 /usr/local/pf/conf/dhcpd.conf
@@ -719,18 +762,25 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal.cgi
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
+                        /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
+                        /usr/local/pf/conf/listener.msg.example
+%config(noreplace)      /usr/local/pf/conf/mdm.conf
 %config(noreplace)      /usr/local/pf/conf/popup.msg
+                        /usr/local/pf/conf/popup.msg.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
+                        /usr/local/pf/conf/snort.conf.pre_snort-2.8.example
 %config(noreplace)      /usr/local/pf/conf/suricata.yaml
+                        /usr/local/pf/conf/suricata.yaml.example
 %dir                    /usr/local/pf/conf/templates
 %config(noreplace)      /usr/local/pf/conf/templates/*
 %config                 /usr/local/pf/conf/ui.conf
@@ -753,13 +803,26 @@ fi
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/captive-portal
 %attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
+                        /usr/local/pf/html/captive-portal/Changes
+                        /usr/local/pf/html/captive-portal/Makefile.PL
+                        /usr/local/pf/html/captive-portal/README
+%config(noreplace)      /usr/local/pf/html/captive-portal/captive_portal.conf
+                        /usr/local/pf/html/captive-portal/captive_portal.conf.example
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/responsive.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
+                        /usr/local/pf/html/captive-portal/content/countdown.min.js
                         /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
+%dir                    /usr/local/pf/html/captive-portal/lib
+                        /usr/local/pf/html/captive-portal/lib/*
+%dir                    /usr/local/pf/html/captive-portal/script
+                        /usr/local/pf/html/captive-portal/script/*
+%dir                    /usr/local/pf/html/captive-portal/t
+                        /usr/local/pf/html/captive-portal/t/*
+                        /usr/local/pf/html/captive-portal/content/PacketFenceAgent.apk
 %dir                    /usr/local/pf/html/captive-portal/templates
 %config(noreplace)      /usr/local/pf/html/captive-portal/templates/*
 %dir                    /usr/local/pf/html/common
@@ -801,6 +864,7 @@ fi
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
@@ -843,6 +907,7 @@ fi
 %dir                    /usr/local/pf/var/rrd
 %dir                    /usr/local/pf/var/session
 %dir                    /usr/local/pf/var/webadmin_cache
+%config(noreplace)      /usr/local/pf/var/cache_control
 
 # Remote snort sensor file list
 %files -n %{real_name}-remote-snort-sensor
@@ -870,6 +935,12 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Tue May  6 2014 Inverse <info@inverse.ca> - 4.2.0-1
+- New release 4.2.0
+
+* Tue Apr 1 2014 Inverse <info@inverse.ca>
+- Removed dependency on Perl module PHP::Session
+
 * Wed Dec 11 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.1.0-1
 - New release 4.1.0
 

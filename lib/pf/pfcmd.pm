@@ -48,12 +48,14 @@ sub parseCommandLine {
     $params = '' if (! defined($params));
 
     my %regexp = (
+        'cache'           => qr{ ^ ([a-zA-Z0-9\.-_]+) \s+ (?: ( clear | list | expire ) | (?: (dump | remove) \s+ ([^\s]+)  ) ) $ }xms,
         'checkup'         => qr{ ^ $ }xms,
         'class'           => qr{ ^ (view) \s+ ( all | \d+ ) $ }xms,
         'config'          => qr{ ^ ( get | set | help )
                                    \s+
                                    ( [ a-zA-Z0-9_@\.\:=/\-,?]+)
                                  $ }xms,
+        'configreload'    => qr{ ^ ( soft | hard )? $ }xms,
         'fixpermissions'         => qr{ ^ $ }xms,
         'configfiles'     => qr{ ^ ( push | pull ) $ }xms,
         'fingerprint'     => qr{ ^ (view)
@@ -157,7 +159,7 @@ sub parseCommandLine {
                                    )?
                                  $ }xms,
         'import' => qr{ ^
-                            ( nodes )                # import nodes
+                            ( nodes | wrix )                # import nodes
                             \s+
                             ( [a-zA-Z0-9_\-\.\/]+ )   # strict filename with path regexp
                         $  }xms,
@@ -275,7 +277,7 @@ sub parseCommandLine {
                                        ( all ) | $pid_re
                                    )
                                  $ }xms,
-        'reload'          => qr{ ^ ( fingerprints | violations ) $  }xms,
+        'reload'          => qr{ ^ ( fingerprints ) $  }xms,
         'report'          => qr{ ^ (?: #for grouping only
                                      ( active | inactive | openviolations
                                        | os | osclass | registered | statics | ssid
@@ -309,10 +311,10 @@ sub parseCommandLine {
                                      ( \d+ )
                                    )
                                  $ }xms,
-        'service'         => qr{ ^ ( dhcpd | pfdns | pfdetect
+        'service'         => qr{ ^ ( dhcpd | pfdns | pfdetect | pfbandwidthd
                                      | pf | pfdhcplistener | pfmon
                                      | pfsetvlan | radiusd | snmptrapd
-                                     | snort | suricata | httpd\.webservices | httpd\.admin | httpd\.portal | httpd\.proxy | memcached)
+                                     | snort | suricata | httpd\.webservices | httpd\.admin | httpd\.portal | httpd\.portal\.catalyst | httpd\.proxy | memcached)
                                    \s+
                                    ( restart | start | status | stop
                                      | watch )

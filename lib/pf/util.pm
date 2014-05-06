@@ -20,13 +20,13 @@ use warnings;
 use English qw( -no_match_vars );
 use File::Basename;
 use FileHandle;
-use Log::Log4perl;
 use Net::MAC::Vendor;
 use Net::SMTP;
 use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all);
+use Try::Tiny;
 
 our ( %local_mac );
 
@@ -42,7 +42,7 @@ BEGIN {
         getlocalmac
         get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets
         get_internal_devs get_internal_devs_phy get_external_devs get_internal_macs
-        get_internal_info createpid readpid deletepid
+        get_internal_info readpid deletepid
         parse_template mysql_date oui_to_vendor mac2oid oid2mac
         str_to_connection_type connection_type_to_str
         get_total_system_memory
@@ -55,12 +55,14 @@ BEGIN {
         generate_id load_oui download_oui
         trim_path format_bytes log_of ordinal_suffix
         untaint_chain read_dir_recursive all_defined
+        valid_mac_or_ip listify
     );
 }
 
 # TODO pf::util shouldn't rely on pf::config as this prevent pf::config from
 #      being able to use pf::util
 use pf::config;
+use pf::log;
 
 =head1 SUBROUTINES
 
@@ -72,7 +74,7 @@ TODO: This list is incomplete.
 
 sub valid_date {
     my ($date) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
     # kludgy but short
     if ( $date
@@ -86,11 +88,13 @@ sub valid_date {
     }
 }
 
+our $VALID_IP_REGEX = qr/^(?:\d{1,3}\.){3}\d{1,3}$/;
+our $NON_VALID_IP_REGEX = qr/^(?:0\.){3}0$/;
+
 sub valid_ip {
     my ($ip) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    if ( !$ip || $ip !~ /^(?:\d{1,3}\.){3}\d{1,3}$/ || $ip =~ /^0\.0\.0\.0$/ )
-    {
+    my $logger = get_logger();
+    if ( !$ip || $ip !~ $VALID_IP_REGEX || $ip =~ $NON_VALID_IP_REGEX) {
         my $caller = ( caller(1) )[3] || basename($0);
         $caller =~ s/^(pf::\w+|main):://;
         $logger->debug("invalid IP: $ip from $caller");
@@ -126,7 +130,7 @@ Properly format an IPv4 address. Has the nice side-effect of untainting it also.
 
 sub clean_ip {
     my ($ip) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     if ($ip =~ /^((?:\d{1,3}\.){3}\d{1,3})$/) {
         return $1;
     }
@@ -144,7 +148,7 @@ Returns an untainted string with MAC in format: xx:xx:xx:xx:xx:xx
 
 sub clean_mac {
     my ($mac) = @_;
-    return if ( !$mac );
+    return "0" unless defined $mac;
 
     # trim garbage
     $mac =~ s/[\s\-\.:]//g;
@@ -157,7 +161,7 @@ sub clean_mac {
         return $1;
     }
 
-    return;
+    return "0";
 }
 
 =item format_mac_for_acct
@@ -207,19 +211,23 @@ Accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxx
 
 =cut
 
+our $VALID_MAC_REGEX = qr/^[0-9a-f:\.-]+$/i;
+our $NON_VALID_MAC_REGEX = qr/^(00|ff)(:\g1){5}$/;
+our $VALID_PF_MAC_REGEX = qr/^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/;
+
 sub valid_mac {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    if (! ($mac && $mac =~ /^[0-9a-f:\.-]+$/i)) {
-        $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
+    return (0) unless defined $mac;
+    my $logger = get_logger();
+    if ( !defined($mac) ) {
+        return(0);
+    }
+    if ( $mac !~ $VALID_MAC_REGEX) {
+        $logger->debug("invalid MAC: $mac");
         return (0);
     }
     $mac = clean_mac($mac);
-    if (  !$mac
-        || $mac =~ /^ff:ff:ff:ff:ff:ff$/
-        || $mac =~ /^00:00:00:00:00:00$/
-        || $mac !~ /^([0-9a-f]{2}(:|$)){6}$/i )
-    {
+    if( !$mac || $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
         $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
         return (0);
     } else {
@@ -273,7 +281,7 @@ sub mac2nb {
 
 sub whitelisted_mac {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     return (0) if ( !valid_mac($mac) );
     $mac = clean_mac($mac);
     foreach
@@ -289,7 +297,7 @@ sub whitelisted_mac {
 
 sub trappable_mac {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     return (0) if ( !$mac );
     $mac = clean_mac($mac);
 
@@ -335,7 +343,7 @@ out: comma-separated MAC address (ex: 00:12:f0:13:32:ba)
 
 sub oid2mac {
     my ($oid) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     if ($oid =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/) {
         return lc(sprintf( "%02X:%02X:%02X:%02X:%02X:%02X", $1, $2, $3, $4, $5, $6));
     } else {
@@ -354,7 +362,7 @@ out: 6 dot-separated digits (ex: 0.18.240.19.50.186)
 
 sub mac2oid {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     if ($mac =~ /^([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2})$/i) {
         return hex($1).".".hex($2).".".hex($3).".".hex($4).".".hex($5).".".hex($6);
     } else {
@@ -363,9 +371,13 @@ sub mac2oid {
     }
 }
 
+=item pfmailer - send an email
+
+=cut
+
 sub pfmailer {
     my (%data)     = @_;
-    my $logger     = Log::Log4perl::get_logger('pf::util');
+    my $logger     = get_logger();
     my $smtpserver = untaint_chain($Config{'alerting'}{'smtpserver'});
     my @to = split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'} );
     my $from = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
@@ -393,6 +405,49 @@ sub pfmailer {
     return 1;
 }
 
+=item send_email - Send an email using a template
+
+=cut
+
+sub send_email {
+    my ($template, $email, $subject, $data) = @_;
+    my $logger = get_logger();
+
+    my $smtpserver = $Config{'alerting'}{'smtpserver'};
+    $data->{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn unless ($data->{'from'});
+
+    my %options;
+    $options{INCLUDE_PATH} = "$conf_dir/templates/";
+
+    try {
+        require MIME::Lite::TT;
+    } catch {
+        $logger->error("Could not send email because I couldn't load a module. ".
+                       "Are you sure you have MIME::Lite::TT installed?");
+        return $FALSE;
+    };
+    my $msg = MIME::Lite::TT->new(
+        From        =>  $data->{'from'},
+        To          =>  $email,
+        Cc          =>  $data->{'cc'} || '',
+        Subject     =>  $subject,
+        Template    =>  "emails-$template.txt.tt",
+        TmplOptions =>  \%options,
+        TmplParams  =>  $data,
+    );
+
+    my $result = 0;
+    try {
+      $msg->send('smtp', $smtpserver, Timeout => 20);
+      $result = $msg->last_send_successful();
+      $logger->info("Email sent to $email ($subject)");
+    } catch {
+      $logger->error("Can't send email to $email: $@");
+    };
+
+    return $result;
+}
+
 =item  isenabled
 
 Is the given configuration parameter considered enabled? y, yes, true, enable
@@ -402,7 +457,7 @@ and enabled are all positive values for PacketFence.
 
 sub isenabled {
     my ($enabled) = @_;
-    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled)\s*$/i ) {
+    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i ) {
         return (1);
     } else {
         return (0);
@@ -418,7 +473,7 @@ disable and disabled are all negative values for PacketFence.
 
 sub isdisabled {
     my ($disabled) = @_;
-    if ( $disabled =~ /^\s*(n|no|false|disable|disabled)\s*$/i ) {
+    if ( !defined ($disabled) || $disabled =~ /^\s*(n|no|false|disable|disabled|0)\s*$/i ) {
         return (1);
     } else {
         return (0);
@@ -562,27 +617,9 @@ sub get_internal_info {
     return;
 }
 
-sub createpid {
-    my ($pname) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    $pname = basename($0) if ( !$pname );
-    my $pid     = $$;
-    my $pidfile = $var_dir . "/run/$pname.pid";
-    $logger->info("$pname starting and writing $pid to $pidfile");
-    my $outfile = new FileHandle ">$pidfile";
-    if ( defined($outfile) ) {
-        print $outfile $pid;
-        $outfile->close;
-        return ($pid);
-    } else {
-        $logger->error("$pname: unable to open $pidfile for writing: $!");
-        return (-1);
-    }
-}
-
 sub readpid {
     my ($pname) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     $pname = basename($0) if ( !$pname );
     my $pidfile = $var_dir . "/run/$pname.pid";
     my $file    = new FileHandle "$pidfile";
@@ -607,7 +644,7 @@ sub deletepid {
 
 sub parse_template {
     my ( $tags, $template, $destination, $comment_char ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
     my (@parsed);
     my $template_fh;
     open( $template_fh, '<', $template ) || $logger->logcroak("Unable to open template $template: $!");
@@ -655,14 +692,14 @@ sub oui_to_vendor {
 sub load_oui {
     my ($force) = @_;
     if ( !%$Net::MAC::Vendor::Cached || $force  ) {
-        my $logger = Log::Log4perl::get_logger('pf::util');
+        my $logger = get_logger();
         $logger->info("loading Net::MAC::Vendor cache from $oui_file");
         Net::MAC::Vendor::load_cache("file://$oui_file");
     }
 }
 
 sub download_oui {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     require LWP::UserAgent;
     my $browser = LWP::UserAgent->new;
     my $response = $browser->get($oui_url);
@@ -691,7 +728,7 @@ return connection_type string (as defined in pf::config) or an empty string if c
 
 sub connection_type_to_str {
     my ($conn_type) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
     # convert connection_type constant into a string for database
     if (defined($conn_type) && $conn_type ne '' && defined($connection_type_to_str{$conn_type})) {
@@ -715,7 +752,7 @@ return connection_type constant (as defined in pf::config) or undef if connectio
 
 sub str_to_connection_type {
     my ($conn_type_str) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
     # convert database string into connection_type constant
     if (defined($conn_type_str) && $conn_type_str ne '' && defined($connection_type{$conn_type_str})) {
@@ -740,7 +777,7 @@ Returns the total amount of memory in kilobytes. Undef if something went wrong o
 =cut
 
 sub get_total_system_memory {
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
 
     my $result = open(my $meminfo_fh , '<', '/proc/meminfo');
@@ -863,7 +900,7 @@ Returns the VLAN id for a given interface
 
 sub get_vlan_from_int {
     my ($eth) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
     my $result = open(my $vlaninfo_fh , '<', "/proc/net/vlan/$eth");
     if (!defined($result)) {
@@ -966,7 +1003,7 @@ with code 1, 2 or 3 without reporting it as an error.
 
 sub pf_run {
     my ($command, %options) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
+    my $logger = get_logger();
 
     local $OS_ERROR;
     # Using perl trickery to figure out what the caller expects so I can return him just that
@@ -1034,7 +1071,7 @@ The epoch will be used in database entries so we use the same to make sure it is
 
 sub generate_id {
     my ( $epoch, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("Generating a new ID with epoch $epoch and mac $mac");
 
@@ -1117,6 +1154,18 @@ sub untaint_chain {
     }
 }
 
+sub valid_mac_or_ip {
+    my ($mac_or_ip) = @_;
+    return 1 if($mac_or_ip =~ $VALID_IP_REGEX && $mac_or_ip !~ $NON_VALID_IP_REGEX) ;
+    if ($mac_or_ip !~ $NON_VALID_IP_REGEX && $mac_or_ip =~ $VALID_MAC_REGEX) {
+        my ($mac) = clean_mac($mac_or_ip);
+        return 1 if($mac && $mac !~ $NON_VALID_MAC_REGEX && $mac =~ $VALID_PF_MAC_REGEX);
+    }
+    get_logger()->error("invalid MAC or IP: $mac_or_ip");
+    return 0;
+}
+
+
 =item read_dir_recursive
 
  Reads all the files in a directory recusivley
@@ -1140,6 +1189,16 @@ sub read_dir_recursive {
 
 sub all_defined {
     all { defined $_ } @_;
+}
+
+=item listify
+
+Will change a scalar to an array ref if it is not one already
+
+=cut
+
+sub listify {
+    ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
 }
 
 =back

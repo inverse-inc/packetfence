@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 4.0.7\n"
+"Project-Id-Version: 4.2.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2013-11-13 15:40-0400\n"
+"PO-Revision-Date: 2014-05-02 13:47-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -47,10 +47,6 @@ msgstr ""
 # html/pfappserver/root/service/status.tt
 msgid "A manual start from the command line will be required. Are you sure you want to continue?"
 msgstr ""
-
-# pf::admin_roles (Groups)
-msgid "ADMIN_ROLES"
-msgstr "Admin Roles"
 
 # pf::admin_roles (Actions)
 msgid "ADMIN_ROLES_CREATE"
@@ -103,6 +99,10 @@ msgstr ""
 msgid "Access Code"
 msgstr ""
 
+# html/pfappserver/root/node/view.tt
+msgid "Access Time Balance"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
@@ -113,9 +113,17 @@ msgstr ""
 msgid "Accounting"
 msgstr ""
 
+# conf/documentation.conf (inline.level3_accounting_session_timeout)
+msgid ""
+  "Accounting sessions created by pfbandwidthd (level 3 traffic only) that haven't"
+  "been updated for more than this amount of seconds will be considered"
+  "inactive."
+  "This should be higher than the interval at which pfmon runs"
+  "Defaults to 300 - 5 minutes"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
-# html/pfappserver/root/node/advanced_search.tt
-# html/pfappserver/root/node/simple_search.tt
+# html/pfappserver/root/admin/bulk_actions.inc
 # html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/violation/list.tt
@@ -132,9 +140,8 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
-# html/pfappserver/root/user/create.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Actions"
@@ -148,8 +155,16 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
+# html/pfappserver/root/configstore/mdm/index.tt
+msgid "Add Mdm Entry"
+msgstr ""
+
 # html/pfappserver/root/interface/list.tt
 msgid "Add VLAN"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/index.tt
+msgid "Add Wrix Entry"
 msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
@@ -157,8 +172,19 @@ msgstr ""
 msgid "Add a condition."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/portal/profile/tab-content.tt
+msgid "Add a language."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/tab-content.tt
+msgid "Add a mandatory field."
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Add a search condition."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/tab-content.tt
 msgid "Add a source."
 msgstr ""
 
@@ -213,7 +239,7 @@ msgid ""
   "Address ranges/CIDR blocks that PF will force registration on."
   "Gateway, network, and broadcast addresses are ignored. If this is not"
   "defined the trapping.range will be used as the registration range."
-  "Comma-delimiter entries should be of the form:"
+  "Comma-delimited entries should be of the form:"
   " * a.b.c.0/24"
   " * a.b.c.0-255"
   " * a.b.c.0-a.b.c.255"
@@ -267,11 +293,20 @@ msgid "All imported nodes will be registered. If a MAC matches an existing node,
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SponsorEmail.pm
 msgid "Allow Local Domain"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Anniversary"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
 msgid "Any"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Apartment Number"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
@@ -288,9 +323,12 @@ msgstr ""
 msgid "App URL"
 msgstr ""
 
-# html/pfappserver/root/node/advanced_search.tt
-# html/pfappserver/root/node/simple_search.tt
+# html/pfappserver/root/admin/bulk_actions.inc
 msgid "Apply Role"
+msgstr ""
+
+# html/pfappserver/root/admin/bulk_actions.inc
+msgid "Apply Violation"
 msgstr ""
 
 # conf/documentation.conf (provisioning.category)
@@ -348,8 +386,20 @@ msgstr ""
 msgid "Auto Enable"
 msgstr ""
 
+# conf/documentation.conf (expire.httpd_admin)
+msgid "Automatically expire httpd admin sessions"
+msgstr ""
+
+# conf/documentation.conf (expire.httpd_portal)
+msgid "Automatically expire httpd portal sessions"
+msgstr ""
+
 # html/pfappserver/root/portal/profile/edit.tt
 msgid "Available Variables"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "Bandwidth Balance"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
@@ -364,8 +414,16 @@ msgstr ""
 msgid "Bind DN"
 msgstr ""
 
+# html/pfappserver/root/admin/users.tt
+msgid "Birthday"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 msgid "Browser"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Building Number"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -376,14 +434,13 @@ msgstr ""
 msgid "By default is an imported node a Voice over IP device or not?"
 msgstr ""
 
+# conf/documentation.conf (billing.mirapay_currency options)
+msgid "CAD"
+msgstr ""
+
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "CLI"
 msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
-# pf::admin_roles (Groups)
-msgid "CONFIGURATION_MAIN"
-msgstr "Main Configuration"
 
 # pf::admin_roles (Actions)
 msgid "CONFIGURATION_MAIN_READ"
@@ -393,16 +450,18 @@ msgstr "Main Configuration - Read"
 msgid "CONFIGURATION_MAIN_UPDATE"
 msgstr "Main Configuration - Update"
 
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "CSV File"
 msgstr ""
 
+# html/pfappserver/root/configstore/mdm/index.tt
 # html/pfappserver/root/configuration/adminroles/index.tt
 # html/pfappserver/root/configuration/authentication.tt
 # html/pfappserver/root/configuration/floatingdevice/index.tt
 # html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/configuration/wrix/index.tt
 # html/pfappserver/root/interface/create.tt
-# html/pfappserver/root/portal/profile/create.tt
 # html/pfappserver/root/portal/profile/files.tt
 # html/pfappserver/root/portal/profile/index.tt
 # html/pfappserver/root/roles/index.tt
@@ -421,6 +480,10 @@ msgstr ""
 msgid "Cannot Load Content"
 msgstr "An error occured while contacting the server. Please try again later."
 
+# html/pfappserver/root/admin/users.tt
+msgid "Cellphone"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "Children"
 msgstr ""
@@ -429,25 +492,35 @@ msgstr ""
 msgid "Choose between our supported IDS engine."
 msgstr ""
 
-# html/pfappserver/root/node/advanced_search.tt
-# html/pfappserver/root/node/simple_search.tt
+# conf/documentation.conf (network.interfaceSNAT)
+msgid "Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)"
+msgstr ""
+
+# html/pfappserver/root/admin/bulk_actions.inc
 msgid "Clear Violation"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Client_Support"
+msgstr "Client Support"
+
+# html/pfappserver/root/configstore/mdm/list.tt
 # html/pfappserver/root/configuration/adminroles/list.tt
 # html/pfappserver/root/configuration/floatingdevice/list.tt
 # html/pfappserver/root/configuration/switch/list.tt
+# html/pfappserver/root/configuration/wrix/list.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Clone"
 msgstr ""
 
-# html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/configstore/mdm/view.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
 # html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/configuration/wrix/view.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/roles/read.tt
@@ -456,6 +529,18 @@ msgstr ""
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/view.tt
 msgid "Close"
+msgstr ""
+
+# conf/documentation.conf (advanced.pfcmd_error_color)
+msgid "Color of the error text for pfcmd"
+msgstr ""
+
+# conf/documentation.conf (advanced.pfcmd_success_color)
+msgid "Color of the success text for pfcmd"
+msgstr ""
+
+# conf/documentation.conf (advanced.pfcmd_warning_color)
+msgid "Color of the warning text for pfcmd"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
@@ -493,7 +578,7 @@ msgstr ""
 # conf/documentation.conf (trapping.whitelist)
 msgid ""
   "Comma-delimited list of MAC addresses that are immune to isolation. In "
-  "inline enforcement, the firewall is opened for them as if they were "
+  "inline Level 2 enforcement, the firewall is opened for them as if they were "
   "registered. This \"feature\" will probably be reworked in the future."
 msgstr ""
 
@@ -510,6 +595,10 @@ msgid ""
   "Comma-delimited list of domains to be used with apache passthroughs."
   "The configuration parameter \"passthrough\" must be enabled for passthroughs"
   "to be effective."
+msgstr ""
+
+# conf/documentation.conf (inline.interfaceSNAT)
+msgid "Comma-delimited list of interfaces used to SNAT inline level 2 traffic"
 msgstr ""
 
 # conf/documentation.conf (general.memcached)
@@ -575,6 +664,10 @@ msgstr ""
 msgid "Controller IP Address"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Controller Port"
+msgstr ""
+
 # conf/documentation.conf (vlan.trap_limit)
 msgid ""
   "Controls whether or not the trap_limit feature is enabled. Trap limiting is"
@@ -591,6 +684,10 @@ msgstr ""
 # html/pfappserver/root/portal/profile/files.tt
 msgid "Copy File"
 msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Coverage_Area"
+msgstr "Coverage Area"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
@@ -641,6 +738,46 @@ msgstr ""
 
 # html/pfappserver/root/user/create.tt
 msgid "Creating Users .."
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Custom Field 1"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Custom Field 2"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Custom Field 3"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Custom Field 4"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Custom Field 5"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Custom Field 6"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Custom Field 7"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Custom Field 8"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Custom Field 9"
+msgstr ""
+
+# html/pfappserver/root/user/view.tt
+msgid "Custom Fields"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
@@ -697,7 +834,7 @@ msgid "Default pid value to assign to imported nodes."
 msgstr ""
 
 # html/pfappserver/root/configuration/adminroles/index.tt
-msgid "Define roles with specific access rights to the Web administration interface."
+msgid "Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source."
 msgstr ""
 
 # html/pfappserver/root/configuration/authentication.tt
@@ -724,6 +861,8 @@ msgid ""
 msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/configstore/mdm/index.tt
+# html/pfappserver/root/configstore/mdm/list.tt
 # html/pfappserver/root/configuration/adminroles/index.tt
 # html/pfappserver/root/configuration/adminroles/list.tt
 # html/pfappserver/root/configuration/authentication.tt
@@ -731,6 +870,8 @@ msgstr ""
 # html/pfappserver/root/configuration/floatingdevice/list.tt
 # html/pfappserver/root/configuration/switch/index.tt
 # html/pfappserver/root/configuration/switch/list.tt
+# html/pfappserver/root/configuration/wrix/index.tt
+# html/pfappserver/root/configuration/wrix/list.tt
 # html/pfappserver/root/interface/list.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/portal/profile/files.tt
@@ -758,6 +899,10 @@ msgstr ""
 msgid "Delete Floating Device"
 msgstr ""
 
+# html/pfappserver/root/configstore/mdm/index.tt
+msgid "Delete Mdm Entry"
+msgstr ""
+
 # html/pfappserver/root/portal/profile/index.tt
 msgid "Delete Profile"
 msgstr ""
@@ -778,14 +923,17 @@ msgstr ""
 msgid "Delete Violation"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/index.tt
+msgid "Delete WRIX Entry"
+msgstr ""
+
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Deleting"
 msgstr ""
 
-# html/pfappserver/root/node/advanced_search.tt
-# html/pfappserver/root/node/simple_search.tt
+# html/pfappserver/root/admin/bulk_actions.inc
 msgid "Deregister"
 msgstr ""
 
@@ -845,12 +993,32 @@ msgstr ""
 msgid "Drop"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
+msgid "Duration"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Dynamic Uplinks"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Dynamic Window"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+msgid "EAP AKA"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+msgid "EAP PEAP"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+msgid "EAP SIM"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+msgid "EAP TTLS"
 msgstr ""
 
 # html/pfappserver/root/user/print.tt
@@ -903,11 +1071,15 @@ msgstr ""
 msgid "Enable Billing Engine"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+msgid "Enable DHCP Server"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Enable Password"
 msgstr ""
 
-# conf/documentation.conf (registration.gaming_devices_registration)
+# conf/documentation.conf (registration.device_registration)
 msgid "Enable or Disable the ability to register a gaming device using the specific portal page designed to do it"
 msgstr ""
 
@@ -921,6 +1093,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Enabled"
+msgstr ""
+
+# conf/documentation.conf (services.httpd_mod_qos)
+msgid "Enables mod_qos for the portal "
 msgstr ""
 
 # conf/documentation.conf (trapping.detection)
@@ -954,6 +1130,14 @@ msgstr ""
 msgid "Engine ID"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "English_Location_City"
+msgstr "English Location City"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "English_Location_Name"
+msgstr "English Location Name"
+
 # html/pfappserver/root/violation/view.tt
 msgid "Enter the trigger ID"
 msgstr ""
@@ -968,6 +1152,10 @@ msgstr ""
 msgid "Error!"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
+msgid "Example"
+msgstr ""
+
 # html/pfappserver/root/configuration/authentication.tt
 msgid "Exclusive"
 msgstr ""
@@ -980,6 +1168,10 @@ msgstr ""
 msgid "Expiration"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/index.tt
+msgid "Export All"
+msgstr ""
+
 # html/pfappserver/root/configuration/authentication.tt
 msgid "External"
 msgstr ""
@@ -988,10 +1180,6 @@ msgstr ""
 msgid "External Sources"
 msgstr ""
 
-# pf::admin_roles (Groups)
-msgid "FINGERPRINTS"
-msgstr "Fingerprints"
-
 # pf::admin_roles (Actions)
 msgid "FINGERPRINTS_READ"
 msgstr "Fingerprints - Read"
@@ -999,10 +1187,6 @@ msgstr "Fingerprints - Read"
 # pf::admin_roles (Actions)
 msgid "FINGERPRINTS_UPDATE"
 msgstr "Fingerprints - Update"
-
-# pf::admin_roles (Groups)
-msgid "FLOATING_DEVICES"
-msgstr "Floating Devices"
 
 # pf::admin_roles (Actions)
 msgid "FLOATING_DEVICES_CREATE"
@@ -1020,12 +1204,8 @@ msgstr "Floating Devices - Read"
 msgid "FLOATING_DEVICES_UPDATE"
 msgstr "Floating Devices - Update"
 
-# conf/documentation.conf (guests_self_registration.mandatory_fields)
-msgid ""
-  "Fields required to be filled in the self-registration form. Valid values are:"
-  "firstname, lastname, organization, phone, mobileprovider, email, "
-  "sponsor_email. Basic validation of minimally required values per guest mode "
-  "is provided by default."
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+msgid "Fake MAC Address"
 msgstr ""
 
 # html/pfappserver/root/portal/profile/files.tt
@@ -1042,8 +1222,7 @@ msgid "Files"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/portal/profile/tab-content.tt
 # html/pfappserver/root/soh/read.tt
 msgid "Filter"
 msgstr ""
@@ -1077,6 +1256,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Gateway"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Gender"
 msgstr ""
 
 # html/pfappserver/root/configurator/configuration.tt
@@ -1121,6 +1304,10 @@ msgid ""
   "in Apache rewriting rules and therefore must be resolvable by clients."
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/view.tt
+msgid "Hours"
+msgstr ""
+
 # conf/documentation.conf (trapping.redirtimer)
 msgid ""
   "How long to display the progress bar during trap release. Default value is "
@@ -1135,10 +1322,6 @@ msgstr ""
 # conf/documentation.conf (scan.openvas_configid)
 msgid "ID of the scanning configuration on the OpenVAS server"
 msgstr ""
-
-# pf::admin_roles (Groups)
-msgid "INTERFACES"
-msgstr "Interfaces"
 
 # pf::admin_roles (Actions)
 msgid "INTERFACES_CREATE"
@@ -1161,13 +1344,16 @@ msgid "IP"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 # html/pfappserver/root/configuration/floatingdevice/list.tt
 # html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/interface/list.tt
 # html/pfappserver/root/node/view.tt
 msgid "IP Address"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "IP Address/MAC Address"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
@@ -1180,6 +1366,8 @@ msgid ""
   "OS-level configuration but it does not make any OS-level changes."
 msgstr ""
 
+# html/pfappserver/root/configstore/mdm/list.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/violation/list.tt
@@ -1187,6 +1375,7 @@ msgid "Id"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/configuration/wrix/view.tt
 msgid "Identification"
 msgstr ""
 
@@ -1270,12 +1459,6 @@ msgstr ""
 msgid "Inline"
 msgstr ""
 
-# conf/documentation.conf (inline.interfaceSNAT)
-msgid ""
-  "Interface used to SNAT inline traffic. Multiple interfaces can be comma"
-  "separated."
-msgstr ""
-
 # html/pfappserver/root/interface/index.tt
 msgid "Interfaces & Networks"
 msgstr ""
@@ -1290,6 +1473,17 @@ msgstr ""
 
 # conf/documentation.conf (general.maintenance_interval)
 msgid "Interval at which Packetfence runs its maintenance tasks."
+msgstr ""
+
+# conf/documentation.conf (general.cache_update_interval)
+msgid "Interval at which Packetfence update the config cache"
+msgstr ""
+
+# conf/documentation.conf (inline.level3_accounting_sync_interval)
+msgid ""
+  "Interval at which pfbandwidthd (level 3 traffic only) should dump collected information into the database."
+  "This should be lower than the interval at which pfmon runs"
+  "Defaults to 41 seconds"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
@@ -1315,6 +1509,14 @@ msgid "Keep The Same"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
+msgid "Lang"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/tab-content.tt
+msgid "Languages"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
 msgid "Last Name"
 msgstr ""
 
@@ -1325,16 +1527,31 @@ msgstr ""
 msgid "Lastname"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Latitude"
+msgstr ""
+
 # html/pfappserver/root/admin/users.tt
 msgid "Legend"
 msgstr ""
 
-# conf/documentation.conf (general.locale)
-msgid "Locale used for message translation. More than one can be specified."
+# conf/documentation.conf (guests_admin_registration.access_duration_choices)
+msgid ""
+  "List of all the choices offered in the access duration action of an"
+  "authentication source."
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/view.tt
 # html/pfappserver/root/node/view.tt
 msgid "Location"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+msgid "Location Address 1"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+msgid "Location Address 2"
 msgstr ""
 
 # conf/documentation.conf (services.radiusd_binary)
@@ -1383,6 +1600,42 @@ msgstr ""
 msgid "Location of the suricata binary."
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Address1"
+msgstr "Location Address1"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Address2"
+msgstr "Location Address2"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Country_Name"
+msgstr "Location Country Name"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Identifier"
+msgstr "Location Identifier"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Phone_Number"
+msgstr "Location Phone Number"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_State_Province_Name"
+msgstr "Location State Province Name"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Type"
+msgstr "Location Type"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_URL"
+msgstr "Location URL"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location_Zip_Postal_Code"
+msgstr "Location Zip Postal Code"
+
 # conf/documentation.conf (alerting.log)
 msgid "Log file where \"log\" actions are sent."
 msgstr ""
@@ -1411,11 +1664,18 @@ msgstr ""
 msgid "Logs"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Longitude"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/view.tt
+msgid "Longitude/Latitude"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/configuration/floatingdevice/list.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/user/violations.tt
-# pf::admin_roles (Groups)
 msgid "MAC"
 msgstr ""
 
@@ -1436,6 +1696,10 @@ msgstr ""
 msgid "MAC address"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "MAC_Address"
+msgstr "MAC Address"
+
 # pf::admin_roles (Actions)
 msgid "MAC_READ"
 msgstr "MAC Addresses - Read"
@@ -1444,8 +1708,36 @@ msgstr "MAC Addresses - Read"
 msgid "MAC_UPDATE"
 msgstr "MAC Addresses - Update"
 
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+msgid "MDM ID"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+msgid "MDM type"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "MDM_CREATE"
+msgstr "MDM - Create"
+
+# pf::admin_roles (Actions)
+msgid "MDM_DELETE"
+msgstr "MDM - Delete"
+
+# pf::admin_roles (Actions)
+msgid "MDM_READ"
+msgstr "MDM - Read"
+
+# pf::admin_roles (Actions)
+msgid "MDM_UPDATE"
+msgstr "MDM - Update"
+
 # html/pfappserver/root/admin/configuration.tt
 msgid "Main"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/tab-content.tt
+msgid "Mandatory Fields"
 msgstr ""
 
 # html/pfappserver/root/node/create.tt
@@ -1475,6 +1767,14 @@ msgid ""
   "a minute without being flagged as DoS. Defaults to 100"
 msgstr ""
 
+# html/pfappserver/root/configstore/mdm/view.tt
+msgid "Mdm Entry"
+msgstr ""
+
+# html/pfappserver/root/user/view.tt
+msgid "Miscellaneous"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/root/configuration/switch/list.tt
 msgid "Mode"
@@ -1483,10 +1783,6 @@ msgstr ""
 # html/pfappserver/root/user/create.tt
 msgid "Multiple"
 msgstr ""
-
-# pf::admin_roles (Groups)
-msgid "NODES"
-msgstr "Nodes"
 
 # pf::admin_roles (Actions)
 msgid "NODES_CREATE"
@@ -1583,6 +1879,10 @@ msgstr ""
 msgid "New Floating Device"
 msgstr ""
 
+# html/pfappserver/root/configstore/mdm/view.tt
+msgid "New Mdm Entry"
+msgstr ""
+
 # html/pfappserver/root/config/networks/view.tt
 msgid "New Network"
 msgstr ""
@@ -1611,6 +1911,14 @@ msgstr ""
 msgid "New Violation"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/view.tt
+msgid "New WRIX Information"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Nickname"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 msgid "No IP history"
 msgstr ""
@@ -1629,6 +1937,10 @@ msgstr ""
 
 # html/pfappserver/root/node/view.tt
 msgid "No location history"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/tab-content.tt
+msgid "No mandatory fields specified."
 msgstr ""
 
 # html/pfappserver/root/configuration/macaddress/simple_search.tt
@@ -1680,7 +1992,7 @@ msgid "Node MAC"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
-msgid "Node category"
+msgid "Node role"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -1690,6 +2002,7 @@ msgid "Nodes"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "None"
 msgstr ""
 
@@ -1719,12 +2032,45 @@ msgstr ""
 msgid "OS"
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/user/view.tt
 msgid "OS (DHCP)"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "One-level"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Friday"
+msgstr "Open Friday"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Monday"
+msgstr "Open Monday"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Saturday"
+msgstr "Open Saturday"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Sunday"
+msgstr "Open Sunday"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Thursday"
+msgstr "Open Thursday"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Tuesday"
+msgstr "Open Tuesday"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Open_Wednesday"
+msgstr "Open Wednesday"
+
+# html/pfappserver/root/admin/users.tt
+msgid "Organization"
 msgstr ""
 
 # html/pfappserver/root/admin/status.tt
@@ -1735,10 +2081,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 msgid "Owner"
 msgstr ""
-
-# pf::admin_roles (Groups)
-msgid "PORTAL_PROFILES"
-msgstr "Portal Profiles"
 
 # pf::admin_roles (Actions)
 msgid "PORTAL_PROFILES_CREATE"
@@ -1758,6 +2100,7 @@ msgstr "Portal Profiles - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
 # html/pfappserver/root/admin/login.tt
@@ -1779,8 +2122,16 @@ msgstr ""
 msgid "Password for the mysql database used by PacketFence."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+msgid "Password required"
+msgstr ""
+
 # conf/documentation.conf (scan.pass)
 msgid "Password to log into scanning engine with."
+msgstr ""
+
+# conf/documentation.conf (provisioning.certificate)
+msgid "Path of the ca certificate"
 msgstr ""
 
 # conf/documentation.conf (trapping.wireless_ips_threshold)
@@ -1797,6 +2148,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "Phone"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+msgid "Please select MDM type"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -1831,8 +2186,16 @@ msgstr "Please specify an identifier for the violation."
 msgid "Please specify the DNS server"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+msgid "Please specify the Description Mdm entry."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+msgid "Please specify the ID of the Mdm entry."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "Please specify the IP address of the switch."
+msgid "Please specify the IP address/MAC address of the switch."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
@@ -1917,6 +2280,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Portal URL"
 msgstr ""
 
@@ -1995,6 +2359,10 @@ msgstr ""
 msgid "Profile Name"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Provider_Identifier"
+msgstr "Provider Identifier"
+
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 msgid "Quantity"
 msgstr ""
@@ -2004,9 +2372,12 @@ msgid "RADIUS"
 msgstr ""
 
 # pf::admin_roles (Actions)
-# pf::admin_roles (Groups)
 msgid "REPORTS"
 msgstr "Reports"
+
+# html/pfappserver/root/configstore/mdm/index.tt
+msgid "Really delete this Mdm entry?"
+msgstr ""
 
 # html/pfappserver/root/configuration/adminroles/index.tt
 msgid "Really delete this admin role?"
@@ -2044,6 +2415,10 @@ msgstr ""
 msgid "Really delete this violation?"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/index.tt
+msgid "Really delete this wrix entry?"
+msgstr ""
+
 # html/pfappserver/root/portal/profile/edit.tt
 msgid "Really dismiss changes?"
 msgstr ""
@@ -2069,11 +2444,11 @@ msgid "Reconnecting to the Admin Service in "
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Redirection URL"
 msgstr ""
 
-# html/pfappserver/root/node/advanced_search.tt
-# html/pfappserver/root/node/simple_search.tt
+# html/pfappserver/root/admin/bulk_actions.inc
 msgid "Register"
 msgstr ""
 
@@ -2087,6 +2462,14 @@ msgstr ""
 msgid "Registration Window"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
+msgid "Relative to the beginning of the day"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
+msgid "Relative to the beginning of the period"
+msgstr ""
+
 # html/pfappserver/root/node/violations.tt
 msgid "Release"
 msgstr ""
@@ -2094,6 +2477,14 @@ msgstr ""
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/user/violations.tt
 msgid "Release Date"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Remaining Access Time"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Remaining Bandwidth"
 msgstr ""
 
 # conf/documentation.conf (scan.nessus_port)
@@ -2122,8 +2513,7 @@ msgstr ""
 
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/configuration/section.tt
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/portal/profile/tab-content.tt
 msgid "Reset"
 msgstr ""
 
@@ -2138,6 +2528,10 @@ msgstr ""
 # html/pfappserver/root/service/status.tt
 msgid "Restart All"
 msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Restricted_Access"
+msgstr "Restricted Access"
 
 # html/pfappserver/root/node/advanced_search.tt
 # html/pfappserver/root/node/simple_search.tt
@@ -2198,6 +2592,10 @@ msgstr ""
 msgid "Roles"
 msgstr ""
 
+# html/pfappserver/root/admin/users.tt
+msgid "Room Number"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Routed Network"
 msgstr ""
@@ -2219,7 +2617,6 @@ msgid "Rules"
 msgstr ""
 
 # pf::admin_roles (Actions)
-# pf::admin_roles (Groups)
 msgid "SERVICES"
 msgstr "Services"
 
@@ -2230,10 +2627,6 @@ msgstr ""
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "SNMP"
 msgstr ""
-
-# pf::admin_roles (Groups)
-msgid "SOH"
-msgstr "SoH Filters"
 
 # pf::admin_roles (Actions)
 msgid "SOH_CREATE"
@@ -2252,9 +2645,26 @@ msgid "SOH_UPDATE"
 msgstr "SoH Filters - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
+# html/pfappserver/root/configuration/wrix/view.tt
 # pf::Authentication::Source (common_attributes)
 msgid "SSID"
 msgstr "SSID"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "SSID_1X"
+msgstr "SSID 1X"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "SSID_1X_Broadcasted"
+msgstr "SSID 1X Broadcasted"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "SSID_Broadcasted"
+msgstr "SSID Broadcasted"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "SSID_Open_Auth"
+msgstr "SSID Open Auth"
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "SSL"
@@ -2263,10 +2673,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
 msgid "SWITCH"
 msgstr ""
-
-# pf::admin_roles (Groups)
-msgid "SWITCHES"
-msgstr "Switches"
 
 # pf::admin_roles (Actions)
 msgid "SWITCHES_CREATE"
@@ -2284,21 +2690,21 @@ msgstr "Switches - Read"
 msgid "SWITCHES_UPDATE"
 msgstr "Switches - Update"
 
-# html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/configstore/mdm/view.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
 # html/pfappserver/root/configuration/section.tt
 # html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/configuration/wrix/view.tt
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
-# html/pfappserver/root/portal/profile/create.tt
 # html/pfappserver/root/portal/profile/edit.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/portal/profile/tab-content.tt
 # html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/view.tt
@@ -2311,8 +2717,7 @@ msgstr ""
 msgid "Save Profile"
 msgstr ""
 
-# html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/admin/saved_search.inc
 msgid "Save Search"
 msgstr ""
 
@@ -2333,9 +2738,11 @@ msgstr ""
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/configstore/mdm/view.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
 # html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/configuration/wrix/view.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/roles/read.tt
@@ -2362,6 +2769,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "Search"
 msgstr ""
 
@@ -2376,6 +2784,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Secret Passphrase"
 msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Security_Protocol_1X"
+msgstr "Security Protocol 1X"
 
 # html/pfappserver/root/node/violations.tt
 msgid "Select a violation"
@@ -2400,6 +2812,10 @@ msgid ""
   "default is localhost - be sure you're running an SMTP host locally if"
   "you don't change it!"
 msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Service_Provider_Brand"
+msgstr "Service Provider Brand"
 
 # html/pfappserver/root/admin/status.tt
 # html/pfappserver/root/service/status.tt
@@ -2436,6 +2852,22 @@ msgstr ""
 msgid "Should have to reauthenticate the node if vlan change"
 msgstr ""
 
+# conf/documentation.conf (services.httpd_admin)
+msgid "Should httpd.admin be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_portal)
+msgid "Should httpd.portal be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_proxy)
+msgid "Should httpd.proxy be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_webservices)
+msgid "Should httpd.webservices be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
 # conf/documentation.conf (services.iptables)
 msgid "Should iptables be managed by PacketFence? Keep enabled unless you know what you're doing."
 msgstr ""
@@ -2448,6 +2880,10 @@ msgstr ""
 msgid ""
   "Should open locationlog entries be closed when pfsetvlan is"
   "stopped"
+msgstr ""
+
+# conf/documentation.conf (services.pfbandwidthd)
+msgid "Should pfbandwidthd be managed by PacketFence?"
 msgstr ""
 
 # conf/documentation.conf (servicewatch.restart)
@@ -2466,12 +2902,34 @@ msgid ""
   "*/5 * * * * /usr/local/pf/bin/pfcmd service pf watch"
 msgstr ""
 
+# conf/documentation.conf (services.pfdhcplistener)
+msgid "Should pfdhcplistener be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
 # conf/documentation.conf (services.pfdns)
 msgid "Should pfdns be managed by PacketFence?"
 msgstr ""
 
+# conf/documentation.conf (services.pfmon)
+msgid "Should pfmon be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.pfsetvlan)
+msgid "Should pfsetvlan be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
 # conf/documentation.conf (services.radiusd)
 msgid "Should radiusd be managed by PacketFence?"
+msgstr ""
+
+# conf/documentation.conf (services.snmptrapd)
+msgid "Should snmptrapd be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (inline.accounting)
+msgid ""
+  "Should we handle accouting data for inline clients?"
+  "This controls inline accouting tasks in pfmon."
 msgstr ""
 
 # html/pfappserver/root/portal/profile/edit.tt
@@ -2500,8 +2958,7 @@ msgstr ""
 msgid "Source switch IP"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/portal/profile/tab-content.tt
 msgid "Sources"
 msgstr ""
 
@@ -2512,8 +2969,8 @@ msgstr ""
 
 # conf/documentation.conf (guests_self_registration.sponsorship_cc)
 msgid ""
-  "Sponsors requesting access and access confirmation emails are CC'ed to this"
-  "address. Multiple destinations can be comma separated."
+  "Sponsors requesting access and access confirmation emails are CC'ed to those"
+  "addresses. Multiple destinations can be comma separated."
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -2571,6 +3028,10 @@ msgstr ""
 msgid "Stop Anyway"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Sub_Location_Type"
+msgstr "Sub Location Type"
+
 # conf/documentation.conf (alerting.subjectprefix)
 msgid ""
   "Subject prefix for email notifications of rogue DHCP servers,"
@@ -2627,6 +3088,10 @@ msgstr ""
 msgid "Telephone"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+msgid "Tem"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Template"
 msgstr ""
@@ -2637,8 +3102,16 @@ msgstr ""
 msgid "Test"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+msgid "The ID of the Switch"
+msgstr ""
+
 # conf/documentation.conf (registration.button_text)
 msgid "The button text will appear on the registration page submit button"
+msgstr ""
+
+# conf/documentation.conf (billing.mirapay_currency)
+msgid "The currency of the mirapay transactions"
 msgstr ""
 
 # html/pfappserver/root/user/list_password.tt
@@ -2649,8 +3122,26 @@ msgstr ""
 msgid "The following users have been created"
 msgstr ""
 
+# conf/documentation.conf (billing.mirapay_hash_password)
+msgid "The hash password for mirapay"
+msgstr ""
+
 # conf/documentation.conf (provisioning.ssid)
 msgid "The hidden SSID where the user should connect to after registration"
+msgstr ""
+
+# conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device)
+msgid "The maximum connections per device "
+msgstr ""
+
+# conf/documentation.conf (services.memcached_memory_usage)
+msgid "The maximum of memory that memcached will use"
+msgstr ""
+
+# conf/documentation.conf (services.memcached_max_item_size)
+msgid ""
+  "The maximum of size of the items allowed to be stored"
+  "Must between 1k and 128m"
 msgstr ""
 
 # conf/documentation.conf (billing.authorizenet_login)
@@ -2678,12 +3169,24 @@ msgstr ""
 msgid "The payment gateway processing URL (Provided by Authorize.net)"
 msgstr ""
 
+# conf/documentation.conf (billing.mirapay_url)
+msgid "The payment gateway processing URL for mirapay"
+msgstr ""
+
 # conf/documentation.conf (billing.gateway)
 msgid "The payment gateway to process the payments"
 msgstr ""
 
-# conf/documentation.conf (registration.gaming_devices_registration_role)
+# conf/documentation.conf (registration.device_registration_role)
 msgid "The role to assign to gaming devices. If none is selected, the role of the registrant is used."
+msgstr ""
+
+# conf/documentation.conf (billing.mirapay_terminal_id)
+msgid "The terminal id for mirapay"
+msgstr ""
+
+# conf/documentation.conf (billing.mirapay_terminal_id_group)
+msgid "The terminal id group for mirapay"
 msgstr ""
 
 # html/pfappserver/root/user/create.tt
@@ -2700,12 +3203,6 @@ msgstr ""
 
 # conf/documentation.conf (webservices.user)
 msgid "The webservices user name"
-msgstr ""
-
-# conf/documentation.conf (guests_admin_registration.access_duration_choices)
-msgid ""
-  "These are all the choices offered in the access duration action of an"
-  "authentication source."
 msgstr ""
 
 # conf/documentation.conf (captive_portal.network_detection_ip)
@@ -2766,6 +3263,10 @@ msgid ""
   "traplog=180d"
 msgstr ""
 
+# html/pfappserver/root/admin/users.tt
+msgid "Title"
+msgstr ""
+
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/graph/dashboard.tt
 # html/pfappserver/root/graph/report.tt
@@ -2804,17 +3305,17 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-# pf::admin_roles (Groups)
-msgid "USERAGENTS"
-msgstr "Useragents"
+# html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
+msgid "URI"
+msgstr ""
+
+# conf/documentation.conf (billing.mirapay_currency options)
+msgid "USD"
+msgstr ""
 
 # pf::admin_roles (Actions)
 msgid "USERAGENTS_READ"
 msgstr "Useragents - Read"
-
-# pf::admin_roles (Groups)
-msgid "USERS"
-msgstr "Users"
 
 # pf::admin_roles (Actions)
 msgid "USERS_CREATE"
@@ -2827,10 +3328,6 @@ msgstr "Users - Delete"
 # pf::admin_roles (Actions)
 msgid "USERS_READ"
 msgstr "Users - Read"
-
-# pf::admin_roles (Groups)
-msgid "USERS_ROLES"
-msgstr "Users Roles"
 
 # pf::admin_roles (Actions)
 msgid "USERS_ROLES_CREATE"
@@ -2847,10 +3344,6 @@ msgstr "Users Roles - Read"
 # pf::admin_roles (Actions)
 msgid "USERS_ROLES_UPDATE"
 msgstr "Users Roles - Update"
-
-# pf::admin_roles (Groups)
-msgid "USERS_SOURCES"
-msgstr "Users Sources"
 
 # pf::admin_roles (Actions)
 msgid "USERS_SOURCES_CREATE"
@@ -2872,12 +3365,9 @@ msgstr "Users Sources - Update"
 msgid "USERS_UPDATE"
 msgstr "Users - Update"
 
-# conf/documentation.conf (trapping.always_use_redirecturl)
-msgid ""
-  "Under most circumstances we can redirect the user to the URL he originally "
-  "intended to visit. When enabled, always_use_redirecturl forces the captive "
-  "portal to redirect the user to the URL defined in trapping.redirecturl instead."
-msgstr ""
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "UTC_Timezone"
+msgstr "UTC Timezone"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Unregistration"
@@ -2905,6 +3395,14 @@ msgstr ""
 
 # html/pfappserver/root/portal/profile/files.tt
 msgid "Upload failed"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+msgid "Uri"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+msgid "Uri required"
 msgstr ""
 
 # html/pfappserver/root/user/view.tt
@@ -2943,6 +3441,10 @@ msgstr ""
 msgid "User agent"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+msgid "User name"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 msgid "User-Agent Information"
 msgstr ""
@@ -2967,6 +3469,10 @@ msgstr ""
 msgid "Username Prefix"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+msgid "Username Required"
+msgstr ""
+
 # conf/documentation.conf (database.user)
 msgid ""
   "Username of the account with access to the mysql database used by"
@@ -2982,10 +3488,6 @@ msgstr ""
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Users"
 msgstr ""
-
-# pf::admin_roles (Groups)
-msgid "VIOLATIONS"
-msgstr "Violations"
 
 # pf::admin_roles (Actions)
 msgid "VIOLATIONS_CREATE"
@@ -3050,10 +3552,42 @@ msgstr ""
 msgid "Voice Over IP (yes/no)"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "WEP_Key"
+msgstr "WEP Key"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "WEP_Key_Entry_Method"
+msgstr "WEP Key Entry Method"
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "WEP_Key_Size"
+msgstr "WEP Key Size"
+
 # conf/documentation.conf (alerting.wins_server)
 msgid ""
   "WINS server to  resolve NetBIOS name of administrative workstation to"
   "IP address."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+msgid "WPA Enterprise"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+msgid "WPA2"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/index.tt
+msgid "WRIX"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/list.tt
+msgid "WRIX Identifer"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/view.tt
+msgid "WRIX Information"
 msgstr ""
 
 # html/pfappserver/root/service/status.tt
@@ -3109,17 +3643,28 @@ msgstr ""
 msgid "With no condition, the inline mode will never be activated."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/view.tt
-msgid "With no source specified, all internal sources will be used."
+# html/pfappserver/root/portal/profile/tab-content.tt
+msgid "With no language specified, all supported locales will be available."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/portal/profile/tab-content.tt
+msgid "With no mandatory fields specified, the mandatory fields of the default profile will be used."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/tab-content.tt
+msgid "With no source specified, all internal and external sources will be used."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/tab-content.tt
 msgid "With no source specified, the sources of the default profile will be used."
 msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
 msgid "Without condition, this rule will act as a catch-all."
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Work phone"
 msgstr ""
 
 # html/pfappserver/root/configurator/networks.tt
@@ -3146,9 +3691,25 @@ msgstr "Output"
 msgid "accttotal"
 msgstr "Total"
 
+# html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+msgid "add"
+msgstr ""
+
 # conf/documentation.conf
 msgid "advanced"
 msgstr "Advanced"
+
+# conf/documentation.conf
+msgid "advanced.pfcmd_error_color"
+msgstr "Error color"
+
+# conf/documentation.conf
+msgid "advanced.pfcmd_success_color"
+msgstr "Warning color"
+
+# conf/documentation.conf
+msgid "advanced.pfcmd_warning_color"
+msgstr "Success color"
 
 # conf/documentation.conf
 msgid "advanced.reevaluate_access_reasons"
@@ -3188,6 +3749,7 @@ msgstr "WINS server"
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "all"
 msgstr ""
 
@@ -3195,8 +3757,13 @@ msgstr ""
 msgid "always"
 msgstr "Always"
 
+# html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
+msgid "and"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "any"
 msgstr ""
 
@@ -3214,7 +3781,7 @@ msgstr "Billing"
 
 # conf/documentation.conf
 msgid "billing.authorizenet_login"
-msgstr "Authorize.net login"
+msgstr "Authorize.net API Login ID"
 
 # conf/documentation.conf
 msgid "billing.authorizenet_posturl"
@@ -3222,11 +3789,41 @@ msgstr "Authorize.net URL"
 
 # conf/documentation.conf
 msgid "billing.authorizenet_trankey"
-msgstr "Authorize.net key"
+msgstr "Authorize.net Transaction Key"
 
 # conf/documentation.conf
 msgid "billing.gateway"
 msgstr "Gateway"
+
+# conf/documentation.conf
+msgid "billing.mirapay_currency"
+msgstr "Mirapay currency"
+
+# conf/documentation.conf
+msgid "billing.mirapay_hash_password"
+msgstr "Mirapay password"
+
+# conf/documentation.conf
+msgid "billing.mirapay_terminal_id"
+msgstr "Mirapay terminal id"
+
+# conf/documentation.conf
+msgid "billing.mirapay_terminal_id_group"
+msgstr "Mirapay terminal group id"
+
+# conf/documentation.conf
+msgid "billing.mirapay_url"
+msgstr "Mirapay URL"
+
+# conf/documentation.conf (advanced.pfcmd_error_color options)
+# conf/documentation.conf (advanced.pfcmd_success_color options)
+# conf/documentation.conf (advanced.pfcmd_warning_color options)
+msgid "blue"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "bytes"
+msgstr ""
 
 # pf::pfcmd::report (report_nodebandwidth)
 msgid "callingstationid"
@@ -3277,6 +3874,12 @@ msgstr ""
 msgid "current_time"
 msgstr "Current time"
 
+# conf/documentation.conf (advanced.pfcmd_error_color options)
+# conf/documentation.conf (advanced.pfcmd_success_color options)
+# conf/documentation.conf (advanced.pfcmd_warning_color options)
+msgid "cyan"
+msgstr ""
+
 # conf/documentation.conf
 msgid "database"
 msgstr "Database"
@@ -3303,10 +3906,6 @@ msgstr "User"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "days"
-msgstr ""
-
-# conf/documentation.conf (general.locale options)
-msgid "de_DE"
 msgstr ""
 
 # html/pfappserver/root/portal/profile/index.tt
@@ -3340,20 +3939,34 @@ msgstr ""
 
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
+# conf/documentation.conf (expire.httpd_admin options)
+# conf/documentation.conf (expire.httpd_portal options)
 # conf/documentation.conf (guests_self_registration.preregistration options)
+# conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
 # conf/documentation.conf (network.dhcpdetector options)
 # conf/documentation.conf (network.dhcpoption82logger options)
 # conf/documentation.conf (network.rogue_dhcp_detection options)
 # conf/documentation.conf (provisioning.autoconfig options)
-# conf/documentation.conf (registration.gaming_devices_registration options)
+# conf/documentation.conf (registration.device_registration options)
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.httpd_admin options)
+# conf/documentation.conf (services.httpd_mod_qos options)
+# conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device options)
+# conf/documentation.conf (services.httpd_portal options)
+# conf/documentation.conf (services.httpd_proxy options)
+# conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.iptables options)
 # conf/documentation.conf (services.memcached options)
+# conf/documentation.conf (services.pfbandwidthd options)
+# conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
+# conf/documentation.conf (services.pfmon options)
+# conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.radiusd options)
+# conf/documentation.conf (services.snmptrapd options)
 # conf/documentation.conf (servicewatch.email options)
 # conf/documentation.conf (servicewatch.restart options)
 # conf/documentation.conf (trapping.detection options)
@@ -3382,7 +3995,6 @@ msgid "eduPersonPrimaryAffiliation"
 msgstr ""
 
 # conf/documentation.conf (guests_self_registration.guest_pid options)
-# conf/documentation.conf (guests_self_registration.mandatory_fields options)
 # conf/documentation.conf (vlan.trap_limit_action options)
 msgid "email"
 msgstr ""
@@ -3391,26 +4003,36 @@ msgstr ""
 msgid "email_action"
 msgstr "Send email"
 
-# conf/documentation.conf (general.locale options)
-msgid "en_US"
-msgstr ""
-
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
+# conf/documentation.conf (expire.httpd_admin options)
+# conf/documentation.conf (expire.httpd_portal options)
 # conf/documentation.conf (guests_self_registration.preregistration options)
+# conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
 # conf/documentation.conf (network.dhcpdetector options)
 # conf/documentation.conf (network.dhcpoption82logger options)
 # conf/documentation.conf (network.rogue_dhcp_detection options)
 # conf/documentation.conf (provisioning.autoconfig options)
-# conf/documentation.conf (registration.gaming_devices_registration options)
+# conf/documentation.conf (registration.device_registration options)
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.httpd_admin options)
+# conf/documentation.conf (services.httpd_mod_qos options)
+# conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device options)
+# conf/documentation.conf (services.httpd_portal options)
+# conf/documentation.conf (services.httpd_proxy options)
+# conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.iptables options)
 # conf/documentation.conf (services.memcached options)
+# conf/documentation.conf (services.pfbandwidthd options)
+# conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
+# conf/documentation.conf (services.pfmon options)
+# conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.radiusd options)
+# conf/documentation.conf (services.snmptrapd options)
 # conf/documentation.conf (servicewatch.email options)
 # conf/documentation.conf (servicewatch.restart options)
 # conf/documentation.conf (trapping.detection options)
@@ -3429,6 +4051,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "ends with"
 msgstr ""
 
@@ -3436,13 +4059,17 @@ msgstr ""
 msgid "equals"
 msgstr ""
 
-# conf/documentation.conf (general.locale options)
-msgid "es_ES"
-msgstr ""
-
 # conf/documentation.conf
 msgid "expire"
 msgstr "Expiration"
+
+# conf/documentation.conf
+msgid "expire.httpd_admin"
+msgstr "Admin sessions expiration"
+
+# conf/documentation.conf
+msgid "expire.httpd_portal"
+msgstr "Portal sessions expiration"
 
 # conf/documentation.conf
 msgid "expire.iplog"
@@ -3464,17 +4091,13 @@ msgstr "Trap logs"
 msgid "external_action"
 msgstr "External command"
 
-# conf/documentation.conf (guests_self_registration.mandatory_fields options)
-msgid "firstname"
-msgstr ""
-
-# conf/documentation.conf (general.locale options)
-msgid "fr_FR"
-msgstr ""
-
 # conf/documentation.conf
 msgid "general"
 msgstr "General"
+
+# conf/documentation.conf
+msgid "general.cache_update_interval"
+msgstr "Cache update interval"
 
 # conf/documentation.conf
 msgid "general.dhcpservers"
@@ -3493,10 +4116,6 @@ msgid "general.hostname"
 msgstr "Hostname"
 
 # conf/documentation.conf
-msgid "general.locale"
-msgstr "Locale"
-
-# conf/documentation.conf
 msgid "general.maintenance_interval"
 msgstr "Maintenance interval"
 
@@ -3511,6 +4130,12 @@ msgstr "Timezone"
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "givenName"
+msgstr ""
+
+# conf/documentation.conf (advanced.pfcmd_error_color options)
+# conf/documentation.conf (advanced.pfcmd_success_color options)
+# conf/documentation.conf (advanced.pfcmd_warning_color options)
+msgid "green"
 msgstr ""
 
 # conf/documentation.conf
@@ -3534,20 +4159,12 @@ msgid "guests_self_registration.guest_pid"
 msgstr "PID"
 
 # conf/documentation.conf
-msgid "guests_self_registration.mandatory_fields"
-msgstr "Mandatory fields"
-
-# conf/documentation.conf
 msgid "guests_self_registration.preregistration"
 msgstr "Preregistration"
 
 # conf/documentation.conf
 msgid "guests_self_registration.sponsorship_cc"
 msgstr "Sponsorship CC"
-
-# conf/documentation.conf (general.locale options)
-msgid "he_IL"
-msgstr ""
 
 # conf/documentation.conf (interface.type options)
 msgid "high-availability"
@@ -3568,11 +4185,23 @@ msgstr ""
 # conf/documentation.conf (interface.enforcement options)
 # pf::config (Network types)
 msgid "inline"
-msgstr "Inline"
+msgstr "inline"
+
+# conf/documentation.conf
+msgid "inline.accounting"
+msgstr "Accounting"
 
 # conf/documentation.conf
 msgid "inline.interfaceSNAT"
 msgstr "SNAT Interface"
+
+# conf/documentation.conf
+msgid "inline.level3_accounting_session_timeout"
+msgstr "Accounting session timeout"
+
+# conf/documentation.conf
+msgid "inline.level3_accounting_sync_interval"
+msgstr "Accounting sync interval"
 
 # conf/documentation.conf
 msgid "inline.ports_redirect"
@@ -3581,6 +4210,14 @@ msgstr "Ports redirect"
 # conf/documentation.conf
 msgid "inline.should_reauth_on_vlan_change"
 msgstr "Reauthenticate node"
+
+# conf/documentation.conf (interface.enforcement options)
+msgid "inlinel2"
+msgstr "Inline Level 2"
+
+# conf/documentation.conf (interface.enforcement options)
+msgid "inlinel3"
+msgstr "Inline Level 3"
 
 # conf/documentation.conf
 msgid "interface"
@@ -3609,6 +4246,7 @@ msgstr "Internal"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr ""
@@ -3627,16 +4265,9 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
-msgstr ""
-
-# conf/documentation.conf (general.locale options)
-msgid "it_IT"
-msgstr ""
-
-# conf/documentation.conf (guests_self_registration.mandatory_fields options)
-msgid "lastname"
 msgstr ""
 
 # pf::action (VIOLATION_ACTIONS)
@@ -3655,6 +4286,12 @@ msgstr ""
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "mac"
 msgstr "MAC Address"
+
+# conf/documentation.conf (advanced.pfcmd_error_color options)
+# conf/documentation.conf (advanced.pfcmd_success_color options)
+# conf/documentation.conf (advanced.pfcmd_warning_color options)
+msgid "magenta"
+msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
@@ -3701,6 +4338,7 @@ msgstr "Mark as sponsor"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "matches"
 msgstr ""
 
@@ -3717,9 +4355,9 @@ msgstr ""
 msgid "minutes"
 msgstr ""
 
-# conf/documentation.conf (guests_self_registration.mandatory_fields options)
-msgid "mobileprovider"
-msgstr ""
+# conf/documentation.conf (billing.gateway options)
+msgid "mirapay"
+msgstr "Mirapay"
 
 # conf/documentation.conf (interface.type options)
 msgid "monitor"
@@ -3747,16 +4385,16 @@ msgid "network.dhcpoption82logger"
 msgstr "DHCP option82"
 
 # conf/documentation.conf
+msgid "network.interfaceSNAT"
+msgstr "SNAT Interface"
+
+# conf/documentation.conf
 msgid "network.rogue_dhcp_detection"
 msgstr "Rogue DHCP detection"
 
 # conf/documentation.conf
 msgid "network.rogueinterval"
 msgstr "Rogue interval"
-
-# conf/documentation.conf (general.locale options)
-msgid "nl_NL"
-msgstr ""
 
 # conf/documentation.conf (node_import.voip options)
 msgid "no"
@@ -3792,10 +4430,6 @@ msgstr "(None)"
 msgid "openvas"
 msgstr "OpenVAS"
 
-# conf/documentation.conf (guests_self_registration.mandatory_fields options)
-msgid "organization"
-msgstr ""
-
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "os"
 msgstr "OS"
@@ -3813,16 +4447,11 @@ msgid "pfcmd_vlan"
 msgstr ""
 
 # conf/documentation.conf (guests_self_registration.guest_pid options)
-# conf/documentation.conf (guests_self_registration.mandatory_fields options)
 msgid "phone"
 msgstr ""
 
 # pf::Authentication::Source::SMSSource (available_attributes)
 msgid "phonenumber"
-msgstr ""
-
-# conf/documentation.conf (general.locale options)
-msgid "pl_PL"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -3842,7 +4471,7 @@ msgstr "Admin"
 msgid "ports.soap"
 msgstr ""
 
-# pf::SNMP::constants (Modes)
+# pf::Switch::constants (Modes)
 msgid "production"
 msgstr "Production"
 
@@ -3859,6 +4488,10 @@ msgid "provisioning.category"
 msgstr "Category"
 
 # conf/documentation.conf
+msgid "provisioning.certificate"
+msgstr "Certificate"
+
+# conf/documentation.conf
 msgid "provisioning.ssid"
 msgstr "SSID"
 
@@ -3866,8 +4499,10 @@ msgstr "SSID"
 msgid "proxies"
 msgstr "Proxies"
 
-# conf/documentation.conf (general.locale options)
-msgid "pt_BR"
+# conf/documentation.conf (advanced.pfcmd_error_color options)
+# conf/documentation.conf (advanced.pfcmd_success_color options)
+# conf/documentation.conf (advanced.pfcmd_warning_color options)
+msgid "red"
 msgstr ""
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
@@ -3879,7 +4514,7 @@ msgid "reg"
 msgstr "registered"
 
 # conf/documentation.conf
-# pf::SNMP::constants (Modes)
+# pf::Switch::constants (Modes)
 msgid "registration"
 msgstr "Registration"
 
@@ -3888,12 +4523,12 @@ msgid "registration.button_text"
 msgstr "Button text"
 
 # conf/documentation.conf
-msgid "registration.gaming_devices_registration"
-msgstr "Gaming devices"
+msgid "registration.device_registration"
+msgstr "Device registration"
 
 # conf/documentation.conf
-msgid "registration.gaming_devices_registration_role"
-msgstr "Gaming devices role"
+msgid "registration.device_registration_role"
+msgstr "Device registration role"
 
 # conf/documentation.conf
 msgid "registration.nbregpages"
@@ -3976,6 +4611,7 @@ msgid "scan.user"
 msgstr "User"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+# html/pfappserver/root/node/view.tt
 msgid "seconds"
 msgstr ""
 
@@ -3996,8 +4632,32 @@ msgid "services.dhcpd_binary"
 msgstr "dhcpd path"
 
 # conf/documentation.conf
+msgid "services.httpd_admin"
+msgstr "httpd.admin"
+
+# conf/documentation.conf
 msgid "services.httpd_binary"
 msgstr "httpd path"
+
+# conf/documentation.conf
+msgid "services.httpd_mod_qos"
+msgstr "QoS"
+
+# conf/documentation.conf
+msgid "services.httpd_mod_qos_maximum_connections_per_device"
+msgstr "QoS max connections"
+
+# conf/documentation.conf
+msgid "services.httpd_portal"
+msgstr "httpd.portal"
+
+# conf/documentation.conf
+msgid "services.httpd_proxy"
+msgstr "httpd.proxy"
+
+# conf/documentation.conf
+msgid "services.httpd_webservices"
+msgstr "httpd.webservices"
 
 # conf/documentation.conf
 msgid "services.iptables"
@@ -4005,15 +4665,39 @@ msgstr "iptables"
 
 # conf/documentation.conf
 msgid "services.memcached"
-msgstr ""
+msgstr "memcached"
 
 # conf/documentation.conf
 msgid "services.memcached_binary"
-msgstr ""
+msgstr "memcached path"
+
+# conf/documentation.conf
+msgid "services.memcached_max_item_size"
+msgstr "memcached item size"
+
+# conf/documentation.conf
+msgid "services.memcached_memory_usage"
+msgstr "memcached memory"
+
+# conf/documentation.conf
+msgid "services.pfbandwidthd"
+msgstr "pfbandwidthd"
+
+# conf/documentation.conf
+msgid "services.pfdhcplistener"
+msgstr "pfdhcplistener"
 
 # conf/documentation.conf
 msgid "services.pfdns"
 msgstr "pfdns"
+
+# conf/documentation.conf
+msgid "services.pfmon"
+msgstr "pfmon"
+
+# conf/documentation.conf
+msgid "services.pfsetvlan"
+msgstr "pfsetvlan"
 
 # conf/documentation.conf
 msgid "services.radiusd"
@@ -4022,6 +4706,10 @@ msgstr "radiusd"
 # conf/documentation.conf
 msgid "services.radiusd_binary"
 msgstr "radiusd path"
+
+# conf/documentation.conf
+msgid "services.snmptrapd"
+msgstr "snmptrapd"
 
 # conf/documentation.conf
 msgid "services.snmptrapd_binary"
@@ -4080,13 +4768,9 @@ msgstr ""
 msgid "soh"
 msgstr "SoH Filters"
 
-# conf/documentation.conf (guests_self_registration.mandatory_fields options)
-msgid "sponsor_email"
-msgstr ""
-
 # pf::config (Inline triggers)
 msgid "ssid"
-msgstr "Wifi Network SSID"
+msgstr "Wi-Fi Network SSID"
 
 # pf::Authentication::constants (Conditions)
 msgid "starts"
@@ -4094,14 +4778,19 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "starts with"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+msgid "subtract"
 msgstr ""
 
 # conf/documentation.conf (trapping.detection_engine options)
 msgid "suricata"
 msgstr ""
 
-# pf::SNMP::constants (Modes)
+# pf::Switch::constants (Modes)
 msgid "testing"
 msgstr "Testing"
 
@@ -4193,6 +4882,7 @@ msgstr "UserAgent"
 
 # pf::Authentication::Source::HtpasswdSource (available_attributes)
 # pf::Authentication::Source::KerberosSource (available_attributes)
+# pf::Authentication::Source::NullSource (available_attributes)
 # pf::Authentication::Source::RADIUSSource (available_attributes)
 msgid "username"
 msgstr ""
@@ -4275,6 +4965,12 @@ msgstr "Windows popup message"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "years"
+msgstr ""
+
+# conf/documentation.conf (advanced.pfcmd_error_color options)
+# conf/documentation.conf (advanced.pfcmd_success_color options)
+# conf/documentation.conf (advanced.pfcmd_warning_color options)
+msgid "yellow"
 msgstr ""
 
 # conf/documentation.conf (node_import.voip options)

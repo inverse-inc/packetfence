@@ -59,6 +59,10 @@
 
 PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/pfappserver/lib
+PerlPostConfigRequire /usr/local/pf/lib/pf/web/webservices_modperl_require.pl
+PerlLoadModule pf::WebAPI
+
+AcceptMutex posixsem
 
 <Perl>
 use pf::config qw();

@@ -25,6 +25,21 @@ has '+type' => (default => 'Null');
 has '+unique' => (default => 1);
 has 'email_required' => (isa => 'Str', is => 'rw', default => 'no');
 
+=head2 available_attributes
+
+Allow to make a condition on the user's email address.
+
+=cut
+
+sub available_attributes {
+  my $self = shift;
+
+  my $super_attributes = $self->SUPER::available_attributes;
+  my $own_attributes = [{ value => "username", type => $Conditions::SUBSTRING }];
+
+  return [@$super_attributes, @$own_attributes];
+}
+
 =head2 available_actions
 
 For an Null source, we limit the available actions to B<set role>, B<set access duration>, and B<set unreg date>.
@@ -36,6 +51,7 @@ sub available_actions {
             $Actions::SET_ROLE,
             $Actions::SET_ACCESS_DURATION,
             $Actions::SET_UNREG_DATE,
+            $Actions::SET_ACCESS_LEVEL,
            ];
 }
 
@@ -45,7 +61,15 @@ sub available_actions {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    return $self->email_required ? $params->{'username'} : $default_pid;
+    my $username =  $self->email_required ? $params->{'username'} : $default_pid;
+    foreach my $condition (@{ $own_conditions }) {
+        if ($condition->{'attribute'} eq "username") {
+            if ( $condition->matches("username", $username) ) {
+                push(@{ $matching_conditions }, $condition);
+            }
+        }
+    }
+    return $username;
 }
 
 =head2 authenticate

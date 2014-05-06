@@ -16,7 +16,7 @@ use warnings;
 use Moo;
 use pf::config;
 use pf::util;
-use List::MoreUtils qw(any all);
+use List::MoreUtils qw(any all uniq);
 use Linux::Inotify2;
 use pf::log;
 
@@ -36,7 +36,7 @@ sub _build_pfdhcplistenerManagers {
             name => "pfdhcplistener_$_",
             launcher => "sudo %1\$s -i '$_' -d &"
         })
-    } @listen_ints, @dhcplistener_ints;
+    } uniq @listen_ints, @dhcplistener_ints;
     return \@managers;
 }
 
@@ -49,26 +49,22 @@ Setting up inotify to watch for the creation of pidFiles for each pfdhcplistener
 sub _setupWatchForPidCreate {
     my ($self) = @_;
     my $inotify = $self->inotify;
-    my @pidFiles = map { $_->pidFile } $self->managers;
+    my %pidFiles = map { $_->pidFile => undef } $self->managers;
     my $run_dir = "$var_dir/run";
     $inotify->watch ($run_dir, IN_CREATE, sub {
         my $e = shift;
-        if(all { -e $_  } @pidFiles) {
-            my $name = $e->fullname;
-            @pidFiles = grep { $_ ne $name } @pidFiles;
-            $e->w->cancel unless @pidFiles;
-        }
+        delete @pidFiles{ grep { -e $_ } keys %pidFiles };
+        $e->w->cancel unless keys %pidFiles;
     });
 }
 
 sub postStartCleanup {
     my ($self,$quick) = @_;
-    my $pidFile = $self->pidFile;
     my $result = 0;
     my $inotify = $self->inotify;
     my @pidFiles = map { $_->pidFile } $self->managers;
     my $logger = get_logger;
-    unless (-e $pidFile) {
+    if ( @pidFiles && any { ! -e $_ } @pidFiles ) {
         my $timedout;
         eval {
             local $SIG{ALRM} = sub { die "alarm clock restart" };

@@ -172,7 +172,13 @@ has_field 'vlan' =>
    tags => { after_element => \&help,
              help => 'Destination VLAN where PacketFence should put the client when a violation of this type is open.' }
   );
-
+has_field 'redirect_url' =>
+  (
+   type => 'Text',
+   label => 'Redirection URL',
+   tags => { after_element => \&help,
+             help => 'Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the portal profile configuration.' }
+  );
 =head2 around has_errors
 
 Ignore validation errors for the trigger select field. An error would occur if a new trigger is added from the Web

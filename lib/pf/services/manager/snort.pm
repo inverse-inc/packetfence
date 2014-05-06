@@ -15,19 +15,57 @@ use strict;
 use warnings;
 use Moo;
 extends 'pf::services::manager';
-with 'pf::services::manager::roles::is_managed_by_pf_conf';
+with 'pf::services::manager::roles::pf_conf_trapping_engine';
 use pf::file_paths;
 use pf::config;
+use pf::violation_config;
+use pf::util qw(get_all_internal_ips parse_template listify);
 
 has '+name' => ( default => sub { 'snort' } );
 
 has '+launcher' => (
     default => sub {
-        "%1\$s -u pf -c $generated_conf_dir/snort.conf -i $monitor_int " .
+        "%1\$s -u pf -m 0137 -c $generated_conf_dir/snort.conf -i $monitor_int " .
         "-N -D -l $install_dir/var --pid-path $install_dir/var/run"
     },
     lazy => 1
 );
+
+sub generateConfig {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my %tags;
+    $tags{'template'}      = "$conf_dir/snort.conf";
+    $tags{'trapping-range'} = $Config{'trapping'}{'range'};
+    my $dhcp_servers = $Config{'general'}{'dhcpservers'} || [];
+    my $dns_servers  = $Config{'general'}{'dnsservers'} || [];
+    $tags{'dhcp_servers'} = join(",", @{ listify $dhcp_servers });
+    $tags{'dns_servers'}  = join(",", @{ listify $dns_servers });
+    $tags{'install_dir'}   = $install_dir;
+    my @rules;
+
+    if (exists $Violation_Config{'defaults'}{'snort_rules'}) {
+        foreach my $rule ( split( /\s*,\s*/, $Violation_Config{'defaults'}{'snort_rules'} ) ) {
+            if ( $rule !~ /^\// && -e "$install_dir/conf/snort/$rule" || -e $rule ) {
+                # Append configuration directory if the path doesn't start with /
+                $rule = "\$RULE_PATH/$rule" if ( $rule !~ /^\// );
+                push @rules, "include $rule";
+            }
+            else {
+                $logger->warn("Snort rules definition file $rule was not found.");
+            }
+        }
+    }
+    $tags{'snort_rules'} = join( "\n", @rules );
+    $logger->info("generating $conf_dir/snort.conf");
+    parse_template( \%tags, "$conf_dir/snort.conf", "$generated_conf_dir/snort.conf" );
+    return $TRUE;
+}
+
+sub pidFile {
+    my ($self) = @_;
+    my $name = $self->name;
+    return "$var_dir/run/${name}_${monitor_int}.pid";
+}
 
 =head1 AUTHOR
 

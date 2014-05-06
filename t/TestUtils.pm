@@ -38,7 +38,7 @@ our @cli_tests = qw(
 );
 
 our @compile_tests = qw(
-    pf.t binaries.t pfappserver_libs.t
+    pf.t binaries.t pfappserver_libs.t captive-portal_libs.t
 );
 
 our @dao_tests = qw(
@@ -202,20 +202,20 @@ sub get_all_php {
 
 =head2 get_networkdevices_modules
 
-Return all the files ending with .pm under /usr/local/pf/lib/pf/SNMP
+Return all the files ending with .pm under /usr/local/pf/lib/pf/Switch
 
 =cut
 
 sub get_networkdevices_modules {
 
     my @list;
-    push (@list, '/usr/local/pf/lib/pf/SNMP.pm');
+    push (@list, '/usr/local/pf/lib/pf/Switch.pm');
 
-    # find2perl /usr/local/pf/lib/pf/SNMP -name "*.pm"
+    # find2perl /usr/local/pf/lib/pf/Switch -name "*.pm"
     File::Find::find({
         wanted => sub {
             /^.*\.pm\z/s && push(@list, $File::Find::name);
-        }}, '/usr/local/pf/lib/pf/SNMP'
+        }}, '/usr/local/pf/lib/pf/Switch'
     );
 
     return @list;
@@ -223,7 +223,7 @@ sub get_networkdevices_modules {
 
 =head2 get_networkdevices_classes
 
-Return the pf::SNMP::Device form for all modules under /usr/local/pf/lib/pf/SNMP except constants.pm
+Return the pf::Switch::Device form for all modules under /usr/local/pf/lib/pf/Switch except constants.pm
 
 =cut
 

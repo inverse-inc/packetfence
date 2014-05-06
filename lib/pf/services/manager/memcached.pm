@@ -15,15 +15,21 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths;
+use pf::config;
 
 extends 'pf::services::manager';
-with 'pf::services::manager::roles::is_managed_by_pf_conf';
 
 has '+name' => (default => sub { 'memcached' } );
 
-has '+launcher' => (default => sub { "%1\$s -d -p 11211 -u pf -m 64 -c 1024 -P $install_dir/var/run/memcached.pid"});
+has '+launcher' => (default => sub {
+    my $memcached_memory_usage = $Config{services}{memcached_memory_usage};
+    my $memcached_max_item_size = $Config{services}{memcached_max_item_size};
+    "%1\$s -d -p 11211 -u pf -m $memcached_memory_usage -I $memcached_max_item_size -c 1024 -P $install_dir/var/run/memcached.pid"
+});
 
 has '+shouldCheckup' => ( default => sub { 0 }  );
+
+has '+dependsOnServices' => (is => 'ro', default => sub { [] } );
 
 =head1 AUTHOR
 

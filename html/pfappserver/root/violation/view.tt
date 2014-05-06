@@ -2,10 +2,10 @@
 [% SET action_uri = c.req.uri %]
 [% END %]
 <form name="violation" class="form-horizontal" action="[% action_uri %]">
-  [%- IF item.id %]<input type="hidden" name="id" value="[% item.id %]">[% END %]
+  [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF item %]<i>[% l('Violation') %]</i> [% item.desc || item.id %][% ELSE %][% l('New Violation') %][% END %]</h3>
+    <h3>[% IF item %]<i>[% l('Violation') %]</i> [% ( item.desc || item.id ) | html %][% ELSE %][% l('New Violation') %][% END %]</h3>
   </div>
 
   <div class="modal-body">
@@ -36,7 +36,7 @@
           <div class="controls">
             <select class="input-medium">
               [% FOREACH type IN trigger_types -%]
-              <option value="[% type %]">[% l(type) %]</option>
+              <option value="[% type | html %]">[% l(type) %]</option>
               [% END -%]
             </select>
             <input class="input-medium" type="text" placeholder="[% l('Enter the trigger ID') %]" />
@@ -59,6 +59,7 @@
       
       <div class="tab-pane fade" id="violationAdvanced">
         [% form.field('vlan').render %]
+        [% form.field('redirect_url').render %]
       </div><!--tab-pane-->
 
     </div><!--tab-content-->

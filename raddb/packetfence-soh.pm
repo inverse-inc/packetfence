@@ -38,18 +38,45 @@ use lib '/usr/local/pf/lib/';
 
 #use pf::config; # TODO: See note1
 use pf::radius::constants;
-use pf::radius::soapclient;
+# Configuration parameter
+use constant RPC_PORT_KEY   => 'PacketFence-RPC-Port';
+use constant RPC_SERVER_KEY => 'PacketFence-RPC-Server';
+use constant RPC_PROTO_KEY  => 'PacketFence-RPC-Proto';
+use constant RPC_USER_KEY   => 'PacketFence-RPC-User';
+use constant RPC_PASS_KEY   => 'PacketFence-RPC-Pass';
+use constant DEFAULT_RPC_SERVER => '127.0.0.1';
+use constant DEFAULT_RPC_PORT   => '9090';
+use constant DEFAULT_RPC_PROTO  => 'http';
+use constant DEFAULT_RPC_USER   => undef;
+use constant DEFAULT_RPC_PASS   => undef;
+use pf::radius::rpc;
 
 
 require 5.8.8;
 
 # This is very important! Without this, the script will not get the filled hashes from FreeRADIUS.
-our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK);
+our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK, %RAD_CONFIG);
 
 
 =head1 SUBROUTINES
 
 =over
+
+=item * _get_rpc_config
+
+get the rpc configuration
+
+=cut
+
+sub _get_rpc_config {
+    return {
+        server => $RAD_CONFIG{RPC_SERVER_KEY()} || DEFAULT_RPC_SERVER,
+        port   => $RAD_CONFIG{RPC_PORT_KEY()}   || DEFAULT_RPC_PORT,
+        proto  => $RAD_CONFIG{RPC_PROTO_KEY()}  || DEFAULT_RPC_PROTO,
+        user   => $RAD_CONFIG{RPC_USER_KEY()}   || DEFAULT_RPC_USER,
+        pass   => $RAD_CONFIG{RPC_PASS_KEY()}   || DEFAULT_RPC_PASS,
+    };
+}
 
 =item * authorize
 
@@ -61,10 +88,11 @@ the only callback available inside an SoH virtual server.
 sub authorize {
     my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
     eval {
-        my $data = send_soap_request("soh_authorize", \%RAD_REQUEST);
+        my $config = _get_rpc_config();
+        my $data = send_rpc_request($config, "soh_authorize", \%RAD_REQUEST);
         if ($data) {
 
-            my $elements = $data->{'soap:Body'}->{'soh_authorizeResponse'}->{'soapenc:Array'}->{'item'};
+            my $elements = $data->[0];
 
             $elements = [$elements] unless ref($elements) eq 'ARRAY';
             # Get RADIUS SoH return code

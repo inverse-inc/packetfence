@@ -21,8 +21,6 @@ use strict;
 use warnings;
 use DBI;
 use File::Basename;
-use threads;
-
 use pf::log;
 use pf::config;
 
@@ -34,29 +32,38 @@ use constant PREPARE_SUB       => '_db_prepare';  # sub with <modulename>_db_pre
 use constant PREPARED_VAR      => '_db_prepared'; # prepare flag with <modulename>_db_prepared
 use constant PREPARE_PF_PREFIX => 'pf::';         # prefix to access exported _prepare(d) variables
 
-our ( %dbh, %last_connect, $DB_Config );
+our ( $DBH, $LAST_CONNECT, $DB_Config, $NO_DIE_ON_DBH_ERROR );
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(%dbh db_data db_connect db_disconnect get_db_handle db_query_execute db_ping);
+    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping);
 
 }
 
+sub CLONE {
+    if($DBH) {
+        $DBH = undef;
+        $LAST_CONNECT = 0;
+    }
+}
+
 END {
-    $dbh{threads->self->tid}->disconnect() if ($dbh{threads->self->tid});
+    $DBH->disconnect if $DBH;
+    $DBH = undef;
 }
 
 $DB_Config = $Config{'database'};
 #Adding a config reload callback that will disconnect the database when a change in the db configuration has been found
 $cached_pf_config->addPostReloadCallbacks( 'reload_db_config' => sub {
-    my $new_db_config = $pf::config::Config{'database'};
+    my $new_db_config = $Config{'database'};
     if (grep { $DB_Config->{$_} ne $new_db_config->{$_}  } qw(host port user pass db) ) {
         db_disconnect();
     }
     $DB_Config = $new_db_config;
 });
+
 
 =head1 SUBROUTINES
 
@@ -76,9 +83,9 @@ sub db_connect {
     $logger->debug("function $caller is calling db_connect");
 
     my $tid = threads->self->tid;
-    $mydbh = $dbh{$tid} if ($dbh{$tid});
+    $mydbh = $DBH if ($DBH);
 
-    my $recently_connected = (defined($last_connect{$tid}) && $last_connect{$tid} && (time()-$last_connect{$tid} < 30));
+    my $recently_connected = (defined($LAST_CONNECT) && $LAST_CONNECT && (time()-$LAST_CONNECT < 30));
     if ($recently_connected && $mydbh) {
         $logger->debug("not checking db handle, it has been less than 30 sec from last connection");
         return $mydbh;
@@ -86,7 +93,7 @@ sub db_connect {
 
     $logger->debug("checking handle");
     if ( $mydbh && $mydbh->ping() ) {
-        $last_connect{$tid} = time();
+        $LAST_CONNECT = time();
         $logger->debug("we are currently connected");
         return $mydbh;
     }
@@ -108,12 +115,13 @@ sub db_connect {
     if ($mydbh) {
 
         $logger->debug("connected");
-        $last_connect{$tid} = time() if $mydbh;
-        $dbh{$tid} = $mydbh;
+        $LAST_CONNECT = time();
+        $DBH = $mydbh;
         return ($mydbh);
 
     } else {
-        $logger->logcroak("unable to connect to database: " . $DBI::errstr);
+        $logger->logcroak("unable to connect to database: " . $DBI::errstr) unless $NO_DIE_ON_DBH_ERROR;
+        $logger->error("unable to connect to database: " . $DBI::errstr);
         return ();
     }
 }
@@ -126,10 +134,9 @@ checks if database is connected
 
 sub db_ping {
     my ($dbh,$result);
-    eval {
-        my $dbh = db_connect;
-        $result = $dbh->ping;
-    };
+    local $NO_DIE_ON_DBH_ERROR = 1;
+    $dbh = db_connect;
+    $result = $dbh->ping if $dbh;
     return $result;
 }
 
@@ -139,11 +146,11 @@ sub db_ping {
 
 sub db_disconnect {
     my $tid = threads->self->tid;
-    if (defined($dbh{threads->self->tid})) {
+    if (defined($DBH)) {
         my $logger = get_logger();
         $logger->debug("disconnecting db");
-        $dbh{threads->self->tid}->disconnect();
-        $last_connect{$tid} = 0;
+        $DBH->disconnect();
+        $LAST_CONNECT = 0;
     }
 }
 
@@ -152,8 +159,8 @@ sub db_disconnect {
 =cut
 
 sub get_db_handle {
-    if (defined($dbh{threads->self->tid})) {
-        return $dbh{threads->self->tid};
+    if (defined($DBH)) {
+        return $DBH;
     } else {
         return db_connect();
     }
@@ -265,9 +272,10 @@ sub db_query_execute {
         my $valid_prepared_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));
         # hack! for statements that we can't prepare, we have put the SQL statement in the statement ref
         # and we will prepare it now
-        if (!$valid_prepared_statement && $db_statement !~ /^$/) {
+        my $dbh = get_db_handle;
+        if ($dbh && !$valid_prepared_statement && $db_statement !~ /^$/) {
             $logger->debug("statement provided is a SQL string, preparing statement...");
-            $db_statement = get_db_handle()->prepare($db_statement);
+            $db_statement = $dbh->prepare($db_statement);
         }
 
         my $valid_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));
@@ -283,14 +291,21 @@ sub db_query_execute {
 
             # is it a DBI error?
             if (defined($DBI::errstr) && defined($DBI::err)) {
-                $logger->warn("database query failed with: $DBI::errstr. (errno: $DBI::err), will try again");
+                if (int($DBI::err) == 1062) {
+                    # Duplicate entry -- don't retry
+                    $logger->info("database query failed with: $DBI::errstr (errno: $DBI::err)");
+                    $done = 1;
+                }
+                else {
+                    $logger->warn("database query failed with: $DBI::errstr (errno: $DBI::err), will try again");
+                }
             } else {
                 $logger->warn("database query failed because statement handler was undefined or invalid, "
                     ."will try again");
             }
 
             # this forces real reconnection by invalidating last_connect timer for this thread
-            $last_connect{threads->self->tid} = 0;
+            $LAST_CONNECT = 0;
             db_connect();
 
             # invalidate prepared database statements, forces a new preparation on next iteration

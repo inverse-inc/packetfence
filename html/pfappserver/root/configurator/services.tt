@@ -8,7 +8,7 @@
       <p>You have successfully configured and launched PacketFence.</p>
       <p>You will now be redirected to the administration interface where you can configure violations and monitor your new NAC.</p>
       <div class="modal-footer">
-        <a class="btn btn-primary" href="https://[% admin_ip %]:[% admin_port %]/">Visit Administration Interface Now!</a>
+        <a class="btn btn-primary" href="https://[% admin_ip | html %]:[% admin_port | html %]/">Visit Administration Interface Now!</a>
       </div>
     </div>
   </div>
@@ -74,6 +74,6 @@
         </div>
       </div>
       <footer>
-        <p>&copy; Inverse 2013</p>
+        <p>&copy; Inverse 2014</p>
       </footer>
     </div><!--/container-->

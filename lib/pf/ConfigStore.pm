@@ -372,6 +372,7 @@ sub commit {
     eval {
         $result = $self->rewriteConfig();
     };
+    get_logger->error($@) if $@;
     unless($result) {
         $self->rollback();
     }
@@ -384,7 +385,7 @@ sub commit {
 
 sub search {
     my ($self, $field, $value) = @_;
-    return grep { exists $_->{field} && defined $_->{field} && $_->{field} eq $value  } @{$self->readAll};
+    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } @{$self->readAll};
 
 }
 

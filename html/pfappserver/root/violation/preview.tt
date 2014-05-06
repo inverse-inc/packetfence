@@ -1,6 +1,6 @@
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3><i>[% l('Violation') %]</i> [% violation.desc || violation.id %]</h3>
+    <h3><i>[% l('Violation') %]</i> [% ( violation.desc || violation.id ) | html %]</h3>
   </div>
 
   <div class="modal-body" style="overflow: hidden; padding-top: 0; padding-left: 0; padding-right: 0;">

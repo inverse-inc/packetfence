@@ -58,7 +58,7 @@ sub instance {
 
 =item new
 
-Constructor. Usually you don't want to call this constructor but use the 
+Constructor. Usually you don't want to call this constructor but use the
 pf::roles::custom subclass instead.
 
 =cut
@@ -83,7 +83,7 @@ Returns the proper role for a given node.
 
 =cut
 
-sub getRoleForNode { 
+sub getRoleForNode {
     my ($self, $mac, $switch) = @_;
     my $logger = Log::Log4perl::get_logger(ref($self));
 
@@ -96,7 +96,7 @@ sub getRoleForNode {
 
     # looking at the node's registration status
     my $node_attributes = node_attributes($mac);
-    if (!defined($node_attributes)) {
+    if (!$node_attributes) {
         $logger->debug("MAC: $mac doesn't have a node entry; no role returned");
         return;
     }
@@ -114,13 +114,13 @@ sub getRoleForNode {
 =item performRoleLookup
 
 This sub is meant to be overridden in lib/pf/roles/custom.pm if the default
-version doesn't do the right thing for you. 
+version doesn't do the right thing for you.
 
-By default it will return the role according to switch configuration based 
-on the node category. Otherwise a default global role based on the node 
+By default it will return the role according to switch configuration based
+on the node category. Otherwise a default global role based on the node
 category is returned.
 
-In other words, node category = global role. Then per switch role will be 
+In other words, node category = global role. Then per switch role will be
 looked up based on global role.
 
 =cut

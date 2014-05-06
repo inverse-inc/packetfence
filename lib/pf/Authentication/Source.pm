@@ -97,6 +97,19 @@ sub getRule {
     return $result;
 }
 
+
+=head2 getDefaultOfType
+
+TODO: documention
+
+=cut
+
+sub getDefaultOfType {
+    my ($self) = @_;
+    return $self->meta->get_attribute('type')->default;
+}
+
+
 =head2 match
 
 The first rule for which its conditions are matched wins, and stops everything.
@@ -191,8 +204,6 @@ sub match_condition {
 
   return $r;
 }
-
-=back
 
 =head1 AUTHOR
 

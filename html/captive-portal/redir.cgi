@@ -16,15 +16,17 @@ use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use Log::Log4perl;
 use URI::Escape qw(uri_escape);
+use NetAddr::IP;
 
 use pf::class;
 use pf::config;
 use pf::enforcement;
 use pf::iplog;
+use pf::locationlog;
 use pf::node;
 use pf::Portal::Session;
 use pf::scan qw($SCAN_VID);
-use pf::util;
+use pf::util qw(valid_mac clean_ip isenabled);
 use pf::violation;
 use pf::web;
 use pf::web::guest;
@@ -39,6 +41,24 @@ Log::Log4perl::MDC->put('proc', 'redir.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
 my $portalSession = pf::Portal::Session->new();
+
+# We check if we're connected in an inlinel3 (Inline Layer 3) network and if we must
+# generate a fake MAC address.
+foreach my $network ( keys %ConfigNetworks ) {
+    next if ( !pf::config::is_network_type_inline($network) );
+    my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+    if (defined $portalSession->getClientIp()) {
+        my $ip = new NetAddr::IP::Lite clean_ip($portalSession->getClientIp());
+        if ($net_addr->contains($ip) && isenabled($ConfigNetworks{$network}{'generate_fake_mac'})) {
+            my $fake_mac = '00:00:' . join(':', map { sprintf("%02X", $_) } split /\./, $ip->addr());
+
+            $portalSession->setClientMac( $fake_mac );
+            locationlog_synchronize($ConfigNetworks{$network}{'gateway'},$ConfigNetworks{$network}{'gateway'},undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
+            iplog_open(lc($fake_mac), $ip->addr());
+            last;
+        }
+    }
+}
 
 # we need a valid MAC to identify a node
 if (!valid_mac($portalSession->getClientMac())) {
@@ -59,7 +79,7 @@ if (defined($portalSession->getCgi->user_agent)) {
 }
 
 # if we are going to provide a provisionned wi-fi profile then we should not deauth the user
-if (pf::web::supports_mobileconfig_provisioning($portalSession)) {
+if (pf::web::supports_mobileconfig_provisioning($portalSession) || pf::web::supports_androidconfig_provisioning($portalSession)) {
   $portalSession->getSession->param("do_not_deauth", $TRUE);
 }
 

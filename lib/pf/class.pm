@@ -27,8 +27,8 @@ BEGIN {
         $class_db_prepared
 
         class_view       class_view_all
-        class_trappable  class_view_actions 
-        class_add        class_delete 
+        class_trappable  class_view_actions
+        class_add        class_delete
         class_merge
     );
 }
@@ -92,6 +92,7 @@ sub class_view {
 }
 
 sub class_view_all {
+    return unless db_ping();
     return db_data(CLASS, $class_statements, 'class_view_all_sql');
 }
 

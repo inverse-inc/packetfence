@@ -228,7 +228,7 @@ sub match_in_subclass {
             $attribute = $condition->{'attribute'};
             $value = $condition->{'value'};
             my @attributes = $entry->get_value($attribute);
-            if (scalar @attributes > 0 && grep /$value/, @attributes) {
+            if (scalar @attributes > 0 && grep /$value/i, @attributes) {
                 $entry_matches = 1;
                 $logger->debug("[$self->{'id'} $rule->{'id'}] Regexp $attribute =~ /$value/ matches ($dn)");
                 last if ($rule->match eq $Rules::ANY)

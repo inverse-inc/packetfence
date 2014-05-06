@@ -14,9 +14,13 @@ pfappserver::Form::Portal::Common
 
 use strict;
 use warnings;
+
 use HTML::FormHandler::Moose::Role;
 use List::MoreUtils qw(uniq);
+
 use pf::authentication;
+use pf::ConfigStore::Mdm;
+use pf::web::constants;
 with 'pfappserver::Base::Form::Role::Help';
 
 =head1 Fields
@@ -46,6 +50,26 @@ has_field 'description' =>
    type => 'Text',
    label => 'Profile Description',
   );
+
+=head2 locale
+
+Accepted languages for the profile
+
+=cut
+
+has_field 'locale' =>
+(
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+);
+
+has_field 'locale.contains' =>
+(
+    type => 'Select',
+    options_method => \&options_locale,
+    widget_wrapper => 'DynamicTableRow',
+);
 
 =head2 redirecturl
 
@@ -119,7 +143,74 @@ has_field 'sources.contains' =>
     widget_wrapper => 'DynamicTableRow',
   );
 
-=head1 Methods
+has_field 'mandatory_fields' =>
+(
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+);
+
+has_field 'mandatory_fields.contains' =>
+(
+    type => 'Select',
+    options_method => \&options_mandatory_fields,
+    widget_wrapper => 'DynamicTableRow',
+);
+
+=head2 authorizer
+
+=cut
+
+has_field 'authorizer' =>
+  (
+    type => 'Select',
+  );
+
+=head2 allow_ios_devices
+
+=cut
+
+has_field 'allowed_devices' =>
+  (
+    type => 'Select',
+    multiple => 1,
+    element_class => ['chzn-select', 'input-xxlarge'],
+  );
+
+=head2 allow_android_devices
+
+=cut
+
+has_field 'allow_android_devices' =>
+  (
+    type => 'Checkbox',
+  );
+
+has_block provisioning => (
+    render_list => [qw(authorizer allowed_devices)]
+);
+
+=head1 METHODS
+
+=head2 options_locale
+
+=cut
+
+sub options_locale {
+    return map { { value => $_, label => $_ } } @WEB::LOCALES;
+}
+
+=head2 options_authorizer
+
+=cut
+
+sub options_authorizer {
+    return { value => '', label => '' }, map { { value => $_, label => $_ } } @{pf::ConfigStore::Mdm->new->readAllIds};
+}
+
+sub options_allowed_devices {
+    return map { { value => $_, label => $_ } } qw(ios android windows);
+}
 
 =head2 options_sources
 
@@ -131,6 +222,22 @@ sub options_sources {
     return map { { value => $_->id, label => $_->id, attributes => { 'data-source-class' => $_->class  } } } @{getAllAuthenticationSources()};
 }
 
+=head2 options_mandatory_fields
+
+Returns the list of sources to be displayed
+
+=cut
+
+sub options_mandatory_fields {
+    return
+      map { { value => $_, label => $_ } }
+      qw(firstname lastname organization phone mobileprovider email sponsor_email
+      anniversary birthday gender lang nickname organization cell_phone
+      work_phone title building_number apartment_number room_number
+      custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5
+      custom_field_6 custom_field_7 custom_field_8 custom_field_9);
+}
+
 =head2 validate
 
 Remove duplicates and make sure only one external authentication source is selected for each type.
@@ -140,10 +247,14 @@ Remove duplicates and make sure only one external authentication source is selec
 sub validate {
     my $self = shift;
 
-    my @all = uniq @{$self->value->{'sources'}};
-    $self->field('sources')->value(\@all);
+    my @uniq_locales = uniq @{$self->value->{'locale'}};
+    $self->field('locale')->value(\@uniq_locales);
+
+    my @uniq_sources = uniq @{$self->value->{'sources'}};
+    $self->field('sources')->value(\@uniq_sources);
+
     my %external;
-    foreach my $source_id (@all) {
+    foreach my $source_id (@uniq_sources) {
         my $source = &pf::authentication::getAuthenticationSource($source_id);
         next unless $source && $source->class eq 'external';
         $external{$source->{'type'}} = 0 unless (defined $external{$source->{'type'}});
@@ -162,7 +273,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 

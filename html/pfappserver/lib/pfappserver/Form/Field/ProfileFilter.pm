@@ -32,20 +32,23 @@ has_field 'match' =>
    type => 'Text',
    do_label => 0,
    widget_wrapper => 'None',
+   element_class => ['input-medium'],
+   required => 1,
   );
 has_field 'type' =>
   (
    type => 'Select',
    widget => 'ButtonGroup',
    do_label => 0,
-   tags => { no_errors => 1 },
+   required => 1,
    wrapper_class => ['btn-group'],
    wrapper_attr => {'data-toggle' => 'buttons-radio'},
    default => 'ssid',
    options => [
-               {value => 'ssid', label => 'SSID'},
-               {value => 'vlan', label => 'VLAN'},
-               {value => 'switch', label => 'SWITCH'},
+               { value => 'ssid', label => 'SSID' },
+               { value => 'vlan', label => 'VLAN' },
+               { value => 'switch', label => 'SWITCH' },
+               { value => 'uri', label => 'URI' },
               ],
   );
 
@@ -53,11 +56,11 @@ sub filter_inflate {
     my ($self, $value) = @_;
     my $hash = {};
     if (defined $value) {
-        if($value =~ m/^([^:]+):(.+)$/) {
-            @{$hash}{'type','match'} = ($1, $2);
+        if ($value =~ m/^([^:]+):(.+)$/) {
+            @{$hash}{'type', 'match'} = ($1, $2);
         }
         else {
-            @{$hash}{'type','match'} = ('ssid', $value);
+            @{$hash}{'type', 'match'} = ('ssid', $value);
         }
     }
     return $hash;

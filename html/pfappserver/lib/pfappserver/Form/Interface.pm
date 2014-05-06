@@ -49,6 +49,23 @@ has_field 'dns' =>
              help => 'The primary DNS server of your network.' },
   );
 
+has_field 'fake_mac_enabled' => 
+  (
+   type => 'Toggle',
+   checkbox_value => 1,
+   default => 1,
+   label => 'Fake MAC Address',
+   );
+
+has_field 'dhcpd_enabled' => 
+   (
+    type => 'Toggle',
+    checkbox_value => 1,
+    default => 1,
+    label => 'Enable DHCP Server',
+   );
+
+
 =head2 options_type
 
 =cut
@@ -57,7 +74,15 @@ sub options_type {
     my $self = shift;
 
     # $self->types comes from pfappserver::Model::Enforcement->getAvailableTypes
-    my @types = map { $_ => $self->_localize($_) } @{$self->types} if ($self->types);
+    my @types;
+    if ( defined $self->types ) {
+        for my $type ( @{$self->types} ) {
+            # we remove inline, even though it may still be in pf.conf for backwards compatibility reasons.
+            next if $type eq 'inline';
+            push @types, ( $type => $self->_localize($type) );
+        }
+    }
+
 
     return ('' => '', @types);
 }
@@ -71,7 +96,10 @@ Force DNS to be defined when the 'inline' type is selected
 sub validate {
     my $self = shift;
 
-    if (defined $self->value->{type} && $self->value->{type} eq 'inline') {
+    if (defined $self->value->{type} &&  
+        ( $self->value->{type} eq 'inlinel2' or 
+          $self->value->{type} eq 'inline' ) 
+        ) {
         unless ($self->value->{dns}) {
             $self->field('dns')->add_error('Please specify your DNS server.');
         }

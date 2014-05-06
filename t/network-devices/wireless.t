@@ -19,6 +19,8 @@ use UNIVERSAL::require;
 use lib '/usr/local/pf/lib';
 use Test::More;
 use Test::NoWarnings;
+use Test::MockModule;
+use Test::MockObject::Extends;
 
 use TestUtils;
 
@@ -33,13 +35,21 @@ foreach my $networkdevice_class (TestUtils::get_networkdevices_classes()) {
     }
 }
 
+my $mock = new Test::MockModule('pf::roles');
+
+$mock->mock('node_attributes', sub {
+    return { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
+        lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
+        last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''}
+});
+
 # + no warnings
 plan tests => scalar @wireless_devices * 2 + 1;
 
 foreach my $wireless_object (@wireless_devices) {
 
     # test the object's heritage
-    isa_ok($wireless_object, 'pf::SNMP');
+    isa_ok($wireless_object, 'pf::Switch');
 
     # test its interface
     can_ok($wireless_object, qw(
@@ -52,7 +62,7 @@ foreach my $wireless_object (@wireless_devices) {
 
 # regression test for #1426: RADIUS CoA Broken on WLC 5500
 # http://www.packetfence.org/bugs/view.php?id=1426
-my $networkdevice_object = pf::SNMP::Cisco::WiSM2->new(
+my $networkdevice_object = pf::Switch::Cisco::WiSM2->new(
     '-mode' => 'production', 
     '-radiusSecret' => 'fake',
     '-ip' => '127.0.0.1',
@@ -70,7 +80,7 @@ local $SIG{__DIE__} = sub {
     my $str = join("\n", @_); 
     warn(@_) if ($str !~ /No answer from 127\.0\.0\.1 on port 3799/m);
 };
-$networkdevice_object = pf::SNMP::Aruba->new(
+$networkdevice_object = pf::Switch::Aruba->new(
     '-mode' => 'production', 
     '-radiusSecret' => 'fake',
     '-ip' => '127.0.0.1',

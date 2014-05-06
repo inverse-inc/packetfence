@@ -17,6 +17,8 @@ use HTTP::Status qw(:constants is_error is_success);
 use namespace::autoclean;
 use Moose;
 use pfappserver::Form::SavedSearch;
+use pf::admin_roles;
+use List::MoreUtils qw(none);
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -40,6 +42,7 @@ sub auto :Private {
             $c->stash->{status_msg} = 'Your session has expired.';
             $c->stash->{'redirect_action'} = $c->uri_for($c->action, @args);
         }
+        $c->delete_session();
         $c->detach();
         return 0;
     }
@@ -70,14 +73,34 @@ sub login :Local :Args(0) {
     my ( $self, $c ) = @_;
 
     if (exists($c->req->params->{'username'}) && exists($c->req->params->{'password'})) {
+        $c->stash->{current_view} = 'JSON';
         eval {
-            if ($c->authenticate( {username => $c->req->params->{'username'},
-                                   password => $c->req->params->{'password'}} )) {
-                $c->session->{user_roles} = [$c->user->roles]; # Save the roles to the session
-                $c->persist_user(); # Save the updated roles data
-                $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
-            }
-            else {
+            if ($c->authenticate( { username => $c->req->params->{'username'}, password => $c->req->params->{'password'} } )) {
+                my $roles = [$c->user->roles];
+                if (admin_can_do_any_in_group($roles, 'LOGIN_GROUP')) {
+
+                    # Save the roles to the session
+                    $c->session->{user_roles} = $roles;
+
+                    # Save the updated roles data
+                    $c->persist_user();
+
+                    # Don't send a standard 302 redirect code; return the redirection URL in the JSON payload
+                    # and perform the redirection on the client side
+                    $c->response->status(HTTP_ACCEPTED);
+                    if ($c->req->params->{'redirect_url'}) {
+                        $c->stash->{success} = $c->req->params->{'redirect_url'};
+                    } else {
+                        $c->stash->{success} = $c->uri_for($c->controller()->action_for('index'));
+                    }
+                } else {
+                    $c->response->status(HTTP_UNAUTHORIZED);
+                    $c->stash->{status_msg} = $c->loc("You don't have the rights to perform this action.");
+                    if (@$roles && none {$_ eq 'NONE'}) {
+                        $c->log->error( "One of the following roles are not defined properly " . join(",", map { "'$_'" } @$roles));
+                    }
+                }
+            } else {
                 $c->response->status(HTTP_UNAUTHORIZED);
                 $c->stash->{status_msg} = $c->loc("Wrong username or password.");
             }
@@ -86,13 +109,10 @@ sub login :Local :Args(0) {
             $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
             $c->stash->{status_msg} = $c->loc("Unexpected error. See server-side logs for details.");
         }
-        $c->stash->{current_view} = 'JSON';
-    }
-    elsif ($c->user_in_realm( 'admin' )) {
-        $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
+    } elsif ($c->user_in_realm( 'admin' )) {
+        $c->response->redirect($c->uri_for($c->controller->action_for('index')));
         $c->detach();
-    }
-    elsif ($c->req->params->{'redirect_action'}) {
+    } elsif ($c->req->params->{'redirect_action'}) {
         $c->stash->{redirect_action} = $c->req->params->{'redirect_action'};
     }
 }
@@ -105,20 +125,32 @@ sub logout :Local :Args(0) {
     my ( $self, $c ) = @_;
 
     $c->logout();
+    $c->delete_session();
     $c->stash->{'template'} = 'admin/login.tt';
     $c->stash->{'status_msg'} = $c->loc("You have been logged out.");
 }
 
 =head2 index
 
-Status
-
 =cut
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
-
-    $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
+    my @roles = $c->user->roles();
+    my $action;
+    if (admin_can_do_any(\@roles,qw(SERVICES REPORTS))) {
+        $action = 'status';
+    } elsif( admin_can_do_any(\@roles,qw(USERS_READ))) {
+        $action = 'users';
+    } elsif( admin_can_do_any(\@roles,qw(NODES_READ))) {
+        $action = 'nodes';
+    } elsif( admin_can_do_any_in_group(\@roles, 'CONFIGURATION_GROUP_READ' ) ) {
+        $action = 'configuration';
+    } else {
+        $action = 'logout';
+        $c->log->error("A role action is not properly defined");
+    }
+    $c->response->redirect($c->uri_for($c->controller->action_for($action)));
 }
 
 =head2 object

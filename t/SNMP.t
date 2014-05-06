@@ -18,11 +18,11 @@ BEGIN { use PfFilePaths; }
 
 use pf::SwitchFactory;
 
-BEGIN { use_ok('pf::SNMP') }
+BEGIN { use_ok('pf::Switch') }
 
 # test the object
-my $SNMP = new pf::SNMP;
-isa_ok($SNMP, 'pf::SNMP');
+my $SNMP = new pf::Switch;
+isa_ok($SNMP, 'pf::Switch');
 
 # test subs
 #TODO: list all mandatory subs here
@@ -33,6 +33,7 @@ can_ok($SNMP, qw(
     _setVlanByOnlyModifyingPvid
     setVlanByName
     setMacDetectionVlan
+    _identifyConnectionType
   ));
 
 # SNMP object tests
@@ -101,7 +102,7 @@ is($SNMP->extractSsid($radius_request), 'Secure SSID',
 
 # Switch object tests
 # BE CAREFUL: if you change the configuration files, tests will break!
-# getting a switch instance (pf::SNMP::PacketFence but still inherit most subs from pf::SNMP)
+# getting a switch instance (pf::Switch::PacketFence but still inherit most subs from pf::Switch)
 my $switchFactory = new pf::SwitchFactory;
 my $switch = $switchFactory->instantiate('127.0.0.1');
 

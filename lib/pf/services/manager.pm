@@ -11,6 +11,29 @@ pf::services::manager
 
 This module encapsulates the service actions/commands for pfcmd tool
 
+=head1 EXAMPLES
+
+An example of a new service foo
+
+    package pf::services::manager::moo;
+
+    use strict;
+    use warnings;
+    use Moo;
+
+    extends 'pf::services::manager';
+
+    has '+name' => ( default => sub { 'foo' } );
+
+    has '+launcher' => (default => sub { '%1$s -d' } );
+
+
+To include the new service in pfcmd service
+
+* Add service name to the service regex in pf::pfcmd
+
+* Update the help in pf::pfcmd::help
+
 =cut
 
 use strict;
@@ -18,6 +41,7 @@ use strict;
 use pf::file_paths;
 use pf::log;
 use pf::config;
+use pf::util;
 use Moo;
 use File::Slurp qw(read_file);
 use Proc::ProcessTable;
@@ -26,6 +50,7 @@ use Linux::Inotify2;
 use Errno qw(EINTR EAGAIN);
 use Time::HiRes qw (alarm);
 use Linux::FD::Timer;
+use IO::Poll qw(POLLRDNORM POLLWRNORM POLLIN POLLHUP);
 
 =head1 Attributes
 
@@ -362,6 +387,7 @@ sub launchService {
     if ($cmdLine =~ /^(.+)$/) {
         $cmdLine = $1;
         my $logger = get_logger();
+        $logger->debug(sprintf("Starting Daemon %s with command %s",$self->name,$cmdLine));
         my $t0 = Time::HiRes::time();
         my $return_value = system($cmdLine);
         my $elapsed = Time::HiRes::time() - $t0;
@@ -481,7 +507,12 @@ return true is the service is currently managed by packetfence
 
 =cut
 
-sub isManaged { 1 }
+sub isManaged {
+    my ($self) = @_;
+    my $name = $self->name;
+    $name =~ s/\./_/g;
+    return isenabled($Config{'services'}{$name});
+}
 
 
 =head1 AUTHOR

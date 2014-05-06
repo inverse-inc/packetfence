@@ -57,7 +57,11 @@ In Band (Inline Enforcement)::
   PacketFence can also be configured to be in-band, especially when you have non-manageable network switches or access points. PacketFence can also work with both VLAN and Inline enforcement activated for maximum scalability and security while allowing older hardware to still be secured using Inline enforcement.
 
 Hybrid support (Inline Enforcement with RADIUS support)::
-  PacketFence can also be configured as hybrid, if you have a manageable device that supports 802.1x and/or mac-auth. This feature can be enabled using a RADIUS attribute (MAC address, SSID, port) or using full inline mode on the equipment.
+  PacketFence can also be configured as hybrid, if you have a manageable device that supports 802.1X and/or MAC-authentication. This feature can be enabled using a RADIUS attribute (MAC address, SSID, port) or using full inline mode on the equipment.
+
+Hotspot support (Web Auth Enforcement)::
+  PacketFence can also be configured as hotspot, if you have a manageable device that support an external captive portal (like
+Cisco WLC or Aruba IAP).
 
 Voice over IP (VoIP) support::
   Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Edge-Core, HP, LinkSys, Nortel Networks and many more).
@@ -135,9 +139,9 @@ The following table provides recommendations for the required components, togeth
 |========================================
 |MySQL server     |MySQL 5.1
 |Web server       |Apache 2.2
-|DHCP server      |DHCP 3
-|RADIUS server    |FreeRADIUS 2.1.12
-|Snort            |Snort 2.8 or 2.9
+|DHCP server      |DHCP 4.1
+|RADIUS server    |FreeRADIUS 2.2.0
+|Snort            |Snort 2.9.1
 |Suricata         |Suricata 1.4.1
 |========================================
 
@@ -216,36 +220,6 @@ RedHat-based systems
 
 NOTE: Includes CentOS and Scientific Linux. Both i386 and x86_64 architectures supported.
 
-Several third party repositories are required to pull all the proper PacketFence dependencies:
-
-[options="compact"]
-* http://repoforge.org/[Repoforge], also previously known as rpmforge
-* http://fedoraproject.org/wiki/EPEL/FAQ[EPEL], Extra Packages for Enterprise Linux
-* http://www.openfusion.net/linux/openfusion_rpm_repository[OpenFusion]
-
-Install the proper repositories in `yum` so it can directly lookup for packages:
-
-.For RHEL 6.x / CentOS 6.x
-
-  # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.`uname -m`.rpm
-  # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-8.noarch.rpm
-  # rpm -Uvh http://repo.openfusion.net/centos6-`uname -i`/openfusion-release-0.6.2-1.of.el6.noarch.rpm
-
-Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmforge.repo`, `epel.repo` and `openfusion.repo` and set `enabled` to 0 under every section like this:
-
-  enabled = 0
-
-Under RHEL 6.x / Centos 6.x, you must exclude perl-Apache-Test from rpmforge and openfusion repository.
-
-Edit `/etc/yum.repos.d/rpmforge.repo` and add to the section [rpmforge] the line:
-
-  exclude = perl-Apache-Test*
-
-
-Edit `/etc/yum.repos.d/openfusion.repo` and add to the section [of] the line:
-
-  exclude = perl-Apache-Test*
-
 RHEL 6.x
 ^^^^^^^^
 
@@ -255,9 +229,6 @@ RedHat Enterprise Linux users need to take an additional setup step. If you are 
 
   rhn-channel --add --channel=rhel-`uname -m`-server-optional-6
 
-RedHat doesn't seem to provide `perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite` packages. PacketFence needs it so we will install it from the rpmforge-extras repository now: 
-
-  yum install perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite --enablerepo=rpmforge-extras,rpmforge
 
 Debian and Ubuntu
 ^^^^^^^^^^^^^^^^^
@@ -284,23 +255,19 @@ Software Installation
 RHEL / CentOS
 ^^^^^^^^^^^^^
 
-In order to use the repository, create a file named `/etc/yum.repos.d/PacketFence.repo` with the following content:
+In order to use the PacketFence repository :
 
-  [PacketFence]
-  name=PacketFence Repository
-  baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/$basearch
-  gpgcheck=0
-  enabled=0
+  # rpm -Uvh http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1-1.el6.noarch.rpm
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database
 server, DHCP server, RADIUS server) using:
 
-  yum groupinstall --enablerepo=PacketFence,epel,rpmforge,of Packetfence-complete
+  yum groupinstall --enablerepo=packetfence Packetfence-complete
 
 Or, if you prefer, to install only the core PacketFence without all the external services, you can use:
 
-  yum install --enablerepo=PacketFence,epel,rpmforge,of packetfence
+  yum install --enablerepo=packetfence packetfence
 
 Debian and Ubuntu
 ^^^^^^^^^^^^^^^^^
@@ -432,7 +399,7 @@ Moreover, PacketFence can also authenticate users defined in its own internal SQ
 
 Each authentication sources you define will have a set of rules, conditions and actions.
 
-Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging it around). Eeach source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criterias. If the criterias match (one ore more), action are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
+Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging it around). Each source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criterias. If the criterias match (one ore more), action are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
 
 When no condition is defined, the rule will be considered as a fallback. When a fallback is defined, all actions will be applied fory any users that match in the authentication source.
 
@@ -649,26 +616,34 @@ Inline enforcement configuration
 
 This section applies only for Inline enforcement. Users planning to do VLAN enforcement only can skip this section.
 
-The inline enforcement is a very convenient method of performing access control on older network hardware who is not capable of doing VLAN enforcement or who is not compatible with PacketFence. This technique is covered in details in the <<_technical_introduction_to_inline_enforcement,"Technical introduction to Inline enforcement" section>>.
+The inline enforcement is a very convenient method of performing access control on older network hardware that is not capable of doing VLAN enforcement or that is not supported by PacketFence. This technique is covered in details in the <<_technical_introduction_to_inline_enforcement,"Technical introduction to Inline enforcement" section>>.
 
-An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by this users should be your actual production DNS server. The next section shows you how to configure the proper inline interface and it is there that you should refer to the proper production DNS. 
+An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by these users should be your actual production DNS server - which shouldn't be in the same broadcast domain as your inline users. The next section shows you how to configure the proper inline interface and it is in this section that you should refer to the proper production DNS. 
 
 Inline enforcement uses `ipset` to mark nodes as registered, unregistered and isolated.
-It is also now possible to use multiple inline interfaces, a node registered on the first inline interface is mark with is couple ip:mac, so when the node try to register on an other inline interface PacketFence detect that the node is already registered on the first VLAN.
-It is also possible to enable inline.should_reauth_on_vlan_change to force user to reauthenticate when they change VLAN.
-ipset also provides a better reponse time under inline enforcement and now we just have to wait 10s after the registration to access to internet. 
+It is also now possible to use multiple inline interfaces. A node registered on the first inline interface is marked with an ip:mac tuple (for L2, only ip for L3), so when the node tries to register on an other inline interface, PacketFence detects that the node is already registered on the first VLAN.
+It is also possible to enable inline.should_reauth_on_vlan_change to force users to reauthenticate when they change VLAN.
 
-The outgoing interface should be specified by adding in pf.conf the option interfaceSNAT in inline section. It is a comma delimited list of network interfaces like eth0,eth0.100. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network section.
+The outgoing interface should be specified by adding in pf.conf the option interfaceSNAT in inline section. It is a comma delimited list of network interfaces like eth0,eth0.100. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network sections.
 
-Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface ip address, it is mandatory to set it to this ip (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
+Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface IP address, it is mandatory to set it to this IP (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
 
 Hybrid mode
 ~~~~~~~~~~
 
-This section applies for hybrid support for the manageable devices that support 802.1x or mac-auth.
+This section applies for hybrid support for the manageable devices that support 802.1X or MAC-authentication.
 
 Hybrid enforcement is a mixed method that offers the use of inline enforcement mode with VLAN enforcement mode on the same device.
 This technique is covered in details in the <<_technical_introduction_to_hybrid_enforcement,"Technical introduction to Hybrid enforcement" section>>
+
+Web Auth mode
+~~~~~~~~~~~~~
+
+This section applies for web authentication support for manageable devices that support web authentication with an external captive portal.
+
+Web authentication is a method on the switch that forwards http traffic of the device to the captive portal.
+With this mode, your device will never change of VLAN ID but only the ACL associated to your device will change.
+Refer to the Network Devices Configuration Guide to see a sample web auth configuration on a Cisco WLC.
 
 DHCP and DNS Server Configuration (networks.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -988,7 +963,7 @@ Next, edit `/etc/samba/smb.conf`. Again, here is an example for our `DOMAIN.NET`
 ----
   [global]
   workgroup = DOMAIN
-  server string = pf_server_name
+  server string = %h
   security = ads
   passdb backend = tdbsam
   realm = DOMAIN.NET
@@ -1000,6 +975,8 @@ Next, edit `/etc/samba/smb.conf`. Again, here is an example for our `DOMAIN.NET`
   local master = no
   load printers = no
   log level = 1 winbind:5 auth:3
+  winbind max clients = 750
+  winbind max domain connections = 15
 ----
 
 For Debian and Ubuntu:
@@ -1046,14 +1023,14 @@ Note that for Debian and Ubuntu you will probably have this error:
   # kinit succeeded but ads_sasl_spnego_krb5_bind failed: Invalid credentials
   # Join to domain is not valid: Invalid credentials
 
+For Centos/RHEL:
+
+  # usermod -a -G wbpriv pf
+
 Finally, start `winbind`, and test the setup using `ntlm_auth` and `radtest`:
 
   # service winbind start
   # chkconfig --level 345 winbind on
-
-For Centos/RHEL:
-
-  # usermod -a -G wbpriv pf
 
 For Debian and Ubuntu:
 
@@ -1167,12 +1144,11 @@ These two methods can be used together but DNS-based passthroughs have higher pr
 Proxy Interception
 ~~~~~~~~~~~~~~~~~~
 
-In PacketFence you are now able to intercept proxy request and forward them to the captive portal. It only work in layer 2 network because packetfence must be the default gateway of your device.
+PacketFence enables you to intercept proxy requests and forward them to the captive portal. It only works in layer 2 network because PacketFence must be the default gateway.
 In order to use the Proxy Interception feature, you need to enable it from the GUI in
 *Configuration -> Trapping* and check *Proxy Interception*.
 
-Add the port you want to intercept, like 8080 3128 and add a new entry in the /etc/hosts file to resolv the fqdn of the captive portal to 127.0.0.1.
-The modification of the hosts file is really important because apache try to resolv the fqdn of the captive portal and it must be 127.0.0.1.
+Add the port you want to intercept (like 8080 or 3128) and add a new entry in the `/etc/hosts` file to resolve the fully qualified domain name (fqdn) of the captive portal to the IP address of the registration interface. This modification is mandatory in order for Apache to receives the proxy requests.
 
 
 Configuration by example
@@ -1701,7 +1677,7 @@ Scan on registration
 ^^^^^^^^^^^^^^^^^^^^
 
 To perform a system scan before giving access to a host on the network you need to enable the `scan.registration` parameter in `pf.conf`.
-If you want to scan a device that have been auto-registered as a 802.1x connection, you need to enable `scan.dot1x` parameter in `pf.conf`. 
+If you want to scan a device that have been auto-registered as a 802.1X connection, you need to enable `scan.dot1x` parameter in `pf.conf`. 
 The default EAP-Type that will be scanned is MS-CHAP-V2 but you can configure other EAP-Type (such as MD5-Challenge) by adding them to `scan.dot1x_type` as a comma-separated list of values (look at `dictionary.freeradius.internal` file bundled with FreeRADIUS for the list of EAP-Type).
 
 It is also recommended to adjust `scan.duration` to reflect how long the scan takes. A progress bar of this duration will be shown to the user while he is waiting. By default, we set this variable to 60s.
@@ -1743,7 +1719,7 @@ Let's explain each chunk properly:
 [options="compact"]
 * `DIRECTION`: You can either set a limit to inbound(IN), outbound(OUT), or total(TOT) bandwidth
 * `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megabytes(MB), gigabytes(GB), or petabytes(PB)
-* `INTERVAL`: This is actually the time window we will look for potential abuse.  You can set a number of seconds(s),minutes(m),hours(h),days(D),weeks(W),months(M), or years(Y).  This value is optional, if you set nothing, we will check in all the data we have since your packetfence install.
+* `INTERVAL`: This is actually the time window we will look for potential abuse.  You can set a number of days(D), weeks(W), months(M), or years(Y).
 
 Example triggers
 ++++++++++++++++
@@ -1752,13 +1728,13 @@ Example triggers
 
    Accounting::IN50GB1M
 
-* Look for Outgoing (Upload) traffic with a 500MB/hour
+* Look for Outgoing (Upload) traffic with a 500MB/day
 
-   Accounting::OUT500MB1h
+   Accounting::OUT500MB1D
 
-* Look for Total (Download+Upload) traffic with a 200GB limit (we will check all the accounting data)
+* Look for Total (Download + Upload) traffic with a 200GB limit in the last week
 
-   Accounting::TOT200GB
+   Accounting::TOT200GB1W
 
 Grace period
 ++++++++++++
@@ -2013,15 +1989,15 @@ Next, click on *Add a condition*, and select *Anti-virus*, *is*, and *disabled* 
 
 The last step is to create a new remediation template called `noantivirus.php` on the filesystem in the `html/captive-portal/violations` folder. Edit it to include the text you want to display to the users.
 
-Apple Wireless Profile Provisioning
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Apple and Android Wireless Profile Provisioning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Apple devices such as iPhones, iPads, and iPods support wireless profile importation using a special XML file format (mobileconfig). In fact, installing such file on your phone will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to easy the configuration steps on the phone (because it is painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator desire, and we pre-populate the file with the user's credentials (without the password). The user simply need to install its generated file, and he will be able to use the new SSID.
+Apple devices such as iPhones, iPads, iPods and Mac OS X (10.7+) support wireless profile importation using a special XML file format (mobileconfig). Android is also able to support this feature by importing the wireless profile with the Android PacketFence Agent. In fact, installing such file on your Apple device will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to ease the configuration steps on the mobile device (because it is often painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator's preference and we pre-populate the file with the user's credentials (without the password). The user simply needs to install its generated file and he will be able to use the new SSID.
 
 Configure the feature
 ^^^^^^^^^^^^^^^^^^^^^
 
-In order to activate this feature, you simply need to add 3 options to your `pf.conf`.
+In order to enable this feature, you simply need to add 3 options to your `pf.conf` configuration file.
 
 provisioning.autoconfig:: Enable or disable the feature
 provisioning.ssid:: This is the SSID you want the user to connect to upon registration 
@@ -2036,11 +2012,16 @@ Here is an example: We have an hidden WPA2-Enterprise SSID named HiddenSecure, a
 
 Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the *Configuration -> Provisioning* section.
 
+For Android, you must allow passthrough in your configuration like this:
+
+  [trapping]
+  passthrough=enabled
+  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com
 
 Profile generation
 ^^^^^^^^^^^^^^^^^^
 
-Upon registration, instead of showing the default release page, the user will be showing another version of the page saying that the wireless profile has been generated with a clickable link on it. To install the profile, the user simply need to click on that link, and follow the instructions on their device. It is that simple.
+Upon registration, instead of showing the default release page, the user will be showing another version of the page saying that the wireless profile has been generated with a clickable link on it. To install the profile, Apple user owner simply need to click on that link, and follow the instructions on their device. Android user owner simply click to the link and will be forwarded to Google Play to install PacketFence agent. Simply launch the application and click to configure will create the secure SSID profile. It is that simple.
 
 SNMP Traps Limit
 ~~~~~~~~~~~~~~~~
@@ -2085,6 +2066,36 @@ For example, you may want to provide basic Internet access with a decent speed a
 
 To do so, some customizations is needed to the billing module. You'll need to redefined the `getAvailableTiers` method in the `lib/pf/billing/custom.pm` file. An example is already in place in the file.
 
+To assign a role by tiers (example: slow, medium and fast), edit the file `lib/pf/billing/custom.pm`
+
+    my %tiers = (
+            tier1 => {
+                id => "tier1",
+                name => "Tier 1",
+                price => "1.00",
+                timeout => "7D",
+                usage_duration => '1D',
+                category => '',
+                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org" 
+            },
+    );
+
+*id* is used as the item value of the billing table.
+
+*name* is the name of the tier used on billing.html.
+
+*price* is amount charged on the credit card.
+
+*timeout* is used to compute the unregistration date of the node.
+
+*usage_duration* is the amount of non-contignuous access time for the node, set as the time_balance value of the node table.
+
+*category* is the role in which to put the node.
+
+*description will* appear on the billing.html.
+
+*destination_url* is the url that the device will be redirected after a successful authentication.
+
 CAUTION: The use of different billing tiers requires different roles in PacketFence. Make sure to create these roles first otherwise you will run into problems.
 
 Portal Profiles
@@ -2124,6 +2135,10 @@ Google
 In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URI for the "Redirect URI"
 field : https://YOUR_PORTAL_HOSTNAME/oauth2/google.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
+You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
+
+Also, add the following Authorized domains : *.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
+
 Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from *Configuration -> Sources*.
 
 Moreover, don't forget to add Google as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
@@ -2133,7 +2148,11 @@ Facebook
 To use Facebook, you also need an API code and a secret key.  To get one, go here: https://developers.facebook.com/apps.  When you create your App, make sure you input the following as the Website URL:
 https://YOUR_PORTAL_HOSTNAME/oauth2/facebook
 
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`. 
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+You can keep the default configuration, modify the App ID & App Secret (Given by FaceBook on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
+
+Also, add the following Authorized domains : *.facebook.com, *.fbcdn.net, *.akamaihd.net (May change)
 
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from *Configuration -> Sources*.
 
@@ -2170,6 +2189,192 @@ The following can be configured by editing the pf.conf file:
 Make sure the role exists in PacketFence otherwise you will encounter registration errors. Moreover, make sure the role mapping for your particular equipment is done.
 
 These parameters can also be configured from the *Configuration -> Registration* section.
+
+Eduroam
+~~~~~~~
+
+[quote,eduroam, https://www.eduroam.org/]
+_____________________
+
+eduroam (education roaming) is the secure, world-wide roaming access service developed for the international research and education community.
+
+eduroam allows students, researchers and staff from participating institutions to obtain Internet connectivity across campus and when visiting other participating institutions by simply opening their laptop.
+_____________________
+
+
+PacketFence supports integration with eduroam and allows participating institutions to authenticate both locally visiting users from other institutions as well as allowing other institutions to authenticate local users.
+
+
+In order for PacketFence to allow eduroam authentication, the FreeRADIUS configuration of PacketFence must be modified to allow the eduroam servers to connect to it as clients as well as to proxy RADIUS authentication requests for users from outside institutions. 
+
+
+First, modify the /usr/local/pf/raddb/clients.conf file to allow the eduroam servers to connect to your PacketFence server. Add the eduroam servers as clients and make sure to add the proper RADIUS secret. Set a shortname to refer to these clients as you will later need it to exclude them from some parts of the PacketFence configuration.
+
+clients.conf example:
+----
+client tlrs1.eduroam.us {
+        secret = useStrongerSecret
+        shortname = tlrs1
+}
+
+client tlrs2.eduroam.us {
+        secret = useStrongerSecret
+        shortname = tlrs2
+}
+----
+
+
+
+
+
+Secondly, modify the list of domains and proxy servers in /usr/local/pf/raddb/proxy.conf. You will need to define each of your domains as well as the DEFAULT domain. The DEFAULT realm will apply to any client that attempts to authenticate with a realm that is not otherwise defined in proxy.conf and will be proxied to the eduroam servers.
+
+Define one or more home servers (servers to which eduroam requests should be proxied).
+
+proxy.conf example:
+
+    home_server tlrs1.eduroam.us {
+            type = auth
+            ipaddr = 257.128.1.1
+            port = 1812
+            secret = useStrongerSecret
+            require_message_authenticator = yes
+    }
+
+Define a pool of servers to group your eduroam home servers together.
+
+proxy.conf example:
+
+    home_server_pool eduroam {
+            type = fail-over
+            home_server = tlrs1.eduroam.us
+            home_server = tlrs2.eduroam.us
+    }
+
+Define realms to select which requests should be proxied to the eduroam server pool.
+There should be one realm for each of your domains, and possibly one more per domain if 
+you intend to allow usernames of the DOMAIN\user form. 
+
+The REALM is set based on the domain found by the suffix or ntdomain modules 
+( see raddb/modules/realm ).
+The suffix or ntdomain modules try to find a domain either with an @domain or suffix\username.
+
+* If none is found, the REALM is NULL.
+* If a domain is found, FreeRADIUS tries to match one of the REALMS defined in this file.
+* If the domain is either example.edu or EXAMPLE FreeRADIUS sets the corresponding REALM,
+i.e. example.edu or EXAMPLE. 
+* If the REALM does not match either (and it isn't NULL), that means there was a domain
+other than EXAMPLE or example.edu and we assume it is meant to be proxied to eduroam.
+FreeRADIUS sets the DEFAULT realm (which is proxied to the eduroam authentication pool).
+
+The REALM determines where the request is sent to. If the REALM authenticates locally
+the requests are processed entirely by FreeRADIUS. If the REALM sets a different 
+home server pool, the requests are proxied to the servers defined within that pool. 
+
+proxy.conf example:
+----
+# This realm is for requests which don't have an explicit realm
+# prefix or suffix.  User names like "bob" will match this one.
+# No authentication server is defined, thus the authentication is 
+# done locally.
+realm NULL {
+}
+
+# This realm is for ntdomain users who might use the domain like 
+# this "EXAMPLE\username".
+# No authentication server is defined, thus the authentication is 
+# done locally.
+realm EXAMPLE {
+}
+
+# This realm is for suffix users who use the domain like this: 
+# "username@example.edu".
+# No authentication server is defined, thus the authentication is 
+# done locally.
+realm example.edu {
+}
+
+# This realm is for ALL OTHER requests. Meaning in this context, 
+# eduroam. The auth_pool is set to the eduroam pool and so the 
+# requests will be proxied.
+realm DEFAULT {
+    auth_pool  = eduroam
+    nostrip
+}
+----
+
+Thirdly, you must configure the packetfence FreeRADIUS virtual servers to treat the requests properly.
+
+In /usr/local/pf/raddb/sites-enabled/packetfence, modify the authorize section like this:
+
+raddb/sites-enabled/packetfence example:
+----
+authorize {
+        # pay attention to the order of the modules. It matters.
+        ntdomain
+        suffix
+        preprocess
+        
+        # uncomment this section if you want to block eduroam users from 
+        # you other SSIDs. The attribute name ( Called-Station-Id ) may 
+        # differ based on your controller
+        #if ( Called-Station-Id !~ /eduroam$/i) {
+        #    update control {
+        #        Proxy-To-Realm := local
+        #    }
+        #}
+        
+        eap {
+                ok = return
+        }
+        
+        
+        files
+        expiration
+        logintime
+        packetfence
+}
+----
+
+In /usr/local/pf/raddb/sites-enabled/packetfence-tunnel, modify the post-auth section like this.
+If you omit this change the request will be sent to PacketFence where it will be failed since the
+eduroam servers are not part of your configured switches.
+
+raddb/sites-enabled/packetfence-tunnel example:
+----
+post-auth {
+        exec
+        
+        # we skip packetfence when the request is coming from the eduroam servers
+        if ( "%{client:shortname}" != "tlrs1" && \
+             "%{client:shortname}" != "tlrs2"    ) {
+                packetfence
+        }
+        
+        Post-Auth-Type REJECT {
+                attr_filter.access_reject
+        }
+}
+----
+
+
+Finally, make sure that the realms module is configured this way ( see /usr/local/pf/raddb/modules/realm ): 
+
+raddb/modules/realm example:
+----
+# 'username@realm'
+realm suffix {
+        format = suffix
+        delimiter = "@"
+}
+
+#  'domain\user'
+realm ntdomain {
+        format = prefix
+        delimiter = "\\"
+        ignore_null = yes 
+}
+----
 
 Operating System Best Practices
 -------------------------------
@@ -2714,7 +2919,7 @@ On wireless networks, the usual PacketFence setup dictate that you configure two
 More on SNMP traps VLAN isolation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use snmptrapd as the SNMP trap receiver. As it receives traps, it reformats and writes them into a flat file: `/usr/local/pf/logs/snmptrapd.log`. The multithreaded `pfsetvlan` daemon reads these traps from the flat file and responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::SNMP` class). Depending on your switches capabilities, `pfsetvlan` will act on different types of SNMP traps.
+When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use snmptrapd as the SNMP trap receiver. As it receives traps, it reformats and writes them into a flat file: `/usr/local/pf/logs/snmptrapd.log`. The multithreaded `pfsetvlan` daemon reads these traps from the flat file and responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::Switch` class). Depending on your switches capabilities, `pfsetvlan` will act on different types of SNMP traps.
 
 image::docs/images/diagram-trap-interaction.png[scaledwidth="50%",alt="pfsetvlan SNMP interactions diagram"]
 
@@ -2749,7 +2954,7 @@ Technical introduction to Inline enforcement
 Introduction
 ~~~~~~~~~~~~
 
-Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices. So in other words, PacketFence will become the gateway of that inline network, and NAT or route the traffic using IPTables to the Internet (or to another section of the network). Let see how it works.
+Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices. So in other words, PacketFence would become the gateway of that inline network, and NAT or route the traffic using IPTables to the Internet (or to another section of the network). Let see how it works.
 
 Device configuration
 ~~~~~~~~~~~~~~~~~~~~
@@ -2780,12 +2985,12 @@ Technical introduction to Hybrid enforcement
 Introduction
 ~~~~~~~~~~~
 
-Before version 3.6 of PacketFence, it was not possible to have RADIUS enabled for inline enforcement mode. Now with the new hybrid mode, all the devices that supports 802.1x or mac-auth can work with this mode. Let's see how it works.
+Before version 3.6 of PacketFence, it was not possible to have RADIUS enabled for inline enforcement mode. Now with the new hybrid mode, all the devices that supports 802.1X or MAC-authentication can work with this mode. Let's see how it works.
 
 Device configuration
 ~~~~~~~~~~~~~~~~~~~~
 
-You need to configure inline enforcement mode in PacketFence and configure your switch(es) / access point(s) to use the VLAN assignement techniques (802.1x, mac-auth). You also need to take care of a specific parameter in the switch configuration window, "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to define different sort of trigger:
+You need to configure inline enforcement mode in PacketFence and configure your switch(es) / access point(s) to use the VLAN assignement techniques (802.1X or MAC-authentication). You also need to take care of a specific parameter in the switch configuration window, "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to define different sort of trigger:
 
   ALWAYS::
   PORT::

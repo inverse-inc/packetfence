@@ -170,7 +170,7 @@ sub accounting_db_prepare {
         LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
         WHERE YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE()) AND callingstationid = ?;
     ]);
-    
+
     $accounting_statements->{'acct_sessiontime_monthly_sql'} = get_db_handle()->prepare(qq[
         SELECT SUM(FORMAT((radacct_log.acctsessiontime/60),2)) AS accttotaltime
         FROM radacct_log
@@ -184,7 +184,7 @@ sub accounting_db_prepare {
         LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
         WHERE YEAR(timestamp) = YEAR(CURRENT_DATE()) AND callingstationid = ?;
     ]);
-    
+
     $accounting_statements->{'acct_maintenance_bw_daily_inbound'} = get_db_handle()->prepare(qq[
         SELECT radacct.callingstationid, 
                 SUM(radacct_log.acctinputoctets) AS acctinput
@@ -272,8 +272,8 @@ sub accounting_db_prepare {
                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
         RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
-        WHERE DAY(timestamp) = DAY(CURRENT_DATE()) AND timestamp >= ? 
-        GROUP BY radacct.callingstationid     
+        WHERE DAY(timestamp) = DAY(CURRENT_DATE()) AND timestamp >= ?
+        GROUP BY radacct.callingstationid
         HAVING accttotal >= ?;
     ]);
 
@@ -358,14 +358,14 @@ sub acct_maintenance {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->info("getting violations triggers for accounting cleanup");
 
-    my @triggers = trigger_view_type("accounting");
+    my @triggers = trigger_view_type($TRIGGER_TYPE_ACCOUNTING);
 
     foreach my $acct_triggers (@triggers) {
         my $acct_policy = $acct_triggers->{'tid_start'};
         my @tid = trigger_view_tid($acct_policy);
         my $vid = $tid[0]{'vid'};
 
-        if ($acct_policy =~ /$ACCOUNTING_TRIGGER_RE/) {
+        if ($acct_policy =~ /$ACCOUNTING_TRIGGER_RE/ && isenabled($acct_triggers->{'enabled'})) {
 
             my $direction = $1;
             my $bwInBytes = pf::util::unpretty_bandwidth($2,$3);
@@ -392,14 +392,14 @@ sub acct_maintenance {
             my $releaseDate = "1";
             my @results;
             if ($direction eq $DIRECTION_IN) {
-                @results = node_acct_maintenance_bw_inbound($interval,$releaseDate,$bwInBytes);
+                @results = node_acct_maintenance_bw_inbound($interval, $releaseDate, $bwInBytes);
             } elsif ($direction eq $DIRECTION_OUT) {
-                @results = node_acct_maintenance_bw_outbound($interval,$releaseDate,$bwInBytes);
+                @results = node_acct_maintenance_bw_outbound($interval, $releaseDate, $bwInBytes);
             } else {
                 $logger->info("Calling node acct maintenance total with $interval and $releaseDate for $bwInBytes");
-                @results = node_acct_maintenance_bw_total($interval,$releaseDate,$bwInBytes);
+                @results = node_acct_maintenance_bw_total($interval, $releaseDate, $bwInBytes);
             }
-            
+
             # Now that we have the results, loop on the mac.  While doing that, we need to re-check from the last violation if needed.
             foreach my $mac (@results) {
                 my $cleanedMac = clean_mac($mac->{'callingstationid'});
@@ -407,30 +407,31 @@ sub acct_maintenance {
                 #Do we have a closed violation for the current mac
                 $logger->info("Looking if we have a closed violation in the present window for mac $cleanedMac and vid $vid");
 
-                if (violation_exist_acct($cleanedMac,$vid,$interval)) {
+                if (violation_exist_acct($cleanedMac, $vid, $interval)) {
                     $logger->info("We have a closed violation in the interval window for node $cleanedMac, need to recalculate using the last violation release date");
                     my @violation = violation_view_last_closed($cleanedMac,$vid);
                     $releaseDate = $violation[0]{'release_date'};
 
                     if ($direction eq $DIRECTION_IN) {
                          if(node_acct_maintenance_bw_inbound_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
-                              violation_trigger($cleanedMac,$acct_policy,"accounting");
-                         } 
+                              violation_trigger($cleanedMac, $acct_policy, $TRIGGER_TYPE_ACCOUNTING);
+                         }
                     } elsif ($direction eq $DIRECTION_OUT) {
-                         if(node_acct_maintenance_bw_outbound_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) { 
-                                 violation_trigger($cleanedMac,$acct_policy,"accounting");
-                         } 
+                         if(node_acct_maintenance_bw_outbound_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
+                                 violation_trigger($cleanedMac, $acct_policy, $TRIGGER_TYPE_ACCOUNTING);
+                         }
                     } else {
-                         if(node_acct_maintenance_bw_total_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) { 
-                                 violation_trigger($cleanedMac,$acct_policy,"accounting");
-                         } 
+                         if(node_acct_maintenance_bw_total_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
+                                 violation_trigger($cleanedMac, $acct_policy, $TRIGGER_TYPE_ACCOUNTING);
+                         }
                     }
                 } else {
-                    violation_trigger($cleanedMac,$acct_policy,"accounting");
+                    violation_trigger($cleanedMac, $acct_policy, $TRIGGER_TYPE_ACCOUNTING);
                 }
             }
         }
-        else {
+        elsif ($acct_policy ne $ACCOUNTING_POLICY_TIME ||
+               $acct_policy ne $ACCOUNTING_POLICY_BANDWIDTH) {
             $logger->warn("Invalid trigger for accounting maintenance: $acct_policy");
         }
     }

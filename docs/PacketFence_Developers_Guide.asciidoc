@@ -260,7 +260,7 @@ to determine a node's VLAN. Here's the default function:
 
 ----
 sub getNormalVlan {
-    #$switch is the switch object (pf::SNMP)
+    #$switch is the switch object (pf::Switch)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
     #$node_info is the node info hashref (result of pf::node's node_view on $mac)
@@ -326,7 +326,7 @@ Supporting new network hardware
 
 PacketFence is designed to ease the addition of support for new network hardware referred to as Network
 Devices. All supported network devices are represented through Perl objects with an extensive use of inheritance.
-Adding support for a new product comes down to extending the `pf::SNMP` class (in `/usr/local/pf/lib/pf`).
+Adding support for a new product comes down to extending the `pf::Switch` class (in `/usr/local/pf/lib/pf`).
 
 The starting point to adding support for a new network device should be the vendor's documentation! First
 of all, you'll have to figure out the exact capabilities of the switch and how these capabilities will fit into
@@ -341,7 +341,7 @@ Port Security? MAC Authentication? 802.1X?
 Link change capabilities
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-You need to define a new class which inherits from `pf::SNMP` and defines
+You need to define a new class which inherits from `pf::Switch` and defines
 at least the following functions:
 
 [options="compact"]
@@ -410,7 +410,7 @@ MAC Authentication re-evaluation
 MAC Authentication re-evaluation is necessary in order to provoke a VLAN change in the PacketFence
 system. This happens for instance when a node is isolated based on an IDS event or when the user
 succesfully authenticates through the captive portal. The default implementation in
-`pf::SNMP` will bounce the port if there is no Voice over IP (VoIP) devices connected to the
+`pf::Switch` will bounce the port if there is no Voice over IP (VoIP) devices connected to the
 port. Otherwise it will do nothing and send an email. If your device has specific needs (for example it
 doesn't support RADIUS Dynamic VLAN Assignments) override:
 
@@ -448,7 +448,7 @@ Force 802.1X re-authentication
 
 802.1X re-authentication is necessary in order to provoke a VLAN change in the PacketFence system.
 This happens for instance when a node is isolated based on an IDS event or when the user succesfully
-authenticates through the captive portal. The default implementation in `pf::SNMP` uses SNMP and the
+authenticates through the captive portal. The default implementation in `pf::Switch` uses SNMP and the
 standard `IEEE8021-PAE-MIB` and is generally well supported. If the default implementation to
 force 802.1X re-authentication doesn't work override:
 
@@ -472,7 +472,7 @@ Messages is supported by PacketFence starting with version 3.1.
 
 On wired network devices CoA can be used to change the security posture of a MAC and perform other
 functions like bounce a port. So far we only encountered support for CoA on the wired side on the Cisco
-hardware. For an implementation example check `_radiusBounceMac` in `pf::SNMP::Cisco`.
+hardware. For an implementation example check `_radiusBounceMac` in `pf::Switch::Cisco`.
 
 Floating Network Devices Support
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -495,32 +495,32 @@ You might need to implement the following:
 
 * `enablePortConfigAsTrunk($mac, $switch_port, $switch_locker, $taggedVlans)`
 +
-Provided by `pf::SNMP` core as the glue between `setModeTrunk()`,
+Provided by `pf::Switch` core as the glue between `setModeTrunk()`,
 `setTaggedVlans()` and `removeAllTaggedVlans()`. Override if necessary.
 
 * `disablePortConfigAsTrunk($switch_port)`
 +
-Provided by `pf::SNMP` core as the glue between `setModeTrunk()`,
+Provided by `pf::Switch` core as the glue between `setModeTrunk()`,
 `setTaggedVlans()` and `removeAllTaggedVlans()`. Override if necessary.
 
 * `enablePortSecurityByIfIndex($ifIndex)`
 +
-Provided by `pf::SNMP` core as a slim accessor to
+Provided by `pf::Switch` core as a slim accessor to
 `setPortSecurityEnableByIfIndex()`. Override if necessary.
 
 * `disablePortSecurityByIfIndex($ifIndex)`
 +
-Provided by `pf::SNMP` core as a slim accessor to
+Provided by `pf::Switch` core as a slim accessor to
 `setPortSecurityEnableByIfIndex()`. Override if necessary.
 
 * `enableIfLinkUpDownTraps($ifIndex)`
 +
-Provided by `pf::SNMP` core as a slim accessor to
+Provided by `pf::Switch` core as a slim accessor to
 `setIfLinkUpDownTrapEnable`. Override if necessary.
 
 * `disableIfLinkUpDownTraps($ifIndex)`
 +
-Provided by `pf::SNMP` core as a slim accessor to
+Provided by `pf::Switch` core as a slim accessor to
 `setIfLinkUpDownTrapEnable`. Override if necessary.
 
 Once all the required methods are implemented, enable the capability in the switch's code with:
@@ -570,12 +570,12 @@ Disconnect Messages is supported by PacketFence starting with version 3.1. When 
 preferred technique to perform de-authentication. It is standard and requires less configuration from the
 user.
 
-An actual implementation can be found in `pf::SNMP::Aruba`.
+An actual implementation can be found in `pf::Switch::Aruba`.
 
 Template module
 ^^^^^^^^^^^^^^^
 
-Start with a copy of the template module `pf/lib/pf/SNMP/WirelessModuleTemplate.pm`
+Start with a copy of the template module `pf/lib/pf/Switch/WirelessModuleTemplate.pm`
 and fill in appropriate documentation and code.
 
 Required methods
@@ -588,7 +588,7 @@ You need to implement at least:
 
 `parseTrap()`::
   Parses the SNMP Traps sent by the hardware. For wireless hardware an empty method
-  like the one in `pf::SNMP::WirelessModuleTemplate` is ok.
+  like the one in `pf::Switch::WirelessModuleTemplate` is ok.
 
 `deauthenticateMac()`::
   Performs deauthentication

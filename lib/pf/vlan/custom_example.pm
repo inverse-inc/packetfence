@@ -205,7 +205,7 @@ Return values:
 =cut
 
 sub getViolationVlan {
-    #$switch is the switch object (pf::SNMP)
+    #$switch is the switch object (pf::Switch)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
     #$conn_type is set to the connnection type expressed as the constant in pf::config 
@@ -259,7 +259,7 @@ sub getViolationVlan {
 
     # CUSTOM: returning per building VLAN id if switch type is Cisco::WLC
     my $vlan_number;
-    if (defined($called_station_id) && ref($switch) eq 'pf::SNMP::Cisco::WLC_4400') {
+    if (defined($called_station_id) && ref($switch) eq 'pf::Switch::Cisco::WLC_4400') {
         $vlan_number = buildingnum_per_called_station_id($called_station_id) . $switch->getVlanByName($vlan);
     }
     # Asking the switch to give us its configured vlan number for the vlan returned for the violation
@@ -295,7 +295,7 @@ Return values:
 =cut
 
 sub getRegistrationVlan {
-    #$switch is the switch object (pf::SNMP)
+    #$switch is the switch object (pf::Switch)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
     #$node_info is the node info hashref (result of pf::node's node_attributes on $mac)
@@ -313,7 +313,7 @@ sub getRegistrationVlan {
 
     # CUSTOM: pre-compute registrationVlan based on being on a WLC or not
     my $vlan_number;
-    if (defined($called_station_id) && ref($switch) eq 'pf::SNMP::Cisco::WLC_4400') {
+    if (defined($called_station_id) && ref($switch) eq 'pf::Switch::Cisco::WLC_4400') {
         $vlan_number = 
             buildingnum_per_called_station_id($called_station_id) . $switch->getVlanByName('registration');
     }
@@ -351,7 +351,7 @@ sub getNormalVlan {
     # CUSTOM: fetching per building VLAN id if switch type is Cisco::WLC
     # by default no buliding id vlan prefix
     my $vlan_id_prefix = '';
-    if (defined($called_station_id) && ref($switch) eq 'pf::SNMP::Cisco::WLC_4400') {
+    if (defined($called_station_id) && ref($switch) eq 'pf::Switch::Cisco::WLC_4400') {
         $vlan_id_prefix = buildingnum_per_called_station_id($called_station_id);
     }
 

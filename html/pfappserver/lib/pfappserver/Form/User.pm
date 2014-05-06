@@ -131,6 +131,18 @@ has_field 'expiration' =>
    messages => { required => 'Please specify the end date of the registration window.' },
   );
 
+has_field [qw( anniversary birthday gender lang nickname organization cell_phone
+  work_phone title building_number apartment_number room_number)] =>
+  (
+   type => 'Text',
+  );
+
+
+has_field [qw(custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5 custom_field_6 custom_field_7 custom_field_8 custom_field_9)] =>
+  (
+       type => 'Text',
+  );
+
 =head2 Blocks
 
 =over
@@ -144,6 +156,16 @@ has_field 'expiration' =>
 has_block 'user' =>
   (
    render_list => [qw(pid firstname lastname company telephone email sponsor address notes)],
+  );
+
+has_block 'miscellaneous' =>
+  (
+   render_list => [qw(anniversary birthday gender lang nickname organization cell_phone                                                                             work_phone title building_number apartment_number room_number)]
+  );
+
+has_block 'custom_fields' =>
+  (
+   render_list => [qw(custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5 custom_field_6 custom_field_7 custom_field_8 custom_field_9)]
   );
 
 =item templates block

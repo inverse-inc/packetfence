@@ -112,9 +112,9 @@ sub node_db_prepare {
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
-            notes, autoreg
+            notes, autoreg, sessionid
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     ]);
 
@@ -123,20 +123,20 @@ sub node_db_prepare {
     $node_statements->{'node_modify_sql'} = get_db_handle()->prepare(qq[
         UPDATE node SET
             mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?,
-            detect_date=?, regdate=?, unregdate=?, lastskip=?,
+            detect_date=?, regdate=?, unregdate=?, lastskip=?, time_balance=?, bandwidth_balance=?,
             user_agent=?, computername=?, dhcp_fingerprint=?,
             last_arp=?, last_dhcp=?,
-            notes=?, autoreg=? 
+            notes=?, autoreg=?, sessionid=? 
         WHERE mac=?
     ]);
 
     $node_statements->{'node_attributes_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, pid, voip, status, bypass_vlan,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
-            detect_date, regdate, unregdate, lastskip,
+            detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
-            node.notes, autoreg 
+            node.notes, autoreg, sessionid 
         FROM node
             LEFT JOIN node_category USING (category_id)
         WHERE mac = ?
@@ -148,7 +148,7 @@ sub node_db_prepare {
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint,
             last_arp, last_dhcp,
-            node.notes, autoreg 
+            node.notes, autoreg, sessionid 
         FROM node
             LEFT JOIN node_category USING (category_id)
             LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint
@@ -180,10 +180,10 @@ sub node_db_prepare {
     $node_statements->{'node_view_sql'} = get_db_handle()->prepare(<<'    SQL');
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status, node.category_id,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
-            node.detect_date, node.regdate, node.unregdate, node.lastskip,
+            node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
             node.user_agent, node.computername, node.dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
-            node.notes, autoreg,
+            node.notes, node.autoreg, node.sessionid,
             UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
             UNIX_TIMESTAMP(node.unregdate) AS unregdate_timestamp
         FROM node
@@ -196,7 +196,8 @@ sub node_db_prepare {
            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
-           locationlog.start_time as last_start_time
+           locationlog.start_time as last_start_time,
+           UNIX_TIMESTAMP(locationlog.start_time) as last_start_timestamp
        FROM locationlog
        WHERE mac = ? AND end_time IS NULL
     SQL
@@ -246,7 +247,7 @@ sub node_db_prepare {
             LEFT JOIN os_type ON dhcp_fingerprint.os_id = os_type.os_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
             LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
-            LEFT JOIN iplog ON node.mac=iplog.mac AND iplog.end_time = '0000-00-00 00:00:00'
+            LEFT JOIN iplog ON node.mac=iplog.mac AND (iplog.end_time = '0000-00-00 00:00:00' OR iplog.end_time > NOW())
         GROUP BY node.mac
     ];
 
@@ -322,6 +323,11 @@ sub node_db_prepare {
     $node_statements->{'node_search_sql'} = get_db_handle()->prepare(qq [ select mac from node where mac LIKE CONCAT(?,'%') ]);
 
     $node_statements->{'node_last_reg_sql'} = get_db_handle()->prepare(qq [ select mac from node order by regdate DESC LIMIT 1,1 ]);
+
+    $node_statements->{'node_update_bandwidth_sql'} = get_db_handle()->prepare(qq[
+        UPDATE node SET bandwidth_balance = COALESCE(bandwidth_balance, 0) + ?
+        WHERE mac = ?
+    ]);
 
     $node_db_prepared = 1;
     return 1;
@@ -402,7 +408,7 @@ sub node_add {
         'detect_date', 'regdate', 'unregdate', 'lastskip',
         'user_agent', 'computername', 'dhcp_fingerprint',
         'last_arp', 'last_dhcp',
-        'notes', 'autoreg'
+        'notes', 'autoreg', 'sessionid'
     ) {
         $data{$field} = "" if ( !defined $data{$field} );
     }
@@ -422,7 +428,7 @@ sub node_add {
         $data{detect_date}, $data{regdate}, $data{unregdate}, $data{lastskip},
         $data{user_agent}, $data{computername}, $data{dhcp_fingerprint},
         $data{last_arp}, $data{last_dhcp},
-        $data{notes}, $data{autoreg}
+        $data{notes}, $data{autoreg}, $data{sessionid}
     ) || return (0);
     return (1);
 }
@@ -442,7 +448,6 @@ sub node_add_simple {
         'status'      => 'unreg',
         'last_dhcp'   => 0,
         'voip'        => 'no',
-        'autoreg'     => 'no'
     );
     if ( !node_add( $mac, %tmp ) ) {
         return (0);
@@ -653,7 +658,7 @@ sub node_view_all {
             my $like = $params{'where'}{'like'};
             $like =~ s/^ *//;
             $like =~ s/ *$//;
-            if (valid_mac($like)) {
+            if (valid_mac($like) && !valid_ip($like)) {
                 my $mac = get_db_handle->quote(clean_mac($like));
                 $node_view_all_sql .= " HAVING node.mac = $mac";
             }
@@ -755,7 +760,7 @@ sub node_modify {
         $existing->{autoreg} = 'no';
     }
 
-    my $new_mac    = lc( $existing->{'mac'} );
+    my $new_mac    = clean_mac(lc( $existing->{'mac'} ));
     my $new_status = $existing->{'status'};
 
     if ( $mac ne $new_mac && node_exist($new_mac) ) {
@@ -775,10 +780,11 @@ sub node_modify {
     my $sth = db_query_execute(NODE, $node_statements, 'node_modify_sql',
         $new_mac, $existing->{pid}, $existing->{category_id}, $existing->{status}, $existing->{voip},
         $existing->{bypass_vlan},
-        $existing->{detect_date}, $existing->{regdate}, $existing->{unregdate}, $existing->{lastskip},
+        $existing->{detect_date}, $existing->{regdate}, $existing->{unregdate},
+        $existing->{lastskip}, $existing->{time_balance}, $existing->{bandwidth_balance},
         $existing->{user_agent}, $existing->{computername}, $existing->{dhcp_fingerprint},
         $existing->{last_arp}, $existing->{last_dhcp},
-        $existing->{notes},$existing->{autoreg},
+        $existing->{notes},$existing->{autoreg},$existing->{sessionid},
         $mac
     );
     return ($sth->rows);
@@ -796,10 +802,12 @@ sub node_register {
     }
 
     require pf::person;
+    require pf::lookup::person;
     # create a person entry for pid if it doesn't exist
     if ( !pf::person::person_exist($pid) ) {
         $logger->info("creating person $pid because it doesn't exist");
         pf::person::person_add($pid);
+        pf::lookup::person::lookup_person($pid);
     } else {
         $logger->debug("person $pid already exists");
     }
@@ -967,6 +975,37 @@ sub node_update_lastarp {
     return (1);
 }
 
+=item * node_update_bandwidth - update the bandwidth balance of a node
+
+Updates the bandwidth balance of a node and close the violations that use the bandwidth trigger.
+
+=cut
+
+sub node_update_bandwidth {
+    my ($mac, $bytes) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # Validate arguments
+    $mac = clean_mac($mac);
+    $logger->logdie("Invalid MAC address") unless (valid_mac($mac));
+    $logger->logdie("Invalid number of bytes") unless ($bytes =~ m/^\d+$/);
+
+    # Upate node table
+    my $sth = db_query_execute(NODE, $node_statements, 'node_update_bandwidth_sql', $bytes, $mac);
+    unless ($sth) {
+        $logger->logdie(get_db_handle()->errstr);
+    }
+    elsif ($sth->rows == 1) {
+        # Close any existing violation related to bandwidth
+        my @tid = pf::trigger::trigger_view_tid($pf::config::ACCOUNTING_POLICY_BANDWIDTH);
+        foreach my $violation (@tid) {
+            violation_force_close($mac, $violation->{'vid'});
+        }
+    }
+
+    return ($sth->rows);
+}
+
 =item * node_mac_wakeup
 
 Sub invoked each time a MAC as activity (eiher from dhcp or traps).
@@ -1112,15 +1151,18 @@ sub is_max_reg_nodes_reached {
             if ( $max_for_category == 0 || $nb_nodes < $max_for_category ) {
                 return $FALSE;
             }
+            $logger->info("per-role max nodes per-user limit reached: $nb_nodes are already registered to pid $pid for role "
+                          . $category_info->{'name'});
         }
-        $logger->info("per-role max nodes per-user limit reached: $nb_nodes are already registered to pid $pid for role "
-                     . $category_info->{'name'});
+        else {
+            $logger->warn("Specified role ".($category?$category:$category_id)." doesn't exist for pid $pid (MAC $mac); assume maximum number of registered nodes is reached");
+        }
     }
     else {
-        # fallback to maximum reached
         $logger->warn("No role specified or found for pid $pid (MAC $mac); assume maximum number of registered nodes is reached");
     }
 
+    # fallback to maximum reached
     return $TRUE;
 }
 

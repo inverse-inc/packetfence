@@ -5,39 +5,20 @@
     END;
     params = { by => column, filter => filter, direction => new_direction };
     IF c.session.nodecolumns.$column %]
-      <th[% " class=\"$class\"" IF class %]><a href="[% c.pf_hash_for(c.controller('Node').action_for('simple_search'), 'filter', filter, 'by', column, 'direction', new_direction) %]">[% l(title) %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]">[% END %]</i></a></th>
+      <th[% " class=\"$class\"" IF class %]><a href="[% c.pf_hash_for(c.action, 'filter', filter, 'by', column, 'direction', new_direction) %]">[% l(title) %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]">[% END %]</i></a></th>
       [%- END %]
 [% END -%]
 
 [% MACRO column_checkbox(column, title) BLOCK -%]
-                <li><a><label class="checkbox"><input type="checkbox" name="column" value="[% column %]"[% ' checked' IF c.session.nodecolumns.$column %]>[% l(title) %]</label></a></li>
+                <li><a><label class="checkbox"><input type="checkbox" name="column" value="[% column | html %]"[% ' checked' IF c.session.nodecolumns.$column %]>[% l(title) %]</label></a></li>
 [% END -%]
 
             <h2>
               [% l('Results') %]
             </h2>
-            <div class="btn-group">
-              <a id="bulk_actions" class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class="icon-cog"></i> [% l('Action') %]
-                <i class="icon-angle-down"></i>
-              </a>
-              <ul class="dropdown-menu">
-                <li class="disabled"><a id="clear_violations" data-target="[% c.uri_for(c.controller('Node').action_for('bulk_close'))  %]" >[% l('Clear Violation') %]</a></li>
-                <li class="disabled"><a id="bulk_register" data-target="[% c.uri_for(c.controller('Node').action_for('bulk_register'))  %]" >[% l('Register') %]</a></li>
-                <li class="disabled"><a id="bulk_deregister" data-target="[% c.uri_for(c.controller('Node').action_for('bulk_deregister'))  %]">[% l('Deregister') %]</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-submenu">
-                  <a tabindex="-1">[% l('Apply Role') %]</a>
-                  <ul class="dropdown-menu" id="apply_roles">
-                    [% FOREACH role IN roles %]
-                    <li class="disabled"><a data-target="[% c.uri_for(c.controller('Node').action_for('bulk_apply_role'),[role.category_id])  %]">[% role.name %]</a></li>
-                    [% END %]
-                  </ul>
-                </li>
-              </ul>
-            </div>
+            [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions"%]
             <div class="btn-group hidden-phone">
-              <form action="[% c.uri_for(c.controller('Node').action_for('simple_search'), 'filter', filter, 'by', column, 'direction', new_direction, 'page_num', page_num, 'per_page', per_page) %]" method="POST">
+              <form action="[% c.uri_for(c.action, 'filter', filter, 'by', column, 'direction', new_direction, 'page_num', page_num, 'per_page', per_page) %]" method="POST">
               <a class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="icon-columns"></i> [% l('Columns') %]
                 <i class="icon-angle-down"></i>
@@ -80,36 +61,36 @@
                 <tbody>
                   [%- FOREACH node IN items -%]
                   <tr>
-                    <td><input type="checkbox" name="items" value="[% node.mac %]"/></td>
+                    <td><input type="checkbox" name="items" value="[% node.mac | html %]"/></td>
                     [%- IF c.session.nodecolumns.status %]
-                    <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
+                    <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) | html %]</span></td>
                     [%- END %]
                     [%- IF c.session.nodecolumns.mac %]
-                    <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a></td>
+                    <td><a href="[% c.uri_for(c.controller.action_for('view'), [ node.mac ]) %]">[% node.mac | html %]</a></td>
                     [%- END %]
                     [%- IF c.session.nodecolumns.detect_date %]
-                    <td>[% node.detect_date %]</td>
+                    <td>[% node.detect_date | html %]</td>
                     [%- END %]
                     [%- IF c.session.nodecolumns.regdate %]
-                    <td>[% node.regdate %]</td>
+                    <td>[% node.regdate | html %]</td>
                     [%- END %]
                     [%- IF c.session.nodecolumns.unregdate %]
-                    <td>[% node.unregdate %]</td>
+                    <td>[% node.unregdate | html %]</td>
                     [%- END %]
                     [%- IF c.session.nodecolumns.computername %]
-                    <td>[% node.computername %]</td>
+                    <td>[% node.computername | html %]</td>
                     [%- END %]
                     [%- IF c.session.nodecolumns.pid %]
-                    <td class="hidden-phone">[% IF can_access("USERS_READ") %]<a href="[% c.uri_for(c.controller('User').action_for('view'), [ node.pid ]) %]">[% node.pid %]</a>[% ELSE %][% node.pid %][% END %]</td>
+                    <td class="hidden-phone">[% IF can_access("USERS_READ") %]<a href="[% c.uri_for(c.controller('User').action_for('view'), [ node.pid ]) %]">[% node.pid | html %]</a>[% ELSE %][% node.pid | html %][% END %]</td>
                     [%- END %]
                     [%- IF c.session.nodecolumns.last_ip %]
-                    <td style="white-space: nowrap">[% IF node.last_ssid %]<i class="icon-signal"></i> [% END %][% node.last_ip %]</td>
+                    <td style="white-space: nowrap">[% IF node.last_ssid %]<i class="icon-signal"></i> [% END %][% node.last_ip | html %]</td>
                     [%- END %]
                     [%- IF c.session.nodecolumns.dhcp_fingerprint %]
-                    <td class="hidden-phone">[% node.dhcp_fingerprint %]</td>
+                    <td class="hidden-phone">[% node.dhcp_fingerprint | html %]</td>
                     [%- END %]
                     [%- IF c.session.nodecolumns.category %]
-                    <td class="hidden-phone">[% node.category %]</td>
+                    <td class="hidden-phone">[% node.category | html %]</td>
                     [%- END %]
                   </tr>
                   [%- END -%]

@@ -11,17 +11,17 @@ Homepage: http://www.packetfence.org/
 Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
-Pre-Depends:  freeradius, freeradius-ldap, freeradius-postgresql,
+Pre-Depends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra,
  mysql-server, memcached,
- snmp, snmptrapfmt, snmp-mibs-downloader,
+ snmp, snmptrapfmt, snmp-mibs-downloader, conntrack,
 # apache related
  apache2, apache2.2-common, apache2-utils, libapache2-mod-proxy-html,
  apache2-mpm-prefork, libapache2-mod-apreq2, libapache2-mod-perl2,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
- libapache-session-memcached-perl, libapache-ssllookup-perl,
+ libapache-session-memcached-perl, libapache-ssllookup-perl, libapache2-mod-qos,
  make,
  iproute,
  ipset,
@@ -31,7 +31,7 @@ Depends: ${misc:Depends}, vlan, make,
 # perl basic components
  liblist-moreutils-perl, libwww-perl, libtry-tiny-perl,
 # perl uncategorized modules
- libapache-htpasswd-perl, libbit-vector-perl, libtext-csv-perl,
+ libapache-htpasswd-perl, libbit-vector-perl, libtext-csv-perl, libtext-csv-xs-perl,
  libcgi-session-serialize-yaml-perl, libtimedate-perl, libapache-dbi-perl,
  libdbd-mysql-perl, libfile-tail-perl, libnetwork-ipv4addr-perl,
  libiptables-parse-perl, libiptables-chainmgr-perl, iptables (>= 1.4.0),
@@ -43,8 +43,8 @@ Depends: ${misc:Depends}, vlan, make,
  libterm-readkey-perl, libtest-perl-critic-perl, libtest-pod-perl,
  libtest-pod-coverage-perl, libthread-pool-simple-perl,
  libuniversal-require-perl, libuniversal-exports-perl, libnet-rawip-perl,
- libcgi-session-perl, libcgi-session-driver-memcached-perl, libconfig-inifiles-perl (>= 2.78.0),
- libdatetime-format-dateparse-perl, libdbi-perl,
+ libcgi-session-perl, libcgi-session-driver-chi-perl (>= 1.0.3), libconfig-inifiles-perl (>= 2.78.0),
+ libdatetime-format-dateparse-perl, libdbi-perl,librose-db-perl,librose-db-object-perl,
  libnet-telnet-perl, libregexp-common-perl,
  libreadonly-perl, libtemplate-perl, libterm-readkey-perl,
  libuniversal-require-perl, libthread-serialize-perl,
@@ -53,7 +53,8 @@ Depends: ${misc:Depends}, vlan, make,
  libiptables-libiptc-perl, libload-perl, libmime-lite-tt-perl, libmime-lite-perl,
  libconfig-general-perl, libproc-processtable-perl, libfile-flock-perl, libperl-version-perl,
  perl-modules,
- liblinux-fd-perl, liblinux-inotify2-perl, libfile-touch-perl,
+ liblinux-fd-perl, liblinux-inotify2-perl, libfile-touch-perl, libhash-merge-perl,
+ libcrypt-openssl-x509-perl,libconst-fast-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313
@@ -62,30 +63,33 @@ Depends: ${misc:Depends}, vlan, make,
  libnet-interface-perl, libnet-radius-perl,
  libparse-nessus-nbe-perl, libtest-mockdbi-perl,
  libsoap-lite-perl (>= 1.0), libnet-frame-perl, libthread-pool-perl,
- libwww-curl-perl,
+ libwww-curl-perl, libposix-2008-perl, libdata-messagepack-stream-perl, libdata-messagepack-perl,
  libnet-nessus-xmlrpc-perl (>= 0.4),libfile-slurp-perl,
 # required for ipset
  libnetaddr-ip-perl, libfile-which-perl,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libthread-conveyor-monitored-perl, libthread-conveyor-perl, libthread-tie-perl,
- liberror-perl,
+ liberror-perl, libio-socket-inet6-perl,
  libio-interface-perl, libnet-route-perl,
 # required by catalyst
  libcatalyst-perl, libcatalyst-modules-perl,
  libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl, 
  libcatalyst-authentication-store-htpasswd-perl,
  libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl,
- libsort-naturally-perl, libhtml-formhandler-perl, libchi-perl,
- libchi-driver-memcached-perl,libcache-memcached-perl,
- libcache-fastmmap-perl, libmoo-perl (>=1.0),
+ libsort-naturally-perl, libhtml-formhandler-perl (<= 0.40016), libchi-perl (>=0.56),
+ libchi-driver-memcached-perl,libcache-memcached-perl, libcache-memcached-getparserxs-perl, libdata-serializer-perl,
+ libcache-fastmmap-perl, libmoo-perl (>=1.001000), libterm-size-any-perl,
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl,
 # i18n
  liblocale-gettext-perl, 
 # logging framework
- liblog-log4perl-perl,
+ liblog-log4perl-perl (>=1.43),
+ liblog-any-perl,
+ liblog-any-adapter-perl,
+ liblog-any-adapter-log4perl-perl,
 # oauth2
- libnet-oauth2-perl,
+ libnet-oauth2-perl (>=0.57),
 # pfdns
  libnet-dns-perl (=0.66-3),
 # used by Captive Portal authentication modules

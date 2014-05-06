@@ -48,7 +48,12 @@ our (
     $switches_config_file, $violations_config_file, $authentication_config_file,
     $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file,
     @stored_config_files, @log_files,
-    $admin_roles_config_file
+    $mdm_config_file,
+    $admin_roles_config_file,
+    $wrix_config_file,
+    $allowed_device_oui_file, $allowed_device_types_file,
+    $cache_control_file,
+    $log_conf_dir,
 );
 
 BEGIN {
@@ -74,7 +79,13 @@ BEGIN {
         $switches_config_file $violations_config_file $authentication_config_file
         $chi_config_file $ui_config_file $floating_devices_file $log_config_file
         @stored_config_files @log_files
+        $mdm_config_file
         $admin_roles_config_file
+        $wrix_config_file
+        @stored_config_files
+        $allowed_device_oui_file $allowed_device_types_file
+        $cache_control_file
+        $log_conf_dir
     );
 }
 
@@ -86,6 +97,7 @@ $conf_dir = catdir( $install_dir,"conf" );
 $var_dir  = catdir( $install_dir,"var" );
 $lib_dir  = catdir( $install_dir,"lib" );
 $log_dir  = catdir( $install_dir,"logs" );
+$log_conf_dir  = catdir( $conf_dir,"log.conf.d" );
 
 $generated_conf_dir   = catdir( $var_dir,"conf");
 $tt_compile_cache_dir = catdir( $var_dir,"tt_compile_cache");
@@ -98,6 +110,7 @@ $pf_config_file  = catfile($conf_dir, "pf.conf"); # TODO: Adjust. See $config_fi
 $pf_default_file = catfile($conf_dir, "pf.conf.defaults"); # TODO: Adjust. See $default_config_file
 $chi_config_file = catfile($conf_dir, "chi.conf");
 $log_config_file = catfile($conf_dir, "log.conf");
+$mdm_config_file = catfile($conf_dir, 'mdm.conf');
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");
@@ -110,14 +123,18 @@ $admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
 $violations_config_file       = catfile($conf_dir, "violations.conf");
 $authentication_config_file   = catfile($conf_dir, "authentication.conf");
 $floating_devices_config_file = catfile($conf_dir, "floating_network_device.conf"); # TODO: Adjust to /floating_devices.conf when $floating_devices_file will be deprecated
+$wrix_config_file = catfile($conf_dir, "wrix.conf");
+$allowed_device_oui_file   = catfile($conf_dir,"allowed_device_oui.txt");
+$allowed_device_types_file = catfile($conf_dir,"allowed_device_types.txt");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
-@log_files =
-    map { catfile($log_dir,$_) }
-    qw( access_log error_log admin_access_log admin_error_log packetfence.log catalyst.log )
-;
+@log_files = map {catfile($log_dir, $_)}
+  qw( access_log error_log admin_access_log admin_error_log
+  packetfence.log catalyst.log pfbandwidthd.log pfdetect.log
+  pfdhcplistener.log pfdns.log pfmon.log httpd.admin.log httpd.portal.log
+);
 
 @stored_config_files = (
     $pf_config_file, $network_config_file,
@@ -125,9 +142,13 @@ $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
     $authentication_config_file, $floating_devices_config_file,
     $dhcp_fingerprints_file, $profiles_config_file,
     $oui_file, $floating_devices_file,
-    $chi_config_file,
+    $chi_config_file,$allowed_device_oui_file,$allowed_device_types_file,
+    $ui_config_file,$mdm_config_file,$oauth_ip_file,$log_config_file,
+    $admin_roles_config_file,$wrix_config_file
 );
 
+
+$cache_control_file = catfile($var_dir, "cache_control");
 
 
 =head1 AUTHOR

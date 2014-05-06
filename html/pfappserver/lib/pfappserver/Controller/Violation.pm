@@ -19,7 +19,7 @@ use namespace::autoclean;
 use POSIX;
 
 use pf::config;
-use pf::SNMP::constants;
+use pf::Switch::constants;
 use pfappserver::Form::Violation;
 
 BEGIN {

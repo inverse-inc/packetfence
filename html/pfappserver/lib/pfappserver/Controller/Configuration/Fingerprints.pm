@@ -45,7 +45,6 @@ sub index :Path :Args(0) {
 
 sub simple_search :Local :Args() :SimpleSearch('OS') :AdminRole('FINGERPRINTS_READ') { }
 
-
 =head2 update
 
 =cut
@@ -87,8 +86,11 @@ sub upload :Local :Args(0) :AdminRole('FINGERPRINTS_READ') {
           );
     if ($content) {
         my $release = $c->model('Admin')->pf_release();
+        my $fingerbank_version = "Fingerbank version " . $c->model('Admin')->fingerbank_version();
         $content .= '&ref=' . uri_escape($c->uri_for($c->action->name)) .
+                    '&email=' . uri_escape($Config{'alerting'}{'emailaddr'}) .
                     '&pf_release=' . uri_escape($release) .
+                    '&fingerbank_version=' . uri_escape($fingerbank_version) .
                     '&submit=Submit%20Fingerprints';
         require LWP::UserAgent;
         my $browser  = LWP::UserAgent->new;

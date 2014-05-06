@@ -23,10 +23,11 @@ Verify if the trapping engine
 
 =cut
 
-sub isManaged {
-    my ($self) = @_;
-    return isenabled($Config{'trapping'}{'detection'}) && $Config{'trapping'}{'detection_engine'} eq $self->name;
-}
+around isManaged => sub {
+    my $orig = shift;
+    my $self = shift;
+    return $monitor_int && isenabled($Config{'trapping'}{'detection'}) && $Config{'trapping'}{'detection_engine'} eq $self->name && $self->$orig(@_) ? 1 : 0;
+};
 
 =head2 dependsOnServices
 
@@ -34,7 +35,12 @@ services that the trapping engine depends on
 
 =cut
 
-has '+dependsOnServices' => ( is => 'rw', default => sub { [qw(memcached httpd.admin pfdetect)] } );
+around dependsOnServices => sub {
+    my ($orig, $self) = (shift, shift);
+    my $dependsOnServices = $self->$orig(@_);
+    push @$dependsOnServices,'pfdetect';
+    return $dependsOnServices;
+};
 
 =head1 AUTHOR
 

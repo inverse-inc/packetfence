@@ -15,7 +15,7 @@ set -e
 
 stop_service_if_exists() {
     SERVICE=$1
-    if [ $(set +e;invoke-rc.d --query $SERVICE stop &>/dev/null ; echo "$?") == "104"  ];then
+    if [ $(set +e;invoke-rc.d --quiet --query $SERVICE stop &>/dev/null ; echo "$?") == "104"  ];then
         invoke-rc.d $SERVICE stop
     fi
 }

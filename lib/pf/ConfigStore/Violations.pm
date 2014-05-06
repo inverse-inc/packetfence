@@ -20,7 +20,6 @@ use pf::violation_config;
 extends 'pf::ConfigStore';
 
 sub _buildCachedConfig {
-    readViolationConfigFile();
     $pf::violation_config::cached_violations_config
 };
 

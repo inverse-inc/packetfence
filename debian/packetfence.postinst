@@ -87,20 +87,19 @@ case "$1" in
         set -e
 
         update-rc.d mysql defaults
-        update-rc.d memcached defaults
 
         # add sudo entry
         if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
             # Comment out entry from a previous version of PF (< 4.0)
             sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers
         fi
-        if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/usr/bin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/freeradius.*/usr/sbin/snort.*/usr/bin/suricata" /etc/sudoers > /dev/null  ) ; then
-            echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /usr/sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/freeradius, /usr/sbin/snort, /usr/bin/suricata" >> /etc/sudoers
+        if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/usr/bin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/freeradius.*/usr/sbin/snort.*/usr/bin/suricata.*/usr/sbin/conntrack" /etc/sudoers > /dev/null  ) ; then
+            echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /usr/sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/freeradius, /usr/sbin/snort, /usr/bin/suricata, /usr/sbin/conntrack" >> /etc/sudoers
         fi
         if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
             echo 'Defaults:pf !requiretty' >> /etc/sudoers
         fi
-
+        /usr/local/pf/bin/pfcmd configreload
         update-rc.d packetfence defaults 60 || exit 0
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
         echo "* Please stop your iptables service if you don't have access to configurator."

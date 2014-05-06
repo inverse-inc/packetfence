@@ -128,7 +128,7 @@ sub start_mysqld_service {
     }
 
     # please keep LANG=C in case we need to fetch the output of the command
-    my $cmd = "LANG=C sudo service mysqld start 2>&1";
+    my $cmd = "LANG=C setsid sudo service mysqld start 2>&1";
     $logger->debug("Starting mysqld service: $cmd");
     $status = pf_run($cmd);
 
@@ -187,7 +187,6 @@ sub write_network_persistent {
 
 package pfappserver::Model::Config::SystemFactory;
 
-=back
 
 =head2 NAME
 
@@ -201,9 +200,7 @@ Moose class.
 
 use Moose;
 
-=head2 METHODS
-
-=over
+=head1 METHODS
 
 =head2 _checkOs
 
@@ -255,7 +252,6 @@ sub getSystem {
 
 package pfappserver::Model::Config::System::Role;
 
-=back
 
 =head2 NAME
 
@@ -296,9 +292,7 @@ our $_network_conf_file   = "network";
 our $_interface_conf_file = "ifcfg-";
 our $var_dir              = "/usr/local/pf/var/";
 
-=head3 METHODS
-
-=over
+=head1 METHODS
 
 =head2 writeNetworkConfigs
 
@@ -378,7 +372,6 @@ sub writeNetworkConfigs {
 
 package pfappserver::Model::Config::System::Debian;
 
-=back
 
 =head3 NAME
 
@@ -400,9 +393,7 @@ our $_network_conf_dir    = "/etc/network/";
 our $_network_conf_file   = "interfaces";
 our $var_dir              ="/usr/local/pf/var/";
 
-=head3 METHODS
-
-=over
+=head1 METHODS
 
 =head2 writeNetworkConfigs
 

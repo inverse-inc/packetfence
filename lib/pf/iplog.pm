@@ -42,6 +42,7 @@ BEGIN {
         iplog_view_open_mac   iplog_view_all 
         iplog_open            iplog_close 
         iplog_close_now       iplog_cleanup 
+        iplog_update
 
         mac2ip 
         mac2allips
@@ -75,9 +76,6 @@ sub iplog_db_prepare {
 
     $iplog_statements->{'iplog_view_open_mac_sql'} = get_db_handle()->prepare(
         qq [ select mac,ip,start_time,end_time from iplog where mac=? and (end_time=0 or end_time > now()) order by start_time desc]);
-
-    $iplog_statements->{'iplog_view_open_mac_sql'} = get_db_handle()->prepare(
-        qq [select mac,ip,start_time,end_time from iplog where mac=? and (end_time=0 or end_time > now()) order by start_time desc]);
 
     $iplog_statements->{'iplog_view_all_sql'} = get_db_handle()->prepare(qq [ select mac,ip,start_time,end_time from iplog ]);
 
@@ -380,6 +378,35 @@ sub mac2allips {
         $logger->warn("unable to resolve $mac to ip");
     }
     return @all_ips;
+}
+
+sub iplog_update {
+    my ( $srcmac, $srcip, $lease_length ) = @_;
+    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+
+    # return if MAC or IP is not valid
+    if ( !valid_mac($srcmac) || !valid_ip($srcip) ) {
+        $logger->error("invalid MAC or IP: $srcmac $srcip");
+        return;
+    }
+
+    my $oldmac = ip2mac($srcip);
+    my $oldip  = mac2ip($srcmac);
+
+    if ( $oldmac && $oldmac ne $srcmac ) {
+        $logger->info(
+            "oldmac ($oldmac) and newmac ($srcmac) are different for $srcip - closing iplog entry"
+        );
+        iplog_close_now($srcip);
+    }
+    if ( $oldip && $oldip ne $srcip ) {
+        $logger->info(
+            "oldip ($oldip) and newip ($srcip) are different for $srcmac - closing iplog entry"
+        );
+        iplog_close_now($oldip);
+    }
+    iplog_open( $srcmac, $srcip, $lease_length );
+    return (1);
 }
 
 

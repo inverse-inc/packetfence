@@ -104,10 +104,20 @@ Get all the sections as an array of hash refs
 =cut
 
 sub readAll {
-    my ($self) = @_;
+    my ($self,$pageNumber,$perPage) = @_;
     my ($status, $status_msg);
     my $config = $self->configStore;
-    return (HTTP_OK, $config->readAll($self->idKey));
+    my $entries = $config->readAll($self->idKey);
+    if(defined $pageNumber || defined $perPage) {
+        my $count = @$entries;
+        $pageNumber = 1 unless defined $pageNumber;
+        $perPage = 25 unless defined $perPage;
+        my $start = ($pageNumber - 1) * 25;
+        my $end = $start + $perPage - 1;
+        $end = $count - 1 if $end >= $count;
+        $entries = [@$entries[$start..$end]];
+    }
+    return (HTTP_OK, $entries);
 }
 
 =head2 hasId
@@ -297,7 +307,7 @@ sub commit {
     }
     else {
         $status = HTTP_INTERNAL_SERVER_ERROR;
-        $status_msg = $@;
+        $status_msg = "Unable to commit changes to file please run pfcmd fixpermissions and try again";
     }
     return ($status,$status_msg);
 }
@@ -310,6 +320,20 @@ sub ACCEPT_CONTEXT {
 sub _buildConfigStore {
     my ($self) = @_;
     return $self->configStoreClass->new;
+}
+
+=head2 countAll
+
+Counts all the items
+
+=cut
+
+sub countAll {
+    my ($self) = @_;
+    my ($status, $status_msg);
+    my $config = $self->configStore;
+    my $entries = $config->readAllIds();
+    return (HTTP_OK, scalar @$entries);
 }
 
 

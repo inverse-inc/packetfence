@@ -117,11 +117,15 @@ elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "aup") {
   exit(0);
 }
 
+elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "status") {
+  pf::web::generate_status_page($portalSession);
+}
+
 elsif (defined($cgi->url_param('mode'))) {
   pf::web::generate_error_page($portalSession, i18n("error: incorrect mode"));
 }
 
-elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->param('username') ne '' || $no_password_needed )) {
+elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->param('password') ne '' || $no_password_needed )) {
   my ($form_return, $err) = pf::web::validate_form($portalSession);
   if ($form_return != 1) {
     $logger->trace("form validation failed or first time for " . $portalSession->getClientMac());
@@ -154,6 +158,12 @@ elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->pa
   if (defined $value) {
       %info = (%info, (category => $value));
   }
+  else {
+      $error = 'Wrong username or password.';
+      $logger->info("No role associated to $pid for " . $portalSession->getClientMac());
+      pf::web::generate_login_page($portalSession, $error);
+      exit(0);
+  }
 
   # If an access duration is defined, use it to compute the unregistration date;
   # otherwise, use the unregdate when defined.
@@ -168,6 +178,7 @@ elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->pa
   if (defined $value) {
       %info = (%info, (unregdate => $value));
   }
+  my $nodeattributes = node_attributes($portalSession->getClientMac);
 
   pf::web::web_node_register($portalSession, $pid, %info);
   pf::web::end_portal_session($portalSession);
@@ -177,6 +188,7 @@ elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->pa
 else {
   pf::web::generate_login_page($portalSession);
 }
+
 
 =head1 AUTHOR
 

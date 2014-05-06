@@ -61,7 +61,7 @@ var NodeView = function(options) {
 
     this.proxyClick($('body'), '[name="items"]', this.toggleActionsButton);
 
-    this.proxyClick($('body'), '#clear_violations, #bulk_register, #bulk_deregister, #apply_roles a', this.submitItems);
+    this.proxyClick($('body'), '#node_bulk_actions .bulk_action', this.submitItems);
 
     this.proxyFor($('body'), 'section.loaded', '#section', function(e) {
         /* Enable autocompletion of owner on tab of single node creation */
@@ -69,7 +69,7 @@ var NodeView = function(options) {
             source: $.proxy(this.searchUser, this),
             minLength: 2,
             items: 11,
-            matcher: function(item) { return true; },
+            matcher: function(item) { return true; }
         });
         /* Disable checked columns from import tab since they are required */
         $('form["nodes"] .columns :checked').attr('disabled', 'disabled');
@@ -132,7 +132,7 @@ NodeView.prototype.showNode = function(e) {
         source: $.proxy(that.searchUser, that),
         minLength: 2,
         items: 11,
-        matcher: function(item) { return true; },
+        matcher: function(item) { return true; }
     });
     modal.on('hidden', function (e) {
         if ($(e.target).hasClass('modal')) {
@@ -165,7 +165,7 @@ NodeView.prototype.searchUser = function(query, process) {
             else
                 control.removeClass('error');
             process(results);
-        },
+        }
     });
 };
 
@@ -330,7 +330,11 @@ NodeView.prototype.advancedSearchUpdater = function(e) {
         // Add checked columns to the form
         form.find('[name="column"]').remove();
         $('#columns').find(':checked').each(function() {
-            form.append($('<input>', { type: 'checkbox', checked: 'checked', name: 'column', class: 'hidden', value: $(this).val()}));
+            form.append($('<input>', { type: 'checkbox',
+                                       checked: 'checked',
+                                       name: 'column',
+                                       'class': 'hidden',
+                                       value: $(this).val() }));
         });
         form.submit();
     }
@@ -362,7 +366,9 @@ NodeView.prototype.submitItems = function(e) {
             url: target.attr("data-target"),
             data: items,
             success: function(data) {
-                showSuccess(status_container, data.status_msg);
+                $("#section").one('section.loaded', function() {
+                    showSuccess($("#section").find('h2').first(), data.status_msg);
+                });
                 $(window).hashchange();
             },
             errorSibling: status_container

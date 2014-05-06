@@ -41,6 +41,12 @@ install: build
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
+
+	#copying example files with the extention
+	for i in `find * -name "*.example"`; do \
+	        cp $$i "$$(dirname $$i)/$$(basename $$i .example)"; \
+	done
+
 	# Install all except debian and t directory
 	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 't/*' ! -path 't' -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
@@ -54,6 +60,8 @@ install: build
 	for i in `find * -path 't*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/$$i; \
 	done
+	
+
 	# generate translations
 	# TODO this is duplicated in our RPM spec, we should aim to consolidate in a 'make' style step
 	for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do \
@@ -68,14 +76,16 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/users
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/raddb/sites-enabled
-	install -d -m2700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/logs
+	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/logs
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/conf
+	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/var
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
-	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
+	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/rrd
-	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/session
+	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/session
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/webadmin_cache
+	touch $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache_control
 	#Configurator integration
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/init.d
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default

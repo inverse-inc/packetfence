@@ -281,8 +281,10 @@ sub update {
     }
     if ($result) {
         my $isDot1x = defined($previous_node_ref->{last_dot1x_username}) && length($previous_node_ref->{last_dot1x_username}) > 0;
+        my $category_id = $node_ref->{category_id} || '';
+        my $previous_category_id = $previous_node_ref->{category_id} || '';
         if ($previous_node_ref->{status} ne $node_ref->{status} ||
-            $previous_node_ref->{category_id} ne $node_ref->{category_id} && !$isDot1x) {
+            $previous_category_id ne $category_id && !$isDot1x) {
             # Node has been registered or deregistered
             # or the role has changed and is not currently using 802.1X
             reevaluate_access($mac, "node_modify");
@@ -523,6 +525,21 @@ sub _closeViolation{
     return $result;
 }
 
+=head2 bulkApplyViolation
+
+=cut
+
+sub bulkApplyViolation {
+    my ($self, $violation_id, @macs) = @_;
+    my $count = 0;
+    foreach my $mac (@macs) {
+        my ($last_id) = violation_add( $mac, $violation_id);
+        $count++ if $last_id > 0;;
+    }
+    return ($STATUS::OK, ["[_1] violation(s) were opened.",$count]);
+}
+
+
 =head2 _graphIplogHistory
 
 The associated HTML template to show the graph could look like this:
@@ -678,13 +695,13 @@ sub _graphIplogHistory {
 =cut
 
 sub bulkRegister {
-    my ($self,@macs) = @_;
+    my ($self, @macs) = @_;
     my $count = 0;
-    my ($status,$status_msg);
+    my ($status, $status_msg);
     foreach my $mac (@macs) {
         my $node = node_attributes($mac);
-        if($node->{status} eq $pf::node::STATUS_UNREGISTERED) {
-            if(node_register($mac, $node->{pid}, %{$node})) {
+        if ($node->{status} ne $pf::node::STATUS_REGISTERED) {
+            if (node_register($mac, $node->{pid}, %{$node})) {
                 reevaluate_access($mac, "node_modify");
                 $count++;
             }
@@ -698,18 +715,18 @@ sub bulkRegister {
 =cut
 
 sub bulkDeregister {
-    my ($self,@macs) = @_;
+    my ($self, @macs) = @_;
     my $count = 0;
     foreach my $mac (@macs) {
         my $node = node_attributes($mac);
-        if($node->{status} eq $pf::node::STATUS_REGISTERED) {
-            if(node_deregister($mac, $node->{pid}, %{$node})) {
+        if ($node->{status} ne $pf::node::STATUS_UNREGISTERED) {
+            if (node_deregister($mac, $node->{pid}, %{$node})) {
                 reevaluate_access($mac, "node_modify");
                 $count++;
             }
         }
     }
-    return ($STATUS::OK, ["[_1] node(s) were deregistered.",$count]);
+    return ($STATUS::OK, ["[_1] node(s) were deregistered.", $count]);
 }
 
 =head2 bulkApplyRole
@@ -717,14 +734,23 @@ sub bulkDeregister {
 =cut
 
 sub bulkApplyRole {
-    my ($self,$role,@macs) = @_;
+    my ($self, $role, @macs) = @_;
     my $count = 0;
     foreach my $mac (@macs) {
-        my $node = node_attributes($mac);
-        $node->{category_id} = $role;
-        $count++ if node_modify($mac, %{$node});
+        my $node = node_view($mac);
+        if ($node->{category_id} != $role) {
+            # Role has changed
+            $node->{category_id} = $role;
+            if (node_modify($mac, %{$node})) {
+                $count++;
+                if (!defined($node->{last_dot1x_username}) || length($node->{last_dot1x_username}) == 0) {
+                    # The role has changed and is not currently using 802.1X
+                    reevaluate_access($mac, "node_modify");
+                }
+            }
+        }
     }
-    return ($STATUS::OK, ["Role was changed for [_1] node(s)",$count]);
+    return ($STATUS::OK, ["Role was changed for [_1] node(s)", $count]);
 }
 
 =head1 AUTHOR
@@ -733,7 +759,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2013-2014 Inverse inc.
 
 =head1 LICENSE
 

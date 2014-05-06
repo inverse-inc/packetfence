@@ -16,9 +16,9 @@ BEGIN { use PfFilePaths; }
 use pf::config;
 use pf::SwitchFactory;
 
-BEGIN { use pf::SNMP; }
+BEGIN { use pf::Switch; }
 BEGIN {
-    use_ok('pf::SNMP::ThreeCom::Switch_4200G');
+    use_ok('pf::Switch::ThreeCom::Switch_4200G');
 }
 
 # create the object
@@ -26,7 +26,7 @@ my $switchFactory = new pf::SwitchFactory;
 my $switch = $switchFactory->instantiate('10.0.0.3');
 
 # test the object
-isa_ok($switch, 'pf::SNMP::ThreeCom::Switch_4200G');
+isa_ok($switch, 'pf::Switch::ThreeCom::Switch_4200G');
 
 # test subs
 can_ok($switch, qw(

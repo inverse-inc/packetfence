@@ -19,11 +19,6 @@ use warnings;
 
 use Data::Dumper;
 use Net::SNMP;
-use threads;
-use threads::shared;
-use Thread::Pool;
-use Log::Log4perl;
-use Log::Log4perl::Appender::File; # HACK: compile tests failed on build env. without that
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
@@ -34,8 +29,10 @@ use pf::person;
 use pf::locationlog;
 use pf::node;
 use pf::ifoctetslog;
+use threads;
+use threads::shared;
+use Thread::Pool;
 
-Log::Log4perl->init( INSTALL_DIR . '/conf/log.conf' );
 my $logger = Log::Log4perl->get_logger('');
 
 my $switchFactory = new pf::SwitchFactory(

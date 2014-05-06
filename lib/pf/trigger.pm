@@ -86,7 +86,7 @@ sub trigger_db_prepare {
         qq[ select tid_start,tid_end,class.vid,type,description from `trigger`,class where class.vid=`trigger`.vid ]);
 
     $trigger_statements->{'trigger_view_type_sql'} = get_db_handle()->prepare(
-        qq[ select tid_start,tid_end,class.vid,type,description from `trigger`,class where class.vid=`trigger`.vid and type=?]);
+        qq[ select tid_start,tid_end,class.vid,type,description,enabled from `trigger`,class where class.vid=`trigger`.vid and type=?]);
 
     $trigger_statements->{'trigger_exist_sql'} = get_db_handle()->prepare(
         qq [ select vid,tid_start,tid_end,type,whitelisted_categories from `trigger` where vid=? and tid_start<=? and tid_end>=? and type=? and whitelisted_categories=? ]
@@ -204,7 +204,11 @@ sub parse_triggers {
 
         # special accouting only trigger parser
         if ($type eq 'accounting') {
-            die("Invalid accounting trigger id: $trigger") if ($tid !~ /^$ACCOUNTING_TRIGGER_RE$/);
+            unless ($tid =~ /^$ACCOUNTING_TRIGGER_RE$/ ||
+                    $tid eq $ACCOUNTING_POLICY_TIME ||
+                    $tid eq $ACCOUNTING_POLICY_BANDWIDTH) {
+                die("Invalid accounting trigger id: $trigger");
+            }
         }
         # usual trigger allowing digits, ranges and dots with optional trailing whitespace
         else {

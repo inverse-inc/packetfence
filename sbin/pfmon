@@ -19,39 +19,37 @@ use warnings;
 use strict;
 use Getopt::Std;
 use Net::Pcap 0.16;
-#use English qw( ‐no_match_vars ); # no match avoids regex performance penalty
 use File::Basename qw(basename);
 use POSIX qw(:signal_h pause);
 use Pod::Usage;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-
-use lib INSTALL_DIR . "/lib";
-
-
-#$thread=1;
+#pf::log must always be initilized first
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfmon');
+}
 
 use pf::accounting qw(acct_maintenance);
 use pf::config;
 use pf::config::cached;
+use pf::inline::accounting;
 use pf::iplog;
 use pf::locationlog;
 use pf::node;
 use pf::services;
 use pf::traplog;
 use pf::util;
+use pf::services::util;
 use pf::violation qw(violation_maintenance);
 
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = basename($0);
+our $PROGRAM_NAME = $0 = basename($0);
 
-# log4perl init
-Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
-my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
-Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
-Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
+my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
 
 $SIG{HUP} = \&normal_sighandler;
 $SIG{INT} = \&normal_sighandler;
@@ -69,7 +67,7 @@ my $restart   = $args{r};
 our $running = 1;
 
 # standard signals and daemonize
-daemonize() if ($daemonize);
+daemonize($PROGRAM_NAME) if ($daemonize);
 
 # run the cleanup
 cleanup();
@@ -182,6 +180,12 @@ sub cleanup {
             traplog_cleanup( $Config{'expire'}{'traplog'} )
               if ( $Config{'expire'}{'traplog'} );
 
+            purge_cache('httpd.admin')
+              if ( isenabled($Config{'expire'}{'httpd_admin'}) );
+
+            purge_cache('httpd.portal')
+              if ( isenabled($Config{'expire'}{'httpd_portal'}) );
+
             $logger->info("checking registered nodes for expiration");
             nodes_maintenance();
 
@@ -189,6 +193,9 @@ sub cleanup {
             violation_maintenance();
 
             $logger->info("checking accounting data for potential bandwidth abuse");
+            if (isenabled($Config{'inline'}{'accounting'})) {
+                inline_accounting_maintenance($Config{'inline'}{'level3_accounting_session_timeout'});
+            }
             acct_maintenance();
 
             #reload all cached configs after each iteration
@@ -201,6 +208,14 @@ sub cleanup {
         }
         alarm $Config{'general'}{'maintenance_interval'};
         pause;
+    }
+}
+
+sub purge_cache {
+    my ($namespace) = @_;
+    my $cache = pf::CHI->new( namespace => $namespace );
+    for my $key ($cache->get_keys) {
+        $cache->remove($key) if $cache->exists_and_is_expired($key);
     }
 }
 
@@ -218,26 +233,6 @@ sub decode {
     return ($opcode, clean_mac($sha), int2ip($spa), clean_mac($tha), int2ip($tpa));
 }
 
-sub daemonize {
-    chdir '/' or $logger->logdie("Can't chdir to /: $!");
-    open STDIN, '<', '/dev/null'
-        or $logger->logdie("Can't read /dev/null: $!");
-    my ($login,$pass,$uid,$gid) = getpwnam('pf')
-        or die "pf not in passwd file";
-    my $log_file = "$install_dir/logs/pfmon";
-    open STDOUT, '>>', "$log_file"
-        or $logger->logdie("Can't write to $log_file: $!");
-    chown $uid, $gid, $log_file;
-    defined( my $pid = fork ) or $logger->logdie("pfmon: could not fork: $!");
-    POSIX::_exit(0) if ($pid);
-    if ( !POSIX::setsid() ) {
-        $logger->error("could not start a new session: $!");
-
-        #    die("pfmon: could not start a new session: $!\n");
-    }
-    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-    createpid();
-}
 
 sub normal_sighandler {
     $running = 0;

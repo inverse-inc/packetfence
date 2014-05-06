@@ -1,53 +1,80 @@
 server packetfence {
 
-authorize {
+    authorize {
         suffix
         preprocess
         eap {
-                ok = return
+            ok = return
         }
         files
         expiration
         logintime
-	packetfence
-}
+        update request {
+            FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+        }
+        update control {
+            PacketFence-RPC-Server = ${rpc_server}
+            PacketFence-RPC-Port = ${rpc_port}
+            PacketFence-RPC-User = ${rpc_user}
+            PacketFence-RPC-Pass = ${rpc_pass}
+            PacketFence-RPC-Proto = ${rpc_proto}
+        }
+        packetfence
+    }
 
-authenticate {
+    authenticate {
         Auth-Type MS-CHAP {
-                mschap
+            mschap
         }
         eap
-}
+    }
 
-preacct {
+    preacct {
         preprocess
         acct_unique
         suffix
         files
-}
+    }
 
-accounting {
+    accounting {
         sql
         attr_filter.accounting_response
-}
+        update control {
+            PacketFence-RPC-Server = ${rpc_server}
+            PacketFence-RPC-Port = ${rpc_port}
+            PacketFence-RPC-User = ${rpc_user}
+            PacketFence-RPC-Pass = ${rpc_pass}
+            PacketFence-RPC-Proto = ${rpc_proto}
+        }
+        packetfence
+    }
 
-session {
-}
+    session {
+    }
 
-post-auth {
+    post-auth {
         exec
-        if (!EAP-Type || (EAP-Type != 21 && EAP-Type != 25)) {
-             packetfence
+        # skip packetfence if we have already treated it in the inner-tunnel
+        if (!EAP-Type || (EAP-Type != EAP-TTLS  && EAP-Type != PEAP)) {
+            update control {
+                PacketFence-RPC-Server = ${rpc_server}
+                PacketFence-RPC-Port = ${rpc_port}
+                PacketFence-RPC-User = ${rpc_user}
+                PacketFence-RPC-Pass = ${rpc_pass}
+                PacketFence-RPC-Proto = ${rpc_proto}
+            }
+            packetfence
         }
         Post-Auth-Type REJECT {
-                attr_filter.access_reject
+            attr_filter.access_reject
         }
-}
+    }
 
-pre-proxy {
-}
+    pre-proxy {
+    }
 
-post-proxy {
+    post-proxy {
         eap
-}
+    }
+
 }

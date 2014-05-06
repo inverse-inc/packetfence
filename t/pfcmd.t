@@ -14,7 +14,6 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 94;
 use Test::NoWarnings;
 
 use English '-no_match_vars';
@@ -25,6 +24,19 @@ Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
+our (@output,@main_args,$tests);
+BEGIN {
+    @output = `/usr/local/pf/bin/pfcmd.pl help`;
+    foreach my $line (@output) {
+        if ($line =~ /^([^ ]+) +\|/) {
+            push @main_args, $1;
+        }
+    }
+    $tests = 55 + scalar @main_args;
+}
+
+
+use Test::More tests => $tests;
 
 =head1 TESTS
 
@@ -148,7 +160,7 @@ is_deeply(\%cmd,
 
 %cmd = pf::pfcmd::parseCommandLine('node view all');
 is_deeply(\%cmd,
-          { 'command' 
+          { 'command'
               => [ 'node', 'view', 'all' ],
             'node_options'
               => [ 'view', 'all' ],
@@ -157,7 +169,7 @@ is_deeply(\%cmd,
 
 %cmd = pf::pfcmd::parseCommandLine('node view all order by mac asc');
 is_deeply(\%cmd,
-          { 'command' 
+          { 'command'
               => [ 'node', 'view', 'all', 'order', 'by', 'mac', 'asc' ],
             'node_options'
               => [ 'view', 'all' ],
@@ -168,7 +180,7 @@ is_deeply(\%cmd,
 
 %cmd = pf::pfcmd::parseCommandLine('node view all limit 2,1');
 is_deeply(\%cmd,
-          { 'command' 
+          { 'command'
               => [ 'node', 'view', 'all', 'limit', '2', '1' ],
             'node_options'
               => [ 'view', 'all' ],
@@ -187,7 +199,7 @@ is_deeply(\%cmd,
 
 %cmd = pf::pfcmd::parseCommandLine('nodecategory view all');
 is_deeply(\%cmd,
-          { 'command' 
+          { 'command'
                 => [ 'nodecategory', 'view', 'all' ],
             'nodecategory_options'
               => [ 'view', 'all' ]
@@ -196,7 +208,7 @@ is_deeply(\%cmd,
 
 %cmd = pf::pfcmd::parseCommandLine('person view all');
 is_deeply(\%cmd,
-          { 'command' 
+          { 'command'
               => [ 'person', 'view', 'all' ],
             'person_options'
               => [ 'view', 'all' ]
@@ -229,7 +241,7 @@ is_deeply(\%cmd,
 
 %cmd = pf::pfcmd::parseCommandLine('schedule view all');
 is_deeply(\%cmd,
-          { 'command' 
+          { 'command'
               => [ 'schedule', 'view', 'all' ],
             'schedule_options'
               => [ 'view', 'all' ]
@@ -278,7 +290,7 @@ is_deeply(\%cmd,
 
 %cmd = pf::pfcmd::parseCommandLine('violation view 1');
 is_deeply(\%cmd,
-          { 'command' 
+          { 'command'
               => [ 'violation', 'view', '1' ],
             'violation_options'
               => [ 'view', '1' ],
@@ -352,13 +364,6 @@ is_deeply(\%main::cmd,
 =item command line help tests
 
 =cut
-my @output = `/usr/local/pf/bin/pfcmd.pl help`;
-my @main_args;
-foreach my $line (@output) {
-    if ($line =~ /^([^ ]+) +\|/) {
-        push @main_args, $1;
-    }
-}
 
 foreach my $help_arg (@main_args) {
     my @output = `/usr/local/pf/bin/pfcmd.pl help $help_arg 2>&1`;
@@ -371,18 +376,18 @@ foreach my $help_arg (@main_args) {
 =cut
 # required to avoid warnings in admin guide asciidoc build
 my @pfcmd_help = `/usr/local/pf/bin/pfcmd.pl help`;
-is($CHILD_ERROR, 0, "pfcmd help exit with status 0"); 
+is($CHILD_ERROR, 0, "pfcmd help exit with status 0");
 
 # required to have help placed into the admin guide asciidoc during build
-ok(@pfcmd_help, "pfcmd help outputs on STDOUT"); 
+ok(@pfcmd_help, "pfcmd help outputs on STDOUT");
 
 # pfcmd's exit status
 # see perldoc perlvar on CHILD_ERROR for the reason behind the >> 8 shift
 my $pfcmd_config_unknown_param_stdout = `/usr/local/pf/bin/pfcmd.pl config get invalid.fail`;
-is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM, "exit status: invalid pfcmd set config"); 
+is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM, "exit status: invalid pfcmd set config");
 
 my $pfcmd_config_no_help_stdout = `/usr/local/pf/bin/pfcmd.pl config help invalid.fail`;
-is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_NO_HELP, "exit status: pfcmd config help w/o help"); 
+is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_NO_HELP, "exit status: pfcmd config help w/o help");
 
 =back
 
@@ -395,21 +400,21 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
 

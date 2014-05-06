@@ -24,7 +24,7 @@ use pf::Portal::Session;
 use pf::util;
 use pf::web;
 use pf::web::gaming;
-use pf::web::custom;    # called last to allow redefinitions
+use pf::nodecategory qw(nodecategory_exist);
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('register-gaming-device.cgi');
@@ -36,78 +36,110 @@ my $portalSession   = new pf::Portal::Session();
 my $cgi             = $portalSession->cgi;
 my $session         = $portalSession->session;
 
-my %info;
-
 # This module is not enabled so return an error accordingly
-if ( isdisabled($Config{'registration'}{'gaming_devices_registration'}) ) {
+if ( isdisabled($Config{'registration'}{'device_registration'}) ) {
     pf::web::generate_error_page($portalSession, i18n("This module is not enabled"));
     exit(0);
 }
 
 # Pull parameters from query string
-foreach my $param($cgi->url_param()) {
+foreach my $param  (grep {$_} $cgi->url_param()) {
     $params{$param} = $cgi->url_param($param);
 }
 foreach my $param($cgi->param()) {
     $params{$param} = $cgi->param($param);
 }
 
-my $pid = $session->param("username");
+#Using session param login to determine if user is logged in
+my $pid = $session->param("login");
 
-# See if user is trying to login and if is not already authenticated
-if ( (!$pid) && ($cgi->param('username') ne '') && ($cgi->param('password') ne '') ) {
-  my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession);
-  if ($auth_return != 1) {
-    $logger->trace("authentication failed for " . $portalSession->getClientMac());
-    pf::web::gaming::generate_login_page($portalSession, $error);
-  }
-  else {
-    pf::web::gaming::generate_registration_page($portalSession);
-  }
-}
-
-# Verify if user is authenticated
-elsif (!$pid) {
-  pf::web::gaming::generate_login_page($portalSession);
-} elsif (exists $params{cancel} )  {
-    $session->delete();
-    pf::web::gaming::generate_login_page($portalSession, 'Registration canceled. Please try again.');
-}
-
-# User is authenticated and requesting to register gaming device
-elsif (exists $params{'device_mac'}) {
-    my $device_mac = $params{'device_mac'};
-    $portalSession->stash->{device_mac} = $device_mac;
-
-    # Get role for gaming device
-    my $role = $Config{'registration'}{'gaming_devices_registration_role'};
-    if ($role) {
-        $logger->trace("Gaming devices role is $role (from pf.conf)");
-    }
-    else {
-        # Use role of user
-        $role = &pf::authentication::match(&pf::authentication::getInternalAuthenticationSources(), {username => $pid}, $Actions::SET_ROLE);
-        $logger->trace("Gaming devices role is $role (from username $pid)") if ($role);
-    }
-    $info{'category'} = $role if (defined $role);
-
-    # Register gaming device
-    my ($result, $msg) = pf::web::gaming::register_node($portalSession, $pid, $device_mac, %info);
-    if ($result) {
-        pf::web::gaming::generate_landing_page($portalSession, $msg);
-        $portalSession->session->delete();
-    } else {
-        pf::web::gaming::generate_registration_page($portalSession, $msg);
-    }
-}
-
-# User is authenticated so display registration page
-else {
-  pf::web::gaming::generate_registration_page($portalSession);
+if(!$pid) { #User has not logged in yet
+    user_not_logged_in($portalSession,$session,\%params);
+} else { #User is Logged
+    user_is_logged_in($portalSession,$session,\%params,$pid);
 }
 
 exit(0);
 
+
+=item user_not_logged_in
+When user is not logged in
+=cut
+
+sub user_not_logged_in {
+    my ($portalSession,$session,$params) = @_;
+    my $authenticated;
+    my $msg;
+    if(( $params->{'username'}  && $params->{'password'} )) {
+      ($authenticated, $msg) = pf::web::web_user_authenticate($portalSession, $params->{"auth"});
+    }
+    if ($authenticated == $TRUE) {
+        $session->param(login => $params->{'username'});
+        pf::web::gaming::generate_registration_page($portalSession);
+    } else {
+        pf::web::gaming::generate_login_page($portalSession,$msg);
+    }
+}
+
+=item user_is_logged_in
+When user is logged in
+=cut
+
+sub user_is_logged_in {
+    my ($portalSession,$session,$params,$pid) = @_;
+    if(exists $params->{cancel} )  {
+        user_cancel($portalSession,$session);
+    } else {
+        register_device($portalSession,$session,$params,$pid);
+    }
+}
+
+=item register_device
+ Registration of device
+=cut
+
+sub register_device {
+    my ($portalSession,$session,$params,$pid) = @_;
+    my (%info,$result);
+    my $logger = Log::Log4perl->get_logger('register-gaming-device.cgi');
+    $info{'pid'} = $pid;
+    my $device_mac = clean_mac($params->{'device_mac'});
+    if(pf::web::gaming::is_allowed_gaming_mac($device_mac)) {
+        $portalSession->stash->{device_mac} = $device_mac;
+        my $role = $Config{'registration'}{'device_registration_role'};
+        if ($role) {
+            $logger->trace("Gaming devices role is $role (from pf.conf)");
+        } else {
+            # Use role of user
+            $role = &pf::authentication::match(&pf::authentication::getInternalAuthenticationSources(), {username => $pid}, $Actions::SET_ROLE);
+            $logger->trace("Gaming devices role is $role (from username $pid)") if ($role);
+        }
+    # register gaming device
+        $info{'category'} = $role if (defined $role);
+        $info{'notes'} = $params->{'console_type'};
+        $info{'mac'} = $device_mac;
+        $info{'auto_registered'} = 1;
+        $result = pf::web::web_node_register($portalSession, $pid, %info);
+    }
+    if($result) {
+        $session->delete();
+        my $msg = i18n_format("The MAC address %s has been successfully registered.",$device_mac);
+        pf::web::gaming::generate_landing_page($portalSession,$msg);
+    } else {
+        my $msg = i18n_format("The MAC address %s provided is invalid please try again",$device_mac);
+        pf::web::gaming::generate_registration_page($portalSession,$msg);
+    }
+}
+
+=item user_cancel
+Action done when the user cancels
+=cut
+
+sub user_cancel {
+    my ($portalSession,$session) = @_;
+    $session->delete();
+    pf::web::gaming::generate_login_page($portalSession, 'Registration canceled please try again');
+}
 
 =head1 AUTHOR
 

@@ -27,7 +27,7 @@ Verify that the user has the rights to execute the controller's action.
 =cut
 
 before execute => sub {
-    my ( $self, $controller, $c, %args ) = @_;
+    my ( $self, $controller, $c, @args ) = @_;
 
     my $action = $self->attributes->{AdminRole}[0];
     my $roles = [];

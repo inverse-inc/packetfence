@@ -26,6 +26,7 @@ use pf::util qw(load_oui download_oui);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
 # imported but it's better than duplicating regex all over the place.
 use pf::config;
+use pf::admin_roles;
 use pfappserver::Form::Config::Pf;
 
 BEGIN {extends 'pfappserver::Base::Controller'; }
@@ -64,11 +65,7 @@ our %ALLOWED_SECTIONS = (
 
 =cut
 
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
-    $c->response->redirect($c->uri_for($self->action_for('pf_section'),'general'));
-    $c->detach();
-}
+sub index :Path :Args(0) { }
 
 
 =head2 pf_section
@@ -77,7 +74,7 @@ The generic handler for all pf sections
 
 =cut
 
-sub pf_section :Path :Args(1) {
+sub pf_section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
     my ($self, $c, $section) = @_;
     my $logger = get_logger();
     if (exists $ALLOWED_SECTIONS{$section} ) {
@@ -90,16 +87,23 @@ sub pf_section :Path :Args(1) {
         my $model = $c->model('Config::Pf');
         $form = $c->form("Config::Pf", section => $section);
         if ($c->request->method eq 'POST') {
-            $form->process(params => $c->req->params);
-            $logger->info("Processed form");
-            if ($form->has_errors) {
-                $status = HTTP_PRECONDITION_FAILED;
-                $status_msg = $form->field_errors;
-            } else {
-                ($status,$status_msg) = $model->update($section, $form->value);
-                if (is_success($status)) {
-                    ($status,$status_msg) = $model->commit();
+            if(admin_can([$c->user->roles], 'CONFIGURATION_MAIN_UPDATE')) {
+                $form->process(params => $c->req->params);
+                $logger->info("Processed form");
+                if ($form->has_errors) {
+                    $status = HTTP_PRECONDITION_FAILED;
+                    $status_msg = $form->field_errors;
+                } else {
+                    ($status,$status_msg) = $model->update($section, $form->value);
+                    if (is_success($status)) {
+                        ($status,$status_msg) = $model->commit();
+                    }
                 }
+            } else {
+                $c->response->status(HTTP_UNAUTHORIZED);
+                $c->stash->{status_msg} = "You don't have the rights to perform this action.";
+                $c->stash->{current_view} = 'JSON';
+                $c->detach();
             }
         } else {
             ($status,$results) = $model->read($section);

@@ -38,7 +38,7 @@ plan tests => scalar @supports_roles * 2 + 1;
 foreach my $support_roles (@supports_roles) {
 
     # test the object's heritage
-    isa_ok($support_roles, 'pf::SNMP');
+    isa_ok($support_roles, 'pf::Switch');
 
     # test its interface
     can_ok($support_roles, qw(returnRoleAttribute));

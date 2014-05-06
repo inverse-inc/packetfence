@@ -1,4 +1,4 @@
-      <table id="floatingdevices" class="table items">
+      <table id="floatingdevices" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
         <thead>
           <tr>
             <th>[% l('MAC') %]</th>
@@ -9,18 +9,18 @@
           </tr>
         </thead>
         <tbody>
-          [% FOREACH floatingdevice IN items %]
+          [% FOREACH item IN items %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller('Configuration::FloatingDevice').action_for('view'), [ floatingdevice.id ]) %]">[% floatingdevice.id %]</a></td>
-            <td>[% floatingdevice.ip %][% IF floatingdevice.switch %] <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('view'), [ floatingdevice.switch.id ]) %]">[% l('Edit switch') %]</a>[% END %]</td>
-            <td class="hidden-phone">[% floatingdevice.pvid %]</td>
-            <td class="hidden-phone">[% IF floatingdevice.trunkPort == 'yes' %]<i class=" icon-ok"></i>[% END %]</td>
+            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td>[% item.ip %][% IF item.switch %] <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('view'), [ item.switch.id ]) %]">[% l('Edit switch') %]</a>[% END %]</td>
+            <td class="hidden-phone">[% item.pvid | html %]</td>
+            <td class="hidden-phone">[% IF item.trunkPort == 'yes' %]<i class=" icon-ok"></i>[% END %]</td>
             <td>
               [%- IF can_access("FLOATING_DEVICES_CREATE") %]
-              <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::FloatingDevice').action_for('clone'), [ floatingdevice.id]) %]">[% l('Clone') %]</a>
+              <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>
               [%- END %]
               [%- IF can_access("FLOATING_DEVICES_DELETE") %]
-              <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Configuration::FloatingDevice').action_for('remove'), [ floatingdevice.id ]) %]">[% l('Delete') %]</a>
+              <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
               [%- END %]
             </td>
           </tr>

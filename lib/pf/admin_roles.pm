@@ -20,7 +20,7 @@ use pf::file_paths;
 use List::MoreUtils qw(any all);
 use pf::config::cached;
 
-our @EXPORT = qw(admin_can admin_can_do_any @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config);
+our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config);
 our %ADMIN_ROLES;
 our @ADMIN_ACTIONS = qw(
     SERVICES
@@ -39,6 +39,10 @@ our @ADMIN_ACTIONS = qw(
     PORTAL_PROFILES_CREATE
     PORTAL_PROFILES_UPDATE
     PORTAL_PROFILES_DELETE
+    MDM_READ
+    MDM_CREATE
+    MDM_UPDATE
+    MDM_DELETE
     ADMIN_ROLES_READ
     ADMIN_ROLES_CREATE
     ADMIN_ROLES_UPDATE
@@ -78,6 +82,29 @@ our @ADMIN_ACTIONS = qw(
     MAC_UPDATE
 );
 
+
+our %ADMIN_GROUP_ACTIONS = (
+    CONFIGURATION_GROUP_READ => [
+        qw( CONFIGURATION_MAIN_READ PORTAL_PROFILES_READ
+          ADMIN_ROLES_READ  INTERFACES_READ SWITCHES_READ FLOATING_DEVICES_READ
+          USERS_ROLES_READ  USERS_SOURCES_READ VIOLATIONS_READ SOH_READ
+          FINGERPRINTS_READ USERAGENTS_READ MAC_READ)
+      ],
+    LOGIN_GROUP => [
+        qw( SERVICES REPORTS USERS_READ NODES_READ CONFIGURATION_MAIN_READ
+          PORTAL_PROFILES_READ MDM_READ ADMIN_ROLES_READ INTERFACES_READ
+          SWITCHES_READ FLOATING_DEVICES_READ USERS_ROLES_READ USERS_SOURCES_READ
+          VIOLATIONS_READ SOH_READ FINGERPRINTS_READ USERAGENTS_READ MAC_READ
+          )
+      ],
+);
+
+sub admin_can_do_any_in_group {
+    my ($roles,$group) = @_;
+    my $actions = $ADMIN_GROUP_ACTIONS{$group} if exists $ADMIN_GROUP_ACTIONS{$group};
+    return ref $actions eq 'ARRAY' && admin_can_do_any($roles,@$actions);
+}
+
 sub admin_can {
     my ($roles, @actions) = @_;
 
@@ -112,7 +139,7 @@ sub reloadConfig {
     }
     $ADMIN_ROLES{NONE} = {};
     $ADMIN_ROLES{ALL} = { map {$_ => undef} @ADMIN_ACTIONS };
-    $config->cache->set("ADMIN_ROLES", \%ADMIN_ROLES);
+    $config->cacheForData->set("ADMIN_ROLES", \%ADMIN_ROLES);
 }
 
 our $cached_adminroles_config = pf::config::cached->new(
@@ -124,11 +151,11 @@ our $cached_adminroles_config = pf::config::cached->new(
     -oncachereload => [
         cache_reload_violation_config => sub {
             my ($config,$name) = @_;
-            my $data = $config->cache->get("ADMIN_ROLES");
+            my $data = $config->fromCacheForDataUntainted("ADMIN_ROLES");
             if ($data) {
                 %ADMIN_ROLES = %$data;
             } else {
-                $config->doCallbacks(1,0);
+                $config->_callFileReloadCallbacks();
             }
         }
     ],

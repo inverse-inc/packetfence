@@ -15,7 +15,6 @@
         'admin/nodes',
         'admin/searches',
         'js/bootstrapSwitch',
-        'js/moment.min',
         'js/node',
         'js/user',
         ]
@@ -33,34 +32,24 @@ form {
     width: 160px;
 }
 .table-dynamic .action {
-    width: 32px;
+    width: 36px;
 }
 </style>
 
-      <div class="modal fade hide" id="savedSearch">
-        <div class="modal-header">
-          <a class="close" data-dismiss="modal">&times;</a>
-          <h3>[% l('Save Search') %]</h3>
-        </div>
-        <div class="modal-body">
-          <form id="savedSearchForm" class="form-horizontal" method="POST" action="[% c.uri_for(c.controller('SavedSearch::Node').action_for('create'))  %]">
-                [% saved_search_form.render %]
-          </form>
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-          <a class="btn btn-primary" >[% l('Save') %]</a>
-        </div>
-      </div>
-      
+    [% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::Node" method="POST" %] 
     <div class="container-fluid">
       <div class="row-fluid">
         <div class="span2">
           <div class="sidebar-nav well">
             <ul class="nav nav-list">
               <li class="nav-header">[% l('Nodes') %]</li>
+              [%- IF can_access("NODES_READ") -%]
               <li class="active"><a href="#">[% l('Search') %]</a></li>
+              [%- END -%]
+              [%- IF can_access("NODES_CREATE") -%]
               <li><a href="[% c.pf_hash_for(c.controller('Node').action_for('create')) %]">[% l('Create') %]</a></li>
+              [%- END -%]
+              [%- IF can_access("NODES_READ") -%]
               <li class="nav-header">[% l('Saved Searches') %]</li>
               [%FOR ss IN saved_searches%]
                 [% form = ss.form %]
@@ -71,14 +60,15 @@ form {
                     tab ='simple';
                 END%]
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="[% tab %]">[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::Node').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
+                <a href="#" data-toggle="pf-search-form" data-target="[% tab | html %]">[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::Node').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
                 <form>
                   [%FOREACH input IN form.keys.sort%]
-                  <input type="hidden" name="[%input%]" value="[%form.$input%]"/>
+                  <input type="hidden" name="[%input | html %]" value="[%form.$input | html%]"/>
                   [%END%]
                 </form>
               </li>
               [%END%]
+              [%- END -%]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
@@ -126,24 +116,28 @@ form {
                     <tbody>
                       <tr class="hidden dynamic-row">
                         <td>
-                          <select name="searches.0.name" disabled="disabled" class="span4">
+                        [%- BLOCK search_options %]
+                          <select name="searches.0.name"[% ' disabled="disabled"' IF disabled %] class="span4">
                             <option value="mac">[% l('Node MAC') %]</option>
                             <option value="last_ip">[% l('Node IP') %]</option>
-                            <option value="node_category">[% l('Node category') %]</option>
+                            <option value="category">[% l('Node role') %]</option>
                             <option value="notes">[% l('Notes') %]</option>
                             <option value="person_name">[% l('Person name') %]</option>
                             <option value="violation">[% l('Violation name') %]</option>
                             <option value="user_agent">[% l('User agent') %]</option>
+                            <option value="dhcp_fingerprint">[% l('OS (DHCP)') %]</option>
                             <option value="switch_ip">[% l('Source switch IP') %]</option>
                           </select>
-                          <select name="searches.0.op" disabled="disabled" class="span2" >
+                          <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
                             <option value="equal">[% l('is') %]</option>
                             <option value="not_equal">[% l('is not') %]</option>
                             <option value="starts_with">[% l('starts with') %]</option>
                             <option value="ends_with">[% l('ends with') %]</option>
                             <option value="like">[% l('matches') %]</option>
                           </select>
-                          <input name="searches.0.value" disabled="disabled" type="text" class="span6" placeholder="String...">
+                          <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" class="span6" placeholder="String...">
+                         [% END -%]
+                         [% PROCESS search_options disabled=1 %]
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
@@ -152,24 +146,7 @@ form {
                       </tr>
                       <tr class="dynamic-row">
                         <td>
-                          <select name="searches.0.name" class="span4">
-                            <option value="mac">[% l('Node MAC') %]</option>
-                            <option value="last_ip">[% l('Node IP') %]</option>
-                            <option value="category">[% l('Node category') %]</option>
-                            <option value="notes">[% l('Notes') %]</option>
-                            <option value="person_name">[% l('Person name') %]</option>
-                            <option value="violation">[% l('Violation name') %]</option>
-                            <option value="user_agent">[% l('User agent') %]</option>
-                            <option value="switch_ip">[% l('Source switch IP') %]</option>
-                          </select>
-                          <select name="searches.0.op" class="span2">
-                            <option value="equal">[% l('is') %]</option>
-                            <option value="not_equal">[% l('is not') %]</option>
-                            <option value="starts_with">[% l('starts with') %]</option>
-                            <option value="ends_with">[% l('ends with') %]</option>
-                            <option value="like">[% l('matches') %]</option>
-                          </select>
-                          <input name="searches.0.value" type="text" class="span6" placeholder="String..." />
+                         [% PROCESS search_options disabled=0 %]
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>

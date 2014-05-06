@@ -12,7 +12,6 @@
 
         [%# Error %]
         [% IF txt_validation_error.defined %]<div class="error"><p>[% txt_validation_error %]</p></div>[% END %]
-
         <form method="post" action="[% post_uri %]">
           <input type="hidden" name="destination_url" value="[% destination_url %]" />
 
@@ -54,6 +53,16 @@
             [% IF email_guest_allowed || sms_guest_allowed %]
               <em>Required for sponsored network access only</em>
             [% END %]
+          </div>
+          [% END %]
+          [% skipFields = {firstname => undef, lastname => undef, organization => undef, phone => undef, email => undef} %]
+          [% FOREACH field IN mandatory_fields %]
+          [%- NEXT IF skipFields.exists(field) -%]
+          [%- NEXT IF field == "mobileprovider" && sms_guest_allowed -%]
+          [%- NEXT IF field == "sponsor_email" && sponsored_guest_allowed  -%]
+          <div class="input">
+            <span>[% i18n(field_names.$field) %]</span>
+            <input class="field" name="[%field%]" type="text" value="" /><br/>
           </div>
           [% END %]
 

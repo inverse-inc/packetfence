@@ -107,12 +107,25 @@ InterfaceView.prototype.typeChanged = function(e) {
         var type = e? $(e.target) : modal.find('[name="type"]');
         if (type.length) {
             var dns = modal.find('[name="dns"]').closest('.control-group');
-            if (type.val() == 'inline') {
-                dns.show('fast');
-                dns.find(':input').removeAttr('disabled');
-            } else {
-                dns.hide('fast');
-                dns.find(':input').attr('disabled','disabled');
+            var dhcpd = modal.find('[name="dhcpd_enabled"]').closest('.control-group');
+            var fake_mac = modal.find('[name="fake_mac_enabled"]').closest('.control-group');
+
+            switch ( type.val() ) {
+                case 'inlinel2': 
+                    dns.show('fast');
+                    dhcpd.show('fast');
+                    dns.find(':input').removeAttr('disabled');
+                    fake_mac.hide('fast');
+                    break;
+                case 'inlinel3':
+                    dns.show('fast');
+                    fake_mac.show('fast');
+                    dns.find(':input').removeAttr('disabled');
+                    dhcpd.hide('fast');
+                    break;
+                default:
+                    dhcpd.hide('fast');
+                    fake_mac.hide('fast');
             }
         }
     }

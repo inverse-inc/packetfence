@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+use strict;
+use POSIX qw(setuid setgid);
+my $PF_ROOT="/usr/local/pf";
+my $PF_USER = 'pf';
+
+`reset`;
+my ($name,$passwd,$uid,$gid,
+       $quota,$comment,$gcos,$dir,$shell,$expire) = getpwnam($PF_USER);
+exec("'$PF_ROOT/html/captive-portal/script/captive_portal_server.pl' -r -d --restart_directory '$PF_ROOT/lib/' --restart_directory '$PF_ROOT/html/captive-portal/'")
+    if setgid($gid) == 0 && setuid($uid) == 0;
+print "error $!\n";

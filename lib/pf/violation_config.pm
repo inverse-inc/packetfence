@@ -29,93 +29,84 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
-    @EXPORT = qw(%Violation_Config $cached_violations_config readViolationConfigFile);
+    @EXPORT = qw(%Violation_Config $cached_violations_config);
 }
 
 sub fileReloadViolationConfig {
     my ($config,$name) = @_;
-    my $logger = get_logger();
-    $logger->info("called $name");
     $config->toHash(\%Violation_Config);
     $config->cleanupWhitespace(\%Violation_Config);
-    if(db_ping) {
-        trigger_delete_all();
-        while(my ($violation,$data) = each %Violation_Config) {
-            # parse triggers if they exist
-            my $triggers_ref = [];
-            if ( defined $data->{'trigger'} ) {
-                try {
-                    $triggers_ref = parse_triggers($data->{'trigger'});
-                } catch {
-                    $logger->warn("Violation $violation is ignored: $_");
-                    $triggers_ref = [];
-                };
-            }
-
-            # parse grace, try to understand trailing signs, and convert back to seconds
-            if ( defined $data->{'grace'} ) {
-                $data->{'grace'} = normalize_time($data->{'grace'});
-            }
-
-            if ( defined $data->{'window'} && $data->{'window'} ne "dynamic" ) {
-                $data->{'window'} = normalize_time($data->{'window'});
-            }
-
-            # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
-            class_merge(
-                $violation,
-                $data->{'desc'} || '',
-                $data->{'auto_enable'},
-                $data->{'max_enable'},
-                $data->{'grace'},
-                $data->{'window'},
-                $data->{'vclose'},
-                $data->{'priority'},
-                $data->{'template'},
-                $data->{'max_enable_url'},
-                $data->{'redirect_url'},
-                $data->{'button_text'},
-                $data->{'enabled'},
-                $data->{'vlan'},
-                $data->{'target_category'},
-                $data->{'whitelisted_categories'} || '',
-                $data->{'actions'},
-                $triggers_ref
-            );
-        }
-        $config->cache->set("Violation_Config",\%Violation_Config);
-    }
+    $config->cacheForData->set("Violation_Config",\%Violation_Config);
 }
 
-sub readViolationConfigFile {
-    unless ($cached_violations_config) {
-        $cached_violations_config = pf::config::cached->new(
-            -file => $violations_config_file,
-            -allowempty => 1,
-            -default => 'defaults',
-            -onfilereload => [file_reload_violation_config => \&fileReloadViolationConfig ],
-            -oncachereload => [
-                cache_reload_violation_config => sub {
-                    my ($config,$name) = @_;
-                    my $data = $config->fromCacheUntainted("Violation_Config");
-                    if($data) {
-                        %Violation_Config = %$data;
-                    } else {
-                        $config->doCallbacks(1,0);
-                    }
-                }
-            ],
+sub loadViolationsIntoDb {
+    my ($config,$name) = @_;
+    my $logger = get_logger();
+    return unless db_ping;
+    trigger_delete_all();
+    while(my ($violation,$data) = each %Violation_Config) {
+        # parse triggers if they exist
+        my $triggers_ref = [];
+        if ( defined $data->{'trigger'} ) {
+            try {
+                $triggers_ref = parse_triggers($data->{'trigger'});
+            } catch {
+                $logger->warn("Violation $violation is ignored: $_");
+                $triggers_ref = [];
+            };
+        }
+
+        # parse grace, try to understand trailing signs, and convert back to seconds
+        if ( defined $data->{'grace'} ) {
+            $data->{'grace'} = normalize_time($data->{'grace'});
+        }
+
+        if ( defined $data->{'window'} && $data->{'window'} ne "dynamic" ) {
+            $data->{'window'} = normalize_time($data->{'window'});
+        }
+
+        # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
+        class_merge(
+            $violation,
+            $data->{'desc'} || '',
+            $data->{'auto_enable'},
+            $data->{'max_enable'},
+            $data->{'grace'},
+            $data->{'window'},
+            $data->{'vclose'},
+            $data->{'priority'},
+            $data->{'template'},
+            $data->{'max_enable_url'},
+            $data->{'redirect_url'},
+            $data->{'button_text'},
+            $data->{'enabled'},
+            $data->{'vlan'},
+            $data->{'target_category'},
+            $data->{'whitelisted_categories'} || '',
+            $data->{'actions'},
+            $triggers_ref
         );
-        if ( scalar(@Config::IniFiles::errors) ) {
-            my $logger = get_logger();
-            $logger->error( "Error reading $violations_config_file " .  join( "\n", @Config::IniFiles::errors ) . "\n" );
-            return 0;
-        }
-    } else {
-        $cached_violations_config->ReadConfig();
     }
-    return 1;
 }
+
+$cached_violations_config = pf::config::cached->new(
+    -file => $violations_config_file,
+    -allowempty => 1,
+    -default => 'defaults',
+    -onfilereload => [file_reload_violation_config => \&fileReloadViolationConfig ],
+    -onfilereloadonce => [ file_reload_once_violation_config => \&loadViolationsIntoDb ],
+    -oncachereload => [
+        cache_reload_violation_config => sub {
+            my ($config,$name) = @_;
+            my $data = $config->fromCacheForDataUntainted("Violation_Config");
+            if($data) {
+                %Violation_Config = %$data;
+            } else {
+                $config->_callFileReloadCallbacks();
+            }
+        }
+    ],
+);
 
 =head1 AUTHOR
 

@@ -12,10 +12,10 @@
     <tbody>
     [% FOR item IN items %]
     <tr[% ' class="muted"' IF item.status != 'open' %]>
-      <td>[% item.description %]</td>
-      <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ item.mac ]) %]">[% item.mac %]</a></td>
-      <td>[% item.start_date %]</td>
-      <td>[% item.release_date %]</td>
+      <td>[% item.description | html %]</td>
+      <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ item.mac ]) %]">[% item.mac | html %]</a></td>
+      <td>[% item.start_date | html %]</td>
+      <td>[% item.release_date | html %]</td>
     </tr>
     [% END %]
     </tbody>

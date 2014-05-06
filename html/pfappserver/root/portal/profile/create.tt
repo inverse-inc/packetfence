@@ -22,48 +22,19 @@
       <li class="active">[% l('Create') %]</li>
     </ul>
     <h2><!-- first sibling of alerts --></h2>
+    <form id="create_profile" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('create'))  %]"  class="form-horizontal">
     <div class="tab-content">
       <ul class="nav nav-tabs">
         <li class="active">
-          <a href="" data-toggle="tab">[% l('Settings') %]</a>
+          <a href="#settings" data-toggle="tab">[% l('Settings') %]</a>
         </li>
         <li class="disabled">
           <a>[% l('Files')  %]</a>
         </li>
       </ul>
-      <div class="tab-pane fade in active" id="settings">
-        <form id="create_profile" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('create'))  %]"  class="form-horizontal">
-          [% form.block('definition').render %]
-          [% IF form.field('filter') %]
-          <div class="control-group">
-            <label class="control-label" for="sources">[% l('Filter') %]</label>
-            <div class="controls">
-              [% form.field('filter').render %]
-            </div>
-          </div>
-          [% END -%]
-          <div class="control-group">
-            <label class="control-label" for="sources">[% l('Sources') %]</label>
-            <div class="controls">
-              [% form.field('sources').render %]
-              <div id="sourcesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('sources').index > 1 %]">
-                <p>
-                  <i class="icon-group icon-large"></i>
-                  [% l('With no source specified, the sources of the default profile will be used.') %]
-                  <br/>
-                  <a href="#add">[% l('Add a source.') %]</a>
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="form-actions">
-            <a data-target="#saveProfile" data-toggle="modal" class="btn btn-primary">[% l('Save') %]</a>
-            <button type="reset" class="btn">[% l('Reset') %]</button>
-            <a class="btn pull-right" href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]">[% l('Cancel') %]</a>
-          </div>
-        </form>
-      </div>
+      [% INCLUDE 'portal/profile/tab-content.tt' tab='settings' %]
     </div>
+    </form>
   </div>
 
 </div>

@@ -44,6 +44,7 @@ sub parseArgs {
         }
         eval {
             load $module unless is_loaded($module);
+            $cmd = $module;
         };
         if($@) {
             if ($@ =~ /Compilation failed/) {
@@ -53,7 +54,6 @@ sub parseArgs {
             }
             $cmd = $self->unknownActionCmd;
         }
-        $cmd = $module;
     } else {
         $cmd = $self->noActionCmd;
     }

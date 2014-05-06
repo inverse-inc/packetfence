@@ -1,0 +1,137 @@
+# iptables template
+# This file is manipulated on PacketFence's startup before being given to iptables
+*filter
+
+### INPUT ###
+:INPUT DROP [0:0]
+# accept loopback stuff
+-A INPUT --in-interface lo --jump ACCEPT
+# accept anything related
+-A INPUT --match state --state ESTABLISHED,RELATED --jump ACCEPT
+# Accept Ping (easier troubleshooting)
+-A INPUT --protocol icmp --icmp-type echo-request --jump ACCEPT
+
+:input-management-if - [0:0]
+# SSH
+-A input-management-if --match state --state NEW --match tcp --protocol tcp --dport 22 --jump ACCEPT
+# Web Admin
+-A input-management-if --protocol tcp --match tcp --dport %%web_admin_port%% --jump ACCEPT
+# Webservices
+-A input-management-if --protocol tcp --match tcp --dport %%webservices_port%% --jump ACCEPT
+# RADIUS
+-A input-management-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 1812 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 1813 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 1813 --jump ACCEPT
+# SNMP Traps
+-A input-management-if --protocol udp --match udp --dport 162  --jump ACCEPT
+# DHCP (for IP Helpers to mgmt to track users' IP in production VLANs)
+-A input-management-if --protocol udp --match udp --dport 67  --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
+# OpenVAS Administration Interface
+-A input-management-if --protocol tcp --match tcp --dport 9392 --jump ACCEPT
+# Nessus Administration Interface
+-A input-management-if --protocol tcp --match tcp --dport 8834 --jump ACCEPT
+# HTTPS for email confirmation or sponsor activation on the captive portal (if enabled)
+%%input_mgmt_guest_rules%%
+
+:input-internal-vlan-if - [0:0]
+# DNS
+-A input-internal-vlan-if --protocol udp --match udp --dport 53  --jump ACCEPT
+# DHCP
+-A input-internal-vlan-if --protocol udp --match udp --dport 67  --jump ACCEPT
+-A input-internal-vlan-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
+# HTTP (captive-portal) 
+-A input-internal-vlan-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
+-A input-internal-vlan-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
+%%input_inter_vlan_if%%
+
+:input-internal-inline-if - [0:0]
+# DHCP
+-A input-internal-inline-if --protocol udp --match udp --dport 67  --jump ACCEPT
+-A input-internal-inline-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
+# DNS
+# allow unregistered users and isolated users to reach it for DNAT purposes but prevent registered ones
+-A input-internal-inline-if --protocol tcp --match tcp --dport 53  --match mark --mark 0x3 --jump ACCEPT
+-A input-internal-inline-if --protocol udp --match udp --dport 53  --match mark --mark 0x3 --jump ACCEPT
+-A input-internal-inline-if --protocol tcp --match tcp --dport 53  --match mark --mark 0x2 --jump ACCEPT
+-A input-internal-inline-if --protocol udp --match udp --dport 53  --match mark --mark 0x2 --jump ACCEPT
+-A input-internal-inline-if --protocol tcp --match tcp --dport 53  --match mark --mark 0x1 --jump DROP
+-A input-internal-inline-if --protocol udp --match udp --dport 53  --match mark --mark 0x1 --jump DROP
+# HTTP (captive-portal) 
+# prevent registered users from reaching it
+# TODO: Must work in dispatcher and Catalyst to redirect registered client out of the portal
+#-A input-internal-inline-if --protocol tcp --match tcp --dport 80  --match mark --mark 0x1 --jump DROP
+#-A input-internal-inline-if --protocol tcp --match tcp --dport 443 --match mark --mark 0x1 --jump DROP
+# allow everyone else behind inline interface (not registered, isolated, etc.)
+-A input-internal-inline-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
+-A input-internal-inline-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
+%%input_inter_inline_rules%%
+
+:input-highavailability-if - [0:0]
+#SSH
+-A input-highavailability-if --match state --state NEW --match tcp --protocol tcp --dport 22 --jump ACCEPT
+# Corosync
+-A input-highavailability-if --protocol udp --match udp --dport 5405 --jump ACCEPT
+-A input-highavailability-if --protocol udp --match udp --dport 5407 --jump ACCEPT
+#DRBD
+-A input-highavailability-if --protocol tcp --match tcp --dport 7788 --jump ACCEPT
+
+### FORWARD ###
+:FORWARD DROP [0:0]
+:forward-internal-vlan-if - [0:0]
+%%filter_forward_vlan%%
+
+:forward-internal-inline-if - [0:0]
+%%filter_forward_inline%%
+
+:OUTPUT ACCEPT [0:0]
+
+# These will redirect to the proper chains based on conf/pf.conf's configuration
+%%filter_if_src_to_chain%%
+COMMIT
+
+*mangle
+:PREROUTING ACCEPT [0:0]
+:prerouting-int-inline-if - [0:0]
+%%mangle_prerouting_inline%%
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+# These will redirect to the proper chains based on conf/pf.conf's configuration
+%%mangle_if_src_to_chain%%
+COMMIT
+
+*nat
+:PREROUTING ACCEPT [0:0]
+:prerouting-int-inline-if - [0:0]
+%%nat_prerouting_inline%%
+:prerouting-int-vlan-if - [0:0]
+%%nat_prerouting_vlan%%
+
+:POSTROUTING ACCEPT [0:0]
+#
+# NAT out (PAT actually)
+#
+# If you want to do your own thing regarding NAT like for example:
+# - allowing through instead of doing NAT (make sure you have the proper return route)
+# - traffic out on some interface other than management
+# - overloading on multiple IP addresses
+# Comment the next two lines and do it here on the POSTROUTING chain. 
+# Make sure to adjust the FORWARD rules also to allow traffic back-in.
+%%nat_postrouting_vlan%%
+
+:postrouting-int-inline-if - [0:0]
+%%nat_postrouting_inline%%
+
+#
+# Chain to enable routing instead of NAT
+#
+:postrouting-inline-routed - [0:0]
+%%routed_postrouting_inline%%
+:OUTPUT ACCEPT [0:0]
+# These will redirect to the proper chains based on conf/pf.conf's configuration
+%%nat_if_src_to_chain%%
+COMMIT
+

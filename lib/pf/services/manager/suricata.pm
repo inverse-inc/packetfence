@@ -15,10 +15,11 @@ use strict;
 use warnings;
 use pf::file_paths;
 use pf::config;
+use pf::violation_config;
 use Moo;
-use pf::services::suricata qw(generate_suricata_conf);
+use pf::util qw(parse_template);
 extends 'pf::services::manager';
-with 'pf::services::manager::roles::is_managed_by_pf_conf';
+with 'pf::services::manager::roles::pf_conf_trapping_engine';
 
 has '+name' => ( default => sub { 'suricata' } );
 
@@ -30,7 +31,25 @@ has '+launcher' => (
 );
 
 sub generateConfig {
-    generate_suricata_conf();
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my %tags;
+    $tags{'template'}      = "$conf_dir/suricata.yaml";
+    $tags{'trapping-range'} = $Config{'trapping'}{'range'};
+    $tags{'install_dir'}   = $install_dir;
+
+    my @rules;
+    if (exists $Violation_Config{'defaults'}{'snort_rules'}) {
+        foreach my $rule ( split( /\s*,\s*/, $Violation_Config{'defaults'}{'snort_rules'} ) ) {
+
+            #append install_dir if the path doesn't start with /
+            $rule = " - $rule" if ( $rule !~ /^\// );
+            push @rules, " - $rule";
+        }
+    }
+    $tags{'suricata_rules'} = join( "\n", @rules );
+    $logger->info("generating $conf_dir/suricata.yaml");
+    parse_template( \%tags, "$conf_dir/suricata.yaml", "$generated_conf_dir/suricata.yaml" );
+    return $TRUE;
 }
 
 =head1 AUTHOR

@@ -43,52 +43,6 @@ __PACKAGE__->config(
 
 =head1 METHODS
 
-=head2 after create/clone
-
-Show the 'view' template when creating or cloning an admin role.
-
-=cut
-
-after [qw(create clone)] => sub {
-    my ($self, $c) = @_;
-    if (!(is_success($c->response->status) && $c->request->method eq 'POST')) {
-        $c->stash->{template} = 'configuration/adminroles/view.tt';
-    }
-};
-
-=head2 after create/clone/update
-
-List admin roles after creating or updating a role.
-
-=cut
-
-after [qw(create clone update)] => sub {
-    my ($self, $c) = @_;
-    if (is_success($c->response->status) && $c->request->method eq 'POST') {
-        $c->stash->{current_view} = 'HTML';
-        $c->stash->{template} = 'configuration/adminroles/list.tt';
-        $c->forward('list');
-    }
-};
-
-=head2 after view
-
-Set the action URL to either "create" or "update".
-
-=cut
-
-after view => sub {
-    my ($self, $c) = @_;
-    if (!$c->stash->{action_uri}) {
-        my $id = $c->stash->{id};
-        if ($id) {
-            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
-        } else {
-            $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
-        }
-    }
-};
-
 =head2 after _setup_object
 
 Sort the actions of the admin role.
