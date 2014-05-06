@@ -1,14 +1,14 @@
 # -*- text -*-
-# Copyright (C) 2012 The FreeRADIUS Server project and contributors
+# Copyright (C) 2014 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #       Inverse Inc.
 #
 ##############################################################################
 
-VENDOR          PacketFence                        29464
+VENDOR          Inverse                        29464
 
-BEGIN-VENDOR    PacketFence
+BEGIN-VENDOR    Inverse
 
 ATTRIBUTE       PacketFence-RPC-Server                 1       string
 ATTRIBUTE       PacketFence-RPC-Port                   2       string
@@ -16,5 +16,5 @@ ATTRIBUTE       PacketFence-RPC-User                   3       string
 ATTRIBUTE       PacketFence-RPC-Pass                   4       string
 ATTRIBUTE       PacketFence-RPC-Proto                  5       string
 
-END-VENDOR      PacketFence
+END-VENDOR      Inverse
 

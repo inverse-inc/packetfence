@@ -199,20 +199,23 @@ Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair
 
 # Same as in pf::Switch::Cisco::Aironet. Please keep both in sync. Once Moose push in a role.
 sub extractSsid {
-    my ($self, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($this, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (defined($radius_request->{'Cisco-AVPair'})) {
+        foreach my $ciscoAVPair (@{$radius_request->{'Cisco-AVPair'}}) {
+            $logger->trace("Cisco-AVPair: ".$ciscoAVPair);
 
-        if ($radius_request->{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
-            return $1;
-        } else {
-            $logger->info("Unable to extract SSID of Cisco-AVPair: ".$radius_request->{'Cisco-AVPair'});
+            if ($ciscoAVPair =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
+                return $1;
+            } else {
+                $logger->info("Unable to extract SSID of Cisco-AVPair: ".$ciscoAVPair);
+            }
         }
-    }
+     }
 
     $logger->warn(
-        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
+        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
         . "Make sure you enable Vendor Specific Attributes (VSA) on the AP if you want them to work."
     );
     return;

@@ -203,13 +203,16 @@ sub extractSsid {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (defined($radius_request->{'Cisco-AVPair'})) {
+        foreach my $ciscoAVPair (@{$radius_request->{'Cisco-AVPair'}}) {
+            $logger->trace("Cisco-AVPair: ".$ciscoAVPair);
 
-        if ($radius_request->{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
-            return $1;
-        } else {
-            $logger->info("Unable to extract SSID of Cisco-AVPair: ".$radius_request->{'Cisco-AVPair'});
+            if ($ciscoAVPair =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
+                return $1;
+            } else {
+                $logger->info("Unable to extract SSID of Cisco-AVPair: ".$ciscoAVPair);
+            }
         }
-    }
+     }
 
     $logger->warn(
         "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "

@@ -68,6 +68,7 @@ Enhancements
 * Added a file backing for the cache to decrease cache misses
 * Allow advanced search of nodes by OS type (#1790)
 * The PF RPC client can be configured in the conf/radiusd/radiusd.conf
+* Added PacketFence radius dictionary
 
 Bug Fixes
 +++++++++
@@ -85,6 +86,7 @@ Bug Fixes
 * Fixed conversion of wildcards to regular expressions in domains passthroughs
 * Fixed display of last IP address of nodes when end_time is in the future
 * Fixed XSS issues in Web admin
+* Fixed extractSsid for Cisco Aironet and Cisco Aironet WDS
 
 Version 4.1.0 released on 2013-12-11
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
