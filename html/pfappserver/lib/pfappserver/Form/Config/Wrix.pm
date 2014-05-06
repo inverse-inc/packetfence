@@ -11,6 +11,7 @@ Form definition to create or update a network switch.
 =cut
 
 use HTML::FormHandler::Moose;
+use DateTime::TimeZone;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
@@ -202,12 +203,30 @@ has_field 'Security_Protocol_1X' =>
  has_field 'UTC_Timezone' =>
   (
     type => 'Select',
+    options_method => \&options_UTC_Timezone,
   );
  has_field 'MAC_Address' =>
   (
     type => 'Text',
   );
 
+sub options_UTC_Timezone {
+    my ($self) =  @_;
+    local $_;
+    my @options = map {
+        {   group   => $self->_localize($_),
+            options => options_UTC_Timezone_group($self, $_)
+        }
+    } DateTime::TimeZone->categories;
+    unshift @options, { value => '', label => ''  };
+    return \@options;
+}
+
+sub options_UTC_Timezone_group {
+    my ($self,$category) = @_;
+    local $_;
+    return [ (map { { value => "$category/$_", label => $_ } } DateTime::TimeZone->names_in_category($category)) ];
+}
 
 =head1 COPYRIGHT
 
