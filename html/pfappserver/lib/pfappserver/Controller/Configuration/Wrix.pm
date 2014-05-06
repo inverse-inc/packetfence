@@ -19,6 +19,7 @@ use pf::util qw(sort_ip);
 BEGIN {
     extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud::DB';
+    with 'pfappserver::Base::Controller::Crud::Clone';
 }
 
 __PACKAGE__->config(
