@@ -3,9 +3,9 @@
 # NEW (since git migration):
 #
 #   Expecting a standard tarball with packetfence-<version>/...
-# 
+#
 # BUILDING FOR RELEASE
-# 
+#
 # - Build
 #  - define ver <version>
 #  - define dist based on target distro (for centos/rhel => .el5)
@@ -43,8 +43,8 @@ Vendor: PacketFence, http://www.packetfence.org
 
 %description
 
-PacketFence release file. This package contains yum configuration
-for the PacketFence RPM Repository.
+PacketFence release file. This package contains the yum configuration
+for the PacketFence RPM repository.
 
 %prep
 
@@ -77,7 +77,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Thu May 01 2014 Loick Pelet <lpelet@inverse.ca>
+* Thu May 01 2014 Inverse inc. <support@inverse.ca>
 - fixed variable issue
-* Fri Apr 25 2014 Loick Pelet <lpelet@inverse.ca>
-- Release file created. 
+* Fri Apr 25 2014 Inverse inc. <support@inverse.ca>
+- Release file created.
