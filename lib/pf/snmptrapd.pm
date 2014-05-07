@@ -14,12 +14,12 @@ pfsnmptrapd
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use pf::api::client::sereal;
+use pf::client::sereal;
 use pf::log;
 use NetSNMP::TrapReceiver;
 
 sub receiver {
-    my $client = pf::api::client::sereal->new;
+    my $client = pf::client::sereal->new;
     eval {
         $client->notify('handle_trap', @_);
     };
