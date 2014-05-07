@@ -18,7 +18,6 @@ use warnings;
 use Carp;
 use Data::Dumper;
 use Net::SNMP;
-use Log::Log4perl;
 use Try::Tiny;
 
 our $VERSION = 2.10;
@@ -32,6 +31,7 @@ use pf::roles::custom $ROLE_API_LEVEL;
 # SNMP constants (several standard-based and vendor-based namespaces)
 use pf::Switch::constants;
 use pf::util;
+use pf::log;
 use pf::util::radius qw(perform_disconnect);
 use List::MoreUtils qw(any all);
 use Scalar::Util qw(looks_like_number);
@@ -2954,7 +2954,30 @@ sub extractVLAN {
 sub handleTrap {
     my ($this,$trapInfo,$oids) = @_;
     my $logger = get_logger();
-    $logger->debug("trap ignored, not useful for switch");
+    $logger->debug( "trap ignored, not useful for switch");
+}
+
+
+
+
+=item parseReceivedFrom
+
+=cut
+
+sub parseReceivedFrom {
+    my ($self,$trapInfo) = @_;
+    $trapInfo->{receivedfrom} =~ m/
+    (?:UDP:\ \[)?                                       # Optional "UDP: [" (since v2 traps I think)
+    (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})                # network device ip address
+    (?:\]:(\d+))?                                         # Optional "]:port" (since v2 traps I think)
+    (?:\-\>\[(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\])?     # Optional "->[ip address]" (since net-snmp 5.4)
+    /x;
+    my $receivedFromData = {
+        networkDeviceIp => $1,
+        port => $2,
+        optIpAddress => $3,
+    };
+    return $receivedFromData;
 }
 
 =item parseRequest
