@@ -160,6 +160,12 @@ sub instantiate {
     );
 }
 
+sub instantiateFromTrap {
+    my ($self,$trapInfo) = @_;
+    my $receivedFromData = pf::Switch->parseReceivedFrom($trapInfo);
+    return $self->instantiate($receivedFromData->{networkDeviceIp});
+}
+
 sub config {
     my %temp = %SwitchConfig;
     return \%temp;
