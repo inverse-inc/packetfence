@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use List::MoreUtils qw(any);
+use pf::log;
 use Apache2::RequestIO();
 use Apache2::RequestRec();
 use Apache2::RequestUtil();
@@ -56,10 +57,14 @@ sub handleMethodNotFound {
 sub handleNotification {
     my ($self,$r,$methodSub,$args,$id) = @_;
     my $dispatch_to = $self->dispatch_to;
+    my $logger = get_logger;
     $r->push_handlers(PerlCleanupHandler => sub {
         eval {
             $dispatch_to->$methodSub(@$args);
         };
+        if($@) {
+            $logger->error($@);
+        }
     });
     return Apache2::Const::HTTP_NO_CONTENT;
 }
