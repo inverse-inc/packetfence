@@ -102,9 +102,10 @@ sub update_iplog {
 }
 
 sub handle_trap {
-    my ($class,@args) = @_;
+    my ($class,$trapInfo,@oids) = @_;
     my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-    use Data::Dumper;$logger->info(Dumper(\@args));
+    my $switch = pf::SwitchFactory->instantiateFromTrap($trapInfo);
+    $switch->handleTrap($trapInfo,@oids);
 }
  
 sub unreg_node_for_pid {
