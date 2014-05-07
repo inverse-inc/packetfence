@@ -2413,7 +2413,7 @@ sub deauthenticateMac {
     my ($this, $mac, $is_dot1x) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     my ($switchdeauthMethod, $deauthTechniques) = $this->deauthTechniques($this->{_deauthMethod});
-    $deauthTechniques->($this,$mac);
+    $this->$deauthTechniques($mac);
 }
 
 =item dot1xPortReauthenticate
@@ -2800,7 +2800,7 @@ sub supporteddeauthTechniques {
     my ( $this ) = @_;
 
     my %tech = (
-        'Default' => \&$this->deauthenticateMacDefault,
+        'Default' => 'deauthenticateMacDefault',
     );
     return %tech;
 }
