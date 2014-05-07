@@ -30,7 +30,6 @@ use pf::WebAPI::RPC::MsgPack;
 use pf::WebAPI::RPC::JSON;
 use pf::WebAPI::RPC::Sereal;
 
-
 # set proper logger tid based on if we are run from mod_perl or not
 if (exists($ENV{MOD_PERL})) {
     if (Apache2::MPM->is_threaded) {
