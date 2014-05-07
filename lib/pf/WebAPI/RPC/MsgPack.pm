@@ -46,17 +46,6 @@ sub handleRequest {
     return Apache2::Const::OK;
 }
 
-sub handleNotification {
-    my ($self,$r,$methodSub,$args,$id) = @_;
-    my $dispatch_to = $self->dispatch_to;
-    $r->push_handlers(PerlCleanupHandler => sub {
-        eval {
-            $dispatch_to->$methodSub(@$args);
-        };
-    });
-    return Apache2::Const::HTTP_NO_CONTENT;
-}
-
 sub handleParseError {
     return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
 }
