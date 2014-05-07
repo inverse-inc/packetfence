@@ -16,9 +16,9 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 
 use pf::radius::soapclient;
-use pf::api::client::jsonrpc;
-use pf::api::client::msgpack;
-use pf::api::client::sereal;
+use pf::client::jsonrpc;
+use pf::client::msgpack;
+use pf::client::sereal;
 use Data::Dumper;
 use Benchmark qw(timethese cmpthese);
 
@@ -35,9 +35,9 @@ our %DATA = (
 );
 
 my $bench = timethese(-5, {
-    mp => sub { pf::api::client::msgpack->new->call(echo => (\%DATA)) },
-    json => sub { pf::api::client::jsonrpc->new->call(echo => (\%DATA)) },
-    sereal => sub { pf::api::client::sereal->new->call(echo => (\%DATA)) },
+    mp => sub { pf::client::msgpack->new->call(echo => (\%DATA)) },
+    json => sub { pf::client::jsonrpc->new->call(echo => (\%DATA)) },
+    sereal => sub { pf::client::sereal->new->call(echo => (\%DATA)) },
 #    send_soap_request => sub { send_soap_request('echo',\%DATA) },
     }
 );
@@ -48,9 +48,9 @@ cmpthese($bench,'all');
 
 print "\n\n";
 $bench = timethese(-5, {
-    mp => sub { pf::api::client::msgpack->new->notify(echo => (\%DATA)) },
-    json => sub { pf::api::client::jsonrpc->new->notify(echo => (\%DATA)) },
-    sereal => sub { pf::api::client::sereal->new->notify(echo => (\%DATA)) },
+    mp => sub { pf::client::msgpack->new->notify(echo => (\%DATA)) },
+    json => sub { pf::client::jsonrpc->new->notify(echo => (\%DATA)) },
+    sereal => sub { pf::client::sereal->new->notify(echo => (\%DATA)) },
     }
 );
 

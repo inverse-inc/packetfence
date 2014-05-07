@@ -1,19 +1,19 @@
-package pf::api::client::sereal;
+package pf::client::msgpack;
 
 =head1 NAME
 
-pf::api::client::sereal
+pf::client::msgpack
 
 =head1 SYNOPSIS
 
-  use pf::api::client::sereal;
-  my $client = pf::api::client::sereal->new;
+  use pf::client::msgpack;
+  my $client = pf::client::msgpack->new;
   my @args = $client->call("echo","packet","fence");
 
 
 =head1 DESCRIPTION
 
-  pf::api::client::sereal is a msgpacket client over http
+  pf::client::msgpack is a msgpacket client over http
 
 =cut
 
@@ -22,23 +22,23 @@ use warnings;
 
 use Log::Log4perl;
 use WWW::Curl::Easy;
-use Sereal::Encoder;
-use Sereal::Decoder;
+use Data::MessagePack;
 use Moo;
-extends 'pf::api::client';
-our $ENCODER =  Sereal::Encoder->new( {snappy => 1 });
-our $DECODER =  Sereal::Decoder->new();
+extends 'pf::client';
 
 
 =head1 Attributes
 
 =cut
 
-has '+content_type' => (default => sub {"application/x-sereal"});
+has '+content_type' => (default => sub {"application/x-msgpack"});
 
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
 use constant NOTIFICATION => 2;
+
+our $ENCODER = Data::MessagePack->new;
+our $DECODER = $ENCODER;
 
 =head1 METHODS
 
@@ -50,9 +50,7 @@ TODO: documention
 
 sub decode {
     my ($self,$data) = @_;
-    my $response;
-    $DECODER->decode($$data,$response);
-    return $response;
+    return $DECODER->decode($$data);
 }
 
 sub extractValues {
@@ -63,7 +61,7 @@ sub extractValues {
 
 =head2 build_request
 
-  builds the sereal request
+  builds the msgpack request
 
 =cut
 
@@ -78,7 +76,7 @@ sub build_request {
 
 =head2 build_notification
 
-  builds the sereal notification request
+  builds the msgpack notification request
 
 =cut
 

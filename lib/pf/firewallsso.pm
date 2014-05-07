@@ -17,7 +17,7 @@ This module is used for sending firewallsso request to the web api
 use strict;
 use warnings;
 
-use pf::client;
+use pf::factory::client;
 use pf::config;
 use pf::log;
 
@@ -48,7 +48,7 @@ sub do_sso {
     return unless scalar keys %ConfigFirewallSSO;
     my $logger = get_logger();
 
-    my $client = pf::client::getClient();
+    my $client = pf::factory::client::getClient();
 
     my %data = (
        'method'           => $method,

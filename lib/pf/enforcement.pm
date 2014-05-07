@@ -43,7 +43,7 @@ use pf::node;
 use pf::SwitchFactory;
 use pf::util;
 use pf::vlan::custom $VLAN_API_LEVEL;
-use pf::client;
+use pf::factory::client;
 
 use Readonly;
 
@@ -84,7 +84,7 @@ sub reevaluate_access {
         my $conn_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
         if ( $conn_type == $INLINE ) {
 
-            my $client = pf::client::getClient();
+            my $client = pf::factory::client::getClient();
             my $inline = new pf::inline::custom();
             my %data = (
                 'switch'           => '127.0.0.1',
@@ -123,7 +123,7 @@ sub _vlan_reevaluation {
                 . "connection type: "
                 . $connection_type_explained{$conn_type} );
 
-        my $client = pf::client::getClient();
+        my $client = pf::factory::client::getClient();
         my %data = (
             'switch'           => $switch_id,
             'mac'              => $mac,

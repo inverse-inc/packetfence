@@ -83,7 +83,7 @@ use pf::db;
 use pf::node;
 use pf::scan qw($SCAN_VID);
 use pf::util;
-use pf::client;
+use pf::factory::client;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $violation_db_prepared = 0;
@@ -784,7 +784,7 @@ LOOP: {
             last;
         }
         $logger->trace("processing $rows violation(s)");
-        my $client = pf::client::getClient();
+        my $client = pf::factory::client::getClient();
         while (my $row = $query->fetchrow_hashref()) {
             if($row->{status} eq 'delayed' ) {
                 $client->notify(violation_delayed_run => ($row));

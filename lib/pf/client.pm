@@ -1,52 +1,247 @@
 package pf::client;
+
 =head1 NAME
 
-pf::client 
+pf::client
 
-=cut
+=head1 SYNOPSIS
+
+  use pf::client;
+  my $client = pf::client->new;
+  my @args = $client->call("echo","packet","fence");
+
+  $client->notify("echo","packet","fence");
+
 
 =head1 DESCRIPTION
 
-pf::client managing which api client should be used
+  pf::client is the base class for the pf http rpc client
 
 =cut
 
 use strict;
 use warnings;
+
 use pf::config;
-use List::MoreUtils qw(any);
-use Module::Pluggable search_path => 'pf::api', sub_name => 'modules', require => 1;
+use pf::log;
+use WWW::Curl::Easy;
+use Moo;
 
-my @MODULES = __PACKAGE__->modules;
+=head1 Attributes
 
-our $DEFAULT_CLIENT = "pf::api::jsonrpcclient";
-our $CURRENT_CLIENT = $DEFAULT_CLIENT;
+=head2 username
 
-=head2 setClient
-
-sets the global client to use
+  the username of the rpc call
 
 =cut
 
-sub setClient {
-    my ($clienttype) = @_;
-    return unless any { $_ eq $clienttype } @MODULES; 
-    $CURRENT_CLIENT= $clienttype;
-}
+has username => ( is => 'rw', default => sub {$Config{'webservices'}{'username'}} );
 
-=head2 getClient
+=head2 password
 
-gets the currently configured client
+  the password of the rpc call
 
 =cut
 
-sub getClient {
-    $CURRENT_CLIENT->new;
+has password => ( is => 'rw', default => sub {$Config{'webservices'}{'password'}} );
+
+=head2 proto
+
+  the protocol of the rpc call http or https
+  default http
+
+=cut
+
+has proto => ( is => 'rw', default => sub {$Config{'webservices'}{'proto'}} );
+
+=head2 host
+
+  the host of the rpc server
+  default 127.0.0.1
+
+=cut
+
+has host => ( is => 'rw', default => sub {$Config{'webservices'}{'host'}} );
+
+=head2 port
+
+  the port of the rpc server
+  default 9090
+
+=cut
+
+has port => (is => 'rw', default => sub {$Config{'webservices'}{'port'}} );
+
+=head2 id
+
+  the id of the message it is incremented after each call
+  default 0
+
+=cut
+
+has id => (is => 'rw', default => sub {0} );
+
+has content_type => (is => 'rw');
+
+use constant REQUEST => 0;
+use constant RESPONSE => 1;
+use constant NOTIFICATION => 2;
+
+=head1 METHODS
+
+=head2 call
+
+  Calls an rpc method
+
+=cut
+
+sub call {
+    use bytes;
+    my ($self,$function,@args) = @_;
+    my $response;
+    my $curl = $self->curl($function);
+    my $request = $self->build_request($function,\@args);
+    my $response_body;
+    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
+    $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
+
+    # Starts the actual request
+    my $curl_return_code = $curl->perform;
+
+    # Looking at the results...
+    if ( $curl_return_code == 0 ) {
+        my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
+        if($response_code == 200) {
+            $response = $self->decode(\$response_body);
+        } else {
+            $response = decode_json($response_body);
+            die $response->{error}{message};
+        }
+    } else {
+        my $msg = "An error occured while sending a rpc request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
+        die $msg;
+    }
+
+    return $self->extractValues($response);
 }
- 
+
+=head2 decode
+
+TODO: documention
+
+=cut
+
+sub decode {
+    my ($self) = @_;
+    return ;
+}
+
+=head2 encode
+
+TODO: documention
+
+=cut
+
+sub encode {
+    my ($self) = @_;
+    return ;
+}
+
+=head2 notify
+
+  Send a notification message to the rpc server
+
+=cut
+
+sub notify {
+    use bytes;
+    my ($self,$function,@args) = @_;
+    my $response;
+    my $curl = $self->curl($function);
+    my $request = $self->build_notification($function,\@args);
+    my $response_body;
+    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
+    $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
+
+    # Starts the actual request
+    my $curl_return_code = $curl->perform;
+
+    # Looking at the results...
+    if ( $curl_return_code == 0 ) {
+        my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
+        if($response_code != 204) {
+            get_logger->error( "An error occured while processing the JSONRPC request return code ($response_code)");
+        }
+    } else {
+        get_logger->error("An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf);
+    }
+    return;
+}
+
+=head2 curl
+
+  Creates a curl object to connect to the rpc server
+
+=cut
+
+sub curl {
+    my ($self,$function) = @_;
+    my $url = $self->url;
+    my $curl = WWW::Curl::Easy->new;
+    $curl->setopt(CURLOPT_HEADER, 0);
+    $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
+    $curl->setopt(CURLOPT_NOSIGNAL, 1);
+    $curl->setopt(CURLOPT_URL, $url);
+    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/json-rpc',"Request: $function"]);
+    if($self->username && $self->password && ($self->proto eq 'https') ) {
+        $curl->setopt(CURLOPT_HTTPAUTH, CURLOPT_HTTPAUTH);
+        $curl->setopt(CURLOPT_USERNAME, $self->username);
+        $curl->setopt(CURLOPT_PASSWORD, $self->password);
+    }
+    return $curl;
+}
+
+=head2 url
+
+  The url to the rpc message to
+
+=cut
+
+sub url {
+    my ($self) = @_;
+    my $proto = $self->proto;
+    my $host = $self->host;
+    my $port = $self->port;
+    return "${proto}://${host}:${port}";
+}
+
+=head2 build_request
+
+  builds the jsonrpc request
+
+=cut
+
+sub build_request {
+    my ($self,$function,$args) = @_;
+}
+
+=head2 build_notification
+
+  builds the jsonrpc notification request
+
+=cut
+
+sub build_notification {
+    my ($self,$function,$args) = @_;
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
+
 
 =head1 COPYRIGHT
 

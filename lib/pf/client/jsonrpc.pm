@@ -1,19 +1,19 @@
-package pf::api::client::msgpack;
+package pf::client::jsonrpc;
 
 =head1 NAME
 
-pf::api::client::msgpack
+pf::client::jsonrpc
 
 =head1 SYNOPSIS
 
-  use pf::api::client::msgpack;
-  my $client = pf::api::client::msgpack->new;
+  use pf::client::jsonrpc;
+  my $client = pf::client::jsonrpc->new;
   my @args = $client->call("echo","packet","fence");
 
 
 =head1 DESCRIPTION
 
-  pf::api::client::msgpack is a msgpacket client over http
+  pf::client::jsonrpc is a msgpacket client over http
 
 =cut
 
@@ -21,24 +21,15 @@ use strict;
 use warnings;
 
 use Log::Log4perl;
-use WWW::Curl::Easy;
-use Data::MessagePack;
 use Moo;
-extends 'pf::api::client';
-
+use JSON::XS;
+extends 'pf::client';
 
 =head1 Attributes
 
 =cut
 
-has '+content_type' => (default => sub {"application/x-msgpack"});
-
-use constant REQUEST => 0;
-use constant RESPONSE => 2;
-use constant NOTIFICATION => 2;
-
-our $ENCODER = Data::MessagePack->new;
-our $DECODER = $ENCODER;
+has '+content_type' => (default => sub {"application/json-rpc"});
 
 =head1 METHODS
 
@@ -50,40 +41,40 @@ TODO: documention
 
 sub decode {
     my ($self,$data) = @_;
-    return $DECODER->decode($$data);
+    return decode_json($$data);
 }
 
 sub extractValues {
     my ($self,$response) = @_;
-    return @{$response->[3]};
+    return @{$response->{result}};
 }
 
 
 =head2 build_request
 
-  builds the msgpack request
+  builds the jsonrpc request
 
 =cut
 
 sub build_request {
     my ($self,$function,$args) = @_;
     my $id = $self->id;
-    my $request = [REQUEST,$id,$function,$args];
+    my $request = {method => $function, jsonrpc => '2.0', id => $id , params => $args };
     $id++;
     $self->id($id);
-    return $ENCODER->encode($request);
+    return encode_json $request;
 }
 
 =head2 build_notification
 
-  builds the msgpack notification request
+  builds the jsonrpc notification request
 
 =cut
 
 sub build_notification {
     my ($self,$function,$args) = @_;
-    my $request = [NOTIFICATION,$function,$args];
-    return $ENCODER->encode($request);
+    my $request = {method => $function, jsonrpc => '2.0', params => $args };
+    return encode_json $request;
 }
 
 
