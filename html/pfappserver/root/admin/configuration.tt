@@ -76,7 +76,7 @@ table.sources {
               [% pf_section_entry('general', 'General') %]
               [% pf_section_entry( 'network', 'Network') %]
               [% pf_section_entry( 'trapping', 'Trapping') %]
-              [% pf_section_entry( 'registration', 'registration') %]
+              [% pf_section_entry( 'registration', 'Registration') %]
               [% pf_section_entry( 'guests_self_registration', 'Self Registration') %]
               [% pf_section_entry( 'guests_admin_registration', 'Admin Registration') %]
               [% pf_section_entry( 'billing', 'Billing') %]
