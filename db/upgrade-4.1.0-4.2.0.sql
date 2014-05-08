@@ -1,12 +1,12 @@
----
---- Add a column to store the time balance of a node
----
+--
+-- Add a column to store the time balance of a node
+--
 
 ALTER TABLE node ADD `time_balance` int unsigned AFTER `lastskip`;
 
----
---- Add a column to store the bandwidth balance of a node
----
+--
+-- Add a column to store the bandwidth balance of a node
+--
 
 ALTER TABLE node ADD `bandwidth_balance` int unsigned AFTER `time_balance`;
 
@@ -60,7 +60,7 @@ CREATE TABLE inline_accounting (
 
 --
 -- Added a new column config_timestamp for RADIUS NAS
----
+--
 
 ALTER TABLE radius_nas 
     ADD config_timestamp BIGINT AFTER description,
