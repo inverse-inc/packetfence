@@ -15,6 +15,7 @@ use Log::Log4perl;
 use ModPerl::Util;
 
 use pf::config;
+use pf::api;
 
 #uncomment for more debug information
 #use SOAP::Lite +trace => [ fault => \&log_faults ];
@@ -41,9 +42,9 @@ if (exists($ENV{MOD_PERL})) {
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 }
 
-my $server_soap = SOAP::Transport::HTTP::Apache->dispatch_to('PFAPI');
-my $server_msgpack = pf::WebAPI::MsgPack->new({dispatch_to => 'PFAPI'});
-my $server_jsonrpc = pf::WebAPI::JSONRPC->new({dispatch_to => 'PFAPI'});
+my $server_soap = SOAP::Transport::HTTP::Apache->dispatch_to('pf::api');
+my $server_msgpack = pf::WebAPI::MsgPack->new({dispatch_to => 'pf::api'});
+my $server_jsonrpc = pf::WebAPI::JSONRPC->new({dispatch_to => 'pf::api'});
 
 sub handler {
     my ($r) = @_;
@@ -66,99 +67,6 @@ sub log_faults {
     my $logger = Log::Log4perl->get_logger('pf::WebAPI');
     $logger->info(@_);
 }
-
-package PFAPI;
-
-=head1 NAME
-
-PFAPI - Web Services handler exposing PacketFence features
-
-=cut
-
-use pf::config;
-use pf::iplog;
-use pf::radius::custom $RADIUS_API_LEVEL;
-use pf::violation;
-use pf::soh::custom $SOH_API_LEVEL;
-use pf::util qw(valid_mac valid_ip);
-
-sub event_add {
-  my ($class, $date, $srcip, $type, $id) = @_;
-  my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-  $logger->info("violation: $id - IP $srcip");
-
-  # fetch IP associated to MAC
-  my $srcmac = ip2mac($srcip);
-  if ($srcmac) {
-
-    # trigger a violation
-    violation_trigger($srcmac, $id, $type);
-
-  } else {
-    $logger->info("violation on IP $srcip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
-    return(0);
-  }
-  return (1);
-}
-
-sub echo {
-    my ($class, @args) = @_;
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-    return @args;
-}
-
-sub radius_authorize {
-  my ($class, %radius_request) = @_;
-  my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-
-  my $radius = new pf::radius::custom();
-  my $return;
-  eval {
-      $return = $radius->authorize(\%radius_request);
-  };
-  if ($@) {
-      $logger->error("radius authorize failed with error: $@");
-  }
-  return $return;
-}
-
-sub radius_accounting {
-  my ($class, %radius_request) = @_;
-  my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-
-  my $radius = new pf::radius::custom();
-  my $return;
-  eval {
-      $return = $radius->accounting(\%radius_request);
-  };
-  if ($@) {
-      $logger->logdie("radius accounting failed with error: $@");
-  }
-  return $return;
-}
-
-sub soh_authorize {
-  my ($class, %radius_request) = @_;
-  my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-
-  my $soh = pf::soh::custom->new();
-  my $return;
-  eval {
-    $return = $soh->authorize(\%radius_request);
-  };
-  if ($@) {
-    $logger->error("soh authorize failed with error: $@");
-  }
-  return $return;
-}
-
-sub update_iplog {
-    my ( $class, $srcmac, $srcip, $lease_length ) = @_;
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-
-    return (pf::iplog::iplog_update($srcmac, $srcip, $lease_length));
-}
-
 
 =head1 AUTHOR
 
