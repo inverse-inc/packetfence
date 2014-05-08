@@ -16,7 +16,7 @@ Pre-Depends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra,
- mysql-server|mariadb-server, memcached,
+ mysql-server|mariadb-server|mariadb-galera-server, memcached,
  snmp, snmptrapfmt, snmp-mibs-downloader, conntrack,
 # apache related
  apache2, apache2.2-common, apache2-utils, libapache2-mod-proxy-html,
