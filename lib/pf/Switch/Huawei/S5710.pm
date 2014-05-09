@@ -33,6 +33,7 @@ sub description { 'Huawei S5710' }
 
 =cut
 sub supportsWiredMacAuth { return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
 =item getIfType
 
 Returning ETHERNET type since there is no standard way to get the ifindex
