@@ -10,10 +10,10 @@
 
   <div class="modal-body">
         [% form.field('id').render UNLESS item.id %]
-        [% form.field('ip').render %]
+        [% form.field('type').render %]
         [% form.field('password').render %]
         [% form.field('port').render %]
-        [% form.field('type').render %]
+        [% form.field('categories').render %]
   </div><!--modal-body-->
 
   <div class="modal-footer">
