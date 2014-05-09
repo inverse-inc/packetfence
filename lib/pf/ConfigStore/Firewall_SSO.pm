@@ -1,4 +1,4 @@
-package pf::ConfigStore::FirewallSSO;
+package pf::ConfigStore::Firewall_SSO;
 =head1 NAME
 
 pf::ConfigStore::FirewallSSO add documentation
