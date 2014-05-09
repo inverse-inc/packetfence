@@ -2187,11 +2187,6 @@ protocols {
                 access-ports {
                     supplicant multiple;
                     mac-radius;
-                    transmit-period 5;
-                    reauthentication 3600;
-                    supplicant-timeout 5;
-                    server-timeout 5;
-                    maximum-requests 1;
                 }
             }
         }
