@@ -17,7 +17,7 @@ use Moo;
 use pf::file_paths;
 extends 'pf::ConfigStore';
 
-sub configFile { $pf::file_paths::vlan_firewall_sso_config_file };
+sub configFile { $pf::file_paths::firewall_sso_config_file };
 
 __PACKAGE__->meta->make_immutable;
 
