@@ -33,6 +33,7 @@ BEGIN {
 use pf::config;
 use pf::config::cached;
 use pf::db;
+use pf::firewallsso;
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iplog;
 use pf::locationlog;
@@ -344,6 +345,8 @@ sub parse_dhcp_request {
             . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
         );
         update_iplog( $dhcp->{'chaddr'}, $client_ip, $lease_length );
+        my $firewallsso = new pf::firewallsso;
+        $firewallsso->do_sso('Start',$dhcp->{'chaddr'}, $client_ip);
     }
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
@@ -511,6 +514,8 @@ sub update_iplog {
     }
     if ( $oldip && $oldip ne $srcip ) {
         my $view_mac = node_view($srcmac);
+        my $firewallsso = new pf::firewallsso;
+        $firewallsso->do_sso('Stop',$oldmac,$oldip);
         if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
             pf::ipset::update_node($oldip, $srcip, $srcmac);
         }

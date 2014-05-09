@@ -3205,6 +3205,25 @@ msgstr ""
 msgid "The webservices user name"
 msgstr ""
 
+# conf/documentation.conf (webservices.host)
+msgid "The webservices host"
+msgstr ""
+
+# conf/documentation.conf (webservices.proto)
+msgid "The webservices protocol"
+msgstr ""
+
+# conf/documentation.conf (webservices.port)
+msgid "The webservices port"
+msgstr ""
+
+
+# conf/documentation.conf (guests_admin_registration.access_duration_choices)
+msgid ""
+  "These are all the choices offered in the access duration action of an"
+  "authentication source."
+msgstr ""
+
 # conf/documentation.conf (captive_portal.network_detection_ip)
 msgid ""
   "This IP is used as the webserver who hosts the "
@@ -4962,6 +4981,18 @@ msgstr "Password"
 # conf/documentation.conf
 msgid "webservices.user"
 msgstr "Username"
+
+# conf/documentation.conf
+msgid "webservices.host"
+msgstr "Host"
+
+# conf/documentation.conf
+msgid "webservices.proto"
+msgstr "Protocol"
+
+# conf/documentation.conf
+msgid "webservices.port"
+msgstr "Port"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "weeks"

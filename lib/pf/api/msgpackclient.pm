@@ -22,12 +22,29 @@ pf::api::msgpackclient
 use strict;
 use warnings;
 
+use pf::config;
 use Log::Log4perl;
 use WWW::Curl::Easy;
 use Data::MessagePack;
 use Moo;
 
 =head1 Attributes
+
+=head2 username
+
+  the username of the rpc call
+
+=cut
+
+has username => ( is => 'rw', default => sub {$Config{'webservices'}{'username'}} );
+
+=head2 password
+
+  the password of the rpc call
+
+=cut
+
+has password => ( is => 'rw', default => sub {$Config{'webservices'}{'password'}} );
 
 =head2 proto
 
@@ -36,7 +53,7 @@ use Moo;
 
 =cut
 
-has proto => ( is => 'rw', default => sub {"http"} );
+has proto => ( is => 'rw', default => sub {$Config{'webservices'}{'proto'}} );
 
 =head2 host
 
@@ -45,7 +62,7 @@ has proto => ( is => 'rw', default => sub {"http"} );
 
 =cut
 
-has host => ( is => 'rw', default => sub {"127.0.0.1"} );
+has host => ( is => 'rw', default => sub {$Config{'webservices'}{'host'}} );
 
 =head2 port
 
@@ -54,7 +71,7 @@ has host => ( is => 'rw', default => sub {"127.0.0.1"} );
 
 =cut
 
-has port => (is => 'rw', default => sub {9090} );
+has port => (is => 'rw', default => sub {$Config{'webservices'}{'port'}} );
 
 =head2 id
 
@@ -81,7 +98,7 @@ sub call {
     use bytes;
     my ($self,$function,@args) = @_;
     my $response;
-    my $curl = $self->curl;
+    my $curl = $self->curl($function);
     my $request = $self->build_msgpack_request($function,\@args);
     my $response_body;
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
@@ -117,7 +134,7 @@ sub notify {
     use bytes;
     my ($self,$function,@args) = @_;
     my $response;
-    my $curl = $self->curl;
+    my $curl = $self->curl($function);
     my $request = $self->build_msgpack_notification($function,\@args);
     my $response_body;
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
@@ -154,7 +171,12 @@ sub curl {
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $url);
-    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/x-msgpack']);
+    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/x-msgpack',"Request: $function"]);
+    if($self->username && $self->password && ($self->proto eq 'https') ) {
+        $curl->setopt(CURLOPT_HTTPAUTH, CURLOPT_HTTPAUTH);
+        $curl->setopt(CURLOPT_USERNAME, $self->username);
+        $curl->setopt(CURLOPT_PASSWORD, $self->password);
+    }
     return $curl;
 }
 

@@ -804,6 +804,29 @@ category=default
 voip=no
 
 [webservices]
-user = 
+#
+# webservices.user
+#
+# username to use to connect to the webAPI
+user =
+#
+# webservices.pass
+#
+# password of the username
 pass =
+#
+# webservices.host
+#
+# host of the webAPI
+host=127.0.0.1
+#
+# webservices.proto
+#
+# proto to use
+proto=http
+#
+# webservices.port
+#
+# port to use
+port=9090
 

@@ -57,6 +57,8 @@ our (
     %Doc_Config, $cached_pf_doc_config,
 #floating_network_device.conf variables
     %ConfigFloatingDevices, $cached_floating_device_config,
+#firewall_sso.conf variables
+    %ConfigFirewallSSO, $cached_firewall_sso,
 #profiles.conf variables
     %Profile_Filters, %Profiles_Config, $cached_profiles_config,
 
@@ -109,6 +111,7 @@ BEGIN {
         init_config
         %Profile_Filters %Profiles_Config $cached_profiles_config
         $cached_pf_config $cached_network_config $cached_floating_device_config
+        %ConfigFirewallSSO $cached_firewall_sso
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
         $OS
         %Doc_Config
@@ -407,6 +410,7 @@ sub init_config {
     readProfileConfigFile();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
+    readFirewallSSOFile();
 }
 
 =item ipset_version -  check the ipset version on the system
@@ -738,6 +742,25 @@ sub readFloatingNetworkDeviceFile {
                     $ConfigFloatingDevices{$section}{"trunkPort"} = '0';
                 }
             }
+        }]
+    );
+    if(@Config::IniFiles::errors) {
+        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
+    }
+}
+
+=item readFirewallSSOFile - firewall_sso.conf
+
+=cut
+
+sub readFirewallSSOFile {
+    $cached_firewall_sso = pf::config::cached->new(
+        -file => $firewall_sso_config_file,
+        -allowempty => 1,
+        -onreload => [ reload_firewall_sso_config => sub {
+            my ($config) = @_;
+            $config->toHash(\%ConfigFirewallSSO);
+            $config->cleanupWhitespace(\%ConfigFirewallSSO);
         }]
     );
     if(@Config::IniFiles::errors) {
