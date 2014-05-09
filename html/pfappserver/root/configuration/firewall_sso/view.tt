@@ -1,0 +1,24 @@
+[% UNLESS action_uri %]
+    [% SET action_uri = c.req.uri %]
+[%END %]
+<form name="modalFloatingDevice" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
+  [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3>[% IF item %]<i>[% l('Firewall SSO') %]</i> [% item.id | html %][% ELSE %][% l('New Firewall SSO') %][% END %]</h3>
+  </div>
+
+  <div class="modal-body">
+        [% form.field('id').render UNLESS item.id %]
+        [% form.field('ip').render %]
+        [% form.field('password').render %]
+        [% form.field('port').render %]
+        [% form.field('type').render %]
+  </div><!--modal-body-->
+
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    [% IF can_access("FIREWALL_SSO_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+  </div>
+
+</form>

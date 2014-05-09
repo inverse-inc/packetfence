@@ -110,6 +110,9 @@ table.sources {
               [%- IF can_access("FLOATING_DEVICES_READ") %]
               [% pf_section_entry( 'floating_devices', 'Floating devices') %]
               [%- END %]
+              [%- IF can_access("FIREWALL_SSO_READ") %]
+              [% list_entry('Configuration::Firewall_SSO', 'index', 'Firewall SSO') %]
+              [%- END %]
               [%- END %]
               [%- IF can_access("USERS_ROLES_READ","USERS_SOURCES_READ") %]
               <li class="nav-header">[% l('Users') %]</li>
