@@ -8,6 +8,7 @@ pf::SNMP::Juniper::EX2200 - Object oriented module to manage Juniper's EX Series
 
 Supports 
  MAC Authentication (MAC RADIUS in Juniper's terms)
+ 802.1X
 
 Developed and tested on Juniper ex2200 running on JUNOS 12.6
 Tested on ex4200 running on JUNOS 13.2
