@@ -47,6 +47,7 @@ sub supportsRadiusVoip { return $TRUE; }
 # special features
 sub supportsLldp { return $TRUE; }
 sub isVoIPEnabled {return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
 
 =item getVoipVsa
 
@@ -252,8 +253,18 @@ sub wiredeauthTechniques {
    my ($this, $method, $connection_type) = @_;
    my $logger = Log::Log4perl::get_logger( ref($this) );
 
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
 
-    if ($connection_type == $WIRED_MAC_AUTH) {
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    elsif ($connection_type == $WIRED_MAC_AUTH) {
         my $default = $SNMP::RADIUS;
         my %tech = (
             $SNMP::TELNET => 'handleReAssignVlanTrapForWiredMacAuth',
