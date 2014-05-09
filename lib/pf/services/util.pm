@@ -18,7 +18,9 @@ use warnings;
 use base qw(Exporter);
 our @EXPORT = qw(daemonize createpid);
 use pf::log;
+use pf::log::trapper;
 use pf::file_paths;
+use Log::Log4perl::Level;
 use File::Basename qw(basename);
 
 
@@ -34,6 +36,12 @@ sub daemonize {
     chdir '/' or $logger->logdie("Can't chdir to /: $!");
     open STDIN, '<', '/dev/null'
         or $logger->logdie("Can't read /dev/null: $!");
+    open STDOUT, '>', '/dev/null'
+        or $logger->logdie("Can't open /dev/null: $!");
+    open STDERR, '>', '/dev/null'
+        or $logger->logdie("Can't open /dev/null: $!");
+    tie *STDERR,'pf::log::trapper',$ERROR;
+    tie *STDOUT,'pf::log::trapper',$DEBUG;
     my ($login,$pass,$uid,$gid) = getpwnam('pf')
         or die "pf not in passwd file";
     defined( my $pid = fork ) or $logger->logdie("$service could not fork: $!");
