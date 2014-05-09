@@ -16,8 +16,6 @@ use strict;
 use warnings;
 
 use Log::Log4perl;
-use pf::config;
-use pf::util;
 use pf::api::jsonrpcclient;
 
 =head1 SUBROUTINES
@@ -46,14 +44,15 @@ sub do_sso {
     my ($self, $method, $mac, $ip) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
+    my $client = pf::api::jsonrpcclient->new;
+
     my %data = (
        'method'           => $method,
        'mac'              => $mac,
        'ip'               => $ip
     );
 
-    my $json_client = pf::jsonAPI::jsonclient->new();
-    $json_client->call_WebAPI( 'firewallsso', %data );
+    $client->notify('firewallsso', %data );
 
 }
 
