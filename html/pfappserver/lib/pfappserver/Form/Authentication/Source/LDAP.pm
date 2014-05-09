@@ -80,6 +80,7 @@ has_field 'password' =>
   (
    type => 'Password',
    label => 'Password',
+   password => 0,
   );
 
 =head2 validate
