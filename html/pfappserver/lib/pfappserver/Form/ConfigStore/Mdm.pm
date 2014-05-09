@@ -46,6 +46,7 @@ has_field 'password' =>
   (
    type => 'Password',
    label => 'Password',
+   password => 0,
    required => 1,
    messages => { required => 'Password required' },
   );
