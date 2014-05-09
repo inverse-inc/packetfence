@@ -36,7 +36,7 @@ use Try::Tiny;
 BEGIN {
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
-    use pf::log 'service' => 'httpd.admin', no_stderr_trapping => 1, no_stdout_trapping => 1;
+    use pf::log 'service' => 'httpd.admin';
 }
 use pf::config::cached;
 use pf::CHI;

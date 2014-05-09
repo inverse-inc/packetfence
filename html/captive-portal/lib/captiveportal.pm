@@ -37,7 +37,7 @@ use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
 BEGIN {
-    use pf::log service => 'httpd.portal',no_stderr_trapping => 1,no_stdout_trapping => 1;
+    use pf::log service => 'httpd.portal';
 }
 
 use pf::config::cached;
