@@ -48,7 +48,7 @@ sub action {
                     </payload>
                </uid-message>
 XML
-            my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'key'};
+            my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
             my $ua = LWP::UserAgent->new;
             my $response = $ua->post($webpage, Content => [ cmd => $message ]);
             if ($response->is_success) {
