@@ -29,7 +29,7 @@ sub send_rpc_request {
     use bytes;
     my ($config,$function,$data) = @_;
     my $response;
-    my $curl = _curlSetup($config);
+    my $curl = _curlSetup($config,$function);
     my $request = build_msgpack_request($function,$data);
     my $response_body;
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
@@ -56,7 +56,7 @@ sub send_rpc_request {
 }
 
 sub _curlSetup {
-    my ($config) = @_;
+    my ($config, $function) = @_;
     my ($server,$port,$proto,$user,$pass) = @{$config}{qw(server port proto user pass)};
     my $url = "$proto://${server}:${port}";
     my $curl = WWW::Curl::Easy->new;
@@ -64,7 +64,7 @@ sub _curlSetup {
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $url);
-    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/x-msgpack']);
+    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/x-msgpack',"Request: $function"]);
     $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
     if($user && $pass) {
         $curl->setopt(CURLOPT_HTTPAUTH, CURLOPT_HTTPAUTH);
