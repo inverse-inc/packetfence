@@ -22,8 +22,8 @@ use warnings;
 
 use Log::Log4perl;
 use WWW::Curl::Easy;
-use Sereal::Encoder;
-use Sereal::Decoder;
+use Sereal::Encoder qw(sereal_encode_with_object);
+use Sereal::Decoder qw(sereal_decode_with_object sereal_decode_with_header_with_object);
 use Moo;
 extends 'pf::client';
 our $ENCODER =  Sereal::Encoder->new( {snappy => 1 });
@@ -51,7 +51,7 @@ TODO: documention
 sub decode {
     my ($self,$data) = @_;
     my $response;
-    $DECODER->decode($$data,$response);
+    sereal_decode_with_object($DECODER,$$data,$response);
     return $response;
 }
 
@@ -73,7 +73,7 @@ sub build_request {
     my $request = [REQUEST,$id,$function,$args];
     $id++;
     $self->id($id);
-    return $ENCODER->encode($request);
+    return sereal_encode_with_object($ENCODER,$request);
 }
 
 =head2 build_notification

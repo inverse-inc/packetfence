@@ -13,8 +13,8 @@ pf::WebAPI::RPC::Sereal
 
 use strict;
 use warnings;
-use Sereal::Encoder;
-use Sereal::Decoder;
+use Sereal::Encoder qw(sereal_encode_with_object);
+use Sereal::Decoder qw(sereal_decode_with_object sereal_decode_with_header_with_object);
 use base qw(pf::WebAPI::RPC::MsgPack);
 
 our $ENCODER =  Sereal::Encoder->new();
@@ -25,13 +25,13 @@ sub default_content_type { "application/x-sereal"  }
 
 sub encode {
     my ($self,$data) = @_;
-    return $ENCODER->encode($data);
+    return sereal_encode_with_object($ENCODER,$data);
 }
 
 sub decode {
     my ($self,$data) = @_;
     my $out;
-    $DECODER->decode($$data,$out);
+    sereal_decode_with_object($DECODER,$$data,$out);
     return $out;
 }
 
