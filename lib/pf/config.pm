@@ -57,8 +57,6 @@ our (
     %Doc_Config, $cached_pf_doc_config,
 #floating_network_device.conf variables
     %ConfigFloatingDevices, $cached_floating_device_config,
-#vlan_filters.conf
-    %ConfigVlanFilters, $cached_vlan_filters_config,
 #profiles.conf variables
     %Profile_Filters, %Profiles_Config, $cached_profiles_config,
 
@@ -110,7 +108,6 @@ BEGIN {
         $LOG4PERL_RELOAD_TIMER
         init_config
         %Profile_Filters %Profiles_Config $cached_profiles_config
-        %ConfigVlanFilters $cached_vlan_filters_config
         $cached_pf_config $cached_network_config $cached_floating_device_config
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
         $OS
@@ -408,7 +405,6 @@ sub init_config {
     readProfileConfigFile();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
-    readVlanFiltersFile();
 }
 
 =item ipset_version -  check the ipset version on the system
@@ -740,25 +736,6 @@ sub readFloatingNetworkDeviceFile {
                     $ConfigFloatingDevices{$section}{"trunkPort"} = '0';
                 }
             }
-        }]
-    );
-    if(@Config::IniFiles::errors) {
-        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
-    }
-}
-
-=item readVlanFiltersFile - vlan_filters.conf
-
-=cut
-
-sub readVlanFiltersFile {
-    $cached_vlan_filters_config = pf::config::cached->new(
-        -file => $vlan_filters_config_file,
-        -allowempty => 1,
-        -onreload => [ reload_vlan_filters_config => sub {
-            my ($config) = @_;
-            $config->toHash(\%ConfigVlanFilters);
-            $config->cleanupWhitespace(\%ConfigVlanFilters);
         }]
     );
     if(@Config::IniFiles::errors) {

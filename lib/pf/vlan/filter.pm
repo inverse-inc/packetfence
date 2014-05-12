@@ -17,7 +17,11 @@ use warnings;
 
 use Log::Log4perl;
 use Time::Period;
-use pf::config qw(%connection_type_to_str %ConfigVlanFilters);
+use pf::config qw(%connection_type_to_str);
+
+our (%ConfigVlanFilters $cached_vlan_filters_config);
+
+readVlanFiltersFile();
 
 =head1 SUBROUTINES
 
@@ -294,6 +298,26 @@ sub time_parser {
     }
 }
 
+
+
+=item readVlanFiltersFile - vlan_filters.conf
+
+=cut
+
+sub readVlanFiltersFile {
+    $cached_vlan_filters_config = pf::config::cached->new(
+        -file => $vlan_filters_config_file,
+        -allowempty => 1,
+        -onreload => [ reload_vlan_filters_config => sub {
+            my ($config) = @_;
+            $config->toHash(\%ConfigVlanFilters);
+            $config->cleanupWhitespace(\%ConfigVlanFilters);
+        }]
+    );
+    if(@Config::IniFiles::errors) {
+        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
+    }
+}
 
 =back
 
