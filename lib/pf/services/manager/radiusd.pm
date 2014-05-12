@@ -46,6 +46,9 @@ sub generate_radiusd_mainconf {
     $tags{'arch'} = `uname -m` eq "x86_64" ? "64" : "";
     $tags{'rpc_pass'} = $Config{webservices}{pass} || "''";
     $tags{'rpc_user'} = $Config{webservices}{user} || "''";
+    $tags{'rpc_port'} = $Config{webservices}{port} || "9090";
+    $tags{'rpc_server'} = $Config{webservices}{host} || "127.0.0.1";
+    $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
 
     parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
 }

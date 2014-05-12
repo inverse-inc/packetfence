@@ -19,9 +19,9 @@ pidfile = ${run_dir}/${name}.pid
 
 rpc_user   = %%rpc_user%%
 rpc_pass   = %%rpc_pass%%
-rpc_port   = 9090
-rpc_server = 127.0.0.1
-rpc_proto  = http
+rpc_port   = %%rpc_port%%
+rpc_server = %%rpc_host%%
+rpc_proto  = %%rpc_proto%%
 
 
 user = pf
