@@ -1,35 +1,49 @@
-package pf::ConfigStore::Mdm;
+
+package pfappserver::Model::ConfigStore::Provisioning;
+
 =head1 NAME
 
-pf::ConfigStore::Mdm add documentation
+pfappserver::Model::ConfigStore::Provisioning add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Mdm
+pfappserver::Model::ConfigStore::Provisioning
 
 =cut
 
-use strict;
-use warnings;
-use Moo;
-use pf::file_paths;
-extends 'pf::ConfigStore';
+use HTTP::Status qw(:constants is_error is_success);
+use Moose;
+use namespace::autoclean;
+use pf::ConfigStore::Provisioning;
 
-sub configFile { $pf::file_paths::mdm_config_file };
+extends 'pfappserver::Base::Model::Config';
 
-=head1 AUTHOR
+=head2 Methods
 
-Inverse inc. <info@inverse.ca>
+=over
+
+=item _buildConfigStore
+
+buld the config store
+
+=cut
+
+sub _buildConfigStore { pf::ConfigStore::Provisioning->new }
+
+
+__PACKAGE__->meta->make_immutable;
+
+=back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2013 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -47,4 +61,5 @@ USA.
 =cut
 
 1;
+
 

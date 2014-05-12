@@ -1,13 +1,13 @@
 
-package pfappserver::Controller::ConfigStore::Mdm;
+package pfappserver::Controller::ConfigStore::Provisioning;
 
 =head1 NAME
 
-pfappserver::Controller::ConfigStore::Mdm - Catalyst Controller
+pfappserver::Controller::ConfigStore::Provisioning - Catalyst Controller
 
 =head1 DESCRIPTION
 
-Controller for ConfigStore::Mdm management
+Controller for ConfigStore::Provisioning management
 
 =cut
 
@@ -35,7 +35,7 @@ __PACKAGE__->config(
     },
     action_args => {
         # Setting the global model and form for all actions
-        '*' => { model => "ConfigStore::Mdm",form => "ConfigStore::Mdm" },
+        '*' => { model => "ConfigStore::Provisioning",form => "ConfigStore::Provisioning" },
     },
 );
 

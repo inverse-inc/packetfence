@@ -13,25 +13,25 @@ pf::provisioner
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => __PACKAGE__, sub_name => 'authorizers' , require => 1;
+use Module::Pluggable search_path => __PACKAGE__, sub_name => 'provisioners' , require => 1;
 use List::MoreUtils qw(any);
-use pf::ConfigStore::Mdm;
+use pf::ConfigStore::Provisioning;
 
-my @AUTHORIZERS = __PACKAGE__->authorizers;
+my @PROVISIONERS = __PACKAGE__->provisioners;
 
 sub new {
     my ($class,$name) = @_;
-    my $authorizer;
-    my $configStore = pf::ConfigStore::Mdm->new;
+    my $provisioner;
+    my $configStore = pf::ConfigStore::Provisioning->new;
     my $data = $configStore->read($name,'id');
     if ($data) {
         my $type = $data->{type};
         die "type is not defined for $name" unless defined $type;
         my $subclass = "${class}::${type}";
-        die "$type is not a valid type" unless any { $_ eq $subclass  } @AUTHORIZERS;
-        $authorizer = $subclass->new($data);
+        die "$type is not a valid type" unless any { $_ eq $subclass  } @PROVISIONERS;
+        $provisioner = $subclass->new($data);
     }
-    return $authorizer;
+    return $provisioner;
 }
 
 

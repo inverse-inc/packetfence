@@ -17,7 +17,6 @@ use pf::log;
 use SOAP::Lite;
 use URI::Escape::XS;
 use Moo;
-use pf::ConfigStore::Mdm;
 use pf::config qw($TRUE $FALSE);
 use List::MoreUtils qw(any);
 use pf::util qw(valid_mac clean_mac);

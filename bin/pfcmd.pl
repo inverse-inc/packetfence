@@ -2458,7 +2458,7 @@ sub configreload {
     require pf::ConfigStore::Authentication;
     require pf::ConfigStore::FloatingDevice;
     require pf::ConfigStore::Interface;
-    require pf::ConfigStore::Mdm;
+    require pf::ConfigStore::Provisioning;
     require pf::ConfigStore::Network;
     require pf::ConfigStore::Pf;
     require pf::ConfigStore::Profile;

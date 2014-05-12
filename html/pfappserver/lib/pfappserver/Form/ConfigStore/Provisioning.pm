@@ -1,8 +1,8 @@
-package pfappserver::Form::ConfigStore::Mdm;
+package pfappserver::Form::ConfigStore::Provisioning;
 
 =head1 NAME
 
-pfappserver::Form::ConfigStore::Mdm - Web form for a switch
+pfappserver::Form::ConfigStore::Provisioning - Web form for a switch
 
 =head1 DESCRIPTION
 
@@ -18,13 +18,13 @@ has_field 'id' =>
    type => 'Text',
    label => 'MDM ID',
    required => 1,
-   messages => { required => 'Please specify the ID of the Mdm entry.' },
+   messages => { required => 'Please specify the ID of the Provisioning entry.' },
   );
 has_field 'description' =>
   (
    type => 'Text',
    required => 1,
-   messages => { required => 'Please specify the Description Mdm entry.' },
+   messages => { required => 'Please specify the Description Provisioning entry.' },
   );
 has_field 'type' =>
   (

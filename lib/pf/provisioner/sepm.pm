@@ -21,7 +21,7 @@ use JSON qw( decode_json );
 use XML::Simple;
 use Log::Log4perl;
 use pf::iplog;
-use pf::ConfigStore::Mdm;
+use pf::ConfigStore::Provisioning;
 
 =head1 Atrributes
 
@@ -112,7 +112,7 @@ sub set_refresh_token {
     } 
     else{
         $self->{'refresh_token'} = $refresh_token;
-        my $cs = pf::ConfigStore::Mdm->new;
+        my $cs = pf::ConfigStore::Provisioning->new;
         $logger->info($self->{'id'});
         $cs->update($self->{'id'}, {refresh_token => $refresh_token});
         $cs->commit();
@@ -134,7 +134,7 @@ sub set_access_token {
     }
     else{
         $self->{'access_token'} = $access_token;
-        my $cs = pf::ConfigStore::Mdm->new;
+        my $cs = pf::ConfigStore::Provisioning->new;
         $logger->info($self->{'id'});
         $cs->update($self->{'id'}, {access_token => $access_token});
         $cs->commit();

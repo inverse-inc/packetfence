@@ -19,7 +19,7 @@ use HTML::FormHandler::Moose::Role;
 use List::MoreUtils qw(uniq);
 
 use pf::authentication;
-use pf::ConfigStore::Mdm;
+use pf::ConfigStore::Provisioning;
 use pf::web::constants;
 with 'pfappserver::Base::Form::Role::Help';
 
@@ -170,11 +170,11 @@ has_field 'mandatory_fields.contains' =>
     widget_wrapper => 'DynamicTableRow',
 );
 
-=head2 authorizer
+=head2 provisioner
 
 =cut
 
-has_field 'authorizer' =>
+has_field 'provisioner' =>
   (
     type => 'Select',
   );
@@ -211,7 +211,7 @@ has_field 'allow_android_devices' =>
   );
 
 has_block provisioning => (
-    render_list => [qw(authorizer allowed_devices)]
+    render_list => [qw(provisioner allowed_devices)]
 );
 
 =head2 nbregpages
@@ -236,12 +236,12 @@ sub options_locale {
     return map { { value => $_, label => $_ } } @WEB::LOCALES;
 }
 
-=head2 options_authorizer
+=head2 options_provisioner
 
 =cut
 
-sub options_authorizer {
-    return { value => '', label => '' }, map { { value => $_, label => $_ } } @{pf::ConfigStore::Mdm->new->readAllIds};
+sub options_provisioner {
+    return { value => '', label => '' }, map { { value => $_, label => $_ } } @{pf::ConfigStore::Provisioning->new->readAllIds};
 }
 
 sub options_allowed_devices {
