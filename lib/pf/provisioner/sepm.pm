@@ -1,13 +1,13 @@
-package pf::mdm::sepm;
+package pf::provisioner::sepm;
 =head1 NAME
 
-pf::mdm::sepm add documentation
+pf::provisioner::sepm add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::mdm::sepm
+pf::provisioner::sepm
 
 =cut
 

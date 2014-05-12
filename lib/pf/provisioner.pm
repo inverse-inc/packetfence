@@ -1,13 +1,13 @@
-package pf::mdm;
+package pf::provisioner;
 =head1 NAME
 
-pf::mdm add documentation
+pf::provisioner add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::mdm
+pf::provisioner
 
 =cut
 

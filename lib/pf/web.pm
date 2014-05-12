@@ -687,7 +687,7 @@ sub generate_pending_page {
 sub generate_authorizer_page {
     my ($portalSession, %info) = @_;
     my $authorizer_name = $portalSession->getProfile()->getAuthorizer();
-    my $authorizer = pf::mdm->new($authorizer_name); 
+    my $authorizer = pf::provisioner->new($authorizer_name); 
     $portalSession->stash({
         destination_url => $portalSession->getDestinationUrl(),
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},

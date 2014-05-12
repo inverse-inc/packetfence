@@ -1,13 +1,13 @@
-package pf::mdm::symantec;
+package pf::provisioner::symantec;
 =head1 NAME
 
-pf::mdm::symantec add documentation
+pf::provisioner::symantec add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::mdm::symantec
+pf::provisioner::symantec
 
 =cut
 
