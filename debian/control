@@ -27,6 +27,7 @@ Depends: ${misc:Depends}, vlan, make,
  iproute,
  ipset,
  sudo,
+ liburi-escape-xs-perl,
 # process management
  procps,
 # perl basic components

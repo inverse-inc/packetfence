@@ -18,7 +18,7 @@ use Moose;
 use Moose::Util qw(apply_all_roles);
 use namespace::autoclean;
 use POSIX;
-use URI::Escape;
+use URI::Escape::XS;
 use pfappserver::Base::Action::AdminRole;
 use pfappserver::Base::Action::SimpleSearch;
 

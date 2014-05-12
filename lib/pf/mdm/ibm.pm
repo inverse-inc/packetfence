@@ -15,7 +15,7 @@ use strict;
 use warnings;
 use pf::log;
 use SOAP::Lite;
-use URI::Escape;
+use URI::Escape::XS;
 use Moo;
 use pf::ConfigStore::Mdm;
 use pf::config qw($TRUE $FALSE);

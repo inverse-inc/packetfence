@@ -15,7 +15,7 @@ use warnings;
 use lib '/usr/local/pf/lib';
 
 use Log::Log4perl;
-use URI::Escape qw(uri_escape);
+use URI::Escape::XS qw(uri_escape);
 use Net::OAuth2::Client;
 use HTML::Entities;
 

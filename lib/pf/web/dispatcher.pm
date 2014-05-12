@@ -22,7 +22,7 @@ use APR::Table;
 use APR::URI;
 use Log::Log4perl;
 use Template;
-use URI::Escape qw(uri_escape);
+use URI::Escape::XS qw(uri_escape);
 
 use pf::config;
 use pf::util;

@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::CaptivePortal;
 use Moose;
 use namespace::autoclean;
 use pf::web::constants;
-use URI::Escape qw(uri_escape uri_unescape);
+use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use pf::enforcement qw(reevaluate_access);
 use pf::config;

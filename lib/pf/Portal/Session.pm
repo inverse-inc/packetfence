@@ -27,7 +27,7 @@ use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use Log::Log4perl;
 use POSIX qw(locale_h); #qw(setlocale);
 use Readonly;
-use URI::Escape qw(uri_escape uri_unescape);
+use URI::Escape::XS qw(uri_escape uri_unescape);
 use File::Spec::Functions;
 
 use pf::config;

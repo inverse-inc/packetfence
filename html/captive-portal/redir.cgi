@@ -15,7 +15,7 @@ use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use Log::Log4perl;
-use URI::Escape qw(uri_escape);
+use URI::Escape::XS qw(uri_escape);
 use NetAddr::IP;
 
 use pf::class;
