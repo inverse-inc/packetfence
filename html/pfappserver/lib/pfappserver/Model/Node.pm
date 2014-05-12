@@ -720,7 +720,7 @@ sub bulkDeregister {
     foreach my $mac (@macs) {
         my $node = node_attributes($mac);
         if ($node->{status} ne $pf::node::STATUS_UNREGISTERED) {
-            if (node_deregister($mac, $node->{pid}, %{$node})) {
+            if (node_deregister($mac, %{$node})) {
                 reevaluate_access($mac, "node_modify");
                 $count++;
             }
