@@ -514,7 +514,7 @@ suricata_binary=/usr/bin/suricata
 # services.httpd_binary
 #
 # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
-httpd_binary=/usr/sbin/apache2
+httpd_binary=/usr/sbin/httpd
 #
 # services.dhcpd_binary
 #
@@ -529,12 +529,12 @@ snmptrapd_binary=/usr/sbin/snmptrapd
 # services.radiusd_binary
 # 
 # Location of the named binary. Only necessary to change if you are not running the RPMed version.
-radiusd_binary=/usr/sbin/freeradius
+radiusd_binary=/usr/sbin/radiusd
 # 
 # services.arp_binary
 # 
 # Location of the arp binary. Only necessary to change if you are not running the RPMed version.
-arp_binary=/usr/sbin/arp
+arp_binary=/sbin/arp
 # 
 # services.memcached_binary
 # 
