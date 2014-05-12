@@ -29,8 +29,8 @@ use Data::Dumper;
 __PACKAGE__->mark_as_loaded();
 
 sub _run {
-    require pf::config;
-    print Data::Dumper::Dumper(\%pf::config::ConfigApacheFilters);
+    require pf::web::filter;
+    print Data::Dumper::Dumper(\%pf::web::filter::ConfigApacheFilters);
 }
 
 package pf::dump::config;

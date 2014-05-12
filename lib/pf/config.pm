@@ -57,8 +57,6 @@ our (
     %Doc_Config, $cached_pf_doc_config,
 #floating_network_device.conf variables
     %ConfigFloatingDevices, $cached_floating_device_config,
-#apache_filters_config.conf
-    %ConfigApacheFilters, $cached_apache_filters_config,
 #profiles.conf variables
     %Profile_Filters, %Profiles_Config, $cached_profiles_config,
 
@@ -111,7 +109,6 @@ BEGIN {
         init_config
         %Profile_Filters %Profiles_Config $cached_profiles_config
         $cached_pf_config $cached_network_config $cached_floating_device_config
-        %ConfigApacheFilters $cached_apache_filters_config
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
         $OS
         %Doc_Config
@@ -408,7 +405,6 @@ sub init_config {
     readProfileConfigFile();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
-    readApacheFiltersFile();
 }
 
 =item ipset_version -  check the ipset version on the system
@@ -740,25 +736,6 @@ sub readFloatingNetworkDeviceFile {
                     $ConfigFloatingDevices{$section}{"trunkPort"} = '0';
                 }
             }
-        }]
-    );
-    if(@Config::IniFiles::errors) {
-        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
-    }
-}
-
-=item readApacheFiltersFile - apache_filters_config.conf
-
-=cut
-
-sub readApacheFiltersFile {
-    $cached_apache_filters_config = pf::config::cached->new(
-        -file => $apache_filters_config_file,
-        -allowempty => 1,
-        -onreload => [ reload_apache_filters_config => sub {
-            my ($config) = @_;
-            $config->toHash(\%ConfigApacheFilters);
-            $config->cleanupWhitespace(\%ConfigApacheFilters);
         }]
     );
     if(@Config::IniFiles::errors) {

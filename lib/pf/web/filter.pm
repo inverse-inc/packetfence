@@ -19,6 +19,9 @@ use Apache2::Const -compile => qw(:http);
 use Apache2::Request;
 use Log::Log4perl;
 use pf::config;
+our (%ConfigApacheFilters, $cached_apache_filters_config);
+
+readApacheFiltersFile();
 
 =head1 SUBROUTINES
 
@@ -183,6 +186,27 @@ sub code {
         return 1;
     }
 }
+
+=item readApacheFiltersFile - apache_filters_config.conf
+
+=cut
+
+sub readApacheFiltersFile {
+    $cached_apache_filters_config = pf::config::cached->new(
+        -file => $apache_filters_config_file,
+        -allowempty => 1,
+        -onreload => [ reload_apache_filters_config => sub {
+            my ($config) = @_;
+            $config->toHash(\%ConfigApacheFilters);
+            $config->cleanupWhitespace(\%ConfigApacheFilters);
+        }]
+    );
+    if(@Config::IniFiles::errors) {
+       my $logger = Log::Log4perl::get_logger("pf::web::filter");
+        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
+    }
+}
+
 
 =back
 
