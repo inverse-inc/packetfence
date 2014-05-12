@@ -16,8 +16,8 @@ Version 4.x.y released on YYYY-MM-DD
 
 New Features
 ++++++++++++
-* Added MAC authentication support for Edge-corE 4510
 
+* Added MAC authentication support for Edge-corE 4510
 * Added support for Ruckus External Captive Portal
 * Support for Huawei S2700, S3700, S5700, S6700, S7700, S9700 
 * Added support for LinkedIn and Windows Live as authentication sources.
@@ -29,6 +29,7 @@ Enhancements
 
 * When validating an email confirmation code, use the same portal profile initially used by to register the device
 * Removed old iptables code (ipset is now always used for inline enforcement)
+* MariaDB support
 
 Bug Fixes
 +++++++++
