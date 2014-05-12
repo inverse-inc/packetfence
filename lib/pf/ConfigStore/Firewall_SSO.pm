@@ -19,6 +19,36 @@ extends 'pf::ConfigStore';
 
 sub configFile { $pf::file_paths::firewall_sso_config_file };
 
+=head2 cleanupAfterRead
+
+Clean up switch data
+
+=cut
+
+sub cleanupAfterRead {
+    my ($self, $id, $profile) = @_;
+    $self->expand_list($profile, $self->_fields_expanded);
+}
+
+=head2 cleanupBeforeCommit
+
+Clean data before update or creating
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $profile) = @_;
+    $self->flatten_list($profile, $self->_fields_expanded);
+}
+
+=head2 _fields_expanded
+
+=cut
+
+sub _fields_expanded {
+    return qw(categories);
+}
+
 __PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR

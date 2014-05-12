@@ -98,7 +98,7 @@ sub call {
     use bytes;
     my ($self,$function,@args) = @_;
     my $response;
-    my $curl = $self->curl;
+    my $curl = $self->curl($function);
     my $request = $self->build_msgpack_request($function,\@args);
     my $response_body;
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
@@ -134,7 +134,7 @@ sub notify {
     use bytes;
     my ($self,$function,@args) = @_;
     my $response;
-    my $curl = $self->curl;
+    my $curl = $self->curl($function);
     my $request = $self->build_msgpack_notification($function,\@args);
     my $response_body;
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
@@ -164,14 +164,14 @@ sub notify {
 =cut
 
 sub curl {
-    my ($self) = @_;
+    my ($self,$function) = @_;
     my $url = $self->url;
     my $curl = WWW::Curl::Easy->new;
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $url);
-    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/x-msgpack']);
+    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/x-msgpack',"Request: $function"]);
     if($self->username && $self->password && ($self->proto eq 'https') ) {
         $curl->setopt(CURLOPT_HTTPAUTH, CURLOPT_HTTPAUTH);
         $curl->setopt(CURLOPT_USERNAME, $self->username);
