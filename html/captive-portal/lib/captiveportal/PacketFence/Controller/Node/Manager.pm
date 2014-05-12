@@ -26,9 +26,9 @@ Catalyst Controller.
 sub unreg :Local :Args(1) {
     my ( $self, $c, $mac ) = @_;
     my $username = $c->session->{username};
-    $c->log->info("$username attempting to unregister $mac");
     my $node = node_view($mac);
     if($username && $mac) {
+        $c->log->info("$username attempting to unregister $mac");
         if($username eq $node->{pid}) {
             node_deregister($mac, %$node);
             reevaluate_access($mac, "node_modify");
