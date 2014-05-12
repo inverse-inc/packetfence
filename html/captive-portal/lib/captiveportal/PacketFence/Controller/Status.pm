@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::Status;
 use Moose;
 use namespace::autoclean;
 use pf::util;
+use pf::config;
 use pf::node;
 use pf::person;
 
@@ -25,21 +26,24 @@ Catalyst Controller.
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
+    my @nodes;
     my $portalSession = $c->portalSession;
     my $node_info     = node_view( $portalSession->clientMac() );
-    my @nodes         = person_nodes($node_info->{pid});
-    if ( defined $node_info->{'last_start_timestamp'}
-        && $node_info->{'last_start_timestamp'} > 0 ) {
-        if ( $node_info->{'timeleft'} > 0 ) {
+    if( $node_info->{pid} ne $default_pid ) {
+        @nodes         = person_nodes($node_info->{pid});
+        if ( defined $node_info->{'last_start_timestamp'}
+            && $node_info->{'last_start_timestamp'} > 0 ) {
+            if ( $node_info->{'timeleft'} > 0 ) {
 
-            # Node has a usage duration
-            $node_info->{'expiration'} =
-              $node_info->{'last_start_timestamp'} + $node_info->{'timeleft'};
-            if ( $node_info->{'expiration'} < time ) {
+                # Node has a usage duration
+                $node_info->{'expiration'} =
+                  $node_info->{'last_start_timestamp'} + $node_info->{'timeleft'};
+                if ( $node_info->{'expiration'} < time ) {
 
-                # No more access time; RADIUS accounting should have triggered a violation
-                delete $node_info->{'expiration'};
-                $node_info->{'timeleft'} = 0;
+                    # No more access time; RADIUS accounting should have triggered a violation
+                    delete $node_info->{'expiration'};
+                    $node_info->{'timeleft'} = 0;
+                }
             }
         }
     }
