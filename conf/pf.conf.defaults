@@ -436,6 +436,16 @@ dhcpd=enabled
 # Should pfdns be managed by PacketFence?
 pfdns=enabled
 #
+# services.snort
+#
+# Should snort be managed by PacketFence?
+snort=enabled
+#
+# services.suricata
+#
+# Should suricata be managed by PacketFence?
+suricata=enabled
+#
 # services.radiusd
 #
 # Should radiusd be managed by PacketFence?
