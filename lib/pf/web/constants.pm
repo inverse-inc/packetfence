@@ -74,6 +74,7 @@ Readonly::Scalar our $URL_OAUTH2_GOOGLE         => '/oauth2/google';
 Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
 Readonly::Scalar our $URL_RELEASE               => '/release';
 Readonly::Scalar our $URL_STATUS                => '/status';
+Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
 
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';
