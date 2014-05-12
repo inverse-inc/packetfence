@@ -277,7 +277,7 @@ sub wiredeauthTechniques {
         return $method,$tech{$method};
     }
     else{
-        $logger->error("Only wired authentication is supported on EX2200");
+        $logger->error("This authentication mode is not supported");
     }
 
 }
