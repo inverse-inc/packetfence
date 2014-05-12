@@ -98,7 +98,7 @@ sub call {
     use bytes;
     my ($self,$function,@args) = @_;
     my $response;
-    my $curl = $self->curl($function);
+    my $curl = $self->curl;
     my $request = $self->build_msgpack_request($function,\@args);
     my $response_body;
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
@@ -134,7 +134,7 @@ sub notify {
     use bytes;
     my ($self,$function,@args) = @_;
     my $response;
-    my $curl = $self->curl($function);
+    my $curl = $self->curl;
     my $request = $self->build_msgpack_notification($function,\@args);
     my $response_body;
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
@@ -171,7 +171,7 @@ sub curl {
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $url);
-    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/x-msgpack',"Request: $function"]);
+    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/x-msgpack']);
     if($self->username && $self->password && ($self->proto eq 'https') ) {
         $curl->setopt(CURLOPT_HTTPAUTH, CURLOPT_HTTPAUTH);
         $curl->setopt(CURLOPT_USERNAME, $self->username);
