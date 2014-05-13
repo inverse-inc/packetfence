@@ -36,7 +36,7 @@ sub action {
     if ($method eq 'Start') {
         my $node_info = node_view($mac);
 
-        if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq $pf::node::STATUS_REGISTERED) {
+        if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&  grep { lc $node_info->{'category'} eq $_ } ( $ConfigFirewallSSO{$firewall_conf}->{'categories'})) {
             my $message = <<"XML";
                 <uid-message>
                     <version>1.0</version>
