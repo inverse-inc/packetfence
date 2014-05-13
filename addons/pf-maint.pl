@@ -44,6 +44,7 @@ our $COMMIT;
 our $BASE_COMMIT;
 our $NO_ASK;
 our $PATCH_BIN = '/usr/bin/patch';
+our $START_COMMIT_ID_FILE = catfile($PF_DIR,'conf','git_commit_id');
 
 GetOptions(
     "github-user|u=s" => \$GITHUB_USER,
@@ -62,13 +63,19 @@ die "$PATCH_BIN does not exists or is not executable" unless patch_bin_exists();
 
 our $PATCHES_DIR = catdir( $PF_DIR, '.patches' );
 mkdir $PATCHES_DIR or die "cannot create $PATCHES_DIR" unless -d $PATCHES_DIR;
-our $PF_RELEASE = get_release();
-our $LAST_COMMIT = catfile( $PATCHES_DIR, "last-commit-$PF_RELEASE" );
+our $PF_RELEASE_FULL = get_release_full();
+our $PF_RELEASE_REV  = get_release_rev();
+our $LAST_COMMIT = catfile( $PATCHES_DIR, "last-commit-$PF_RELEASE_FULL" );
+
+our $PF_RELEASE = -e $START_COMMIT_ID_FILE ? $PF_RELEASE_REV : $PF_RELEASE_FULL;
 
 our $BASE_GITHUB_URL =
   "https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO";
 
 my $base = $BASE_COMMIT || get_base();
+
+die "Cannot base commit\n" unless $base;
+
 print "Currently at $base\n";
 
 my $head = $COMMIT || get_head();
@@ -83,9 +90,14 @@ save_patch( $patch_data, $base, $head );
 print "Applying the patch........\n";
 apply_patch( $patch_data, $base, $head );
 
-sub get_release {
+sub get_release_full {
     chomp( my $release = read_file( catfile( $PF_DIR, 'conf/pf-release' ) ) );
     die unless $release =~ m/.*?(\d+(\.\d+){2}(-\d+)?)$/;
+    return $1;
+}
+
+sub get_release_rev {
+    die unless $PF_RELEASE_FULL =~ /^(\d+\.\d+)/;
     return $1;
 }
 
@@ -94,7 +106,11 @@ sub get_base {
     if ($base) {
         chomp($base);
     } else {
-        $base = "packetfence-$PF_RELEASE";
+        if (-e $START_COMMIT_ID_FILE ) {
+            $base = read_file( $START_COMMIT_ID_FILE, { err_mode => 'quiet' } );
+            chomp($base);
+        }
+        $base = "packetfence-$PF_RELEASE_FULL" unless $base;
     }
     return $base;
 }
