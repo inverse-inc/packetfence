@@ -42,6 +42,8 @@ sub action {
     my $node_info = node_view($mac);
 
     if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&  grep { lc $node_info->{'category'} eq $_ } ( $ConfigFirewallSSO{$firewall_conf}->{'categories'})) {
+        my $username = $node_info->{'pid'};
+        $username = $node_info->{'last_dot1x_username'} if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x');
         my $acctsessionid = node_accounting_current_sessionid($mac);
         my $connection_info = {
           nas_ip => $firewall_conf,
@@ -52,7 +54,7 @@ sub action {
         my $attributes = {
             'Acct-Session-Id' =>  $acctsessionid,
             'Acct-Status-Type' => $method,
-            'User-Name' => $node_info->{'pid'},
+            'User-Name' => $username,
             'Session-Timeout' => $timeout,
             'Class' => $node_info->{'category'},
             'Called-Station-Id' => '00:11:22:33:44:55',

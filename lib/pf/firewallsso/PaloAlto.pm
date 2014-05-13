@@ -35,6 +35,8 @@ sub action {
 
     if ($method eq 'Start') {
         my $node_info = node_view($mac);
+        my $username = $node_info->{'pid'};
+        $username = $node_info->{'last_dot1x_username'} if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x');
 
         if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&  grep { lc $node_info->{'category'} eq $_ } ( $ConfigFirewallSSO{$firewall_conf}->{'categories'})) {
             my $message = <<"XML";
@@ -43,7 +45,7 @@ sub action {
                     <type>update</type>
                     <payload>
                         <login>
-                            <entry name=\"$node_info->{'pid'}\" ip=\"$ip\" timeout=\"$timeout\"/>
+                            <entry name=\"$username\" ip=\"$ip\" timeout=\"$timeout\"/>
                         </login>
                     </payload>
                </uid-message>
@@ -61,6 +63,8 @@ XML
         }
     } elsif ($method eq 'Stop') {
         my $node_info = node_view($mac);
+        my $username = $node_info->{'pid'};
+        $username = $node_info->{'last_dot1x_username'} if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x');
 
         if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&  grep { lc $node_info->{'category'} eq $_ } ( $ConfigFirewallSSO{$firewall_conf}->{'categories'})) {
             my $message = <<"XML";
@@ -69,7 +73,7 @@ XML
                     <type>update</type>
                     <payload>
                         <logout>
-                            <entry name=\"$node_info->{'pid'}\" ip=\"$ip\"/>
+                            <entry name=\"$username\" ip=\"$ip\"/>
                         </logout>
                     </payload>
                </uid-message>
