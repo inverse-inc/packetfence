@@ -345,7 +345,7 @@ sub parse_dhcp_request {
         );
         update_iplog( $dhcp->{'chaddr'}, $client_ip, $lease_length );
         my $firewallsso = new pf::firewallsso;
-        $firewallsso->do_sso('Start',$dhcp->{'chaddr'}, $client_ip);
+        $firewallsso->do_sso('Start',$dhcp->{'chaddr'}, $client_ip,$lease_length);
     }
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
@@ -514,7 +514,7 @@ sub update_iplog {
     if ( $oldip && $oldip ne $srcip ) {
         my $view_mac = node_view($srcmac);
         my $firewallsso = new pf::firewallsso;
-        $firewallsso->do_sso('Stop',$oldmac,$oldip);
+        $firewallsso->do_sso('Stop',$oldmac,$oldip,undef);
         if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
             $apiclient->notify('ipset_node_update',$oldip, $srcip, $srcmac);
         }

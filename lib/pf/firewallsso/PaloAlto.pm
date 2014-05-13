@@ -30,7 +30,7 @@ use HTTP::Request::Common;
 $ENV{'PERL_LWP_SSL_VERIFY_HOSTNAME'} = 0;
 
 sub action {
-    my ($self,$firewall_conf,$method,$mac,$ip) = @_;
+    my ($self,$firewall_conf,$method,$mac,$ip,$timeout) = @_;
     my $logger = Log::Log4perl::get_logger(ref($self));
 
     if ($method eq 'Start') {
@@ -43,7 +43,7 @@ sub action {
                     <type>update</type>
                     <payload>
                         <login>
-                            <entry name=\"$node_info->{'pid'}\" ip=\"$ip\"/>
+                            <entry name=\"$node_info->{'pid'}\" ip=\"$ip\" timeout=\"$timeout\"/>
                         </login>
                     </payload>
                </uid-message>
@@ -53,6 +53,32 @@ XML
             my $response = $ua->post($webpage, Content => [ cmd => $message ]);
             if ($response->is_success) {
                 $logger->debug("Node registered, allowed to pass Firewall");
+                return 1;
+            } else {
+                $logger->error("XML send error :".$response->status_line);
+                return 0;
+            }
+        }
+    } elsif ($method eq 'Stop') {
+        my $node_info = node_view($mac);
+
+        if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&  grep { lc $node_info->{'category'} eq $_ } ( $ConfigFirewallSSO{$firewall_conf}->{'categories'})) {
+            my $message = <<"XML";
+                <uid-message>
+                    <version>1.0</version>
+                    <type>update</type>
+                    <payload>
+                        <logout>
+                            <entry name=\"$node_info->{'pid'}\" ip=\"$ip\"/>
+                        </logout>
+                    </payload>
+               </uid-message>
+XML
+            my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
+            my $ua = LWP::UserAgent->new;
+            my $response = $ua->post($webpage, Content => [ cmd => $message ]);
+            if ($response->is_success) {
+                $logger->debug("Node removed from the firewall");
                 return 1;
             } else {
                 $logger->error("XML send error :".$response->status_line);

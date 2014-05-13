@@ -36,7 +36,7 @@ TODO = make the IP and secret for Firewall dynamic (adding field in pf.conf and 
 =cut
 
 sub action {
-    my ($self,$firewall_conf,$method,$mac,$ip) = @_;
+    my ($self,$firewall_conf,$method,$mac,$ip,$timeout) = @_;
     my $logger = Log::Log4perl::get_logger(ref($self));
 
     my $node_info = node_view($mac);
@@ -53,7 +53,7 @@ sub action {
             'Acct-Session-Id' =>  $acctsessionid,
             'Acct-Status-Type' => $method,
             'User-Name' => $node_info->{'pid'},
-            'Session-Timeout' => '0',
+            'Session-Timeout' => $timeout,
             'Class' => $node_info->{'category'},
             'Called-Station-Id' => '00:11:22:33:44:55',
             'Framed-IP-Address' => $ip,

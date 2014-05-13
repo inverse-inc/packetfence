@@ -176,7 +176,7 @@ sub firewallsso {
             return 0;
         }
         my $firewall = $module_name->new();
-        $firewall->action($firewall_conf,$info->{'method'},$info->{'mac'},$info->{'ip'});
+        $firewall->action($firewall_conf,$info->{'method'},$info->{'mac'},$info->{'ip'},$info->{'timeout'});
     }
     return $TRUE;
 }

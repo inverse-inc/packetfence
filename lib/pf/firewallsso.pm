@@ -41,7 +41,7 @@ Send the sso stuff to the firewall
 =cut
 
 sub do_sso {
-    my ($self, $method, $mac, $ip) = @_;
+    my ($self, $method, $mac, $ip, $timeout) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     my $client = pf::api::jsonrpcclient->new;
@@ -49,7 +49,8 @@ sub do_sso {
     my %data = (
        'method'           => $method,
        'mac'              => $mac,
-       'ip'               => $ip
+       'ip'               => $ip,
+       'timeout'          => $timeout
     );
 
     $client->notify('firewallsso', \%data );
