@@ -266,7 +266,7 @@ sub checkIfNeedsToRegister : Private {
         $c->log->info("Unregister node $mac");
         $unreg = node_deregister($mac);    # set node status to 'unreg'
     } else {
-        $unreg = node_unregistered($mac);    # check if node status is 'unreg'
+        $unreg = node_is_unregistered($mac);    # check if node status is 'unreg'
     }
     $c->stash(unreg => $unreg,);
     if ($unreg && isenabled($Config{'trapping'}{'registration'})) {
