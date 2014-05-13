@@ -183,9 +183,9 @@ sub getMandatoryFields {
 
 *mandatoryFields = \&getMandatoryFields;
 
-sub getAuthorizer {
+sub getProvisioner {
     my ($self) = @_;
-    return $self->{'_authorizer'};
+    return $self->{'_provisioner'};
 }
 
 =item getSourcesAsObjects

@@ -306,7 +306,27 @@ sub checkIfPending : Private {
     my $mac           = $portalSession->clientMac;
     my $node_info     = node_view($mac);
     my $request       = $c->request;
+    my $logger        = $c->log;
     if ( $node_info && $node_info->{'status'} eq $pf::node::STATUS_PENDING ) {
+        if (defined(my $provisionerName = $profile->getProvisioner)) {
+            my $provisioner = pf::provisioner->new($provisionerName);
+            unless ($provisioner->authorize($mac)) {
+                $c->stash(
+                    template => 'provisioner.html',
+                    external_ip => $Config{'captive_portal'}{'network_detection_ip'},
+                    retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
+                    initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
+                    agent_download_uri => $provisioner->{'agent_download_uri'},
+                );
+                $c->detach();
+            } elsif (!pf::sms_activation::sms_activation_has_entry($mac)) {
+                node_modify($mac,status => $pf::node::STATUS_REGISTERED);
+                unless ( $c->session->{"do_not_deauth"} ) {
+                    reevaluate_access( $mac, 'manage_register' );
+                }
+                $c->detach( Release => 'index' );
+            }
+        }
         if ( pf::activation::activation_has_entry($mac,'sms') ) {
             node_deregister($mac);
             $c->stash(
