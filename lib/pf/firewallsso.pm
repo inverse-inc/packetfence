@@ -52,7 +52,7 @@ sub do_sso {
        'ip'               => $ip
     );
 
-    $client->notify('firewallsso', %data );
+    $client->notify('firewallsso', \%data );
 
 }
 
