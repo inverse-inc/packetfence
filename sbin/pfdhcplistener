@@ -343,7 +343,7 @@ sub parse_dhcp_request {
             "DHCPREQUEST from $dhcp->{'chaddr'} ($client_ip)"
             . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
         );
-        $apiclient->notify('update_iplog',$dhcp->{'chaddr'}, $client_ip, $lease_length );
+        update_iplog( $dhcp->{'chaddr'}, $client_ip, $lease_length );
         my $firewallsso = new pf::firewallsso;
         $firewallsso->do_sso('Start',$dhcp->{'chaddr'}, $client_ip);
     }
@@ -377,7 +377,7 @@ sub parse_dhcp_ack {
             "DHCPACK from $s_ip ($s_mac) to host $dhcp->{'chaddr'} ($dhcp->{yiaddr})"
             . ( defined($lease_length) ? " for $lease_length seconds" : "" )
         );
-        $apiclient->notify('update_iplog', $dhcp->{'chaddr'}, $dhcp->{'yiaddr'}, $lease_length );
+        update_iplog( $dhcp->{'chaddr'}, $dhcp->{'yiaddr'}, $lease_length );
 
     } elsif ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
 
@@ -385,7 +385,7 @@ sub parse_dhcp_ack {
             "DHCPACK CIADDR from $s_ip ($s_mac) to host $dhcp->{'chaddr'} ($dhcp->{ciaddr})"
             . ( defined($lease_length) ? " for $lease_length seconds" : "")
         );
-        $apiclient->notify('update_iplog', $dhcp->{'chaddr'}, $dhcp->{'ciaddr'}, $lease_length );
+        update_iplog( $dhcp->{'chaddr'}, $dhcp->{'ciaddr'}, $lease_length );
 
     } else {
         $logger->warn(
