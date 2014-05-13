@@ -14,7 +14,7 @@ pf::api
 use strict;
 use warnings;
 
-use pf::config();
+use pf::config;
 use pf::iplog();
 use pf::log();
 use pf::radius::custom();
