@@ -51,6 +51,8 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{version}-%{rev}.tar.gz
 %endif
 
+%define git_commit %{git_commit}
+
 # Log related globals
 %global logfiles packetfence.log catalyst.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon
 %global logdir /usr/local/pf/logs
@@ -346,7 +348,8 @@ done
 %endif
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
-
+# Define git_commit_id
+echo git_commit > conf/git_commit_id
 
 find -name '*.example' -print0 | while read -d $'\0' file
 do
@@ -691,6 +694,7 @@ fi
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
+                        /usr/local/pf/conf/git_commit_id
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
