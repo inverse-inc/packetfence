@@ -22,6 +22,8 @@ use pf::violation();
 use pf::soh::custom();
 use pf::util();
 use pf::node;
+use pf::locationlog();
+use pf::ipset();
 
 sub event_add {
   my ($class, $date, $srcip, $type, $id) = @_;
@@ -111,6 +113,72 @@ sub unreg_node_for_pid {
     }
 
 return 1;
+
+sub synchronize_locationlog {
+    my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid ) = @_;
+    my $logger = pf::log::get_logger();
+
+    return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid));
+}
+
+sub insert_close_locationlog {
+    my ($class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid);
+    my $logger = pf::log::get_logger();
+
+    return(pf::locationlog::locationlog_insert_closed($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid));
+}
+
+sub open_iplog {
+    my ( $class, $mac, $ip, $lease_length ) = @_;
+    my $logger = pf::log::get_logger();
+
+    return (pf::iplog::iplog_open($mac, $ip, $lease_length));
+}
+
+sub close_iplog {
+    my ( $class, $ip ) = @_;
+    my $logger = pf::log::get_logger();
+
+    return (pf::iplog::iplog_close($ip));
+}
+
+sub close_now_iplog {
+    my ( $class, $ip ) = @_;
+    my $logger = pf::log::get_logger();
+
+    return (pf::iplog::iplog_close_now($ip));
+}
+
+sub trigger_violation {
+    my ( $class, $mac, $tid, $type ) = @_;
+    my $logger = pf::log::get_logger();
+
+    return (pf::violation::violation_trigger($mac, $tid, $type));
+}
+
+sub ipset_node_update {
+    my ( $class, $oldip, $srcip, $srcmac ) = @_;
+    my $logger = pf::log::get_logger();
+
+    return(pf::ipset::node_update($oldip, $srcip, $srcmac));
+}
+
+sub firewallsso {
+    my ($class, $info) = @_;
+    my $logger = pf::log::get_logger();
+
+    foreach my $firewall_conf ( sort keys %ConfigFirewallSSO ) {
+        my $module_name = 'pf::firewallsso::'.$ConfigFirewallSSO{$firewall_conf}->{'type'};
+        $module_name = untaint_chain($module_name);
+        # load the module to instantiate
+        if ( !(eval "$module_name->require()" ) ) {
+            $logger->error("Can not load perl module: $@");
+            return 0;
+        }
+        my $firewall = $module_name->new();
+        $firewall->action($firewall_conf,$info->{'method'},$info->{'mac'},$info->{'ip'});
+    }
+    return $TRUE;
 }
 
 =head1 AUTHOR
