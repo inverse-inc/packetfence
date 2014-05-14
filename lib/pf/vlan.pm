@@ -297,7 +297,8 @@ sub getRegistrationVlan {
     my $n_status = $node_info->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
         $logger->info("MAC: $mac is of status $n_status; belongs into registration VLAN");
-        return ($switch->getVlanByName('registration'),'registration');
+        my $vlan = $switch->getVlanByName('registration');
+        return ($vlan ,'registration');
     }
     return 0;
 }

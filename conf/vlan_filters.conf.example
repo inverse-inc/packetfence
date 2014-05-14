@@ -2,7 +2,7 @@
 # 
 # you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegistration)
 #
-# Make simple rule like:
+# Make a simple rule like this:
 #
 # [1]
 # filter = node_info
@@ -14,7 +14,7 @@
 # scope = NormalVlan
 # action = nointernet
 #
-# Mean when PacketFence try to get the normal Vlan for the node and if the category of the node is
+# It mean that when PacketFence try to get the normal Vlan for the node and if the category of the node is
 # default then we return the role nointernet (nointernet you configured in the switch config)
 #
 # Advanced rule:
@@ -39,8 +39,8 @@
 # scope = NormalVlan
 # action = nointernet
 #
-# Mean when PacketFence try to get the normal Vlan for the node and if the category of the node is
-# default and come from the ssid OpenWrt-SECURE and the time is beween 11am and 2pm from Monday to Friday
+# It mean when PacketFence try to get the normal Vlan for the node and if the category of the node is
+# default and come from the ssid OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday
 # then we return the role nointernet.
 #
 # filter can be:
