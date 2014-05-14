@@ -71,27 +71,35 @@ sub oauth2_client {
     my $logger = $c->log;
     my $portalSession = $c->portalSession;
     my $type;
+    use Data::Dumper;
+    my $token_scheme = "auth-header:OAuth";
     if (lc($provider) eq 'facebook') {
         $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
     } elsif (lc($provider) eq 'github') {
         $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
     } elsif (lc($provider) eq 'google') {
         $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
+    } elsif (lc($provider) eq 'linkedin'){
+        $type = pf::Authentication::Source::LinkedInSource->meta->get_attribute('type')->default;
+        $token_scheme = "uri-query:oauth2_access_token";
     }
     if ($type) {
         my $source = $portalSession->profile->getSourceByType($type);
         if ($source) {
-            return Net::OAuth2::Profile::WebServer->new(
+            my $oauth = Net::OAuth2::Profile::WebServer->new(
                 client_id => $source->{'client_id'},
                 client_secret => $source->{'client_secret'},
                 site => $source->{'site'},
-                authorize_path => $source->{'authorize_path'},
+                authorize_path => $source->{'authorize_path'}."?state=ahfdnisausadfsad",
                 access_token_path => $source->{'access_token_path'},
                 access_token_method => $source->{'access_token_method'},
                 #access_token_param => $source->{'access_token_param'},
                 scope => $source->{'scope'},
-                redirect_uri => $source->{'redirect_url'} 
+                redirect_uri => $source->{'redirect_url'},
+                token_scheme => $token_scheme, 
           );
+          $logger->info(Dumper($oauth));
+          return $oauth;
         }
         else {
             $logger->error(sprintf("No source of type '%s' defined for profile '%s'", $type, $portalSession->profile->getName));
@@ -116,7 +124,7 @@ sub oauth2Result : Path : Args(1) {
     my $request       = $c->request;
     my %info;
     my $pid;
-
+    use Data::Dumper;
     # Pull username
     $info{'pid'} = "admin";
 
@@ -156,7 +164,11 @@ sub oauth2Result : Path : Args(1) {
     } elsif (lc($provider) eq 'google') {
         $type = pf::Authentication::Source::GoogleSource->meta->get_attribute(
             'type')->default;
+    } elsif (lc($provider) eq 'linkedin') {
+        $type = pf::Authentication::Source::LinkedInSource->meta->get_attribute(
+            'type')->default;
     }
+    
     my $source = $profile->getSourceByType($type);
     if ($source) {
         $response = $token->get($source->{'protected_resource_url'});
@@ -177,10 +189,11 @@ sub oauth2Result : Path : Args(1) {
                 $pid = $json_text->{username} . '@facebook.com';
             }
         } else {
+            $logger->info(Dumper($response));
             $logger->info(
                 "OAuth2: failed to validate the token, redireting to login page"
             );
-            $c->stash->{txt_auth_error} = i18n("OAuth2 Error: Failed to validate the token, please retry");
+            $c->stash->{txt_auth_error} = "OAuth2 Error: Failed to validate the token, please retry";
             $c->detach(Authentication => 'showLogin');
         }
 

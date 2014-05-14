@@ -77,7 +77,7 @@ document.observe("dom:loaded", function() {
             <input type="submit" class="btn disabled" name="submit" value="[% i18n("Login") %]" />
           </div>
 
-          [% IF oauth2_google || oauth2_facebook || oauth2_github %]
+          [% IF oauth2_google || oauth2_facebook || oauth2_github || oauth2_linkedin %]
           <div class="input">
             [% IF oauth2_google -%]
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
@@ -91,6 +91,11 @@ document.observe("dom:loaded", function() {
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
             <a class="btn disabled" href="/oauth2/auth?provider=github">[% i18n('Login with GitHub account') %] <img src="/content/images/github.icon.png"></a>
             [% END %]
+            [% IF oauth2_linkedin -%]
+            <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
+            <a class="btn disabled" href="/oauth2/auth?provider=linkedin">[% i18n('Login with LinkedIn account') %] <img src="/content/images/github.icon.png"></a>
+
+           [% END %]
           </div>
           [% END %]
 

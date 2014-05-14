@@ -71,6 +71,7 @@ Readonly::Scalar our $URL_OAUTH2                => '/oauth2/auth';
 Readonly::Scalar our $URL_OAUTH2_FACEBOOK       => '/oauth2/facebook';
 Readonly::Scalar our $URL_OAUTH2_GITHUB         => '/oauth2/github';
 Readonly::Scalar our $URL_OAUTH2_GOOGLE         => '/oauth2/google';
+Readonly::Scalar our $URL_OAUTH2_LINKEDIN       => '/oauth2/linkedin';
 Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
 Readonly::Scalar our $URL_RELEASE               => '/release';
 Readonly::Scalar our $URL_STATUS                => '/status';
