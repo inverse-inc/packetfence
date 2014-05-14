@@ -129,7 +129,7 @@ sub uri_parser {
 
 =item user_agent_parser
 
-Parse user_agent parameter and compare to the rule. If it matches, perform the action
+Parse user_agent parameter and compare to the rule. If it matches then perform the action.
 
 =cut
 
