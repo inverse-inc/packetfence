@@ -75,7 +75,7 @@ sub dispatch_rule {
     my ($self, $r, $rule, $name) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    if ($rule eq '') {
+    if (!defined($rule)) {
         $logger->error("The rule $name you try to test doesn´t exist");
         return 0;
     }
