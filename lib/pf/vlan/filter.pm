@@ -51,9 +51,9 @@ sub test {
 
     foreach my $rule  ( sort keys %ConfigVlanFilters ) {
         if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq $scope) {
-            if ($rule =~ /^\d+:(.*)$/) {
+            if ($rule =~ /^\w+:(.*)$/) {
                 my $test = $1;
-                $test =~ s/([0-9]+)/$self->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid)/gee;
+                $test =~ s/(\w+)/$self->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$1)/gee;
                 $test =~ s/\|/ \|\| /g;
                 $test =~ s/\&/ \&\& /g;
                 if (eval $test) {
@@ -69,12 +69,17 @@ sub test {
 
 =item dispatch_rules
 
-Return the reference to the function that parse the rule.
+Return the reference to the function that parses the rule.
 
 =cut
 
 sub dispatch_rule {
-    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $name) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    if ($rule eq '') {
+        $logger->error("The rule $name you try to test doesn´t exist");
+    }
 
     my $key = {
         node_info => \&node_info_parser,
@@ -91,7 +96,7 @@ sub dispatch_rule {
 
 =item dispatch_action
 
-Return the reference to the function that do the action.
+Return the reference to the function that performs the action.
 
 =cut
 
@@ -107,7 +112,7 @@ sub action {
 
 =item node_info_parser
 
-Parse the node_info attribute and compare to the rule. If it match then take the action
+Parse the node_info attribute and compare to the rule. If it matches then perform the action.
 
 =cut
 
@@ -131,7 +136,7 @@ sub node_info_parser {
 
 =item switch_parser
 
-Parse the switch attribute and compare to the rule. If it match then take the action
+Parse the switch attribute and compare to the rule. If it matches then perform the action.
 
 =cut
 
@@ -155,7 +160,7 @@ sub switch_parser {
 
 =item ifindex_parser
 
-Parse the ifindex value and compare to the rule. If it match then take the action
+Parse the ifindex value and compare to the rule. If it matches then perform the action.
 
 =cut
 
@@ -179,7 +184,7 @@ sub ifindex_parser {
 
 =item mac_parser
 
-Parse the mac value and compare to the rule. If it match then take the action
+Parse the mac value and compare to the rule. If it matches then perform the action.
 
 =cut
 
@@ -203,7 +208,7 @@ sub mac_parser {
 
 =item connection_type_parser
 
-Parse the connection_type value and compare to the rule. If it match then take the action
+Parse the connection_type value and compare to the rule. If it matches then perform the action.
 
 =cut
 
@@ -227,7 +232,7 @@ sub connection_type_parser {
 
 =item username_parser
 
-Parse the ursername value and compare to the rule. If it match then take the action
+Parse the ursername value and compare to the rule. If it matches then perform the action.
 
 =cut
 
@@ -251,7 +256,7 @@ sub username_parser {
 
 =item ssid_parser
 
-Parse the ssid valus and compare to the rule. If it match then take the action
+Parse the ssid valus and compare to the rule. If it matches then perform the action.
 
 =cut
 
@@ -330,10 +335,6 @@ Minor parts of this file may have been contributed. See CREDITS.
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2014 Inverse inc.
-
-Copyright (C) 2005 Kevin Amorin
-
-Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 
