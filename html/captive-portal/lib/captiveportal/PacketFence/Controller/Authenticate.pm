@@ -298,6 +298,9 @@ sub showLogin : Private {
     my ( $self, $c ) = @_;
     my $profile    = $c->profile;
     my $guestModes = $profile->getGuestModes;
+    use Data::Dumper;
+    my $logger = $c->log;
+    $logger->info("ARE YOU THERE ? ".is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ));
     my $guest_allowed =
       any { is_in_list( $_, $guestModes ) } $SELFREG_MODE_EMAIL,
       $SELFREG_MODE_SMS, $SELFREG_MODE_SPONSOR;
@@ -314,6 +317,7 @@ sub showLogin : Private {
         oauth2_google   => is_in_list( $SELFREG_MODE_GOOGLE, $guestModes ),
         no_username     => _no_username($profile),
         oauth2_facebook => is_in_list( $SELFREG_MODE_FACEBOOK, $guestModes ),
+        oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
         guest_allowed   => $guest_allowed,
     );
 }
