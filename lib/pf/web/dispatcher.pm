@@ -20,10 +20,11 @@ use Apache2::Util ();
 
 use APR::Table;
 use APR::URI;
-use Log::Log4perl;
 use Template;
 use URI::Escape::XS qw(uri_escape);
-
+BEGIN {
+    use pf::log service => 'httpd.portal';
+}
 use pf::config;
 use pf::util;
 use pf::web::constants;
