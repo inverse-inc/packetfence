@@ -126,10 +126,8 @@ requires: perl(Crypt::OpenSSL::X509)
 requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
-# Required for inline mode. Specific version matches system's iptables version.
-# CentOS 5 (iptables 1.3.5)
-%{?el5:Requires: perl(IPTables::libiptc) = 0.14 }
-%{?el6:Requires: perl(IPTables::libiptc), ipset, sudo }
+# Required for inline mode.
+Requires: ipset, sudo
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
 # TODO: we should depend on perl modules not perl-libwww-perl package
