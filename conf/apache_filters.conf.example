@@ -1,14 +1,10 @@
-# Refuse undefined useragent
+# Refuse empty user agent
 # Define the test
 [1]
 filter = user_agent
 method = GET
 operator = is
 regexp = ^$
-# Define the logic and the action
-[1:1]
-action = 501
-redirect_url =
 
 # Refuse empty user agent
 [2]
@@ -17,7 +13,7 @@ method = POST
 operator = is
 regexp = ^$
 
-[2:2]
+[1:1|2]
 action = 501
 redirect_url =
 
@@ -49,7 +45,7 @@ regexp = /generate_204
 action = 501
 redirect_url =
 
-## Only accept a list of useragent
+## Only accept a list of user agents
 #[6]
 #filter = user_agent
 #method = POST

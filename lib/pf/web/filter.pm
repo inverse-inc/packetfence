@@ -51,9 +51,9 @@ sub test {
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     foreach my $rule  ( sort keys %ConfigApacheFilters ) {
-        if ($rule =~ /^\d+:(.*)$/) {
+        if ($rule =~ /^\w+:(.*)$/) {
             my $test = $1;
-            $test =~ s/([0-9]+)/$self->dispatch_rule($r,$ConfigApacheFilters{$1})/gee;
+            $test =~ s/(\w+)/$self->dispatch_rule($r,$ConfigApacheFilters{$1},$1)/gee;
             $test =~ s/\|/ \|\| /g;
             $test =~ s/\&/ \&\& /g;
             if (eval $test) {
@@ -67,13 +67,18 @@ sub test {
 
 =item dispatch_rules
 
-Return the reference to the function that parse the rule.
+Return the reference to the function that parses the rule.
 
 =cut
 
 sub dispatch_rule {
-    my ($self, $r, $rule) = @_;
+    my ($self, $r, $rule, $name) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
 
+    if ($rule eq '') {
+        $logger->error("The rule $name you try to test doesn´t exist");
+        return 0;
+    }
     my $key = {
         uri => \&uri_parser,
         user_agent  => \&user_agent_parser,
@@ -83,7 +88,7 @@ sub dispatch_rule {
 
 =item dispatch_action
 
-Return the reference to the function that do the action.
+Return the reference to the function that performs the action.
 
 =cut
 
@@ -99,7 +104,7 @@ sub dispatch_action {
 
 =item uri_parser
 
-Parse the uri parameter and compare to the rule. If it match then take the action
+Parse the uri parameter and compare to the rule. If it matches then perform the action.
 
 =cut
 
@@ -108,15 +113,15 @@ sub uri_parser {
 
     my $action;
     if ($rule->{'operator'} eq 'is') {
-        if ((($r->uri =~ /$rule->{'regexp'}/) || ($r->args =~  /$rule->{'regexp'}/)) && ($r->method eq $rule->{'method'})) {
+        if (($r->unparsed_uri =~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
             return 1;
-        } elsif (!$rule->{'action'}) {
+        } else  {
             return 0;
         }
     } else {
-        if ((($r->uri !~ /$rule->{'regexp'}/) && ($r->args !~  /$rule->{'regexp'}/)) && ($r->method eq $rule->{'method'})) {
+        if (($r->unparsed_uri !~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
            return 1;
-        } elsif (!$rule->{'action'}) {
+        } else {
             return 0;
         }
     }
@@ -124,7 +129,7 @@ sub uri_parser {
 
 =item user_agent_parser
 
-Parse user_agent parameter and compare to the rule. If it match take the action
+Parse user_agent parameter and compare to the rule. If it matches, perform the action
 
 =cut
 
@@ -138,16 +143,16 @@ sub user_agent_parser {
     } else {
         $user_agent = '';
     }
-    if ($rule->{'operator'}eq 'is') {
+    if ($rule->{'operator'} eq 'is') {
         if (($user_agent =~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
             return 1;
-        } elsif (!$rule->{'action'}) {
+        } else {
             return 0;
         }
     } else {
         if (($user_agent !~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
            return 1;
-        } elsif (!$rule->{'action'}) {
+        } else {
             return 0;
         }
     }
@@ -173,7 +178,7 @@ sub redirect {
 
 =item code
 
-Return the apache code
+Return HTTP code
 
 =cut
 
@@ -219,10 +224,6 @@ Minor parts of this file may have been contributed. See CREDITS.
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2014 Inverse inc.
-
-Copyright (C) 2005 Kevin Amorin
-
-Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 
