@@ -969,6 +969,9 @@ sub portal_profiles {
     my $profile_params = qr/(?:locale|filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources|redirecturl|always_use_redirecturl|mandatory_fields)/;
 
     foreach my $portal_profile ( $cached_profiles_config->Sections) {
+        if ($portal_profile ne 'default' && !-d "$install_dir/html/captive-portal/profile-templates/$portal_profile") {
+            add_problem( $WARN, "template directory '$install_dir/html/captive-portal/profile-templates/$portal_profile' for profile $portal_profile does not exist using default templates" )
+        }
 
         add_problem ( $FATAL, "missing filter parameter for profile $portal_profile" )
             if ( $portal_profile ne 'default' &&  !defined($Profiles_Config{$portal_profile}{'filter'}) );
