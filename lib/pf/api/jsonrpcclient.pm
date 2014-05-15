@@ -97,10 +97,10 @@ sub call {
         if($response_code == 200) {
             $response = decode_json($response_body);
         } else {
-            die "An error occured while processing the MessagePack request return code ($response_code)";
+            die "An error occured while processing the JSONRPC request return code ($response_code)";
         }
     } else {
-        my $msg = "An error occured while sending a MessagePack request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
+        my $msg = "An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
         die $msg;
     }
 
@@ -131,10 +131,10 @@ sub notify {
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         if($response_code != 204) {
-            die "An error occured while processing the MessagePack request return code ($response_code)";
+            die "An error occured while processing the JSONRPC request return code ($response_code)";
         }
     } else {
-        my $msg = "An error occured while sending a MessagePack request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
+        my $msg = "An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
         die $msg;
     }
     return;
