@@ -26,7 +26,7 @@ use Sereal::Encoder qw(sereal_encode_with_object);
 use Sereal::Decoder qw(sereal_decode_with_object sereal_decode_with_header_with_object);
 use Moo;
 extends 'pf::client';
-our $ENCODER =  Sereal::Encoder->new( {snappy => 1 });
+our $ENCODER =  Sereal::Encoder->new();
 our $DECODER =  Sereal::Decoder->new();
 
 
