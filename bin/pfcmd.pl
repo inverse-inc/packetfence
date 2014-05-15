@@ -2500,6 +2500,7 @@ sub configreload {
     require pf::ConfigStore::Switch;
     require pf::ConfigStore::Violations;
     require pf::ConfigStore::Wrix;
+    require pf::web::filter;
     pf::config::cached::updateCacheControl();
     pf::config::cached::ReloadConfigs($force);
     return 0;

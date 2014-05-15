@@ -28,6 +28,7 @@ BEGIN {
 use pf::config;
 use pf::util;
 use pf::web::constants;
+use pf::web::filter;
 use pf::web::util;
 use pf::proxypassthrough::constants;
 use pf::Portal::Session;
@@ -64,6 +65,11 @@ sub handler {
         $parsed_request->path($r->uri);
         return proxy_redirect($r, $parsed_request->unparse);
     }
+
+    #Apache Filtering
+    my $filter = new pf::web::filter;
+    my $result = $filter->test($r);
+    return $result if $result;
 
     # be careful w/ performance here
     # Warning: we might want to revisit the /o (compile Once) if we ever want

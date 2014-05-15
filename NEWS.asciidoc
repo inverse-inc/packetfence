@@ -49,6 +49,7 @@ New Features
 * Integration of mod_qos in the Apache configuration of the captive portal
 * New pfcmd "cache" command
 * New pfcmd "configreload" command
+* Filters for HTTP requests on the portal
 
 Enhancements
 ++++++++++++
