@@ -584,8 +584,11 @@ sub _handleAccessFloatingDevices{
     my ($this, $switch, $mac, $port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     if( exists( $ConfigFloatingDevices{$mac} ) ){
+        # close additionnal entries that could have been opened (a device talked before the floating)
+        locationlog_update_end_switchport_no_VoIP($switch->{_ip}, $port); 
+        
         my $floatingDeviceManager = new pf::floatingdevice::custom();
-        $floatingDeviceManager->disableMABMacLimit($switch, $port);
+        $floatingDeviceManager->enableMABFloating($switch, $port);
     } 
 }
 
@@ -601,20 +604,19 @@ sub _handleAccountingFloatingDevices{
     $logger->debug("Verifying if $mac has to be handled as a floating");
     if (exists( $ConfigFloatingDevices{$mac} ) ){
         my $floatingDeviceManager = new pf::floatingdevice::custom();
-        if($port eq "0"){
-            $logger->info("Invalid port during accounting stop. Using locationlog to find the floating device");
-            my $floating_location = locationlog_view_open_mac($mac);
-            $port = $floating_location->{port};
-            if(!defined($port)){
-                $logger->info("Cannot find locationlog entry for floating device $mac. Assuming floating device mode is off.");
-                return;
-            }
+
+        my $floating_location = locationlog_view_open_mac($mac);
+        $port = $floating_location->{port};
+        if(!defined($port)){
+            $logger->info("Cannot find locationlog entry for floating device $mac. Assuming floating device mode is off.");
+            return;
         }
+
         $logger->info("Floating device $mac has just been detected as unplugged. Disabling floating device mode on $switch->{_ip} port $port");
         # close location log entry to remove the port from the floating mode. 
-        locationlog_update_end_mac($mac);    
+        locationlog_update_end_mac($mac);
         # disable floating device mode on the port
-        $floatingDeviceManager->enableMABMacLimit($switch, $port); 
+        $floatingDeviceManager->disableMABFloating($switch, $port); 
     }
 }
 

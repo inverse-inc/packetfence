@@ -202,7 +202,12 @@ sub disablePortConfig {
     return 1;
 }
 
-sub enableMABMacLimit {
+=item disableMABFloating
+
+Removes the MAB floating device mode on the switchport
+
+=cut
+sub disableMABFloating {
     my ( $this, $switch, $ifIndex ) = @_;
     if($switch->supportsMABFloatingDevices){
         if($switch->disableMABFloatingDevice($ifIndex)){
@@ -214,7 +219,12 @@ sub enableMABMacLimit {
     }
 }
 
-sub disableMABMacLimit{
+=item enableMABFloating
+
+Puts the switchport in MAB floating device mode
+
+=cut
+sub enableMABFloating{
     my ( $this, $switch, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
     if($switch->supportsMABFloatingDevices){
@@ -227,6 +237,11 @@ sub disableMABMacLimit{
     }
 }
 
+=item portHasFloatingDevice
+
+Verifies if there is a floating device plugged into the switchport in the locationlog
+
+=cut
 sub portHasFloatingDevice {
     my ($this, $switch, $switch_port) = @_;
     my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
