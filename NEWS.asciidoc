@@ -11,17 +11,26 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version 4.x.y released on YYYY-MM-DD
+Version 4.2.1 released on 2014-05-15
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-New Features
-++++++++++++
 
 Enhancements
 ++++++++++++
 
+* No longer need to repopulate password when updating LDAP Auth Sources
+* Added check for profile directory existance
+* Added the ability to login from the status page
+
 Bug Fixes
-+++++++++
+++++++++++++
+
+* Added missing node manager url from dispatcher
+* Url redirection for external sites
+* Fixed wrong template for device registrations
+* fixed syntax error in sql upgrade script
+* deauthenticateMac not respecting inheritance
+* Remove a breaking dependency
+* STDERR & STDOUT from external command now redirected to /dev/null
 
 Version 4.2.0 released on 2014-05-06
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
