@@ -38,10 +38,12 @@ use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
 use Try::Tiny;
+use pf::util;
 
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsRadiusVoip { return $TRUE; }
 # special features
+sub supportsMABFloatingDevices { return $TRUE }
 sub supportsLldp { return $TRUE; }
 sub isVoIPEnabled {return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
@@ -279,6 +281,118 @@ sub wiredeauthTechniques {
     else{
         $logger->error("This authentication mode is not supported");
     }
+
+}
+
+sub enableMABFloatingDevice{
+    my ($this, $ifIndex) = @_; 
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    
+    my $session;
+    eval {
+        $session = Net::Appliance::Session->new(
+            Host      => $this->{_ip},
+            Timeout   => 20,
+            Transport => $this->{_cliTransport},        
+            Platform  => "JUNOS",    
+        );
+        
+        $session->connect(
+            Name     => $this->{_cliUser},
+            Password => $this->{_cliPwd}
+        );  
+    };  
+    
+    if ($@) {
+        $logger->error("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $@");
+        return;
+    }   
+
+    my $port = $this->getIfName($ifIndex);
+
+    my $command;
+
+    $command = "set ethernet-switching-options secure-access-port interface $port mac-limit 26000";
+
+    my @output;
+    eval {
+        # fake priviledged mode
+        $session->in_privileged_mode(1);
+        $session->begin_configure();
+
+        $logger->trace("sending CLI command '$command'");
+        @output = $session->cmd(String => $command, Timeout => '5');
+        @output = $session->cmd(String => 'commit comment "changed mac-limit"', Timeout => '30');
+
+        $session->in_privileged_mode(0);
+    };
+
+    if ($@) {
+        $logger->error("Unable to set mac limit for port $port: $@");
+        $session->close();
+        return;
+    }
+    $session->close();
+    return 1;
+
+}
+
+sub disableMABFloatingDevice{
+    my ($this, $ifIndex) = @_; 
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    
+    my $session;
+    eval {
+        $session = Net::Appliance::Session->new(
+            Host      => $this->{_ip},
+            Timeout   => 20,
+            Transport => $this->{_cliTransport},        
+            Platform  => "JUNOS",    
+        );
+        
+        $session->connect(
+            Name     => $this->{_cliUser},
+            Password => $this->{_cliPwd}
+        );  
+    };  
+    
+    if ($@) {
+        $logger->error("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $@");
+        return;
+    }   
+
+    my $port = $this->getIfName($ifIndex);
+
+    my $command;
+
+    $command = "delete ethernet-switching-options secure-access-port interface $port mac-limit";
+
+    my @output;
+    eval {
+        # fake priviledged mode
+        $session->in_privileged_mode(1);
+        $session->begin_configure();
+
+        $logger->trace("sending CLI command '$command'");
+        @output = $session->cmd(String => $command, Timeout => '5');
+        @output = $session->cmd(String => 'commit comment "changed mac-limit"', Timeout => '30');
+
+        $session->in_privileged_mode(0);
+    };
+
+    if ($@) {
+        $logger->error("Unable to set mac limit for port $port: $@");
+        $session->close();
+        return;
+    }
+    $session->close();
+
+    
+    # now bump the port to invalidate all the other authorized devices
+    pf_run("/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch $this->{_ip} -ifIndex $ifIndex -ifAdminStatus 0");
+    pf_run("/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch $this->{_ip} -ifIndex $ifIndex -ifAdminStatus 1");
+
+    return 1;
 
 }
 

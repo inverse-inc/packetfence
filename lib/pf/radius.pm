@@ -32,6 +32,7 @@ use pf::util;
 use pf::trigger;
 use pf::violation;
 use pf::vlan::custom $VLAN_API_LEVEL;
+use pf::floatingdevice::custom;
 # constants used by this module are provided by
 use pf::radius::constants;
 use List::Util qw(first);
@@ -174,6 +175,9 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Switch is not in production, so we allow this request") ];
     }
 
+    # Check if a floating just plugged in
+    $this->_handleAccessFloatingDevices($switch, $mac, $port);
+
     # Fetch VLAN depending on node status
     my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request);
 
@@ -242,6 +246,25 @@ sub accounting {
     my $isUpdate = $radius_request->{'Acct-Status-Type'} eq 'Interim-Update';
 
     if ($isStop || $isUpdate) {
+        my($switch_mac, $switch_ip,$source_ip) = $this->_parseRequest($radius_request);
+
+        $logger->debug("instantiating switch");
+        my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
+
+        # is switch object correct?
+        if (!$switch) {
+            $logger->warn(
+               "Can't instantiate switch $switch_ip. This request will be failed. "
+                ."Are you sure your switches.conf is correct?"
+            );
+            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+        }
+
+        if($isStop){
+            #handle radius floating devices
+            $this->_handleAccountingFloatingDevices($switch, $mac, $port);
+        }
+
         # On accounting stop/update, check the usage duration of the node
         my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
         if ($mac && $user_name) {
@@ -549,6 +572,50 @@ sub _handleStaticPortSecurityMovement {
         $logger->info("MAC not found on node's previous switch secure table or switch inaccessible.");
     }
     locationlog_update_end_mac($mac);
+}
+
+=item * _handleFloatingDevices 
+
+Takes care of handling the flow for the RADIUS floating devices when receiving an Accept-Request
+
+=cut
+
+sub _handleAccessFloatingDevices{
+    my ($this, $switch, $mac, $port) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    if( exists( $ConfigFloatingDevices{$mac} ) ){
+        my $floatingDeviceManager = new pf::floatingdevice::custom();
+        $floatingDeviceManager->disableMABMacLimit($switch, $port);
+    } 
+}
+
+=item * _handleAccountingFloatingDevices
+
+Takes care of handling the flow for the RADIUS floating devices when receiving an accounting stop
+
+=cut
+
+sub _handleAccountingFloatingDevices{
+    my ($this, $switch, $mac, $port) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    $logger->debug("Verifying if $mac has to be handled as a floating");
+    if (exists( $ConfigFloatingDevices{$mac} ) ){
+        my $floatingDeviceManager = new pf::floatingdevice::custom();
+        if($port eq "0"){
+            $logger->info("Invalid port during accounting stop. Using locationlog to find the floating device");
+            my $floating_location = locationlog_view_open_mac($mac);
+            $port = $floating_location->{port};
+            if(!defined($port)){
+                $logger->info("Cannot find locationlog entry for floating device $mac. Assuming floating device mode is off.");
+                return;
+            }
+        }
+        $logger->info("Floating device $mac has just been detected as unplugged. Disabling floating device mode on $switch->{_ip} port $port");
+        # close location log entry to remove the port from the floating mode. 
+        locationlog_update_end_mac($mac);    
+        # disable floating device mode on the port
+        $floatingDeviceManager->enableMABMacLimit($switch, $port); 
+    }
 }
 
 =back

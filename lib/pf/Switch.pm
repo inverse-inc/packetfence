@@ -234,6 +234,12 @@ sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return; }
 
+sub supportsMABFloatingDevices{
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    return $FALSE;
+}
+
 sub new {
     my ( $class, %argv ) = @_;
     my $this = bless {
@@ -1426,6 +1432,18 @@ sub isDynamicPortSecurityEnabled {
 sub isStaticPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
     return ( 0 == 1 );
+}
+
+sub enableMABFloatingDevice{
+    my ($this, $ifIndex) = @_; 
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->warn("Cannot enable floating device on $this->{ip} on $ifIndex because this function is not implemented");
+}
+
+sub disableMABFloatingDevice{
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->warn("Cannot disable floating device on $this->{ip} on $ifIndex because this function is not implemented");
 }
 
 =item getPhonesDPAtIfIndex

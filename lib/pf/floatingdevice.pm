@@ -202,6 +202,48 @@ sub disablePortConfig {
     return 1;
 }
 
+sub enableMABMacLimit {
+    my ( $this, $switch, $ifIndex ) = @_;
+    if($switch->supportsMABFloatingDevices){
+        if($switch->disableMABFloatingDevice($ifIndex)){
+            return 1;
+        }
+        else{
+            return 0;
+        }
+    }
+}
+
+sub disableMABMacLimit{
+    my ( $this, $switch, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
+    if($switch->supportsMABFloatingDevices){
+        if($switch->enableMABFloatingDevice($ifIndex)){
+            return 1;
+        }
+        else{
+            return 0;
+        }
+    }
+}
+
+sub portHasFloatingDevice {
+    my ($this, $switch, $switch_port) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
+
+    $logger->debug("Determining if there is a floating device on $switch port $switch_port");
+    my @locationlog_switchport = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch, $switch_port);
+    if (@locationlog_switchport && scalar(@locationlog_switchport) > 0){ 
+        my $mac = $locationlog_switchport[0]->{'mac'}; 
+        if( exists($ConfigFloatingDevices{$mac}) ){
+            $logger->info("There is a floating device on $switch port $switch_port");
+            return $mac;
+        }
+    }
+    return 0;
+
+}
+
 =back
 
 =head1 AUTHOR
