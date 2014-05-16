@@ -2619,6 +2619,125 @@ At the bottom, select in the list "Run a new instance in parallel"
 
 Validate with Ok and give the account who will run this task. (Usually DOMAIN\Administrator)
 
+Firewall SSO
+------------
+
+Fortigate:
+++++++++++
+
+Go to your Fortigate administration webpage.
+
+Agent RSSO configuration:
++++++++++++++++++++++++++
+
+Go to *User & Device* > *User* > *User Groups* > *Create New*
+
+----
+Name: RSSO_group
+Type: RADIUS Single Sign-On (RSSO)
+RADIUS Attribute Value: Guest (Put the rolename of PacketFence, it's case sensitive)
+----
+
+You can also see that in the webpage at *User & Device* > *Monitor* > *Firewall* 
+
+Activate the Accounting Listenning:
++++++++++++++++++++++++++++++++++++
+
+Go to *System* > *Network* > *Interfaces*
+
+Select the interface that will communicate with PacketFence and check : Listen for RADIUS Accounting Messages than validate by OK.
+
+SSO Configuration in PacketFence:
++++++++++++++++++++++++++++++++++
+
+Go to *Configuration* > *Firewall SSO* > *Add Firewall SSO*
+
+----
+Hostname or IP Address : @IP of your firewall
+Firewall type : Fortigate (Fortigate = Accounting request; PaloAlto = XML request)
+Secret or Key : secret ( radius shared secret)
+Port: 1813
+Roles: add the roles that you want to do SSO
+----
+
+Verification:
++++++++++++++
+
+If you want to see if it's working, you can log into the firewall over SSH and run these following commands:
+
+----
+di debug enable
+di debug application radiusd -1
+----
+
+PaloAlto:
++++++++++
+
+Generate the XMLAPI Key :
++++++++++++++++++++++++++
+
+You have to log in the webpage of your PaloAlto Firewall.
+
+- Create a SSO_Role role:
++++++++++++++++++++++++++
+
+Go to *Device* > *Admin Roles* > *Add*
+
+Create the role name SSO_Role, under the 'XML API' tab enable everything and validate it with OK.
+
+- Create the account in PAN-OS:
++++++++++++++++++++++++++++++++
+
+Go to *Device* > *Administrator* > *Add*
+
+----
+Name: xmluser
+Authentication Profile: None
+Password: xmluser
+Role: Role Based
+Profile: SSO_Role (Previously created)
+Password Profile: None
+----
+
+Get the XML Key:
+++++++++++++++++
+
+Go on your broswer : https://@IP-of-PaloAlto/api/?type=keygen&user=xmluser&password=xmluser
+(Put user=Username&password=Yourpassword)
+
+it should display :
+
+----
+<response status="success">
+<result>
+<key>
+LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVljL000eDVnWHg2VTdwNUJHMlFGcHFCVWpGeW55VjVvZTF0WE51dz0=
+</key>
+</result>
+</response>
+----
+
+SSO Configuration PF:
++++++++++++++++++++++
+
+Go to Configuration > Firewall SSO > Add Firewall SSO
+
+----
+Hostname or IP Address : @IP of your firewall
+Firewall type : PalotAlto (Fortigate = Accounting request; PaloAlto = XML request)
+Secret or Key : LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVljL000eDVnWHg2VTdwNUJHMlFGcHFCVWpGeW55VjVvZTF0WE51dz0= (Put the key previoulsy generated)
+Port: 443
+Roles: add the roles that you want to do SSO
+----
+
+Verification:
++++++++++++++
+
+Log into the ssh console on the PaloAlto and run this command :
+
+----
+show user ip-user-mapping all
+----
 
 Operating System Best Practices
 -------------------------------
