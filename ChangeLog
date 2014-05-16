@@ -1,3 +1,224 @@
+commit ef717e65a52bbbc181a9e93e2143dd9d273a8dc6
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu May 15 23:08:01 2014 -0400
+
+    Update NEWS file
+
+M	NEWS.asciidoc
+
+commit d78bbf2ed22c50cd1f60119ddfcd257794d7ced9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 15 15:49:56 2014 -0400
+
+    Updated NEWS file
+
+M	NEWS.asciidoc
+
+commit 742a7284315ea24a8053378c26d3353adcaef26d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 15 15:32:54 2014 -0400
+
+    Added check for profile directory existance
+
+M	lib/pf/pfcmd/checkup.pm
+
+commit ea29ca42b0f69742affdc3d5cab24b7be4fe476d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 15 15:30:53 2014 -0400
+
+    You need to be registered in order to manage your devices
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
+M	html/captive-portal/templates/status.html
+
+commit 214e1e8c41779572ce4d01554c9d4b22233ea38c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 14 10:45:37 2014 -0400
+
+    Fixed renamed is_allowed_mac to is_allowed to match call in controller
+
+M	lib/pf/web/device_registration.pm
+
+commit 630d23c5fc4bd12e0df869cf311c30d84f1c73ca
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue May 13 15:14:29 2014 -0400
+
+    Added additional logging
+
+M	lib/pf/config/cached.pm
+
+commit fe075100580e28bdd34f0da1fe2701fa729c6fc0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 12 18:57:42 2014 -0400
+
+    Added /node/manager as a dispatched url
+
+M	lib/pf/web/constants.pm
+
+commit b818c469c0270193db8e444696346aed13a74f86
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 12 18:49:28 2014 -0400
+
+    Only show nodes for non 'admin' users
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
+
+commit ef14c56d201c519f62135c7d2f832bcdf1d9921c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 12 18:45:44 2014 -0400
+
+    Moved log entry
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Node/Manager.pm
+
+commit 33264d23f46c1013265398134b5dabd494e36b41
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 12 18:43:49 2014 -0400
+
+    Fix call to wrong function
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Node/Manager.pm
+
+commit 853eb6214183f096819230ec8f157720f3998967
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 12 18:43:06 2014 -0400
+
+    Fixed invalid call to node_deregister
+
+M	html/pfappserver/lib/pfappserver/Model/Node.pm
+
+commit a56c4f59ae74ae84a8e78d7d04b8df51f3a50405
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 12 13:37:16 2014 -0400
+
+    Added missing default values for snort and suricata
+
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+
+commit 976f3401a342b46496beca8da97d1dfc3428e43d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 9 18:50:43 2014 -0400
+
+    Disabled password hiding
+
+M	html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+M	html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+
+commit c1fc734025cd4a7a9825f3fb49415f08924837a4
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri May 9 16:34:54 2014 -0400
+
+    Fixed redirection URL in captive portal
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Root.pm
+
+commit 3eb11230af52398199e0a9e860426c5f4d9359f4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 9 13:31:03 2014 -0400
+
+    Redirect STDERR and STDOUT to /dev/null then trap all calls to STDERR & STDOUT to the log
+
+M	lib/pf/services/util.pm
+
+commit df404e312ae1c5c7cd9174a7c539f2aec73cad89
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 9 13:29:14 2014 -0400
+
+    Removed unused options
+
+M	html/captive-portal/lib/captiveportal.pm
+M	html/pfappserver/lib/pfappserver.pm
+M	lib/pf/web/captiveportal_modperl_require.pl
+
+commit 2d21a64d36deea0e132daf799ae668d88f965b7a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 9 13:25:25 2014 -0400
+
+    Remove automatically trapping the STDERR or STDOUT to the log
+
+M	lib/pf/log.pm
+
+commit 853ba798e0e72a546d97fbe0340cb42359bec25e
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed May 7 16:02:33 2014 -0400
+
+    Correct registration to Registration in admin config menu
+
+M	html/pfappserver/root/admin/configuration.tt
+
+commit 1210c405954d74c6b76dcf2b7ef762e4e74bec3c
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri May 9 13:13:51 2014 -0400
+
+    Fixed device registration login and landing templates
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
+
+commit c0c96f62e4b4afceb3d64b68f77ed6d47572adac
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri May 9 07:02:57 2014 -0400
+
+    Update pf-release to 4.2.1
+
+M	conf/pf-release
+
+commit f6d80e29d73f6f02d4a866a5873a39e09afab913
+Author: Loick Pelet <lpelet@inverse.ca>
+Date:   Thu May 8 14:51:20 2014 -0400
+
+    improved syntax
+
+M	UPGRADE.asciidoc
+
+commit 9a6525bab71d843f0b2bf0c20bdb0ba9078b6570
+Author: Loick Pelet <lpelet@inverse.ca>
+Date:   Thu May 8 14:22:07 2014 -0400
+
+    added device paramaters for registration
+
+M	UPGRADE.asciidoc
+
+commit 4695a0b37d6ce49e5594f4edc4739eebfef33497
+Author: Loick Pelet <lpelet@inverse.ca>
+Date:   Thu May 8 11:44:55 2014 -0400
+
+    fixed comments sql upgrade script
+
+M	db/upgrade-4.1.0-4.2.0.sql
+
+commit e10dfba5d840460df5858eb0ece4ee4cfc66e9f8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 8 11:18:02 2014 -0400
+
+    Fixed incorrect call to a function
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Model/Portal/Session.pm
+
+commit 644f96bce35c68ce54b94b3784f845c9fd13471c
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed May 7 13:59:08 2014 -0400
+
+    Remove a breaking dependency
+
+M	debian/control
+
+commit 35f4ca3bd951a9ddc15b91514c1ac83b4e5fbc5f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 7 10:13:03 2014 -0400
+
+    Fixed deauthenticateMac not respecting inheritance
+
+M	lib/pf/Switch.pm
+
+commit be68c2900d5f3c7143b22c542cb1129ca29df201
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue May 6 15:07:47 2014 -0400
+
+    Update ChangeLog
+
+M	ChangeLog
+
 commit fa31a6528111d4b3c1cdaca502253a4b36335745
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Tue May 6 15:06:30 2014 -0400
@@ -7140,6 +7361,14 @@ Date:   Wed Feb 5 15:37:03 2014 -0500
     Added new method for Nortel/Avaya switch
 
 M	lib/pf/SNMP/Nortel.pm
+
+commit 3dd502d1c3ffe88f25c3a312c16cb184662b630c
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Feb 5 14:53:12 2014 -0500
+
+    Typo in UPGRADE document
+
+M	UPGRADE.asciidoc
 
 commit 2610b6d3bcac59f16777475477d1a8c9b1207034
 Author: Francis Lachapelle <flachapelle@inverse.ca>
