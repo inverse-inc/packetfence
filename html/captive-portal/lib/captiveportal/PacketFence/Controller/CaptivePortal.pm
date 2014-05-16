@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::CaptivePortal;
 use Moose;
 use namespace::autoclean;
 use pf::web::constants;
-use URI::Escape qw(uri_escape uri_unescape);
+use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use pf::enforcement qw(reevaluate_access);
 use pf::config;
@@ -266,7 +266,7 @@ sub checkIfNeedsToRegister : Private {
         $c->log->info("Unregister node $mac");
         $unreg = node_deregister($mac);    # set node status to 'unreg'
     } else {
-        $unreg = node_unregistered($mac);    # check if node status is 'unreg'
+        $unreg = node_is_unregistered($mac);    # check if node status is 'unreg'
     }
     $c->stash(unreg => $unreg,);
     if ($unreg && isenabled($Config{'trapping'}{'registration'})) {

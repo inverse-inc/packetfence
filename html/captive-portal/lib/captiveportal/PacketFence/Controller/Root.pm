@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::Root;
 use Moose;
 use namespace::autoclean;
 use pf::web::constants;
-use URI::Escape qw(uri_escape uri_unescape);
+use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use pf::enforcement qw(reevaluate_access);
 use pf::config;
@@ -75,13 +75,19 @@ Add all the common variables in the stash
 
 sub setupCommonStash : Private {
     my ( $self, $c ) = @_;
+    my $logger = get_logger;
     my $portalSession   = $c->portalSession;
     my $destination_url = $c->request->param('destination_url');
-    if ( defined $destination_url ) {
-        $destination_url = decode_entities( uri_unescape($destination_url) );
-    } else {
-        $destination_url = $Config{'trapping'}{'redirecturl'};
+    if (isenabled($c->profile->forceRedirectURL)){
+        $destination_url = $c->profile->getRedirectURL;
     }
+    elsif (defined $destination_url && !($destination_url eq "")) { 
+        $destination_url = decode_entities( uri_unescape($destination_url) );
+    } 
+    else {
+        $destination_url = $c->profile->getRedirectURL;
+    }
+
     my @list_help_info;
     push @list_help_info,
       { name => i18n('IP'), value => $portalSession->clientIp }

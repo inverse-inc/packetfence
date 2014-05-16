@@ -1,0 +1,64 @@
+# Refuse empty user agent
+# Define the test
+[1]
+filter = user_agent
+method = GET
+operator = is
+regexp = ^$
+
+# Refuse empty user agent
+[2]
+filter = user_agent
+method = POST
+operator = is
+regexp = ^$
+
+[1:1|2]
+action = 501
+redirect_url =
+
+# Refuse proxy autoconfiguration
+[3]
+filter = uri
+method = GET
+operator = is
+regexp = /wpad.dat
+
+[3:3]
+action = 501
+redirect_url =
+
+# Accept Davlik user agent only for /generate_204 uri
+[4]
+filter = user_agent
+method = GET
+operator = is
+regexp = Dalvik
+
+[5]
+filter = uri
+method = GET
+operator = is_not
+regexp = /generate_204
+
+[4:4&5]
+action = 501
+redirect_url =
+
+## Only accept a list of user agents
+#[6]
+#filter = user_agent
+#method = POST
+#operator = is_not
+#regexp = Mozilla|Microsoft|Dalvik|collectd|CaptiveNetworkSupport|BlackBerry
+
+#[7]
+#filter = user_agent
+#method = GET
+#operator = is_not
+#regexp = Mozilla|Microsoft|Dalvik|collectd|CaptiveNetworkSupport|BlackBerry
+
+#[5:6|7]
+#action = 501
+#redirect_url =
+

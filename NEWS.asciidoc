@@ -11,6 +11,40 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.x.y released on YYYY-MM-DD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+ * Support for Huawei S5710
+Enhancements
+++++++++++++
+
+Bug Fixes
++++++++++
+
+Version 4.2.1 released on 2014-05-15
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
+++++++++++++
+
+* No longer need to repopulate password when updating a LDAP authentication source
+* Added check for profile directory existance
+* Added the ability to login from the status page
+
+Bug Fixes
+++++++++++++
+
+* Added missing node manager URL from dispatcher
+* Fixed URL redirection on captive portal
+* Fixed wrong templates for device registration
+* Removed a breaking dependency (#1793)
+* Fixed exception on device registration page (#1794)
+* Fixed syntax error in SQL upgrade script (#1795)
+* deauthenticateMac was not respecting inheritance
+* STDERR & STDOUT from external command now redirected to /dev/null
+
 Version 4.2.0 released on 2014-05-06
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -37,6 +71,7 @@ New Features
 * Integration of mod_qos in the Apache configuration of the captive portal
 * New pfcmd "cache" command
 * New pfcmd "configreload" command
+* Filters for HTTP requests on the portal
 
 Enhancements
 ++++++++++++

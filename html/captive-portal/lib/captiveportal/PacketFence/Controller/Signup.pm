@@ -18,7 +18,7 @@ use pf::authentication;
 use List::MoreUtils qw(uniq any);
 use Readonly;
 use POSIX;
-use URI::Escape qw(uri_escape);
+use URI::Escape::XS qw(uri_escape);
 use pf::iplog;
 use pf::node;
 use pf::person qw(person_modify);

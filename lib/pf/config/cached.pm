@@ -388,7 +388,7 @@ Access for the proxied C<Config::IniFiles> object
 
 =cut
 
-sub config { ${$_[0]}}
+sub config { ${$_[0]} }
 
 =head2 RewriteConfig
 
@@ -742,6 +742,7 @@ sub AUTOLOAD {
     my ($self) = @_;
     my $command = our $AUTOLOAD;
     $command =~ s/.*://;
+    get_logger->info("proxying $command to pf::IniFiles");
     if(pf::IniFiles->can($command) ) {
         no strict qw{refs};
         *$AUTOLOAD = sub  {

@@ -14,7 +14,7 @@ use lib '/usr/local/pf/lib';
 use HTML::Entities;
 use Log::Log4perl;
 use POSIX;
-use URI::Escape qw(uri_escape uri_unescape);
+use URI::Escape::XS qw(uri_escape uri_unescape);
 
 use pf::billing::constants;
 use pf::billing::custom;

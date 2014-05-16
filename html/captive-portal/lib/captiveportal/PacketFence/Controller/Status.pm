@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::Status;
 use Moose;
 use namespace::autoclean;
 use pf::util;
+use pf::config;
 use pf::node;
 use pf::person;
 
@@ -23,11 +24,56 @@ Catalyst Controller.
 
 =cut
 
+sub begin :Private {
+    my ( $self, $c ) = @_;
+    $c->forward('setupCurrentNodeInfo');
+}
+
 sub index : Path : Args(0) {
+    my ( $self, $c ) = @_;
+    my $pid     = $c->session->{"username"};
+    if ($pid) {
+        $c->forward('userIsAuthenticated');
+    } else {
+        $c->forward('userIsNotAuthenticated');
+    }
+    $c->stash(
+        template => 'status.html',
+        billing  => isenabled( $c->profile->getBillingEngine ),
+    );
+}
+
+sub userIsAuthenticated : Private {
+    my ( $self, $c ) = @_;
+    my $pid   = $c->session->{"username"};
+    my @nodes = person_nodes($pid);
+    foreach my $node (@nodes) {
+        updateTimeleft($node);
+    }
+    $c->stash(
+        nodes    => \@nodes,
+    );
+}
+
+sub userIsNotAuthenticated : Private {
+    my ( $self, $c ) = @_;
+    $c->stash->{showLogin} = 1;
+}
+
+sub setupCurrentNodeInfo : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $node_info     = node_view( $portalSession->clientMac() );
-    my @nodes         = person_nodes($node_info->{pid});
+    if( $node_info && $node_info->{pid} ne $default_pid ) {
+        updateTimeleft($node_info);
+    }
+    $c->stash(
+        node     => $node_info,
+    );
+}
+
+sub updateTimeleft {
+    my ($node_info) = @_;
     if ( defined $node_info->{'last_start_timestamp'}
         && $node_info->{'last_start_timestamp'} > 0 ) {
         if ( $node_info->{'timeleft'} > 0 ) {
@@ -43,17 +89,22 @@ sub index : Path : Args(0) {
             }
         }
     }
-    $c->stash(
-        template => 'status.html',
-        node     => $node_info,
-        nodes    => \@nodes,
-        billing  => isenabled( $c->profile->getBillingEngine ),
-    );
 }
+
+sub login : Local {
+    my ( $self, $c ) = @_;
+    my $request = $c->request;
+    my $username = $request->param('username');
+    my $password = $request->param('password');
+    if ( all_defined( $username, $password ) ) {
+        $c->forward(Authenticate => 'authenticationLogin');
+    }
+    $c->forward('index');
+}
+
 
 =head1 AUTHOR
 
-root
 
 =head1 LICENSE
 

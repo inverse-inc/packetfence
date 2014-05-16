@@ -53,7 +53,7 @@ BEGIN {
         node_modify
         node_register
         node_deregister
-        node_unregistered
+        node_is_unregistered
         nodes_maintenance
         nodes_unregistered
         nodes_registered
@@ -266,7 +266,7 @@ sub node_db_prepare {
     $node_statements->{'node_expire_lastdhcp_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_dhcp) < (unix_timestamp(now()) - ?) and last_dhcp !=0 and status="$STATUS_UNREGISTERED" ]);
 
-    $node_statements->{'node_unregistered_sql'} = get_db_handle()->prepare(qq[
+    $node_statements->{'node_is_unregistered_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, pid, voip, bypass_vlan, status,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
@@ -905,10 +905,10 @@ sub nodes_maintenance {
 
 # check to see is $mac is registered
 #
-sub node_unregistered {
+sub node_is_unregistered {
     my ($mac) = @_;
 
-    my $query = db_query_execute(NODE, $node_statements, 'node_unregistered_sql', $mac) || return (0);
+    my $query = db_query_execute(NODE, $node_statements, 'node_is_unregistered_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
     return ($ref);

@@ -35,6 +35,9 @@ Configuration changes
 The parameter `guests_self_registration.mandatory_fields` from `pf.conf` (or `pf.conf.defaults`) was moved to the
 default portal profile in `profiles.conf`.
 
+The parameters `registration.gaming_devices_registration` and `registration.gaming_devices_registration_role` are replaced
+with `registration.device_registration` and `registration.device_registration_role`.
+
 Adjust your configuration files accordingly.
 
 The captive portal has been rewritten using the Catalyst MVC framework. Any customization to the previous CGI scripts

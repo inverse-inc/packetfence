@@ -51,6 +51,8 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{version}-%{rev}.tar.gz
 %endif
 
+%define git_commit %{git_commit}
+
 # Log related globals
 %global logfiles packetfence.log catalyst.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon
 %global logdir /usr/local/pf/logs
@@ -187,7 +189,7 @@ Requires: perl(Try::Tiny)
 Requires: perl(Crypt::GeneratePassword)
 Requires: perl(MIME::Lite::TT)
 Requires: perl(Cache::Cache), perl(HTML::Parser)
-Requires: perl(URI::Escape)
+Requires: perl(URI::Escape::XS)
 # Used by Captive Portal authentication modules
 Requires: perl(Apache::Htpasswd)
 Requires: perl(Authen::Radius)
@@ -346,7 +348,8 @@ done
 %endif
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
-
+# Define git_commit_id
+echo git_commit > conf/git_commit_id
 
 find -name '*.example' -print0 | while read -d $'\0' file
 do
@@ -681,16 +684,17 @@ fi
 %dir                    /usr/local/pf/conf
                         /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
-%config(noreplace)      /usr/local/pf/conf/allowed-gaming-oui.txt
-                        /usr/local/pf/conf/allowed-gaming-oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
                         /usr/local/pf/conf/allowed_device_oui.txt.example
+%config(noreplace)      /usr/local/pf/conf/apache_filters.conf
+                        /usr/local/pf/conf/apache_filters.conf.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
+                        /usr/local/pf/conf/git_commit_id
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
@@ -757,7 +761,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/switches.conf
 %config                 /usr/local/pf/conf/dhcpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
-%config                 /usr/local/pf/conf/httpd.conf.d/block-unwanted.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin

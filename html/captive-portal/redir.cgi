@@ -15,7 +15,7 @@ use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use Log::Log4perl;
-use URI::Escape qw(uri_escape);
+use URI::Escape::XS qw(uri_escape);
 use NetAddr::IP;
 
 use pf::class;
@@ -125,7 +125,7 @@ if ($portalSession->getCgi->param('unreg')) {
     $logger->info("Unregister node $mac");
     $unreg = node_deregister($mac); # set node status to 'unreg'
 } else {
-    $unreg = node_unregistered($mac); # check if node status is 'unreg'
+    $unreg = node_is_unregistered($mac); # check if node status is 'unreg'
 }
 if ($unreg && isenabled($Config{'trapping'}{'registration'})){
   # Redirect to the billing engine if enabled
