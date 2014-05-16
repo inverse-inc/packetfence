@@ -1984,6 +1984,14 @@ access {
     }
 }
 
+ethernet-switching-options {
+    secure-access-port {
+        interface access-ports {
+            mac-limit 1 action drop;
+        }
+    }
+}
+
 snmp {
     name "EX 4200";
     description juniper;
@@ -2028,6 +2036,11 @@ protocols{
 }
 
 ethernet-switching-options { 
+    secure-access-port {
+        interface access-ports {
+            mac-limit 2 action drop;
+        }
+    }
     voip {
         interface access-ports {
             vlan voice;
