@@ -18,6 +18,7 @@ New Features
 ++++++++++++
 
 * Added support for Ruckus External Captive Portal
+* Support for Huawei S5710
 
 Enhancements
 ++++++++++++
