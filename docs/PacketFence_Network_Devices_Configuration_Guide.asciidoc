@@ -1954,6 +1954,7 @@ protocols {
                     supplicant multiple;
                     mac-radius {
                         restrict;
+                        flap-on-disconnect;
                     }
                 }
             }
