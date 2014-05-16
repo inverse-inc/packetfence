@@ -17,19 +17,20 @@ Version 4.2.1 released on 2014-05-15
 Enhancements
 ++++++++++++
 
-* No longer need to repopulate password when updating LDAP Auth Sources
+* No longer need to repopulate password when updating a LDAP authentication source
 * Added check for profile directory existance
 * Added the ability to login from the status page
 
 Bug Fixes
 ++++++++++++
 
-* Added missing node manager url from dispatcher
-* Url redirection for external sites
-* Fixed wrong template for device registrations
-* fixed syntax error in sql upgrade script
-* deauthenticateMac not respecting inheritance
-* Remove a breaking dependency
+* Added missing node manager URL from dispatcher
+* Fixed URL redirection on captive portal
+* Fixed wrong templates for device registration
+* Removed a breaking dependency (#1793)
+* Fixed exception on device registration page (#1794)
+* Fixed syntax error in SQL upgrade script (#1795)
+* deauthenticateMac was not respecting inheritance
 * STDERR & STDOUT from external command now redirected to /dev/null
 
 Version 4.2.0 released on 2014-05-06
