@@ -11,6 +11,7 @@ use NetAddr::IP;
 use pf::iplog qw(iplog_open);
 use pf::Portal::ProfileFactory;
 use File::Spec::Functions qw(catdir);
+use pf::email_activation qw(view_by_code);
 
 =head1 NAME
 
@@ -54,6 +55,10 @@ has remoteAddress => (
     required => 1,
 );
 
+has options => (
+    is       => 'rw',
+);
+
 has redirectURL => (
     is       => 'rw',
 );
@@ -69,9 +74,17 @@ sub ACCEPT_CONTEXT {
     my $remoteAddress = $request->address;
     my $forwardedFor  = $request->header('HTTP_X_FORWARDED_FOR');
     my $redirectURL;
+    if (defined($request->param('code'))) {
+        my $data = view_by_code("1:".$request->param('code'));
+        $options = {
+            'portal' => $data->{portal},
+        };
+    }
+
     my $model =  $self->new(
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
+        options       => $options,
         @args,
     );
     $c->stash->{current_model_instances}{$class} = $model;

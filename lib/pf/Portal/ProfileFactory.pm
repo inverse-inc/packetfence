@@ -63,6 +63,11 @@ sub instantiate {
           grep { defined $_ && exists $Profile_Filters{$_} }
           @filter_ids) || 'default' ;
 
+    if (defined($options->{'portal'})) {
+        $logger->trace("Instantiate profile ".$options->{'portal'});
+        return $self->_from_profile($options->{'portal'});
+    }
+
     $logger->trace("Instantiate profile $profile_name");
     return $self->_from_profile($profile_name);
 }

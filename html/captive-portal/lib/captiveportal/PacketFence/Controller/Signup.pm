@@ -212,7 +212,8 @@ sub doEmailSelfRegistration : Private {
             : $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION
         ),
         $pf::email_activation::GUEST_ACTIVATION,
-        %info
+        $profile->getName,
+        %info,
       );
 
     if ( !$session->{preregistration} ) {
@@ -339,7 +340,8 @@ sub doSponsorSelfRegistration : Private {
         $info{'sponsor'},
         $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_ACTIVATION,
         $pf::email_activation::SPONSOR_ACTIVATION,
-        %info
+        $profile->getName,
+        %info,
       );
 
     # on-site: redirection will show pending page (unless there's a violation for the node)
