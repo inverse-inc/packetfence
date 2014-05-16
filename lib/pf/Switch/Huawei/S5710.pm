@@ -13,6 +13,8 @@ The pf::Switch::Huawei::S5710 module manages access to Huawei
 
 There is no way to determine the SNMP ifindex from the RADIUS request.
 
+Bumping a port doesn't reevaluate the access.
+
 =cut
 
 use strict;
