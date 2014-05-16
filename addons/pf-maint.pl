@@ -44,7 +44,7 @@ our $COMMIT;
 our $BASE_COMMIT;
 our $NO_ASK;
 our $PATCH_BIN = '/usr/bin/patch';
-our $START_COMMIT_ID_FILE = catfile($PF_DIR,'conf','git_commit_id');
+our $COMMIT_ID_FILE = catfile($PF_DIR,'conf','git_commit_id');
 
 GetOptions(
     "github-user|u=s" => \$GITHUB_USER,
@@ -65,9 +65,8 @@ our $PATCHES_DIR = catdir( $PF_DIR, '.patches' );
 mkdir $PATCHES_DIR or die "cannot create $PATCHES_DIR" unless -d $PATCHES_DIR;
 our $PF_RELEASE_FULL = get_release_full();
 our $PF_RELEASE_REV  = get_release_rev();
-our $LAST_COMMIT = catfile( $PATCHES_DIR, "last-commit-$PF_RELEASE_FULL" );
 
-our $PF_RELEASE = -e $START_COMMIT_ID_FILE ? $PF_RELEASE_REV : $PF_RELEASE_FULL;
+our $PF_RELEASE = $PF_RELEASE_REV;
 
 our $BASE_GITHUB_URL =
   "https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO";
@@ -102,15 +101,9 @@ sub get_release_rev {
 }
 
 sub get_base {
-    my $base = read_file( $LAST_COMMIT, { err_mode => 'quiet' } );
+    my $base = read_file( $COMMIT_ID_FILE );
     if ($base) {
         chomp($base);
-    } else {
-        if (-e $START_COMMIT_ID_FILE ) {
-            $base = read_file( $START_COMMIT_ID_FILE, { err_mode => 'quiet' } );
-            chomp($base);
-        }
-        $base = "packetfence-$PF_RELEASE_FULL" unless $base;
     }
     return $base;
 }
@@ -146,7 +139,7 @@ sub apply_patch {
     my $file = make_patch_filename( $base, $head );
     chdir $PF_DIR or die "cannot change directory $PF_DIR\n";
     system "$PATCH_BIN -b -p1 < $file";
-    write_file( $LAST_COMMIT, $head );
+    write_file( $COMMIT_ID_FILE, $head );
 }
 
 sub get_url {
