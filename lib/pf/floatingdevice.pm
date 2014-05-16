@@ -209,13 +209,9 @@ Removes the MAB floating device mode on the switchport
 =cut
 sub disableMABFloating {
     my ( $this, $switch, $ifIndex ) = @_;
+    
     if($switch->supportsMABFloatingDevices){
-        if($switch->disableMABFloatingDevice($ifIndex)){
-            return 1;
-        }
-        else{
-            return 0;
-        }
+        $switch->disableMABFloatingDevice($ifIndex);
     }
 }
 
@@ -227,14 +223,15 @@ Puts the switchport in MAB floating device mode
 sub enableMABFloating{
     my ( $this, $switch, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
+     
+    my $result;         
     if($switch->supportsMABFloatingDevices){
-        if($switch->enableMABFloatingDevice($ifIndex)){
-            return 1;
-        }
-        else{
-            return 0;
-        }
+        $switch->enableMABFloatingDevice($ifIndex);
+        # disconnect and close additionnal entries that could have been opened (a device was authentified before the floating)
+        $this->_disconnectCurrentDevices($switch, $ifIndex);
+        pf::locationlog::locationlog_update_end_switchport_no_VoIP($switch->{_ip}, $ifIndex); 
     }
+    
 }
 
 =item portHasFloatingDevice
@@ -256,6 +253,28 @@ sub portHasFloatingDevice {
         }
     }
     return 0;
+
+}
+
+=item disconnectCurrentDevices
+
+Disconnects the active locationlog macs on the port so they reauthenticate to be controlled by the floating flow
+
+=cut
+sub _disconnectCurrentDevices{
+    my ( $this, $switch, $switch_port ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
+
+    my @locationlog_switchport = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port);
+
+    foreach my $entry (@locationlog_switchport){
+        # don't want to disconnect the floating if it's in the locationlog
+        if(!exists($ConfigFloatingDevices{$entry->{mac}})){
+            $logger->info("Disconnecting $entry->{mac} because a floating device just plugged into it's port");
+            $switch->deauthenticateMacRadius($switch_port, $entry->{mac});
+        }
+    }
+
 
 }
 

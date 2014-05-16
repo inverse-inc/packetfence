@@ -584,9 +584,6 @@ sub _handleAccessFloatingDevices{
     my ($this, $switch, $mac, $port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     if( exists( $ConfigFloatingDevices{$mac} ) ){
-        # close additionnal entries that could have been opened (a device talked before the floating)
-        locationlog_update_end_switchport_no_VoIP($switch->{_ip}, $port); 
-        
         my $floatingDeviceManager = new pf::floatingdevice::custom();
         $floatingDeviceManager->enableMABFloating($switch, $port);
     } 

@@ -315,9 +315,8 @@ sub enableMABFloatingDevice{
 
     my $port = $this->getIfName($ifIndex);
 
-    my $command;
-
-    $command = "set ethernet-switching-options secure-access-port interface $port mac-limit 26000";
+    my $command_mac_limit = "set ethernet-switching-options secure-access-port interface $port mac-limit 26000";
+    my $command_disconnect_flap = "delete protocols dot1x authenticator interface $port mac-radius flap-on-disconnect";
 
     my @output;
     eval {
@@ -325,9 +324,10 @@ sub enableMABFloatingDevice{
         $session->in_privileged_mode(1);
         $session->begin_configure();
 
-        $logger->trace("sending CLI command '$command'");
-        @output = $session->cmd(String => $command, Timeout => '5');
-        @output = $session->cmd(String => 'commit comment "changed mac-limit"', Timeout => '30');
+    
+        @output = $session->cmd(String => $command_mac_limit, Timeout => '5');
+        @output = $session->cmd(String => $command_disconnect_flap, Timeout => '5');
+        @output = $session->cmd(String => 'commit comment "configured floating device"', Timeout => '30');
 
         $session->in_privileged_mode(0);
     };
@@ -373,19 +373,18 @@ sub disableMABFloatingDevice{
 
     my $port = $this->getIfName($ifIndex);
 
-    my $command;
-
-    $command = "delete ethernet-switching-options secure-access-port interface $port mac-limit";
-
+    my $command_mac_limit = "delete ethernet-switching-options secure-access-port interface $port mac-limit";
+    my $command_disconnect_flap = "set protocols dot1x authenticator interface $port mac-radius flap-on-disconnect";
     my @output;
     eval {
         # fake priviledged mode
         $session->in_privileged_mode(1);
         $session->begin_configure();
 
-        $logger->trace("sending CLI command '$command'");
-        @output = $session->cmd(String => $command, Timeout => '5');
-        @output = $session->cmd(String => 'commit comment "changed mac-limit"', Timeout => '30');
+    
+        @output = $session->cmd(String => $command_mac_limit, Timeout => '5');
+        @output = $session->cmd(String => $command_disconnect_flap, Timeout => '5');
+        @output = $session->cmd(String => 'commit comment "deconfigured floating device"', Timeout => '30');
 
         $session->in_privileged_mode(0);
     };
@@ -397,13 +396,7 @@ sub disableMABFloatingDevice{
     }
     $session->close();
 
-    
-    # now bump the port to invalidate all the other authorized devices
-    pf_run("/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch $this->{_ip} -ifIndex $ifIndex -ifAdminStatus 0");
-    pf_run("/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch $this->{_ip} -ifIndex $ifIndex -ifAdminStatus 1");
-
     return 1;
-
 }
 
 =head1 AUTHOR
