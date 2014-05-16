@@ -21,6 +21,7 @@ use pf::radius::custom();
 use pf::violation();
 use pf::soh::custom();
 use pf::util();
+use pf::node;
 
 sub event_add {
   my ($class, $date, $srcip, $type, $id) = @_;
@@ -98,6 +99,24 @@ sub update_iplog {
     return (pf::iplog::iplog_update($srcmac, $srcip, $lease_length));
 }
  
+sub unreg_node_for_pid {
+    my ($class, $pid) = @_;
+
+    my $logger = pf::log::get_logger();
+
+    use Data::Dumper;
+
+    $logger->warn(Dumper $pid);
+
+    my @node_infos =  node_view_reg_pid($pid->{'pid'});
+
+    foreach my $node_info ( @node_infos ) {
+        node_deregister($node_info->{'mac'});
+    }
+
+return 1;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
