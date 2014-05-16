@@ -2673,9 +2673,6 @@ di debug application radiusd -1
 PaloAlto:
 +++++++++
 
-Generate the XMLAPI Key :
-+++++++++++++++++++++++++
-
 You have to log in the webpage of your PaloAlto Firewall.
 
 - Create a SSO_Role role:
