@@ -12,6 +12,7 @@ use pf::iplog qw(iplog_open);
 use pf::Portal::ProfileFactory;
 use File::Spec::Functions qw(catdir);
 use pf::email_activation qw(view_by_code);
+use pf::web::constants;
 
 =head1 NAME
 
@@ -74,7 +75,12 @@ sub ACCEPT_CONTEXT {
     my $remoteAddress = $request->address;
     my $forwardedFor  = $request->header('HTTP_X_FORWARDED_FOR');
     my $redirectURL;
-    if (defined($request->param('code'))) {
+    my $uri = $request->uri;
+    if ( defined $WEB::ALLOWED_RESOURCES_PROFILE_FILTER && defined ($uri->path) && $uri->path =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o) {
+        $options = {
+            'last_uri' => $uri->path,
+        };
+    } elsif (defined($request->param('code'))) {
         my $data = view_by_code("1:".$request->param('code'));
         $options = {
             'portal' => $data->{portal},
