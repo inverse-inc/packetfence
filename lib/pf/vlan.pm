@@ -87,12 +87,11 @@ sub fetchVlanForNode {
             return $floating_config->{'pvid'};
         }
         my $floating_mac = $floatingDeviceManager->portHasFloatingDevice($switch->{_ip}, $ifIndex);
-        $logger->info("portHasFloatingDevice? $floating_mac");
         if($floating_mac){
-            $logger->info("Device is plugged into a floating enabled port. Determining if trunk.");
+            $logger->debug("Device $mac is plugged into a floating enabled port (Device $floating_mac). Determining if trunk.");
             my $floating_config = $ConfigFloatingDevices{$floating_mac};
             if( ! $floating_config->{'trunkPort'} ){
-                $logger->info("MAC $mac, PID: $node_info->{pid} has just plugged in a floating device enabled port. Returned VLAN $floating_config->{pvid}");
+                $logger->info("MAC $mac, PID: $node_info->{pid} has just plugged in an access floating device enabled port. Returned VLAN $floating_config->{pvid}");
                 return $floating_config->{'pvid'};
             }
         }
