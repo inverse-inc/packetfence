@@ -298,9 +298,6 @@ sub showLogin : Private {
     my ( $self, $c ) = @_;
     my $profile    = $c->profile;
     my $guestModes = $profile->getGuestModes;
-    use Data::Dumper;
-    my $logger = $c->log;
-    $logger->info("ARE YOU THERE ? ".is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ));
     my $guest_allowed =
       any { is_in_list( $_, $guestModes ) } $SELFREG_MODE_EMAIL,
       $SELFREG_MODE_SMS, $SELFREG_MODE_SPONSOR;
