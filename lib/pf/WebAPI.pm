@@ -59,7 +59,7 @@ sub handler {
         $r->user($r->headers_in->{Request});
     }
     my $content_type = $r->headers_in->{'Content-Type'};
-    $logger->debug("$content_type");
+    $logger->debug("Handling request for content type $content_type");
     if( $server_msgpack->allowed($content_type) ) {
         return $server_msgpack->handler($r);
     } elsif ($server_jsonrpc->allowed($content_type)) {
