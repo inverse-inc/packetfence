@@ -19,7 +19,7 @@ has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://www.linkedin.com');
-has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/uas/oauth2/authorization');
+has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/uas/oauth2/authorization?state=someRandomString');
 has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/uas/oauth2/accessToken');
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'code');
 #has 'scope' => (isa => 'Str', is => 'rw', default => 'https://www.googleapis.com/auth/userinfo.email');
