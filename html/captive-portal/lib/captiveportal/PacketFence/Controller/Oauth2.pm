@@ -133,16 +133,12 @@ sub oauth2Result : Path : Args(1) {
 
     my $code = $request->query_params->{'code'};
 
-    $logger->debug("API CODE: $code");
-
     #Get the token
     my $token;
 
     eval {
         $token = $self->oauth2_client($c,$provider)->get_access_token($code);
     };
-    
-    $logger->info("EL TOKEN : ".Dumper($token));
 
     if ($@) {
         $logger->warn(
@@ -173,26 +169,33 @@ sub oauth2Result : Path : Args(1) {
     
     my $source = $profile->getSourceByType($type);
     if ($source) { 
-        my $h = HTTP::Headers->new( 'x-li-format' => 'json',);
-        #$response = $token->get($source->{'protected_resource_url'}, $h );
+        # request a JSON response
+        my $h = HTTP::Headers->new( 'x-li-format' => 'json' );
+        $response = $token->get($source->{'protected_resource_url'}, $h ); 
         if ($response->is_success) {
-
-            # Grab JSON content
-            my $json      = new JSON;
-            my $json_text = $json->decode($response->content());
-            if ($provider eq 'google' || $provider eq 'github') {
-                $logger->info(
-                    "OAuth2 successfull, register and release for email $json_text->{email}"
-                );
-                $pid = $json_text->{email};
-            } elsif ($provider eq 'facebook') {
-                $logger->info(
-                    "OAuth2 successfull, register and release for username $json_text->{username}"
-                );
-                $pid = $json_text->{username} . '@facebook.com';
+            if ($provider eq 'linkedin'){
+                # response is sent as "email@example.com" with quotes
+                $pid = $response->content() ;
+                # remove the quotes
+                $pid =~ s/"//g;
             }
+            else{
+                # Grab JSON content
+                my $json      = new JSON;
+                my $json_text = $json->decode($response->content());
+                if ($provider eq 'google' || $provider eq 'github') {
+                    $logger->info(
+                        "OAuth2 successfull, register and release for email $json_text->{email}"
+                    );
+                    $pid = $json_text->{email};
+                } elsif ($provider eq 'facebook') {
+                    $logger->info(
+                        "OAuth2 successfull, register and release for username $json_text->{username}"
+                    );
+                    $pid = $json_text->{username} . '@facebook.com';
+                }    
+            }         
         } else {
-            $logger->info(Dumper($response));
             $logger->info(
                 "OAuth2: failed to validate the token, redireting to login page"
             );
