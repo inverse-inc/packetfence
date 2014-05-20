@@ -30,6 +30,7 @@ Log::Log4perl::MDC->put( 'proc', "dao/person.t" );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
 use pf::config;
+use lib qw(/usr/local/pf/t);
 use TestUtils;
 BEGIN { use_ok('pf::person') }
 
@@ -83,7 +84,7 @@ is(
 # TODO constantify error return value in pf::person
 is(
     person_add( $PERSON1_PID, %PERSON1 ),
-    2, 
+    2,
     "person_add but already exists expect return 2"
 );
 
@@ -91,13 +92,13 @@ is(
 # person_exist
 is(
     person_exist( $PERSON1_PID ),
-    $TRUE, 
+    $TRUE,
     "person_exist on existing person"
 );
 
 is(
     person_exist( $UNKNOWN_PERSON ),
-    $FALSE, 
+    $FALSE,
     "person_exist on unknown person expect false"
 );
 
@@ -112,7 +113,7 @@ is_deeply(
 
 is(
     person_view( $UNKNOWN_PERSON ),
-    undef, 
+    undef,
     "person_view on unknown person expect undef"
 );
 
@@ -149,7 +150,7 @@ is_deeply(
     { 'pid' => $PERSON1_PID, %PERSON2 },
     "person_modify worked"
 );
- 
+
 
 # person_delete
 is(
@@ -177,21 +178,21 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
 

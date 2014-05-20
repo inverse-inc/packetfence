@@ -24,6 +24,7 @@ my $logger = Log::Log4perl->get_logger( "dao/data.t" );
 Log::Log4perl::MDC->put( 'proc', "dao/data.t" );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
+use lib qw(/usr/local/pf/t);
 use TestUtils;
 
 # override database connection settings to connect to test database
@@ -31,7 +32,7 @@ TestUtils::use_test_db();
 
 # Test all modules that provides data
 BEGIN { use_ok('pf::db') }
-BEGIN { 
+BEGIN {
     use_ok('pf::action');
     use_ok('pf::billing');
     use_ok('pf::class');
@@ -93,7 +94,7 @@ foreach my $module (@data_modules) {
     ok(defined(${$var}), "$var exposed");
 
     # is there a prepare method?
-    can_ok($module, $method) 
+    can_ok($module, $method)
         or diag("no prepare method for data module! Never do such a thing, the pf::db module expects that method.");
 
     {
@@ -114,21 +115,21 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
 

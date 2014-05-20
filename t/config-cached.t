@@ -24,6 +24,7 @@ use POSIX ":sys_wait_h";
 our (%DATA,%DATA1,%DATA2,%DATA3,$filename);
 
 BEGIN {
+    use lib qw(/usr/local/pf/t);
     use PfFilePaths;
 }
 use pf::log;

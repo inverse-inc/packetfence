@@ -21,7 +21,10 @@ Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( "integration/radius.t" );
 Log::Log4perl::MDC->put( 'proc', "integration/radius.t" );
 Log::Log4perl::MDC->put( 'tid',  0 );
-BEGIN { use PfFilePaths; }
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
 use pf::config;
 use pf::radius::constants;

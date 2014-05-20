@@ -17,6 +17,7 @@ use diagnostics;
 
 use Test::Harness;
 
+use lib qw(/usr/local/pf/t);
 use TestUtils;
 
 runtests(

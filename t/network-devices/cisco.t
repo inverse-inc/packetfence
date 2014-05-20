@@ -8,6 +8,7 @@ use Test::More tests => 20;
 use Test::NoWarnings;
 
 use lib '/usr/local/pf/lib';
+BEGIN { use lib qw(/usr/local/pf/t); }
 BEGIN { use PfFilePaths; }
 use pf::config;
 use pf::SwitchFactory;
