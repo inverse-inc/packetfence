@@ -390,6 +390,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * Google (OAuth 2)
 * Kerberos
 * LDAP
+* LinkedIn (OAuth 2)
 * Null
 * RADIUS
 * SMS
@@ -2170,6 +2171,19 @@ Of course, replace the hostname with the values from `general.hostname` and `gen
 Once you have your information, Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
 
 Moreover, don't forget to add GitHub as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+
+LinkedIn
+^^^^^^^^
+To use LinkedIn, you also need an API code and a secret key.  To get one, you need to create an App here: https://developer.linkedin.com/.  When you create your App, make sure you input the following as the Callback URL
+https://YOUR_PORTAL_HOSTNAME/oauth2/linkedin
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add GitHub as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+
+Also, LinkedIn requires a 'state' parameter for the authorization URL. If you modify it, make sure to add it at the end of your URL.
 
 Gaming Devices Registration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
