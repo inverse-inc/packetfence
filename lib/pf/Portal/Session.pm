@@ -85,6 +85,7 @@ sub _initialize {
     my ($self,$mac) = @_;
     my $logger = get_logger();
     my $cgi = new CGI;
+    my $options;
     $cgi->charset("UTF-8");
 
     $self->{'_cgi'} = $cgi;
@@ -123,7 +124,7 @@ sub _initialize {
             }
         );
     } elsif (defined($cgi->url_param('code'))) {
-        my $data = view_by_code("1:".$request->param('code'));
+        my $data = view_by_code("1:".$cgi->param('code'));
         $options = {
             'portal' => $data->{portal},
         };

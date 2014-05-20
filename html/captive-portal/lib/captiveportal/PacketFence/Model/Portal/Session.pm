@@ -76,9 +76,10 @@ sub ACCEPT_CONTEXT {
     my $forwardedFor  = $request->header('HTTP_X_FORWARDED_FOR');
     my $redirectURL;
     my $uri = $request->uri;
-    if ( defined $WEB::ALLOWED_RESOURCES_PROFILE_FILTER && defined ($uri->path) && $uri->path =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o) {
+    my $options;
+    if($c->engine->isa("Catalyst::Engine::Apache") && (my $last_uri = $c->engine->apache->pnotes('last_uri')) ) {
         $options = {
-            'last_uri' => $uri->path,
+            'last_uri' => $last_uri,
         };
     } elsif (defined($request->param('code'))) {
         my $data = view_by_code("1:".$request->param('code'));
