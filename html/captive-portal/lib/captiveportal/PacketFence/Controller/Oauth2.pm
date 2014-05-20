@@ -90,7 +90,7 @@ sub oauth2_client {
                 client_id => $source->{'client_id'},
                 client_secret => $source->{'client_secret'},
                 site => $source->{'site'},
-                authorize_path => $source->{'authorize_path'}."?state=ahfdnisausadfsad",
+                authorize_path => $source->{'authorize_path'}."?state=ahjsadhffdnisausadfsad",
                 access_token_path => $source->{'access_token_path'},
                 access_token_method => $source->{'access_token_method'},
                 #access_token_param => $source->{'access_token_param'},
@@ -141,6 +141,8 @@ sub oauth2Result : Path : Args(1) {
     eval {
         $token = $self->oauth2_client($c,$provider)->get_access_token($code);
     };
+    
+    $logger->info("EL TOKEN : ".Dumper($token));
 
     if ($@) {
         $logger->warn(
@@ -170,8 +172,9 @@ sub oauth2Result : Path : Args(1) {
     }
     
     my $source = $profile->getSourceByType($type);
-    if ($source) {
-        $response = $token->get($source->{'protected_resource_url'});
+    if ($source) { 
+        my $h = HTTP::Headers->new( 'x-li-format' => 'json',);
+        #$response = $token->get($source->{'protected_resource_url'}, $h );
         if ($response->is_success) {
 
             # Grab JSON content
