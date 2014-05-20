@@ -16,6 +16,7 @@ conf/log.conf.d/*.conf
 conf/nessus/
 conf/currently-at
 bin/pfcmd
+src/pfcmd
 !conf/nessus/remotescan.nessus
 conf/snort/emerging*.rules
 conf/user.conf
