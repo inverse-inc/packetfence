@@ -344,6 +344,7 @@ sub getNormalVlan {
         $logger->info("Connection type is WIRELESS_MAC_AUTH. Getting role from node_info" );
         $role = $node_info->{'category'};
 
+
         if (isenabled($node_info->{'autoreg'})) {
             $logger->info("Device is comming from a secure connection and has been auto registered, we unreg it and forward it to the portal" );
             $role = 'registration';
@@ -379,7 +380,14 @@ sub getNormalVlan {
                 $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
             }
             if (defined $value) {
-                my %info = (unregdate => $value);
+                my %info = (
+                    'unregdate' => $value,
+                    'category' => $role,
+                    'autoreg' => 'yes',
+                );
+                if (defined $role) {
+                    %info = (%info, (category => $role));
+                }
                 node_modify($mac,%info);
             }
         }
