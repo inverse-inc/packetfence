@@ -11,7 +11,7 @@ The pf::Switch::EdgeCore module manages access to EdgeCore
 
 =head1 STATUS
 
-Tested on EdgeCore S5710
+Tested on EdgeCore 4510 running v1.3.2.0 
 
 =cut
 
