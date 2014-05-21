@@ -16,6 +16,7 @@ Version 4.x.y released on YYYY-MM-DD
 
 New Features
 ++++++++++++
+* Added MAC authentication support for Edge-corE
 
 * Added support for Ruckus External Captive Portal
 
