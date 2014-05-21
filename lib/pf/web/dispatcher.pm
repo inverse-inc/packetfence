@@ -76,7 +76,9 @@ sub handler {
     #          to reload Apache dynamically. pf::web::constants will need some
     #          rework also
     if ( defined($WEB::ALLOWED_RESOURCES_PROFILE_FILTER) && $r->uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o ) {
-        $r->pnotes(last_uri => $r->uri("/captive-portal"));
+        my $last_uri = $r->uri();
+        $logger->debug("Matched profile uri filter for $last_uri");
+        $r->pnotes(last_uri => $last_uri);
         return Apache2::Const::DECLINED;
     }
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES/o) {

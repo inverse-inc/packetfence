@@ -13,6 +13,7 @@ use pf::Portal::ProfileFactory;
 use File::Spec::Functions qw(catdir);
 use pf::email_activation qw(view_by_code);
 use pf::web::constants;
+use Apache2::RequestRec;
 
 =head1 NAME
 
@@ -58,6 +59,7 @@ has remoteAddress => (
 
 has options => (
     is       => 'rw',
+    default  => sub { {} },
 );
 
 has redirectURL => (
@@ -77,7 +79,8 @@ sub ACCEPT_CONTEXT {
     my $redirectURL;
     my $uri = $request->uri;
     my $options;
-    if($c->engine->isa("Catalyst::Engine::Apache") && (my $last_uri = $c->engine->apache->pnotes('last_uri')) ) {
+    my $r = $request->{'env'}->{'psgi.input'};
+    if( defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
             'last_uri' => $last_uri,
         };
