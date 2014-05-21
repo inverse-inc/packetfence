@@ -20,7 +20,6 @@ use warnings;
 
 use Log::Log4perl;
 use POSIX;
-use Try::Tiny;
 
 use base ('pf::Switch');
 
