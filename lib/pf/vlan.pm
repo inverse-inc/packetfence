@@ -368,20 +368,22 @@ sub getNormalVlan {
             SSID => $ssid,
         };
         $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE);
-        my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
-        if (defined $value) {
-            $logger->trace("No unregdate found - computing it from access duration");
-            $value = access_duration($value);
+        #Compute autoreg if we use autoreg
+        if (isenabled($node_info->{'autoreg'})) {
+            my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
+            if (defined $value) {
+                $logger->trace("No unregdate found - computing it from access duration");
+                $value = access_duration($value);
+            }
+            else {
+                $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+            }
+            if (defined $value) {
+                my %info = (unregdate => $value);
+                node_modify($mac,%info);
+            }
         }
-        else {
-            $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
-        }
-        if (defined $value) {
-            my %info = (unregdate => $value);
-            node_modify($mac,%info);
-        }
-    } 
-
+    }
     # If a user based role has been found by matching authentication sources rules, we return it
     if ( defined($role) && $role ne '' ) {
         $logger->info("Username was defined '$user_name' - returning user based role '$role'");
