@@ -23,6 +23,8 @@ Enhancements
 Bug Fixes
 +++++++++
 
+* Compute unregdate for autoreg 802.1x
+
 Version 4.2.1 released on 2014-05-15
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
