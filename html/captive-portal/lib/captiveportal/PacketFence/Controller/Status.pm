@@ -102,6 +102,12 @@ sub login : Local {
     $c->forward('index');
 }
 
+sub logout : Local {
+    my ( $self, $c ) = @_;
+    $c->delete_session;
+    $c->forward('index');
+}
+
 
 =head1 AUTHOR
 
