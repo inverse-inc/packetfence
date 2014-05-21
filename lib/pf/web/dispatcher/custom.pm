@@ -33,6 +33,10 @@ use pf::proxypassthrough::constants;
 
 use base ('pf::web::dispatcher');
 
+BEGIN {
+    use pf::log 'service' => 'httpd.portal';
+}
+
 =back
 
 =head1 AUTHOR
