@@ -36,6 +36,7 @@ sub description { 'Huawei S5710' }
 =cut
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
+
 =item getIfType
 
 Returning ETHERNET type since there is no standard way to get the ifindex
@@ -52,7 +53,7 @@ Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authe
 
 sub handleReAssignVlanTrapForWiredMacAuth {
     my ($this, $ifIndex, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $this->deauthenticateMacRadius($mac);
 }

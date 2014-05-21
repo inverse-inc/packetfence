@@ -1931,10 +1931,10 @@ dot1x dhcp-trigger
 
 radius-server template packetfence
  radius-server shared-key cipher <yourSecret>
- radius-server authentication 172.20.20.109 1812
- radius-server accounting 172.20.20.109 1813
+ radius-server authentication 192.168.1.5 1812
+ radius-server accounting 192.168.1.5 1813
  radius-server retransmit 2
-radius-server authorization 172.20.20.109 shared-key cipher <yourSecret>
+radius-server authorization 192.168.1.5 shared-key cipher <yourSecret>
 
 aaa
  authentication-scheme abc
