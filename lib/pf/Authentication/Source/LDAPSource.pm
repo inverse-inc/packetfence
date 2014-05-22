@@ -48,7 +48,7 @@ sub available_attributes {
 
   my $super_attributes = $self->SUPER::available_attributes;
   my @ldap_attributes = map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } }
-    ("uid", "cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail");
+    ("uid", "cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail", "postOfficeBox");
 
   # We check if our username attribute is present, if not we add it.
   if (not grep {$_->{value} eq $self->{'usernameattribute'} } @ldap_attributes ) {
