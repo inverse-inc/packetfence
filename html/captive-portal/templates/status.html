@@ -216,7 +216,7 @@ document.observe("dom:loaded", function() {
           [% END %]
           <div id="popup"><a href="[% URL_STATUS %]" target="_new" alt="[% i18n("Open in new popup window") %]"><img src="/content/images/extract.png"/></a></div>
           [% UNLESS showLogin %]
-            <a class="btn" action="[% c.uri_for(c.controller.action_for('logout')) %]">Logout</a>
+            <a class="btn" href="[% c.uri_for(c.controller.action_for('logout')) %]">Logout</a>
           [% END  %]
         </div>
 
