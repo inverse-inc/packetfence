@@ -153,6 +153,7 @@ sub registerNode : Private {
             $info{'category'} = $role if ( defined $role );
             $info{'auto_registered'} = 1;
             $info{'mac'} = $mac;
+            $c->portalSession->guestNodeMac($mac);
             $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
         }
     } else {
