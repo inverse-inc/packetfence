@@ -93,7 +93,7 @@ Readonly::Scalar our $URL_SIGNUP_UGLY           => '/guest-selfregistration.cgi'
 Readonly::Scalar our $ACL_EMAIL_ACTIVATION_CGI  => '/cgi-perl/email_activation.cgi';
 Readonly::Scalar our $ACL_SIGNUP_CGI            => '/cgi-perl/guest-selfregistration.cgi';
 Readonly::Scalar our $MOD_PERL_WISPR            => '/wispr';
-Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/device-registration';
+Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
 Readonly::Scalar our $URL_DEVICE_REGISTRATION   => '/device-registration';
 
 # External Captive Portal detection constant
