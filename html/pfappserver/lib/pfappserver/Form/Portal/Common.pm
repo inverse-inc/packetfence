@@ -190,6 +190,18 @@ has_block provisioning => (
     render_list => [qw(authorizer allowed_devices)]
 );
 
+=head2 nbregpages
+
+=cut
+
+has_field 'nbregpages' =>
+  (
+    type => 'PosInteger',
+    label => 'Number of Registration Page',
+    default => 0,
+  );
+
+
 =head1 METHODS
 
 =head2 options_locale

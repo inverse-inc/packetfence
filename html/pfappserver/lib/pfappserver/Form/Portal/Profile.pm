@@ -30,7 +30,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id description redirecturl always_use_redirecturl billing_engine) ],
+   render_list => [ qw(id description redirecturl always_use_redirecturl billing_engine nbregpages) ],
   );
 
 =head1 FIELDS
