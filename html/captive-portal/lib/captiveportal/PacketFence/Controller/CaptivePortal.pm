@@ -260,6 +260,7 @@ sub checkIfNeedsToRegister : Private {
     my $request = $c->request;
     my $unreg;
     my $portalSession = $c->portalSession;
+    my $profile = $portalSession->profile;
     my $mac           = $portalSession->clientMac;
     my $logger        = $c->log;
     if ($request->param('unreg')) {
@@ -275,18 +276,18 @@ sub checkIfNeedsToRegister : Private {
         if (isenabled($portalSession->profile->getBillingEngine)) {
             $logger->info("$mac redirected to billing page");
             $c->detach('Pay' => 'index');
+        } elsif ( $profile->nbregpages > 0 ) {
+            $logger->info(
+                "$mac redirected to multi-page registration process");
+            $c->detach('Authenticate', 'next_page');
         } elsif ($portalSession->profile->guestRegistrationOnly) {
 
             # Redirect to the guests self registration page if configured to do so
             $logger->info("$mac redirected to guests self registration page");
             $c->detach('Signup' => 'index');
-        } elsif ($Config{'registration'}{'nbregpages'} == 0) {
+        } else {
             $logger->info("$mac redirected to authentication page");
             $c->detach('Authenticate', 'index');
-        } else {
-            $logger->info(
-                "$mac redirected to multi-page registration process");
-            $c->detach('Authenticate', 'next_page');
         }
     }
     return;

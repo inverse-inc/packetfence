@@ -82,12 +82,14 @@ sub default : Path {
 
 sub next_page : Local : Args(0) {
     my ( $self, $c ) = @_;
+    my $profile = $c->profile;
     my $pagenumber = $c->request->param('page');
 
     $pagenumber = 1 if ( !defined($pagenumber) );
+    my $last_page = $profile->nbregpages;
 
     if (   ( $pagenumber >= 1 )
-        && ( $pagenumber <= $Config{'registration'}{'nbregpages'} ) ) {
+        && ( $pagenumber <= $last_page ) ) {
 
         $c->stash( reg_page_content_file => "register_$pagenumber.html", );
 
@@ -106,10 +108,14 @@ sub next_page : Local : Args(0) {
         }
         $c->stash->{'list_locales'} = \@locales;
 
-        if ( $pagenumber == $Config{'registration'}{'nbregpages'} ) {
+        if ( $pagenumber == $last_page ) {
             $c->stash->{'button_text'} =
               $Config{'registration'}{'button_text'};
-            $c->stash->{'form_action'} = '/authenticate';
+            if($profile->guestRegistrationOnly) {
+                $c->stash->{'form_action'} = '/signup';
+            } else {
+                $c->stash->{'form_action'} = '/authenticate';
+            }
         } else {
             $c->stash->{'button_text'} = "Next page";
             $c->stash->{'form_action'} =
