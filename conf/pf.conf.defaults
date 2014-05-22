@@ -175,11 +175,6 @@ range=
 #
 button_text=Register
 #
-# registration.nbregpages
-#
-# The number of registration pages to show to the user
-nbregpages=0
-#
 # registration.device_registration
 #
 # Enable or Disable the ability to register a gaming device using the specific portal page designed to do it
