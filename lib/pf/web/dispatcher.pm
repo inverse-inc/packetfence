@@ -78,6 +78,7 @@ sub handler {
     if ( defined($WEB::ALLOWED_RESOURCES_PROFILE_FILTER) && $r->uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o ) {
         my $last_uri = $r->uri();
         $logger->debug("Matched profile uri filter for $last_uri");
+        #Send the current URI to catalyst with the pnotes
         $r->pnotes(last_uri => $last_uri);
         return Apache2::Const::DECLINED;
     }

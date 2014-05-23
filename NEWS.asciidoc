@@ -26,7 +26,7 @@ Bug Fixes
 +++++++++
 
 * Compute unregdate for autoreg 802.1x
-* Fix portal profil uri filter in catalyst
+* Fixed portal profile URI filter in new Catalyst-based captive-portal
 
 Version 4.2.1 released on 2014-05-15
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
