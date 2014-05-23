@@ -20,7 +20,7 @@ New Features
 Enhancements
 ++++++++++++
 
-* Use the same portal profile to validate the email code than you use to register your device
+* When validating an email confirmation code, use the same portal profile initially used by to register the device
 
 Bug Fixes
 +++++++++
