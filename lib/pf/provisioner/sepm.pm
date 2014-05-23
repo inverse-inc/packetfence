@@ -91,6 +91,13 @@ The URI to download the agent
 
 has agent_download_uri => (is => 'rw');
 
+=head2 alt_agent_download_uri
+
+The alternative URI to download the agent (Used for 64 bit download)
+
+=cut
+
+has alt_agent_download_uri => (is => 'rw');
 
 sub get_refresh_token {
     my ($self) = @_;

@@ -13,6 +13,7 @@ use List::MoreUtils qw(any);
 use pf::config;
 use pf::factory::provisioner;
 
+
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
 =head1 NAME
@@ -333,19 +334,20 @@ sub checkIfProvisionIsNeeded : Private {
     my $portalSession = $c->portalSession;
     my $info = $c->stash->{info};
     my $mac = $portalSession->clientMac;
-    my $provisioner_name = $portalSession->getProfile()->getProvisioner();
+    my $provisioner_name = $c->profile->getProvisioner();
     if (defined($provisioner_name)) {
         my $provisioner = pf::factory::provisioner->new($provisioner_name);
         $c->log->info("There is an provisioner : $provisioner_name");
         unless ($provisioner->authorize($mac) == 1) {
             $info->{status} = $pf::node::STATUS_PENDING;
-            node_modify($portalSession->getClientMac(), %$info);
+            node_modify($mac, %$info);
             $c->stash(
                 template      => 'provisioner.html',
                 external_ip   => $Config{'captive_portal'}{'network_detection_ip'},
                 retry_delay   => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
                 initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
                 agent_download_uri => $provisioner->{'agent_download_uri'},
+                alt_agent_download_uri => $provisioner->{'alt_agent_download_uri'},
             );
             $c->detach();
         }

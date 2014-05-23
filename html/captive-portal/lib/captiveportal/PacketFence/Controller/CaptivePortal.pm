@@ -318,6 +318,7 @@ sub checkIfPending : Private {
                     retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
                     initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
                     agent_download_uri => $provisioner->{'agent_download_uri'},
+                    alt_agent_download_uri => $provisioner->{'alt_agent_download_uri'},
                 );
                 $c->detach();
             } elsif (!pf::sms_activation::sms_activation_has_entry($mac)) {
