@@ -6,7 +6,7 @@
 <form name="modalItem" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF item.id.defined %]<i>[% l('Mdm Entry') %]</i> [% item.id %][% ELSE %][% l('New Mdm Entry') %][% END %]</h3>
+    <h3>[% IF item.id.defined %]<i>[% l('Provisioning Entry') %]</i> [% item.id %][% ELSE %][% l('New Provisioning Entry') %][% END %]</h3>
   </div>
 
   <div class="modal-body">
@@ -20,7 +20,7 @@
 
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-    [% IF can_access("MDM_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+    [% IF can_access("PROVISIONING_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
   </div>
 
 </form>

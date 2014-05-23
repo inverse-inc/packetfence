@@ -4,10 +4,10 @@
       <div class="modal fade hide" id="deleteItem">
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
-          <h3><i>[% l('Delete Mdm Entry') %]</i> <span></span></h3>
+          <h3><i>[% l('Delete Provisioning Entry') %]</i> <span></span></h3>
         </div>
         <div class="modal-body">
-          <p>[% l('Really delete this Mdm entry?') %]</p>
+          <p>[% l('Really delete this Provisioning entry?') %]</p>
         </div>
         <div class="modal-footer">
           <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
@@ -15,11 +15,11 @@
         </div>
       </div>
 
-      <h2>[% l('Moblie Device Management')  %]</h2>
+      <h2>[% l('Provisioning') %]</h2>
 
-      [% INCLUDE configstore/mdm/list.tt %]
+      [% INCLUDE configstore/provisioning/list.tt %]
 
-      [%- IF can_access("MDM_CREATE") %]
+      [%- IF can_access("PROVISIONING_CREATE") %]
       <div class="form-actions">
         <a id="createItem" class="btn" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Mdm Entry') %]</a>
       </div>
