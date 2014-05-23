@@ -102,6 +102,7 @@ Readonly::Scalar our $REQ_CISCO                 => 'ap_mac';
 Readonly::Scalar our $REQ_MAC                   => 'mac';
 Readonly::Scalar our $REQ_ARUBA                 => 'apname';
 Readonly::Scalar our $REQ_CISCO_PORTAL          => '/cep(.*)';
+Readonly::Scalar our $REQ_RUCKUS                => 'sip';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
