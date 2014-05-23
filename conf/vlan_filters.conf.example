@@ -14,8 +14,8 @@
 # scope = NormalVlan
 # action = nointernet
 #
-# It mean that when PacketFence try to get the normal Vlan for the node and if the category of the node is
-# default then we return the role nointernet (nointernet you configured in the switch config)
+# It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is
+# the default one, we return the role "nointernet" (which you will have configured in the switch configuration).
 #
 # Advanced rule:
 #
@@ -39,9 +39,9 @@
 # scope = NormalVlan
 # action = nointernet
 #
-# It mean when PacketFence try to get the normal Vlan for the node and if the category of the node is
-# default and come from the ssid OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday
-# then we return the role nointernet.
+# It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is 
+# the default one and the ssid is OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday,
+# we return the role "nointernet" (which you will have configured in the switch configuration).
 #
 # filter can be:
 #
@@ -96,6 +96,6 @@
 #
 # The regexp of a time is specific and follow this logic:
 # http://search.cpan.org/~pryan/Period-1.20/Period.pm
-# per example if you want to allow the access from Monday to Friday from 9am to 11am and from 2pm to 4pm:
+# For example, if you want to allow access from Monday to Friday, 9am to 11am and from 2pm to 4pm:
 # wd {Mon Tue Wed Thu Fri} hr {9am-11am}, wd {Mon Tue Wed Thu Fri} hr {2pm-4am}
 

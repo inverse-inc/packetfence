@@ -11,7 +11,7 @@ dump add documentation
 
 =head1 SYNOPSIS
 
-dump.pl <apachefilters|config|doc_config|floatingdevices|profiles_filters|profiles|sources|switch <id>|switches|admin_roles|chiconfig|vlanfilters>
+dump.pl <apachefilters|config|doc_config|floatingdevices|profiles_filters|profiles|sources|switch <id>|switches|admin_roles|chiconfig|vlan_filters>
 
 =head1 DESCRIPTION
 
@@ -61,7 +61,7 @@ sub _run {
     print Data::Dumper::Dumper(\%pf::config::ConfigFloatingDevices);
 }
 
-package pf::dump::vlanfilters;
+package pf::dump::vlan_filters;
 use base qw(pf::dump::cmd);
 use Data::Dumper;
 __PACKAGE__->mark_as_loaded();

@@ -2379,9 +2379,9 @@ realm ntdomain {
 Vlan Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~
 
-We added the ability to specify filters directly in the portion of code that revaluate the vlan. 
+We added the ability to specify filters directly in the portion of code that re-evaluates the VLAN. 
 
-These rules are available in different scope: 
+These rules are available in different scopes:
 
   ViolationVlan
   RegistrationVlan
@@ -2389,7 +2389,7 @@ These rules are available in different scope:
   InlineVlan
   shouldAutoRegister
 
-And can be defined based on differents criteria like:
+And can be defined using different criteria like:
 
   node_info
   switch
@@ -2400,7 +2400,7 @@ And can be defined based on differents criteria like:
   ssid
   time
 
-Per example let's define a rule that doesn't allow the connection to a device when his category is default and the ssid is SECURE and the current date is between 11am and 2pm
+For example, lets define a rule that prevents a device from connecting when its category is the "default", when the SSID is "SECURE" and when the current time is between 11am and 2pm:
 from Monday to Friday when it try to connect as a registered device :
 
   [1]
@@ -2423,7 +2423,7 @@ from Monday to Friday when it try to connect as a registered device :
   scope = NormalVlan
   action = nointernet
 
-You can have a look in the file vlan_filters.conf, there are some example how to use and define filters.
+You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
 
 Operating System Best Practices
 -------------------------------
