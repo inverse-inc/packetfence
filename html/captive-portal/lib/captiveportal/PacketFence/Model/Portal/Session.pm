@@ -71,8 +71,8 @@ has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
 sub ACCEPT_CONTEXT {
     my ( $self, $c, @args ) = @_;
     my $class = ref $self || $self;
-    return $c->stash->{current_model_instances}{$class}
-        if exists $c->stash->{current_model_instances}{$class} && $c->stash->{current_model_instances}{$class}->isa($class);
+    my $model = $c->session->{$class};
+    return $model if defined $model;
     my $request       = $c->request;
     my $remoteAddress = $request->address;
     my $forwardedFor  = $request->header('HTTP_X_FORWARDED_FOR');
@@ -91,13 +91,13 @@ sub ACCEPT_CONTEXT {
         };
     }
 
-    my $model =  $self->new(
+    $model =  $self->new(
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
         options       => $options,
         @args,
     );
-    $c->stash->{current_model_instances}{$class} = $model;
+    $c->session->{$class} = $model;
     return $model;
 }
 
