@@ -1014,11 +1014,11 @@ Then on each controlled interface
    spanning-tree portfast
 
 PacketFence switch configuration 
- * Select the type to 'Cisco Catalyst 2960 with Web Auth'
- * Set 'Portal URL' to 'http://<your captive portal ip>'
- * Set the 'Registration' role to 'redirect'
- * Set your registered roles to 'registered'
- * Screenshots of this configuration are available in the Cisco WLC section of this guide.
+* Select the type to 'Cisco Catalyst 2960 with Web Auth'
+* Set 'Portal URL' to 'http://<your captive portal ip>'
+* Set the 'Registration' role to 'redirect'
+* Set your registered roles to 'registered'
+* Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 Stacked 29xx, Stacked 35xx, Stacked 3750, 4500 Series, 6500 Series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
