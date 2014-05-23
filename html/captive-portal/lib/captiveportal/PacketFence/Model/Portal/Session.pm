@@ -177,7 +177,7 @@ sub _build_clientMac {
 
 sub _build_profile {
     my ($self) = @_;
-    return pf::Portal::ProfileFactory->instantiate( $self->clientMac );
+    return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $self->options);
 }
 
 sub templateIncludePath {
