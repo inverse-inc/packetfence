@@ -218,12 +218,25 @@ sub accounting {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    my $isStop = $radius_request->{'Acct-Status-Type'} eq 'Stop';
+    my ( $switch_mac, $switch_ip, $source_ip ) = $this->_parseRequest($radius_request);
+
+    $logger->debug("instantiating switch");
+    my $switch = pf::SwitchFactory->getInstance()
+        ->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip } );
+
+    # is switch object correct?
+    if ( !$switch ) {
+        $logger->warn( "Can't instantiate switch $switch_ip. This request will be failed. "
+                . "Are you sure your switches.conf is correct?" );
+        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
+    }
+
+    my $isStop   = $radius_request->{'Acct-Status-Type'} eq 'Stop';
     my $isUpdate = $radius_request->{'Acct-Status-Type'} eq 'Interim-Update';
 
     if ($isStop || $isUpdate) {
         # On accounting stop/update, check the usage duration of the node
-        my ($nas_port_type, $switch_mac , $switch_ip, $eap_type, $mac, $port, $user_name, $nas_port_id, $source_ip) = $this->_parseRequest($radius_request);
+        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
         if ($mac && $user_name) {
             my $session_time = int $radius_request->{'Acct-Session-Time'};
             if ($session_time > 0) {
