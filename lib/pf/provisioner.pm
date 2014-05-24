@@ -13,35 +13,42 @@ pf::provisioner
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => __PACKAGE__, sub_name => 'provisioners' , require => 1;
-use List::MoreUtils qw(any);
-use pf::ConfigStore::Provisioning;
+use Moo;
 
-my @PROVISIONERS = __PACKAGE__->provisioners;
+=head1 Atrributes
 
-sub new {
-    my ($class,$name) = @_;
-    my $provisioner;
-    my $configStore = pf::ConfigStore::Provisioning->new;
-    my $data = $configStore->read($name,'id');
-    if ($data) {
-        my $type = $data->{type};
-        die "type is not defined for $name" unless defined $type;
-        my $subclass = "${class}::${type}";
-        die "$type is not a valid type" unless any { $_ eq $subclass  } @PROVISIONERS;
-        $provisioner = $subclass->new($data);
-    }
-    return $provisioner;
-}
+=head2 id
 
+The id of the provisioner
 
+=cut
+
+has id => (is => 'rw');
+
+=head2 type
+
+The type of the provisioner
+
+=cut
+
+has type => (is => 'rw');
+
+=head2 description
+
+The description of the provisioner
+
+=cut
+
+has description => (is => 'rw');
+
+ 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
