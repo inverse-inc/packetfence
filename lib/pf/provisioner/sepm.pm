@@ -14,6 +14,8 @@ pf::provisioner::sepm
 use strict;
 use warnings;
 use Moo;
+extends 'pf::provisioner';
+
 use pf::config qw($TRUE $FALSE);
 use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
@@ -24,14 +26,6 @@ use pf::iplog;
 use pf::ConfigStore::Provisioning;
 
 =head1 Atrributes
-
-=head2 client_id
-
-Client id to connect to the API
-
-=cut
-
-has id => (is => 'rw');
 
 =head2 client_id
 
