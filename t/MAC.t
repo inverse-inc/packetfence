@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 29;
+use Test::More tests => 30;
 
 use_ok('pf::MAC') or die;
 use pf::MAC;
@@ -29,7 +29,8 @@ is( $mac->get_dec_stripped(),
     mac2nb($mac), "get_dec_stripped() and pf::util::mac2nb() return the same values" );
 is( $mac->get_dec_stripped(), $mac->mac2nb(), "get_dec_stripped() and mac2nb() return the same values" );
 
-is( $mac->get_oui(), "00-12-F0", "get oui() extracts the OUI from the MAC" );
+is( $mac->get_oui(), "00:12:f0", "get_oui() extracts the OUI from the MAC" );
+is( $mac->get_IEEE_oui(), "00-12-F0", "get_IEEE_oui() extracts the IEEE OUI from the MAC" );
 
 like( $mac->get_dec_oui(), qr/^\d+$/, "get_dec_oui() returns a decimal integer" );
 is( $mac->get_dec_oui(), macoui2nb($mac),   "get_dec_oui() and pf::util::macoui2nb return the same values" );

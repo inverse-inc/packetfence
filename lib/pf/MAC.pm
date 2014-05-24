@@ -101,13 +101,27 @@ sub get_dec_stripped {
 
 =item get_oui
 
+Returns the OUI for the MAC as an lowercased hex string with : delimiters.
+
+This is the format PF uses.
+
+=cut
+
+sub get_oui {
+    my $self     = shift;
+    my $IEEE_mac = $self->as_IEEE() ;
+    return substr( lc $IEEE_mac, 0, 8 );
+}
+
+=item get_IEEE_oui
+
 Returns the OUI for the MAC as an uppercased hex string with - delimiters.
 
 This is the format the IEEE uses.
 
 =cut
 
-sub get_oui {
+sub get_IEEE_oui {
     my $self     = shift;
     my $IEEE_mac = $self->as_Microsoft->get_mac();
     return substr( $IEEE_mac, 0, 8 );
@@ -122,7 +136,7 @@ Returns a decimal value of the OUI stripped of any delimiters.
 sub get_dec_oui {
     my $self = shift;
     my $oui  = $self->get_oui();
-    $oui =~ s/-//g;
+    $oui =~ s/[^[:xdigit:]]//g;
     return hex($oui);
 }
 
