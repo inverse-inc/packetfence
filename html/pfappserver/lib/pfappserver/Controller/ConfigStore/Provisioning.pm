@@ -14,6 +14,7 @@ Controller for ConfigStore::Provisioning management
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
+use pf::factory::provisioner;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -24,14 +25,14 @@ BEGIN {
 __PACKAGE__->config(
     action => {
         # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'configstore/mdm', CaptureArgs => 1 },
+        object => { Chained => '/', PathPart => 'configstore/provisioning', CaptureArgs => 1 },
         # Configure access rights
-        view   => { AdminRole => 'MDM_READ' },
-        list   => { AdminRole => 'MDM_READ' },
-        create => { AdminRole => 'MDM_CREATE' },
-        clone  => { AdminRole => 'MDM_CREATE' },
-        update => { AdminRole => 'MDM_UPDATE' },
-        remove => { AdminRole => 'MDM_DELETE' },
+        view   => { AdminRole => 'PROVISIONING_READ' },
+        list   => { AdminRole => 'PROVISIONING_READ' },
+        create => { AdminRole => 'PROVISIONING_CREATE' },
+        clone  => { AdminRole => 'PROVISIONING_CREATE' },
+        update => { AdminRole => 'PROVISIONING_UPDATE' },
+        remove => { AdminRole => 'PROVISIONING_DELETE' },
     },
     action_args => {
         # Setting the global model and form for all actions
@@ -41,16 +42,36 @@ __PACKAGE__->config(
 
 =head1 METHODS
 
-
 =head2 index
 
-Usage: /configstore/mdm
+Usage: /configstore/provisioning
 
 =cut
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
+    $c->stash->{types} = [ sort grep {$_} map { /^pf::provisioner::(.*)/;$1  } @pf::factory::provisioner::MODULES];
     $c->forward('list');
+}
+
+around [qw(view _processCreatePost update)] => sub {
+    my ($orig, $self, $c, @args) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    my $item = $c->stash->{$itemKey};
+    my $type = $item->{type};
+    my $form = $c->action->{form};
+    local $c->action->{form} = "${form}::${type}";
+    $self->$orig($c, @args);
+};
+
+sub create_type : Path('create') : Args(1) {
+    my ($self, $c, $type) = @_;
+    $c->stash->{template} = 'configstore/provisioning/create.tt';
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    $c->stash->{$itemKey}{type} = $type;
+    $c->forward('create');
 }
 
 =head1 COPYRIGHT

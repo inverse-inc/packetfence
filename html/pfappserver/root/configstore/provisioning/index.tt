@@ -20,7 +20,14 @@
       [% INCLUDE configstore/provisioning/list.tt %]
 
       [%- IF can_access("PROVISIONING_CREATE") %]
-      <div class="form-actions">
-        <a id="createItem" class="btn" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Mdm Entry') %]</a>
-      </div>
+        <div class="form-actions">
+          <div class="btn-group">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add source') %] <span class="caret"></span></a>
+            <ul id="createSource" class="dropdown-menu">
+              [% FOREACH type IN types -%]
+                <li><a id="createItem" href="[% c.uri_for(c.controller.action_for('create'), type) %]">[% type %]</a></li>
+              [% END -%]
+            </ul>
+          </div>
+        </div>
       [%- END %]
