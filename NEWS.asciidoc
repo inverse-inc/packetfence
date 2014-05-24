@@ -25,6 +25,7 @@ Bug Fixes
 
 * Compute unregdate and save the role for autoreg 802.1x
 * Fixed portal profile URI filter in new Catalyst-based captive-portal
+* Radius accounting fixed to call the correct method to parse the radius request.
 
 Version 4.2.1 released on 2014-05-15
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
