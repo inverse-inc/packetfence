@@ -348,7 +348,7 @@ sub ldap_filter_for_conditions {
   if ($params->{'username'}) {
       $expression = '(' . $usernameattribute . '=' . $params->{'username'} . ')';
   } elsif ($params->{'email'}) {
-      $expression = '(mail=' . $params->{'email'} . ')';
+      $expression = '(|(mail=' . $params->{'email'} . ')(proxyAddresses=smtp:' . $params->{'email'} . ')(mailLocalAddress=' . $params->{'email'} . ')';
   }
 
   if ($expression) {
