@@ -19,6 +19,39 @@ use base ('pf::Switch::Dlink');
 
 sub description { 'D-Link DES 3526' }
 
+sub parseTrap {
+    my ( $this, $trapString ) = @_;
+    my $trapHashRef;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    my @fields = split '\|', $trapString;
+
+    my ( $ifIndex, $op, $mac );
+    for my $field (@fields) { 
+        ( $ifIndex, $op ) = $field =~ /^.1.3.6.1.4.1.171.11.64.1.2.14.1.1.1.(\d+) = INTEGER: (\d+)/;
+        ( $mac ) =  $field =~ /^.1.3.6.1.4.1.171.11.64.1.2.15.2.1 = Hex-STRING: ($SNMP::MAC_ADDRESS_FORMAT)/;
+    }
+
+    $mac = lc $mac;
+    $mac =~ s/ /:/g;
+
+    
+    $trapHashRef->{'trapType'} = 'mac';
+    if ( $op == 1 ) {
+        $trapHashRef->{'trapOperation'} = 'learnt';
+    } elsif ( $op == 2 ) {
+        $trapHashRef->{'trapOperation'} = 'removed';
+    } else {
+        $trapHashRef->{'trapOperation'} = 'unknown';
+        $logger->debug("trap currently not handled");
+    }
+    $trapHashRef->{'trapIfIndex'} = $ifIndex;
+    # is this really necessary?
+    #$trapHashRef->{'trapVlan'} = $this->getVlan( $ifindex );
+
+    return $trapHashRef;
+}
+
 =head1 AUTHOR
 
 Treker Chen <treker.chen@gmail.com>
