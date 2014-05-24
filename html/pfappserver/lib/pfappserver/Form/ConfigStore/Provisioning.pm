@@ -16,57 +16,33 @@ extends 'pfappserver::Base::Form';
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'MDM ID',
+   label => 'Provisioning ID',
    required => 1,
    messages => { required => 'Please specify the ID of the Provisioning entry.' },
   );
+
 has_field 'description' =>
   (
    type => 'Text',
    required => 1,
    messages => { required => 'Please specify the Description Provisioning entry.' },
   );
+
 has_field 'type' =>
   (
-   type => 'Select',
-   label => 'MDM type',
+   type => 'Hidden',
+   label => 'Provisioning type',
    required => 1,
-   messages => { required => 'Please select MDM type' },
+   messages => { required => 'Please select Provisioning type' },
   );
 
-has_field 'username' =>
+has_field 'oses' =>
   (
-   type => 'Text',
-   label => 'User name',
+   type => 'Hidden',
+   label => 'Provisioning type',
    required => 1,
-   messages => { required => 'Username Required' },
+   messages => { required => 'Please select Provisioning type' },
   );
-
-has_field 'password' =>
-  (
-   type => 'Password',
-   label => 'Password',
-   password => 0,
-   required => 1,
-   messages => { required => 'Password required' },
-  );
-
-has_field 'uri' =>
-  (
-   type => 'Text',
-   label => 'Uri',
-   required => 1,
-   messages => { required => 'Uri required' },
-  );
-
-has_block definition =>
-  (
-   render_list => [ qw(id description type username password uri) ],
-  );
-
-sub options_type {
-    return ({ label => 'Tem', value => 'tem'  } , { label => 'Symantec', value => 'symantec'});
-}
 
 =head1 COPYRIGHT
 
