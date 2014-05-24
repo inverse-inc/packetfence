@@ -173,8 +173,8 @@ msgstr ""
 msgid "Add Firewall SSO"
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/index.tt
-msgid "Add Mdm Entry"
+# html/pfappserver/root/configstore/provisioning/index.tt
+msgid "Add Provisioning Entry"
 msgstr ""
 
 # html/pfappserver/root/interface/list.tt
@@ -459,7 +459,7 @@ msgstr "Main Configuration - Update"
 msgid "CSV File"
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/index.tt
+# html/pfappserver/root/configstore/provisioning/index.tt
 # html/pfappserver/root/configuration/adminroles/index.tt
 # html/pfappserver/root/configuration/authentication.tt
 # html/pfappserver/root/configuration/firewall_sso/index.tt
@@ -509,7 +509,7 @@ msgstr ""
 msgid "Client_Support"
 msgstr "Client Support"
 
-# html/pfappserver/root/configstore/mdm/list.tt
+# html/pfappserver/root/configstore/provisioning/list.tt
 # html/pfappserver/root/configuration/adminroles/list.tt
 # html/pfappserver/root/configuration/firewall_sso/list.tt
 # html/pfappserver/root/configuration/floatingdevice/list.tt
@@ -522,7 +522,7 @@ msgstr ""
 # html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
-# html/pfappserver/root/configstore/mdm/view.tt
+# html/pfappserver/root/configstore/provisioning/view.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
 # html/pfappserver/root/configuration/firewall_sso/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
@@ -868,8 +868,8 @@ msgid ""
 msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
-# html/pfappserver/root/configstore/mdm/index.tt
-# html/pfappserver/root/configstore/mdm/list.tt
+# html/pfappserver/root/configstore/provisioning/index.tt
+# html/pfappserver/root/configstore/provisioning/list.tt
 # html/pfappserver/root/configuration/adminroles/index.tt
 # html/pfappserver/root/configuration/adminroles/list.tt
 # html/pfappserver/root/configuration/authentication.tt
@@ -912,8 +912,8 @@ msgstr ""
 msgid "Delete Floating Device"
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/index.tt
-msgid "Delete Mdm Entry"
+# html/pfappserver/root/configstore/provisioning/index.tt
+msgid "Delete Provisioning Entry"
 msgstr ""
 
 # html/pfappserver/root/portal/profile/index.tt
@@ -1412,7 +1412,7 @@ msgid ""
   "OS-level configuration but it does not make any OS-level changes."
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/list.tt
+# html/pfappserver/root/configstore/provisioning/list.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/soh/index.tt
@@ -1754,12 +1754,12 @@ msgstr "MAC Addresses - Read"
 msgid "MAC_UPDATE"
 msgstr "MAC Addresses - Update"
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "MDM ID"
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Provisioning.pm
+msgid "Provisioning ID"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "MDM type"
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Provisioning.pm
+msgid "Provisioning type"
 msgstr ""
 
 # pf::admin_roles (Actions)
@@ -1813,8 +1813,8 @@ msgid ""
   "a minute without being flagged as DoS. Defaults to 100"
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/view.tt
-msgid "Mdm Entry"
+# html/pfappserver/root/configstore/provisioning/view.tt
+msgid "Provisioning Entry"
 msgstr ""
 
 # html/pfappserver/root/user/view.tt
@@ -1929,8 +1929,8 @@ msgstr ""
 msgid "New Floating Device"
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/view.tt
-msgid "New Mdm Entry"
+# html/pfappserver/root/configstore/provisioning/view.tt
+msgid "New Provisioning Entry"
 msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
@@ -2158,7 +2158,7 @@ msgstr "Portal Profiles - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
 # html/pfappserver/root/admin/login.tt
@@ -2180,7 +2180,7 @@ msgstr ""
 msgid "Password for the mysql database used by PacketFence."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Provisioning.pm
 msgid "Password required"
 msgstr ""
 
@@ -2208,8 +2208,8 @@ msgstr ""
 msgid "Phone"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "Please select MDM type"
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Provisioning.pm
+msgid "Please select Provisioning type"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -2244,12 +2244,12 @@ msgstr "Please specify an identifier for the violation."
 msgid "Please specify the DNS server"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "Please specify the Description Mdm entry."
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Provisioning.pm
+msgid "Please specify the Description Provisioning entry."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "Please specify the ID of the Mdm entry."
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Provisioning.pm
+msgid "Please specify the ID of the Provisioning entry."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -2444,8 +2444,8 @@ msgstr "Reports"
 msgid "Really delete this Firewall SSO?"
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/index.tt
-msgid "Really delete this Mdm entry?"
+# html/pfappserver/root/configstore/provisioning/index.tt
+msgid "Really delete this Provisioning entry?"
 msgstr ""
 
 # html/pfappserver/root/configuration/adminroles/index.tt
@@ -2772,7 +2772,7 @@ msgstr "Switches - Update"
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
-# html/pfappserver/root/configstore/mdm/view.tt
+# html/pfappserver/root/configstore/provisioning/view.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
 # html/pfappserver/root/configuration/firewall_sso/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
@@ -2817,7 +2817,7 @@ msgstr ""
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
-# html/pfappserver/root/configstore/mdm/view.tt
+# html/pfappserver/root/configstore/provisioning/view.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
 # html/pfappserver/root/configuration/firewall_sso/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
@@ -3181,7 +3181,7 @@ msgstr ""
 msgid "Telephone"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Provisioning.pm
 msgid "Tem"
 msgstr ""
 
@@ -3497,11 +3497,11 @@ msgstr ""
 msgid "Upload failed"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Provisioning.pm
 msgid "Uri"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Provisioning.pm
 msgid "Uri required"
 msgstr ""
 
@@ -3541,7 +3541,7 @@ msgstr ""
 msgid "User agent"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Provisioning.pm
 msgid "User name"
 msgstr ""
 
@@ -3569,7 +3569,7 @@ msgstr ""
 msgid "Username Prefix"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
+# html/pfappserver/lib/pfappserver/Form/ConfigStore/Provisioning.pm
 msgid "Username Required"
 msgstr ""
 
