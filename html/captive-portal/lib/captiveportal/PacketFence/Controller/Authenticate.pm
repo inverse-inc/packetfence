@@ -11,6 +11,7 @@ use pf::authentication;
 use HTML::Entities;
 use List::MoreUtils qw(any);
 use pf::config;
+use pf::factory::provisioner;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -334,7 +335,7 @@ sub checkIfProvisionIsNeeded : Private {
     my $mac = $portalSession->clientMac;
     my $provisioner_name = $portalSession->getProfile()->getProvisioner();
     if (defined($provisioner_name)) {
-        my $provisioner = pf::provisioner->new($provisioner_name);
+        my $provisioner = pf::factory::provisioner->new($provisioner_name);
         $c->log->info("There is an provisioner : $provisioner_name");
         unless ($provisioner->authorize($mac) == 1) {
             $info->{status} = $pf::node::STATUS_PENDING;

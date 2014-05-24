@@ -18,6 +18,7 @@ use Cache::FileCache;
 use pf::activation;
 use pf::os;
 use List::MoreUtils qw(any);
+use pf::factory::provisioner;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -309,7 +310,7 @@ sub checkIfPending : Private {
     my $logger        = $c->log;
     if ( $node_info && $node_info->{'status'} eq $pf::node::STATUS_PENDING ) {
         if (defined(my $provisionerName = $profile->getProvisioner)) {
-            my $provisioner = pf::provisioner->new($provisionerName);
+            my $provisioner = pf::factory::provisioner->new($provisionerName);
             unless ($provisioner->authorize($mac)) {
                 $c->stash(
                     template => 'provisioner.html',
