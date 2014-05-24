@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More 'no_plan';
+use Test::More tests => 29;
 
 use_ok('pf::MAC') or die;
 use pf::MAC;
@@ -46,3 +46,17 @@ is( $mac->as_acct(),
     "pf::MAC::as_acct() and pf::util::format_for_acct return the same values."
 );
 is( $mac->as_acct(), $mac->format_for_acct(), "as_acct() and format_for_acct() return the same values" );
+
+my $mac2 = pf::MAC->new( mac => '0012.f013.32ba' );
+is( $mac eq $mac2, 1, "Overloaded string comparison eq compares internal MACS"); 
+
+my $mac3 = pf::MAC->new( mac => '00:12:f0:DE:AD:BE' );
+is( $mac ne $mac3, 1, "Overloaded string comparison ne works"); 
+
+is( $mac->in_OUI('00:12:f0'), 1, "MAC is in OUI");
+is( $mac->in_OUI('00:12:F0'), 1, "MAC is in OUI regardless of case");
+is( $mac->in_OUI('00-12-f0'), 1, "MAC is in OUI regardless of delimiter");
+is( $mac->in_OUI('0012f0'), 1, "MAC is in OUI without delimiter");
+is( $mac->in_OUI('00:12:f7'), 0, "MAC is not in wrong OUI");
+
+
