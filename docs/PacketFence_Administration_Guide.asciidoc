@@ -2403,25 +2403,25 @@ And can be defined using different criteria like:
 For example, lets define a rule that prevents a device from connecting when its category is the "default", when the SSID is "SECURE" and when the current time is between 11am and 2pm:
 from Monday to Friday when it try to connect as a registered device :
 
-  [1]
+  [category]
   filter = node_info
   attribute = category
   operator = is
   regexp = default
 
-  [2]
+  [ssid]
   filter = ssid
   operator = is
   regexp = SECURE
 
-  [3]
+  [time]
   filter = time
   operator = is
   regexp = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
 
-  [1:1&2&3]
+  [1:category&ssid&time]
   scope = NormalVlan
-  action = nointernet
+  role = nointernet
 
 You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
 

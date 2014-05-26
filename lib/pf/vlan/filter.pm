@@ -58,7 +58,8 @@ sub test {
                 $test =~ s/\&/ \&\& /g;
                 if (eval $test) {
                     $logger->info("Match Vlan rule: ".$rule);
-                    my $role = $ConfigVlanFilters{$rule}->{'action'};
+                    my $role = $ConfigVlanFilters{$rule}->{'role'};
+                    #TODO Add action that can be sent to the WebAPI
                     my $vlan = $switch->getVlanByName($role);
                     return ($vlan, $role);
                 }
@@ -94,22 +95,6 @@ sub dispatch_rule {
     return $key->{$rule->{'filter'}}->($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
 }
 
-=item dispatch_action
-
-Return the reference to the function that performs the action.
-
-=cut
-
-sub action {
-    my ($self, $rule) = @_;
-
-    if ($rule->{'action'}) {
-        return $rule->{'action'};
-    } else {
-        return 1;
-    }
-}
-
 =item node_info_parser
 
 Parse the node_info attribute and compare to the rule. If it matches then perform the action.
@@ -120,23 +105,37 @@ sub node_info_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
     if ($rule->{'operator'} eq 'is') {
-        if ($node_info->{$rule->{'attribute'}} =~ /$rule->{'regexp'}/) {
+        if ($node_info->{$rule->{'attribute'}} eq $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'is_not') {
+        if ($node_info->{$rule->{'attribute'}} ne $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif  ($rule->{'operator'} eq 'match') {
+        if ($node_info->{$rule->{'attribute'}} =~ m/$rule->{'regexp'}/) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match_not') {
+        if ($node_info->{$rule->{'attribute'}} !~ m/$rule->{'regexp'}/) {
             return 1;
         } else {
             return 0;
         }
     } else {
-        if ($node_info->{$rule->{'attribute'}} !~ /$rule->{'regexp'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return 0;
     }
 }
 
 =item switch_parser
 
-Parse the switch attribute and compare to the rule. If it matches then perform the action.
+Parse the switch attribute and compare to the rule. If it matches then return true.
 
 =cut
 
@@ -144,23 +143,37 @@ sub switch_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
     if ($rule->{'operator'} eq 'is') {
-        if ($switch->{$rule->{'attribute'}} =~ /$rule->{'regexp'}/) {
+        if ($switch->{$rule->{'attribute'}} eq $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'is_not') {
+        if ($switch->{$rule->{'attribute'}} ne $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match') {
+        if ($switch->{$rule->{'attribute'}} =~ m/$rule->{'regexp'}/) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match_not') {
+        if ($switch->{$rule->{'attribute'}} !~ m/$rule->{'regexp'}/) {
             return 1;
         } else {
             return 0;
         }
     } else {
-        if ($switch->{$rule->{'attribute'}} !~ /$rule->{'regexp'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return 0;
     }
 }
 
 =item ifindex_parser
 
-Parse the ifindex value and compare to the rule. If it matches then perform the action.
+Parse the ifindex value and compare to the rule. If it matches then return true.
 
 =cut
 
@@ -168,23 +181,37 @@ sub ifindex_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
     if ($rule->{'operator'} eq 'is') {
-        if ($ifIndex =~ /$rule->{'regexp'}/) {
+        if ($ifIndex eq $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'is_not') {
+        if ($ifIndex ne $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match') {
+        if ($ifIndex =~ m/$rule->{'regexp'}/) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match_not') {
+        if ($ifIndex !~ m/$rule->{'regexp'}/) {
             return 1;
         } else {
             return 0;
         }
     } else {
-        if ($ifIndex !~ /$rule->{'regexp'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return 0;
     }
 }
 
 =item mac_parser
 
-Parse the mac value and compare to the rule. If it matches then perform the action.
+Parse the mac value and compare to the rule. If it matches then return.
 
 =cut
 
@@ -192,23 +219,37 @@ sub mac_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
     if ($rule->{'operator'} eq 'is') {
-        if ($mac =~ /$rule->{'regexp'}/) {
+        if ($mac eq $rule->{'regexp'} {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'is_not') {
+        if ($mac ne $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match') {
+        if ($mac =~ m/$rule->{'regexp'}/) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match_not') {
+        if ($mac !~ m/$rule->{'regexp'}/) {
             return 1;
         } else {
             return 0;
         }
     } else {
-        if ($mac !~ /$rule->{'regexp'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return 0;
     }
 }
 
 =item connection_type_parser
 
-Parse the connection_type value and compare to the rule. If it matches then perform the action.
+Parse the connection_type value and compare to the rule. If it matches then return true.
 
 =cut
 
@@ -216,23 +257,37 @@ sub connection_type_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
  
     if ($rule->{'operator'} eq 'is') {
-        if ($connection_type_to_str{$connection_type} =~ /$rule->{'regexp'}/) {
+        if ($connection_type_to_str{$connection_type} eq $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'is_not') {
+        if ($connection_type_to_str{$connection_type} ne $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match') {
+        if ($connection_type_to_str{$connection_type} =~ m/$rule->{'regexp'}/) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match_not') {
+        if ($connection_type_to_str{$connection_type} !~ m/$rule->{'regexp'}/) {
             return 1;
         } else {
             return 0;
         }
     } else {
-        if ($connection_type_to_str{$connection_type} !~ /$rule->{'regexp'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return 0;
     }
 }
 
 =item username_parser
 
-Parse the ursername value and compare to the rule. If it matches then perform the action.
+Parse the ursername value and compare to the rule. If it matches then return true.
 
 =cut
 
@@ -240,23 +295,37 @@ sub username_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
     if ($rule->{'operator'} eq 'is') {
-        if ($user_name =~ /$rule->{'regexp'}/) {
+        if ($user_name eq $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'is_not') {
+        if ($user_name ne $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match') {
+        if ($user_name =~ m/$rule->{'regexp'}/) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match_not') {
+        if ($user_name !~ m/$rule->{'regexp'}/) {
             return 1;
         } else {
             return 0;
         }
     } else {
-        if ($user_name !~ /$rule->{'regexp'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return 0;
     }
 }
 
 =item ssid_parser
 
-Parse the ssid valus and compare to the rule. If it matches then perform the action.
+Parse the ssid valus and compare to the rule. If it matches then return true.
 
 =cut
 
@@ -264,17 +333,31 @@ sub ssid_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
     if ($rule->{'operator'} eq 'is') {
-        if ($ssid =~ /$rule->{'regexp'}/) {
+        if ($ssid eq $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'is_not') {
+        if ($ssid ne $rule->{'regexp'}) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match') {
+        if ($ssid =~ m/$rule->{'regexp'}/) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match_not') {
+        if ($ssid !~ m/$rule->{'regexp'}/) {
             return 1;
         } else {
             return 0;
         }
     } else {
-        if ($ssid !~ /$rule->{'regexp'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return 0;
     }
 }
 
@@ -294,12 +377,14 @@ sub time_parser {
         } else {
             return 0;
         }
-    } else {
+    } elsif ($rule->{'operator'} eq 'is_not') {
         if (!inPeriod($time,$rule->{'regexp'})) {
             return 1;
         } else {
             return 0;
         }
+    } else {
+        return 0;
     }
 }
 
