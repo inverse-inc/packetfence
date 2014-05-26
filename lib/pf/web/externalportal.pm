@@ -34,15 +34,108 @@ use pf::web::util;
 
 =item new
 
-=cut
+Constructor
 
+=cut
 sub new {
-   my $logger = Log::Log4perl::get_logger("pf::web::externalportal");
-   $logger->debug("instantiating new pf::web::externalportal");
-   my ( $class, %argv ) = @_;
-   my $self = bless {}, $class;
-   return $self;
+    my ( $class, %arg ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $logger->trace("Instanciating a new " . __PACKAGE__ . " object");
+
+    my $this = bless {
+        'is_external_portal'    => undef,
+        'type'                  => undef,
+    }, $class;
+
+    foreach my $value ( keys %arg ) {
+        $this->{'_' . $value} = $arg{$value};
+    }
+
+    return $this;
 }
+
+=item _setIsExternalPortal
+
+PRIVATE METHOD: Should be call only from within this class.
+
+Set _is_exernal_portal object attribute
+
+Value ($value) can be either true or false.
+
+We are not sanitizing the input of $value. Since this method is a private one, we trust the caller (another 
+method from within the class) to sanitize it.
+
+=cut
+sub _setIsExternalPortal {
+    my ( $this, $value ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $logger->debug("Setting object attribute _is_external_portal to $value");
+
+    $this->{_is_external_portal} = $value;
+}
+
+=item _setType
+
+PRIVATE METHOD: Should be call only from within this class.
+
+Set _type object attribute
+
+Value ($value) is the type of the external captive portal (Cisco, Ruckus, ...)
+
+We are not sanitizing the input of $value. Since this method is a private one, we trust the caller (another 
+method from within the class) to sanitize it.
+
+=cut
+sub _setType {
+    my ( $this, $value ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $logger->debug("Setting object attribute _type to $value");
+
+    $this->{_type} = $value;
+}
+
+=item isExternalPortal
+
+Return true or false (the value of the _is_external_portal object attribute).
+
+=cut
+sub isExternalPortal {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $value = $this->{_is_external_portal};
+    $logger->debug("Returning value $value");
+
+    return $value;
+}
+
+=item getType
+
+Return the type of the external captive portal (Cisco, Ruckus, ...)
+
+=cut
+sub getType {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $value = $this->{_type};
+    $logger->debug("Returning value $value");
+
+    return $value;
+}
+
+=item detect
+
+Detect if we're dealing with an external captive portal or not and set object attributes accordingly.
+
+=cut
+sub detect {
+    my ( $this ) = @_;
+}
+
 
 =item external_captive_portal
 
