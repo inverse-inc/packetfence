@@ -265,6 +265,8 @@ sub new {
         '_ip'                       => undef,
         '_portalURL'                => undef,
         '_switchMac'                => undef,
+        '_VlanMap'                  => undef,
+        '_RoleMap'                  => undef,
     }, $class;
 
     foreach ( keys %argv ) {
@@ -358,6 +360,10 @@ sub new {
             $this->{_switchMac} = $argv{$_};
         } elsif (/^-?portalURL$/i) {
             $this->{_portalURL} = $argv{$_};
+        } elsif (/^-?VlanMap$/i) {
+            $this->{_VlanMap} = $argv{$_};
+        } elsif (/^-?RoleMap$/i) {
+            $this->{_RoleMap} = $argv{$_};
         }
         # customVlan members are now dynamically generated. 0 to 99 supported.
         elsif (/^-?(\w+)Vlan$/i) {
@@ -2730,8 +2736,8 @@ sub returnRadiusAccessAccept {
 
     # Inline Vs. VLAN enforcement
     my $radius_reply_ref = {};
-
-    if (!$wasInline || ($wasInline && $vlan != 0)) {
+    my $role = "";
+    if ( (!$wasInline || ($wasInline && $vlan != 0) ) && isenabled($self->{_VlanMap})) {
         $radius_reply_ref = {
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,
@@ -2739,34 +2745,23 @@ sub returnRadiusAccessAccept {
         };
     }
 
-    # TODO this is experimental
-    try {
-        if ($self->supportsRoleBasedEnforcement()) {
-            $logger->debug("network device supports roles. Evaluating role to be returned");
-            my $role = "";
-            if ( defined($user_role) && $user_role ne "" ) {
-                $role = $self->getRoleByName($user_role);
-            }
-            if ( defined($role) && $role ne "" ) {
-                $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
-                $logger->info(
-                    "Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
-                );
-            }
-            else {
-                $logger->debug("received undefined role. No Role added to RADIUS Access-Accept");
-            }
+    if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+        $logger->debug("network device supports roles. Evaluating role to be returned");
+        if ( defined($user_role) && $user_role ne "" ) {
+            $role = $self->getRoleByName($user_role);
+        }
+        if ( defined($role) && $role ne "" ) {
+            $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
+            $logger->info(
+                "Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
+            );
+        }
+        else {
+            $logger->debug("received undefined role. No Role added to RADIUS Access-Accept");
         }
     }
-    catch {
-        chomp($_);
-        $logger->debug(
-            "Exception when trying to resolve a Role for the node. No Role added to RADIUS Access-Accept. "
-            . "Exception: $_"
-        );
-    };
 
-    $logger->info("Returning ACCEPT with VLAN: $vlan");
+    $logger->info("Returning ACCEPT with VLAN: $vlan and ROLE $role");
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 

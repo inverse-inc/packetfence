@@ -63,6 +63,17 @@ has_field 'deauthMethod' =>
    label => 'Deauthentication Method',
    element_class => ['chzn-deselect'],
   );
+has_field 'VlanMap' =>
+  (
+   type => 'Toggle',
+   label => 'Role mapping by Vlan',
+  );
+
+has_field 'RoleMap' =>
+  (
+   type => 'Toggle',
+   label => 'Role mapping by switch role',
+  );
 has_field 'VoIPEnabled' =>
   (
    type => 'Toggle',
@@ -211,7 +222,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
+   render_list => [ qw(description type mode deauthMethod VlanMap RoleMap VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
   );
 has_field 'SNMPVersion' =>
   (
