@@ -44,8 +44,10 @@ sub new {
     $logger->trace("Instanciating a new " . __PACKAGE__ . " object");
 
     my $this = bless {
-        'is_external_portal'    => $FALSE,
-        'type'                  => undef,
+        '_is_external_portal'           => $FALSE,
+        '_type'                         => undef,
+        '_network_equipment_identifier' => undef,
+        '_network_equipment_id'         => undef,
     }, $class;
 
     foreach my $value ( keys %arg ) {
@@ -55,46 +57,41 @@ sub new {
     return $this;
 }
 
-=item _setIsExternalPortal
+=item _setObjectAttributes
 
 PRIVATE METHOD: Should be call only from within this class.
 
-Set _is_exernal_portal object attribute
-
-Value ($value) can be either true or false.
-
-We are not sanitizing the input of $value. Since this method is a private one, we trust the caller (another 
+NOTE: We are not sanitizing the input of $value. Since this method is a private one, we trust the caller (another
 method from within the class) to sanitize it.
 
-=cut
-sub _setIsExternalPortal {
-    my ( $this, $value ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+Used to set a single or multiple object attribute(s). We are prepending the underscore (_) so don't bother.
 
-    $logger->debug("Setting object attribute _is_external_portal to $value");
+Usage example:
 
-    $this->{_is_external_portal} = $value;
+Multiple values;
+%arg => {
+        is_external_portal  => $TRUE,
+        type                => "Cisco",
 }
 
-=item _setType
+$this->_setObjectAttributes(%arg);
 
-PRIVATE METHOD: Should be call only from within this class.
+Single value;
+%arg => {
+        is_external_portal  => $TRUE,
+}
 
-Set _type object attribute
-
-Value ($value) is the type of the external captive portal (Cisco, Ruckus, ...)
-
-We are not sanitizing the input of $value. Since this method is a private one, we trust the caller (another 
-method from within the class) to sanitize it.
+$this->_setObjectAttributes(%arg);
 
 =cut
-sub _setType {
-    my ( $this, $value ) = @_;
+sub _setObjectAttributes {
+    my ($this, %arg) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    $logger->debug("Setting object attribute _type to $value");
-
-    $this->{_type} = $value;
+    foreach my $value ( keys %arg ) {
+        $logger->debug("Setting object attribute _" . $value . " to " . $arg{$value});
+        $this->{'_' . $value} = $arg{$value};
+    }
 }
 
 =item isExternalPortal
