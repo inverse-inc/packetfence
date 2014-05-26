@@ -23,7 +23,7 @@ Enhancements
 ++++++++++++
 
 * When validating an email confirmation code, use the same portal profile initially used by to register the device
-* Removed old iptables code (ipset is always use for inline)
+* Removed old iptables code (ipset is now always used for inline enforcement)
 
 Bug Fixes
 +++++++++
