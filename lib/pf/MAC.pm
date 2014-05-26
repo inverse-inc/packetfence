@@ -29,11 +29,18 @@ use warnings;
 
 use base 'Net::MAC';
 
+use overload
+    '""' => sub { return $_[0]->get_mac(); },
+    '==' => \&_compare_value,
+    '!=' => \&_compare_value_ne,
+    'eq' => \&_compare_string,
+    'ne' => \&_compare_string_ne;
+
 =item clean
 
 Cleans a MAC address. 
 
-Returns an untainted pf::MAC with MAC in format: XX:XX:XX:XX:XX:XX (uppercased).
+Returns an untainted pf::MAC with MAC in format: xx:xx:xx:xx:xx:xx (lowercased).
 
 =cut
 
@@ -94,13 +101,27 @@ sub get_dec_stripped {
 
 =item get_oui
 
+Returns the OUI for the MAC as an lowercased hex string with : delimiters.
+
+This is the format PF uses.
+
+=cut
+
+sub get_oui {
+    my $self     = shift;
+    my $IEEE_mac = $self->as_IEEE() ;
+    return substr( lc $IEEE_mac, 0, 8 );
+}
+
+=item get_IEEE_oui
+
 Returns the OUI for the MAC as an uppercased hex string with - delimiters.
 
 This is the format the IEEE uses.
 
 =cut
 
-sub get_oui {
+sub get_IEEE_oui {
     my $self     = shift;
     my $IEEE_mac = $self->as_Microsoft->get_mac();
     return substr( $IEEE_mac, 0, 8 );
@@ -115,7 +136,7 @@ Returns a decimal value of the OUI stripped of any delimiters.
 sub get_dec_oui {
     my $self = shift;
     my $oui  = $self->get_oui();
-    $oui =~ s/-//g;
+    $oui =~ s/[^[:xdigit:]]//g;
     return hex($oui);
 }
 
@@ -184,6 +205,84 @@ Equivalent to as_acct();
 
 *format_for_acct = \&as_acct;
 
+
+=item in_OUI
+
+Checks whether a MAC is part of an OUI. It expects the OUI to be passed 
+as a string of hexadecimal digits, with or without separators.
+Returns 0 or 1.
+
+=cut
+
+sub in_OUI {
+    my ($self, $oui) = @_;
+    $oui = lc $oui;
+    $oui =~ s/[^[:xdigit:]]//g;
+    my $internal_oui = substr($self->get_internal_mac,0,6);
+    if ( $internal_oui eq $oui ) { return 1; }
+    else                         { return 0; }
+}
+
+# Operators overloading.
+# We need to "over-overload" some of the operators from the parent class (Net::MAC). 
+# Specifically, the eq and ne operators differ from the parent. 
+# We want them to compre the internal MAC and not the string as passed to the constructor.
+# There are too many places in PF relying on that as it is to redefine that behavior.
+
+# Overloading the eq operator (string comparison)
+sub _compare_string {
+    my ( $arg_1, $arg_2, $reversed ) = @_;
+    my ( $mac_1, $mac_2 );
+    if ( UNIVERSAL::isa( $arg_2, 'pf::MAC' ) ) {
+        $mac_2 = $arg_2->get_internal_mac();
+    }
+    else {
+        my $temp = Net::MAC->new( mac => $arg_2 );
+        $mac_2 = $temp->get_internal_mac();
+    }
+    $mac_1 = $arg_1->get_internal_mac();
+    if   ( $mac_1 eq $mac_2 ) { return (1); }
+    else                      { return (0); }
+}
+
+# Overloading the ne operator (string comparison)
+sub _compare_string_ne {
+    my ( $arg_1, $arg_2, $reversed ) = @_;
+    my ( $mac_1, $mac_2 );
+    if ( UNIVERSAL::isa( $arg_2, 'pf::MAC' ) ) {
+        $mac_2 = $arg_2->get_internal_mac();
+    }
+    else {
+        my $temp = Net::MAC->new( mac => $arg_2 );
+        $mac_2 = $temp->get_internal_mac();
+    }
+    $mac_1 = $arg_1->get_internal_mac();
+    if   ( $mac_1 ne $mac_2 ) { return (1); }
+    else                      { return (0); }
+}
+
+# Overloading the == operator (numerical comparison)
+sub _compare_value {
+    my ( $arg_1, $arg_2, $reversed ) = @_;
+    my ( $mac_1, $mac_2 );
+    if ( UNIVERSAL::isa( $arg_2, 'Net::MAC' ) ) {
+        $mac_2 = $arg_2->get_internal_mac();
+    }
+    else {
+        my $temp = Net::MAC->new( mac => $arg_2 );
+        $mac_2 = $temp->get_internal_mac();
+    }
+    $mac_1 = $arg_1->get_internal_mac();
+    if   ( $mac_1 eq $mac_2 ) { return (1); }
+    else                      { return (0); }
+}
+
+# Overloading the != operator (numeric comparison)
+sub _compare_value_ne {
+    my ( $arg_1, $arg_2 ) = @_;
+    if   ( $arg_1 == $arg_2 ) { return (0); }
+    else                      { return (1); }
+}
 =back
 
 =head1 AUTHOR

@@ -34,6 +34,7 @@ Enhancements
 * No longer need to repopulate password when updating a LDAP authentication source
 * Added check for profile directory existance
 * Added the ability to login from the status page
+* New pf::MAC class to manage MAC adresses.
 
 Bug Fixes
 ++++++++++++
