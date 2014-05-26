@@ -7,7 +7,7 @@ pf::firewallsso::FortiGate
 =head1 SYNOPSIS
 
 The pf::firewallsso::FortiGate module implements an object oriented interface
-to access and manage Aruba Wireless Controllers.
+to update the user table.
 
 =cut
 
@@ -28,10 +28,8 @@ use pf::accounting qw(node_accounting_current_sessionid);
 
 =item action
 
-Blabla ... Perform a radius request based on the registered status of the node and his role.
-We hardcode the NAS IP (Fortigate IP) and the secret for now.
+Perform a radius accounting request based on the registered status of the node and his role.
 
-TODO = make the IP and secret for Firewall dynamic (adding field in pf.conf and adminGUI)
 
 =cut
 
@@ -85,10 +83,6 @@ Minor parts of this file may have been contributed. See CREDITS.
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2014 Inverse inc.
-
-Copyright (C) 2005 Kevin Amorin
-
-Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 

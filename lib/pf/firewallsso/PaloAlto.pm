@@ -7,7 +7,7 @@ pf::firewallsso::PaloAlto
 =head1 SYNOPSIS
 
 The pf::firewallsso::PaloAlto module implements an object oriented interface
-to access and manage Aruba Wireless Controllers.
+to update the user table.
 
 =cut
 
@@ -28,6 +28,12 @@ use HTTP::Request::Common;
 
 #Export environement variables for LWP
 $ENV{'PERL_LWP_SSL_VERIFY_HOSTNAME'} = 0;
+
+=item action
+
+Perform a xml api request based on the registered status of the node and his role.
+
+=cut
 
 sub action {
     my ($self,$firewall_conf,$method,$mac,$ip,$timeout) = @_;
@@ -104,10 +110,6 @@ Minor parts of this file may have been contributed. See CREDITS.
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2014 Inverse inc.
-
-Copyright (C) 2005 Kevin Amorin
-
-Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 
