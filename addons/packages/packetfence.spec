@@ -239,6 +239,7 @@ Requires: perl(Cache::FastMmap)
 Requires: perl(Moo) >= 1.003000
 Requires: perl(Term::ANSIColor)
 Requires: perl(IO::Interactive)
+Requires: perl(Net::ARP)
 Requires: perl(Module::Loaded)
 Requires: perl(Linux::FD)
 Requires: perl(Linux::Inotify2)

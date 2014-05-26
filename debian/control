@@ -72,7 +72,7 @@ Depends: ${misc:Depends}, vlan, make,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libthread-conveyor-monitored-perl, libthread-conveyor-perl, libthread-tie-perl,
  liberror-perl, libio-socket-inet6-perl,
- libio-interface-perl, libnet-route-perl,
+ libio-interface-perl, libnet-route-perl, libnet-arp-perl,
 # required by catalyst
  libcatalyst-perl, libcatalyst-modules-perl,
  libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl, 

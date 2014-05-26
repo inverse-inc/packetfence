@@ -25,6 +25,8 @@ use Net::Ping;
 use Date::Parse;
 use Log::Log4perl;
 use Log::Log4perl::Level;
+use IO::Interface::Simple;
+use Net::ARP;
 
 use constant IPLOG => 'iplog';
 
@@ -324,26 +326,17 @@ sub ip2macinarp {
     my ($ip) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iplog');
     return (0) if ( !valid_ip($ip) );
-    my $mac;
     $ip = clean_ip($ip);
-    my @arpList = pf_run("$Config{services}{arp_binary} -n -a $ip");
-    my $lineNb  = 0;
-    while ( ( $lineNb < scalar(@arpList) ) && ( !$mac ) ) {
-        if ( $arpList[$lineNb]
-            =~ /\($ip\) at ([0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2})/i
-            )
-        {
-            $mac = $1;
+    my @interfaces = IO::Interface::Simple->interfaces;
+    for my $if (@interfaces) {
+        my $mac = Net::ARP::arp_lookup($if,$ip);
+        if ( $mac ne 'unknown') {
             $mac = clean_mac($mac);
-            $logger->info("resolved $ip to mac ($mac) in ARP table");
+            return $mac;
         }
-        $lineNb++;
     }
-    if ( !$mac ) {
-        $logger->info("could not resolve $ip to mac in ARP table");
-        return (0);
-    }
-    return $mac;
+    $logger->info("could not resolve $ip to mac in ARP table");
+    return (0);
 }
 
 sub mac2ip {
