@@ -160,7 +160,7 @@ sub returnRadiusAccessAccept {
 
     my $role = $this->getRoleByName($user_role);
     # Roles are configured and the user should have one
-    if (defined($role) && isenabled($self->{_RoleMap})) {
+    if (defined($role) && isenabled($this->{_RoleMap})) {
         my $node_info = node_view($mac);
         if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED) {
             $radius_reply_ref = {
@@ -184,7 +184,7 @@ sub returnRadiusAccessAccept {
 
 
     # if Roles aren't configured, return VLAN information
-    if (isenabled($self->{_RoleVlan}) ) {
+    if (isenabled($this->{_RoleVlan}) ) {
 
         $radius_reply_ref = {
             %$radius_reply_ref,
