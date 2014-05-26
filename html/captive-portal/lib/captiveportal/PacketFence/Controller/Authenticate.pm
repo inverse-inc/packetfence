@@ -342,10 +342,7 @@ sub checkIfProvisionIsNeeded : Private {
             $info->{status} = $pf::node::STATUS_PENDING;
             node_modify($mac, %$info);
             $c->stash(
-                template      => 'provisioner.html',
-                external_ip   => $Config{'captive_portal'}{'network_detection_ip'},
-                retry_delay   => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
-                initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
+                template      => 'provisioner.html',  
                 agent_download_uri => $provisioner->{'agent_download_uri'},
                 alt_agent_download_uri => $provisioner->{'alt_agent_download_uri'},
             );
