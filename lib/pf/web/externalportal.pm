@@ -44,7 +44,7 @@ sub new {
     $logger->trace("Instanciating a new " . __PACKAGE__ . " object");
 
     my $this = bless {
-        'is_external_portal'    => undef,
+        'is_external_portal'    => $FALSE,
         'type'                  => undef,
     }, $class;
 
