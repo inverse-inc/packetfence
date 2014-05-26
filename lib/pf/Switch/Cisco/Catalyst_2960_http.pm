@@ -1,13 +1,12 @@
 package pf::Switch::Cisco::Catalyst_2960_http;
 =head1 NAME
 
-pf::Switch::Cisco::WLC_http - Object oriented module to parse manage
-Cisco Wireless Controllers (WLC) and Wireless Service Modules (WiSM) with http redirect
+pf::Switch::Cisco::Catalyst_2960_http - Object oriented module to parse and manage
+Catalyst 2960 with http redirect
 
 =head1 STATUS
 
-Developed and tested on firmware version 7.6.100 (should work on 7.4.100).
-With CWA mode (not available for LWA)
+Developped and tested on IOS 15.0(2)SE5
 
 =over
 
@@ -89,14 +88,6 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     my ($this, $ifIndex, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
-
-    #$logger->warn("Until CoA is implemented we will bounce the port on VLAN re-assignment traps for MAC-Auth");
-
-    # TODO perform CoA instead (when implemented)
-    # actually once CoA will be implemented, we should consider offering the same option to users
-    # as we currently do with port-security and VoIP which is bounce or not bounce and suffer consequences
-    # this should be a choice exposed in configuration and not hidden in code
     $this->radiusDisconnect($mac);
 }
 
@@ -230,14 +221,7 @@ sub radiusDisconnect {
 
     $logger->info("deauthenticating $mac");
 
-    # Where should we send the RADIUS CoA-Request?
-    # to network device by default
-    my $send_disconnect_to = $self->{'_ip'};
-    # but if controllerIp is set, we send there
-    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
-        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
-        $send_disconnect_to = $self->{'_controllerIp'};
-    }
+    my $send_disconnect_to = $self->{'_ip'}; 
     # allowing client code to override where we connect with NAS-IP-Address
     $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
         if (defined($add_attributes_ref->{'NAS-IP-Address'}));
@@ -278,7 +262,6 @@ sub radiusDisconnect {
             ( violation_count_trap($mac) == 0 )  &&
             ( $node_info->{'status'} eq 'reg' )
            ) {
-            $logger->info("Returning ACCEPT with Role: $role");
 
             $response = perform_coa($connection_info, $attributes_ref, [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=reauthenticate' }]);
         }
@@ -353,7 +336,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
