@@ -16,7 +16,7 @@ Version 4.x.y released on YYYY-MM-DD
 
 New Features
 ++++++++++++
-
+ * Support for Huawei S5710
 Enhancements
 ++++++++++++
 
