@@ -124,6 +124,40 @@ sub getType {
     return $value;
 }
 
+*type = \&getType;
+
+=item getNetworkEquipmentIdentifier
+
+How we identify the network equipment (using his MAC address, IP address, name, ...)
+
+=cut
+sub getNetworkEquipmentIdentifier {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $value = $this->{_network_equipment_identifier};
+    $logger->debug("Returning value $value");
+
+    return $value;
+}
+
+=item getNetworkEquipmentId
+
+The value of the network equipment identifier (the MAC address, the IP address, the name (of the equipment itself))
+
+=cut
+sub getNetworkEquipmentId {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $value = $this->{_network_equipment_id};
+    $logger->debug("Returning value $value");
+
+    return $value;
+}
+
+*switchId = \&getNetworkEquipmentId;
+
 =item detect
 
 Detect if we're dealing with an external captive portal or not and set object attributes accordingly.
