@@ -48,6 +48,7 @@ sub new {
         '_type'                         => undef,
         '_network_equipment_identifier' => undef,
         '_network_equipment_id'         => undef,
+        '_session_id'                   => undef,
     }, $class;
 
     foreach my $value ( keys %arg ) {
@@ -93,7 +94,22 @@ sub _setObjectAttributes {
         $this->{'_' . $attribute} = $arg{$attribute};
     }
 }
+
+=item getObjectAttributes
+
+=cut
+sub getObjectAttributes {
+    my ( $this, @arg ) = @_;
+    my $logger - Log::Log4perl::get_logger(__PACKAGE__);
+
+    my %attributes;
+
+    foreach my $attribute ( @arg ) {
+        $logger->debug("Returning value " . $this->{"_" . $attribute} . " for requested attribute _" . $attribute);
+        $attributes{$attribute} = $this->{"_" . $attribute};
     }
+
+    return \%attributes;
 }
 
 =item isExternalPortal
@@ -103,12 +119,7 @@ Return true or false (the value of the _is_external_portal object attribute).
 =cut
 sub isExternalPortal {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $value = $this->{_is_external_portal};
-    $logger->debug("Returning value $value");
-
-    return $value;
+    return $this->getObjectAttributes("is_external_portal");
 }
 
 =item getType
@@ -118,30 +129,10 @@ Return the type of the external captive portal (Cisco, Ruckus, ...)
 =cut
 sub getType {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $value = $this->{_type};
-    $logger->debug("Returning value $value");
-
-    return $value;
+    return $this->getObjectAttributes("type");
 }
 
 *type = \&getType;
-
-=item getNetworkEquipmentIdentifier
-
-How we identify the network equipment (using his MAC address, IP address, name, ...)
-
-=cut
-sub getNetworkEquipmentIdentifier {
-    my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $value = $this->{_network_equipment_identifier};
-    $logger->debug("Returning value $value");
-
-    return $value;
-}
 
 =item getNetworkEquipmentId
 
@@ -150,15 +141,20 @@ The value of the network equipment identifier (the MAC address, the IP address, 
 =cut
 sub getNetworkEquipmentId {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $value = $this->{_network_equipment_id};
-    $logger->debug("Returning value $value");
-
-    return $value;
+    return $this->getObjectAttributes("network_equipment_id");
 }
 
 *switchId = \&getNetworkEquipmentId;
+
+=item getSessionId
+
+=cut
+sub getSessionId {
+    my ( $this ) = @_;
+    return $this->getObjectAttributes("session_id");
+}
+
+*session = \&getSessionId;
 
 =item detect
 
@@ -166,7 +162,43 @@ Detect if we're dealing with an external captive portal or not and set object at
 
 =cut
 sub detect {
-    my ( $this ) = @_;
+    my ( $this, $r ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $req = Apache2::Request->new($r);
+
+    # Check if we have a valid "network equipment identifier" based on the ones we know. L<pf::web::constants>
+    foreach my $param ( $req->param ) {
+        if ( $param =~ /$WEB::EXTERNAL_PORTAL_PARAM/o ) {
+            
+        }
+    }
+
+
+
+    foreach my $param ($req->param) {
+        if ($param =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
+            my $value;
+            $value = clean_mac($req->param($param)) if valid_mac($req->param($param));
+            $value = $req->param($param) if  valid_ip($req->param($param));
+            if (defined($value)) {
+                my $cgi_session_id = $self->external_captive_portal($value,$req,$r,undef);
+                if ($cgi_session_id ne '0') {
+                    return $cgi_session_id;
+                }
+            }
+        }
+    }
+
+    # Try to fetch the parameters in the session
+    if ($r->uri =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
+        my $cgi_session_id = $self->external_captive_portal(undef,undef,$r,$1);
+            if ($cgi_session_id ne '0') {
+                return $cgi_session_id;
+            }
+    }
+
+    return 0;
 }
 
 
