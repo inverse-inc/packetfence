@@ -38,6 +38,7 @@ use pf::web::constants;
 use pf::web::util;
 use pf::web::constants;
 use pf::log;
+use pf::email_activation;
 
 =head1 CONSTANTS
 
@@ -84,6 +85,7 @@ sub _initialize {
     my ($self,$mac) = @_;
     my $logger = get_logger();
     my $cgi = new CGI;
+    my $options;
     $cgi->charset("UTF-8");
 
     $self->{'_cgi'} = $cgi;
@@ -119,6 +121,15 @@ sub _initialize {
         $self->session->param('_profile',pf::Portal::ProfileFactory->instantiate($self->getClientMac,$option));
         $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
                 return pf::Portal::ProfileFactory->instantiate($self->getClientMac,$option);
+            }
+        );
+    } elsif (defined($cgi->url_param('code'))) {
+        my $data = view_by_code("1:".$cgi->param('code'));
+        $options = {
+            'portal' => $data->{portal},
+        };
+        $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
+                return pf::Portal::ProfileFactory->instantiate($self->getClientMac,$options);
             }
         );
     } else {

@@ -22,10 +22,13 @@ New Features
 Enhancements
 ++++++++++++
 
+* When validating an email confirmation code, use the same portal profile initially used by to register the device
+
 Bug Fixes
 +++++++++
 
 * Compute unregdate for autoreg 802.1x
+* Fixed portal profile URI filter in new Catalyst-based captive-portal
 
 Version 4.2.1 released on 2014-05-15
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

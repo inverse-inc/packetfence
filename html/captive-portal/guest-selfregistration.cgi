@@ -132,7 +132,8 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
               : $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION
           ),
           $pf::email_activation::GUEST_ACTIVATION,
-          %info
+          $portalSession->getName,
+          %info,
       );
 
       if (!$session->param("preregistration")) {
@@ -253,7 +254,8 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
           $portalSession->getGuestNodeMac(), $pid, $info{'sponsor'},
           $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_ACTIVATION,
           $pf::email_activation::SPONSOR_ACTIVATION,
-          %info
+          $portalSession->getName,
+          %info,
       );
 
       # on-site: redirection will show pending page (unless there's a violation for the node)

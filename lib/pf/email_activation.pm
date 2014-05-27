@@ -130,32 +130,32 @@ sub email_activation_db_prepare {
     $logger->debug("Preparing pf::email_activation database queries");
 
     $email_activation_statements->{'email_activation_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, email, activation_code, expiration, status, type
+        SELECT code_id, pid, mac, email, activation_code, expiration, status, type, portal
         FROM email_activation 
         WHERE code_id = ?
     ]);
 
     $email_activation_statements->{'email_activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, email, activation_code, expiration, status, type
+        SELECT code_id, pid, mac, email, activation_code, expiration, status, type, portal
         FROM email_activation 
         WHERE activation_code LIKE ? AND status = ?
     ]);
 
     $email_activation_statements->{'email_activation_find_code_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, email, activation_code, expiration, status, type
+        SELECT code_id, pid, mac, email, activation_code, expiration, status, type, portal
         FROM email_activation 
         WHERE activation_code LIKE ?
     ]);
 
     $email_activation_statements->{'email_activation_view_by_code_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, email, activation_code, expiration, status, type
+        SELECT code_id, pid, mac, email, activation_code, expiration, status, type, portal
         FROM email_activation 
         WHERE activation_code = ?
     ]);
 
     $email_activation_statements->{'email_activation_add_sql'} = get_db_handle()->prepare(qq[
-        INSERT INTO email_activation (pid, mac, email, activation_code, expiration, status, type) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO email_activation (pid, mac, email, activation_code, expiration, status, type, portal) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ]);
 
     $email_activation_statements->{'email_activation_modify_status_sql'} = get_db_handle()->prepare(
@@ -247,7 +247,7 @@ sub add {
 
     return(db_data(EMAIL_ACTIVATION, $email_activation_statements, 
             'email_activation_add_sql', $data{'pid'}, $data{'mac'}, $data{'email'}, $data{'activation_code'}, 
-            $data{'expiration'}, $data{'status'}, $data{'type'}));
+            $data{'expiration'}, $data{'status'}, $data{'type'}, $data{'portal'}));
 }
 
 =item _delete - delete an email activation record
@@ -301,7 +301,7 @@ Returns the activation code
 =cut
 
 sub create {
-    my ($mac, $pid, $email_addr, $activation_type) = @_;
+    my ($mac, $pid, $email_addr, $activation_type, $portal) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
 
     # invalidate older codes for the same MAC / email
@@ -313,6 +313,7 @@ sub create {
         'email' => $email_addr,
         'status' => $UNVERIFIED,
         'type' => $activation_type,
+        'portal' => $portal,
     );
 
     # caculate activation code expiration
@@ -427,10 +428,10 @@ sub send_email {
 }
 
 sub create_and_email_activation_code {
-    my ($mac, $pid, $email_addr, $template, $activation_type, %info) = @_;
+    my ($mac, $pid, $email_addr, $template, $activation_type, $portal, %info) = @_;
 
     my ($success, $err) = ($TRUE, 0);
-    my $activation_code = create($mac, $pid, $email_addr, $activation_type);
+    my $activation_code = create($mac, $pid, $email_addr, $activation_type, $portal);
     if (defined($activation_code)) {
       unless (send_email($activation_code, $template, %info)) {
         ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_EMAIL);
