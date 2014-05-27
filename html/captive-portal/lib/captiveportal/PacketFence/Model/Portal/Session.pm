@@ -11,6 +11,7 @@ use NetAddr::IP;
 use pf::iplog qw(iplog_open);
 use pf::Portal::ProfileFactory;
 use File::Spec::Functions qw(catdir);
+use Apache2::RequestRec;
 
 =head1 NAME
 
@@ -54,6 +55,11 @@ has remoteAddress => (
     required => 1,
 );
 
+has options => (
+    is       => 'rw',
+    default  => sub { {} },
+);
+
 has redirectURL => (
     is       => 'rw',
 );
@@ -63,18 +69,28 @@ has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
 sub ACCEPT_CONTEXT {
     my ( $self, $c, @args ) = @_;
     my $class = ref $self || $self;
-    return $c->stash->{current_model_instances}{$class}
-        if exists $c->stash->{current_model_instances}{$class} && $c->stash->{current_model_instances}{$class}->isa($class);
+    my $model = $c->session->{$class};
     my $request       = $c->request;
+    my $r = $request->{'env'}->{'psgi.input'};
+    return $model if (defined($model) && !($r->pnotes('last_uri')) );
     my $remoteAddress = $request->address;
     my $forwardedFor  = $request->header('HTTP_X_FORWARDED_FOR');
     my $redirectURL;
-    my $model =  $self->new(
+    my $uri = $request->uri;
+    my $options;
+    if( defined ( my $last_uri = $r->pnotes('last_uri') )) {
+        $options = {
+            'last_uri' => $last_uri,
+        };
+    }
+
+    $model =  $self->new(
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
+        options       => $options,
         @args,
     );
-    $c->stash->{current_model_instances}{$class} = $model;
+    $c->session->{$class} = $model;
     return $model;
 }
 
@@ -154,7 +170,7 @@ sub _build_clientMac {
 
 sub _build_profile {
     my ($self) = @_;
-    return pf::Portal::ProfileFactory->instantiate( $self->clientMac );
+    return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $self->options);
 }
 
 sub templateIncludePath {

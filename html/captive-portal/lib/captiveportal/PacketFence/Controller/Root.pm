@@ -19,6 +19,7 @@ use Cache::FileCache;
 use pf::sms_activation;
 use List::Util qw(first);
 use POSIX;
+use Apache2::RequestRec;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -63,6 +64,11 @@ sub index : Path : Args(0) {
 
 sub default : Path {
     my ( $self, $c ) = @_;
+    my $request  = $c->request;
+    my $r = $request->{'env'}->{'psgi.input'};
+    if ($r->pnotes('last_uri') ) {
+        $c->forward(CaptivePortal => 'index');
+    }
     $c->response->body('Page not found');
     $c->response->status(404);
 }
