@@ -85,12 +85,14 @@ $this->_setObjectAttributes(%arg);
 
 =cut
 sub _setObjectAttributes {
-    my ($this, %arg) = @_;
+    my ( $this, %arg ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    foreach my $value ( keys %arg ) {
-        $logger->debug("Setting object attribute _" . $value . " to " . $arg{$value});
-        $this->{'_' . $value} = $arg{$value};
+    foreach my $attribute ( keys %arg ) {
+        $logger->debug("Setting object attribute _" . $attribute . " to " . $arg{$attribute});
+        $this->{'_' . $attribute} = $arg{$attribute};
+    }
+}
     }
 }
 
