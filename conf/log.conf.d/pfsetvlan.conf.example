@@ -10,6 +10,8 @@ log4perl.rootLogger = INFO, PFSETVLAN
 ### Logging for pfsetvlan
 
 log4perl.appender.PFSETVLAN                              = Log::Log4perl::Appender::File
+# To have pfsetvlan in it's own log uncomment the
+#log4perl.appender.PFSETVLAN.filename                     = /usr/local/pf/logs/pfsetvlan.log
 log4perl.appender.PFSETVLAN.filename                     = /usr/local/pf/logs/packetfence.log
 log4perl.appender.PFSETVLAN.mode                         = append
 log4perl.appender.PFSETVLAN.layout                       = PatternLayout

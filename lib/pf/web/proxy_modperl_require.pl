@@ -11,25 +11,11 @@ use warnings;
 
 BEGIN {
     use lib "/usr/local/pf/lib";
-    use pf::log 'service' => 'httpd.portal';
+    use pf::log 'service' => 'httpd.proxy';
 }
 
-use Cache::FileCache();
-use pf::config();
-use pf::useragent();
-use pf::util();
-use pf::web();
-use pf::web::guest();
-# needs to be called last of the pf::web's to allow dark magic redefinitions
-use pf::web::custom();
+use pf::web::interceptproxy;
 
-# Log4perl initialization
-# Testing it out but we might need to reconsider if we get adversely affected
-# by problem described here:
-# http://log4perl.sourceforge.net/releases/Log-Log4perl/docs/html/Log/Log4perl/FAQ.html#792b4
-
-our $useragent_cache = new Cache::FileCache( { 'namespace' => 'CaptivePortal_UserAgents' } );
-our $lost_devices_cache = new Cache::FileCache( { 'namespace' => 'CaptivePortal_LostDevices' } );
 
 =head1 AUTHOR
 

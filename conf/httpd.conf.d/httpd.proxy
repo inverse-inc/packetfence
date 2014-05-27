@@ -87,6 +87,7 @@
 </IfDefine>
 
 PerlSwitches -I/usr/local/pf/lib
+PerlConfigRequire /usr/local/pf/lib/pf/web/proxy_modperl_require.pl
 PerlModule APR::Table
 AcceptMutex posixsem
 
@@ -147,8 +148,8 @@ $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 
 
-$ErrorLog = $install_dir.'/logs/proxy_error_log';
-$CustomLog = $install_dir.'/logs/proxy_access_log combined';
+$ErrorLog = $install_dir.'/logs/httpd.proxy.error';
+$CustomLog = $install_dir.'/logs/httpd.proxy.access combined';
 
 foreach my $port (split(',',$PfConfig->{'trapping'}{'interception_proxy_port'})) {
     push (@NameVirtualHost,"*:".$port);
@@ -168,8 +169,8 @@ push @{ $VirtualHost{'*:444'} }, gen_conf(
     ProxyPreserveHost => 'on',
     ProxyVia          => 'off',
     LogLevel          => 'debug',
-    ErrorLog          => $install_dir.'/logs/reverse_reproxy_error_log',
-    CustomLog         => $install_dir.'/logs/reverse_proxy_access_log combined',
+    ErrorLog          => $install_dir.'/logs/httpd.proxy.reverse.error',
+    CustomLog         => $install_dir.'/logs/httpd.proxy.reverse.access combined',
 );
 
 
@@ -185,8 +186,8 @@ foreach my $interface (@internal_nets) {
              ProxyPreserveHost => 'On',
              AllowCONNECT      => '444 443',
              ProxyVia          => 'full',
-             ErrorLog          => $install_dir.'/logs/proxy_error_log',
-             CustomLog         => $install_dir.'/logs/proxy_access_log combined',
+             ErrorLog          => $install_dir.'/logs/httpd.proxy.error',
+             CustomLog         => $install_dir.'/logs/httpd.proxy.access combined',
         );
     }
 }
