@@ -9,34 +9,35 @@
         IF firstPage < 1; firstPage = 1; END;
     END;
 %]
+<div>
     <div class="pagination pagination-right">
         <ul>
           [% IF pageNumber == 1 %]
           <li class="disabled"><a>&larr;</a></li>
           [% ELSE %]
-          <li><a href="[% c.pf_hash_for(c.controller.action_for('list'),pageNumber - 1,perPage) %]">&larr;</a></li>
+          <li><a href="[% c.uri_for(c.controller.action_for('list'),pageNumber - 1,perPage) %]">&larr;</a></li>
           [% END %]
           [% currentPage = firstPage %]
           [% WHILE currentPage <= lastPage %]
             [%IF currentPage == pageNumber %]
               <li class="disabled"><a>[%currentPage%]</a></li>
             [% ELSE  %]
-              <li><a href="[% c.pf_hash_for(c.controller.action_for('list'),currentPage,perPage) %]">[%currentPage%]</a></li>
+              <li><a href="[% c.uri_for(c.controller.action_for('list'),currentPage,perPage) %]">[%currentPage%]</a></li>
             [%END%]
           [%currentPage = currentPage + 1%]
           [% END %]
           [% IF pageNumber == lastPage %]
           <li class="disabled"><a >&rarr;</a></li>
           [% ELSE %]
-          <li><a href="[% c.pf_hash_for(c.controller.action_for('list'),pageNumber + 1,perPage) %]">&rarr;</a></li>
+          <li><a href="[% c.uri_for(c.controller.action_for('list'),pageNumber + 1,perPage) %]">&rarr;</a></li>
           [% END %]
         </ul>
     </div>
 [%- END -%]
 
-      [% pagination(pageNum, perPage, pageCount) %]
       <table id="switches" class="table items">
         <thead>
+          <tr> <th colspan="5"> [% pagination(pageNum, perPage, pageCount) %] </th> </tr>
           <tr>
             <th>[% l('IP Address') %]</th>
             <th class="hidden-phone">[% l('Description') %]</th>
@@ -62,5 +63,7 @@
           </tr>
           [% END -%]
         </tbody>
+        <tfoot>
+          <tr> <th colspan="5"> [% pagination(pageNum, perPage, pageCount) %] </th> </tr>
+        </tfoot>
       </table>
-      [% pagination(pageNum, perPage, pageCount) %]

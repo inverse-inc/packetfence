@@ -79,6 +79,11 @@ var SwitchView = function(options) {
     options.parent.on('change', '#inlineTrigger select', function(e) {
         that.updateInlineTrigger($(this));
     });
+
+    // pagination the switch
+    var pagination = $.proxy(this.pagination, this);
+    options.parent.on('click', '#switches [href*="/list/"]', pagination);
+
 };
 
 SwitchView.prototype.readSwitch = function(e) {
@@ -200,6 +205,30 @@ SwitchView.prototype.list = function() {
         },
         errorSibling: $('#switches')
     });
+};
+
+SwitchView.prototype.pagination = function(e) {
+    e.preventDefault();
+    var link = $(e.target);
+    var url = link.attr('href');
+    var section = $('#section');
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5);
+    this.switches.get({
+        url: url,
+        always: function() {
+            loader.hide();
+            section.stop();
+            section.fadeTo('fast', 1.0);
+        },
+        success: function(data) {
+            var table = $('#switches');
+            table.html(data);
+        },
+        errorSibling: $('#switches')
+    });
+    return false;
 };
 
 SwitchView.prototype.deleteSwitch = function(e) {
