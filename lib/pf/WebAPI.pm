@@ -14,6 +14,10 @@ use Apache2::RequestRec;
 use Log::Log4perl;
 use ModPerl::Util;
 
+BEGIN {
+    use pf::log 'service' => 'httpd.webservices';
+}
+
 use pf::config;
 use pf::api;
 
@@ -23,8 +27,6 @@ use SOAP::Transport::HTTP;
 use pf::WebAPI::MsgPack;
 use pf::WebAPI::JSONRPC;
 
-Log::Log4perl->init_and_watch("$conf_dir/log.conf", $LOG4PERL_RELOAD_TIMER);
-Log::Log4perl::MDC->put('proc', 'pf::WebAPI');
 
 # set proper logger tid based on if we are run from mod_perl or not
 if (exists($ENV{MOD_PERL})) {
@@ -48,7 +50,7 @@ my $server_jsonrpc = pf::WebAPI::JSONRPC->new({dispatch_to => 'pf::api'});
 
 sub handler {
     my ($r) = @_;
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+    my $logger = get_logger;
     if (defined($r->headers_in->{Request})) {
         $r->user($r->headers_in->{Request});
     }
@@ -64,7 +66,7 @@ sub handler {
 }
 
 sub log_faults {
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+    my $logger = get_logger;
     $logger->info(@_);
 }
 

@@ -33,10 +33,10 @@ use Catalyst qw/
 
 use Try::Tiny;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
 
 BEGIN {
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
     use pf::log service => 'httpd.portal';
 }
 
@@ -158,7 +158,7 @@ sub has_errors {
     return scalar @{$c->error};
 }
 
-__PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.portal.conf',watch_delay => 5 * 60));
+__PACKAGE__->log(Log::Log4perl::Catalyst->new);
 
 # Handle warnings from Perl as error log messages
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };

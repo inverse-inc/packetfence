@@ -102,7 +102,7 @@ $MaxSpareServers = "10";
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 
-$ErrorLog = $install_dir.'/logs/webservices_error_log';
+$ErrorLog = $install_dir.'/logs/httpd.webservices.error';
 
 $NameVirtualHost => "*:$PfConfig->{'ports'}{'soap'}";
 
@@ -122,8 +122,8 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
         {
              ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
              DocumentRoot        => $install_dir.'/html/pfappserver/lib',
-             ErrorLog            => $install_dir.'/logs/webservices_error_log',
-             CustomLog           => $install_dir.'/logs/webservices_access_log combined',
+             ErrorLog            => $install_dir.'/logs/httpd.webservices.error',
+             CustomLog           => $install_dir.'/logs/httpd.webservices.access combined',
              SSLEngine           => 'on',
              Include             => $var_dir.'/conf/ssl-certificates.conf',
              Location     => {
@@ -150,8 +150,8 @@ push @{ $VirtualHost{"127.0.0.1:$PfConfig->{'ports'}{'soap'}"} },
     {
          ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot        => $install_dir.'/html/pfappserver/lib',
-         ErrorLog            => $install_dir.'/logs/webservices_error_log',
-         CustomLog           => $install_dir.'/logs/webservices_access_log combined',
+         ErrorLog            => $install_dir.'/logs/httpd.webservices.error',
+         CustomLog           => $install_dir.'/logs/httpd.webservices.access combined',
          SetHandler          => 'modperl',
          PerlResponseHandler => 'pf::WebAPI',
     };

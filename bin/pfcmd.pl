@@ -80,6 +80,7 @@ use constant {
 
 use lib INSTALL_DIR . "/lib";
 
+use pf::log;
 use pf::config;
 use pf::config::ui;
 use pf::pfcmd;
@@ -99,10 +100,7 @@ $ENV{PATH} = "/bin:/sbin:/usr/bin:/usr/sbin";
 # TODO: this parameter should be exposed to the CLI
 #our $RD_TRACE = 1;
 
-Log::Log4perl->init("$conf_dir/log.conf");
-my $logger = Log::Log4perl->get_logger( basename($0) );
-Log::Log4perl::MDC->put( 'proc', basename($0) );
-Log::Log4perl::MDC->put( 'tid',  $PROCESS_ID );
+my $logger = get_logger();
 
 Readonly my $delimiter => '|';
 use vars qw/%cmd $grammar/;
