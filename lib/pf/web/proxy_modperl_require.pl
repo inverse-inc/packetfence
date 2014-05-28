@@ -11,7 +11,7 @@ use warnings;
 
 BEGIN {
     use lib "/usr/local/pf/lib";
-    use pf::log 'service' => 'httpd.proxy';
+    use pf::log 'service' => 'httpd.proxy', reinit => 1;
 }
 
 use pf::web::interceptproxy;

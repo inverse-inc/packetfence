@@ -87,7 +87,7 @@
 </IfDefine>
 
 PerlSwitches -I/usr/local/pf/lib
-PerlConfigRequire /usr/local/pf/lib/pf/web/proxy_modperl_require.pl
+PerlPostConfigRequire /usr/local/pf/lib/pf/web/proxy_modperl_require.pl
 PerlModule APR::Table
 AcceptMutex posixsem
 

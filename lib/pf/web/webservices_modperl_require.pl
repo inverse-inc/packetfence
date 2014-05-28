@@ -11,6 +11,11 @@ webservices_modperl_require
 
 =cut
 
+BEGIN {
+    use lib "/usr/local/pf/lib";
+    use pf::log 'service' => 'httpd.proxy', reinit => 1;
+}
+
 use pf::config();
 use pf::iplog();
 use pf::violation();
