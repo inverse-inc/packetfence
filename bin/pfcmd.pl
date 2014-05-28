@@ -1349,7 +1349,7 @@ sub isIptablesManaged {
 sub restartService {
     my ($service,@services) = @_;
     stopService(@_);
-    configreload('hard');
+    configreload('hard') if $service eq 'pf';
     local $SERVICE_HEADER = '';
     startService(@_);
 }
