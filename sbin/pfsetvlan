@@ -147,8 +147,6 @@ my $fh = new File::Tail(
 
 daemonize($PROGRAM_NAME) if $daemonize;
 
-print STDERR "Here\n";
-
 $logger->info("Process started");
 
 my %threadList_running : shared;
