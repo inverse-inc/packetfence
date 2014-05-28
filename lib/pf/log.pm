@@ -24,7 +24,7 @@ Log::Log4perl->wrapper_register(__PACKAGE__);
 sub import {
     my ($self,%args) = @_;
     my ($package, $filename, $line) = caller;
-    unless(Log::Log4perl->initialized) {
+    if(!Log::Log4perl->initialized || $args{reinit} ) {
         my $service = $args{service} if defined $args{service};
         if($service) {
             Log::Log4perl->init_and_watch("$log_conf_dir/${service}.conf",5 * 60);
