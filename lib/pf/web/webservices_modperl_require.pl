@@ -13,7 +13,7 @@ webservices_modperl_require
 
 BEGIN {
     use lib "/usr/local/pf/lib";
-    use pf::log 'service' => 'httpd.proxy', reinit => 1;
+    use pf::log 'service' => 'httpd.webservices', reinit => 1;
 }
 
 use pf::config();
