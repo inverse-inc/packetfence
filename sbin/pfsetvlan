@@ -30,6 +30,13 @@ use warnings;
 
 require 5.8.8;
 
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfsetvlan');
+}
+
 use Cache::FileCache;
 use Data::Dumper;
 use File::Basename qw(basename);
@@ -39,12 +46,6 @@ use Net::SMTP;
 use Pod::Usage;
 use POSIX;
 
-BEGIN {
-    # log4perl init
-    use constant INSTALL_DIR => '/usr/local/pf';
-    use lib INSTALL_DIR . "/lib";
-    use pf::log(service => 'pfsetvlan');
-}
 
 use constant {
     PFCMD_FILE => INSTALL_DIR . "/bin/pfcmd"
@@ -146,6 +147,8 @@ my $fh = new File::Tail(
 
 daemonize($PROGRAM_NAME) if $daemonize;
 
+print STDERR "Here\n";
+
 $logger->info("Process started");
 
 my %threadList_running : shared;
@@ -244,6 +247,7 @@ sub addTrapLineToQueue {
 
 # sub signalHandlerTrapListQueued - cond_wait(@trapList_queued), parseTrap($trapLineToParse) {{{1
 sub signalHandlerTrapListQueued {
+    use pf::log(service => 'pfsetvlan', reinit => 1);
     my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
@@ -739,8 +743,10 @@ sub parseTrap {
 
 # sub signalHandlerThreadListQueued {{{1
 sub signalHandlerThreadListQueued {
+    use pf::log(service => 'pfsetvlan', reinit => 1);
     my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     while (1) {
