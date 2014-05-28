@@ -11,7 +11,7 @@ use warnings;
 
 BEGIN {
     use lib "/usr/local/pf/lib";
-    use pf::log 'service' => 'httpd.portal';
+    use pf::log 'service' => 'httpd.portal', reinit => 1;
 }
 
 use Cache::FileCache();
