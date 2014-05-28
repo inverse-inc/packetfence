@@ -185,6 +185,8 @@ GetOptions(
 pod2usage( -verbose => 2 ) if $man;
 pod2usage( -verbose => 1, -exitval => 0 ) if $help;
 
+our $logger = get_logger();
+
 # if the verbosity flag is present we log both on file and on STDOUT and adjust log level
 if ($logLevel) {
     $logger->info(
