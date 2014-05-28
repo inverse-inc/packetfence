@@ -1224,7 +1224,6 @@ sub startService {
     my @managers = getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
-    pfStartService(\@managers) if $service eq 'pf';
     if(isIptablesManaged($service) && -e $pf_config_file) {
         $logger->info("saving current iptables to var/iptables.bak");
         my $technique;
