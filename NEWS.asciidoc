@@ -25,7 +25,7 @@ Bug Fixes
 
 * Compute unregdate and save the role for autoreg 802.1x
 * Fixed portal profile URI filter in new Catalyst-based captive-portal
-* Radius accounting fixed to call the correct method to parse the radius request.
+* RADIUS accounting fixed to call the correct method to parse the RADIUS request
 
 Version 4.2.1 released on 2014-05-15
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,7 +38,7 @@ Enhancements
 * Added the ability to login from the status page
 
 Bug Fixes
-++++++++++++
++++++++++
 
 * Added missing node manager URL from dispatcher
 * Fixed URL redirection on captive portal
