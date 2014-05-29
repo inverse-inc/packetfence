@@ -43,7 +43,7 @@ sub instantiate {
     # We apply portal profiles based on the uri, SSID, VLAN and switch. We check the last_(ssid|vlan|switch) for the given MAC
     # and try to match a portal profile using the previously fetched filters.
     # If no match, we instantiate the default portal profile.
-    my $node_info = node_view($mac);
+    my $node_info = node_view($mac) || {};
 
     if (defined($options)) {
         $node_info = { %$options, %$node_info } ;
