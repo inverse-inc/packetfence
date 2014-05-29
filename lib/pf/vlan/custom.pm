@@ -19,9 +19,14 @@ use Log::Log4perl;
 
 use base ('pf::vlan');
 use pf::config;
-use pf::node qw(node_attributes node_add_simple node_exist);
+use pf::node qw(node_attributes node_exist node_modify);
+use pf::Switch::constants;
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
+
+use pf::authentication;
+use pf::Authentication::constants;
+use pf::Portal::ProfileFactory;
 
 our $VERSION = 1.04;
 
@@ -42,7 +47,7 @@ Sample getNormalVlan, see pf::vlan for getNormalVlan interface description
 #    #$ifIndex is the ifIndex of the computer connected to
 #    #$mac is the mac connected
 #    #$node_info is the node info hashref (result of pf::node's node_attributes on $mac)
-#    #$conn_type is set to the connnection type expressed as the constant in pf::config 
+#    #$conn_type is set to the connnection type expressed as the constant in pf::config
 #    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
 #    #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
 #    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
@@ -59,23 +64,61 @@ Sample getNormalVlan, see pf::vlan for getNormalVlan interface description
 #    my $role = "";
 #
 #    # Try MAC_AUTH, then other EAP methods and finally anything else.
-#    if ( ($connection_type & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) {
+#    if ( $connection_type && ($connection_type & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) {
 #        $logger->info("Connection type is WIRED_MAC_AUTH. Getting role from node_info" );
 #        $role = $node_info->{'category'};
+#    } elsif ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
+#        $logger->info("Connection type is WIRELESS_MAC_AUTH. Getting role from node_info" );
+#        $role = $node_info->{'category'};
+#
+#
+#        if (isenabled($node_info->{'autoreg'})) {
+#            $logger->info("Device is comming from a secure connection and has been auto registered, we unreg it and forward it to the portal" );
+#            $role = 'registration';
+#            my %info = (
+#                'status' => 'unreg',
+#                'autoreg' => 'no',
+#            );
+#            node_modify($mac,%info);
+#        }
 #    }
+#
 #    # If it's an EAP connection with a username, we try to match that username with authentication sources to calculate
 #    # the role based on the rules defined in the different authentication sources.
 #    # FIRST HIT MATCH
-#    elsif ( defined $user_name && (($connection_type & $EAP) == $EAP) ) {
+#    elsif ( defined $user_name && $connection_type && ($connection_type & $EAP) == $EAP ) {
 #        $logger->debug("EAP connection with a username. Trying to match rules from authentication sources.");
+#        my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+#        my @sources = ($profile->getInternalSources);
 #        my $params = {
 #            username => $user_name,
 #            connection_type => connection_type_to_str($connection_type),
 #            SSID => $ssid,
 #        };
-#        $role = &pf::authentication::match(&pf::authentication::getInternalAuthenticationSources(), $params, $Actions::SET_ROLE);
+#        $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE);
+#        #Compute autoreg if we use autoreg
+#        if (isenabled($node_info->{'autoreg'})) {
+#            my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
+#            if (defined $value) {
+#                $logger->trace("No unregdate found - computing it from access duration");
+#                $value = access_duration($value);
+#            }
+#            else {
+#                $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+#            }
+#            if (defined $value) {
+#                my %info = (
+#                    'unregdate' => $value,
+#                    'category' => $role,
+#                    'autoreg' => 'yes',
+#                );
+#                if (defined $role) {
+#                    %info = (%info, (category => $role));
+#                }
+#                node_modify($mac,%info);
+#            }
+#        }
 #    }
-#
 #    # If a user based role has been found by matching authentication sources rules, we return it
 #    if ( defined($role) && $role ne '' ) {
 #        $logger->info("Username was defined '$user_name' - returning user based role '$role'");
@@ -84,8 +127,8 @@ Sample getNormalVlan, see pf::vlan for getNormalVlan interface description
 #        $role = $node_info->{'category'};
 #        $logger->info("Username was NOT defined or unable to match a role - returning node based role '$role'");
 #    }
-#
-#    return $switch->getVlanByName($role);
+#    my $vlan = $switch->getVlanByName($role);
+#    return ($vlan, $role);
 #}
 
 =item shouldAutoRegister
