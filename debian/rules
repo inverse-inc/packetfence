@@ -60,7 +60,6 @@ install: build
 	for i in `find * -path 't*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/$$i; \
 	done
-	
 
 	# generate translations
 	# TODO this is duplicated in our RPM spec, we should aim to consolidate in a 'make' style step
@@ -104,7 +103,7 @@ install: build
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
-        echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
+	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
 	# Install our logrotate file into debian/ so dh_installlogrotate will be able to do it's magic
 	install addons/logrotate $(CURDIR)/debian/packetfence.logrotate
 	#Create our dhcpd.leases
