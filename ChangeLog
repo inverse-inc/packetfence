@@ -1,3 +1,353 @@
+commit 8d9a700186ee055a0d3ffb9e2545cf9e97ca9064
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu May 29 12:13:24 2014 -0400
+
+    Prepare release 4.2.2
+
+M	NEWS.asciidoc
+M	addons/packages/packetfence.spec
+M	conf/dhcp_fingerprints.conf
+M	conf/pf-release
+M	debian/changelog
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit dce1fe8d719268ae2f14fafdf78c5d13f2041f7e
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 29 11:42:26 2014 -0400
+
+    Updated new files
+
+M	NEWS.asciidoc
+
+commit b6f51795032b7309e41d67ad82805a5015757653
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 29 10:25:04 2014 -0400
+
+    Default to the default if no node was found
+
+M	lib/pf/Portal/ProfileFactory.pm
+
+commit ffadfb94584bf30c7e7fafe9aed1301fac77bd0d
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu May 29 09:44:15 2014 -0400
+
+    Update NEWS file
+
+M	NEWS.asciidoc
+
+commit 06b3477103d1e1e76706a4273215a60805cfdc79
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue May 13 16:02:05 2014 -0400
+
+    Added git commit id in conf/git_commit_id
+
+M	addons/packages/packetfence.spec
+M	debian/rules
+
+commit f91ae87226bf9b51734662d41abfca23e67c85e8
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu May 29 09:16:37 2014 -0400
+
+    Fixed undefined function and HP Controller module and fixed a test in pfsetvlan
+
+M	lib/pf/Switch/HP/Controller_MSM710.pm
+M	sbin/pfsetvlan
+
+commit a60f2bdaa86f833c8d935d71a9d679a83d87f129
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 16 19:46:39 2014 -0400
+
+    Move to use the conf/git_commit_id to track the last commit used
+
+M	addons/pf-maint.pl
+
+commit 367b8b33fe71a9b9252fd6314a7c703d3c90a128
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue May 13 11:35:08 2014 -0400
+
+    If available use conf/git_commit_id as the base commit
+
+M	addons/pf-maint.pl
+
+commit bb21d1a4abddbdc4423725f092483772e3424fad
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 28 14:46:40 2014 -0400
+
+    Remove debugging statement
+
+M	sbin/pfsetvlan
+
+commit 91f5b823e831e7cebcf9c69dcd19988267cd0d00
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 28 14:29:55 2014 -0400
+
+    Using the wrong service name for logging
+
+M	lib/pf/web/webservices_modperl_require.pl
+
+commit e4b3cfba9b4aa2d986220a355c1ec8e9c46c7208
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 28 14:22:00 2014 -0400
+
+    Only reload config hard when restarting the 'pf' service
+
+M	bin/pfcmd.pl
+
+commit 26dae9ec9d157a53b53748da5320398a0d30efe8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 28 12:28:59 2014 -0400
+
+    Remove double save of iptables
+
+M	bin/pfcmd.pl
+
+commit 031fe08472dac5db77afc1c6352f0a978f90f432
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 28 11:43:08 2014 -0400
+
+    Reinit logging when create a new thread
+
+M	sbin/pfsetvlan
+
+commit 417a74bceea519c8da776acddb12388c7d058486
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 28 11:41:18 2014 -0400
+
+    Reinit logging for apache server
+
+M	conf/httpd.conf.d/httpd.portal
+M	conf/httpd.conf.d/httpd.proxy
+M	html/captive-portal/lib/captiveportal.pm
+M	html/pfappserver/lib/pfappserver.pm
+M	lib/pf/web/captiveportal_modperl_require.pl
+M	lib/pf/web/proxy_modperl_require.pl
+M	lib/pf/web/webservices_modperl_require.pl
+
+commit 81ee250bad0c7b908f3ac2669576368f368c47d3
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 28 11:38:10 2014 -0400
+
+    Added the ability to reinit the logger
+
+M	lib/pf/log.pm
+
+commit 7f62243d1270055009abf196e45433bbc03d818c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 28 09:41:03 2014 -0400
+
+    Fix compile error
+
+M	bin/pfcmd_vlan
+
+commit 86977ed5ec49a19a5e1ee94018e97071185fcf92
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue May 27 18:41:44 2014 -0400
+
+    Fix switch pagination displaying
+
+M	html/pfappserver/root/configuration/switch/list.tt
+M	html/pfappserver/root/static/admin/configuration/switches.js
+
+commit 7fa23c16f7d252ac471a516aa60bec1921556c22
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue May 27 14:47:32 2014 -0400
+
+    Rework logging
+
+M	bin/pfcmd.pl
+M	bin/pfcmd_vlan
+M	conf/httpd.conf.d/httpd.admin
+M	conf/httpd.conf.d/httpd.portal
+M	conf/httpd.conf.d/httpd.proxy
+M	conf/httpd.conf.d/httpd.webservices
+M	conf/log.conf.d/httpd.admin.conf.example
+M	conf/log.conf.d/httpd.portal.conf.example
+A	conf/log.conf.d/httpd.proxy.conf.example
+A	conf/log.conf.d/httpd.webservices.conf.example
+M	conf/log.conf.d/pfsetvlan.conf.example
+M	html/captive-portal/lib/captiveportal.pm
+M	lib/pf/WebAPI.pm
+M	lib/pf/web/captiveportal_modperl_require.pl
+M	lib/pf/web/provisioning.pm
+A	lib/pf/web/proxy_modperl_require.pl
+M	lib/pf/web/release.pm
+
+commit 0e87a47c491f96c971f896bd685d2fb7e0101e27
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue May 27 11:41:17 2014 -0400
+
+    Fixed portal profil uri filter
+
+M	NEWS.asciidoc
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Root.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Model/Portal/Session.pm
+M	lib/pf/web/dispatcher.pm
+
+commit a9fd61c9f4871a679f7a9e66916ffe0405528791
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Sat May 24 19:55:24 2014 -0400
+
+    Added news item for the bugfix.
+
+M	NEWS.asciidoc
+
+commit 5e9b611f6395313f108d8098c7e2606847704de2
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Sat May 24 19:25:59 2014 -0400
+
+    Bugfix: radius accounting was using the old _parseRequest and thus was
+    broken.
+    
+    Fixed to use the new switch::parseRequest and radius::_parseRequest.
+
+M	lib/pf/radius.pm
+
+commit 46c337acb5f49274d36bef5d32340b55c3d59e12
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 22 18:55:46 2014 -0400
+
+    Removed registration.nbregpages
+
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+M	conf/profiles.conf.example
+
+commit 6e354bd13ddad9645ba28eef2b76553839365767
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 22 18:53:39 2014 -0400
+
+    Use the number of registration pages from the profile configuration
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/CaptivePortal.pm
+
+commit df781b4d1fcec7c8ef45587600fbada3ba3be30f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 22 16:49:39 2014 -0400
+
+    Fixed trying to register the wrong node
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
+
+commit c9d180c0987b4e1533c8218e3d681f58f1d593be
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 22 15:43:31 2014 -0400
+
+    Added new attribute nbregpages to Portal::Profile
+
+M	html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+M	lib/pf/Portal/Profile.pm
+
+commit 8e1541ebbb0171ad783b6cbb136cf09a6198aafa
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 22 13:57:10 2014 -0400
+
+    Removed logging statement
+
+M	lib/pf/config/cached.pm
+
+commit e1d9523ea30dfc17f488584436ecc60d962f0902
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 22 12:55:12 2014 -0400
+
+    Fix gaming registration url
+
+M	lib/pf/web/constants.pm
+
+commit 2cbe85bbd7d57e32f663cd6a74dd1c5db4f62e13
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 22 11:16:44 2014 -0400
+
+    Fixed wrong attribute
+
+M	html/captive-portal/templates/status.html
+
+commit 5010d407cf1dcb79ed1d822961b68870c8c01e2f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 22 10:56:59 2014 -0400
+
+    Added constant for status/logout
+
+M	lib/pf/web/constants.pm
+
+commit 77e8d847b52c1d4a0a68aab97cc8a5fce087f910
+Author: Durand Fabrice <oeufdure@gmail.com>
+Date:   Wed May 21 19:58:30 2014 -0400
+
+    Because we know that the device has been autoreg then we can save the category for autoreg
+
+M	lib/pf/vlan.pm
+
+commit a5216026ef239b7fa924fba5036e74858881fdaf
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 21 19:55:24 2014 -0400
+
+    Added logout button
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
+M	html/captive-portal/templates/status.html
+
+commit 4c3c5d6bc499e448169e8aa218b6b377ef996fcf
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed May 21 10:28:20 2014 -0400
+
+    Enable log for the captive portal
+
+M	lib/pf/web/dispatcher/custom.pm
+
+commit b634c02fe01df911582ca33d96fe7d4af0812602
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed May 21 08:33:30 2014 -0400
+
+    Compute only for autoreg
+
+M	lib/pf/vlan.pm
+
+commit b40e06e6d5abfcd0245d5ee24997614c1f8ce193
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue May 20 16:12:48 2014 -0400
+
+    Compute access duration or unregdate in 802.1x connection
+
+M	lib/pf/vlan.pm
+
+commit c5d9e94c84e9db1fbd985abd17de0f7763526ab5
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 16 14:12:15 2014 -0400
+
+    Fixed incorrect function called
+
+M	html/captive-portal/templates/status.html
+
+commit 6ec756fe602c55e6307adff542d6c125e83b5bae
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 16 19:38:14 2014 -0400
+
+    Remove test code for admin roles
+
+M	html/pfappserver/lib/pfappserver/Controller/User.pm
+
+commit 2eaa2e1f00d6d5cc83b82c993982e59172084e26
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 16 10:49:38 2014 -0400
+
+    Added /status/login for the dispatcher
+
+M	lib/pf/web/constants.pm
+
+commit cca51164bf4a53b0f15db5d3eb553b64f4ac7648
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu May 15 23:16:37 2014 -0400
+
+    Prepare release 4.2.1
+
+M	ChangeLog
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
 commit ef717e65a52bbbc181a9e93e2143dd9d273a8dc6
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Thu May 15 23:08:01 2014 -0400
