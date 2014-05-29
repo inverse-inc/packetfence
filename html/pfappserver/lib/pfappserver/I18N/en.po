@@ -2581,7 +2581,7 @@ msgid "Role Name"
 msgstr ""
 
 # html/pfappserver/root/configuration/switch/view.tt
-msgid "Role mapping by VLAN"
+msgid "Role mapping by VLAN ID"
 msgstr ""
 
 # html/pfappserver/root/configuration/switch/view.tt
