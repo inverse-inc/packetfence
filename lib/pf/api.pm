@@ -104,8 +104,6 @@ sub unreg_node_for_pid {
 
     my $logger = pf::log::get_logger();
 
-    #use Data::Dumper;
-    #$logger->warn(Dumper $pid);
     $logger->info("Unregistering nodes for $pid");
 
     my @node_infos =  node_view_reg_pid($pid->{'pid'});
