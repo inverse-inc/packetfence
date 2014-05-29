@@ -14,9 +14,6 @@ For a list of compatibility related changes see the UPGRADE.asciidoc file.
 Version 4.2.2 released on 2014-05-29
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-New Features
-++++++++++++
-
 Enhancements
 ++++++++++++
 
@@ -29,12 +26,12 @@ Bug Fixes
 
 * Remove double saving of iptables
 * Do a configreload hard only during a pf restart not everytime you restart
-* Fixed undefined function and HP Controller module 
+* Fixed undefined function and HP Controller module
 * Fixed a test in pfsetvlan
-* Allow old gaming-registration url to work
-* If node is not found in the database then default to the default profile
-* Logging in dispatcher not workingFixed deletion of a user failing
-* Deletion of a user failing
+* Allow old gaming-registration URL to work
+* If node is not found in the database then use the default profile
+* Fixed logging in dispatcher
+* Fixed deletion of a user failing
 * Compute unregdate and save the role for autoreg 802.1x
 * Fixed portal profile URI filter in new Catalyst-based captive-portal
 * RADIUS accounting fixed to call the correct method to parse the RADIUS request
