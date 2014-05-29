@@ -22,6 +22,7 @@ New Features
 * Support for Huawei S2700, S3700, S5700, S6700, S7700, S9700 
 * Added support for LinkedIn and Windows Live as authentication sources.
 * Support for 802.1X on Juniper EX2200 and EX4200
+* Unreg a node if the username is locked or deleted in Active Directory 
 
 Enhancements
 ++++++++++++
