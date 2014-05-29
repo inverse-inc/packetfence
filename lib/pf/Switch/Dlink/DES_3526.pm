@@ -49,7 +49,7 @@ sub parseTrap {
 
     # match .1.3.6.1.2.1.2.2.1.7.2 = INTEGER: up(1)
     my $linkstatus_re = qr/
-        ^  .1.3.6.1.2.1.2.2.1.7\.(\d+)  # capture: $1 is the ifIndex
+        ^  .1.3.6.1.2.1.2.2.1.8\.(\d+)  # capture: $1 is the ifIndex
         \s=\s                           #   = 
         INTEGER:\s                      # INTEGER:  
         [^(]+                           # anything but a (
@@ -68,6 +68,7 @@ sub parseTrap {
             $op                             = 'learnt';
             $trapHashRef->{'trapIfIndex'}   = $ifIndex;
             $trapHashRef->{'trapOperation'} = $op;
+            $trapHashRef->{'trapVlan'}      = $this->getVlan( $ifIndex );
             next PARSETRAP;
         }
 
@@ -80,11 +81,20 @@ sub parseTrap {
             next PARSETRAP;
         }
 
-        # linkup
+        # linkup/linkdown
         if ( !defined $ifIndex && $field =~ $linkstatus_re ) {
             ( $ifIndex, $op ) = ( $1, $2 );
             $trapHashRef->{'trapIfIndex'} = $ifIndex;
-            $trapHashRef->{'trapOperation'} = ( ( $op == 1 ) ? 'up' : 'unknown' );
+
+            if ( $op == 1 ) {
+                $trapHashRef->{'trapOperation'} = 'up';
+            }
+            elsif ( $op == 2 ) {
+                $trapHashRef->{'trapOperation'} = 'down';
+            }
+            else {
+                $trapHashRef->{'trapOperation'} = 'unknown';
+            }
         }
     }
 
