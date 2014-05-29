@@ -1151,7 +1151,7 @@ Edge­corE
 
 PacketFence supports Edge-corE switches without VoIP using linkUp/linkDown traps.
 
-PacketFence also supports MAC authentication on more recent Edge-corE
+PacketFence also supports MAC authentication on the Edge-corE 4510
 
 3526XA and 3528M 
 ^^^^^^^^^^^^^^^^
@@ -1171,6 +1171,10 @@ Basic configuration
 network-access aging
 snmp-server community private rw
 snmp-server community public rw
+
+
+radius-server 1 host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 5 retransmit 2 key useStrongerSecret
+radius-server key useStrongerSecret
 
 ----
 
