@@ -17,7 +17,7 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::Dlink');
 
-sub description { 'D-Link DES 3526' }
+sub description {'D-Link DES 3526'}
 
 sub parseTrap {
     my ( $this, $trapString ) = @_;
@@ -26,28 +26,72 @@ sub parseTrap {
 
     my @fields = split '\|', $trapString;
 
-    my ( $ifIndex, $op, $mac );
-    for my $field (@fields) { 
-        ( $ifIndex, $op ) = $field =~ /^.1.3.6.1.4.1.171.11.64.1.2.14.1.1.1.(\d+) = INTEGER: (\d+)/;
-        ( $mac ) =  $field =~ /^.1.3.6.1.4.1.171.11.64.1.2.15.2.1 = Hex-STRING: ($SNMP::MAC_ADDRESS_FORMAT)/;
+    # REGULAR EXPRESSIONS
+    # match 00 24 BE B1 F6 31 
+    my $mac_re = qr/
+        (                               # capture: $1 is the MAC
+        (?: [[:xdigit:]] {2}\s) {5}     # 5 pairs of xdigits followed by one space
+        [[:xdigit:]]{2}                 # a final pair of x digits 
+        )
+    /x;
+
+    # match .1.3.6.1.4.1.171.11.64.1.2.14.1.1.1.1 = INTEGER: 1
+    my $portsec_violation_re = qr/
+        ^  .1.3.6.1.4.1.171.11.64.1.2.14.1.1.1\.(\d+) # capture: ifIndex is $1
+    /x;
+
+    # match .1.3.6.1.4.1.171.11.64.1.2.15.2.1 = Hex-STRING: 00 24 BE B1 F6 31  END VARIABLEBINDINGS
+    my $portsec_mac_re = qr/
+        ^  .1.3.6.1.4.1.171.11.64.1.2.15.2.1
+        \s=\s 
+        Hex-STRING:\s $mac_re           # capture: $1 is the MAC
+    /x;
+
+    # match .1.3.6.1.2.1.2.2.1.7.2 = INTEGER: up(1)
+    my $linkstatus_re = qr/
+        ^  .1.3.6.1.2.1.2.2.1.7\.(\d+)  # capture: $1 is the ifIndex
+        \s=\s                           #   = 
+        INTEGER:\s                      # INTEGER:  
+        [^(]+                           # anything but a (
+        \(                              # a litteral (
+            (\d)                        # capture: $2 is the op status code
+        \)                              # a litteral )
+    /x;
+
+    my ( $ifIndex, $mac, $op );
+    PARSETRAP:
+    for my $field (@fields) {
+
+        # portsec violation
+        if ( !defined $ifIndex && $field =~ $portsec_violation_re ) {
+            $ifIndex                        = $1;
+            $op                             = 'learnt';
+            $trapHashRef->{'trapIfIndex'}   = $ifIndex;
+            $trapHashRef->{'trapOperation'} = $op;
+            next PARSETRAP;
+        }
+
+        if ( !defined $mac && $field =~ $portsec_mac_re ) {
+            $mac = $1;
+            $mac = lc $mac;
+            $mac =~ s/ /:/g;
+            $trapHashRef->{'trapType'} = 'mac';
+            $trapHashRef->{'trapMac'}  = $mac;
+            next PARSETRAP;
+        }
+
+        # linkup
+        if ( !defined $ifIndex && $field =~ $linkstatus_re ) {
+            ( $ifIndex, $op ) = ( $1, $2 );
+            $trapHashRef->{'trapIfIndex'} = $ifIndex;
+            $trapHashRef->{'trapOperation'} = ( ( $op == 1 ) ? 'up' : 'unknown' );
+        }
     }
 
-    $mac = lc $mac;
-    $mac =~ s/ /:/g;
-
-    
-    $trapHashRef->{'trapType'} = 'mac';
-    if ( $op == 1 ) {
-        $trapHashRef->{'trapOperation'} = 'learnt';
-    } elsif ( $op == 2 ) {
-        $trapHashRef->{'trapOperation'} = 'removed';
-    } else {
+    unless ( $ifIndex && $op ) {
         $trapHashRef->{'trapOperation'} = 'unknown';
         $logger->debug("trap currently not handled");
     }
-    $trapHashRef->{'trapIfIndex'} = $ifIndex;
-    # is this really necessary?
-    #$trapHashRef->{'trapVlan'} = $this->getVlan( $ifindex );
 
     return $trapHashRef;
 }
