@@ -536,7 +536,7 @@ sub parseTrap {
                 $logger->warn("We have received a trap from switch $switch_id. This switch is UNREGISTERED. Flush the trap");
                 return;
             }
-            if ($switch->{'mode'} eq 'ignore' ) {
+            if (defined($switch->{'mode'}) && $switch->{'mode'} eq 'ignore' ) {
                 $switch = undef;
                 $logger->info("We have received a trap from switch $switch_id. This switch is in 'ignore' mode. Flush the trap");
                 return;
@@ -692,7 +692,7 @@ sub parseTrap {
                     $trapMac       = $trapHashRef->{'trapMac'};
 
                     if ( $trapOperation eq 'unknown' ) {
-                        $logger->info("ignoring unknown trap: $trapLine");
+                        $logger->debug("ignoring unknown trap: $trapLine");
                         return;
                     }
                 } elsif ( $trapType eq 'dot11Deauthentication' ) {
@@ -728,7 +728,7 @@ sub parseTrap {
 
                 return "$switch_id|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac|$trapSSID|$trapClientUserName|$trapIfIndex|$trapConnectionType";
             } else {
-                $logger->info("ignoring unknown trap: $trapLine");
+                $logger->debug("ignoring unknown trap: $trapLine");
             }
         }
     } else {

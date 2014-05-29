@@ -232,7 +232,7 @@ sub deauthTechniques {
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => 'deauthenticateMacDefault',
-        $SNMP::SSH  => 'deauthenticateMacWithSSH',
+        $SNMP::SSH  => '_deauthenticateMacWithSSH',
     );
 
     if (!defined($method) || !defined($tech{$method})) {
