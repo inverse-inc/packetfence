@@ -35,6 +35,7 @@ our %VALID_OAUTH_PROVIDERS = (
 
 sub auth_provider : Local('auth'): Args(1) {
     my ( $self, $c, $provider ) = @_;
+    $c->log->info($self->oauth2_client($c,$provider)->authorize);
     $c->response->redirect($self->oauth2_client($c,$provider)->authorize);
 }
 
@@ -47,6 +48,7 @@ sub auth_provider : Local('auth'): Args(1) {
 sub auth : Local: Args(0) {
     my ( $self, $c ) = @_;
     my $provider = $c->request->query_params->{'provider'};
+    $c->log->info("HEULOOWWWWW");
     $c->forward('auth_provider',[$provider]);
 }
 
@@ -81,7 +83,11 @@ sub oauth2_client {
     } elsif (lc($provider) eq 'linkedin'){
         $type = pf::Authentication::Source::LinkedInSource->meta->get_attribute('type')->default;
         $token_scheme = "uri-query:oauth2_access_token";
+    } elsif (lc($provider) eq 'live'){
+        $type = pf::Authentication::Source::LiveSource->meta->get_attribute('type')->default;
+        $token_scheme = "auth-header:Bearer";
     }
+
     if ($type) {
         my $source = $portalSession->profile->getSourceByType($type);
         if ($source) {
@@ -164,6 +170,9 @@ sub oauth2Result : Path : Args(1) {
     } elsif (lc($provider) eq 'linkedin') {
         $type = pf::Authentication::Source::LinkedInSource->meta->get_attribute(
             'type')->default;
+    } elsif (lc($provider) eq 'live') {
+        $type = pf::Authentication::Source::LiveSource->meta->get_attribute(
+            'type')->default;
     }
     
     my $source = $profile->getSourceByType($type);
@@ -192,7 +201,13 @@ sub oauth2Result : Path : Args(1) {
                         "OAuth2 successfull, register and release for username $json_text->{username}"
                     );
                     $pid = $json_text->{username} . '@facebook.com';
-                }    
+                } elsif ($provider eq 'live'){
+                    $logger->info(
+                        "OAuth2 successfull, register and release for username $json_text->{emails}->{account}"
+                    );
+                    $pid = $json_text->{emails}->{account};
+                }
+                 
             }         
         } else {
             $logger->info(
