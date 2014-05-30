@@ -314,6 +314,7 @@ sub showLogin : Private {
         no_username     => _no_username($profile),
         oauth2_facebook => is_in_list( $SELFREG_MODE_FACEBOOK, $guestModes ),
         oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
+        oauth2_live     => is_in_list( $SELFREG_MODE_LIVE, $guestModes ),
         guest_allowed   => $guest_allowed,
     );
 }
