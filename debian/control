@@ -74,7 +74,7 @@ Depends: ${misc:Depends}, vlan, make,
  liberror-perl, libio-socket-inet6-perl,
  libio-interface-perl, libnet-route-perl, libnet-arp-perl,
 # required by catalyst
- libcatalyst-perl, libcatalyst-modules-perl,
+ libcatalyst-perl (>= 5.90011), libcatalyst-modules-perl,
  libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl, 
  libcatalyst-authentication-store-htpasswd-perl,
  libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl,
