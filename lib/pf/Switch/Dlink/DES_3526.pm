@@ -74,11 +74,11 @@ sub parseTrap {
 
         # portsec violation
         if ( !defined $ifIndex && $field =~ $portsec_violation_re ) {
+            $trapHashRef->{'trapType'}      = 'secureMacAddrViolation';
             $ifIndex                        = $1;
             $op                             = 'learnt';
             $trapHashRef->{'trapIfIndex'}   = $ifIndex;
             $trapHashRef->{'trapOperation'} = $op;
-            $trapHashRef->{'trapType'}      = 'secureMacAddrViolation';
             $trapHashRef->{'trapVlan'}      = $this->getVlan( $ifIndex );
             next PARSETRAP;
         }
@@ -95,7 +95,7 @@ sub parseTrap {
         if ( !defined $mac && $field =~ $mac_notification_re ) {
             $trapHashRef->{'trapType'} = 'mac';
 
-            $op = $1;
+            ( $op, $mac, $ifIndex ) = ( $1, $2, $3 );
             if ( $op == 1 ) {
                 $trapHashRef->{'trapOperation'} = 'learnt';
             } elsif ( $op == 2 ) {
@@ -104,17 +104,16 @@ sub parseTrap {
                 $trapHashRef->{'trapOperation'} = 'unknown';
             }
 
-            $mac = $2;
             $mac = lc $mac;
             $mac =~ s/ /:/g;
             $trapHashRef->{'trapMac'}     = $mac;
 
-            $ifIndex = $3;
             $ifIndex =~ s/ //g;
             $ifIndex = hex $ifIndex;
             $trapHashRef->{'trapIfIndex'} = $ifIndex;
 
             $trapHashRef->{'trapVlan'} = $this->getVlan( $ifIndex );
+            next PARSETRAP;
         }
 
 
