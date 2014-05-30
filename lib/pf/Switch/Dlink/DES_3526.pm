@@ -47,7 +47,7 @@ sub parseTrap {
         Hex-STRING:\s $mac_re           # capture: $1 is the MAC
     /x;
 
-    # match .1.3.6.1.2.1.2.2.1.7.2 = INTEGER: up(1)
+    # match .1.3.6.1.2.1.2.2.1.8.2 = INTEGER: up(1)
     my $linkstatus_re = qr/
         ^  .1.3.6.1.2.1.2.2.1.8\.(\d+)  # capture: $1 is the ifIndex
         \s=\s                           #   = 
@@ -57,6 +57,16 @@ sub parseTrap {
             (\d)                        # capture: $2 is the op status code
         \)                              # a litteral )
     /x;
+
+    my $mac_notification_re = qr/
+        ^ \.1\.3\.6\.1\.4\.1\.171\.11\.64\.[12]\.2\.15\.1 
+        \s=\s
+        Hex-STRING:\s
+        ([[:xdigit:]]{2}) \s                        # Capture: $1 is op status code
+        $mac_re \s                                  # Capture: $2 is the MAC
+        (?:[[:xdigit:]]{2} \s [[:xdigit:]]{2})\s    # non capturing 
+        ([[:xdigit:]]{2} \s [[:xdigit:]]{2})        # Capture: $3 is the ifIndex
+    /x ;
 
     my ( $ifIndex, $mac, $op );
     PARSETRAP:
@@ -68,6 +78,7 @@ sub parseTrap {
             $op                             = 'learnt';
             $trapHashRef->{'trapIfIndex'}   = $ifIndex;
             $trapHashRef->{'trapOperation'} = $op;
+            $trapHashRef->{'trapType'}      = 'secureMacAddrViolation';
             $trapHashRef->{'trapVlan'}      = $this->getVlan( $ifIndex );
             next PARSETRAP;
         }
@@ -76,14 +87,41 @@ sub parseTrap {
             $mac = $1;
             $mac = lc $mac;
             $mac =~ s/ /:/g;
-            $trapHashRef->{'trapType'} = 'mac';
             $trapHashRef->{'trapMac'}  = $mac;
             next PARSETRAP;
         }
 
+
+        if ( !defined $mac && $field =~ $mac_notification_re ) {
+            $trapHashRef->{'trapType'} = 'mac';
+
+            $op = $1;
+            if ( $op == 1 ) {
+                $trapHashRef->{'trapOperation'} = 'learnt';
+            } elsif ( $op == 2 ) {
+                $trapHashRef->{'trapOperation'} = 'removed';
+            } else {
+                $trapHashRef->{'trapOperation'} = 'unknown';
+            }
+
+            $mac = $2;
+            $mac = lc $mac;
+            $mac =~ s/ /:/g;
+            $trapHashRef->{'trapMac'}     = $mac;
+
+            $ifIndex = $3;
+            $ifIndex =~ s/ //g;
+            $ifIndex = hex $ifIndex;
+            $trapHashRef->{'trapIfIndex'} = $ifIndex;
+
+            $trapHashRef->{'trapVlan'} = $this->getVlan( $ifIndex );
+        }
+
+
         # linkup/linkdown
         if ( !defined $ifIndex && $field =~ $linkstatus_re ) {
             ( $ifIndex, $op ) = ( $1, $2 );
+            $trapHashRef->{'trapType'} = 'mac';
             $trapHashRef->{'trapIfIndex'} = $ifIndex;
 
             if ( $op == 1 ) {
