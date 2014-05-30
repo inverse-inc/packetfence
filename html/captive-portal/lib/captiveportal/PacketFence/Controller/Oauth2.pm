@@ -35,7 +35,6 @@ our %VALID_OAUTH_PROVIDERS = (
 
 sub auth_provider : Local('auth'): Args(1) {
     my ( $self, $c, $provider ) = @_;
-    $c->log->info($self->oauth2_client($c,$provider)->authorize);
     $c->response->redirect($self->oauth2_client($c,$provider)->authorize);
 }
 
@@ -48,7 +47,6 @@ sub auth_provider : Local('auth'): Args(1) {
 sub auth : Local: Args(0) {
     my ( $self, $c ) = @_;
     my $provider = $c->request->query_params->{'provider'};
-    $c->log->info("HEULOOWWWWW");
     $c->forward('auth_provider',[$provider]);
 }
 
