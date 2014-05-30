@@ -19,6 +19,7 @@ New Features
 
 * Added support for Ruckus External Captive Portal
 * Support for Huawei S2700, S3700, S5700, S6700, S7700, S9700 
+* Added support for LinkedIn and Windows Live as authentication source.
 
 Enhancements
 ++++++++++++
