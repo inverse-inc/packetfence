@@ -19,9 +19,14 @@ use pf::log;
 use NetSNMP::TrapReceiver;
 
 sub receiver {
+    my ($trapInfo,$oids) = @_;
     my $client = pf::client::sereal->new;
+    #Serializing the OID to a string
+    foreach my $oid (@$oids) {
+        $oid->[0] = $oid->[0]->quote_oid;
+    }
     eval {
-        $client->notify('handle_trap', @_);
+        $client->notify('handle_trap', $trapInfo, $oids);
     };
     return NETSNMPTRAPD_HANDLER_OK;
 }
