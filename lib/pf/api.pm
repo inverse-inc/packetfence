@@ -24,6 +24,7 @@ use pf::util();
 use pf::node();
 use pf::locationlog();
 use pf::ipset();
+use pf::traphandler::custom();
 
 sub event_add {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -102,10 +103,9 @@ sub update_iplog {
 }
 
 sub handle_trap {
-    my ($class,$trapInfo,@oids) = @_;
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-    my $switch = pf::SwitchFactory->instantiateFromTrap($trapInfo);
-    $switch->handleTrap($trapInfo,@oids);
+    my ($class,$trapInfo,$oids) = @_;
+    my $trapHandler = pf::traphandler::custom->new;
+    $trapHandler->handleTrap($trapInfo,$oids);
 }
  
 sub unreg_node_for_pid {
