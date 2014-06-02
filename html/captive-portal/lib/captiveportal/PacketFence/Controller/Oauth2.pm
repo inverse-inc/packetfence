@@ -25,6 +25,8 @@ our %VALID_OAUTH_PROVIDERS = (
     google   => undef,
     facebook => undef,
     github   => undef,
+    windowslive => undef,
+    linkedin => undef,
 );
 
 =head2 auth_provider
@@ -81,8 +83,8 @@ sub oauth2_client {
     } elsif (lc($provider) eq 'linkedin'){
         $type = pf::Authentication::Source::LinkedInSource->meta->get_attribute('type')->default;
         $token_scheme = "uri-query:oauth2_access_token";
-    } elsif (lc($provider) eq 'live'){
-        $type = pf::Authentication::Source::LiveSource->meta->get_attribute('type')->default;
+    } elsif (lc($provider) eq 'windowslive'){
+        $type = pf::Authentication::Source::WindowsLiveSource->meta->get_attribute('type')->default;
         $token_scheme = "auth-header:Bearer";
     }
 
@@ -168,8 +170,8 @@ sub oauth2Result : Path : Args(1) {
     } elsif (lc($provider) eq 'linkedin') {
         $type = pf::Authentication::Source::LinkedInSource->meta->get_attribute(
             'type')->default;
-    } elsif (lc($provider) eq 'live') {
-        $type = pf::Authentication::Source::LiveSource->meta->get_attribute(
+    } elsif (lc($provider) eq 'windowslive') {
+        $type = pf::Authentication::Source::WindowsLiveSource->meta->get_attribute(
             'type')->default;
     }
     
@@ -190,22 +192,13 @@ sub oauth2Result : Path : Args(1) {
                 my $json      = new JSON;
                 my $json_text = $json->decode($response->content());
                 if ($provider eq 'google' || $provider eq 'github') {
-                    $logger->info(
-                        "OAuth2 successfull, register and release for email $json_text->{email}"
-                    );
                     $pid = $json_text->{email};
                 } elsif ($provider eq 'facebook') {
-                    $logger->info(
-                        "OAuth2 successfull, register and release for username $json_text->{username}"
-                    );
                     $pid = $json_text->{username} . '@facebook.com';
-                } elsif ($provider eq 'live'){
-                    $logger->info(
-                        "OAuth2 successfull, register and release for username $json_text->{emails}->{account}"
-                    );
+                } elsif ($provider eq 'windowslive'){
                     $pid = $json_text->{emails}->{account};
                 }
-                 
+                $logger->info("OAuth2 successfull, register and release for username $pid");
             }         
         } else {
             $logger->info(
