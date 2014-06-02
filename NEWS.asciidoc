@@ -18,7 +18,7 @@ New Features
 ++++++++++++
 
 * Added support for Ruckus External Captive Portal
-* Added support for LinkedIn and Windows Live as authentication source.
+* Added support for LinkedIn and Windows Live as authentication sources.
 
 Enhancements
 ++++++++++++
