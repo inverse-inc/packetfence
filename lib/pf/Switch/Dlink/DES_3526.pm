@@ -9,6 +9,10 @@ pf::Switch::Dlink::DES_3526 - Object oriented module to access SNMP enabled Dlin
 The pf::Switch::Dlink::DES_3526 module implements an object oriented interface
 to access SNMP enabled Dlink DES 3526 switches.
 
+Tested on Firmware: Build 5.01.B65.
+Supports MAC detection traps with linkup/linkdown.
+No portsecurity support, no RADIUS. 
+
 =cut
 
 use strict;
@@ -35,19 +39,8 @@ sub parseTrap {
         )
     /x;
 
-    # match .1.3.6.1.4.1.171.11.64.1.2.14.1.1.1.1 = INTEGER: 1
-    my $portsec_violation_re = qr/
-        ^  .1.3.6.1.4.1.171.11.64.1.2.14.1.1.1\.(\d+) # capture: ifIndex is $1
-    /x;
-
-    # match .1.3.6.1.4.1.171.11.64.1.2.15.2.1 = Hex-STRING: 00 24 BE B1 F6 31  END VARIABLEBINDINGS
-    my $portsec_mac_re = qr/
-        ^  .1.3.6.1.4.1.171.11.64.1.2.15.2.1
-        \s=\s 
-        Hex-STRING:\s $mac_re           # capture: $1 is the MAC
-    /x;
-
     # match .1.3.6.1.2.1.2.2.1.8.2 = INTEGER: up(1)
+    # ifTable.ifEntry.ifOperStatus
     my $linkstatus_re = qr/
         ^  .1.3.6.1.2.1.2.2.1.8\.(\d+)  # capture: $1 is the ifIndex
         \s=\s                           #   = 
@@ -58,6 +51,7 @@ sub parseTrap {
         \)                              # a litteral )
     /x;
 
+    # match .1.3.6.1.4.1.171.11.64.1.2.15.1 = Hex-STRING: 01 00 1C C0 91 72 B9 00 01 00 1A 00  END VARIABLEBINDINGS
     my $mac_notification_re = qr/
         ^ \.1\.3\.6\.1\.4\.1\.171\.11\.64\.[12]\.2\.15\.1 
         \s=\s
@@ -71,26 +65,6 @@ sub parseTrap {
     my ( $ifIndex, $mac, $op );
     PARSETRAP:
     for my $field (@fields) {
-
-        # portsec violation
-        if ( !defined $ifIndex && $field =~ $portsec_violation_re ) {
-            $trapHashRef->{'trapType'}      = 'secureMacAddrViolation';
-            $ifIndex                        = $1;
-            $op                             = 'learnt';
-            $trapHashRef->{'trapIfIndex'}   = $ifIndex;
-            $trapHashRef->{'trapOperation'} = $op;
-            $trapHashRef->{'trapVlan'}      = $this->getVlan( $ifIndex );
-            next PARSETRAP;
-        }
-
-        if ( !defined $mac && $field =~ $portsec_mac_re ) {
-            $mac = $1;
-            $mac = lc $mac;
-            $mac =~ s/ /:/g;
-            $trapHashRef->{'trapMac'}  = $mac;
-            next PARSETRAP;
-        }
-
 
         if ( !defined $mac && $field =~ $mac_notification_re ) {
             $trapHashRef->{'trapType'} = 'mac';
@@ -145,11 +119,12 @@ sub parseTrap {
 
 =head1 AUTHOR
 
-Treker Chen <treker.chen@gmail.com>
+Treker Chen <treker.chen@gmail.com> for the original implementation.
+Louis Munro <lmunro@inverse.ca> for the updated version.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2008 Treker Chen
+Copyright (C) Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
