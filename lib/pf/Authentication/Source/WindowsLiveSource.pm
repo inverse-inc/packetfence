@@ -1,8 +1,8 @@
-package pf::Authentication::Source::LiveSource;
+package pf::Authentication::Source::WindowsLiveSource;
 
 =head1 NAME
 
-pf::Authentication::Source::LiveSource
+pf::Authentication::Source::WindowsLiveSource
 
 =head1 DESCRIPTION
 
@@ -12,7 +12,7 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'external');
-has '+type' => (default => 'Live');
+has '+type' => (default => 'WindowsLive');
 has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
@@ -22,7 +22,7 @@ has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth20_token
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'oauth_token');
 has 'scope' => (isa => 'Str', is => 'rw', default => 'wl.basic,wl.emails');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://apis.live.net/v5.0/me');
-has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/live');
+has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/windowslive');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'login.live.com,auth.gfx.ms,account.live.com');
 
 =head2 available_actions

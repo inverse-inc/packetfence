@@ -77,7 +77,7 @@ document.observe("dom:loaded", function() {
             <input type="submit" class="btn disabled" name="submit" value="[% i18n("Login") %]" />
           </div>
 
-          [% IF oauth2_google || oauth2_facebook || oauth2_github || oauth2_linkedin || oauth2_live %]
+          [% IF oauth2_google || oauth2_facebook || oauth2_github || oauth2_linkedin || oauth2_win_live %]
           <div class="input">
             [% IF oauth2_google -%]
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
@@ -95,9 +95,9 @@ document.observe("dom:loaded", function() {
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
             <a class="btn disabled" href="/oauth2/auth?provider=linkedin">[% i18n('Login with LinkedIn account') %] <img src="/content/images/linkedin.icon.png"></a>
             [% END %]
-            [% IF oauth2_live -%]
+            [% IF oauth2_win_live -%]
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
-            <a class="btn disabled" href="/oauth2/auth?provider=live">[% i18n('Login with Microsoft Live account') %] <img src="/content/images/live.icon.png"></a>
+            <a class="btn disabled" href="/oauth2/auth?provider=windowslive">[% i18n('Login with Windows Live account') %] <img src="/content/images/windowslive.icon.png"></a>
             [% END %]         
           </div>
           [% END %]
