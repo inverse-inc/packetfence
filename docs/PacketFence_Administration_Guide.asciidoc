@@ -2147,7 +2147,7 @@ Moreover, don't forget to add Google as a registration mode from your portal pro
 
 Facebook
 ^^^^^^^^
-To use Facebook, you also need an API code and a secret key.  To get one, go here: https://developers.facebook.com/apps.  When you create your App, make sure you input the following as the Website URL:
+To use Facebook, you also need an API code and a secret key.  To get one, go here: https://developers.facebook.com/apps.  When you create your App, make sure you specify the following as the Website URL:
 https://YOUR_PORTAL_HOSTNAME/oauth2/facebook
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
@@ -2164,23 +2164,23 @@ CAUTION: By allowing OAuth through Facebook, you will give Facebook access to th
 
 GitHub
 ^^^^^^
-To use GitHub, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications.  When you create your App, make sure you input the following as the Callback URL
+To use GitHub, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications.  When you create your App, make sure you specify the following as the Callback URL
 https://YOUR_PORTAL_HOSTNAME/oauth2/github
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
 
 Moreover, don't forget to add GitHub as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 LinkedIn
 ^^^^^^^^
-To use LinkedIn, you also need an API code and a secret key.  To get one, you need to create an App here: https://developer.linkedin.com/.  When you create your App, make sure you input the following as the Callback URL
+To use LinkedIn, you also need an API code and a secret key.  To get one, you need to create an App here: https://developer.linkedin.com/.  When you create your App, make sure you specify the following as the Callback URL
 https://YOUR_PORTAL_HOSTNAME/oauth2/linkedin
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from *Configuration -> Sources*.
 
 Moreover, don't forget to add LinkedIn as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
@@ -2188,12 +2188,12 @@ Also, LinkedIn requires a 'state' parameter for the authorization URL. If you mo
 
 Windows Live
 ^^^^^^^^^^^^
-To use Windows live, you also need an API code and a secret key.  To get one, you need to create an App here: https://account.live.com/developers/applications.  When you create your App, make sure you input the following as the Callback URL
+To use Windows live, you also need an API code and a secret key.  To get one, you need to create an App here: https://account.live.com/developers/applications.  When you create your App, make sure you specify the following as the Callback URL
 https://YOUR_PORTAL_HOSTNAME/oauth2/windowslive
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Sources*.
 
 Moreover, don't forget to add WindowsLive as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
