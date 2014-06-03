@@ -19,6 +19,36 @@ extends 'pf::ConfigStore';
 
 sub configFile { $pf::file_paths::provisioning_config_file };
 
+=head2 cleanupAfterRead
+
+Clean up switch data
+
+=cut
+
+sub cleanupAfterRead {
+    my ($self, $id, $data) = @_;
+    $self->expand_list($data, $self->_fields_expanded);
+}
+
+=head2 cleanupBeforeCommit
+
+Clean data before update or creating
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $data) = @_;
+    $self->flatten_list($data, $self->_fields_expanded);
+}
+
+=head2 _fields_expanded
+
+=cut
+
+sub _fields_expanded {
+    return qw(provisioner);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
