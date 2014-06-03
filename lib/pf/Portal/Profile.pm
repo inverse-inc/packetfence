@@ -327,6 +327,17 @@ sub noUsernameNeeded {
     return isenabled($self->reuseDot1xCredentials) || any { $_->type eq 'Null' && isdisabled( $_->email_required ) } $self->getSourcesAsObjects;
 }
 
+=item provisioners 
+
+The provisioners
+
+=cut
+
+sub provisioners {
+    my ($self) = @_;
+    return $self->{'_provisioners'};
+}
+
 =back
 
 =head1 AUTHOR
