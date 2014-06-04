@@ -288,6 +288,17 @@ sub nbregpages {
     return $self->{'_nbregpages'};
 }
 
+=item reuse_dot1x_credentials
+
+Reuse dot1x credentials when authenticating
+
+=cut
+
+sub reuse_dot1x_credentials {
+    my ($self) = @_;
+    return $self->{'_reuse_dot1x_credentials'};
+}
+
 =back
 
 =head1 AUTHOR
