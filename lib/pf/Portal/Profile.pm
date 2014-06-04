@@ -20,6 +20,7 @@ use warnings;
 use List::Util qw(first);
 use List::MoreUtils qw(all none any);
 use pf::config qw($TRUE $FALSE);
+use pf::util;
 use pf::log;
 
 =head1 METHODS
@@ -288,15 +289,37 @@ sub nbregpages {
     return $self->{'_nbregpages'};
 }
 
-=item reuse_dot1x_credentials
+=item reuseDot1xCredentials
 
 Reuse dot1x credentials when authenticating
 
 =cut
 
-sub reuse_dot1x_credentials {
+sub reuseDot1xCredentials {
     my ($self) = @_;
     return $self->{'_reuse_dot1x_credentials'};
+}
+
+=item noPasswordNeeded
+
+Check if the profile needs no password
+
+=cut
+
+sub noPasswordNeeded {
+    my ($self) = @_;
+    return isenabled($self->reuseDot1xCredentials) || any { $_ eq 'null' } @{ $self->getGuestModes };
+}
+
+=item noUsernameNeeded
+
+Check if the profile needs no username
+
+=cut
+
+sub noUsernameNeeded {
+    my ($self) = @_;
+    return isenabled($self->reuseDot1xCredentials) || any { $_->type eq 'Null' && isdisabled( $_->email_required ) } $self->getSourcesAsObjects;
 }
 
 =back
