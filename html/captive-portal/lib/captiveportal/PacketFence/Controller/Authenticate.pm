@@ -222,9 +222,8 @@ sub postAuthentication : Private {
       &pf::authentication::match( $source_id, $params,
         $Actions::SET_ACCESS_DURATION );
     if ( defined $value ) {
-        $value = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
-            localtime( time + normalize_time($value) ) );
-        $logger->trace("Computed unrege date from access duration: $value");
+        $value = pf::config::access_duration($value);
+        $logger->trace("Computed unreg date from access duration: $value");
     } else {
         $value =
           &pf::authentication::match( $source_id, $params,
