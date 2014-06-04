@@ -788,17 +788,17 @@ sub access_duration {
     }
     elsif ($trigger =~ /^(\d+)($TIME_MODIFIER_RE)($DEADLINE_UNIT)([-+])?(\d+)?($TIME_MODIFIER_RE)?$/) {
         # we match the beginning of the period
-	    my ($tvalue,$modifier,$advance_type,$sign,$delta_value,$delta_type,$delta);
-	    if ( defined ($4) && defined ($5) && defined ($6)) {
+        my ($tvalue,$modifier,$advance_type,$sign,$delta_value,$delta_type,$delta);
+        if ( defined ($4) && defined ($5) && defined ($6)) {
             ($tvalue,$modifier,$advance_type,$sign,$delta_value,$delta_type) = ($1,$2,$3,$4,$5,$6);
             $delta = normalize_time($delta_value.$delta_type);
             if ($sign eq "-") {
                 $delta *= -1;
             }
-	    } else {
+        } else {
             ($tvalue,$modifier,$advance_type) = ($1,$2,$3);
             $delta = 0;
-	    }
+        }
         if ($advance_type eq 'R') { # relative
             # ex: access_duration(1WR+1D, 2001-01-01 12:00, 2001-08-02 00:00) (week starts on Monday)
             return POSIX::strftime("%Y-%m-%d %H:%M:%S",
