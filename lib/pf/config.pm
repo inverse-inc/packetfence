@@ -786,13 +786,19 @@ sub access_duration {
         # ex: access_duration(1W, 2001-01-01 12:00, 2001-08-01 12:00)
         return POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($refdate + normalize_time($trigger)));
     }
-    elsif ($trigger =~ /^(\d+)($TIME_MODIFIER_RE)($DEADLINE_UNIT)([-+])(\d+)($TIME_MODIFIER_RE)$/) {
+    elsif ($trigger =~ /^(\d+)($TIME_MODIFIER_RE)($DEADLINE_UNIT)([-+])?(\d+)?($TIME_MODIFIER_RE)?$/) {
         # we match the beginning of the period
-        my ($tvalue,$modifier,$advance_type,$sign,$delta_value,$delta_type) = ($1,$2,$3,$4,$5,$6);
-        my $delta = normalize_time($delta_value.$delta_type);
-        if ($sign eq "-") {
-            $delta *= -1;
-        }
+	    my ($tvalue,$modifier,$advance_type,$sign,$delta_value,$delta_type,$delta);
+	    if ( defined ($4) && defined ($5) && defined ($6)) {
+            ($tvalue,$modifier,$advance_type,$sign,$delta_value,$delta_type) = ($1,$2,$3,$4,$5,$6);
+            $delta = normalize_time($delta_value.$delta_type);
+            if ($sign eq "-") {
+                $delta *= -1;
+            }
+	    } else {
+            ($tvalue,$modifier,$advance_type) = ($1,$2,$3);
+            $delta = 0;
+	    }
         if ($advance_type eq 'R') { # relative
             # ex: access_duration(1WR+1D, 2001-01-01 12:00, 2001-08-02 00:00) (week starts on Monday)
             return POSIX::strftime("%Y-%m-%d %H:%M:%S",
@@ -802,12 +808,13 @@ sub access_duration {
             # ex: access_duration(1WF+1D, 2001-01-01 12:00, 2001-09-01 00:00)
             my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($refdate);
             my $today_sec = ($hour * 3600) + ($min * 60) + $sec;
-            return POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( ($refdate + normalize_time($tvalue.$modifier)) - $today_sec + $delta ));
-        }
-        else {
+            return POSIX::strftime("%Y-%m-%d %H:%M:%S",
+                                   localtime( ($refdate + normalize_time($tvalue.$modifier)) - $today_sec + $delta ));
+        } else {
             return $FALSE;
         }
     }
+    $logger->warn("We were unable to calculate the access duration");
 }
 
 =item start_date
