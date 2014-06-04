@@ -74,13 +74,13 @@ sub ACCEPT_CONTEXT {
     my $model = $c->session->{$class};
     my $request       = $c->request;
     my $r = $request->{'env'}->{'psgi.input'};
-    return $model if (defined($model) && !($r->pnotes('last_uri')) );
+    return $model if (defined($model) && $r->isa('Apache2::Request') && !($r->pnotes('last_uri')) );
     my $remoteAddress = $request->address;
     my $forwardedFor  = $request->header('HTTP_X_FORWARDED_FOR');
     my $redirectURL;
     my $uri = $request->uri;
     my $options;
-    if( defined ( my $last_uri = $r->pnotes('last_uri') )) {
+    if( $r->isa('Apache2::Request') &&  defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
             'last_uri' => $last_uri,
         };
