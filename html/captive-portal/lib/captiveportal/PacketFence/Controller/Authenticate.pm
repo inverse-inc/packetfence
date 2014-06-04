@@ -193,7 +193,7 @@ sub postAuthentication : Private {
     my $info = $c->stash->{info} || {};
     my $source_id = $session->{source_id};
     my $pid = $session->{"username"};
-    $pid = $default_pid if _no_username($c->profile);
+    $pid = $default_pid if !defined $pid && $c->profile->noUsernameNeeded;
     $info->{pid} = $pid;
     my $params = { username => $pid };
     my $mac = $portalSession->clientMac;
@@ -272,9 +272,8 @@ sub validateLogin : Private {
     $logger->debug("form validation attempt");
 
     my $request = $c->request;
-    my $no_password_needed =
-      any { $_ eq 'null' } @{ $profile->getGuestModes };
-    my $no_username_needed = _no_username($profile);
+    my $no_password_needed = $profile->noPasswordNeeded;
+    my $no_username_needed = $profile->noUsernameNeeded;
 
     if (   ( $request->param("username") || $no_username_needed )
         && ( $request->param("password") || $no_password_needed ) ) {
@@ -294,12 +293,11 @@ sub validateLogin : Private {
 sub authenticationLogin : Private {
     my ( $self, $c ) = @_;
     my $logger  = $c->log;
-    my $session = $c->session;
     my $request = $c->request;
     my $profile = $c->profile;
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
-
+    my ( $return, $message, $source_id );
     $logger->trace("authentication attempt");
     my $local;
     if ($request->{'match'} eq "status/login") {
@@ -332,21 +330,32 @@ sub authenticationLogin : Private {
     my $username = $request->param("username");
     my $password = $request->param("password");
 
-    # validate login and password
-    my ( $return, $message, $source_id ) =
-      pf::authentication::authenticate( $username, $password, @sources );
-    if ( defined($return) && $return == 1 ) {
-        # save login into session
-        $c->session->{"username"} = $request->param("username");
-        $c->session->{source_id} = $source_id;
+    if($profile->noPasswordNeeded) {
+        my $mac       = $portalSession->clientMac;
+        my $node_info = node_view($mac);
+        my $username = $node_info->{'last_dot1x_username'};
+        if ($username =~ /^(.*)@/ || $username =~ /^[^\/]+\/(.*)$/ ) {
+            $username = $1;
+        }
+        $c->session(
+            "username"  => $username,
+            "source_id" => $sources[0]->id
+        );
     } else {
-        $c->error($message);
+        # validate login and password
+        ( $return, $message, $source_id ) =
+          pf::authentication::authenticate( $username, $password, @sources );
+        if ( defined($return) && $return == 1 ) {
+            # save login into session
+            $c->session(
+                "username"  => $request->param("username"),
+                "source_id" => $source_id,
+            );
+        } else {
+            $c->error($message);
+        }
     }
-}
 
-sub _no_username {
-    my ($profile) = @_;
-    return any { $_->type eq 'Null' && isdisabled( $_->email_required ) } $profile->getSourcesAsObjects;
 }
 
 sub showLogin : Private {
@@ -367,7 +376,8 @@ sub showLogin : Private {
         null_source     => is_in_list( $SELFREG_MODE_NULL, $guestModes ),
         oauth2_github   => is_in_list( $SELFREG_MODE_GITHUB, $guestModes ),
         oauth2_google   => is_in_list( $SELFREG_MODE_GOOGLE, $guestModes ),
-        no_username     => _no_username($profile),
+        no_username     => $profile->noUsernameNeeded,
+        no_password     => $profile->noPasswordNeeded,
         oauth2_facebook => is_in_list( $SELFREG_MODE_FACEBOOK, $guestModes ),
         oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
