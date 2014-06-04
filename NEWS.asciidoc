@@ -11,6 +11,18 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.2.3 released on YYYY-MM-DD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
+++++++++++++
+
+
+Bug Fixes
++++++++++
+
+* Fixed SQL join with iplog in advanced search of nodes
+
 Version 4.2.2 released on 2014-05-29
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
