@@ -163,7 +163,7 @@ sub make_builder {
                                 'name'   => 'end_time',
                             },
                             '>',
-                            'NOW()',
+                            L_('NOW()'),
                          ],
                      [ ')' ],
                     ],
