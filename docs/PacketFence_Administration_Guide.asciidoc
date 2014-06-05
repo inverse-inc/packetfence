@@ -2407,17 +2407,17 @@ from Monday to Friday when it try to connect as a registered device :
   filter = node_info
   attribute = category
   operator = is
-  regexp = default
+  value = default
 
   [ssid]
   filter = ssid
   operator = is
-  regexp = SECURE
+  value = SECURE
 
   [time]
   filter = time
   operator = is
-  regexp = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
+  value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
 
   [1:category&ssid&time]
   scope = NormalVlan

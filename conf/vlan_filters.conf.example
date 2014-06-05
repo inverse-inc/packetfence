@@ -8,7 +8,7 @@
 # filter = node_info
 # operator = is
 # attribute = category
-# regexp = default
+# value = default
 #
 # [1:category]
 # scope = NormalVlan
@@ -23,17 +23,17 @@
 # filter = node_info
 # attribute = category
 # operator = match
-# regexp = ^default$
+# value = ^default$
 #
 # [3]
 # filter = ssid
 # operator = is
-# regexp = OpenWrt-SECURE
+# value = OpenWrt-SECURE
 #
 # [4]
 # filter = time
 # operator = is
-# regexp = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
+# value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
 #
 # [2:2&3&4]
 # scope = NormalVlan
@@ -100,7 +100,7 @@
 #    Inline
 #    WIRED_MAC_AUTH
 #
-# The regexp of a time is specific and follow this logic:
+# The value of a time is specific and follow this logic:
 # http://search.cpan.org/~pryan/Period-1.20/Period.pm
 # For example, if you want to allow access from Monday to Friday, 9am to 11am and from 2pm to 4pm:
 # wd {Mon Tue Wed Thu Fri} hr {9am-11am}, wd {Mon Tue Wed Thu Fri} hr {2pm-4am}
