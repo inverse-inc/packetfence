@@ -104,27 +104,31 @@ Parse the node_info attribute and compare to the rule. If it matches then perfor
 sub node_info_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
-    if ($rule->{'operator'} eq 'is') {
-        if ($node_info->{$rule->{'attribute'}} eq $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
+    if (defined($node_info)) {
+        if ($rule->{'operator'} eq 'is') {
+            if ($node_info->{$rule->{'attribute'}} eq $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'is_not') {
+            if ($node_info->{$rule->{'attribute'}} ne $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
         }
-    } elsif ($rule->{'operator'} eq 'is_not') {
-        if ($node_info->{$rule->{'attribute'}} ne $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif  ($rule->{'operator'} eq 'match') {
-        if ($node_info->{$rule->{'attribute'}} =~ m/$rule->{'value'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match_not') {
-        if ($node_info->{$rule->{'attribute'}} !~ m/$rule->{'value'}/) {
-            return 1;
+        } elsif  ($rule->{'operator'} eq 'match') {
+            if ($node_info->{$rule->{'attribute'}} =~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match_not') {
+            if ($node_info->{$rule->{'attribute'}} !~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
         } else {
             return 0;
         }
@@ -142,27 +146,31 @@ Parse the switch attribute and compare to the rule. If it matches then return tr
 sub switch_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
-    if ($rule->{'operator'} eq 'is') {
-        if ($switch->{$rule->{'attribute'}} eq $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'is_not') {
-        if ($switch->{$rule->{'attribute'}} ne $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match') {
-        if ($switch->{$rule->{'attribute'}} =~ m/$rule->{'value'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match_not') {
-        if ($switch->{$rule->{'attribute'}} !~ m/$rule->{'value'}/) {
-            return 1;
+    if (defined($switch)( {
+        if ($rule->{'operator'} eq 'is') {
+            if ($switch->{$rule->{'attribute'}} eq $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'is_not') {
+            if ($switch->{$rule->{'attribute'}} ne $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match') {
+            if ($switch->{$rule->{'attribute'}} =~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match_not') {
+            if ($switch->{$rule->{'attribute'}} !~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
         } else {
             return 0;
         }
@@ -180,27 +188,31 @@ Parse the ifindex value and compare to the rule. If it matches then return true.
 sub ifindex_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
-    if ($rule->{'operator'} eq 'is') {
-        if ($ifIndex eq $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'is_not') {
-        if ($ifIndex ne $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match') {
-        if ($ifIndex =~ m/$rule->{'value'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match_not') {
-        if ($ifIndex !~ m/$rule->{'value'}/) {
-            return 1;
+    if (defined($ifIndex)) {
+        if ($rule->{'operator'} eq 'is') {
+            if ($ifIndex eq $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'is_not') {
+            if ($ifIndex ne $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match') {
+            if ($ifIndex =~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match_not') {
+            if ($ifIndex !~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
         } else {
             return 0;
         }
@@ -218,27 +230,31 @@ Parse the mac value and compare to the rule. If it matches then return.
 sub mac_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
-    if ($rule->{'operator'} eq 'is') {
-        if ($mac eq $rule->{'value'} ) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'is_not') {
-        if ($mac ne $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match') {
-        if ($mac =~ m/$rule->{'value'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match_not') {
-        if ($mac !~ m/$rule->{'value'}/) {
-            return 1;
+    if (defined($mac)) {
+        if ($rule->{'operator'} eq 'is') {
+            if ($mac eq $rule->{'value'} ) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'is_not') {
+            if ($mac ne $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match') {
+            if ($mac =~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match_not') {
+            if ($mac !~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
         } else {
             return 0;
         }
@@ -256,27 +272,31 @@ Parse the connection_type value and compare to the rule. If it matches then retu
 sub connection_type_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
  
-    if ($rule->{'operator'} eq 'is') {
-        if ($connection_type_to_str{$connection_type} eq $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'is_not') {
-        if ($connection_type_to_str{$connection_type} ne $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match') {
-        if ($connection_type_to_str{$connection_type} =~ m/$rule->{'value'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match_not') {
-        if ($connection_type_to_str{$connection_type} !~ m/$rule->{'value'}/) {
-            return 1;
+    if (defined($connection_type)) {
+        if ($rule->{'operator'} eq 'is') {
+            if ($connection_type_to_str{$connection_type} eq $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'is_not') {
+            if ($connection_type_to_str{$connection_type} ne $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match') {
+            if ($connection_type_to_str{$connection_type} =~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match_not') {
+            if ($connection_type_to_str{$connection_type} !~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
         } else {
             return 0;
         }
@@ -294,27 +314,31 @@ Parse the ursername value and compare to the rule. If it matches then return tru
 sub username_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
-    if ($rule->{'operator'} eq 'is') {
-        if ($user_name eq $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'is_not') {
-        if ($user_name ne $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match') {
-        if ($user_name =~ m/$rule->{'value'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match_not') {
-        if ($user_name !~ m/$rule->{'value'}/) {
-            return 1;
+    if (defined($user_name)) {
+        if ($rule->{'operator'} eq 'is') {
+            if ($user_name eq $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'is_not') {
+            if ($user_name ne $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match') {
+            if ($user_name =~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match_not') {
+            if ($user_name !~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
         } else {
             return 0;
         }
@@ -332,27 +356,31 @@ Parse the ssid valus and compare to the rule. If it matches then return true.
 sub ssid_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
-    if ($rule->{'operator'} eq 'is') {
-        if ($ssid eq $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'is_not') {
-        if ($ssid ne $rule->{'value'}) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match') {
-        if ($ssid =~ m/$rule->{'value'}/) {
-            return 1;
-        } else {
-            return 0;
-        }
-    } elsif ($rule->{'operator'} eq 'match_not') {
-        if ($ssid !~ m/$rule->{'value'}/) {
-            return 1;
+    if (defined($ssid)) {
+        if ($rule->{'operator'} eq 'is') {
+            if ($ssid eq $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'is_not') {
+            if ($ssid ne $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match') {
+            if ($ssid =~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match_not') {
+            if ($ssid !~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
         } else {
             return 0;
         }
