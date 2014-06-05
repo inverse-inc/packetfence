@@ -124,8 +124,7 @@ sub returnRoleAttribute {
 
 =item returnRadiusAccessAccept
 
-Overloading L<pf::Switch>'s implementation because AeroHIVE doesn't support
-assigning VLANs and Roles at the same time.
+Overide to support the captive portal special RADIUS accept
 
 =cut
 
