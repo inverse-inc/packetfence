@@ -19,7 +19,7 @@ use Log::Log4perl;
 use Time::Period;
 use pf::config qw(%connection_type_to_str);
 
-our (%ConfigVlanFilters $cached_vlan_filters_config);
+our (%ConfigVlanFilters, $cached_vlan_filters_config);
 
 readVlanFiltersFile();
 
@@ -219,7 +219,7 @@ sub mac_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
     if ($rule->{'operator'} eq 'is') {
-        if ($mac eq $rule->{'value'} {
+        if ($mac eq $rule->{'value'} ) {
             return 1;
         } else {
             return 0;
@@ -405,6 +405,7 @@ sub readVlanFiltersFile {
         }]
     );
     if(@Config::IniFiles::errors) {
+        my $logger = Log::Log4perl::get_logger("pf::vlan::filter");
         $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
     }
 }
