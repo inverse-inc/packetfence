@@ -2458,7 +2458,7 @@ AD-Integration:
 Deleted Account:
 ++++++++++++++++
 
-Create a file unreg_node_deleted_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the werb services credentials, make sure they match under Configuration > Web services.
+Create a file unreg_node_deleted_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the werb services credentials. Make sure the username and password match the credentials defined in the Web admin interface under Configuration > Web Services.
 
 ----
 #########################################################################################
@@ -2533,7 +2533,7 @@ Validate with Ok and give the account who will run this task. (Usually DOMAIN\Ad
 Locked Account:
 +++++++++++++++
 
-Create a file unreg_node_locked_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the web services credentials, make sure they match under Configuration > Web services.
+Create a file unreg_node_locked_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the web services credentials, Make sure the username and password match the credentials defined in the Web admin interface under Configuration > Web Services.
 
 ----
 #########################################################################################
