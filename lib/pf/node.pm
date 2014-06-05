@@ -367,8 +367,6 @@ sub node_pid {
 #
 sub node_view_reg_pid {
     my ($pid) = @_;
-#    my $query = db_query_execute(NODE, $node_statements, 'node_pid_sql', $pid);
-#    my ($count) = $query->fetchrow_array();
     return (db_data(NODE, $node_statements, 'node_view_reg_pid_sql', $pid));
 }
 

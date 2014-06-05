@@ -2458,7 +2458,7 @@ AD-Integration:
 Deleted Account:
 ++++++++++++++++
 
-Create a file unreg_node_deleted_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the werbservice credential, make sure they match under Configuration > Web services.
+Create a file unreg_node_deleted_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the werb services credentials, make sure they match under Configuration > Web services.
 
 ----
 #########################################################################################
@@ -2490,7 +2490,7 @@ Get-EventLog -LogName Security -InstanceId 4726 |
    }
 ----
 
-Create the scheduled task based on event ID:
+Create the scheduled task based on an event ID:
 ++++++++++++++++++++++++++++++++++++++++++++
 
 *Start* > *Run* > *Taskschd.msc*
@@ -2525,7 +2525,7 @@ Add arguments (optional): C:\scripts\unreg_node_deleted_account.ps1
 Settings:
 
 ----
-At the bottom, select in the list "Run a new instance in parallel"
+At the bottom, select in the list "Run a new instance in parallel" in order to unregister multiple nodes at the same time.
 ----
 
 Validate with Ok and give the account who will run this task. (Usually DOMAIN\Administrator)
@@ -2533,7 +2533,7 @@ Validate with Ok and give the account who will run this task. (Usually DOMAIN\Ad
 Locked Account:
 +++++++++++++++
 
-Create a file unreg_node_locked_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the werbservice credential, make sure they match under Configuration > Web services.
+Create a file unreg_node_locked_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the web services credentials, make sure they match under Configuration > Web services.
 
 ----
 #########################################################################################
@@ -2566,7 +2566,7 @@ Get-EventLog -LogName Security -InstanceId 4725 |
    }
 ----
 
-Create the scheduled task based on event ID:
+Create the scheduled task based on an event ID:
 ++++++++++++++++++++++++++++++++++++++++++++
 
 *Start* > *Run* > *Taskschd.msc*
