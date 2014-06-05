@@ -3036,7 +3036,7 @@ Technical introduction to Inline enforcement
 Introduction
 ~~~~~~~~~~~~
 
-Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices. So in other words, PacketFence would become the gateway of that inline network, and NAT or route the traffic using IPTables to the Internet (or to another section of the network). Let see how it works.
+Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices. So in other words, PacketFence would become the gateway of that inline network, and NAT or route the traffic using IPTables/IPSet to the Internet (or to another section of the network). Let see how it works.
 
 Device configuration
 ~~~~~~~~~~~~~~~~~~~~
@@ -3045,7 +3045,7 @@ No special configuration is needed on the unmanageable device. That's the beauty
 Access control
 ~~~~~~~~~~~~~~
 
-The access control relies entirely on IPTables. When a user is not registered, and connects in the inline VLAN, PacketFence will give him an IP address. At this point, the user will be marked as unregistered in the firewall, and all the Web traffic will be redirected to the captive portal and other traffic blocked. The user will have to register through the captive portal as in VLAN enforcement. When he registers, PacketFence changes the firewall marking rule to allow the user's mac address to go through it.
+The access control relies entirely on IPTables/IPSet. When a user is not registered, and connects in the inline VLAN, PacketFence will give him an IP address. At this point, the user will be marked as unregistered in the ipset session, and all the Web traffic will be redirected to the captive portal and other traffic blocked. The user will have to register through the captive portal as in VLAN enforcement. When he registers, PacketFence changes the device´s ipset session to allow the user's mac address to go through it.
 
 Limitations
 ~~~~~~~~~~~
@@ -3056,7 +3056,6 @@ Inline enforcement because of it's nature has several limitations that one must 
 * Everyone behind an inline interface is on the same Layer 2 LAN
 * Every packet of authorized users goes through the PacketFence server increasing the servers' load considerably: Plan ahead for capacity
 * Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
-* Does not handle routed networks
 * Ipset can store up to 65536 entries, so it is not possible to have a inline network class upper than B
 
 This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows users to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
