@@ -108,6 +108,10 @@ $mock->mock('node_attributes', sub {
 ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch, '1001');
 is($vlan, 3, "obtain registrationVlan for an unreg node");
 
+my $node_attributes =  { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
+        lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
+        last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''};
+
 my $filter = new pf::vlan::filter;
 my ($result,$role) = $filter->test('RegistrationVlan',$switch, '10000', 'aa:bb:cc:dd:ee:ff', $node_attributes, 'Wireless-802.11-NoEAP', 'pf', 'OPEN');
 is($role, 'Registration', "obtain registration role for the device");
