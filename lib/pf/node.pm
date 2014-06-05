@@ -195,7 +195,7 @@ sub node_db_prepare {
     $node_statements->{'node_view_reg_pid_sql'} = get_db_handle()->prepare(<<'    SQL');
         SELECT node.mac
         FROM node
-        WHERE node.pid=? AND node.status="reg";
+        WHERE node.pid=? AND node.status="$STATUS_REGISTERED";
     SQL
 
     $node_statements->{'node_last_locationlog_sql'} = get_db_handle()->prepare(<<'    SQL');
