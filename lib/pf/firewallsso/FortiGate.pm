@@ -7,7 +7,7 @@ pf::firewallsso::FortiGate
 =head1 SYNOPSIS
 
 The pf::firewallsso::FortiGate module implements an object oriented interface
-to update the user table.
+to update the FortiGate user table.
 
 =cut
 
@@ -29,7 +29,6 @@ use pf::accounting qw(node_accounting_current_sessionid);
 =item action
 
 Perform a radius accounting request based on the registered status of the node and his role.
-
 
 =cut
 
@@ -65,7 +64,7 @@ sub action {
         my $vsa = [];
 
         perform_rsso($connection_info,$attributes,$vsa);
-        $logger->info("Node registered, allowed to pass Firewall");
+        $logger->info("Node registeredi and allowed to pass the Firewall");
         return 1;
     } else {
         return 0;

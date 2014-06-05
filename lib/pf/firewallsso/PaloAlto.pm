@@ -7,7 +7,7 @@ pf::firewallsso::PaloAlto
 =head1 SYNOPSIS
 
 The pf::firewallsso::PaloAlto module implements an object oriented interface
-to update the user table.
+to update the PaloAlto user table.
 
 =cut
 
@@ -61,7 +61,7 @@ XML
             my $ua = LWP::UserAgent->new;
             my $response = $ua->post($webpage, Content => [ cmd => $message ]);
             if ($response->is_success) {
-                $logger->debug("Node registered, allowed to pass Firewall");
+                $logger->debug("Node registered and allowed to pass the Firewall");
                 return 1;
             } else {
                 $logger->error("XML send error :".$response->status_line);

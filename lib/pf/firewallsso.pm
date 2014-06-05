@@ -36,7 +36,7 @@ sub new {
 
 =item do_sso
 
-Send the sso stuff to the firewall
+Send the firewall sso update request to the webapi.
 
 =cut
 
