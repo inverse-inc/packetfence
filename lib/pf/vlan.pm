@@ -553,9 +553,9 @@ sub shouldAutoRegister {
         $logger->trace("returned yes because it's an ip phone");
         return $isPhone;
     }
-
+    my $node_info = node_attributes($mac);
     my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('AutoRegister',$switch, $port, $mac, $node_info, $connection_type, $user_name, $ssid);
+    my ($result,$role) = $filter->test('AutoRegister',$switch, $port, $mac, $node_info, $conn_type, $user_name, $ssid);
     return 1 if $role;
 
     # custom example: auto-register 802.1x users
