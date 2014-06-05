@@ -109,23 +109,51 @@ InterfaceView.prototype.typeChanged = function(e) {
             var dns = modal.find('[name="dns"]').closest('.control-group');
             var dhcpd = modal.find('[name="dhcpd_enabled"]').closest('.control-group');
             var fake_mac = modal.find('[name="fake_mac_enabled"]').closest('.control-group');
+            var high_availability = modal.find('[name="high_availability"]').closest('.control-group');
+            var vip = modal.find('[name="vip"]').closest('.control-group');
 
             switch ( type.val() ) {
                 case 'inlinel2': 
-                    dns.show('fast');
-                    dhcpd.show('fast');
-                    dns.find(':input').removeAttr('disabled');
-                    fake_mac.hide('fast');
-                    break;
                 case 'inlinel3':
                     dns.show('fast');
                     fake_mac.show('fast');
                     dns.find(':input').removeAttr('disabled');
                     dhcpd.hide('fast');
+                    high_availability.hide('fast');
+                    high_availability.find(':input').attr('disabled','disabled');
+                    vip.show('fast');
+                    vip.find(':input').removeAttr('disabled');
+                    break;
+                case '':
+                case 'management':
+                    dhcpd.hide('fast');
+                    fake_mac.hide('fast');
+                    high_availability.show('fast');
+                    high_availability.find(':input').removeAttr('disabled');
+                    vip.hide('fast');
+                    vip.find(':input').attr('disabled','disabled');
+                    dns.hide('fast');
+                    dns.find(':input').attr('disabled','disabled');
+                    break;
+                case 'other':
+                    dhcpd.hide('fast');
+                    fake_mac.hide('fast');
+                    high_availability.hide('fast');
+                    high_availability.find(':input').attr('disabled','disabled');
+                    dns.hide('fast');
+                    dns.find(':input').attr('disabled','disabled');
+                    vip.hide('fast');
+                    vip.find(':input').attr('disabled','disabled');
                     break;
                 default:
                     dhcpd.hide('fast');
                     fake_mac.hide('fast');
+                    high_availability.hide('fast');
+                    high_availability.find(':input').attr('disabled','disabled');
+                    dns.hide('fast');
+                    dns.find(':input').attr('disabled','disabled');
+                    vip.show('fast');
+                    vip.find(':input').removeAttr('disabled');
             }
         }
     }

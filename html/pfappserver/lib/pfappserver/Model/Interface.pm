@@ -18,6 +18,7 @@ use Net::Netmask;
 use pf::config;
 use pf::error qw(is_error is_success);
 use pf::util;
+use pf::log;
 
 extends 'Catalyst::Model';
 
@@ -225,6 +226,7 @@ sub get {
     # Put requested interfaces into an array
     my @interfaces = $self->_listInterfaces($interface);
     my $networks_model = $models->{network};
+    my $interface_model = $models->{network};
 
     my $result = {};
     my ($status, $return);
@@ -255,9 +257,16 @@ sub get {
             $result->{"$interface"}->{'network_iseditable'} = is_success($status);
         }
         $result->{"$interface"}->{'type'} = $self->getType($interface_ref);
+        $result->{"$interface"}->{'high_availability'} = $self->hasHighAvailability($interface_ref);
     }
 
     return $result;
+}
+
+sub hasHighAvailability {
+    my ($self, $interface_ref) = @_;
+    my ($status, $interface) = $self->{models}->{interface}->read($interface_ref->{name});
+    return  ( is_success($status) && $interface->{type} =~ /high-availability/) ? 1 : 0;
 }
 
 =head2 update
@@ -415,6 +424,7 @@ sub getType {
 
 sub setType {
     my ($self, $interface, $interface_ref) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $models = $self->{models};
 
     my $type = $interface_ref->{type} || 'none';
@@ -431,6 +441,7 @@ sub setType {
     # otherwise we update pf.conf and networks.conf
     else {
         # Update pf.conf
+        
         $models->{interface}->update_or_create($interface,
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
@@ -628,9 +639,13 @@ sub _prepare_interface_for_pfconf {
         $int_config_ref->{'enforcement'} = $type;
     }
     else {
+        if($int_model->{'high_availability'}) {
+            $type .= ",high-availability";
+        }
         # here we oversimplify a bit, type supports multivalues but it's
         # out of scope for now
         $int_config_ref->{'type'} = $type;
+        $int_config_ref->{'enforcement'} = undef;
     }
 
     return $int_config_ref;
