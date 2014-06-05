@@ -2452,6 +2452,161 @@ from Monday to Friday when it try to connect as a registered device :
 
 You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
 
+AD-Integration:
+~~~~~~~~~~~~~~~
+
+Deleted Account:
+++++++++++++++++
+
+Create a file unreg_node_deleted_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the werb services credentials. Make sure the username and password match the credentials defined in the Web admin interface under Configuration > Web Services.
+
+----
+#########################################################################################
+#Powershell script to unregister deleted Active Directory account based on the UserName.#
+#########################################################################################
+
+Get-EventLog -LogName Security -InstanceId 4726 |
+   Select ReplacementStrings,"Account name"|
+   % {
+    $url = "https://@IP_PACKETFENCE:9090/"
+    $username = "admin" # Username for the webservice
+    $password = "admin" # Password for the webservice
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
+    $web = [System.Net.WebRequest]::Create($url)
+    $web.Method = "POST"
+    $web.ContentLength = $bytes.Length
+    $web.ContentType = "application/json-rpc"
+    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $stream = $web.GetRequestStream()
+    $stream.Write($bytes,0,$bytes.Length)
+    $stream.close()
+
+    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader.ReadToEnd()
+    $reader.Close()
+   }
+----
+
+Create the scheduled task based on an event ID:
+++++++++++++++++++++++++++++++++++++++++++++
+
+*Start* > *Run* > *Taskschd.msc*
+
+*Task Scheduler* > *Task Scheduler Library* > *Event Viewer Task* > *Create Task*
+
+General
+
+----
+Name: PacketFence-Unreg_node-for-deleted-account
+Check : Run whether user is logged on or not
+Check : Run with highest privileges
+----
+
+Triggers > New
+
+----
+Begin on the task: On an event
+Log: Security
+Source: Microsoft Windows security auditing.
+Event ID: 4726
+----
+
+Actions > New
+
+----
+Action: Start a program
+Program/script: powershell.exe
+Add arguments (optional): C:\scripts\unreg_node_deleted_account.ps1
+----
+
+Settings:
+
+----
+At the bottom, select in the list "Run a new instance in parallel" in order to unregister multiple nodes at the same time.
+----
+
+Validate with Ok and give the account who will run this task. (Usually DOMAIN\Administrator)
+
+Locked Account:
++++++++++++++++
+
+Create a file unreg_node_locked_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the web services credentials, Make sure the username and password match the credentials defined in the Web admin interface under Configuration > Web Services.
+
+----
+#########################################################################################
+#Powershell script to unregister locked Active Directory account based on the UserName.#
+#########################################################################################
+
+Get-EventLog -LogName Security -InstanceId 4725 |
+   Select ReplacementStrings,"Account name"|
+   % {
+    $url = "https://@IP_PACKETFENCE:9090/"
+    $username = "admin" # Username for the webservice
+    $password = "admin" # Password for the webservice
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
+    $web = [System.Net.WebRequest]::Create($url)
+    $web.Method = "POST"
+    $web.ContentLength = $bytes.Length
+    $web.ContentType = "application/json-rpc"
+    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $stream = $web.GetRequestStream()
+    $stream.Write($bytes,0,$bytes.Length)
+    $stream.close()
+
+    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader.ReadToEnd()
+    $reader.Close()
+ 
+   }
+----
+
+Create the scheduled task based on an event ID:
+++++++++++++++++++++++++++++++++++++++++++++
+
+*Start* > *Run* > *Taskschd.msc*
+
+*Task Scheduler* > *Task Scheduler Library* > *Event Viewer Task* > *Create Task*
+
+General
+
+----
+Name: PacketFence-Unreg_node-for-locked-account
+Check : Run whether user is logged on or not
+Check : Run with highest privileges
+----
+
+Triggers > New
+
+----
+Begin on the task: On an event
+Log: Security
+Source: Microsoft Windows security auditing.
+Event ID: 4726
+----
+
+Actions > New
+
+----
+Action: Start a program
+Program/script: powershell.exe
+Add arguments (optional): C:\scripts\unreg_node_locked_account.ps1
+----
+
+Settings:
+
+----
+At the bottom, select in the list "Run a new instance in parallel"
+----
+
+Validate with Ok and give the account who will run this task. (Usually DOMAIN\Administrator)
+
+
 Operating System Best Practices
 -------------------------------
 
