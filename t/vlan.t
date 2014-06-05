@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::MockModule;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
@@ -32,10 +32,14 @@ use pf::config;
 use pf::SwitchFactory;
 use pf::Switch::constants;
 
-BEGIN { use pf::violation; }
+BEGIN { use pf::violation;
+        use pf::vlan::filter;
+}
+
 BEGIN {
     use_ok('pf::vlan');
     use_ok('pf::vlan::custom');
+    use_ok('pf::vlan::filter');
 }
 
 # test the object
@@ -103,6 +107,10 @@ $mock->mock('node_attributes', sub {
 
 ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch, '1001');
 is($vlan, 3, "obtain registrationVlan for an unreg node");
+
+my $filter = new pf::vlan::filter;
+my ($result,$role) = $filter->test('RegistrationVlan',$switch, '10000', 'aa:bb:cc:dd:ee:ff', $node_attributes, 'Wireless-802.11-NoEAP', 'pf', 'OPEN');
+is($role, 'Registration', "obtain registration role for the device");
 
 #($vlan,$wasInline) = $vlan_obj->getNormalVlan($switch);
 #is($vlan, 1, "obtain normalVlan on a switch with no normalVlan override");
