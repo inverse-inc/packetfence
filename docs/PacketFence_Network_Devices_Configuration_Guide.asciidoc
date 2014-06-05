@@ -2044,7 +2044,7 @@ interface GigabitEthernet0/0/8
  dot1x reauthenticate
  dot1x authentication-method eap
 
----
+----
 
 802.1X
 ++++++
