@@ -8,6 +8,7 @@ pf::SNMP::Juniper::EX2200 - Object oriented module to manage Juniper's EX Series
 
 Supports 
  MAC Authentication (MAC RADIUS in Juniper's terms)
+ 802.1X
 
 Developed and tested on Juniper ex2200 running on JUNOS 12.6
 Tested on ex4200 running on JUNOS 13.2
@@ -47,6 +48,7 @@ sub supportsRadiusVoip { return $TRUE; }
 # special features
 sub supportsLldp { return $TRUE; }
 sub isVoIPEnabled {return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
 
 =item getVoipVsa
 
@@ -252,8 +254,18 @@ sub wiredeauthTechniques {
    my ($this, $method, $connection_type) = @_;
    my $logger = Log::Log4perl::get_logger( ref($this) );
 
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
 
-    if ($connection_type == $WIRED_MAC_AUTH) {
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    elsif ($connection_type == $WIRED_MAC_AUTH) {
         my $default = $SNMP::RADIUS;
         my %tech = (
             $SNMP::TELNET => 'handleReAssignVlanTrapForWiredMacAuth',
@@ -265,7 +277,7 @@ sub wiredeauthTechniques {
         return $method,$tech{$method};
     }
     else{
-        $logger->error("Only wired mac authentication is supported on EX2200");
+        $logger->error("This authentication mode is not supported");
     }
 
 }
