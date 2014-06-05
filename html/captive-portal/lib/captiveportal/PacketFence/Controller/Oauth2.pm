@@ -25,6 +25,8 @@ our %VALID_OAUTH_PROVIDERS = (
     google   => undef,
     facebook => undef,
     github   => undef,
+    windowslive => undef,
+    linkedin => undef,
 );
 
 =head2 auth_provider
@@ -71,13 +73,21 @@ sub oauth2_client {
     my $logger = $c->log;
     my $portalSession = $c->portalSession;
     my $type;
+    my $token_scheme = "auth-header:OAuth";
     if (lc($provider) eq 'facebook') {
         $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
     } elsif (lc($provider) eq 'github') {
         $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
     } elsif (lc($provider) eq 'google') {
         $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
+    } elsif (lc($provider) eq 'linkedin'){
+        $type = pf::Authentication::Source::LinkedInSource->meta->get_attribute('type')->default;
+        $token_scheme = "uri-query:oauth2_access_token";
+    } elsif (lc($provider) eq 'windowslive'){
+        $type = pf::Authentication::Source::WindowsLiveSource->meta->get_attribute('type')->default;
+        $token_scheme = "auth-header:Bearer";
     }
+
     if ($type) {
         my $source = $portalSession->profile->getSourceByType($type);
         if ($source) {
@@ -90,7 +100,8 @@ sub oauth2_client {
                 access_token_method => $source->{'access_token_method'},
                 #access_token_param => $source->{'access_token_param'},
                 scope => $source->{'scope'},
-                redirect_uri => $source->{'redirect_url'} 
+                redirect_uri => $source->{'redirect_url'},
+                token_scheme => $token_scheme, 
           );
         }
         else {
@@ -156,26 +167,39 @@ sub oauth2Result : Path : Args(1) {
     } elsif (lc($provider) eq 'google') {
         $type = pf::Authentication::Source::GoogleSource->meta->get_attribute(
             'type')->default;
+    } elsif (lc($provider) eq 'linkedin') {
+        $type = pf::Authentication::Source::LinkedInSource->meta->get_attribute(
+            'type')->default;
+    } elsif (lc($provider) eq 'windowslive') {
+        $type = pf::Authentication::Source::WindowsLiveSource->meta->get_attribute(
+            'type')->default;
     }
+    
     my $source = $profile->getSourceByType($type);
-    if ($source) {
-        $response = $token->get($source->{'protected_resource_url'});
+    if ($source) { 
+        # request a JSON response
+        my $h = HTTP::Headers->new( 'x-li-format' => 'json' );
+        $response = $token->get($source->{'protected_resource_url'}, $h ); 
         if ($response->is_success) {
-
-            # Grab JSON content
-            my $json      = new JSON;
-            my $json_text = $json->decode($response->content());
-            if ($provider eq 'google' || $provider eq 'github') {
-                $logger->info(
-                    "OAuth2 successfull, register and release for email $json_text->{email}"
-                );
-                $pid = $json_text->{email};
-            } elsif ($provider eq 'facebook') {
-                $logger->info(
-                    "OAuth2 successfull, register and release for username $json_text->{username}"
-                );
-                $pid = $json_text->{username} . '@facebook.com';
+            if ($provider eq 'linkedin'){
+                # response is sent as "email@example.com" with quotes
+                $pid = $response->content() ;
+                # remove the quotes
+                $pid =~ s/"//g;
             }
+            else{
+                # Grab JSON content
+                my $json      = new JSON;
+                my $json_text = $json->decode($response->content());
+                if ($provider eq 'google' || $provider eq 'github') {
+                    $pid = $json_text->{email};
+                } elsif ($provider eq 'facebook') {
+                    $pid = $json_text->{username} . '@facebook.com';
+                } elsif ($provider eq 'windowslive'){
+                    $pid = $json_text->{emails}->{account};
+                }
+                $logger->info("OAuth2 successfull, register and release for username $pid");
+            }         
         } else {
             $logger->info(
                 "OAuth2: failed to validate the token, redireting to login page"

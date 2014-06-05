@@ -313,6 +313,8 @@ sub showLogin : Private {
         oauth2_google   => is_in_list( $SELFREG_MODE_GOOGLE, $guestModes ),
         no_username     => _no_username($profile),
         oauth2_facebook => is_in_list( $SELFREG_MODE_FACEBOOK, $guestModes ),
+        oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
+        oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
         guest_allowed   => $guest_allowed,
     );
 }
