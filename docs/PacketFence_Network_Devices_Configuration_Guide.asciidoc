@@ -973,6 +973,54 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 * Gi0/1...Gi0/48 -> 10101...10148 
 ===========================================================================
 
+Web auth
+++++++++
+
+The Catalyst 2960 supports web authentication from IOS 12.2.55SE3. This procedure has been tested on IOS 15.0.2SE5.
+
+In this example, the ACL for registration is 'redirect' and the ACL for registered devices is 'registered'
+
+Configure the global configuration of the switch using the section __MAC Authentication bypass only__ of the 2960 in this document.
+
+Then add this additionnal configuration on the global level
+
+  ip dhcp snooping
+  ip device tracking
+  nmsp enable
+  udld enable
+  ip http server
+  ip http secure-server
+  snmp-server community public RO
+  snmp-server community private RW
+
+Add the required access lists
+
+  ip access-list extended redirect
+   deny ip any host <your captive portal ip> 
+   permit tcp any any eq www
+   permit tcp any any eq 443
+
+  ip access-list extended registered
+   permit ip any any
+
+Then on each controlled interface
+
+   switchport access vlan <vlan> 
+   switchport mode access
+   authentication priority mab
+   authentication port-control auto
+   authentication periodic
+   mab
+   spanning-tree portfast
+
+PacketFence switch configuration 
+
+* Select the type to 'Cisco Catalyst 2960 with Web Auth'
+* Set 'Portal URL' to 'http://<your_captive_portal_ip>'
+* Set the 'Registration' role to 'redirect'
+* Set your registered roles to 'registered'
+* Screenshots of this configuration are available in the Cisco WLC section of this guide.
+
 Stacked 29xx, Stacked 35xx, Stacked 3750, 4500 Series, 6500 Series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
