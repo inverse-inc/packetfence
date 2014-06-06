@@ -27,6 +27,7 @@ New Features
 * Added Nessus scan policy based on a DHCP fingerprint
 * Added support to unregister a node if the username is locked or deleted in Active Directory
 * Fortinet FortiGate and PaloAlto firewalls integration
+* Added configuration parameters to use mapping by vlan or mapping by role
 
 Enhancements
 ++++++++++++
