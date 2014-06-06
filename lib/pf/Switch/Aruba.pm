@@ -418,7 +418,7 @@ sub returnRadiusAccessAccept {
     }
 
     # if Roles aren't configured, return VLAN information
-    if (isenabled($this->{_RoleVlan}) {
+    if (isenabled($this->{_RoleVlan})) {
 
         $radius_reply_ref = {
              %$radius_reply_ref,
@@ -535,7 +535,7 @@ sub radiusDisconnect {
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
         # Roles are configured and the user should have one
-        if (defined($role) && (defined($node_info->{'status'}) && isenabled($self->{_RoleMap}) ) {
+        if ( defined($role) && (defined($node_info->{'status'}) && isenabled($self->{_RoleMap}) ) ) {
 
             $attributes_ref = {
                 %$attributes_ref,
