@@ -119,7 +119,7 @@ Assumptions
 PacketFence reuses many components in an infrastructure. Thus, it requires the following ones:
 
 [options="compact"]
-* Database server (MySQL)
+* Database server (MySQL or MariaDB)
 * Web server (Apache)
 
 Depending on your setup you may have to install additional components like:
