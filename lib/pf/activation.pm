@@ -1,14 +1,14 @@
-package pf::pending_activation;
+package pf::activation;
 
 =head1 NAME
 
-pf::pending_activation - module to view, query and manage pending activations
+pf::activation - module to view, query and manage pending activations
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pending_activation contains the functions necessary to manage all aspects
+pf::activation contains the functions necessary to manage all aspects
 of pending activation: creation, deletion, activation, etc. It also includes 
 utility methods generate activation codes and validate them.
 
@@ -18,8 +18,8 @@ Notice that this module doesn't export all its subs like our other modules do.
 This is an attempt to shift our paradigm towards calling with package names 
 and avoid the double naming. 
 
-For ex: pf::pending_activation::view() instead of 
-pf::pending_activation::pending_activation_view()
+For ex: pf::activation::view() instead of 
+pf::activation::activation_view()
 
 Remove this note when it will be no longer relevant. ;)
 
@@ -43,7 +43,7 @@ use Try::Tiny;
 
 =cut
 
-use constant PENDING_ACTIVATION => 'pending_activation';
+use constant ACTIVATION => 'activation';
 
 =item Status-related
 
@@ -86,8 +86,8 @@ BEGIN {
     our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        pending_activation_db_prepare
-        $pending_activation_db_prepared
+        activation_db_prepare
+        $activation_db_prepared
     );
 
     @EXPORT_OK = qw(
@@ -112,10 +112,10 @@ use pf::web::constants;
 use pf::web::guest;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $pending_activation_db_prepared = 0;
+our $activation_db_prepared = 0;
 # in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
 # the hash if required
-our $pending_activation_statements = {};
+our $activation_statements = {};
 
 =head1 SUBROUTINES
 
@@ -125,56 +125,56 @@ TODO: This list is incomplete
 
 =cut
 
-sub pending_activation_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::pending_activation');
-    $logger->debug("Preparing pf::pending_activation database queries");
+sub activation_db_prepare {
+    my $logger = Log::Log4perl::get_logger('pf::activation');
+    $logger->debug("Preparing pf::activation database queries");
 
-    $pending_activation_statements->{'pending_activation_view_sql'} = get_db_handle()->prepare(qq[
+    $activation_statements->{'activation_view_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type
-        FROM pending_activation 
+        FROM activation 
         WHERE code_id = ?
     ]);
 
-    $pending_activation_statements->{'pending_activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
+    $activation_statements->{'activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type
-        FROM pending_activation 
+        FROM activation 
         WHERE activation_code LIKE ? AND status = ?
     ]);
 
-    $pending_activation_statements->{'pending_activation_find_code_sql'} = get_db_handle()->prepare(qq[
+    $activation_statements->{'activation_find_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type
-        FROM pending_activation 
+        FROM activation 
         WHERE activation_code LIKE ?
     ]);
 
-    $pending_activation_statements->{'pending_activation_view_by_code_sql'} = get_db_handle()->prepare(qq[
+    $activation_statements->{'activation_view_by_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type
-        FROM pending_activation 
+        FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
         WHERE activation_code = ?
     ]);
 
-    $pending_activation_statements->{'pending_activation_add_sql'} = get_db_handle()->prepare(qq[
-        INSERT INTO pending_activation (pid, mac, contact_info, activation_code, expiration, status, type) 
+    $activation_statements->{'activation_add_sql'} = get_db_handle()->prepare(qq[
+        INSERT INTO activation (pid, mac, contact_info, activation_code, expiration, status, type) 
         VALUES (?, ?, ?, ?, ?, ?, ?)
     ]);
 
-    $pending_activation_statements->{'pending_activation_modify_status_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE pending_activation SET status=? WHERE code_id = ? ]
+    $activation_statements->{'activation_modify_status_sql'} = get_db_handle()->prepare(
+        qq [ UPDATE activation SET status=? WHERE code_id = ? ]
     );
 
-    $pending_activation_statements->{'pending_activation_delete_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM pending_activation WHERE code_id = ? ]
+    $activation_statements->{'activation_delete_sql'} = get_db_handle()->prepare(
+        qq [ DELETE FROM activation WHERE code_id = ? ]
     );
 
-    $pending_activation_statements->{'pending_activation_change_status_old_same_mac_pid_pending_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE pending_activation SET status = ? WHERE mac = ? AND pid = ? AND contact_info = ? AND status = ? ]
+    $activation_statements->{'activation_change_status_old_same_mac_pid_contact_info_sql'} = get_db_handle()->prepare(
+        qq [ UPDATE activation SET status = ? WHERE mac = ? AND pid = ? AND contact_info = ? AND status = ? ]
     );
 
-    $pending_activation_statements->{'pending_activation_change_status_old_same_pid_pending_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE pending_activation SET status = ? WHERE mac IS NULL AND pid = ? AND contact_info = ? AND status = ? ]
+    $activation_statements->{'activation_change_status_old_same_pid_contact_info_sql'} = get_db_handle()->prepare(
+        qq [ UPDATE activation SET status = ? WHERE mac IS NULL AND pid = ? AND contact_info = ? AND status = ? ]
     );
 
-    $pending_activation_db_prepared = 1;
+    $activation_db_prepared = 1;
 }
 
 =item view - view a an pending activation record, returns an hashref
@@ -183,7 +183,7 @@ sub pending_activation_db_prepare {
 
 sub view {
     my ($code_id) = @_;
-    my $query = db_query_execute(PENDING_ACTIVATION, $pending_activation_statements, 'pending_activation_view_sql', $code_id);
+    my $query = db_query_execute(ACTIVATION, $activation_statements, 'activation_view_sql', $code_id);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -197,8 +197,8 @@ sub view {
 
 sub find_code {
     my ($activation_code) = @_;
-    my $query = db_query_execute(PENDING_ACTIVATION, $pending_activation_statements, 
-        'pending_activation_find_code_sql', '%'.$activation_code);
+    my $query = db_query_execute(ACTIVATION, $activation_statements, 
+        'activation_find_code_sql', '%'.$activation_code);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -212,8 +212,8 @@ sub find_code {
 
 sub find_unverified_code {
     my ($activation_code) = @_;
-    my $query = db_query_execute(PENDING_ACTIVATION, $pending_activation_statements, 
-        'pending_activation_find_unverified_code_sql', "%".$activation_code, $UNVERIFIED);
+    my $query = db_query_execute(ACTIVATION, $activation_statements, 
+        'activation_find_unverified_code_sql', "%".$activation_code, $UNVERIFIED);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -227,8 +227,8 @@ sub find_unverified_code {
 
 sub view_by_code {
     my ($activation_code) = @_;
-    my $query = db_query_execute(PENDING_ACTIVATION, $pending_activation_statements, 
-        'pending_activation_view_by_code_sql', $activation_code);
+    my $query = db_query_execute(ACTIVATION, $activation_statements, 
+        'activation_view_by_code_sql', $activation_code);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -245,8 +245,8 @@ sub add {
 
     # TODO some validation required?
 
-    return(db_data(PENDING_ACTIVATION, $pending_activation_statements, 
-            'pending_activation_add_sql', $data{'pid'}, $data{'mac'}, $data{'contact_info'}, $data{'activation_code'}, 
+    return(db_data(ACTIVATION, $activation_statements, 
+            'activation_add_sql', $data{'pid'}, $data{'mac'}, $data{'contact_info'}, $data{'activation_code'}, 
             $data{'expiration'}, $data{'status'}, $data{'type'}));
 }
 
@@ -257,7 +257,7 @@ sub add {
 sub _delete {
     my ($code_id) = @_;
 
-    return(db_query_execute(PENDING_ACTIVATION, $pending_activation_statements, 'pending_activation_delete_sql', $code_id));
+    return(db_query_execute(ACTIVATION, $activation_statements, 'activation_delete_sql', $code_id));
 }
 
 =item modify_status - update the status of a given pending activation record
@@ -267,8 +267,8 @@ sub _delete {
 sub modify_status {
     my ($code_id, $new_status) = @_;
 
-    return(db_query_execute(PENDING_ACTIVATION, $pending_activation_statements, 
-        'pending_activation_modify_status_sql', $new_status, $code_id));
+    return(db_query_execute(ACTIVATION, $activation_statements, 
+        'activation_modify_status_sql', $new_status, $code_id));
 }
 
 =item invalidate_code - invalidate all unverified activation codes for a given mac and contact_info
@@ -277,17 +277,17 @@ sub modify_status {
 
 sub invalidate_codes {
     my ($mac, $pid, $contact_info) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::pending_activation');
+    my $logger = Log::Log4perl::get_logger('pf::activation');
 
     if ($mac) {
         # Invalidate previous activation codes matching MAC, pid (user or sponsor email) and contact_info
-        db_query_execute(PENDING_ACTIVATION, $pending_activation_statements,
-                         'pending_activation_change_status_old_same_mac_pid_pending_sql', $INVALIDATED, $mac, $pid, $contact_info, $UNVERIFIED
+        db_query_execute(ACTIVATION, $activation_statements,
+                         'activation_change_status_old_same_mac_pid_contact_info_sql', $INVALIDATED, $mac, $pid, $contact_info, $UNVERIFIED
                         ) || $logger->warn("problems trying to invalidate activation codes using mac $mac");
     } else {
         # Invalidate previous activation with no MAC address (pre-registration)
-        db_query_execute(PENDING_ACTIVATION, $pending_activation_statements,
-                         'pending_activation_change_status_old_same_pid_pending_sql', $INVALIDATED, $pid, $contact_info, $UNVERIFIED
+        db_query_execute(ACTIVATION, $activation_statements,
+                         'activation_change_status_old_same_pid_contact_info_sql', $INVALIDATED, $pid, $contact_info, $UNVERIFIED
                         ) || $logger->warn("problems trying to invalidate activation codes using pid $pid");
     }
 
@@ -302,7 +302,7 @@ Returns the activation code
 
 sub create {
     my ($mac, $pid, $pending_addr, $activation_type) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::pending_activation');
+    my $logger = Log::Log4perl::get_logger('pf::activation');
 
     # invalidate older codes for the same MAC / contact_info
     invalidate_codes($mac, $pid, $pending_addr);
@@ -338,7 +338,7 @@ sub create {
 
 sub _generate_activation_code {
     my (%data) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::pending_activation');
+    my $logger = Log::Log4perl::get_logger('pf::activation');
 
     if ($HASH_FORMAT == $SIMPLE_MD5) {
         # generating something not so easy to guess (and hopefully not in rainbowtables)
@@ -375,7 +375,7 @@ sub _unpack_activation_code {
 
 sub send_email {
     my ($activation_code, $template, %info) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::pending_activation');
+    my $logger = Log::Log4perl::get_logger('pf::activation');
 
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
@@ -383,10 +383,10 @@ sub send_email {
     my ($hash_version, $hash) = _unpack_activation_code($activation_code);
 
     if (defined($info{'activation_domain'})) {
-        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_PENDING_ACTIVATION_LINK/$hash";
+        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION_LINK/$hash";
     } else {
         $info{'activation_uri'} = "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-            ."$WEB::URL_PENDING_ACTIVATION_LINK/$hash";
+            ."$WEB::URL_EMAIL_ACTIVATION_LINK/$hash";
     }
 
     # Hash merge. Note that on key collisions the result of view_by_code() will win
@@ -426,7 +426,7 @@ sub send_email {
     return $result;
 }
 
-sub create_and_pending_activation_code {
+sub create_and_activation_code {
     my ($mac, $pid, $pending_addr, $template, $activation_type, %info) = @_;
 
     my ($success, $err) = ($TRUE, 0);
@@ -443,7 +443,7 @@ sub create_and_pending_activation_code {
 # returns the validated activation record hashref or undef
 sub validate_code {
     my ($activation_code) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::pending_activation');
+    my $logger = Log::Log4perl::get_logger('pf::activation');
 
     my $activation_record = find_unverified_code($activation_code);
     if (!defined($activation_record) || ref($activation_record eq 'HASH')) {
