@@ -299,7 +299,7 @@ sub extractApMacFromRadiusRequest {
         /ix) {
             return clean_mac($1);
         } else {
-            $logger->info("Unable to extract mac from Called-Station-Id: ".$radius_request->{'Called-Station-Id'});
+            $logger->info("Unable to extract MAC from Called-Station-Id: ".$radius_request->{'Called-Station-Id'});
         }
     }
 
