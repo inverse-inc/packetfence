@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 13;
+use Test::More tests => 14;
 use Test::MockModule;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
@@ -79,7 +79,7 @@ $mock->mock('violation_view_top', sub { return $FALSE; });
 
 my $vlan;
 my $wasInline;
-($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('bb:bb:cc:dd:ee:ff', $switch, '1001',undef, 'test', 'OPEN' ));
+($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('bb:bb:cc:dd:ee:ff', $switch, '1001');
 is($vlan, 2, "determine vlan for node with violation");
 
 # violation_count_trap will return 0
@@ -95,7 +95,7 @@ $mock->mock('node_attributes', sub {
 
 # TODO: complete the test suite with more tests above the other cases
 my $switch_vlan_override = $switchFactory->instantiate('10.0.0.2');
-($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001',undef, 'test', 'OPEN');
+($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
 is($vlan, 1, "determine vlan for registered user on custom switch");
 
 # mocked node_attributes returns unreg node
