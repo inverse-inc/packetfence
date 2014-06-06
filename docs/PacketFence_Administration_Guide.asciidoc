@@ -3090,14 +3090,14 @@ Filters are defined with at least two blocks. First are the tests. For example:
   [get_ua_is_dalvik]
   filter = user_agent
   method = GET
-  operator = is
-  regexp = Dalvik
+  operator = match
+  value = Dalvik
   
   [get_uri_not_generate204]
   filter = uri
   method = GET
-  operator = is_not
-  regexp = /generate_204
+  operator = match_not
+  value = /generate_204
   
 The last block defines the relationship between the tests and the desired action. For example:
 

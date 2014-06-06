@@ -113,17 +113,31 @@ sub uri_parser {
 
     my $action;
     if ($rule->{'operator'} eq 'is') {
-        if (($r->unparsed_uri =~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
+        if (($r->unparsed_uri eq $rule->{'value'}) && ($r->method eq $rule->{'method'})) {
             return 1;
         } else  {
             return 0;
         }
-    } else {
-        if (($r->unparsed_uri !~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
+    } elsif ($rule->{'operator'} eq 'is_not') {
+        if (($r->unparsed_uri ne $rule->{'value'}) && ($r->method eq $rule->{'method'})) {
            return 1;
         } else {
             return 0;
         }
+    } elsif ($rule->{'operator'} eq 'match') {
+        if (($r->unparsed_uri =~ /$rule->{'value'}/) && ($r->method eq $rule->{'method'})) {
+            return 1;
+        } else  {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match_not') {
+        if (($r->unparsed_uri !~ /$rule->{'value'}/) && ($r->method eq $rule->{'method'})) {
+           return 1;
+        } else {
+            return 0;
+        }
+    } else {
+        return 0;
     }
 }
 
@@ -144,17 +158,31 @@ sub user_agent_parser {
         $user_agent = '';
     }
     if ($rule->{'operator'} eq 'is') {
-        if (($user_agent =~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
+        if (($user_agent eq $rule->{'value'}) && ($r->method eq $rule->{'method'})) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'is_not') {
+        if (($user_agent ne $rule->{'value'}) && ($r->method eq $rule->{'method'})) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match') {
+        if (($user_agent =~ /$rule->{'value'}/) && ($r->method eq $rule->{'method'})) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } elsif ($rule->{'operator'} eq 'match_not') {
+        if (($user_agent !~ /$rule->{'value'}/) && ($r->method eq $rule->{'method'})) {
             return 1;
         } else {
             return 0;
         }
     } else {
-        if (($user_agent !~ /$rule->{'regexp'}/) && ($r->method eq $rule->{'method'})) {
-           return 1;
-        } else {
             return 0;
-        }
     }
 }
 

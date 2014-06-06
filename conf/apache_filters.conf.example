@@ -3,15 +3,15 @@
 [1]
 filter = user_agent
 method = GET
-operator = is
-regexp = ^$
+operator = match
+value = ^$
 
 # Refuse empty user agent
 [2]
 filter = user_agent
 method = POST
-operator = is
-regexp = ^$
+operator = match
+value = ^$
 
 [1:1|2]
 action = 501
@@ -21,8 +21,8 @@ redirect_url =
 [3]
 filter = uri
 method = GET
-operator = is
-regexp = /wpad.dat
+operator = match
+value = /wpad.dat
 
 [3:3]
 action = 501
@@ -32,14 +32,14 @@ redirect_url =
 [4]
 filter = user_agent
 method = GET
-operator = is
-regexp = Dalvik
+operator = match
+value = Dalvik
 
 [5]
 filter = uri
 method = GET
-operator = is_not
-regexp = /generate_204
+operator = match_not
+value = /generate_204
 
 [4:4&5]
 action = 501
@@ -49,16 +49,38 @@ redirect_url =
 #[6]
 #filter = user_agent
 #method = POST
-#operator = is_not
-#regexp = Mozilla|Microsoft|Dalvik|collectd|CaptiveNetworkSupport|BlackBerry
+#operator = match_not
+#value = Mozilla|Microsoft|Dalvik|collectd|CaptiveNetworkSupport|BlackBerry
 
 #[7]
 #filter = user_agent
 #method = GET
-#operator = is_not
-#regexp = Mozilla|Microsoft|Dalvik|collectd|CaptiveNetworkSupport|BlackBerry
+#operator = match_not
+#value = Mozilla|Microsoft|Dalvik|collectd|CaptiveNetworkSupport|BlackBerry
 
 #[5:6|7]
 #action = 501
 #redirect_url =
+
+
+# filter can be:
+#
+#     user_agent
+#     uri
+#
+# method can be:
+#
+#     POST
+#     GET
+#
+# operator can be:
+#     is
+#     is_not
+#     match
+#     match_not
+#
+# action can be all the http codes
+#
+# redirect_url can be what you want like http://www.packetfence.org/.
+# of course if you want to use redirect_url then set the action to 302.
 
