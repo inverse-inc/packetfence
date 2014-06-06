@@ -559,8 +559,7 @@ sub validateMandatoryFields : Private {
     my ( $self, $c ) = @_;
     my $request = $c->request;
     my ( $error_code, @error_args );
-    my @mandatory_fields = split( /\s*,\s*/,
-        $Config{'guests_self_registration'}{'mandatory_fields'} );
+    my @mandatory_fields = @{$c->profile->getMandatoryFields};
     my $by_email   = $request->param('by_email');
     my $by_sms     = $request->param('by_sms');
     my $by_sponsor = $request->param('by_sponsor');
