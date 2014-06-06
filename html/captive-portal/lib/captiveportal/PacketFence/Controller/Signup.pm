@@ -502,21 +502,20 @@ sub validateBySponsorSource : Private {
     my $request = $c->request;
     if ( $request->param('by_sponsor') ) {
         my $sponsor_email = lc( $request->param('sponsor_email') );
-        my ( $username, $source_id ) =
-          &pf::authentication::username_from_email($sponsor_email);
-        unless (
-            defined $username
-            && defined &pf::authentication::match(
-                $source_id, { username => $username },
-                $Actions::MARK_AS_SPONSOR
-            )
-          ) {
+        my $value = &pf::authentication::match( &pf::authentication::getInternalAuthenticationSources(),
+                                                { email => $sponsor_email },
+                                                $Actions::MARK_AS_SPONSOR );
+
+        if (!defined $value) {
+            # sponsor check did not pass 
             $self->validationError( $c,
                 $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST,
                 $sponsor_email );
+            $c->detach();
         }
     }
 }
+
 
 =head2 validateByEmailSource
 
