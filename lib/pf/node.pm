@@ -771,7 +771,7 @@ sub node_modify {
     }
 
     # Autoregistration handling
-    if (!defined($data{'autoreg'})) {
+    if (!defined($data{'autoreg'}) && (!defined($existing->{autoreg}) || $existing->{autoreg} ne 'yes' )) {
         $existing->{autoreg} = 'no';
     }
 
