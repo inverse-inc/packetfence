@@ -184,7 +184,7 @@ sub returnRadiusAccessAccept {
 
 
     # if Roles aren't configured, return VLAN information
-    if (isenabled($this->{_RoleVlan}) ) {
+    if (isenabled($this->{_VlanMap}) ) {
 
         $radius_reply_ref = {
             %$radius_reply_ref,
