@@ -26,22 +26,22 @@ use pf::locationlog();
 use pf::ipset();
 
 sub event_add {
-  my ($class, $date, $srcip, $type, $id) = @_;
-  my $logger = pf::log::get_logger();
-  $logger->info("violation: $id - IP $srcip");
+    my ($class, $date, $srcip, $type, $id) = @_;
+    my $logger = pf::log::get_logger();
+    $logger->info("violation: $id - IP $srcip");
 
-  # fetch IP associated to MAC
-  my $srcmac = pf::util::ip2mac($srcip);
-  if ($srcmac) {
+    # fetch IP associated to MAC
+    my $srcmac = pf::util::ip2mac($srcip);
+    if ($srcmac) {
 
-    # trigger a violation
-    pf::violation::violation_trigger($srcmac, $id, $type);
+        # trigger a violation
+        pf::violation::violation_trigger($srcmac, $id, $type);
 
-  } else {
-    $logger->info("violation on IP $srcip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
-    return(0);
-  }
-  return (1);
+    } else {
+        $logger->info("violation on IP $srcip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
+        return(0);
+    }
+    return (1);
 }
 
 sub echo {
@@ -50,48 +50,48 @@ sub echo {
 }
 
 sub radius_authorize {
-  my ($class, %radius_request) = @_;
-  my $logger = pf::log::get_logger();
+    my ($class, %radius_request) = @_;
+    my $logger = pf::log::get_logger();
 
-  my $radius = new pf::radius::custom();
-  my $return;
-  eval {
-      $return = $radius->authorize(\%radius_request);
-  };
-  if ($@) {
-      $logger->error("radius authorize failed with error: $@");
-  }
-  return $return;
+    my $radius = new pf::radius::custom();
+    my $return;
+    eval {
+        $return = $radius->authorize(\%radius_request);
+    };
+    if ($@) {
+        $logger->error("radius authorize failed with error: $@");
+    }
+    return $return;
 }
 
 sub radius_accounting {
-  my ($class, %radius_request) = @_;
-  my $logger = pf::log::get_logger();
+    my ($class, %radius_request) = @_;
+    my $logger = pf::log::get_logger();
 
-  my $radius = new pf::radius::custom();
-  my $return;
-  eval {
-      $return = $radius->accounting(\%radius_request);
-  };
-  if ($@) {
-      $logger->logdie("radius accounting failed with error: $@");
-  }
-  return $return;
+    my $radius = new pf::radius::custom();
+    my $return;
+    eval {
+        $return = $radius->accounting(\%radius_request);
+    };
+    if ($@) {
+        $logger->logdie("radius accounting failed with error: $@");
+    }
+    return $return;
 }
 
 sub soh_authorize {
-  my ($class, %radius_request) = @_;
-  my $logger = pf::log::get_logger();
+    my ($class, %radius_request) = @_;
+    my $logger = pf::log::get_logger();
 
-  my $soh = pf::soh::custom->new();
-  my $return;
-  eval {
-    $return = $soh->authorize(\%radius_request);
-  };
-  if ($@) {
-    $logger->error("soh authorize failed with error: $@");
-  }
-  return $return;
+    my $soh = pf::soh::custom->new();
+    my $return;
+    eval {
+      $return = $soh->authorize(\%radius_request);
+    };
+    if ($@) {
+      $logger->error("soh authorize failed with error: $@");
+    }
+    return $return;
 }
 
 sub update_iplog {
@@ -112,7 +112,8 @@ sub unreg_node_for_pid {
         node_deregister($node_info->{'mac'});
     }
 
-return 1;
+    return 1;
+}
 
 sub synchronize_locationlog {
     my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid ) = @_;
