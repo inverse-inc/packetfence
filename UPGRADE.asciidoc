@@ -5,6 +5,19 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to 4.3.0
+---------------------------------------
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+The email_activation table has a new column to keep the portal used to register.
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < db/upgrade-4.2.0-4.3.0.sql
+
+
 Upgrading from a version prior to 4.2.0
 ---------------------------------------
 
