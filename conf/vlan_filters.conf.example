@@ -12,7 +12,7 @@
 #
 # [1:category]
 # scope = NormalVlan
-# action = nointernet
+# role = nointernet
 #
 # It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is
 # the default one, we return the role "nointernet" (which you will have configured in the switch configuration).
