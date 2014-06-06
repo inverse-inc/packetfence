@@ -194,7 +194,7 @@ sub cleanup {
 
             $logger->info("checking accounting data for potential bandwidth abuse");
             if (isenabled($Config{'inline'}{'accounting'})) {
-                inline_accounting_maintenance($Config{'inline'}{'level3_accounting_session_timeout'});
+                inline_accounting_maintenance($Config{'inline'}{'layer3_accounting_session_timeout'});
             }
             acct_maintenance();
 

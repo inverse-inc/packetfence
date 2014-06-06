@@ -81,7 +81,7 @@ daemonize($PROGRAM_NAME) if ($daemonize);
 my %ip_stats = ();
 my %seen_inline_ips;
 my $last_stats_dump = 0;
-my $min_stats_dump_interval = $Config{'inline'}{'level3_accounting_sync_interval'}; # Stats will be written to the DB at ~this inverval
+my $min_stats_dump_interval = $Config{'inline'}{'layer3_accounting_sync_interval'}; # Stats will be written to the DB at ~this inverval
 
 # setup our inline networks
 my @l3_accounting_networks;
