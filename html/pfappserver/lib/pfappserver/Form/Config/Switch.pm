@@ -66,13 +66,13 @@ has_field 'deauthMethod' =>
 has_field 'VlanMap' =>
   (
    type => 'Toggle',
-   label => 'Role mapping by Vlan',
+   label => 'Role by Vlan',
   );
 
 has_field 'RoleMap' =>
   (
    type => 'Toggle',
-   label => 'Role mapping by switch role',
+   label => 'Role by switch role',
   );
 has_field 'VoIPEnabled' =>
   (
