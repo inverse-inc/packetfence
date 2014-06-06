@@ -146,7 +146,7 @@ Parse the switch attribute and compare to the rule. If it matches then return tr
 sub switch_parser {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
-    if (defined($switch)( {
+    if (defined($switch)) {
         if ($rule->{'operator'} eq 'is') {
             if ($switch->{$rule->{'attribute'}} eq $rule->{'value'}) {
                 return 1;
