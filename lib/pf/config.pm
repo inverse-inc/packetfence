@@ -39,6 +39,7 @@ use File::Which;
 use Socket;
 use List::MoreUtils qw(any);
 use Time::Local;
+use Time::Piece;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -817,6 +818,37 @@ sub access_duration {
         }
     }
     $logger->warn("We were unable to calculate the access duration");
+}
+
+=item dynamic_unreg_date
+
+We compute the unreg date dynamicaly
+If the year is lower than the current year, year is zero or not defined.
+
+=cut
+
+sub dynamic_unreg_date {
+    my $trigger = shift;
+    my $current_date = time;
+    my $unreg_date;
+
+    my ($year,$month,$day) = $trigger =~ /(\d{1,4})?-?(\d{2})-(\d{2})/;
+    my $current_year = POSIX::strftime("%Y",localtime($current_date));
+
+    if ( !defined $year || $year == 0 || $year < $current_year ) {
+            $year = $current_year;
+            $trigger = "$year-$month-$day";
+            $logger->warn("The year was past, null or undefined. We used current year");
+    }
+
+    my $sec_trigger = Time::Piece->strptime($trigger,"%Y-%m-%d");
+    if ($sec_trigger->strftime("%s") <= $current_date) {
+            $year += 1;
+            $unreg_date = "$year-$month-$day";
+    } else {
+            $unreg_date = "$year-$month-$day";
+    }
+    return $unreg_date;
 }
 
 =item start_date
