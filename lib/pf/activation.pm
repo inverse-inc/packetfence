@@ -301,7 +301,7 @@ Returns the activation code
 =cut
 
 sub create {
-    my ($mac, $pid, $pending_addr, $activation_type) = @_;
+    my ($type, $mac, $pid, $pending_addr, $provider_id) = @_;
     my $logger = Log::Log4perl::get_logger('pf::activation');
 
     # invalidate older codes for the same MAC / contact_info
@@ -312,7 +312,8 @@ sub create {
         'mac' => $mac,
         'contact_info' => $pending_addr,
         'status' => $UNVERIFIED,
-        'type' => $activation_type,
+        'type' => $type,
+        'carrier_id' => $provider_id,
     );
 
     # caculate activation code expiration
@@ -351,7 +352,11 @@ sub _generate_activation_code {
             );
             # - taking out a couple of hex (avoids overflow in step below)
             # then keeping first 8
-            $code = "$SIMPLE_MD5:". substr($hash, 0, 8);
+            if($data{'type'} eq 'sms') {
+                $code = "$SIMPLE_MD5:". substr($hash, 0, 8);
+            } else {
+                $code = "$SIMPLE_MD5:". $hash;
+            }
             # make sure the generated code is unique
             $code = undef if (view_by_code($code));
         } while (!defined($code));
