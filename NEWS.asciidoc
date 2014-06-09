@@ -26,6 +26,7 @@ New Features
 * Added support for the Netgear M series
 * Added support to define SNAT interface to use for passthrough
 * Added nessus scan policy based on dhcp fingerprint
+* Added support to unregister a node if the username is locked or deleted in Active Directory
 
 Enhancements
 ++++++++++++
