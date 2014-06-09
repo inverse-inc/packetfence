@@ -27,6 +27,7 @@ New Features
 * Added support to define SNAT interface to use for passthrough
 * Added nessus scan policy based on dhcp fingerprint
 * Added support to unregister a node if the username is locked or deleted in Active Directory
+* Added support for unreg date with dynamic year
 
 Enhancements
 ++++++++++++
