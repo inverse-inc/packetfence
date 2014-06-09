@@ -272,6 +272,7 @@ sub checkIfNeedsToRegister : Private {
     $c->stash(unreg => $unreg,);
     if ($unreg && isenabled($Config{'trapping'}{'registration'})) {
 
+        $logger->info("$mac redirected to ".$profile->name);
         # Redirect to the billing engine if enabled
         if (isenabled($portalSession->profile->getBillingEngine)) {
             $logger->info("$mac redirected to billing page");
