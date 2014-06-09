@@ -30,22 +30,6 @@ has_block 'definition' =>
   );
 
 
-=head1 Fields
-
-=head2 logo
-
-The logo field
-
-=cut
-
-has_field 'logo' =>
-  (
-   type => 'Text',
-   label => 'Logo',
-   required => 1,
-  );
-
-
 =head1 METHODS
 
 =head2 update_fields

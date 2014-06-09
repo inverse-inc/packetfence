@@ -51,6 +51,19 @@ has_field 'description' =>
    label => 'Profile Description',
   );
 
+=head2 logo
+
+The logo field
+
+=cut
+
+has_field 'logo' =>
+  (
+   type => 'Text',
+   label => 'Logo',
+   required => 1,
+  );
+
 =head2 locale
 
 Accepted languages for the profile

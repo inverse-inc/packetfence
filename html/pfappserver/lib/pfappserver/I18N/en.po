@@ -4628,6 +4628,14 @@ msgid "services.dhcpd"
 msgstr "dhcpd"
 
 # conf/documentation.conf
+msgid "services.snort"
+msgstr "snort"
+
+# conf/documentation.conf
+msgid "services.suricata"
+msgstr "suricata"
+
+# conf/documentation.conf
 msgid "services.dhcpd_binary"
 msgstr "dhcpd path"
 
