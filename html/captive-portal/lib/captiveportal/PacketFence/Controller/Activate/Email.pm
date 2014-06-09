@@ -261,16 +261,9 @@ sub doSponsorRegistration : Private {
             }
 
             # User provided username and password: authenticate
-            my ( $auth_return, $error ) =
-              $c->forward( CaptivePortal => 'web_user_authenticate' );
+            $c->forward(Authenticate => 'authenticationLogin');
+            $c->detach('login') if $c->has_errors;
 
-            if ( $auth_return != $TRUE ) {
-                $logger->info( "authentication failed for user "
-                      . $request->param("username") );
-                $c->stash( txt_auth_error => i18n($error) )
-                  if defined $error;
-                $c->detach('login');
-            }
         }
 
         # handling log out (not exposed to the UI at this point)
