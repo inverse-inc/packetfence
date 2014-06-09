@@ -341,13 +341,22 @@ sub _generate_activation_code {
     my $logger = Log::Log4perl::get_logger('pf::activation');
 
     if ($HASH_FORMAT == $SIMPLE_MD5) {
-        # generating something not so easy to guess (and hopefully not in rainbowtables)
-        return "$SIMPLE_MD5:".md5_hex(
-            time."|"
-            .$data{'expiration'}."|"
-            . $data{'mac'} || $data{'pid'} . "|"
-            .$data{'contact_info'}
-        );
+        my $code;
+        do {
+            # generating something not so easy to guess (and hopefully not in rainbowtables)
+            my $hash = md5_hex(
+                join("|",
+                    time + int(rand(10)),
+                    grep {defined $_} @data{qw(expiration mac pid contact_info)})
+            );
+            # - taking out a couple of hex (avoids overflow in step below)
+            # then keeping first 8
+            $code = "$SIMPLE_MD5:". substr($hash, 0, 8);
+            # make sure the generated code is unique
+            $code = undef if (view_by_code($code));
+        } while (!defined($code));
+
+        return $code;
     } else {
         $logger->warn("Hash format unknown, couldn't generate activation code");
     }
