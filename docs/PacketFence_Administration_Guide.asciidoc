@@ -1637,13 +1637,26 @@ Using Nessus:
   user=nessusUsername
 
 Of course the basic-policy must exist on the nessus server.
-If you want to use a different nessus policy by category, you have to adjust settings like the following (if the policy doesn't exist, PacketFence will use the default policy defined by nessus_clientpolicy):
+If you want to use a different nessus policy by category, you have to adjust settings like the following:
 
   [nessus_category_policy]
   guest=guest_policy
   wifi=wifi_policy
 
 A node who is register like a guest will be scanned by the guest_policy , etc ...
+
+You can also use a different nessus policy based on the dhcp fingerprint, you have to adjust settings like the following:
+
+  [nessus_scan_by_fingerprint]
+  Android=Android
+  Mac OS X=MACOSX
+  Microsoft Windows=Windows
+  iPhone=IOS
+
+A node with a fingerprint contain Android will be scanned by the Android policy, etc ...
+
+Note if there is no policy based on dhcp fingerprint then PacketFence will try to use policy based on category and if it
+does not exist then PacketFence will use the default policy defined by nessus_clientpolicy.
 
 Using OpenVAS:
 

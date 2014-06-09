@@ -25,6 +25,7 @@ use pf::scan;
 use pf::util;
 use pf::node;
 use Net::Nessus::XMLRPC;
+use pf::os qw(dhcp_fingerprint_view);
 
 =head1 SUBROUTINES
 
@@ -134,12 +135,22 @@ Get the policy to apply to a category
 =cut
 
 sub getPolicyByCategory {
-my ( $this ) = @_;
+    my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $mac = clean_mac($this->{_scanMac});
     my $node_info = node_view($mac);
-    if (defined($node_info->{'category'})) {
+    my @fingerprint = dhcp_fingerprint_view($node_info->{'dhcp_fingerprint'});
+
+    if (defined ($Config{'nessus_scan_by_fingerprint'} ) ){
+        my %finger_rule = %{ $Config{'nessus_scan_by_fingerprint'} };
+
+        foreach my $scan ( keys %finger_rule ) {
+            if (defined($fingerprint[0]->{'os'}) && $fingerprint[0]->{'os'} =~ m/$scan/i) {
+                return $finger_rule{$scan};
+            }
+        }
+    } elsif (defined($node_info->{'category'})) {
         if (defined($Config{'nessus_category_policy'}{$node_info->{'category'}})) {
             return $Config{'nessus_category_policy'}{$node_info->{'category'}};
         }
@@ -151,7 +162,6 @@ my ( $this ) = @_;
         return $Config{'scan'}{'nessus_clientpolicy'};
     }
 }
-
 
 
 =back
