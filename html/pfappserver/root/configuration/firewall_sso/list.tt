@@ -1,0 +1,27 @@
+      <table id="items" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
+        <thead>
+          <tr>
+            <th>[% l('Hostname or IP') %]</th>
+            <th>[% l('Firewall Type') %]</th>
+            <th>[% l('Port') %]</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH item IN items %]
+          <tr>
+            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td>[% item.type | html %]</td>
+            <td>[% item.port | html %]</td>
+            <td>
+              [%- IF can_access("FIREWALL_SSO_CREATE") %]
+              <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>
+              [%- END %]
+              [%- IF can_access("FIREWALL_SSO_DELETE") %]
+              <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
+              [%- END %]
+            </td>
+          </tr>
+          [% END -%]
+        </tbody>
+      </table>

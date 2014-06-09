@@ -33,18 +33,17 @@ BEGIN {
 use pf::config;
 use pf::config::cached;
 use pf::db;
+use pf::firewallsso;
 use pf::inline::custom $INLINE_API_LEVEL;
-use pf::iplog;
-use pf::locationlog;
+use pf::iplog qw(ip2mac mac2ip);
 use pf::lookup::node;
 use pf::node;
 use pf::os;
 use pf::util;
 use pf::services::util;
 use pf::util::dhcp;
-use pf::violation qw(violation_trigger);
-use pf::ipset;
 use List::MoreUtils qw(any);
+use pf::api::jsonrpcclient;
 
 # initialization
 # --------------
@@ -92,6 +91,7 @@ my $interface_ip;
 my $interface_vlan;
 my @local_dhcp_servers;
 my $pcap;
+my $apiclient = pf::api::jsonrpcclient->new;
 
 $PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
 
@@ -344,6 +344,10 @@ sub parse_dhcp_request {
             . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
         );
         update_iplog( $dhcp->{'chaddr'}, $client_ip, $lease_length );
+        if (defined($lease_length)) {
+            my $firewallsso = new pf::firewallsso;
+            $firewallsso->do_sso('Start',$dhcp->{'chaddr'}, $client_ip,$lease_length);
+        }
     }
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
@@ -353,7 +357,7 @@ sub parse_dhcp_request {
     }
 
     if ($is_inline_vlan) {
-        locationlog_synchronize($interface_ip,$interface_ip,undef, $NO_PORT, $interface_vlan, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
+        $apiclient->notify('synchronize_locationlog',$interface_ip,$interface_ip,undef, $NO_PORT, $interface_vlan, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
         $accessControl->performInlineEnforcement($dhcp->{'chaddr'});
     }
 }
@@ -398,7 +402,7 @@ sub parse_dhcp_ack {
 sub parse_dhcp_release {
     my ($dhcp) = @_;
     $logger->debug("DHCPRELEASE from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
-    iplog_close($dhcp->{'ciaddr'});
+    $apiclient->notify('close_iplog',$dhcp->{'ciaddr'});
 }
 
 =item parse_dhcp_inform
@@ -446,7 +450,7 @@ sub rogue_dhcp_handling {
     # if I have a MAC use it, otherwise look it up
     $dhcp_srv_mac = ip2mac($dhcp_srv_ip) if (!defined($dhcp_srv_mac));
     if ($dhcp_srv_mac) {
-        violation_trigger( $dhcp_srv_mac, $ROGUE_DHCP_TRIGGER, 'INTERNAL' );
+        $apiclient->notify('trigger_violation', $dhcp_srv_mac, $ROGUE_DHCP_TRIGGER, 'INTERNAL' );
     } else {
         $logger->info("Unable to find MAC based on IP $dhcp_srv_ip for rogue DHCP server");
         $dhcp_srv_mac = 'unknown';
@@ -486,7 +490,7 @@ sub parse_dhcp_option82 {
 
         # TODO port should be translated into ifIndex
         # FIXME option82 stuff needs to be re-validated (#1340)
-        locationlog_insert_closed($switch, $mod . '/' . $port, $vlan, $dhcp->{'chaddr'}, '');
+        $apiclient->notify('insert_close_locationlog',$switch, $mod . '/' . $port, $vlan, $dhcp->{'chaddr'}, '');
     }
 }
 
@@ -507,19 +511,21 @@ sub update_iplog {
         $logger->info(
             "oldmac ($oldmac) and newmac ($srcmac) are different for $srcip - closing iplog entry"
         );
-        iplog_close_now($srcip);
+        $apiclient->notify('close_now_iplog',$srcip);
     }
     if ( $oldip && $oldip ne $srcip ) {
         my $view_mac = node_view($srcmac);
+        my $firewallsso = new pf::firewallsso;
+        $firewallsso->do_sso('Stop',$oldmac,$oldip,undef);
         if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
-            pf::ipset::update_node($oldip, $srcip, $srcmac);
+            $apiclient->notify('ipset_node_update',$oldip, $srcip, $srcmac);
         }
         $logger->info(
             "oldip ($oldip) and newip ($srcip) are different for $srcmac - closing iplog entry"
         );
-        iplog_close_now($oldip);
+        $apiclient->notify('close_now_iplog',$oldip);
     }
-    iplog_open( $srcmac, $srcip, $lease_length );
+    $apiclient->notify('open_iplog', $srcmac, $srcip, $lease_length );
 }
 
 =item process_fingerprint
@@ -550,13 +556,13 @@ sub process_fingerprint {
         # precise fingerprint
         $fingerprint_data = "OS::".$fingerprint_info[0]->{'id'}." (".$fingerprint_info[0]->{'os'}.")";
         $logger->debug("$chaddr sending $fingerprint_data trigger");
-        violation_trigger( $chaddr, $fingerprint_info[0]->{'id'}, "OS" );
+        $apiclient->notify('trigger_violation', $chaddr, $fingerprint_info[0]->{'id'}, "OS" );
 
         # class fingerprints
         foreach my $class_trigger (@fingerprint_info) {
             my $class_data = "OS::".$class_trigger->{'classid'}." (".$class_trigger->{'class'}.")";
             $logger->debug("$chaddr sending $class_data trigger");
-            violation_trigger( $chaddr, $class_trigger->{'classid'}, "OS" );
+            $apiclient->notify('trigger_violation', $chaddr, $class_trigger->{'classid'}, "OS" );
         }
 
     } else {
