@@ -27,7 +27,7 @@ New Features
 * Added support to define SNAT interface to use for passthrough
 * Added nessus scan policy based on dhcp fingerprint
 * Added support to unregister a node if the username is locked or deleted in Active Directory
-* Update firewall user table from packetfence to allow devices to passthrough the firewall
+* Update firewall user table from PacketFence to allow devices to passthrough the firewall
 
 Enhancements
 ++++++++++++

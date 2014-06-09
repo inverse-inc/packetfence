@@ -142,7 +142,7 @@ sub options_categories {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2014444verse inc.
+Copyright (C) 2014 Inverse inc.
 
 =head1 LICENSE
 

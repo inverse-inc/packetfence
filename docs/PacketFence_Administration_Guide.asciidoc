@@ -2622,7 +2622,7 @@ Validate with Ok and give the account who will run this task. (Usually DOMAIN\Ad
 Firewall SSO
 ------------
 
-This SSO (Single Sin-On) feature is a way to match the Policies of your firewalls after a valid authentication on the captive portal. You can apply policies based on PacketFence's roles (categories). We actualy support two ways to inform the firewall, Accounting request and XML request. 
+This SSO (Single Sign-On) feature is a way to match the Policies of your firewalls after a valid authentication on the captive portal. You can apply policies based on PacketFence's roles (categories). We actually support two ways to inform the firewall, Accounting request and XML request. 
 
 Fortigate:
 ++++++++++
@@ -2642,7 +2642,7 @@ RADIUS Attribute Value: Guest (Put the rolename of PacketFence, it's case sensit
 
 You can also see that in the webpage at *User & Device* > *Monitor* > *Firewall* 
 
-Activate the Accounting Listenning:
+Activate the Accounting Listening:
 +++++++++++++++++++++++++++++++++++
 
 Go to *System* > *Network* > *Interfaces*
@@ -2657,7 +2657,7 @@ Go to *Configuration* > *Firewall SSO* > *Add Firewall SSO*
 ----
 Hostname or IP Address : @IP of your firewall
 Firewall type : Fortigate (Fortigate = Accounting request; PaloAlto = XML request)
-Secret or Key : secret ( radius shared secret)
+Secret or Key : secret (radius shared secret)
 Port: 1813
 Roles: add the roles that you want to do SSO
 ----
