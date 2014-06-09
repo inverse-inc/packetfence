@@ -16,10 +16,8 @@ use pf::useragent;
 use pf::violation;
 use pf::class;
 use Cache::FileCache;
-use pf::sms_activation;
 use List::Util qw(first);
 use POSIX;
-use Apache2::RequestRec;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
