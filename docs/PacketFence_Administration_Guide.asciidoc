@@ -2504,7 +2504,7 @@ Get-EventLog -LogName Security -InstanceId 4726 |
 ----
 
 Create the scheduled task based on an event ID:
-++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++
 
 *Start* > *Run* > *Taskschd.msc*
 
@@ -2580,7 +2580,7 @@ Get-EventLog -LogName Security -InstanceId 4725 |
 ----
 
 Create the scheduled task based on an event ID:
-++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++
 
 *Start* > *Run* > *Taskschd.msc*
 
