@@ -154,8 +154,8 @@ sub activation_db_prepare {
     ]);
 
     $activation_statements->{'activation_add_sql'} = get_db_handle()->prepare(qq[
-        INSERT INTO activation (pid, mac, contact_info, activation_code, expiration, status, type) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO activation (pid, mac, contact_info, carrier_id, activation_code, expiration, status, type, portal) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ]);
 
     $activation_statements->{'activation_modify_status_sql'} = get_db_handle()->prepare(
@@ -246,8 +246,8 @@ sub add {
     # TODO some validation required?
 
     return(db_data(ACTIVATION, $activation_statements, 
-            'activation_add_sql', $data{'pid'}, $data{'mac'}, $data{'contact_info'}, $data{'activation_code'}, 
-            $data{'expiration'}, $data{'status'}, $data{'type'}));
+            'activation_add_sql', $data{'pid'}, $data{'mac'}, $data{'contact_info'},$data{'carrier_id'}, $data{'activation_code'}, 
+            $data{'expiration'}, $data{'status'}, $data{'type'}, $data{'portal'}));
 }
 
 =item _delete - delete an pending activation record
