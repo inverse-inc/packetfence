@@ -2514,8 +2514,8 @@ General
 
 ----
 Name: PacketFence-Unreg_node-for-deleted-account
-Check : Run whether user is logged on or not
-Check : Run with highest privileges
+Check: Run whether user is logged on or not
+Check: Run with highest privileges
 ----
 
 Triggers > New
@@ -2590,8 +2590,8 @@ General
 
 ----
 Name: PacketFence-Unreg_node-for-locked-account
-Check : Run whether user is logged on or not
-Check : Run with highest privileges
+Check: Run whether user is logged on or not
+Check: Run with highest privileges
 ----
 
 Triggers > New
@@ -2655,9 +2655,9 @@ SSO Configuration in PacketFence:
 Go to *Configuration* > *Firewall SSO* > *Add Firewall SSO*
 
 ----
-Hostname or IP Address : @IP of your firewall
-Firewall type : Fortigate (Fortigate = Accounting request; PaloAlto = XML request)
-Secret or Key : secret (radius shared secret)
+Hostname or IP Address: @IP of your firewall
+Firewall type: Fortigate (Fortigate = Accounting request; PaloAlto = XML request)
+Secret or Key: secret (radius shared secret)
 Port: 1813
 Roles: add the roles that you want to do SSO
 ----
@@ -2722,9 +2722,9 @@ SSO Configuration PF:
 Go to Configuration > Firewall SSO > Add Firewall SSO
 
 ----
-Hostname or IP Address : @IP of your firewall
-Firewall type : PalotAlto (Fortigate = Accounting request; PaloAlto = XML request)
-Secret or Key : LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVljL000eDVnWHg2VTdwNUJHMlFGcHFCVWpGeW55VjVvZTF0WE51dz0= (Put the key previoulsy generated)
+Hostname or IP Address: @IP of your firewall
+Firewall type: PalotAlto (Fortigate = Accounting request; PaloAlto = XML request)
+Secret or Key: LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVljL000eDVnWHg2VTdwNUJHMlFGcHFCVWpGeW55VjVvZTF0WE51dz0= (Put the key previoulsy generated)
 Port: 443
 Roles: add the roles that you want to do SSO
 ----
