@@ -510,28 +510,6 @@ sub maxRegNodesReached : Private {
 
 
 
-sub web_user_authenticate : Private {
-    my ( $self, $c ) = @_;
-    my $profile = $c->profile;
-    my $request = $c->request;
-    my $logger = get_logger;
-    $logger->trace("authentication attempt");
-
-    my @sources = ($profile->getInternalSources, $profile->getExclusiveSources);
-    my $username = $request->param("username");
-    my $password = $request->param("password");
-
-    # validate login and password
-    my ($return, $message, $source_id) = pf::authentication::authenticate($username, $password, @sources);
-
-    if (defined($return) && $return == 1) {
-        # save login into session
-        $c->session->{"username"} = $username;
-    }
-    return ($return, $message, $source_id);
-}
-
-
 =head2 default
 
 Standard 404 error page
