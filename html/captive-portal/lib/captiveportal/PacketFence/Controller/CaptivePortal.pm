@@ -9,7 +9,6 @@ use pf::config;
 use pf::log;
 use pf::util;
 use pf::Portal::Session;
-use Apache2::Const -compile => qw(OK DECLINED HTTP_MOVED_TEMPORARILY);
 use pf::web;
 use pf::node;
 use pf::useragent;
@@ -430,22 +429,6 @@ sub release_with_xmlconfig : Private {
 sub release_with_android : Private {
     my ( $self, $c ) = @_;
     $c->stash( template => 'release_with_android.html');
-}
-
-=head2 proxy_redirect
-
-Mod_proxy redirect
-
-=cut
-
-sub proxy_redirect {
-    my ( $r, $url ) = @_;
-    my $logger = get_logger;
-    $r->set_handlers( PerlResponseHandler => [] );
-    $r->filename( "proxy:" . $url );
-    $r->proxyreq(2);
-    $r->handler('proxy-server');
-    return Apache2::Const::OK;
 }
 
 sub getSubTemplate {
