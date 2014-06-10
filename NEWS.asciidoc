@@ -45,7 +45,7 @@ Bug Fixes
 
 * Fixed pfdetectd not starting because of stale pid file
 * Fixed SQL join with iplog in advanced search of nodes
-* Fixed unreg date calculation
+* Fixed unreg date calculation in Catalyst captive portal
 
 Version 4.2.2 released on 2014-05-29
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
