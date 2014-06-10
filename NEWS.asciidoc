@@ -39,6 +39,8 @@ Enhancements
 * Use Webservices  parameters from PacketFence configuration
 * Use WebAPI notify from pfdhcplistener (faster)
 * Improved Apache SSL configuration forbids SSLv2 use and prioritzes better ciphers.
+* Removed cgi based catalyst files
+* For device registeration use the source used to authenticate for calculating the role and unregdate
 
 Bug Fixes
 +++++++++
