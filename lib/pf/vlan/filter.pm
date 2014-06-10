@@ -57,7 +57,7 @@ sub test {
                 $test =~ s/\|/ \|\| /g;
                 $test =~ s/\&/ \&\& /g;
                 if (eval $test) {
-                    $logger->info("Match Vlan rule: ".$rule);
+                    $logger->info("Match Vlan rule: ".$rule." for ".$mac);
                     my $role = $ConfigVlanFilters{$rule}->{'role'};
                     #TODO Add action that can be sent to the WebAPI
                     my $vlan = $switch->getVlanByName($role);
