@@ -68,10 +68,7 @@ sub index : Path : Args(0) {
               &pf::authentication::match( $source->{id}, $auth_params,
                 $Actions::SET_ACCESS_DURATION );
             if ( defined $info{'unregdate'} ) {
-                $info{'unregdate'} = POSIX::strftime(
-                    "%Y-%m-%d %H:%M:%S",
-                    localtime( time + normalize_time( $info{'unregdate'} ) )
-                );
+                $info{'unregdate'} = pf::config::access_duration($info{'unregdate'});
             } else {
                 $info{'unregdate'} =
                   &pf::authentication::match( $source->{id}, $auth_params,
