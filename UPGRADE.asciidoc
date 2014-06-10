@@ -12,6 +12,7 @@ Database schema update
 ^^^^^^^^^^^^^^^^^^^^^^
 
 The email_activation table has a new column to keep the portal used to register.
+The person table has 2 new column to keep the portal and the source used to authenticate.
 
 Make sure you run the following to update your schema:
 

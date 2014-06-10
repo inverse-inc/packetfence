@@ -42,6 +42,7 @@ Enhancements
 * Removed cgi based catalyst files
 * For device registration use the source used to authenticate for calculating the role and unregdate (bugid:1805)
 * For device registration, we set the "NOTES" field of the node with the selected type of device (if defined)
+* On status page check the portal associated to the user and authenticate on the sources included in the portal profile
 
 Bug Fixes
 +++++++++

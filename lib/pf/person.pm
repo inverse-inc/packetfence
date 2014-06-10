@@ -68,7 +68,7 @@ our @FIELDS = qw(
     pid firstname lastname email telephone company address notes sponsor anniversary
     birthday gender lang nickname cell_phone work_phone title building_number apartment_number
     room_number custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5 custom_field_6
-    custom_field_7 custom_field_8 custom_field_9
+    custom_field_7 custom_field_8 custom_field_9 portal source
 );
 
 =back
@@ -89,8 +89,8 @@ sub person_db_prepare {
                     birthday, gender, lang, nickname, cell_phone, work_phone, title,
                     building_number, apartment_number, room_number,
                     custom_field_1, custom_field_2, custom_field_3, custom_field_4, custom_field_5,
-                    custom_field_6, custom_field_7, custom_field_8, custom_field_9)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]);
+                    custom_field_6, custom_field_7, custom_field_8, custom_field_9, portal, source)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]);
 
     $person_statements->{'person_view_sql'} = get_db_handle()->prepare(
         qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address,
@@ -98,7 +98,7 @@ sub person_db_prepare {
                    p.cell_phone, p.work_phone, p.title, p.building_number,
                    p.apartment_number, p.room_number, p.custom_field_1, p.custom_field_2,
                    p.custom_field_3, p.custom_field_4, p.custom_field_5, p.custom_field_6,
-                   p.custom_field_7, p.custom_field_8, p.custom_field_9,
+                   p.custom_field_7, p.custom_field_8, p.custom_field_9, p.portal, p.source,
                    count(n.mac) as nodes,
                    t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
                    t.access_duration as 'access_duration', t.access_level as 'access_level',
@@ -116,7 +116,7 @@ sub person_db_prepare {
                    p.cell_phone, p.work_phone, p.title, p.building_number,
                    p.apartment_number, p.room_number, p.custom_field_1, p.custom_field_2,
                    p.custom_field_3, p.custom_field_4, p.custom_field_5, p.custom_field_6,
-                   p.custom_field_7, p.custom_field_8, p.custom_field_9,
+                   p.custom_field_7, p.custom_field_8, p.custom_field_9, p.portal, p.source,
                    count(n.mac) as nodes,
                    t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
                    t.access_duration as 'access_duration', t.access_level as 'access_level',
@@ -137,7 +137,7 @@ sub person_db_prepare {
                 anniversary=?, birthday=?, gender=?, lang=?, nickname=?, cell_phone=?, work_phone=?,
                 title=?, building_number=?, apartment_number=?, room_number=?, custom_field_1=?, custom_field_2=?,
                 custom_field_3=?, custom_field_4=?, custom_field_5=?, custom_field_6=?, custom_field_7=?, custom_field_8=?,
-                custom_field_9=?
+                custom_field_9=?, portal=?, source=?
             WHERE pid=? ]);
 
     $person_statements->{'person_nodes_sql'} = get_db_handle()->prepare(

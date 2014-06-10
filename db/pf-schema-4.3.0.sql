@@ -69,6 +69,8 @@ CREATE TABLE person (
   `custom_field_7` varchar(255) default NULL,
   `custom_field_8` varchar(255) default NULL,
   `custom_field_9` varchar(255) default NULL,
+  `portal` varchar(255) default NULL,
+  `source` varchar(255) default NULL,
   PRIMARY KEY (pid)
 ) ENGINE=InnoDB;
 

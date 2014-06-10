@@ -826,6 +826,12 @@ sub node_register {
     } else {
         $logger->debug("person $pid already exists");
     }
+    pf::person::person_modify($pid,
+                    'source'  => $info{'source'},
+                    'portal'     => $info{'portal'},
+    );
+    delete $info{'source'};
+    delete $info{'portal'};
 
     # if it's for auto-registration and mac is already registered, we are done
     if ($auto_registered) {

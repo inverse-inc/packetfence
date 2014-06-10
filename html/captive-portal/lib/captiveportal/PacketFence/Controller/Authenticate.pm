@@ -189,6 +189,7 @@ sub postAuthentication : Private {
     $c->detach('showLogin') if $c->has_errors;
     my $portalSession = $c->portalSession;
     my $session = $c->session;
+    my $profile = $c->profile;
     my $info = $c->stash->{info} || {};
     my $source_id = $session->{source_id};
     my $pid = $session->{"username"};
@@ -233,6 +234,8 @@ sub postAuthentication : Private {
         $logger->trace("Got unregdate $value for username $pid");
         $info->{unregdate} = $value;
     }
+    $info->{source} = $source_id;
+    $info->{portal} = $profile->getName;
     $c->stash->{info} = $info;
 }
 
@@ -268,17 +271,28 @@ sub authenticationLogin : Private {
     my $session = $c->session;
     my $request = $c->request;
     my $profile = $c->profile;
+    my $portalSession = $c->portalSession;
+    my $mac           = $portalSession->clientMac;
+
     $logger->trace("authentication attempt");
 
+    if ($request->{'match'} eq "status/login") {
+        use pf::person;
+        my $person_info = pf::person::person_view($request->param("username"));
+        my $options = {
+            'portal' => $person_info->{portal},
+        };
+        $profile = pf::Portal::ProfileFactory->instantiate( $mac, $options);
+    }
     my @sources =
       ( $profile->getInternalSources, $profile->getExclusiveSources );
+
     my $username = $request->param("username");
     my $password = $request->param("password");
 
     # validate login and password
     my ( $return, $message, $source_id ) =
       pf::authentication::authenticate( $username, $password, @sources );
-
     if ( defined($return) && $return == 1 ) {
         # save login into session
         $c->session->{"username"} = $request->param("username");
