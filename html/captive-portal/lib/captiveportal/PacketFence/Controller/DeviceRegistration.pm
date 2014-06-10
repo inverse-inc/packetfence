@@ -31,7 +31,7 @@ sub begin : Private {
         $c->error( "Device registration module is not enabled" );
         $c->detach;
     }
-    $c->stash->{console_types} = @pf::web::device_registration::DEVICE_TYPES;
+    $c->stash->{console_types} = \@pf::web::device_registration::DEVICE_TYPES;
 }
 
 =head2 index
