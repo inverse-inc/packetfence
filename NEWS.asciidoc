@@ -38,6 +38,7 @@ Enhancements
 * Updated WebAPI method
 * Use Webservices  parameters from PacketFence configuration
 * Use WebAPI notify from pfdhcplistener (faster)
+* Improved Apache SSL configuration forbids SSLv2 use and prioritzes better ciphers.
 
 Bug Fixes
 +++++++++
