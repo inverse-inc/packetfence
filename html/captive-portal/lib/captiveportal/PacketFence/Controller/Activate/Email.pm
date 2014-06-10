@@ -263,7 +263,6 @@ sub doSponsorRegistration : Private {
             # User provided username and password: authenticate
             $c->forward(Authenticate => 'authenticationLogin');
             $c->detach('login') if $c->has_errors;
-
         }
 
         # handling log out (not exposed to the UI at this point)
@@ -280,7 +279,6 @@ sub doSponsorRegistration : Private {
               . " successfully authenticated. Activating sponsored guest" );
 
         my ( %info, $template );
-
         if ( defined($node_mac) ) {
 
             # If MAC is defined, it's a guest already here that we need to register
@@ -294,9 +292,8 @@ sub doSponsorRegistration : Private {
                 $self->showError(
                     "There was a problem trying to find the computer to register. The problem has been logged."
                 );
-
-                if ( $node_info->{'status'} eq $pf::node::STATUS_REGISTERED )
-                {
+            }
+            if ( $node_info->{'status'} eq $pf::node::STATUS_REGISTERED ) {
 
                     $logger->warn(
                         "node mac: $node_mac has already been registered.");
@@ -304,71 +301,68 @@ sub doSponsorRegistration : Private {
                         "The device with MAC address %s has already been authorized to your network.",
                         $node_mac
                     );
-                }
-
-                # register the node
-                %info = %{$node_info};
-                $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
-
-                # populating variables used to send email
-                $template =
-                  $pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION;
-                $info{'subject'} = i18n_format(
-                    "%s: Guest network access enabled",
-                    $Config{'general'}{'domain'}
-                );
             }
 
-            elsif ( defined( $activation_record->{'pid'} ) ) {
+            # register the node
+            %info = %{$node_info};
+            $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
 
-                # If pid is set in activation record then we are activating a guest who pre-registered
+            # populating variables used to send email
+            $template =
+              $pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION;
+            $info{'subject'} = i18n_format(
+                "%s: Guest network access enabled",
+                $Config{'general'}{'domain'}
+            );
+        } elsif ( defined( $activation_record->{'pid'} ) ) {
 
-                $pid = $activation_record->{'pid'};
+             # If pid is set in activation record then we are activating a guest who pre-registered
 
-                # populating variables used to send email
-                $template =
-                  $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION;
-                $info{'subject'} = i18n_format(
-                    "%s: Guest access request accepted",
-                    $Config{'general'}{'domain'}
-                );
-            }
+            $pid = $activation_record->{'pid'};
 
-            # TO:
-            $info{'email'} = $pid;
-
-            # username
-            $info{'pid'} = $pid;
-            $info{'cc'} =
-              $Config{'guests_self_registration'}{'sponsorship_cc'};
-
-            # we create a temporary password using the actions from the sponsor authentication source;
-            # NOTE: When sponsoring a network access, the new user will be created (in the temporary_password table) using
-            # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
-            my $actions = &pf::authentication::match( $source->{id},
-                { username => $pid, user_email => $pid } );
-            $info{'password'} =
-              pf::temporary_password::generate( $pid, $actions );
-
-            # prepare welcome email for a guest who registered locally
-            $info{'currentdate'} =
-              POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-
-            pf::web::guest::send_template_email( $template, $info{'subject'},
-                \%info );
-            pf::email_activation::set_status_verified($code);
-
-            # send to a success page
-            $c->stash(
-                template => $pf::web::guest::SPONSOR_CONFIRMED_TEMPLATE );
-            $c->detach;
-        } else {
-            $logger->warn( "No active sponsor source for profile "
-                  . $profile->getName
-                  . ", redirecting to "
-                  . $Config{'trapping'}{'redirecturl'} );
-            $c->response->redirect( $Config{'trapping'}{'redirecturl'} );
+            # populating variables used to send email
+            $template =
+              $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION;
+            $info{'subject'} = i18n_format(
+                "%s: Guest access request accepted",
+                $Config{'general'}{'domain'}
+            );
         }
+
+        # TO:
+        $info{'email'} = $pid;
+
+        # username
+        $info{'pid'} = $pid;
+        $info{'cc'} =
+          $Config{'guests_self_registration'}{'sponsorship_cc'};
+
+        # we create a temporary password using the actions from the sponsor authentication source;
+        # NOTE: When sponsoring a network access, the new user will be created (in the temporary_password table) using
+        # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
+        my $actions = &pf::authentication::match( $source->{id},
+            { username => $pid, user_email => $pid } );
+        $info{'password'} =
+          pf::temporary_password::generate( $pid, $actions );
+
+        # prepare welcome email for a guest who registered locally
+        $info{'currentdate'} =
+          POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
+
+        pf::web::guest::send_template_email( $template, $info{'subject'},
+            \%info );
+        pf::email_activation::set_status_verified($code);
+
+        # send to a success page
+        $c->stash(
+            template => $pf::web::guest::SPONSOR_CONFIRMED_TEMPLATE );
+        $c->detach;
+    } else {
+        $logger->warn( "No active sponsor source for profile "
+              . $profile->getName
+              . ", redirecting to "
+              . $Config{'trapping'}{'redirecturl'} );
+        $c->response->redirect( $Config{'trapping'}{'redirecturl'} );
     }
 }
 
