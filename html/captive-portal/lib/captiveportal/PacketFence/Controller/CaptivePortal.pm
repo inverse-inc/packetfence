@@ -473,7 +473,15 @@ sub webNodeRegister : Private {
     node_register( $mac, $pid, %info );
 
     unless ( $c->user_cache->get("mac:$mac:do_not_deauth") ) {
-        reevaluate_access( $mac, 'manage_register' );
+        my $node = node_view($mac);
+        my $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
+        if($switch->supportsWebFormRegistration){
+            my $html_form = $switch->getAcceptForm($mac, $c->stash->{destination_url});
+            $c->detach("WebFormRelease");
+        }
+        else{
+            reevaluate_access( $mac, 'manage_register' );
+        }
     }
 
     # we are good, push the registration
