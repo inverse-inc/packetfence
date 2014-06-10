@@ -143,8 +143,7 @@ sub doEmailRegistration : Private {
                 $auth_params, $Actions::SET_ACCESS_DURATION );
 
             if ( defined $expiration ) {
-                $expiration = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
-                    localtime( time + normalize_time($expiration) ) );
+                $expiration = pf::config::access_duration($expiration);
             } else {
                 $expiration =
                   &pf::authentication::match( $source->{id},
