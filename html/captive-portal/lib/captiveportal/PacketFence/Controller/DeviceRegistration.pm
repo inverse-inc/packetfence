@@ -133,7 +133,10 @@ sub registerNode : Private {
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
             $c->error("$mac is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator");
         } else {
+            my $session = $c->session;
+            my $source_id = $session->{source_id};
             my %info;
+            my $params = { username => $pid };
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
             my $role =
@@ -142,13 +145,23 @@ sub registerNode : Private {
                 $logger->trace("Device registration role is $role (from pf.conf)");
             } else {
                 # Use role of user
-                $role = &pf::authentication::match(
-                    &pf::authentication::getInternalAuthenticationSources(),
-                    { username => $pid },
-                    $Actions::SET_ROLE
-                );
-                $logger->trace(
-                    "Gaming devices role is $role (from username $pid)");
+                $role = &pf::authentication::match( $source_id, $params , $Actions::SET_ROLE);
+                $logger->trace("Gaming devices role is $role (from username $pid)");
+            }
+            # If an access duration is defined, use it to compute the unregistration date;
+            # otherwise, use the unregdate when defined.
+            my $unregdate =
+              &pf::authentication::match( $source_id, $params, $Actions::SET_ACCESS_DURATION );
+            if ( defined $unregdate ) {
+                $unregdate = pf::config::access_duration($unregdate);
+                $logger->trace("Computed unreg date from access duration: $unregdate");
+            } else {
+                $unregdate =
+                  &pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE );
+            }
+            if ( defined $unregdate ) {
+                $logger->trace("Got unregdate $unregdate for username $pid");
+                $info{unregdate} = $unregdate;
             }
             $info{'category'} = $role if ( defined $role );
             $info{'auto_registered'} = 1;
