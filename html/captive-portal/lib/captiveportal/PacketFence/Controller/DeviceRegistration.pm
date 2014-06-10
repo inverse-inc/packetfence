@@ -55,9 +55,11 @@ sub index : Path : Args(0) {
     } elsif ( $request->param('device_mac') ) {
         # User is authenticated and requesting to register a device
         my $device_mac = clean_mac($request->param('device_mac'));
+        my $device_type;
+        $device_type = $request->param('console_type') if ( defined($request->param('console_type')) );
         if(valid_mac($device_mac)) {
             # Register device
-            $c->forward('registerNode', [ $pid, $device_mac ]);
+            $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
             unless ($c->has_errors) {
                 $c->stash(status_msg  => i18n_format("The MAC address %s has been successfully registered.", $device_mac));
                 $c->detach('landing');
@@ -126,7 +128,7 @@ sub landing : Local : Args(0) {
 }
 
 sub registerNode : Private {
-    my ( $self, $c, $pid, $mac ) = @_;
+    my ( $self, $c, $pid, $mac, $type ) = @_;
     my $logger = $c->log;
     if ( pf::web::device_registration::is_allowed($mac) ) {
         my ($node) = node_view($mac);
@@ -166,6 +168,7 @@ sub registerNode : Private {
             $info{'category'} = $role if ( defined $role );
             $info{'auto_registered'} = 1;
             $info{'mac'} = $mac;
+            $info{'notes'} = $type if ( defined($type) );
             $c->portalSession->guestNodeMac($mac);
             $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
         }
