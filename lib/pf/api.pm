@@ -185,7 +185,7 @@ sub firewallsso {
 
 sub ReAssignVlan {
     my ($class, %postdata )  = @_;
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+    my $logger = pf::log::get_logger();
 
     if ( not defined( $postdata{'connection_type'} )) { 
         $logger->error("Connection type is unknown. Could not reassign VLAN."); 
@@ -210,7 +210,7 @@ sub ReAssignVlan {
 
 sub desAssociate {
     my ($class, %postdata )  = @_;
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+    my $logger = pf::log::get_logger();
 
     my $switch = pf::SwitchFactory->getInstance()->instantiate($postdata{'switch'});
 
@@ -222,7 +222,7 @@ sub desAssociate {
 
 sub firewall {
     my ($class, %postdata )  = @_;
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+    my $logger = pf::log::get_logger();
 
     # verify if firewall rule is ok
     my $inline = new pf::inline::custom();
