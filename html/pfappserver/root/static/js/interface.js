@@ -125,6 +125,7 @@ InterfaceView.prototype.typeChanged = function(e) {
                     vip.find(':input').removeAttr('disabled');
                     break;
                 case '':
+                case 'none':
                 case 'management':
                     dhcpd.hide('fast');
                     fake_mac.hide('fast');

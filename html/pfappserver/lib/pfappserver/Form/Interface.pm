@@ -98,7 +98,7 @@ sub options_type {
     }
 
 
-    return ('' => 'None', @types);
+    return ('none' => 'None', @types);
 }
 
 =head2 validate
