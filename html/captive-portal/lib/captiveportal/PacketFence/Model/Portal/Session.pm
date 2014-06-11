@@ -11,10 +11,8 @@ use NetAddr::IP;
 use pf::iplog qw(iplog_open);
 use pf::Portal::ProfileFactory;
 use File::Spec::Functions qw(catdir);
-use pf::email_activation qw(view_by_code);
+use pf::activation qw(view_by_code);
 use pf::web::constants;
-use Apache2::RequestRec;
-use Apache2::Request;
 
 =head1 NAME
 
@@ -85,9 +83,9 @@ sub ACCEPT_CONTEXT {
     my $redirectURL;
     my $uri = $request->uri;
     my $options;
-    my $req = Apache2::Request->new($r);
+#    my $req = Apache2::Request->new($r);
     my $destination_url;
-    $destination_url = $req->param('destination_url') if defined($req->param('destination_url'));
+    $destination_url = $request->param('destination_url') if defined($request->param('destination_url'));
 
     if( $r->isa('Apache2::Request') &&  defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {

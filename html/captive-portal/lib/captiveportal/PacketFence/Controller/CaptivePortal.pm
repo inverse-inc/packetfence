@@ -15,7 +15,7 @@ use pf::useragent;
 use pf::violation;
 use pf::class;
 use Cache::FileCache;
-use pf::sms_activation;
+use pf::activation;
 use pf::os;
 use List::MoreUtils qw(any);
 
@@ -307,7 +307,7 @@ sub checkIfPending : Private {
     my $node_info     = node_view($mac);
     my $request       = $c->request;
     if ( $node_info && $node_info->{'status'} eq $pf::node::STATUS_PENDING ) {
-        if ( pf::sms_activation::sms_activation_has_entry($mac) ) {
+        if ( pf::activation::activation_has_entry($mac,'sms') ) {
             node_deregister($mac);
             $c->stash(
                 template => 'guest/sms_confirmation.html',

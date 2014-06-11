@@ -38,7 +38,7 @@ use pf::web::constants;
 use pf::web::util;
 use pf::web::constants;
 use pf::log;
-use pf::email_activation;
+use pf::activation;
 
 =head1 CONSTANTS
 

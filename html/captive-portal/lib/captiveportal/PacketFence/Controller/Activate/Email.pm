@@ -8,7 +8,7 @@ use Log::Log4perl;
 use POSIX;
 
 use pf::config;
-use pf::email_activation qw($GUEST_ACTIVATION $SPONSOR_ACTIVATION);
+use pf::activation qw($GUEST_ACTIVATION $SPONSOR_ACTIVATION);
 use pf::node;
 use pf::Portal::Session;
 use pf::util qw(valid_mac);
@@ -58,7 +58,7 @@ sub code : Path : Args(1) {
     my $logger  = get_logger;
 
     # validate code
-    my $activation_record = pf::email_activation::validate_code($code);
+    my $activation_record = pf::activation::validate_code($code);
     if (  !defined($activation_record)
         || ref($activation_record) ne 'HASH'
         || !defined( $activation_record->{'type'} ) ) {
@@ -67,6 +67,7 @@ sub code : Path : Args(1) {
                 "The activation code provided is invalid."
               . " Reasons could be: it never existed, it was already used or has expired."
         );
+        $c->detach;
     }
 
     # if we have a MAC, guest was on-site and we set that MAC in the session
@@ -122,7 +123,7 @@ sub doEmailRegistration : Private {
     my $activation_record = $c->stash->{activation_record};
     my $profile           = $c->profile;
     my $node_mac          = $c->portalSession->guestNodeMac;
-    my ( $pid, $email ) = @{$activation_record}{ 'pid', 'email' };
+    my ( $pid, $email ) = @{$activation_record}{ 'pid', 'contact_info' };
     my $auth_params = {
         'username'   => $pid,
         'user_email' => $email
@@ -171,7 +172,6 @@ sub doEmailRegistration : Private {
                 template   => $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE,
                 expiration => $expiration
             );
-            $c->detach();
         } else {
 
             # if we don't have the MAC it means it's a preregister
@@ -205,11 +205,11 @@ sub doEmailRegistration : Private {
                 template => $pf::web::guest::EMAIL_PREREG_CONFIRMED_TEMPLATE,
                 %info
             );
-            $c->detach;
         }
 
         # code has been consumed, deactivate
-        pf::email_activation::set_status_verified($code);
+        pf::activation::set_status_verified($code);
+        $c->detach;
     } else {
         $logger->warn( "No active email source for profile "
               . $profile->getName
@@ -232,7 +232,7 @@ sub doSponsorRegistration : Private {
     my $activation_record = $c->stash->{activation_record};
     my $portalSession     = $c->portalSession;
     my $node_mac          = $portalSession->guestNodeMac;
-    my ( $pid, $email ) = @{$activation_record}{ 'pid', 'email' };
+    my ( $pid, $email ) = @{$activation_record}{ 'pid', 'contact_info' };
     my $auth_params = {
         'username'   => $pid,
         'user_email' => $email
@@ -350,7 +350,7 @@ sub doSponsorRegistration : Private {
 
         pf::web::guest::send_template_email( $template, $info{'subject'},
             \%info );
-        pf::email_activation::set_status_verified($code);
+        pf::activation::set_status_verified($code);
 
         # send to a success page
         $c->stash(

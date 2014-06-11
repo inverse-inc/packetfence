@@ -10,8 +10,8 @@ use pf::web qw(i18n ni18n i18n_format render_template);
 use pf::web::constants;
 use pf::web::util;
 use pf::web::guest;
-use pf::email_activation;
-use pf::sms_activation;
+use pf::activation;
+use pf::sms_carrier;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 use pf::authentication;
@@ -204,14 +204,14 @@ sub doEmailSelfRegistration : Private {
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
     my ( $auth_return, $err, $errargs_ref ) =
-      pf::email_activation::create_and_email_activation_code(
+      pf::activation::create_and_send_activation_code(
         $portalSession->guestNodeMac(),
         $pid, $email,
         (     $session->{preregistration}
             ? $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION
             : $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION
         ),
-        $pf::email_activation::GUEST_ACTIVATION,
+        $pf::activation::GUEST_ACTIVATION,
         $profile->getName,
         %info,
       );
@@ -333,12 +333,12 @@ sub doSponsorSelfRegistration : Private {
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
     my ( $auth_return, $err, $errargs_ref ) =
-      pf::email_activation::create_and_email_activation_code(
+      pf::activation::create_and_send_activation_code(
         $portalSession->guestNodeMac(),
         $pid,
         $info{'sponsor'},
         $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_ACTIVATION,
-        $pf::email_activation::SPONSOR_ACTIVATION,
+        $pf::activation::SPONSOR_ACTIVATION,
         $profile->getName,
         %info,
       );
@@ -376,19 +376,17 @@ sub doSmsSelfRegistration : Private {
     my $profile        = $c->profile;
     my $request        = $c->request;
     my $logger         = get_logger;
+    my $session        = $c->session;
     my $mac            = $portalSession->clientMac;
-    my $phone          = $request->param("phone");
     my $mobileprovider = $request->param("mobileprovider");
+    my ($pid, $phone)  = @{$session}{qw(guest_pid phone)};
 
     # User chose to register by SMS
     $logger->info("registering $mac  guest by SMS $phone @ $mobileprovider");
     my ( $auth_return, $err, $errargs_ref ) =
-      sms_activation_create_send( $portalSession->guestNodeMac(),
-        $phone, $mobileprovider );
+      pf::activation::sms_activation_create_send( $mac, $pid, $phone, $profile->getName, $mobileprovider );
     if ($auth_return) {
 
-        my $pid   = $c->session->{'guest_pid'};
-        my $phone = $c->session->{"phone"};
         $info{'pid'} = $pid;
 
         # form valid, adding person (using modify in case person already exists)
