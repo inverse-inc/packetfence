@@ -195,10 +195,10 @@ sub ReAssignVlan {
     my $switch = pf::SwitchFactory->getInstance()->instantiate( $postdata{'switch'} );
 
     # SNMP traps connections need to be handled specially to account for port-security etc.
-    if ( ($postdata{'connection_type'} & $WIRED_SNMP_TRAPS) == $WIRED_SNMP_TRAPS ) {
+    if ( ($postdata{'connection_type'} & $WIRED_SNMP_TRAPS) == $pf::config::WIRED_SNMP_TRAPS ) {
         _reassignSNMPConnections($switch, $postdata{'mac'}, $postdata{'ifIndex'}, $postdata{'connection_type'} );
     }
-    elsif (  $postdata{'connection_type'} & $WIRED ) {
+    elsif ( $postdata{'connection_type'} & $pf::config::WIRED) {
         my ( $switchdeauthMethod, $deauthTechniques )
             = $switch->wiredeauthTechniques( $switch->{_deauthMethod}, $postdata{'connection_type'} );
         $switch->$deauthTechniques( $postdata{'ifIndex'}, $postdata{'mac'} );
