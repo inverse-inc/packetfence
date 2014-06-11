@@ -34,6 +34,7 @@ use POSIX;
 use Readonly;
 use Time::HiRes qw(time);
 use Try::Tiny;
+use MIME::Lite;
 
 =head1 CONSTANTS
 
@@ -110,6 +111,7 @@ use pf::util;
 use pf::web::constants;
 # TODO this dependency is unfortunate, ideally it wouldn't be in that direction
 use pf::web::guest;
+use pf::log;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $activation_db_prepared = 0;
@@ -130,25 +132,25 @@ sub activation_db_prepare {
     $logger->debug("Preparing pf::activation database queries");
 
     $activation_statements->{'activation_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type
-        FROM activation 
+        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern
+        FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
         WHERE code_id = ?
     ]);
 
     $activation_statements->{'activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type
-        FROM activation 
-        WHERE activation_code LIKE ? AND status = ?
+        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern
+        FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
+        WHERE activation_code = ? AND status = ?
     ]);
 
     $activation_statements->{'activation_find_code_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type
-        FROM activation 
+        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern
+        FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
         WHERE activation_code LIKE ?
     ]);
 
     $activation_statements->{'activation_view_by_code_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type
+        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern
         FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
         WHERE activation_code = ?
     ]);
@@ -172,6 +174,11 @@ sub activation_db_prepare {
 
     $activation_statements->{'activation_change_status_old_same_pid_contact_info_sql'} = get_db_handle()->prepare(
         qq [ UPDATE activation SET status = ? WHERE mac IS NULL AND pid = ? AND contact_info = ? AND status = ? ]
+    );
+
+
+    $activation_statements->{'activation_has_entry'} = get_db_handle()->prepare(
+        qq [ SELECT 1 FROM activation WHERE mac = ? AND expiration >= NOW() AND status = ? AND type = ? ]
     );
 
     $activation_db_prepared = 1;
@@ -212,8 +219,10 @@ sub find_code {
 
 sub find_unverified_code {
     my ($activation_code) = @_;
-    my $query = db_query_execute(ACTIVATION, $activation_statements, 
-        'activation_find_unverified_code_sql', "%".$activation_code, $UNVERIFIED);
+    my $query = db_query_execute(ACTIVATION, $activation_statements,
+        'activation_find_unverified_code_sql',
+        "${HASH_FORMAT}:${activation_code}", $UNVERIFIED
+    );
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -301,7 +310,7 @@ Returns the activation code
 =cut
 
 sub create {
-    my ($type, $mac, $pid, $pending_addr, $provider_id) = @_;
+    my ($mac, $pid, $pending_addr, $type, $portal, $provider_id) = @_;
     my $logger = Log::Log4perl::get_logger('pf::activation');
 
     # invalidate older codes for the same MAC / contact_info
@@ -313,6 +322,7 @@ sub create {
         'contact_info' => $pending_addr,
         'status' => $UNVERIFIED,
         'type' => $type,
+        'portal' => $portal,
         'carrier_id' => $provider_id,
     );
 
@@ -440,11 +450,11 @@ sub send_email {
     return $result;
 }
 
-sub create_and_activation_code {
-    my ($mac, $pid, $pending_addr, $template, $activation_type, %info) = @_;
+sub create_and_send_activation_code {
+    my ($mac, $pid, $pending_addr, $template, $type, $portal, %info) = @_;
 
     my ($success, $err) = ($TRUE, 0);
-    my $activation_code = create($mac, $pid, $pending_addr, $activation_type);
+    my $activation_code = create($mac, $pid, $pending_addr, $type, $portal);
     if (defined($activation_code)) {
       unless (send_email($activation_code, $template, %info)) {
         ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_EMAIL);
@@ -490,6 +500,78 @@ sub set_status_verified {
 
     my $activation_record = find_code($activation_code);
     modify_status($activation_record->{'code_id'}, $VERIFIED);
+}
+
+
+sub activation_has_entry {
+    my ($mac,$type) = @_;
+    my $query = db_query_execute(ACTIVATION, $activation_statements, 'activation_has_entry_sql', $mac, $UNVERIFIED, $type);
+    my $rows = $query->rows;
+    $query->finish;
+    return $rows;
+}
+
+=item sms_activation_create_send - Create and send PIN code
+
+The attribute %info is only meant to be used for debugging purposes.
+
+=cut
+
+sub sms_activation_create_send {
+    my ($mac, $pid, $phone_number, $portal, $provider_id, %info) = @_;
+    my $logger = get_logger();
+
+    # Strip non-digits
+    $phone_number =~ s/\D//g;
+
+    my ($success, $err) = ($TRUE, 0);
+    my $activation_code = create($mac, $pid, $phone_number, 'sms', $portal, $provider_id);
+    if (defined($activation_code)) {
+      unless (send_sms($activation_code, %info)) {
+        ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_SMS);
+      }
+    }
+
+    return ($success, $err);
+}
+
+=item send_sms - Send SMS with activation code
+
+=cut
+
+sub send_sms {
+    my ($activation_code, %info) = @_;
+    my $logger = get_logger();
+
+    my $smtpserver = $Config{'alerting'}{'smtpserver'};
+    $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
+    $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
+    my ($hash_version, $pin) = _unpack_activation_code($activation_code);
+
+    # Hash merge. Note that on key collisions the result of view_by_code() will win
+    %info = (%info, %{view_by_code($activation_code)});
+
+    my $email = sprintf($info{'carrier_email_pattern'}, $info{'contact_info'});
+    my $msg = MIME::Lite->new(
+        From        =>  $info{'from'},
+        To          =>  $email,
+        Subject     =>  "Network Activation",
+        Data        =>  "PIN: $pin"
+    );
+
+    my $result = 0;
+    eval {
+      $msg->send('smtp', $smtpserver, Timeout => 20);
+      $result = $msg->last_send_successful();
+      $logger->info("Email sent to $email (Network Activation)");
+    };
+    if ($@) {
+      my $msg = "Can't send email to $email: $@";
+      $msg =~ s/\n//g;
+      $logger->error($msg);
+    }
+
+    return $result;
 }
 
 # TODO: add an expire / cleanup sub
