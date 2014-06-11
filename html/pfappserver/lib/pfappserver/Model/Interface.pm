@@ -434,7 +434,8 @@ sub setType {
     return if ( $type =~ /^other$/i );
 
     # we delete interface type 'None'
-    if ( $type =~ /^none$/i ) {
+    if ( $type =~ /^none$/i && !$interface_ref->{high_availability} ) {
+        $logger->trace("Deleting $interface interface");
         $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
         $models->{interface}->remove($interface);
     }
