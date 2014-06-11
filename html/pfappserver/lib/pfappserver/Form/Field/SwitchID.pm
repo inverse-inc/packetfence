@@ -51,7 +51,7 @@ apply
     {
         transform => sub {
             my ($val) = @_;
-            return clean_mac( $val ) if valid_mac($val);
+            return clean_mac( $val ) if !valid_ip($val) && valid_mac($val);
             return $val;
         }
     }
