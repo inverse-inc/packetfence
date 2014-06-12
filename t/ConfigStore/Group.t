@@ -14,10 +14,13 @@ Group
 use strict;
 use warnings;
 
-use Test::More tests => 13;
+use Test::More tests => 16;
 
 use Test::NoWarnings;
-use lib '/usr/local/pf/lib';
+BEGIN {
+    use lib qw(/usr/local/pf/t /usr/local/pf/lib);
+    use PfFilePaths;
+}
 
 
 use_ok("pf::ConfigStore::Group");
@@ -49,6 +52,16 @@ $group1->sortItems([qw(section3 section2 section1)]);
 is_deeply($group1->readAllIds,[qw(section3 section2 section1)],"group1 sections resorted");
 
 is_deeply($config->readAllIds,['group2 section1','group2 section2','group1 section3','group1 section2','group1 section1'],"config after resort sections");
+
+$config->update_or_create("section7",{param1 => "value1"});
+
+ok($config->hasId("section7") && $config->cachedConfig->val("section7","param1") eq "value1","update_or_create create a new section");
+
+$config->update_or_create("section7",{param1 => "value1a", param2 => "value2"});
+
+ok($config->hasId("section7") && $config->cachedConfig->val("section7","param1") eq "value1a","update_or_create updating a value");
+
+ok($config->hasId("section7") && $config->cachedConfig->val("section7","param2") eq "value2","update_or_create adding a new param to a section");
 
 
 

@@ -14,14 +14,17 @@ ConfigStore
 use strict;
 use warnings;
 
-use lib '/usr/local/pf/lib';
 use Test::More;                      # last test to print
 use Test::NoWarnings;
 use File::Slurp qw(read_dir);
 use Test::Harness;
 use File::Spec::Functions;
+BEGIN {
+    use lib qw(/usr/local/pf/t /usr/local/pf/lib);
+    use PfFilePaths;
+}
 
-plan tests => 17;
+plan tests => 20;
 
 use_ok("pf::ConfigStore");
 
@@ -90,6 +93,18 @@ my $last_section = pop @resorted_sections;
 $configStore->sortItems(\@resorted_sections);
 
 is_deeply($configStore->readAllIds, [$first_section,@resorted_sections,$last_section] ,"Resorting Some Items");
+
+
+$configStore->update_or_create("section7",{param1 => "value1"});
+
+ok($configStore->hasId("section7") && $configStore->cachedConfig->val("section7","param1") eq "value1","update_or_create create a new section");
+
+$configStore->update_or_create("section7",{param1 => "value1a", param2 => "value2"});
+
+ok($configStore->hasId("section7") && $configStore->cachedConfig->val("section7","param1") eq "value1a","update_or_create updating a value");
+
+ok($configStore->hasId("section7") && $configStore->cachedConfig->val("section7","param2") eq "value2","update_or_create adding a new param to a section");
+
 
 =head1 AUTHOR
 
