@@ -275,17 +275,28 @@ sub authenticationLogin : Private {
     my $mac           = $portalSession->clientMac;
 
     $logger->trace("authentication attempt");
-
+    my $local;
     if ($request->{'match'} eq "status/login") {
         use pf::person;
         my $person_info = pf::person::person_view($request->param("username"));
+        my $source = pf::authentication::getAuthenticationSource($person_info->{source});
+        if (defined($source) && $source->{'class'} eq 'external') {
+            # Source is external, we have to use local source to authenticate
+            $local = '1';
+        }
         my $options = {
             'portal' => $person_info->{portal},
         };
         $profile = pf::Portal::ProfileFactory->instantiate( $mac, $options);
     }
-    my @sources =
-      ( $profile->getInternalSources, $profile->getExclusiveSources );
+
+    my @sources;
+    if ($local) {
+        @sources = pf::authentication::getAuthenticationSource('local');
+    } else {
+        @sources =
+            ( $profile->getInternalSources, $profile->getExclusiveSources );
+    }
 
     my $username = $request->param("username");
     my $password = $request->param("password");
