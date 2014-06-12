@@ -1036,7 +1036,7 @@ Finally, start `winbind`, and test the setup using `ntlm_auth` and `radtest`:
 
 For Debian and Ubuntu:
 
-  # chgrp pf /var/run/samba/winbindd_privileged/
+  # usermod -a -G winbindd_priv pf
   # ntlm_auth --username myDomainUser
   # radtest -t mschap -x myDomainUser myDomainPassword localhost:18120 12 testing123
     Sending Access-Request of id 108 to 127.0.0.1 port 18120
