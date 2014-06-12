@@ -177,7 +177,7 @@ sub activation_db_prepare {
     );
 
 
-    $activation_statements->{'activation_has_entry'} = get_db_handle()->prepare(
+    $activation_statements->{'activation_has_entry_sql'} = get_db_handle()->prepare(
         qq [ SELECT 1 FROM activation WHERE mac = ? AND expiration >= NOW() AND status = ? AND type = ? ]
     );
 
