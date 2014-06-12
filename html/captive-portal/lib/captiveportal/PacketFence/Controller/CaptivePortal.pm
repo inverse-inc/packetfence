@@ -320,7 +320,7 @@ sub checkIfPending : Private {
                   . $Config{'general'}{'hostname'} . "."
                   . $Config{'general'}{'domain'}
                   . '/captive-portal?destination_url='
-                  . uri_escape( $portalSession->getDestinationUrl ) );
+                  . uri_escape( $portalSession->_getDestinationUrl ) );
         } else {
             $c->stash(
                 template => 'pending.html',
