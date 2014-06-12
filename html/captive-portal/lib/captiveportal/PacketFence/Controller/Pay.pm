@@ -123,6 +123,7 @@ sub processTransaction : Private {
     my $request = $c->request;
     my $logger = $c->log;
     my $portalSession = $c->portalSession;
+    my $profile       = $c->profile;
     my $mac = $portalSession->clientMac;
 
     # Transactions informations
@@ -156,6 +157,8 @@ sub processTransaction : Private {
                 'lastname'  => $request->param('lastname'),
                 'email'     => lc($request->param('email')),
                 'notes'     => 'billing engine activation - ' . $tier,
+                'portal'    => $profile->getName,
+                'source'    => 'billing',
             )
         );
 
