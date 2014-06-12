@@ -51,8 +51,6 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{version}-%{rev}.tar.gz
 %endif
 
-%define git_commit %{git_commit}
-
 # Log related globals
 %global logfiles packetfence.log catalyst.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon
 %global logdir /usr/local/pf/logs
@@ -349,7 +347,7 @@ done
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
 # Define git_commit_id
-echo git_commit > conf/git_commit_id
+echo %{git_commit} > conf/git_commit_id
 
 find -name '*.example' -print0 | while read -d $'\0' file
 do
@@ -766,11 +764,9 @@ fi
                         /usr/local/pf/conf/vlan_filters.conf.example
 %config                 /usr/local/pf/conf/dhcpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
-%config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal.cgi
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
@@ -810,7 +806,6 @@ fi
 %doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/captive-portal
-%attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
                         /usr/local/pf/html/captive-portal/Changes
                         /usr/local/pf/html/captive-portal/Makefile.PL
                         /usr/local/pf/html/captive-portal/README
