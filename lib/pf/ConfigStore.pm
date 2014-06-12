@@ -207,22 +207,34 @@ sub _update_section {
     my ($self, $id, $assignments) = @_;
     my $config = $self->cachedConfig;
     my $default_section = $config->{default} if exists $config->{default};
-    my $default_value;
+    my $imported = $config->{imported} if exists $config->{imported};
     my $use_default = $default_section && $id ne $default_section;
     while ( my ($param, $value) = each %$assignments ) {
-        if ( $config->exists($id, $param) ) {
-            if(defined($value) &&
-                !($use_default && ($default_value = $config->val($default_section,$param)) && $default_value eq $value)
-                ) {
-                $config->setval($id, $param, $value);
-            } elsif(exists $config->{imported} && defined $config->{imported}) {
-                $config->setval($id, $param, $config->{imported}->val($id, $param));
+        my $param_exists = $config->exists($id, $param);
+        if(defined $value ) { #If value is defined the update or add to section
+            if ( $param_exists ) {
+                #If value is defined the update or add to section
+                my $default_value = $config->val($default_section,$param) if ($use_default);
+                #If the value is the same as the default value then remove it
+                if (defined $default_value && $default_value eq $value) {
+                    $config->delval($id, $param);
+                } else {
+                    $config->setval($id, $param, $value);
+                }
             } else {
+                #If the value is the same as the default value then do not add
+                my $default_value = $config->val($default_section,$param) if ($use_default);
+                next if defined $default_value && $default_value eq $value;
+                $config->newval($id, $param, $value);
+            }
+        } else { #Handle deleting param from section
+            if ($use_default && !$config->exists($default_section, $param) && $imported && $imported->exists($id, $param) ) {
+                #if the param exists in the imported config then use that the value in the imported file
+                $config->setval($id, $param, $imported->val($id, $param));
+            } elsif ( $param_exists ) {
+                #
                 $config->delval($id, $param);
             }
-        } elsif($value) {
-            next if $use_default &&  ($default_value = $config->val($default_section,$param)) && $default_value eq $value;
-            $config->newval($id, $param, $value);
         }
     }
 }
