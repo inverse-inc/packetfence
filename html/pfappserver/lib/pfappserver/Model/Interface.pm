@@ -226,20 +226,23 @@ sub get {
     # Put requested interfaces into an array
     my @interfaces = $self->_listInterfaces($interface);
     my $networks_model = $models->{network};
-    my $interface_model = $models->{network};
+    my $interface_model = $models->{interface};
 
     my $result = {};
-    my ($status, $return);
+    my ($status, $return, $config);
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     foreach my $interface_ref ( @interfaces ) {
         next if ( $interface_ref->{name} eq "lo" );
 
         $interface                              = $interface_ref->{name};
+        ($status,$config) = $interface_model->read($interface);
+        $config = {} unless is_success($status);
         $result->{"$interface"}                 = $interface_ref;
         if ((my ($physical_device, $vlan_id)    = $self->_interfaceVirtual($interface))) {
           $result->{"$interface"}->{'name'}     = $physical_device;
           $result->{"$interface"}->{'vlan'}     = $vlan_id;
         }
+        $result->{"$interface"}->{'vip'}     = $config->{vip};
         if (($result->{"$interface"}->{'network'} = $networks_model->getNetworkAddress($interface_ref->{ipaddress}, $interface_ref->{netmask}))) {
             ($status, $return) = $networks_model->getRoutedNetworks($result->{"$interface"}->{'network'},
                                                                            $interface_ref->{netmask});
@@ -442,6 +445,8 @@ sub setType {
     # otherwise we update pf.conf and networks.conf
     else {
         # Update pf.conf
+        $logger->trace("Updating or creating $interface interface");
+        
         
         $models->{interface}->update_or_create($interface,
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
@@ -485,6 +490,7 @@ sub setType {
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
         }
     }
+    $logger->trace("Commiting  changes to $interface interface");
     $models->{network}->commit();
     $models->{interface}->commit();
 }
@@ -619,10 +625,12 @@ Process parameters to build a proper pf.conf interface section.
 # this might imply a rework of this out of the controller into the model
 sub _prepare_interface_for_pfconf {
     my ($self, $int, $int_model, $type) = @_;
+    my $logger = get_logger;
 
     my $int_config_ref = {
         ip => $int_model->{'ipaddress'},
         mask => $int_model->{'netmask'},
+        vip => $int_model->{'vip'},
     };
 
     # logic to match our awkward relationship between pf.conf's type and
