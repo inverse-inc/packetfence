@@ -181,6 +181,8 @@ sub doEmailSelfRegistration : Private {
             'telephone' => $session->{phone},
             'notes'     => 'email activation. Date of arrival: '
               . time2str( "%Y-%m-%d %H:%M:%S", time ),
+            'portal'    => $profile->getName,
+            'source'    => $source->{id},
         )
     );
 
@@ -270,6 +272,14 @@ sub doSponsorSelfRegistration : Private {
     my $email = $c->session->{"email"};
     $info{'pid'} = $pid;
 
+    my $sponsor_type =
+      pf::Authentication::Source::SponsorEmailSource->getDefaultOfType;
+    my $source      = $profile->getSourceByType($sponsor_type);
+    my $auth_params = {
+        'username'   => $pid,
+        'user_email' => $email
+    };
+
     # form valid, adding person (using modify in case person already exists)
     person_modify(
         $pid,
@@ -280,18 +290,12 @@ sub doSponsorSelfRegistration : Private {
             'telephone' => $c->session->{"phone"},
             'sponsor'   => $c->session->{"sponsor"},
             'notes'     => 'sponsored guest. Date of arrival: '
-              . time2str( "%Y-%m-%d %H:%M:%S", time )
+              . time2str( "%Y-%m-%d %H:%M:%S", time ),
+            'portal'    => $profile->getName,
+            'source'    => $source->{id},
         )
     );
     $logger->info( "Adding guest person " . $c->session->{'guest_pid'} );
-
-    my $sponsor_type =
-      pf::Authentication::Source::SponsorEmailSource->getDefaultOfType;
-    my $source      = $profile->getSourceByType($sponsor_type);
-    my $auth_params = {
-        'username'   => $pid,
-        'user_email' => $email
-    };
 
     # fetch role for this user
     $info{'category'} =
@@ -389,19 +393,6 @@ sub doSmsSelfRegistration : Private {
 
         $info{'pid'} = $pid;
 
-        # form valid, adding person (using modify in case person already exists)
-        $logger->info("Adding guest person $pid ($phone)");
-        person_modify(
-            $pid,
-            (   map { $_ => $c->session->{$_} }
-                  qw(firstname lastname company  email)
-            ),
-            (   'telephone' => $phone,
-                'notes'     => 'sms confirmation. Date of arrival: '
-                  . time2str( "%Y-%m-%d %H:%M:%S", time ),
-            )
-        );
-
         $logger->info("redirecting to mobile confirmation page");
 
         # fetch role for this user
@@ -412,6 +403,22 @@ sub doSmsSelfRegistration : Private {
             'username'    => $pid,
             'phonenumber' => $phone
         };
+
+        # form valid, adding person (using modify in case person already exists)
+        $logger->info("Adding guest person $pid ($phone)");
+        person_modify(
+            $pid,
+            (   map { $_ => $c->session->{$_} }
+                  qw(firstname lastname company  email)
+            ),
+            (   'telephone' => $phone,
+                'notes'     => 'sms confirmation. Date of arrival: '
+                  . time2str( "%Y-%m-%d %H:%M:%S", time ),
+                'portal'    => $profile->getName,
+                'source'    => $source->{id},
+            )
+        );
+
         $info{'category'} =
           &pf::authentication::match( $source->{id}, $auth_params,
             $Actions::SET_ROLE );
