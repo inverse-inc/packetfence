@@ -1,6 +1,8 @@
 package captiveportal::PacketFence::Controller::Node::Manager;
+
 use Moose;
 use namespace::autoclean;
+use pf::config;
 use pf::node;
 use pf::enforcement qw(reevaluate_access);
 
@@ -24,12 +26,12 @@ Catalyst Controller.
 =cut
 
 sub unreg :Local :Args(1) {
-    my ( $self, $c, $mac ) = @_;
+    my ($self, $c, $mac) = @_;
     my $username = $c->session->{username};
     my $node = node_view($mac);
-    if($username && $mac) {
+    if ($username && $node) {
         $c->log->info("$username attempting to unregister $mac");
-        if($username eq $node->{pid}) {
+        if ($username ne $default_pid && $username eq $node->{pid}) {
             node_deregister($mac, %$node);
             reevaluate_access($mac, "node_modify");
             $c->response->redirect("/status");
