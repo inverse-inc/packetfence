@@ -13,6 +13,8 @@ use pf::Portal::ProfileFactory;
 use File::Spec::Functions qw(catdir);
 use pf::activation qw(view_by_code);
 use pf::web::constants;
+use URI::Escape::XS qw(uri_escape uri_unescape);
+use HTML::Entities;
 
 =head1 NAME
 
@@ -83,7 +85,6 @@ sub ACCEPT_CONTEXT {
     my $redirectURL;
     my $uri = $request->uri;
     my $options;
-#    my $req = Apache2::Request->new($r);
     my $destination_url;
     $destination_url = $request->param('destination_url') if defined($request->param('destination_url'));
 
@@ -113,12 +114,12 @@ sub _build_destinationUrl {
     my ($self) = @_;
 
     # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
-    if (!defined($self->destination_url) || $self->profile->forceRedirectURL) {
-        return $self->redirectURL;
+    if (!defined($self->destination_url) || isenabled($self->profile->forceRedirectURL)) {
+        return $self->profile->getRedirectURL;
     }
 
     # Respect the user's initial destination URL
-    return $self->{'_destination_url'} || decode_entities(uri_unescape($self->destination_url));
+    return decode_entities(uri_unescape($self->destination_url));
 }
 
 sub _build_clientIp {
