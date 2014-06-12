@@ -255,8 +255,7 @@ sub create {
 
 sub update_or_create {
     my ($self, $id, $assignments) = @_;
-    my $config = $self->cachedConfig;
-    if ( $config->SectionExists($id) ) {
+    if ( $self->hasId($id) ) {
         return $self->update($id, $assignments);
     } else {
         return $self->create($id, $assignments);
