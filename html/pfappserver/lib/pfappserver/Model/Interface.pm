@@ -238,6 +238,7 @@ sub get {
         ($status,$config) = $interface_model->read($interface);
         $config = {} unless is_success($status);
         $result->{"$interface"}                 = $interface_ref;
+        $result->{"$interface"}->{'high_availability'} = defined $config->{type} &&  $config->{type} =~ /high-availability/ ? 1 : 0;
         if ((my ($physical_device, $vlan_id)    = $self->_interfaceVirtual($interface))) {
           $result->{"$interface"}->{'name'}     = $physical_device;
           $result->{"$interface"}->{'vlan'}     = $vlan_id;
@@ -260,16 +261,9 @@ sub get {
             $result->{"$interface"}->{'network_iseditable'} = is_success($status);
         }
         $result->{"$interface"}->{'type'} = $self->getType($interface_ref);
-        $result->{"$interface"}->{'high_availability'} = $self->hasHighAvailability($interface_ref);
     }
 
     return $result;
-}
-
-sub hasHighAvailability {
-    my ($self, $interface_ref) = @_;
-    my ($status, $interface) = $self->{models}->{interface}->read($interface_ref->{name});
-    return  ( is_success($status) && $interface->{type} =~ /high-availability/) ? 1 : 0;
 }
 
 =head2 update
