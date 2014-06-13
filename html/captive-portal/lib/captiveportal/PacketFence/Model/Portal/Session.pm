@@ -88,12 +88,13 @@ sub ACCEPT_CONTEXT {
     my $destination_url;
     $destination_url = $request->param('destination_url') if defined($request->param('destination_url'));
 
+    my $code = $1 if ($r->uri =~ /$WEB::URL_EMAIL_ACTIVATION_LINK\/(.*)/);
     if( $r->isa('Apache2::Request') &&  defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
             'last_uri' => $last_uri,
         };
-    } elsif (defined($request->param('code'))) {
-        my $data = view_by_code("1:".$request->param('code'));
+    } elsif (defined($code)) {
+        my $data = view_by_code("1:".$code);
         $options = {
             'portal' => $data->{portal},
         };
