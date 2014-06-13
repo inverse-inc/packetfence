@@ -52,7 +52,8 @@ pfcmd_vlan command [options]
                          4 : trace
    -vlan                VLAN id
    -vlanName            VLAN name (as in switches.conf)
-
+   -connectionType      Type of connection (see lib/pf/config.pm)
+ 
 =head1 DESCRIPTION
 
 This script allows to execute the following commands related to switches and VLANs:
@@ -112,6 +113,7 @@ my $vlan             = 0;
 my $vlanName         = '';
 my $mac              = undef;
 my $alias            = '';
+my $connectionType   = undef;
 my $cmd              = '';
 my $help;
 my $man;
@@ -147,6 +149,7 @@ my $wiredDeauth;
 
 GetOptions(
     "alias:s"             => \$alias,
+    "connectionType:i"    => \$connectionType,
     "deauthenticate"      => \$deauthenticate,
     "deauthenticateDot1x" => \$deauthenticateDot1x,
     "getAlias"            => \$getAlias,
@@ -181,7 +184,7 @@ GetOptions(
     "switch:s"            => \$switchDescRegExp,
     "verbose:i"           => \$logLevel,
     "vlan:i"              => \$vlan,
-    "vlanName:s"          => \$vlanName
+    "vlanName:s"          => \$vlanName,
     "wiredDeauth"         => \$wiredDeauth,
 ) or pod2usage( -verbose => 1 );
 
@@ -692,12 +695,14 @@ if ($reevaluateAccess) {
     $logger->debug("finished handling 'getLocation' command");
 
 } elsif ($wiredDeauth) {
-
     if (!defined($mac) || $mac eq '') {
         exit_wrong_args("the MAC argument is necessary");
     }
-    if (!defined($ifIndex) || $mac eq '') {
+    if (!defined($ifIndex) || $ifIndex eq '') {
         exit_wrong_args("the ifindex argument is necessary");
+    }
+    if (!defined($connectionType) || $connectionType eq '') {
+        exit_wrong_args("the connectionType argument is necessary");
     }
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
@@ -707,7 +712,7 @@ if ($reevaluateAccess) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     } else {
         $logger->debug("start handling 'wiredDeauth' command");
-        $switch->wiredDeauthenticateMac($ifIndex, $mac);
+        $switch->wiredDeauthenticateMac($ifIndex, $mac, $connectionType);
         $logger->debug("finished handling 'wiredDeauth' command");
     }
 

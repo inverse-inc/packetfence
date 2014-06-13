@@ -2423,10 +2423,10 @@ mac - mac address to deauthenticate
 =cut
 
 sub wiredDeauthenticateMac {
-    my ($this, $ifIndex, $mac) = @_;
+    my ($this, $ifIndex, $mac, $connectionType) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-    my ($switchdeauthMethod, $deauthTechniques) = $this->wiredeauthTechniques($this->{_deauthMethod});
-    $this->$deauthTechniques($mac);
+    my ($switchdeauthMethod, $deauthTechniques) = $this->wiredeauthTechniques($this->{_deauthMethod}, $connectionType);
+    $this->$deauthTechniques($ifIndex, $mac);
 }
 
 =item dot1xPortReauthenticate

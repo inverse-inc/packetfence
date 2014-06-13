@@ -1612,10 +1612,10 @@ sub handleTrap {
             if (($switchdeauthMethod eq $SNMP::SSH) || ($switchdeauthMethod eq $SNMP::TELNET)) {
                 # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
                 # http://www.cpanforum.com/threads/6909
-                pf_run("/usr/local/pf/bin/pfcmd_vlan -$command -switch $switchId -ifIndex $ifIndex -mac $trapMac");
+                pf_run("/usr/local/pf/bin/pfcmd_vlan -$command -switch $switchId -ifIndex $switch_port -mac $trapMac -connectionType $connection_type");
             }
             else {
-                $switch->$deauthTechniques($ifIndex, $trapMac);
+                $switch->$deauthTechniques($switch_port, $trapMac);
             }
         } else {
 
