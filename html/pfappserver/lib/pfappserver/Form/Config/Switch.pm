@@ -66,7 +66,7 @@ has_field 'deauthMethod' =>
 has_field 'VlanMap' =>
   (
    type => 'Toggle',
-   label => 'Role by Vlan',
+   label => 'Role by VLAN',
   );
 
 has_field 'RoleMap' =>

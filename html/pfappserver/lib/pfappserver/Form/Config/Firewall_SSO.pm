@@ -46,7 +46,7 @@ has_field 'port' =>
 has_field 'type' =>
   (
    type => 'Select',
-   label => 'Firewall type',
+   label => 'Firewall Type',
    options_method => \&options_type,
   );
 has_field 'categories' =>

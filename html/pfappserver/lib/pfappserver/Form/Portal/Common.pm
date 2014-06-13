@@ -210,7 +210,7 @@ has_block provisioning => (
 has_field 'nbregpages' =>
   (
     type => 'PosInteger',
-    label => 'Number of Registration Page',
+    label => 'Number of Registration Pages',
     default => 0,
   );
 

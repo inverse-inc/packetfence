@@ -82,10 +82,13 @@ sub parse_po {
                 $msg{$key} .= $1;
             }
         }
-        elsif ($line =~ m/^(msgid|msgstr) \"(.+)\"$/) {
+        elsif ($line =~ m/^(msgid|msgstr) \"(.*)\"$/) {
             if ($msg{msgid} && $msg{msgstr}) {
                 add_translation($msg{msgid}, $msg{msgstr});
                 delete $msg{msgid};
+                delete $msg{msgstr};
+            }
+            elsif ($1 eq 'msgid') {
                 delete $msg{msgstr};
             }
             $key = $1;
@@ -296,7 +299,7 @@ sub print_po {
 
     print <<EOT;
 # English translations for $package package.
-# Copyright (C) 2012-2013 Inverse inc.
+# Copyright (C) 2012-2014 Inverse inc.
 # This file is distributed under the same license as the $package package.
 #
 msgid ""

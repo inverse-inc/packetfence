@@ -1,12 +1,12 @@
 # English translations for PacketFence package.
-# Copyright (C) 2012-2013 Inverse inc.
+# Copyright (C) 2012-2014 Inverse inc.
 # This file is distributed under the same license as the PacketFence package.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 4.2.0\n"
+"Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-05-02 13:47-0400\n"
+"PO-Revision-Date: 2014-06-13 15:04-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -66,28 +66,40 @@ msgstr "Admin Roles - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
 msgid "API Authorize Path"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
 msgid "API ID"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
 msgid "API Secret"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
 msgid "API Token Path"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
 msgid "API URL"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
 msgid "API URL of logged user"
 msgstr ""
 
@@ -106,6 +118,8 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
 msgid "Access Token Parameter"
 msgstr ""
 
@@ -155,6 +169,10 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
+# html/pfappserver/root/configuration/firewall_sso/index.tt
+msgid "Add Firewall SSO"
+msgstr ""
+
 # html/pfappserver/root/configstore/mdm/index.tt
 msgid "Add Mdm Entry"
 msgstr ""
@@ -178,10 +196,6 @@ msgstr ""
 
 # html/pfappserver/root/portal/profile/tab-content.tt
 msgid "Add a mandatory field."
-msgstr ""
-
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Add a search condition."
 msgstr ""
 
 # html/pfappserver/root/portal/profile/tab-content.tt
@@ -379,6 +393,8 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
 msgid "Authorized domains"
 msgstr ""
 
@@ -458,6 +474,7 @@ msgstr ""
 # html/pfappserver/root/configstore/mdm/index.tt
 # html/pfappserver/root/configuration/adminroles/index.tt
 # html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/configuration/firewall_sso/index.tt
 # html/pfappserver/root/configuration/floatingdevice/index.tt
 # html/pfappserver/root/configuration/switch/index.tt
 # html/pfappserver/root/configuration/wrix/index.tt
@@ -506,6 +523,7 @@ msgstr "Client Support"
 
 # html/pfappserver/root/configstore/mdm/list.tt
 # html/pfappserver/root/configuration/adminroles/list.tt
+# html/pfappserver/root/configuration/firewall_sso/list.tt
 # html/pfappserver/root/configuration/floatingdevice/list.tt
 # html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/configuration/wrix/list.tt
@@ -518,6 +536,7 @@ msgstr ""
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/configstore/mdm/view.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
+# html/pfappserver/root/configuration/firewall_sso/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
 # html/pfappserver/root/configuration/switch/view.tt
 # html/pfappserver/root/configuration/wrix/view.tt
@@ -578,7 +597,7 @@ msgstr ""
 # conf/documentation.conf (trapping.whitelist)
 msgid ""
   "Comma-delimited list of MAC addresses that are immune to isolation. In "
-  "inline Layer 2 enforcement, the firewall is opened for them as if they were "
+  "inline Level 2 enforcement, the firewall is opened for them as if they were "
   "registered. This \"feature\" will probably be reworked in the future."
 msgstr ""
 
@@ -866,6 +885,8 @@ msgstr ""
 # html/pfappserver/root/configuration/adminroles/index.tt
 # html/pfappserver/root/configuration/adminroles/list.tt
 # html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/configuration/firewall_sso/index.tt
+# html/pfappserver/root/configuration/firewall_sso/list.tt
 # html/pfappserver/root/configuration/floatingdevice/index.tt
 # html/pfappserver/root/configuration/floatingdevice/list.tt
 # html/pfappserver/root/configuration/switch/index.tt
@@ -893,6 +914,10 @@ msgstr ""
 
 # html/pfappserver/root/soh/index.tt
 msgid "Delete Filter"
+msgstr ""
+
+# html/pfappserver/root/configuration/firewall_sso/index.tt
+msgid "Delete Firewall SSO"
 msgstr ""
 
 # html/pfappserver/root/configuration/floatingdevice/index.tt
@@ -1189,6 +1214,22 @@ msgid "FINGERPRINTS_UPDATE"
 msgstr "Fingerprints - Update"
 
 # pf::admin_roles (Actions)
+msgid "FIREWALL_SSO_CREATE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "FIREWALL_SSO_DELETE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "FIREWALL_SSO_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "FIREWALL_SSO_UPDATE"
+msgstr ""
+
+# pf::admin_roles (Actions)
 msgid "FLOATING_DEVICES_CREATE"
 msgstr "Floating Devices - Create"
 
@@ -1229,6 +1270,15 @@ msgstr ""
 
 # html/pfappserver/root/configuration/fingerprints/simple_search.tt
 msgid "Fingerprints"
+msgstr ""
+
+# html/pfappserver/root/configuration/firewall_sso/view.tt
+msgid "Firewall SSO"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/root/configuration/firewall_sso/list.tt
+msgid "Firewall Type"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
@@ -1302,6 +1352,14 @@ msgstr ""
 msgid ""
   "Hostname of PacketFence system. This is concatenated with the domain"
   "in Apache rewriting rules and therefore must be resolvable by clients."
+msgstr ""
+
+# html/pfappserver/root/configuration/firewall_sso/list.tt
+msgid "Hostname or IP"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+msgid "Hostname or IP Address"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/view.tt
@@ -1656,7 +1714,7 @@ msgstr ""
 msgid "Login"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
 msgid "Logo"
 msgstr ""
 
@@ -1875,6 +1933,10 @@ msgstr ""
 msgid "New Filter"
 msgstr ""
 
+# html/pfappserver/root/configuration/firewall_sso/view.tt
+msgid "New Firewall SSO"
+msgstr ""
+
 # html/pfappserver/root/configuration/floatingdevice/view.tt
 msgid "New Floating Device"
 msgstr ""
@@ -2020,6 +2082,10 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+msgid "Number of Registration Pages"
+msgstr ""
+
 # conf/documentation.conf (vlan.nbtraphandlerthreads)
 msgid "Number of trap handler threads pfsetvlan should start"
 msgstr ""
@@ -2080,6 +2146,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 msgid "Owner"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+msgid "PID"
 msgstr ""
 
 # pf::admin_roles (Actions)
@@ -2226,6 +2296,10 @@ msgstr ""
 msgid "Please specify the gateway."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+msgid "Please specify the hostname or IP of the Firewall"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the maximum DHCP lease time."
 msgstr ""
@@ -2256,7 +2330,12 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/RADIUS.pm
+# html/pfappserver/root/configuration/firewall_sso/list.tt
 msgid "Port"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+msgid "Port of the service"
 msgstr ""
 
 # conf/documentation.conf (ports.soap)
@@ -2280,6 +2359,8 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Portal URL"
 msgstr ""
@@ -2359,10 +2440,6 @@ msgstr ""
 msgid "Profile Name"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Provider_Identifier"
-msgstr "Provider Identifier"
-
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 msgid "Quantity"
 msgstr ""
@@ -2374,6 +2451,10 @@ msgstr ""
 # pf::admin_roles (Actions)
 msgid "REPORTS"
 msgstr "Reports"
+
+# html/pfappserver/root/configuration/firewall_sso/index.tt
+msgid "Really delete this Firewall SSO?"
+msgstr ""
 
 # html/pfappserver/root/configstore/mdm/index.tt
 msgid "Really delete this Mdm entry?"
@@ -2580,6 +2661,14 @@ msgstr ""
 msgid "Role Name"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Role by VLAN"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Role by switch role"
+msgstr ""
+
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "Role mapping by VLAN ID"
 msgstr ""
@@ -2588,6 +2677,7 @@ msgstr ""
 msgid "Role mapping by switch role"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "Roles"
 msgstr ""
@@ -2696,6 +2786,7 @@ msgstr "Switches - Update"
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/configstore/mdm/view.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
+# html/pfappserver/root/configuration/firewall_sso/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
 # html/pfappserver/root/configuration/section.tt
 # html/pfappserver/root/configuration/switch/view.tt
@@ -2740,6 +2831,7 @@ msgstr ""
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/configstore/mdm/view.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
+# html/pfappserver/root/configuration/firewall_sso/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
 # html/pfappserver/root/configuration/switch/view.tt
 # html/pfappserver/root/configuration/wrix/view.tt
@@ -2764,6 +2856,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
 msgid "Scope"
 msgstr ""
 
@@ -2783,6 +2876,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Secret Passphrase"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+msgid "Secret or Key"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
@@ -2924,6 +3021,14 @@ msgstr ""
 
 # conf/documentation.conf (services.snmptrapd)
 msgid "Should snmptrapd be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.snort)
+msgid "Should snort be managed by PacketFence?"
+msgstr ""
+
+# conf/documentation.conf (services.suricata)
+msgid "Should suricata be managed by PacketFence?"
 msgstr ""
 
 # conf/documentation.conf (inline.accounting)
@@ -3156,15 +3261,6 @@ msgstr ""
 msgid "The node will be automatically registered. If the MAC matches an existing node, it will also be modified and registered."
 msgstr ""
 
-# conf/documentation.conf (registration.nbregpages)
-msgid ""
-  "The number of registration pages to show to the user. If higher than"
-  "1, you will have to create the pages "
-  "html/captive-portal/templates/register_2.html"
-  "..."
-  "html/captive-portal/templates/register_<nbregpages>.html"
-msgstr ""
-
 # conf/documentation.conf (billing.authorizenet_posturl)
 msgid "The payment gateway processing URL (Provided by Authorize.net)"
 msgstr ""
@@ -3197,31 +3293,24 @@ msgstr ""
 msgid "The web admin interface will no longer be accessible if you stop this service."
 msgstr ""
 
-# conf/documentation.conf (webservices.pass)
-msgid "The webservices password"
-msgstr ""
-
-# conf/documentation.conf (webservices.user)
-msgid "The webservices user name"
-msgstr ""
-
 # conf/documentation.conf (webservices.host)
 msgid "The webservices host"
 msgstr ""
 
-# conf/documentation.conf (webservices.proto)
-msgid "The webservices protocol"
+# conf/documentation.conf (webservices.pass)
+msgid "The webservices password"
 msgstr ""
 
 # conf/documentation.conf (webservices.port)
 msgid "The webservices port"
 msgstr ""
 
+# conf/documentation.conf (webservices.proto)
+msgid "The webservices proto"
+msgstr ""
 
-# conf/documentation.conf (guests_admin_registration.access_duration_choices)
-msgid ""
-  "These are all the choices offered in the access duration action of an"
-  "authentication source."
+# conf/documentation.conf (webservices.user)
+msgid "The webservices user name"
 msgstr ""
 
 # conf/documentation.conf (captive_portal.network_detection_ip)
@@ -3322,6 +3411,10 @@ msgstr ""
 # html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/interface/list.tt
 msgid "Type"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+msgid "UID type"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
@@ -3585,7 +3678,7 @@ msgstr "WEP Key Size"
 
 # conf/documentation.conf (alerting.wins_server)
 msgid ""
-  "WINS server to  resolve NetBIOS name of administrative workstation to"
+  "WINS server to resolve NetBIOS name of administrative workstation to"
   "IP address."
 msgstr ""
 
@@ -3684,6 +3777,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/users.tt
 msgid "Work phone"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+msgid "You must specify the password or the key"
 msgstr ""
 
 # html/pfappserver/root/configurator/networks.tt
@@ -3986,6 +4083,8 @@ msgstr ""
 # conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (services.snmptrapd options)
+# conf/documentation.conf (services.snort options)
+# conf/documentation.conf (services.suricata options)
 # conf/documentation.conf (servicewatch.email options)
 # conf/documentation.conf (servicewatch.restart options)
 # conf/documentation.conf (trapping.detection options)
@@ -4052,6 +4151,8 @@ msgstr "Send email"
 # conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (services.snmptrapd options)
+# conf/documentation.conf (services.snort options)
+# conf/documentation.conf (services.suricata options)
 # conf/documentation.conf (servicewatch.email options)
 # conf/documentation.conf (servicewatch.restart options)
 # conf/documentation.conf (trapping.detection options)
@@ -4490,6 +4591,11 @@ msgstr "Admin"
 msgid "ports.soap"
 msgstr ""
 
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "postOfficeBox"
+msgstr ""
+
 # pf::Switch::constants (Modes)
 msgid "production"
 msgstr "Production"
@@ -4548,10 +4654,6 @@ msgstr "Device registration"
 # conf/documentation.conf
 msgid "registration.device_registration_role"
 msgstr "Device registration role"
-
-# conf/documentation.conf
-msgid "registration.nbregpages"
-msgstr "Number of registration pages"
 
 # conf/documentation.conf
 msgid "registration.range"
@@ -4647,14 +4749,6 @@ msgid "services.dhcpd"
 msgstr "dhcpd"
 
 # conf/documentation.conf
-msgid "services.snort"
-msgstr "snort"
-
-# conf/documentation.conf
-msgid "services.suricata"
-msgstr "suricata"
-
-# conf/documentation.conf
 msgid "services.dhcpd_binary"
 msgstr "dhcpd path"
 
@@ -4743,8 +4837,16 @@ msgid "services.snmptrapd_binary"
 msgstr "snmptrapd path"
 
 # conf/documentation.conf
+msgid "services.snort"
+msgstr "snort"
+
+# conf/documentation.conf
 msgid "services.snort_binary"
 msgstr "snort path"
+
+# conf/documentation.conf
+msgid "services.suricata"
+msgstr "suricata"
 
 # conf/documentation.conf
 msgid "services.suricata_binary"
@@ -4975,24 +5077,24 @@ msgid "webservices"
 msgstr "Webservices"
 
 # conf/documentation.conf
+msgid "webservices.host"
+msgstr "Host"
+
+# conf/documentation.conf
 msgid "webservices.pass"
 msgstr "Password"
 
 # conf/documentation.conf
-msgid "webservices.user"
-msgstr "Username"
-
-# conf/documentation.conf
-msgid "webservices.host"
-msgstr "Host"
+msgid "webservices.port"
+msgstr "Port"
 
 # conf/documentation.conf
 msgid "webservices.proto"
 msgstr "Protocol"
 
 # conf/documentation.conf
-msgid "webservices.port"
-msgstr "Port"
+msgid "webservices.user"
+msgstr "Username"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "weeks"
