@@ -196,6 +196,9 @@ function initCreatePage(element) {
     saveBtn.off("click");
     saveBtn.click(function(event) {
         var valid = isFormValid(form);
+        if(!valid) {
+            $("body,html").animate({scrollTop:0}, 'fast');
+        }
         return valid;
     });
 
