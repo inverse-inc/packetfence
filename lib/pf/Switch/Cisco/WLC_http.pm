@@ -179,7 +179,7 @@ sub returnRadiusAccessAccept {
                 'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}"],
             };
         }
-        $logger->info("Returning ACCEPT with Role: $role");
+        $logger->info("[$this->{'_ip'}] Returning ACCEPT with role: $role");
     }
 
 
@@ -193,7 +193,7 @@ sub returnRadiusAccessAccept {
             'Tunnel-Private-Group-ID' => $vlan,
         };
 
-        $logger->info("Returning ACCEPT with VLAN: $vlan");
+        $logger->info("[$this->{'_ip'}] Returning ACCEPT with VLAN: $vlan");
     }
 
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];

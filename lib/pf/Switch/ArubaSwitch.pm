@@ -232,12 +232,12 @@ sub radiusDisconnect {
 
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
-            "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+            "[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: RADIUS Shared Secret not configured"
         );
         return;
     }
 
-    $logger->info("deauthenticating $mac");
+    $logger->info("[$self->{'_ip'}] Deauthenticating $mac");
 
     # Where should we send the RADIUS CoA-Request?
     # to network device by default
@@ -254,7 +254,7 @@ sub radiusDisconnect {
             LocalAddr => $management_network->tag('vip'),
         };
 
-        $logger->debug("network device supports roles. Evaluating role to be returned");
+        $logger->debug("[$self->{'_ip'}] Network device supports roles. Evaluating role to be returned.");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
@@ -281,7 +281,7 @@ sub radiusDisconnect {
                 %$attributes_ref,
                 'Filter-Id' => $role,
             };
-            $logger->info("Returning ACCEPT with Role: $role");
+            $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
             $response = perform_coa($connection_info, $attributes_ref);
 
         }
@@ -290,15 +290,15 @@ sub radiusDisconnect {
         }
     } catch {
         chomp;
-        $logger->warn("Unable to perform RADIUS CoA-Request: $_");
-        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+        $logger->warn("[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: $_");
+        $logger->error("[$self->{'_ip'}] Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
 
     return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
 
     $logger->warn(
-        "Unable to perform RADIUS Disconnect-Request."
+        "[$self->{'_ip'}] Unable to perform RADIUS Disconnect-Request."
         . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
         . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
     );
@@ -313,7 +313,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 

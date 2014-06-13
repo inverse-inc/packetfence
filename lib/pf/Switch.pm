@@ -2746,22 +2746,22 @@ sub returnRadiusAccessAccept {
     }
 
     if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-        $logger->debug("network device supports roles. Evaluating role to be returned");
+        $logger->debug("[$self->{'_id'}] Network device supports roles. Evaluating role to be returned");
         if ( defined($user_role) && $user_role ne "" ) {
             $role = $self->getRoleByName($user_role);
         }
         if ( defined($role) && $role ne "" ) {
             $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
             $logger->info(
-                "Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
+                "[$self->{'_id'}] Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
             );
         }
         else {
-            $logger->debug("received undefined role. No Role added to RADIUS Access-Accept");
+            $logger->debug("[$self->{'_id'}] Received undefined role. No Role added to RADIUS Access-Accept");
         }
     }
 
-    $logger->info("Returning ACCEPT with VLAN: $vlan and ROLE $role");
+    $logger->info("[$self->{'_id'}] Returning ACCEPT with VLAN $vlan and role $role");
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
@@ -2982,7 +2982,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 

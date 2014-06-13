@@ -21,9 +21,9 @@ Make sure you run the following to update your schema:
 Configuration changes
 ^^^^^^^^^^^^^^^^^^^^^
 
-The parameters `VlanMap` and `RoleMap` have been added in `switches.conf` be sure to add them in the [default] switch section.
+The parameters `VlanMap` and `RoleMap` have been added in `switches.conf`; be sure to add them in the [default] switch section.
 
-Once the configuration completed, update the file /usr/local/pf/conf/currently-at to match the new release number.
+Once the configuration is completed, update the file /usr/local/pf/conf/currently-at to match the new release number.
 
 Upgrading from a version prior to 4.2.0
 ---------------------------------------

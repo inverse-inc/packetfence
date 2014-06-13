@@ -66,13 +66,13 @@ has_field 'deauthMethod' =>
 has_field 'VlanMap' =>
   (
    type => 'Toggle',
-   label => 'Role by VLAN',
+   label => 'Role by VLAN ID',
   );
 
 has_field 'RoleMap' =>
   (
    type => 'Toggle',
-   label => 'Role by switch role',
+   label => 'Role by Switch Role',
   );
 has_field 'VoIPEnabled' =>
   (
@@ -222,7 +222,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode deauthMethod VlanMap RoleMap VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
+   render_list => [ qw(description type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
   );
 has_field 'SNMPVersion' =>
   (
