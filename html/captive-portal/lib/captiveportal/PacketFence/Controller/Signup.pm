@@ -515,7 +515,7 @@ sub validateBySponsorSource : Private {
         if (!defined $value) {
             # sponsor check did not pass 
             $self->validationError( $c,
-                $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST,
+                $GUEST::ERROR_SPONSOR_NOT_ALLOWED,
                 $sponsor_email );
             $c->detach();
         }
