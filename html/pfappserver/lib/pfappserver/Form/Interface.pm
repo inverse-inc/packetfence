@@ -53,7 +53,8 @@ has_field 'fake_mac_enabled' =>
   (
    type => 'Toggle',
    checkbox_value => 1,
-   default => 1,
+   unchecked_value => 0,
+   default => 0,
    label => 'Fake MAC Address',
    );
 
