@@ -1210,7 +1210,7 @@ sub postPfStartService {
     my $noServicesAreRunning = all {$_->status eq '0'} @$managers;
     my $technique;
     configreload('hard') if $noServicesAreRunning;
-    if (isenabled($Config{services}{iptables})) {
+    if ( -e $pf_config_file && isenabled($Config{services}{iptables})) {
         if ($noServicesAreRunning) {
             $technique = getIptablesTechnique();
             $technique->iptables_save($install_dir . '/var/iptables.bak');
@@ -1225,7 +1225,7 @@ sub startService {
     my @managers = getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
-    postPfStartService(\@managers) if  $service eq 'pf';
+    postPfStartService(\@managers) if $service eq 'pf';
 
     my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup } @managers;
 
