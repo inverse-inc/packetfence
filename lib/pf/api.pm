@@ -14,14 +14,14 @@ pf::api
 use strict;
 use warnings;
 
-use pf::config;
+use pf::config();
 use pf::iplog();
 use pf::log();
 use pf::radius::custom();
 use pf::violation();
 use pf::soh::custom();
 use pf::util();
-use pf::node;
+use pf::node();
 use pf::locationlog();
 use pf::ipset();
 
@@ -105,11 +105,11 @@ sub unreg_node_for_pid {
     my ($class, $pid) = @_;
 
     my $logger = pf::log::get_logger();
-    my @node_infos =  node_view_reg_pid($pid->{'pid'});
+    my @node_infos =  pf::node::node_view_reg_pid($pid->{'pid'});
     $logger->info("Unregistering ".scalar(@node_infos)." nodes for $pid");
 
     foreach my $node_info ( @node_infos ) {
-        node_deregister($node_info->{'mac'});
+        pf::node::node_deregister($node_info->{'mac'});
     }
 
     return 1;
@@ -168,9 +168,9 @@ sub firewallsso {
     my ($class, $info) = @_;
     my $logger = pf::log::get_logger();
 
-    foreach my $firewall_conf ( sort keys %ConfigFirewallSSO ) {
-        my $module_name = 'pf::firewallsso::'.$ConfigFirewallSSO{$firewall_conf}->{'type'};
-        $module_name = untaint_chain($module_name);
+    foreach my $firewall_conf ( sort keys %pf::config::ConfigFirewallSSO ) {
+        my $module_name = 'pf::firewallsso::'.$pf::config::ConfigFirewallSSO{$firewall_conf}->{'type'};
+        $module_name = pf::util::untaint_chain($module_name);
         # load the module to instantiate
         if ( !(eval "$module_name->require()" ) ) {
             $logger->error("Can not load perl module: $@");
@@ -179,7 +179,7 @@ sub firewallsso {
         my $firewall = $module_name->new();
         $firewall->action($firewall_conf,$info->{'method'},$info->{'mac'},$info->{'ip'},$info->{'timeout'});
     }
-    return $TRUE;
+    return $pf::config::TRUE;
 }
 
 =head1 AUTHOR
