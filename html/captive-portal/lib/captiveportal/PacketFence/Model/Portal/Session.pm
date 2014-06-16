@@ -88,12 +88,12 @@ sub ACCEPT_CONTEXT {
     my $destination_url;
     $destination_url = $request->param('destination_url') if defined($request->param('destination_url'));
 
-    my $code = $1 if ($r->uri =~ /$WEB::URL_EMAIL_ACTIVATION_LINK\/(.*)/);
     if( $r->isa('Apache2::Request') &&  defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
             'last_uri' => $last_uri,
         };
-    } elsif (defined($code)) {
+    } elsif ( $c->controller->isa('captiveportal::Controller::Activate::Email') && $c->action->name eq 'code' ) {
+        my $code = $c->request->arguments->[0];
         my $data = view_by_code("1:".$code);
         $options = {
             'portal' => $data->{portal},
