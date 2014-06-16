@@ -22,16 +22,18 @@ our @MODULES = __PACKAGE__->modules;
 
 sub factory_for { 'pf::provisioner' }
 
+sub configStoreClass { 'pf::ConfigStore::Provisioning' }
+
 sub new {
     my ($class,$name) = @_;
-    my $provisioner;
-    my $configStore = pf::ConfigStore::Provisioning->new;
+    my $object;
+    my $configStore = $class->configStoreClass->new;
     my $data = $configStore->read($name,'id');
     if ($data) {
         my $subclass = $class->getModuleName($name,$data);
-        $provisioner = $subclass->new($data);
+        $object = $subclass->new($data);
     }
-    return $provisioner;
+    return $object;
 }
 
 sub getModuleName {
