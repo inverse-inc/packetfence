@@ -202,7 +202,7 @@ function initCreatePage(element) {
         return valid;
     });
 
-    var modal = $('#saveProfile');
+    var modal = $('#createProfile');
     var confirmationBtn = modal.find('.btn-primary').first();
     confirmationBtn.off("click");
     confirmationBtn.click(function(event) {
