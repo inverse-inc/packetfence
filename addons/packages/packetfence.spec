@@ -733,6 +733,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.mo
 %config(noreplace)      /usr/local/pf/conf/log.conf
+%dir                    /usr/local/pf/conf/log.conf.d
 %config(noreplace)      /usr/local/pf/conf/log.conf.d/*.conf
                         /usr/local/pf/conf/log.conf.d/*.example
 %dir                    /usr/local/pf/conf/nessus
