@@ -12,6 +12,8 @@ use pf::iplog qw(iplog_open);
 use pf::Portal::ProfileFactory;
 use File::Spec::Functions qw(catdir);
 use Apache2::RequestRec;
+use URI::Escape qw(uri_escape uri_unescape);
+use HTML::Entities;
 
 =head1 NAME
 
@@ -64,6 +66,10 @@ has redirectURL => (
     is       => 'rw',
 );
 
+has destination_url => (
+    is       => 'rw',
+);
+
 has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
 
 sub ACCEPT_CONTEXT {
@@ -78,6 +84,9 @@ sub ACCEPT_CONTEXT {
     my $redirectURL;
     my $uri = $request->uri;
     my $options;
+    my $destination_url;
+    $destination_url = $request->param('destination_url') if defined($request->param('destination_url'));
+
     if( defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
             'last_uri' => $last_uri,
@@ -88,22 +97,22 @@ sub ACCEPT_CONTEXT {
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
         options       => $options,
+        destination_url => $destination_url,
         @args,
     );
     $c->session->{$class} = $model;
     return $model;
 }
-
 sub _build_destinationUrl {
     my ($self) = @_;
 
     # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
-    if (!defined($self->cgi->param("destination_url")) || $self->profile->forceRedirectURL) {
-        return $self->getProfile->getRedirectURL;
+    if (!defined($self->destination_url) || isenabled($self->profile->forceRedirectURL)) {
+        return $self->profile->getRedirectURL;
     }
 
     # Respect the user's initial destination URL
-    return $self->{'_destination_url'} || decode_entities(uri_unescape($self->cgi->param("destination_url")));
+    return decode_entities(uri_unescape($self->destination_url));
 }
 
 sub _build_clientIp {
