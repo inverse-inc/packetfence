@@ -247,6 +247,9 @@ sub accounting {
 
     if ($isStop || $isUpdate) {
         my($switch_mac, $switch_ip,$source_ip) = $this->_parseRequest($radius_request);
+        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+        my $connection_type = $switch->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
+        $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port); 
 
         $logger->debug("instantiating switch");
         my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
@@ -266,7 +269,6 @@ sub accounting {
         }
 
         # On accounting stop/update, check the usage duration of the node
-        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
         if ($mac && $user_name) {
             my $session_time = int $radius_request->{'Acct-Session-Time'};
             if ($session_time > 0) {
