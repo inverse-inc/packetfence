@@ -46,7 +46,7 @@ Enhancements
 * Merge pf::email_activation and pf::sms_activation to pf::activation
 * Removed unused table switchlocation
 * Deauthentication and firewall enforcement can now be done throught the web API
-* Added support to configure high-availability from withing the configurator/webadmin
+* Added support to configure high-availability from within the configurator/webadmin
 * Changed the way we're handling DNS blackholing when unregistered in inline enforcement mode (using DNAT rather than REDIRECT)
 * Now handling rogue DHCP servers based both on the server IP and server MAC address
 
