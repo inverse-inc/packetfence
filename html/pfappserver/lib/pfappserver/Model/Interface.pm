@@ -419,7 +419,7 @@ sub getType {
 
 sub setType {
     my ($self, $interface, $interface_ref) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger;
     my $models = $self->{models};
 
     my $type = $interface_ref->{type} || 'none';
