@@ -265,8 +265,8 @@ sub new {
         '_ip'                       => undef,
         '_portalURL'                => undef,
         '_switchMac'                => undef,
-        '_VlanMap'                  => undef,
-        '_RoleMap'                  => undef,
+        '_VlanMap'                  => 'enabled',
+        '_RoleMap'                  => 'enabled',
     }, $class;
 
     foreach ( keys %argv ) {
