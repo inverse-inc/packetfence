@@ -45,7 +45,6 @@ __PACKAGE__->config(
         'index' => { model => "Config::Profile", form => 'Portal'},
     },
     action => {
-        object => { Chained => '/', PathPart => 'portal/profile', CaptureArgs => 1 },
         # Configure access rights
         view   => { AdminRole => 'PORTAL_PROFILES_READ' },
         list   => { AdminRole => 'PORTAL_PROFILES_READ' },
@@ -56,6 +55,19 @@ __PACKAGE__->config(
 );
 
 =head1 METHODS
+
+=head2 object
+
+Portal Profile chained dispatcher
+
+/portal/profile/*
+
+=cut
+
+sub object :Chained('/') :PathPart('portal/profile') :CaptureArgs(1) {
+    my ($self, $c, $id) = @_;
+    $self->_setup_object($c, $id);
+}
 
 =head2 index
 
