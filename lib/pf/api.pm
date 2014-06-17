@@ -106,7 +106,7 @@ sub unreg_node_for_pid {
 
     my $logger = pf::log::get_logger();
     my @node_infos =  pf::node::node_view_reg_pid($pid->{'pid'});
-    $logger->info("Unregistering ".scalar(@node_infos)." nodes for $pid");
+    $logger->info("Unregistering ".scalar(@node_infos)." node(s) for $pid");
 
     foreach my $node_info ( @node_infos ) {
         pf::node::node_deregister($node_info->{'mac'});
