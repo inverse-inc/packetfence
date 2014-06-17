@@ -61,7 +61,7 @@ XML
             my $ua = LWP::UserAgent->new;
             my $response = $ua->post($webpage, Content => [ cmd => $message ]);
             if ($response->is_success) {
-                $logger->debug("Node registered and allowed to pass the Firewall");
+                $logger->info("Node $mac registered and allowed to pass the Firewall");
                 return 1;
             } else {
                 $logger->error("XML send error :".$response->status_line);
@@ -90,7 +90,7 @@ XML
             my $ua = LWP::UserAgent->new;
             my $response = $ua->post($webpage, Content => [ cmd => $message ]);
             if ($response->is_success) {
-                $logger->debug("Node removed from the firewall");
+                $logger->debug("Node $mac removed from the firewall");
                 return 1;
             } else {
                 $logger->error("XML send error :".$response->status_line);
