@@ -14,6 +14,7 @@ pf::api
 use strict;
 use warnings;
 
+use base qw(pf::api::attributes);
 use pf::config();
 use pf::iplog();
 use pf::log();
@@ -25,7 +26,7 @@ use pf::node();
 use pf::locationlog();
 use pf::ipset();
 
-sub event_add {
+sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
     my $logger = pf::log::get_logger();
     $logger->info("violation: $id - IP $srcip");
@@ -44,12 +45,12 @@ sub event_add {
     return (1);
 }
 
-sub echo {
+sub echo : Public {
     my ($class, @args) = @_;
     return @args;
 }
 
-sub radius_authorize {
+sub radius_authorize : Public {
     my ($class, %radius_request) = @_;
     my $logger = pf::log::get_logger();
 
@@ -64,7 +65,7 @@ sub radius_authorize {
     return $return;
 }
 
-sub radius_accounting {
+sub radius_accounting : Public {
     my ($class, %radius_request) = @_;
     my $logger = pf::log::get_logger();
 
@@ -79,7 +80,7 @@ sub radius_accounting {
     return $return;
 }
 
-sub soh_authorize {
+sub soh_authorize : Public {
     my ($class, %radius_request) = @_;
     my $logger = pf::log::get_logger();
 
@@ -94,14 +95,14 @@ sub soh_authorize {
     return $return;
 }
 
-sub update_iplog {
+sub update_iplog : Public {
     my ( $class, $srcmac, $srcip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
     return (pf::iplog::iplog_update($srcmac, $srcip, $lease_length));
 }
  
-sub unreg_node_for_pid {
+sub unreg_node_for_pid : Public {
     my ($class, $pid) = @_;
 
     my $logger = pf::log::get_logger();
@@ -115,56 +116,56 @@ sub unreg_node_for_pid {
     return 1;
 }
 
-sub synchronize_locationlog {
+sub synchronize_locationlog : Public {
     my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid ) = @_;
     my $logger = pf::log::get_logger();
 
     return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid));
 }
 
-sub insert_close_locationlog {
+sub insert_close_locationlog : Public {
     my ($class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid);
     my $logger = pf::log::get_logger();
 
     return(pf::locationlog::locationlog_insert_closed($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid));
 }
 
-sub open_iplog {
+sub open_iplog : Public {
     my ( $class, $mac, $ip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
     return (pf::iplog::iplog_open($mac, $ip, $lease_length));
 }
 
-sub close_iplog {
+sub close_iplog : Public {
     my ( $class, $ip ) = @_;
     my $logger = pf::log::get_logger();
 
     return (pf::iplog::iplog_close($ip));
 }
 
-sub close_now_iplog {
+sub close_now_iplog : Public {
     my ( $class, $ip ) = @_;
     my $logger = pf::log::get_logger();
 
     return (pf::iplog::iplog_close_now($ip));
 }
 
-sub trigger_violation {
+sub trigger_violation : Public {
     my ( $class, $mac, $tid, $type ) = @_;
     my $logger = pf::log::get_logger();
 
     return (pf::violation::violation_trigger($mac, $tid, $type));
 }
 
-sub ipset_node_update {
+sub ipset_node_update : Public {
     my ( $class, $oldip, $srcip, $srcmac ) = @_;
     my $logger = pf::log::get_logger();
 
     return(pf::ipset::update_node($oldip, $srcip, $srcmac));
 }
 
-sub firewallsso {
+sub firewallsso : Public {
     my ($class, $info) = @_;
     my $logger = pf::log::get_logger();
 
