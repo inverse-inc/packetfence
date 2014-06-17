@@ -192,7 +192,7 @@ sub node_db_prepare {
         WHERE node.mac=?
     SQL
 
-    $node_statements->{'node_view_reg_pid_sql'} = get_db_handle()->prepare(<<'    SQL');
+    $node_statements->{'node_view_reg_pid_sql'} = get_db_handle()->prepare(<<"    SQL");
         SELECT node.mac
         FROM node
         WHERE node.pid=? AND node.status="$STATUS_REGISTERED";
