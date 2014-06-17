@@ -221,6 +221,7 @@ and phy.vlan (eth0.100) if there's a vlan interface.
 
 sub get {
     my ( $self, $interface) = @_;
+    my $logger = get_logger;
     my $models = $self->{models};
 
     # Put requested interfaces into an array
@@ -230,23 +231,20 @@ sub get {
 
     my $result = {};
     my ($status, $return, $config);
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     foreach my $interface_ref ( @interfaces ) {
         next if ( $interface_ref->{name} eq "lo" );
-
-        $interface                              = $interface_ref->{name};
+        $interface = $interface_ref->{name};
         ($status,$config) = $interface_model->read($interface);
         $config = {} unless is_success($status);
-        $result->{"$interface"}                 = $interface_ref;
-        $result->{"$interface"}->{'high_availability'} = defined $config->{type} &&  $config->{type} =~ /high-availability/ ? 1 : 0;
-        if ((my ($physical_device, $vlan_id)    = $self->_interfaceVirtual($interface))) {
-          $result->{"$interface"}->{'name'}     = $physical_device;
-          $result->{"$interface"}->{'vlan'}     = $vlan_id;
+        $result->{"$interface"} = $interface_ref;
+        $result->{"$interface"}->{'high_availability'} = defined $config->{type} &&  $config->{type} =~ /high-availability/ ? $TRUE : $FALSE;
+        if ((my ($physical_device, $vlan_id) = $self->_interfaceVirtual($interface))) {
+          $result->{"$interface"}->{'name'} = $physical_device;
+          $result->{"$interface"}->{'vlan'} = $vlan_id;
         }
-        $result->{"$interface"}->{'vip'}     = $config->{vip};
+        $result->{"$interface"}->{'vip'} = $config->{vip};
         if (($result->{"$interface"}->{'network'} = $networks_model->getNetworkAddress($interface_ref->{ipaddress}, $interface_ref->{netmask}))) {
-            ($status, $return) = $networks_model->getRoutedNetworks($result->{"$interface"}->{'network'},
-                                                                           $interface_ref->{netmask});
+            ($status, $return) = $networks_model->getRoutedNetworks($result->{"$interface"}->{'network'}, $interface_ref->{netmask});
             if (is_success($status)) {
                 $result->{"$interface"}->{'networks'} = $return;
             }
@@ -484,7 +482,7 @@ sub setType {
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
         }
     }
-    $logger->trace("Commiting  changes to $interface interface");
+    $logger->trace("Committing changes to $interface interface");
     $models->{network}->commit();
     $models->{interface}->commit();
 }
