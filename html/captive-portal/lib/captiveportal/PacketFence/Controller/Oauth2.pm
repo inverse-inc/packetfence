@@ -123,6 +123,7 @@ sub oauth2Result : Path : Args(1) {
     my ($self, $c, $provider) = @_;
     my $logger        = $c->log;
     my $portalSession = $c->portalSession;
+    my $session       = $c->session;
     my $profile       = $portalSession->profile;
     my $request       = $c->request;
     my %info;
@@ -225,7 +226,12 @@ sub oauth2Result : Path : Args(1) {
         $info{'category'} =
           &pf::authentication::match( $source->{id}, { username => $pid },
             $Actions::SET_ROLE );
-        $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %info]);
+
+        $c->session->{"username"} = $pid;
+        $c->session->{source_id} = $source->{id};
+        $c->stash->{info}=\%info; 
+        $c->forward('Authenticate' => 'postAuthentication');
+        $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
         $c->forward('CaptivePortal' => 'endPortalSession');
     } else {
         $logger->error(
