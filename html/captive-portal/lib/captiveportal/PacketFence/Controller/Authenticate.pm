@@ -294,8 +294,13 @@ sub authenticationLogin : Private {
     if ($local) {
         @sources = pf::authentication::getAuthenticationSource('local');
     } else {
-        @sources =
-            ( $profile->getInternalSources, $profile->getExclusiveSources );
+        #If we try to validate a sponsor access then use all Internal Sources
+        if ($request->{'match'} =~ "activate/email") {
+            @sources = pf::authentication::getInternalAuthenticationSources();
+        } else {
+            @sources =
+                ( $profile->getInternalSources, $profile->getExclusiveSources );
+        }
     }
 
     my $username = $request->param("username");
