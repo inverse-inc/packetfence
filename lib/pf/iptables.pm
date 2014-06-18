@@ -172,7 +172,7 @@ sub generate_filter_if_src_to_chain {
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
         my $dev = $interface->tag("int");
-        my $ip = $interface->tag("ip");
+        my $ip = $interface->tag("vip") || $interface->tag("ip");
         my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
 
         # VLAN enforcement
