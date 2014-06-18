@@ -593,6 +593,7 @@ sub readPfConfigFiles {
 
                     foreach my $type ( split( /\s*,\s*/, $type ) ) {
                         if ( $type eq 'internal' ) {
+                            $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
                             push @internal_nets, $int_obj;
                             if ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
                                 push @vlan_enforcement_nets, $int_obj;
