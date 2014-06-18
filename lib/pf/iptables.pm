@@ -437,13 +437,13 @@ sub generate_nat_redirect_rules {
             if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
                 $rules .=
                     "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " .
-                    "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $ConfigNetworks{$network}{'gateway'}";
+                    "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
             }
 
             # Destination NAT to the portal on the ISOLATION mark
             $rules .=
                 "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " .
-                "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $ConfigNetworks{$network}{'gateway'}";
+                "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
         }
 
     }
