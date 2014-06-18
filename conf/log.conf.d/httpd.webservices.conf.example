@@ -1,13 +1,16 @@
-### httpd.admin logger ###
+### httpd.webservices logger ###
 log4perl.rootLogger = INFO, HTTPD_WEBSERVICES
 
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
 #log4perl.category.pf.SNMP = WARN
 
-### Logging for httpd.admin
+### Logging for httpd.webservices
 log4perl.appender.HTTPD_WEBSERVICES                              = Log::Log4perl::Appender::File
+# Replace /usr/local/pf/logs/packetfence.log by /usr/local/pf/logs/httpd.webservices.log to allow
+# httpd.webservices to log in its own log file.
 log4perl.appender.HTTPD_WEBSERVICES.filename                     = /usr/local/pf/logs/packetfence.log
+log4perl.appender.HTTPD_WEBSERVICES.syswrite                     = 1
 log4perl.appender.HTTPD_WEBSERVICES.mode                         = append
 log4perl.appender.HTTPD_WEBSERVICES.layout                       = PatternLayout
 log4perl.appender.HTTPD_WEBSERVICES.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
