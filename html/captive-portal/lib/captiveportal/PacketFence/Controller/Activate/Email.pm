@@ -137,40 +137,24 @@ sub doEmailRegistration : Private {
 
         # if we have a MAC, guest was on-site and we need to proceed with registration
         if ( defined($node_mac) && valid_mac($node_mac) ) {
-
-            # Setting access timeout and role (category) dynamically
-            my $expiration =
-              &pf::authentication::match( $source->{id},
-                $auth_params, $Actions::SET_ACCESS_DURATION );
-
-            if ( defined $expiration ) {
-                $expiration = pf::config::access_duration($expiration);
-            } else {
-                $expiration =
-                  &pf::authentication::match( $source->{id},
-                    $auth_params, $Actions::SET_UNREG_DATE );
-            }
-
-            my $category =
-              &pf::authentication::match( $source->{id},
-                $auth_params, $Actions::SET_ROLE );
-
-            $logger->debug(
-                "Determined unregdate $expiration and category $category for email $email"
-            );
+            my %info;
+            $c->session->{"username"} = $pid;
+            $c->session->{source_id} = $source->{id};
+            $c->stash->{info}=\%info; 
+            $c->forward('Authenticate' => 'postAuthentication');
 
             # change the unregdate of the node associated with the submitted code
             # FIXME
             node_modify(
                 $node_mac,
-                (   'unregdate' => $expiration,
+                (   'unregdate' => $c->stash->{info}->{unregdate},
                     'status'    => 'reg',
-                    'category'  => $category,
+                    'category'  => $c->stash->{info}->{category},
                 )
             );
             $c->stash(
                 template   => $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE,
-                expiration => $expiration
+                expiration => $c->stash->{info}{unregdate} 
             );
         } else {
 
@@ -304,7 +288,12 @@ sub doSponsorRegistration : Private {
 
             # register the node
             %info = %{$node_info};
-            $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
+
+            $c->session->{"username"} = $pid;
+            $c->session->{source_id} = $source->{id};
+            $c->stash->{info}=\%info; 
+            $c->forward('Authenticate' => 'postAuthentication');
+            $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
             # populating variables used to send email
             $template =

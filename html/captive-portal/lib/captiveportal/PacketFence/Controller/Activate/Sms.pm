@@ -78,7 +78,11 @@ sub index : Path : Args(0) {
               &pf::authentication::match( $source->{id}, $auth_params,
                 $Actions::SET_ROLE );
 
-            $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
+            $c->session->{"username"} = $pid;
+            $c->session->{source_id} = $source->{id};
+            $c->stash->{info}=\%info; 
+            $c->forward('Authenticate' => 'postAuthentication');
+            $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
             # clear state that redirects to the Enter PIN page
             $c->session->{guest_pid} = undef;
