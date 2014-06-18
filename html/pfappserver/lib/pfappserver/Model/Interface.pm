@@ -469,9 +469,9 @@ sub setType {
             }
             $network_ref->{type} = $type;
             $network_ref->{netmask} = $interface_ref->{'netmask'};
-            $network_ref->{gateway} = $interface_ref->{'ipaddress'};
+            $network_ref->{gateway} = $interface_ref->{'vip'} || $interface_ref->{'ipaddress'};
             if($is_vlan) {
-                $network_ref->{dns} = $interface_ref->{'ipaddress'};
+                $network_ref->{dns} = $interface_ref->{'vip'} || $interface_ref->{'ipaddress'};
             } else {
                 $network_ref->{dns} = $interface_ref->{'dns'};
             }
