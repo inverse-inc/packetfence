@@ -45,6 +45,7 @@ Enhancements
 * On status page check the portal associated to the user and authenticate on the sources included in the portal profile
 * Merge pf::email_activation and pf::sms_activation to pf::activation
 * Removed unused table switchlocation
+* Deauthentication and firewall enforcement can now be done throught the web API
 
 Bug Fixes
 +++++++++
