@@ -80,7 +80,7 @@ sub ACCEPT_CONTEXT {
     my $r = $request->{'env'}->{'psgi.input'};
     return $model if (defined($model) && !($r->pnotes('last_uri')) );
     my $remoteAddress = $request->address;
-    my $forwardedFor  = $request->header('HTTP_X_FORWARDED_FOR');
+    my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
     my $redirectURL;
     my $uri = $request->uri;
     my $options;
