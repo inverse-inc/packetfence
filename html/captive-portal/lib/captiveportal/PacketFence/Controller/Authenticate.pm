@@ -210,12 +210,14 @@ sub postAuthentication : Private {
     my $value =
       &pf::authentication::match( $source_id, $params, $Actions::SET_ROLE );
 
-    $logger->trace("Got role '$value' for username $pid");
-
     # This appends the hashes to one another. values returned by authenticator wins on key collision
     if ( defined $value ) {
+        $logger->trace("Got role '$value' for username $pid");
         $info->{category} = $value;
+    } else {
+        $logger->trace("Got no role for username $pid");
     }
+
 
     # If an access duration is defined, use it to compute the unregistration date;
     # otherwise, use the unregdate when defined.
