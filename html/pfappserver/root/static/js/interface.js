@@ -124,17 +124,26 @@ InterfaceView.prototype.typeChanged = function(e) {
                     vip.show('fast');
                     vip.find(':input').removeAttr('disabled');
                     break;
-                case '':
-                case 'none':
                 case 'management':
                     dhcpd.hide('fast');
                     fake_mac.hide('fast');
                     high_availability.show('fast');
                     high_availability.find(':input').removeAttr('disabled');
-                    vip.hide('fast');
-                    vip.find(':input').attr('disabled','disabled');
                     dns.hide('fast');
                     dns.find(':input').attr('disabled','disabled');
+                    vip.show('fast');
+                    vip.find(':input').removeAttr('disabled');
+                    break;
+                case '':
+                case 'none':
+                    dhcpd.hide('fast');
+                    fake_mac.hide('fast');
+                    high_availability.show('fast');
+                    high_availability.find(':input').removeAttr('disabled');
+                    dns.hide('fast');
+                    dns.find(':input').attr('disabled','disabled');
+                    vip.hide('fast');
+                    vip.find(':input').attr('disabled','disabled');
                     break;
                 case 'other':
                     dhcpd.hide('fast');
