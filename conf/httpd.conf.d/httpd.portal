@@ -224,11 +224,18 @@ if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
 }
 
 foreach my $interface (@internal_nets) {
-    push (@Listen,$interface->{'Tip'}.":80");
-    push (@Listen,$interface->{'Tip'}.":443");
-    push (@NameVirtualHost,$interface->{'Tip'}.":80");
-    push (@NameVirtualHost,$interface->{'Tip'}.":443");
-    push (@{ $VirtualHost{$interface->{'Tip'}.":80"} }, gen_conf(
+    if (defined($interface->{'Tip'}) && $interface->{'Tip'} ne '') {
+        if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
+            $vhost = $interface->{'Tvip'};
+        } else {
+            $vhost = $interface->{'Tip'};
+       }
+    }
+    push (@Listen,$vhost.":80");
+    push (@Listen,$vhost.":443");
+    push (@NameVirtualHost,$vhost.":80");
+    push (@NameVirtualHost,$vhost.":443");
+    push (@{ $VirtualHost{$vhost.":80"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
          ErrorLog     => "${install_dir}/logs/httpd.portal.error",
@@ -275,7 +282,7 @@ foreach my $interface (@internal_nets) {
              },
          },
     ));
-    push (@{ $VirtualHost{$interface->{'Tip'}.":443"} }, gen_conf(
+    push (@{ $VirtualHost{$vhost.":443"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
          ErrorLog     => "${install_dir}/logs/httpd.portal.error",

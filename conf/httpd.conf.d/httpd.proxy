@@ -120,6 +120,7 @@ my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 my @internal_nets = @pf::config::internal_nets;
 my $host;
+my $vhost;
 
 $PidFile = $install_dir.'/var/run/httpd.proxy.pid';
 
@@ -175,9 +176,15 @@ push @{ $VirtualHost{'*:444'} }, gen_conf(
 
 
 foreach my $interface (@internal_nets) {
+    if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
+        $vhost = $interface->{'Tvip'};
+    } else {
+        $vhost = $interface->{'Tip'};
+    }
+
     foreach my $port (split(',',$PfConfig->{'trapping'}{'interception_proxy_port'})) {
-        push (@Listen,$interface->{'Tip'}.":".$port);
-        push @{ $VirtualHost{$interface->{'Tip'}.":".$port} }, gen_conf(
+        push (@Listen,$vhost.":".$port);
+        push @{ $VirtualHost{$vhost.":".$port} }, gen_conf(
              ServerName        => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":".$port,
              PerlOptions       => '+GlobalRequest',
              PerlModule        => 'pf::web::interceptproxy',

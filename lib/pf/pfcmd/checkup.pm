@@ -439,7 +439,7 @@ sub network_inline {
     # inline interfaces should have at least one local gateway
     my $found = 0;
     foreach my $int (@internal_nets) {
-        if ( $Config{ 'interface ' . $int->tag('int') }{'ip'} eq $net{'gateway'} ) {
+        if ( $Config{ 'interface ' . $int->tag('int') }{'ip'} eq $net{'gateway'} || (defined($Config{ 'interface ' . $int->tag('int') }{'vip'}) && $Config{ 'interface ' . $int->tag('int') }{'vip'} eq $net{'gateway'} ) ) {
             $found = 1;
             next;
         }

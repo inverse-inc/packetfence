@@ -29,6 +29,8 @@ use namespace::autoclean;
 use pfappserver::Form::Interface;
 use pfappserver::Form::Interface::Create;
 use pfappserver::Base::Action::AdminRole;
+use pf::config;
+use List::MoreUtils qw(all);
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -101,6 +103,7 @@ sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
         $c->stash->{ifname} = $name;
         $c->stash->{vlan} = $vlan;
     }
+    $c->stash->{high_availability} = scalar @pf::config::ha_ints && all { $interface ne $_ } @pf::config::ha_ints ;
 }
 
 =item create
