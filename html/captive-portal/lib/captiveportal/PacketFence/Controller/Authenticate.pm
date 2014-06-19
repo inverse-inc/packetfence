@@ -298,7 +298,7 @@ sub authenticationLogin : Private {
     } else {
         #If we try to validate a sponsor access then use all Internal Sources
         if ($request->{'match'} =~ "activate/email") {
-            @sources = pf::authentication::getInternalAuthenticationSources();
+            @sources = @{pf::authentication::getInternalAuthenticationSources()};
         } else {
             @sources =
                 ( $profile->getInternalSources, $profile->getExclusiveSources );
