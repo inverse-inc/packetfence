@@ -248,18 +248,6 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-# conf/documentation.conf (registration.range)
-msgid ""
-  "Address ranges/CIDR blocks that PF will force registration on."
-  "Gateway, network, and broadcast addresses are ignored. If this is not"
-  "defined the trapping.range will be used as the registration range."
-  "Comma-delimited entries should be of the form:"
-  " * a.b.c.0/24"
-  " * a.b.c.0-255"
-  " * a.b.c.0-a.b.c.255"
-  " * a.b.c.d"
-msgstr ""
-
 # conf/documentation.conf (trapping.range)
 msgid ""
   "Address ranges/CIDR blocks that PacketFence will monitor/detect/trap"
@@ -4654,10 +4642,6 @@ msgstr "Device registration"
 # conf/documentation.conf
 msgid "registration.device_registration_role"
 msgstr "Device registration role"
-
-# conf/documentation.conf
-msgid "registration.range"
-msgstr "Addresses ranges"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "role_action"

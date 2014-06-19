@@ -165,11 +165,6 @@ interception_proxy_port=8080,3128
 
 [registration]
 #
-# registration.range
-#
-#
-range=
-#
 # registration.button_text
 #
 #
