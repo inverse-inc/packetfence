@@ -114,6 +114,15 @@ InterfaceView.prototype.typeChanged = function(e) {
 
             switch ( type.val() ) {
                 case 'inlinel2': 
+                    dns.show('fast');
+                    fake_mac.hide('fast');
+                    dns.find(':input').removeAttr('disabled');
+                    dhcpd.hide('fast');
+                    high_availability.hide('fast');
+                    high_availability.find(':input').attr('disabled','disabled');
+                    vip.show('fast');
+                    vip.find(':input').removeAttr('disabled');
+                    break;
                 case 'inlinel3':
                     dns.show('fast');
                     fake_mac.show('fast');
@@ -121,8 +130,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     dhcpd.hide('fast');
                     high_availability.hide('fast');
                     high_availability.find(':input').attr('disabled','disabled');
-                    vip.show('fast');
-                    vip.find(':input').removeAttr('disabled');
+                    vip.hide('fast');
+                    vip.find(':input').attr('disabled','disabled');
                     break;
                 case 'management':
                     dhcpd.hide('fast');
