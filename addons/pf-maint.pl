@@ -147,6 +147,7 @@ sub get_url {
     my $request  = HTTP::Request->new( GET => $url ), my $response_body;
     my $ua       = LWP::UserAgent->new;
     $ua->show_progress(1);
+    $ua->env_proxy;
     my $response = $ua->request($request);
     if ( $response->is_success ) {
         $response_body = $response->content;
