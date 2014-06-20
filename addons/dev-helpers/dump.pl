@@ -11,7 +11,7 @@ dump add documentation
 
 =head1 SYNOPSIS
 
-dump.pl <apachefilters|config|doc_config|floatingdevices|firewallsso|profiles_filters|profiles|sources|switch <id>|switches|admin_roles|chiconfig|vlan_filters>
+dump.pl <apachefilters|config|defaultconfig|doc_config|floatingdevices|firewallsso|profiles_filters|profiles|sources|switch <id>|switches|admin_roles|chiconfig|vlan_filters>
 
 =head1 DESCRIPTION
 
@@ -40,6 +40,15 @@ __PACKAGE__->mark_as_loaded();
 sub _run {
     require pf::config;
     print Data::Dumper::Dumper(\%pf::config::Config);
+}
+
+package pf::dump::defaultconfig;
+use base qw(pf::dump::cmd);
+__PACKAGE__->mark_as_loaded();
+
+sub _run {
+    require pf::config;
+    print Data::Dumper::Dumper(\%pf::config::Default_Config);
 }
 
 package pf::dump::doc_config;
