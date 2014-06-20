@@ -103,7 +103,7 @@ form {
                   <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
                 </ul>
                 <div class="tab-pane active well" id="simple">
-                  <form id="simpleSearch" method="POST" name="simpleSearch" class="form-inline" action="[% c.pf_hash_for(c.controller.action_for('search')) %]">
+                  <form id="search" method="POST" name="simpleSearch" class="form-inline" action="[% c.pf_hash_for(c.controller.action_for('search')) %]">
                   <div>[% PROCESS search_options disabled=0 %]</div>
                   <div class="btn-group pull-right">
                     <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
