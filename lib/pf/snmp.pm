@@ -102,16 +102,14 @@ package pf::snmp;
         my ($self,$results) = @_;
         my $oid;
         my $max = int(1000 / 26 / 1);
-        #foreach my $vl (@$results) {
-            foreach my $r (@$results) {
-                $oid = $r->[0].'.'.$r->[1];
-                if ($oid =~ /^$self->{_base_oid}/) {
-                    next if ($r->val eq 'NOSUCHINSTANCE');
-                    next if ($r->val eq 'NOSUCHOBJECT');
-                    $self->{_results}->{$oid} = $r->[2];
-                }
+        foreach my $r (@$results) {
+            $oid = $r->[0].'.'.$r->[1];
+            if ($oid =~ /^$self->{_base_oid}/) {
+                next if ($r->val eq 'NOSUCHINSTANCE');
+                next if ($r->val eq 'NOSUCHOBJECT');
+                $self->{_results}->{$oid} = $r->[2];
             }
-        #}
+        }
         if ( $oid && ($oid =~ /^$self->{_base_oid}/) ) {
             $self->_get_tables_cb($self->sessionRead->bulkwalk(0,$self->{_max_it},[$oid]));
         }
