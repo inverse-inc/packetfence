@@ -44,6 +44,10 @@ var NodeView = function(options) {
 
     this.proxyFor($('body'), 'submit', 'form[name="nodes"]', this.createNode);
 
+    this.proxyFor($('body'), 'submit', 'form[name="simpleNodeSearch"]', this.submitSearch);
+
+    this.proxyFor($('body'), 'submit', 'form[name="advancedNodeSearch"]', this.submitSearch);
+
     this.proxyFor($('body'), 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
 
     this.proxyClick($('body'), '#modalNode [href$="/delete"]', this.deleteNode);
@@ -55,7 +59,7 @@ var NodeView = function(options) {
     this.proxyClick($('body'), '#modalNode #addViolation', this.triggerViolation);
 
     /* Update the advanced search form to the next page or resort the query */
-    this.proxyClick($('body'), 'a[href*="node/search"]',this.advancedSearchUpdater);
+    this.proxyClick($('body'), '.pagination a',this.searchPagination);
 
     this.proxyClick($('body'), '#toggle_all_items', this.toggleAllItems);
 
@@ -314,27 +318,59 @@ NodeView.prototype.triggerViolation = function(e) {
     });
 };
 
-NodeView.prototype.advancedSearchUpdater = function(e) {
+NodeView.prototype.searchPagination = function(e) {
+    var that = this;
     e.preventDefault();
     var link = $(e.currentTarget);
-    var form = $('#search');
+    var pagination = link.closest('.pagination');
+    var formId = pagination.attr('data-from-from') || '#search';
+    var form = $(formId) || $('#search');
     var href = link.attr("href");
     var section = $('#section');
     var status_container = $("#section").find('h2').first();
     var loader = section.prev('.loader');
     loader.show();
     section.fadeTo('fast', 0.5);
-    this.nodes.post({
-        url: href,
-        data: form.serialize(),
-        always: function() {
-            loader.hide();
-            section.stop();
-        },
-        success: function(data) {
-            section.html(data);
-        },
-        errorSibling: status_container
+    section.fadeTo('fast', 0.5, function() {
+        that.nodes.post({
+            url: href,
+            data: form.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                section.html(data);
+            },
+            errorSibling: status_container
+        });
+    });
+    return false;
+};
+
+NodeView.prototype.submitSearch = function(e) {
+    e.preventDefault();
+    var that = this;
+    var form = $(e.currentTarget);
+    var href = form.attr("action");
+    var section = $('#section');
+    $("body,html").animate({scrollTop:0}, 'fast');
+    var status_container = $("#section").find('h2').first();
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5, function() {
+        that.nodes.post({
+            url: href,
+            data: form.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                section.html(data);
+            },
+            errorSibling: status_container
+        });
     });
     return false;
 };

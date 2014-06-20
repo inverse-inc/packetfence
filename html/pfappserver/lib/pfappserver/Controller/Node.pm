@@ -28,7 +28,9 @@ __PACKAGE__->config(
     action_args => {
         '*' => { model => 'Node' },
         advanced_search => { model => 'Search::Node', form => 'AdvancedSearch' },
+        'simple_search' => { model => 'Search::Node', form => 'AdvancedSearch' },
         search => { model => 'Search::Node', form => 'AdvancedSearch' },
+        'index' => { model => 'Search::Node', form => 'AdvancedSearch' },
     }
 );
 
@@ -43,6 +45,7 @@ our %DEFAULT_COLUMNS = map { $_ => 1 } qw/status mac computername pid last_ip dh
 
 sub index :Path :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
+    $c->stash(template => 'node/search.tt', from_form => "#empty");
     $c->go('search');
 }
 
@@ -98,7 +101,20 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
         # Set default visible columns
         $c->session( nodecolumns => \%DEFAULT_COLUMNS );
     }
+    $c->stash->{search_action} = $c->action;
     $c->response->status($status);
+}
+
+=head2 simple_search
+
+Perform an advanced search using the Search::Node model
+
+=cut
+
+sub simple_search :Local :Args() :AdminRole('NODES_READ') {
+    my ($self, $c) = @_;
+    $c->forward('search');
+    $c->stash(template => 'node/search.tt', from_form => "#simpleNodeSearch");
 }
 
 =head2 advanced_search
@@ -108,46 +124,9 @@ Perform an advanced search using the Search::Node model
 =cut
 
 sub advanced_search :Local :Args() :AdminRole('NODES_READ') {
-    my ($self, $c, @args) = @_;
-    my ($status, $status_msg, $result, $violations);
-    my %search_results;
-    my $model = $self->getModel($c);
-    my $form = $self->getForm($c);
-
-    # Store columns in the session
-    my $columns = $c->request->params->{'column'};
-    if ($columns) {
-        $columns = [$columns] if (ref($columns) ne 'ARRAY');
-        my %columns_hash = map { $_ => 1 } @{$columns};
-        my %params = ( 'nodecolumns' => \%columns_hash );
-        $c->session(%params);
-    }
-
-    $form->process(params => $c->request->params);
-    if ($form->has_errors) {
-        $status = HTTP_BAD_REQUEST;
-        $status_msg = $form->field_errors;
-        $c->stash(current_view => 'JSON');
-    }
-    else {
-        my $query = $form->value;
-        $query->{by} = 'mac' unless ($query->{by});
-        $query->{direction} = 'asc' unless ($query->{direction});
-        ($status, $result) = $model->search($query);
-        if (is_success($status)) {
-            $c->stash(form => $form);
-            $c->stash($result);
-        }
-    }
-
-    (undef, $result) = $c->model('Roles')->list();
-    (undef, $violations ) = $c->model('Config::Violations')->readAll();
-    $c->stash(
-        status_msg => $status_msg,
-        roles => $result,
-        violations => $violations,
-    );
-    $c->response->status($status);
+    my ($self, $c) = @_;
+    $c->forward('search');
+    $c->stash(template => 'node/search.tt', from_form => "#advancedSearch");
 }
 
 =head2 create

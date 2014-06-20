@@ -1,5 +1,5 @@
 [% pagination = BLOCK  %]
-    <div class="pagination pagination-right">
+    <div class="pagination pagination-right" data-from-from="[% from_form %]">
       <ul>
         [%-
         IF page_num > 1;
@@ -8,7 +8,7 @@
             page = 1;
         END
         -%]
-      <li [% IF page_num == 1 %] class="disabled" [% END %]  ><a href="[% c.uri_for(c.controller.action_for('search'),page,per_page)  %]">&larr;</a></li>
+      <li [% IF page_num == 1 %] class="disabled" [% END %]  ><a href="[% c.uri_for(search_action,page,per_page)  %]">&larr;</a></li>
       [%- first_page = page_num - 3;
           IF first_page < 1; first_page = 1; END;
           last_page = first_page + 6;
@@ -18,21 +18,21 @@
             IF first_page < 1; first_page = 1; END;
           END -%]
       [%- IF first_page > 1 -%]
-        <li><a href="[% c.uri_for(c.controller.action_for('search'),1,per_page) %] title="Page 1">1</a></li>
+        <li><a href="[% c.uri_for(search_action,1,per_page) %]" title="Page 1">1</a></li>
         <li class="disabled"><a href="#">&hellip;</a></li>
       [%- END -%]
       [% page = first_page; WHILE page <= last_page -%]
-        <li[% IF page == page_num %] class="disabled" [% END %] ><a href="[% c.uri_for(c.controller.action_for('search'),page,per_page)  %]" title="Page [% page %]">[% page %]</a></li>
+        <li[% IF page == page_num %] class="disabled" [% END %] ><a href="[% c.uri_for(search_action,page,per_page)  %]" title="Page [% page %]">[% page %]</a></li>
         [%- page = page + 1 -%]
       [%- END -%]
       [%- IF last_page < pages_count -%]
         <li class="disabled"><a href="#">&hellip;</a></li>
-        <li><a href="[% c.uri_for(c.controller.action_for('search'),pages_count,per_page)  %]" title="Page [% pages_count %]">[% pages_count %]</a></li>
+        <li><a href="[% c.uri_for(search_action,pages_count,per_page)  %]" title="Page [% pages_count %]">[% pages_count %]</a></li>
       [%- END -%]
       [%- IF page_num < page - 1 -%]
         [% page = page_num + 1 %]
       [%- END %]
-        <li [%IF page_num == last_page %] class="disabled" [% END %]  ><a href="[% c.uri_for(c.controller.action_for('search'),page,per_page)  %]">&rarr;</a></li>
+        <li [%IF page_num == last_page %] class="disabled" [% END %]  ><a href="[% c.uri_for(search_action,page,per_page)  %]">&rarr;</a></li>
       </ul>
     </div>
 [% END %]
@@ -41,9 +41,9 @@
     IF by == column && direction == 'asc';
       new_direction = 'desc';
     END;
-    params = { by => column, filter => filter, direction => new_direction };
+    params = { by => column, direction => new_direction };
     IF c.session.nodecolumns.$column %]
-      <th[% " class=\"$class\"" IF class %]><a href="#[% pagination_path("node/advanced_search", params) %]">[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+      <th[% " class=\"$class\"" IF class %]><a href="[% c.uri_for(search_action,page_num,per_page,params)  %]">[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
       [%- END %]
 [% END -%]
 
@@ -56,7 +56,7 @@
             </h2>
             [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions"%]
             <div class="btn-group hidden-phone">
-              <form id="columns" action="[% c.uri_for(c.controller('Node').action_for('advanced_search'), 'filter', filter, 'by', column, 'direction', new_direction) %]" method="POST">
+              <form id="columns" action="[% c.uri_for(search_action,1,per_page) %]" method="POST">
               <a class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="icon-columns"></i> [% l('Columns') %]
                 <i class="icon-angle-down"></i>

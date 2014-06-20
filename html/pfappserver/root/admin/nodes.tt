@@ -95,6 +95,7 @@ form {
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
+        <form id="search" action="[% c.uri_for(c.controller('Node').action_for('search')) %]"></form>
         <div class="span10">
             <div class="tabbable">
               <div class="tab-content">
@@ -103,10 +104,12 @@ form {
                   <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
                 </ul>
                 <div class="tab-pane active well" id="simple">
-                  <form id="search" method="POST" name="simpleSearch" class="form-inline" action="[% c.pf_hash_for(c.controller.action_for('search')) %]">
+                  <form id="simpleNodeSearch" method="POST" name="simpleNodeSearch" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('simple_search')) %]">
+                    <input type="hidden" name="by">
+                    <input type="hidden" name="direction">
                   <div>[% PROCESS search_options disabled=0 %]</div>
                   <div class="btn-group pull-right">
-                    <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
+                    <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                     <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
                     <ul class="dropdown-menu">
                       <li><a href="#" id="simpleSavedSearchBtn">[% l('Save as...') %]</a></li>
@@ -115,7 +118,7 @@ form {
                   </form>
                 </div>
                 <div class="tab-pane well" id="advanced">
-                  <form id="advancedSearch" name="advancedSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
+                  <form id="advancedSearch" name="advancedNodeSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
                     <input type="hidden" name="page_num">
                     <input type="hidden" name="per_page">
                     <input type="hidden" name="by">
