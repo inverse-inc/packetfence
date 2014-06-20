@@ -4,8 +4,6 @@ use namespace::autoclean;
 use Log::Log4perl::Catalyst;
 
 use Catalyst::Runtime 5.80;
-use POSIX qw(setlocale);
-use Locale::gettext qw(bindtextdomain textdomain);
 
 # Set flags and add plugins for the application.
 #
@@ -47,8 +45,6 @@ use pf::CHI;
 extends 'Catalyst';
 
 our $VERSION = '0.01';
-bindtextdomain( "packetfence", "$conf_dir/locale" );
-textdomain("packetfence");
 
 # Configure the application.
 #

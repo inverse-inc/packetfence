@@ -18,6 +18,7 @@ use pf::class;
 use Cache::FileCache;
 use List::Util qw(first);
 use POSIX;
+use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -121,7 +122,16 @@ sub setupLanguage : Private {
     my $locale = shift @$locales;
     $logger->debug("Setting locale to ".$locale);
     setlocale(POSIX::LC_MESSAGES, "$locale.utf8"); 
+    my $newlocale = setlocale(POSIX::LC_MESSAGES);
+    if ($newlocale !~ m/^$locale/) {
+        $logger->error("Error while setting locale to $locale.utf8. Is the locale generated on your system?");
+    }
+    $c->stash->{locale} = $newlocale;
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    bind_textdomain_codeset( "packetfence", "utf-8" );
+    textdomain("packetfence");
 }
+
 
 =head2 getLanguages
 
