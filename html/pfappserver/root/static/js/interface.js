@@ -117,7 +117,7 @@ InterfaceView.prototype.typeChanged = function(e) {
                     dns.show('fast');
                     fake_mac.hide('fast');
                     dns.find(':input').removeAttr('disabled');
-                    dhcpd.hide('fast');
+                    dhcpd.show('fast');
                     high_availability.hide('fast');
                     high_availability.find(':input').attr('disabled','disabled');
                     vip.show('fast');
