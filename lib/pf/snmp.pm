@@ -3,22 +3,8 @@ package pf::snmp;
     use SNMP;
 
     has => 'switch' (is => 'ro', required => 1);
-    has => 'mode' (is => 'ro', default => 'read');
-    has => 'session' (is => 'ro');
-    has => 'auto' (is => 'ro', default => 0);
-
-    sub BUILD {
-        my $self = shift;
-        if ($self->auto) {
-            if ($self->mode eq 'read') {
-                $self->connectRead;
-            }
-        }
-    }
-
-    sub isConnected {
-        my $self = shift;
-    }
+    has => 'sessionRead' (is => 'rw');
+    has => 'sessionWrite' (is => 'rw');
 
     sub connectRead {
         my $self = shift;
@@ -43,8 +29,12 @@ package pf::snmp;
         else {
             $snmp_args{Community} = $self->switch->{_SNMPCommunityRead};
         }
-        $self->switch->{_sessionRead} = SNMP::Session->new( %snmp_args );
-        if ( !defined( $self->switch->{_sessionRead} ) ) {
+
+        $self->sessionRead( SNMP::Session->new( %snmp_args ) );
+        # for backwards compatability
+        $self->switch->{_sessionRead} = $self->sessionRead;
+
+        if ( !defined( $self->sessionRead ) {
             $self->switch->{_error} = %{SNMP::ErrorStr};
             $logger->error( "error creating SNMP v"
                     . $self->switch->{_SNMPVersion}
@@ -69,5 +59,61 @@ package pf::snmp;
         return 1;
     }
 
+    sub get {
+        my ($self,$varbindlist) = @_;
+        $self->connectRead unless $self->sessionRead;
+        my $return;
+        my $results = $self->sessionRead->get($varbindlist);
+        foreach my $r (@{$results}) {
+            next if ($r->val eq 'NOSUCHINSTANCE');
+            next if ($r->val eq 'NOSUCHOBJECT');
+            $return->{$r->tag.'.'.$r->iid} = $r->val;
+        }
+        return $return;
+    }
+    sub get_tables { #{{{
+        my ($self,$base_oids,$max_it) = @_;
+        $self->connectRead unless $self->sessionRead;
+        $self->{_base_oids} = $base_oids;
+        $self->{_base_oid} = shift @{$self->{_base_oids}};
+        $self->{_max_it} = $max_it || 10;
+        if (not $self->{_base_oid}) {
+            warn "No base oid\n";
+            exit;
+        }
+        return $self->_get_tables_cb( $self->sessionRead->bulkwalk(0,$self->{_max_it},[$self->{_base_oid}]) );
+    } #}}}
+
+    sub _get_tables_cb { #{{{
+        my ($self,$results) = @_;
+        my $oid;
+        my $max = int(1000 / 26 / 1);
+        foreach my $vl (@$results) {
+            foreach my $r (@$vl) {
+                $oid = $r->[0].'.'.$r->[1];
+                if ($oid =~ /^$self->{_base_oid}/) {
+                    next if ($r->val eq 'NOSUCHINSTANCE');
+                    next if ($r->val eq 'NOSUCHOBJECT');
+                    $self->{_results}->{$oid} = $r->[2];
+                }
+            }
+        }
+        if ($oid =~ /^$self->{_base_oid}/) {
+            $self->_get_tables_cb($self->sessionRead->bulkwalk(0,$self->{_max_it},[$oid]));
+        }
+        else {
+            if (@{$self->{_base_oids}}) {
+                $self->{_base_oid} = shift @{$self->{_base_oids}};
+                $self->_get_tables_cb($self->sessionRead->bulkwalk(0,$self->{_max_it},[$self->{_base_oid}]]));
+            }
+            else {
+                my $return = delete $self->{_results};
+                delete $self->{_base_oid};
+                delete $self->{_base_oids};
+                delete $self->{_max_it};
+                return $return;
+            }
+        }
+    } #}}}
 1;
 
