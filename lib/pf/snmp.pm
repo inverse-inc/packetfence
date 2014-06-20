@@ -1,12 +1,17 @@
 package pf::snmp;
     use Moose;
     use SNMP;
+    use Log::Log4perl;
+    use Data::Dumper;
 
-    has => 'switch' (is => 'ro', required => 1);
-    has => 'sessionRead' (is => 'rw');
-    has => 'sessionWrite' (is => 'rw');
+    has 'switch' => (is => 'ro', required => 1);
+    has 'sessionRead' => (is => 'rw');
+    has 'sessionWrite' => (is => 'rw');
 
-    sub connectRead {
+    $SNMP::auto_init_mib = 0;
+    $SNMP::use_numeric = 1;
+
+    sub connectRead { # {{{
         my $self = shift;
         my $logger = Log::Log4perl::get_logger( ref($self->switch) );
         if ( defined( $self->switch->{_sessionRead} ) ) {
@@ -31,21 +36,26 @@ package pf::snmp;
         }
 
         $self->sessionRead( SNMP::Session->new( %snmp_args ) );
+
         # for backwards compatability
         $self->switch->{_sessionRead} = $self->sessionRead;
 
-        if ( !defined( $self->sessionRead ) {
+        if ( !defined( $self->sessionRead ) ) {
             $self->switch->{_error} = %{SNMP::ErrorStr};
             $logger->error( "error creating SNMP v"
                     . $self->switch->{_SNMPVersion}
                     . " read connection to "
-                    . $self->switch->{_id} . ": "
+                   . $self->switch->{_id} . ": "
                     . $self->switch->{_error} );
             return 0;
-        } else {
-            my $oid_sysLocation = '1.3.6.1.2.1.1.6.0';
+        }
+        else {
+            my $oid_sysLocation = '.1.3.6.1.2.1.1.6.0';
+
             $logger->trace("SNMP get_request for sysLocation: $oid_sysLocation");
-            my $result = $self->switch->{_sessionRead}->get_request( -varbindlist => [$oid_sysLocation] );
+            my $result = $self->get([
+                $oid_sysLocation,
+            ]);
             if ( !defined($result) ) {
                 $logger->error( "error creating SNMP v"
                         . $self->switch->{_SNMPVersion}
@@ -57,20 +67,25 @@ package pf::snmp;
             }
         }
         return 1;
-    }
-
-    sub get {
-        my ($self,$varbindlist) = @_;
+    } # }}}
+    sub get { #{{{
+        my ($self,$oids) = @_;
+        my $vars;
         $self->connectRead unless $self->sessionRead;
+        foreach (@$oids) {
+            push(@$vars,[ $_ ]);
+        }
+
         my $return;
-        my $results = $self->sessionRead->get($varbindlist);
-        foreach my $r (@{$results}) {
-            next if ($r->val eq 'NOSUCHINSTANCE');
-            next if ($r->val eq 'NOSUCHOBJECT');
-            $return->{$r->tag.'.'.$r->iid} = $r->val;
+        my $results;
+         @{ $results } = $self->sessionRead->get($vars);
+        foreach my $r (@{$vars}) {
+            next if ($r->[2] eq 'NOSUCHINSTANCE');
+            next if ($r->[2] eq 'NOSUCHOBJECT');
+            $return->{$r->[0].'.'.$r->[1]} = $r->[2];
         }
         return $return;
-    }
+    } # }}}
     sub get_tables { #{{{
         my ($self,$base_oids,$max_it) = @_;
         $self->connectRead unless $self->sessionRead;
@@ -83,13 +98,12 @@ package pf::snmp;
         }
         return $self->_get_tables_cb( $self->sessionRead->bulkwalk(0,$self->{_max_it},[$self->{_base_oid}]) );
     } #}}}
-
     sub _get_tables_cb { #{{{
         my ($self,$results) = @_;
         my $oid;
         my $max = int(1000 / 26 / 1);
-        foreach my $vl (@$results) {
-            foreach my $r (@$vl) {
+        #foreach my $vl (@$results) {
+            foreach my $r (@$results) {
                 $oid = $r->[0].'.'.$r->[1];
                 if ($oid =~ /^$self->{_base_oid}/) {
                     next if ($r->val eq 'NOSUCHINSTANCE');
@@ -97,14 +111,14 @@ package pf::snmp;
                     $self->{_results}->{$oid} = $r->[2];
                 }
             }
-        }
-        if ($oid =~ /^$self->{_base_oid}/) {
+        #}
+        if ( $oid && ($oid =~ /^$self->{_base_oid}/) ) {
             $self->_get_tables_cb($self->sessionRead->bulkwalk(0,$self->{_max_it},[$oid]));
         }
         else {
             if (@{$self->{_base_oids}}) {
                 $self->{_base_oid} = shift @{$self->{_base_oids}};
-                $self->_get_tables_cb($self->sessionRead->bulkwalk(0,$self->{_max_it},[$self->{_base_oid}]]));
+                $self->_get_tables_cb($self->sessionRead->bulkwalk(0,$self->{_max_it},[$self->{_base_oid}]));
             }
             else {
                 my $return = delete $self->{_results};
