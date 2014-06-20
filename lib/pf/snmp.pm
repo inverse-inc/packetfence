@@ -192,9 +192,9 @@ Easy way to get a table or tables or portions within a table. Returns a single h
 
 =head1 AUTHOR
 
-Michael Mullins <m5mulli@gmail.com>
+mullagain <m5mulli@gmail.com>
 
-=LICENSE 
+=head1 LICENSE 
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
