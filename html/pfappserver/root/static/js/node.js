@@ -55,7 +55,7 @@ var NodeView = function(options) {
     this.proxyClick($('body'), '#modalNode #addViolation', this.triggerViolation);
 
     /* Update the advanced search form to the next page or resort the query */
-    this.proxyClick($('body'), 'a[href*="#node/advanced_search"]',this.advancedSearchUpdater);
+    this.proxyClick($('body'), 'a[href*="node/search"]',this.advancedSearchUpdater);
 
     this.proxyClick($('body'), '#toggle_all_items', this.toggleAllItems);
 
@@ -317,27 +317,25 @@ NodeView.prototype.triggerViolation = function(e) {
 NodeView.prototype.advancedSearchUpdater = function(e) {
     e.preventDefault();
     var link = $(e.currentTarget);
-    var form = $('#advancedSearch');
+    var form = $('#search');
     var href = link.attr("href");
-    if (href) {
-        href = href.replace(/^.*#node\/advanced_search\//, '');
-        var values = href.split("/");
-        for (var i = 0; i < values.length; i += 2) {
-            var name = values[i];
-            var value = values[i + 1];
-            form.find('[name="' + name + '"]:not(:disabled)').val(value);
-        }
-        // Add checked columns to the form
-        form.find('[name="column"]').remove();
-        $('#columns').find(':checked').each(function() {
-            form.append($('<input>', { type: 'checkbox',
-                                       checked: 'checked',
-                                       name: 'column',
-                                       'class': 'hidden',
-                                       value: $(this).val() }));
-        });
-        form.submit();
-    }
+    var section = $('#section');
+    var status_container = $("#section").find('h2').first();
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5);
+    this.nodes.post({
+        url: href,
+        data: form.serialize(),
+        always: function() {
+            loader.hide();
+            section.stop();
+        },
+        success: function(data) {
+            section.html(data);
+        },
+        errorSibling: status_container
+    });
     return false;
 };
 
