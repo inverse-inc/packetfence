@@ -1,8 +1,28 @@
 package pf::snmp;
+
+=head1 NAME
+
+pf::snmp - Class for accessing snmp via net-snmp's SNMP.pm module
+
+=head1 SYNOPSIS
+
+    use pf::snmp;
+
+    # $switch is a pf::Switch object.
+    my $snmp = pf::snmp->new( switch => $switch );
+
+=head1 DESCRIPTION
+
+This class simplifies and duplicates the same functions as Net::SNMP only with much higher performance and overhead.
+It duplicates some of the methods on pf::Switch to allow for graduale migration.
+
+=cut
     use Moose;
     use SNMP;
     use Log::Log4perl;
     use Data::Dumper;
+
+    our $VERSION = 1.00;
 
     has 'switch' => (is => 'ro', required => 1);
     has 'sessionRead' => (is => 'rw');
@@ -10,6 +30,15 @@ package pf::snmp;
 
     $SNMP::auto_init_mib = 0;
     $SNMP::use_numeric = 1;
+
+=head1 METHODS
+
+=head2 connectRead
+
+Duplicates the connectRead in pf::switch only using net-snmp instead of Net::SNMP
+Options are pulled from the pf::Switch object to connect.
+
+=cut
 
     sub connectRead { # {{{
         my $self = shift;
@@ -68,6 +97,17 @@ package pf::snmp;
         }
         return 1;
     } # }}}
+
+=head2 get
+
+simplified snmpget. Returns a hash in the same manner as Net::SNMP.
+
+    my $results = $self->get([
+        $oid_sysLocation,
+    ]);
+
+=cut
+
     sub get { #{{{
         my ($self,$oids) = @_;
         my $vars;
@@ -86,6 +126,18 @@ package pf::snmp;
         }
         return $return;
     } # }}}
+
+=head2 get_tables
+
+Easy way to get a table or tables or portions within a table. Returns a single hash in the typical oid => val style.
+
+    my $results = $self->get_tables([
+        '.1.3.6.1.2.1.2.2.1.2', #interface desc
+        '.1.3.6.1.2.1.2.2.1.3', #interface type
+    ]);
+
+=cut
+
     sub get_tables { #{{{
         my ($self,$base_oids,$max_it) = @_;
         $self->connectRead unless $self->sessionRead;
@@ -93,6 +145,7 @@ package pf::snmp;
         $self->{_base_oid} = shift @{$self->{_base_oids}};
         $self->{_max_it} = $max_it || 10;
         if (not $self->{_base_oid}) {
+            # TODO: better handling of this.
             warn "No base oid\n";
             exit;
         }
@@ -130,4 +183,34 @@ package pf::snmp;
 
     __PACKAGE__->meta->make_immutable;
 1;
+
+=head1 FUTURE
+
+    - add connectWrite method
+    - add set method
+    - add trap methods
+
+=head1 AUTHOR
+
+Michael Mullins <m5mulli@gmail.com>
+
+=LICENSE 
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
 
