@@ -14,7 +14,7 @@ Architecture: all
 Pre-Depends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server
 Breaks: libdata-alias-perl
-Depends: ${misc:Depends}, vlan, make,
+Depends: ${misc:Depends}, vlan, make, patch,
  openssl, openssl-blacklist, openssl-blacklist-extra,
  mysql-server|mariadb-server|mariadb-galera-server, memcached,
  snmp, snmptrapfmt, snmp-mibs-downloader, conntrack,

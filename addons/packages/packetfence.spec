@@ -82,7 +82,7 @@ BuildArch: noarch
 # TODO we might consider re-enabling this to simplify our SPEC
 AutoReqProv: 0
 
-Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext, conntrack-tools
+Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext, conntrack-tools, patch
 # for process management
 Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
