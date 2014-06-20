@@ -17,6 +17,7 @@ use warnings;
 
 use Apache2::Const -compile => qw(:http);
 use Apache2::Request;
+use Apache2::Connection;
 use Log::Log4perl;
 use pf::config;
 our (%ConfigApacheFilters, $cached_apache_filters_config);
@@ -50,6 +51,7 @@ sub test {
     my ($self, $r) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
+    my $c = $r->connection();
     foreach my $rule  ( sort keys %ConfigApacheFilters ) {
         if ($rule =~ /^\w+:(.*)$/) {
             my $test = $1;
@@ -57,7 +59,7 @@ sub test {
             $test =~ s/\|/ \|\| /g;
             $test =~ s/\&/ \&\& /g;
             if (eval $test) {
-                $logger->info("Match Apache rule: $rule");
+                $logger->debug($c->remote_ip." match Apache rule: $rule");
                 my $action = $self->dispatch_action($ConfigApacheFilters{$rule});
                 return ($action->($self,$r,$ConfigApacheFilters{$rule}));
             }
