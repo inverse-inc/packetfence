@@ -126,7 +126,7 @@ sub getBoardPortFromIfIndex {
     my $OID_ifDesc = '1.3.6.1.2.1.31.1.1.1.1';
     my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_ifDesc.$ifIndex"] );
     if ($result->{"$OID_ifDesc.$ifIndex"} =~ /Slot:\s(\d+)\sPort:\s(\d+)/) {
-        return ($1,$2);
+        return ('0',$2);
     }
 }
 
@@ -187,7 +187,6 @@ sub getSecureMacAddresses {
     }
     my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndex($ifIndex);
     my $oldVlan = $this->getVlan($ifIndex);
-    $boardIndx = $boardIndx - 1 ;
 
     $logger->trace(
         "SNMP get_table for s5SbsAuthCfgAccessCtrlType: $OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx"
@@ -232,7 +231,6 @@ sub _authorizeMAC {
     # That's because Nortel thought that it made sense to start BoardIndexes differently for different OIDs
     # on the same switch!!!
     my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndexForSecurityStatus($ifIndex);
-    $boardIndx = $boardIndx - 1;
     my $cfgStatus = ($authorize) ? 2 : 3;
     my $mac_oid = mac2oid($mac);
 
