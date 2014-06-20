@@ -28,8 +28,11 @@ __PACKAGE__->config(
     action_args => {
         '*' => { model => 'Node' },
         advanced_search => { model => 'Search::Node', form => 'AdvancedSearch' },
+        search => { model => 'Search::Node', form => 'AdvancedSearch' },
     }
 );
+
+our %DEFAULT_COLUMNS = map { $_ => 1 } qw/status mac computername pid last_ip dhcp_fingerprint category/;
 
 =head1 SUBROUTINES
 
@@ -40,37 +43,63 @@ __PACKAGE__->config(
 
 sub index :Path :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
-    $c->go('simple_search');
+    $c->go('search');
 }
 
-=head2 simple_search
+=head2 search
+
+Perform an advanced search using the Search::Node model
 
 =cut
 
-sub simple_search :SimpleSearch('Node') :Local :Args() :AdminRole('NODES_READ') { }
+sub search :Local :Args() :AdminRole('NODES_READ') {
+    my ($self, $c, $pageNum, $perPage) = @_;
+    $pageNum = 1 unless $pageNum;
+    $perPage = 25 unless $perPage;
+    my ($status, $status_msg, $result, $violations);
+    my %search_results;
+    my $model = $self->getModel($c);
+    my $form = $self->getForm($c);
 
-=head2 after _list_items
+    # Store columns in the session
+    my $columns = $c->request->params->{'column'};
+    if ($columns) {
+        $columns = [$columns] if (ref($columns) ne 'ARRAY');
+        my %columns_hash = map { $_ => 1 } @{$columns};
+        my %params = ( 'nodecolumns' => \%columns_hash );
+        $c->session(%params);
+    }
 
-The method _list_items comes from pfappserver::Base::Controller and is called from Base::Action::SimpleSearch.
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = $form->field_errors;
+        $c->stash(current_view => 'JSON');
+    }
+    else {
+        my $query = $form->value;
+        $query->{by} = 'mac' unless ($query->{by});
+        $query->{direction} = 'asc' unless ($query->{direction});
+        ($status, $result) = $model->search($query, $pageNum, $perPage);
+        if (is_success($status)) {
+            $c->stash(form => $form);
+            $c->stash($result);
+        }
+    }
 
-=cut
-
-after _list_items => sub {
-    my ($self, $c) = @_;
-
-    my ( $status, $roles, $violations );
-    ($status,$roles) = $c->model('Roles')->list();
-    $c->stash(roles => $roles);
-    ( $status, $violations ) = $c->model('Config::Violations')->readAll();
-    $c->stash( violations => $violations );
-
+    (undef, $result) = $c->model('Roles')->list();
+    (undef, $violations ) = $c->model('Config::Violations')->readAll();
+    $c->stash(
+        status_msg => $status_msg,
+        roles => $result,
+        violations => $violations,
+    );
     unless ($c->session->{'nodecolumns'}) {
         # Set default visible columns
-        my %default_columns = map { $_ => 1 } qw/status mac computername pid last_ip dhcp_fingerprint category/;
-        $c->session( nodecolumns => \%default_columns );
+        $c->session( nodecolumns => \%DEFAULT_COLUMNS );
     }
-};
-
+    $c->response->status($status);
+}
 
 =head2 advanced_search
 
