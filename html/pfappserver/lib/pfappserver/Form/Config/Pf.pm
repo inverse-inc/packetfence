@@ -40,6 +40,7 @@ sub field_list {
                       help => $doc_section->{description} },
             id => $name,
             label => $doc_section_name,
+            localize_labels => 1,
           };
         my $type = $doc_section->{type} || "text";
         {
@@ -103,7 +104,6 @@ sub field_list {
                     $field->{type} = 'Select';
                     $field->{element_class} = ['chzn-deselect'];
                     $field->{element_attr} = {'data-placeholder' => 'No selection'};
-                    $field->{localize_labels} = 1;
                     my @options = map { { value => $_, label => $_ } } @{$doc_section->{options}};
                     $field->{options} = \@options;
                 }
