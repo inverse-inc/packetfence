@@ -47,7 +47,7 @@ pf::ipc - extended Redis::Fast class for IPC communication within PacketFence.
 
 =head1 DESCRIPTION
 
-This class extends Redis::Fast. All functions in Redis::Fast are preserved. Helper methods have been added for queueing and subscription serialization handling. This allows fast communication between processes via lists, hashes, and key/val. Please see the documentation for Redis.pm for more information on the Redis methods.
+This class extends Redis::Fast. All functions in Redis::Fast are preserved. Helper methods have been added for queueing and subscription serialization handling. This allows fast communication between processes via lists, hashes, subscriptions, and key/val. Please see the documentation for Redis.pm for more information on the Redis methods.
 
 Currently it is up to the developer to make sure the data is consisten between queues, i.e array refs vs hash refs vs strings.
 
