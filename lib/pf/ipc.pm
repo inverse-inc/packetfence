@@ -125,10 +125,17 @@ sub pfSubscribeHandler {
 
 sub lcache {
     my ($self,$key,$ttl,$ref) = @_;
+    $self->cache($key,$ttl,$ref,$$);
+}
+
+sub cache {
+    my ($self,$key,$ttl,$ref,$prepend) = @_;
     my $return;
     # use pid for per process cache.
-    $key = $$.'_'.$key;
     $ttl = 300 if (not $ttl); # default to 5 minutes 
+    if ($prepend) {
+        $key = $prepend.'_'.$key;
+    }
 
     die "no coderef in lcache\n" if not $ref;
 
