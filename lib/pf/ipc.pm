@@ -128,7 +128,7 @@ sub lcache {
     my $return;
     # use pid for per process cache.
     $key = $$.'_'.$key;
-    $ttl = 500 if (not $ttl); # default to 5 minutes 
+    $ttl = 300 if (not $ttl); # default to 5 minutes 
 
     die "no coderef in lcache\n" if not $ref;
 
