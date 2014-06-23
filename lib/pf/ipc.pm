@@ -58,7 +58,10 @@ In the future I may add a registration process to ensure data consistency.
 use Moose;
 use MooseX::NonMoose;
 extends 'Redis::Fast';
+
+# used Storable for objects and JSON for things that may need to be human readable
 use JSON::XS;
+use Storable;
 
 has 'encoder' => (is => 'ro', default => sub { JSON::XS->new; });
 
@@ -118,6 +121,27 @@ sub pfSubscribeHandler {
         $ret = $message;
     }
     return $ret;
+}
+
+sub lcache {
+    my ($self,$key,$ttl,$ref) = @_;
+    my $return;
+    # use pid for per process cache.
+    $key = $$.'_'.$key;
+    $ttl = 500 if (not $ttl); # default to 5 minutes 
+
+    die "no coderef in lcache\n" if not $ref;
+
+    my $resp = $self->get($key);
+    if ($resp) {
+        $return = Storable::thaw($resp);
+    }
+    else {
+        $return = $ref->();
+        $self->set($key,Storable::freeze($return));
+        $self->expire($key,$ttl);
+    }
+    return $return;
 }
 
 __PACKAGE__->meta->make_immuntable;
