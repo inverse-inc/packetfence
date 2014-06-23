@@ -1,0 +1,30 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use pf::ipc;
+
+# this script must be added to snmptrapd.conf
+# perl do "<path>/pftrapp"
+
+my $ipc = pf::ipc->new;
+
+sub my_receiver {
+    my $data;
+    $data->{received} = time;
+    $data->{from} = $1 if ($_[0]{receivedfrom} =~ /\[(\d+\.\d+\.\d+\.\d+)\]\:\d+\-\>/);
+    $data->{community} = $_[0]{community};
+
+    foreach my $x (@{$_[1]}) {
+        my $type = $1 if ($x->[1] =~ /^(.+)\:\s+/);
+        $x->[1] =~ s/^.+\:\s+//g;
+        $data->{varbinds}->{$x->[0]} = $x->[1];
+    }
+    $ipc->enqueue('traps',$data) or warn $!;
+
+}
+
+# filtering can be added here
+NetSNMP::TrapReceiver::register("all", \&my_receiver) ||
+warn "failed to register our perl trap handler\n";
+
