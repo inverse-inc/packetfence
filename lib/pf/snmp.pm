@@ -14,7 +14,7 @@ pf::snmp - Class for accessing snmp via net-snmp's SNMP.pm module
 =head1 DESCRIPTION
 
 This class simplifies and duplicates the same functions as Net::SNMP only with much higher performance and overhead.
-It duplicates some of the methods on pf::Switch to allow for graduale migration.
+It duplicates some of the methods in pf::Switch to allow for graduale migration.
 
 =cut
     use Moose;
@@ -27,6 +27,7 @@ It duplicates some of the methods on pf::Switch to allow for graduale migration.
     has 'switch' => (is => 'ro', required => 1);
     has 'sessionRead' => (is => 'rw');
     has 'sessionWrite' => (is => 'rw');
+    has 'error' => (is => 'rw');
 
     $SNMP::auto_init_mib = 0;
     $SNMP::use_numeric = 1;
@@ -71,6 +72,7 @@ Options are pulled from the pf::Switch object to connect.
 
         if ( !defined( $self->sessionRead ) ) {
             $self->switch->{_error} = %{SNMP::ErrorStr};
+            $self->error(%{SNMP::ErrorStr});
             $logger->error( "error creating SNMP v"
                     . $self->switch->{_SNMPVersion}
                     . " read connection to "
@@ -131,7 +133,7 @@ simplified snmpget. Returns a hash in the same manner as Net::SNMP.
 
 Easy way to get a table or tables or portions within a table. Returns a single hash in the typical oid => val style.
 
-    my $results = $self->get_tables([
+    my $results = $snmp->get_tables([
         '.1.3.6.1.2.1.2.2.1.2', #interface desc
         '.1.3.6.1.2.1.2.2.1.3', #interface type
     ]);
@@ -181,13 +183,39 @@ Easy way to get a table or tables or portions within a table. Returns a single h
         }
     } #}}}
 
+=head2 set
+
+SNMP set request interface
+
+Accepts an array of arrays each with the following format
+
+[ <oid>, <instance>, <value>, <datatype> ]
+
+    $snmp->set([
+        ['.1.3.6.1.2.1.2.2.1.7','1',1,"INTEGER"],
+        ['.1.3.6.1.2.1.2.2.1.7','2',1,"INTEGER"]
+    ]
+
+=cut
+
+    sub set {
+        my ($self,$oids) = @_;
+        $self->connectWrite unless $self->sessionWrite;
+        my $errorno = $self->sessionWrite->set($oids);
+        if ($errorno) {
+            $self->switch->{_error} = $self->sessionWrite->{ErrorStr};
+            $self->error($self->sessionWrite->{ErrorStr});
+            return;
+        }
+        return 1;
+    }
+
     __PACKAGE__->meta->make_immutable;
 1;
 
 =head1 FUTURE
 
     - add connectWrite method
-    - add set method
     - add trap methods
 
 =head1 AUTHOR
