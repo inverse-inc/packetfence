@@ -65,6 +65,13 @@ use Storable;
 
 has 'encoder' => (is => 'ro', default => sub { JSON::XS->new; });
 
+sub FOREIGNBUILDARGS {
+    my $class = shift;
+    my %args = shift;
+    # make modifications
+    return %args;
+}
+
 sub enqueue {
     my ($self,$q,$item) = @_;
     my $txt;
@@ -150,6 +157,8 @@ sub cache {
     }
     return $return;
 }
+
+no Moose;
 
 __PACKAGE__->meta->make_immuntable;
 
