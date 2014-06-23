@@ -7,6 +7,7 @@ pf::ipc - extended Redis::Fast class for IPC communication within PacketFence.
 =head1 SYNOPSIS
 
     use pf::ipc;
+    use Data::Dumper;
 
     my $ipc = pf::ipc->new(); # accepts any of the Redis::Fast arguments.
 
@@ -21,15 +22,36 @@ pf::ipc - extended Redis::Fast class for IPC communication within PacketFence.
 
     my $count = $ipc->queueCount('messages');
 
+    $ipc->subscribe(
+        'subtest',
+        sub {
+            # handles de-serialization
+            my $message = $ipc->pfSubscribeHandler(@_);
+            print Dumper $message;
+            ...
+        }
+    );
+
+    # supply a code ref
+    $ipc->subscribe( 'subtest',\&messagehandler );
+
+    # subscribe to a pattern of topics
+    $ipc->psubscribe('ipc.*',sub { ... });
+
+    # pfpublish handles serializing
+    $ipc->pfpublish('subtest',{ this => 'is a test'});
+    $ipc->pfpublish('subtest','and so is this');
+    $ipc->pfpublish( 'subtest',[ 'this','too'] );
+
 
 
 =head1 DESCRIPTION
 
-This class extends Redis::Fast. All functions in Redis::Fast are preserved. Helper methods have been added for enqueueing/dequeueing items into a redis list. This allows fast communication between processes via lists, hashes, and key/val. Please see the documentation for Redis.pm for more information on the Redis methods.
+This class extends Redis::Fast. All functions in Redis::Fast are preserved. Helper methods have been added for queueing and subscription serialization handling. This allows fast communication between processes via lists, hashes, and key/val. Please see the documentation for Redis.pm for more information on the Redis methods.
 
 Currently it is up to the developer to make sure the data is consisten between queues, i.e array refs vs hash refs vs strings.
 
-In the future I may add a queue/hash registration process to ensure data consistency. 
+In the future I may add a registration process to ensure data consistency. 
 
 =cut
 
@@ -66,10 +88,36 @@ sub dequeue {
     return $ret;
 }
 
-# I hate cammel case...
+# I hate camel case...
 sub queueCount {
     my ($self,$q) = @_;
     return $self->llen($q);
+}
+
+sub pfpublish {
+    my ($self,$topic,$item) = @_;
+    my $txt;
+    if ( ref($item) ) {
+        $txt = $self->encoder->encode( $item );
+    }
+    else {
+        $txt = $item;
+    }
+    $self->publish($topic,$txt);
+
+}
+
+# i hate HungarianNotation
+sub pfSubscribeHandler {
+    my ($self,$message,$topic,$subscribed_topic) = @_;
+    my $ret;
+    if ($message =~ /(\{|\[)/) {
+        $ret = $self->encoder->decode($message);
+    }
+    else {
+        $ret = $message;
+    }
+    return $ret;
 }
 
 __PACKAGE__->meta->make_immuntable;
