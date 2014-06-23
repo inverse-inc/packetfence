@@ -20,7 +20,13 @@ sub my_receiver {
         $x->[1] =~ s/^.+\:\s+//g;
         $data->{varbinds}->{$x->[0]} = $x->[1];
     }
-    $ipc->enqueue('traps',$data) or warn $!;
+
+    # dump trap into a queue for a process to read.
+    # $ipc->enqueue('traps',$data) or warn $!;
+
+    # can use a publish/subscriber as well to allow multiple processes to read the messages.
+    # But the message is lost if there is nobody listening.
+    $ipc->pfpublish('sub_traps',$data);
 
 }
 
