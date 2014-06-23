@@ -153,6 +153,11 @@ sub cache {
 
 __PACKAGE__->meta->make_immuntable;
 
+=head1 FUTURE
+
+   - add support for auto connection based on config
+   - add support for sentinals
+
 =head1 AUTHOR
 
 mullagain <m5mulli@gmail.com>
