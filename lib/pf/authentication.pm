@@ -201,7 +201,7 @@ sub readAuthenticationConfigFile {
                     my $authentication_sources_ref = $config->fromCacheForDataUntainted("authentication_sources");
                     if( defined($authentication_sources_ref) ) {
                         @authentication_sources = @$authentication_sources_ref;
-                        %authentication_lookup = map { $_->id => $_ } @authentication_sources;
+                        %authentication_lookup = map { $_->id => $_ } grep { defined $_ } @authentication_sources;
                     } else {
                         $config->_callFileReloadCallbacks();
                     }
