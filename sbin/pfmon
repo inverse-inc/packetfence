@@ -215,7 +215,12 @@ sub purge_cache {
     my ($namespace) = @_;
     my $cache = pf::CHI->new( namespace => $namespace );
     for my $key ($cache->get_keys) {
-        $cache->remove($key) if $cache->exists_and_is_expired($key);
+        if($cache->exists_and_is_expired($key)) {
+            #Add an eval in case of the value deleted before 
+            eval {
+                $cache->remove($key);
+            };
+        }
     }
 }
 
