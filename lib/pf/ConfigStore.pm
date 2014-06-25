@@ -211,24 +211,25 @@ sub _update_section {
     my $use_default = $default_section && $section ne $default_section;
     while ( my ($param, $value) = each %$assignments ) {
         my $param_exists = $config->exists($section, $param);
+        my $default_value = $config->val($default_section,$param) if ($use_default);
         if(defined $value ) { #If value is defined the update or add to section
             if ( $param_exists ) {
                 #If value is defined the update or add to section
-                my $default_value = $config->val($default_section,$param) if ($use_default);
-                #Only set the value if the default value is not 
-                unless ( $use_default && defined $default_value && $default_value eq $value) {
+                #Only set the value if not equal to the default value otherwise delete it
+                if ( defined $default_value && $default_value eq $value) {
+                    $config->delval($section, $param, $value);
+                } else {
                     $config->setval($section, $param, $value);
                 }
             } else {
                 #If the value is the same as the default value then do not add
-                my $default_value = $config->val($default_section,$param) if ($use_default);
                 next if defined $default_value && $default_value eq $value;
                 $config->newval($section, $param, $value);
             }
         } else { #Handle deleting param from section
             #if the param exists in the imported config then use that the value in the imported file
-            if ( $use_default && $config->exists($default_section,$param) ) {
-                $config->setval($section, $param, $config->val($default_section, $param));
+            if ( defined $default_value ) {
+                $config->setval($section, $param, $default_value);
             } elsif ( $imported && $imported->exists($section, $param) ) {
                 $config->setval($section, $param, $imported->val($section, $param));
             } elsif ( $param_exists ) {
