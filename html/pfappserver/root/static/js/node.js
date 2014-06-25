@@ -324,7 +324,10 @@ NodeView.prototype.searchPagination = function(e) {
     var link = $(e.currentTarget);
     var pagination = link.closest('.pagination');
     var formId = pagination.attr('data-from-from') || '#search';
-    var form = $(formId) || $('#search');
+    var form = $(formId);
+    if(form.length == 0) {
+        form = $('#search');
+    }
     var columns = $('#columns');
     var href = link.attr("href");
     var section = $('#section');
