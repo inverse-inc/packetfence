@@ -107,8 +107,6 @@ form {
                 </ul>
                 <div class="tab-pane active well" id="simple">
                   <form id="simpleNodeSearch" method="POST" name="simpleNodeSearch" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('simple_search')) %]">
-                    <input type="hidden" name="by">
-                    <input type="hidden" name="direction">
                   <table style="width:100%">
                     <tbody>
                       <tr class="row-fluid">
@@ -131,10 +129,6 @@ form {
                 </div>
                 <div class="tab-pane well" id="advanced">
                   <form id="advancedSearch" name="advancedNodeSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
-                    <input type="hidden" name="page_num">
-                    <input type="hidden" name="per_page">
-                    <input type="hidden" name="by">
-                    <input type="hidden" name="direction">
                   <div class="input-daterange datepicker">
                     <input type="text" class="input-small" name="start" data-date-format="yyyy-mm-dd" />
                     <i class="icon-arrow-right"></i>
