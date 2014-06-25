@@ -79,11 +79,13 @@ form {
                 [% 
                 IF ss.path == 'node/advanced_search';
                     tab = 'advanced';
+                    formTarget = '';
                    ELSE;
                     tab ='simple';
+                    formTarget = '#simpleNodeSearch';
                 END%]
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="[% tab | html %]">[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::Node').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
+                <a href="#" data-toggle="pf-search-form" data-target="[% tab | html %]" [% IF formTarget %] data-form-target="[% formTarget %]"  [% END %]   >[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::Node').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
                 <form>
                   [%FOREACH input IN form.keys.sort%]
                   <input type="hidden" name="[%input | html %]" value="[%form.$input | html%]"/>

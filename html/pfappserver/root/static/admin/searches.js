@@ -41,12 +41,12 @@ function saveSearchFromForm(form_id) {
 $(function() {
     /* Save a simple search */
     $('#simpleSavedSearchBtn').on('click', function(event) {
-        return saveSearchFromForm('#simpleSearch');
+        return saveSearchFromForm($(this).closest("form"));
     });
 
     /* Save an advanced search */
     $('#advancedSavedSearchBtn').on('click', function(event) {
-        return saveSearchFromForm("#advancedSearch");
+        return saveSearchFromForm($(this).closest("form"));
     });
 
     /* Perform a simple search */
@@ -88,8 +88,12 @@ $(function() {
     $('body').on('click', '[data-toggle="pf-search-form"][data-target]', function(event) {
         var that = $(this);
         var target = that.attr('data-target');
+        var formTargetId = that.attr('data-form-target');
         var from_form = that.next();
-        var to_form   = $("#" + target + "Search"  );
+        var to_form   = $(formTargetId);
+        if (to_form.length == 0) {
+            to_form   =  $("#" + target + "Search"  );
+        }
         var first_row = to_form.find('tbody tr.dynamic-row:not(.hidden)').first();
         first_row.nextAll("tr.dynamic-row:not(.hidden)").remove();
         var new_searches =  from_form.find('[name^="searches."]').length / 3 - 1;
