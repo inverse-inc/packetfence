@@ -32,3 +32,4 @@ INSERT INTO activation ( mac, contact_info, carrier_id, activation_code, expirat
 -- DROP TABLE email_activation;
 -- DROP TABLE sms_activation;
 
+DELETE FROM savedsearch where namespace='pfappserver::Model::SavedSearch::Node' and query Like '%simple_search?filter%';
