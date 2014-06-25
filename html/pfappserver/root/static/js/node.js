@@ -325,6 +325,7 @@ NodeView.prototype.searchPagination = function(e) {
     var pagination = link.closest('.pagination');
     var formId = pagination.attr('data-from-from') || '#search';
     var form = $(formId) || $('#search');
+    var columns = $('#columns');
     var href = link.attr("href");
     var section = $('#section');
     var status_container = $("#section").find('h2').first();
@@ -334,7 +335,7 @@ NodeView.prototype.searchPagination = function(e) {
     section.fadeTo('fast', 0.5, function() {
         that.nodes.post({
             url: href,
-            data: form.serialize(),
+            data: form.serialize() + "&" + columns.serialize(),
             always: function() {
                 loader.hide();
                 section.fadeTo('fast', 1.0);

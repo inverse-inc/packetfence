@@ -35,7 +35,7 @@ function init() {
                     if (parent.id == 'columns')
                         // Showing the results of an advanced search;
                         // To refresh the page, trigger a click on the active page of the pagination
-                        $('.pagination .disabled a[href*="#node/advanced_search"]').first().click();
+                        $('.pagination .disabled a').first().click();
                     else
                         // Showing the results of a simple search;
                         // To refresh the page, submit the current form which contains the filter
