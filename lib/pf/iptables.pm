@@ -118,14 +118,11 @@ sub iptables_generate {
     $self->generate_interception_rules(\$tags{'nat_if_src_to_chain'},\$tags{'nat_prerouting_vlan'},\$tags{'input_inter_vlan_if'} );
 
     # OAuth
-    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
-    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
-    my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
-    if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
+    if ($passthrough_enabled) {
         generate_passthrough_rules(
-            $google_enabled,$facebook_enabled,$github_enabled,$passthrough_enabled,\$tags{'filter_forward_vlan'},\$tags{'nat_postrouting_vlan'}
+            $passthrough_enabled,\$tags{'filter_forward_vlan'},\$tags{'nat_postrouting_vlan'}
         );
     }
 
@@ -165,9 +162,6 @@ sub generate_filter_if_src_to_chain {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
-    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
-    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
-    my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
     # internal interfaces handling
@@ -183,7 +177,7 @@ sub generate_filter_if_src_to_chain {
             }
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
-            if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
+            if ($passthrough_enabled) {
                 $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
                 $rules .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
             }
@@ -288,9 +282,6 @@ sub generate_inline_rules {
     $$routed_postrouting_inline .= "-A $FW_POSTROUTING_INT_INLINE_ROUTED --jump ACCEPT\n";
 
     $logger->info("building firewall to accept registered users through inline interface");
-    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
-    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
-    my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
     # Allow remote conformity scan server to reach unregistered devices in inline mode
@@ -299,7 +290,7 @@ sub generate_inline_rules {
         $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --destination $Config{'scan'}{'host'} --jump ACCEPT\n";
     }
 
-    if ($google_enabled||$facebook_enabled||$github_enabled||$passthrough_enabled) {
+    if ($passthrough_enabled) {
         $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT\n";
     }
 
@@ -323,13 +314,13 @@ Creating the proper firewall rules to allow Google/Facebook OAuth2 and passthrou
 =cut
 
 sub generate_passthrough_rules {
-    my ($google,$facebook,$github,$passthrough,$forward_rules_ref,$nat_rules_ref) = @_;
+    my ($passthrough,$forward_rules_ref,$nat_rules_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
     $logger->info("Adding Forward rules to allow connections to the OAuth2 Providers and passthrough.");
     my $reg_int = "";
 
-    if ($google||$facebook||$github||$passthrough) {
+    if ($passthrough) {
         $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT\n";
         $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough src,src --jump ACCEPT\n";
     }
@@ -420,12 +411,9 @@ sub generate_nat_redirect_rules {
     my $rules = '';
 
     # Exclude the OAuth from the DNAT
-    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
-    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
-    my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
-    if ($google_enabled||$facebook_enabled||$github_enabled||$passthrough_enabled) {
+    if ($passthrough_enabled) {
          $rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_passthrough dst,dst ".
                "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
     }
