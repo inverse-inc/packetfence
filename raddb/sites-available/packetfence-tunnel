@@ -7,6 +7,18 @@ authorize {
                 ok = return
         }
         files
+## Set Called-Station-SSID with the current SSID
+#        set.called_station_ssid
+#        if (Called-Station-SSID == 'GuestSecure') {
+## Check activation table with telephone number and pin code
+#            pfsms
+## Check temporary_password table with email and password
+#            pfemail
+## Update control to not use NTLM-Auth
+#            update control {
+#                MS-CHAP-Use-NTLM-Auth := No
+#            }
+#        }
         expiration
         logintime
 }
