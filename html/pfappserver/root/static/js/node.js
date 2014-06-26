@@ -253,7 +253,7 @@ NodeView.prototype.updateNode = function(e) {
             },
             success: function(data) {
                 modal.on('hidden', function() {
-                    $(window).hashchange();
+                    //$(window).hashchange();
                 });
                 modal.modal('hide');
             },
@@ -274,7 +274,7 @@ NodeView.prototype.deleteNode = function(e) {
         success: function(data) {
             modal.modal('hide');
             modal.on('hidden', function() {
-                $(window).hashchange();
+                //$(window).hashchange();
             });
         },
         errorSibling: modal_body.children().first()
