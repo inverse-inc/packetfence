@@ -16,7 +16,7 @@ use Apache2::RequestIO ();
 use Apache2::Const -compile => qw(OK REDIRECT);
 use Date::Parse;
 use Log::Log4perl;
-use URI::Escape qw(uri_escape);
+use URI::Escape::XS qw(uri_escape);
 
 use pf::class;
 use pf::config;
@@ -28,6 +28,7 @@ use pf::trigger;
 use pf::util;
 use pf::violation;
 use pf::web;
+use pf::log;
 # called last to allow redefinitions
 use pf::web::custom;
 
@@ -35,10 +36,7 @@ sub handler
 {
   my $r = shift;
 
-  Log::Log4perl->init("$conf_dir/log.conf");
-  my $logger = Log::Log4perl->get_logger('release.pm');
-  Log::Log4perl::MDC->put('proc', 'release.pm');
-  Log::Log4perl::MDC->put('tid', 0);
+  my $logger = get_logger();
 
   my $portalSession     = pf::Portal::Session->new();
   my $cgi               = $portalSession->getCgi();

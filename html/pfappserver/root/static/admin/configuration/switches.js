@@ -59,6 +59,9 @@ var SwitchView = function(options) {
     // Disable the uplinks field when 'dynamic uplinks' is checked
     options.parent.on('change', 'form[name="modalSwitch"] input[name="uplink_dynamic"]', this.changeDynamicUplinks);
 
+    // Disable the mapping fields for inactive modes (VLAN and/or roles)
+    options.parent.on('change', 'form[name="modalSwitch"] input[type="checkbox"][name*="Map"]', this.changeRoleMapping);
+
     // Initial creation of an inline trigger when no trigger is defined
     options.parent.on('click', '#inlineTriggerEmpty [href="#add"]', this.addInlineTrigger);
 
@@ -79,6 +82,11 @@ var SwitchView = function(options) {
     options.parent.on('change', '#inlineTrigger select', function(e) {
         that.updateInlineTrigger($(this));
     });
+
+    // pagination the switch
+    var pagination = $.proxy(this.pagination, this);
+    options.parent.on('click', '#switches [href*="/list/"]', pagination);
+
 };
 
 SwitchView.prototype.readSwitch = function(e) {
@@ -104,12 +112,31 @@ SwitchView.prototype.readSwitch = function(e) {
             modal.find('.chzn-select').chosen();
             modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
             modal.one('shown', function() {
+                var checkbox;
                 modal.find(':input:visible').first().focus();
+                // Update state of uplinks field
+                checkbox = $('form[name="modalSwitch"] input[name="uplink_dynamic"]');
+                that.changeDynamicUplinks.call(checkbox);
+                // Update state of mapping fields
+                checkbox = $('form[name="modalSwitch"] input[type="checkbox"][name*="Map"]');
+                checkbox.each(function(i) { that.changeRoleMapping.call(this); });
             });
             modal.modal({ shown: true });
         },
         errorSibling: section.find('h2').first()
     });
+};
+
+SwitchView.prototype.changeRoleMapping = function(e) {
+    var checkbox = $(this);
+    var match = /(.+)Map/.exec(checkbox.attr('name'));
+    var type = match[1];
+    var inputs = checkbox.closest('form').find('input[type="text"][name*="'+type+'"]');
+
+    if (checkbox.is(':checked'))
+        inputs.removeAttr('disabled');
+    else
+        inputs.attr('disabled', 1);
 };
 
 SwitchView.prototype.changeDynamicUplinks = function(e) {
@@ -200,6 +227,30 @@ SwitchView.prototype.list = function() {
         },
         errorSibling: $('#switches')
     });
+};
+
+SwitchView.prototype.pagination = function(e) {
+    e.preventDefault();
+    var link = $(e.target);
+    var url = link.attr('href');
+    var section = $('#section');
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5);
+    this.switches.get({
+        url: url,
+        always: function() {
+            loader.hide();
+            section.stop();
+            section.fadeTo('fast', 1.0);
+        },
+        success: function(data) {
+            var table = $('#switches');
+            table.html(data);
+        },
+        errorSibling: $('#switches')
+    });
+    return false;
 };
 
 SwitchView.prototype.deleteSwitch = function(e) {

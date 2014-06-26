@@ -36,7 +36,7 @@ BEGIN {
     our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT = qw();
-    @EXPORT_OK = qw(perform_disconnect perform_coa);
+    @EXPORT_OK = qw(perform_disconnect perform_coa perform_rsso);
 }
 
 use Net::Radius::Packet;
@@ -238,6 +238,12 @@ sub perform_coa {
     my ($connection_info, $attributes, $vsa) = @_;
 
     return perform_dynauth($connection_info, 'CoA-Request', $attributes, $vsa);
+}
+
+sub perform_rsso {
+    my ($connection_info, $attributes, $vsa) = @_;
+
+    return perform_dynauth($connection_info, 'Accounting-Request', $attributes, $vsa);
 }
 
 =back

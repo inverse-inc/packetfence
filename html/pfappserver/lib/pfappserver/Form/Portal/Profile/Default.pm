@@ -26,42 +26,10 @@ The main definition block
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id description logo redirecturl always_use_redirecturl billing_engine) ],
+   render_list => [ qw(id description logo redirecturl always_use_redirecturl billing_engine nbregpages) ],
   );
 
-
-=head1 Fields
-
-=head2 logo
-
-The logo field
-
-=cut
-
-has_field 'logo' =>
-  (
-   type => 'Text',
-   label => 'Logo',
-   required => 1,
-  );
-
-
-=head1 METHODS
-
-=head2 update_fields
-
-The redirection URL is mandatory for the default profile.
-
-=cut
-
-sub update_fields {
-    my $self = shift;
-
-    $self->field('redirecturl')->required(1);
-
-    # Call the theme implementation of the method
-    $self->SUPER::update_fields();
-}
+has_field '+redirecturl' => ( required => 1 );
 
 
 =head1 COPYRIGHT

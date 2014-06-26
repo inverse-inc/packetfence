@@ -25,6 +25,7 @@ my $logger = Log::Log4perl->get_logger( "dao/os.t" );
 Log::Log4perl::MDC->put( 'proc', "dao/os.t" );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
+use lib qw(/usr/local/pf/t);
 use TestUtils;
 
 # override database connection settings to connect to test database
@@ -43,7 +44,7 @@ my @simple_methods = qw(
     no strict 'refs';
 
     foreach my $method (@simple_methods) {
-    
+
         ok(defined(&{$method}()), "testing $method call");
     }
 }
@@ -56,7 +57,7 @@ Readonly my $AN_OS => {
     'class' => 'BSD',
 };
 
-# regression test for a regression introduced while fixing #1180 
+# regression test for a regression introduced while fixing #1180
 # Someone changed the output of dhcp_fingerprint_view without realizing it was an interface contract
 # used by pfdhcplistener
 my @results = dhcp_fingerprint_view($AN_OS->{'fingerprint'});
@@ -75,21 +76,21 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
 

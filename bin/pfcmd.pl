@@ -80,6 +80,7 @@ use constant {
 
 use lib INSTALL_DIR . "/lib";
 
+use pf::log;
 use pf::config;
 use pf::config::ui;
 use pf::pfcmd;
@@ -99,10 +100,7 @@ $ENV{PATH} = "/bin:/sbin:/usr/bin:/usr/sbin";
 # TODO: this parameter should be exposed to the CLI
 #our $RD_TRACE = 1;
 
-Log::Log4perl->init("$conf_dir/log.conf");
-my $logger = Log::Log4perl->get_logger( basename($0) );
-Log::Log4perl::MDC->put( 'proc', basename($0) );
-Log::Log4perl::MDC->put( 'tid',  $PROCESS_ID );
+my $logger = get_logger();
 
 Readonly my $delimiter => '|';
 use vars qw/%cmd $grammar/;
@@ -1207,14 +1205,15 @@ sub service {
     return $FALSE;
 }
 
-sub pfStartService {
+sub postPfStartService {
     my ($managers) = @_;
-    if(-e $pf_config_file) {
-        $logger->info("saving current iptables to var/iptables.bak");
-        my $technique;
-        if(all { $_->status eq '0'  } @$managers) {
+    my $noServicesAreRunning = all {$_->status eq '0'} @$managers;
+    my $technique;
+    configreload('hard') if $noServicesAreRunning;
+    if ( -e $pf_config_file && isenabled($Config{services}{iptables})) {
+        if ($noServicesAreRunning) {
             $technique = getIptablesTechnique();
-            $technique->iptables_save( $install_dir . '/var/iptables.bak' );
+            $technique->iptables_save($install_dir . '/var/iptables.bak');
         }
         $technique ||= getIptablesTechnique();
         $technique->iptables_generate();
@@ -1226,17 +1225,7 @@ sub startService {
     my @managers = getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
-    pfStartService(\@managers) if $service eq 'pf';
-    if(isIptablesManaged($service) && -e $pf_config_file) {
-        $logger->info("saving current iptables to var/iptables.bak");
-        my $technique;
-        if(all { $_->status eq '0'  } @managers) {
-            $technique = getIptablesTechnique();
-            $technique->iptables_save( $install_dir . '/var/iptables.bak' );
-        }
-        $technique ||= getIptablesTechnique();
-        $technique->iptables_generate();
-    }
+    postPfStartService(\@managers) if $service eq 'pf';
 
     my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup } @managers;
 
@@ -1352,7 +1341,7 @@ sub isIptablesManaged {
 sub restartService {
     my ($service,@services) = @_;
     stopService(@_);
-    configreload('hard');
+    configreload('hard') if $service eq 'pf';
     local $SERVICE_HEADER = '';
     startService(@_);
 }
@@ -2500,6 +2489,8 @@ sub configreload {
     require pf::ConfigStore::Switch;
     require pf::ConfigStore::Violations;
     require pf::ConfigStore::Wrix;
+    require pf::web::filter;
+    require pf::vlan::filter;
     pf::config::cached::updateCacheControl();
     pf::config::cached::ReloadConfigs($force);
     return 0;

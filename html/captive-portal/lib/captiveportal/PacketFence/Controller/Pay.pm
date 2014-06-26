@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::Pay;
 use Moose;
 use namespace::autoclean;
 use pf::config;
-use URI::Escape qw(uri_escape uri_unescape);
+use URI::Escape::XS qw(uri_escape uri_unescape);
 use pf::billing::constants;
 use pf::billing::custom;
 use pf::config;
@@ -123,6 +123,7 @@ sub processTransaction : Private {
     my $request = $c->request;
     my $logger = $c->log;
     my $portalSession = $c->portalSession;
+    my $profile       = $c->profile;
     my $mac = $portalSession->clientMac;
 
     # Transactions informations
@@ -156,6 +157,8 @@ sub processTransaction : Private {
                 'lastname'  => $request->param('lastname'),
                 'email'     => lc($request->param('email')),
                 'notes'     => 'billing engine activation - ' . $tier,
+                'portal'    => $profile->getName,
+                'source'    => 'billing',
             )
         );
 

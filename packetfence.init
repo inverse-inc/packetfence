@@ -14,9 +14,13 @@ source /etc/rc.d/init.d/functions
 
 start() {
 	#Check if MySQL is started
-	if [ ! -f /var/run/mysqld/mysqld.pid ]; then
-		[ -d /var/lib/mysql/pf ] && /etc/init.d/mysqld start
-	fi
+        if [ ! -f /var/run/mysqld/mysqld.pid ] && [ ! -f /var/lib/mysql/`hostname`.pid ]; then
+                if [ -f /etc/init.d/mysqld ]; then
+                        [ -d /var/lib/mysql/pf ] && /etc/init.d/mysqld start
+                else
+                        [ -d /var/lib/mysql/pf ] && /etc/init.d/mysql start
+                fi
+        fi
 	echo -n $"Starting PacketFence..."
 	IPSET=`command -v ipset`
 	if [ $IPSET ]; then
@@ -41,9 +45,13 @@ stop() {
 
 restart() {
 	#Check if MySQL is started
-	if [ ! -f /var/run/mysqld/mysqld.pid ]; then
-		[ -d /var/lib/mysql/pf ] && /etc/init.d/mysqld start
-	fi
+        if [ ! -f /var/run/mysqld/mysqld.pid ] && [ ! -f /var/lib/mysql/`hostname`.pid ]; then
+                if [ -f /etc/init.d/mysqld ]; then
+                        [ -d /var/lib/mysql/pf ] && /etc/init.d/mysqld start
+                else
+                        [ -d /var/lib/mysql/pf ] && /etc/init.d/mysql start
+                fi
+        fi
 	echo -n $"Restarting PacketFence..."
 	/usr/local/pf/bin/pfcmd service pf restart
 	RETVAL=$?

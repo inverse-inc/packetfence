@@ -29,15 +29,17 @@
       <div class="tab-pane fade" id="switchRoles">
         <div class="control-group">
           <div class="controls">
-            <h6>[% l('Role mapping by VLAN') %]</h6>
+            <h6>[% l('Role mapping by VLAN ID') %]</h6>
           </div>
         </div>
+        [% form.field('VlanMap').render %]
         [% form.block('vlans').render %]
         <div class="control-group">
           <div class="controls">
             <h6>[% l('Role mapping by switch role') %]</h6>
           </div>
         </div>
+        [% form.field('RoleMap').render %]
         [% form.block('roles').render %]
       </div><!--tab-pane-->
 

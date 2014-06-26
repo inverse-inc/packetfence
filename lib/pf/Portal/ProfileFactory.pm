@@ -39,15 +39,18 @@ our @MATCHES_LAST_TYPE = map {"last_$_"} @MATCHES_TYPE;
 sub instantiate {
     my ( $self, $mac, $options ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $options ||= {};
+
+    if (defined($options->{'portal'})) {
+        $logger->trace("Instantiate profile ".$options->{'portal'});
+        return $self->_from_profile($options->{'portal'});
+    }
 
     # We apply portal profiles based on the uri, SSID, VLAN and switch. We check the last_(ssid|vlan|switch) for the given MAC
     # and try to match a portal profile using the previously fetched filters.
     # If no match, we instantiate the default portal profile.
-    my $node_info = node_view($mac);
-
-    if (defined($options)) {
-        $node_info = { %$options, %$node_info } ;
-    }
+    my $node_info = node_view($mac) || {};
+    $node_info = { %$options, %$node_info } ;
 
     my @filter_ids = (
         ( map {

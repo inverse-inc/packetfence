@@ -82,12 +82,14 @@ sub default : Path {
 
 sub next_page : Local : Args(0) {
     my ( $self, $c ) = @_;
+    my $profile = $c->profile;
     my $pagenumber = $c->request->param('page');
 
     $pagenumber = 1 if ( !defined($pagenumber) );
+    my $last_page = $profile->nbregpages;
 
     if (   ( $pagenumber >= 1 )
-        && ( $pagenumber <= $Config{'registration'}{'nbregpages'} ) ) {
+        && ( $pagenumber <= $last_page ) ) {
 
         $c->stash( reg_page_content_file => "register_$pagenumber.html", );
 
@@ -106,10 +108,14 @@ sub next_page : Local : Args(0) {
         }
         $c->stash->{'list_locales'} = \@locales;
 
-        if ( $pagenumber == $Config{'registration'}{'nbregpages'} ) {
+        if ( $pagenumber == $last_page ) {
             $c->stash->{'button_text'} =
               $Config{'registration'}{'button_text'};
-            $c->stash->{'form_action'} = '/authenticate';
+            if($profile->guestRegistrationOnly) {
+                $c->stash->{'form_action'} = '/signup';
+            } else {
+                $c->stash->{'form_action'} = '/authenticate';
+            }
         } else {
             $c->stash->{'button_text'} = "Next page";
             $c->stash->{'form_action'} =
@@ -183,6 +189,7 @@ sub postAuthentication : Private {
     $c->detach('showLogin') if $c->has_errors;
     my $portalSession = $c->portalSession;
     my $session = $c->session;
+    my $profile = $c->profile;
     my $info = $c->stash->{info} || {};
     my $source_id = $session->{source_id};
     my $pid = $session->{"username"};
@@ -203,12 +210,14 @@ sub postAuthentication : Private {
     my $value =
       &pf::authentication::match( $source_id, $params, $Actions::SET_ROLE );
 
-    $logger->trace("Got role '$value' for username $pid");
-
     # This appends the hashes to one another. values returned by authenticator wins on key collision
     if ( defined $value ) {
+        $logger->trace("Got role '$value' for username $pid");
         $info->{category} = $value;
+    } else {
+        $logger->trace("Got no role for username $pid");
     }
+
 
     # If an access duration is defined, use it to compute the unregistration date;
     # otherwise, use the unregdate when defined.
@@ -216,9 +225,8 @@ sub postAuthentication : Private {
       &pf::authentication::match( $source_id, $params,
         $Actions::SET_ACCESS_DURATION );
     if ( defined $value ) {
-        $value = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
-            localtime( time + normalize_time($value) ) );
-        $logger->trace("Computed unrege date from access duration: $value");
+        $value = pf::config::access_duration($value);
+        $logger->trace("Computed unreg date from access duration: $value");
     } else {
         $value =
           &pf::authentication::match( $source_id, $params,
@@ -228,6 +236,8 @@ sub postAuthentication : Private {
         $logger->trace("Got unregdate $value for username $pid");
         $info->{unregdate} = $value;
     }
+    $info->{source} = $source_id;
+    $info->{portal} = $profile->getName;
     $c->stash->{info} = $info;
 }
 
@@ -263,17 +273,44 @@ sub authenticationLogin : Private {
     my $session = $c->session;
     my $request = $c->request;
     my $profile = $c->profile;
-    $logger->trace("authentication attempt");
+    my $portalSession = $c->portalSession;
+    my $mac           = $portalSession->clientMac;
 
-    my @sources =
-      ( $profile->getInternalSources, $profile->getExclusiveSources );
+    $logger->trace("authentication attempt");
+    my $local;
+    if ($request->{'match'} eq "status/login") {
+        use pf::person;
+        my $person_info = pf::person::person_view($request->param("username"));
+        my $source = pf::authentication::getAuthenticationSource($person_info->{source});
+        if (defined($source) && $source->{'class'} eq 'external') {
+            # Source is external, we have to use local source to authenticate
+            $local = '1';
+        }
+        my $options = {
+            'portal' => $person_info->{portal},
+        };
+        $profile = pf::Portal::ProfileFactory->instantiate( $mac, $options);
+    }
+
+    my @sources;
+    if ($local) {
+        @sources = pf::authentication::getAuthenticationSource('local');
+    } else {
+        #If we try to validate a sponsor access then use all Internal Sources
+        if ($request->{'match'} =~ "activate/email") {
+            @sources = @{pf::authentication::getInternalAuthenticationSources()};
+        } else {
+            @sources =
+                ( $profile->getInternalSources, $profile->getExclusiveSources );
+        }
+    }
+
     my $username = $request->param("username");
     my $password = $request->param("password");
 
     # validate login and password
     my ( $return, $message, $source_id ) =
       pf::authentication::authenticate( $username, $password, @sources );
-
     if ( defined($return) && $return == 1 ) {
         # save login into session
         $c->session->{"username"} = $request->param("username");
@@ -308,6 +345,8 @@ sub showLogin : Private {
         oauth2_google   => is_in_list( $SELFREG_MODE_GOOGLE, $guestModes ),
         no_username     => _no_username($profile),
         oauth2_facebook => is_in_list( $SELFREG_MODE_FACEBOOK, $guestModes ),
+        oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
+        oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
         guest_allowed   => $guest_allowed,
     );
 }

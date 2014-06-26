@@ -50,10 +50,11 @@ BEGIN {
         node_count_all
         node_view_all
         node_view_with_fingerprint
+        node_view_reg_pid
         node_modify
         node_register
         node_deregister
-        node_unregistered
+        node_is_unregistered
         nodes_maintenance
         nodes_unregistered
         nodes_registered
@@ -191,6 +192,12 @@ sub node_db_prepare {
         WHERE node.mac=?
     SQL
 
+    $node_statements->{'node_view_reg_pid_sql'} = get_db_handle()->prepare(<<"    SQL");
+        SELECT node.mac
+        FROM node
+        WHERE node.pid=? AND node.status="$STATUS_REGISTERED";
+    SQL
+
     $node_statements->{'node_last_locationlog_sql'} = get_db_handle()->prepare(<<'    SQL');
        SELECT
            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
@@ -266,7 +273,7 @@ sub node_db_prepare {
     $node_statements->{'node_expire_lastdhcp_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_dhcp) < (unix_timestamp(now()) - ?) and last_dhcp !=0 and status="$STATUS_UNREGISTERED" ]);
 
-    $node_statements->{'node_unregistered_sql'} = get_db_handle()->prepare(qq[
+    $node_statements->{'node_is_unregistered_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, pid, voip, bypass_vlan, status,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
@@ -353,6 +360,14 @@ sub node_pid {
     my ($count) = $query->fetchrow_array();
     $query->finish();
     return ($count);
+}
+
+#
+# return mac for specified register pid
+#
+sub node_view_reg_pid {
+    my ($pid) = @_;
+    return (db_data(NODE, $node_statements, 'node_view_reg_pid_sql', $pid));
 }
 
 #
@@ -756,7 +771,7 @@ sub node_modify {
     }
 
     # Autoregistration handling
-    if (!defined($data{'autoreg'})) {
+    if (!defined($data{'autoreg'}) && (!defined($existing->{autoreg}) || $existing->{autoreg} ne 'yes' )) {
         $existing->{autoreg} = 'no';
     }
 
@@ -811,6 +826,12 @@ sub node_register {
     } else {
         $logger->debug("person $pid already exists");
     }
+    pf::person::person_modify($pid,
+                    'source'  => $info{'source'},
+                    'portal'     => $info{'portal'},
+    );
+    delete $info{'source'};
+    delete $info{'portal'};
 
     # if it's for auto-registration and mac is already registered, we are done
     if ($auto_registered) {
@@ -905,10 +926,10 @@ sub nodes_maintenance {
 
 # check to see is $mac is registered
 #
-sub node_unregistered {
+sub node_is_unregistered {
     my ($mac) = @_;
 
-    my $query = db_query_execute(NODE, $node_statements, 'node_unregistered_sql', $mac) || return (0);
+    my $query = db_query_execute(NODE, $node_statements, 'node_is_unregistered_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
     return ($ref);

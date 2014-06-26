@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::Root;
 use Moose;
 use namespace::autoclean;
 use pf::web::constants;
-use URI::Escape qw(uri_escape uri_unescape);
+use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use pf::enforcement qw(reevaluate_access);
 use pf::config;
@@ -16,9 +16,9 @@ use pf::useragent;
 use pf::violation;
 use pf::class;
 use Cache::FileCache;
-use pf::sms_activation;
 use List::Util qw(first);
 use POSIX;
+use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -63,6 +63,11 @@ sub index : Path : Args(0) {
 
 sub default : Path {
     my ( $self, $c ) = @_;
+    my $request  = $c->request;
+    my $r = $request->{'env'}->{'psgi.input'};
+    if ($r->pnotes('last_uri') ) {
+        $c->forward(CaptivePortal => 'index');
+    }
     $c->response->body('Page not found');
     $c->response->status(404);
 }
@@ -75,13 +80,19 @@ Add all the common variables in the stash
 
 sub setupCommonStash : Private {
     my ( $self, $c ) = @_;
+    my $logger = get_logger;
     my $portalSession   = $c->portalSession;
     my $destination_url = $c->request->param('destination_url');
-    if ( defined $destination_url ) {
-        $destination_url = decode_entities( uri_unescape($destination_url) );
-    } else {
-        $destination_url = $Config{'trapping'}{'redirecturl'};
+    if (isenabled($c->profile->forceRedirectURL)){
+        $destination_url = $c->profile->getRedirectURL;
     }
+    elsif (defined $destination_url && !($destination_url eq "")) { 
+        $destination_url = decode_entities( uri_unescape($destination_url) );
+    } 
+    else {
+        $destination_url = $c->profile->getRedirectURL;
+    }
+
     my @list_help_info;
     push @list_help_info,
       { name => i18n('IP'), value => $portalSession->clientIp }
@@ -111,7 +122,16 @@ sub setupLanguage : Private {
     my $locale = shift @$locales;
     $logger->debug("Setting locale to ".$locale);
     setlocale(POSIX::LC_MESSAGES, "$locale.utf8"); 
+    my $newlocale = setlocale(POSIX::LC_MESSAGES);
+    if ($newlocale !~ m/^$locale/) {
+        $logger->error("Error while setting locale to $locale.utf8. Is the locale generated on your system?");
+    }
+    $c->stash->{locale} = $newlocale;
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    bind_textdomain_codeset( "packetfence", "utf-8" );
+    textdomain("packetfence");
 }
+
 
 =head2 getLanguages
 

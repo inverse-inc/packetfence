@@ -28,9 +28,11 @@ extends 'pfappserver::Base::Model::Search';
 =cut
 
 sub search {
-    my ($self, $params) = @_;
+    my ($self, $params, $pageNum, $perPage) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $builder = $self->make_builder;
+    $params->{page_num} = $pageNum;
+    $params->{per_page} = $perPage;
     $self->setup_query($builder, $params);
     my $results = $self->do_query($builder, $params);
     return (HTTP_OK, $results);
@@ -163,7 +165,7 @@ sub make_builder {
                                 'name'   => 'end_time',
                             },
                             '>',
-                            'NOW()',
+                            L_('NOW()'),
                          ],
                      [ ')' ],
                     ],
@@ -173,7 +175,7 @@ sub make_builder {
                     'join' => 'LEFT',
                     'using' => 'os_id',
                 },
-        )->distinct();
+        );
 }
 
 my %COLUMN_MAP = (

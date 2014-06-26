@@ -379,6 +379,13 @@ sub sql_count {
             $self->group_by_clause(),
             $self->having_clause(),
         ") as x"
+    ) if($self->has_group_by_clause_elements);
+
+    return (
+        join q{ },
+        $self->select_count_clause(),
+        $self->from_clause(),
+        $self->where_clause(),
     );
 }
 

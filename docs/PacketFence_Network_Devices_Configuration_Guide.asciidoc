@@ -973,6 +973,54 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 * Gi0/1...Gi0/48 -> 10101...10148 
 ===========================================================================
 
+Web auth
+++++++++
+
+The Catalyst 2960 supports web authentication from IOS 12.2.55SE3. This procedure has been tested on IOS 15.0.2SE5.
+
+In this example, the ACL for registration is 'redirect' and the ACL for registered devices is 'registered'
+
+Configure the global configuration of the switch using the section __MAC Authentication bypass only__ of the 2960 in this document.
+
+Then add this additionnal configuration on the global level
+
+  ip dhcp snooping
+  ip device tracking
+  nmsp enable
+  udld enable
+  ip http server
+  ip http secure-server
+  snmp-server community public RO
+  snmp-server community private RW
+
+Add the required access lists
+
+  ip access-list extended redirect
+   deny ip any host <your captive portal ip> 
+   permit tcp any any eq www
+   permit tcp any any eq 443
+
+  ip access-list extended registered
+   permit ip any any
+
+Then on each controlled interface
+
+   switchport access vlan <vlan> 
+   switchport mode access
+   authentication priority mab
+   authentication port-control auto
+   authentication periodic
+   mab
+   spanning-tree portfast
+
+PacketFence switch configuration 
+
+* Select the type to 'Cisco Catalyst 2960 with Web Auth'
+* Set 'Portal URL' to 'http://<your_captive_portal_ip>'
+* Set the 'Registration' role to 'redirect'
+* Set your registered roles to 'registered'
+* Screenshots of this configuration are available in the Cisco WLC section of this guide.
+
 Stacked 29xx, Stacked 35xx, Stacked 3750, 4500 Series, 6500 Series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1151,7 +1199,7 @@ Edge­corE
 
 PacketFence supports Edge-corE switches without VoIP using linkUp/linkDown traps.
 
-Don't forget to update the startup config! 
+PacketFence also supports MAC authentication on the Edge-corE 4510
 
 3526XA and 3528M 
 ^^^^^^^^^^^^^^^^
@@ -1159,6 +1207,37 @@ Don't forget to update the startup config!
 Global config settings 
 
   SNMP-server host 192.168.1.5 public version 2c udp-port 162 
+
+4510
+^^^^
+
+Basic configuration
++++++++++++++++++++
+
+----
+
+network-access aging
+snmp-server community private rw
+snmp-server community public rw
+
+
+radius-server 1 host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 5 retransmit 2 key useStrongerSecret
+radius-server key useStrongerSecret
+
+----
+
+On each controlled interface
+++++++++++++++++++++++++++++
+
+----
+
+interface ethernet 1/8
+ switchport allowed vlan add <your list of allowed vlans> untagged
+ network-access max-mac-count 1
+ network-access mode mac-authentication
+!
+
+----
 
 Enterasys 
 ~~~~~~~~~
@@ -1913,6 +1992,73 @@ RADIUS configuration
   aaa port-access authenticator C4 client-limit 3
   aaa port-access authenticator active
 
+Huawei
+~~~~~~
+
+PacketFence supports the S5710 switch from Huawei.
+
+Basic configuration
++++++++++++++++++++
+
+----
+
+l2protocol-tunnel user-defined-protocol 802.1x protocol-mac 0180-c200-0003 group-mac 0100-0000-0002
+domain pf
+
+dot1x enable
+dot1x dhcp-trigger
+
+radius-server template packetfence
+ radius-server shared-key cipher <yourSecret>
+ radius-server authentication 192.168.1.5 1812
+ radius-server accounting 192.168.1.5 1813
+ radius-server retransmit 2
+radius-server authorization 192.168.1.5 shared-key cipher <yourSecret>
+
+aaa
+ authentication-scheme abc
+  authentication-mode radius
+ accounting-scheme abc
+  accounting-mode radius
+ domain pf
+  authentication-scheme abc
+  accounting-scheme abc
+  radius-server packetfence
+
+snmp-agent
+snmp-agent local-engineid 800007DB0304F9389D2360
+snmp-agent community write cipher <privateKey>
+snmp-agent sys-info version v2c v3
+
+----
+
+MAC authentication
+++++++++++++++++++
+
+----
+
+interface GigabitEthernet0/0/8
+ dot1x mac-bypass mac-auth-first
+ dot1x mac-bypass
+ dot1x max-user 1
+ dot1x reauthenticate
+ dot1x authentication-method eap
+
+----
+
+802.1X
+++++++
+
+----
+
+interface GigabitEthernet0/0/8
+ dot1x mac-bypass
+ dot1x max-user 1
+ dot1x reauthenticate
+ dot1x authentication-method eap
+
+----
+
 Intel
 ~~~~~
 
@@ -1928,7 +2074,7 @@ Exact command-line configuration to be contributed...
 Juniper
 ~~~~~~~
 
-PacketFence supports Juniper switches in MAC Authentication (Juniper's MAC RADIUS) mode.
+PacketFence supports Juniper switches in MAC Authentication (Juniper's MAC RADIUS) mode and 802.1X.
 PacketFence supports VoIP on the EX2200 (JUNOS 12.6) and EX4200 (JUNOS 13.2)
 
 ----
@@ -1954,6 +2100,7 @@ protocols {
                     supplicant multiple;
                     mac-radius {
                         restrict;
+                        flap-on-disconnect;
                     }
                 }
             }
@@ -1979,6 +2126,14 @@ access {
             order radius;
             accounting-stop-on-failure;
             accounting-stop-on-access-deny;
+        }
+    }
+}
+
+ethernet-switching-options {
+    secure-access-port {
+        interface access-ports {
+            mac-limit 1 action drop;
         }
     }
 }
@@ -2027,6 +2182,11 @@ protocols{
 }
 
 ethernet-switching-options { 
+    secure-access-port {
+        interface access-ports {
+            mac-limit 2 action drop;
+        }
+    }
     voip {
         interface access-ports {
             vlan voice;
@@ -2044,6 +2204,27 @@ vlans {
 
 Ctrl-D
 # commit comment "packetfenced VoIP"
+----
+
+802.1x configuration
+++++++++++++++++++++
+
+----
+protocols {
+    dot1x {
+        authenticator {
+            authentication-profile-name packetfence;
+            interface {
+                access-ports {
+                    supplicant multiple;
+                    mac-radius;
+                }
+            }
+        }
+    }
+}
+Ctrl-D
+# commit comment "packetfenced dot1x"
 ----
 
 LG-Ericsson
@@ -2238,6 +2419,53 @@ Each user-facing, PacketFence-managed port should be configured like:
   vlan participation include 4
   no auto-voip
   exit
+
+M Series
+^^^^^^^^
+
+PacketFence supports the Netgear M series in wired MAC authentication without VoIP.
+
+Switch configuration
+++++++++++++++++++++
+
+---
+
+radius server host auth 192.168.1.5
+radius server key auth 192.168.1.5 (then press enter and input your secret)
+radius server primary 192.168.1.5
+radius server host acct 192.168.1.5
+radius server key acct 192.168.1.5 (then press enter and input your secret)
+
+
+aaa session-id unique
+dot1x system-auth-control
+aaa authentication dot1x default radius
+authorization network radius
+radius accounting mode
+
+---
+
+On your uplinks
++++++++++++++++
+
+---
+
+dot1x port-control force-authorized
+
+---
+
+On your interfaces
+++++++++++++++++++
+
+---
+
+interface 0/x
+dot1x port-control mac-based
+dot1x timeout guest-vlan-period 1
+dot1x mac-auth-bypass
+exit
+
+---
 
 Nortel
 ~~~~~~

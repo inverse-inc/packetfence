@@ -23,7 +23,7 @@ our $OLD_STASH;
 
 ($code,$output) = git_cmd(qw(stash --keep-index));
 
-unless( $STASHED = $code == 0 ) {
+unless( $code == 0 ) {
     print STDERR "Error stashing working space\n";
     print STDERR $output;
     exit 1;
@@ -33,6 +33,8 @@ our ($code,$NEW_STASH) = git_cmd(qw(rev-parse -q --verify refs/stash));
 
 #return if there are no changes
 exit 0 if $OLD_STASH eq $NEW_STASH;
+
+$STASHED = 1;
 
 sub pod_checker {
     my ($file_name) = @_;

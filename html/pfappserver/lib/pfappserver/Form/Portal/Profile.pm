@@ -18,6 +18,7 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Form::Portal::Common';
 
 use pf::config;
+use pf::log;
 use List::MoreUtils qw(uniq);
 
 =head1 BLOCKS
@@ -30,7 +31,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id description redirecturl always_use_redirecturl billing_engine) ],
+   render_list => [ qw(id description logo redirecturl always_use_redirecturl billing_engine nbregpages) ],
   );
 
 =head1 FIELDS
@@ -66,6 +67,25 @@ has_field 'filter.contains' =>
    label => 'Filter',
    widget_wrapper => 'DynamicTableRow',
   );
+
+=head1 METHODS
+
+=head2 update_fields
+
+The redirection URL is mandatory for the default profile.
+
+=cut
+
+sub update_fields {
+    my $self = shift;
+    my $init_object = $self->init_object;
+
+    $self->field('id')->readonly(1) if (defined $init_object && defined $init_object->{id});
+
+    # Call the theme implementation of the method
+    $self->SUPER::update_fields();
+}
+
 
 =head1 COPYRIGHT
 

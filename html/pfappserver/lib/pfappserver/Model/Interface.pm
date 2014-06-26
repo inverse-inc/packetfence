@@ -18,6 +18,7 @@ use Net::Netmask;
 use pf::config;
 use pf::error qw(is_error is_success);
 use pf::util;
+use pf::log;
 
 extends 'Catalyst::Model';
 
@@ -220,27 +221,30 @@ and phy.vlan (eth0.100) if there's a vlan interface.
 
 sub get {
     my ( $self, $interface) = @_;
+    my $logger = get_logger;
     my $models = $self->{models};
 
     # Put requested interfaces into an array
     my @interfaces = $self->_listInterfaces($interface);
     my $networks_model = $models->{network};
+    my $interface_model = $models->{interface};
 
     my $result = {};
-    my ($status, $return);
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $return, $config);
     foreach my $interface_ref ( @interfaces ) {
         next if ( $interface_ref->{name} eq "lo" );
-
-        $interface                              = $interface_ref->{name};
-        $result->{"$interface"}                 = $interface_ref;
-        if ((my ($physical_device, $vlan_id)    = $self->_interfaceVirtual($interface))) {
-          $result->{"$interface"}->{'name'}     = $physical_device;
-          $result->{"$interface"}->{'vlan'}     = $vlan_id;
+        $interface = $interface_ref->{name};
+        ($status,$config) = $interface_model->read($interface);
+        $config = {} unless is_success($status);
+        $result->{"$interface"} = $interface_ref;
+        $result->{"$interface"}->{'high_availability'} = defined $config->{type} &&  $config->{type} =~ /high-availability/ ? $TRUE : $FALSE;
+        if ((my ($physical_device, $vlan_id) = $self->_interfaceVirtual($interface))) {
+          $result->{"$interface"}->{'name'} = $physical_device;
+          $result->{"$interface"}->{'vlan'} = $vlan_id;
         }
+        $result->{"$interface"}->{'vip'} = $config->{vip};
         if (($result->{"$interface"}->{'network'} = $networks_model->getNetworkAddress($interface_ref->{ipaddress}, $interface_ref->{netmask}))) {
-            ($status, $return) = $networks_model->getRoutedNetworks($result->{"$interface"}->{'network'},
-                                                                           $interface_ref->{netmask});
+            ($status, $return) = $networks_model->getRoutedNetworks($result->{"$interface"}->{'network'}, $interface_ref->{netmask});
             if (is_success($status)) {
                 $result->{"$interface"}->{'networks'} = $return;
             }
@@ -415,6 +419,7 @@ sub getType {
 
 sub setType {
     my ($self, $interface, $interface_ref) = @_;
+    my $logger = get_logger;
     my $models = $self->{models};
 
     my $type = $interface_ref->{type} || 'none';
@@ -424,13 +429,17 @@ sub setType {
     return if ( $type =~ /^other$/i );
 
     # we delete interface type 'None'
-    if ( $type =~ /^none$/i ) {
+    if ( $type =~ /^none$/i && !$interface_ref->{high_availability} ) {
+        $logger->trace("Deleting $interface interface");
         $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
         $models->{interface}->remove($interface);
     }
     # otherwise we update pf.conf and networks.conf
     else {
         # Update pf.conf
+        $logger->trace("Updating or creating $interface interface");
+        
+        
         $models->{interface}->update_or_create($interface,
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
@@ -460,9 +469,9 @@ sub setType {
             }
             $network_ref->{type} = $type;
             $network_ref->{netmask} = $interface_ref->{'netmask'};
-            $network_ref->{gateway} = $interface_ref->{'ipaddress'};
+            $network_ref->{gateway} = $interface_ref->{'vip'} || $interface_ref->{'ipaddress'};
             if($is_vlan) {
-                $network_ref->{dns} = $interface_ref->{'ipaddress'};
+                $network_ref->{dns} = $interface_ref->{'vip'} || $interface_ref->{'ipaddress'};
             } else {
                 $network_ref->{dns} = $interface_ref->{'dns'};
             }
@@ -473,6 +482,7 @@ sub setType {
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
         }
     }
+    $logger->trace("Committing changes to $interface interface");
     $models->{network}->commit();
     $models->{interface}->commit();
 }
@@ -607,10 +617,12 @@ Process parameters to build a proper pf.conf interface section.
 # this might imply a rework of this out of the controller into the model
 sub _prepare_interface_for_pfconf {
     my ($self, $int, $int_model, $type) = @_;
+    my $logger = get_logger;
 
     my $int_config_ref = {
         ip => $int_model->{'ipaddress'},
         mask => $int_model->{'netmask'},
+        vip => $int_model->{'vip'},
     };
 
     # logic to match our awkward relationship between pf.conf's type and
@@ -628,9 +640,13 @@ sub _prepare_interface_for_pfconf {
         $int_config_ref->{'enforcement'} = $type;
     }
     else {
+        if($int_model->{'high_availability'}) {
+            $type .= ",high-availability";
+        }
         # here we oversimplify a bit, type supports multivalues but it's
         # out of scope for now
         $int_config_ref->{'type'} = $type;
+        $int_config_ref->{'enforcement'} = undef;
     }
 
     return $int_config_ref;

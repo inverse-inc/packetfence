@@ -5,16 +5,16 @@
 captiveportal_modperl_require.pl - Pre-loading PacketFence's modules in Apache (mod_perl) for the Captive Portal
 
 =cut
-use lib "/usr/local/pf/lib";
 
 use strict;
 use warnings;
 
-use Cache::FileCache();
 BEGIN {
-    use pf::log 'service' => 'httpd.portal', no_stderr_trapping => 1, no_stdout_trapping => 1;
+    use lib "/usr/local/pf/lib";
+    use pf::log 'service' => 'httpd.portal', reinit => 1;
 }
 
+use Cache::FileCache();
 use pf::config();
 use pf::useragent();
 use pf::util();

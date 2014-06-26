@@ -48,12 +48,18 @@ sub handler {
     return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $ref_type;
     #for now not supporting batch
     return Apache2::Const::HTTP_NOT_IMPLEMENTED if $ref_type eq 'ARRAY';
-    my ($method,$params,$id,$jsonrpc) = @{$data}{qw(method params id jsonrpc)};
+    my ($method,$id,$jsonrpc) = @{$data}{qw(method id jsonrpc)};
     return Apache2::Const::HTTP_NOT_IMPLEMENTED  unless defined $method;
-    my $response;
-    my $status_code;
-    my $method_sub;
+    my ($response, $status_code, $method_sub, @args);
     my $dispatch_to = $self->dispatch_to;
+    if(exists $data->{'params'} ) {
+        my $params = $data->{'params'};
+        if (ref ($params) eq 'ARRAY' ) {
+            @args = @$params;
+        } else {
+            @args = ($params);
+        }
+    }
     unless ($method_sub = $dispatch_to->can($method)) {
         $r->print(
             encode_json({
@@ -68,7 +74,7 @@ sub handler {
         eval {
             $response_content = encode_json ({
                 ( defined $jsonrpc ?  (jsonrpc => $jsonrpc) : () ),
-                result => [$dispatch_to->$method_sub(@$params)],
+                result => [$dispatch_to->$method_sub(@args)],
                 id => $id,
             });
         };
@@ -85,7 +91,7 @@ sub handler {
     } else {
         $r->push_handlers(PerlCleanupHandler => sub {
             eval {
-                $dispatch_to->$method(@$params);
+                $dispatch_to->$method(@args);
             };
         });
         $status_code = Apache2::Const::HTTP_NO_CONTENT;

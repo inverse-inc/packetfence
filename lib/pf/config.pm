@@ -57,6 +57,8 @@ our (
     %Doc_Config, $cached_pf_doc_config,
 #floating_network_device.conf variables
     %ConfigFloatingDevices, $cached_floating_device_config,
+#firewall_sso.conf variables
+    %ConfigFirewallSSO, $cached_firewall_sso,
 #profiles.conf variables
     %Profile_Filters, %Profiles_Config, $cached_profiles_config,
 
@@ -98,7 +100,7 @@ BEGIN {
         %connection_group %connection_group_to_str
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
         $ROLE_API_LEVEL
-        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_NULL
+        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_NULL
         %CAPTIVE_PORTAL
         $HTTP $HTTPS
         normalize_time $TIME_MODIFIER_RE $ACCT_TIME_MODIFIER_RE $DEADLINE_UNIT access_duration
@@ -109,6 +111,7 @@ BEGIN {
         init_config
         %Profile_Filters %Profiles_Config $cached_profiles_config
         $cached_pf_config $cached_network_config $cached_floating_device_config
+        %ConfigFirewallSSO $cached_firewall_sso
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
         $OS
         %Doc_Config
@@ -315,6 +318,8 @@ Readonly our $SELFREG_MODE_SPONSOR => 'sponsoremail';
 Readonly our $SELFREG_MODE_GOOGLE => 'google';
 Readonly our $SELFREG_MODE_FACEBOOK => 'facebook';
 Readonly our $SELFREG_MODE_GITHUB => 'github';
+Readonly our $SELFREG_MODE_LINKEDIN   => 'linkedin';
+Readonly our $SELFREG_MODE_WIN_LIVE   => 'windowslive';
 Readonly our $SELFREG_MODE_NULL   => 'null';
 
 # SoH filters
@@ -405,6 +410,7 @@ sub init_config {
     readProfileConfigFile();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
+    readFirewallSSOFile();
 }
 
 =item ipset_version -  check the ipset version on the system
@@ -587,6 +593,7 @@ sub readPfConfigFiles {
 
                     foreach my $type ( split( /\s*,\s*/, $type ) ) {
                         if ( $type eq 'internal' ) {
+                            $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
                             push @internal_nets, $int_obj;
                             if ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
                                 push @vlan_enforcement_nets, $int_obj;
@@ -743,6 +750,25 @@ sub readFloatingNetworkDeviceFile {
     }
 }
 
+=item readFirewallSSOFile - firewall_sso.conf
+
+=cut
+
+sub readFirewallSSOFile {
+    $cached_firewall_sso = pf::config::cached->new(
+        -file => $firewall_sso_config_file,
+        -allowempty => 1,
+        -onreload => [ reload_firewall_sso_config => sub {
+            my ($config) = @_;
+            $config->toHash(\%ConfigFirewallSSO);
+            $config->cleanupWhitespace(\%ConfigFirewallSSO);
+        }]
+    );
+    if(@Config::IniFiles::errors) {
+        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
+    }
+}
+
 =item normalize_time - formats date
 
 Returns the number of seconds represented by the time period.
@@ -786,12 +812,18 @@ sub access_duration {
         # ex: access_duration(1W, 2001-01-01 12:00, 2001-08-01 12:00)
         return POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($refdate + normalize_time($trigger)));
     }
-    elsif ($trigger =~ /^(\d+)($TIME_MODIFIER_RE)($DEADLINE_UNIT)([-+])(\d+)($TIME_MODIFIER_RE)$/) {
+    elsif ($trigger =~ /^(\d+)($TIME_MODIFIER_RE)($DEADLINE_UNIT)([-+])?(\d+)?($TIME_MODIFIER_RE)?$/) {
         # we match the beginning of the period
-        my ($tvalue,$modifier,$advance_type,$sign,$delta_value,$delta_type) = ($1,$2,$3,$4,$5,$6);
-        my $delta = normalize_time($delta_value.$delta_type);
-        if ($sign eq "-") {
-            $delta *= -1;
+        my ($tvalue,$modifier,$advance_type,$sign,$delta_value,$delta_type,$delta);
+        if ( defined ($4) && defined ($5) && defined ($6)) {
+            ($tvalue,$modifier,$advance_type,$sign,$delta_value,$delta_type) = ($1,$2,$3,$4,$5,$6);
+            $delta = normalize_time($delta_value.$delta_type);
+            if ($sign eq "-") {
+                $delta *= -1;
+            }
+        } else {
+            ($tvalue,$modifier,$advance_type) = ($1,$2,$3);
+            $delta = 0;
         }
         if ($advance_type eq 'R') { # relative
             # ex: access_duration(1WR+1D, 2001-01-01 12:00, 2001-08-02 00:00) (week starts on Monday)
@@ -802,12 +834,13 @@ sub access_duration {
             # ex: access_duration(1WF+1D, 2001-01-01 12:00, 2001-09-01 00:00)
             my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($refdate);
             my $today_sec = ($hour * 3600) + ($min * 60) + $sec;
-            return POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( ($refdate + normalize_time($tvalue.$modifier)) - $today_sec + $delta ));
-        }
-        else {
+            return POSIX::strftime("%Y-%m-%d %H:%M:%S",
+                                   localtime( ($refdate + normalize_time($tvalue.$modifier)) - $today_sec + $delta ));
+        } else {
             return $FALSE;
         }
     }
+    $logger->warn("We were unable to calculate the access duration");
 }
 
 =item start_date

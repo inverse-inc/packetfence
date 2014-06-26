@@ -30,7 +30,7 @@ post-auth {
             }
         }
         update control {
-            PacketFence-RPC-Server = ${rpc_server}
+            PacketFence-RPC-Server = ${rpc_host}
             PacketFence-RPC-Port = ${rpc_port}
             PacketFence-RPC-User = ${rpc_user}
             PacketFence-RPC-Pass = ${rpc_pass}

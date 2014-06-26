@@ -87,6 +87,7 @@
 </IfDefine>
 
 PerlSwitches -I/usr/local/pf/lib
+PerlPostConfigRequire /usr/local/pf/lib/pf/web/proxy_modperl_require.pl
 PerlModule APR::Table
 AcceptMutex posixsem
 
@@ -119,6 +120,7 @@ my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 my @internal_nets = @pf::config::internal_nets;
 my $host;
+my $vhost;
 
 $PidFile = $install_dir.'/var/run/httpd.proxy.pid';
 
@@ -147,8 +149,8 @@ $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 
 
-$ErrorLog = $install_dir.'/logs/proxy_error_log';
-$CustomLog = $install_dir.'/logs/proxy_access_log combined';
+$ErrorLog = $install_dir.'/logs/httpd.proxy.error';
+$CustomLog = $install_dir.'/logs/httpd.proxy.access combined';
 
 foreach my $port (split(',',$PfConfig->{'trapping'}{'interception_proxy_port'})) {
     push (@NameVirtualHost,"*:".$port);
@@ -168,15 +170,21 @@ push @{ $VirtualHost{'*:444'} }, gen_conf(
     ProxyPreserveHost => 'on',
     ProxyVia          => 'off',
     LogLevel          => 'debug',
-    ErrorLog          => $install_dir.'/logs/reverse_reproxy_error_log',
-    CustomLog         => $install_dir.'/logs/reverse_proxy_access_log combined',
+    ErrorLog          => $install_dir.'/logs/httpd.proxy.reverse.error',
+    CustomLog         => $install_dir.'/logs/httpd.proxy.reverse.access combined',
 );
 
 
 foreach my $interface (@internal_nets) {
+    if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
+        $vhost = $interface->{'Tvip'};
+    } else {
+        $vhost = $interface->{'Tip'};
+    }
+
     foreach my $port (split(',',$PfConfig->{'trapping'}{'interception_proxy_port'})) {
-        push (@Listen,$interface->{'Tip'}.":".$port);
-        push @{ $VirtualHost{$interface->{'Tip'}.":".$port} }, gen_conf(
+        push (@Listen,$vhost.":".$port);
+        push @{ $VirtualHost{$vhost.":".$port} }, gen_conf(
              ServerName        => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":".$port,
              PerlOptions       => '+GlobalRequest',
              PerlModule        => 'pf::web::interceptproxy',
@@ -185,8 +193,8 @@ foreach my $interface (@internal_nets) {
              ProxyPreserveHost => 'On',
              AllowCONNECT      => '444 443',
              ProxyVia          => 'full',
-             ErrorLog          => $install_dir.'/logs/proxy_error_log',
-             CustomLog         => $install_dir.'/logs/proxy_access_log combined',
+             ErrorLog          => $install_dir.'/logs/httpd.proxy.error',
+             CustomLog         => $install_dir.'/logs/httpd.proxy.access combined',
         );
     }
 }

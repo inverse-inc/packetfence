@@ -28,8 +28,13 @@ __PACKAGE__->config(
     action_args => {
         '*' => { model => 'Node' },
         advanced_search => { model => 'Search::Node', form => 'AdvancedSearch' },
+        'simple_search' => { model => 'Search::Node', form => 'AdvancedSearch' },
+        search => { model => 'Search::Node', form => 'AdvancedSearch' },
+        'index' => { model => 'Search::Node', form => 'AdvancedSearch' },
     }
 );
+
+our %DEFAULT_COLUMNS = map { $_ => 1 } qw/status mac computername pid last_ip dhcp_fingerprint category/;
 
 =head1 SUBROUTINES
 
@@ -40,46 +45,20 @@ __PACKAGE__->config(
 
 sub index :Path :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
-    $c->go('simple_search');
+    $c->stash(template => 'node/search.tt', from_form => "#empty");
+    $c->go('search');
 }
 
-=head2 simple_search
-
-=cut
-
-sub simple_search :SimpleSearch('Node') :Local :Args() :AdminRole('NODES_READ') { }
-
-=head2 after _list_items
-
-The method _list_items comes from pfappserver::Base::Controller and is called from Base::Action::SimpleSearch.
-
-=cut
-
-after _list_items => sub {
-    my ($self, $c) = @_;
-
-    my ( $status, $roles, $violations );
-    ($status,$roles) = $c->model('Roles')->list();
-    $c->stash(roles => $roles);
-    ( $status, $violations ) = $c->model('Config::Violations')->readAll();
-    $c->stash( violations => $violations );
-
-    unless ($c->session->{'nodecolumns'}) {
-        # Set default visible columns
-        my %default_columns = map { $_ => 1 } qw/status mac computername pid last_ip dhcp_fingerprint category/;
-        $c->session( nodecolumns => \%default_columns );
-    }
-};
-
-
-=head2 advanced_search
+=head2 search
 
 Perform an advanced search using the Search::Node model
 
 =cut
 
-sub advanced_search :Local :Args() :AdminRole('NODES_READ') {
-    my ($self, $c, @args) = @_;
+sub search :Local :Args() :AdminRole('NODES_READ') {
+    my ($self, $c, $pageNum, $perPage) = @_;
+    $pageNum = 1 unless $pageNum;
+    $perPage = 25 unless $perPage;
     my ($status, $status_msg, $result, $violations);
     my %search_results;
     my $model = $self->getModel($c);
@@ -104,7 +83,7 @@ sub advanced_search :Local :Args() :AdminRole('NODES_READ') {
         my $query = $form->value;
         $query->{by} = 'mac' unless ($query->{by});
         $query->{direction} = 'asc' unless ($query->{direction});
-        ($status, $result) = $model->search($query);
+        ($status, $result) = $model->search($query, $pageNum, $perPage);
         if (is_success($status)) {
             $c->stash(form => $form);
             $c->stash($result);
@@ -118,7 +97,36 @@ sub advanced_search :Local :Args() :AdminRole('NODES_READ') {
         roles => $result,
         violations => $violations,
     );
+    unless ($c->session->{'nodecolumns'}) {
+        # Set default visible columns
+        $c->session( nodecolumns => \%DEFAULT_COLUMNS );
+    }
+    $c->stash->{search_action} = $c->action;
     $c->response->status($status);
+}
+
+=head2 simple_search
+
+Perform an advanced search using the Search::Node model
+
+=cut
+
+sub simple_search :Local :Args() :AdminRole('NODES_READ') {
+    my ($self, $c) = @_;
+    $c->forward('search');
+    $c->stash(template => 'node/search.tt', from_form => "#simpleNodeSearch");
+}
+
+=head2 advanced_search
+
+Perform an advanced search using the Search::Node model
+
+=cut
+
+sub advanced_search :Local :Args() :AdminRole('NODES_READ') {
+    my ($self, $c) = @_;
+    $c->forward('search');
+    $c->stash(template => 'node/search.tt', from_form => "#advancedSearch");
 }
 
 =head2 create

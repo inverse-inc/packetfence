@@ -439,7 +439,7 @@ sub network_inline {
     # inline interfaces should have at least one local gateway
     my $found = 0;
     foreach my $int (@internal_nets) {
-        if ( $Config{ 'interface ' . $int->tag('int') }{'ip'} eq $net{'gateway'} ) {
+        if ( $Config{ 'interface ' . $int->tag('int') }{'ip'} eq $net{'gateway'} || (defined($Config{ 'interface ' . $int->tag('int') }{'vip'}) && $Config{ 'interface ' . $int->tag('int') }{'vip'} eq $net{'gateway'} ) ) {
             $found = 1;
             next;
         }
@@ -593,7 +593,7 @@ sub is_config_documented {
     #than what is documented in documentation.conf
     foreach my $section (keys %Config) {
         next if ( ($section eq "proxies") || ($section eq "passthroughs") || ($section eq "")
-                  || ($section =~ /^(services|interface|nessus_category_policy)/));
+                  || ($section =~ /^(services|interface|nessus_category_policy|nessus_scan_by_fingerprint)/));
 
         foreach my $item  (keys %{$Config{$section}}) {
             if ( !defined( $Doc_Config{"$section.$item"} ) ) {
@@ -966,9 +966,12 @@ Make sure only one external authentication source is selected for each type.
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub portal_profiles {
 
-    my $profile_params = qr/(?:locale|filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources|redirecturl|always_use_redirecturl|mandatory_fields)/;
+    my $profile_params = qr/(?:locale|filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources|redirecturl|always_use_redirecturl|mandatory_fields|nbregpages|allowed_devices|allow_android_devices)/;
 
     foreach my $portal_profile ( $cached_profiles_config->Sections) {
+        if ($portal_profile ne 'default' && !-d "$install_dir/html/captive-portal/profile-templates/$portal_profile") {
+            add_problem( $WARN, "template directory '$install_dir/html/captive-portal/profile-templates/$portal_profile' for profile $portal_profile does not exist using default templates" )
+        }
 
         add_problem ( $FATAL, "missing filter parameter for profile $portal_profile" )
             if ( $portal_profile ne 'default' &&  !defined($Profiles_Config{$portal_profile}{'filter'}) );

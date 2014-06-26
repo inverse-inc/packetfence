@@ -44,6 +44,10 @@ var NodeView = function(options) {
 
     this.proxyFor($('body'), 'submit', 'form[name="nodes"]', this.createNode);
 
+    this.proxyFor($('body'), 'submit', 'form[name="simpleNodeSearch"]', this.submitSearch);
+
+    this.proxyFor($('body'), 'submit', 'form[name="advancedNodeSearch"]', this.submitSearch);
+
     this.proxyFor($('body'), 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
 
     this.proxyClick($('body'), '#modalNode [href$="/delete"]', this.deleteNode);
@@ -55,7 +59,9 @@ var NodeView = function(options) {
     this.proxyClick($('body'), '#modalNode #addViolation', this.triggerViolation);
 
     /* Update the advanced search form to the next page or resort the query */
-    this.proxyClick($('body'), 'a[href*="#node/advanced_search"]',this.advancedSearchUpdater);
+    this.proxyClick($('body'), '.pagination a',this.searchPagination);
+
+    this.proxyClick($('body'), '#nodes thead a',this.reorderSearch);
 
     this.proxyClick($('body'), '#toggle_all_items', this.toggleAllItems);
 
@@ -246,9 +252,6 @@ NodeView.prototype.updateNode = function(e) {
                 btn.button('reset');
             },
             success: function(data) {
-                modal.on('hidden', function() {
-                    $(window).hashchange();
-                });
                 modal.modal('hide');
             },
             errorSibling: modal_body.children().first()
@@ -267,9 +270,6 @@ NodeView.prototype.deleteNode = function(e) {
         url: url,
         success: function(data) {
             modal.modal('hide');
-            modal.on('hidden', function() {
-                $(window).hashchange();
-            });
         },
         errorSibling: modal_body.children().first()
     });
@@ -314,30 +314,100 @@ NodeView.prototype.triggerViolation = function(e) {
     });
 };
 
-NodeView.prototype.advancedSearchUpdater = function(e) {
+NodeView.prototype.reorderSearch = function(e) {
+    e.preventDefault();
+    var that = this;
+    var link = $(e.currentTarget);
+    var pagination = $('.pagination').first();
+    var formId = pagination.attr('data-from-from') || '#search';
+    var form = $(formId);
+    if(form.length == 0) {
+        form = $('#search');
+    }
+    var columns = $('#columns');
+    var href = link.attr("href");
+    var section = $('#section');
+    var status_container = $("#section").find('h2').first();
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5);
+    section.fadeTo('fast', 0.5, function() {
+        that.nodes.post({
+            url: href,
+            data: form.serialize() + "&" + columns.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                section.html(data);
+            },
+            errorSibling: status_container
+        });
+    });
+    return false;
+};
+
+
+NodeView.prototype.searchPagination = function(e) {
+    var that = this;
     e.preventDefault();
     var link = $(e.currentTarget);
-    var form = $('#advancedSearch');
-    var href = link.attr("href");
-    if (href) {
-        href = href.replace(/^.*#node\/advanced_search\//, '');
-        var values = href.split("/");
-        for (var i = 0; i < values.length; i += 2) {
-            var name = values[i];
-            var value = values[i + 1];
-            form.find('[name="' + name + '"]:not(:disabled)').val(value);
-        }
-        // Add checked columns to the form
-        form.find('[name="column"]').remove();
-        $('#columns').find(':checked').each(function() {
-            form.append($('<input>', { type: 'checkbox',
-                                       checked: 'checked',
-                                       name: 'column',
-                                       'class': 'hidden',
-                                       value: $(this).val() }));
-        });
-        form.submit();
+    var pagination = link.closest('.pagination');
+    var formId = pagination.attr('data-from-from') || '#search';
+    var form = $(formId);
+    if(form.length == 0) {
+        form = $('#search');
     }
+    var columns = $('#columns');
+    var href = link.attr("href");
+    var section = $('#section');
+    var status_container = $("#section").find('h2').first();
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5);
+    section.fadeTo('fast', 0.5, function() {
+        that.nodes.post({
+            url: href,
+            data: form.serialize() + "&" + columns.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                section.html(data);
+            },
+            errorSibling: status_container
+        });
+    });
+    return false;
+};
+
+NodeView.prototype.submitSearch = function(e) {
+    e.preventDefault();
+    var that = this;
+    var form = $(e.currentTarget);
+    var href = form.attr("action");
+    var section = $('#section');
+    var columns = $('#columns');
+    $("body,html").animate({scrollTop:0}, 'fast');
+    var status_container = $("#section").find('h2').first();
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5, function() {
+        that.nodes.post({
+            url: href,
+            data: form.serialize() + "&" + columns.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                section.html(data);
+            },
+            errorSibling: status_container
+        });
+    });
     return false;
 };
 

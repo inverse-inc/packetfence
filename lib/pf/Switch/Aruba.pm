@@ -404,48 +404,30 @@ sub returnRadiusAccessAccept {
 
     my $radius_reply_ref = {};
 
-    # TODO this is experimental
-    try {
+    $logger->debug("[$this->{'_id'}] Network device supports roles. Evaluating role to be returned.");
+    my $role = $this->getRoleByName($user_role);
 
-        $logger->debug("network device supports roles. Evaluating role to be returned");
-        my $role = $this->getRoleByName($user_role);
-
-        # Roles are configured and the user should have one
-        if (defined($role)) {
-
-            $radius_reply_ref = {
-                $this->returnRoleAttribute => $role,
-            };
-
-            $logger->info("Returning ACCEPT with Role: $role");
-        }
-
-        # if Roles aren't configured, return VLAN information
-        else {
-
-            $radius_reply_ref = {
-                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-                'Tunnel-Type' => $RADIUS::VLAN,
-                'Tunnel-Private-Group-ID' => $vlan,
-            };
-
-            $logger->info("Returning ACCEPT with VLAN: $vlan");
-        }
-
-    }
-    catch {
-        chomp($_);
-        $logger->debug(
-            "Exception when trying to resolve a Role for the node. Returning VLAN attributes in RADIUS Access-Accept. "
-            . "Exception: $_"
-        );
+    # Roles are configured and the user should have one
+    if (defined($role)  && isenabled($this->{_RoleMap})) {
 
         $radius_reply_ref = {
+            $this->returnRoleAttribute => $role,
+        };
+
+        $logger->info("[$this->{'_id'}] Returning ACCEPT with role: $role");
+    }
+
+    # if Roles aren't configured, return VLAN information
+    if (isenabled($this->{_VlanMap})) {
+        $radius_reply_ref = {
+             %$radius_reply_ref,
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,
             'Tunnel-Private-Group-ID' => $vlan,
         };
-    };
+
+        $logger->info("[$this->{'_id'}] Returning ACCEPT with VLAN: $vlan");
+    }
 
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
@@ -552,13 +534,13 @@ sub radiusDisconnect {
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
         # Roles are configured and the user should have one
-        if (defined($role) && (defined($node_info->{'status'}) ) ) {
+        if ( defined($role) && (defined($node_info->{'status'}) && isenabled($self->{_RoleMap}) ) ) {
 
             $attributes_ref = {
                 %$attributes_ref,
                 'Filter-Id' => $role,
             };
-            $logger->info("Returning ACCEPT with Role: $role");
+            $logger->info("[$self->{'_ip'}] Returning ACCEPT with role: $role");
             $response = perform_coa($connection_info, $attributes_ref);
 
         }

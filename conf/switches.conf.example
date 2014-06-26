@@ -22,6 +22,8 @@ macDetectionRole = macDetection
 voiceRole = voice
 inlineRole = inline
 VoIPEnabled = no
+VlanMap = Y
+RoleMap = Y
 
 mode = testing
 macSearchesMaxNb = 30

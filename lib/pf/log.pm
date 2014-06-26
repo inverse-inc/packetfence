@@ -24,13 +24,11 @@ Log::Log4perl->wrapper_register(__PACKAGE__);
 sub import {
     my ($self,%args) = @_;
     my ($package, $filename, $line) = caller;
-    unless(Log::Log4perl->initialized) {
+    if(!Log::Log4perl->initialized || $args{reinit} ) {
         my $service = $args{service} if defined $args{service};
         if($service) {
             Log::Log4perl->init_and_watch("$log_conf_dir/${service}.conf",5 * 60);
             Log::Log4perl::MDC->put( 'proc', $service );
-            tie *STDERR,'pf::log::trapper',$ERROR unless $args{no_stderr_trapping};
-            tie *STDOUT,'pf::log::trapper',$DEBUG unless $args{no_stdout_trapping};
         } else {
             Log::Log4perl->init($log_config_file);
             Log::Log4perl::MDC->put( 'proc', basename($0) );

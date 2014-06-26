@@ -50,7 +50,7 @@ use pf::util;
 use pf::web qw(i18n ni18n i18n_format render_template);
 use pf::web::constants;
 use pf::web::util;
-use pf::sms_activation;
+use pf::activation;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 use pf::person;

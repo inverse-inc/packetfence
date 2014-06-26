@@ -15,12 +15,14 @@ use Test::MockModule;
 use Test::MockObject::Extends;
 
 use lib '/usr/local/pf/lib';
-BEGIN {use PfFilePaths;}
-BEGIN { use pf::Switch; }
 BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+    use pf::Switch;
     use_ok('pf::floatingdevice');
     use_ok('pf::floatingdevice::custom');
 }
+
 use pf::config;
 use pf::SwitchFactory;
 

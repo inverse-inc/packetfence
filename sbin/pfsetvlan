@@ -30,6 +30,13 @@ use warnings;
 
 require 5.8.8;
 
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfsetvlan');
+}
+
 use Cache::FileCache;
 use Data::Dumper;
 use File::Basename qw(basename);
@@ -39,12 +46,6 @@ use Net::SMTP;
 use Pod::Usage;
 use POSIX;
 
-BEGIN {
-    # log4perl init
-    use constant INSTALL_DIR => '/usr/local/pf';
-    use lib INSTALL_DIR . "/lib";
-    use pf::log(service => 'pfsetvlan');
-}
 
 use constant {
     PFCMD_FILE => INSTALL_DIR . "/bin/pfcmd"
@@ -244,6 +245,7 @@ sub addTrapLineToQueue {
 
 # sub signalHandlerTrapListQueued - cond_wait(@trapList_queued), parseTrap($trapLineToParse) {{{1
 sub signalHandlerTrapListQueued {
+    use pf::log(service => 'pfsetvlan', reinit => 1);
     my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
@@ -534,7 +536,7 @@ sub parseTrap {
                 $logger->warn("We have received a trap from switch $switch_id. This switch is UNREGISTERED. Flush the trap");
                 return;
             }
-            if ($switch->{'mode'} eq 'ignore' ) {
+            if (defined($switch->{'mode'}) && $switch->{'mode'} eq 'ignore' ) {
                 $switch = undef;
                 $logger->info("We have received a trap from switch $switch_id. This switch is in 'ignore' mode. Flush the trap");
                 return;
@@ -690,7 +692,7 @@ sub parseTrap {
                     $trapMac       = $trapHashRef->{'trapMac'};
 
                     if ( $trapOperation eq 'unknown' ) {
-                        $logger->info("ignoring unknown trap: $trapLine");
+                        $logger->debug("ignoring unknown trap: $trapLine");
                         return;
                     }
                 } elsif ( $trapType eq 'dot11Deauthentication' ) {
@@ -726,7 +728,7 @@ sub parseTrap {
 
                 return "$switch_id|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac|$trapSSID|$trapClientUserName|$trapIfIndex|$trapConnectionType";
             } else {
-                $logger->info("ignoring unknown trap: $trapLine");
+                $logger->debug("ignoring unknown trap: $trapLine");
             }
         }
     } else {
@@ -739,8 +741,10 @@ sub parseTrap {
 
 # sub signalHandlerThreadListQueued {{{1
 sub signalHandlerThreadListQueued {
+    use pf::log(service => 'pfsetvlan', reinit => 1);
     my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     while (1) {

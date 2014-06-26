@@ -67,13 +67,13 @@ sub _load_file_into_array {
     return @items;
 }
 
-=item is_allowed_mac
+=item is_allowed
 
 Validate if mac address is an allowed device mac
 
 =cut
 
-sub is_allowed_mac {
+sub is_allowed {
     my ($mac) = @_;
     return 1 unless @DEVICE_OUI;
     $mac =~ s/O/0/i;

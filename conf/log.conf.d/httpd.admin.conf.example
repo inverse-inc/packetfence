@@ -1,6 +1,13 @@
 ### httpd.admin logger ###
 log4perl.rootLogger = INFO, HTTPD_ADMIN
 
+### Catalyst logger ###
+## Used to separate Catalyst framework logs in a different log file
+log4perl.category.Catalyst = INFO, CATALYST
+
+## Prevent the message from bubbling up to it's parents
+log4perl.additivity.Catalyst = 0
+
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
 #log4perl.category.pf.SNMP = WARN
@@ -8,6 +15,7 @@ log4perl.rootLogger = INFO, HTTPD_ADMIN
 ### Logging for httpd.admin
 log4perl.appender.HTTPD_ADMIN                              = Log::Log4perl::Appender::File
 log4perl.appender.HTTPD_ADMIN.filename                     = /usr/local/pf/logs/httpd.admin.log
+log4perl.appender.HTTPD_ADMIN.syswrite                     = 1
 log4perl.appender.HTTPD_ADMIN.mode                         = append
 log4perl.appender.HTTPD_ADMIN.layout                       = PatternLayout
 log4perl.appender.HTTPD_ADMIN.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
@@ -15,3 +23,13 @@ log4perl.appender.HTTPD_ADMIN.umask                        = 0002
 log4perl.appender.HTTPD_ADMIN.user                         = pf
 log4perl.appender.HTTPD_ADMIN.group                        = pf
 
+
+### General Catalyst (pfappserver) log facility configuration ###
+log4perl.appender.CATALYST                                 = Log::Log4perl::Appender::File
+log4perl.appender.CATALYST.filename                        = /usr/local/pf/logs/httpd.admin.catalyst
+log4perl.appender.CATALYST.mode                            = append
+log4perl.appender.CATALYST.layout                          = PatternLayout
+log4perl.appender.CATALYST.layout.ConversionPattern        = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
+log4perl.appender.CATALYST.umask                           = 0002
+log4perl.appender.CATALYST.user                            = pf
+log4perl.appender.CATALYST.group                           = pf

@@ -82,7 +82,7 @@ BuildArch: noarch
 # TODO we might consider re-enabling this to simplify our SPEC
 AutoReqProv: 0
 
-Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext, conntrack-tools
+Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext, conntrack-tools, patch
 # for process management
 Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
@@ -124,10 +124,8 @@ requires: perl(Crypt::OpenSSL::X509)
 requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
-# Required for inline mode. Specific version matches system's iptables version.
-# CentOS 5 (iptables 1.3.5)
-%{?el5:Requires: perl(IPTables::libiptc) = 0.14 }
-%{?el6:Requires: perl(IPTables::libiptc), ipset, sudo }
+# Required for inline mode.
+Requires: ipset, sudo
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
 # TODO: we should depend on perl modules not perl-libwww-perl package
@@ -187,7 +185,7 @@ Requires: perl(Try::Tiny)
 Requires: perl(Crypt::GeneratePassword)
 Requires: perl(MIME::Lite::TT)
 Requires: perl(Cache::Cache), perl(HTML::Parser)
-Requires: perl(URI::Escape)
+Requires: perl(URI::Escape::XS)
 # Used by Captive Portal authentication modules
 Requires: perl(Apache::Htpasswd)
 Requires: perl(Authen::Radius)
@@ -237,6 +235,7 @@ Requires: perl(Cache::FastMmap)
 Requires: perl(Moo) >= 1.003000
 Requires: perl(Term::ANSIColor)
 Requires: perl(IO::Interactive)
+Requires: perl(Net::ARP)
 Requires: perl(Module::Loaded)
 Requires: perl(Linux::FD)
 Requires: perl(Linux::Inotify2)
@@ -244,6 +243,7 @@ Requires: perl(File::Touch)
 Requires: perl(Hash::Merge)
 Requires: perl(IO::Socket::INET6)
 Requires: perl(IO::Interface)
+Requires: perl(Time::Period)
 # configuration-wizard
 Requires: iproute, vconfig
 #
@@ -346,7 +346,8 @@ done
 %endif
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
-
+# Define git_commit_id
+echo %{git_commit} > conf/git_commit_id
 
 find -name '*.example' -print0 | while read -d $'\0' file
 do
@@ -681,16 +682,19 @@ fi
 %dir                    /usr/local/pf/conf
                         /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
-%config(noreplace)      /usr/local/pf/conf/allowed-gaming-oui.txt
-                        /usr/local/pf/conf/allowed-gaming-oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
                         /usr/local/pf/conf/allowed_device_oui.txt.example
+%config(noreplace)      /usr/local/pf/conf/apache_filters.conf
+                        /usr/local/pf/conf/apache_filters.conf.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
+%config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
+                        /usr/local/pf/conf/firewall_sso.conf.example
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
+                        /usr/local/pf/conf/git_commit_id
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
@@ -729,6 +733,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.mo
 %config(noreplace)      /usr/local/pf/conf/log.conf
+%dir                    /usr/local/pf/conf/log.conf.d
 %config(noreplace)      /usr/local/pf/conf/log.conf.d/*.conf
                         /usr/local/pf/conf/log.conf.d/*.example
 %dir                    /usr/local/pf/conf/nessus
@@ -755,14 +760,14 @@ fi
                         /usr/local/pf/conf/snort/reference.config.example
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
+                        /usr/local/pf/conf/switches.conf.example
+%config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
+                        /usr/local/pf/conf/vlan_filters.conf.example
 %config                 /usr/local/pf/conf/dhcpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
-%config                 /usr/local/pf/conf/httpd.conf.d/block-unwanted.conf
-%config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal.cgi
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
@@ -802,7 +807,6 @@ fi
 %doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/captive-portal
-%attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
                         /usr/local/pf/html/captive-portal/Changes
                         /usr/local/pf/html/captive-portal/Makefile.PL
                         /usr/local/pf/html/captive-portal/README
@@ -935,6 +939,15 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Thu Jun 26 2014 Inverse <info@inverse.ca> - 4.3.0-1
+- New release 4.3.0
+
+* Tue May 29 2014 Inverse <info@inverse.ca> - 4.2.2-1
+- New release 4.2.2
+
+* Tue May 16 2014 Inverse <info@inverse.ca> - 4.2.1-1
+- New release 4.2.1
+
 * Tue May  6 2014 Inverse <info@inverse.ca> - 4.2.0-1
 - New release 4.2.0
 

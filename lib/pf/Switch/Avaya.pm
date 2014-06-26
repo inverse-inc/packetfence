@@ -185,25 +185,24 @@ sub getSecureMacAddresses {
     if ( !$this->connectRead() ) {
         return $secureMacAddrHashRef;
     }
-    my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndex($ifIndex);
     my $oldVlan = $this->getVlan($ifIndex);
-    $boardIndx = $boardIndx - 1 ;
 
     $logger->trace(
-        "SNMP get_table for s5SbsAuthCfgAccessCtrlType: $OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx"
+        "SNMP get_table for s5SbsAuthCfgAccessCtrlType: $OID_s5SbsAuthCfgAccessCtrlType"
     );
 
-    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx" );
-
+    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_s5SbsAuthCfgAccessCtrlType" );
     while ( my ( $oid_including_mac, $ctrlType ) = each( %{$result} ) ) {
-        if ( $oid_including_mac =~
-            /^$OID_s5SbsAuthCfgAccessCtrlType
-                \.$boardIndx\.$portIndx                             # boardIndex, portIndex
-                \.([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)  # MAC address
-            $/x ) {
+        if ($ctrlType eq $ifIndex) {
+            if ( $oid_including_mac =~
+                /^$OID_s5SbsAuthCfgAccessCtrlType
+                    \.([0-9]+)\.([0-9]+)                             # boardIndex, portIndex
+                    \.([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)  # MAC address
+                $/x ) {
 
-                my $oldMac = oid2mac($1);
+                my $oldMac = oid2mac($3);
                 push @{ $secureMacAddrHashRef->{$oldMac} }, $oldVlan;
+            }
         }
     }
 
@@ -228,40 +227,57 @@ sub _authorizeMAC {
         return 0;
     }
 
-    # careful readers will notice that we don't use getBoardPortFromIfIndex here.
+    # careful readers will notice that we don't use getBoardPortFromIfIndex here. 
     # That's because Nortel thought that it made sense to start BoardIndexes differently for different OIDs
-    # on the same switch!!!
+    # on the same switch!!! 
     my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndexForSecurityStatus($ifIndex);
-    $boardIndx = $boardIndx - 1;
+    my @boardIndx;
+
+    # Because the boardIndx for a standalone switch can be 0 or 1 (random)
+    if ($boardIndx eq '1') {
+        @boardIndx = qw(0 1);
+    } else {
+        push (@boardIndx, $boardIndx);
+    }
+ 
     my $cfgStatus = ($authorize) ? 2 : 3;
     my $mac_oid = mac2oid($mac);
 
     my $result;
+    my $return;
     if ($authorize) {
         $logger->trace( "SNMP set_request for s5SbsAuthCfgAccessCtrlType: $OID_s5SbsAuthCfgAccessCtrlType" );
-        $result = $this->{_sessionWrite}->set_request(
-            -varbindlist => [
-                "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $TRUE,
-                "$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $cfgStatus
-            ]
-        );
+        foreach $boardIndx (@boardIndx) {
+            $result = $this->{_sessionWrite}->set_request(
+                -varbindlist => [
+                    "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $TRUE,
+                    "$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $cfgStatus
+                ]
+            );
+            if ($result) {
+                $return = 1;
+            }
+        }
     } else {
-        $logger->trace( "SNMP set_request for s5SbsAuthCfgStatus: $OID_s5SbsAuthCfgStatus" );
-        $result = $this->{_sessionWrite}->set_request(
-            -varbindlist => [
-                "$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $cfgStatus
-            ]
-        );
+        foreach $boardIndx (@boardIndx) {
+            $logger->warn("Remove mac ".$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid);
+            $logger->trace( "SNMP set_request for s5SbsAuthCfgStatus: $OID_s5SbsAuthCfgStatus" );
+            $result = $this->{_sessionWrite}->set_request(
+                -varbindlist => [
+                    "$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $cfgStatus
+                ]
+            );
+            if ($result) {
+                $return = 1;
+            }
+        }
     }
 
-    return $TRUE if (defined($result));
+    return $TRUE if (defined($return));
 
     $logger->warn("MAC authorize / deauthorize failed with " . $this->{_sessionWrite}->error());
     return;
 }
-
-
-
 
 sub getPhonesLLDPAtIfIndex {
     my ( $this, $ifIndex ) = @_;
@@ -534,7 +550,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 

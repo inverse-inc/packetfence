@@ -13,9 +13,10 @@ Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
 Pre-Depends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server
-Depends: ${misc:Depends}, vlan, make,
+Breaks: libdata-alias-perl
+Depends: ${misc:Depends}, vlan, make, patch,
  openssl, openssl-blacklist, openssl-blacklist-extra,
- mysql-server, memcached,
+ mysql-server|mariadb-server|mariadb-galera-server, memcached,
  snmp, snmptrapfmt, snmp-mibs-downloader, conntrack,
 # apache related
  apache2, apache2.2-common, apache2-utils, libapache2-mod-proxy-html,
@@ -26,6 +27,7 @@ Depends: ${misc:Depends}, vlan, make,
  iproute,
  ipset,
  sudo,
+ liburi-escape-xs-perl,
 # process management
  procps,
 # perl basic components
@@ -55,6 +57,7 @@ Depends: ${misc:Depends}, vlan, make,
  perl-modules,
  liblinux-fd-perl, liblinux-inotify2-perl, libfile-touch-perl, libhash-merge-perl,
  libcrypt-openssl-x509-perl,libconst-fast-perl,
+ libtime-period-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313
@@ -70,9 +73,9 @@ Depends: ${misc:Depends}, vlan, make,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libthread-conveyor-monitored-perl, libthread-conveyor-perl, libthread-tie-perl,
  liberror-perl, libio-socket-inet6-perl,
- libio-interface-perl, libnet-route-perl,
+ libio-interface-perl, libnet-route-perl, libnet-arp-perl,
 # required by catalyst
- libcatalyst-perl, libcatalyst-modules-perl,
+ libcatalyst-perl (>= 5.90011), libcatalyst-modules-perl,
  libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl, 
  libcatalyst-authentication-store-htpasswd-perl,
  libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl,

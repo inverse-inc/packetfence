@@ -31,7 +31,7 @@ sub begin : Private {
         $c->error( "Device registration module is not enabled" );
         $c->detach;
     }
-    $c->stash->{console_types} = @pf::web::device_registration::DEVICE_TYPES;
+    $c->stash->{console_types} = \@pf::web::device_registration::DEVICE_TYPES;
 }
 
 =head2 index
@@ -55,9 +55,11 @@ sub index : Path : Args(0) {
     } elsif ( $request->param('device_mac') ) {
         # User is authenticated and requesting to register a device
         my $device_mac = clean_mac($request->param('device_mac'));
+        my $device_type;
+        $device_type = $request->param('console_type') if ( defined($request->param('console_type')) );
         if(valid_mac($device_mac)) {
             # Register device
-            $c->forward('registerNode', [ $pid, $device_mac ]);
+            $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
             unless ($c->has_errors) {
                 $c->stash(status_msg  => i18n_format("The MAC address %s has been successfully registered.", $device_mac));
                 $c->detach('landing');
@@ -117,23 +119,26 @@ sub login : Local : Args(0) {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
         $c->clear_errors;
     }
-    $c->stash( template => 'device-registration-login.html' );
+    $c->stash( template => 'device-login.html' );
 }
 
 sub landing : Local : Args(0) {
     my ( $self, $c ) = @_;
-    $c->stash( template => 'device-registration-landing.html' );
+    $c->stash( template => 'device-landing.html' );
 }
 
 sub registerNode : Private {
-    my ( $self, $c, $pid, $mac ) = @_;
+    my ( $self, $c, $pid, $mac, $type ) = @_;
     my $logger = $c->log;
     if ( pf::web::device_registration::is_allowed($mac) ) {
         my ($node) = node_view($mac);
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
             $c->error("$mac is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator");
         } else {
+            my $session = $c->session;
+            my $source_id = $session->{source_id};
             my %info;
+            my $params = { username => $pid };
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
             my $role =
@@ -142,17 +147,29 @@ sub registerNode : Private {
                 $logger->trace("Device registration role is $role (from pf.conf)");
             } else {
                 # Use role of user
-                $role = &pf::authentication::match(
-                    &pf::authentication::getInternalAuthenticationSources(),
-                    { username => $pid },
-                    $Actions::SET_ROLE
-                );
-                $logger->trace(
-                    "Gaming devices role is $role (from username $pid)");
+                $role = &pf::authentication::match( $source_id, $params , $Actions::SET_ROLE);
+                $logger->trace("Gaming devices role is $role (from username $pid)");
+            }
+            # If an access duration is defined, use it to compute the unregistration date;
+            # otherwise, use the unregdate when defined.
+            my $unregdate =
+              &pf::authentication::match( $source_id, $params, $Actions::SET_ACCESS_DURATION );
+            if ( defined $unregdate ) {
+                $unregdate = pf::config::access_duration($unregdate);
+                $logger->trace("Computed unreg date from access duration: $unregdate");
+            } else {
+                $unregdate =
+                  &pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE );
+            }
+            if ( defined $unregdate ) {
+                $logger->trace("Got unregdate $unregdate for username $pid");
+                $info{unregdate} = $unregdate;
             }
             $info{'category'} = $role if ( defined $role );
             $info{'auto_registered'} = 1;
             $info{'mac'} = $mac;
+            $info{'notes'} = $type if ( defined($type) );
+            $c->portalSession->guestNodeMac($mac);
             $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
         }
     } else {

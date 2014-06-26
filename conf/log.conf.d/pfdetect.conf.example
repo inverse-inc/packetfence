@@ -8,6 +8,7 @@ log4perl.rootLogger = INFO, PFDETECT
 ### Logging for pfdetect
 log4perl.appender.PFDETECT                              = Log::Log4perl::Appender::File
 log4perl.appender.PFDETECT.filename                     = /usr/local/pf/logs/pfdetect.log
+log4perl.appender.PFDETECT.syswrite                     = 1
 log4perl.appender.PFDETECT.mode                         = append
 log4perl.appender.PFDETECT.layout                       = PatternLayout
 log4perl.appender.PFDETECT.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n

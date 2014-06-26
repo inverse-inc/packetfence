@@ -16,7 +16,7 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
-use URI::Escape;
+use URI::Escape::XS;
 
 use pf::config;
 use pf::os;

@@ -63,6 +63,17 @@ has_field 'deauthMethod' =>
    label => 'Deauthentication Method',
    element_class => ['chzn-deselect'],
   );
+has_field 'VlanMap' =>
+  (
+   type => 'Toggle',
+   label => 'Role by VLAN ID',
+  );
+
+has_field 'RoleMap' =>
+  (
+   type => 'Toggle',
+   label => 'Role by Switch Role',
+  );
 has_field 'VoIPEnabled' =>
   (
    type => 'Toggle',

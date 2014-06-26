@@ -83,8 +83,6 @@ use Log::Log4perl;
 use Log::Log4perl::Logger;
 use Log::Log4perl::Level;
 use Pod::Usage;
-use threads;
-use threads::shared;
 use Net::SNMP;
 
 use constant {
@@ -99,6 +97,10 @@ use pf::enforcement;
 use pf::locationlog;
 use pf::SwitchFactory;
 use pf::util;
+use pf::log;
+
+use threads;
+use threads::shared;
 
 require 5.8.8;
 
@@ -183,11 +185,7 @@ GetOptions(
 pod2usage( -verbose => 2 ) if $man;
 pod2usage( -verbose => 1, -exitval => 0 ) if $help;
 
-# logging
-Log::Log4perl->init("$conf_dir/log.conf");
-my $logger = Log::Log4perl->get_logger(basename($0));
-Log::Log4perl::MDC->put('proc', basename($0));
-Log::Log4perl::MDC->put('tid', $PROCESS_ID);
+our $logger = get_logger();
 
 # if the verbosity flag is present we log both on file and on STDOUT and adjust log level
 if ($logLevel) {

@@ -11,6 +11,104 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.3.0 released on 2014-06-26
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Added MAC authentication support for Edge-corE 4510
+* Added support for Ruckus External Captive Portal
+* Support for Huawei S2700, S3700, S5700, S6700, S7700, S9700 switches
+* Added support for LinkedIn and Windows Live as authentication sources
+* Support for 802.1X on Juniper EX2200 and EX4200 switches
+* Added support for the Netgear M series switches
+* Added support to define SNAT interface to use for passthrough
+* Added Nessus scan policy based on a DHCP fingerprint
+* Added support to unregister a node if the username is locked or deleted in Active Directory
+* Fortinet FortiGate and PaloAlto firewalls integration
+* New configuration parameters in switches.conf to use mapping by VLAN and/or mapping by role
+
+Enhancements
+++++++++++++
+
+* When validating an email confirmation code, use the same portal profile initially used by to register the device
+* Removed old iptables code (ipset is now always used for inline enforcement)
+* MariaDB support
+* Updated WebAPI method
+* Use Webservices parameters from PacketFence configuration
+* Use WebAPI notify from pfdhcplistener (faster)
+* Improved Apache SSL configuration forbids SSLv2 use and prioritzes better ciphers
+* Removed CGI-based captive portal files
+* For device registration use the source used to authenticate for calculating the role and unregdate (bugid:1805)
+* For device registration, we set the "NOTES" field of the node with the selected type of device (if defined)
+* On status page check the portal associated to the user and authenticate on the sources included in the portal profile
+* Merge pf::email_activation and pf::sms_activation to pf::activation
+* Removed unused table switchlocation
+* Deauthentication and firewall enforcement can now be done throught the web API
+* Added support to configure high-availability from within the configurator/webadmin
+* Changed the way we're handling DNS blackholing when unregistered in inline enforcement mode (using DNAT rather than REDIRECT)
+* Now handling rogue DHCP servers based both on the server IP and server MAC address
+
+Bug Fixes
++++++++++
+
+* Fixed pfdetectd not starting because of stale pid file
+* Fixed SQL join with iplog in advanced search of nodes
+* Fixed unreg date calculation in Catalyst captive portal
+* Fixed allowed_device_types array in device registration page (bugid:1809)
+* Fixed VLAN format to comply with RFC 2868
+* Fixed possible double submission of the form on the billing page
+* Fixed db upgrade script to avoid duplicate changes to locationlog table
+
+Version 4.2.2 released on 2014-05-29
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
+++++++++++++
+
+* Rework logging to make it easier to follow the flow of registration
+* Allow users to login to see node in status page
+* pf-maint script uses new branch structure
+
+Bug Fixes
++++++++++
+
+* Remove double saving of iptables
+* Do a configreload hard only during a pf restart not everytime you restart
+* Fixed undefined function and HP Controller module
+* Fixed a test in pfsetvlan
+* Allow old gaming-registration URL to work
+* If node is not found in the database then use the default profile
+* Fixed logging in dispatcher
+* Fixed deletion of a user failing
+* Compute unregdate and save the role for autoreg 802.1x
+* Fixed portal profile URI filter in new Catalyst-based captive-portal
+* RADIUS accounting fixed to call the correct method to parse the RADIUS request
+
+Version 4.2.1 released on 2014-05-15
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
+++++++++++++
+
+* No longer need to repopulate password when updating a LDAP authentication source
+* Added check for profile directory existance
+* Added the ability to login from the status page
+* New pf::MAC class to manage MAC adresses.
+
+Bug Fixes
++++++++++
+
+* Added missing node manager URL from dispatcher
+* Fixed URL redirection on captive portal
+* Fixed wrong templates for device registration
+* Removed a breaking dependency (#1793)
+* Fixed exception on device registration page (#1794)
+* Fixed syntax error in SQL upgrade script (#1795)
+* deauthenticateMac was not respecting inheritance
+* STDERR & STDOUT from external command now redirected to /dev/null
+
 Version 4.2.0 released on 2014-05-06
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -37,6 +135,7 @@ New Features
 * Integration of mod_qos in the Apache configuration of the captive portal
 * New pfcmd "cache" command
 * New pfcmd "configreload" command
+* Filters for HTTP requests on the portal
 
 Enhancements
 ++++++++++++

@@ -236,10 +236,6 @@ msgstr ""
 msgid "registration"
 msgstr ""
 
-#: conf/pf.conf.defaults:151
-msgid "registration.range"
-msgstr ""
-
 #: conf/pf.conf.defaults:231
 msgid "registration.button_text"
 msgstr ""

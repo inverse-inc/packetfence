@@ -51,6 +51,19 @@ has_field 'description' =>
    label => 'Profile Description',
   );
 
+=head2 logo
+
+The logo field
+
+=cut
+
+has_field 'logo' =>
+  (
+   type => 'Text',
+   label => 'Logo',
+   required => 1,
+  );
+
 =head2 locale
 
 Accepted languages for the profile
@@ -189,6 +202,18 @@ has_field 'allow_android_devices' =>
 has_block provisioning => (
     render_list => [qw(authorizer allowed_devices)]
 );
+
+=head2 nbregpages
+
+=cut
+
+has_field 'nbregpages' =>
+  (
+    type => 'PosInteger',
+    label => 'Number of Registration Pages',
+    default => 0,
+  );
+
 
 =head1 METHODS
 

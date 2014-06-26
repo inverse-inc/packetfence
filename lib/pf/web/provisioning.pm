@@ -18,7 +18,6 @@ use warnings;
 
 use Apache2::Const;
 use Apache2::Request;
-use Log::Log4perl;
 use Template;
 
 use pf::config;
@@ -27,6 +26,7 @@ use pf::web;
 use pf::web::util;
 use pf::Portal::Session;
 use pf::util;
+use pf::log;
 
 =head1 SUBROUTINES
 
@@ -53,8 +53,7 @@ This handler generate the xml provisioning profil for android stuff.
 sub android_provisioning {
     my ($this, $r) = @_;
     my $req = Apache2::Request->new($r);
-    Log::Log4perl->init("$conf_dir/log.conf");
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $portalSession = pf::Portal::Session->new();
 

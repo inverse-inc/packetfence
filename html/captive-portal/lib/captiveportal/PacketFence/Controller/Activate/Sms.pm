@@ -3,7 +3,7 @@ use Moose;
 use namespace::autoclean;
 use Log::Log4perl;
 use POSIX;
-use URI::Escape qw(uri_escape);
+use URI::Escape::XS qw(uri_escape);
 
 use pf::config;
 use pf::iplog;
@@ -13,7 +13,7 @@ use pf::util;
 use pf::violation;
 use pf::web;
 use pf::web::guest;
-use pf::sms_activation;
+use pf::activation;
 
 # called last to allow redefinitions
 use pf::web::custom;
@@ -68,10 +68,7 @@ sub index : Path : Args(0) {
               &pf::authentication::match( $source->{id}, $auth_params,
                 $Actions::SET_ACCESS_DURATION );
             if ( defined $info{'unregdate'} ) {
-                $info{'unregdate'} = POSIX::strftime(
-                    "%Y-%m-%d %H:%M:%S",
-                    localtime( time + normalize_time( $info{'unregdate'} ) )
-                );
+                $info{'unregdate'} = pf::config::access_duration($info{'unregdate'});
             } else {
                 $info{'unregdate'} =
                   &pf::authentication::match( $source->{id}, $auth_params,
@@ -81,10 +78,15 @@ sub index : Path : Args(0) {
               &pf::authentication::match( $source->{id}, $auth_params,
                 $Actions::SET_ROLE );
 
-            $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
+            $c->session->{"username"} = $pid;
+            $c->session->{source_id} = $source->{id};
+            $c->stash->{info}=\%info; 
+            $c->forward('Authenticate' => 'postAuthentication');
+            $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
             # clear state that redirects to the Enter PIN page
             $c->session->{guest_pid} = undef;
+            pf::activation::set_status_verified($request->param('pin'));
             $c->detach( 'CaptivePortal', 'endPortalSession' );
         } else {
             $logger->warn( "No active sms source for profile "
@@ -123,7 +125,7 @@ sub sms_validation {
     my $pin = $c->request->param("pin");
     if ($pin) {
         $c->log->info("Mobile phone number validation attempt");
-        if ( validate_code($pin) ) {
+        if ( pf::activation::validate_code($pin) ) {
             return ( $TRUE, 0 );
         } else {
             return ( $FALSE, $GUEST::ERROR_INVALID_PIN );

@@ -71,9 +71,14 @@ Readonly::Scalar our $URL_OAUTH2                => '/oauth2/auth';
 Readonly::Scalar our $URL_OAUTH2_FACEBOOK       => '/oauth2/facebook';
 Readonly::Scalar our $URL_OAUTH2_GITHUB         => '/oauth2/github';
 Readonly::Scalar our $URL_OAUTH2_GOOGLE         => '/oauth2/google';
+Readonly::Scalar our $URL_OAUTH2_LINKEDIN       => '/oauth2/linkedin';
+Readonly::Scalar our $URL_OAUTH2_WIN_LIVE       => '/oauth2/windowslive';
 Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
 Readonly::Scalar our $URL_RELEASE               => '/release';
 Readonly::Scalar our $URL_STATUS                => '/status';
+Readonly::Scalar our $URL_STATUS_LOGIN          => '/status/login';
+Readonly::Scalar our $URL_STATUS_LOGOUT         => '/status/logout';
+Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
 
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';
@@ -90,7 +95,7 @@ Readonly::Scalar our $URL_SIGNUP_UGLY           => '/guest-selfregistration.cgi'
 Readonly::Scalar our $ACL_EMAIL_ACTIVATION_CGI  => '/cgi-perl/email_activation.cgi';
 Readonly::Scalar our $ACL_SIGNUP_CGI            => '/cgi-perl/guest-selfregistration.cgi';
 Readonly::Scalar our $MOD_PERL_WISPR            => '/wispr';
-Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/device-registration';
+Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
 Readonly::Scalar our $URL_DEVICE_REGISTRATION   => '/device-registration';
 
 # External Captive Portal detection constant
@@ -99,6 +104,7 @@ Readonly::Scalar our $REQ_CISCO                 => 'ap_mac';
 Readonly::Scalar our $REQ_MAC                   => 'mac';
 Readonly::Scalar our $REQ_ARUBA                 => 'apname';
 Readonly::Scalar our $REQ_CISCO_PORTAL          => '/cep(.*)';
+Readonly::Scalar our $REQ_RUCKUS                => 'sip';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';

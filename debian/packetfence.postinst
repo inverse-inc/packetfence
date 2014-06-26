@@ -33,7 +33,6 @@ case "$1" in
         chmod 0755 $PACKETFENCE/bin/*
         chmod 0755 $PACKETFENCE/sbin/*
         chmod 0755 $PACKETFENCE/html/pfappserver/script/*.pl
-        chmod 0755 $PACKETFENCE/html/captive-portal/*.cgi
         chmod ug+s $PACKETFENCE/bin/pfcmd
 
         chown pf:pf $PACKETFENCE

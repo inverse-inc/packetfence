@@ -11,6 +11,10 @@ use NetAddr::IP;
 use pf::iplog qw(iplog_open);
 use pf::Portal::ProfileFactory;
 use File::Spec::Functions qw(catdir);
+use pf::activation qw(view_by_code);
+use pf::web::constants;
+use URI::Escape::XS qw(uri_escape uri_unescape);
+use HTML::Entities;
 
 =head1 NAME
 
@@ -54,7 +58,16 @@ has remoteAddress => (
     required => 1,
 );
 
+has options => (
+    is       => 'rw',
+    default  => sub { {} },
+);
+
 has redirectURL => (
+    is       => 'rw',
+);
+
+has destination_url => (
     is       => 'rw',
 );
 
@@ -63,18 +76,38 @@ has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
 sub ACCEPT_CONTEXT {
     my ( $self, $c, @args ) = @_;
     my $class = ref $self || $self;
-    return $c->stash->{current_model_instances}{$class}
-        if exists $c->stash->{current_model_instances}{$class} && $c->stash->{current_model_instances}{$class}->isa($class);
+    my $model = $c->session->{$class};
     my $request       = $c->request;
+    my $r = $request->{'env'}->{'psgi.input'};
+    return $model if (defined($model) && $r->isa('Apache2::Request') && !($r->pnotes('last_uri')) );
     my $remoteAddress = $request->address;
-    my $forwardedFor  = $request->header('HTTP_X_FORWARDED_FOR');
+    my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
     my $redirectURL;
-    my $model =  $self->new(
+    my $uri = $request->uri;
+    my $options;
+    my $destination_url;
+    $destination_url = $request->param('destination_url') if defined($request->param('destination_url'));
+
+    if( $r->isa('Apache2::Request') &&  defined ( my $last_uri = $r->pnotes('last_uri') )) {
+        $options = {
+            'last_uri' => $last_uri,
+        };
+    } elsif ( $c->controller->isa('captiveportal::Controller::Activate::Email') && $c->action->name eq 'code' ) {
+        my $code = $c->request->arguments->[0];
+        my $data = view_by_code("1:".$code);
+        $options = {
+            'portal' => $data->{portal},
+        };
+    }
+
+    $model =  $self->new(
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
+        options       => $options,
+        destination_url => $destination_url,
         @args,
     );
-    $c->stash->{current_model_instances}{$class} = $model;
+    $c->session->{$class} = $model;
     return $model;
 }
 
@@ -82,12 +115,12 @@ sub _build_destinationUrl {
     my ($self) = @_;
 
     # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
-    if (!defined($self->cgi->param("destination_url")) || $self->profile->forceRedirectURL) {
-        return $self->getProfile->getRedirectURL;
+    if (!defined($self->destination_url) || isenabled($self->profile->forceRedirectURL)) {
+        return $self->profile->getRedirectURL;
     }
 
     # Respect the user's initial destination URL
-    return $self->{'_destination_url'} || decode_entities(uri_unescape($self->cgi->param("destination_url")));
+    return decode_entities(uri_unescape($self->destination_url));
 }
 
 sub _build_clientIp {
@@ -135,7 +168,7 @@ sub _build_clientMac {
     if (defined $clientIp) {
         $clientIp = clean_ip($clientIp);
         while ( my ($network,$network_config) = each %ConfigNetworks ) {
-            next unless defined $network_config->{'fake_mac_enabled'} && enabled($network_config->{'fake_mac_enabled'});
+            next unless defined $network_config->{'fake_mac_enabled'} && isenabled($network_config->{'fake_mac_enabled'});
             next if !pf::config::is_network_type_inline($network);
             my $net_addr = NetAddr::IP->new($network,$network_config->{'netmask'});
             my $ip = new NetAddr::IP::Lite $clientIp;
@@ -154,7 +187,7 @@ sub _build_clientMac {
 
 sub _build_profile {
     my ($self) = @_;
-    return pf::Portal::ProfileFactory->instantiate( $self->clientMac );
+    return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $self->options);
 }
 
 sub templateIncludePath {

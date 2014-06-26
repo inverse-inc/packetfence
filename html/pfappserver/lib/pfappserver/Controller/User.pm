@@ -23,6 +23,7 @@ use pfappserver::Form::User::Create;
 use pfappserver::Form::User::Create::Single;
 use pfappserver::Form::User::Create::Multiple;
 use pfappserver::Form::User::Create::Import;
+use pf::admin_roles;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 with 'pfappserver::Role::Controller::BulkActions';
@@ -401,17 +402,6 @@ sub mail :Local :AdminRole('USERS_UPDATE') {
     $c->response->status($status);
     $c->stash->{current_view} = 'JSON';
 }
-
-before [qw(delete)] => sub {
-   my ($self,$c,$role) = @_;
-   unless(admin_can($c->user,"USERS_REMOVE")) {
-        $c->log->info("Here");
-        $c->response->status(HTTP_UNAUTHORIZED);
-        $c->stash->{status_msg} = "You shall not pass";
-        $c->stash->{current_view} = 'JSON';
-        $c->detach();
-    }
-};
 
 =head1 COPYRIGHT
 

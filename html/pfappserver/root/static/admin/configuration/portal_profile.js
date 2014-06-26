@@ -196,10 +196,13 @@ function initCreatePage(element) {
     saveBtn.off("click");
     saveBtn.click(function(event) {
         var valid = isFormValid(form);
+        if(!valid) {
+            $("body,html").animate({scrollTop:0}, 'fast');
+        }
         return valid;
     });
 
-    var modal = $('#saveProfile');
+    var modal = $('#createProfile');
     var confirmationBtn = modal.find('.btn-primary').first();
     confirmationBtn.off("click");
     confirmationBtn.click(function(event) {

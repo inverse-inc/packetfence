@@ -5,6 +5,17 @@
 
 <revhistory>
   <revision>
+    <revnumber>3.3</revnumber>
+    <date>2014-06-26</date>
+    <revremark>
+    - Adding documentation for Firewall SSO
+    - Adding documentation for Active Directory integration
+    - Adding documentation for Apache Filters
+    - Adding documentation for VLAN Filters
+    - Adding documentation for Windows Live and Linkedin OAuth2
+    </revremark>
+  </revision>
+  <revision>
     <revnumber>3.2</revnumber>
     <date>2013-08-09</date>
     <revremark>Adding documentation for passthroughs</revremark>

@@ -53,7 +53,8 @@ has_field 'fake_mac_enabled' =>
   (
    type => 'Toggle',
    checkbox_value => 1,
-   default => 1,
+   unchecked_value => 0,
+   default => 0,
    label => 'Fake MAC Address',
    );
 
@@ -64,6 +65,19 @@ has_field 'dhcpd_enabled' =>
     default => 1,
     label => 'Enable DHCP Server',
    );
+
+has_field 'high_availability' => 
+   (
+    type => 'Toggle',
+    checkbox_value => 1,
+    unchecked_value => 0,
+    default => 0,
+   );
+has_field 'vip' =>
+  (
+   type => 'IPAddress',
+   label => 'Virtual IP Address',
+  );
 
 
 =head2 options_type
@@ -84,7 +98,7 @@ sub options_type {
     }
 
 
-    return ('' => '', @types);
+    return ('none' => 'None', @types);
 }
 
 =head2 validate

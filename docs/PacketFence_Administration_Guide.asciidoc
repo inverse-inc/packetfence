@@ -119,7 +119,7 @@ Assumptions
 PacketFence reuses many components in an infrastructure. Thus, it requires the following ones:
 
 [options="compact"]
-* Database server (MySQL)
+* Database server (MySQL or MariaDB)
 * Web server (Apache)
 
 Depending on your setup you may have to install additional components like:
@@ -320,7 +320,7 @@ Web-based Administration Interface
 
 PacketFence provides a web-based administration interface for easy configuration and operational management. If you went through PacketFence's web-based configuration tool, you should have set the password for the `admin` user. If not, the default password is also `admin`.
 
-Once PacketFence is started, the administration interface is available at: https://@ip_of_packetfence>:1443/
+Once PacketFence is started, the administration interface is available at: https://@ip_of_packetfence:1443/
 
 Global configuration file (pf.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -390,10 +390,12 @@ PacketFence can authenticate users that register devices via the captive portal 
 * Google (OAuth 2)
 * Kerberos
 * LDAP
+* LinkedIn (OAuth 2)
 * Null
 * RADIUS
 * SMS
 * Sponsored Email
+* Windows Live (OAuth 2)
 
 Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Users -> Sources* section. Alternatively (but not recommended), authentication sources, rules, conditions and actions can be configured from `conf/authentication.conf`.
 
@@ -1034,7 +1036,7 @@ Finally, start `winbind`, and test the setup using `ntlm_auth` and `radtest`:
 
 For Debian and Ubuntu:
 
-  # chgrp pf /var/run/samba/winbindd_privileged/
+  # usermod -a -G winbindd_priv pf
   # ntlm_auth --username myDomainUser
   # radtest -t mschap -x myDomainUser myDomainPassword localhost:18120 12 testing123
     Sending Access-Request of id 108 to 127.0.0.1 port 18120
@@ -1635,13 +1637,26 @@ Using Nessus:
   user=nessusUsername
 
 Of course the basic-policy must exist on the nessus server.
-If you want to use a different nessus policy by category, you have to adjust settings like the following (if the policy doesn't exist, PacketFence will use the default policy defined by nessus_clientpolicy):
+If you want to use a different nessus policy by category, you have to adjust settings like the following:
 
   [nessus_category_policy]
   guest=guest_policy
   wifi=wifi_policy
 
 A node who is register like a guest will be scanned by the guest_policy , etc ...
+
+You can also use a different nessus policy based on the dhcp fingerprint, you have to adjust settings like the following:
+
+  [nessus_scan_by_fingerprint]
+  Android=Android
+  Mac OS X=MACOSX
+  Microsoft Windows=Windows
+  iPhone=IOS
+
+A node with a fingerprint contain Android will be scanned by the Android policy, etc ...
+
+Note if there is no policy based on dhcp fingerprint then PacketFence will try to use policy based on category and if it
+does not exist then PacketFence will use the default policy defined by nessus_clientpolicy.
 
 Using OpenVAS:
 
@@ -2118,7 +2133,7 @@ Portal profiles should be managed from PacketFence's Web administrative GUI - fr
 OAuth2 Authentication
 ~~~~~~~~~~~~~~~~~~~~~
 
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook or Github account.
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live or Github account.
 
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
@@ -2129,6 +2144,8 @@ In order to have oauth2 working properly, you need to enable IP forwarding on yo
   net.ipv4.ip_forward = 1
 
 Save the file, and issue a `sysctl -p` to update the OS config.
+
+You must also enable the passthrough option in your PacketFence configuration (trapping.passthrough in pf.conf).
 
 Google
 ^^^^^^
@@ -2145,7 +2162,7 @@ Moreover, don't forget to add Google as a registration mode from your portal pro
 
 Facebook
 ^^^^^^^^
-To use Facebook, you also need an API code and a secret key.  To get one, go here: https://developers.facebook.com/apps.  When you create your App, make sure you input the following as the Website URL:
+To use Facebook, you also need an API code and a secret key.  To get one, go here: https://developers.facebook.com/apps.  When you create your App, make sure you specify the following as the Website URL:
 https://YOUR_PORTAL_HOSTNAME/oauth2/facebook
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
@@ -2162,14 +2179,39 @@ CAUTION: By allowing OAuth through Facebook, you will give Facebook access to th
 
 GitHub
 ^^^^^^
-To use GitHub, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications.  When you create your App, make sure you input the following as the Callback URL
+To use GitHub, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications.  When you create your App, make sure you specify the following as the Callback URL
 https://YOUR_PORTAL_HOSTNAME/oauth2/github
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
 
 Moreover, don't forget to add GitHub as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+
+LinkedIn
+^^^^^^^^
+To use LinkedIn, you also need an API code and a secret key.  To get one, you need to create an App here: https://developer.linkedin.com/.  When you create your App, make sure you specify the following as the Callback URL
+https://YOUR_PORTAL_HOSTNAME/oauth2/linkedin
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add LinkedIn as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+
+Also, LinkedIn requires a 'state' parameter for the authorization URL. If you modify it, make sure to add it at the end of your URL.
+
+Windows Live
+^^^^^^^^^^^^
+To use Windows live, you also need an API code and a secret key.  To get one, you need to create an App here: https://account.live.com/developers/applications.  When you create your App, make sure you specify the following as the Callback URL
+https://YOUR_PORTAL_HOSTNAME/oauth2/windowslive
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add WindowsLive as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+
 
 Gaming Devices Registration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2374,6 +2416,328 @@ realm ntdomain {
         delimiter = "\\"
         ignore_null = yes 
 }
+----
+
+Vlan Filter Definition
+~~~~~~~~~~~~~~~~~~~~~~
+
+We added the ability to specify filters directly in the portion of code that re-evaluates the VLAN. 
+
+These rules are available in different scopes:
+
+  ViolationVlan
+  RegistrationVlan
+  NormalVlan
+  InlineVlan
+  shouldAutoRegister
+
+And can be defined using different criteria like:
+
+  node_info
+  switch
+  ifIndex
+  mac
+  connection_type
+  username
+  ssid
+  time
+
+For example, lets define a rule that prevents a device from connecting when its category is the "default", when the SSID is "SECURE" and when the current time is between 11am and 2pm:
+from Monday to Friday when it try to connect as a registered device :
+
+  [category]
+  filter = node_info
+  attribute = category
+  operator = is
+  value = default
+
+  [ssid]
+  filter = ssid
+  operator = is
+  value = SECURE
+
+  [time]
+  filter = time
+  operator = is
+  value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
+
+  [1:category&ssid&time]
+  scope = NormalVlan
+  role = nointernet
+
+You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
+
+AD-Integration:
+~~~~~~~~~~~~~~~
+
+Deleted Account:
+++++++++++++++++
+
+Create a file unreg_node_deleted_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the werb services credentials. Make sure the username and password match the credentials defined in the Web admin interface under Configuration > Web Services.
+
+----
+#########################################################################################
+#Powershell script to unregister deleted Active Directory account based on the UserName.#
+#########################################################################################
+
+Get-EventLog -LogName Security -InstanceId 4726 |
+   Select ReplacementStrings,"Account name"|
+   % {
+    $url = "https://@IP_PACKETFENCE:9090/"
+    $username = "admin" # Username for the webservice
+    $password = "admin" # Password for the webservice
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
+    $web = [System.Net.WebRequest]::Create($url)
+    $web.Method = "POST"
+    $web.ContentLength = $bytes.Length
+    $web.ContentType = "application/json-rpc"
+    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $stream = $web.GetRequestStream()
+    $stream.Write($bytes,0,$bytes.Length)
+    $stream.close()
+
+    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader.ReadToEnd()
+    $reader.Close()
+   }
+----
+
+Create the scheduled task based on an event ID:
++++++++++++++++++++++++++++++++++++++++++++++++
+
+*Start* > *Run* > *Taskschd.msc*
+
+*Task Scheduler* > *Task Scheduler Library* > *Event Viewer Task* > *Create Task*
+
+General
+
+----
+Name: PacketFence-Unreg_node-for-deleted-account
+Check: Run whether user is logged on or not
+Check: Run with highest privileges
+----
+
+Triggers > New
+
+----
+Begin on the task: On an event
+Log: Security
+Source: Microsoft Windows security auditing.
+Event ID: 4726
+----
+
+Actions > New
+
+----
+Action: Start a program
+Program/script: powershell.exe
+Add arguments (optional): C:\scripts\unreg_node_deleted_account.ps1
+----
+
+Settings:
+
+----
+At the bottom, select in the list "Run a new instance in parallel" in order to unregister multiple nodes at the same time.
+----
+
+Validate with Ok and give the account who will run this task. (Usually DOMAIN\Administrator)
+
+Locked Account:
++++++++++++++++
+
+Create a file unreg_node_locked_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the web services credentials, Make sure the username and password match the credentials defined in the Web admin interface under Configuration > Web Services.
+
+----
+#########################################################################################
+#Powershell script to unregister locked Active Directory account based on the UserName.#
+#########################################################################################
+
+Get-EventLog -LogName Security -InstanceId 4725 |
+   Select ReplacementStrings,"Account name"|
+   % {
+    $url = "https://@IP_PACKETFENCE:9090/"
+    $username = "admin" # Username for the webservice
+    $password = "admin" # Password for the webservice
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
+    $web = [System.Net.WebRequest]::Create($url)
+    $web.Method = "POST"
+    $web.ContentLength = $bytes.Length
+    $web.ContentType = "application/json-rpc"
+    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $stream = $web.GetRequestStream()
+    $stream.Write($bytes,0,$bytes.Length)
+    $stream.close()
+
+    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader.ReadToEnd()
+    $reader.Close()
+ 
+   }
+----
+
+Create the scheduled task based on an event ID:
++++++++++++++++++++++++++++++++++++++++++++++++
+
+*Start* > *Run* > *Taskschd.msc*
+
+*Task Scheduler* > *Task Scheduler Library* > *Event Viewer Task* > *Create Task*
+
+General
+
+----
+Name: PacketFence-Unreg_node-for-locked-account
+Check: Run whether user is logged on or not
+Check: Run with highest privileges
+----
+
+Triggers > New
+
+----
+Begin on the task: On an event
+Log: Security
+Source: Microsoft Windows security auditing.
+Event ID: 4726
+----
+
+Actions > New
+
+----
+Action: Start a program
+Program/script: powershell.exe
+Add arguments (optional): C:\scripts\unreg_node_locked_account.ps1
+----
+
+Settings:
+
+----
+At the bottom, select in the list "Run a new instance in parallel"
+----
+
+Validate with Ok and give the account who will run this task. (Usually DOMAIN\Administrator)
+
+Firewall SSO
+------------
+
+This SSO (Single Sign-On) feature is a way to match the Policies of your firewalls after a valid authentication on the captive portal. You can apply policies based on PacketFence's roles (categories). We actually support two ways to inform the firewall, Accounting request and XML request. 
+
+Fortigate:
+++++++++++
+
+Go to your Fortigate administration webpage.
+
+Agent RSSO configuration:
++++++++++++++++++++++++++
+
+Go to *User & Device* > *User* > *User Groups* > *Create New*
+
+----
+Name: RSSO_group
+Type: RADIUS Single Sign-On (RSSO)
+RADIUS Attribute Value: Guest (Put the rolename of PacketFence, it's case sensitive)
+----
+
+You can also see that in the webpage at *User & Device* > *Monitor* > *Firewall* 
+
+Activate the Accounting Listening:
++++++++++++++++++++++++++++++++++++
+
+Go to *System* > *Network* > *Interfaces*
+
+Select the interface that will communicate with PacketFence and check : Listen for RADIUS Accounting Messages than validate by OK.
+
+SSO Configuration in PacketFence:
++++++++++++++++++++++++++++++++++
+
+Go to *Configuration* > *Firewall SSO* > *Add Firewall SSO*
+
+----
+Hostname or IP Address: @IP of your firewall
+Firewall type: Fortigate (Fortigate = Accounting request; PaloAlto = XML request)
+Secret or Key: secret (radius shared secret)
+Port: 1813
+Roles: add the roles that you want to do SSO
+----
+
+Verification:
++++++++++++++
+
+If you want to see if it's working, you can log into the firewall over SSH and run these following commands:
+
+----
+di debug enable
+di debug application radiusd -1
+----
+
+PaloAlto:
++++++++++
+
+You have to log in the webpage of your PaloAlto Firewall.
+
+- Create a SSO_Role role:
++++++++++++++++++++++++++
+
+Go to *Device* > *Admin Roles* > *Add*
+
+Create the role name SSO_Role, under the 'XML API' tab enable everything and validate it with OK.
+
+- Create the account in PAN-OS:
++++++++++++++++++++++++++++++++
+
+Go to *Device* > *Administrator* > *Add*
+
+----
+Name: xmluser
+Authentication Profile: None
+Password: xmluser
+Role: Role Based
+Profile: SSO_Role (Previously created)
+Password Profile: None
+----
+
+Get the XML Key:
+++++++++++++++++
+
+Go on your broswer : https://@IP-of-PaloAlto/api/?type=keygen&user=xmluser&password=xmluser
+(Put user=Username&password=Yourpassword)
+
+it should display :
+
+----
+<response status="success">
+<result>
+<key>
+LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVljL000eDVnWHg2VTdwNUJHMlFGcHFCVWpGeW55VjVvZTF0WE51dz0=
+</key>
+</result>
+</response>
+----
+
+SSO Configuration PF:
++++++++++++++++++++++
+
+Go to Configuration > Firewall SSO > Add Firewall SSO
+
+----
+Hostname or IP Address: @IP of your firewall
+Firewall type: PalotAlto (Fortigate = Accounting request; PaloAlto = XML request)
+Secret or Key: LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVljL000eDVnWHg2VTdwNUJHMlFGcHFCVWpGeW55VjVvZTF0WE51dz0= (Put the key previoulsy generated)
+Port: 443
+Roles: add the roles that you want to do SSO
+----
+
+Verification:
++++++++++++++
+
+Log into the ssh console on the PaloAlto and run this command :
+
+----
+show user ip-user-mapping all
 ----
 
 Operating System Best Practices
@@ -2850,26 +3214,32 @@ Avoid captive portal overload due to non-browser HTTP requests
 
 By default we allow every query to be redirected and reach PacketFence for the captive portal operation. In a lot of cases, this means that a lot of non-user initiated queries reach PacketFence and waste its resources for nothing since they are not from browsers. (iTunes, Windows update, MSN Messenger, Google Desktop, ...).
 
-So far, we blacklisted clients known to be misbehaving. However, a completely different approach can be taken: whitelist only known browsers.
+Since version 4.3 of PacketFence, you can define HTTP filters for Apache from the configuration of PacketFence.
 
-This has the nasty side-effect of being unfriendly with (blocking) less popular browsers and devices so this is disabled by default.
+Some rules have been enabled by default, like one to reject requests with no defined user agent. All rules, including some examples, are defined in the configuration file apache_filters.conf.
 
-If you want to enable this feature, edit `conf/httpd.conf.d/block-unwanted.conf`, and uncomment the following lines:
+Filters are defined with at least two blocks. First are the tests. For example:
 
-  RewriteCond %{HTTP_USER_AGENT} !^Mozilla
-  RewriteCond %{HTTP_USER_AGENT} !^Opera
-  RewriteCond %{HTTP_USER_AGENT} !^BlackBerry
-  RewriteRule ^.*$ - [L,forbidden]
+  [get_ua_is_dalvik]
+  filter = user_agent
+  method = GET
+  operator = match
+  value = Dalvik
+  
+  [get_uri_not_generate204]
+  filter = uri
+  method = GET
+  operator = match_not
+  value = /generate_204
+  
+The last block defines the relationship between the tests and the desired action. For example:
 
-This will allow the following browsers to reach the captive portal (but nothing else):
+  [block_dalvik:get_ua_is_dalvik&get_uri_not_generate204]
+  action = 501
+  redirect_url =
 
-[options="compact"]
-* BlackBerry
-* Firefox
-* Google Chrome
-* Internet Explorer
-* Opera
-* Safari
+This filter will return an error code (501) if the user agent is Dalvik and the URI doesn't contain _/generate_204.
+
 
 Frequently Asked Questions
 --------------------------
@@ -2954,7 +3324,7 @@ Technical introduction to Inline enforcement
 Introduction
 ~~~~~~~~~~~~
 
-Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices. So in other words, PacketFence would become the gateway of that inline network, and NAT or route the traffic using IPTables to the Internet (or to another section of the network). Let see how it works.
+Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices. So in other words, PacketFence would become the gateway of that inline network, and NAT or route the traffic using IPTables/IPSet to the Internet (or to another section of the network). Let see how it works.
 
 Device configuration
 ~~~~~~~~~~~~~~~~~~~~
@@ -2963,7 +3333,7 @@ No special configuration is needed on the unmanageable device. That's the beauty
 Access control
 ~~~~~~~~~~~~~~
 
-The access control relies entirely on IPTables. When a user is not registered, and connects in the inline VLAN, PacketFence will give him an IP address. At this point, the user will be marked as unregistered in the firewall, and all the Web traffic will be redirected to the captive portal and other traffic blocked. The user will have to register through the captive portal as in VLAN enforcement. When he registers, PacketFence changes the firewall marking rule to allow the user's mac address to go through it.
+The access control relies entirely on IPTables/IPSet. When a user is not registered, and connects in the inline VLAN, PacketFence will give him an IP address. At this point, the user will be marked as unregistered in the ipset session, and all the Web traffic will be redirected to the captive portal and other traffic blocked. The user will have to register through the captive portal as in VLAN enforcement. When he registers, PacketFence changes the device´s ipset session to allow the user's mac address to go through it.
 
 Limitations
 ~~~~~~~~~~~
@@ -2974,7 +3344,6 @@ Inline enforcement because of it's nature has several limitations that one must 
 * Everyone behind an inline interface is on the same Layer 2 LAN
 * Every packet of authorized users goes through the PacketFence server increasing the servers' load considerably: Plan ahead for capacity
 * Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
-* Does not handle routed networks
 * Ipset can store up to 65536 entries, so it is not possible to have a inline network class upper than B
 
 This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows users to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.

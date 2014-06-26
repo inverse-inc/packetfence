@@ -388,7 +388,7 @@ Access for the proxied C<Config::IniFiles> object
 
 =cut
 
-sub config { ${$_[0]}}
+sub config { ${$_[0]} }
 
 =head2 RewriteConfig
 

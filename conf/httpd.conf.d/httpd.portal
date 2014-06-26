@@ -197,8 +197,12 @@ $SSLSessionCache = "dbm:".$install_dir."/var/ssl_scache";
 $SSLSessionCacheTimeout = "300";
 $SSLMutex = "file:".$install_dir."/var/ssl_mutex";
 $SSLRandomSeed = "startup builtin";
+$SSLRandomSeed = "startup file:/dev/urandom 1024";
 $SSLRandomSeed = "connect builtin";
-$SSLCipherSuite = "ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL";
+$SSLRandomSeed = "connect file:/dev/urandom 1024";
+$SSLProtocol = "All -SSLv2";
+$SSLCipherSuite = "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:ECDHE-RSA-RC4-SHA:ECDHE-ECDSA-RC4-SHA:AES128:AES256:RC4-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!3DES:!MD5:!PSK";
+$SSLHonorCipherOrder = "on";
 
 $ErrorLog = $install_dir.'/logs/portal_error_log';
 
@@ -220,18 +224,23 @@ if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
 }
 
 foreach my $interface (@internal_nets) {
-    push (@Listen,$interface->{'Tip'}.":80");
-    push (@Listen,$interface->{'Tip'}.":443");
-    push (@NameVirtualHost,$interface->{'Tip'}.":80");
-    push (@NameVirtualHost,$interface->{'Tip'}.":443");
-    push (@{ $VirtualHost{$interface->{'Tip'}.":80"} }, gen_conf(
+    if (defined($interface->{'Tip'}) && $interface->{'Tip'} ne '') {
+        if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
+            $vhost = $interface->{'Tvip'};
+        } else {
+            $vhost = $interface->{'Tip'};
+       }
+    }
+    push (@Listen,$vhost.":80");
+    push (@Listen,$vhost.":443");
+    push (@NameVirtualHost,$vhost.":80");
+    push (@NameVirtualHost,$vhost.":443");
+    push (@{ $VirtualHost{$vhost.":80"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
-         CustomLog    => "${install_dir}/logs/portal_catalyst_access_log combined",
+         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
+         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
          Include => "${var_dir}/conf/captive-portal-common.conf",
-         Include => "${var_dir}/conf/block-unwanted.conf",
-         Include => "${var_dir}/conf/captive-portal-cleanurls.conf",
          AllowEncodedSlashes => "on",
          Alias        => "/static ${install_dir}/html/captive-portal/root/static",
          Alias        => "/common ${install_dir}/html/common",
@@ -273,14 +282,12 @@ foreach my $interface (@internal_nets) {
              },
          },
     ));
-    push (@{ $VirtualHost{$interface->{'Tip'}.":443"} }, gen_conf(
+    push (@{ $VirtualHost{$vhost.":443"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
-         CustomLog    => "${install_dir}/logs/portal_catalyst_access_log combined",
+         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
+         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
          Include => "${var_dir}/conf/captive-portal-common.conf",
-         Include => "${var_dir}/conf/block-unwanted.conf",
-         Include => "${var_dir}/conf/captive-portal-cleanurls.conf",
          AllowEncodedSlashes => "on",
          Alias        => "/static ${install_dir}/html/captive-portal/root/static",
          Alias        => "/common ${install_dir}/html/common",
@@ -342,11 +349,9 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
     push @{ $VirtualHost{$host.":80"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
-         CustomLog    => "${install_dir}/logs/portal_catalyst_access_log combined",
+         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
+         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
          Include => "${var_dir}/conf/captive-portal-common.conf",
-         Include => "${var_dir}/conf/block-unwanted.conf",
-         Include => "${var_dir}/conf/captive-portal-cleanurls.conf",
          AllowEncodedSlashes => "on",
          Alias        => "/static ${install_dir}/html/captiveportal/root/static",
          Alias        => "/common ${install_dir}/html/common",
@@ -391,11 +396,9 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
     push @{ $VirtualHost{$host.":443"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/portal_catalyst_error_log",
-         CustomLog    => "${install_dir}/logs/portal_catalyst_access_log combined",
+         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
+         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
          Include => "${var_dir}/conf/captive-portal-common.conf",
-         Include => "${var_dir}/conf/block-unwanted.conf",
-         Include => "${var_dir}/conf/captive-portal-cleanurls.conf",
          AllowEncodedSlashes => "on",
          Alias        => "/static ${install_dir}/html/captiveportal/root/static",
          Alias        => "/common ${install_dir}/html/common",

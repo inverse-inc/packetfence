@@ -1,10 +1,13 @@
 /usr/local/pf/conf/adminroles.conf
+/usr/local/pf/conf/apache_filters.conf
 /usr/local/pf/conf/authentication.conf
 /usr/local/pf/conf/profiles.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf
 /usr/local/pf/conf/documentation.conf
+/usr/local/pf/conf/firewall_sso.conf
 /usr/local/pf/conf/floating_network_device.conf
 /usr/local/pf/conf/guest-managers.conf
+/usr/local/pf/conf/vlan_filters.conf
 /usr/local/pf/conf/locale/de/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/es/LC_MESSAGES/packetfence.po
@@ -23,13 +26,10 @@
 /usr/local/pf/conf/snort/reference.config
 /usr/local/pf/conf/switches.conf
 /usr/local/pf/conf/dhcpd.conf
-/usr/local/pf/conf/httpd.conf.d/block-unwanted.conf
-/usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
 /usr/local/pf/conf/httpd.conf.d/httpd.portal
-/usr/local/pf/conf/httpd.conf.d/httpd.portal.cgi
 /usr/local/pf/conf/httpd.conf.d/httpd.admin
 /usr/local/pf/conf/httpd.conf.d/log.conf
 /usr/local/pf/conf/iptables.conf

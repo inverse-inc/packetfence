@@ -127,8 +127,10 @@ sub start_mysqld_service {
         return ($STATUS::OK, $status_msg);
     }
 
+    my $mysql_script = 'mysqld';
+    $mysql_script = 'mysql' if ( -e "/etc/init.d/mysql" );
     # please keep LANG=C in case we need to fetch the output of the command
-    my $cmd = "LANG=C setsid sudo service mysqld start 2>&1";
+    my $cmd = "LANG=C setsid sudo service $mysql_script start 2>&1";
     $logger->debug("Starting mysqld service: $cmd");
     $status = pf_run($cmd);
 

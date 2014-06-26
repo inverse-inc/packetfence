@@ -211,59 +211,98 @@ sub wiredeauthTechniques {
     }
 }
 
-=item returnRadiusAccessAccept
+=item radiusDisconnect
 
-Prepares the RADIUS Access-Accept reponse for the network device.
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
 
-Default implementation.
+Optionally you can provide other attributes as an hashref.
+
+Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 =cut
 
-sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
+# TODO consider whether we should handle retries or not?
+
+sub radiusDisconnect {
+    my ($self, $mac, $add_attributes_ref) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    # Inline Vs. VLAN enforcement
-    my $radius_reply_ref = {};
+    # initialize
+    $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!$wasInline || ($wasInline && $vlan != 0)) {
-        $radius_reply_ref = {
-            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-            'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $vlan,
-        };
-    }
-
-    # TODO this is experimental
-    try {
-        if ($self->supportsRoleBasedEnforcement()) {
-            $logger->debug("network device supports roles. Evaluating role to be returned");
-            my $role = "";
-            if ( defined($user_role) && $user_role ne "" ) {
-                $role = $self->getRoleByName($user_role);
-            }
-            if ( defined($role) && $role ne "" ) {
-                $radius_reply_ref = {};
-                $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
-                $logger->info(
-                    "Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
-                );
-            }
-            else {
-                $logger->debug("received undefined role. No Role added to RADIUS Access-Accept");
-            }
-        }
-    }
-    catch {
-        chomp($_);
-        $logger->debug(
-            "Exception when trying to resolve a Role for the node. No Role added to RADIUS Access-Accept. "
-            . "Exception: $_"
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: RADIUS Shared Secret not configured"
         );
-    };
+        return;
+    }
 
-    $logger->info("Returning ACCEPT with VLAN: $vlan");
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+    $logger->info("[$self->{'_ip'}] Deauthenticating $mac");
+
+    # Where should we send the RADIUS CoA-Request?
+    # to network device by default
+    my $send_disconnect_to = $self->{'_ip'};
+    # allowing client code to override where we connect with NAS-IP-Address
+    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
+        if (defined($add_attributes_ref->{'NAS-IP-Address'}));
+
+    my $response;
+    try {
+        my $connection_info = {
+            nas_ip => $send_disconnect_to,
+            secret => $self->{'_radiusSecret'},
+            LocalAddr => $management_network->tag('vip'),
+        };
+
+        $logger->debug("[$self->{'_ip'}] Network device supports roles. Evaluating role to be returned.");
+        my $roleResolver = pf::roles::custom->instance();
+        my $role = $roleResolver->getRoleForNode($mac, $self);
+
+        my $acctsessionid = node_accounting_current_sessionid($mac);
+        my $node_info = node_attributes($mac);
+        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        $mac = uc($mac);
+        $mac =~ s/:/-/g;
+
+        # Standard Attributes
+        my $attributes_ref = {
+            'Calling-Station-Id' => $mac,
+            'NAS-IP-Address' => $send_disconnect_to,
+            'Acct-Session-Id' => $acctsessionid,
+        };
+
+        # merging additional attributes provided by caller to the standard attributes
+        $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
+
+        # Roles are configured and the user should have one
+        if ( defined($role) && (defined($node_info->{'status'}) && isenabled($self->{_RoleMap}) ) ) {
+
+            $attributes_ref = {
+                %$attributes_ref,
+                'Filter-Id' => $role,
+            };
+            $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
+            $response = perform_coa($connection_info, $attributes_ref);
+
+        }
+        else {
+            $response = perform_disconnect($connection_info, $attributes_ref);
+        }
+    } catch {
+        chomp;
+        $logger->warn("[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: $_");
+        $logger->error("[$self->{'_ip'}] Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
+
+    $logger->warn(
+        "[$self->{'_ip'}] Unable to perform RADIUS Disconnect-Request."
+        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
 }
 
 =back
@@ -274,7 +313,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 

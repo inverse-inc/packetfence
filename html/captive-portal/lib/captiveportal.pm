@@ -4,8 +4,6 @@ use namespace::autoclean;
 use Log::Log4perl::Catalyst;
 
 use Catalyst::Runtime 5.80;
-use POSIX qw(setlocale);
-use Locale::gettext qw(bindtextdomain textdomain);
 
 # Set flags and add plugins for the application.
 #
@@ -33,11 +31,11 @@ use Catalyst qw/
 
 use Try::Tiny;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
 
 BEGIN {
-    use pf::log service => 'httpd.portal',no_stderr_trapping => 1,no_stdout_trapping => 1;
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log service => 'httpd.portal', reinit => 1;
 }
 
 use pf::config::cached;
@@ -47,8 +45,6 @@ use pf::CHI;
 extends 'Catalyst';
 
 our $VERSION = '0.01';
-bindtextdomain( "packetfence", "$conf_dir/locale" );
-textdomain("packetfence");
 
 # Configure the application.
 #
@@ -158,7 +154,7 @@ sub has_errors {
     return scalar @{$c->error};
 }
 
-__PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.portal.conf',watch_delay => 5 * 60));
+__PACKAGE__->log(Log::Log4perl::Catalyst->new);
 
 # Handle warnings from Perl as error log messages
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };

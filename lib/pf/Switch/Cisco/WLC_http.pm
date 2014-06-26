@@ -157,60 +157,44 @@ sub returnRadiusAccessAccept {
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     my $radius_reply_ref = {};
-    # TODO this is experimental
-    try {
 
-        my $role = $this->getRoleByName($user_role);
-        # Roles are configured and the user should have one
-        if (defined($role)) {
-            my $node_info = node_view($mac);
-            if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED) {
-                $radius_reply_ref = {
-                    'User-Name' => $mac,
-                    $this->returnRoleAttribute => $role,
-                };
-            }
-            else {
-                my (%session_id);
-                pf::web::util::session(\%session_id,undef,6);
-                $session_id{client_mac} = $mac;
-                $session_id{wlan} = $ssid;
-                $session_id{switch} = \$this;
-                $radius_reply_ref = {
-                    'User-Name' => $mac,
-                    'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}"],
-                };
-            }
-            $logger->info("Returning ACCEPT with Role: $role");
-        }
-
-
-        # if Roles aren't configured, return VLAN information
-        else {
-
+    my $role = $this->getRoleByName($user_role);
+    # Roles are configured and the user should have one
+    if (defined($role) && isenabled($this->{_RoleMap})) {
+        my $node_info = node_view($mac);
+        if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED) {
             $radius_reply_ref = {
-                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-                'Tunnel-Type' => $RADIUS::VLAN,
-                'Tunnel-Private-Group-ID' => $vlan,
+                'User-Name' => $mac,
+                $this->returnRoleAttribute => $role,
             };
-
-            $logger->info("Returning ACCEPT with VLAN: $vlan");
         }
-
+        else {
+            my (%session_id);
+            pf::web::util::session(\%session_id,undef,6);
+            $session_id{client_mac} = $mac;
+            $session_id{wlan} = $ssid;
+            $session_id{switch} = \$this;
+            $radius_reply_ref = {
+                'User-Name' => $mac,
+                'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}"],
+            };
+        }
+        $logger->info("[$this->{'_ip'}] Returning ACCEPT with role: $role");
     }
-    catch {
-        chomp($_);
-        $logger->debug(
-            "Exception when trying to resolve a Role for the node. Returning VLAN attributes in RADIUS Access-Accept. "
-            . "Exception: $_"
-        );
+
+
+    # if Roles aren't configured, return VLAN information
+    if (isenabled($this->{_VlanMap}) ) {
 
         $radius_reply_ref = {
+            %$radius_reply_ref,
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,
             'Tunnel-Private-Group-ID' => $vlan,
         };
-    };
+
+        $logger->info("[$this->{'_ip'}] Returning ACCEPT with VLAN: $vlan");
+    }
 
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }

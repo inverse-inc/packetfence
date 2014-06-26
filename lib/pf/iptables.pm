@@ -20,11 +20,10 @@ F<pf.conf> configuration file and iptables template F<iptables.conf>.
 use strict;
 use warnings;
 
-use IPTables::ChainMgr;
-use IPTables::Interface;
 use IO::Interface::Simple;
 use Log::Log4perl;
 use Readonly;
+use NetAddr::IP;
 
 BEGIN {
     use Exporter ();
@@ -119,14 +118,11 @@ sub iptables_generate {
     $self->generate_interception_rules(\$tags{'nat_if_src_to_chain'},\$tags{'nat_prerouting_vlan'},\$tags{'input_inter_vlan_if'} );
 
     # OAuth
-    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
-    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
-    my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
-    if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
+    if ($passthrough_enabled) {
         generate_passthrough_rules(
-            $google_enabled,$facebook_enabled,$github_enabled,$passthrough_enabled,\$tags{'filter_forward_vlan'},\$tags{'nat_postrouting_vlan'}
+            $passthrough_enabled,\$tags{'filter_forward_vlan'},\$tags{'nat_postrouting_vlan'}
         );
     }
 
@@ -166,15 +162,12 @@ sub generate_filter_if_src_to_chain {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
-    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
-    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
-    my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
         my $dev = $interface->tag("int");
-        my $ip = $interface->tag("ip");
+        my $ip = $interface->tag("vip") || $interface->tag("ip");
         my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
 
         # VLAN enforcement
@@ -184,7 +177,7 @@ sub generate_filter_if_src_to_chain {
             }
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
-            if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
+            if ($passthrough_enabled) {
                 $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
                 $rules .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
             }
@@ -248,20 +241,30 @@ sub generate_inline_rules {
 
     $logger->info("Adding DNS DNAT rules for unregistered and isolated inline clients.");
 
-    my $rule = "--protocol udp --destination-port 53";
-    $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
-            . "--jump REDIRECT\n";
-    $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
-            . "--jump REDIRECT\n";
+    foreach my $network ( keys %ConfigNetworks ) {
+        # We skip non-inline networks/interfaces
+        next if ( !pf::config::is_network_type_inline($network) );
+
+        my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
+        $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
+            . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+        $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
+            . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+        if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
+            $logger->info("Adding Proxy interception rules");
+            foreach my $intercept_port ( split(',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
+                my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
+                $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
+                        . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+                $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
+                        . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+            }
+        }
+    }
 
     if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
         $logger->info("Adding Proxy interception rules");
         foreach my $intercept_port ( split(',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
-            my $rule = "--protocol tcp --destination-port $intercept_port";
-            $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
-                    . "--jump REDIRECT\n";
-            $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
-                    . "--jump REDIRECT\n";
             $$input_filtering_ref .= "-A $FW_FILTER_INPUT_INT_INLINE --protocol tcp --match tcp --dport $intercept_port "
                     . " --match mark --mark 0x$IPTABLES_MARK_UNREG  --jump ACCEPT\n";
             $$input_filtering_ref .= "-A $FW_FILTER_INPUT_INT_INLINE --protocol tcp --match tcp --dport $intercept_port "
@@ -272,7 +275,6 @@ sub generate_inline_rules {
     }
 
 
-
     $logger->info("Adding NAT Masquarade statement (PAT)");
     $$nat_postrouting_ref .= "-A $FW_POSTROUTING_INT_INLINE --jump MASQUERADE\n";
 
@@ -280,9 +282,6 @@ sub generate_inline_rules {
     $$routed_postrouting_inline .= "-A $FW_POSTROUTING_INT_INLINE_ROUTED --jump ACCEPT\n";
 
     $logger->info("building firewall to accept registered users through inline interface");
-    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
-    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
-    my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
     # Allow remote conformity scan server to reach unregistered devices in inline mode
@@ -291,7 +290,7 @@ sub generate_inline_rules {
         $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --destination $Config{'scan'}{'host'} --jump ACCEPT\n";
     }
 
-    if ($google_enabled||$facebook_enabled||$github_enabled||$passthrough_enabled) {
+    if ($passthrough_enabled) {
         $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT\n";
     }
 
@@ -315,13 +314,13 @@ Creating the proper firewall rules to allow Google/Facebook OAuth2 and passthrou
 =cut
 
 sub generate_passthrough_rules {
-    my ($google,$facebook,$github,$passthrough,$forward_rules_ref,$nat_rules_ref) = @_;
+    my ($passthrough,$forward_rules_ref,$nat_rules_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
     $logger->info("Adding Forward rules to allow connections to the OAuth2 Providers and passthrough.");
     my $reg_int = "";
 
-    if ($google||$facebook||$github||$passthrough) {
+    if ($passthrough) {
         $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT\n";
         $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough src,src --jump ACCEPT\n";
     }
@@ -402,59 +401,6 @@ sub generate_inline_if_src_to_chain {
     return $rules;
 }
 
-=item generate_mangle_rules
-
-Packet marking will traverse all the rules so the order in which packets are marked is rather important.
-The last mark will be the one having an effect.
-
-=cut
-
-sub generate_mangle_rules {
-    my ($self) =@_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $mangle_rules = '';
-
-    # pfdhcplistener in most cases will be enforcing access
-    # however we insert these marks on startup in case PacketFence is restarted
-
-    # default catch all: mark unreg
-    $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n";
-
-    # mark registered nodes that should not be isolated
-    # TODO performance: mark all *inline* registered users only
-    my @registered = nodes_registered_not_violators();
-    foreach my $row (@registered) {
-        my $mac = $row->{'mac'};
-        $mangle_rules .=
-            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " .
-            "--jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
-        ;
-    }
-
-    # mark all open violations
-    # TODO performance: only those whose's last connection_type is inline?
-    my @macarray = violation_view_open_uniq();
-    if ( $macarray[0] ) {
-        foreach my $row (@macarray) {
-            my $mac = $row->{'mac'};
-            $mangle_rules .=
-                "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " .
-                "--jump MARK --set-mark 0x$IPTABLES_MARK_ISOLATION\n"
-            ;
-        }
-    }
-
-    # mark whitelisted users
-    # TODO whitelist concept on it's way to the graveyard
-    foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'whitelist'} ) ) {
-        $mangle_rules .=
-            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
-        ;
-    }
-
-    return $mangle_rules;
-}
-
 =item generate_nat_redirect_rules
 
 =cut
@@ -465,12 +411,9 @@ sub generate_nat_redirect_rules {
     my $rules = '';
 
     # Exclude the OAuth from the DNAT
-    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
-    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
-    my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
-    if ($google_enabled||$facebook_enabled||$github_enabled||$passthrough_enabled) {
+    if ($passthrough_enabled) {
          $rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_passthrough dst,dst ".
                "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
     }
@@ -479,99 +422,25 @@ sub generate_nat_redirect_rules {
     foreach my $redirectport ( split( /\s*,\s*/, $Config{'inline'}{'ports_redirect'} ) ) {
         my ( $port, $protocol ) = split( "/", $redirectport );
 
-        # Destination NAT to the portal on the UNREG mark if trapping.registration is enabled
-        if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
+        foreach my $network ( keys %ConfigNetworks ) {
+            # We skip non-inline networks/interfaces
+            next if ( !pf::config::is_network_type_inline($network) );
+
+            # Destination NAT to the portal on the UNREG mark if trapping.registration is enabled
+            if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
+                $rules .=
+                    "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
+                    "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+            }
+
+            # Destination NAT to the portal on the ISOLATION mark
             $rules .=
-                "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " .
-                "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump REDIRECT\n"
-            ;
+                "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
+                "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
         }
 
-        # Destination NAT to the portal on the ISOLATION mark
-        $rules .=
-            "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " .
-            "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump REDIRECT\n"
-        ;
     }
     return $rules;
-}
-
-sub iptables_mark_node {
-    my ( $self, $mac, $mark ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $iptables = IPTables::Interface::new('mangle')
-        || logger->logcroak("unable to create IPTables::Interface object");
-
-    $logger->debug("marking node $mac with mark 0x$mark");
-    my $success = $iptables->iptables_do_command(
-        "-A $FW_PREROUTING_INT_INLINE", "--match mac --mac-source $mac", "--jump MARK --set-mark 0x$mark"
-    );
-
-    if (!$success) {
-        $logger->error("Unable to mark mac $mac: $!");
-        return;
-    }
-    $iptables->commit();
-    return (1);
-}
-
-sub iptables_unmark_node {
-    my ( $self, $mac, $mark ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $iptables = IPTables::Interface::new('mangle')
-        || logger->logcroak("unable to create IPTables::Interface object");
-
-    $logger->debug("removing mark 0x$mark on node $mac");
-    my $success = $iptables->iptables_do_command(
-        "-D $FW_PREROUTING_INT_INLINE", "--match mac --mac-source $mac", "--jump MARK --set-mark 0x$mark"
-    );
-
-    if (!$success) {
-        $logger->error("Unable to unmark mac $mac: $!");
-        return;
-    }
-    $iptables->commit();
-    return (1);
-}
-
-=item get_mangle_mark_for_mac
-
-Fetches the current mangle mark for a given mark.
-Useful to re-evaluate what to do with a given node who's state changed.
-
-Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
-
-=cut
-
-# TODO migrate to IPTables::Interface (to get rid of IPTables::ChainMgr) once it supports fetching iptables info
-sub get_mangle_mark_for_mac {
-    my ( $self, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $iptables = new IPTables::ChainMgr('ipt_exec_style' => 'system')
-        || logger->logcroak("unable to create IPTables::ChainMgr object");
-    my $iptables_cmd = $iptables->{'_iptables'};
-
-    # list mangle rules
-    my ($rv, $out_ar, $errs_ar) = $iptables->run_ipt_cmd("$iptables_cmd -t mangle -L -v -n");
-    if ($rv) {
-        # MAC in iptables -L -nv are uppercase
-        $mac = uc($mac);
-        foreach my $ipt_line (@$out_ar) {
-            chomp($ipt_line);
-            # matching with end of line ($) for performance
-            # saw some instances were a space was present at the end of the line
-            if ($ipt_line =~ /MAC $mac MARK set 0x(\d+)\s*$/) {
-                return $1;
-            }
-        }
-    } else {
-        if (@$errs_ar) {
-            $logger->error("Unable to list iptables mangle table: $!");
-            return;
-        }
-    }
-    # if we didn't find him it means it's the catch all which is
-    return $IPTABLES_MARK_UNREG;
 }
 
 =item update_mark
@@ -702,21 +571,38 @@ sub generate_interception_rules {
     foreach my $interface (@internal_nets) {
         my $dev = $interface->tag("int");
         my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
-
+        my $net_addr = NetAddr::IP->new($Config{"interface $dev"}{'ip'},$Config{"interface $dev"}{'mask'});
         # vlan enforcement
         if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
             # send everything from vlan interfaces to the vlan chain
             $$nat_if_src_to_chain .= "-A PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_VLAN\n";
+            if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
+                foreach my $network ( keys %ConfigNetworks ) {
+                    next if (pf::config::is_network_type_inline($network));
+                    my %net = %{$ConfigNetworks{$network}};
+                    my $ip;
+                    if (defined($net{'next_hop'})) {
+                        $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'});
+                    } else {
+                        $ip = new NetAddr::IP::Lite clean_ip($net{'gateway'});
+                    }
+                    if ($net_addr->contains($ip)) {
+                        foreach my $intercept_port ( split( ',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
+                            my $destination = $Config{"interface $dev"}{'vip'} || $Config{"interface $dev"}{'ip'};
+                            my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
+                            $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
+                        }
+                    }
+                }
+            }
         }
     }
     if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
         foreach my $intercept_port ( split( ',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
             my $rule = "--protocol tcp --destination-port $intercept_port";
-            $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump REDIRECT\n";
             $$input_inter_vlan_if .= "-A $FW_FILTER_INPUT_INT_VLAN $rule --jump ACCEPT\n";
         }
     }
-
 }
 
 

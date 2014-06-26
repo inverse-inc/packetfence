@@ -27,6 +27,7 @@ use pf::violation qw(violation_count_trap violation_exist_open violation_view_to
 use pf::authentication;
 use pf::Authentication::constants;
 use pf::Portal::ProfileFactory;
+use pf::vlan::filter;
 
 our $VERSION = 1.04;
 
@@ -77,16 +78,17 @@ sub fetchVlanForNode {
         return ( $inline, 1 );
     }
 
+    my ($violation,$registration,$role);
     # violation handling
-    my $violation = $this->getViolationVlan($switch, $ifIndex, $mac, $connection_type, $user_name, $ssid);
+    ($violation,$role) = $this->getViolationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
     if (defined($violation) && $violation != 0) {
-        return ( $violation, 0, "isolation");
+        return ( $violation, 0, $role);
     } elsif (!defined($violation)) {
         $logger->warn("There was a problem identifying vlan for violation. Will act as if there was no violation.");
     }
 
     # there were no violation, now onto registration handling
-    my $registration = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    ($registration,$role) = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
     if (defined($registration) && $registration != 0) {
         if ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
             if (isenabled($node_info->{'autoreg'})) {
@@ -94,7 +96,7 @@ sub fetchVlanForNode {
                 node_modify($mac, ('autoreg' => 'no'));
             }
         }
-        return ( $registration, 0, "registration" );
+        return ( $registration, 0, $role );
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
@@ -184,7 +186,7 @@ sub getViolationVlan {
     # $conn_type is set to the connnection type expressed as the constant in pf::config
     # $user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     # $ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     my $open_violation_count = violation_count_trap($mac);
@@ -194,6 +196,11 @@ sub getViolationVlan {
 
     $logger->debug("$mac has $open_violation_count open violations(s) with action=trap; ".
                    "it might belong into another VLAN (isolation or other).");
+
+    # Vlan Filter
+    my $filter = new pf::vlan::filter;
+    my ($result,$role) = $filter->test('ViolationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    return ($result,$role) if $result;
 
     # By default we assume that we put the user in isolation vlan unless proven otherwise
     my $vlan = "isolation";
@@ -206,7 +213,7 @@ sub getViolationVlan {
 
         $logger->warn("Could not find highest priority open violation for $mac. ".
                       "Setting target vlan to switches.conf's isolationVlan");
-        return $switch->getVlanByName($vlan);
+        return ($switch->getVlanByName($vlan), $vlan);
     }
 
     # get violation id
@@ -220,7 +227,7 @@ sub getViolationVlan {
 
         $logger->warn("Could not find class entry for violation $vid. ".
                       "Setting target vlan to switches.conf's isolationVlan");
-        return $switch->getVlanByName($vlan);
+        return ($switch->getVlanByName($vlan),$vlan);
     }
 
     # override violation destination vlan
@@ -235,7 +242,7 @@ sub getViolationVlan {
     if (defined($vlan_number)) {
         $logger->info("highest priority violation for $mac is $vid. Target VLAN for violation: $vlan ($vlan_number)");
     }
-    return $vlan_number;
+    return ($vlan_number,$vlan);
 }
 
 
@@ -271,6 +278,12 @@ sub getRegistrationVlan {
     my $logger = Log::Log4perl->get_logger();
 
     # trapping on registration is enabled
+
+    # Vlan Filter
+    my $filter = new pf::vlan::filter;
+    my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    return ($result,$role) if $result;
+
     if (!isenabled($Config{'trapping'}{'registration'})) {
         $logger->debug("Registration trapping disabled: skipping node is registered test");
         return 0;
@@ -278,13 +291,14 @@ sub getRegistrationVlan {
 
     if (!defined($node_info)) {
         $logger->info("MAC: $mac doesn't have a node entry; belongs into registration VLAN");
-        return $switch->getVlanByName('registration');
+        return ($switch->getVlanByName('registration'),'registration');
     }
 
     my $n_status = $node_info->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
         $logger->info("MAC: $mac is of status $n_status; belongs into registration VLAN");
-        return $switch->getVlanByName('registration');
+        my $vlan = $switch->getVlanByName('registration');
+        return ($vlan ,'registration');
     }
     return 0;
 }
@@ -334,7 +348,10 @@ sub getNormalVlan {
 
     $logger->debug("Trying to determine VLAN from role.");
 
-    my $role = "";
+    # Vlan Filter
+    my $filter = new pf::vlan::filter;
+    my ($result,$role) = $filter->test('NormalVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    return ($result,$role) if $result;
 
     # Try MAC_AUTH, then other EAP methods and finally anything else.
     if ( $connection_type && ($connection_type & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) {
@@ -343,6 +360,7 @@ sub getNormalVlan {
     } elsif ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
         $logger->info("Connection type is WIRELESS_MAC_AUTH. Getting role from node_info" );
         $role = $node_info->{'category'};
+
 
         if (isenabled($node_info->{'autoreg'})) {
             $logger->info("Device is comming from a secure connection and has been auto registered, we unreg it and forward it to the portal" );
@@ -368,8 +386,29 @@ sub getNormalVlan {
             SSID => $ssid,
         };
         $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE);
-    } 
-
+        #Compute autoreg if we use autoreg
+        if (isenabled($node_info->{'autoreg'})) {
+            my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
+            if (defined $value) {
+                $logger->trace("No unregdate found - computing it from access duration");
+                $value = access_duration($value);
+            }
+            else {
+                $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+            }
+            if (defined $value) {
+                my %info = (
+                    'unregdate' => $value,
+                    'category' => $role,
+                    'autoreg' => 'yes',
+                );
+                if (defined $role) {
+                    %info = (%info, (category => $role));
+                }
+                node_modify($mac,%info);
+            }
+        }
+    }
     # If a user based role has been found by matching authentication sources rules, we return it
     if ( defined($role) && $role ne '' ) {
         $logger->info("Username was defined '$user_name' - returning user based role '$role'");
@@ -410,6 +449,10 @@ sub getInlineVlan {
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
+
+    my $filter = new pf::vlan::filter;
+    my ($result,$role) = $filter->test('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    return $result if $result;
 
     return $switch->getVlanByName('inline');
 }
@@ -490,10 +533,11 @@ sub shouldAutoRegister {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type) = @_;
+    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     $logger->trace("asked if should auto-register device");
+
     # handling switch-config first because I think it's the most important to honor
     if (defined($switch_in_autoreg_mode) && $switch_in_autoreg_mode) {
         $logger->trace("returned yes because it's from the switch's config");
@@ -509,6 +553,10 @@ sub shouldAutoRegister {
         $logger->trace("returned yes because it's an ip phone");
         return $isPhone;
     }
+    my $node_info = node_attributes($mac);
+    my $filter = new pf::vlan::filter;
+    my ($result,$role) = $filter->test('AutoRegister',$switch, $port, $mac, $node_info, $conn_type, $user_name, $ssid);
+    return 1 if $role;
 
     # custom example: auto-register 802.1x users
     # Since they already have validated credentials through EAP to do 802.1X

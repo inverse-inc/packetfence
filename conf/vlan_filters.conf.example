@@ -1,0 +1,107 @@
+# Vlan filter configuration
+# 
+# you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegistration)
+#
+# Make a simple rule like this:
+#
+# [category]
+# filter = node_info
+# operator = is
+# attribute = category
+# value = default
+#
+# [1:category]
+# scope = NormalVlan
+# role = nointernet
+#
+# It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is
+# the default one, we return the role "nointernet" (which you will have configured in the switch configuration).
+#
+# Advanced rule:
+#
+# [2]
+# filter = node_info
+# attribute = category
+# operator = match
+# value = ^default$
+#
+# [3]
+# filter = ssid
+# operator = is
+# value = OpenWrt-SECURE
+#
+# [4]
+# filter = time
+# operator = is
+# value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
+#
+# [2:2&3&4]
+# scope = NormalVlan
+# role = nointernet
+#
+# It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is 
+# the default one and the ssid is OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday,
+# we return the role "nointernet" (which you will have configured in the switch configuration).
+#
+# filter can be:
+#
+#     node_info
+#     switch
+#     ifIndex
+#     mac
+#     connection_type
+#     username
+#     ssid
+#     time
+#
+# operator can be:
+#     is
+#     is_not
+#     match
+#     match_not
+#
+# attribute can be:
+#
+# - for the node_info:
+#     autoreg
+#     status
+#     bypass_vlan
+#     bandwidth_balance
+#     regdate
+#     pid
+#     category
+#     mac
+#     last_arp
+#     lastskip
+#     last_dhcp
+#     user_agent
+#     computername
+#     dhcp_fingerprint
+#     detect_date
+#     voip
+#     notes
+#     time_balance
+#     sessionid
+#     unregdate
+#
+# - for switch:
+#     _switchMac
+#     _switchIp
+#     _ip
+#     _controllerIp
+#     _id
+#
+# - for connection_type
+#    Wireless-802.11-EAP
+#    Wireless-802.11-NoEAP
+#    Ethernet-EAP
+#    Ethernet-NoEAP
+#    SNMP-Traps
+#    Inline
+#    WIRED_MAC_AUTH
+#
+# The value of a time is specific and follow this logic:
+# http://search.cpan.org/~pryan/Period-1.20/Period.pm
+# For example, if you want to allow access from Monday to Friday, 9am to 11am and from 2pm to 4pm:
+# wd {Mon Tue Wed Thu Fri} hr {9am-11am}, wd {Mon Tue Wed Thu Fri} hr {2pm-4am}
+

@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::Release;
 use Moose;
 use namespace::autoclean;
 use pf::config;
-use URI::Escape qw(uri_escape uri_unescape);
+use URI::Escape::XS qw(uri_escape uri_unescape);
 use pf::util;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }

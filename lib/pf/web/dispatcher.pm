@@ -20,13 +20,15 @@ use Apache2::Util ();
 
 use APR::Table;
 use APR::URI;
-use Log::Log4perl;
 use Template;
-use URI::Escape qw(uri_escape);
-
+use URI::Escape::XS qw(uri_escape);
+BEGIN {
+    use pf::log service => 'httpd.portal';
+}
 use pf::config;
 use pf::util;
 use pf::web::constants;
+use pf::web::filter;
 use pf::web::util;
 use pf::proxypassthrough::constants;
 use pf::Portal::Session;
@@ -64,12 +66,20 @@ sub handler {
         return proxy_redirect($r, $parsed_request->unparse);
     }
 
+    #Apache Filtering
+    my $filter = new pf::web::filter;
+    my $result = $filter->test($r);
+    return $result if $result;
+
     # be careful w/ performance here
     # Warning: we might want to revisit the /o (compile Once) if we ever want
     #          to reload Apache dynamically. pf::web::constants will need some
     #          rework also
     if ( defined($WEB::ALLOWED_RESOURCES_PROFILE_FILTER) && $r->uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o ) {
-        $r->uri("/captive-portal");
+        my $last_uri = $r->uri();
+        $logger->debug("Matched profile uri filter for $last_uri");
+        #Send the current URI to catalyst with the pnotes
+        $r->pnotes(last_uri => $last_uri);
         return Apache2::Const::DECLINED;
     }
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES/o) {

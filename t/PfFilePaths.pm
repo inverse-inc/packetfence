@@ -24,6 +24,7 @@ BEGIN {
     $pf::file_paths::profiles_config_file = './data/profiles.conf';
     $pf::file_paths::authentication_config_file = './data/authentication.conf';
     $pf::file_paths::log_config_file = './log.conf';
+    $pf::file_paths::vlan_filters_config_file = './data/vlan_filters.conf';
 }
 
 =head1 AUTHOR

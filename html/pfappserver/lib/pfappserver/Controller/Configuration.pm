@@ -18,7 +18,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use POSIX;
-use URI::Escape;
+use URI::Escape::XS;
 use Log::Log4perl qw(get_logger);
 
 use pf::os;

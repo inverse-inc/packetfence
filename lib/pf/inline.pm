@@ -52,11 +52,7 @@ Instantiate the correct iptables modification method between iptables and ipset
 sub get_technique {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $type;
-    if ($IPSET_VERSION > 0) {
-        $type = "pf::ipset";
-    } else {
-        $type = "pf::iptables";
-    }
+    $type = "pf::ipset";
 
     $logger->info("Instantiate a new iptables modification method. ". $type);
     try {
@@ -157,7 +153,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
