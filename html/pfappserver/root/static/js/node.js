@@ -61,6 +61,8 @@ var NodeView = function(options) {
     /* Update the advanced search form to the next page or resort the query */
     this.proxyClick($('body'), '.pagination a',this.searchPagination);
 
+    this.proxyClick($('body'), '#nodes thead a',this.reorderSearch);
+
     this.proxyClick($('body'), '#toggle_all_items', this.toggleAllItems);
 
     this.proxyClick($('body'), '[name="items"]', this.toggleActionsButton);
@@ -318,6 +320,41 @@ NodeView.prototype.triggerViolation = function(e) {
     });
 };
 
+NodeView.prototype.reorderSearch = function(e) {
+    e.preventDefault();
+    var that = this;
+    var link = $(e.currentTarget);
+    var pagination = $('.pagination').first();
+    var formId = pagination.attr('data-from-from') || '#search';
+    var form = $(formId);
+    if(form.length == 0) {
+        form = $('#search');
+    }
+    var columns = $('#columns');
+    var href = link.attr("href");
+    var section = $('#section');
+    var status_container = $("#section").find('h2').first();
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5);
+    section.fadeTo('fast', 0.5, function() {
+        that.nodes.post({
+            url: href,
+            data: form.serialize() + "&" + columns.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                section.html(data);
+            },
+            errorSibling: status_container
+        });
+    });
+    return false;
+};
+
+
 NodeView.prototype.searchPagination = function(e) {
     var that = this;
     e.preventDefault();
@@ -358,6 +395,7 @@ NodeView.prototype.submitSearch = function(e) {
     var form = $(e.currentTarget);
     var href = form.attr("action");
     var section = $('#section');
+    var columns = $('#columns');
     $("body,html").animate({scrollTop:0}, 'fast');
     var status_container = $("#section").find('h2').first();
     var loader = section.prev('.loader');
@@ -365,7 +403,7 @@ NodeView.prototype.submitSearch = function(e) {
     section.fadeTo('fast', 0.5, function() {
         that.nodes.post({
             url: href,
-            data: form.serialize(),
+            data: form.serialize() + "&" + columns.serialize(),
             always: function() {
                 loader.hide();
                 section.fadeTo('fast', 1.0);
