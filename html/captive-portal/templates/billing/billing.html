@@ -3,6 +3,16 @@
     body_attributes = 'onload="$(\'firstfield\').focus();"';
 %]
 
+<!-- Remove submit button after the form submitted
+     so we avoid double submitting -->
+<script type="text/javascript">
+document.observe("dom:loaded", function() {
+  $('billing_form').observe('submit', function(e) { 
+    $('billing_footer').update("[% i18n("Please wait. Processing payment...") %]");
+  });
+});
+</script>
+
     [%# WELCOME TEXT %]
     <div id="about">
         <img src="/content/images/registration.png" alt="Registration" />
@@ -14,7 +24,7 @@
     [%# ERROR %]
     [% IF txt_validation_error.defined %]<div class="error"><p>[% i18n(txt_validation_error) %]</p></div>[% END %]
 
-    <form name="billing" method="post" action="/pay">
+    <form id="billing_form" name="billing" method="post" action="/pay">
         <input type="hidden" name="destination_url" value="[% destination_url %]" />
 
         [%# TIERS CHOICE %]
@@ -68,10 +78,11 @@
         </div>
 
         [%# SUBMIT %]
-        <div class="input">
+        <div id="billing_footer" class="input">
             <input type="submit" class="btn" name="submit" value="[% i18n("Continue") %]" />
         </div>
 
     </form>
+
 
 [% INCLUDE footer.html %]

@@ -943,3 +943,5 @@ msgstr "Apartment Number"
 msgid "room_number"
 msgstr "Room Number"
 
+msgid "Please wait. Processing payment..."
+msgstr ""
