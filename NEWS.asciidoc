@@ -58,6 +58,7 @@ Bug Fixes
 * Fixed unreg date calculation in Catalyst captive portal
 * Fixed allowed_device_types array in device registration page (bugid:1809)
 * Fixed VLAN format to comply with RFC 2868
+* Fixed possible double submission of the form on the billing page
 
 Version 4.2.2 released on 2014-05-29
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
