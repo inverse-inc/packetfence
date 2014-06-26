@@ -40,7 +40,6 @@ sub field_list {
                       help => $doc_section->{description} },
             id => $name,
             label => $doc_section_name,
-            localize_labels => 1,
           };
         my $type = $doc_section->{type} || "text";
         {
