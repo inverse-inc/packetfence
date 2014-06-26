@@ -1025,3 +1025,6 @@ msgstr "L'adresse MAC %s n'est pas valide. Veuillez réessayer."
 
 msgid "This module is not enabled"
 msgstr "Ce module n'est pas activé"
+
+msgid "Please wait. Processing payment..."
+msgstr "Un instant SVP. Paiement en cours..."
