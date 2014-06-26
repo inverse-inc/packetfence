@@ -2145,6 +2145,8 @@ In order to have oauth2 working properly, you need to enable IP forwarding on yo
 
 Save the file, and issue a `sysctl -p` to update the OS config.
 
+You must also enable the passthrough option in your PacketFence configuration (trapping.passthrough in pf.conf).
+
 Google
 ^^^^^^
 In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URI for the "Redirect URI"
