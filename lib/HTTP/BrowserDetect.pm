@@ -392,7 +392,8 @@ sub _test {
 
     $tests->{CHROME}
         = ( !$tests->{OPERA}
-            && index( $ua, "chrome/" ) != -1 );
+            && index( $ua, "chrome/" ) != -1
+            );#&& $ua =~ m{chrome/ ( [^.]* ) \. ( [^.]* )}x );
     $tests->{SAFARI}
         = (    ( index( $ua, "safari" ) != -1 )
             || ( index( $ua, "applewebkit" ) != -1 ) )
@@ -406,9 +407,8 @@ sub _test {
             $ua =~ m{
                 chrome
                 \/
-                ( [^.]* )           # Major version number is everything before first dot
-                \.                  # The first dot
-                ( [^.]* )           # Minor version number is digits after first dot
+                ( \d+ )       # Major version number
+                ( \. \d+ )?   # Minor version number is dot and following digits
             }x
         );
     }
@@ -1298,10 +1298,6 @@ sub engine_string {
 
     my ( $self, $check ) = _self_or_default( @_ );
 
-    if ( $self->{user_agent} =~ m{\bKHTML\b} ) {
-        return 'KHTML';
-    }
-
     if ( $self->gecko ) {
         return 'Gecko';
     }
@@ -1316,6 +1312,10 @@ sub engine_string {
 
     if ( $self->netfront ) {
         return 'NetFront';
+    }
+
+    if ( $self->{user_agent} =~ m{\bKHTML\b} ) {
+        return 'KHTML';
     }
 
     return undef;

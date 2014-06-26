@@ -5,6 +5,17 @@
 
 <revhistory>
   <revision>
+    <revnumber>2.7</revnumber>
+    <date>2014-06-26</date>
+    <revremark>
+    - Adding documentation for Juniper
+    - Adding documentation for Cisco 2960 web authentication
+    - Adding documentation for Edge-corE
+    - Adding documentation for Netgear M series
+    </revremark>
+  </revision>
+  <revision>
+  <revision>
     <revnumber>2.6</revnumber>
     <date>2012-10-26</date>
     <revremark>Adding documentation for Belair AP</revremark>
