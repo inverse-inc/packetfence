@@ -3066,6 +3066,18 @@ msgid ""
   "addresses. Multiple destinations can be comma separated."
 msgstr ""
 
+# conf/documentation.conf (guests_self_registration.create_local_account_on_email_reg)
+msgid ""
+  "Create a local account after guest email registration. This will allow the user to authenticate on"
+  "the status page or be able to authenticate on a eap connection see (packetfence-tunnel)"
+msgstr ""
+
+# conf/documentation.conf (guests_self_registration.create_local_account_on_sponsor_reg)
+msgid ""
+  "Create a local account after guest sponsor registration. This will allow the user to authenticate on"
+  "the status page or be able to authenticate on a eap connection see (packetfence-tunnel)"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/service/status.tt
 msgid "Start"
@@ -4273,6 +4285,14 @@ msgstr "Preregistration"
 # conf/documentation.conf
 msgid "guests_self_registration.sponsorship_cc"
 msgstr "Sponsorship CC"
+
+# conf/documentation.conf
+msgid "guests_self_registration.create_local_account_on_email_reg"
+msgstr "Create user after email reg"
+
+# conf/documentation.conf
+msgid "guests_self_registration.create_local_account_on_sponsor_reg"
+msgstr "Create user after sponsor reg"
 
 # conf/documentation.conf (interface.type options)
 msgid "high-availability"
