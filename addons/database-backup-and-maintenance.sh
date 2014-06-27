@@ -18,7 +18,7 @@
 NB_DAYS_TO_KEEP_DB=30
 NB_DAYS_TO_KEEP_FILES=30
 DB_USER='pf';
-DB_PWD='';
+DB_PWD='un2Trois$';
 DB_NAME='pf';
 PF_DIRECTORY='/usr/local/pf/'
 PF_DIRECTORY_EXCLUDED='/usr/local/pf/logs'
@@ -100,13 +100,12 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
       if [ $HOSTNAME == $NODE1_HOSTNAME ];then
         replicate_to=$NODE2_IP
       elif [ $HOSTNAME == $NODE2_HOSTNAME ];then
-        replicate_to=$NODE1_IP
+        replicate_to=$NODE1_IP 
       else
         echo "Cannot recognize hostname. This script is made for $NODE1_HOSTNAME and $NODE2_HOSTNAME. Exiting"
         exit
       fi;
+      rsync -auv -e ssh --delete --include '$BACKUP_DB_FILENAME*' --exclude='*' $BACKUP_DIRECTORY $REPLICATION_USER@$replicate_to:$BACKUP_DIRECTORY
     fi
-
-    rsync -auv -e ssh --delete --include 'packetfence-db-dump*' --exclude='*' BACKUP_DIRECTORY $REPLICATION_USER@$replicate_to:BACKUP_DIRECTORY
 
 fi
