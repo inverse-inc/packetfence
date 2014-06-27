@@ -346,7 +346,7 @@ sub doSponsorRegistration : Private {
                 $Config{'general'}{'domain'}
             );
         }
-        if (isenabled($Config{'guests_self_registration'}{'create_local_account_on_sponsor_reg'}) {
+        if (isenabled($Config{'guests_self_registration'}{'create_local_account_on_sponsor_reg'})) {
             # TO:
             $info{'email'} = $pid;
 
