@@ -9,7 +9,11 @@
     [% form.field('ipaddress').render %]
     [% form.field('netmask').render %]
     [% form.field('type').render %]
+    [% form.field('high_availability').render UNLESS high_availability %]
     [% form.field('dns').render %]
+    [% form.field('vip').render %]
+    [% form.field('fake_mac_enabled').render %]
+    [% form.field('dhcpd_enabled').render %]
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
