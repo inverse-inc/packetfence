@@ -96,6 +96,7 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
         mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'DELETE FROM radacct_log WHERE YEAR(timestamp) < YEAR(CURRENT_DATE());'
     fi
 
+    # Replicate the db backups between both servers
     if [ $ACTIVATE_REPLICATION == 1 ];then
       if [ $HOSTNAME == $NODE1_HOSTNAME ];then
         replicate_to=$NODE2_IP
@@ -105,7 +106,7 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
         echo "Cannot recognize hostname. This script is made for $NODE1_HOSTNAME and $NODE2_HOSTNAME. Exiting"
         exit
       fi;
-      rsync -auv -e ssh --delete --include '$BACKUP_DB_FILENAME*' --exclude='*' $BACKUP_DIRECTORY $REPLICATION_USER@$replicate_to:$BACKUP_DIRECTORY
+      eval "rsync -auv -e ssh --delete --include '$BACKUP_DB_FILENAME*' --exclude='*' $BACKUP_DIRECTORY $REPLICATION_USER@$replicate_to:$BACKUP_DIRECTORY"
     fi
 
 fi
