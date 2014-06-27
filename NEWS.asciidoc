@@ -11,6 +11,24 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.X.Y released on YYYY-MM-DD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+
+
+Enhancements
+++++++++++++
+
+
+
+Bug Fixes
++++++++++
+
+
+
 Version 4.3.0 released on 2014-06-26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
