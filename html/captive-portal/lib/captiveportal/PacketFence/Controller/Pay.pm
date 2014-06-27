@@ -36,7 +36,7 @@ Catalyst Controller.
 
 sub begin : Private {
     my ( $self, $c ) = @_;
-    if( isdisabled($c->profile->getBillingEngine) ) {
+    if( isdisabled($Config{'registration'}{'billing_engine'}) ) {
         $c->response->redirect("/captive-portal?destination_url=".uri_escape($c->portalSession->profile->getRedirectURL));
         $c->detach;
     }
@@ -50,7 +50,7 @@ sub begin : Private {
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $request = $c->request;
-    if ( $request->method eq 'POST' ) {
+    if ( defined($request->param('submit')) ) {
         $c->detach('processBilling');
     } 
     for my $p ('firstname', 'lastname', 'email', 'ccnumber', 'ccexpiration', 'ccvalidation') {
