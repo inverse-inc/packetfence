@@ -18,7 +18,7 @@
 NB_DAYS_TO_KEEP_DB=30
 NB_DAYS_TO_KEEP_FILES=30
 DB_USER='pf';
-DB_PWD='un2Trois$';
+DB_PWD='';
 DB_NAME='pf';
 PF_DIRECTORY='/usr/local/pf/'
 PF_DIRECTORY_EXCLUDED='/usr/local/pf/logs'
