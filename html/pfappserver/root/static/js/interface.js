@@ -111,6 +111,7 @@ InterfaceView.prototype.typeChanged = function(e) {
             var fake_mac = modal.find('[name="fake_mac_enabled"]').closest('.control-group');
             var high_availability = modal.find('[name="high_availability"]').closest('.control-group');
             var vip = modal.find('[name="vip"]').closest('.control-group');
+            var nat = modal.find('[name="nat_enabled"]').closest('.control-group');
 
             switch ( type.val() ) {
                 case 'inlinel2': 
@@ -122,6 +123,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     high_availability.find(':input').attr('disabled','disabled');
                     vip.show('fast');
                     vip.find(':input').removeAttr('disabled');
+                    nat.show('fast');
+                    nat.find(':input').removeAttr('disabled');
                     break;
                 case 'inlinel3':
                     dns.show('fast');
@@ -132,6 +135,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     high_availability.find(':input').attr('disabled','disabled');
                     vip.hide('fast');
                     vip.find(':input').attr('disabled','disabled');
+                    nat.hide('fast');
+                    nat.find(':input').attr('disabled','disabled');
                     break;
                 case 'management':
                     dhcpd.hide('fast');
@@ -142,6 +147,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     dns.find(':input').attr('disabled','disabled');
                     vip.show('fast');
                     vip.find(':input').removeAttr('disabled');
+                    nat.hide('fast');
+                    nat.find(':input').attr('disabled','disabled');
                     break;
                 case '':
                 case 'none':
@@ -153,6 +160,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     dns.find(':input').attr('disabled','disabled');
                     vip.hide('fast');
                     vip.find(':input').attr('disabled','disabled');
+                    nat.hide('hide');
+                    nat.find(':input').attr('disabled','disabled');
                     break;
                 case 'other':
                     dhcpd.hide('fast');
@@ -163,6 +172,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     dns.find(':input').attr('disabled','disabled');
                     vip.hide('fast');
                     vip.find(':input').attr('disabled','disabled');
+                    nat.hide('fast');
+                    nat.find(':input').attr('disabled','disabled');
                     break;
                 default:
                     dhcpd.hide('fast');
@@ -173,6 +184,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     dns.find(':input').attr('disabled','disabled');
                     vip.show('fast');
                     vip.find(':input').removeAttr('disabled');
+                    nat.hide('fast');
+                    nat.find(':input').attr('disabled','disabled');
             }
         }
     }

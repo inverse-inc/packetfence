@@ -13,6 +13,7 @@
     [% form.field('vip').render %]
     [% form.field('fake_mac_enabled').render %]
     [% form.field('dhcpd_enabled').render %]
+    [% form.field('nat_enabled').render %]
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
