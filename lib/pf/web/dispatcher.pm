@@ -80,6 +80,7 @@ sub handler {
         $logger->debug("Matched profile uri filter for $last_uri");
         #Send the current URI to catalyst with the pnotes
         $r->pnotes(last_uri => $last_uri);
+    }
     if ($r->uri =~ /\/apache_status/) {
         $r->handler('server-status');
         return Apache2::Const::DECLINED;
