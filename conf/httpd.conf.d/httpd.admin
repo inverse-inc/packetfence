@@ -98,7 +98,7 @@ $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 
 $SSLPassPhraseDialog = "builtin";
-$SSLSessionCache = "dbm:".$install_dir."/var/ssl_scache";
+$SSLSessionCache = "shm:".$install_dir."/var/ssl_acache(512000)";
 $SSLSessionCacheTimeout = "300";
 $SSLMutex = "file:".$install_dir."/var/ssl_mutex";
 $SSLRandomSeed = "startup builtin";

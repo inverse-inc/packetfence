@@ -205,9 +205,8 @@ $PerlInitHandler = "pf::WebAPI::InitHandler";
 
 
 $SSLPassPhraseDialog = "builtin";
-$SSLSessionCache = "dbm:".$install_dir."/var/ssl_scache";
+$SSLSessionCache = "shm:".$install_dir."/var/ssl_pcache(512000)";
 $SSLSessionCacheTimeout = "300";
-$SSLMutex = "file:".$install_dir."/var/ssl_mutex";
 $SSLRandomSeed = "startup builtin";
 $SSLRandomSeed = "startup file:/dev/urandom 1024";
 $SSLRandomSeed = "connect builtin";
@@ -403,6 +402,9 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
                  SetHandler => 'modperl',
                  PerlResponseHandler => 'captiveportal',
              }, 
+             "/apache_status/" => {
+                 SetHandler => 'server-status',
+             },
          },
     );
     push @{ $VirtualHost{$host.":443"} }, gen_conf(

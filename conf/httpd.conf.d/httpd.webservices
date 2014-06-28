@@ -69,7 +69,7 @@ PerlPostConfigRequire /usr/local/pf/lib/pf/web/webservices_modperl_require.pl
 PerlLoadModule pf::WebAPI
 
 AcceptMutex posixsem
-
+SSLMutex posixsem
 <Perl>
 use pf::config qw();
 
@@ -109,6 +109,8 @@ $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 
 $SSLPassPhraseDialog = "builtin";
+$SSLSessionCache = "shm:".$install_dir."/var/ssl_wcache(512000)";
+$SSLSessionCacheTimeout = "300";
 $SSLRandomSeed = "startup builtin";
 $SSLRandomSeed = "startup file:/dev/urandom 1024";
 $SSLRandomSeed = "connect builtin";
