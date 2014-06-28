@@ -233,7 +233,7 @@ sub service_ctl {
                 elsif ($binary eq "pfdhcplistener") {
                     my %int_to_pid;
                     my $dead_flag;
-                    foreach my $interface ( @listen_ints, @dhcplistener_ints ) {
+                    foreach my $interface ( map { /^(.*)$/;$1 }  @listen_ints, @dhcplistener_ints ) {
                         my $pid = getPidFromFile("pfdhcplistener_${interface}",$binary);
                         $int_to_pid{$interface} = $pid;
                         $dead_flag = $TRUE unless $pid;
