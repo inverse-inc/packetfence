@@ -973,12 +973,6 @@ sub node_cleanup {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("calling node_cleanup with time=$time");
 
-    foreach my $row ( node_expire_lastarp($time) ) {
-        my $mac = $row->{'mac'};
-        $logger->info("mac $mac not seen for $time seconds, deleting");
-        node_delete( $row->{'mac'} );
-    }
-
     foreach my $rowVlan ( node_expire_lastdhcp($time) ) {
         my $mac = $rowVlan->{'mac'};
         require pf::locationlog;
