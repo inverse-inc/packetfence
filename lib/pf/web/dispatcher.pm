@@ -82,6 +82,10 @@ sub handler {
         $r->pnotes(last_uri => $last_uri);
         return Apache2::Const::DECLINED;
     }
+    if ($r->uri =~ /\/apache_status/) {
+        $r->handler('server-status');
+        return Apache2::Const::DECLINED;
+    }
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES/o) {
         my $s = $r->server();
         my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
