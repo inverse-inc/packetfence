@@ -80,9 +80,6 @@ sub handler {
         $logger->debug("Matched profile uri filter for $last_uri");
         #Send the current URI to catalyst with the pnotes
         $r->pnotes(last_uri => $last_uri);
-    }
-    if ($r->uri =~ /\/apache_status/) {
-        $r->handler('server-status');
         return Apache2::Const::DECLINED;
     }
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES/o) {
@@ -138,29 +135,50 @@ L<pf::Portal::Session>.
 
 =cut
 
-sub handler {
-    my ($r) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-    $logger->trace('hitting redirector');
-    my $captivePortalDomain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
-    my $destination_url = '';
-    my $url = $r->construct_url;
-    if ($url !~ m#://\Q$captivePortalDomain\E/#) {
-        $destination_url = Apache2::Util::escape_path($url,$r->pool);
-    }
-    my $proto;
-    # Google chrome hack redirect in http
-    if ($r->uri =~ /\/generate_204/) {
-        $proto = $HTTP;
-    } else {
-        $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
-    }
+sub redirect {
+   my ($r) = @_;
+   my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+   $logger->trace('hitting redirector');
+   my $captivePortalDomain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
+   my $destination_url = '';
+   my $url = $r->construct_url;
+   if ($url !~ m#://\Q$captivePortalDomain\E/#) {
+       $destination_url = Apache2::Util::escape_path($url,$r->pool);
+   }
+   my $orginal_url = Apache2::Util::escape_path($url,$r->pool);
 
-    my $captiv_url = APR::URI->parse($r->pool,"$proto://".${captivePortalDomain}."/captive-portal");
-    $captiv_url->query("destination_url=$destination_url&".$r->args);
-    my $wispr_url = APR::URI->parse($r->pool,"$proto://".${captivePortalDomain}."/wispr");
-    $wispr_url->query("destination_url=$destination_url&".$r->args);
+   # External Captive Portal Detection
+   my $external_portal = pf::web::externalportal->new();
 
+   my $cgi_session_id = $external_portal->handle($r);
+   my $is_external_portal;
+   if ($cgi_session_id) {
+      $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
+      $is_external_portal = 1;
+   }
+
+   my $proto;
+   # Google chrome hack redirect in http
+    if ($r->uri =~ /\/generate_204/ || $r->uri =~ /\/library\/test\/success.html/ || $r->hostname =~ /www.apple.com/) {
+       $proto = $HTTP;
+   } else {
+       $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+   }
+
+   my $captiv_url;
+   my $wispr_url;
+   if ( $is_external_portal ) {
+      $captiv_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/captive-portal");
+      $captiv_url->query("destination_url=$destination_url&".$r->args);
+      $wispr_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/wispr");
+      $wispr_url->query($r->args);
+   }
+   else {
+      $captiv_url = APR::URI->parse($r->pool,"$proto://".${captivePortalDomain}."/captive-portal");
+      $captiv_url->query("destination_url=$destination_url&".$r->args);
+      $wispr_url = APR::URI->parse($r->pool,"$proto://".${captivePortalDomain}."/wispr");
+      $wispr_url->query($r->args);
+   }
     my $stash = {
         'login_url' => $captiv_url->unparse(),
         'login_url_wispr' => $wispr_url->unparse(),

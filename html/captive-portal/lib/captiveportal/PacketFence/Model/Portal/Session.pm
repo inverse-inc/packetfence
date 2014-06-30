@@ -15,6 +15,7 @@ use pf::activation qw(view_by_code);
 use pf::web::constants;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
+use Apache2::Request;
 
 =head1 NAME
 
@@ -83,8 +84,10 @@ sub ACCEPT_CONTEXT {
     my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
     my $redirectURL;
     my $uri = $request->uri;
+    my $req = Apache2::Request->new($r);
     my $options;
     my $destination_url;
+    my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'};
     $destination_url = $request->param('destination_url') if defined($request->param('destination_url'));
 
     if( $r->isa('Apache2::Request') &&  defined ( my $last_uri = $r->pnotes('last_uri') )) {
@@ -96,6 +99,10 @@ sub ACCEPT_CONTEXT {
         my $data = view_by_code("1:".$code);
         $options = {
             'portal' => $data->{portal},
+        };
+    } elsif (( $forwardedFor =~  $mgmt_ip) && defined($req->param('PORTAL'))) {
+        $options = {
+            'portal' => $req->param('PORTAL'),
         };
     }
 
