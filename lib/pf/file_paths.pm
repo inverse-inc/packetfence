@@ -140,9 +140,14 @@ $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
 @log_files = map {catfile($log_dir, $_)}
-  qw( access_log error_log admin_access_log admin_error_log
-  packetfence.log catalyst.log pfbandwidthd.log pfdetect.log
-  pfdhcplistener.log pfdns.log pfmon.log httpd.admin.log httpd.portal.log
+  qw(
+  httpd.admin.access httpd.admin.catalyst httpd.admin.error httpd.admin.log
+  httpd.portal.access httpd.admin.error httpd.portal.catalyst httpd.portal.log
+  httpd.proxy.access httpd.proxy.error httpd.proxy.log
+  httpd.proxy.reverse.access httpd.proxy.reverse.error
+  httpd.webservices.access httpd.webservices.error
+  packetfence.log pfbandwidthd.log pfdetect.log
+  pfdhcplistener.log pfdns.log pfmon.log 
 );
 
 @stored_config_files = (
