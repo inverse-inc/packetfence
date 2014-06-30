@@ -178,10 +178,16 @@ sub regzone {
             $rcode = "NOERROR";
         }
         else {
-            my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
-            my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
-            push @ans, $rr;
-            $rcode = "NOERROR";
+            if ($qname =~ m/^[a-z0-9-]+(\.[a-z0-9-]+)+/){
+                my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
+                my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+                push @ans, $rr;
+                $rcode = "NOERROR";
+            }
+            else{
+                $logger->warn("Received invalid dns domain query : $qname");
+                return "FORMERR";
+            }
         }
     }else{
         $rcode = "NXDOMAIN";
@@ -198,10 +204,16 @@ sub isolzone {
 
     $logger->trace("Requested Domain: ".$qname);
     if ($qtype eq "A") {
-        my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
-        my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
-        push @ans, $rr;
-        $rcode = "NOERROR";
+        if ($qname =~ m/^[a-z0-9-]+(\.[a-z0-9-]+)+/){
+            my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
+            my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+            push @ans, $rr;
+            $rcode = "NOERROR";
+        }
+        else{
+            $logger->warn("Received invalid dns domain query : $qname");
+            return "FORMERR";
+        }
     }else{
         $rcode = "NXDOMAIN";
     }
