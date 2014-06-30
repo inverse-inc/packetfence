@@ -167,7 +167,6 @@ sub proxy_portal {
 sub replace {
     my ($f, $data) = @_;
     my $r = $f->r;
-    my $log = $r->server->log;
     my $encoding = $f->r->headers_out->{'Content-Encoding'} || '';
     # if Content-Encoding: gzip,deflate try to uncompress
     if ($encoding =~ /gzip|deflate|x-compress|x-gzip/) {
@@ -180,14 +179,10 @@ sub replace {
             $encoding = '';
         }
     }
-   #if ($r->content_type =~ /(text\/xml|text\/html|application\/vnd.ogc.wms_xml|text\/css|application\/x-javascript)/) {
 
     # Searching for all links
     my @links2 = link_replacement(\$data,$r);
     my @links = sort {length $b <=> length $a} @links2;
-    foreach my $t (@links) {
-        $log->debug("LINKS ".$t);
-    }
     # Replace links app->url by app->name 
     my $proto;
     if ($r->subprocess_env('HTTPS')){
@@ -222,7 +217,6 @@ sub replace {
     #Rewrite all links
     foreach my $p (@{$ctx->{rewrite}}) {
         my ($match, $substitute) = split (/ => /, $p);
-        $log->debug("SUBSTITUTE ".$match." => ".$substitute);
         &rewrite_content(\$data, $match, $substitute);
     }
 	
@@ -257,7 +251,6 @@ sub rewrite_content {
 
 sub link_replacement {
     my ($data, $r) = @_;
-    my $log = $r->server->log;
     return if (!$$data);
 
     my $old_terminator = $/;
