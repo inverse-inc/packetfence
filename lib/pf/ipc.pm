@@ -59,11 +59,11 @@ use Moose;
 use MooseX::NonMoose;
 extends 'Redis::Fast';
 
-# used Storable for objects and JSON for things that may need to be human readable
-use JSON::XS;
-use Storable;
+use Sereal::Encoder;
+use Sereal::Decoder;
 
-has 'encoder' => (is => 'ro', default => sub { JSON::XS->new; });
+has 'encoder' => (is => 'ro', default => sub { Sereal::Encoder->new; });
+has 'decoder' => (is => 'ro', default => sub { Sereal::Decoder->new; });
 
 sub FOREIGNBUILDARGS {
     my $class = shift;
@@ -90,7 +90,7 @@ sub dequeue {
     my $txt = $self->lpop($q);
     my $ret;
     if ($txt =~ /(\{|\[)/) {
-        $ret = $self->encoder->decode($txt);
+        $ret = $self->decoder->decode($txt);
     }
     else {
         $ret = $txt;
@@ -122,7 +122,7 @@ sub pfSubscribeHandler {
     my ($self,$message,$topic,$subscribed_topic) = @_;
     my $ret;
     if ($message =~ /(\{|\[)/) {
-        $ret = $self->encoder->decode($message);
+        $ret = $self->decoder->decode($message);
     }
     else {
         $ret = $message;
@@ -148,11 +148,11 @@ sub cache {
 
     my $resp = $self->get($key);
     if ($resp) {
-        $return = Storable::thaw($resp);
+        $return = $self->decoder->decode($resp);
     }
     else {
         $return = $ref->();
-        $self->set($key,Storable::freeze($return));
+        $self->set($key,$self->encoder->encode($return));
         $self->expire($key,$ttl);
     }
     return $return;
