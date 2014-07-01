@@ -14,6 +14,9 @@ pf::provisioner
 use strict;
 use warnings;
 use Moo;
+use pf::os;
+use pf::config;
+use List::MoreUtils qw(any);
 
 =head1 Atrributes
 
@@ -40,6 +43,14 @@ The description of the provisioner
 =cut
 
 has description => (is => 'rw');
+
+=head2 category
+
+The category of the provisioner
+
+=cut
+
+has category => (is => 'rw');
 
  
 =head1 AUTHOR
