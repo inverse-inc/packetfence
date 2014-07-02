@@ -61,13 +61,8 @@ Returns 1 on success 0 on failure.
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    
-    # we need to make sure the deauthVlan is the one currently associated with the deauthMac
-    # otherwise the call to agentPortSecurityMACAddressRemove will fail.
-    $deauthVlan = getSecureMacAddresses($ifIndex)->{$deauthMac}->[0];
     $logger->debug("Args to authorizeMAC: $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan");
 
-    
 
     my $OID_agentPortSecurityMACAddressRemove
         = '1.3.6.1.4.1.4526.10.20.1.2.1.9';    # NETGEAR-PORTSECURITY-PRIVATE-MIB
@@ -88,6 +83,9 @@ sub authorizeMAC {
 
     # Deauthorize MAC address from old location
     if ($deauthMac) {
+        if($this->isFakeMac($deauthMac)){
+            $deauthVlan = 1;
+        } 
 
         $logger->trace( "SNMP set_request for agentPortSecurityMACAddressRemove: "
                 . "( $OID_agentPortSecurityMACAddressRemove.$ifIndex)" );
@@ -109,6 +107,9 @@ sub authorizeMAC {
 
     # Authorize MAC address at new location
     if ($authMac) {
+        if($this->isFakeMac($authMac)){
+            $authVlan = 1;
+        }
 
         $logger->trace( "SNMP set_request for agent: " . "( $OID_agentPortSecurityMACAddressAdd.$ifIndex )" );
         my $result = $this->{_sessionWrite}->set_request(
@@ -157,7 +158,7 @@ sub forceDeauthOnLinkDown {
             my $deauthMac      = ( keys %{$trustedMacHash} )[0];
             my $authMac        = $this->generateFakeMac( $FALSE, $ifIndex );
             my $deauthVlan     = $trustedMacHash->{$deauthMac}->[0];
-            my $authVlan       = $this->{'_macDetectionVlan'};
+            my $authVlan       = $this->getVlan($ifIndex);
             $this->authorizeMAC( $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan );
         }
     }
