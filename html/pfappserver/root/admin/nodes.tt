@@ -10,6 +10,7 @@
     <option value="user_agent">[% l('User agent') %]</option>
     <option value="dhcp_fingerprint">[% l('OS (DHCP)') %]</option>
     <option value="switch_ip">[% l('Source switch IP') %]</option>
+    <option value="computername">[% l('Computer Name') %]</option>
   </select>
   <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
     <option value="equal">[% l('is') %]</option>

@@ -17,7 +17,7 @@ Version 4.X.Y released on YYYY-MM-DD
 New Features
 ++++++++++++
 
-
+* Added the possibility to search by computer name on the nodes page
 
 Enhancements
 ++++++++++++
