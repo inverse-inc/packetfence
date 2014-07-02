@@ -23,6 +23,9 @@
   <IfModule !proxy_http.c>
     LoadModule proxy_http_module /usr/lib/apache2/modules/mod_proxy_http.so
   </IfModule>
+  <IfModule !mod_apreq2.c>
+    LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -47,6 +50,9 @@
   </IfModule>
   <IfModule !proxy_http.c>
     LoadModule proxy_http_module modules/mod_proxy_http.so
+  </IfModule>
+  <IfModule !mod_apreq2.c>
+    LoadModule apreq_module modules/mod_apreq2.so
   </IfModule>
 </IfDefine>
 

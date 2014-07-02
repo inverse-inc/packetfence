@@ -102,7 +102,6 @@ sub rewrite {
             #Replace links
             my $data = replace($f, $ctx->{data});
             # Skip content that should not have links
-            #header_replace($f);
             $f->r->headers_out->unset('Content-Length');
             # Dump datas out
             $f->print($data);
@@ -151,8 +150,14 @@ sub proxy_portal {
          my $interface = $internal_nets[0];
          $r->set_handlers(PerlResponseHandler => []);
          $r->add_output_filter(\&rewrite);
+         my $referef = APR::URI->parse($r->pool,$r->headers_in->{'Referer'});
+         my $req = Apache2::Request->new($r);
          my $captiv_url = APR::URI->parse($r->pool,"http://".$interface->{'Tip'}."/".$1);
-         $captiv_url->query($r->args);
+         if (defined($req->param("PORTAL"))) {
+             $captiv_url->query($r->args);
+         } else {
+             $captiv_url->query($referef->query);
+         }
          my $n = $r->notes();
          $n->add("proxy-nocanon" => "1");
          $r->filename("proxy:".$captiv_url->unparse());
@@ -207,11 +212,6 @@ sub replace {
     }
     $f->ctx($ct);
 
-    #Parse all link and encode it
-    my $i = 0;
-    while ($links[$i]) {
-        $i++;
-    }
     my $ctx = $f->ctx;
 
     #Rewrite all links
