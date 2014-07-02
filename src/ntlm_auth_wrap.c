@@ -3,7 +3,9 @@ running time.
 WARNING: We cheat and do no bother to free memory allocated to strings here. 
 The process is meant to be very short lived an never reused. */
 
-#define COMMAND "/usr/bin/ntlm_auth"
+#define _POSIX_C_SOURCE 200809L 
+#define COMMAND "/bin/echo"
+//#define COMMAND "/usr/bin/ntlm_auth"
 #define MAX_STR_LENGTH 1023
 #include <syslog.h>
 #include <string.h>
@@ -11,6 +13,8 @@ The process is meant to be very short lived an never reused. */
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 int main(argc,argv,envp) int argc; char **argv, **envp;
 {
@@ -19,7 +23,6 @@ int main(argc,argv,envp) int argc; char **argv, **envp;
     char cmd[ MAX_STR_LENGTH + 1 ] = COMMAND;
     char log_msg[ MAX_STR_LENGTH + 1 ] = COMMAND;
     char *sep = " ";
-    int ret = 1 ; // return code
 
     openlog("radius-debug", LOG_PID, LOG_LOCAL4);
 
@@ -32,12 +35,9 @@ int main(argc,argv,envp) int argc; char **argv, **envp;
         strncat(cmd,argv[i], space_left - 1 );
 
         // split the argument on = and check the first part to reject excluded args.
-        char *del = "=" ;
-        char *arg = strdup(argv[i]);
-        char *arg1 = strtok( arg, del );
         // skip the excluded args
-        if (( strcmp(arg1, "--password\0" )  == 0 ) ||
-            ( strcmp(arg1, "--challenge\0" ) == 0 )) 
+        if (( strncmp(argv[i], "--password", strlen("--password"))  == 0 ) ||
+            ( strncmp(argv[i], "--challenge", strlen("--challenge") ) == 0 )) 
             continue;
 
         // build the log message
@@ -48,7 +48,19 @@ int main(argc,argv,envp) int argc; char **argv, **envp;
     }
 
     gettimeofday(&t1, NULL);
-    ret = system(cmd);
+
+    // Fork a process, exec it and then wait for the exit.
+    pid_t pid; 
+    int status;
+    if ((pid = fork()) < 0) { 
+        fprintf(stderr, "fork error!");
+    }
+    else if (pid == 0) { // child
+        argv[0] = COMMAND;
+        execve(COMMAND, argv, envp);
+    }
+    if (wait(&status) != pid)  // wait for child
+        fprintf(stderr, "wait error"); 
 
     gettimeofday(&t2, NULL);
     elapsed = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
@@ -57,5 +69,5 @@ int main(argc,argv,envp) int argc; char **argv, **envp;
     syslog(LOG_INFO, "%s time: %g ms", log_msg, elapsed);
     closelog();
 
-    exit(ret);
+    exit(WEXITSTATUS(status));
 }
