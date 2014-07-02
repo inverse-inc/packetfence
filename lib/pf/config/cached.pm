@@ -277,7 +277,8 @@ use List::Util qw(first);
 use List::MoreUtils qw(uniq);
 use Fcntl qw(:flock :DEFAULT :seek);
 use POSIX::2008;
-use Data::Swap qw(swap);
+use Data::Swap();
+use Data::Structure::Util qw(unbless);
 use base qw(pf::IniFiles);
 
 
@@ -341,7 +342,6 @@ sub new {
     my $file = $params{'-file'};
     $file =~ /^(.*)$/;
     $file = $1;
-    my $config;
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
     my $onFileReloadOnce = delete $params{'-onfilereloadonce'} || [];
@@ -354,6 +354,10 @@ sub new {
         $file,
         sub {
             my $lock = lockFileForReading($file);
+            # Necessary evil to localize ReadConfig function
+            # Calling the ReadConfig from Config::IniFiles
+            # To avoid the read lock being called twice
+            local *ReadConfig;
             my $config = $class->SUPER::new(%params);
             die "$file cannot be loaded" unless $config;
             $config->SetFileName($file);
@@ -368,6 +372,7 @@ sub new {
     $ON_FILE_RELOAD_ONCE{$file} ||= [];
     $ON_CACHE_RELOAD{$file} ||= [];
     $ON_POST_RELOAD{$file} ||= [];
+    @LOADED_CONFIGS = grep { $_->GetFileName() ne $file } @LOADED_CONFIGS;
     push @LOADED_CONFIGS, $self;
     $self->addReloadCallbacks(@$onReload) if @$onReload;
     $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
@@ -393,7 +398,7 @@ sub RewriteConfig {
     }
     my $result;
     umask 2;
-    my $lock = $self->lockFileForWriting;
+    my $lock = lockFileForWriting($file);
     #lock will release when out of scope
     if ( exists $self->{imported} && defined $self->{imported}) {
         #localizing for saving only what is in
@@ -439,7 +444,7 @@ sub Rollback {
     my $file = $self->GetFileName;
     $cache->l1_cache->remove($file);
     my $old_config = $cache->get($file);
-    swap($self,$old_config);
+    $self->_swap_data($old_config);
     $self->doCallbacks(0,1);
 }
 
@@ -620,7 +625,7 @@ Locks the lock file for writing a file
 =cut
 
 sub lockFileForWriting {
-    my ($self,$file) = @_;
+    my ($file) = @_;
     my $logger = get_logger();
     $logger->trace("locking file for writing $file");
     return _lockFileFor($file);
@@ -633,9 +638,8 @@ Locks the lock file for reading a file
 =cut
 
 sub lockFileForReading {
-    my ($self,$file) = @_;
+    my ($file) = @_;
     my $logger = get_logger();
-    $file ||= $self->GetFileName;
     $logger->trace("locking file for reading $file");
     return _lockFileFor($file,'shared');
 }
@@ -690,7 +694,7 @@ sub ReadConfig {
         sub {
             #reread files
             #lock will release when out of scope
-            my $lock = $self->lockFileForReading;
+            my $lock = lockFileForReading($file);
             $result = $self->SUPER::ReadConfig();
             $reloaded_from_file = 1;
             return $self;
@@ -698,10 +702,23 @@ sub ReadConfig {
     );
     $reloaded_from_cache = refaddr($self) != refaddr($new_self);
     if($reloaded_from_cache) {
-        swap($self,$new_self);
+        $self->_swap_data($new_self);
     }
     $self->doCallbacks($reloaded_from_file,$reloaded_from_cache,$force);
     return $result;
+}
+
+=head2 _swap_data
+
+Swap the data with cached data
+
+=cut
+
+sub _swap_data {
+    my ($self,$new_self) = @_;
+    Data::Swap::swap($self,$new_self); 
+    #Unbless the old data to avoid DESTROY from being called
+    unbless($new_self);
 }
 
 =head2 TIEHASH
@@ -905,6 +922,7 @@ Cleaning up externally stored
 sub DESTROY {
     my ($self) = @_;
     my $file = $self->GetFileName;
+    return unless $file;
     foreach my $hash_ref (@ON_DESTROY_REFS) {
         delete $hash_ref->{$file};
     }
