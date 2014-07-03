@@ -24,6 +24,23 @@ it under the same terms as Perl itself.
 
 =cut
 
+=head2 postAuthentication
+
+TODO: documention
+
+=cut
+
+after 'postAuthentication' => sub {
+    my ($self, $c) = @_;
+    return if $c->has_errors;
+    my $info = $c->stash->{info};
+    $c->add_deferred_actions( sub {
+        $info;
+        #Do what I want
+    });
+    return ;
+};
+
 __PACKAGE__->meta->make_immutable;
 
 1;
