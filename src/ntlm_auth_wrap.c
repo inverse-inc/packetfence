@@ -53,16 +53,19 @@ int main(argc,argv,envp) int argc; char **argv, **envp;
     pid_t pid; 
     int status;
     if ((pid = fork()) < 0) { 
-        fprintf(stderr, "fork error!");
+        perror(argv[0]);
+        exit(1);
     }
     else if (pid == 0) { // child
         argv[0] = COMMAND;
         execve(COMMAND, argv, envp);
-        perror("exec error: " COMMAND); 
+        perror(argv[0]); 
         exit(1);
     }
-    if (waitpid(pid, &status, 0) != pid)  // wait for child
-        fprintf(stderr, "wait error"); 
+    if (waitpid(pid, &status, 0) != pid) { // wait for child
+        perror(argv[0]); 
+        exit(1);
+    }
 
     gettimeofday(&t2, NULL);
     elapsed = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
