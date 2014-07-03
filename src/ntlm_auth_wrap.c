@@ -4,8 +4,7 @@ WARNING: We cheat and do no bother to free memory allocated to strings here.
 The process is meant to be very short lived an never reused. */
 
 #define _POSIX_C_SOURCE 200809L 
-#define COMMAND "/bin/echo"
-//#define COMMAND "/usr/bin/ntlm_auth"
+#define COMMAND "/usr/bin/ntlm_auth"
 #define MAX_STR_LENGTH 1023
 #include <syslog.h>
 #include <string.h>
@@ -15,6 +14,7 @@ The process is meant to be very short lived an never reused. */
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
 
 int main(argc,argv,envp) int argc; char **argv, **envp;
 {
@@ -58,8 +58,10 @@ int main(argc,argv,envp) int argc; char **argv, **envp;
     else if (pid == 0) { // child
         argv[0] = COMMAND;
         execve(COMMAND, argv, envp);
+        perror("exec error: " COMMAND); 
+        exit(1);
     }
-    if (wait(&status) != pid)  // wait for child
+    if (waitpid(pid, &status, 0) != pid)  // wait for child
         fprintf(stderr, "wait error"); 
 
     gettimeofday(&t2, NULL);
