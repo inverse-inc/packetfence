@@ -68,7 +68,7 @@ use constant BUFF_LEN => 1024;
 
 =item rewrite
 
-Rewrite Location header to Packetfence captive portal.
+Rewrite Location header and links to Packetfence captive portal.
 
 =cut
 
@@ -78,6 +78,7 @@ sub rewrite {
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     if ($r->content_type =~ /(text\/xml|text\/html|application\/vnd.ogc.wms_xml|text\/css|application\/x-javascript)/) {
         unless ($f->ctx) {
+            $f->r->headers_out->unset('Content-Length');
             my @valhead = $r->headers_out->get('Location');
             my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
             my $value = $proto.'://'.$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
@@ -101,8 +102,6 @@ sub rewrite {
         if ($f->seen_eos) {
             #Replace links
             my $data = replace($f, $ctx->{data});
-            # Skip content that should not have links
-            $f->r->headers_out->unset('Content-Length');
             # Dump datas out
             $f->print($data);
             my $c = $f->c;
@@ -119,6 +118,12 @@ sub rewrite {
     }
 }
 
+=item to_hash
+
+Return all the WEB constants that contain URL in an hash.
+
+=cut
+
 sub to_hash {
     no strict 'refs';
 
@@ -129,15 +134,15 @@ sub to_hash {
         next if not defined ${"WEB::$_"};
         # don't keep regex
         next if ref(${"WEB::$_"}) eq 'Regexp';
+        next if $_ !~ /^URL/;
         $constants{${"WEB::$_"}} = '/portail'.${"WEB::$_"};
     }
     return %constants;
 }
 
-
 =item proxy_portal
 
-Mod_proxy redirect
+Proxy request to the captive portal
 
 =cut
 
@@ -169,6 +174,12 @@ sub proxy_portal {
     return Apache2::Const::DECLINED;
 }
 
+=item replace
+
+Uncompress, search for links , replace and compress 
+
+=cut
+
 sub replace {
     my ($f, $data) = @_;
     my $r = $f->r;
@@ -188,7 +199,17 @@ sub replace {
     # Searching for all links
     my @links2 = link_replacement(\$data,$r);
     my @links = sort {length $b <=> length $a} @links2;
-    # Replace links app->url by app->name 
+    my %component = to_hash();
+    my @rewrite;
+
+    foreach my $t (@links) {
+        foreach (keys %component) {
+            if ( $t =~ /$_/ ) {
+                push @rewrite, $_ ." => ". $component{$_};
+            }
+        }
+    }
+
     my $proto;
     if ($r->subprocess_env('HTTPS')){
         $proto = "https://";
@@ -197,14 +218,6 @@ sub replace {
         $proto = "http://";
     }
 
-    my %component = to_hash();
-
-    my @rewrite;
-
-    foreach (keys %component) {
-        push @rewrite, $_ ." => ". $component{$_};
-    }
- 
     my $ct = $f->ctx;
     $ct->{data} = '';
     foreach my $p (@rewrite) {
@@ -234,6 +247,12 @@ sub replace {
     }
     return $data;
 }
+
+=item rewrite_content
+
+Search and replace
+
+=cut
 
 sub rewrite_content {
     my ($data, $pattern, $replacement) = @_;
@@ -306,22 +325,26 @@ sub link_replacement {
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
-Copyright (C) 2012 Inverse inc.
+
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
+
 =cut
 
 1;
-
