@@ -102,6 +102,7 @@ sub rewrite {
         if ($f->seen_eos) {
             #Replace links
             my $data = replace($f, $ctx->{data});
+            $f->r->headers_out->set('Content-Length', length($data));
             # Dump datas out
             $f->print($data);
             my $c = $f->c;
