@@ -21,15 +21,25 @@ authorize {
 #                    pfsponsor
 #                    if (fail || notfound) {
 #                        update control {
-#                           MS-CHAP-Use-NTLM-Auth := No
+#                           MS-CHAP-Use-NTLM-Auth := Yes
 #                        }
 #                    }
 #                    else {
 #                        update control {
-#                            MS-CHAP-Use-NTLM-Auth := Yes
+#                            MS-CHAP-Use-NTLM-Auth := No
 #                        }
 #                    }
 #                }
+#                else {
+#                    update control {
+#                        MS-CHAP-Use-NTLM-Auth := No
+#                    }
+#                }
+#            }
+#            else {
+#                update control {
+#                    MS-CHAP-Use-NTLM-Auth := No
+#                 }
 #            }
 #        }
         expiration

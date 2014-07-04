@@ -3069,13 +3069,13 @@ msgstr ""
 # conf/documentation.conf (guests_self_registration.create_local_account_on_email_reg)
 msgid ""
   "Create a local account after guest email registration. This will allow the user to authenticate on"
-  "the status page or be able to authenticate on a eap connection see (packetfence-tunnel)"
+  "the status page or be able to authenticate over an EAP connection (see packetfence-tunnel)"
 msgstr ""
 
 # conf/documentation.conf (guests_self_registration.create_local_account_on_sponsor_reg)
 msgid ""
   "Create a local account after guest sponsor registration. This will allow the user to authenticate on"
-  "the status page or be able to authenticate on a eap connection see (packetfence-tunnel)"
+  "the status page or be able to authenticate over an EAP connection (see packetfence-tunnel)"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
