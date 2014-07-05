@@ -288,11 +288,6 @@ server, DHCP server, RADIUS server) using:
   sudo apt-get update
   sudo apt-get install packetfence
 
-In order to use ipset in inline mode, you must install two news dependencies and compile kernel modules:
-
-  sudo apt-get install xtables-addons-source xtables-addons-common
-  sudo module-assistant auto-install xtables-addons
-
 Configuration
 -------------
 
@@ -357,7 +352,7 @@ Captive Portal
 
 Important parameters to configure regarding the captive portal are the following:
 
-* Redirect URL under *Configuration -> Trappings*
+* Redirect URL under *Configuration -> Portal Profile -> Portal Name*
 
 For some browsers, is it preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be the one where the user will be redirected. Affected browsers are Firefox 3 and later.
 
@@ -405,7 +400,7 @@ Multiple authentication sources can be defined, and will be tested in the order 
 
 When no condition is defined, the rule will be considered as a fallback. When a fallback is defined, all actions will be applied fory any users that match in the authentication source.
 
-Once a source is defined, it can be used from *Configuration -> Main -> Portal Profiles and Pages*. Each portal profile has a list of authentication sources to use.
+Once a source is defined, it can be used from *Configuration -> Portal Profiles*. Each portal profile has a list of authentication sources to use.
 
 Example
 ^^^^^^^
@@ -472,7 +467,6 @@ PacketFence needs to know which switches, access points or controllers it manage
 This files contains a default section including:
 
 [options="compact"]
-* List of VLANs managed by PacketFence
 * Default SNMP read/write communities for the switches
 * Default working mode (see note about working mode below)
 
@@ -484,8 +478,8 @@ and a switch section for each switch (managed by PacketFence) including:
 * Switch uplink ports (trunks and non-managed ports)
 * per-switch re-definition of the VLANs (if required)
 
-NOTE: `switches.conf` is loaded at startup. A restart is required when changes 
-are made to this file.
+NOTE: `switches.conf` is loaded at startup. A reload is required when changes 
+are manually made to this file `/usr/local/pf/bin/pfcmd configreload`.
 
 Working modes
 ^^^^^^^^^^^^^
@@ -1169,14 +1163,12 @@ Throughout this configuration example we use the following assumptions for our n
 * VLAN 2 is the registration VLAN (unregistered devices will be put in this VLAN)
 * VLAN 3 is the isolation VLAN (isolated devices will be put in this VLAN)
 * VLANs 2 and 3 are spanned throughout the network
-* VLAN 4 is the MAC detection VLAN (void VLAN)
-* VLAN 4 must be defined on all the switches that do not support port-security (in our example Catalyst 2900XL do not support port-security with static MAC address). No need to put it in the trunk port.
-* VLAN 5 is the inline VLAN (In-Band, for unmanageable devices)
+* VLAN 4 is the inline VLAN (In-Band, for unmanageable devices)
 * We want to isolate computers using Limewire (peer-to-peer software)
 * We use Snort as NIDS
 * The traffic monitored by Snort is spanned on eth1
-* The DHCP server on the PacketFence box that will take care of IP address distribution in VLANs 2, 3 and 5
-* The DNS server on the PacketFence box that will take care of domain resolution in VLANs 2 and 3
+* The DHCP server on the PacketFence box that will take care of IP address distribution in VLANs 2, 3 and 4
+* The DNS server on the PacketFence box that will take care of domain resolution in VLANs 2 and 3 and 4
 
 The network setup looks like this:
 
@@ -1186,8 +1178,7 @@ The network setup looks like this:
 |1        |Normal        |192.168.1.0/24 |192.168.1.1 |192.168.1.5
 |2        |Registration  |192.168.2.0/24 |192.168.2.1 |192.168.2.1
 |3        |Isolation     |192.168.3.0/24 |192.168.3.1 |192.168.3.1
-|4        |Mac Detection |               |            |
-|5        |Inline        |192.168.5.0/24 |192.168.5.1 |192.168.5.1
+|4        |Inline        |192.168.4.0/24 |192.168.4.1 |192.168.4.1
 |100      |Voice         |               |            |
 |=========================================================================
 
@@ -1224,12 +1215,12 @@ Here are the NICs startup scripts on PacketFence.
   NETMASK=255.255.255.0
   VLAN=yes
 
-`/etc/sysconfig/network-scripts/ifcfg-eth0.5`:
+`/etc/sysconfig/network-scripts/ifcfg-eth0.4`:
 
-  DEVICE=eth0.5
+  DEVICE=eth0.4
   ONBOOT=yes
   BOOTPROTO=static
-  IPADDR=192.168.5.1
+  IPADDR=192.168.4.1
   NETMASK=255.255.255.0
   VLAN=yes
 
@@ -1250,27 +1241,17 @@ PacketFence uses `snmptrapd` as the trap receiver. It stores the community name 
 Switch Setup
 ~~~~~~~~~~~~
 
-In our example, we enable linkUp/linkDown on a Cisco 2900LX and Port Security on a Cisco Catalyst 2960. Please consult the http://www.packetfence.org/documentation/[Network Devices Configuration Guide] for the complete list of supported switches and configuration instructions.
+In our example, we enable inline on a Cisco 2900LX and Port Security on a Cisco Catalyst 2960. Please consult the http://www.packetfence.org/documentation/[Network Devices Configuration Guide] for the complete list of supported switches and configuration instructions.
 
 linkUp/linkDown + MAC Notification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 On the 2900XL.
 
-global setup
-
-  snmp-server enable traps snmp linkdown linkup
-  snmp-server enable traps mac-notification
-  snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification
-  mac-address-table notification interval 0
-  mac-address-table notification
-  mac-address-table aging-time 3600
-
 on each interface
 
   switchport mode access
   switchport access vlan 4
-  snmp trap mac-notification added
 
 Port Security
 ^^^^^^^^^^^^^
@@ -1279,13 +1260,15 @@ On the 2960.
 
 global setup
 
+  snmp-server community public RO
+  snmp-server community private RW
   snmp-server enable traps port-security
   snmp-server enable traps port-security trap-rate 1
   snmp-server host 192.168.1.5 version 2c public port-security
 
 On each interface, you need to initialize the port security by authorizing a fake MAC address with the following commands
 
-  switchport access vlan 4
+  switchport access vlan 1
   switchport port-security
   switchport port-security maximum 2
   switchport port-security maximum 1 vlan access
@@ -1312,7 +1295,7 @@ SNMPVersion = 1
 defaultVlan = 1
 registrationVlan = 2
 isolationVlan = 3
-macDetectionVlan = 4
+macDetectionVlan = 5
 VoIPEnabled = no
 
 [192.168.1.100]
@@ -1345,7 +1328,7 @@ dhcpservers=192.168.2.1,192.168.3.1,192.168.5.1
 [trapping]
 registration=enabled
 detection=enabled
-range=192.168.2.0/24,192.168.3.0/24,192.168.5.0/24
+range=192.168.2.0/24,192.168.3.0/24,192.168.4.0/24
 
 [interface eth0]
 mask=255.255.255.0
@@ -1367,12 +1350,12 @@ enforcement=vlan
 gateway=192.168.3.1
 ip=192.168.3.1
 
-[interface eth0.5]
+[interface eth0.4]
 mask=255.255.255.0
 type=internal
 enforcement=inline
-gateway=192.168.5.1
-ip=192.168.5.1
+gateway=192.168.4.1
+ip=192.168.4.1
 
 [interface eth1]
 mask=255.255.255.0
@@ -1426,14 +1409,14 @@ type=vlan-isolation
 named=enabled
 dhcpd=enabled
 
-[192.168.5.0]
+[192.168.4.0]
 netmask=255.255.255.0
-gateway=192.168.5.1
+gateway=192.168.4.1
 next_hop=
 domain-name=inline.example.com
 dns=4.2.2.2,4.2.2.1
-dhcp_start=192.168.5.10
-dhcp_end=192.168.5.254
+dhcp_start=192.168.4.10
+dhcp_end=192.168.4.254
 dhcp_default_lease_time=300
 dhcp_max_lease_time=600
 type=inline
@@ -1503,8 +1486,7 @@ PacketFence policy violations are controlled using the `/usr/local/pf/conf/viola
   [1234]
   desc=Your Violation Description
   priority=8
-  url=/content/index.php?template=<template>
-  redirect_url=/proxies/tools/stinger.exe
+  template=<template>
   enable=Y
   trigger=Detect::2200032,Nessus::11808
   actions=email,log,trap
@@ -1516,7 +1498,6 @@ PacketFence policy violations are controlled using the `/usr/local/pf/conf/viola
 `desc`:: single line description of violation
 `priority`:: Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.
 `template`:: Template name to use while in violation. It must match a HTML file name (without the extension) of the `violations` templates directory. 
-`redirect_url`:: The user is redirected to this URL after he re-enabled his network access on the remediation page.
 `enable`:: If enable is set to 'N', this violation is disabled and no additional violations of this type will be added.
 `trigger`:: Method to reference external detection methods. Trigger is formatted as follows `type::ID`. The type can be `Detect` (Snort), `Nessus`, `OpenVAS`, `OS` (DHCP Fingerprint Detection), `UserAgent` (Browser signature), `VendorMAC` (MAC address class), `SoH` (Statement of Health filter), `Accounting`, etc. In the above example, 2000032 is the Snort ID and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
 `actions`:: This is the list of actions that will be executed on a violation addition. The actions can be:
@@ -1583,7 +1564,7 @@ Enable Limewire violation in `/usr/local/pf/conf/violations.conf` and configure 
   [2001808]
   desc=P2P (Limewire)
   priority=8
-  url=/content/index.php?template=p2p
+  template=p2p
   actions=log,trap
   enable=Y
   max_enable=1
@@ -1851,7 +1832,7 @@ PacketFence has the option to have guests sponsored their access by local staff.
 
 Moreover, PacketFence also has the option for guests to request their access in advance. Confirmation by email and by a sponsor are the two pre-registration techniques supported at this point.
 
-Guests can also be created using a separate web interface. This interface allow PacketFence administrators or guests managers to create single accounts, multiple accounts using a prefix (ie.: guest1, guest2, guest3...) or import data from a CSV to create accounts. Access duration and expected arrival date are also customizable.
+The admin GUI allow PacketFence administrators or guests managers to create single accounts, multiple accounts using a prefix (ie.: guest1, guest2, guest3...) or import data from a CSV to create accounts. Access duration and expected arrival date are also customizable.
 
 Usage
 ^^^^^
@@ -1866,7 +1847,7 @@ image::docs/images/screenshot-captive-portal.png[alt="Captive portal screenshot"
 Managed guests
 ++++++++++++++
 
-Part of the web administration interface, the guests management interface is enabled by default. It is accessible through the *Configuration -> Users -> Create* menu.
+Part of the web administration interface, the guests management interface is enabled by default. It is accessible through the *Users -> Create* menu.
 
 Guest pre-registration
 ++++++++++++++++++++++
@@ -1886,18 +1867,17 @@ It is possible to modify the default values of the guest self-registration featu
 Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and documentation for every settings is available in `/usr/local/pf/conf/documentation.conf`.
 
   [guests_self_registration]
-  mandatory_fields=firstname,lastname,phone,email
   guest_pid=email
   preregistration=disabled
   sponsorship_cc=
 
 These parameters can also be configured from the *Configuration -> Self Registration* section of the Web admin interface.
 
-Available registration modes are defined on a per-portal-profile basis. These are configurable from *Configuration -> Portal Profiles and Pages*. To disable the self-registration feature, simply remove all self-registration sources from the portal profile definition. Notice however that if your default portal profile has no source, it will use all authentication sources.
+Available registration modes are defined on a per-portal-profile basis. These are configurable from *Configuration -> Portal Profiles*. To disable the self-registration feature, simply remove all self-registration sources from the portal profile definition. Notice however that if your default portal profile has no source, it will use all authentication sources.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
-Self-registered guests are added under the persons tab of the PacketFence Web administration interface.
+Self-registered guests are added under the users tab of the PacketFence Web administration interface.
 
 Managed guests
 ++++++++++++++
@@ -1925,7 +1905,6 @@ Let's explain the meaning of each parameter:
 
 These parameters can also be configured from the *Configuration -> Admin Registration* section of the Web admin interface.
 
-CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
 From the Users page of the PacketFence Web admin interface, it is possible to set the access duration of users, change their password and more.
 
@@ -2116,7 +2095,7 @@ CAUTION: The use of different billing tiers requires different roles in PacketFe
 Portal Profiles
 ~~~~~~~~~~~~~~~
 
-In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, or the switch IP the client connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
+In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, the switch IP/MAC or the URI the client connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
 
 When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to the "default" portal profile).
 
@@ -2128,7 +2107,7 @@ Here are the different configuration parameters that can be set for each portal 
   billing_engine = either enabled or disabled
   sources = comma-separated list of authentications sources (IDs) to use
 
-Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles and Pages* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
+Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
 
 OAuth2 Authentication
 ~~~~~~~~~~~~~~~~~~~~~
@@ -2213,20 +2192,20 @@ Once you have your information, you need to configure the OAuth2 provider. This 
 Moreover, don't forget to add WindowsLive as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 
-Gaming Devices Registration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Devices Registration
+~~~~~~~~~~~~~~~~~~~~
 
-Users have the possibility to register gaming devices (Microsoft XBOX/XBOX360, Nintendo DS/Wii, Sony PlayStation and so on) right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the gaming device MAC address that will then be matched against a predefined list of authorized MAC OUI. The gaming device will be registered with the user's id and can be assigned into a specific category for easier management.
+Users have the possibility to register their devices (Microsoft XBOX/XBOX360, Nintendo DS/Wii, Sony PlayStation and so on) right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the device MAC address that will then be matched against a predefined list of authorized MAC OUI. The device will be registered with the user's id and can be assigned into a specific category for easier management.
 
 Here's how to configure the whole thing.
-The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/gaming-registration
+The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/device-registration
 This URL is accessible from within the network, in any VLAN that can reach the PacketFence server.
 
 The following can be configured by editing the pf.conf file:
 
    [registration]
-   gaming_devices_registration = enabled
-   gaming_devices_registration_role = gaming
+   device_registration = enabled
+   device_registration_role = gaming
 
 Make sure the role exists in PacketFence otherwise you will encounter registration errors. Moreover, make sure the role mapping for your particular equipment is done.
 
@@ -2751,33 +2730,12 @@ IPTables is now entirely managed by PacketFence. However, if you need to perform
 Log Rotations
 ~~~~~~~~~~~~~
 
-PacketFence can generate a lot of log entries in huge production environments. This is why we recommend to use either `logrotate` or `log4perl` to periodically rotate your logs.
+PacketFence can generate a lot of log entries in huge production environments. This is why we recommend to use either `logrotate` to periodically rotate your logs.
 
 Logrotate (recommended)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-This is the easiest way to rotate your logs. In fact, a working logrotate script is provided with the PacketFence package. This script is located in `/usr/local/pf/addons`, and it's configured to do a weekly log rotation and keeping old logs with compression. Just add it to your existing logrotate cronjobs.
-
-Log4perl
-~~~~~~~~
-
-This log4perl way is a little more complex to achieve, but it is still quite simple. There are 3 packages you need to get from RPMForge:
-
-[options="compact"]
-* perl-Log-Dispatcher
-* perl-Log-Dispatcher-FileRotate
-* perl-Date-Manip
-
-Once you downloaded those packages, you need to modify the logging configuration file (`conf/log.conf`) with something like the following example. Note that log4perl is almost the same as log4j, so you should be able to find a lot of documentation online.
-
-  log4perl.appender.LOGFILE=Log::Dispatch::FileRotate
-  log4perl.appender.LOGFILE.filename=/usr/local/pf/logs/packetfence.log
-  log4perl.appender.LOGFILE.mode=append
-  log4perl.appender.LOGFILE.autoflush=1
-  log4perl.appender.LOGFILE.size=51200000
-  log4perl.appender.LOGFILE.max=5
-  log4perl.appender.LOGFILE.layout=PatternLayout
-  log4perl.appender.LOGFILE.layout.ConversionPattern=%d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
+This is the easiest way to rotate your logs. In fact, a working logrotate script is provided with the PacketFence package. This script is located in `/usr/local/pf/addons`, and it's configured to do a weekly log rotation and keeping old logs with compression. It has been added during PacketFence initial installation.
 
 High Availability
 ~~~~~~~~~~~~~~~~~
@@ -3138,6 +3096,7 @@ Edit `/etc/my.cnf` (or your local `my.cnf`):
   innodb_buffer_pool_size=800M
   innodb_additional_mem_pool_size=20M
   innodb_flush_log_at_trx_commit=2
+  innodb_file_per_table
   # allow more connections
   max_connections=700
   # set cache size
@@ -3295,8 +3254,8 @@ image::docs/images/diagram-trap-interaction.png[scaledwidth="50%",alt="pfsetvlan
 
 You need to create a registration VLAN (with a DHCP server, but no routing to other VLANs) in which PacketFence will put unregistered devices. If you want to isolate computers which have open violations in a separate VLAN, an isolation VLAN needs also to be created.
 
-linkUp/linkDown traps
-^^^^^^^^^^^^^^^^^^^^^
+linkUp/linkDown traps (deprecated)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This is the most basic setup and it needs a third VLAN: the MAC detection VLAN. There should be nothing in this VLAN (no DHCP server) and it should not be routed anywhere; it is just an void VLAN.
 
