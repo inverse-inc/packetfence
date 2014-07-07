@@ -10,15 +10,15 @@
         'app/pf-bootstrap-swap-class',
         'admin/configuration',
         'admin/searches',
-        'admin/configuration/items',
-        'admin/configuration/interfaces',
-        'admin/configuration/switches',
-        'admin/configuration/floatingdevices',
-        'admin/configuration/authentication',
-        'admin/configuration/portal_profile',
-        'admin/configuration/violations',
-        'admin/configuration/soh',
-        'admin/configuration/roles',
+        'admin/config/items',
+        'admin/config/interfaces',
+        'admin/config/switches',
+        'admin/config/floatingdevices',
+        'admin/config/authentication',
+        'admin/config/portal_profile',
+        'admin/config/violations',
+        'admin/config/soh',
+        'admin/config/roles',
         'js/interface',
         'js/bootstrapSwitch',
         ]
@@ -60,7 +60,7 @@ table.sources {
 
 [% MACRO pf_section_entry(section, description) BLOCK %]
               <li>
-                <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('pf_section'),section) %]">[% l(description || section) %]</a>
+                <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('section'),section) %]">[% l(description || section) %]</a>
               </li>
 [% END -%]
 
@@ -95,7 +95,7 @@ table.sources {
               [% list_entry('Portal::Profile', 'index', 'Portal Profiles') %]
               [%- END %]
               [%- IF can_access("ADMIN_ROLES_READ") %]
-              [% pf_section_entry('adminroles', 'Admin Access') %]
+              [% list_entry('Config::AdminRoles', 'index', 'Admin Access') %]
               [%- END %]
               [%- IF can_access_any("INTERFACES_READ","SWITCHES_READ","FLOATING_DEVICES_READ") %]
               <li class="nav-header">[% l('Network') %]<li>
@@ -103,14 +103,14 @@ table.sources {
               [% pf_section_entry( 'interfaces', 'Interfaces') %]
               [%- END %]
               [%- IF can_access("SWITCHES_READ") %]
-              [% pf_section_entry( 'switches', 'Switches') %]
+              [% list_entry('Config::Switch', 'index', 'Switches') %]
               [%- END %]
-              [% list_entry('Configuration::Wrix', 'index', 'WRIX') %]
+              [% list_entry('Config::Wrix', 'index', 'WRIX') %]
               [%- IF can_access("FLOATING_DEVICES_READ") %]
-              [% pf_section_entry( 'floating_devices', 'Floating devices') %]
+              [% list_entry('Config::FloatingDevice', 'index', 'Floating Device') %]
               [%- END %]
               [%- IF can_access("FIREWALL_SSO_READ") %]
-              [% list_entry('Configuration::Firewall_SSO', 'index', 'Firewall SSO') %]
+              [% list_entry('Config::Firewall_SSO', 'index', 'Firewall SSO') %]
               [%- END %]
               [%- END %]
               [%- IF can_access("USERS_ROLES_READ","USERS_SOURCES_READ") %]
@@ -140,13 +140,13 @@ table.sources {
               [%- IF can_access_any("FINGERPRINTS_READ","USERAGENTS_READ","MAC_READ") %]
               <li class="nav-header">[% l('Identification') %]</li>
               [%- IF can_access("FINGERPRINTS_READ") %]
-              [% list_entry('Configuration::FingerPrints', 'index', 'Fingerprints') %]
+              [% list_entry('Config::FingerPrints', 'index', 'Fingerprints') %]
               [%- END %]
               [%- IF can_access("USERAGENTS_READ") %]
-              [% list_entry('Configuration::UserAgents', 'index', 'User Agents') %]
+              [% list_entry('Config::UserAgents', 'index', 'User Agents') %]
               [%- END %]
               [%- IF can_access("MAC_READ") %]
-              [% list_entry('Configuration::MacAddress', 'index', 'MAC Addresses') %]
+              [% list_entry('Config::MacAddress', 'index', 'MAC Addresses') %]
               [%- END %]
               [%- END %]
             </ul>

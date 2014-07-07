@@ -52,7 +52,7 @@ sub index :Path :Args(0) :AdminRole('USERS_SOURCES_READ') {
         external_types  => $external_types,
         exclusive_types => $exclusive_types,
         form => $form,
-        template => 'configuration/authentication.tt'
+        template => 'config/authentication.tt'
     );
 }
 
