@@ -18,6 +18,7 @@ use namespace::autoclean;
 
 use pf::file_paths;
 use pf::log;
+use pf::CHI;
 
 =head1 METHODS
 
