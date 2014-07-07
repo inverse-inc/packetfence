@@ -1243,8 +1243,8 @@ Switch Setup
 
 In our example, we enable inline on a Cisco 2900LX and Port Security on a Cisco Catalyst 2960. Please consult the http://www.packetfence.org/documentation/[Network Devices Configuration Guide] for the complete list of supported switches and configuration instructions.
 
-linkUp/linkDown + MAC Notification
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+inline
+^^^^^^
 
 On the 2900XL.
 
