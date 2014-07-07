@@ -76,10 +76,9 @@ has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
 sub ACCEPT_CONTEXT {
     my ( $self, $c, @args ) = @_;
     my $class = ref $self || $self;
-    my $model = $c->session->{$class};
+    my $model;
     my $request       = $c->request;
     my $r = $request->{'env'}->{'psgi.input'};
-    return $model if (defined($model) && $r->isa('Apache2::Request') && !($r->pnotes('last_uri')) );
     my $remoteAddress = $request->address;
     my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
     my $redirectURL;
@@ -107,7 +106,6 @@ sub ACCEPT_CONTEXT {
         destination_url => $destination_url,
         @args,
     );
-    $c->session->{$class} = $model;
     return $model;
 }
 
