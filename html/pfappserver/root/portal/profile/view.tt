@@ -32,7 +32,7 @@
           <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[id]) %]" >[% l('Files')  %]</a>
         </li>
         <li [% IF tab == 'preview' %]class="active" [% END %]>
-          <a href="/portail/?PORTAL=[% id %]" target="_blank">[% l('Preview') %]</a>
+          <a href="/portal/?PORTAL=[% id %]" target="_blank">[% l('Preview') %]</a>
         </li>
       </ul>
       <div class="tab-pane fade in [% 'active' IF tab == 'settings' %]" id="settings">
