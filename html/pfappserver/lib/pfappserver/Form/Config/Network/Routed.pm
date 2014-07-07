@@ -47,6 +47,7 @@ has_field 'type' =>
         { value => '',label => ''},
         { value => $pf::config::NET_TYPE_VLAN_ISOL, label => 'Isolation'},
         { value => $pf::config::NET_TYPE_VLAN_REG, label => 'Registration'},
+        { value => $pf::config::NET_TYPE_INLINE_L3, label => 'Inline Layer 3'},
    ]
   );
 has_field 'next_hop' =>
@@ -58,6 +59,15 @@ has_field 'next_hop' =>
    tags => { after_element => \&help,
              help => 'IP address of the router in this network' },
   );
+
+has_field 'fake_mac_enabled' =>
+  (
+   type => 'Toggle',
+   checkbox_value => 1,
+   unchecked_value => 0,
+   default => 0,
+   label => 'Fake MAC Address',
+   );
 
 =head2 update_fields
 

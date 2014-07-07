@@ -8,6 +8,7 @@
 
     [% form.field('network').render %]
     [% form.field('type').render %]
+    [% form.field('fake_mac_enabled').render %]
     <div class="control-group">
       <div class="controls">
         <h6>DHCP</h6>
