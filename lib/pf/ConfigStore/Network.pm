@@ -15,6 +15,7 @@ pf::ConfigStore::Network
 use Moo;
 use namespace::autoclean;
 use pf::config;
+use pf::util qw(isenabled);
 
 extends 'pf::ConfigStore';
 
@@ -143,6 +144,8 @@ sub cleanupBeforeCommit {
         $network->{dhcpd} = 'enabled' unless ($network->{dhcpd});
         $network->{'domain-name'} = $network->{type} . "." . $Config{general}{domain}
             unless $network->{'domain-name'};
+    } else {
+        $network->{dhcpd} = isenabled($network->{'fake_mac_enabled'}) ? 'disabled' : 'enabled';
     }
 }
 

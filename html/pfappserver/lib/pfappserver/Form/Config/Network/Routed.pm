@@ -27,7 +27,7 @@ has_field 'network' =>
 has_field 'gateway' =>
   (
    type => 'IPAddress',
-   label => 'Gateway',
+   label => 'Client Gateway',
    required => 1,
    messages => { required => 'Please specify the gateway.' },
   );
@@ -57,7 +57,7 @@ has_field 'next_hop' =>
    required => 1,
    messages => { required => 'Please specify the router IP address.' },
    tags => { after_element => \&help,
-             help => 'IP address of the router in this network' },
+             help => 'IP address of the router to reach this network' },
   );
 
 has_field 'fake_mac_enabled' =>
@@ -68,6 +68,7 @@ has_field 'fake_mac_enabled' =>
    default => 0,
    label => 'Fake MAC Address',
    );
+
 
 =head2 update_fields
 

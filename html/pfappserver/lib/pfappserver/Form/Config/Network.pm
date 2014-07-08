@@ -57,7 +57,7 @@ has_field 'dns' =>
    required => 1,
    messages => { required => "Please specify the DNS server's IP address." },
    tags => { after_element => \&help,
-             help => 'Should match the IP of a registration interface' },
+             help => 'Should match the IP of a registration interface or if the network is Inline L3 then a production DNS server' },
   );
 
 =head2 validate
