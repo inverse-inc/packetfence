@@ -19,7 +19,7 @@
       </div>
       <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal"><i class="icon-edit"></i> [% l('Keep Editing') %]</a>
-        <a class="btn btn-primary btn-danger" data-dismiss="modal" href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[id])  %]"><i class="icon-refresh"></i> [% l('Dismiss Changes') %]</a>
+        <a class="btn btn-primary btn-danger" data-dismiss="modal" href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('files'),[id])  %]"><i class="icon-refresh"></i> [% l('Dismiss Changes') %]</a>
       </div>
     </div><!-- cancelEdit -->
 
@@ -62,21 +62,21 @@
 
     <ul class="breadcrumb">
       <li>
-        <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]" >[% l('Portal Profiles and Pages') %]</a>
+        <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('index')) %]" >[% l('Portal Profiles and Pages') %]</a>
         <span class="divider"><i class="icon-chevron-right"/></span>
       </li>
       <li>
-        <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [id]) %]" >[% id | html %]</a>
+        <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('view'), [id]) %]" >[% id | html %]</a>
         <span class="divider"><i class="icon-chevron-right"/></span>
       </li>
       <li>
-        <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[id])  %]">[% l('Files') %]</a>
+        <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('files'),[id])  %]">[% l('Files') %]</a>
         <span class="divider"><i class="icon-chevron-right"/></span>
       </li>
       <li class="active"> [% file_name | html %] </li>
     </ul>
     <div>
-      <form class="form-inline" id="rename_file" autocomplete="off" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('rename'),[id], paths ) %]" >
+      <form class="form-inline" id="rename_file" autocomplete="off" method="POST" action="[% c.uri_for(c.controller('Config::Profile').action_for('rename'),[id], paths ) %]" >
         <span class="inline" id="file_name"><h3 class="inline">[% directory | html %]<a title="Click to rename">[% file_name | html %]</a></h3></span>
         <span class="hidden inline"><input class="inline" type="text" value="[% file_name | html %]" id="new_file_name" name="to"/></span>
         <span class="invisible" id="width">[% file_name | html %]</span>
@@ -86,7 +86,7 @@
       <label class="checkbox">
         <input id="file-editor-show-lines" type="checkbox" /> [% l('Show line numbers') %]
       </label>
-      <form id="file_editor_form"  method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('save'),[id], paths ) %]" >
+      <form id="file_editor_form"  method="POST" action="[% c.uri_for(c.controller('Config::Profile').action_for('save'),[id], paths ) %]" >
         <textarea rows="1" cols="1" name="file_content" style="display:none" id="file_content">[%file_content | html%]</textarea>
         <div class="pull-right">
           <h5>[% l('Available Variables') %]</h5>
@@ -100,7 +100,7 @@
         <div class="form-actions">
           <a id="file-editor-save" href="#" class="btn btn-primary disabled editorToggle" data-toggle="modal" data-target="#saveFile"><i class="icon-save"></i> [% l('Save') %]</a>
           <a id="file-editor-reset" href="#" class="btn btn-danger disabled editorToggle" data-toggle="modal" data-target="#resetContent"><i class="icon-refresh"></i> [% l('Revert Changes') %]</a>
-          <a id="file-editor-preview" class="btn editorToggle" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'),[id],paths) %]" ><i class="icon-eye-open"></i> [% l('Preview') %]</a>
+          <a id="file-editor-preview" class="btn editorToggle" target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'),[id],paths) %]" ><i class="icon-eye-open"></i> [% l('Preview') %]</a>
         </div>
       </form>
     </div>

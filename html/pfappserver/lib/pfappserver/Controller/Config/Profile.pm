@@ -1,8 +1,8 @@
-package pfappserver::Controller::Portal::Profile;
+package pfappserver::Controller::Config::Profile;
 
 =head1 NAME
 
-pfappserver::Controller::PortalProfile add documentation
+pfappserver::Controller::Config::Profile add documentation
 
 =cut
 
@@ -41,7 +41,7 @@ with 'pfappserver::Base::Controller::Crud::Config' => {excludes => [qw(object)]}
 __PACKAGE__->config(
     # Reconfigure the models and forms for actions
     action_args => {
-        '*' => { model => "Config::Profile", form => 'Portal::Profile'},
+        '*' => { model => "Config::Profile", form => 'Config::Profile'},
         'index' => { model => "Config::Profile", form => 'Portal'},
     },
     action => {
@@ -60,11 +60,11 @@ __PACKAGE__->config(
 
 Portal Profile chained dispatcher
 
-/portal/profile/*
+/config/profile/*
 
 =cut
 
-sub object :Chained('/') :PathPart('portal/profile') :CaptureArgs(1) {
+sub object :Chained('/') :PathPart('config/profile') :CaptureArgs(1) {
     my ($self, $c, $id) = @_;
     $self->_setup_object($c, $id);
 }
@@ -93,7 +93,7 @@ after create => sub {
         my ($entries_copied, $dir_copied, undef) = $self->copyDefaultFiles($c);
         $c->response->location(
             $c->pf_hash_for(
-                $c->controller('Portal::Profile')->action_for('view'),
+                $c->controller('Config::Profile')->action_for('view'),
                 [$c->stash->{$model->idKey}]
             )
         );
@@ -163,7 +163,7 @@ HTML
     }
     my ($file_name, $directory) = fileparse($full_file_name);
     $c->stash(
-        template => 'portal/profile/edit.tt',
+        template => 'config/profile/edit.tt',
         file_name => $file_name,
         directory => $directory,
         full_file_name => $full_file_name,
@@ -187,7 +187,7 @@ sub rename :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDA
     $c->stash->{current_view} = 'JSON';
     #verify file exists if it does set error
     pop @pathparts;
-    $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit'), [$c->stash->{id}], catfile(@pathparts,$to)) );
+    $c->response->location( $c->pf_hash_for($c->controller('Config::Profile')->action_for('edit'), [$c->stash->{id}], catfile(@pathparts,$to)) );
 }
 
 sub new_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
@@ -200,7 +200,7 @@ sub new_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UP
         #verify file exists if it does set error
         $c->stash->{path} = $self->_makeFilePath($c, $file_name);;
         $c->forward('path_exists');
-        $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit_new'), [$c->stash->{id} ], $file_name) );
+        $c->response->location( $c->pf_hash_for($c->controller('Config::Profile')->action_for('edit_new'), [$c->stash->{id} ], $file_name) );
     }
     else {
         $path .= "/" if $path ne '';

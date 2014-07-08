@@ -27,7 +27,7 @@
               <div id="sourcesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('sources').index > 1 %]">
                 <p>
                   <i class="icon-group icon-large"></i>
-                  [%- IF form.isa('pfappserver::Form::Portal::Profile::Default') -%]
+                  [%- IF form.isa('pfappserver::Form::Config::Profile::Default') -%]
                   [% l('With no source specified, all internal and external sources will be used.') %]
                   [%- ELSE -%]
                   [% l('With no source specified, the sources of the default profile will be used.') %]
@@ -61,7 +61,7 @@
               <div id="mandatory_fieldsEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('mandatory_fields').index > 1 %]">
                 <p>
                   <i class="icon-keyboard icon-large"></i>
-                  [%- IF form.isa('pfappserver::Form::Portal::Profile::Default') -%]
+                  [%- IF form.isa('pfappserver::Form::Config::Profile::Default') -%]
                   [% l('No mandatory fields specified.') %]
                   [%- ELSE -%]
                   [% l('With no mandatory fields specified, the mandatory fields of the default profile will be used.') %]

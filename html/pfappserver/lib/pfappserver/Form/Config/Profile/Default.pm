@@ -1,8 +1,8 @@
-package pfappserver::Form::Portal::Profile;
+package pfappserver::Form::Config::Profile::Default;
 
 =head1 NAME
 
-pfappserver::Form::Portal::Profile
+pfappserver::Form::Config::Profile::Default
 
 =head1 DESCRIPTION
 
@@ -13,15 +13,10 @@ Portal profile.
 use pf::authentication;
 
 use HTML::FormHandler::Moose;
-use pfappserver::Form::Field::ProfileFilter;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Form::Portal::Common';
+with 'pfappserver::Form::Config::ProfileCommon';
 
-use pf::config;
-use pf::log;
-use List::MoreUtils qw(uniq);
-
-=head1 BLOCKS
+=head1 Blocks
 
 =head2 definition
 
@@ -34,58 +29,7 @@ has_block 'definition' =>
    render_list => [ qw(id description logo redirecturl always_use_redirecturl reuse_dot1x_credentials billing_engine nbregpages) ],
   );
 
-=head1 FIELDS
-
-=head2 filter
-
-The filter container field
-
-=cut
-
-has_field 'filter' =>
-  (
-   type => 'DynamicTable',
-   'num_when_empty' => 2,
-   'do_label' => 0,
-   'sortable' => 1,
-   inflate_default_method => sub {
-       [
-        map { pfappserver::Form::Field::ProfileFilter->filter_inflate($_) }
-        @{$_[1]}
-       ]
-   }
-  );
-
-=head2 filter.conatains
-
-The filter container field contents
-
-=cut
-
-has_field 'filter.contains' =>
-  (
-   type => '+ProfileFilter',
-   label => 'Filter',
-   widget_wrapper => 'DynamicTableRow',
-  );
-
-=head1 METHODS
-
-=head2 update_fields
-
-The redirection URL is mandatory for the default profile.
-
-=cut
-
-sub update_fields {
-    my $self = shift;
-    my $init_object = $self->init_object;
-
-    $self->field('id')->readonly(1) if (defined $init_object && defined $init_object->{id});
-
-    # Call the theme implementation of the method
-    $self->SUPER::update_fields();
-}
+has_field '+redirecturl' => ( required => 1 );
 
 
 =head1 COPYRIGHT

@@ -1,14 +1,14 @@
-package pfappserver::Form::Portal::Common;
+package pfappserver::Form::Config::ProfileCommon;
 
 =head1 NAME
 
-pfappserver::Form::Portal::Common add documentation
+pfappserver::Form::Profile::Common add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Portal::Common
+pfappserver::Config::Form::ProfileCommon
 
 =cut
 

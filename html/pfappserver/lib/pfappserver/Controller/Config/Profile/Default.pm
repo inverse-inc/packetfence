@@ -1,8 +1,8 @@
-package pfappserver::Controller::Portal::Profile::Default;
+package pfappserver::Controller::Config::Profile::Default;
 
 =head1 NAME
 
-pfappserver::Controller::PortalProfile add documentation
+pfappserver::Controller::ConfigProfile add documentation
 
 =cut
 
@@ -26,12 +26,12 @@ use File::Copy::Recursive qw(dircopy);
 use File::Basename qw(fileparse);
 use Readonly;
 
-BEGIN { extends 'pfappserver::Controller::Portal::Profile'; }
+BEGIN { extends 'pfappserver::Controller::Config::Profile'; }
 
 __PACKAGE__->config(
     # Configure the model and the form for actions
     action_args => {
-        '*' => { model => "Config::Profile", form => 'Portal::Profile::Default'},
+        '*' => { model => "Config::Profile", form => 'Config::Profile::Default'},
     },
     action => {
         # Configure access rights
@@ -67,11 +67,11 @@ sub isDeleteOrRevertDisabled {return 1};
 
 The default chained dispatcher
 
-/portal/profile/default
+/config/profile/default
 
 =cut
 
-sub object :Chained('/') :PathPart('portal/profile/default') :CaptureArgs(0) {
+sub object :Chained('/') :PathPart('config/profile/default') :CaptureArgs(0) {
     my ($self, $c) = @_;
     return $self->SUPER::object($c,'default');
 }
@@ -133,7 +133,7 @@ sub end: Private {
     my ($self,$c) = @_;
     if(! exists($c->stash->{template})) {
         $c->stash(
-            template => 'portal/profile/' . $c->action->name . '.tt'
+            template => 'config/profile/' . $c->action->name . '.tt'
         );
     }
     $c->forward('Controller::Root','end');
