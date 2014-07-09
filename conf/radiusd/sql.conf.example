@@ -63,7 +63,7 @@ sql pfguest {
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"guest\" \
-            AND and now() <= temporary_password.expiration \
+            AND now() <= temporary_password.expiration \
             LIMIT 1 "
 
         authorize_reply_query = ""
