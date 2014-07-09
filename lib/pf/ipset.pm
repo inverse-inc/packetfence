@@ -349,7 +349,7 @@ sub get_ip_from_ipset_by_mac {
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
             my $tmp_ip = = new NetAddr::IP::Lite clean_ip(mac2ip($mac));
             if ($net_addr->contains($tmp_ip)) {
-                $ip = $tmp_ip;
+                $ip = $tmp_ip->addr;
             }
         } else {
             if ($IPSET_VERSION > 4) {
