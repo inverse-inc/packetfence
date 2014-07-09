@@ -715,9 +715,38 @@ sub ACCEPT_CONTEXT {
     return $object;
 }
 
+=head2 getEnforcement
+
+=cut
+
+sub getEnforcement {
+    my ( $self, $interface_ref) = @_;
+    my $models = $self->{models};
+
+    my ($status, $enforcement);
+    # Check in pf.conf
+    my ($name, $interface);
+    $name = $interface_ref->{name};
+    $name .= '.' . $interface_ref->{vlan} if ($interface_ref->{vlan});
+    ($status, $interface) = $models->{interface}->read($name);
+
+    # if the interface is not defined in pf.conf
+    if ( is_error($status) ) {
+        $enforcement = 'none';
+    }
+    # rely on pf.conf's info
+    else {
+        $enforcement = $interface->{enforcement};
+    }
+
+    # we rewrite inline to inlinel2 for backwwards compatibility
+    $enforcement =~ s/inline$/inlinel2/;
+    return $enforcement;
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2013 Inverse inc.
+Copyright (C) 2012-2014 Inverse inc.
 
 =head1 LICENSE
 

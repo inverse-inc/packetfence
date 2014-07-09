@@ -110,6 +110,11 @@ sub validate {
     unless ($interface) {
         $self->field('next_hop')->add_error("The router IP has no gateway on a network interface.");
     }
+    if ( $self->value->{type} eq $pf::config::NET_TYPE_INLINE_L3 ) {
+        if ( $self->ctx->model('Interface')->getEnforcement($interface) ne $pf::config::NET_TYPE_INLINE_L2 ) {
+             $self->field('next_hop')->add_error("Inline Layer 3 network can only be defined behind a Inline Layer 2 network. Try again.");
+        }
+    }
 }
 
 =head1 COPYRIGHT
