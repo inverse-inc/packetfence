@@ -348,7 +348,7 @@ sub importCSV {
         while (my $row = $csv->getline($import_fh)) {
             my ($pid, $mac, $node, %data, $result);
 
-            $pid = $row->[$index{'pid'}] || undef;
+            $pid = $row->[$index{'pid'}] || undef if exists $index{'pid'};
             if ($pid && ($pid !~ /$pf::person::PID_RE/ || !person_exist($pid))) {
                 $logger->debug("Ignored unknown PID ($pid)");
                 $skipped++;
