@@ -49,6 +49,7 @@ has_field 'type' =>
                { value => 'vlan', label => 'VLAN' },
                { value => 'switch', label => 'SWITCH' },
                { value => 'uri', label => 'URI' },
+               { value => 'ip', label => 'NETWORK' },
               ],
   );
 
