@@ -57,6 +57,7 @@ our (
     $cache_control_file,
     $log_conf_dir,
     $vlan_filters_config_file,
+    $pfcmd_binary,
 );
 
 BEGIN {
@@ -92,6 +93,7 @@ BEGIN {
         $cache_control_file
         $log_conf_dir
         $vlan_filters_config_file
+        $pfcmd_binary
     );
 }
 
@@ -107,6 +109,8 @@ $log_conf_dir  = catdir( $conf_dir,"log.conf.d" );
 
 $generated_conf_dir   = catdir( $var_dir,"conf");
 $tt_compile_cache_dir = catdir( $var_dir,"tt_compile_cache");
+
+$pfcmd_binary   = catfile($bin_dir, "pfcmd");
 
 $oui_file        = catfile($conf_dir, "oui.txt");
 $pf_doc_file     = catfile($conf_dir, "documentation.conf");
