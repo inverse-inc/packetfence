@@ -2,7 +2,13 @@ package pf::web::admin;
 
 =head1 NAME
 
-admin.pm
+pf::web::admin
+
+=head1 SYNOPSIS
+
+The pf::web::admin module contains the functions necessary to reverse proxy any portal
+from the admin gui.
+It will rewrite all the links used in the portal profile to something like /portal/...
 
 =cut
 
