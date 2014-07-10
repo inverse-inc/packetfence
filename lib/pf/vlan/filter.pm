@@ -18,7 +18,7 @@ use warnings;
 use Log::Log4perl;
 use Time::Period;
 use pf::config qw(%connection_type_to_str);
-
+use pf::person qw(person_view);
 our (%ConfigVlanFilters, $cached_vlan_filters_config);
 
 readVlanFiltersFile();
@@ -91,6 +91,7 @@ sub dispatch_rule {
         username  => \&username_parser,
         ssid  => \&ssid_parser,
         time => \&time_parser,
+        owner => \&owner_parser,
     };
     return $key->{$rule->{'filter'}}->($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
 }
@@ -136,6 +137,51 @@ sub node_info_parser {
         return 0;
     }
 }
+
+=item owner_parser
+
+Parse the owner attribute and compare to the rule. If it matches then perform the action.
+
+=cut
+
+sub owner_parser {
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+
+    my $owner = person_view($node_info->{'pid'});
+
+    if (defined($owner)) {
+        if ($rule->{'operator'} eq 'is') {
+            if ($owner->{$rule->{'attribute'}} eq $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'is_not') {
+            if ($owner->{$rule->{'attribute'}} ne $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+        }
+        } elsif  ($rule->{'operator'} eq 'match') {
+            if ($owner->{$rule->{'attribute'}} =~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match_not') {
+            if ($owner->{$rule->{'attribute'}} !~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    } else {
+        return 0;
+    }
+}
+
 
 =item switch_parser
 

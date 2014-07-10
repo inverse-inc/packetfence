@@ -53,6 +53,7 @@
 #     username
 #     ssid
 #     time
+#     owner
 #
 # operator can be:
 #     is
@@ -99,6 +100,48 @@
 #    SNMP-Traps
 #    Inline
 #    WIRED_MAC_AUTH
+#
+# - for the owner
+#    pid
+#    firstname
+#    lastname
+#    email
+#    telephone
+#    company
+#    address
+#    notes
+#    sponsor
+#    anniversary
+#    birthday
+#    gender
+#    lang
+#    nickname
+#    cell_phone
+#    work_phone
+#    title
+#    building_number
+#    apartment_number
+#    room_number
+#    custom_field_1
+#    custom_field_2
+#    custom_field_3
+#    custom_field_4
+#    custom_field_5
+#    custom_field_6
+#    custom_field_7
+#    custom_field_8
+#    custom_field_9
+#    portal
+#    source
+#    nodes
+#    password
+#    valid_from
+#    expiration
+#    access_duration
+#    access_level
+#    can_sponsor
+#    unregdate
+#    category
 #
 # The value of a time is specific and follow this logic:
 # http://search.cpan.org/~pryan/Period-1.20/Period.pm
