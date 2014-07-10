@@ -161,7 +161,7 @@ sub owner_parser {
                 return 1;
             } else {
                 return 0;
-        }
+            }
         } elsif  ($rule->{'operator'} eq 'match') {
             if ($owner->{$rule->{'attribute'}} =~ m/$rule->{'value'}/) {
                 return 1;
