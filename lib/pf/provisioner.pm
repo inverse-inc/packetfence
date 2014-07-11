@@ -67,6 +67,44 @@ The template to use for provisioning
 =cut
 
 has template => (is => 'rw', required => 1);
+
+=head1 METHODS
+
+=head2 matchCategory
+
+=cut
+
+sub matchCategory {
+    my ($self, $node_attributes) = @_;
+    my $category = $self->category;
+    my $node_cat = $node_attributes->{'category'};
+
+    # validating that the node is under the proper category for provisioner
+    return 1 if ( $category eq 'any' || (defined($node_cat) && $node_cat eq $category));
+    return 0;
+}
+
+=head2 matchOS
+
+=cut
+
+sub matchOS {
+    my ($self, $os) = @_;
+    my @oses = @{$self->oses || []};
+    #if if no oses are defined then it will match all the oses
+    return 1 unless @oses;
+    local $/;
+    return 0 unless any { $os =~ $_ } @oses;
+}
+
+=head2 match
+
+=cut
+
+sub match {
+    my ($self, $os, $node_attributes) = @_;
+    return $self->matchOS($os) && $self->matchCategory($node_attributes);
+}
  
 =head1 AUTHOR
 
