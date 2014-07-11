@@ -15,18 +15,6 @@ Developed and tested on Anyfi gateway running some version
 
 =over
 
-=item Supports
-
-=over
-
-=item <feature a>
-
-=item <feature b>
-
-=back
-
-=back
-
 =head1 BUGS AND LIMITATIONS
 
 =over
