@@ -23,6 +23,7 @@ use Net::Pcap;
 use NetAddr::IP;
 use NetPacket::Ethernet;
 use NetPacket::IP;
+use IO::Select;
 use Socket;
 
 BEGIN {
@@ -67,6 +68,7 @@ POSIX::sigaction(
     )
 ) or $logger->logdie("pfbandwidthd: could not set SIGINT handler: $!");
 
+our $RUNNING = 1;
 
 my %args;
 getopts( 'dhi:', \%args );
@@ -78,6 +80,7 @@ pod2usage( -verbose => 1 ) if ( $args{h} );
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
 
+my %listen_handler;
 my %ip_stats = ();
 my %seen_inline_ips;
 my $last_stats_dump = 0;
@@ -100,49 +103,60 @@ my $snaplen = 64; # Should be enough to get iphdr + tcphdr
 my $promisc = 0;
 my $to_ms = 0;
 
-# extract first inline interface
-foreach my $interface ( $cached_pf_config->GroupMembers('interface') ) {
-    if (defined($Config{$interface}{'enforcement'}) &&  pf::config::is_type_inline($Config{$interface}{'enforcement'})) {
-        if ($interface =~ /interface\s(.*)/) {
-            $dev = $1;
-            last;
-        }
-    }
-}
-$logger->logdie('No inline network interface configured, aborting.') unless $dev;
-
-# open the device for live listening
-$logger->debug("pcap details: $dev, snaplen: $snaplen, promisc:$promisc, timeout: $to_ms");
-my $pcap = Net::Pcap::pcap_open_live($dev, $snaplen, $promisc, $to_ms, \$err);
-$logger->logdie($err) if !$pcap;
-
-# Change user to pf
-&dropprivs("pf", "pf");
-
-# Build a pcap filter to get only ipv4 traffic, ignore traffic to/from our local interfaces (and their associated broadcast addresses)
-# and capture only traffic to/from networks defined as 'inline' in networks.conf
-my $pcap_filter_str="ether proto \\ip";
-$pcap_filter_str .= " and not " . pcap_filter_from_local_interfaces();
-$pcap_filter_str .= " and " . pcap_filter_from_networks(@l3_accounting_networks);
+my @devs;
 
 my $net; # not used
 my $mask;
-# this dance is required to get a mask to compile the filter
-if (Net::Pcap::lookupnet($dev, \$net, \$mask, \$err) == -1) {
-   $logger->logdie("Unable to lookupnet: $err");
+
+foreach my $interface ( $cached_pf_config->GroupMembers('interface') ) {
+    if (defined($Config{$interface}{'enforcement'}) &&  pf::config::is_type_inline($Config{$interface}{'enforcement'})) {
+        if ($interface =~ /interface\s(.*)/) {
+            if (Net::Pcap::lookupnet($1, \$net, \$mask, \$err) == -1) {
+                $logger->warn("Unable to lookup net: $err");
+            } else {
+                push @devs ,  Net::Pcap::pcap_open_live($1, $snaplen, $promisc, $to_ms, \$err);
+            }
+        }
+    }
 }
+
+my $pcap_filter_str = "ether proto \\ip";
+$pcap_filter_str .= " and not " . pcap_filter_from_local_interfaces();
+$pcap_filter_str .= " and " . pcap_filter_from_networks(@l3_accounting_networks);
 
 # Compile + apply the filter
 $logger->debug("pcap_filter: $pcap_filter_str");
 my $pcap_filter;
-if (Net::Pcap::compile($pcap, \$pcap_filter, $pcap_filter_str, 1, $mask) == -1) {
-  $logger->logdie("Unable to compile pcap filter: $!");
-}
-Net::Pcap::setfilter($pcap, $pcap_filter);
 
-# Loop forever reading packets from pcap
-Net::Pcap::pcap_loop($pcap, -1, \&process_packet, undef);
-Net::Pcap::pcap_close($pcap);
+my $read_set = new IO::Select();
+
+foreach my $pcap (@devs) {
+    if (Net::Pcap::compile($pcap, \$pcap_filter, $pcap_filter_str, 1, $mask) == -1) {
+        $logger->warn("Unable to compile pcap filter: $!");
+    }
+    Net::Pcap::setnonblock($pcap, 1, \$err);
+    Net::Pcap::pcap_breakloop($pcap);
+    my $pcap_fd = Net::Pcap::pcap_get_selectable_fd($pcap);
+    if ($pcap_fd < 0) {
+        $logger->warn("cannot get selectable fd");
+    } else {
+        my $pcap_fh = IO::Handle->new();
+        $pcap_fh->fdopen($pcap_fd, "r");
+        $listen_handler{$pcap_fd} = $pcap;
+        $read_set->add($pcap_fh);
+    }
+}
+
+# Change user to pf
+&dropprivs("pf", "pf");
+
+while ($RUNNING) {
+    my @select_set = $read_set->can_read;
+    foreach my $pcap (@select_set) {
+        my $ready_fd = $pcap->fileno;
+        Net::Pcap::dispatch($listen_handler{$ready_fd}, -1, \&process_packet, $listen_handler{$ready_fd});
+    }
+}
 
 sub process_packet {
     my ($user_data, $header, $packet) = @_;
@@ -170,7 +184,7 @@ sub process_packet {
     if ($header->{tv_sec} - $last_stats_dump >= $min_stats_dump_interval) {
         $logger->debug("saving stats");
         &save_stats($header);
-        Net::Pcap::stats($pcap, \%pcap_stats);
+        Net::Pcap::stats($user_data, \%pcap_stats);
         $logger->debug("pcap stats ps_recv:" . $pcap_stats{ps_recv} .
                        " ps_drop: " . $pcap_stats{ps_drop} .
                        " ps_ifdrop:" .  $pcap_stats{ps_ifdrop});
@@ -263,6 +277,7 @@ sub dropprivs {
 }
 
 sub normal_sighandler {
+    $RUNNING = 0;
     deletepid("pfbandwidthd");
     if ( threads->self->tid() == 0 ) {
         $logger->logdie(
@@ -279,7 +294,7 @@ Probably
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2013 Inverse inc.
+Copyright (C) 2007-2014 Inverse inc.
 
 =head1 LICENSE
 
