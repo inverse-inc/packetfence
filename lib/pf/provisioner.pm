@@ -59,6 +59,14 @@ If we can skip deauth for a node after being provisioned
 =cut
 
 has skipDeAuth => (is => 'rw', default => sub { 1 });
+
+=head2 template
+
+The template to use for provisioning
+
+=cut
+
+has template => (is => 'rw', required => 1);
  
 =head1 AUTHOR
 
