@@ -2754,6 +2754,7 @@ This section will allow you to configure the 'Anyfi-Secure' SSID that will authe
 
 Note that for the moment, the Anyfi gateway doesn't support RADIUS assigned VLANs when using 802.1X. The devices will be assigned the native VLAN on eth1.
 PacketFence will only do the authentication of the 802.1X credentials and accept or deny the user.
+Since the 802.1X users cannot be assigned a VLAN, if you want portal based authentication on top of the 802.1X authentication, you will need to use the inline mode on the network your devices will be in.
 
 SSID configuration
 ++++++++++++++++++

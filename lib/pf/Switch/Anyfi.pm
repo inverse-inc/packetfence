@@ -31,9 +31,21 @@ Developed and tested on Anyfi gateway running some version
 
 =over
 
-=item <problem a>
+=item No 802.1X VLANs 
 
-<problem description>
+The controller doesn't support RADIUS assigned VLANs when using 802.1X
+
+=back
+
+=item No response when doing a deauthentication 
+
+The server doesn't send any response when doing a deauthentication even though the deauthentication worked.
+
+=back
+
+=item Can't determine SSID
+
+The SSID is not part of the Calling-Station-Id or any other attribute.
 
 =back
 
