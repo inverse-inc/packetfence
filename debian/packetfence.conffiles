@@ -72,6 +72,8 @@
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Status.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/WirelessProfile.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Model/Portal/Session.pm
+/usr/local/pf/html/captive-portal/lib/captiveportal/View/HTML.pm
+/usr/local/pf/html/captive-portal/lib/captiveportal/View/MobileConfig.pm
 /usr/local/pf/html/captive-portal/templates/wireless-profile.xml
 /usr/local/pf/html/captive-portal/templates/enabler.html
 /usr/local/pf/html/captive-portal/templates/register_1.html

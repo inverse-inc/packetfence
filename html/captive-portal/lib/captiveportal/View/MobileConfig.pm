@@ -3,22 +3,7 @@ package captiveportal::View::MobileConfig;
 use strict;
 use warnings;
 use Moose;
-extends 'captiveportal::View::HTML';
-use pf::file_paths;
-
-__PACKAGE__->config(
-    TEMPLATE_EXTENSION => '.xml',
-    render_die         => 1,
-    INCLUDE_PATH       => ["$install_dir/html/captive-portal/templates"]
-);
-
-after process => sub {
-    my ( $self, $c ) = @_;
-    my $headers = $c->response->headers;
-    $headers->content_type('application/x-apple-aspen-config; chatset=utf-8');
-    $headers->header( 'Content-Disposition',
-        'attachment; filename="wireless-profile.mobileconfig"' );
-};
+extends 'captiveportal::PacketFence::View::HTML';
 
 =head1 NAME
 

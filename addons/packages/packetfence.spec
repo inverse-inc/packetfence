@@ -843,6 +843,8 @@ fi
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Status.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/WirelessProfile.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Model/Portal/Session.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/HTML.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/MobileConfig.pm
 
 %dir                    /usr/local/pf/html/captive-portal/script
                         /usr/local/pf/html/captive-portal/script/*
