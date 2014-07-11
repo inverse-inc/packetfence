@@ -103,8 +103,10 @@ my $to_ms = 0;
 # extract first inline interface
 foreach my $interface ( $cached_pf_config->GroupMembers('interface') ) {
     if (pf::config::is_type_inline($Config{$interface}{'enforcement'})) {
-        $dev = $interface;
-        last;
+        if ($interface =~ /interface\s(.*)/) {
+            $dev = $1;
+            last;
+        }
     }
 }
 $logger->logdie('No inline network interface configured, aborting.') unless $dev;
