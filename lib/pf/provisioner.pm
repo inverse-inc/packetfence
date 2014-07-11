@@ -50,8 +50,15 @@ The category of the provisioner
 
 =cut
 
-has category => (is => 'rw');
+has category => (is => 'rw', default => sub { "any" });
 
+=head2 skipDeAuth
+
+If we can skip deauth for a node after being provisioned
+
+=cut
+
+has skipDeAuth => (is => 'rw', default => sub { 1 });
  
 =head1 AUTHOR
 
