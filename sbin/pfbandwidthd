@@ -102,7 +102,7 @@ my $to_ms = 0;
 
 # extract first inline interface
 foreach my $interface ( $cached_pf_config->GroupMembers('interface') ) {
-    if (pf::config::is_type_inline($Config{$interface}{'enforcement'})) {
+    if (defined($Config{$interface}{'enforcement'}) &&  pf::config::is_type_inline($Config{$interface}{'enforcement'})) {
         if ($interface =~ /interface\s(.*)/) {
             $dev = $1;
             last;
