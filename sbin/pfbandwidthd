@@ -109,7 +109,7 @@ my $net; # not used
 my $mask;
 
 foreach my $interface ( $cached_pf_config->GroupMembers('interface') ) {
-    if (defined($Config{$interface}{'enforcement'}) &&  pf::config::is_type_inline($Config{$interface}{'enforcement'})) {
+    if (defined($Config{$interface}{'enforcement'}) && pf::config::is_type_inline($Config{$interface}{'enforcement'})) {
         if ($interface =~ /interface\s(.*)/) {
             if (Net::Pcap::lookupnet($1, \$net, \$mask, \$err) == -1) {
                 $logger->warn("Unable to lookup net: $err");
