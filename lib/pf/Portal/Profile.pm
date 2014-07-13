@@ -183,9 +183,9 @@ sub getMandatoryFields {
 
 *mandatoryFields = \&getMandatoryFields;
 
-sub getProvisioner {
+sub getProvisioners {
     my ($self) = @_;
-    return $self->{'_provisioner'};
+    return $self->{'_provisioners'};
 }
 
 =item getSourcesAsObjects
@@ -327,15 +327,25 @@ sub noUsernameNeeded {
     return isenabled($self->reuseDot1xCredentials) || any { $_->type eq 'Null' && isdisabled( $_->email_required ) } $self->getSourcesAsObjects;
 }
 
-=item provisioners 
+=item provisionerObjects
 
-The provisioners
+The provisionerObjects
 
 =cut
 
-sub provisioners {
+sub provisionerObjects {
     my ($self) = @_;
-    return $self->{'_provisioners'};
+    return grep { defined $_ } map { pf::factory::provisioner->new($_) } @{ $self->getProvisioners || [] };
+}
+
+sub findProvisioner {
+    my ($self, $mac) = @_;
+    my $node_attributes = node_attributes($mac);
+    my @fingerprint =
+      dhcp_fingerprint_view( $node_attributes->{'dhcp_fingerprint'} );
+    my $os = $fingerprint[0]->{'os'};
+    return $FALSE unless defined $os;
+    return first { $_->match($os,$node_attributes) } $self->provisionerObjects;
 }
 
 =back
