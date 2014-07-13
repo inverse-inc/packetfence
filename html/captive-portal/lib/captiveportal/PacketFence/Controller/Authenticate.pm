@@ -219,9 +219,50 @@ sub postAuthentication : Private {
     }
 
 
+    $c->stash->{matchParams} = $params;
+    $c->forward('setRole');
+    $c->forward('setUnRegDate');
+
+
+
+    $info->{source} = $source_id;
+    $info->{portal} = $profile->getName;
+}
+
+sub setRole : Private {
+    my ( $self, $c ) = @_;
+    my $logger = $c->log;
+    my $session = $c->session;
+    my $params = $c->stash->{matchParams};
+    my $info = $c->stash->{info};
+    my $pid = $info->{pid};
+    my $source_id = $session->{source_id};
+    # obtain node information provided by authentication module. We need to get the role (category here)
+    # as web_node_register() might not work if we've reached the limit
+    my $value =
+      &pf::authentication::match( $source_id, $params, $Actions::SET_ROLE );
+
+    # This appends the hashes to one another. values returned by authenticator wins on key collision
+    if ( defined $value ) {
+        $logger->trace("Got role '$value' for username $pid");
+        $info->{category} = $value;
+    } else {
+        $logger->trace("Got no role for username $pid");
+    }
+
+}
+
+sub setUnRegDate : Private {
+    my ( $self, $c ) = @_;
+    my $logger = $c->log;
+    my $session = $c->session;
+    my $params = $c->stash->{matchParams};
+    my $info = $c->stash->{info};
+    my $pid = $info->{pid};
+    my $source_id = $session->{source_id};
     # If an access duration is defined, use it to compute the unregistration date;
     # otherwise, use the unregdate when defined.
-    $value =
+    my $value =
       &pf::authentication::match( $source_id, $params,
         $Actions::SET_ACCESS_DURATION );
     if ( defined $value ) {
@@ -236,9 +277,6 @@ sub postAuthentication : Private {
         $logger->trace("Got unregdate $value for username $pid");
         $info->{unregdate} = $value;
     }
-    $info->{source} = $source_id;
-    $info->{portal} = $profile->getName;
-    $c->stash->{info} = $info;
 }
 
 sub validateLogin : Private {
