@@ -205,20 +205,6 @@ sub postAuthentication : Private {
         $params->{SSID}            = $locationlog_entry->{'ssid'};
     }
 
-    # obtain node information provided by authentication module. We need to get the role (category here)
-    # as web_node_register() might not work if we've reached the limit
-    my $value =
-      &pf::authentication::match( $source_id, $params, $Actions::SET_ROLE );
-
-    # This appends the hashes to one another. values returned by authenticator wins on key collision
-    if ( defined $value ) {
-        $logger->trace("Got role '$value' for username $pid");
-        $info->{category} = $value;
-    } else {
-        $logger->trace("Got no role for username $pid");
-    }
-
-
     $c->stash->{matchParams} = $params;
     $c->forward('setRole');
     $c->forward('setUnRegDate');
