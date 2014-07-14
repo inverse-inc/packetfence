@@ -20,7 +20,7 @@ use Test::NoWarnings;
 
 use_ok("pf::profile::filter::value");
 
-my $filter = new_ok ( "pf::profile::filter::value", [profile => 'Test', value => 'test', type => 'test' ],"Test value based filter");
+my $filter = new_ok ( "pf::profile::filter::value", [profile => 'Test', value => 'test', type => 'test', key => 'test' ],"Test value based filter");
 
 ok($filter->match({ test => 'test'}),"filter matches");
  

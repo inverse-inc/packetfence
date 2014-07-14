@@ -1,15 +1,15 @@
-package pf::profile::filter::last_switch;
+package pf::profile::filter::vlan;
 =head1 NAME
 
-pf::profile::filter::last_switch proflie filter for last_switch
+pf::profile::filter::vlan proflie filter for vlan
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::last_switch
+pf::profile::filter::vlan
 
-Profile filter that matches the last_switch of the node
+Profile filter that matches the vlan of the node
 
 =cut
 
@@ -21,11 +21,19 @@ extends 'pf::profile::filter::value';
 
 =head2 type
 
-Setting the type to last_switch
+Setting the type to vlan
 
 =cut
 
-has '+type' => ( default => sub { 'last_switch' } );
+has '+type' => ( default => sub { 'vlan' } );
+
+=head2 key
+
+Setting the key to last_vlan
+
+=cut
+
+has '+key' => ( default => sub { 'last_vlan' } );
 
 =head1 AUTHOR
 

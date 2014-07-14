@@ -26,9 +26,17 @@ The value to match against
 
 has value => ( is => 'ro', required => 1 );
 
+=head2 key
+
+The key of the value in the data hash
+
+=cut
+
+has key => ( is => 'ro', required => 1 );
+
 sub match {
     my ($self,$data) = @_;
-    my $key = $self->type;
+    my $key = $self->key;
     return exists $data->{$key} && defined $data->{$key} && $data->{$key} eq $self->value;
 }
  
