@@ -20,12 +20,10 @@ use warnings;
 use Log::Log4perl;
 
 use pf::config;
-use pf::util qw(clean_ip);
 use pf::node;
 use pf::authentication;
 use pf::Portal::Profile;
 use List::Util qw(first);
-use NetAddr::IP;
 
 =head1 SUBROUTINES
 
@@ -35,7 +33,7 @@ Create a new pf::Portal::Profile instance based on parameters given.
 
 =cut
 
-our @MATCHES_TYPE = qw(uri ssid vlan switch network);
+our @MATCHES_TYPE = qw(uri ssid vlan switch);
 our @MATCHES_LAST_TYPE = map {"last_$_"} @MATCHES_TYPE;
 
 sub instantiate {
@@ -53,16 +51,6 @@ sub instantiate {
     # If no match, we instantiate the default portal profile.
     my $node_info = node_view($mac) || {};
     $node_info = { %$options, %$node_info } ;
-
-    foreach my $filter (keys %Profile_Filters) {
-        if ($filter =~ /network:(.*)/) {
-            my $net_addr = NetAddr::IP->new($1);
-            my $ip = new NetAddr::IP::Lite clean_ip($node_info->{'last_network'});
-            if ($net_addr->contains($ip)) {
-                $node_info = { %$node_info, last_network => $net_addr->cidr, };
-            }
-        }
-    }
 
     my @filter_ids = (
         ( map {
