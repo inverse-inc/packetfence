@@ -4,7 +4,9 @@
 
 ALTER TABLE locationlog_history
     ADD `switch_ip` varchar(17) DEFAULT NULL,
-    ADD `switch_mac` varchar(17) DEFAULT NULL;
+    ADD `switch_mac` varchar(17) DEFAULT NULL,
+    ADD `stripped_user_name` varchar(255) DEFAULT NULL,
+    ADD `realm` varchar(255) DEFAULT NULL;
 
 UPDATE locationlog_history SET switch_ip = switch;
 
@@ -25,4 +27,5 @@ CREATE TABLE iplog_history (
 ALTER TABLE locationlog
     ADD `stripped_user_name` varchar(255) DEFAULT NULL,
     ADD `realm` varchar(255) DEFAULT NULL;
+
 
