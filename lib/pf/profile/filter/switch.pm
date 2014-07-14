@@ -1,15 +1,15 @@
-package pf::profile::filter::last_uri;
+package pf::profile::filter::switch;
 =head1 NAME
 
-pf::profile::filter::last_uri proflie filter for last_uri
+pf::profile::filter::switch proflie filter for switch
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::last_uri
+pf::profile::filter::switch
 
-Profile filter that matches the last_uri of the node
+Profile filter that matches the switch of the node
 
 =cut
 
@@ -21,11 +21,19 @@ extends 'pf::profile::filter::value';
 
 =head2 type
 
-Setting the type to last_uri
+Setting the type to switch
 
 =cut
 
-has '+type' => ( default => sub { 'last_uri' } );
+has '+type' => ( default => sub { 'switch' } );
+
+=head2 key
+
+Setting the key to last_switch
+
+=cut
+
+has '+key' => ( default => sub { 'last_switch' } );
 
 =head1 AUTHOR
 

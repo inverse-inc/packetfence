@@ -1,15 +1,15 @@
-package pf::profile::filter::last_ssid;
+package pf::profile::filter::ssid;
 =head1 NAME
 
-pf::profile::filter::last_ssid proflie filter for last_ssid
+pf::profile::filter::ssid proflie filter for ssid
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::last_ssid
+pf::profile::filter::ssid
 
-Profile filter that matches the last_ssid of the node
+Profile filter that matches the ssid of the node
 
 =cut
 
@@ -21,11 +21,19 @@ extends 'pf::profile::filter::value';
 
 =head2 type
 
-Setting the type to last_ssid
+Setting the type to ssid
 
 =cut
 
-has '+type' => ( default => sub { 'last_ssid' } );
+has '+type' => ( default => sub { 'ssid' } );
+
+=head2 key
+
+Setting the key to last_ssid
+
+=cut
+
+has '+key' => ( default => sub { 'last_ssid' } );
 
 =head1 AUTHOR
 

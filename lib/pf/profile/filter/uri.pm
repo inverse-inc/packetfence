@@ -1,15 +1,15 @@
-package pf::profile::filter::last_vlan;
+package pf::profile::filter::uri;
 =head1 NAME
 
-pf::profile::filter::last_vlan proflie filter for last_vlan
+pf::profile::filter::uri proflie filter for uri
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::last_vlan
+pf::profile::filter::uri
 
-Profile filter that matches the last_vlan of the node
+Profile filter that matches the uri of the node
 
 =cut
 
@@ -21,11 +21,19 @@ extends 'pf::profile::filter::value';
 
 =head2 type
 
-Setting the type to last_vlan
+Setting the type to uri
 
 =cut
 
-has '+type' => ( default => sub { 'last_vlan' } );
+has '+type' => ( default => sub { 'uri' } );
+
+=head2 key
+
+Setting the key to last_uri
+
+=cut
+
+has '+key' => ( default => sub { 'last_uri' } );
 
 =head1 AUTHOR
 
