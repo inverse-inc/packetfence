@@ -15,7 +15,7 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 use NetAddr::IP;
 
-use Test::More tests => 7;                      # last test to print
+use Test::More tests => 9;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -30,6 +30,11 @@ ok(!$filter->match({ last_ip => '192.168.2.1' }),"filter does not match");
 ok(!$filter->match({ }),"last_ip not found does not match");
  
 ok(!$filter->match({ last_ip => undef }),"last_ip undefined does not match");
+
+$filter = new_ok ( "pf::profile::filter::network", [profile => 'Test', value => '192.168.2.0/24'   ],"Test coercion");
+
+isa_ok($filter->value,'NetAddr::IP','Test coercion');
+
  
 =head1 AUTHOR
 

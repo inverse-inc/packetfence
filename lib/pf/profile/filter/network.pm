@@ -16,6 +16,7 @@ use warnings;
 use Moo;
 extends 'pf::profile::filter';
 use NetAddr::IP;
+use Scalar::Util 'blessed';
 
 =head2 value
 
@@ -23,7 +24,16 @@ The NetAddr::IP network to match against
 
 =cut
 
-has value => ( is => 'ro', required => 1 );
+has value => (
+    is       => 'ro',
+    required => 1,
+    coerce   => sub {
+        # create the object if the attribute can't run()
+        blessed($_[0]) && $_[0]->isa('NetAddr::IP')
+          ? $_[0]
+          : NetAddr::IP->new($_[0])
+    },
+);
 
 has '+type' => ( default => sub { "network" } );
 
