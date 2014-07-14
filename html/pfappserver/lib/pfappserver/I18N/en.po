@@ -4288,11 +4288,11 @@ msgstr "Sponsorship CC"
 
 # conf/documentation.conf
 msgid "guests_self_registration.create_local_account_on_email_reg"
-msgstr "Create user after email reg"
+msgstr "Add user on email registration"
 
 # conf/documentation.conf
 msgid "guests_self_registration.create_local_account_on_sponsor_reg"
-msgstr "Create user after sponsor reg"
+msgstr "Add user on sponsor registration"
 
 # conf/documentation.conf (interface.type options)
 msgid "high-availability"
