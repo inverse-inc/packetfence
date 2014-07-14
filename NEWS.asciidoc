@@ -22,7 +22,8 @@ New Features
 Enhancements
 ++++++++++++
 
-
+* Added support to configure either NATting or routed mode for inline layer 2 interfaces from the GUI
+* Added informational messages in the GUI for inline interfaces
 
 Bug Fixes
 +++++++++
