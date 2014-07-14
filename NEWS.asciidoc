@@ -23,6 +23,7 @@ New Features
 * Added local account authentication for EAP
 * Added support for unreg date with dynamic year
 * Added support for NetGear FSM7328S switches
+* Added new network profile filter
 
 Enhancements
 ++++++++++++
@@ -36,6 +37,7 @@ Enhancements
 * Added the possibility to create rules using the username in OAuth authentication sources
 * Added the RADIUS request to the vlan filter
 * Moved from using Storable to Sereal to serialize cached data
+* Refactored portal profile filters to make it easier to extend
 
 Bug Fixes
 +++++++++
