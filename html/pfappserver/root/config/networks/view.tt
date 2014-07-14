@@ -7,8 +7,10 @@
   <div class="modal-body">
 
     [% form.field('network').render %]
+    [% form.field('netmask').render %]
     [% form.field('type').render %]
     [% form.field('fake_mac_enabled').render %]
+    <span id="dhcp_section">
     <div class="control-group">
       <div class="controls">
         <h6>DHCP</h6>
@@ -16,11 +18,11 @@
     </div>
     [% form.field('dhcp_start').render %]
     [% form.field('dhcp_end').render %]
-    [% form.field('netmask').render %]
     [% form.field('dhcp_default_lease_time').render %]
     [% form.field('dhcp_max_lease_time').render %]
     [% form.field('dns').render %]
     [% form.field('gateway').render %]
+    </span>
     [% IF form.field('gateway') -%]
     <div class="control-group">
       <div class="controls">

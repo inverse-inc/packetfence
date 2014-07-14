@@ -90,7 +90,7 @@ sub options_type {
     if ( defined $self->types ) {
         for my $type ( @{$self->types} ) {
             # we remove inline, even though it may still be in pf.conf for backwards compatibility reasons.
-            next if ($type eq 'inline' || $type eq "inlinel3");
+            next if ($type eq 'inline' || $type eq 'inlinel3');
             push @types, ( $type => $self->_localize($type) );
         }
     }

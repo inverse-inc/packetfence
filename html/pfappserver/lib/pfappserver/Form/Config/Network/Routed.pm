@@ -28,7 +28,7 @@ has_field 'gateway' =>
   (
    type => 'IPAddress',
    label => 'Client Gateway',
-   required => 1,
+   required_when => { 'fake_mac_enabled' => sub { $_[0] ne '1' } },
    messages => { required => 'Please specify the gateway.' },
   );
 has_field 'netmask' =>
@@ -110,16 +110,16 @@ sub validate {
     unless ($interface) {
         $self->field('next_hop')->add_error("The router IP has no gateway on a network interface.");
     }
-    if ( $self->value->{type} eq $pf::config::NET_TYPE_INLINE_L3 ) {
+    elsif ( $self->value->{type} eq $pf::config::NET_TYPE_INLINE_L3 ) {
         if ( $self->ctx->model('Interface')->getEnforcement($interface) ne $pf::config::NET_TYPE_INLINE_L2 ) {
-             $self->field('next_hop')->add_error("Inline Layer 3 network can only be defined behind a Inline Layer 2 network. Try again.");
+             $self->field('next_hop')->add_error("Inline Layer 3 network can only be defined behind a Inline Layer 2 network.");
         }
     }
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2013-2014 Inverse inc.
 
 =head1 LICENSE
 

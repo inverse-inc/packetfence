@@ -254,9 +254,8 @@ sub get {
                 $result->{"$interface"}->{'dns'} = $network->{dns};
                 $result->{"$interface"}->{'dhcpd_enabled'} = $network->{dhcpd};
                 $result->{"$interface"}->{'nat_enabled'} = $network->{nat};
+                $result->{"$interface"}->{'network_iseditable'} = $TRUE;
             }
-            #($status, undef) = $networks_model->hasId($result->{"$interface"}->{'network'});
-            $result->{"$interface"}->{'network_iseditable'} = is_success($status);
         }
         $result->{"$interface"}->{'type'} = $self->getType($interface_ref);
     }
@@ -720,7 +719,7 @@ sub ACCEPT_CONTEXT {
 =cut
 
 sub getEnforcement {
-    my ( $self, $interface_ref) = @_;
+    my ($self, $interface_ref) = @_;
     my $models = $self->{models};
 
     my ($status, $enforcement);
