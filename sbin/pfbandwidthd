@@ -148,7 +148,7 @@ foreach my $pcap (@devs) {
 }
 
 # Change user to pf
-&dropprivs("pf", "pf");
+dropprivs("pf", "pf");
 
 while ($RUNNING) {
     my @select_set = $read_set->can_read;
