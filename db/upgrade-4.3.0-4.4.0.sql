@@ -19,3 +19,10 @@ CREATE TABLE iplog_history (
   end_time datetime default "0000-00-00 00:00:00"
 ) ENGINE=InnoDB;
 
+-- Alter for realm
+--
+
+ALTER TABLE locationlog
+    ADD `stripped_user_name` varchar(255) DEFAULT NULL,
+    ADD `realm` varchar(255) DEFAULT NULL;
+
