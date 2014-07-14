@@ -11,7 +11,7 @@ manage the Anyfi gateway
 
 =head1 STATUS
 
-Developed and tested on Anyfi gateway running some version
+Developed and tested on the Anyfi gateway running v1.4.6
 
 =over
 
