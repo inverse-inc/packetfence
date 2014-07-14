@@ -35,7 +35,7 @@ Create a new pf::Portal::Profile instance based on parameters given.
 
 =cut
 
-our @MATCHES_TYPE = qw(uri ssid vlan switch ip);
+our @MATCHES_TYPE = qw(uri ssid vlan switch network);
 our @MATCHES_LAST_TYPE = map {"last_$_"} @MATCHES_TYPE;
 
 sub instantiate {
@@ -55,11 +55,11 @@ sub instantiate {
     $node_info = { %$options, %$node_info } ;
 
     foreach my $filter (keys %Profile_Filters) {
-        if ($filter =~ /ip:(.*)/) {
+        if ($filter =~ /network:(.*)/) {
             my $net_addr = NetAddr::IP->new($1);
-            my $ip = new NetAddr::IP::Lite clean_ip($node_info->{'last_ip'});
+            my $ip = new NetAddr::IP::Lite clean_ip($node_info->{'last_network'});
             if ($net_addr->contains($ip)) {
-                $node_info = { %$node_info, last_ip => $net_addr->cidr, };
+                $node_info = { %$node_info, last_network => $net_addr->cidr, };
             }
         }
     }

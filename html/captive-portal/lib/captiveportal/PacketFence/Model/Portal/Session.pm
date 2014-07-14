@@ -186,7 +186,7 @@ sub _build_clientMac {
 sub _build_profile {
     my ($self) = @_;
     my $options =  $self->options;
-    $options->{'last_ip'} = $self->clientIp;
+    $options->{'last_network'} = $self->clientIp;
     return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $options );
 }
 
