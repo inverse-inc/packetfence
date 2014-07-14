@@ -194,7 +194,7 @@ sub _build_clientMac {
             if ($net_addr->contains($ip)) {
                 my $fake_mac = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $ip->addr());
                 my $gateway = $network_config->{'gateway'};
-                locationlog_synchronize($gateway, $gateway, undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
+                locationlog_synchronize($gateway, $gateway, undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE, undef, undef);
                 iplog_open($fake_mac, $ip->addr());
                 return $fake_mac;
             }

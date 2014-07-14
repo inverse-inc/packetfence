@@ -1075,7 +1075,7 @@ sub handleTrap {
                     "MAC $mac is a VoIP phone -> Do nothing besides updating locationlog"
                 );
                 locationlog_synchronize($switch->{_id},$switch->{_ip},$switch->{_switchMac}, $switch_port,
-                    $switch->getVoiceVlan($switch_port), $mac, $VOIP, $WIRED_SNMP_TRAPS);
+                    $switch->getVoiceVlan($switch_port), $mac, $VOIP, $WIRED_SNMP_TRAPS, undef, undef);
             } else {
 
                 my $changeVlan = 0;
@@ -1266,7 +1266,7 @@ sub handleTrap {
                     $voiceVlan );
             }
 
-            locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $switch_port, $voiceVlan, $trapMac, $VOIP, $WIRED_SNMP_TRAPS);
+            locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $switch_port, $voiceVlan, $trapMac, $VOIP, $WIRED_SNMP_TRAPS, undef, undef);
 
             # }}}3
 
@@ -1696,7 +1696,7 @@ sub handleTrap {
 
         # }}}2
     } elsif ( $trapType eq 'roaming' ) {
-        locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $trapIfIndex, $trapVlan, $trapMac, $NO_VOIP, $trapConnectionType, $trapClientUserName, $trapSSID );
+        locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $trapIfIndex, $trapVlan, $trapMac, $NO_VOIP, $trapConnectionType, $trapClientUserName, $trapSSID, undef, undef );
     }
 
     # cleanupAfterThread {{{2
