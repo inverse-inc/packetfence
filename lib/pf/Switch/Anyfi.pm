@@ -2,7 +2,7 @@ package pf::Switch::Anyfi;
 
 =head1 NAME
 
-pf::Switch::WirelessModuleTemplate
+pf::Switch::Anyfi
 
 =head1 SYNOPSIS
 
@@ -22,12 +22,6 @@ Developed and tested on Anyfi gateway running some version
 =item No 802.1X VLANs 
 
 The controller doesn't support RADIUS assigned VLANs when using 802.1X
-
-=back
-
-=item No response when doing a deauthentication 
-
-The server doesn't send any response when doing a deauthentication even though the deauthentication worked.
 
 =back
 
