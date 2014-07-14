@@ -27,7 +27,7 @@ The controller doesn't support RADIUS assigned VLANs when using 802.1X
 
 =item Can't determine SSID
 
-The SSID is not part of the Calling-Station-Id or any other attribute.
+The SSID is not part of the Called-Station-Id or any other attribute.
 
 =back
 
