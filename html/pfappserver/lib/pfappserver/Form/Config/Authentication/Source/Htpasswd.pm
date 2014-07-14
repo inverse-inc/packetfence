@@ -21,6 +21,11 @@ has_field 'path' =>
    required => 1,
    element_class => ['input-xxlarge'],
   );
+has_field 'realm' =>
+  (
+   type => 'Text',
+   label => 'Realm',
+  );
 
 =head2 validate
 

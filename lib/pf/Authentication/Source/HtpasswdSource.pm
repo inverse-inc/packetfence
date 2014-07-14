@@ -19,6 +19,7 @@ extends 'pf::Authentication::Source';
 
 has '+type' => (default => 'Htpasswd');
 has 'path' => (isa => 'Str', is => 'rw', required => 1);
+has 'realm' => (isa => 'Maybe[Str]', is => 'rw');
 
 =head1 METHODS
 

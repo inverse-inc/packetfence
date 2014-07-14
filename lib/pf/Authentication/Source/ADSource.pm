@@ -15,7 +15,6 @@ use Moose;
 extends 'pf::Authentication::Source::LDAPSource';
 
 has '+type' => ( default => 'AD' );
-has 'realm' => (isa => 'Maybe[Str]', is => 'rw');
 
 sub available_attributes {
   my $self = shift;

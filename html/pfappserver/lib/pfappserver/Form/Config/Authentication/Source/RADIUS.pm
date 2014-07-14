@@ -34,6 +34,11 @@ has_field 'secret' =>
    label => 'Secret',
    required => 1,
   );
+has_field 'realm' =>
+  (
+   type => 'Text',
+   label => 'Realm',
+  );
 
 =head1 COPYRIGHT
 

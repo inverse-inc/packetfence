@@ -92,6 +92,11 @@ has_field 'password' =>
    label => 'Password',
    password => 0,
   );
+has_field 'realm' =>
+  (
+   type => 'Text',
+   label => 'Realm',
+  );
 
 =head2 validate
 
