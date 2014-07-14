@@ -1055,6 +1055,54 @@ Option 4: Authentication against OpenLDAP
 
   To be contributed...
 
+Option 5: Guest Authentication on email, sponsor and sms registration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The goal here is to be able to use the credential PacketFence created on guest access and use this one on a secure connection.
+First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS) and check Add user on email registration amd/or
+Add user on sponsor registration in Configuration -> Self Registration section.
+At the end of the guest registration, PacketFence will send a an email with the credentials for Email and Sponsor. For SMS use your
+phone number and the pin code.
+
+In `/usr/local/pf/raddb/sites-available/packetfence-tunnel` there is an example on how to configure radius to enable this feature (uncomment to make it work).
+
+In this example we activate this feature on a specific SSID name (Secure-Wireless), disabled by default NTLM Auth,
+test email credential (pfguest), test sponsor (pfsponsor) and test sms (pfsms). If all failled then we reactivate NTLM Auth.
+
+
+----
+authorize {	
+        suffix
+        ntdomain
+        eap {
+                ok = return
+        }
+        files
+####Activate local user eap authentication based on a specific SSID ####
+## Set Called-Station-SSID with the current SSID
+#        set.called_station_ssid
+#        if (Called-Station-SSID == 'Secure-Wireless') {
+## Check activation table with telephone number and pin code
+#            update control {
+#                MS-CHAP-Use-NTLM-Auth := No
+#            }
+#            pfguest
+#            if (fail || notfound) {
+## Check temporary_password table with email and password for a guest registration
+#                pfsponsor
+#                if (fail || notfound) {
+## Check temporary_password table with email and password for a sponsor registration
+#                    pfsms
+#                    if (fail || notfound) {
+#                        update control {
+#                           MS-CHAP-Use-NTLM-Auth := Yes
+#                        }
+#                    }
+#                }
+#            }
+#        }
+----
+
 Tests
 ^^^^^
 
