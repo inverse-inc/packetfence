@@ -194,7 +194,7 @@ sub authorize {
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
     $switch->synchronize_locationlog($port, $vlan, $mac,
-        $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
+        $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid, $stripped_user_name, $realm
     ) if (!$wasInline);
 
     # does the switch support Dynamic VLAN Assignment, bypass if using Inline

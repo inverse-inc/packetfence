@@ -168,6 +168,7 @@ sub node_db_prepare {
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
             locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
+            locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
         FROM node
@@ -203,6 +204,7 @@ sub node_db_prepare {
            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
+           locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
            locationlog.start_time as last_start_time,
            UNIX_TIMESTAMP(locationlog.start_time) as last_start_timestamp
        FROM locationlog
@@ -219,6 +221,7 @@ sub node_db_prepare {
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
             locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
+            locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
         FROM node
@@ -245,6 +248,7 @@ sub node_db_prepare {
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
             locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
+            locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
             iplog.ip as last_ip,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
