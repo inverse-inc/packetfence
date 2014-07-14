@@ -192,7 +192,9 @@ sub _build_clientMac {
 
 sub _build_profile {
     my ($self) = @_;
-    return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $self->options);
+    my $options =  $self->options;
+    $options->{'last_ip'} = $self->clientIp;
+    return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $options );
 }
 
 sub templateIncludePath {
