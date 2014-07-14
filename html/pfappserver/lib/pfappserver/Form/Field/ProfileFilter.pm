@@ -44,7 +44,7 @@ has_field 'type' =>
    required => 1,
    wrapper_class => ['btn-group'],
    wrapper_attr => {'data-toggle' => 'buttons-radio'},
-   default => 'last_ssid',
+   default => 'ssid',
    options_method => \&options_type,
   );
 
