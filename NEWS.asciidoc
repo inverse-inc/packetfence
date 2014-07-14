@@ -20,6 +20,7 @@ New Features
 * Added the possibility to search by computer name on the nodes page
 * Added support for the Anyfi WIFI controller
 * Show portal profiles directly on the admin gui
+* Added new network profile filter
 
 Enhancements
 ++++++++++++
@@ -29,6 +30,7 @@ Enhancements
 * Improvement of Inline Layer 3 (Inline L3 can only be defined behind Inline Layer 2 network)
 * pfbandwidthd is now able to capture on all inline interfaces
 * Added an option to set the timeout value for LDAP connections in authentication sources
+* Refactored portal profile filters to make it easier to extend
 
 Bug Fixes
 +++++++++
