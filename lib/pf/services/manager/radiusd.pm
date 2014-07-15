@@ -98,7 +98,6 @@ Generates the proxy.conf.inc configuration file
 
 sub generate_radiusd_proxy {
     my %tags;
-    my $logger = get_logger();
 
     $tags{'template'} = "$conf_dir/radiusd/proxy.conf.inc";
     $tags{'install_dir'} = $install_dir;
