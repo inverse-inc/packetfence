@@ -9,6 +9,7 @@
     [% form.field('network').render %]
     [% form.field('netmask').render %]
     [% form.field('type').render %]
+    [% form.field('nat_enabled').render %]
     [% form.field('fake_mac_enabled').render %]
     <span id="dhcp_section">
     <div class="control-group">

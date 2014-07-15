@@ -253,7 +253,7 @@ sub get {
             if (is_success($status)) {
                 $result->{"$interface"}->{'dns'} = $network->{dns};
                 $result->{"$interface"}->{'dhcpd_enabled'} = $network->{dhcpd};
-                $result->{"$interface"}->{'nat_enabled'} = $network->{nat};
+                $result->{"$interface"}->{'nat_enabled'} = $network->{nat_enabled};
                 $result->{"$interface"}->{'network_iseditable'} = $TRUE;
             }
         }
@@ -475,7 +475,7 @@ sub setType {
                 $network_ref->{dns} = $interface_ref->{'dns'};
             }
             $network_ref->{dhcpd} = isenabled($interface_ref->{'dhcpd_enabled'}) ? 'enabled' : 'disabled';
-            $network_ref->{nat} = isenabled($interface_ref->{'nat_enabled'}) ? 'enabled' : 'disabled';
+            $network_ref->{nat_enabled} = isenabled($interface_ref->{'nat_enabled'}) ? 'enabled' : 'disabled';
             $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
             $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);

@@ -69,6 +69,14 @@ has_field 'fake_mac_enabled' =>
    label => 'Fake MAC Address',
    );
 
+has_field 'nat_enabled' => (
+    type            => 'Toggle',
+    checkbox_value  => 1,
+    unchecked_value => 0,
+    default         => 1,
+    label           => 'Enable NATting',
+);
+
 
 =head2 update_fields
 

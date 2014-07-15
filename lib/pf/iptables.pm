@@ -214,7 +214,7 @@ sub generate_filter_if_src_to_chain {
             foreach my $network ( keys %ConfigNetworks ) {
                 next if ( !pf::config::is_network_type_inline($network) );
                 my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                my $nat = $ConfigNetworks{$network}{'nat'};
+                my $nat = $ConfigNetworks{$network}{'nat_enabled'};
                 if (defined ($nat) && (isdisabled($nat))) {
                     $rules .= "-A FORWARD -d $network/$inline_obj->{BITS} --in-interface $val ";
                     $rules .= "--jump ACCEPT";
@@ -391,7 +391,7 @@ sub generate_inline_if_src_to_chain {
                 foreach my $network ( keys %ConfigNetworks ) {
                     next if ( !pf::config::is_network_type_inline($network) );
                     my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                    my $nat = $ConfigNetworks{$network}{'nat'};
+                    my $nat = $ConfigNetworks{$network}{'nat_enabled'};
                     if (defined ($nat) && (isdisabled($nat))) {
                         $rules .= "-A POSTROUTING -s $network/$inline_obj->{BITS} --out-interface $val ";
                         $rules .= "--match mark --mark 0x$_ ";

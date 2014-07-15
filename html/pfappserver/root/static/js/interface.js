@@ -207,17 +207,23 @@ InterfaceView.prototype.typeChanged = function(e) {
         modal.find('[name="dns"]').closest('.control-group').show();
         if (type.length) {
             var fake_mac = modal.find('[name="fake_mac_enabled"]').closest('.control-group');
+            var nat = modal.find('[name="nat_enabled"]').closest('.control-group');
 
             switch ( type.val() ) {
                 case 'inlinel3':
                     fake_mac.show('fast');
                     fake_mac.find(':input').removeAttr('disabled');
+                    nat.show('fast');
+                    nat.find(':input').removeAttr('disabled');
                     break;
                 default:
                     fake_mac.find(':input').attr('checked', false);
                     fake_mac.hide('fast');
                     fake_mac.find(':input').attr('disabled','disabled');
                     this.fakeMacChanged();
+                    nat.find(':input').attr('checked', false);
+                    nat.hide('fast');
+                    nat.find(':input').attr('disabled','disabled');
             }
         }
     }
