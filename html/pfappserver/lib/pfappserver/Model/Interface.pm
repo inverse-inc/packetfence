@@ -253,11 +253,9 @@ sub get {
             if (is_success($status)) {
                 $result->{"$interface"}->{'dns'} = $network->{dns};
                 $result->{"$interface"}->{'dhcpd_enabled'} = $network->{dhcpd};
-                $result->{"$interface"}->{'fake_mac_enabled'} = $network->{fake_mac_enabled};
                 $result->{"$interface"}->{'nat_enabled'} = $network->{nat};
+                $result->{"$interface"}->{'network_iseditable'} = $TRUE;
             }
-            #($status, undef) = $networks_model->hasId($result->{"$interface"}->{'network'});
-            $result->{"$interface"}->{'network_iseditable'} = is_success($status);
         }
         $result->{"$interface"}->{'type'} = $self->getType($interface_ref);
     }
@@ -478,7 +476,6 @@ sub setType {
             }
             $network_ref->{dhcpd} = isenabled($interface_ref->{'dhcpd_enabled'}) ? 'enabled' : 'disabled';
             $network_ref->{nat} = isenabled($interface_ref->{'nat_enabled'}) ? 'enabled' : 'disabled';
-            $network_ref->{fake_mac_enabled} = isenabled($interface_ref->{'fake_mac_enabled'}) ? 'enabled' : 'disabled';
             $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
             $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
@@ -717,9 +714,38 @@ sub ACCEPT_CONTEXT {
     return $object;
 }
 
+=head2 getEnforcement
+
+=cut
+
+sub getEnforcement {
+    my ($self, $interface_ref) = @_;
+    my $models = $self->{models};
+
+    my ($status, $enforcement);
+    # Check in pf.conf
+    my ($name, $interface);
+    $name = $interface_ref->{name};
+    $name .= '.' . $interface_ref->{vlan} if ($interface_ref->{vlan});
+    ($status, $interface) = $models->{interface}->read($name);
+
+    # if the interface is not defined in pf.conf
+    if ( is_error($status) ) {
+        $enforcement = 'none';
+    }
+    # rely on pf.conf's info
+    else {
+        $enforcement = $interface->{enforcement};
+    }
+
+    # we rewrite inline to inlinel2 for backwwards compatibility
+    $enforcement =~ s/inline$/inlinel2/;
+    return $enforcement;
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2013 Inverse inc.
+Copyright (C) 2012-2014 Inverse inc.
 
 =head1 LICENSE
 

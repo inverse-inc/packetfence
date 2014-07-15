@@ -244,20 +244,31 @@ sub generate_inline_rules {
     foreach my $network ( keys %ConfigNetworks ) {
         # We skip non-inline networks/interfaces
         next if ( !pf::config::is_network_type_inline($network) );
+        # Set the correct gateway if it is an inline Layer 3 network
+        my $gateway = $ConfigNetworks{$network}{'gateway'};
+        if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
+            foreach my $test_network ( keys %ConfigNetworks ) {
+                my $net_addr = NetAddr::IP->new($test_network,$ConfigNetworks{$test_network}{'netmask'});
+                my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
+                if ($net_addr->contains($ip)) {
+                    $gateway = $ConfigNetworks{$test_network}{'gateway'};
+                }
+            }
+        }
 
         my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
         $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
-            . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+            . "--jump DNAT --to $gateway\n";
         $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
-            . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+            . "--jump DNAT --to $gateway\n";
         if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
             $logger->info("Adding Proxy interception rules");
             foreach my $intercept_port ( split(',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
                 my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
                 $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
-                        . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+                        . "--jump DNAT --to $gateway\n";
                 $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
-                        . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+                        . "--jump DNAT --to $gateway\n";
             }
         }
     }
@@ -425,18 +436,28 @@ sub generate_nat_redirect_rules {
         foreach my $network ( keys %ConfigNetworks ) {
             # We skip non-inline networks/interfaces
             next if ( !pf::config::is_network_type_inline($network) );
-
+            # Set the correct gateway if it is an inline Layer 3 network
+            my $gateway = $ConfigNetworks{$network}{'gateway'};
+            if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
+                foreach my $test_network ( keys %ConfigNetworks ) {
+                    my $net_addr = NetAddr::IP->new($test_network,$ConfigNetworks{$test_network}{'netmask'});
+                    my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
+                    if ($net_addr->contains($ip)) {
+                        $gateway = $ConfigNetworks{$test_network}{'gateway'};
+                    }
+                }
+            }
             # Destination NAT to the portal on the UNREG mark if trapping.registration is enabled
             if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
                 $rules .=
                     "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
-                    "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+                    "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway\n";
             }
 
             # Destination NAT to the portal on the ISOLATION mark
             $rules .=
                 "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
-                "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+                "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway\n";
         }
 
     }
@@ -641,5 +662,4 @@ USA.
 
 =cut
 
-1;
 

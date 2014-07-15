@@ -44,6 +44,7 @@ use pf::services::util;
 use pf::util::dhcp;
 use List::MoreUtils qw(any);
 use pf::api::jsonrpcclient;
+use NetAddr::IP;
 
 # initialization
 # --------------
@@ -99,14 +100,21 @@ $PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
 
+my $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
+
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
     if (any { $_ eq $interface } @listen_ints, @dhcplistener_ints ) {
         # are we listening on an inline interface ?
-        if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0) {
-            $logger->debug("DHCP detector on an inline interface");
-            $is_inline_vlan = $TRUE;
-            $accessControl = new pf::inline::custom();
+        foreach my $network (keys %ConfigNetworks) {
+            next if (!pf::config::is_network_type_inline($network));
+            my %net = %{$ConfigNetworks{$network}};
+            my $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'}) if defined($net{'next_hop'});
+            if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0 || (defined($net{'next_hop'}) && $net_addr->contains($ip))) {
+                $logger->warn("DHCP detector on an inline interface");
+                $is_inline_vlan = $TRUE;
+                $accessControl = new pf::inline::custom();
+            }
         }
 
         $interface_ip = $Config{"interface $interface"}{'ip'};
@@ -357,7 +365,7 @@ sub parse_dhcp_request {
         rogue_dhcp_handling($dhcp->{'options'}{54}, undef, $client_ip, $dhcp->{'chaddr'}, $dhcp->{'giaddr'});
     }
 
-    if ($is_inline_vlan) {
+    if ($is_inline_vlan || grep ( { $_->{'gateway'} eq $dhcp->{'src_ip'} } @inline_nets)) {
         $apiclient->notify('synchronize_locationlog',$interface_ip,$interface_ip,undef, $NO_PORT, $interface_vlan, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
         $accessControl->performInlineEnforcement($dhcp->{'chaddr'});
     }

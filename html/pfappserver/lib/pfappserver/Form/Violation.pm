@@ -179,6 +179,7 @@ has_field 'redirect_url' =>
    tags => { after_element => \&help,
              help => 'Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the portal profile configuration.' }
   );
+
 =head2 around has_errors
 
 Ignore validation errors for the trigger select field. An error would occur if a new trigger is added from the Web

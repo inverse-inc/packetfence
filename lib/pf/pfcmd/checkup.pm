@@ -439,7 +439,10 @@ sub network_inline {
     # inline interfaces should have at least one local gateway
     my $found = 0;
     foreach my $int (@internal_nets) {
-        if ( $Config{ 'interface ' . $int->tag('int') }{'ip'} eq $net{'gateway'} || (defined($Config{ 'interface ' . $int->tag('int') }{'vip'}) && $Config{ 'interface ' . $int->tag('int') }{'vip'} eq $net{'gateway'} ) ) {
+        my $net_addr = NetAddr::IP->new($Config{ 'interface ' . $int->tag('int') }{'ip'},$Config{ 'interface ' . $int->tag('int') }{'mask'});
+        my $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'}) if defined($net{'next_hop'});
+        if ( $Config{ 'interface ' . $int->tag('int') }{'ip'} eq $net{'gateway'} || (defined($Config{ 'interface ' . $int->tag('int') }{'vip'}) && $Config{ 'interface ' . $int->tag('int') }{'vip'} eq $net{'gateway'} ) || (defined($net{'next_hop'}) && $net_addr->contains($ip) ) ) {
+
             $found = 1;
             next;
         }
