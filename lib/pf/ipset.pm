@@ -347,7 +347,7 @@ sub get_ip_from_ipset_by_mac {
         my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
         if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-            my $tmp_ip = = new NetAddr::IP::Lite clean_ip(mac2ip($mac));
+            my $tmp_ip = new NetAddr::IP::Lite clean_ip(mac2ip($mac));
             if ($net_addr->contains($tmp_ip)) {
                 $ip = $tmp_ip->addr;
             }

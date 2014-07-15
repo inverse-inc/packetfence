@@ -54,6 +54,35 @@ sub supportsWirelessMacAuth { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
+=item parseTrap
+
+This is called when we receive an SNMP-Trap for this device
+
+=cut
+
+sub parseTrap {
+    my ( $this, $trapString ) = @_;
+    my $trapHashRef;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->debug("trap currently not handled");
+    $trapHashRef->{'trapType'} = 'unknown';
+
+    return $trapHashRef;
+}
+
+=item getVersion - obtain image version information from switch
+
+=cut
+
+sub getVersion {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->info("we don't know how to determine the version through SNMP !");
+    return '1.4.6';
+}
+
+
 =item deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1x).
