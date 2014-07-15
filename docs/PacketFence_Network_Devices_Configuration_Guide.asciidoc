@@ -2680,6 +2680,115 @@ Caching and Roaming
 AeroHIVE have a session replication feature to ease the EAP session roaming between two access points. However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request. Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout. They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*.
 The other way to support Roaming is to enable snmp trap in the AeroHIVE configuration to PacketFence server. PacketFence will recognise the ahConnectionChangeEvent and will change the location of the node in his base.
 
+Anyfi
+~~~~~
+
+In this section, we cover the basic configuration of the Anyfi gateway to create a hotspot SSID available on all access points.
+
+This does not cover the configuration of the controller.
+
+In this configuration eth0 will be the management interface of the Anyfi gateway and eth1 will be the interface that will bridge the tagged packets to your network.
+
+Interfaces configuration
+++++++++++++++++++++++++
+
+  interfaces {
+      bridge br0 {
+          aging 300
+          hello-time 2
+          max-age 20
+          priority 0
+          stp false
+      }
+      ethernet eth0 {
+          description "Management network"
+          address 192.168.0.20/24
+      }
+      ethernet eth1 {
+          description "Bridge to network"
+          bridge-group {
+              bridge br0
+          }
+      }
+  }
+
+MAC authentication
+^^^^^^^^^^^^^^^^^^
+
+This section will allow you to configure the 'Anyfi-Hotspot' SSID that will use MAC authentication.
+
+SSID configuration
+++++++++++++++++++
+
+  service {
+      anyfi {
+          gateway anyfi-hotspot {
+              accounting {
+                  radius-server 192.168.0.5 {
+                      port 1813
+                      secret useStrongerSecret
+                  }
+              }
+              authorization {
+                  radius-server 192.168.0.5 {
+                      port 1812
+                      secret useStrongerSecret
+                  }
+              }
+              bridge br0
+              controller <the controller's ip address>
+              isolation
+              nas {
+                  identifier anyfi
+                  port 3799
+              }
+              ssid Anyfi-Hotspot
+          }
+      }
+  }
+
+802.1X
+^^^^^^
+
+This section will allow you to configure the 'Anyfi-Secure' SSID that will authenticate users using 802.1X.
+
+Note that for the moment, the Anyfi gateway doesn't support RADIUS assigned VLANs when using 802.1X. The devices will be assigned the native VLAN on eth1.
+PacketFence will only do the authentication of the 802.1X credentials and accept or deny the user.
+Since the 802.1X users cannot be assigned a VLAN, if you want portal based authentication on top of the 802.1X authentication, you will need to use the inline mode on the network your devices will be in.
+
+SSID configuration
+++++++++++++++++++
+  service {
+      anyfi {
+          gateway secure-gw {
+              accounting {
+                  radius-server 192.168.0.5 {
+                      port 1813
+                      secret useStrongerSecret
+                  }
+              }
+              authentication {
+                  eap {
+                      radius-server 192.168.0.5 {
+                          port 1812
+                          secret useStrongerSecret
+                      }
+                  }
+              }
+              bridge br0
+              controller <the controller's ip address> 
+              isolation
+              nas {
+                  identifier anyfi
+                  port 3799
+              }
+              ssid agile-super-secure
+              wpa2 {
+              }
+          }
+      }
+  }
+
 Avaya
 ~~~~~
 
