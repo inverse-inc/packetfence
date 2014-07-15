@@ -2973,9 +2973,21 @@ sub _identifyConnectionType {
     }
 }
 
+=item parseTrap
+
+Unimplemented base method meant to be overriden in switches that support SNMP trap based methods.
+
+=cut 
+
+sub parseTrap {
+    my $self   = shift;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->warn("SNMP trap handling not implemented for this type of switch.");
+    return undef;
+}
+
 
 =back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
