@@ -31,7 +31,7 @@ sub event_add {
     $logger->info("violation: $id - IP $srcip");
 
     # fetch IP associated to MAC
-    my $srcmac = pf::util::ip2mac($srcip);
+    my $srcmac = pf::iplog::ip2mac($srcip);
     if ($srcmac) {
 
         # trigger a violation
