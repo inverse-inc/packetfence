@@ -34,12 +34,13 @@ has_field 'secret' =>
    label => 'Secret',
    required => 1,
   );
-has_field 'realm' =>
-  (
-   type => 'Text',
-   label => 'Realm',
-  );
-
+has_field 'stripped_user_name' => (
+    type            => 'Toggle',
+    checkbox_value  => 1,
+    unchecked_value => 0,
+    default         => 1,
+    label           => 'Use stripped username',
+);
 =head1 COPYRIGHT
 
 Copyright (C) 2012 Inverse inc.

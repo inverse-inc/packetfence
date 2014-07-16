@@ -181,7 +181,7 @@ sub authorize {
     my $realm = $radius_request->{'Realm'};
 
     # Fetch VLAN depending on node status
-    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request, $realm);
+    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {

@@ -1,52 +1,39 @@
-package pfappserver::Form::Config::Authentication::Source::Htpasswd;
+package pfappserver::Form::Config::Realm;
 
 =head1 NAME
 
-pfappserver::Form::Config::Authentication::Source::Htpasswd - Web form for a htpasswd user source
+pfappserver::Form::Config::Realm - Web form for a floating device
 
 =head1 DESCRIPTION
 
-Form definition to create or update a htpasswd user source.
+Form definition to create or update realm.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::Authentication::Source';
+extends 'pfappserver::Base::Form';
+with 'pfappserver::Base::Form::Role::Help';
 
-# Form fields
-has_field 'path' =>
+use pf::config;
+use pf::util;
+
+## Definition
+has_field 'id' =>
   (
    type => 'Text',
-   label => 'File Path',
+   label => 'Realm',
    required => 1,
-   element_class => ['input-xxlarge'],
+   messages => { required => 'Please specify a Realm' },
   );
-has_field 'stripped_user_name' => (
-    type            => 'Toggle',
-    checkbox_value  => 1,
-    unchecked_value => 0,
-    default         => 1,
-    label           => 'Use stripped username',
-);
-=head2 validate
 
-Make sure the htpasswd file is readable.
 
-=cut
+=over
 
-sub validate {
-    my $self = shift;
-
-    $self->SUPER::validate();
-
-    unless (-r $self->value->{path}) {
-        $self->field('path')->add_error("The file is not readable.");
-    }
-}
+=back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2013 Inverse inc.
+Copyright (C) 2013 Inverse inc.
 
 =head1 LICENSE
 

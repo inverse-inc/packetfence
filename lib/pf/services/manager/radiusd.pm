@@ -103,18 +103,13 @@ sub generate_radiusd_proxy {
     $tags{'install_dir'} = $install_dir;
     $tags{'config'} = '';
 
-    my $sources = pf::authentication::getInternalAuthenticationSources();
-    foreach my $source ( @{$sources} ) {
-        if ( defined($source->{realm}) ) {
-            foreach my $realm (split(',',$source->{realm})) {
-                $tags{'config'} .= <<"EOT";
+    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+        $tags{'config'} .= <<"EOT";
 realm $realm {
   strip
 }
 
 EOT
-            }
-        }
     }
     parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
 }

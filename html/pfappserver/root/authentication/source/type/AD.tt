@@ -8,6 +8,7 @@
 [% form.field('basedn').render %]
 [% form.field('scope').render %]
 [% form.field('usernameattribute').render %]
+[% form.field('stripped_user_name').render %]
 [% form.field('binddn').render %]
         <div class="control-group">
           <label class="control-label">[% l('Password') %] <i class="icon-exclamation-sign"></i></label>

@@ -66,15 +66,15 @@ getRegistrationVlan or getNormalVlan.
 =cut
 
 sub fetchVlanForNode {
-    my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $radius_request, $realm) = @_;
+    my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
 
     my $node_info = node_attributes($mac);
 
     if ($this->isInlineTrigger($switch,$ifIndex,$mac,$ssid)) {
-        $logger->info("[$mac] Inline trigger match, the node is in inline mode");
-        my $inline = $this->getInlineVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
-        $logger->info("[$mac] PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
+        $logger->info("Inline trigger match, the node is in inline mode");
+        my $inline = $this->getInlineVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name);
+        $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
         return ( $inline, 1 );
     }
 
@@ -99,7 +99,7 @@ sub fetchVlanForNode {
 
     my ($violation,$registration,$role);
     # violation handling
-    ($violation,$role) = $this->getViolationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    ($violation,$role) = $this->getViolationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name);
     if (defined($violation) && $violation != 0) {
         return ( $violation, 0, $role);
     } elsif (!defined($violation)) {
@@ -107,7 +107,7 @@ sub fetchVlanForNode {
     }
 
     # there were no violation, now onto registration handling
-    ($registration,$role) = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    ($registration,$role) = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name);
     if (defined($registration) && $registration != 0) {
         if ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
             if (isenabled($node_info->{'autoreg'})) {
@@ -119,7 +119,7 @@ sub fetchVlanForNode {
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my ($vlan, $user_role) = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm);
+    my ($vlan, $user_role) = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name);
     if (!defined($vlan)) {
         $logger->warn("[$mac] Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
         $vlan = $switch->getVlanByName('macDetection');
@@ -201,7 +201,7 @@ sub getViolationVlan {
     # $conn_type is set to the connnection type expressed as the constant in pf::config
     # $user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     # $ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     my $open_violation_count = violation_count_trap($mac);
@@ -285,7 +285,7 @@ sub getRegistrationVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     # trapping on registration is enabled
@@ -342,7 +342,7 @@ sub getNormalVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
 
@@ -395,10 +395,13 @@ sub getNormalVlan {
         $logger->debug("[$mac] EAP connection with a username \"$user_name\". Trying to match rules from authentication sources.");
         my $profile = pf::Portal::ProfileFactory->instantiate($mac);
         my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
+        my $stripped_user = '';
+        $stripped_user = $stripped_user_name if(defined($stripped_user_name));
         my $params = {
             username => $user_name,
             connection_type => connection_type_to_str($connection_type),
             SSID => $ssid,
+            stripped_user_name => $stripped_user,
         };
         my $source;
         $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, $source);
@@ -410,7 +413,7 @@ sub getNormalVlan {
                 $value = access_duration($value);
             }
             else {
-                $value = &pf::authentication::match(&pf::authentication::getInternalAuthenticationSources($realm), $params, $Actions::SET_UNREG_DATE);
+                $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
             }
             if (defined $value) {
                 my %info = (
@@ -472,11 +475,11 @@ sub getInlineVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    my ($result,$role) = $filter->test('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name);
     return $result if $result;
 
     return $switch->getVlanByName('inline');

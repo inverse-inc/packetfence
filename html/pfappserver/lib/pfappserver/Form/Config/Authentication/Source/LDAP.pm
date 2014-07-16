@@ -92,12 +92,13 @@ has_field 'password' =>
    label => 'Password',
    password => 0,
   );
-has_field 'realm' =>
-  (
-   type => 'Text',
-   label => 'Realm',
-  );
-
+has_field 'stripped_user_name' => (
+    type            => 'Toggle',
+    checkbox_value  => 1,
+    unchecked_value => 0,
+    default         => 1,
+    label           => 'Use stripped username',
+);
 =head2 validate
 
 Make sure a password is specified when a bind DN is specified.

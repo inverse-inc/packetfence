@@ -353,13 +353,7 @@ Return instances of pf::Authentication::Source for internal sources
 =cut
 
 sub getInternalAuthenticationSources {
-    my $realm = shift;
-
     my @internal = grep { $_->{'class'} eq 'internal' } @authentication_sources;
-    if ($realm) {
-        @internal = grep { exists $_->{'realm'} && lc($_->{'realm'}) eq lc($realm) } @internal;
-    }
-
     return \@internal;
 }
 
