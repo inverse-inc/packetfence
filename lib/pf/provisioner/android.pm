@@ -42,18 +42,13 @@ The ca cert_path
 
 has ca_cert_path => (is => 'rw');
 
-=head1 METHODS
-
 =head2 authorize
 
-authorize if 
+always authorize
 
 =cut
 
-sub authorize {
-    my ($self,$mac) = @_;
-    return 0;
-}
+sub authorize { 1 }
 
 =head1 AUTHOR
 
