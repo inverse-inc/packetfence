@@ -66,9 +66,23 @@ The template to use for provisioning
 
 =cut
 
-has template => (is => 'rw', required => 1);
+has template => (is => 'rw', lazy => 1, builder => 1 );
 
 =head1 METHODS
+
+=head2 _build_template
+
+Creates a template from the name of the class
+
+=cut
+
+sub _build_template {
+    my ($self) = @_;
+    my $type = ref($self) || $self;
+    $type =~ s/^pf:://;
+    $type =~ s/::/\//g;
+    return "${type}.html";
+}
 
 =head2 matchCategory
 
