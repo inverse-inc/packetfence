@@ -21,13 +21,15 @@ has_field 'path' =>
    required => 1,
    element_class => ['input-xxlarge'],
   );
-has_field 'stripped_user_name' => (
+has_field 'stripped_user_name' =>
+   (
     type            => 'Toggle',
-    checkbox_value  => 1,
-    unchecked_value => 0,
-    default         => 1,
+    checkbox_value  => 'yes',
+    unchecked_value => 'no',
+    default         => 'yes',
     label           => 'Use stripped username',
-);
+   );
+
 =head2 validate
 
 Make sure the htpasswd file is readable.

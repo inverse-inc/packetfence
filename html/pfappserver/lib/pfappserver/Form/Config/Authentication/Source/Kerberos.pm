@@ -28,6 +28,14 @@ has_field 'realm' =>
    label => 'Realm',
    required => 1,
   );
+has_field 'stripped_user_name' =>
+   (
+    type            => 'Toggle',
+    checkbox_value  => 'yes',
+    unchecked_value => 'no',
+    default         => 'yes',
+    label           => 'Use stripped username',
+   );
 
 =head1 COPYRIGHT
 

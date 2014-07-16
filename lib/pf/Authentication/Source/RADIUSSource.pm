@@ -20,7 +20,7 @@ has '+type' => ( default => 'RADIUS' );
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
-has 'realm' => (isa => 'Maybe[Str]', is => 'rw');
+has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 
 sub available_attributes {
   my $self = shift;
@@ -67,6 +67,7 @@ sub authenticate {
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
 
+    $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
     return $params->{'username'};
 }
 
