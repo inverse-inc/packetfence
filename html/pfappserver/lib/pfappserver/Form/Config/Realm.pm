@@ -26,6 +26,16 @@ has_field 'id' =>
    messages => { required => 'Please specify a Realm' },
   );
 
+has_field 'options' =>
+  (
+   type => 'TextArea',
+   label => 'Realm Options',
+   required => 0,
+   default => 'strip',
+   tags => { after_element => \&help,
+             help => 'You can add options in the realm definition' },
+  );
+
 
 =over
 

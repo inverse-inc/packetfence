@@ -794,7 +794,6 @@ sub readRealmFile {
         -onreload => [ reload_realm_config => sub {
             my ($config) = @_;
             $config->toHash(\%ConfigRealm);
-            $config->cleanupWhitespace(\%ConfigRealm);
         }]
     );
     if(@Config::IniFiles::errors) {
