@@ -249,7 +249,8 @@ sub match_in_subclass {
             # - groupOfNames       => member (dn)
             # - groupOfUniqueNames => uniqueMember (dn)
             # - posixGroup         => memberUid (uid)
-            $filter = "(|(member=${dn})(uniqueMember=$dn)(memberUid=${attribute}))";
+            my $dn_search = escape_filter_value($dn);
+            $filter = "(|(member=${dn_search})(uniqueMember=${dnsearch})(memberUid=${attribute}))";
             $result = $connection->search
               (
                base => $value,
