@@ -246,6 +246,8 @@ Requires: perl(IO::Interface)
 Requires: perl(Time::Period)
 # configuration-wizard
 Requires: iproute, vconfig
+
+Requires: perl(Sereal), perl(Data::Serializer::Sereal)
 #
 # TESTING related
 #
