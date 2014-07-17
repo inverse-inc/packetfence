@@ -27,6 +27,7 @@ Enhancements
 * Added informational messages in the GUI for inline interfaces
 * Improvement of Inline Layer 3 (Inline L3 can only be defined behind Inline Layer 2 network)
 * pfbandwidthd is now able to capture on all inline interfaces
+* Added an option to set the timeout value for LDAP connections in authentication sources
 
 Bug Fixes
 +++++++++

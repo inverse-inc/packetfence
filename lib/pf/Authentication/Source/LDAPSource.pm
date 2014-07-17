@@ -27,15 +27,16 @@ use constant {
     TLS => "starttls",
 };
 
-has '+type' => (default => 'LDAP');
-has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
-has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
-has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
-has 'binddn' => (isa => 'Maybe[Str]', is => 'rw');
-has 'password' => (isa => 'Maybe[Str]', is => 'rw');
-has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
-has 'scope' => (isa => 'Str', is => 'rw', required => 1);
-has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
+has '+type'   => ( default => 'LDAP' );
+has 'host'    => ( isa     => 'Maybe[Str]', is => 'rw', default => '127.0.0.1' );
+has 'port'    => ( isa     => 'Maybe[Int]', is => 'rw', default => 389 );
+has 'timeout' => ( isa     => 'Int', is => 'rw', default => 5 );
+has 'basedn'  => ( isa     => 'Str', is => 'rw', required => 1 );
+has 'binddn'            => ( isa => 'Maybe[Str]', is => 'rw' );
+has 'password'          => ( isa => 'Maybe[Str]', is => 'rw' );
+has 'encryption'        => ( isa => 'Str',        is => 'rw', required => 1 );
+has 'scope'             => ( isa => 'Str',        is => 'rw', required => 1 );
+has 'usernameattribute' => ( isa => 'Str',        is => 'rw', required => 1 );
 
 =head1 METHODS
 
@@ -140,9 +141,9 @@ sub _connect {
     $LDAPServerPort //=  $self->{'port'} ;
 
     if ( $self->{'encryption'} eq SSL ) {
-        $connection = Net::LDAPS->new($LDAPServer, port =>  $LDAPServerPort );
+        $connection = Net::LDAPS->new($LDAPServer, port =>  $LDAPServerPort, timeout => $self->{'timeout'} );
     } else {
-        $connection = Net::LDAP->new($LDAPServer, port =>  $LDAPServerPort );
+        $connection = Net::LDAP->new($LDAPServer, port =>  $LDAPServerPort, timeout => $self->{'timeout'} );
     }
     if (! defined($connection)) {
       $logger->warn("[$self->{'id'}] Unable to connect to $LDAPServer");
