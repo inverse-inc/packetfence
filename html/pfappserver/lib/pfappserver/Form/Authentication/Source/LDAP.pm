@@ -29,6 +29,12 @@ has_field 'port' =>
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '389'},
   );
+has_field 'timeout' =>
+  (
+   type => 'PosInteger',
+   label => 'Timeout',
+   element_attr => {'placeholder' => '5'},
+  );
 has_field 'encryption' =>
   (
    type => 'Select',
