@@ -19,13 +19,7 @@ use warnings;
 use Moo;
 extends 'pf::profile::filter::value';
 
-=head2 type
-
-Setting the type to ssid
-
-=cut
-
-has '+type' => ( default => sub { 'ssid' } );
+=head1 ATTRIBUTES
 
 =head2 key
 

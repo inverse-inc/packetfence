@@ -19,13 +19,7 @@ use warnings;
 use Moo;
 extends 'pf::profile::filter::value';
 
-=head2 type
-
-Setting the type to uri
-
-=cut
-
-has '+type' => ( default => sub { 'uri' } );
+=head1 ATTRIBUTES
 
 =head2 key
 

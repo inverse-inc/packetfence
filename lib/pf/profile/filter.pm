@@ -15,12 +15,17 @@ use strict;
 use warnings;
 use Moo;
 
-has type => ( is => 'ro', required => 1);
+
+=head1 ATTRIBUTES
+
+=head2 profile
+
+The name of the profile of the filter
+
+=cut
 
 has profile => ( is => 'ro', required => 1);
 
-
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

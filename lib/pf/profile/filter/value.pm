@@ -18,6 +18,8 @@ use Moo;
 extends 'pf::profile::filter';
 
 
+=head1 ATTRIBUTES
+
 =head2 value
 
 The value to match against
@@ -33,6 +35,14 @@ The key of the value in the data hash
 =cut
 
 has key => ( is => 'ro', required => 1 );
+
+=head1 METHODS
+
+=head2 match
+
+Matches value based off key in provided hash 
+
+=cut
 
 sub match {
     my ($self,$data) = @_;
