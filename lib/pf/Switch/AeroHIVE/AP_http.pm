@@ -1,17 +1,29 @@
-package pf::Switch::AeroHIVE::AP_web;
+package pf::Switch::AeroHIVE::AP_http;
 
 =head1 NAME
 
-pf::Switch::AeroHIVE::AP - Object oriented module to access AP series via Telnet/SSH
+pf::Switch::AeroHIVE::AP_http - Object oriented module to AeroHIVE using the external captive portal
 
 =head1 SYNOPSIS
 
-The pf::Switch::AeroHIVE::AP module implements an object oriented interface
-to access AP  Series via Telnet/SSH
+The pf::Switch::AeroHIVE::AP module implements an object oriented interface to interact with the AeroHIVE captive portal
 
 =head1 STATUS
 
-This module is currently only a placeholder, see pf::Switch::AeroHIVE
+Tested on an AP330 running HiveOS 6.1r6.1779
+
+=cut
+
+=head1 BUGS AND LIMITATIONS
+
+=over
+
+=item Redirect URL is not working
+
+When selecting the option to redirect the user to the initially requested page, the AeroHIVE access point is not able to do the redirection properly.
+Using the default success page of AeroHIVE works.
+
+=back
 
 =cut
 
@@ -19,6 +31,8 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use pf::config;
+use pf::node;
+use pf::violation;
 
 use base ('pf::Switch::AeroHIVE::AP');
 
@@ -50,11 +64,17 @@ sub returnRadiusAccessAccept {
 
     my $node = node_view($mac);
 
-    my $violation = violation_view_top($mac);
+    my $violation = pf::violation::violation_view_top($mac);
     # if user is unregistered or is in violation then we reject him to show him the captive portal 
-    if( $node->{status} eq $STATUS_UNREGISTERED || defined($violation) ){
+    if( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
         $logger->info("$mac is unregistered. Refusing access to force the eCWP");
-        return [$RADIUS::RLM_MODULE_REJECT, %$radius_reply_ref] 
+        my $radius_reply_ref = {
+            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+            'Tunnel-Type' => $RADIUS::VLAN,
+            'Tunnel-Private-Group-ID' => -1,
+        }; 
+        return [$RADIUS::RLM_MODULE_ACCEPT, %$radius_reply_ref]; 
+
     }
     else{
         $logger->info("Returning ACCEPT");
@@ -64,10 +84,13 @@ sub returnRadiusAccessAccept {
 }
 
 sub getAcceptForm {
-    my ( $self, $mac , $destination_url);
+    my ( $self, $mac , $destination_url) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->info("MAC ADDRESS OF ZE ZEVISE $mac");
 
     my $node = node_view($mac);
-    my $last_ssid = $node->{last_ssid}
+    my $last_ssid = $node->{last_ssid};
+    $mac =~ s/:/-/g;
     my $html_form = qq[
         <form name="weblogin_form" method="POST" action="http://1.1.1.1/reg.php">
             <input type="hidden" name="Submit2" value="Submit">
@@ -78,10 +101,12 @@ sub getAcceptForm {
             <input type="hidden" name="url" value="$destination_url">
         </form>
         <script language="JavaScript" type="text/javascript">
-        window.setTimeout('document.weblogin_form.submit();', 0.5 * 1000);
+        window.setTimeout('document.weblogin_form.submit();', 1000);
         </script>
     ];
 
+    $logger->info($html_form);
+    return $html_form;
 }
 
 =head1 AUTHOR
