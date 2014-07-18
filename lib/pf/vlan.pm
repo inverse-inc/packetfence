@@ -66,21 +66,21 @@ getRegistrationVlan or getNormalVlan.
 =cut
 
 sub fetchVlanForNode {
-    my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid ) = @_;
+    my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
 
     my $node_info = node_attributes($mac);
 
     if ($this->isInlineTrigger($switch,$ifIndex,$mac,$ssid)) {
         $logger->info("Inline trigger match, the node is in inline mode");
-        my $inline = $this->getInlineVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+        my $inline = $this->getInlineVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
         $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
         return ( $inline, 1 );
     }
 
     my ($violation,$registration,$role);
     # violation handling
-    ($violation,$role) = $this->getViolationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    ($violation,$role) = $this->getViolationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     if (defined($violation) && $violation != 0) {
         return ( $violation, 0, $role);
     } elsif (!defined($violation)) {
@@ -88,7 +88,7 @@ sub fetchVlanForNode {
     }
 
     # there were no violation, now onto registration handling
-    ($registration,$role) = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    ($registration,$role) = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     if (defined($registration) && $registration != 0) {
         if ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
             if (isenabled($node_info->{'autoreg'})) {
@@ -100,7 +100,7 @@ sub fetchVlanForNode {
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my ($vlan, $user_role) = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    my ($vlan, $user_role) = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     if (!defined($vlan)) {
         $logger->warn("Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
         $vlan = $switch->getVlanByName('macDetection');
@@ -186,7 +186,7 @@ sub getViolationVlan {
     # $conn_type is set to the connnection type expressed as the constant in pf::config
     # $user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     # $ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     my $open_violation_count = violation_count_trap($mac);
@@ -199,7 +199,7 @@ sub getViolationVlan {
 
     # Vlan Filter
     my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('ViolationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    my ($result,$role) = $filter->test('ViolationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     return ($result,$role) if $result;
 
     # By default we assume that we put the user in isolation vlan unless proven otherwise
@@ -274,14 +274,14 @@ sub getRegistrationVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     # trapping on registration is enabled
 
     # Vlan Filter
     my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     return ($result,$role) if $result;
 
     if (!isenabled($Config{'trapping'}{'registration'})) {
@@ -337,7 +337,7 @@ sub getNormalVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
 
     # Bypass VLAN is configured in node record so we return accordingly
@@ -350,7 +350,7 @@ sub getNormalVlan {
 
     # Vlan Filter
     my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('NormalVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    my ($result,$role) = $filter->test('NormalVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     return ($result,$role) if $result;
 
     # Try MAC_AUTH, then other EAP methods and finally anything else.
@@ -447,11 +447,11 @@ sub getInlineVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    my ($result,$role) = $filter->test('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     return $result if $result;
 
     return $switch->getVlanByName('inline');
@@ -533,7 +533,7 @@ sub shouldAutoRegister {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port) = @_;
+    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     $logger->trace("asked if should auto-register device");
@@ -555,7 +555,7 @@ sub shouldAutoRegister {
     }
     my $node_info = node_attributes($mac);
     my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('AutoRegister',$switch, $port, $mac, $node_info, $conn_type, $user_name, $ssid);
+    my ($result,$role) = $filter->test('AutoRegister',$switch, $port, $mac, $node_info, $conn_type, $user_name, $ssid, $radius_request);
     return 1 if $role;
 
     # custom example: auto-register 802.1x users
@@ -641,4 +641,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-

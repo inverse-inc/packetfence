@@ -85,7 +85,7 @@ sub authorize {
     }
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
-
+    
     my $connection_type = $switch->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
     $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
 
@@ -139,7 +139,7 @@ sub authorize {
     my $vlan_obj = new pf::vlan::custom();
     # should we auto-register? let's ask the VLAN object
     if ($vlan_obj->shouldAutoRegister($mac, $switch->isRegistrationMode(), 0, $isPhone,
-        $connection_type, $user_name, $ssid, $eap_type, $switch, $port)) {
+        $connection_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request)) {
 
         # automatic registration
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_id}, $port,
@@ -169,7 +169,7 @@ sub authorize {
     }
 
     # Fetch VLAN depending on node status
-    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid);
+    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $realm, $radius_request);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
