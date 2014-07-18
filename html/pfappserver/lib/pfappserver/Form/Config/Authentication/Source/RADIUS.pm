@@ -35,13 +35,15 @@ has_field 'secret' =>
    required => 1,
   );
 has_field 'stripped_user_name' =>
-   (
-    type            => 'Toggle',
-    checkbox_value  => 'yes',
-    unchecked_value => 'no',
-    default         => 'yes',
-    label           => 'Use stripped username',
-   );
+  (
+   type            => 'Toggle',
+   checkbox_value  => 'yes',
+   unchecked_value => 'no',
+   default         => 'yes',
+   label           => 'Use stripped username ',
+   tags => { after_element => \&help,
+             help => 'Use stripped username returned by radius to test the following rules.' },
+  );
 
 =head1 COPYRIGHT
 

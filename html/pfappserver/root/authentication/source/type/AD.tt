@@ -8,7 +8,6 @@
 [% form.field('basedn').render %]
 [% form.field('scope').render %]
 [% form.field('usernameattribute').render %]
-[% form.field('stripped_user_name').render %]
 [% form.field('binddn').render %]
         <div class="control-group">
           <label class="control-label">[% l('Password') %] <i class="icon-exclamation-sign"></i></label>
@@ -17,3 +16,4 @@
             <a class="btn" id="testSource" href="[% c.uri_for(c.controller('Config::Authentication::Source').action_for('test'), [source.type]) %]">[% l('Test') %]</a>
           </div>
         </div>
+[% form.field('stripped_user_name').render %]
