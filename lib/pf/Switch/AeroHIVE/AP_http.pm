@@ -33,6 +33,8 @@ use Log::Log4perl;
 use pf::config;
 use pf::node;
 use pf::violation;
+use pf::locationlog;
+use pf::util;
 
 use base ('pf::Switch::AeroHIVE::AP');
 
@@ -42,8 +44,14 @@ sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
 
 sub parseUrl {
-    my($this, $req) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my($self, $req) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    # need to synchronize the locationlog event if we'll reject
+    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('Calling-Station-Id')),
+        0, $WIRED_MAC_AUTH, clean_mac($$req->param('Calling-Station-Id')), $$req->param('ssid')
+    );
+
+
     return ($$req->param('Calling-Station-Id'),$$req->param('ssid'),$$req->param('STA-IP'),$$req->param('destination_url'),$$req->param('url'),"200");
 
 }
@@ -73,7 +81,7 @@ sub returnRadiusAccessAccept {
             'Tunnel-Type' => $RADIUS::VLAN,
             'Tunnel-Private-Group-ID' => -1,
         }; 
-        return [$RADIUS::RLM_MODULE_ACCEPT, %$radius_reply_ref]; 
+        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref]; 
 
     }
     else{
