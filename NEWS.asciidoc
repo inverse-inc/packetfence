@@ -33,6 +33,7 @@ Bug Fixes
 +++++++++
 
 * Fix issue when adding multiple portal profile filters causing the wrong type to be picked
+* Fix issue when a trap is received for a switch that does not implement parseTrap().
 
 
 Version 4.3.0 released on 2014-06-26
