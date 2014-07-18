@@ -18,6 +18,8 @@ extends 'pf::profile::filter';
 use NetAddr::IP;
 use Scalar::Util 'blessed';
 
+=head1 ATTRIBUTES
+
 =head2 value
 
 The NetAddr::IP network to match against
@@ -35,7 +37,13 @@ has value => (
     },
 );
 
-has '+type' => ( default => sub { "network" } );
+=head1 METHODS
+
+=head2 match
+
+match the last ip to see if it is in defined network
+
+=cut
 
 sub match {
     my ($self,$data) = @_;

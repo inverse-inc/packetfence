@@ -19,13 +19,7 @@ use warnings;
 use Moo;
 extends 'pf::profile::filter::value';
 
-=head2 type
-
-Setting the type to switch
-
-=cut
-
-has '+type' => ( default => sub { 'switch' } );
+=head1 ATTRIBUTES
 
 =head2 key
 

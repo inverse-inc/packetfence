@@ -56,7 +56,7 @@ sub getData {
         $type  = 'ssid';
         $value = $filter;
     }
-    return {type => $type, value => $value, profile => $profile};
+    return {value => $value, profile => $profile};
 }
 
 =head1 AUTHOR

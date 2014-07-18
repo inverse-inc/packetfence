@@ -1,7 +1,7 @@
 package pf::profile::filter::any;
 =head1 NAME
 
-pf::profile::filter::any profile filter that matches anything
+pf::profile::filter::any A profile filter that matches anything
 
 =cut
 
@@ -18,7 +18,11 @@ use warnings;
 use Moo;
 extends 'pf::profile::filter';
 
-has '+type' => ( default => sub { 'any' } );
+=head1 METHODS
+
+=head2 match
+
+=cut
 
 sub match { 1 }
  
