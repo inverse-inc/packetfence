@@ -29,10 +29,10 @@ has_field 'port' =>
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '389'},
   );
-has_field 'timeout' =>
+has_field 'connection_timeout' =>
   (
    type => 'PosInteger',
-   label => 'Timeout',
+   label => 'Connection timeout',
    element_attr => {'placeholder' => '5'},
   );
 has_field 'encryption' =>
