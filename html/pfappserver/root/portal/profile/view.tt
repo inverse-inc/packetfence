@@ -24,15 +24,13 @@
     </ul>
     <h2><!-- first sibling of alerts --></h2>
     <div class="tab-content">
+      <a class="btn btn-info pull-right" href="/preview/?PORTAL=[% id %]" target="_blank">[% l('Preview') %]</a>
       <ul class="nav nav-tabs">
         <li [% IF tab == 'settings' %]class="active" [% END %]>
           <a href="#settings" data-toggle="tab">[% l('Settings') %]</a>
         </li>
         <li>
           <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[id]) %]" >[% l('Files')  %]</a>
-        </li>
-        <li [% IF tab == 'preview' %]class="active" [% END %]>
-          <a href="/preview/?PORTAL=[% id %]" target="_blank">[% l('Preview') %]</a>
         </li>
       </ul>
       <div class="tab-pane fade in [% 'active' IF tab == 'settings' %]" id="settings">
