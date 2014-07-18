@@ -80,6 +80,7 @@ sub handler {
         $logger->debug("Matched profile uri filter for $last_uri");
         #Send the current URI to catalyst with the pnotes
         $r->pnotes(last_uri => $last_uri);
+        return Apache2::Const::DECLINED;
     }
     if ($r->uri =~ /\/apache_status/) {
         $r->handler('server-status');
@@ -172,18 +173,18 @@ sub redirect {
    my $wispr_url;
    if ( $is_external_portal ) {
       $captiv_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/captive-portal");
-      $captiv_url->query($r->args);
+      $captiv_url->query("destination_url=$destination_url&".$r->args);
       $wispr_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/wispr");
       $wispr_url->query($r->args);
    }
    else {
       $captiv_url = APR::URI->parse($r->pool,"$proto://".${captivePortalDomain}."/captive-portal");
-      $captiv_url->query($r->args);
+      $captiv_url->query("destination_url=$destination_url&".$r->args);
       $wispr_url = APR::URI->parse($r->pool,"$proto://".${captivePortalDomain}."/wispr");
       $wispr_url->query($r->args);
    }
     my $stash = {
-        'login_url' => $captiv_url->unparse()."?destination_url=$destination_url",
+        'login_url' => $captiv_url->unparse(),
         'login_url_wispr' => $wispr_url->unparse(),
     };
 

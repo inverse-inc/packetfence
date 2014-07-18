@@ -17,6 +17,15 @@
   <IfModule !mod_mime.c>
     LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
   </IfModule>
+  <IfModule !mod_proxy.c>
+    LoadModule proxy_module /usr/lib/apache2/modules/mod_proxy.so
+  </IfModule>
+  <IfModule !proxy_http.c>
+    LoadModule proxy_http_module /usr/lib/apache2/modules/mod_proxy_http.so
+  </IfModule>
+  <IfModule !mod_apreq2.c>
+    LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -35,6 +44,15 @@
   </IfModule>
   <IfModule !mod_mime.c>
     LoadModule mime_module modules/mod_mime.so
+  </IfModule>
+  <IfModule !mod_proxy.c>
+    LoadModule proxy_module modules/mod_proxy.so
+  </IfModule>
+  <IfModule !proxy_http.c>
+    LoadModule proxy_http_module modules/mod_proxy_http.so
+  </IfModule>
+  <IfModule !mod_apreq2.c>
+    LoadModule apreq_module modules/mod_apreq2.so
   </IfModule>
 </IfDefine>
 
@@ -121,8 +139,13 @@ push @{ $VirtualHost{$vhost} },
          AllowEncodedSlashes => "on",
          SSLEngine    => 'on',
          Include      => $var_dir.'/conf/ssl-certificates.conf',
+         SSLProxyEngine    => 'on',
+         PerlModule        => 'pf::web::admin',
+         PerlTransHandler  => 'pf::web::admin->proxy_portal',
+         ProxyRequests     => 'off',
+         ProxyPreserveHost => 'on',
+         ProxyVia          => 'off',
          Alias        => '/static '.$install_dir.'/html/pfappserver/root/static',
-         PerlModule   => 'pfappserver',
          Location     => {
              "/" => {
                  SetHandler => 'modperl',
