@@ -1,13 +1,13 @@
-package pf::profile::filter::value;
+package pf::profile::filter::key;
 =head1 NAME
 
-pf::profile::filter::value add documentation
+pf::profile::filter::key add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::value
+pf::profile::filter::key
 
 =cut
 
@@ -17,16 +17,7 @@ use warnings;
 use Moo;
 extends 'pf::profile::filter';
 
-
 =head1 ATTRIBUTES
-
-=head2 value
-
-The value to match against
-
-=cut
-
-has value => ( is => 'ro', required => 1 );
 
 =head2 key
 

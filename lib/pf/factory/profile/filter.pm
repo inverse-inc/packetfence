@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use Module::Pluggable
   search_path => [qw(pf::profile::filter)],
-  except => [qw(pf::profile::filter::any pf::profile::filter::value)],
+  except => [qw(pf::profile::filter::key)],
   'require' => 1,
   sub_name    => 'modules';
 use List::MoreUtils qw(any);
@@ -53,10 +53,11 @@ sub getData {
         $type  = $1;
         $value = $2;
     } else {
+        #Default to ssid
         $type  = 'ssid';
         $value = $filter;
     }
-    return {value => $value, profile => $profile};
+    return {type => $type, value => $value, profile => $profile};
 }
 
 =head1 AUTHOR
