@@ -16,12 +16,22 @@ use strict;
 use warnings;
 use Module::Pluggable
   search_path => [qw(pf::profile::filter)],
+
+# Don't explicilty load pf::profile::filter::key
+# Since it will not be explictly used
+
   except => [qw(pf::profile::filter::key)],
   'require' => 1,
   sub_name    => 'modules';
 use List::MoreUtils qw(any);
 
 our @MODULES = __PACKAGE__->modules;
+
+our $DEFAULT_TYPE = 'ssid';
+
+
+#Regex of the filter to split the type and value of filter
+our $FILTER_REGEX = qr/^(([^:]|::)+?):(.*)$/;
 
 sub factory_for {'pf::profile::filter'}
 
@@ -49,12 +59,13 @@ sub getModuleName {
 sub getData {
     my ($class, $profile, $filter) = @_;
     my ($type, $value);
-    if ($filter =~ m/^([^:]+):(.+)$/) {
+    #Split parse the filter by type and value
+    if ($filter =~ $FILTER_REGEX ) {
         $type  = $1;
-        $value = $2;
+        $value = $3;
     } else {
-        #Default to ssid
-        $type  = 'ssid';
+        #If there is no type defined to support older filters
+        $type  = $DEFAULT_TYPE;
         $value = $filter;
     }
     return {type => $type, value => $value, profile => $profile};
