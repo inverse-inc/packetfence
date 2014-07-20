@@ -17,7 +17,7 @@ use strict;
 use warnings;
 
 use Moo;
-extends 'pf::profile::filter::value';
+extends 'pf::profile::filter::key';
 
 =head1 ATTRIBUTES
 

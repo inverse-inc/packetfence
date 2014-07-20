@@ -1,7 +1,7 @@
 package pf::profile::filter;
 =head1 NAME
 
-pf::profile::filter add documentation
+pf::profile::filter the base class for profile filters
 
 =cut
 
@@ -9,12 +9,18 @@ pf::profile::filter add documentation
 
 pf::profile::filter
 
+The base class for profile filters
+
+=head1 SYNOPSIS
+
+    my $filter = pf::profile::filter->new({ profile => 'profile', value => 'value' });
+    $filter->match({ k1 => 'v1', k2 => 'v2' });
+
 =cut
 
 use strict;
 use warnings;
 use Moo;
-
 
 =head1 ATTRIBUTES
 
@@ -25,6 +31,24 @@ The name of the profile of the filter
 =cut
 
 has profile => ( is => 'ro', required => 1);
+
+=head2 value
+
+The value to be matched against
+
+=cut
+
+has value => ( is => 'ro', required => 1);
+
+=head1 METHODS
+
+=head2 match
+
+Verifies if the hash matches the filter returns value
+
+=cut
+
+sub match { $_[0]->value }
 
 =head1 AUTHOR
 

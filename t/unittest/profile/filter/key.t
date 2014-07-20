@@ -1,30 +1,34 @@
-package pf::profile::filter::any;
 =head1 NAME
 
-pf::profile::filter::any A profile filter that matches anything
+profile/filter/value.t
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::any
-
-This is an internal profile filter
+value
 
 =cut
 
 use strict;
 use warnings;
-use Moo;
-extends 'pf::profile::filter';
+use lib qw(/usr/local/pf/lib);
 
-=head1 METHODS
+use Test::More tests => 7;                      # last test to print
 
-=head2 match
+use Test::NoWarnings;
 
-=cut
+use_ok("pf::profile::filter::key");
 
-sub match { 1 }
+my $filter = new_ok ( "pf::profile::filter::key", [profile => 'Test', value => 'test', type => 'test', key => 'test' ],"Test value based filter");
+
+ok($filter->match({ test => 'test'}),"filter matches");
+ 
+ok(!$filter->match({ test_not_there => 'test'}),"value not found filter does not match matches");
+ 
+ok(!$filter->match({ test => 'wrong_test'}),"value does not match filter");
+ 
+ok(!$filter->match({ test => undef }),"value undef does not match filter");
  
 =head1 AUTHOR
 
@@ -36,7 +40,7 @@ Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -54,4 +58,5 @@ USA.
 =cut
 
 1;
+
 

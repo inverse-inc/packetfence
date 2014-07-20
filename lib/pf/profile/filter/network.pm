@@ -26,9 +26,7 @@ The NetAddr::IP network to match against
 
 =cut
 
-has value => (
-    is       => 'ro',
-    required => 1,
+has '+value' => (
     coerce   => sub {
         # create the object if the attribute can't run()
         blessed($_[0]) && $_[0]->isa('NetAddr::IP')

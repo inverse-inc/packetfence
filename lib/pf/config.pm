@@ -41,7 +41,7 @@ use List::MoreUtils qw(any);
 use Time::Local;
 use DateTime;
 use pf::factory::profile::filter;
-use pf::profile::filter::any;
+use pf::profile::filter;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -672,6 +672,7 @@ sub readProfileConfigFile {
                 my ($config,$name) = @_;
                 $config->toHash(\%Profiles_Config);
                 $config->cleanupWhitespace(\%Profiles_Config);
+                #Clearing the Profile filters
                 @Profile_Filters = ();
                 my $default_description = $Profiles_Config{'default'}{'description'};
                 while (my ($profile_id, $profile) = each %Profiles_Config) {
@@ -679,11 +680,13 @@ sub readProfileConfigFile {
                     foreach my $field (qw(locale mandatory_fields sources filter) ) {
                         $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
                     }
+                    #Adding filters in profile order
                     foreach my $filter (@{$profile->{'filter'}}) {
                         push @Profile_Filters, pf::factory::profile::filter->instantiate($profile_id,$filter);
                     }
                 }
-                push @Profile_Filters, pf::profile::filter::any->new( { profile => 'default' } );
+                #Add the default filter so it always matches if no other filter matches
+                push @Profile_Filters, pf::profile::filter->new( { profile => 'default', value => 1 } );
             }]
     );
 }
