@@ -20,6 +20,7 @@ New Features
 * Added the possibility to search by computer name on the nodes page
 * Added support for the Anyfi WIFI controller
 * Show portal profiles directly on the admin gui
+* Added external captive portal support for AeroHIVE 
 
 Enhancements
 ++++++++++++
