@@ -21,7 +21,7 @@
 #define REAL_PATH "/usr/local/pf/bin/pfcmd.pl"
 #endif
 
-int main(int,char** argv,char ** envp)
+int main(int argc,char** argv,char ** envp)
 {
     execve(REAL_PATH, argv, envp);
     return 127;
