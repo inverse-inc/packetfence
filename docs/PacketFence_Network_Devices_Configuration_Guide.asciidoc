@@ -2684,7 +2684,7 @@ The other way to support Roaming is to enable snmp trap in the AeroHIVE configur
 External captive portal
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-First configure the AAA server as described in the section above.
+First configure the AAA server as described in the section above in the Hive Manager.
 
 Portal configuration
 ++++++++++++++++++++
@@ -2703,7 +2703,7 @@ This option is currently broken but will be needed so it redirects the user at t
 External portal SSID
 ++++++++++++++++++++
 
-Again in the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the following:
+Again in the Hive Manager, go to *Configuration -> SSIDs*, and create a new SSID with the following:
 
 * Give a Profile Name and an SSID Name
 * Choose Open as the Access Security 
