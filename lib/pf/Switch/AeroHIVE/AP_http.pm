@@ -94,7 +94,7 @@ sub returnRadiusAccessAccept {
 sub getAcceptForm {
     my ( $self, $mac , $destination_url) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
-    $logger->info("MAC ADDRESS OF ZE ZEVISE $mac");
+    $logger->debug("Creating web release form for $mac");
 
     my $node = node_view($mac);
     my $last_ssid = $node->{last_ssid};
