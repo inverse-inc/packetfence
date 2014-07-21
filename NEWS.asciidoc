@@ -24,6 +24,7 @@ New Features
 * Added support for unreg date with dynamic year
 * Added support for NetGear FSM7328S switches
 * Added new network profile filter
+* Added external captive portal support for AeroHIVE 
 
 Enhancements
 ++++++++++++
