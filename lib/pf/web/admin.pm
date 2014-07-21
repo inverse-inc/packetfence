@@ -71,6 +71,9 @@ use constant BUFF_LEN => 1024;
         'background'  => ['url'],
 );
 
+=head1 METHODS
+
+=over
 
 =item rewrite
 
@@ -239,7 +242,7 @@ sub replace {
         my ($match, $substitute) = split (/ => /, $p);
         &rewrite_content(\$data, $match, $substitute);
     }
-	
+
     # if Content-Encoding: gzip,deflate try to compress
     if ($encoding =~ /gzip|x-gzip/) {
         use IO::Compress::Gzip qw(gzip $GzipError);
@@ -295,7 +298,7 @@ sub link_replacement {
         }
     }
     if ($r->content_type =~ /(text\/css)/) {
-        #Replace standard link into attributes of any element in css file	
+        #Replace standard link into attributes of any element in css file
         foreach my $tag (keys %pf::web::admin::css) {
             foreach my $attr (@{$pf::web::admin::css{$tag}}) {
                 while ($$data =~ m/($tag[:]*[#|\s]*[a-z]*[\s]*)$attr\((.*)\)/ig) {
