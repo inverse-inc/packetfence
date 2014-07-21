@@ -206,11 +206,9 @@ sub postAuthentication : Private {
     }
 
     $c->stash->{matchParams} = $params;
+    $c->stash->{info} = $info;
     $c->forward('setRole');
     $c->forward('setUnRegDate');
-
-
-
     $info->{source} = $source_id;
     $info->{portal} = $profile->getName;
 }
