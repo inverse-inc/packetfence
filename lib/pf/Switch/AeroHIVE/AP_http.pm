@@ -60,7 +60,7 @@ sub parseUrl {
 
 Prepares the RADIUS Access-Accept reponse for the network device.
 
-Overiding the default implementation for the external captive portal
+Overriding the default implementation for the external captive portal
 
 =cut
 
@@ -74,7 +74,7 @@ sub returnRadiusAccessAccept {
 
     my $violation = pf::violation::violation_view_top($mac);
     # if user is unregistered or is in violation then we reject him to show him the captive portal 
-    if( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
+    if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
         $logger->info("$mac is unregistered. Refusing access to force the eCWP");
         my $radius_reply_ref = {
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
@@ -123,7 +123,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
