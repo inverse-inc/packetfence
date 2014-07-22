@@ -1,7 +1,7 @@
 package pf::profile::filter::network;
 =head1 NAME
 
-pf::profile::filter::network add documentation
+pf::profile::filter::network - network filter for profiles
 
 =cut
 
