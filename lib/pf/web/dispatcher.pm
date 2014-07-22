@@ -54,7 +54,7 @@ Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHand
 sub handler {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-    $logger->trace("hitting translator with URL: " . $r->uri);
+    $logger->warn("hitting translator with URL: " . $r->uri);
     # Test if the hostname is include in the proxy_passthroughs configuration
     # In this case forward to mad_proxy
     if ( ( ($r->hostname.$r->uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') || ($r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') ) {
@@ -155,6 +155,7 @@ sub redirect {
    my $external_portal = pf::web::externalportal->new();
 
    my $cgi_session_id = $external_portal->handle($r);
+   
    my $is_external_portal;
    if ($cgi_session_id) {
       $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");

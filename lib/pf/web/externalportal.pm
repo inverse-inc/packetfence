@@ -19,6 +19,7 @@ use Apache2::Const -compile => qw(:http);
 use Apache2::Request;
 use Apache2::RequestRec;
 use Log::Log4perl;
+use UNIVERSAL::require;
 
 use pf::config;
 use pf::iplog qw(iplog_update);
@@ -64,10 +65,11 @@ sub external_captive_portal {
         }
 
         if (defined($switch) && $switch ne '0' && $switch->supportsExternalPortal) {
-            my ($client_mac,$client_ssid,$client_ip,$redirect_url,$grant_url,$status_code) = $switch->parseUrl(\$req);
+            my ($client_mac,$client_ssid,$client_ip,$redirect_url,$grant_url,$status_code) = $switch->parseUrl(\$req, $r);
             my %info = (
                 'client_mac' => $client_mac,
             );
+            use Data::Dumper;
             my $portalSession = pf::Portal::Session->new(%info);
             $portalSession->setClientIp($client_ip) if (defined($client_ip));
             $portalSession->setDestinationUrl($redirect_url) if (defined($redirect_url));
@@ -105,7 +107,29 @@ handle the detection of the external portal
 sub handle {
     my ($self,$r) = @_;
     my $req = Apache2::Request->new($r);
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $is_external_portal;
+    my $url = $r->uri;
+
+    if ($url =~ /$WEB::EXTERNAL_PORTAL_URL/o) {
+        $logger->info("EL URL IS GOOD FOR ESTERNAL CAPTIVE PORTALO");
+        $url =~ s/\///g;
+        my $type = "pf::Switch::".$url;
+        if ( !(eval "$type->require()" ) ) {
+            $logger->error("Can not load perl module for switch type: $type. "
+                . "Either the type is unknown or the perl module has compilation errors. "
+                . "Read the following message for details: $@");
+        }
+        my $switchId = $type->parseSwitchIdFromRequest(\$req);  
+        $logger->info("Found switchId : $switchId");
+
+        my $cgi_session_id = $self->external_captive_portal($switchId,$req,$r,undef);
+        if ($cgi_session_id ne '0') {
+            $logger->info("Great success");
+            return $cgi_session_id;
+        }
+    }
+
     foreach my $param ($req->param) {
         if ($param =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
             my $value;

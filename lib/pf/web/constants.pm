@@ -107,6 +107,10 @@ Readonly::Scalar our $REQ_CISCO_PORTAL          => '/cep(.*)';
 Readonly::Scalar our $REQ_RUCKUS                => 'sip';
 Readonly::Scalar our $REQ_AEROHIVE              => 'RADIUS-NAS-IP';
 
+# External Captive Portal URL detection constant
+Readonly::Scalar our $EXT_URL_XIRRUS            => '/Xirrus::AP_http';
+
+
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
 Readonly::Scalar our $MOD_PERL_ANDROID_PROFILE  => '/profile.xml';
@@ -209,6 +213,18 @@ foreach (@components_req) { s{([^/])$}{$1\$} };
 my $allow_req = join('|', @components_req);
 Readonly::Scalar our $EXTERNAL_PORTAL_PARAM => qr/ ^(?: $allow_req ) /xo; # eXtended pattern, compile Once
 
+=item EXTERNAL_PORTAL_URL
+
+Build a regex that will decide what is considered as a external portal URL.
+
+This URL should point to a module in pf::Switch that can extract the mac or ip of the switch from the URL.
+
+=cut
+
+my @components_req =  _clean_urls_match_ext_url();
+foreach (@components_req) { s{([^/])$}{$1\$} };
+my $allow_req = join('|', @components_req);
+Readonly::Scalar our $EXTERNAL_PORTAL_URL => qr/ ^(?: $allow_req ) /xo; # eXtended pattern, compile Once
 
 =item _clean_urls_match
 
@@ -265,6 +281,22 @@ sub _clean_urls_match_req {
     foreach (keys %consts) {
         # keep only constants matching ^URL
         push @urls, $consts{$_} if (/^REQ/);
+    }
+    return (@urls);
+}
+
+=item _clean_urls_match_ext_url
+
+Return a regex that would match all the captive portal allowed clean URLs
+
+=cut
+
+sub _clean_urls_match_ext_url {
+    my %consts = pf::web::constants::to_hash();
+    my @urls;
+    foreach (keys %consts) {
+        # keep only constants matching ^URL
+        push @urls, $consts{$_} if (/^EXT_URL/);
     }
     return (@urls);
 }
