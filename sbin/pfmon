@@ -20,7 +20,7 @@ use strict;
 use Getopt::Std;
 use Net::Pcap 0.16;
 use File::Basename qw(basename);
-use POSIX qw(:signal_h pause);
+use POSIX qw(:signal_h pause :sys_wait_h);
 use Pod::Usage;
 
 #pf::log must always be initilized first
@@ -48,12 +48,17 @@ use pf::violation qw(violation_maintenance);
 # --------------
 # assign process name (see #1464)
 our $PROGRAM_NAME = $0 = basename($0);
+our @REGISTERED_TASKS;
+our $IS_CHILD = 0;
+our %CHILDREN;
+our @TASKS_RUN;
 
 my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
 
 $SIG{HUP} = \&normal_sighandler;
 $SIG{INT} = \&normal_sighandler;
 $SIG{TERM} = \&normal_sighandler;
+$SIG{CHLD} = \&child_sighandler;
 $SIG{ALRM} = sub {};
 
 my %args;
@@ -69,7 +74,9 @@ our $running = 1;
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
 
-# run the cleanup
+registertasks();
+runtasks();
+waitforit();
 cleanup();
 
 END {
@@ -94,6 +101,7 @@ severely crippled as part of that work. However it has been kept around since
 we might introduce ARP surveillance in the future.
 
 =cut
+
 sub arp_detector {
     my ($eth) = @_;
     my $logger = Log::Log4perl::get_logger('pfmon::arp_detector');
@@ -130,6 +138,7 @@ This method has been severely crippled as part of that work.
 However it has been kept around since we might introduce ARP surveillance in the future.
 
 =cut
+
 sub listen_arp {
     my ( $type, $srcmac, $srcip, $destmac, $destip ) = &decode(@_);
     # below was commented as part of the interface.gateway removal
@@ -166,47 +175,70 @@ sub listen_arp {
     }
 }
 
-sub cleanup {
-    while ($running) {
-        # run these functions every $maintenance_interval
-        eval {
-            $logger->info("running expire check");
+sub registertasks  {
+    register_task(
+        'iplog_cleanup','maintenance_interval',sub {
             iplog_cleanup( $Config{'expire'}{'iplog'} )
               if ( $Config{'expire'}{'iplog'} );
+        }
+    );
+    register_task(
+        'locationlog_cleanup','maintenance_interval',sub {
             locationlog_cleanup( $Config{'expire'}{'locationlog'} )
               if ( $Config{'expire'}{'locationlog'} );
+        }
+    );
+    register_task(
+        'node_cleanup','maintenance_interval',sub {
             node_cleanup( $Config{'expire'}{'node'} )
               if ( $Config{'expire'}{'node'} );
+        }
+    );
+    register_task(
+        'node_cleanup','maintenance_interval',sub {
             traplog_cleanup( $Config{'expire'}{'traplog'} )
               if ( $Config{'expire'}{'traplog'} );
-
+        }
+    );
+    register_task(
+        'Expire httpd.admin sessions','maintenance_interval',sub {
             purge_cache('httpd.admin')
               if ( isenabled($Config{'expire'}{'httpd_admin'}) );
-
+        }
+    );
+    register_task(
+        'Expire httpd.portal sessions','maintenance_interval',sub {
             purge_cache('httpd.portal')
               if ( isenabled($Config{'expire'}{'httpd_portal'}) );
-
-            $logger->info("checking registered nodes for expiration");
+        }
+    );
+    register_task(
+        'checking registered nodes for expiration','maintenance_interval',sub {
             nodes_maintenance();
-
-            $logger->info("checking violations for expiration");
+        }
+    );
+    register_task(
+        'checking violations for expiration','maintenance_interval',sub {
             violation_maintenance();
-
-            $logger->info("checking accounting data for potential bandwidth abuse");
+        }
+    );
+    register_task(
+        'checking accounting data for potential bandwidth abuse','maintenance_interval',sub {
             if (isenabled($Config{'inline'}{'accounting'})) {
                 inline_accounting_maintenance($Config{'inline'}{'layer3_accounting_session_timeout'});
             }
-            acct_maintenance();
-
-            #reload all cached configs after each iteration
-            pf::config::cached::ReloadConfigs();
-        };
-        if ($@) {
-            $logger->error("Error restarting pfmon: $@");
-            deletepid();
-            exec "${install_dir}/sbin/pfmon", @ARGV;
         }
-        alarm $Config{'general'}{'maintenance_interval'};
+    );
+    register_task(
+        'Account maintenance','maintenance_interval',sub {
+            acct_maintenance();
+        }
+    );
+}
+
+sub cleanup {
+    while (keys %CHILDREN) {
+        kill ( INT => (keys %CHILDREN));
         pause;
     }
 }
@@ -229,6 +261,7 @@ sub purge_cache {
 Encapsulate the ARP packet decoding.
 
 =cut
+
 sub decode {
     my $pkt = shift;
 
@@ -238,9 +271,67 @@ sub decode {
     return ($opcode, clean_mac($sha), int2ip($spa), clean_mac($tha), int2ip($tpa));
 }
 
-
 sub normal_sighandler {
     $running = 0;
+}
+
+sub runtasks {
+    while(@REGISTERED_TASKS) {
+        my $task = shift @REGISTERED_TASKS;
+        runtask($task);
+    }
+}
+
+sub runtask {
+    my ($task) = @_;
+    my $pid = fork();
+    if($pid) {
+        $CHILDREN{$pid} = $task;
+    } elsif ($pid == 0) {
+        $IS_CHILD = 1;
+        _runtask(@$task);
+    } else {
+    }
+}
+
+sub _runtask {
+    my ($id,$parameter,$task) = @_;
+    while ($running) {
+        # run these functions every $maintenance_interval
+        eval {
+            $task->();
+            #reload all cached configs after each iteration
+            pf::config::cached::ReloadConfigs();
+        };
+        if ($@) {
+            $logger->error("Error running task $id: $@");
+        }
+        alarm $Config{'general'}{$parameter};
+        pause;
+    }
+    exit;
+}
+
+sub register_task {
+    my ($taskId, $parameter,$function) = @_;
+    push @REGISTERED_TASKS, [ $taskId , $parameter, $function ];
+
+}
+
+sub waitforit {
+    while($running) {
+        pause;
+        runtasks();
+    }
+}
+
+sub child_sighandler {
+    while(1) {
+        my $child = waitpid(-1, WNOHANG);
+        last if $child < 0;
+        my $task = delete $CHILDREN{$child};
+        push @REGISTERED_TASKS,$task;
+    }
 }
 
 =back
