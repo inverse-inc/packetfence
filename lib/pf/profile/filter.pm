@@ -13,8 +13,57 @@ The base class for profile filters
 
 =head1 SYNOPSIS
 
-    my $filter = pf::profile::filter->new({ profile => 'profile', value => 'value' });
-    $filter->match({ k1 => 'v1', k2 => 'v2' });
+my $filter = pf::profile::filter->new({ profile => 'profile', value => 'value' });
+$filter->match({ k1 => 'v1', k2 => 'v2' });
+
+=head2 Example filter
+
+    package pf::profile::filter::time_of_day;
+    =head1 NAME
+
+    pf::profile::filter::time_of_day
+
+    =cut
+
+    =head1 DESCRIPTION
+
+    pf::profile::filter::time_of_day
+
+    =cut
+
+    use strict;
+    use warnings;
+    use Date::Format;
+    use Moo;
+    extends 'pf::profile::filter';
+
+
+    =head1 METHODS
+
+    =head2 match
+
+        Matches the time of day against the value
+        The value is expected to be in the following format 
+        Start-End
+        From midnight to 6am
+        00:00-06:00
+        All time must be in the format HH::MM
+
+    =cut
+
+    sub match {
+        my ($self) = @_;
+        my ($start,$end) = split(/-/,$self->value);
+        my $current = time2str("%H:%M",time);
+        return ($start le $current) && ($current le $end);
+    }
+
+    1;
+
+=head2 Configuring in admin gui
+    
+    The new type is automatically picked up by the admin gui as long is it under the namespace pf::profile::filter.
+    If any special formating is need the gui refer to the form field pfappserver::Form::Field::ProfileFilter
 
 =cut
 
