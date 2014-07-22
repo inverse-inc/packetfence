@@ -18,7 +18,7 @@ New Features
 ++++++++++++
 
 * Added the possibility to search by computer name on the nodes page
-* Added support for the Anyfi WIFI controller
+* Added support for the Anyfi WiFi controller
 * Show portal profiles directly on the admin gui
 
 Enhancements
