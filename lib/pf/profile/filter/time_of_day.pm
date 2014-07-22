@@ -17,6 +17,23 @@ use Date::Format;
 use Moo;
 extends 'pf::profile::filter';
 
+=head1 ATTRIBUTES
+
+=head2 start_time/end_time
+
+The start and end time
+
+=cut
+
+has [qw(start_time end_time)] => ( is => 'rw' );
+
+=head2 value
+
+add a trigger to the value
+
+=cut
+
+has '+value' => ( trigger => 1 );
 
 =head1 METHODS
 
@@ -33,11 +50,23 @@ extends 'pf::profile::filter';
 
 sub match {
     my ($self) = @_;
-    my ($start,$end) = split(/-/,$self->value);
     my $current = time2str("%H:%M",time);
-    return ($start le $current) && ($current le $end);
+    return ($self->start_time le $current) && ($current le $self->end_time);
 }
  
+=head2 _trigger_value
+
+Set start_time and end_time from the value
+
+=cut
+
+sub _trigger_value {
+    my ($self) = @_;
+    my ($start,$end) = split(/-/,$self->value);
+    $self->start_time($start);
+    $self->end_time($end);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
