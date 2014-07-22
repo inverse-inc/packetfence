@@ -60,6 +60,9 @@ $filter->match({ k1 => 'v1', k2 => 'v2' });
 
     1;
 
+
+    You can also see pf::profile::filter::network as another example
+
 =head2 Configuring in admin gui
     
     The new type is automatically picked up by the admin gui as long is it under the namespace pf::profile::filter.
