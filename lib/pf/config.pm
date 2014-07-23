@@ -39,7 +39,7 @@ use File::Which;
 use Socket;
 use List::MoreUtils qw(any);
 use Time::Local;
-use Time::Piece;
+use DateTime;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -865,12 +865,13 @@ sub dynamic_unreg_date {
             $logger->warn("The year was past, null or undefined. We used current year");
     }
 
-    my $sec_trigger = Time::Piece->strptime($trigger,"%Y-%m-%d");
-    if ($sec_trigger->strftime("%s") <= $current_date) {
-            $year += 1;
-            $unreg_date = "$year-$month-$day";
+    my $time_zone = DateTime::TimeZone->new( name => 'local' );
+    if (DateTime->new(year => $year, month => $month, day => $day, time_zone => $time_zone )->epoch <= DateTime->now(time_zone => $time_zone)->epoch) {
+        $logger->warn("The DOY is today or before today. Setting date to next year");
+        $year += 1;
+        $unreg_date = "$year-$month-$day";
     } else {
-            $unreg_date = "$year-$month-$day";
+        $unreg_date = "$year-$month-$day";
     }
     return $unreg_date;
 }
