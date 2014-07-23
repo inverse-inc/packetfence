@@ -11,7 +11,7 @@ use pf::config;
 use pf::activation qw($GUEST_ACTIVATION $SPONSOR_ACTIVATION);
 use pf::node;
 use pf::Portal::Session;
-use pf::util qw(valid_mac);
+use pf::util qw(valid_mac isenabled);
 use pf::web;
 use pf::log;
 use pf::web::guest 1.30;
@@ -190,7 +190,37 @@ sub doEmailRegistration : Private {
                 %info
             );
         }
+        if (isenabled($Config{'guests_self_registration'}{'create_local_account_on_email_reg'})) {
+            # Create a local account after guest registration and send the access code
+            my %info = (
+                'pid'     => $pid,
+                'email'   => $email,
+                'subject' => i18n_format(
+                    "%s: Guest access confirmed!",
+                    $Config{'general'}{'domain'}
+                ),
+                'currentdate' =>
+                  POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime )
+            );
 
+            # we create a temporary password using the actions from
+            # the email authentication source;
+            my $actions =
+              &pf::authentication::match( $source->{id}, $auth_params );
+            $info{'password'} =
+              pf::temporary_password::generate( $pid, $actions );
+
+            # send on-site guest credentials by email
+            pf::web::guest::send_template_email(
+                $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION_CONFIRMED,
+                $info{'subject'}, \%info
+            );
+
+            $c->stash(
+                template => $pf::web::guest::EMAIL_PREREG_CONFIRMED_TEMPLATE,
+                %info
+            );
+        }
         # code has been consumed, deactivate
         pf::activation::set_status_verified($code);
         $c->detach;
@@ -316,29 +346,30 @@ sub doSponsorRegistration : Private {
                 $Config{'general'}{'domain'}
             );
         }
+        if (isenabled($Config{'guests_self_registration'}{'create_local_account_on_sponsor_reg'})) {
+            # TO:
+            $info{'email'} = $pid;
 
-        # TO:
-        $info{'email'} = $pid;
+            # username
+            $info{'pid'} = $pid;
+            $info{'cc'} =
+            $Config{'guests_self_registration'}{'sponsorship_cc'};
 
-        # username
-        $info{'pid'} = $pid;
-        $info{'cc'} =
-          $Config{'guests_self_registration'}{'sponsorship_cc'};
+            # we create a temporary password using the actions from the sponsor authentication source;
+            # NOTE: When sponsoring a network access, the new user will be created (in the temporary_password table) using
+            # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
+            my $actions = &pf::authentication::match( $source->{id},
+                { username => $pid, user_email => $pid } );
+            $info{'password'} =
+              pf::temporary_password::generate( $pid, $actions );
 
-        # we create a temporary password using the actions from the sponsor authentication source;
-        # NOTE: When sponsoring a network access, the new user will be created (in the temporary_password table) using
-        # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
-        my $actions = &pf::authentication::match( $source->{id},
-            { username => $pid, user_email => $pid } );
-        $info{'password'} =
-          pf::temporary_password::generate( $pid, $actions );
+            # prepare welcome email for a guest who registered locally
+            $info{'currentdate'} =
+              POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
 
-        # prepare welcome email for a guest who registered locally
-        $info{'currentdate'} =
-          POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-
-        pf::web::guest::send_template_email( $template, $info{'subject'},
-            \%info );
+            pf::web::guest::send_template_email( $template, $info{'subject'},
+                \%info );
+        }
         pf::activation::set_status_verified($code);
 
         # send to a success page
@@ -368,3 +399,4 @@ it under the same terms as Perl itself.
 __PACKAGE__->meta->make_immutable;
 
 1;
+

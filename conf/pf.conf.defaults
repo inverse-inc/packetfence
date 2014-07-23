@@ -200,7 +200,20 @@ preregistration=disabled
 # Sponsors requesting access and access confirmation emails are CC'ed to this
 # address. Multiple destinations can be comma separated.
 sponsorship_cc=
-
+#
+# guests_self_registration.create_local_account_on_email_reg
+#
+# Create a local user account on email registration to allow the user
+# to manage his device on the status page or to use the credential
+# over an EAP connection
+create_local_account_on_email_reg=disabled
+#
+# guests_self_registration.create_local_account_on_sponsor_reg
+#
+# Create a local user account on sponsor registration to allow the user
+# to manage his device on the status page or to use the credential
+# over and EAP connection
+create_local_account_on_sponsor_reg=disabled
 
 [guests_admin_registration]
 #
