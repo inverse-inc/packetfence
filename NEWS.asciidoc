@@ -20,6 +20,7 @@ New Features
 * Added the possibility to search by computer name on the nodes page
 * Added support for the Anyfi WiFi controller
 * Show portal profiles directly on the admin gui
+* New utility: bin/ntlm_auth_wrapper allows to log authentication times for ntlm_auth. 
 
 Enhancements
 ++++++++++++
