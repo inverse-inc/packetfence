@@ -21,6 +21,7 @@ New Features
 * Added support for the Anyfi WiFi controller
 * Show portal profiles directly on the admin gui
 * Added local account authentication for EAP
+* Added support for unreg date with dynamic year
 
 Enhancements
 ++++++++++++
@@ -56,7 +57,6 @@ New Features
 * Added support to unregister a node if the username is locked or deleted in Active Directory
 * Fortinet FortiGate and PaloAlto firewalls integration
 * New configuration parameters in switches.conf to use mapping by VLAN and/or mapping by role
-* Added support for unreg date with dynamic year
 
 Enhancements
 ++++++++++++
