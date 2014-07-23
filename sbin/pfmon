@@ -90,112 +90,33 @@ exit(0);
 
 =head1 SUBROUTINES
 
-=over
+=head2 registertasks
 
-=item arp_detector
-
-Listens to ARP traffic and logs.
-
-In PacketFence 3.0 we dropped support for ARP mode. This method has been
-severely crippled as part of that work. However it has been kept around since
-we might introduce ARP surveillance in the future.
+    Register all tasks
 
 =cut
-
-sub arp_detector {
-    my ($eth) = @_;
-    my $logger = Log::Log4perl::get_logger('pfmon::arp_detector');
-    Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
-
-    my ( $filter_t, $net, $mask, $opt, $err );
-    $opt = 1;
-
-    my $pcap_t = Net::Pcap::pcap_open_live( $eth, 1500, 1, 0, \$err );
-    my $filter = arp_filter();
-    if ( ( Net::Pcap::lookupnet( $eth, \$net, \$mask, \$err ) ) == -1 ) {
-        $logger->logdie("Net::Pcap::lookupnet failed. Error was $err");
-    }
-    if ( ( Net::Pcap::compile( $pcap_t, \$filter_t, $filter, $opt, $net ) )
-        == -1 )
-    {
-        $logger->logdie("Unable to compile filter string '$filter'");
-    }
-    Net::Pcap::setfilter( $pcap_t, $filter_t );
-    Net::Pcap::loop( $pcap_t, -1, \&process_packet, $eth );
-}
-
-sub process_packet {
-    my ( $user_data, $header, $packet ) = @_;
-    listen_arp($packet) if ($packet);
-}
-
-=item listen_arp
-
-Listens to ARP traffic and logs.
-
-In PacketFence 3.0 we dropped support for ARP mode.
-This method has been severely crippled as part of that work.
-However it has been kept around since we might introduce ARP surveillance in the future.
-
-=cut
-
-sub listen_arp {
-    my ( $type, $srcmac, $srcip, $destmac, $destip ) = &decode(@_);
-    # below was commented as part of the interface.gateway removal
-    # if re-implementation required, go through conf/networks.conf to determine if it's internal or not
-    #return if ( !isinternal($srcip) );
-
-    if ( $type == 1 ) {
-        $logger->debug(
-            "ARP who-has $destip tell $srcip  $srcmac $srcip $destmac $destip"
-        );
-        # commented as part of the interface.gateway removal
-        # if re-implementation required, go through conf/networks.conf to fetch the gateway for a network
-        #my $gip = ip2gateway($srcip);
-        #if ( valid_ip($srcip) && valid_ip($gip) && ( $srcip eq $gip ) ) {
-            if (   $destmac =~ /ff:ff:ff:ff:ff:ff/i
-                || $destmac =~ /00:00:00:00:00:00/i )
-            {
-                $logger->info(
-                    "broadcast arp request from router for $destip - re-trapping all nodes"
-                );
-            } elsif ( !grep( { $_ eq $monitor_int } @listen_ints ) ) {
-                $logger->info(
-                    "flooded arp request from router for $destmac ($destip) - re-trapping all nodes"
-                );
-            } else {
-                $logger->debug(
-                    "arp request from router for $destmac ($destip)");
-                return;
-            }
-        #}
-
-    } elsif ( $type == 2 ) {
-        $logger->debug("ARP $srcip is-at $srcmac $srcmac $srcip $destmac $destip");
-    }
-}
 
 sub registertasks  {
     register_task(
-        'iplog_cleanup','maintenance_interval',sub {
+        'iplog cleanup','maintenance_interval',sub {
             iplog_cleanup( $Config{'expire'}{'iplog'} )
               if ( $Config{'expire'}{'iplog'} );
         }
     );
     register_task(
-        'locationlog_cleanup','maintenance_interval',sub {
+        'locationlog cleanup','maintenance_interval',sub {
             locationlog_cleanup( $Config{'expire'}{'locationlog'} )
               if ( $Config{'expire'}{'locationlog'} );
         }
     );
     register_task(
-        'node_cleanup','maintenance_interval',sub {
+        'node cleanup','maintenance_interval',sub {
             node_cleanup( $Config{'expire'}{'node'} )
               if ( $Config{'expire'}{'node'} );
         }
     );
     register_task(
-        'node_cleanup','maintenance_interval',sub {
+        'traplog cleanup','maintenance_interval',sub {
             traplog_cleanup( $Config{'expire'}{'traplog'} )
               if ( $Config{'expire'}{'traplog'} );
         }
@@ -254,21 +175,6 @@ sub purge_cache {
             };
         }
     }
-}
-
-=item decode
-
-Encapsulate the ARP packet decoding.
-
-=cut
-
-sub decode {
-    my $pkt = shift;
-
-    my ($m1, $m2, $proto, $hwas, $pas, $hwal, $pal, $opcode, $sha, $spa, $tha, $tpa)
-        = unpack( 'H12H12nnnCCnH12NH12N', $pkt );
-
-    return ($opcode, clean_mac($sha), int2ip($spa), clean_mac($tha), int2ip($tpa));
 }
 
 sub normal_sighandler {
@@ -333,8 +239,6 @@ sub child_sighandler {
         register_task(@$task);
     }
 }
-
-=back
 
 =head1 AUTHOR
 
