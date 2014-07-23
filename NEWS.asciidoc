@@ -21,6 +21,7 @@ New Features
 * Added support for the Anyfi WiFi controller
 * Show portal profiles directly on the admin gui
 * Added local account authentication for EAP
+* Added support for unreg date with dynamic year
 
 Enhancements
 ++++++++++++
