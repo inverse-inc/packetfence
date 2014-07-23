@@ -33,6 +33,9 @@ conf/ssl/server.crt:
 bin/pfcmd: src/pfcmd
 	cp src/pfcmd bin/pfcmd
 
+bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
+	cc  -std=c99  -Wall  src/ntlm_auth_wrap.c -o bin/ntlm_auth_wrapper
+
 .PHONY:sudo
 
 sudo:
