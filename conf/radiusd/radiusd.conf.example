@@ -27,7 +27,7 @@ rpc_proto  = %%rpc_proto%%
 user = pf
 group = pf
 
-max_request_time = 30
+max_request_time = 10
 cleanup_delay = 5
 max_requests = 20000
 
@@ -77,7 +77,7 @@ $INCLUDE clients.conf
 
 thread pool {
         start_servers = 5
-        max_servers = 32
+        max_servers = 64
         min_spare_servers = 3
         max_spare_servers = 10
         max_requests_per_server = 0
@@ -94,6 +94,7 @@ instantiate {
         expr
         expiration
         logintime
+        sql
         raw
 }
 
