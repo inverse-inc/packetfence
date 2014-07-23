@@ -328,9 +328,9 @@ sub waitforit {
 sub child_sighandler {
     while(1) {
         my $child = waitpid(-1, WNOHANG);
-        last if $child < 0;
+        last unless $child > 0;
         my $task = delete $CHILDREN{$child};
-        push @REGISTERED_TASKS,$task;
+        register_task(@$task);
     }
 }
 
