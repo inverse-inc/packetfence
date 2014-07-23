@@ -2680,6 +2680,38 @@ Caching and Roaming
 AeroHIVE have a session replication feature to ease the EAP session roaming between two access points. However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request. Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout. They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*.
 The other way to support Roaming is to enable snmp trap in the AeroHIVE configuration to PacketFence server. PacketFence will recognise the ahConnectionChangeEvent and will change the location of the node in his base.
 
+[float]
+External captive portal
+^^^^^^^^^^^^^^^^^^^^^^^
+
+First configure the AAA server as described in the section above in the Hive Manager.
+
+Portal configuration
+++++++++++++++++++++
+* Go in *Configuration -> Authentication -> Captive Web Portals* and create a new portal
+* Select Select *Registration Type* = *External Authentication*
+* Go in the section *Captive Web Portal Login Page Settings* set the *Login URL* to http://pf_ip/ and *Password Encryption* to *No Encryption*
+
+////
+
+This option is currently broken but will be needed so it redirects the user at the end of the authentication.
+* Go in the section * Captive Web Portal Success Page Settings* and check *Redirect to the initially requested page* at the bottom.
+
+////
+
+[float]
+External portal SSID
+++++++++++++++++++++
+
+Again in the Hive Manager, go to *Configuration -> SSIDs*, and create a new SSID with the following:
+
+* Give a Profile Name and an SSID Name
+* Choose Open as the Access Security 
+* Select Enable Captive Web Portal
+* Select your RADIUS server from the RADIUS Server dropdown list
+
+In the guided configuration you now be able to select your new SSID, the Portal you want to use and the AAA server.
+
 Anyfi
 ~~~~~
 

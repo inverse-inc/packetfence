@@ -358,6 +358,7 @@ through too many access reevaluation requests (since this is rather expensive es
 sub unknownState : Private {
     my ( $self, $c ) = @_;
     my $mac   = $c->portalSession->clientMac;
+    my $logger = $c->log;
     my $cached_lost_device = $LOST_DEVICES_CACHE->get($mac);
 
     # After 5 requests we won't perform re-eval for 5 minutes
@@ -370,7 +371,20 @@ sub unknownState : Private {
           "MAC $mac shouldn't reach here. Calling access re-evaluation. " .
           "Make sure your network device configuration is correct."
         );
-        pf::enforcement::reevaluate_access( $mac, 'redir.cgi', (force => $TRUE) );
+        my $node = node_view($mac);
+        my $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
+        if($switch->supportsWebFormRegistration){
+            $logger->info("Switch supports web form release. Will use this method to authenticate the user");
+            $c->stash(
+                template => 'webFormRelease.html',
+                content => $switch->getAcceptForm($mac, $c->stash->{destination_url}),
+            );
+            $c->detach;
+        }
+        else{
+            reevaluate_access( $mac, 'redir.cgi' );
+        }
+
     }
     $self->showError( $c, "Your network should be enabled within a minute or two. If it is not reboot your computer.");
 }
@@ -473,7 +487,19 @@ sub webNodeRegister : Private {
     node_register( $mac, $pid, %info );
 
     unless ( $c->user_cache->get("mac:$mac:do_not_deauth") ) {
-        reevaluate_access( $mac, 'manage_register' );
+        my $node = node_view($mac);
+        my $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
+        if($switch->supportsWebFormRegistration){
+            $logger->info("Switch supports web form release.");
+            $c->stash(
+                template => 'webFormRelease.html',
+                content => $switch->getAcceptForm($mac, $c->stash->{destination_url}),
+            );
+            $c->detach;
+        }
+        else{
+            reevaluate_access( $mac, 'manage_register' );
+        }
     }
 
     # we are good, push the registration

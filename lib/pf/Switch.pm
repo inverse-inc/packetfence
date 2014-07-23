@@ -71,6 +71,20 @@ sub supportsExternalPortal {
     return $FALSE;
 }
 
+=item supportsExternalPortal
+
+Returns 1 if switch type supports web form registration (for release of the external captive portal)
+ 
+=cut
+
+sub supportsWebFormRegistration { 
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Web form registration is not supported on switch type " . ref($this));
+    return $FALSE; 
+}
+
 =item supportsWiredMacAuth
 
 Returns 1 if switch type supports Wired MAC Authentication (Wired Access Authorization through RADIUS)
@@ -2917,6 +2931,19 @@ sub parseUrl {
     my ($self,$req) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->warn("Not implemented");
+    return;
+}
+
+=item getAcceptForm
+
+Get the accept form that will trigger the device registration on the switch
+
+=cut
+
+sub getAcceptForm {
+    my ( $self, $mac , $destination_url) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->error("This function is not implemented.");
     return;
 }
 
