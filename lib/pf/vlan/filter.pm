@@ -141,7 +141,7 @@ sub node_info_parser {
 
 =item radius_parser
 
-Parse the radius request attribute and compare to the rule. If it matches then perform the action.
+Parse the RADIUS request attribute and compare to the rule. If it matches then perform the action.
 
 =cut
 
