@@ -81,8 +81,10 @@ cleanup();
 
 END {
     if ( !$args{h} ) {
-        deletepid();
-        $logger->info("stopping pfmon");
+        unless($IS_CHILD) {
+            deletepid();
+            $logger->info("stopping pfmon");
+        }
     }
 }
 
@@ -194,6 +196,7 @@ sub runtask {
     if($pid) {
         $CHILDREN{$pid} = $task;
     } elsif ($pid == 0) {
+        $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
         _runtask(@$task);
     } else {
@@ -205,9 +208,9 @@ sub _runtask {
     while ($running) {
         # run these functions every $maintenance_interval
         eval {
-            $task->();
-            #reload all cached configs after each iteration
+            #reload all cached configs before running the task
             pf::config::cached::ReloadConfigs();
+            $task->();
         };
         if ($@) {
             $logger->error("Error running task $id: $@");
@@ -232,6 +235,7 @@ sub waitforit {
 }
 
 sub child_sighandler {
+    local ($!, $?);
     while(1) {
         my $child = waitpid(-1, WNOHANG);
         last unless $child > 0;
