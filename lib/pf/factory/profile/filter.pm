@@ -64,7 +64,7 @@ sub getData {
         $type  = $1;
         $value = $3;
     } else {
-        #If there is no type defined to support older filters
+        #If there is no type defined to support older filters (3.5.0)
         $type  = $DEFAULT_TYPE;
         $value = $filter;
     }
