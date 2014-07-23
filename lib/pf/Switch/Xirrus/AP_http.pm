@@ -23,6 +23,7 @@ use Log::Log4perl;
 
 use pf::config;
 use pf::util;
+use pf::node;
 
 =head1 SUBROUTINES
 
@@ -34,6 +35,7 @@ use pf::util;
 # access technology supported
 sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
+sub supportsWebFormRegistration { return $TRUE }
 
 =item parseUrl
 
@@ -52,6 +54,9 @@ sub parseUrl {
     my($this, $req, $r) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $connection = $r->connection;
+    $this->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')),
+        0, $WIRED_MAC_AUTH, clean_mac($$req->param('mac')), $$req->param('ssid')
+    );
     return (clean_mac($$req->param('mac')),$$req->param('ssid'),$connection->remote_ip,$$req->param('userurl'),undef,"200");
 }
 
@@ -59,6 +64,43 @@ sub parseSwitchIdFromRequest {
     my($class, $req) = @_;
     my $logger = Log::Log4perl::get_logger( $class );
     return $$req->param('nasid'); 
+}
+
+sub getAcceptForm {
+    my ( $self, $mac , $destination_url) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->debug("Creating web release form for $mac");
+
+    my $node = node_view($mac);
+    my $last_ssid = $node->{last_ssid};
+    $mac =~ s/:/-/g;
+    my $html_form = qq[
+        <form action="" method="POST">
+        <table cellpadding="2" cellspacing="5" border="0">
+            <input type="hidden" value="185.0.0.1" name="uamip">
+            <input type="hidden" value="10000" name="uamport">
+            <input type="hidden" value="" name="challenge">
+            <tr>
+              <td align="right"> Username:</td>
+              <td><input name="UserName" type="text" size="50" maxlength="64" value="$mac"></td>
+            </tr>
+            <tr>
+              <td align="right"> Password:</td>
+              <td align="left"><input name="Password" type="password" size="50" maxlength="64" value="$mac"></td>
+            </tr>
+            <tr>
+              <td align="right">&nbsp;</td>
+              <td align="left"><input type="submit" name="button" class="button" value="Login"></td>
+            </tr>
+        </table>
+        </form>
+       
+        
+      
+    ];
+
+    $logger->info($html_form);
+    return $html_form;
 }
 =back
 

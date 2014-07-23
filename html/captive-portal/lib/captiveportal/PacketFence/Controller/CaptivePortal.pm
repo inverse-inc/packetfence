@@ -373,6 +373,8 @@ sub unknownState : Private {
         );
         my $node = node_view($mac);
         my $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
+        use Data::Dumper;
+        $logger->info(Dumper($switch));
         if($switch->supportsWebFormRegistration){
             $logger->info("Switch supports web form release. Will use this method to authenticate the user");
             $c->stash(
