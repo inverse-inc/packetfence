@@ -184,7 +184,7 @@ sub firewallsso : Public {
 }
 
 
-sub ReAssignVlan {
+sub ReAssignVlan : Public {
     my ($class, %postdata )  = @_;
     my $logger = pf::log::get_logger();
 
@@ -215,7 +215,7 @@ sub ReAssignVlan {
     }
 }
 
-sub desAssociate {
+sub desAssociate : Public {
     my ($class, %postdata )  = @_;
     my $logger = pf::log::get_logger();
 
@@ -234,7 +234,7 @@ sub desAssociate {
     $switch->$deauthTechniques($postdata{'mac'});
 }
 
-sub firewall {
+sub firewall : Public {
     my ($class, %postdata )  = @_;
     my $logger = pf::log::get_logger();
 
