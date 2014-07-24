@@ -947,6 +947,7 @@ fi
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
 %dir                    /usr/local/pf/var
+%dir                    /usr/local/pf/var/run
 
 # Remote arp sensor file list
 %files -n %{real_name}-remote-arp-sensor
@@ -957,7 +958,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/pfarp_remote.conf
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfarp_remote
-%dir
+%dir                    /usr/local/pf/var
+%dir                    /usr/local/pf/var/run
 
 %files -n %{real_name}-pfcmd-suid
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
