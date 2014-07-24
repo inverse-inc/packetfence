@@ -1,8 +1,8 @@
-package pf::SNMP::Netgear::FSM7328S;
+package pf::Switch::Netgear::FSM7328S;
 
 =head1 NAME
 
-pf::SNMP::Netgear::FSM7328S - Object oriented module to access and configure enabled Netgear FSM7328S switches.
+pf::Switch::Netgear::FSM7328S - Object oriented module to access and configure enabled Netgear FSM7328S switches.
 
 =head1 STATUS
 
@@ -39,11 +39,11 @@ use POSIX;
 use Log::Log4perl;
 use Net::SNMP;
 
-use pf::SNMP::constants;
+use pf::Switch::constants;
 use pf::config;
 use pf::util;
 
-use base ('pf::SNMP::Netgear');
+use base ('pf::Switch::Netgear');
 
 sub description {'Netgear FSM7328S'}
 
