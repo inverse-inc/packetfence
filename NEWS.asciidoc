@@ -33,6 +33,7 @@ Enhancements
 * Added an option to set the timeout value for LDAP connections in authentication sources
 * FreeRADIUS default configuration should now be more scalable and resilient to misbehaving devices.
 * Added the possibility to create rules using the username in OAuth authentication sources
+* Added the RADIUS request to the vlan filter
 
 Bug Fixes
 +++++++++

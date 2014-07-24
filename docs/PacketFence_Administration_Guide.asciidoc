@@ -2469,6 +2469,7 @@ And can be defined using different criteria like:
   ssid
   time
   owner
+  radius_request
 
 For example, lets define a rule that prevents a device from connecting when its category is the "default", when the SSID is "SECURE" and when the current time is between 11am and 2pm:
 from Monday to Friday when it try to connect as a registered device :
