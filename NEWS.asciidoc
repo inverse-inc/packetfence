@@ -34,6 +34,7 @@ Enhancements
 * FreeRADIUS default configuration should now be more scalable and resilient to misbehaving devices.
 * Added the possibility to create rules using the username in OAuth authentication sources
 * Added the RADIUS request to the vlan filter
+* Moved from using Storable to Sereal to serialize cached data
 
 Bug Fixes
 +++++++++

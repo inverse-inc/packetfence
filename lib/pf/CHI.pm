@@ -68,7 +68,7 @@ our %DEFAULT_CONFIG = (
         map { $_ => { 'storage' => $_ } } @CACHE_NAMESPACES
     },
     'memoize_cache_objects' => 1,
-    'defaults'              => {'serializer' => 'Storable'},
+    'defaults'              => {'serializer' => 'Sereal'},
     'storage'               => {
         'raw' => {
             'global' => '1',
