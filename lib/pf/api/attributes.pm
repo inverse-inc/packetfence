@@ -32,7 +32,7 @@ sub findApi {
     my $code = $class->can($method);
     return $code
       if $code && exists $EXPORTED_API{Scalar::Util::refaddr($code)};
-    return undef;
+    return;
 
 }
 
