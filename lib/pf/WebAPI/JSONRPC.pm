@@ -61,13 +61,14 @@ sub handler {
             @args = ($params);
         }
     }
-    unless ($method_sub = $dispatch_to->can($method)) {
-        $r->print(
-            encode_json({
-                (defined $jsonrpc ? (jsonrpc => $jsonrpc) : ()),
-                (defined $id      ? (id      => $id)      : ()),
-                error => {code => -32601, message => "Method not found"},
-            })
+    unless ($method_sub = $dispatch_to->findApi($method)) {
+        $r->custom_response(Apache2::Const::HTTP_NOT_FOUND,
+            encode_json(
+                {   (defined $jsonrpc ? (jsonrpc => $jsonrpc) : ()),
+                    (defined $id      ? (id      => $id)      : ()),
+                    error => {code => -32601, message => "Method not found"},
+                }
+            )
         );
         $status_code = Apache2::Const::HTTP_NOT_FOUND;
     } elsif (defined $id) {

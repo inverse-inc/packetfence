@@ -49,7 +49,7 @@ sub handler {
         my ($type, $msgid, $method, $params) = @$data;
         return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $type == 0;
         my $dispatch_to = $self->dispatch_to;
-        unless ($dispatch_to->can($method)) {
+        unless ($$dispatch_to->findApi($method)) {
             $self->_set_error($r,$msgid,Apache2::Const::HTTP_NOT_FOUND,"method not found");
             return Apache2::Const::OK;
         }
@@ -71,7 +71,7 @@ sub handler {
         my ($type, $method, $params) = @$data;
         return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $type == 2;
         my $dispatch_to = $self->dispatch_to;
-        return Apache2::Const::HTTP_NOT_IMPLEMENTED unless $dispatch_to->can($method);
+        return Apache2::Const::HTTP_NOT_IMPLEMENTED unless $dispatch_to->findApi($method);
         $r->push_handlers(PerlCleanupHandler => sub {
             eval {
                 $dispatch_to->$method(@$params);
