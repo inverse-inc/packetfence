@@ -35,6 +35,7 @@ Enhancements
 * Added the possibility to create rules using the username in OAuth authentication sources
 * Added the RADIUS request to the vlan filter
 * Moved from using Storable to Sereal to serialize cached data
+* Improved support for Dlink DES 3526 switches.
 
 Bug Fixes
 +++++++++
