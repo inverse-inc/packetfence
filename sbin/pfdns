@@ -186,7 +186,8 @@ sub regzone {
                     $rcode = "NOERROR";
                 }
                 else{
-                    $rcode = "NXDOMAIN"
+                    $logger->warn("Unresolved passthrough domain $qname");
+                    $rcode = "NXDOMAIN";
                 }
             }
 
