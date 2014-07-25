@@ -70,7 +70,7 @@ translated even for English.
 =cut
 
 sub parse_po {
-    my $file = APP.'/lib/pfappserver/I18N/en.po';
+    my $file = APP.'/lib/pfappserver/I18N/i_default.po';
 
     my ($key, %msg);
     open (PO, $file);

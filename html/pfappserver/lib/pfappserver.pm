@@ -83,6 +83,12 @@ __PACKAGE__->config(
         ignore_extensions => [ qw/cgi php inc tt html xml/ ],
     },
 
+    'Plugin::I18N' => {
+        maketext_options => {
+            Decode => 0
+        },
+    },
+
     'Plugin::Session' => {
         #chi will set the expire time
         chi_class => 'pf::CHI',
