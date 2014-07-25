@@ -41,6 +41,8 @@ Bug Fixes
 
 * Fix issue when adding multiple portal profile filters causing the wrong type to be picked
 * Fix issue when a trap is received for a switch that does not implement parseTrap()
+* Fix issue when a role is changed in the administration interface and the node's access is not reevaluated
+* Fix issue when a passthough is not able to be resolved and would generate an invalid DNS response
 
 
 Version 4.3.0 released on 2014-06-26
