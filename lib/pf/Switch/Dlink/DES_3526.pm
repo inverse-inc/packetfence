@@ -98,19 +98,19 @@ sub parseTrap {
             $trapHashRef->{'trapIfIndex'} = $ifIndex;
 
             if ( $op == 1 ) {
-                $trapHashRef->{'trapOperation'} = 'up';
+                $trapHashRef->{'trapType'} = 'up';
             }
             elsif ( $op == 2 ) {
-                $trapHashRef->{'trapOperation'} = 'down';
+                $trapHashRef->{'trapType'} = 'down';
             }
             else {
-                $trapHashRef->{'trapOperation'} = 'unknown';
+                $trapHashRef->{'trapType'} = 'unknown';
             }
         }
     }
 
     unless ( $ifIndex && $op ) {
-        $trapHashRef->{'trapOperation'} = 'unknown';
+        $trapHashRef->{'trapType'} = 'unknown';
         $logger->debug("trap currently not handled");
     }
 
@@ -120,7 +120,7 @@ sub parseTrap {
 =head1 AUTHOR
 
 Treker Chen <treker.chen@gmail.com> for the original implementation.
-Louis Munro <lmunro@inverse.ca> for the updated version.
+Inverse inc. <info@inverse.ca> for the updated version.
 
 =head1 COPYRIGHT
 
