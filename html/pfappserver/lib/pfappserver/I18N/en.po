@@ -1356,9 +1356,16 @@ msgstr ""
 
 # conf/documentation.conf (trapping.redirtimer)
 msgid ""
-  "How long to display the progress bar during trap release. Default value is "
-  "based on VLAN enforcement techniques. Inline enforcement only users could"
+  "how long to display the progress bar during trap release. default value is "
+  "based on vlan enforcement techniques. inline enforcement only users could"
   "lower the value."
+msgstr ""
+
+# conf/documentation.conf (trapping.wait_for_redirect)
+msgid ""
+   "How many seconds the webservice should wait before deassociating or reassigning "
+   "VLAN. If we don't wait, the device may switch VLAN before it has a chance to "
+   "load the redirection page."
 msgstr ""
 
 # conf/documentation.conf (scan.openvas_reportformatid)
@@ -4970,6 +4977,10 @@ msgstr "Addresses ranges"
 # conf/documentation.conf
 msgid "trapping.redirtimer"
 msgstr "Redirection delay"
+
+# conf/documentation.conf
+msgid "trapping.wait_for_redirect"
+msgstr "Wait for redirect"
 
 # conf/documentation.conf
 msgid "trapping.registration"

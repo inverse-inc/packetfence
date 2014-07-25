@@ -102,6 +102,13 @@ registration=enabled
 # based on VLAN enforcement techniques. Inline enforcement only users could
 # lower the value.
 redirtimer=20s
+# 
+# trapping.wait_for_redirect
+#
+# How many seconds should the WebAPI sleep before actually triggering the VLAN change.
+# This is meant to give the device enough time to fetch the redirection page before 
+# switching VLAN.
+wait_for_redirect = 1
 #
 # trapping.whitelist
 #
@@ -616,13 +623,6 @@ trap_limit_threshold = 100
 # shut will shut the port on the switch and will also send an email even if email is not
 # specified.
 trap_limit_action = 
-
-# vlan.wait_for_redirect
-#
-# How many seconds should the WebAPI sleep before actually triggering the VLAN change.
-# This is meant to give the device enough time to fetch the redirection page before 
-# switching VLAN.
-wait_for_redirect = 1
 
 [inline]
 #
