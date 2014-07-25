@@ -11,7 +11,7 @@ to access SNMP enabled Dlink DES 3526 switches.
 
 Tested on Firmware: Build 5.01.B65.
 Supports MAC detection traps with linkup/linkdown.
-No portsecurity support, no RADIUS. 
+No port security support, no RADIUS. 
 
 =cut
 
