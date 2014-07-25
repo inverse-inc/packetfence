@@ -180,11 +180,16 @@ sub regzone {
                     @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
                     ($ttl, $rdata) = ($TTL, $rr->address);
                 }
+                if($ttl && $rdata){
+                    my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+                    push @ans, $rr;
+                    $rcode = "NOERROR";
+                }
+                else{
+                    $rcode = "NXDOMAIN"
+                }
             }
 
-            my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
-            push @ans, $rr;
-            $rcode = "NOERROR";
         }
         elsif ($query =~ /$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}/) {
             my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
