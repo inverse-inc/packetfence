@@ -218,7 +218,7 @@ sub desAssociate {
 
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
 
-    # sleep long enought to give the device enough time to fetch the redirection page.
+    # sleep long enough to give the device enough time to fetch the redirection page.
     sleep $pf::config::Config{'vlan'}{'wait_for_redirect'}; 
 
     $logger->info("DesAssociating mac $postdata{'mac'} on switch " . $switch->{_id});
