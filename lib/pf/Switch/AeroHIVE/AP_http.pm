@@ -48,7 +48,7 @@ sub parseUrl {
     my $logger = Log::Log4perl::get_logger( ref($self) );
     # need to synchronize the locationlog event if we'll reject
     $self->synchronize_locationlog("0", "0", clean_mac($$req->param('Calling-Station-Id')),
-        0, $WIRED_MAC_AUTH, clean_mac($$req->param('Calling-Station-Id')), $$req->param('ssid')
+        0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('Calling-Station-Id')), $$req->param('ssid')
     );
 
 

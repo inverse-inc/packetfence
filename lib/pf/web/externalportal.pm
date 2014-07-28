@@ -69,13 +69,16 @@ sub external_captive_portal {
             my %info = (
                 'client_mac' => $client_mac,
             );
-            use Data::Dumper;
             my $portalSession = pf::Portal::Session->new(%info);
             $portalSession->setClientIp($client_ip) if (defined($client_ip));
             $portalSession->setDestinationUrl($redirect_url) if (defined($redirect_url));
             $portalSession->setGrantUrl($grant_url) if (defined($grant_url));
+            foreach my $key (keys %{$req->param}) {
+                $logger->debug("Adding additionnal session parameter for url detected : $key : ".$req->param($key));
+                $portalSession->session->param("ecwp-original-param-$key", $req->param($key));
+            }
             iplog_update($client_mac,$client_ip,100) if (defined ($client_ip) && defined ($client_mac));
-            return $portalSession->session->id();
+            return ($portalSession->session->id(), $redirect_url);
         } else {
             return 0;
         }
@@ -123,10 +126,10 @@ sub handle {
         my $switchId = $type->parseSwitchIdFromRequest(\$req);  
         $logger->info("Found switchId : $switchId");
 
-        my $cgi_session_id = $self->external_captive_portal($switchId,$req,$r,undef);
+        my ($cgi_session_id, $redirect_url) = $self->external_captive_portal($switchId,$req,$r,undef);
         if ($cgi_session_id ne '0') {
             $logger->info("Great success");
-            return $cgi_session_id;
+            return ($cgi_session_id, $redirect_url);
         }
     }
 
@@ -136,9 +139,9 @@ sub handle {
             $value = clean_mac($req->param($param)) if valid_mac($req->param($param));
             $value = $req->param($param) if  valid_ip($req->param($param));
             if (defined($value)) {
-                my $cgi_session_id = $self->external_captive_portal($value,$req,$r,undef);
+                my ($cgi_session_id, $redirect_url) = $self->external_captive_portal($value,$req,$r,undef);
                 if ($cgi_session_id ne '0') {
-                    return $cgi_session_id;
+                    return ($cgi_session_id, $redirect_url);
                 }
             }
         }
@@ -146,9 +149,9 @@ sub handle {
 
     # Try to fetch the parameters in the session
     if ($r->uri =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
-        my $cgi_session_id = $self->external_captive_portal(undef,undef,$r,$1);
+        my ($cgi_session_id, $redirect_url) = $self->external_captive_portal(undef,undef,$r,$1);
             if ($cgi_session_id ne '0') {
-                return $cgi_session_id;
+                return ($cgi_session_id, $redirect_url);
             }
     }
     return 0;

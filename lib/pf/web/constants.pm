@@ -108,7 +108,7 @@ Readonly::Scalar our $REQ_RUCKUS                => 'sip';
 Readonly::Scalar our $REQ_AEROHIVE              => 'RADIUS-NAS-IP';
 
 # External Captive Portal URL detection constant
-Readonly::Scalar our $EXT_URL_XIRRUS            => '/Xirrus::AP_http';
+Readonly::Scalar our $EXT_URL_XIRRUS            => '^/Xirrus::AP_http';
 
 
 # Provisioning engine
@@ -221,10 +221,10 @@ This URL should point to a module in pf::Switch that can extract the mac or ip o
 
 =cut
 
-my @components_req =  _clean_urls_match_ext_url();
-foreach (@components_req) { s{([^/])$}{$1\$} };
-my $allow_req = join('|', @components_req);
-Readonly::Scalar our $EXTERNAL_PORTAL_URL => qr/ ^(?: $allow_req ) /xo; # eXtended pattern, compile Once
+my @components_url =  _clean_urls_match_ext_url();
+foreach (@components_url) { s{([^/])$}{$1\$} };
+my $allow_url = join('|', @components_url);
+Readonly::Scalar our $EXTERNAL_PORTAL_URL => qr/ ^(?: $allow_url ) /xo; # eXtended pattern, compile Once
 
 =item _clean_urls_match
 

@@ -18,7 +18,7 @@ Developed and tested on XR4430 running 6.4.1
 use strict;
 use warnings;
 
-use base ('pf::Switch');
+use base ('pf::Switch::Xirrus');
 use Log::Log4perl;
 
 use pf::config;
@@ -55,7 +55,7 @@ sub parseUrl {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $connection = $r->connection;
     $this->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')),
-        0, $WIRED_MAC_AUTH, clean_mac($$req->param('mac')), $$req->param('ssid')
+        0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('mac')), $$req->param('ssid')
     );
     return (clean_mac($$req->param('mac')),$$req->param('ssid'),$connection->remote_ip,$$req->param('userurl'),undef,"200");
 }
@@ -66,45 +66,69 @@ sub parseSwitchIdFromRequest {
     return $$req->param('nasid'); 
 }
 
+=item returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept reponse for the network device.
+
+Overriding the default implementation for the external captive portal
+
+=cut
+
+sub returnRadiusAccessAccept {
+    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    my $radius_reply_ref = {};
+
+    my $node = node_view($mac);
+
+    my $violation = pf::violation::violation_view_top($mac);
+    # if user is unregistered or is in violation then we reject him to show him the captive portal 
+    if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
+        $logger->info("$mac is unregistered. Refusing access to force the eCWP");
+        my $radius_reply_ref = {
+            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+            'Tunnel-Type' => $RADIUS::VLAN,
+            'Tunnel-Private-Group-ID' => -1,
+        }; 
+        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref]; 
+
+    }
+    else{
+        $logger->info("Returning ACCEPT");
+        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+    }
+
+}
+
 sub getAcceptForm {
-    my ( $self, $mac , $destination_url) = @_;
+    my ( $self, $mac , $destination_url, $cgi_session) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->debug("Creating web release form for $mac");
 
-    my $challenge = "9c2fa921fe033c9218c114a9a650b82a";
-    my $node = node_view($mac);
-    my $last_ssid = $node->{last_ssid};
+    my $uamip = $cgi_session->param("ecwp-original-param-uamip");
+    my $uamport = $cgi_session->param("ecwp-original-param-uamport");
+    my $userurl = $cgi_session->param("ecwp-original-param-userurl");
+    my $challenge = $cgi_session->param("ecwp-original-param-challenge");
     my $newchal  = pack "H32", $challenge;
-    $mac =~ s/:/-/g;
-    #my $html_form = qq[
-    #    <form action="" method="POST">
-    #    <table cellpadding="2" cellspacing="5" border="0">
-    #        <input type="text" value="185.0.0.1" name="uamip">
-    #        <input type="text" value="10000" name="uamport">
-    #        <input type="text" value="9c2fa921fe033c9218c114a9a650b82a" name="challenge">
-    #        <tr>
-    #          <td align="right"> Username:</td>
-    #          <td><input name="UserName" type="text" size="50" maxlength="64" value="$mac"></td>
-    #        </tr>
-    #        <tr>
-    #          <td align="right"> Password:</td>
-    #          <td align="left"><input name="Password" type="password" size="50" maxlength="64" value="$mac"></td>
-    #        </tr>
-    #        <tr>
-    #          <td align="right">&nbsp;</td>
-    #          <td align="left"><input type="submit" name="button" class="button" value="Login"></td>
-    #        </tr>
-    #    </table>
-    #    </form>
-    #];
-    #
 
     my @ib = unpack("C*", "\0" . $mac . $newchal);
     my $encstr = join("", map {sprintf('\%3.3o', $_)} @ib);
     my ($passvar) = split(/ /, `printf '$encstr' | md5sum`);
 
+    $mac =~ s/:/-/g;
+
     my $html_form = qq[
-        <a href="http://185.0.0.1:10000/logon?username=$mac&password=$passvar&userurl=$destination_url">Click here</a>
+        <script>
+        if (document.URL.match(/res=success/)){
+            //http requests are too fast for the ap
+            //we leave him time to understand what is happening
+            setTimeout(function(){window.location = "$destination_url"}, 2000)
+        }
+        else{
+            window.location = "http://$uamip:$uamport/logon?username=$mac&password=$passvar&userurl=$destination_url"
+        }
+        </script>
     ];
 
     $logger->info($html_form);

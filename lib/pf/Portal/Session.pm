@@ -46,7 +46,7 @@ use pf::activation;
 
 Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 
-use constant SESSION_ID => 'CGISESSION';
+use constant SESSION_ID => 'CGISESSION_PF';
 
 our $EXPIRES_IN = pf::CHI->config->{"storage"}{"httpd.portal"}{"expires_in"};
 
