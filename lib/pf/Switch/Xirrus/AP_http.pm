@@ -71,32 +71,40 @@ sub getAcceptForm {
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->debug("Creating web release form for $mac");
 
+    my $challenge = "9c2fa921fe033c9218c114a9a650b82a";
     my $node = node_view($mac);
     my $last_ssid = $node->{last_ssid};
+    my $newchal  = pack "H32", $challenge;
     $mac =~ s/:/-/g;
+    #my $html_form = qq[
+    #    <form action="" method="POST">
+    #    <table cellpadding="2" cellspacing="5" border="0">
+    #        <input type="text" value="185.0.0.1" name="uamip">
+    #        <input type="text" value="10000" name="uamport">
+    #        <input type="text" value="9c2fa921fe033c9218c114a9a650b82a" name="challenge">
+    #        <tr>
+    #          <td align="right"> Username:</td>
+    #          <td><input name="UserName" type="text" size="50" maxlength="64" value="$mac"></td>
+    #        </tr>
+    #        <tr>
+    #          <td align="right"> Password:</td>
+    #          <td align="left"><input name="Password" type="password" size="50" maxlength="64" value="$mac"></td>
+    #        </tr>
+    #        <tr>
+    #          <td align="right">&nbsp;</td>
+    #          <td align="left"><input type="submit" name="button" class="button" value="Login"></td>
+    #        </tr>
+    #    </table>
+    #    </form>
+    #];
+    #
+
+    my @ib = unpack("C*", "\0" . $mac . $newchal);
+    my $encstr = join("", map {sprintf('\%3.3o', $_)} @ib);
+    my ($passvar) = split(/ /, `printf '$encstr' | md5sum`);
+
     my $html_form = qq[
-        <form action="" method="POST">
-        <table cellpadding="2" cellspacing="5" border="0">
-            <input type="hidden" value="185.0.0.1" name="uamip">
-            <input type="hidden" value="10000" name="uamport">
-            <input type="hidden" value="" name="challenge">
-            <tr>
-              <td align="right"> Username:</td>
-              <td><input name="UserName" type="text" size="50" maxlength="64" value="$mac"></td>
-            </tr>
-            <tr>
-              <td align="right"> Password:</td>
-              <td align="left"><input name="Password" type="password" size="50" maxlength="64" value="$mac"></td>
-            </tr>
-            <tr>
-              <td align="right">&nbsp;</td>
-              <td align="left"><input type="submit" name="button" class="button" value="Login"></td>
-            </tr>
-        </table>
-        </form>
-       
-        
-      
+        <a href="http://185.0.0.1:10000/logon?username=$mac&password=$passvar&userurl=$destination_url">Click here</a>
     ];
 
     $logger->info($html_form);
