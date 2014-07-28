@@ -71,7 +71,7 @@ sub supportsExternalPortal {
     return $FALSE;
 }
 
-=item supportsExternalPortal
+=item supportsWebFormRegistration
 
 Returns 1 if switch type supports web form registration (for release of the external captive portal)
  
@@ -2943,6 +2943,20 @@ Get the accept form that will trigger the device registration on the switch
 sub getAcceptForm {
     my ( $self, $mac , $destination_url) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->error("This function is not implemented.");
+    return;
+}
+
+=item parseSwitchIdFromRequest
+
+Extract the switch id from an http request (for the external portal).
+The object isn't created at that point
+
+=cut
+
+sub parseSwitchIdFromRequest {
+    my ( $class, $req) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($class) );
     $logger->error("This function is not implemented.");
     return;
 }

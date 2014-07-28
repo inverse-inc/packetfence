@@ -54,7 +54,7 @@ Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHand
 sub handler {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-    $logger->warn("hitting translator with URL: " . $r->uri);
+    $logger->trace("hitting translator with URL: " . $r->uri);
     # Test if the hostname is include in the proxy_passthroughs configuration
     # In this case forward to mad_proxy
     if ( ( ($r->hostname.$r->uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') || ($r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') ) {
