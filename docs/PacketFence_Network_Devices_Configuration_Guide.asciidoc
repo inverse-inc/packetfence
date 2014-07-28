@@ -3877,6 +3877,15 @@ Enable SNMP Agent on the access point:
 
 Finally, don't forget to create the SSID you want and the proper bindings with the LAN. Open SSID should be configured to perform MAC Authentication and Secure SSID should be configured to perform 802.1X (WPA-Enterprise or WPA2-Enterprise).
 
+External portal SSID
+++++++++++++++++++++
+* Set *Encryption / Authentication* to None / Open
+* Then check the WPR checkbox
+* Then in in the section Web Page Redirect Configuration set *Server* to External Login
+* Set the *Redirect URL* to http://192.168.1.5/Xirrus::AP_http
+* Set the *Redirect Secret* to any passphrase of your choice
+* In the *RADIUS Configuration* section set the RADIUS server to point to your PacketFence server
+
 include::includes/additional-info.asciidoc[]
 
 include::includes/commercial-support.asciidoc[]
