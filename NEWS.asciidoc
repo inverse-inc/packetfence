@@ -25,6 +25,7 @@ New Features
 * Added support for NetGear FSM7328S switches
 * Added new network profile filter
 * Added external captive portal support for AeroHIVE 
+* Added external captive portal support for Xirrus 
 
 Enhancements
 ++++++++++++
