@@ -26,6 +26,7 @@ New Features
 * Added new network profile filter
 * Added external captive portal support for AeroHIVE 
 * Added external captive portal support for Xirrus 
+* Added support for Dynamic Access lists on the Cisco Catalyst 2960
 
 Enhancements
 ++++++++++++
