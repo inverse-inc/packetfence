@@ -115,7 +115,7 @@ sub handle {
     my $url = $r->uri;
 
     if ($url =~ /$WEB::EXTERNAL_PORTAL_URL/o) {
-        $logger->info("EL URL IS GOOD FOR ESTERNAL CAPTIVE PORTALO");
+        $logger->debug("The URL is detected as an external captive portal URL");
         $url =~ s/\///g;
         my $type = "pf::Switch::".$url;
         if ( !(eval "$type->require()" ) ) {
@@ -124,11 +124,10 @@ sub handle {
                 . "Read the following message for details: $@");
         }
         my $switchId = $type->parseSwitchIdFromRequest(\$req);  
-        $logger->info("Found switchId : $switchId");
+        $logger->debug("Found switchId : $switchId");
 
         my ($cgi_session_id, $redirect_url) = $self->external_captive_portal($switchId,$req,$r,undef);
         if ($cgi_session_id ne '0') {
-            $logger->info("Great success");
             return ($cgi_session_id, $redirect_url);
         }
     }

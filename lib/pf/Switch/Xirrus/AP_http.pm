@@ -6,7 +6,7 @@ pf::Switch::Xirrus::AP_http
 
 =head1 SYNOPSIS
 
-The pf::Switch::WirelessModuleTemplate module implements an object oriented interface to 
+The pf::Switch::Xirrus::AP_http module implements an object oriented interface to 
 manage the external captive portal on Xirrus access points
 
 =head1 STATUS

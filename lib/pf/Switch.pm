@@ -67,7 +67,7 @@ sub supportsExternalPortal {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->error("External captive portal is not supported on switch type " . ref($this));
+    $logger->debug("External captive portal is not supported on switch type " . ref($this));
     return $FALSE;
 }
 
@@ -81,7 +81,7 @@ sub supportsWebFormRegistration {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->error("Web form registration is not supported on switch type " . ref($this));
+    $logger->debug("Web form registration is not supported on switch type " . ref($this));
     return $FALSE; 
 }
 
