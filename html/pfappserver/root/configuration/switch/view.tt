@@ -41,6 +41,14 @@
         </div>
         [% form.field('RoleMap').render %]
         [% form.block('roles').render %]
+        <div class="control-group">
+          <div class="controls">
+            <h6>[% l('Role mapping by access list') %]</h6>
+          </div>
+        </div>
+        [% form.field('AccessListMap').render %]
+        [% form.block('access_lists').render %]
+
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="switchInline">

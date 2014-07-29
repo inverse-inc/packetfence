@@ -23,6 +23,7 @@ use pf::util;
 use List::MoreUtils qw(any);
 
 has 'roles' => ( is => 'ro' );
+has 'access_lists' => ( is => 'ro' );
 has 'placeholders' => ( is => 'ro' );
 
 ## Definition
@@ -73,6 +74,11 @@ has_field 'RoleMap' =>
   (
    type => 'Toggle',
    label => 'Role by Switch Role',
+  );
+has_field 'AccessListMap' =>
+  (
+   type => 'Toggle',
+   label => 'Role by access list',
   );
 has_field 'VoIPEnabled' =>
   (
@@ -458,6 +464,13 @@ sub field_list {
           };
         push(@$list, $role.'Role' => $field);
 
+        $field =
+          {
+           type => 'TextArea',
+           label => $role,
+          };
+        push(@$list, $role.'AccessList' => $field);
+
         # The VLAN mapping for default roles is mandatory for the default switch
         $field =
           {
@@ -479,6 +492,14 @@ sub field_list {
               };
             push(@$list, $role.'Vlan' => $field);
             push(@$list, $role.'Role' => $field);
+
+            $field =
+              {
+               type => 'TextArea',
+               label => $role,
+              };
+            push(@$list, $role.'AccessList' => $field);
+
         }
     }
 
@@ -530,10 +551,11 @@ Dynamically build the block list of the roles mapping.
 sub build_block_list {
     my $self = shift;
 
-    my (@vlans, @roles);
+    my (@vlans, @roles, @access_lists);
     if ($self->form->roles) {
         @vlans = map { $_.'Vlan' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
         @roles = map { $_.'Role' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
+        @access_lists = map { $_.'AccessList' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
     }
 
     return
@@ -543,6 +565,9 @@ sub build_block_list {
        },
        { name => 'roles',
          render_list => \@roles,
+       },
+       { name => 'access_lists',
+         render_list => \@access_lists,
        }
       ];
 }
