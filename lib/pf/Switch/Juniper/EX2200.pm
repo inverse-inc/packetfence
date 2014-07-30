@@ -43,6 +43,7 @@ use pf::util;
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsRadiusVoip { return $TRUE; }
 # special features
+sub supportsFloatingDevice {return $TRUE}
 sub supportsMABFloatingDevices { return $TRUE }
 sub supportsLldp { return $TRUE; }
 sub isVoIPEnabled {return $TRUE; }
