@@ -97,7 +97,7 @@ __PACKAGE__->mark_as_loaded();
 
 sub _run {
     require pf::config;
-    print Data::Dumper::Dumper(\%pf::config::Profile_Filters);
+    print Data::Dumper::Dumper(\@pf::config::Profile_Filters);
 }
 
 package pf::dump::sources;
