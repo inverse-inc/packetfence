@@ -3037,6 +3037,31 @@ sub identifyConnectionType {
     return;
 }
 
+=item disableMABByIfIndex
+
+Disables mac authentication bypass on the specified port
+
+=cut
+
+sub disableMABByIfIndex{
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->error("This function is unimplemented.");
+    return 0; 
+} 
+
+=item enableMABByIfIndex
+
+Enables mac authentication bypass on the specified port
+
+=cut
+
+sub enableMABByIfIndex{
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->error("This function is unimplemented.");
+    return 0; 
+}
 
 =back
 
