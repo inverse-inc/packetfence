@@ -587,7 +587,7 @@ sub _handleAccessFloatingDevices{
     my $logger = Log::Log4perl::get_logger(ref($this));
     if( exists( $ConfigFloatingDevices{$mac} ) ){
         my $floatingDeviceManager = new pf::floatingdevice::custom();
-        $floatingDeviceManager->enableMABFloating($switch, $port);
+        $floatingDeviceManager->enableMABFloating($mac, $switch, $port);
     } 
 }
 

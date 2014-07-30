@@ -544,6 +544,51 @@ sub returnAccessListAttribute {
     return "ip:inacl#101";
 }
 
+sub disableMABByIfIndex {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    if ( !$this->isProductionMode() ) {
+        $logger->warn("Should set cafPortAuthorizeControl on $ifIndex to 3:forceAuthorized but the s");
+        return 1;
+    }
+
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+
+    my $OID_cafPortAuthorizeControl = '1.3.6.1.4.1.9.9.656.1.2.1.1.5';
+
+    $logger->trace("SNMP set_request for cafPortAuthorizeControl: $OID_cafPortAuthorizeControl");
+    my $result = $this->{_sessionWrite}->set_request(
+        -varbindlist => [ "$OID_cafPortAuthorizeControl.$ifIndex", Net::SNMP::INTEGER, 3 ] );
+    return ( defined($result) );
+}
+
+sub enableMABByIfIndex {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    if ( !$this->isProductionMode() ) {
+        $logger->warn("Should set cafPortAuthorizeControl on $ifIndex to 2:auto but the switch is no");
+        return 1;
+    }
+
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+
+    my $OID_cafPortAuthorizeControl = '1.3.6.1.4.1.9.9.656.1.2.1.1.5';
+
+    $logger->trace("SNMP set_request for cafPortAuthorizeControl: $OID_cafPortAuthorizeControl");
+    my $result = $this->{_sessionWrite}->set_request(
+        -varbindlist => [ "$OID_cafPortAuthorizeControl.$ifIndex", Net::SNMP::INTEGER, 2 ] );
+    return ( defined($result) );
+}
+
+=back
+>>>>>>> Added support for classic floating devices triggered by RADIUS
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -77,6 +77,7 @@ use Readonly;
 
 use pf::config;
 use pf::locationlog;
+use pf::util;
 
 =head1 SUBROUTINES
             
@@ -109,7 +110,7 @@ sub enablePortConfig {
 # cause in this case there would be any traps enabled anymore... 
 
 
-    my ($this, $mac, $switch, $switch_port, $switch_locker_ref) = @_;
+    my ($this, $mac, $switch, $switch_port, $switch_locker_ref, $radius_triggered) = @_;
     my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
 
     # Since PF only manages floating network devices plugged in ports configured with port-security
@@ -119,9 +120,13 @@ sub enablePortConfig {
         return 0;
     }
 
-    $logger->info("Disabling port-security on port $switch_port");
-    if (! $switch->disablePortSecurityByIfIndex($switch_port)) {
+    $logger->info("Disabling port access control on port $switch_port");
+    if (!$radius_triggered && ! $switch->disablePortSecurityByIfIndex($switch_port)) {
         $logger->error("An error occured while disabling port-security on port $switch_port");
+        return 0;
+    }
+    elsif ($radius_triggered && ! $switch->disableMABByIfIndex($switch_port)){
+        $logger->error("An error occured while disabling MAB on port $switch_port");
         return 0;
     }
 
@@ -193,9 +198,16 @@ sub disablePortConfig {
                       "but the port should work.");
     }
 
-    $logger->info("Enabling port-security on port $switch_port");
-    if (! $switch->enablePortSecurityByIfIndex($switch_port)) {
+    my @locationlog = locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port); 
+    my $radius_triggered = (str_to_connection_type($locationlog[0]->{connection_type}) eq $WIRED_MAC_AUTH);
+
+    $logger->info("Enabling access control on port $switch_port");
+    if (!$radius_triggered && ! $switch->enablePortSecurityByIfIndex($switch_port)) {
         $logger->error("An error occured while enabling port-security on port $switch_port");
+        return 0;
+    }
+    elsif ( $radius_triggered && ! $switch->enableMABByIfIndex($switch_port) ) {
+        $logger->error("An error occured while enabling MAB on port $switch_port");
         return 0;
     }
 
@@ -221,10 +233,13 @@ Puts the switchport in MAB floating device mode
 
 =cut
 sub enableMABFloating{
-    my ( $this, $switch, $ifIndex ) = @_;
+    my ( $this, $mac, $switch, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
      
     my $result;         
+    if($switch->supportsFloatingDevice && !$switch->supportsMABFloatingDevices){
+        $this->enablePortConfig($mac, $switch, $ifIndex, undef, $TRUE);
+    }
     if($switch->supportsMABFloatingDevices){
         $switch->enableMABFloatingDevice($ifIndex);
         # disconnect and close additionnal entries that could have been opened (a device was authentified before the floating)
