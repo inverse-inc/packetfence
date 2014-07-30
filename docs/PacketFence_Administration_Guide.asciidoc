@@ -2842,7 +2842,7 @@ CentOS 6
 
 Add the repository ELRepo.
 	
-	rpm -Uvh http://www.elrepo.org/elrepo-release-6-5.el6.elrepo.noarch.rpm
+	rpm -Uvh http://www.elrepo.org/elrepo-release-6-6.el6.elrepo.noarch.rpm
 
 Edit the repo file to disable ELRepo by default:
 
