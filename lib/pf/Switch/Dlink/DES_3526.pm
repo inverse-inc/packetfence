@@ -39,18 +39,6 @@ sub parseTrap {
         )
     /x;
 
-    # match .1.3.6.1.2.1.2.2.1.8.2 = INTEGER: up(1)
-    # ifTable.ifEntry.ifOperStatus
-    my $linkstatus_re = qr/
-        ^  .1.3.6.1.2.1.2.2.1.8\.(\d+)  # capture: $1 is the ifIndex
-        \s=\s                           #   = 
-        INTEGER:\s                      # INTEGER:  
-        [^(]+                           # anything but a (
-        \(                              # a litteral (
-            (\d)                        # capture: $2 is the op status code
-        \)                              # a litteral )
-    /x;
-
     # match .1.3.6.1.4.1.171.11.64.1.2.15.1 = Hex-STRING: 01 00 1C C0 91 72 B9 00 01 00 1A 00  END VARIABLEBINDINGS
     my $mac_notification_re = qr/
         ^ \.1\.3\.6\.1\.4\.1\.171\.11\.64\.[12]\.2\.15\.1 
@@ -90,22 +78,6 @@ sub parseTrap {
             next PARSETRAP;
         }
 
-
-        # linkup/linkdown
-        if ( !defined $ifIndex && $field =~ $linkstatus_re ) {
-            ( $ifIndex, $op ) = ( $1, $2 );
-            $trapHashRef->{'trapIfIndex'} = $ifIndex;
-
-            if ( $op == 1 ) {
-                $trapHashRef->{'trapType'} = 'up';
-            }
-            elsif ( $op == 2 ) {
-                $trapHashRef->{'trapType'} = 'down';
-            }
-            else {
-                $trapHashRef->{'trapType'} = 'unknown';
-            }
-        }
     }
 
     unless ( $ifIndex && $op ) {
