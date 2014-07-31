@@ -18,6 +18,7 @@ has '+type' => (default => 'Email');
 has '+unique' => (default => 1);
 has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
+has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head2 available_attributes
 

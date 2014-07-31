@@ -30,6 +30,18 @@ has_field 'sms_carriers' =>
              help => 'List of phone carriers available to the user' },
   );
 
+has_field 'create_local_account' => (
+    type => 'Toggle',
+    checkbox_value => 'yes',
+    unchecked_value => 'no',
+    label => 'Create Local Account',
+    default => pf::Authentication::Source::SMSSource->meta->get_attribute('create_local_account')->default,
+    tags => {
+        after_element => \&help,
+        help => 'Create a local account on the PacketFence system based on the phone number provided.',
+    },
+);
+
 =head1 METHODS
 
 =head2 options_sms_carriers

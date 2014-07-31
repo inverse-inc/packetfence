@@ -89,6 +89,18 @@ has_field 'domains' =>
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
   );
 
+has_field 'create_local_account' => (
+    type => 'Toggle',
+    checkbox_value => 'yes',
+    unchecked_value => 'no',
+    label => 'Create Local Account',
+    default => pf::Authentication::Source::GithubSource->meta->get_attribute('create_local_account')->default,
+    tags => {
+        after_element => \&help,
+        help => 'Create a local account on the PacketFence system based on the account email address provided.',
+    },
+);
+
 =head1 COPYRIGHT
 
 Copyright (C) 2012 Inverse inc.

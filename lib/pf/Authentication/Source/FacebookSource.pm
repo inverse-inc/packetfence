@@ -23,6 +23,7 @@ has 'scope' => (isa => 'Str', is => 'rw', default => 'email');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://graph.facebook.com/me');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/facebook');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.facebook.com,*.fbcdn.net,*.akamaihd.net');
+has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head2 available_actions
 
