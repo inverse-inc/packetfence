@@ -526,16 +526,15 @@ sub returnRadiusAccessAccept {
 
     
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        use Data::Dumper;
-        $logger->info(Dumper($self->{_access_lists}));
         if( defined($user_role) && $user_role ne ""){
             my $access_list = $self->getAccessListByName($user_role);
             my @av_pairs;
             while($access_list =~ /([^\n]+)\n?/g){
-                push(@av_pairs, "ip:inacl#101=$1");
+                push(@av_pairs, $self->returnAccessListAttribute."=".$1);
+                $logger->info("[$self->{_id}] Adding access list : $1 to the RADIUS reply");
             } 
-            $logger->info(Dumper(\@av_pairs));
             $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs; 
+            $logger->info("[$self->{_id}] Added access lists to the RADIUS reply.");
         }
     }
     if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
@@ -556,6 +555,17 @@ sub returnRadiusAccessAccept {
 
     $logger->info("[$self->{'_id'}] Returning ACCEPT with VLAN $vlan and role $role");
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+}
+
+=item returnAccessListAttribute
+
+Returns the attribute to use when pushing an ACL using RADIUS
+
+=cut
+
+sub returnAccessListAttribute {
+    my ($this) = @_;
+    return "ip:inacl#101";
 }
 
 =back
