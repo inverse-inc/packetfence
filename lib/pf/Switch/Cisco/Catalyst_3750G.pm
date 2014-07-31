@@ -47,7 +47,7 @@ use base ('pf::Switch::Cisco::Catalyst_3750');
 sub description { 'Cisco Catalyst 3750G' }
 
 # CAPABILITIES
-# inherited from 3560
+# inherited from 3750
 
 =head1 SUBROUTINES
 
