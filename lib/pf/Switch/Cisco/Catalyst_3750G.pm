@@ -42,12 +42,12 @@ use Net::SNMP;
 use pf::config;
 use pf::Switch::constants;
 
-use base ('pf::Switch::Cisco::Catalyst_2960');
+use base ('pf::Switch::Cisco::Catalyst_3750');
 
 sub description { 'Cisco Catalyst 3750G' }
 
 # CAPABILITIES
-# inherited from 2960
+# inherited from 3560
 
 =head1 SUBROUTINES
 
