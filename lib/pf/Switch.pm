@@ -3044,7 +3044,7 @@ Disables mac authentication bypass on the specified port
 =cut
 
 sub disableMABByIfIndex{
-    my ($this, $ifIndex) = @_;
+    my ($self, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->error("This function is unimplemented.");
     return 0; 
@@ -3057,7 +3057,7 @@ Enables mac authentication bypass on the specified port
 =cut
 
 sub enableMABByIfIndex{
-    my ($this, $ifIndex) = @_;
+    my ($self, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->error("This function is unimplemented.");
     return 0; 
