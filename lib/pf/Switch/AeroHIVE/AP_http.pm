@@ -110,7 +110,7 @@ sub getAcceptForm {
         </script>
     ];
 
-    $logger->info($html_form);
+    $logger->debug("Generated the following html form : ".$html_form);
     return $html_form;
 }
 
