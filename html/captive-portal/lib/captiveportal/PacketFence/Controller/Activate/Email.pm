@@ -190,7 +190,7 @@ sub doEmailRegistration : Private {
                 %info
             );
         }
-        if (isenabled($Config{'guests_self_registration'}{'create_local_account_on_email_reg'})) {
+        if ( isenabled($source->{create_local_account}) ) {
             # Create a local account after guest registration and send the access code
             my %info = (
                 'pid'     => $pid,
@@ -346,7 +346,7 @@ sub doSponsorRegistration : Private {
                 $Config{'general'}{'domain'}
             );
         }
-        if (isenabled($Config{'guests_self_registration'}{'create_local_account_on_sponsor_reg'})) {
+        if ( isenabled($source->{create_local_account}) ) {
             # TO:
             $info{'email'} = $pid;
 
