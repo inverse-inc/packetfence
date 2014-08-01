@@ -17,63 +17,35 @@ use Moo;
 
 =head2 switch
 
+switch for the trap
+
 =cut
 
 has 'switch' => (is => 'rw');
 
-=head2 switchPort
+=head2 trapInfo
+
+The trapInfo from the parse trap
 
 =cut
 
-has switchPort => (is => 'rw');
+has 'trapInfo' => (is => 'rw');
 
-=head2 type
+=head2 oids
 
-=cut
-
-has type => (is => 'rw');
-
-=head2 vlan
+The oids from the parse trap
 
 =cut
 
-has vlan => (is => 'rw');
+has 'oids' => (is => 'rw');
 
-=head2 operation
+=head2 supportedOIDS
 
-=cut
-
-has operation => (is => 'rw');
-
-=head2 mac
+The supported oids for the trap
 
 =cut
 
-has mac => (is => 'rw');
-
-=head2 SSID
-
-=cut
-
-has SSID => (is => 'rw');
-
-=head2 clientUserName
-
-=cut
-
-has clientUserName => (is => 'rw');
-
-=head2 ifIndex
-
-=cut
-
-has ifIndex => (is => 'rw');
-
-=head2 connectionType
-
-=cut
-
-has connectionType => (is => 'rw');
+sub supportedOIDS { }
 
 
 =head1 AUTHOR
