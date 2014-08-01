@@ -35,7 +35,6 @@ use pf::log;
 use pf::util::radius qw(perform_disconnect);
 use List::MoreUtils qw(any all);
 use Scalar::Util qw(looks_like_number);
-use List::MoreUtils qw(any);
 
 =head1 SUBROUTINES
 
@@ -2947,26 +2946,6 @@ sub extractVLAN {
     return;
 }
 
-=item parseReceivedFrom
-
-=cut
-
-sub parseReceivedFrom {
-    my ($self,$trapInfo) = @_;
-    $trapInfo->{receivedfrom} =~ m/
-    (?:UDP:\ \[)?                                       # Optional "UDP: [" (since v2 traps I think)
-    (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})                # network device ip address
-    (?:\]:(\d+))?                                         # Optional "]:port" (since v2 traps I think)
-    (?:\-\>\[(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\])?     # Optional "->[ip address]" (since net-snmp 5.4)
-    /x;
-    my $receivedFromData = {
-        networkDeviceIp => $1,
-        port => $2,
-        optIpAddress => $3,
-    };
-    return $receivedFromData;
-}
-
 =item parseRequest
 
 Takes FreeRADIUS' RAD_REQUEST hash and process it to return
@@ -3082,6 +3061,14 @@ sub enableMABByIfIndex {
     $logger->error("This function is unimplemented.");
     return 0; 
 }
+
+=item trapOidSupported
+
+verifies if OID is supported by the switch
+
+=cut
+
+sub trapOidSupported { 0 }
 
 =back
 
