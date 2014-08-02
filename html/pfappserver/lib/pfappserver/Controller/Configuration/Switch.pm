@@ -35,6 +35,9 @@ __PACKAGE__->config(
         update => { AdminRole => 'SWITCHES_UPDATE' },
         remove => { AdminRole => 'SWITCHES_DELETE' },
     },
+    action_args => {
+        search => { form => 'AdvancedSearch' },
+    }
 );
 
 =head1 METHODS
@@ -82,6 +85,38 @@ after list => sub {
         }
     }
 };
+
+=head2 search
+
+/configuration/switch/search
+
+Search the switch config
+
+=cut
+
+sub search : Local : AdminRole('SWITCHES_READ') {
+    my ($self, $c, $pageNum, $perPage) = @_;
+    $pageNum = 1 unless $pageNum;
+    $perPage = 25 unless $perPage;
+    my ($status, $status_msg, $result, $violations);
+    my %search_results;
+    my $model = $self->getModel($c);
+    my $form = $self->getForm($c);
+    # Store columns in the session
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = $form->field_errors;
+        $c->stash(current_view => 'JSON');
+    } else {
+        my $query = $form->value;
+        ($status, $result) = $model->search($query, $pageNum, $perPage);
+        if (is_success($status)) {
+            $c->stash(form => $form);
+            $c->stash($result);
+        }
+    }
+}
 
 =head2 after create
 
