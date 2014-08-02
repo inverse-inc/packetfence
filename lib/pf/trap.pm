@@ -14,6 +14,8 @@ pf::trap
 use strict;
 use warnings;
 use Moo;
+use List::Util qw(first);
+our $IFINDEX_OID = '.1.3.6.1.2.1.2.2.1.1';
 
 =head2 switch
 
@@ -46,6 +48,21 @@ The supported oids for the trap
 =cut
 
 sub supportedOIDS { }
+
+=head2 ifIndex
+
+ifIndex
+
+=cut
+
+sub ifIndex {
+    my ($self) = @_;
+    my $oids = $self->oids;
+    my $ifIndexOid = first {  index($_->[0],$IFINDEX_OID) == 0 } @$oids;
+    return unless $ifIndexOid;
+    return unless $ifIndexOid->[0] =~ /^\Q$IFINDEX_OID\E\.([0-9]+)/;
+    return $1;
+}
 
 
 =head1 AUTHOR

@@ -15,19 +15,18 @@ the discovered MACs status in packetfence.
 use strict;
 use warnings;
 use pf::log;
-use pf::SwitchFactory;
 use pf::vlan::custom;
-use pf::trap;
+use pf::factory::trap;
+
 
 sub handleTrap {
     my ($self,$trapInfo,$oids) = @_;
     my $logger = pf::log::get_logger();
-    my $switch = pf::SwitchFactory->instantiateFromTrap($trapInfo);
-    return unless $switch;
-    my $trap = $switch->parseTrapEvent($trapInfo,$oids);
-    return if $trap->isa('pf::trap::unknown');
+    my $trap = pf::factory::trap->instantiate($trapInfo,$oids);
+    return unless $trap;
     my $trapMac = $trap->mac;
-    my $trapType = $trap->type;
+    my $trapType = ref($trap);
+    my $switch = $trap->switch;
 
     # do we actually act on this trap ?
     if ( defined($trapMac) && $switch->isFakeMac($trapMac) ) {
@@ -35,7 +34,7 @@ sub handleTrap {
         return;
     }
     my $switch_port = $trap->switchPort;
-    my $vlan_obj = new pf::vlan::custom();
+    my $vlan_obj = pf::vlan::custom->new;
     my $weActOnThisTrap = $vlan_obj->doWeActOnThisTrap($switch, $switch_port, $trapType);
 
     if ( $weActOnThisTrap == 0 ) {
