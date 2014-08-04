@@ -122,7 +122,7 @@ table.sources {
               [% pf_section_entry( 'guests_admin_registration', 'Access Duration') %]
               [%- END %]
               [%- IF can_access("USERS_SOURCES_READ") %]
-              [% list_entry('Authentication', 'index', 'Sources') %]
+              [% list_entry('Config::Authentication', 'index', 'Sources') %]
               [%- END %]
               [%- IF can_access("PROVISIONING_READ") %]
               [% list_entry('Config::Provisioning', 'index', 'Provisioners') %]

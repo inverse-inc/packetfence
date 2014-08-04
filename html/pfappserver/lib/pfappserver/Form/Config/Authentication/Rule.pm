@@ -1,8 +1,8 @@
-package pfappserver::Form::Authentication::Rule;
+package pfappserver::Form::Config::Authentication::Rule;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Rule - Rules of a user source
+pfappserver::Form::Config::Authentication::Rule - Rules of a user source
 
 =head1 DESCRIPTION
 

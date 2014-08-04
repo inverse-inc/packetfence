@@ -1,8 +1,8 @@
-package pfappserver::Form::Authentication::Source;
+package pfappserver::Form::Config::Authentication::Source;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source - Common Web form for a user source
+pfappserver::Form::Config::Authentication::Source - Common Web form for a user source
 
 =head1 DESCRIPTION
 

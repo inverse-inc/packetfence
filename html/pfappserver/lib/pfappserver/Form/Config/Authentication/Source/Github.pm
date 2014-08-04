@@ -1,40 +1,40 @@
-package pfappserver::Form::Authentication::Source::LinkedIn;
+package pfappserver::Form::Config::Authentication::Source::Github;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source::LinkedIn - Web form for a LinkedIn user source
+pfappserver::Form::Config::Authentication::Source::Github - Web form for a Github user source
 
 =head1 DESCRIPTION
 
-Form definition to create or update a LinkedIn user source.
+Form definition to create or update a Github user source.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Authentication::Source';
+extends 'pfappserver::Form::Config::Authentication::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::Authentication::Source::LinkedInSource;
+use pf::Authentication::Source::GithubSource;
 
 # Form fields
 has_field 'client_id' =>
   (
    type => 'Text',
-   label => 'API ID',
+   label => 'App ID',
    required => 1,
   );
 has_field 'client_secret' =>
   (
    type => 'Text',
-   label => 'API Secret',
+   label => 'App Secret',
    required => 1,
   );
 has_field 'site' =>
   (
    type => 'Text',
-   label => 'API URL',
+   label => 'App URL',
    required => 1,
-   default => pf::Authentication::Source::LinkedInSource->meta->get_attribute('site')->default,
+   default => pf::Authentication::Source::GithubSource->meta->get_attribute('site')->default,
    element_class => ['input-xlarge'],
   );
 has_field 'authorize_path' =>
@@ -42,28 +42,28 @@ has_field 'authorize_path' =>
    type => 'Text',
    label => 'API Authorize Path',
    required => 1,
-   default => pf::Authentication::Source::LinkedInSource->meta->get_attribute('authorize_path')->default,
+   default => pf::Authentication::Source::GithubSource->meta->get_attribute('authorize_path')->default,
   );
 has_field 'access_token_path' =>
   (
    type => 'Text',
    label => 'API Token Path',
    required => 1,
-   default => pf::Authentication::Source::LinkedInSource->meta->get_attribute('access_token_path')->default,
+   default => pf::Authentication::Source::GithubSource->meta->get_attribute('access_token_path')->default,
   );
 has_field 'access_token_param' =>
   (
    type => 'Text',
    label => 'Access Token Parameter',
    required => 1,
-   default => pf::Authentication::Source::LinkedInSource->meta->get_attribute('access_token_param')->default,
+   default => pf::Authentication::Source::GithubSource->meta->get_attribute('access_token_param')->default,
   );
 has_field 'protected_resource_url' =>
   (
    type => 'Text',
    label => 'API URL of logged user',
    required => 1,
-   default => pf::Authentication::Source::LinkedInSource->meta->get_attribute('protected_resource_url')->default,
+   default => pf::Authentication::Source::GithubSource->meta->get_attribute('protected_resource_url')->default,
    element_class => ['input-xlarge'],
   );
 has_field 'redirect_url' =>
@@ -71,8 +71,8 @@ has_field 'redirect_url' =>
    type => 'Text',
    label => 'Portal URL',
    required => 1,
-   default => pf::Authentication::Source::LinkedInSource->meta->get_attribute('redirect_url')->default,,
-   element_attr => {'placeholder' => pf::Authentication::Source::LinkedInSource->meta->get_attribute('redirect_url')->default,},
+   default => pf::Authentication::Source::GithubSource->meta->get_attribute('redirect_url')->default,
+   element_attr => {'placeholder' => pf::Authentication::Source::GithubSource->meta->get_attribute('redirect_url')->default},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
              help => 'The hostname must be the one of your captive portal.' },
@@ -82,8 +82,8 @@ has_field 'domains' =>
    type => 'Text',
    label => 'Authorized domains',
    required => 1,
-   default => pf::Authentication::Source::LinkedInSource->meta->get_attribute('domains')->default,
-   element_attr => {'placeholder' => pf::Authentication::Source::LinkedInSource->meta->get_attribute('domains')->default},
+   default => pf::Authentication::Source::GithubSource->meta->get_attribute('domains')->default,
+   element_attr => {'placeholder' => pf::Authentication::Source::GithubSource->meta->get_attribute('domains')->default},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
@@ -94,7 +94,7 @@ has_field 'create_local_account' => (
     checkbox_value => 'yes',
     unchecked_value => 'no',
     label => 'Create Local Account',
-    default => pf::Authentication::Source::LinkedInSource->meta->get_attribute('create_local_account')->default,
+    default => pf::Authentication::Source::GithubSource->meta->get_attribute('create_local_account')->default,
     tags => {
         after_element => \&help,
         help => 'Create a local account on the PacketFence system based on the account email address provided.',
@@ -103,7 +103,7 @@ has_field 'create_local_account' => (
 
 =head1 COPYRIGHT
 
-Copyright (C) 2014 Inverse inc.
+Copyright (C) 2012 Inverse inc.
 
 =head1 LICENSE
 

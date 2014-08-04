@@ -1,41 +1,41 @@
-package pfappserver::Form::Authentication::Source::Null;
+package pfappserver::Form::Config::Authentication::Source::Kerberos;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source::Null add documentation
-
-=cut
+pfappserver::Form::Config::Authentication::Source::Kerberos - Web form for a Kerberos user source
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Authentication::Source::Null
+Form definition to create or update a Kerberos user source.
 
 =cut
 
-use strict;
-use warnings;
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Authentication::Source';
+extends 'pfappserver::Form::Config::Authentication::Source';
 
 # Form fields
-has_field 'email_required' =>
+has_field 'host' =>
   (
-   type => 'Toggle',
-   checkbox_value => 'yes',
-   unchecked_value => 'no',
+   type => 'Text',
+   label => 'Host',
+   required => 1,
+   element_class => ['input-small'],
+   element_attr => {'placeholder' => '127.0.0.1'},
   );
-
-=head1 AUTHOR
-
-Inverse inc. <info@inverse.ca>
+has_field 'realm' =>
+  (
+   type => 'Text',
+   label => 'Realm',
+   required => 1,
+  );
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2012 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -52,5 +52,5 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
-

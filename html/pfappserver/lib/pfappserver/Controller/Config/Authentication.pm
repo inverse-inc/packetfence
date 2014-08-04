@@ -1,8 +1,8 @@
-package pfappserver::Controller::Authentication;
+package pfappserver::Controller::Config::Authentication;
 
 =head1 NAME
 
-pfappserver::Controller::Authentication - Catalyst Controller
+pfappserver::Controller::Config::Authentication - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -20,7 +20,7 @@ use POSIX;
 
 use Log::Log4perl qw(get_logger);
 use pf::authentication;
-use pfappserver::Form::Authentication;
+use pfappserver::Form::Config::Authentication;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -30,7 +30,7 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 Show list of authentication sources. Allow user to order the list.
 
-/authentication/index
+/config/authentication/index
 
 =cut
 
@@ -43,7 +43,7 @@ sub index :Path :Args(0) :AdminRole('USERS_SOURCES_READ') {
     my $internal_types = availableAuthenticationSourceTypes('internal');
     my $external_types = availableAuthenticationSourceTypes('external');
     my $exclusive_types = availableAuthenticationSourceTypes('exclusive');
-    my $form = pfappserver::Form::Authentication->new(ctx => $c,
+    my $form = pfappserver::Form::Config::Authentication->new(ctx => $c,
                                                    init_object => {sources => $sources});
     $form->process();
 
@@ -60,7 +60,7 @@ sub index :Path :Args(0) :AdminRole('USERS_SOURCES_READ') {
 
 Update the authentication sources order.
 
-/authentication/update
+/config/authentication/update
 
 =cut
 
@@ -70,7 +70,7 @@ sub update :Path('update') :Args(0) :AdminRole('USERS_SOURCES_UPDATE') {
     my ($form, $status, $message);
     $c->stash->{current_view} = 'JSON';
 
-    $form = $c->form("Authentication");
+    $form = $c->form("Config::Authentication");
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;

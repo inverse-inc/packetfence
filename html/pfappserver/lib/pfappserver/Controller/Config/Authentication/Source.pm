@@ -1,8 +1,8 @@
-package pfappserver::Controller::Authentication::Source;
+package pfappserver::Controller::Config::Authentication::Source;
 
 =head1 NAME
 
-pfappserver::Controller::Authentication::Source - Catalyst Controller
+pfappserver::Controller::Config::Authentication::Source - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -19,8 +19,8 @@ use namespace::autoclean;
 use POSIX;
 
 use pf::authentication;
-use pfappserver::Form::Authentication::Source;
-use pfappserver::Form::Authentication::Rule;
+use pfappserver::Form::Config::Authentication::Source;
+use pfappserver::Form::Config::Authentication::Rule;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -33,7 +33,7 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
-    $c->forward('Controller::Authentication', 'index');
+    $c->forward('Controller::Config::Authentication', 'index');
 }
 
 =head2 create
@@ -106,7 +106,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) :AdminRole('USERS_SOURCES
     }
 
     # Load the appropriate source module
-    $form_type = "Authentication::Source::" . $c->stash->{source}->{type};
+    $form_type = "Config::Authentication::Source::" . $c->stash->{source}->{type};
     $form = $c->form($form_type);
     unless ($form) {
         $c->log->error("cannot load form $form_type");
@@ -139,7 +139,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_SOU
     my ($form_type, $form, $status, $message);
 
     # Load the appropriate source module
-    $form_type = 'pfappserver::Form::Authentication::Source::' . $c->stash->{source}->{type};
+    $form_type = 'pfappserver::Form::Config::Authentication::Source::' . $c->stash->{source}->{type};
     eval "require $form_type";
     if ($@) {
         $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
@@ -293,7 +293,7 @@ sub rule_read :Chained('rule_object') :PathPart('read') :Args(0) :AdminRole('USE
                                               [$c->{stash}->{source}->{id}, $c->{stash}->{rule}->{id}]);
     }
 
-    $form = pfappserver::Form::Authentication::Rule->new(ctx => $c,
+    $form = pfappserver::Form::Config::Authentication::Rule->new(ctx => $c,
                                                          init_object => $c->stash->{rule},
                                                          source_type => $c->stash->{source}->{type},
                                                          attrs => $c->stash->{source}->available_attributes());
@@ -319,7 +319,7 @@ sub rule_update :Chained('rule_object') :PathPart('update') :Args(0) :AdminRole(
 
     my ($form, $status, $message);
 
-    $form = pfappserver::Form::Authentication::Rule->new(ctx => $c,
+    $form = pfappserver::Form::Config::Authentication::Rule->new(ctx => $c,
                                                          source_type => $c->stash->{source}->{type},
                                                          attrs => $c->stash->{source}->available_attributes());
     $form->process(params => $c->request->params);

@@ -1,8 +1,8 @@
-package pfappserver::Form::Authentication::Source::LDAP;
+package pfappserver::Form::Config::Authentication::Source::LDAP;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source::LDAP - Web form for a LDAP user source
+pfappserver::Form::Config::Authentication::Source::LDAP - Web form for a LDAP user source
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ Form definition to create or update a LDAP user source.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Authentication::Source';
+extends 'pfappserver::Form::Config::Authentication::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
 # Form fields

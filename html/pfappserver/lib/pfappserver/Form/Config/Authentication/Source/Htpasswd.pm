@@ -1,37 +1,46 @@
-package pfappserver::Form::Authentication::Source::Kerberos;
+package pfappserver::Form::Config::Authentication::Source::Htpasswd;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source::Kerberos - Web form for a Kerberos user source
+pfappserver::Form::Config::Authentication::Source::Htpasswd - Web form for a htpasswd user source
 
 =head1 DESCRIPTION
 
-Form definition to create or update a Kerberos user source.
+Form definition to create or update a htpasswd user source.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Authentication::Source';
+extends 'pfappserver::Form::Config::Authentication::Source';
 
 # Form fields
-has_field 'host' =>
+has_field 'path' =>
   (
    type => 'Text',
-   label => 'Host',
+   label => 'File Path',
    required => 1,
-   element_class => ['input-small'],
-   element_attr => {'placeholder' => '127.0.0.1'},
+   element_class => ['input-xxlarge'],
   );
-has_field 'realm' =>
-  (
-   type => 'Text',
-   label => 'Realm',
-   required => 1,
-  );
+
+=head2 validate
+
+Make sure the htpasswd file is readable.
+
+=cut
+
+sub validate {
+    my $self = shift;
+
+    $self->SUPER::validate();
+
+    unless (-r $self->value->{path}) {
+        $self->field('path')->add_error("The file is not readable.");
+    }
+}
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

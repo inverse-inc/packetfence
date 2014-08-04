@@ -1,45 +1,43 @@
-package pfappserver::Form::Authentication;
+package pfappserver::Form::Config::Authentication::Source::RADIUS;
 
 =head1 NAME
 
-pfappserver::Form::Authentication - authentication sources
+pfappserver::Form::Config::Authentication::Source::RADIUS - Web form for a Kerberos user source
 
 =head1 DESCRIPTION
 
-Sortable list of authentication sources.
+Form definition to create or update a RADIUS user source.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Base::Form';
+extends 'pfappserver::Form::Config::Authentication::Source';
 
 # Form fields
-has_field 'sources' =>
-  (
-   type => 'Repeatable',
-   num_when_empty => 0,
-  );
-has_field 'sources.id' =>
-  (
-   type => 'Hidden',
-   widget_wrapper => 'None',
-  );
-has_field 'sources.description' =>
+has_field 'host' =>
   (
    type => 'Text',
+   label => 'Host',
+   element_class => ['input-small'],
+   element_attr => {'placeholder' => '127.0.0.1'},
   );
-has_field 'sources.class' =>
+has_field 'port' =>
   (
-   type => 'Text',
+   type => 'PosInteger',
+   label => 'Port',
+   element_class => ['input-mini'],
+   element_attr => {'placeholder' => '1812'},
   );
-has_field 'sources.type' =>
+has_field 'secret' =>
   (
-   type => 'Text',
+   type => 'Password',
+   label => 'Secret',
+   required => 1,
   );
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2013 Inverse inc.
+Copyright (C) 2012 Inverse inc.
 
 =head1 LICENSE
 

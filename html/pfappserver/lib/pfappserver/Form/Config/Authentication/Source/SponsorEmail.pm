@@ -1,32 +1,22 @@
-package pfappserver::Form::Authentication::Source::Email;
+package pfappserver::Form::Config::Authentication::Source::SponsorEmail;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source::Email - Web form for email-based self-registration
+pfappserver::Form::Config::Authentication::Source::SponsorEmail - Web form for email-based self-registration by soonsor
 
 =head1 DESCRIPTION
 
-Form definition to create or update an Email-verified user source.
+Form definition to create or update an guest-sponsored user source.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Authentication::Source';
+extends 'pfappserver::Form::Config::Authentication::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::Authentication::Source::EmailSource;
-use pfappserver::Form::Field::Duration;
+use pf::Authentication::Source::SponsorEmailSource;
 
 # Form fields
-has_field 'email_activation_timeout' =>
-  (
-   type => 'Duration',
-   label => 'Email Activation Timeout',
-   required => 1,
-   default => pfappserver::Form::Field::Duration->duration_inflate(pf::Authentication::Source::EmailSource->meta->get_attribute('email_activation_timeout')->default),
-   tags => { after_element => \&help,
-             help => 'This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.' },
-  );
 has_field 'allow_localdomain' =>
   (
    type => 'Toggle',
@@ -44,7 +34,7 @@ has_field 'create_local_account' => (
     unchecked_value => 'no',
     label => 'Create Local Account',
     default => pf::Authentication::Source::EmailSource->meta->get_attribute('create_local_account')->default,
-    tags => {
+    tags => { 
         after_element => \&help,
         help => 'Create a local account on the PacketFence system based on the email address provided.',
     },

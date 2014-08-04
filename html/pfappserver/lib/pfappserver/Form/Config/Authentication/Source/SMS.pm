@@ -1,8 +1,8 @@
-package pfappserver::Form::Authentication::Source::SMS;
+package pfappserver::Form::Config::Authentication::Source::SMS;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source::SMS - Web form for SMS-based self-registration
+pfappserver::Form::Config::Authentication::Source::SMS - Web form for SMS-based self-registration
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ Form definition to create or update an SMS-verified user source.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Authentication::Source';
+extends 'pfappserver::Form::Config::Authentication::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::Authentication::Source::SMSSource;

@@ -1,8 +1,8 @@
-package pfappserver::Form::Authentication::Source::Facebook;
+package pfappserver::Form::Config::Authentication::Source::Facebook;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source::Facebook - Web form for a Facebook user source
+pfappserver::Form::Config::Authentication::Source::Facebook - Web form for a Facebook user source
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ Form definition to create or update a Facebook user source.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Authentication::Source';
+extends 'pfappserver::Form::Config::Authentication::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::Authentication::Source::FacebookSource;

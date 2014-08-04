@@ -1,46 +1,21 @@
-package pfappserver::Form::Authentication::Source::Htpasswd;
+package pfappserver::Form::Config::Authentication::Source::AD;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source::Htpasswd - Web form for a htpasswd user source
+pfappserver::Form::Config::Authentication::Source::AD - Web form for a AD user source
 
 =head1 DESCRIPTION
 
-Form definition to create or update a htpasswd user source.
+Form definition to create or update a Active Directory user source.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Authentication::Source';
-
-# Form fields
-has_field 'path' =>
-  (
-   type => 'Text',
-   label => 'File Path',
-   required => 1,
-   element_class => ['input-xxlarge'],
-  );
-
-=head2 validate
-
-Make sure the htpasswd file is readable.
-
-=cut
-
-sub validate {
-    my $self = shift;
-
-    $self->SUPER::validate();
-
-    unless (-r $self->value->{path}) {
-        $self->field('path')->add_error("The file is not readable.");
-    }
-}
+extends 'pfappserver::Form::Config::Authentication::Source::LDAP';
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2013 Inverse inc.
+Copyright (C) 2012 Inverse inc.
 
 =head1 LICENSE
 
