@@ -102,6 +102,13 @@ registration=enabled
 # based on VLAN enforcement techniques. Inline enforcement only users could
 # lower the value.
 redirtimer=20s
+# 
+# trapping.wait_for_redirect
+#
+# How many seconds should the WebAPI sleep before actually triggering the VLAN change.
+# This is meant to give the device enough time to fetch the redirection page before 
+# switching VLAN.
+wait_for_redirect = 1
 #
 # trapping.whitelist
 #
@@ -581,12 +588,12 @@ closelocationlogonstop=disabled
 # vlan.nbtraphandlerthreads
 #
 # Number of trap handler threads pfsetvlan should start
-nbtraphandlerthreads = 20
+nbtraphandlerthreads = 5
 #
 # vlan.nbtrapparserthreads
 #
 # Number of trap parser threads pfsetvlan should start
-nbtrapparserthreads = 5
+nbtrapparserthreads = 3
 #
 # vlan.bounce_duration
 #
