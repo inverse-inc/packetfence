@@ -157,7 +157,7 @@ sub redirect {
    my $cgi_session_id = $external_portal->handle($r);
    my $is_external_portal;
    if ($cgi_session_id) {
-      $r->err_headers_out->add('Set-Cookie' => "CGISESSION=".  $cgi_session_id . "; path=/");
+      $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
       $is_external_portal = 1;
    }
 

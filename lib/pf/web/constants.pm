@@ -248,12 +248,8 @@ Return a regex that would match all the portal profile uri: filter
 =cut
 
 sub _clean_urls_match_filter {
-    my @urls;
-    foreach my $filter ( grep { /^uri:/ } keys %pf::config::Profile_Filters ) {
-        $filter =~ s/^uri://;
-         push @urls, $filter;
-    }
-    return (@urls);
+    local $_;
+    return map { $_->value } grep { $_->isa('pf::profile::filter::uri') } @pf::config::Profile_Filters;
 }
 
 =item _clean_urls_match_mod_perl

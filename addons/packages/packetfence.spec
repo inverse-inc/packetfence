@@ -247,7 +247,7 @@ Requires: perl(Time::Period)
 # configuration-wizard
 Requires: iproute, vconfig
 
-Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal)
+Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
 # TESTING related
 #

@@ -40,6 +40,8 @@ use Socket;
 use List::MoreUtils qw(any);
 use Time::Local;
 use DateTime;
+use pf::factory::profile::filter;
+use pf::profile::filter;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -61,7 +63,7 @@ our (
 #firewall_sso.conf variables
     %ConfigFirewallSSO, $cached_firewall_sso,
 #profiles.conf variables
-    %Profile_Filters, %Profiles_Config, $cached_profiles_config,
+    @Profile_Filters, %Profiles_Config, $cached_profiles_config,
 
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
@@ -110,7 +112,7 @@ BEGIN {
         is_in_list
         $LOG4PERL_RELOAD_TIMER
         init_config
-        %Profile_Filters %Profiles_Config $cached_profiles_config
+        @Profile_Filters %Profiles_Config $cached_profiles_config
         $cached_pf_config $cached_network_config $cached_floating_device_config
         %ConfigFirewallSSO $cached_firewall_sso
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
@@ -670,16 +672,21 @@ sub readProfileConfigFile {
                 my ($config,$name) = @_;
                 $config->toHash(\%Profiles_Config);
                 $config->cleanupWhitespace(\%Profiles_Config);
+                #Clearing the Profile filters
+                @Profile_Filters = ();
                 my $default_description = $Profiles_Config{'default'}{'description'};
                 while (my ($profile_id, $profile) = each %Profiles_Config) {
                     $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
                     foreach my $field (qw(locale mandatory_fields sources filter) ) {
                         $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
                     }
+                    #Adding filters in profile order
                     foreach my $filter (@{$profile->{'filter'}}) {
-                        $Profile_Filters{$filter} = $profile_id;
+                        push @Profile_Filters, pf::factory::profile::filter->instantiate($profile_id,$filter);
                     }
                 }
+                #Add the default filter so it always matches if no other filter matches
+                push @Profile_Filters, pf::profile::filter->new( { profile => 'default', value => 1 } );
             }]
     );
 }

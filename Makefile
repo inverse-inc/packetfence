@@ -81,11 +81,9 @@ translation:
 .PHONY: mysql-schema
 
 mysql-schema:
-	if [ ! -f "/usr/local/pf/db/pf-schema.sql" ]; then\
-		cd /usr/local/pf/db;\
-		VERSIONSQL=$$(ls pf-schema-* |sort -r | head -1);\
-		ln -s $$VERSIONSQL ./pf-schema.sql;\
-	fi
+	cd /usr/local/pf/db;\
+	VERSIONSQL=$$( ls -r pf-schema-[0-9]*.[0-9]*.[0-9]*.sql | head -1);\
+	ln -f -s $$VERSIONSQL ./pf-schema.sql;
 
 .PHONY: chown_pf
 
