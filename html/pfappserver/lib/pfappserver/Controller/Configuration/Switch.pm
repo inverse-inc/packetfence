@@ -70,6 +70,7 @@ Check which switch is also defined as a floating device and sort switches by IP 
 
 after list => sub {
     my ($self, $c) = @_;
+    $c->stash->{action} ||= 'list';
 
     my ($status, $floatingdevice, $ip);
     my @ips = ();
@@ -112,7 +113,7 @@ sub search : Local : AdminRole('SWITCHES_READ') {
         my $query = $form->value;
         ($status, $result) = $model->search($query, $pageNum, $perPage);
         if (is_success($status)) {
-            $c->stash(form => $form);
+            $c->stash(form => $form, action => 'search');
             $c->stash($result);
         }
     }
@@ -154,6 +155,7 @@ Usage: /configuration/switch/
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
+    $c->stash->{action} = 'list';
     $c->forward('list');
 }
 

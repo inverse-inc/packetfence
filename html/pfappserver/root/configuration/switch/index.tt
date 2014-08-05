@@ -22,7 +22,7 @@
               <li class="active"><a href="#simple" data-toggle="tab">[% l('Search') %]</a></li>
             </ul>
             <div class="tab-pane active well" id="simple">
-              <form id="switch_search" class="form-inline" action="[% c.uri_for(c.controller('Configuration::Switch').action_for('search')) %]" method="POST">
+              <form id="search" class="form-inline" action="[% c.uri_for(c.controller('Configuration::Switch').action_for('search')) %]" method="POST">
                 <table style="width:100%">
                   <tbody>
                     <tr class="row-fluid">
@@ -56,9 +56,7 @@
         </div>
       </div><!--/span-->
 
-      <div id="switch_list">
-        [% INCLUDE configuration/switch/list.tt %]
-      </div>
+     [% INCLUDE configuration/switch/list.tt %]
 
       [%- IF can_access("SWITCHES_CREATE") %]
       <div class="form-actions">

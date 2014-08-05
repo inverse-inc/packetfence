@@ -90,15 +90,6 @@ Search the config from query
 sub search {
     my ($self, $query, $pageNum, $perPage) = @_;
     my ($status, $ids) = $self->readAllIds;
-    if(defined $pageNum || defined $perPage) {
-        my $count = @$ids;
-        $pageNum = 1 unless defined $pageNum;
-        $perPage = 25 unless defined $perPage;
-        my $start = ($pageNum - 1) * 25;
-        my $end = $start + $perPage - 1;
-        $end = $count - 1 if $end >= $count;
-        $ids = [@$ids[$start..$end]];
-    }
     my $searchEntry = $query->{searches}->[0];
     my $searchMethod = $QUERY_METHOD_LOOKUP{$searchEntry->{op}};
     my (@items,$item);
@@ -107,6 +98,15 @@ sub search {
         push @items,$item if $self->$searchMethod($searchEntry,$item);
     }
     my $pageCount = int( scalar @items / $perPage) + 1;
+    if(defined $pageNum || defined $perPage) {
+        my $count = @items;
+        $pageNum = 1 unless defined $pageNum;
+        $perPage = 25 unless defined $perPage;
+        my $start = ($pageNum - 1) * 25;
+        my $end = $start + $perPage - 1;
+        $end = $count - 1 if $end >= $count;
+        @items = @items[$start..$end];
+    }
     return (HTTP_OK,
         {   $self->itemsKey => \@items,
             pageNumber      => $pageNum,
