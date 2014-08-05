@@ -40,7 +40,6 @@ use strict;
 
 use pf::file_paths;
 use pf::log;
-use pf::config;
 use pf::util;
 use Moo;
 use File::Slurp qw(read_file);
@@ -111,6 +110,15 @@ The inotify object used to watch for pidfile
 =cut
 
 has inotify => (is => 'rw', builder => 1, lazy => 1 );
+
+=head2 isvirtual
+
+If the service is a virtual service
+
+=cut
+
+has isvirtual => ( is => 'rw', default => sub { 0 } );
+
 
 =head1 Methods
 
@@ -226,8 +234,9 @@ the builder the executable attribute
 
 sub _build_executable {
     my ($self) = @_;
+    require pf::config;
     my $name = $self->name;
-    my $service = ( $Config{'services'}{"${name}_binary"} || "$install_dir/sbin/$name" );
+    my $service = ( $pf::config::Config{'services'}{"${name}_binary"} || "$install_dir/sbin/$name" );
     return $service;
 }
 
@@ -509,9 +518,10 @@ return true is the service is currently managed by packetfence
 
 sub isManaged {
     my ($self) = @_;
+    require pf::config;
     my $name = $self->name;
     $name =~ s/\./_/g;
-    return isenabled($Config{'services'}{$name});
+    return isenabled($pf::config::Config{'services'}{$name});
 }
 
 

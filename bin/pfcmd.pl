@@ -1207,16 +1207,22 @@ sub service {
 
 sub postPfStartService {
     my ($managers) = @_;
-    my $noServicesAreRunning = all {$_->status eq '0'} @$managers;
-    my $technique;
-    configreload('hard') if $noServicesAreRunning;
-    if ( -e $pf_config_file && isenabled($Config{services}{iptables})) {
-        if ($noServicesAreRunning) {
-            $technique = getIptablesTechnique();
-            $technique->iptables_save($install_dir . '/var/iptables.bak');
+    my $count = true {$_->status ne '0'} @$managers;
+    configreload('hard') unless $count;
+    if ( -e $pf_config_file ) {
+        my $manager = pf::services::manager::iptables->new(runningServices => $count);
+        my $color = '';
+        my $command = '';
+        if( $manager->isManaged ) {
+            if($manager->start) {
+                $color =  $SUCCESS_COLOR;
+                $command = 'start';
+            } else {
+                $color =  $ERROR_COLOR;
+                $command = 'not stopped';
+            }
+            print $manager->name,"|${color}${command}${RESET_COLOR}\n";
         }
-        $technique ||= getIptablesTechnique();
-        $technique->iptables_generate();
     }
 }
 
@@ -1269,7 +1275,7 @@ sub getManagers {
     my $includeDependsOn = $flags & INCLUDE_DEPENDS_ON;
     my $justManaged      = $flags & JUST_MANAGED;
     my @serviceManagers =
-        grep { (!exists $seen{$_->name}) && ($seen{$_->name} = 1) && ( !$justManaged || $_->isManaged ) }
+        grep { (!exists $seen{$_->name}) && ($seen{$_->name} = 1) && ( !$justManaged || $_->isManaged ) && !$_->isvirtual }
         map {
             my $m = $_;
             my @managers =
@@ -1303,9 +1309,9 @@ sub stopService {
     @managers = @$infront_managers if $infront_managers;
     push @managers, @$push_managers if $push_managers;
     print $SERVICE_HEADER;
+    my $command;
+    my $color = '';
     foreach my $manager (@managers) {
-        my $command;
-        my $color = '';
         if($manager->status eq '0') {
             $command = 'already stopped';
             $color =  $WARNING_COLOR;
@@ -1320,22 +1326,21 @@ sub stopService {
         }
         print $manager->name,"|${color}${command}${RESET_COLOR}\n";
     }
-    if(isIptablesManaged($service)) {
-        my $count = true { $_->status eq '0'  } @managers;
-        if( $count ) {
-            getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak' );
-        } else {
-            $logger->error(
-                "Even though 'service pf stop' was called, there are still $count services running. "
-                 . "Can't restore iptables from var/iptables.bak"
-            );
+    if($service eq 'pf') {
+        my $count = true { $_->status ne '0'  } @managers;
+        my $manager = pf::services::manager::iptables->new(runningServices => $count);
+        if( $manager->isManaged ) {
+            if($manager->stop) {
+                $color =  $SUCCESS_COLOR;
+                $command = 'stop';
+            } else {
+                $color =  $ERROR_COLOR;
+                $command = 'not stopped';
+            }
+            print $manager->name,"|${color}${command}${RESET_COLOR}\n";
         }
     }
     return 0;
-}
-
-sub isIptablesManaged {
-   return $_[0] eq 'pf' && isenabled($Config{services}{iptables})
 }
 
 sub restartService {
