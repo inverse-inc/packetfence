@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-06-13 15:04-0400\n"
+"PO-Revision-Date: 2014-08-05 13:28-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -505,6 +505,10 @@ msgstr ""
 msgid "Clear Violation"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "Client Gateway"
+msgstr ""
+
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "Client_Support"
 msgstr "Client Support"
@@ -556,6 +560,7 @@ msgid "Column Delimiter"
 msgstr ""
 
 # html/pfappserver/root/node/advanced_search.tt
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/node/simple_search.tt
 msgid "Columns"
 msgstr ""
@@ -639,6 +644,7 @@ msgstr ""
 msgid "Compliance"
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/user/view.tt
 msgid "Computer Name"
 msgstr ""
@@ -653,6 +659,10 @@ msgstr ""
 
 # html/pfappserver/root/node/view.tt
 msgid "Connection Type"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "Connection timeout"
 msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
@@ -713,6 +723,18 @@ msgstr ""
 
 # html/pfappserver/root/user/create.tt
 msgid "Create Users"
+msgstr ""
+
+# conf/documentation.conf (guests_self_registration.create_local_account_on_email_reg)
+msgid ""
+  "Create a local account after guest email registration. This will allow the user to authenticate on"
+  "the status page or be able to authenticate over an EAP connection (see packetfence-tunnel)"
+msgstr ""
+
+# conf/documentation.conf (guests_self_registration.create_local_account_on_sponsor_reg)
+msgid ""
+  "Create a local account after guest sponsor registration. This will allow the user to authenticate on"
+  "the status page or be able to authenticate over an EAP connection (see packetfence-tunnel)"
 msgstr ""
 
 # html/pfappserver/root/configurator/database.tt
@@ -1233,7 +1255,7 @@ msgstr "Floating Devices - Read"
 msgid "FLOATING_DEVICES_UPDATE"
 msgstr "Floating Devices - Update"
 
-# html/pfappserver/lib/pfappserver/Form/Interface.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Fake MAC Address"
 msgstr ""
 
@@ -1290,10 +1312,6 @@ msgstr ""
 
 # conf/documentation.conf (captive_portal.secure_redirect)
 msgid "Force the captive portal to use HTTPS when redirecting captured clients."
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
-msgid "Gateway"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
@@ -1356,16 +1374,16 @@ msgstr ""
 
 # conf/documentation.conf (trapping.redirtimer)
 msgid ""
-  "how long to display the progress bar during trap release. default value is "
-  "based on vlan enforcement techniques. inline enforcement only users could"
+  "How long to display the progress bar during trap release. Default value is "
+  "based on VLAN enforcement techniques. Inline enforcement only users could"
   "lower the value."
 msgstr ""
 
 # conf/documentation.conf (trapping.wait_for_redirect)
 msgid ""
-   "How many seconds the webservice should wait before deassociating or reassigning "
-   "VLAN. If we don't wait, the device may switch VLAN before it has a chance to "
-   "load the redirection page."
+  "How many seconds the webservice should wait before deassociating or reassigning VLAN."
+  "If we don't wait, the device may switch VLAN before it has a chance to load the "
+  "redirection page."
 msgstr ""
 
 # conf/documentation.conf (scan.openvas_reportformatid)
@@ -1510,6 +1528,10 @@ msgstr ""
 
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "Inline"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "Inline Layer 3"
 msgstr ""
 
 # html/pfappserver/root/interface/index.tt
@@ -2005,6 +2027,7 @@ msgid "No matching mac addresses"
 msgstr ""
 
 # html/pfappserver/root/node/advanced_search.tt
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/node/simple_search.tt
 msgid "No node found"
 msgstr ""
@@ -2376,6 +2399,8 @@ msgstr ""
 
 # html/pfappserver/root/portal/profile/edit.tt
 # html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/portal/profile/index.tt
+# html/pfappserver/root/portal/profile/view.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Preview"
 msgstr ""
@@ -2563,6 +2588,11 @@ msgstr ""
 msgid "Remaining Bandwidth"
 msgstr ""
 
+# html/pfappserver/root/interface/create.tt
+# html/pfappserver/root/interface/view.tt
+msgid "Remember to enable ip_forward on your operating system for the inline mode to work."
+msgstr ""
+
 # conf/documentation.conf (scan.nessus_port)
 msgid ""
   "Remote port of the Nessus scanning engine. Default value should be fine in "
@@ -2589,7 +2619,8 @@ msgstr ""
 
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/configuration/section.tt
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/portal/profile/create.tt
+# html/pfappserver/root/portal/profile/view.tt
 msgid "Reset"
 msgstr ""
 
@@ -2610,6 +2641,7 @@ msgid "Restricted_Access"
 msgstr "Restricted Access"
 
 # html/pfappserver/root/node/advanced_search.tt
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/node/simple_search.tt
 # html/pfappserver/root/user/advanced_search.tt
 # html/pfappserver/root/user/simple_search.tt
@@ -2657,11 +2689,11 @@ msgid "Role Name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "Role by VLAN"
+msgid "Role by Switch Role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "Role by switch role"
+msgid "Role by VLAN ID"
 msgstr ""
 
 # html/pfappserver/root/configuration/switch/view.tt
@@ -2729,7 +2761,6 @@ msgstr "SoH Filters - Read"
 msgid "SOH_UPDATE"
 msgstr "SoH Filters - Update"
 
-# html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
 # html/pfappserver/root/configuration/wrix/view.tt
 # pf::Authentication::Source (common_attributes)
 msgid "SSID"
@@ -2753,10 +2784,6 @@ msgstr "SSID Open Auth"
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "SSL"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
-msgid "SWITCH"
 msgstr ""
 
 # pf::admin_roles (Actions)
@@ -2789,8 +2816,9 @@ msgstr "Switches - Update"
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
+# html/pfappserver/root/portal/profile/create.tt
 # html/pfappserver/root/portal/profile/edit.tt
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/portal/profile/view.tt
 # html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/view.tt
@@ -3041,6 +3069,11 @@ msgstr ""
 msgid "Simple"
 msgstr ""
 
+# html/pfappserver/root/interface/create.tt
+# html/pfappserver/root/interface/view.tt
+msgid "Since NATting mode is disabled, PacketFence will adjust iptables to rules to route traffic rather than natting it. Make sure to add the routes on the system."
+msgstr ""
+
 # html/pfappserver/root/node/create.tt
 # html/pfappserver/root/user/create.tt
 msgid "Single"
@@ -3071,18 +3104,6 @@ msgstr ""
 msgid ""
   "Sponsors requesting access and access confirmation emails are CC'ed to those"
   "addresses. Multiple destinations can be comma separated."
-msgstr ""
-
-# conf/documentation.conf (guests_self_registration.create_local_account_on_email_reg)
-msgid ""
-  "Create a local account after guest email registration. This will allow the user to authenticate on"
-  "the status page or be able to authenticate over an EAP connection (see packetfence-tunnel)"
-msgstr ""
-
-# conf/documentation.conf (guests_self_registration.create_local_account_on_sponsor_reg)
-msgid ""
-  "Create a local account after guest sponsor registration. This will allow the user to authenticate on"
-  "the status page or be able to authenticate over an EAP connection (see packetfence-tunnel)"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -3331,7 +3352,9 @@ msgid ""
 msgstr ""
 
 # conf/documentation.conf (guests_admin_registration.default_access_duration)
-msgid "This is the default access duration value selected in the dropdown."
+msgid ""
+  "This is the default access duration value selected in the dropdown. The value must be part of the"
+  "above list of access duration choices."
 msgstr ""
 
 # conf/documentation.conf (proxies)
@@ -3422,10 +3445,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid "UID type"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
-msgid "URI"
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_currency options)
@@ -3624,7 +3643,6 @@ msgstr "Violations - Read"
 msgid "VIOLATIONS_UPDATE"
 msgstr "Violations - Update"
 
-# html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "VLAN"
 msgstr ""
@@ -3653,6 +3671,10 @@ msgstr ""
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/user/view.tt
 msgid "Violations"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+msgid "Virtual IP Address"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface/Create.pm
@@ -4064,6 +4086,8 @@ msgstr ""
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (expire.httpd_admin options)
 # conf/documentation.conf (expire.httpd_portal options)
+# conf/documentation.conf (guests_self_registration.create_local_account_on_email_reg options)
+# conf/documentation.conf (guests_self_registration.create_local_account_on_sponsor_reg options)
 # conf/documentation.conf (guests_self_registration.preregistration options)
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
@@ -4132,6 +4156,8 @@ msgstr "Send email"
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (expire.httpd_admin options)
 # conf/documentation.conf (expire.httpd_portal options)
+# conf/documentation.conf (guests_self_registration.create_local_account_on_email_reg options)
+# conf/documentation.conf (guests_self_registration.create_local_account_on_sponsor_reg options)
 # conf/documentation.conf (guests_self_registration.preregistration options)
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
@@ -4282,6 +4308,14 @@ msgid "guests_self_registration"
 msgstr "Self registration"
 
 # conf/documentation.conf
+msgid "guests_self_registration.create_local_account_on_email_reg"
+msgstr "Add user on email registration"
+
+# conf/documentation.conf
+msgid "guests_self_registration.create_local_account_on_sponsor_reg"
+msgstr "Add user on sponsor registration"
+
+# conf/documentation.conf
 msgid "guests_self_registration.guest_pid"
 msgstr "PID"
 
@@ -4292,14 +4326,6 @@ msgstr "Preregistration"
 # conf/documentation.conf
 msgid "guests_self_registration.sponsorship_cc"
 msgstr "Sponsorship CC"
-
-# conf/documentation.conf
-msgid "guests_self_registration.create_local_account_on_email_reg"
-msgstr "Add user on email registration"
-
-# conf/documentation.conf
-msgid "guests_self_registration.create_local_account_on_sponsor_reg"
-msgstr "Add user on sponsor registration"
 
 # conf/documentation.conf (interface.type options)
 msgid "high-availability"
@@ -4979,12 +5005,12 @@ msgid "trapping.redirtimer"
 msgstr "Redirection delay"
 
 # conf/documentation.conf
-msgid "trapping.wait_for_redirect"
-msgstr "Wait for redirect"
-
-# conf/documentation.conf
 msgid "trapping.registration"
 msgstr "Registration"
+
+# conf/documentation.conf
+msgid "trapping.wait_for_redirect"
+msgstr "Wait for redirect"
 
 # conf/documentation.conf
 msgid "trapping.whitelist"
@@ -5024,10 +5050,15 @@ msgstr ""
 msgid "useragent"
 msgstr "UserAgent"
 
+# pf::Authentication::Source::FacebookSource (available_attributes)
+# pf::Authentication::Source::GithubSource (available_attributes)
+# pf::Authentication::Source::GoogleSource (available_attributes)
 # pf::Authentication::Source::HtpasswdSource (available_attributes)
 # pf::Authentication::Source::KerberosSource (available_attributes)
+# pf::Authentication::Source::LinkedInSource (available_attributes)
 # pf::Authentication::Source::NullSource (available_attributes)
 # pf::Authentication::Source::RADIUSSource (available_attributes)
+# pf::Authentication::Source::WindowsLiveSource (available_attributes)
 msgid "username"
 msgstr ""
 
