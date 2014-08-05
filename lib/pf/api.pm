@@ -194,6 +194,8 @@ sub ReAssignVlan {
 
     my $switch = pf::SwitchFactory->getInstance()->instantiate( $postdata{'switch'} );
 
+    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'}; 
+
     # SNMP traps connections need to be handled specially to account for port-security etc.
     if ( ($postdata{'connection_type'} & $pf::config::WIRED_SNMP_TRAPS) == $pf::config::WIRED_SNMP_TRAPS ) {
         _reassignSNMPConnections($switch, $postdata{'mac'}, $postdata{'ifIndex'}, $postdata{'connection_type'} );
@@ -215,6 +217,9 @@ sub desAssociate {
     my $switch = pf::SwitchFactory->getInstance()->instantiate($postdata{'switch'});
 
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
+
+    # sleep long enough to give the device enough time to fetch the redirection page.
+    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'}; 
 
     $logger->info("DesAssociating mac $postdata{'mac'} on switch " . $switch->{_id});
     $switch->$deauthTechniques($postdata{'mac'});
