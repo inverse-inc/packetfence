@@ -79,8 +79,8 @@ exit(0);
 =cut
 
 sub loop {
-    my $server = $Config{vlan}{trap_redis_pickup_host} . ":" . $Config{vlan}{trap_redis_pickup_port};
-    my $redis = Redis->new ( server => $server, encoding => undef);
+    local $ENV{REDIS_SERVER} = $Config{vlan}{trap_redis_pickup_server};
+    my $redis = Redis->new( encoding => undef);
     my $decoder = Sereal::Decoder->new;
     while($running) {
         my ($queue,$message) = $redis->brpop($Config{vlan}{trap_pickup_queue},1);

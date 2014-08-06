@@ -23,8 +23,8 @@ our $encoder = Sereal::Encoder->new;
 
 sub receiver {
     my ($trapInfo,$oids) = @_;
-    my $server = $Config{vlan}{trap_redis_dropoff_host} . ":" . $Config{vlan}{trap_redis_dropoff_port};
-    my $redis = Redis->new ( server => $server, encoding => undef);
+    local $ENV{REDIS_SERVER} = $Config{vlan}{trap_redis_pickup_server};
+    my $redis = Redis->new ( encoding => undef);
     #Serializing the OID to a string
     foreach my $oid (@$oids) {
         $oid->[0] = $oid->[0]->quote_oid;

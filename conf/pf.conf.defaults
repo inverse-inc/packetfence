@@ -638,12 +638,7 @@ trap_pickup_queue = trap
 # vlan.trap_redis_pickup_host
 #
 # The hostname of the redis server to pickup the traps
-trap_redis_pickup_host = localhost
-#
-# vlan.trap_redis_pickup_port
-#
-# The port of the redis server to pickup the traps
-trap_redis_pickup_port = 6379
+trap_redis_pickup_server = unix:/usr/local/pf/var/run/redis.sock
 #
 # vlan.trap_dropoff_queue
 #
@@ -653,12 +648,7 @@ trap_dropoff_queue = trap
 # vlan.trap_redis_dropoff_host
 #
 # The hostname of the redis server to dropoff the traps
-trap_redis_dropoff_host = localhost
-#
-# vlan.trap_redis_dropoff_port
-#
-# The port of the redis server to dropoff the traps
-trap_redis_dropoff_port = 6379
+trap_redis_dropoff_server = unix:/usr/local/pf/var/run/redis.sock
 
 [inline]
 #
