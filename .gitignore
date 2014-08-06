@@ -47,6 +47,7 @@ conf/listener.msg
 conf/provisioning.conf
 conf/popup.msg
 conf/profiles.conf
+conf/redis.conf
 conf/snmptrapd.conf
 conf/snort.conf
 conf/snort.conf.pre_snort-2.8
