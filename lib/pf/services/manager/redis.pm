@@ -23,7 +23,7 @@ extends 'pf::services::manager';
 has '+name' => (default => sub { 'redis' } );
 
 has '+launcher' => (default => sub {
-    "%1\$s $generated_conf_dir/redis.conf"
+    "sudo -u pf %1\$s $generated_conf_dir/redis.conf"
 });
 
 has '+shouldCheckup' => ( default => sub { 0 }  );
