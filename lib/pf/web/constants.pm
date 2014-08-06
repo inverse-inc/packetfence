@@ -114,7 +114,7 @@ Readonly::Scalar our $EXT_URL_XIRRUS            => '^/Xirrus::AP_http';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
-Readonly::Scalar our $MOD_PERL_ANDROID_PROFILE  => '/profile.xml';
+Readonly::Scalar our $URL_ANDROID_PROFILE  => '/profile.xml';
 
 =head2 Apache Config related
 

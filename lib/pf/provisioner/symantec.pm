@@ -17,9 +17,9 @@ use pf::log;
 use LWP::UserAgent;
 use HTTP::Request;
 use Moo;
-use pf::config qw($TRUE $FALSE);
 use List::MoreUtils qw(any);
 use pf::util qw(clean_mac);
+use XML::Simple;
     # SOAP global error handler (mostly transport or server errors)
     # here we only log, the or on soap method calls will take care of returning
 
@@ -89,14 +89,50 @@ The User Agent
 
 has ua => (is => 'rw', lazy => 1, builder => 1);
 
+=head2 xmlParser
+
+The xml parser
+
+=cut
+
+has xmlParser => (is => 'rw', lazy => 1, builder => 1);
+
+=head2 _build_xmlParser
+
+_build_xmlParser
+
+=cut
+
+sub _build_xmlParser {
+    XML::Simple->new(GroupTags => { deviceList => 'device'  },ForceArray => [qw(device)]);
+}
+
+=head2 _build_ua
+
+_build_ua
+
+=cut
+
 sub _build_ua {
     LWP::UserAgent->new;
 }
+
+=head2 _build_proxy
+
+_build_proxy
+
+=cut
 
 sub _build_proxy {
     my ($self) = @_;
     return $self->protocol . '://' . $self->host . ":" . $self->port;
 }
+
+=head2 authorize
+
+authorize
+
+=cut
 
 sub authorize {
     my ($self, $mac) = @_;
@@ -104,23 +140,41 @@ sub authorize {
     my $request  = $self->makeRequest($mac);
     my $response = $self->ua->request($request);
     if($response->is_success) {
-        return $self->is_valid($response->decoded_content);
+        return $self->is_valid($response,$mac);
     }
     return 0;
 }
+
+=head2 makeRequest
+
+makeRequest
+
+=cut
 
 sub makeRequest {
     my ($self,$mac) = @_;
     my $path = "/appstore/ciscoise/devices/0/macaddress/$mac/all";
     my $url  = $self->proxy . $path;
-    print "$url\n";
     my $request = HTTP::Request->new(GET => $url);
     $request->authorization_basic($self->username,$self->password);
     return $request;
 }
 
-sub is_valid {
+=head2 is_valid
 
+is_valid
+
+=cut
+
+sub is_valid {
+    my ($self,$response,$mac) = @_;
+    my $ise_api = $self->xmlParser->XMLin($response->content);
+    my $deviceList = $ise_api->{deviceList};
+    return 0 if ref ($deviceList) eq 'HASH';
+    return any {
+        my $m = clean_mac($_->{macaddress});
+        $m && $m eq $mac && $_->{attributes}{compliance}{status} eq 'true'
+    } @$deviceList;
 }
 
 =head1 AUTHOR

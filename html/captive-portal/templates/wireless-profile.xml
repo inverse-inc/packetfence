@@ -32,7 +32,7 @@
                         <key>PayloadDescription</key>
                         <string>Configures wireless connectivity settings.</string>
                         <key>PayloadDisplayName</key>
-                        <string>Wi-Fi ([% ssid %])</string>
+                        <string>Wi-Fi ([% provisioner.ssid %])</string>
                         <key>PayloadIdentifier</key>
                         <string>org.packetfence.profile.</string>
                         <key>PayloadOrganization</key>
@@ -44,7 +44,7 @@
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                         <key>SSID_STR</key>
-                        <string>[% ssid %]</string>
+                        <string>[% provisioner.ssid %]</string>
                 </dict>
         </array>
         <key>PayloadDescription</key>

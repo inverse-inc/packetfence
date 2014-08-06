@@ -1,0 +1,10 @@
+[android]
+type=autoconfig
+oses=Andriod
+template=release_with_android.html
+
+[ios]
+type=autoconfig
+oses=Apple iPod, iPhone or iPad
+template=release_with_xmlconfig.html
+

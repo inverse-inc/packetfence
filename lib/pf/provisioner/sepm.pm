@@ -16,7 +16,6 @@ use warnings;
 use Moo;
 extends 'pf::provisioner';
 
-use pf::config qw($TRUE $FALSE);
 use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
 use JSON qw( decode_json );
@@ -98,6 +97,7 @@ The alternative URI to download the agent (Used for 64 bit download)
 =cut
 
 has alt_agent_download_uri => (is => 'rw');
+
 
 sub get_refresh_token {
     my ($self) = @_;
