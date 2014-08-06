@@ -43,7 +43,7 @@ use pf::util;
 use pf::services::util;
 use pf::util::dhcp;
 use List::MoreUtils qw(any);
-use pf::api::jsonrpcclient;
+use pf::client::jsonrpc;
 use NetAddr::IP;
 
 # initialization
@@ -93,7 +93,7 @@ my $interface_vlan;
 my @local_dhcp_servers_ip;
 my @local_dhcp_servers_mac;
 my $pcap;
-my $apiclient = pf::api::jsonrpcclient->new;
+my $apiclient = pf::client::jsonrpc->new;
 
 $PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
 
