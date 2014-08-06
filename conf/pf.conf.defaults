@@ -508,6 +508,11 @@ pfmon=enabled
 # Should pfdhcplistener be started?
 pfdhcplistener=enabled
 #
+# services.redis
+#
+# Should redis be started?
+redis=enabled
+#
 # services.snort_binary
 #
 # Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
@@ -547,6 +552,10 @@ arp_binary=/sbin/arp
 # 
 # location of the iptables binary. only necessary to change if you are not running the rpmed version.
 iptables_binary=/sbin/iptables
+# services.redis_binary
+# 
+# Location of the redis binary. Only necessary to change if you are not running the pre-packaged version.
+redis_binary=/usr/bin/redis-server
 # 
 # services.memcached_binary
 # 
@@ -620,6 +629,36 @@ trap_limit_threshold = 100
 # shut will shut the port on the switch and will also send an email even if email is not
 # specified.
 trap_limit_action = 
+#
+# vlan.trap_pickup_queue
+#
+# The name of the queue for the traps
+trap_pickup_queue = trap
+#
+# vlan.trap_redis_pickup_host
+#
+# The hostname of the redis server to pickup the traps
+trap_redis_pickup_host = localhost
+#
+# vlan.trap_redis_pickup_port
+#
+# The port of the redis server to pickup the traps
+trap_redis_pickup_port = 6379
+#
+# vlan.trap_dropoff_queue
+#
+# The name of the queue for the traps
+trap_dropoff_queue = trap
+#
+# vlan.trap_redis_dropoff_host
+#
+# The hostname of the redis server to dropoff the traps
+trap_redis_dropoff_host = localhost
+#
+# vlan.trap_redis_dropoff_port
+#
+# The port of the redis server to dropoff the traps
+trap_redis_dropoff_port = 6379
 
 [inline]
 #
