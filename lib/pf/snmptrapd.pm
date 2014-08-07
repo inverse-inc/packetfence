@@ -15,7 +15,7 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
 use Sereal::Encoder qw(sereal_encode_with_object);
-use Redis;
+use Redis::Fast;
 use pf::config;
 use pf::log;
 use NetSNMP::TrapReceiver;
@@ -24,7 +24,7 @@ our $encoder = Sereal::Encoder->new;
 sub receiver {
     my ($trapInfo,$oids) = @_;
     local $ENV{REDIS_SERVER} = $Config{vlan}{trap_redis_pickup_server};
-    my $redis = Redis->new ( encoding => undef);
+    my $redis = Redis::Fast->new ( encoding => undef);
     #Serializing the OID to a string
     foreach my $oid (@$oids) {
         $oid->[0] = $oid->[0]->quote_oid;

@@ -33,7 +33,7 @@ BEGIN {
 use pf::config;
 use pf::services::util;
 use pf::util;
-use Redis;
+use Redis::Fast;
 use pf::factory::trap;
 use Sereal::Decoder qw(sereal_decode_with_object);
 
@@ -80,7 +80,7 @@ exit(0);
 
 sub loop {
     local $ENV{REDIS_SERVER} = $Config{vlan}{trap_redis_pickup_server};
-    my $redis = Redis->new( encoding => undef);
+    my $redis = Redis::Fast->new( encoding => undef);
     my $decoder = Sereal::Decoder->new;
     while($running) {
         my ($queue,$message) = $redis->brpop($Config{vlan}{trap_pickup_queue},1);
