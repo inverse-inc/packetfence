@@ -66,21 +66,14 @@ has 'encoder' => (is => 'ro', default => sub { Sereal::Encoder->new; });
 has 'decoder' => (is => 'ro', default => sub { Sereal::Decoder->new; });
 
 sub FOREIGNBUILDARGS {
-    my $class = shift;
-    my %args = shift;
+    my ($class,%args) = @_;
     # make modifications
     return %args;
 }
 
 sub enqueue {
     my ($self,$q,$item) = @_;
-    my $txt;
-    if ( ref($item) ) {
-        $txt = $self->encoder->encode( $item );
-    }
-    else {
-        $txt = $item;
-    }
+    my $txt = $self->encoder->encode( $item );
     $self->rpush($q,$txt);
 
 }
@@ -88,13 +81,7 @@ sub enqueue {
 sub dequeue {
     my ($self,$q) = @_;
     my $txt = $self->lpop($q);
-    my $ret;
-    if ($txt =~ /(\{|\[)/) {
-        $ret = $self->decoder->decode($txt);
-    }
-    else {
-        $ret = $txt;
-    }
+    my $ret = $self->decoder->decode($txt);
     return $ret;
 }
 
