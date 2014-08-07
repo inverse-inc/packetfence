@@ -34,7 +34,7 @@ port 0
 # on a unix socket when not specified.
 #
 unixsocket %%install_dir%%/var/run/redis.sock
-unixsocketperm 777
+unixsocketperm 770
 
 # Close the connection after a client is idle for N seconds (0 to disable)
 timeout 0
