@@ -508,6 +508,11 @@ pfmon=enabled
 # Should pfdhcplistener be started?
 pfdhcplistener=enabled
 #
+# services.pfqueue
+#
+# Should redis be started?
+pfqueue=enabled
+#
 # services.redis
 #
 # Should redis be started?
