@@ -23,6 +23,7 @@ use XML::Simple;
 use Log::Log4perl;
 use pf::iplog;
 use pf::ConfigStore::Provisioning;
+use MIME::Base64;
 
 =head1 Atrributes
 
@@ -76,19 +77,34 @@ The URI to download the windows agent
 
 has windows_phone_download_uri => (is => 'rw');
 
+=head2 boarding_host
+
+The host that is used for onboarding of devices
+
+=cut
+
+has boarding_host => (is => 'rw');
+
+=head2 boarding_port
+
+The port that is used for onboarding of devices
+
+=cut
+
+has boarding_port => (is => 'rw');
 
 sub get_device_info{
     my ($self, $mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
  
-    $mac =~ s/://g;
-    $mac = uc($mac);
+    my $mi_mac = $mac;
+    $mi_mac =~ s/://g;
+    $mi_mac = uc($mi_mac);
 
-    my $access_token = $self->get_access_token();
     my $curl = WWW::Curl::Easy->new;
-    my $url = 'https://' . $self->host . '/api/v1/dm/devices/mac/'.$mac;
+    my $url = 'https://' . $self->host . '/api/v1/dm/devices/mac/'.$mi_mac;
         
-    my $user_pass_base_64 = encode_base64("admin:m0tp4ss!", "");
+    my $user_pass_base_64 = encode_base64("$self->{username}:$self->{password}", "");
 
     my $response_body = '';
     open(my $fileb, ">", \$response_body);
@@ -101,22 +117,44 @@ sub get_device_info{
     my $curl_return_code = $curl->perform;
     my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
 
-    if($curl_info != 200){
-        $logger->error("There was an error validating $mac with MobileIron");
-    } 
-    else { 
-        #check if ip address is there  
-        $logger->info($response_body);
+     
+    if ($curl_info == 200){ 
         my $info = decode_json($response_body);
-        #return %info;
+        return $info;
     } 
+    elsif ($curl_info == 404){
+        my $info;
+        eval {
+            $info = decode_json($response_body);
+        };
+        if (defined($info) && $info->{totalCount} == 0){
+            $logger->info("The device $mac wasn't found in mobileiron");
+            return;
+        }
+        else{
+            $logger->error("The URL used for the mobileiron API seems invalid. Validate the configuration.");
+            return;
+        }
+    }
+    else{
+        $logger->error("There was an error validating $mac with MobileIron. Got HTTP code $curl_info");
+        return;
+    }
 }
 
 sub validate_mac_is_compliant{
     my ($self, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
     my $info = $self->get_device_info($mac);
-    if ($info->{device}->{compliance} == 0){
-        return 1;
+    if (defined($info)){
+        if ($info->{device}->{compliance} == 0){
+            $logger->info("Device $mac was found as compliant");
+            return 1;
+        }
+        else{
+            $logger->info("Device $mac was found, but is not compliant");
+            return 0;
+        }
     }
     else{
         return 0;
@@ -125,7 +163,9 @@ sub validate_mac_is_compliant{
 
 sub authorize {
     my ($self,$mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
     my $ip = mac2ip($mac); 
+    $logger->info("Validating if $mac is compliant in mobileiron");
     return $self->validate_mac_is_compliant($mac);
        
 }
