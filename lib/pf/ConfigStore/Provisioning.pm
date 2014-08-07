@@ -46,7 +46,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(provisioner);
+    return qw(oses);
 }
 
 =head1 AUTHOR
