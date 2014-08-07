@@ -51,7 +51,7 @@ This class extends Redis::Fast. All functions in Redis::Fast are preserved. Help
 
 Currently it is up to the developer to make sure the data is consisten between queues, i.e array refs vs hash refs vs strings.
 
-In the future I may add a registration process to ensure data consistency. 
+In the future I may add a queue registration process to ensure data consistency. 
 
 =cut
 
@@ -117,41 +117,13 @@ sub pfSubscribeHandler {
     return $ret;
 }
 
-sub lcache {
-    my ($self,$key,$ttl,$ref) = @_;
-    $self->cache($key,$ttl,$ref,$$);
-}
-
-sub cache {
-    my ($self,$key,$ttl,$ref,$prepend) = @_;
-    my $return;
-    # use pid for per process cache.
-    $ttl = 300 if (not $ttl); # default to 5 minutes 
-    if ($prepend) {
-        $key = $prepend.'_'.$key;
-    }
-
-    die "no coderef in lcache\n" if not $ref;
-
-    my $resp = $self->get($key);
-    if ($resp) {
-        $return = $self->decoder->decode($resp);
-    }
-    else {
-        $return = $ref->();
-        $self->set($key,$self->encoder->encode($return));
-        $self->expire($key,$ttl);
-    }
-    return $return;
-}
-
 no Moose;
 
 __PACKAGE__->meta->make_immuntable;
 
 =head1 FUTURE
 
-   - add support for auto connection based on config
+   - add support for connection based on config
    - add support for sentinals
 
 =head1 AUTHOR
