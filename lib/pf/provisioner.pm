@@ -68,6 +68,14 @@ The template to use for provisioning
 
 has template => (is => 'rw', lazy => 1, builder => 1 );
 
+=head2 oses
+
+The oses to match against
+
+=cut
+
+has oses => (is => 'rw');
+
 =head1 METHODS
 
 =head2 _build_template
