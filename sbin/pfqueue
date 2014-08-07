@@ -61,7 +61,9 @@ our $running = 1;
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
 
-loop();
+start_children();
+main_loop();
+cleanup();
 
 END {
     if ( !$args{h} ) {
@@ -74,11 +76,41 @@ exit(0);
 
 =head1 SUBROUTINES
 
-=head2 loop
+=head2 start_children
+
+TODO: documention
 
 =cut
 
-sub loop {
+sub start_children {
+}
+
+
+=head2 cleanup
+
+TODO: documention
+
+=cut
+
+sub cleanup {
+}
+
+=head2 main_loop
+
+TODO: documention
+
+=cut
+
+sub main_loop {
+    trap_queue_loop();
+}
+
+
+=head2 trap_queue_loop
+
+=cut
+
+sub trap_queue_loop {
     local $ENV{REDIS_SERVER} = $Config{vlan}{trap_redis_pickup_server};
     my $redis = Redis::Fast->new( encoding => undef);
     my $decoder = Sereal::Decoder->new;
