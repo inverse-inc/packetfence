@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths;
+use pf::util;
 extends 'pf::ConfigStore';
 
 sub configFile { $pf::file_paths::provisioning_config_file };
@@ -27,7 +28,7 @@ Clean up switch data
 
 sub cleanupAfterRead {
     my ($self, $id, $data) = @_;
-    $self->expand_list($data, $self->_fields_expanded);
+    $data->{oses} = listify ($data->{os}) if exists $data->{os};
 }
 
 =head2 cleanupBeforeCommit
@@ -46,7 +47,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(oses);
+    return qw();
 }
 
 =head1 AUTHOR
