@@ -47,6 +47,7 @@ our $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
 $SIG{HUP} = \&normal_sighandler;
 $SIG{INT} = \&normal_sighandler;
 $SIG{TERM} = \&normal_sighandler;
+$SIG{CHLD} = \&child_sighandler;
 $SIG{ALRM} = sub {};
 
 our %args;
@@ -137,6 +138,13 @@ sub trap_queue_loop {
 
 sub normal_sighandler {
     $running = 0;
+}
+
+=head2 child_sighandler
+
+=cut
+
+sub child_sighandler {
 }
 
 =back
