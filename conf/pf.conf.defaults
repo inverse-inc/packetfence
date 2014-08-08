@@ -207,6 +207,15 @@ preregistration=disabled
 # Sponsors requesting access and access confirmation emails are CC'ed to this
 # address. Multiple destinations can be comma separated.
 sponsorship_cc=
+#
+# guests_self_registration.create_local_account_process
+#
+# How do we provide the newly registered user with the created local account if enabled.
+# Message means email for pretty much all the external sources with the exception of SMS where
+# we send a second SMS message with the pid and password.
+# Portal will display a second portal page with created local account information and how to use them.
+# Portal will doesn't apply for SMS.
+create_local_account_process=message,portal
 
 [guests_admin_registration]
 #
