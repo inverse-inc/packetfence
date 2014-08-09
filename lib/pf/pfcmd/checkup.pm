@@ -697,11 +697,7 @@ sub permissions {
     #}
 
     # log owner must be pf otherwise apache or pf daemons won't start
-    my @important_log_files = qw(
-        access_log error_log admin_access_log admin_error_log
-        packetfence.log
-    );
-    foreach my $log_file (@important_log_files) {
+    foreach my $log_file (@log_files) {
         # if log doesn't exist it is created correctly so no need to complain
         next if (!-f $log_dir . '/' . $log_file);
 
