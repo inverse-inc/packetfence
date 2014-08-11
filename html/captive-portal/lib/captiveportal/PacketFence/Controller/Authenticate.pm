@@ -220,11 +220,11 @@ sub setRole : Private {
     my $params = $c->stash->{matchParams};
     my $info = $c->stash->{info};
     my $pid = $info->{pid};
-    my $source_id = $session->{source_id};
+    my $source_match = $session->{source_match} || $session->{source_id};
     # obtain node information provided by authentication module. We need to get the role (category here)
     # as web_node_register() might not work if we've reached the limit
     my $value =
-      &pf::authentication::match( $source_id, $params, $Actions::SET_ROLE );
+      &pf::authentication::match( $source_match, $params, $Actions::SET_ROLE );
 
     # This appends the hashes to one another. values returned by authenticator wins on key collision
     if ( defined $value ) {
@@ -243,18 +243,18 @@ sub setUnRegDate : Private {
     my $params = $c->stash->{matchParams};
     my $info = $c->stash->{info};
     my $pid = $info->{pid};
-    my $source_id = $session->{source_id};
+    my $source_match = $session->{source_match} || $session->{source_id};
     # If an access duration is defined, use it to compute the unregistration date;
     # otherwise, use the unregdate when defined.
     my $value =
-      &pf::authentication::match( $source_id, $params,
+      &pf::authentication::match( $source_match, $params,
         $Actions::SET_ACCESS_DURATION );
     if ( defined $value ) {
         $value = pf::config::access_duration($value);
         $logger->trace("Computed unreg date from access duration: $value");
     } else {
         $value =
-          &pf::authentication::match( $source_id, $params,
+          &pf::authentication::match( $source_match, $params,
             $Actions::SET_UNREG_DATE );
         $value = pf::config::dynamic_unreg_date($value);
         $logger->trace("Computed unreg date from dynamic unreg date: $value");
@@ -339,7 +339,8 @@ sub authenticationLogin : Private {
         }
         $c->session(
             "username"  => $username,
-            "source_id" => $sources[0]->id
+            "source_id" => $sources[0]->id,
+            "source_match" => \@sources,
         );
     } else {
         # validate login and password
@@ -350,6 +351,7 @@ sub authenticationLogin : Private {
             $c->session(
                 "username"  => $request->param("username"),
                 "source_id" => $source_id,
+                "source_match" => $source_id,
             );
         } else {
             $c->error($message);
