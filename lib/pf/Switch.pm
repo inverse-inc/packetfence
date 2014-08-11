@@ -71,6 +71,14 @@ sub supportsExternalPortal {
     return $FALSE;
 }
 
+sub supportsFlows {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Configuration by flows is not supported on switch type " . ref($this));
+    return $FALSE; 
+}
+
 =item supportsWiredMacAuth
 
 Returns 1 if switch type supports Wired MAC Authentication (Wired Access Authorization through RADIUS)
@@ -267,6 +275,7 @@ sub new {
         '_switchMac'                => undef,
         '_VlanMap'                  => 'enabled',
         '_RoleMap'                  => 'enabled',
+        '_OpenflowId'               => undef,
     }, $class;
 
     foreach ( keys %argv ) {
@@ -364,6 +373,8 @@ sub new {
             $this->{_VlanMap} = $argv{$_};
         } elsif (/^-?RoleMap$/i) {
             $this->{_RoleMap} = $argv{$_};
+        } elsif (/^-?OpenflowId$/i) {
+            $this->{_OpenflowId} = $argv{$_};
         }
         # customVlan members are now dynamically generated. 0 to 99 supported.
         elsif (/^-?(\w+)Vlan$/i) {
