@@ -160,6 +160,7 @@ sub registerNode : Private {
             } else {
                 $unregdate =
                   &pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE );
+                $unregdate = pf::config::dynamic_unreg_date($unregdate);
             }
             if ( defined $unregdate ) {
                 $logger->trace("Got unregdate $unregdate for username $pid");
