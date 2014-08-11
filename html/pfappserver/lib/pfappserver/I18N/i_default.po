@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-08-05 13:28-0400\n"
+"PO-Revision-Date: 2014-08-11 16:37-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -259,8 +259,16 @@ msgid ""
   " * a.b.c.d"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "Admin Access"
+msgstr ""
+
 # html/pfappserver/root/admin/login.tt
 msgid "Admin Login"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Admin Registration"
 msgstr ""
 
 # html/pfappserver/root/configuration/adminroles/view.tt
@@ -271,6 +279,7 @@ msgstr ""
 msgid "Admin Roles"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 msgid "Advanced"
@@ -282,6 +291,7 @@ msgid ""
   "re-assign VLAN or change iptables rules"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configurator/configuration.tt
 msgid "Alerting"
 msgstr ""
@@ -406,12 +416,20 @@ msgstr ""
 msgid "Bandwidth Balance"
 msgstr ""
 
+# html/pfappserver/root/admin/reports.tt
+msgid "Bandwith per Operating System"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "Base DN"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "Base Object"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Billing"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
@@ -484,6 +502,10 @@ msgstr ""
 # html/pfappserver/root/configurator/wrapper.tt
 msgid "Cannot Load Content"
 msgstr "An error occured while contacting the server. Please try again later."
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Captive portal"
+msgstr ""
 
 # html/pfappserver/root/admin/users.tt
 msgid "Cellphone"
@@ -1199,6 +1221,7 @@ msgstr ""
 msgid "Exclusive Sources"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/user/print.tt
 msgid "Expiration"
 msgstr ""
@@ -1278,10 +1301,12 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/fingerprints/simple_search.tt
 msgid "Fingerprints"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/firewall_sso/view.tt
 msgid "Firewall SSO"
 msgstr ""
@@ -1306,6 +1331,10 @@ msgstr ""
 msgid "Floating Device"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "Floating devices"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
 msgid "Force redirection URL"
 msgstr ""
@@ -1318,6 +1347,7 @@ msgstr ""
 msgid "Gender"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configurator/configuration.tt
 msgid "General"
 msgstr ""
@@ -1526,12 +1556,17 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "Inline"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Inline Layer 3"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Interfaces"
 msgstr ""
 
 # html/pfappserver/root/interface/index.tt
@@ -1759,6 +1794,7 @@ msgstr ""
 msgid "MAC Address"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/macaddress/simple_search.tt
 msgid "MAC Addresses"
 msgstr ""
@@ -2081,6 +2117,10 @@ msgstr ""
 msgid "Nodes"
 msgstr ""
 
+# html/pfappserver/root/admin/reports.tt
+msgid "Nodes States"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "None"
@@ -2152,6 +2192,10 @@ msgstr "Open Tuesday"
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "Open_Wednesday"
 msgstr "Open Wednesday"
+
+# html/pfappserver/root/admin/reports.tt
+msgid "Operating Systems"
+msgstr ""
 
 # html/pfappserver/root/admin/users.tt
 msgid "Organization"
@@ -2368,6 +2412,10 @@ msgstr ""
 msgid "Port the mysql server is running on."
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "Portal Profiles"
+msgstr ""
+
 # html/pfappserver/root/portal/profile/create.tt
 # html/pfappserver/root/portal/profile/edit.tt
 # html/pfappserver/root/portal/profile/view.tt
@@ -2458,6 +2506,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
 msgid "Profile Name"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Provisioning"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
@@ -2555,6 +2607,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/configuration.tt
 msgid "Registration"
 msgstr ""
 
@@ -2705,6 +2758,7 @@ msgid "Role mapping by switch role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "Roles"
 msgstr ""
@@ -2741,6 +2795,7 @@ msgstr "Services"
 msgid "SMS Carriers"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "SNMP"
 msgstr ""
@@ -2781,6 +2836,10 @@ msgstr "SSID Broadcasted"
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "SSID_Open_Auth"
 msgstr "SSID Open Auth"
+
+# html/pfappserver/root/admin/reports.tt
+msgid "SSIDs"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "SSL"
@@ -2876,6 +2935,10 @@ msgstr ""
 msgid "Saving profile "
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "Scan"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
@@ -2913,6 +2976,10 @@ msgstr "Security Protocol 1X"
 msgid "Select a violation"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "Self Registration"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "Semicolon"
@@ -2933,10 +3000,15 @@ msgid ""
   "you don't change it!"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "Service watch"
+msgstr ""
+
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "Service_Provider_Brand"
 msgstr "Service Provider Brand"
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/status.tt
 # html/pfappserver/root/service/status.tt
 msgid "Services"
@@ -3091,6 +3163,7 @@ msgstr ""
 msgid "Source switch IP"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/portal/profile/tab-content.tt
 msgid "Sources"
 msgstr ""
@@ -3130,6 +3203,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Starting IP Address"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Statement of Health"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
@@ -3191,6 +3268,10 @@ msgstr ""
 
 # html/pfappserver/root/node/view.tt
 msgid "Switch/AP"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Switches"
 msgstr ""
 
 # html/pfappserver/root/admin/status.tt
@@ -3411,8 +3492,16 @@ msgstr ""
 msgid "Today"
 msgstr ""
 
+# html/pfappserver/root/admin/reports.tt
+msgid "Top 25 Bandwith Consumers"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Transport"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Trapping"
 msgstr ""
 
 # conf/documentation.conf (network.rogue_dhcp_detection)
@@ -3441,6 +3530,10 @@ msgstr ""
 # html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/interface/list.tt
 msgid "Type"
+msgstr ""
+
+# html/pfappserver/root/admin/reports.tt
+msgid "Types"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
@@ -3551,6 +3644,7 @@ msgstr ""
 msgid "User Agent"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/useragents/simple_search.tt
 msgid "User Agents"
 msgstr ""
@@ -3668,6 +3762,8 @@ msgstr ""
 msgid "Violation to close"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/user/view.tt
 msgid "Violations"
@@ -3719,6 +3815,7 @@ msgstr ""
 msgid "WPA2"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/wrix/index.tt
 msgid "WRIX"
 msgstr ""
@@ -3742,6 +3839,7 @@ msgstr ""
 msgid "Warning!"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "Web Services"
 msgstr ""
