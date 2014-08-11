@@ -452,7 +452,7 @@ sub authenticationLogin : Private {
 
     my @sources = $self->getSources($c);
 
-    my $username = $request->param("username");
+    my $username = _clean_username($request->param("username"));
     my $password = $request->param("password");
 
     if(isenabled($profile->reuseDot1xCredentials)) {
@@ -536,6 +536,16 @@ sub showLogin : Private {
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
         guest_allowed   => $guest_allowed,
     );
+}
+
+sub _clean_username {
+    my ($username) = @_;
+    # Do cleaning that could be related to a human error input ( like a space after the username )
+
+    # This removes trailing and leading whitespaces
+    $username =~ s/^\s+|\s+$//g ;
+
+    return $username;
 }
 
 =head1 AUTHOR
