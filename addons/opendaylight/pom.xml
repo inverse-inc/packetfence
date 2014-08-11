@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+ 
+    <modelVersion>4.0.0</modelVersion>
+ 
+    <groupId>ca.inverse</groupId>
+    <artifactId>odlpf</artifactId>
+    <version>0.1</version>
+    <packaging>bundle</packaging>
+ 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>2.3.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Import-Package>
+                            *
+                        </Import-Package>
+                        <Export-Package>
+                            ca.inverse.odlpf
+                        </Export-Package>
+                        <Bundle-Activator>
+                            ca.inverse.odlpf.Activator
+                        </Bundle-Activator>
+                    </instructions>
+                    <manifestLocation>${project.basedir}/META-INF</manifestLocation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <compilerArgument></compilerArgument>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+ 
+    <dependencies>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal</artifactId>
+            <version>0.7.0</version>
+        </dependency>
+    </dependencies>
+ 
+    <repositories>
+        <!-- OpenDaylight releases -->
+        <repository>
+            <id>opendaylight-mirror</id>
+            <name>opendaylight-mirror</name>
+            <url>http://nexus.opendaylight.org/content/groups/public/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </repository>
+        <!-- OpenDaylight snapshots -->
+        <repository>
+            <id>opendaylight-snapshot</id>
+            <name>opendaylight-snapshot</name>
+            <url>http://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+</project>

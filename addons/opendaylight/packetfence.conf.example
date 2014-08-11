@@ -1,0 +1,5 @@
+# put me in /etc/packetfence.conf
+host=192.168.1.5
+port=9090
+user=web
+pass=services

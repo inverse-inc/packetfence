@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1407780771836
+Build-Jdk: 1.7.0_65
+Built-By: root
+Bundle-Activator: ca.inverse.odlpf.Activator
+Bundle-ManifestVersion: 2
+Bundle-Name: odlpf
+Bundle-SymbolicName: ca.inverse.odlpf
+Bundle-Version: 0.1.0
+Created-By: Apache Maven Bundle Plugin
+Export-Package: ca.inverse.odlpf;uses:="org.opendaylight.controller.sal.
+ core,org.apache.felix.dm,org.opendaylight.controller.sal.packet,org.slf
+ 4j,javax.net.ssl,javax.xml.bind,org.opendaylight.controller.sal.utils";
+ version="0.1.0"
+Import-Package: javax.net.ssl,javax.xml.bind,org.apache.felix.dm;version
+ ="[3.0,4)",org.opendaylight.controller.sal.core;version="[0.7,1)",org.o
+ pendaylight.controller.sal.packet;version="[0.7,1)",org.opendaylight.co
+ ntroller.sal.utils;version="[0.7,1)",org.slf4j;version="[1.7,2)"
+Tool: Bnd-1.50.0
