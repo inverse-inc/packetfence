@@ -29,6 +29,13 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 with 'pfappserver::Role::Controller::BulkActions';
 
 __PACKAGE__->config(
+    action => {
+        bulk_close           => { AdminRole => 'USERS_READ' },
+        bulk_register        => { AdminRole => 'USERS_READ' },
+        bulk_deregister      => { AdminRole => 'USERS_READ' },
+        bulk_apply_role      => { AdminRole => 'USERS_READ' },
+        bulk_apply_violation => { AdminRole => 'USERS_READ' },
+    },
     action_args => {
         '*' => { model => 'User'},
         advanced_search => { model => 'Search::User', form => 'AdvancedSearch' },
