@@ -39,7 +39,7 @@ import java.util.ArrayList;
 public class PFPacketProcessor {
 
     private static final PFConfig pfConfig = new PFConfig("/etc/packetfence.conf");
-    private static Hashtable<String, String> transactionCache = new Hashtable<String, String>();
+    private static ArrayList<String> transactionCache = new ArrayList<String>();
     private static ArrayList<String> ignoredCache = new ArrayList<String>();
 
     private String sourceMac;
@@ -55,34 +55,62 @@ public class PFPacketProcessor {
     }
 
     public PacketResult processPacket(){
-        if(!transactionCache.containsKey(sourceMac) && !PFPacketProcessor.ignoredCache.contains(this.getPortUniqueId())){
-            PFPacketProcessor.transactionCache.put(sourceMac, sourceMac);
+        if( !this.alreadyInTransaction()  && !this.shouldIgnorePacket() ){
+            this.startTransaction();
             JSONObject response = this.getPacketFenceActions();
-            try{
-                JSONArray result = response.getJSONArray("result");
-                JSONObject data = result.getJSONObject(0); 
-                String action = data.getString("action");
-                if (action.equals("ignored")){
-                    PFPacketProcessor.ignoredCache.add(this.getPortUniqueId());
-                }
-                System.out.println(data.toString());
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            }
-            PFPacketProcessor.transactionCache.remove(sourceMac);
+            this.handlePacketFenceResponse(response);
+            this.finishTransaction();
             return PacketResult.KEEP_PROCESSING;
         }
-        else if(PFPacketProcessor.transactionCache.containsKey(sourceMac)){
+        else if(this.alreadyInTransaction()){
             System.out.println("Ignoring packet because a current transaction is already started");
             return PacketResult.IGNORED;
         }
-        else if(PFPacketProcessor.ignoredCache.contains(this.getPortUniqueId())){
-            System.out.println("Ignoring packet because it was previously discovered as an uplink");
+        else if( this.shouldIgnorePacket() ){
+            System.out.println("Ignoring packet because it was previously declared as to be ignored");
             return PacketResult.IGNORED;
         }
         return PacketResult.IGNORED;
 
+    }
+    
+    private void addToIgnoreList(){
+        PFPacketProcessor.ignoredCache.add(this.getPortUniqueId());
+    }
+
+    private void removeFromIgnoreList(){
+        PFPacketProcessor.ignoredCache.remove(this.getPortUniqueId());
+    }
+
+    private void startTransaction(){
+        PFPacketProcessor.transactionCache.add(sourceMac);
+    }
+
+    private void finishTransaction(){
+        PFPacketProcessor.transactionCache.remove(sourceMac);
+    }   
+
+    private boolean shouldIgnorePacket(){
+        return PFPacketProcessor.ignoredCache.contains(this.getPortUniqueId());
+    }
+
+    private boolean alreadyInTransaction(){
+        return PFPacketProcessor.transactionCache.contains(sourceMac); 
+    }
+
+    private void handlePacketFenceResponse(JSONObject response){
+        try{
+            JSONArray result = response.getJSONArray("result");
+            JSONObject data = result.getJSONObject(0); 
+            String action = data.getString("action");
+            if (action.equals("ignored")){
+                this.addToIgnoreList();
+            }
+            System.out.println(data.toString());
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }       
     }
 
     /*
