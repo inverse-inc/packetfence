@@ -55,8 +55,7 @@ public class PFPacketProcessor {
     }
 
     public PacketResult processPacket(){
-        String portUniqueId = switchId + "-" + port;
-        if(!transactionCache.containsKey(sourceMac) && !PFPacketProcessor.ignoredCache.contains(portUniqueId)){
+        if(!transactionCache.containsKey(sourceMac) && !PFPacketProcessor.ignoredCache.contains(this.getPortUniqueId())){
             PFPacketProcessor.transactionCache.put(sourceMac, sourceMac);
             JSONObject response = this.getPacketFenceActions();
             try{
@@ -64,7 +63,7 @@ public class PFPacketProcessor {
                 JSONObject data = result.getJSONObject(0); 
                 String action = data.getString("action");
                 if (action.equals("ignored")){
-                    PFPacketProcessor.ignoredCache.add(portUniqueId);
+                    PFPacketProcessor.ignoredCache.add(this.getPortUniqueId());
                 }
                 System.out.println(data.toString());
             }
@@ -78,7 +77,7 @@ public class PFPacketProcessor {
             System.out.println("Ignoring packet because a current transaction is already started");
             return PacketResult.IGNORED;
         }
-        else if(PFPacketProcessor.ignoredCache.contains(portUniqueId)){
+        else if(PFPacketProcessor.ignoredCache.contains(this.getPortUniqueId())){
             System.out.println("Ignoring packet because it was previously discovered as an uplink");
             return PacketResult.IGNORED;
         }
@@ -184,6 +183,10 @@ public class PFPacketProcessor {
             e.printStackTrace();
             return new JSONObject();
         }
+    }
+
+    private String getPortUniqueId(){
+        return switchId + "-" + port;
     }
  
 }

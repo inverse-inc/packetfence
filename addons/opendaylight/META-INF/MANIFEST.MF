@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1407863953704
+Bnd-LastModified: 1407869324340
 Build-Jdk: 1.7.0_65
 Built-By: root
 Bundle-Activator: ca.inverse.odlpf.Activator
