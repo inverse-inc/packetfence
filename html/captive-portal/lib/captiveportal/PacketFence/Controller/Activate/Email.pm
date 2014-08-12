@@ -152,6 +152,36 @@ sub doEmailRegistration : Private {
                     'category'  => $c->stash->{info}->{category},
                 )
             );
+
+            if ( isenabled($source->{create_local_account}) ) {
+                # Create a local account after guest registration and send the access code
+                my %info = (
+                    'pid'     => $pid,
+                    'email'   => $email,
+                    'subject' => i18n_format(
+                        "%s: Guest access confirmed!",
+                        $Config{'general'}{'domain'}
+                    ),
+                    'currentdate' => POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime )
+                );
+
+                # we create a temporary password using the actions from
+                # the email authentication source;
+                my $actions = &pf::authentication::match( $source->{id}, $auth_params );
+                $info{'password'} = pf::temporary_password::generate( $pid, $actions );
+
+                # send on-site guest credentials by email
+                pf::web::guest::send_template_email(
+                    $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION_CONFIRMED,
+                    $info{'subject'}, \%info
+                );
+
+                $c->stash(
+                    template => $pf::web::guest::EMAIL_PREREG_CONFIRMED_TEMPLATE,
+                    %info
+                );
+            }
+
             $c->stash(
                 template   => $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE,
                 expiration => $c->stash->{info}{unregdate} 
@@ -190,37 +220,7 @@ sub doEmailRegistration : Private {
                 %info
             );
         }
-        if ( isenabled($source->{create_local_account}) ) {
-            # Create a local account after guest registration and send the access code
-            my %info = (
-                'pid'     => $pid,
-                'email'   => $email,
-                'subject' => i18n_format(
-                    "%s: Guest access confirmed!",
-                    $Config{'general'}{'domain'}
-                ),
-                'currentdate' =>
-                  POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime )
-            );
 
-            # we create a temporary password using the actions from
-            # the email authentication source;
-            my $actions =
-              &pf::authentication::match( $source->{id}, $auth_params );
-            $info{'password'} =
-              pf::temporary_password::generate( $pid, $actions );
-
-            # send on-site guest credentials by email
-            pf::web::guest::send_template_email(
-                $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION_CONFIRMED,
-                $info{'subject'}, \%info
-            );
-
-            $c->stash(
-                template => $pf::web::guest::EMAIL_PREREG_CONFIRMED_TEMPLATE,
-                %info
-            );
-        }
         # code has been consumed, deactivate
         pf::activation::set_status_verified($code);
         $c->detach;
