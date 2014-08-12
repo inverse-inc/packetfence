@@ -103,7 +103,6 @@ sub search : Local : AdminRole('SWITCHES_READ') {
     my %search_results;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
-    # Store columns in the session
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
