@@ -67,8 +67,22 @@ sub supportsExternalPortal {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->error("External captive portal is not supported on switch type " . ref($this));
+    $logger->debug("External captive portal is not supported on switch type " . ref($this));
     return $FALSE;
+}
+
+=item supportsWebFormRegistration
+
+Returns 1 if switch type supports web form registration (for release of the external captive portal)
+ 
+=cut
+
+sub supportsWebFormRegistration { 
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->debug("Web form registration is not supported on switch type " . ref($this));
+    return $FALSE; 
 }
 
 =item supportsWiredMacAuth
@@ -2917,6 +2931,33 @@ sub parseUrl {
     my ($self,$req) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->warn("Not implemented");
+    return;
+}
+
+=item getAcceptForm
+
+Get the accept form that will trigger the device registration on the switch
+
+=cut
+
+sub getAcceptForm {
+    my ( $self, $mac , $destination_url) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->error("This function is not implemented.");
+    return;
+}
+
+=item parseSwitchIdFromRequest
+
+Extract the switch id from an http request (for the external portal).
+The object isn't created at that point
+
+=cut
+
+sub parseSwitchIdFromRequest {
+    my ( $class, $req) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($class) );
+    $logger->error("This function is not implemented.");
     return;
 }
 
