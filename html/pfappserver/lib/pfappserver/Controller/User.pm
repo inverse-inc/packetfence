@@ -30,11 +30,11 @@ with 'pfappserver::Role::Controller::BulkActions';
 
 __PACKAGE__->config(
     action => {
-        bulk_close           => { AdminRole => 'USERS_READ' },
-        bulk_register        => { AdminRole => 'USERS_READ' },
-        bulk_deregister      => { AdminRole => 'USERS_READ' },
-        bulk_apply_role      => { AdminRole => 'USERS_READ' },
-        bulk_apply_violation => { AdminRole => 'USERS_READ' },
+        bulk_close           => { AdminRole => 'USERS_UPDATE' },
+        bulk_register        => { AdminRole => 'USERS_UPDATE' },
+        bulk_deregister      => { AdminRole => 'USERS_UPDATE' },
+        bulk_apply_role      => { AdminRole => 'USERS_UPDATE' },
+        bulk_apply_violation => { AdminRole => 'USERS_UPDATE' },
     },
     action_args => {
         '*' => { model => 'User'},
