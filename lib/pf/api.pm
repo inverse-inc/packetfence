@@ -24,6 +24,9 @@ use pf::util();
 use pf::node();
 use pf::locationlog();
 use pf::ipset();
+use pf::config;
+use pf::vlan::custom;
+use pf::roles::custom;
 
 sub event_add {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -234,14 +237,30 @@ sub firewall {
     $inline->performInlineEnforcement($postdata{'mac'});
 }
 
+sub node_state {
+    my ($class, $postdata ) = @_;
+    my $logger = pf::log::get_logger();
+    my $mac = $postdata->{mac};
+    my $switch_id = $postdata->{switch_id};
+    my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_id);
+    my $info = pf::node::node_view($mac);
+    my $violation_count = pf::violation::violation_count_trap($mac);
+    my $roles_obj = pf::roles::custom->new();
+    my $role = $roles_obj->getRoleForNode($mac, $switch);
+    
+    if (!defined($info) || $violation_count > 0 || $info->{status} eq $pf::node::STATUS_UNREGISTERED || $info->{status} eq $pf::node::STATUS_PENDING){
+        return { action => "isolate" };
+    } 
+    else{
+        return { action => "accept", role => $role } ;
+    }
+}
+
 sub openflow_authorize {
     my ($class, $postdata ) = @_;
     my $logger = pf::log::get_logger();
     use Data::Dumper;
     $logger->info(Dumper($postdata));
-
-    use pf::config;
-    use pf::vlan::custom;
 
     my $connection_type = $WIRED_MAC_AUTH;
     my $ssid;
@@ -257,7 +276,7 @@ sub openflow_authorize {
 
     if ($switch->isUpLink($port)){
         $logger->info("Received an openflow authorize to an uplink. Not doing anything");
-        return {message => "ignored"};
+        return {action => "ignored"};
     }
     else{
         $logger->info("Authorizing $mac on switch $switch_id port $port.");
@@ -331,7 +350,7 @@ sub openflow_authorize {
 
     $switch->authorizeMac($mac, $vlan, $port ); 
 
-    return {vlan => $vlan, message => "continue"};
+    return {vlan => $vlan, action => "accept"};
 }
 
 
