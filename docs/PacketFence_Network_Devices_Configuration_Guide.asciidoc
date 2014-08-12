@@ -1026,7 +1026,7 @@ Downloadable ACLs
 
 The Catalyst 2960 supports RADIUS pushed ACLs which means that you can define the ACLs centrally in PacketFence without configuring them in your switches and their rules will be applied to the switch during the authentication.
 
-These ACLs are defined per node category like the VLANs which means you can define different ACLs for your registration VLAN, production VLAN, guest VLAN, etc.
+These ACLs are defined by role like the VLANs which means you can define different ACLs for your registration VLAN, production VLAN, guest VLAN, etc.
 
 Before continuing, configure your switch to be in MAC authentication bypass or 802.1X.
 
