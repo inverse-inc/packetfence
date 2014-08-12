@@ -277,6 +277,9 @@ use List::Util qw(first);
 use List::MoreUtils qw(uniq);
 use Fcntl qw(:flock :DEFAULT :seek);
 use POSIX::2008;
+use Data::Swap();
+use Data::Structure::Util qw(unbless);
+use base qw(pf::IniFiles);
 
 
 our $CACHE;
@@ -298,10 +301,6 @@ our @ON_DESTROY_REFS = (
 our %CONFIG_DATA;
 
 our $CACHE_CONTROL_TIMESTAMP = getControlFileTimestamp();
-
-use overload "%{}" => \&config, fallback => 1;
-
-our $chi_config = pf::IniFiles->new( -file => $chi_config_file);
 
 Readonly::Scalar our $WRITE_PERMISSIONS => '0664';
 
@@ -343,7 +342,6 @@ sub new {
     my $file = $params{'-file'};
     $file =~ /^(.*)$/;
     $file = $1;
-    my $config;
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
     my $onFileReloadOnce = delete $params{'-onfilereloadonce'} || [];
@@ -352,11 +350,15 @@ sub new {
     my $reload_onfile;
     die "param -file missing or empty" unless $file;
     delete $params{'-file'} unless -e $file;
-    $config = $class->computeFromPath(
+    $self = $class->computeFromPath(
         $file,
         sub {
             my $lock = lockFileForReading($file);
-            my $config = pf::IniFiles->new(%params);
+            # Necessary evil to localize ReadConfig function
+            # Calling the ReadConfig from Config::IniFiles
+            # To avoid the read lock being called twice
+            local *ReadConfig;
+            my $config = $class->SUPER::new(%params);
             die "$file cannot be loaded" unless $config;
             $config->SetFileName($file);
             $config->SetWriteMode($WRITE_PERMISSIONS);
@@ -364,14 +366,13 @@ sub new {
             return $config;
         }
     );
-    untaint($config) unless $reload_onfile;
+    untaint($self) unless $reload_onfile;
     $ON_RELOAD{$file} ||= [];
     $ON_FILE_RELOAD{$file} ||= [];
     $ON_FILE_RELOAD_ONCE{$file} ||= [];
     $ON_CACHE_RELOAD{$file} ||= [];
     $ON_POST_RELOAD{$file} ||= [];
-    $self = \$config;
-    bless $self,$class;
+    @LOADED_CONFIGS = grep { $_->GetFileName() ne $file } @LOADED_CONFIGS;
     push @LOADED_CONFIGS, $self;
     $self->addReloadCallbacks(@$onReload) if @$onReload;
     $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
@@ -382,14 +383,6 @@ sub new {
     return $self;
 }
 
-=head2 config
-
-Access for the proxied C<Config::IniFiles> object
-
-=cut
-
-sub config { ${$_[0]} }
-
 =head2 RewriteConfig
 
 Will rewrite the config using the filename passed to it, update the cache, and run the C<onreload> and C<onfilereload> callbacks if successful.
@@ -399,36 +392,36 @@ Will rewrite the config using the filename passed to it, update the cache, and r
 sub RewriteConfig {
     my ($self) = @_;
     my $logger = get_logger();
-    my $config = $self->config;
-    my $file = $config->GetFileName;
-    if( $config->HasChanged(1) ) {
+    my $file = $self->GetFileName;
+    if( $self->HasChanged(1) ) {
         die "Config $file was modified from last loading\n";
     }
     my $result;
     umask 2;
     my $lock = lockFileForWriting($file);
-    if ( exists $config->{imported} && defined $config->{imported}) {
+    #lock will release when out of scope
+    if ( exists $self->{imported} && defined $self->{imported}) {
         #localizing for saving only what is in
-        local $config->{v} = Config::IniFiles::_deepcopy($config->{v});
-        local $config->{sCMT} = Config::IniFiles::_deepcopy($config->{sCMT});
-        local $config->{pCMT} = Config::IniFiles::_deepcopy($config->{pCMT});
-        local $config->{EOT} = Config::IniFiles::_deepcopy($config->{EOT});
-        local $config->{parms} = Config::IniFiles::_deepcopy($config->{parms});
-        local $config->{myparms} = Config::IniFiles::_deepcopy($config->{myparms});
-        local $config->{sects} = Config::IniFiles::_deepcopy($config->{sects});
-        local $config->{group} = Config::IniFiles::_deepcopy($config->{group});
-        local $config->{mysects} = Config::IniFiles::_deepcopy($config->{mysects});
+        local $self->{v} = Config::IniFiles::_deepcopy($self->{v});
+        local $self->{sCMT} = Config::IniFiles::_deepcopy($self->{sCMT});
+        local $self->{pCMT} = Config::IniFiles::_deepcopy($self->{pCMT});
+        local $self->{EOT} = Config::IniFiles::_deepcopy($self->{EOT});
+        local $self->{parms} = Config::IniFiles::_deepcopy($self->{parms});
+        local $self->{myparms} = Config::IniFiles::_deepcopy($self->{myparms});
+        local $self->{sects} = Config::IniFiles::_deepcopy($self->{sects});
+        local $self->{group} = Config::IniFiles::_deepcopy($self->{group});
+        local $self->{mysects} = Config::IniFiles::_deepcopy($self->{mysects});
         $self->removeDefaultValues();
-        $result = $config->RewriteConfig();
+        $result = $self->SUPER::RewriteConfig();
     } else {
-        $result = $config->RewriteConfig();
+        $result = $self->SUPER::RewriteConfig();
     }
     if($result) {
-        $config = $self->computeFromPath(
+        $self = $self->computeFromPath(
             $file,
             sub {
                 $self->updateCacheControl();
-                return $config;
+                return $self;
             },
             1
         );
@@ -436,7 +429,6 @@ sub RewriteConfig {
     }
     return $result;
 }
-
 
 
 =head2 Rollback
@@ -449,11 +441,10 @@ Reverting all current changes
 sub Rollback {
     my ($self) = @_;
     my $cache = $self->cache;
-    my $config = $self->config;
-    my $file = $config->GetFileName;
-    $self->removeFromSubcaches($file);
+    my $file = $self->GetFileName;
+    $cache->l1_cache->remove($file);
     my $old_config = $cache->get($file);
-    $$self = $old_config;
+    $self->_swap_data($old_config);
     $self->doCallbacks(0,1);
 }
 
@@ -608,21 +599,20 @@ Will removed all the default values in current config
 
 sub removeDefaultValues {
     my ($self) = @_;
-    my $config = $self->config;
-    if (exists $config->{imported} && defined $config->{imported}) {
-        my $imported = $config->{imported};
-        foreach my $section ( $config->Sections ) {
+    if (exists $self->{imported} && defined $self->{imported}) {
+        my $imported = $self->{imported};
+        foreach my $section ( $self->Sections ) {
             next if ( !$imported->SectionExists($section) );
-            foreach my $parameter ( $config->Parameters($section) ) {
+            foreach my $parameter ( $self->Parameters($section) ) {
                 next if ( !$imported->exists($section, $parameter) );
-                my $config_val = $config->val($section, $parameter);
+                my $self_val = $self->val($section, $parameter);
                 my $default_val = $imported->val($section, $parameter);
-                if ( !defined ($config_val) || $config_val eq $default_val  ) {
-                    $config->delval($section, $parameter);
+                if ( !defined ($self_val) || $self_val eq $default_val  ) {
+                    $self->delval($section, $parameter);
                 }
             }
-            if ($config->Parameters($section) == 0) {
-                $config->DeleteSection($section);
+            if ($self->Parameters($section) == 0) {
+                $self->DeleteSection($section);
             }
         }
     }
@@ -690,27 +680,52 @@ Will reload the config when changed on the filesystem and call any register call
 
 sub ReadConfig {
     my ($self,$force) = @_;
-    my $config = $self->config;
-    my $file   = $config->GetFileName;
+    my $cache  = $self->cache;
+    my $file   = $self->GetFileName;
+    my $reloaded;
     my $reloaded_from_cache = 0;
     my $reloaded_from_file = 0;
     #If considered latest version of file it is always succesful
     my $result = 1;
     my $logger = get_logger();
     $logger->trace("ReadConfig for $file");
-    $$self = $self->computeFromPath(
+    my $new_self = $self->computeFromPath(
         $file,
         sub {
             #reread files
+            #lock will release when out of scope
             my $lock = lockFileForReading($file);
-            $result = $config->ReadConfig();
+            $result = $self->SUPER::ReadConfig();
             $reloaded_from_file = 1;
-            return $config;
-        },$force
+            return $self;
+        }
     );
-    $reloaded_from_cache = refaddr($config) != refaddr($$self);
+    $reloaded_from_cache = refaddr($self) != refaddr($new_self);
+    if($reloaded_from_cache) {
+        $self->_swap_data($new_self);
+        #Repopulate the in new memory cache after the swap
+        my $l1_cache;
+        if($cache->has_subcaches) {
+            $l1_cache = $cache->l1_cache;
+            $l1_cache = $l1_cache->l1_cache while $l1_cache->has_subcaches;
+            $l1_cache->set($file,$self) if $l1_cache->driver_class eq 'CHI::Driver::Memory';
+        }
+    }
     $self->doCallbacks($reloaded_from_file,$reloaded_from_cache,$force);
     return $result;
+}
+
+=head2 _swap_data
+
+Swap the data with cached data
+
+=cut
+
+sub _swap_data {
+    my ($self,$new_self) = @_;
+    Data::Swap::swap($self,$new_self); 
+    #Unbless the old data to avoid DESTROY from being called
+    unbless($new_self);
 }
 
 =head2 TIEHASH
@@ -730,27 +745,6 @@ sub TIEHASH {
     die "cannot create a tied pf::config::cached"
         unless $object;
     return $object;
-}
-
-=head2 AUTOLOAD
-
-Will proxy all unknown functions to C<Config::IniFiles>
-
-=cut
-
-sub AUTOLOAD {
-    my ($self) = @_;
-    my $command = our $AUTOLOAD;
-    $command =~ s/.*://;
-    if(pf::IniFiles->can($command) ) {
-        no strict qw{refs};
-        *$AUTOLOAD = sub  {
-            my ($self,@args) = @_;
-            return  wantarray ? ($self->config->$command(@args)) : scalar $self->config->$command(@args);
-        };
-        goto &$AUTOLOAD;
-    }
-    die "$command not found";
 }
 
 =head2 computeFromPath
@@ -934,12 +928,10 @@ Cleaning up externally stored
 
 sub DESTROY {
     my ($self) = @_;
-    my $config = $self->config;
-    if($config) {
-        my $file = $config->GetFileName;
-        foreach my $hash_ref (@ON_DESTROY_REFS) {
-            delete $hash_ref->{$file};
-        }
+    my $file = $self->GetFileName;
+    return unless $file;
+    foreach my $hash_ref (@ON_DESTROY_REFS) {
+        delete $hash_ref->{$file};
     }
 }
 
@@ -951,22 +943,8 @@ Unloads the cached config from the internal global cache
 
 sub unloadConfig {
     my ($self) = @_;
-    my $config = $self->config;
-    if($config) {
-        my $file = $config->GetFileName;
-        @LOADED_CONFIGS = grep { $config->GetFileName ne $file  } @LOADED_CONFIGS;
-    }
-}
-
-=head2 isa
-
-Fake being a pf::IniFiles
-
-=cut
-
-sub isa {
-    my ($self,@args) = @_;
-    return $self->SUPER::isa(@args) || pf::IniFiles->isa(@args);
+    my $file = $self->GetFileName;
+    @LOADED_CONFIGS = grep { $self->GetFileName ne $file  } @LOADED_CONFIGS;
 }
 
 sub untaint_value {
