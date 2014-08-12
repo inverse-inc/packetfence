@@ -91,7 +91,7 @@ after list => sub {
 
 /configuration/switch/search
 
-Search the switch config
+Search the switch configuration entries
 
 =cut
 
