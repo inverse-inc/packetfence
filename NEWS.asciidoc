@@ -51,6 +51,7 @@ Bug Fixes
 * Fix issue when a passthough is not able to be resolved and would generate an invalid DNS response
 * Fix missing files in logrotate file
 * Fix issue when setting a port in trunk on a Cisco Catalyst 3560, 3750 and 3750G would fail
+* Fix admin roles for bulk actions for nodes/users
 
 
 Version 4.3.0 released on 2014-06-26
