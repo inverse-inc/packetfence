@@ -49,6 +49,11 @@
             <artifactId>sal</artifactId>
             <version>0.7.0</version>
         </dependency>
+         <dependency>
+              <groupId>org.json</groupId>
+              <artifactId>org-json</artifactId>
+              <version>0.1</version>
+         </dependency>
     </dependencies>
  
     <repositories>
