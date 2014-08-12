@@ -135,6 +135,7 @@ sub doEmailRegistration : Private {
 
     if ($source) {
 
+        # On-site email guests self-registration
         # if we have a MAC, guest was on-site and we need to proceed with registration
         if ( defined($node_mac) && valid_mac($node_mac) ) {
             my %info;
@@ -153,44 +154,53 @@ sub doEmailRegistration : Private {
                 )
             );
 
+            # Create local account for external authentication sources (if configured to do so)
             if ( isenabled($source->{create_local_account}) ) {
-                # Create a local account after guest registration and send the access code
-                my %info = (
-                    'pid'     => $pid,
-                    'email'   => $email,
-                    'subject' => i18n_format(
-                        "%s: Guest access confirmed!",
-                        $Config{'general'}{'domain'}
-                    ),
-                    'currentdate' => POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime )
-                );
-
-                # we create a temporary password using the actions from
-                # the email authentication source;
+                # We create a "temporary password" associated to the email address provided on
+                # authentication which is the pid.
                 my $actions = &pf::authentication::match( $source->{id}, $auth_params );
-                $info{'password'} = pf::temporary_password::generate( $pid, $actions );
+                my $password = pf::temporary_password::generate( $pid, $actions );
 
-                # send on-site guest credentials by email
-                pf::web::guest::send_template_email(
-                    $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION_CONFIRMED,
-                    $info{'subject'}, \%info
-                );
+                # We send the user an email with the info of the newly created account (if configured
+                # to do so)
+                if ( is_in_list('message',
+                        $Config{'guests_self_registration'}{'create_local_account_process'}) ) {
+                    my %info = (
+                        'pid'           => $pid,
+                        'password'      => $password,
+                        'email'         => $email,
+                        'subject'       => i18n_format(
+                            "%s: Guest account creation information", $Config{'general'}{'domain'}
+                        ),
+                    );
 
-                $c->stash(
-                    template => $pf::web::guest::EMAIL_PREREG_CONFIRMED_TEMPLATE,
-                    %info
-                );
+                    pf::web::guest::send_template_email(
+                        $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \$info
+                    );
+                }
+
+                # We displays the user a portal page with the info of the newly created account (if
+                # configured to do so)
+                if ( is_in_list('portal',
+                        $Config{'guests_self_registration'}{'create_local_account_process'}) ) {
+                    $c->stash (
+                        local_account_creation  => $TRUE,
+                        pid => $pid,
+                        password => $password,
+                    );
+                }
             }
 
             $c->stash(
                 template   => $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE,
                 expiration => $c->stash->{info}{unregdate} 
             );
-        } else {
+        } 
 
-            # if we don't have the MAC it means it's a preregister
-            # guest generate a password and send an email with an
-            # access code
+        # Pre-registration email guests self-registration
+        # if we don't have the MAC it means it's a preregister guest generate a password and send 
+        # an email with an access code
+        else {
             my %info = (
                 'pid'     => $pid,
                 'email'   => $email,
