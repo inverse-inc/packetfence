@@ -16,7 +16,6 @@ use Moose;
 use namespace::autoclean;
 use pf::config::cached;
 use pf::config;
-use pf::log;
 use pf::ConfigStore::Switch;
 use HTTP::Status qw(:constants is_error is_success);
 
