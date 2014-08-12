@@ -75,6 +75,35 @@ sub description { 'Cisco Catalyst 3560' }
 # CAPABILITIES
 # inherited from 2960
 
+sub setModeTrunk {
+    my ( $this, $ifIndex, $enable ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $OID_vlanTrunkPortDynamicState = "1.3.6.1.4.1.9.9.46.1.6.1.1.13";    #CISCO-VTP-MIB
+    my $OID_vlanTrunkEncapsulation = "1.3.6.1.4.1.9.9.46.1.6.1.1.3";
+
+    # $mode = 1 -> switchport mode trunk
+    # $mode = 2 -> switchport mode access
+
+    if ( !$this->isProductionMode() ) {
+        $logger->info("not in production mode ... we won't change this port vlanTrunkPortDynamicState");
+        return 1;
+    }
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+
+    my $truthValue = $enable ? $SNMP::TRUE : $SNMP::FALSE;
+    my $trunkMode = $enable ? $CISCO::TRUNK_DOT1Q : $CISCO::TRUNK_AUTO;
+    $logger->trace("SNMP set_request for vlanTrunkEncapsulation: $OID_vlanTrunkEncapsulation");
+    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ "$OID_vlanTrunkEncapsulation.$ifIndex",
+        Net::SNMP::INTEGER, $trunkMode ] );
+    $logger->trace("SNMP set_request for vlanTrunkPortDynamicState: $OID_vlanTrunkPortDynamicState");
+    $result = $this->{_sessionWrite}->set_request( -varbindlist => [ "$OID_vlanTrunkPortDynamicState.$ifIndex",
+        Net::SNMP::INTEGER, $truthValue ] );
+
+    return ( defined($result) );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

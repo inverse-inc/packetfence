@@ -323,6 +323,15 @@ Readonly::Scalar our $DEFAULT_LLDP_REMTIMEMARK => 0;
 
 =back
 
+=item Trunk encapsulation constants
+
+Used to set the encapsulation of a trunk 
+
+=cut
+
+Readonly::Scalar our $TRUNK_DOT1Q => 4;
+Readonly::Scalar our $TRUNK_AUTO => 5;
+
 =head1 EXTREME
 
 Extreme Networks constants
