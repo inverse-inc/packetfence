@@ -69,15 +69,16 @@ sub populateSwitchConfig {
         }
 
         # transforming vlans and roles to hashes
-        my %merged = ( Vlan => {}, Role => {} );
-        foreach my $key ( grep {/(Vlan|Role)$/} keys %{$switch} ) {
+        my %merged = ( Vlan => {}, Role => {}, AccessList => {} );
+        foreach my $key ( grep {/(Vlan|Role|AccessList)$/} keys %{$switch} ) {
             next unless my $value = $switch->{$key};
-            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role)$/ ) ) {
+            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList)$/ ) ) {
                 $merged{$type}{$type_key} = $value;
             }
         }
-        $switch->{roles}       = $merged{Role};
-        $switch->{vlans}       = $merged{Vlan};
+        $switch->{roles}        = $merged{Role};
+        $switch->{vlans}        = $merged{Vlan};
+        $switch->{access_lists} = $merged{AccessList};
         $switch->{VoIPEnabled} = (
             $switch->{VoIPEnabled} =~ /^\s*(y|yes|true|enabled|1)\s*$/i
             ? 1

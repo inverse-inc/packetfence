@@ -1021,6 +1021,39 @@ PacketFence switch configuration
 * Set your registered roles to 'registered'
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
+Downloadable ACLs
++++++++++++++++++
+
+The Catalyst 2960 supports RADIUS pushed ACLs which means that you can define the ACLs centrally in PacketFence without configuring them in your switches and their rules will be applied to the switch during the authentication.
+
+These ACLs are defined by role like the VLANs which means you can define different ACLs for your registration VLAN, production VLAN, guest VLAN, etc.
+
+Before continuing, configure your switch to be in MAC authentication bypass or 802.1X.
+
+Now in the PacketFence interface go in the switch configuration and in the Roles tab.
+
+Check 'Role by access list' and you should now be able to configure the access lists as below.
+
+For example if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration category.
+
+image::docs/images/cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
+
+Now if for example, your normal users are placed in the 'default' category and your guests in the 'guest' category.
+
+If for example the 'default' category uses the network 192.168.5.0/24 and your guest network uses the network 192.168.10.0/24.
+
+You can prevent communications between both networks using these access lists
+
+image::docs/images/cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross network deny ACL"]
+
+You could also only prevent your guest users from using shared directories
+
+image::docs/images/cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny shares ACL"]
+
+Or also you could restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
+
+image::docs/images/cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
+
 Stacked 29xx, Stacked 35xx, Stacked 3750, 4500 Series, 6500 Series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

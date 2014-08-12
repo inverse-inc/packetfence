@@ -131,7 +131,7 @@ SwitchView.prototype.changeRoleMapping = function(e) {
     var checkbox = $(this);
     var match = /(.+)Map/.exec(checkbox.attr('name'));
     var type = match[1];
-    var inputs = checkbox.closest('form').find('input[type="text"][name*="'+type+'"]');
+    var inputs = $.merge(checkbox.closest('form').find('input[type="text"][name*="'+type+'"]'), checkbox.closest('form').find('textarea[name*="'+type+'"]'));
 
     if (checkbox.is(':checked'))
         inputs.removeAttr('disabled');
