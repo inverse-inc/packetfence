@@ -24,7 +24,7 @@ authorize {
 ## Check temporary_password table with email and password for a guest registration
 #                    pfsponsor
 #                    if (fail || notfound) {
-## Check activation table with telephone number and pin code 
+## Check activation table with phone number and PIN code 
 #                        pfsms
 #                        if (fail || notfound) {
 #                            update control {

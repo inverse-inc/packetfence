@@ -1062,7 +1062,7 @@ The goal here is to be able to use the credential PacketFence created on guest a
 First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS) and check Add user on email registration amd/or
 Add user on sponsor registration in Configuration -> Self Registration section.
 At the end of the guest registration, PacketFence will send a an email with the credentials for Email and Sponsor. For SMS use your
-phone number and the pin code.
+phone number and the PIN code.
 
 In `/usr/local/pf/raddb/sites-available/packetfence-tunnel` there is an example on how to configure radius to enable this feature (uncomment to make it work).
 
@@ -1092,7 +1092,7 @@ authorize {
 ## Check temporary_password table with email and password for a guest registration
 #                pfsponsor
 #                if (fail || notfound) {
-## Check activation table with telephone number and pin code
+## Check activation table with phone number and PIN code
 #                    pfsms
 #                    if (fail || notfound) {
 #                        update control {
