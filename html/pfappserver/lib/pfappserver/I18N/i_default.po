@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-08-11 16:37-0400\n"
+"PO-Revision-Date: 2014-08-13 12:23-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -1021,6 +1021,7 @@ msgstr ""
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/configuration/adminroles/list.tt
 # html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/configuration/switch/index.tt
 # html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/portal/profile/index.tt
@@ -2749,8 +2750,16 @@ msgstr ""
 msgid "Role by VLAN ID"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Role by access list"
+msgstr ""
+
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "Role mapping by VLAN ID"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "Role mapping by access list"
 msgstr ""
 
 # html/pfappserver/root/configuration/switch/view.tt
@@ -3266,11 +3275,16 @@ msgstr ""
 msgid "Switch"
 msgstr ""
 
+# html/pfappserver/root/configuration/switch/index.tt
+msgid "Switch ID"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 msgid "Switch/AP"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/configuration/switch/index.tt
 msgid "Switches"
 msgstr ""
 
@@ -3948,11 +3962,11 @@ msgstr "Error color"
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_success_color"
-msgstr "Warning color"
+msgstr "Success color"
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_warning_color"
-msgstr "Success color"
+msgstr "Warning color"
 
 # conf/documentation.conf
 msgid "advanced.reevaluate_access_reasons"
@@ -4302,6 +4316,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/switch/index.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "ends with"
 msgstr ""
@@ -4505,6 +4520,7 @@ msgstr "Internal"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/switch/index.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
@@ -4524,6 +4540,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/switch/index.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
@@ -4597,6 +4614,7 @@ msgstr "Mark as sponsor"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/switch/index.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "matches"
 msgstr ""
@@ -5042,6 +5060,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/switch/index.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "starts with"
 msgstr ""
