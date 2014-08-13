@@ -87,6 +87,7 @@ sub supportsWiredDot1x { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
+sub supportsAccessListBasedEnforcement { return $TRUE }
 # VoIP technology supported
 sub supportsRadiusVoip { return $TRUE; }
 # special features supported
