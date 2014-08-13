@@ -98,11 +98,9 @@ public class PacketHandler implements IListenDataPacket {
                 int dstAddr = ipv4Pkt.getDestinationAddress();
                 InetAddress addr = intToInetAddress(dstAddr);
                 System.out.println("Pkt. to " + addr.toString() + " received by node " + node.getNodeIDString() + " on connector " + ingressConnector.getNodeConnectorIDString());
-                String sourceMac = HexEncode.bytesToHexStringFormat(((Ethernet)l2pkt).getSourceMACAddress());
                 String switchId = node.getNodeIDString();
-                switchId = switchId.substring(0, 17);
                 String port = ingressConnector.getNodeConnectorIDString();
-                PFPacketProcessor pf = new PFPacketProcessor(sourceMac, switchId, port, l2pkt);
+                PFPacketProcessor pf = new PFPacketProcessor(switchId, port, l2pkt);
                 return pf.processPacket(); 
             }
         }

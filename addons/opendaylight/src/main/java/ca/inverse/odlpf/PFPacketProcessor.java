@@ -38,6 +38,8 @@ import java.util.ArrayList;
 
 public class PFPacketProcessor {
 
+    private static final Logger log = LoggerFactory.getLogger(PacketHandler.class);
+
     private static final PFConfig pfConfig = new PFConfig("/etc/packetfence.conf");
     private static ArrayList<String> transactionCache = new ArrayList<String>();
     private static ArrayList<String> ignoredCache = new ArrayList<String>();
@@ -45,24 +47,25 @@ public class PFPacketProcessor {
     private String sourceMac;
     private String switchId;
     private String port;
-    private Packet packet;
+    private PFPacket packet;
 
-    PFPacketProcessor(String sourceMac, String switchId, String port, Packet packet){
-        this.sourceMac = sourceMac;
+    PFPacketProcessor(String switchId, String port, Packet packet){
+        this.packet = new PFPacket(packet); 
+        this.sourceMac = this.packet.getSourceMac();
         this.switchId = switchId;
         this.port = port;
-        this.packet = packet; 
     }
 
     public PacketResult processPacket(){
         if( !this.alreadyInTransaction()  && !this.shouldIgnorePacket() ){
             this.startTransaction();
             JSONObject response = this.getPacketFenceActions();
-            this.handlePacketFenceResponse(response);
+            PacketResult result = this.handlePacketFenceResponse(response);
             this.finishTransaction();
-            return PacketResult.KEEP_PROCESSING;
+            return result;
         }
         else if(this.alreadyInTransaction()){
+            log.info("Ignoring packet because a current transaction is already started");
             System.out.println("Ignoring packet because a current transaction is already started");
             return PacketResult.IGNORED;
         }
@@ -98,7 +101,7 @@ public class PFPacketProcessor {
         return PFPacketProcessor.transactionCache.contains(sourceMac); 
     }
 
-    private void handlePacketFenceResponse(JSONObject response){
+    private PacketResult handlePacketFenceResponse(JSONObject response){
         try{
             JSONArray result = response.getJSONArray("result");
             JSONObject data = result.getJSONObject(0); 
@@ -106,10 +109,26 @@ public class PFPacketProcessor {
             if (action.equals("ignored")){
                 this.addToIgnoreList();
             }
+            else if(action.equals("isolate")){
+                String method = data.getString("strategy");
+                if(method.equals("DNS")){
+                    // do dns poisoning stuff
+                    PFDNSPoison dnsPoison = new PFDNSPoison(this.packet);
+                    dnsPoison.poisonFromPacket(); 
+                    return PacketResult.KEEP_PROCESSING;
+                }
+                else if(method.equals("VLAN")){
+                    // pf takes care of the flows here
+                    return PacketResult.CONSUME;   
+                }
+            }
             System.out.println(data.toString());
+            log.debug(data.toString());
+            return PacketResult.KEEP_PROCESSING;
         }
         catch(Exception e){
             e.printStackTrace();
+            return PacketResult.KEEP_PROCESSING;
         }       
     }
 
@@ -199,7 +218,7 @@ public class PFPacketProcessor {
             JSONObject jsonBody = new JSONObject();
             jsonBody.put("jsonrpc", "2.0");
             jsonBody.put("id", "1");
-            jsonBody.put("method", "openflow_authorize");
+            jsonBody.put("method", "sdn_authorize");
             JSONObject params = new JSONObject();
             params.put("mac", sourceMac);
             params.put("switch_id", switchId);
