@@ -39,6 +39,86 @@ sub remove {
     return $self->SUPER::remove($id);
 }
 
+our %QUERY_METHOD_LOOKUP = (
+    equal => \&equal_query,
+    not_equal => \&not_equal_query,
+    starts_with => \&starts_with_query,
+    ends_with => \&ends_with_query,
+    like => \&like_query,
+);
+
+sub equal_query {
+    my ($self,$searchQuery,$entry) = @_;
+    my $name = $searchQuery->{name};
+    return $entry->{$name} eq $searchQuery->{value};
+}
+
+sub not_equal_query {
+    my ($self,$searchQuery,$entry) = @_;
+    my $name = $searchQuery->{name};
+    return $entry->{$name} ne $searchQuery->{value};
+}
+
+sub starts_with_query {
+    my ($self,$searchQuery,$entry) = @_;
+    my $name = $searchQuery->{name};
+    my $value = $searchQuery->{value};
+    return $entry->{$name} =~ /^\Q$value\E/;
+}
+
+sub ends_with_query {
+    my ($self,$searchQuery,$entry) = @_;
+    my $name = $searchQuery->{name};
+    my $value = $searchQuery->{value};
+    return $entry->{$name} =~ /\Q$value\E$/;
+}
+
+sub like_query {
+    my ($self,$searchQuery,$entry) = @_;
+    my $name = $searchQuery->{name};
+    my $value = $searchQuery->{value};
+    return $entry->{$name} =~ /\Q$value\E/;
+}
+
+=head2 search
+
+Search the config from query
+
+=cut
+
+sub search {
+    my ($self, $query, $pageNum, $perPage) = @_;
+    my ($status, $ids) = $self->readAllIds;
+    my $searchEntry = $query->{searches}->[0];
+    my $searchMethod = $QUERY_METHOD_LOOKUP{$searchEntry->{op}};
+    my (@items,$item);
+    foreach my $id (@$ids) {
+        next unless defined ($item = $self->configStore->read($id,$self->idKey));
+        push @items,$item if $self->$searchMethod($searchEntry,$item);
+    }
+    my $pageCount = int( scalar @items / $perPage) + 1;
+    if(defined $pageNum || defined $perPage) {
+        my $count = @items;
+        $pageNum = 1 unless defined $pageNum;
+        $perPage = 25 unless defined $perPage;
+        my $start = ($pageNum - 1) * 25;
+        my $end = $start + $perPage - 1;
+        $end = $count - 1 if $end >= $count;
+        @items = @items[$start..$end];
+    }
+    return (HTTP_OK,
+        {   $self->itemsKey => \@items,
+            pageNumber      => $pageNum,
+            perPage         => $perPage,
+            pageCount       => $pageCount,
+            itemsKey        => $self->itemsKey
+        }
+    );
+}
+
+
+
+
 __PACKAGE__->meta->make_immutable;
 
 
