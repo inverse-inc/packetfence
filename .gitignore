@@ -82,4 +82,4 @@ lib/pf/pfcmd/pfcmd_pregrammar.pm
 logs/
 var/
 raddb/sites-enabled/
-addons/opendaylight/target/*.class
+addons/opendaylight/target/classes/
