@@ -331,7 +331,8 @@ sub person_modify {
     }
     my $new_pid   = $existing->{'pid'};
 
-    if ( $pid ne $new_pid && person_exist($new_pid) ) {
+    # compare pid case insensitively to prevent juser from not matching Juser
+    if ( $pid !~ /$new_pid/i && person_exist($new_pid) ) {
         $logger->error(
             "modify of pid $pid to $new_pid conflicts with existing person");
         return (0);
