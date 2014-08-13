@@ -14,7 +14,6 @@ pf::trap::up
 
 use strict;
 use warnings;
-require 5.8.8;
 use Moo;
 extends 'pf::trap';
 
