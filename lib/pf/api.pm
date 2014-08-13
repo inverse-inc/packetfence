@@ -274,6 +274,11 @@ sub openflow_authorize {
 
     my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_id);
 
+    if (!$switch){
+        $logger->error("Can't get instance of $switch_id");
+        return {action => "failed"};
+    }
+
     if ($switch->isUpLink($port)){
         $logger->info("Received an openflow authorize to an uplink. Not doing anything");
         return {action => "ignored"};
