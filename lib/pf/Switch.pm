@@ -276,6 +276,7 @@ sub new {
         '_VlanMap'                  => 'enabled',
         '_RoleMap'                  => 'enabled',
         '_OpenflowId'               => undef,
+        '_IsolationStrategy'        => undef,
     }, $class;
 
     foreach ( keys %argv ) {
@@ -375,6 +376,8 @@ sub new {
             $this->{_RoleMap} = $argv{$_};
         } elsif (/^-?OpenflowId$/i) {
             $this->{_OpenflowId} = $argv{$_};
+        } elsif (/^-?IsolationStrategy$/i) {
+            $this->{_IsolationStrategy} = $argv{$_};
         }
         # customVlan members are now dynamically generated. 0 to 99 supported.
         elsif (/^-?(\w+)Vlan$/i) {

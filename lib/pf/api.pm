@@ -237,26 +237,54 @@ sub firewall {
     $inline->performInlineEnforcement($postdata{'mac'});
 }
 
-sub node_state {
+sub sdn_authorize {
     my ($class, $postdata ) = @_;
     my $logger = pf::log::get_logger();
     my $mac = $postdata->{mac};
     my $switch_id = $postdata->{switch_id};
+    my $port = $postdata->{port};
+   
     my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_id);
+    $postdata->{switch} = $switch;
+    if (!$switch){
+        $logger->error("Can't get instance of $switch_id");
+        return {action => "failed"};
+    }
+
+    if ($switch->isUpLink($port)){
+        $logger->info("Received an openflow authorize to an uplink. Not doing anything");
+        return {action => "ignored"};
+    }
+    else{
+        $logger->info("Authorizing $mac on switch $switch_id port $port.");
+    }
+
     my $info = pf::node::node_view($mac);
     my $violation_count = pf::violation::violation_count_trap($mac);
     my $roles_obj = pf::roles::custom->new();
     my $role = $roles_obj->getRoleForNode($mac, $switch);
-    
+
     if (!defined($info) || $violation_count > 0 || $info->{status} eq $pf::node::STATUS_UNREGISTERED || $info->{status} eq $pf::node::STATUS_PENDING){
-        return { action => "isolate" };
+        if($switch->{_IsolationStrategy} eq "VLAN"){
+            $class->sdn_vlan_authorize($postdata) || return { action => "failed" };
+        }
+        elsif($switch->{_IsolationStrategy} eq "DNS"){
+            $switch->install_dns_redirect($port, $mac) || return { action => "failed" };
+        }
+        return { action => "isolate", strategy => $switch->{_IsolationStrategy} };
     } 
     else{
-        return { action => "accept", role => $role } ;
+        if($switch->{_IsolationStrategy} eq "VLAN"){
+            $class->sdn_vlan_authorize($postdata) || return { action => "failed" };
+        }
+        elsif($switch->{_IsolationStrategy} eq "DNS"){
+            $switch->uninstall_dns_redirect($port, $mac) || return {action => "failed"};
+        }
+        return { action => "accept", strategy => $switch->{_IsolationStrategy} , role => $role } ;
     }
 }
 
-sub openflow_authorize {
+sub sdn_vlan_authorize {
     my ($class, $postdata ) = @_;
     my $logger = pf::log::get_logger();
     use Data::Dumper;
@@ -270,22 +298,7 @@ sub openflow_authorize {
     my $switch_id = $postdata->{switch_id};
     my $switch_mac;
     my $port = $postdata->{port};
-
-
-    my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_id);
-
-    if (!$switch){
-        $logger->error("Can't get instance of $switch_id");
-        return {action => "failed"};
-    }
-
-    if ($switch->isUpLink($port)){
-        $logger->info("Received an openflow authorize to an uplink. Not doing anything");
-        return {action => "ignored"};
-    }
-    else{
-        $logger->info("Authorizing $mac on switch $switch_id port $port.");
-    }
+    my $switch = $postdata->{switch};
 
     #add node if necessary
     if ( !pf::node::node_exist($mac) ) {
@@ -339,9 +352,7 @@ sub openflow_authorize {
     # Fetch VLAN depending on node status
     my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid);
 
-    $switch->synchronize_locationlog($port, $vlan, $mac,
-        $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
-    ) if (!$wasInline);
+
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
@@ -353,9 +364,16 @@ sub openflow_authorize {
 
     $logger->info("Returning VLAN $vlan");
 
-    $switch->authorizeMac($mac, $vlan, $port ); 
+    my $result = $switch->authorizeMac($mac, $vlan, $port ); 
 
-    return {vlan => $vlan, action => "accept"};
+    if($result){
+        $switch->synchronize_locationlog($port, $vlan, $mac,
+            $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
+        ) if (!$wasInline);
+    }
+
+    return $result;
+
 }
 
 

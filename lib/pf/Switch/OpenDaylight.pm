@@ -25,6 +25,7 @@ use pf::util;
 use pf::config;
 use pf::vlan::custom;
 use pf::violation;
+use pf::node;
 
 sub description { 'OpenDaylight SDN controller' }
 sub supportsFlows { return $TRUE }
@@ -44,11 +45,11 @@ sub authorizeMac {
     }
 
     # install a new outbound flow
-    $self->install_tagged_outbound_flow($port, $uplinks[0], $mac, $vlan);
+    $self->install_tagged_outbound_flow($port, $uplinks[0], $mac, $vlan) || return $FALSE;
     # install a new inbound flow on the uplink
-    $self->install_tagged_inbound_flow($uplinks[0], $port, $mac, $vlan );
+    $self->install_tagged_inbound_flow($uplinks[0], $port, $mac, $vlan ) || return $FALSE;
     # instal a flow for broadcast packets
-    $self->install_tagged_inbound_flow($uplinks[0], $port, "ff:ff:ff:ff:ff:ff", $vlan, "broadcast" );
+    $self->install_tagged_inbound_flow($uplinks[0], $port, "ff:ff:ff:ff:ff:ff", $vlan, "broadcast" ) || return $FALSE;
 }
 
 sub get_flow_name{
@@ -69,6 +70,9 @@ sub get_flow_name{
     elsif($type eq "drop"){
         return "drop".$clean_mac;
     }   
+    elsif($type eq "dnsredirect"){
+        return "dnsredirect".$clean_mac;
+    }
     else{
         $logger->error("Invalid type sent. Returning nothing.");
     }
@@ -80,16 +84,16 @@ sub deauthorizeMac {
     my @uplinks = $self->getUpLinks();
     $logger->info("Deleting flows for $mac on port $port on $self->{_ip}");
     # delete a possible drop flow
-    $self->delete_flow("drop", $mac);
-    $self->delete_flow("outbound", $mac);
-    $self->delete_flow("inbound", $mac);
-    $self->delete_flow("broadcast", "ff:ff:ff:ff:ff:ff");
+    $self->delete_flow("drop", $mac) || return $FALSE;
+    $self->delete_flow("outbound", $mac) || return $FALSE;
+    $self->delete_flow("inbound", $mac) || return $FALSE;
+    $self->delete_flow("broadcast", "ff:ff:ff:ff:ff:ff") || return $FALSE;
 }
 
 sub delete_flow {
     my ($self, $type, $mac) = @_;
     my $flow_name = $self->get_flow_name($type, $mac);
-    $self->send_json_request("controller/nb/v2/flowprogrammer/default/node/OF/$self->{_OpenflowId}/staticFlow/$flow_name", {}, "DELETE");
+    return $self->send_json_request("controller/nb/v2/flowprogrammer/default/node/OF/$self->{_OpenflowId}/staticFlow/$flow_name", {}, "DELETE");
 }
 
 sub send_json_request {
@@ -100,7 +104,12 @@ sub send_json_request {
 
     my $command = 'curl -u admin:admin -X '.$method.' -d \''.$json_data.'\' --header "Content-type: application/json" '.$url; 
     $logger->info("Running $command");
-    $logger->info("Result of command : ".pf_run($command));
+    my $result = pf_run($command);
+    $logger->info("Result of command : ".$result);
+    if ($result eq "Success" || $result eq "No modification detected" || $result eq ""){
+        return $TRUE;
+    }
+    return $FALSE;
 }
 
 sub install_tagged_outbound_flow {
@@ -122,6 +131,7 @@ sub install_tagged_outbound_flow {
             "type" => "OF",
         },
         "ingressPort" => "$source_int",
+        "etherType" => "0x800",
         "priority" => "500",
         "dlSrc" => "$mac",
         "actions" => [
@@ -130,7 +140,7 @@ sub install_tagged_outbound_flow {
         ],
     );
     
-    $self->send_json_request($path, \%data, "PUT");
+    return $self->send_json_request($path, \%data, "PUT");
    
 }
 
@@ -153,6 +163,7 @@ sub install_tagged_inbound_flow {
             "type" => "OF",
         },
         "ingressPort" => "$source_int",
+        "etherType" => "0x800",
         "priority" => "500",
         "vlanId" => $vlan,
         "dlDst" => $mac,
@@ -162,7 +173,7 @@ sub install_tagged_inbound_flow {
         ]
     );
     
-    $self->send_json_request($path, \%data, "PUT");
+    return $self->send_json_request($path, \%data, "PUT");
    
 }
 
@@ -186,22 +197,73 @@ sub install_drop_flow {
         },
         "ingressPort" => "$source_int",
         "priority" => "500",
+        "etherType" => "0x800",
         "installInHw" => "true",
         "actions" => [
             "DROP"
         ]
     );
     
-    $self->send_json_request($path, \%data, "PUT");
+    return $self->send_json_request($path, \%data, "PUT");
  
 }
 
 sub handleReAssignVlanTrapForWiredMacAuth {
     my ($self, $ifIndex, $mac) = @_;
     my $vlan_obj = new pf::vlan::custom();    
-    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $self, $ifIndex, undef, undef, undef);
-    $self->deauthorizeMac($mac, $vlan, $ifIndex);
-    $self->authorizeMac($mac, $vlan, $ifIndex);
+    my $info = pf::node::node_view($mac);
+    my $violation_count = pf::violation::violation_count_trap($mac);
+
+    if($self->{_IsolationStrategy} eq "VLAN"){
+        my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $self, $ifIndex, undef, undef, undef);
+        $self->deauthorizeMac($mac, $vlan, $ifIndex);
+        $self->authorizeMac($mac, $vlan, $ifIndex);
+    }
+    elsif($self->{_IsolationStrategy} eq "DNS"){
+        if (!defined($info) || $violation_count > 0 || $info->{status} eq $pf::node::STATUS_UNREGISTERED || $info->{status} eq $pf::node::STATUS_PENDING){
+            $self->install_dns_redirect($ifIndex, $mac);
+        }
+        else{
+            $self->uninstall_dns_redirect($ifIndex, $mac);
+        }
+    }
+}
+
+sub install_dns_redirect {
+    my ($self, $ifIndex, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    
+    my $flow_name = $self->get_flow_name("dnsredirect", $mac);
+    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$self->{_OpenflowId}/staticFlow/$flow_name";
+    $logger->info("Computed path is : $path");
+
+    my %data = (
+        "name" => $flow_name,
+        "node" => {
+            "id" => $self->{_OpenflowId},
+            "type" => "OF",
+        },
+        "ingressPort" => "$ifIndex",
+        "dlSrc" => $mac,
+        "priority" => "1000",
+        "etherType" => "0x800",
+        "nwDst" => "0.0.0.0/0",
+        "tpDst" => "53",
+        "protocol" => "udp",
+        "installInHw" => "true",
+        "actions" => [
+            "CONTROLLER"
+        ]
+    );
+    return $self->send_json_request($path, \%data, "PUT");
+}
+
+sub uninstall_dns_redirect {
+    my ($self, $ifIndex, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    
+    $self->delete_flow("dnsredirect", $mac) || return $FALSE;
+
 }
 
 #sub send_json_request {
