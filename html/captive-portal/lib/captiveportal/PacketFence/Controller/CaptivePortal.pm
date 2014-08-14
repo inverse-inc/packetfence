@@ -360,6 +360,13 @@ sub unknownState : Private {
     my $mac   = $c->portalSession->clientMac;
     my $cached_lost_device = $LOST_DEVICES_CACHE->get($mac);
 
+    my $server_addr = $c->request->{env}->{SERVER_ADDR};
+    my $management_ip = $pf::config::management_network->{Tip};
+    if( $server_addr eq $management_ip){
+        $c->log->error("Hitting unknownState on the management address ($server_addr)");
+        $self->showError($c, "You hit the captive portal on the management interface. The management console is on port 1443.");
+    }
+
     # After 5 requests we won't perform re-eval for 5 minutes
     if ( !defined($cached_lost_device) || $cached_lost_device <= 5 ) {
 
