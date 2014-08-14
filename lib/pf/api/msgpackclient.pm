@@ -114,7 +114,8 @@ sub call {
         if($response_code == 200) {
             $response = Data::MessagePack->unpack($response_body);
         } else {
-            die "An error occured while processing the MessagePack request return code ($response_code)";
+            $response = Data::MessagePack->unpack($response_body);
+            die @{$response->[2]};
         }
     } else {
         my $msg = "An error occured while sending a MessagePack request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;

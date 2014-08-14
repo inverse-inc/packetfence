@@ -15,19 +15,23 @@ use strict;
 use warnings;
 use Data::MessagePack;
 use Data::MessagePack::Stream;
-use Log::Log4perl;
+use pf::log;
 use Apache2::RequestIO();
 use Apache2::RequestRec();
-use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE);
+use Apache2::Response ();
+use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE SERVER_ERROR HTTP_NOT_FOUND);
 use base qw(Class::Accessor);
 __PACKAGE__->mk_accessors(qw(dispatch_to));
 
 sub handler {
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+    my $logger = get_logger;
     use bytes;
     my ($self,$r) = @_;
     my $content_type = $r->headers_in->{'Content-Type'};
-    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless ($content_type eq 'application/x-msgpack');
+    unless ($content_type eq 'application/x-msgpack') {
+        $self->_set_error($r,undef,Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,"invalid content type");
+        return Apache2::Const::OK;
+    }
     my $offset = 0;
     my $cnt = 0;
     my $unpacker = Data::MessagePack::Stream->new;
@@ -35,24 +39,33 @@ sub handler {
         $unpacker->feed($buf);
     }
     my $data = $unpacker->data if $unpacker->next;
-    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless ref($data) eq 'ARRAY';
+    unless ( ref($data) eq 'ARRAY' ) {
+        $self->_set_error($r,undef,Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,"invalid content type");
+        return Apache2::Const::OK;
+    }
     my $argCount = @$data;
     if ($argCount == 4) {
+        my $status_code = Apache2::Const::OK;
         my ($type, $msgid, $method, $params) = @$data;
         return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $type == 0;
         my $dispatch_to = $self->dispatch_to;
-        return Apache2::Const::HTTP_NOT_IMPLEMENTED unless $dispatch_to->can($method);
+        unless ($dispatch_to->can($method)) {
+            $self->_set_error($r,$msgid,Apache2::Const::HTTP_NOT_FOUND,"method not found");
+            return Apache2::Const::OK;
+        }
         my $response = [];
         eval {
             my @results = $dispatch_to->$method(@$params);
             $response = [1,$msgid,undef,\@results];
         };
         if($@) {
-            $response = [1,$msgid,["$@"],undef];
+            $logger->error($@);
+            $self->_set_error($r,$msgid,Apache2::Const::SERVER_ERROR,$@);
+            return Apache2::Const::OK;
         }
-        $r->content_type('application/x-msgpack');
         my $content = Data::MessagePack->pack($response);
         $r->print($content);
+        $r->content_type('application/x-msgpack');
         return Apache2::Const::OK;
     } elsif ($argCount == 3) {
         my ($type, $method, $params) = @$data;
@@ -66,7 +79,17 @@ sub handler {
         });
         return Apache2::Const::OK;
     }
-    return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE;
+    $self->_set_error($r,Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,"invalid content");
+    return Apache2::Const::OK;
+}
+
+sub _set_error {
+    my ($self,$r,$msgid,$status,$msg) = @_;
+    my $response = [1,$msgid,[$msg],undef];
+    my $content = Data::MessagePack->pack($response);
+    $r->content_type('application/x-msgpack');
+    $r->status($status);
+    $r->print($content);
 }
 
 =head1 AUTHOR
