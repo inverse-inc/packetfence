@@ -16,11 +16,21 @@ use warnings;
 
 use Apache2::RequestRec ();
 use pf::config::cached;
+use pf::CHI;
+use Cache::Memcached;
 
 use Apache2::Const -compile => 'OK';
 
 sub handler {
     my $r = shift;
+    pf::config::cached::ReloadConfigs();
+    return Apache2::Const::OK;
+}
+
+sub child_init {
+    my ($child_pool, $s) = @_;
+    pf::CHI->clear_memoized_cache_objects;
+    Cache::Memcached->disconnect_all;
     pf::config::cached::ReloadConfigs();
     return Apache2::Const::OK;
 }
