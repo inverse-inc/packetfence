@@ -76,6 +76,14 @@ The oses to match against
 
 has oses => (is => 'rw');
 
+=head2 enforce
+
+If the provisioner has to be enforced on each connection
+
+=cut
+
+has enforce => (is => 'rw', default => sub { 1 });
+
 =head1 METHODS
 
 =head2 _build_template
