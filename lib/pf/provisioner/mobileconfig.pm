@@ -18,21 +18,13 @@ extends 'pf::provisioner';
 
 =head1 Atrributes
 
-=head2 hidden_ssid
+=head2 ssid
 
-The hidden ssid
-
-=cut
-
-has hidden_ssid => (is => 'rw');
-
-=head2 category
-
-The category
+The ssid
 
 =cut
 
-has category => (is => 'rw');
+has ssid => (is => 'rw');
 
 =head2 ca_cert_path
 
@@ -42,6 +34,11 @@ The ca cert_path
 
 has ca_cert_path => (is => 'rw');
 
+# make it skip deauth by default 
+has skipDeAuth => (is => 'rw', default => sub{1});
+
+has for_username => (is => 'rw');
+
 =head1 METHODS
 
 =head2 authorize
@@ -50,7 +47,12 @@ always authorize
 
 =cut
 
-sub authorize { 1 }
+sub authorize { 
+    my ($self, $mac) = @_;
+    my $info = pf::node::node_view($mac);
+    $self->{for_username} = $info->{pid};
+    return 1;
+}
 
 =head1 AUTHOR
 

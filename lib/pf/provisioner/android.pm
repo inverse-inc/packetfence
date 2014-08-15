@@ -42,13 +42,20 @@ The ca cert_path
 
 has ca_cert_path => (is => 'rw');
 
+has for_username => (is => 'rw');
+
 =head2 authorize
 
 always authorize
 
 =cut
 
-sub authorize { 1 }
+sub authorize { 
+    my ($self, $mac) = @_;
+    my $info = pf::node::node_view($mac);
+    $self->{for_username} = $info->{pid};
+    return 1;
+}
 
 =head1 AUTHOR
 

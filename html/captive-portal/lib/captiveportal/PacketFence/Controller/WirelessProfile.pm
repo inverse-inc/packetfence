@@ -26,7 +26,9 @@ Catalyst Controller.
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $username = $c->session->{username} || '';
-    my $provisioner = $c->profile->findProvisioner($c->portalSession->clientMac);
+    my $mac = $c->portalSession->clientMac;
+    my $provisioner = $c->profile->findProvisioner($mac);
+    $provisioner->authorize($mac) if (defined($provisioner));
     my $filename = $c->stash->{filename} || "wireless-profile.mobileconfig";
     $c->stash(
         template     => 'wireless-profile.xml',

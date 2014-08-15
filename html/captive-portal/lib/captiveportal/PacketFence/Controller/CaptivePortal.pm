@@ -375,13 +375,13 @@ sub endPortalSession : Private {
         $logger->info("[$mac] more violations yet to come");
     }
 
-    # this makes already provisioned devices see the template and not redirected to /access
-    #my $provisioner = $profile->findProvisioner($mac);
-    #if($provisioner && !$provisioner->skipDeAuth) {
-    #    # handle autoconfig provisioning
-    #    $c->stash( template => $provisioner->template );
-    #    $c->detach();
-    #}
+    # show provisioner template if we're authorizing and skiping deauth
+    my $provisioner = $profile->findProvisioner($mac);
+    if(defined($provisioner) && $provisioner->authorize($mac) && $provisioner->skipDeAuth) {
+        # handle autoconfig provisioning
+        $c->stash( template => $provisioner->template );
+        $c->detach();
+    }
 
     # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
     if ( $c->request->secure ) {
@@ -436,7 +436,8 @@ sub webNodeRegister : Private {
     }
     node_register( $mac, $pid, %info );
 
-    unless ( $c->user_cache->get("mac:$mac:do_not_deauth") ) {
+    my $provisioner = $c->profile->findProvisioner($mac);
+    unless ( (defined($provisioner) && $provisioner->skipDeAuth) || $c->user_cache->get("mac:$mac:do_not_deauth") ) {
         my $node = node_view($mac);
         my $switch;
         if( pf::SwitchFactory->hasId($node->{last_switch}) ){
