@@ -324,6 +324,22 @@ sub getNormalVlan {
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+
+    if (defined(my $provisioner = $profile->findProvisioner($mac))) {
+        unless ($provisioner->authorize($mac)) {
+            $logger->warn("$mac is not authorized anymore with it's provisionner. Putting node as pending.");
+            $node_info->{status} = $pf::node::STATUS_PENDING;
+            node_modify($mac, %$node_info);
+            return $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+        }
+        else{
+            $logger->debug("$mac is still authorized with it's provisioner");
+        }
+    }
+    else{
+        $logger->debug("Can't find provisioner for $mac");
+    }
 
     # Bypass VLAN is configured in node record so we return accordingly
     if ( defined($node_info->{'bypass_vlan'}) && $node_info->{'bypass_vlan'} ne '' ) {
