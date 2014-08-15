@@ -58,7 +58,7 @@ If we can skip deauth for a node after being provisioned
 
 =cut
 
-has skipDeAuth => (is => 'rw', default => sub { 1 });
+has skipDeAuth => (is => 'rw', default => sub { 0 });
 
 =head2 template
 
