@@ -40,6 +40,9 @@
 
 PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/pfappserver/lib
+PerlModule pf::WebAPI::InitHandler
+PerlChildInitHandler pf::WebAPI::InitHandler::child_init
+PerlInitHandler pf::WebAPI::InitHandler
 
 <Perl>
 
