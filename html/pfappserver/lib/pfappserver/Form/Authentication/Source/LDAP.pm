@@ -29,11 +29,15 @@ has_field 'port' =>
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '389'},
   );
-has_field 'connection_timeout' =>
+has_field 'connection_timeout' => 
   (
-   type => 'PosInteger',
-   label => 'Connection timeout',
-   element_attr => {'placeholder' => '5'},
+    type         => 'PosInteger',
+    label        => 'Connection timeout',
+    element_attr => {
+        'placeholder' =>
+            pf::Authentication::Source::LDAPSource->meta->get_attribute('connection_timeout')->default
+    },
+    default => pf::Authentication::Source::LDAPSource->meta->get_attribute('connection_timeout')->default,
   );
 has_field 'encryption' =>
   (
