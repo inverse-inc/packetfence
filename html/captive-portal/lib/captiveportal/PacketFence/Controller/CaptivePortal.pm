@@ -375,12 +375,13 @@ sub endPortalSession : Private {
         $logger->info("[$mac] more violations yet to come");
     }
 
-    my $provisioner = $profile->findProvisioner($mac);
-    if($provisioner && !$provisioner->skipDeAuth) {
-        # handle autoconfig provisioning
-        $c->stash( template => $provisioner->template );
-        $c->detach();
-    }
+    # this makes already provisioned devices see the template and not redirected to /access
+    #my $provisioner = $profile->findProvisioner($mac);
+    #if($provisioner && !$provisioner->skipDeAuth) {
+    #    # handle autoconfig provisioning
+    #    $c->stash( template => $provisioner->template );
+    #    $c->detach();
+    #}
 
     # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
     if ( $c->request->secure ) {
