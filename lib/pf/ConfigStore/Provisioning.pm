@@ -50,6 +50,16 @@ sub _fields_expanded {
     return qw();
 }
 
+sub split_list {
+    my ($self,$list) = @_;
+    return split(/\s*\n\s*/,$list);
+}
+
+sub join_list {
+    my ($self,@list) = @_;
+    return join('\n',@list);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
