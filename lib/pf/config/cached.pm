@@ -703,13 +703,6 @@ sub ReadConfig {
     $reloaded_from_cache = refaddr($self) != refaddr($new_self);
     if($reloaded_from_cache) {
         $self->_swap_data($new_self);
-        #Repopulate the in new memory cache after the swap
-        my $l1_cache;
-        if($cache->has_subcaches) {
-            $l1_cache = $cache->l1_cache;
-            $l1_cache = $l1_cache->l1_cache while $l1_cache->has_subcaches;
-            $l1_cache->set($file,$self) if $l1_cache->driver_class eq 'CHI::Driver::Memory';
-        }
     }
     $self->doCallbacks($reloaded_from_file,$reloaded_from_cache,$force);
     return $result;
@@ -726,6 +719,14 @@ sub _swap_data {
     Data::Swap::swap($self,$new_self); 
     #Unbless the old data to avoid DESTROY from being called
     unbless($new_self);
+    my $cache = $self->cache;
+    my $l1_cache;
+    #Repopulate the in new memory cache after the swap
+    if($cache->has_subcaches) {
+        $l1_cache = $cache->l1_cache;
+        $l1_cache = $l1_cache->l1_cache while $l1_cache->has_subcaches;
+        $l1_cache->set($self->GetFileName,$self) if $l1_cache->driver_class eq 'CHI::Driver::RawMemory';
+    }
 }
 
 =head2 TIEHASH
