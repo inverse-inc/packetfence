@@ -183,7 +183,7 @@ form {
             </div>
           </form>
           <div class="loader span12"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
-          <div class="row-fluid" id="section">
+          <div class="row-fluid nodes" id="section">
           </div>
         </div><!--/span-->
       </div><!--/row-->
