@@ -6,7 +6,7 @@ ALTER TABLE person ADD `portal` varchar(255) default NULL;
 ALTER TABLE person ADD `source` varchar(255) default NULL;
 
 --
--- Table structure for table `activation`
+-- The tables email_activation and sms_activation have been merged in a table named `activation`
 --
 
 CREATE TABLE activation (
@@ -26,10 +26,18 @@ CREATE TABLE activation (
   KEY `activation` (activation_code, status)
 ) ENGINE=InnoDB;
 
-INSERT INTO activation ( pid, mac, contact_info, activation_code, expiration, status, `type`, portal) SELECT  pid, mac, email, activation_code, expiration, status, IFNULL(`type`,'guest'), 'default' from email_activation;
-INSERT INTO activation ( mac, contact_info, carrier_id, activation_code, expiration, status, `type`, portal) SELECT mac, phone_number, carrier_id, activation_code, expiration, status, 'sms', 'default' from sms_activation;
+-- Migrate entries from email_activation
+INSERT INTO activation ( pid, mac, contact_info, activation_code, expiration, status, `type`, portal) SELECT  pid, mac, email, activation_code, expiration, status, IFNULL(`type`,'guest'), 'default' FROM email_activation;
+
+-- Migrate entries from sms_activation
+INSERT INTO activation ( mac, contact_info, carrier_id, activation_code, expiration, status, `type`, portal) SELECT mac, phone_number, carrier_id, activation_code, expiration, status, 'sms', 'default' FROM sms_activation;
+
+-- Drop old tables
 
 -- DROP TABLE email_activation;
 -- DROP TABLE sms_activation;
 
-DELETE FROM savedsearch where namespace='pfappserver::Model::SavedSearch::Node' and query Like '%simple_search?filter%';
+--
+-- Drop saved simple searches on nodes since their structure has changed
+--
+DELETE FROM savedsearch WHERE namespace='pfappserver::Model::SavedSearch::Node' AND query LIKE '%simple_search?filter%';
