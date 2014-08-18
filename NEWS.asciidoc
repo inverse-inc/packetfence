@@ -28,6 +28,7 @@ New Features
 * Added external captive portal support for Xirrus 
 * Added support for Dynamic Access lists on the Cisco Catalyst 2960
 * Added the ability to search switches
+* Added support for Dlink DES3028 switches
 
 Enhancements
 ++++++++++++
@@ -37,11 +38,12 @@ Enhancements
 * Improvement of Inline Layer 3 (Inline L3 can only be defined behind Inline Layer 2 network)
 * pfbandwidthd is now able to capture on all inline interfaces
 * Added an option to set the timeout value for LDAP connections in authentication sources
-* FreeRADIUS default configuration should now be more scalable and resilient to misbehaving devices.
+* FreeRADIUS default configuration should now be more scalable and resilient to misbehaving devices
 * Added the possibility to create rules using the username in OAuth authentication sources
 * Added the RADIUS request to the vlan filter
 * Moved from using Storable to Sereal to serialize cached data
 * Refactored portal profile filters to make it easier to extend
+* Improved support for Dlink DES 3526 switches
 
 Bug Fixes
 +++++++++
