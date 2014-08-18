@@ -80,7 +80,7 @@ Backwards compatability
 
 =cut
 
-sub gaming_registration: Local('gaming-registration') {
+sub gaming_registration: Path('/gaming-registration') {
     my ( $self, $c ) = @_;
     $c->forward('index');
 }
