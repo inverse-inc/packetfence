@@ -362,7 +362,7 @@ sub unknownState : Private {
     my $cached_lost_device = $LOST_DEVICES_CACHE->get($mac);
 
     my $server_addr = $c->request->{env}->{SERVER_ADDR};
-    my $management_ip = $pf::config::management_network->{Tip};
+    my $management_ip = $pf::config::management_network->{'Tvip'} || $pf::config::management_network->{'Tip'};
     if( $server_addr eq $management_ip){
         $logger->error("Hitting unknownState on the management address ($server_addr)");
         $self->showError($c, "You hit the captive portal on the management interface. The management console is on port 1443.");
