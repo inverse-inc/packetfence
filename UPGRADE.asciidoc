@@ -5,6 +5,17 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to 4.4.0
+---------------------------------------
+
+Cache serialization
+^^^^^^^^^^^^^^^^^^^
+
+The serialization of the objects in the cache changed, making all the previous cached objects invalid.
+With PacketFence completely stopped do :
+
+  rm -fr /usr/local/pf/var/cache/*
+
 Upgrading from a version prior to 4.3.0
 ---------------------------------------
 
