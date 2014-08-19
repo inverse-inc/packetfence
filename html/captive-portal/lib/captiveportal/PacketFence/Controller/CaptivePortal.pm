@@ -358,7 +358,15 @@ through too many access reevaluation requests (since this is rather expensive es
 sub unknownState : Private {
     my ( $self, $c ) = @_;
     my $mac   = $c->portalSession->clientMac;
+    my $logger = $c->log;
     my $cached_lost_device = $LOST_DEVICES_CACHE->get($mac);
+
+    my $server_addr = $c->request->{env}->{SERVER_ADDR};
+    my $management_ip = $pf::config::management_network->{'Tvip'} || $pf::config::management_network->{'Tip'};
+    if( $server_addr eq $management_ip){
+        $logger->error("Hitting unknownState on the management address ($server_addr)");
+        $self->showError($c, "You hit the captive portal on the management interface. The management console is on port 1443.");
+    }
 
     # After 5 requests we won't perform re-eval for 5 minutes
     if ( !defined($cached_lost_device) || $cached_lost_device <= 5 ) {
@@ -370,7 +378,23 @@ sub unknownState : Private {
           "MAC $mac shouldn't reach here. Calling access re-evaluation. " .
           "Make sure your network device configuration is correct."
         );
-        pf::enforcement::reevaluate_access( $mac, 'redir.cgi', (force => $TRUE) );
+        my $node = node_view($mac);
+        my $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
+        if($switch->supportsWebFormRegistration){
+            $logger->info("Switch supports web form release. Will use this method to authenticate the user");
+            $c->stash(
+                template => 'webFormRelease.html',
+                content => $switch->getAcceptForm($mac, 
+                                $c->stash->{destination_url}, 
+                                new pf::Portal::Session()->session, 
+                                ),
+            );
+            $c->detach;
+        }
+        else{
+            reevaluate_access( $mac, 'redir.cgi' );
+        }
+
     }
     $self->showError( $c, "Your network should be enabled within a minute or two. If it is not reboot your computer.");
 }
@@ -473,7 +497,22 @@ sub webNodeRegister : Private {
     node_register( $mac, $pid, %info );
 
     unless ( $c->user_cache->get("mac:$mac:do_not_deauth") ) {
-        reevaluate_access( $mac, 'manage_register' );
+        my $node = node_view($mac);
+        my $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
+        if($switch->supportsWebFormRegistration){
+            $logger->info("Switch supports web form release.");
+            $c->stash(
+                template => 'webFormRelease.html',
+                content => $switch->getAcceptForm($mac, 
+                                $c->stash->{destination_url}, 
+                                new pf::Portal::Session()->session, 
+                                ),
+            );
+            $c->detach;
+        }
+        else{
+            reevaluate_access( $mac, 'manage_register' );
+        }
     }
 
     # we are good, push the registration
@@ -510,12 +549,28 @@ sub error : Private { }
 
 =head1 AUTHOR
 
-root
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 =cut
 

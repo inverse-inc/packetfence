@@ -128,6 +128,29 @@ sub parse_tt {
         }
         close(TT);
     }
+
+    my $template = $dir . '/admin/configuration.tt';
+    open(TT, $template);
+    while (defined($line = <TT>)) {
+        chomp $line;
+        if ($line =~ m/\[\% ?list_entry\(\s*'[^']*',\s*'[^']*',\s*'([^']*)'\) ?\%\]/g) {
+            add_string($1, $template);
+        }
+        elsif ($line =~ m/\[\% ?pf_section_entry\(\s*'[^']*',\s*'([^']*)'\) ?\%\]/g) {
+            add_string($1, $template);
+        }
+    }
+    close(TT);
+
+    $template = $dir . '/admin/reports.tt';
+    open(TT, $template);
+    while (defined($line = <TT>)) {
+        chomp $line;
+        if ($line =~ m/\[\% ?list_entry\(\s*'[^']*',\s*'([^']*)'\) ?\%\]/g) {
+            add_string($1, $template);
+        }
+    }
+    close(TT);
 }
 
 =head2 parse_forms

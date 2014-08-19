@@ -1055,14 +1055,14 @@ Option 4: Authentication against OpenLDAP
 
   To be contributed...
 
-Option 5: Guest Authentication on email, sponsor and sms registration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Option 5: EAP Guest Authentication on email, sponsor and sms registration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The goal here is to be able to use the credential PacketFence created on guest access and use this one on a secure connection.
 First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS) and check Add user on email registration amd/or
 Add user on sponsor registration in Configuration -> Self Registration section.
 At the end of the guest registration, PacketFence will send a an email with the credentials for Email and Sponsor. For SMS use your
-phone number and the pin code.
+phone number and the PIN code.
 
 In `/usr/local/pf/raddb/sites-available/packetfence-tunnel` there is an example on how to configure radius to enable this feature (uncomment to make it work).
 
@@ -1082,16 +1082,17 @@ authorize {
 ## Set Called-Station-SSID with the current SSID
 #        set.called_station_ssid
 #        if (Called-Station-SSID == 'Secure-Wireless') {
-## Check activation table with telephone number and pin code
+## Disable ntlm_auth
 #            update control {
 #                MS-CHAP-Use-NTLM-Auth := No
 #            }
+## Check temporary_password table with email and password for a sponsor registration
 #            pfguest
 #            if (fail || notfound) {
 ## Check temporary_password table with email and password for a guest registration
 #                pfsponsor
 #                if (fail || notfound) {
-## Check temporary_password table with email and password for a sponsor registration
+## Check activation table with phone number and PIN code
 #                    pfsms
 #                    if (fail || notfound) {
 #                        update control {
@@ -1102,6 +1103,37 @@ authorize {
 #            }
 #        }
 ----
+
+Option 6: EAP Local user Authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The goal here is to use the local user you created in the admin GUI for EAP authentication.
+The logic is exactly the same than in option 5, the difference is that we use another SSID and we only use local accounts.
+
+Edit `/usr/local/pf/raddb/sites-available/packetfence-tunnel`
+
+In this example we activate this feature on a specific SSID name (Secure-local-Wireless), disabled by default NTLM Auth and test local account.
+If it failled then we reactivate NTLM Auth.
+
+----
+####Activate local user eap authentication based on a specific SSID ####
+## Set Called-Station-SSID with the current SSID
+#        set.called_station_ssid
+#        if (Called-Station-SSID == 'Secure-local-Wireless') {
+## Disable ntlm_auth
+#            update control {
+#                MS-CHAP-Use-NTLM-Auth := No
+#            }
+## Check temporary_password table for local user
+#            pflocal
+#            if (fail || notfound) {
+#                update control {
+#                    MS-CHAP-Use-NTLM-Auth := Yes
+#                }
+#            }
+#        }
+----
+
 
 Tests
 ^^^^^

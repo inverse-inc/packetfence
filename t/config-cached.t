@@ -18,6 +18,7 @@ use lib '/usr/local/pf/lib';
 use File::Path qw(remove_tree);
 use File::Temp qw(tempfile);
 use File::Copy;
+use Scalar::Util qw(refaddr);
 use File::Slurp qw(read_file);
 use POSIX ":sys_wait_h";
 
@@ -29,7 +30,7 @@ BEGIN {
 }
 use pf::log;
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 
 use Test::NoWarnings;
 use Test::Exception;
@@ -38,7 +39,7 @@ use_ok("pf::config::cached");
 
 (undef, $filename) = tempfile(OPEN => 0,UNLINK => 0);
 
-copy("./data/test.conf",$filename);
+copy("/usr/local/pf/t/data/test.conf",$filename);
 
 my $onreload_count = 0;
 my $onfilereload_count = 0;
@@ -82,6 +83,7 @@ isa_ok($config,"Config::IniFiles","Pretending to be a Config::IniFiles");
 
 ok(exists $DATA1{section1},"\$config->toHash");
 
+
 ok($DATA1{section1}{param1} eq 'value1',"\$config->toHash");
 
 is_deeply(\%DATA1,\%DATA3,"on post file reload");
@@ -102,6 +104,8 @@ $config->ReadConfig();
 
 ok("newval" eq $DATA1{"section1"}{"param2"},"on reload was called");
 
+ok(refaddr($config) eq refaddr($config->cache->get($config->GetFileName)),"same refaddr after on reload");
+
 is_deeply(\%DATA1,\%DATA2,"on cache reload was called");
 
 is_deeply(\%DATA1,\%DATA3,"on post file reload");
@@ -111,6 +115,8 @@ my $old_value = $config->val("section1","param1");
 $config->setval("section1","param1","newval");
 
 $config->Rollback;
+
+ok(refaddr($config) eq refaddr($config->cache->get($config->GetFileName)),"same refaddr after Rollback");
 
 ok($config->val("section1","param1") eq  $old_value ,"Rollback");
 

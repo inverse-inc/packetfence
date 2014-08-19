@@ -5,14 +5,26 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to 4.4.0
+---------------------------------------
+
+Cache serialization
+^^^^^^^^^^^^^^^^^^^
+
+The serialization of the objects in the cache changed, making all the previous cached objects invalid.
+With PacketFence completely stopped do :
+
+  rm -fr /usr/local/pf/var/cache/*
+
 Upgrading from a version prior to 4.3.0
 ---------------------------------------
 
 Database schema update
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The email_activation table has a new column to keep the portal used to register.
 The person table has 2 new column to keep the portal and the source used to authenticate.
+
+The tables email_activation and sms_activation have been merged in a table named `activation`. It has an additional column to keep the portal used to register.
 
 Make sure you run the following to update your schema:
 

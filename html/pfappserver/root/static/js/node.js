@@ -58,10 +58,10 @@ var NodeView = function(options) {
 
     this.proxyClick($('body'), '#modalNode #addViolation', this.triggerViolation);
 
-    /* Update the advanced search form to the next page or resort the query */
-    this.proxyClick($('body'), '.pagination a',this.searchPagination);
+    /* Update the advanced search form to the next page or sort the query */
+    this.proxyClick($('body'), '.nodes .pagination a', this.searchPagination);
 
-    this.proxyClick($('body'), '#nodes thead a',this.reorderSearch);
+    this.proxyClick($('body'), '#nodes thead a', this.reorderSearch);
 
     this.proxyClick($('body'), '#toggle_all_items', this.toggleAllItems);
 

@@ -186,6 +186,17 @@ InterfaceView.prototype.typeChanged = function(e) {
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
                     break;
+                case 'vlan-registration':
+                case 'vlan-isolation':
+                    fake_mac.hide('fast');
+                    high_availability.hide('fast');
+                    high_availability.find(':input').attr('disabled','disabled');
+                    dhcpd.show('fast');
+                    dns.hide('fast');
+                    dns.find(':input').attr('disabled','disabled');
+                    vip.show('fast');
+                    vip.find(':input').removeAttr('disabled');
+                    break;
                 default:
                     dhcpd.hide('fast');
                     high_availability.hide('fast');

@@ -66,12 +66,12 @@ use Net::SNMP;
 
 use pf::config;
 
-use base ('pf::Switch::Cisco::Catalyst_2960');
+use base ('pf::Switch::Cisco::Catalyst_3560');
 
 sub description { 'Cisco Catalyst 3560G' }
 
 # CAPABILITIES
-# inherited from 2960
+# inherited from 3560
 
 =item NasPortToIfIndex
 

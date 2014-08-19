@@ -209,6 +209,7 @@ Requires: perl(Catalyst::Plugin::Authentication)
 Requires: perl(Catalyst::Authentication::Credential::HTTP)
 Requires: perl(Catalyst::Authentication::Store::Htpasswd)
 Requires: perl(Catalyst::Controller::HTML::FormFu)
+Requires: perl(Catalyst::Plugin::Unicode::Encoding)
 Requires: perl(Params::Validate) >= 0.97
 Requires: perl(Term::Size::Any)
 Requires(pre): perl-aliased => 0.30
@@ -225,6 +226,8 @@ Requires: perl(MooseX::Types::LoadableClass)
 Requires: perl(Moose) <= 2.1005
 Requires: perl(CHI) >= 0.56
 Requires: perl(Data::Serializer)
+Requires: perl(Data::Structure::Util)
+Requires: perl(Data::Swap)
 Requires: perl(HTML::FormHandler) = 0.40013
 Requires: perl(Cache::Memcached)
 Requires: perl(Cache::Memcached::GetParserXS)

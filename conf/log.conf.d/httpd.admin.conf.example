@@ -3,7 +3,7 @@ log4perl.rootLogger = INFO, HTTPD_ADMIN
 
 ### Catalyst logger ###
 ## Used to separate Catalyst framework logs in a different log file
-log4perl.category.Catalyst = INFO, CATALYST
+log4perl.category.Catalyst = WARN, CATALYST
 
 ## Prevent the message from bubbling up to it's parents
 log4perl.additivity.Catalyst = 0

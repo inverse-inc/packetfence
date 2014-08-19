@@ -14,10 +14,9 @@
           <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
         </div>
       </div>
+      <h2>[% l('Switches') %]</h2>
 
-      <h2>[% l('Switches')  %]</h2>
-
-      [% INCLUDE configuration/switch/list.tt %]
+     [% INCLUDE configuration/switch/list.tt %]
 
       [%- IF can_access("SWITCHES_CREATE") %]
       <div class="form-actions">

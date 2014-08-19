@@ -24,6 +24,11 @@ New Features
 * Added support for unreg date with dynamic year
 * Added support for NetGear FSM7328S switches
 * Added new network profile filter
+* Added external captive portal support for AeroHIVE 
+* Added external captive portal support for Xirrus 
+* Added support for Dynamic Access lists on the Cisco Catalyst 2960
+* Added the ability to search switches
+* Added support for Dlink DES3028 switches
 
 Enhancements
 ++++++++++++
@@ -33,11 +38,12 @@ Enhancements
 * Improvement of Inline Layer 3 (Inline L3 can only be defined behind Inline Layer 2 network)
 * pfbandwidthd is now able to capture on all inline interfaces
 * Added an option to set the timeout value for LDAP connections in authentication sources
-* FreeRADIUS default configuration should now be more scalable and resilient to misbehaving devices.
+* FreeRADIUS default configuration should now be more scalable and resilient to misbehaving devices
 * Added the possibility to create rules using the username in OAuth authentication sources
 * Added the RADIUS request to the vlan filter
 * Moved from using Storable to Sereal to serialize cached data
 * Refactored portal profile filters to make it easier to extend
+* Improved support for Dlink DES 3526 switches
 
 Bug Fixes
 +++++++++
@@ -46,7 +52,12 @@ Bug Fixes
 * Fix issue when a trap is received for a switch that does not implement parseTrap()
 * Fix issue when a role is changed in the administration interface and the node's access is not reevaluated
 * Fix issue when a passthough is not able to be resolved and would generate an invalid DNS response
-
+* Fix missing files in logrotate file
+* Fix issue when setting a port in trunk on a Cisco Catalyst 3560, 3750 and 3750G would fail
+* Fix admin roles for bulk actions for nodes/users
+* fix issue where person was not updated in the database because of a case (non) match.
+* Fix send user password by email from the GUI
+* Fix backward compatibility issue for gaming-registration that should redirect to device-registration
 
 Version 4.3.0 released on 2014-06-26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

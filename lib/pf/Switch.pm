@@ -67,15 +67,29 @@ sub supportsExternalPortal {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->error("External captive portal is not supported on switch type " . ref($this));
+    $logger->debug("External captive portal is not supported on switch type " . ref($this));
     return $FALSE;
 }
 
+<<<<<<< HEAD
 sub supportsFlows {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     $logger->error("Configuration by flows is not supported on switch type " . ref($this));
+=======
+=item supportsWebFormRegistration
+
+Returns 1 if switch type supports web form registration (for release of the external captive portal)
+ 
+=cut
+
+sub supportsWebFormRegistration { 
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->debug("Web form registration is not supported on switch type " . ref($this));
+>>>>>>> github-inverse/devel
     return $FALSE; 
 }
 
@@ -171,6 +185,13 @@ sub supportsRoleBasedEnforcement {
             "Role-based Network Access Control is not supported on network device type " . ref($this) . ". "
         );
     }
+    return $FALSE;
+}
+
+sub supportsAccessListBasedEnforcement {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->info("Access list based enforcement is not supported on network device type " . ref($this) . ". ");
     return $FALSE;
 }
 
@@ -378,6 +399,10 @@ sub new {
             $this->{_OpenflowId} = $argv{$_};
         } elsif (/^-?IsolationStrategy$/i) {
             $this->{_IsolationStrategy} = $argv{$_};
+        } elsif (/^-?AccessListMap$/i) {
+            $this->{_AccessListMap} = $argv{$_};
+        } elsif (/^-?access_lists$/i) {
+            $this->{_access_lists} = $argv{$_};
         }
         # customVlan members are now dynamically generated. 0 to 99 supported.
         elsif (/^-?(\w+)Vlan$/i) {
@@ -795,6 +820,22 @@ sub getVlanByName {
         return;
     }
     return $this->{'_vlans'}->{$vlanName};
+}
+
+sub getAccessListByName {
+    my ($this, $access_list_name) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # skip if not defined or empty
+    return if (!defined($this->{'_access_lists'}) || !%{$this->{'_access_lists'}});
+
+    # return if found
+    return $this->{'_access_lists'}->{$access_list_name} if (defined($this->{'_access_lists'}->{$access_list_name}));
+
+    # otherwise log and return undef
+    $logger->warn("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $this->{_id});
+    return;
+ 
 }
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
@@ -2931,6 +2972,33 @@ sub parseUrl {
     my ($self,$req) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->warn("Not implemented");
+    return;
+}
+
+=item getAcceptForm
+
+Get the accept form that will trigger the device registration on the switch
+
+=cut
+
+sub getAcceptForm {
+    my ( $self, $mac , $destination_url) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->error("This function is not implemented.");
+    return;
+}
+
+=item parseSwitchIdFromRequest
+
+Extract the switch id from an http request (for the external portal).
+The object isn't created at that point
+
+=cut
+
+sub parseSwitchIdFromRequest {
+    my ( $class, $req) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($class) );
+    $logger->error("This function is not implemented.");
     return;
 }
 

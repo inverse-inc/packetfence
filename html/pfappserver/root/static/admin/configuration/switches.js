@@ -87,6 +87,12 @@ var SwitchView = function(options) {
     var pagination = $.proxy(this.pagination, this);
     options.parent.on('click', '#switches [href*="/list/"]', pagination);
 
+    // submit search
+    options.parent.on('submit', '#search', $.proxy(this.submitSearch, this));
+
+    // pagination search
+    options.parent.on('click', '#switches [href*="/switch/search/"]', $.proxy(this.searchPagination, this));
+
 };
 
 SwitchView.prototype.readSwitch = function(e) {
@@ -131,7 +137,7 @@ SwitchView.prototype.changeRoleMapping = function(e) {
     var checkbox = $(this);
     var match = /(.+)Map/.exec(checkbox.attr('name'));
     var type = match[1];
-    var inputs = checkbox.closest('form').find('input[type="text"][name*="'+type+'"]');
+    var inputs = $.merge(checkbox.closest('form').find('input[type="text"][name*="'+type+'"]'), checkbox.closest('form').find('textarea[name*="'+type+'"]'));
 
     if (checkbox.is(':checked'))
         inputs.removeAttr('disabled');
@@ -250,6 +256,49 @@ SwitchView.prototype.pagination = function(e) {
         },
         errorSibling: $('#switches')
     });
+    return false;
+};
+
+SwitchView.prototype.searchPagination = function(e) {
+    e.preventDefault();
+    var link = $(e.currentTarget);
+    var form = $('#search');
+    var href = link.attr("href");
+    this.refreshListFromForm(href,form);
+    return false;
+};
+
+SwitchView.prototype.refreshListFromForm = function(href,form) {
+    var that = this;
+    var section = $('#section');
+    $("body,html").animate({scrollTop:0}, 'fast');
+    var status_container = $("#section").find('h2').first();
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5, function() {
+        that.switches.post({
+            url: href,
+            data: form.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                var table = $('#switches');
+                table.html(data);
+            },
+            errorSibling: status_container
+        });
+    });
+    return false;
+};
+
+SwitchView.prototype.submitSearch = function(e) {
+    e.preventDefault();
+    var that = this;
+    var form = $(e.currentTarget);
+    var href = form.attr("action");
+    this.refreshListFromForm(href,form);
     return false;
 };
 

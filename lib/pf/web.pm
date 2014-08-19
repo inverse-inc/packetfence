@@ -127,7 +127,7 @@ sub render_template {
     # lastly add user-defined stash elements
     $portalSession->stash( pf::web::stash_template_vars() );
 
-    my $cookie = $portalSession->cgi->cookie( CGISESSID => $portalSession->session->id );
+    my $cookie = $portalSession->cgi->cookie( CGISESSION_PF => $portalSession->session->id );
     print $portalSession->cgi->header( -cookie => $cookie );
 
     # print custom headers if there's some
