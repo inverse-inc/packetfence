@@ -335,13 +335,12 @@ sub doSponsorRegistration : Private {
             $c->forward('Authenticate' => 'postAuthentication');
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
-            # populating variables used to send email
-            $template =
-              $pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION;
-            $info{'subject'} = i18n_format(
-                "%s: Guest network access enabled",
-                $Config{'general'}{'domain'}
-            );
+            # We send email to the guest confirming that network access has been enabled
+            $template = $pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION;
+            $info{'email'} = $info{'pid'};
+            $info{'subject'} = i18n_format("%s: Guest network access enabled", $Config{'general'}{'domain'});
+            pf::web::guest::send_template_email($template, $info{'subject'}, \%info);
+
         } elsif ( defined( $activation_record->{'pid'} ) ) {
 
              # If pid is set in activation record then we are activating a guest who pre-registered
