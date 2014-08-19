@@ -220,7 +220,7 @@ sub returnRadiusAccessAccept {
     };
 
 
-    $logger->info("Returning ACCEPT with VLAN: $vlan");
+    $logger->info("[$mac] Returning ACCEPT with VLAN: $vlan");
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 

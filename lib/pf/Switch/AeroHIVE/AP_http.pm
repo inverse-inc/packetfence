@@ -72,7 +72,7 @@ sub returnRadiusAccessAccept {
     my $violation = pf::violation::violation_view_top($mac);
     # if user is unregistered or is in violation then we reject him to show him the captive portal 
     if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
-        $logger->info("$mac is unregistered. Refusing access to force the eCWP");
+        $logger->info("[$mac] is unregistered. Refusing access to force the eCWP");
         my $radius_reply_ref = {
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,
@@ -82,7 +82,7 @@ sub returnRadiusAccessAccept {
 
     }
     else{
-        $logger->info("Returning ACCEPT");
+        $logger->info("[$mac] Returning ACCEPT");
         return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
     }
 
@@ -91,7 +91,7 @@ sub returnRadiusAccessAccept {
 sub getAcceptForm {
     my ( $self, $mac , $destination_url) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
-    $logger->debug("Creating web release form for $mac");
+    $logger->debug("[$mac] Creating web release form");
 
     my $node = node_view($mac);
     my $last_ssid = $node->{last_ssid};

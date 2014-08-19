@@ -70,7 +70,6 @@ sub validateMac : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
-    $c->log->info("mac : $mac");
     if ( !valid_mac($mac) ) {
         $self->showError( $c, "error: not found in the database" );
         $c->detach;
@@ -90,7 +89,7 @@ sub nodeRecordUserAgent : Private {
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
     unless ($user_agent) {
-        $logger->warn("$mac has no user agent");
+        $logger->warn("[$mac] has no user agent");
         return;
     }
 
@@ -102,12 +101,12 @@ sub nodeRecordUserAgent : Private {
       if ( defined($cached_useragent) && $user_agent eq $cached_useragent );
 
     # Caching and updating node's info
-    $logger->trace("adding $mac user-agent to cache");
+    $logger->trace("[$mac] adding user-agent to cache");
     $USERAGENT_CACHE->set( $mac, $user_agent, "5 minutes" );
 
     # Recording useragent
     $logger->info(
-        "Updating node $mac user_agent with useragent: '$user_agent'");
+        "[$mac] Updating node user_agent with useragent: '$user_agent'");
     node_modify( $mac, ( 'user_agent' => $user_agent ) );
 
     # updates the node_useragent information and fires relevant violations triggers
@@ -203,13 +202,13 @@ sub checkForViolation : Private {
             && $violation->{'ticket_ref'}
             =~ /^Scan in progress, started at: (.*)$/ ) {
             $logger->info(
-                "captive portal redirect to the scan in progress page");
+                "[$mac] captive portal redirect to the scan in progress page");
             $c->detach( 'scan_status', [$1] );
         }
         my $class    = class_view($vid);
         my $template = $class->{'template'};
         $logger->info(
-            "captive portal redirect on violation vid: $vid, redirect template: $template"
+            "[$mac] captive portal redirect on violation vid: $vid, redirect template: $template"
         );
 
         # The little redirect dance here is controlled by frames which are inherently alterable by the user
@@ -218,23 +217,23 @@ sub checkForViolation : Private {
         # enable button
         if ( $request->param("enable_menu") ) {
             $logger->debug(
-                "violation redirect: generating enable button frame (enable_menu = 1)"
+                "[$mac] violation redirect: generating enable button frame (enable_menu = 1)"
             );
             $c->detach( 'Enabler', 'index' );
         } elsif ( $class->{'auto_enable'} eq 'Y' ) {
             $logger->debug(
-                "violation redirect: showing violation remediation page inside a frame"
+                "[$mac] violation redirect: showing violation remediation page inside a frame"
             );
             $c->detach( 'Redirect', 'index' );
         }
         $logger->debug(
-            "violation redirect: showing violation remediation page directly since there is no enable button"
+            "[$mac] violation redirect: showing violation remediation page directly since there is no enable button"
         );
 
         # Retrieve violation template name
 
         my $subTemplate = $self->getSubTemplate( $c, $class->{'template'} );
-        $logger->info("Showing the $subTemplate  remediation page.");
+        $logger->info("[$mac] Showing the $subTemplate  remediation page.");
         my $node_info = node_view($mac);
         $c->stash(
             'template'     => 'remediation.html',
@@ -271,22 +270,22 @@ sub checkIfNeedsToRegister : Private {
     $c->stash(unreg => $unreg,);
     if ($unreg && isenabled($Config{'trapping'}{'registration'})) {
 
-        $logger->info("$mac redirected to ".$profile->name);
+        $logger->info("[$mac] redirected to ".$profile->name);
         # Redirect to the billing engine if enabled
         if (isenabled($portalSession->profile->getBillingEngine)) {
-            $logger->info("$mac redirected to billing page");
+            $logger->info("[$mac] redirected to billing page");
             $c->detach('Pay' => 'index');
         } elsif ( $profile->nbregpages > 0 ) {
             $logger->info(
-                "$mac redirected to multi-page registration process");
+                "[$mac] redirected to multi-page registration process");
             $c->detach('Authenticate', 'next_page');
         } elsif ($portalSession->profile->guestRegistrationOnly) {
 
             # Redirect to the guests self registration page if configured to do so
-            $logger->info("$mac redirected to guests self registration page");
+            $logger->info("[$mac] redirected to guests self registration page");
             $c->detach('Signup' => 'index');
         } else {
-            $logger->info("$mac redirected to authentication page");
+            $logger->info("[$mac] redirected to authentication page");
             $c->detach('Authenticate', 'index');
         }
     }
@@ -375,13 +374,13 @@ sub unknownState : Private {
         $LOST_DEVICES_CACHE->set( $mac, ++$cached_lost_device, "5 minutes");
 
         $c->log->info(
-          "MAC $mac shouldn't reach here. Calling access re-evaluation. " .
+          "[$mac] shouldn't reach here. Calling access re-evaluation. " .
           "Make sure your network device configuration is correct."
         );
         my $node = node_view($mac);
         my $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
         if($switch->supportsWebFormRegistration){
-            $logger->info("Switch supports web form release. Will use this method to authenticate the user");
+            $logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate [$mac]");
             $c->stash(
                 template => 'webFormRelease.html',
                 content => $switch->getAcceptForm($mac, 
@@ -414,7 +413,7 @@ sub endPortalSession : Private {
     if ( $count != 0 ) {
         print $c->response->redirect( '/captive-portal?destination_url='
               . uri_escape($destination_url) );
-        $logger->info("more violations yet to come for $mac");
+        $logger->info("[$mac] more violations yet to come");
     }
 
     # handle mobile provisioning if relevant

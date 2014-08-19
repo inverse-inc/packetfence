@@ -179,7 +179,7 @@ sub returnRadiusAccessAccept {
                 'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}"],
             };
         }
-        $logger->info("[$this->{'_ip'}] Returning ACCEPT with role: $role");
+        $logger->info("[$mac] (".$this->{'_id'}.") Returning ACCEPT with role: $role");
     }
 
 
@@ -193,7 +193,7 @@ sub returnRadiusAccessAccept {
             'Tunnel-Private-Group-ID' => $vlan,
         };
 
-        $logger->info("[$this->{'_ip'}] Returning ACCEPT with VLAN: $vlan");
+        $logger->info("[$mac] (".$this->{'_id'}.") Returning ACCEPT with VLAN: $vlan");
     }
 
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
@@ -221,19 +221,19 @@ sub radiusDisconnect {
 
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
-            "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+            "[$mac] Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
         );
         return;
     }
 
-    $logger->info("deauthenticating $mac");
+    $logger->info("[$mac] deauthenticating");
 
     # Where should we send the RADIUS CoA-Request?
     # to network device by default
     my $send_disconnect_to = $self->{'_ip'};
     # but if controllerIp is set, we send there
     if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
-        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $logger->info("[$mac] controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
         $send_disconnect_to = $self->{'_controllerIp'};
     }
     # allowing client code to override where we connect with NAS-IP-Address
@@ -249,7 +249,7 @@ sub radiusDisconnect {
             nas_port => '1700',
         };
 
-        $logger->debug("network device supports roles. Evaluating role to be returned");
+        $logger->debug("[$mac] network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
@@ -276,7 +276,7 @@ sub radiusDisconnect {
             ( violation_count_trap($mac) == 0 )  &&
             ( $node_info->{'status'} eq 'reg' )
            ) {
-            $logger->info("Returning ACCEPT with Role: $role");
+            $logger->info("[$mac] Returning ACCEPT with Role: $role");
 
             my $vsa = [
                 {
@@ -309,15 +309,15 @@ sub radiusDisconnect {
         }
     } catch {
         chomp;
-        $logger->warn("Unable to perform RADIUS CoA-Request: $_");
-        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+        $logger->warn("[$mac] Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
+        $logger->error("[$mac] Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")...") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
 
     return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
 
     $logger->warn(
-        "Unable to perform RADIUS Disconnect-Request."
+        "[$mac] Unable to perform RADIUS Disconnect-Request on (".$self->{'_id'}.")."
         . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
         . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
     );
