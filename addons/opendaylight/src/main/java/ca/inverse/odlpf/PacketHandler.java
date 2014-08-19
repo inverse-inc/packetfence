@@ -21,6 +21,7 @@ import org.opendaylight.controller.sal.packet.IPv4;
 import org.opendaylight.controller.sal.packet.Packet;
 import org.opendaylight.controller.sal.packet.PacketResult;
 import org.opendaylight.controller.sal.packet.RawPacket;
+import org.opendaylight.controller.sal.flowprogrammer.IFlowProgrammerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.DataOutputStream;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 public class PacketHandler implements IListenDataPacket {
     private static final Logger log = LoggerFactory.getLogger(PacketHandler.class);
     private IDataPacketService dataPacketService;
+    private IFlowProgrammerService flowProgrammerService;
  
     /*
      * Transforms an integer to an IP address
@@ -54,6 +56,30 @@ public class PacketHandler implements IListenDataPacket {
         return addr;
     }
  
+    /**
+     *  * Sets a reference to the requested FlowProgrammerService
+     *   */
+    void setFlowProgrammerService(IFlowProgrammerService s) {
+        log.trace("Set FlowProgrammerService.");
+     
+        flowProgrammerService = s;
+    }
+     
+    /**
+     *  * Unsets FlowProgrammerService
+     *   */
+    void unsetFlowProgrammerService(IFlowProgrammerService s) {
+        log.trace("Removed FlowProgrammerService.");
+     
+        if (flowProgrammerService == s) {
+            flowProgrammerService = null;
+        }
+    }
+
+    public IFlowProgrammerService getFlowProgrammerService(){
+        return flowProgrammerService;
+    }
+
     /*
      * Sets a reference to the requested DataPacketService
      */
@@ -72,6 +98,10 @@ public class PacketHandler implements IListenDataPacket {
         if (dataPacketService == s) {
             dataPacketService = null;
         }
+    }
+
+    public IDataPacketService getDataPacketService(){
+        return dataPacketService;
     }
  
     /*
@@ -100,7 +130,7 @@ public class PacketHandler implements IListenDataPacket {
                 System.out.println("Pkt. to " + addr.toString() + " received by node " + node.getNodeIDString() + " on connector " + ingressConnector.getNodeConnectorIDString());
                 String switchId = node.getNodeIDString();
                 String port = ingressConnector.getNodeConnectorIDString();
-                PFPacketProcessor pf = new PFPacketProcessor(switchId, port, l2pkt);
+                PFPacketProcessor pf = new PFPacketProcessor(switchId, port, inPkt, this);
                 return pf.processPacket(); 
             }
         }

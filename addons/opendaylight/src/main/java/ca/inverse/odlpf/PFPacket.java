@@ -40,8 +40,13 @@ import java.util.ArrayList;
 
 public class PFPacket {
     private Packet packet;
-    PFPacket(Packet packet){
-        this.packet = packet;
+    private RawPacket rawPacket;
+    private PacketHandler packetHandler;
+
+    PFPacket(RawPacket rawPacket, PacketHandler packetHandler){
+        this.packetHandler = packetHandler;
+        this.rawPacket = rawPacket;
+        this.packet = packetHandler.getDataPacketService().decodeDataPacket(rawPacket);
     }
 
     static private InetAddress intToInetAddress(int i) {
@@ -129,19 +134,44 @@ public class PFPacket {
     }
 
     public String getSourceMac(){
-        return HexEncode.bytesToHexStringFormat(this.getL2Packet().getSourceMACAddress());
+        return HexEncode.bytesToHexStringFormat(this.getSourceMacBytes());
     }
 
     public String getDestMac(){
-        return HexEncode.bytesToHexStringFormat(this.getL2Packet().getDestinationMACAddress());
+        return HexEncode.bytesToHexStringFormat(this.getDestMacBytes());
+    }
 
+    public byte[] getSourceMacBytes(){
+        return this.getL2Packet().getSourceMACAddress();
+    }
+
+    public byte[] getDestMacBytes(){
+        return this.getL2Packet().getDestinationMACAddress();
     }
 
     public String getSourceIP(){
-        return intToInetAddress(this.getL3Packet().getSourceAddress()).toString();
+        return this.getSourceInetAddress().toString();
     }
 
     public String getDestIP(){
-        return intToInetAddress(this.getL3Packet().getDestinationAddress()).toString();
+        return this.getDestInetAddress().toString();
     }
+
+    public InetAddress getSourceInetAddress(){
+        return intToInetAddress(this.getL3Packet().getSourceAddress());
+    }
+
+    public InetAddress getDestInetAddress(){
+        return intToInetAddress(this.getL3Packet().getDestinationAddress());
+    }
+
+    public NodeConnector getIncomingConnector(){
+        return this.rawPacket.getIncomingNodeConnector();
+    }
+
+    public String getSourceInterface(){
+        return this.getIncomingConnector().getNodeConnectorIDString();
+    }
+
+
 }

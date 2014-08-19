@@ -6,6 +6,7 @@ import org.apache.felix.dm.Component;
 import org.opendaylight.controller.sal.core.ComponentActivatorAbstractBase;
 import org.opendaylight.controller.sal.packet.IDataPacketService;
 import org.opendaylight.controller.sal.packet.IListenDataPacket;
+import org.opendaylight.controller.sal.flowprogrammer.IFlowProgrammerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,10 @@ public class Activator extends ComponentActivatorAbstractBase {
 
            // Need the DataPacketService for encoding, decoding, sending data packets
            c.add(createContainerServiceDependency(containerName).setService(IDataPacketService.class).setCallbacks("setDataPacketService", "unsetDataPacketService").setRequired(true));
+
+           // Need FlowProgrammerService for programming flows
+           c.add(createContainerServiceDependency(containerName).setService(IFlowProgrammerService.class).setCallbacks(
+                       "setFlowProgrammerService", "unsetFlowProgrammerService").setRequired(true));
 
        }
    }

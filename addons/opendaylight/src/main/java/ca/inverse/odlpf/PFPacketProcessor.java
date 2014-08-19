@@ -48,9 +48,11 @@ public class PFPacketProcessor {
     private String switchId;
     private String port;
     private PFPacket packet;
+    private PacketHandler packetHandler;
 
-    PFPacketProcessor(String switchId, String port, Packet packet){
-        this.packet = new PFPacket(packet); 
+    PFPacketProcessor(String switchId, String port, RawPacket packet, PacketHandler packetHandler){
+        this.packetHandler = packetHandler;
+        this.packet = new PFPacket(packet, packetHandler); 
         this.sourceMac = this.packet.getSourceMac();
         this.switchId = switchId;
         this.port = port;
@@ -113,7 +115,7 @@ public class PFPacketProcessor {
                 String method = data.getString("strategy");
                 if(method.equals("DNS")){
                     // do dns poisoning stuff
-                    PFDNSPoison dnsPoison = new PFDNSPoison(this.packet);
+                    PFDNSPoison dnsPoison = new PFDNSPoison(this.packet, this.packetHandler);
                     dnsPoison.poisonFromPacket(); 
                     return PacketResult.KEEP_PROCESSING;
                 }
