@@ -294,9 +294,10 @@ sub doSponsorRegistration : Private {
               . " successfully authenticated. Activating sponsored guest" );
 
         my ( %info, $template );
-        if ( defined($node_mac) ) {
 
-            # If MAC is defined, it's a guest already here that we need to register
+        # Guest on-site sponsor registration
+        # If MAC is defined, it's a guest already here that we need to register
+        if ( defined($node_mac) ) {
             my $node_info = node_attributes($node_mac);
             $pid = $node_info->{'pid'};
             if ( !defined($node_info) || ref($node_info) ne 'HASH' ) {
@@ -333,21 +334,38 @@ sub doSponsorRegistration : Private {
             $info{'subject'} = i18n_format("%s: Guest network access enabled", $Config{'general'}{'domain'});
             pf::web::guest::send_template_email($template, $info{'subject'}, \%info);
 
-        } elsif ( defined( $activation_record->{'pid'} ) ) {
+            # Create local account for external authentication sources (if configured to do so)
+            if ( isenabled($source->{create_local_account}) ) {
+                # We create a "temporary password" associated to the email address provided on
+                # authentication which is the pid.
+                my $actions = &pf::authentication::match( $source->{id}, $auth_params );
+                my $password = pf::temporary_password::generate( $pid, $actions );
 
-             # If pid is set in activation record then we are activating a guest who pre-registered
+                # We send the guest an email with the info of the local account
+                my %info = (
+                    'pid'           => $pid,
+                    'password'      => $password,
+                    'email'         => $info{'email'},
+                    'subject'       => i18n_format(
+                        "%s: Guest account creation information", $Config{'general'}{'domain'}
+                    ),
+                );
 
+                pf::web::guest::send_template_email(
+                    $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
+                );
+            }
+        }
+
+        # Guest off-site sponsor registration
+        # If pid is set in activation record then we are activating a guest who pre-registered
+        elsif ( defined( $activation_record->{'pid'} ) ) {
             $pid = $activation_record->{'pid'};
 
             # populating variables used to send email
-            $template =
-              $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION;
-            $info{'subject'} = i18n_format(
-                "%s: Guest access request accepted",
-                $Config{'general'}{'domain'}
-            );
-        }
-        if ( isenabled($source->{create_local_account}) ) {
+            $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION;
+            $info{'subject'} = i18n_format("%s: Guest access request accepted", $Config{'general'}{'domain'});
+
             # TO:
             $info{'email'} = $pid;
 
@@ -364,13 +382,10 @@ sub doSponsorRegistration : Private {
             $info{'password'} =
               pf::temporary_password::generate( $pid, $actions );
 
-            # prepare welcome email for a guest who registered locally
-            $info{'currentdate'} =
-              POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-
             pf::web::guest::send_template_email( $template, $info{'subject'},
                 \%info );
         }
+
         pf::activation::set_status_verified($code);
 
         # send to a success page
