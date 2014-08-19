@@ -381,9 +381,6 @@ sub send_template_email {
     my ($template, $subject, $info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
 
-use Data::Dumper;
-$logger->info("DEREK: Dumper for email " . Dumper($info));
-
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     # local override (EMAIL_FROM) or pf.conf's value or root@domain
     my $from = $pf::web::guest::EMAIL_FROM || $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
