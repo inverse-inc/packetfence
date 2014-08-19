@@ -3340,15 +3340,6 @@ msgid ""
   "addresses. Multiple destinations can be comma separated."
 msgstr ""
 
-# conf/documentation.conf (guests_self_registration.create_local_account_process)
-msgid ""
-  "How do we provide the newly registered user with the created local account if enabled."
-  "Message means email for pretty much all the external sources with the exception of SMS where"
-  "we send a second SMS message with the pid and password."
-  "Portal will display a second portal page with created local account information and how to use them."
-  "Portal will doesn't apply for SMS."
-msgstr ""
-
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/service/status.tt
 msgid "Start"
@@ -4648,10 +4639,6 @@ msgstr "Preregistration"
 # conf/documentation.conf
 msgid "guests_self_registration.sponsorship_cc"
 msgstr "Sponsorship CC"
-
-# conf/documentation.conf
-msgid "guests_self_registration.create_local_account_process"
-msgstr "Provide user local account info using"
 
 # conf/documentation.conf (interface.type options)
 msgid "high-availability"

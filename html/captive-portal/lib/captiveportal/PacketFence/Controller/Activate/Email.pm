@@ -161,34 +161,26 @@ sub doEmailRegistration : Private {
                 my $actions = &pf::authentication::match( $source->{id}, $auth_params );
                 my $password = pf::temporary_password::generate( $pid, $actions );
 
-                # We send the user an email with the info of the newly created account (if configured
-                # to do so)
-                if ( is_in_list('message',
-                        $Config{'guests_self_registration'}{'create_local_account_process'}) ) {
-                    my %info = (
-                        'pid'           => $pid,
-                        'password'      => $password,
-                        'email'         => $email,
-                        'subject'       => i18n_format(
-                            "%s: Guest account creation information", $Config{'general'}{'domain'}
-                        ),
-                    );
+                # We send the guest an email with the info of the local account
+                my %info = (
+                    'pid'       => $pid,
+                    'password'  => $password,
+                    'email'     => $email,
+                    'subject'   => i18n_format(
+                        "%s: Guest account creation information", $Config{'general'}{'domain'}
+                    ),
+                );
 
-                    pf::web::guest::send_template_email(
-                        $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
-                    );
-                }
+                pf::web::guest::send_template_email(
+                    $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
+                );
 
-                # We displays the user a portal page with the info of the newly created account (if
-                # configured to do so)
-                if ( is_in_list('portal',
-                        $Config{'guests_self_registration'}{'create_local_account_process'}) ) {
-                    $c->stash (
-                        local_account_creation  => $TRUE,
-                        pid => $pid,
-                        password => $password,
-                    );
-                }
+                # We display the local account info on the confirmation portal page
+                $c->stash (
+                    local_account_creation  => $TRUE,
+                    pid => $pid,
+                    password => $password,
+                );
             }
 
             $c->stash(
