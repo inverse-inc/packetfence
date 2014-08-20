@@ -788,18 +788,6 @@ msgstr ""
 msgid "Create Users"
 msgstr ""
 
-# conf/documentation.conf (guests_self_registration.create_local_account_on_email_reg)
-msgid ""
-  "Create a local account after guest email registration. This will allow the user to authenticate on "
-  "the status page or be able to authenticate over an EAP connection (see packetfence-tunnel)"
-msgstr ""
-
-# conf/documentation.conf (guests_self_registration.create_local_account_on_sponsor_reg)
-msgid ""
-  "Create a local account after guest sponsor registration. This will allow the user to authenticate on "
-  "the status page or be able to authenticate over an EAP connection (see packetfence-tunnel)"
-msgstr ""
-
 # html/pfappserver/root/configurator/database.tt
 msgid "Create a user in your MySQL server"
 msgstr ""
@@ -4398,8 +4386,6 @@ msgstr ""
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (expire.httpd_admin options)
 # conf/documentation.conf (expire.httpd_portal options)
-# conf/documentation.conf (guests_self_registration.create_local_account_on_email_reg options)
-# conf/documentation.conf (guests_self_registration.create_local_account_on_sponsor_reg options)
 # conf/documentation.conf (guests_self_registration.preregistration options)
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
@@ -4468,8 +4454,6 @@ msgstr "Send email"
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (expire.httpd_admin options)
 # conf/documentation.conf (expire.httpd_portal options)
-# conf/documentation.conf (guests_self_registration.create_local_account_on_email_reg options)
-# conf/documentation.conf (guests_self_registration.create_local_account_on_sponsor_reg options)
 # conf/documentation.conf (guests_self_registration.preregistration options)
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
@@ -4619,14 +4603,6 @@ msgstr "Default access duration"
 # conf/documentation.conf
 msgid "guests_self_registration"
 msgstr "Self registration"
-
-# conf/documentation.conf
-msgid "guests_self_registration.create_local_account_on_email_reg"
-msgstr "Add user on email registration"
-
-# conf/documentation.conf
-msgid "guests_self_registration.create_local_account_on_sponsor_reg"
-msgstr "Add user on sponsor registration"
 
 # conf/documentation.conf
 msgid "guests_self_registration.guest_pid"
