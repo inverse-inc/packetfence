@@ -3,14 +3,14 @@ package pf::Connection;
 use Moose;
 use Log::Log4perl qw(get_logger);
 
-has 'type'          => (is => 'rw', isa => 'Str');      # Printable string to display the type of a connection
-has 'transport'     => (is => 'rw', isa => 'Str');      # Wired or wireless
-has 'isEAP'         => (is => 'rw', isa => 'Bool');     # 0: NoEAP / 1: EAP
-has 'isSNMP'        => (is => 'rw', isa => 'Bool');     # 0: NoSNMP | 1: SNMP
-has 'isMacAuth'     => (is => 'rw', isa => 'Bool');     # 0: NoMacAuth | 1: MacAuth
-has 'is8021X'       => (is => 'rw', isa => 'Bool');     # 0: No8021X | 1: 8021X
-has '8021XAuth'     => (is => 'rw', isa => 'Str');      # Authentication used for 8021X connection
-has 'enforcement'   => (is => 'rw', isa => 'Str');      # PacketFence enforcement technique
+has 'type'          => (is => 'rw', isa => 'Str');                  # Printable string to display the type of a connection
+has 'transport'     => (is => 'rw', isa => 'Str');                  # Wired or wireless
+has 'isEAP'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoEAP / 1: EAP
+has 'isSNMP'        => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoSNMP | 1: SNMP
+has 'isMacAuth'     => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoMacAuth | 1: MacAuth
+has 'is8021X'       => (is => 'rw', isa => 'Bool', default => 0);   # 0: No8021X | 1: 8021X
+has '8021XAuth'     => (is => 'rw', isa => 'Str');                  # Authentication used for 8021X connection
+has 'enforcement'   => (is => 'rw', isa => 'Str');                  # PacketFence enforcement technique
 
 our $logger = get_logger();
 
