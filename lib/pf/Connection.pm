@@ -43,6 +43,9 @@ sub _attributesToString {
 }
 
 
+__PACKAGE__->meta->make_immutable;
+
+
 =back
 
 =head1 AUTHOR
