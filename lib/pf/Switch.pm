@@ -3000,32 +3000,44 @@ sub _identifyConnectionType {
     my ($this, $nas_port_type, $eap_type, $mac, $user_name) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
+    my $connection = pf::Connection->new;
+
     $eap_type = 0 if (not defined($eap_type));
     if (defined($nas_port_type)) {
 
         if ($nas_port_type =~ /^Wireless-802\.11/ || $nas_port_type =~ /^Wireless-Other/) {
+            $connection->transport("Wireless");
 
             if ($eap_type) {
+                $connection->isEAP($TRUE);
+                $connection->is8021X($TRUE);
                 return $WIRELESS_802_1X;
             } else {
+                $connection->isEAP($FALSE);
+                $connection->isMacAuth($TRUE);
                 return $WIRELESS_MAC_AUTH;
             }
+
         } elsif ($nas_port_type =~ /^Ethernet/ ) {
+            $connection->transport("Wired");
 
             if ($eap_type) {
-
+                $connection->isEAP($TRUE);
                 # some vendor do EAP-based Wired MAC Authentication, as far as PacketFence is concerned
                 # this is still MAC Authentication so we need to cheat a little bit here
                 # TODO: consider moving this logic later once the switch is initialized so we can ask it
                 # (supportsEAPMacAuth?)
                 $mac =~ s/[^[:xdigit:]]//g;
                 if (lc $mac eq lc $user_name) {
+                    $connection->isMacAuth($TRUE);
                     return $WIRED_MAC_AUTH;
                 } else {
+                    $connection->is8021X($TRUE);
                     return $WIRED_802_1X;
                 }
 
             } else {
+                $connection->isMacAuth($TRUE);
                 return $WIRED_MAC_AUTH;
             }
 
