@@ -221,7 +221,7 @@ sub desAssociate {
     # sleep long enough to give the device enough time to fetch the redirection page.
     sleep $pf::config::Config{'trapping'}{'wait_for_redirect'}; 
 
-    $logger->info("[$postdata{'mac'}] DesAssociating mac on switch (".$witch->{'_id'}.")");
+    $logger->info("[$postdata{'mac'}] DesAssociating mac on switch (".$switch->{'_id'}.")");
     $switch->$deauthTechniques($postdata{'mac'});
 }
 
