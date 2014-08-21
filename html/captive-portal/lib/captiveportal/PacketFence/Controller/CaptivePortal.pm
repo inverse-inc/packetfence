@@ -71,7 +71,8 @@ sub validateMac : Private {
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
     $c->log->info("mac : $mac");
-    if ( !valid_mac($mac) ) {
+
+    if ( !$c->session->{"preregistration"} && !valid_mac($mac) ) {
         $self->showError( $c, "error: not found in the database" );
         $c->detach;
     }
