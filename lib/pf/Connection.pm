@@ -3,10 +3,12 @@ package pf::Connection;
 use Moose;
 use Log::Log4perl qw(get_logger);
 
+use pf::config;
+
 has 'type'          => (is => 'rw', isa => 'Str');                  # Printable string to display the type of a connection
 has 'transport'     => (is => 'rw', isa => 'Str');                  # Wired or wireless
 has 'isEAP'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoEAP / 1: EAP
-has 'isSNMP'        => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoSNMP | 1: SNMP
+has 'isSNMP'        => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoSNMP | 1: SNMP
 has 'isMacAuth'     => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoMacAuth | 1: MacAuth
 has 'is8021X'       => (is => 'rw', isa => 'Bool', default => 0);   # 0: No8021X | 1: 8021X
 has '8021XAuth'     => (is => 'rw', isa => 'Str');                  # Authentication used for 8021X connection
@@ -39,9 +41,64 @@ sub _attributesToString {
     # Handling 802.1X
     $type .= ( $this->is8021X ? "-8021X" : "" );
 
-    return $type;
+    $this->type($type);
 }
 
+=item attributeToBackwardCompatible
+
+Only for backward compatibility while we introduce the new connection types.
+
+=cut
+sub attributesToBackwardCompatible {
+    my ( $this ) = @_;
+
+    # Wireless MacAuth
+    return $WIRELESS_MAC_AUTH if ( lc($this->transport eq "wireless") && $this->isMacAuth );
+
+    # Wireless 802.1X
+    return $WIRELESS_802_1X if ( lc($this->transport eq "wireless") && $this->is8021X );
+
+    # Wired MacAuth
+    return $WIRED_MAC_AUTH if ( lc($this->transport eq "wired") && $this->isMacAuth );
+
+    # Wired 802.1X
+    return $WIRED_802_1X if ( lc($this->transport eq "wired") && $this->is8021X );
+
+    # Default
+    return;
+}
+
+=item identifyType
+
+=cut
+sub identifyType {
+    my ( $this, $nas_port_type, $eap_type, $mac, $user_name ) = @_;
+
+    # We first identify the transport mode using the NAS-Port-Type attribute of the RADIUS Access-Request as per RFC2875
+    # Assumption: If NAS-Port-Type is either undefined or does not contain "Wireless", we treat is as "Wired"
+    ( (defined($nas_port_type)) && ($nas_port_type =~ /^Wireless/) ) ? $this->transport("Wireless") : $this->transport("Wired");
+
+    # Handling EAP connection
+    (defined($eap_type)) ? $this->isEAP($TRUE) : $this->isEAP($FALSE);
+
+    # Handling mac authentication versus 802.1X connection
+    # In most cases, when EAP is used we can assume we are dealing with 802.1X connection. Unfortunately, some vendors are doing
+    # mac authentication over EAP.
+    # We use the User-Name RADIUS Access-Request attribute to differentiate both of theses scenarios. Since mac authentication use
+    # the mac address as username, we can assume that we are dealing with a mac authentication connection if these two attributes
+    # are equals.
+    if ( $this->isEAP ) {
+        $mac =~ s/[^[:xdigit:]]//g;
+        ( lc($mac) eq lc($user_name) ) ? $this->isMacAuth($TRUE) : $this->is8021X($TRUE);
+    }
+    # We can safely assume that every NoEAP connection in a RADIUS context is a mac authentication connection 
+    else {
+        $this->isMacAuth($TRUE);
+    }
+
+    # We create the printable string for type
+    $this->_attributesToString;
+}
 
 __PACKAGE__->meta->make_immutable;
 
