@@ -96,9 +96,9 @@ sub setupGuestMac : Private {
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    $c->forward( CaptivePortal => 'validateMac');
     $c->forward('checkGuestModes');
     $c->forward('checkPreregistration');
+    $c->forward( CaptivePortal => 'validateMac');
     $c->forward('setupGuestMac');
     my $mode    = $c->request->param("mode");
     if ( $mode && $mode eq $pf::web::guest::GUEST_REGISTRATION ) {
