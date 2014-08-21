@@ -22,6 +22,7 @@ use Log::Log4perl;
 use Readonly;
 
 use pf::authentication;
+use pf::Connection;
 use pf::config;
 use pf::locationlog;
 use pf::node;
@@ -85,8 +86,11 @@ sub authorize {
     }
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+
+    my $connection = pf::Connection->new;
+    $connection = $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name);
+    my $connection_type = $connection->attributesToBackwardCompatible;
     
-    my $connection_type = $switch->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
     $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
 
     $logger->trace("received a radius authorization request with parameters: ".
