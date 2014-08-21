@@ -44,7 +44,7 @@ sub _attributesToString {
     $this->type($type);
 }
 
-=item attributeToBackwardCompatible
+=item attributesToBackwardCompatible
 
 Only for backward compatibility while we introduce the new connection types.
 
