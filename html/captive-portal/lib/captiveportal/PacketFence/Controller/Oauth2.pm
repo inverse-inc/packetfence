@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::Oauth2;
 use Moose;
 use namespace::autoclean;
 use pf::config;
+use pf::util qw(isenabled);
 use pf::web;
 use Net::OAuth2::Client;
 
