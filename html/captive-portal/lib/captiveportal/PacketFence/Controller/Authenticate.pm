@@ -228,10 +228,10 @@ sub setRole : Private {
 
     # This appends the hashes to one another. values returned by authenticator wins on key collision
     if ( defined $value ) {
-        $logger->trace("Got role '$value' for username \"$pid\"");
+        $logger->trace("Got role '$value' for username $pid");
         $info->{category} = $value;
     } else {
-        $logger->trace("Got no role for username \"$pid\"");
+        $logger->trace("Got no role for username $pid");
     }
 
 }
@@ -260,7 +260,7 @@ sub setUnRegDate : Private {
         $logger->trace("Computed unreg date from dynamic unreg date: $value");
     }
     if ( defined $value ) {
-        $logger->trace("Got unregdate $value for username \"$pid\"");
+        $logger->trace("Got unregdate $value for username $pid");
         $info->{unregdate} = $value;
     }
 }

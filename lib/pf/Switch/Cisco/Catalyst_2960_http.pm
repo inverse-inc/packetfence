@@ -157,7 +157,7 @@ sub returnRadiusAccessAccept {
                     'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}"],
                 };
             }
-            $logger->info("[$mac] (".$this->{'_id'}.") Returning ACCEPT with Role: $role");
+            $logger->info("Returning ACCEPT with Role: $role");
         }
 
 
@@ -170,7 +170,7 @@ sub returnRadiusAccessAccept {
                 'Tunnel-Private-Group-ID' => $vlan,
             };
 
-            $logger->info("[$mac] (".$this->{'_id'}.") Returning ACCEPT with VLAN: $vlan");
+            $logger->info("Returning ACCEPT with VLAN: $vlan");
         }
 
     }
@@ -213,7 +213,7 @@ sub radiusDisconnect {
 
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
-            "[$mac] Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
+            "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
         );
         return;
     }
@@ -234,11 +234,12 @@ sub radiusDisconnect {
             nas_port => '3799',
         };
 
-        $logger->debug("[$mac] network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
+        $logger->debug("network device supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
         my $acctsessionid = node_accounting_current_sessionid($mac);
+        $logger->info("ACCOUNTING ID : ".$acctsessionid);
         my $node_info = node_view($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
@@ -274,15 +275,15 @@ sub radiusDisconnect {
         }
     } catch {
         chomp;
-        $logger->warn("[$mac] Unable to perform RADIUS CoA-Request on (".$self->{'_id'}.") : $_");
-        $logger->error("[$mac] Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.") ...") if ($_ =~ /^Timeout/);
+        $logger->warn("Unable to perform RADIUS CoA-Request: $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
 
     return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
 
     $logger->warn(
-        "[$mac] Unable to perform RADIUS Disconnect-Request on (".$self->{'_id'}.")."
+        "Unable to perform RADIUS Disconnect-Request."
         . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
         . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
     );

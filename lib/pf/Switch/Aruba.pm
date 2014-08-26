@@ -147,11 +147,11 @@ sub deauthenticateMacDefault {
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ( !$self->isProductionMode() ) {
-        $logger->info("[$mac] (".$self->{'_id'}.") not in production mode... we won't perform deauthentication");
+        $logger->info("not in production mode... we won't perform deauthentication");
         return 1;
     }
 
-    $logger->debug("[$mac] (".$self->{'_id'}.") deauthenticate using RADIUS Disconnect-Request deauth method");
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
     return $self->radiusDisconnect($mac);
 }
 
@@ -170,12 +170,12 @@ sub _deauthenticateMacWithTelnet {
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->isProductionMode() ) {
-        $logger->info("[$mac] (".$this->{'_id'}.") not in production mode ... we won't write to the bnsMobileStationTable");
+        $logger->info("not in production mode ... we won't write to the bnsMobileStationTable");
         return 1;
     }
 
     if ( !$this->connectRead() ) {
-        $logger->error("(".$this->{'_id'}.") Can not connect using SNMP to Aruba Controller ");
+        $logger->error("Can not connect using SNMP to Aruba Controller " . $this->{_id});
         return 1;
     }
 
@@ -185,11 +185,11 @@ sub _deauthenticateMacWithTelnet {
     }
 
     if (defined($is_dot1x) && $is_dot1x) {
-        $logger->debug("[$mac] deauthenticate using 802.1x deauth method");
+        $logger->debug("deauthenticate $mac using 802.1x deauth method");
         $this->_dot1xDeauthenticateMAC($mac);
     } else {
         # Any other authentication method lets kick out with traditionnal approach
-        $logger->debug("[$mac] deauthenticate using non-802.1x deauth method");
+        $logger->debug("deauthenticate $mac using non-802.1x deauth method");
         $this->_deauthenticateMAC($mac);
     }
 }
@@ -252,13 +252,13 @@ sub _dot1xDeauthenticateMAC {
 
     my $session = $this->getTelnetSession;
     if (!$session) {
-        $logger->error("[$mac] (".$this->{'_id'}.") Can't connect to Aruba Controller  using ".$this->{_cliTransport});
+        $logger->error("Can't connect to Aruba Controller ".$this->{'_id'}." using ".$this->{_cliTransport});
         return;
     }
 
     my $cmd = "aaa user delete mac $mac";
 
-    $logger->info("[$mac] deauthenticating 802.1x with: $cmd");
+    $logger->info("deauthenticating 802.1x $mac with: $cmd");
     $session->cmd($cmd);
 
     $session->close();
@@ -296,7 +296,7 @@ sub _deauthenticateMAC {
 
         my $session = $this->getTelnetSession;
         if (!$session) {
-            $logger->error("[$mac] (".$this->{'_id'}.") Can't connect to Aruba Controller using ".$this->{_cliTransport});
+            $logger->error("Can't connect to Aruba Controller ".$this->{'_id'}." using ".$this->{_cliTransport});
             return;
         }
 
@@ -313,7 +313,7 @@ sub _deauthenticateMAC {
                     my $apSSID = uc("$1:$2:$3:$4:$5:$6");
                     my $cmd = "stm kick-off-sta $mac $apSSID";
 
-                    $logger->info("[$mac] deauthenticating from SSID $apSSID with: $cmd");
+                    $logger->info("deauthenticating $mac from SSID $apSSID with: $cmd");
                     $session->cmd($cmd);
                     $count++;
                 } else {
@@ -324,12 +324,12 @@ sub _deauthenticateMAC {
 
         $session->close();
         if ($count > 1) {
-            $logger->warn("[$mac] We deauthenticated more than one client with this mac");
+            $logger->warn("We deauthenticated more than one client with mac $mac");
         } elsif ($count == 0) {
-            $logger->info("[$mac] no one was deauthenticated (request with this mac)");
+            $logger->info("no one was deauthenticated (request with mac $mac)");
         }
     } else {
-        $logger->error("[$mac] Can not get AP SSID from Aruba Controller for this MAC");
+        $logger->error("Can not get AP SSID from Aruba Controller for MAC $mac");
         return;
     }
 }
@@ -404,7 +404,7 @@ sub returnRadiusAccessAccept {
 
     my $radius_reply_ref = {};
 
-    $logger->debug("[$mac] Network device (".$this->{'_id'}.") supports roles. Evaluating role to be returned.");
+    $logger->debug("[$this->{'_id'}] Network device supports roles. Evaluating role to be returned.");
     my $role = $this->getRoleByName($user_role);
 
     # Roles are configured and the user should have one
@@ -414,7 +414,7 @@ sub returnRadiusAccessAccept {
             $this->returnRoleAttribute => $role,
         };
 
-        $logger->info("[$mac] Returning ACCEPT with role: $role");
+        $logger->info("[$this->{'_id'}] Returning ACCEPT with role: $role");
     }
 
     # if Roles aren't configured, return VLAN information
@@ -426,7 +426,7 @@ sub returnRadiusAccessAccept {
             'Tunnel-Private-Group-ID' => $vlan,
         };
 
-        $logger->info("[$mac] Returning ACCEPT with VLAN: $vlan");
+        $logger->info("[$this->{'_id'}] Returning ACCEPT with VLAN: $vlan");
     }
 
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];

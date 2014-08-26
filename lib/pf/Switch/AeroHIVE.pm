@@ -141,11 +141,11 @@ sub deauthenticateMacDefault {
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ( !$self->isProductionMode() ) {
-        $logger->info("[$mac] (".$self->{'_id'}.") not in production mode... we won't perform deauthentication");
+        $logger->info("not in production mode... we won't perform deauthentication");
         return 1;
     }
 
-    $logger->debug("[$mac] deauthenticate using RADIUS Disconnect-Request deauth method");
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
     return $self->radiusDisconnect($mac);
 }
 
@@ -166,7 +166,7 @@ sub _deauthenticateMacTelnet {
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->isProductionMode() ) {
-        $logger->info("[$mac] (".$this->{'_id'}.") not in production mode ... we won't deauthenticate");
+        $logger->info("not in production mode ... we won't deauthenticate $mac");
         return 1;
     }
 
@@ -198,7 +198,7 @@ sub _deauthenticateMacTelnet {
     # if $session->begin_configure() does not work, use the following command:
     my $command = "clear auth station mac $mac";
 
-    $logger->info("[$mac] Deauthenticating mac");
+    $logger->info("Deauthenticating mac $mac");
     $logger->trace("sending CLI command '$command'");
     my @output;
     $session->in_privileged_mode(1);
@@ -207,7 +207,7 @@ sub _deauthenticateMacTelnet {
     };
     $session->in_privileged_mode(0);
     if ($@) {
-        $logger->error("[$mac] Unable to deauthenticate: $@");
+        $logger->error("Unable to deauthenticate $mac: $@");
         $session->close();
         return;
     }
@@ -231,7 +231,7 @@ sub returnRadiusAccessAccept {
     # TODO this is experimental
     try {
 
-        $logger->debug("[$mac] network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
+        $logger->debug("network device supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
@@ -244,7 +244,7 @@ sub returnRadiusAccessAccept {
                 'Tunnel-Private-Group-ID' => $role,
             };
 
-            $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with Role: $role");
+            $logger->info("Returning ACCEPT with Role: $role");
         }
 
         # if Roles aren't configured, return VLAN information
@@ -256,7 +256,7 @@ sub returnRadiusAccessAccept {
                 'Tunnel-Private-Group-ID' => $vlan,
             };
 
-            $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN: $vlan");
+            $logger->info("Returning ACCEPT with VLAN: $vlan");
         }
 
     }
