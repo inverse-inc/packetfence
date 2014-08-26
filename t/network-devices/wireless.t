@@ -67,6 +67,7 @@ my $networkdevice_object = pf::Switch::Cisco::WiSM2->new(
     '-mode' => 'production',
     '-radiusSecret' => 'fake',
     '-ip' => '127.0.0.1',
+    '-id' => '127.0.0.1',
 );
 # bogusly calling methods trying to generate warnings
 $networkdevice_object->deauthenticateMacDefault("aa:bb:cc:dd:ee:ff");
@@ -85,6 +86,7 @@ $networkdevice_object = pf::Switch::Aruba->new(
     '-mode' => 'production',
     '-radiusSecret' => 'fake',
     '-ip' => '127.0.0.1',
+    '-id' => '127.0.0.1',
 );
 # bogusly calling methods trying to generate warnings
 $networkdevice_object->deauthenticateMacDefault("aa:bb:cc:dd:ee:ff");
