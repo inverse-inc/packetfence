@@ -71,6 +71,7 @@ BEGIN {
         view add modify
         create match_by_mail
         validate_password
+        bcrypt
         $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID
     );
 }
@@ -103,7 +104,7 @@ sub temporary_password_db_prepare {
     $logger->debug("Preparing pf::temporary_password database queries");
 
     $temporary_password_statements->{'temporary_password_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
+        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate, t.algorithm,
             p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
         FROM temporary_password t
         LEFT JOIN person p ON t.pid = p.pid
@@ -112,7 +113,7 @@ sub temporary_password_db_prepare {
     ]);
 
     $temporary_password_statements->{'temporary_password_view_email_sql'} = get_db_handle()->prepare(qq[
-        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
+        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate, t.algorithm,
             p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
         FROM person p, temporary_password t
         LEFT JOIN node_category c ON t.category = c.category_id
@@ -121,8 +122,8 @@ sub temporary_password_db_prepare {
 
     $temporary_password_statements->{'temporary_password_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO temporary_password
-            (pid, password, valid_from, expiration, access_duration, access_level, category, sponsor, unregdate)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (pid, password, valid_from, expiration, access_duration, access_level, category, sponsor, unregdate, algorithm)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ]);
 
     $temporary_password_statements->{'temporary_password_delete_sql'} = get_db_handle()->prepare(
@@ -130,7 +131,7 @@ sub temporary_password_db_prepare {
     );
 
     $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[
-        SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from,
+        SELECT pid, password, algorithm, UNIX_TIMESTAMP(valid_from) as valid_from,
             UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59")) AS expiration,
             access_duration, category
         FROM temporary_password
@@ -141,7 +142,7 @@ sub temporary_password_db_prepare {
 
     $temporary_password_statements->{'temporary_password_modify_actions_sql'} = get_db_handle()->prepare(qq[
         UPDATE temporary_password
-        SET valid_from = ?, expiration = ?, access_duration = ?, access_level = ?, category = ?, sponsor = ?, unregdate = ?
+        SET valid_from = ?, expiration = ?, access_duration = ?, access_level = ?, category = ?, sponsor = ?, unregdate = ?, algorithm = ?
         WHERE pid = ?
     ]);
 
@@ -405,35 +406,38 @@ Return values:
 =cut
 
 sub validate_password {
-    my ($pid, $password) = @_;
+    my ( $pid, $password ) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $query = db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements,
+        TEMPORARY_PASSWORD,
+        $temporary_password_statements,
         'temporary_password_validate_password_sql', $pid
     );
 
     my $temppass_record = $query->fetchrow_hashref();
+
     # just get one row
     $query->finish();
 
-    if (!defined($temppass_record) || ref($temppass_record) ne 'HASH') {
+    if ( !defined($temppass_record) || ref($temppass_record) ne 'HASH' ) {
         return $AUTH_FAILED_INVALID;
     }
 
-    if ($temppass_record->{'password'} eq $password) {
+    if ( _check_password( $password, $temppass_record->{'password'}, $temppass_record->{'algorithm'} ) ) {
+
         # password is valid but not yet valid
         # valid_from is in unix timestamp format so an int comparison is enough
         my $valid_from = $temppass_record->{'valid_from'};
-        if (defined $valid_from && $valid_from > time) {
+        if ( defined $valid_from && $valid_from > time ) {
             $logger->info("Password validation failed for $pid: password not yet valid");
             return $AUTH_FAILED_NOT_YET_VALID;
         }
 
         # password is valid but expired
         # expiration is in unix timestamp format so an int comparison is enough
-        if ($temppass_record->{'expiration'} < time) {
+        if ( $temppass_record->{'expiration'} < time ) {
             $logger->info("Password validation failed for $pid: password has expired");
             return $AUTH_FAILED_EXPIRED;
         }
@@ -445,6 +449,86 @@ sub validate_password {
     # otherwise failure
     $logger->info("Password validation failed for $pid: passwords don't match");
     return $AUTH_FAILED_INVALID;
+}
+
+sub _check_password {
+    my ( $plaintext, $hash_string, $algorithm ) = @_;
+    
+    my ( $cost, $salt, $hash_value, $hashed_plaintext ); 
+    # Bcrypt is special. We need to parse the hash to know the work factor before comparing.
+    # A bcrypt hash looks like this: 
+    # '$2a$05$1kdrBExRmcKCcDlNSKHREutpl02jsbx7.ug5C3SZ86N1QhqUF.aSW'
+    # where '$2a$' is the bcrypt prefix, 05 is the work factor, and the rest (after the final $) 
+    # is the bcrypt base64 encoded salt (first 22 char) followed by the bcrypt base64 encoded hash value.
+    if ( $algorithm eq 'bcrypt' ) {
+        my $prefix_len        = 4;
+        my $cost_len          = 2;
+        my $salt_len          = 22;
+        my $before_salt       = $prefix_len + $cost_len + 1;    # +1 for the trailing $
+        my $before_hash_value = $before_salt + $salt_len;
+        $cost = substr( $hash_string, $prefix_len,  $cost_len );
+        $salt = substr( $hash_string, $before_salt, $salt_len );
+        $hash_value = substr( $hash_string, $before_hash_value );    # substr to the end of the string
+    }
+
+    $hashed_plaintext = _hash_password( $plaintext, algorithm => $algorithm, salt => $salt, cost => $cost );
+
+    if ( $hashed_plaintext eq $hash_string ) { 
+        return $TRUE;
+    } else {
+        return $FALSE;
+    }
+}
+
+sub _hash_password {
+    my ( $plaintext, %params ) = @_;
+
+    use Switch;
+    switch ($params{"algorithm"}) {
+        case 'plaintext' { return $plaintext }
+        case 'bcrypt'    { return bcrypt($plaintext, %params) }
+        case 'nthash'    { return nthash $plaintext }
+        case 'md5'       { return md5 $plaintext }
+        else {
+            logger->error("Unsupported hash algorithm ". $params{"algorithm"});
+        }
+    }
+}
+
+sub nthash { return undef; } # TODO
+
+sub md5 { return undef; } # TODO
+        
+sub bcrypt {
+    my ( $plaintext, %params ) = @_;
+
+    use Data::Entropy::Algorithms qw( rand_bits );
+    use Crypt::Eksblowfish::Bcrypt qw(bcrypt_hash en_base64 de_base64 );
+
+    my ( $salt, $cost );
+    if ( not defined $params{"salt"} ) {
+        $salt = rand_bits( 16 * 8 );    # blowfish requires 16 octets
+    }
+    else {
+        $salt = de_base64( $params{"salt"} );
+    }
+
+    if ( not defined $params{"cost"} ) {
+        $cost = 8;                      # TODO: make this configurable
+    }
+    else {
+        $cost = $params{"cost"};
+    }
+
+    # A bcrypt hash looks like this:
+    # '$2a$05$1kdrBExRmcKCcDlNSKHREutpl02jsbx7.ug5C3SZ86N1QhqUF.aSW'
+    # where '$2a$' is the bcrypt prefix, 05 is the work factor, and the rest (after the final $)
+    # is the bcrypt base64 encoded salt (first 22 char) followed by the bcrypt base64 encoded hash value.
+    my $hash     = bcrypt_hash( { key_nul => 1, cost => $cost, salt => $salt, }, $plaintext );
+    my $hash_str  = en_base64($hash);
+    my $cost_str = sprintf( "%02d", $cost ) . '$';
+    my $salt_str = en_base64($salt);
+    return '$2a$' . $cost_str . $salt_str . $hash_str;
 }
 
 =item reset_password
