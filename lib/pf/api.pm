@@ -224,7 +224,7 @@ sub desAssociate {
     # sleep long enough to give the device enough time to fetch the redirection page.
     sleep $pf::config::Config{'trapping'}{'wait_for_redirect'}; 
 
-    $logger->info("DesAssociating mac $postdata{'mac'} on switch " . $switch->{_id});
+    $logger->info("[$postdata{'mac'}] DesAssociating mac on switch (".$switch->{'_id'}.")");
     $switch->$deauthTechniques($postdata{'mac'});
 }
 
@@ -385,8 +385,7 @@ sub _reassignSNMPConnections {
     my @locationlog = locationlog_view_open_switchport_no_VoIP( $switch->{_id}, $ifIndex );
     unless ( (@locationlog) && ( scalar(@locationlog) > 0 ) && ( $locationlog[0]->{'mac'} ne '' ) ) {
         $logger->warn(
-            "received reAssignVlan trap on "
-                . $switch->{_id} . " ifIndex $ifIndex but can't determine non VoIP MAC"
+            "[$mac] received reAssignVlan trap on (".$switch->{'_id'}.") ifIndex $ifIndex but can't determine non VoIP MAC"
         );
         return;
     }
@@ -394,8 +393,7 @@ sub _reassignSNMPConnections {
     # case PORTSEC : When doing port-security we need to reassign the VLAN before 
     # bouncing the port. 
     if ( $switch->isPortSecurityEnabled($ifIndex) ) {
-        $logger->info( "security traps are configured on "
-                . $switch->{_id} . " ifIndex $ifIndex. Re-assigning VLAN for $mac" );
+        $logger->info( "[$mac] security traps are configured on (".$switch->{'_id'}.") ifIndex $ifIndex. Re-assigning VLAN" );
 
         node_determine_and_set_into_VLAN( $mac, $switch, $ifIndex, $connection_type );
         
@@ -404,14 +402,14 @@ sub _reassignSNMPConnections {
         if ( $switch->hasPhoneAtIfIndex($ifIndex)  ) {
             my @violations = violation_view_open_desc($mac);
             if ( scalar(@violations) == 0 ) {
-                $logger->warn("VLAN changed and $mac is behind VoIP phone. Not bouncing the port!");
+                $logger->warn("[$mac] VLAN changed and is behind VoIP phone. Not bouncing the port!");
                 return;
             }
         }
 
     } # end case PORTSEC
     
-    $logger->info( "Flipping admin status on switch " . $switch->{_id} . " ifIndex $ifIndex. " );
+    $logger->info( "[$mac] Flipping admin status on switch (".$switch->{'_id'}.") ifIndex $ifIndex. " );
     $switch->bouncePort($ifIndex);
 }
 =head1 AUTHOR

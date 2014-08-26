@@ -44,6 +44,7 @@ Enhancements
 * Moved from using Storable to Sereal to serialize cached data
 * Refactored portal profile filters to make it easier to extend
 * Improved support for Dlink DES 3526 switches
+* Rewrited log format [] for device mac () for switch "" for userID
 
 Bug Fixes
 +++++++++
