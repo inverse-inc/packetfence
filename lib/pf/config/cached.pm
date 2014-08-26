@@ -767,8 +767,10 @@ sub computeFromPath {
         {
             expire_if => sub {
                 return 1 if $expire;
-                my $control_file_timestamp = $_[0]->value->{_control_file_timestamp} || -1;
-                return  ( controlFileExpired($control_file_timestamp) && $_[0]->value->HasChanged() ) ;
+                my $value = $_[0]->value;
+                return 1 unless $value;
+                my $control_file_timestamp = $value->{_control_file_timestamp} || 0;
+                return  controlFileExpired($control_file_timestamp) && $value->HasChanged();
             },
         },
         $computeWrapper
@@ -784,19 +786,12 @@ sub setControlFileTimestamp {
 }
 
 sub getControlFileTimestamp {
-    my $timestamp = (stat($cache_control_file))[9];
-    if (defined $timestamp) {
-        $timestamp *= 1000000000;
-        $timestamp = int($timestamp)
-    } else {
-        $timestamp = -1;
-    }
-    return $timestamp;
+    return pf::IniFiles::_getFileTimestamp($cache_control_file);
 }
 
 sub controlFileExpired {
     my ($timestamp) = @_;
-    $timestamp != getControlFileTimestamp();
+    $timestamp == -1 || $timestamp != getControlFileTimestamp();
 }
 
 
