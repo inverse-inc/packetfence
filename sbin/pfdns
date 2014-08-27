@@ -138,25 +138,8 @@ END {
 sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     pf::config::cached::ReloadConfigs();
-    my $ip = new NetAddr::IP::Lite clean_ip($peerhost);
-    foreach my $network (@routed_registration_nets_named) {
-        if ($network->contains($ip)) {
-           return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
-        }
-    }
-    foreach my $network (@routed_isolation_nets_named) {
-        if ($network->contains($ip)) {
-           # Should be different for isolation network.
-           return  isolzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
-        }
-    }
 
-    foreach my $network (@routed_inline_nets_named) {
-        if ($network->contains($ip)) {
-           # Should be different for inline
-           return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
-        }
-    }
+    return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
 }
 
 sub regzone {
