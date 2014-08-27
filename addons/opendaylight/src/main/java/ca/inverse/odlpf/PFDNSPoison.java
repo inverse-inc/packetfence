@@ -51,7 +51,9 @@ public class PFDNSPoison {
     private static final PFConfig pfconfig = new PFConfig("/etc/packetfence.conf");
     private PFPacket packet;
     private PacketHandler packetHandler;
-    private static final byte[] PF_MAC = pfconfig.getElement("pf_dns_mac").getBytes();
+    private static final byte[] PF_MAC = {(byte)0, (byte)80, (byte)86, (byte)157, (byte)0, (byte)11};
+    private static Hashtable<String,Flow> outboundFlows = new Hashtable<String,Flow>();
+    private static Hashtable<String,Flow> inboundFlows = new Hashtable<String,Flow>();
 
     PFDNSPoison(PFPacket packet, PacketHandler packetHandler){
         this.packet = packet;
@@ -67,50 +69,72 @@ public class PFDNSPoison {
         this.poisonInbound();
     }
 
-    private void poisonOutbound(){
+    private Match getOutboundMatch(){
         Match match = new Match();
         match.setField(MatchType.DL_TYPE, (short) 0x0800);  // IPv4 ethertype
         match.setField(MatchType.NW_PROTO, (byte) 17);  
-        match.setField(MatchType.DL_SRC, packet.getSourceMacBytes());
+        ////match.setField(MatchType.DL_SRC, packet.getSourceMacBytes());
         match.setField(MatchType.NW_DST, packet.getDestInetAddress());
         match.setField(MatchType.TP_SRC, (short) packet.getSourcePort());
         match.setField(MatchType.TP_DST, (short) packet.getDestPort());
-    
+
+        return match;
+    }
+
+    private List getOutboundActions(){
         List actions = new LinkedList();
         try{
         actions.add( new SetNwDst( InetAddress.getByName(pfconfig.getElement("pf_dns_ip")) ) );
         }catch(Exception e){e.printStackTrace();}
 
         actions.add( new SetDlDst( PF_MAC ) ); 
-        //should add an action to forward to the uplink
+        actions.add( new Flood() ); 
 
-        this.installFlow(match, actions);
+        return actions;
     }
 
-    private void poisonInbound(){
+    private void poisonOutbound(){
+        this.installFlow(this.getOutboundMatch(), this.getOutboundActions());
+    }
+
+    private Match getInboundMatch(){
         Match match = new Match();
         match.setField(MatchType.DL_TYPE, (short) 0x0800);  // IPv4 ethertype
         match.setField(MatchType.NW_PROTO, (byte) 17);   
-        match.setField(MatchType.DL_SRC, PF_MAC);
+        ////match.setField(MatchType.DL_SRC, PF_MAC);
+
         try{
-        match.setField(MatchType.NW_DST, InetAddress.getByName(pfconfig.getElement("pf_dns_ip")) );
+        match.setField(MatchType.NW_SRC, InetAddress.getByName(pfconfig.getElement("pf_dns_ip")) );
         }catch(Exception e){e.printStackTrace();}
         match.setField(MatchType.TP_SRC, (short) packet.getDestPort());
         match.setField(MatchType.TP_DST, (short) packet.getSourcePort());
     
+        return match;
+    }
+
+    private List getInboundActions(){
         List actions = new LinkedList();
         try{
-        actions.add( new SetNwDst( packet.getSourceInetAddress()  ) );
+        actions.add( new SetNwSrc( packet.getDestInetAddress()  ) );
         }catch(Exception e){e.printStackTrace();}
 
-        actions.add( new SetDlDst( packet.getSourceMacBytes() ) ); 
-        actions.add( new Output( packet.getIncomingConnector() ) ); 
+        ////actions.add( new SetDlSrc( packet.getDestMacBytes() ) ); 
+        actions.add( new Flood() ); 
 
-        this.installFlow(match, actions);
+        return actions;
     }
+
+    private void poisonInbound(){
+
+        this.installFlow(this.getInboundMatch(), this.getInboundActions());
+    }
+
+
 
     private void installFlow(Match match, List actions){
         Flow flow = new Flow(match, actions);
+        flow.setPriority((short)1001);
+        flow.setHardTimeout((short)5);
         Status status = packetHandler.getFlowProgrammerService().addFlow(packet.getIncomingConnector().getNode(), flow);
         if (!status.isSuccess()) {
             System.out.println("Could not program flow: " + status.getDescription());

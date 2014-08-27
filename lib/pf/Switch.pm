@@ -71,13 +71,13 @@ sub supportsExternalPortal {
     return $FALSE;
 }
 
-<<<<<<< HEAD
 sub supportsFlows {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     $logger->error("Configuration by flows is not supported on switch type " . ref($this));
-=======
+}
+
 =item supportsWebFormRegistration
 
 Returns 1 if switch type supports web form registration (for release of the external captive portal)
@@ -89,7 +89,6 @@ sub supportsWebFormRegistration {
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     $logger->debug("Web form registration is not supported on switch type " . ref($this));
->>>>>>> github-inverse/devel
     return $FALSE; 
 }
 

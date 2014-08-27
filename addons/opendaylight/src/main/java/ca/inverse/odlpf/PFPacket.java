@@ -46,7 +46,7 @@ public class PFPacket {
     PFPacket(RawPacket rawPacket, PacketHandler packetHandler){
         this.packetHandler = packetHandler;
         this.rawPacket = rawPacket;
-        this.packet = packetHandler.getDataPacketService().decodeDataPacket(rawPacket);
+        this.packet = packetHandler.getDataPacketService().decodeDataPacket(this.rawPacket);
     }
 
     static private InetAddress intToInetAddress(int i) {
@@ -105,6 +105,10 @@ public class PFPacket {
             return ethFrame;
         }
         return null;
+    }
+
+    public RawPacket getRawPacket(){
+        return this.rawPacket;
     }
 
     public int getSourcePort(){

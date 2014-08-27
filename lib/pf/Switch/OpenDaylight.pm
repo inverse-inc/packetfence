@@ -74,7 +74,8 @@ sub get_flow_name{
         return "dnsredirect".$clean_mac;
     }
     else{
-        $logger->error("Invalid type sent. Returning nothing.");
+        $logger->error("Invalid type sent. Returning something that should work.");
+        return $type.$clean_mac;
     }
 }
 
@@ -229,10 +230,46 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     }
 }
 
+sub block_network_detection {
+    my ($self, $ifIndex, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    
+    my $flow_name = $self->get_flow_name("block-network-detection", $mac);
+    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$self->{_OpenflowId}/staticFlow/$flow_name";
+    $logger->info("Computed path is : $path");
+
+    my %data = (
+        "name" => $flow_name,
+        "node" => {
+            "id" => $self->{_OpenflowId},
+            "type" => "OF",
+        },
+        "ingressPort" => "$ifIndex",
+        "dlSrc" => $mac,
+        "priority" => "1100",
+        "etherType" => "0x800",
+        "nwDst" => "192.195.20.194/32",
+        "tpDst" => "80",
+        "protocol" => "tcp",
+        "installInHw" => "true",
+        "actions" => [
+            "DROP"
+        ]
+    );
+    return $self->send_json_request($path, \%data, "PUT");
+
+}
+
 sub install_dns_redirect {
     my ($self, $ifIndex, $mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     
+    $self->synchronize_locationlog($ifIndex, "0", $mac,
+        $FALSE, $WIRED_MAC_AUTH, $mac, ""
+    );
+
+    #$self->block_network_detection($ifIndex, $mac);
+
     my $flow_name = $self->get_flow_name("dnsredirect", $mac);
     my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$self->{_OpenflowId}/staticFlow/$flow_name";
     $logger->info("Computed path is : $path");
@@ -261,10 +298,42 @@ sub install_dns_redirect {
 sub uninstall_dns_redirect {
     my ($self, $ifIndex, $mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
-    
-    $self->delete_flow("dnsredirect", $mac) || return $FALSE;
 
+    $self->delete_flow("dnsredirect", $mac);
 }
+
+#sub uninstall_dns_redirect {
+#    my ($self, $ifIndex, $mac) = @_;
+#    my $logger = Log::Log4perl::get_logger( ref($self) );
+#    
+#    my $flow_name = $self->get_flow_name("dnsredirect", $mac);
+#    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$self->{_OpenflowId}/staticFlow/$flow_name";
+#    $logger->info("Computed path is : $path");
+#
+#    my %data = (
+#        "name" => $flow_name,
+#        "node" => {
+#            "id" => $self->{_OpenflowId},
+#            "type" => "OF",
+#        },
+#        "ingressPort" => "$ifIndex",
+#        "dlSrc" => $mac,
+#        "priority" => "1002",
+#        "etherType" => "0x800",
+#        "nwDst" => "0.0.0.0/0",
+#        "tpDst" => "53",
+#        "protocol" => "udp",
+#        "installInHw" => "true",
+#        "actions" => [
+#            "FLOOD"
+#        ]
+#    );
+#
+#
+#    #$self->delete_flow("block-network-detection", $mac);
+#
+#    return $self->send_json_request($path, \%data, "PUT");
+#}
 
 #sub send_json_request {
 #    my ($self, $path, $data, $method) = @_;
