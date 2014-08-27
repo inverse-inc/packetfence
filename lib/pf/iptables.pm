@@ -184,7 +184,7 @@ sub generate_filter_if_src_to_chain {
 
         # inline enforcement
         } elsif (is_type_inline($enforcement_type)) {
-            my $mgmt_ip = $management_network->tag("ip");
+            my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d $mgmt_ip --protocol tcp --match tcp --dport 443 --jump ACCEPT\n";
