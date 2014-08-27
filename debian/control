@@ -62,6 +62,7 @@ Depends: ${misc:Depends}, vlan, make, patch,
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313
  libnet-appliance-session-perl (>= 2.111080),
+ libnet-ssh2-perl,
  libnet-cli-interact-perl,
  libnet-interface-perl, libnet-radius-perl,
  libparse-nessus-nbe-perl, libtest-mockdbi-perl,
