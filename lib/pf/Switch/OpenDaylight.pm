@@ -300,6 +300,7 @@ sub uninstall_dns_redirect {
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     $self->delete_flow("dnsredirect", $mac);
+    return $TRUE;
 }
 
 #sub uninstall_dns_redirect {
