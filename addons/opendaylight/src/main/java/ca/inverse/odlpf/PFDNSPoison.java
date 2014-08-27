@@ -51,7 +51,8 @@ public class PFDNSPoison {
     private static final PFConfig pfconfig = new PFConfig("/etc/packetfence.conf");
     private PFPacket packet;
     private PacketHandler packetHandler;
-    private static final byte[] PF_MAC = {(byte)0, (byte)80, (byte)86, (byte)157, (byte)0, (byte)11};
+    //private static final byte[] PF_MAC = {(byte)0, (byte)80, (byte)86, (byte)157, (byte)0, (byte)11};
+    private static final byte[] PF_MAC = pfconfig.getMacBytes(pfconfig.getElement("pf_dns_mac"));
     private static Hashtable<String,Flow> outboundFlows = new Hashtable<String,Flow>();
     private static Hashtable<String,Flow> inboundFlows = new Hashtable<String,Flow>();
 
@@ -60,15 +61,19 @@ public class PFDNSPoison {
         this.packetHandler = packetHandler;
     } 
 
+    /*
+     * Installs the required flows to forward the DNS traffic to PacketFence
+     */
     public void poisonFromPacket(){
-        // install the flows to poison
-        System.out.println("THIS IS THE DEST PORT " + this.packet.getDestPort());
         System.out.println("Installing DNS outbound redirect flow");
         this.poisonOutbound();
         System.out.println("Installing return flow");
         this.poisonInbound();
     }
 
+    /*
+     * Returns the outbound match based on the initial destination of the packet
+     */
     private Match getOutboundMatch(){
         Match match = new Match();
         match.setField(MatchType.DL_TYPE, (short) 0x0800);  // IPv4 ethertype
@@ -81,6 +86,11 @@ public class PFDNSPoison {
         return match;
     }
 
+    /*
+     * Returns the actions to do on packet so it's forwarded to PacketFence
+     * Rewrites the destination IP and MAC to the ones in the PacketFence configuration file on 
+     *   the controller
+     */
     private List getOutboundActions(){
         List actions = new LinkedList();
         try{
@@ -93,10 +103,16 @@ public class PFDNSPoison {
         return actions;
     }
 
+    /*
+     * Installs the flow to redirect the DNS queries to PacketFence
+     */
     private void poisonOutbound(){
         this.installFlow(this.getOutboundMatch(), this.getOutboundActions());
     }
 
+    /*
+     * Returns the inbound match based on the new destination of the packet
+     */
     private Match getInboundMatch(){
         Match match = new Match();
         match.setField(MatchType.DL_TYPE, (short) 0x0800);  // IPv4 ethertype
@@ -112,6 +128,12 @@ public class PFDNSPoison {
         return match;
     }
 
+    /*
+     * Returns the actions to do on the packet that gets back 
+     *   so it respects the initial destination of the packet
+     * Rewrites the source IP to the one that the packet
+     *   should have originally been sent to.
+     */
     private List getInboundActions(){
         List actions = new LinkedList();
         try{
@@ -124,13 +146,19 @@ public class PFDNSPoison {
         return actions;
     }
 
+    /*
+     * Installs the flow to rewrite the return packet so it looks like
+     *   it came from the original destination
+     */
     private void poisonInbound(){
 
         this.installFlow(this.getInboundMatch(), this.getInboundActions());
     }
 
-
-
+    /*
+     * Generic method for this class to install a flow based on a match
+     *   and a list of actions
+     */
     private void installFlow(Match match, List actions){
         Flow flow = new Flow(match, actions);
         flow.setPriority((short)1001);

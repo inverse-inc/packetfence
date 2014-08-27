@@ -37,6 +37,19 @@ public class PFConfig {
         return this.config.get(key);
     }
     
+    public byte[] getMacBytes(String mac){
+        int position = 0;
+        int i=0;
+        byte[] bytes = new byte[6];
+        while (position < mac.length()){
+            String substring = mac.substring(i, Math.min(position + 2,mac.length()));
+            int substringIntValue = Integer.parseInt(substring, 16);
+            bytes[i] = (byte)substringIntValue;
+            i++;
+            position += 2;
+        }
+        return bytes;
+    }
 
     public static void main(String [ ] args){
         PFConfig c = new PFConfig("/etc/packetfence.conf");

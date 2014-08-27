@@ -43,6 +43,7 @@ public class PFPacketProcessor {
     private static final PFConfig pfConfig = new PFConfig("/etc/packetfence.conf");
     private static ArrayList<String> transactionCache = new ArrayList<String>();
     private static ArrayList<String> ignoredCache = new ArrayList<String>();
+    private static Hashtable<String, String> uplinks = new Hashtable<String, String>();
     private static final byte[] PF_MAC = {(byte)0, (byte)80, (byte)86, (byte)157, (byte)0, (byte)11};
 
     private String sourceMac;
@@ -59,6 +60,10 @@ public class PFPacketProcessor {
         this.port = port;
     }
 
+    /*
+     * This method gets called on every packet in
+     * Queries PacketFence if needed and triggers the returned actions
+     */
     public PacketResult processPacket(){
         if( !this.alreadyInTransaction()  && !this.shouldIgnorePacket() ){
             this.startTransaction();
@@ -80,30 +85,59 @@ public class PFPacketProcessor {
 
     }
     
+    /*
+     * Adds a port to the ignored ports by PacketFence so processing is not duplicated
+     */
     private void addToIgnoreList(){
         PFPacketProcessor.ignoredCache.add(this.getPortUniqueId());
     }
 
+    /*
+     * Removes a port from the ignored list
+     */
     private void removeFromIgnoreList(){
         PFPacketProcessor.ignoredCache.remove(this.getPortUniqueId());
     }
 
+    /*
+     * Sets a new transaction in progress for the current packet
+     * Based on the MAC
+     */
     private void startTransaction(){
         PFPacketProcessor.transactionCache.add(sourceMac);
     }
 
+    /*
+     * Sets a transaction as finished for the current packet
+     * Based on the MAC
+     */
     private void finishTransaction(){
         PFPacketProcessor.transactionCache.remove(sourceMac);
     }   
 
+    /*
+     * Checks if the packet should be ignored by querying the cache
+     * Reduces the number of queries to be done to PacketFence
+     */
     private boolean shouldIgnorePacket(){
         return PFPacketProcessor.ignoredCache.contains(this.getPortUniqueId());
     }
 
+    /*
+     * Checks if there is already a transaction in progress 
+     *   with PacketFence for that MAC address
+     */
     private boolean alreadyInTransaction(){
         return PFPacketProcessor.transactionCache.contains(sourceMac); 
     }
 
+    /*
+     * Handles the JSON response given by PacketFence
+     * Will trigger the DNS poisoning if PacketFence sends the isolate action and 
+     *   and the isolation strategy for the switch is DNS
+     * Will not do anything if the isolation strategy is VLAN (it's controlled by PacketFence)
+     * Will ignore and add the packet to the ignore list if PacketFence send the ignored action
+     */
     private PacketResult handlePacketFenceResponse(JSONObject response){
         try{
             JSONArray result = response.getJSONArray("result");
@@ -123,6 +157,8 @@ public class PFPacketProcessor {
                 }
                 else if(method.equals("VLAN")){
                     // pf takes care of the flows here
+                    // and packets from that device don't
+                    // need to be treated
                     return PacketResult.CONSUME;   
                 }
                 else{
@@ -139,6 +175,10 @@ public class PFPacketProcessor {
         } 
     }
 
+    /*
+     * Forwards the original packet to PacketFence by modifying the destination MAC and IP
+     * Doesn't work for now, the packets go to PacketFence but are ignored by pfdns
+     */
     private void forwardToPacketFence(){
         
         try{
@@ -199,6 +239,9 @@ public class PFPacketProcessor {
     	return new JSONObject();
     }
     
+    /*
+     * Sets up the HTTPS connection so it ignores certificates
+     */
     private void setupHttpsConnection(){
     	TrustManager[] trustAllCerts = new TrustManager[]{
 		    new X509TrustManager() {
@@ -233,6 +276,9 @@ public class PFPacketProcessor {
 
     }
     
+    /*
+     * Creates the payload to send to PacketFence API
+     */
     private JSONObject getPacketFenceJSONPayload(){
         try{
             JSONObject jsonBody = new JSONObject();
@@ -252,6 +298,10 @@ public class PFPacketProcessor {
         }
     }
 
+    /*
+     * Returns a unique ID for a given switch and port 
+     * For use in the caching
+     */
     private String getPortUniqueId(){
         return switchId + "-" + port;
     }
