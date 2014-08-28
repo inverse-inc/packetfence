@@ -140,7 +140,7 @@ public class PFDNSPoison {
         actions.add( new SetNwSrc( packet.getDestInetAddress()  ) );
         }catch(Exception e){e.printStackTrace();}
 
-        ////actions.add( new SetDlSrc( packet.getDestMacBytes() ) ); 
+        actions.add( new SetDlSrc( packet.getDestMacBytes() ) ); 
         actions.add( new Flood() ); 
 
         return actions;

@@ -118,6 +118,8 @@ foreach my $network ( keys %ConfigNetworks ) {
     }
 }
 
+push @ip_addr, "172.20.20.109";
+
 
 my $ns = new Net::DNS::Nameserver(
     LocalAddr       => [@ip_addr],
