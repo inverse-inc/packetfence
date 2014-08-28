@@ -3410,7 +3410,7 @@ Mikrotik
 ~~~~~~~~
 
 This configuration has been tested on Access Point OmniTIK U-5hnD with RouterOS v6.18 and only MAC-Authentication is available now.
-The only deauthentication method available is SSH, so create an account in the Mikrotik AP and fill the information in PacketFence switche configuration.
+The only deauthentication method available is SSH, so create an account in the Mikrotik AP and fill the information in PacketFence switch configuration.
 Also don't forget to use the pf account to ssh on the Access Point to receive the ssh key.
 
 [float]
