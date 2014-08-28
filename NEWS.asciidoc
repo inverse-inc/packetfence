@@ -46,6 +46,7 @@ Enhancements
 * Refactored portal profile filters to make it easier to extend
 * Improved support for Dlink DES 3526 switches
 * Rewrited log format [] for device mac () for switch "" for userID
+* Improve error handling of web api
 
 Bug Fixes
 +++++++++
