@@ -590,7 +590,7 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 #Starting Packetfence.
 echo "Starting Packetfence..."
 #removing old cache
-rm -rf /usr/local/pf/var/cache 
+rm -rf /usr/local/pf/var/cache/ 
 /usr/local/pf/bin/pfcmd configreload
 /sbin/service packetfence start
 
