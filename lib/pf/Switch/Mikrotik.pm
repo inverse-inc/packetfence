@@ -41,7 +41,6 @@ use pf::util::radius qw(perform_disconnect);
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
@@ -101,7 +100,8 @@ De-authenticate a MAC address from wireless network (including 802.1x).
 
 New implementation using RADIUS Disconnect-Request.
 
-This method has been kept since we probably will use this deauth method in the future
+This method has been kept since we will probably use this deauth method in the future
+
 =cut
 
 sub deauthenticateMacRadius {
@@ -121,7 +121,7 @@ sub deauthenticateMacRadius {
 
 Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
 
-Has been tested with 6.18 Mikrotik OS version and look like there is a bug
+Has been tested with 6.18 Mikrotik OS version and doesn´t work yet
 
 Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
@@ -199,6 +199,11 @@ sub radiusDisconnect {
 
 Overloading L<pf::Switch>'s implementation because Mikrotik have his own radius attributes.
 
+Don't forget to fill /usr/share/freeradius/dictionary.mikrotik with the following attributes:
+
+ATTRIBUTE       Mikrotik-Wireless-VlanID                26      integer
+ATTRIBUTE       Mikrotik-Wireless-VlanIDType            27      integer
+
 =cut
 
 sub returnRadiusAccessAccept {
@@ -259,14 +264,21 @@ sub deauthenticateMacSSH {
 
     my $ssh;
 
+    my $send_disconnect_to = $self->{'_ip'};
+    # but if controllerIp is set, we send there
+    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $send_disconnect_to = $self->{'_controllerIp'};
+    }
+
     eval {
         $ssh = Net::SSH2->new();
-        $ssh->connect($this->{_ip});
+        $ssh->connect($send_disconnect_to);
         $ssh->auth_password($this->{_cliUser},$this->{_cliPwd});
     };
 
     if ($@) {
-        $logger->error("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $@");
+        $logger->error("Unable to connect to ".$send_disconnect_to." using ".$this->{_cliTransport}.". Failed with $@");
         return;
     }
 

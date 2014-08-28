@@ -3409,7 +3409,9 @@ To configure Hostapd software you can use the same configuration parameters abov
 Mikrotik
 ~~~~~~~~
 
-This configuration has been tested on RouterOS v6.18.
+This configuration has been tested on Access Point OmniTIK U-5hnD with RouterOS v6.18 and only MAC-Authentication is available now.
+The only deauthentication method available is SSH, so create an account in the Mikrotik AP and fill the information in PacketFence switche configuration.
+Also don't forget to use the pf account to ssh on the Access Point to receive the ssh key.
 
 [float]
 Open SSID
@@ -3454,7 +3456,7 @@ Configure your access point with the following configuration:
   /ip accounting
   set enabled=yes
   /radius
-  add address=172.20.135.1 secret=s3cr3t service=wireless
+  add address=192.168.1.5 secret=useStrongerSecret service=wireless
   /radius incoming
   set accept=yes
 
