@@ -14,10 +14,11 @@ pf::WebAPI::JSONRPC
 use strict;
 use warnings;
 use JSON::XS;
-use Log::Log4perl;
+use pf::log;
 use Apache2::RequestIO();
 use Apache2::RequestRec();
-use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND);
+use Apache2::Response ();
+use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
 use List::MoreUtils qw(any);
 use base qw(Class::Accessor);
 __PACKAGE__->mk_accessors(qw(dispatch_to));
@@ -31,7 +32,7 @@ our %ALLOW_CONTENT_TYPE = (
 sub allowed { return exists $ALLOW_CONTENT_TYPE{$_[0]} }
 
 sub handler {
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+    my $logger = get_logger;
     use bytes;
     my ($self,$r) = @_;
     my $content_type = $r->headers_in->{'Content-Type'};
@@ -82,23 +83,29 @@ sub handler {
             $response_content = encode_json({
                 (defined $jsonrpc ? (jsonrpc => $jsonrpc) : ()),
                 id => $id,
-                error => {code => -32601, message => "Method not found"},
+                error => {code => -32000, message => "$@"},
             });
-        } else {
-            $status_code = Apache2::Const::OK;
+            $logger->error($@);
+            $status_code = Apache2::Const::HTTP_INTERNAL_SERVER_ERROR;
             $r->print($response_content);
+        } else {
+            $status_code = Apache2::Const::HTTP_OK;
         }
+        $r->print($response_content);
     } else {
         $r->push_handlers(PerlCleanupHandler => sub {
             eval {
                 $dispatch_to->$method(@args);
             };
+            $logger->error($@) if $@;
         });
         $status_code = Apache2::Const::HTTP_NO_CONTENT;
     }
     $r->content_type($content_type);
-    return $status_code;
+    $r->status($status_code);
+    return Apache2::Const::OK;
 }
+
 
 =head1 AUTHOR
 
