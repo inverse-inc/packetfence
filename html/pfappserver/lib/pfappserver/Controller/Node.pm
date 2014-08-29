@@ -31,6 +31,7 @@ __PACKAGE__->config(
         bulk_deregister      => { AdminRole => 'NODES_UPDATE' },
         bulk_apply_role      => { AdminRole => 'NODES_UPDATE' },
         bulk_apply_violation => { AdminRole => 'NODES_UPDATE' },
+        bulk_reevaluate_access => { AdminRole => 'NODES_UPDATE' },
     },
     action_args => {
         '*' => { model => 'Node' },
@@ -317,6 +318,16 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('NODES_DEL
         $c->stash->{status_msg} = $message; # TODO: localize error message
     }
     $c->stash->{current_view} = 'JSON';
+}
+
+sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0) :AdminRole('NODES_UPDATE') {
+    my ( $self, $c ) = @_;
+
+    my ($status, $message) = $c->model('Node')->reevaluate($c->stash->{mac});
+    $c->response->status($status);
+    $c->stash->{status_msg} = $message; # TODO: localize error message
+    $c->stash->{current_view} = 'JSON';
+ 
 }
 
 =head2 violations
