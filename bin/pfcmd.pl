@@ -1209,21 +1209,6 @@ sub postPfStartService {
     my ($managers) = @_;
     my $count = true {$_->status ne '0'} @$managers;
     configreload('hard') unless $count;
-    if ( -e $pf_config_file ) {
-        my $manager = pf::services::manager::iptables->new(runningServices => $count);
-        my $color = '';
-        my $command = '';
-        if( $manager->isManaged ) {
-            if($manager->start) {
-                $color =  $SUCCESS_COLOR;
-                $command = 'start';
-            } else {
-                $color =  $ERROR_COLOR;
-                $command = 'not stopped';
-            }
-            print $manager->name,"|${color}${command}${RESET_COLOR}\n";
-        }
-    }
 }
 
 sub startService {
