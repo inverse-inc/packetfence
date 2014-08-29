@@ -83,6 +83,28 @@ sub index : Path : Args(0) {
             $c->forward('Authenticate' => 'postAuthentication');
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
+            # Create local account for external authentication sources (if configured to do so)
+            if ( isenabled($source->{create_local_account}) ) {
+                # We create a "temporary password" associated to the email address provided on
+                # authentication which is the pid. We use the pin as the password.
+                my $actions = &pf::authentication::match( $source->{id}, $auth_params );
+                my $password = pf::temporary_password::generate( $pid, $actions, $request->param("pin") );
+
+                # We send the guest an email with the info of the local account
+                my %info = (
+                    'pid'       => $pid,
+                    'password'  => $password,
+                    'email'     => $pid,
+                    'subject'   => i18n_format(
+                        "%s: Guest account creation information", $Config{'general'}{'domain'}
+                    ),
+                );
+
+                pf::web::guest::send_template_email(
+                    $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
+                );
+            }
+
             # clear state that redirects to the Enter PIN page
             $c->session->{guest_pid} = undef;
             pf::activation::set_status_verified($request->param('pin'));
