@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-08-13 12:23-0400\n"
+"PO-Revision-Date: 2014-08-29 09:22-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -129,10 +129,10 @@ msgstr ""
 
 # conf/documentation.conf (inline.layer3_accounting_session_timeout)
 msgid ""
-  "Accounting sessions created by pfbandwidthd (layer 3 traffic only) that haven't"
-  "been updated for more than this amount of seconds will be considered"
-  "inactive."
-  "This should be higher than the interval at which pfmon runs"
+  "Accounting sessions created by pfbandwidthd (layer 3 traffic only) that haven't "
+  "been updated for more than this amount of seconds will be considered "
+  "inactive. "
+  "This should be higher than the interval at which pfmon runs "
   "Defaults to 300 - 5 minutes"
 msgstr ""
 
@@ -146,9 +146,9 @@ msgstr ""
 
 # conf/documentation.conf (vlan.trap_limit_action)
 msgid ""
-  "Action that PacketFence will take if the vlan.trap_limit_threshold is reached."
-  "Defaults to none. email will send an email every hour if the limit's still reached."
-  "shut will shut the port on the switch and will also send an email even if email is not"
+  "Action that PacketFence will take if the vlan.trap_limit_threshold is reached. "
+  "Defaults to none. email will send an email every hour if the limit's still reached. "
+  "shut will shut the port on the switch and will also send an email even if email is not "
   "specified."
 msgstr ""
 
@@ -250,9 +250,9 @@ msgstr ""
 
 # conf/documentation.conf (trapping.range)
 msgid ""
-  "Address ranges/CIDR blocks that PacketFence will monitor/detect/trap"
-  "on.  Gateway, network, and broadcast addresses are ignored."
-  "Comma-delimited entries should be of the form"
+  "Address ranges/CIDR blocks that PacketFence will monitor/detect/trap "
+  "on.  Gateway, network, and broadcast addresses are ignored. "
+  "Comma-delimited entries should be of the form "
   " * a.b.c.0/24"
   " * a.b.c.0-255"
   " * a.b.c.0-a.b.c.255"
@@ -282,6 +282,7 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/violation/view.tt
 msgid "Advanced"
 msgstr ""
 
@@ -349,8 +350,8 @@ msgstr ""
 
 # conf/documentation.conf (scan.duration)
 msgid ""
-  "Approximate duration of a scan. User being scanned on registration are presented"
-  "a progress bar for this duration, afterwards the browser refreshes until scan is"
+  "Approximate duration of a scan. User being scanned on registration are presented "
+  "a progress bar for this duration, afterwards the browser refreshes until scan is "
   "complete."
 msgstr ""
 
@@ -619,15 +620,15 @@ msgstr ""
 # conf/documentation.conf (trapping.passthroughs)
 msgid ""
   "Comma-delimited list of domains to be used as HTTP and HTTPS passthroughs to "
-  "web sites."
+  "web sites. "
   "The configuration parameter \"passthrough\" must be enabled for passthroughs "
   "to be effective."
 msgstr ""
 
 # conf/documentation.conf (trapping.proxy_passthroughs)
 msgid ""
-  "Comma-delimited list of domains to be used with apache passthroughs."
-  "The configuration parameter \"passthrough\" must be enabled for passthroughs"
+  "Comma-delimited list of domains to be used with apache passthroughs. "
+  "The configuration parameter \"passthrough\" must be enabled for passthroughs "
   "to be effective."
 msgstr ""
 
@@ -683,10 +684,6 @@ msgstr ""
 msgid "Connection Type"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
-msgid "Connection timeout"
-msgstr ""
-
 # html/pfappserver/root/admin/reports.tt
 msgid "Connections"
 msgstr ""
@@ -709,9 +706,9 @@ msgstr ""
 
 # conf/documentation.conf (vlan.trap_limit)
 msgid ""
-  "Controls whether or not the trap_limit feature is enabled. Trap limiting is"
+  "Controls whether or not the trap_limit feature is enabled. Trap limiting is "
   "a way to limit the damage done by malicious users or misbehaving switch "
-  "that sends too many traps to PacketFence causing it to be overloaded. Trap"
+  "that sends too many traps to PacketFence causing it to be overloaded. Trap "
   "limiting is controlled by the trap_limit_threshold and trap_limit_action "
   "parameters. Default is enabled."
 msgstr ""
@@ -749,13 +746,13 @@ msgstr ""
 
 # conf/documentation.conf (guests_self_registration.create_local_account_on_email_reg)
 msgid ""
-  "Create a local account after guest email registration. This will allow the user to authenticate on"
+  "Create a local account after guest email registration. This will allow the user to authenticate on "
   "the status page or be able to authenticate over an EAP connection (see packetfence-tunnel)"
 msgstr ""
 
 # conf/documentation.conf (guests_self_registration.create_local_account_on_sponsor_reg)
 msgid ""
-  "Create a local account after guest sponsor registration. This will allow the user to authenticate on"
+  "Create a local account after guest sponsor registration. This will allow the user to authenticate on "
   "the status page or be able to authenticate over an EAP connection (see packetfence-tunnel)"
 msgstr ""
 
@@ -901,12 +898,13 @@ msgid "Define the roles which will apply to all devices on your network."
 msgstr ""
 
 # html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/violation/view.tt
 msgid "Definition"
 msgstr ""
 
 # conf/documentation.conf (vlan.bounce_duration)
 msgid ""
-  "Delay to wait between the shut / no-shut on a port. Some OS need a higher value"
+  "Delay to wait between the shut / no-shut on a port. Some OS need a higher value "
   "than others. Default should be reasonable for almost every OS but is too long "
   "for the usual proprietary OS."
 msgstr ""
@@ -996,12 +994,12 @@ msgstr ""
 
 # conf/documentation.conf (interface.type)
 msgid ""
-  "Describes \"type\" of named interface.  internal describes interfaces"
-  "where PacketFence will enforce network access. management (or managed)"
-  "interfaces have the administrative GUI running on them, host SNMP trap"
+  "Describes \"type\" of named interface.  internal describes interfaces "
+  "where PacketFence will enforce network access. management (or managed) "
+  "interfaces have the administrative GUI running on them, host SNMP trap "
   "receiver and RADIUS server. monitor is the interface that snort listens "
   "on. dhcp-listener is an interface where the DHCP traffic is coming in "
-  "either via a network SPAN or IP-Helpers configuration. high-availability"
+  "either via a network SPAN or IP-Helpers configuration. high-availability "
   "is for an interface between two PacketFence servers dedicated to "
   "high-availability (drbd, corosync)."
 msgstr ""
@@ -1009,8 +1007,8 @@ msgstr ""
 # conf/documentation.conf (interface.enforcement)
 msgid ""
   "Describes the technique PacketFence will use to enforce network access."
-  "VLAN is the out-of-band VLAN-based device isolation requiring integration"
-  "in your network environment and inline is a DHCP-based mode where"
+  "VLAN is the out-of-band VLAN-based device isolation requiring integration "
+  "in your network environment and inline is a DHCP-based mode where "
   "PacketFence acts as a filtering gateway."
 msgstr ""
 
@@ -1021,7 +1019,6 @@ msgstr ""
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/configuration/adminroles/list.tt
 # html/pfappserver/root/configuration/authentication.tt
-# html/pfappserver/root/configuration/switch/index.tt
 # html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/portal/profile/index.tt
@@ -1120,8 +1117,8 @@ msgstr ""
 
 # conf/documentation.conf (alerting.emailaddr)
 msgid ""
-  "Email address to which notifications of rogue DHCP servers, violations"
-  "with an action of \"email\", or any other PacketFence-related message"
+  "Email address to which notifications of rogue DHCP servers, violations "
+  "with an action of \"email\", or any other PacketFence-related message "
   "goes to."
 msgstr ""
 
@@ -1159,16 +1156,16 @@ msgstr ""
 
 # conf/documentation.conf (trapping.detection)
 msgid ""
-  "Enables snort-based worm detection.  If you don't have a span"
-  "interface available, don't bother enabling it.  If you do, you'll most"
+  "Enables snort-based worm detection.  If you don't have a span "
+  "interface available, don't bother enabling it.  If you do, you'll most "
   "definately want this on."
 msgstr ""
 
 # conf/documentation.conf (guests_self_registration.preregistration)
 msgid ""
-  "Enabling this allows guests to requests their access in advance. You"
-  "must take care of opening your external firewall up to PacketFence and"
-  "make sure your server can send emails properly (generated"
+  "Enabling this allows guests to requests their access in advance. You "
+  "must take care of opening your external firewall up to PacketFence and "
+  "make sure your server can send emails properly (generated "
   "username/password are sent by email)."
 msgstr ""
 
@@ -1380,14 +1377,14 @@ msgstr ""
 
 # conf/documentation.conf (scan.host)
 msgid ""
-  "Host the scanning engine is running on.  For performance reasons, we"
+  "Host the scanning engine is running on.  For performance reasons, we "
   "recommend running the scanning engine on a remote server. A passthrough will "
   "be automagically created."
 msgstr ""
 
 # conf/documentation.conf (general.hostname)
 msgid ""
-  "Hostname of PacketFence system. This is concatenated with the domain"
+  "Hostname of PacketFence system. This is concatenated with the domain "
   "in Apache rewriting rules and therefore must be resolvable by clients."
 msgstr ""
 
@@ -1406,13 +1403,13 @@ msgstr ""
 # conf/documentation.conf (trapping.redirtimer)
 msgid ""
   "How long to display the progress bar during trap release. Default value is "
-  "based on VLAN enforcement techniques. Inline enforcement only users could"
+  "based on VLAN enforcement techniques. Inline enforcement only users could "
   "lower the value."
 msgstr ""
 
 # conf/documentation.conf (trapping.wait_for_redirect)
 msgid ""
-  "How many seconds the webservice should wait before deassociating or reassigning VLAN."
+  "How many seconds the webservice should wait before deassociating or reassigning VLAN. "
   "If we don't wait, the device may switch VLAN before it has a chance to load the "
   "redirection page."
 msgstr ""
@@ -1464,7 +1461,7 @@ msgstr ""
 
 # conf/documentation.conf (interface.ip)
 msgid ""
-  "IP adress of the named interface - note that this should mirror the"
+  "IP adress of the named interface - note that this should mirror the "
   "OS-level configuration but it does not make any OS-level changes."
 msgstr ""
 
@@ -1487,24 +1484,24 @@ msgstr ""
 
 # conf/documentation.conf (network.dhcpoption82logger)
 msgid ""
-  "If enabled PacketFence will monitor DHCP option82 location-based"
-  "information. This feature is only available if the dhcpdetector is"
+  "If enabled PacketFence will monitor DHCP option82 location-based "
+  "information. This feature is only available if the dhcpdetector is "
   "activated."
 msgstr ""
 
 # conf/documentation.conf (network.dhcpdetector)
 msgid ""
-  "If enabled, PacketFence will monitor DHCP-specific items such as rogue"
+  "If enabled, PacketFence will monitor DHCP-specific items such as rogue "
   "DHCP services, DHCP-based OS fingerprinting, computername/hostname "
   "resolution, and (optionnally) option-82 location-based information. "
-  "The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both"
-  "are broadcasts, meaning a span port is not necessary.  This feature is"
+  "The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both "
+  "are broadcasts, meaning a span port is not necessary.  This feature is "
   "highly recommended if the internal network is DHCP-based."
 msgstr ""
 
 # conf/documentation.conf (trapping.registration)
 msgid ""
-  "If enabled, nodes will be required to register on first network"
+  "If enabled, nodes will be required to register on first network "
   "access.  Further registration options are configured in the "
   "registration section."
 msgstr ""
@@ -1515,35 +1512,35 @@ msgstr ""
 
 # conf/documentation.conf (trapping.interception_proxy)
 msgid ""
-  "If enabled, we will intercept proxy request on the specified ports to"
+  "If enabled, we will intercept proxy request on the specified ports to "
   "forward to the captive portal."
 msgstr ""
 
 # conf/documentation.conf (captive_portal.loadbalancers_ip)
 msgid ""
-  "If the captive portal is put behind load-balancer(s) that act at Layer 7"
-  "(HTTP level) effectively doing reverse proxying then the captive portal no"
-  "longer sees the IP of the node trying to access the portal. In that case,"
-  "the load-balancers must do SSL offloading and add a X-Forwarded-By header"
-  "in the HTTP traffic they forward to PacketFence. Most do by default. Then"
-  "in this parameter you must specify the IP of the various load balancers."
-  "This will instruct the captive portal to look for client IPs in the"
-  "X-Forwarded-For instead of the actual TCP session when it matches an IP"
-  "in the list. Format is a comma separated list of IPs. Note: Apache access"
-  "log format is not changed to automatically log the X-Forwarded-By header."
+  "If the captive portal is put behind load-balancer(s) that act at Layer 7 "
+  "(HTTP level) effectively doing reverse proxying then the captive portal no "
+  "longer sees the IP of the node trying to access the portal. In that case, "
+  "the load-balancers must do SSL offloading and add a X-Forwarded-By header "
+  "in the HTTP traffic they forward to PacketFence. Most do by default. Then "
+  "in this parameter you must specify the IP of the various load balancers. "
+  "This will instruct the captive portal to look for client IPs in the "
+  "X-Forwarded-For instead of the actual TCP session when it matches an IP "
+  "in the list. Format is a comma separated list of IPs. Note: Apache access "
+  "log format is not changed to automatically log the X-Forwarded-By header. "
   "Modify conf/httpd.conf.d/captive-portal-common.conf to use "
   "loadbalanced_combined instead of combined in CustomLog statement."
 msgstr ""
 
 # conf/documentation.conf (scan.dot1x)
 msgid ""
-  "If this option is enabled, PacketFence will scan all the 802.1x"
+  "If this option is enabled, PacketFence will scan all the 802.1x "
   "auto-registration connections."
 msgstr ""
 
 # conf/documentation.conf (scan.registration)
 msgid ""
-  "If this option is enabled, the PF system will scan each host after"
+  "If this option is enabled, the PF system will scan each host after "
   "registration is complete."
 msgstr ""
 
@@ -1592,8 +1589,8 @@ msgstr ""
 
 # conf/documentation.conf (inline.layer3_accounting_sync_interval)
 msgid ""
-  "Interval at which pfbandwidthd (layer 3 traffic only) should dump collected information into the database."
-  "This should be lower than the interval at which pfmon runs"
+  "Interval at which pfbandwidthd (layer 3 traffic only) should dump collected information into the database. "
+  "This should be lower than the interval at which pfmon runs. "
   "Defaults to 41 seconds"
 msgstr ""
 
@@ -1648,7 +1645,7 @@ msgstr ""
 
 # conf/documentation.conf (guests_admin_registration.access_duration_choices)
 msgid ""
-  "List of all the choices offered in the access duration action of an"
+  "List of all the choices offered in the access duration action of an "
   "authentication source."
 msgstr ""
 
@@ -1667,43 +1664,43 @@ msgstr ""
 
 # conf/documentation.conf (services.radiusd_binary)
 msgid ""
-  "Location of the RADIUS binary. Only necessary to change if you are not"
+  "Location of the RADIUS binary. Only necessary to change if you are not "
   "running the RPMed version."
 msgstr ""
 
 # conf/documentation.conf (services.httpd_binary)
 msgid ""
-  "Location of the apache binary. Only necessary to change if you are"
+  "Location of the apache binary. Only necessary to change if you are "
   "not running the RPMed version."
 msgstr ""
 
 # conf/documentation.conf (services.arp_binary)
 msgid ""
-  "Location of the arp binary. Only necessary to change if you are not"
+  "Location of the arp binary. Only necessary to change if you are not "
   "running the RPMed version."
 msgstr ""
 
 # conf/documentation.conf (services.dhcpd_binary)
 msgid ""
-  "Location of the dhcpd binary. Only necessary to change if you are not"
+  "Location of the dhcpd binary. Only necessary to change if you are not "
   "running the RPMed version."
 msgstr ""
 
 # conf/documentation.conf (services.memcached_binary)
 msgid ""
-  "Location of the memcached binary. Only necessary to change if you are not"
+  "Location of the memcached binary. Only necessary to change if you are not "
   "running the pre-packaged version."
 msgstr ""
 
 # conf/documentation.conf (services.snmptrapd_binary)
 msgid ""
-  "Location of the snmptrapd binary. Only necessary to change if you are"
+  "Location of the snmptrapd binary. Only necessary to change if you are "
   "not running the RPMed version. "
 msgstr ""
 
 # conf/documentation.conf (services.snort_binary)
 msgid ""
-  "Location of the snort binary. Only necessary to change if you are not"
+  "Location of the snort binary. Only necessary to change if you are not "
   "running the RPMed version."
 msgstr ""
 
@@ -1876,7 +1873,7 @@ msgstr ""
 # conf/documentation.conf (vlan.trap_limit_threshold)
 msgid ""
   "Maximum number of SNMP traps that a switchport can send to PacketFence within "
-  "a minute without being flagged as DoS. Defaults to 100"
+  "a minute without being flagged as DoS. Defaults to 100."
 msgstr ""
 
 # html/pfappserver/root/configstore/mdm/view.tt
@@ -1944,7 +1941,7 @@ msgstr ""
 
 # conf/documentation.conf (alerting.admin_netbiosname)
 msgid ""
-  "NetBIOS name of administrative workstation to send alerts with"
+  "NetBIOS name of administrative workstation to send alerts with "
   "\"winpopup\" action assigned."
 msgstr ""
 
@@ -2434,11 +2431,11 @@ msgstr ""
 
 # conf/documentation.conf (inline.ports_redirect)
 msgid ""
-  "Ports to intercept and redirect for trapped and unregistered systems.  Defaults"
+  "Ports to intercept and redirect for trapped and unregistered systems.  Defaults "
   "to 80/tcp (HTTP), 443/tcp (HTTPS). Redirecting 443/tcp (SSL) will work, "
   "although users might get certificate errors if you didn't install a valid "
-  "certificate or if you don't use DNS (although IP-based certificates supposedly"
-  "exist)"
+  "certificate or if you don't use DNS (although IP-based certificates supposedly "
+  "exist). "
   "Redirecting 53/udp (DNS) seems to have issues and is also not recommended."
 msgstr ""
 
@@ -2640,6 +2637,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Remaining Bandwidth"
+msgstr ""
+
+# html/pfappserver/root/violation/view.tt
+msgid "Remediation"
 msgstr ""
 
 # html/pfappserver/root/interface/create.tt
@@ -3004,8 +3005,8 @@ msgstr ""
 
 # conf/documentation.conf (alerting.smtpserver)
 msgid ""
-  "Server through which to send messages to the above emailaddr.  The"
-  "default is localhost - be sure you're running an SMTP host locally if"
+  "Server through which to send messages to the above emailaddr.  The "
+  "default is localhost - be sure you're running an SMTP host locally if "
   "you don't change it!"
 msgstr ""
 
@@ -3079,7 +3080,7 @@ msgstr ""
 
 # conf/documentation.conf (vlan.closelocationlogonstop)
 msgid ""
-  "Should open locationlog entries be closed when pfsetvlan is"
+  "Should open locationlog entries be closed when pfsetvlan is "
   "stopped"
 msgstr ""
 
@@ -3089,17 +3090,17 @@ msgstr ""
 
 # conf/documentation.conf (servicewatch.restart)
 msgid ""
-  "Should pfcmd service pf watch restart PF when services are not running?"
-  "You must make sure to call the watch command. Installing it in the cron is the"
-  "recommended approach:"
+  "Should pfcmd service pf watch restart PF when services are not running? "
+  "You must make sure to call the watch command. Installing it in the cron is the "
+  "recommended approach: "
   "*/5 * * * * /usr/local/pf/bin/pfcmd service pf watch"
 msgstr ""
 
 # conf/documentation.conf (servicewatch.email)
 msgid ""
-  "Should pfcmd service pf watch send an email when services are not running?"
-  "You must make sure to call the watch command. Installing it in the cron is the"
-  "recommended approach:"
+  "Should pfcmd service pf watch send an email when services are not running? "
+  "You must make sure to call the watch command. Installing it in the cron is the "
+  "recommended approach: "
   "*/5 * * * * /usr/local/pf/bin/pfcmd service pf watch"
 msgstr ""
 
@@ -3137,7 +3138,7 @@ msgstr ""
 
 # conf/documentation.conf (inline.accounting)
 msgid ""
-  "Should we handle accouting data for inline clients?"
+  "Should we handle accouting data for inline clients? "
   "This controls inline accouting tasks in pfmon."
 msgstr ""
 
@@ -3184,7 +3185,7 @@ msgstr ""
 
 # conf/documentation.conf (guests_self_registration.sponsorship_cc)
 msgid ""
-  "Sponsors requesting access and access confirmation emails are CC'ed to those"
+  "Sponsors requesting access and access confirmation emails are CC'ed to those "
   "addresses. Multiple destinations can be comma separated."
 msgstr ""
 
@@ -3253,8 +3254,8 @@ msgstr "Sub Location Type"
 
 # conf/documentation.conf (alerting.subjectprefix)
 msgid ""
-  "Subject prefix for email notifications of rogue DHCP servers,"
-  "violations with an action of \"email\", or any other PacketFence-related"
+  "Subject prefix for email notifications of rogue DHCP servers, "
+  "violations with an action of \"email\", or any other PacketFence-related "
   "message."
 msgstr ""
 
@@ -3275,7 +3276,7 @@ msgstr ""
 msgid "Switch"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/configuration/switch/list.tt
 msgid "Switch ID"
 msgstr ""
 
@@ -3294,7 +3295,7 @@ msgstr ""
 
 # conf/documentation.conf (general.timezone)
 msgid ""
-  "System's timezone in string format. Supported list:"
+  "System's timezone in string format. Supported list: "
   "http://www.php.net/manual/en/timezones.php"
 msgstr ""
 
@@ -3363,12 +3364,12 @@ msgid "The maximum connections per device "
 msgstr ""
 
 # conf/documentation.conf (services.memcached_memory_usage)
-msgid "The maximum of memory that memcached will use"
+msgid "The maximum of memory that memcached will use "
 msgstr ""
 
 # conf/documentation.conf (services.memcached_max_item_size)
 msgid ""
-  "The maximum of size of the items allowed to be stored"
+  "The maximum of size of the items allowed to be stored "
   "Must between 1k and 128m"
 msgstr ""
 
@@ -3439,40 +3440,40 @@ msgstr ""
 # conf/documentation.conf (captive_portal.network_detection_ip)
 msgid ""
   "This IP is used as the webserver who hosts the "
-  "common/network-access-detection.gif which is used to detect if network access"
+  "common/network-access-detection.gif which is used to detect if network access "
   "was enabled. It cannot be a domain name since it is used in registration or "
-  "quarantine where DNS is blackholed. It is recommended that you allow your users"
-  "to reach your PacketFence server and put your LAN's PacketFence IP. By default"
+  "quarantine where DNS is blackholed. It is recommended that you allow your users "
+  "to reach your PacketFence server and put your LAN's PacketFence IP. By default "
   "we will make this reach PacketFence's website as an easy solution."
 msgstr ""
 
 # conf/documentation.conf (guests_admin_registration.default_access_duration)
 msgid ""
-  "This is the default access duration value selected in the dropdown. The value must be part of the"
+  "This is the default access duration value selected in the dropdown. The value must be part of the "
   "above list of access duration choices."
 msgstr ""
 
 # conf/documentation.conf (proxies)
 msgid ""
   "This section allows you to configure locally proxied content.  We "
-  "typically use this to proxy tools like Stinger rather than having to"
-  "continually download the latest version. Ex:"
-  "tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stinger.exe"
-  "The Stinger utility could then be accessed at"
+  "typically use this to proxy tools like Stinger rather than having to "
+  "continually download the latest version. Ex: "
+  "tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stinger.exe "
+  "The Stinger utility could then be accessed at "
   "https://pfhostname/proxies/tools/stinger.exe."
 msgstr ""
 
 # conf/documentation.conf (expire.node)
 msgid ""
-  "Time before a node is removed due to inactivity."
-  "A value of 0d disables expiration."
-  "example:"
+  "Time before a node is removed due to inactivity. "
+  "A value of 0d disables expiration. "
+  "example: "
   "node=90d"
 msgstr ""
 
 # conf/documentation.conf (expire.iplog)
 msgid ""
-  "Time which you would like to keep logs on IP/MAC information "
+  "Time which you would like to keep logs on IP/MAC information. "
   "A value of 0d disables expiration."
   "example:"
   "iplog=180d"
@@ -3480,19 +3481,19 @@ msgstr ""
 
 # conf/documentation.conf (expire.locationlog)
 msgid ""
-  "Time which you would like to keep logs on location information."
-  "Please note that this table should not become too big since it"
-  "could degrade pfsetvlan performance."
-  "A value of 0d disables expiration."
-  "example:"
+  "Time which you would like to keep logs on location information. "
+  "Please note that this table should not become too big since it "
+  "could degrade pfsetvlan performance. "
+  "A value of 0d disables expiration. "
+  "example: "
   "locationlog=180d"
 msgstr ""
 
 # conf/documentation.conf (expire.traplog)
 msgid ""
   "Time which you would like to keep logs on trap information "
-  "A value of 0d disables expiration."
-  "example:"
+  "A value of 0d disables expiration. "
+  "example: "
   "traplog=180d"
 msgstr ""
 
@@ -3530,6 +3531,7 @@ msgid "Trigger"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/root/violation/view.tt
 msgid "Triggers"
 msgstr ""
 
@@ -3721,7 +3723,7 @@ msgstr ""
 
 # conf/documentation.conf (database.user)
 msgid ""
-  "Username of the account with access to the mysql database used by"
+  "Username of the account with access to the mysql database used by "
   "PacketFence."
 msgstr ""
 
@@ -3817,7 +3819,7 @@ msgstr "WEP Key Size"
 
 # conf/documentation.conf (alerting.wins_server)
 msgid ""
-  "WINS server to resolve NetBIOS name of administrative workstation to"
+  "WINS server to resolve NetBIOS name of administrative workstation to "
   "IP address."
 msgstr ""
 
@@ -3864,15 +3866,15 @@ msgstr ""
 
 # conf/documentation.conf (trapping.passthrough)
 msgid ""
-  "When enabled, PacketFence uses pfdns if you defined \"Passthroughs\" or Apache mod-proxy"
+  "When enabled, PacketFence uses pfdns if you defined \"Passthroughs\" or Apache mod-proxy "
   "if you defined \"Proxy passthroughs\" to allow trapped devices to reach web sites."
 msgstr ""
 
 # conf/documentation.conf (network.rogueinterval)
 msgid ""
-  "When rogue DHCP server detection is enabled, this parameter defines"
+  "When rogue DHCP server detection is enabled, this parameter defines "
   "how often to email administrators.  With its default setting of 10, "
-  "it will email administrators the details of the previous 10 DHCP"
+  "it will email administrators the details of the previous 10 DHCP "
   "offers."
 msgstr ""
 
@@ -4316,7 +4318,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "ends with"
 msgstr ""
@@ -4520,7 +4522,7 @@ msgstr "Internal"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
@@ -4540,7 +4542,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
@@ -4614,7 +4616,7 @@ msgstr "Mark as sponsor"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "matches"
 msgstr ""
@@ -5060,7 +5062,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "starts with"
 msgstr ""
