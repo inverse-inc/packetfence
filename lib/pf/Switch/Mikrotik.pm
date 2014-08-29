@@ -204,22 +204,22 @@ sub returnRadiusAccessAccept {
     }
 
     if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-        $logger->debug("[$self->{'_id'}] Network device supports roles. Evaluating role to be returned");
+        $logger->debug("[$mac] Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         if ( defined($user_role) && $user_role ne "" ) {
             $role = $self->getRoleByName($user_role);
         }
         if ( defined($role) && $role ne "" ) {
             $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
             $logger->info(
-                "[$self->{'_id'}] Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
+                "[$mac] (".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
             );
         }
         else {
-            $logger->debug("[$self->{'_id'}] Received undefined role. No Role added to RADIUS Access-Accept");
+            $logger->debug("[$mac] (".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
         }
     }
 
-    $logger->info("[$self->{'_id'}] Returning ACCEPT with VLAN $vlan and role $role");
+    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan and role $role");
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
