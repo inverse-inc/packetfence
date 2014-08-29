@@ -423,6 +423,10 @@ sub delete {
     return ($status, $status_msg);
 }
 
+=head2 reevaluate
+
+=cut
+
 sub reevaluate {
     my ($self, $mac) = @_;
     my $logger = get_logger();
