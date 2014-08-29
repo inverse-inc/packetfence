@@ -42,12 +42,15 @@ use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::authentication;
 
+# This is the content that needs to match in the iptable rules for the service
+# to be considered as running
+Readonly our $FW_FILTER_INPUT_MGMT => 'input-management-if';
+
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
 Readonly my $FW_TABLE_NAT => 'nat';
 Readonly my $FW_FILTER_INPUT_INT_VLAN => 'input-internal-vlan-if';
 Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
-Readonly my $FW_FILTER_INPUT_MGMT => 'input-management-if';
 Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
 Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_FILTER_FORWARD_INT_VLAN => 'forward-internal-vlan-if';

@@ -17,6 +17,7 @@ use Moo;
 use pf::file_paths;
 use pf::config;
 use pf::log;
+use pf::util;
 
 extends 'pf::services::manager';
 
@@ -88,8 +89,9 @@ Since it's never really stopped than we check if the fake PID exists
 sub isAlive {
     my ($self,$pid) = @_;
     my $result;
-    $pid = $self->pid unless defined $pid;
-    return defined($pid);
+    $pid = $self->pid;
+    my $rules_applied = defined(pf_run("iptables -S | grep ".$pf::iptables::FW_FILTER_INPUT_MGMT));
+    return (defined($pid) && $rules_applied);
 }
 
 
