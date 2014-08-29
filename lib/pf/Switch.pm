@@ -772,7 +772,7 @@ sub getRoleByName {
     return $this->{'_roles'}->{$roleName} if (defined($this->{'_roles'}->{$roleName}));
 
     # otherwise log and return undef
-    $logger->warn("No parameter ${roleName}Role found in conf/switches.conf for the switch " . $this->{_id});
+    $logger->warn("(".$this->{_id}.") No parameter ${roleName}Role found in conf/switches.conf");
     return;
 }
 
