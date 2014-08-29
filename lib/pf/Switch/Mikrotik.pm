@@ -232,10 +232,10 @@ Right now the only way to do it is from the CLI (through SSH).
 =cut
 
 sub deauthenticateMacSSH {
-    my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode ... we won't deauthenticate $mac");
         return 1;
     }
@@ -257,11 +257,11 @@ sub deauthenticateMacSSH {
     eval {
         $ssh = Net::SSH2->new();
         $ssh->connect($send_disconnect_to);
-        $ssh->auth_password($this->{_cliUser},$this->{_cliPwd});
+        $ssh->auth_password($self->{_cliUser},$self->{_cliPwd});
     };
 
     if ($@) {
-        $logger->error("Unable to connect to ".$send_disconnect_to." using ".$this->{_cliTransport}.". Failed with $@");
+        $logger->error("Unable to connect to ".$send_disconnect_to." using ".$self->{_cliTransport}.". Failed with $@");
         return;
     }
 
