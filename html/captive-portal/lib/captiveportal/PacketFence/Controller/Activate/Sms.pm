@@ -85,6 +85,7 @@ sub index : Path : Args(0) {
 
             # Create local account for external authentication sources (if configured to do so)
             if ( isenabled($source->{create_local_account}) ) {
+                $logger->debug("External source local account creation is enabled for this source. We proceed");
                 # We create a "temporary password" associated to the email address provided on
                 # authentication which is the pid. We use the pin as the password.
                 my $actions = &pf::authentication::match( $source->{id}, $auth_params );
@@ -103,6 +104,8 @@ sub index : Path : Args(0) {
                 pf::web::guest::send_template_email(
                     $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
                 );
+
+                $logger->info("Local account for external source " . $source->{id} . " created with PID $pid");
             }
 
             # clear state that redirects to the Enter PIN page

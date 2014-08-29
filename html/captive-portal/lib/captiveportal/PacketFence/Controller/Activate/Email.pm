@@ -156,6 +156,7 @@ sub doEmailRegistration : Private {
 
             # Create local account for external authentication sources (if configured to do so)
             if ( isenabled($source->{create_local_account}) ) {
+                $logger->debug("External source local account creation is enabled for this source. We proceed");
                 # We create a "temporary password" associated to the email address provided on
                 # authentication which is the pid.
                 my $actions = &pf::authentication::match( $source->{id}, $auth_params );
@@ -181,6 +182,8 @@ sub doEmailRegistration : Private {
                     pid => $pid,
                     password => $password,
                 );
+
+                $logger->info("Local account for external source " . $source->{id} . " created with PID $pid");
             }
 
             $c->stash(
@@ -336,6 +339,7 @@ sub doSponsorRegistration : Private {
 
             # Create local account for external authentication sources (if configured to do so)
             if ( isenabled($source->{create_local_account}) ) {
+                $logger->debug("External source local account creation is enabled for this source. We proceed");
                 # We create a "temporary password" associated to the email address provided on
                 # authentication which is the pid.
                 my $actions = &pf::authentication::match( $source->{id}, $auth_params );
@@ -354,6 +358,8 @@ sub doSponsorRegistration : Private {
                 pf::web::guest::send_template_email(
                     $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
                 );
+
+                $logger->info("Local account for external source " . $source->{id} . " created with PID $pid");
             }
         }
 
