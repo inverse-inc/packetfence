@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::Oauth2;
 use Moose;
 use namespace::autoclean;
 use pf::config;
+use pf::util qw(isenabled);
 use pf::web;
 use Net::OAuth2::Client;
 
@@ -233,6 +234,31 @@ sub oauth2Result : Path : Args(1) {
         $c->forward('Authenticate' => 'postAuthentication');
         $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
         $c->forward('CaptivePortal' => 'endPortalSession');
+
+        # Create local account for external authentication sources (if configured to do so)
+        if ( isenabled($source->{create_local_account}) ) {
+            $logger->debug("External source local account creation is enabled for this source. We proceed");
+            # We create a "temporary password" associated to the email address provided on
+            # authentication which is the pid.
+            my $actions = &pf::authentication::match( $source->{id}, { username => $pid, user_email => $pid } );
+            my $password = pf::temporary_password::generate( $pid, $actions );
+
+            # We send the guest an email with the info of the local account
+            my %info = (
+                    'pid'       => $pid,
+                    'password'  => $password,
+                    'email'     => $pid,
+                    'subject'   => i18n_format(
+                        "%s: Guest account creation information", $Config{'general'}{'domain'}
+                    ),
+            );
+
+            pf::web::guest::send_template_email(
+                    $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
+           );
+
+            $logger->info("Local account for external source " . $source->{id} . " created with PID $pid");
+        }
     } else {
         $logger->error(
             sprintf(

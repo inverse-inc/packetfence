@@ -24,6 +24,7 @@ has 'scope' => (isa => 'Str', is => 'rw', default => 'https://www.googleapis.com
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://www.googleapis.com/oauth2/v2/userinfo');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/google');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.google.com,*.gstatic.com,googleapis.com,accounts.youtube.com');
+has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head2 available_actions
 

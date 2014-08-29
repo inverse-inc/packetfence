@@ -19,6 +19,7 @@ has '+class' => (default => 'external');
 has '+type' => (default => 'SMS');
 has '+unique' => (default => 1);
 has 'sms_carriers' => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
+has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head1 METHODS
 

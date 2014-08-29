@@ -24,6 +24,7 @@ has 'scope' => (isa => 'Str', is => 'rw', default => 'wl.basic,wl.emails');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://apis.live.net/v5.0/me');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/windowslive');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'login.live.com,auth.gfx.ms,account.live.com');
+has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head2 available_actions
 

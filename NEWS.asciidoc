@@ -31,6 +31,7 @@ New Features
 * Added support for Dlink DES3028 switches
 * Added reuse 802.1x credential on the portal profile
 * Added support for Mikrotik access point
+* Added ability to create local accounts when registering with external authentication sources.
 
 Enhancements
 ++++++++++++
