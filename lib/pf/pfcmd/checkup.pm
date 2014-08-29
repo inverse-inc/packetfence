@@ -965,7 +965,7 @@ Make sure only one external authentication source is selected for each type.
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub portal_profiles {
 
-    my $profile_params = qr/(?:locale|filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources|redirecturl|always_use_redirecturl|mandatory_fields|nbregpages|allowed_devices|allow_android_devices)/;
+    my $profile_params = qr/(?:locale|filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources|redirecturl|always_use_redirecturl|mandatory_fields|nbregpages|allowed_devices|allow_android_devices|reuse_dot1x_credentials)/;
 
     foreach my $portal_profile ( $cached_profiles_config->Sections) {
         if ($portal_profile ne 'default' && !-d "$install_dir/html/captive-portal/profile-templates/$portal_profile") {
