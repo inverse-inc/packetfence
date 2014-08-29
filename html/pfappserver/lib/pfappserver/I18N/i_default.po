@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-08-29 09:22-0400\n"
+"PO-Revision-Date: 2014-08-29 11:09-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -123,6 +123,10 @@ msgstr ""
 msgid "Access Token Parameter"
 msgstr ""
 
+# html/pfappserver/root/configurator/admin.tt
+msgid "Access to the administration interface"
+msgstr ""
+
 # html/pfappserver/root/admin/reports.tt
 msgid "Accounting"
 msgstr ""
@@ -159,6 +163,14 @@ msgstr ""
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Actions"
+msgstr ""
+
+# html/pfappserver/root/configurator/enforcement.tt
+msgid "Activate this mechanism if you have unmanageable equipment such as entry-level consumer switches or access points. PacketFence becomes the gateway of that inline network, and will NAT the traffic to the Internet."
+msgstr ""
+
+# html/pfappserver/root/configurator/networks.tt
+msgid "Activate your network interfaces and create VLANs"
 msgstr ""
 
 # html/pfappserver/root/user/print.tt
@@ -279,11 +291,23 @@ msgstr ""
 msgid "Admin Roles"
 msgstr ""
 
+# html/pfappserver/root/configurator/admin.tt
+msgid "Administration"
+msgstr ""
+
+# html/pfappserver/root/configurator/admin.tt
+msgid "Administrator"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/violation/view.tt
 msgid "Advanced"
+msgstr ""
+
+# html/pfappserver/root/configurator/admin.tt
+msgid "After completing all the steps of the configuration wizard, you will be redirected to the administrative interface of PacketFence. To access it, you will need to enter the credentials you defined on this page."
 msgstr ""
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons)
@@ -524,6 +548,10 @@ msgstr ""
 msgid "Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)"
 msgstr ""
 
+# html/pfappserver/root/configurator/enforcement.tt
+msgid "Choose your enforcement mechanisms"
+msgstr ""
+
 # html/pfappserver/root/admin/bulk_actions.inc
 msgid "Clear Violation"
 msgstr ""
@@ -596,6 +624,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "Comma"
+msgstr ""
+
+# html/pfappserver/root/configurator/configuration.tt
+msgid "Comma-delimited list of DHCP servers in your production environment."
 msgstr ""
 
 # conf/documentation.conf (general.dhcpservers)
@@ -680,12 +712,24 @@ msgstr ""
 msgid "Configuration"
 msgstr ""
 
+# html/pfappserver/root/configurator/wrapper.tt
+msgid "Configuration Wizard"
+msgstr ""
+
+# html/pfappserver/root/configurator/services.tt
+msgid "Congratulations!"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 msgid "Connection Type"
 msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
 msgid "Connections"
+msgstr ""
+
+# html/pfappserver/root/configurator/services.tt
+msgid "Console Output"
 msgstr ""
 
 # html/pfappserver/root/configurator/admin.tt
@@ -754,6 +798,10 @@ msgstr ""
 msgid ""
   "Create a local account after guest sponsor registration. This will allow the user to authenticate on "
   "the status page or be able to authenticate over an EAP connection (see packetfence-tunnel)"
+msgstr ""
+
+# html/pfappserver/root/configurator/database.tt
+msgid "Create a user in your MySQL server"
 msgstr ""
 
 # html/pfappserver/root/configurator/database.tt
@@ -843,6 +891,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/status.tt
 msgid "Dashboard"
+msgstr ""
+
+# html/pfappserver/root/configurator/database.tt
+msgid "Database Configuration"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -1040,8 +1092,16 @@ msgstr ""
 msgid "Dismiss Changes for "
 msgstr ""
 
+# html/pfappserver/root/configurator/configuration.tt
+msgid "Domain"
+msgstr ""
+
 # conf/documentation.conf (general.domain)
 msgid "Domain name of PacketFence system."
+msgstr ""
+
+# html/pfappserver/root/configurator/configuration.tt
+msgid "Domain name of the PacketFence server."
 msgstr ""
 
 # html/pfappserver/root/portal/profile/files.tt
@@ -1115,6 +1175,10 @@ msgid ""
   "Empty means root@<server-domain-name>."
 msgstr ""
 
+# html/pfappserver/root/configurator/configuration.tt
+msgid "Email address to which notifications for rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related messages goes to."
+msgstr ""
+
 # conf/documentation.conf (alerting.emailaddr)
 msgid ""
   "Email address to which notifications of rogue DHCP servers, violations "
@@ -1132,6 +1196,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Enable Password"
+msgstr ""
+
+# html/pfappserver/root/configurator/networks.tt
+msgid "Enable all the physical interfaces you want to use for PacketFence. If you use VLAN enforcement, specify which VLAN is dedicated to your registration, isolation, and management subnets."
 msgstr ""
 
 # conf/documentation.conf (registration.device_registration)
@@ -1181,6 +1249,14 @@ msgstr ""
 msgid "Ending IP Address"
 msgstr ""
 
+# html/pfappserver/root/configurator/enforcement.tt
+msgid "Enforcement"
+msgstr ""
+
+# html/pfappserver/root/configurator/enforcement.tt
+msgid "Enforcement Mechanisms"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Engine ID"
 msgstr ""
@@ -1193,12 +1269,17 @@ msgstr "English Location City"
 msgid "English_Location_Name"
 msgstr "English Location Name"
 
+# html/pfappserver/root/configurator/database.tt
+msgid "Enter the MySQL root account credentials"
+msgstr ""
+
 # html/pfappserver/root/violation/view.tt
 msgid "Enter the trigger ID"
 msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/configurator/wrapper.tt
 # html/pfappserver/root/node/create.tt
 # html/pfappserver/root/portal/profile/index.tt
 # html/pfappserver/root/roles/index.tt
@@ -1388,6 +1469,10 @@ msgid ""
   "in Apache rewriting rules and therefore must be resolvable by clients."
 msgstr ""
 
+# html/pfappserver/root/configurator/configuration.tt
+msgid "Hostname of this PacketFence server. This value is concatenated with the above domain name and therefore must be resolvable by devices on your network."
+msgstr ""
+
 # html/pfappserver/root/configuration/firewall_sso/list.tt
 msgid "Hostname or IP"
 msgstr ""
@@ -1456,6 +1541,7 @@ msgid "IP Address/MAC Address"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configurator/networks.tt
 msgid "IP address"
 msgstr ""
 
@@ -1561,6 +1647,19 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Inline Layer 3"
+msgstr ""
+
+# html/pfappserver/root/configurator/enforcement.tt
+msgid "Inline enforcement"
+msgstr ""
+
+# html/pfappserver/root/configurator/admin.tt
+# html/pfappserver/root/configurator/configuration.tt
+# html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/configurator/enforcement.tt
+# html/pfappserver/root/configurator/networks.tt
+# html/pfappserver/root/configurator/services.tt
+msgid "Instructions"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -1889,8 +1988,16 @@ msgstr ""
 msgid "Mode"
 msgstr ""
 
+# html/pfappserver/root/configurator/admin.tt
+msgid "Modify the password"
+msgstr ""
+
 # html/pfappserver/root/user/create.tt
 msgid "Multiple"
+msgstr ""
+
+# html/pfappserver/root/configurator/database.tt
+msgid "MySQL server does not seems to be running. You should start it to avoid any problems."
 msgstr ""
 
 # pf::admin_roles (Actions)
@@ -1966,6 +2073,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Network type"
+msgstr ""
+
+# html/pfappserver/root/configurator/networks.tt
+msgid "Networks"
 msgstr ""
 
 # html/pfappserver/root/portal/profile/files.tt
@@ -2159,6 +2270,18 @@ msgstr ""
 msgid "OS (DHCP)"
 msgstr ""
 
+# html/pfappserver/root/configurator/enforcement.tt
+msgid "On this page, you choose your enforcement mechanism(s)."
+msgstr ""
+
+# html/pfappserver/root/configurator/networks.tt
+msgid "On this page, you configure the network interfaces detected on your system."
+msgstr ""
+
+# html/pfappserver/root/configurator/admin.tt
+msgid "On this page, you need to modify the default admin user password that will be used to access the web administrative interface of PacketFence."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "One-level"
 msgstr ""
@@ -2228,6 +2351,18 @@ msgstr "Portal Profiles - Read"
 msgid "PORTAL_PROFILES_UPDATE"
 msgstr "Portal Profiles - Update"
 
+# html/pfappserver/root/configurator/configuration.tt
+msgid "PacketFence Configuration"
+msgstr ""
+
+# html/pfappserver/root/configurator/enforcement.tt
+msgid "PacketFence is the server that assigns the VLAN (or roles) to the devices. This is the prefered enforcement mechanism for manageable equipment."
+msgstr ""
+
+# html/pfappserver/root/configurator/database.tt
+msgid "PacketFence uses a MySQL database. On this page, you need to specify the root password to access the MySQL server to create an account specific to PacketFence and create the required database tables and indexes."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
@@ -2278,6 +2413,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "Phone"
+msgstr ""
+
+# html/pfappserver/root/configurator/admin.tt
+msgid "Please note that if you do not change the password, the default one is <em>admin</em>."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
@@ -2978,6 +3117,10 @@ msgstr ""
 msgid "Secret or Key"
 msgstr ""
 
+# html/pfappserver/root/configurator/services.tt
+msgid "Secure your network"
+msgstr ""
+
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "Security_Protocol_1X"
 msgstr "Security Protocol 1X"
@@ -3024,6 +3167,10 @@ msgstr "Service Provider Brand"
 msgid "Services"
 msgstr ""
 
+# html/pfappserver/root/configurator/database.tt
+msgid "Set a MySQL root password"
+msgstr ""
+
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "Set inline mode if any of the following conditions are met:"
 msgstr ""
@@ -3036,6 +3183,10 @@ msgstr ""
 # html/pfappserver/root/portal/profile/files.tt
 # html/pfappserver/root/portal/profile/view.tt
 msgid "Settings"
+msgstr ""
+
+# html/pfappserver/root/configurator/configuration.tt
+msgid "Setup your NAC"
 msgstr ""
 
 # html/pfappserver/root/configuration/fingerprints/simple_search.tt
@@ -3207,8 +3358,20 @@ msgstr ""
 msgid "Start MySQL"
 msgstr ""
 
+# html/pfappserver/root/configurator/services.tt
+msgid "Start PacketFence"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "Start TLS"
+msgstr ""
+
+# html/pfappserver/root/configurator/services.tt
+msgid "Start the services"
+msgstr ""
+
+# html/pfappserver/root/configurator/services.tt
+msgid "Started"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
@@ -3248,6 +3411,10 @@ msgstr ""
 msgid "Stop Anyway"
 msgstr ""
 
+# html/pfappserver/root/configurator/services.tt
+msgid "Stopped"
+msgstr ""
+
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "Sub_Location_Type"
 msgstr "Sub Location Type"
@@ -3268,6 +3435,7 @@ msgstr ""
 # html/pfappserver/root/configuration/authentication.tt
 # html/pfappserver/root/configurator/admin.tt
 # html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/configurator/wrapper.tt
 # html/pfappserver/root/portal/profile/index.tt
 msgid "Success!"
 msgstr ""
@@ -3357,6 +3525,10 @@ msgstr ""
 
 # conf/documentation.conf (provisioning.ssid)
 msgid "The hidden SSID where the user should connect to after registration"
+msgstr ""
+
+# html/pfappserver/root/configurator/services.tt
+msgid "The last step of this configuration wizard is to start the PacketFence daemons."
 msgstr ""
 
 # conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device)
@@ -3461,6 +3633,10 @@ msgid ""
   "tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stinger.exe "
   "The Stinger utility could then be accessed at "
   "https://pfhostname/proxies/tools/stinger.exe."
+msgstr ""
+
+# html/pfappserver/root/configurator/configuration.tt
+msgid "This step covers some basic configuration parameters required to have a functional PacketFence installation."
 msgstr ""
 
 # conf/documentation.conf (expire.node)
@@ -3757,6 +3933,10 @@ msgstr "Violations - Update"
 msgid "VLAN"
 msgstr ""
 
+# html/pfappserver/root/configurator/enforcement.tt
+msgid "VLAN enforcement"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Version"
 msgstr ""
@@ -3791,6 +3971,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface/Create.pm
 msgid "Virtual LAN ID"
+msgstr ""
+
+# html/pfappserver/root/configurator/services.tt
+msgid "Visit Administration Interface Now!"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -3849,6 +4033,8 @@ msgid "Warning"
 msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
+# html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/configurator/wrapper.tt
 # html/pfappserver/root/service/status.tt
 # html/pfappserver/root/user/print.tt
@@ -3922,8 +4108,20 @@ msgstr ""
 msgid "Work phone"
 msgstr ""
 
+# html/pfappserver/root/configurator/services.tt
+msgid "You have successfully configured and launched PacketFence."
+msgstr ""
+
+# html/pfappserver/root/configurator/services.tt
+msgid "You must complete all steps in order to start the services."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid "You must specify the password or the key"
+msgstr ""
+
+# html/pfappserver/root/configurator/services.tt
+msgid "You will now be redirected to the administration interface where you can configure violations and monitor your new NAC."
 msgstr ""
 
 # html/pfappserver/root/configurator/networks.tt
