@@ -376,6 +376,19 @@ port=3306
 # Server the mysql server is running on.
 host=localhost
 
+#
+# database.hash_passwords
+#
+# The algorithm to use to hash the passwords in the local database.
+hash_passwords=plaintext
+
+#
+# database.hashing_cost
+#
+# The cost factor to apply to the password hashing if applicable.
+# Currently only applies to bcrypt.
+hashing_cost=8
+
 [expire]
 #
 # expire.node

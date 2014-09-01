@@ -39,6 +39,7 @@ use Crypt::GeneratePassword qw(word);
 use Log::Log4perl;
 use POSIX;
 use Readonly;
+use Switch;
 
 use pf::nodecategory;
 use pf::Authentication::constants;
@@ -104,7 +105,7 @@ sub temporary_password_db_prepare {
     $logger->debug("Preparing pf::temporary_password database queries");
 
     $temporary_password_statements->{'temporary_password_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate, t.algorithm,
+        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
             p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
         FROM temporary_password t
         LEFT JOIN person p ON t.pid = p.pid
@@ -113,7 +114,7 @@ sub temporary_password_db_prepare {
     ]);
 
     $temporary_password_statements->{'temporary_password_view_email_sql'} = get_db_handle()->prepare(qq[
-        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate, t.algorithm,
+        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
             p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
         FROM person p, temporary_password t
         LEFT JOIN node_category c ON t.category = c.category_id
@@ -122,8 +123,8 @@ sub temporary_password_db_prepare {
 
     $temporary_password_statements->{'temporary_password_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO temporary_password
-            (pid, password, valid_from, expiration, access_duration, access_level, category, sponsor, unregdate, algorithm)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (pid, password, valid_from, expiration, access_duration, access_level, category, sponsor, unregdate)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ]);
 
     $temporary_password_statements->{'temporary_password_delete_sql'} = get_db_handle()->prepare(
@@ -131,7 +132,7 @@ sub temporary_password_db_prepare {
     );
 
     $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[
-        SELECT pid, password, algorithm, UNIX_TIMESTAMP(valid_from) as valid_from,
+        SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from,
             UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59")) AS expiration,
             access_duration, category
         FROM temporary_password
@@ -142,7 +143,7 @@ sub temporary_password_db_prepare {
 
     $temporary_password_statements->{'temporary_password_modify_actions_sql'} = get_db_handle()->prepare(qq[
         UPDATE temporary_password
-        SET valid_from = ?, expiration = ?, access_duration = ?, access_level = ?, category = ?, sponsor = ?, unregdate = ?, algorithm = ?
+        SET valid_from = ?, expiration = ?, access_duration = ?, access_level = ?, category = ?, sponsor = ?, unregdate = ?
         WHERE pid = ?
     ]);
 
@@ -289,7 +290,15 @@ sub generate {
     $data{'pid'} = $pid;
 
     # generate password
-    $data{'password'} = $password || _generate_password();
+    if ( $Config{'database'}{'hash_passwords'} eq 'plaintext' ) { 
+        $data{'password'} = $password || _generate_password();
+    } else { 
+        $data{'password'} = _hash_password(
+             $password || _generate_password(), 
+             algorithm => $Config{'database'}{'hash_passwords'},
+        );
+    }
+             
 
     _update_from_actions(\%data, $actions);
 
@@ -305,7 +314,7 @@ sub generate {
         return;
     } else {
         $logger->info("new temporary account successfully generated");
-        return $data{'password'};
+        return $password;
     }
 }
 
@@ -425,7 +434,7 @@ sub validate_password {
         return $AUTH_FAILED_INVALID;
     }
 
-    if ( _check_password( $password, $temppass_record->{'password'}, $temppass_record->{'algorithm'} ) ) {
+    if ( _check_password( $password, $temppass_record->{'password'}) ) {
 
         # password is valid but not yet valid
         # valid_from is in unix timestamp format so an int comparison is enough
@@ -452,83 +461,92 @@ sub validate_password {
 }
 
 sub _check_password {
-    my ( $plaintext, $hash_string, $algorithm ) = @_;
-    
-    my ( $cost, $salt, $hash_value, $hashed_plaintext ); 
-    # Bcrypt is special. We need to parse the hash to know the work factor before comparing.
-    # A bcrypt hash looks like this: 
-    # '$2a$05$1kdrBExRmcKCcDlNSKHREutpl02jsbx7.ug5C3SZ86N1QhqUF.aSW'
-    # where '$2a$' is the bcrypt prefix, 05 is the work factor, and the rest (after the final $) 
-    # is the bcrypt base64 encoded salt (first 22 char) followed by the bcrypt base64 encoded hash value.
-    if ( $algorithm eq 'bcrypt' ) {
-        my $prefix_len        = 4;
-        my $cost_len          = 2;
-        my $salt_len          = 22;
-        my $before_salt       = $prefix_len + $cost_len + 1;    # +1 for the trailing $
-        my $before_hash_value = $before_salt + $salt_len;
-        $cost = substr( $hash_string, $prefix_len,  $cost_len );
-        $salt = substr( $hash_string, $before_salt, $salt_len );
-        $hash_value = substr( $hash_string, $before_hash_value );    # substr to the end of the string
-    }
+    my ( $plaintext, $hash_string ) = @_;
 
-    $hashed_plaintext = _hash_password( $plaintext, algorithm => $algorithm, salt => $salt, cost => $cost );
+    # the algorithm is contained in the prefix of the password such as
+    # {md5}, {bcrypt} etc.
+    # Plaintext passwords have no prefix.
+    # We need to quotemeta the regex because it contains { and }
+    my $bcrypt_re = quotemeta('{bcrypt}');
+    my $md5_re    = quotemeta('{md5}');
+    my $nthash_re = quotemeta('{NT}');
 
-    if ( $hashed_plaintext eq $hash_string ) { 
-        return $TRUE;
-    } else {
-        return $FALSE;
+    switch ($hash_string) {
+        case /$bcrypt_re/ { return _check_bcrypt(@_) }
+        case /$md5_re/    { return undef }
+        case /$nthash_re/ { return undef }
+        else {
+            return $plaintext eq $hash_string ? $TRUE : $FALSE;
+        }
     }
 }
 
 sub _hash_password {
     my ( $plaintext, %params ) = @_;
 
-    use Switch;
-    switch ($params{"algorithm"}) {
+    switch ( $params{"algorithm"} ) {
         case 'plaintext' { return $plaintext }
-        case 'bcrypt'    { return bcrypt($plaintext, %params) }
+        case 'bcrypt'    { return bcrypt( $plaintext, %params ) }
         case 'nthash'    { return nthash $plaintext }
         case 'md5'       { return md5 $plaintext }
         else {
-            logger->error("Unsupported hash algorithm ". $params{"algorithm"});
+            logger->error( "Unsupported hash algorithm " . $params{"algorithm"} );
         }
     }
 }
 
-sub nthash { return undef; } # TODO
+sub nthash { return undef; }    # TODO
 
-sub md5 { return undef; } # TODO
-        
+sub md5 { return undef; }       # TODO
+
+sub _check_bcrypt {
+    my ( $plaintext, $hash_string ) = @_;
+    my ( $cost, $salt, $hash_value, $hashed_plaintext );
+
+    # Bcrypt is special. We need to parse the hash to know the work factor before comparing.
+    # A bcrypt hash looks like this:
+    # '$2a$05$1kdrBExRmcKCcDlNSKHREutpl02jsbx7.ug5C3SZ86N1QhqUF.aSW'
+    # where '$2a$' is the bcrypt prefix, 05 is the work factor, and the rest (after the final $)
+    # is the bcrypt base64 encoded salt (first 22 char) followed by the bcrypt base64 encoded hash value.
+    my $prefix_len        = 12;
+    my $cost_len          = 2;
+    my $salt_len          = 22;
+    my $before_salt       = $prefix_len + $cost_len + 1;    # +1 for the trailing $
+    my $before_hash_value = $before_salt + $salt_len;
+    $cost = substr( $hash_string, $prefix_len,  $cost_len );
+    $salt = substr( $hash_string, $before_salt, $salt_len );
+    $hash_value = substr( $hash_string, $before_hash_value );    # substr to the end of the string
+
+    $hashed_plaintext = _hash_password( $plaintext, algorithm => 'bcrypt', salt => $salt, cost => $cost );
+
+    if ( $hashed_plaintext eq $hash_string ) {
+        return $TRUE;
+    }
+    else {
+        return $FALSE;
+    }
+}
+
 sub bcrypt {
     my ( $plaintext, %params ) = @_;
 
     use Data::Entropy::Algorithms qw( rand_bits );
     use Crypt::Eksblowfish::Bcrypt qw(bcrypt_hash en_base64 de_base64 );
 
-    my ( $salt, $cost );
-    if ( not defined $params{"salt"} ) {
-        $salt = rand_bits( 16 * 8 );    # blowfish requires 16 octets
-    }
-    else {
-        $salt = de_base64( $params{"salt"} );
-    }
-
-    if ( not defined $params{"cost"} ) {
-        $cost = 8;                      # TODO: make this configurable
-    }
-    else {
-        $cost = $params{"cost"};
-    }
+    my $salt
+        = $params{"salt"} ? de_base64( $params{"salt"} ) : rand_bits( 16 * 8 );  # blowfish requires 16 octets
+    my $cost = $params{"cost"} // $Config{'database'}{'hashing_cost'}
+        // 8;    # TODO: remove fallback once tests work
 
     # A bcrypt hash looks like this:
     # '$2a$05$1kdrBExRmcKCcDlNSKHREutpl02jsbx7.ug5C3SZ86N1QhqUF.aSW'
     # where '$2a$' is the bcrypt prefix, 05 is the work factor, and the rest (after the final $)
     # is the bcrypt base64 encoded salt (first 22 char) followed by the bcrypt base64 encoded hash value.
     my $hash     = bcrypt_hash( { key_nul => 1, cost => $cost, salt => $salt, }, $plaintext );
-    my $hash_str  = en_base64($hash);
+    my $hash_str = en_base64($hash);
     my $cost_str = sprintf( "%02d", $cost ) . '$';
     my $salt_str = en_base64($salt);
-    return '$2a$' . $cost_str . $salt_str . $hash_str;
+    return '{bcrypt}' . '$2a$' . $cost_str . $salt_str . $hash_str;
 }
 
 =item reset_password
