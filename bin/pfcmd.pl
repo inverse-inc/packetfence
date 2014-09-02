@@ -1311,20 +1311,6 @@ sub stopService {
         }
         print $manager->name,"|${color}${command}${RESET_COLOR}\n";
     }
-    if($service eq 'pf') {
-        my $count = true { $_->status ne '0'  } @managers;
-        my $manager = pf::services::manager::iptables->new(runningServices => $count);
-        if( $manager->isManaged ) {
-            if($manager->stop) {
-                $color =  $SUCCESS_COLOR;
-                $command = 'stop';
-            } else {
-                $color =  $ERROR_COLOR;
-                $command = 'not stopped';
-            }
-            print $manager->name,"|${color}${command}${RESET_COLOR}\n";
-        }
-    }
     return 0;
 }
 
