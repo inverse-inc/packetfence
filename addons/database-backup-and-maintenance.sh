@@ -28,6 +28,13 @@ BACKUP_PF_FILENAME='packetfence-files-dump'
 ARCHIVE_DIRECTORY=$BACKUP_DIRECTORY
 ARCHIVE_DB_FILENAME='packetfence-archive'
 
+# For replication
+ACTIVATE_REPLICATION=0
+REPLICATION_USER=''
+NODE1_HOSTNAME=''
+NODE2_HOSTNAME=''
+NODE1_IP=''
+NODE2_IP=''
 
 # Create the backup directory
 if [ ! -d "$BACKUP_DIRECTORY" ]; then
@@ -97,4 +104,18 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
         mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'DELETE FROM radacct WHERE YEAR(acctstarttime) < YEAR(CURRENT_DATE());'
         mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'DELETE FROM radacct_log WHERE YEAR(timestamp) < YEAR(CURRENT_DATE());'
     fi
+
+    # Replicate the db backups between both servers
+    if [ $ACTIVATE_REPLICATION == 1 ];then
+      if [ $HOSTNAME == $NODE1_HOSTNAME ];then
+        replicate_to=$NODE2_IP
+      elif [ $HOSTNAME == $NODE2_HOSTNAME ];then
+        replicate_to=$NODE1_IP 
+      else
+        echo "Cannot recognize hostname. This script is made for $NODE1_HOSTNAME and $NODE2_HOSTNAME. Exiting"
+        exit
+      fi;
+      eval "rsync -auv -e ssh --delete --include '$BACKUP_DB_FILENAME*' --exclude='*' $BACKUP_DIRECTORY $REPLICATION_USER@$replicate_to:$BACKUP_DIRECTORY"
+    fi
+
 fi
