@@ -119,6 +119,7 @@ PerlLoadModule pf::web::release
 
 AcceptMutex posixsem
 SSLMutex posixsem
+ServerLimit 512
 
 Header always set X-DNS-Prefetch-Control off
 
@@ -186,8 +187,8 @@ if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fro
 $ServerTokens = "Prod";
 $ServerSignature = "Off";
 $UseCanonicalName = "Off";
-$Timeout = "50";
-$KeepAliveTimeout = "10";
+$Timeout = "5";
+$KeepAliveTimeout = "3";
 
 $MaxClients = pf::services::manager::httpd::calculate_max_clients(pf::services::manager::httpd::get_total_system_memory());
 $StartServers =  pf::services::manager::httpd::calculate_start_servers($MaxClients);

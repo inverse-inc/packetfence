@@ -49,6 +49,7 @@ Enhancements
 * Improved support for Dlink DES 3526 switches
 * Rewrited log format [] for device mac () for switch "" for userID
 * Improve error handling of web api
+* Raised ServerLimit on apache httpd.portal, Lowered httpd.portal Timeout and KeepAliveTimeout to improve responsiveness under load. 
 
 Bug Fixes
 +++++++++
