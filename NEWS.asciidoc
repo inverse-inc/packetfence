@@ -50,6 +50,7 @@ Enhancements
 * Rewrited log format [] for device mac () for switch "" for userID
 * Improve error handling of web api
 * Raised ServerLimit on apache httpd.portal, Lowered httpd.portal Timeout and KeepAliveTimeout to improve responsiveness under load. 
+* Do not overlay the controllerIp if one is already defined when creating a switch
 
 Bug Fixes
 +++++++++
