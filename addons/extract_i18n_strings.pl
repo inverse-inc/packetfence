@@ -218,6 +218,15 @@ sub parse_conf {
                 chomp $line;
                 last if ($line =~ m/^EOT$/);
                 $line =~ s/\"/\\\"/g;
+                $line =~ s/</&lt;/g; # convert < to HTML entity
+                $line =~ s/>/&gt;/g; # convert > to HTML entity
+                $line =~ s/(\S*(&lt;|&gt;)\S*)(?=[\s,\.])/<code>$1<\/code>/g; # enclose strings that contain < or >
+                $line =~ s/(\S+\.(html|tt|pm|pl|txt))\b(?!<\/code>)/<code>$1<\/code>/g; # enclose strings that ends with .html, .tt, etc
+                $line =~ s/^ \* (.+?)$/<li>$1<\/li>/mg; # create list elements for lines beginning with " * "
+                $line =~ s/(<li>.*<\/li>)/<ul>$1<\/ul>/s; # create lists from preceding substitution 
+                $line =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
+                $line =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
+                $line =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
                 push(@desc, $line);
             }
         }
