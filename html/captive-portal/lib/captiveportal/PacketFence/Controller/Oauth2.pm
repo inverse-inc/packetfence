@@ -207,7 +207,7 @@ sub oauth2Result : Path : Args(1) {
                 "OAuth2: failed to validate the token, redireting to login page"
             );
             $c->stash->{txt_auth_error} = i18n("OAuth2 Error: Failed to validate the token, please retry");
-            $c->detach(Authentication => 'showLogin');
+            $c->detach(Authenticate => 'showLogin');
         }
 
         # Setting access timeout and role (category) dynamically
