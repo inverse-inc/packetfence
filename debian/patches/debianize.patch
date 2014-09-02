@@ -1,9 +1,11 @@
 Description: Debianize PacketFence
-Author: Fabrice Durand <fdurand@inverse.ca>
+Author: Inverse inc. <info@inverse.ca>
 
+diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
+index b6473b0..f187592 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -463,7 +463,7 @@ suricata_binary=/usr/bin/suricata
+@@ -515,7 +515,7 @@ suricata_binary=/usr/bin/suricata
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -12,7 +14,7 @@ Author: Fabrice Durand <fdurand@inverse.ca>
  #
  # services.dhcpd_binary
  #
-@@ -478,12 +478,12 @@ snmptrapd_binary=/usr/sbin/snmptrapd
+@@ -530,12 +530,12 @@ snmptrapd_binary=/usr/sbin/snmptrapd
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -21,9 +23,9 @@ Author: Fabrice Durand <fdurand@inverse.ca>
  # 
  # services.arp_binary
  # 
- # Location of the arp binary. Only necessary to change if you are not running the RPMed version.
+ # location of the arp binary. only necessary to change if you are not running the rpmed version.
 -arp_binary=/sbin/arp
 +arp_binary=/usr/sbin/arp
  # 
- # services.memcached_binary
- # 
+ # services.iptables_binary
+ #  
