@@ -268,7 +268,10 @@ CREATE TABLE `locationlog_history` (
   `ssid` varchar(32) NOT NULL default '',
   `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `end_time` datetime default NULL,
-  KEY `locationlog_history_view_mac` (`mac`, `end_time`)
+  `switch_ip` varchar(17) DEFAULT NULL,
+  `switch_mac` varchar(17) DEFAULT NULL,
+  KEY `locationlog_history_view_mac` (`mac`, `end_time`),
+  KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE `userlog` (
