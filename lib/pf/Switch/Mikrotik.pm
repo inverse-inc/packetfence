@@ -51,10 +51,16 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 =cut
 
 sub getVersion {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->info("we don't know how to determine the version through SNMP !");
-    return '6.18';
+    my ($this)       = @_;
+    my $oid_sysDescr = '1.3.6.1.4.1.14988.1.1.4.4.0';
+    my $logger       = Log::Log4perl::get_logger( ref($this) );
+    if ( !$this->connectRead() ) {
+        return '';
+    }
+    $logger->trace("SNMP get_request for sysDescr: $oid_sysDescr");
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
+    my $sysDescr = ( $result->{$oid_sysDescr} || '' );
+    return $sysDescr;
 }
 
 =item deauthTechniques
