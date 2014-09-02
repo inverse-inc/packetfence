@@ -41,6 +41,8 @@ use Log::Log4perl;
 
 use pf::config;
 
+sub description {"Anyfi gateway"}
+
 =head1 SUBROUTINES
 
 =over
