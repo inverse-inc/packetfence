@@ -217,7 +217,6 @@ sub parse_conf {
             while (defined($line = <FILE>)) {
                 chomp $line;
                 last if ($line =~ m/^EOT$/);
-                $line =~ s/\"/\\\"/g;
                 $line =~ s/</&lt;/g; # convert < to HTML entity
                 $line =~ s/>/&gt;/g; # convert > to HTML entity
                 $line =~ s/(\S*(&lt;|&gt;)\S*)(?=[\s,\.])/<code>$1<\/code>/g; # enclose strings that contain < or >
@@ -227,6 +226,7 @@ sub parse_conf {
                 $line =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
                 $line =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
                 $line =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
+                $line =~ s/\"/\\\"/g;
                 push(@desc, $line);
             }
         }

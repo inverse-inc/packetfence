@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-09-02 16:04-0400\n"
+"PO-Revision-Date: 2014-09-02 16:12-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -646,21 +646,21 @@ msgstr ""
 msgid ""
   "Comma-delimited list of MAC addresses that are immune to isolation. In "
   "inline Level 2 enforcement, the firewall is opened for them as if they were "
-  "registered. This \<i>feature\</i> will probably be reworked in the future."
+  "registered. This <i>feature</i> will probably be reworked in the future."
 msgstr ""
 
 # conf/documentation.conf (trapping.passthroughs)
 msgid ""
   "Comma-delimited list of domains to be used as HTTP and HTTPS passthroughs to "
   "web sites. "
-  "The configuration parameter \<i>passthrough\</i> must be enabled for passthroughs "
+  "The configuration parameter <i>passthrough</i> must be enabled for passthroughs "
   "to be effective."
 msgstr ""
 
 # conf/documentation.conf (trapping.proxy_passthroughs)
 msgid ""
   "Comma-delimited list of domains to be used with apache passthroughs. "
-  "The configuration parameter \<i>passthrough\</i> must be enabled for passthroughs "
+  "The configuration parameter <i>passthrough</i> must be enabled for passthroughs "
   "to be effective."
 msgstr ""
 
@@ -774,6 +774,17 @@ msgstr "Coverage Area"
 # html/pfappserver/root/interface/create.tt
 # html/pfappserver/root/portal/profile/create.tt
 msgid "Create"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SMS.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SponsorEmail.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+msgid "Create Local Account"
 msgstr ""
 
 # html/pfappserver/root/portal/profile/files.tt
@@ -1034,7 +1045,7 @@ msgstr ""
 
 # conf/documentation.conf (interface.type)
 msgid ""
-  "Describes \<i>type\</i> of named interface.  internal describes interfaces "
+  "Describes <i>type</i> of named interface.  internal describes interfaces "
   "where PacketFence will enforce network access. management (or managed) "
   "interfaces have the administrative GUI running on them, host SNMP trap "
   "receiver and RADIUS server. monitor is the interface that snort listens "
@@ -1158,7 +1169,7 @@ msgstr ""
 # conf/documentation.conf (alerting.fromaddr)
 msgid ""
   "Email address from which notifications of rogue DHCP servers, "
-  "violations with an action of \<i>email\</i>, or any other "
+  "violations with an action of <i>email</i>, or any other "
   "PacketFence-related message are sent."
   "Empty means <code>root@&lt;server-domain-name&gt;</code>."
 msgstr ""
@@ -1170,7 +1181,7 @@ msgstr ""
 # conf/documentation.conf (alerting.emailaddr)
 msgid ""
   "Email address to which notifications of rogue DHCP servers, violations "
-  "with an action of \<i>email\</i>, or any other PacketFence-related message "
+  "with an action of <i>email</i>, or any other PacketFence-related message "
   "goes to."
 msgstr ""
 
@@ -1832,7 +1843,7 @@ msgid "Location_Zip_Postal_Code"
 msgstr "Location Zip Postal Code"
 
 # conf/documentation.conf (alerting.log)
-msgid "Log file where \<i>log\</i> actions are sent."
+msgid "Log file where <i>log</i> actions are sent."
 msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
@@ -2037,7 +2048,7 @@ msgstr ""
 # conf/documentation.conf (alerting.admin_netbiosname)
 msgid ""
   "NetBIOS name of administrative workstation to send alerts with "
-  "\<i>winpopup\</i> action assigned."
+  "<i>winpopup</i> action assigned."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
@@ -3410,7 +3421,7 @@ msgstr "Sub Location Type"
 # conf/documentation.conf (alerting.subjectprefix)
 msgid ""
   "Subject prefix for email notifications of rogue DHCP servers, "
-  "violations with an action of \<i>email\</i>, or any other PacketFence-related "
+  "violations with an action of <i>email</i>, or any other PacketFence-related "
   "message."
 msgstr ""
 
@@ -3452,7 +3463,7 @@ msgstr ""
 # conf/documentation.conf (general.timezone)
 msgid ""
   "System's timezone in string format. Supported list: "
-  "<a href="http://www.php.net/manual/en/timezones.php">http://www.php.net/manual/en/timezones.php</a>"
+  "<a href=\"http://www.php.net/manual/en/timezones.php\">http://www.php.net/manual/en/timezones.php</a>"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
@@ -3618,9 +3629,9 @@ msgid ""
   "This section allows you to configure locally proxied content.  We "
   "typically use this to proxy tools like Stinger rather than having to "
   "continually download the latest version. Ex: "
-  "tools/stinger.exe=<a href="http://download.nai.com/products/mcafee-avert/stinger.exe">http://download.nai.com/products/mcafee-avert/stinger.exe</a> "
+  "tools/stinger.exe=<a href=\"http://download.nai.com/products/mcafee-avert/stinger.exe\">http://download.nai.com/products/mcafee-avert/stinger.exe</a> "
   "The Stinger utility could then be accessed at "
-  "<a href="https://pfhostname/proxies/tools/stinger.exe.">https://pfhostname/proxies/tools/stinger.exe.</a>"
+  "<a href=\"https://pfhostname/proxies/tools/stinger.exe.\">https://pfhostname/proxies/tools/stinger.exe.</a>"
 msgstr ""
 
 # html/pfappserver/root/configurator/configuration.tt
@@ -4040,8 +4051,8 @@ msgstr ""
 
 # conf/documentation.conf (trapping.passthrough)
 msgid ""
-  "When enabled, PacketFence uses pfdns if you defined \<i>Passthroughs\</i> or Apache mod-proxy "
-  "if you defined \<i>Proxy passthroughs\</i> to allow trapped devices to reach web sites."
+  "When enabled, PacketFence uses pfdns if you defined <i>Passthroughs</i> or Apache mod-proxy "
+  "if you defined <i>Proxy passthroughs</i> to allow trapped devices to reach web sites."
 msgstr ""
 
 # conf/documentation.conf (network.rogueinterval)
