@@ -31,7 +31,6 @@ use pf::CHI;
 
 our ($singleton);
 
-our $SWITCH_OVERLAY_CACHE = pf::CHI->new(namespace => 'switch.overlay');
 
 =head1 METHODS
 
@@ -89,6 +88,7 @@ sub instantiate {
     my $switch_ip;
     my $switch_mac;
     my $switch_config = pf::ConfigStore::Switch->new;
+    my $switch_overlay_cache = pf::CHI->new(namespace => 'switch.overlay');
 
     if(ref($switchId) eq 'HASH') {
         if(exists $switchId->{switch_mac} && defined $switchId->{switch_mac}) {
@@ -109,11 +109,11 @@ sub instantiate {
     }
 
     if($switch_config->hasId($switch_mac) && ref($switchId) eq 'HASH') {
-        my $switch = $SWITCH_OVERLAY_CACHE->get($switch_mac) || {};
+        my $switch = $switch_overlay_cache->get($switch_mac) || {};
         my $controllerIp = $switchId->{controllerIp};
         if($controllerIp && (  !defined $switch->{controllerIp} || $controllerIp ne $switch->{controllerIp} )) {
 #            $switch_overlay_config->remove($switch->{controllerIp}) if defined $switch->{controllerIp};
-            $SWITCH_OVERLAY_CACHE->set(
+            $switch_overlay_cache->set(
                 $switch_mac,
                 {
                     controllerIp => $controllerIp,
@@ -131,7 +131,7 @@ sub instantiate {
     my $switch_data = $SwitchConfig{$requestedSwitch};
 
     # find the module to instantiate
-    my $switchOverlay = $SWITCH_OVERLAY_CACHE->get($requestedSwitch) || {};
+    my $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
     my $type;
     if ($requestedSwitch ne 'default') {
         $type = "pf::Switch::" . $switch_data->{'type'};
