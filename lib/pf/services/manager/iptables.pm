@@ -23,7 +23,9 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'iptables' } );
 
-has '+shouldCheckup' => ( default => sub { 0 }  );
+has '+shouldCheckup' => ( default => sub { 1 }  );
+
+has '+launcher' => ( default => sub {"iptables"} );
 
 has '+dependsOnServices' => (is => 'ro', default => sub { [] } );
 

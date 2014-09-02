@@ -534,8 +534,13 @@ radiusd_binary=/usr/sbin/radiusd
 # 
 # services.arp_binary
 # 
-# Location of the arp binary. Only necessary to change if you are not running the RPMed version.
+# location of the arp binary. only necessary to change if you are not running the rpmed version.
 arp_binary=/sbin/arp
+# 
+# services.iptables_binary
+# 
+# location of the iptables binary. only necessary to change if you are not running the rpmed version.
+iptables_binary=/sbin/iptables
 # 
 # services.memcached_binary
 # 
