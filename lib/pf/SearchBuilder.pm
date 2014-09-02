@@ -483,6 +483,7 @@ sub format_from {
                     push @clause_parts,$join_type;
                 }
                 push @clause_parts,"JOIN",$table;
+                push @clause_parts,'as',$as if defined $as && length($as) > 0;
                 if ($using) {
                     push @clause_parts,'using(',$dbh->quote_identifier($using),')';
                 } elsif ($on) {
