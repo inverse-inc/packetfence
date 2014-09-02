@@ -189,17 +189,18 @@ my %COLUMN_MAP = (
        name  => 'description',
     },
     switch_ip   => {
-       table => 'locationlog',
+       table => 'locationlog_distinct',
        name  => 'switch',
        joins => [
            {
-               'table'  => 'locationlog',
+               'table'  => \"( select DISTINCT mac, switch from locationlog )",
+               'as'  => 'locationlog_distinct',
                'join' => 'LEFT',
                'on' =>
                [
                    [
                        {
-                           'table' => 'locationlog',
+                           'table' => 'locationlog_distinct',
                            'name'  => 'mac',
                        },
                        '=',
