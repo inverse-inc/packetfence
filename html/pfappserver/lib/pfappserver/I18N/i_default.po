@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-09-03 13:55-0400\n"
+"PO-Revision-Date: 2014-09-03 15:42-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -2336,7 +2336,7 @@ msgid "Nodes with the selected roles will be affected"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Nodes with the selected roles won\'t be affected by a violation of this type."
+msgid "Nodes with the selected roles won't be affected by a violation of this type."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
