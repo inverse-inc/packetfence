@@ -256,8 +256,10 @@ sub setUnRegDate : Private {
         $value =
           &pf::authentication::match( $source_match, $params,
             $Actions::SET_UNREG_DATE );
-        $value = pf::config::dynamic_unreg_date($value);
-        $logger->trace("Computed unreg date from dynamic unreg date: $value");
+        if ( defined($value) ){
+            $value = pf::config::dynamic_unreg_date($value) ;
+            $logger->trace("Computed unreg date from dynamic unreg date: $value");
+        }
     }
     if ( defined $value ) {
         $logger->trace("Got unregdate $value for username \"$pid\"");
