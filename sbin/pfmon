@@ -100,60 +100,60 @@ exit(0);
 
 sub registertasks  {
     register_task(
-        'iplog cleanup','maintenance_interval',sub {
+        'iplog cleanup','iplog_cleanup_interval',sub {
             iplog_cleanup( $Config{'expire'}{'iplog'} )
               if ( $Config{'expire'}{'iplog'} );
         }
     );
     register_task(
-        'locationlog cleanup','maintenance_interval',sub {
+        'locationlog cleanup','locationlog_cleanup_interval',sub {
             locationlog_cleanup( $Config{'expire'}{'locationlog'} )
               if ( $Config{'expire'}{'locationlog'} );
         }
     );
     register_task(
-        'node cleanup','maintenance_interval',sub {
+        'node cleanup','node_cleanup_interval',sub {
             node_cleanup( $Config{'expire'}{'node'} )
               if ( $Config{'expire'}{'node'} );
         }
     );
     register_task(
-        'traplog cleanup','maintenance_interval',sub {
+        'traplog cleanup','traplog_cleanup_interval',sub {
             traplog_cleanup( $Config{'expire'}{'traplog'} )
               if ( $Config{'expire'}{'traplog'} );
         }
     );
     register_task(
-        'Expire httpd.admin sessions','maintenance_interval',sub {
+        'Expire httpd.admin sessions','httpd_admin_cleanup_interval',sub {
             purge_cache('httpd.admin')
               if ( isenabled($Config{'expire'}{'httpd_admin'}) );
         }
     );
     register_task(
-        'Expire httpd.portal sessions','maintenance_interval',sub {
+        'Expire httpd.portal sessions','httpd_portal_cleanup_interval',sub {
             purge_cache('httpd.portal')
               if ( isenabled($Config{'expire'}{'httpd_portal'}) );
         }
     );
     register_task(
-        'checking registered nodes for expiration','maintenance_interval',sub {
+        'checking registered nodes for expiration','nodes_maintenance_interval',sub {
             nodes_maintenance();
         }
     );
     register_task(
-        'checking violations for expiration','maintenance_interval',sub {
+        'checking violations for expiration','violation_maintenance_interval',sub {
             violation_maintenance();
         }
     );
     register_task(
-        'checking accounting data for potential bandwidth abuse','maintenance_interval',sub {
+        'checking accounting data for potential bandwidth abuse','inline_accounting_maintenance_interval',sub {
             if (isenabled($Config{'inline'}{'accounting'})) {
                 inline_accounting_maintenance($Config{'inline'}{'layer3_accounting_session_timeout'});
             }
         }
     );
     register_task(
-        'Account maintenance','maintenance_interval',sub {
+        'Account maintenance','acct_maintenance_interval',sub {
             acct_maintenance();
         }
     );
@@ -215,7 +215,7 @@ sub _runtask {
         if ($@) {
             $logger->error("Error running task $id: $@");
         }
-        alarm $Config{'general'}{$parameter};
+        alarm $Config{'maintenance'}{$parameter};
         pause;
     }
     exit;
