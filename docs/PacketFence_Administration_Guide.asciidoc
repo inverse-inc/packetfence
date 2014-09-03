@@ -1064,6 +1064,8 @@ Add user on sponsor registration in Configuration -> Self Registration section.
 At the end of the guest registration, PacketFence will send a an email with the credentials for Email and Sponsor. For SMS use your
 phone number and the PIN code.
 
+Note that this option doesn't currently work with the 'Reuse dot1x credentials' option of the captive portal.
+
 In `/usr/local/pf/raddb/sites-available/packetfence-tunnel` there is an example on how to configure radius to enable this feature (uncomment to make it work).
 
 In this example we activate this feature on a specific SSID name (Secure-Wireless), disabled by default NTLM Auth,
