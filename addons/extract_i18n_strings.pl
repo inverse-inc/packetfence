@@ -179,7 +179,9 @@ sub parse_mc {
         while (defined($line = <PM>)) {
             chomp $line;
             if ($line =~ m/\$c->loc\(['"](.+?[^'"\\])["']\)/) {
-                add_string($1, $module);
+                my $string = $1;
+                $string =~ s/\\'/'/g;
+                add_string($string, $module);
             }
         }
         close(PM);
@@ -209,7 +211,9 @@ sub parse_forms {
         while (defined($line = <PM>)) {
             chomp $line;
             if ($line =~ m/(?:label|required|help) => ['"](.+?[^'"\\])["']/) {
-                add_string($1, $form);
+                my $string = $1;
+                $string =~ s/\\'/'/g;
+                add_string($string, $form);
             }
         }
         close(PM);
