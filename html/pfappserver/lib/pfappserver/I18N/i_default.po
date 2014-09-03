@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-09-02 16:12-0400\n"
+"PO-Revision-Date: 2014-09-03 10:01-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -265,10 +265,10 @@ msgid ""
   "Address ranges/CIDR blocks that PacketFence will monitor/detect/trap "
   "on.  Gateway, network, and broadcast addresses are ignored. "
   "Comma-delimited entries should be of the form "
-  "<ul><li>a.b.c.0/24</li></ul>"
-  "<ul><li>a.b.c.0-255</li></ul>"
-  "<ul><li>a.b.c.0-a.b.c.255</li></ul>"
-  "<ul><li>a.b.c.d</li></ul>"
+  "<ul><li>a.b.c.0/24</li>"
+  "<li>a.b.c.0-255</li>"
+  "<li>a.b.c.0-a.b.c.255</li>"
+  "<li>a.b.c.d</li></ul>"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -1782,6 +1782,12 @@ msgstr ""
 msgid ""
   "Location of the dhcpd binary. Only necessary to change if you are not "
   "running the RPMed version."
+msgstr ""
+
+# conf/documentation.conf (services.iptables_binary)
+msgid ""
+  "Location of the iptables binary. Only necessary to change if you are"
+  "not running the RPMed version."
 msgstr ""
 
 # conf/documentation.conf (services.memcached_binary)
@@ -5123,6 +5129,10 @@ msgstr "httpd.webservices"
 # conf/documentation.conf
 msgid "services.iptables"
 msgstr "iptables"
+
+# conf/documentation.conf
+msgid "services.iptables_binary"
+msgstr "iptables path"
 
 # conf/documentation.conf
 msgid "services.memcached"

@@ -192,6 +192,22 @@ Extract sections, options and descriptions from documentation.conf.
 sub parse_conf {
     my $file = CONF.'/documentation.conf';
 
+    sub _format_description {
+        my $description = join("\n", @{$_[0]});
+        $description =~ s/</&lt;/g;     # convert < to HTML entity
+        $description =~ s/>/&gt;/g;     # convert > to HTML entity
+        $description =~ s/(\S*(&lt;|&gt;)\S*)(?=[\s,\.])/<code>$1<\/code>/g; # enclose strings that contain < or >
+        $description =~ s/(\S+\.(html|tt|pm|pl|txt))\b(?!<\/code>)/<code>$1<\/code>/g; # enclose strings that ends with .html, .tt, etc
+        $description =~ s/^ \* (.+?)$/<li>$1<\/li>/mg; # create list elements for lines beginning with " * "
+        $description =~ s/(<li>.*<\/li>)/<ul>$1<\/ul>/s; # create lists from preceding substitution 
+        $description =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
+        $description =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
+        $description =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
+        $description =~ s/\"/\\\"/g;
+
+        return $description;
+    }
+
     my ($line, $section, @options, @desc);
     open(FILE, $file);
     while (defined($line = <FILE>)) {
@@ -200,7 +216,7 @@ sub parse_conf {
             if (scalar @desc) {
                 add_string($2, $file);
                 add_string($section, $file);
-                add_string(join("\n", @desc), "$file ($section)");
+                add_string(_format_description(\@desc), "$file ($section)");
             }
             if (scalar @options) {
                 map { add_string($_, "$file ($section options)") } @options;
@@ -217,23 +233,13 @@ sub parse_conf {
             while (defined($line = <FILE>)) {
                 chomp $line;
                 last if ($line =~ m/^EOT$/);
-                $line =~ s/</&lt;/g; # convert < to HTML entity
-                $line =~ s/>/&gt;/g; # convert > to HTML entity
-                $line =~ s/(\S*(&lt;|&gt;)\S*)(?=[\s,\.])/<code>$1<\/code>/g; # enclose strings that contain < or >
-                $line =~ s/(\S+\.(html|tt|pm|pl|txt))\b(?!<\/code>)/<code>$1<\/code>/g; # enclose strings that ends with .html, .tt, etc
-                $line =~ s/^ \* (.+?)$/<li>$1<\/li>/mg; # create list elements for lines beginning with " * "
-                $line =~ s/(<li>.*<\/li>)/<ul>$1<\/ul>/s; # create lists from preceding substitution 
-                $line =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
-                $line =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
-                $line =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
-                $line =~ s/\"/\\\"/g;
                 push(@desc, $line);
             }
         }
     }
     if (scalar @desc) {
         add_string($section, $file);
-        add_string(join("\n", @desc), "$file ($section)");
+        add_string(_format_description(\@desc), "$file ($section)");
     }
     if (scalar @options) {
         map { add_string($_, "$file ($section options)") } @options;
