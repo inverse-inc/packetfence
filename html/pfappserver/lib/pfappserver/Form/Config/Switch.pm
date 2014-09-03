@@ -416,7 +416,7 @@ has_field controllerPort =>
     label => 'Controller Port',
     tags => {
         after_element => \&help_list,
-        help => 'Only for Wi-Fi , if the deauth request must be send to another device than the access point then set the ip of the controller'
+        help => 'Only for Wi-Fi, if the deauth request must be send to another device than the access point then set the ip of the controller'
     },
   );
 

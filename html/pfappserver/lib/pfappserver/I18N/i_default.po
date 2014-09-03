@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-09-03 10:01-0400\n"
+"PO-Revision-Date: 2014-09-03 13:55-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -101,6 +101,11 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
 msgid "API URL of logged user"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SponsorEmail.pm
+msgid "Accept self-registration with email address from the local domain"
 msgstr ""
 
 # html/pfappserver/root/user/print.tt
@@ -332,6 +337,14 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/SponsorEmail.pm
 msgid "Allow Local Domain"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Amount of time before a violation will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application."
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
@@ -626,6 +639,18 @@ msgstr ""
 msgid "Comma"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
+msgid "Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+msgid "Comma separated list of domains that will be resolve with the correct IP addresses."
+msgstr ""
+
 # html/pfappserver/root/configurator/configuration.tt
 msgid "Comma-delimited list of DHCP servers in your production environment."
 msgstr ""
@@ -674,6 +699,10 @@ msgstr ""
 
 # conf/documentation.conf (trapping.interception_proxy_port)
 msgid "Comma-delimited list of port used by proxy interception."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Comma-separated list of the switch uplinks"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -799,6 +828,23 @@ msgstr ""
 msgid "Create Users"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+msgid "Create a local account on the PacketFence system based on the account email address provided."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SponsorEmail.pm
+msgid "Create a local account on the PacketFence system based on the email address provided."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SMS.pm
+msgid "Create a local account on the PacketFence system based on the phone number provided."
+msgstr ""
+
 # html/pfappserver/root/configurator/database.tt
 msgid "Create a user in your MySQL server"
 msgstr ""
@@ -918,6 +964,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 msgid "Default Role"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+msgid "Default URL to redirect to on registration/mitigation release. This is only used if a per-violation redirect URL is not defined."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
@@ -1079,6 +1129,14 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the portal profile configuration."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Destination VLAN where PacketFence should put the client when a violation of this type is open."
+msgstr ""
+
 # html/pfappserver/root/user/view.tt
 msgid "Devices"
 msgstr ""
@@ -1117,6 +1175,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Dynamic Window"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Dynamically lookup uplinks"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
@@ -1446,6 +1508,10 @@ msgstr ""
 msgid "Graph API URL of logged user"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "HTML template the host will be redirected to while in violation. You can create new templates from the <em>Portal Profiles</em> configuration section."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Kerberos.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/RADIUS.pm
@@ -1522,6 +1588,7 @@ msgstr "Interfaces - Read"
 msgid "INTERFACES_UPDATE"
 msgstr "Interfaces - Update"
 
+# html/pfappserver/lib/pfappserver/Base/Controller.pm
 # html/pfappserver/root/node/view.tt
 msgid "IP"
 msgstr ""
@@ -1542,6 +1609,10 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/configurator/networks.tt
 msgid "IP address"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "IP address of the router to reach this network"
 msgstr ""
 
 # conf/documentation.conf (interface.ip)
@@ -1627,6 +1698,10 @@ msgstr ""
 msgid ""
   "If this option is enabled, the PF system will scan each host after "
   "registration is complete."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+msgid "If you use an alternative port, please specify"
 msgstr ""
 
 # html/pfappserver/root/node/create.tt
@@ -1737,6 +1812,14 @@ msgstr ""
 msgid "Latitude"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+msgid "Leave it empty if you want to generate a random password."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "Leave this field empty if you want to perform an anonymous bind."
+msgstr ""
+
 # html/pfappserver/root/admin/users.tt
 msgid "Legend"
 msgstr ""
@@ -1745,6 +1828,10 @@ msgstr ""
 msgid ""
   "List of all the choices offered in the access duration action of an "
   "authentication source."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SMS.pm
+msgid "List of phone carriers available to the user"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/view.tt
@@ -1884,6 +1971,7 @@ msgstr ""
 msgid "Longitude/Latitude"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Base/Controller.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/configuration/floatingdevice/list.tt
 # html/pfappserver/root/user/view.tt
@@ -1974,6 +2062,10 @@ msgstr ""
 msgid "Maximum MAC addresses"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Maximum number of MAC addresses retrived from a port"
+msgstr ""
+
 # conf/documentation.conf (vlan.trap_limit_threshold)
 msgid ""
   "Maximum number of SNMP traps that a switchport can send to PacketFence within "
@@ -1982,6 +2074,10 @@ msgstr ""
 
 # html/pfappserver/root/configstore/mdm/view.tt
 msgid "Mdm Entry"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc."
 msgstr ""
 
 # html/pfappserver/root/user/view.tt
@@ -2235,6 +2331,14 @@ msgstr ""
 msgid "Nodes States"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+msgid "Nodes with the selected roles will be affected"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Nodes with the selected roles won\'t be affected by a violation of this type."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "None"
@@ -2256,6 +2360,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
 msgid "Number of Registration Pages"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just <i>click through</i> violation pages."
 msgstr ""
 
 # conf/documentation.conf (vlan.nbtraphandlerthreads)
@@ -2289,6 +2397,18 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "One-level"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Only for Wi-Fi, if the deauth request must be send to another device than the access point then set the ip of the controller"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Only for external captive portal, specify the URL of the captive portal that will be send back as a RADIUS attribute"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Only works for accounting violations.  The violation will be opened according to the time you set in the accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month)."
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
@@ -2665,6 +2785,10 @@ msgstr ""
 # pf::admin_roles (Actions)
 msgid "REPORTS"
 msgstr "Reports"
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one."
+msgstr ""
 
 # html/pfappserver/root/configuration/firewall_sso/index.tt
 msgid "Really delete this Firewall SSO?"
@@ -3230,6 +3354,10 @@ msgstr ""
 msgid "Should iptables be managed by PacketFence? Keep enabled unless you know what you're doing."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "Should match the IP of a registration interface or the production DNS server if the network is Inline L3"
+msgstr ""
+
 # conf/documentation.conf (services.memcached)
 msgid "Should memcached be managed by PacketFence? Keep enabled unless you know what you're doing."
 msgstr ""
@@ -3325,6 +3453,10 @@ msgstr ""
 msgid "Sleep interval"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Sleep interval between queries of MAC addresses"
+msgstr ""
+
 # html/pfappserver/root/admin/nodes.tt
 msgid "Source switch IP"
 msgstr ""
@@ -3332,6 +3464,10 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/portal/profile/tab-content.tt
 msgid "Sources"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -3504,8 +3640,16 @@ msgstr ""
 msgid "Test"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Text displayed on the violation form to hosts."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "The ID of the Switch"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Controller/Authentication/Source.pm
+msgid "The authentication source was not found."
 msgstr ""
 
 # conf/documentation.conf (registration.button_text)
@@ -3532,12 +3676,24 @@ msgstr ""
 msgid "The hidden SSID where the user should connect to after registration"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+msgid "The hostname must be the one of your captive portal."
+msgstr ""
+
 # html/pfappserver/root/configurator/services.tt
 msgid "The last step of this configuration wizard is to start the PacketFence daemons."
 msgstr ""
 
 # conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device)
 msgid "The maximum connections per device "
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Role.pm
+msgid "The maximum number of nodes a user having this role can register."
 msgstr ""
 
 # conf/documentation.conf (services.memcached_memory_usage)
@@ -3574,8 +3730,26 @@ msgstr ""
 msgid "The payment gateway to process the payments"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+msgid "The permissions the application requests."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
+msgid "The port must be configured as a muti-vlan port"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+msgid "The primary DNS server of your network."
+msgstr ""
+
 # conf/documentation.conf (registration.device_registration_role)
 msgid "The role to assign to gaming devices. If none is selected, the role of the registrant is used."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Controller/Authentication/Source.pm
+msgid "The rule was not found."
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_terminal_id)
@@ -3584,6 +3758,10 @@ msgstr ""
 
 # conf/documentation.conf (billing.mirapay_terminal_id_group)
 msgid "The terminal id group for mirapay"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+msgid "The username to use for login to the captive portal."
 msgstr ""
 
 # html/pfappserver/root/user/create.tt
@@ -3628,6 +3806,10 @@ msgstr ""
 msgid ""
   "This is the default access duration value selected in the dropdown. The value must be part of the "
   "above list of access duration choices."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
+msgid "This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link."
 msgstr ""
 
 # conf/documentation.conf (proxies)
@@ -3797,6 +3979,15 @@ msgstr "Users - Update"
 msgid "UTC_Timezone"
 msgstr "UTC Timezone"
 
+# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+msgid "Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+# html/pfappserver/lib/pfappserver/Controller/Authentication/Source.pm
+msgid "Unexpected error. See server-side logs for details."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Unregistration"
 msgstr ""
@@ -3831,6 +4022,14 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
 msgid "Uri required"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Use a number above 1500000 if you want to be able to delete this violation later."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only"
 msgstr ""
 
 # html/pfappserver/root/user/view.tt
@@ -3938,8 +4137,16 @@ msgstr "Violations - Update"
 msgid "VLAN"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Interface/Create.pm
+msgid "VLAN ID (must be a number bellow 4096)"
+msgstr ""
+
 # html/pfappserver/root/configurator/enforcement.tt
 msgid "VLAN enforcement"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
+msgid "VLAN in which PacketFence should put the port"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -4061,12 +4268,24 @@ msgid ""
   "if you defined <i>Proxy passthroughs</i> to allow trapped devices to reach web sites."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+msgid "When enabling the billing engine, all authentication sources bellow are ignored."
+msgstr ""
+
 # conf/documentation.conf (network.rogueinterval)
 msgid ""
   "When rogue DHCP server detection is enabled, this parameter defines "
   "how often to email administrators.  With its default setting of 10, "
   "it will email administrators the details of the previous 10 DHCP "
   "offers."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "When selecting the <strong>close</strong> action, triggering the violation will close this violation. This is an experimental workflow for Mobile Device Management (MDM)."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "When selecting the <strong>role</strong> action, triggering the violation will change the node to this role."
 msgstr ""
 
 # conf/documentation.conf (scan.engine)
@@ -4113,12 +4332,32 @@ msgstr ""
 msgid "Work phone"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+msgid "Wrong username or password."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+msgid "You don't have the rights to perform this action."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+msgid "You have been logged out."
+msgstr ""
+
 # html/pfappserver/root/configurator/services.tt
 msgid "You have successfully configured and launched PacketFence."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+msgid "You must choose at least one enforcement mechanism."
+msgstr ""
+
 # html/pfappserver/root/configurator/services.tt
 msgid "You must complete all steps in order to start the services."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+msgid "You must specifiy a gateway address."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
@@ -4131,6 +4370,14 @@ msgstr ""
 
 # html/pfappserver/root/configurator/networks.tt
 msgid "Your gateway IP address to access Internet."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/SavedSearch.pm
+msgid "Your saved search will appear in the menu on the left side of your screen."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+msgid "Your session has expired."
 msgstr ""
 
 # html/pfappserver/root/admin/login.tt

@@ -153,6 +153,39 @@ sub parse_tt {
     close(TT);
 }
 
+=head2 parse_mc
+
+Extract localizable strings from Models and Controllers classes.
+
+=cut
+
+sub parse_mc {
+    my $base = APP.'/lib/pfappserver/';
+    my @dir = qw/Base Controller Model/;
+    my @modules = ();
+
+    my $pm = sub {
+        return unless -f && m/\.pm$/;
+        push(@modules, $File::Find::name);
+    };
+
+    foreach my $path (@dir) {
+        find($pm, $base . $path);
+    }
+
+    my $line;
+    foreach my $module (@modules) {
+        open(PM, $module);
+        while (defined($line = <PM>)) {
+            chomp $line;
+            if ($line =~ m/\$c->loc\(['"](.+?[^'"\\])["']\)/) {
+                add_string($1, $module);
+            }
+        }
+        close(PM);
+    }
+}
+
 =head2 parse_forms
 
 Extract localizable strings from HTML::FormHandler classes.
@@ -175,7 +208,7 @@ sub parse_forms {
         open(PM, $form);
         while (defined($line = <PM>)) {
             chomp $line;
-            if ($line =~ m/(?:label|required) => ['"](.+?[^'"])["']/) {
+            if ($line =~ m/(?:label|required|help) => ['"](.+?[^'"\\])["']/) {
                 add_string($1, $form);
             }
         }
@@ -398,6 +431,7 @@ sub verify {
 
 &parse_po;
 &parse_tt;
+&parse_mc;
 &parse_forms;
 &parse_conf;
 &extract_modules;
