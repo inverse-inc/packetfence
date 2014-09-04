@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-09-04 16:07-0400\n"
+"PO-Revision-Date: 2014-09-04 16:43-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -45,7 +45,7 @@ msgid "90 days"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it doesn’t do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>"
+msgid "<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it doesn't do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>"
 msgstr ""
 
 # html/pfappserver/root/service/status.tt
@@ -582,8 +582,8 @@ msgid "Client Gateway"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Client_Support"
-msgstr "Client Support"
+msgid "Client Support"
+msgstr ""
 
 # html/pfappserver/root/configstore/mdm/list.tt
 # html/pfappserver/root/configuration/adminroles/list.tt
@@ -807,8 +807,8 @@ msgid "Copy File"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Coverage_Area"
-msgstr "Coverage Area"
+msgid "Coverage Area"
+msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
@@ -1344,12 +1344,12 @@ msgid "Engine ID"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "English_Location_City"
-msgstr "English Location City"
+msgid "English Location City"
+msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "English_Location_Name"
-msgstr "English Location Name"
+msgid "English Location Name"
+msgstr ""
 
 # html/pfappserver/root/configurator/database.tt
 msgid "Enter the MySQL root account credentials"
@@ -1865,11 +1865,41 @@ msgid "Location"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "Location Address 1"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "Location Address 2"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location Country Name"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location Identifier"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location Phone Number"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location State Province Name"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location Type"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location URL"
+msgstr ""
+
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Location Zip Postal Code"
 msgstr ""
 
 # conf/documentation.conf (services.radiusd_binary)
@@ -1924,42 +1954,6 @@ msgstr ""
 msgid "Location of the suricata binary."
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Location_Address1"
-msgstr "Location Address1"
-
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Location_Address2"
-msgstr "Location Address2"
-
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Location_Country_Name"
-msgstr "Location Country Name"
-
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Location_Identifier"
-msgstr "Location Identifier"
-
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Location_Phone_Number"
-msgstr "Location Phone Number"
-
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Location_State_Province_Name"
-msgstr "Location State Province Name"
-
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Location_Type"
-msgstr "Location Type"
-
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Location_URL"
-msgstr "Location URL"
-
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Location_Zip_Postal_Code"
-msgstr "Location Zip Postal Code"
-
 # conf/documentation.conf (alerting.log)
 msgid "Log file where <i>log</i> actions are sent."
 msgstr ""
@@ -2006,6 +2000,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+# html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "MAC Address"
 msgstr ""
 
@@ -2021,10 +2016,6 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 msgid "MAC address"
 msgstr ""
-
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "MAC_Address"
-msgstr "MAC Address"
 
 # pf::admin_roles (Actions)
 msgid "MAC_READ"
@@ -2448,30 +2439,37 @@ msgid "Only works for accounting violations.  The violation will be opened accor
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
+# pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Friday"
 msgstr "Open Friday"
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
+# pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Monday"
 msgstr "Open Monday"
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
+# pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Saturday"
 msgstr "Open Saturday"
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
+# pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Sunday"
 msgstr "Open Sunday"
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
+# pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Thursday"
 msgstr "Open Thursday"
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
+# pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Tuesday"
 msgstr "Open Tuesday"
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
+# pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Wednesday"
 msgstr "Open Wednesday"
 
@@ -2614,7 +2612,7 @@ msgid "Please specify an identifier for the violation."
 msgstr "Please specify an identifier for the violation."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
-msgid "Please specify the DNS server"
+msgid "Please specify the DNS server's IP address."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
@@ -3001,8 +2999,8 @@ msgid "Restart All"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Restricted_Access"
-msgstr "Restricted Access"
+msgid "Restricted Access"
+msgstr ""
 
 # html/pfappserver/root/node/advanced_search.tt
 # html/pfappserver/root/node/search.tt
@@ -3142,20 +3140,20 @@ msgid "SSID"
 msgstr "SSID"
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "SSID_1X"
-msgstr "SSID 1X"
+msgid "SSID 1X"
+msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "SSID_1X_Broadcasted"
-msgstr "SSID 1X Broadcasted"
+msgid "SSID 1X Broadcasted"
+msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "SSID_Broadcasted"
-msgstr "SSID Broadcasted"
+msgid "SSID Broadcasted"
+msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "SSID_Open_Auth"
-msgstr "SSID Open Auth"
+msgid "SSID Open Auth"
+msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
 msgid "SSIDs"
@@ -3293,8 +3291,8 @@ msgid "Secure your network"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Security_Protocol_1X"
-msgstr "Security Protocol 1X"
+msgid "Security Protocol 1X"
+msgstr ""
 
 # html/pfappserver/root/node/violations.tt
 msgid "Select a violation"
@@ -3324,13 +3322,13 @@ msgid ""
   "you don't change it!"
 msgstr ""
 
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Service Provider Brand"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 msgid "Service watch"
 msgstr ""
-
-# html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Service_Provider_Brand"
-msgstr "Service Provider Brand"
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/status.tt
@@ -3605,8 +3603,8 @@ msgid "Stopped"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "Sub_Location_Type"
-msgstr "Sub Location Type"
+msgid "Sub Location Type"
+msgstr ""
 
 # conf/documentation.conf (alerting.subjectprefix)
 msgid ""
@@ -4028,8 +4026,8 @@ msgid "USERS_UPDATE"
 msgstr "Users - Update"
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "UTC_Timezone"
-msgstr "UTC Timezone"
+msgid "UTC Timezone"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
 msgid "Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL."
@@ -4260,16 +4258,16 @@ msgid "Voice Over IP (yes/no)"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "WEP_Key"
-msgstr "WEP Key"
+msgid "WEP Key"
+msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "WEP_Key_Entry_Method"
-msgstr "WEP Key Entry Method"
+msgid "WEP Key Entry Method"
+msgstr ""
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
-msgid "WEP_Key_Size"
-msgstr "WEP Key Size"
+msgid "WEP Key Size"
+msgstr ""
 
 # conf/documentation.conf (alerting.wins_server)
 msgid ""

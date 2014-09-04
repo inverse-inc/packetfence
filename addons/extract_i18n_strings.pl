@@ -22,6 +22,7 @@ use pf::Authentication::constants;
 use pf::Switch::constants;
 use pfappserver::Controller::Graph;
 use pfappserver::Model::Node;
+use pfappserver::Form::Config::Wrix;
 use pf::config;
 
 use constant {
@@ -211,7 +212,8 @@ sub parse_forms {
         open(PM, $form);
         while (defined($line = <PM>)) {
             chomp $line;
-            if ($line =~ m/(?:label|required|help) => ['"](.+?[^'"\\])["']/) {
+            if ($line =~ m/(?:label|required|help) => "(.+?[^\\])["]/ ||
+                $line =~ m/(?:label|required|help) => '(.+?[^\\])[']/) {
                 my $string = $1;
                 $string =~ s/\\'/'/g;
                 add_string($string, $form);
@@ -355,6 +357,8 @@ sub extract_modules {
     const('pfappserver::Model::Node', 'availableStatus', $attributes);
 
     const('pfappserver::Controller::Graph', 'graph type', \@pfappserver::Controller::Graph::GRAPHS);
+
+    const('pfappserver::Form::Config::Wrix', 'open hours', \@pfappserver::Form::Config::Wrix::HOURS);
 
     const('html/pfappserver/root/user/list_password.tt', 'options', ['mail_loading']);
 }
