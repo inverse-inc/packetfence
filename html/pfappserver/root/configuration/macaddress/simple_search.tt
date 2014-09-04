@@ -5,8 +5,8 @@
       </div>
       [%- END %]
     [%- INCLUDE 'configuration/listing.inc' titles = {
-            oui =>{ title => 'OUI' },
-            vendor_info => { title => 'Vendor' },
+            oui =>{ title => l('OUI') },
+            vendor_info => { title => l('Vendor') },
         }
         section = 'configuration/macaddress/simple_search'
      -%]

@@ -3,9 +3,9 @@
       <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Configuration::UserAgents').action_for('upload') )%]"><i class="icon-share"></i> [% l('Share Unknown User Agents') %]</a>
     </div>
     [%- INCLUDE 'configuration/listing.inc' titles = {
-            id => { title => 'ID', class => 'hidden-phone' },
-            property => { title => 'Property' },
-            description => { title => 'Description' }
+            id => { title => l('ID'), class => 'hidden-phone' },
+            property => { title => l('Property') },
+            description => { title => l('Description') }
         }
         section = 'configuration/useragents/simple_search'
      -%]

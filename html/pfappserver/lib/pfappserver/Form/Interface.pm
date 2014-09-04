@@ -71,11 +71,11 @@ has_field 'vip' =>
   );
 
 has_field 'nat_enabled' => (
-    type            => 'Toggle',
-    checkbox_value  => 1,
+    type => 'Toggle',
+    checkbox_value => 1,
     unchecked_value => 0,
-    default         => 1,
-    label           => 'Enable NATting',
+    default => 1,
+    label => 'Enable NATting',
 );
 
 =head2 options_type
