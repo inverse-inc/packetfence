@@ -18,12 +18,12 @@
               <thead>
                 <tr>
                   <th><input type="checkbox" value="on" id="toggle_all_items"/></th>
-                  [% header('pid', 'Username') %]
-                  [% header('firstname', 'Firstname', 'hidden-phone') %]
-                  [% header('lastname', 'Lastname', 'hidden-phone') %]
-                  [% header('email', 'Email') %]
-                  [% header('telephone', 'Telephone') %]
-                  [% header('nodes', '# nodes') %]
+                  [% header('pid', l('Username')) %]
+                  [% header('firstname', l('Firstname'), 'hidden-phone') %]
+                  [% header('lastname', l('Lastname'), 'hidden-phone') %]
+                  [% header('email', l('Email')) %]
+                  [% header('telephone', l('Telephone')) %]
+                  [% header('nodes', l('# nodes')) %]
                 </tr>
               </thead>
               <tbody>
