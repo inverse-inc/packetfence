@@ -143,6 +143,7 @@ sub doEmailRegistration : Private {
             $c->session->{source_id} = $source->{id};
             $c->stash->{info}=\%info; 
             $c->forward('Authenticate' => 'postAuthentication');
+            $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
 
             # change the unregdate of the node associated with the submitted code
             # FIXME
@@ -153,38 +154,6 @@ sub doEmailRegistration : Private {
                     'category'  => $c->stash->{info}->{category},
                 )
             );
-
-            # Create local account for external authentication sources (if configured to do so)
-            if ( isenabled($source->{create_local_account}) ) {
-                $logger->debug("External source local account creation is enabled for this source. We proceed");
-                # We create a "temporary password" associated to the email address provided on
-                # authentication which is the pid.
-                my $actions = &pf::authentication::match( $source->{id}, $auth_params );
-                my $password = pf::temporary_password::generate( $pid, $actions );
-
-                # We send the guest an email with the info of the local account
-                my %info = (
-                    'pid'       => $pid,
-                    'password'  => $password,
-                    'email'     => $email,
-                    'subject'   => i18n_format(
-                        "%s: Guest account creation information", $Config{'general'}{'domain'}
-                    ),
-                );
-
-                pf::web::guest::send_template_email(
-                    $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
-                );
-
-                # We display the local account info on the confirmation portal page
-                $c->stash (
-                    local_account_creation  => $TRUE,
-                    pid => $pid,
-                    password => $password,
-                );
-
-                $logger->info("Local account for external source " . $source->{id} . " created with PID $pid");
-            }
 
             $c->stash(
                 template   => $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE,
@@ -329,6 +298,7 @@ sub doSponsorRegistration : Private {
             $c->session->{source_id} = $source->{id};
             $c->stash->{info}=\%info; 
             $c->forward('Authenticate' => 'postAuthentication');
+            $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
             # We send email to the guest confirming that network access has been enabled
@@ -336,31 +306,6 @@ sub doSponsorRegistration : Private {
             $info{'email'} = $info{'pid'};
             $info{'subject'} = i18n_format("%s: Guest network access enabled", $Config{'general'}{'domain'});
             pf::web::guest::send_template_email($template, $info{'subject'}, \%info);
-
-            # Create local account for external authentication sources (if configured to do so)
-            if ( isenabled($source->{create_local_account}) ) {
-                $logger->debug("External source local account creation is enabled for this source. We proceed");
-                # We create a "temporary password" associated to the email address provided on
-                # authentication which is the pid.
-                my $actions = &pf::authentication::match( $source->{id}, $auth_params );
-                my $password = pf::temporary_password::generate( $pid, $actions );
-
-                # We send the guest an email with the info of the local account
-                my %info = (
-                    'pid'           => $pid,
-                    'password'      => $password,
-                    'email'         => $info{'email'},
-                    'subject'       => i18n_format(
-                        "%s: Guest account creation information", $Config{'general'}{'domain'}
-                    ),
-                );
-
-                pf::web::guest::send_template_email(
-                    $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
-                );
-
-                $logger->info("Local account for external source " . $source->{id} . " created with PID $pid");
-            }
         }
 
         # Guest off-site sponsor registration

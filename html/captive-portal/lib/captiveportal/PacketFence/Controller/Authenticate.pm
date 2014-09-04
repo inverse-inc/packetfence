@@ -267,6 +267,51 @@ sub setUnRegDate : Private {
     }
 }
 
+sub createLocalAccount : Private {
+    my ( $self, $c, $auth_params ) = @_;
+    my $logger = $c->log;
+
+    $logger->debug("External source local account creation is enabled for this source. We proceed");
+
+    # We create a "temporary password" (also known as a user account) using the pid 
+    # with different parameters coming from the authentication source (ie.: expiration date)
+    my $actions = &pf::authentication::match( $c->session->{source_id}, $auth_params );
+
+    # If access duration is configured in the source rules, we use it to generate an unregdate.
+    my $access_duration = &pf::authentication::match( $c->session->{source_id}, $auth_params, $Actions::SET_ACCESS_DURATION );
+    if ( defined($access_duration) ) {
+        my $unreg_date = pf::config::access_duration($access_duration);
+        my $action = pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE, value => $unreg_date});
+        push (@$actions, $action);
+        $logger->debug("We generated an unregistration date ($unreg_date) for the local account with the provided access duration ($access_duration).");
+    }
+
+    my $password = pf::temporary_password::generate($auth_params->{username}, $actions, $c->stash->{sms_pin});
+
+    # We send the guest and email with the info of the local account
+    my %info = (
+        'pid'       => $auth_params->{username},
+        'password'  => $password,
+        'email'     => $auth_params->{user_email},
+        'subject'   => i18n(
+            "%s: Guest account creation information", $Config{'general'}{'domain'}
+        ),
+    );
+    pf::web::guest::send_template_email(
+            $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
+    );
+
+    # We put some value in stash for web portal consumption
+    # Note: Only used on email on-site registration
+    $c->stash (
+        local_account_creation  => $TRUE,
+        pid                     => $auth_params->{username},
+        password                => $password,
+    );
+
+    $logger->info("Local account for external source " . $c->session->{source_id} . " created with PID " . $auth_params->{username});
+}
+
 sub validateLogin : Private {
     my ( $self, $c ) = @_;
     my $logger  = $c->log;
