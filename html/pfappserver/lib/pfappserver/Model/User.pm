@@ -18,6 +18,7 @@ use namespace::autoclean;
 use Date::Parse;
 use POSIX;
 use Text::CSV;
+use List::MoreUtils qw(any none);
 
 use pf::config;
 use pf::Authentication::constants;
@@ -334,6 +335,11 @@ sub createSingle {
     my $pid = $data->{pid};
     my @users = ();
 
+    unless ($self->_userRoleAllowedForUser($data, $user)) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
+    }
+   
+
     # Adding person (using modify in case person already exists)
     $result = person_modify($pid,
                             (
@@ -367,6 +373,18 @@ sub createSingle {
     return ($status, \@users);
 }
 
+=head2 _userRoleAllowedForUser
+
+
+=cut
+
+sub _userRoleAllowedForUser {
+    my ($self, $data, $user) = @_;
+    #User does not have the role of ALL then it cannot create a user with the same role 
+    return 1 if any { 'ALL' eq $_ } $user->roles;
+    return none { $_->{value} eq 'ALL' && $_->{type} eq 'set_access_level' } @{$data->{actions} || []};
+}
+
 =head2 createMultiple
 
 pf::web::guest::preregister_multiple
@@ -377,6 +395,9 @@ sub createMultiple {
     my ($self, $data, $user) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    unless ($self->_userRoleAllowedForUser($data, $user)) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
+    }
     my ($status, $result) = ($STATUS::CREATED);
     my $pid;
     my $prefix = $data->{prefix};
@@ -430,6 +451,9 @@ sub importCSV {
     my ($self, $data, $user) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    unless ($self->_userRoleAllowedForUser($data, $user)) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
+    }
     my ($status, $message);
     my @users = ();
     my $filename = $data->{users_file}->filename;

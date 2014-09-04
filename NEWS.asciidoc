@@ -51,6 +51,7 @@ Enhancements
 * Improve error handling of web api
 * Raised ServerLimit on apache httpd.portal, Lowered httpd.portal Timeout and KeepAliveTimeout to improve responsiveness under load. 
 * Do not overlay the controllerIp if one is already defined when creating a switch
+* Verify the user roles level before creating a user via the admin gui
 
 Bug Fixes
 +++++++++
