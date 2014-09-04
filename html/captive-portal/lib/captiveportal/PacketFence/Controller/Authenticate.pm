@@ -276,6 +276,16 @@ sub createLocalAccount : Private {
     # We create a "temporary password" (also known as a user account) using the pid 
     # with different parameters coming from the authentication source (ie.: expiration date)
     my $actions = &pf::authentication::match( $c->session->{source_id}, $auth_params );
+
+    # If access duration is configured in the source rules, we use it to generate an unregdate.
+    my $access_duration = &pf::authentication::match( $c->session->{source_id}, $auth_params, $Actions::SET_ACCESS_DURATION );
+    if ( defined($access_duration) ) {
+        my $unreg_date = pf::config::access_duration($access_duration);
+        my $action = pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE, value => $unreg_date});
+        push (@$actions, $action);
+        $logger->debug("We generated an unregistration date ($unreg_date) for the local account with the provided access duration ($access_duration).");
+    }
+
     my $password = pf::temporary_password::generate($auth_params->{username}, $actions, $c->stash->{sms_pin});
 
     # We send the guest and email with the info of the local account
