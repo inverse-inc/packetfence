@@ -4854,7 +4854,7 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "guests_admin_registration"
-msgstr "Admin Registration"
+msgstr "Access Duration"
 
 # conf/documentation.conf
 msgid "guests_admin_registration.access_duration_choices"
