@@ -122,8 +122,8 @@
                 <thead>
                   <tr>
                     <th>[% l('IP') %]</th>
-                    <th>[% l('Start') %]</th>
-                    <th>[% l('End') %]</th>
+                    <th>[% l('Start Time') %]</th>
+                    <th>[% l('End Time') %]</th>
                   </tr>
                 </thead>
                 <tbody>
