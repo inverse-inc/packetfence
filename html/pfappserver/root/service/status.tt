@@ -27,7 +27,7 @@
         <td>
           <span id="service-[% service %]"
           class="label[% IF started %] label-success[% END %]">
-          [%- IF started %]Started[%- ELSE -%]Stopped[% END -%]</span>
+          [%- IF started %][% l('Started') %][%- ELSE -%][% l('Stopped') %][% END -%]</span>
         </td>
         <td>
           <span class="pull-right">
