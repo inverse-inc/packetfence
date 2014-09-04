@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-09-03 15:42-0400\n"
+"PO-Revision-Date: 2014-09-04 16:07-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -42,6 +42,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
 msgid "90 days"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it doesn’t do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>"
 msgstr ""
 
 # html/pfappserver/root/service/status.tt
@@ -114,6 +118,10 @@ msgstr ""
 
 # html/pfappserver/root/user/print.tt
 msgid "Access Code"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Access Duration"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -284,10 +292,6 @@ msgstr ""
 msgid "Admin Login"
 msgstr ""
 
-# html/pfappserver/root/admin/configuration.tt
-msgid "Admin Registration"
-msgstr ""
-
 # html/pfappserver/root/configuration/adminroles/view.tt
 msgid "Admin Role"
 msgstr ""
@@ -452,6 +456,10 @@ msgstr ""
 
 # html/pfappserver/root/node/view.tt
 msgid "Bandwidth Balance"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+msgid "Bandwidth per Operating System Class"
 msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
@@ -755,6 +763,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
 msgid "Connections"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+msgid "Connections Types"
 msgstr ""
 
 # html/pfappserver/root/configurator/services.tt
@@ -1255,6 +1267,11 @@ msgstr ""
 msgid "Enable DHCP Server"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+msgid "Enable NATting"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Enable Password"
 msgstr ""
@@ -1304,6 +1321,10 @@ msgstr ""
 
 # html/pfappserver/root/node/view.tt
 msgid "End"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "End Time"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
@@ -1636,6 +1657,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Identifier"
+msgstr ""
+
+# html/pfappserver/root/authentication/source/rule_read.tt
+msgid "If [_1] of the following conditions are met:"
 msgstr ""
 
 # conf/documentation.conf (network.dhcpoption82logger)
@@ -2045,6 +2070,12 @@ msgstr ""
 msgid "Manually add nodes to the system."
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/configuration/wrix/search_form.tt
+msgid "Match [_1] of the following conditions:"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Max Enables"
 msgstr ""
@@ -2212,6 +2243,10 @@ msgstr ""
 msgid "New Network"
 msgstr ""
 
+# pfappserver::Controller::Graph (graph type)
+msgid "New Nodes"
+msgstr ""
+
 # html/pfappserver/root/configurator/database.tt
 msgid "New Password"
 msgstr ""
@@ -2321,6 +2356,7 @@ msgstr ""
 msgid "Node role"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Controller/Graph.pm
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/admin/wrapper.tt
@@ -2439,6 +2475,7 @@ msgstr "Open Tuesday"
 msgid "Open_Wednesday"
 msgstr "Open Wednesday"
 
+# html/pfappserver/lib/pfappserver/Controller/Graph.pm
 # html/pfappserver/root/admin/reports.tt
 msgid "Operating Systems"
 msgstr ""
@@ -2871,6 +2908,10 @@ msgstr ""
 msgid "Register"
 msgstr ""
 
+# pfappserver::Controller::Graph (graph type)
+msgid "Registered Nodes"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/admin/configuration.tt
@@ -3094,6 +3135,7 @@ msgstr "SoH Filters - Read"
 msgid "SOH_UPDATE"
 msgstr "SoH Filters - Update"
 
+# html/pfappserver/lib/pfappserver/Controller/Graph.pm
 # html/pfappserver/root/configuration/wrix/view.tt
 # pf::Authentication::Source (common_attributes)
 msgid "SSID"
@@ -3507,11 +3549,16 @@ msgstr ""
 msgid "Start TLS"
 msgstr ""
 
+# html/pfappserver/root/node/view.tt
+msgid "Start Time"
+msgstr ""
+
 # html/pfappserver/root/configurator/services.tt
 msgid "Start the services"
 msgstr ""
 
 # html/pfappserver/root/configurator/services.tt
+# html/pfappserver/root/service/status.tt
 msgid "Started"
 msgstr ""
 
@@ -3553,6 +3600,7 @@ msgid "Stop Anyway"
 msgstr ""
 
 # html/pfappserver/root/configurator/services.tt
+# html/pfappserver/root/service/status.tt
 msgid "Stopped"
 msgstr ""
 
@@ -3874,6 +3922,10 @@ msgstr ""
 msgid "Top 25 Bandwith Consumers"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+msgid "Top Bandwidth Consumers"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Transport"
 msgstr ""
@@ -3986,6 +4038,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Controller/Admin.pm
 # html/pfappserver/lib/pfappserver/Controller/Authentication/Source.pm
 msgid "Unexpected error. See server-side logs for details."
+msgstr ""
+
+# pfappserver::Controller::Graph (graph type)
+msgid "Unregistered Nodes"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
@@ -4170,10 +4226,12 @@ msgstr ""
 msgid "Violation to close"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Controller/Graph.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/user/view.tt
+# pfappserver::Controller::Graph (graph type)
 msgid "Violations"
 msgstr ""
 
@@ -4298,6 +4356,14 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Window"
+msgstr ""
+
+# pfappserver::Controller::Graph (graph type)
+msgid "Wired Connections"
+msgstr ""
+
+# pfappserver::Controller::Graph (graph type)
+msgid "Wireless Connections"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt

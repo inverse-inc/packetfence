@@ -20,6 +20,7 @@ use pf::admin_roles;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::Switch::constants;
+use pfappserver::Controller::Graph;
 use pfappserver::Model::Node;
 use pf::config;
 
@@ -122,7 +123,7 @@ sub parse_tt {
         open(TT, $template);
         while (defined($line = <TT>)) {
             chomp $line;
-            while ($line =~ m/\[\% l\('(.+?)'\) (\| js )?\%\]/g) {
+            while ($line =~ m/\[\% l\('(.+?)'(,.*)?\) (\| js )?\%\]/g) {
                 add_string($1, $template);
             }
         }
@@ -352,6 +353,8 @@ sub extract_modules {
 
     $attributes = pfappserver::Model::Node->availableStatus();
     const('pfappserver::Model::Node', 'availableStatus', $attributes);
+
+    const('pfappserver::Controller::Graph', 'graph type', \@pfappserver::Controller::Graph::GRAPHS);
 
     const('html/pfappserver/root/user/list_password.tt', 'options', ['mail_loading']);
 }

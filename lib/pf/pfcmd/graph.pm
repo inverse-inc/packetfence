@@ -43,38 +43,38 @@ our $graph_statements = {};
 
 sub graph_db_prepare {
     $graph_statements->{'graph_registered_day_sql'} = get_db_handle()->prepare(
-         qq [ SELECT 'registered nodes' as series, DATE_FORMAT(regdate,"%Y/%m/%d") AS mydate, count(*) AS count FROM node WHERE status = 'reg' AND regdate BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
+         qq [ SELECT 'Registered Nodes' as series, DATE_FORMAT(regdate,"%Y/%m/%d") AS mydate, count(*) AS count FROM node WHERE status = 'reg' AND regdate BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
 
     $graph_statements->{'graph_registered_month_sql'} = get_db_handle()->prepare(
-         qq [ SELECT 'registered nodes' as series, DATE_FORMAT(regdate,"%Y/%m") AS mydate, count(*) AS count FROM node WHERE status = 'reg' AND regdate BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
+         qq [ SELECT 'Registered Nodes' as series, DATE_FORMAT(regdate,"%Y/%m") AS mydate, count(*) AS count FROM node WHERE status = 'reg' AND regdate BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
 
     $graph_statements->{'graph_registered_year_sql'} = get_db_handle()->prepare(
-        qq [ SELECT 'registered nodes' as series, mydate, (SELECT COUNT(*) FROM node WHERE DATE_FORMAT(regdate,"%Y") <= mydate AND regdate!=0) as count FROM  (SELECT DISTINCT DATE_FORMAT(regdate,"%Y") AS mydate FROM node) as tmp order by mydate ]);
+        qq [ SELECT 'Registered Nodes' as series, mydate, (SELECT COUNT(*) FROM node WHERE DATE_FORMAT(regdate,"%Y") <= mydate AND regdate!=0) as count FROM  (SELECT DISTINCT DATE_FORMAT(regdate,"%Y") AS mydate FROM node) as tmp order by mydate ]);
 
     $graph_statements->{'graph_unregistered_day_sql'} = get_db_handle()->prepare(
-        qq [ SELECT 'unregistered nodes' as series, DATE_FORMAT(unregdate,"%Y/%m/%d") AS mydate, count(*) count FROM node WHERE status = 'unreg' AND unregdate BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
+        qq [ SELECT 'Unregistered Nodes' as series, DATE_FORMAT(unregdate,"%Y/%m/%d") AS mydate, count(*) count FROM node WHERE status = 'unreg' AND unregdate BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
 
     $graph_statements->{'graph_unregistered_month_sql'} = get_db_handle()->prepare(
-        qq [ SELECT 'unregistered nodes' as series, DATE_FORMAT(unregdate,"%Y/%m") AS mydate, count(*) count FROM node WHERE status = 'unreg' AND unregdate BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
+        qq [ SELECT 'Unregistered Nodes' as series, DATE_FORMAT(unregdate,"%Y/%m") AS mydate, count(*) count FROM node WHERE status = 'unreg' AND unregdate BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
 
     $graph_statements->{'graph_unregistered_year_sql'} = get_db_handle()->prepare(
-        qq [ SELECT 'unregistered nodes' as series, mydate, (SELECT COUNT(*) FROM node WHERE DATE_FORMAT(unregdate,"%Y") <= mydate AND (DATE_FORMAT(regdate,"%Y") >= mydate OR regdate=0) ) AS count FROM (SELECT DISTINCT DATE_FORMAT(unregdate,"%Y") AS mydate FROM node) as tmp group by mydate order by mydate ]);
+        qq [ SELECT 'Unregistered Nodes' as series, mydate, (SELECT COUNT(*) FROM node WHERE DATE_FORMAT(unregdate,"%Y") <= mydate AND (DATE_FORMAT(regdate,"%Y") >= mydate OR regdate=0) ) AS count FROM (SELECT DISTINCT DATE_FORMAT(unregdate,"%Y") AS mydate FROM node) as tmp group by mydate order by mydate ]);
 
     $graph_statements->{'graph_detected_day_sql'} = get_db_handle()->prepare(
-         qq [ SELECT 'detected nodes' as series, DATE_FORMAT(detect_date,"%Y/%m/%d") AS mydate, count(*) AS count FROM node WHERE detect_date BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
+         qq [ SELECT 'Detected Nodes' as series, DATE_FORMAT(detect_date,"%Y/%m/%d") AS mydate, count(*) AS count FROM node WHERE detect_date BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
 
     $graph_statements->{'graph_detected_month_sql'} = get_db_handle()->prepare(
-         qq [ SELECT 'detected nodes' as series, DATE_FORMAT(detect_date,"%Y/%m") AS mydate, count(*) AS count FROM node WHERE detect_date BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
+         qq [ SELECT 'Detected Nodes' as series, DATE_FORMAT(detect_date,"%Y/%m") AS mydate, count(*) AS count FROM node WHERE detect_date BETWEEN ? AND ? GROUP BY mydate ORDER BY mydate]);
 
     $graph_statements->{'graph_violations_all_day_sql'} = get_db_handle()->prepare(qq[
-         SELECT 'violations' AS series, DATE_FORMAT(start_date,'%Y/%m/%d') AS mydate, count(*) AS count
+         SELECT 'Violations' AS series, DATE_FORMAT(start_date,'%Y/%m/%d') AS mydate, count(*) AS count
          FROM violation
          WHERE start_date BETWEEN ? AND ?
          GROUP BY mydate ORDER BY mydate
     ]);
 
     $graph_statements->{'graph_violations_all_month_sql'} = get_db_handle()->prepare(qq[
-         SELECT 'violations' AS series, DATE_FORMAT(start_date,'%Y/%m') AS mydate, count(*) AS count
+         SELECT 'Violations' AS series, DATE_FORMAT(start_date,'%Y/%m') AS mydate, count(*) AS count
          FROM violation
          WHERE start_date BETWEEN ? AND ?
          GROUP BY mydate ORDER BY mydate
@@ -128,7 +128,7 @@ sub graph_db_prepare {
     SQL
 
     $graph_statements->{'graph_wired_day_sql'} = get_db_handle()->prepare(<<"    SQL");
-        SELECT 'wired' as series, start_day AS mydate, count(*) AS count FROM (
+        SELECT 'Wired Connections' as series, start_day AS mydate, count(*) AS count FROM (
           SELECT mac, DATE_FORMAT(start_time,"%Y/%m/%d") AS start_day
           FROM locationlog
           WHERE start_time > ? AND start_time < ? AND connection_type NOT LIKE 'Wireless%'
@@ -138,7 +138,7 @@ sub graph_db_prepare {
     SQL
 
     $graph_statements->{'graph_wired_month_sql'} = get_db_handle()->prepare(<<"    SQL");
-        SELECT 'wired' as series, start_day AS mydate, count(*) AS count FROM (
+        SELECT 'Wired Connections' as series, start_day AS mydate, count(*) AS count FROM (
           SELECT mac, DATE_FORMAT(start_time,"%Y/%m") AS start_day
           FROM locationlog
           WHERE start_time > ? AND start_time < ? AND connection_type NOT LIKE 'Wireless%'
@@ -148,7 +148,7 @@ sub graph_db_prepare {
     SQL
 
     $graph_statements->{'graph_wireless_day_sql'} = get_db_handle()->prepare(<<"    SQL");
-        SELECT 'wireless' as series, start_day AS mydate, count(*) AS count FROM (
+        SELECT 'Wireless Connections' as series, start_day AS mydate, count(*) AS count FROM (
           SELECT mac, DATE_FORMAT(start_time,"%Y/%m/%d") AS start_day
           FROM locationlog
           WHERE start_time > ? AND start_time < ? AND connection_type LIKE 'Wireless%'
@@ -158,7 +158,7 @@ sub graph_db_prepare {
     SQL
 
     $graph_statements->{'graph_wireless_month_sql'} = get_db_handle()->prepare(<<"    SQL");
-        SELECT 'wireless' as series, start_day AS mydate, count(*) AS count FROM (
+        SELECT 'Wireless Connections' as series, start_day AS mydate, count(*) AS count FROM (
           SELECT mac, DATE_FORMAT(start_time,"%Y/%m") AS start_day
           FROM locationlog
           WHERE start_time > ? AND start_time < ? AND connection_type LIKE 'Wireless%'

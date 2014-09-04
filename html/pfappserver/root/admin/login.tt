@@ -8,7 +8,7 @@
 [% IF status_msg %]
           <div class="alert alert-warning">
             <button class="close" data-dismiss="alert-success">&times;</button>
-            <strong>Warning!</strong> <span>[% status_msg %]</span>
+            <strong>[% l("Warning!") %]</strong> <span>[% status_msg %]</span>
           </div>
 [% END %]
           <form name="login" class="form-horizontal" action="[% c.uri_for(c.controller.action_for('login')) %]" method="post">
