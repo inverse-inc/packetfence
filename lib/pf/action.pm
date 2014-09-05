@@ -45,7 +45,9 @@ Readonly::Array our @VIOLATION_ACTIONS =>
    $EMAIL,
    $TRAP,
    $LOG,
-   $EXTERNAL,
+   # remove the external action from the selection since it's bug in the admin gui
+   # it needs to be created with a suffix id and create a path in pf.conf [path.external<id>]
+   #$EXTERNAL,
    $WINPOPUP,
    $CLOSE,
    $ROLE,
