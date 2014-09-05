@@ -265,6 +265,9 @@ sub setUnRegDate : Private {
         $logger->trace("Got unregdate $value for username \"$pid\"");
         $info->{unregdate} = $value;
     }
+
+    # We put the unregistration date in session since we may want to use it later in the flow
+    $c->session->{unregdate} = $info->{unregdate};
 }
 
 sub createLocalAccount : Private {
@@ -277,14 +280,9 @@ sub createLocalAccount : Private {
     # with different parameters coming from the authentication source (ie.: expiration date)
     my $actions = &pf::authentication::match( $c->session->{source_id}, $auth_params );
 
-    # If access duration is configured in the source rules, we use it to generate an unregdate.
-    my $access_duration = &pf::authentication::match( $c->session->{source_id}, $auth_params, $Actions::SET_ACCESS_DURATION );
-    if ( defined($access_duration) ) {
-        my $unreg_date = pf::config::access_duration($access_duration);
-        my $action = pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE, value => $unreg_date});
-        push (@$actions, $action);
-        $logger->debug("We generated an unregistration date ($unreg_date) for the local account with the provided access duration ($access_duration).");
-    }
+    # We push an unregistration date that was previously calculated (setUnRegDate) that handle dynamic unregistration date and access duration
+    my $action = pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE, value => $c->session->{unregdate}});
+    push (@$actions, $action);
 
     my $password = pf::temporary_password::generate($auth_params->{username}, $actions, $c->stash->{sms_pin});
 
