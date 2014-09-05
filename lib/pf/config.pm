@@ -874,7 +874,7 @@ sub dynamic_unreg_date {
 
     my $time_zone = DateTime::TimeZone->new( name => 'local' );
     if (DateTime->new(year => $year, month => $month, day => $day, time_zone => $time_zone )->epoch <= DateTime->now(time_zone => $time_zone)->epoch) {
-        $logger->warn("The DOY is today or before today. Setting date to next year");
+        $logger->warn("The DAY is today or before today. Setting date to next year");
         $year += 1;
         $unreg_date = "$year-$month-$day";
     } else {
