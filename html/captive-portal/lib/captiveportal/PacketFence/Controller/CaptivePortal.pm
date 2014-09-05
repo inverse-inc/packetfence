@@ -379,8 +379,12 @@ sub unknownState : Private {
           "Make sure your network device configuration is correct."
         );
         my $node = node_view($mac);
-        my $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
-        if($switch->supportsWebFormRegistration){
+        my $switch;
+        if( pf::SwitchFactory->hasId($node->{last_switch}) ){
+            $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
+        }
+
+        if(defined($switch) && $switch->supportsWebFormRegistration){
             $logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate [$mac]");
             $c->stash(
                 template => 'webFormRelease.html',
