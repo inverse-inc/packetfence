@@ -54,7 +54,7 @@ has_field 'mode' =>
    label => 'Mode',
    required => 1,
    tags => { after_element => \&help_list,
-             help => '<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it doesn’t do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>' },
+             help => "<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it doesn't do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>" },
   );
 has_field 'deauthMethod' =>
   (

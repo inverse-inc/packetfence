@@ -13,14 +13,14 @@
 [%- IF labels.size > 0 %]
 <div class="row-fluid">
   <div class="span8">
-    <div id="[% id | html %]" class="chart"></div>
+    <div id="[% l(id) | css %]" class="chart"></div>
     <script type="text/javascript">
-graphs.charts['[% id | html %]'] = {
+graphs.charts['[% l(id) | css %]'] = {
     type: '[% graphtype | html %]',
     labels: ['[% labels.join("','") | html %]'],
     series: {
     [% FOREACH set IN series.keys -%]
-      '[% set | html %]' : [[% series.$set.join(',') | html %]][% UNLESS loop.last %],[% END %]
+      '[% l(set) | css %]' : [[% series.$set.join(',') | html %]][% UNLESS loop.last %],[% END %]
     [%- END %]
     }
 };

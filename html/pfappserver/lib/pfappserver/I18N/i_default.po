@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-09-04 16:43-0400\n"
+"PO-Revision-Date: 2014-09-05 10:17-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -351,16 +351,8 @@ msgstr ""
 msgid "Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application."
 msgstr ""
 
-# html/pfappserver/root/admin/users.tt
-msgid "Anniversary"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
 msgid "Any"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Apartment Number"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
@@ -482,16 +474,8 @@ msgstr ""
 msgid "Bind DN"
 msgstr ""
 
-# html/pfappserver/root/admin/users.tt
-msgid "Birthday"
-msgstr ""
-
 # html/pfappserver/root/node/view.tt
 msgid "Browser"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Building Number"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -551,10 +535,6 @@ msgstr "An error occured while contacting the server. Please try again later."
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Captive portal"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Cellphone"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
@@ -893,42 +873,6 @@ msgstr ""
 msgid "Creating Users .."
 msgstr ""
 
-# html/pfappserver/root/admin/users.tt
-msgid "Custom Field 1"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Custom Field 2"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Custom Field 3"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Custom Field 4"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Custom Field 5"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Custom Field 6"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Custom Field 7"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Custom Field 8"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Custom Field 9"
-msgstr ""
-
 # html/pfappserver/root/user/view.tt
 msgid "Custom Fields"
 msgstr ""
@@ -1173,6 +1117,11 @@ msgstr ""
 msgid "Domain name of the PacketFence server."
 msgstr ""
 
+# html/pfappserver/root/configurator/enforcement.tt
+# html/pfappserver/root/configurator/networks.tt
+msgid "Don't worry, you can always come back to this step if you change your mind."
+msgstr ""
+
 # html/pfappserver/root/portal/profile/files.tt
 msgid "Drop"
 msgstr ""
@@ -1228,7 +1177,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
-# html/pfappserver/root/admin/users.tt
 msgid "Email"
 msgstr ""
 
@@ -1477,10 +1425,6 @@ msgstr ""
 msgid "Firewall Type"
 msgstr ""
 
-# html/pfappserver/root/admin/users.tt
-msgid "First Name"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
@@ -1502,10 +1446,6 @@ msgstr ""
 
 # conf/documentation.conf (captive_portal.secure_redirect)
 msgid "Force the captive portal to use HTTPS when redirecting captured clients."
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Gender"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -1627,7 +1567,6 @@ msgstr ""
 msgid "IP Address/MAC Address"
 msgstr ""
 
-# html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/configurator/networks.tt
 msgid "IP address"
 msgstr ""
@@ -1725,6 +1664,10 @@ msgid ""
   "registration is complete."
 msgstr ""
 
+# html/pfappserver/root/configurator/database.tt
+msgid "If you don't know what's the current password of your MySQL installation, it is probably because you haven't set one. In this case, just enter the root username, which will mostly be <em>root</em> without any password and click the <em>Test</em> button. For security reasons, you'll be prompted to set one."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid "If you use an alternative port, please specify"
 msgstr ""
@@ -1814,16 +1757,8 @@ msgstr ""
 msgid "Keep The Same"
 msgstr ""
 
-# html/pfappserver/root/admin/users.tt
-msgid "Lang"
-msgstr ""
-
 # html/pfappserver/root/portal/profile/tab-content.tt
 msgid "Languages"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Last Name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -2013,10 +1948,6 @@ msgstr ""
 msgid "MAC Vendor"
 msgstr ""
 
-# html/pfappserver/root/admin/users.tt
-msgid "MAC address"
-msgstr ""
-
 # pf::admin_roles (Actions)
 msgid "MAC_READ"
 msgstr "MAC Addresses - Read"
@@ -2145,7 +2076,6 @@ msgstr "Nodes - Update"
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 # html/pfappserver/lib/pfappserver/Form/SavedSearch.pm
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
-# html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/configuration/authentication.tt
 # html/pfappserver/root/configurator/database.tt
@@ -2266,10 +2196,6 @@ msgstr ""
 msgid "New WRIX Information"
 msgstr ""
 
-# html/pfappserver/root/admin/users.tt
-msgid "Nickname"
-msgstr ""
-
 # html/pfappserver/root/node/view.tt
 msgid "No IP history"
 msgstr ""
@@ -2381,7 +2307,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/admin/users.tt
 msgid "Notes"
 msgstr ""
 
@@ -2476,10 +2401,6 @@ msgstr "Open Wednesday"
 # html/pfappserver/lib/pfappserver/Controller/Graph.pm
 # html/pfappserver/root/admin/reports.tt
 msgid "Operating Systems"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Organization"
 msgstr ""
 
 # html/pfappserver/root/admin/status.tt
@@ -3080,10 +3001,6 @@ msgstr ""
 msgid "Roles"
 msgstr ""
 
-# html/pfappserver/root/admin/users.tt
-msgid "Room Number"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Routed Network"
 msgstr ""
@@ -3511,7 +3428,6 @@ msgid "Specifies if a host can self remediate the violation (enable network butt
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
-# html/pfappserver/root/admin/users.tt
 msgid "Sponsor"
 msgstr ""
 
@@ -3668,7 +3584,6 @@ msgid "Target VLAN"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
-# html/pfappserver/root/admin/users.tt
 msgid "Telephone"
 msgstr ""
 
@@ -3838,6 +3753,11 @@ msgstr ""
 msgid "The webservices user name"
 msgstr ""
 
+# html/pfappserver/root/graph/line.tt
+# html/pfappserver/root/graph/pie.tt
+msgid "There's not enough data to generate this graph. Is PacketFence in production?"
+msgstr ""
+
 # conf/documentation.conf (captive_portal.network_detection_ip)
 msgid ""
   "This IP is used as the webserver who hosts the "
@@ -3904,10 +3824,6 @@ msgid ""
   "A value of 0d disables expiration. "
   "example: "
   "traplog=180d"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Title"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -4097,10 +4013,6 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/useragents/simple_search.tt
 msgid "User Agents"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "User Name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -4296,10 +4208,7 @@ msgstr ""
 msgid "WRIX Information"
 msgstr ""
 
-# html/pfappserver/root/service/status.tt
-msgid "Warning"
-msgstr ""
-
+# html/pfappserver/root/admin/login.tt
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/configurator/services.tt
@@ -4316,6 +4225,11 @@ msgstr ""
 
 # conf/documentation.conf (guests_self_registration.guest_pid)
 msgid "What field should we assign to the pid of the guest? Defaults to email."
+msgstr ""
+
+# html/pfappserver/root/graph/line.tt
+# html/pfappserver/root/graph/pie.tt
+msgid "What's going on?"
 msgstr ""
 
 # conf/documentation.conf (trapping.passthrough)
@@ -4390,10 +4304,6 @@ msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
 msgid "Without condition, this rule will act as a catch-all."
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Work phone"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Controller/Admin.pm
@@ -4534,10 +4444,20 @@ msgstr "Always"
 msgid "and"
 msgstr ""
 
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "anniversary"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "any"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "apartment_number"
 msgstr ""
 
 # conf/documentation.conf (billing.gateway options)
@@ -4588,10 +4508,20 @@ msgstr "Mirapay terminal group id"
 msgid "billing.mirapay_url"
 msgstr "Mirapay URL"
 
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "birthday"
+msgstr ""
+
 # conf/documentation.conf (advanced.pfcmd_error_color options)
 # conf/documentation.conf (advanced.pfcmd_success_color options)
 # conf/documentation.conf (advanced.pfcmd_warning_color options)
 msgid "blue"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "building_number"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -4599,6 +4529,7 @@ msgid "bytes"
 msgstr ""
 
 # pf::pfcmd::report (report_nodebandwidth)
+# pfappserver::Controller::Graph (nodebandwidth fields)
 msgid "callingstationid"
 msgstr "MAC Address"
 
@@ -4622,6 +4553,11 @@ msgstr "IP"
 msgid "captive_portal.secure_redirect"
 msgstr "Secure redirect"
 
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "cell_phone"
+msgstr ""
+
 # pf::action (VIOLATION_ACTIONS)
 msgid "close_action"
 msgstr "Close a violation"
@@ -4636,16 +4572,70 @@ msgid "computer_name"
 msgstr "Computer name"
 
 # pf::Authentication::Source (common_attributes)
+# pfappserver::Controller::Graph (connectiontype fields)
 msgid "connection_type"
 msgstr "Connection type"
+
+# pfappserver::Controller::Graph (connectiontype fields)
+msgid "connections"
+msgstr ""
 
 # pf::Authentication::constants (Conditions)
 msgid "contains"
 msgstr ""
 
+# pfappserver::Controller::Graph (os fields)
+msgid "count"
+msgstr ""
+
 # pf::Authentication::Source (common_attributes)
 msgid "current_time"
 msgstr "Current time"
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "custom_field_1"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "custom_field_2"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "custom_field_3"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "custom_field_4"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "custom_field_5"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "custom_field_6"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "custom_field_7"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "custom_field_8"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "custom_field_9"
+msgstr ""
 
 # conf/documentation.conf (advanced.pfcmd_error_color options)
 # conf/documentation.conf (advanced.pfcmd_success_color options)
@@ -4694,6 +4684,10 @@ msgstr ""
 msgid "department"
 msgstr ""
 
+# pfappserver::Controller::Graph (os fields)
+msgid "description"
+msgstr ""
+
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "detect"
 msgstr "Detect"
@@ -4703,6 +4697,7 @@ msgid "dhcp-listener"
 msgstr ""
 
 # pf::pfcmd::report (SQL)
+# pfappserver::Controller::Graph (osclassbandwidth fields)
 msgid "dhcp_fingerprint"
 msgstr "Operating System Class"
 
@@ -4771,6 +4766,8 @@ msgstr ""
 
 # conf/documentation.conf (guests_self_registration.guest_pid options)
 # conf/documentation.conf (vlan.trap_limit_action options)
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
 msgid "email"
 msgstr ""
 
@@ -4868,6 +4865,16 @@ msgstr "Trap logs"
 # pf::action (VIOLATION_ACTIONS)
 msgid "external_action"
 msgstr "External command"
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "firstname"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "gender"
+msgstr ""
 
 # conf/documentation.conf
 msgid "general"
@@ -5022,6 +5029,10 @@ msgstr ""
 msgid "internal"
 msgstr "Internal"
 
+# html/pfappserver/root/admin/users.tt
+msgid "ip_address"
+msgstr ""
+
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/configuration/switch/list.tt
@@ -5050,6 +5061,16 @@ msgstr ""
 msgid "is not"
 msgstr ""
 
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "lang"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "lastname"
+msgstr ""
+
 # pf::action (VIOLATION_ACTIONS)
 msgid "log_action"
 msgstr "Log message"
@@ -5062,6 +5083,7 @@ msgstr ""
 msgid "lower or equals"
 msgstr ""
 
+# html/pfappserver/root/admin/users.tt
 # pf::config (Inline triggers)
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "mac"
@@ -5140,12 +5162,20 @@ msgstr ""
 msgid "mirapay"
 msgstr "Mirapay"
 
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "mobileprovider"
+msgstr ""
+
 # conf/documentation.conf (interface.type options)
 msgid "monitor"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "months"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "name"
 msgstr ""
 
 # conf/documentation.conf (scan.engine options)
@@ -5177,6 +5207,11 @@ msgstr "Rogue DHCP detection"
 msgid "network.rogueinterval"
 msgstr "Rogue interval"
 
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "nickname"
+msgstr ""
+
 # conf/documentation.conf (node_import.voip options)
 msgid "no"
 msgstr ""
@@ -5201,15 +5236,28 @@ msgstr ""
 msgid "node_modify"
 msgstr ""
 
+# pfappserver::Controller::Graph (ssid fields)
+msgid "nodes"
+msgstr ""
+
 # conf/documentation.conf (scan.engine options)
 # conf/documentation.conf (trapping.detection_engine options)
 msgid "none"
 msgstr "(None)"
 
+# html/pfappserver/root/admin/users.tt
+msgid "notes"
+msgstr ""
+
 # conf/documentation.conf (scan.engine options)
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "openvas"
 msgstr "OpenVAS"
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "organization"
+msgstr ""
 
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "os"
@@ -5228,6 +5276,7 @@ msgid "pfcmd_vlan"
 msgstr ""
 
 # conf/documentation.conf (guests_self_registration.guest_pid options)
+# pfappserver::Form::Portal::Common (mandatory fields)
 msgid "phone"
 msgstr ""
 
@@ -5319,6 +5368,11 @@ msgstr "Device registration role"
 # pf::action (VIOLATION_ACTIONS)
 msgid "role_action"
 msgstr "Set role"
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "room_number"
+msgstr ""
 
 # html/pfappserver/root/interface/list.tt
 msgid "routed networks:"
@@ -5558,7 +5612,16 @@ msgstr ""
 msgid "soh"
 msgstr "SoH Filters"
 
+# html/pfappserver/root/admin/users.tt
+msgid "sponsor"
+msgstr ""
+
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "sponsor_email"
+msgstr ""
+
 # pf::config (Inline triggers)
+# pfappserver::Controller::Graph (ssid fields)
 msgid "ssid"
 msgstr "Wi-Fi Network SSID"
 
@@ -5581,9 +5644,18 @@ msgstr ""
 msgid "suricata"
 msgstr ""
 
+# html/pfappserver/root/admin/users.tt
+msgid "telephone"
+msgstr ""
+
 # pf::Switch::constants (Modes)
 msgid "testing"
 msgstr "Testing"
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "title"
+msgstr ""
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "trap_action"
@@ -5675,6 +5747,7 @@ msgstr ""
 msgid "useragent"
 msgstr "UserAgent"
 
+# html/pfappserver/root/admin/users.tt
 # pf::Authentication::Source::FacebookSource (available_attributes)
 # pf::Authentication::Source::GithubSource (available_attributes)
 # pf::Authentication::Source::GoogleSource (available_attributes)
@@ -5774,6 +5847,11 @@ msgstr ""
 # pf::action (VIOLATION_ACTIONS)
 msgid "winpopup_action"
 msgstr "Windows popup message"
+
+# html/pfappserver/root/admin/users.tt
+# pfappserver::Form::Portal::Common (mandatory fields)
+msgid "work_phone"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "years"

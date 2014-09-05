@@ -23,6 +23,7 @@ use pf::Switch::constants;
 use pfappserver::Controller::Graph;
 use pfappserver::Model::Node;
 use pfappserver::Form::Config::Wrix;
+use pfappserver::Form::Portal::Common;
 use pf::config;
 
 use constant {
@@ -124,8 +125,8 @@ sub parse_tt {
         open(TT, $template);
         while (defined($line = <TT>)) {
             chomp $line;
-            while ($line =~ m/\[\% l\('(.+?)'(,.*)?\) (\| js )?\%\]/g) {
-                add_string($1, $template);
+            while ($line =~ m/\[\% l\(['"](.+?(?!\\))['"](,.*)?\) (\| js )?\%\]/g) {
+                add_string($1, $template) unless ($1 =~ m/\${/);
             }
         }
         close(TT);
@@ -358,7 +359,17 @@ sub extract_modules {
 
     const('pfappserver::Controller::Graph', 'graph type', \@pfappserver::Controller::Graph::GRAPHS);
 
+    const('pfappserver::Controller::Graph', 'os fields', [qw/description count/]);
+    const('pfappserver::Controller::Graph', 'connectiontype fields', [qw/connection_type connections/]);
+    const('pfappserver::Controller::Graph', 'ssid fields', [qw/ssid nodes/]);
+    const('pfappserver::Controller::Graph', 'nodebandwidth fields', [qw/callingstationid/]);
+    const('pfappserver::Controller::Graph', 'osclassbandwidth fields', [qw/dhcp_fingerprint/]);
+
     const('pfappserver::Form::Config::Wrix', 'open hours', \@pfappserver::Form::Config::Wrix::HOURS);
+
+    @values = pfappserver::Form::Portal::Common->options_mandatory_fields();
+    @values = map { $_->{label} } @values;
+    const('pfappserver::Form::Portal::Common', 'mandatory fields', \@values);
 
     const('html/pfappserver/root/user/list_password.tt', 'options', ['mail_loading']);
 }
