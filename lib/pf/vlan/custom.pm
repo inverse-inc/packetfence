@@ -35,11 +35,41 @@ use pf::vlan::filter;
 
 our $VERSION = 1.04;
 
+
 =head1 SUBROUTINES
 
 =over
 
 =cut
+
+=item shouldAutoRegister
+
+This is an example of how to redefine a method for custom purposes.
+
+See pf::vlan::shouldAutoRegister for full original method.
+
+=cut
+#sub shouldAutoRegister{
+#    #$mac is MAC address
+#    #$switch_in_autoreg_mode is set to 1 if switch is in registration mode
+#    #$violation_autoreg is set to 1 if called from a violation with autoreg action
+#    #$isPhone is set to 1 if device is considered an IP Phone.
+#    #$conn_type is set to the connnection type expressed as the constant in pf::config
+#    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
+#    #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
+#    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request) = @_;
+#
+#    # CUSTOM: We want to auto-register 802.1x connections
+#    # Since they already have validated credentials through EAP to do 802.1X
+#    if (defined($conn_type) && (($conn_type & $EAP) == $EAP)) {
+#        $logger->trace("returned yes because it's a 802.1X client that successfully authenticated already");
+#        return 1;
+#    }
+#    # \CUSTOM
+#
+#    # Otherwise, call parent method
+#    return $this->SUPER::shouldAutoRegister($mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request);
+#}
 
 
 =back
