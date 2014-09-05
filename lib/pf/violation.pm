@@ -630,9 +630,8 @@ sub violation_trigger {
           }
         }
 
-        $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac,release_date=$date' (trigger ${type}::${tid})");
-        # running pfcmd because it will call an access re-evaluation if needed
-        pf_run("$bin_dir/pfcmd \'violation add vid=$vid,mac=$mac,release_date=\"$date\"\'");
+        $logger->info("calling violation_add with vid=$vid mac=$mac release_date=$date (trigger ${type}::${tid})");
+        violation_add($mac, $vid, ('release_date' => $date));
         $addedViolation = 1;
     }
     return $addedViolation;
