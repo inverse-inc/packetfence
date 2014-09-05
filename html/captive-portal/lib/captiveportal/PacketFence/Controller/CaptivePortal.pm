@@ -498,8 +498,12 @@ sub webNodeRegister : Private {
 
     unless ( $c->user_cache->get("mac:$mac:do_not_deauth") ) {
         my $node = node_view($mac);
-        my $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
-        if($switch->supportsWebFormRegistration){
+        my $switch;
+        if( pf::SwitchFactory->hasId($node->{last_switch}) ){
+            $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
+        }
+
+        if(defined($switch) && $switch->supportsWebFormRegistration){
             $logger->info("Switch supports web form release.");
             $c->stash(
                 template => 'webFormRelease.html',
