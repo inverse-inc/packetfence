@@ -282,7 +282,10 @@ sub createLocalAccount : Private {
 
     # We push an unregistration date that was previously calculated (setUnRegDate) that handle dynamic unregistration date and access duration
     my $action = pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE, value => $c->session->{unregdate}});
-    push (@$actions, $action);
+    # Hack alert: We may already have a "SET_UNREG_DATE" action in the array and since the way the authentication framework is working is by going
+    # through the actions on a first hit match, we want to make sure the unregistration date we computed (because we are taking care of the access duration,
+    # dynamic date, ...) will be the first in the actions array.
+    unshift (@$actions, $action);
 
     my $password = pf::temporary_password::generate($auth_params->{username}, $actions, $c->stash->{sms_pin});
 
