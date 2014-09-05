@@ -167,7 +167,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_UPD
         $message = $form->field_errors;
     }
     else {
-        ($status, $message) = $self->getModel($c)->update($c->stash->{user}->{pid}, $form->value);
+        ($status, $message) = $self->getModel($c)->update($c->stash->{user}->{pid}, $form->value, $c->user);
     }
     if (is_error($status)) {
         $c->response->status($status);
