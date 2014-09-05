@@ -3,7 +3,7 @@ package captiveportal::PacketFence::Controller::Authenticate;
 use Moose;
 use namespace::autoclean;
 use pf::config;
-use pf::web qw(i18n);
+use pf::web qw(i18n i18n_format);
 use pf::node;
 use pf::util;
 use pf::locationlog;
@@ -293,7 +293,7 @@ sub createLocalAccount : Private {
         'pid'       => $auth_params->{username},
         'password'  => $password,
         'email'     => $auth_params->{user_email},
-        'subject'   => i18n(
+        'subject'   => i18n_format(
             "%s: Guest account creation information", $Config{'general'}{'domain'}
         ),
     );
