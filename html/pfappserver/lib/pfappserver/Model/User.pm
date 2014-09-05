@@ -216,7 +216,6 @@ sub violations {
 sub update {
     my ($self, $pid, $user_ref, $user) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
     unless ($self->_userRoleAllowedForUser($user_ref, $user)) {
         return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
     }
@@ -387,7 +386,7 @@ sub _userRoleAllowedForUser {
     #If the user has the ALL role then they are good
     return 1 if any { 'ALL' eq $_ } $user->roles;
     #User does not have the role of ALL then it cannot create a user with the same role 
-    return none { $_->{value} eq 'ALL' && $_->{type} eq 'set_access_level' } @{$data->{actions} || []};
+    return none {local $_ = $_;my $a = $_; $a->{type} eq 'set_access_level' && (any { $_ eq 'ALL'  } split(/\s*,\s*/,$a->{value})) } @{$data->{actions} || []};
 }
 
 =head2 createMultiple
