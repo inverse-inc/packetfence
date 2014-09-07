@@ -378,6 +378,7 @@ sub createSingle {
 
 =head2 _userRoleAllowedForUser
 
+    ensure the only uses with the all role can give another user the all role
 
 =cut
 
@@ -386,7 +387,20 @@ sub _userRoleAllowedForUser {
     #If the user has the ALL role then they are good
     return 1 if any { 'ALL' eq $_ } $user->roles;
     #User does not have the role of ALL then it cannot create a user with the same role 
-    return none {local $_ = $_;my $a = $_; $a->{type} eq 'set_access_level' && (any { $_ eq 'ALL'  } split(/\s*,\s*/,$a->{value})) } @{$data->{actions} || []};
+    return none { __doesActionHaveAllAccessLevel($_) } @{$data->{actions} || []};
+}
+
+=head2 __doesActionHaveAllAccessLevel
+
+   does the action have the All role
+
+=cut
+
+sub __doesActionHaveAllAccessLevel {
+    my ($action) = @_;
+    local $_;
+    return $action->{type} eq 'set_access_level'
+      && any {$_ eq 'ALL'} split(/\s*,\s*/, $action->{value});
 }
 
 =head2 createMultiple
