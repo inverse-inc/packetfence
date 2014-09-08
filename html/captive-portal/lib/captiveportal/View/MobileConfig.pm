@@ -3,7 +3,7 @@ package captiveportal::View::MobileConfig;
 use strict;
 use warnings;
 use Moose;
-extends 'captiveportal::PacketFence::View::HTML';
+BEGIN { extends 'captiveportal::PacketFence::View::MobileConfig'; }
 
 =head1 NAME
 
