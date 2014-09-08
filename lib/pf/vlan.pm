@@ -11,6 +11,7 @@ All the behavior contained here can be overridden in lib/pf/vlan/custom.pm.
 
 =cut
 
+# When adding a "use", remember to keep pf::vlan::custom up to date for easier customization.
 use strict;
 use warnings;
 
@@ -326,9 +327,6 @@ Return values:
 =back
 
 =cut
-
-# Developers note: If you modify this sub, make sure to replicate the change in pf::vlan::custom for consistency
-# purposes.
 sub getNormalVlan {
     #$switch is the switch object (pf::Switch)
     #$ifIndex is the ifIndex of the computer connected to
@@ -523,8 +521,6 @@ version doesn't do the right thing for you.
 returns 1 if we should register, 0 otherwise
 
 =cut
-
-# Note: if you add more examples here, remember to sync them in pf::vlan::custom
 sub shouldAutoRegister {
     #$mac is MAC address
     #$switch_in_autoreg_mode is set to 1 if switch is in registration mode
