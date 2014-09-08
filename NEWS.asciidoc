@@ -107,6 +107,7 @@ Enhancements
 * Added support to configure high-availability from within the configurator/webadmin
 * Changed the way we're handling DNS blackholing when unregistered in inline enforcement mode (using DNAT rather than REDIRECT)
 * Now handling rogue DHCP servers based both on the server IP and server MAC address
+* We can now match exclusive authentication sources from vlan.pm. This allows using e.g. "NULL" auth and still have complex auhtorization rules. The primary use case is eduroam.
 
 Bug Fixes
 +++++++++
