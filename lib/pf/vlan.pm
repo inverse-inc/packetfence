@@ -379,7 +379,7 @@ sub getNormalVlan {
     elsif ( defined $user_name && $connection_type && ($connection_type & $EAP) == $EAP ) {
         $logger->debug("[$mac] EAP connection with a username \"$user_name\". Trying to match rules from authentication sources.");
         my $profile = pf::Portal::ProfileFactory->instantiate($mac);
-        my @sources = ($profile->getInternalSources);
+        my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
         my $params = {
             username => $user_name,
             connection_type => connection_type_to_str($connection_type),
