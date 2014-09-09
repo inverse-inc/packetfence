@@ -2490,7 +2490,7 @@ These rules are available in different scopes:
   RegistrationVlan
   NormalVlan
   InlineVlan
-  shouldAutoRegister
+  AutoRegister
 
 And can be defined using different criteria like:
 
