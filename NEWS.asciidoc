@@ -52,6 +52,7 @@ Enhancements
 * Raised ServerLimit on apache httpd.portal, Lowered httpd.portal Timeout and KeepAliveTimeout to improve responsiveness under load. 
 * Do not overlay the controllerIp if one is already defined when creating a switch
 * Verify the user roles level before creating a user via the admin gui
+* Added test iplogs not closed in pftest 
 
 Bug Fixes
 +++++++++
