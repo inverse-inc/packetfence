@@ -61,7 +61,7 @@ sub handler {
             @args = ($params);
         }
     }
-    unless ($method_sub = $dispatch_to->findApi($method)) {
+    unless ($method_sub = $dispatch_to->isPublic($method)) {
         $r->custom_response(Apache2::Const::HTTP_NOT_FOUND,
             encode_json(
                 {   (defined $jsonrpc ? (jsonrpc => $jsonrpc) : ()),
