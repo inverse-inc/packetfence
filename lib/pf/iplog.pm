@@ -394,7 +394,7 @@ sub iplog_update {
         return;
     }
 
-    $logger->info(
+    $logger->debug(
         "closing iplog for mac ($srcmac) and ip $srcip - closing iplog entries"
     );
 
