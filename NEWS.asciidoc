@@ -68,6 +68,7 @@ Bug Fixes
 * Fix backward compatibility issue for gaming-registration that should redirect to device-registration
 * Fix device-registration and status pages that were not accessible in inline mode when doing high-availability
 * Fix filetype of wireless-profile.mobileconfig not being set properly
+* Fix issue of iplog entries not being closed
 
 Version 4.3.0 released on 2014-06-26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
