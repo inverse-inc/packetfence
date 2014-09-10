@@ -1,14 +1,16 @@
-# Copyright (C) 2006-2012 Inverse inc.
+# Copyright (C) 2006-2013 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
 # 
 # Translators:
-# Ereli <ereli@securegion.com>, 2011.
-#
+# Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
+# 
+# Translators:
+# Ereli <ereli@securegion.com>, 2011
+# Ereli <ereli@securegion.com>, 2011
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2012-04-26 17:23+0000\n"
+"PO-Revision-Date: 2014-08-12 00:24+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: Hebrew (Israel) (http://www.transifex.com/projects/p/packetfence/language/he_IL/)\n"
 "MIME-Version: 1.0\n"
@@ -34,6 +36,9 @@ msgstr "איטלית"
 
 msgid "nl_NL"
 msgstr "הולנדית"
+
+msgid "pl_PL"
+msgstr ""
 
 msgid "pt_BR"
 msgstr "פורטוגזית"
@@ -90,6 +95,9 @@ msgstr "על מנת לסיים את הליך ההרשמה, נדרש לזהות �
 
 msgid "Authentication"
 msgstr "הזדהות"
+
+msgid "Wrong username or password."
+msgstr ""
 
 msgid "or"
 msgstr "או"
@@ -550,7 +558,9 @@ msgid ""
 "see if your access was enabled."
 msgstr ""
 
-msgid "Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled."
+msgid ""
+"Unable to detect network connectivity. Try restarting your web browser or "
+"opening a new tab to see if your access has been succesfully enabled."
 msgstr ""
 
 msgid ""
@@ -989,4 +999,78 @@ msgid "Unable to validate your sponsor at the moment"
 msgstr ""
 
 msgid "Email %s is not allowed to sponsor guest access"
+msgstr ""
+
+msgid "You need to be authenticated to access this page."
+msgstr ""
+
+msgid "OAuth2 Error: Failed to get the token"
+msgstr ""
+
+msgid "OAuth2 Error: Failed to validate the token, please retry"
+msgstr ""
+
+msgid "Registration canceled please try again"
+msgstr ""
+
+msgid "Please verify MAC address provided"
+msgstr ""
+
+msgid "You are not authorized"
+msgstr ""
+
+msgid "The MAC address %s has been successfully registered."
+msgstr ""
+
+msgid "The MAC address %s provided is invalid please try again"
+msgstr ""
+
+msgid "This module is not enabled"
+msgstr ""
+
+msgid "anniversary"
+msgstr ""
+
+msgid "birthday"
+msgstr ""
+
+msgid "gender"
+msgstr ""
+
+msgid "lang"
+msgstr ""
+
+msgid "nickname"
+msgstr ""
+
+msgid "cell_phone"
+msgstr ""
+
+msgid "work_phone"
+msgstr ""
+
+msgid "title"
+msgstr ""
+
+msgid "building_number"
+msgstr ""
+
+msgid "apartment_number"
+msgstr ""
+
+msgid "room_number"
+msgstr ""
+
+msgid "Please wait. Processing payment..."
+msgstr ""
+
+msgid ""
+"Remember to enable ip_forward on your operating system for the inline mode "
+"to work."
+msgstr ""
+
+msgid ""
+"Since NATting mode is disabled, PacketFence will adjust iptables to rules to"
+" route traffic rather than natting it. Make sure to add the routes on the "
+"system."
 msgstr ""

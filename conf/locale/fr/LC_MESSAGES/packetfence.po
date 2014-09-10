@@ -1,14 +1,21 @@
 # Copyright (C) 2006-2013 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
-#
+# 
 # Translators:
-# inverse <info@inverse.ca>, 2012-2013
+# Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
+# 
+# Translators:
+# Derek Wuelfrath <dwuelfrath@inverse.ca>, 2012
 # Dominique Couot <dcouot@hotmail.com>, 2012
+# oeufdure <fdurand@inverse.ca>, 2014
+# inverse <info@inverse.ca>, 2013-2014
+# inverse <info@inverse.ca>, 2012-2013
+# lzammit <lzammit@inverse.ca>, 2014
+# obilodeau <obilodeau@inverse.ca>, 2011
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2013-09-05 14:47+0000\n"
+"PO-Revision-Date: 2014-09-10 19:56+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -1026,5 +1033,49 @@ msgstr "L'adresse MAC %s n'est pas valide. Veuillez réessayer."
 msgid "This module is not enabled"
 msgstr "Ce module n'est pas activé"
 
+msgid "anniversary"
+msgstr "Anniversaire"
+
+msgid "birthday"
+msgstr "Date de naissance"
+
+msgid "gender"
+msgstr "Genre"
+
+msgid "lang"
+msgstr "Langue"
+
+msgid "nickname"
+msgstr "Surnom"
+
+msgid "cell_phone"
+msgstr "Cellulaire"
+
+msgid "work_phone"
+msgstr "Téléphone au travail"
+
+msgid "title"
+msgstr "Titre"
+
+msgid "building_number"
+msgstr "Numéro de bâtiment"
+
+msgid "apartment_number"
+msgstr "Appartement"
+
+msgid "room_number"
+msgstr "Numéro de chambre"
+
 msgid "Please wait. Processing payment..."
 msgstr "Un instant SVP. Paiement en cours..."
+
+msgid ""
+"Remember to enable ip_forward on your operating system for the inline mode "
+"to work."
+msgstr "Activé le paramètre ip_forward sur votre système pour utiliser le mode Inline."
+
+msgid ""
+"Since NATting mode is disabled, PacketFence will adjust iptables to rules to"
+" route traffic rather than natting it. Make sure to add the routes on the "
+"system."
+msgstr "Si le mode NATting est désactivé, PacketFence utilisera les règles iptables plutôt que celles du natting. Assurez-vous d'ajouter les routes sur le système."

@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2012 Inverse inc.
+# Copyright (C) 2006-2013 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
 # 
 # Translators:
@@ -7,13 +7,14 @@
 # Translators:
 # Derek Wuelfrath <dwuelfrath@inverse.ca>, 2012
 # inverse <info@inverse.ca>, 2013
+# inverse <info@inverse.ca>, 2013
 # muhlig <maciej.uhlig@us.edu.pl>, 2013
 # muhlig <maciej.uhlig@us.edu.pl>, 2012
+# muhlig <maciej.uhlig@us.edu.pl>, 2012-2013
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2013-08-21 18:53+0000\n"
+"PO-Revision-Date: 2014-08-12 00:24+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: Polish (Poland) (http://www.transifex.com/projects/p/packetfence/language/pl_PL/)\n"
 "MIME-Version: 1.0\n"
@@ -98,6 +99,9 @@ msgstr "Aby zakończyć proces rejestracji, trzeba się uwierzytelnić używają
 
 msgid "Authentication"
 msgstr "Uwierzytelnienie"
+
+msgid "Wrong username or password."
+msgstr ""
 
 msgid "or"
 msgstr "lub"
@@ -1034,3 +1038,50 @@ msgstr "Podany adres MAC %s jest nieważny, proszę spróbować ponownie"
 
 msgid "This module is not enabled"
 msgstr "Ten moduł nie jest włączony"
+
+msgid "anniversary"
+msgstr ""
+
+msgid "birthday"
+msgstr ""
+
+msgid "gender"
+msgstr ""
+
+msgid "lang"
+msgstr ""
+
+msgid "nickname"
+msgstr ""
+
+msgid "cell_phone"
+msgstr ""
+
+msgid "work_phone"
+msgstr ""
+
+msgid "title"
+msgstr ""
+
+msgid "building_number"
+msgstr ""
+
+msgid "apartment_number"
+msgstr ""
+
+msgid "room_number"
+msgstr ""
+
+msgid "Please wait. Processing payment..."
+msgstr ""
+
+msgid ""
+"Remember to enable ip_forward on your operating system for the inline mode "
+"to work."
+msgstr ""
+
+msgid ""
+"Since NATting mode is disabled, PacketFence will adjust iptables to rules to"
+" route traffic rather than natting it. Make sure to add the routes on the "
+"system."
+msgstr ""

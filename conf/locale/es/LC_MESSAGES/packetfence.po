@@ -1,16 +1,19 @@
-# Copyright (C) 2006-2012 Inverse inc.
+# Copyright (C) 2006-2013 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
-#
+# 
+# Translators:
+# Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
+# 
 # Translators:
 # cgomez <cgagun@gmail.com>, 2012
-# Juan Camilo Valencia <juan.valencia@seguratec.com.co>, 2011-2012
-# Dominique Couot <dcouot@hotmail.com>, 2012-2013
-#
+# Dominique Couot <dcouot@hotmail.com>, 2012-2014
+# inverse <info@inverse.ca>, 2013
+# inverse <info@inverse.ca>, 2012
+# Olivier Bilodeau <obilodeau@inverse.ca>, 2011
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2013-08-21 18:55+0000\n"
+"PO-Revision-Date: 2014-08-12 00:24+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: Spanish (http://www.transifex.com/projects/p/packetfence/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -95,6 +98,9 @@ msgstr "Para completar el proceso de registro, es necesario que se autentique co
 
 msgid "Authentication"
 msgstr "Autenticación"
+
+msgid "Wrong username or password."
+msgstr "Usuario o contraseña erróneo."
 
 msgid "or"
 msgstr "o"
@@ -999,16 +1005,16 @@ msgid "Email %s is not allowed to sponsor guest access"
 msgstr "Correo electrónico %s no permitido para patrocinar acceso invitados"
 
 msgid "You need to be authenticated to access this page."
-msgstr ""
+msgstr "Se necesita ser autenticado para acceder a esta pagina."
 
 msgid "OAuth2 Error: Failed to get the token"
-msgstr ""
+msgstr "Error OAuth2: no se ha podido acceder al token"
 
 msgid "OAuth2 Error: Failed to validate the token, please retry"
-msgstr ""
+msgstr "Error OAuth2: no se ha podido validar el token, intenta de nuevo por favor"
 
 msgid "Registration canceled please try again"
-msgstr ""
+msgstr "Inscripción cancelada prueba otra vez por favor"
 
 msgid "Please verify MAC address provided"
 msgstr "Por favor verifica la dirección MAC facilitada"
@@ -1024,3 +1030,50 @@ msgstr "La dirección MAC %s facilitada es invalida por favor inténtalo de nuev
 
 msgid "This module is not enabled"
 msgstr "Este modulo no esta activado"
+
+msgid "anniversary"
+msgstr ""
+
+msgid "birthday"
+msgstr ""
+
+msgid "gender"
+msgstr ""
+
+msgid "lang"
+msgstr ""
+
+msgid "nickname"
+msgstr ""
+
+msgid "cell_phone"
+msgstr ""
+
+msgid "work_phone"
+msgstr ""
+
+msgid "title"
+msgstr ""
+
+msgid "building_number"
+msgstr ""
+
+msgid "apartment_number"
+msgstr ""
+
+msgid "room_number"
+msgstr ""
+
+msgid "Please wait. Processing payment..."
+msgstr ""
+
+msgid ""
+"Remember to enable ip_forward on your operating system for the inline mode "
+"to work."
+msgstr ""
+
+msgid ""
+"Since NATting mode is disabled, PacketFence will adjust iptables to rules to"
+" route traffic rather than natting it. Make sure to add the routes on the "
+"system."
+msgstr ""

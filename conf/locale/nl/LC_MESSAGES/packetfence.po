@@ -1,14 +1,18 @@
-# Copyright (C) 2006-2012 Inverse inc.
+# Copyright (C) 2006-2013 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
 # 
 # Translators:
-#   <mvdroest@utelisys.com>, 2013.
-#   <tijdelijkeshit@gmail.com>, 2012.
+# Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
+# 
+# Translators:
+# Maikel van der Roest <mvdroest@gmail.com>, 2014
+# Maikel van der Roest <mvdroest@gmail.com>, 2013
+# Olivier Bilodeau <obilodeau@inverse.ca>, 2011
+# zappo <tijdelijkeshit@gmail.com>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2013-01-07 20:21+0000\n"
+"PO-Revision-Date: 2014-08-12 00:24+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/packetfence/language/nl/)\n"
 "MIME-Version: 1.0\n"
@@ -34,6 +38,9 @@ msgstr "Italiano"
 
 msgid "nl_NL"
 msgstr "Dutch"
+
+msgid "pl_PL"
+msgstr "Pools"
 
 msgid "pt_BR"
 msgstr "Português"
@@ -91,6 +98,9 @@ msgstr "Om het registratie proces te voltooien dient u uw gebruikersnaam en wach
 msgid "Authentication"
 msgstr "Authenticatie"
 
+msgid "Wrong username or password."
+msgstr "Verkeerde gebruikersnaam of wachtwoord."
+
 msgid "or"
 msgstr "of"
 
@@ -110,10 +120,10 @@ msgid "scan: scan in progress"
 msgstr "Uw systeem wordt gescanned"
 
 msgid "scan in progress contact support if too long"
-msgstr ""
+msgstr "Uw systeem wordt nog steeds op dit moment gescand. Het proces begon op %s. Meestal is dit proces duurt een paar minuten. Mocht dit nu al langer duren, neemt u dan contact op met de helpdesk."
 
 msgid "automatically refresh"
-msgstr ""
+msgstr "Deze pagina wordt automatisch vernieuwd elke %s seconden om te controleren of scan is voltooid."
 
 msgid "Acceptable Use Policy"
 msgstr "Acceptable Use Policy"
@@ -149,7 +159,7 @@ msgid "network access is being enabled"
 msgstr "Uw netwerktoegang wordt op dit moment geactiveerd - dit proces neemt ongeveer %s seconden in beslag."
 
 msgid "system scan in progress"
-msgstr ""
+msgstr "Uw systeem word gescand. Dit proces duurt ongeveer %s seconden. "
 
 msgid "Node"
 msgstr "Machine"
@@ -161,7 +171,7 @@ msgid "Guest Registration"
 msgstr "Gast Registratie"
 
 msgid "guest network disclaimer"
-msgstr ""
+msgstr "Dit gasten netwerk is uitsluitend bedoeld voor het gemak van gasten en bezoekers. Toegang impliceert geen garantie voor de betrouwbaarheid, snelheid of privacy; dit netwerk is voorzien voor het uitdrukkelijke doel van simpele  Internet communicatie. Gebruik impliceert akkoord met alle voorwaarden en condities van de juiste gedrag zoals hier beschreven: <b> Acceptable Use Policy. </ B>"
 
 msgid ""
 "In the fields below please enter your name, phone number and a valid email "
@@ -178,15 +188,15 @@ msgstr ""
 msgid ""
 "If you choose to receive your access code <strong>by email</strong>, you "
 "will be given temporary network access for 10 minutes during that time:"
-msgstr ""
+msgstr "Als u kiest om uw toegang code <strong>per email</strong> te ontvangen, dan wordt nu voor 10 minuten toegang gegeven tot het netwerk:  "
 
 msgid "Login to the email account you referenced and;"
-msgstr ""
+msgstr "Log in op het email account wat u heeft opgegeven en; "
 
 msgid ""
 "Click on the link emailed to you to validate network access for the next 24 "
 "hours."
-msgstr ""
+msgstr "Klik op de link die naar u gemaild is om uw toegang te valideren voor de volgende 24 uur. "
 
 msgid "Register by Email"
 msgstr "Registreer via e-mail"
@@ -194,10 +204,10 @@ msgstr "Registreer via e-mail"
 msgid ""
 "If you choose to receive your access code <strong>by SMS</strong>, you will "
 "be able to enter it on the next page."
-msgstr ""
+msgstr "Als u kiest om uw toegang code <strong>per SMS</strong> te ontvangen, dan kunt u deze op de volgende pagina invullen."
 
 msgid "Register by SMS"
-msgstr ""
+msgstr "Registreer per SMS"
 
 msgid "Password"
 msgstr "Wachtwoord"
@@ -230,7 +240,7 @@ msgid "Violations"
 msgstr "Overtredingen"
 
 msgid "Quarantine Established!"
-msgstr ""
+msgstr "Quarantaine ingesteld!"
 
 msgid "Registration Notification"
 msgstr "Registratie melding"
@@ -245,7 +255,7 @@ msgid ""
 msgstr "Als uw netwerk toegang compleet is uitgeschakeld en u geen gebruik kunt maken van de bovenstaande instructies, neemt u dan contact op met de helpdesk."
 
 msgid "The following information should be provided upon request:"
-msgstr ""
+msgstr "De volgende gegevens dienen te worden verstrekt op aanvraag:"
 
 msgid "IP Address"
 msgstr "IP adres"
@@ -259,10 +269,10 @@ msgstr "Verbannen Besturingssysteem"
 msgid ""
 "You have been detected using an operating system not allowed on the network."
 " Please install a more recent operating system"
-msgstr ""
+msgstr "Er is een besturingssysteem gedetecteerd wat niet is toegestaan op dit netwerk. Installeer een meer recentere versie van dit besturingssysteem"
 
 msgid "Darknet Violation"
-msgstr ""
+msgstr "Darknet overtreding"
 
 msgid ""
 "Your system has been detected sending traffic to a network known to be "
@@ -272,77 +282,77 @@ msgstr ""
 msgid ""
 "Your system will likely need to be rebuilt. Please contact your local "
 "support staff for more information."
-msgstr ""
+msgstr "Uw systeem dient waarschijnlijk geherinstalleerd te worden.  Neem contact op met de helpdesk voor meer informatie. "
 
 msgid ""
 "Your system will likely need to be rebuilt. Please contact your support "
 "staff for more information."
-msgstr ""
+msgstr "Uw systeem dient waarschijnlijk geherinstalleerd te worden.  Neem contact op met de helpdesk voor meer informatie. "
 
 msgid "Windows patches are not up to date"
-msgstr ""
+msgstr "Uw Windows updates zijn niet uitgevoerd"
 
 msgid ""
 "Due to the threat this infection poses for other systems on the network, "
 "network connectivity has been disabled until corrective action is taken. "
 "Instructions for disinfection are below:"
-msgstr ""
+msgstr "Als gevolg van de dreiging van deze infectie , vormt dit een zo hoog risico voor  andere systemen in het netwerk, dat uw netwerkverbinding is uitgeschakeld totdat corrigerende maatregelen worden genomen. Aanwijzingen voor hiervoor staan hieronder:"
 
 msgid "Generic"
 msgstr "Algemeen"
 
 msgid "Network connectivity has been disabled."
-msgstr ""
+msgstr "Netwerk toegang is uitgeschakeld. "
 
 msgid "Please contact your support staff for more information."
-msgstr ""
+msgstr "Neem contact op met de helpdesk voor meer informatie. "
 
 msgid "Hub Detection"
-msgstr ""
+msgstr "Hub detectie"
 
 msgid ""
 "You have been detected using a hub. Such device is not permitted on the "
 "network.  Please remove it."
-msgstr ""
+msgstr "Er is gezien dat je een hub gebruikt. Dit soort apparaten zijn niet toegestaan in dit netwerk. Verwijder dit apparaat a.u.b.. "
 
 msgid "Peer-to-Peer"
-msgstr ""
+msgstr "p2p"
 
 msgid ""
 "You have been detected using a peer-to-peer file sharing application. Such "
 "software is not permitted on the network.  Please uninstall the infringing "
 "software."
-msgstr ""
+msgstr "Het systeem heeft gedetecteerd dat je p2p (peer-to-peer) file sharing software gebruikt. Dit soort software is niet toegestaan op het netwerk. Verwijder of schakel de software uit a.u.b. "
 
 msgid "System Scanning"
-msgstr ""
+msgstr "Uw systeem wordt gescanned. "
 
 msgid ""
 "Your system has been found to be scanning other systems. Due to the threat "
 "this infection poses for other systems on the network, network connectivity "
 "has been disabled until corrective action is taken."
-msgstr ""
+msgstr "Uw systeem is gelogged doordat het andere systemen scanned. Dit vormt een zo hoog risico voor  andere systemen in het netwerk, dat uw netwerkverbinding is uitgeschakeld totdat corrigerende maatregelen worden genomen. Aanwijzingen voor hiervoor staan hieronder:"
 
 msgid "Spamming"
-msgstr ""
+msgstr "verstuurd spam"
 
 msgid ""
 "Your system has been found to be sending unsolicited commercial email (UCE, "
 "or \"spam\") to other systems. Due to the threat this poses for other "
 "systems on the network, network connectivity has been disabled until "
 "corrective action is taken."
-msgstr ""
+msgstr "Uw systeem is gezien door ons netwerk als een systeem dat ongewenste email(\" spam\") verstuurd. Als gevolg van de dreiging van deze infectie , vormt dit een zo hoog risico voor  andere systemen in het netwerk, dat uw netwerkverbinding is uitgeschakeld totdat corrigerende maatregelen worden genomen. Aanwijzingen voor hiervoor staan hieronder:"
 
 msgid ""
 "Your system may need to be rebuilt. Please contact your local support staff "
 "for more information."
-msgstr ""
+msgstr "Uw systeem dient waarschijnlijk geherinstalleerd te worden.  Neem contact op met de helpdesk voor meer informatie. "
 
 msgid "guest management"
-msgstr ""
+msgstr "Gasten management"
 
 msgid "guest registration form"
-msgstr ""
+msgstr "Gasten registratie formulier"
 
 msgid "guest registration instructions"
 msgstr ""
@@ -375,10 +385,10 @@ msgid "phone"
 msgstr "telefoonnummer"
 
 msgid "Phone Provider"
-msgstr ""
+msgstr "Telefoon provider"
 
 msgid "Select your provider"
-msgstr ""
+msgstr "Selecteer uw telefoon provider"
 
 msgid "Email"
 msgstr "E-Mail"
@@ -387,10 +397,10 @@ msgid "email"
 msgstr "e-mail adres"
 
 msgid "Sponsor's email"
-msgstr ""
+msgstr "Email beheerder gasten netwerk"
 
 msgid "sponsor_email"
-msgstr ""
+msgstr "email beheerder gasten netwerk"
 
 msgid "Address"
 msgstr "Adres"
@@ -431,8 +441,8 @@ msgstr[1] "minuten"
 
 msgid "hour"
 msgid_plural "hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "uur"
+msgstr[1] "uren"
 
 msgid "day"
 msgid_plural "days"
@@ -455,39 +465,39 @@ msgstr[0] "jaar"
 msgstr[1] "jaren"
 
 msgid "Invalid access duration provided"
-msgstr ""
+msgstr "Ongeldige toegang periode ingegeven"
 
 msgid "Expected on %s"
-msgstr ""
+msgstr "Verwacht op %s"
 
 msgid "Missing mandatory parameter or malformed entry."
-msgstr ""
+msgstr "Verplicht veld mist of verkeerd ingegeven input. "
 
 msgid "Usernames must only contain alphanumeric characters."
-msgstr ""
+msgstr "Gebruikersnamen mogen alleen alfanumerieke tekens bevatten."
 
 msgid "Access duration is not of an allowed value."
-msgstr ""
+msgstr "Toegang duur is niet van een toegestane waarde."
 
 msgid "Arrival date is not of expected format."
-msgstr ""
+msgstr "Aankomst datum is niet van verwachte formaat."
 
 msgid ""
 "You can't register as a guest with a %s email address. Please register as a "
 "regular user using your email address instead."
-msgstr ""
+msgstr "U kunt niet registreren als gast met het e-mail adres %s. Registreer als een gewone gebruiker met behulp van uw e-mailadres in plaats daarvan."
 
 msgid "An error occured while sending the confirmation email."
-msgstr ""
+msgstr "Helaas kon de bevestiging  mail niet verstuurd worden."
 
 msgid "An error occured while sending the PIN by SMS."
-msgstr ""
+msgstr "Helaas kon de PIN code niet per SMS verstuurd worden. "
 
 msgid "The uploaded file was corrupted. Please try again."
-msgstr ""
+msgstr "Het ingegeven bestand kan niet worden ingelezen. Probeer het nogmaals. "
 
 msgid "Can't open uploaded file."
-msgstr ""
+msgstr "Kan bestand niet uploaden. "
 
 msgid "Confirm Mobile Phone Number"
 msgstr "Bevestig mobiel telefoonnummer"
@@ -495,10 +505,10 @@ msgstr "Bevestig mobiel telefoonnummer"
 msgid ""
 "Please enter the PIN code received on your mobile phone in order to gain "
 "access to the network."
-msgstr ""
+msgstr "Geef de PIN code in die naar uw mobile toestel is gestuurd om toegang tot het netwerk te krijgen. "
 
 msgid "PIN"
-msgstr ""
+msgstr "PIN"
 
 msgid "Confirm"
 msgstr "Bevestig"
@@ -507,39 +517,39 @@ msgid "Cancel"
 msgstr "Annuleer"
 
 msgid "Guest Access Code"
-msgstr ""
+msgstr "Gasten toegangscode"
 
 msgid "This username and password will be valid starting %s."
-msgstr ""
+msgstr "Deze gebruikersnaam en wachtwoord geldig vanaf %s. "
 
 msgid "Once authenticated the access will be valid for %d %s."
-msgstr ""
+msgstr "Na verificatie  is de toegang geldig voor: %d %s. "
 
 msgid ""
 "Guest successfully registered. An email with the username and password has "
 "been sent."
-msgstr ""
+msgstr "Gast succesvol geregistreerd. Een email met de gebruikersnaam en wachtwoord is verstuurd. "
 
 msgid "Import completed: %i guest(s) created, %i line(s) skipped."
-msgstr ""
+msgstr "Import geslaagd: %i gast(ten) geïmporteerd, %i regel(s) overgeslagen."
 
 msgid "Single guest creation"
-msgstr ""
+msgstr "Enkele gast toevoegen"
 
 msgid "Multiple guest accounts creation"
-msgstr ""
+msgstr "Meerder gasten toevoegen"
 
 msgid "CSV file"
-msgstr ""
+msgstr "CSV bestand"
 
 msgid "CSV file import"
-msgstr ""
+msgstr "CSV bestand importeren"
 
 msgid "You are logged in as"
 msgstr "U bent ingelogd als"
 
 msgid "Sponsored by"
-msgstr ""
+msgstr "Gasten beheerder"
 
 msgid "Guest Network Access Information"
 msgstr "Gasten netwerk toegang informatie"
@@ -548,29 +558,31 @@ msgid ""
 "If you have scripting turned off, you will not be automatically redirected. "
 "Please enable scripting or open a new browser window from time to time to "
 "see if your access was enabled."
-msgstr ""
+msgstr "Als je scripting hebt uitgeschakeld zal je niet automatisch worden doorgestuurd. Activeer deze functie of open een nieuwe browser van tijd tot tijd om te zien of u netwerk toegang heeft. "
 
-msgid "Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled."
-msgstr ""
+msgid ""
+"Unable to detect network connectivity. Try restarting your web browser or "
+"opening a new tab to see if your access has been succesfully enabled."
+msgstr "Er kan geen netwerk activiteit worden gedetecteerd. Probeer uw webbrouwser opnieuw op te starten of open een niew tabblad om te zien of u wel het netwerk nu op kunt na uw registratie. "
 
 msgid ""
 "Your network access should be available. Close your current browser, and "
 "open a new one to start browsing."
-msgstr ""
+msgstr "U heeft nu internettoegang. Sluit uw browser en start deze opnieuw op om te starten. "
 
 msgid "Registration pending"
-msgstr ""
+msgstr "Registratie is nog in afwachting van goedkeuring. "
 
 msgid ""
 "There are known issues with the automatic redirection on Opera browsers. "
 "Please open a new browser window from time to time to see if your access was"
 " enabled."
-msgstr ""
+msgstr "Er is een probleem bekend met Opera browsers, waardoor u niet wordt doorgestuurd. Open van tijd tot tijd een nieuwe browser om te zien of uw toegang tot het netwerk werkt. "
 
 msgid ""
 "Some versions of Internet Explorer may take a while before redirection "
 "occur."
-msgstr ""
+msgstr "Bij sommige versies van Internet Explorer kan het even duren voordat u wordt doorgestuurd. "
 
 msgid "I accept the terms"
 msgstr "Ik accepteer de voorwaarden"
@@ -579,7 +591,7 @@ msgid "I have read and accept the terms"
 msgstr "Ik heb de <a href='/aup' target='_blank'>voorwaarden</a> gelezen en accepteer ze"
 
 msgid "You need to accept the terms before proceeding any further."
-msgstr ""
+msgstr "U dient de voorwaarden te accepteren voordat u verder kunt gaan. "
 
 msgid ""
 "Your registration is pending approval. Once approved you will be "
@@ -600,7 +612,7 @@ msgid ""
 msgstr ""
 
 msgid "NAT Device Detected"
-msgstr ""
+msgstr "NAT apparaat(Router) gedetecteerd"
 
 msgid ""
 "You have been detected using a device that performs network address "
@@ -610,10 +622,10 @@ msgid ""
 msgstr ""
 
 msgid "Rogue DHCP server"
-msgstr ""
+msgstr "Onbekende DHCP server"
 
 msgid "You have been detected running a rogue DHCP server. Please disable it."
-msgstr ""
+msgstr "Er is een DHCP server gedetecteerd bij uw connectie. Schakel deze uit. "
 
 msgid "Vulnerability Scanning"
 msgstr ""
@@ -625,19 +637,19 @@ msgid ""
 msgstr ""
 
 msgid "Malware found!"
-msgstr ""
+msgstr "Malware gevonden!"
 
 msgid ""
 "Your system has been found to be infected with malware. Due to the threat "
 "this infection poses for other systems on the network, network connectivity "
 "has been disabled until corrective action is taken."
-msgstr ""
+msgstr "Uw systeem heeft Malware. Dit vormt een zo hoog risico voor  andere systemen in het netwerk, dat uw netwerkverbinding is uitgeschakeld totdat corrigerende maatregelen worden genomen. Aanwijzingen voor hiervoor staan hieronder:"
 
 msgid "Malware Removal"
-msgstr ""
+msgstr "Malware verwijderen"
 
 msgid "LSASS Worm"
-msgstr ""
+msgstr "LSASS worm"
 
 msgid ""
 "Your system has been found to be infected with An LSASS-based worm. Due to "
@@ -647,7 +659,7 @@ msgid ""
 msgstr ""
 
 msgid "Worm Removal"
-msgstr ""
+msgstr "Worm verwijderen"
 
 msgid ""
 "Make sure your antivirus is working. You might want to perform a full system"
@@ -658,7 +670,7 @@ msgid ""
 msgstr ""
 
 msgid "Trojan Infection"
-msgstr ""
+msgstr "Trojaans paard virus infectie"
 
 msgid "Unauthorized device"
 msgstr "Ongeautoriseerd apparaat"
@@ -671,7 +683,7 @@ msgid ""
 msgstr ""
 
 msgid "Zotob Infection"
-msgstr ""
+msgstr "Zotob virus infectie"
 
 msgid ""
 "Your system has been found to be infected with a Zotob worm and is scanning "
@@ -683,13 +695,13 @@ msgstr ""
 msgid ""
 "Your network access is currently being enabled. Once network connectivity is"
 " established you will be automatically redirected."
-msgstr ""
+msgstr "Uw netwerk toegang wordt op dit moment weer toegestaan. Zodra u toegang heeft wordt u automatisch doorgestuurd. "
 
 msgid "Your network access is currently being enabled. Please wait..."
-msgstr ""
+msgstr "Uw netwerktoegang wordt nu toegestaan. Wacht A.U.B."
 
 msgid "You must be authenticated to manage guests."
-msgstr ""
+msgstr "U dient ingelogd te zijn om gasten te kunnen beheren. "
 
 msgid "This account is expired."
 msgstr "Uw account is verlopen."
@@ -700,13 +712,13 @@ msgstr "Uw account is nog niet geactiveerd. "
 msgid ""
 "Your network should be enabled within a minute or two. If it is not reboot "
 "your computer."
-msgstr ""
+msgstr "Uw netwerktoegang zou binnen 2 minuten moeten werken. Als dit niet zo is, schakel uw computer uit en in. "
 
 msgid "Invalid PIN"
-msgstr ""
+msgstr "Ongeldige PIN code"
 
 msgid "Username Prefix"
-msgstr ""
+msgstr "Gebruikersnaam prefix"
 
 msgid "Quantity"
 msgstr "Aantal"
@@ -718,13 +730,13 @@ msgid "Logout"
 msgstr "Uitloggen"
 
 msgid "Required columns: username, password."
-msgstr ""
+msgstr "Verplichte velden: gebruikersnaam, wachtwoord"
 
 msgid "Column Delimiter"
-msgstr ""
+msgstr "Kolom scheidingsteken"
 
 msgid "Columns Order"
-msgstr ""
+msgstr "Kolom volgorde"
 
 msgid "comma (,)"
 msgstr "komma (,)"
@@ -733,22 +745,22 @@ msgid "semicolon (;)"
 msgstr "punt komma (;)"
 
 msgid "tab"
-msgstr ""
+msgstr "tab"
 
 msgid "Format is: yyyy-mm-dd"
-msgstr ""
+msgstr "Formaat is: jjjj-mm-dd"
 
 msgid "Import file"
-msgstr ""
+msgstr "Importeer bestand"
 
 msgid "Access to the guest network has been granted until %s."
-msgstr ""
+msgstr "Toegang tot het gasten netwerk is toegestaan tot: %s. "
 
 msgid "Access to the guest network has been granted."
-msgstr ""
+msgstr "Toegang tot het gasten netwerk is toegestaan. "
 
 msgid "Access to the guest network granted"
-msgstr ""
+msgstr "Toegang tot het gasten netwerk is toegestaan. "
 
 msgid ""
 "Your XML configuration have been generated and is now ready to download.  "
@@ -756,22 +768,22 @@ msgid ""
 msgstr ""
 
 msgid "Click to install your generated wireless profile."
-msgstr ""
+msgstr "Klink hier om het gegenereerde draadloos netwerk profiel te installeren. "
 
 msgid "Internet Access Package"
-msgstr ""
+msgstr "Internet toegangs pakket"
 
 msgid "Credit Card Number"
-msgstr ""
+msgstr "Creditkaart nummer"
 
 msgid "Credit Card Expiration Date"
-msgstr ""
+msgstr "Creditkaart verloop datum"
 
 msgid "MMYY"
-msgstr ""
+msgstr "MMJJ"
 
 msgid "Credit Card Verification Number"
-msgstr ""
+msgstr "Credit card CVE code"
 
 msgid "Continue"
 msgstr "Ga verder"
@@ -779,7 +791,7 @@ msgstr "Ga verder"
 msgid ""
 "An error occured while processing your payment. Incorrect credit card "
 "informations provided."
-msgstr ""
+msgstr "Er is iets niet goed gegaan met uw betaling. De ingegeven credit kaart gegevens zijn niet correct. "
 
 msgid ""
 "An error occured while processing you payment. Your credit card has not been"
@@ -791,7 +803,7 @@ msgstr ""
 
 # SoH filters
 msgid "Filters"
-msgstr ""
+msgstr "Filters"
 
 msgid ""
 "Define the filters which will apply to all NAP-capable clients that produce "
@@ -799,10 +811,10 @@ msgid ""
 msgstr ""
 
 msgid "Delete this filter"
-msgstr ""
+msgstr "Verwijder dit filter"
 
 msgid "Do nothing"
-msgstr ""
+msgstr "Doe niets"
 
 msgid "Accept"
 msgstr "Accepteer"
@@ -814,206 +826,253 @@ msgid "Trigger violation"
 msgstr ""
 
 msgid "Conditions:"
-msgstr ""
+msgstr "Voorwaarden:"
 
 msgid "(None yet)"
-msgstr ""
+msgstr "(geen) "
 
 msgid "Add a condition"
-msgstr ""
+msgstr "Een voorwaarde toevoegen"
 
 msgid "Delete this condition"
-msgstr ""
+msgstr "Deze voorwaarde verwijderen"
 
 msgid "Firewall"
-msgstr ""
+msgstr "firewall"
 
 msgid "Anti-virus"
-msgstr ""
+msgstr "Anti-virus"
 
 msgid "Anti-spyware"
-msgstr ""
+msgstr "Anti-spyware"
 
 msgid "Auto-updates"
-msgstr ""
+msgstr "Auto-updates"
 
 msgid "Security updates"
-msgstr ""
+msgstr "Beveiliging updates"
 
 msgid "is"
-msgstr ""
+msgstr "is"
 
 msgid "is not"
-msgstr ""
+msgstr "is niet"
 
 msgid "ok"
-msgstr ""
+msgstr "ok"
 
 msgid "installed"
-msgstr ""
+msgstr "geïnstalleerd"
 
 msgid "enabled"
-msgstr ""
+msgstr "ingeschakeld"
 
 msgid "disabled"
-msgstr ""
+msgstr "uitgeschakeld"
 
 msgid "up-to-date"
-msgstr ""
+msgstr "up-to-date"
 
 msgid "from Microsoft"
-msgstr ""
+msgstr "van Mircrosoft"
 
 msgid "Action:"
-msgstr ""
+msgstr "Actie:"
 
 msgid "Add a filter"
-msgstr ""
+msgstr "Voeg een filter toe"
 
 msgid "Save filters"
-msgstr ""
+msgstr "Sla filters op"
 
 msgid "Invalid response"
-msgstr ""
+msgstr "Ongeldige reactie"
 
 msgid "Request failed"
-msgstr ""
+msgstr "Verzoek is mislukt"
 
 msgid "Are you sure you want to delete this filter?"
-msgstr ""
+msgstr "Weet u zeker dat u dit filter wilt verwijderen? "
 
 msgid "Enter new filter name"
-msgstr ""
+msgstr "Geef nieuwe filternaam"
 
 msgid "Guest Sponsor Login"
-msgstr ""
+msgstr "Beheerder gasten netwerk inlog"
 
 msgid "Before we proceed with guest activation, we need you to authenticate."
-msgstr ""
+msgstr "Voordat we u als gast kunnen activeren, dient u eerst in verifieert te zijn. "
 
 msgid ""
 "You have reached the maximum number of devices you are able to register with"
 " this username."
-msgstr ""
+msgstr "Het maximum aantal apparaten is bereikt wat u onder uw gebruikersnaam kan registreren. "
 
 msgid ""
 "An email has been sent to your email address. Click on the activation link "
 "to confirm your email address. Once confirmed you will receive a username "
 "and password by email for you to use once on-site."
-msgstr ""
+msgstr "Er is een email gestuurd naar je email adres. Klik in de email op de activatie link. Dit valideert dan je email adres aan ons en wij sturen je dan een gebruikersnaam en wachtwoord voor het netwerk. "
 
 msgid ""
 "An access request was sent to the sponsor's email. You will receive an email"
 " with a username and password once your access has been approved."
-msgstr ""
+msgstr "Er is een email gestuurd naar de sponsor. Je krijgt een email met een gebruikersnaam en wachtwoord zodra je toegang is goedgekeurd. "
 
 msgid "Registration in advance by SMS is not supported."
-msgstr ""
+msgstr "Registratie vooraf per SMS is niet toegestaan. "
 
 msgid "%s: Guest Network Access Information"
-msgstr ""
+msgstr "%s: Gasten netwerk toegang informatie"
 
 msgid "%s: Guest access confirmed!"
-msgstr ""
+msgstr "%s: Gasten toegang bevestigd! "
 
 msgid "%s: Guest network access enabled"
-msgstr ""
+msgstr "%s: Gasten netwerk toegang toegestaan"
 
 msgid ""
 "There was a problem trying to find the computer to register. The problem has"
 " been logged."
-msgstr ""
+msgstr "Er is een probleem met het opzoeken van de computer die geregistreerd moet worden. Dit probleem is doorgegeven aan de beheerder."
 
 msgid ""
 "The device with MAC address %s has already been authorized to your network."
-msgstr ""
+msgstr "Het apparaat met MAC adres %s heeft al toegang tot ons netwerk. "
 
 msgid "%s: Guest access request"
-msgstr ""
+msgstr "%s: Gasten toegang aanvraag"
 
 msgid "%s: Guest access request accepted"
-msgstr ""
+msgstr "%s: Gasten toegang aanvraag geaccepteerd"
 
 msgid "Guest pre-registration is not allowed by policy"
-msgstr ""
+msgstr "Voor registratie van gasten is niet toegestaan door de beheerder"
 
 msgid ""
 "If you choose to have your access <strong>sponsored</strong>, we will send "
 "an email to the Sponsor email you provided with an activation link. The "
 "sponsor will need to click on that link and authenticate in order to approve"
 " you in."
-msgstr ""
+msgstr "Als u er voor kiest om uw toegang via een <strong>sponsor</strong> te regelen, zullen wij een email naar de sponsor sturen met een activatie link. De sponsor dient dan op die link te klikken om uw aanvraag goed te keuren. "
 
 msgid "You will receive guest credentials by email once approved."
-msgstr ""
+msgstr "U zult uw inloggegevens ontvangen per email zodra deze zijn goedgekeurd. "
 
 msgid "You will be in a waiting area until approved."
-msgstr ""
+msgstr "Je bevind je nu in een wacht ruimte totdat uw toegang is goedgekeurd. "
 
 msgid "Register through a Sponsor"
-msgstr ""
+msgstr "Registreer via een beheerder"
 
 msgid "Network Access Requested"
-msgstr ""
+msgstr "Netwerk toegang aangevraagd"
 
 msgid "Access to the guest network confirmed"
-msgstr ""
+msgstr "Toegang tot het gastennetwerk is bevestigd"
 
 msgid ""
 "Access to the guest network has been successfully confirmed. You should "
 "receive credentials for on-site guest access by email shortly."
-msgstr ""
+msgstr "Toegang tot het gastennetwerk is bevestigd door een beheerder. U zult binnenkort per email inlog gegevens ontvangen om gebruik te maken van het gastennetwerk. "
 
 msgid "%s: Email activation required"
-msgstr ""
+msgstr "%s Email activatie nodig"
 
 msgid "Missing mandatory parameter or malformed entry"
-msgstr ""
+msgstr "Missend of verkeerd ingevuld veld"
 
 msgid "Missing mandatory parameter(s): %s"
-msgstr ""
+msgstr "Verplicht veld(en) mist(missen): %s"
 
 msgid "Illegal email address provided"
-msgstr ""
+msgstr "Verkeerd email adres ingegeven"
 
 msgid "Illegal phone number provided"
-msgstr ""
+msgstr "Verkeerd telefoon nummer ingegeven"
 
 msgid "Acceptable Use Policy (AUP) was not accepted"
-msgstr ""
+msgstr "Acceptable Use Policy (AUP) is niet geaccepteerd"
 
 msgid "Your access can only be sponsored by a %s email address"
-msgstr ""
+msgstr "Uw toegang kan alleen worden toegelaten door een beheerder. %s"
 
 msgid "Unable to validate your sponsor at the moment"
-msgstr ""
+msgstr "Helaas kunnen we niet uw beheerder controleren. "
 
 msgid "Email %s is not allowed to sponsor guest access"
-msgstr ""
+msgstr "Email %s is geen beheerder van het gasten netwerk "
 
 msgid "You need to be authenticated to access this page."
-msgstr ""
+msgstr "U moet worden geverifieerd om deze pagina te openen."
 
 msgid "OAuth2 Error: Failed to get the token"
-msgstr ""
+msgstr "OAuth2 Fout: Geen Token"
 
 msgid "OAuth2 Error: Failed to validate the token, please retry"
-msgstr ""
+msgstr "Oauth2 Fout: Kan token niet controleren, probeer het nogmaals"
 
 msgid "Registration canceled please try again"
-msgstr ""
+msgstr "Registratie geannuleerd. Probeer het nogmaals"
 
 msgid "Please verify MAC address provided"
-msgstr ""
+msgstr "Verifieer het ingegeven MAC adres"
 
 msgid "You are not authorized"
-msgstr ""
+msgstr "U heeft geen toegang"
 
 msgid "The MAC address %s has been successfully registered."
-msgstr ""
+msgstr "Het MAC adres %s is succesvol geregistreerd. "
 
 msgid "The MAC address %s provided is invalid please try again"
-msgstr ""
+msgstr "Het opgegeven MAC adres %s is ongeldig. Probeer het nogmaals"
 
 msgid "This module is not enabled"
+msgstr "Deze module is niet ingeschakeld"
+
+msgid "anniversary"
+msgstr ""
+
+msgid "birthday"
+msgstr ""
+
+msgid "gender"
+msgstr ""
+
+msgid "lang"
+msgstr ""
+
+msgid "nickname"
+msgstr ""
+
+msgid "cell_phone"
+msgstr ""
+
+msgid "work_phone"
+msgstr ""
+
+msgid "title"
+msgstr ""
+
+msgid "building_number"
+msgstr ""
+
+msgid "apartment_number"
+msgstr ""
+
+msgid "room_number"
+msgstr ""
+
+msgid "Please wait. Processing payment..."
+msgstr ""
+
+msgid ""
+"Remember to enable ip_forward on your operating system for the inline mode "
+"to work."
+msgstr ""
+
+msgid ""
+"Since NATting mode is disabled, PacketFence will adjust iptables to rules to"
+" route traffic rather than natting it. Make sure to add the routes on the "
+"system."
 msgstr ""

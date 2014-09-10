@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-09-05 15:04+0000\n"
+"PO-Revision-Date: 2014-09-10 18:10+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -160,11 +160,10 @@ msgstr "Comptabilité"
 
 # conf/documentation.conf (inline.layer3_accounting_session_timeout)
 msgid ""
-"Accounting sessions created by pfbandwidthd (layer 3 traffic only) that "
-"haven't been updated for more than this amount of seconds will be considered"
-" inactive. This should be higher than the interval at which pfmon runs "
-"Defaults to 300 - 5 minutes"
-msgstr "Les sessions de comptabilisation créés par pfbandwidthd (trafic de niveau 3 seulement) qui n'ont pas été mise à jours depuis plus que cette valeur en secondes seront considérées comme inactive. Devrait être plus élevé que l'intervalle utilisé par pfmon, par défaut 300 secondes."
+"Accounting sessions created by pfbandwidthd that haven't been updated for "
+"more than this amount of seconds will be considered inactive. This should be"
+" higher than the interval at which pfmon runs Defaults to 300 - 5 minutes"
+msgstr "Les sessions de comptabilisation créés par pfbandwidthd qui n'ont pas été mise à jours depuis plus que cette valeur en secondes sera considérée comme inactive. Devrait être plus élevé que l'intervalle qui pfmon utilise par défaut 300 (5 minutes)."
 
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
 # html/pfappserver/root/admin/bulk_actions.inc
@@ -745,7 +744,7 @@ msgstr "Entreprise"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Compliance"
-msgstr "Respect"
+msgstr "Conformité"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/user/view.tt
@@ -1063,7 +1062,7 @@ msgstr "Supprimer une entrée Mdm"
 
 # html/pfappserver/root/portal/profile/index.tt
 msgid "Delete Profile"
-msgstr "Supprimer le Profile"
+msgstr "Supprimer le Profil"
 
 # html/pfappserver/root/roles/index.tt
 msgid "Delete Role"
@@ -1276,7 +1275,7 @@ msgstr "Activer le serveur DHCP"
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "Enable NATting"
-msgstr "Activer le NATing"
+msgstr "Activer la translation d´adresse"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Enable Password"
@@ -1745,7 +1744,7 @@ msgid ""
 "username, which will mostly be <em>root</em> without any password and click "
 "the <em>Test</em> button. For security reasons, you'll be prompted to set "
 "one."
-msgstr "Si vous ne connaissez pas le mot de passe de MySQL c´est probablement que vous n´en avez pas spécifié un auparavant. Dans ce cas entrez juste le nom d´utilisateur root sans mot de passe et cliquez sur le bouton <em>Test</em>. Pour des raisons de sécurité on va vous demander d´en spécifier un."
+msgstr "Si vous ne connaissez pas le mot de passe de MySQL c´est probablement que vous n´en avez pas spécifié un auparavant. Dans ce cas entrez juste le nom d´utilisateur root sans mot de passe et cliquez sur le bouton <em>Tester</em>. Pour des raisons de sécurité on va vous demander d´en spécifier un."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid "If you use an alternative port, please specify"
@@ -1809,10 +1808,10 @@ msgstr "Intervalle de temps pour lequelle PacketFence va mettre à jour le cache
 
 # conf/documentation.conf (inline.layer3_accounting_sync_interval)
 msgid ""
-"Interval at which pfbandwidthd (layer 3 traffic only) should dump collected "
-"information into the database. This should be lower than the interval at "
-"which pfmon runs. Defaults to 41 seconds"
-msgstr "Intervalle de temps pour laquelle pfbandwidthd (trafic de niveau 3 seulement) devra vider les informations collectées dans la base de données. Cela devrait être inférieur à la fréquence à laquelle pfmon fonctionne, par défaut cette valeur est à 41 secondes"
+"Interval at which pfbandwidthd should dump collected information into the "
+"database. This should be lower than the interval at which pfmon runs. "
+"Defaults to 41 seconds"
+msgstr "Intervalle de temps pour laquelle pfbandwidthd devra vider les informations collectées dans la base de données. Cela devrait être inférieur à la fréquence à laquelle pfmon fonctionne, par défaut c'est à 41 secondes"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Is a device"
@@ -2522,7 +2521,7 @@ msgstr "Profile de portail - Créer"
 
 # pf::admin_roles (Actions)
 msgid "PORTAL_PROFILES_DELETE"
-msgstr "Profile de portail - Supprimer"
+msgstr "Profil de portail - Supprimer"
 
 # pf::admin_roles (Actions)
 msgid "PORTAL_PROFILES_READ"
@@ -2988,7 +2987,7 @@ msgstr "Isolation"
 msgid ""
 "Remember to enable ip_forward on your operating system for the inline mode "
 "to work."
-msgstr "Activé le paramètre ip_forward sur votre système pour utiliser le mode Inline."
+msgstr "Activer le paramètre ip_forward sur votre système pour utiliser le mode Inline."
 
 # conf/documentation.conf (scan.nessus_port)
 msgid ""
@@ -3530,7 +3529,7 @@ msgid ""
 "Since NATting mode is disabled, PacketFence will adjust iptables to rules to"
 " route traffic rather than natting it. Make sure to add the routes on the "
 "system."
-msgstr "Si le mode NATting est désactivé, PacketFence utilisera les règles iptables plutôt que celles du natting. Assurez-vous d'ajouter les routes sur le système."
+msgstr "Si la translation d´adresse est désactivé, PacketFence utilisera les règles iptables plutôt que celles de la translation. Assurez-vous d'ajouter les routes sur le système."
 
 # html/pfappserver/root/node/create.tt
 # html/pfappserver/root/user/create.tt
@@ -4999,7 +4998,7 @@ msgstr "fin"
 # html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "ends with"
-msgstr "finit avec"
+msgstr "finit par"
 
 # pf::Authentication::constants (Conditions)
 msgid "equals"
@@ -5032,10 +5031,6 @@ msgstr "Noeud"
 # conf/documentation.conf
 msgid "expire.traplog"
 msgstr "Journaux des trappes"
-
-# pf::action (VIOLATION_ACTIONS)
-msgid "external_action"
-msgstr "Commande externe"
 
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Portal::Common (mandatory fields)
