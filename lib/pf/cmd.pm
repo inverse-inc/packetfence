@@ -1,9 +1,8 @@
 package pf::cmd;
+
 =head1 NAME
 
 pf::cmd add documentation
-
-=cut
 
 =head1 DESCRIPTION
 

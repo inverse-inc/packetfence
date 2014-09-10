@@ -36,7 +36,7 @@ Catalyst Controller.
 
 sub begin : Private {
     my ( $self, $c ) = @_;
-    if( isdisabled($Config{'registration'}{'billing_engine'}) ) {
+    if( isdisabled($c->profile->getBillingEngine) ) {
         $c->response->redirect("/captive-portal?destination_url=".uri_escape($c->portalSession->profile->getRedirectURL));
         $c->detach;
     }
@@ -50,7 +50,7 @@ sub begin : Private {
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $request = $c->request;
-    if ( defined($request->param('submit')) ) {
+    if ( $request->method eq 'POST' ) {
         $c->detach('processBilling');
     } 
     for my $p ('firstname', 'lastname', 'email', 'ccnumber', 'ccexpiration', 'ccvalidation') {
@@ -257,18 +257,38 @@ sub showBilling : Private {
 
 =head1 AUTHOR
 
-root
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 =cut
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 COPYRIGHT
 

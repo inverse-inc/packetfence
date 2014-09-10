@@ -344,8 +344,13 @@ sub get_ip_from_ipset_by_mac {
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
         my $ip;
+        my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
         if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-            $ip = mac2ip( $mac );
+            my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+            my $tmp_ip = new NetAddr::IP::Lite clean_ip(mac2ip($mac));
+            if ($net_addr->contains($tmp_ip)) {
+                $ip = $tmp_ip->addr;
+            }
         } else {
             if ($IPSET_VERSION > 4) {
                 $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";

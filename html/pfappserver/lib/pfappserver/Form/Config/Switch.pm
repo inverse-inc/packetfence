@@ -23,6 +23,7 @@ use pf::util;
 use List::MoreUtils qw(any);
 
 has 'roles' => ( is => 'ro' );
+has 'access_lists' => ( is => 'ro' );
 has 'placeholders' => ( is => 'ro' );
 
 ## Definition
@@ -53,9 +54,7 @@ has_field 'mode' =>
    label => 'Mode',
    required => 1,
    tags => { after_element => \&help_list,
-             help => '<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it
-doesn’t do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch
-ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>' },
+             help => "<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it doesn't do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>" },
   );
 has_field 'deauthMethod' =>
   (
@@ -73,6 +72,11 @@ has_field 'RoleMap' =>
   (
    type => 'Toggle',
    label => 'Role by Switch Role',
+  );
+has_field 'AccessListMap' =>
+  (
+   type => 'Toggle',
+   label => 'Role by access list',
   );
 has_field 'VoIPEnabled' =>
   (
@@ -410,7 +414,7 @@ has_field controllerPort =>
     label => 'Controller Port',
     tags => {
         after_element => \&help_list,
-        help => 'Only for Wi-Fi , if the deauth request must be send to another device than the access point then set the ip of the controller'
+        help => 'Only for Wi-Fi, if the deauth request must be send to another device than the access point then set the ip of the controller'
     },
   );
 
@@ -458,6 +462,13 @@ sub field_list {
           };
         push(@$list, $role.'Role' => $field);
 
+        $field =
+          {
+           type => 'TextArea',
+           label => $role,
+          };
+        push(@$list, $role.'AccessList' => $field);
+
         # The VLAN mapping for default roles is mandatory for the default switch
         $field =
           {
@@ -479,6 +490,14 @@ sub field_list {
               };
             push(@$list, $role.'Vlan' => $field);
             push(@$list, $role.'Role' => $field);
+
+            $field =
+              {
+               type => 'TextArea',
+               label => $role,
+              };
+            push(@$list, $role.'AccessList' => $field);
+
         }
     }
 
@@ -530,10 +549,11 @@ Dynamically build the block list of the roles mapping.
 sub build_block_list {
     my $self = shift;
 
-    my (@vlans, @roles);
+    my (@vlans, @roles, @access_lists);
     if ($self->form->roles) {
         @vlans = map { $_.'Vlan' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
         @roles = map { $_.'Role' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
+        @access_lists = map { $_.'AccessList' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
     }
 
     return
@@ -543,6 +563,9 @@ sub build_block_list {
        },
        { name => 'roles',
          render_list => \@roles,
+       },
+       { name => 'access_lists',
+         render_list => \@access_lists,
        }
       ];
 }

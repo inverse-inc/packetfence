@@ -3,22 +3,7 @@ package captiveportal::View::MobileConfig;
 use strict;
 use warnings;
 use Moose;
-extends 'captiveportal::View::HTML';
-use pf::file_paths;
-
-__PACKAGE__->config(
-    TEMPLATE_EXTENSION => '.xml',
-    render_die         => 1,
-    INCLUDE_PATH       => ["$install_dir/html/captive-portal/templates"]
-);
-
-after process => sub {
-    my ( $self, $c ) = @_;
-    my $headers = $c->response->headers;
-    $headers->content_type('application/x-apple-aspen-config; chatset=utf-8');
-    $headers->header( 'Content-Disposition',
-        'attachment; filename="wireless-profile.mobileconfig"' );
-};
+BEGIN { extends 'captiveportal::PacketFence::View::MobileConfig'; }
 
 =head1 NAME
 
@@ -34,12 +19,28 @@ L<captiveportal>
 
 =head1 AUTHOR
 
-root
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 =cut
 

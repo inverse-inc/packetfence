@@ -29,6 +29,13 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 with 'pfappserver::Role::Controller::BulkActions';
 
 __PACKAGE__->config(
+    action => {
+        bulk_close           => { AdminRole => 'USERS_UPDATE' },
+        bulk_register        => { AdminRole => 'USERS_UPDATE' },
+        bulk_deregister      => { AdminRole => 'USERS_UPDATE' },
+        bulk_apply_role      => { AdminRole => 'USERS_UPDATE' },
+        bulk_apply_violation => { AdminRole => 'USERS_UPDATE' },
+    },
     action_args => {
         '*' => { model => 'User'},
         advanced_search => { model => 'Search::User', form => 'AdvancedSearch' },
@@ -160,7 +167,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_UPD
         $message = $form->field_errors;
     }
     else {
-        ($status, $message) = $self->getModel($c)->update($c->stash->{user}->{pid}, $form->value);
+        ($status, $message) = $self->getModel($c)->update($c->stash->{user}->{pid}, $form->value, $c->user);
     }
     if (is_error($status)) {
         $c->response->status($status);

@@ -42,12 +42,15 @@ use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::authentication;
 
+# This is the content that needs to match in the iptable rules for the service
+# to be considered as running
+Readonly our $FW_FILTER_INPUT_MGMT => 'input-management-if';
+
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
 Readonly my $FW_TABLE_NAT => 'nat';
 Readonly my $FW_FILTER_INPUT_INT_VLAN => 'input-internal-vlan-if';
 Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
-Readonly my $FW_FILTER_INPUT_MGMT => 'input-management-if';
 Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
 Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_FILTER_FORWARD_INT_VLAN => 'forward-internal-vlan-if';
@@ -184,7 +187,7 @@ sub generate_filter_if_src_to_chain {
 
         # inline enforcement
         } elsif (is_type_inline($enforcement_type)) {
-            my $mgmt_ip = $management_network->tag("ip");
+            my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d $mgmt_ip --protocol tcp --match tcp --dport 443 --jump ACCEPT\n";
@@ -214,8 +217,8 @@ sub generate_filter_if_src_to_chain {
             foreach my $network ( keys %ConfigNetworks ) {
                 next if ( !pf::config::is_network_type_inline($network) );
                 my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                my $NAT = $ConfigNetworks{$network}{'nat'};
-                if (defined ($NAT) && ($NAT eq $NO)) {
+                my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+                if (defined ($nat) && (isdisabled($nat))) {
                     $rules .= "-A FORWARD -d $network/$inline_obj->{BITS} --in-interface $val ";
                     $rules .= "--jump ACCEPT";
                     $rules .= "\n";
@@ -244,20 +247,31 @@ sub generate_inline_rules {
     foreach my $network ( keys %ConfigNetworks ) {
         # We skip non-inline networks/interfaces
         next if ( !pf::config::is_network_type_inline($network) );
+        # Set the correct gateway if it is an inline Layer 3 network
+        my $gateway = $ConfigNetworks{$network}{'gateway'};
+        if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
+            foreach my $test_network ( keys %ConfigNetworks ) {
+                my $net_addr = NetAddr::IP->new($test_network,$ConfigNetworks{$test_network}{'netmask'});
+                my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
+                if ($net_addr->contains($ip)) {
+                    $gateway = $ConfigNetworks{$test_network}{'gateway'};
+                }
+            }
+        }
 
         my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
         $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
-            . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+            . "--jump DNAT --to $gateway\n";
         $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
-            . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+            . "--jump DNAT --to $gateway\n";
         if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
             $logger->info("Adding Proxy interception rules");
             foreach my $intercept_port ( split(',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
                 my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
                 $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
-                        . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+                        . "--jump DNAT --to $gateway\n";
                 $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
-                        . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+                        . "--jump DNAT --to $gateway\n";
             }
         }
     }
@@ -380,8 +394,8 @@ sub generate_inline_if_src_to_chain {
                 foreach my $network ( keys %ConfigNetworks ) {
                     next if ( !pf::config::is_network_type_inline($network) );
                     my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                    my $nat = $ConfigNetworks{$network}{'nat'};
-                    if (defined ($nat) && ($nat eq $NO)) {
+                    my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+                    if (defined ($nat) && (isdisabled($nat))) {
                         $rules .= "-A POSTROUTING -s $network/$inline_obj->{BITS} --out-interface $val ";
                         $rules .= "--match mark --mark 0x$_ ";
                         $rules .= "--jump $FW_POSTROUTING_INT_INLINE_ROUTED";
@@ -425,18 +439,28 @@ sub generate_nat_redirect_rules {
         foreach my $network ( keys %ConfigNetworks ) {
             # We skip non-inline networks/interfaces
             next if ( !pf::config::is_network_type_inline($network) );
-
+            # Set the correct gateway if it is an inline Layer 3 network
+            my $gateway = $ConfigNetworks{$network}{'gateway'};
+            if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
+                foreach my $test_network ( keys %ConfigNetworks ) {
+                    my $net_addr = NetAddr::IP->new($test_network,$ConfigNetworks{$test_network}{'netmask'});
+                    my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
+                    if ($net_addr->contains($ip)) {
+                        $gateway = $ConfigNetworks{$test_network}{'gateway'};
+                    }
+                }
+            }
             # Destination NAT to the portal on the UNREG mark if trapping.registration is enabled
             if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
                 $rules .=
                     "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
-                    "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+                    "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway\n";
             }
 
             # Destination NAT to the portal on the ISOLATION mark
             $rules .=
                 "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
-                "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+                "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway\n";
         }
 
     }
@@ -641,5 +665,4 @@ USA.
 
 =cut
 
-1;
 

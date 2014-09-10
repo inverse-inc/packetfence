@@ -3,7 +3,7 @@ package captiveportal::PacketFence::Controller::Authenticate;
 use Moose;
 use namespace::autoclean;
 use pf::config;
-use pf::web qw(i18n);
+use pf::web qw(i18n i18n_format);
 use pf::node;
 use pf::util;
 use pf::locationlog;
@@ -193,7 +193,7 @@ sub postAuthentication : Private {
     my $info = $c->stash->{info} || {};
     my $source_id = $session->{source_id};
     my $pid = $session->{"username"};
-    $pid = $default_pid if _no_username($c->profile);
+    $pid = $default_pid if !defined $pid && $c->profile->noUsernameNeeded;
     $info->{pid} = $pid;
     my $params = { username => $pid };
     my $mac = $portalSession->clientMac;
@@ -205,40 +205,112 @@ sub postAuthentication : Private {
         $params->{SSID}            = $locationlog_entry->{'ssid'};
     }
 
+    $c->stash->{matchParams} = $params;
+    $c->stash->{info} = $info;
+    $c->forward('setRole');
+    $c->forward('setUnRegDate');
+    $info->{source} = $source_id;
+    $info->{portal} = $profile->getName;
+}
+
+sub setRole : Private {
+    my ( $self, $c ) = @_;
+    my $logger = $c->log;
+    my $session = $c->session;
+    my $params = $c->stash->{matchParams};
+    my $info = $c->stash->{info};
+    my $pid = $info->{pid};
+    my $source_match = $session->{source_match} || $session->{source_id};
     # obtain node information provided by authentication module. We need to get the role (category here)
     # as web_node_register() might not work if we've reached the limit
     my $value =
-      &pf::authentication::match( $source_id, $params, $Actions::SET_ROLE );
+      &pf::authentication::match( $source_match, $params, $Actions::SET_ROLE );
 
     # This appends the hashes to one another. values returned by authenticator wins on key collision
     if ( defined $value ) {
-        $logger->trace("Got role '$value' for username $pid");
+        $logger->trace("Got role '$value' for username \"$pid\"");
         $info->{category} = $value;
     } else {
-        $logger->trace("Got no role for username $pid");
+        $logger->trace("Got no role for username \"$pid\"");
     }
 
+}
 
+sub setUnRegDate : Private {
+    my ( $self, $c ) = @_;
+    my $logger = $c->log;
+    my $session = $c->session;
+    my $params = $c->stash->{matchParams};
+    my $info = $c->stash->{info};
+    my $pid = $info->{pid};
+    my $source_match = $session->{source_match} || $session->{source_id};
     # If an access duration is defined, use it to compute the unregistration date;
     # otherwise, use the unregdate when defined.
-    $value =
-      &pf::authentication::match( $source_id, $params,
+    my $value =
+      &pf::authentication::match( $source_match, $params,
         $Actions::SET_ACCESS_DURATION );
     if ( defined $value ) {
         $value = pf::config::access_duration($value);
         $logger->trace("Computed unreg date from access duration: $value");
     } else {
         $value =
-          &pf::authentication::match( $source_id, $params,
+          &pf::authentication::match( $source_match, $params,
             $Actions::SET_UNREG_DATE );
+        if ( defined($value) ){
+            $value = pf::config::dynamic_unreg_date($value) ;
+            $logger->trace("Computed unreg date from dynamic unreg date: $value");
+        }
     }
     if ( defined $value ) {
-        $logger->trace("Got unregdate $value for username $pid");
+        $logger->trace("Got unregdate $value for username \"$pid\"");
         $info->{unregdate} = $value;
     }
-    $info->{source} = $source_id;
-    $info->{portal} = $profile->getName;
-    $c->stash->{info} = $info;
+
+    # We put the unregistration date in session since we may want to use it later in the flow
+    $c->session->{unregdate} = $info->{unregdate};
+}
+
+sub createLocalAccount : Private {
+    my ( $self, $c, $auth_params ) = @_;
+    my $logger = $c->log;
+
+    $logger->debug("External source local account creation is enabled for this source. We proceed");
+
+    # We create a "temporary password" (also known as a user account) using the pid 
+    # with different parameters coming from the authentication source (ie.: expiration date)
+    my $actions = &pf::authentication::match( $c->session->{source_id}, $auth_params );
+
+    # We push an unregistration date that was previously calculated (setUnRegDate) that handle dynamic unregistration date and access duration
+    my $action = pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE, value => $c->session->{unregdate}});
+    # Hack alert: We may already have a "SET_UNREG_DATE" action in the array and since the way the authentication framework is working is by going
+    # through the actions on a first hit match, we want to make sure the unregistration date we computed (because we are taking care of the access duration,
+    # dynamic date, ...) will be the first in the actions array.
+    unshift (@$actions, $action);
+
+    my $password = pf::temporary_password::generate($auth_params->{username}, $actions, $c->stash->{sms_pin});
+
+    # We send the guest and email with the info of the local account
+    my %info = (
+        'pid'       => $auth_params->{username},
+        'password'  => $password,
+        'email'     => $auth_params->{user_email},
+        'subject'   => i18n_format(
+            "%s: Guest account creation information", $Config{'general'}{'domain'}
+        ),
+    );
+    pf::web::guest::send_template_email(
+            $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
+    );
+
+    # We put some value in stash for web portal consumption
+    # Note: Only used on email on-site registration
+    $c->stash (
+        local_account_creation  => $TRUE,
+        pid                     => $auth_params->{username},
+        password                => $password,
+    );
+
+    $logger->info("Local account for external source " . $c->session->{source_id} . " created with PID " . $auth_params->{username});
 }
 
 sub validateLogin : Private {
@@ -248,9 +320,8 @@ sub validateLogin : Private {
     $logger->debug("form validation attempt");
 
     my $request = $c->request;
-    my $no_password_needed =
-      any { $_ eq 'null' } @{ $profile->getGuestModes };
-    my $no_username_needed = _no_username($profile);
+    my $no_password_needed = $profile->noPasswordNeeded;
+    my $no_username_needed = $profile->noUsernameNeeded;
 
     if (   ( $request->param("username") || $no_username_needed )
         && ( $request->param("password") || $no_password_needed ) ) {
@@ -270,12 +341,11 @@ sub validateLogin : Private {
 sub authenticationLogin : Private {
     my ( $self, $c ) = @_;
     my $logger  = $c->log;
-    my $session = $c->session;
     my $request = $c->request;
     my $profile = $c->profile;
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
-
+    my ( $return, $message, $source_id );
     $logger->trace("authentication attempt");
     my $local;
     if ($request->{'match'} eq "status/login") {
@@ -308,21 +378,34 @@ sub authenticationLogin : Private {
     my $username = $request->param("username");
     my $password = $request->param("password");
 
-    # validate login and password
-    my ( $return, $message, $source_id ) =
-      pf::authentication::authenticate( $username, $password, @sources );
-    if ( defined($return) && $return == 1 ) {
-        # save login into session
-        $c->session->{"username"} = $request->param("username");
-        $c->session->{source_id} = $source_id;
+    if($profile->noPasswordNeeded) {
+        my $mac       = $portalSession->clientMac;
+        my $node_info = node_view($mac);
+        my $username = $node_info->{'last_dot1x_username'};
+        if ($username =~ /^(.*)@/ || $username =~ /^[^\/]+\/(.*)$/ ) {
+            $username = $1;
+        }
+        $c->session(
+            "username"  => $username,
+            "source_id" => $sources[0]->id,
+            "source_match" => \@sources,
+        );
     } else {
-        $c->error($message);
+        # validate login and password
+        ( $return, $message, $source_id ) =
+          pf::authentication::authenticate( $username, $password, @sources );
+        if ( defined($return) && $return == 1 ) {
+            # save login into session
+            $c->session(
+                "username"  => $request->param("username"),
+                "source_id" => $source_id,
+                "source_match" => $source_id,
+            );
+        } else {
+            $c->error($message);
+        }
     }
-}
 
-sub _no_username {
-    my ($profile) = @_;
-    return any { $_->type eq 'Null' && isdisabled( $_->email_required ) } $profile->getSourcesAsObjects;
 }
 
 sub showLogin : Private {
@@ -343,7 +426,8 @@ sub showLogin : Private {
         null_source     => is_in_list( $SELFREG_MODE_NULL, $guestModes ),
         oauth2_github   => is_in_list( $SELFREG_MODE_GITHUB, $guestModes ),
         oauth2_google   => is_in_list( $SELFREG_MODE_GOOGLE, $guestModes ),
-        no_username     => _no_username($profile),
+        no_username     => $profile->noUsernameNeeded,
+        no_password     => $profile->noPasswordNeeded,
         oauth2_facebook => is_in_list( $SELFREG_MODE_FACEBOOK, $guestModes ),
         oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
@@ -353,12 +437,28 @@ sub showLogin : Private {
 
 =head1 AUTHOR
 
-root
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 =cut
 

@@ -49,15 +49,6 @@ has_field 'dns' =>
              help => 'The primary DNS server of your network.' },
   );
 
-has_field 'fake_mac_enabled' => 
-  (
-   type => 'Toggle',
-   checkbox_value => 1,
-   unchecked_value => 0,
-   default => 0,
-   label => 'Fake MAC Address',
-   );
-
 has_field 'dhcpd_enabled' => 
    (
     type => 'Toggle',
@@ -79,6 +70,13 @@ has_field 'vip' =>
    label => 'Virtual IP Address',
   );
 
+has_field 'nat_enabled' => (
+    type => 'Toggle',
+    checkbox_value => 1,
+    unchecked_value => 0,
+    default => 1,
+    label => 'Enable NATting',
+);
 
 =head2 options_type
 
@@ -92,7 +90,7 @@ sub options_type {
     if ( defined $self->types ) {
         for my $type ( @{$self->types} ) {
             # we remove inline, even though it may still be in pf.conf for backwards compatibility reasons.
-            next if $type eq 'inline';
+            next if ($type eq 'inline' || $type eq 'inlinel3');
             push @types, ( $type => $self->_localize($type) );
         }
     }

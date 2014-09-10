@@ -44,6 +44,7 @@ use pf::services::util;
 use pf::util::dhcp;
 use List::MoreUtils qw(any);
 use pf::api::jsonrpcclient;
+use NetAddr::IP;
 
 # initialization
 # --------------
@@ -99,14 +100,21 @@ $PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
 
+my $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
+
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
     if (any { $_ eq $interface } @listen_ints, @dhcplistener_ints ) {
         # are we listening on an inline interface ?
-        if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0) {
-            $logger->debug("DHCP detector on an inline interface");
-            $is_inline_vlan = $TRUE;
-            $accessControl = new pf::inline::custom();
+        foreach my $network (keys %ConfigNetworks) {
+            next if (!pf::config::is_network_type_inline($network));
+            my %net = %{$ConfigNetworks{$network}};
+            my $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'}) if defined($net{'next_hop'});
+            if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0 || (defined($net{'next_hop'}) && $net_addr->contains($ip))) {
+                $logger->warn("DHCP detector on an inline interface");
+                $is_inline_vlan = $TRUE;
+                $accessControl = new pf::inline::custom();
+            }
         }
 
         $interface_ip = $Config{"interface $interface"}{'ip'};
@@ -353,11 +361,11 @@ sub parse_dhcp_request {
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
     # in which case we are not interested in detecting rogue DHCP
-    if ($dhcp->{'ciaddr'} =~ /^0\.0\.0\.0$/) {
+    if ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
         rogue_dhcp_handling($dhcp->{'options'}{54}, undef, $client_ip, $dhcp->{'chaddr'}, $dhcp->{'giaddr'});
     }
 
-    if ($is_inline_vlan) {
+    if ($is_inline_vlan || grep ( { $_->{'gateway'} eq $dhcp->{'src_ip'} } @inline_nets)) {
         $apiclient->notify('synchronize_locationlog',$interface_ip,$interface_ip,undef, $NO_PORT, $interface_vlan, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
         $accessControl->performInlineEnforcement($dhcp->{'chaddr'});
     }
@@ -508,28 +516,18 @@ sub update_iplog {
         return;
     }
 
-    my $oldmac = ip2mac($srcip);
     my $oldip  = mac2ip($srcmac);
 
-    if ( $oldmac && $oldmac ne $srcmac ) {
-        $logger->info(
-            "oldmac ($oldmac) and newmac ($srcmac) are different for $srcip - closing iplog entry"
-        );
-        $apiclient->notify('close_now_iplog',$srcip);
-    }
     if ( $oldip && $oldip ne $srcip ) {
+        my $oldmac = ip2mac($srcip);
         my $view_mac = node_view($srcmac);
         my $firewallsso = new pf::firewallsso;
         $firewallsso->do_sso('Stop',$oldmac,$oldip,undef);
         if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
             $apiclient->notify('ipset_node_update',$oldip, $srcip, $srcmac);
         }
-        $logger->info(
-            "oldip ($oldip) and newip ($srcip) are different for $srcmac - closing iplog entry"
-        );
-        $apiclient->notify('close_now_iplog',$oldip);
     }
-    $apiclient->notify('open_iplog', $srcmac, $srcip, $lease_length );
+    $apiclient->notify('update_iplog', $srcmac, $srcip, $lease_length );
 }
 
 =item process_fingerprint
@@ -579,11 +577,7 @@ sub process_fingerprint {
 
 sub normal_sighandler {
     Net::Pcap::pcap_breakloop($pcap);
-    deletepid("pfdhcplistener_$interface");
-    if ( threads->self->tid() == 0 ) {
-        $logger->logdie(
-            "pfdhcplistener: caught SIG" . $_[0] . " - terminating" );
-    }
+    $logger->trace( "pfdhcplistener: caught SIG" . $_[0] . " - terminating" );
 }
 
 =item get_local_dhcp_servers_by_ip

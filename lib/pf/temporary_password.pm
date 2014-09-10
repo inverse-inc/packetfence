@@ -331,7 +331,7 @@ sub _update_from_actions {
     );
     _update_field_for_action(
         $data,$actions,$Actions::SET_ACCESS_LEVEL,
-        'access_level',0
+        'access_level','NONE'
     );
     _update_field_for_action(
         $data,$actions,$Actions::SET_UNREG_DATE,

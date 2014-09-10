@@ -159,7 +159,7 @@ function pfOnHashChange(updater, default_url) {
 function updateDynamicRows(rows) {
     rows.each(function(index, element) {
         $(this).find('.sort-handle').first().text(index +1);
-        $(this).find(':input').each(function() {
+        $(this).find(':input, [data-toggle="buttons-radio"] > a').each(function() {
             var input = $(this);
             var name = input.attr('name');
             var id = input.attr('id');

@@ -5,6 +5,18 @@
 
 <revhistory>
   <revision>
+    <revnumber>2.8</revnumber>
+    <date>2014-09-10</date>
+    <revremark>
+    - Adding documentation for Mikrotik
+    - Adding documentation for Cisco downloadable acls
+    - Adding documentation for Xirrus external portal
+    - Adding documentation for AeroHIVE external portal
+    - Adding documentation for Anyfi
+    - Adding documentation for Netgear M series
+    </revremark>
+  </revision>
+  <revision>
     <revnumber>2.7</revnumber>
     <date>2014-06-26</date>
     <revremark>

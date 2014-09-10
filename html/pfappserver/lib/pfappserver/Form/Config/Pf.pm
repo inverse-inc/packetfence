@@ -34,6 +34,7 @@ sub field_list {
         my $doc_section_name = "$section.$name";
         my $doc_section = $Doc_Config{$doc_section_name};
         my $defaults = $Default_Config{$section};
+        $doc_section->{description} =~ s/\n//sg;
         my $field =
           { element_attr => { 'placeholder' => $defaults->{$name} },
             tags => { after_element => \&help, # role method, defined in Base::Form::Role::Help
@@ -128,7 +129,6 @@ sub field_list {
                    label => 'Duration',
                    type => 'ExtendedDuration',
                    no_value => 1,
-                   element_attr => {'foo' => 'bar'},
                    wrapper_class => ['compound-input-btn-group', 'extended-duration', 'well'],
                    tags => { after_element => '<div class="controls"><a href="#" id="addExtendedTime" class="btn btn-info" data-target="#access_duration_choices">' . $self->_localize("Add to Duration Choices") . '</a>' }
                   };

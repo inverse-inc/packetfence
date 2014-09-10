@@ -28,9 +28,7 @@ has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 sub get_language_handle_from_ctx {
     my $self = shift;
 
-    return pfappserver::I18N->get_handle(
-        @{ $self->ctx->languages } );
-
+    return pfappserver::I18N->get_handle( @{ $self->ctx->languages } );
 }
 
 =head2 html_attributes
@@ -154,8 +152,8 @@ To automatically add the context to the Form
 =cut
 
 sub ACCEPT_CONTEXT {
-    my ($self,$c,@args) = @_;
-    return $self->new(ctx => $c,@args);
+    my ($self, $c, @args) = @_;
+    return $self->new(ctx => $c, @args);
 }
 
 

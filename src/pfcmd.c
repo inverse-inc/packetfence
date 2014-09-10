@@ -21,9 +21,9 @@
 #define REAL_PATH "/usr/local/pf/bin/pfcmd.pl"
 #endif
 
-int main(ac, av)
-char **av;
+int main(int argc,char** argv,char ** envp)
 {
-    execv(REAL_PATH, av);
-    return 0;
+    execve(REAL_PATH, argv, envp);
+    /* set the return code to 127 to emulate bash command not found */
+    return 127;
 }

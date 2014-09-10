@@ -26,6 +26,9 @@
   <IfModule !mod_authz_host.c>
     LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
   </IfModule>
+  <IfModule !mod_status.c>
+    LoadModule status_module /usr/lib/apache2/modules/mod_status.so
+  </IfModule>
 </IfDefine>
 
 #RHEL Specific
@@ -54,6 +57,9 @@
   <IfModule !mod_authz_host.c>
     LoadModule authz_host_module modules/mod_authz_host.so
   </IfModule>
+  <IfModule !mod_status.c>
+    LoadModule status_module modules/mod_status.so
+  </IfModule>
 </IfDefine>
 
 
@@ -63,7 +69,7 @@ PerlPostConfigRequire /usr/local/pf/lib/pf/web/webservices_modperl_require.pl
 PerlLoadModule pf::WebAPI
 
 AcceptMutex posixsem
-
+SSLMutex posixsem
 <Perl>
 use pf::config qw();
 
@@ -103,6 +109,8 @@ $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 
 $SSLPassPhraseDialog = "builtin";
+$SSLSessionCache = "shm:".$install_dir."/var/ssl_wcache(512000)";
+$SSLSessionCacheTimeout = "300";
 $SSLRandomSeed = "startup builtin";
 $SSLRandomSeed = "startup file:/dev/urandom 1024";
 $SSLRandomSeed = "connect builtin";
@@ -163,6 +171,15 @@ push @{ $VirtualHost{"127.0.0.1:$PfConfig->{'ports'}{'soap'}"} },
          CustomLog           => $install_dir.'/logs/httpd.webservices.access combined',
          SetHandler          => 'modperl',
          PerlResponseHandler => 'pf::WebAPI',
+         Location     => {
+             "/" => {
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'pf::WebAPI',
+             },
+             "/apache_status/" => {
+                 SetHandler => 'server-status',
+            },
+         },
     };
 
 

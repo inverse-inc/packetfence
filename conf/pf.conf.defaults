@@ -102,6 +102,13 @@ registration=enabled
 # based on VLAN enforcement techniques. Inline enforcement only users could
 # lower the value.
 redirtimer=20s
+# 
+# trapping.wait_for_redirect
+#
+# How many seconds should the WebAPI sleep before actually triggering the VLAN change.
+# This is meant to give the device enough time to fetch the redirection page before 
+# switching VLAN.
+wait_for_redirect = 1
 #
 # trapping.whitelist
 #
@@ -200,7 +207,6 @@ preregistration=disabled
 # Sponsors requesting access and access confirmation emails are CC'ed to this
 # address. Multiple destinations can be comma separated.
 sponsorship_cc=
-
 
 [guests_admin_registration]
 #
@@ -528,8 +534,13 @@ radiusd_binary=/usr/sbin/radiusd
 # 
 # services.arp_binary
 # 
-# Location of the arp binary. Only necessary to change if you are not running the RPMed version.
+# location of the arp binary. only necessary to change if you are not running the rpmed version.
 arp_binary=/sbin/arp
+# 
+# services.iptables_binary
+# 
+# location of the iptables binary. only necessary to change if you are not running the rpmed version.
+iptables_binary=/sbin/iptables
 # 
 # services.memcached_binary
 # 
@@ -568,12 +579,12 @@ closelocationlogonstop=disabled
 # vlan.nbtraphandlerthreads
 #
 # Number of trap handler threads pfsetvlan should start
-nbtraphandlerthreads = 20
+nbtraphandlerthreads = 5
 #
 # vlan.nbtrapparserthreads
 #
 # Number of trap parser threads pfsetvlan should start
-nbtrapparserthreads = 5
+nbtrapparserthreads = 3
 #
 # vlan.bounce_duration
 #

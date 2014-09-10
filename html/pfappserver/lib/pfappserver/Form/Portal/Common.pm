@@ -190,6 +190,17 @@ has_field 'allowed_devices' =>
     element_class => ['chzn-select', 'input-xxlarge'],
   );
 
+=head2 reuse_dot1x_credentials
+
+=cut
+
+has_field 'reuse_dot1x_credentials' =>
+  (
+    type => 'Checkbox',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+  );
+
 =head2 allow_android_devices
 
 =cut

@@ -1,13 +1,13 @@
-package PfFilePath;
+package PfFilePaths;
 =head1 NAME
 
-PfFilePath
+PfFilePaths
 
 =cut
 
 =head1 DESCRIPTION
 
-PfFilePath
+PfFilePaths
 Overrides the the location of config files to help with testing
 
 =cut
@@ -17,14 +17,18 @@ use warnings;
 
 BEGIN {
     use File::Path qw(remove_tree);
+    use File::Spec::Functions qw(catfile catdir rel2abs);
+    use File::Basename qw(dirname);
     use pf::file_paths;
     remove_tree('/tmp/chi');
-    $pf::file_paths::switches_config_file = './data/switches.conf';
-    $pf::file_paths::chi_config_file = './data/chi.conf';
-    $pf::file_paths::profiles_config_file = './data/profiles.conf';
-    $pf::file_paths::authentication_config_file = './data/authentication.conf';
-    $pf::file_paths::log_config_file = './log.conf';
-    $pf::file_paths::vlan_filters_config_file = './data/vlan_filters.conf';
+    my $test_dir = rel2abs(dirname($INC{'PfFilePaths.pm'})) if exists $INC{'PfFilePaths.pm'};
+    $test_dir ||= catdir($install_dir,'t');
+    $pf::file_paths::switches_config_file = catfile($test_dir,'data/switches.conf');
+    $pf::file_paths::chi_config_file = catfile($test_dir,'data/chi.conf');
+    $pf::file_paths::profiles_config_file = catfile($test_dir,'data/profiles.conf');
+    $pf::file_paths::authentication_config_file = catfile($test_dir,'data/authentication.conf');
+    $pf::file_paths::log_config_file = catfile($test_dir,'log.conf');
+    $pf::file_paths::vlan_filters_config_file = catfile($test_dir,'data/vlan_filters.conf');
 }
 
 =head1 AUTHOR

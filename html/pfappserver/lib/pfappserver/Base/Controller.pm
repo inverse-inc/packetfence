@@ -62,10 +62,6 @@ Allow only authenticated users
 sub auto :Private {
     my ($self, $c) = @_;
 
-    # Force language to English until we have other translations.
-    # This fixes a problem when "en" is not in the browsers languages.
-    $c->languages( ['en'] );
-
     unless ($c->user_in_realm('admin')) {
         $c->response->status(HTTP_UNAUTHORIZED);
         $c->response->location($c->req->referer);

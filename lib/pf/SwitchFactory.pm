@@ -31,7 +31,6 @@ use pf::CHI;
 
 our ($singleton);
 
-our $SWITCH_OVERLAY_CACHE = pf::CHI->new(namespace => 'switch.overlay');
 
 =head1 METHODS
 
@@ -83,37 +82,46 @@ sub hasId { exists $SwitchConfig{$_[0]} }
 
 sub instantiate {
     my $logger = get_logger();
-    my ( $self, $switchId ) = @_;
+    my ( $self, $switchRequest ) = @_;
     my @requestedSwitches;
     my $requestedSwitch;
     my $switch_ip;
     my $switch_mac;
     my $switch_config = pf::ConfigStore::Switch->new;
+    my $switch_overlay_cache = pf::CHI->new(namespace => 'switch.overlay');
 
-    if(ref($switchId) eq 'HASH') {
-        if(exists $switchId->{switch_mac} && defined $switchId->{switch_mac}) {
-            $switch_mac = $switchId->{switch_mac};
+    if(ref($switchRequest) eq 'HASH') {
+        if(exists $switchRequest->{switch_mac} && defined $switchRequest->{switch_mac}) {
+            $switch_mac = $switchRequest->{switch_mac};
             push @requestedSwitches,$switch_mac;
         }
-        if(exists $switchId->{switch_ip} && defined $switchId->{switch_ip}) {
-            $switch_ip = $switchId->{switch_ip};
+        if(exists $switchRequest->{switch_ip} && defined $switchRequest->{switch_ip}) {
+            $switch_ip = $switchRequest->{switch_ip};
             push @requestedSwitches,$switch_ip;
         }
     } else {
-        @requestedSwitches = ($switchId);
-        if(valid_ip($switchId)) {
-            $switch_ip = $switchId;
-        } elsif (valid_mac($switchId)) {
-            $switch_mac = $switchId;
+        @requestedSwitches = ($switchRequest);
+        if(valid_ip($switchRequest)) {
+            $switch_ip = $switchRequest;
+        } elsif (valid_mac($switchRequest)) {
+            $switch_mac = $switchRequest;
         }
     }
 
-    if($switch_config->hasId($switch_mac) && ref($switchId) eq 'HASH') {
-        my $switch = $SWITCH_OVERLAY_CACHE->get($switch_mac) || {};
-        my $controllerIp = $switchId->{controllerIp};
+    $requestedSwitch = first {exists $SwitchConfig{$_} } @requestedSwitches;
+    unless ($requestedSwitch) {
+        $logger->error("WARNING ! Unknown switch(es) ". join(" ",@requestedSwitches));
+        return 0;
+    }
+
+    my $switch_data = $SwitchConfig{$requestedSwitch};
+
+    if( $switch_mac && $requestedSwitch eq $switch_mac && ref($switchRequest) eq 'HASH' && !defined ($switch_data->{controllerIp}) ) {
+        my $switch = $switch_overlay_cache->get($switch_mac) || {};
+        my $controllerIp = $switchRequest->{controllerIp};
         if($controllerIp && (  !defined $switch->{controllerIp} || $controllerIp ne $switch->{controllerIp} )) {
 #            $switch_overlay_config->remove($switch->{controllerIp}) if defined $switch->{controllerIp};
-            $SWITCH_OVERLAY_CACHE->set(
+            $switch_overlay_cache->set(
                 $switch_mac,
                 {
                     controllerIp => $controllerIp,
@@ -123,15 +131,9 @@ sub instantiate {
         }
     }
 
-    $requestedSwitch = first {exists $SwitchConfig{$_} } @requestedSwitches;
-    unless ($requestedSwitch) {
-        $logger->error("WARNING ! Unknown switch(es) ". join(" ",@requestedSwitches));
-        return 0;
-    }
-    my $switch_data = $SwitchConfig{$requestedSwitch};
 
     # find the module to instantiate
-    my $switchOverlay = $SWITCH_OVERLAY_CACHE->get($requestedSwitch) || {};
+    my $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
     my $type;
     if ($requestedSwitch ne 'default') {
         $type = "pf::Switch::" . $switch_data->{'type'};

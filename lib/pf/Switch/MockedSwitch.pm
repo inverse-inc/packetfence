@@ -86,6 +86,8 @@ sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
+sub supportsWebFormRegistration { return $TRUE }
+sub supportsAccessListBasedEnforcement { return $TRUE }
 # VoIP technology supported
 sub supportsRadiusVoip { return $TRUE; }
 # special features supported
@@ -3003,6 +3005,16 @@ sub _identifyConnectionType {
             ."or rlm_perl packetfence.pm FreeRADIUS module.");
         return;
     }
+}
+
+sub getAcceptForm {
+    my ( $self, $mac , $destination_url) = @_;
+    return "";
+}
+
+sub parseSwitchIdFromRequest {
+    my ( $class, $req) = @_;
+    return "";
 }
 
 

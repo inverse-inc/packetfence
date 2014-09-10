@@ -18,6 +18,7 @@ extends 'HTML::FormHandler::Field::Compound';
 use namespace::autoclean;
 
 use pf::config;
+use pf::factory::profile::filter;
 
 has '+do_wrapper' => ( default => 1 );
 has '+do_label' => ( default => 1 );
@@ -44,12 +45,7 @@ has_field 'type' =>
    wrapper_class => ['btn-group'],
    wrapper_attr => {'data-toggle' => 'buttons-radio'},
    default => 'ssid',
-   options => [
-               { value => 'ssid', label => 'SSID' },
-               { value => 'vlan', label => 'VLAN' },
-               { value => 'switch', label => 'SWITCH' },
-               { value => 'uri', label => 'URI' },
-              ],
+   options_method => \&options_type,
   );
 
 sub filter_inflate {
@@ -71,6 +67,11 @@ sub filter_deflate {
     my $type = $value->{type};
     my $match = $value->{match};
     return  $match ? "${type}:${match}"  : "" ;
+}
+
+sub options_type {
+    local $_;
+    return map { /([^:]+)$/; { value => $1, label => uc($1) } } sort @pf::factory::profile::filter::MODULES;
 }
 
 =head1 COPYRIGHT

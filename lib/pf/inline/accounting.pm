@@ -95,11 +95,11 @@ sub accounting_db_prepare {
 
     $accounting_statements->{'accounting_select_node_bandwidth_balance_sql'} =
       get_db_handle()->prepare(qq[
-        SELECT n.mac, i.ip, n.bandwidth_balance, COALESCE((a.outbytes + a.inbytes), 0) as bandwidth_consumed
+        SELECT DISTINCT n.mac, i.ip, n.bandwidth_balance, COALESCE((a.outbytes + a.inbytes), 0) as bandwidth_consumed
         FROM node n, iplog i
         LEFT JOIN $accounting_table a ON i.ip = a.ip AND a.status = $ACTIVE
         WHERE n.mac = i.mac
-          AND i.end_time = 0
+          AND n.status = "$pf::node::STATUS_REGISTERED"
           AND (n.bandwidth_balance = 0
                OR (n.bandwidth_balance < (a.outbytes + a.inbytes)))
         FOR UPDATE
@@ -186,7 +186,7 @@ sub inline_accounting_maintenance {
     my @tid = trigger_view_tid($ACCOUNTING_POLICY_BANDWIDTH);
     if (scalar(@tid) > 0) {
         my $violation_id = $tid[0]{'vid'}; # only consider the first violation
-        $logger->debug("Violation $violation_id is of type $TRIGGER_TYPE_ACCOUNTING::$ACCOUNTING_POLICY_BANDWIDTH; analyzing inline accounting data");
+        $logger->debug("Violation $violation_id is of type $TRIGGER_TYPE_ACCOUNTING $ACCOUNTING_POLICY_BANDWIDTH; analyzing inline accounting data");
 
         # Disable AutoCommit since we perform a SELECT .. FOR UPDATE statement
         my $dbh = get_db_handle();

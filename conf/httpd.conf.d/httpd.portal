@@ -42,6 +42,12 @@
   <IfModule !mod_qos.c>
     LoadModule qos_module /usr/lib/apache2/modules/mod_qos.so
   </IfModule>
+  <IfModule !mod_deflate.c>
+    LoadModule deflate_module /usr/lib/apache2/modules/mod_deflate.so
+  </IfModule>
+  <IfModule !mod_status.c>
+    LoadModule status_module /usr/lib/apache2/modules/mod_status.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -89,6 +95,12 @@
   <IfModule !mod_qos.c>
     LoadModule qos_module modules/mod_qos.so
   </IfModule>
+  <IfModule !mod_deflate.c>
+    LoadModule deflate_module modules/mod_deflate.so
+  </IfModule>
+  <IfModule !mod_status.c>
+    LoadModule status_module modules/mod_status.so
+  </IfModule>
 </IfDefine>
 
 PerlSwitches -I/usr/local/pf/lib
@@ -107,6 +119,7 @@ PerlLoadModule pf::web::release
 
 AcceptMutex posixsem
 SSLMutex posixsem
+ServerLimit 512
 
 Header always set X-DNS-Prefetch-Control off
 
@@ -174,8 +187,8 @@ if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fro
 $ServerTokens = "Prod";
 $ServerSignature = "Off";
 $UseCanonicalName = "Off";
-$Timeout = "50";
-$KeepAliveTimeout = "10";
+$Timeout = "5";
+$KeepAliveTimeout = "3";
 
 $MaxClients = pf::services::manager::httpd::calculate_max_clients(pf::services::manager::httpd::get_total_system_memory());
 $StartServers =  pf::services::manager::httpd::calculate_start_servers($MaxClients);
@@ -193,9 +206,8 @@ $PerlInitHandler = "pf::WebAPI::InitHandler";
 
 
 $SSLPassPhraseDialog = "builtin";
-$SSLSessionCache = "dbm:".$install_dir."/var/ssl_scache";
+$SSLSessionCache = "shm:".$install_dir."/var/ssl_pcache(512000)";
 $SSLSessionCacheTimeout = "300";
-$SSLMutex = "file:".$install_dir."/var/ssl_mutex";
 $SSLRandomSeed = "startup builtin";
 $SSLRandomSeed = "startup file:/dev/urandom 1024";
 $SSLRandomSeed = "connect builtin";
@@ -391,6 +403,9 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
                  SetHandler => 'modperl',
                  PerlResponseHandler => 'captiveportal',
              }, 
+             "/apache_status/" => {
+                 SetHandler => 'server-status',
+             },
          },
     );
     push @{ $VirtualHost{$host.":443"} }, gen_conf(

@@ -96,9 +96,9 @@ sub setupGuestMac : Private {
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    $c->forward( CaptivePortal => 'validateMac');
     $c->forward('checkGuestModes');
     $c->forward('checkPreregistration');
+    $c->forward( CaptivePortal => 'validateMac');
     $c->forward('setupGuestMac');
     my $mode    = $c->request->param("mode");
     if ( $mode && $mode eq $pf::web::guest::GUEST_REGISTRATION ) {
@@ -566,10 +566,9 @@ sub validateMandatoryFields : Private {
     my $by_email   = $request->param('by_email');
     my $by_sms     = $request->param('by_sms');
     my $by_sponsor = $request->param('by_sponsor');
-    push @mandatory_fields, qw(email)         if ( defined $by_email );
-    push @mandatory_fields, qw(sponsor_email) if ( defined $by_sponsor );
-    push @mandatory_fields, qw(phone mobileprovider)
-      if ( defined $by_sms );
+    push @mandatory_fields, qw(email)                if ( defined $by_email );
+    push @mandatory_fields, qw(sponsor_email)        if ( defined $by_sponsor );
+    push @mandatory_fields, qw(phone mobileprovider) if ( defined $by_sms );
     @mandatory_fields = uniq @mandatory_fields;
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
@@ -578,15 +577,15 @@ sub validateMandatoryFields : Private {
         $error_code = $GUEST::ERROR_MISSING_MANDATORY_FIELDS;
         @error_args = ( join( ", ", map { i18n($_) } @missing_fields ) );
     } elsif ( exists $mandatory_fields{email}
-        && !pf::web::util::is_email_valid( $request->param('email') ) ) {
+              && !pf::web::util::is_email_valid( $request->param('email') ) ) {
         $error_code = $GUEST::ERROR_ILLEGAL_EMAIL;
     } elsif ( exists $mandatory_fields{phone}
-        && !pf::web::util::validate_phone_number( $request->param('phone') ) )
-    {
+              && !pf::web::util::validate_phone_number( $request->param('phone') ) ) {
         $error_code = $GUEST::ERROR_ILLEGAL_PHONE;
     } elsif ( !length( $request->param("aup_signed") ) ) {
         $error_code = $GUEST::ERROR_AUP_NOT_ACCEPTED;
     }
+
     if ( defined $error_code && $error_code != 0 ) {
         $self->validationError( $c, $error_code, @error_args );
     }

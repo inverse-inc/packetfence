@@ -190,6 +190,7 @@ td a.btn { margin-left: 5px; }
     <li class="active">[% l('Files') %]</li>
   </ul>
   <div class="tab-content">
+    <a class="btn btn-info pull-right" href="/preview/?PORTAL=[% id %]" target="_blank">[% l('Preview') %]</a>
     <ul class="nav nav-tabs">
       <li><a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [id]) %]">[% l('Settings') %]</a></li>
       <li class="active"><a href="" data-toggle="tab">[% l('Files') %]</a></li>

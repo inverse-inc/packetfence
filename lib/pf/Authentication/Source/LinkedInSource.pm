@@ -24,7 +24,8 @@ has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/uas/oauth2/ac
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'code');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.linkedin.com/v1/people/~/email-address');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/linkedin');
-has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'www.linkedin.com,api.linkedin.com');
+has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'www.linkedin.com,api.linkedin.com,static.licdn.com');
+has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head2 available_actions
 
@@ -40,13 +41,30 @@ sub available_actions {
            ];
 }
 
+=head2 available_attributes
+
+=cut
+
+sub available_attributes {
+    my $self = shift;
+    return([@{$self->SUPER::available_attributes}, {value => 'username', type => $Conditions::SUBSTRING }]);
+}
+
 =head2 match_in_subclass
 
 =cut
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    return $params->{'username'};
+    my $username =  $params->{'username'};
+    foreach my $condition (@{ $own_conditions }) {
+        if ($condition->{'attribute'} eq "username") {
+            if ( $condition->matches("username", $username) ) {
+                push(@{ $matching_conditions }, $condition);
+            }
+        }
+    }
+    return $username;
 }
 
 

@@ -10,6 +10,7 @@
     <option value="user_agent">[% l('User agent') %]</option>
     <option value="dhcp_fingerprint">[% l('OS (DHCP)') %]</option>
     <option value="switch_ip">[% l('Source switch IP') %]</option>
+    <option value="computername">[% l('Computer Name') %]</option>
   </select>
   <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
     <option value="equal">[% l('is') %]</option>
@@ -182,7 +183,7 @@ form {
             </div>
           </form>
           <div class="loader span12"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
-          <div class="row-fluid" id="section">
+          <div class="row-fluid nodes" id="section">
           </div>
         </div><!--/span-->
       </div><!--/row-->

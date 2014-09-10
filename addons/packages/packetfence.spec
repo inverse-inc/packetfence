@@ -100,7 +100,7 @@ Requires: perl >= 5.8.8
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
 Requires(pre): %{real_name}-pfcmd-suid
 Requires: perl(Bit::Vector)
-Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON)
+Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON), perl(JSON::XS)
 Requires: perl(Apache2::Request)
 Requires: perl(Apache::Session)
 Requires: perl(Apache::Session::Memcached)
@@ -142,6 +142,7 @@ Requires: perl(Log::Any::Adapter::Log4perl)
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
 # We would need to port to the new 3.x API (tracked by #1313)
 Requires: perl(Net::Appliance::Session) = 1.36
+Requires: perl(Net::SSH2)
 Requires: perl(Net::OAuth2) >= 0.57
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
@@ -209,6 +210,7 @@ Requires: perl(Catalyst::Plugin::Authentication)
 Requires: perl(Catalyst::Authentication::Credential::HTTP)
 Requires: perl(Catalyst::Authentication::Store::Htpasswd)
 Requires: perl(Catalyst::Controller::HTML::FormFu)
+Requires: perl(Catalyst::Plugin::Unicode::Encoding)
 Requires: perl(Params::Validate) >= 0.97
 Requires: perl(Term::Size::Any)
 Requires(pre): perl-aliased => 0.30
@@ -225,6 +227,8 @@ Requires: perl(MooseX::Types::LoadableClass)
 Requires: perl(Moose) <= 2.1005
 Requires: perl(CHI) >= 0.56
 Requires: perl(Data::Serializer)
+Requires: perl(Data::Structure::Util)
+Requires: perl(Data::Swap)
 Requires: perl(HTML::FormHandler) = 0.40013
 Requires: perl(Cache::Memcached)
 Requires: perl(Cache::Memcached::GetParserXS)
@@ -246,6 +250,8 @@ Requires: perl(IO::Interface)
 Requires: perl(Time::Period)
 # configuration-wizard
 Requires: iproute, vconfig
+
+Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
 # TESTING related
 #
@@ -584,6 +590,8 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
 #Starting Packetfence.
 echo "Starting Packetfence..."
+#removing old cache
+rm -rf /usr/local/pf/var/cache/ 
 /usr/local/pf/bin/pfcmd configreload
 /sbin/service packetfence start
 
@@ -821,7 +829,31 @@ fi
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
 %dir                    /usr/local/pf/html/captive-portal/lib
+
                         /usr/local/pf/html/captive-portal/lib/*
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Access.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Email.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Sms.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Aup.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Authenticate.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/CaptivePortal.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/DeviceRegistration.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Enabler.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Node/Manager.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Oauth2.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/PreRegister.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Redirect.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Release.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Remediation.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Root.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Signup.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Status.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/WirelessProfile.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Model/Portal/Session.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/HTML.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/MobileConfig.pm
+
 %dir                    /usr/local/pf/html/captive-portal/script
                         /usr/local/pf/html/captive-portal/script/*
 %dir                    /usr/local/pf/html/captive-portal/t
@@ -923,6 +955,7 @@ fi
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
 %dir                    /usr/local/pf/var
+%dir                    /usr/local/pf/var/run
 
 # Remote arp sensor file list
 %files -n %{real_name}-remote-arp-sensor
@@ -933,12 +966,16 @@ fi
 %config(noreplace)      /usr/local/pf/conf/pfarp_remote.conf
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfarp_remote
-%dir
+%dir                    /usr/local/pf/var
+%dir                    /usr/local/pf/var/run
 
 %files -n %{real_name}-pfcmd-suid
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Wed Sep 10 2014 Inverse <info@inverse.ca> - 4.4.0-1
+- New release 4.4.0
+
 * Thu Jun 26 2014 Inverse <info@inverse.ca> - 4.3.0-1
 - New release 4.3.0
 

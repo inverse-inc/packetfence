@@ -44,7 +44,7 @@ if (exists($ENV{MOD_PERL})) {
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 }
 
-my $server_soap = SOAP::Transport::HTTP::Apache->dispatch_to('pf::api');
+my $server_soap = SOAP::Transport::HTTP::Apache->dispatch_to('PFAPI');
 my $server_msgpack = pf::WebAPI::MsgPack->new({dispatch_to => 'pf::api'});
 my $server_jsonrpc = pf::WebAPI::JSONRPC->new({dispatch_to => 'pf::api'});
 
@@ -69,6 +69,9 @@ sub log_faults {
     my $logger = get_logger;
     $logger->info(@_);
 }
+
+package PFAPI;
+use base qw(pf::api);
 
 =head1 AUTHOR
 

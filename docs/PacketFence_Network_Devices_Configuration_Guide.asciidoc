@@ -1021,6 +1021,39 @@ PacketFence switch configuration
 * Set your registered roles to 'registered'
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
+Downloadable ACLs
++++++++++++++++++
+
+The Catalyst 2960 supports RADIUS pushed ACLs which means that you can define the ACLs centrally in PacketFence without configuring them in your switches and their rules will be applied to the switch during the authentication.
+
+These ACLs are defined by role like the VLANs which means you can define different ACLs for your registration VLAN, production VLAN, guest VLAN, etc.
+
+Before continuing, configure your switch to be in MAC authentication bypass or 802.1X.
+
+Now in the PacketFence interface go in the switch configuration and in the Roles tab.
+
+Check 'Role by access list' and you should now be able to configure the access lists as below.
+
+For example if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration category.
+
+image::docs/images/cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
+
+Now if for example, your normal users are placed in the 'default' category and your guests in the 'guest' category.
+
+If for example the 'default' category uses the network 192.168.5.0/24 and your guest network uses the network 192.168.10.0/24.
+
+You can prevent communications between both networks using these access lists
+
+image::docs/images/cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross network deny ACL"]
+
+You could also only prevent your guest users from using shared directories
+
+image::docs/images/cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny shares ACL"]
+
+Or also you could restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
+
+image::docs/images/cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
+
 Stacked 29xx, Stacked 35xx, Stacked 3750, 4500 Series, 6500 Series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -2680,6 +2713,147 @@ Caching and Roaming
 AeroHIVE have a session replication feature to ease the EAP session roaming between two access points. However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request. Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout. They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*.
 The other way to support Roaming is to enable snmp trap in the AeroHIVE configuration to PacketFence server. PacketFence will recognise the ahConnectionChangeEvent and will change the location of the node in his base.
 
+[float]
+External captive portal
+^^^^^^^^^^^^^^^^^^^^^^^
+
+First configure the AAA server as described in the section above in the Hive Manager.
+
+Portal configuration
+++++++++++++++++++++
+* Go in *Configuration -> Authentication -> Captive Web Portals* and create a new portal
+* Select Select *Registration Type* = *External Authentication*
+* Go in the section *Captive Web Portal Login Page Settings* set the *Login URL* to http://pf_ip/ and *Password Encryption* to *No Encryption*
+
+////
+
+This option is currently broken but will be needed so it redirects the user at the end of the authentication.
+* Go in the section * Captive Web Portal Success Page Settings* and check *Redirect to the initially requested page* at the bottom.
+
+////
+
+[float]
+External portal SSID
+++++++++++++++++++++
+
+Again in the Hive Manager, go to *Configuration -> SSIDs*, and create a new SSID with the following:
+
+* Give a Profile Name and an SSID Name
+* Choose Open as the Access Security 
+* Select Enable Captive Web Portal
+* Select your RADIUS server from the RADIUS Server dropdown list
+
+In the guided configuration you now be able to select your new SSID, the Portal you want to use and the AAA server.
+
+Anyfi
+~~~~~
+
+In this section, we cover the basic configuration of the Anyfi gateway to create a hotspot SSID available on all access points.
+
+This does not cover the configuration of the controller.
+
+In this configuration eth0 will be the management interface of the Anyfi gateway and eth1 will be the interface that will bridge the tagged packets to your network.
+
+Interfaces configuration
+++++++++++++++++++++++++
+
+  interfaces {
+      bridge br0 {
+          aging 300
+          hello-time 2
+          max-age 20
+          priority 0
+          stp false
+      }
+      ethernet eth0 {
+          description "Management network"
+          address 192.168.0.20/24
+      }
+      ethernet eth1 {
+          description "Bridge to network"
+          bridge-group {
+              bridge br0
+          }
+      }
+  }
+
+MAC authentication
+^^^^^^^^^^^^^^^^^^
+
+This section will allow you to configure the 'Anyfi-Hotspot' SSID that will use MAC authentication.
+
+SSID configuration
+++++++++++++++++++
+
+  service {
+      anyfi {
+          gateway anyfi-hotspot {
+              accounting {
+                  radius-server 192.168.0.5 {
+                      port 1813
+                      secret useStrongerSecret
+                  }
+              }
+              authorization {
+                  radius-server 192.168.0.5 {
+                      port 1812
+                      secret useStrongerSecret
+                  }
+              }
+              bridge br0
+              controller <the controller's ip address>
+              isolation
+              nas {
+                  identifier anyfi
+                  port 3799
+              }
+              ssid Anyfi-Hotspot
+          }
+      }
+  }
+
+802.1X
+^^^^^^
+
+This section will allow you to configure the 'Anyfi-Secure' SSID that will authenticate users using 802.1X.
+
+Note that for the moment, the Anyfi gateway doesn't support RADIUS assigned VLANs when using 802.1X. The devices will be assigned the native VLAN on eth1.
+PacketFence will only do the authentication of the 802.1X credentials and accept or deny the user.
+Since the 802.1X users cannot be assigned a VLAN, if you want portal based authentication on top of the 802.1X authentication, you will need to use the inline mode on the network your devices will be in.
+
+SSID configuration
+++++++++++++++++++
+  service {
+      anyfi {
+          gateway secure-gw {
+              accounting {
+                  radius-server 192.168.0.5 {
+                      port 1813
+                      secret useStrongerSecret
+                  }
+              }
+              authentication {
+                  eap {
+                      radius-server 192.168.0.5 {
+                          port 1812
+                          secret useStrongerSecret
+                      }
+                  }
+              }
+              bridge br0
+              controller <the controller's ip address> 
+              isolation
+              nas {
+                  identifier anyfi
+                  port 3799
+              }
+              ssid agile-super-secure
+              wpa2 {
+              }
+          }
+      }
+  }
+
 Avaya
 ~~~~~
 
@@ -3232,6 +3406,60 @@ Hostapd (software)
 To configure Hostapd software you can use the same configuration parameters above in the configuration file.
 
 
+Mikrotik
+~~~~~~~~
+
+This configuration has been tested on Access Point OmniTIK U-5hnD with RouterOS v6.18 and only MAC-Authentication is available now.
+The only deauthentication method available is SSH, so create an account in the Mikrotik AP and fill the information in PacketFence switch configuration.
+Also don't forget to use the pf account to ssh on the Access Point to receive the ssh key.
+
+[float]
+Open SSID
++++++++++
+
+In this setup we use the interface ether5 for the bridge (Trunk interface) and ether1 as the management interface.
+
+Configure your access point with the following configuration:
+
+  /interface wireless
+  # managed by CAPsMAN
+  # channel: 5180/20-Ce/an(17dBm), SSID: OPEN, local forwarding
+  set [ find default-name=wlan1 ] band=5ghz-a/n channel-width=20/40mhz-Ce disabled=no l2mtu=1600 mode=ap-bridge ssid=MikroTik-05A64D
+  /interface ethernet
+  set [ find default-name=ether1 ] name=ether1-gateway
+  set [ find default-name=ether2 ] name=ether2-master-local
+  set [ find default-name=ether3 ] master-port=ether2-master-local name=ether3-slave-local
+  set [ find default-name=ether4 ] master-port=ether2-master-local name=ether4-slave-local
+  set [ find default-name=ether5 ] name=ether5-master-local
+  /interface vlan
+  add interface=BR-CAPS l2mtu=1594 name=default vlan-id=1
+  add interface=BR-CAPS l2mtu=1594 name=isolation vlan-id=3
+  add interface=BR-CAPS l2mtu=1594 name=registration vlan-id=2
+  /caps-man datapath
+  add bridge=BR-CAPS client-to-client-forwarding=yes local-forwarding=yes name=datapath1
+  /caps-man interface
+  # 
+  add arp=enabled configuration.mode=ap configuration.ssid=OPEN datapath=datapath1 disabled=no l2mtu=1600 mac-address=\
+      D4:CA:6D:05:A6:4D master-interface=none mtu=1500 name=cap1 radio-mac=D4:CA:6D:05:A6:4D
+  /caps-man aaa
+  set interim-update=5m
+  /caps-man access-list
+  add action=query-radius interface=cap1 radius-accounting=yes signal-range=-120..120 time=0s-1d,sun,mon,tue,wed,thu,fri,sat
+  /caps-man manager
+  set enabled=yes
+  /interface bridge port
+  add bridge=bridge-local interface=ether2-master-local
+  add bridge=bridge-local interface=ether1-gateway
+  add bridge=BR-CAPS interface=ether5-master-local
+  /interface wireless cap
+  set bridge=BR-CAPS discovery-interfaces=BR-CAPS enabled=yes interfaces=wlan1
+  /ip accounting
+  set enabled=yes
+  /radius
+  add address=192.168.1.5 secret=useStrongerSecret service=wireless
+  /radius incoming
+  set accept=yes
+
 HP
 ~~
 
@@ -3735,6 +3963,15 @@ Enable SNMP Agent on the access point:
   exit
 
 Finally, don't forget to create the SSID you want and the proper bindings with the LAN. Open SSID should be configured to perform MAC Authentication and Secure SSID should be configured to perform 802.1X (WPA-Enterprise or WPA2-Enterprise).
+
+External portal SSID
+++++++++++++++++++++
+* Set *Encryption / Authentication* to None / Open
+* Then check the WPR checkbox
+* Then in in the section Web Page Redirect Configuration set *Server* to External Login
+* Set the *Redirect URL* to http://192.168.1.5/Xirrus::AP_http
+* Set the *Redirect Secret* to any passphrase of your choice
+* In the *RADIUS Configuration* section set the RADIUS server to point to your PacketFence server
 
 include::includes/additional-info.asciidoc[]
 

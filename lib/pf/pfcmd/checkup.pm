@@ -439,7 +439,10 @@ sub network_inline {
     # inline interfaces should have at least one local gateway
     my $found = 0;
     foreach my $int (@internal_nets) {
-        if ( $Config{ 'interface ' . $int->tag('int') }{'ip'} eq $net{'gateway'} || (defined($Config{ 'interface ' . $int->tag('int') }{'vip'}) && $Config{ 'interface ' . $int->tag('int') }{'vip'} eq $net{'gateway'} ) ) {
+        my $net_addr = NetAddr::IP->new($Config{ 'interface ' . $int->tag('int') }{'ip'},$Config{ 'interface ' . $int->tag('int') }{'mask'});
+        my $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'}) if defined($net{'next_hop'});
+        if ( $Config{ 'interface ' . $int->tag('int') }{'ip'} eq $net{'gateway'} || (defined($Config{ 'interface ' . $int->tag('int') }{'vip'}) && $Config{ 'interface ' . $int->tag('int') }{'vip'} eq $net{'gateway'} ) || (defined($net{'next_hop'}) && $net_addr->contains($ip) ) ) {
+
             $found = 1;
             next;
         }
@@ -694,11 +697,7 @@ sub permissions {
     #}
 
     # log owner must be pf otherwise apache or pf daemons won't start
-    my @important_log_files = qw(
-        access_log error_log admin_access_log admin_error_log
-        packetfence.log
-    );
-    foreach my $log_file (@important_log_files) {
+    foreach my $log_file (@log_files) {
         # if log doesn't exist it is created correctly so no need to complain
         next if (!-f $log_dir . '/' . $log_file);
 
@@ -966,7 +965,7 @@ Make sure only one external authentication source is selected for each type.
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub portal_profiles {
 
-    my $profile_params = qr/(?:locale|filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources|redirecturl|always_use_redirecturl|mandatory_fields|nbregpages|allowed_devices|allow_android_devices)/;
+    my $profile_params = qr/(?:locale|filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources|redirecturl|always_use_redirecturl|mandatory_fields|nbregpages|allowed_devices|allow_android_devices|reuse_dot1x_credentials)/;
 
     foreach my $portal_profile ( $cached_profiles_config->Sections) {
         if ($portal_profile ne 'default' && !-d "$install_dir/html/captive-portal/profile-templates/$portal_profile") {

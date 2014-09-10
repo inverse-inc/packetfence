@@ -153,6 +153,8 @@ sub supportsRadiusVoip { return $TRUE; }
 # override 2950's FALSE
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
+sub supportsAccessListBasedEnforcement { return $TRUE }
+
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
@@ -400,19 +402,19 @@ sub radiusDisconnect {
 
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
-            "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+            "[$mac] Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
         );
         return;
     }
 
-    $logger->info("deauthenticating $mac");
+    $logger->info("[$mac] deauthenticating");
 
     # Where should we send the RADIUS CoA-Request?
     # to network device by default
     my $send_disconnect_to = $self->{'_ip'};
     # but if controllerIp is set, we send there
     if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
-        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $logger->info("[$mac] controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
         $send_disconnect_to = $self->{'_controllerIp'};
     }
     # allowing client code to override where we connect with NAS-IP-Address
@@ -427,7 +429,7 @@ sub radiusDisconnect {
             LocalAddr => $management_network->tag('vip'),
         };
 
-        $logger->debug("network device supports roles. Evaluating role to be returned");
+        $logger->debug("[$mac] network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
@@ -449,15 +451,15 @@ sub radiusDisconnect {
 
     } catch {
         chomp;
-        $logger->warn("Unable to perform RADIUS CoA-Request: $_");
-        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+        $logger->warn("[$mac] Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
+        $logger->error("[$mac] Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")...") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
 
     return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
 
     $logger->warn(
-        "Unable to perform RADIUS Disconnect-Request."
+        "Unable to perform RADIUS Disconnect-Request on (".$self->{'_id'}.")."
         . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
         . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
     );
@@ -497,6 +499,73 @@ sub wiredeauthTechniques {
         }
         return $method,$tech{$method};
     }
+}
+
+=item returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept reponse for the network device.
+
+Overrides the default implementation to add the dynamic acls
+
+=cut
+
+sub returnRadiusAccessAccept {
+    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    # Inline Vs. VLAN enforcement
+    my $radius_reply_ref = {};
+    my $role = "";
+    if ( (!$wasInline || ($wasInline && $vlan != 0) ) && isenabled($self->{_VlanMap})) {
+        $radius_reply_ref = {
+            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+            'Tunnel-Type' => $RADIUS::VLAN,
+            'Tunnel-Private-Group-ID' => $vlan,
+        };
+    }
+
+    
+    if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
+        if( defined($user_role) && $user_role ne ""){
+            my $access_list = $self->getAccessListByName($user_role);
+            my @av_pairs;
+            while($access_list =~ /([^\n]+)\n?/g){
+                push(@av_pairs, $self->returnAccessListAttribute."=".$1);
+                $logger->info("[$mac] (".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+            } 
+            $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs; 
+            $logger->info("[$mac] (".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+        }
+    }
+    if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+        $logger->debug("[$mac] (".$self->{'_id'}.") Network device supports roles. Evaluating role to be returned");
+        if ( defined($user_role) && $user_role ne "" ) {
+            $role = $self->getRoleByName($user_role);
+        }
+        if ( defined($role) && $role ne "" ) {
+            $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
+            $logger->info(
+                "[$mac] (".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
+            );
+        }
+        else {
+            $logger->debug("[$mac] (".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
+        }
+    }
+
+    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan and role $role");
+    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+}
+
+=item returnAccessListAttribute
+
+Returns the attribute to use when pushing an ACL using RADIUS
+
+=cut
+
+sub returnAccessListAttribute {
+    my ($this) = @_;
+    return "ip:inacl#101";
 }
 
 =back

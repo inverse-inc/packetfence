@@ -18,7 +18,7 @@ use warnings;
 use Log::Log4perl;
 use Time::Period;
 use pf::config qw(%connection_type_to_str);
-
+use pf::person qw(person_view);
 our (%ConfigVlanFilters, $cached_vlan_filters_config);
 
 readVlanFiltersFile();
@@ -46,14 +46,14 @@ Test all the rules
 =cut
 
 sub test {
-    my ($self, $scope, $switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid) = @_;
+    my ($self, $scope, $switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     foreach my $rule  ( sort keys %ConfigVlanFilters ) {
         if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq $scope) {
             if ($rule =~ /^\w+:(.*)$/) {
                 my $test = $1;
-                $test =~ s/(\w+)/$self->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$1)/gee;
+                $test =~ s/(\w+)/$self->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request,$1)/gee;
                 $test =~ s/\|/ \|\| /g;
                 $test =~ s/\&/ \&\& /g;
                 if (eval $test) {
@@ -75,7 +75,7 @@ Return the reference to the function that parses the rule.
 =cut
 
 sub dispatch_rule {
-    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $name) = @_;
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $name) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if (!defined($rule)) {
@@ -91,8 +91,10 @@ sub dispatch_rule {
         username  => \&username_parser,
         ssid  => \&ssid_parser,
         time => \&time_parser,
+        owner => \&owner_parser,
+        radius_request => \&radius_parser,
     };
-    return $key->{$rule->{'filter'}}->($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    return $key->{$rule->{'filter'}}->($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
 }
 
 =item node_info_parser
@@ -102,7 +104,7 @@ Parse the node_info attribute and compare to the rule. If it matches then perfor
 =cut
 
 sub node_info_parser {
-    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
 
     if (defined($node_info)) {
         if ($rule->{'operator'} eq 'is') {
@@ -137,6 +139,93 @@ sub node_info_parser {
     }
 }
 
+=item radius_parser
+
+Parse the RADIUS request attribute and compare to the rule. If it matches then perform the action.
+
+=cut
+
+sub radius_parser {
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
+
+    if (defined($radius_request)) {
+        if ($rule->{'operator'} eq 'is') {
+            if ($radius_request->{$rule->{'attribute'}} eq $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'is_not') {
+            if ($radius_request->{$rule->{'attribute'}} ne $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+        }
+        } elsif  ($rule->{'operator'} eq 'match') {
+            if ($radius_request->{$rule->{'attribute'}} =~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match_not') {
+            if ($radius_request->{$rule->{'attribute'}} !~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    } else {
+        return 0;
+    }
+}
+
+=item owner_parser
+
+Parse the owner attribute and compare to the rule. If it matches then perform the action.
+
+=cut
+
+sub owner_parser {
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
+
+    my $owner = person_view($node_info->{'pid'});
+
+    if (defined($owner)) {
+        if ($rule->{'operator'} eq 'is') {
+            if ($owner->{$rule->{'attribute'}} eq $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'is_not') {
+            if ($owner->{$rule->{'attribute'}} ne $rule->{'value'}) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif  ($rule->{'operator'} eq 'match') {
+            if ($owner->{$rule->{'attribute'}} =~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } elsif ($rule->{'operator'} eq 'match_not') {
+            if ($owner->{$rule->{'attribute'}} !~ m/$rule->{'value'}/) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    } else {
+        return 0;
+    }
+}
+
+
 =item switch_parser
 
 Parse the switch attribute and compare to the rule. If it matches then return true.
@@ -144,7 +233,7 @@ Parse the switch attribute and compare to the rule. If it matches then return tr
 =cut
 
 sub switch_parser {
-    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
 
     if (defined($switch)) {
         if ($rule->{'operator'} eq 'is') {
@@ -186,7 +275,7 @@ Parse the ifindex value and compare to the rule. If it matches then return true.
 =cut
 
 sub ifindex_parser {
-    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
 
     if (defined($ifIndex)) {
         if ($rule->{'operator'} eq 'is') {
@@ -228,7 +317,7 @@ Parse the mac value and compare to the rule. If it matches then return.
 =cut
 
 sub mac_parser {
-    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
 
     if (defined($mac)) {
         if ($rule->{'operator'} eq 'is') {
@@ -270,7 +359,7 @@ Parse the connection_type value and compare to the rule. If it matches then retu
 =cut
 
 sub connection_type_parser {
-    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
  
     if (defined($connection_type)) {
         if ($rule->{'operator'} eq 'is') {
@@ -312,7 +401,7 @@ Parse the ursername value and compare to the rule. If it matches then return tru
 =cut
 
 sub username_parser {
-    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
 
     if (defined($user_name)) {
         if ($rule->{'operator'} eq 'is') {
@@ -354,7 +443,7 @@ Parse the ssid valus and compare to the rule. If it matches then return true.
 =cut
 
 sub ssid_parser {
-    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
 
     if (defined($ssid)) {
         if ($rule->{'operator'} eq 'is') {
@@ -396,7 +485,7 @@ Check the current time and compare to the period
 =cut
 
 sub time_parser {
-    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
 
     my $time = time();
     if ($rule->{'operator'} eq 'is') {
@@ -474,4 +563,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-

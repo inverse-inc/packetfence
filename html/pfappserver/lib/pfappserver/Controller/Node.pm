@@ -25,6 +25,13 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 with 'pfappserver::Role::Controller::BulkActions';
 
 __PACKAGE__->config(
+    action => {
+        bulk_close           => { AdminRole => 'NODES_UPDATE' },
+        bulk_register        => { AdminRole => 'NODES_UPDATE' },
+        bulk_deregister      => { AdminRole => 'NODES_UPDATE' },
+        bulk_apply_role      => { AdminRole => 'NODES_UPDATE' },
+        bulk_apply_violation => { AdminRole => 'NODES_UPDATE' },
+    },
     action_args => {
         '*' => { model => 'Node' },
         advanced_search => { model => 'Search::Node', form => 'AdvancedSearch' },

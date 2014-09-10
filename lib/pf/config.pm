@@ -39,6 +39,9 @@ use File::Which;
 use Socket;
 use List::MoreUtils qw(any);
 use Time::Local;
+use DateTime;
+use pf::factory::profile::filter;
+use pf::profile::filter;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -60,7 +63,7 @@ our (
 #firewall_sso.conf variables
     %ConfigFirewallSSO, $cached_firewall_sso,
 #profiles.conf variables
-    %Profile_Filters, %Profiles_Config, $cached_profiles_config,
+    @Profile_Filters, %Profiles_Config, $cached_profiles_config,
 
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
@@ -109,7 +112,7 @@ BEGIN {
         is_in_list
         $LOG4PERL_RELOAD_TIMER
         init_config
-        %Profile_Filters %Profiles_Config $cached_profiles_config
+        @Profile_Filters %Profiles_Config $cached_profiles_config
         $cached_pf_config $cached_network_config $cached_floating_device_config
         %ConfigFirewallSSO $cached_firewall_sso
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
@@ -631,7 +634,7 @@ sub readPfConfigFiles {
                             crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                             ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
                             ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
-                            www.microsoft.com
+                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com
                         )
                     ];
                 } else {
@@ -642,7 +645,7 @@ sub readPfConfigFiles {
                             crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                             ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
                             ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
-                            www.microsoft.com
+                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com
                         )
                     ];
                 }
@@ -669,16 +672,21 @@ sub readProfileConfigFile {
                 my ($config,$name) = @_;
                 $config->toHash(\%Profiles_Config);
                 $config->cleanupWhitespace(\%Profiles_Config);
+                #Clearing the Profile filters
+                @Profile_Filters = ();
                 my $default_description = $Profiles_Config{'default'}{'description'};
                 while (my ($profile_id, $profile) = each %Profiles_Config) {
                     $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
                     foreach my $field (qw(locale mandatory_fields sources filter) ) {
                         $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
                     }
+                    #Adding filters in profile order
                     foreach my $filter (@{$profile->{'filter'}}) {
-                        $Profile_Filters{$filter} = $profile_id;
+                        push @Profile_Filters, pf::factory::profile::filter->instantiate($profile_id,$filter);
                     }
                 }
+                #Add the default filter so it always matches if no other filter matches
+                push @Profile_Filters, pf::profile::filter->new( { profile => 'default', value => 1 } );
             }]
     );
 }
@@ -841,6 +849,38 @@ sub access_duration {
         }
     }
     $logger->warn("We were unable to calculate the access duration");
+}
+
+=item dynamic_unreg_date
+
+We compute the unreg date dynamicaly
+If the year is lower than the current year, year is zero or not defined.
+
+=cut
+
+sub dynamic_unreg_date {
+    my $trigger = shift;
+    my $current_date = time;
+    my $unreg_date;
+
+    my ($year,$month,$day) = $trigger =~ /(\d{1,4})?-?(\d{2})-(\d{2})/;
+    my $current_year = POSIX::strftime("%Y",localtime($current_date));
+
+    if ( !defined $year || $year == 0 || $year < $current_year ) {
+            $year = $current_year;
+            $trigger = "$year-$month-$day";
+            $logger->warn("The year was past, null or undefined. We used current year");
+    }
+
+    my $time_zone = DateTime::TimeZone->new( name => 'local' );
+    if (DateTime->new(year => $year, month => $month, day => $day, time_zone => $time_zone )->epoch <= DateTime->now(time_zone => $time_zone)->epoch) {
+        $logger->warn("The DAY is today or before today. Setting date to next year");
+        $year += 1;
+        $unreg_date = "$year-$month-$day";
+    } else {
+        $unreg_date = "$year-$month-$day";
+    }
+    return $unreg_date;
 }
 
 =item start_date

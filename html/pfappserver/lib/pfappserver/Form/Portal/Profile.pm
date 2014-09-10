@@ -31,7 +31,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id description logo redirecturl always_use_redirecturl billing_engine nbregpages) ],
+   render_list => [ qw(id description logo redirecturl always_use_redirecturl reuse_dot1x_credentials billing_engine nbregpages) ],
   );
 
 =head1 FIELDS
@@ -47,6 +47,7 @@ has_field 'filter' =>
    type => 'DynamicTable',
    'num_when_empty' => 2,
    'do_label' => 0,
+   'sortable' => 1,
    inflate_default_method => sub {
        [
         map { pfappserver::Form::Field::ProfileFilter->filter_inflate($_) }

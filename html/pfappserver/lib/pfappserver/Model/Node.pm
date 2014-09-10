@@ -280,11 +280,9 @@ sub update {
         $result = node_modify($mac, %{$node_ref});
     }
     if ($result) {
-        my $isDot1x = defined($previous_node_ref->{last_dot1x_username}) && length($previous_node_ref->{last_dot1x_username}) > 0;
         my $category_id = $node_ref->{category_id} || '';
         my $previous_category_id = $previous_node_ref->{category_id} || '';
-        if ($previous_node_ref->{status} ne $node_ref->{status} ||
-            $previous_category_id ne $category_id && !$isDot1x) {
+        if ($previous_node_ref->{status} ne $node_ref->{status} || $previous_category_id ne $category_id) {
             # Node has been registered or deregistered
             # or the role has changed and is not currently using 802.1X
             reevaluate_access($mac, "node_modify");
@@ -348,7 +346,7 @@ sub importCSV {
         while (my $row = $csv->getline($import_fh)) {
             my ($pid, $mac, $node, %data, $result);
 
-            $pid = $row->[$index{'pid'}] || undef;
+            $pid = $row->[$index{'pid'}] || undef if exists $index{'pid'};
             if ($pid && ($pid !~ /$pf::person::PID_RE/ || !person_exist($pid))) {
                 $logger->debug("Ignored unknown PID ($pid)");
                 $skipped++;

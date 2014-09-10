@@ -13,6 +13,8 @@ Catalyst Controller.
 use strict;
 use warnings;
 
+use DateTime;
+use DateTime::Locale;
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use Readonly;
@@ -22,6 +24,22 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 Readonly::Scalar our $DASHBOARD => 'dashboard';
 Readonly::Scalar our $REPORTS => 'reports';
+
+Readonly::Scalar our $GRAPH_REGISTERED_NODES => 'Registered Nodes';
+Readonly::Scalar our $GRAPH_UNREGISTERED_NODES => 'Unregistered Nodes';
+Readonly::Scalar our $GRAPH_NEW_NODES => 'New Nodes';
+Readonly::Scalar our $GRAPH_VIOLATIONS => 'Violations';
+Readonly::Scalar our $GRAPH_WIRED_CONNECTIONS => 'Wired Connections';
+Readonly::Scalar our $GRAPH_WIRELESS_CONNECTIONS => 'Wireless Connections';
+Readonly::Array our @GRAPHS =>
+  (
+   $GRAPH_REGISTERED_NODES,
+   $GRAPH_UNREGISTERED_NODES,
+   $GRAPH_NEW_NODES,
+   $GRAPH_VIOLATIONS,
+   $GRAPH_WIRED_CONNECTIONS,
+   $GRAPH_WIRELESS_CONNECTIONS
+  );
 
 =head1 METHODS
 
@@ -73,12 +91,14 @@ sub _range :Private {
     my ($year, $mon, $day, $time, $start, $end);
 
     ($year, $mon, $day) = split( /\-/, $c->session->{$section}->{start});
-    $time = Date::Parse::str2time("$year-$mon-$day" . "T00:00:00.0000000" );
-    $start = POSIX::strftime("%B %d %Y", localtime($time));
+    $time = DateTime->new(year => $year, month => $mon, day => $day);
+    $time->set_locale($c->language);
+    $start = $time->format_cldr($time->locale->date_format_long);
 
     ($year, $mon, $day) = split( /\-/, $c->session->{$section}->{end});
-    $time = Date::Parse::str2time("$year-$mon-$day" . "T00:00:00.0000000" );
-    $end = POSIX::strftime("%B %d %Y", localtime($time));
+    $time = DateTime->new(year => $year, month => $mon, day => $day);
+    $time->set_locale($c->language);
+    $end = $time->format_cldr($time->locale->date_format_long);
 
     return {start => $start, end => $end};
 }
@@ -199,22 +219,22 @@ sub _dashboardCounters :Private {
 
     my $counters =
       {
-       nodes_reg   => $self->_graphCounter($c, 'node', 'Registered Nodes',
+       nodes_reg   => $self->_graphCounter($c, 'node', $GRAPH_REGISTERED_NODES,
                                            { type => 'status', value => 'reg',
                                              between => ['regdate', $start, $end] }),
-       nodes_unreg => $self->_graphCounter($c, 'node', 'Unregistered Nodes',
+       nodes_unreg => $self->_graphCounter($c, 'node', $GRAPH_UNREGISTERED_NODES,
                                            { type => 'status', value => 'unreg',
                                              between => ['unregdate', $start, $end] }),
-       nodes_new   => $self->_graphCounter($c, 'node', 'New Nodes',
+       nodes_new   => $self->_graphCounter($c, 'node', $GRAPH_NEW_NODES,
                                            { value => 'detect',
                                              between => ['detect_date', $start, $end] }),
-       violations  => $self->_graphCounter($c, 'violation', 'Violations',
+       violations  => $self->_graphCounter($c, 'violation', $GRAPH_VIOLATIONS,
                                            { value => 'violations',
                                              between => ['start_date', $start, $end] }),
-       wired       => $self->_graphCounter($c, 'locationlog', 'Wired Connections',
+       wired       => $self->_graphCounter($c, 'locationlog', $GRAPH_WIRED_CONNECTIONS,
                                            { value => 'wired',
                                              start_date => $start, end_date => $end }),
-       wireless    => $self->_graphCounter($c, 'locationlog', 'Wireless Connections',
+       wireless    => $self->_graphCounter($c, 'locationlog', $GRAPH_WIRELESS_CONNECTIONS,
                                            { value => 'wireless',
                                              start_date => $start, end_date => $end }),
       };
@@ -292,7 +312,7 @@ sub registered :Path('nodes/registered') :Args(2) :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
-    $self->_graphLine($c, 'Registered Nodes', $DASHBOARD);
+    $self->_graphLine($c, $c->loc($GRAPH_REGISTERED_NODES), $DASHBOARD);
 }
 
 =head2 unregistered
@@ -309,7 +329,7 @@ sub unregistered :Path('nodes/unregistered') :Args(2) :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
-    $self->_graphLine($c, 'Unregistered Nodes', $DASHBOARD);
+    $self->_graphLine($c, $c->loc($GRAPH_UNREGISTERED_NODES), $DASHBOARD);
 }
 
 =head2 detected
@@ -326,7 +346,7 @@ sub detected :Path('nodes/detected') :Args(2) :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
-    $self->_graphLine($c, 'New Nodes', $DASHBOARD);
+    $self->_graphLine($c, $c->loc($GRAPH_NEW_NODES), $DASHBOARD);
 }
 
 =head2 wired
@@ -343,7 +363,7 @@ sub wired :Local :Args(2) :AdminRole('REPORTS') {
     my ( $self, $c, $start, $end ) = @_;
 
     $self->_saveActiveGraph($c);
-    $self->_graphLine($c, 'Wired Connections', $DASHBOARD);
+    $self->_graphLine($c, $c->loc($GRAPH_WIRED_CONNECTIONS), $DASHBOARD);
 }
 
 =head2 wireless
@@ -361,7 +381,7 @@ sub wireless :Local :Args(2) :AdminRole('REPORTS') {
 
     $self->_saveActiveGraph($c);
     #my $widget = (defined $c->request->params->{widget})? $c->request->params->{widget} : 0;
-    $self->_graphLine($c, 'Wireless Connections', $DASHBOARD);
+    $self->_graphLine($c, $c->loc($GRAPH_WIRELESS_CONNECTIONS), $DASHBOARD);
 }
 
 =head2 violations_all
@@ -378,7 +398,7 @@ sub violations_all :Local :Args(2) :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
-    $self->_graphLine($c, 'Violations', $DASHBOARD);
+    $self->_graphLine($c, $c->loc($GRAPH_VIOLATIONS), $DASHBOARD);
 }
 
 =head2 nodes
@@ -395,7 +415,7 @@ sub nodes :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
-    $self->_graphLine($c, 'Nodes', $REPORTS);
+    $self->_graphLine($c, $c->loc('Nodes'), $REPORTS);
 
     $start = $c->session->{$REPORTS}->{start};
     $end = $c->session->{$REPORTS}->{end};
@@ -445,7 +465,7 @@ sub violations :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
-    $self->_graphLine($c, 'Violations', $REPORTS);
+    $self->_graphLine($c, $c->loc('Violations'), $REPORTS);
 }
 
 =head2 os
@@ -462,7 +482,7 @@ sub os :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
-    $self->_graphPie($c, 'Operating Systems', $REPORTS,
+    $self->_graphPie($c, $c->loc('Operating Systems'), $REPORTS,
                      {
                       fields => { label => 'description',
                                   count => 'count' },
@@ -484,7 +504,7 @@ sub connectiontype :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
-    $self->_graphPie($c, 'Connections Types', $REPORTS,
+    $self->_graphPie($c, $c->loc('Connections Types'), $REPORTS,
                      { fields => { label => 'connection_type',
                                    'count' => 'connections' },
                      }
@@ -505,7 +525,7 @@ sub ssid :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
-    $self->_graphPie($c, 'SSID', $REPORTS,
+    $self->_graphPie($c, $c->loc('SSID'), $REPORTS,
                      { fields => { label => 'ssid',
                                    count => 'nodes' },
                      }
@@ -528,7 +548,7 @@ sub nodebandwidth :Local :AdminRole('REPORTS') {
     $option = 'accttotal' unless ($option && $option =~ m/^(accttotal|acctinput|acctoutput)$/);
 
     $self->_saveRange($c, $REPORTS, $start, $end);
-    $self->_graphPie($c, 'Top Bandwidth Consumers', $REPORTS,
+    $self->_graphPie($c, $c->loc('Top Bandwidth Consumers'), $REPORTS,
                      { fields => { label => 'callingstationid',
                                    count => $option."octets",
                                    value => $option },
@@ -553,7 +573,7 @@ sub osclassbandwidth :Local :AdminRole('REPORTS') {
     my $option = 'accttotal'; # we only sypport this field, see pf::pfcmd::report
 
     $self->_saveRange($c, $REPORTS, $start, $end);
-    $self->_graphPie($c, 'Bandwidth per Operating System Class', $REPORTS,
+    $self->_graphPie($c, $c->loc('Bandwidth per Operating System Class'), $REPORTS,
                      { fields => { label => 'dhcp_fingerprint',
                                    count => $option."octets",
                                    value => $option },
@@ -562,7 +582,7 @@ sub osclassbandwidth :Local :AdminRole('REPORTS') {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2013 Inverse inc.
+Copyright (C) 2012-2014 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,14 +1,19 @@
 # Copyright (C) 2006-2013 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
-#
+# 
+# Translators:
+# Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
+# 
 # Translators:
 # Brivaldo Junior <condector@gmail.com>, 2011
-# djkakaroto <djkakaroto@gmail.com>, 2011, 2012, 2013
+# Diego de Souza Lopes <djkakaroto@gmail.com>, 2011-2014
+# Diego de Souza Lopes <djkakaroto@gmail.com>, 2013
+# Diego de Souza Lopes <djkakaroto@gmail.com>, 2011, 2012
+# inverse <info@inverse.ca>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2013-09-05 14:52+0000\n"
+"PO-Revision-Date: 2014-08-12 00:24+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/packetfence/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -95,7 +100,7 @@ msgid "Authentication"
 msgstr "Autenticação"
 
 msgid "Wrong username or password."
-msgstr ""
+msgstr "Usuário ou senha incorreto."
 
 msgid "or"
 msgstr "ou"
@@ -1025,3 +1030,50 @@ msgstr "O endereço MAC %s fornecido é inválido, por favor tente novamente"
 
 msgid "This module is not enabled"
 msgstr "Este módulo não está ativado"
+
+msgid "anniversary"
+msgstr "Aniversário"
+
+msgid "birthday"
+msgstr "Data de Nascimento"
+
+msgid "gender"
+msgstr "Sexo"
+
+msgid "lang"
+msgstr "Idioma"
+
+msgid "nickname"
+msgstr "Apelido"
+
+msgid "cell_phone"
+msgstr "Celular"
+
+msgid "work_phone"
+msgstr "Telefone do Trabalho"
+
+msgid "title"
+msgstr "Título"
+
+msgid "building_number"
+msgstr "Número do Edifício"
+
+msgid "apartment_number"
+msgstr "Número do Apartamento"
+
+msgid "room_number"
+msgstr "Número do Quarto/Sala"
+
+msgid "Please wait. Processing payment..."
+msgstr ""
+
+msgid ""
+"Remember to enable ip_forward on your operating system for the inline mode "
+"to work."
+msgstr ""
+
+msgid ""
+"Since NATting mode is disabled, PacketFence will adjust iptables to rules to"
+" route traffic rather than natting it. Make sure to add the routes on the "
+"system."
+msgstr ""

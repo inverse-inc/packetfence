@@ -78,20 +78,20 @@ sub authorize {
     # is switch object correct?
     if (!$switch) {
         $logger->warn(
-            "Can't instantiate switch $switch_ip. This request will be failed. "
+            "Can't instantiate switch ($switch_ip). This request will be failed. "
             ."Are you sure your switches.conf is correct?"
         );
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
-
+    
     my $connection_type = $switch->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
     $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
 
     $logger->trace("received a radius authorization request with parameters: ".
-        "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
-        "mac => $mac, port => $port, username => $user_name");
+        "nas port type => $nas_port_type, switch_ip => ($switch_ip), EAP-Type => $eap_type, ".
+        "mac => [$mac], port => $port, username => \"$user_name\"");
 
     # TODO maybe it's in there that we should do all the magic that happened in the FreeRADIUS module
     # meaning: the return should be decided by _doWeActOnThisCall, not always $RADIUS::RLM_MODULE_NOOP
@@ -101,13 +101,13 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Not acting on this request") ];
     }
 
-    $logger->info("handling radius autz request: from switch_ip => $switch_ip, "
+    $logger->info("[$mac] handling radius autz request: from switch_ip => ($switch_ip), "
         . "connection_type => " . connection_type_to_str($connection_type) . ","
-        . "switch_mac => $switch_mac, mac => $mac, port => $port, username => $user_name");
+        . "switch_mac => ($switch_mac), mac => [$mac], port => $port, username => \"$user_name\"");
 
     #add node if necessary
     if ( !node_exist($mac) ) {
-        $logger->info("node $mac does not yet exist in database. Adding it now");
+        $logger->info("[$mac] does not yet exist in database. Adding it now");
         node_add_simple($mac);
     }
 
@@ -139,15 +139,15 @@ sub authorize {
     my $vlan_obj = new pf::vlan::custom();
     # should we auto-register? let's ask the VLAN object
     if ($vlan_obj->shouldAutoRegister($mac, $switch->isRegistrationMode(), 0, $isPhone,
-        $connection_type, $user_name, $ssid, $eap_type, $switch, $port)) {
+        $connection_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request)) {
 
         # automatic registration
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_id}, $port,
             $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid, $eap_type);
 
-        $logger->debug("auto-registering node $mac");
+        $logger->debug("[$mac] auto-registering node");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
-            $logger->error("auto-registration of node $mac failed");
+            $logger->error("[$mac] auto-registration of node failed");
         }
         locationlog_synchronize($switch, $switch_ip, $switch_mac, $port, undef, $mac,
             $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
@@ -161,7 +161,7 @@ sub authorize {
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
     if (!$switch->isProductionMode()) {
-        $logger->warn("Should perform access control on switch $switch_id for mac $mac but the switch "
+        $logger->warn("[$mac] Should perform access control on switch ($switch_id) but the switch "
             ."is not in production -> Returning ACCEPT");
         $switch->disconnectRead();
         $switch->disconnectWrite();
@@ -169,11 +169,11 @@ sub authorize {
     }
 
     # Fetch VLAN depending on node status
-    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid);
+    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
-        $logger->info("According to rules in fetchVlanForNode this node must be kicked out. Returning USERLOCK");
+        $logger->info("[$mac] According to rules in fetchVlanForNode this node must be kicked out. Returning USERLOCK");
         $switch->disconnectRead();
         $switch->disconnectWrite();
         return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
@@ -188,8 +188,8 @@ sub authorize {
     # does the switch support Dynamic VLAN Assignment, bypass if using Inline
     if (!$switch->supportsRadiusDynamicVlanAssignment() && !$wasInline) {
         $logger->info(
-            "Switch doesn't support Dynamic VLAN assignment. " .
-            "Setting VLAN with SNMP on " . $switch->{_id} . " ifIndex $port to $vlan"
+            "[$mac] Switch doesn't support Dynamic VLAN assignment. " .
+            "Setting VLAN with SNMP on (" . $switch->{_id} . ") ifIndex $port to $vlan"
         );
         # WARNING: passing empty switch-lock for now
         # When the _setVlan of a switch who can't do RADIUS VLAN assignment uses the lock we will need to re-evaluate
@@ -227,7 +227,7 @@ sub accounting {
 
     # is switch object correct?
     if ( !$switch ) {
-        $logger->warn( "Can't instantiate switch $switch_ip. This request will be failed. "
+        $logger->warn( "Can't instantiate switch ($switch_ip). This request will be failed. "
                 . "Are you sure your switches.conf is correct?" );
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
@@ -247,10 +247,10 @@ sub accounting {
                     $time_balance = 0 if ($time_balance < 0);
                     # Only update the node table on a Stop
                     if ($isStop && node_modify($mac, ('time_balance' => $time_balance))) {
-                        $logger->info("Session stopped for $mac: duration was $session_time secs ($time_balance secs left)");
+                        $logger->info("[$mac] Session stopped: duration was $session_time secs ($time_balance secs left)");
                     }
                     elsif ($isUpdate) {
-                        $logger->info("Session status for $mac: duration is $session_time secs ($time_balance secs left)");
+                        $logger->info("[$mac] Session status: duration is $session_time secs ($time_balance secs left)");
                     }
                     if ($time_balance == 0) {
                         # Check if there's at least a violation using the 'Accounting::BandwidthExpired' trigger
@@ -370,7 +370,7 @@ returns 0 for no, 1 for yes
 sub _doWeActOnThisCallWired {
     my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-    $logger->trace("_doWeActOnThisCallWired called");
+    $logger->trace("[$mac] _doWeActOnThisCallWired called");
 
     # for now we always act on wired radius authorize
     return 1;
@@ -391,7 +391,7 @@ sub _authorizeVoip {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (!$switch->supportsRadiusVoip()) {
-        $logger->warn("Returning failure to RADIUS.");
+        $logger->warn("[$mac] Returning failure to RADIUS.");
         $switch->disconnectRead();
         $switch->disconnectWrite();
 
@@ -417,10 +417,10 @@ sub _translateNasPortToIfIndex {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (($conn_type & $WIRED) == $WIRED) {
-        $logger->trace("translating NAS-Port to ifIndex for proper accounting");
+        $logger->trace("(" . $switch->{_id} . ") translating NAS-Port to ifIndex for proper accounting");
         return $switch->NasPortToIfIndex($port);
     } elsif (($conn_type & $WIRELESS) == $WIRELESS && !defined($port)) {
-        $logger->debug("got empty NAS-Port parameter, setting 0 to avoid breakage");
+        $logger->debug("(" . $switch->{_id} . ") got empty NAS-Port parameter, setting 0 to avoid breakage");
         $port = 0;
     }
     return $port;
@@ -459,7 +459,7 @@ sub _switchUnsupportedReply {
     my ($this, $switch) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    $logger->warn("Sending REJECT since switch is unspported");
+    $logger->warn("(" . $switch->{_id} . ") Sending REJECT since switch is unsupported");
     $switch->disconnectRead();
     $switch->disconnectWrite();
     return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Network device does not support this mode of operation")];

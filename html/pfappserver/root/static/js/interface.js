@@ -65,6 +65,9 @@ var InterfaceView = function(options) {
     var typeChanged = $.proxy(this.typeChanged, this);
     options.parent.on('change', '[name="type"]', typeChanged);
 
+    var fakeMacChanged = $.proxy(this.fakeMacChanged, this);
+    options.parent.on('change', '[name="fake_mac_enabled"]', fakeMacChanged);
+
     var delete_n = $.proxy(this.deleteNetwork, this);
     options.parent.on('click', 'form[name="modalEditInterface"] [href$="/delete"]', delete_n);
 };
@@ -90,10 +93,17 @@ InterfaceView.prototype.readInterface = function(e) {
             modal.append(data);
             modal.find('.switch').bootstrapSwitch();
             modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
+            modal.find('[name="dns"]').closest('.control-group').hide();
+            modal.find('[name="dhcpd_enabled"]').closest('.control-group').hide();
+            modal.find('[name="high_availability"]').closest('.control-group').hide();
+            modal.find('[name="vip"]').closest('.control-group').hide();
+            modal.find('[name="fake_mac_enabled"]').closest('.control-group').hide();
+            modal.find('[name="nat_enabled"]').closest('.control-group').hide();
             modal.modal({ shown: true });
             modal.one('shown', function() {
                 modal.find(':input:visible').first().focus();
                 that.typeChanged();
+                that.fakeMacChanged();
             });
         },
         errorSibling: section.find('h2').first()
@@ -108,72 +118,142 @@ InterfaceView.prototype.typeChanged = function(e) {
         if (type.length) {
             var dns = modal.find('[name="dns"]').closest('.control-group');
             var dhcpd = modal.find('[name="dhcpd_enabled"]').closest('.control-group');
-            var fake_mac = modal.find('[name="fake_mac_enabled"]').closest('.control-group');
             var high_availability = modal.find('[name="high_availability"]').closest('.control-group');
             var vip = modal.find('[name="vip"]').closest('.control-group');
+            var nat = modal.find('[name="nat_enabled"]').closest('.control-group');
 
             switch ( type.val() ) {
                 case 'inlinel2': 
                     dns.show('fast');
-                    fake_mac.hide('fast');
                     dns.find(':input').removeAttr('disabled');
                     dhcpd.show('fast');
                     high_availability.hide('fast');
                     high_availability.find(':input').attr('disabled','disabled');
                     vip.show('fast');
                     vip.find(':input').removeAttr('disabled');
-                    break;
-                case 'inlinel3':
-                    dns.show('fast');
-                    fake_mac.show('fast');
-                    dns.find(':input').removeAttr('disabled');
-                    dhcpd.hide('fast');
-                    high_availability.hide('fast');
-                    high_availability.find(':input').attr('disabled','disabled');
-                    vip.hide('fast');
-                    vip.find(':input').attr('disabled','disabled');
+                    nat.show('fast');
+                    nat.find(':input').removeAttr('disabled');
+                    $(".info_inline").show('fast');
+                    if (modal.find('[name="nat_enabled"]').is(":checked")) {
+                        $(".info_routed").hide('fast');
+                    } else {
+                        $(".info_routed").show('fast');
+                    }
+                    modal.find('[name="nat_enabled"]').change(function(){
+                        if (this.checked) {
+                            $(".info_routed").hide('fast');
+                        } else {
+                            $(".info_routed").show('fast');
+                        }
+                    });
                     break;
                 case 'management':
                     dhcpd.hide('fast');
-                    fake_mac.hide('fast');
                     high_availability.show('fast');
                     high_availability.find(':input').removeAttr('disabled');
                     dns.hide('fast');
                     dns.find(':input').attr('disabled','disabled');
                     vip.show('fast');
                     vip.find(':input').removeAttr('disabled');
+                    nat.hide('fast');
+                    nat.find(':input').attr('disabled','disabled');
+                    $(".info_inline").hide('fast');
+                    $(".info_routed").hide('fast');
                     break;
                 case '':
                 case 'none':
                     dhcpd.hide('fast');
-                    fake_mac.hide('fast');
                     high_availability.show('fast');
                     high_availability.find(':input').removeAttr('disabled');
                     dns.hide('fast');
                     dns.find(':input').attr('disabled','disabled');
                     vip.hide('fast');
                     vip.find(':input').attr('disabled','disabled');
+                    nat.hide('fast');
+                    nat.find(':input').attr('disabled','disabled');
+                    $(".info_inline").hide('fast');
+                    $(".info_routed").hide('fast');
                     break;
                 case 'other':
                     dhcpd.hide('fast');
-                    fake_mac.hide('fast');
                     high_availability.hide('fast');
                     high_availability.find(':input').attr('disabled','disabled');
                     dns.hide('fast');
                     dns.find(':input').attr('disabled','disabled');
                     vip.hide('fast');
                     vip.find(':input').attr('disabled','disabled');
+                    nat.hide('fast');
+                    nat.find(':input').attr('disabled','disabled');
+                    $(".info_inline").hide('fast');
+                    $(".info_routed").hide('fast');
+                    break;
+                case 'vlan-registration':
+                case 'vlan-isolation':
+                    vip.show('fast');
+                    vip.find(':input').removeAttr('disabled');
+                    high_availability.hide('fast');
+                    high_availability.find(':input').attr('disabled','disabled');
+                    dhcpd.show('fast');
+                    dns.hide('fast');
+                    dns.find(':input').attr('disabled','disabled');
+                    nat.hide('fast');
+                    nat.find(':input').attr('disabled','disabled');
+                    $(".info_inline").hide('fast');
+                    $(".info_routed").hide('fast');
                     break;
                 default:
                     dhcpd.hide('fast');
-                    fake_mac.hide('fast');
                     high_availability.hide('fast');
                     high_availability.find(':input').attr('disabled','disabled');
                     dns.hide('fast');
                     dns.find(':input').attr('disabled','disabled');
                     vip.show('fast');
                     vip.find(':input').removeAttr('disabled');
+                    nat.hide('fast');
+                    nat.find(':input').attr('disabled','disabled');
+                    $(".info_inline").hide('fast');
+                    $(".info_routed").hide('fast');
             }
+        }
+    }
+    else if (modal.find('[name="network"]').length) {
+        // We are editing a network
+        var type = e? $(e.target) : modal.find('[name="type"]');
+        modal.find('[name="dns"]').closest('.control-group').show();
+        if (type.length) {
+            var fake_mac = modal.find('[name="fake_mac_enabled"]').closest('.control-group');
+            var nat = modal.find('[name="nat_enabled"]').closest('.control-group');
+
+            switch ( type.val() ) {
+                case 'inlinel3':
+                    fake_mac.show('fast');
+                    fake_mac.find(':input').removeAttr('disabled');
+                    nat.show('fast');
+                    nat.find(':input').removeAttr('disabled');
+                    break;
+                default:
+                    fake_mac.find(':input').attr('checked', false);
+                    fake_mac.hide('fast');
+                    fake_mac.find(':input').attr('disabled','disabled');
+                    this.fakeMacChanged();
+                    nat.find(':input').attr('checked', false);
+                    nat.hide('fast');
+                    nat.find(':input').attr('disabled','disabled');
+            }
+        }
+    }
+};
+
+InterfaceView.prototype.fakeMacChanged = function(e) {
+    var modal = $('#modalEditInterface');
+    var fake_mac = e? $(e.target) : modal.find('[name="fake_mac_enabled"]');
+    if (fake_mac.length) {
+        var dhcp = $('#dhcp_section');
+        if (fake_mac.is(':checked')) {
+            dhcp.find(':input').attr('disabled','disabled');
+        }
+        else {
+            dhcp.find(':input').removeAttr('disabled');
         }
     }
 };

@@ -1,13 +1,19 @@
 # Copyright (C) 2006-2013 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
-#
+# 
 # Translators:
-# erSitzt <charlesdarw@gmx.de>, 2013
+# Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
+# 
+# Translators:
+# Christian Mack <christian.mack@uni-konstanz.de>, 2014
+# Dennis B. <charlesdarw@gmx.de>, 2013
+# inverse <info@inverse.ca>, 2013
 # Tino Matysiak <tmatysiak@meetyoo.de>, 2011
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2013-12-02 22:10+0000\n"
+"PO-Revision-Date: 2014-08-12 00:24+0000\n"
+"Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/packetfence/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1023,3 +1029,50 @@ msgstr "Die MAC-Adresse %s ist ungültig, bitte nochmal versuchen"
 
 msgid "This module is not enabled"
 msgstr "Dieses Modul ist nicht aktiviert"
+
+msgid "anniversary"
+msgstr "Jahrestag"
+
+msgid "birthday"
+msgstr "Geburtstag"
+
+msgid "gender"
+msgstr "Geschlecht"
+
+msgid "lang"
+msgstr "Sprache"
+
+msgid "nickname"
+msgstr "Spitzname"
+
+msgid "cell_phone"
+msgstr "Handy"
+
+msgid "work_phone"
+msgstr "Telefon Arbeitsplatz"
+
+msgid "title"
+msgstr "Titel"
+
+msgid "building_number"
+msgstr "Hausnummer"
+
+msgid "apartment_number"
+msgstr "Wohnungsnummer"
+
+msgid "room_number"
+msgstr "Zimmernummer"
+
+msgid "Please wait. Processing payment..."
+msgstr ""
+
+msgid ""
+"Remember to enable ip_forward on your operating system for the inline mode "
+"to work."
+msgstr ""
+
+msgid ""
+"Since NATting mode is disabled, PacketFence will adjust iptables to rules to"
+" route traffic rather than natting it. Make sure to add the routes on the "
+"system."
+msgstr ""

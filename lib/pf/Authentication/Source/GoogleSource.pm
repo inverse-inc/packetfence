@@ -24,6 +24,7 @@ has 'scope' => (isa => 'Str', is => 'rw', default => 'https://www.googleapis.com
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://www.googleapis.com/oauth2/v2/userinfo');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/google');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.google.com,*.gstatic.com,googleapis.com,accounts.youtube.com');
+has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head2 available_actions
 
@@ -39,13 +40,30 @@ sub available_actions {
            ];
 }
 
+=head2 available_attributes
+
+=cut
+
+sub available_attributes {
+    my $self = shift;
+    return([@{$self->SUPER::available_attributes}, {value => 'username', type => $Conditions::SUBSTRING }]);
+}
+
 =head2 match_in_subclass
 
 =cut
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    return $params->{'username'};
+    my $username =  $params->{'username'};
+    foreach my $condition (@{ $own_conditions }) {
+        if ($condition->{'attribute'} eq "username") {
+            if ( $condition->matches("username", $username) ) {
+                push(@{ $matching_conditions }, $condition);
+            }
+        }
+    }
+    return $username;
 }
 
 

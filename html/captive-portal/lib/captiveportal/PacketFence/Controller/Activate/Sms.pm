@@ -56,10 +56,9 @@ sub index : Path : Args(0) {
         my %info;
         $logger->info("Valid PIN -- Registering user");
         my $pid = $c->session->{"guest_pid"} || "admin";
-        my $sms_type =
-          pf::Authentication::Source::SMSSource->getDefaultOfType();
+        my $sms_type = pf::Authentication::Source::SMSSource->getDefaultOfType();
         my $source = $profile->getSourceByType($sms_type);
-        my $auth_params = { 'username' => $pid };
+        my $auth_params = { 'username' => $pid, 'user_email' => $pid };
 
         if ($source) {
 
@@ -81,7 +80,9 @@ sub index : Path : Args(0) {
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
             $c->stash->{info}=\%info; 
+            $c->stash->{sms_pin} = $request->param("pin");  # We are putting the SMS PIN in stash to use it as a password in case we create a local account
             $c->forward('Authenticate' => 'postAuthentication');
+            $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
             # clear state that redirects to the Enter PIN page
@@ -139,12 +140,28 @@ sub sms_validation {
 
 =head1 AUTHOR
 
-root
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 =cut
 

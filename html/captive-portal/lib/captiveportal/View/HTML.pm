@@ -2,45 +2,8 @@ package captiveportal::View::HTML;
 
 use strict;
 use warnings;
-use Locale::gettext qw(gettext ngettext);
 use Moose;
-extends 'Catalyst::View::TT';
-
-__PACKAGE__->config(
-    TEMPLATE_EXTENSION => '.html',
-    render_die         => 1,
-    expose_methods     => [qw(i18n ni18n i18n_format)],
-);
-
-before process => sub {
-    my ( $self, $c ) = @_;
-    my $include_path = $c->portalSession->templateIncludePath;
-    @{ $self->include_path } = @$include_path;
-};
-
-sub i18n {
-    my ( $self, $c, $msgid ) = @_;
-    return gettext($msgid);
-}
-
-sub ni18n {
-    my ( $self, $c, $singular, $plural, $category ) = @_;
-
-    return ngettext( $singular, $plural, $category );
-}
-
-=head2 i18n_format
-
-Pass message id through gettext then sprintf it.
-
-Meant to be called from the TT templates.
-
-=cut
-
-sub i18n_format {
-    my ( $self, $c, $msgid, @args ) = @_;
-    return sprintf( gettext($msgid), @args );
-}
+BEGIN { extends 'captiveportal::PacketFence::View::HTML'; }
 
 =head1 NAME
 
@@ -56,12 +19,28 @@ L<captiveportal>
 
 =head1 AUTHOR
 
-root
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 =cut
 

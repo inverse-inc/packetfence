@@ -33,39 +33,21 @@ Create a new pf::Portal::Profile instance based on parameters given.
 
 =cut
 
-our @MATCHES_TYPE = qw(uri ssid vlan switch);
-our @MATCHES_LAST_TYPE = map {"last_$_"} @MATCHES_TYPE;
-
 sub instantiate {
     my ( $self, $mac, $options ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $options ||= {};
-
     if (defined($options->{'portal'})) {
         $logger->trace("Instantiate profile ".$options->{'portal'});
         return $self->_from_profile($options->{'portal'});
     }
-
     # We apply portal profiles based on the uri, SSID, VLAN and switch. We check the last_(ssid|vlan|switch) for the given MAC
     # and try to match a portal profile using the previously fetched filters.
     # If no match, we instantiate the default portal profile.
     my $node_info = node_view($mac) || {};
     $node_info = { %$options, %$node_info } ;
-
-    my @filter_ids = (
-        ( map {
-                my $val = $node_info->{ "last_$_" };
-                defined $val ? ("${_}:$val") : ()
-            } @MATCHES_TYPE
-        ),
-        grep { $_ } @{ $node_info }{ @MATCHES_LAST_TYPE }
-    );
-    my $profile_name =
-        first( sub{ exists $Profiles_Config{$_} },
-        map { $Profile_Filters{$_} }
-          grep { defined $_ && exists $Profile_Filters{$_} }
-          @filter_ids) || 'default' ;
-
+    my $filter = first { $_->match($node_info) } @Profile_Filters;
+    my $profile_name = $filter ? $filter->profile : 'default';
     $logger->trace("Instantiate profile $profile_name");
     return $self->_from_profile($profile_name);
 }

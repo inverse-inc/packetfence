@@ -11,8 +11,10 @@
     [% form.field('high_availability').render UNLESS high_availability %]
     [% form.field('dns').render %]
     [% form.field('vip').render %]
-    [% form.field('fake_mac_enabled').render %]
     [% form.field('dhcpd_enabled').render %]
+    [% form.field('nat_enabled').render %]
+    <p class="info_inline">[% l('Remember to enable ip_forward on your operating system for the inline mode to work.') %]</p>
+    <p class="info_routed">[% l('Since NATting mode is disabled, PacketFence will adjust iptables to rules to route traffic rather than natting it. Make sure to add the routes on the system.') %]</p>
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>

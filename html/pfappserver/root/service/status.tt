@@ -1,6 +1,6 @@
 <h2>[% l('Services') %]</h2>
 <div class="modal fade hide" id="confirmStop">
-  <div class="modal-header"><h3>[% l('Warning') %]</h3></div>
+  <div class="modal-header"><h3>[% l('Warning!') %]</h3></div>
   <div class="modal-body">
     <p>[% l('The web admin interface will no longer be accessible if you stop this service.') %]</p>
     <p>[% l('A manual start from the command line will be required. Are you sure you want to continue?') %]</p>
@@ -27,7 +27,7 @@
         <td>
           <span id="service-[% service %]"
           class="label[% IF started %] label-success[% END %]">
-          [%- IF started %]Started[%- ELSE -%]Stopped[% END -%]</span>
+          [%- IF started %][% l('Started') %][%- ELSE -%][% l('Stopped') %][% END -%]</span>
         </td>
         <td>
           <span class="pull-right">

@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::Oauth2;
 use Moose;
 use namespace::autoclean;
 use pf::config;
+use pf::util qw(isenabled);
 use pf::web;
 use Net::OAuth2::Client;
 
@@ -206,7 +207,7 @@ sub oauth2Result : Path : Args(1) {
                 "OAuth2: failed to validate the token, redireting to login page"
             );
             $c->stash->{txt_auth_error} = i18n("OAuth2 Error: Failed to validate the token, please retry");
-            $c->detach(Authentication => 'showLogin');
+            $c->detach(Authenticate => 'showLogin');
         }
 
         # Setting access timeout and role (category) dynamically
@@ -230,9 +231,12 @@ sub oauth2Result : Path : Args(1) {
         $c->session->{"username"} = $pid;
         $c->session->{source_id} = $source->{id};
         $c->stash->{info}=\%info; 
+        my $auth_params = { 'username' => $pid, 'user_email' => $pid };
         $c->forward('Authenticate' => 'postAuthentication');
+        $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
         $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
         $c->forward('CaptivePortal' => 'endPortalSession');
+
     } else {
         $logger->error(
             sprintf(
@@ -246,12 +250,28 @@ sub oauth2Result : Path : Args(1) {
 
 =head1 AUTHOR
 
-root
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 =cut
 

@@ -917,7 +917,10 @@ sub nodes_maintenance {
     my $expire_unreg_query = db_query_execute(NODE, $node_statements, 'node_expire_unreg_field_sql') || return (0);
     while (my $row = $expire_unreg_query->fetchrow_hashref()) {
         my $currentMac = $row->{mac};
-        pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
+        node_deregister($currentMac);
+        require pf::enforcement;
+        pf::enforcement::reevaluate_access( $currentMac, 'manage_deregister' );
+
         $logger->info("modified $currentMac from status 'reg' to 'unreg' based on unregdate colum" );
     }
 
@@ -972,12 +975,6 @@ sub node_cleanup {
     my ($time) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("calling node_cleanup with time=$time");
-
-    foreach my $row ( node_expire_lastarp($time) ) {
-        my $mac = $row->{'mac'};
-        $logger->info("mac $mac not seen for $time seconds, deleting");
-        node_delete( $row->{'mac'} );
-    }
 
     foreach my $rowVlan ( node_expire_lastdhcp($time) ) {
         my $mac = $rowVlan->{'mac'};

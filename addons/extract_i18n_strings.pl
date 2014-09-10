@@ -20,7 +20,10 @@ use pf::admin_roles;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::Switch::constants;
+use pfappserver::Controller::Graph;
 use pfappserver::Model::Node;
+use pfappserver::Form::Config::Wrix;
+use pfappserver::Form::Portal::Common;
 use pf::config;
 
 use constant {
@@ -70,7 +73,7 @@ translated even for English.
 =cut
 
 sub parse_po {
-    my $file = APP.'/lib/pfappserver/I18N/en.po';
+    my $file = APP.'/lib/pfappserver/I18N/i_default.po';
 
     my ($key, %msg);
     open (PO, $file);
@@ -122,11 +125,69 @@ sub parse_tt {
         open(TT, $template);
         while (defined($line = <TT>)) {
             chomp $line;
-            while ($line =~ m/\[\% l\('(.+?)'\) (\| js )?\%\]/g) {
-                add_string($1, $template);
+            while ($line =~ m/\[\% l\(['"](.+?(?!\\))['"](,.*)?\) (\| js )?\%\]/g) {
+                add_string($1, $template) unless ($1 =~ m/\${/);
             }
         }
         close(TT);
+    }
+
+    my $template = $dir . '/admin/configuration.tt';
+    open(TT, $template);
+    while (defined($line = <TT>)) {
+        chomp $line;
+        if ($line =~ m/\[\% ?list_entry\(\s*'[^']*',\s*'[^']*',\s*'([^']*)'\) ?\%\]/g) {
+            add_string($1, $template);
+        }
+        elsif ($line =~ m/\[\% ?pf_section_entry\(\s*'[^']*',\s*'([^']*)'\) ?\%\]/g) {
+            add_string($1, $template);
+        }
+    }
+    close(TT);
+
+    $template = $dir . '/admin/reports.tt';
+    open(TT, $template);
+    while (defined($line = <TT>)) {
+        chomp $line;
+        if ($line =~ m/\[\% ?list_entry\(\s*'[^']*',\s*'([^']*)'\) ?\%\]/g) {
+            add_string($1, $template);
+        }
+    }
+    close(TT);
+}
+
+=head2 parse_mc
+
+Extract localizable strings from Models and Controllers classes.
+
+=cut
+
+sub parse_mc {
+    my $base = APP.'/lib/pfappserver/';
+    my @dir = qw/Base Controller Model/;
+    my @modules = ();
+
+    my $pm = sub {
+        return unless -f && m/\.pm$/;
+        push(@modules, $File::Find::name);
+    };
+
+    foreach my $path (@dir) {
+        find($pm, $base . $path);
+    }
+
+    my $line;
+    foreach my $module (@modules) {
+        open(PM, $module);
+        while (defined($line = <PM>)) {
+            chomp $line;
+            if ($line =~ m/\$c->loc\(['"](.+?[^'"\\])["']\)/) {
+                my $string = $1;
+                $string =~ s/\\'/'/g;
+                add_string($string, $module);
+            }
+        }
+        close(PM);
     }
 }
 
@@ -152,8 +213,11 @@ sub parse_forms {
         open(PM, $form);
         while (defined($line = <PM>)) {
             chomp $line;
-            if ($line =~ m/(?:label|required) => ['"](.+?[^'"])["']/) {
-                add_string($1, $form);
+            if ($line =~ m/(?:label|required|help) => "(.+?[^\\])["]/ ||
+                $line =~ m/(?:label|required|help) => '(.+?[^\\])[']/) {
+                my $string = $1;
+                $string =~ s/\\'/'/g;
+                add_string($string, $form);
             }
         }
         close(PM);
@@ -169,6 +233,22 @@ Extract sections, options and descriptions from documentation.conf.
 sub parse_conf {
     my $file = CONF.'/documentation.conf';
 
+    sub _format_description {
+        my $description = join("\n", @{$_[0]});
+        $description =~ s/</&lt;/g;     # convert < to HTML entity
+        $description =~ s/>/&gt;/g;     # convert > to HTML entity
+        $description =~ s/(\S*(&lt;|&gt;)\S*)(?=[\s,\.])/<code>$1<\/code>/g; # enclose strings that contain < or >
+        $description =~ s/(\S+\.(html|tt|pm|pl|txt))\b(?!<\/code>)/<code>$1<\/code>/g; # enclose strings that ends with .html, .tt, etc
+        $description =~ s/^ \* (.+?)$/<li>$1<\/li>/mg; # create list elements for lines beginning with " * "
+        $description =~ s/(<li>.*<\/li>)/<ul>$1<\/ul>/s; # create lists from preceding substitution 
+        $description =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
+        $description =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
+        $description =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
+        $description =~ s/\"/\\\"/g;
+
+        return $description;
+    }
+
     my ($line, $section, @options, @desc);
     open(FILE, $file);
     while (defined($line = <FILE>)) {
@@ -177,7 +257,7 @@ sub parse_conf {
             if (scalar @desc) {
                 add_string($2, $file);
                 add_string($section, $file);
-                add_string(join("\n", @desc), "$file ($section)");
+                add_string(_format_description(\@desc), "$file ($section)");
             }
             if (scalar @options) {
                 map { add_string($_, "$file ($section options)") } @options;
@@ -194,14 +274,13 @@ sub parse_conf {
             while (defined($line = <FILE>)) {
                 chomp $line;
                 last if ($line =~ m/^EOT$/);
-                $line =~ s/\"/\\\"/g;
                 push(@desc, $line);
             }
         }
     }
     if (scalar @desc) {
         add_string($section, $file);
-        add_string(join("\n", @desc), "$file ($section)");
+        add_string(_format_description(\@desc), "$file ($section)");
     }
     if (scalar @options) {
         map { add_string($_, "$file ($section options)") } @options;
@@ -277,6 +356,20 @@ sub extract_modules {
 
     $attributes = pfappserver::Model::Node->availableStatus();
     const('pfappserver::Model::Node', 'availableStatus', $attributes);
+
+    const('pfappserver::Controller::Graph', 'graph type', \@pfappserver::Controller::Graph::GRAPHS);
+
+    const('pfappserver::Controller::Graph', 'os fields', [qw/description count/]);
+    const('pfappserver::Controller::Graph', 'connectiontype fields', [qw/connection_type connections/]);
+    const('pfappserver::Controller::Graph', 'ssid fields', [qw/ssid nodes/]);
+    const('pfappserver::Controller::Graph', 'nodebandwidth fields', [qw/callingstationid/]);
+    const('pfappserver::Controller::Graph', 'osclassbandwidth fields', [qw/dhcp_fingerprint/]);
+
+    const('pfappserver::Form::Config::Wrix', 'open hours', \@pfappserver::Form::Config::Wrix::HOURS);
+
+    @values = pfappserver::Form::Portal::Common->options_mandatory_fields();
+    @values = map { $_->{label} } @values;
+    const('pfappserver::Form::Portal::Common', 'mandatory fields', \@values);
 
     const('html/pfappserver/root/user/list_password.tt', 'options', ['mail_loading']);
 }
@@ -360,6 +453,7 @@ sub verify {
 
 &parse_po;
 &parse_tt;
+&parse_mc;
 &parse_forms;
 &parse_conf;
 &extract_modules;

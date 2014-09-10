@@ -26,12 +26,28 @@ Catalyst Model.
 
 =head1 AUTHOR
 
-root
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 =cut
 
@@ -76,16 +92,16 @@ has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
 sub ACCEPT_CONTEXT {
     my ( $self, $c, @args ) = @_;
     my $class = ref $self || $self;
-    my $model = $c->session->{$class};
+    my $model;
     my $request       = $c->request;
     my $r = $request->{'env'}->{'psgi.input'};
-    return $model if (defined($model) && $r->isa('Apache2::Request') && !($r->pnotes('last_uri')) );
     my $remoteAddress = $request->address;
     my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
     my $redirectURL;
     my $uri = $request->uri;
     my $options;
     my $destination_url;
+    my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'};
     $destination_url = $request->param('destination_url') if defined($request->param('destination_url'));
 
     if( $r->isa('Apache2::Request') &&  defined ( my $last_uri = $r->pnotes('last_uri') )) {
@@ -98,6 +114,10 @@ sub ACCEPT_CONTEXT {
         $options = {
             'portal' => $data->{portal},
         };
+    } elsif (( $forwardedFor =~  $mgmt_ip) && defined($request->param('PORTAL'))) {
+        $options = {
+            'portal' => $request->param('PORTAL'),
+        };
     }
 
     $model =  $self->new(
@@ -107,7 +127,6 @@ sub ACCEPT_CONTEXT {
         destination_url => $destination_url,
         @args,
     );
-    $c->session->{$class} = $model;
     return $model;
 }
 
@@ -187,7 +206,9 @@ sub _build_clientMac {
 
 sub _build_profile {
     my ($self) = @_;
-    return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $self->options);
+    my $options =  $self->options;
+    $options->{'last_ip'} = $self->clientIp;
+    return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $options );
 }
 
 sub templateIncludePath {

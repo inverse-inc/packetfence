@@ -28,6 +28,13 @@ BACKUP_PF_FILENAME='packetfence-files-dump'
 ARCHIVE_DIRECTORY=$BACKUP_DIRECTORY
 ARCHIVE_DB_FILENAME='packetfence-archive'
 
+# For replication
+ACTIVATE_REPLICATION=0
+REPLICATION_USER=''
+NODE1_HOSTNAME=''
+NODE2_HOSTNAME=''
+NODE1_IP=''
+NODE2_IP=''
 
 # Create the backup directory
 if [ ! -d "$BACKUP_DIRECTORY" ]; then
@@ -56,6 +63,15 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
     # in order to keep locationlog small
     mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "INSERT INTO locationlog_history SELECT * FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
     mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
+
+    # iplog cleanup: all the closed entries older than a month are moved to iplog_history
+    # in order to keep iplog small
+    mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "INSERT INTO iplog_history SELECT * FROM iplog WHERE (end_time <> '0000-00-00 00:00:00' AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
+    mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM iplog WHERE (end_time <> '0000-00-00 00:00:00' AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
+
+    ## accounting cleanup. We keep only the last 2 months of acounting data to prevent those tables from getting to large.
+    #mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM radacct WHERE acctstarttime <  ( NOW() - INTERVAL 2 MONTH ) ;"
+    #mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM radacct_log WHERE timestamp <  ( NOW() - INTERVAL 2 MONTH ) ;"
 
     # lets optimize on Sunday
     DOW=`date +%w`
@@ -88,4 +104,18 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
         mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'DELETE FROM radacct WHERE YEAR(acctstarttime) < YEAR(CURRENT_DATE());'
         mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'DELETE FROM radacct_log WHERE YEAR(timestamp) < YEAR(CURRENT_DATE());'
     fi
+
+    # Replicate the db backups between both servers
+    if [ $ACTIVATE_REPLICATION == 1 ];then
+      if [ $HOSTNAME == $NODE1_HOSTNAME ];then
+        replicate_to=$NODE2_IP
+      elif [ $HOSTNAME == $NODE2_HOSTNAME ];then
+        replicate_to=$NODE1_IP 
+      else
+        echo "Cannot recognize hostname. This script is made for $NODE1_HOSTNAME and $NODE2_HOSTNAME. Exiting"
+        exit
+      fi;
+      eval "rsync -auv -e ssh --delete --include '$BACKUP_DB_FILENAME*' --exclude='*' $BACKUP_DIRECTORY $REPLICATION_USER@$replicate_to:$BACKUP_DIRECTORY"
+    fi
+
 fi

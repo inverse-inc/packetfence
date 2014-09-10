@@ -11,7 +11,7 @@ use pf::config;
 use pf::activation qw($GUEST_ACTIVATION $SPONSOR_ACTIVATION);
 use pf::node;
 use pf::Portal::Session;
-use pf::util qw(valid_mac);
+use pf::util qw(valid_mac isenabled);
 use pf::web;
 use pf::log;
 use pf::web::guest 1.30;
@@ -135,6 +135,7 @@ sub doEmailRegistration : Private {
 
     if ($source) {
 
+        # On-site email guests self-registration
         # if we have a MAC, guest was on-site and we need to proceed with registration
         if ( defined($node_mac) && valid_mac($node_mac) ) {
             my %info;
@@ -142,6 +143,7 @@ sub doEmailRegistration : Private {
             $c->session->{source_id} = $source->{id};
             $c->stash->{info}=\%info; 
             $c->forward('Authenticate' => 'postAuthentication');
+            $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
 
             # change the unregdate of the node associated with the submitted code
             # FIXME
@@ -152,15 +154,17 @@ sub doEmailRegistration : Private {
                     'category'  => $c->stash->{info}->{category},
                 )
             );
+
             $c->stash(
                 template   => $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE,
                 expiration => $c->stash->{info}{unregdate} 
             );
-        } else {
+        } 
 
-            # if we don't have the MAC it means it's a preregister
-            # guest generate a password and send an email with an
-            # access code
+        # Pre-registration email guests self-registration
+        # if we don't have the MAC it means it's a preregister guest generate a password and send 
+        # an email with an access code
+        else {
             my %info = (
                 'pid'     => $pid,
                 'email'   => $email,
@@ -262,9 +266,10 @@ sub doSponsorRegistration : Private {
               . " successfully authenticated. Activating sponsored guest" );
 
         my ( %info, $template );
-        if ( defined($node_mac) ) {
 
-            # If MAC is defined, it's a guest already here that we need to register
+        # Guest on-site sponsor registration
+        # If MAC is defined, it's a guest already here that we need to register
+        if ( defined($node_mac) ) {
             my $node_info = node_attributes($node_mac);
             $pid = $node_info->{'pid'};
             if ( !defined($node_info) || ref($node_info) ne 'HASH' ) {
@@ -293,52 +298,45 @@ sub doSponsorRegistration : Private {
             $c->session->{source_id} = $source->{id};
             $c->stash->{info}=\%info; 
             $c->forward('Authenticate' => 'postAuthentication');
+            $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
-            # populating variables used to send email
-            $template =
-              $pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION;
-            $info{'subject'} = i18n_format(
-                "%s: Guest network access enabled",
-                $Config{'general'}{'domain'}
-            );
-        } elsif ( defined( $activation_record->{'pid'} ) ) {
+            # We send email to the guest confirming that network access has been enabled
+            $template = $pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION;
+            $info{'email'} = $info{'pid'};
+            $info{'subject'} = i18n_format("%s: Guest network access enabled", $Config{'general'}{'domain'});
+            pf::web::guest::send_template_email($template, $info{'subject'}, \%info);
+        }
 
-             # If pid is set in activation record then we are activating a guest who pre-registered
-
+        # Guest off-site sponsor registration
+        # If pid is set in activation record then we are activating a guest who pre-registered
+        elsif ( defined( $activation_record->{'pid'} ) ) {
             $pid = $activation_record->{'pid'};
 
             # populating variables used to send email
-            $template =
-              $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION;
-            $info{'subject'} = i18n_format(
-                "%s: Guest access request accepted",
-                $Config{'general'}{'domain'}
-            );
+            $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION;
+            $info{'subject'} = i18n_format("%s: Guest access request accepted", $Config{'general'}{'domain'});
+
+            # TO:
+            $info{'email'} = $pid;
+
+            # username
+            $info{'pid'} = $pid;
+            $info{'cc'} =
+            $Config{'guests_self_registration'}{'sponsorship_cc'};
+
+            # we create a temporary password using the actions from the sponsor authentication source;
+            # NOTE: When sponsoring a network access, the new user will be created (in the temporary_password table) using
+            # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
+            my $actions = &pf::authentication::match( $source->{id},
+                { username => $pid, user_email => $pid } );
+            $info{'password'} =
+              pf::temporary_password::generate( $pid, $actions );
+
+            pf::web::guest::send_template_email( $template, $info{'subject'},
+                \%info );
         }
 
-        # TO:
-        $info{'email'} = $pid;
-
-        # username
-        $info{'pid'} = $pid;
-        $info{'cc'} =
-          $Config{'guests_self_registration'}{'sponsorship_cc'};
-
-        # we create a temporary password using the actions from the sponsor authentication source;
-        # NOTE: When sponsoring a network access, the new user will be created (in the temporary_password table) using
-        # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
-        my $actions = &pf::authentication::match( $source->{id},
-            { username => $pid, user_email => $pid } );
-        $info{'password'} =
-          pf::temporary_password::generate( $pid, $actions );
-
-        # prepare welcome email for a guest who registered locally
-        $info{'currentdate'} =
-          POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-
-        pf::web::guest::send_template_email( $template, $info{'subject'},
-            \%info );
         pf::activation::set_status_verified($code);
 
         # send to a success page
@@ -356,15 +354,32 @@ sub doSponsorRegistration : Private {
 
 =head1 AUTHOR
 
-root
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 =cut
 
 __PACKAGE__->meta->make_immutable;
 
 1;
+
