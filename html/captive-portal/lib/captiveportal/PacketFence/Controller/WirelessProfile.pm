@@ -29,15 +29,12 @@ sub index : Path : Args(0) {
     my $mac = $c->portalSession->clientMac;
     my $provisioner = $c->profile->findProvisioner($mac);
     $provisioner->authorize($mac) if (defined($provisioner));
-    my $filename = $c->stash->{filename} || "wireless-profile.mobileconfig";
     $c->stash(
         template     => 'wireless-profile.xml',
         current_view => 'MobileConfig',
         provisioner  => $provisioner,
         username     => $username
     );
-    $c->response->headers->content_type('application/x-apple-aspen-config; chatset=utf-8');
-    $c->response->headers->header( 'Content-Disposition', "attachment; filename=\"$filename\"" );
 }
 
 sub profile_xml : Path('/profile.xml') : Args(0) {
