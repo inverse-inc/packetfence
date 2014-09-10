@@ -30,16 +30,16 @@ sub _attributesToString {
     my $type = $this->transport;
 
     # SNMP is kind of unique and can only apply on a wired connection without anything else
-    $type .= ( (lc($this->transport) eq "wired" && $this->isSNMP) ? "-SNMP" : "" );
+    $type .= ( (lc($this->transport) eq "wired") && ($this->isSNMP) ) ? "-SNMP" : "";
 
     # Handling mac authentication for both NoEAP and EAP connections
     if ( $this->isMacAuth ) {
         $type .= "-MacAuth";
-        $type .= ( $this->isEAP ? "-EAP" : "-NoEAP" );
+        $type .= ( $this->isEAP ) ? "-EAP" : "-NoEAP";
     }
 
     # Handling 802.1X
-    $type .= ( $this->is8021X ? "-8021X" : "" );
+    $type .= ( $this->is8021X ) ? "-8021X" : "";
 
     $this->type($type);
 }
@@ -53,16 +53,16 @@ sub attributesToBackwardCompatible {
     my ( $this ) = @_;
 
     # Wireless MacAuth
-    return $WIRELESS_MAC_AUTH if ( lc($this->transport eq "wireless") && $this->isMacAuth );
+    return $WIRELESS_MAC_AUTH if ( (lc($this->transport) eq "wireless") && ($this->isMacAuth) );
 
     # Wireless 802.1X
-    return $WIRELESS_802_1X if ( lc($this->transport eq "wireless") && $this->is8021X );
+    return $WIRELESS_802_1X if ( (lc($this->transport) eq "wireless") && ($this->is8021X) );
 
     # Wired MacAuth
-    return $WIRED_MAC_AUTH if ( lc($this->transport eq "wired") && $this->isMacAuth );
+    return $WIRED_MAC_AUTH if ( (lc($this->transport) eq "wired") && ($this->isMacAuth) );
 
     # Wired 802.1X
-    return $WIRED_802_1X if ( lc($this->transport eq "wired") && $this->is8021X );
+    return $WIRED_802_1X if ( (lc($this->transport) eq "wired") && ($this->is8021X) );
 
     # Default
     return;
@@ -76,10 +76,10 @@ sub identifyType {
 
     # We first identify the transport mode using the NAS-Port-Type attribute of the RADIUS Access-Request as per RFC2875
     # Assumption: If NAS-Port-Type is either undefined or does not contain "Wireless", we treat is as "Wired"
-    ( (defined($nas_port_type)) && ($nas_port_type =~ /^Wireless/) ) ? $this->transport("Wireless") : $this->transport("Wired");
+    ( (defined($nas_port_type)) && (lc($nas_port_type) =~ /^wireless/) ) ? $this->transport("Wireless") : $this->transport("Wired");
 
     # Handling EAP connection
-    (defined($eap_type)) ? $this->isEAP($TRUE) : $this->isEAP($FALSE);
+    ( defined($eap_type) ) ? $this->isEAP($TRUE) : $this->isEAP($FALSE);
 
     # Handling mac authentication versus 802.1X connection
     # In most cases, when EAP is used we can assume we are dealing with 802.1X connection. Unfortunately, some vendors are doing
