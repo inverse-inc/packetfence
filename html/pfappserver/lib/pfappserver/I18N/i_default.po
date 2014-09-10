@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-09-05 10:17-0400\n"
+"PO-Revision-Date: 2014-09-10 14:02-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -146,7 +146,7 @@ msgstr ""
 
 # conf/documentation.conf (inline.layer3_accounting_session_timeout)
 msgid ""
-  "Accounting sessions created by pfbandwidthd (layer 3 traffic only) that haven't "
+  "Accounting sessions created by pfbandwidthd that haven't "
   "been updated for more than this amount of seconds will be considered "
   "inactive. "
   "This should be higher than the interval at which pfmon runs "
@@ -1730,7 +1730,7 @@ msgstr ""
 
 # conf/documentation.conf (inline.layer3_accounting_sync_interval)
 msgid ""
-  "Interval at which pfbandwidthd (layer 3 traffic only) should dump collected information into the database. "
+  "Interval at which pfbandwidthd should dump collected information into the database. "
   "This should be lower than the interval at which pfmon runs. "
   "Defaults to 41 seconds"
 msgstr ""
@@ -4861,10 +4861,6 @@ msgstr "Node"
 # conf/documentation.conf
 msgid "expire.traplog"
 msgstr "Trap logs"
-
-# pf::action (VIOLATION_ACTIONS)
-msgid "external_action"
-msgstr "External command"
 
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Portal::Common (mandatory fields)
