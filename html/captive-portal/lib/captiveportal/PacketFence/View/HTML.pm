@@ -4,10 +4,12 @@ use strict;
 use warnings;
 use Locale::gettext qw(gettext ngettext);
 use Moose;
+use utf8;
 extends 'Catalyst::View::TT';
 
 __PACKAGE__->config(
     TEMPLATE_EXTENSION => '.html',
+    ENCODING           => 'utf-8',
     render_die         => 1,
     expose_methods     => [qw(i18n ni18n i18n_format)],
 );
@@ -20,7 +22,11 @@ before process => sub {
 
 sub i18n {
     my ( $self, $c, $msgid ) = @_;
-    return gettext($msgid);
+
+    my $msg = gettext($msgid);
+    utf8::decode($msg);
+
+    return $msg;
 }
 
 sub ni18n {
