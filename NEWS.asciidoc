@@ -53,6 +53,7 @@ Enhancements
 * Do not overlay the controllerIp if one is already defined when creating a switch
 * Verify the user roles level before creating a user via the admin gui
 * Added test iplogs not closed in pftest 
+* Remove direct usage Apache2 modules in captive portal
 
 Bug Fixes
 +++++++++
