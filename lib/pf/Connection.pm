@@ -44,6 +44,31 @@ sub _attributesToString {
     $this->type($type);
 }
 
+=item _stringToAttributes
+
+We set the according attributes based on the printable string received in parameter.
+
+=cut
+sub _stringToAttributes {
+    my ( $this, $type ) = @_;
+
+    # We set the transport type
+    ( lc($type) =~ /^wireless/ ) ? $this->transport("Wireless") : $this->transport("Wired");
+
+    # We check if SNMP
+    ( (lc($type) =~ /^wired/) && (lc($type) =~ /^snmp/) ) ? $this->isSNMP($TRUE) : $this->isSNMP($FALSE);
+
+    # We check if mac authentication
+    ( lc($type) =~ /^macauth/ ) ? $this->isMacAuth($TRUE) : $this->isMacAuth($FALSE);
+
+    # We check if EAP
+    # (We do this check using NoEAP because we don't want to fetch EAP in NoEAP string... you know!)
+    ( lc($type) =~ /^noeap/ ) ? $this->isEAP($FALSE) : $this->isEAP($TRUE);
+
+    # We check if 802.1X
+    ( lc($type) =~ /^8021x/ ) ? $this->is8021X($TRUE) : $this->is8021X($FALSE);
+}
+
 =item attributesToBackwardCompatible
 
 Only for backward compatibility while we introduce the new connection types.
