@@ -9,7 +9,6 @@ use pf::config;
 use pf::log;
 use pf::util;
 use pf::Portal::Session;
-use Apache2::Const -compile => qw(OK DECLINED HTTP_MOVED_TEMPORARILY);
 use pf::web;
 use pf::node;
 use pf::useragent;
