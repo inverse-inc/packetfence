@@ -174,10 +174,8 @@ sub regzone {
                 foreach my $rr ($query->answer) {
                     next unless $rr->type eq "A";
                     my $ip = $rr->address;
-                    my $cmd = "LANG=C sudo ipset --add pfsession_passthrough $ip,$HTTP_PORT 2>&1";
-                    my @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
-                    $cmd = "LANG=C sudo ipset --add pfsession_passthrough $ip,$HTTPS_PORT 2>&1";
-                    @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
+                    add_ip_port_to_ipset("pfsession_passthrough",$ip,$HTTP_PORT);
+                    add_ip_port_to_ipset("pfsession_passthrough",$ip,$HTTP_PORTS);
                     ($ttl, $rdata) = ($TTL, $rr->address);
                 }
                 if($ttl && $rdata){
@@ -212,6 +210,28 @@ sub regzone {
     # mark the answer as authoritive (by setting the 'aa' flag
     return ($rcode, \@ans, \@auth, \@add, { aa => 1 });
 }
+
+
+=head2 add_ip_port_to_ipset
+
+add ipset rule to the cache if it is not already there
+
+=cut
+
+sub add_ip_port_to_ipset {
+    my ($setname,$ip,$port) = @_;
+    my $cmd = "LANG=C sudo ipset --add $setname $ip,$port 2>&1";
+    my $lines = $CHI_CACHE->compute(
+        "ipset:${setname}:${ip}:${port}",
+        { expire_in => 600 },
+        sub {
+            @lines =
+              pf_run($cmd,, accepted_exit_status => [$_EXIT_CODE_EXISTS]);
+            return \@lines;
+        }
+    );
+}
+
 
 sub isolzone {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
