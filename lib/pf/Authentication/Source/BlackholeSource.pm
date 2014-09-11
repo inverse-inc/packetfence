@@ -47,7 +47,7 @@ sub available_attributes {
 
 =head2 available_actions
 
-For an Null source, we limit the available actions to B<set role>, B<set access duration>, and B<set unreg date>.
+For a Blackhole source, we limit the available actions to B<set role>, B<set access duration>, and B<set unreg date>.
 
 =cut
 
