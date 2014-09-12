@@ -17,13 +17,11 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
-=head2 Fields
-
-=over
+=head1 Fields
 
 =cut
 
-=item name
+=head2 name
 
 =cut
 
@@ -35,7 +33,7 @@ has_field 'name'  => (
     },
 );
 
-=item query
+=head2 query
 
 =cut
 
@@ -43,7 +41,7 @@ has_field 'query' => (
    type => 'Hidden',
 );
 
-=item pid
+=head2 pid
 
 =cut
 
@@ -52,7 +50,7 @@ has_field 'pid' => (
    widget => 'NoRender',
 );
 
-=item namespace
+=head2 namespace
 
 =cut
 
@@ -61,9 +59,9 @@ has_field 'namespace' => (
    widget => 'NoRender',
 );
 
-=head2 Blocks
+=head1 Blocks
 
-=item search
+=head2 search
 
 =cut
 
@@ -72,8 +70,6 @@ has_block 'search' =>
    render_list => [qw(name query)],
   );
 
-
-=back
 
 =cut
 

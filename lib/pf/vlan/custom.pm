@@ -38,17 +38,16 @@ our $VERSION = 1.04;
 
 =head1 SUBROUTINES
 
-=over
-
 =cut
 
-=item shouldAutoRegister
+=head2 shouldAutoRegister
 
 This is an example of how to redefine a method for custom purposes.
 
 See pf::vlan::shouldAutoRegister for full original method.
 
 =cut
+
 #sub shouldAutoRegister{
 #    #$mac is MAC address
 #    #$switch_in_autoreg_mode is set to 1 if switch is in registration mode
@@ -71,8 +70,6 @@ See pf::vlan::shouldAutoRegister for full original method.
 #    return $this->SUPER::shouldAutoRegister($mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request);
 #}
 
-
-=back
 
 =head1 AUTHOR
 

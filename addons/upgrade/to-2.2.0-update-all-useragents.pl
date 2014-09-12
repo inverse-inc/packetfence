@@ -30,6 +30,7 @@ Useful for people migrating to 2.2.0 and wants to see if they have Unknown User-
 Running this script when upgrading to 2.2.0 is *not* mandatory.
 
 =cut
+
 use strict;
 use warnings;
 

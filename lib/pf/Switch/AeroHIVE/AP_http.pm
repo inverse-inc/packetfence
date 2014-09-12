@@ -16,14 +16,10 @@ Tested on an AP330 running HiveOS 6.1r6.1779
 
 =head1 BUGS AND LIMITATIONS
 
-=over
-
-=item Redirect URL is not working
+=head2 Redirect URL is not working
 
 When selecting the option to redirect the user to the initially requested page, the AeroHIVE access point is not able to do the redirection properly.
 Using the default success page of AeroHIVE works.
-
-=back
 
 =cut
 
@@ -37,6 +33,10 @@ use pf::locationlog;
 use pf::util;
 
 use base ('pf::Switch::AeroHIVE::AP');
+
+=head1 METHODS
+
+=cut
 
 sub description { 'AeroHIVE AP with web auth' }
 
@@ -53,7 +53,7 @@ sub parseUrl {
     return ($$req->param('Calling-Station-Id'),$$req->param('ssid'),$$req->param('STA-IP'),$$req->param('destination_url'),$$req->param('url'),"200");
 }
 
-=item returnRadiusAccessAccept
+=head2 returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept reponse for the network device.
 

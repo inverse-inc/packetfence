@@ -8,33 +8,15 @@ Catalyst 2960 with http redirect
 
 Developped and tested on IOS 15.0(2)SE5
 
-=over
+=head2 Supports
 
-=item Supports
-
-=over
-
-=item Deauthentication with RADIUS Disconnect (RFC3576)
-
-=back
-
-=back
+=head2 Deauthentication with RADIUS Disconnect (RFC3576)
 
 =head1 BUGS AND LIMITATIONS
 
-=over
-
-=item Version specific issues
-
-=over
-
-=back
+=head2 Version specific issues
 
 =head1 SEE ALSO
-
-=over
-
-=back
 
 =cut
 
@@ -63,8 +45,6 @@ sub description { 'Cisco Catalyst 2960 with Web Auth' }
 
 =head1 SUBROUTINES
 
-=over
-
 =cut
 
 # CAPABILITIES
@@ -78,7 +58,7 @@ sub supportsWiredMacAuth { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
-=item handleReAssignVlanTrapForWiredMacAuth
+=head2 handleReAssignVlanTrapForWiredMacAuth
 
 Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authentication.
 
@@ -91,7 +71,7 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     $this->radiusDisconnect($mac);
 }
 
-=item parseUrl
+=head2 parseUrl
 
 This is called when we receive a http request from the device and return specific attributes:
 
@@ -110,7 +90,7 @@ sub parseUrl {
     return ($$req->param('client_mac'),$$req->param('wlan'),$$req->param('client_ip'),$$req->param('redirect'),$$req->param('switch_url'),$$req->param('statusCode'));
 }
 
-=item returnRoleAttribute
+=head2 returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role returned into.
 
@@ -122,7 +102,7 @@ sub returnRoleAttribute {
     return 'Airespace-ACL-Name';
 }
 
-=item returnRadiusAccessAccept
+=head2 returnRadiusAccessAccept
 
 Overide to support the captive portal special RADIUS accept
 
@@ -191,7 +171,7 @@ sub returnRadiusAccessAccept {
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
-=item radiusDisconnect
+=head2 radiusDisconnect
 
 Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
 
@@ -290,7 +270,7 @@ sub radiusDisconnect {
 }
 
 
-=item parseRequest
+=head2 parseRequest
 
 Takes FreeRADIUS' RAD_REQUEST hash and process it to return
 NAS Port type (Ethernet, Wireless, etc.)
@@ -325,8 +305,6 @@ sub parseRequest {
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id);
 }
 
-
-=back
 
 =head1 AUTHOR
 

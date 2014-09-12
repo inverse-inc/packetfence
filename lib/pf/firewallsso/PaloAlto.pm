@@ -29,7 +29,9 @@ use HTTP::Request::Common;
 #Export environement variables for LWP
 $ENV{'PERL_LWP_SSL_VERIFY_HOSTNAME'} = 0;
 
-=item action
+=head1 METHODS
+
+=head2 action
 
 Perform a xml api request based on the registered status of the node and his role.
 

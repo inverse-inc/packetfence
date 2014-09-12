@@ -11,6 +11,7 @@ A suite of tests quick to run, with no side-effects and that should always pass.
 To be used by nightly build systems.
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;

@@ -11,26 +11,13 @@ to access SNMP enabled Aruba switches.
 
 =head1 STATUS
 
-=over
+=head1 SUPPORTS
 
-=item Supports
-
-=over
-
-=item 802.1X and MAC-Authentication with and without VoIP
-
-=back
+=head2 802.1X and MAC-Authentication with and without VoIP
 
 Stacked switch support has not been tested.
 
-=back
-
-
 =head1 BUGS AND LIMITATIONS
-
-=over
-
-=back
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -54,9 +41,8 @@ use pf::config;
 
 =head1 SUBROUTINES
 
-=over
-
 =cut
+
 # CAPABILITIES
 # access technology supported
 sub supportsRoleBasedEnforcement { return $TRUE; }
@@ -68,7 +54,7 @@ sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub inlineCapabilities { return ($MAC,$PORT); }
 
 
-=item getVersion
+=head2 getVersion
 
 =cut
 
@@ -91,7 +77,7 @@ sub getVersion {
     }
 }
 
-=item _dot1xPortReauthenticate
+=head2 _dot1xPortReauthenticate
 
 Actual implementation.
 
@@ -107,7 +93,7 @@ sub dot1xPortReauthenticate {
 }
 
 
-=item parseTrap
+=head2 parseTrap
 
 All traps ignored
 
@@ -130,7 +116,6 @@ Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 
 =cut
 
-
 sub getIfIndexByNasPortId {
     my ($this, $ifDesc_param) = @_;
 
@@ -150,11 +135,12 @@ sub getIfIndexByNasPortId {
     }
 }
 
-=item deauthenticateMacRadius
+=head2 deauthenticateMacRadius
 
 Method to deauth a wired node with CoA.
 
 =cut
+
 sub deauthenticateMacRadius {
     my ($this, $ifIndex,$mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -164,7 +150,7 @@ sub deauthenticateMacRadius {
     $this->radiusDisconnect($mac);
 }
 
-=item returnRoleAttribute
+=head2 returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role returned into.
 
@@ -176,7 +162,7 @@ sub returnRoleAttribute {
     return 'Aruba-User-Role';
 }
 
-=item wiredeauthTechniques
+=head2 wiredeauthTechniques
 
 Return the reference to the deauth technique or the default deauth technique.
 
@@ -211,7 +197,7 @@ sub wiredeauthTechniques {
     }
 }
 
-=item radiusDisconnect
+=head2 radiusDisconnect
 
 Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
 
@@ -304,8 +290,6 @@ sub radiusDisconnect {
     );
     return;
 }
-
-=back
 
 =head1 AUTHOR
 

@@ -20,8 +20,6 @@ The get_* methods return a string or integer.
 
 The as_* methods return a new pf::MAC object with the given notation as constructor.
 
-=over
-
 =cut
 
 use strict;
@@ -36,7 +34,7 @@ use overload
     'eq' => \&_compare_string,
     'ne' => \&_compare_string_ne;
 
-=item clean
+=head2 clean
 
 Cleans a MAC address. 
 
@@ -58,7 +56,7 @@ sub clean {
     return $new_mac;
 }
 
-=item get_stripped
+=head2 get_stripped
 
 Returns the MAC address stripped of any delimiter (base is preserved).
 
@@ -71,7 +69,7 @@ sub get_stripped {
     return $mac;
 }
 
-=item get_hex_stripped
+=head2 get_hex_stripped
 
 Returns a string containing the MAC address in hex base, stripped of any delimiter (uppercased).
 
@@ -84,7 +82,7 @@ sub get_hex_stripped {
     return $IEEE_mac;
 }
 
-=item get_dec_stripped
+=head2 get_dec_stripped
 
 Returns a string with the MAC as a decimal without delimiter.
 
@@ -99,7 +97,7 @@ sub get_dec_stripped {
     return hex( $self->get_hex_stripped() );
 }
 
-=item get_oui
+=head2 get_oui
 
 Returns the OUI for the MAC as an lowercased hex string with : delimiters.
 
@@ -113,7 +111,7 @@ sub get_oui {
     return substr( lc $IEEE_mac, 0, 8 );
 }
 
-=item get_IEEE_oui
+=head2 get_IEEE_oui
 
 Returns the OUI for the MAC as an uppercased hex string with - delimiters.
 
@@ -127,7 +125,7 @@ sub get_IEEE_oui {
     return substr( $IEEE_mac, 0, 8 );
 }
 
-=item get_dec_oui
+=head2 get_dec_oui
 
 Returns a decimal value of the OUI stripped of any delimiters.
 
@@ -140,7 +138,7 @@ sub get_dec_oui {
     return hex($oui);
 }
 
-=item as_oid 
+=head2 as_oid 
 
 Returns a pf::MAC object with the MAC formatted as an SNMP OID.
 
@@ -153,17 +151,18 @@ sub as_oid {
     return $self->convert( base => 10, bit_group => 8, delimiter => '.' );
 }
 
-=item as_acct
+=head2 as_acct
 
 Returns an uppercased, hex based and : delimited pf::MAC object (formatted for PacketFence acounting).
 
 =cut
+
 sub as_acct {
     my $self = shift;
     return pf::MAC->new( mac => $self->get_hex_stripped() );
 }
 
-=item as_Cisco
+=head2 as_Cisco
 
 Returns a new pf::MAC object formatted for Cisco ( example: 0002.03aa.abff ).
 
@@ -175,7 +174,7 @@ See Net::MAC for implementation.
 
 #sub as_Cisco {};
 
-=item macoui2nb
+=head2 macoui2nb
 
 Provided for backwards compatibility with pf::util::macoui2nb.
 
@@ -185,7 +184,7 @@ Equivalent to get_dec_oui().
 
 *macoui2nb = \&get_dec_oui;
 
-=item mac2nb
+=head2 mac2nb
 
 Provided for backwards compatibility with pf::util::mac2nb.
 
@@ -195,7 +194,7 @@ Equivalent to get_dec_stripped().
 
 *mac2nb = \&get_dec_stripped;
 
-=item format_for_acct
+=head2 format_for_acct
 
 Intended for backward compatibility with pf::util::format_mac_for_acct.
 
@@ -206,7 +205,7 @@ Equivalent to as_acct();
 *format_for_acct = \&as_acct;
 
 
-=item in_OUI
+=head2 in_OUI
 
 Checks whether a MAC is part of an OUI. It expects the OUI to be passed 
 as a string of hexadecimal digits, with or without separators.
@@ -283,7 +282,6 @@ sub _compare_value_ne {
     if   ( $arg_1 == $arg_2 ) { return (0); }
     else                      { return (1); }
 }
-=back
 
 =head1 AUTHOR
 

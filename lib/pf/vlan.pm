@@ -36,11 +36,9 @@ our $VERSION = 1.04;
 
 Warning: The list of subroutine is incomplete
 
-=over
-
 =cut
 
-=item new
+=head2 new
 
 Constructor.
 Usually you don't want to call this constructor but use the pf::vlan::custom subclass instead.
@@ -55,7 +53,7 @@ sub new {
     return $this;
 }
 
-=item fetchVlanForNode
+=head2 fetchVlanForNode
 
 Answers the question: What VLAN should a given node be put into?
 
@@ -110,7 +108,7 @@ sub fetchVlanForNode {
     return ( $vlan, 0, $user_role );
 }
 
-=item doWeActOnThisTrap
+=head2 doWeActOnThisTrap
 
 Don't act on uplinks, unkown interface types or some traps we are not interested in.
 
@@ -158,7 +156,7 @@ sub doWeActOnThisTrap {
     return $weActOnThisTrap;
 }
 
-=item getViolationVlan
+=head2 getViolationVlan
 
 Returns the violation vlan for a node (if any)
 
@@ -166,17 +164,13 @@ This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific
 
 Return values:
 
-=over 6
+=head2 * -1 means kick-out the node (not always supported)
 
-=item * -1 means kick-out the node (not always supported)
+=head2 * 0 means no violation for this node
 
-=item * 0 means no violation for this node
+=head2 * undef means there was an error
 
-=item * undef means there was an error
-
-=item * anything else is either a VLAN name string or a VLAN number
-
-=back
+=head2 * anything else is either a VLAN name string or a VLAN number
 
 =cut
 
@@ -247,7 +241,7 @@ sub getViolationVlan {
 }
 
 
-=item getRegistrationVlan
+=head2 getRegistrationVlan
 
 Returns the registration vlan for a node if registration is enabled and node is unregistered or pending.
 
@@ -255,15 +249,11 @@ This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific
 
 Return values:
 
-=over 6
+=head2 * 0 means node is already registered
 
-=item * 0 means node is already registered
+=head2 * undef means there was an error
 
-=item * undef means there was an error
-
-=item * anything else is either a VLAN name string or a VLAN number
-
-=back
+=head2 * anything else is either a VLAN name string or a VLAN number
 
 =cut
 
@@ -304,7 +294,7 @@ sub getRegistrationVlan {
     return 0;
 }
 
-=item getNormalVlan
+=head2 getNormalVlan
 
 Returns normal vlan
 
@@ -314,19 +304,16 @@ VLAN for the given switch.
 
 Return values:
 
-=over 6
+=head2 * -1 means kick-out the node (not always supported)
 
-=item * -1 means kick-out the node (not always supported)
+=head2 * 0 means node is already registered
 
-=item * 0 means node is already registered
+=head2 * undef means there was an error
 
-=item * undef means there was an error
-
-=item * anything else is either a VLAN name string or a VLAN number
-
-=back
+=head2 * anything else is either a VLAN name string or a VLAN number
 
 =cut
+
 sub getNormalVlan {
     #$switch is the switch object (pf::Switch)
     #$ifIndex is the ifIndex of the computer connected to
@@ -419,21 +406,17 @@ sub getNormalVlan {
     return ($vlan, $role);
 }
 
-=item getInlineVlan
+=head2 getInlineVlan
 
 Handling the Inline VLAN Assignment
 
-=over
+=head2 * -1 means kick-out the node (not always supported)
 
-=item * -1 means kick-out the node (not always supported)
+=head2 * 0 means use native vlan
 
-=item * 0 means use native vlan
+=head2 * undef means there was an error
 
-=item * undef means there was an error
-
-=item * anything else is either a VLAN name string or a VLAN number
-
-=back
+=head2 * anything else is either a VLAN name string or a VLAN number
 
 =cut
 
@@ -455,7 +438,7 @@ sub getInlineVlan {
     return $switch->getVlanByName('inline');
 }
 
-=item getNodeInfoForAutoReg
+=head2 getNodeInfoForAutoReg
 
 Basic information returned for an auto-registered node
 
@@ -508,7 +491,7 @@ sub getNodeInfoForAutoReg {
     return %node_info;
 }
 
-=item shouldAutoRegister
+=head2 shouldAutoRegister
 
 Do we auto-register this node?
 
@@ -521,6 +504,7 @@ version doesn't do the right thing for you.
 returns 1 if we should register, 0 otherwise
 
 =cut
+
 sub shouldAutoRegister {
     #$mac is MAC address
     #$switch_in_autoreg_mode is set to 1 if switch is in registration mode
@@ -565,7 +549,7 @@ sub shouldAutoRegister {
     return 0;
 }
 
-=item isInlineTrigger
+=head2 isInlineTrigger
 
 Return true if a radius properties match with the inline trigger
 
@@ -602,8 +586,6 @@ sub isInlineTrigger {
         }
     }
 }
-
-=back
 
 =head1 AUTHOR
 

@@ -8,6 +8,7 @@ coding-style.t
 Test validating coding style guidelines.
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;

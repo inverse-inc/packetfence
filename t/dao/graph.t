@@ -8,6 +8,7 @@ dao/graph.t
 Testing data access layer for the pf::pfcmd::graph module
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;

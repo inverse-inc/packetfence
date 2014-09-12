@@ -14,15 +14,11 @@ Developed and tested on Juniper ex2200 running on JUNOS 12.6
 Tested on ex4200 running on JUNOS 13.2
 
 =head1 BUGS AND LIMITATIONS
- 
-=over
 
-=item VoIP is only supported in untagged mode
+=head2 VoIP is only supported in untagged mode
 
 VoIP devices will use the defined voiceVlan but in untagged mode.
 A computer and a phone in the same port can still be on two different VLANs since Juniper supports multiple VLANs per port.
-
-=back
 
 =cut
 
@@ -50,12 +46,13 @@ sub supportsLldp { return $TRUE; }
 sub isVoIPEnabled {return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 
-=item getVoipVsa
+=head2 getVoipVsa
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 For now it returns the voiceVlan untagged since Juniper supports multiple untagged VLAN in the same interface
 
 =cut
+
 sub getVoipVsa{
     my ($this) = @_; 
     my $logger = Log::Log4perl::get_logger( ref($this) ); 
@@ -71,11 +68,12 @@ sub getVoipVsa{
  
 }
 
-=item getIfIndexByNasPortId
+=head2 getIfIndexByNasPortId
 
 Return the SNMP ifindex based on the Nas-Port-Id RADIUS attribute
 
 =cut
+
 sub getIfIndexByNasPortId{
     my ($this, $nas_port_id) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -101,7 +99,7 @@ sub getIfIndexByNasPortId{
     return $FALSE;
 }
 
-=item getPhonesLLDPAtIfIndex
+=head2 getPhonesLLDPAtIfIndex
 
 Return list of MACs found through LLDP on a given ifIndex.
 
@@ -169,11 +167,12 @@ sub getPhonesLLDPAtIfIndex {
 }
 
 
-=item deauthenticateMacRadius
+=head2 deauthenticateMacRadius
 
 Method to deauth a wired node with RADIUS Disconnect.
 
 =cut
+
 sub deauthenticateMacRadius {
     my ($this, $ifIndex,$mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -181,11 +180,12 @@ sub deauthenticateMacRadius {
     $this->radiusDisconnect($mac );
 }
 
-=item radiusDisconnect
+=head2 radiusDisconnect
 
 Send a Disconnect request to disconnect a mac
 
 =cut
+
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -244,7 +244,7 @@ sub radiusDisconnect {
     return;
 }
 
-=item wiredeauthTechniques
+=head2 wiredeauthTechniques
 
 Return the reference to the deauth technique or the default deauth technique.
 
