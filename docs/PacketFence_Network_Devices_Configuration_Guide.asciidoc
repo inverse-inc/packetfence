@@ -585,6 +585,11 @@ handle VoIP with this switch, go with a 802.1X configuration.
 802.1X
 ++++++
 
+[WARNING]
+====
+Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
+
 Global config settings:
 
   dot1x system-auth-control 
@@ -829,9 +834,19 @@ CoA configuration
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
   port 3799
+  
+Activate the snmp v1 on the switch:
+
+  snmp-server community public RO
+
 
 802.1X with MAC Authentication bypass (Multi­Host)
 ++++++++++++++++++++++++++++++++++++++++++++++++++
+
+[WARNING]
+====
+Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
 
 Global config settings:
 
@@ -872,8 +887,17 @@ CoA configuration
    client 192.168.1.5 server-key useStrongerSecret
   port 3799
 
+Activate the snmp v1 on the switch:
+
+  snmp-server community public RO
+
 MAC Authentication bypass only 
 ++++++++++++++++++++++++++++++
+
+[WARNING]
+====
+Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
 
 Global config settings 
 
@@ -913,6 +937,10 @@ CoA configuration
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
   port 3799
+
+Activate the snmp v1 on the switch:
+
+  snmp-server community public RO
 
 [NOTE]
 .802.1X on various models of 2960
