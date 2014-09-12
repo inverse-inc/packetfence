@@ -784,6 +784,11 @@ can only support 802.1X with MAB using Multi-Host, MAB, and Port-Security.
 802.1X with MAC Authentication bypass (Multi­Domain) 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+[WARNING]
+====
+Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
+
 Global config settings:
 
   dot1x system-auth-control 
