@@ -24,7 +24,6 @@ has_field 'id' =>
 has_field 'description' =>
   (
    type => 'Text',
-   required => 1,
    messages => { required => 'Please specify the Description Provisioning entry.' },
   );
 
