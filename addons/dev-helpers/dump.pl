@@ -139,7 +139,7 @@ __PACKAGE__->mark_as_loaded();
 
 sub _run {
     require pf::CHI;
-    print Data::Dumper::Dumper(pf::CHI::chiConfigFromIniFile());
+    print Data::Dumper::Dumper(pf::CHI->config);
 }
 
 package pf::dump::admin_roles;
