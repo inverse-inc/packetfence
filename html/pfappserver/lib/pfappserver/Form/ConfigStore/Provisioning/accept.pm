@@ -10,12 +10,6 @@ pfappserver::Form::ConfigStore::Provisioning::accept - Web form for accept provi
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::ConfigStore::Provisioning';
-with 'pfappserver::Base::Form::Role::Help';
-
-has_block definition =>
-  (
-   render_list => [ qw(id type description) ],
-  );
 
 =head1 COPYRIGHT
 
