@@ -9,31 +9,7 @@ pfappserver::Form::ConfigStore::Provisioning - Web form for a switch
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::ConfigStore::Provisioning';
-with 'pfappserver::Base::Form::Role::Help';
-
-has_field 'hidden_ssid' =>
-  (
-   type => 'Text',
-   label => 'Hidden SSID',
-  );
-
-has_field 'category' =>
-  (
-   type => 'Text',
-   default => 'any',
-  );
-
-has_field 'ca_cert_path' =>
-  (
-   type  => 'Text',
-   label => 'Certificate',
-  );
-
-has_block definition =>
-  (
-   render_list => [ qw(id type description hidden_ssid category ca_cert_path) ],
-  );
+extends 'pfappserver::Form::ConfigStore::Provisioning::mobileconfig';
 
 =head1 COPYRIGHT
 
