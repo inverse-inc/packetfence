@@ -26,7 +26,7 @@ has_field 'ca_cert_path' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description hidden_ssid category ca_cert_path) ],
+   render_list => [ qw(id type description category hidden_ssid ca_cert_path) ],
   );
 
 =head1 COPYRIGHT

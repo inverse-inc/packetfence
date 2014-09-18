@@ -51,7 +51,7 @@ has_field 'access_token' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description client_id client_secret host port protocol access_token) ],
+   render_list => [ qw(id type description category client_id client_secret host port protocol access_token) ],
   );
 
 =head1 COPYRIGHT
