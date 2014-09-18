@@ -18,12 +18,6 @@ has_field 'hidden_ssid' =>
    label => 'Hidden SSID',
   );
 
-has_field 'category' =>
-  (
-   type => 'Text',
-   default => 'any',
-  );
-
 has_field 'ca_cert_path' =>
   (
    type  => 'Text',
