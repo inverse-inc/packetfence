@@ -23,6 +23,7 @@ has_field 'password' =>
    type => 'Text',
    label => 'Client Secret',
    required => 1,
+   password => 0,
   );
 
 has_field 'host' =>
