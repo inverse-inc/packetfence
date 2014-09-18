@@ -10,7 +10,9 @@ pfappserver::Form::ConfigStore::Provisioning - Web form for a switch
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-#with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help';
+
+has roles => ( is => 'rw' );
 
 ## Definition
 has_field 'id' =>
@@ -35,13 +37,44 @@ has_field 'type' =>
    messages => { required => 'Please select Provisioning type' },
   );
 
-has_field 'oses' =>
+has_field 'category' =>
   (
-   type => 'Hidden',
-   label => 'Provisioning type',
-   required => 1,
-   messages => { required => 'Please select Provisioning type' },
+   type => 'Select',
+   multiple => 1,
+   label => 'Set role',
+   options_method => \&options_roles,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Select a role'},
+   tags => { after_element => \&help,
+             help => 'Roles ' },
   );
+
+has_block definition =>
+  (
+   render_list => [ qw(id type description category) ],
+  );
+
+=head2 options_roles
+
+=cut
+
+sub options_roles {
+    my $self = shift;
+    my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
+    return @roles;
+}
+
+=head2 ACCEPT_CONTEXT
+
+To automatically add the context to the Form
+
+=cut
+
+sub ACCEPT_CONTEXT {
+    my ($self, $c, @args) = @_;
+    my ($status, $roles) = $c->model('Roles')->list();
+    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
+}
 
 =head1 COPYRIGHT
 
