@@ -1,10 +1,15 @@
 [android]
-type=autoconfig
-oses=Andriod
-template=release_with_android.html
+type=android
+description=android provisioner
 
 [ios]
-type=autoconfig
-oses=Apple iPod, iPhone or iPad
-template=release_with_xmlconfig.html
+type=mobileconfig
+description=mobileconfig provisioner
 
+[accept]
+type=accept
+description=accept provisioner
+
+[deny]
+type=deny
+description=deny provisioner
