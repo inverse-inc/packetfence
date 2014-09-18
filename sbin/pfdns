@@ -90,6 +90,8 @@ my @routed_isolation_nets_named;
 my @routed_registration_nets_named;
 
 my $CHI_CACHE = pf::CHI->new( namespace => 'pfdns' );
+our $IPSET_SESSION = 'pfsession_passthrough';
+our %IPSET_CACHE;
 
 Readonly::Scalar our $TTL                => '15';
 Readonly::Scalar our $HTTPS_PORT         => '443';
@@ -118,6 +120,7 @@ foreach my $network ( keys %ConfigNetworks ) {
     }
 }
 
+populate_ipset_cache($IPSET_SESSION);
 
 my $ns = new Net::DNS::Nameserver(
     LocalAddr       => [@ip_addr],
@@ -173,8 +176,8 @@ sub regzone {
                 foreach my $rr ($query->answer) {
                     next unless $rr->type eq "A";
                     my $ip = $rr->address;
-                    add_ip_port_to_ipset("pfsession_passthrough",$ip,$HTTP_PORT);
-                    add_ip_port_to_ipset("pfsession_passthrough",$ip,$HTTPS_PORT);
+                    add_ip_port_to_ipset($IPSET_SESSION,$ip,$HTTP_PORT);
+                    add_ip_port_to_ipset($IPSET_SESSION,$ip,$HTTPS_PORT);
                     ($ttl, $rdata) = ($TTL, $rr->address);
                 }
                 if($ttl && $rdata){
@@ -219,17 +222,11 @@ add ipset rule to the cache if it is not already there
 
 sub add_ip_port_to_ipset {
     my ($setname,$ip,$port) = @_;
-    my $cmd = "LANG=C sudo ipset --add $setname $ip,$port 2>&1";
-    my $_EXIT_CODE_EXISTS = "1";
-    my $lines = $CHI_CACHE->compute(
-        "ipset:${setname}:${ip}:${port}",
-        { expire_in => 600 },
-        sub {
-            my @lines =
-              pf_run($cmd,, accepted_exit_status => [$_EXIT_CODE_EXISTS]);
-            return \@lines;
-        }
-    );
+    unless (is_in_ipset_cache($setname,$ip,$port)) {
+        my $cmd = "LANG=C sudo ipset --add $setname $ip,$port 2>&1";
+        my $_EXIT_CODE_EXISTS = "1";
+        my @lines = pf_run($cmd, accepted_exit_status => [$_EXIT_CODE_EXISTS]);
+    }
 }
 
 
@@ -257,6 +254,33 @@ sub normal_sighandler {
     $logger->debug( "pfdns: caught SIG" . $_[0] . " - terminating" );
 }
 
+sub populate_ipset_cache {
+    my ($session) = @_;
+    my $in_header = 1;
+    my @lines =
+      pf_run("/usr/sbin/ipset list $session 2>/dev/null",
+        accepted_exit_status => [1]);
+
+    while (my $line = shift @lines) {
+        last if $line =~ /Members:/;
+    }
+
+    while (my $line = shift @lines) {
+        if ($line =~ /(\d+(?:\.\d+){3}),tcp:(\d+)/) {
+            add_to_ipset_cache($session,$1,$2);
+        }
+    }
+}
+
+sub add_to_ipset_cache {
+    my ($session,$ip,$port) = @_;
+    $IPSET_CACHE{join(':',$session,$ip,$port)} = undef;
+}
+
+sub is_in_ipset_cache {
+    my ($session,$ip,$port) = @_;
+    return exists $IPSET_CACHE{join(':',$session,$ip,$port)};
+}
 
 =back
 
