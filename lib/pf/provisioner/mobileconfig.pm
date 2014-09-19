@@ -18,6 +18,14 @@ extends 'pf::provisioner';
 
 =head1 Atrributes
 
+=head2 oses
+
+The set the default OS to IOS
+
+=cut
+
+has oses => (is => 'rw', default => sub { ['Apple iPod, iPhone or iPad'] });
+
 =head2 ssid
 
 The ssid
@@ -35,7 +43,7 @@ The ca cert_path
 has ca_cert_path => (is => 'rw');
 
 # make it skip deauth by default 
-has skipDeAuth => (is => 'rw', default => sub{1});
+has skipDeAuth => (is => 'rw', default => sub{ 1 });
 
 has for_username => (is => 'rw');
 
@@ -50,7 +58,7 @@ always authorize
 sub authorize { 
     my ($self, $mac) = @_;
     my $info = pf::node::node_view($mac);
-    $self->{for_username} = $info->{pid};
+    $self->for_username($info->{pid});
     return 1;
 }
 
