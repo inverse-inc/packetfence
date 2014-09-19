@@ -14,48 +14,17 @@ pf::provisioner::android
 use strict;
 use warnings;
 use Moo;
-extends 'pf::provisioner';
+extends 'pf::provisioner::mobileconfig';
 
 =head1 Atrributes
 
-=head2 hidden_ssid
+=head2 oses
 
-The hidden ssid
-
-=cut
-
-has hidden_ssid => (is => 'rw');
-
-=head2 category
-
-The category
+The set the default OS Andriod
 
 =cut
 
-has category => (is => 'rw');
-
-=head2 ca_cert_path
-
-The ca cert_path
-
-=cut
-
-has ca_cert_path => (is => 'rw');
-
-has for_username => (is => 'rw');
-
-=head2 authorize
-
-always authorize
-
-=cut
-
-sub authorize { 
-    my ($self, $mac) = @_;
-    my $info = pf::node::node_view($mac);
-    $self->{for_username} = $info->{pid};
-    return 1;
-}
+has oses => (is => 'rw', default => sub { [qw(Android)] });
 
 =head1 AUTHOR
 
