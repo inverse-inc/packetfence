@@ -36,7 +36,7 @@ my $provisioner = new_ok(
     "pf::provisioner",
     [{
         type     => 'autoconfig',
-        category => $TEST_CATEGORY,
+        category => [$TEST_CATEGORY],
         template => 'dummy',
         oses     => [$TEST_OS],
     }]
@@ -48,11 +48,11 @@ ok(!$provisioner->match('Android',$TEST_NODE_ATTRIBUTE),"Don't Match os but Matc
 
 ok(!$provisioner->match('Android','not_matching'),"Don't Match os and category");
 
-$provisioner->category('not_matching');
+$provisioner->category(['not_matching']);
 
 ok(!$provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match os but not category");
 
-$provisioner->category('any');
+$provisioner->category([]);
 
 ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match os with the any category");
 

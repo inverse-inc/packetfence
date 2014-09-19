@@ -50,7 +50,7 @@ The category of the provisioner
 
 =cut
 
-has category => (is => 'rw', default => sub { "any" });
+has category => (is => 'rw', default => sub { [] });
 
 =head2 skipDeAuth
 
@@ -74,7 +74,7 @@ The oses to match against
 
 =cut
 
-has oses => (is => 'rw');
+has oses => (is => 'rw', default => sub { [] } );
 
 =head2 enforce
 
@@ -106,12 +106,11 @@ sub _build_template {
 
 sub matchCategory {
     my ($self, $node_attributes) = @_;
-    my $category = $self->category;
+    my $category = $self->category || [];
     my $node_cat = $node_attributes->{'category'};
 
     # validating that the node is under the proper category for provisioner
-    return 1 if ( $category eq 'any' || (defined($node_cat) && $node_cat eq $category));
-    return 0;
+    return @$category == 0 || any { $_ eq $node_cat } @$category;
 }
 
 =head2 matchOS
@@ -122,9 +121,8 @@ sub matchOS {
     my ($self, $os) = @_;
     my @oses = @{$self->oses || []};
     #if if no oses are defined then it will match all the oses
-    return 1 unless @oses;
-    local $/;
-    return 0 unless any { $os =~ $_ } @oses;
+    local $_;
+    return @oses == 0 || any { $os =~ $_ } @oses;
 }
 
 =head2 match
