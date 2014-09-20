@@ -262,7 +262,7 @@ sub ip2mac {
     my $logger = Log::Log4perl::get_logger('pf::iplog');
     my $mac;
     return (0) if ( !valid_ip($ip) );
-    if ($management_network->{'Tip'} eq $ip) {
+    if (ref($management_network) && $management_network->{'Tip'} eq $ip) {
         return ( clean_mac("00:11:22:33:44:55") );
     }
     if ($date) {
