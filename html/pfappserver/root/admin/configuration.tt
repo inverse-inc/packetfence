@@ -126,7 +126,7 @@ table.sources {
               [% list_entry('Authentication', 'index', 'Sources') %]
               [%- END %]
               [%- IF can_access("PROVISIONING_READ") %]
-              [% list_entry('ConfigStore::Provisioning', 'index', 'Provisioners') %]
+              [% list_entry('Config::Provisioning', 'index', 'Provisioners') %]
               [%- END %]
               [%- END %]
               [%- IF can_access_any("VIOLATIONS_READ","SOH_READ") %]

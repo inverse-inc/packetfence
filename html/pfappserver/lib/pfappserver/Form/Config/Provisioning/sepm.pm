@@ -1,32 +1,57 @@
-package pfappserver::Form::ConfigStore::Provisioning::mobileconfig;
+package pfappserver::Form::Config::Provisioning::sepm;
 
 =head1 NAME
 
-pfappserver::Form::ConfigStore::Provisioning - Web form for a switch
+pfappserver::Form::Config::Provisioning - Web form for a switch
 
 =head1 DESCRIPTION
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::ConfigStore::Provisioning';
+extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field 'hidden_ssid' =>
+has_field 'client_id' =>
   (
    type => 'Text',
-   label => 'Hidden SSID',
+   label => 'Client Id',
+   required => 1,
   );
 
-has_field 'ca_cert_path' =>
+has_field 'client_secret' =>
   (
-   type  => 'Text',
-   label => 'Certificate',
+   type => 'Text',
+   label => 'Client Secret',
+   required => 1,
+  );
+
+has_field 'host' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+
+has_field 'port' =>
+  (
+   type => 'PosInteger',
+   required => 1,
+  );
+
+has_field 'protocol' =>
+  (
+   type => 'Select',
+   options => [{ label => 'http', value => 'http' }, { label => 'https' , value => 'http' }],
+  );
+
+has_field 'access_token' =>
+  (
+   type => 'Text',
   );
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category hidden_ssid ca_cert_path) ],
+   render_list => [ qw(id type description category client_id client_secret host port protocol access_token) ],
   );
 
 =head1 COPYRIGHT

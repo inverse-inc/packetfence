@@ -1,57 +1,56 @@
-package pfappserver::Form::ConfigStore::Provisioning::sepm;
+package pfappserver::Form::Config::Provisioning::mobileiron;
 
 =head1 NAME
 
-pfappserver::Form::ConfigStore::Provisioning - Web form for a switch
+pfappserver::Form::Config::Provisioning::mobileiron - Web form for mobileiron provisioner
 
 =head1 DESCRIPTION
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::ConfigStore::Provisioning';
+extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field 'client_id' =>
-  (
-   type => 'Text',
-   label => 'Client Id',
-   required => 1,
-  );
+has_field username => (
+    type => 'Text',
+    required => 1,
+);
 
-has_field 'client_secret' =>
-  (
-   type => 'Text',
-   label => 'Client Secret',
-   required => 1,
-  );
+has_field password => (
+    type => 'Password',
+    required => 1,
+    password => 0,
+);
 
-has_field 'host' =>
-  (
-   type => 'Text',
-   required => 1,
-  );
+has_field host => (
+    type => 'Text',
+    required => 1,
+);
 
-has_field 'port' =>
-  (
-   type => 'PosInteger',
-   required => 1,
-  );
+has_field android_download_uri => (
+    type => 'Text',
+);
 
-has_field 'protocol' =>
-  (
-   type => 'Select',
-   options => [{ label => 'http', value => 'http' }, { label => 'https' , value => 'http' }],
-  );
+has_field ios_download_uri => (
+    type => 'Text',
+);
 
-has_field 'access_token' =>
-  (
-   type => 'Text',
-  );
+has_field windows_phone_download_uri => (
+    type => 'Text',
+);
+
+has_field boarding_host => (
+    type => 'Text',
+);
+
+has_field boarding_port => (
+    type => 'Text',
+);
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category client_id client_secret host port protocol access_token) ],
+   render_list => [ qw(id type description username category password host android_download_uri ios_download_uri windows_phone_download_uri boarding_host boarding_port) ],
   );
 
 =head1 COPYRIGHT

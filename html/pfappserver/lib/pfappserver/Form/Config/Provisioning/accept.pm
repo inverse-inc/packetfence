@@ -1,15 +1,15 @@
-package pfappserver::Form::ConfigStore::Provisioning::accept;
+package pfappserver::Form::Config::Provisioning::accept;
 
 =head1 NAME
 
-pfappserver::Form::ConfigStore::Provisioning::accept - Web form for accept provisioner
+pfappserver::Form::Config::Provisioning::accept - Web form for accept provisioner
 
 =head1 DESCRIPTION
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::ConfigStore::Provisioning';
+extends 'pfappserver::Form::Config::Provisioning';
 
 =head1 COPYRIGHT
 

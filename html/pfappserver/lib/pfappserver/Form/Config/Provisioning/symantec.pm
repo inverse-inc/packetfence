@@ -1,15 +1,15 @@
-package pfappserver::Form::ConfigStore::Provisioning::ibm;
+package pfappserver::Form::Config::Provisioning::symantec;
 
 =head1 NAME
 
-pfappserver::Form::ConfigStore::Provisioning - Web form for a switch
+pfappserver::Form::Config::Provisioning - Web form for a switch
 
 =head1 DESCRIPTION
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::ConfigStore::Provisioning';
+extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'username' =>

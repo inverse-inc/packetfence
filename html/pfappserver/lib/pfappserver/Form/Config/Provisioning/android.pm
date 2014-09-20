@@ -1,45 +1,19 @@
-
-package pfappserver::Model::ConfigStore::Provisioning;
+package pfappserver::Form::Config::Provisioning::android;
 
 =head1 NAME
 
-pfappserver::Model::ConfigStore::Provisioning add documentation
-
-=cut
+pfappserver::Form::Config::Provisioning - Web form for a switch
 
 =head1 DESCRIPTION
 
-pfappserver::Model::ConfigStore::Provisioning
-
 =cut
 
-use HTTP::Status qw(:constants is_error is_success);
-use Moose;
-use namespace::autoclean;
-use pf::ConfigStore::Provisioning;
-
-extends 'pfappserver::Base::Model::Config';
-
-=head2 Methods
-
-=over
-
-=item _buildConfigStore
-
-buld the config store
-
-=cut
-
-sub _buildConfigStore { pf::ConfigStore::Provisioning->new }
-
-
-__PACKAGE__->meta->make_immutable;
-
-=back
+use HTML::FormHandler::Moose;
+extends 'pfappserver::Form::Config::Provisioning::mobileconfig';
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2014 Inverse inc.
 
 =head1 LICENSE
 
@@ -60,6 +34,5 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
-
-

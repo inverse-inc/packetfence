@@ -1,13 +1,13 @@
 
-package pfappserver::Controller::ConfigStore::Provisioning;
+package pfappserver::Controller::Config::Provisioning;
 
 =head1 NAME
 
-pfappserver::Controller::ConfigStore::Provisioning - Catalyst Controller
+pfappserver::Controller::Config::Provisioning - Catalyst Controller
 
 =head1 DESCRIPTION
 
-Controller for ConfigStore::Provisioning management
+Controller for Config::Provisioning management
 
 =cut
 
@@ -25,7 +25,7 @@ BEGIN {
 __PACKAGE__->config(
     action => {
         # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'configstore/provisioning', CaptureArgs => 1 },
+        object => { Chained => '/', PathPart => 'config/provisioning', CaptureArgs => 1 },
         # Configure access rights
         view   => { AdminRole => 'PROVISIONING_READ' },
         list   => { AdminRole => 'PROVISIONING_READ' },
@@ -36,7 +36,7 @@ __PACKAGE__->config(
     },
     action_args => {
         # Setting the global model and form for all actions
-        '*' => { model => "ConfigStore::Provisioning",form => "ConfigStore::Provisioning" },
+        '*' => { model => "Config::Provisioning",form => "Config::Provisioning" },
     },
 );
 

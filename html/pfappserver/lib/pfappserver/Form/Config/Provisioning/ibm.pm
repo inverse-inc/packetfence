@@ -1,56 +1,57 @@
-package pfappserver::Form::ConfigStore::Provisioning::mobileiron;
+package pfappserver::Form::Config::Provisioning::ibm;
 
 =head1 NAME
 
-pfappserver::Form::ConfigStore::Provisioning::mobileiron - Web form for mobileiron provisioner
+pfappserver::Form::Config::Provisioning - Web form for a switch
 
 =head1 DESCRIPTION
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::ConfigStore::Provisioning';
+extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field username => (
-    type => 'Text',
-    required => 1,
-);
+has_field 'username' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
 
-has_field password => (
-    type => 'Password',
-    required => 1,
-    password => 0,
-);
+has_field 'password' =>
+  (
+   type => 'Text',
+   label => 'Client Secret',
+   required => 1,
+   password => 0,
+  );
 
-has_field host => (
-    type => 'Text',
-    required => 1,
-);
+has_field 'host' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
 
-has_field android_download_uri => (
-    type => 'Text',
-);
+has_field 'port' =>
+  (
+   type => 'PosInteger',
+   required => 1,
+  );
 
-has_field ios_download_uri => (
-    type => 'Text',
-);
+has_field 'protocol' =>
+  (
+   type => 'Select',
+   options => [{ label => 'http', value => 'http' }, { label => 'https' , value => 'http' }],
+  );
 
-has_field windows_phone_download_uri => (
-    type => 'Text',
-);
-
-has_field boarding_host => (
-    type => 'Text',
-);
-
-has_field boarding_port => (
-    type => 'Text',
-);
+has_field 'api_uri' =>
+  (
+   type => 'Text',
+  );
 
 has_block definition =>
   (
-   render_list => [ qw(id type description username category password host android_download_uri ios_download_uri windows_phone_download_uri boarding_host boarding_port) ],
+   render_list => [ qw(id type description category username password host port protocol api_uri) ],
   );
 
 =head1 COPYRIGHT

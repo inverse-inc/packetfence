@@ -1,15 +1,15 @@
-package pfappserver::Form::ConfigStore::Provisioning::android;
+package pfappserver::Form::Config::Provisioning::deny;
 
 =head1 NAME
 
-pfappserver::Form::ConfigStore::Provisioning - Web form for a switch
+pfappserver::Form::Config::Provisioning::deny - Web form for deny provisioner
 
 =head1 DESCRIPTION
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::ConfigStore::Provisioning::mobileconfig';
+extends 'pfappserver::Form::Config::Provisioning';
 
 =head1 COPYRIGHT
 

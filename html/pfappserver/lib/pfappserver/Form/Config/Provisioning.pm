@@ -1,8 +1,8 @@
-package pfappserver::Form::ConfigStore::Provisioning;
+package pfappserver::Form::Config::Provisioning;
 
 =head1 NAME
 
-pfappserver::Form::ConfigStore::Provisioning - Web form for a switch
+pfappserver::Form::Config::Provisioning - Web form for a switch
 
 =head1 DESCRIPTION
 

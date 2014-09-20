@@ -1,19 +1,45 @@
-package pfappserver::Form::ConfigStore::Provisioning::deny;
+
+package pfappserver::Model::Config::Provisioning;
 
 =head1 NAME
 
-pfappserver::Form::ConfigStore::Provisioning::deny - Web form for deny provisioner
-
-=head1 DESCRIPTION
+pfappserver::Model::Config::Provisioning add documentation
 
 =cut
 
-use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::ConfigStore::Provisioning';
+=head1 DESCRIPTION
+
+pfappserver::Model::Config::Provisioning
+
+=cut
+
+use HTTP::Status qw(:constants is_error is_success);
+use Moose;
+use namespace::autoclean;
+use pf::ConfigStore::Provisioning;
+
+extends 'pfappserver::Base::Model::Config';
+
+=head2 Methods
+
+=over
+
+=item _buildConfigStore
+
+buld the config store
+
+=cut
+
+sub _buildConfigStore { pf::ConfigStore::Provisioning->new }
+
+
+__PACKAGE__->meta->make_immutable;
+
+=back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2014 Inverse inc.
+Copyright (C) 2013 Inverse inc.
 
 =head1 LICENSE
 
@@ -34,5 +60,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
 1;
+
+
