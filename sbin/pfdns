@@ -222,12 +222,14 @@ sub add_answers_to_ipset {
     foreach my $rr ($query->answer) {
         next unless $rr->type eq "A";
         my $ip = $rr->address;
-        push @ops, "add $setname $ip,$HTTP_PORT\n","add $setname $ip,$HTTPS_PORT";
+        foreach my $port ($HTTP_PORT,$HTTPS_PORT) {
+            push @ops, "add $setname $ip,$port" unless is_in_ipset_cache($setname,$ip,$port);
+        }
     }
     if(@ops) {
         my $ipset;
         open($ipset,"| LANG=C sudo ipset restore 2>&1");
-        print $ipset join("\n", @ops);
+        print $ipset join("\n", @ops, "");
         close($ipset);
     }
 }
