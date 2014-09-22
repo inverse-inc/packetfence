@@ -173,12 +173,11 @@ sub regzone {
             my $res   = Net::DNS::Resolver->new;
             my $query = $CHI_CACHE->compute($qname, sub { $res->search($qname) });
             if ($query) {
+                add_answers_to_ipset($query,$IPSET_SESSION);
                 foreach my $rr ($query->answer) {
                     next unless $rr->type eq "A";
-                    my $ip = $rr->address;
-                    add_ip_port_to_ipset($IPSET_SESSION,$ip,$HTTP_PORT);
-                    add_ip_port_to_ipset($IPSET_SESSION,$ip,$HTTPS_PORT);
                     ($ttl, $rdata) = ($TTL, $rr->address);
+                    last;
                 }
                 if($ttl && $rdata){
                     my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
@@ -213,6 +212,25 @@ sub regzone {
     return ($rcode, \@ans, \@auth, \@add, { aa => 1 });
 }
 
+=head2 add_answers_to_ipset
+
+=cut
+
+sub add_answers_to_ipset {
+    my ($query,$setname) = @_;
+    my @ops;
+    foreach my $rr ($query->answer) {
+        next unless $rr->type eq "A";
+        my $ip = $rr->address;
+        push @ops, "add $setname $ip,$HTTP_PORT\n","add $setname $ip,$HTTPS_PORT";
+    }
+    if(@ops) {
+        my $ipset;
+        open($ipset,"| LANG=C sudo ipset restore 2>&1");
+        print $ipset join("\n", @ops);
+        close($ipset);
+    }
+}
 
 =head2 add_ip_port_to_ipset
 
