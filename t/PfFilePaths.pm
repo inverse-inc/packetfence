@@ -24,6 +24,7 @@ BEGIN {
     my $test_dir = rel2abs(dirname($INC{'PfFilePaths.pm'})) if exists $INC{'PfFilePaths.pm'};
     $test_dir ||= catdir($install_dir,'t');
     $pf::file_paths::switches_config_file = catfile($test_dir,'data/switches.conf');
+    $pf::file_paths::admin_roles_config_file = catfile($test_dir,'data/admin_roles.conf');
     $pf::file_paths::chi_config_file = catfile($test_dir,'data/chi.conf');
     $pf::file_paths::profiles_config_file = catfile($test_dir,'data/profiles.conf');
     $pf::file_paths::authentication_config_file = catfile($test_dir,'data/authentication.conf');
