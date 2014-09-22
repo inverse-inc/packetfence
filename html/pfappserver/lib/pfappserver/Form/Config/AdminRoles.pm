@@ -15,6 +15,9 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::admin_roles;
+use pf::log;
+
+has roles => ( is => 'rw', default => sub { [] } );
 
 ## Definition
 has_field 'id' =>
@@ -48,12 +51,34 @@ has_field 'allowed_roles' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Allowed user roles',
-   default_method => \&options_roles,
+   label => 'Allowed roles',
+   options_method => \&options_roles,
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a role' },
    tags => { after_element => \&help,
-             help => 'List of roles available to the user if none are provided then user apply all roles' },
+             help => 'List of roles available to the admin user. If none are provided then all roles are available' },
+  );
+
+has_field 'allowed_access_levels' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Allowed access levels',
+   options_method => \&options_allowed_access_levels,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to add a admin roles' },
+   tags => { after_element => \&help,
+             help => 'List of access levels available to the admin user. If none are provided then all access levels are available' },
+  );
+
+has_field 'allowed_access_durations' =>
+  (
+   type => 'Text',
+   multiple => 1,
+   label => 'Allowed access durations',
+   element_attr => {'data-placeholder' => 'Click to add a admin roles' },
+   tags => { after_element => \&help,
+             help => 'A comma seperated list of access durations available to the admin user. If none are provided then the configured values are used'},
   );
 
 sub build_do_form_wrapper{ 0 }
@@ -77,14 +102,25 @@ sub options_actions {
     return \@options;
 };
 
+=head2 options_allowed_access_levels
+
+TODO: documention
+
+=cut
+
+sub options_allowed_access_levels {
+    my ($self) = @_;
+    return  [map { { label => $_, value => $_ } } keys %ADMIN_ROLES];
+}
+
 =head2 options_roles
 
 =cut
 
 sub options_roles {
     my $self = shift;
-    my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
-    return @roles;
+    my @roles = map { { label => $_->{name}, value => $_->{name} } } @{$self->form->roles} if ($self->form->roles);
+    return \@roles;
 }
 
 =head2 ACCEPT_CONTEXT
@@ -94,9 +130,9 @@ To automatically add the context to the Form
 =cut
 
 sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
+    my ($class, $c, @args) = @_;
     my ($status, $roles) = $c->model('Roles')->list();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
+    return $class->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
 }
 
 
