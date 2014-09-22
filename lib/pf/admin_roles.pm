@@ -154,7 +154,7 @@ sub admin_can {
     return 0 if any {$_ eq 'NONE'} @$roles;
     return any {
         my $role = $_;
-        exists $ADMIN_ROLES{$role} && all { exists $ADMIN_ROLES{$role}{$_} } @actions
+        exists $ADMIN_ROLES{$role} && all { exists $ADMIN_ROLES{$role}{ACTIONS}{$_} } @actions
     } @$roles;
 }
 
@@ -164,24 +164,22 @@ sub admin_can_do_any {
     return 0 if any {$_ eq 'NONE'} @$roles;
     return any {
         my $role = $_;
-        exists $ADMIN_ROLES{$role} && any { exists $ADMIN_ROLES{$role}{$_} } @actions
+        exists $ADMIN_ROLES{$role} && any { exists $ADMIN_ROLES{$role}{ACTIONS}{$_} } @actions
     } @$roles;
 }
 
 sub reloadConfig {
     my ($config,$name) = @_;
 
-    my %temp;
-    $config->toHash(\%temp);
-    $config->cleanupWhitespace(\%temp);
-    %ADMIN_ROLES = ();
-    while (my ($role,$data) = each %temp) {
+    $config->toHash(\%ADMIN_ROLES);
+    $config->cleanupWhitespace(\%ADMIN_ROLES);
+    foreach my $data (values %ADMIN_ROLES) {
         my $actions = $data->{actions} || '';
         my %action_data = map {$_ => undef} split /\s*,\s*/, $actions;
-        $ADMIN_ROLES{$role} = \%action_data;
+        $data->{ACTIONS} = \%action_data;
     }
-    $ADMIN_ROLES{NONE} = {};
-    $ADMIN_ROLES{ALL} = { map {$_ => undef} @ADMIN_ACTIONS };
+    $ADMIN_ROLES{NONE}{ACTIONS} = { };
+    $ADMIN_ROLES{ALL}{ACTIONS} = { map {$_ => undef} @ADMIN_ACTIONS };
     $config->cacheForData->set("ADMIN_ROLES", \%ADMIN_ROLES);
 }
 
