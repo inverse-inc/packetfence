@@ -1,4 +1,4 @@
-    <div class="modal fade hide" id="modalUser">
+    <div class="modal modal-large fade hide" id="modalUser">
 
       <form name="modalUser" action="[% c.uri_for(c.controller('User').action_for('update'), [user.pid]) %]" class="form-horizontal form-condensed" >
 

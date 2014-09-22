@@ -85,8 +85,8 @@ form .uneditable {
 #interfaces td span.label {
     margin-left: 5px;
 }
-/* enlarge modal of violation, user and user source rule */
-#modalViolation, #modalRule, #modalUser, #modalNode {
+/* large modal */
+.modal-large {
     margin-left: -390px;
     width: 780px;
 }
