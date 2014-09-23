@@ -22,6 +22,7 @@ Enhancements
 
 Bug Fixes
 +++++++++
+* Fix issue with userMiscellaneous and userCustomFields not showing if user does not have NODES_READ privilege
 
 
 Version 4.4.0 released on 2014-09-10
