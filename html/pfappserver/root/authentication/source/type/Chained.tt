@@ -1,0 +1,3 @@
+[% form.field('pre_authentication_source').render %]
+[% form.field('authentication_source').render %]
+[% form.field('use_rules_from_authentication_source').render %]
