@@ -173,7 +173,7 @@ sub regzone {
             my $res   = Net::DNS::Resolver->new;
             my $query = $CHI_CACHE->compute($qname, sub { $res->search($qname) });
             if ($query) {
-                add_answers_to_ipset($query,$IPSET_SESSION);
+                add_answers_to_ipset($query,$IPSET_SESSION,$HTTP_PORT,$HTTPS_PORT);
                 foreach my $rr ($query->answer) {
                     next unless $rr->type eq "A";
                     ($ttl, $rdata) = ($TTL, $rr->address);
@@ -217,12 +217,12 @@ sub regzone {
 =cut
 
 sub add_answers_to_ipset {
-    my ($query,$setname) = @_;
+    my ($query,$setname,@ports) = @_;
     my @ops;
     foreach my $rr ($query->answer) {
         next unless $rr->type eq "A";
         my $ip = $rr->address;
-        foreach my $port ($HTTP_PORT,$HTTPS_PORT) {
+        foreach my $port (@ports) {
             push @ops, "add $setname $ip,$port" unless is_in_ipset_cache($setname,$ip,$port);
         }
     }
