@@ -8,7 +8,7 @@ Catalyst 2960 with http redirect
 
 Developped and tested on IOS 15.0(2)SE5
 
-=head2 Supports
+=head1 SUPPORTS
 
 =head2 Deauthentication with RADIUS Disconnect (RFC3576)
 

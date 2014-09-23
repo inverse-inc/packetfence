@@ -6,7 +6,7 @@ pf::Switch::Cisco::Catalyst_2960 - Object oriented module to access and configur
 
 =head1 STATUS
 
-=head2 Supports
+=head1 SUPPORTS
 
 =head2 802.1X with or without VoIP
 

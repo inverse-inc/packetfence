@@ -9,7 +9,7 @@ Cisco Wireless Controllers (WLC) and Wireless Service Modules (WiSM) with http r
 Developed and tested on firmware version 7.6.100 (should work on 7.4.100).
 With CWA mode (not available for LWA)
 
-=head2 Supports
+=head1 SUPPORTS
 
 =head2 Deauthentication with RADIUS Disconnect (RFC3576)
 
