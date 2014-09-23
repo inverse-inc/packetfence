@@ -13,6 +13,9 @@ to be used along the other forms (Create::Singe, Create::Multiple, Create:;Impor
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form::Authentication::Action';
+use List::Util qw(first);
+use List::MoreUtils qw(none);
+use pf::admin_roles;
 has '+source_type' => ( default => 'SQL' );
 
 # Form fields
@@ -90,7 +93,28 @@ sub validate {
     if (scalar @actions == 0) {
         $self->field('actions')->add_error("You must at least set a role, mark the user as a sponsor, or set an access level.");
     }
+    $self->_check_allowed_options($Actions::SET_ACCESS_DURATION,'allowed_access_durations',"Access Duration provided is not an allowed access duration");
+    $self->_check_allowed_options($Actions::SET_ACCESS_LEVEL,'allowed_access_levels',"Access Level provided is not an allowed access level");
+    $self->_check_allowed_options($Actions::SET_ROLE,'allowed_roles',"Role provided is not an allowed role");
 }
+
+
+=head2 _check_allowed_options
+
+check to see the passed action value is a valid value for the user role
+
+=cut
+
+sub _check_allowed_options {
+    my ($self,$action,$option,$error_msg) = @_;
+    if ( my $action = first { $_->{type} eq $action } @{$self->value->{actions}} ) {
+        my @options = admin_allowed_options([$self->ctx->user->roles],$error_msg);
+        if(@options && none { $_ eq $action->{value} } @options ) {
+            $self->field('actions')->add_error($error_msg);
+        }
+    }
+}
+
 
 =head1 COPYRIGHT
 
