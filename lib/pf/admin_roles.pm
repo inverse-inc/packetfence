@@ -17,10 +17,10 @@ use warnings;
 
 use base qw(Exporter);
 use pf::file_paths;
-use List::MoreUtils qw(any all);
+use List::MoreUtils qw(any all uniq);
 use pf::config::cached;
 
-our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config);
+our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config admin_allowed_options);
 our %ADMIN_ROLES;
 our @ADMIN_ACTIONS = qw(
     ADMIN_ROLES_CREATE
@@ -201,6 +201,21 @@ our $cached_adminroles_config = pf::config::cached->new(
         }
     ],
 );
+
+=head2 admin_allowed_options
+
+Get the allowed options for the given roles
+
+=cut
+
+sub admin_allowed_options {
+    my ($roles,$option) = @_;
+    my @options;
+    if( all { $_ ne 'ALL' } @$roles ) {
+        @options = uniq map { split /\s*,\s*/, ($ADMIN_ROLES{$_}{$option} || '') } @$roles;
+    }
+    return @options;
+}
 
 =head1 AUTHOR
 
