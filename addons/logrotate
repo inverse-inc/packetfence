@@ -6,6 +6,7 @@
     rotate 52
     missingok
     compress
+    su pf
     create 640 pf pf
     copytruncate
 }
