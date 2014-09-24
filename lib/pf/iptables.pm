@@ -653,6 +653,18 @@ sub generate_provisioning_passthroughs {
         $cmd = "LANG=C sudo ipset --add pfsession_passthrough $config->{boarding_host},443 2>&1";
         @lines  = pf_run($cmd); 
     }
+
+    foreach my $config (pf::ConfigStore::Provisioning->new->search(type => 'mobileiron')) {
+        $logger->info("Adding passthrough for MobileIron");
+        # Allow http communication with the MobileIron server
+        my $cmd = "LANG=C sudo ipset --add pfsession_passthrough $config->{host},80 2>&1";
+        my @lines  = pf_run($cmd); 
+        # Allow https communication with the MobileIron server
+        $cmd = "LANG=C sudo ipset --add pfsession_passthrough $config->{host},443 2>&1";
+        @lines  = pf_run($cmd); 
+    }
+
+
 }
 
 =back
