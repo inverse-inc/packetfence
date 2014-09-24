@@ -166,6 +166,7 @@ sub login : Local : Args(0) {
     if ( $c->request->method eq 'POST' ) {
 
         # External authentication
+        $c->forward('preAuthentication');
         $c->forward('validateLogin');
         $c->forward('authenticationLogin');
         $c->forward('postAuthentication');
@@ -176,6 +177,53 @@ sub login : Local : Args(0) {
     # Return login
     $c->forward('showLogin');
 
+}
+
+=head2 preAuthentication
+
+TODO: documention
+
+=cut
+
+sub preAuthentication : Private {
+    my ( $self, $c ) = @_;
+    $self->forward('validatePreAuthentication');
+    $self->forward('preAuthenticationLogin');
+    $self->forward('postPreAuthentication');
+    return;
+}
+
+=head2 validatePreAuthentication
+
+TODO: documention
+
+=cut
+
+sub validatePreAuthentication : Private {
+    my ( $self, $c ) = @_;
+    return;
+}
+
+=head2 preAuthenticationLogin
+
+TODO: documention
+
+=cut
+
+sub preAuthenticationLogin : Private {
+    my ( $self, $c ) = @_;
+    return;
+}
+
+=head2 postPreAuthentication
+
+TODO: documention
+
+=cut
+
+sub postPreAuthentication : Private {
+    my ( $self, $c ) = @_;
+    return;
 }
 
 =head2 postAuthentication
