@@ -16,7 +16,6 @@ use warnings;
 use Moose;
 use pf::config qw($FALSE $TRUE $default_pid);
 use pf::Authentication::constants;
-use pf::authentication();
 use pf::util;
 
 extends 'pf::Authentication::Source';
@@ -70,13 +69,13 @@ sub available_actions {
 
 sub match {
     my ($self,@args) = @_;
-    my @sources = grep {local $_ = $_; $_ } map {local $_ = $_; pf::authentication::getAuthenticationSource($_) } split( /\s*,\s*/, $self->rules_from_sources);
-    my $actions;
-    foreach my $source (@sources) {
-        $actions = $source->match(@args);    
-        last if $actions;
+    if (isenabled($self->use_rules_from_authentication_source) ) {
+        my $source = pf::authentication::getAuthenticationSource($self->authentication_source);
+        return $source->match(@args) if $source;
+    } else {
+        return $self->SUPER::match(@args);
     }
-    return $actions;
+    return;
 }
 
 =head2 match_in_subclass
