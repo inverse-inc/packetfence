@@ -103,6 +103,11 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
          'username' => $pid,
          'user_email' => $email
         };
+      my $locationlog_entry = locationlog_view_open_mac($portalSession->getClientMac());
+      if ($locationlog_entry) {
+          $auth_params->{connection_type} = $locationlog_entry->{'connection_type'};
+          $auth_params->{SSID} = $locationlog_entry->{'ssid'};
+      }
       $info{'category'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ROLE);
 
       # form valid, adding person (using modify in case person already exists)
