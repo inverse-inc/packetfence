@@ -33,6 +33,7 @@ use pf::web::custom;
 
 use pf::authentication;
 use pf::Authentication::constants;
+use pf::locationlog;
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('guest-selfregistration.cgi');
