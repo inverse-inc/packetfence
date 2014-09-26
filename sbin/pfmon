@@ -206,17 +206,27 @@ sub runtask {
 sub _runtask {
     my ($id,$parameter,$task) = @_;
     while ($running) {
+        pf::config::cached::ReloadConfigs();
+        my $interval = $Config{'maintenance'}{$parameter};
+        unless ($interval) {
+            $logger->trace("$id is disabled");
+            alarm 60;
+            pause;
+            next;
+        }
         # run these functions every $maintenance_interval
+        $logger->trace("$id is sleeping for $interval");
+        alarm $interval;
+        pause;
+        last unless $running;
+        $logger->trace("$id is runinng");
         eval {
             #reload all cached configs before running the task
-            pf::config::cached::ReloadConfigs();
             $task->();
         };
         if ($@) {
             $logger->error("Error running task $id: $@");
         }
-        alarm $Config{'maintenance'}{$parameter};
-        pause;
     }
     exit;
 }
