@@ -1,14 +1,15 @@
 #!/usr/bin/perl
 
-=item NAME
+=head1 NAME
 
 coa-calls.pl
 
-=item DESCRIPTION
+=head1 DESCRIPTION
 
 Create several CoA / Disconnect requests in a multi-threaded fashion to validate that we don't have concurrency issues.
 
 =cut
+
 use strict;
 use warnings;
 

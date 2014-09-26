@@ -8,6 +8,7 @@ binaries.t
 Compile check on perl binaries
 
 =cut
+
 use strict;
 use warnings;
 

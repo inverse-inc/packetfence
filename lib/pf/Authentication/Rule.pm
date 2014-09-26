@@ -40,8 +40,6 @@ sub is_fallback {
   return 0;
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

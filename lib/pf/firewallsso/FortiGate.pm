@@ -26,7 +26,9 @@ use pf::util::radius qw(perform_rsso);
 use pf::node qw(node_view);
 use pf::accounting qw(node_accounting_current_sessionid);
 
-=item action
+=head1 METHODS
+
+=head2 action
 
 Perform a radius accounting request based on the registered status of the node and his role.
 
@@ -76,8 +78,6 @@ sub action {
         return 0;
     }
 }
-
-=back
 
 =head1 AUTHOR
 

@@ -14,6 +14,7 @@ One day L<pf::import> will support what we need and this script will be removed.
 ./import-node-csv.pl -mode=reg -file=/root/file.csv
 
 =cut
+
 require 5.8.5;
 use strict;
 use warnings;

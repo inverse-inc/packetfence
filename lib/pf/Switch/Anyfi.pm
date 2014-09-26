@@ -13,23 +13,15 @@ manage the Anyfi gateway
 
 Developed and tested on the Anyfi gateway running v1.4.6
 
-=over
-
 =head1 BUGS AND LIMITATIONS
 
-=over
-
-=item No 802.1X VLANs 
+=head2 No 802.1X VLANs 
 
 The controller doesn't support RADIUS assigned VLANs when using 802.1X
 
-=back
-
-=item Can't determine SSID
+=head2 Can't determine SSID
 
 The SSID is not part of the Called-Station-Id or any other attribute.
-
-=back
 
 =cut
 
@@ -45,8 +37,6 @@ sub description {"Anyfi gateway"}
 
 =head1 SUBROUTINES
 
-=over
-
 =cut
 
 # CAPABILITIES
@@ -56,7 +46,7 @@ sub supportsWirelessMacAuth { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
-=item parseTrap
+=head2 parseTrap
 
 This is called when we receive an SNMP-Trap for this device
 
@@ -73,7 +63,7 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item getVersion - obtain image version information from switch
+=head2 getVersion - obtain image version information from switch
 
 =cut
 
@@ -85,7 +75,7 @@ sub getVersion {
 }
 
 
-=item deauthenticateMacDefault
+=head2 deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1x).
 
@@ -105,8 +95,6 @@ sub deauthenticateMacDefault {
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
     return $self->radiusDisconnect($mac);
 }
-
-=back
 
 =head1 AUTHOR
 

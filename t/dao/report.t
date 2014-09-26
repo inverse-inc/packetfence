@@ -8,6 +8,7 @@ dao/report.t
 Testing data access layer for the pf::pfcmd::report module
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;

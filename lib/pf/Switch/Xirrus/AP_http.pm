@@ -15,15 +15,11 @@ Developed and tested on XR4430 running 6.4.1
 
 =head1 BUGS AND LIMITATIONS
 
-=over
-
-=item Cannot use the access point behind a NAT gateway
+=head2 Cannot use the access point behind a NAT gateway
 
 Since the access point is not sending the IP address of the device in the URL parameters,
 the access point and PacketFence cannot be separated by a NAT gateway.
 This module uses the remote IP in the HTTP request to determine the IP of the client.
-
-=back
 
 =cut
 
@@ -39,8 +35,6 @@ use pf::node;
 
 =head1 SUBROUTINES
 
-=over
-
 =cut
 
 # CAPABILITIES
@@ -49,7 +43,7 @@ sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
 
-=item parseUrl
+=head2 parseUrl
 
 This is called when we receive a http request from the device and return specific attributes:
 
@@ -78,7 +72,7 @@ sub parseSwitchIdFromRequest {
     return $$req->param('nasid'); 
 }
 
-=item returnRadiusAccessAccept
+=head2 returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept reponse for the network device.
 
@@ -146,7 +140,6 @@ sub getAcceptForm {
     $logger->debug("Generated the following html form : ".$html_form);
     return $html_form;
 }
-=back
 
 =head1 AUTHOR
 

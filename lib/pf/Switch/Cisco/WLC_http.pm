@@ -9,33 +9,15 @@ Cisco Wireless Controllers (WLC) and Wireless Service Modules (WiSM) with http r
 Developed and tested on firmware version 7.6.100 (should work on 7.4.100).
 With CWA mode (not available for LWA)
 
-=over
+=head1 SUPPORTS
 
-=item Supports
-
-=over
-
-=item Deauthentication with RADIUS Disconnect (RFC3576)
-
-=back
-
-=back
+=head2 Deauthentication with RADIUS Disconnect (RFC3576)
 
 =head1 BUGS AND LIMITATIONS
 
-=over
-
-=item Version specific issues
-
-=over
-
-=back
+=head2 Version specific issues
 
 =head1 SEE ALSO
-
-=over
-
-=back
 
 =cut
 
@@ -64,8 +46,6 @@ sub description { 'Cisco Wireless Controller (WLC HTTP)' }
 
 =head1 SUBROUTINES
 
-=over
-
 =cut
 
 # CAPABILITIES
@@ -82,7 +62,7 @@ sub supportsLldp { return $FALSE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
-=item deauthenticateMacDefault
+=head2 deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1x).
 
@@ -106,7 +86,7 @@ sub deauthenticateMacDefault {
 }
 
 
-=item deauthTechniques
+=head2 deauthTechniques
 
 Return the reference to the deauth technique or the default deauth technique.
 
@@ -126,7 +106,7 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item parseUrl
+=head2 parseUrl
 
 This is called when we receive a http request from the device and return specific attributes:
 
@@ -145,7 +125,7 @@ sub parseUrl {
     return ($$req->param('client_mac'),$$req->param('wlan'),$$req->param('client_ip'),$$req->param('redirect'),$$req->param('switch_url'),$$req->param('statusCode'));
 }
 
-=item returnRadiusAccessAccept
+=head2 returnRadiusAccessAccept
 
 Overloading L<pf::Switch>'s implementation because AeroHIVE doesn't support
 assigning VLANs and Roles at the same time.
@@ -199,7 +179,7 @@ sub returnRadiusAccessAccept {
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
-=item radiusDisconnect
+=head2 radiusDisconnect
 
 Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
 
@@ -325,7 +305,7 @@ sub radiusDisconnect {
 }
 
 
-=item parseRequest
+=head2 parseRequest
 
 Takes FreeRADIUS' RAD_REQUEST hash and process it to return
 NAS Port type (Ethernet, Wireless, etc.)
@@ -359,9 +339,6 @@ sub parseRequest {
     }
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id);
 }
-
-
-=back
 
 =head1 AUTHOR
 

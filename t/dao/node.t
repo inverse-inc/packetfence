@@ -8,6 +8,7 @@ dao/node.t
 Testing data access layer for the pf::node module
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;

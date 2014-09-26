@@ -6,7 +6,7 @@ pf::Switch::Extreme - Object oriented module to parse SNMP traps and manage Extr
 
 =head1 STATUS
 
-=head2 Supports 
+=head1 SUPPORTS 
 
 =over
 

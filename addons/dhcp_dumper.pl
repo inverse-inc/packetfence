@@ -28,6 +28,7 @@ dhcp_dumper.pl [options]
    -h      Help
 
 =cut
+
 use strict;
 use warnings;
 

@@ -29,8 +29,6 @@ sub available_attributes {
   return [@$super_attributes, @$ad_attributes];
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

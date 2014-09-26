@@ -9,6 +9,7 @@ all.t
 Test suite for all tests.
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;
