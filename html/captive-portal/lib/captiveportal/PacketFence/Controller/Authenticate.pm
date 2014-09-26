@@ -195,8 +195,27 @@ sub postAuthentication : Private {
     my $pid = $session->{"username"};
     $pid = $default_pid if !defined $pid && $c->profile->noUsernameNeeded;
     $info->{pid} = $pid;
-    my $params = { username => $pid };
+    $c->stash->{info} = $info;
+
+    $c->forward('setupMatchParams');
+    $c->forward('setRole');
+    $c->forward('setUnRegDate');
+    $info->{source} = $source_id;
+    $info->{portal} = $profile->getName;
+}
+
+=head2 setupMatchParams
+
+setup the parameters to match against the rules in the sources to apply actions
+
+=cut
+
+sub setupMatchParams : Private {
+    my ( $self, $c ) = @_;
+    my $portalSession = $c->portalSession;
+    my $pid = $c->stash->{info}->{pid};
     my $mac = $portalSession->clientMac;
+    my $params = { username => $pid };
 
     # TODO : add current_time and computer_name
     my $locationlog_entry = locationlog_view_open_mac($mac);
@@ -204,13 +223,7 @@ sub postAuthentication : Private {
         $params->{connection_type} = $locationlog_entry->{'connection_type'};
         $params->{SSID}            = $locationlog_entry->{'ssid'};
     }
-
     $c->stash->{matchParams} = $params;
-    $c->stash->{info} = $info;
-    $c->forward('setRole');
-    $c->forward('setUnRegDate');
-    $info->{source} = $source_id;
-    $info->{portal} = $profile->getName;
 }
 
 sub setRole : Private {
