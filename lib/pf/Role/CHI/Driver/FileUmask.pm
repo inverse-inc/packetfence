@@ -17,11 +17,11 @@ use Moo::Role;
 
 has old_umask => (is => 'rw');
 
-has umask_on_store => (is => 'rw', default => sub {oct(0007)} );
+has umask_on_store => (is => 'rw', default => sub { 0007 } );
 
 before store => sub {
     my ($self) = @_;
-    $self->old_umask(umask oct($self->umask_on_store));
+    $self->old_umask(umask $self->umask_on_store);
 };
 
 after store => sub {
