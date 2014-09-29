@@ -205,7 +205,7 @@ sub getAllSecureMacAddresses {
             my @vlan_mac = split( /,/, $result->{"$OID_agentPortSecurityStaticMACs.$ifIndex"} );
             for my $vm_pair (@vlan_mac) {
                 my ( $vlan, $mac ) = split( ' ', $vm_pair );
-                push @{ $secureMacAddrHashRef->{$mac} }, $vlan;
+                push @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} }, $vlan;
             }
         }
         $ifIndex++;
