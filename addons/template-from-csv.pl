@@ -19,7 +19,7 @@ use Template;
 our %Options = ( delimiter => "\t");
 my $result = GetOptions (\%Options,"inputfile|i=s", "template|t=s", "delimiter|d=s", "define=s%" );
 die "--inputfile and/or --template does not exists" unless exists $Options{inputfile} && exists $Options{template} && -e $Options{inputfile} && -e $Options{template};
-my $csv = Text::CSV_XS->new({ sep_char => "\t"});
+my $csv = Text::CSV_XS->new({ sep_char => $Options{delimiter} });
 open(my $io,$Options{inputfile}) or die "cannot open $Options{inputfile}";
 my $cols = $csv->getline($io);
 $csv->column_names($cols);
