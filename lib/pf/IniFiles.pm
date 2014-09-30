@@ -216,7 +216,7 @@ sub GetCurrentModTimestamp {
 sub _getFileTimestamp {
     my $timestamp = (stat($_[0]))[9];
     if (defined $timestamp) {
-        $timestamp *= 1000_000_000;
+        $timestamp *= 1_000_000_000;
         $timestamp = int($timestamp)
     } else {
         $timestamp = -1;
