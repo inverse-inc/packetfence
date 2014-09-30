@@ -27,6 +27,7 @@ Bug Fixes
 +++++++++
 * Fix issue with userMiscellaneous and userCustomFields not showing if user does not have NODES_READ privilege
 * Fix MAC detection from IP on the Catalyst portal when using web authentication on the WLC controller.
+* Fix timestamp resolution not catching sub second changes in file in cache layer
 
 Version 4.4.0 released on 2014-09-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
