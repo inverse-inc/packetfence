@@ -587,7 +587,6 @@ sub enableMABByIfIndex {
 }
 
 =back
->>>>>>> Added support for classic floating devices triggered by RADIUS
 
 =head1 AUTHOR
 
