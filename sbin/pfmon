@@ -74,6 +74,7 @@ our $running = 1;
 
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
+our $PARENT_PID = $$;
 
 registertasks();
 runtasks();
@@ -228,6 +229,10 @@ sub _runtask {
         };
         if ($@) {
             $logger->error("Error running task $id: $@");
+        }
+        #Stop running if parent is no longer alive
+        if(kill (0,$PARENT_PID)) {
+            $running = 0;
         }
     }
     exit;
