@@ -22,6 +22,7 @@ use Net::Pcap 0.16;
 use File::Basename qw(basename);
 use POSIX qw(:signal_h pause :sys_wait_h);
 use Pod::Usage;
+use Fcntl qw(:flock);
 
 #pf::log must always be initilized first
 BEGIN {
@@ -31,6 +32,7 @@ BEGIN {
     use pf::log(service => 'pfmon');
 }
 
+use pf::file_paths;
 use pf::accounting qw(acct_maintenance);
 use pf::config;
 use pf::config::cached;
@@ -70,6 +72,14 @@ pod2usage( -verbose => 1 ) if ( $args{h} );
 my $daemonize = $args{d};
 my $verbose   = $args{v};
 my $restart   = $args{r};
+
+my $pidfile = "${var_dir}/run/pfmon.pid";
+
+our $HAS_LOCK = 0;
+open(my $fh,">>$pidfile");
+flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfmon is running\n";
+$HAS_LOCK = 1;
+
 our $running = 1;
 
 # standard signals and daemonize
@@ -82,7 +92,7 @@ waitforit();
 cleanup();
 
 END {
-    if ( !$args{h} ) {
+    if ( !$args{h} && $HAS_LOCK ) {
         unless($IS_CHILD) {
             deletepid();
             $logger->info("stopping pfmon");
