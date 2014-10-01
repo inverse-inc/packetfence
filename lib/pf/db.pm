@@ -38,7 +38,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping);
+    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query);
 
 }
 
@@ -324,6 +324,20 @@ sub db_query_execute {
         return;
     } else {
         return $db_statement;
+    }
+}
+
+=item * db_cancel_current_query
+
+Cancels the current query
+
+=cut
+
+sub db_cancel_current_query {
+    if($DBH) {
+        my $dbh_clone = $DBH->clone;
+        $dbh_clone->do("KILL QUERY ". $DBH->{"mysql_thread_id"} . ";");
+        $dbh_clone->disconnect();
     }
 }
 
