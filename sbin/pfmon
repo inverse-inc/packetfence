@@ -38,6 +38,7 @@ use pf::inline::accounting;
 use pf::iplog;
 use pf::locationlog;
 use pf::node;
+use pf::db;
 use pf::services;
 use pf::traplog;
 use pf::util;
@@ -184,6 +185,7 @@ sub normal_sighandler {
 }
 
 sub runtasks {
+    db_disconnect();
     while(@REGISTERED_TASKS) {
         my $task = shift @REGISTERED_TASKS;
         runtask($task);
