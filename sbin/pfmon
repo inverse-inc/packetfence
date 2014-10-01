@@ -231,7 +231,8 @@ sub _runtask {
             $logger->error("Error running task $id: $@");
         }
         #Stop running if parent is no longer alive
-        if(kill (0,$PARENT_PID)) {
+        if(kill (0,$PARENT_PID) == 0) {
+            $logger->error("Parent is no longer running shutting down");
             $running = 0;
         }
     }
