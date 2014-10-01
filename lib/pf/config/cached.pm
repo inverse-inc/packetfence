@@ -780,14 +780,32 @@ sub computeFromPath {
     return $result;
 }
 
+=head2 setControlFileTimestamp
+
+Stores the current timestamp of var/cache_control file
+
+=cut
+
 sub setControlFileTimestamp {
     my ($self) = @_;
     $self->{_control_file_timestamp} = getControlFileTimestamp();
 }
 
+=head2 getControlFileTimestamp
+
+Get the current timestamp of var/cache_control file
+
+=cut
+
 sub getControlFileTimestamp {
     return pf::IniFiles::_getFileTimestamp($cache_control_file);
 }
+
+=head2 controlFileExpired
+
+Checks to see if the var/cache_control file has been updated
+
+=cut
 
 sub controlFileExpired {
     my ($timestamp) = @_;
