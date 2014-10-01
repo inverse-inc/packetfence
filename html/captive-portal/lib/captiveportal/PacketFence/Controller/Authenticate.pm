@@ -378,7 +378,7 @@ sub authenticationLogin : Private {
     my $username = $request->param("username");
     my $password = $request->param("password");
 
-    if($profile->noPasswordNeeded) {
+    if(isenabled($profile->reuseDot1xCredentials)) {
         my $mac       = $portalSession->clientMac;
         my $node_info = node_view($mac);
         my $username = $node_info->{'last_dot1x_username'};
