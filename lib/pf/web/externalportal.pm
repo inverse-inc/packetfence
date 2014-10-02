@@ -18,6 +18,7 @@ use warnings;
 use Apache2::Const -compile => qw(:http);
 use Apache2::Request;
 use Apache2::RequestRec;
+use Apache2::Connection;
 use Log::Log4perl;
 
 use pf::config;
@@ -86,6 +87,7 @@ sub external_captive_portal {
             my $portalSession = pf::Portal::Session->new(%session_id);
             $portalSession->setClientMac($session_id{client_mac}) if (defined($session_id{client_mac}));
             $portalSession->setDestinationUrl($r->headers_in->{'Referer'}) if (defined($r->headers_in->{'Referer'}));
+            iplog_update($session_id{client_mac},$r->connection->remote_ip,100) if (defined ($r->connection->remote_ip) && defined ($session_id{client_mac}));
             return $portalSession->session->id();
         } else {
             return 0;
