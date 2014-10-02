@@ -17,6 +17,7 @@ Version x.y.x released on yyyy-mm-dd
 New Features
 ++++++++++++
 * pfmon can now run tasks on different intervals
+* Added a way to reevaluate the access of a node in the admin interface
 
 Enhancements
 ++++++++++++
