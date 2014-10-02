@@ -279,8 +279,8 @@ sub db_query_execute {
         }
 
         my $valid_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));
-        $logger->trace('SQL statement ('.$query. '): '.$db_statement->{Statement}) if ($valid_statement);
-        $logger->trace('SQL params ('.$query. '): '.join(', ', map { defined $_? $_ : '<null>' } @params)) if (@params);
+        $logger->trace( sub { "SQL statement ($query): " . $db_statement->{Statement} } ) if ($valid_statement);
+        $logger->trace( sub { "SQL params ($query): " . join(', ', map { defined $_ ? $_ : '<null>' } @params) } ) if (@params);
 
         if ($valid_statement && $db_statement->execute(@params)) {
 
@@ -290,18 +290,23 @@ sub db_query_execute {
         } else {
 
             # is it a DBI error?
-            if (defined($DBI::errstr) && defined($DBI::err)) {
-                if (int($DBI::err) == 1062) {
-                    # Duplicate entry -- don't retry
-                    $logger->info("database query failed with: $DBI::errstr (errno: $DBI::err)");
+            my $dbi_err = $dbh->err;
+            if (defined($dbi_err)) {
+                $dbi_err = int($dbi_err);
+                my $dbi_errstr = $dbh->errstr;
+                if ($dbi_err == 1062 || $dbi_err == 1317) {
+
+                    # Duplicate entry (1062) or query interrupted (1317)  -- don't retry
+                    $logger->info("database query failed with: $dbi_errstr (errno: $dbi_err)");
                     $done = 1;
                 }
                 else {
-                    $logger->warn("database query failed with: $DBI::errstr (errno: $DBI::err), will try again");
+                    $logger->warn("database query failed with: $dbi_errstr (errno: $dbi_err), will try again");
                 }
-            } else {
-                $logger->warn("database query failed because statement handler was undefined or invalid, "
-                    ."will try again");
+            }
+            else {
+                $logger->warn(
+                    "database query failed because statement handler was undefined or invalid, " . "will try again");
             }
 
             # this forces real reconnection by invalidating last_connect timer for this thread
