@@ -48,7 +48,7 @@ our (
     $switches_config_file, $violations_config_file, $authentication_config_file,
     $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file,
     @stored_config_files, @log_files,
-    $mdm_config_file,
+    $provisioning_config_file,
     $admin_roles_config_file,
     $wrix_config_file,
     $firewall_sso_config_file,
@@ -83,7 +83,7 @@ BEGIN {
         $switches_config_file $violations_config_file $authentication_config_file
         $chi_config_file $ui_config_file $floating_devices_file $log_config_file
         @stored_config_files @log_files
-        $mdm_config_file
+        $provisioning_config_file
         $admin_roles_config_file
         $wrix_config_file
         @stored_config_files
@@ -120,7 +120,7 @@ $pf_config_file  = catfile($conf_dir, "pf.conf"); # TODO: Adjust. See $config_fi
 $pf_default_file = catfile($conf_dir, "pf.conf.defaults"); # TODO: Adjust. See $default_config_file
 $chi_config_file = catfile($conf_dir, "chi.conf");
 $log_config_file = catfile($conf_dir, "log.conf");
-$mdm_config_file = catfile($conf_dir, 'mdm.conf');
+$provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");
@@ -161,7 +161,7 @@ $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
     $dhcp_fingerprints_file, $profiles_config_file,
     $oui_file, $floating_devices_file,
     $chi_config_file,$allowed_device_oui_file,$allowed_device_types_file,
-    $ui_config_file,$mdm_config_file,$oauth_ip_file,$log_config_file,
+    $ui_config_file,$provisioning_config_file,$oauth_ip_file,$log_config_file,
     $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file,
     $vlan_filters_config_file,$firewall_sso_config_file,
 );

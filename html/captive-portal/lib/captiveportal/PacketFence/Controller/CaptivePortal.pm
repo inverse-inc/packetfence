@@ -18,6 +18,8 @@ use Cache::FileCache;
 use pf::activation;
 use pf::os;
 use List::MoreUtils qw(any);
+use List::Util qw(first);
+use pf::factory::provisioner;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -53,7 +55,6 @@ sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     $c->forward('validateMac');
     $c->forward('nodeRecordUserAgent');
-    $c->forward('checkForProvisioningSupport');
     $c->forward('checkForViolation');
     $c->forward('checkIfNeedsToRegister');
     $c->forward('checkIfPending');
@@ -113,68 +114,6 @@ sub nodeRecordUserAgent : Private {
     # updates the node_useragent information and fires relevant violations triggers
     return pf::useragent::process_useragent( $mac, $user_agent );
 }
-
-=head2 checkForProvisioningSupport
-
-checks if provisioning is supported support
-
-=cut
-
-sub checkForProvisioningSupport : Private {
-    my ( $self, $c ) = @_;
-    if (isenabled($Config{'provisioning'}{'autoconfig'})) {
-        return ( $c->forward('supportsMobileConfigProvisioning') ||
-                 $c->forward('supportsAndroidConfigProvisioning') );
-    }
-    return 0;
-}
-
-=head2 supportsMobileConfigProvisioning
-
-TODO: documention
-
-=cut
-
-sub supportsMobileConfigProvisioning : Private {
-    my ( $self, $c ) = @_;
-    if($self->matchAnyOses($c,'Apple iPod, iPhone or iPad')) {
-        $c->user_cache->set("mac:" . $c->portalSession->clientMac . ":do_not_deauth" ,1);
-        return 1;
-    }
-    return 0;
-}
-
-=head2 supportsAndroidConfigProvisioning
-
-TODO: documention
-
-=cut
-
-sub supportsAndroidConfigProvisioning : Private {
-    my ( $self, $c ) = @_;
-    if($self->matchAnyOses($c,'Android')) {
-        $c->user_cache->set("mac:" . $c->portalSession->clientMac . ":do_not_deauth" ,1);
-        return 1;
-    }
-    return 0;
-}
-
-sub matchAnyOses {
-    my ($self, $c, @toMatch) = @_;
-    my $node_attributes = node_attributes( $c->portalSession->clientMac );
-    my @fingerprint =
-      dhcp_fingerprint_view( $node_attributes->{'dhcp_fingerprint'} );
-    my $os = $fingerprint[0]->{'os'};
-    return $FALSE unless defined $os;
-    return $FALSE unless any { $os =~ $_ } @toMatch;
-    my $config_category = $Config{'provisioning'}{'category'};
-    my $node_cat = $node_attributes->{'category'};
-
-    # validating that the node is under the proper category for mobile config provioning
-    return $TRUE if ( $config_category eq 'any' || (defined($node_cat) && $node_cat eq $config_category));
-    return $FALSE;
-}
-
 
 =head2 checkForViolation
 
@@ -306,7 +245,21 @@ sub checkIfPending : Private {
     my $mac           = $portalSession->clientMac;
     my $node_info     = node_view($mac);
     my $request       = $c->request;
+    my $logger        = $c->log;
     if ( $node_info && $node_info->{'status'} eq $pf::node::STATUS_PENDING ) {
+        if (defined(my $provisioner = $profile->findProvisioner($mac))) {
+            unless ($provisioner->authorize($mac)) {
+                $c->stash(
+                    template => $provisioner->template,
+                    provisioner => $provisioner,
+                );
+                $c->detach();
+            } elsif (!pf::activation::activation_has_entry($mac,'sms') ) {
+                node_modify($mac,status => $pf::node::STATUS_REGISTERED);
+                reevaluate_access( $mac, 'manage_register' ) unless $provisioner->skipDeAuth;
+                $c->detach( Release => 'index' );
+            }
+        }
         if ( pf::activation::activation_has_entry($mac,'sms') ) {
             node_deregister($mac);
             $c->stash(
@@ -408,6 +361,7 @@ sub endPortalSession : Private {
     my ( $self, $c ) = @_;
     my $logger        = get_logger;
     my $portalSession = $c->portalSession;
+    my $profile       = $c->profile;
 
     # First blast at handling portalSession object
     my $mac             = $portalSession->clientMac();
@@ -421,8 +375,13 @@ sub endPortalSession : Private {
         $logger->info("[$mac] more violations yet to come");
     }
 
-    # handle mobile provisioning if relevant
-    $c->forward('provisioning') if ( $c->forward('checkForProvisioningSupport') );
+    # show provisioner template if we're authorizing and skiping deauth
+    my $provisioner = $profile->findProvisioner($mac);
+    if(defined($provisioner) && $provisioner->authorize($mac) && $provisioner->skipDeAuth) {
+        # handle autoconfig provisioning
+        $c->stash( template => $provisioner->template );
+        $c->detach();
+    }
 
     # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
     if ( $c->request->secure ) {
@@ -434,29 +393,6 @@ sub endPortalSession : Private {
     }
 
     $c->forward( 'Release' => 'index' );
-}
-
-=head2 provisioning
-
-=cut
-
-sub provisioning : Private {
-    my ( $self, $c ) = @_;
-    if($c->forward('supportsMobileConfigProvisioning') ) {
-        $c->detach('release_with_xmlconfig');
-    } elsif( $c->forward('supportsAndroidConfigProvisioning') ) {
-        $c->detach('release_with_android');
-    }
-}
-
-sub release_with_xmlconfig : Private {
-    my ( $self, $c ) = @_;
-    $c->stash( template => 'release_with_xmlconfig.html');
-}
-
-sub release_with_android : Private {
-    my ( $self, $c ) = @_;
-    $c->stash( template => 'release_with_android.html');
 }
 
 sub getSubTemplate {
@@ -500,7 +436,8 @@ sub webNodeRegister : Private {
     }
     node_register( $mac, $pid, %info );
 
-    unless ( $c->user_cache->get("mac:$mac:do_not_deauth") ) {
+    my $provisioner = $c->profile->findProvisioner($mac);
+    unless ( (defined($provisioner) && $provisioner->skipDeAuth) || $c->user_cache->get("mac:$mac:do_not_deauth") ) {
         my $node = node_view($mac);
         my $switch;
         if( pf::SwitchFactory->hasId($node->{last_switch}) ){

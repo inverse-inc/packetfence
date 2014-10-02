@@ -1,48 +1,63 @@
-package pf::mdm;
+package pf::ConfigStore::Provisioning;
 =head1 NAME
 
-pf::mdm add documentation
+pf::ConfigStore::Provisioning add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::mdm
+pf::ConfigStore::Provisioning
 
 =cut
 
 use strict;
 use warnings;
-use Module::Load;
-use Module::Loaded;
+use Moo;
+use pf::file_paths;
+use pf::util;
+extends 'pf::ConfigStore';
 
+sub configFile { $pf::file_paths::provisioning_config_file };
 
-sub loadSubModule {
-    my ($self, $submodule) = @_;
-    my $module = $self->_subModuleName($submodule);
-    eval {
-        load $module unless is_loaded($module);
-    };
-    if($@) {
-        if ($@ =~ /Compilation failed/) {
-            die "module $module cannot be loaded";
-        } else {
-            die "unknown module $module";
-        }
-    }
+=head2 cleanupAfterRead
+
+Clean up switch data
+
+=cut
+
+sub cleanupAfterRead {
+    my ($self, $id, $data) = @_;
+    $data->{oses} = listify ($data->{os}) if exists $data->{os};
 }
 
-sub newSubObject {
-    my ($self, $submodule, @args) = @_;
-    $self->loadSubModule($submodule);
-    my $module = $self->_subModuleName($submodule);
-    return $module->new(@args);
+=head2 cleanupBeforeCommit
+
+Clean data before update or creating
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $data) = @_;
+    $self->flatten_list($data, $self->_fields_expanded);
 }
 
-sub _subModuleName {
-    my ($self, $submodule) = @_;
-    my $base = ref($self) || $self;
-    return "${base}::${submodule}";
+=head2 _fields_expanded
+
+=cut
+
+sub _fields_expanded {
+    return qw();
+}
+
+sub split_list {
+    my ($self,$list) = @_;
+    return split(/\s*\n\s*/,$list);
+}
+
+sub join_list {
+    my ($self,@list) = @_;
+    return join('\n',@list);
 }
 
 =head1 AUTHOR

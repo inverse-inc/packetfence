@@ -12,10 +12,10 @@
             <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a>
             <td>[% item.description %]</td>
             <td>
-              [%- IF can_access("MDM_CREATE") %]
+              [%- IF can_access("PROVISIONING_CREATE") %]
               <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id ]) %]">[% l('Clone') %]</a>
               [%- END %]
-              [%- IF can_access("MDM_DELETE") %]
+              [%- IF can_access("PROVISIONING_DELETE") %]
               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
               [%- END %]
             </td>

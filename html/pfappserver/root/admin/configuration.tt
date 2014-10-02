@@ -125,6 +125,9 @@ table.sources {
               [%- IF can_access("USERS_SOURCES_READ") %]
               [% list_entry('Authentication', 'index', 'Sources') %]
               [%- END %]
+              [%- IF can_access("PROVISIONING_READ") %]
+              [% list_entry('Config::Provisioning', 'index', 'Provisioners') %]
+              [%- END %]
               [%- END %]
               [%- IF can_access_any("VIOLATIONS_READ","SOH_READ") %]
               <li class="nav-header">[% l('Compliance') %]</li>

@@ -1,49 +1,45 @@
-
-package pfappserver::Model::ConfigStore::Mdm;
-
+package pf::provisioner::deny;
 =head1 NAME
 
-pfappserver::Model::ConfigStore::Mdm add documentation
+pf::provisioner::deny add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::ConfigStore::Mdm
+pf::provisioner::deny
 
 =cut
 
-use HTTP::Status qw(:constants is_error is_success);
-use Moose;
-use namespace::autoclean;
-use pf::ConfigStore::Mdm;
+use strict;
+use warnings;
+use List::MoreUtils qw(any);
+use Moo;
+extends 'pf::provisioner';
 
-extends 'pfappserver::Base::Model::Config';
 
-=head2 Methods
+=head1 METHODS
 
-=over
+=head2 authorize
 
-=item _buildConfigStore
-
-buld the config store
+never authorize user
 
 =cut
 
-sub _buildConfigStore { pf::ConfigStore::Mdm->new }
+sub authorize { 0 };
 
+ 
+=head1 AUTHOR
 
-__PACKAGE__->meta->make_immutable;
-
-=back
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -61,5 +57,4 @@ USA.
 =cut
 
 1;
-
 

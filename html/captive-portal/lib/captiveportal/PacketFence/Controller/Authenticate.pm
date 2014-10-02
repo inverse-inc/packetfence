@@ -12,6 +12,7 @@ use HTML::Entities;
 use List::MoreUtils qw(any);
 use pf::config;
 
+
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
 =head1 NAME
@@ -168,6 +169,7 @@ sub login : Local : Args(0) {
         $c->forward('validateLogin');
         $c->forward('authenticationLogin');
         $c->forward('postAuthentication');
+        $c->forward('checkIfProvisionIsNeeded');
         $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
         $c->forward( 'CaptivePortal' => 'endPortalSession' );
     }
@@ -190,8 +192,8 @@ sub postAuthentication : Private {
     my $portalSession = $c->portalSession;
     my $session = $c->session;
     my $profile = $c->profile;
-    my $info = $c->stash->{info} || {};
     my $source_id = $session->{source_id};
+    my $info = $c->stash->{info} ||= {};
     my $pid = $session->{"username"};
     $pid = $default_pid if !defined $pid && $c->profile->noUsernameNeeded;
     $info->{pid} = $pid;
@@ -324,6 +326,25 @@ sub createLocalAccount : Private {
     );
 
     $logger->info("Local account for external source " . $c->session->{source_id} . " created with PID " . $auth_params->{username});
+}
+
+sub checkIfProvisionIsNeeded : Private {
+    my ( $self, $c ) = @_;
+    my $portalSession = $c->portalSession;
+    my $info = $c->stash->{info};
+    my $mac = $portalSession->clientMac;
+    my $profile = $c->profile;
+    if (defined( my $provisioner = $profile->findProvisioner($mac))) {
+        unless ($provisioner->authorize($mac) == 1) {
+            $info->{status} = $pf::node::STATUS_PENDING;
+            node_modify($mac, %$info);
+            $c->stash(
+                template    => $provisioner->template,
+                provisioner => $provisioner,
+            );
+            $c->detach();
+        }
+    }
 }
 
 sub validateLogin : Private {

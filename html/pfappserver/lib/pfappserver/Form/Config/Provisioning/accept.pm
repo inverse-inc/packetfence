@@ -1,35 +1,23 @@
-package pf::ConfigStore::Mdm;
+package pfappserver::Form::Config::Provisioning::accept;
+
 =head1 NAME
 
-pf::ConfigStore::Mdm add documentation
-
-=cut
+pfappserver::Form::Config::Provisioning::accept - Web form for accept provisioner
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Mdm
-
 =cut
 
-use strict;
-use warnings;
-use Moo;
-use pf::file_paths;
-extends 'pf::ConfigStore';
-
-sub configFile { $pf::file_paths::mdm_config_file };
-
-=head1 AUTHOR
-
-Inverse inc. <info@inverse.ca>
+use HTML::FormHandler::Moose;
+extends 'pfappserver::Form::Config::Provisioning';
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2014 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -46,5 +34,5 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
-
