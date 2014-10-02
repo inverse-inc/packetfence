@@ -129,11 +129,11 @@ sub bulk_reevaluate_access : Local {
     $c->stash->{current_view} = 'JSON';
     my ( $status, $status_msg );
     my $request = $c->request;
-    if ($request->method eq 'POST'){
+    if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkReevaluateAccess(@ids);
     }
-    else{
+    else {
         $status = HTTP_BAD_REQUEST;
         $status_msg = "";
     }
