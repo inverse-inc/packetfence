@@ -223,7 +223,7 @@ sub _runtask {
         pf::config::cached::ReloadConfigs();
         my $interval = $Config{'maintenance'}{$parameter};
         unless ($interval) {
-            $logger->trace("$id is disabled");
+            $logger->trace("task $id is disabled");
             alarm 60;
             pause;
             next;
@@ -233,7 +233,7 @@ sub _runtask {
         alarm $interval;
         pause;
         last unless $running;
-        $logger->trace("$id is runinng");
+        $logger->trace("$id is running");
         eval {
             #reload all cached configs before running the task
             $task->();
@@ -247,6 +247,7 @@ sub _runtask {
             $running = 0;
         }
     }
+    $logger->trace("$$ shutting down");
     exit;
 }
 
