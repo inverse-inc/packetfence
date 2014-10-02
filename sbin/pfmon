@@ -218,6 +218,7 @@ sub runtask {
 
 sub _runtask {
     my ($id,$parameter,$task) = @_;
+    $0 = "pfmon - $id";
     while ($running) {
         pf::config::cached::ReloadConfigs();
         my $interval = $Config{'maintenance'}{$parameter};
