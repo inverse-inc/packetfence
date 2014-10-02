@@ -225,8 +225,9 @@ sub add_answers_to_ipset {
     }
     if(@ops) {
         my $ipset;
+        my $data = join("\n", @ops, "");
         open($ipset,"| LANG=C sudo ipset restore 2>&1");
-        print $ipset join("\n", @ops, "");
+        print $ipset $data;
         close($ipset);
     }
 }
