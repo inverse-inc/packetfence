@@ -320,6 +320,12 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('NODES_DEL
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 reevaluate_access
+
+Trigger the access reevaluation of the access of a node
+
+=cut
+
 sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0) :AdminRole('NODES_UPDATE') {
     my ( $self, $c ) = @_;
 
@@ -327,7 +333,6 @@ sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0)
     $c->response->status($status);
     $c->stash->{status_msg} = $message; # TODO: localize error message
     $c->stash->{current_view} = 'JSON';
- 
 }
 
 =head2 violations
