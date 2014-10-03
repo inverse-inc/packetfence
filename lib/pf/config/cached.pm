@@ -767,8 +767,10 @@ sub computeFromPath {
         {
             expire_if => sub {
                 return 1 if $expire;
-                my $control_file_timestamp = $_[0]->value->{_control_file_timestamp} || -1;
-                return  ( controlFileExpired($control_file_timestamp) && $_[0]->value->HasChanged() ) ;
+                my $value = $_[0]->value;
+                return 1 unless $value;
+                my $control_file_timestamp = $value->{_control_file_timestamp} || 0;
+                return  controlFileExpired($control_file_timestamp) && $value->HasChanged();
             },
         },
         $computeWrapper
@@ -778,16 +780,36 @@ sub computeFromPath {
     return $result;
 }
 
+=head2 setControlFileTimestamp
+
+Stores the current timestamp of var/cache_control file
+
+=cut
+
 sub setControlFileTimestamp {
     my ($self) = @_;
     $self->{_control_file_timestamp} = getControlFileTimestamp();
 }
 
-sub getControlFileTimestamp { int((stat($cache_control_file))[9] || 0) * 1000000000 }
+=head2 getControlFileTimestamp
+
+Get the current timestamp of var/cache_control file
+
+=cut
+
+sub getControlFileTimestamp {
+    return pf::IniFiles::_getFileTimestamp($cache_control_file);
+}
+
+=head2 controlFileExpired
+
+Checks to see if the var/cache_control file has been updated
+
+=cut
 
 sub controlFileExpired {
     my ($timestamp) = @_;
-    $timestamp != getControlFileTimestamp();
+    $timestamp == -1 || $timestamp != getControlFileTimestamp();
 }
 
 
