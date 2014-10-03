@@ -89,7 +89,6 @@ table.sources {
               [% pf_section_entry( 'servicewatch', 'Service watch') %]
               [% pf_section_entry( 'captive_portal', 'Captive portal') %]
               [% pf_section_entry( 'advanced', 'Advanced') %]
-              [% pf_section_entry( 'provisioning', 'Provisioning') %]
               [% pf_section_entry( 'webservices', 'Web Services') %]
               [%- END %]
               [%- IF can_access("PORTAL_PROFILES_READ") %]
