@@ -17,7 +17,7 @@
 
       <h2>[% l('Provisioning') %]</h2>
 
-      [% INCLUDE configstore/provisioning/list.tt %]
+      [% INCLUDE config/provisioning/list.tt %]
 
       [%- IF can_access("PROVISIONING_CREATE") %]
         <div class="form-actions">
