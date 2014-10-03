@@ -342,8 +342,8 @@ sub provisionerObjects {
 }
 
 sub findProvisioner {
-    my ($self, $mac) = @_;
-    my $node_attributes = node_attributes($mac);
+    my ($self, $mac, $node_attributes) = @_;
+    $node_attributes ||= node_attributes($mac);
     my ($fingerprint) =
       dhcp_fingerprint_view( $node_attributes->{'dhcp_fingerprint'} );
     return unless $fingerprint;
