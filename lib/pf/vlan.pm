@@ -327,7 +327,7 @@ sub getNormalVlan {
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
 
     my $provisioner = $profile->findProvisioner($mac);
-    if (defined($provisioner) && $provisioner->{enforce}) {
+    if ($provisioner && $provisioner->{enforce}) {
         unless ($provisioner->authorize($mac)) {
             $logger->warn("$mac is not authorized anymore with it's provisionner. Putting node as pending.");
             $node_info->{status} = $pf::node::STATUS_PENDING;
