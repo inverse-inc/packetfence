@@ -70,7 +70,13 @@ Add the provisioner to the portal profile
 In order for the provisionner to be used by your captive portal you need to add it in it's configuration.
 Go in Portal Profiles, then select the portal you want to modify and add mobileiron as a provisioner.
 
+image::docs/images/mobile-iron-portal.png[scaledwidth="100%",alt="Mobile Iron portal"]
 
-
+Test
+^^^^
+You can now test that Mobile Iron is mandatory after the device registration.
+Connect a device to your test network and register like you normally would.
+At the end of the registration process you will be presented a page asking you to install the Mobile Iron on your device.
+After you install the agent click continue. If your access is enabled than this means the connectivity between PacketFence and Mobile Iron is good.
 
 
