@@ -20,7 +20,7 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use List::Util qw(none);
 
 use constant TRIGGER => 'trigger';
 
@@ -43,11 +43,13 @@ BEGIN {
     );
 }
 
+use pf::log;
 use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
 use pf::config;
 use pf::db;
 use pf::util;
 use pf::iplog qw(ip2mac);
+use pf::factory::provisioner;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $trigger_db_prepared = 0;
@@ -190,9 +192,9 @@ sub parse_triggers {
 
         # TODO we should refactor this into objects where trigger types provide their own matchers
         # at first, we are liberal in what we accept
-        die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[^:]+$/);
+        die("Invalid trigger id: $trigger") if ($trigger !~ /^(\w+)::(.+)$/);
+        my ( $type, $tid ) = ($1,$2);
 
-        my ( $type, $tid ) = split( /::/, $trigger );
         $type = lc($type);
         $tid =~ s/\s+$//; # trim trailing whitespace
 
@@ -209,6 +211,11 @@ sub parse_triggers {
                     $tid eq $ACCOUNTING_POLICY_BANDWIDTH) {
                 die("Invalid accounting trigger id: $trigger");
             }
+        }
+        # special provisioning only trigger parser
+        elsif ($type eq 'provisioning') {
+            die("Invalid provisioner trigger id: $trigger")
+                if ( none { "pf::provisioner::$tid" eq $_ } @pf::factory::provisioner::MODULES );
         }
         # usual trigger allowing digits, ranges and dots with optional trailing whitespace
         else {
