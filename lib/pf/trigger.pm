@@ -213,7 +213,7 @@ sub parse_triggers {
             }
         }
         # special provisioning only trigger parser
-        elsif ($type eq 'provisioning') {
+        elsif ($type eq 'provisioner') {
             die("Invalid provisioner trigger id: $trigger")
                 if ( none { "pf::provisioner::$tid" eq $_ } @pf::factory::provisioner::MODULES );
         }
