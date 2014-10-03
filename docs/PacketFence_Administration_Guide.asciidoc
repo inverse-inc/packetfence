@@ -2066,8 +2066,8 @@ Next, click on *Add a condition*, and select *Anti-virus*, *is*, and *disabled* 
 
 The last step is to create a new remediation template called `noantivirus.php` on the filesystem in the `html/captive-portal/violations` folder. Edit it to include the text you want to display to the users.
 
-Apple and Android Wireless Profile Provisioning
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Apple and Android Wireless Provisioning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apple devices such as iPhones, iPads, iPods and Mac OS X (10.7+) support wireless profile importation using a special XML file format (mobileconfig). Android is also able to support this feature by importing the wireless profile with the Android PacketFence Agent. In fact, installing such file on your Apple device will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to ease the configuration steps on the mobile device (because it is often painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator's preference and we pre-populate the file with the user's credentials (without the password). The user simply needs to install its generated file and he will be able to use the new SSID.
 
@@ -2076,9 +2076,9 @@ Configure the feature
 
 In order to enable this feature, you simply need to add 3 options to your `pf.conf` configuration file.
 
-provisioning.autoconfig:: Enable or disable the feature
-provisioning.ssid:: This is the SSID you want the user to connect to upon registration 
-provisioning.category:: Activate this feature to a specific category or any.
+*provisioning.autoconfig*:: Enable or disable the feature
+*provisioning.ssid*:: This is the SSID you want the user to connect to upon registration
+*provisioning.category*:: Activate this feature to a specific category or any.
 
 Here is an example: We have an hidden WPA2-Enterprise SSID named HiddenSecure, and we want to provision this wireless profile to everybody registering with an iPhone, iPad, or iPod. The configuration in `pf.conf` would look like:
 
