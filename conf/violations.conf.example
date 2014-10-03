@@ -201,6 +201,14 @@ actions=trap,log
 template=spam
 enabled=Y
 
+[1300002]
+desc=Provisioning Enforcement
+priority=6
+actions=enforce_provisioning,log
+template=enforce_provisioning
+trigger=Provisioner::android,Provisioner::ibm,Provisioner::mobileiron,Provisioner::symantec,Provisioner::accept,Provisioner::sepm,Provisioner::deny,Provisioner::mobileconfig,Provisioner::opswat
+enabled=Y
+
 #
 # 1400000 - 1499999 Reserved for local violations
 #
