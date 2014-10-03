@@ -17,7 +17,6 @@
 /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/log.conf
-/usr/local/pf/conf/mdm.conf
 /usr/local/pf/conf/nessus/remotescan.nessus
 /usr/local/pf/conf/networks.conf
 /usr/local/pf/conf/oui.txt

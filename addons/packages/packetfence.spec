@@ -786,8 +786,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
                         /usr/local/pf/conf/listener.msg.example
-%config(noreplace)      /usr/local/pf/conf/mdm.conf
-                        /usr/local/pf/conf/mdm.conf.example
 %config(noreplace)      /usr/local/pf/conf/popup.msg
                         /usr/local/pf/conf/popup.msg.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
