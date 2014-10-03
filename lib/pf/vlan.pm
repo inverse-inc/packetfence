@@ -327,19 +327,11 @@ sub getNormalVlan {
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
 
     my $provisioner = $profile->findProvisioner($mac,$node_info);
-    if ($provisioner && $provisioner->{enforce}) {
-        unless ($provisioner->authorize($mac)) {
-            $logger->warn("$mac is not authorized anymore with it's provisionner. Putting node as pending.");
-            $node_info->{status} = $pf::node::STATUS_PENDING;
-            node_modify($mac, %$node_info);
-            return $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
-        }
-        else{
-            $logger->debug("$mac is still authorized with it's provisioner");
-        }
+    if (defined($provisioner) && $provisioner->{enforce}) {
+        violation_trigger($mac, $provisioner->type, $TRIGGER_TYPE_PROVISIONER);
     }
     else{
-        $logger->debug("Can't find provisioner for $mac");
+        $logger->trace("Can't find provisioner for $mac");
     }
 
     # Bypass VLAN is configured in node record so we return accordingly
