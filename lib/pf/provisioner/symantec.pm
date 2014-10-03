@@ -25,25 +25,11 @@ use XML::Simple;
 
 =head1 Atrributes
 
-=head2 id
-
-The id of the MDM
-
-=cut
-
-has id => (is => 'rw');
-
-=head2 username
-
-Username for MDM
-
-=cut
-
 has username => (is => 'rw');
 
 =head2 password
 
-Password for MDM
+Password for symantec server
 
 =cut
 
@@ -59,7 +45,7 @@ has host => (is => 'rw');
 
 =head2 port
 
-Username for MDM
+Username for symantec server
 
 =cut
 
@@ -67,7 +53,7 @@ has port => (is => 'rw', default => sub { 443 });
 
 =head2 username
 
-Username for MDM
+Username for symantec server
 
 =cut
 
@@ -75,7 +61,7 @@ has proxy => (is => 'rw', lazy =>1, builder=>1);
 
 =head2 protocol
 
-Username for MDM
+Username for symantec server
 
 =cut
 
