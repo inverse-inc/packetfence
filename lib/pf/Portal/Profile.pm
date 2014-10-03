@@ -347,7 +347,7 @@ sub findProvisioner {
     my @fingerprint =
       dhcp_fingerprint_view( $node_attributes->{'dhcp_fingerprint'} );
     my $os = $fingerprint[0]->{'os'};
-    return $FALSE unless defined $os;
+    return unless defined $os;
     return first { $_->match($os,$node_attributes) } $self->provisionerObjects;
 }
 
