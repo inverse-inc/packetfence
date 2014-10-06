@@ -1608,6 +1608,7 @@ Also included in `violations.conf` is the defaults section. The defaults section
   auto_enable=Y
   enable=N
   grace=120m
+  delay_by=0
   window=0
   vclose=
   target_category=
@@ -1622,6 +1623,8 @@ Number of times a host will be able to try and self remediate before they are lo
 Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk.
 `grace`::
 Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
+`delay_by`::
+Amount of time before the violation action will run.
 `window`::
 Amount of time before a violation will be closed automatically.  Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.  You can use the allowed time modifiers or the dynamic keyword.  Note that the dynamic keyword only works for accounting violations.  Dynamic will open the violation according to the time you set in the
 accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month.)
