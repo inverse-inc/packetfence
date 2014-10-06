@@ -1068,11 +1068,7 @@ sub updateCacheControl {
     }
     if(-e $cache_control_file) {
         sysopen(my $fh,$cache_control_file,O_RDWR | O_CREAT);
-        my ($seconds) = time();
-        my ($usec, $s) = POSIX::modf($seconds);
-        my $nanosec = int($usec * 1000000000) + int(rand(1000)) + 1000;
-        $s = int($s);
-        POSIX::2008::futimens(fileno $fh, $s, $nanosec, $s, $nanosec);
+        POSIX::2008::futimens(fileno $fh);
         close($fh);
     }
     my (undef,undef,$uid,$gid) = getpwnam('pf');
