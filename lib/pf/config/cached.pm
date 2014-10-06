@@ -266,14 +266,14 @@ use Time::HiRes qw(stat time gettimeofday);
 use pf::log;
 use pf::CHI;
 use pf::IniFiles;
-use Scalar::Util qw(refaddr reftype tainted);
+use Scalar::Util qw(refaddr reftype tainted blessed);
 use Fcntl qw(:DEFAULT :flock);
 use Storable;
 use File::Flock;
 use File::Spec::Functions qw(splitpath catpath);
 use Readonly;
 use Sub::Name;
-use List::Util qw(first);
+use List::Util qw(first any);
 use List::MoreUtils qw(uniq);
 use Fcntl qw(:flock :DEFAULT :seek);
 use POSIX::2008;
@@ -283,7 +283,8 @@ use base qw(pf::IniFiles);
 
 
 our $CACHE;
-our @LOADED_CONFIGS;
+our @LOADED_CONFIGS_FILE;
+our %LOADED_CONFIGS;
 our %ON_RELOAD;
 our %ON_FILE_RELOAD;
 our %ON_FILE_RELOAD_ONCE;
@@ -372,8 +373,8 @@ sub new {
     $ON_FILE_RELOAD_ONCE{$file} ||= [];
     $ON_CACHE_RELOAD{$file} ||= [];
     $ON_POST_RELOAD{$file} ||= [];
-    @LOADED_CONFIGS = grep { $_->GetFileName() ne $file } @LOADED_CONFIGS;
-    push @LOADED_CONFIGS, $self;
+    #Adding to the loaded config
+    $self->addToLoadedConfigs();
     $self->addReloadCallbacks(@$onReload) if @$onReload;
     $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
     $self->addFileReloadOnceCallbacks(@$onFileReloadOnce) if @$onFileReloadOnce;
@@ -698,7 +699,8 @@ sub ReadConfig {
             $result = $self->SUPER::ReadConfig();
             $reloaded_from_file = 1;
             return $self;
-        }
+        },
+        $force
     );
     $reloaded_from_cache = refaddr($self) != refaddr($new_self);
     if($reloaded_from_cache) {
@@ -845,7 +847,7 @@ sub ReloadConfigs {
     $CACHE_CONTROL_TIMESTAMP = getControlFileTimestamp();
     my $logger = get_logger();
     $logger->trace("Reloading all configs");
-    foreach my $config (@LOADED_CONFIGS) {
+    foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
         $config->ReadConfig($force);
     }
 }
@@ -958,6 +960,22 @@ sub DESTROY {
     }
 }
 
+=head2 addToLoadedConfigs
+
+adds the cached config from the internal global cache
+
+=cut
+
+sub addToLoadedConfigs {
+    my ($self) = @_;
+    my $file = $self->GetFileName;
+    unless ( any { $_ eq $file} ) {
+        push @LOADED_CONFIGS_FILE,$file;
+    }
+    $LOADED_CONFIGS{$file} = $self;
+}
+
+
 =head2 unloadConfig
 
 Unloads the cached config from the internal global cache
@@ -967,7 +985,8 @@ Unloads the cached config from the internal global cache
 sub unloadConfig {
     my ($self) = @_;
     my $file = $self->GetFileName;
-    @LOADED_CONFIGS = grep { $self->GetFileName ne $file  } @LOADED_CONFIGS;
+    @LOADED_CONFIGS_FILE = grep { $_ ne $file } @LOADED_CONFIGS_FILE;
+    delete $LOADED_CONFIGS{$file};
 }
 
 sub untaint_value {
