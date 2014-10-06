@@ -4382,6 +4382,10 @@ msgstr ""
 msgid "log_action"
 msgstr "Log message"
 
+# pf::action (VIOLATION_ACTIONS)
+msgid "enforce_provisioning_action"
+msgstr "Enforce Provisioning"
+
 # pf::Authentication::constants (Conditions)
 msgid "lower"
 msgstr ""
