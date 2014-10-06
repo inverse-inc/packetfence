@@ -193,6 +193,10 @@ sub ReAssignVlan {
     }
 
     my $switch = pf::SwitchFactory->getInstance()->instantiate( $postdata{'switch'} );
+    unless ($switch) {
+        $logger->error("switch $postdata{'switch'} not found for ReAssignVlan");
+        return;
+    }
 
     sleep $pf::config::Config{'trapping'}{'wait_for_redirect'}; 
 
@@ -215,6 +219,10 @@ sub desAssociate {
     my $logger = pf::log::get_logger();
 
     my $switch = pf::SwitchFactory->getInstance()->instantiate($postdata{'switch'});
+    unless ($switch) {
+        $logger->error("switch $postdata{'switch'} not found for desAssociate");
+        return;
+    }
 
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
 
