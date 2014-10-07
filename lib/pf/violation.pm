@@ -601,12 +601,17 @@ sub violation_trigger {
         }
         # Compute the release date
         my $date = 0;
+        my %data;
 
+        my $class = class_view($vid);
+        # Check if the violation is delayed
+        if ($class->{'delay_by'}) {
+            $data{status} = 'delayed';
+            $date = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $class->{'delay_by'}));
+        }
         # Check if we have a window defined for the violation, and act properly
         # TODO: Handle the "dynamic" keyword
-        my $class = class_view($vid);
-
-        if (defined($class->{'window'})) {
+        elsif (defined($class->{'window'})) {
           if ($class->{'window'} ne 'dynamic' && $class->{'window'} ne '0' ) {
             $date = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $class->{'window'}));
           } elsif ($class->{'window'} eq 'dynamic' && $type eq "accounting") {
@@ -631,9 +636,10 @@ sub violation_trigger {
             # no interval given so we assume from beginning of time (10 years)
           }
         }
+        $data{'release_date'} = $date;
 
         $logger->info("calling violation_add with vid=$vid mac=$mac release_date=$date (trigger ${type}::${tid})");
-        violation_add($mac, $vid, ('release_date' => $date));
+        violation_add($mac, $vid, %data);
         $addedViolation = 1;
     }
     return $addedViolation;
