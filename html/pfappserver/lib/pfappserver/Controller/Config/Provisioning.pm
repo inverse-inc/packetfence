@@ -44,7 +44,7 @@ __PACKAGE__->config(
 
 =head2 index
 
-Usage: /configstore/provisioning
+Usage: /config/provisioning
 
 =cut
 
@@ -67,7 +67,7 @@ around [qw(view _processCreatePost update)] => sub {
 
 sub create_type : Path('create') : Args(1) {
     my ($self, $c, $type) = @_;
-    $c->stash->{template} = 'configstore/provisioning/create.tt';
+    $c->stash->{template} = 'config/provisioning/create.tt';
     my $model = $self->getModel($c);
     my $itemKey = $model->itemKey;
     $c->stash->{$itemKey}{type} = $type;
