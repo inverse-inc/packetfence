@@ -792,9 +792,18 @@ LOOP: {
             my $mac = $row->{mac};
             my $vid = $row->{vid};
             if($row->{status} eq 'delayed' ) {
+                my %data = (status => 'open');
+                my $class = class_view($vid);
+                if (defined($class->{'window'})) {
+                    my $date = 0;
+                    if ($class->{'window'} ne 'dynamic' && $class->{'window'} ne '0' ) {
+                        $date = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $class->{'window'}));
+                    }
+                    $data{release_date} = $date;
+                }
                 $logger->info("processing delayed violation : $row->{id}, $row->{vid}");
                 my $notes = $row->{vid};
-                violation_modify($row->{id}, status => 'open');
+                violation_modify($row->{id}, %data);
                 pf::action::action_execute( $mac, $vid, $notes );
             }
             else {
