@@ -187,16 +187,17 @@ public class PFPacketProcessor {
         byte[] GATEWAY_MAC = {(byte)0x38, (byte)0x22, (byte)0xd6, (byte)0x6c, (byte)0x8c, (byte)0xf5};
         
         try{
-        this.packet.getL3Packet().setSourceAddress(InetAddress.getByName("1.1.1.1"));
+        //this.packet.getL3Packet().setSourceAddress(InetAddress.getByName("1.1.1.1"));
         this.packet.getL3Packet().setDestinationAddress(InetAddress.getByName(pfConfig.getElement("pf_dns_ip")));
         }catch(Exception e){e.printStackTrace();}
         System.out.println(this.packet.getSourceIP());
         System.out.println(this.packet.getDestIP());
-        this.packet.getL2Packet().setSourceMACAddress(GATEWAY_MAC);
+        //this.packet.getL2Packet().setSourceMACAddress(GATEWAY_MAC);
         this.packet.getL2Packet().setDestinationMACAddress(PF_MAC);
         System.out.println(this.packet.getSourceMac());
         System.out.println(this.packet.getDestMac());
         NodeConnector outbound = NodeConnector.fromStringNoNode("1", this.packet.getRawPacket().getIncomingNodeConnector().getNode());
+        System.out.println(outbound.getNode().getNodeIDString());
         RawPacket raw = packetHandler.getDataPacketService().encodeDataPacket(this.packet.getL2Packet());
         raw.setOutgoingNodeConnector(outbound);
         packetHandler.getDataPacketService().transmitDataPacket(raw);

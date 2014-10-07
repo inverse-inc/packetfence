@@ -162,7 +162,7 @@ public class PFDNSPoison {
     private void installFlow(Match match, List actions){
         Flow flow = new Flow(match, actions);
         flow.setPriority((short)1001);
-        flow.setHardTimeout((short)5);
+        flow.setHardTimeout((short)30);
         Status status = packetHandler.getFlowProgrammerService().addFlow(packet.getIncomingConnector().getNode(), flow);
         if (!status.isSuccess()) {
             System.out.println("Could not program flow: " + status.getDescription());
