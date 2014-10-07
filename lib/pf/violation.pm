@@ -475,7 +475,9 @@ sub violation_add {
     if ($result) {
         my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);
         $logger->info("violation $vid added for $mac");
-        pf::action::action_execute( $mac, $vid, $data{notes} );
+        if($data{status} eq 'open') {
+            pf::action::action_execute( $mac, $vid, $data{notes} );
+        }
         return ($last_id);
     } else {
         my $msg = "unknown error adding violation $vid for $mac";
