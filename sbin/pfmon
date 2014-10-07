@@ -142,7 +142,7 @@ sub registertasks  {
     );
     register_task(
         'checking violations for expiration','violation_maintenance_interval',sub {
-            violation_maintenance();
+            violation_maintenance(1000,10);
         }
     );
     register_task(
