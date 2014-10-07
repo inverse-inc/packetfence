@@ -22,6 +22,7 @@ use warnings;
 use Log::Log4perl;
 use Readonly;
 use POSIX;
+use Time::HiRes qw(time);
 
 # Violation status constants
 #TODO port all hard-coded strings to these constants
@@ -29,6 +30,7 @@ use POSIX;
 #ex: when trying to use these from node I get subroutines redefinitions
 #    and if I use full package names, there is no safety that the constant was defined in the first place..
 Readonly::Scalar our $STATUS_OPEN => 'open';
+Readonly::Scalar our $STATUS_DELAYED => 'delayed';
 
 use constant VIOLATION => 'violation';
 
@@ -166,7 +168,7 @@ sub violation_db_prepare {
     $violation_statements->{'violation_delete_sql'} = get_db_handle()->prepare(qq [ delete from violation where id=? ]);
 
     $violation_statements->{'violation_close_sql'} = get_db_handle()->prepare(
-        qq [ update violation set release_date=now(),status="closed" where mac=? and vid=? and status="open" ]);
+        qq [ update violation set release_date=now(),status="closed" where mac=? and vid=? and status!="closed" ]);
 
     $violation_statements->{'violation_grace_sql'} = get_db_handle()->prepare(
         qq [ select unix_timestamp(start_date)+grace_period-unix_timestamp(now()) from violation v left join class c on v.vid=c.vid where mac=? and v.vid=? and status="closed" order by start_date desc ]);
@@ -175,13 +177,13 @@ sub violation_db_prepare {
         qq [ select count(*) from violation where mac=? and status="open" ]);
 
     $violation_statements->{'violation_count_trap_sql'} = get_db_handle()->prepare(
-        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='trap' and mac=? and status="open" ]);
+        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='trap' and mac=? and status!="closed" ]);
 
     $violation_statements->{'violation_count_vid_sql'} = get_db_handle()->prepare(
         qq [ select count(*) from violation where mac=? and vid=? ]);
 
     $violation_statements->{'violation_release_sql'} = get_db_handle()->prepare(
-        qq [ select mac,vid from violation where release_date !=0 AND release_date <= NOW() AND status = "open" ]);
+        qq [ select id,mac,vid,status from violation where release_date !=0 AND release_date <= NOW() AND status != "closed" LIMIT ? ]);
 
     $violation_statements->{'violation_last_closed_sql'} = get_db_handle()->prepare(
         qq [ select mac,vid,release_date from violation where mac = ? AND vid = ? AND status = "closed" ORDER BY release_date DESC LIMIT 1 ]);
@@ -761,22 +763,45 @@ Check if we should close violations based on release_date
 =cut
 
 sub violation_maintenance {
+    my ($batch,$timelimit) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
 
-    $logger->debug("Looking at expired violations...");
-
-    my $violation_query = db_query_execute(VIOLATION, $violation_statements, 'violation_release_sql') || return (0);
-
-    while (my $row = $violation_query->fetchrow_hashref()) {
-        my $currentMac = $row->{mac};
-        my $currentVid = $row->{vid};
-        my $result = violation_force_close($currentMac,$currentVid);
-
-        # If close is a success, reevaluate the Access for the node
-        if ($result) {
-            pf::enforcement::reevaluate_access( $currentMac, "manage_vclose" );
+    $logger->debug("Looking at expired violations... batching $batch timelimit $timelimit");
+    my $start_time = time;
+    my $endtime;
+    my $done = 0;
+LOOP: {
+    do {
+        my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_release_sql',$batch) || return (0);
+        my $rows = $query->rows;
+        if ($rows == 0 ) {
+            $logger->trace("no more violations to process");
+            $query->finish;
+            last;
         }
-    };
+        $logger->trace("processing $rows violation(s)");
+        while (my $row = $query->fetchrow_hashref()) {
+            my $mac = $row->{mac};
+            my $vid = $row->{vid};
+            if($row->{status} eq 'delayed' ) {
+                $logger->info("processing delayed violation : $row->{id}, $row->{vid}");
+                my $notes = $row->{vid};
+                violation_modify($row->{id}, status => 'open');
+                pf::action::action_execute( $mac, $vid, $notes );
+            }
+            else {
+                my $result = violation_force_close($mac,$vid);
+                # If close is a success, reevaluate the Access for the node
+                if ($result) {
+                    pf::enforcement::reevaluate_access( $mac, "manage_vclose" );
+                }
+            }
+        }
+        $query->finish;
+        $endtime = time;
+        $logger->trace("starttime: $start_time, endtime: $endtime");
+    } while( (($endtime - $start_time) < $timelimit) );
+}
 
     return (1);
 }
