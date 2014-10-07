@@ -100,7 +100,7 @@ Requires: perl >= 5.8.8
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
 Requires(pre): %{real_name}-pfcmd-suid
 Requires: perl(Bit::Vector)
-Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON)
+Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON), perl(JSON::XS)
 Requires: perl(Apache2::Request)
 Requires: perl(Apache::Session)
 Requires: perl(Apache::Session::Memcached)
@@ -142,6 +142,7 @@ Requires: perl(Log::Any::Adapter::Log4perl)
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
 # We would need to port to the new 3.x API (tracked by #1313)
 Requires: perl(Net::Appliance::Session) = 1.36
+Requires: perl(Net::SSH2)
 Requires: perl(Net::OAuth2) >= 0.57
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
@@ -590,7 +591,7 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 #Starting Packetfence.
 echo "Starting Packetfence..."
 #removing old cache
-rm -rf /usr/local/pf/var/cache 
+rm -rf /usr/local/pf/var/cache/ 
 /usr/local/pf/bin/pfcmd configreload
 /sbin/service packetfence start
 
@@ -751,6 +752,8 @@ fi
 %config                 /usr/local/pf/conf/oui.txt
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
+%config(noreplace)      /usr/local/pf/conf/provisioning.conf
+                        /usr/local/pf/conf/provisioning.conf.example
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
                         /usr/local/pf/conf/radiusd/eap.conf.example
@@ -783,7 +786,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
                         /usr/local/pf/conf/listener.msg.example
-%config(noreplace)      /usr/local/pf/conf/mdm.conf
 %config(noreplace)      /usr/local/pf/conf/popup.msg
                         /usr/local/pf/conf/popup.msg.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
@@ -972,6 +974,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Wed Sep 10 2014 Inverse <info@inverse.ca> - 4.4.0-1
+- New release 4.4.0
+
 * Thu Jun 26 2014 Inverse <info@inverse.ca> - 4.3.0-1
 - New release 4.3.0
 

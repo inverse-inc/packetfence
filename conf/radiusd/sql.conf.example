@@ -63,7 +63,7 @@ sql pfguest {
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"guest\" \
-            AND now() <= temporary_password.expiration \
+            AND now() <= temporary_password.unregdate \
             LIMIT 1 "
 
         authorize_reply_query = ""
@@ -102,10 +102,10 @@ sql pfsponsor {
         sql_user_name = "%{User-Name}"
         authorize_check_query = "SELECT 1, pid, \"Cleartext-Password\", password, \":=\" \
           FROM ${authcheck_table} \
-          JOIN activation using (pid) \
+          JOIN temporary_password using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sponsor\" \
-            AND now() <= temporary_password.expiration \
+            AND now() <= temporary_password.unregdate \
             LIMIT 1 "
 
         authorize_reply_query = ""
@@ -143,9 +143,13 @@ sql pfsms {
         connect_failure_retry_delay = 60
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, contact_info, \"Cleartext-Password\", substr(activation_code,3), \":=\" \
+        authorize_check_query = "SELECT 1, pid, \"Cleartext-Password\", password, \":=\" \
           FROM ${authcheck_table} \
-          WHERE contact_info = '%{SQL-User-Name}' and now() <= expiration "
+          JOIN temporary_password using (pid) \
+          WHERE pid = '%{SQL-User-Name}' \
+            AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sms\" \
+            AND now() <= temporary_password.unregdate \
+            LIMIT 1 "
 
 
         authorize_reply_query = ""

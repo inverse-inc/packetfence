@@ -214,6 +214,17 @@ CREATE TABLE iplog (
   CONSTRAINT `0_63` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+--
+-- Table structure for table `iplog_history`
+--
+
+CREATE TABLE iplog_history (
+  mac varchar(17) NOT NULL,
+  ip varchar(15) NOT NULL,
+  start_time datetime NOT NULL,
+  end_time datetime default "0000-00-00 00:00:00"
+) ENGINE=InnoDB;
+
 CREATE TABLE os_type (
   os_id int(11) NOT NULL,
   description varchar(255) NOT NULL,
@@ -272,7 +283,7 @@ CREATE TABLE `locationlog_history` (
   `end_time` datetime default NULL,
   `switch_ip` varchar(17) DEFAULT NULL,
   `switch_mac` varchar(17) DEFAULT NULL,
-  KEY `locationlog_view_mac` (`mac`, `end_time`),
+  KEY `locationlog_history_view_mac` (`mac`, `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;
 

@@ -18,6 +18,7 @@ use namespace::autoclean;
 use Date::Parse;
 use POSIX;
 use Text::CSV;
+use List::MoreUtils qw(any none);
 
 use pf::config;
 use pf::Authentication::constants;
@@ -213,8 +214,11 @@ sub violations {
 =cut
 
 sub update {
-    my ($self, $pid, $user_ref) = @_;
+    my ($self, $pid, $user_ref, $user) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    unless ($self->_userRoleAllowedForUser($user_ref, $user)) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
+    }
 
     my ($status, $status_msg) = ($STATUS::OK);
     my $actions = delete $user_ref->{actions};
@@ -334,6 +338,11 @@ sub createSingle {
     my $pid = $data->{pid};
     my @users = ();
 
+    unless ($self->_userRoleAllowedForUser($data, $user)) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
+    }
+   
+
     # Adding person (using modify in case person already exists)
     $result = person_modify($pid,
                             (
@@ -367,6 +376,33 @@ sub createSingle {
     return ($status, \@users);
 }
 
+=head2 _userRoleAllowedForUser
+
+    ensure the only uses with the all role can give another user the all role
+
+=cut
+
+sub _userRoleAllowedForUser {
+    my ($self, $data, $user) = @_;
+    #If the user has the ALL role then they are good
+    return 1 if any { 'ALL' eq $_ } $user->roles;
+    #User does not have the role of ALL then it cannot create a user with the same role 
+    return none { __doesActionHaveAllAccessLevel($_) } @{$data->{actions} || []};
+}
+
+=head2 __doesActionHaveAllAccessLevel
+
+   does the action have the All role
+
+=cut
+
+sub __doesActionHaveAllAccessLevel {
+    my ($action) = @_;
+    local $_;
+    return $action->{type} eq 'set_access_level'
+      && any {$_ eq 'ALL'} split(/\s*,\s*/, $action->{value});
+}
+
 =head2 createMultiple
 
 pf::web::guest::preregister_multiple
@@ -377,6 +413,9 @@ sub createMultiple {
     my ($self, $data, $user) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    unless ($self->_userRoleAllowedForUser($data, $user)) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
+    }
     my ($status, $result) = ($STATUS::CREATED);
     my $pid;
     my $prefix = $data->{prefix};
@@ -430,6 +469,9 @@ sub importCSV {
     my ($self, $data, $user) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    unless ($self->_userRoleAllowedForUser($data, $user)) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
+    }
     my ($status, $message);
     my @users = ();
     my $filename = $data->{users_file}->filename;

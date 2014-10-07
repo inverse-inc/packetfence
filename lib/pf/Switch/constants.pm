@@ -20,13 +20,11 @@ use Readonly;
 
 Defined by standards
 
-=over
-
 =cut
 
 package SNMP;
 
-=item ROLES
+=head2 ROLES
 
 Required roles for every switch. Those are reserved words for any additional custom role.
 
@@ -42,7 +40,7 @@ Readonly::Array our @ROLES =>
     /;
 
 
-=item VERSIONS
+=head2 VERSIONS
 
 Supported SNMP versions by PacketFence
 
@@ -57,7 +55,7 @@ Readonly::Array our @VERSIONS =>
    $VERSION_1, $VERSION_2C, $VERSION_3
   );
 
-=item MAC_ADDRESS_FORMAT
+=head2 MAC_ADDRESS_FORMAT
 
 snmptrapd guesses the format of data in traps.
 If the format is printable then it feeds it as a STRING.
@@ -78,7 +76,7 @@ Readonly::Scalar our $MAC_ADDRESS_FORMAT => qr/
 /sx; # which may contain newline characters to mean hex 0a (thus the s)
 
 
-=item dot1dTpFdbStatus - defined by RFC 1493 (Definitions of Managed Objects for Bridges)
+=head2 dot1dTpFdbStatus - defined by RFC 1493 (Definitions of Managed Objects for Bridges)
 
  other(1)
  invalid(2)
@@ -94,7 +92,7 @@ Readonly::Scalar our $LEARNED => 3;
 Readonly::Scalar our $SELF => 4;
 Readonly::Scalar our $MGMT => 5;
 
-=item TruthValue - defined by RFC 1903 (SNMP Textual Conventions) aka SNMPv2-TC
+=head2 TruthValue - defined by RFC 1903 (SNMP Textual Conventions) aka SNMPv2-TC
 
  true (1)
  false (2)
@@ -104,7 +102,7 @@ Readonly::Scalar our $MGMT => 5;
 Readonly::Scalar our $TRUE => 1;
 Readonly::Scalar our $FALSE => 2;
 
-=item RowStatus - defined by RFC 2579 (Textual Conventions for SMIv2)
+=head2 RowStatus - defined by RFC 2579 (Textual Conventions for SMIv2)
 
  active (1)
  notInService (2)
@@ -122,13 +120,13 @@ Readonly::Scalar our $CREATE_AND_GO => 4;
 Readonly::Scalar our $CREATE_AND_WAIT => 5;
 Readonly::Scalar our $DESTROY => 6;
 
-=item ifAdminStatus - defined by RFC 2863 (Interfaces Group) aka IF-MIB
+=head2 ifAdminStatus - defined by RFC 2863 (Interfaces Group) aka IF-MIB
 
  up(1),        -- ready to pass packets
  down(2),
  testing(3),   -- in some test mode
 
-=item ifOperStatus - defined by RFC 2863 (Interfaces Group) aka IF-MIB
+=head2 ifOperStatus - defined by RFC 2863 (Interfaces Group) aka IF-MIB
 
  up(1),        -- ready to pass packets
  down(2),
@@ -148,7 +146,7 @@ Readonly::Scalar our $DORMANT => 5;
 Readonly::Scalar our $NOT_PRESENT => 6;
 Readonly::Scalar our $LOWER_LAYER_DOWN => 7;
 
-=item ifType - defined by RFC 2863 (Interfaces Group) aka IF-MIB
+=head2 ifType - defined by RFC 2863 (Interfaces Group) aka IF-MIB
 
 There are a lot of ifTypes, only a few of interest to PacketFence were copied here. 
 Check http://www.iana.org/assignments/ianaiftype-mib for the full list.
@@ -164,7 +162,7 @@ Check http://www.iana.org/assignments/ianaiftype-mib for the full list.
 Readonly::Scalar our $ETHERNET_CSMACD => 6;
 Readonly::Scalar our $GIGABIT_ETHERNET => 117;
 
-=item Working modes
+=head2 Working modes
 
 Working modes of a switch
 
@@ -179,7 +177,7 @@ Readonly::Array our @MODES =>
    $TESTING_MODE, $REGISTRATION_MODE, $PRODUCTION_MODE,
   );
 
-=item Deauth type method
+=head2 Deauth type method
 
 Deauth type method constant
 
@@ -192,7 +190,7 @@ Readonly::Scalar our $RADIUS => 'RADIUS';
 Readonly::Scalar our $HTTP => 'HTTP';
 Readonly::Scalar our $HTTPS => 'HTTPS';
 
-=item Deauth type method
+=head2 Deauth type method
 
 List of available deauth type methods
 
@@ -203,26 +201,23 @@ Readonly::Array our @METHODS =>
    $TELNET, $SSH, $SNMP, $RADIUS, $HTTP, $HTTPS,
   );
 
-=back
 
 =head1 Q-BRIDGE
 
 RFC 4363:  Definitions of Managed Objects for Bridges with Traffic Classes, Multicast Filtering, and Virtual LAN Extensions
 
-=over
-
 =cut
 
 package SNMP::Q_BRIDGE;
 
-=item dot1qStaticUnicastStatus
+=head2 dot1qStaticUnicastStatus
 
  other(1)
  invalid(2)
  permanent(3)
  deleteOnReset(4)
  deleteOnTimeout(5)
- 
+
 =cut
 
 Readonly::Scalar our $OTHER => 1;
@@ -231,17 +226,13 @@ Readonly::Scalar our $PERMANENT => 3;
 Readonly::Scalar our $DELETE_ON_RESET => 4;
 Readonly::Scalar our $DELETE_ON_TIMEOUT => 5;
 
-=back
-
 =head1 LLDP
-
-=over
 
 =cut
 
 package SNMP::LLDP;
 
-=item LldpSystemCapabilitiesMap
+=head2 LldpSystemCapabilitiesMap
 
 Defined by IEEE 802.1AB. Values below from LLDP-MIB.
 
@@ -259,19 +250,15 @@ Defined by IEEE 802.1AB. Values below from LLDP-MIB.
 # only the one in use are defined
 Readonly::Scalar our $TELEPHONE => 5;
 
-=back
- 
 =head1 CISCO
 
 Cisco constants
-
-=over
 
 =cut
 
 package CISCO;
 
-=item cpsIfViolationAction - Action to take in case of port-security violation (from CISCO-PORT-SECURITY-MIB)
+=head2 cpsIfViolationAction - Action to take in case of port-security violation (from CISCO-PORT-SECURITY-MIB)
 
  Shutdown (1)
  DropNotify (2)
@@ -283,7 +270,7 @@ Readonly::Scalar our $SHUTDOWN => 1;
 Readonly::Scalar our $DROPNOTIFY => 2;
 Readonly::Scalar our $DROP => 3;
 
-=item ConfigFileType
+=head2 ConfigFileType
 
 Various configuration-related source files or target files. 
 Used by ccCopySourceFileType and ccCopyDestFileType.
@@ -303,7 +290,7 @@ Readonly::Scalar our $STARTUP_CONFIG => 3;
 Readonly::Scalar our $RUNNING_CONFIG => 4;
 Readonly::Scalar our $TERMINAL => 5;
 
-=item NAS-Port constants
+=head2 NAS-Port constants
 
 Used for NAS-Port to ifIndex translation
 
@@ -313,7 +300,7 @@ Readonly::Scalar our $IFINDEX_OFFSET => 10000;
 Readonly::Scalar our $IFINDEX_GIG_OFFSET => 10100;
 Readonly::Scalar our $IFINDEX_PER_STACK => 500;
 
-=item LLDP constants
+=head2 LLDP constants
 
 lldpRemTimeMark is always set to 0 on Cisco's (at least those we tried)
 
@@ -321,9 +308,7 @@ lldpRemTimeMark is always set to 0 on Cisco's (at least those we tried)
 
 Readonly::Scalar our $DEFAULT_LLDP_REMTIMEMARK => 0;
 
-=back
-
-=item Trunk encapsulation constants
+=head2 Trunk encapsulation constants
 
 Used to set the encapsulation of a trunk 
 
@@ -336,13 +321,11 @@ Readonly::Scalar our $TRUNK_AUTO => 5;
 
 Extreme Networks constants
 
-=over
-
 =cut
 
 package EXTREME;
 
-=item PORT_SECURITY_DETECT_VLAN 
+=head2 PORT_SECURITY_DETECT_VLAN 
 
 Special VLAN used to detect if locked-learning is activated or not. Used for isPortSecurityEnabled()
 
@@ -350,7 +333,7 @@ Special VLAN used to detect if locked-learning is activated or not. Used for isP
 
 Readonly::Scalar our $PORT_SECURITY_DETECT_VLAN => 'security-detection';
 
-=item Web Services constants - constants related to Extreme's Web Services functionality
+=head2 Web Services constants - constants related to Extreme's Web Services functionality
 
  WS_TIMEOUT - Timeout value for Web Services operations
  WS_PROXY_URI_PATH - Common path for Extreme's Web Services operations
@@ -384,19 +367,15 @@ Readonly::Scalar our $WS_GET_ALL_FDB => 'xos:getAllFdb';
 
 Readonly::Scalar our $WS_NODE_ALL_FDB_RESPONSE => '//Body/getAllFdbResponse/reply/fdb';
 
-=back
-
 =head1 EXTREME::VLAN
 
 Extreme Networks VLAN oriented constants
-
-=over 
 
 =cut
 
 package EXTREME::VLAN;
 
-=item extremeVlanOpaqueControlOperation - Operations on VLANs (from EXTREME-VLAN-MIB)
+=head2 extremeVlanOpaqueControlOperation - Operations on VLANs (from EXTREME-VLAN-MIB)
 
  addTagged(1)
  addUntagged(2)
@@ -408,19 +387,15 @@ Readonly::Scalar our $ADD_TAGGED => 1;
 Readonly::Scalar our $ADD_UNTAGGED => 2;
 Readonly::Scalar our $DELETE => 3;
 
-=back
-
 =head1 NORTEL
 
 Nortel constants
-
-=over
 
 =cut
 
 package NORTEL;
 
-=item rcVlanPortType - Port types (from RC-VLAN-MIB)
+=head2 rcVlanPortType - Port types (from RC-VLAN-MIB)
 
   access(1),
   trunk(2)
@@ -434,19 +409,15 @@ Readonly::Scalar our $TRUNK => 2; # aka Tag All
 Readonly::Scalar our $UNTAG_PVID_ONLY => 5;
 Readonly::Scalar our $TAG_PVID_ONLY => 6; # (not allowed in strict mode)
 
-=back
-
 =head1 HP
 
 HP ProCurve constants
-
-=over 
 
 =cut
 
 package HP;
 
-=item coDevWirCliDisassociate - Disassociate the wireless client (from COLUBRIS-DEVICE-WIRELESS-MIB)
+=head2 coDevWirCliDisassociate - Disassociate the wireless client (from COLUBRIS-DEVICE-WIRELESS-MIB)
 
  idle(0),
  disassociate(1)
@@ -456,19 +427,15 @@ package HP;
 Readonly::Scalar our $IDLE => 0;
 Readonly::Scalar our $DISASSOCIATE => 1;
 
-=back
-
 =head1 THREECOM
 
 3Com constants
-
-=over
 
 =cut
 
 package THREECOM;
 
-=item hwdot1qTpFdbSetStatus
+=head2 hwdot1qTpFdbSetStatus
 
  other(1),
  learned(3),
@@ -484,7 +451,7 @@ Readonly::Scalar our $LEARNED => 3;
 Readonly::Scalar our $STATIC => 6;
 
 
-=item hwdot1qTpFdbSetOperate
+=head2 hwdot1qTpFdbSetOperate
 
  add(1),
  delete(2)
@@ -495,7 +462,7 @@ Readonly::Scalar our $ADD => 1;
 Readonly::Scalar our $DELETE => 2;
 
 
-=item NAS-Port constants
+=head2 NAS-Port constants
 
 Used for NAS-Port to ifIndex translation
 
@@ -504,19 +471,15 @@ Used for NAS-Port to ifIndex translation
 Readonly::Scalar our $NAS_PORT_OFFSET => 16781312;
 Readonly::Scalar our $NAS_PORTS_PER_PORT_RANGE => 4096;
 
-=back
-
 =head1 BROCADE
 
 Brocade constants
-
-=over
 
 =cut
 
 package BROCADE;
 
-=item dot1xPaePortReauthenticate - 802.1x Port state (from brcdlp)
+=head2 dot1xPaePortReauthenticate - 802.1x Port state (from brcdlp)
 
   force_unauthorized(1),
   controlauto(2)
@@ -528,19 +491,15 @@ Note: Documentation is incomplete other values were found empirically.
 Readonly::Scalar our $FORCE_UNAUTHORIZED => 1; # aka force unauthorized
 Readonly::Scalar our $CONTROLAUTO => 2; # aka force control auto
 
-=back
-
 =head1 AEROHIVE
 
 AeroHive constants
-
-=over
 
 =cut
 
 package AEROHIVE;
 
-=item ahConnectionChangeEvent - Roaming change (from ah_trp_mib)
+=head2 ahConnectionChangeEvent - Roaming change (from ah_trp_mib)
 
 ahAPId,
 ahAPName,
@@ -594,9 +553,6 @@ Readonly::Scalar our $ahBSSID => '.1.3.6.1.4.1.26928.1.1.1.1.2.42';
 Readonly::Scalar our $ahAssociationTime => '.1.3.6.1.4.1.26928.1.1.1.1.2.48';
 Readonly::Scalar our $ahIfName => '.1.3.6.1.4.1.26928.1.1.1.1.2.69';
 Readonly::Scalar our $ahIDPRSSI => '.1.3.6.1.4.1.26928.1.1.1.1.2.18';
-
-
-=back
 
 =head1 AUTHOR
 

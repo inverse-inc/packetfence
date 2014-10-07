@@ -44,7 +44,7 @@ conf/switches.conf
 conf/httpd.conf.d/ssl-certificates.conf
 conf/iptables.conf
 conf/listener.msg
-conf/mdm.conf
+conf/provisioning.conf
 conf/popup.msg
 conf/profiles.conf
 conf/snmptrapd.conf

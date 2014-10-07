@@ -8,6 +8,7 @@ data.t
 Test conformance of the data accessors to the database layer interface.
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;

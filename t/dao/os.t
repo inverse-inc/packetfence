@@ -8,6 +8,7 @@ dao/os.t
 Testing data access layer for the pf::os module
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;

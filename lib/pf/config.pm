@@ -634,7 +634,7 @@ sub readPfConfigFiles {
                             crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                             ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
                             ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
-                            www.microsoft.com
+                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com
                         )
                     ];
                 } else {
@@ -645,7 +645,7 @@ sub readPfConfigFiles {
                             crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                             ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
                             ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
-                            www.microsoft.com
+                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com
                         )
                     ];
                 }
@@ -677,7 +677,7 @@ sub readProfileConfigFile {
                 my $default_description = $Profiles_Config{'default'}{'description'};
                 while (my ($profile_id, $profile) = each %Profiles_Config) {
                     $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
-                    foreach my $field (qw(locale mandatory_fields sources filter) ) {
+                    foreach my $field (qw(locale mandatory_fields sources filter provisioners) ) {
                         $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
                     }
                     #Adding filters in profile order
@@ -874,7 +874,7 @@ sub dynamic_unreg_date {
 
     my $time_zone = DateTime::TimeZone->new( name => 'local' );
     if (DateTime->new(year => $year, month => $month, day => $day, time_zone => $time_zone )->epoch <= DateTime->now(time_zone => $time_zone)->epoch) {
-        $logger->warn("The DOY is today or before today. Setting date to next year");
+        $logger->warn("The DAY is today or before today. Setting date to next year");
         $year += 1;
         $unreg_date = "$year-$month-$day";
     } else {

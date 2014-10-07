@@ -38,6 +38,18 @@ has_field 'allow_localdomain' =>
              help => 'Accept self-registration with email address from the local domain' },
   );
 
+has_field 'create_local_account' => (
+    type => 'Toggle',
+    checkbox_value => 'yes',
+    unchecked_value => 'no',
+    label => 'Create Local Account',
+    default => pf::Authentication::Source::EmailSource->meta->get_attribute('create_local_account')->default,
+    tags => {
+        after_element => \&help,
+        help => 'Create a local account on the PacketFence system based on the email address provided.',
+    },
+);
+
 =head1 COPYRIGHT
 
 Copyright (C) 2013 Inverse inc.

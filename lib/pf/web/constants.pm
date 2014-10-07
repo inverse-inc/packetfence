@@ -88,6 +88,7 @@ Readonly::Scalar our $URL_EMAIL_ACTIVATION_LINK => '/activate/email';
 Readonly::Scalar our $CGI_EMAIL_ACTIVATION      => '/cgi-perl/email_activation.cgi';
 Readonly::Scalar our $URL_SMS_ACTIVATION        => '/activate/sms';
 Readonly::Scalar our $URL_PREREGISTER           => '/preregister';
+Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
 
 # TODO: Temp... migration process. Should be kept since it breaks the portal on removal
 # dwuelfrath@inverse.ca - 2012.11.12
@@ -113,7 +114,7 @@ Readonly::Scalar our $EXT_URL_XIRRUS            => '^/Xirrus::AP_http';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
-Readonly::Scalar our $MOD_PERL_ANDROID_PROFILE  => '/profile.xml';
+Readonly::Scalar our $URL_ANDROID_PROFILE  => '/profile.xml';
 
 =head2 Apache Config related
 

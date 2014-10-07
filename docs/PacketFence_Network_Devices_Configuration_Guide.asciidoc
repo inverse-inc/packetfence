@@ -585,6 +585,11 @@ handle VoIP with this switch, go with a 802.1X configuration.
 802.1X
 ++++++
 
+[WARNING]
+====
+Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
+
 Global config settings:
 
   dot1x system-auth-control 
@@ -784,6 +789,11 @@ can only support 802.1X with MAB using Multi-Host, MAB, and Port-Security.
 802.1X with MAC Authentication bypass (Multi­Domain) 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+[WARNING]
+====
+Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
+
 Global config settings:
 
   dot1x system-auth-control 
@@ -824,9 +834,19 @@ CoA configuration
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
   port 3799
+  
+Activate the snmp v1 on the switch:
+
+  snmp-server community public RO
+
 
 802.1X with MAC Authentication bypass (Multi­Host)
 ++++++++++++++++++++++++++++++++++++++++++++++++++
+
+[WARNING]
+====
+Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
 
 Global config settings:
 
@@ -867,8 +887,17 @@ CoA configuration
    client 192.168.1.5 server-key useStrongerSecret
   port 3799
 
+Activate the snmp v1 on the switch:
+
+  snmp-server community public RO
+
 MAC Authentication bypass only 
 ++++++++++++++++++++++++++++++
+
+[WARNING]
+====
+Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
 
 Global config settings 
 
@@ -908,6 +937,10 @@ CoA configuration
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
   port 3799
+
+Activate the snmp v1 on the switch:
+
+  snmp-server community public RO
 
 [NOTE]
 .802.1X on various models of 2960
@@ -3405,6 +3438,60 @@ Hostapd (software)
 
 To configure Hostapd software you can use the same configuration parameters above in the configuration file.
 
+
+Mikrotik
+~~~~~~~~
+
+This configuration has been tested on Access Point OmniTIK U-5hnD with RouterOS v6.18 and only MAC-Authentication is available now.
+The only deauthentication method available is SSH, so create an account in the Mikrotik AP and fill the information in PacketFence switch configuration.
+Also don't forget to use the pf account to ssh on the Access Point to receive the ssh key.
+
+[float]
+Open SSID
++++++++++
+
+In this setup we use the interface ether5 for the bridge (Trunk interface) and ether1 as the management interface.
+
+Configure your access point with the following configuration:
+
+  /interface wireless
+  # managed by CAPsMAN
+  # channel: 5180/20-Ce/an(17dBm), SSID: OPEN, local forwarding
+  set [ find default-name=wlan1 ] band=5ghz-a/n channel-width=20/40mhz-Ce disabled=no l2mtu=1600 mode=ap-bridge ssid=MikroTik-05A64D
+  /interface ethernet
+  set [ find default-name=ether1 ] name=ether1-gateway
+  set [ find default-name=ether2 ] name=ether2-master-local
+  set [ find default-name=ether3 ] master-port=ether2-master-local name=ether3-slave-local
+  set [ find default-name=ether4 ] master-port=ether2-master-local name=ether4-slave-local
+  set [ find default-name=ether5 ] name=ether5-master-local
+  /interface vlan
+  add interface=BR-CAPS l2mtu=1594 name=default vlan-id=1
+  add interface=BR-CAPS l2mtu=1594 name=isolation vlan-id=3
+  add interface=BR-CAPS l2mtu=1594 name=registration vlan-id=2
+  /caps-man datapath
+  add bridge=BR-CAPS client-to-client-forwarding=yes local-forwarding=yes name=datapath1
+  /caps-man interface
+  # 
+  add arp=enabled configuration.mode=ap configuration.ssid=OPEN datapath=datapath1 disabled=no l2mtu=1600 mac-address=\
+      D4:CA:6D:05:A6:4D master-interface=none mtu=1500 name=cap1 radio-mac=D4:CA:6D:05:A6:4D
+  /caps-man aaa
+  set interim-update=5m
+  /caps-man access-list
+  add action=query-radius interface=cap1 radius-accounting=yes signal-range=-120..120 time=0s-1d,sun,mon,tue,wed,thu,fri,sat
+  /caps-man manager
+  set enabled=yes
+  /interface bridge port
+  add bridge=bridge-local interface=ether2-master-local
+  add bridge=bridge-local interface=ether1-gateway
+  add bridge=BR-CAPS interface=ether5-master-local
+  /interface wireless cap
+  set bridge=BR-CAPS discovery-interfaces=BR-CAPS enabled=yes interfaces=wlan1
+  /ip accounting
+  set enabled=yes
+  /radius
+  add address=192.168.1.5 secret=useStrongerSecret service=wireless
+  /radius incoming
+  set accept=yes
 
 HP
 ~~

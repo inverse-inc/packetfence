@@ -11,9 +11,7 @@ to access SNMP enabled Avaya switches.
 
 =head1 BUGS AND LIMITATIONS
 
-=over
-
-=item BayStack stacking issues
+=head2 BayStack stacking issues
 
 Sometimes switches that were previously in a stacked setup will report
 security violations as if they were still stacked.
@@ -21,13 +19,11 @@ You will notice security authorization made on wrong ifIndexes.
 A factory reset / reconfiguration will resolve the situation.
 We experienced the issue with a BayStack 470 running 3.7.5.13 but we believe it affects other BayStacks and firmwares.
 
-=item Hard to predict OIDs seen on some variants
+=head2 Hard to predict OIDs seen on some variants
 
 We faced issues where some switches (ie ERS2500) insisted on having a board index of 1 when adding a MAC to the security table although for most other operations the board index was 0.
 Our attempted fix is to always consider the board index to start with 1 on the operations touching secuirty status (isPortSecurity and authorizeMAC).
 Be aware of that if you start to see MAC authorization failures and report the problem to us, we might have to do a per firmware or per device implementation instead.
-
-=back
 
 =cut
 
@@ -50,14 +46,9 @@ sub description { 'Avaya Switch Module' }
 
 =head1 CAPABILITIES
 
-
-=back
-
 =head1 METHODS
 
 TODO: This list is incomplete
-
-=over
 
 =cut
 
@@ -130,7 +121,7 @@ sub getBoardPortFromIfIndex {
     }
 }
 
-=item getBoardPortFromIfIndexForSecurityStatus
+=head2 getBoardPortFromIfIndexForSecurityStatus
 
 We noticed that the security status related OIDs always report their first boardIndex to 1 even though elsewhere
 it's all referenced as 0.
@@ -334,7 +325,7 @@ sub getPhonesLLDPAtIfIndex {
 
 
 
-=item parseRequest
+=head2 parseRequest
 
 Takes FreeRADIUS' RAD_REQUEST hash and process it to return
 NAS Port type (Ethernet, Wireless, etc.)
@@ -363,7 +354,7 @@ sub parseRequest {
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef);
 }
 
-=item deauthenticateMac
+=head2 deauthenticateMac
 
 Actual implementation.
 
@@ -395,7 +386,7 @@ sub deauthenticateMac {
     return (defined($result));
 }
 
-=item wiredeauthTechniques
+=head2 wiredeauthTechniques
 
 Return the reference to the deauth technique or the default deauth technique.
 
@@ -429,11 +420,12 @@ sub wiredeauthTechniques {
     }
 }
 
-=item deauthenticateMacRadius
+=head2 deauthenticateMacRadius
 
 Method to deauth a wired node with CoA.
 
 =cut
+
 sub deauthenticateMacRadius {
     my ($this, $ifIndex,$mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -443,7 +435,7 @@ sub deauthenticateMacRadius {
     $this->radiusDisconnect($mac);
 }
 
-=item radiusDisconnect
+=head2 radiusDisconnect
 
 Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
 
@@ -541,8 +533,6 @@ sub radiusDisconnect {
     );
     return;
 }
-
-=back
 
 =head1 AUTHOR
 

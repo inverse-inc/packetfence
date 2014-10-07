@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
-=item NAME
+=head1 NAME
 
 coa-server.pl
 
-=item DESCRIPTION
+=head1 DESCRIPTION
 
 Modified version of example-yes.pl taken from
 https://metacpan.org/source/LUISMUNOZ/Net-Radius-2.103/examples/example-yes.pl
@@ -99,7 +99,7 @@ Changes (c) 2002,2003 Luis E. Muñoz <luismunoz@cpan.org>.
 Original work (c) Christopher Masto. 
 
 =head1 LICENSE
- 
+
 This software can be used under the same terms as perl itself. It also
 carries the same warranties.
 

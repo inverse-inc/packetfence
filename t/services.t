@@ -34,7 +34,7 @@ use pf::config;
 
 =head1 CONFIGURATION VALIDATION
 
-=item pf::services::manager::httpd
+=head2 pf::services::manager::httpd
 
 =cut
 
@@ -52,12 +52,13 @@ $max_clients = pf::services::manager::httpd::calculate_max_clients(16384 * 1024)
 ok(200 < $max_clients && $max_clients < 250, "MaxClients for 16Gb RAM");
 
 $max_clients = pf::services::manager::httpd::calculate_max_clients(24576 * 1024);
-ok(250 < $max_clients && $max_clients < 350, "MaxClients for 24Gb RAM");
+ok(250 < $max_clients && $max_clients < 513, "MaxClients for 24Gb RAM");
 
 
-=item pf::services::manager::snmptrapd
+=head2 pf::services::manager::snmptrapd
 
 =cut
+
 # forcing an switchFactory instance with the test config file
 pf::SwitchFactory->getInstance;
 

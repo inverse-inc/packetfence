@@ -27,6 +27,7 @@ use Catalyst qw/
   Session::Store::CHI
   Session::State::Cookie
   StackTrace
+  Unicode::Encoding
   /;
 
 use Try::Tiny;

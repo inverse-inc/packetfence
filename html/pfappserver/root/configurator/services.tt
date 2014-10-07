@@ -2,13 +2,13 @@
  <!-- redirection to admin interface -->
   <div class="modal fade hide" id="modalRedirection">
     <div class="modal-header">
-      <h3>Congratulations!</h3>
+      <h3>[% l('Congratulations!') %]</h3>
     </div>
     <div class="modal-body">
-      <p>You have successfully configured and launched PacketFence.</p>
-      <p>You will now be redirected to the administration interface where you can configure violations and monitor your new NAC.</p>
+      <p>[% l('You have successfully configured and launched PacketFence.') %]</p>
+      <p>[% l('You will now be redirected to the administration interface where you can configure violations and monitor your new NAC.') %]</p>
       <div class="modal-footer">
-        <a class="btn btn-primary" href="https://[% admin_ip | html %]:[% admin_port | html %]/">Visit Administration Interface Now!</a>
+        <a class="btn btn-primary" href="https://[% admin_ip | html %]:[% admin_port | html %]/">[% l('Visit Administration Interface Now!') %]</a>
       </div>
     </div>
   </div>
@@ -23,22 +23,22 @@
         </div>
         <div class="span9">
           <div class="page-header">
-            <h1>Start the services
-            <small>Secure your network</small></h1>
+            <h1>[% l('Start the services') %]
+            <small>[% l('Secure your network') %]</small></h1>
           </div>
         </div>
       </div>
       <div class="row">
         <div class="span3">
           <div class="well">
-            <h3>Instructions</h3>
-            <p>The last step of this configuration wizard is to start the PacketFence daemons.</p>
+            <h3>[% l('Instructions') %]</h3>
+            <p>[% l('The last step of this configuration wizard is to start the PacketFence daemons.') %]</p>
           </div>
         </div>
         <div id="services" class="span9">
         [% UNLESS completed -%]
         <div class="alert alert-warning">
-          <strong>Warning!</strong> <span>You must complete all steps in order to start the services.</span>
+          <strong>[% l('Warning!') %]</strong> <span>[% l('You must complete all steps in order to start the services.') %]</span>
         </div>
         [% END -%]
           <table class="table">
@@ -54,7 +54,7 @@
                 <td>[% service %]</td>
                 <td><span id="service-[% service %]"
                   class="label[% IF services_status.$service %] label-success[% END %]">
-                  [%- IF services_status.$service %]Started[%- ELSE -%]Stopped[% END -%]</span></td>
+                  [%- IF services_status.$service %][% l('Started') %][%- ELSE -%][% l('Stopped') %][% END -%]</span></td>
               </tr>
               [%- END %]
             </tbody>
@@ -62,13 +62,13 @@
           <form class="form-horizontal">
             <fieldset>
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary pull-right[% UNLESS completed %] disabled[% END %]" href="[% next_step %]">Start PacketFence</button>
+              <button type="submit" class="btn btn-primary pull-right[% UNLESS completed %] disabled[% END %]" href="[% next_step %]">[% l('Start PacketFence') %]</button>
             </div>
             </fieldset>
           </form>
           <div id="serviceErrors" class="alert alert-danger"[% UNLESS error %] style="display: none;"[% END %]>
             <button class="close" data-dismiss="alert">&times;</button>
-            <strong>Console Output</strong>
+            <strong>[% l('Console Output') %]</strong>
             <pre>[% error %]</pre>
           </div>
         </div>

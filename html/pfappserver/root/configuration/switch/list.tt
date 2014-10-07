@@ -54,6 +54,7 @@
                   </select>
                   <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" placeholder="String..."/>
                   <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i></button>
+                  <button type="reset" class="btn btn-primary">&times;</button>
                 </div>
               </form>
               <br/>

@@ -17,14 +17,15 @@ use Moo;
 use pf::file_paths;
 use pf::config;
 use pf::log;
+use pf::util;
 
 extends 'pf::services::manager';
 
-has '+isvirtual' => (default => sub { 1 } );
-
 has '+name' => (default => sub { 'iptables' } );
 
-has '+shouldCheckup' => ( default => sub { 0 }  );
+has '+shouldCheckup' => ( default => sub { 1 }  );
+
+has '+launcher' => ( default => sub {"iptables"} );
 
 has '+dependsOnServices' => (is => 'ro', default => sub { [] } );
 
@@ -37,7 +38,7 @@ start iptables
 
 =cut
 
-sub start {
+sub startService {
     my ($self) = @_;
     my $technique;
     unless ($self->runningServices) {
@@ -46,6 +47,9 @@ sub start {
     }
     $technique ||= getIptablesTechnique();
     $technique->iptables_generate();
+    open(PIDFILE, '>>'.$self->pidFile);
+    print PIDFILE "-1";
+    close(PIDFILE);
     return 1;
 }
 
@@ -72,27 +76,25 @@ stop iptables
 sub stop {
     my ($self) = @_;
     my $count = $self->runningServices;
-    unless ($self->runningServices) {
-        getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak');
-    } else {
-        get_logger->error(
-            "Even though 'service pf stop' was called, there are still $count services running. "
-              . "Can't restore iptables from var/iptables.bak");
-    }
+    getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak');
+    unlink $self->pidFile;
     return 1;
 }
 
-=head2 pid
+=head2 isAlive
+
+Check if iptables is alive.
+Since it's never really stopped than we check if the fake PID exists
 
 =cut
 
-sub pid { 0 }
-
-=head2 status
-
-=cut
-
-sub status { "0" }
+sub isAlive {
+    my ($self,$pid) = @_;
+    my $result;
+    $pid = $self->pid;
+    my $rules_applied = defined(pf_run("iptables -S | grep ".$pf::iptables::FW_FILTER_INPUT_MGMT));
+    return (defined($pid) && $rules_applied);
+}
 
 
 =head1 AUTHOR

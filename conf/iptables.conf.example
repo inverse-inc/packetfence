@@ -106,23 +106,27 @@ COMMIT
 *nat
 :PREROUTING ACCEPT [0:0]
 :prerouting-int-inline-if - [0:0]
-%%nat_prerouting_inline%%
+:postrouting-inline-routed - [0:0]
+:postrouting-int-inline-if - [0:0]
 :prerouting-int-vlan-if - [0:0]
+
+%%nat_prerouting_inline%%
 %%nat_prerouting_vlan%%
+
+:OUTPUT ACCEPT [0:0]
+# These will redirect to the proper chains based on conf/pf.conf's configuration
+%%nat_if_src_to_chain%%
+
 
 :POSTROUTING ACCEPT [0:0]
 
-:postrouting-int-inline-if - [0:0]
 %%nat_postrouting_inline%%
 
 #
 # Chain to enable routing instead of NAT
 #
-:postrouting-inline-routed - [0:0]
 %%routed_postrouting_inline%%
-:OUTPUT ACCEPT [0:0]
-# These will redirect to the proper chains based on conf/pf.conf's configuration
-%%nat_if_src_to_chain%%
+
 #
 # NAT out (PAT actually)
 #
@@ -133,5 +137,6 @@ COMMIT
 # Comment the next two lines and do it here on the POSTROUTING chain. 
 # Make sure to adjust the FORWARD rules also to allow traffic back-in.
 %%nat_postrouting_vlan%%
+
 COMMIT
 

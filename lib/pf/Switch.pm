@@ -81,7 +81,7 @@ sub supportsFlows {
 =item supportsWebFormRegistration
 
 Returns 1 if switch type supports web form registration (for release of the external captive portal)
- 
+
 =cut
 
 sub supportsWebFormRegistration { 
@@ -785,7 +785,7 @@ sub getRoleByName {
     return $this->{'_roles'}->{$roleName} if (defined($this->{'_roles'}->{$roleName}));
 
     # otherwise log and return undef
-    $logger->warn("No parameter ${roleName}Role found in conf/switches.conf for the switch " . $this->{_id});
+    $logger->warn("(".$this->{_id}.") No parameter ${roleName}Role found in conf/switches.conf");
     return;
 }
 
@@ -3001,7 +3001,7 @@ sub parseSwitchIdFromRequest {
     return;
 }
 
-=item * _identifyConnectionType
+=item _identifyConnectionType
 
 Identify the connection type based information provided by RADIUS call
 
@@ -3069,6 +3069,7 @@ sub parseTrap {
 
 
 =back
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

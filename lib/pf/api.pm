@@ -164,7 +164,7 @@ sub ipset_node_update {
     my ( $class, $oldip, $srcip, $srcmac ) = @_;
     my $logger = pf::log::get_logger();
 
-    return(pf::ipset::node_update($oldip, $srcip, $srcmac));
+    return(pf::ipset::update_node($oldip, $srcip, $srcmac));
 }
 
 sub firewallsso {
@@ -196,6 +196,10 @@ sub ReAssignVlan {
     }
 
     my $switch = pf::SwitchFactory->getInstance()->instantiate( $postdata{'switch'} );
+    unless ($switch) {
+        $logger->error("switch $postdata{'switch'} not found for ReAssignVlan");
+        return;
+    }
 
     sleep $pf::config::Config{'trapping'}{'wait_for_redirect'}; 
 
@@ -218,6 +222,10 @@ sub desAssociate {
     my $logger = pf::log::get_logger();
 
     my $switch = pf::SwitchFactory->getInstance()->instantiate($postdata{'switch'});
+    unless ($switch) {
+        $logger->error("switch $postdata{'switch'} not found for desAssociate");
+        return;
+    }
 
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
 

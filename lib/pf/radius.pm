@@ -149,9 +149,8 @@ sub authorize {
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("[$mac] auto-registration of node failed");
         }
-        locationlog_synchronize($switch, $switch_ip, $switch_mac, $port, undef, $mac,
-            $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
-        );
+        $switch->synchronize_locationlog($port, undef, $mac, $isPhone ? $VOIP : $NO_VOIP,
+            $connection_type, $user_name, $ssid);
     }
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)

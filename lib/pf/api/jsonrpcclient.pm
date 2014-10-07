@@ -114,7 +114,8 @@ sub call {
         if($response_code == 200) {
             $response = decode_json($response_body);
         } else {
-            die "An error occured while processing the JSONRPC request return code ($response_code)";
+            $response = decode_json($response_body);
+            die $response->{error}{message};
         }
     } else {
         my $msg = "An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;

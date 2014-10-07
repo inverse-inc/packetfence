@@ -11,6 +11,7 @@ All the behavior contained here can be overridden in lib/pf/vlan/custom.pm.
 
 =cut
 
+# When adding a "use", remember to keep pf::vlan::custom up to date for easier customization.
 use strict;
 use warnings;
 
@@ -35,11 +36,9 @@ our $VERSION = 1.04;
 
 Warning: The list of subroutine is incomplete
 
-=over
-
 =cut
 
-=item new
+=head2 new
 
 Constructor.
 Usually you don't want to call this constructor but use the pf::vlan::custom subclass instead.
@@ -54,7 +53,7 @@ sub new {
     return $this;
 }
 
-=item fetchVlanForNode
+=head2 fetchVlanForNode
 
 Answers the question: What VLAN should a given node be put into?
 
@@ -109,7 +108,7 @@ sub fetchVlanForNode {
     return ( $vlan, 0, $user_role );
 }
 
-=item doWeActOnThisTrap
+=head2 doWeActOnThisTrap
 
 Don't act on uplinks, unkown interface types or some traps we are not interested in.
 
@@ -157,7 +156,7 @@ sub doWeActOnThisTrap {
     return $weActOnThisTrap;
 }
 
-=item getViolationVlan
+=head2 getViolationVlan
 
 Returns the violation vlan for a node (if any)
 
@@ -165,17 +164,13 @@ This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific
 
 Return values:
 
-=over 6
+=head2 * -1 means kick-out the node (not always supported)
 
-=item * -1 means kick-out the node (not always supported)
+=head2 * 0 means no violation for this node
 
-=item * 0 means no violation for this node
+=head2 * undef means there was an error
 
-=item * undef means there was an error
-
-=item * anything else is either a VLAN name string or a VLAN number
-
-=back
+=head2 * anything else is either a VLAN name string or a VLAN number
 
 =cut
 
@@ -246,7 +241,7 @@ sub getViolationVlan {
 }
 
 
-=item getRegistrationVlan
+=head2 getRegistrationVlan
 
 Returns the registration vlan for a node if registration is enabled and node is unregistered or pending.
 
@@ -254,15 +249,11 @@ This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific
 
 Return values:
 
-=over 6
+=head2 * 0 means node is already registered
 
-=item * 0 means node is already registered
+=head2 * undef means there was an error
 
-=item * undef means there was an error
-
-=item * anything else is either a VLAN name string or a VLAN number
-
-=back
+=head2 * anything else is either a VLAN name string or a VLAN number
 
 =cut
 
@@ -303,7 +294,7 @@ sub getRegistrationVlan {
     return 0;
 }
 
-=item getNormalVlan
+=head2 getNormalVlan
 
 Returns normal vlan
 
@@ -313,22 +304,16 @@ VLAN for the given switch.
 
 Return values:
 
-=over 6
+=head2 * -1 means kick-out the node (not always supported)
 
-=item * -1 means kick-out the node (not always supported)
+=head2 * 0 means node is already registered
 
-=item * 0 means node is already registered
+=head2 * undef means there was an error
 
-=item * undef means there was an error
-
-=item * anything else is either a VLAN name string or a VLAN number
-
-=back
+=head2 * anything else is either a VLAN name string or a VLAN number
 
 =cut
 
-# Developers note: If you modify this sub, make sure to replicate the change in pf::vlan::custom for consistency
-# purposes.
 sub getNormalVlan {
     #$switch is the switch object (pf::Switch)
     #$ifIndex is the ifIndex of the computer connected to
@@ -339,6 +324,23 @@ sub getNormalVlan {
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+
+    my $provisioner = $profile->findProvisioner($mac,$node_info);
+    if ($provisioner && $provisioner->{enforce}) {
+        unless ($provisioner->authorize($mac)) {
+            $logger->warn("$mac is not authorized anymore with it's provisionner. Putting node as pending.");
+            $node_info->{status} = $pf::node::STATUS_PENDING;
+            node_modify($mac, %$node_info);
+            return $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+        }
+        else{
+            $logger->debug("$mac is still authorized with it's provisioner");
+        }
+    }
+    else{
+        $logger->debug("Can't find provisioner for $mac");
+    }
 
     # Bypass VLAN is configured in node record so we return accordingly
     if ( defined($node_info->{'bypass_vlan'}) && $node_info->{'bypass_vlan'} ne '' ) {
@@ -379,7 +381,7 @@ sub getNormalVlan {
     elsif ( defined $user_name && $connection_type && ($connection_type & $EAP) == $EAP ) {
         $logger->debug("[$mac] EAP connection with a username \"$user_name\". Trying to match rules from authentication sources.");
         my $profile = pf::Portal::ProfileFactory->instantiate($mac);
-        my @sources = ($profile->getInternalSources);
+        my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
         my $params = {
             username => $user_name,
             connection_type => connection_type_to_str($connection_type),
@@ -421,21 +423,17 @@ sub getNormalVlan {
     return ($vlan, $role);
 }
 
-=item getInlineVlan
+=head2 getInlineVlan
 
 Handling the Inline VLAN Assignment
 
-=over
+=head2 * -1 means kick-out the node (not always supported)
 
-=item * -1 means kick-out the node (not always supported)
+=head2 * 0 means use native vlan
 
-=item * 0 means use native vlan
+=head2 * undef means there was an error
 
-=item * undef means there was an error
-
-=item * anything else is either a VLAN name string or a VLAN number
-
-=back
+=head2 * anything else is either a VLAN name string or a VLAN number
 
 =cut
 
@@ -457,7 +455,7 @@ sub getInlineVlan {
     return $switch->getVlanByName('inline');
 }
 
-=item getNodeInfoForAutoReg
+=head2 getNodeInfoForAutoReg
 
 Basic information returned for an auto-registered node
 
@@ -510,7 +508,7 @@ sub getNodeInfoForAutoReg {
     return %node_info;
 }
 
-=item shouldAutoRegister
+=head2 shouldAutoRegister
 
 Do we auto-register this node?
 
@@ -524,7 +522,6 @@ returns 1 if we should register, 0 otherwise
 
 =cut
 
-# Note: if you add more examples here, remember to sync them in pf::vlan::custom
 sub shouldAutoRegister {
     #$mac is MAC address
     #$switch_in_autoreg_mode is set to 1 if switch is in registration mode
@@ -569,7 +566,7 @@ sub shouldAutoRegister {
     return 0;
 }
 
-=item isInlineTrigger
+=head2 isInlineTrigger
 
 Return true if a radius properties match with the inline trigger
 
@@ -606,8 +603,6 @@ sub isInlineTrigger {
         }
     }
 }
-
-=back
 
 =head1 AUTHOR
 

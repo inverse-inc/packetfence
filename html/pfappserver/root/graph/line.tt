@@ -10,14 +10,14 @@
   <h6>[% range.start | html %] <i class="icon-arrow-right"></i> [% range.end | html %]</h6>
   [%- END %]
   [%- IF labels.size > 0 %]
-  <div id="[% id | html %]" class="chart"></div>
+  <div id="[% l(id) | html %]" class="chart"></div>
   <script type="text/javascript">
-    graphs.charts['[% id | html %]'] = {
+    graphs.charts['[% l(id) | html %]'] = {
       type: '[% graphtype | html %]',
       labels: ['[% labels.join("','") | html %]'],
       series: {
         [% FOREACH set IN series.keys -%]
-        '[% set | html %]' : [[% series.$set.join(',') | html %]][% UNLESS loop.last %],[% END %]
+        '[% l(set) | html %]' : [[% series.$set.join(',') | html %]][% UNLESS loop.last %],[% END %]
         [%- END %]
       }
     };

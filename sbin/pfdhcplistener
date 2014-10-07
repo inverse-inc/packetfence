@@ -516,28 +516,18 @@ sub update_iplog {
         return;
     }
 
-    my $oldmac = ip2mac($srcip);
     my $oldip  = mac2ip($srcmac);
 
-    if ( $oldmac && $oldmac ne $srcmac ) {
-        $logger->info(
-            "oldmac ($oldmac) and newmac ($srcmac) are different for $srcip - closing iplog entry"
-        );
-        $apiclient->notify('close_now_iplog',$srcip);
-    }
     if ( $oldip && $oldip ne $srcip ) {
+        my $oldmac = ip2mac($srcip);
         my $view_mac = node_view($srcmac);
         my $firewallsso = new pf::firewallsso;
         $firewallsso->do_sso('Stop',$oldmac,$oldip,undef);
         if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
             $apiclient->notify('ipset_node_update',$oldip, $srcip, $srcmac);
         }
-        $logger->info(
-            "oldip ($oldip) and newip ($srcip) are different for $srcmac - closing iplog entry"
-        );
-        $apiclient->notify('close_now_iplog',$oldip);
     }
-    $apiclient->notify('open_iplog', $srcmac, $srcip, $lease_length );
+    $apiclient->notify('update_iplog', $srcmac, $srcip, $lease_length );
 }
 
 =item process_fingerprint
@@ -587,11 +577,7 @@ sub process_fingerprint {
 
 sub normal_sighandler {
     Net::Pcap::pcap_breakloop($pcap);
-    deletepid("pfdhcplistener_$interface");
-    if ( threads->self->tid() == 0 ) {
-        $logger->logdie(
-            "pfdhcplistener: caught SIG" . $_[0] . " - terminating" );
-    }
+    $logger->trace( "pfdhcplistener: caught SIG" . $_[0] . " - terminating" );
 }
 
 =item get_local_dhcp_servers_by_ip

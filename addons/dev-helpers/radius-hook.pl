@@ -5,6 +5,7 @@
 radius-hook.pl - taps directly into pf::radius for profiling / debugging
 
 =cut
+
 use strict;
 use warnings;
 use Data::Dumper;

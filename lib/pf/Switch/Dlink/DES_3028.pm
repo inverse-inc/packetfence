@@ -139,8 +139,6 @@ sub parseTrap {
         $logger->debug("trap currently not handled");
     }
 
-    use Data::Dumper;
-    $logger->info(Dumper($trapHashRef));
     return $trapHashRef;
 }
 =head1 AUTHOR

@@ -44,7 +44,7 @@ BEGIN {
         iplog_view_open_mac   iplog_view_all 
         iplog_open            iplog_close 
         iplog_close_now       iplog_cleanup 
-        iplog_update
+        iplog_update          iplog_close_mac
 
         mac2ip 
         mac2allips
@@ -118,6 +118,9 @@ sub iplog_db_prepare {
 
     $iplog_statements->{'iplog_cleanup_sql'} = get_db_handle()->prepare(
         qq [ delete from iplog where unix_timestamp(end_time) < (unix_timestamp(now()) - ?) and end_time!=0 ]);
+
+    $iplog_statements->{'iplog_close_mac_sql'} = get_db_handle()->prepare(
+        qq [ update iplog set end_time=now() where mac=? and (end_time=0 or end_time > now()) ]);
 
     $iplog_db_prepared = 1;
 }
@@ -259,7 +262,7 @@ sub ip2mac {
     my $logger = Log::Log4perl::get_logger('pf::iplog');
     my $mac;
     return (0) if ( !valid_ip($ip) );
-    if ($management_network->{'Tip'} eq $ip) {
+    if (ref($management_network) && $management_network->{'Tip'} eq $ip) {
         return ( clean_mac("00:11:22:33:44:55") );
     }
     if ($date) {
@@ -375,6 +378,12 @@ sub mac2allips {
     return @all_ips;
 }
 
+sub iplog_close_mac {
+    my ($mac) = @_;
+    db_query_execute(IPLOG, $iplog_statements, 'iplog_close_mac_sql', $mac);
+    return (0);
+}
+
 sub iplog_update {
     my ( $srcmac, $srcip, $lease_length ) = @_;
     my $logger = Log::Log4perl->get_logger('pf::WebAPI');
@@ -385,21 +394,13 @@ sub iplog_update {
         return;
     }
 
-    my $oldmac = ip2mac($srcip);
-    my $oldip  = mac2ip($srcmac);
+    $logger->debug(
+        "closing iplog for mac ($srcmac) and ip $srcip - closing iplog entries"
+    );
 
-    if ( $oldmac && $oldmac ne $srcmac ) {
-        $logger->info(
-            "oldmac ($oldmac) and newmac ($srcmac) are different for $srcip - closing iplog entry"
-        );
-        iplog_close_now($srcip);
-    }
-    if ( $oldip && $oldip ne $srcip ) {
-        $logger->info(
-            "oldip ($oldip) and newip ($srcip) are different for $srcmac - closing iplog entry"
-        );
-        iplog_close_now($oldip);
-    }
+    iplog_close_mac($srcmac);
+    iplog_close_now($srcip);
+
     iplog_open( $srcmac, $srcip, $lease_length );
     return (1);
 }

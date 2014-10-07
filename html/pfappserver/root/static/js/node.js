@@ -56,6 +56,8 @@ var NodeView = function(options) {
 
     this.proxyClick($('body'), '#modalNode [href*="/close/"]', this.closeViolation);
 
+    this.proxyClick($('body'), '#modalNode #reevaluateNode', this.reevaluateAccess);
+
     this.proxyClick($('body'), '#modalNode #addViolation', this.triggerViolation);
 
     /* Update the advanced search form to the next page or sort the query */
@@ -313,6 +315,22 @@ NodeView.prototype.triggerViolation = function(e) {
         errorSibling: pane.children().first()
     });
 };
+
+NodeView.prototype.reevaluateAccess = function(e){
+    e.preventDefault();
+    
+    var modal = $('#modalNode');
+    var modal_body = modal.find('.modal-body');
+    var link = $(e.target);
+    var url = link.attr('href');
+    this.nodes.get({
+        url: url,
+        success: function(data) {
+            showSuccess(modal_body.children().first(), data.status_msg);
+        },
+        errorSibling: modal_body.children().first()
+    });
+}
 
 NodeView.prototype.reorderSearch = function(e) {
     e.preventDefault();

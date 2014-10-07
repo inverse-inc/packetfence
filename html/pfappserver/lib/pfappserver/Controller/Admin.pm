@@ -39,7 +39,7 @@ sub auto :Private {
     unless ($c->action->name eq 'login' || $c->action->name eq 'logout' || $c->user_in_realm('admin')) {
         $c->stash->{'template'} = 'admin/login.tt';
         unless ($c->action->name eq 'index') {
-            $c->stash->{status_msg} = 'Your session has expired.';
+            $c->stash->{status_msg} = $c->loc("Your session has expired.");
             $c->stash->{'redirect_action'} = $c->uri_for($c->action, @args);
         }
         $c->delete_session();
@@ -223,7 +223,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2013 Inverse inc.
+Copyright (C) 2012-2014 Inverse inc.
 
 =head1 LICENSE
 

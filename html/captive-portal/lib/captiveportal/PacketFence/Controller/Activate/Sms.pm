@@ -58,7 +58,7 @@ sub index : Path : Args(0) {
         my $pid = $c->session->{"guest_pid"} || "admin";
         my $sms_type = pf::Authentication::Source::SMSSource->getDefaultOfType();
         my $source = $profile->getSourceByType($sms_type);
-        my $auth_params = { 'username' => $pid };
+        my $auth_params = { 'username' => $pid, 'user_email' => $pid };
 
         if ($source) {
 
@@ -80,7 +80,9 @@ sub index : Path : Args(0) {
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
             $c->stash->{info}=\%info; 
+            $c->stash->{sms_pin} = $request->param("pin");  # We are putting the SMS PIN in stash to use it as a password in case we create a local account
             $c->forward('Authenticate' => 'postAuthentication');
+            $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
             # clear state that redirects to the Enter PIN page

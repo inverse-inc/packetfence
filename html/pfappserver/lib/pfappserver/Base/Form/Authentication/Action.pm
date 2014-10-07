@@ -49,6 +49,41 @@ has_field 'actions.value' =>
    },
   );
 
+
+our %ACTION_FIELD_OPTIONS = (
+    $Actions::MARK_AS_SPONSOR => {
+        type    => 'Hidden',
+        default => '1'
+    },
+    $Actions::SET_ACCESS_LEVEL => {
+        type          => 'Select',
+        do_label      => 0,
+        wrapper       => 0,
+        multiple      => 1,
+        element_class => ['chzn-select'],
+        element_attr => {'data-placeholder' => 'Click to add a access right'},
+        options_method => \&options_access_level,
+    },
+    $Actions::SET_ROLE => {
+        type           => 'Select',
+        do_label       => 0,
+        wrapper        => 0,
+        options_method => \&options_roles,
+    },
+    $Actions::SET_ACCESS_DURATION => {
+        type           => 'Select',
+        do_label       => 0,
+        wrapper        => 0,
+        options_method => \&options_durations,
+        default_method => sub { $Config{'guests_admin_registration'}{'default_access_duration'} }
+    },
+    $Actions::SET_UNREG_DATE => {
+        type     => 'DatePicker',
+        do_label => 0,
+        wrapper  => 0,
+    }
+);
+
 =head2 field_list
 
 Dynamically build the list of available actions corresponding to the
@@ -67,77 +102,7 @@ sub field_list {
         $self->form->ctx->log->error($@);
     }
     else {
-        @fields = ();
-        $actions_ref = $classname->available_actions();
-        foreach my $action (@{$actions_ref}) {
-            {
-                $action eq $Actions::MARK_AS_SPONSOR && do {
-                    push(@fields,
-                         "${Actions::MARK_AS_SPONSOR}_action" =>
-                          {
-                           type => 'Hidden',
-                           default => '1'
-                          }
-                         );
-                    last;
-                };
-                $action eq $Actions::SET_ACCESS_LEVEL && do {
-                    push(@fields,
-                         "${Actions::SET_ACCESS_LEVEL}_action" =>
-                          {
-                           type => 'Select',
-                           do_label => 0,
-                           wrapper => 0,
-                           multiple => 1,
-                           element_class => ['chzn-select'],
-                           element_attr => {'data-placeholder' => 'Click to add a access right' },
-                           options_method => \&options_access_level,
-                          }
-                         );
-                    last;
-                };
-                $action eq $Actions::SET_ROLE && do {
-                    push(@fields,
-                         "${Actions::SET_ROLE}_action" =>
-                          {
-                           type => 'Select',
-                           do_label => 0,
-                           wrapper => 0,
-                           options_method => \&options_roles,
-                          }
-                         );
-                    last;
-                };
-                $action eq $Actions::SET_ACCESS_DURATION && do {
-                    push(@fields,
-                         "${Actions::SET_ACCESS_DURATION}_action" =>
-                          {
-                           type => 'Select',
-                           do_label => 0,
-                           wrapper => 0,
-                           options_method => \&options_durations,
-                           default_method => sub {
-                               my $duration = $Config{'guests_admin_registration'}{'default_access_duration'}
-                                 || $Default_Config{'guests_admin_registration'}{'default_access_duration'};
-                               return $duration;
-                           },
-                          }
-                         );
-                    last;
-                };
-                $action eq $Actions::SET_UNREG_DATE && do {
-                    push(@fields,
-                         "${Actions::SET_UNREG_DATE}_action" =>
-                          {
-                           type => 'DatePicker',
-                           do_label => 0,
-                           wrapper => 0,
-                          }
-                         );
-                    last;
-                };
-            }
-        }
+        @fields = map { exists $ACTION_FIELD_OPTIONS{$_} ? ( "${_}_action" => $ACTION_FIELD_OPTIONS{$_}) : () } @{$classname->available_actions()};
     }
 
     return \@fields;
@@ -238,6 +203,9 @@ sub validate {
     my @duplicates = grep { $actions{$_} > 1 } keys %actions;
     if (scalar @duplicates > 0) {
         $self->field('actions')->add_error("You can't have more than one action of the same type.");
+    }
+    foreach my $action (@{$self->value->{actions}}) {
+        get_logger->info($action->{type});
     }
 }
 

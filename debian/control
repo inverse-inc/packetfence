@@ -11,11 +11,11 @@ Homepage: http://www.packetfence.org/
 Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
-Pre-Depends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
+Pre-Depends:  ca-certificates, freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server
 Breaks: libdata-alias-perl
-Depends: ${misc:Depends}, vlan, make, patch,
- openssl, openssl-blacklist, openssl-blacklist-extra,
+Depends: ${misc:Depends}, vlan, make,
+ openssl, openssl-blacklist, openssl-blacklist-extra, snort | suricata,
  mysql-server|mariadb-server|mariadb-galera-server, memcached,
  snmp, snmptrapfmt, snmp-mibs-downloader, conntrack,
 # apache related
@@ -62,6 +62,7 @@ Depends: ${misc:Depends}, vlan, make, patch,
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313
  libnet-appliance-session-perl (>= 2.111080),
+ libnet-ssh2-perl,
  libnet-cli-interact-perl,
  libnet-interface-perl, libnet-radius-perl,
  libparse-nessus-nbe-perl, libtest-mockdbi-perl,
@@ -78,7 +79,7 @@ Depends: ${misc:Depends}, vlan, make, patch,
  libcatalyst-perl (>= 5.90011), libcatalyst-modules-perl,
  libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl, 
  libcatalyst-authentication-store-htpasswd-perl, libcatalyst-plugin-unicode-encoding-perl,
- libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl,
+ libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl, libjson-xs-perl,
  libsort-naturally-perl, libhtml-formhandler-perl (<= 0.40016), libchi-perl (>=0.56),
  libchi-driver-memcached-perl,libcache-memcached-perl, libcache-memcached-getparserxs-perl, libdata-serializer-perl,
  libcache-fastmmap-perl, libmoo-perl (>=1.001000), libterm-size-any-perl,

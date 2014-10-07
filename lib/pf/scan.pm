@@ -36,7 +36,7 @@ use pf::iplog qw(ip2mac);
 use pf::scan::nessus;
 use pf::scan::openvas;
 use pf::util;
-use pf::violation qw(violation_exist_open violation_trigger violation_modify);
+use pf::violation qw(violation_close violation_exist_open violation_trigger violation_modify);
 
 Readonly our $SCAN_VID          => 1200001;
 Readonly our $SEVERITY_HOLE     => 1;
@@ -161,10 +161,7 @@ sub parse_scan_report {
 
         # We passed the scan so we can close the scan violation
         if ( !$failed_scan ) {
-            my $cmd = $bin_dir . "/pfcmd manage vclose $mac $SCAN_VID";
-            $logger->info("Calling $cmd");
-            my $grace = pf_run("$cmd");
-            # FIXME shouldn't we focus on return code instead of output? pretty sure this is broken
+            my $grace = violation_close($mac, $SCAN_VID);
             if ( $grace == -1 ) {
                 $logger->warn("Problem trying to close scan violation");
                 return;

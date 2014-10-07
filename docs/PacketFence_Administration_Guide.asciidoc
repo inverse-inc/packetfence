@@ -1064,6 +1064,8 @@ Add user on sponsor registration in Configuration -> Self Registration section.
 At the end of the guest registration, PacketFence will send a an email with the credentials for Email and Sponsor. For SMS use your
 phone number and the PIN code.
 
+Note that this option doesn't currently work with the 'Reuse dot1x credentials' option of the captive portal.
+
 In `/usr/local/pf/raddb/sites-available/packetfence-tunnel` there is an example on how to configure radius to enable this feature (uncomment to make it work).
 
 In this example we activate this feature on a specific SSID name (Secure-Wireless), disabled by default NTLM Auth,
@@ -1187,14 +1189,15 @@ Log files
 
 Here are the most important PacketFence log files:
 
-/usr/local/pf/logs/packetfence.log:: PacketFence Core Log
-/usr/local/pf/logs/portal_access_log:: Apache – Captive Portal Access Log
-/usr/local/pf/logs/portal_error_log:: Apache – Captive Portal Error Log
-/usr/local/pf/logs/admin_access_log:: Apache – Web Admin/Services Access Log
-/usr/local/pf/logs/admin_error_log:: Apache – Web Admin/Services Error Log
-/usr/local/pf/logs/admin_debug_log:: Apache – Web Admin Debug Log
-/usr/local/pf/logs/webservices_access_log:: Apache – Webservices Access Log
-/usr/local/pf/logs/webservices_error_log:: Apache – Webservices Error Log
+[options="compact"]
+* `/usr/local/pf/logs/packetfence.log` — PacketFence Core Log
+* `/usr/local/pf/logs/portal_access_log` — Apache – Captive Portal Access Log
+* `/usr/local/pf/logs/portal_error_log` — Apache – Captive Portal Error Log
+* `/usr/local/pf/logs/admin_access_log` — Apache – Web Admin/Services Access Log
+* `/usr/local/pf/logs/admin_error_log` — Apache – Web Admin/Services Error Log
+* `/usr/local/pf/logs/admin_debug_log` — Apache – Web Admin Debug Log
+* `/usr/local/pf/logs/webservices_access_log` — Apache – Webservices Access Log
+* `/usr/local/pf/logs/webservices_error_log` — Apache – Webservices Error Log
 
 There are other log files in `/usr/local/pf/logs/` that could be relevant depending on what issue you are experiencing. Make sure you take a look at them.
 
@@ -2063,8 +2066,8 @@ Next, click on *Add a condition*, and select *Anti-virus*, *is*, and *disabled* 
 
 The last step is to create a new remediation template called `noantivirus.php` on the filesystem in the `html/captive-portal/violations` folder. Edit it to include the text you want to display to the users.
 
-Apple and Android Wireless Profile Provisioning
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Apple and Android Wireless Provisioning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apple devices such as iPhones, iPads, iPods and Mac OS X (10.7+) support wireless profile importation using a special XML file format (mobileconfig). Android is also able to support this feature by importing the wireless profile with the Android PacketFence Agent. In fact, installing such file on your Apple device will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to ease the configuration steps on the mobile device (because it is often painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator's preference and we pre-populate the file with the user's credentials (without the password). The user simply needs to install its generated file and he will be able to use the new SSID.
 
@@ -2073,9 +2076,9 @@ Configure the feature
 
 In order to enable this feature, you simply need to add 3 options to your `pf.conf` configuration file.
 
-provisioning.autoconfig:: Enable or disable the feature
-provisioning.ssid:: This is the SSID you want the user to connect to upon registration 
-provisioning.category:: Activate this feature to a specific category or any.
+*provisioning.autoconfig*:: Enable or disable the feature
+*provisioning.ssid*:: This is the SSID you want the user to connect to upon registration
+*provisioning.category*:: Activate this feature to a specific category or any.
 
 Here is an example: We have an hidden WPA2-Enterprise SSID named HiddenSecure, and we want to provision this wireless profile to everybody registering with an iPhone, iPad, or iPod. The configuration in `pf.conf` would look like:
 
@@ -2477,7 +2480,7 @@ realm ntdomain {
 }
 ----
 
-Vlan Filter Definition
+VLAN Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~
 
 We added the ability to specify filters directly in the portion of code that re-evaluates the VLAN. 
@@ -2488,7 +2491,7 @@ These rules are available in different scopes:
   RegistrationVlan
   NormalVlan
   InlineVlan
-  shouldAutoRegister
+  AutoRegister
 
 And can be defined using different criteria like:
 
@@ -2528,13 +2531,13 @@ from Monday to Friday when it try to connect as a registered device :
 
 You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
 
-AD-Integration:
-~~~~~~~~~~~~~~~
+ActiveDirectory Integration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Deleted Account:
-++++++++++++++++
+Deleted Account
+^^^^^^^^^^^^^^^
 
-Create a file unreg_node_deleted_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the werb services credentials. Make sure the username and password match the credentials defined in the Web admin interface under Configuration > Web Services.
+Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Web Services*.
 
 ----
 #########################################################################################
@@ -2566,12 +2569,12 @@ Get-EventLog -LogName Security -InstanceId 4726 |
    }
 ----
 
-Create the scheduled task based on an event ID:
-+++++++++++++++++++++++++++++++++++++++++++++++
+Create the scheduled task based on an event ID
+++++++++++++++++++++++++++++++++++++++++++++++
 
-*Start* > *Run* > *Taskschd.msc*
+*Start -> Run -> Taskschd.msc*
 
-*Task Scheduler* > *Task Scheduler Library* > *Event Viewer Task* > *Create Task*
+*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
 
 General
 
@@ -2581,7 +2584,7 @@ Check: Run whether user is logged on or not
 Check: Run with highest privileges
 ----
 
-Triggers > New
+Triggers -> New
 
 ----
 Begin on the task: On an event
@@ -2590,7 +2593,7 @@ Source: Microsoft Windows security auditing.
 Event ID: 4726
 ----
 
-Actions > New
+Actions -> New
 
 ----
 Action: Start a program
@@ -2604,12 +2607,12 @@ Settings:
 At the bottom, select in the list "Run a new instance in parallel" in order to unregister multiple nodes at the same time.
 ----
 
-Validate with Ok and give the account who will run this task. (Usually DOMAIN\Administrator)
+Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
 
-Locked Account:
-+++++++++++++++
+Locked Account
+^^^^^^^^^^^^^^
 
-Create a file unreg_node_locked_account.ps1 on the Windows Server and make sure to change the @IP_PACKETFENCE. I am using username and password "admin" for the web services credentials, Make sure the username and password match the credentials defined in the Web admin interface under Configuration > Web Services.
+Create the script `unreg_node_locked_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Web Services*.
 
 ----
 #########################################################################################
@@ -2642,12 +2645,12 @@ Get-EventLog -LogName Security -InstanceId 4725 |
    }
 ----
 
-Create the scheduled task based on an event ID:
-+++++++++++++++++++++++++++++++++++++++++++++++
+Create the scheduled task based on an event ID
+++++++++++++++++++++++++++++++++++++++++++++++
 
-*Start* > *Run* > *Taskschd.msc*
+*Start -> Run -> Taskschd.msc*
 
-*Task Scheduler* > *Task Scheduler Library* > *Event Viewer Task* > *Create Task*
+*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
 
 General
 
@@ -2657,7 +2660,7 @@ Check: Run whether user is logged on or not
 Check: Run with highest privileges
 ----
 
-Triggers > New
+Triggers -> New
 
 ----
 Begin on the task: On an event
@@ -2666,7 +2669,7 @@ Source: Microsoft Windows security auditing.
 Event ID: 4726
 ----
 
-Actions > New
+Actions -> New
 
 ----
 Action: Start a program
@@ -2680,22 +2683,22 @@ Settings:
 At the bottom, select in the list "Run a new instance in parallel"
 ----
 
-Validate with Ok and give the account who will run this task. (Usually DOMAIN\Administrator)
+Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
 
 Firewall SSO
 ------------
 
-This SSO (Single Sign-On) feature is a way to match the Policies of your firewalls after a valid authentication on the captive portal. You can apply policies based on PacketFence's roles (categories). We actually support two ways to inform the firewall, Accounting request and XML request. 
+This SSO (Single Sign-On) feature is a way to match the Policies of your firewalls after a valid authentication on the captive portal. You can apply policies based on PacketFence's roles (categories). We actually support two ways to inform the firewall: _Accounting request_ and _XML request_. 
 
-Fortigate:
-++++++++++
+Fortigate
+~~~~~~~~~
 
 Go to your Fortigate administration webpage.
 
-Agent RSSO configuration:
+Agent RSSO configuration
 +++++++++++++++++++++++++
 
-Go to *User & Device* > *User* > *User Groups* > *Create New*
+Go to *User & Device -> User -> User Groups -> Create New*
 
 ----
 Name: RSSO_group
@@ -2703,19 +2706,19 @@ Type: RADIUS Single Sign-On (RSSO)
 RADIUS Attribute Value: Guest (Put the rolename of PacketFence, it's case sensitive)
 ----
 
-You can also see that in the webpage at *User & Device* > *Monitor* > *Firewall* 
+You can also see that in the webpage at *User & Device -> Monitor -> Firewall*
 
-Activate the Accounting Listening:
-+++++++++++++++++++++++++++++++++++
+Activate the Accounting Listening
++++++++++++++++++++++++++++++++++
 
-Go to *System* > *Network* > *Interfaces*
+Go to *System -> Network -> Interfaces*
 
 Select the interface that will communicate with PacketFence and check : Listen for RADIUS Accounting Messages than validate by OK.
 
-SSO Configuration in PacketFence:
-+++++++++++++++++++++++++++++++++
+SSO Configuration in PacketFence
+++++++++++++++++++++++++++++++++
 
-Go to *Configuration* > *Firewall SSO* > *Add Firewall SSO*
+Go to *Configuration -> Firewall SSO -> Add Firewall SSO*
 
 ----
 Hostname or IP Address: @IP of your firewall
@@ -2725,8 +2728,8 @@ Port: 1813
 Roles: add the roles that you want to do SSO
 ----
 
-Verification:
-+++++++++++++
+Verification
+++++++++++++
 
 If you want to see if it's working, you can log into the firewall over SSH and run these following commands:
 
@@ -2735,22 +2738,22 @@ di debug enable
 di debug application radiusd -1
 ----
 
-PaloAlto:
-+++++++++
+PaloAlto
+~~~~~~~~
 
 You have to log in the webpage of your PaloAlto Firewall.
 
-- Create a SSO_Role role:
-+++++++++++++++++++++++++
+Create a SSO role
++++++++++++++++++
 
-Go to *Device* > *Admin Roles* > *Add*
+Go to *Device -> Admin Roles -> Add*
 
 Create the role name SSO_Role, under the 'XML API' tab enable everything and validate it with OK.
 
-- Create the account in PAN-OS:
-+++++++++++++++++++++++++++++++
+Create the account in PAN-OS
+++++++++++++++++++++++++++++
 
-Go to *Device* > *Administrator* > *Add*
+Go to *Device -> Administrator -> Add*
 
 ----
 Name: xmluser
@@ -2761,13 +2764,12 @@ Profile: SSO_Role (Previously created)
 Password Profile: None
 ----
 
-Get the XML Key:
-++++++++++++++++
+Get the XML Key
++++++++++++++++
 
-Go on your broswer : https://@IP-of-PaloAlto/api/?type=keygen&user=xmluser&password=xmluser
-(Put user=Username&password=Yourpassword)
+Hit the following page in your browser: https://@IP-of-PaloAlto/api/?type=keygen&user=xmluser&password=xmluser
 
-it should display :
+It should display:
 
 ----
 <response status="success">
@@ -2779,10 +2781,10 @@ LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVljL000eDVnWHg2VTdwNUJHMlFGcHFC
 </response>
 ----
 
-SSO Configuration PF:
-+++++++++++++++++++++
+SSO Configuration PF
+++++++++++++++++++++
 
-Go to Configuration > Firewall SSO > Add Firewall SSO
+Go to *Configuration -> Firewall SSO -> Add Firewall SSO*
 
 ----
 Hostname or IP Address: @IP of your firewall
@@ -2792,10 +2794,10 @@ Port: 443
 Roles: add the roles that you want to do SSO
 ----
 
-Verification:
-+++++++++++++
+Verification
+++++++++++++
 
-Log into the ssh console on the PaloAlto and run this command :
+Log in over SSH on the PaloAlto firewall and run this command:
 
 ----
 show user ip-user-mapping all
@@ -2804,7 +2806,7 @@ show user ip-user-mapping all
 Operating System Best Practices
 -------------------------------
 
-Iptables
+IPTables
 ~~~~~~~~
 
 IPTables is now entirely managed by PacketFence. However, if you need to perform some custom rules, you can modify `conf/iptables.conf` to your own needs. However, the default template should work for most users.
@@ -2812,21 +2814,16 @@ IPTables is now entirely managed by PacketFence. However, if you need to perform
 Log Rotations
 ~~~~~~~~~~~~~
 
-PacketFence can generate a lot of log entries in huge production environments. This is why we recommend to use either `logrotate` to periodically rotate your logs.
-
-Logrotate (recommended)
-~~~~~~~~~~~~~~~~~~~~~~~
-
-This is the easiest way to rotate your logs. In fact, a working logrotate script is provided with the PacketFence package. This script is located in `/usr/local/pf/addons`, and it's configured to do a weekly log rotation and keeping old logs with compression. It has been added during PacketFence initial installation.
+PacketFence can generate a lot of log entries in huge production environments. This is why we recommend to use `logrotate` to periodically rotate your logs. A working logrotate script is provided with the PacketFence package. This script is located in `/usr/local/pf/addons`, and it's configured to do a weekly log rotation and keeping old logs with compression. It has been added during PacketFence initial installation.
 
 High Availability
 ~~~~~~~~~~~~~~~~~
 
 A high availability setup (active/passive) for PacketFence can be created using two PacketFence servers and the following open source utilities:
 
-Linux-HA (www.linux-ha.org)::
+http://www.linux-ha.org/[Linux-HA]::
 A daemon that provides cluster infrastructure to its clients. Heartbeat would be responsible for starting the PacketFence services, eventually 
-DRBD (www.drbd.org)::
+http://www.drbd.org/[DRBD]::
 A network based raid-1.
 
 Since PacketFence stores most of its information in a MySQL database, the two PacketFence redundant servers need to share this database in a way or another.
@@ -2856,10 +2853,7 @@ We assume that:
 Creation of the DRBD partition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-During the OS installation, reduce the size of the main partition and create a new one (that will be used for the replicated MySQL database) of 30G. In order to do so, on `VolGroup00`:
-
-[options="compact"]
-* leave at least 30G of drive space for a new partition. *Do not* create that partition during the install process, we will do it later.
+During the OS installation, reduce the size of the main partition and create a new one (that will be used for the replicated MySQL database) of 30G. *Do not* create that partition during the install process, we will do it later.
 
 Partitioning
 ^^^^^^^^^^^^
@@ -3152,10 +3146,10 @@ Performance optimization
 MySQL optimizations
 ~~~~~~~~~~~~~~~~~~~
 
-Tuning MySQL itself
-^^^^^^^^^^^^^^^^^^^
+Tuning MySQL
+^^^^^^^^^^^^
 
-If you're PacketFence system is acting *very slow*, this could be due to your MySQL configuration. You should do the following to tune performance:
+If you're PacketFence system is acting very slow, this could be due to your MySQL configuration. You should do the following to tune performance:
 
 Check the system load
 

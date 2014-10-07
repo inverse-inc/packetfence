@@ -69,7 +69,7 @@ function graphLineData(holder, labels, series) {
                  .attr({fill: white, stroke: white}));
         box.push(r.circle(x + 5, h, 4)
                  .attr({fill: clr, stroke: "none"}));
-        box.push(r.text(x + 20, h, legend[i])
+        box.push(r.text(x + 20, h, legend[i].toLowerCase())
                  .attr(txtattr)
                  .attr({fill: "#000", "text-anchor": "start"}));
         x += box.getBBox().width + 15;

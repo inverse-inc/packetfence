@@ -4,6 +4,7 @@
 threecom.t
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;

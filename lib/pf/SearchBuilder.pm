@@ -476,13 +476,18 @@ sub format_from {
     if($type eq 'HASH') {
         my ($table,$as,$join_type,$using,$on) = @{$from_clause}{qw(table as join using on)};
         if(defined $table) {
-            $table = $dbh->quote_identifier($table);
+            if(ref($table) ) {
+                $table = $$table;
+            } else {
+                $table = $dbh->quote_identifier($table);
+            }
             if($join_type) {
                 $join_type = uc($join_type);
                 if(exists $VALID_JOIN_TYPES{$join_type}) {
                     push @clause_parts,$join_type;
                 }
                 push @clause_parts,"JOIN",$table;
+                push @clause_parts,'as',$as if defined $as && length($as) > 0;
                 if ($using) {
                     push @clause_parts,'using(',$dbh->quote_identifier($using),')';
                 } elsif ($on) {

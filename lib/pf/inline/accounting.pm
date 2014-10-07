@@ -186,7 +186,7 @@ sub inline_accounting_maintenance {
     my @tid = trigger_view_tid($ACCOUNTING_POLICY_BANDWIDTH);
     if (scalar(@tid) > 0) {
         my $violation_id = $tid[0]{'vid'}; # only consider the first violation
-        $logger->debug("Violation $violation_id is of type $TRIGGER_TYPE_ACCOUNTING::$ACCOUNTING_POLICY_BANDWIDTH; analyzing inline accounting data");
+        $logger->debug("Violation $violation_id is of type $TRIGGER_TYPE_ACCOUNTING $ACCOUNTING_POLICY_BANDWIDTH; analyzing inline accounting data");
 
         # Disable AutoCommit since we perform a SELECT .. FOR UPDATE statement
         my $dbh = get_db_handle();

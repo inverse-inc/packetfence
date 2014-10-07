@@ -6,23 +6,17 @@ pf::Switch::Cisco::Catalyst_2960 - Object oriented module to access and configur
 
 =head1 STATUS
 
-=over
+=head1 SUPPORTS
 
-=item Supports
+=head2 802.1X with or without VoIP
 
-=over
+=head2 Port-Security with or without VoIP
 
-=item 802.1X with or without VoIP
+=head2 Link Up / Link Down
 
-=item Port-Security with or without VoIP
+=head2 Stacked configuration
 
-=item Link Up / Link Down
-
-=item Stacked configuration
-
-=back
-
-=item Firmware version
+=head2 Firmware version
 
 Recommended firmware is 12.2(58)SE1
 
@@ -31,34 +25,24 @@ The absolute minimum required firmware version is 12.2(25)SEE2.
 Port-security + VoIP mode works with firmware 12.2(44)SE or greater unless mentioned below.
 Earlier IOS were not explicitly tested.
 
-=back
-
 This module extends pf::Switch::Cisco::Catalyst_2950.
 
 =head1 PRODUCT LINES
 
-=over
-
-=item 2960, 2960S, 2960G
+=head2 2960, 2960S, 2960G
 
 With no limitations that we are aware of.
 
-=item 2960 LanLite
+=head2 2960 LanLite
 
 The LanLite series doesn't support the fallback VLAN on RADIUS AAA based
 approaches (MAC-Auth, 802.1X). This can affect fail-open scenarios.
 
-=back
-
 =head1 BUGS AND LIMITATIONS
 
-=over
+=head2 Port-Security
 
-=item Port-Security
-
-=over
-
-=item Status with IOS 15.x
+=head2 Status with IOS 15.x
 
 At the moment we faced regressions with the Cisco IOS 15.x series. Not a lot
 of investigation was performed but at this point consider this series as
@@ -67,7 +51,7 @@ users who cannot use another IOS to configure their switch to do MAC
 Authentication instead (called MAC Authentication Bypass or MAB in Cisco's
 terms) or get in touch with us so we can investigate further.
 
-=item Problematic firmwares
+=head2 Problematic firmwares
 
 12.2(50)SE, 12.2(55)SE were reported as malfunctioning for Port-Security operation.
 Avoid these IOS.
@@ -78,7 +62,7 @@ if the target port has the same VLAN as where the MAC was first authorized.
 Without a security violation trap PacketFence can't authorize the port leaving the MAC unauthorized.
 Avoid this IOS.
 
-=item Delays sending security violation traps
+=head2 Delays sending security violation traps
 
 Several IOS are affected by a bug that causes the security violation traps to take a long time before being sent.
 
@@ -90,13 +74,9 @@ Known affected IOS: 12.2(44)SE2, 12.2(44)SE6, 12.2(52)SE, 12.2(53)SE1, 12.2(55)S
 
 Known fixed IOS: 12.2(58)SE1
 
-=back
+=head2 Port-Security with Voice over IP (VoIP)
 
-=item Port-Security with Voice over IP (VoIP)
-
-=over
-
-=item Security table corruption issues with firmwares 12.2(46)SE or greater and PacketFence before 2.2.1
+=head2 Security table corruption issues with firmwares 12.2(46)SE or greater and PacketFence before 2.2.1
 
 Several firmware releases have an SNMP security table corruption bug that happens only when VoIP devices are involved.
 
@@ -107,19 +87,15 @@ Firmware versions 12.2(44)SE6 or below should not upgrade their configuration.
 
 Affected firmwares includes at least 12.2(46)SE, 12.2(52)SE, 12.2(53)SE1, 12.2(55)SE1, 12.2(55)SE3 and 12.2(58)SE1.
 
-=item 12.2(25r) disappearing config
+=head2 12.2(25r) disappearing config
 
 For some reason when securing a MAC address the switch loses an important portion of its config.
 This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
 See issue #1020 for details.
 
-=back
-
-=item SNMPv3
+=head2 SNMPv3
 
 12.2(52) doesn't work in SNMPv3
-
-=back
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -158,8 +134,6 @@ sub supportsAccessListBasedEnforcement { return $TRUE }
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
-
-=over
 
 =cut
 
@@ -328,7 +302,7 @@ sub authorizeMAC {
     return 1;
 }
 
-=item dot1xPortReauthenticate
+=head2 dot1xPortReauthenticate
 
 Points to pf::Switch implementation bypassing Catalyst_2950's overridden behavior.
 
@@ -340,7 +314,7 @@ sub dot1xPortReauthenticate {
     return $this->_dot1xPortReauthenticate($ifIndex);
 }
 
-=item NasPortToIfIndex
+=head2 NasPortToIfIndex
 
 Translate RADIUS NAS-Port into switch's ifIndex.
 
@@ -360,7 +334,7 @@ sub NasPortToIfIndex {
     return $NAS_port;
 }
 
-=item getVoipVSA
+=head2 getVoipVSA
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
@@ -373,11 +347,12 @@ sub getVoipVsa {
     return ('Cisco-AVPair' => "device-traffic-class=voice");
 }
 
-=item deauthenticateMacRadius
+=head2 deauthenticateMacRadius
 
 Method to deauth a wired node with CoA.
 
 =cut
+
 sub deauthenticateMacRadius {
     my ($this, $ifIndex,$mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -388,11 +363,12 @@ sub deauthenticateMacRadius {
     $this->radiusDisconnect($mac ,{ 'Acct-Terminate-Cause' => 'Admin-Reset'});
 }
 
-=item radiusDisconnect
+=head2 radiusDisconnect
 
 Send a CoA to disconnect a mac
 
 =cut
+
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -466,7 +442,7 @@ sub radiusDisconnect {
     return;
 }
 
-=item wiredeauthTechniques
+=head2 wiredeauthTechniques
 
 Return the reference to the deauth technique or the default deauth technique.
 
@@ -501,7 +477,7 @@ sub wiredeauthTechniques {
     }
 }
 
-=item returnRadiusAccessAccept
+=head2 returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept reponse for the network device.
 
@@ -557,7 +533,7 @@ sub returnRadiusAccessAccept {
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
-=item returnAccessListAttribute
+=head2 returnAccessListAttribute
 
 Returns the attribute to use when pushing an ACL using RADIUS
 
@@ -567,8 +543,6 @@ sub returnAccessListAttribute {
     my ($this) = @_;
     return "ip:inacl#101";
 }
-
-=back
 
 =head1 AUTHOR
 

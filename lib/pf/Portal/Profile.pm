@@ -20,7 +20,11 @@ use warnings;
 use List::Util qw(first);
 use List::MoreUtils qw(all none any);
 use pf::config qw($TRUE $FALSE);
+use pf::util;
 use pf::log;
+use pf::node;
+use pf::factory::provisioner;
+use pf::os;
 
 =head1 METHODS
 
@@ -182,6 +186,11 @@ sub getMandatoryFields {
 
 *mandatoryFields = \&getMandatoryFields;
 
+sub getProvisioners {
+    my ($self) = @_;
+    return $self->{'_provisioners'};
+}
+
 =item getSourcesAsObjects
 
 Returns the authentication sources objects for the current captive portal profile.
@@ -286,6 +295,61 @@ The number of registration pages to be shown before signup or registration
 sub nbregpages {
     my ($self) = @_;
     return $self->{'_nbregpages'};
+}
+
+=item reuseDot1xCredentials
+
+Reuse dot1x credentials when authenticating
+
+=cut
+
+sub reuseDot1xCredentials {
+    my ($self) = @_;
+    return $self->{'_reuse_dot1x_credentials'};
+}
+
+=item noPasswordNeeded
+
+Check if the profile needs no password
+
+=cut
+
+sub noPasswordNeeded {
+    my ($self) = @_;
+    return isenabled($self->reuseDot1xCredentials) || any { $_ eq 'null' } @{ $self->getGuestModes };
+}
+
+=item noUsernameNeeded
+
+Check if the profile needs no username
+
+=cut
+
+sub noUsernameNeeded {
+    my ($self) = @_;
+    return isenabled($self->reuseDot1xCredentials) || any { $_->type eq 'Null' && isdisabled( $_->email_required ) } $self->getSourcesAsObjects;
+}
+
+=item provisionerObjects
+
+The provisionerObjects
+
+=cut
+
+sub provisionerObjects {
+    my ($self) = @_;
+    return grep { defined $_ } map { pf::factory::provisioner->new($_) } @{ $self->getProvisioners || [] };
+}
+
+sub findProvisioner {
+    my ($self, $mac, $node_attributes) = @_;
+    $node_attributes ||= node_attributes($mac);
+    my ($fingerprint) =
+      dhcp_fingerprint_view( $node_attributes->{'dhcp_fingerprint'} );
+    return unless $fingerprint;
+    my $os = $fingerprint->{'os'};
+    return unless defined $os;
+    return first { $_->match($os,$node_attributes) } $self->provisionerObjects;
 }
 
 =back

@@ -44,7 +44,6 @@ sub update {
     return ($STATUS::OK, "The sources order was successfully saved.");
 }
 
-=back
 
 =head1 COPYRIGHT
 

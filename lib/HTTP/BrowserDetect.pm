@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 
+use 5.006;
+
 package HTTP::BrowserDetect;
 
 use vars qw(@ALL_TESTS);
@@ -11,6 +13,7 @@ our @OS_TESTS = qw(
     unix    linux vms
     bsd     amiga firefoxos
     bb10    rimtabletos
+    chromeos
 );
 
 # More precise Windows
@@ -119,46 +122,47 @@ our @ENGINE_TESTS = qw(
 # https://support.google.com/webmasters/answer/1061943?hl=en
 
 my %ROBOTS = (
-    ahrefs         => 'Ahrefs',
-    altavista      => 'AltaVista',
-    askjeeves      => 'AskJeeves',
-    baidu          => 'Baidu Spider',
-    curl           => 'curl',
-    facebook       => 'Facebook',
-    getright       => 'GetRight',
-    google         => 'Google',
-    googleadsbot   => 'Google AdsBot',
-    googleadsense  => 'Google AdSense',
-    googlebotimage => 'Googlebot Images',
-    googlebotnews  => 'Googlebot News',
-    googlebotvideo => 'Googlebot Video',
-    googlemobile   => 'Google Mobile',
-    icab           => 'iCab',
-    infoseek       => 'InfoSeek',
-    linkchecker    => 'LinkChecker',
-    linkexchange   => 'LinkExchange',
-    lotusnotes     => 'Lotus Notes',
-    lwp            => 'LWP::UserAgent',
-    lycos          => 'Lycos',
-    msn            => 'MSN',
-    msnmobile      => 'MSN Mobile',
-    puf            => 'puf',
-    robot          => 'robot',
-    slurp          => 'Yahoo! Slurp',
+    ahrefs          => 'Ahrefs',
+    altavista       => 'AltaVista',
+    askjeeves       => 'AskJeeves',
+    baidu           => 'Baidu Spider',
+    curl            => 'curl',
+    facebook        => 'Facebook',
+    getright        => 'GetRight',
+    google          => 'Google',
+    googleadsbot    => 'Google AdsBot',
+    googleadsense   => 'Google AdSense',
+    googlebotimage  => 'Googlebot Images',
+    googlebotnews   => 'Googlebot News',
+    googlebotvideo  => 'Googlebot Video',
+    googlemobile    => 'Google Mobile',
+    icab            => 'iCab',
+    infoseek        => 'InfoSeek',
+    linkchecker     => 'LinkChecker',
+    linkexchange    => 'LinkExchange',
+    lotusnotes      => 'Lotus Notes',
+    lwp             => 'LWP::UserAgent',
+    lycos           => 'Lycos',
+    mj12bot         => 'Majestic-12 DSearch',
+    msn             => 'MSN',
+    msnmobile       => 'MSN Mobile',
+    puf             => 'puf',
+    robot           => 'robot',
+    slurp           => 'Yahoo! Slurp',
     specialarchiver => 'archive.org_bot',
-    staroffice     => 'StarOffice',
-    webcrawler     => 'WebCrawler',
-    webtv          => 'WebTV',
-    wget           => 'wget',
-    yahoo          => 'Yahoo',
-    yandex         => 'Yandex',
-    yandeximages   => 'YandexImages',
+    staroffice      => 'StarOffice',
+    webcrawler      => 'WebCrawler',
+    webtv           => 'WebTV',
+    wget            => 'wget',
+    yahoo           => 'Yahoo',
+    yandex          => 'Yandex',
+    yandeximages    => 'YandexImages',
 );
 
 our @ROBOT_TESTS = qw(
     puf          curl        wget
     getright     robot       slurp
-    yahoo
+    yahoo        mj12bot
     altavista    lycos       infoseek
     lwp          webcrawler  linkexchange
     webtv        staroffice
@@ -332,7 +336,8 @@ sub _test {
         ( $major, $minor, $beta ) = split /\./, $1;
 
     }
-    elsif ($tests->{TRIDENT} && $ua =~ m{\b rv: ( [0-9\.]+ ) \b}x ) {
+    elsif ( $tests->{TRIDENT} && $ua =~ m{\b rv: ( [0-9\.]+ ) \b}x ) {
+
         # MSIE masking as Gecko really well ;)
         ( $major, $minor, $beta ) = split /\./, $1;
     }
@@ -340,30 +345,24 @@ sub _test {
     # Opera browsers
 
     $tests->{OPERA}
-        = (    index( $ua, "opera" ) != -1
-            || index( $ua, "opr/" ) != -1 );
+        = ( index( $ua, "opera" ) != -1 || index( $ua, "opr/" ) != -1 );
     $tests->{OPERA3}
-        = (    index( $ua, "opera 3" ) != -1
-            || index( $ua, "opera/3" ) != -1 );
-    $tests->{OPERA4}
-        = ( index( $ua, "opera 4" ) != -1 )
-            || ( index( $ua, "opera/4" ) != -1
-            && ( index( $ua, "nintendo dsi" ) == -1 ) );
-    $tests->{OPERA5}
-        = ( index( $ua, "opera 5" ) != -1 )
-            || ( index( $ua, "opera/5" ) != -1 );
-    $tests->{OPERA6}
-        = ( index( $ua, "opera 6" ) != -1 )
-            || ( index( $ua, "opera/6" ) != -1 );
-    $tests->{OPERA7}
-        = ( index( $ua, "opera 7" ) != -1 )
-            || ( index( $ua, "opera/7" ) != -1 );
+        = ( index( $ua, "opera 3" ) != -1 || index( $ua, "opera/3" ) != -1 );
+    $tests->{OPERA4} = ( index( $ua, "opera 4" ) != -1 )
+        || ( index( $ua, "opera/4" ) != -1
+        && ( index( $ua, "nintendo dsi" ) == -1 ) );
+    $tests->{OPERA5} = ( index( $ua, "opera 5" ) != -1 )
+        || ( index( $ua, "opera/5" ) != -1 );
+    $tests->{OPERA6} = ( index( $ua, "opera 6" ) != -1 )
+        || ( index( $ua, "opera/6" ) != -1 );
+    $tests->{OPERA7} = ( index( $ua, "opera 7" ) != -1 )
+        || ( index( $ua, "opera/7" ) != -1 );
 
- # Opera needs to be dealt with specifically
- # http://dev.opera.com/articles/view/opera-ua-string-changes/
- # http://my.opera.com/community/openweb/idopera/
- # Opera/9.80 (S60; SymbOS; Opera Mobi/320; U; sv) Presto/2.4.15 Version/10.00
- # Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.52 Safari/537.36 OPR/15.0.1147.100
+# Opera needs to be dealt with specifically
+# http://dev.opera.com/articles/view/opera-ua-string-changes/
+# http://my.opera.com/community/openweb/idopera/
+# Opera/9.80 (S60; SymbOS; Opera Mobi/320; U; sv) Presto/2.4.15 Version/10.00
+# Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.52 Safari/537.36 OPR/15.0.1147.100
 
     if ( $ua =~ m{\AOpera.*\sVersion/(\d*)\.(\d*)\z}i ) {
         $major = $1;
@@ -391,9 +390,8 @@ sub _test {
         && ( index( $ua, "like gecko" ) == -1 );
 
     $tests->{CHROME}
-        = ( !$tests->{OPERA}
-            && index( $ua, "chrome/" ) != -1
-            );#&& $ua =~ m{chrome/ ( [^.]* ) \. ( [^.]* )}x );
+        = ( !$tests->{OPERA} && index( $ua, "chrome/" ) != -1 )
+        ;    #&& $ua =~ m{chrome/ ( [^.]* ) \. ( [^.]* )}x );
     $tests->{SAFARI}
         = (    ( index( $ua, "safari" ) != -1 )
             || ( index( $ua, "applewebkit" ) != -1 ) )
@@ -486,7 +484,8 @@ sub _test {
 
     # Internet Explorer browsers
 
-    $tests->{IE} = ( $tests->{TRIDENT}
+    $tests->{IE}
+        = (    $tests->{TRIDENT}
             || index( $ua, "msie" ) != -1
             || index( $ua, 'microsoft internet explorer' ) != -1 );
     $tests->{IE3}    = ( $tests->{IE}  && $major == 3 );
@@ -550,7 +549,8 @@ sub _test {
 
     # Devices
 
-    $tests->{BLACKBERRY} = ( index( $ua, "blackberry" ) != -1
+    $tests->{BLACKBERRY}
+        = (    index( $ua, "blackberry" ) != -1
             || index( $ua, "bb10" ) != -1
             || index( $ua, "rim tablet os" ) != -1 );
     $tests->{IPHONE}   = ( index( $ua, "iphone" ) != -1 );
@@ -646,7 +646,7 @@ sub _test {
             || ( index( $ua, "android" ) != -1
             && index( $ua, "mobile" ) == -1
             && index( $ua, "opera" ) == -1 )
-            || ($tests->{FIREFOX} && index( $ua, "tablet" ) != -1)
+            || ( $tests->{FIREFOX} && index( $ua, "tablet" ) != -1 )
             || index( $ua, "kindle" ) != -1
             || index( $ua, "xoom" ) != -1
             || index( $ua, "flyer" ) != -1
@@ -687,7 +687,7 @@ sub _test {
     $self->{gecko_version} = undef;
     if ( $tests->{GECKO} ) {
         if ( $ua =~ /\([^)]*rv:([\w.\d]*)/ ) {
-            $self->{gecko_version} = $1;
+            $self->{gecko_version}  = $1;
             $self->{engine_version} = $1;
         }
     }
@@ -732,10 +732,7 @@ sub _test {
             pos( $ua ) - length $1, length $1;
         $self->{device_name} =~ s/; / /;
     }
-    elsif ( $ua
-        =~ /bb10; ([^;\)]+)/g
-        )
-    {
+    elsif ( $ua =~ /bb10; ([^;\)]+)/g ) {
         $self->{device_name} = 'BlackBerry ' . substr $self->{user_agent},
             pos( $ua ) - length $1, length $1;
         $self->{device_name} =~ s/Kbd/Q10/;
@@ -787,14 +784,15 @@ sub _robot_tests {
     $tests->{LINKEXCHANGE}   = ( index( $ua, "lecodechecker" ) != -1 );
     $tests->{LINKCHECKER}    = ( index( $ua, "linkchecker" ) != -1 );
     $tests->{LYCOS}          = ( index( $ua, "lycos" ) != -1 );
+    $tests->{MJ12BOT}        = ( index( $ua, "mj12bot/" ) != -1 );
     $tests->{PUF}            = ( index( $ua, "puf/" ) != -1 );
     $tests->{SCOOTER}        = ( index( $ua, "scooter" ) != -1 );
     $tests->{SLURP}          = ( index( $ua, "slurp" ) != -1 );
-    $tests->{SPECIALARCHIVER}          = ( index( $ua, "special_archiver" ) != -1 );
-    $tests->{WEBCRAWLER}     = ( index( $ua, "webcrawler" ) != -1 );
-    $tests->{WGET}           = ( index( $ua, "wget" ) != -1 );
-    $tests->{YANDEX}         = ( index( $ua, "yandexbot" ) != -1 );
-    $tests->{YANDEXIMAGES}   = ( index( $ua, "yandeximages" ) != -1 );
+    $tests->{SPECIALARCHIVER} = ( index( $ua, "special_archiver" ) != -1 );
+    $tests->{WEBCRAWLER}      = ( index( $ua, "webcrawler" ) != -1 );
+    $tests->{WGET}            = ( index( $ua, "wget" ) != -1 );
+    $tests->{YANDEX}          = ( index( $ua, "yandexbot" ) != -1 );
+    $tests->{YANDEXIMAGES}    = ( index( $ua, "yandeximages" ) != -1 );
 
     $tests->{ROBOT}
         = (    $tests->{AHREFS}
@@ -883,8 +881,8 @@ sub _os_tests {
     $tests->{WIN7}     = ( index( $ua, "nt 6.1" ) != -1 );
     $tests->{WIN8_0}   = ( index( $ua, "nt 6.2" ) != -1 );
     $tests->{WIN8_1}   = ( index( $ua, "nt 6.3" ) != -1 );
-    $tests->{WIN8}     = ( $tests->{WIN8_0} || $tests->{WIN8_1} );
-    $tests->{DOTNET}   = ( index( $ua, ".net clr" ) != -1 );
+    $tests->{WIN8} = ( $tests->{WIN8_0} || $tests->{WIN8_1} );
+    $tests->{DOTNET} = ( index( $ua, ".net clr" ) != -1 );
 
     $tests->{WINME} = ( index( $ua, "win 9x 4.90" ) != -1 );    # whatever
     $tests->{WIN32} = (
@@ -946,7 +944,7 @@ sub _os_tests {
     $tests->{EMACS} = ( index( $ua, 'emacs' ) != -1 );
     $tests->{OS2}   = ( index( $ua, 'os/2' ) != -1 );
 
-    if (index($ua, "samsung") < 0) {
+    if ( index( $ua, "samsung" ) < 0 ) {
         $tests->{SUN}  = ( index( $ua, "sun" ) != -1 );
         $tests->{SUN4} = ( index( $ua, "sunos 4" ) != -1 );
         $tests->{SUN5} = ( index( $ua, "sunos 5" ) != -1 );
@@ -985,8 +983,13 @@ sub _os_tests {
     $tests->{FREEBSD} = ( index( $ua, "freebsd" ) != -1 );
     $tests->{BSD}     = ( index( $ua, "bsd" ) != -1 );
     $tests->{X11}     = ( index( $ua, "x11" ) != -1 );
+
+    $tests->{CHROMEOS}
+        = ( $tests->{X11} && index( $ua, "cros" ) != -1 );
+
     $tests->{UNIX}
-        = (    $tests->{X11}
+        = ( !$tests->{CHROMEOS}
+            && ($tests->{X11}
             || $tests->{SUN}
             || $tests->{IRIX}
             || $tests->{HPUX}
@@ -996,7 +999,7 @@ sub _os_tests {
             || $tests->{RELIANT}
             || $tests->{DEC}
             || $tests->{LINUX}
-            || $tests->{BSD} );
+            || $tests->{BSD} ) );
 
     $tests->{VMS}
         = ( index( $ua, "vax" ) != -1 || index( $ua, "openvms" ) != -1 );
@@ -1005,11 +1008,11 @@ sub _os_tests {
 
     $tests->{FIREFOXOS}
         = (    $tests->{FIREFOX}
-            && ($tests->{MOBILE} || $tests->{TABLET})
+            && ( $tests->{MOBILE} || $tests->{TABLET} )
             && !$tests->{ANDROID}
             && index( $ua, "fennec" ) == -1 );
 
-    $tests->{BB10} = ( index( $ua, "bb10" ) != -1 );
+    $tests->{BB10}        = ( index( $ua, "bb10" ) != -1 );
     $tests->{RIMTABLETOS} = ( index( $ua, "rim tablet os" ) != -1 );
 
     $tests->{PS3GAMEOS} = $tests->{PS3} && $tests->{NETFRONT};
@@ -1023,7 +1026,9 @@ sub _os_tests {
 sub os_version {
     my $self = shift;
 
-    if ( $self->ios && $self->{user_agent} =~ m{OS (\d*_\d*|\d*_\d*_\d*) like Mac} ) {
+    if (   $self->ios
+        && $self->{user_agent} =~ m{OS (\d*_\d*|\d*_\d*_\d*) like Mac} )
+    {
         my $version = $1;
         $version =~ s{_}{.}g;
         return $version;
@@ -1033,14 +1038,15 @@ sub os_version {
         return join '.', $1, $2, $3;
     }
 
-    # firefox in mac
-    # "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:25.0) Gecko/20100101 Firefox/25.0"
+# firefox in mac
+# "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:25.0) Gecko/20100101 Firefox/25.0"
     if ( $self->mac && $self->{user_agent} =~ m{ X \s (\d\d\.\d)}x ) {
         return $1;
     }
 
     if (   $self->winphone
-       && $self->{user_agent} =~ m{Windows \s Phone \s \w{0,2} \s{0,1} (\d+\.\d+);}x )
+        && $self->{user_agent}
+        =~ m{Windows \s Phone \s \w{0,2} \s{0,1} (\d+\.\d+);}x )
     {
         return $1;
     }
@@ -1112,15 +1118,16 @@ sub os_string {
     return 'Android'                     if $self->android;
     return 'Linux'                       if $self->linux;
     return 'Unix'                        if $self->unix;
+    return 'Chrome OS'                   if $self->chromeos;
     return 'Firefox OS'                  if $self->firefoxos;
     return 'BlackBerry 10'               if $self->bb10;
     return 'RIM Tablet OS'               if $self->rimtabletos;
     return 'Playstation 3 GameOS'        if $self->ps3gameos;
     return 'Playstation Portable GameOS' if $self->pspgameos;
-    return 'iOS' if $self->iphone || $self->ipod || $self->ipad;
-    return 'Mac OS X'                    if $self->macosx;
-    return 'Mac'                         if $self->mac;
-    return 'OS2'                         if $self->os2;
+    return 'iOS'      if $self->iphone || $self->ipod || $self->ipad;
+    return 'Mac OS X' if $self->macosx;
+    return 'Mac'      if $self->mac;
+    return 'OS2'      if $self->os2;
     return undef;
 }
 
@@ -1707,6 +1714,8 @@ winnt, which is a type of win32)
 
 =head2 dotnet()
 
+=head2 chromeos()
+
 =head2 firefoxos()
 
 =head2 mac()
@@ -1744,7 +1753,7 @@ compatibility with the L<HTTP::Headers::UserAgent> module.
 
   Win95, Win98, WinNT, Win2K, WinXP, Win2k3, WinVista, Win7, Win8,
   Win8.1, Windows Phone, Mac, Mac OS X, iOS, Win3x, OS2, Unix, Linux,
-  Firefox OS, Playstation 3 GameOS, Playstation Portable GameOS,
+  Chrome OS, Firefox OS, Playstation 3 GameOS, Playstation Portable GameOS,
   RIM Tablet OS, BlackBerry 10
 
 =head1 Detecting Browser Vendor
@@ -1917,6 +1926,8 @@ value. This is by no means a complete list of robots that exist on the Web.
 
 =head3 lycos
 
+=head3 mj12bot
+
 =head3 msn (same as bing)
 
 =head3 puf
@@ -2037,8 +2048,6 @@ POD coverage is also not 100%.
 "Browser ID (User-Agent) Strings", L<http://www.zytrax.com/tech/web/browser_ids.htm>
 
 L<HTML::ParseBrowser>.
-
-=head1
 
 =head1 SUPPORT
 

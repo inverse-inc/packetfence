@@ -8,6 +8,7 @@ vlan.t
 pf::vlan module testing
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;

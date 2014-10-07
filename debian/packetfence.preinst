@@ -40,6 +40,9 @@ case "$1" in
         if [ -d "/usr/local/pf/html/captive-portal/wispr" ] ; then
                 rm -fr /usr/local/pf/html/captive-portal/wispr
         fi
+        if [ -d "/usr/local/pf/var/cache" ] ; then
+                rm -fr /usr/local/pf/var/cache/
+        fi
         exit 0
     ;;
     abort-upgrade)

@@ -1209,21 +1209,6 @@ sub postPfStartService {
     my ($managers) = @_;
     my $count = true {$_->status ne '0'} @$managers;
     configreload('hard') unless $count;
-    if ( -e $pf_config_file ) {
-        my $manager = pf::services::manager::iptables->new(runningServices => $count);
-        my $color = '';
-        my $command = '';
-        if( $manager->isManaged ) {
-            if($manager->start) {
-                $color =  $SUCCESS_COLOR;
-                $command = 'start';
-            } else {
-                $color =  $ERROR_COLOR;
-                $command = 'not stopped';
-            }
-            print $manager->name,"|${color}${command}${RESET_COLOR}\n";
-        }
-    }
 }
 
 sub startService {
@@ -1325,20 +1310,6 @@ sub stopService {
             }
         }
         print $manager->name,"|${color}${command}${RESET_COLOR}\n";
-    }
-    if($service eq 'pf') {
-        my $count = true { $_->status ne '0'  } @managers;
-        my $manager = pf::services::manager::iptables->new(runningServices => $count);
-        if( $manager->isManaged ) {
-            if($manager->stop) {
-                $color =  $SUCCESS_COLOR;
-                $command = 'stop';
-            } else {
-                $color =  $ERROR_COLOR;
-                $command = 'not stopped';
-            }
-            print $manager->name,"|${color}${command}${RESET_COLOR}\n";
-        }
     }
     return 0;
 }
@@ -2487,7 +2458,7 @@ sub configreload {
     require pf::ConfigStore::Authentication;
     require pf::ConfigStore::FloatingDevice;
     require pf::ConfigStore::Interface;
-    require pf::ConfigStore::Mdm;
+    require pf::ConfigStore::Provisioning;
     require pf::ConfigStore::Network;
     require pf::ConfigStore::Pf;
     require pf::ConfigStore::Profile;

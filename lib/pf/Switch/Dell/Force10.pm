@@ -39,7 +39,7 @@ sub getMinOSVersion {
     return '112';
 }
 
-=item * _identifyConnectionType
+=head2 * _identifyConnectionType
 
 Identify the connection type based information provided by RADIUS call
 
@@ -94,7 +94,7 @@ sub _identifyConnectionType {
     }
 }
 
-=item getIfIndexByNasPortId
+=head2 getIfIndexByNasPortId
 
 Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 
@@ -154,4 +154,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-

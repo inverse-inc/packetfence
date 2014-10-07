@@ -98,6 +98,7 @@ InterfaceView.prototype.readInterface = function(e) {
             modal.find('[name="high_availability"]').closest('.control-group').hide();
             modal.find('[name="vip"]').closest('.control-group').hide();
             modal.find('[name="fake_mac_enabled"]').closest('.control-group').hide();
+            modal.find('[name="nat_enabled"]').closest('.control-group').hide();
             modal.modal({ shown: true });
             modal.one('shown', function() {
                 modal.find(':input:visible').first().focus();
@@ -168,7 +169,7 @@ InterfaceView.prototype.typeChanged = function(e) {
                     dns.find(':input').attr('disabled','disabled');
                     vip.hide('fast');
                     vip.find(':input').attr('disabled','disabled');
-                    nat.hide('hide');
+                    nat.hide('fast');
                     nat.find(':input').attr('disabled','disabled');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
@@ -188,14 +189,17 @@ InterfaceView.prototype.typeChanged = function(e) {
                     break;
                 case 'vlan-registration':
                 case 'vlan-isolation':
-                    fake_mac.hide('fast');
+                    vip.show('fast');
+                    vip.find(':input').removeAttr('disabled');
                     high_availability.hide('fast');
                     high_availability.find(':input').attr('disabled','disabled');
                     dhcpd.show('fast');
                     dns.hide('fast');
                     dns.find(':input').attr('disabled','disabled');
-                    vip.show('fast');
-                    vip.find(':input').removeAttr('disabled');
+                    nat.hide('fast');
+                    nat.find(':input').attr('disabled','disabled');
+                    $(".info_inline").hide('fast');
+                    $(".info_routed").hide('fast');
                     break;
                 default:
                     dhcpd.hide('fast');

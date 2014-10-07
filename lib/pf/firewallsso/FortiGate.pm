@@ -26,7 +26,9 @@ use pf::util::radius qw(perform_rsso);
 use pf::node qw(node_view);
 use pf::accounting qw(node_accounting_current_sessionid);
 
-=item action
+=head1 METHODS
+
+=head2 action
 
 Perform a radius accounting request based on the registered status of the node and his role.
 
@@ -38,7 +40,13 @@ sub action {
 
     my $node_info = node_view($mac);
 
-    if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&  grep { lc $node_info->{'category'} eq $_ } ( $ConfigFirewallSSO{$firewall_conf}->{'categories'})) {
+    my @categories = split(/,/, $ConfigFirewallSSO{$firewall_conf}->{categories});
+    if (
+        defined($node_info) &&
+        (ref($node_info) eq 'HASH') &&
+        $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&
+        (grep $_ eq $node_info->{'category'}, @categories)
+    ){
         my $username = $node_info->{'pid'};
         $username = $node_info->{'last_dot1x_username'} if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x');
         return 0 if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x' && $node_info->{'last_dot1x_username'} eq '');
@@ -70,8 +78,6 @@ sub action {
         return 0;
     }
 }
-
-=back
 
 =head1 AUTHOR
 

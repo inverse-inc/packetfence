@@ -2,7 +2,7 @@
  <!-- root password reset -->
   <div class="modal fade hide" id="modalRootPassword">
     <div class="modal-header">
-      <h3>Set a MySQL root password</h3>
+      <h3>[% l('Set a MySQL root password') %]</h3>
     </div>
     <div class="modal-body">
         <form class="form-horizontal">
@@ -20,7 +20,7 @@
             </div>
             <div class="control-group">
               <div class="controls">
-                <input name="root_pass2_new" class="text" type="password" placeholder="Retype your password">
+                <input name="root_pass2_new" class="text" type="password" placeholder="[% l('Retype your password') %]">
               </div>
             </div>
         </form>
@@ -40,25 +40,25 @@
         </div>
         <div class="span9">
           <div class="page-header">
-            <h1>Database Configuration
-            <small>Create a user in your MySQL server</small></h1>
+            <h1>[% l('Database Configuration') %]
+            <small>[% l('Create a user in your MySQL server') %]</small></h1>
           </div>
         </div>
       </div>
       <div class="row">
         <div class="span3">
           <div class="well">
-            <h3>Instructions</h3>
-            <p>PacketFence uses a MySQL database. On this page, you need to specify the root password to access the MySQL server to create an account specific to PacketFence and create the required database tables and indexes.</p>
+            <h3>[% l('Instructions') %]</h3>
+            <p>[% l('PacketFence uses a MySQL database. On this page, you need to specify the root password to access the MySQL server to create an account specific to PacketFence and create the required database tables and indexes.') %]</p>
           </div>
         </div>
         <div class="span9">
           <form name="database" class="form-horizontal">
             <div class="alert alert-error [% IF c.stash.mysqld_running %]hide[% END %]">
-              <strong>Warning!</strong> MySQL server does not seems to be running. You should start it to avoid any problems. <a class="btn" id="startMySQL" href="[% c.uri_for(c.controller('DB').action_for('start')) %]">[% l('Start MySQL') %]</a><span></span>
+              <strong>[% l('Warning!') %]</strong> [% l('MySQL server does not seems to be running. You should start it to avoid any problems.') %] <a class="btn" id="startMySQL" href="[% c.uri_for(c.controller('DB').action_for('start')) %]">[% l('Start MySQL') %]</a><span></span>
             </div>
-            <h3>Enter the MySQL root account credentials</h3>
-            <p class="help-block">If you don't know what's the current password of your MySQL installation, it is probably because you haven't set one. In this case, just enter the root username, which will mostly be <em>root</em> without any password and click the <em>Test</em> button. For security reasons, you'll be prompted to set one.</p><p></p>
+            <h3>[% l('Enter the MySQL root account credentials') %]</h3>
+            <p class="help-block">[% l("If you don't know what's the current password of your MySQL installation, it is probably because you haven't set one. In this case, just enter the root username, which will mostly be <em>root</em> without any password and click the <em>Test</em> button. For security reasons, you'll be prompted to set one.") %]</p><p></p>
             <div class="control-group">
               <label class="control-label" for="root_user">[% l('Username') %]</label>
               <div class="controls">

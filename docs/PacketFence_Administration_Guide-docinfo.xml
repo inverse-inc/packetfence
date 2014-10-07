@@ -1,9 +1,17 @@
 <copyright>
   <year>2008-2014</year>
-  <holder>Inverse inc.</holder>
+  <holder>Inverse</holder>
 </copyright>
 
 <revhistory>
+  <revision>
+    <revnumber>3.4</revnumber>
+    <date>2014-09-10</date>
+    <revremark>
+    - Adding documentation for EAP Local Account
+    - Adding documentation for VLAN Filters based on person attributes
+    </revremark>
+  </revision>
   <revision>
     <revnumber>3.3</revnumber>
     <date>2014-06-26</date>

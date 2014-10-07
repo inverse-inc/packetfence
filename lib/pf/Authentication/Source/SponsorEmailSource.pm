@@ -17,6 +17,7 @@ has '+class' => (default => 'external');
 has '+type' => (default => 'SponsorEmail');
 has '+unique' => (default => 1);
 has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
+has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head2 available_attributes
 

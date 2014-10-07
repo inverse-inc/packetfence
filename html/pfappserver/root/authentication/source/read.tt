@@ -1,4 +1,4 @@
-<div class="modal fade hide" id="modalRule"></div>
+<div class="modal modal-large fade hide" id="modalRule"></div>
 [%IF source.id %]
 [% heading = source.id %]
 [% CALL form.field('id').set_element_attr('readonly','readonly') %]

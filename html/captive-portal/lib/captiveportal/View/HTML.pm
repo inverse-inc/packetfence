@@ -2,9 +2,8 @@ package captiveportal::View::HTML;
 
 use strict;
 use warnings;
-use Locale::gettext qw(gettext ngettext);
 use Moose;
-extends 'captiveportal::PacketFence::View::HTML';
+BEGIN { extends 'captiveportal::PacketFence::View::HTML'; }
 
 =head1 NAME
 

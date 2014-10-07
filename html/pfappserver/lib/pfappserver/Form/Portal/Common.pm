@@ -19,7 +19,7 @@ use HTML::FormHandler::Moose::Role;
 use List::MoreUtils qw(uniq);
 
 use pf::authentication;
-use pf::ConfigStore::Mdm;
+use pf::ConfigStore::Provisioning;
 use pf::web::constants;
 with 'pfappserver::Base::Form::Role::Help';
 
@@ -132,7 +132,7 @@ has_field 'billing_engine' =>
 
 =head2 sources
 
-Collectiosn Authentication Sources for the profile
+Collection Authentication Sources for the profile
 
 =cut
 
@@ -156,6 +156,32 @@ has_field 'sources.contains' =>
     widget_wrapper => 'DynamicTableRow',
   );
 
+=head2 provisioners
+
+Collectiosn Authentication Sources for the profile
+
+=cut
+
+has_field 'provisioners' =>
+  (
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+  );
+
+=head2 provisioners.contains
+
+The definition for Authentication Sources field
+
+=cut
+
+has_field 'provisioners.contains' =>
+  (
+    type => 'Select',
+    options_method => \&options_provisioners,
+    widget_wrapper => 'DynamicTableRow',
+  );
+
 has_field 'mandatory_fields' =>
 (
     'type' => 'DynamicTable',
@@ -170,38 +196,16 @@ has_field 'mandatory_fields.contains' =>
     widget_wrapper => 'DynamicTableRow',
 );
 
-=head2 authorizer
+=head2 reuse_dot1x_credentials
 
 =cut
 
-has_field 'authorizer' =>
-  (
-    type => 'Select',
-  );
-
-=head2 allow_ios_devices
-
-=cut
-
-has_field 'allowed_devices' =>
-  (
-    type => 'Select',
-    multiple => 1,
-    element_class => ['chzn-select', 'input-xxlarge'],
-  );
-
-=head2 allow_android_devices
-
-=cut
-
-has_field 'allow_android_devices' =>
+has_field 'reuse_dot1x_credentials' =>
   (
     type => 'Checkbox',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
   );
-
-has_block provisioning => (
-    render_list => [qw(authorizer allowed_devices)]
-);
 
 =head2 nbregpages
 
@@ -225,18 +229,6 @@ sub options_locale {
     return map { { value => $_, label => $_ } } @WEB::LOCALES;
 }
 
-=head2 options_authorizer
-
-=cut
-
-sub options_authorizer {
-    return { value => '', label => '' }, map { { value => $_, label => $_ } } @{pf::ConfigStore::Mdm->new->readAllIds};
-}
-
-sub options_allowed_devices {
-    return map { { value => $_, label => $_ } } qw(ios android windows);
-}
-
 =head2 options_sources
 
 Returns the list of sources to be displayed
@@ -245,6 +237,16 @@ Returns the list of sources to be displayed
 
 sub options_sources {
     return map { { value => $_->id, label => $_->id, attributes => { 'data-source-class' => $_->class  } } } @{getAllAuthenticationSources()};
+}
+
+=head2 options_provisioners
+
+Returns the list of sources to be displayed
+
+=cut
+
+sub options_provisioners {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Provisioning->new->readAllIds};
 }
 
 =head2 options_mandatory_fields

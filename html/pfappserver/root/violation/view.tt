@@ -11,10 +11,10 @@
   <div class="modal-body">
 
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#violationDefinition" data-toggle="tab">Definition</a></li>
-      <li><a href="#violationTriggers" data-toggle="tab">Triggers</a></li>
-      <li><a href="#violationRemediation" data-toggle="tab">Remediation</a></li>
-      <li><a href="#violationAdvanced" data-toggle="tab">Advanced</a></li>
+      <li class="active"><a href="#violationDefinition" data-toggle="tab">[% l('Definition') %]</a></li>
+      <li><a href="#violationTriggers" data-toggle="tab">[% l('Triggers') %]</a></li>
+      <li><a href="#violationRemediation" data-toggle="tab">[% l('Remediation') %]</a></li>
+      <li><a href="#violationAdvanced" data-toggle="tab">[% l('Advanced') %]</a></li>
     </ul>
 
     <div class="tab-content">
