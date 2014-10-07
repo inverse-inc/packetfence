@@ -111,6 +111,10 @@ public class PFPacket {
         return this.rawPacket;
     }
 
+    public Packet getPacket(){
+        return this.packet;
+    }
+
     public int getSourcePort(){
         Packet p = this.getL4Packet();
         if(p instanceof UDP){

@@ -151,7 +151,7 @@ public class PFPacketProcessor {
                 if(method.equals("DNS") && packet.getDestPort() == 53){
                     // do dns poisoning stuff
                     PFDNSPoison dnsPoison = new PFDNSPoison(this.packet, this.packetHandler);
-                    dnsPoison.poisonFromPacket(); 
+                    //dnsPoison.poisonFromPacket(); 
                     this.forwardToPacketFence();
                     return PacketResult.CONSUME;
                 }
@@ -186,9 +186,10 @@ public class PFPacketProcessor {
     private void forwardToPacketFence(){
         byte[] GATEWAY_MAC = {(byte)0x38, (byte)0x22, (byte)0xd6, (byte)0x6c, (byte)0x8c, (byte)0xf5};
         
+        System.out.println("Check before : "+this.packet.getL3Packet().getChecksum());
         try{
-        //this.packet.getL3Packet().setSourceAddress(InetAddress.getByName("1.1.1.1"));
-        this.packet.getL3Packet().setDestinationAddress(InetAddress.getByName(pfConfig.getElement("pf_dns_ip")));
+        //this.packet.getL3Packet().setSourceAddress(InetAddress.getByName(""));
+        //this.packet.getL3Packet().setDestinationAddress(InetAddress.getByName("172.20.20.109"));
         }catch(Exception e){e.printStackTrace();}
         System.out.println(this.packet.getSourceIP());
         System.out.println(this.packet.getDestIP());
@@ -196,9 +197,15 @@ public class PFPacketProcessor {
         this.packet.getL2Packet().setDestinationMACAddress(PF_MAC);
         System.out.println(this.packet.getSourceMac());
         System.out.println(this.packet.getDestMac());
+        RawPacket raw = null;
+        try{
+        raw = new RawPacket(this.packet.getPacket().serialize());
+        }catch(Exception e){e.printStackTrace();}
+        PFPacket lePack = new PFPacket(raw, this.packetHandler);
+        System.out.println("Check after : "+lePack.getL3Packet().getChecksum());
         NodeConnector outbound = NodeConnector.fromStringNoNode("1", this.packet.getRawPacket().getIncomingNodeConnector().getNode());
         System.out.println(outbound.getNode().getNodeIDString());
-        RawPacket raw = packetHandler.getDataPacketService().encodeDataPacket(this.packet.getL2Packet());
+        //RawPacket raw = packetHandler.getDataPacketService().encodeDataPacket(this.packet.getL2Packet());
         raw.setOutgoingNodeConnector(outbound);
         packetHandler.getDataPacketService().transmitDataPacket(raw);
     }
