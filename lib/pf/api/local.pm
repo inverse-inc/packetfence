@@ -1,13 +1,15 @@
-package pf::api::inline;
+package pf::api::local;
 =head1 NAME
 
-pf::api::inline add documentation
+pf::api::local local client for pf::api
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::api::inline
+pf::api::local
+
+local client for pf::api which calls the api calls directly
 
 =cut
 
@@ -15,32 +17,32 @@ use strict;
 use warnings;
 use pf::api;
 use pf::db;
-use POSIX qw(:sys_wait_h);
 use Moo;
+
+
+=head2 call
+
+calls the pf api
+
+=cut
 
 sub call {
     my ($self,$method,@args) = @_;
     return pf::api->$method(@args);
 }
 
+=head2 notify
+
+calls the pf api ignoring the return value
+
+=cut
+
 sub notify {
     my ($self,$method,@args) = @_;
-    my $pid = fork();
-    if ($pid) {
-        #cleanup child
-        waitpid($pid,0);
-        return;
-    }
-    if( defined $pid && $pid == 0 ) {
-        if($pf::db::DBH) {
-            $pf::db::DBH->{InactiveDestroy} = 1;
-            $pf::db::DBH = undef;
-        }
-        my $pid2 = fork();
-        POSIX::_exit(0) unless defined $pid2 && $pid2 == 0;
-        $self->call($method,@args);
-        exit 0;
-    }
+    eval {
+        pf::api->$method(@args);
+    };
+    return;
 }
  
 =head1 AUTHOR
