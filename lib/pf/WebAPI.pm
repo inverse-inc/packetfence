@@ -20,6 +20,8 @@ BEGIN {
 
 use pf::config;
 use pf::api;
+use pf::client;
+pf::client::setClient("pf::api::local");
 
 #uncomment for more debug information
 #use SOAP::Lite +trace => [ fault => \&log_faults ];
@@ -50,6 +52,7 @@ my $server_jsonrpc = pf::WebAPI::JSONRPC->new({dispatch_to => 'pf::api'});
 
 sub handler {
     my ($r) = @_;
+    pf::client::setClient("pf::api::local");
     my $logger = get_logger;
     if (defined($r->headers_in->{Request})) {
         $r->user($r->headers_in->{Request});
