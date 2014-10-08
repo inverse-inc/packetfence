@@ -18,6 +18,7 @@ New Features
 ++++++++++++
 * pfmon can now run tasks on different intervals
 * Added a way to reevaluate the access of a node in the admin interface
+* Added a "Blackhole" auth source 
 
 Enhancements
 ++++++++++++
