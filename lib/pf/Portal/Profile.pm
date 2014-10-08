@@ -210,7 +210,7 @@ Returns the internal authentication sources objects for the current captive port
 
 sub getInternalSources {
     my ($self) = @_;
-    return grep { $_->{'class'} eq 'internal' } $self->getSourcesAsObjects();
+    return $self->getSourcesByClass( 'internal' );
 }
 
 =item getExternalSources
@@ -221,7 +221,7 @@ Returns the external authentication sources objects for the current captive port
 
 sub getExternalSources {
     my ($self) = @_;
-    return grep { $_->{'class'} eq 'external' } $self->getSourcesAsObjects();
+    return $self->getSourcesByClass( 'external' );
 }
 
 =item getExclusiveSources
@@ -232,7 +232,19 @@ Returns the exclusive authentication sources objects for the current captive por
 
 sub getExclusiveSources {
     my ($self) = @_;
-    return grep { $_->{'class'} eq 'exclusive' } $self->getSourcesAsObjects();
+    return $self->getSourcesByClass( 'exclusive' );
+}
+
+=item getSourcesByClass
+
+Returns the sources for that match the class
+
+=cut
+
+sub getSourcesByClass {
+    my ($self, $class) = @_;
+    return unless defined $class;
+    return grep { $_->class eq $class } $self->getSourcesAsObjects();
 }
 
 =item getSourceByType
