@@ -278,6 +278,36 @@ sub _reassignSNMPConnections {
     $logger->info( "[$mac] Flipping admin status on switch (".$switch->{'_id'}.") ifIndex $ifIndex. " );
     $switch->bouncePort($ifIndex);
 }
+
+
+=head2 violation_delayed_activated
+
+TODO: documention
+
+=cut
+
+sub violation_delayed_activated {
+    my ($self, $violation) = @_;
+    my $logger = pf::log::get_logger();
+    my $mac = $violation->{mac};
+    my $vid = $violation->{vid};
+    my %data = (status => 'open');
+    my $class = pf::class::class_view($vid);
+    if (defined($class->{'window'})) {
+        my $date = 0;
+        if ($class->{'window'} ne 'dynamic' && $class->{'window'} ne '0' ) {
+            $date = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $class->{'window'}));
+        }
+        $data{release_date} = $date;
+    }
+    $logger->info("processing delayed violation : $violation->{id}, $violation->{vid}");
+    my $notes = $violation->{vid};
+    pf::violation::violation_modify($violation->{id}, %data);
+    pf::action::action_execute( $mac, $vid, $notes );
+    return ;
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

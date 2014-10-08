@@ -82,6 +82,7 @@ use pf::db;
 use pf::node;
 use pf::scan qw($SCAN_VID);
 use pf::util;
+use pf::client;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $violation_db_prepared = 0;
@@ -183,7 +184,7 @@ sub violation_db_prepare {
         qq [ select count(*) from violation where mac=? and vid=? ]);
 
     $violation_statements->{'violation_release_sql'} = get_db_handle()->prepare(
-        qq [ select id,mac,vid,status from violation where release_date !=0 AND release_date <= NOW() AND status != "closed" LIMIT ? ]);
+        qq [ select id,mac,vid,notes,status from violation where release_date !=0 AND release_date <= NOW() AND status != "closed" LIMIT ? ]);
 
     $violation_statements->{'violation_last_closed_sql'} = get_db_handle()->prepare(
         qq [ select mac,vid,release_date from violation where mac = ? AND vid = ? AND status = "closed" ORDER BY release_date DESC LIMIT 1 ]);
@@ -782,25 +783,14 @@ LOOP: {
             last;
         }
         $logger->trace("processing $rows violation(s)");
+        my $client = pf::client::getClient();
         while (my $row = $query->fetchrow_hashref()) {
-            my $mac = $row->{mac};
-            my $vid = $row->{vid};
             if($row->{status} eq 'delayed' ) {
-                my %data = (status => 'open');
-                my $class = class_view($vid);
-                if (defined($class->{'window'})) {
-                    my $date = 0;
-                    if ($class->{'window'} ne 'dynamic' && $class->{'window'} ne '0' ) {
-                        $date = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $class->{'window'}));
-                    }
-                    $data{release_date} = $date;
-                }
-                $logger->info("processing delayed violation : $row->{id}, $row->{vid}");
-                my $notes = $row->{vid};
-                violation_modify($row->{id}, %data);
-                pf::action::action_execute( $mac, $vid, $notes );
+                $client->notify(violation_delayed_activated => ($row));
             }
             else {
+                my $mac = $row->{mac};
+                my $vid = $row->{vid};
                 my $result = violation_force_close($mac,$vid);
                 # If close is a success, reevaluate the Access for the node
                 if ($result) {
