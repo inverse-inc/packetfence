@@ -101,7 +101,7 @@ $UseCanonicalName = "Off";
 $Timeout = "50";
 $KeepAliveTimeout = "10";
 
-$MaxClients = "40";
+$MaxClients = "256";
 $StartServers = "10";
 $MinSpareServers = "3";
 $MaxSpareServers = "10";
