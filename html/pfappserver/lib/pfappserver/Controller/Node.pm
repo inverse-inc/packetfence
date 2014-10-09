@@ -344,7 +344,6 @@ sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
     if (is_success($status)) {
         $c->stash->{items} = $result;
-        $c->stash->{template} = 'node/violations.tt';
         (undef, $result) = $c->model('Config::Violations')->readAll();
         my @violations = grep { $_->{id} ne 'defaults' } @$result; # remove defaults
         $c->stash->{violations} = \@violations;
@@ -383,6 +382,18 @@ sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole
 sub closeViolation :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Node')->closeViolation($id);
+    $c->response->status($status);
+    $c->stash->{status_msg} = $result;
+    $c->stash->{current_view} = 'JSON';
+}
+
+=head2 runViolation
+
+=cut
+
+sub runViolation :Path('run') :Args(1) :AdminRole('NODES_UPDATE') {
+    my ($self, $c, $id) = @_;
+    my ($status, $result) = $c->model('Node')->runViolation($id);
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     $c->stash->{current_view} = 'JSON';
