@@ -71,6 +71,7 @@ BEGIN {
         violation_add_errors
         violation_clear_errors
         violation_last_errors
+        violation_run_delayed
     );
 }
 use pf::action;
@@ -138,13 +139,13 @@ sub violation_db_prepare {
     ]);
 
     $violation_statements->{'violation_view_open_sql'} = get_db_handle()->prepare(
-        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status="open" order by start_date desc ]);
+        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status!="closed" order by start_date desc ]);
 
     $violation_statements->{'violation_view_open_desc_sql'} = get_db_handle()->prepare(
-        qq [ select v.id,v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status="open" order by start_date desc ]);
+        qq [ select v.id,v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status!="closed" order by start_date desc ]);
 
     $violation_statements->{'violation_view_open_uniq_sql'} = get_db_handle()->prepare(
-        qq [ select mac from violation where status="open" group by mac ]);
+        qq [ select mac from violation where status!="closed" group by mac ]);
 
     $violation_statements->{'violation_view_open_all_sql'} = get_db_handle()->prepare(
         qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where status="open" ]);
@@ -786,7 +787,7 @@ LOOP: {
         my $client = pf::client::getClient();
         while (my $row = $query->fetchrow_hashref()) {
             if($row->{status} eq 'delayed' ) {
-                $client->notify(violation_delayed_activated => ($row));
+                $client->notify(violation_delayed_run => ($row));
             }
             else {
                 my $mac = $row->{mac};
@@ -805,6 +806,36 @@ LOOP: {
 }
 
     return (1);
+}
+
+sub violation_run_delayed {
+    my ($id) = @_;
+    my ($violation) = violation_view($id);
+    if($violation) {
+        _violation_run_delayed($violation);
+        return 1;
+    }
+    return 0;
+}
+
+sub _violation_run_delayed {
+    my ($violation) = @_;
+    my $logger = pf::log::get_logger();
+    my $mac = $violation->{mac};
+    my $vid = $violation->{vid};
+    my %data = (status => 'open');
+    my $class = pf::class::class_view($vid);
+    if (defined($class->{'window'})) {
+        my $date = 0;
+        if ($class->{'window'} ne 'dynamic' && $class->{'window'} ne '0' ) {
+            $date = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $class->{'window'}));
+        }
+        $data{release_date} = $date;
+    }
+    $logger->info("processing delayed violation : $violation->{id}, $violation->{vid}");
+    my $notes = $violation->{vid};
+    pf::violation::violation_modify($violation->{id}, %data);
+    pf::action::action_execute( $mac, $vid, $notes );
 }
 
 =back

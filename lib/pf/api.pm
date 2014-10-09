@@ -280,30 +280,15 @@ sub _reassignSNMPConnections {
 }
 
 
-=head2 violation_delayed_activated
+=head2 violation_delayed_run
 
 TODO: documention
 
 =cut
 
-sub violation_delayed_activated {
+sub violation_delayed_run {
     my ($self, $violation) = @_;
-    my $logger = pf::log::get_logger();
-    my $mac = $violation->{mac};
-    my $vid = $violation->{vid};
-    my %data = (status => 'open');
-    my $class = pf::class::class_view($vid);
-    if (defined($class->{'window'})) {
-        my $date = 0;
-        if ($class->{'window'} ne 'dynamic' && $class->{'window'} ne '0' ) {
-            $date = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $class->{'window'}));
-        }
-        $data{release_date} = $date;
-    }
-    $logger->info("processing delayed violation : $violation->{id}, $violation->{vid}");
-    my $notes = $violation->{vid};
-    pf::violation::violation_modify($violation->{id}, %data);
-    pf::action::action_execute( $mac, $vid, $notes );
+    pf::violation::_violation_run_delayed($violation);
     return ;
 }
 
