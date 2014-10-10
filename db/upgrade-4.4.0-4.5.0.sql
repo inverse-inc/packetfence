@@ -1,5 +1,5 @@
 --
--- Alter for dynamic controller
+-- Alter for delatable violations
 --
 
 ALTER TABLE class
