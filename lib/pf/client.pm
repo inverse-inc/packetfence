@@ -24,7 +24,7 @@ our $CURRENT_CLIENT = $DEFAULT_CLIENT;
 
 =head2 setClient
 
-TODO: documention
+sets the global client to use
 
 =cut
 
@@ -36,7 +36,7 @@ sub setClient {
 
 =head2 getClient
 
-TODO: documention
+gets the currently configured client
 
 =cut
 
