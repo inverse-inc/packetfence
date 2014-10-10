@@ -21,7 +21,7 @@
             <li><a href="#userMiscellaneous" data-toggle="tab">[% l('Miscellaneous') %]</a></li>
             <li><a href="#userCustomFields" data-toggle="tab">[% l('Custom Fields') %]</a></li>
             [%- IF can_access("NODES_READ") %]
-            <li><a href="#userDevices" data-toggle="tab">[% l('Devices') %]</a></li>
+            <li><a href="#userDevices" data-href="[% c.uri_for(c.controller('User').action_for('nodes'), [user.pid]) %]" data-toggle="tab">[% l('Devices') %]</a></li>
             <li><a href="#userViolations" data-href="[% c.uri_for(c.controller('User').action_for('violations'), [user.pid]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
             [%- END %]
           </ul>
@@ -112,32 +112,6 @@
 
             [%- IF can_access("NODES_READ") %]
             <div class="tab-pane fade" id="userDevices">
-              [% IF nodes.size %]
-              <table class="table table-condensed">
-                <thead>
-                  <tr>
-                    <th>[% l('Status') %]</th>
-                    <th>[% l('MAC') %]</th>
-                    <th>[% l('Computer Name') %]</th>
-                    <th>[% l('OS (DHCP)') %]</th>
-                  </tr>
-                </thead>
-                <tbody>
-                [% FOR node IN nodes %]
-                <tr>
-                  <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) | html %]</span></td>
-                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac | html %]</a></td>
-                  <td>[% node.computername | html %]</td>
-                  <td>[% node.dhcp_fingerprint | html %]</td>
-                </tr>
-                [% END %]
-                </tbody>
-              </table>
-              [% ELSE %]
-              <div id="noResult" class="unwell">
-                <i class="icon-search icon-large"></i><p>[% l('No device found') %]</p>
-              </div>
-              [% END %]
             </div><!--tab-pane-->
 
             <div class="tab-pane fade" id="userViolations">

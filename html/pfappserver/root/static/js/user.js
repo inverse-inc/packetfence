@@ -63,7 +63,9 @@ var UserView = function(options) {
 
     this.proxyClick($('body'), '#modalUser #mailPassword', this.mailPassword);
 
-    this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#userViolations"]', this.readViolations);
+    this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#userViolations"]', this.updateTab);
+
+    this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#userDevices"]', this.updateTab);
 
     this.proxyClick($('body'), '#modalUser [href$="/read"]', this.readNode);
 
@@ -335,13 +337,12 @@ UserView.prototype.printPasswordFromForm = function(e) {
     form.submit();
 };
 
-UserView.prototype.readViolations = function(e) {
+UserView.prototype.updateTab = function(e) {
     var btn = $(e.target);
     var target = $(btn.attr("href"));
-    if (target.children().length == 0)
-        target.load(btn.attr("data-href"), function() {
-            target.find('.switch').bootstrapSwitch();
-        });
+    target.load(btn.attr("data-href"), function() {
+        target.find('.switch').bootstrapSwitch();
+    });
     return true;
 };
 
