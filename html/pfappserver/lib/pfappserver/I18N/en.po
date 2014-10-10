@@ -4419,6 +4419,9 @@ msgstr "Send Email"
 msgid "mail_loading"
 msgstr "Sending .."
 
+msgid "maintenance"
+msgstr "Maintenance"
+
 # conf/documentation.conf (maintenance.iplog_cleanup_interval)
 msgid "maintenance.iplog_cleanup_interval"
 msgstr "Iplog Cleanup Interval"
