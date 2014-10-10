@@ -282,7 +282,7 @@ sub _reassignSNMPConnections {
 
 =head2 violation_delayed_run
 
-TODO: documention
+runs the delayed violation now
 
 =cut
 
