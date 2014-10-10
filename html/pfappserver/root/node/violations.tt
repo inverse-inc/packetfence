@@ -2,7 +2,6 @@
 <table class="table table-condensed">
     <thead>
       <tr>
-        <th>[% l('Status') %]</th>
         <th>[% l('Description') %]</th>
         <th>[% l('Start Date') %]</th>
         <th>[% l('Release Date') %]</th>
@@ -11,9 +10,8 @@
     </thead>
     <tbody>
     [%- FOR item IN items %]
-    <tr[% ' class="muted"' IF item.status != 'open' %]>
-      <td>[% item.status | html %]</td>
-      <td>[% item.description | html %]</td>
+    <tr[% ' class="muted"' IF item.status == 'closed' %]>
+      <td>[% '<i class="icon-time"></i>' IF item.status == 'delayed' %] [% item.description | html %]</td>
       <td>[% item.start_date | html %]</td>
       <td>[% item.release_date | html %]</td>
       <td>
@@ -21,7 +19,7 @@
             [% IF item.status == 'open' %]
                 <a href="[% c.uri_for(c.controller('Node').action_for('closeViolation'), [item.id]) %]" class="btn btn-mini">[% l('Release') %]</a>
             [% ELSIF item.status == 'delayed'%]
-                <a href="[% c.uri_for(c.controller('Node').action_for('runViolation'), [item.id]) %]" class="btn btn-mini">[% l('Run') %]</a>
+                <a href="[% c.uri_for(c.controller('Node').action_for('runViolation'), [item.id]) %]" class="btn btn-mini">[% l('Run Now') %]</a>
                 <a href="[% c.uri_for(c.controller('Node').action_for('closeViolation'), [item.id]) %]" class="btn btn-mini">[% l('Close') %]</a>
             [% END %]
         [% END %]
