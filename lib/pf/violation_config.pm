@@ -58,7 +58,7 @@ sub loadViolationsIntoDb {
 
         # parse grace, try to understand trailing signs, and convert back to seconds
         my @time_values = (qw(grace delay_by));
-        push @time_values,'window' if defined $data->{'window'} && $data->{'window'} ne "dynamic";
+        push (@time_values,'window') if (defined $data->{'window'} && $data->{'window'} ne "dynamic");
         foreach my $key (@time_values) {
             my $value = $data->{$key};
             if ( defined $value ) {
