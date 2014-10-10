@@ -153,7 +153,7 @@ has_field 'delay_by' =>
    type => 'Duration',
    label => 'Delay By',
    tags => { after_element => \&help,
-             help => "Amount of time a violation's will be triggered" },
+             help => "Delay before triggering the violation." },
   );
 has_field 'template' =>
   (
