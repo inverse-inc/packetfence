@@ -19,10 +19,14 @@ New Features
 * pfmon can now run tasks on different intervals
 * Added a way to reevaluate the access of a node in the admin interface
 * Added a "Blackhole" auth source 
+* Added new violation enforce provisioning
+* Violation can now be delayed
 
 Enhancements
 ++++++++++++
 * Cache the ipset rule update to avoid unnecessary calls to ipset
+* Dynamically load violations and nodes for a user for display in admin gui
+* Dynamically load violations for a node for display in admin gui
 
 Bug Fixes
 +++++++++
