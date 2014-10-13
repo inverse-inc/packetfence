@@ -342,13 +342,23 @@ sub _runtask {
             $logger->error("Error running task $id: $@");
         }
         #Stop running if parent is no longer alive
-        if(kill (0,$PARENT_PID) == 0) {
+        unless(is_parent_alive()) {
             $logger->error("Parent is no longer running shutting down");
             $running = 0;
         }
     }
     $logger->trace("$$ shutting down");
     exit;
+}
+
+=head2 is_parent_alive
+
+Checks to see if parent is alive
+
+=cut
+
+sub is_parent_alive {
+    kill (0,$PARENT_PID)
 }
 
 =head2 register_task
