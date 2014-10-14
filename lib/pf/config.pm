@@ -150,6 +150,7 @@ Readonly::Scalar our $TRIGGER_TYPE_SOH => 'soh';
 Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
 Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
 Readonly::Scalar our $TRIGGER_TYPE_PROVISIONER => 'provisioner';
+Readonly::Scalar our $TRIGGER_ID_PROVISIONER => 'check';
 
 Readonly our @VALID_TRIGGER_TYPES =>
   (
