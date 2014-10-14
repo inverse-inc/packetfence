@@ -49,7 +49,7 @@ Host of the SEPM web API
 
 =cut
 
-has host => (is => 'rw');
+has host => (is => 'rw', default => "gears.opswat.com");
 
 =head2 port
 
@@ -57,7 +57,7 @@ Port to connect to the SEPM web API
 
 =cut
 
-has port => (is => 'rw', default => sub { 443 });
+has port => (is => 'rw', default =>  443 );
 
 =head2 protocol
 
@@ -65,7 +65,7 @@ Protocol to connect to the SEPM web API
 
 =cut
 
-has protocol => (is => 'rw', default => sub { "https" } );
+has protocol => (is => 'rw', default =>  "https" );
 
 =head2 access_token
 
