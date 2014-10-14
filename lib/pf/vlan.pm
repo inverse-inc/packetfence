@@ -23,7 +23,7 @@ use pf::config;
 use pf::node qw(node_attributes node_exist node_modify);
 use pf::Switch::constants;
 use pf::util;
-use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
+use pf::violation qw(violation_count_trap violation_exist_open violation_view_top violation_trigger);
 
 use pf::authentication;
 use pf::Authentication::constants;
@@ -328,7 +328,7 @@ sub getNormalVlan {
 
     my $provisioner = $profile->findProvisioner($mac,$node_info);
     if (defined($provisioner) && $provisioner->{enforce}) {
-        violation_trigger($mac, $provisioner->type, $TRIGGER_TYPE_PROVISIONER);
+        violation_trigger($mac, 'check', $TRIGGER_TYPE_PROVISIONER);
     }
     else{
         $logger->trace("Can't find provisioner for $mac");
