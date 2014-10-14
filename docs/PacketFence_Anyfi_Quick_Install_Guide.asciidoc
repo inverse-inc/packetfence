@@ -17,7 +17,7 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the Anyfi equipment.
+This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using Anyfi products.
 
 The instructions are based on version {release_version} of the PacketFence Live Image.
 
@@ -27,7 +27,7 @@ Assumptions
 * You will need a laptop or a PC from which the PacketFence Live USB key will run from
 * You will deploy a VLAN enforcement environment according to the customer specifications
 * Your customer will provide the network equipment (switch, cabled, etc) to interconnect this PoC setup
-* You have either physical or virtual infrastructure to deploy the Anyfi gateway and controller 
+* You have either physical or virtual infrastructure to deploy the Anyfi Gateway and Controller 
 * You have an access point that supports CarrierWRT
 
 Quick Deployment
@@ -181,18 +181,18 @@ You'll be able to login to the PacketFence web administration interface with the
 
 Services status will help you monitor if everything goes as expected. If not, you'll see which service is in trouble and the log output will help you determine the problem that occurs.
 
-Configuring Anyfi gateway in PacketFence
+Configuring Anyfi Gateway in PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Now that you have a fully functionnal PacketFence installation, you'll need to add the Anyfi gateway to the PacketFence switches database for correct intergration.
+Now that you have a fully functionnal PacketFence installation, you'll need to add the Anyfi Gateway to the PacketFence switches database for correct intergration.
 
 To do so, login to the PacketFence web administration interface if it is not already done. Click on the Configuration tab and select the switches section.
 
-We'll use the clone function to add a new switch (the Anyfi gateway) to the PacketFence database. With the mouse pointer, go over the default switch and you'll see a set of icons appearing at the left of it. Click on the second one (a paper sheet with a plus sign).
+We'll use the clone function to add a new switch (the Anyfi Gateway) to the PacketFence database. With the mouse pointer, go over the default switch and you'll see a set of icons appearing at the left of it. Click on the second one (a paper sheet with a plus sign).
 
 The Adding new switch window will appear, in which, you'll enter the correct information for the integration. Use theses values to populate each of the fields; leave the others as is:
 
-    IP: This will be the IP of the Anyfi gateway on the customer management network
-    Type: Anyfi gateway
+    IP: This will be the IP of the Anyfi Gateway on the customer management network
+    Type: Anyfi Gateway
     Mode: Production
     Vlans: 2,3,10
     Normal VLAN: 10
@@ -206,17 +206,17 @@ The newly added controller should shows up in the list.
 
 PacketFence configuration is done. You may now reboot the demonstation PC (leave the USB key in). Once rebooted, the web browser should open in the PacketFence web administation interface.
 
-Step 3: Configure Anyfi gateway and controller
+Step 3: Configure Anyfi Gateway and Controller
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This section will discuss about the configuration of your Anyfi gateway and controller in order to use it with our configured PacketFence environment.
+This section will discuss about the configuration of your Anyfi Gateway and Controller in order to use it with our configured PacketFence environment.
 
-Deploy Anyfi controller and gateway
+Deploy Anyfi Controller and Gateway
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-First thing, you will need to deploy the Anyfi gateway and controller on your network and configure basic connectivity between both of them.
+First thing, you will need to deploy the Anyfi Gateway and Controller on your network and configure basic connectivity between both of them.
 
-When installing the Anyfi gateway, have one interface in trunk mode for the packet bridge. In this example it will be eth2 which is the last card on the machine.
+When installing the Anyfi Gateway, have one interface in trunk mode for the packet bridge. In this example it will be eth2 which is the last card on the machine.
 
-Anyfi gateway basic configuration
+Anyfi Gateway basic configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Connect to the gateway using SSH and enter configuration mode.
 Now you need to add the configuration for br0 which will link the access point traffic to your network.
@@ -231,7 +231,7 @@ Now you need to add the configuration for br0 which will link the access point t
         }
     }
 
-In this example eth1 will be the management interface of the Anyfi gateway and eth2 will be the interface that will contain the outbound WIFI traffic.
+In this example eth1 will be the management interface of the Anyfi Gateway and eth2 will be the interface that will contain the outbound WIFI traffic.
 
     interfaces {
         ethernet eth1 {
@@ -270,7 +270,7 @@ Still in configuration mode configure the RADIUS server and SSID security
                     }
                 }
                 bridge br0
-                controller <IP of the Anyfi controller>
+                controller <IP or FQDN of the Anyfi Controller>
                 isolation
                 nas {
                     identifier anyfi
@@ -282,8 +282,8 @@ Still in configuration mode configure the RADIUS server and SSID security
 
 Secure SSID configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-Still in configuration mode configure the Anyfi gateway to broadcast a WPA2 enterprise SSID.
-N.B. : The Anyfi gateway currently doesn't support VLAN assignation when using WPA2 enterprise. Devices connecting to this network will gain access to the native VLAN of eth1.
+Still in configuration mode configure the Anyfi Gateway to broadcast a WPA2 enterprise SSID.
+N.B. : The Anyfi Gateway currently doesn't support VLAN assignation when using WPA2 enterprise. Devices connecting to this network will gain access to the native VLAN of eth1.
 
     service {
         anyfi{
@@ -297,7 +297,7 @@ N.B. : The Anyfi gateway currently doesn't support VLAN assignation when using W
                     }
                 }
                 bridge br0
-                controller <IP of the Anyfi controller>
+                controller <IP or FQDN of the Anyfi Controller>
                 isolation
                 ssid DemoSecure
                 wpa2 {
@@ -309,7 +309,7 @@ N.B. : The Anyfi gateway currently doesn't support VLAN assignation when using W
 
 Deploy access point
 ^^^^^^^^^^^^^^^^^^^
-You will now need to install CarrierWRT on a compatible access point and configure the Anyfi controller in it. 
+You will now need to install CarrierWRT on a compatible access point and configure the Anyfi Controller in it. 
 Depending on the access point you're using, the method to install CarrierWRT will vary.
 For specifics about the CarrierWRT installation, refer to Anyfi's documentation.
 Once this step is done, the SSID should be broadcasted.

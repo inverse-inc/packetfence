@@ -37,7 +37,7 @@ New Features
 ++++++++++++
 
 * Added the possibility to search by computer name on the nodes page
-* Added support for the Anyfi WiFi controller
+* Added support for the Anyfi Gateway (a Wi-Fi over IP tunnel aggregator)
 * Show portal profiles directly on the admin GUI
 * Added local account authentication for EAP
 * Added support for unreg date with dynamic year
