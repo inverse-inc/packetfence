@@ -37,6 +37,7 @@ Readonly::Scalar our $EXTERNAL => 'external';
 Readonly::Scalar our $WINPOPUP => 'winpopup';
 Readonly::Scalar our $CLOSE => 'close';
 Readonly::Scalar our $ROLE => 'role';
+Readonly::Scalar our $ENFORCE_PROVISIONING => 'enforce_provisioning';
 
 Readonly::Array our @VIOLATION_ACTIONS =>
   (
@@ -51,6 +52,7 @@ Readonly::Array our @VIOLATION_ACTIONS =>
    $WINPOPUP,
    $CLOSE,
    $ROLE,
+   $ENFORCE_PROVISIONING,
   );
 
 BEGIN {
@@ -73,6 +75,8 @@ use pf::db;
 use pf::util;
 use pf::class qw(class_view class_view_actions);
 use pf::violation qw(violation_force_close);
+use pf::Portal::ProfileFactory;
+use pf::log;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $action_db_prepared = 0;
@@ -200,6 +204,8 @@ sub action_execute {
             action_role( $mac, $vid );
         } elsif ( $action eq $UNREG ) {
             action_unreg( $mac, $vid );
+        } elsif ( $action eq $ENFORCE_PROVISIONING ) {
+            action_enforce_provisioning( $mac, $vid, $notes );
         } else {
             $logger->error( "unknown action '$action' for class $vid", 1 );
         }
@@ -210,6 +216,24 @@ sub action_execute {
         pf::violation::violation_force_close( $mac, $vid );
     }
     return (1);
+}
+
+sub action_enforce_provisioning {
+    my ($mac, $vid, $notes) = @_;
+    my $logger = get_logger();
+    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    if (defined(my $provisioner = $profile->findProvisioner($mac))) {
+        unless ($provisioner->authorize($mac)) {
+            $logger->warn("$mac is not authorized anymore with it's provisionner. Putting node as pending.");
+            node_modify($mac, status => $pf::node::STATUS_PENDING);
+        }
+        else{
+            $logger->debug("$mac is still authorized with it's provisioner");
+        }
+    }
+    else{
+        $logger->debug("Can't find provisioner for $mac");
+    }
 }
 
 sub action_role {

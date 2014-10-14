@@ -15,15 +15,11 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 24;
+use Test::More tests => 27;
 use Test::NoWarnings;
 use Test::Exception;
 use File::Basename qw(basename);
 
-Log::Log4perl->init("log.conf");
-my $logger = Log::Log4perl->get_logger( basename($0) );
-Log::Log4perl::MDC->put( 'proc', basename($0) );
-Log::Log4perl::MDC->put( 'tid',  0 );
 
 BEGIN { use_ok('pf::trigger') }
 
@@ -145,6 +141,19 @@ is_deeply(
     [ [ "TOT20GBM", "TOT20GBM", "accounting" ], [ "IN10GBW", "IN10GBW", "accounting" ], ],
     'validating bandwidth accounting trigger with spaces in between'
 );
+
+lives_ok { $parsing_result_ref = parse_triggers("Provisioner::opswat ,Provisioner::mobileiron") }
+    'parsing provisioner triggers'
+;
+is_deeply(
+    $parsing_result_ref,
+    [ [ "opswat", "opswat", "provisioner" ], [ "mobileiron", "mobileiron", "provisioner" ], ],
+    'validating provisioner triggers'
+);
+
+dies_ok { $parsing_result_ref = parse_triggers("Provisioner::garbage1 ,Provisioner::junk2") }
+    'parsing invalid provisioning triggers'
+;
 
 =head1 AUTHOR
 

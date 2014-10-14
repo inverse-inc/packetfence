@@ -142,7 +142,7 @@ sub registertasks  {
     );
     register_task(
         'checking violations for expiration','violation_maintenance_interval',sub {
-            violation_maintenance();
+            violation_maintenance($Config{maintenance}{violation_maintenance_batch},$Config{maintenance}{violation_maintenance_timeout});
         }
     );
     register_task(

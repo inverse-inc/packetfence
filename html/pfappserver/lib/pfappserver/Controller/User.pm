@@ -107,10 +107,6 @@ sub object :Chained('/') :PathPart('user') :CaptureArgs(1) {
     if (is_success($status)) {
         $c->stash->{user} = pop @{$result};
         # Fetch associated nodes
-        ($status, $result) = $self->getModel($c)->nodes($pid);
-        if (is_success($status)) {
-            $c->stash->{nodes} = $result;
-        }
     }
     else {
         $c->response->status($status);
@@ -178,6 +174,8 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_UPD
 
 =head2 violations
 
+Show violations for user
+
 =cut
 
 sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
@@ -190,6 +188,25 @@ sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         $c->stash->{status_msg} = $result;
         $c->stash->{current_view} = 'JSON';
     }
+}
+
+=head2 nodes
+
+Show nodes for user
+
+=cut
+
+sub nodes :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
+    my ($self, $c) = @_;
+    my ($status, $result) = $self->getModel($c)->nodes($c->stash->{user}->{pid});
+    if (is_success($status)) {
+        $c->stash->{nodes} = $result;
+    } else {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
+        $c->stash->{current_view} = 'JSON';
+    }
+    return ;
 }
 
 =head2 reset

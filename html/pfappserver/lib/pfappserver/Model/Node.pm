@@ -505,6 +505,18 @@ sub closeViolation {
     return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while closing the violation.');
 }
 
+=head2 runViolation
+
+=cut
+
+sub runViolation {
+    my ($self, $id) = @_;
+    if(violation_run_delayed($id)) {
+        return ($STATUS::OK, 'The violation was successfully ran');
+    }
+    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while running the violation.');
+}
+
 =head2 closeViolations
 
 =cut

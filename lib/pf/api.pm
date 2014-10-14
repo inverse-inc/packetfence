@@ -278,6 +278,21 @@ sub _reassignSNMPConnections {
     $logger->info( "[$mac] Flipping admin status on switch (".$switch->{'_id'}.") ifIndex $ifIndex. " );
     $switch->bouncePort($ifIndex);
 }
+
+
+=head2 violation_delayed_run
+
+runs the delayed violation now
+
+=cut
+
+sub violation_delayed_run {
+    my ($self, $violation) = @_;
+    pf::violation::_violation_run_delayed($violation);
+    return ;
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
