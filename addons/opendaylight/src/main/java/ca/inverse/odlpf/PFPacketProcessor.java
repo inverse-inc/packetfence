@@ -18,6 +18,8 @@ import org.opendaylight.controller.sal.packet.Ethernet;
 import org.opendaylight.controller.sal.packet.IDataPacketService;
 import org.opendaylight.controller.sal.packet.IListenDataPacket;
 import org.opendaylight.controller.sal.packet.IPv4;
+import org.opendaylight.controller.sal.packet.UDP;
+import org.opendaylight.controller.sal.packet.TCP;
 import org.opendaylight.controller.sal.packet.Packet;
 import org.opendaylight.controller.sal.packet.PacketResult;
 import org.opendaylight.controller.sal.packet.RawPacket;
@@ -151,7 +153,7 @@ public class PFPacketProcessor {
                 if(method.equals("DNS") && packet.getDestPort() == 53){
                     // do dns poisoning stuff
                     PFDNSPoison dnsPoison = new PFDNSPoison(this.packet, this.packetHandler);
-                    //dnsPoison.poisonFromPacket(); 
+                    dnsPoison.poisonFromPacket(); 
                     this.forwardToPacketFence();
                     return PacketResult.CONSUME;
                 }
@@ -189,7 +191,7 @@ public class PFPacketProcessor {
         System.out.println("Check before : "+this.packet.getL3Packet().getChecksum());
         try{
         //this.packet.getL3Packet().setSourceAddress(InetAddress.getByName(""));
-        //this.packet.getL3Packet().setDestinationAddress(InetAddress.getByName("172.20.20.109"));
+        this.packet.getL3Packet().setDestinationAddress(InetAddress.getByName("172.20.20.109"));
         }catch(Exception e){e.printStackTrace();}
         System.out.println(this.packet.getSourceIP());
         System.out.println(this.packet.getDestIP());
@@ -198,11 +200,30 @@ public class PFPacketProcessor {
         System.out.println(this.packet.getSourceMac());
         System.out.println(this.packet.getDestMac());
         RawPacket raw = null;
+        Packet l4Packet = this.packet.getL4Packet();
+        /*
+        if(l4Packet instanceof UDP){
+            ((UDP)this.packet.getL4Packet()).setChecksum((short)0);
+        }
+        else if(l4Packet instanceof TCP){
+            ((TCP)this.packet.getL4Packet()).setChecksum((short)0);
+        }
+        */
+
         try{
-        raw = new RawPacket(this.packet.getPacket().serialize());
+            byte[] elPack = null;
+            if(l4Packet instanceof UDP){
+                elPack = ((UDP)this.packet.getL4Packet()).serialize();
+            }
+            else if(l4Packet instanceof TCP){
+                elPack = ((TCP)this.packet.getL4Packet()).serialize();
+            }
+            System.out.println(elPack);
+
+            raw = new RawPacket(elPack);
         }catch(Exception e){e.printStackTrace();}
         PFPacket lePack = new PFPacket(raw, this.packetHandler);
-        System.out.println("Check after : "+lePack.getL3Packet().getChecksum());
+        //System.out.println("Check after : "+lePack.getL3Packet().getChecksum());
         NodeConnector outbound = NodeConnector.fromStringNoNode("1", this.packet.getRawPacket().getIncomingNodeConnector().getNode());
         System.out.println(outbound.getNode().getNodeIDString());
         //RawPacket raw = packetHandler.getDataPacketService().encodeDataPacket(this.packet.getL2Packet());

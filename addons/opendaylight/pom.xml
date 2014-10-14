@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal</artifactId>
-            <version>0.7.0</version>
+            <version>0.8.1-Helium</version>
         </dependency>
          <dependency>
               <groupId>org.json</groupId>

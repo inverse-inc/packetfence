@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1412707918103
+Bnd-LastModified: 1412791316508
 Build-Jdk: 1.7.0_65
 Built-By: root
 Bundle-Activator: ca.inverse.odlpf.Activator
@@ -16,9 +16,9 @@ Export-Package: ca.inverse.odlpf;uses:="org.opendaylight.controller.sal.
  0.1.0"
 Import-Package: javax.net.ssl,javax.xml.bind,org.apache.felix.dm;version
  ="[3.0,4)",org.json,org.opendaylight.controller.sal.action;version="[0.
- 7,1)",org.opendaylight.controller.sal.core;version="[0.7,1)",org.openda
- ylight.controller.sal.flowprogrammer;version="[0.7,1)",org.opendaylight
- .controller.sal.match;version="[0.7,1)",org.opendaylight.controller.sal
- .packet;version="[0.7,1)",org.opendaylight.controller.sal.utils;version
- ="[0.7,1)",org.slf4j;version="[1.7,2)"
+ 8,1)",org.opendaylight.controller.sal.core;version="[0.8,1)",org.openda
+ ylight.controller.sal.flowprogrammer;version="[0.8,1)",org.opendaylight
+ .controller.sal.match;version="[0.8,1)",org.opendaylight.controller.sal
+ .packet;version="[0.8,1)",org.opendaylight.controller.sal.utils;version
+ ="[0.8,1)",org.slf4j;version="[1.7,2)"
 Tool: Bnd-1.50.0
