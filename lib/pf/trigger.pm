@@ -49,13 +49,15 @@ use pf::config;
 use pf::db;
 use pf::util;
 use pf::iplog qw(ip2mac);
-use pf::factory::provisioner;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $trigger_db_prepared = 0;
 # in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
 # the hash if required
 our $trigger_statements = {};
+
+#the 
+our $PROVISIONER_TID_CHECK = 'check';
 
 =head1 SUBROUTINES
 
@@ -215,7 +217,7 @@ sub parse_triggers {
         # special provisioning only trigger parser
         elsif ($type eq 'provisioner') {
             die("Invalid provisioner trigger id: $trigger")
-                if ( none { "pf::provisioner::$tid" eq $_ } @pf::factory::provisioner::MODULES );
+                if ( $tid ne $PROVISIONER_TID_CHECK );
         }
         # usual trigger allowing digits, ranges and dots with optional trailing whitespace
         else {
