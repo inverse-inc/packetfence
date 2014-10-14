@@ -56,9 +56,6 @@ our $trigger_db_prepared = 0;
 # the hash if required
 our $trigger_statements = {};
 
-#the 
-our $PROVISIONER_TID_CHECK = 'check';
-
 =head1 SUBROUTINES
 
 This list is incomplete.
@@ -217,7 +214,7 @@ sub parse_triggers {
         # special provisioning only trigger parser
         elsif ($type eq 'provisioner') {
             die("Invalid provisioner trigger id: $trigger")
-                if ( $tid ne $PROVISIONER_TID_CHECK );
+                if ( $tid ne $TRIGGER_ID_PROVISIONER );
         }
         # usual trigger allowing digits, ranges and dots with optional trailing whitespace
         else {
