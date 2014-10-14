@@ -718,6 +718,7 @@ Swap the data with cached data
 sub _swap_data {
     my ($self,$new_self) = @_;
     Data::Swap::swap($self,$new_self); 
+    $self->addToLoadedConfigs();
     #Unbless the old data to avoid DESTROY from being called
     unbless($new_self);
     my $cache = $self->cache;
@@ -847,6 +848,7 @@ sub ReloadConfigs {
     my $logger = get_logger();
     $logger->trace("Reloading all configs");
     foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
+        $logger->trace($config->{cf});
         $config->ReadConfig($force);
     }
 }
