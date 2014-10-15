@@ -1,5 +1,5 @@
 PacketFence: OPSWAT Quick Integration Guide
-================================================
+===========================================
 :encoding: UTF-8
 :lang: en
 :doctype: book
@@ -18,7 +18,7 @@ Assumptions
 Quick installation
 ------------------
 Step 1: Configure OPSWAT 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 First of all you will need to create a cloud account at OPSWAT and configure the basic functionality of OPSWAT using their documentation.
 
 Step 2: Developer account
@@ -41,35 +41,50 @@ In order to configure OPSWAT in PacketFence you will need to generate an OAuth2 
 
 Generate the authorization code
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-First you will access this page using your browser (replace <clientid> by your client ID that you got when creating the application)
-https://gears.opswat.com/o/oauth/authorize?client_id=<clientid>&response_type=code&redirect_uri=http://127.0.0.1/opswat
+First you will access this page using your browser (replace -clientid- by your client ID that you got when creating the application)
 
-ex : https://gears.opswat.com/o/oauth/authorize?client_id=1234567890&response_type=code&redirect_uri=http://127.0.0.1/opswat 
+https://gears.opswat.com/o/oauth/authorize?client_id=-clientid-&response_type=code&redirect_uri=http://127.0.0.1/opswat
+
+----
+ex : https://gears.opswat.com/o/oauth/authorize?
+     client_id=1234567890&response_type=code
+     &redirect_uri=http://127.0.0.1/opswat 
+----
 
 Authorize the application and you will then be redirected to an unavailable page but the URL will contain the code in it's parameters (ex : http://127.0.0.1/opswat?code=wJ2RTE).
 
 Generate the access and refresh token
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-We will now use the code at the end to generate the access and refresh token using another HTTP request that will be done in your browser. Replace <clientid> and <clientsecret> by the client id and secret of your application.Then add the code you got above at the end of this url.
+We will now use the code at the end to generate the access and refresh token using another HTTP request that will be done in your browser. Replace -clientid- and -clientsecret- by the client id and secret of your application.Then add the code you got above at the end of this url.
 
-https://gears.opswat.com/o/oauth/token?client_id=<clientid>&client_secret=<clientsecret>&grant_type=authorization_code&redirect_uri=http://127.0.0.1/opswat&code=
+https://gears.opswat.com/o/oauth/token?client_id=-clientid-&client_secret=-clientsecret-&grant_type=authorization_code&redirect_uri=http://127.0.0.1/opswat&code=
 
-ex : https://gears.opswat.com/o/oauth/token?client_id=1234567890&client_secret=0987654321&grant_type=authorization_code&redirect_uri=http://127.0.0.1/opswat&code=wJ2RTE
+----
+ex : https://gears.opswat.com/o/oauth/token?
+     client_id=1234567890&client_secret=0987654321&
+     grant_type=authorization_code&
+     redirect_uri=http://127.0.0.1/opswat&code=wJ2RTE
+----
 
 You should now be presented with a JSON response that contains the access and refresh token. Take note of both of these values for the PacketFence configuration.
 
-ex : {"access_token":"ab3aec71-fa6a-4752-8804-00c37f934059","token_type":"bearer","refresh_token":"f9e7c698-4d88-42cb-b9ae-c067557e8385","expires_in":43199,"scope":"read","client_id":"1234567890"}
+----
+ex: {"access_token":"ab3aec71-fa6a-4752-8804-00c37f934059","token_type":"bearer",
+    "refresh_token":"f9e7c698-4d88-42cb-b9ae-c067557e8385","expires_in":43199,
+    "scope":"read","client_id":"1234567890"}
+----
 
 Step 5: Configure PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Create a new provisioner
 ^^^^^^^^^^^^^^^^^^^^^^^^
-Login in the PacketFence administration interface, then go in the Configuration tab, then in Provisioners.
+Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
 Click 'Add provisioner' then select opswat.
 
 image::docs/images/opswat-pf-config.png[scaledwidth="100%",alt="OPSWAT PacketFence configuration"]
 
 Now configure this new provisioner with the information you got above.
+
 * The Provisioning ID is the friendly name of the provisioner.
 * The Client Id is the ID of the application you created in the developer account.
 * The Client Secret is the secret of the application you created in the developer account.
@@ -81,7 +96,7 @@ Now configure this new provisioner with the information you got above.
 Add the provisioner to the profile
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Now that you have created the provisioner, go in the 'Portal Profiles' menu on the left and select the default portal.
-Click Add Provisioner and select the new OPSWAT provisioner that was created earlier.
+Click 'Add Provisioner' and select the new OPSWAT provisioner that was created earlier.
 
 image::docs/images/opswat-portal.png[scaledwidth="100%",alt="OPSWAT portal configuration"]
 
@@ -89,6 +104,7 @@ Step 6: Add the necessary passthroughs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Next, still in the PacketFence administration console, go in 'Trapping' in the left menu, then scroll then to 'Passthroughs'.
 Check the 'Passthrough' box above the field and add the following domains to the passthrough list.
+
 * gears.opswat.com
 * software.opswat.com
 
