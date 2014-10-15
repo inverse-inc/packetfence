@@ -1317,7 +1317,6 @@ sub stopService {
 sub restartService {
     my ($service,@services) = @_;
     stopService(@_);
-    configreload('hard') if $service eq 'pf';
     local $SERVICE_HEADER = '';
     startService(@_);
 }
