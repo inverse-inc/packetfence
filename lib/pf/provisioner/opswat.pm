@@ -203,7 +203,7 @@ sub validate_mac_in_opswat {
     } 
     else { 
         my $json_response = decode_json($response_body);
-        return $self->check_active($mac, $json_response) || 0;
+        return $self->check_active($mac, $json_response);
     } 
 }
 
@@ -242,7 +242,7 @@ sub authorize {
 
     if($result == -1){
         $logger->error("Unable to contact the OPSWAT API to validate if mac $mac is registered.");
-        return 0;
+        return -1;
     }
     else{
         return $result;

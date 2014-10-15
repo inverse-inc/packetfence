@@ -223,9 +223,10 @@ sub action_enforce_provisioning {
     my $logger = get_logger();
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
     if (defined(my $provisioner = $profile->findProvisioner($mac))) {
-        unless ($provisioner->authorize($mac) == 0) {
+        unless ($provisioner->authorize($mac) == 1) {
             $logger->warn("$mac is not authorized anymore with it's provisionner. Putting node as pending.");
             node_modify($mac, status => $pf::node::STATUS_PENDING);
+            pf::enforcement::reevaluate_access($mac, "manage_vopen");
         }
         else{
             $logger->debug("$mac is still authorized with it's provisioner");
