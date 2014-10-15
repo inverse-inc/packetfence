@@ -19,7 +19,7 @@ Quick installation
 ------------------
 Step 1: Configure Mobile Iron
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-First of all you will need to configure the basic functionnality of Mobile Iron using their documentation.
+First of all you will need to configure the basic functionality of Mobile Iron using their documentation.
 
 MDM profile
 ^^^^^^^^^^^
@@ -28,8 +28,8 @@ Note that this will require you to create an MDM certificate with Apple. Refer t
 
 image::docs/images/mobile-iron-mdm-profile-config.png[scaledwidth="100%",alt="MDM profile configuration"]
 
-Create an API user
-^^^^^^^^^^^^^^^^^^
+Step 2: Create an API user
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 Next, we'll need a user that has the rights to access the Mobile Iron API in order to verify the state of the devices directly from PacketFence.
 
 First go in the USERS & DEVICES tab and then in Users and click Add local user
@@ -47,24 +47,40 @@ image::docs/images/mobile-iron-go-to-assign-space.png[scaledwidth="100%",alt="Go
 Select the Global space at the top and then check API at the bottom.
 You should now see API in the roles list of your newly created user when viewing the users list.
 
-Step 2: Configure PacketFence
+Step 3: Gather the boarding host
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To find the boarding host, add a fake device to Mobile Iron and at the end of the process you'll see the registration instructions.
+
+In it you will find the boarding host and port for the PacketFence configuration. In this case, the boarding host is 'm.mobileiron.net' and the boarding port is '50291'
+
+image::docs/images/mobile-iron-boarding.png[scaledwidth="100%",alt="Boarding info"]
+
+Step 3: Configure PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In PacketFence, MDM are refered to as provisioners. 
 This will walk you through adding MobileIron as a provisioner.
 
 Create the provisioner
 ^^^^^^^^^^^^^^^^^^^^^^
-We will first need to configure a new provisioner in PacketFence.
+Login in the PacketFence administration interface, then go in the Configuration tab, then in Provisioners.
+Click 'Add provisioner' then select mobileiron.
 
-For the name we will use mobileiron but other names are still valid.
+image::docs/images/mobile-iron-pf-config.png[scaledwidth="100%",alt="Mobile Iron configuration"]
 
-Here are the URLs that should work by default. 
+Now configure this new provisioner with the information you got above.
+* The Provisioning ID is the friendly name of the provisioner.
+* The Username is the user you created with API access above.
+* The password is the password of the API user.
+* The host is the domain name of the instance + your account name if you have a cloud account (ex : m.mobileiron.net/inverseca) 
+* Now add the download URI for the agent. See below for more details.
+* The Boarding host is the host that you got in step 3.
+* The Boarding port is the port that you got in step 3.
+
+Here are the URIs that should work by default. 
 Replace accountName by your real account/instance name at Mobile Iron.
-
-Android : https://m.mobileiron.net/accountName/c/d/android.html
-IOS devices : https://m.mobileiron.net/accountName/c/d/ios.html
-Windows : https://m.mobileiron.net/accountName/EnrollmentServer/Discovery.svc
-
+* Android : https://m.mobileiron.net/accountName/c/d/android.html
+* IOS devices : https://m.mobileiron.net/accountName/c/d/ios.html
+* Windows : https://m.mobileiron.net/accountName/EnrollmentServer/Discovery.svc
 
 Add the provisioner to the portal profile
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
