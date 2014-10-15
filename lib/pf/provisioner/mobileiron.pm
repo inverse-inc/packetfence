@@ -157,7 +157,7 @@ sub validate_mac_is_compliant{
         }
     }
     else{
-        return 0;
+        return -1;
     }
 }
 

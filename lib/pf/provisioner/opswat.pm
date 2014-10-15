@@ -212,6 +212,10 @@ sub check_active {
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     my $f = DateTime::Format::RFC3339->new();
+    unless(defined($json_response->{last_seen})){
+        $logger->info("Node $mac not found in the OPSWAT provisioner");
+        return 0;
+    }
     my $last_seen = $f->parse_datetime( $json_response->{last_seen} );
 
     my $minutes_last_seen = ((time() - $last_seen->epoch)/60);
