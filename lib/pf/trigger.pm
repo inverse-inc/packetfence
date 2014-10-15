@@ -20,7 +20,7 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use List::Util qw(none);
+use List::MoreUtils qw(none);
 
 use constant TRIGGER => 'trigger';
 
