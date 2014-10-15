@@ -283,7 +283,6 @@ Still in configuration mode configure the RADIUS server and SSID security
 Secure SSID configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 Still in configuration mode configure the Anyfi Gateway to broadcast a WPA2 enterprise SSID.
-N.B. : The Anyfi Gateway currently doesn't support VLAN assignation when using WPA2 enterprise. Devices connecting to this network will gain access to the native VLAN of eth1.
 
     service {
         anyfi{

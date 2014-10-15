@@ -11,17 +11,7 @@ manage the Anyfi Gateway
 
 =head1 STATUS
 
-Developed and tested on the Anyfi Gateway release R1D (s/w version 1.4.6).
-
-=head1 BUGS AND LIMITATIONS
-
-=head2 No 802.1X VLANs 
-
-The controller doesn't support RADIUS assigned VLANs when using 802.1X
-
-=head2 Can't determine SSID
-
-The SSID is not part of the Called-Station-Id or any other attribute.
+Developed and tested on the Anyfi Gateway release R1D (s/w version 1.5.14).
 
 =cut
 
