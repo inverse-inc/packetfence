@@ -203,8 +203,6 @@ sub validate_mac_in_opswat {
     } 
     else { 
         my $json_response = decode_json($response_body);
-        use Data::Dumper;
-        $logger->info(Dumper($json_response));
         return $self->check_active($mac, $json_response) || 0;
     } 
 }
