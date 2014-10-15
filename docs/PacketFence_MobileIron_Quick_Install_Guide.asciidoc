@@ -68,6 +68,7 @@ Click 'Add provisioner' then select mobileiron.
 image::docs/images/mobile-iron-pf-config.png[scaledwidth="100%",alt="Mobile Iron configuration"]
 
 Now configure this new provisioner with the information you got above.
+
 * The Provisioning ID is the friendly name of the provisioner.
 * The Username is the user you created with API access above.
 * The password is the password of the API user.
@@ -78,6 +79,7 @@ Now configure this new provisioner with the information you got above.
 
 Here are the URIs that should work by default. 
 Replace accountName by your real account/instance name at Mobile Iron.
+
 * Android : https://m.mobileiron.net/accountName/c/d/android.html
 * IOS devices : https://m.mobileiron.net/accountName/c/d/ios.html
 * Windows : https://m.mobileiron.net/accountName/EnrollmentServer/Discovery.svc
