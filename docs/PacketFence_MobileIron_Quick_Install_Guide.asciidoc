@@ -89,6 +89,18 @@ Go in Portal Profiles, then select the portal you want to modify and add mobilei
 
 image::docs/images/mobile-iron-portal.png[scaledwidth="100%",alt="Mobile Iron portal"]
 
+Step 4: Add the necessary passthroughs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Next, still in the PacketFence administration console, go in 'Trapping' in the left menu, then scroll then to 'Passthroughs'.
+Check the 'Passthrough' box above the field and add the following domains to the passthrough list.
+* m.mobileiron.net
+* *.itunes.apple.com
+* itunes.apple.com
+* play.google.com
+* *.play.google.com 
+
+image::docs/images/mobile-iron-passthroughs.png[scaledwidth="100%",alt="Mobile Iron passthroughs"]
+
 Test
 ^^^^
 You can now test that Mobile Iron is mandatory after the device registration.
