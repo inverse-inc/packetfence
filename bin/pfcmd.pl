@@ -2450,6 +2450,7 @@ sub _changeFilesToOwner {
 sub configreload {
     my ($type)  = @_;
     $type = 'soft' unless defined $type;
+    $logger->trace("configreload $type");
     my $force = $type eq 'hard' ? 1 : 0;
     require pf::violation_config;
     require pf::authentication;
