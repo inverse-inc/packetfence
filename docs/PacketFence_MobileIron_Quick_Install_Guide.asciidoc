@@ -101,8 +101,8 @@ Check the 'Passthrough' box above the field and add the following domains to the
 
 image::docs/images/mobile-iron-passthroughs.png[scaledwidth="100%",alt="Mobile Iron passthroughs"]
 
-Test
-^^^^
+Step 5: Test
+~~~~~~~~~~~~
 You can now test that Mobile Iron is mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
 At the end of the registration process you will be presented a page asking you to install the Mobile Iron on your device.
