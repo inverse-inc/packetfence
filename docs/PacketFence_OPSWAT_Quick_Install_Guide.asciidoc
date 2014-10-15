@@ -1,4 +1,4 @@
-PacketFence: Mobile Iron Quick Integration Guide
+PacketFence: OPSWAT Quick Integration Guide
 ================================================
 :encoding: UTF-8
 :lang: en
