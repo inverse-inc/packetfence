@@ -84,8 +84,17 @@ Now that you have created the provisioner, go in the 'Portal Profiles' menu on t
 Click Add Provisioner and select the new opswat provisioner that was created earlier.
 
 image::docs/images/opswat-portal.png[scaledwidth="100%",alt="OPSWAT portal configuration"]
- 
-Step 6: Test
+
+Step 6: Add the necessary passthroughs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Next, still in the PacketFence administration console, go in 'Trapping' in the left menu, then scroll then to 'Passthroughs'.
+Check the 'Passthrough' box above the field and add the following domains to the passthrough list.
+* gears.opswat.com
+* software.opswat.com
+
+image::docs/images/opswat-passthroughs.png[scaledwidth="100%",alt="OPSWAT passthroughs"]
+
+Step 7: Test
 ~~~~~~~~~~~~
 You can now test that the installation of the OPSWAT agent is mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
