@@ -142,14 +142,9 @@ is_deeply(
     'validating bandwidth accounting trigger with spaces in between'
 );
 
-lives_ok { $parsing_result_ref = parse_triggers("Provisioner::opswat ,Provisioner::mobileiron") }
+lives_ok { $parsing_result_ref = parse_triggers("Provisioner::check") }
     'parsing provisioner triggers'
 ;
-is_deeply(
-    $parsing_result_ref,
-    [ [ "opswat", "opswat", "provisioner" ], [ "mobileiron", "mobileiron", "provisioner" ], ],
-    'validating provisioner triggers'
-);
 
 dies_ok { $parsing_result_ref = parse_triggers("Provisioner::garbage1 ,Provisioner::junk2") }
     'parsing invalid provisioning triggers'
