@@ -828,6 +828,7 @@ fi
                         /usr/local/pf/html/captive-portal/content/countdown.min.js
                         /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
+                        /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
 %dir                    /usr/local/pf/html/captive-portal/lib
