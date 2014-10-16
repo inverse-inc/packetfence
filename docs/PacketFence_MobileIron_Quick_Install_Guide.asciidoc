@@ -1,4 +1,4 @@
-PacketFence: Mobile Iron Quick Integration Guide
+PacketFence: MobileIron Quick Integration Guide
 ================================================
 :encoding: UTF-8
 :lang: en
@@ -8,29 +8,29 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the Mobile Iron mobile device manager.
+This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the MobileIron mobile device manager.
 
 Assumptions
 -----------
 * You have a configured PacketFence environment with working test equipment
-* You have access to a Mobile Iron cloud account
+* You have access to a MobileIron cloud account
 
 Quick installation
 ------------------
-Step 1: Configure Mobile Iron
+Step 1: Configure MobileIron
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-First of all you will need to configure the basic functionality of Mobile Iron using their documentation.
+First of all you will need to configure the basic functionality of MobileIron using their documentation.
 
 MDM profile
 ^^^^^^^^^^^
 One important step is to enable the MDM profile like in this screenshot. 
-Note that this will require you to create an MDM certificate with Apple. Refer to the Mobile Iron documentation for specifics about this step.
+Note that this will require you to create an MDM certificate with Apple. Refer to the MobileIron documentation for specifics about this step.
 
 image::docs/images/mobile-iron-mdm-profile-config.png[scaledwidth="100%",alt="MDM profile configuration"]
 
 Step 2: Create an API user
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-Next, we'll need a user that has the rights to access the Mobile Iron API in order to verify the state of the devices directly from PacketFence.
+Next, we will need a user that has the rights to access the MobileIron API in order to verify the state of the devices directly from PacketFence.
 
 First go in the USERS & DEVICES tab and then in Users and click Add local user
 
@@ -49,7 +49,7 @@ You should now see API in the roles list of your newly created user when viewing
 
 Step 3: Gather the boarding host
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-To find the boarding host, add a fake device to Mobile Iron and at the end of the process you'll see the registration instructions.
+To find the boarding host, add a fake device to MobileIron and at the end of the process you will see the registration instructions.
 
 In it you will find the boarding host and port for the PacketFence configuration. In this case, the boarding host is 'm.mobileiron.net' and the boarding port is '50291'
 
@@ -65,7 +65,7 @@ Create the provisioner
 Login in the PacketFence administration interface, then go in the Configuration tab, then in Provisioners.
 Click 'Add provisioner' then select mobileiron.
 
-image::docs/images/mobile-iron-pf-config.png[scaledwidth="100%",alt="Mobile Iron configuration"]
+image::docs/images/mobile-iron-pf-config.png[scaledwidth="100%",alt="MobileIron configuration"]
 
 Now configure this new provisioner with the information you got above.
 
@@ -78,7 +78,7 @@ Now configure this new provisioner with the information you got above.
 * The Boarding port is the port that you got in step 3.
 
 Here are the URIs that should work by default. 
-Replace accountName by your real account/instance name at Mobile Iron.
+Replace accountName by your real account/instance name at MobileIron.
 
 * Android : https://m.mobileiron.net/accountName/c/d/android.html
 * IOS devices : https://m.mobileiron.net/accountName/c/d/ios.html
@@ -89,7 +89,7 @@ Add the provisioner to the portal profile
 In order for the provisionner to be used by your captive portal you need to add it in it's configuration.
 Go in Portal Profiles, then select the portal you want to modify and add mobileiron as a provisioner.
 
-image::docs/images/mobile-iron-portal.png[scaledwidth="100%",alt="Mobile Iron portal"]
+image::docs/images/mobile-iron-portal.png[scaledwidth="100%",alt="MobileIron portal"]
 
 Step 4: Add the necessary passthroughs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,13 +101,13 @@ Check the 'Passthrough' box above the field and add the following domains to the
 * play.google.com
 * *.play.google.com 
 
-image::docs/images/mobile-iron-passthroughs.png[scaledwidth="100%",alt="Mobile Iron passthroughs"]
+image::docs/images/mobile-iron-passthroughs.png[scaledwidth="100%",alt="MobileIron passthroughs"]
 
 Step 5: Test
 ~~~~~~~~~~~~
-You can now test that Mobile Iron is mandatory after the device registration.
+You can now test that MobileIron is mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
-At the end of the registration process you will be presented a page asking you to install the Mobile Iron on your device.
-After you install the agent click continue. If your access is enabled than this means the connectivity between PacketFence and Mobile Iron is good.
+At the end of the registration process you will be presented a page asking you to install the MobileIron on your device.
+After you install the agent click continue. If your access is enabled than this means the connectivity between PacketFence and MobileIron is good.
 
 
