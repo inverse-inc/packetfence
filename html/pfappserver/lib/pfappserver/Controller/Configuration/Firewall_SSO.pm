@@ -55,21 +55,25 @@ after [qw(create clone)] => sub {
     }
 };
 
-=head2 after view
-
-=cut
-
-after view => sub {
-    my ($self, $c) = @_;
-    if (!$c->stash->{action_uri}) {
-        my $id = $c->stash->{id};
-        if ($id) {
-            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
-        } else {
-            $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
-        }
-    }
+around [qw(view _processCreatePost update)] => sub {
+    my ($orig, $self, $c, @args) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    my $item = $c->stash->{$itemKey};
+    my $type = $item->{type};
+    my $form = $c->action->{form};
+    local $c->action->{form} = "${form}::${type}";
+    $self->$orig($c, @args);
 };
+
+sub create_type : Path('create') : Args(1) {
+    my ($self, $c, $type) = @_;
+    $c->stash->{template} = 'configuration/firewall_sso/create.tt';
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    $c->stash->{$itemKey}{type} = $type;
+    $c->forward('create');
+}
 
 =head2 index
 
@@ -79,7 +83,7 @@ Usage: /configuration/firewall_sso/
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-
+    $c->stash->{types} = [qw(FortiGate PaloAlto)];
     $c->forward('list');
 }
 
