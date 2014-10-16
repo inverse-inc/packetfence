@@ -29,21 +29,21 @@ has_field 'client_secret' =>
 has_field 'host' =>
   (
    type => 'Text',
-   default => pf::provisioner::opswat->meta->get_attribute('host')->default,
+   default => 'gears.opswat.com',
   );
 
 has_field 'port' =>
   (
    type => 'PosInteger',
    required => 1,
-   default => pf::provisioner::opswat->meta->get_attribute('port')->default,
+   default => 443,
   );
 
 has_field 'protocol' =>
   (
    type => 'Select',
    options => [{ label => 'http', value => 'http' }, { label => 'https' , value => 'https' }],
-   default => pf::provisioner::opswat->meta->get_attribute('protocol')->default,
+   default => 'https',
   );
 
 has_field 'access_token' =>
