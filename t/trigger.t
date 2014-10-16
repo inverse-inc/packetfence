@@ -15,7 +15,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 27;
+use Test::More tests => 26;
 use Test::NoWarnings;
 use Test::Exception;
 use File::Basename qw(basename);
