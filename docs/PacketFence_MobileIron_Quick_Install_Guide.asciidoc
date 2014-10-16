@@ -86,7 +86,7 @@ Replace accountName by your real account/instance name at MobileIron.
 
 Add the provisioner to the portal profile
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-In order for the provisionner to be used by your captive portal you need to add it in it's configuration.
+In order for the provisionner to be used by your captive portal you need to add it in its configuration.
 Go in Portal Profiles, then select the portal you want to modify and add mobileiron as a provisioner.
 
 image::docs/images/mobile-iron-portal.png[scaledwidth="100%",alt="MobileIron portal"]
