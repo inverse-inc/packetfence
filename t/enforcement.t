@@ -4,6 +4,10 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 use Test::More tests => 2;
 use Test::NoWarnings;
 

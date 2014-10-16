@@ -16,6 +16,10 @@ use diagnostics;
 use Test::More tests => 112;
 use Test::NoWarnings;
 use lib '/usr/local/pf/lib';
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
 use Log::Log4perl;
 use Readonly;

@@ -9,6 +9,10 @@ use diagnostics;
 use lib '/usr/local/pf/lib';
 
 BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
+BEGIN {
 
     use File::Slurp qw(read_dir);
     use File::Spec::Functions;

@@ -22,7 +22,10 @@ use Test::NoWarnings;
 use Test::MockModule;
 use Test::MockObject::Extends;
 
-use lib qw(/usr/local/pf/t);
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 use TestUtils;
 
 my @wireless_devices;

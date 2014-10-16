@@ -17,6 +17,10 @@ use diagnostics;
 use Test::Harness;
 
 use lib qw(/usr/local/pf/t);
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 use TestUtils;
 
 # trying to run tests in order were they provide most bang for the buck

@@ -14,6 +14,10 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
 use File::Basename qw(basename);
 use Test::More tests => 5;

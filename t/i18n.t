@@ -15,6 +15,10 @@ use diagnostics;
 
 use File::Find;
 use Test::More;
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
 my @translations;
 
