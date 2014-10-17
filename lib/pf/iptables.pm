@@ -182,6 +182,9 @@ sub generate_filter_if_src_to_chain {
             if ($dev =~ m/(\w+):\d+/) {
                 $dev = $1;
             }
+            $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
+            $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
+            $rules .= "-A INPUT --in-interface $dev -d ".$Config{"interface $dev"}{'haproxyip'}." --jump $FW_FILTER_INPUT_INT_VLAN\n" if (defined($Config{"interface $dev"}{'haproxyip'}));
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
             if ($passthrough_enabled) {
@@ -192,6 +195,9 @@ sub generate_filter_if_src_to_chain {
         # inline enforcement
         } elsif (is_type_inline($enforcement_type)) {
             my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
+            $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
+            $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
+            $rules .= "-A INPUT --in-interface $dev -d ".$Config{"interface $dev"}{'haproxyip'}." --jump $FW_FILTER_INPUT_INT_INLINE\n" if (defined($Config{"interface $dev"}{'haproxyip'}));
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d $mgmt_ip --protocol tcp --match tcp --dport 443 --jump ACCEPT\n";
