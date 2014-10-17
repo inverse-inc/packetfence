@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Firewall_SSO::FortiGate;
 
 =head1 NAME
 
-pfappserver::Form::Config::Firewall_SSO::FortiGate - Web form to add a fortigate firewall
+pfappserver::Form::Config::Firewall_SSO::FortiGate - Web form to add a Fortigate firewall
 
 =head1 DESCRIPTION
 
-Form definition to create or update a fortigate firewall.
+Form definition to create or update a Fortigate firewall.
 
 =cut
 
@@ -26,7 +26,7 @@ has_field 'id' =>
    type => 'Text',
    label => 'Hostname or IP Address',
    required => 1,
-   messages => { required => 'Please specify the hostname or IP of the Firewall' },
+   messages => { required => 'Please specify the hostname or IP of the firewall' },
   );
 has_field 'password' =>
   (
@@ -78,7 +78,7 @@ has_block definition =>
 
 =head2 uid_type
 
-What UID we have to send to the Firewall , uid or 802.1x username
+What UID we have to send to the firewall , uid or 802.1x username
 
 =cut
 
@@ -88,7 +88,7 @@ sub uid_type {
 
 =head2 options_type
 
-Dynamically extract the descriptions from the various Firewall modules.
+Dynamically extract the descriptions from the various firewall modules.
 
 =cut
 

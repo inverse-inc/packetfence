@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Firewall_SSO::BarracudaNG;
 
 =head1 NAME
 
-pfappserver::Form::Config::Firewall_SSO::BarracudaNG - Web form to add a BarracudaNG Firewall
+pfappserver::Form::Config::Firewall_SSO::BarracudaNG - Web form to add a BarracudaNG firewall
 
 =head1 DESCRIPTION
 
-Form definition to create or update a floating network device.
+Form definition to create or update a Barracuda firewall.
 
 =cut
 
@@ -26,14 +26,14 @@ has_field 'id' =>
    type => 'Text',
    label => 'Hostname or IP Address',
    required => 1,
-   messages => { required => 'Please specify the hostname or IP of the Firewall' },
+   messages => { required => 'Please specify the hostname or IP of the firewall' },
   );
 has_field 'username' =>
   (
    type => 'Text',
    label => 'Username',
    required => 1,
-   messages => { required => 'Please specify the username for the barracuda' },
+   messages => { required => 'Please specify the username for the Barracuda' },
   );
 has_field 'password' =>
   (
@@ -78,13 +78,13 @@ has_block definition =>
 
 =head2 uid_type
 
-What UID we have to send to the Firewall , uid or 802.1x username
+What UID we have to send to the firewall , uid or 802.1x username
 
 =cut
 
 =head2 options_type
 
-Dynamically extract the descriptions from the various Firewall modules.
+Dynamically extract the descriptions from the various firewall modules.
 
 =cut
 

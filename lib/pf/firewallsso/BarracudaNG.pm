@@ -66,12 +66,10 @@ sub action {
         return 0 if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x' && $node_info->{'last_dot1x_username'} eq '');
 
         my @categories = split(/,/, $ConfigFirewallSSO{$firewall_conf}->{categories});
-        if (
-            defined($node_info) &&
-            (ref($node_info) eq 'HASH') &&
+        if (defined($node_info) && (ref($node_info) eq 'HASH') &&
             $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&
             (grep $_ eq $node_info->{'category'}, @categories)
-        ){
+           ){
             my $ssh;
             $ssh = Net::SSH2->new();
             $ssh->connect($firewall_conf, $ConfigFirewallSSO{$firewall_conf}->{'port'}) or die "Cannot connect $!"  ;
@@ -81,7 +79,7 @@ sub action {
             print $chan "phibstest 127.0.0.1 o peer=".$ip." origin=PacketFence service=PacketFence user=".$username." \n";
             $logger->info("Node $mac and Username $username removed from the Barracuda Firewall"); 
             $ssh->disconnect();
-                     }
+            }
     }
     return 0;
 }
