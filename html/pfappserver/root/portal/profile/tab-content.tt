@@ -41,7 +41,7 @@
             <label class="control-label" for="provisioners">[% l('Provisioners') %]</label>
             <div class="controls">
               [% form.field('provisioners').render %]
-              <div id="provisionersEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('mandatory_fields').index > 1 %]">
+              <div id="provisionersEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('provisioners').index > 1 %]">
                 <p>
                   <i class="icon-cog icon-large"></i>
                   [%- IF form.isa('pfappserver::Form::Portal::Profile::Default') -%]
