@@ -21,6 +21,7 @@ New Features
 * Added a "Blackhole" auth source 
 * Added new violation enforce provisioning
 * Violation can now be delayed
+* added portal profile filter based on switch-port couple
 
 Enhancements
 ++++++++++++
