@@ -24,6 +24,9 @@ doc-networkdevices-pdf:
 doc-opswat-pdf:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_OPSWAT_Quick_Install_Guide.docbook docs/PacketFence_OPSWAT_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_OPSWAT_Quick_Install_Guide.docbook  -pdf docs/PacketFence_OPSWAT_Quick_Install_Guide.pdf
 
+doc-sepm-pdf:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_SEPM_Quick_Install_Guide.docbook docs/PacketFence_SEPM_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_SEPM_Quick_Install_Guide.docbook  -pdf docs/PacketFence_SEPM_Quick_Install_Guide.pdf
+
 .PHONY: configurations
 
 configurations:
