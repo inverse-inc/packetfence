@@ -48,7 +48,7 @@ sub userIsAuthenticated : Private {
     my $pid   = $c->session->{"username"};
     my @nodes = person_nodes($pid);
     foreach my $node (@nodes) {
-        updateTimeleft($node);
+        setExpiration($node);
     }
     $c->stash(
         nodes    => \@nodes,
@@ -65,27 +65,25 @@ sub setupCurrentNodeInfo : Private {
     my $portalSession = $c->portalSession;
     my $node_info     = node_view( $portalSession->clientMac() );
     if( $node_info && $node_info->{pid} ne $default_pid ) {
-        updateTimeleft($node_info);
+        setExpiration($node_info);
     }
     $c->stash(
         node     => $node_info,
     );
 }
 
-sub updateTimeleft {
+sub setExpiration {
     my ($node_info) = @_;
     if ( defined $node_info->{'last_start_timestamp'}
-        && $node_info->{'last_start_timestamp'} > 0 ) {
-        if ( $node_info->{'timeleft'} > 0 ) {
+         && $node_info->{'last_start_timestamp'} > 0 ) {
+        if ( $node_info->{'time_balance'} > 0 ) {
 
             # Node has a usage duration
-            $node_info->{'expiration'} =
-              $node_info->{'last_start_timestamp'} + $node_info->{'timeleft'};
+            $node_info->{'expiration'} = $node_info->{'last_start_timestamp'} + $node_info->{'time_balance'};
             if ( $node_info->{'expiration'} < time ) {
-
                 # No more access time; RADIUS accounting should have triggered a violation
                 delete $node_info->{'expiration'};
-                $node_info->{'timeleft'} = 0;
+                $node_info->{'time_balance'} = 0;
             }
         }
     }

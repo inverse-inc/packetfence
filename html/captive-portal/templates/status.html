@@ -102,8 +102,8 @@ document.observe("dom:loaded", function() {
             }
         },
         countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS, 2);
-    [%- ELSIF node.timeleft %]
-    $("timeleft").update(countdown(new Date().getTime() + [% node.timeleft %] * 1000, null, countdown.DAYS|countdown.HOURS|countdown.MINUTES, 2).toString());
+    [%- ELSIF node.time_balance %]
+    $("timeleft").update(countdown(new Date().getTime() + [% node.time_balance %] * 1000, null, countdown.DAYS|countdown.HOURS|countdown.MINUTES, 2).toString());
     [%- END %]
     $("popup").down("a").on("click", function(event) {
         Event.stop(event);
@@ -130,9 +130,9 @@ document.observe("dom:loaded", function() {
           [%- IF node.expiration %]
           <div>[% i18n('Your network access ends in <strong id="expiration"></strong>') %]</div>
           <div id="pause" style="display: none">[% i18n("Your network access is <strong>paused</strong>") %]</div>
-          [%- ELSIF node.timeleft %]
-          <div>[% i18n_format("You're not connected to the network, but have a timebank of <strong id='timeleft'>%s</strong>", node.timeleft ) %]</div>
-          [%- ELSIF node.timeleft == 0 %]
+          [%- ELSIF node.time_balance %]
+          <div>[% i18n_format("You're not connected to the network, but have a timebank of <strong id='timeleft'>%s</strong>", node.time_balance ) %]</div>
+          [%- ELSIF node.time_balance == 0 %]
           <div>[% i18n("Your network access has expired.") %]</div>
           [%- END %]
           [%- IF node.last_start_time AND billing %]
