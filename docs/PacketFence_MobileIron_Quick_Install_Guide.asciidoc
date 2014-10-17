@@ -107,9 +107,9 @@ image::docs/images/mobile-iron-passthroughs.png[scaledwidth="100%",alt="MobileIr
 Restart PacketFence
 +++++++++++++++++++
 
-In order to enable the boarding passthrough for the device enrollment, you will need to restart PacketFence.
+In order to enable the boarding passthrough for the device enrollment, you will need to restart the iptables service of PacketFence.
 
-You can do this using the command line by doing 'service packetfence restart' or in the administration interface under 'Status / Services'.
+You can do this using the command line by doing '/usr/local/pf/bin/pfcmd service iptables restart' or in the administration interface under 'Status / Services'.
 
 Step 5: Test
 ~~~~~~~~~~~~
