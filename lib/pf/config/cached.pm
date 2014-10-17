@@ -420,7 +420,7 @@ sub RewriteConfig {
         $self = $self->computeFromPath(
             $file,
             sub {
-                $self->updateCacheControl();
+                $self->ExpireLockFile();
                 return $self;
             },
             1
@@ -548,6 +548,10 @@ sub _doLockOnce {
 
 sub GetDotFileName {
     return _makeIntoDotFile (shift->GetFileName);
+}
+
+sub GetLockFileName {
+    return _makeIntoDotFile (shift->GetFileName . ".lock");
 }
 
 sub _makeIntoDotFile {
@@ -761,7 +765,7 @@ sub computeFromPath {
     my $computeWrapper = sub {
         my $config = $computeSub->();
         $config->SetLastModTimestamp();
-        setControlFileTimestamp($config);
+        $config->SetLockFileTimeStamp();
         return $config;
     };
     my $result = $self->cache->compute(
@@ -771,8 +775,7 @@ sub computeFromPath {
                 return 1 if $expire;
                 my $value = $_[0]->value;
                 return 1 unless $value;
-                my $control_file_timestamp = $value->{_control_file_timestamp} || 0;
-                return  controlFileExpired($control_file_timestamp) && $value->HasChanged();
+                return $value->HasExpired(); 
             },
         },
         $computeWrapper
@@ -780,6 +783,63 @@ sub computeFromPath {
     $computeWrapper = undef;
     $computeSub = undef;
     return $result;
+}
+
+=head2 SetLockFileTimeStamp
+
+Sets the current typestamp of the lock file
+
+=cut
+
+sub SetLockFileTimeStamp {
+    my ($self) = @_;
+    $self->{_last_lock_file_timestamp} = $self->GetCurrentLockFileTimestamp();
+}
+
+=head2 GetLockFileTimeStamp
+
+Gets the last typestamp of the lock file
+
+=cut
+
+sub GetLockFileTimeStamp {
+    my ($self) = @_;
+    $self->{_last_lock_file_timestamp} || -1;
+}
+
+=head2 GetCurrentLockFileTimestamp
+
+Gets the current typestamp of the file
+
+=cut
+
+sub GetCurrentLockFileTimestamp {
+    my ($self) = @_;
+    return pf::IniFiles::_getFileTimestamp($self->GetLockFileName) || -1;
+}
+
+=head2 HasExpired
+
+check to see if the file has expired
+
+=cut
+
+sub HasExpired {
+    my ($self) = @_;
+    my $control_file_timestamp = $self->{_control_file_timestamp} || 0;
+    return  $self->LockFileHasChange() && $self->HasChanged();
+}
+
+=head2 LockFileHasChange
+
+TODO: documention
+
+=cut
+
+sub LockFileHasChange {
+    my ($self) = @_;
+    my $timestamp = $self->GetCurrentLockFileTimestamp;
+    return $timestamp == -1 || $self->GetLockFileTimeStamp != $timestamp;
 }
 
 =head2 setControlFileTimestamp
@@ -846,11 +906,12 @@ sub ReloadConfigs {
     return unless controlFileExpired($CACHE_CONTROL_TIMESTAMP);
     $CACHE_CONTROL_TIMESTAMP = getControlFileTimestamp();
     my $logger = get_logger();
-    $logger->trace("Reloading all configs");
+    $logger->trace("Started Reloading all configs");
     foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
-        $logger->trace($config->{cf});
+        $config->ExpireLockFile() if $force;
         $config->ReadConfig($force);
     }
+    $logger->trace("Finished Reloading all configs");
 }
 
 
@@ -1079,6 +1140,16 @@ sub clearAllConfigs {
     $class->cache->remove_multi(\@stored_config_files);
 }
 
+sub ExpireLockFile {
+    my ($self) = @_;
+    my $file = $self->GetLockFileName();
+    sysopen(my $fh,$file,O_RDWR | O_CREAT);
+    POSIX::2008::futimens(fileno $fh);
+    close($fh);
+    my (undef,undef,$uid,$gid) = getpwnam('pf');
+    chown($uid,$gid,$file);
+}
+
 sub updateCacheControl {
     my ($dontCreate) = @_;
     if ( !-e $cache_control_file && !$dontCreate) {
@@ -1090,9 +1161,9 @@ sub updateCacheControl {
         sysopen(my $fh,$cache_control_file,O_RDWR | O_CREAT);
         POSIX::2008::futimens(fileno $fh);
         close($fh);
+        my (undef,undef,$uid,$gid) = getpwnam('pf');
+        chown($uid,$gid,$cache_control_file);
     }
-    my (undef,undef,$uid,$gid) = getpwnam('pf');
-    chown($uid,$gid,$cache_control_file);
     return 0;
 }
 
