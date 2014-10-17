@@ -34,6 +34,14 @@
 -A input-management-if --protocol tcp --match tcp --dport 9392 --jump ACCEPT
 # Nessus Administration Interface
 -A input-management-if --protocol tcp --match tcp --dport 8834 --jump ACCEPT
+# Galera cluster
+-A input-management-if --protocol tcp --match tcp --dport 4567 --jump ACCEPT
+# VRRP
+-A input-management-if -d 224.0.0.0/8 -j ACCEPT
+-A input-management-if -p vrrp -j ACCEPT
+# Mysql
+-A input-management-if --protocol tcp --match tcp --dport 3306 --jump ACCEPT
+
 # HTTPS for email confirmation or sponsor activation on the captive portal (if enabled)
 %%input_mgmt_guest_rules%%
 
