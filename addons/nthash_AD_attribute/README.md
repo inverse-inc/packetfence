@@ -27,21 +27,21 @@ Syntax: Case Sensitive String
 
 And validate
 
-Now go in Classes and add ntPassword attribute as an optional attribute for the user classe (Do the same for computer).
+Now go in Classes and add ntPassword attribute as an optional attribute for the user class (Do the same for computer).
 
 # Security
 
-Because nthash is considered unsecured we must add security on Active Directory in order to make only one user to be able to write and read this attribute.
+Because nthash is considered unsecured we must add security on Active Directory in order to make only one user able to write and read this attribute.
 
-First create a new user in active directory (it will be use to update the nthash attribute and to connect to AD from freeradius) like PacketFenceAdmin.
+First create a new user in Active Directory (it will be used to update the nthash attribute and to connect to AD from freeradius) like PacketFenceAdmin.
 (The dn of this user is CN=PacketFenceAdmin,CN=Users,DC=inverse,dc=inc)
 
-Now in Active Directory Schema mmc console, right click on User class (you will have to do the same thing for Computer classe) then go on Default Security, Advanced and add these permissions:
+Now in the Active Directory Schema mmc console, right click on User class (you will have to do the same thing for Computer class) then go on Default Security, Advanced and add these permissions:
 
 ```
 Allow PacketFenceAdmin to Read ntPassword and write ntPassword
 Allow Administrator to Read ntPassword and write ntPassword
-Deny everyone to read ntPassword and write ntPassword
+Deny everyone to Read ntPassword and Write ntPassword
 ```
 
 # Installation
@@ -74,12 +74,12 @@ Then restart the server.
 
 Once the server reboot, go in Active Directory Users and Computers and change a password of a user (Robert).
 Then open c:\ProgramData\HashingPasswordFilter.log, you will see that Robert´s password has been changed.
-Then now launch adsiedit.msc and edit the robert user, you will see the ntPassword attribute that contain the password´s NTHASH.
+Then now launch adsiedit.msc and edit the robert user, you will see the ntPassword attribute that contains the password´s NTHASH.
 
 
 # Freeradius configuration
 
-First we have to configure ldap connection, in /usr/local/pf/raddb/modules edit ldap file and add ad_user and ad_computer configuration:
+First we have to configure the ldap connection, in /usr/local/pf/raddb/modules edit ldap file and add ad_user and ad_computer configuration:
 
 ```
 ldap ad_user {
