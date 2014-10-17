@@ -41,10 +41,10 @@ has_field 'category' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Set role',
+   label => 'Roles',
    options_method => \&options_roles,
    element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Select a role'},
+   element_attr => {'data-placeholder' => 'Nodes with the selected roles will be affected'},
    tags => { after_element => \&help,
              help => 'Roles ' },
   );
