@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Firewall_SSO::PaloAlto;
 
 =head1 NAME
 
-pfappserver::Form::Config::Firewall_SSO::PaloAlto - Web form for a PaloAlto firewall
+pfappserver::Form::Config::Firewall_SSO::PaloAlto - Web form for a floating device
 
 =head1 DESCRIPTION
 
-Form definition to create or update a PaloAlto firewall.
+Form definition to create or update a floating network device.
 
 =cut
 
@@ -31,10 +31,10 @@ has_field 'id' =>
 has_field 'password' =>
   (
    type => 'Password',
-   label => 'XML Key',
+   label => 'Secret or Key',
    required => 1,
    password => 0,
-   messages => { required => 'You must specify the key' },
+   messages => { required => 'You must specify the password or the key' },
   );
 has_field 'port' =>
   (
@@ -58,6 +58,13 @@ has_field 'categories' =>
    element_attr => {'data-placeholder' => 'Click to add a role'},
    tags => { after_element => \&help,
              help => 'Nodes with the selected roles will be affected' },
+  );
+
+has_field 'uid' =>
+  (
+   type => 'Select',
+   label => 'UID type',
+   options_method => \&uid_type,
   );
 
 has_block definition =>

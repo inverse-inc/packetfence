@@ -72,7 +72,7 @@ sub action {
         my $vsa = [];
 
         perform_rsso($connection_info,$attributes,$vsa);
-        $logger->info("Node $mac registered and allowed to pass the FortiGate Firewall");
+        $logger->info("Node $mac registered and allowed to pass the Firewall");
         return 1;
     } else {
         return 0;

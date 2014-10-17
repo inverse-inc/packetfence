@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Firewall_SSO::FortiGate;
 
 =head1 NAME
 
-pfappserver::Form::Config::Firewall_SSO::FortiGate - Web form to add a fortigate firewall
+pfappserver::Form::Config::Firewall_SSO::FortiGate - Web form for a floating device
 
 =head1 DESCRIPTION
 
-Form definition to create or update a fortigate firewall.
+Form definition to create or update a floating network device.
 
 =cut
 
@@ -31,10 +31,10 @@ has_field 'id' =>
 has_field 'password' =>
   (
    type => 'Password',
-   label => 'Secret',
+   label => 'Secret or Key',
    required => 1,
    password => 0,
-   messages => { required => 'You must specify the shared secret' },
+   messages => { required => 'You must specify the password or the key' },
   );
 has_field 'port' =>
   (
@@ -42,7 +42,6 @@ has_field 'port' =>
    label => 'Port of the service',
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },
-   default => 1813,
   );
 has_field 'type' =>
   (
