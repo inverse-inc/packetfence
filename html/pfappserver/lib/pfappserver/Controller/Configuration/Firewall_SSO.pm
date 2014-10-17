@@ -15,6 +15,7 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
 use pf::config::cached;
+use pf::factory::firewallsso;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -83,7 +84,7 @@ Usage: /configuration/firewall_sso/
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-    $c->stash->{types} = [qw(FortiGate PaloAlto)];
+    $c->stash->{types} = [ sort grep {$_} map { /^pf::firewallsso::(.*)/;$1  } @pf::factory::firewallsso::MODULES];
     $c->forward('list');
 }
 
