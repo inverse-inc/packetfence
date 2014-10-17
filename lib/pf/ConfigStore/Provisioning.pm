@@ -28,7 +28,10 @@ Clean up switch data
 
 sub cleanupAfterRead {
     my ($self, $id, $data) = @_;
-    $data->{oses} = listify ($data->{os}) if exists $data->{os};
+    $self->expand_list($data, $self->_fields_expanded);
+    if(exists $data->{oses} && defined $data->{oses}) {
+        $data->{oses} = listify $data->{oses};
+    }
 }
 
 =head2 cleanupBeforeCommit
@@ -47,17 +50,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw();
-}
-
-sub split_list {
-    my ($self,$list) = @_;
-    return split(/\s*\n\s*/,$list);
-}
-
-sub join_list {
-    my ($self,@list) = @_;
-    return join('\n',@list);
+    return qw(category);
 }
 
 =head1 AUTHOR
