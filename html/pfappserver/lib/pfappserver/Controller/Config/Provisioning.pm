@@ -54,20 +54,18 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
-around [qw(view _processCreatePost update)] => sub {
-    my ($orig, $self, $c, @args) = @_;
+before [qw(view _processCreatePost update)] => sub {
+    my ($self, $c, @args) = @_;
     my $model = $self->getModel($c);
     my $itemKey = $model->itemKey;
     my $item = $c->stash->{$itemKey};
     my $type = $item->{type};
     my $form = $c->action->{form};
-    local $c->action->{form} = "${form}::${type}";
-    $self->$orig($c, @args);
+    $c->stash->{current_form} = "${form}::${type}";
 };
 
 sub create_type : Path('create') : Args(1) {
     my ($self, $c, $type) = @_;
-    $c->stash->{template} = 'config/provisioning/create.tt';
     my $model = $self->getModel($c);
     my $itemKey = $model->itemKey;
     $c->stash->{$itemKey}{type} = $type;
