@@ -129,6 +129,13 @@ Click 'Add Provisioner' and select the new SEPM provisioner that was created ear
 
 image::docs/images/sepm-portal.png[scaledwidth="100%",alt="SEPM portal configuration"]
 
+Restart PacketFence
++++++++++++++++++++
+
+In order to enable the boarding passthrough for the device enrollment, you will need to restart PacketFence.
+
+You can do this using the command line by doing 'service packetfence restart' or in the administration interface under 'Status / Services'.
+
 Step 5: Test
 ~~~~~~~~~~~~
 You can now test that the installation of the Symantec Endpoint Protection client is mandatory after the device registration.
