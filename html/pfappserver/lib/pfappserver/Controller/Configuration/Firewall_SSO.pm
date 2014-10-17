@@ -76,6 +76,7 @@ Usage: /configuration/firewall_sso/
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
     $c->stash->{types} = [ sort grep {$_} map { /^pf::firewallsso::(.*)/;$1  } @pf::factory::firewallsso::MODULES];
+    #$c->stash->{types} = [qw(FortiGate PaloAlto)];
     $c->forward('list');
 }
 

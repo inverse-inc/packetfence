@@ -1,12 +1,12 @@
-package pfappserver::Form::Config::Firewall_SSO::PaloAlto;
+package pfappserver::Form::Config::Firewall_SSO::BarracudaNG;
 
 =head1 NAME
 
-pfappserver::Form::Config::Firewall_SSO::PaloAlto - Web form for a PaloAlto firewall
+pfappserver::Form::Config::Firewall_SSO::BarracudaNG - Web form to add a BarracudaNG Firewall
 
 =head1 DESCRIPTION
 
-Form definition to create or update a PaloAlto firewall.
+Form definition to create or update a floating network device.
 
 =cut
 
@@ -28,13 +28,20 @@ has_field 'id' =>
    required => 1,
    messages => { required => 'Please specify the hostname or IP of the Firewall' },
   );
+has_field 'username' =>
+  (
+   type => 'Text',
+   label => 'Username',
+   required => 1,
+   messages => { required => 'Please specify the username for the barracuda' },
+  );
 has_field 'password' =>
   (
    type => 'Password',
-   label => 'XML Key',
+   label => 'Password',
    required => 1,
    password => 0,
-   messages => { required => 'You must specify the key' },
+   messages => { required => 'You must specify the password' },
   );
 has_field 'port' =>
   (
@@ -42,7 +49,7 @@ has_field 'port' =>
    label => 'Port of the service',
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },
-    default => 443,
+   default => 22,
   );
 has_field 'type' =>
   (
@@ -62,7 +69,7 @@ has_field 'categories' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port categories uid) ],
+   render_list => [ qw(id type username password port categories) ],
   );
 
 =head2 Methods
@@ -74,10 +81,6 @@ has_block definition =>
 What UID we have to send to the Firewall , uid or 802.1x username
 
 =cut
-
-sub uid_type {
-    return ( { label => "PID", value => "pid" } , { label => "802.1x Username", value => "802.1x" } );
-}
 
 =head2 options_type
 
