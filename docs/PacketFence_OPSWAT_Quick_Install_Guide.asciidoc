@@ -8,18 +8,18 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the OPSWAT GEARS to provide information about device compliance before and during network access.
+This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using OPSWAT GEARS to provide information about device compliance before and during network access.
 
 Assumptions
 -----------
 * You have a configured PacketFence environment with working test equipment
-* You have, or will create, an OPSWAT GEARS account at www.opswatgears.com.
+* You have, or will create, an OPSWAT GEARS account at http://www.opswatgears.com.
 
 Quick installation
 ------------------
 Step 1: Configure OPSWAT GEARS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You will first need to create an OPSWAT GEARS account at www.opswatgears.com and configure your account according to OPSWAT's documentation.
+You will first need to create an OPSWAT GEARS account at http://www.opswatgears.com and configure your account according to OPSWAT's documentation.
 
 Step 2: Developer account
 ~~~~~~~~~~~~~~~~~~~~~~~~~
