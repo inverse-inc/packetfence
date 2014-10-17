@@ -129,16 +129,16 @@ sub get_device_info{
         };
         if (defined($info) && $info->{totalCount} == 0){
             $logger->info("The device $mac wasn't found in mobileiron");
-            return;
+            return 0;
         }
         else{
             $logger->error("The URL used for the mobileiron API seems invalid. Validate the configuration.");
-            return;
+            return -1;
         }
     }
     else{
         $logger->error("There was an error validating $mac with MobileIron. Got HTTP code $curl_info");
-        return;
+        return -1;
     }
 }
 
@@ -146,7 +146,7 @@ sub validate_mac_is_compliant{
     my ($self, $mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     my $info = $self->get_device_info($mac);
-    if (defined($info)){
+    if (defined($info) && ($info != -1 && $info != 0)){
         if ($info->{device}->{compliance} == 0){
             $logger->info("Device $mac was found as compliant");
             return 1;
@@ -157,7 +157,7 @@ sub validate_mac_is_compliant{
         }
     }
     else{
-        return -1;
+        return $info;
     }
 }
 
