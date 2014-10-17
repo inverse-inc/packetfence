@@ -11,7 +11,7 @@ Form definition to create or update a Fortigate firewall.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Base::Form';
+extends 'pfappserver::Form::Config::Firewall_SSO';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config;
@@ -69,8 +69,16 @@ has_field 'uid' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port categories) ],
+   render_list => [ qw(id type password port uid categories) ],
   );
+
+has_field 'uid' =>
+  (
+   type => 'Select',
+   label => 'UID type',
+   options_method => \&uid_type,
+  );
+
 
 =head2 Methods
 
@@ -78,7 +86,7 @@ has_block definition =>
 
 =head2 uid_type
 
-What UID we have to send to the firewall , uid or 802.1x username
+What UID we have to send to the Firewall , uid or 802.1x username
 
 =cut
 
@@ -88,7 +96,7 @@ sub uid_type {
 
 =head2 options_type
 
-Dynamically extract the descriptions from the various firewall modules.
+Dynamically extract the descriptions from the various Firewall modules.
 
 =cut
 
@@ -136,7 +144,6 @@ sub options_categories {
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
 }
-
 
 
 =over

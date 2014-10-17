@@ -11,7 +11,7 @@ Form definition to create or update a PaloAlto firewall.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Base::Form';
+extends 'pfappserver::Form::Config::Firewall_SSO';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config;
@@ -62,8 +62,16 @@ has_field 'categories' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port categories uid) ],
+   render_list => [ qw(id type password port categories) ],
   );
+
+has_field 'uid' =>
+  (
+   type => 'Select',
+   label => 'UID type',
+   options_method => \&uid_type,
+  );
+
 
 =head2 Methods
 
