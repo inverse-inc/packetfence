@@ -197,12 +197,12 @@ sub getLanguages :Private {
             $logger->debug("locale from the browser is $lang");
         }
         else {
-            $logger->trace("locale from the browser $browser_language is not supported");
+            $logger->debug("locale from the browser $browser_language is not supported");
         }
     }
 
     if (scalar @languages > 0) {
-        $logger->trace("prefered user languages are " . join(", ", @languages));
+        $logger->debug("prefered user languages are " . join(", ", @languages));
     }
     else {
         push(@languages, $authorized_locales[0]);

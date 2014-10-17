@@ -103,7 +103,7 @@ sub nodeRecordUserAgent : Private {
       if ( defined($cached_useragent) && $user_agent eq $cached_useragent );
 
     # Caching and updating node's info
-    $logger->trace("[$mac] adding user-agent to cache");
+    $logger->debug("[$mac] adding user-agent to cache");
     $USERAGENT_CACHE->set( $mac, $user_agent, "5 minutes" );
 
     # Recording useragent

@@ -429,14 +429,14 @@ sub setType {
 
     # we delete interface type 'None'
     if ( $type =~ /^none$/i && !$interface_ref->{high_availability} ) {
-        $logger->trace("Deleting $interface interface");
+        $logger->debug("Deleting $interface interface");
         $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
         $models->{interface}->remove($interface);
     }
     # otherwise we update pf.conf and networks.conf
     else {
         # Update pf.conf
-        $logger->trace("Updating or creating $interface interface");
+        $logger->debug("Updating or creating $interface interface");
         
         
         $models->{interface}->update_or_create($interface,
@@ -481,7 +481,7 @@ sub setType {
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
         }
     }
-    $logger->trace("Committing changes to $interface interface");
+    $logger->debug("Committing changes to $interface interface");
     $models->{network}->commit();
     $models->{interface}->commit();
 }
