@@ -204,7 +204,15 @@ sub regzone {
             push @ans, $rr2;
             $rcode = "NOERROR";
         }
-    }else{
+    } elsif ($qtype eq "NS") {
+        my $rr = new Net::DNS::RR(
+            name    => $Config{'general'}{'domain'},
+            type    => 'NS',
+            nsdname => $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'},
+        );
+        push @ans, $rr;
+        $rcode = "NOERROR";
+    } else{
         $rcode = "NXDOMAIN";
     }
 
@@ -262,7 +270,15 @@ sub isolzone {
         my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
         push @ans, $rr;
         $rcode = "NOERROR";
-    }else{
+    } elsif ($qtype eq "NS") {
+        my $rr = new Net::DNS::RR(
+            name    => $Config{'general'}{'domain'},
+            type    => 'NS',
+            nsdname => $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'},
+        );
+        push @ans, $rr;
+        $rcode = "NOERROR";
+    } else{
         $rcode = "NXDOMAIN";
     }
 
