@@ -2,16 +2,16 @@ package pfappserver::Form::Config::Firewall_SSO::FortiGate;
 
 =head1 NAME
 
-pfappserver::Form::Config::Firewall_SSO::FortiGate - Web form for a floating device
+pfappserver::Form::Config::Firewall_SSO::FortiGate - Web form to add a Fortigate firewall
 
 =head1 DESCRIPTION
 
-Form definition to create or update a floating network device.
+Form definition to create or update a Fortigate firewall.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Base::Form';
+extends 'pfappserver::Form::Config::Firewall_SSO';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config;
@@ -26,7 +26,7 @@ has_field 'id' =>
    type => 'Text',
    label => 'Hostname or IP Address',
    required => 1,
-   messages => { required => 'Please specify the hostname or IP of the Firewall' },
+   messages => { required => 'Please specify the hostname or IP of the firewall' },
   );
 has_field 'password' =>
   (
@@ -68,8 +68,16 @@ has_field 'uid' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port categories) ],
+   render_list => [ qw(id type password port uid categories) ],
   );
+
+has_field 'uid' =>
+  (
+   type => 'Select',
+   label => 'UID type',
+   options_method => \&uid_type,
+  );
+
 
 =head2 Methods
 
@@ -135,7 +143,6 @@ sub options_categories {
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
 }
-
 
 
 =over

@@ -1,12 +1,12 @@
-package pfappserver::Form::Config::Firewall_SSO::PaloAlto;
+package pfappserver::Form::Config::Firewall_SSO::BarracudaNG;
 
 =head1 NAME
 
-pfappserver::Form::Config::Firewall_SSO::PaloAlto - Web form for a floating device
+pfappserver::Form::Config::Firewall_SSO::BarracudaNG - Web form to add a BarracudaNG firewall
 
 =head1 DESCRIPTION
 
-Form definition to create or update a floating network device.
+Form definition to create or update a Barracuda firewall.
 
 =cut
 
@@ -26,15 +26,22 @@ has_field 'id' =>
    type => 'Text',
    label => 'Hostname or IP Address',
    required => 1,
-   messages => { required => 'Please specify the hostname or IP of the Firewall' },
+   messages => { required => 'Please specify the hostname or IP of the firewall' },
+  );
+has_field 'username' =>
+  (
+   type => 'Text',
+   label => 'Username',
+   required => 1,
+   messages => { required => 'Please specify the username for the Barracuda' },
   );
 has_field 'password' =>
   (
    type => 'Password',
-   label => 'Secret or Key',
+   label => 'Password',
    required => 1,
    password => 0,
-   messages => { required => 'You must specify the password or the key' },
+   messages => { required => 'You must specify the password' },
   );
 has_field 'port' =>
   (
@@ -42,7 +49,7 @@ has_field 'port' =>
    label => 'Port of the service',
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },
-    default => 443,
+   default => 22,
   );
 has_field 'type' =>
   (
@@ -60,16 +67,9 @@ has_field 'categories' =>
              help => 'Nodes with the selected roles will be affected' },
   );
 
-has_field 'uid' =>
-  (
-   type => 'Select',
-   label => 'UID type',
-   options_method => \&uid_type,
-  );
-
 has_block definition =>
   (
-   render_list => [ qw(id type password port categories) ],
+   render_list => [ qw(id type username password port categories) ],
   );
 
 has_field 'uid' =>
