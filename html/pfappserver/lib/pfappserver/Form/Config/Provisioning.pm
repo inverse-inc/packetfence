@@ -13,6 +13,7 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
 has roles => ( is => 'rw' );
+has oses => ( is => 'rw' );
 
 ## Definition
 has_field 'id' =>
@@ -49,10 +50,31 @@ has_field 'category' =>
              help => 'Nodes with the selected roles will be affected' },
   );
 
+has_field 'oses' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'OS',
+   options_method => \&options_oses,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add an OS'},
+   tags => { after_element => \&help,
+             help => 'Nodes with the selected OS will be affected' },
+  );
+
 has_block definition =>
   (
-   render_list => [ qw(id type description category) ],
+   render_list => [ qw(id type description category oses) ],
   );
+
+=head2 options_oses
+
+=cut
+
+sub options_oses {
+    my $self = shift;
+    return $self->form->oses;
+}
 
 =head2 options_roles
 
@@ -73,7 +95,12 @@ To automatically add the context to the Form
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
     my ($status, $roles) = $c->model('Roles')->list();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
+    my @oses = ["Windows" => "Windows",
+                "Mac OS" => "Mac OS",
+                "Android" => "Android", 
+                "Apple" => "Apple IOS device"
+               ];
+    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, oses => @oses, @args);
 }
 
 =head1 COPYRIGHT

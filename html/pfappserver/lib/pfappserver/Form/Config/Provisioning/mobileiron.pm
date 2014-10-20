@@ -55,7 +55,7 @@ has_field boarding_port => (
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category username password host android_download_uri ios_download_uri windows_phone_download_uri boarding_host boarding_port) ],
+   render_list => [ qw(id type description category oses username password host android_download_uri ios_download_uri windows_phone_download_uri boarding_host boarding_port) ],
   );
 
 =head1 COPYRIGHT

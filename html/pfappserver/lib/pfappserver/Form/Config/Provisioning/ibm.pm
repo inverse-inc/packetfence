@@ -51,7 +51,7 @@ has_field 'api_uri' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category username password host port protocol api_uri) ],
+   render_list => [ qw(id type description category username password host port protocol api_uri oses) ],
   );
 
 =head1 COPYRIGHT

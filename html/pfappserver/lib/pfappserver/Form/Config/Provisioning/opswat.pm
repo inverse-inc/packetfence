@@ -66,7 +66,7 @@ has_field 'agent_download_uri' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category client_id client_secret host port protocol access_token refresh_token agent_download_uri) ],
+   render_list => [ qw(id type description category oses client_id client_secret host port protocol access_token refresh_token agent_download_uri) ],
   );
 
 =head1 COPYRIGHT
