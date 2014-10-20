@@ -33,6 +33,10 @@ doc-anyfi-pdf:
 doc-paloalto-pdf:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_PaloAlto_Quick_Install_Guide.docbook docs/PacketFence_PaloAlto_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_PaloAlto_Quick_Install_Guide.docbook  -pdf docs/PacketFence_PaloAlto_Quick_Install_Guide.pdf
 
+doc-fortigate-pdf:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_FortiGate_Quick_Install_Guide.docbook docs/PacketFence_FortiGate_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_FortiGate_Quick_Install_Guide.docbook  -pdf docs/PacketFence_FortiGate_Quick_Install_Guide.pdf
+
+
 .PHONY: configurations
 
 configurations:
