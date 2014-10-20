@@ -52,7 +52,7 @@ TODO: documention
 =cut
 
 sub unlock {
-    return $_[0]->_doLock( F_UNLCK );
+    return $_[0]->_doRealLock( F_UNLCK );
 }
 
 =head2 _doLock
@@ -86,7 +86,6 @@ sub _doLock {
 }
 
 =head2 _doRealLock
-
 
 
 =cut
