@@ -56,7 +56,7 @@ It should display:
 <response status="success">
 <result>
 <key>
-LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVljL000eDVnWHg2VTdwNUJHMlFGcHFCVWpGeW55VjVvZTF0WE51dz0=
+LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVlj0=
 </key>
 </result>
 </response>
@@ -71,7 +71,7 @@ Go to *Configuration -> Firewall SSO -> Add Firewall SSO*
 ----
 Hostname or IP Address: @IP of your firewall
 Firewall type: PalotAlto (Fortigate = Accounting request; PaloAlto = XML request)
-Secret or Key: LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVljL000eDVnWHg2VTdwNUJHMlFGcHFCVWpGeW55VjVvZTF0WE51dz0= (Put the key previoulsy generated)
+Secret or Key: LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVlj0= (Put the key previously generated)
 Port: 443
 Roles: add the roles that you want to do SSO with
 ----
