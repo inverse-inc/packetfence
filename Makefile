@@ -6,7 +6,7 @@ all:
 	@echo " 'doc-developers-pdf' will build the Develoeprs guide in PDF"
 	@echo " 'doc-networkdevices-pdf' will build the Network Devices Configuration guide in PDF"
 
-pdf: doc-admin-pdf doc-developers-pdf doc-networkdevices-pdf doc-opswat-pdf doc-mobileiron-pdf
+pdf: doc-admin-pdf doc-developers-pdf doc-networkdevices-pdf doc-opswat-pdf doc-mobileiron-pdf doc-sepm-pdf
 
 doc-admin-pdf:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Administration_Guide.docbook docs/PacketFence_Administration_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Administration_Guide.docbook  -pdf docs/PacketFence_Administration_Guide.pdf
