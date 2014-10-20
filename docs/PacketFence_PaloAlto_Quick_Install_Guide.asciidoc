@@ -1,5 +1,5 @@
-PacketFence: PaloAlto firewall Quick Integration Guide
-======================================================
+PaloAlto firewall Quick Integration Guide
+=========================================
 :encoding: UTF-8
 :lang: en
 :doctype: book
@@ -13,7 +13,7 @@ This guide has been created in order to help sales engineers, product managers, 
 Assumptions
 -----------
 * You have a configured PacketFence environment with working test equipment
-* You have a PaloAlto firewall with PanOS 6.
+* You have a PaloAlto firewall with PanOS 6
 
 
 Quick installation
@@ -22,9 +22,9 @@ Step 1: Create a SSO role
 ~~~~~~~~~~~~~~~~~~~~~~~~
 You will first need to create an SSO role on the web interface on the PaloAlto firewall.
 
-Go to *Device -> Admin Roles -> Add*
+Go to *Device -> Admin Roles -> Add*.
 
-Create the role name SSO_Role, under the 'XML API' tab, enable everything and validate it with OK.
+Create the role name 'SSO_Role', under the 'XML API' tab, enable everything and validate it with 'OK'.
 
 image::docs/images/doc-paloalto-SSO_Role.png[scaledwidth="100%",alt="Create a SSO Role in the PanOS"]
 
@@ -32,23 +32,22 @@ Step 2: Create the account in PAN-OS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Now you have created the role, you will associate an user with it.
 
-Go to *Device -> Administrator -> Add*
+Go to *Device -> Administrator -> Add*.
 
-----
-Name: xmluser
-Authentication Profile: None
-Password: xmluser
-Role: Role Based
-Profile: SSO_Role (Previously created)
-Password Profile: None
-----
+[options="compact"]
+* *Name*: xmluser
+* *Authentication Profile*: None
+* *Password*: xmluser
+* *Role*: Role Based
+* *Profile*: SSO_Role (Previously created)
+* *Password Profile*: None
 
 image::docs/images/doc-paloalto-create_xml_user.png[scaledwidth="100%",alt="Create a XML user in the PanOS"]
 
 Step 3: Get the XML Key
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Go on this URL: https://@IP-of-PaloAlto/api/?type=keygen&user=xmluser&password=xmluser
+Go on this URL: `https://@IP-of-PaloAlto/api/?type=keygen&user=xmluser&password=xmluser`.
 
 It should display:
 
@@ -64,17 +63,15 @@ LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVlj0=
 
 Step 4: SSO Configuration in PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Now we have the key, we will configure the PaloAlto firewall in PacketFence.
+Now that we have the key, we will configure the PaloAlto firewall in PacketFence.
 
-Go to *Configuration -> Firewall SSO -> Add Firewall SSO*
+Go to *Configuration -> Firewall SSO -> Add Firewall -> PaloAlto*.
 
-----
-Hostname or IP Address: @IP of your firewall
-Firewall type: PalotAlto (Fortigate = Accounting request; PaloAlto = XML request)
-Secret or Key: LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVlj0= (Put the key previously generated)
-Port: 443
-Roles: add the roles that you want to do SSO with
-----
+[options="compact"]
+* *Hostname or IP Address*: @IP of your firewall
+* *Secret or Key*: LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVlj0= (Put the key previously generated)
+* *Port of the service*: 443
+* *Roles*: 'add the roles that you want to do SSO with'
 
 image::docs/images/doc-paloalto-cfg_SSO_pf.png[scaledwidth="100%",alt="Add a PaloAlto Firewall in Packetfence"]
 
