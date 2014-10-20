@@ -44,9 +44,9 @@ has_field 'category' =>
    label => 'Roles',
    options_method => \&options_roles,
    element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Nodes with the selected roles will be affected'},
+   element_attr => {'data-placeholder' => 'Click to add a role'},
    tags => { after_element => \&help,
-             help => 'Roles ' },
+             help => 'Nodes with the selected roles will be affected' },
   );
 
 has_block definition =>
