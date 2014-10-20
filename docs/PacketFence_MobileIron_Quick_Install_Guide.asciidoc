@@ -22,7 +22,7 @@ Step 1: Configure MobileIron
 First of all you will need to configure the basic functionality of MobileIron using their documentation.
 
 MDM profile
-+++++++++++
+^^^^^^^^^^^
 One important step is to enable the MDM profile like in this screenshot. 
 Note that this will require you to create an MDM certificate with Apple. Refer to the MobileIron documentation for specifics about this step.
 
@@ -61,7 +61,7 @@ In PacketFence, MDM are refered to as provisioners.
 This will walk you through adding MobileIron as a provisioner.
 
 Create the provisioner
-++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^
 Login in the PacketFence administration interface, then go in the Configuration tab, then in Provisioners.
 Click 'Add provisioner' then select mobileiron.
 
@@ -85,7 +85,7 @@ Replace accountName by your real account/instance name at MobileIron.
 * Windows : https://m.mobileiron.net/accountName/EnrollmentServer/Discovery.svc
 
 Add the provisioner to the portal profile
-+++++++++++++++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 In order for the provisionner to be used by your captive portal you need to add it in its configuration.
 Go in Portal Profiles, then select the portal you want to modify and add mobileiron as a provisioner.
 
@@ -105,7 +105,7 @@ Check the 'Passthrough' box above the field and add the following domains to the
 image::docs/images/mobile-iron-passthroughs.png[scaledwidth="100%",alt="MobileIron passthroughs"]
 
 Restart PacketFence
-+++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^
 
 In order to enable the boarding passthrough for the device enrollment, you will need to restart the iptables service of PacketFence.
 
