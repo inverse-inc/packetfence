@@ -54,7 +54,7 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
-before [qw(view _processCreatePost update)] => sub {
+before [qw(clone view _processCreatePost update)] => sub {
     my ($self, $c, @args) = @_;
     my $model = $self->getModel($c);
     my $itemKey = $model->itemKey;
