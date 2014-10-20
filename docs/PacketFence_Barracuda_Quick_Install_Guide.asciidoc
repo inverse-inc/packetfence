@@ -33,9 +33,13 @@ image::docs/images/doc-barracuda-cfg_SSO_pf.png[scaledwidth="100%",alt="Create t
 
 Step 2: Verification
 ~~~~~~~~~~~~~~~~~~~~
-Try to do a connection to packetfence, if you user is match a correct rule with the role that you have configured, the packetfence server will send a request to the Barracuda to allow you.
+For our example, when the user register on the portal it will be registered and the role staff will be assigned. The PacketFence server will send a request to the Barracuda database.
 
-If you want to see if it's working, you can log into the Barracuda in SSH and run this command following commands: acpfctrl auth show
+If you want to see if it's working, open an SSH access to your Barracuda and run this command following commands:
+
+  acpfctrl auth show
+
+You will get that:
 
 [options="compact"]
 * *[root@baracudafw:~]# acpfctrl auth show
