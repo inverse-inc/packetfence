@@ -1,5 +1,5 @@
-PacketFence ZEN Administration Guide
-====================================
+ZEN Administration Guide
+========================
 :encoding: UTF-8
 :lang: en
 :doctype: book

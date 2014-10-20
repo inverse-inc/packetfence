@@ -1,5 +1,5 @@
-PacketFence Developer's Guide
-=============================
+Developer's Guide
+=================
 :encoding: UTF-8
 :lang: en
 :doctype: book

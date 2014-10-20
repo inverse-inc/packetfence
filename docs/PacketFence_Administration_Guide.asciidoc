@@ -1,5 +1,5 @@
-PacketFence Administration Guide
-================================
+Administration Guide
+====================
 :encoding: UTF-8
 :lang: en
 :doctype: book

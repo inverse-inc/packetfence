@@ -1,5 +1,5 @@
-PacketFence: Cisco Quick Installation Guide
-===========================================
+Cisco Quick Installation Guide
+==============================
 :encoding: UTF-8
 :lang: en
 :doctype: book

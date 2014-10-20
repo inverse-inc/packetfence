@@ -1,5 +1,5 @@
-PacketFence: MobileIron Quick Integration Guide
-================================================
+MobileIron Quick Integration Guide
+==================================
 :encoding: UTF-8
 :lang: en
 :doctype: book
@@ -32,15 +32,15 @@ Step 2: Create an API user
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 Next, we will need a user that has the rights to access the MobileIron API in order to verify the state of the devices directly from PacketFence.
 
-First go in the USERS & DEVICES tab and then in Users and click Add local user
+First go in the 'USERS & DEVICES' tab and then in 'Users' and click 'Add local user'.
 
 image::docs/images/mobile-iron-go-to-add-user.png[scaledwidth="100%",alt="Go to add user"]
 
-Now enter the information about your user and note the user ID and password for usage in the PacketFence configuration, then hit save.
+Now enter the information about your user and note the user ID and password for usage in the PacketFence configuration, then hit 'Save'.
 
 image::docs/images/mobile-iron-create-user.png[scaledwidth="100%",alt="Go to add user"]
 
-Now go in the ADMIN tab, check the box next to your newly created user and then in Actions select Assign to space
+Now go in the 'ADMIN' tab, check the box next to your newly created user and then in 'Actions' select 'Assign to Space'.
 
 image::docs/images/mobile-iron-go-to-assign-space.png[scaledwidth="100%",alt="Go to assign space"]
 
@@ -72,7 +72,7 @@ Now configure this new provisioner with the information you got above.
 * The Provisioning ID is the friendly name of the provisioner.
 * The Username is the user you created with API access above.
 * The password is the password of the API user.
-* The host is the domain name of the instance + your account name if you have a cloud account (ex : m.mobileiron.net/inverseca) 
+* The host is the domain name of the instance + your account name if you have a cloud account (ex: `m.mobileiron.net/inverseca`)
 * Now add the download URI for the agent. See below for more details.
 * The Boarding host is the host that you got in step 3.
 * The Boarding port is the port that you got in step 3.

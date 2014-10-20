@@ -1,5 +1,5 @@
-PacketFence: OPSWAT Quick Integration Guide
-===========================================
+OPSWAT Quick Integration Guide
+==============================
 :encoding: UTF-8
 :lang: en
 :doctype: book
@@ -13,7 +13,7 @@ This guide has been created in order to help sales engineers, product managers, 
 Assumptions
 -----------
 * You have a configured PacketFence environment with working test equipment
-* You have, or will create, an OPSWAT GEARS account at http://www.opswatgears.com.
+* You have, or will create, an OPSWAT GEARS account at http://www.opswatgears.com/
 
 Quick installation
 ------------------
@@ -41,37 +41,24 @@ In order to configure OPSWAT GEARS in PacketFence you will need to generate an O
 
 Generate the authorization code
 +++++++++++++++++++++++++++++++
-First you will access this page using your browser (replace -clientid- by your client ID that you got when creating the application)
+First you will access this page using your browser (replace `-clientid-` by your client ID that you got when creating the application):
 
-https://gears.opswat.com/o/oauth/authorize?client_id=-clientid-&response_type=code&redirect_uri=http://127.0.0.1/opswat
+    https://gears.opswat.com/o/oauth/authorize?client_id=-clientid-&response_type=code&redirect_uri=http://127.0.0.1/opswat
 
-----
-ex : https://gears.opswat.com/o/oauth/authorize?
-     client_id=1234567890&response_type=code
-     &redirect_uri=http://127.0.0.1/opswat 
-----
-
-Authorize the application and you will then be redirected to an unavailable page but the URL will contain the code in it's parameters (ex : http://127.0.0.1/opswat?code=wJ2RTE).
+Authorize the application and you will then be redirected to an unavailable page but the URL will contain the code in it's parameters (ex: `http://127.0.0.1/opswat?code=wJ2RTE`).
 
 Generate the access and refresh token
 +++++++++++++++++++++++++++++++++++++
-We will now use the code at the end to generate the access and refresh token using another HTTP request that will be done in your browser. Replace -clientid- and -clientsecret- by the client id and secret of your application.Then add the code you got above at the end of this url.
+We will now use the code at the end to generate the access and refresh token using another HTTP request that will be done in your browser. Replace `-clientid-` and `-clientsecret-` by the client id and secret of your application. Then add the code you got above at the end of this URL.
 
-https://gears.opswat.com/o/oauth/token?client_id=-clientid-&client_secret=-clientsecret-&grant_type=authorization_code&redirect_uri=http://127.0.0.1/opswat&code=
+    https://gears.opswat.com/o/oauth/token?client_id=-clientid-&client_secret=-clientsecret-&grant_type=authorization_code&redirect_uri=http://127.0.0.1/opswat&code=
 
-----
-ex : https://gears.opswat.com/o/oauth/token?
-     client_id=1234567890&client_secret=0987654321&
-     grant_type=authorization_code&
-     redirect_uri=http://127.0.0.1/opswat&code=wJ2RTE
-----
-
-You should now be presented with a JSON response that contains the access and refresh token. Take note of both of these values for the PacketFence configuration.
+You should now be presented with a JSON response that contains the access and refresh token. Take note of both of these values for the PacketFence configuration. Example:
 
 ----
-ex: {"access_token":"ab3aec71-fa6a-4752-8804-00c37f934059","token_type":"bearer",
-    "refresh_token":"f9e7c698-4d88-42cb-b9ae-c067557e8385","expires_in":43199,
-    "scope":"read","client_id":"1234567890"}
+{"access_token":"ab3aec71-fa6a-4752-8804-00c37f934059","token_type":"bearer",
+ "refresh_token":"f9e7c698-4d88-42cb-b9ae-c067557e8385","expires_in":43199,
+ "scope":"read","client_id":"1234567890"}
 ----
 
 Step 5: Configure PacketFence

@@ -1,5 +1,5 @@
-PacketFence: Brocade Quick Installation Guide
-============================================
+Brocade Quick Installation Guide
+================================
 :encoding: UTF-8
 :lang: en
 :doctype: book
