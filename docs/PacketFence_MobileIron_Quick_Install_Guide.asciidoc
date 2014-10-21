@@ -8,7 +8,7 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the MobileIron mobile device manager.
+This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the *MobileIron mobile device manager*.
 
 Assumptions
 -----------
@@ -51,7 +51,7 @@ Step 3: Gather the boarding host
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To find the boarding host, add a fake device to MobileIron and at the end of the process you will see the registration instructions.
 
-In it you will find the boarding host and port for the PacketFence configuration. In this case, the boarding host is 'm.mobileiron.net' and the boarding port is '50291'
+In it you will find the boarding host and port for the PacketFence configuration. In this case, the boarding host is `m.mobileiron.net` and the boarding port is `50291`.
 
 image::docs/images/mobile-iron-boarding.png[scaledwidth="100%",alt="Boarding info"]
 
@@ -62,40 +62,44 @@ This will walk you through adding MobileIron as a provisioner.
 
 Create the provisioner
 ^^^^^^^^^^^^^^^^^^^^^^
-Login in the PacketFence administration interface, then go in the Configuration tab, then in Provisioners.
-Click 'Add provisioner' then select mobileiron.
+Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
+Click 'Add provisioner' then select 'mobileiron'.
 
 image::docs/images/mobile-iron-pf-config.png[scaledwidth="100%",alt="MobileIron configuration"]
 
 Now configure this new provisioner with the information you got above.
 
+[options="compact"]
 * The Provisioning ID is the friendly name of the provisioner.
 * The Username is the user you created with API access above.
 * The password is the password of the API user.
-* The host is the domain name of the instance + your account name if you have a cloud account (ex: `m.mobileiron.net/inverseca`)
+* The host is the domain name of the instance + your account name if you have a cloud account (ex: `m.mobileiron.net/accountName`)
 * Now add the download URI for the agent. See below for more details.
 * The Boarding host is the host that you got in step 3.
 * The Boarding port is the port that you got in step 3.
 
 Here are the URIs that should work by default. 
-Replace accountName by your real account/instance name at MobileIron.
+Replace `accountName` by your real account/instance name at MobileIron.
 
-* Android : https://m.mobileiron.net/accountName/c/d/android.html
-* IOS devices : https://m.mobileiron.net/accountName/c/d/ios.html
-* Windows : https://m.mobileiron.net/accountName/EnrollmentServer/Discovery.svc
+[options="compact"]
+* Android: `https://m.mobileiron.net/accountName/c/d/android.html`
+* IOS devices: `https://m.mobileiron.net/accountName/c/d/ios.html`
+* Windows: `https://m.mobileiron.net/accountName/EnrollmentServer/Discovery.svc`
 
 Add the provisioner to the portal profile
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 In order for the provisionner to be used by your captive portal you need to add it in its configuration.
-Go in Portal Profiles, then select the portal you want to modify and add mobileiron as a provisioner.
+Go in 'Portal Profiles', then select the portal you want to modify and add 'mobileiron' as a provisioner.
 
 image::docs/images/mobile-iron-portal.png[scaledwidth="100%",alt="MobileIron portal"]
 
 Step 5: Add the necessary passthroughs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Next, still in the PacketFence administration console, go in 'Trapping' in the left menu, then scroll then to 'Passthroughs'.
+
 Check the 'Passthrough' box above the field and add the following domains to the passthrough list.
 
+[options="compact"]
 * m.mobileiron.net
 * *.itunes.apple.com
 * itunes.apple.com
@@ -116,6 +120,4 @@ Step 6: Test
 You can now test that MobileIron is mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
 At the end of the registration process you will be presented a page asking you to install the MobileIron on your device.
-After you install the agent click continue. If your access is enabled than this means the connectivity between PacketFence and MobileIron is good.
-
-
+After you install the agent click 'Continue'. If your access is enabled than this means the connectivity between PacketFence and MobileIron is good.
