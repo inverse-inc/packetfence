@@ -651,7 +651,7 @@ sub readPfConfigFiles {
                         )
                     ];
                 }
-                $Config{network}{dhcp_filter_by_message_types} = [split(/\s*,\s*/,$Config{network}{dhcp_filter_by_message_types} || '')],
+                $Config{captive_portal}{detection_urls} = [split(/\s*,\s*/,$Config{captive_portal}{detection_urls} || '') ];
 
                 _load_captive_portal();
             }]
