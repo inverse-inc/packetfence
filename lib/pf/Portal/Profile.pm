@@ -343,12 +343,19 @@ sub provisionerObjects {
 
 sub findProvisioner {
     my ($self, $mac, $node_attributes) = @_;
+    my $logger = get_logger();
     $node_attributes ||= node_attributes($mac);
     my ($fingerprint) =
       dhcp_fingerprint_view( $node_attributes->{'dhcp_fingerprint'} );
-    return unless $fingerprint;
+    unless($fingerprint){
+        $logger->warn("Can't find provisioner for $mac since we don't have it's fingerprint");
+        return;
+    }
     my $os = $fingerprint->{'os'};
-    return unless defined $os;
+    unless(defined $os){
+        $logger->warn("Can't find provisioner for $mac since we don't have it's OS");
+        return;
+    }
     return first { $_->match($os,$node_attributes) } $self->provisionerObjects;
 }
 

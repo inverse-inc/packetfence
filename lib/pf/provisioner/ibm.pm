@@ -14,7 +14,6 @@ pf::provisioner::ibm
 use strict;
 use warnings;
 use pf::log;
-use SOAP::Lite;
 use URI::Escape::XS;
 use Moo;
 use pf::config qw($TRUE $FALSE);
@@ -35,8 +34,6 @@ use SOAP::Lite
         }
         $logger->error("Error in SOAP communication with server: $errmsg");
     };
-
-my %SOAPS;
 
 =head1 Attributes
 

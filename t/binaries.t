@@ -15,7 +15,10 @@ use warnings;
 use Test::More;
 use Test::NoWarnings;
 
-use lib qw(/usr/local/pf/t);
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 use TestUtils qw(get_all_perl_binaries get_all_perl_cgi);
 
 my @binaries = (

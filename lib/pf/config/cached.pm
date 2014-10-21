@@ -273,8 +273,7 @@ use File::Flock;
 use File::Spec::Functions qw(splitpath catpath);
 use Readonly;
 use Sub::Name;
-use List::Util qw(first any);
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(any firstval uniq);
 use Fcntl qw(:flock :DEFAULT :seek);
 use POSIX::2008;
 use Data::Swap();
@@ -719,6 +718,7 @@ Swap the data with cached data
 sub _swap_data {
     my ($self,$new_self) = @_;
     Data::Swap::swap($self,$new_self); 
+    $self->addToLoadedConfigs();
     #Unbless the old data to avoid DESTROY from being called
     unbless($new_self);
     my $cache = $self->cache;
@@ -848,6 +848,7 @@ sub ReloadConfigs {
     my $logger = get_logger();
     $logger->trace("Reloading all configs");
     foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
+        $logger->trace($config->{cf});
         $config->ReadConfig($force);
     }
 }
@@ -877,7 +878,7 @@ sub _addCallbacks {
     my ($self,$callback_array,@args) = @_;
     if (@args > 1) {
         my ($name,$callback) = splice(@args,0,2);
-        my $callback_data = first { $_->[0] eq $name  } @$callback_array;
+        my $callback_data = firstval { $_->[0] eq $name  } @$callback_array;
         #Adding a name to the anonymous function for debug and tracing purposes
         $callback = subname $name,$callback;
         if ($callback_data) {

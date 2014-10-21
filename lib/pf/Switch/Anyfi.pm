@@ -7,21 +7,11 @@ pf::Switch::Anyfi
 =head1 SYNOPSIS
 
 The pf::Switch::Anyfi module implements an object oriented interface to 
-manage the Anyfi gateway
+manage the Anyfi Gateway
 
 =head1 STATUS
 
-Developed and tested on the Anyfi gateway running v1.4.6
-
-=head1 BUGS AND LIMITATIONS
-
-=head2 No 802.1X VLANs 
-
-The controller doesn't support RADIUS assigned VLANs when using 802.1X
-
-=head2 Can't determine SSID
-
-The SSID is not part of the Called-Station-Id or any other attribute.
+Developed and tested on the Anyfi Gateway release R1D (s/w version 1.5.14).
 
 =cut
 
@@ -33,7 +23,7 @@ use Log::Log4perl;
 
 use pf::config;
 
-sub description {"Anyfi gateway"}
+sub description {"Anyfi Gateway"}
 
 =head1 SUBROUTINES
 

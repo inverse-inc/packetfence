@@ -245,7 +245,7 @@ sub authorize {
 
         if($result == -1){
             $logger->error("Unable to contact SEPM to validate if IP $ip is registered.");
-            return 0;
+            return -1;
         }
         else{
             return $result;

@@ -1,5 +1,5 @@
-PacketFence Network Devices Configuration Guide
-===============================================
+Network Devices Configuration Guide
+===================================
 :encoding: UTF-8
 :lang: en
 :doctype: book
@@ -2781,29 +2781,25 @@ In the guided configuration you now be able to select your new SSID, the Portal 
 Anyfi
 ~~~~~
 
-In this section, we cover the basic configuration of the Anyfi gateway to create a hotspot SSID available on all access points.
+In this section, we cover the basic configuration of the Anyfi Gateway to create a hotspot SSID available on all access points.
 
-This does not cover the configuration of the controller.
+This does not cover the configuration of other Anyfi network elements such as the Controller. Please refer to http://www.anyfinetworks.com/resources[Anyfi Networks' website] for relevant documentation.
 
-In this configuration eth0 will be the management interface of the Anyfi gateway and eth1 will be the interface that will bridge the tagged packets to your network.
+In this configuration eth0 will be the management interface of the Anyfi Gateway and eth1 will be the interface that will bridge the tagged packets to your network.
 
 Interfaces configuration
 ++++++++++++++++++++++++
 
   interfaces {
       bridge br0 {
-          aging 300
-          hello-time 2
-          max-age 20
-          priority 0
-          stp false
+          ...
       }
       ethernet eth0 {
           description "Management network"
           address 192.168.0.20/24
       }
       ethernet eth1 {
-          description "Bridge to network"
+          description "Wi-Fi client traffic" 
           bridge-group {
               bridge br0
           }
@@ -2834,7 +2830,7 @@ SSID configuration
                   }
               }
               bridge br0
-              controller <the controller's ip address>
+              controller <Anyfi Controller's IP or FQDN>
               isolation
               nas {
                   identifier anyfi
@@ -2849,10 +2845,6 @@ SSID configuration
 ^^^^^^
 
 This section will allow you to configure the 'Anyfi-Secure' SSID that will authenticate users using 802.1X.
-
-Note that for the moment, the Anyfi gateway doesn't support RADIUS assigned VLANs when using 802.1X. The devices will be assigned the native VLAN on eth1.
-PacketFence will only do the authentication of the 802.1X credentials and accept or deny the user.
-Since the 802.1X users cannot be assigned a VLAN, if you want portal based authentication on top of the 802.1X authentication, you will need to use the inline mode on the network your devices will be in.
 
 SSID configuration
 ++++++++++++++++++
@@ -2874,13 +2866,13 @@ SSID configuration
                   }
               }
               bridge br0
-              controller <the controller's ip address> 
+              controller <Anyfi Controller's IP or FQDN>
               isolation
               nas {
                   identifier anyfi
                   port 3799
               }
-              ssid agile-super-secure
+              ssid Anyfi-Secure
               wpa2 {
               }
           }

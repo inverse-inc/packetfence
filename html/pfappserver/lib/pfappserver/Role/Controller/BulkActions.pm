@@ -26,16 +26,16 @@ sub bulk_close : Local {
     $c->stash->{current_view} = 'JSON';
     my ( $status, $status_msg );
     my $request = $c->request;
-    if ( $request->method eq 'POST' ) {
+    if ($request->method eq 'POST') {
         my @ids = $request->param('items');
-        ( $status, $status_msg ) =
-          $self->getModel($c)->bulkCloseViolations(@ids);
-    } else {
-        $status     = HTTP_BAD_REQUEST;
+        ($status, $status_msg) = $self->getModel($c)->bulkCloseViolations(@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
         $status_msg = "";
     }
     $c->response->status($status);
-    $c->stash( status_msg => $status_msg, );
+    $c->stash->{status_msg} = $status_msg;
 }
 
 =head2 bulk_register
@@ -47,15 +47,16 @@ sub bulk_register : Local {
     $c->stash->{current_view} = 'JSON';
     my ( $status, $status_msg );
     my $request = $c->request;
-    if ( $request->method eq 'POST' ) {
+    if ($request->method eq 'POST') {
         my @ids = $request->param('items');
-        ( $status, $status_msg ) = $self->getModel($c)->bulkRegister(@ids);
-    } else {
-        $status     = HTTP_BAD_REQUEST;
+        ($status, $status_msg) = $self->getModel($c)->bulkRegister(@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
         $status_msg = "";
     }
     $c->response->status($status);
-    $c->stash( status_msg => $status_msg, );
+    $c->stash->{status_msg} = $status_msg;
 }
 
 =head2 bulk_deregister
@@ -67,15 +68,16 @@ sub bulk_deregister : Local {
     $c->stash->{current_view} = 'JSON';
     my ( $status, $status_msg );
     my $request = $c->request;
-    if ( $request->method eq 'POST' ) {
+    if ($request->method eq 'POST') {
         my @ids = $request->param('items');
-        ( $status, $status_msg ) = $self->getModel($c)->bulkDeregister(@ids);
-    } else {
-        $status     = HTTP_BAD_REQUEST;
+        ($status, $status_msg) = $self->getModel($c)->bulkDeregister(@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
         $status_msg = "";
     }
     $c->response->status($status);
-    $c->stash( status_msg => $status_msg, );
+    $c->stash->{status_msg} = $status_msg;
 }
 
 =head2 bulk_apply_role
@@ -87,16 +89,16 @@ sub bulk_apply_role : Local : Args(1) {
     $c->stash->{current_view} = 'JSON';
     my ( $status, $status_msg );
     my $request = $c->request;
-    if ( $request->method eq 'POST' ) {
+    if ($request->method eq 'POST') {
         my @ids = $request->param('items');
-        ( $status, $status_msg ) =
-          $self->getModel($c)->bulkApplyRole( $role, @ids );
-    } else {
-        $status     = HTTP_BAD_REQUEST;
+        ($status, $status_msg) = $self->getModel($c)->bulkApplyRole(@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
         $status_msg = "";
     }
     $c->response->status($status);
-    $c->stash( status_msg => $status_msg, );
+    $c->stash->{status_msg} = $status_msg;
 }
 
 =head2 bulk_apply_violation
@@ -108,16 +110,16 @@ sub bulk_apply_violation : Local : Args(1) {
     $c->stash->{current_view} = 'JSON';
     my ( $status, $status_msg );
     my $request = $c->request;
-    if ( $request->method eq 'POST' ) {
+    if ($request->method eq 'POST') {
         my @ids = $request->param('items');
-        ( $status, $status_msg ) =
-          $self->getModel($c)->bulkApplyViolation( $violation, @ids );
-    } else {
-        $status     = HTTP_BAD_REQUEST;
+        ($status, $status_msg) = $self->getModel($c)->bulkApplyViolation(@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
         $status_msg = "";
     }
     $c->response->status($status);
-    $c->stash( status_msg => $status_msg, );
+    $c->stash->{status_msg} = $status_msg;
 }
 
 =head2 bulk_reevaluate_access

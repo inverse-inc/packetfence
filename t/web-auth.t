@@ -14,7 +14,10 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use lib '/usr/local/pf/conf';
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
 use File::Basename qw(basename);
 use Log::Log4perl;

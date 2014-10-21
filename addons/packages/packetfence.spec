@@ -180,6 +180,7 @@ Requires: perl(Template)
 Requires: perl(Term::ReadKey)
 Requires: perl(Thread::Pool)
 Requires: perl(Date::Parse)
+Requires: perl(DateTime::Format::RFC3339)
 Requires: perl(UNIVERSAL::require)
 Requires: perl(YAML)
 Requires: perl(Try::Tiny)
@@ -340,7 +341,7 @@ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
     /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
     docs/docbook/xsl/titlepage-fo.xml
 # admin, network device config, devel and ZEN install guides
-for GUIDE in PacketFence_Administration_Guide PacketFence_Developers_Guide PacketFence_Network_Devices_Configuration_Guide PacketFenceZEN_Installation_Guide; do 
+for GUIDE in PacketFence_Administration_Guide PacketFence_Developers_Guide PacketFence_Network_Devices_Configuration_Guide PacketFenceZEN_Installation_Guide PacketFence_Anyfi_Quick_Install_Guide PacketFence_Brocade_Quick_Install_Guide PacketFence_Cisco_Quick_Install_Guide PacketFence_Ruckus_Quick_Install_Guide PacketFence_OPSWAT_Quick_Install_Guide; PacketFence_MobileIron_Quick_Install_Guide PacketFence_SEPM_Quick_Install_Guide PacketFence_PaloAlto_Quick_Install_Guide PacketFence_Barracuda_Quick_Install_Guide; do 
 asciidoc -a docinfo2 -b docbook -d book \
     -o docs/docbook/$GUIDE.docbook \
     docs/$GUIDE.asciidoc
@@ -827,6 +828,7 @@ fi
                         /usr/local/pf/html/captive-portal/content/countdown.min.js
                         /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
+                        /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
 %dir                    /usr/local/pf/html/captive-portal/lib

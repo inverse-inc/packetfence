@@ -226,7 +226,7 @@ sub add_fake_profile_data {
 
 sub getForm {
     my ($self, $c, @args) = @_;
-    unless (@args) {
+    unless (@args || (exists $c->stash->{current_form} && defined $c->stash->{current_form} )) {
         if (exists $c->action->{form} && defined (my $form = $c->action->{form})) {
             push @args,$form;
         }

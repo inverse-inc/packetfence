@@ -1,5 +1,5 @@
-PacketFence: Ruckus Quick Installation Guide
-============================================
+Ruckus Quick Installation Guide
+===============================
 :encoding: UTF-8
 :lang: en
 :doctype: book

@@ -11,6 +11,7 @@ auto_enable=Y
 enabled=N
 grace=120m
 window=0
+delay_by=0s
 button_text=Enable Network
 snort_rules=local.rules,emerging-attack_response.rules,emerging-botcc.rules,emerging-exploit.rules,emerging-malware.rules,emerging-p2p.rules,emerging-scan.rules,emerging-shellcode.rules,emerging-trojan.rules,emerging-worm.rules
 # vlan: The vlan parameter allows you to define in what vlan a node with a violation will be put in.
@@ -200,6 +201,16 @@ priority=6
 actions=trap,log
 template=spam
 enabled=Y
+
+[1300002]
+desc=Provisioning Enforcement
+priority=6
+actions=enforce_provisioning,log
+template=enforce_provisioning
+trigger=Provisioner::check
+enabled=Y
+grace=0s
+delay_by=2m
 
 #
 # 1400000 - 1499999 Reserved for local violations

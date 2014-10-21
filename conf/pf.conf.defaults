@@ -868,6 +868,16 @@ nodes_maintenance_interval=60s
 # violation maintenance interval
 violation_maintenance_interval=60s
 #
+# maintenance.violation_maintenance_batch
+#
+# violation maintenance batch
+violation_maintenance_batch=1000
+#
+# maintenance.violation_maintenance_timeout
+#
+# violation maintenance timeout
+violation_maintenance_timeout=10s
+#
 # maintenance.inline_accounting_maintenance_interval
 #
 # inline accounting maintenance interval

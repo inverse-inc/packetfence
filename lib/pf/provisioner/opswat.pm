@@ -23,6 +23,7 @@ use XML::Simple;
 use Log::Log4perl;
 use pf::iplog;
 use pf::ConfigStore::Provisioning;
+use DateTime::Format::RFC3339;
 
 =head1 Atrributes
 
@@ -48,7 +49,7 @@ Host of the SEPM web API
 
 =cut
 
-has host => (is => 'rw');
+has host => (is => 'rw', default => sub { "gears.opswat.com" });
 
 =head2 port
 
@@ -56,7 +57,7 @@ Port to connect to the SEPM web API
 
 =cut
 
-has port => (is => 'rw', default => sub { 443 });
+has port => (is => 'rw', default =>  sub { 443 } );
 
 =head2 protocol
 
@@ -90,6 +91,8 @@ The URI to download the agent
 
 has agent_download_uri => (is => 'rw');
 
+# amount of minutes to condider the node as still active with OPSWAT
+my $CONNECTION_DELAY = 30;
 
 sub get_refresh_token {
     my ($self) = @_;
@@ -200,10 +203,31 @@ sub validate_mac_in_opswat {
     } 
     else { 
         my $json_response = decode_json($response_body);
-        use Data::Dumper;
-        $logger->info(Dumper($json_response));
-        return $json_response->{active} || 0;
+        return $self->check_active($mac, $json_response);
     } 
+}
+
+sub check_active {
+    my ($self, $mac, $json_response) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    my $f = DateTime::Format::RFC3339->new();
+    unless(defined($json_response->{last_seen})){
+        $logger->info("Node $mac not found in the OPSWAT provisioner");
+        return 0;
+    }
+    my $last_seen = $f->parse_datetime( $json_response->{last_seen} );
+
+    my $minutes_last_seen = ((time() - $last_seen->epoch)/60);
+
+    if($minutes_last_seen > $CONNECTION_DELAY){
+        $logger->info("$mac doesn't seem to be active with OPSWAT anymore ($minutes_last_seen is more than $CONNECTION_DELAY minutes ago)");
+        return 0;
+    }
+    else{
+        $logger->info("$mac is still active with OPSWAT ($minutes_last_seen is less than $CONNECTION_DELAY minutes ago)");
+        return 1;
+    }
 }
 
 sub authorize {
@@ -218,7 +242,7 @@ sub authorize {
 
     if($result == -1){
         $logger->error("Unable to contact the OPSWAT API to validate if mac $mac is registered.");
-        return 0;
+        return -1;
     }
     else{
         return $result;

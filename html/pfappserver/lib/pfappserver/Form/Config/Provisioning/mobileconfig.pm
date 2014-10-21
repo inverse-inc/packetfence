@@ -12,10 +12,10 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field 'hidden_ssid' =>
+has_field 'ssid' =>
   (
    type => 'Text',
-   label => 'Hidden SSID',
+   label => 'SSID',
   );
 
 has_field 'ca_cert_path' =>
@@ -26,7 +26,7 @@ has_field 'ca_cert_path' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category hidden_ssid ca_cert_path) ],
+   render_list => [ qw(id type description category ssid ca_cert_path) ],
   );
 
 =head1 COPYRIGHT

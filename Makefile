@@ -6,7 +6,7 @@ all:
 	@echo " 'doc-developers-pdf' will build the Develoeprs guide in PDF"
 	@echo " 'doc-networkdevices-pdf' will build the Network Devices Configuration guide in PDF"
 
-pdf: doc-admin-pdf doc-developers-pdf doc-networkdevices-pdf
+pdf: doc-admin-pdf doc-developers-pdf doc-networkdevices-pdf doc-opswat-pdf doc-mobileiron-pdf doc-sepm-pdf
 
 doc-admin-pdf:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Administration_Guide.docbook docs/PacketFence_Administration_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Administration_Guide.docbook  -pdf docs/PacketFence_Administration_Guide.pdf
@@ -14,8 +14,30 @@ doc-admin-pdf:
 doc-developers-pdf:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Developers_Guide.docbook docs/PacketFence_Developers_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Developers_Guide.docbook  -pdf docs/PacketFence_Developers_Guide.pdf
 
+doc-mobileiron-pdf:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_MobileIron_Quick_Install_Guide.docbook docs/PacketFence_MobileIron_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_MobileIron_Quick_Install_Guide.docbook  -pdf docs/PacketFence_MobileIron_Quick_Install_Guide.pdf
+
+
 doc-networkdevices-pdf:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Network_Devices_Configuration.docbook docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Network_Devices_Configuration.docbook -pdf docs/PacketFence_Network_Devices_Configuration.pdf
+
+doc-opswat-pdf:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_OPSWAT_Quick_Install_Guide.docbook docs/PacketFence_OPSWAT_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_OPSWAT_Quick_Install_Guide.docbook  -pdf docs/PacketFence_OPSWAT_Quick_Install_Guide.pdf
+
+doc-sepm-pdf:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_SEPM_Quick_Install_Guide.docbook docs/PacketFence_SEPM_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_SEPM_Quick_Install_Guide.docbook  -pdf docs/PacketFence_SEPM_Quick_Install_Guide.pdf
+
+doc-anyfi-pdf:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Anyfi_Quick_Install_Guide.docbook docs/PacketFence_Anyfi_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Anyfi_Quick_Install_Guide.docbook -pdf docs/PacketFence_Anyfi_Quick_Install_Guide.pdf
+
+doc-paloalto-pdf:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_PaloAlto_Quick_Install_Guide.docbook docs/PacketFence_PaloAlto_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_PaloAlto_Quick_Install_Guide.docbook  -pdf docs/PacketFence_PaloAlto_Quick_Install_Guide.pdf
+
+doc-fortigate-pdf:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_FortiGate_Quick_Install_Guide.docbook docs/PacketFence_FortiGate_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_FortiGate_Quick_Install_Guide.docbook  -pdf docs/PacketFence_FortiGate_Quick_Install_Guide.pdf
+doc-barracuda-pdf:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Barracuda_Quick_Install_Guide.docbook docs/PacketFence_Barracuda_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Barracuda_Quick_Install_Guide.docbook  -pdf docs/PacketFence_Barracuda_Quick_Install_Guide.pdf
+
 
 .PHONY: configurations
 
@@ -25,10 +47,10 @@ configurations:
 .PHONY: ssl-certs
 
 conf/ssl/server.crt:
-	openssl req -x509 -new -nodes -days 365 -batch\
-    	-out /usr/local/pf/conf/ssl/server.crt\
-    	-keyout /usr/local/pf/conf/ssl/server.key\
-    	-nodes -config /usr/local/pf/conf/openssl.cnf
+	openssl req -x509 -new -nodes -days 365 -batch \
+	-out /usr/local/pf/conf/ssl/server.crt \
+	-keyout /usr/local/pf/conf/ssl/server.key \
+	-nodes -config /usr/local/pf/conf/openssl.cnf
 
 bin/pfcmd: src/pfcmd
 	cp src/pfcmd bin/pfcmd
@@ -53,7 +75,7 @@ sudo:
 
 permissions:
 	./bin/pfcmd fixpermissions
-	
+
 raddb/certs/dh:
 	cd raddb/certs; make dh
 

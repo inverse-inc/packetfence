@@ -243,10 +243,10 @@ sub setRole : Private {
 
     # This appends the hashes to one another. values returned by authenticator wins on key collision
     if ( defined $value ) {
-        $logger->trace("Got role '$value' for username \"$pid\"");
+        $logger->debug("Got role '$value' for username \"$pid\"");
         $info->{category} = $value;
     } else {
-        $logger->trace("Got no role for username \"$pid\"");
+        $logger->debug("Got no role for username \"$pid\"");
     }
 
 }
@@ -266,18 +266,18 @@ sub setUnRegDate : Private {
         $Actions::SET_ACCESS_DURATION );
     if ( defined $value ) {
         $value = pf::config::access_duration($value);
-        $logger->trace("Computed unreg date from access duration: $value");
+        $logger->debug("Computed unreg date from access duration: $value");
     } else {
         $value =
           &pf::authentication::match( $source_match, $params,
             $Actions::SET_UNREG_DATE );
         if ( defined($value) ){
             $value = pf::config::dynamic_unreg_date($value) ;
-            $logger->trace("Computed unreg date from dynamic unreg date: $value");
+            $logger->debug("Computed unreg date from dynamic unreg date: $value");
         }
     }
     if ( defined $value ) {
-        $logger->trace("Got unregdate $value for username \"$pid\"");
+        $logger->debug("Got unregdate $value for username \"$pid\"");
         $info->{unregdate} = $value;
     }
 
@@ -335,7 +335,7 @@ sub checkIfProvisionIsNeeded : Private {
     my $mac = $portalSession->clientMac;
     my $profile = $c->profile;
     if (defined( my $provisioner = $profile->findProvisioner($mac))) {
-        unless ($provisioner->authorize($mac) == 1) {
+        if ($provisioner->authorize($mac) == 0) {
             $info->{status} = $pf::node::STATUS_PENDING;
             node_modify($mac, %$info);
             $c->stash(
@@ -380,7 +380,7 @@ sub authenticationLogin : Private {
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
     my ( $return, $message, $source_id );
-    $logger->trace("authentication attempt");
+    $logger->debug("authentication attempt");
     my $local;
     if ($request->{'match'} eq "status/login") {
         use pf::person;

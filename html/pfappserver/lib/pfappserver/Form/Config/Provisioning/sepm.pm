@@ -36,22 +36,43 @@ has_field 'port' =>
   (
    type => 'PosInteger',
    required => 1,
+   default => 8446,
   );
 
 has_field 'protocol' =>
   (
    type => 'Select',
-   options => [{ label => 'http', value => 'http' }, { label => 'https' , value => 'http' }],
+   options => [{ label => 'http', value => 'http' }, { label => 'https' , value => 'https' }],
+   default => 'https'
   );
 
 has_field 'access_token' =>
   (
    type => 'Text',
+   required => 1,
+  );
+
+has_field 'refresh_token' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+
+has_field 'agent_download_uri' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+
+has_field 'alt_agent_download_uri' =>
+  (
+   type => 'Text',
+   required => 1,
   );
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category client_id client_secret host port protocol access_token) ],
+   render_list => [ qw(id type description category oses client_id client_secret host port protocol access_token refresh_token agent_download_uri alt_agent_download_uri) ],
   );
 
 =head1 COPYRIGHT

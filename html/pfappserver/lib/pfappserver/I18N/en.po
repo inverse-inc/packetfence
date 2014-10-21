@@ -4382,6 +4382,10 @@ msgstr ""
 msgid "log_action"
 msgstr "Log message"
 
+# pf::action (VIOLATION_ACTIONS)
+msgid "enforce_provisioning_action"
+msgstr "Enforce Provisioning"
+
 # pf::Authentication::constants (Conditions)
 msgid "lower"
 msgstr ""
@@ -4414,6 +4418,57 @@ msgstr "Send Email"
 # html/pfappserver/root/user/view.tt
 msgid "mail_loading"
 msgstr "Sending .."
+
+msgid "maintenance"
+msgstr "Maintenance"
+
+# conf/documentation.conf (maintenance.iplog_cleanup_interval)
+msgid "maintenance.iplog_cleanup_interval"
+msgstr "Iplog Cleanup Interval"
+
+# conf/documentation.conf (maintenance.node_cleanup_interval)
+msgid "maintenance.node_cleanup_interval"
+msgstr "Node Cleanup Interval"
+
+# conf/documentation.conf (maintenance.locationlog_cleanup_interval)
+msgid "maintenance.locationlog_cleanup_interval"
+msgstr "Locationlog Cleanup Interval"
+
+# conf/documentation.conf (maintenance.traplog_cleanup_interval)
+msgid "maintenance.traplog_cleanup_interval"
+msgstr "Traplog Cleanup Interval"
+
+# conf/documentation.conf (maintenance.httpd_admin_cleanup_interval)
+msgid "maintenance.httpd_admin_cleanup_interval"
+msgstr "Web Admin Session Cleanup Interval"
+
+# conf/documentation.conf (maintenance.httpd_portal_cleanup_interval)
+msgid "maintenance.httpd_portal_cleanup_interval"
+msgstr "Captive Portal Session Cleanup Interval"
+
+# conf/documentation.conf (maintenance.nodes_maintenance_interval)
+msgid "maintenance.nodes_maintenance_interval"
+msgstr "Nodes Maintenance Interval"
+
+# conf/documentation.conf (maintenance.violation_maintenance_interval)
+msgid "maintenance.violation_maintenance_interval"
+msgstr "Violation Maintenance Interval"
+
+# conf/documentation.conf (maintenance.violation_maintenance_batch)
+msgid "maintenance.violation_maintenance_batch"
+msgstr "Violation Maintenance Batch"
+
+# conf/documentation.conf (maintenance.violation_maintenance_timeout)
+msgid "maintenance.violation_maintenance_timeout"
+msgstr "Violation Maintenance Timeout"
+
+# conf/documentation.conf (maintenance.inline_accounting_maintenance_interval)
+msgid "maintenance.inline_accounting_maintenance_interval"
+msgstr "Inline Accounting Maintenance Interval"
+
+# conf/documentation.conf (maintenance.acct_maintenance_interval)
+msgid "maintenance.acct_maintenance_interval"
+msgstr "Acct Maintenance Interval"
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "manage_deregister"

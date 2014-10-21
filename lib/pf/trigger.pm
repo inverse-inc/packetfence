@@ -20,7 +20,6 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 
 use constant TRIGGER => 'trigger';
 
@@ -43,6 +42,7 @@ BEGIN {
     );
 }
 
+use pf::log;
 use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
 use pf::config;
 use pf::db;
@@ -190,9 +190,9 @@ sub parse_triggers {
 
         # TODO we should refactor this into objects where trigger types provide their own matchers
         # at first, we are liberal in what we accept
-        die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[^:]+$/);
+        die("Invalid trigger id: $trigger") if ($trigger !~ /^(\w+)::(.+)$/);
+        my ( $type, $tid ) = ($1,$2);
 
-        my ( $type, $tid ) = split( /::/, $trigger );
         $type = lc($type);
         $tid =~ s/\s+$//; # trim trailing whitespace
 
@@ -209,6 +209,11 @@ sub parse_triggers {
                     $tid eq $ACCOUNTING_POLICY_BANDWIDTH) {
                 die("Invalid accounting trigger id: $trigger");
             }
+        }
+        # special provisioning only trigger parser
+        elsif ($type eq 'provisioner') {
+            die("Invalid provisioner trigger id: $trigger")
+                if ( $tid ne $TRIGGER_ID_PROVISIONER );
         }
         # usual trigger allowing digits, ranges and dots with optional trailing whitespace
         else {

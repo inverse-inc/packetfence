@@ -15,6 +15,7 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
 use pf::config::cached;
+use pf::factory::firewallsso;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -48,28 +49,23 @@ Show the 'view' template when creating or cloning a floating device.
 
 =cut
 
-after [qw(create clone)] => sub {
-    my ($self, $c) = @_;
-    if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
-        $c->stash->{template} = 'configuration/firewall_sso/view.tt';
-    }
+before [qw(clone view _processCreatePost update)] => sub {
+    my ($self, $c, @args) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    my $item = $c->stash->{$itemKey};
+    my $type = $item->{type};
+    my $form = $c->action->{form};
+    $c->stash->{current_form} = "${form}::${type}";
 };
 
-=head2 after view
-
-=cut
-
-after view => sub {
-    my ($self, $c) = @_;
-    if (!$c->stash->{action_uri}) {
-        my $id = $c->stash->{id};
-        if ($id) {
-            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
-        } else {
-            $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
-        }
-    }
-};
+sub create_type : Path('create') : Args(1) {
+    my ($self, $c, $type) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    $c->stash->{$itemKey}{type} = $type;
+    $c->forward('create');
+}
 
 =head2 index
 
@@ -79,7 +75,7 @@ Usage: /configuration/firewall_sso/
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-
+    $c->stash->{types} = [ sort grep {$_} map { /^pf::firewallsso::(.*)/;$1  } @pf::factory::firewallsso::MODULES];
     $c->forward('list');
 }
 

@@ -13,6 +13,10 @@ value
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 use NetAddr::IP;
 
 use Test::More tests => 9;                      # last test to print

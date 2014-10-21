@@ -30,27 +30,32 @@ has_field host => (
 
 has_field android_download_uri => (
     type => 'Text',
+    required => 1,
 );
 
 has_field ios_download_uri => (
     type => 'Text',
+    required => 1,
 );
 
 has_field windows_phone_download_uri => (
     type => 'Text',
+    required => 1,
 );
 
 has_field boarding_host => (
     type => 'Text',
+    required => 1,
 );
 
 has_field boarding_port => (
     type => 'Text',
+    required => 1,
 );
 
 has_block definition =>
   (
-   render_list => [ qw(id type description username category password host android_download_uri ios_download_uri windows_phone_download_uri boarding_host boarding_port) ],
+   render_list => [ qw(id type description category oses username password host android_download_uri ios_download_uri windows_phone_download_uri boarding_host boarding_port) ],
   );
 
 =head1 COPYRIGHT
