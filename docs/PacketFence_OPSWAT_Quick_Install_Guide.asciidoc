@@ -12,8 +12,8 @@ This guide has been created in order to help sales engineers, product managers, 
 
 Assumptions
 -----------
-* You have a configured PacketFence environment with working test equipment
-* You have, or will create, an OPSWAT GEARS account at http://www.opswatgears.com/
+* You have a configured PacketFence environment with working test equipment;
+* You have, or will create, an OPSWAT GEARS account at http://www.opswatgears.com/.
 
 Quick installation
 ------------------
