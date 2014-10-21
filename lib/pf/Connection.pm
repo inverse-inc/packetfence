@@ -1,9 +1,9 @@
 package pf::Connection;
 
 use Moose;
-use Log::Log4perl qw(get_logger);
 
 use pf::config;
+use pf::log;
 
 has 'type'          => (is => 'rw', isa => 'Str');                  # Printable string to display the type of a connection
 has 'transport'     => (is => 'rw', isa => 'Str');                  # Wired or wireless
