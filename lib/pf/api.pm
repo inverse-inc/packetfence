@@ -308,7 +308,7 @@ runs the delayed violation now
 
 =cut
 
-sub violation_delayed_run {
+sub violation_delayed_run : Public {
     my ($self, $violation) = @_;
     pf::violation::_violation_run_delayed($violation);
     return ;
