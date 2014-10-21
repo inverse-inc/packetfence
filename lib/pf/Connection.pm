@@ -121,6 +121,9 @@ sub identifyType {
         $this->isMacAuth($TRUE);
     }
 
+    # Override connection type using custom switch module
+    $switch->identifyConnectionType(\$this);
+
     # We create the printable string for type
     $this->_attributesToString;
 }

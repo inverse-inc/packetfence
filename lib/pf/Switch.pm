@@ -2997,6 +2997,18 @@ sub parseTrap {
     return undef;
 }
 
+=item identifyConnectionType
+
+Used to override L<pf::Connection::identifyType> behavior if needed on a per switch module basis.
+
+=cut
+sub identifyConnectionType {
+    my ( $self, $connection ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    return;
+}
+
 
 =back
 
