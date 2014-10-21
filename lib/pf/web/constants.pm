@@ -136,7 +136,7 @@ Readonly::Hash our %STATIC_CONTENT_ALIASES => (
     '/favicon.ico' => '/html/common/favicon.ico',
 );
 
-=item ALLOWED_RESOURCES
+=item CAPTIVE_PORTAL_RESOURCES
 
 Build a regex that will decide what is considered a local ressource
 (allowed to Apache's further processing).
@@ -147,12 +147,11 @@ an ending anchor is also installed (^/file$).
 Anything else should be redirected. This happens in L<pf::web::dispatcher>.
 
 =cut
-
 my @components = ( keys %STATIC_CONTENT_ALIASES, _clean_urls_match() );
 # add $ to non-slash ending URLs
 foreach (@components) { s{([^/])$}{$1\$} };
 my $allow = join('|', @components);
-Readonly::Scalar our $ALLOWED_RESOURCES => qr/ ^(?: $allow ) /xo; # eXtended pattern, compile Once
+Readonly::Scalar our $CAPTIVE_PORTAL_RESOURCES => qr/ ^(?: $allow ) /xo; # eXtended pattern, compile Once
 
 =item ALLOWED_RESOURCES_MOD_PERL
 
@@ -314,6 +313,7 @@ sub _clean_urls_match_ext_url {
     }
     return (@urls);
 }
+
 
 =back
 
