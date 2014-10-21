@@ -2077,22 +2077,17 @@ Apple devices such as iPhones, iPads, iPods and Mac OS X (10.7+) support wireles
 Configure the feature
 ^^^^^^^^^^^^^^^^^^^^^
 
-In order to enable this feature, you simply need to add 3 options to your `pf.conf` configuration file.
+First of all, you need to configure the SSID that your devices will use after they go though the authentication process.
 
-*provisioning.autoconfig*:: Enable or disable the feature
-*provisioning.ssid*:: This is the SSID you want the user to connect to upon registration
-*provisioning.category*:: Activate this feature to a specific category or any.
+In order to do that, in the administration interface, go in 'Configuration/Provisioners'. Then select the 'android' provisioner. Enter the SSID and save.
 
-Here is an example: We have an hidden WPA2-Enterprise SSID named HiddenSecure, and we want to provision this wireless profile to everybody registering with an iPhone, iPad, or iPod. The configuration in `pf.conf` would look like:
+Now do the same thing for the ios provisioner.
 
-  [provisioning]
-  autoconfig=enabled
-  ssid=HiddenSecure
-  category=any
+After, you simply need to add the 'android' and 'ios' provisioners to your 'Portal Profile' configuration as shown in this screenshot.
 
-Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the *Configuration -> Provisioning* section.
+image::docs/images/add-mobileconfig-provisioners.png[scaledwidth="100%",alt="Portal profile, mobile config provisioners"]
 
-For Android, you must allow passthrough in your configuration like this:
+For Android, you must allow passthroughs in your configuration like this:
 
   [trapping]
   passthrough=enabled
