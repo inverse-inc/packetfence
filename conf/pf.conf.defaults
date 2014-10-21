@@ -263,6 +263,11 @@ admin=1443
 #
 # Port of the soap interface listens on.
 soap=9090
+#
+# ports.aaa
+#
+# Port of the aaa http interface listens on.
+aaa=7070
 
 [scan]
 #
@@ -466,6 +471,11 @@ httpd_portal=enabled
 #
 # Should httpd.webservices be started?
 httpd_webservices=enabled
+#
+# services.httpd_aaa
+#
+# Should httpd.aaa be started?
+httpd_aaa=enabled
 #
 # services.httpd_proxy
 #
@@ -825,6 +835,11 @@ proto=http
 #
 # port to use
 port=9090
+#
+# webservices.aaa_port
+#
+# port to use for authentication
+aaa_port=7070
 
 [maintenance]
 #
