@@ -11,24 +11,25 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version x.y.x released on yyyy-mm-dd
+Version 4.5.0 released on yyyy-mm-dd
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
+* Added provisioning support for Symantec SEPM, MobileIron and OPSWAT
 * pfmon can now run tasks on different intervals
-* Added a way to reevaluate the access of a node in the admin interface
-* Added a "Blackhole" auth source 
-* Added new violation enforce provisioning
+* Added a way to reevaluate the access of a node from the admin interface
+* Added a "Blackhole" authentication source 
+* Added a new violation to enforce provisioning of agents
 * Violation can now be delayed
-* added portal profile filter based on switch-port couple
+* Added portal profile filter based on switch-port couple
 
 Enhancements
 ++++++++++++
 * Cache the ipset rule update to avoid unnecessary calls to ipset
 * Dynamically load violations and nodes for a user for display in admin gui
 * Dynamically load violations for a node for display in admin gui
-* ensure only one pfmon is running at a time
+* Ensure only one pfmon is running at a time
 
 Bug Fixes
 +++++++++
