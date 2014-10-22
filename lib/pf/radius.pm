@@ -246,22 +246,9 @@ sub accounting {
     my $isUpdate = $radius_request->{'Acct-Status-Type'} eq 'Interim-Update';
 
     if ($isStop || $isUpdate) {
-        my($switch_mac, $switch_ip,$source_ip) = $this->_parseRequest($radius_request);
         my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
         my $connection_type = $switch->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
         $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port); 
-
-        $logger->debug("instantiating switch");
-        my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
-
-        # is switch object correct?
-        if (!$switch) {
-            $logger->warn(
-               "Can't instantiate switch $switch_ip. This request will be failed. "
-                ."Are you sure your switches.conf is correct?"
-            );
-            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
-        }
 
         if($isStop){
             #handle radius floating devices
