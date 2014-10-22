@@ -16,13 +16,15 @@ has 'enforcement'   => (is => 'rw', isa => 'Str');                  # PacketFenc
 
 our $logger = get_logger();
 
+=head1 METHODS
 
-=item _attributesToString
+=head2 _attributesToString
 
 We create a printable string based on the connection attributes which will be used for display purposes and 
 database storage purpose.
 
 =cut
+
 sub _attributesToString {
     my ( $this ) = @_;
 
@@ -44,11 +46,12 @@ sub _attributesToString {
     $this->type($type);
 }
 
-=item _stringToAttributes
+=head2 _stringToAttributes
 
 We set the according attributes based on the printable string received in parameter.
 
 =cut
+
 sub _stringToAttributes {
     my ( $this, $type ) = @_;
 
@@ -69,11 +72,12 @@ sub _stringToAttributes {
     ( lc($type) =~ /^8021x/ ) ? $this->is8021X($TRUE) : $this->is8021X($FALSE);
 }
 
-=item attributesToBackwardCompatible
+=head2 attributesToBackwardCompatible
 
 Only for backward compatibility while we introduce the new connection types.
 
 =cut
+
 sub attributesToBackwardCompatible {
     my ( $this ) = @_;
 
@@ -93,11 +97,12 @@ sub attributesToBackwardCompatible {
     return;
 }
 
-=item identifyType
+=head2 identifyType
 
 =cut
+
 sub identifyType {
-    my ( $this, $nas_port_type, $eap_type, $mac, $user_name ) = @_;
+    my ( $this, $nas_port_type, $eap_type, $mac, $user_name, $switch ) = @_;
 
     # We first identify the transport mode using the NAS-Port-Type attribute of the RADIUS Access-Request as per RFC2875
     # Assumption: If NAS-Port-Type is either undefined or does not contain "Wireless", we treat is as "Wired"
@@ -122,7 +127,7 @@ sub identifyType {
     }
 
     # Override connection type using custom switch module
-    $switch->identifyConnectionType(\$this);
+    $switch->identifyConnectionType($this);
 
     # We create the printable string for type
     $this->_attributesToString;
@@ -130,8 +135,6 @@ sub identifyType {
 
 __PACKAGE__->meta->make_immutable;
 
-
-=back
 
 =head1 AUTHOR
 
