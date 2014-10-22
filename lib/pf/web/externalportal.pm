@@ -88,7 +88,13 @@ sub external_captive_portal {
         my (%session_id);
         pf::web::util::session(\%session_id,$session);
         if ($session_id{_session_id} eq $session) {
-            my $switch = $session_id{switch};
+            my $switch;
+            if(defined($session_id{switch_id})){
+                $switch = pf::SwitchFactory->getInstance()->instantiate($session_id{switch_id});
+            }
+            else{
+                $switch = $session_id{switch};
+            }
             my $portalSession = pf::Portal::Session->new(%session_id);
             $portalSession->setClientMac($session_id{client_mac}) if (defined($session_id{client_mac}));
             $portalSession->setDestinationUrl($r->headers_in->{'Referer'}) if (defined($r->headers_in->{'Referer'}));
