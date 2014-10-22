@@ -976,6 +976,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Wed Oct 22 2014 Inverse <info@inverse.ca> - 4.5.0-1
+- New release 4.5.0
+
 * Wed Sep 10 2014 Inverse <info@inverse.ca> - 4.4.0-1
 - New release 4.4.0
 
