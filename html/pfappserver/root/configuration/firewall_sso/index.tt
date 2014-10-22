@@ -25,7 +25,7 @@
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add Firewall') %] <span class="caret"></span></a>
             <ul id="createSource" class="dropdown-menu">
               [% FOREACH type IN types -%]
-                <li><a id="createItem" href="[% c.uri_for(c.controller.action_for('create_type'), type) %]">[% type %]</a></li>
+                <li><a class="createItem" href="[% c.uri_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
               [% END -%]
             </ul>
           </div>
