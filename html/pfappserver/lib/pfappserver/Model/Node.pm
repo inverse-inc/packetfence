@@ -423,6 +423,23 @@ sub delete {
     return ($status, $status_msg);
 }
 
+=head2 reevaluate
+
+=cut
+
+sub reevaluate {
+    my ($self, $mac) = @_;
+    my $logger = get_logger();
+    my ($status, $status_msg) = ($STATUS::OK);
+
+    unless(reevaluate_access($mac, "node_modify")){
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $status_msg = "The access couldn't be reevaluated.";
+    }
+
+    return ($status, $status_msg);
+}
+
 =head2 availableStatus
 
 =cut
@@ -486,6 +503,18 @@ sub closeViolation {
         return ($STATUS::OK, 'The violation was successfully closed.');
     }
     return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while closing the violation.');
+}
+
+=head2 runViolation
+
+=cut
+
+sub runViolation {
+    my ($self, $id) = @_;
+    if(violation_run_delayed($id)) {
+        return ($STATUS::OK, 'The violation was successfully ran');
+    }
+    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while running the violation.');
 }
 
 =head2 closeViolations
@@ -749,6 +778,21 @@ sub bulkApplyRole {
         }
     }
     return ($STATUS::OK, ["Role was changed for [_1] node(s)", $count]);
+}
+
+=head2 bulkReevaluateAccess
+
+=cut
+
+sub bulkReevaluateAccess {
+    my ($self, $role, @macs) = @_;
+    my $count = 0;
+    foreach my $mac (@macs) {
+        if (reevaluate_access($mac, "node_modify")){
+            $count++;
+        }
+    }
+    return ($STATUS::OK, ["Access was reevaluated for [_1] node(s)", $count]);
 }
 
 =head1 AUTHOR

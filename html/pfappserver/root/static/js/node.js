@@ -56,6 +56,10 @@ var NodeView = function(options) {
 
     this.proxyClick($('body'), '#modalNode [href*="/close/"]', this.closeViolation);
 
+    this.proxyClick($('body'), '#modalNode [href*="/run/"]', this.runViolation);
+
+    this.proxyClick($('body'), '#modalNode #reevaluateNode', this.reevaluateAccess);
+
     this.proxyClick($('body'), '#modalNode #addViolation', this.triggerViolation);
 
     /* Update the advanced search form to the next page or sort the query */
@@ -180,10 +184,9 @@ NodeView.prototype.readViolations = function(e) {
     var name = btn.attr("href");
     var target = $(name.substr(name.indexOf('#')));
     var url = btn.attr("data-href");
-    if (target.children().length == 0)
-        target.load(btn.attr("data-href"), function() {
-            target.find('.switch').bootstrapSwitch();
-        });
+    target.load(btn.attr("data-href"), function() {
+        target.find('.switch').bootstrapSwitch();
+    });
     return true;
 };
 
@@ -294,6 +297,25 @@ NodeView.prototype.closeViolation = function(e) {
     });
 };
 
+NodeView.prototype.runViolation = function(e) {
+    e.preventDefault();
+
+    var that = this;
+    var btn = $(e.target);
+    var row = btn.closest('tr');
+    var pane = $('#nodeViolations');
+    resetAlert(pane);
+    this.nodes.get({
+        url: btn.attr("href"),
+        success: function(data) {
+            showSuccess(pane.children().first(), data.status_msg);
+            btn.remove();
+            row.addClass('muted');
+        },
+        errorSibling: pane.children().first()
+    });
+};
+
 NodeView.prototype.triggerViolation = function(e) {
     e.preventDefault();
 
@@ -313,6 +335,22 @@ NodeView.prototype.triggerViolation = function(e) {
         errorSibling: pane.children().first()
     });
 };
+
+NodeView.prototype.reevaluateAccess = function(e){
+    e.preventDefault();
+    
+    var modal = $('#modalNode');
+    var modal_body = modal.find('.modal-body');
+    var link = $(e.target);
+    var url = link.attr('href');
+    this.nodes.get({
+        url: url,
+        success: function(data) {
+            showSuccess(modal_body.children().first(), data.status_msg);
+        },
+        errorSibling: modal_body.children().first()
+    });
+}
 
 NodeView.prototype.reorderSearch = function(e) {
     e.preventDefault();

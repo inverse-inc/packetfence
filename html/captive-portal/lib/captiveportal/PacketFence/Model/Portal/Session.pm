@@ -101,7 +101,7 @@ sub ACCEPT_CONTEXT {
     my $uri = $request->uri;
     my $options;
     my $destination_url;
-    my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'};
+    my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'} if $management_network;
     $destination_url = $request->param('destination_url') if defined($request->param('destination_url'));
 
     if( $r->isa('Apache2::Request') &&  defined ( my $last_uri = $r->pnotes('last_uri') )) {
@@ -114,7 +114,7 @@ sub ACCEPT_CONTEXT {
         $options = {
             'portal' => $data->{portal},
         };
-    } elsif (( $forwardedFor =~  $mgmt_ip) && defined($request->param('PORTAL'))) {
+    } elsif ( $forwardedFor && $mgmt_ip && ( $forwardedFor =~  $mgmt_ip) && defined($request->param('PORTAL'))) {
         $options = {
             'portal' => $request->param('PORTAL'),
         };

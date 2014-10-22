@@ -74,7 +74,7 @@ sub supportsExternalPortal {
 =item supportsWebFormRegistration
 
 Returns 1 if switch type supports web form registration (for release of the external captive portal)
- 
+
 =cut
 
 sub supportsWebFormRegistration { 
@@ -2988,7 +2988,7 @@ sub parseSwitchIdFromRequest {
     return;
 }
 
-=item * _identifyConnectionType
+=item _identifyConnectionType
 
 Identify the connection type based information provided by RADIUS call
 
@@ -3056,6 +3056,7 @@ sub parseTrap {
 
 
 =back
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>PayloadContent</key>
+        <array>
+        <dict>
+            <key>PayloadDisplayName</key>
+            <string>Enrollment SCEP template</string>
+
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+
+            <key>Password</key>
+            <string>13853b60-28f4-430e-aa97-abb5a10f6947</string>
+
+            <key>PayloadDescription</key>
+            <string>SCEP setting used for iOS Enrollment.</string>
+
+            <key>PayloadIdentifier</key>
+            <string>mi.credential.8</string>
+
+            <key>PayloadUUID</key>
+            <string>4253965688791399982</string>
+
+            <key>PayloadType</key>
+            <string>com.apple.security.pkcs12</string>
+
+            <key>PayloadContent</key>
+            <data>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</data>
+        </dict>
+    
+        <dict>
+            <key>PayloadDisplayName</key>
+            <string>System - iOS MDM</string>
+
+            <key>UseDevelopmentAPNS</key>
+            <true/>
+
+            <key>ServerURL</key>
+            <string>https://m.mobileiron.net/inverseca/c/i/mdm/mdm.html?c=2147483647</string>
+
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+
+            <key>CheckOutWhenRemoved</key>
+            <true/>
+
+            <key>Topic</key>
+            <string>com.mobileiron.mdm</string>
+
+            <key>AccessRights</key>
+            <integer>8191</integer>
+
+            <key>CheckInURL</key>
+            <string>https://m.mobileiron.net/inverseca/c/i/mdm/checkin.html?c=2147483647</string>
+
+            <key>PayloadDescription</key>
+            <string>Default MDM profile for iOS management.</string>
+
+            <key>PayloadIdentifier</key>
+            <string>mi.mdm</string>
+
+            <key>PayloadUUID</key>
+            <string>5312827377844704690</string>
+
+            <key>IdentityCertificateUUID</key>
+            <string>4253965688791399982</string>
+
+            <key>PayloadType</key>
+            <string>com.apple.mdm</string>
+
+            <key>SignMessage</key>
+            <true/>
+        </dict>
+    </array>
+
+        <key>PayloadRemovalDisallowed</key>
+        <false/>
+
+        <key>PayloadDescription</key>
+        <string>inverseca - Bulk Provision Configuration</string>
+
+        <key>PayloadDisplayName</key>
+        <string>inverseca</string>
+
+        <key>PayloadIdentifier</key>
+        <string>net.mobileiron.mobileconfig.mdm</string>
+
+        <key>PayloadExpirationDate</key>
+        <date>2030-01-01T12:00:00Z</date>
+
+        <key>PayloadOrganization</key>
+        <string>inverseca</string>
+
+        <key>PayloadType</key>
+        <string>Configuration</string>
+
+        <key>PayloadUUID</key>
+        <string>0643c744-6198-454a-af71-f9e35657fcaa</string>
+
+        <key>PayloadVersion</key>
+        <integer>1</integer>
+    </dict>
+</plist>

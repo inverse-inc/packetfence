@@ -8,10 +8,15 @@ Portal.t
 Tests for our pf::Portal... and friends modules.
 
 =cut
+
 use strict;
 use warnings;
 
 use lib '/usr/local/pf/lib';
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
 use File::Basename qw(basename);
 use Test::More tests => 8;
@@ -36,33 +41,28 @@ use pf::util;
 Creating stub portalSession for tests with a mockable CGI component.
 
 =cut
+
 my $portalSession = pf::Portal::Session->new('testing' => 1);
 my $mocked_cgi = Test::MockObject::Extends->new( CGI->new );
 $portalSession->{'_cgi'} = $mocked_cgi;
 
 =head1 SETUP
 
-=over
-
-
-=back
-
 =head1 TESTS
 
-=over
+=head2 Portal::ProfileFactory
 
-=item Portal::ProfileFactory
-
-=item valid type
+=head2 valid type
 
 =cut
 
 isa_ok($portalSession, "pf::Portal::Session");
 can_ok($portalSession, qw(_resolveIp cgi stash));
 
-=item _resolveIp
+=head2 _resolveIp
 
 =cut
+
 my $remote_ip = '192.168.1.1';
 # emulate the source IP
 $mocked_cgi->mock('remote_addr', sub { return ($remote_ip); });

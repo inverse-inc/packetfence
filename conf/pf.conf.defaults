@@ -26,16 +26,6 @@ dhcpservers=127.0.0.1
 # http://www.php.net/manual/en/timezones.php
 timezone=America/Montreal
 #
-# general.maintenance_interval
-#
-# Interval at which Packetfence runs its maintenance tasks.
-maintenance_interval=60s
-#
-# general.cache_update_interval
-#
-# Interval at which Packetfence runs its maintenance tasks.
-cache_update_interval=10s
-#
 # general.memcached
 #
 # Server list of the memcached server
@@ -835,4 +825,66 @@ proto=http
 #
 # port to use
 port=9090
+
+[maintenance]
+#
+# maintenance.iplog_cleanup_interval
+#
+# iplog cleanup interval
+iplog_cleanup_interval=60s
+#
+# maintenance.node_cleanup_interval
+#
+# locationlog cleanup interval
+locationlog_cleanup_interval=60s
+#
+# maintenance.node_cleanup_interval
+#
+# node cleanup interval
+node_cleanup_interval=60s
+#
+# maintenance.traplog_cleanup_interval
+#
+# traplog cleanup interval
+traplog_cleanup_interval=60s
+#
+# maintenance.httpd_admin_cleanup_interval
+#
+# httpd.admin cleanup interval=60s
+httpd_admin_cleanup_interval=60s
+#
+# maintenance.httpd_portal_cleanup_interval
+#
+# httpd.portal cleanup interval=60s
+httpd_portal_cleanup_interval=60s
+#
+# maintenance.nodes_maintenance_interval
+#
+# nodes maintenance interval
+nodes_maintenance_interval=60s
+#
+# maintenance.violation_maintenance_interval
+#
+# violation maintenance interval
+violation_maintenance_interval=60s
+#
+# maintenance.violation_maintenance_batch
+#
+# violation maintenance batch
+violation_maintenance_batch=1000
+#
+# maintenance.violation_maintenance_timeout
+#
+# violation maintenance timeout
+violation_maintenance_timeout=10s
+#
+# maintenance.inline_accounting_maintenance_interval
+#
+# inline accounting maintenance interval
+inline_accounting_maintenance_interval=60s
+#
+# maintenance.acct_maintenance_interval
+#
+# acct maintenance interval
+acct_maintenance_interval=60s
 

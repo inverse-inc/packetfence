@@ -8,11 +8,16 @@ pfcmd.t
 Testing pfcmd command line interface (CLI)
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
 use Test::NoWarnings;
 
@@ -51,6 +56,7 @@ my %cmd;
 =item pf::pfcmd regex-based parser tests
 
 =cut
+
 %cmd = pf::pfcmd::parseCommandLine('checkup');
 is_deeply(\%cmd,
           { 'command' => [ 'checkup'] },
@@ -320,6 +326,7 @@ is_deeply(\%cmd, {
 Watch out! Grammar parser is tested differently than normal regex parser.
 
 =cut
+
 # TODO we should probably refactor it to make it easier to test.
 
 # regression tests for #1523
@@ -374,6 +381,7 @@ foreach my $help_arg (@main_args) {
 =item exit status tests
 
 =cut
+
 # required to avoid warnings in admin guide asciidoc build
 my @pfcmd_help = `/usr/local/pf/bin/pfcmd.pl help`;
 is($CHILD_ERROR, 0, "pfcmd help exit with status 0");

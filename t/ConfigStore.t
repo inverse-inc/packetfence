@@ -17,6 +17,10 @@ use warnings;
 use File::Slurp qw(read_dir);
 use Test::Harness;
 use File::Spec::Functions;
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
 runtests(
     map { $_=catfile('ConfigStore',$_) }

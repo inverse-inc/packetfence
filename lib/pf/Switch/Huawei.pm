@@ -52,6 +52,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 This is called when we receive an SNMP-Trap for this device
 
 =cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -101,6 +102,7 @@ De-authenticate a MAC address from wireless network (including 802.1x).
 New implementation using RADIUS Disconnect-Request.
 
 =cut
+
 sub deauthenticateMacRadius {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );

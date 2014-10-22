@@ -1,0 +1,15 @@
+[android]
+type=android
+description=android provisioner
+
+[ios]
+type=mobileconfig
+description=mobileconfig provisioner
+
+[accept]
+type=accept
+description=accept provisioner
+
+[deny]
+type=deny
+description=deny provisioner

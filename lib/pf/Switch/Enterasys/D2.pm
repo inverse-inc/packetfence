@@ -24,7 +24,7 @@ use base ('pf::Switch::Enterasys');
 
 sub description { 'Enterasys Standalone D2' }
 
-=item supportsWiredAuth
+=head2 supportsWiredAuth
 
 This switch module supports wired MAC authentication.
 
@@ -34,9 +34,7 @@ sub supportsWiredMacAuth { return $SNMP::TRUE; }
 
 =head1 SUBROUTINES
 
-=over
-
-=item _setVlan - set the required vlan on the switch
+=head2 _setVlan - set the required vlan on the switch
 
 =cut
 
@@ -115,28 +113,24 @@ sub _setVlan {
     return (defined($result));
 }
 
-=back
-
 =head1 BUGS AND LIMITATIONS
 
 This switch's behaviour was very inconsistent during development, your mileage may vary.
 
-=over
-
-=item Setting the VLAN of a port relies (in my opinion) on buggy switch behaviour
+=head2 Setting the VLAN of a port relies (in my opinion) on buggy switch behaviour
 
 If setting the VLAN doesn't work on a newer firmware version try the modules SecureStack_C2, SecureStack_C3 
 or Matrix_N3 and let us know how it went.
 
-=item Switch accepts multiple untagged VLAN per port when configured through SNMP
+=head2 Switch accepts multiple untagged VLAN per port when configured through SNMP
 
 This is problematic because on some occasions the untagged vlan port list can become inconsistent with the switch's 
 running config. To fix that, clear all untagged VLANs of a port even if the CLI interface doesn't show it. Use: clear 
 vlan egress <vlans> <ports>
 
-=item SNMPv3 support was not tested
+=head2 SNMPv3 support 
 
-=back
+was not tested
 
 =head1 AUTHOR
 

@@ -57,12 +57,13 @@ sub loadViolationsIntoDb {
         }
 
         # parse grace, try to understand trailing signs, and convert back to seconds
-        if ( defined $data->{'grace'} ) {
-            $data->{'grace'} = normalize_time($data->{'grace'});
-        }
-
-        if ( defined $data->{'window'} && $data->{'window'} ne "dynamic" ) {
-            $data->{'window'} = normalize_time($data->{'window'});
+        my @time_values = (qw(grace delay_by));
+        push (@time_values,'window') if (defined $data->{'window'} && $data->{'window'} ne "dynamic");
+        foreach my $key (@time_values) {
+            my $value = $data->{$key};
+            if ( defined $value ) {
+                $data->{$key} = normalize_time($value);
+            }
         }
 
         # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
@@ -82,6 +83,7 @@ sub loadViolationsIntoDb {
             $data->{'enabled'},
             $data->{'vlan'},
             $data->{'target_category'},
+            $data->{'delay_by'},
             $data->{'whitelisted_categories'} || '',
             $data->{'actions'},
             $triggers_ref

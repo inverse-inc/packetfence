@@ -29,9 +29,6 @@ sub create :Local :Args(0) {
         # Create the source from the update action
     } else {
         # Show an empty form
-        $c->stash(
-            form => $self->getForm($c)
-        );
         $c->forward('view');
     }
 }

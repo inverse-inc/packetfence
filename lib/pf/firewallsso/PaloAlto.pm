@@ -29,7 +29,9 @@ use HTTP::Request::Common;
 #Export environement variables for LWP
 $ENV{'PERL_LWP_SSL_VERIFY_HOSTNAME'} = 0;
 
-=item action
+=head1 METHODS
+
+=head2 action
 
 Perform a xml api request based on the registered status of the node and his role.
 
@@ -45,7 +47,13 @@ sub action {
         $username =  $node_info->{'last_dot1x_username'} if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x');
         return 0 if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x' && $node_info->{'last_dot1x_username'} eq '');
 
-        if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&  (grep { lc $node_info->{'category'} eq $_ } split(',',$ConfigFirewallSSO{$firewall_conf}->{'categories'}))) {
+        my @categories = split(/,/, $ConfigFirewallSSO{$firewall_conf}->{categories});
+        if (
+            defined($node_info) &&
+            (ref($node_info) eq 'HASH') &&
+            $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&
+            (grep $_ eq $node_info->{'category'}, @categories)
+        ){
             my $message = <<"XML";
                 <uid-message>
                     <version>1.0</version>
@@ -59,6 +67,7 @@ sub action {
 XML
             my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
             my $ua = LWP::UserAgent->new;
+            $ua->timeout(5);
             my $response = $ua->post($webpage, Content => [ cmd => $message ]);
             if ($response->is_success) {
                 $logger->info("Node $mac registered and allowed to pass the Firewall");
@@ -74,7 +83,13 @@ XML
         $username = $node_info->{'last_dot1x_username'} if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x');
         return 0 if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x' && $node_info->{'last_dot1x_username'} eq '');
 
-        if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&  (grep { lc $node_info->{'category'} eq $_ } split(',',$ConfigFirewallSSO{$firewall_conf}->{'categories'}))) {
+        my @categories = split(/,/, $ConfigFirewallSSO{$firewall_conf}->{categories});
+        if (
+            defined($node_info) &&
+            (ref($node_info) eq 'HASH') &&
+            $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&
+            (grep $_ eq $node_info->{'category'}, @categories)
+        ){
             my $message = <<"XML";
                 <uid-message>
                     <version>1.0</version>
@@ -88,6 +103,7 @@ XML
 XML
             my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
             my $ua = LWP::UserAgent->new;
+            $ua->timeout(5);
             my $response = $ua->post($webpage, Content => [ cmd => $message ]);
             if ($response->is_success) {
                 $logger->debug("Node $mac removed from the firewall");

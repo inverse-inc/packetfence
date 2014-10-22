@@ -8,11 +8,16 @@ web.t
 Tests for our pf::web and friends modules.
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 use Test::More tests => 23;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
@@ -31,9 +36,10 @@ BEGIN { use_ok('pf::web::custom') }
 
 =head1 TESTS
 
-=item pf::web::util's subroutines
+=head2 pf::web::util's subroutines
 
 =cut
+
 # phone number validation (north american style)
 my $expected = "5145554918";
 is(pf::web::util::validate_phone_number("5145554918"), $expected, "validate phone number format xxxxxxxxxx");
@@ -65,9 +71,10 @@ is(
     "validate phone number format xxxxxxxxxxxx"
 );
 
-=item pf::web::constants
+=head2 pf::web::constants
 
 =cut
+
 ok(defined($WEB::URL_SIGNUP), 'WEB constants are available since we imported pf::web::constants');
 
 my %result =  pf::web::constants::to_hash();

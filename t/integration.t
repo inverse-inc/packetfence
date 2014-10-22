@@ -17,6 +17,10 @@ use diagnostics;
 use Test::More tests => 10;
 
 use lib '/usr/local/pf/lib';
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 use English qw( -no_match_vars );
 use File::Basename qw(basename);
 use Log::Log4perl;

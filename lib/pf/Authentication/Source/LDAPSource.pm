@@ -108,7 +108,7 @@ sub authenticate {
     return ($FALSE, 'Invalid login or password');
   }
 
-  $logger->warn("[$self->{'id'}] Authentication successful for $username");
+  $logger->info("[$self->{'id'}] Authentication successful for $username");
   return ($TRUE, 'Authentication successful using LDAP');
 }
 

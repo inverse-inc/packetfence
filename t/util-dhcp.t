@@ -8,11 +8,16 @@ util-dhcp.t
 pf::util::dhcp module tests
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
 use Test::More;
 use Test::NoWarnings;
@@ -21,13 +26,14 @@ use Test::NoWarnings;
 
 =cut
 
-=item Packet Analysis
+=head2 Packet Analysis
 
 The raw packets differ in that one contains the VLAN layer and the other does not.
 
 They are raw Net::Pcap output unpacked to hex for easier string storage.
 
 =cut
+
 # TODO add one relayed packet (through udp helpers)
 my %discover_packets = ( 
     'centos5 dhcp discover' => 'fffffffffffff04da2cbd9c5080045100148000000008011399600000000ffffffff0044004301344246010106000ea2614a0000000000000000000000000000000000000000f04da2cbd9c500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000638253633501013204c0a8c8640c0d54657374696e674c6170746f703711011c02030f06770c2c2f1a792a79f9fc2aff00000000000000000000000000000000',
@@ -124,21 +130,21 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.            
-                
+
 =cut
 

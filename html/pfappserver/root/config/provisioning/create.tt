@@ -1,0 +1,2 @@
+[% INCLUDE config/provisioning/view.tt %]
+

@@ -176,7 +176,14 @@ sub read {
         my @default_params = $config->Parameters($config->{default}) if exists $config->{default};
         $data->{$idKey} = $id if defined $idKey;
         foreach my $param (uniq $config->Parameters($id),@default_params) {
-            $data->{$param} = $config->val( $id, $param);
+            my $val;
+            my @vals = $config->val($id, $param);
+            if (@vals == 1 ) {
+                $val = $vals[0];
+            } else {
+                $val = \@vals;
+            }
+            $data->{$param} = $val;
         }
         $self->cleanupAfterRead($id,$data);
     }

@@ -1,0 +1,27 @@
+
+              [% IF nodes.size %]
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th>[% l('Status') %]</th>
+                    <th>[% l('MAC') %]</th>
+                    <th>[% l('Computer Name') %]</th>
+                    <th>[% l('OS (DHCP)') %]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                [% FOR node IN nodes %]
+                <tr>
+                  <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) | html %]</span></td>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac | html %]</a></td>
+                  <td>[% node.computername | html %]</td>
+                  <td>[% node.dhcp_fingerprint | html %]</td>
+                </tr>
+                [% END %]
+                </tbody>
+              </table>
+              [% ELSE %]
+              <div id="noResult" class="unwell">
+                <i class="icon-search icon-large"></i><p>[% l('No device found') %]</p>
+              </div>
+              [% END %]

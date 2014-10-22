@@ -1,5 +1,5 @@
-PacketFence: Cisco Quick Installation Guide
-===========================================
+Cisco Quick Installation Guide
+==============================
 :encoding: UTF-8
 :lang: en
 :doctype: book
@@ -23,11 +23,11 @@ The instructions are based on version {release_version} of the PacketFence Live 
 
 Assumptions
 -----------
-* You will need a USB key with a capacity of at least 4GB
-* You will need a laptop or a PC from which the PacketFence Live USB key will run from
-* You will deploy a VLAN enforcement environment according to the customer specifications
-* Your customer will provide the network equipment (switch, cabled, etc) to interconnect this PoC setup
-* A Cisco Catalyst 2960 switch loaded with the latest IOS 15.0 available 
+* You will need a USB key with a capacity of at least 4GB;
+* You will need a laptop or a PC from which the PacketFence Live USB key will run from;
+* You will deploy a VLAN enforcement environment according to the customer specifications;
+* Your customer will provide the network equipment (switch, cabled, etc) to interconnect this PoC setup;
+* A Cisco Catalyst 2960 switch loaded with the latest IOS 15.0 available.
 
 Quick Deployment
 ----------------

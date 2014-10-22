@@ -53,6 +53,7 @@
         [% form.field('grace').render %]
         [% form.field('window_dynamic').render %]
         [% form.field('window').render %]
+        [% form.field('delay_by').render %]
         [% form.field('template').render %]
         [% form.field('button_text').render %]
       </div><!--tab-pane-->

@@ -15,9 +15,9 @@ __PACKAGE__->config(
 after process => sub {
     my ( $self, $c ) = @_;
     my $headers = $c->response->headers;
+    my $filename = $c->stash->{filename} || 'wireless-profile.mobileconfig';
     $headers->content_type('application/x-apple-aspen-config; chatset=utf-8');
-    $headers->header( 'Content-Disposition',
-        'attachment; filename="wireless-profile.mobileconfig"' );
+    $headers->header( 'Content-Disposition', "attachment; filename=\"$filename\"" );
 };
 
 =head1 NAME

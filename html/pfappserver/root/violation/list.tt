@@ -1,4 +1,4 @@
-      <div class="modal fade hide" id="modalViolation">
+      <div class="modal modal-large fade hide" id="modalViolation">
       </div>
 
       <div class="modal fade hide" id="deleteViolation">

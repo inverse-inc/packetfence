@@ -17,6 +17,7 @@ Then look at violations.conf.new and if it's ok, replace your conf/violations.co
 Replaces disable=value into enabled=!value.
 
 =cut
+
 use strict;
 use warnings;
 

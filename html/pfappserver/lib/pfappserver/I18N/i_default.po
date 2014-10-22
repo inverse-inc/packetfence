@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 4.3.0\n"
+"Project-Id-Version: 4.4.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-09-10 14:02-0400\n"
+"PO-Revision-Date: 2014-10-22 11:27-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -51,6 +51,10 @@ msgstr ""
 # html/pfappserver/root/service/status.tt
 msgid "A manual start from the command line will be required. Are you sure you want to continue?"
 msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "ADMIN_ROLES"
+msgstr "Admin Roles"
 
 # pf::admin_roles (Actions)
 msgid "ADMIN_ROLES_CREATE"
@@ -195,11 +199,7 @@ msgid "Add"
 msgstr ""
 
 # html/pfappserver/root/configuration/firewall_sso/index.tt
-msgid "Add Firewall SSO"
-msgstr ""
-
-# html/pfappserver/root/configstore/mdm/index.tt
-msgid "Add Mdm Entry"
+msgid "Add Firewall"
 msgstr ""
 
 # html/pfappserver/root/interface/list.tt
@@ -224,6 +224,10 @@ msgid "Add a mandatory field."
 msgstr ""
 
 # html/pfappserver/root/portal/profile/tab-content.tt
+msgid "Add a provisioner."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/tab-content.tt
 msgid "Add a source."
 msgstr ""
 
@@ -241,6 +245,10 @@ msgstr ""
 
 # html/pfappserver/root/portal/profile/index.tt
 msgid "Add profile"
+msgstr ""
+
+# html/pfappserver/root/config/provisioning/index.tt
+msgid "Add provisioner"
 msgstr ""
 
 # html/pfappserver/root/roles/index.tt
@@ -494,6 +502,10 @@ msgstr ""
 msgid "CLI"
 msgstr ""
 
+# pf::admin_roles (Actions groups)
+msgid "CONFIGURATION_MAIN"
+msgstr "Main Configuration"
+
 # pf::admin_roles (Actions)
 msgid "CONFIGURATION_MAIN_READ"
 msgstr "Main Configuration - Read"
@@ -507,7 +519,7 @@ msgstr "Main Configuration - Update"
 msgid "CSV File"
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/index.tt
+# html/pfappserver/root/config/provisioning/index.tt
 # html/pfappserver/root/configuration/adminroles/index.tt
 # html/pfappserver/root/configuration/authentication.tt
 # html/pfappserver/root/configuration/firewall_sso/index.tt
@@ -537,6 +549,10 @@ msgstr "An error occured while contacting the server. Please try again later."
 msgid "Captive portal"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "Certificate"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "Children"
 msgstr ""
@@ -561,11 +577,23 @@ msgstr ""
 msgid "Client Gateway"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sepm.pm
+msgid "Client Id"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/ibm.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sepm.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/symantec.pm
+msgid "Client Secret"
+msgstr ""
+
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "Client Support"
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/list.tt
+# html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/configuration/adminroles/list.tt
 # html/pfappserver/root/configuration/firewall_sso/list.tt
 # html/pfappserver/root/configuration/floatingdevice/list.tt
@@ -578,7 +606,7 @@ msgstr ""
 # html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
-# html/pfappserver/root/configstore/mdm/view.tt
+# html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
 # html/pfappserver/root/configuration/firewall_sso/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
@@ -586,6 +614,7 @@ msgstr ""
 # html/pfappserver/root/configuration/wrix/view.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/list_password.tt
@@ -717,7 +746,7 @@ msgid "Compliance"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/user/view.tt
+# html/pfappserver/root/user/nodes.tt
 msgid "Computer Name"
 msgstr ""
 
@@ -959,6 +988,14 @@ msgstr ""
 msgid "Definition"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Delay By"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Delay before triggering the violation."
+msgstr ""
+
 # conf/documentation.conf (vlan.bounce_duration)
 msgid ""
   "Delay to wait between the shut / no-shut on a port. Some OS need a higher value "
@@ -967,8 +1004,8 @@ msgid ""
 msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
-# html/pfappserver/root/configstore/mdm/index.tt
-# html/pfappserver/root/configstore/mdm/list.tt
+# html/pfappserver/root/config/provisioning/index.tt
+# html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/configuration/adminroles/index.tt
 # html/pfappserver/root/configuration/adminroles/list.tt
 # html/pfappserver/root/configuration/authentication.tt
@@ -1011,12 +1048,12 @@ msgstr ""
 msgid "Delete Floating Device"
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/index.tt
-msgid "Delete Mdm Entry"
-msgstr ""
-
 # html/pfappserver/root/portal/profile/index.tt
 msgid "Delete Profile"
+msgstr ""
+
+# html/pfappserver/root/config/provisioning/index.tt
+msgid "Delete Provisioning Entry"
 msgstr ""
 
 # html/pfappserver/root/roles/index.tt
@@ -1347,6 +1384,10 @@ msgstr ""
 msgid "External Sources"
 msgstr ""
 
+# pf::admin_roles (Actions groups)
+msgid "FINGERPRINTS"
+msgstr "Fingerprints"
+
 # pf::admin_roles (Actions)
 msgid "FINGERPRINTS_READ"
 msgstr "Fingerprints - Read"
@@ -1355,21 +1396,29 @@ msgstr "Fingerprints - Read"
 msgid "FINGERPRINTS_UPDATE"
 msgstr "Fingerprints - Update"
 
+# pf::admin_roles (Actions groups)
+msgid "FIREWALL_SSO"
+msgstr "Firewall SSO"
+
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_CREATE"
-msgstr ""
+msgstr "Firewall SSO - Create"
 
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_DELETE"
-msgstr ""
+msgstr "Firewall SSO - Delete"
 
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_READ"
-msgstr ""
+msgstr "Firewall SSO - Read"
 
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_UPDATE"
-msgstr ""
+msgstr "Firewall SSO - Update"
+
+# pf::admin_roles (Actions groups)
+msgid "FLOATING_DEVICES"
+msgstr "Floating Devices"
 
 # pf::admin_roles (Actions)
 msgid "FLOATING_DEVICES_CREATE"
@@ -1504,11 +1553,18 @@ msgid "Hostname or IP"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Hostname or IP Address"
 msgstr ""
 
 # html/pfappserver/root/configuration/wrix/view.tt
 msgid "Hours"
+msgstr ""
+
+# conf/documentation.conf (maintenance.violation_maintenance_timeout)
+msgid "How long is the violation maintenance task is allowed to run"
 msgstr ""
 
 # conf/documentation.conf (trapping.redirtimer)
@@ -1525,6 +1581,10 @@ msgid ""
   "redirection page."
 msgstr ""
 
+# conf/documentation.conf (maintenance.violation_maintenance_batch)
+msgid "How many violations does pfmon batches"
+msgstr ""
+
 # conf/documentation.conf (scan.openvas_reportformatid)
 msgid "ID of the .NBE report format on the OpenVAS server"
 msgstr ""
@@ -1532,6 +1592,10 @@ msgstr ""
 # conf/documentation.conf (scan.openvas_configid)
 msgid "ID of the scanning configuration on the OpenVAS server"
 msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "INTERFACES"
+msgstr "Interfaces"
 
 # pf::admin_roles (Actions)
 msgid "INTERFACES_CREATE"
@@ -1581,7 +1645,7 @@ msgid ""
   "OS-level configuration but it does not make any OS-level changes."
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/list.tt
+# html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/soh/index.tt
@@ -1669,6 +1733,9 @@ msgid "If you don't know what's the current password of your MySQL installation,
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "If you use an alternative port, please specify"
 msgstr ""
 
@@ -1720,12 +1787,44 @@ msgstr ""
 msgid "Internal Sources"
 msgstr ""
 
-# conf/documentation.conf (general.maintenance_interval)
-msgid "Interval at which Packetfence runs its maintenance tasks."
+# conf/documentation.conf (maintenance.acct_maintenance_interval)
+msgid "Interval at which Packetfence runs accounting maintenance"
 msgstr ""
 
-# conf/documentation.conf (general.cache_update_interval)
-msgid "Interval at which Packetfence update the config cache"
+# conf/documentation.conf (maintenance.httpd_admin_cleanup_interval)
+msgid "Interval at which Packetfence runs httpd admin cleanup"
+msgstr ""
+
+# conf/documentation.conf (maintenance.httpd_portal_cleanup_interval)
+msgid "Interval at which Packetfence runs httpd portal cleanup"
+msgstr ""
+
+# conf/documentation.conf (maintenance.inline_accounting_maintenance_interval)
+msgid "Interval at which Packetfence runs inline accounting maintenance"
+msgstr ""
+
+# conf/documentation.conf (maintenance.iplog_cleanup_interval)
+msgid "Interval at which Packetfence runs iplog cleanup"
+msgstr ""
+
+# conf/documentation.conf (maintenance.locationlog_cleanup_interval)
+msgid "Interval at which Packetfence runs locationlog cleanup"
+msgstr ""
+
+# conf/documentation.conf (maintenance.node_cleanup_interval)
+msgid "Interval at which Packetfence runs node cleanup"
+msgstr ""
+
+# conf/documentation.conf (maintenance.nodes_maintenance_interval)
+msgid "Interval at which Packetfence runs nodes maintenance"
+msgstr ""
+
+# conf/documentation.conf (maintenance.traplog_cleanup_interval)
+msgid "Interval at which Packetfence runs traplog cleanup"
+msgstr ""
+
+# conf/documentation.conf (maintenance.violation_maintenance_interval)
+msgid "Interval at which Packetfence runs violation maintenance"
 msgstr ""
 
 # conf/documentation.conf (inline.layer3_accounting_sync_interval)
@@ -1928,8 +2027,9 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Base/Controller.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/configuration/floatingdevice/list.tt
-# html/pfappserver/root/user/view.tt
+# html/pfappserver/root/user/nodes.tt
 # html/pfappserver/root/user/violations.tt
+# pf::admin_roles (Actions groups)
 msgid "MAC"
 msgstr ""
 
@@ -1956,32 +2056,12 @@ msgstr "MAC Addresses - Read"
 msgid "MAC_UPDATE"
 msgstr "MAC Addresses - Update"
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "MDM ID"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "MDM type"
-msgstr ""
-
-# pf::admin_roles (Actions)
-msgid "MDM_CREATE"
-msgstr "MDM - Create"
-
-# pf::admin_roles (Actions)
-msgid "MDM_DELETE"
-msgstr "MDM - Delete"
-
-# pf::admin_roles (Actions)
-msgid "MDM_READ"
-msgstr "MDM - Read"
-
-# pf::admin_roles (Actions)
-msgid "MDM_UPDATE"
-msgstr "MDM - Update"
-
 # html/pfappserver/root/admin/configuration.tt
 msgid "Main"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Maintenance"
 msgstr ""
 
 # html/pfappserver/root/portal/profile/tab-content.tt
@@ -2025,10 +2105,6 @@ msgid ""
   "a minute without being flagged as DoS. Defaults to 100."
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/view.tt
-msgid "Mdm Entry"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc."
 msgstr ""
@@ -2053,6 +2129,10 @@ msgstr ""
 # html/pfappserver/root/configurator/database.tt
 msgid "MySQL server does not seems to be running. You should start it to avoid any problems."
 msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "NODES"
+msgstr "Nodes"
 
 # pf::admin_roles (Actions)
 msgid "NODES_CREATE"
@@ -2156,10 +2236,6 @@ msgstr ""
 msgid "New Floating Device"
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/view.tt
-msgid "New Mdm Entry"
-msgstr ""
-
 # html/pfappserver/root/config/networks/view.tt
 msgid "New Network"
 msgstr ""
@@ -2170,6 +2246,10 @@ msgstr ""
 
 # html/pfappserver/root/configurator/database.tt
 msgid "New Password"
+msgstr ""
+
+# html/pfappserver/root/config/provisioning/view.tt
+msgid "New Provisioning Entry"
 msgstr ""
 
 # html/pfappserver/root/roles/read.tt
@@ -2200,7 +2280,7 @@ msgstr ""
 msgid "No IP history"
 msgstr ""
 
-# html/pfappserver/root/user/view.tt
+# html/pfappserver/root/user/nodes.tt
 msgid "No device found"
 msgstr ""
 
@@ -2228,6 +2308,10 @@ msgstr ""
 # html/pfappserver/root/node/search.tt
 # html/pfappserver/root/node/simple_search.tt
 msgid "No node found"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/tab-content.tt
+msgid "No provisioner specified."
 msgstr ""
 
 # html/pfappserver/root/configuration/adminroles/index.tt
@@ -2284,7 +2368,15 @@ msgstr ""
 msgid "Nodes States"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "Nodes with the selected OS will be affected"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 msgid "Nodes with the selected roles will be affected"
 msgstr ""
 
@@ -2326,12 +2418,13 @@ msgstr ""
 msgid "Number of trap parser threads pfsetvlan should start"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/root/node/view.tt
 msgid "OS"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/user/view.tt
+# html/pfappserver/root/user/nodes.tt
 msgid "OS (DHCP)"
 msgstr ""
 
@@ -2413,8 +2506,15 @@ msgid "Owner"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "PID"
 msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "PORTAL_PROFILES"
+msgstr "Portal Profiles"
 
 # pf::admin_roles (Actions)
 msgid "PORTAL_PROFILES_CREATE"
@@ -2432,6 +2532,26 @@ msgstr "Portal Profiles - Read"
 msgid "PORTAL_PROFILES_UPDATE"
 msgstr "Portal Profiles - Update"
 
+# pf::admin_roles (Actions groups)
+msgid "PROVISIONING"
+msgstr "Provisioning"
+
+# pf::admin_roles (Actions)
+msgid "PROVISIONING_CREATE"
+msgstr "Provisioning - Create"
+
+# pf::admin_roles (Actions)
+msgid "PROVISIONING_DELETE"
+msgstr "Provisioning - Delete"
+
+# pf::admin_roles (Actions)
+msgid "PROVISIONING_READ"
+msgstr "Provisioning - Read"
+
+# pf::admin_roles (Actions)
+msgid "PROVISIONING_UPDATE"
+msgstr "Provisioning - Update"
+
 # html/pfappserver/root/configurator/configuration.tt
 msgid "PacketFence Configuration"
 msgstr ""
@@ -2445,8 +2565,8 @@ msgid "PacketFence uses a MySQL database. On this page, you need to specify the 
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
 # html/pfappserver/root/admin/login.tt
@@ -2466,10 +2586,6 @@ msgstr ""
 
 # conf/documentation.conf (database.pass)
 msgid "Password for the mysql database used by PacketFence."
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "Password required"
 msgstr ""
 
 # conf/documentation.conf (scan.pass)
@@ -2500,8 +2616,8 @@ msgstr ""
 msgid "Please note that if you do not change the password, the default one is <em>admin</em>."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "Please select MDM type"
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "Please select Provisioning type"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -2536,12 +2652,12 @@ msgstr "Please specify an identifier for the violation."
 msgid "Please specify the DNS server's IP address."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "Please specify the Description Mdm entry."
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "Please specify the Description Provisioning entry."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "Please specify the ID of the Mdm entry."
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "Please specify the ID of the Provisioning entry."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -2577,7 +2693,13 @@ msgid "Please specify the gateway."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Please specify the hostname or IP of the Firewall"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+msgid "Please specify the hostname or IP of the firewall"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
@@ -2608,6 +2730,10 @@ msgstr ""
 msgid "Please specify the starting IP address of the DHCP scope."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+msgid "Please specify the username for the Barracuda"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/RADIUS.pm
 # html/pfappserver/root/configuration/firewall_sso/list.tt
@@ -2615,6 +2741,9 @@ msgid "Port"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Port of the service"
 msgstr ""
 
@@ -2727,7 +2856,24 @@ msgid "Profile Name"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/portal/profile/tab-content.tt
+msgid "Provisioners"
+msgstr ""
+
+# html/pfappserver/root/config/provisioning/index.tt
 msgid "Provisioning"
+msgstr ""
+
+# html/pfappserver/root/config/provisioning/view.tt
+msgid "Provisioning Entry"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "Provisioning ID"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "Provisioning type"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
@@ -2738,6 +2884,7 @@ msgstr ""
 msgid "RADIUS"
 msgstr ""
 
+# pf::admin_roles (Actions groups)
 # pf::admin_roles (Actions)
 msgid "REPORTS"
 msgstr "Reports"
@@ -2750,8 +2897,8 @@ msgstr ""
 msgid "Really delete this Firewall SSO?"
 msgstr ""
 
-# html/pfappserver/root/configstore/mdm/index.tt
-msgid "Really delete this Mdm entry?"
+# html/pfappserver/root/config/provisioning/index.tt
+msgid "Really delete this Provisioning entry?"
 msgstr ""
 
 # html/pfappserver/root/configuration/adminroles/index.tt
@@ -2821,6 +2968,11 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Redirection URL"
+msgstr ""
+
+# html/pfappserver/root/admin/bulk_actions.inc
+# html/pfappserver/root/node/view.tt
+msgid "Reevaluate access"
 msgstr ""
 
 # html/pfappserver/root/admin/bulk_actions.inc
@@ -2996,6 +3148,10 @@ msgid "Role mapping by switch role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "Roles"
@@ -3021,6 +3177,11 @@ msgstr ""
 msgid "Rules"
 msgstr ""
 
+# html/pfappserver/root/node/violations.tt
+msgid "Run Now"
+msgstr ""
+
+# pf::admin_roles (Actions groups)
 # pf::admin_roles (Actions)
 msgid "SERVICES"
 msgstr "Services"
@@ -3033,6 +3194,10 @@ msgstr ""
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "SNMP"
 msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "SOH"
+msgstr "SoH Filters"
 
 # pf::admin_roles (Actions)
 msgid "SOH_CREATE"
@@ -3051,6 +3216,7 @@ msgid "SOH_UPDATE"
 msgstr "SoH Filters - Update"
 
 # html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 # html/pfappserver/root/configuration/wrix/view.tt
 # pf::Authentication::Source (common_attributes)
 msgid "SSID"
@@ -3080,6 +3246,10 @@ msgstr ""
 msgid "SSL"
 msgstr ""
 
+# pf::admin_roles (Actions groups)
+msgid "SWITCHES"
+msgstr "Switches"
+
 # pf::admin_roles (Actions)
 msgid "SWITCHES_CREATE"
 msgstr "Switches - Create"
@@ -3100,7 +3270,7 @@ msgstr "Switches - Update"
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
-# html/pfappserver/root/configstore/mdm/view.tt
+# html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
 # html/pfappserver/root/configuration/firewall_sso/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
@@ -3146,7 +3316,7 @@ msgstr ""
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
-# html/pfappserver/root/configstore/mdm/view.tt
+# html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/configuration/adminroles/view.tt
 # html/pfappserver/root/configuration/firewall_sso/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
@@ -3200,6 +3370,8 @@ msgid "Secret Passphrase"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Secret or Key"
 msgstr ""
 
@@ -3488,7 +3660,8 @@ msgstr ""
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/service/status.tt
-# html/pfappserver/root/user/view.tt
+# html/pfappserver/root/user/nodes.tt
+# html/pfappserver/root/user/violations.tt
 msgid "Status"
 msgstr ""
 
@@ -3585,10 +3758,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 msgid "Telephone"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "Tem"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -3882,6 +4051,9 @@ msgid "Types"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "UID type"
 msgstr ""
 
@@ -3889,9 +4061,17 @@ msgstr ""
 msgid "USD"
 msgstr ""
 
+# pf::admin_roles (Actions groups)
+msgid "USERAGENTS"
+msgstr "Useragents"
+
 # pf::admin_roles (Actions)
 msgid "USERAGENTS_READ"
 msgstr "Useragents - Read"
+
+# pf::admin_roles (Actions groups)
+msgid "USERS"
+msgstr "Users"
 
 # pf::admin_roles (Actions)
 msgid "USERS_CREATE"
@@ -3904,6 +4084,10 @@ msgstr "Users - Delete"
 # pf::admin_roles (Actions)
 msgid "USERS_READ"
 msgstr "Users - Read"
+
+# pf::admin_roles (Actions groups)
+msgid "USERS_ROLES"
+msgstr "Users Roles"
 
 # pf::admin_roles (Actions)
 msgid "USERS_ROLES_CREATE"
@@ -3920,6 +4104,10 @@ msgstr "Users Roles - Read"
 # pf::admin_roles (Actions)
 msgid "USERS_ROLES_UPDATE"
 msgstr "Users Roles - Update"
+
+# pf::admin_roles (Actions groups)
+msgid "USERS_SOURCES"
+msgstr "Users Sources"
 
 # pf::admin_roles (Actions)
 msgid "USERS_SOURCES_CREATE"
@@ -3986,14 +4174,6 @@ msgstr ""
 msgid "Upload failed"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "Uri"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "Uri required"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Use a number above 1500000 if you want to be able to delete this violation later."
 msgstr ""
@@ -4035,14 +4215,11 @@ msgstr ""
 msgid "User agent"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "User name"
-msgstr ""
-
 # html/pfappserver/root/node/view.tt
 msgid "User-Agent Information"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
@@ -4063,10 +4240,6 @@ msgstr ""
 msgid "Username Prefix"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/ConfigStore/Mdm.pm
-msgid "Username Required"
-msgstr ""
-
 # conf/documentation.conf (database.user)
 msgid ""
   "Username of the account with access to the mysql database used by "
@@ -4082,6 +4255,10 @@ msgstr ""
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Users"
 msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "VIOLATIONS"
+msgstr "Violations"
 
 # pf::admin_roles (Actions)
 msgid "VIOLATIONS_CREATE"
@@ -4295,6 +4472,10 @@ msgid "With no mandatory fields specified, the mandatory fields of the default p
 msgstr ""
 
 # html/pfappserver/root/portal/profile/tab-content.tt
+msgid "With no provisioners specified, the provisioners of the default profile will be used."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/tab-content.tt
 msgid "With no source specified, all internal and external sources will be used."
 msgstr ""
 
@@ -4334,7 +4515,13 @@ msgstr ""
 msgid "You must specifiy a gateway address."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+msgid "You must specify the password"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "You must specify the password or the key"
 msgstr ""
 
@@ -4357,6 +4544,10 @@ msgstr ""
 # html/pfappserver/root/admin/login.tt
 msgid "Your username or email address"
 msgstr ""
+
+# pf::provisioner (Provisioners)
+msgid "accept"
+msgstr "Accept"
 
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "accounting"
@@ -4443,6 +4634,10 @@ msgstr "Always"
 # html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
 msgid "and"
 msgstr ""
+
+# pf::provisioner (Provisioners)
+msgid "android"
+msgstr "Android"
 
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Portal::Common (mandatory fields)
@@ -4679,6 +4874,10 @@ msgstr ""
 msgid "default network:"
 msgstr ""
 
+# pf::provisioner (Provisioners)
+msgid "deny"
+msgstr "Deny"
+
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "department"
@@ -4830,6 +5029,10 @@ msgstr ""
 msgid "ends with"
 msgstr ""
 
+# pf::action (VIOLATION_ACTIONS)
+msgid "enforce_provisioning_action"
+msgstr ""
+
 # pf::Authentication::constants (Conditions)
 msgid "equals"
 msgstr ""
@@ -4877,10 +5080,6 @@ msgid "general"
 msgstr "General"
 
 # conf/documentation.conf
-msgid "general.cache_update_interval"
-msgstr "Cache update interval"
-
-# conf/documentation.conf
 msgid "general.dhcpservers"
 msgstr "DHCP servers"
 
@@ -4895,10 +5094,6 @@ msgstr "Domain"
 # conf/documentation.conf
 msgid "general.hostname"
 msgstr "Hostname"
-
-# conf/documentation.conf
-msgid "general.maintenance_interval"
-msgstr "Maintenance interval"
 
 # conf/documentation.conf
 msgid "general.memcached"
@@ -4962,6 +5157,17 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "hours"
 msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/ibm.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sepm.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/symantec.pm
+msgid "http"
+msgstr ""
+
+# pf::provisioner (Provisioners)
+msgid "ibm"
+msgstr "IBM"
 
 # conf/documentation.conf (interface.enforcement options)
 # pf::config (Network types)
@@ -5105,6 +5311,58 @@ msgstr "Send Email"
 msgid "mail_loading"
 msgstr "Sending .."
 
+# conf/documentation.conf
+msgid "maintenance"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.acct_maintenance_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.httpd_admin_cleanup_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.httpd_portal_cleanup_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.inline_accounting_maintenance_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.iplog_cleanup_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.locationlog_cleanup_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.node_cleanup_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.nodes_maintenance_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.traplog_cleanup_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.violation_maintenance_batch"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.violation_maintenance_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.violation_maintenance_timeout"
+msgstr ""
+
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "manage_deregister"
 msgstr ""
@@ -5157,6 +5415,14 @@ msgstr ""
 # conf/documentation.conf (billing.gateway options)
 msgid "mirapay"
 msgstr "Mirapay"
+
+# pf::provisioner (Provisioners)
+msgid "mobileconfig"
+msgstr "Apple Devices"
+
+# pf::provisioner (Provisioners)
+msgid "mobileiron"
+msgstr "MobileIron"
 
 # pfappserver::Form::Portal::Common (mandatory fields)
 msgid "mobileprovider"
@@ -5250,6 +5516,10 @@ msgstr ""
 msgid "openvas"
 msgstr "OpenVAS"
 
+# pf::provisioner (Provisioners)
+msgid "opswat"
+msgstr "OPSWAT"
+
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Portal::Common (mandatory fields)
 msgid "organization"
@@ -5305,6 +5575,10 @@ msgstr ""
 # pf::Switch::constants (Modes)
 msgid "production"
 msgstr "Production"
+
+# pf::config (VALID_TRIGGER_TYPES)
+msgid "provisioner"
+msgstr ""
 
 # conf/documentation.conf
 msgid "provisioning"
@@ -5442,6 +5716,10 @@ msgstr "User"
 # html/pfappserver/root/node/view.tt
 msgid "seconds"
 msgstr ""
+
+# pf::provisioner (Provisioners)
+msgid "sepm"
+msgstr "Symantec Endpoint Protection Manager (SEPM)"
 
 # conf/documentation.conf
 msgid "services"
@@ -5640,6 +5918,10 @@ msgstr ""
 msgid "suricata"
 msgstr ""
 
+# pf::provisioner (Provisioners)
+msgid "symantec"
+msgstr "Symantec App Center"
+
 # html/pfappserver/root/admin/users.tt
 msgid "telephone"
 msgstr ""
@@ -5744,6 +6026,7 @@ msgid "useragent"
 msgstr "UserAgent"
 
 # html/pfappserver/root/admin/users.tt
+# pf::Authentication::Source::BlackholeSource (available_attributes)
 # pf::Authentication::Source::FacebookSource (available_attributes)
 # pf::Authentication::Source::GithubSource (available_attributes)
 # pf::Authentication::Source::GoogleSource (available_attributes)

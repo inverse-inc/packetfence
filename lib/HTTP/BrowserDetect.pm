@@ -1524,12 +1524,12 @@ __END__
     # Detect browser vendor and version
     print $browser->netscape;
     print $browser->ie;
-    if (browser->major(4)) {
-    if ($browser->minor() > .5) {
+    if (browser->public_major(4)) {
+    if ($browser->public_minor() > .5) {
         ...
     }
     }
-    if ($browser->version() > 4) {
+    if ($browser->public_version() > 4) {
       ...;
     }
 
@@ -1634,15 +1634,24 @@ any further digits or decimals.
 
 =head2 version($version)
 
+This is probably not what you want.  Please use either public_version() or
+engine_version() instead.
+
 Returns the version as a floating-point number. If passed a parameter, returns
 true if it is equal to the version specified by the user agent string.
 
 =head2 major($major)
 
+This is probably not what you want.  Please use either public_major() or
+engine_major() instead.
+
 Returns the integer portion of the browser version. If passed a parameter,
 returns true if it equals the browser major version.
 
 =head2 minor($minor)
+
+This is probably not what you want.  Please use either public_minor() or
+engine_minor() instead.
 
 Returns the decimal portion of the browser version as a B<floating-point
 number> less than 1. For example, if the version is 4.05, this method returns

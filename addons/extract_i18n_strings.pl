@@ -19,6 +19,7 @@ use pf::action;
 use pf::admin_roles;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
+use pf::factory::provisioner;
 use pf::Switch::constants;
 use pfappserver::Controller::Graph;
 use pfappserver::Model::Node;
@@ -312,6 +313,13 @@ sub extract_modules {
     my @values = map { "${_}_action" } @pf::action::VIOLATION_ACTIONS;
     const('pf::action', 'VIOLATION_ACTIONS', \@values);
 
+    @values = ();
+    map {
+        m/^(.+?)(_(READ|CREATE|UPDATE|DELETE))?$/;
+        push(@values, $1) unless (grep /$1/, @values);
+    } @ADMIN_ACTIONS;
+    const('pf::admin_roles', 'Actions groups', \@values);
+
     const('pf::admin_roles', 'Actions', \@ADMIN_ACTIONS);
 
     my $attributes = pf::Authentication::Source->common_attributes();
@@ -348,6 +356,12 @@ sub extract_modules {
 
     @values = map { @$_ } values %Conditions::OPERATORS;
     const('pf::Authentication::constants', 'Conditions', \@values);
+
+    @values = sort grep {$_} map { /^pf::provisioner::(.*)/;$1  } @pf::factory::provisioner::MODULES;
+    const('pf::provisioner', 'Provisioners', \@values);
+
+    @values = sort grep {$_} map { /^pf::firewallsso::(.*)/;$1  } @pf::factory::firewallsso::MODULES;
+    const('pf::firewallsso', 'Firewall SSO', \@values);
 
     const('pf::Switch::constants', 'Modes', \@SNMP::MODES);
 
@@ -466,7 +480,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2013-2014 Inverse inc.
 
 =head1 LICENSE
 

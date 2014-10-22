@@ -90,6 +90,8 @@ my @routed_isolation_nets_named;
 my @routed_registration_nets_named;
 
 my $CHI_CACHE = pf::CHI->new( namespace => 'pfdns' );
+our $IPSET_SESSION = 'pfsession_passthrough';
+our %IPSET_CACHE;
 
 Readonly::Scalar our $TTL                => '15';
 Readonly::Scalar our $HTTPS_PORT         => '443';
@@ -118,6 +120,7 @@ foreach my $network ( keys %ConfigNetworks ) {
     }
 }
 
+populate_ipset_cache($IPSET_SESSION);
 
 my $ns = new Net::DNS::Nameserver(
     LocalAddr       => [@ip_addr],
@@ -162,7 +165,6 @@ sub response_handler {
 sub regzone {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     my ($rcode, @ans, @auth, @add);
-    my $_EXIT_CODE_EXISTS = "1";
 
     $logger->trace("Requested Domain: ".$qname);
     if ($qtype eq "A") {
@@ -171,21 +173,15 @@ sub regzone {
             my $res   = Net::DNS::Resolver->new;
             my $query = $CHI_CACHE->compute($qname, sub { $res->search($qname) });
             if ($query) {
+                add_answers_to_ipset($query,$IPSET_SESSION,$HTTP_PORT,$HTTPS_PORT);
                 foreach my $rr ($query->answer) {
                     next unless $rr->type eq "A";
-                    my $ip = $rr->address;
-                    my $cmd = "LANG=C sudo ipset --add pfsession_passthrough $ip,$HTTP_PORT 2>&1";
-                    my @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
-                    $cmd = "LANG=C sudo ipset --add pfsession_passthrough $ip,$HTTPS_PORT 2>&1";
-                    @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
-                    ($ttl, $rdata) = ($TTL, $rr->address);
+                    $rdata= $rr->address;
+                    push @ans, new Net::DNS::RR("$qname $TTL $qclass $qtype $rdata");
                 }
-                if($ttl && $rdata){
-                    my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
-                    push @ans, $rr;
+                if(@ans) {
                     $rcode = "NOERROR";
-                }
-                else{
+                } else {
                     $logger->warn("Unresolved passthrough domain $qname");
                     $rcode = "NXDOMAIN";
                 }
@@ -213,6 +209,45 @@ sub regzone {
     return ($rcode, \@ans, \@auth, \@add, { aa => 1 });
 }
 
+=head2 add_answers_to_ipset
+
+=cut
+
+sub add_answers_to_ipset {
+    my ($query,$setname,@ports) = @_;
+    my @ops;
+    foreach my $rr ($query->answer) {
+        next unless $rr->type eq "A";
+        my $ip = $rr->address;
+        foreach my $port (@ports) {
+            push @ops, "add $setname $ip,$port" unless is_in_ipset_cache($setname,$ip,$port);
+        }
+    }
+    if(@ops) {
+        my $ipset;
+        my $data = join("\n", @ops, "");
+        open($ipset,"| LANG=C sudo ipset restore 2>&1");
+        print $ipset $data;
+        close($ipset);
+    }
+}
+
+=head2 add_ip_port_to_ipset
+
+add ipset rule to the cache if it is not already there
+
+=cut
+
+sub add_ip_port_to_ipset {
+    my ($setname,$ip,$port) = @_;
+    unless (is_in_ipset_cache($setname,$ip,$port)) {
+        my $cmd = "LANG=C sudo ipset --add $setname $ip,$port 2>&1";
+        my $_EXIT_CODE_EXISTS = "1";
+        my @lines = pf_run($cmd, accepted_exit_status => [$_EXIT_CODE_EXISTS]);
+    }
+}
+
+
 sub isolzone {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     my ($rcode, @ans, @auth, @add);
@@ -237,6 +272,33 @@ sub normal_sighandler {
     $logger->debug( "pfdns: caught SIG" . $_[0] . " - terminating" );
 }
 
+sub populate_ipset_cache {
+    my ($session) = @_;
+    my $in_header = 1;
+    my @lines =
+      pf_run("/usr/sbin/ipset list $session 2>/dev/null",
+        accepted_exit_status => [1]);
+
+    while (my $line = shift @lines) {
+        last if $line =~ /Members:/;
+    }
+
+    while (my $line = shift @lines) {
+        if ($line =~ /(\d+(?:\.\d+){3}),tcp:(\d+)/) {
+            add_to_ipset_cache($session,$1,$2);
+        }
+    }
+}
+
+sub add_to_ipset_cache {
+    my ($session,$ip,$port) = @_;
+    $IPSET_CACHE{join(':',$session,$ip,$port)} = undef;
+}
+
+sub is_in_ipset_cache {
+    my ($session,$ip,$port) = @_;
+    return exists $IPSET_CACHE{join(':',$session,$ip,$port)};
+}
 
 =back
 

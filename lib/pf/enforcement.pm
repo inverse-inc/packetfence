@@ -43,7 +43,7 @@ use pf::node;
 use pf::SwitchFactory;
 use pf::util;
 use pf::vlan::custom $VLAN_API_LEVEL;
-use pf::api::jsonrpcclient;
+use pf::client;
 
 use Readonly;
 
@@ -84,14 +84,14 @@ sub reevaluate_access {
         my $conn_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
         if ( $conn_type == $INLINE ) {
 
-            my $json_client = pf::api::jsonrpcclient->new();
+            my $client = pf::client::getClient();
             my $inline = new pf::inline::custom();
             my %data = (
                 'switch'           => '127.0.0.1',
                 'mac'              => $mac,
             );
             if ( $inline->isInlineEnforcementRequired($mac) ) {
-                $json_client->notify( 'firewall', %data );
+                $client->notify( 'firewall', %data );
             }
             else {
                 $logger->debug("[$mac] is already properly enforced in firewall, no change required");
@@ -123,7 +123,7 @@ sub _vlan_reevaluation {
                 . "connection type: "
                 . $connection_type_explained{$conn_type} );
 
-        my $json_client = pf::api::jsonrpcclient->new();
+        my $client = pf::client::getClient();
         my %data = (
             'switch'           => $switch_id,
             'mac'              => $mac,
@@ -132,12 +132,12 @@ sub _vlan_reevaluation {
         );
         if ( ( $conn_type & $WIRED ) == $WIRED ) {
             $logger->debug("[$mac] Calling json WebAPI with ReAssign request on switch (".$switch_id.")");
-            $json_client->notify( 'ReAssignVlan', %data );
+            $client->notify( 'ReAssignVlan', %data );
 
         }
         elsif ( ( $conn_type & $WIRELESS ) == $WIRELESS ) {
             $logger->debug("[$mac] Calling json WebAPI with desAssociate request on switch (".$switch_id.")");
-            $json_client->notify( 'desAssociate', %data );
+            $client->notify( 'desAssociate', %data );
 
         }
         else {

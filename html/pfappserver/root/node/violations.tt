@@ -10,11 +10,20 @@
     </thead>
     <tbody>
     [%- FOR item IN items %]
-    <tr[% ' class="muted"' IF item.status != 'open' %]>
-      <td>[% item.description | html %]</td>
+    <tr[% ' class="muted"' IF item.status == 'closed' %]>
+      <td>[% '<i class="icon-time"></i>' IF item.status == 'delayed' %] [% item.description | html %]</td>
       <td>[% item.start_date | html %]</td>
       <td>[% item.release_date | html %]</td>
-      <td>[% IF item.status == 'open' && can_access("NODES_UPDATE") %]<a href="[% c.uri_for(c.controller('Node').action_for('closeViolation'), [item.id]) %]" class="btn btn-mini">[% l('Release') %]</a>[% END %]</td>
+      <td>
+        [% IF can_access("NODES_UPDATE") %]
+            [% IF item.status == 'open' %]
+                <a href="[% c.uri_for(c.controller('Node').action_for('closeViolation'), [item.id]) %]" class="btn btn-mini">[% l('Release') %]</a>
+            [% ELSIF item.status == 'delayed'%]
+                <a href="[% c.uri_for(c.controller('Node').action_for('runViolation'), [item.id]) %]" class="btn btn-mini">[% l('Run Now') %]</a>
+                <a href="[% c.uri_for(c.controller('Node').action_for('closeViolation'), [item.id]) %]" class="btn btn-mini">[% l('Close') %]</a>
+            [% END %]
+        [% END %]
+      </td>
     </tr>
     [%- END %]
     </tbody>

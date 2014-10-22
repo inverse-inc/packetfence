@@ -11,11 +11,11 @@ Homepage: http://www.packetfence.org/
 Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
-Pre-Depends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
+Pre-Depends:  ca-certificates, freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server
 Breaks: libdata-alias-perl
-Depends: ${misc:Depends}, vlan, make, patch,
- openssl, openssl-blacklist, openssl-blacklist-extra,
+Depends: ${misc:Depends}, vlan, make,
+ openssl, openssl-blacklist, openssl-blacklist-extra, snort | suricata,
  mysql-server|mariadb-server|mariadb-galera-server, memcached,
  snmp, snmptrapfmt, snmp-mibs-downloader, conntrack,
 # apache related
@@ -46,7 +46,7 @@ Depends: ${misc:Depends}, vlan, make, patch,
  libtest-pod-coverage-perl, libthread-pool-simple-perl,
  libuniversal-require-perl, libuniversal-exports-perl, libnet-rawip-perl,
  libcgi-session-perl, libcgi-session-driver-chi-perl (>= 1.0.3), libconfig-inifiles-perl (>= 2.78.0),
- libdatetime-format-dateparse-perl, libdbi-perl,librose-db-perl,librose-db-object-perl,
+ libdatetime-format-dateparse-perl, libdatetime-format-rfc3339-perl, libdbi-perl,librose-db-perl,librose-db-object-perl,
  libnet-telnet-perl, libregexp-common-perl,
  libreadonly-perl, libtemplate-perl, libterm-readkey-perl,
  libuniversal-require-perl, libthread-serialize-perl,

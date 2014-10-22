@@ -2,6 +2,10 @@ use strict;
 use warnings;
 
 use Test::More tests => 30;
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
 use_ok('pf::MAC') or die;
 use pf::MAC;

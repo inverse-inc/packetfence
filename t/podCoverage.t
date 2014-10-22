@@ -4,10 +4,11 @@ use strict;
 use warnings;
 use diagnostics;
 
-use lib qw(
-   /usr/local/pf/conf
-   /usr/local/pf/lib
-);
+use lib qw(/usr/local/pf/lib);
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
 use Test::Pod::Coverage tests => 24;
 

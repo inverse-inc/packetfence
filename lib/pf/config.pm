@@ -89,8 +89,9 @@ BEGIN {
         %Config
         %ConfigNetworks %ConfigOAuth
         %ConfigFloatingDevices
-        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC @VALID_TRIGGER_TYPES
+        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER @VALID_TRIGGER_TYPES
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
+        $TRIGGER_ID_PROVISIONER
         $WIPS_VID $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
@@ -149,6 +150,8 @@ Readonly::Scalar our $TRIGGER_TYPE_OS => 'os';
 Readonly::Scalar our $TRIGGER_TYPE_SOH => 'soh';
 Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
 Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
+Readonly::Scalar our $TRIGGER_TYPE_PROVISIONER => 'provisioner';
+Readonly::Scalar our $TRIGGER_ID_PROVISIONER => 'check';
 
 Readonly our @VALID_TRIGGER_TYPES =>
   (
@@ -161,7 +164,8 @@ Readonly our @VALID_TRIGGER_TYPES =>
    $TRIGGER_TYPE_OS,
    $TRIGGER_TYPE_SOH,
    $TRIGGER_TYPE_USERAGENT,
-   $TRIGGER_TYPE_VENDORMAC
+   $TRIGGER_TYPE_VENDORMAC,
+   $TRIGGER_TYPE_PROVISIONER,
   );
 
 # Accounting trigger policies
@@ -677,7 +681,7 @@ sub readProfileConfigFile {
                 my $default_description = $Profiles_Config{'default'}{'description'};
                 while (my ($profile_id, $profile) = each %Profiles_Config) {
                     $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
-                    foreach my $field (qw(locale mandatory_fields sources filter) ) {
+                    foreach my $field (qw(locale mandatory_fields sources filter provisioners) ) {
                         $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
                     }
                     #Adding filters in profile order

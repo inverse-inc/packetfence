@@ -20,7 +20,7 @@ use Module::Pluggable
 # Don't explicilty load pf::profile::filter::key
 # Since it will not be explictly used
 
-  except => [qw(pf::profile::filter::key)],
+  except => [qw(pf::profile::filter::key pf::profile::filter::key_couple)],
   'require' => 1,
   sub_name    => 'modules';
 use List::MoreUtils qw(any);

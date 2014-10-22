@@ -1317,7 +1317,6 @@ sub stopService {
 sub restartService {
     my ($service,@services) = @_;
     stopService(@_);
-    configreload('hard') if $service eq 'pf';
     local $SERVICE_HEADER = '';
     startService(@_);
 }
@@ -2450,6 +2449,7 @@ sub _changeFilesToOwner {
 sub configreload {
     my ($type)  = @_;
     $type = 'soft' unless defined $type;
+    $logger->trace("configreload $type");
     my $force = $type eq 'hard' ? 1 : 0;
     require pf::violation_config;
     require pf::authentication;
@@ -2458,7 +2458,7 @@ sub configreload {
     require pf::ConfigStore::Authentication;
     require pf::ConfigStore::FloatingDevice;
     require pf::ConfigStore::Interface;
-    require pf::ConfigStore::Mdm;
+    require pf::ConfigStore::Provisioning;
     require pf::ConfigStore::Network;
     require pf::ConfigStore::Pf;
     require pf::ConfigStore::Profile;

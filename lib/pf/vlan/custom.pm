@@ -19,6 +19,7 @@ use warnings;
 use Log::Log4perl;
 use threads;
 use threads::shared;
+use pf::log;
 
 use base ('pf::vlan');
 
@@ -38,17 +39,16 @@ our $VERSION = 1.04;
 
 =head1 SUBROUTINES
 
-=over
-
 =cut
 
-=item shouldAutoRegister
+=head2 shouldAutoRegister
 
 This is an example of how to redefine a method for custom purposes.
 
 See pf::vlan::shouldAutoRegister for full original method.
 
 =cut
+
 #sub shouldAutoRegister{
 #    #$mac is MAC address
 #    #$switch_in_autoreg_mode is set to 1 if switch is in registration mode
@@ -59,6 +59,7 @@ See pf::vlan::shouldAutoRegister for full original method.
 #    #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
 #    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request) = @_;
 #
+#    my $logger = get_logger;
 #    # CUSTOM: We want to auto-register 802.1x connections
 #    # Since they already have validated credentials through EAP to do 802.1X
 #    if (defined($conn_type) && (($conn_type & $EAP) == $EAP)) {
@@ -71,8 +72,6 @@ See pf::vlan::shouldAutoRegister for full original method.
 #    return $this->SUPER::shouldAutoRegister($mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request);
 #}
 
-
-=back
 
 =head1 AUTHOR
 

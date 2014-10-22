@@ -6,30 +6,23 @@ pf::Switch::Netgear::FSM7328S - Object oriented module to access and configure e
 
 =head1 STATUS
 
-=over
-
-=item Port-security
+=head2 Port-security
 
 - Developped and tested on a FSM7328S using firmware (Software version) 7.3.1.7 
 
 - VoIP configuration not tested
 
-=item Link up/down
+=head2 Link up/down
 
 - Can't work in this mode since up/down traps are parts of the port-security process
 
-=back
-
 =head1 BUGS AND LIMITATIONS
 
-=over
-
-=item forceDeauthOnLinkDown
+=head2 forceDeauthOnLinkDown
 
 The MAC address needs to be unauthorized from the port otherwise this MAC will stay authorized on the VLAN and no
 more traps will show up.
 
-=back 
 =cut
 
 use strict;
@@ -49,9 +42,7 @@ sub description {'Netgear FSM7328S'}
 
 =head1 METHODS
 
-=over
-
-=item authorizeMAC
+=head2 authorizeMAC
 
 Add a new MAC to the list of secure MACs for the ifIndex and remove the existing MAC from the list of secured ones.
 Returns 1 on success 0 on failure.
@@ -131,7 +122,7 @@ sub authorizeMAC {
     return 1;
 }
 
-=item forceDeauthOnLinkDown
+=head2 forceDeauthOnLinkDown
 
 Force a MAC address deauthorization from the port sending the linkdown trap.
 Always returns 1.
@@ -166,7 +157,7 @@ sub forceDeauthOnLinkDown {
     return 1;
 }
 
-=item getAllSecureMacAddresses
+=head2 getAllSecureMacAddresses
 Fetch all secure MAC addresses from the agentPortSecurityTable.
 Returns only those addresses for interfaces where PortSecurityMode is enabled.
 
@@ -205,7 +196,7 @@ sub getAllSecureMacAddresses {
             my @vlan_mac = split( /,/, $result->{"$OID_agentPortSecurityStaticMACs.$ifIndex"} );
             for my $vm_pair (@vlan_mac) {
                 my ( $vlan, $mac ) = split( ' ', $vm_pair );
-                push @{ $secureMacAddrHashRef->{$mac} }, $vlan;
+                push @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} }, $vlan;
             }
         }
         $ifIndex++;
@@ -214,7 +205,7 @@ sub getAllSecureMacAddresses {
     return $secureMacAddrHashRef;
 }
 
-=item getSecureMacAddresses
+=head2 getSecureMacAddresses
 
 Fetch all secure MAC addresses from the agentPortSecurityStaticMACs for the ifIndex.
 
@@ -256,7 +247,7 @@ sub getSecureMacAddresses {
 }
 
 
-=item isPortSecurityEnabled
+=head2 isPortSecurityEnabled
 
 
 
@@ -296,7 +287,7 @@ sub isPortSecurityEnabled {
     return $enabled;
 }
 
-=item parseTrap
+=head2 parseTrap
 
 =cut
 
@@ -349,7 +340,7 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item _setVlan
+=head2 _setVlan
 
 =cut
 
@@ -390,8 +381,6 @@ sub _setVlan {
 
     return ( defined($result) );
 }
-
-=back
 
 =head1 AUTHOR
 

@@ -180,6 +180,7 @@ Requires: perl(Template)
 Requires: perl(Term::ReadKey)
 Requires: perl(Thread::Pool)
 Requires: perl(Date::Parse)
+Requires: perl(DateTime::Format::RFC3339)
 Requires: perl(UNIVERSAL::require)
 Requires: perl(YAML)
 Requires: perl(Try::Tiny)
@@ -340,7 +341,7 @@ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
     /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
     docs/docbook/xsl/titlepage-fo.xml
 # admin, network device config, devel and ZEN install guides
-for GUIDE in PacketFence_Administration_Guide PacketFence_Developers_Guide PacketFence_Network_Devices_Configuration_Guide PacketFenceZEN_Installation_Guide; do 
+for GUIDE in PacketFence_Administration_Guide PacketFence_Developers_Guide PacketFence_Network_Devices_Configuration_Guide PacketFenceZEN_Installation_Guide PacketFence_Anyfi_Quick_Install_Guide PacketFence_Brocade_Quick_Install_Guide PacketFence_Cisco_Quick_Install_Guide PacketFence_Ruckus_Quick_Install_Guide PacketFence_OPSWAT_Quick_Install_Guide PacketFence_MobileIron_Quick_Install_Guide PacketFence_SEPM_Quick_Install_Guide PacketFence_PaloAlto_Quick_Install_Guide PacketFence_Barracuda_Quick_Install_Guide; do 
 asciidoc -a docinfo2 -b docbook -d book \
     -o docs/docbook/$GUIDE.docbook \
     docs/$GUIDE.asciidoc
@@ -752,6 +753,8 @@ fi
 %config                 /usr/local/pf/conf/oui.txt
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
+%config(noreplace)      /usr/local/pf/conf/provisioning.conf
+                        /usr/local/pf/conf/provisioning.conf.example
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
                         /usr/local/pf/conf/radiusd/eap.conf.example
@@ -784,7 +787,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
                         /usr/local/pf/conf/listener.msg.example
-%config(noreplace)      /usr/local/pf/conf/mdm.conf
 %config(noreplace)      /usr/local/pf/conf/popup.msg
                         /usr/local/pf/conf/popup.msg.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
@@ -826,6 +828,7 @@ fi
                         /usr/local/pf/html/captive-portal/content/countdown.min.js
                         /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
+                        /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
 %dir                    /usr/local/pf/html/captive-portal/lib
@@ -973,6 +976,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Wed Oct 22 2014 Inverse <info@inverse.ca> - 4.5.0-1
+- New release 4.5.0
+
 * Wed Sep 10 2014 Inverse <info@inverse.ca> - 4.4.0-1
 - New release 4.4.0
 

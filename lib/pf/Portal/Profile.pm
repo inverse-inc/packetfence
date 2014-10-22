@@ -22,6 +22,9 @@ use List::MoreUtils qw(all none any);
 use pf::config qw($TRUE $FALSE);
 use pf::util;
 use pf::log;
+use pf::node;
+use pf::factory::provisioner;
+use pf::os;
 
 =head1 METHODS
 
@@ -183,6 +186,11 @@ sub getMandatoryFields {
 
 *mandatoryFields = \&getMandatoryFields;
 
+sub getProvisioners {
+    my ($self) = @_;
+    return $self->{'_provisioners'};
+}
+
 =item getSourcesAsObjects
 
 Returns the authentication sources objects for the current captive portal profile.
@@ -320,6 +328,35 @@ Check if the profile needs no username
 sub noUsernameNeeded {
     my ($self) = @_;
     return isenabled($self->reuseDot1xCredentials) || any { $_->type eq 'Null' && isdisabled( $_->email_required ) } $self->getSourcesAsObjects;
+}
+
+=item provisionerObjects
+
+The provisionerObjects
+
+=cut
+
+sub provisionerObjects {
+    my ($self) = @_;
+    return grep { defined $_ } map { pf::factory::provisioner->new($_) } @{ $self->getProvisioners || [] };
+}
+
+sub findProvisioner {
+    my ($self, $mac, $node_attributes) = @_;
+    my $logger = get_logger();
+    $node_attributes ||= node_attributes($mac);
+    my ($fingerprint) =
+      dhcp_fingerprint_view( $node_attributes->{'dhcp_fingerprint'} );
+    unless($fingerprint){
+        $logger->warn("Can't find provisioner for $mac since we don't have it's fingerprint");
+        return;
+    }
+    my $os = $fingerprint->{'os'};
+    unless(defined $os){
+        $logger->warn("Can't find provisioner for $mac since we don't have it's OS");
+        return;
+    }
+    return first { $_->match($os,$node_attributes) } $self->provisionerObjects;
 }
 
 =back

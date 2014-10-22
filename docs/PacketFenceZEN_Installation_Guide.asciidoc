@@ -1,5 +1,5 @@
-PacketFence ZEN Administration Guide
-====================================
+ZEN Administration Guide
+========================
 :encoding: UTF-8
 :lang: en
 :doctype: book
@@ -133,7 +133,7 @@ Configuring your PacketFence environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Before booting your VM, make sure the network cable coming from the TRUNK port for the demonstration PC is correctly plugged in the switch and the PC and that the link is up.
 
-Once powered, open a browser and point it to the configuration URL as stated by the VM login prompt (ie. http://PF_IP:1443/configurator). The configuration process is a five steps process at the end of which, the VM will be a persistent working PacketFence environment.
+Once powered, open a browser and point it to the configuration URL as stated by the VM login prompt (ie. https://PF_IP:1443/configurator). The configuration process is a five steps process at the end of which, the VM will be a persistent working PacketFence environment.
 
 Step 1: Enforcement
 +++++++++++++++++++

@@ -28,12 +28,9 @@ sub description { 'EdgeCore' }
 
 =head1 SUBROUTINES
 
-=over
-
 =cut
-sub supportsWiredMacAuth { return $TRUE; }
 
-=back
+sub supportsWiredMacAuth { return $TRUE; }
 
 =head1 AUTHOR
 

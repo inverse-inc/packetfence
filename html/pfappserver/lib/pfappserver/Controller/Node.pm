@@ -31,6 +31,7 @@ __PACKAGE__->config(
         bulk_deregister      => { AdminRole => 'NODES_UPDATE' },
         bulk_apply_role      => { AdminRole => 'NODES_UPDATE' },
         bulk_apply_violation => { AdminRole => 'NODES_UPDATE' },
+        bulk_reevaluate_access => { AdminRole => 'NODES_UPDATE' },
     },
     action_args => {
         '*' => { model => 'Node' },
@@ -319,6 +320,21 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('NODES_DEL
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 reevaluate_access
+
+Trigger the access reevaluation of the access of a node
+
+=cut
+
+sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0) :AdminRole('NODES_UPDATE') {
+    my ( $self, $c ) = @_;
+
+    my ($status, $message) = $c->model('Node')->reevaluate($c->stash->{mac});
+    $c->response->status($status);
+    $c->stash->{status_msg} = $message; # TODO: localize error message
+    $c->stash->{current_view} = 'JSON';
+}
+
 =head2 violations
 
 =cut
@@ -328,7 +344,6 @@ sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
     if (is_success($status)) {
         $c->stash->{items} = $result;
-        $c->stash->{template} = 'node/violations.tt';
         (undef, $result) = $c->model('Config::Violations')->readAll();
         my @violations = grep { $_->{id} ne 'defaults' } @$result; # remove defaults
         $c->stash->{violations} = \@violations;
@@ -367,6 +382,18 @@ sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole
 sub closeViolation :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Node')->closeViolation($id);
+    $c->response->status($status);
+    $c->stash->{status_msg} = $result;
+    $c->stash->{current_view} = 'JSON';
+}
+
+=head2 runViolation
+
+=cut
+
+sub runViolation :Path('run') :Args(1) :AdminRole('NODES_UPDATE') {
+    my ($self, $c, $id) = @_;
+    my ($status, $result) = $c->model('Node')->runViolation($id);
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     $c->stash->{current_view} = 'JSON';

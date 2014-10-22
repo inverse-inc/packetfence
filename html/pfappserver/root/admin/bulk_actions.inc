@@ -7,6 +7,7 @@
     <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_close'))  %]" >[% l('Clear Violation') %]</a></li>
     <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_register'))  %]" >[% l('Register') %]</a></li>
     <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_deregister'))  %]">[% l('Deregister') %]</a></li>
+    <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_reevaluate_access'))  %]">[% l('Reevaluate access') %]</a></li>
     <li class="divider"></li>
     <li class="dropdown-submenu">
       <a tabindex="-1">[% l('Apply Role') %]</a>

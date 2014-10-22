@@ -38,6 +38,23 @@
             </div>
           </div>
           <div class="control-group">
+            <label class="control-label" for="provisioners">[% l('Provisioners') %]</label>
+            <div class="controls">
+              [% form.field('provisioners').render %]
+              <div id="provisionersEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('provisioners').index > 1 %]">
+                <p>
+                  <i class="icon-cog icon-large"></i>
+                  [%- IF form.isa('pfappserver::Form::Portal::Profile::Default') -%]
+                  [% l('No provisioner specified.') %]
+                  [%- ELSE -%]
+                  [% l('With no provisioners specified, the provisioners of the default profile will be used.') %]
+                  [%- END -%]<br/>
+                  <a href="#add">[% l('Add a provisioner.') %]</a>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="control-group">
             <label class="control-label" for="mandatory_fields">[% l('Mandatory Fields') %]</label>
             <div class="controls">
               [% form.field('mandatory_fields').render %]

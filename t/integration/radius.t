@@ -8,6 +8,7 @@ integration/radius.t
 RADIUS module tests that are more end-to-end and affects the database.
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;

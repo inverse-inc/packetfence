@@ -49,6 +49,7 @@ our %ALLOWED_SECTIONS = (
     billing => undef,
     alerting => undef,
     scan => undef,
+    maintenance => undef,
     expire => undef,
     services => undef,
     vlan => undef,

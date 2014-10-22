@@ -34,8 +34,6 @@ use pf::util::radius qw(perform_disconnect);
 
 =head1 SUBROUTINES
 
-=over
-
 =cut
 
 # CAPABILITIES
@@ -47,11 +45,12 @@ sub supportsRoleBasedEnforcement { return $TRUE; }
 sub inlineCapabilities { return ($MAC,$SSID); }
 
 
-=item parseTrap
+=head2 parseTrap
 
 This is called when we receive an SNMP-Trap for this device
 
 =cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -63,7 +62,7 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item getVersion - obtain image version information from switch
+=head2 getVersion - obtain image version information from switch
 
 =cut
 
@@ -74,7 +73,7 @@ sub getVersion {
     return '2.0.13';
 }
 
-=item deauthTechniques
+=head2 deauthTechniques
 
 Return the reference to the deauth technique or the default deauth technique.
 
@@ -94,13 +93,14 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item deauthenticateMacDefault
+=head2 deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1x).
 
 New implementation using RADIUS Disconnect-Request.
 
 =cut
+
 sub deauthenticateMacRadius {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -114,7 +114,7 @@ sub deauthenticateMacRadius {
     return $self->radiusDisconnect($mac);
 }
 
-=item radiusDisconnect
+=head2 radiusDisconnect
 
 Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
 
@@ -194,7 +194,7 @@ sub radiusDisconnect {
 }
 
 
-=bacctSsid
+=head2 extractSsid
 
 Find RADIUS SSID parameter out of RADIUS REQUEST parameters
 
@@ -217,18 +217,19 @@ sub extractSsid {
     return;
 }
 
-=item returnRoleAttribute
+=head2 returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role returned into.
 
 =cut
+
 sub returnRoleAttribute {
     my ($this) = @_;
 
     return 'Filter-Id';
 }
 
-=item * _identifyConnectionType
+=head2 _identifyConnectionType
 
 Identify the connection type based information provided by RADIUS call
 

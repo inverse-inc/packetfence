@@ -16,7 +16,10 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use lib '..';
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
 use Test::NoWarnings;
 use Test::More tests => 14;

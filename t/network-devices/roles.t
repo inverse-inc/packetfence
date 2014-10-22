@@ -19,7 +19,10 @@ use lib '/usr/local/pf/lib';
 use Test::More;
 use Test::NoWarnings;
 
-use lib qw(/usr/local/pf/t);
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 use TestUtils;
 
 my @supports_roles;

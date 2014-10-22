@@ -12,6 +12,7 @@ use HTML::Entities;
 use List::MoreUtils qw(any);
 use pf::config;
 
+
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
 =head1 NAME
@@ -168,6 +169,7 @@ sub login : Local : Args(0) {
         $c->forward('validateLogin');
         $c->forward('authenticationLogin');
         $c->forward('postAuthentication');
+        $c->forward('checkIfProvisionIsNeeded');
         $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
         $c->forward( 'CaptivePortal' => 'endPortalSession' );
     }
@@ -190,13 +192,32 @@ sub postAuthentication : Private {
     my $portalSession = $c->portalSession;
     my $session = $c->session;
     my $profile = $c->profile;
-    my $info = $c->stash->{info} || {};
     my $source_id = $session->{source_id};
+    my $info = $c->stash->{info} ||= {};
     my $pid = $session->{"username"};
     $pid = $default_pid if !defined $pid && $c->profile->noUsernameNeeded;
     $info->{pid} = $pid;
-    my $params = { username => $pid };
+    $c->stash->{info} = $info;
+
+    $c->forward('setupMatchParams');
+    $c->forward('setRole');
+    $c->forward('setUnRegDate');
+    $info->{source} = $source_id;
+    $info->{portal} = $profile->getName;
+}
+
+=head2 setupMatchParams
+
+setup the parameters to match against the rules in the sources to apply actions
+
+=cut
+
+sub setupMatchParams : Private {
+    my ( $self, $c ) = @_;
+    my $portalSession = $c->portalSession;
+    my $pid = $c->stash->{info}->{pid};
     my $mac = $portalSession->clientMac;
+    my $params = { username => $pid };
 
     # TODO : add current_time and computer_name
     my $locationlog_entry = locationlog_view_open_mac($mac);
@@ -204,13 +225,7 @@ sub postAuthentication : Private {
         $params->{connection_type} = $locationlog_entry->{'connection_type'};
         $params->{SSID}            = $locationlog_entry->{'ssid'};
     }
-
     $c->stash->{matchParams} = $params;
-    $c->stash->{info} = $info;
-    $c->forward('setRole');
-    $c->forward('setUnRegDate');
-    $info->{source} = $source_id;
-    $info->{portal} = $profile->getName;
 }
 
 sub setRole : Private {
@@ -228,10 +243,10 @@ sub setRole : Private {
 
     # This appends the hashes to one another. values returned by authenticator wins on key collision
     if ( defined $value ) {
-        $logger->trace("Got role '$value' for username \"$pid\"");
+        $logger->debug("Got role '$value' for username \"$pid\"");
         $info->{category} = $value;
     } else {
-        $logger->trace("Got no role for username \"$pid\"");
+        $logger->debug("Got no role for username \"$pid\"");
     }
 
 }
@@ -251,18 +266,18 @@ sub setUnRegDate : Private {
         $Actions::SET_ACCESS_DURATION );
     if ( defined $value ) {
         $value = pf::config::access_duration($value);
-        $logger->trace("Computed unreg date from access duration: $value");
+        $logger->debug("Computed unreg date from access duration: $value");
     } else {
         $value =
           &pf::authentication::match( $source_match, $params,
             $Actions::SET_UNREG_DATE );
         if ( defined($value) ){
             $value = pf::config::dynamic_unreg_date($value) ;
-            $logger->trace("Computed unreg date from dynamic unreg date: $value");
+            $logger->debug("Computed unreg date from dynamic unreg date: $value");
         }
     }
     if ( defined $value ) {
-        $logger->trace("Got unregdate $value for username \"$pid\"");
+        $logger->debug("Got unregdate $value for username \"$pid\"");
         $info->{unregdate} = $value;
     }
 
@@ -313,6 +328,25 @@ sub createLocalAccount : Private {
     $logger->info("Local account for external source " . $c->session->{source_id} . " created with PID " . $auth_params->{username});
 }
 
+sub checkIfProvisionIsNeeded : Private {
+    my ( $self, $c ) = @_;
+    my $portalSession = $c->portalSession;
+    my $info = $c->stash->{info};
+    my $mac = $portalSession->clientMac;
+    my $profile = $c->profile;
+    if (defined( my $provisioner = $profile->findProvisioner($mac))) {
+        if ($provisioner->authorize($mac) == 0) {
+            $info->{status} = $pf::node::STATUS_PENDING;
+            node_modify($mac, %$info);
+            $c->stash(
+                template    => $provisioner->template,
+                provisioner => $provisioner,
+            );
+            $c->detach();
+        }
+    }
+}
+
 sub validateLogin : Private {
     my ( $self, $c ) = @_;
     my $logger  = $c->log;
@@ -346,7 +380,7 @@ sub authenticationLogin : Private {
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
     my ( $return, $message, $source_id );
-    $logger->trace("authentication attempt");
+    $logger->debug("authentication attempt");
     my $local;
     if ($request->{'match'} eq "status/login") {
         use pf::person;
@@ -378,7 +412,7 @@ sub authenticationLogin : Private {
     my $username = $request->param("username");
     my $password = $request->param("password");
 
-    if($profile->noPasswordNeeded) {
+    if(isenabled($profile->reuseDot1xCredentials)) {
         my $mac       = $portalSession->clientMac;
         my $node_info = node_view($mac);
         my $username = $node_info->{'last_dot1x_username'};

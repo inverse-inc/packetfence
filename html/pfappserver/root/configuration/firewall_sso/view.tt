@@ -1,19 +1,20 @@
-[% UNLESS action_uri %]
-    [% SET action_uri = c.req.uri %]
-[%END %]
-<form name="modalFloatingDevice" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
-  [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
+[% IF c.action.name == "view"  %]
+[% SET action_url = c.uri_for(c.controller.action_for('update'), [ item.id ]) %]
+[%ELSE%]
+[% SET action_url = c.req.uri %]
+[%END%]
+<form name="modalItem" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF item %]<i>[% l('Firewall SSO') %]</i> [% item.id | html %][% ELSE %][% l('New Firewall SSO') %][% END %]</h3>
+    <h3>[% IF item.id.defined %]<i>[% l('Firewall SSO') %]</i> [% item.id | html %][% ELSE %][% l('New Firewall SSO') %][% END %] <small>[% l(item.type) %]</small></h3>
   </div>
 
   <div class="modal-body">
-        [% form.field('id').render UNLESS item.id %]
-        [% form.field('type').render %]
-        [% form.field('password').render %]
-        [% form.field('port').render %]
-        [% form.field('categories').render %]
+  [%- IF item.id.defined;
+    CALL form.field('id').type_attr('hidden');
+    CALL form.field('id').do_label(0);
+  END -%]
+    [% form.block('definition').render %]
   </div><!--modal-body-->
 
   <div class="modal-footer">
