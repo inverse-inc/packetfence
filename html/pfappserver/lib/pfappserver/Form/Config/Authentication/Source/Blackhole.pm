@@ -15,7 +15,7 @@ pfappserver::Form::Config::Authentication::Source::Blackhole
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Authentication::Source';
+extends 'pfappserver::Form::Config::Authentication::Source';
 
 
 =head1 AUTHOR
