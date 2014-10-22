@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 =head1 NAME
 
-aaa_modperl_require add documentation
+aaa_modperl_require
 
 =cut
 
