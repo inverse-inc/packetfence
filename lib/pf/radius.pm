@@ -97,6 +97,9 @@ sub authorize {
         "nas port type => $nas_port_type, switch_ip => ($switch_ip), EAP-Type => $eap_type, ".
         "mac => [$mac], port => $port, username => \"$user_name\"");
 
+    # let's check if an old port sec entry needs to be removed in another switch
+    $this->_handleStaticPortSecurityMovement($switch, $mac);
+
     # TODO maybe it's in there that we should do all the magic that happened in the FreeRADIUS module
     # meaning: the return should be decided by _doWeActOnThisCall, not always $RADIUS::RLM_MODULE_NOOP
     my $weActOnThisCall = $this->_doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name);
@@ -500,6 +503,56 @@ sub _rewriteAccessAccept {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     return $RAD_REPLY_REF;
+}
+
+sub _handleStaticPortSecurityMovement {
+    my ($self,$switch,$mac) = @_;
+    my $logger = Log::Log4perl::get_logger("pf::radius");
+    #determine if $mac is authorized elsewhere
+    my $locationlog_mac = locationlog_view_open_mac($mac);
+    my $switchFactory = pf::SwitchFactory->getInstance();
+    if ( defined($locationlog_mac) &&
+         ( exists($switchFactory->config->{$locationlog_mac->{'switch'}}) )
+       ) {
+        my $old_switch = $locationlog_mac->{'switch'};
+        my $old_port   = $locationlog_mac->{'port'};
+        my $old_vlan   = $locationlog_mac->{'vlan'};
+        my $is_old_voip = is_node_voip($mac);
+
+        # let's move this out of the way right now
+        if (!$switchFactory->instantiate($old_switch)->isStaticPortSecurityEnabled($old_port)){
+            $logger->debug("Stopping port-security handling in radius since old location is not port sec enabled");
+            return;
+        }
+
+
+        # We check if the mac moved in a different switch. If it's a different port we don't care. 
+        # Let's say MAB + port sec on the same switch is a bit too extreme 
+        if ( $old_switch ne $switch->{_id} )
+        {
+            my $oldSwitch;
+            $logger->debug("$mac has still open locationlog entry at $old_switch ifIndex $old_port");
+            $oldSwitch = $switchFactory->instantiate($old_switch);
+
+            if (!$oldSwitch) {
+                $logger->error("Can not instantiate switch $old_switch !");
+            } else {
+                $logger->info("Will try to check on this node's previous switch if secured entry needs to be removed. ".
+                    "Old Switch IP: $old_switch");
+                my $secureMacAddrHashRef = $oldSwitch->getSecureMacAddresses($old_port);
+                if ( exists( $secureMacAddrHashRef->{$mac} ) ) {
+                    my $fakeMac = $oldSwitch->generateFakeMac( $is_old_voip, $old_port );
+                    $logger->info("de-authorizing $mac (new entry $fakeMac) at old location $old_switch ifIndex $old_port");
+                    $oldSwitch->authorizeMAC( $old_port, $mac, $fakeMac,
+                        ( $is_old_voip ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ),
+                        ( $is_old_voip ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ) );
+                } else {
+                    $logger->info("MAC not found on node's previous switch secure table or switch inaccessible.");
+                }
+                locationlog_update_end_mac($mac);
+            }
+        }
+    }
 }
 
 =back
