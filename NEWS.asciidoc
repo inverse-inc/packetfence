@@ -17,6 +17,7 @@ Version 4.5.0 released on 2014-10-22
 New Features
 ++++++++++++
 * Added provisioning support for Symantec SEPM, MobileIron and OPSWAT
+* Barracuda Networks firewall integration for Single Sign-On
 * pfmon can now run tasks on different intervals
 * Added a way to reevaluate the access of a node from the admin interface
 * Added a "Blackhole" authentication source 
