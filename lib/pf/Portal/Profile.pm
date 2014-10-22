@@ -247,6 +247,17 @@ sub getSourcesByClass {
     return grep { $_->class eq $class } $self->getSourcesAsObjects();
 }
 
+=item hasChained
+
+If the profile has a chained auth source
+
+=cut
+
+sub hasChained {
+    my ($self) = @_;
+    return defined ($self->getSourceByType('chained')) ;
+}
+
 =item getSourceByType
 
 Returns the first source object for the requested source type for the current captive portal profile.
