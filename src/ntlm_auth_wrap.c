@@ -23,7 +23,7 @@ The process is meant to be very short lived an never reused. */
 */
 
 #define _POSIX_C_SOURCE 200809L 
-#define COMMAND "/usr/bin/ntlm_auth"
+#define COMMAND "/usr/bin/ntlm_auth.real"
 #define MAX_STR_LENGTH 1023
 #include <syslog.h>
 #include <string.h>
@@ -43,7 +43,7 @@ int main(argc,argv,envp) int argc; char **argv, **envp;
     char log_msg[ MAX_STR_LENGTH + 1 ] = COMMAND;
     char *sep = " ";
 
-    openlog("radius-debug", LOG_PID, LOG_LOCAL4);
+    openlog("radius-debug", LOG_PID, LOG_LOCAL5);
 
     // concatenate the command with all argv args separated by sep
     for (int i = 1; i < argc; i++){
@@ -90,7 +90,7 @@ int main(argc,argv,envp) int argc; char **argv, **envp;
     elapsed = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
     elapsed += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
 
-    syslog(LOG_INFO, "%s time: %g ms", log_msg, elapsed);
+    syslog(LOG_INFO, "%s time: %g ms, status: %i", log_msg, elapsed, WEXITSTATUS(status));
     closelog();
 
     exit(WEXITSTATUS(status));
