@@ -1,14 +1,14 @@
-package pfappserver::Form::Authentication::Source::Blackhole;
+package pfappserver::Form::Config::Authentication::Source::Blackhole;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source::Blackhole add documentation
+pfappserver::Form::Config::Authentication::Source::Blackhole add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Authentication::Source::Blackhole
+pfappserver::Form::Config::Authentication::Source::Blackhole
 
 =cut
 
