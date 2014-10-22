@@ -201,8 +201,8 @@ sub regzone {
         } else {
             my ($ttl, $rdata) = ($TTL, $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}.".");
             my $rr = new Net::DNS::RR("$qname $ttl IN CNAME $rdata");
-            $rdata = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
-            my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $rdata");
+            my $rdata2 = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
+            my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $rdata2");
             push @ans, $rr;
             push @ans, $rr2;
             $rcode = "NOERROR";
