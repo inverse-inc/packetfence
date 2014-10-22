@@ -153,7 +153,7 @@ sub returnRadiusAccessAccept {
             pf::web::util::session(\%session_id,undef,6);
             $session_id{client_mac} = $mac;
             $session_id{wlan} = $ssid;
-            $session_id{switch} = \$this;
+            $session_id{switch_id} = $this->{_id};
             $radius_reply_ref = {
                 'User-Name' => $mac,
                 'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}"],
