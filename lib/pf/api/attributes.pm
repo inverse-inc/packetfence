@@ -2,7 +2,7 @@ package pf::api::attributes;
 
 =head1 NAME
 
-pf::api::attributes add documentation
+pf::api::attributes helper module for allowing attributes for pf::api
 
 =cut
 
