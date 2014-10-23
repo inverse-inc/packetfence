@@ -1,7 +1,7 @@
 package pf::WebAPI::JSONRPC;
 =head1 NAME
 
-pf::WebAPI::JSONRPC add documentation
+pf::WebAPI::JSONRPC - jsonrpc apache handler
 
 =cut
 

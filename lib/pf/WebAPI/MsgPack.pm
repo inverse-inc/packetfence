@@ -1,7 +1,7 @@
 package pf::WebAPI::MsgPack;
 =head1 NAME
 
-pf::WebAPI::MsgPack add documentation
+pf::WebAPI::MsgPack - msgpack rpc apache handler
 
 =cut
 
