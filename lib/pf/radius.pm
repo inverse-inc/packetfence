@@ -89,7 +89,7 @@ sub authorize {
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
 
     my $connection = pf::Connection->new;
-    $connection = $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
     my $connection_type = $connection->attributesToBackwardCompatible;
     
     $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
