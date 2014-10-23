@@ -51,10 +51,9 @@ public class PFDNSPoison {
     private static final PFConfig pfconfig = new PFConfig("/etc/packetfence.conf");
     private PFPacket packet;
     private PacketHandler packetHandler;
-    //private static final byte[] PF_MAC = {(byte)0, (byte)80, (byte)86, (byte)157, (byte)0, (byte)11};
+
+    // The PF mac to use when redirecting packets
     private static final byte[] PF_MAC = pfconfig.getMacBytes(pfconfig.getElement("pf_dns_mac"));
-    private static Hashtable<String,Flow> outboundFlows = new Hashtable<String,Flow>();
-    private static Hashtable<String,Flow> inboundFlows = new Hashtable<String,Flow>();
 
     PFDNSPoison(PFPacket packet, PacketHandler packetHandler){
         this.packet = packet;
@@ -78,7 +77,7 @@ public class PFDNSPoison {
         Match match = new Match();
         match.setField(MatchType.DL_TYPE, (short) 0x0800);  // IPv4 ethertype
         match.setField(MatchType.NW_PROTO, (byte) 17);  
-        ////match.setField(MatchType.DL_SRC, packet.getSourceMacBytes());
+        match.setField(MatchType.DL_SRC, packet.getSourceMacBytes());
         match.setField(MatchType.NW_DST, packet.getDestInetAddress());
         match.setField(MatchType.TP_SRC, (short) packet.getSourcePort());
         match.setField(MatchType.TP_DST, (short) packet.getDestPort());
@@ -117,13 +116,13 @@ public class PFDNSPoison {
         Match match = new Match();
         match.setField(MatchType.DL_TYPE, (short) 0x0800);  // IPv4 ethertype
         match.setField(MatchType.NW_PROTO, (byte) 17);   
-        ////match.setField(MatchType.DL_SRC, PF_MAC);
 
         try{
         match.setField(MatchType.NW_SRC, InetAddress.getByName(pfconfig.getElement("pf_dns_ip")) );
         }catch(Exception e){e.printStackTrace();}
         match.setField(MatchType.TP_SRC, (short) packet.getDestPort());
         match.setField(MatchType.TP_DST, (short) packet.getSourcePort());
+        match.setField(MatchType.DL_DST, packet.getSourceMacBytes());
     
         return match;
     }

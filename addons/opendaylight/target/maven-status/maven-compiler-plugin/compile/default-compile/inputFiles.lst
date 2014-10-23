@@ -1,6 +1,7 @@
 /usr/local/pf/addons/opendaylight/src/main/java/ca/inverse/odlpf/PacketHandler.java
 /usr/local/pf/addons/opendaylight/src/main/java/ca/inverse/odlpf/PFDNSPoison.java
 /usr/local/pf/addons/opendaylight/src/main/java/ca/inverse/odlpf/PFConfig.java
+/usr/local/pf/addons/opendaylight/src/main/java/ca/inverse/odlpf/SocketUtils.java
 /usr/local/pf/addons/opendaylight/src/main/java/ca/inverse/odlpf/Activator.java
 /usr/local/pf/addons/opendaylight/src/main/java/ca/inverse/odlpf/PFPacket.java
 /usr/local/pf/addons/opendaylight/src/main/java/ca/inverse/odlpf/PFPacketProcessor.java

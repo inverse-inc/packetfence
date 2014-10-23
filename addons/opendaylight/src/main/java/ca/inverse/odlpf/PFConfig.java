@@ -14,6 +14,9 @@ public class PFConfig {
         this.readConfig();
     }
     
+    /*
+     * Method that reads the configuration file and creates the key/value hash
+     */
     private void readConfig(){
         File configFile = new File(this.path);
         BufferedReader configReader = null;
@@ -33,10 +36,16 @@ public class PFConfig {
         }
     }
     
+    /*
+     * Get an element in the configuration hash
+     */
     public String getElement(String key){
         return this.config.get(key);
     }
     
+    /*
+     * Transform a MAC of format 001122334455 to a bytes array
+     */
     public byte[] getMacBytes(String mac){
         int position = 0;
         int i=0;

@@ -43,10 +43,15 @@ public class PFPacketProcessor {
     private static final Logger log = LoggerFactory.getLogger(PacketHandler.class);
 
     private static final PFConfig pfConfig = new PFConfig("/etc/packetfence.conf");
+
+    // Keep a cache of the current transactions so we don't do work twice
     private static ArrayList<String> transactionCache = new ArrayList<String>();
+    // Keep a cache of the ignored ports
     private static ArrayList<String> ignoredCache = new ArrayList<String>();
+    // Keep a cache of the discovered uplinks
     private static Hashtable<String, String> uplinks = new Hashtable<String, String>();
-    private static final byte[] PF_MAC = {(byte)0, (byte)80, (byte)86, (byte)157, (byte)0, (byte)11};
+    // This is the bytes representation of the PacketFence MAC to use in the redirected packets
+    private static final byte[] PF_MAC = pfConfig.getMacBytes(pfConfig.getElement("pf_dns_mac"));
 
     private String sourceMac;
     private String switchId;
@@ -150,6 +155,7 @@ public class PFPacketProcessor {
             }
             else if(action.equals("isolate")){
                 String method = data.getString("strategy");
+                // We forward the DNS traffic to PacketFence
                 if(method.equals("DNS") && packet.getDestPort() == 53){
                     // do dns poisoning stuff
                     PFDNSPoison dnsPoison = new PFDNSPoison(this.packet, this.packetHandler);
@@ -157,7 +163,13 @@ public class PFPacketProcessor {
                     this.forwardToPacketFence();
                     return PacketResult.CONSUME;
                 }
+                // This is currently broken since TCP checksum is invalid
+                // Still doing it though so we keep the device as isolated as possible
                 else if(method.equals("DNS") && packet.getDestPort() == 80){
+                    this.forwardToPacketFence();
+                    return PacketResult.CONSUME;
+                }
+                else if(method.equals("DNS") && packet.getDestPort() == 443){
                     this.forwardToPacketFence();
                     return PacketResult.CONSUME;
                 }
@@ -183,50 +195,30 @@ public class PFPacketProcessor {
 
     /*
      * Forwards the original packet to PacketFence by modifying the destination MAC and IP
-     * Doesn't work for now, the packets go to PacketFence but are ignored by pfdns
      */
     private void forwardToPacketFence(){
-        byte[] GATEWAY_MAC = {(byte)0x38, (byte)0x22, (byte)0xd6, (byte)0x6c, (byte)0x8c, (byte)0xf5};
-        
-        System.out.println("Check before : "+this.packet.getL3Packet().getChecksum());
+        // Set destination IP to PacketFence
         try{
-        //this.packet.getL3Packet().setSourceAddress(InetAddress.getByName(""));
-        this.packet.getL3Packet().setDestinationAddress(InetAddress.getByName("172.20.20.109"));
+        this.packet.getL3Packet().setDestinationAddress(InetAddress.getByName(pfConfig.getElement("pf_dns_ip")));
         }catch(Exception e){e.printStackTrace();}
-        System.out.println(this.packet.getSourceIP());
-        System.out.println(this.packet.getDestIP());
-        //this.packet.getL2Packet().setSourceMACAddress(GATEWAY_MAC);
+        // Set destination MAC to PacketFence
         this.packet.getL2Packet().setDestinationMACAddress(PF_MAC);
-        System.out.println(this.packet.getSourceMac());
-        System.out.println(this.packet.getDestMac());
-        RawPacket raw = null;
+
         Packet l4Packet = this.packet.getL4Packet();
-        /*
+        
+        // For now we set the checksum to 0
+        // It doesn't work for TCP though
         if(l4Packet instanceof UDP){
             ((UDP)this.packet.getL4Packet()).setChecksum((short)0);
         }
         else if(l4Packet instanceof TCP){
             ((TCP)this.packet.getL4Packet()).setChecksum((short)0);
         }
-        */
 
-        try{
-            byte[] elPack = null;
-            if(l4Packet instanceof UDP){
-                elPack = ((UDP)this.packet.getL4Packet()).serialize();
-            }
-            else if(l4Packet instanceof TCP){
-                elPack = ((TCP)this.packet.getL4Packet()).serialize();
-            }
-            System.out.println(elPack);
-
-            raw = new RawPacket(elPack);
-        }catch(Exception e){e.printStackTrace();}
-        PFPacket lePack = new PFPacket(raw, this.packetHandler);
-        //System.out.println("Check after : "+lePack.getL3Packet().getChecksum());
+        // Find the uplink port - FIX ME : port 1 is hardcoded to be the uplink        
         NodeConnector outbound = NodeConnector.fromStringNoNode("1", this.packet.getRawPacket().getIncomingNodeConnector().getNode());
-        System.out.println(outbound.getNode().getNodeIDString());
-        //RawPacket raw = packetHandler.getDataPacketService().encodeDataPacket(this.packet.getL2Packet());
+
+        RawPacket raw = packetHandler.getDataPacketService().encodeDataPacket(this.packet.getL2Packet());
         raw.setOutgoingNodeConnector(outbound);
         packetHandler.getDataPacketService().transmitDataPacket(raw);
     }
