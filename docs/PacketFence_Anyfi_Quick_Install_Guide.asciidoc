@@ -23,12 +23,12 @@ The instructions are based on version {release_version} of the PacketFence Live 
 
 Assumptions
 -----------
-* You will need a USB key with a capacity of at least 4GB
-* You will need a laptop or a PC from which the PacketFence Live USB key will run from
-* You will deploy a VLAN enforcement environment according to the customer specifications
-* Your customer will provide the network equipment (switch, cabled, etc) to interconnect this PoC setup
-* You have either physical or virtual infrastructure to deploy the Anyfi Gateway and Controller 
-* You have an access point that supports CarrierWRT
+* You will need a USB key with a capacity of at least 4GB;
+* You will need a laptop or a PC from which the PacketFence Live USB key will run from;
+* You will deploy a VLAN enforcement environment according to the customer specifications;
+* Your customer will provide the network equipment (switch, cabled, etc) to interconnect this PoC setup;
+* You have either physical or virtual infrastructure to deploy the Anyfi Gateway and Controller;
+* You have an access point that supports CarrierWRT.
 
 Quick Deployment
 ----------------

@@ -241,6 +241,12 @@ sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return; }
 
+sub supportsMABFloatingDevices{
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    return $FALSE;
+}
+
 sub new {
     my ( $class, %argv ) = @_;
     my $this = bless {
@@ -1439,6 +1445,28 @@ sub isDynamicPortSecurityEnabled {
 sub isStaticPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
     return ( 0 == 1 );
+}
+
+=item enableMABFloatingDevice
+
+Connects to the switch and configures the specified port to be RADIUS floating device ready
+
+=cut
+sub enableMABFloatingDevice{
+    my ($this, $ifIndex) = @_; 
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->warn("Cannot enable floating device on $this->{ip} on $ifIndex because this function is not implemented");
+}
+
+=item disableMABFloatingDevice
+
+Connects to the switch and removes the RADIUS floating device configuration
+
+=cut
+sub disableMABFloatingDevice{
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->warn("Cannot disable floating device on $this->{ip} on $ifIndex because this function is not implemented");
 }
 
 =item getPhonesDPAtIfIndex
@@ -2945,19 +2973,15 @@ User-Name
 =cut
 
 sub parseRequest {
-    my ($this, $radius_request) = @_;
-    my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'});
-    my $user_name = $radius_request->{'User-Name'};
-    my $nas_port_type = $radius_request->{'NAS-Port-Type'};
-    my $port = $radius_request->{'NAS-Port'};
-    my $eap_type = 0;
-    if (exists($radius_request->{'EAP-Type'})) {
-        $eap_type = $radius_request->{'EAP-Type'};
-    }
-    my $nas_port_id;
-    if (defined($radius_request->{'NAS-Port-Id'})) {
-        $nas_port_id = $radius_request->{'NAS-Port-Id'};
-    }
+    my ( $this, $radius_request ) = @_;
+
+    my $client_mac      = clean_mac($radius_request->{'Calling-Station-Id'});
+    my $user_name       = $radius_request->{'User-Name'};
+    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
+    my $port            = $radius_request->{'NAS-Port'};
+    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
+    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef);
 }
 
@@ -3001,59 +3025,6 @@ sub parseSwitchIdFromRequest {
     return;
 }
 
-=item _identifyConnectionType
-
-Identify the connection type based information provided by RADIUS call
-
-Returns the constants $WIRED or $WIRELESS. Undef if unable to identify.
-
-=cut
-
-sub _identifyConnectionType {
-    my ($this, $nas_port_type, $eap_type, $mac, $user_name) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-
-    $eap_type = 0 if (not defined($eap_type));
-    if (defined($nas_port_type)) {
-
-        if ($nas_port_type =~ /^Wireless-802\.11/ || $nas_port_type =~ /^Wireless-Other/) {
-
-            if ($eap_type) {
-                return $WIRELESS_802_1X;
-            } else {
-                return $WIRELESS_MAC_AUTH;
-            }
-        } elsif ($nas_port_type =~ /^Ethernet/ ) {
-
-            if ($eap_type) {
-
-                # some vendor do EAP-based Wired MAC Authentication, as far as PacketFence is concerned
-                # this is still MAC Authentication so we need to cheat a little bit here
-                # TODO: consider moving this logic later once the switch is initialized so we can ask it
-                # (supportsEAPMacAuth?)
-                $mac =~ s/[^[:xdigit:]]//g;
-                if (lc $mac eq lc $user_name) {
-                    return $WIRED_MAC_AUTH;
-                } else {
-                    return $WIRED_802_1X;
-                }
-
-            } else {
-                return $WIRED_MAC_AUTH;
-            }
-
-        } else {
-            # we didn't recognize request_type, this is a problem
-            $logger->warn("Unknown connection_type. NAS-Port-Type: $nas_port_type, EAP-Type: $eap_type.");
-            return;
-        }
-    } else {
-        $logger->warn("Request type was not set. There is a problem with the NAS, your radius config "
-            ."or rlm_perl packetfence.pm FreeRADIUS module.");
-        return;
-    }
-}
-
 =item parseTrap
 
 Unimplemented base method meant to be overriden in switches that support SNMP trap based methods.
@@ -3067,6 +3038,43 @@ sub parseTrap {
     return undef;
 }
 
+=item identifyConnectionType
+
+Used to override L<pf::Connection::identifyType> behavior if needed on a per switch module basis.
+
+=cut
+sub identifyConnectionType {
+    my ( $self, $connection ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    return;
+}
+
+=item disableMABByIfIndex
+
+Disables mac authentication bypass on the specified port
+
+=cut
+
+sub disableMABByIfIndex{
+    my ($self, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->error("This function is unimplemented.");
+    return 0; 
+} 
+
+=item enableMABByIfIndex
+
+Enables mac authentication bypass on the specified port
+
+=cut
+
+sub enableMABByIfIndex{
+    my ($self, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->error("This function is unimplemented.");
+    return 0; 
+}
 
 =back
 

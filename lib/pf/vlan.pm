@@ -24,6 +24,7 @@ use pf::node qw(node_attributes node_exist node_modify);
 use pf::Switch::constants;
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top violation_trigger);
+use pf::floatingdevice::custom;
 
 use pf::authentication;
 use pf::Authentication::constants;
@@ -75,6 +76,25 @@ sub fetchVlanForNode {
         my $inline = $this->getInlineVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
         $logger->info("[$mac] PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
         return ( $inline, 1 );
+    }
+
+    # radius floating device handling
+    if( $switch->supportsMABFloatingDevices ){
+        my $floatingDeviceManager = new pf::floatingdevice::custom();
+        if (exists($ConfigFloatingDevices{$mac})){
+            my $floating_config = $ConfigFloatingDevices{$mac};
+            $logger->info("Floating device $mac has plugged into $switch->{_ip} port $ifIndex. Returned VLAN : $floating_config->{pvid}");
+            return $floating_config->{'pvid'};
+        }
+        my $floating_mac = $floatingDeviceManager->portHasFloatingDevice($switch->{_ip}, $ifIndex);
+        if($floating_mac){
+            $logger->debug("Device $mac is plugged into a floating enabled port (Device $floating_mac). Determining if trunk.");
+            my $floating_config = $ConfigFloatingDevices{$floating_mac};
+            if( ! $floating_config->{'trunkPort'} ){
+                $logger->info("MAC $mac, PID: $node_info->{pid} has just plugged in an access floating device enabled port. Returned VLAN $floating_config->{pvid}");
+                return $floating_config->{'pvid'};
+            }
+        }
     }
 
     my ($violation,$registration,$role);

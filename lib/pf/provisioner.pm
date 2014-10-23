@@ -1,4 +1,5 @@
 package pf::provisioner;
+
 =head1 NAME
 
 pf::provisioner add documentation
@@ -133,7 +134,7 @@ sub match {
     my ($self, $os, $node_attributes) = @_;
     return $self->matchOS($os) && $self->matchCategory($node_attributes);
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

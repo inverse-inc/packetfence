@@ -5,6 +5,13 @@
 
 <revhistory>
   <revision>
+    <revnumber>3.5</revnumber>
+    <date>2014-10-22</date>
+    <revremark>
+    - Adding MDM documentation
+    </revremark>
+  </revision>
+  <revision>
     <revnumber>3.4</revnumber>
     <date>2014-09-10</date>
     <revremark>

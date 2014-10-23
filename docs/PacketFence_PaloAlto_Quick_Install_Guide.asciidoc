@@ -68,10 +68,10 @@ Now that we have the key, we will configure the PaloAlto firewall in PacketFence
 Go to *Configuration -> Firewall SSO -> Add Firewall -> PaloAlto*.
 
 [options="compact"]
-* *Hostname or IP Address*: @IP of your firewall
-* *Secret or Key*: LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVlj0= (Put the key previously generated)
+* *Hostname or IP Address*: IP of your firewall
+* *Secret or Key*: LUFRPT1jeFV6SHd1QnJHaU55dnYvRlFNSkJNeTR6Uzg9TDgzNVlj0= (use the key previously generated)
 * *Port of the service*: 443
-* *Roles*: 'add the roles that you want to do SSO with'
+* *Roles*: add the roles that you want to do SSO with
 
 image::docs/images/doc-paloalto-cfg_SSO_pf.png[scaledwidth="100%",alt="Add a PaloAlto Firewall in Packetfence"]
 
