@@ -17,6 +17,7 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Log::Log4perl::Level;
+use pf::floatingdevice::custom;
 
 use constant LOCATIONLOG => 'locationlog';
 
@@ -482,6 +483,11 @@ sub locationlog_synchronize {
     # if we are in a wired environment, close any conflicting switchport entry
     # but paying attention to VoIP vs non-VoIP entries (we close the same type that we are asked to add)
     if ($connection_type && ($connection_type & $WIRED) == $WIRED) {
+        my $floatingDeviceManager = new pf::floatingdevice::custom();
+        if( $floatingDeviceManager->portHasFloatingDevice($switch_ip, $ifIndex) ){
+            $logger->info("Not adding locationlog entry for mac $mac because it's plugged in a floating device enabled port");
+            return 1;
+        }
 
         my @locationlog_switchport = locationlog_view_open_switchport($switch, $ifIndex, $voip_status);
         if (!(@locationlog_switchport && scalar(@locationlog_switchport) > 0)) {

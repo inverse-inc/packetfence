@@ -234,6 +234,12 @@ sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return; }
 
+sub supportsMABFloatingDevices{
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    return $FALSE;
+}
+
 sub new {
     my ( $class, %argv ) = @_;
     my $this = bless {
@@ -1426,6 +1432,28 @@ sub isDynamicPortSecurityEnabled {
 sub isStaticPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
     return ( 0 == 1 );
+}
+
+=item enableMABFloatingDevice
+
+Connects to the switch and configures the specified port to be RADIUS floating device ready
+
+=cut
+sub enableMABFloatingDevice{
+    my ($this, $ifIndex) = @_; 
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->warn("Cannot enable floating device on $this->{ip} on $ifIndex because this function is not implemented");
+}
+
+=item disableMABFloatingDevice
+
+Connects to the switch and removes the RADIUS floating device configuration
+
+=cut
+sub disableMABFloatingDevice{
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->warn("Cannot disable floating device on $this->{ip} on $ifIndex because this function is not implemented");
 }
 
 =item getPhonesDPAtIfIndex
@@ -3009,6 +3037,31 @@ sub identifyConnectionType {
     return;
 }
 
+=item disableMABByIfIndex
+
+Disables mac authentication bypass on the specified port
+
+=cut
+
+sub disableMABByIfIndex{
+    my ($self, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->error("This function is unimplemented.");
+    return 0; 
+} 
+
+=item enableMABByIfIndex
+
+Enables mac authentication bypass on the specified port
+
+=cut
+
+sub enableMABByIfIndex{
+    my ($self, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->error("This function is unimplemented.");
+    return 0; 
+}
 
 =back
 
