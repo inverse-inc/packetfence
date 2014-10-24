@@ -250,7 +250,7 @@ sub accounting {
 
         my $connection = pf::Connection->new;
         $connection = $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
-        my $connection_typ = $connection->attributesToBackwardCompatible;
+        my $connection_type = $connection->attributesToBackwardCompatible;
 
         $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port); 
 
