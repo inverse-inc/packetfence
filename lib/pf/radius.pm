@@ -247,7 +247,11 @@ sub accounting {
 
     if ($isStop || $isUpdate) {
         my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
-        my $connection_type = $switch->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
+
+        my $connection = pf::Connection->new;
+        $connection = $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+        my $connection_typ = $connection->attributesToBackwardCompatible;
+
         $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port); 
 
         if($isStop){
