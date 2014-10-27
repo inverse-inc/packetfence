@@ -143,6 +143,7 @@ exit(0);
 =over
 
 =cut
+
 sub dhcp_detector {
     my $filter = "udp and (port 67 or port 68)";
     my $filter_t;
@@ -317,6 +318,7 @@ sub listen_dhcp {
 =item parse_dhcp_discover
 
 =cut
+
 sub parse_dhcp_discover {
     my ($dhcp) = @_;
     $logger->debug("DHCPDISCOVER from $dhcp->{'chaddr'}");
@@ -325,6 +327,7 @@ sub parse_dhcp_discover {
 =item parse_dhcp_offer
 
 =cut
+
 sub parse_dhcp_offer {
     my ($dhcp) = @_;
 
@@ -341,6 +344,7 @@ sub parse_dhcp_offer {
 =item parse_dhcp_request
 
 =cut
+
 sub parse_dhcp_request {
     my ($dhcp) = @_;
     $logger->debug("DHCPREQUEST from $dhcp->{'chaddr'}");
@@ -376,6 +380,7 @@ sub parse_dhcp_request {
 =item parse_dhcp_ack
 
 =cut
+
 sub parse_dhcp_ack {
     my ($dhcp) = @_;
 
@@ -409,6 +414,7 @@ sub parse_dhcp_ack {
 =item parse_dhcp_release
 
 =cut
+
 sub parse_dhcp_release {
     my ($dhcp) = @_;
     $logger->debug("DHCPRELEASE from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
@@ -418,6 +424,7 @@ sub parse_dhcp_release {
 =item parse_dhcp_inform
 
 =cut
+
 sub parse_dhcp_inform {
     my ($dhcp) = @_;
     $logger->debug("DHCPINFORM from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
@@ -430,6 +437,7 @@ Requires DHCP Server IP
 Optional but very useful DHCP Server MAC
 
 =cut
+
 sub rogue_dhcp_handling {
     my ($dhcp_srv_ip, $dhcp_srv_mac, $offered_ip, $client_mac, $relay_ip) = @_;
 
@@ -494,6 +502,7 @@ sub rogue_dhcp_handling {
 Option 82 is Relay Agent Information. Defined in RFC 3046.
 
 =cut
+
 sub parse_dhcp_option82 {
     my ($dhcp) = @_;
 
@@ -547,6 +556,7 @@ sub update_iplog {
 =back
 
 =cut
+
 sub process_fingerprint {
     my ($dhcp) = @_;
 
@@ -593,6 +603,7 @@ Caches results on first run then returns from cache.
 TODO: Should be refactored and putted into a class. IP and MAC methods should also be put into a single one.
 
 =cut
+
 sub get_local_dhcp_servers_by_ip {
 
     # return from cache
@@ -616,6 +627,7 @@ Caches results on first run then returns from cache.
 TODO: Should be refactored and putted into a class. IP and MAC methods should also be put into a single one.
 
 =cut
+
 sub get_local_dhcp_servers_by_mac {
     # return from cache
     return @local_dhcp_servers_mac if ( @local_dhcp_servers_mac );
