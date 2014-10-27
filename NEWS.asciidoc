@@ -21,6 +21,7 @@ New Features
 Enhancements
 ++++++++++++
 * Added httpd.aaa service as a new API service for the exclusive use of RADIUS
+* More precisly define which dhcp message types we are listening for
 
 Bug Fixes
 +++++++++
