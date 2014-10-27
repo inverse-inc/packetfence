@@ -14,7 +14,21 @@
     CALL form.field('id').type_attr('hidden');
     CALL form.field('id').do_label(0);
   END -%]
-    [% form.block('definition').render %]
+
+    [% IF form.block('compliance').defined %]
+        <ul class="nav nav-tabs">
+            <li class="active" ><a href="#settings" data-toggle="tab">Settings</a></li>
+            <li><a href="#compliance" data-toggle="tab">Compliance</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="settings" class="tab-pane fade in active">[% form.block('definition').render %]</div>
+            <div id="compliance" class="tab-pane fade">[% form.block('compliance').render %]</div>
+        </div>
+    [% ELSE %]
+        [% form.block('definition').render %]
+    [% END %]
+
 
   </div><!--modal-body-->
 

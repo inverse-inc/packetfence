@@ -85,6 +85,14 @@ If the provisioner has to be enforced on each connection
 
 has enforce => (is => 'rw', default => sub { 1 });
 
+=head2 non_compliance_violation
+
+Which violation should be raised when a device is not compliant
+
+=cut
+
+has non_compliance_violation => (is => 'rw' );
+
 =head1 METHODS
 
 =head2 _build_template

@@ -24,6 +24,7 @@ use Log::Log4perl;
 use pf::iplog;
 use pf::ConfigStore::Provisioning;
 use DateTime::Format::RFC3339;
+use pf::violation;
 
 =head1 Atrributes
 
@@ -90,6 +91,14 @@ The URI to download the agent
 =cut
 
 has agent_download_uri => (is => 'rw');
+
+=head2 critical_issues_threshold
+
+The amount of critical issues to be detected by opswat before raising the non_compliance_violation
+
+=cut
+
+has critical_issues_threshold => (is => 'rw', default => sub {0} );
 
 # amount of minutes to condider the node as still active with OPSWAT
 my $CONNECTION_DELAY = 30;
@@ -171,7 +180,7 @@ sub refresh_access_token {
     }
 }
 
-sub validate_mac_in_opswat {
+sub get_device_info {
     my ($self, $mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
  
@@ -203,8 +212,20 @@ sub validate_mac_in_opswat {
     } 
     else { 
         my $json_response = decode_json($response_body);
-        return $self->check_active($mac, $json_response);
+        return $json_response;
     } 
+}
+
+sub validate_mac_in_opswat {
+    my ($self, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $info = $self->get_device_info($mac);
+    if($info != -1){
+        return $self->check_active($mac, $info);
+    }
+    else{
+        return $info;
+    }
 }
 
 sub check_active {
@@ -233,6 +254,10 @@ sub check_active {
 sub authorize {
     my ($self,$mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    # take the opportunity to check compliance
+    $self->verify_compliance($mac);
+
     my $result = $self->validate_mac_in_opswat($mac); 
     if( $result == -1){
         $logger->info("OPSWAT Oauth access token is probably not valid anymore.");
@@ -248,6 +273,20 @@ sub authorize {
         return $result;
     }   
    
+}
+
+sub verify_compliance {
+    my ($self, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $info = $self->get_device_info($mac);
+    if($info != -1){
+        if($self->{critical_issues_threshold} != 0 && $info->{total_critical_issue} >= $self->{critical_issues_threshold}){
+            pf::violation::violation_add($mac, $self->{non_compliance_violation}, ());
+        }
+    }
+    else{
+        $logger->warn("Couldn't contact OPSWAT API to validate compliance of $mac");
+    }
 }
 
 =head1 AUTHOR
