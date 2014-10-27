@@ -53,6 +53,10 @@ public class PFPacketProcessor {
     // This is the bytes representation of the PacketFence MAC to use in the redirected packets
     private static final byte[] PF_MAC = pfConfig.getMacBytes(pfConfig.getElement("pf_dns_mac"));
 
+    //FIX ME !!! : This will use useless memory if packets don't come back. Need to expire this.
+    //FORMAT : 'CLIENT_MAC,CLIENT_SOURCE_PORT' => 'INITIAL_MAC_DST,INITIAL_IP,DST,INITIAL_SW_PORT'
+    private static Hashtable<String, String> packetBackMemory = new Hashtable<String, String>();
+
     private String sourceMac;
     private String switchId;
     private String port;
@@ -72,6 +76,27 @@ public class PFPacketProcessor {
      * Queries PacketFence if needed and triggers the returned actions
      */
     public PacketResult processPacket(){
+        //Handling return DNS packets if needs to be
+        //It's when a DNS packet is coming back on an uplink
+        System.out.println("Packet src port "+this.packet.getSourcePort()+" packet source int "+this.port);
+        if (this.packet.getSourcePort() == 53 && this.port.equals("1")){
+            String key = this.packet.getDestMac()+","+this.packet.getDestPort();
+            String value = packetBackMemory.get(key);
+            if(value != null){
+                System.out.println("Got "+value+" for key "+key);
+                String[] data = value.split(",");
+                String initial_mac = data[0];
+                String initial_ip = data[1];
+                String initial_sw_port = data[2];
+                initial_mac = initial_mac.replace(":", "");
+                this.forwardMasquerade(initial_mac, initial_ip, initial_sw_port);
+                return PacketResult.CONSUME;
+            }
+            else{
+                System.out.println("DNS packet came back on the uplink but can't find a direct rewrite to do with it");
+            }   
+        } 
+        
         if( !this.alreadyInTransaction()  && !this.shouldIgnorePacket() ){
             this.startTransaction();
             JSONObject response = this.getPacketFenceActions();
@@ -183,6 +208,10 @@ public class PFPacketProcessor {
                     return PacketResult.KEEP_PROCESSING;
                 }
             }
+            // For bad switches on which the DNS traffic always goes through this plugin
+            else if(action.equals("accept") && this.packet.getDestPort() == 53){
+                this.forwardNormal();
+            }
             System.out.println(data.toString());
             log.debug(data.toString());
             return PacketResult.KEEP_PROCESSING;
@@ -197,6 +226,13 @@ public class PFPacketProcessor {
      * Forwards the original packet to PacketFence by modifying the destination MAC and IP
      */
     private void forwardToPacketFence(){
+
+        // Let's remember this packet in case it comes back
+        String key = this.packet.getSourceMac()+","+this.packet.getSourcePort();
+        String value = this.packet.getDestMac()+","+this.packet.getDestIP()+","+this.port;
+        System.out.println("Setting "+key+" "+value);
+        packetBackMemory.put(key, value);
+
         // Set destination IP to PacketFence
         try{
         this.packet.getL3Packet().setDestinationAddress(InetAddress.getByName(pfConfig.getElement("pf_dns_ip")));
@@ -216,6 +252,49 @@ public class PFPacketProcessor {
         }
 
         // Find the uplink port - FIX ME : port 1 is hardcoded to be the uplink        
+        NodeConnector outbound = NodeConnector.fromStringNoNode("1", this.packet.getRawPacket().getIncomingNodeConnector().getNode());
+
+        RawPacket raw = packetHandler.getDataPacketService().encodeDataPacket(this.packet.getL2Packet());
+        raw.setOutgoingNodeConnector(outbound);
+        packetHandler.getDataPacketService().transmitDataPacket(raw);
+
+    }
+
+    private void forwardMasquerade(String mac, String ip, String port){
+        try{
+        this.packet.getL3Packet().setSourceAddress(InetAddress.getByName(ip));
+        }catch(Exception e){e.printStackTrace();} 
+
+        // Set destination MAC to initial
+        this.packet.getL2Packet().setSourceMACAddress(pfConfig.getMacBytes(mac));
+
+        Packet l4Packet = this.packet.getL4Packet();
+        
+        // For now we set the checksum to 0
+        // It doesn't work for TCP though
+        if(l4Packet instanceof UDP){
+            ((UDP)this.packet.getL4Packet()).setChecksum((short)0);
+        }
+        else if(l4Packet instanceof TCP){
+            ((TCP)this.packet.getL4Packet()).setChecksum((short)0);
+        }
+
+        NodeConnector outbound = NodeConnector.fromStringNoNode(port, this.packet.getRawPacket().getIncomingNodeConnector().getNode());
+
+        RawPacket raw = packetHandler.getDataPacketService().encodeDataPacket(this.packet.getL2Packet());
+        raw.setOutgoingNodeConnector(outbound);
+        packetHandler.getDataPacketService().transmitDataPacket(raw);
+
+    }
+
+    private void forwardNormal(){
+
+        // Let's remember this packet in case it comes back
+        String key = this.packet.getSourceMac()+","+this.packet.getSourcePort();
+        String value = this.packet.getDestMac()+","+this.packet.getDestIP()+","+this.port;
+        System.out.println("Setting "+key+" "+value);
+        packetBackMemory.put(key, value);
+
         NodeConnector outbound = NodeConnector.fromStringNoNode("1", this.packet.getRawPacket().getIncomingNodeConnector().getNode());
 
         RawPacket raw = packetHandler.getDataPacketService().encodeDataPacket(this.packet.getL2Packet());
@@ -320,6 +399,7 @@ public class PFPacketProcessor {
             params.put("mac", sourceMac);
             params.put("switch_id", switchId);
             params.put("port", port);
+            params.put("controller_ip", pfConfig.getElement("controller_ip"));
             jsonBody.put("params", params);
             return jsonBody;
         }

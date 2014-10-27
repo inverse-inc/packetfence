@@ -196,14 +196,14 @@ public class PFPacket {
      * Get the destination MAC address bytes array
      */
     public String getSourceIP(){
-        return this.getSourceInetAddress().toString();
+        return this.getSourceInetAddress().toString().replace("/", "");
     }
 
     /*
      * Get the destination IP address as a String
      */
     public String getDestIP(){
-        return this.getDestInetAddress().toString();
+        return this.getDestInetAddress().toString().replace("/", "");
     }
 
     /*
