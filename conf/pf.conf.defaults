@@ -58,6 +58,12 @@ rogueinterval=10
 # This feature is only available if the dhcpdetector is activated.
 dhcpoption82logger=disabled
 #
+# network.dhcp_filter_by_message_types
+#
+# Which dhcp message types are being listened by the pfdhcplistener.
+# Do not change unless you know what you are doing
+dhcp_filter_by_message_types=DHCPOFFER,DHCPREQUEST,DHCPDECLINE,DHCPACK,DHCPRELEASE
+#
 # network.interfaceSNAT
 # Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)
 interfaceSNAT=

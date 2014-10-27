@@ -145,7 +145,7 @@ exit(0);
 =cut
 
 sub dhcp_detector {
-    my $filter = "udp and (port 67 or port 68)";
+    my $filter = make_pcap_filter(@{$Config{network}{dhcp_filter_by_message_types}});
     my $filter_t;
     my $net;
     my $mask;
@@ -160,6 +160,7 @@ sub dhcp_detector {
     if (!defined($pcap)) {
         $logger->logdie("Unable to initiate packet capture. Is $interface an actual network interface?");
     }
+    $logger->trace("Using filter '$filter'");
 
     if ((Net::Pcap::compile( $pcap, \$filter_t, $filter, $opt, 0 )) == -1) {
         $logger->logdie("Unable to compile filter string '$filter'");
