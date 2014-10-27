@@ -300,8 +300,6 @@ sub is_in_ipset_cache {
     return exists $IPSET_CACHE{join(':',$session,$ip,$port)};
 }
 
-=back
-
 =head1 COPYRIGHT
 
 Copyright (C) 2007-2013 Inverse inc.
