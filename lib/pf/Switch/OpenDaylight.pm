@@ -32,7 +32,7 @@ sub supportsFlows { return $TRUE }
 sub getIfType{ return $SNMP::ETHERNET_CSMACD; }
 
 sub authorizeMac {
-    my ($self, $mac, $vlan, $port) = @_;
+    my ($self, $mac, $vlan, $port, $switch_id) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     my @uplinks = $self->getUpLinks();
 
@@ -45,11 +45,11 @@ sub authorizeMac {
     }
 
     # install a new outbound flow
-    $self->install_tagged_outbound_flow($port, $uplinks[0], $mac, $vlan) || return $FALSE;
+    $self->install_tagged_outbound_flow($port, $uplinks[0], $mac, $vlan, $switch_id) || return $FALSE;
     # install a new inbound flow on the uplink
-    $self->install_tagged_inbound_flow($uplinks[0], $port, $mac, $vlan ) || return $FALSE;
+    $self->install_tagged_inbound_flow($uplinks[0], $port, $mac, $vlan, $switch_id ) || return $FALSE;
     # instal a flow for broadcast packets
-    $self->install_tagged_inbound_flow($uplinks[0], $port, "ff:ff:ff:ff:ff:ff", $vlan, "broadcast" ) || return $FALSE;
+    $self->install_tagged_inbound_flow($uplinks[0], $port, "ff:ff:ff:ff:ff:ff", $vlan, "broadcast", $switch_id ) || return $FALSE;
 }
 
 sub get_flow_name{
@@ -80,55 +80,58 @@ sub get_flow_name{
 }
 
 sub deauthorizeMac {
-    my ($self, $mac, $vlan, $port) = @_;
+    my ($self, $mac, $vlan, $port, $switch_id) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     my @uplinks = $self->getUpLinks();
     $logger->info("Deleting flows for $mac on port $port on $self->{_ip}");
     # delete a possible drop flow
-    $self->delete_flow("drop", $mac) || return $FALSE;
-    $self->delete_flow("outbound", $mac) || return $FALSE;
-    $self->delete_flow("inbound", $mac) || return $FALSE;
-    $self->delete_flow("broadcast", "ff:ff:ff:ff:ff:ff") || return $FALSE;
+    $self->delete_flow("drop", $mac, $switch_id) || return $FALSE;
+    $self->delete_flow("outbound", $mac, $switch_id) || return $FALSE;
+    $self->delete_flow("inbound", $mac, $switch_id) || return $FALSE;
+    $self->delete_flow("broadcast", "ff:ff:ff:ff:ff:ff", $switch_id) || return $FALSE;
 }
 
 sub delete_flow {
-    my ($self, $type, $mac) = @_;
+    my ($self, $type, $mac, $switch_id) = @_;
     my $flow_name = $self->get_flow_name($type, $mac);
-    return $self->send_json_request("controller/nb/v2/flowprogrammer/default/node/OF/$self->{_OpenflowId}/staticFlow/$flow_name", {}, "DELETE");
+    return $self->send_json_request("controller/nb/v2/flowprogrammer/default/node/OF/$switch_id/staticFlow/$flow_name", {}, "DELETE");
 }
 
 sub send_json_request {
     my ($self, $path, $data, $method) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
-    my $url = "http://$self->{_controllerIp}:8080/$path";
+    my $url = "http://$self->{_ip}:8080/$path";
     my $json_data = encode_json $data;
 
     my $command = 'curl -u admin:admin -X '.$method.' -d \''.$json_data.'\' --header "Content-type: application/json" '.$url; 
     $logger->info("Running $command");
     my $result = pf_run($command);
     $logger->info("Result of command : ".$result);
-    if ($result eq "Success" || $result eq "No modification detected" || $result eq ""){
+    if ( !($method eq "GET") && ( $result eq "Success" || $result eq "No modification detected" || $result eq "") ){
         return $TRUE;
+    }
+    elsif ($method eq "GET"){
+        return $result;
     }
     return $FALSE;
 }
 
 sub install_tagged_outbound_flow {
-    my ($self, $source_int, $dest_int, $mac, $vlan) = @_;
+    my ($self, $source_int, $dest_int, $mac, $vlan, $switch_id) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    $logger->info("Installing tagged outbound flow on source port $source_int, destination port $dest_int, tagged with $vlan, on switch $self->{_OpenflowId}");
+    $logger->info("Installing tagged outbound flow on source port $source_int, destination port $dest_int, tagged with $vlan, on switch $switch_id");
     
     my $clean_mac = $mac;
     $clean_mac =~ s/://g;
     my $flow_name = $self->get_flow_name("outbound", $mac);
-    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$self->{_OpenflowId}/staticFlow/$flow_name";
+    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$switch_id/staticFlow/$flow_name";
     $logger->info("Computed path is : $path");
     my %data = (
         "installInHw" => "true",
         "name" => "$flow_name",
         "node" => {
-            "id" => $self->{_OpenflowId},
+            "id" => $switch_id,
             "type" => "OF",
         },
         "ingressPort" => "$source_int",
@@ -146,7 +149,7 @@ sub install_tagged_outbound_flow {
 }
 
 sub install_tagged_inbound_flow {
-    my ($self, $source_int, $dest_int, $mac, $vlan, $flow_prefix) = @_;
+    my ($self, $source_int, $dest_int, $mac, $vlan, $flow_prefix, $switch_id) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if(!defined($flow_prefix)){
@@ -154,13 +157,13 @@ sub install_tagged_inbound_flow {
     }
 
     my $flow_name = $self->get_flow_name($flow_prefix, $mac);
-    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$self->{_OpenflowId}/staticFlow/$flow_name";
+    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$switch_id/staticFlow/$flow_name";
     $logger->info("Computed path is : $path");
 
     my %data = (
         "name" => $flow_name,
         "node" => {
-            "id" => $self->{_OpenflowId},
+            "id" => $switch_id,
             "type" => "OF",
         },
         "ingressPort" => "$source_int",
@@ -179,7 +182,7 @@ sub install_tagged_inbound_flow {
 }
 
 sub install_drop_flow {
-    my ($self, $source_int, $mac, $vlan, $flow_prefix) = @_;
+    my ($self, $source_int, $mac, $vlan, $flow_prefix, $switch_id) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if(!defined($flow_prefix)){
@@ -187,13 +190,13 @@ sub install_drop_flow {
     }
 
     my $flow_name = $self->get_flow_name($flow_prefix, $mac);
-    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$self->{_OpenflowId}/staticFlow/$flow_name";
+    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$switch_id/staticFlow/$flow_name";
     $logger->info("Computed path is : $path");
 
     my %data = (
         "name" => $flow_name,
         "node" => {
-            "id" => $self->{_OpenflowId},
+            "id" => $switch_id,
             "type" => "OF",
         },
         "ingressPort" => "$source_int",
@@ -222,7 +225,7 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     }
     elsif($self->{_IsolationStrategy} eq "DNS"){
         if (!defined($info) || $violation_count > 0 || $info->{status} eq $pf::node::STATUS_UNREGISTERED || $info->{status} eq $pf::node::STATUS_PENDING){
-            $self->install_dns_redirect($ifIndex, $mac);
+            $self->reactivate_dns_redirect($ifIndex, $mac);
         }
         else{
             $self->uninstall_dns_redirect($ifIndex, $mac);
@@ -231,17 +234,17 @@ sub handleReAssignVlanTrapForWiredMacAuth {
 }
 
 sub block_network_detection {
-    my ($self, $ifIndex, $mac) = @_;
+    my ($self, $ifIndex, $mac, $switch_id) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     
     my $flow_name = $self->get_flow_name("block-network-detection", $mac);
-    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$self->{_OpenflowId}/staticFlow/$flow_name";
+    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$switch_id/staticFlow/$flow_name";
     $logger->info("Computed path is : $path");
 
     my %data = (
         "name" => $flow_name,
         "node" => {
-            "id" => $self->{_OpenflowId},
+            "id" => $switch_id,
             "type" => "OF",
         },
         "ingressPort" => "$ifIndex",
@@ -261,7 +264,7 @@ sub block_network_detection {
 }
 
 sub install_dns_redirect {
-    my ($self, $ifIndex, $mac) = @_;
+    my ($self, $ifIndex, $mac, $switch_id) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     
     $self->synchronize_locationlog($ifIndex, "0", $mac,
@@ -271,13 +274,13 @@ sub install_dns_redirect {
     #$self->block_network_detection($ifIndex, $mac);
 
     my $flow_name = $self->get_flow_name("dnsredirect", $mac);
-    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$self->{_OpenflowId}/staticFlow/$flow_name";
+    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$switch_id/staticFlow/$flow_name";
     $logger->info("Computed path is : $path");
 
     my %data = (
         "name" => $flow_name,
         "node" => {
-            "id" => $self->{_OpenflowId},
+            "id" => $switch_id,
             "type" => "OF",
         },
         "ingressPort" => "$ifIndex",
@@ -299,9 +302,74 @@ sub uninstall_dns_redirect {
     my ($self, $ifIndex, $mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    $self->delete_flow("dnsredirect", $mac);
+    #$self->find_and_delete_flow("dnsredirect", $mac);
+    my $flow_name = $self->get_flow_name("dnsredirect", $mac);
+    $self->deactivate_flow($flow_name); 
+
     return $TRUE;
 }
+
+sub reactivate_dns_redirect {
+    my ($self, $ifIndex, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $flow_name = $self->get_flow_name("dnsredirect", $mac);
+    $self->reactivate_flow($flow_name); 
+}
+
+sub find_flow_by_name {
+    my ($self, $name) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $path = "controller/nb/v2/flowprogrammer/default";
+    my %data = ();
+    my $json_response = $self->send_json_request( $path, \%data, "GET" );
+    my $data = decode_json($json_response);
+
+    my $flows = $data->{flowConfig};
+    foreach my $flow (@$flows){
+        if($flow->{name} eq $name){
+            return $flow;
+        }
+    }
+
+    return $FALSE;
+
+}
+
+sub find_and_delete_flow {
+    my ($self, $type, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $flow_name = $self->get_flow_name($type, $mac);
+    my $flow = $self->find_flow_by_name($flow_name);
+    $self->delete_flow($type, $mac, $flow->{node}->{id});
+}
+
+sub deactivate_flow{
+    my ($self, $flow_name) = @_;
+    my $flow = $self->find_flow_by_name($flow_name);
+    if($flow->{installInHw} eq "true"){
+        $self->toggle_flow($flow);
+    }
+}
+
+sub reactivate_flow{
+    my ($self, $flow_name) = @_;
+    my $flow = $self->find_flow_by_name($flow_name);
+    if($flow->{installInHw} eq "false"){
+        $self->toggle_flow($flow);
+    }
+}
+
+sub toggle_flow {
+    my ($self, $flow) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$flow->{node}->{id}/staticFlow/$flow->{name}";
+    $logger->info("Computed path is : $path");
+
+    return $self->send_json_request($path, (), "POST");
+}
+
+
 
 #sub uninstall_dns_redirect {
 #    my ($self, $ifIndex, $mac) = @_;

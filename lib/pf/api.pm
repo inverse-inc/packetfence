@@ -250,16 +250,20 @@ sub sdn_authorize {
     my $logger = pf::log::get_logger();
     my $mac = $postdata->{mac};
     my $switch_id = $postdata->{switch_id};
+    my $controller = $postdata->{controller_ip};
     my $port = $postdata->{port};
    
-    my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_id);
+    my $switch = pf::SwitchFactory->getInstance()->instantiate($controller);
     $postdata->{switch} = $switch;
     if (!$switch){
         $logger->error("Can't get instance of $switch_id");
         return {action => "failed"};
     }
 
-    if ($switch->isUpLink($port)){
+    #if ($switch->isUpLink($port)){
+    # please don't look at this - need to hardcode the uplink since only the controller is configured now
+    # uplink can only be one, this is all over the place in the plugin, sorry :-(
+    if ($port eq "1"){
         $logger->info("Received an openflow authorize to an uplink. Not doing anything");
         return {action => "ignored"};
     }
@@ -277,7 +281,7 @@ sub sdn_authorize {
             $class->sdn_vlan_authorize($postdata) || return { action => "failed" };
         }
         elsif($switch->{_IsolationStrategy} eq "DNS"){
-            $switch->install_dns_redirect($port, $mac) || return { action => "failed" };
+            $switch->install_dns_redirect($port, $mac, $switch_id) || return { action => "failed" };
         }
         return { action => "isolate", strategy => $switch->{_IsolationStrategy} };
     } 
