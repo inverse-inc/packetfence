@@ -17,6 +17,7 @@ Version x.x.x released on xxxx-xx-xx
 New Features
 ++++++++++++
 * Added support for MAC authentication floating devices on Juniper EX series, and on the Cisco Catalyst series
+* Added a hybrid 802.1x + web authentication mode for Cisco Catalyst 2960
 
 Enhancements
 ++++++++++++
