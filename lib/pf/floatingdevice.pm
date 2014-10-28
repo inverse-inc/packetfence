@@ -198,7 +198,7 @@ sub disablePortConfig {
                       "but the port should work.");
     }
 
-    my @locationlog = locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port); 
+    my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port); 
     my $radius_triggered = (str_to_connection_type($locationlog[0]->{connection_type}) eq $WIRED_MAC_AUTH);
 
     $logger->info("Enabling access control on port $switch_port");
