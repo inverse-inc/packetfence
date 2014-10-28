@@ -199,7 +199,14 @@ sub disablePortConfig {
     }
 
     my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port); 
-    my $radius_triggered = (str_to_connection_type($locationlog[0]->{connection_type}) eq $WIRED_MAC_AUTH);
+    my $radius_triggered;
+    if(defined($locationlog[0])){
+        $radius_triggered = (str_to_connection_type($locationlog[0]->{connection_type}) eq $WIRED_MAC_AUTH);
+    }
+    # if we don't have locationlog info then we'll act like before (WIRED SNMP)
+    else{
+        $radius_triggered = 0;
+    }
 
     $logger->info("Enabling access control on port $switch_port");
     if (!$radius_triggered && ! $switch->enablePortSecurityByIfIndex($switch_port)) {
