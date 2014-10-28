@@ -27,6 +27,7 @@ Enhancements
 Bug Fixes
 +++++++++
 * Fix old MAC addresses being left on port-security enabled ports in a RADIUS + port-security environment
+* Fix firewall rule that allows httpd.portal to be reached on management IP when pre-registration enabled
 
 Version 4.5.0 released on 2014-10-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
