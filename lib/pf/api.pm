@@ -261,7 +261,7 @@ sub _reassignSNMPConnections {
     if ( $switch->isPortSecurityEnabled($ifIndex) ) {
         $logger->info( "[$mac] security traps are configured on (".$switch->{'_id'}.") ifIndex $ifIndex. Re-assigning VLAN" );
 
-        node_determine_and_set_into_VLAN( $mac, $switch, $ifIndex, $connection_type );
+        _node_determine_and_set_into_VLAN( $mac, $switch, $ifIndex, $connection_type );
         
         # We treat phones differently. We never bounce their ports except if there is an outstanding
         # violation. 
@@ -277,6 +277,27 @@ sub _reassignSNMPConnections {
     
     $logger->info( "[$mac] Flipping admin status on switch (".$switch->{'_id'}.") ifIndex $ifIndex. " );
     $switch->bouncePort($ifIndex);
+}
+
+=head2 _node_determine_and_set_into_VLAN
+
+Set the vlan for the node on the switch
+
+=cut
+
+sub _node_determine_and_set_into_VLAN {
+    my ( $mac, $switch, $ifIndex, $connection_type ) = @_;
+
+    my $vlan_obj = new pf::vlan::custom();
+
+    my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex, $connection_type);
+
+    $switch->setVlan(
+        $ifIndex,
+        $vlan,
+        undef,
+        $mac
+    );
 }
 
 
