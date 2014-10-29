@@ -15,9 +15,9 @@ pf::firewallsso
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use pf::client;
 use pf::config;
+use pf::log;
 
 =head1 SUBROUTINES
 
@@ -28,7 +28,7 @@ use pf::config;
 =cut
 
 sub new {
-   my $logger = Log::Log4perl::get_logger("pf::firewallsso");
+   my $logger = get_logger();
    $logger->debug("instantiating new pf::firewallsso");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
@@ -44,7 +44,7 @@ Send the firewall sso update request to the webapi.
 sub do_sso {
     my ($self, $method, $mac, $ip, $timeout) = @_;
     return unless scalar keys %ConfigFirewallSSO;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = get_logger();
 
     my $client = pf::client::getClient();
 
@@ -54,6 +54,7 @@ sub do_sso {
        'ip'               => $ip,
        'timeout'          => $timeout
     );
+    $logger->trace("Sending a firewallsso $method for ($mac,$ip) ");
 
     $client->notify('firewallsso', \%data );
 
