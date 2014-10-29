@@ -19,9 +19,13 @@ use pf::log;
 use Apache2::RequestIO();
 use Apache2::RequestRec();
 use Apache2::Response ();
-use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE SERVER_ERROR HTTP_NOT_FOUND);
+use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE SERVER_ERROR HTTP_NOT_FOUND HTTP_NO_CONTENT);
 use base qw(Class::Accessor);
 __PACKAGE__->mk_accessors(qw(dispatch_to));
+
+our $MSGPACKRPC_REQUEST = 0;
+our $MSGPACKRPC_RESPONSE = 1;
+our $MSGPACKRPC_NOTIFICATION = 2;
 
 sub handler {
     my $logger = get_logger;
@@ -44,19 +48,20 @@ sub handler {
         return Apache2::Const::OK;
     }
     my $argCount = @$data;
-    if ($argCount == 4) {
+    if ($data->[0] == $MSGPACKRPC_REQUEST ) {
         my $status_code = Apache2::Const::OK;
         my ($type, $msgid, $method, $params) = @$data;
-        return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $type == 0;
         my $dispatch_to = $self->dispatch_to;
         unless ($dispatch_to->isPublic($method)) {
-            $self->_set_error($r,$msgid,Apache2::Const::HTTP_NOT_FOUND,"method not found");
+            $self->_set_error($r,$msgid,Apache2::Const::HTTP_NOT_FOUND,"$method not found");
             return Apache2::Const::OK;
         }
         my $response = [];
         eval {
             my @results = $dispatch_to->$method(@$params);
-            $response = [1,$msgid,undef,\@results];
+            #The response message is a four elements array shown below, packed by MessagePack format
+            #[type, msgid, error, result]
+            $response = [$MSGPACKRPC_RESPONSE,$msgid,undef,\@results];
         };
         if($@) {
             $logger->error($@);
@@ -66,26 +71,32 @@ sub handler {
         my $content = Data::MessagePack->pack($response);
         $r->print($content);
         $r->content_type('application/x-msgpack');
-        return Apache2::Const::OK;
-    } elsif ($argCount == 3) {
+    } elsif ($data->[0] == $MSGPACKRPC_NOTIFICATION ) {
         my ($type, $method, $params) = @$data;
-        return Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE unless $type == 2;
+        #Do not return errors on notification messages
+        $r->status(Apache2::Const::HTTP_NO_CONTENT);
         my $dispatch_to = $self->dispatch_to;
-        return Apache2::Const::HTTP_NOT_IMPLEMENTED unless $dispatch_to->isPublic($method);
-        $r->push_handlers(PerlCleanupHandler => sub {
-            eval {
-                $dispatch_to->$method(@$params);
-            };
-        });
-        return Apache2::Const::OK;
+        if ($dispatch_to->isPublic($method)) {
+            $r->push_handlers(PerlCleanupHandler => sub {
+                eval {
+                    $dispatch_to->$method(@$params);
+                };
+            });
+        } else {
+            $logger->error("$method not found");
+        }
+    } else {
+        $self->_set_error($r,undef,Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,"invalid message type");
     }
-    $self->_set_error($r,Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,"invalid content");
     return Apache2::Const::OK;
 }
 
 sub _set_error {
     my ($self,$r,$msgid,$status,$msg) = @_;
-    my $response = [1,$msgid,[$msg],undef];
+    get_logger->error($msg);
+    #The response message is a four elements array shown below, packed by MessagePack format
+    #[type, msgid, error, result]
+    my $response = [$MSGPACKRPC_RESPONSE,$msgid,[$msg],undef];
     my $content = Data::MessagePack->pack($response);
     $r->content_type('application/x-msgpack');
     $r->status($status);
