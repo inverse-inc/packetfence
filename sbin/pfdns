@@ -120,10 +120,7 @@ foreach my $network ( keys %ConfigNetworks ) {
     }
 }
 
-push @ip_addr, "172.20.20.109";
-push @ip_addr, "10.0.0.6";
-push @ip_addr, "10.0.0.5";
-push @ip_addr, "172.21.2.69";
+push @ip_addr, "0.0.0.0";
 
 populate_ipset_cache($IPSET_SESSION);
 
