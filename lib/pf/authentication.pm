@@ -452,7 +452,7 @@ If action is set, it will return the value of the action immediately.
 =cut
 
 sub match {
-    my ($source_id, $params, $action) = @_;
+    my ($source_id, $params, $action,$source_ref) = @_;
     my ($actions, @sources);
 
     $logger->debug("Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
@@ -483,6 +483,7 @@ sub match {
         $actions ||= [];
         $logger->debug("[".$source->id."] Returning actions ".join(', ', map { $_->type." = ".$_->value } @$actions ));
     }
+    $$source_ref = $source->id if defined $source_ref;
 
     return $actions;
 }

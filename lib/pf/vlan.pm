@@ -398,7 +398,8 @@ sub getNormalVlan {
             connection_type => connection_type_to_str($connection_type),
             SSID => $ssid,
         };
-        $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE);
+        my $source;
+        $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, $source);
         #Compute autoreg if we use autoreg
         if (isenabled($node_info->{'autoreg'})) {
             my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
@@ -414,10 +415,25 @@ sub getNormalVlan {
                     'unregdate' => $value,
                     'category' => $role,
                     'autoreg' => 'yes',
+                    'pid' => $user_name,
                 );
                 if (defined $role) {
                     %info = (%info, (category => $role));
                 }
+                require pf::person;
+                require pf::lookup::person;
+                # create a person entry for pid if it doesn't exist
+                if ( !pf::person::person_exist($user_name) ) {
+                    $logger->info("creating person $user_name because it doesn't exist");
+                    pf::person::person_add($user_name);
+                    pf::lookup::person::lookup_person($user_name);
+                } else {
+                    $logger->debug("person $user_name already exists");
+                }
+                pf::person::person_modify($user_name,
+                    'source'  => \$source,
+                    'portal'  => $profile->getName,
+                );
                 node_modify($mac,%info);
             }
         }
@@ -484,8 +500,12 @@ sub getNodeInfoForAutoReg {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-    my ($this, $switch_ip, $switch_port, $mac, $vlan,
+    my ($this, $switch, $switch_port, $mac, $vlan,
         $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type) = @_;
+    my $logger = Log::Log4perl->get_logger();
+    my $filter = new pf::vlan::filter;
+
+    my ($result,$role) = $filter->test('NodeInfoForAutoReg',$switch, $switch_port, $mac, undef, $conn_type, $user_name, $ssid, undef);
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
@@ -495,6 +515,9 @@ sub getNodeInfoForAutoReg {
         auto_registered => 1, # tells node_register to autoreg
         autoreg         => 'yes',
     );
+    if (defined($role)) {
+        $node_info{'category'} = $role;
+    }
 
     # if we are called from a violation with action=autoreg, say so
     if (defined($violation_autoreg) && $violation_autoreg) {

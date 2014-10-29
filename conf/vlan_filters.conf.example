@@ -1,6 +1,6 @@
 # Vlan filter configuration
 # 
-# you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegister, InlineVlan)
+# you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegister, InlineVlan, NodeInfoForAutoReg)
 #
 # Make a simple rule like this:
 #
