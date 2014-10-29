@@ -27,6 +27,7 @@ use pf::log;
 use WWW::Curl::Easy;
 use Data::MessagePack;
 use Moo;
+use HTTP::Status qw(:constants);
 
 =head1 Attributes
 
@@ -111,7 +112,7 @@ sub call {
     # Looking at the results...
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-        if($response_code == 200) {
+        if($response_code == HTTP_OK) {
             $response = Data::MessagePack->unpack($response_body);
         } else {
             $response = Data::MessagePack->unpack($response_body);
@@ -148,7 +149,7 @@ sub notify {
     # Looking at the results...
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-        if($response_code != 200) {
+        if($response_code != HTTP_NO_CONTENT) {
             get_logger->error( "An error occured while processing the MSGPACK request return code ($response_code)");
         }
     } else {
