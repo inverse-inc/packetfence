@@ -86,6 +86,7 @@ sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
+sub supportsMABFloatingDevices { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
 sub supportsAccessListBasedEnforcement { return $TRUE }
 # VoIP technology supported

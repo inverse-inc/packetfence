@@ -54,7 +54,9 @@ my @whitelist = (
     'disableIfLinkUpDownTraps', 'enableIfLinkUpDownTraps', 'connectWrite', 'connectWriteToController',
     'disconnectWrite', 'disconnectWriteToController', 'getDeauthSnmpConnectionKey', '_NasPortToIfIndex',
     'radiusDisconnect', 'supportsRoleBasedEnforcement', 'getRoleByName', 'returnRadiusAccessAccept',
-    'synchronize_locationlog', 'extractVLAN'
+    'synchronize_locationlog', 'extractVLAN', 
+    'supportsMABFloatingDevices', 'disableMABFloatingDevice', 'enableMABFloatingDevice', 'disableMABByIfIndex', 'enableMABByIfIndex',
+    'identifyConnectionType'
 );
 
 my @missing_subs;
