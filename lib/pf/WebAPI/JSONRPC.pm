@@ -23,6 +23,9 @@ use List::MoreUtils qw(any);
 use base qw(Class::Accessor);
 __PACKAGE__->mk_accessors(qw(dispatch_to));
 
+our $JSONRPC_ERROR_CODE_NOT_FOUND     = -32601;
+our $JSONRPC_ERROR_CODE_GENERIC_ERROR = -32000;
+
 our %ALLOW_CONTENT_TYPE = (
     'application/json-rpc' => undef,
     'application/json' => undef,
@@ -62,13 +65,12 @@ sub handler {
         }
     }
     unless ($method_sub = $dispatch_to->isPublic($method)) {
-        $r->custom_response(Apache2::Const::HTTP_NOT_FOUND,
-            encode_json(
-                {   (defined $jsonrpc ? (jsonrpc => $jsonrpc) : ()),
-                    (defined $id      ? (id      => $id)      : ()),
-                    error => {code => -32601, message => "Method not found"},
-                }
-            )
+        $r->print(
+            encode_json({
+                (defined $jsonrpc ? (jsonrpc => $jsonrpc) : ()),
+                (defined $id      ? (id      => $id)      : ()),
+                error => {code => $JSONRPC_ERROR_CODE_NOT_FOUND, message => "Method not found"},
+            })
         );
         $status_code = Apache2::Const::HTTP_NOT_FOUND;
     } elsif (defined $id) {
@@ -84,7 +86,7 @@ sub handler {
             $response_content = encode_json({
                 (defined $jsonrpc ? (jsonrpc => $jsonrpc) : ()),
                 id => $id,
-                error => {code => -32000, message => "$@"},
+                error => {code => $JSONRPC_ERROR_CODE_GENERIC_ERROR, message => "$@"},
             });
             $logger->error($@);
             $status_code = Apache2::Const::HTTP_INTERNAL_SERVER_ERROR;
