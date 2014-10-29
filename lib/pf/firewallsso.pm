@@ -2,13 +2,13 @@ package pf::firewallsso;
 
 =head1 NAME
 
-pf::web::firewallsso
+pf::firewallsso
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::web::firewall. 
+pf::firewallsso
 
 =cut
 
