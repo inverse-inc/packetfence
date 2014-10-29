@@ -17,6 +17,7 @@ use warnings;
 
 use Log::Log4perl;
 use pf::client;
+use pf::config;
 
 =head1 SUBROUTINES
 
@@ -42,6 +43,7 @@ Send the firewall sso update request to the webapi.
 
 sub do_sso {
     my ($self, $method, $mac, $ip, $timeout) = @_;
+    return unless scalar keys %ConfigFirewallSSO;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     my $client = pf::client::getClient();
