@@ -121,8 +121,15 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
         $interface_ip = $interfaceData->{'ip'};
         my $interface_type = $interfaceData->{'type'};
         $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
+        # Listening only for DHCPACK message type on every configured interface(s)
+        # that are not a 'management' one 
+        # (We can get the information we want from the DHCPACK)
         my @filter_types = qw(DHCPACK);
         if( any { $_ eq "management" } split /\s*,\s*/, $interface_type) {
+            # We need to listen for all DHCP message type on the 'management' interface(s) 
+            # since they are used for remote networks and in those cases, if PacketFence 
+            # is not the DHCP server on these networks, we only get the information we want
+            # from DHCPREQUEST (ACK from another DHCP server in layer 3 will be unicast so PacketFence won't see it
             @filter_types = qw(DHCPOFFER DHCPREQUEST DHCPDECLINE DHCPACK DHCPRELEASE);
         }
 
