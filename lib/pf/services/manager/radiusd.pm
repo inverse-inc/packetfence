@@ -13,7 +13,6 @@ pf::services::manager::radiusd
 
 use strict;
 use warnings;
-use pf::authentication;
 use pf::file_paths;
 use pf::util;
 use pf::config;

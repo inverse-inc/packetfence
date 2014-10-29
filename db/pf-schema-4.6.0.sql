@@ -18,6 +18,7 @@ CREATE TABLE class (
   enabled char(1) NOT NULL default "N",
   vlan varchar(255),
   target_category varchar(255),
+  delay_by int(11) NOT NULL default 0,
   PRIMARY KEY (vid)
 ) ENGINE=InnoDB;
 
@@ -214,6 +215,17 @@ CREATE TABLE iplog (
   CONSTRAINT `0_63` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+--
+-- Table structure for table `iplog_history`
+--
+
+CREATE TABLE iplog_history (
+  mac varchar(17) NOT NULL,
+  ip varchar(15) NOT NULL,
+  start_time datetime NOT NULL,
+  end_time datetime default "0000-00-00 00:00:00"
+) ENGINE=InnoDB;
+
 CREATE TABLE os_type (
   os_id int(11) NOT NULL,
   description varchar(255) NOT NULL,
@@ -229,13 +241,13 @@ CREATE TABLE dhcp_fingerprint (
 ) ENGINE=InnoDB;
 
 CREATE TABLE os_class (
-  class_id int(11) NOT NULL,               
-  description varchar(255) NOT NULL,     
+  class_id int(11) NOT NULL,
+  description varchar(255) NOT NULL,
   PRIMARY KEY class_id (class_id)
-) ENGINE=InnoDB;     
+) ENGINE=InnoDB;
 
-CREATE TABLE os_mapping (   
-  os_type int(11) NOT NULL,  
+CREATE TABLE os_mapping (
+  os_type int(11) NOT NULL,
   os_class int(11) NOT NULL,
   PRIMARY KEY  (os_type,os_class),
   KEY os_type_key (os_type),
@@ -256,6 +268,8 @@ CREATE TABLE `locationlog` (
   `end_time` datetime default NULL,
   `switch_ip` varchar(17) DEFAULT NULL,
   `switch_mac` varchar(17) DEFAULT NULL,
+  `stripped_user_name` varchar (255) NOT NULL default '',
+  `realm`  varchar (255) NOT NULL default '',
   KEY `locationlog_view_mac` (`mac`, `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;
@@ -272,6 +286,8 @@ CREATE TABLE `locationlog_history` (
   `end_time` datetime default NULL,
   `switch_ip` varchar(17) DEFAULT NULL,
   `switch_mac` varchar(17) DEFAULT NULL,
+  `stripped_user_name` varchar (255) NOT NULL default '',
+  `realm`  varchar (255) NOT NULL default '',
   KEY `locationlog_history_view_mac` (`mac`, `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;

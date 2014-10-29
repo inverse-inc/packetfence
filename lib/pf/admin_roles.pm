@@ -118,7 +118,6 @@ our @ADMIN_ACTIONS = qw(
     REALM_CREATE
     REALM_UPDATE
     REALM_DELETE
->>>>>>> Added new Realm menu to manage realm by packetfence
 );
 
 
