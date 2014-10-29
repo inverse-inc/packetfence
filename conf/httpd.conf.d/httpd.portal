@@ -144,13 +144,14 @@ BEGIN {
     use pf::log 'service' => 'httpd.portal';
 }
 
-use pf::config qw();
-use pf::util qw(isenabled);
-use pf::authentication();
-use pf::web::constants();
-use Tie::DxHash;
-use pf::services::manager::httpd();
 use Apache::SSLLookup;
+use Tie::DxHash;
+
+use pf::authentication();
+use pf::config qw();
+use pf::services::manager::httpd();
+use pf::util qw(isenabled);
+use pf::web::constants();
 
 sub gen_conf {
     my %conf;
