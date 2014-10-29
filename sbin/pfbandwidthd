@@ -286,8 +286,6 @@ sub normal_sighandler {
 }
 
 
-=back
-
 =head1 BUGS AND LIMITATIONS
 
 Probably

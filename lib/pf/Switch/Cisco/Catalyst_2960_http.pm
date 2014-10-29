@@ -113,6 +113,19 @@ sub returnRadiusAccessAccept {
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     my $radius_reply_ref = {};
+
+    # If we're doing 802.1x then instead of doing web auth, we'll do classic VLAN isolation
+    # This allows to have different VLANs for the roles
+    if ($connection_type == $WIRED_802_1X){
+        $radius_reply_ref = {
+            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+            'Tunnel-Type' => $RADIUS::VLAN,
+            'Tunnel-Private-Group-ID' => $vlan,
+        };
+
+        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+    }
+
     # TODO this is experimental
     try {
 

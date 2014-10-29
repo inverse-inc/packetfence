@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 4.4.0\n"
+"Project-Id-Version: 4.5.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-10-22 11:27-0400\n"
+"PO-Revision-Date: 2014-10-23 21:13-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -269,6 +269,10 @@ msgstr ""
 
 # html/pfappserver/root/configuration/switch/index.tt
 msgid "Add switch"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
+msgid "Add to Duration Choices"
 msgstr ""
 
 # html/pfappserver/root/violation/list.tt
@@ -929,6 +933,11 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Deauthentication Method"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Default"
 msgstr ""
 
 # html/pfappserver/root/configurator/networks.tt
@@ -1613,7 +1622,6 @@ msgstr "Interfaces - Read"
 msgid "INTERFACES_UPDATE"
 msgstr "Interfaces - Update"
 
-# html/pfappserver/lib/pfappserver/Base/Controller.pm
 # html/pfappserver/root/node/view.tt
 msgid "IP"
 msgstr ""
@@ -4545,6 +4553,7 @@ msgstr ""
 msgid "Your username or email address"
 msgstr ""
 
+# pf::config (SoH Actions)
 # pf::provisioner (Provisioners)
 msgid "accept"
 msgstr "Accept"
@@ -4644,6 +4653,14 @@ msgstr "Android"
 msgid "anniversary"
 msgstr ""
 
+# pf::config (SoH Classes)
+msgid "antispyware"
+msgstr ""
+
+# pf::config (SoH Classes)
+msgid "antivirus"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
@@ -4658,6 +4675,10 @@ msgstr ""
 # conf/documentation.conf (billing.gateway options)
 msgid "authorize_net"
 msgstr "Authorize.net"
+
+# pf::config (SoH Classes)
+msgid "auto-updates"
+msgstr ""
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
@@ -4945,6 +4966,7 @@ msgstr ""
 # conf/documentation.conf (trapping.wireless_ips options)
 # conf/documentation.conf (vlan.closelocationlogonstop options)
 # conf/documentation.conf (vlan.trap_limit options)
+# pf::config (SoH Status)
 msgid "disabled"
 msgstr ""
 
@@ -5015,6 +5037,7 @@ msgstr "Send email"
 # conf/documentation.conf (trapping.wireless_ips options)
 # conf/documentation.conf (vlan.closelocationlogonstop options)
 # conf/documentation.conf (vlan.trap_limit options)
+# pf::config (SoH Status)
 msgid "enabled"
 msgstr ""
 
@@ -5064,6 +5087,10 @@ msgstr "Node"
 # conf/documentation.conf
 msgid "expire.traplog"
 msgstr "Trap logs"
+
+# pf::config (SoH Classes)
+msgid "firewall"
+msgstr ""
 
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Portal::Common (mandatory fields)
@@ -5206,6 +5233,10 @@ msgstr "Inline Layer 2"
 msgid "inlinel3"
 msgstr "Inline Layer 3"
 
+# pf::config (SoH Status)
+msgid "installed"
+msgstr ""
+
 # conf/documentation.conf
 msgid "interface"
 msgstr ""
@@ -5261,6 +5292,10 @@ msgstr ""
 # html/pfappserver/root/configuration/wrix/search_form.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/SoH.pm
+msgid "isnot"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
@@ -5408,6 +5443,10 @@ msgstr ""
 msgid "memberOf"
 msgstr ""
 
+# pf::config (SoH Status)
+msgid "microsoft"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"
 msgstr ""
@@ -5509,6 +5548,10 @@ msgstr "(None)"
 
 # html/pfappserver/root/admin/users.tt
 msgid "notes"
+msgstr ""
+
+# pf::config (SoH Status)
+msgid "ok"
 msgstr ""
 
 # conf/documentation.conf (scan.engine options)
@@ -5635,6 +5678,10 @@ msgstr "Device registration"
 msgid "registration.device_registration_role"
 msgstr "Device registration role"
 
+# pf::config (SoH Actions)
+msgid "reject"
+msgstr ""
+
 # pf::action (VIOLATION_ACTIONS)
 msgid "role_action"
 msgstr "Set role"
@@ -5715,6 +5762,10 @@ msgstr "User"
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # html/pfappserver/root/node/view.tt
 msgid "seconds"
+msgstr ""
+
+# pf::config (SoH Classes)
+msgid "security-updates"
 msgstr ""
 
 # pf::provisioner (Provisioners)
@@ -6012,6 +6063,10 @@ msgstr "unregistered"
 msgid "unreg_action"
 msgstr "Deregister node"
 
+# pf::config (SoH Status)
+msgid "up2date"
+msgstr ""
+
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
 msgstr ""
@@ -6042,6 +6097,10 @@ msgstr ""
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "vendormac"
 msgstr "VendorMAC"
+
+# pf::config (SoH Actions)
+msgid "violation"
+msgstr ""
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "violation_add"

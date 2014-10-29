@@ -58,6 +58,12 @@ rogueinterval=10
 # This feature is only available if the dhcpdetector is activated.
 dhcpoption82logger=disabled
 #
+# network.dhcp_filter_by_message_types
+#
+# Which dhcp message types are being listened by the pfdhcplistener.
+# Do not change unless you know what you are doing
+dhcp_filter_by_message_types=DHCPOFFER,DHCPREQUEST,DHCPDECLINE,DHCPACK,DHCPRELEASE
+#
 # network.interfaceSNAT
 # Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)
 interfaceSNAT=
@@ -263,6 +269,11 @@ admin=1443
 #
 # Port of the soap interface listens on.
 soap=9090
+#
+# ports.aaa
+#
+# Port of the aaa http interface listens on.
+aaa=7070
 
 [scan]
 #
@@ -466,6 +477,11 @@ httpd_portal=enabled
 #
 # Should httpd.webservices be started?
 httpd_webservices=enabled
+#
+# services.httpd_aaa
+#
+# Should httpd.aaa be started?
+httpd_aaa=enabled
 #
 # services.httpd_proxy
 #
@@ -825,6 +841,11 @@ proto=http
 #
 # port to use
 port=9090
+#
+# webservices.aaa_port
+#
+# port to use for authentication
+aaa_port=7070
 
 [maintenance]
 #
