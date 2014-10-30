@@ -46,7 +46,7 @@ use pf::profile::filter;
 # Categorized by feature, pay attention when modifying
 our (
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
-    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @external_nets,
+    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets,
     @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
 #pf.conf.default variables
     %Default_Config, $cached_pf_default_config,
@@ -80,7 +80,7 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int
-        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @external_nets
+        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network
         @inline_enforcement_nets @vlan_enforcement_nets
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         $IPSET_VERSION %mark_type_to_str %mark_type
@@ -549,7 +549,7 @@ sub readPfConfigFiles {
                 #clearing older interfaces infor
                 $monitor_int = $management_network = '';
                 @listen_ints = @dhcplistener_ints = @ha_ints =
-                  @internal_nets = @external_nets =
+                  @internal_nets =
                   @inline_enforcement_nets = @vlan_enforcement_nets = ();
 
                 my @time_values = grep { my $t = $Doc_Config{$_}{type}; defined $t && $t eq 'time' } keys %Doc_Config;
@@ -596,7 +596,7 @@ sub readPfConfigFiles {
                     }
 
                     die "Missing mandatory element ip or netmask on interface $int"
-                        if ($type =~ /internal|managed|management|external/ && !defined($int_obj));
+                        if ($type =~ /internal|managed|management/ && !defined($int_obj));
 
                     foreach my $type ( split( /\s*,\s*/, $type ) ) {
                         if ( $type eq 'internal' ) {
@@ -617,8 +617,6 @@ sub readPfConfigFiles {
                             # adding management to dhcp listeners by default (if it's not already there)
                             push @dhcplistener_ints, $int if ( not scalar grep({ $_ eq $int } @dhcplistener_ints) );
 
-                        } elsif ( $type eq 'external' ) {
-                            push @external_nets, $int_obj;
                         } elsif ( $type eq 'monitor' ) {
                             $monitor_int = $int;
                         } elsif ( $type =~ /^dhcp-?listener$/i ) {
