@@ -69,13 +69,13 @@ our %ALLOWED_SECTIONS = (
 sub index :Path :Args(0) { }
 
 
-=head2 pf_section
+=head2 section
 
 The generic handler for all pf sections
 
 =cut
 
-sub pf_section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
+sub section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
     my ($self, $c, $section) = @_;
     my $logger = get_logger();
     if (exists $ALLOWED_SECTIONS{$section} ) {
@@ -83,7 +83,6 @@ sub pf_section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
         my ($status,$status_msg,$results);
 
         $c->stash->{section} = $section;
-        $c->stash->{template} = 'configuration/section.tt';
 
         my $model = $c->model('Config::Pf');
         $form = $c->form("Config::Pf", section => $section);

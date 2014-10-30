@@ -1,2 +1,0 @@
-[% INCLUDE configuration/firewall_sso/view.tt %]
-
