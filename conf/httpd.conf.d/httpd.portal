@@ -363,10 +363,10 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
         $vhost = $management_network->{'Tip'};
     }
 
-    push (@Listen,$vhost.":1444");
-    push (@NameVirtualHost,$vhost.":1444");
+    push (@Listen,$vhost.":".$PfConfig->{'ports'}{'portal_modstatus'});
+    push (@NameVirtualHost,$vhost.":".$PfConfig->{'ports'}{'portal_modstatus'});
 
-    push (@{ $VirtualHost{$vhost.":1444"} }, gen_conf(
+    push (@{ $VirtualHost{$vhost.":".$PfConfig->{'ports'}{'portal_modstatus'}} }, gen_conf(
         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
         DocumentRoot => "${install_dir}/html/captive-portal/lib",
         ErrorLog     => "${install_dir}/logs/httpd.portal.error",

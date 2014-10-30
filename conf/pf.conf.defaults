@@ -274,6 +274,11 @@ soap=9090
 #
 # Port of the aaa http interface listens on.
 aaa=7070
+#
+# ports.portal_modstatus
+#
+# Port the mod_status for httpd.portal listens on.
+portal_modstatus=1444
 
 [scan]
 #
