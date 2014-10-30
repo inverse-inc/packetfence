@@ -1,4 +1,4 @@
-package pfappserver::Controller::Configuration::Realm;
+package pfappserver::Controller::Config::Realm;
 
 =head1 NAME
 
