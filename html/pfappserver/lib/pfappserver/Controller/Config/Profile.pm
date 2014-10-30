@@ -121,7 +121,7 @@ sub upload :Chained('object') :PathPart('upload') :Args() :AdminRole('PORTAL_PRO
 
 sub validatePathParts {
     my ($self, $c, @pathparts) = @_;
-    if ( grep { /(\.\.)|[\/\0\?\*\+\%]/} @pathparts ) {
+    if ( grep { /(\.\.)|[\/\0\?\*\+\%\$]/} @pathparts ) {
         $c->stash->{status_msg} = 'Invalid file name';
         $c->detach('bad_request');
     }
