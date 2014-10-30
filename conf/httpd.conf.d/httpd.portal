@@ -354,4 +354,33 @@ foreach my $interface (uniq @internal_nets, @portal_nets) {
     ));
 }
 
+# Generate vhost for diagnostic purposes (mod_status)
+if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+    # Handling virtual IP
+    if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+        $vhost = $management_network->{'Tvip'};
+    } else {
+        $vhost = $management_network->{'Tip'};
+    }
+
+    push (@Listen,$vhost.":1444");
+    push (@NameVirtualHost,$vhost.":1444");
+
+    push (@{ $VirtualHost{$vhost.":1444"} }, gen_conf(
+        ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+        DocumentRoot => "${install_dir}/html/captive-portal/lib",
+        ErrorLog     => "${install_dir}/logs/httpd.portal.error",
+        CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+        Location     => {
+            "/server-status/" => {
+                SetHandler => 'server-status',
+            },
+        },
+
+        SSLEngine => 'on',
+        SSLProxyEngine    => 'on',
+        Include      => "${var_dir}/conf/ssl-certificates.conf",
+    ));
+}
+
 </Perl>
