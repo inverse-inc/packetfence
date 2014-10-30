@@ -120,7 +120,8 @@ foreach my $network ( keys %ConfigNetworks ) {
     }
 }
 
-push @ip_addr, "0.0.0.0";
+my $management_network = $pf::config::management_network;
+push @ip_addr, defined($management_network->{'ip'});
 
 populate_ipset_cache($IPSET_SESSION);
 
