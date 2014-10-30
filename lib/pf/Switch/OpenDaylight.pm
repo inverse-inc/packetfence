@@ -346,7 +346,7 @@ sub find_and_delete_flow {
 sub deactivate_flow{
     my ($self, $flow_name) = @_;
     my $flow = $self->find_flow_by_name($flow_name);
-    if($flow->{installInHw} eq "true"){
+    if($flow && $flow->{installInHw} eq "true"){
         $self->toggle_flow($flow);
     }
 }
@@ -354,7 +354,7 @@ sub deactivate_flow{
 sub reactivate_flow{
     my ($self, $flow_name) = @_;
     my $flow = $self->find_flow_by_name($flow_name);
-    if($flow->{installInHw} eq "false"){
+    if($flow && $flow->{installInHw} eq "false"){
         $self->toggle_flow($flow);
     }
 }
@@ -366,7 +366,7 @@ sub toggle_flow {
     my $path = "controller/nb/v2/flowprogrammer/default/node/OF/$flow->{node}->{id}/staticFlow/$flow->{name}";
     $logger->info("Computed path is : $path");
 
-    return $self->send_json_request($path, (), "POST");
+    return $self->send_json_request($path, {}, "POST");
 }
 
 
