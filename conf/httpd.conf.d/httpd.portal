@@ -167,7 +167,6 @@ my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 my @internal_nets = @pf::config::internal_nets;
-my $host;
 my $vhost;
 
 $PidFile = $install_dir.'/var/run/httpd.portal.pid';
@@ -237,8 +236,9 @@ if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
     $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION";
 }
 
+# Generate vhosts for each interfaces configured accordingly (portal_nets)
+# internal_nets is kept for backward compatibility
 foreach my $interface (uniq @internal_nets, @portal_nets) {
-
     # Handling virtual IP
     if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
         $vhost = $interface->{'Tvip'};
@@ -250,6 +250,8 @@ foreach my $interface (uniq @internal_nets, @portal_nets) {
     push (@Listen,$vhost.":443");
     push (@NameVirtualHost,$vhost.":80");
     push (@NameVirtualHost,$vhost.":443");
+
+    # Unsecure captive-portal (http)
     push (@{ $VirtualHost{$vhost.":80"} }, gen_conf(
         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
         DocumentRoot => "${install_dir}/html/captive-portal/lib",
@@ -297,6 +299,8 @@ foreach my $interface (uniq @internal_nets, @portal_nets) {
             },
         },
     ));
+
+    # Secure captive-portal (https)
     push (@{ $VirtualHost{$vhost.":443"} }, gen_conf(
         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
         DocumentRoot => "${install_dir}/html/captive-portal/lib",
