@@ -163,4 +163,38 @@ Where :
 * pf_dns_mac is the MAC address of the interface on which PacketFence listens on for the DNS requests (should be your management)
 
 
+Step 7: Configure your network equipment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You should now configure your network equipment to communicate with the OpenDaylight controller.
+
+Configure the equipment to forward unknown packets on non-uplink ports to the PacketFence server.
+
+For now, the uplink port has to be port 1 on your equipment and is a limitation of the current architecture.
+
+Step 8: Test
+~~~~~~~~~~~~
+
+Connect a device to your network equipment and in the terminal where you have the OpenDaylight server running you should see JSON information about what is happening now.
+
+Here is the valid output of a packet in event
+
+---
+Pkt. to /10.0.0.6 received by node 01:00:00:50:56:9d:00:05 on connector 2
+Packet src port -20180 packet source int 2
+{"id":"1","method":"sdn_authorize","params":{"port":"2","controller_ip":"192.168.1.10","mac":"84:3a:4b:dc:09:ec","switch_id":"01:00:00:50:56:9d:00:05"},"jsonrpc":"2.0"}
+{"jsonrpc":"2.0","id":"1","result":[{"strategy":"DNS","action":"isolate"}]}
+Installing DNS outbound redirect flow
+Installing return flow
+Setting 84:3a:4b:dc:09:ec,-20180 38:22:d6:6c:8c:f5,10.0.0.6,2
+---
+
+Once the first event hits your OpenDaylight controller, if you don't have a plugin to manage the non-DNS traffic you should install flows that allow communication of the device on the network. Usually forwarding packets to and from the uplink should be enough. Make sure the flows you install have a lower priority than 1000. PacketFence uses priority 1000 and higher.
+
+Now once your computer obtains an IP address, doing an nslookup of any domain name on the connected device should now return a CNAME pointing to the PacketFence server.
+
+Opening your browser will redirect you to the PacketFence captive portal. Register on the captive portal and then the DNS redirection will be deactivated.
+
+Since the device may use DNS caching, the original domain may be unavailable, a restart of the browser could also be necessary. 
+
 
