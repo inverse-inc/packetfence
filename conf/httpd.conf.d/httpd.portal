@@ -238,12 +238,12 @@ if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
 }
 
 foreach my $interface (uniq @internal_nets, @portal_nets) {
-    if (defined($interface->{'Tip'}) && $interface->{'Tip'} ne '') {
-        if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
-            $vhost = $interface->{'Tvip'};
-        } else {
-            $vhost = $interface->{'Tip'};
-        }
+
+    # Handling virtual IP
+    if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
+        $vhost = $interface->{'Tvip'};
+    } else {
+        $vhost = $interface->{'Tip'};
     }
 
     push (@Listen,$vhost.":80");
