@@ -17,7 +17,16 @@ use warnings;
 use Moo;
 use pf::os;
 use pf::config;
+use Readonly;
 use List::MoreUtils qw(any);
+
+=head1 Constants
+
+head2 COMMUNICATION_FAILED
+
+=cut
+
+Readonly::Scalar our $COMMUNICATION_FAILED => -1;
 
 =head1 Atrributes
 

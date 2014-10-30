@@ -167,7 +167,7 @@ sub refresh_access_token {
     if ( $curl_return_code != 0 or $curl_info != 200 ) { 
         # Failed to contact the OPSWAT API.;
         $logger->error("Cannot connect to OPSWAT to refresh the token");
-        return -1;   
+        return $pf::provisioner::COMMUNICATION_FAILED;   
     }
     else{
         
@@ -205,10 +205,10 @@ sub get_device_info {
     
     if ( $curl_info == 401 ) { 
         $logger->error("Unable to contact OPSWAT on url ".$url);
-        return -1;   
+        return $pf::provisioner::COMMUNICATION_FAILED;   
     }
     elsif($curl_info != 200){
-        return -1;
+        return $pf::provisioner::COMMUNICATION_FAILED;
     } 
     else { 
         my $json_response = decode_json($response_body);
@@ -220,7 +220,7 @@ sub validate_mac_in_opswat {
     my ($self, $mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     my $info = $self->get_device_info($mac);
-    if($info != -1){
+    if($info != $pf::provisioner::COMMUNICATION_FAILED){
         return $self->check_active($mac, $info);
     }
     else{
@@ -259,15 +259,15 @@ sub authorize {
     $self->verify_compliance($mac);
 
     my $result = $self->validate_mac_in_opswat($mac); 
-    if( $result == -1){
+    if( $result == $pf::provisioner::COMMUNICATION_FAILED){
         $logger->info("OPSWAT Oauth access token is probably not valid anymore.");
         $self->refresh_access_token();
         $result = $self->validate_mac_in_opswat($mac);
     }
 
-    if($result == -1){
+    if($result == $pf::provisioner::COMMUNICATION_FAILED){
         $logger->error("Unable to contact the OPSWAT API to validate if mac $mac is registered.");
-        return -1;
+        return $pf::provisioner::COMMUNICATION_FAILED;
     }
     else{
         return $result;
@@ -279,7 +279,7 @@ sub verify_compliance {
     my ($self, $mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     my $info = $self->get_device_info($mac);
-    if($info != -1){
+    if($info != $pf::provisioner::COMMUNICATION_FAILED){
         if($self->{critical_issues_threshold} != 0 && $info->{total_critical_issue} >= $self->{critical_issues_threshold}){
             pf::violation::violation_add($mac, $self->{non_compliance_violation}, ());
         }
