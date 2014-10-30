@@ -121,7 +121,7 @@ foreach my $network ( keys %ConfigNetworks ) {
 }
 
 my $management_network = $pf::config::management_network;
-push @ip_addr, $management_network->{'ip'};
+push @ip_addr, $management_network->{'Tip'};
 
 populate_ipset_cache($IPSET_SESSION);
 
