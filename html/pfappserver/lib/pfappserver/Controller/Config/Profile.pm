@@ -195,12 +195,13 @@ sub new_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UP
     my $path = catfile(@pathparts);
     my $request = $c->request;
     if ($request->method eq 'POST') {
-        my $file_name = catfile(@pathparts, $request->param('file_name'));
+        my $file_name = $request->param('file_name');
+        my $full_file_name = catfile(@pathparts, $request->param('file_name'));
         $c->stash->{current_view} = 'JSON';
         #verify file exists if it does set error
-        $c->stash->{path} = $self->_makeFilePath($c, $file_name);;
+        $c->stash->{path} = $self->_makeFilePath($c, $full_file_name);;
         $c->forward('path_exists');
-        $c->response->location( $c->pf_hash_for($c->controller('Config::Profile')->action_for('edit_new'), [$c->stash->{id} ], $file_name) );
+        $c->response->location( $c->pf_hash_for($c->controller('Config::Profile')->action_for('edit_new'), [$c->stash->{id} ],@pathparts, $file_name) );
     }
     else {
         $path .= "/" if $path ne '';
