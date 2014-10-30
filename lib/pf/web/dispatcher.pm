@@ -67,6 +67,16 @@ sub handler {
         return Apache2::Const::DECLINED;
     }
 
+    # TEMP
+    # For the moment, until captive-portal Catalyst app rework, we handle the portal profile filters here
+    if ( defined($WEB::ALLOWED_RESOURCES_PROFILE_FILTER) && $r->uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o ) {
+        my $last_uri = $r->uri();
+        $logger->debug("Matched profile uri filter for $last_uri");
+        #Send the current URI to catalyst with the pnotes
+        $r->pnotes(last_uri => $last_uri);
+        return Apache2::Const::DECLINED;
+    }
+
     # Apache filtering
     # Filters out request based on different filter to avoid further processing
     # ie: Only process valid browsers user agent requests
