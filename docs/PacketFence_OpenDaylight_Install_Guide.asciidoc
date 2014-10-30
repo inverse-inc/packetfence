@@ -91,7 +91,7 @@ id  State       Bundle
 38  ACTIVE      ca.inverse.odlpf_0.1.0
 ---
 
-Now validate you have access to the OpenDaylight administration interface on http://ipOfOpenDaylight:8080
+Now validate you have access to the OpenDaylight administration interface on http://192.168.1.10:8080
 
 Step 5: Patching PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -107,7 +107,7 @@ This patch is based on the most recent version of PacketFence so be sure to upgr
 ---
 
 cd /usr/local/pf
-wget <le patch url>
+wget https://gist.githubusercontent.com/julsemaan/2528b02769bee76311e7/raw/57a993e48628fa04402347978cd1695902abf415/sdn.patch 
 patch -p1 < sdn.patch
 
 ---
