@@ -10,6 +10,8 @@ pf::firewallsso
 
 pf::firewallsso
 
+This module is used for sending firewallsso request to the web api
+
 =cut
 
 use strict;
