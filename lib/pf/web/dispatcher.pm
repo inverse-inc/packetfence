@@ -152,16 +152,40 @@ sub html_redirect {
         $logger->info("We set the destination URL to $destination_url for further usage");
         $r->pnotes(destination_url => $destination_url);
     }
-    # Second use case: We need to change the protocol from HTTPS to HTTP
+    # Second use case: We need to change the protocol from HTTPS to HTTP in the case of captive portal detection mecanisms
     if ( ($url =~ /$WEB::CAPTIVE_PORTAL_DETECTION_URLS/o) || ($user_agent =~ /CaptiveNetworkSupport|iPhone|iPad/s) ) {
         $proto = $HTTP;
         $logger->info("We are dealing with a device with captive portal detection capabilities. " .
             "We are using HTTP rather than HTTPS to avoid SSL certificate related errors");
     }
 
+    # Configuring redirect URLs for both the portal and the WISPr(need to be part of the header in case of a WISPr client)
+    my $portal_url = APR::URI->parse($r->pool,"$proto://".${captive_portal_domain}."/captive-portal");
+    $portal_url->query("destination_url=$destination_url&".$r->args);
+    my $wispr_url = APR::URI->parse($r->pool,"$proto://".${captive_poral_domain}."/wispr");
+    $wispr_url->query($r->args);
+
+    # External captive-portal / Webauth handling
+    # In the case of an external captive-portal, we want to use a different URL (the hostname to which the network equipment send the request, which is PacketFence but maybe not the configured
+    # hostname in pf.conf)
+    # We also need to keep track of the CGI session by setting a cookie
+    my $external_portal = pf::web::externalportal->new;
+    my ( $cgi_session_id, $external_portal_destination_url ) = $external_portal->handle($r);
+    if ( $cgi_session_id ) {
+        $logger->info("We are dealing with an external captive-portal / webauth request. Adjusting the redirect URL accordingly");
+        $r->err_headers_out->add('Set-Cookie' => "CGISESSION_PF=".  $cgi_session_id . "; path=/");
+        $destination_url = $external_portal_destination_url if ( defined($external_portal_destination_url) );
+
+        # Re-Configuring redirect URLs for both the portal and the WISPr(need to be part of the header in case of a WISPr client)
+        $portal_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/captive-portal");
+        $portal_url->query("destination_url=$destination_url&".$r->args);
+        $wispr_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/wispr");
+        $wispr_url->query($r->args);
+    }
+
     my $stash = {
-        'login_url' => "$proto://$captive_portal_domain/captive-portal",
-        'wispr_url' => "$proto://$captive_portal_domain/wispr",
+        'portal_url' => $portal_url->unparse(),,
+        'wispr_url' => $wispr_url->unparse(),,
     };
 
     my $response = '';
