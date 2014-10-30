@@ -177,8 +177,6 @@ sub authorize {
 
     # Check if a floating just plugged in
     $this->_handleAccessFloatingDevices($switch, $mac, $port);
-    # Extract the realm
-    my $realm = $radius_request->{'Realm'};
 
     # Fetch VLAN depending on node status
     my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name);
