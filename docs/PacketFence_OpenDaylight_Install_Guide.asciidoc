@@ -1,0 +1,166 @@
+OpenDaylight & PacketFence install guide
+========================================
+:encoding: UTF-8
+:lang: en
+:doctype: book
+
+include::includes/global-attributes.asciidoc[]
+
+About this Guide
+----------------
+This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the OpenDaylight SDN controller. 
+
+Assumptions
+-----------
+* You have a configured PacketFence environment that is currently working
+* You have, or will create, a server with CentOS 6 minimal installed on it (for the OpenDaylight server).
+* The IP address of the OpenDaylight controller is 192.168.1.10
+* The IP address of the PacketFence server is 192.168.1.5
+
+Installation
+------------
+Step 1: Install CentOS 6 minimal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You will first need to install a server with CentOS 6 minimal on it. This server needs to have 2 network cards that are on the same network. This server will also need at least 2GB of RAM.
+
+Step 2: Install the necessary packages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+yum install git wget
+yum install java-1.7.0-openjdk java-1.7.0-openjdk-devel
+
+Install maven
+wget https://raw.githubusercontent.com/monksy/centos-maven-install/master/maven-install.sh
+sh maven-install.sh
+
+OS configuration
+++++++++++++++++
+
+service iptables stop
+chkconfig iptables off
+
+Add the server name in /etc/hosts
+
+Step 3: Install the OpenDaylight controller
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mkdir /var/odl
+cd /var/odl
+git clone https://git.opendaylight.org/gerrit/p/controller.git
+cd controller
+
+Add these maven options to your environment
+export MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=512m"
+
+Verify it's there
+export | grep MAVEN_OPTS
+
+Install the controller distribution
+mvn clean install -DskipTests
+
+At the end you should see an output similar to this
+---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 41:24.140s
+[INFO] Finished at: Tue Oct 28 19:52:03 EDT 2014
+[INFO] Final Memory: 346M/931M
+[INFO] ------------------------------------------------------------------------
+---
+
+Step 4: Install the PacketFence plugin
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Get the plugin at https://github.com/julsemaan/packetfence/raw/feature/opendaylight/addons/opendaylight/target/odlpf-0.1.jar
+wget https://github.com/julsemaan/packetfence/raw/feature/opendaylight/addons/opendaylight/target/odlpf-0.1.jar
+
+Now copy it to the plugin directory
+cp odlpf-0.1.jar /var/odl/controller/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/plugins/
+
+And we can now start the OpenDaylight controller 
+/var/odl/controller/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh
+
+After 2-3 minutes, OpenDaylight will be started. Press enter a few times and you should see the 'osgi>' prompt.
+Verify that the plugin is properly loaded by typing 'ss odlpf'. The state needs to be ACTIVE.
+
+---
+osgi> ss odlpf
+"Framework is launched."
+
+
+id  State       Bundle
+38  ACTIVE      ca.inverse.odlpf_0.1.0
+---
+
+Now validate you have access to the OpenDaylight administration interface on http://ipOfOpenDaylight:8080
+
+Step 5: Patching PacketFence
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The SDN modules are not included with the current version of PacketFence.
+
+In order to obtain the functionnalities you will need to apply a patch on your current PacketFence installation.
+
+Note that this could break a working PacketFence installation. Install this on a non-production PacketFence server.
+
+This patch is based on the most recent version of PacketFence so be sure to upgrade to the latest version available before applying the patch.
+
+---
+
+cd /usr/local/pf
+wget <le patch url>
+patch -p1 < sdn.patch
+
+---
+
+In case of any conflicts please post the output of the patch command on the PacketFence development mailing list.
+
+Once you are done, restart PacketFence using 'service packetfence restart'
+
+Step 6: Configuration
+~~~~~~~~~~~~~~~~~~~~~
+
+In PacketFence configure the webservices username and password under 'Configuration/Webservices'
+
+Still in PacketFence, add a new switch for the OpenDaylight controller
+
+In /usr/local/pf/conf/switches.conf add the OpenDaylight controller configuration
+
+---
+[192.168.1.10]
+type=OpenDaylight
+mode=production
+IsolationStrategy=DNS
+---
+
+In /usr/local/pf/conf/iptables.conf, add the following lines in the management section
+
+---
+# DNS (for the SDN stack)
+-A input-management-if --protocol udp --match udp --dport 53  --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
+---
+
+The PacketFence OpenDaylight plugin requires a configuration file on the OpenDaylight controller (/etc/packetfence.conf).
+Here is an example :
+
+---
+host=192.168.1.5
+port=9090
+user=web
+pass=services
+controller_ip=192.168.1.10
+pf_dns_ip=192.168.1.10
+pf_dns_mac=0050569d000b
+---
+
+Where :
+* host is the management ip of your PacketFence server
+* port is the port of the webservices (default for PacketFence is 9090)
+* user is the username of the PacketFence webservices
+* pass is the password of the PacketFence webservices
+* controller_ip is the IP of the OpenDaylight controller
+* pf_dns_ip is the IP address on which PacketFence listens on for the DNS requests (should be your management)
+* pf_dns_mac is the MAC address of the interface on which PacketFence listens on for the DNS requests (should be your management)
+
+
+
