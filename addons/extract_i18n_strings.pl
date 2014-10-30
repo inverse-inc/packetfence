@@ -24,7 +24,7 @@ use pf::Switch::constants;
 use pfappserver::Controller::Graph;
 use pfappserver::Model::Node;
 use pfappserver::Form::Config::Wrix;
-use pfappserver::Form::Portal::Common;
+use pfappserver::Form::Config::ProfileCommon;
 use pf::config;
 
 use constant {
@@ -384,9 +384,9 @@ sub extract_modules {
 
     const('pfappserver::Form::Config::Wrix', 'open hours', \@pfappserver::Form::Config::Wrix::HOURS);
 
-    @values = pfappserver::Form::Portal::Common->options_mandatory_fields();
+    @values = pfappserver::Form::Config::ProfileCommon->options_mandatory_fields();
     @values = map { $_->{label} } @values;
-    const('pfappserver::Form::Portal::Common', 'mandatory fields', \@values);
+    const('pfappserver::Form::Config::ProfileCommon', 'mandatory fields', \@values);
 
     const('pfappserver::Form::Field::Duration', 'Operators', ['add', 'subtract']);
 
