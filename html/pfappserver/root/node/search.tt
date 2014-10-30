@@ -1,4 +1,5 @@
 [% pagination = BLOCK  %]
+    [% params = { by => by, direction => direction } %]
     <div class="pagination pagination-right" data-from-from="[% from_form %]">
       <ul>
         [%-
@@ -8,7 +9,7 @@
             page = 1;
         END
         -%]
-      <li [% IF page_num == 1 %] class="disabled" [% END %]  ><a href="[% c.uri_for(search_action,page,per_page)  %]">&larr;</a></li>
+      <li [% IF page_num == 1 %] class="disabled" [% END %]  ><a href="[% c.uri_for(search_action,page,per_page,params)  %]">&larr;</a></li>
       [%- first_page = page_num - 3;
           IF first_page < 1; first_page = 1; END;
           last_page = first_page + 6;
@@ -18,21 +19,21 @@
             IF first_page < 1; first_page = 1; END;
           END -%]
       [%- IF first_page > 1 -%]
-        <li><a href="[% c.uri_for(search_action,1,per_page) %]" title="Page 1">1</a></li>
+        <li><a href="[% c.uri_for(search_action,1,per_page, params) %]" title="Page 1">1</a></li>
         <li class="disabled"><a href="#">&hellip;</a></li>
       [%- END -%]
       [% page = first_page; WHILE page <= last_page -%]
-        <li[% IF page == page_num %] class="disabled" [% END %] ><a href="[% c.uri_for(search_action,page,per_page)  %]" title="Page [% page %]">[% page %]</a></li>
+        <li[% IF page == page_num %] class="disabled" [% END %] ><a href="[% c.uri_for(search_action,page,per_page,params)  %]" title="Page [% page %]">[% page %]</a></li>
         [%- page = page + 1 -%]
       [%- END -%]
       [%- IF last_page < pages_count -%]
         <li class="disabled"><a href="#">&hellip;</a></li>
-        <li><a href="[% c.uri_for(search_action,pages_count,per_page)  %]" title="Page [% pages_count %]">[% pages_count %]</a></li>
+        <li><a href="[% c.uri_for(search_action,pages_count,per_page,params)  %]" title="Page [% pages_count %]">[% pages_count %]</a></li>
       [%- END -%]
       [%- IF page_num < page - 1 -%]
         [% page = page_num + 1 %]
       [%- END %]
-        <li [%IF page_num == last_page %] class="disabled" [% END %]  ><a href="[% c.uri_for(search_action,page,per_page)  %]">&rarr;</a></li>
+        <li [%IF page_num == last_page %] class="disabled" [% END %]  ><a href="[% c.uri_for(search_action,page,per_page,params)  %]">&rarr;</a></li>
       </ul>
     </div>
 [% END %]
