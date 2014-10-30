@@ -57,6 +57,7 @@ Bug Fixes
 * Fix MAC detection from IP on the Catalyst portal when using web authentication on the WLC controller.
 * Fix timestamp resolution not catching sub second changes in file in cache layer
 * Fixed handling of expiration time on the captive portal's status page
+* Fixed viewing node pagination sorted
 
 Version 4.4.0 released on 2014-09-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
