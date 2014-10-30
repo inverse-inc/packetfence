@@ -165,7 +165,7 @@ Extract localizable strings from Models and Controllers classes.
 
 sub parse_mc {
     my $base = APP.'/lib/pfappserver/';
-    my @dir = qw/Base Controller Model/;
+    my @dir = qw/Base Controller Model Form/;
     my @modules = ();
 
     my $pm = sub {
@@ -182,8 +182,8 @@ sub parse_mc {
         open(PM, $module);
         while (defined($line = <PM>)) {
             chomp $line;
-            if ($line =~ m/\$c->loc\(['"](.+?[^'"\\])["']\)/) {
-                my $string = $1;
+            if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["']\)/) {
+                my $string = $2;
                 $string =~ s/\\'/'/g;
                 add_string($string, $module);
             }
@@ -307,6 +307,9 @@ sub extract_modules {
     }
 
     const('pf::config', 'VALID_TRIGGER_TYPES', \@pf::config::VALID_TRIGGER_TYPES);
+    const('pf::config', 'SoH Actions', \@pf::config::SOH_ACTIONS);
+    const('pf::config', 'SoH Classes', \@pf::config::SOH_CLASSES);
+    const('pf::config', 'SoH Status', \@pf::config::SOH_STATUS);
     const('pf::config', 'Inline triggers', [$pf::config::MAC, $pf::config::PORT, $pf::config::SSID, $pf::config::ALWAYS]);
     const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
 
@@ -384,6 +387,8 @@ sub extract_modules {
     @values = pfappserver::Form::Portal::Common->options_mandatory_fields();
     @values = map { $_->{label} } @values;
     const('pfappserver::Form::Portal::Common', 'mandatory fields', \@values);
+
+    const('pfappserver::Form::Field::Duration', 'Operators', ['add', 'subtract']);
 
     const('html/pfappserver/root/user/list_password.tt', 'options', ['mail_loading']);
 }

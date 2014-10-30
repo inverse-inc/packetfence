@@ -77,6 +77,7 @@ use Readonly;
 
 use pf::config;
 use pf::locationlog;
+use pf::util;
 
 =head1 SUBROUTINES
             
@@ -109,7 +110,7 @@ sub enablePortConfig {
 # cause in this case there would be any traps enabled anymore... 
 
 
-    my ($this, $mac, $switch, $switch_port, $switch_locker_ref) = @_;
+    my ($this, $mac, $switch, $switch_port, $switch_locker_ref, $radius_triggered) = @_;
     my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
 
     # Since PF only manages floating network devices plugged in ports configured with port-security
@@ -119,9 +120,13 @@ sub enablePortConfig {
         return 0;
     }
 
-    $logger->info("Disabling port-security on port $switch_port");
-    if (! $switch->disablePortSecurityByIfIndex($switch_port)) {
+    $logger->info("Disabling port access control on port $switch_port");
+    if (!$radius_triggered && ! $switch->disablePortSecurityByIfIndex($switch_port)) {
         $logger->error("An error occured while disabling port-security on port $switch_port");
+        return 0;
+    }
+    elsif ($radius_triggered && ! $switch->disableMABByIfIndex($switch_port)){
+        $logger->error("An error occured while disabling MAB on port $switch_port");
         return 0;
     }
 
@@ -193,13 +198,106 @@ sub disablePortConfig {
                       "but the port should work.");
     }
 
-    $logger->info("Enabling port-security on port $switch_port");
-    if (! $switch->enablePortSecurityByIfIndex($switch_port)) {
+    my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port); 
+    my $radius_triggered;
+    if(scalar(@locationlog) > 0){
+        $radius_triggered = (str_to_connection_type($locationlog[0]->{connection_type}) eq $WIRED_MAC_AUTH);
+    }
+    # if we don't have locationlog info then we'll act like before (WIRED SNMP)
+    else{
+        $radius_triggered = 0;
+    }
+
+    $logger->info("Enabling access control on port $switch_port");
+    if (!$radius_triggered && ! $switch->enablePortSecurityByIfIndex($switch_port)) {
         $logger->error("An error occured while enabling port-security on port $switch_port");
+        return 0;
+    }
+    elsif ( $radius_triggered && ! $switch->enableMABByIfIndex($switch_port) ) {
+        $logger->error("An error occured while enabling MAB on port $switch_port");
         return 0;
     }
 
     return 1;
+}
+
+=item disableMABFloating
+
+Removes the MAB floating device mode on the switchport
+
+=cut
+sub disableMABFloating {
+    my ( $this, $switch, $ifIndex ) = @_;
+    
+    if($switch->supportsMABFloatingDevices){
+        $switch->disableMABFloatingDevice($ifIndex);
+    }
+}
+
+=item enableMABFloating
+
+Puts the switchport in MAB floating device mode
+
+=cut
+sub enableMABFloating{
+    my ( $this, $mac, $switch, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
+     
+    my $result;         
+    if($switch->supportsFloatingDevice && !$switch->supportsMABFloatingDevices){
+        $this->enablePortConfig($mac, $switch, $ifIndex, undef, $TRUE);
+    }
+    if($switch->supportsMABFloatingDevices){
+        $switch->enableMABFloatingDevice($ifIndex);
+        # disconnect and close additionnal entries that could have been opened (a device was authentified before the floating)
+        $this->_disconnectCurrentDevices($switch, $ifIndex);
+        pf::locationlog::locationlog_update_end_switchport_no_VoIP($switch->{_ip}, $ifIndex); 
+    }
+    
+}
+
+=item portHasFloatingDevice
+
+Verifies if there is a floating device plugged into the switchport in the locationlog
+
+=cut
+sub portHasFloatingDevice {
+    my ($this, $switch, $switch_port) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
+
+    $logger->debug("Determining if there is a floating device on $switch port $switch_port");
+    my @locationlog_switchport = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch, $switch_port);
+    if (@locationlog_switchport && scalar(@locationlog_switchport) > 0){ 
+        my $mac = $locationlog_switchport[0]->{'mac'}; 
+        if( exists($ConfigFloatingDevices{$mac}) ){
+            $logger->info("There is a floating device on $switch port $switch_port");
+            return $mac;
+        }
+    }
+    return 0;
+
+}
+
+=item disconnectCurrentDevices
+
+Disconnects the active locationlog macs on the port so they reauthenticate to be controlled by the floating flow
+
+=cut
+sub _disconnectCurrentDevices{
+    my ( $this, $switch, $switch_port ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
+
+    my @locationlog_switchport = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port);
+
+    foreach my $entry (@locationlog_switchport){
+        # don't want to disconnect the floating if it's in the locationlog
+        if(!exists($ConfigFloatingDevices{$entry->{mac}})){
+            $logger->info("Disconnecting $entry->{mac} because a floating device just plugged into it's port");
+            $switch->deauthenticateMacRadius($switch_port, $entry->{mac});
+        }
+    }
+
+
 }
 
 =back

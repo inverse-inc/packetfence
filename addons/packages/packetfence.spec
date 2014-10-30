@@ -777,10 +777,12 @@ fi
 %config                 /usr/local/pf/conf/dhcpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.aaa
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.aaa
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example

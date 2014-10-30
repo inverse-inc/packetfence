@@ -19,7 +19,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(decompose_dhcp decode_dhcp dhcp_message_type_to_string dhcp_summary);
+    @EXPORT = qw(decompose_dhcp decode_dhcp dhcp_message_type_to_string dhcp_summary make_pcap_filter);
     @EXPORT_OK = qw();
 }
 
@@ -288,6 +288,25 @@ sub _decode_dhcp_option82 {
     }
 
 }
+
+
+=item make_pcap_filter
+
+create the pcap filter from the supported DHCP Messages Type
+
+=cut
+
+sub make_pcap_filter {
+    my (@types) = @_;
+    #listen to all if no types are provided
+    return "udp and (port 67 or port 68)" unless @types;
+    for my $type (@types) {
+       die "Unknown message type $type" unless exists $MESSAGE_TYPE{$type} && defined $MESSAGE_TYPE{$type};
+    }
+    my $type_filter = join(" or ",map { sprintf("(udp[250:1] = 0x%x)",$MESSAGE_TYPE{$_}) } @types);
+    return "(port 67 or port 68) and ( $type_filter )";
+}
+
 
 =back
 
