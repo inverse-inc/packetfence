@@ -1,4 +1,5 @@
 package pf::web::dispatcher;
+
 =head1 NAME
 
 dispatcher.pm
@@ -59,11 +60,10 @@ sub handler {
     # We don't want to continue in the dispatcher if the requested URI is supposed to reach the captive-portal (Catalyst)
     # - Captive-portal itself
     # - Violation pages
-    # - Portal profile filters are handled by Catalyst
+    # - Portal profile filters are handled by Catalyst (Will be part of captive-portal Catalyst app rework)
     # See L<pf::web::constants::CAPTIVE_PORTAL_RESOURCES>
     if ( $r->uri =~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o ) {
         $logger->debug("URI " . $r->uri . " (URL: " . $r->construct_url . ") is properly handled and should now continue to the captive-portal / Catalyst");
-
         return Apache2::Const::DECLINED;
     }
 
@@ -75,7 +75,7 @@ sub handler {
     return $result if $result;
 
     # Proxy passthrough
-    # Test if the hostname is include in the proxy_passthroughs configuration
+    # Test if the hostname is included in the proxy_passthroughs configuration
     # In this case forward to mod_proxy
     if ( (($r->hostname.$r->uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o
             && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '')
@@ -85,7 +85,6 @@ sub handler {
         $parsed_request->hostname($r->hostname);
         ( $r->is_https ) ? $parsed_request->scheme('https') : $parsed_request->scheme('http');
         $parsed_request->path($r->uri);
-
         return proxy_redirect($r, $parsed_request->unparse);
     }
 
@@ -98,10 +97,10 @@ sub handler {
             $r->pnotes->{session_id} = $1;
             $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
         }
-
         return Apache2::Const::OK;
     }
     
+    # Everything else should be redirected
     $r->handler('modperl');
     $r->set_handlers( PerlResponseHandler => \&html_redirect );
 
