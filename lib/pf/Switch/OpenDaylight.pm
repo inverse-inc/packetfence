@@ -354,7 +354,7 @@ sub deactivate_flow{
 sub reactivate_flow{
     my ($self, $flow_name) = @_;
     my $flow = $self->find_flow_by_name($flow_name);
-    if($flow && $flow->{installInHw} eq "false"){
+    if($flow->{installInHw} eq "false"){
         $self->toggle_flow($flow);
     }
 }
