@@ -121,7 +121,6 @@ sub set_refresh_token {
     else{
         $self->{'refresh_token'} = $refresh_token;
         my $cs = pf::ConfigStore::Provisioning->new;
-        $logger->info($self->{'id'});
         $cs->update($self->{'id'}, {refresh_token => $refresh_token});
         $cs->commit();
     }
@@ -143,7 +142,6 @@ sub set_access_token {
     else{
         $self->{'access_token'} = $access_token;
         my $cs = pf::ConfigStore::Provisioning->new;
-        $logger->info($self->{'id'});
         $cs->update($self->{'id'}, {access_token => $access_token});
         $cs->commit();
     }
@@ -173,7 +171,6 @@ sub refresh_access_token {
         return $pf::provisioner::COMMUNICATION_FAILED;   
     }
     else{
-        
         my $json_response = decode_json($response_body);
         my $access_token = $json_response->{'access_token'};
         $refresh_token = $json_response->{'refresh_token'};
@@ -191,7 +188,7 @@ sub get_device_info {
     my $curl = WWW::Curl::Easy->new;
     my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . "/o/api/v2.1/devices/$mac?opt=1&access_token=$access_token";
     
-    $logger->info($url);
+    $logger->debug("Calling OPSWAT API using URL : ".$url);
 
     my $response_body = '';
     open(my $fileb, ">", \$response_body);
@@ -203,14 +200,12 @@ sub get_device_info {
     my $curl_return_code = $curl->perform;
     my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
 
-    $logger->info($curl_info);
-    $logger->info($response_body); 
-    
     if ( $curl_info == 401 ) { 
-        $logger->error("Unable to contact OPSWAT on url ".$url);
+        $logger->error("Not authorized to contact OPSWAT on url ".$url);
         return $pf::provisioner::COMMUNICATION_FAILED;   
     }
     elsif($curl_info != 200){
+        $logger->error("Got invalid return code on OPSWAT call");
         return $pf::provisioner::COMMUNICATION_FAILED;
     } 
     else { 
@@ -323,7 +318,7 @@ sub get_status_changed_devices {
     my $curl = WWW::Curl::Easy->new;
     my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . "/o/api/v2.1/devices/status_changed?age=$timeframe&access_token=$access_token";
 
-    $logger->info($url);
+    $logger->debug("Calling OPSWAT API using URL : ".$url);
 
     my $response_body = '';
     open(my $fileb, ">", \$response_body);
