@@ -19,7 +19,7 @@ extends 'pfappserver::Form::Config::Authentication::Source';
 use pf::authentication;
 
 # Form fields
-has_field 'pre_authentication_source' =>
+has_field 'chained_authentication_source' =>
   (
    type => 'Select',
    options_method => \&options_sources,
