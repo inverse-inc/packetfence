@@ -107,7 +107,7 @@ After you install the client click continue. If your access is enabled than this
 Compliance enforcement
 ----------------------
 
-Since version 4.5.1, PacketFence polls the OPSWAT GEARS API in order to trigger violations on non compliant devices.
+PacketFence polls the OPSWAT GEARS API in order to trigger violations on noncompliant devices.
 
 PacketFence uses the number of critical issues the device has to determine whether or not it needs to isolate it.
 
@@ -126,7 +126,7 @@ Now in order to enforce the compliance of the devices using the flagged critical
 
 Back in the provisioner configuration, go in the 'Compliance' tab.
 
-You now have to configure the violation that is raised when a device is not compliant. Using the violation 'Generic' should fit your needs for now, and you can modify the template after.
+You now have to configure the violation that is raised when a device is noncompliant. Using the violation 'Generic' should fit your needs for now, and you can modify the template after.
 
 Then configure the 'Critical issues threshold' and put it at the minimum critical issues a device needs to have before it gets isolated.
 
@@ -134,7 +134,7 @@ Putting 1 into that field will isolate the device whenever there is at least one
 
 image::docs/images/opswat-compliance-config.png[scaledwidth="100%",alt="OPSWAT critical issues"]
 
-You can then hit 'Save' and you now the device will get isolated whenever it's found not compliant.
+You can then hit 'Save' and you now the device will get isolated whenever it's found as noncompliant.
 
 Step 3: Customize the template
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
