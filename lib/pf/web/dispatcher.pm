@@ -194,7 +194,7 @@ sub html_redirect {
     });
     $template->process("redirect.tt", $stash, \$response) || $logger->error($template->error());
 
-    $r->headers_out->set('Location' => $stash->{login_url});
+    $r->headers_out->set('Location' => $stash->{portal_url});
     $r->content_type('text/html');
     $r->no_cache(1);
     $r->custom_response(Apache2::Const::HTTP_MOVED_TEMPORARILY, $response);
