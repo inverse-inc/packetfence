@@ -29,7 +29,7 @@ has_field 'stripped_user_name' =>
    default         => 'yes',
    label           => 'Use stripped username ',
    tags => { after_element => \&help,
-             help => 'Use stripped username returned by radius to test the following rules.' },
+             help => 'Use stripped username returned by RADIUS to test the following rules.' },
   );
 
 =head2 validate

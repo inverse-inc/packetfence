@@ -1,7 +1,8 @@
 package pf::ConfigStore::Realm;
 =head1 NAME
 
-pf::ConfigStore::Realm add documentation
+pf::ConfigStore::Realm
+Store Realm configuration
 
 =cut
 
@@ -21,7 +22,7 @@ sub configFile { $pf::file_paths::realm_config_file };
 
 =head2 cleanupAfterRead
 
-Clean up switch data
+Clean up realm data
 
 =cut
 

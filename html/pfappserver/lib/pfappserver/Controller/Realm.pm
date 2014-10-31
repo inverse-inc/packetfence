@@ -6,7 +6,7 @@ pfappserver::Controller::Configuration::Realm - Catalyst Controller
 
 =head1 DESCRIPTION
 
-Controller for firewall sso  management.
+Controller for Realm configuration.
 
 =cut
 
