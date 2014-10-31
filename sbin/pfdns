@@ -270,7 +270,7 @@ sub isolzone {
     $logger->trace("Requested Domain: ".$qname);
     if ($qtype eq "A") {
         my $ttl = $TTL;
-        my $rdata = $rdata = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
+        my $rdata = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
         my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
         push @ans, $rr;
         $rcode = "NOERROR";
