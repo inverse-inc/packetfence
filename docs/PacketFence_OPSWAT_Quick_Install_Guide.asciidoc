@@ -104,3 +104,44 @@ Connect a device to your test network and register like you normally would.
 At the end of the registration process you will be presented a page asking you to install the OPSWAT GEARS client on your device.
 After you install the client click continue. If your access is enabled than this means the connectivity between PacketFence and OPSWAT GEARS is good.
 
+Compliance enforcement
+----------------------
+
+Since version 4.5.1, PacketFence polls the OPSWAT GEARS API in order to trigger violations on non compliant devices.
+
+PacketFence uses the number of critical issues the device has to determine whether or not it needs to isolate it.
+
+Step 1: Configure OPSWAT GEARS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+First you need to configure what you consider as a critical issue in your OPSWAT GEARS console.
+
+You will do that through the 'Configure' menu. Then you'll see a column that allows you to flag what is considered as a critical issue.
+
+image::docs/images/opswat-critical-config.png[scaledwidth="100%",alt="OPSWAT critical issues"]
+
+Step 2: Configure PacketFence
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Now in order to enforce the compliance of the devices using the flagged critical issues above, you will need to configure the provisioner you created above to activate the enforcement.
+
+Back in the provisioner configuration, go in the 'Compliance' tab.
+
+You now have to configure the violation that is raised when a device is not compliant. Using the violation 'Generic' should fit your needs for now, and you can modify the template after.
+
+Then configure the 'Critical issues threshold' and put it at the minimum critical issues a device needs to have before it gets isolated.
+
+Putting 1 into that field will isolate the device whenever there is at least one critical issue with the device.
+
+image::docs/images/opswat-compliance-config.png[scaledwidth="100%",alt="OPSWAT critical issues"]
+
+You can then hit 'Save' and you now the device will get isolated whenever it's found not compliant.
+
+Step 3: Customize the template
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can now customize the template the violation is using in the 'Portal Profile' section. Simply select your portal profile and then go in the 'Files' tab.
+
+You can then modify the template violations/generic.html so it displays additionnal information.
+
+You can also customize this violation in the 'Violations' section of the administration interface. Refer to the PacketFence Administration Guide for additionnal information about this.
+
