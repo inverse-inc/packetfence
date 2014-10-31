@@ -28,6 +28,7 @@ extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'internal');
 has '+type' => (default => 'Chained');
+has '+unique' => (default => 1 );
 has rules_from_sources => ( is => 'rw' );
 has pre_authentication_source => ( is => 'rw' );
 has authentication_source => ( is => 'rw' );
