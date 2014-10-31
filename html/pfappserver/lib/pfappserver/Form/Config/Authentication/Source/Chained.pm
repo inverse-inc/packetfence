@@ -1,21 +1,21 @@
-package pfappserver::Form::Authentication::Source::Chained;
+package pfappserver::Form::Config::Authentication::Source::Chained;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source::Chained add documentation
+pfappserver::Form::Config::Authentication::Source::Chained add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Authentication::Source::Chained
+pfappserver::Form::Config::Authentication::Source::Chained
 
 =cut
 
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Authentication::Source';
+extends 'pfappserver::Form::Config::Authentication::Source';
 use pf::authentication;
 
 # Form fields
