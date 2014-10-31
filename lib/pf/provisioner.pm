@@ -17,7 +17,17 @@ use warnings;
 use Moo;
 use pf::os;
 use pf::config;
+use Readonly;
+use pf::log;
 use List::MoreUtils qw(any);
+
+=head1 Constants
+
+head2 COMMUNICATION_FAILED
+
+=cut
+
+Readonly::Scalar our $COMMUNICATION_FAILED => -1;
 
 =head1 Atrributes
 
@@ -85,6 +95,14 @@ If the provisioner has to be enforced on each connection
 
 has enforce => (is => 'rw', default => sub { 1 });
 
+=head2 non_compliance_violation
+
+Which violation should be raised when a device is not compliant
+
+=cut
+
+has non_compliance_violation => (is => 'rw' );
+
 =head1 METHODS
 
 =head2 _build_template
@@ -99,6 +117,27 @@ sub _build_template {
     $type =~ s/^pf:://;
     $type =~ s/::/\//g;
     return "${type}.html";
+}
+
+=head2 supportsPolling
+
+Whether or not the provisioner supports polling info for compliance check
+
+=cut
+
+sub supportsPolling {return 0}
+
+=head2 supportsPolling
+
+Whether or not the provisioner supports polling info for compliance check
+
+=cut
+
+sub pollChangedDevices {
+    my ($self, $timeframe) = @_;
+    my $logger = get_logger();
+    $logger->error("Called pollChangedDevices on a provisioner that doesn't support it");
+    return [];
 }
 
 =head2 matchCategory
@@ -134,6 +173,22 @@ sub match {
     my ($self, $os, $node_attributes) = @_;
     return $self->matchOS($os) && $self->matchCategory($node_attributes);
 }
+
+=head2 provisioner_compliance_poll
+
+=cut
+
+sub provisioner_compliance_poll {
+    use Data::Dumper;
+    use pf::ConfigStore::Provisioning;
+    use pf::factory::provisioner;
+    foreach my $id (@{pf::ConfigStore::Provisioning->new->readAllIds}) {
+        my $provisioner = pf::factory::provisioner->new($id);
+        if($provisioner->supportsPolling){
+            $provisioner->pollAndEnforce($Config{maintenance}{provisioning_compliance_poll_interval});
+        }
+    }
+} 
 
 =head1 AUTHOR
 

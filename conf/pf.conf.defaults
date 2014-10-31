@@ -908,4 +908,8 @@ inline_accounting_maintenance_interval=60s
 #
 # acct maintenance interval
 acct_maintenance_interval=60s
-
+#
+# maintenance.provisioning_compliance_poll_interval
+#
+# provisioning compliance poll interval
+provisioning_compliance_poll_interval=300s

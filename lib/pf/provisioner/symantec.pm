@@ -83,6 +83,15 @@ The xml parser
 
 has xmlParser => (is => 'rw', lazy => 1, builder => 1);
 
+=head2 agent_download_uri 
+
+The URI to download the agent
+
+=cut
+
+has agent_download_uri => (is => 'rw');
+
+
 =head2 _build_xmlParser
 
 _build_xmlParser

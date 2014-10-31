@@ -24,6 +24,8 @@ use Log::Log4perl;
 use pf::iplog;
 use pf::ConfigStore::Provisioning;
 use DateTime::Format::RFC3339;
+use pf::violation;
+use pf::log;
 
 =head1 Atrributes
 
@@ -91,8 +93,18 @@ The URI to download the agent
 
 has agent_download_uri => (is => 'rw');
 
+=head2 critical_issues_threshold
+
+The amount of critical issues to be detected by opswat before raising the non_compliance_violation
+
+=cut
+
+has critical_issues_threshold => (is => 'rw', default => sub {0} );
+
 # amount of minutes to condider the node as still active with OPSWAT
 my $CONNECTION_DELAY = 30;
+
+sub supportsPolling {return 1}
 
 sub get_refresh_token {
     my ($self) = @_;
@@ -158,7 +170,7 @@ sub refresh_access_token {
     if ( $curl_return_code != 0 or $curl_info != 200 ) { 
         # Failed to contact the OPSWAT API.;
         $logger->error("Cannot connect to OPSWAT to refresh the token");
-        return -1;   
+        return $pf::provisioner::COMMUNICATION_FAILED;   
     }
     else{
         
@@ -171,7 +183,7 @@ sub refresh_access_token {
     }
 }
 
-sub validate_mac_in_opswat {
+sub get_device_info {
     my ($self, $mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
  
@@ -196,15 +208,27 @@ sub validate_mac_in_opswat {
     
     if ( $curl_info == 401 ) { 
         $logger->error("Unable to contact OPSWAT on url ".$url);
-        return -1;   
+        return $pf::provisioner::COMMUNICATION_FAILED;   
     }
     elsif($curl_info != 200){
-        return -1;
+        return $pf::provisioner::COMMUNICATION_FAILED;
     } 
     else { 
         my $json_response = decode_json($response_body);
-        return $self->check_active($mac, $json_response);
+        return $json_response;
     } 
+}
+
+sub validate_mac_in_opswat {
+    my ($self, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $info = $self->get_device_info($mac);
+    if($info != $pf::provisioner::COMMUNICATION_FAILED){
+        return $self->check_active($mac, $info);
+    }
+    else{
+        return $info;
+    }
 }
 
 sub check_active {
@@ -233,21 +257,98 @@ sub check_active {
 sub authorize {
     my ($self,$mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
+
+
+
     my $result = $self->validate_mac_in_opswat($mac); 
-    if( $result == -1){
+    if( $result == $pf::provisioner::COMMUNICATION_FAILED){
         $logger->info("OPSWAT Oauth access token is probably not valid anymore.");
         $self->refresh_access_token();
         $result = $self->validate_mac_in_opswat($mac);
     }
 
-    if($result == -1){
+    if($result == $pf::provisioner::COMMUNICATION_FAILED){
         $logger->error("Unable to contact the OPSWAT API to validate if mac $mac is registered.");
-        return -1;
+        return $pf::provisioner::COMMUNICATION_FAILED;
     }
     else{
+        # take the opportunity to check compliance
+        $self->verify_compliance($mac);
         return $result;
     }   
    
+}
+
+sub verify_compliance {
+    my ($self, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $info = $self->get_device_info($mac);
+    if($info != $pf::provisioner::COMMUNICATION_FAILED){
+        if($self->{critical_issues_threshold} != 0 && defined($info->{total_critical_issue}) && $info->{total_critical_issue} >= $self->{critical_issues_threshold}){
+            pf::violation::violation_add($mac, $self->{non_compliance_violation}, ());
+        }
+    }
+    else{
+        $logger->warn("Couldn't contact OPSWAT API to validate compliance of $mac");
+    }
+}
+
+sub pollAndEnforce{
+    my ($self, $timeframe) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $result = $self->get_status_changed_devices($timeframe);
+    if ( $result == $pf::provisioner::COMMUNICATION_FAILED ){
+        $logger->info("OPSWAT Oauth access token is probably not valid anymore.");
+        $self->refresh_access_token();
+        $result = $self->get_status_changed_devices($timeframe);
+    }
+
+    if ( $result == $pf::provisioner::COMMUNICATION_FAILED ){
+        $logger->error("Unable to contact the OPSWAT API to poll the changed devices.");
+    }
+    else{
+        foreach my $device (@{$result->{devices}}){
+            foreach my $mac (@{$device->{mac_addresses}}){
+                $self->verify_compliance($mac);
+            }
+        }
+    }
+}
+
+sub get_status_changed_devices {
+    my ($self, $timeframe) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+ 
+    my $access_token = $self->get_access_token();
+    my $curl = WWW::Curl::Easy->new;
+    my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . "/o/api/v2.1/devices/status_changed?age=$timeframe&access_token=$access_token";
+
+    $logger->info($url);
+
+    my $response_body = '';
+    open(my $fileb, ">", \$response_body);
+    $curl->setopt(CURLOPT_URL, $url );
+    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0) ; 
+    $curl->setopt(CURLOPT_HEADER, 0);
+    $curl->setopt(CURLOPT_WRITEDATA,$fileb);
+
+    my $curl_return_code = $curl->perform;
+    my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
+
+    $logger->info($curl_info);
+    $logger->info($response_body); 
+    
+    if ( $curl_info == 401 ) { 
+        $logger->error("Unable to contact OPSWAT on url ".$url);
+        return $pf::provisioner::COMMUNICATION_FAILED;   
+    }
+    elsif($curl_info != 200){
+        return $pf::provisioner::COMMUNICATION_FAILED;
+    } 
+    else { 
+        my $json_response = decode_json($response_body);
+        return $json_response;
+    } 
 }
 
 =head1 AUTHOR
