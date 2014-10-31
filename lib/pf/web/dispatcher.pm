@@ -192,7 +192,7 @@ sub html_redirect {
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
     });
-    $template->process("html_redirect.tt", $stash, \$response) || $logger->error($template->error());
+    $template->process("redirect.tt", $stash, \$response) || $logger->error($template->error());
 
     $r->headers_out->set('Location' => $stash->{login_url});
     $r->content_type('text/html');
