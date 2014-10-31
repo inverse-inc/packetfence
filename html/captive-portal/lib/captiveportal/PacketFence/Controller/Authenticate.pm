@@ -381,33 +381,22 @@ sub authenticationLogin : Private {
     my $mac           = $portalSession->clientMac;
     my ( $return, $message, $source_id );
     $logger->debug("authentication attempt");
-    my $local;
     if ($request->{'match'} eq "status/login") {
         use pf::person;
         my $person_info = pf::person::person_view($request->param("username"));
         my $source = pf::authentication::getAuthenticationSource($person_info->{source});
         if (defined($source) && $source->{'class'} eq 'external') {
             # Source is external, we have to use local source to authenticate
-            $local = '1';
+            $c->stash( use_local_source => 1 );
         }
         my $options = {
             'portal' => $person_info->{portal},
         };
         $profile = pf::Portal::ProfileFactory->instantiate( $mac, $options);
     }
+    $c->stash( profile => $profile );
 
-    my @sources;
-    if ($local) {
-        @sources = pf::authentication::getAuthenticationSource('local');
-    } else {
-        #If we try to validate a sponsor access then use all Internal Sources
-        if ($request->{'match'} =~ "activate/email") {
-            @sources = @{pf::authentication::getInternalAuthenticationSources()};
-        } else {
-            @sources =
-                ( $profile->getInternalSources, $profile->getExclusiveSources );
-        }
-    }
+    my @sources = $self->getSources($c);
 
     my $username = $request->param("username");
     my $password = $request->param("password");
@@ -440,6 +429,32 @@ sub authenticationLogin : Private {
         }
     }
 
+}
+
+=head2 getSources
+
+Return the source to use to login
+
+=cut
+
+sub getSources : Private {
+    my ($self,$c) = @_;
+    my @sources;
+    my $use_local_source = $c->stash->{use_local_source};
+    my $profile = $c->stash->{profile};
+
+    if ($use_local_source) {
+        @sources = pf::authentication::getAuthenticationSource('local');
+    } else {
+        #If we try to validate a sponsor access then use all Internal Sources
+        if ($c->request->{'match'} =~ "activate/email") {
+            @sources = @{pf::authentication::getInternalAuthenticationSources()};
+        } else {
+            @sources =
+                ( $profile->getInternalSources, $profile->getExclusiveSources );
+        }
+    }
+    return @sources;
 }
 
 sub showLogin : Private {
