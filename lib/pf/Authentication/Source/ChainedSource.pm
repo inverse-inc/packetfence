@@ -17,6 +17,7 @@ use Moose;
 use pf::config qw($FALSE $TRUE $default_pid);
 use pf::Authentication::constants;
 use pf::util;
+use pf::log;
 
 extends 'pf::Authentication::Source';
 
