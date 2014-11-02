@@ -22,13 +22,13 @@ use pf::authentication;
 has_field 'chained_authentication_source' =>
   (
    type => 'Select',
-   options_method => \&options_sources,
+   options_method => \&options_chained_authentication_source,
   );
 
 has_field 'authentication_source' =>
   (
    type => 'Select',
-   options_method => \&options_sources,
+   options_method => \&options_authentication_source,
   );
 
 has_field 'use_rules_from_authentication_source' =>
@@ -38,14 +38,36 @@ has_field 'use_rules_from_authentication_source' =>
    unchecked_value => 'disabled',
   );
 
-=head2 options_sources
+=head2 options_chained_authentication_source
 
-Returns the list of sources to be displayed
+Get the available chained authentication source options
 
 =cut
 
-sub options_sources {
-    return map { { value => $_->id, label => $_->id, attributes => { 'data-source-class' => $_->class  } } } @{getAllAuthenticationSources()};
+sub options_chained_authentication_source {
+    my ($self) = @_;
+    return map_sources_to_options( @{pf::authentication::getExternalAuthenticationSources()} );
+}
+
+=head2 options_authentication_source
+
+Get the available authentication source options
+
+=cut
+
+sub options_authentication_source {
+    my ($self) = @_;
+    return map_sources_to_options( grep { $_->type ne 'Chained' } @{pf::authentication::getInternalAuthenticationSources()} );
+}
+
+=head2 map_sources_to_options
+
+Map the list of sources to options
+
+=cut
+
+sub map_sources_to_options {
+    return map { { value => $_->id, label => $_->id, attributes => { 'data-source-class' => $_->class  } } } @_;
 }
 
 
