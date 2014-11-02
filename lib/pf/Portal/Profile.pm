@@ -266,13 +266,13 @@ Returns the first source object for the requested source type for the current ca
 
 sub getSourceByType {
     my ($self, $type) = @_;
-    my $result;
-    if ($type) {
-        $type = uc($type);
-        $result = first {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
-    }
-
-    return $result;
+    return unless $type;
+    my @sources = $self->getSourcesAsObjects;
+    push @sources,
+      map { $_->getAuthenticationSourceObject, $_->getChainedAuthenticationSourceObject}
+      grep {$_->{'type'} eq 'Chained'} $self->getSourcesAsObjects;
+    $type = uc($type);
+    return first {uc($_->{'type'}) eq $type} @sources;
 }
 
 =item guestRegistrationOnly
