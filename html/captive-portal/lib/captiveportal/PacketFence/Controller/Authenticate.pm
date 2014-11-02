@@ -188,6 +188,7 @@ sub postAuthentication : Private {
     my ( $self, $c ) = @_;
     my $logger = $c->log;
     $c->detach('showLogin') if $c->has_errors;
+    $c->forward("checkIfChainedAuth");
     my $portalSession = $c->portalSession;
     my $session = $c->session;
     my $profile = $c->profile;
@@ -204,6 +205,60 @@ sub postAuthentication : Private {
     $info->{source} = $source_id;
     $info->{portal} = $profile->getName;
     $c->forward('checkIfProvisionIsNeeded');
+}
+
+=head2 checkIfChainedAuth
+
+Checked to see if source that was authenticated with is chained
+
+=cut
+
+sub checkIfChainedAuth : Private {
+    my ($self, $c) = @_;
+    my $source_id = $c->session->{source_id};
+    my $source = getAuthenticationSource($source_id);
+    #if not chained then leave
+    return unless $source->type eq 'Chained';
+    my $chainedSource = $source->getChainedAuthenticationSourceObject();
+    if( $chainedSource && $self->isGuestSigned($c,$chainedSource)) {
+        $self->setAllowedGuestModes($c,$chainedSource);
+        $c->detach(Signup => 'showSelfRegistrationPage');
+    }
+}
+
+our %GUEST_SOURCE_TYPES = (
+    SMS          => 'sms_guest_allowed',
+    Email        => 'email_guest_allowed',
+    SponsorEmail => 'sponsored_guest_allowed',
+);
+
+=head2 isGuestSigned
+
+Checks to see if the source is a signup source
+
+=cut
+
+
+sub isGuestSigned {
+    my ($self, $c, $chainedSource) = @_;
+    return exists $GUEST_SOURCE_TYPES{$chainedSource->type};
+}
+
+=head2 setAllowedGuestModes
+
+Overrides the default guest_modes
+
+=cut
+
+sub setAllowedGuestModes {
+    my ($self, $c, $chainedSource) = @_;
+    my $modes = {
+        sms_guest_allowed       => 0,
+        email_guest_allowed     => 0,
+        sponsored_guest_allowed => 0,
+    };
+    $modes->{$GUEST_SOURCE_TYPES{$chainedSource->type}} = 1;
+    $c->session->{allowed_guest_modes} = $modes;
 }
 
 =head2 setupMatchParams
