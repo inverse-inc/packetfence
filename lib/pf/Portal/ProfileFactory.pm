@@ -79,10 +79,12 @@ sub _guest_modes_from_sources {
         exclusive => undef,
     );
     my %is_in = map { $_ => undef } @$sources;
+    my @all_sources = @{pf::authentication::getAllAuthenticationSources()};
     my @guest_modes =
       map { lc($_->type) }
         grep { exists $is_in{$_->id} && exists $modeClasses{$_->class} }
-          @{pf::authentication::getAllAuthenticationSources()};
+          @all_sources;
+    push @guest_modes, map { lc($_->getChainedAuthenticationSourceObject->type)} grep { exists $is_in{$_->id} && $_->type eq 'Chained'} @all_sources;
 
     return \@guest_modes;
 }
