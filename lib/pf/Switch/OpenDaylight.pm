@@ -103,7 +103,7 @@ sub send_json_request {
     my $url = "$self->{_wsTransport}://$self->{_ip}:8080/$path";
     my $json_data = encode_json $data;
 
-    my $command = 'curl -u '.$self->{_wsUser}.':'.$self->{_wsPwd}.'-X '.$method.' -d \''.$json_data.'\' --header "Content-type: application/json" '.$url; 
+    my $command = 'curl -u '.$self->{_wsUser}.':'.$self->{_wsPwd}.' -X '.$method.' -d \''.$json_data.'\' --header "Content-type: application/json" '.$url; 
     $logger->info("Running $command");
     my $result = pf_run($command);
     $logger->info("Result of command : ".$result);
@@ -267,9 +267,11 @@ sub install_dns_redirect {
     my ($self, $ifIndex, $mac, $switch_id) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     
-    $self->synchronize_locationlog($ifIndex, "0", $mac,
-        $FALSE, $WIRED_MAC_AUTH, $mac, ""
-    );
+    if ( $self->reactivate_dns_redirect($ifIndex, $mac) ){
+        $logger->warn("Couldn't reactivate dnsredirect. Installing a new one");
+        return $TRUE;
+    }
+
 
     #$self->block_network_detection($ifIndex, $mac);
 
@@ -313,7 +315,7 @@ sub reactivate_dns_redirect {
     my ($self, $ifIndex, $mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     my $flow_name = $self->get_flow_name("dnsredirect", $mac);
-    $self->reactivate_flow($flow_name); 
+    return $self->reactivate_flow($flow_name); 
 }
 
 sub find_flow_by_name {
@@ -353,9 +355,14 @@ sub deactivate_flow{
 
 sub reactivate_flow{
     my ($self, $flow_name) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
     my $flow = $self->find_flow_by_name($flow_name);
-    if($flow->{installInHw} eq "false"){
+    if($flow && $flow->{installInHw} eq "false"){
         $self->toggle_flow($flow);
+        return $TRUE;
+    }
+    else{
+        return $FALSE;
     }
 }
 
