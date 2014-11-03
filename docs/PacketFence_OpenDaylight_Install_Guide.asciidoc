@@ -29,35 +29,53 @@ yum install git wget
 yum install java-1.7.0-openjdk java-1.7.0-openjdk-devel
 
 Install maven
+
+----
 wget https://raw.githubusercontent.com/monksy/centos-maven-install/master/maven-install.sh
 sh maven-install.sh
+----
 
 OS configuration
 ++++++++++++++++
 
+----
 service iptables stop
 chkconfig iptables off
+----
 
 Add the server name in /etc/hosts
 
 Step 3: Install the OpenDaylight controller
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----
 mkdir /var/odl
 cd /var/odl
 git clone https://git.opendaylight.org/gerrit/p/controller.git
 cd controller
+----
 
 Add these maven options to your environment
+
+----
 export MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=512m"
+----
 
 Verify it's there
+
+----
 export | grep MAVEN_OPTS
+----
 
 Install the controller distribution
+
+----
 mvn clean install -DskipTests
+----
 
 At the end you should see an output similar to this
----
+
+----
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
@@ -65,31 +83,40 @@ At the end you should see an output similar to this
 [INFO] Finished at: Tue Oct 28 19:52:03 EDT 2014
 [INFO] Final Memory: 346M/931M
 [INFO] ------------------------------------------------------------------------
----
+----
 
 Step 4: Install the PacketFence plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Get the plugin at https://github.com/inverse-inc/packetfence/raw/feature/opendaylight/addons/opendaylight/target/odlpf-0.1.jar
+
+----
 wget https://github.com/inverse-inc/packetfence/raw/feature/opendaylight/addons/opendaylight/target/odlpf-0.1.jar
+----
 
 Now copy it to the plugin directory
+
+----
 cp odlpf-0.1.jar /var/odl/controller/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/plugins/
+----
 
 And we can now start the OpenDaylight controller 
-/var/odl/controller/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh
+
+----
+sh /var/odl/controller/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh
+----
 
 After 2-3 minutes, OpenDaylight will be started. Press enter a few times and you should see the 'osgi>' prompt.
 Verify that the plugin is properly loaded by typing 'ss odlpf'. The state needs to be ACTIVE.
 
----
+----
 osgi> ss odlpf
 "Framework is launched."
 
 
 id  State       Bundle
 38  ACTIVE      ca.inverse.odlpf_0.1.0
----
+----
 
 Now validate you have access to the OpenDaylight administration interface on http://192.168.1.10:8080
 
@@ -104,13 +131,11 @@ Note that this could break a working PacketFence installation. Install this on a
 
 This patch is based on the most recent version of PacketFence so be sure to upgrade to the latest version available before applying the patch.
 
----
-
+----
 cd /usr/local/pf
 wget http://inverse.ca/downloads/sdn.patch 
 patch -p1 < sdn.patch
-
----
+----
 
 In case of any conflicts please post the output of the patch command on the PacketFence development mailing list.
 
@@ -125,7 +150,7 @@ Still in PacketFence, add a new switch for the OpenDaylight controller
 
 In /usr/local/pf/conf/switches.conf add the OpenDaylight controller configuration
 
----
+----
 [192.168.1.10]
 type=OpenDaylight
 mode=production
@@ -133,7 +158,7 @@ IsolationStrategy=DNS
 wsTransport=HTTP
 wsUser=admin
 wsPwd=admin
----
+----
 
 Where :
 
@@ -146,19 +171,19 @@ Where :
 
 In /usr/local/pf/conf/iptables.conf, add the following lines in the management section
 
----
+----
 # DNS (for the SDN stack)
 -A input-management-if --protocol udp --match udp --dport 53  --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
 # PORTAL (for the SDN stack)
 -A input-management-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 443  --jump ACCEPT
----
+----
 
 The PacketFence OpenDaylight plugin requires a configuration file on the OpenDaylight controller (/etc/packetfence.conf).
 Here is an example :
 
----
+----
 host=192.168.1.5
 port=9090
 user=web
@@ -166,7 +191,7 @@ pass=services
 controller_ip=192.168.1.10
 pf_dns_ip=192.168.1.10
 pf_dns_mac=0050569d000b
----
+----
 
 Where :
 
@@ -195,15 +220,16 @@ Connect a device to your network equipment and in the terminal where you have th
 
 Here is the valid output of a packet in event
 
----
+----
 Pkt. to /10.0.0.6 received by node 01:00:00:50:56:9d:00:05 on connector 2
 Packet src port -20180 packet source int 2
-{"id":"1","method":"sdn_authorize","params":{"port":"2","controller_ip":"192.168.1.10","mac":"84:3a:4b:dc:09:ec","switch_id":"01:00:00:50:56:9d:00:05"},"jsonrpc":"2.0"}
+{"id":"1","method":"sdn_authorize","params":{"port":"2","controller_ip":"192.168.1.10",
+"mac":"84:3a:4b:dc:09:ec","switch_id":"01:00:00:50:56:9d:00:05"},"jsonrpc":"2.0"}
 {"jsonrpc":"2.0","id":"1","result":[{"strategy":"DNS","action":"isolate"}]}
 Installing DNS outbound redirect flow
 Installing return flow
 Setting 84:3a:4b:dc:09:ec,-20180 38:22:d6:6c:8c:f5,10.0.0.6,2
----
+----
 
 Once the first event hits your OpenDaylight controller, if you don't have a plugin to manage the non-DNS traffic you should install flows that allow communication of the device on the network. Usually forwarding packets to and from the uplink should be enough. Make sure the flows you install have a lower priority than 1000. PacketFence uses priority 1000 and higher.
 
