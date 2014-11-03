@@ -69,7 +69,9 @@ int main(argc,argv,envp) int argc; char **argv, **envp;
     gettimeofday(&t1, NULL);
 
     // Fork a process, exec it and then wait for the exit.
-    pid_t pid; 
+    pid_t pid, ppid; 
+    ppid = getpid();
+
     int status;
     if ((pid = fork()) < 0) { 
         perror(argv[0]);
@@ -90,7 +92,7 @@ int main(argc,argv,envp) int argc; char **argv, **envp;
     elapsed = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
     elapsed += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
 
-    syslog(LOG_INFO, "%s time: %g ms, status: %i", log_msg, elapsed, WEXITSTATUS(status));
+    syslog(LOG_INFO, "%s time: %g ms, status: %i, exiting pid: %i", log_msg, elapsed, WEXITSTATUS(status), ppid);
     closelog();
 
     exit(WEXITSTATUS(status));
