@@ -130,7 +130,19 @@ In /usr/local/pf/conf/switches.conf add the OpenDaylight controller configuratio
 type=OpenDaylight
 mode=production
 IsolationStrategy=DNS
+wsTransport=HTTP
+wsUser=admin
+wsPwd=admin
 ---
+
+Where :
+
+* type is the module to use. Should be left to OpenDaylight
+* mode should be set to production
+* Isolation Strategy is for selecting the way the devices get isolated. This should be set to DNS in most cases.
+* wsUser is the user to connect to the OpenDaylight NorthBound API
+* wsPwd is the password to connect to the OpenDaylight NorthBound API
+* wsTransport is the protocol that should be used to connect to the OpenDaylight NorthBound API. If you set it to HTTPS, make sure the proper certificates are in place.
 
 In /usr/local/pf/conf/iptables.conf, add the following lines in the management section
 
@@ -138,6 +150,9 @@ In /usr/local/pf/conf/iptables.conf, add the following lines in the management s
 # DNS (for the SDN stack)
 -A input-management-if --protocol udp --match udp --dport 53  --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
+# PORTAL (for the SDN stack)
+-A input-management-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 443  --jump ACCEPT
 ---
 
 The PacketFence OpenDaylight plugin requires a configuration file on the OpenDaylight controller (/etc/packetfence.conf).
@@ -154,6 +169,7 @@ pf_dns_mac=0050569d000b
 ---
 
 Where :
+
 * host is the management ip of your PacketFence server
 * port is the port of the webservices (default for PacketFence is 9090)
 * user is the username of the PacketFence webservices

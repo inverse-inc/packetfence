@@ -100,10 +100,10 @@ sub delete_flow {
 sub send_json_request {
     my ($self, $path, $data, $method) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
-    my $url = "http://$self->{_ip}:8080/$path";
+    my $url = "$self->{_wsTransport}://$self->{_ip}:8080/$path";
     my $json_data = encode_json $data;
 
-    my $command = 'curl -u admin:admin -X '.$method.' -d \''.$json_data.'\' --header "Content-type: application/json" '.$url; 
+    my $command = 'curl -u '.$self->{_wsUser}.':'.$self->{_wsPwd}.'-X '.$method.' -d \''.$json_data.'\' --header "Content-type: application/json" '.$url; 
     $logger->info("Running $command");
     my $result = pf_run($command);
     $logger->info("Result of command : ".$result);
