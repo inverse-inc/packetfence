@@ -210,7 +210,7 @@ Returns the internal authentication sources objects for the current captive port
 
 sub getInternalSources {
     my ($self) = @_;
-    return grep { $_->{'class'} eq 'internal' } $self->getSourcesAsObjects();
+    return $self->getSourcesByClass( 'internal' );
 }
 
 =item getExternalSources
@@ -221,7 +221,7 @@ Returns the external authentication sources objects for the current captive port
 
 sub getExternalSources {
     my ($self) = @_;
-    return grep { $_->{'class'} eq 'external' } $self->getSourcesAsObjects();
+    return $self->getSourcesByClass( 'external' );
 }
 
 =item getExclusiveSources
@@ -232,7 +232,30 @@ Returns the exclusive authentication sources objects for the current captive por
 
 sub getExclusiveSources {
     my ($self) = @_;
-    return grep { $_->{'class'} eq 'exclusive' } $self->getSourcesAsObjects();
+    return $self->getSourcesByClass( 'exclusive' );
+}
+
+=item getSourcesByClass
+
+Returns the sources for that match the class
+
+=cut
+
+sub getSourcesByClass {
+    my ($self, $class) = @_;
+    return unless defined $class;
+    return grep { $_->class eq $class } $self->getSourcesAsObjects();
+}
+
+=item hasChained
+
+If the profile has a chained auth source
+
+=cut
+
+sub hasChained {
+    my ($self) = @_;
+    return defined ($self->getSourceByType('chained')) ;
 }
 
 =item getSourceByType
@@ -243,13 +266,13 @@ Returns the first source object for the requested source type for the current ca
 
 sub getSourceByType {
     my ($self, $type) = @_;
-    my $result;
-    if ($type) {
-        $type = uc($type);
-        $result = first {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
-    }
-
-    return $result;
+    return unless $type;
+    my @sources = $self->getSourcesAsObjects;
+    push @sources,
+      map { $_->getAuthenticationSourceObject, $_->getChainedAuthenticationSourceObject}
+      grep {$_->{'type'} eq 'Chained'} $self->getSourcesAsObjects;
+    $type = uc($type);
+    return first {uc($_->{'type'}) eq $type} @sources;
 }
 
 =item guestRegistrationOnly

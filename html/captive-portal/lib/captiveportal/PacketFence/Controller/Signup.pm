@@ -612,7 +612,6 @@ sub showSelfRegistrationPage : Private {
       pf::Authentication::Source::SMSSource->meta->get_attribute('type')
       ->default;
     my $source     = $profile->getSourceByType($sms_type);
-    my $guestModes = $profile->getGuestModes;
 
     $c->stash(
         post_uri            => "$WEB::URL_SIGNUP?mode=guest-register",
@@ -625,13 +624,32 @@ sub showSelfRegistrationPage : Private {
         sponsor_email       => lc( $request->param("sponsor_email") || '' ),
         sms_carriers        => sms_carrier_view_all($source),
         is_preregistration  => $c->session->{'preregistration'},
-        sms_guest_allowed   => is_in_list( $SELFREG_MODE_SMS, $guestModes ),
-        email_guest_allowed => is_in_list( $SELFREG_MODE_EMAIL, $guestModes ),
-        sponsored_guest_allowed =>
-          is_in_list( $SELFREG_MODE_SPONSOR, $guestModes ),
+        $self->allowedGuestModes($c),
     );
 
     $c->stash( template => 'guest.html' );
+}
+
+
+=head2 allowedGuestModes
+
+Calculates the allowed guest modes
+
+=cut
+
+sub allowedGuestModes {
+    my ($self, $c) = @_;
+    my $modes = $c->session->{allowed_guest_modes};
+    unless ($modes) {
+        my $profile    = $c->profile;
+        my $guestModes = $profile->getGuestModes;
+        $modes = {
+            sms_guest_allowed       => is_in_list($SELFREG_MODE_SMS,     $guestModes),
+            email_guest_allowed     => is_in_list($SELFREG_MODE_EMAIL,   $guestModes),
+            sponsored_guest_allowed => is_in_list($SELFREG_MODE_SPONSOR, $guestModes),
+        };
+    }
+    return %$modes;
 }
 
 =head1 AUTHOR
