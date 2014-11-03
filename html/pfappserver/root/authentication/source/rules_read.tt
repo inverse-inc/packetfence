@@ -15,7 +15,7 @@
                 [% FOREACH rule IN form.field('rules').fields %]
                 <tr class="sourceRule">
                   <td class="sort-handle">[% loop.index + 1 %]</td>
-                  <td>[% rule.field('id').render %]<a href="[% c.uri_for(c.controller('Authentication::Source').action_for('rule_read'), [ source.id, rule.field('id').value ]) %]">[% rule.field('id').value %]</a></td>
+                  <td>[% rule.field('id').render %]<a href="[% c.uri_for(c.controller('Config::Authentication::Source').action_for('rule_read'), [ source.id, rule.field('id').value ]) %]">[% rule.field('id').value %]</a></td>
                   <td>[% rule.field('description').value %]</td>
                   <td class="action">
                     <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
@@ -30,7 +30,7 @@
               <i class="icon-cogs icon-large"></i><p>[% l('No rule defined') %]</p>
             </div>
             [%- IF can_access("USERS_SOURCES_UPDATE") %]
-            <div class="pull-right"><a id="createRule" class="btn btn-success btn-small" href="[% c.uri_for(c.controller('Authentication::Source').action_for('rule_create'), [ source.id ]) %]" data-toggle="modal" data-target="#modalRule">[% l('Add rule') %]</a></div>
+            <div class="pull-right"><a id="createRule" class="btn btn-success btn-small" href="[% c.uri_for(c.controller('Config::Authentication::Source').action_for('rule_create'), [ source.id ]) %]" data-toggle="modal" data-target="#modalRule">[% l('Add rule') %]</a></div>
             [%- END %]
           </div>
         </div>

@@ -358,9 +358,8 @@ sub parse_dhcp_request {
             . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
         );
         update_iplog( $dhcp->{'chaddr'}, $client_ip, $lease_length );
-        # if there is at least a firewall sso defined in the config && we have the lease length
-        if(%ConfigFirewallSSO && defined($lease_length)) {
-            my $firewallsso = new pf::firewallsso;
+        if(defined($lease_length)) {
+            my $firewallsso = pf::firewallsso->new;
             $firewallsso->do_sso('Start',$dhcp->{'chaddr'}, $client_ip,$lease_length);
         }
     }
@@ -532,11 +531,8 @@ sub update_iplog {
     if ( $oldip && $oldip ne $srcip ) {
         my $oldmac = ip2mac($srcip);
         my $view_mac = node_view($srcmac);
-        # if there is at least a firewall sso defined in the config
-        if(%ConfigFirewallSSO){
-            my $firewallsso = new pf::firewallsso;
-            $firewallsso->do_sso('Stop',$oldmac,$oldip,undef);
-        }
+        my $firewallsso = pf::firewallsso->new;
+        $firewallsso->do_sso('Stop',$oldmac,$oldip,undef);
         if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
             $apiclient->notify('ipset_node_update',$oldip, $srcip, $srcmac);
         }

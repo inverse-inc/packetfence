@@ -41,7 +41,7 @@ BEGIN {
         isenabled isdisabled isempty
         getlocalmac
         get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets
-        get_internal_devs get_internal_devs_phy get_external_devs get_internal_macs
+        get_internal_devs get_internal_devs_phy get_internal_macs
         get_internal_info readpid deletepid
         parse_template mysql_date oui_to_vendor mac2oid oid2mac
         str_to_connection_type connection_type_to_str
@@ -586,14 +586,6 @@ sub get_internal_devs_phy {
     foreach my $internal (@internal_nets) {
         my $dev = $internal->tag("int");
         push( @devs, $dev ) if ( $dev !~ /:\d+$/ );
-    }
-    return (@devs);
-}
-
-sub get_external_devs {
-    my @devs;
-    foreach my $interface (@external_nets) {
-        push @devs, $interface->tag("int");
     }
     return (@devs);
 }

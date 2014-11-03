@@ -1,8 +1,8 @@
 /*
  * Update an action input field depending on the selected action type.
  * Used in
- * - configuration/authentication.js
- * - configuration/users.js
+ * - config/authentication.js
+ * - config/users.js
  */
 function updateAction(type, keep_value) {
     var action = type.val();

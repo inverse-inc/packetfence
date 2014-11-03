@@ -23,11 +23,13 @@ Enhancements
 ++++++++++++
 * Added httpd.aaa service as a new API service for the exclusive use of RADIUS
 * More precisely define which dhcp message types we are listening for
+* Removed dead code referring to 'external' interface type which was, anyway, no longer supported
 
 Bug Fixes
 +++++++++
 * Fix old MAC addresses being left on port-security enabled ports in a RADIUS + port-security environment
 * Fix firewall rule that allows httpd.portal to be reached on management IP when pre-registration enabled
+* Fix creating a new file from the Portal Profile GUI in a subdirectory
 
 Version 4.5.0 released on 2014-10-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,6 +58,7 @@ Bug Fixes
 * Fix MAC detection from IP on the Catalyst portal when using web authentication on the WLC controller.
 * Fix timestamp resolution not catching sub second changes in file in cache layer
 * Fixed handling of expiration time on the captive portal's status page
+* Fixed viewing node pagination sorted
 
 Version 4.4.0 released on 2014-09-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
