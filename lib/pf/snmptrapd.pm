@@ -14,20 +14,25 @@ pfsnmptrapd
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use pf::client::sereal;
+use Sereal::Encoder qw(sereal_encode_with_object);
+use Redis;
+use pf::config;
 use pf::log;
 use NetSNMP::TrapReceiver;
+our $encoder = Sereal::Encoder->new;
 
 sub receiver {
     my ($trapInfo,$oids) = @_;
-    my $client = pf::client::sereal->new;
+    my $server = $Config{vlan}{trap_redis_dropoff_host} . ":" . $Config{vlan}{trap_redis_dropoff_port};
+    my $redis = Redis->new ( server => $server, encoding => undef);
     #Serializing the OID to a string
     foreach my $oid (@$oids) {
         $oid->[0] = $oid->[0]->quote_oid;
     }
     eval {
-        $client->notify('handle_trap', $trapInfo, $oids);
+        $redis->lpush($Config{vlan}{trap_dropoff_queue}, sereal_encode_with_object($encoder,[$trapInfo,$oids]));
     };
+    warn $@ if $@;
     return NETSNMPTRAPD_HANDLER_OK;
 }
 

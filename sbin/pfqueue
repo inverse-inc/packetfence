@@ -1,0 +1,144 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+pfqueue - Handle queue messages
+
+=head1 SYNOPSIS
+
+pfqueue [options]
+
+ Options:
+   -d      Daemonize
+   -h      Help
+   -v      Verbose
+
+=cut
+
+use warnings;
+use strict;
+use Getopt::Std;
+use File::Basename qw(basename);
+use POSIX qw(:signal_h pause);
+use Pod::Usage;
+
+#pf::log must always be initilized first
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfqueue');
+}
+
+use pf::config;
+use pf::services::util;
+use pf::util;
+use Redis;
+use pf::factory::trap;
+use Sereal::Decoder qw(sereal_decode_with_object);
+
+# initialization
+# --------------
+# assign process name (see #1464)
+our $PROGRAM_NAME = $0 = basename($0);
+
+our $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
+
+$SIG{HUP} = \&normal_sighandler;
+$SIG{INT} = \&normal_sighandler;
+$SIG{TERM} = \&normal_sighandler;
+$SIG{ALRM} = sub {};
+
+our %args;
+getopts( 'dhvr', \%args );
+
+pod2usage( -verbose => 1 ) if ( $args{h} );
+
+my $daemonize = $args{d};
+my $verbose   = $args{v};
+our $running = 1;
+
+# standard signals and daemonize
+daemonize($PROGRAM_NAME) if ($daemonize);
+
+loop();
+
+END {
+    if ( !$args{h} ) {
+        deletepid();
+        $logger->info("stopping pfqueue") if $logger;
+    }
+}
+
+exit(0);
+
+=head1 SUBROUTINES
+
+=head2 loop
+
+=cut
+
+sub loop {
+    my $server = $Config{vlan}{trap_redis_pickup_host} . ":" . $Config{vlan}{trap_redis_pickup_port};
+    my $redis = Redis->new ( server => $server, encoding => undef);
+    my $decoder = Sereal::Decoder->new;
+    while($running) {
+        my ($queue,$message) = $redis->brpop($Config{vlan}{trap_pickup_queue},1);
+        if ($message) {
+            $logger->info("handling message for queue $queue");
+            eval {
+                my $trapInfo;
+                sereal_decode_with_object($decoder,$message,$trapInfo);
+                my $trap = pf::factory::trap->instantiate(@$trapInfo);
+                use Data::Dumper;$logger->info(Dumper($trap));
+                $trap->handle if $trap;
+            };
+            $logger->error($@) if $@;
+        };
+    }
+    $redis->quit;
+}
+
+=head2 normal_sighandler
+
+=cut
+
+sub normal_sighandler {
+    $running = 0;
+}
+
+=back
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+Minor parts of this file may have been contributed. See CREDITS.
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2013 Inverse inc.
+
+Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2005 David LaPorte
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
