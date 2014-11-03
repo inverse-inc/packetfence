@@ -271,6 +271,10 @@ sub sdn_authorize {
         $logger->info("Authorizing $mac on switch $switch_id port $port.");
     }
 
+    $switch->synchronize_locationlog($port, "0", $mac,
+        $FALSE, $WIRED_MAC_AUTH, $mac, ""
+    );
+
     my $info = pf::node::node_view($mac);
     my $violation_count = pf::violation::violation_count_trap($mac);
     my $roles_obj = pf::roles::custom->new();
