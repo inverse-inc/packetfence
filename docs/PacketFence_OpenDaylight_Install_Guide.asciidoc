@@ -70,8 +70,8 @@ At the end you should see an output similar to this
 Step 4: Install the PacketFence plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Get the plugin at https://github.com/julsemaan/packetfence/raw/feature/opendaylight/addons/opendaylight/target/odlpf-0.1.jar
-wget https://github.com/julsemaan/packetfence/raw/feature/opendaylight/addons/opendaylight/target/odlpf-0.1.jar
+Get the plugin at https://github.com/inverse-inc/packetfence/raw/feature/opendaylight/addons/opendaylight/target/odlpf-0.1.jar
+wget https://github.com/inverse-inc/packetfence/raw/feature/opendaylight/addons/opendaylight/target/odlpf-0.1.jar
 
 Now copy it to the plugin directory
 cp odlpf-0.1.jar /var/odl/controller/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/plugins/
@@ -107,7 +107,7 @@ This patch is based on the most recent version of PacketFence so be sure to upgr
 ---
 
 cd /usr/local/pf
-wget https://gist.githubusercontent.com/julsemaan/2528b02769bee76311e7/raw/57a993e48628fa04402347978cd1695902abf415/sdn.patch 
+wget http://inverse.ca/downloads/sdn.patch 
 patch -p1 < sdn.patch
 
 ---
