@@ -435,7 +435,9 @@ sub doSmsSelfRegistration : Private {
 
 sub checkGuestModes : Private {
     my ( $self, $c ) = @_;
-    if ( @{ $c->profile->getGuestModes } == 0 ) {
+    my $profile = $c->profile;
+    my @modes = (@{ $profile->getGuestModes }, @{ $profile->getChainedGuestModes });
+    if ( @modes == 0 ) {
         $c->response->redirect( "/captive-portal?destination_url="
               . uri_escape( $c->stash->{destination_url} ) );
         $c->detach;
