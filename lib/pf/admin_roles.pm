@@ -228,6 +228,19 @@ sub admin_allowed_options {
     return uniq @options;
 }
 
+=head2 admin_role_allowed_options
+
+Get the allowed options for a role
+
+=cut
+
+sub admin_role_allowed_options {
+    my ($role, $option) = @_;
+    return unless $role ne 'ALL' && exists $ADMIN_ROLES{$_};
+
+    return split /\s*,\s*/, ($ADMIN_ROLES{$_}{$option} || '')
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
