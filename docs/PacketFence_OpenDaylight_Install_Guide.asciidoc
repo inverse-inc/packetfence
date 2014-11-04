@@ -12,23 +12,22 @@ This guide has been created in order to help sales engineers, product managers, 
 
 Assumptions
 -----------
-* You have a configured PacketFence environment that is currently working
-* You have, or will create, a server with CentOS 6 minimal installed on it (for the OpenDaylight server).
-* The IP address of the OpenDaylight controller is 192.168.1.10
-* The IP address of the PacketFence server is 192.168.1.5
+* You have a configured PacketFence environment that is currently working;
+* You have, or will create, a server with CentOS 6 minimal installed on it (for the OpenDaylight server);
+* The IP address of the OpenDaylight controller is 192.168.1.10;
+* The IP address of the PacketFence server is 192.168.1.5.
 
 Installation
 ------------
 Step 1: Install CentOS 6 minimal
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You will first need to install a server with CentOS 6 minimal on it. This server needs to have 2 network cards that are on the same network. This server will also need at least 2GB of RAM.
+You will first need a server with the minimal installation of CentOS 6 packages on it. This server needs two network adapters that are on the same network and at least 2 GB of RAM.
 
 Step 2: Install the necessary packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-yum install git wget
-yum install java-1.7.0-openjdk java-1.7.0-openjdk-devel
+yum install git wget java-1.7.0-openjdk java-1.7.0-openjdk-devel
 
-Install maven
+In order to build the OpenDaylight controller, you will need to install Apache Maven.
 
 ----
 wget https://raw.githubusercontent.com/monksy/centos-maven-install/master/maven-install.sh
@@ -38,15 +37,19 @@ sh maven-install.sh
 OS configuration
 ++++++++++++++++
 
+You will now need to stop iptables and make sure it doesn't start on boot.
+
 ----
 service iptables stop
 chkconfig iptables off
 ----
 
-Add the server name in /etc/hosts
+Add the server name in `/etc/hosts`.
 
 Step 3: Install the OpenDaylight controller
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First, you will need to clone the OpenDaylight code repository on your server.
 
 ----
 mkdir /var/odl
@@ -55,19 +58,13 @@ git clone https://git.opendaylight.org/gerrit/p/controller.git
 cd controller
 ----
 
-Add these maven options to your environment
+Add these maven options to your environment.
 
 ----
 export MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=512m"
 ----
 
-Verify it's there
-
-----
-export | grep MAVEN_OPTS
-----
-
-Install the controller distribution
+Install the controller distribution.
 
 ----
 mvn clean install -DskipTests
@@ -88,7 +85,7 @@ At the end you should see an output similar to this
 Step 4: Install the PacketFence plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Get the plugin at https://github.com/inverse-inc/packetfence/raw/feature/opendaylight/addons/opendaylight/target/odlpf-0.1.jar
+Download the PacketFence plugin from the official source code repository:
 
 ----
 wget https://github.com/inverse-inc/packetfence/raw/feature/opendaylight/addons/opendaylight/target/odlpf-0.1.jar
@@ -106,7 +103,7 @@ And we can now start the OpenDaylight controller
 sh /var/odl/controller/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh
 ----
 
-After 2-3 minutes, OpenDaylight will be started. Press enter a few times and you should see the 'osgi>' prompt.
+After 2-3 minutes, OpenDaylight will be started. Press enter a few times and you should see the `osgi>` prompt.
 Verify that the plugin is properly loaded by typing 'ss odlpf'. The state needs to be ACTIVE.
 
 ----
@@ -127,7 +124,7 @@ The SDN modules are not included with the current version of PacketFence.
 
 In order to obtain the functionnalities you will need to apply a patch on your current PacketFence installation.
 
-Note that this could break a working PacketFence installation. Install this on a non-production PacketFence server.
+WARNING: This could break a working PacketFence installation. Install this on a non-production PacketFence server.
 
 This patch is based on the most recent version of PacketFence so be sure to upgrade to the latest version available before applying the patch.
 
@@ -139,16 +136,16 @@ patch -p1 < sdn.patch
 
 In case of any conflicts please post the output of the patch command on the PacketFence development mailing list.
 
-Once you are done, restart PacketFence using 'service packetfence restart'
+Once you are done, restart PacketFence using `service packetfence restart`
 
 Step 6: Configuration
 ~~~~~~~~~~~~~~~~~~~~~
 
-In PacketFence configure the webservices username and password under 'Configuration/Webservices'
+In PacketFence configure the webservices username and password under *Configuration/Webservices*
 
 Still in PacketFence, add a new switch for the OpenDaylight controller
 
-In /usr/local/pf/conf/switches.conf add the OpenDaylight controller configuration
+In `/usr/local/pf/conf/switches.conf` add the OpenDaylight controller configuration
 
 ----
 [192.168.1.10]
@@ -162,14 +159,14 @@ wsPwd=admin
 
 Where :
 
-* type is the module to use. Should be left to OpenDaylight
-* mode should be set to production
-* Isolation Strategy is for selecting the way the devices get isolated. This should be set to DNS in most cases.
-* wsUser is the user to connect to the OpenDaylight NorthBound API
-* wsPwd is the password to connect to the OpenDaylight NorthBound API
-* wsTransport is the protocol that should be used to connect to the OpenDaylight NorthBound API. If you set it to HTTPS, make sure the proper certificates are in place.
+* *type* is the module to use. Should be left to OpenDaylight
+* *mode* should be set to production
+* *IsolationStrategy* is for selecting the way the devices get isolated. This should be set to DNS in most cases.
+* *wsUser* is the user to connect to the OpenDaylight NorthBound API
+* *wsPwd* is the password to connect to the OpenDaylight NorthBound API
+* *wsTransport* is the protocol that should be used to connect to the OpenDaylight NorthBound API. If you set it to HTTPS, make sure the proper certificates are in place.
 
-In /usr/local/pf/conf/iptables.conf, add the following lines in the management section
+In `/usr/local/pf/conf/iptables.conf`, add the following lines in the management section
 
 ----
 # DNS (for the SDN stack)
@@ -180,7 +177,7 @@ In /usr/local/pf/conf/iptables.conf, add the following lines in the management s
 -A input-management-if --protocol tcp --match tcp --dport 443  --jump ACCEPT
 ----
 
-The PacketFence OpenDaylight plugin requires a configuration file on the OpenDaylight controller (/etc/packetfence.conf).
+The PacketFence OpenDaylight plugin requires a configuration file on the OpenDaylight controller in `/etc/packetfence.conf`.
 Here is an example :
 
 ----
@@ -195,13 +192,13 @@ pf_dns_mac=0050569d000b
 
 Where :
 
-* host is the management ip of your PacketFence server
-* port is the port of the webservices (default for PacketFence is 9090)
-* user is the username of the PacketFence webservices
-* pass is the password of the PacketFence webservices
-* controller_ip is the IP of the OpenDaylight controller
-* pf_dns_ip is the IP address on which PacketFence listens on for the DNS requests (should be your management)
-* pf_dns_mac is the MAC address of the interface on which PacketFence listens on for the DNS requests (should be your management)
+* *host* is the management ip of your PacketFence server
+* *port* is the port of the webservices (default for PacketFence is 9090)
+* *user* is the username of the PacketFence webservices
+* *pass* is the password of the PacketFence webservices
+* *controller_ip* is the IP of the OpenDaylight controller
+* *pf_dns_ip* is the IP address on which PacketFence listens on for the DNS requests (should be your management)
+* *pf_dns_mac* is the MAC address of the interface on which PacketFence listens on for the DNS requests (should be your management)
 
 
 Step 7: Configure your network equipment
@@ -232,6 +229,8 @@ Setting 84:3a:4b:dc:09:ec,-20180 38:22:d6:6c:8c:f5,10.0.0.6,2
 ----
 
 Once the first event hits your OpenDaylight controller, if you don't have a plugin to manage the non-DNS traffic you should install flows that allow communication of the device on the network. Usually forwarding packets to and from the uplink should be enough. Make sure the flows you install have a lower priority than 1000. PacketFence uses priority 1000 and higher.
+
+If your network equipment supports reactive forwarding with OpenDaylight, then it can be used in parralel with PacketFence to handle the non-DNS traffic.
 
 Now once your computer obtains an IP address, doing an nslookup of any domain name on the connected device should now return a CNAME pointing to the PacketFence server.
 
