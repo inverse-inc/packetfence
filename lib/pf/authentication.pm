@@ -332,10 +332,9 @@ Return an instance of pf::Authentication::Source::* for the given id
 
 sub getAuthenticationSource {
     my $id = shift;
-    if (exists $authentication_lookup{$id}) {
-        return $authentication_lookup{$id};
-    }
-    return undef;
+    return unless defined $id && exists $authentication_lookup{$id};
+
+    return $authentication_lookup{$id};
 }
 
 =item getAllAuthenticationSources
