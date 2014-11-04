@@ -92,6 +92,19 @@ sub getGuestModes {
 
 *guest_modes = \&getGuestModes;
 
+=item getChainedGuestModes
+
+Returns the available enabled modes for guest self-registration for chained sources for the current captive portal profile.
+
+=cut
+
+sub getChainedGuestModes {
+    my ($self) = @_;
+    return $self->{'_chained_guest_modes'};
+}
+
+*chained_guest_modes = \&getChainedGuestModes;
+
 =item getTemplatePath
 
 Returns the path for custom templates for the current captive portal profile.
@@ -306,7 +319,7 @@ Verify if the guest mode is allowed for the profile
 
 sub guestModeAllowed {
     my ($self, $mode) = @_;
-    return any { $mode eq $_} @{$self->getGuestModes} ;
+    return any { $mode eq $_} @{$self->getGuestModes}, @{$self->getChainedGuestModes} ;
 }
 
 =item nbregpages
