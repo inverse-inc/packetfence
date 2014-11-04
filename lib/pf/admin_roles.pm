@@ -20,7 +20,7 @@ use pf::file_paths;
 use List::MoreUtils qw(any all uniq);
 use pf::config::cached;
 
-our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config admin_allowed_options);
+our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config admin_allowed_options admin_allowed_options_all);
 our %ADMIN_ROLES;
 our @ADMIN_ACTIONS = qw(
     ADMIN_ROLES_CREATE
@@ -229,17 +229,16 @@ sub admin_allowed_options {
     return uniq @options;
 }
 
-=head2 admin_role_allowed_options
 
-Get the allowed options for a role
+=head2 admin_allowed_options_all
+
+Get all the allowed values for a given role
 
 =cut
 
-sub admin_role_allowed_options {
-    my ($role, $option) = @_;
-    return unless $role ne 'ALL' && exists $ADMIN_ROLES{$_};
-
-    return split /\s*,\s*/, ($ADMIN_ROLES{$_}{$option} || '')
+sub admin_allowed_options_all {
+    my ($roles, $option) = @_;
+    return uniq map {split /\s*,\s*/, ($ADMIN_ROLES{$_}{$option} || '')} grep { exists $ADMIN_ROLES{$_} && exists $ADMIN_ROLES{$_}{$option} }  @$roles;
 }
 
 =head1 AUTHOR
