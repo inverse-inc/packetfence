@@ -284,6 +284,19 @@ sub getSourceByType {
     return first {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
 }
 
+=item getSourceByTypeForChained
+
+Returns the first source object for the requested source type for chained sources in the current captive portal profile.
+
+=cut
+
+sub getSourceByTypeForChained {
+    my ($self, $type) = @_;
+    return unless $type;
+    $type = uc($type);
+    return first {uc($_->{'type'}) eq $type} map { $_->getChainedAuthenticationSourceObject } grep { $_->type eq 'Chained' }  $self->getSourcesAsObjects;
+}
+
 =item guestRegistrationOnly
 
 Returns true if the profile only uses "sign-in" authentication sources (SMS, email or sponsor).
