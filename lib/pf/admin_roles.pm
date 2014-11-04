@@ -210,11 +210,22 @@ Get the allowed options for the given roles
 
 sub admin_allowed_options {
     my ($roles,$option) = @_;
+    #return an empty value if any of the roles are all
+    return unless all { $_ ne 'ALL' } @$roles;
+
     my @options;
-    if( all { $_ ne 'ALL' } @$roles ) {
-        @options = uniq map { split /\s*,\s*/, ($ADMIN_ROLES{$_}{$option} || '') } @$roles;
+    foreach my $role (@$roles) {
+        next unless exists $ADMIN_ROLES{$_};
+        #If no option is defined then all are allowed
+        return unless exists $ADMIN_ROLES{$_}{$option};
+
+        my $allowed_options = $ADMIN_ROLES{$_}{$option};
+        #If the allowed options is empty the all are allowed
+        return unless defined $allowed_options && length $allowed_options;
+
+        push @options, split /\s*,\s*/, $allowed_options;
     }
-    return @options;
+    return uniq @options;
 }
 
 =head1 AUTHOR
