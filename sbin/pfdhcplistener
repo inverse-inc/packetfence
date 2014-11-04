@@ -116,12 +116,25 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
                 $accessControl = new pf::inline::custom();
             }
         }
+        my $interfaceData = $Config{"interface $interface"};
 
-        $interface_ip = $Config{"interface $interface"}{'ip'};
+        $interface_ip = $interfaceData->{'ip'};
+        my $interface_type = $interfaceData->{'type'};
         $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
+        # Listening only for DHCPACK message type on every configured interface(s)
+        # that are not a 'management' one 
+        # (We can get the information we want from the DHCPACK)
+        my @filter_types = qw(DHCPACK);
+        if( any { $_ eq "management" } split /\s*,\s*/, $interface_type) {
+            # We need to listen for all DHCP message type on the 'management' interface(s) 
+            # since they are used for remote networks and in those cases, if PacketFence 
+            # is not the DHCP server on these networks, we only get the information we want
+            # from DHCPREQUEST (ACK from another DHCP server in layer 3 will be unicast so PacketFence won't see it
+            @filter_types = qw(DHCPOFFER DHCPREQUEST DHCPDECLINE DHCPACK DHCPRELEASE);
+        }
 
         $logger->info("DHCP detector on $interface enabled");
-        dhcp_detector();
+        dhcp_detector(@filter_types);
     }
     $logger->warn(
         "pfdhcplistener for $interface finished - this is bad. " .
@@ -145,7 +158,8 @@ exit(0);
 =cut
 
 sub dhcp_detector {
-    my $filter = make_pcap_filter(@{$Config{network}{dhcp_filter_by_message_types}});
+    my @filter_types = @_;
+    my $filter = make_pcap_filter(@filter_types);
     my $filter_t;
     my $net;
     my $mask;
