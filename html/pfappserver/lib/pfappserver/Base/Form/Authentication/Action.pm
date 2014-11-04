@@ -16,6 +16,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 
 use HTTP::Status qw(:constants is_success);
+use List::MoreUtils qw(uniq);
 use pf::config;
 use pf::web::util;
 use pf::Authentication::constants;
@@ -193,9 +194,10 @@ sub options_durations {
             $self->form->ctx->languages()->[0]
         );
     } else {
-        my $choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
+        my $default_choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
+        my @choices = uniq admin_allowed_options_all([$self->form->ctx->user->roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
         $durations = pf::web::util::get_translated_time_hash(
-            [ split (/\s*,\s*/, $choices) ],
+            \@choices,
             $self->form->ctx->languages()->[0]
         );
     }
