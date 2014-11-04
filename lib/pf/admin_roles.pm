@@ -205,6 +205,7 @@ our $cached_adminroles_config = pf::config::cached->new(
 =head2 admin_allowed_options
 
 Get the allowed options for the given roles
+Will return empty if any role allows all the values
 
 =cut
 
@@ -215,11 +216,11 @@ sub admin_allowed_options {
 
     my @options;
     foreach my $role (@$roles) {
-        next unless exists $ADMIN_ROLES{$_};
+        next unless exists $ADMIN_ROLES{$role};
         #If no option is defined then all are allowed
-        return unless exists $ADMIN_ROLES{$_}{$option};
+        return unless exists $ADMIN_ROLES{$role}{$option};
 
-        my $allowed_options = $ADMIN_ROLES{$_}{$option};
+        my $allowed_options = $ADMIN_ROLES{$role}{$option};
         #If the allowed options is empty the all are allowed
         return unless defined $allowed_options && length $allowed_options;
 
