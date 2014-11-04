@@ -167,7 +167,7 @@ sub options_roles {
 
 =head2 _get_allowed_options
 
-TODO: documention
+Get the allowed options for the current user based off their role.
 
 =cut
 
