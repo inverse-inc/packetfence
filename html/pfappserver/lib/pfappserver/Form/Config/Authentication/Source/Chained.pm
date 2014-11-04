@@ -38,6 +38,12 @@ has_field 'use_rules_from_authentication_source' =>
    unchecked_value => 'disabled',
   );
 
+our %ALLOWED_CHAINED_SOURCES = (
+    SMS          => undef,
+    Email        => undef,
+    SponsorEmail => undef,
+);
+
 =head2 options_chained_authentication_source
 
 Get the available chained authentication source options
@@ -46,7 +52,7 @@ Get the available chained authentication source options
 
 sub options_chained_authentication_source {
     my ($self) = @_;
-    return map_sources_to_options( @{pf::authentication::getExternalAuthenticationSources()} );
+    return map_sources_to_options( grep { exists $ALLOWED_CHAINED_SOURCES{$_->type} }  @{pf::authentication::getExternalAuthenticationSources()} );
 }
 
 =head2 options_authentication_source
