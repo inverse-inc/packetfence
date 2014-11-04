@@ -64,6 +64,14 @@ Add these maven options to your environment.
 export MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=512m"
 ----
 
+The PacketFence plugin has been tested on commit id ec7cac6937c6beacf4d6dd9b44bb998d7b0068d4 of the OpenDaylight controller.
+To use the specific commit that was used by Inverse during testing, issue the following command.
+Note that this step is optional but in case of any issues, try to use this specific commit id.
+
+----
+git checkout ec7cac6937c6beacf4d6dd9b44bb998d7b0068d4
+----
+
 Install the controller distribution.
 
 ----
