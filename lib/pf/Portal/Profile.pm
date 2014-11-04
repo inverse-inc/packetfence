@@ -279,13 +279,9 @@ Returns the first source object for the requested source type for the current ca
 
 sub getSourceByType {
     my ($self, $type) = @_;
-    my $result;
-    if ($type) {
-        $type = uc($type);
-        $result = first {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
-    }
-
-    return $result;
+    return unless $type;
+    $type = uc($type);
+    return first {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
 }
 
 =item guestRegistrationOnly
