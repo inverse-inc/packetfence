@@ -238,7 +238,6 @@ Checks to see if the source is a signup source
 
 =cut
 
-
 sub isGuestSigned {
     my ($self, $c, $chainedSource) = @_;
     return exists $GUEST_SOURCE_TYPES{$chainedSource->type};
