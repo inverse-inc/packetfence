@@ -250,10 +250,7 @@ sub _guest_modes_from_sources {
     my ($sources) = @_;
     $sources ||= [];
     my %is_in = map {$_ => undef } @$sources;
-    my @modes = map { lc($_->type)} grep { exists $is_in{$_->id} && $_->class eq 'external'} @authentication_sources;
-    push @modes, map { lc($_->getChainedAuthenticationSourceObject->type)} grep { exists $is_in{$_->id} && $_->type eq 'Chained'} @authentication_sources;
-    
-    return join(',',@modes);
+    return join(',', map { lc($_->type)} grep { exists $is_in{$_->id} && $_->class eq 'external'} @authentication_sources);
 }
 
 =item writeAuthenticationConfigFile
