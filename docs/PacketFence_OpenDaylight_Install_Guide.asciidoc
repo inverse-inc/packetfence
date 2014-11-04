@@ -25,7 +25,10 @@ You will first need a server with the minimal installation of CentOS 6 packages 
 
 Step 2: Install the necessary packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----
 yum install git wget java-1.7.0-openjdk java-1.7.0-openjdk-devel
+----
 
 In order to build the OpenDaylight controller, you will need to install Apache Maven.
 
@@ -142,14 +145,14 @@ wget http://inverse.ca/downloads/sdn.patch
 patch -p1 < sdn.patch
 ----
 
-In case of any conflicts please post the output of the patch command on the PacketFence development mailing list.
+In case of any conflicts please post the output of the patch command on the PacketFence http://www.packetfence.org/support/community.html[development mailing list].
 
 Once you are done, restart PacketFence using `service packetfence restart`
 
 Step 6: Configuration
 ~~~~~~~~~~~~~~~~~~~~~
 
-In PacketFence configure the webservices username and password under *Configuration/Webservices*
+In PacketFence configure the webservices username and password under *Configuration -> Webservices*
 
 Still in PacketFence, add a new switch for the OpenDaylight controller
 
@@ -238,7 +241,7 @@ Setting 84:3a:4b:dc:09:ec,-20180 38:22:d6:6c:8c:f5,10.0.0.6,2
 
 Once the first event hits your OpenDaylight controller, if you don't have a plugin to manage the non-DNS traffic you should install flows that allow communication of the device on the network. Usually forwarding packets to and from the uplink should be enough. Make sure the flows you install have a lower priority than 1000. PacketFence uses priority 1000 and higher.
 
-If your network equipment supports reactive forwarding with OpenDaylight, then it can be used in parralel with PacketFence to handle the non-DNS traffic.
+If your network equipment supports reactive forwarding with OpenDaylight, then it can be used in parallel with PacketFence to handle the non-DNS traffic.
 
 Now once your computer obtains an IP address, doing an nslookup of any domain name on the connected device should now return a CNAME pointing to the PacketFence server.
 
