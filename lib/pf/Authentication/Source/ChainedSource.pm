@@ -1,7 +1,7 @@
 package pf::Authentication::Source::ChainedSource;
 =head1 NAME
 
-pf::Authentication::Source::ChainedSource add documentation
+pf::Authentication::Source::ChainedSource
 
 =cut
 
