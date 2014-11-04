@@ -2,13 +2,15 @@ package pfappserver::Form::Config::Authentication::Source::Chained;
 
 =head1 NAME
 
-pfappserver::Form::Config::Authentication::Source::Chained add documentation
+pfappserver::Form::Config::Authentication::Source::Chained - Web form for a Chained user source
 
 =cut
 
 =head1 DESCRIPTION
 
 pfappserver::Form::Config::Authentication::Source::Chained
+
+Form definition to create or update a Chained user source.
 
 =cut
 
