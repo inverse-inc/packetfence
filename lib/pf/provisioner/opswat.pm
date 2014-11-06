@@ -326,6 +326,7 @@ sub get_status_changed_devices {
 
 sub decode_response {
     my ($self, $code, $response_body) = @_;
+    my $logger = get_logger;
     if ( $code == 401 ) {
         $logger->error("Unauthorized to contact OPSWAT");
         return $pf::provisioner::COMMUNICATION_FAILED;
