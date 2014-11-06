@@ -266,7 +266,7 @@ sub _reassignSNMPConnections {
         # We treat phones differently. We never bounce their ports except if there is an outstanding
         # violation. 
         if ( $switch->hasPhoneAtIfIndex($ifIndex)  ) {
-            my @violations = violation_view_open_desc($mac);
+            my @violations = pf::violation::violation_view_open_desc($mac);
             if ( scalar(@violations) == 0 ) {
                 $logger->warn("[$mac] VLAN changed and is behind VoIP phone. Not bouncing the port!");
                 return;
