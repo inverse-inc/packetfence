@@ -200,18 +200,7 @@ sub get_device_info {
     my $curl_return_code = $curl->perform;
     my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
 
-    if ( $curl_info == 401 ) { 
-        $logger->error("Not authorized to contact OPSWAT on url ".$url);
-        return $pf::provisioner::COMMUNICATION_FAILED;   
-    }
-    elsif($curl_info != 200){
-        $logger->error("Got invalid return code on OPSWAT call");
-        return $pf::provisioner::COMMUNICATION_FAILED;
-    } 
-    else { 
-        my $json_response = decode_json($response_body);
-        return $json_response;
-    } 
+    return $self->decode_response($curl_info, $response_body); 
 }
 
 sub validate_mac_in_opswat {
@@ -332,17 +321,23 @@ sub get_status_changed_devices {
     $logger->info($curl_info);
     $logger->info($response_body); 
     
-    if ( $curl_info == 401 ) { 
-        $logger->error("Unable to contact OPSWAT on url ".$url);
-        return $pf::provisioner::COMMUNICATION_FAILED;   
-    }
-    elsif($curl_info != 200){
+    return $self->decode_response($curl_info, $response_body); 
+}
+
+sub decode_response {
+    my ($self, $code, $response_body) = @_;
+    if ( $code == 401 ) {
+        $logger->error("Unauthorized to contact OPSWAT");
         return $pf::provisioner::COMMUNICATION_FAILED;
-    } 
-    else { 
+    }
+    elsif($code != 200){
+        return $pf::provisioner::COMMUNICATION_FAILED;
+    }
+    else {
         my $json_response = decode_json($response_body);
         return $json_response;
-    } 
+    }
+
 }
 
 =head1 AUTHOR
