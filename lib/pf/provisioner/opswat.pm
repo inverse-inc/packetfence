@@ -280,6 +280,7 @@ sub verify_compliance {
     my $info = $self->get_device_info($mac);
     if($info != $pf::provisioner::COMMUNICATION_FAILED){
         if($self->{critical_issues_threshold} != 0 && defined($info->{total_critical_issue}) && $info->{total_critical_issue} >= $self->{critical_issues_threshold}){
+            $logger->info("Device $mac is not compliant. Raising violation");
             pf::violation::violation_add($mac, $self->{non_compliance_violation}, ());
         }
     }
