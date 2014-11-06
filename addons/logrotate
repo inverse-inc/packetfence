@@ -1,12 +1,22 @@
 # logrotate file for packetfence
 
-/usr/local/pf/logs/access_log  /usr/local/pf/logs/admin_access_log  /usr/local/pf/logs/admin_error_log  /usr/local/pf/logs/catalyst.log  /usr/local/pf/logs/error_log  /usr/local/pf/logs/httpd.admin.access  /usr/local/pf/logs/httpd.admin.catalyst  /usr/local/pf/logs/httpd.admin.error  /usr/local/pf/logs/httpd.admin.log  /usr/local/pf/logs/httpd.portal.access  /usr/local/pf/logs/httpd.portal.catalyst  /usr/local/pf/logs/httpd.portal.error  /usr/local/pf/logs/httpd.portal.log  /usr/local/pf/logs/httpd.webservices.access /usr/local/pf/logs/httpd.webservices.error /usr/local/pf/logs/packetfence.log  /usr/local/pf/logs/pfbandwidthd.log  /usr/local/pf/logs/pfdetect.log  /usr/local/pf/logs/pfdhcplistener.log  /usr/local/pf/logs/pfdns.log  /usr/local/pf/logs/pfmon.log  /usr/local/pf/logs/pfsetvlan.log  /usr/local/pf/logs/portal_access_log  /usr/local/pf/logs/portal_error_log  /usr/local/pf/logs/proxy_access_log  /usr/local/pf/logs/radius.log  /usr/local/pf/logs/snmptrapd.log  /usr/local/pf/logs/webservices_access_log  /usr/local/pf/logs/webservices_error_log {
+/usr/local/pf/logs/*log {
     weekly
     size 1G
     rotate 52
     missingok
     compress
-    su pf
+    create 640 pf pf
+    copytruncate
+}
+
+
+/usr/local/pf/logs/httpd.*.access /usr/local/pf/logs/httpd.*.error /usr/local/pf/logs/httpd.*.catalyst {
+    weekly
+    size 1G
+    rotate 52
+    missingok
+    compress
     create 640 pf pf
     copytruncate
 }
