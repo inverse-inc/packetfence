@@ -134,7 +134,7 @@ Putting 1 into that field will isolate the device whenever there is at least one
 
 image::docs/images/opswat-compliance-config.png[scaledwidth="100%",alt="OPSWAT critical issues"]
 
-You can then hit 'Save' and you now the device will get isolated whenever it's found as noncompliant.
+You can then hit 'Save' and now the device will get isolated whenever it's found as noncompliant.
 
 Step 3: Customize the template
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
