@@ -109,6 +109,14 @@ The relevanceExpr used to find the mac addresses
 
 has relevanceExpr => (is => 'rw');
 
+=head2 agent_download_uri
+
+The URI to download the agent
+
+=cut
+
+has agent_download_uri => (is => 'rw');
+
 sub _build_proxy {
     my ($self) = @_;
     return $self->protocol . '://' . $self->host . ":" . $self->port;

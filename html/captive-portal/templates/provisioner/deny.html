@@ -1,32 +1,6 @@
 [% title = i18n("PacketFence Registration System") %]
 [% INCLUDE header.html %]
 
-    <h3>To complete your network activation you need to install this program</h3>
-    <p>When you finish installing the program click next to activate your network connection</p>
-    <a id="primary_download" href="[% provisioner.agent_download_uri %]">Click here to download</a>
-
-    [% IF provisioner.alt_agent_download_uri %]
-    <h5>If you find the program above not working you can try this one : </h5>
-    <a id="alternative_download" href="[% provisioner.alt_agent_download_uri %]">Alternative installer</a>
-
-    <!-- MOVE THIS SOMEWHERE ELSE ??? -->
-    <script> 
-        // check if windows 64 bits
-        // swap the primary and alternative
-        if (navigator.userAgent.indexOf("WOW64") != -1 || 
-            navigator.userAgent.indexOf("Win64") != -1 ){
-            var new_primary = $('alternative_download').getAttribute("href");
-            if(new_primary != ""){
-                $('alternative_download').setAttribute('href', $('primary_download').getAttribute('href'));
-                $('primary_download').setAttribute('href', new_primary);
-            }
-        }
-    </script>
-
-    [% END %]
-
-    <br/>
-    <a href="/captive-portal">Continue</a>
-
+<h3>[% i18n("According to the provisioner configuration, this device cannot access the network.") %]</h3>
 
 [% INCLUDE footer.html %]

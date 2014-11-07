@@ -14,6 +14,7 @@ with 'pfappserver::Base::Form::Role::Help';
 
 has roles => ( is => 'rw' );
 has oses => ( is => 'rw' );
+has violations => ( is => 'rw');
 
 ## Definition
 has_field 'id' =>
@@ -62,6 +63,17 @@ has_field 'oses' =>
              help => 'Nodes with the selected OS will be affected' },
   );
 
+has_field 'non_compliance_violation' =>
+  (
+   type => 'Select',
+   label => 'Non compliance violation',
+   options_method => \&options_violations,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'None'},
+   tags => { after_element => \&help,
+             help => 'Which violation should be raised when non compliance is detected' },
+  );
+
 has_block definition =>
   (
    render_list => [ qw(id type description category oses) ],
@@ -86,6 +98,16 @@ sub options_roles {
     return @roles;
 }
 
+sub options_violations {
+    my $self = shift;
+    my @violations;
+    foreach my $violation (@{$self->form->violations}){
+        push @violations, $violation->{id};
+        push @violations, $violation->{desc};
+    }
+    return @violations;
+}
+
 =head2 ACCEPT_CONTEXT
 
 To automatically add the context to the Form
@@ -100,7 +122,8 @@ sub ACCEPT_CONTEXT {
                 "Android" => "Android", 
                 "Apple" => "Apple IOS device"
                ];
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, oses => @oses, @args);
+    my (undef, $violations) = $c->model('Config::Violations')->readAll();
+    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, oses => @oses, violations => $violations, @args);
 }
 
 =head1 COPYRIGHT

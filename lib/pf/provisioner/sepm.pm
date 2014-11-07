@@ -163,7 +163,7 @@ sub refresh_access_token {
     if ( $curl_return_code != 0 or $curl_info != 200 ) { 
         # Failed to contact the SEPM.;
         $logger->error("Cannot connect to the SEPM to refresh the token");
-        return -1;   
+        return $pf::provisioner::COMMUNICATION_FAILED;   
     }
     else{
         
@@ -208,10 +208,10 @@ sub validate_ip_in_sepm {
 
     if ( $curl_info == 400 ) { 
         $logger->error("Unable to contact the SEPM on url ".$url);
-        return -1;   
+        return $pf::provisioner::COMMUNICATION_FAILED;   
     }
     elsif($curl_info != 200){
-        return -1;
+        return $pf::provisioner::COMMUNICATION_FAILED;
     } 
     else { 
         #check if ip address is there  
@@ -237,15 +237,15 @@ sub authorize {
     if(defined($ip)){
         my $logger = Log::Log4perl::get_logger( ref($self) );
         my $result = $self->validate_ip_in_sepm($ip); 
-        if( $result == -1){
+        if( $result == $pf::provisioner::COMMUNICATION_FAILED){
             $logger->info("SEPM Oauth access token is not valid anymore.");
             $self->refresh_access_token();
             $result = $self->validate_ip_in_sepm($ip);
         }
 
-        if($result == -1){
+        if($result == $pf::provisioner::COMMUNICATION_FAILED){
             $logger->error("Unable to contact SEPM to validate if IP $ip is registered.");
-            return -1;
+            return $pf::provisioner::COMMUNICATION_FAILED;
         }
         else{
             return $result;
