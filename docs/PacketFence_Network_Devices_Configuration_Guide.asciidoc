@@ -529,6 +529,8 @@ PacketFence supports Cisco switches with VoIP using three different trap types:
 * MAC Notification 
 * Port Security (with static MACs) 
 
+You also need to make sure that activate lldp or cdp notification on all ports that will handle VoIP.
+
 On some recent models, we can also use more secure and robust features like: 
 
 * MAC Authentication (Cisco's MAC Authentication Bypass or MAB) 
