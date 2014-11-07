@@ -17,8 +17,6 @@ use strict;
 use warnings;
 
 use Log::Log4perl;
-use threads;
-use threads::shared;
 use pf::log;
 
 use base ('pf::vlan');

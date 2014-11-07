@@ -16,8 +16,6 @@ use strict;
 use warnings;
 
 use Log::Log4perl;
-use threads;
-use threads::shared;
 
 use pf::config;
 use pf::node qw(node_attributes node_exist node_modify);
