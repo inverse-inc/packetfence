@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-10-22 15:43+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2014-11-10 14:39+0000\n"
+"Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -68,7 +68,7 @@ msgstr "Le démarrage manuel est requis depuis la ligne de commande. Êtes-vous 
 
 # pf::admin_roles (Actions groups)
 msgid "ADMIN_ROLES"
-msgstr ""
+msgstr "Rôles Admin"
 
 # pf::admin_roles (Actions)
 msgid "ADMIN_ROLES_CREATE"
@@ -215,7 +215,7 @@ msgstr "Ajouter"
 
 # html/pfappserver/root/configuration/firewall_sso/index.tt
 msgid "Add Firewall"
-msgstr ""
+msgstr "Ajouter un Pare-feux"
 
 # html/pfappserver/root/interface/list.tt
 msgid "Add VLAN"
@@ -240,7 +240,7 @@ msgstr "Ajouter un champ obligatoire"
 
 # html/pfappserver/root/portal/profile/tab-content.tt
 msgid "Add a provisioner."
-msgstr ""
+msgstr "Ajouter un approvisionneur"
 
 # html/pfappserver/root/portal/profile/tab-content.tt
 msgid "Add a source."
@@ -264,7 +264,7 @@ msgstr "Ajouter un profil"
 
 # html/pfappserver/root/config/provisioning/index.tt
 msgid "Add provisioner"
-msgstr ""
+msgstr "Ajouter un approvisionneur"
 
 # html/pfappserver/root/roles/index.tt
 msgid "Add role"
@@ -285,6 +285,10 @@ msgstr "Ajouter une source"
 # html/pfappserver/root/configuration/switch/index.tt
 msgid "Add switch"
 msgstr "Ajouter un commutateur"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
+msgid "Add to Duration Choices"
+msgstr "Ajouter au choix des durées d'accès"
 
 # html/pfappserver/root/violation/list.tt
 msgid "Add violation"
@@ -527,7 +531,7 @@ msgstr "CLI"
 
 # pf::admin_roles (Actions groups)
 msgid "CONFIGURATION_MAIN"
-msgstr ""
+msgstr "Configuration générale"
 
 # pf::admin_roles (Actions)
 msgid "CONFIGURATION_MAIN_READ"
@@ -574,7 +578,7 @@ msgstr "Portail Captif"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "Certificate"
-msgstr ""
+msgstr "Certificat"
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "Children"
@@ -605,14 +609,14 @@ msgstr "Passerelle du client"
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sepm.pm
 msgid "Client Id"
-msgstr ""
+msgstr "Identifiant du client"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/ibm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sepm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/symantec.pm
 msgid "Client Secret"
-msgstr ""
+msgstr "Mot de passe du client"
 
 # html/pfappserver/root/configuration/wrix/search_form.tt
 msgid "Client Support"
@@ -967,6 +971,11 @@ msgstr "Configuration de la base de donnée"
 msgid "Deauthentication Method"
 msgstr "Méthode de déauthentification."
 
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Default"
+msgstr "Défaut"
+
 # html/pfappserver/root/configurator/networks.tt
 msgid "Default Gateway"
 msgstr "Route par défaut"
@@ -1035,11 +1044,11 @@ msgstr "Définition"
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Delay By"
-msgstr ""
+msgstr "Retardé pour"
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Delay before triggering the violation."
-msgstr ""
+msgstr "Délais avant d´activer la violation "
 
 # conf/documentation.conf (vlan.bounce_duration)
 msgid ""
@@ -1099,7 +1108,7 @@ msgstr "Supprimer le Profil"
 
 # html/pfappserver/root/config/provisioning/index.tt
 msgid "Delete Provisioning Entry"
-msgstr ""
+msgstr "Supprimer l´entrée de l´approvisionneur"
 
 # html/pfappserver/root/roles/index.tt
 msgid "Delete Role"
@@ -1452,7 +1461,7 @@ msgstr "Sources externes"
 
 # pf::admin_roles (Actions groups)
 msgid "FINGERPRINTS"
-msgstr ""
+msgstr "Empreinte "
 
 # pf::admin_roles (Actions)
 msgid "FINGERPRINTS_READ"
@@ -1464,7 +1473,7 @@ msgstr "Fingerprints - Mise à jour"
 
 # pf::admin_roles (Actions groups)
 msgid "FIREWALL_SSO"
-msgstr ""
+msgstr "Pare-feux SSO"
 
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_CREATE"
@@ -1484,7 +1493,7 @@ msgstr "FIREWALL_SSO_UPDATE"
 
 # pf::admin_roles (Actions groups)
 msgid "FLOATING_DEVICES"
-msgstr ""
+msgstr "Appareil flottant "
 
 # pf::admin_roles (Actions)
 msgid "FLOATING_DEVICES_CREATE"
@@ -1638,7 +1647,7 @@ msgstr "Heures"
 
 # conf/documentation.conf (maintenance.violation_maintenance_timeout)
 msgid "How long is the violation maintenance task is allowed to run"
-msgstr ""
+msgstr "Pour combien de temps la maintenance des violations est autorisée a tourner"
 
 # conf/documentation.conf (trapping.redirtimer)
 msgid ""
@@ -1656,7 +1665,7 @@ msgstr "Nombre de secondes d´attente avant que le webservice désassocie ou d´
 
 # conf/documentation.conf (maintenance.violation_maintenance_batch)
 msgid "How many violations does pfmon batches"
-msgstr ""
+msgstr "Combien de violations pfmon traite"
 
 # conf/documentation.conf (scan.openvas_reportformatid)
 msgid "ID of the .NBE report format on the OpenVAS server"
@@ -1668,7 +1677,7 @@ msgstr "ID de la configuration sur le serveur OpenVAS"
 
 # pf::admin_roles (Actions groups)
 msgid "INTERFACES"
-msgstr ""
+msgstr "Interfaces"
 
 # pf::admin_roles (Actions)
 msgid "INTERFACES_CREATE"
@@ -1686,7 +1695,6 @@ msgstr "Interfaces - Lecture"
 msgid "INTERFACES_UPDATE"
 msgstr "Interfaces - Mise à jour"
 
-# html/pfappserver/lib/pfappserver/Base/Controller.pm
 # html/pfappserver/root/node/view.tt
 msgid "IP"
 msgstr "IP"
@@ -4715,6 +4723,7 @@ msgstr "Votre session a expirée."
 msgid "Your username or email address"
 msgstr "Votre nom d'utilisateur ou adresse email"
 
+# pf::config (SoH Actions)
 # pf::provisioner (Provisioners)
 msgid "accept"
 msgstr ""
@@ -4814,6 +4823,14 @@ msgstr ""
 msgid "anniversary"
 msgstr "Anniversaire"
 
+# pf::config (SoH Classes)
+msgid "antispyware"
+msgstr ""
+
+# pf::config (SoH Classes)
+msgid "antivirus"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/configuration/wrix/search_form.tt
@@ -4828,6 +4845,10 @@ msgstr "Numéro d´appartement"
 # conf/documentation.conf (billing.gateway options)
 msgid "authorize_net"
 msgstr "Authorize.net"
+
+# pf::config (SoH Classes)
+msgid "auto-updates"
+msgstr ""
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
@@ -5116,6 +5137,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf (trapping.wireless_ips options)
 # conf/documentation.conf (vlan.closelocationlogonstop options)
 # conf/documentation.conf (vlan.trap_limit options)
+# pf::config (SoH Status)
 msgid "disabled"
 msgstr "désactivé"
 
@@ -5187,6 +5209,7 @@ msgstr "Envoyer un email"
 # conf/documentation.conf (trapping.wireless_ips options)
 # conf/documentation.conf (vlan.closelocationlogonstop options)
 # conf/documentation.conf (vlan.trap_limit options)
+# pf::config (SoH Status)
 msgid "enabled"
 msgstr "activé"
 
@@ -5236,6 +5259,10 @@ msgstr "Noeud"
 # conf/documentation.conf
 msgid "expire.traplog"
 msgstr "Journaux des trappes"
+
+# pf::config (SoH Classes)
+msgid "firewall"
+msgstr ""
 
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Portal::Common (mandatory fields)
@@ -5378,6 +5405,10 @@ msgstr "Inline niveau 2"
 msgid "inlinel3"
 msgstr "Inline niveau 3"
 
+# pf::config (SoH Status)
+msgid "installed"
+msgstr ""
+
 # conf/documentation.conf
 msgid "interface"
 msgstr "interface"
@@ -5434,6 +5465,10 @@ msgstr "est membre de "
 # pf::Authentication::constants (Conditions)
 msgid "is not"
 msgstr "n'est pas"
+
+# html/pfappserver/lib/pfappserver/Form/SoH.pm
+msgid "isnot"
+msgstr ""
 
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Portal::Common (mandatory fields)
@@ -5580,6 +5615,10 @@ msgstr "correspond à l'expression régulière"
 msgid "memberOf"
 msgstr "memberOf"
 
+# pf::config (SoH Status)
+msgid "microsoft"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"
 msgstr "minutes"
@@ -5682,6 +5721,10 @@ msgstr "(Aucun)"
 # html/pfappserver/root/admin/users.tt
 msgid "notes"
 msgstr "Notes"
+
+# pf::config (SoH Status)
+msgid "ok"
+msgstr ""
 
 # conf/documentation.conf (scan.engine options)
 # pf::config (VALID_TRIGGER_TYPES)
@@ -5807,6 +5850,10 @@ msgstr "Rôle d'enregistrement"
 msgid "registration.device_registration_role"
 msgstr "Rôle d'enregistrement de l'appareil"
 
+# pf::config (SoH Actions)
+msgid "reject"
+msgstr ""
+
 # pf::action (VIOLATION_ACTIONS)
 msgid "role_action"
 msgstr "Assigner un rôle"
@@ -5888,6 +5935,10 @@ msgstr "Utilisateur"
 # html/pfappserver/root/node/view.tt
 msgid "seconds"
 msgstr "secondes"
+
+# pf::config (SoH Classes)
+msgid "security-updates"
+msgstr ""
 
 # pf::provisioner (Provisioners)
 msgid "sepm"
@@ -6184,6 +6235,10 @@ msgstr "non enregistré"
 msgid "unreg_action"
 msgstr "Désenregistrer le noeud"
 
+# pf::config (SoH Status)
+msgid "up2date"
+msgstr ""
+
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
 msgstr "userAccountControl"
@@ -6214,6 +6269,10 @@ msgstr "nom d'utilisateur"
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "vendormac"
 msgstr "Constructeur MAC"
+
+# pf::config (SoH Actions)
+msgid "violation"
+msgstr ""
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "violation_add"
