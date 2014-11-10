@@ -71,9 +71,12 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
     my %search_results;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
+    my $request = $c->request();
+    my $by = $request->param('by') || 'mac';
+    my $direction = $request->param('direction') || 'asc';
 
     # Store columns in the session
-    my $columns = $c->request->params->{'column'};
+    my $columns = $request->params->{'column'};
     if ($columns) {
         $columns = [$columns] if (ref($columns) ne 'ARRAY');
         my %columns_hash = map { $_ => 1 } @{$columns};
@@ -104,6 +107,8 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
         status_msg => $status_msg,
         roles => $result,
         violations => $violations,
+        by => $by,
+        direction => $direction,
     );
     unless ($c->session->{'nodecolumns'}) {
         # Set default visible columns
