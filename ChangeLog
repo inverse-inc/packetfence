@@ -1,3 +1,121 @@
+commit 74b6affb8e3df6d91e0645d915e1ba946ab31a17
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Nov 10 09:00:12 2014 -0500
+
+    missing news entries for 4.5.1
+
+M	NEWS.asciidoc
+
+commit eebbf29d1de6862ada0b55e267a81e9408e9f4be
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Nov 10 08:53:17 2014 -0500
+
+    news entries for 4.5.1
+
+M	NEWS.asciidoc
+
+commit 7b7aea64e415a97e86eeb6b1d2f8d2d1d2ef378c
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Nov 10 08:46:06 2014 -0500
+
+    Merge provisioning-v2 into stable
+
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+M	docs/PacketFence_OPSWAT_Quick_Install_Guide.asciidoc
+M	html/captive-portal/templates/provisioner/accept.html
+M	html/captive-portal/templates/provisioner/deny.html
+M	html/captive-portal/templates/provisioner/ibm.html
+M	html/captive-portal/templates/provisioner/mobileiron.html
+M	html/captive-portal/templates/provisioner/opswat.html
+M	html/captive-portal/templates/provisioner/sepm.html
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/ibm.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/symantec.pm
+M	html/pfappserver/root/config/provisioning/view.tt
+M	lib/pf/provisioner.pm
+M	lib/pf/provisioner/ibm.pm
+M	lib/pf/provisioner/mobileiron.pm
+M	lib/pf/provisioner/opswat.pm
+M	lib/pf/provisioner/sepm.pm
+M	lib/pf/provisioner/symantec.pm
+M	sbin/pfmon
+
+commit 8c756c5532aa8a7bb54635c8beffba59a9ba8510
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Oct 30 14:32:46 2014 -0400
+
+    Fix pagination for nodes when sorting
+
+M	html/pfappserver/lib/pfappserver/Controller/Node.pm
+M	html/pfappserver/root/node/search.tt
+
+commit 364882d0d75b0191ab3e935db9d9592c11b03721
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Oct 28 09:10:25 2014 -0400
+
+    Add new function _node_determine_and_set_into_VLAN
+
+M	lib/pf/api.pm
+
+commit 9a332c95365b450917f8790332ed22519a5dc9d4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Oct 28 09:03:23 2014 -0400
+
+    Fix undefined sub reference
+
+M	lib/pf/api.pm
+
+commit ef78b3b73a7af62458c4a4b295734384684a7d6e
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Oct 23 15:00:00 2014 -0400
+
+    fix - use provisionners on all auth sources
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+
+commit 81a22a66bd15b87e6543e46ac088c057ab2b568c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 22 21:17:24 2014 -0400
+
+    Updated upgrade instructions
+
+M	UPGRADE.asciidoc
+
+commit bd6ce442f957968f3d6af1de67a1259c48ba73d0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 22 21:17:24 2014 -0400
+
+    Updated upgrade instructions
+
+M	UPGRADE.asciidoc
+
+commit faeef2ea6e82493b21f61c6cdd06b9e365a51efc
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Oct 22 13:11:07 2014 -0400
+
+    convert cisco web auth sessions to use switch id and not switch object
+
+M	lib/pf/Switch/Cisco/Catalyst_2960_http.pm
+M	lib/pf/Switch/Cisco/WLC_http.pm
+M	lib/pf/web/externalportal.pm
+
+commit 2742f46866c9d7195b218ecd22d97447f3e122fe
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 22 12:05:50 2014 -0400
+
+    Prepare release 4.5
+
+M	ChangeLog
+M	NEWS.asciidoc
+M	addons/packages/packetfence.spec
+M	conf/pf-release
+M	debian/changelog
+M	docs/PacketFence_Administration_Guide-docinfo.xml
+M	html/pfappserver/lib/pfappserver/I18N/fr.po
+M	lib/HTTP/BrowserDetect.pm
+
 commit 5ee95611df8c42b70caeb1ed4bbc8122daaf17bb
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Wed Oct 22 11:36:51 2014 -0400
@@ -3204,7 +3322,34 @@ Date:   Wed Sep 10 16:32:07 2014 -0400
 M	ChangeLog
 
 commit de2f9678434a6f922fc7ce66e9fd3191606ed80f
->>>>>>> devel
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Sep 10 16:29:43 2014 -0400
+
+    Prepare for release
+
+M	NEWS.asciidoc
+M	addons/packages/packetfence.spec
+M	conf/dhcp_fingerprints.conf
+M	conf/pf-release
+M	db/pf-schema-4.4.0.sql
+D	db/pf-schema-4.x.x.sql
+A	db/upgrade-4.3.0-4.4.0.sql
+D	db/upgrade-4.x.x.sql
+M	debian/changelog
+M	docs/PacketFence_Administration_Guide-docinfo.xml
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit 73760a983f93ea3cabc4daeaf4b42733aaed6449
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Sep 10 16:32:07 2014 -0400
+
+    Updated ChangeLog file
+
+M	ChangeLog
+
+commit 9d1497ec50870c45ac0d7c77ea88c6bb0d1633cd
 Author: Durand Fabrice <fdurand@inverse.ca>
 Date:   Wed Sep 10 16:29:43 2014 -0400
 
@@ -7105,6 +7250,14 @@ Date:   Fri Jun 27 07:59:21 2014 -0400
     Added missing fields when creating an interface
 
 M	html/pfappserver/root/interface/create.tt
+
+commit 08cc155416415f348c9ce96ec5b3005c31bd43b7
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jun 26 14:47:46 2014 -0400
+
+    Fixed PacketFence_Network xml file
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
 
 commit 86c2ce3c95ad850a0f8f97a99b921ac373959ac3
 Author: Durand Fabrice <fdurand@inverse.ca>
@@ -18235,6 +18388,14 @@ Date:   Wed Feb 5 15:37:03 2014 -0500
 
 M	lib/pf/SNMP/Nortel.pm
 
+commit 3dd502d1c3ffe88f25c3a312c16cb184662b630c
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Feb 5 14:53:12 2014 -0500
+
+    Typo in UPGRADE document
+
+M	UPGRADE.asciidoc
+
 commit 2610b6d3bcac59f16777475477d1a8c9b1207034
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Thu Dec 12 11:46:35 2013 -0500
@@ -19416,6 +19577,21 @@ M	html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
 M	html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
 M	html/pfappserver/root/portal/profile/view.tt
 M	html/pfappserver/root/static/admin/configuration/portal_profile.js
+
+commit 77c6893701ba5f8ca3589e9f3fd6fd988f086d92
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Jan 17 10:38:42 2014 -0500
+
+    Fix pfdetectd not starting because of pid file
+    
+    Fixes the case where either pfdetect crashes or the server crashes and
+    the pid file is left in the file system. On reboot or on service restart
+    the service won't start because it thinks it's running.
+    
+    Now if the PID file is there it will also check that the pid it contains
+    is running
+
+M	addons/pfdetect_remote/initrd/pfdetectd
 
 commit f1e234847617a17665e70670e3c7b215ad983e8c
 Author: Francis Lachapelle <flachapelle@inverse.ca>
