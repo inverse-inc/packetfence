@@ -21,11 +21,13 @@ New Features
 Enhancements
 ++++++++++++
 * Make Cisco web authentication sessions use less memory.
+* Internationalized the provisioners templates.
 
 Bug Fixes
 +++++++++
-* Fix node pagination when sorting
+* Fix node pagination when sorting.
 * Fix provisioners that were not enforced on external authentication sources. 
+* Fix IBM and Symantec provisioners configuration form.
 
 Version 4.5.0 released on 2014-10-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
