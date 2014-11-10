@@ -769,6 +769,31 @@ hash_passwords=bcrypt
 # The cost factor to apply to the password hashing if applicable.
 # Currently only applies to bcrypt.
 hashing_cost=8
+#
+# advanced.use_omapi_to_lookup_mac
+#
+# Use omapi to query dhcpd for the mac address of an ip
+use_omapi_to_lookup_mac=disabled
+#
+# advanced.omapi_key_name
+#
+# The omapi key name for signing messages
+omapi_key_name=
+#
+# advanced.omapi_key_base64
+#
+# The omapi base64 key for signing messages
+omapi_key_base64=
+#
+# advanced.omapi_port
+#
+# Use omapi port number
+omapi_port=7911
+#
+# advanced.omapi_host
+#
+# The omapi host
+omapi_host=localhost
 
 [provisioning]
 #
