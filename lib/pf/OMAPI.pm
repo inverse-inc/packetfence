@@ -43,7 +43,7 @@ host of dhcp server
 
 =cut
 
-has host => (is => 'rw', default => 'localhost');
+has host => (is => 'rw', default => sub  { 'localhost' });
 
 =head2 port
 
@@ -51,7 +51,7 @@ port of the dhcp server
 
 =cut
 
-has port => (is => 'rw', default => 7911);
+has port => (is => 'rw', default => sub { 7911 } );
 
 =head2 buffer
 
@@ -69,7 +69,7 @@ has buffer => (is => 'rw', default => sub { my $s = "";\$s } );
 
 has sock => (is => 'rw', builder => 1, lazy => 1, clearer => 1);
 
-has connected => (is => 'rw' , default => 0 );
+has connected => (is => 'rw' , default => sub { 0 } );
 
 has keyname => (is => 'rw');
 
@@ -79,9 +79,9 @@ has msg => (is => 'rw');
 
 has obj => (is => 'rw');
 
-has authid => (is => 'rw', default => 0);
+has authid => (is => 'rw', default => sub { 0 });
 
-has authlen => (is => 'rw', default => 0);
+has authlen => (is => 'rw', default => sub { 0 });
 
 =head2 id
 
