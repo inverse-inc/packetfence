@@ -63,23 +63,66 @@ has buffer => (is => 'rw', default => sub { my $s = "";\$s } );
 
 =head2 sock
 
-
+The socket used for communicating with the dhcpd server
 
 =cut
 
 has sock => (is => 'rw', builder => 1, lazy => 1, clearer => 1);
 
+=head2 connected
+
+A check if we are connected to the omapi service
+
+=cut
+
 has connected => (is => 'rw' , default => sub { 0 } );
+
+=head2 keyname
+
+The name of the key 
+
+=cut
 
 has keyname => (is => 'rw');
 
+=head2 op
+
+The current operation
+
+=cut
+
 has op => (is => 'rw');
+
+=head2 msg
+
+The current message to be sent
+
+=cut
 
 has msg => (is => 'rw');
 
+=head2 obj
+
+The current obj to be sent
+
+=cut
+
 has obj => (is => 'rw');
 
+=head2 authid
+
+The auth id to send
+
+=cut
+
 has authid => (is => 'rw', default => sub { 0 });
+
+
+=head2 authlen
+
+The length of signature
+
+=cut
 
 has authlen => (is => 'rw', default => sub { 0 });
 
@@ -91,7 +134,19 @@ The current id of the message
 
 has id => (is => 'rw', default=> sub { int(rand(0x10000000)) } );
 
+=head2 key
+
+The key used to sign messages
+
+=cut
+
 has key => (is => 'rw', builder => 1, lazy => 1);
+
+=head2 key
+
+The key base64 representation of the key
+
+=cut
 
 has key_base64 => (is => 'rw');
 
@@ -144,6 +199,8 @@ sub _trigger_key_base64 {
 }
 
 =head2 _build_key 
+
+builds the key from base64 version of the key
 
 =cut
 
@@ -198,11 +255,23 @@ sub send_auth {
     return 1;
 }
 
+=head2 lookup
+
+Look up a message
+
+=cut
+
 sub lookup {
     my ($self, $msg, $obj) = @_;
     $self->connect();
     return $self->send_msg($OPEN,$msg, $obj);
 }
+
+=head2 send_msg
+
+Sends the message to the dhcpd server
+
+=cut
 
 sub send_msg {
     my ($self, $op, $msg, $obj) = @_;
@@ -238,6 +307,12 @@ sub get_reply {
     return $self->parse_stream($data) ;
 }
 
+=head2 _build_message
+
+Builds the message from current data
+
+=cut
+
 sub _build_message {
     my ($self) = @_;
     $self->_clear_buffer;
@@ -250,7 +325,7 @@ sub _build_message {
 
 =head2 _append_name_values
 
-TODO: documention
+Appends a hash to the buffer to send
 
 =cut
 
@@ -269,11 +344,23 @@ sub _append_name_values {
     return ;
 }
 
+=head2 _build_sock
+
+Creates a socket
+
+=cut
+
 sub _build_sock {
     my ($self) = @_;
     my $sock = IO::Socket::INET->new(PeerAddr => $self->host, PeerPort => $self->port, Proto => 'tcp') || die "Can't bind : $@\n";
     return $sock;
 }
+
+=head2 _clear_buffer
+
+Clear the buffer
+
+=cut
 
 sub _clear_buffer {
     my ($self) = @_;
@@ -281,10 +368,22 @@ sub _clear_buffer {
     $$buf = '';
 }
 
+=head2 _append_ints_buffer
+
+Append a list of integers to the buffer
+
+=cut
+
 sub _append_ints_buffer {
     my ($self,@ints) = @_;
     $self->_pack_and_append('N*',@ints);
 }
+
+=head2 _pack_and_append
+
+pack data and apeends it the buffer
+
+=cut
 
 sub _pack_and_append {
     my ($self,$format,@data) = @_;
@@ -295,6 +394,8 @@ sub _pack_and_append {
 
 
 =head2 parse_stream
+
+Parse the omapi message from the given stream
 
 =cut
 
@@ -323,6 +424,7 @@ sub parse_stream {
 
 =head2 parse_name_value
 
+Parses the name value pair from the buffer
 
 =cut
 
@@ -346,26 +448,57 @@ sub parse_name_value_pairs {
     return (\%data,$rest);
 }
 
+
+=head2 pack_ip_address
+
+Packs the ipaddress from a string
+
+=cut
+
 sub pack_ip_address {
     my ($self,$value) = @_;
     $value = pack("C4",split('\.',$value));
     return $value;
 }
 
+=head2 pack_hardware_address
+
+Packs the pack_hardware_address from a string
+
+=cut
+
 sub pack_hardware_address {
     my ($self,$value) = @_;
     return pack("C6",split(':',$value));
 }
+
+=head2 unpack_ip_address
+
+unpacks the ip address from the buffer
+
+=cut
 
 sub unpack_ip_address {
     my ($self,$value) = @_;
     return join('.',unpack("C4",$value));
 }
 
+=head2 unpack_hardware_address
+
+unpacks the hardware from the buffer
+
+=cut
+
 sub unpack_hardware_address {
     my ($self,$value) = @_;
     return join(':',map { sprintf "%x", $_ } unpack("C6",$value));
 }
+
+=head2 _sign
+
+Sign the message
+
+=cut
 
 sub _sign {
     my ($self) = @_;
