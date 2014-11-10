@@ -280,11 +280,15 @@ sub ip2mac {
         my @iplog = iplog_history_ip( $ip, ( 'date' => str2time($date) ) );
         $mac = $iplog[0]->{'mac'};
     } else {
-        my $iplog = iplog_view_open_ip($ip);
-        $mac = $iplog->{'mac'};
+        $mac = ip2macomapi($ip);
+
+        unless ($mac) {
+            my $iplog = iplog_view_open_ip($ip);
+            $mac = $iplog->{'mac'};
+        }
         if ( !$mac ) {
             $logger->debug("could not resolve $ip to mac in iplog table");
-            $mac = ip2macinarp($ip);
+            $mac = ip2macinarp($ip) unless $mac;
             if ( !$mac ) {
                 $logger->debug("trying to resolve $ip to mac using ping");
                 my @lines  = pf_run("/sbin/ip address show");
@@ -352,6 +356,31 @@ sub ip2macinarp {
     }
     $logger->info("could not resolve $ip to mac in ARP table");
     return (0);
+}
+
+=head2 ip2macomapi
+
+Look for the mac in the dhcpd lease entry using omapi
+
+=cut
+
+sub ip2macomapi {
+    my ($ip) = @_;
+    return unless isenabled($Config{advanced}{use_omapi_to_lookup_mac});
+
+    my ($host, $port, $keyname, $key_base64) =
+      @Config{qw( omapi_host omapi_port omapi_key_name omapi_key_base64 )};
+    my $omapi = pf::OMAPI->new(
+        omapi_host       => $host,
+        omapi_port       => $port,
+        omapi_key_name   => $keyname,
+        omapi_key_base64 => $key_base64
+    );
+    eval {
+        my $data = $omapi->lookup({type => 'lease'}, {'ip-address' => "172.32.100.185"});
+        return $data->{'obj'}{'hardware-address'} if $data->{op} == 3;
+    };
+    return;
 }
 
 sub mac2ip {
