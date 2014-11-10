@@ -30,7 +30,6 @@ use MIME::Base64;
 use Net::IP;
 use Digest::HMAC_MD5 qw(hmac_md5);
 use IO::Socket::INET;
-use List::Util qw(pairs);
 use Socket qw(MSG_WAITALL);
 
 our $VERSION = '0.01';
