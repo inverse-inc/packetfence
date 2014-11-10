@@ -64,9 +64,22 @@ has_field 'agent_download_uri' =>
    required => 1,
   );
 
+has_field 'critical_issues_threshold' =>
+  (
+   type => 'PosInteger',
+   default => 0,
+   tags => { after_element => \&help,
+             help => 'Raise the non compliance violation the number of critical issues is greater or equal than this. 0 deactivates it' },
+  );
+
 has_block definition =>
   (
    render_list => [ qw(id type description category oses client_id client_secret host port protocol access_token refresh_token agent_download_uri) ],
+  );
+
+has_block compliance =>
+  (
+   render_list => [ qw(non_compliance_violation critical_issues_threshold) ]
   );
 
 =head1 COPYRIGHT

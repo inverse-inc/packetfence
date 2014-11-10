@@ -46,6 +46,7 @@ use pf::traplog;
 use pf::util;
 use pf::services::util;
 use pf::violation qw(violation_maintenance);
+use pf::provisioner;
 
 # initialization
 # --------------
@@ -199,6 +200,11 @@ sub registertasks  {
             if (isenabled($Config{'inline'}{'accounting'})) {
                 inline_accounting_maintenance($Config{'inline'}{'layer3_accounting_session_timeout'});
             }
+        }
+    );
+    register_task(
+        'Provisioner polling enforcement','provisioning_compliance_poll_interval',sub {
+            pf::provisioner::provisioner_compliance_poll();
         }
     );
     register_task(
