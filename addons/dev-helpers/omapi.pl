@@ -32,8 +32,8 @@ my $omapi = pf::OMAPI->new (\%options);
 
 my $data = $omapi->lookup({type => 'lease'}, { 'ip-address' => "172.32.100.185"  });
 
-use DDP;
-p $data;
+use Data::Dumper;
+Dumper $data;
 
 =head1 AUTHOR
 
