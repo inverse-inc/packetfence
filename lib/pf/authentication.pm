@@ -448,6 +448,7 @@ This method tries to match a set of params in one or multiple sources.
 
 If action is undef, all actions will be returned.
 If action is set, it will return the value of the action immediately.
+If source_ref is defined then it will be set to the matching source_id
 
 =cut
 

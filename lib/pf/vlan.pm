@@ -28,6 +28,8 @@ use pf::authentication;
 use pf::Authentication::constants;
 use pf::Portal::ProfileFactory;
 use pf::vlan::filter;
+use pf::person;
+use pf::lookup::person;
 
 our $VERSION = 1.04;
 
@@ -420,8 +422,6 @@ sub getNormalVlan {
                 if (defined $role) {
                     %info = (%info, (category => $role));
                 }
-                require pf::person;
-                require pf::lookup::person;
                 # create a person entry for pid if it doesn't exist
                 if ( !pf::person::person_exist($user_name) ) {
                     $logger->info("creating person $user_name because it doesn't exist");
