@@ -591,7 +591,7 @@ sub shouldAutoRegister {
         if ($switch->getVlanByName($role) eq -1) {
             return 0;
         } else {
-            return $switch->getVlanByName($role) if $role;
+            return $switch->getVlanByName($role);
         }
     }
 
