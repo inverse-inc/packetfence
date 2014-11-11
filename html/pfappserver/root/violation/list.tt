@@ -49,7 +49,6 @@
                 [% IF profiles.size > 1 %]<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   [% FOR profile IN profiles -%]
-                  [% NEXT IF loop.first   # skip default %]
                   <li><a target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'), [profile], 'violations', "$violation.template") %].html" >[% profile | html %]</a></li>[% END %]
                 </ul>
               </div>[% END %]
