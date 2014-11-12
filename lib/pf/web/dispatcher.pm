@@ -155,7 +155,7 @@ sub html_redirect {
     # Configuring redirect URLs for both the portal and the WISPr(need to be part of the header in case of a WISPr client)
     my $portal_url = APR::URI->parse($r->pool,"$proto://".${captive_portal_domain}."/captive-portal");
     $portal_url->query("destination_url=$destination_url&".$r->args);
-    my $wispr_url = APR::URI->parse($r->pool,"$proto://".${captive_poral_domain}."/wispr");
+    my $wispr_url = APR::URI->parse($r->pool,"$proto://".${captive_portal_domain}."/wispr");
     $wispr_url->query($r->args);
 
     # External captive-portal / Webauth handling
