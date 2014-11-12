@@ -416,6 +416,24 @@ sub mac2ip {
     }
 }
 
+
+=head2 mac2ipomapi
+
+Look for the ip of a mac using omapi
+
+=cut
+
+sub mac2ipomapi {
+    my ($ip) = @_;
+    my $omapi = _get_omapi_client();
+    return unless $omapi;
+    eval {
+        my $data = $omapi->lookup({type => 'lease'}, {'hardware-address' => $ip});
+        return $data->{'obj'}{'ip-address'} if $data->{op} == 3;
+    };
+    return;
+}
+
 sub mac2allips {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iplog');
