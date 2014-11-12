@@ -81,16 +81,7 @@ sub setupCommonStash : Private {
     my ( $self, $c ) = @_;
     my $logger = get_logger;
     my $portalSession   = $c->portalSession;
-    my $destination_url = $c->request->param('destination_url');
-    if (isenabled($c->profile->forceRedirectURL)){
-        $destination_url = $c->profile->getRedirectURL;
-    }
-    elsif (defined $destination_url && !($destination_url eq "")) { 
-        $destination_url = decode_entities( uri_unescape($destination_url) );
-    } 
-    else {
-        $destination_url = $c->profile->getRedirectURL;
-    }
+    my $destination_url = $portalSession->destinationUrl;
 
     my @list_help_info;
     push @list_help_info,
@@ -101,7 +92,7 @@ sub setupCommonStash : Private {
       if ( defined( $portalSession->clientMac ) );
     $c->stash(
         pf::web::constants::to_hash(),
-        destination_url => $destination_url,
+        destination_url => encode_entities($destination_url),
         logo            => $c->profile->getLogo,
         list_help_info  => \@list_help_info,
     );
