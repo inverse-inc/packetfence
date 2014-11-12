@@ -456,7 +456,7 @@ sub showLogin : Private {
     }
     $c->stash(
         template        => 'login.html',
-        username        => encode_entities( $request->param("username") ),
+        username        => $request->param_encoded("username") ,
         null_source     => is_in_list( $SELFREG_MODE_NULL, $guestModes ),
         oauth2_github   => is_in_list( $SELFREG_MODE_GITHUB, $guestModes ),
         oauth2_google   => is_in_list( $SELFREG_MODE_GOOGLE, $guestModes ),
