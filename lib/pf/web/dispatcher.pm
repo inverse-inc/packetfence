@@ -77,13 +77,6 @@ sub handler {
         return Apache2::Const::DECLINED;
     }
 
-    # httpd.portal mod_status
-    # We do not want to continue through the dispatcher if we ask for httpd diagnostic
-    if ( $r->uri =~ /\/server-status/ ) {
-        $logger->debug("Request for mod_status. We are exiting the dispatcher");
-        return Apache2::Const::DECLINED;
-    }
-
     # Apache filtering
     # Filters out request based on different filter to avoid further processing
     # ie: Only process valid browsers user agent requests
