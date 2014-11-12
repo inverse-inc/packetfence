@@ -366,21 +366,34 @@ Look for the mac in the dhcpd lease entry using omapi
 
 sub ip2macomapi {
     my ($ip) = @_;
-    return unless isenabled($Config{advanced}{use_omapi_to_lookup_mac});
-
-    my ($host, $port, $keyname, $key_base64) =
-      @{$Config{advanced}}{qw( omapi_host omapi_port omapi_key_name omapi_key_base64 )};
-    my $omapi = pf::OMAPI->new(
-        host       => $host,
-        port       => $port,
-        keyname    => $keyname,
-        key_base64 => $key_base64
-    );
+    my $omapi = _get_omapi_client();
+    return unless $omapi;
     eval {
         my $data = $omapi->lookup({type => 'lease'}, {'ip-address' => $ip});
         return $data->{'obj'}{'hardware-address'} if $data->{op} == 3;
     };
     return;
+}
+
+=head2 _get_omapi_client
+
+Get the omapi client
+return undef if omapi is disabled
+
+=cut
+
+sub _get_omapi_client {
+    my ($self) = @_;
+    return unless isenabled($Config{advanced}{use_omapi_to_lookup_mac});
+
+    my ($host, $port, $keyname, $key_base64) =
+      @{$Config{advanced}}{qw( omapi_host omapi_port omapi_key_name omapi_key_base64 )};
+    return pf::OMAPI->new(
+        host       => $host,
+        port       => $port,
+        keyname    => $keyname,
+        key_base64 => $key_base64
+    );
 }
 
 sub mac2ip {
