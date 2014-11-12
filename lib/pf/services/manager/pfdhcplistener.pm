@@ -87,7 +87,8 @@ sub managers {
 }
 
 sub isManaged {
-    isenabled($Config{'network'}{'dhcpdetector'})
+    my ($self) = @_;
+    return (isenabled($Config{'network'}{'dhcpdetector'}) && isenabled($Config{'services'}{$self->name}));
 }
 
 =head1 AUTHOR
