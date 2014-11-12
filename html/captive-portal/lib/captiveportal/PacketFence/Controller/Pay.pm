@@ -243,13 +243,13 @@ sub showBilling : Private {
 
     $c->stash({
         'tiers' => \%tiers,
-        'selected_tier' => $request->param("tier") || '',
-        'firstname' => $request->param("firstname") || '',
-        'lastname' => $request->param("lastname") || '',
-        'email' => $request->param("email") || '',
-        'ccnumber' => $request->param("ccnumber") || '',
-        'ccexpiration' => $request->param("ccexpiration") || '',
-        'ccverification' => $request->param("ccverification") || '',
+        'selected_tier' => $request->param_encoded("tier") || '',
+        'firstname' => $request->param_encoded("firstname") || '',
+        'lastname' => $request->param_encoded("lastname") || '',
+        'email' => $request->param_encoded("email") || '',
+        'ccnumber' => $request->param_encoded("ccnumber") || '',
+        'ccexpiration' => $request->param_encoded("ccexpiration") || '',
+        'ccverification' => $request->param_encoded("ccverification") || '',
         'template' => 'billing/billing.html',
     });
 
