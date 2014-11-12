@@ -369,12 +369,12 @@ sub ip2macomapi {
     return unless isenabled($Config{advanced}{use_omapi_to_lookup_mac});
 
     my ($host, $port, $keyname, $key_base64) =
-      @Config{qw( omapi_host omapi_port omapi_key_name omapi_key_base64 )};
+      @{$Config{advanced}}{qw( omapi_host omapi_port omapi_key_name omapi_key_base64 )};
     my $omapi = pf::OMAPI->new(
-        omapi_host       => $host,
-        omapi_port       => $port,
-        omapi_key_name   => $keyname,
-        omapi_key_base64 => $key_base64
+        host       => $host,
+        port       => $port,
+        keyname    => $keyname,
+        key_base64 => $key_base64
     );
     eval {
         my $data = $omapi->lookup({type => 'lease'}, {'ip-address' => $ip});
