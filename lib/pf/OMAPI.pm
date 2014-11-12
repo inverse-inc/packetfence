@@ -491,7 +491,7 @@ unpacks the hardware from the buffer
 
 sub unpack_hardware_address {
     my ($self,$value) = @_;
-    return join(':',map { sprintf "%x", $_ } unpack("C6",$value));
+    return join(':',map { sprintf "%02x", $_ } unpack("C6",$value));
 }
 
 =head2 _sign
