@@ -23,14 +23,16 @@ my %options = (
 );
 
 GetOptions (\%options,
-    "port=i", "host=s", "keyname=s", "key_base64=s"
+    "port=i", "host=s", "keyname=s", "key_base64=s","ip=s"
 )  || die "Invalid parameter passed";
 
-die "keyname and or key_base64 not provided" unless defined $options{keyname} && defined $options{key_base64};
+die "keyname, key_base64 or ip not provided" unless defined $options{keyname} && defined $options{key_base64} && defined $options{ip};
+
+my $ip = delete $options{ip};
 
 my $omapi = pf::OMAPI->new (\%options);
 
-my $data = $omapi->lookup({type => 'lease'}, { 'ip-address' => "172.32.100.185"  });
+my $data = $omapi->lookup({type => 'lease'}, { 'ip-address' => $ip });
 
 use Data::Dumper;
 Dumper $data;
