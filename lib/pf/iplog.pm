@@ -117,7 +117,7 @@ sub iplog_db_prepare {
         qq [ update iplog set end_time=now() where ip=? and (end_time=0 or end_time > now())]);
 
     $iplog_statements->{'iplog_cleanup_sql'} = get_db_handle()->prepare(
-        qq [ delete from iplog where unix_timestamp(end_time) < (unix_timestamp(now()) - ?) and end_time!=0 ]);
+        qq [ delete from iplog where end_time < DATE_SUB(NOW(), INTERVAL ? SECOND) and end_time != 0]);
 
     $iplog_statements->{'iplog_close_mac_sql'} = get_db_handle()->prepare(
         qq [ update iplog set end_time=now() where mac=? and (end_time=0 or end_time > now()) ]);
