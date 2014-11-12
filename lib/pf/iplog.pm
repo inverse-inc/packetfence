@@ -377,7 +377,7 @@ sub ip2macomapi {
         omapi_key_base64 => $key_base64
     );
     eval {
-        my $data = $omapi->lookup({type => 'lease'}, {'ip-address' => "172.32.100.185"});
+        my $data = $omapi->lookup({type => 'lease'}, {'ip-address' => $ip});
         return $data->{'obj'}{'hardware-address'} if $data->{op} == 3;
     };
     return;
