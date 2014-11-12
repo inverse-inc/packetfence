@@ -174,13 +174,13 @@ sub registertasks  {
         }
     );
     register_task(
-        'Expire httpd.admin sessions','httpd_admin_cleanup_interval',sub {
+        'expire httpd.admin sessions','httpd_admin_cleanup_interval',sub {
             purge_cache('httpd.admin')
               if ( isenabled($Config{'expire'}{'httpd_admin'}) );
         }
     );
     register_task(
-        'Expire httpd.portal sessions','httpd_portal_cleanup_interval',sub {
+        'expire httpd.portal sessions','httpd_portal_cleanup_interval',sub {
             purge_cache('httpd.portal')
               if ( isenabled($Config{'expire'}{'httpd_portal'}) );
         }
@@ -203,12 +203,12 @@ sub registertasks  {
         }
     );
     register_task(
-        'Provisioner polling enforcement','provisioning_compliance_poll_interval',sub {
+        'provisioner polling enforcement','provisioning_compliance_poll_interval',sub {
             pf::provisioner::provisioner_compliance_poll();
         }
     );
     register_task(
-        'Account maintenance','acct_maintenance_interval',sub {
+        'account maintenance','acct_maintenance_interval',sub {
             acct_maintenance();
         }
     );
