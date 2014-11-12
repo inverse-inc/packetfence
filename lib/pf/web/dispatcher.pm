@@ -36,6 +36,9 @@ use pf::Portal::Session;
 use pf::web::provisioning::custom;
 use pf::web::externalportal;
 
+# Globally defined to this namespace since we want to use them in different methods
+our $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+our $captive_portal_domain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
 
 =head1 METHODS
 
@@ -128,8 +131,6 @@ sub html_redirect {
 
     $logger->debug('hitting html_redirect');
 
-    my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
-    my $captive_portal_domain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
     my $user_agent = $r->headers_in->{'User-Agent'};
 
     # Destination URL / UserAgent handling
