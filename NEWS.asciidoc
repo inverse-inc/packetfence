@@ -32,6 +32,7 @@ Bug Fixes
 * Fix firewall rule that allows httpd.portal to be reached on management IP when pre-registration enabled
 * Fix creating a new file from the Portal Profile GUI in a subdirectory
 * Improved log rotation handling
+* Fix previewing templates in the admin gui
 
 Version 4.5.0 released on 2014-10-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

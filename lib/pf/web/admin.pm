@@ -8,7 +8,7 @@ pf::web::admin
 
 The pf::web::admin module contains the functions necessary to reverse proxy any portal
 from the admin gui.
-It will rewrite all the links used in the portal profile to something like /preview/...
+It will rewrite all the links used in the portal profile to something like /portal_preview/...
 
 =cut
 
@@ -91,7 +91,7 @@ sub rewrite {
             my @valhead = $r->headers_out->get('Location');
             my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
             my $value = $proto.'://'.$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
-            my $replacementheader = 'https://'.$r->hostname.":".$r->get_server_port."/preview";
+            my $replacementheader = 'https://'.$r->hostname.":".$r->get_server_port."/portal_preview";
             my $headval;
             foreach $headval (@valhead) {
                 if ($headval && $headval =~ /$value/x) {
@@ -145,7 +145,7 @@ sub to_hash {
         # don't keep regex
         next if ref(${"WEB::$_"}) eq 'Regexp';
         next if $_ !~ /^URL/;
-        $constants{${"WEB::$_"}} = '/preview'.${"WEB::$_"};
+        $constants{${"WEB::$_"}} = '/portal_preview'.${"WEB::$_"};
     }
     return %constants;
 }
@@ -160,7 +160,7 @@ sub proxy_portal {
     my ($self, $r) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $s = $r->server;
-    if ($r->uri =~ /preview\/(.*)/) {
+    if ($r->uri =~ /portal_preview\/(.*)/) {
          $r->headers_in->{'X-Forwarded-For'} = $management_network->{'Tip'}; 
          my $interface = $internal_nets[0];
          $r->set_handlers(PerlResponseHandler => []);

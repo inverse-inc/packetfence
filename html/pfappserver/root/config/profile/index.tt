@@ -38,7 +38,7 @@
         <td class="hidden-phone"></td>
         <td><a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('view'), ['default']) %]">[% l('default') %]</a></td>
         <td>[% l('Default Profile') %]</td>
-        <td><a class="btn btn-mini" href="/preview/?PORTAL=default" target="_blank">[% l('Preview') %]</a></td>
+        <td><a class="btn btn-mini" href="/portal_preview/?PORTAL=default" target="_blank">[% l('Preview') %]</a></td>
       </tr>
     </thead>
     <tbody>
@@ -55,7 +55,7 @@
             <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('view'), [ profile_id ]) %]">[% profile_id | html %]</a>
         </td>
         <td>[% profile.field('description').value %]</td>
-        <td>[% IF can_access("PORTAL_PROFILES_DELETE") %]<a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% profile_id | html %]"  href="[% c.uri_for(c.controller('Config::Profile').action_for('remove'), [ profile_id ]) %]">[% l('Delete') %]</a>[% END %] <a class="btn btn-mini" href="/preview/?PORTAL=[% profile_id %]" target="_blank">[% l('Preview') %]</a></td>
+        <td>[% IF can_access("PORTAL_PROFILES_DELETE") %]<a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% profile_id | html %]"  href="[% c.uri_for(c.controller('Config::Profile').action_for('remove'), [ profile_id ]) %]">[% l('Delete') %]</a>[% END %] <a class="btn btn-mini" href="/portal_preview/?PORTAL=[% profile_id %]" target="_blank">[% l('Preview') %]</a></td>
       </tr>
       [% END %]
       [% END -%]
