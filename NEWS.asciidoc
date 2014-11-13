@@ -30,6 +30,7 @@ Enhancements
 * Removed dead code referring to 'external' interface type which was, anyway, no longer supported
 * Added vlan filter in getNodeInfoForAutoReg and update/create person even if the device has been autoreg
 * Refactor the vlan filter code to reduce code duplication
+* Added GIF path configuration parameter in admin
 
 Bug Fixes
 +++++++++

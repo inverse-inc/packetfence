@@ -40,6 +40,7 @@ sub index : Path : Args(0) {
             retry_delay   => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
             external_ip => $Config{'captive_portal'}{'network_detection_ip'},
             auto_redirect => $Config{'captive_portal'}{'network_detection'},
+            gif_path => $Config{'captive_portal'}{'gif_path'},
         );
 
         # override destination_url if we enabled the always_use_redirecturl option
