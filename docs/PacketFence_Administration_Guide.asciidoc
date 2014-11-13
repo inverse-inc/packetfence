@@ -2175,7 +2175,7 @@ To assign a role by tiers (example: slow, medium and fast), edit the file `lib/p
 Portal Profiles
 ~~~~~~~~~~~~~~~
 
-In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, the switch IP/MAC or the URL the client connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
+In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, the switch IP/MAC or the URI the client connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
 
 When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to the "default" portal profile).
 
@@ -2208,7 +2208,7 @@ You must also enable the passthrough option in your PacketFence configuration (t
 
 Google
 ^^^^^^
-In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URL for the "Redirect URL"
+In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URI for the "Redirect URI"
 field : https://YOUR_PORTAL_HOSTNAME/oauth2/google.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
 You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
@@ -3299,7 +3299,7 @@ The last block defines the relationship between the tests and the desired action
   action = 501
   redirect_url =
 
-This filter will return an error code (501) if the user agent is Dalvik and the URL doesn't contain _/generate_204.
+This filter will return an error code (501) if the user agent is Dalvik and the URI doesn't contain _/generate_204.
 
 
 Frequently Asked Questions
