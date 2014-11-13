@@ -501,11 +501,11 @@ sub getNodeInfoForAutoReg {
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
     my ($this, $switch, $switch_port, $mac, $vlan,
-        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type) = @_;
+        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $radius_request) = @_;
     my $logger = Log::Log4perl->get_logger();
     my $filter = new pf::vlan::filter;
 
-    my ($result,$role) = $filter->test('NodeInfoForAutoReg',$switch, $switch_port, $mac, undef, $conn_type, $user_name, $ssid, undef);
+    my ($result,$role) = $filter->test('NodeInfoForAutoReg',$switch, $switch_port, $mac, undef, $conn_type, $user_name, $ssid, $radius_request);
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
