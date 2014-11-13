@@ -68,6 +68,19 @@ sub test {
     }
 }
 
+our %RULE_PARSERS = (
+    node_info => \&node_info_parser,
+    switch  => \&switch_parser,
+    ifIndex  => \&ifindex_parser,
+    mac  => \&mac_parser,
+    connection_type  => \&connection_type_parser,
+    username  => \&username_parser,
+    ssid  => \&ssid_parser,
+    time => \&time_parser,
+    owner => \&owner_parser,
+    radius_request => \&radius_parser,
+);
+
 =item dispatch_rules
 
 Return the reference to the function that parses the rule.
@@ -82,19 +95,7 @@ sub dispatch_rule {
         $logger->error("The rule $name you try to test doesn´t exist");
     }
 
-    my $key = {
-        node_info => \&node_info_parser,
-        switch  => \&switch_parser,
-        ifIndex  => \&ifindex_parser,
-        mac  => \&mac_parser,
-        connection_type  => \&connection_type_parser,
-        username  => \&username_parser,
-        ssid  => \&ssid_parser,
-        time => \&time_parser,
-        owner => \&owner_parser,
-        radius_request => \&radius_parser,
-    };
-    return $key->{$rule->{'filter'}}->($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    return $RULE_PARSERS{$rule->{'filter'}}->($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
 }
 
 our %RULE_OPS = (
