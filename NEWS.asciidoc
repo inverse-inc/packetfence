@@ -26,6 +26,7 @@ Enhancements
 * More precisely define which dhcp message types we are listening for
 * Removed dead code referring to 'external' interface type which was, anyway, no longer supported
 * Added vlan filter in getNodeInfoForAutoReg and update/create person even if the device has been autoreg
+* Added GIF path configuration parameter in admin
 
 Bug Fixes
 +++++++++

@@ -4766,6 +4766,10 @@ msgid "captive_portal.network_detection_ip"
 msgstr "IP"
 
 # conf/documentation.conf
+msgid "captive_portal.gif_path"
+msgstr "GIF path"
+
+# conf/documentation.conf
 msgid "captive_portal.secure_redirect"
 msgstr "Secure redirect"
 
