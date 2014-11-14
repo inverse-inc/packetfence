@@ -404,6 +404,46 @@ sub bind_with_credentials {
     return $result;
 }
 
+=head2 research based on a attribute
+
+=cut
+
+sub search_attribute {
+    my ($self, $pid, $source_id) = @_;
+    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+    my $source = pf::authentication::getAuthenticationSource($source_id);
+
+    my $return = "";
+    my $ldapserver = $source->{'host'};
+    my $userdn     = $source->{'basedn'};
+    my $username   = $source->{'binddn'};
+    my $password   = $source->{'password'};
+    my $usernameattribute = $source->{'usernameattribute'};    
+    
+    my $ldap = Net::LDAP->new($ldapserver, version=>3)
+        or die("Unable to contact $ldapserver!\n");
+    
+    my $msg = $ldap->bind ( $username,
+                            password => $password,
+                            version  => 3);
+    my $searchresult = $ldap->search (
+                  base => $userdn,
+                  filter => "($usernameattribute=$pid)"
+    );
+    
+    my $entry = $searchresult->entry();
+    
+    if (!$entry) {
+        $logger->warn("pfcmd: pidinfo: unable to locate PID '$pid'");
+        $return = "Unable to locate PID '$pid'!\n";
+    }
+    else {
+         $logger->info("PID: '$pid' found in the directory");
+    }
+    $ldap->unbind();
+    return $entry;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

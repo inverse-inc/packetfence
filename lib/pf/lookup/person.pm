@@ -13,83 +13,82 @@ or as the content of a violation action
 
 Define this function to return whatever data you'd like.
 
-=head1 EXAMPLE
-
-  use Net::LDAP;
-  use Log::Log4perl;
-
-  sub lookup_person {
-      my ($pid) = @_;
-      my $logger = Log::Log4perl::get_logger('pf::lookup::person');
-
-      my $ldapserver = $Config{'lookup'}{'ldapserver'};
-      my $userdn     = $Config{'lookup'}{'userdn'};
-      my $username   = $Config{'lookup'}{'ldapuser'};
-      my $password   = $Config{'lookup'}{'ldappass'};
-
-      my $return = "";
-
-      if (person_exist($pid)) {
-
-          my $ldap = Net::LDAP->new($ldapserver, version=>3)
-              or die("Unable to contact $ldapserver!\n");
-
-          my $msg = $ldap->bind ( $username, 
-                                  password => $password, 
-                                  version  => 3);
-          my $searchresult = $ldap->search ( 
-              base => $userdn, 
-              filter => "(cn=$pid)"
-          );
-          my $entry = $searchresult->entry();
-
-          if (!$entry) {
-              $logger->info("pfcmd: pidinfo: unable to locate PID '$pid'");
-              $return = "Unable to locate PID '$pid'!\n";
-          } 
-          else {
-              my $name = $entry->get_value("cn");
-              my $address = $entry->get_value("postalAddress");
-              $address =~ s/\$/\n/g;
-              my $phone = $entry->get_value("telephoneNumber");
-              my $email = $entry->get_value("mail");
-
-              $return .= "Id : $pid\n";
-              $return .= "Name : $name\n" if ($name =~ /\W/);
-              $return .= "Address : $address\n" if ($address =~ /\W/);
-              $return .= "Phone : $phone\n" if ($phone =~ /\W/);
-              $return .= "Email : $email\n" if ($email =~ /\W/);
-
-              # If you want to alter the database, you can call person_modify here
-              #if ($name =~ /^(.+), (.+)$/) {
-              #     person_modify($pid, (firstname => $2, lastname => $1));
-              #}
-
-          }
-          $ldap->unbind();
-      }
-      else {
-          $return = "Person $pid is not a registered user!\n";
-      }
-
-      return $return;
-  }
-
 =cut
-
 
 use strict;
 use warnings;
+use Net::LDAP;
 
 use pf::person;
+#use pf::Authentication::constants;
+#use pf::Authentication::Action;
+#use pf::Authentication::Condition;
+#use pf::Authentication::Rule;
+#use pf::Authentication::Source;
 
 sub lookup_person {
-    my ($pid) = @_;
-    if ( person_exist($pid) ) {
-        return ($pid);
-    } else {
-        return ("Person $pid is not a registered user!\n");
+    my ($pid,$source_id) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::lookup::person');
+    my $source = pf::authentication::getAuthenticationSource($source_id);
+    
+    my $result = $source->search_attribute($pid,$source_id);
+    my $return = "";
+
+    if (person_exist($pid)) {
+
+        if (!$source) {
+            $logger->info("pfcmd: pidinfo: unable to locate PID '$pid'");
+            $return = "Unable to locate PID '$pid'!\n";
+        } 
+        else {
+            #use Data::Dumper;
+            #$logger->info(Dumper($source));
+            
+            # Get informations from the function search_attribute() based on the pid
+            my $firstname = $result->get_value("givenName");
+            my $lastname = $result->get_value("sn");
+            my $address = $result->get_value("physicalDeliveryOfficeName");
+            my $phone = $result->get_value("telephoneNumber");
+            my $email = $result->get_value("mail");
+            my $mobile = $result->get_value("mobile");
+            my $homephone = $result->get_value("homePhone");
+            my $company = $result->get_value("company");
+            my $title = $result->get_value("title");
+
+            # Display all retrieved informations in the packetfence.log
+            $return .= "The following info was fetched from AD\n";
+            $return .= "Id : $pid\n";
+            $return .= "First name : $firstname\n" if (defined($firstname));
+            $return .= "Last name : $lastname\n" if (defined($lastname));
+            $return .= "Address : $address\n" if (defined($address));
+            $return .= "Work phone : $phone\n" if (defined($phone));
+            $return .= "Email : $email\n" if (defined($email));
+            $return .= "Work phone : $homephone\n" if (defined($homephone));
+            $return .= "Cell phone : $mobile\n" if (defined($mobile));
+            $return .= "Company : $company\n" if (defined($company));
+            $return .= "Title : $title\n" if (defined($title));
+
+            $logger->info($return);
+
+            # prepare to modify person's entry based on info found
+            my %person;
+            $person{'firstname'} = $firstname if (defined($firstname));
+            $person{'lastname'} = $lastname if (defined($lastname));
+            $person{'address'} = $address if (defined($address));
+            $person{'telephone'} = $phone if (defined($phone));
+            $person{'email'} = $email if (defined($email));
+            $person{'work_phone'} = $homephone if (defined($homephone));
+            $person{'cell_phone'} = $mobile if (defined($mobile));
+            $person{'company'} = $company if (defined($company));
+            $person{'title'} = $title if (defined($title));
+            
+            person_modify($pid, %person) if (%person);
+        }
     }
+    else {
+        $return = "Person $pid is not a registered user!\n";
+    }
+    return $return;
 }
 
 =head1 AUTHOR
