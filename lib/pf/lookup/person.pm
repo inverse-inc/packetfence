@@ -20,11 +20,6 @@ use warnings;
 use Net::LDAP;
 
 use pf::person;
-#use pf::Authentication::constants;
-#use pf::Authentication::Action;
-#use pf::Authentication::Condition;
-#use pf::Authentication::Rule;
-#use pf::Authentication::Source;
 
 sub lookup_person {
     my ($pid,$source_id) = @_;
@@ -41,8 +36,6 @@ sub lookup_person {
             $return = "Unable to locate PID '$pid'!\n";
         } 
         else {
-            #use Data::Dumper;
-            #$logger->info(Dumper($source));
             
             # Get informations from the function search_attribute() based on the pid
             my $firstname = $result->get_value("givenName");
