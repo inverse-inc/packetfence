@@ -396,9 +396,9 @@ Moreover, PacketFence can also authenticate users defined in its own internal SQ
 
 Each authentication sources you define will have a set of rules, conditions and actions.
 
-Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging it around). Each source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criterias. If the criterias match (one ore more), action are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
+Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging it around). Each source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criterias. If the criterias match (one or more), action are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
 
-When no condition is defined, the rule will be considered as a fallback. When a fallback is defined, all actions will be applied fory any users that match in the authentication source.
+When no condition is defined, the rule will be considered as a fallback. When a fallback is defined, all actions will be applied for any users that match in the authentication source.
 
 Once a source is defined, it can be used from *Configuration -> Portal Profiles*. Each portal profile has a list of authentication sources to use.
 
@@ -1049,9 +1049,9 @@ Option 5: EAP Guest Authentication on email, sponsor and sms registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The goal here is to be able to use the credential PacketFence created on guest access and use this one on a secure connection.
-First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS) and check Add user on email registration amd/or
+First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS) and check Add user on email registration and/or
 Add user on sponsor registration in Configuration -> Self Registration section.
-At the end of the guest registration, PacketFence will send a an email with the credentials for Email and Sponsor. For SMS use your
+At the end of the guest registration, PacketFence will send an email with the credentials for Email and Sponsor. For SMS use your
 phone number and the PIN code.
 
 Note that this option doesn't currently work with the 'Reuse dot1x credentials' option of the captive portal.
@@ -1181,13 +1181,12 @@ Here are the most important PacketFence log files:
 
 [options="compact"]
 * `/usr/local/pf/logs/packetfence.log` — PacketFence Core Log
-* `/usr/local/pf/logs/portal_access_log` — Apache – Captive Portal Access Log
-* `/usr/local/pf/logs/portal_error_log` — Apache – Captive Portal Error Log
-* `/usr/local/pf/logs/admin_access_log` — Apache – Web Admin/Services Access Log
-* `/usr/local/pf/logs/admin_error_log` — Apache – Web Admin/Services Error Log
-* `/usr/local/pf/logs/admin_debug_log` — Apache – Web Admin Debug Log
-* `/usr/local/pf/logs/webservices_access_log` — Apache – Webservices Access Log
-* `/usr/local/pf/logs/webservices_error_log` — Apache – Webservices Error Log
+* `/usr/local/pf/logs/httpd.portal.access` — Apache – Captive Portal Access Log
+* `/usr/local/pf/logs/httpd.portal.error` — Apache – Captive Portal Error Log
+* `/usr/local/pf/logs/httpd.admin.access` — Apache – Web Admin/Services Access Log
+* `/usr/local/pf/logs/httpd.admin.error` — Apache – Web Admin/Services Error Log
+* `/usr/local/pf/logs/httpd.webservices.access` — Apache – Webservices Access Log
+* `/usr/local/pf/logs/httpd.webservices.error` — Apache – Webservices Error Log
 
 There are other log files in `/usr/local/pf/logs/` that could be relevant depending on what issue you are experiencing. Make sure you take a look at them.
 
@@ -1587,7 +1586,7 @@ PacketFence policy violations are controlled using the `/usr/local/pf/conf/viola
 `isolationVlan`::: Isolation VLAN as specified in `switches.conf`. This is the recommended value for most violation types.
 `registrationVlan`::: Registration VLAN as specified in `switches.conf`.
 `normalVlan`::: Normal VLAN as specified in `switches.conf`. Note: It is preferable not to trap than to trap and put in normal VLAN. Make sure you understand what you are doing.
-`whitelisted_categories`:: Nodes in a category listed in `whitelisted_categories` won't be affected by a violation of this type. Format is a comma separated list of category names.
+`whitelisted_categories`::: Nodes in a category listed in `whitelisted_categories` won't be affected by a violation of this type. Format is a comma separated list of category names.
 
 Also included in `violations.conf` is the defaults section. The defaults section will set a default value for every violation in the configuration. If a configuration value is not specified in the specific ID, the default will be used:
 
@@ -2131,6 +2130,8 @@ Billing engine parameters are specified in `conf/pf.conf` or from *Configuration
 It is also possible to configure multiple network access with different prices.
 For example, you may want to provide basic Internet access with a decent speed at a specific price and another package with high speed connection at another price.
 
+CAUTION: The use of different billing tiers requires different roles in PacketFence. Make sure to create these roles first otherwise you will run into problems.
+
 To do so, some customizations is needed to the billing module. You'll need to redefined the `getAvailableTiers` method in the `lib/pf/billing/custom.pm` file. An example is already in place in the file.
 
 To assign a role by tiers (example: slow, medium and fast), edit the file `lib/pf/billing/custom.pm`
@@ -2162,8 +2163,6 @@ To assign a role by tiers (example: slow, medium and fast), edit the file `lib/p
 *description will* appear on the billing.html.
 
 *destination_url* is the url that the device will be redirected after a successful authentication.
-
-CAUTION: The use of different billing tiers requires different roles in PacketFence. Make sure to create these roles first otherwise you will run into problems.
 
 Portal Profiles
 ~~~~~~~~~~~~~~~
