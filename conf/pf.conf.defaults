@@ -860,6 +860,16 @@ aaa_port=7070
 # iplog cleanup interval
 iplog_cleanup_interval=60s
 #
+# maintenance.iplog_cleanup_batch
+#
+# iplog cleanup batch
+iplog_cleanup_batch=1000
+#
+# maintenance.iplog_cleanup_timeout
+#
+# iplog cleanup timeout
+iplog_cleanup_timeout=10s
+#
 # maintenance.node_cleanup_interval
 #
 # locationlog cleanup interval
