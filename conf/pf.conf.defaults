@@ -875,6 +875,16 @@ iplog_cleanup_timeout=10s
 # locationlog cleanup interval
 locationlog_cleanup_interval=60s
 #
+# maintenance.locationlog_cleanup_batch
+#
+# locationlog cleanup batch
+locationlog_cleanup_batch=100
+#
+# maintenance.locationlog_cleanup_timeout
+#
+# locationlog cleanup timeout
+locationlog_cleanup_timeout=10s
+#
 # maintenance.node_cleanup_interval
 #
 # node cleanup interval
