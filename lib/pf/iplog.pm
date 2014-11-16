@@ -247,13 +247,18 @@ sub iplog_cleanup {
     $logger->debug("calling iplog_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
     my $now = db_now();
     my $start_time = time;
+    my $end_time;
+    my $rows_deleted = 0;
     while (1) {
         my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_cleanup_sql', $now, $expire_seconds, $batch) || return (0);
         my $rows = $query->rows;
-        $logger->info( "deleted $rows entries from iplog during iplog cleanup");
         $query->finish;
-        last if $rows == 0 || (( time - $start_time) < $time_limit );
+        $end_time = time;
+        $rows_deleted+=$rows if $rows > 0;
+        $logger->trace( sub { "deleted $rows_deleted entries from iplog during iplog cleanup ($start_time $end_time) " });
+        last if $rows == 0 || (( $end_time - $start_time) > $time_limit );
     }
+    $logger->info( "deleted $rows_deleted entries from iplog during iplog cleanup ($start_time $end_time) ");
     return (0);
 }
 
