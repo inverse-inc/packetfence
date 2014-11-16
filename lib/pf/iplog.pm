@@ -117,7 +117,7 @@ sub iplog_db_prepare {
         qq [ update iplog set end_time=now() where ip=? and (end_time=0 or end_time > now())]);
 
     $iplog_statements->{'iplog_cleanup_sql'} = get_db_handle()->prepare(
-        qq [ delete from iplog where end_time < DATE_SUB(NOW(), INTERVAL ? SECOND) and end_time != 0]);
+        qq [ delete from iplog where end_time < DATE_SUB(?, INTERVAL ? SECOND) and end_time != 0 LIMIT ?]);
 
     $iplog_statements->{'iplog_close_mac_sql'} = get_db_handle()->prepare(
         qq [ update iplog set end_time=now() where mac=? and (end_time=0 or end_time > now()) ]);
@@ -242,13 +242,18 @@ sub iplog_close_now {
 }
 
 sub iplog_cleanup {
-    my ($time) = @_;
+    my ($expire_seconds, $batch, $time_limit) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iplog');
-
-    $logger->debug("calling iplog_cleanup with time=$time");
-    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_cleanup_sql', $time) || return (0);
-    my $rows = $query->rows;
-    $logger->log((($rows > 0) ? $INFO : $DEBUG), "deleted $rows entries from iplog during iplog cleanup");
+    $logger->debug("calling iplog_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
+    my $now = db_now();
+    my $start_time = time;
+    while (1) {
+        my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_cleanup_sql', $now, $expire_seconds, $batch) || return (0);
+        my $rows = $query->rows;
+        $logger->info( "deleted $rows entries from iplog during iplog cleanup");
+        $query->finish;
+        last if $rows == 0 || (( time - $start_time) < $time_limit );
+    }
     return (0);
 }
 
