@@ -35,6 +35,8 @@ Enhancements
 * Refactor the vlan filter code to reduce code duplication
 * Added IMG path configuration parameter in admin
 * The ability to restricts the roles, access levels and access durations for an admin users based on their admin role/access level
+* Reduce deadlocks caused by the cleaning of the iplog table
+* Reduce deadlocks caused by the cleaning of the locationlog table
 
 Bug Fixes
 +++++++++
