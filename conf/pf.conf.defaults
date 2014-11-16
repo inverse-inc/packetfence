@@ -863,7 +863,7 @@ iplog_cleanup_interval=60s
 # maintenance.iplog_cleanup_batch
 #
 # iplog cleanup batch
-iplog_cleanup_batch=1000
+iplog_cleanup_batch=100
 #
 # maintenance.iplog_cleanup_timeout
 #
