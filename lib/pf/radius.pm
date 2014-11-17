@@ -150,7 +150,7 @@ sub authorize {
         $connection_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request)) {
 
         # automatic registration
-        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_id}, $port,
+        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch, $port,
             $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid, $eap_type, $radius_request);
 
         $logger->debug("[$mac] auto-registering node");
