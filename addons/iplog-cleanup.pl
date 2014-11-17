@@ -39,7 +39,9 @@ GetOptions(\%options,"expire=s","batch=s","timeout=s","help|h") || pod2usage(2);
 
 pod2usage(1) if $options{help};
 
-iplog_cleanup(@options{qw(expire batch timeout)}) if $options{expire};
+pod2usage(-msg  => "Expire must be greater than 0", -exitval => 2, -verbose => 0) unless $options{expire};
+
+iplog_cleanup(@options{qw(expire batch timeout)});
 
 =head1 AUTHOR
 
