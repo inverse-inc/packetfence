@@ -431,7 +431,7 @@ sub authenticationLogin : Private {
         if ( defined($return) && $return == 1 ) {
             # save login into session
             $c->session(
-                "username"  => $request->param("username"),
+                "username"  => $username,
                 "source_id" => $source_id,
                 "source_match" => $source_id,
             );
