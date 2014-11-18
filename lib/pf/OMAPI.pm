@@ -469,7 +469,7 @@ Packs the pack_hardware_address from a string
 
 sub pack_hardware_address {
     my ($self,$value) = @_;
-    return pack("C6",split(':',$value));
+    return pack("C6", map { hex } split(':',$value));
 }
 
 =head2 unpack_ip_address
