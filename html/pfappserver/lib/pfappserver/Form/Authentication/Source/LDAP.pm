@@ -93,6 +93,17 @@ has_field 'password' =>
    password => 0,
   );
 
+has_field 'cache_match',
+  (
+   type => 'Toggle',
+   label => 'Cache match',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   default => 0,
+   tags => { after_element => \&help,
+             help => 'Will cache results of matching a rule' },
+  );
+
 =head2 validate
 
 Make sure a password is specified when a bind DN is specified.
