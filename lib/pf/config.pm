@@ -49,7 +49,7 @@ our (
     @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @external_nets,
     @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
 #pf.conf.default variables
-    %Default_Config, $cached_pf_default_config,
+    %Default_Config,
 #pf.conf variables
     %Config, $cached_pf_config,
 #network.conf variables
@@ -116,7 +116,7 @@ BEGIN {
         @Profile_Filters %Profiles_Config $cached_profiles_config
         $cached_pf_config $cached_network_config $cached_floating_device_config
         %ConfigFirewallSSO $cached_firewall_sso
-        $cached_pf_default_config $cached_pf_doc_config @stored_config_files
+        $cached_pf_doc_config @stored_config_files
         $OS
         %Doc_Config
     );
@@ -497,33 +497,32 @@ sub readPfDocConfigFiles {
 sub readPfConfigFiles {
 
     # load default and override by local config (most common case)
-    $cached_pf_default_config = pf::config::cached->new(
-                -file => $default_config_file,
-                -onfilereload => [
-                    onfile_pf_defaults_reload => sub {
-                        my ( $config, $name ) = @_;
-                        $config->toHash(\%Default_Config);
-                        $config->cleanupWhitespace(\%Default_Config);
-                        $config->cacheForData->set( "Default_Config", \%Default_Config );
-                    },
-                ],
-                -oncachereload => [
-                    oncache_pf_defaults_reload => sub {
-                        my ( $config, $name ) = @_;
-                        my $data = $config->fromCacheForDataUntainted("Default_Config");
-                        if($data) {
-                            %Default_Config = %$data;
-                        } else {
-                            $config->_callFileReloadCallbacks();
-                        }
-                    },
-                ],
-    );
 
     if ( -e $default_config_file || -e $config_file ) {
         $cached_pf_config = pf::config::cached->new(
             -file   => $config_file,
-            -import => $cached_pf_default_config,
+            -import => pf::config::cached->new(
+                        -file => $default_config_file,
+                        -onfilereload => [
+                            onfile_pf_defaults_reload => sub {
+                                my ( $config, $name ) = @_;
+                                $config->toHash(\%Default_Config);
+                                $config->cleanupWhitespace(\%Default_Config);
+                                $config->cacheForData->set( "Default_Config", \%Default_Config );
+                            },
+                        ],
+                        -oncachereload => [
+                            oncache_pf_defaults_reload => sub {
+                                my ( $config, $name ) = @_;
+                                my $data = $config->fromCacheForDataUntainted("Default_Config");
+                                if($data) {
+                                    %Default_Config = %$data;
+                                } else {
+                                    $config->_callFileReloadCallbacks();
+                                }
+                            },
+                        ],
+            ),
             -allowempty => 1,
             -onfilereload => [
                 onfile_pf_reload => sub {
@@ -546,6 +545,7 @@ sub readPfConfigFiles {
             ],
             -onpostreload => [ 'reload_pf_config' =>  sub {
                 my ($config) = @_;
+                $config->{imported}->ReadConfig();
                 #clearing older interfaces infor
                 $monitor_int = $management_network = '';
                 @listen_ints = @dhcplistener_ints = @ha_ints =
