@@ -59,6 +59,9 @@ sub test {
                 if (eval $test) {
                     $logger->info("Match Vlan rule: ".$rule." for ".$mac);
                     my $role = $ConfigVlanFilters{$rule}->{'role'};
+                    if ( $ConfigVlanFilters{$rule}->{'action'} ) {
+                        $self->dispatch_actions($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request)
+                    }
                     #TODO Add action that can be sent to the WebAPI
                     my $vlan = $switch->getVlanByName($role);
                     return ($vlan, $role);
@@ -81,6 +84,13 @@ our %RULE_PARSERS = (
     radius_request => \&radius_parser,
 );
 
+our %ACTION_PARSERS = (
+    deregister_node => \&deregister_node,
+    register_node => \&register_node,
+    modify_node => \&modify_node,
+    trigger_violation => \&trigger_violation,
+);
+
 =item dispatch_rules
 
 Return the reference to the function that parses the rule.
@@ -97,6 +107,20 @@ sub dispatch_rule {
 
     return $RULE_PARSERS{$rule->{'filter'}}->($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
 }
+
+=item dispatch_actions
+
+Return the reference to the function that call the api.
+
+=cut
+
+sub dispatch_actions {
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    return $ACTION_PARSERS{$rule->{'action'}}->($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+}
+
 
 our %RULE_OPS = (
     is => sub { $_[0] eq $_[1] ? 1 : 0  },

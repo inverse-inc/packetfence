@@ -388,6 +388,23 @@ sub register_node : Public {
 
 =head2
 
+deregister_node
+Deregister a node
+
+=cut
+
+sub deregister_node {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
+    pf::node::node_deregister($postdata{'mac'}, %postdata);
+    return;
+}
+
+=head2
+
 node_information
 Return all the node attributes
 
