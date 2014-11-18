@@ -32,7 +32,10 @@ sub i18n {
 sub ni18n {
     my ( $self, $c, $singular, $plural, $category ) = @_;
 
-    return ngettext( $singular, $plural, $category );
+    my $msg = ngettext( $singular, $plural, $category );
+    utf8::decode($msg);
+
+    return $msg;
 }
 
 =head2 i18n_format
@@ -45,7 +48,9 @@ Meant to be called from the TT templates.
 
 sub i18n_format {
     my ( $self, $c, $msgid, @args ) = @_;
-    return sprintf( gettext($msgid), @args );
+    my $msg = sprintf( gettext($msgid), @args );
+    utf8::decode($msg);
+    return $msg;
 }
 
 =head1 NAME
