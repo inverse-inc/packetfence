@@ -418,6 +418,7 @@ sub send_email {
 
     my %options; 
     $options{INCLUDE_PATH} = "$conf_dir/templates/";
+    $options{ENCODING} = "utf8";
 
     my $import_succesfull = try { require MIME::Lite::TT; };
     if (!$import_succesfull) {
@@ -433,6 +434,7 @@ sub send_email {
         Cc          =>  $info{'cc'},
         Subject     =>  $info{'subject'},
         Template    =>  "emails-$template.txt.tt",
+        'Content-Type' => 'text/plain; charset="utf-8"',
         TmplOptions =>  \%options, 
         TmplParams  =>  \%info, 
     ); 
