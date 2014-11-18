@@ -11,6 +11,7 @@ pf::Authentication::Source::LDAPSource
 use pf::config qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::Authentication::Condition;
+use pf::CHI;
 
 use Net::LDAP;
 use Net::LDAPS;
@@ -166,6 +167,28 @@ sub _connect {
     $logger->error("[$self->{'id'}] Unable to connect to any LDAP server");
   }
   return undef;
+}
+
+
+=head2 match
+
+    Overrided to add caching to avoid a hit to the database
+
+=cut
+
+sub match {
+    my ($self, $params) = @_;
+    return $self->cache->compute([$self->id, $params], sub { return $self->SUPER::match($params)});
+}
+
+=head2 cache
+
+    get the cache object
+
+=cut
+
+sub cache {
+    return pf::CHI->new( namespace => 'ldap_auth');
 }
 
 
