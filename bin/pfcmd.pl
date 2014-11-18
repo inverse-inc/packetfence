@@ -2467,6 +2467,7 @@ sub configreload {
     require pf::ConfigStore::Wrix;
     require pf::web::filter;
     require pf::vlan::filter;
+    pf::config::cached::UpdateControlConfigs($force);
     pf::config::cached::ReloadConfigs($force);
     return 0;
 }
