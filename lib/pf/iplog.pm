@@ -56,6 +56,7 @@ use pf::config;
 use pf::db;
 use pf::node qw(node_add_simple node_exist);
 use pf::util;
+use pf::CHI;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $iplog_db_prepared = 0;
@@ -341,6 +342,15 @@ sub ip2mac {
     }
 }
 
+
+=head2 iplogCache
+
+Get the iplog cache
+
+=cut
+
+sub iplogCache { pf::CHI->new(namespace => 'iplog') }
+
 sub ip2macinarp {
     my ($ip) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iplog');
@@ -366,13 +376,20 @@ Look for the mac in the dhcpd lease entry using omapi
 
 sub ip2macomapi {
     my ($ip) = @_;
-    my $omapi = _get_omapi_client();
-    return unless $omapi;
-    eval {
-        my $data = $omapi->lookup({type => 'lease'}, {'ip-address' => $ip});
-        return $data->{'obj'}{'hardware-address'} if $data->{op} == 3;
-    };
-    return;
+    my $data = _lookup_cached_omapi('ip-address' => $ip);
+    return $data->{'obj'}{'hardware-address'} if defined $data;
+}
+
+=head2 mac2ipomapi
+
+Look for the ip in the dhcpd lease entry using omapi
+
+=cut
+
+sub mac2ipomapi {
+    my ($mac) = @_;
+    my $data = _lookup_cached_omapi('hardware-address' => $mac);
+    return $data->{'obj'}{'ip-address'} if defined $data;
 }
 
 =head2 _get_omapi_client
@@ -417,22 +434,59 @@ sub mac2ip {
 }
 
 
-=head2 mac2ipomapi
+=head2 _lookup_cached_omapi
 
-Look for the ip of a mac using omapi
+Will retrieve the lease from the cache or from the dhcpd server using omapi
 
 =cut
 
-sub mac2ipomapi {
-    my ($ip) = @_;
+sub _lookup_cached_omapi {
+    my ($type, $id) = @_;
+    my $cache = iplogCache();
+    return $cache->compute(
+        $id,
+        {expire_if => \&_expire_lease},
+        sub {
+            my $data = get_lease_from_omapi($type, $id);
+            return unless $data->{op} == 3;
+            return $data;
+        }
+    );
+}
+
+=head2 _get_lease_from_omapi
+
+Get the lease information using omapi
+
+=cut
+
+sub _get_lease_from_omapi {
+    my ($type,$id) = @_;
     my $omapi = _get_omapi_client();
     return unless $omapi;
+    my $data;
     eval {
-        my $data = $omapi->lookup({type => 'lease'}, {'hardware-address' => $ip});
-        return $data->{'obj'}{'ip-address'} if $data->{op} == 3;
+        $data = $omapi->lookup({type => 'lease'}, { $type => $id});
     };
-    return;
+    if($@) {
+        get_logger->error("$@");
+    }
+    return $data;
 }
+
+=head2 _expire_lease
+
+Check if the lease has expired
+
+=cut
+
+sub _expire_lease {
+    my ($cache_object) = @_;
+    my $lease = $cache_object->value;
+    return 1 unless defined $lease && defined $lease->{obj}->{ends};
+    return $lease->{obj}->{ends} < time();
+}
+
 
 sub mac2allips {
     my ($mac) = @_;
