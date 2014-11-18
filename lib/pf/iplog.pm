@@ -57,6 +57,7 @@ use pf::db;
 use pf::node qw(node_add_simple node_exist);
 use pf::util;
 use pf::CHI;
+use pf::OMAPI;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $iplog_db_prepared = 0;
@@ -447,8 +448,8 @@ sub _lookup_cached_omapi {
         $id,
         {expire_if => \&_expire_lease},
         sub {
-            my $data = get_lease_from_omapi($type, $id);
-            return unless $data->{op} == 3;
+            my $data = _get_lease_from_omapi($type, $id);
+            return undef unless $data && $data->{op} == 3;
             return $data;
         }
     );
