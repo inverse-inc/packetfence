@@ -28,6 +28,7 @@ New Features
 * Added a way to retrieve user information after the first registration.
 * Added the ability to filter profiles by connection type
 * Profiles can be matched by all or any of its filters
+* Can optionally cache the results of ldap rule matching for a user
 
 Enhancements
 ++++++++++++
