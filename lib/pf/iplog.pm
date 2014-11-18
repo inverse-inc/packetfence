@@ -27,6 +27,7 @@ use Log::Log4perl;
 use Log::Log4perl::Level;
 use IO::Interface::Simple;
 use Net::ARP;
+use Time::Local;
 
 use constant IPLOG => 'iplog';
 
@@ -485,7 +486,7 @@ sub _expire_lease {
     my ($cache_object) = @_;
     my $lease = $cache_object->value;
     return 1 unless defined $lease && defined $lease->{obj}->{ends};
-    return $lease->{obj}->{ends} < time();
+    return $lease->{obj}->{ends} < timegm( localtime()  );
 }
 
 
