@@ -205,6 +205,16 @@ sub match_condition {
   return $r;
 }
 
+=head2 search_attributes
+
+=cut
+
+sub search_attributes {
+    logger->debug("Search_attributes is not supported on this source.");
+
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

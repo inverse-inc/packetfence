@@ -25,63 +25,32 @@ sub lookup_person {
     my ($pid,$source_id) = @_;
     my $logger = Log::Log4perl::get_logger('pf::lookup::person');
     my $source = pf::authentication::getAuthenticationSource($source_id);
+    if (!$source) {
+       $logger->info("Unable to locate PID '$pid'");
+       return "Unable to locate PID '$pid'!\n";
+    } 
     
-    my $result = $source->search_attribute($pid,$source_id);
-    my $return = "";
-
-    if (person_exist($pid)) {
-
-        if (!$source) {
-            $logger->info("pfcmd: pidinfo: unable to locate PID '$pid'");
-            $return = "Unable to locate PID '$pid'!\n";
-        } 
-        else {
-            
-            # Get informations from the function search_attribute() based on the pid
-            my $firstname = $result->get_value("givenName");
-            my $lastname = $result->get_value("sn");
-            my $address = $result->get_value("physicalDeliveryOfficeName");
-            my $phone = $result->get_value("telephoneNumber");
-            my $email = $result->get_value("mail");
-            my $mobile = $result->get_value("mobile");
-            my $homephone = $result->get_value("homePhone");
-            my $company = $result->get_value("company");
-            my $title = $result->get_value("title");
-
-            # Display all retrieved informations in the packetfence.log
-            $return .= "The following info was fetched from AD\n";
-            $return .= "Id : $pid\n";
-            $return .= "First name : $firstname\n" if (defined($firstname));
-            $return .= "Last name : $lastname\n" if (defined($lastname));
-            $return .= "Address : $address\n" if (defined($address));
-            $return .= "Work phone : $phone\n" if (defined($phone));
-            $return .= "Email : $email\n" if (defined($email));
-            $return .= "Work phone : $homephone\n" if (defined($homephone));
-            $return .= "Cell phone : $mobile\n" if (defined($mobile));
-            $return .= "Company : $company\n" if (defined($company));
-            $return .= "Title : $title\n" if (defined($title));
-
-            $logger->info($return);
-
-            # prepare to modify person's entry based on info found
-            my %person;
-            $person{'firstname'} = $firstname if (defined($firstname));
-            $person{'lastname'} = $lastname if (defined($lastname));
-            $person{'address'} = $address if (defined($address));
-            $person{'telephone'} = $phone if (defined($phone));
-            $person{'email'} = $email if (defined($email));
-            $person{'work_phone'} = $homephone if (defined($homephone));
-            $person{'cell_phone'} = $mobile if (defined($mobile));
-            $person{'company'} = $company if (defined($company));
-            $person{'title'} = $title if (defined($title));
-            
-            person_modify($pid, %person) if (%person);
-        }
+    unless (person_exist($pid)) {
+        return "Person $pid is not a registered user!\n";
     }
-    else {
-        $return = "Person $pid is not a registered user!\n";
-    }
-    return $return;
+    my $result = $source->search_attributes($pid);
+    if (!$result) {
+       $logger->info("Unable to locate PID in LDAP '$pid'");
+       return "Unable to locate PID in LDAP '$pid'!\n";
+    } 
+    # prepare to modify person's entry based on info found
+    my %person;
+    $person{'firstname'} = $result->get_value("givenName") if (defined($result->get_value("givenName")));
+    $person{'lastname'} = $result->get_value("sn") if (defined($result->get_value("sn")));
+    $person{'address'} = $result->get_value("physicalDeliveryOfficeName") if (defined($result->get_value("physicalDeliveryOfficeName")));
+    $person{'telephone'} = $result->get_value("telephoneNumber") if (defined($result->get_value("telephoneNumber")));
+    $person{'email'} = $result->get_value("mail") if (defined($result->get_value("mail")));
+    $person{'work_phone'} = $result->get_value("homePhone") if (defined($result->get_value("homePhone")));
+    $person{'cell_phone'} = $result->get_value("mobile") if (defined($result->get_value("mobile")));
+    $person{'company'} = $result->get_value("company") if (defined($result->get_value("company")));
+    $person{'title'} = $result->get_value("title") if (defined($result->get_value("title")));
+    
+    person_modify($pid, %person) if (%person);
 }
 
 =head1 AUTHOR
