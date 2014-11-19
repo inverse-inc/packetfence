@@ -1,7 +1,7 @@
 package pf::WebAPI::JSONRPC;
 =head1 NAME
 
-pf::WebAPI::JSONRPC add documentation
+pf::WebAPI::JSONRPC - jsonrpc apache handler
 
 =cut
 
@@ -22,6 +22,9 @@ use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEME
 use List::MoreUtils qw(any);
 use base qw(Class::Accessor);
 __PACKAGE__->mk_accessors(qw(dispatch_to));
+
+our $JSONRPC_ERROR_CODE_NOT_FOUND     = -32601;
+our $JSONRPC_ERROR_CODE_GENERIC_ERROR = -32000;
 
 our %ALLOW_CONTENT_TYPE = (
     'application/json-rpc' => undef,
@@ -61,12 +64,12 @@ sub handler {
             @args = ($params);
         }
     }
-    unless ($method_sub = $dispatch_to->can($method)) {
+    unless ($method_sub = $dispatch_to->isPublic($method)) {
         $r->print(
             encode_json({
                 (defined $jsonrpc ? (jsonrpc => $jsonrpc) : ()),
                 (defined $id      ? (id      => $id)      : ()),
-                error => {code => -32601, message => "Method not found"},
+                error => {code => $JSONRPC_ERROR_CODE_NOT_FOUND, message => "Method not found"},
             })
         );
         $status_code = Apache2::Const::HTTP_NOT_FOUND;
@@ -83,7 +86,7 @@ sub handler {
             $response_content = encode_json({
                 (defined $jsonrpc ? (jsonrpc => $jsonrpc) : ()),
                 id => $id,
-                error => {code => -32000, message => "$@"},
+                error => {code => $JSONRPC_ERROR_CODE_GENERIC_ERROR, message => "$@"},
             });
             $logger->error($@);
             $status_code = Apache2::Const::HTTP_INTERNAL_SERVER_ERROR;
