@@ -51,7 +51,7 @@ Go to *Configuration -> Firewall SSO -> Add Firewall -> FortiGate*.
 * *Port*: 1813
 * *Roles*: add the roles that you want to do SSO
 
-image::docs/images/doc-fortigate-SSO_Role.png[scaledwidth="100%",alt="Configure the FortiGate SSO in PacketFence"]
+image::docs/images/doc-fortigate-cfg_SSO_pf.png[scaledwidth="100%",alt="Configure the FortiGate SSO in PacketFence"]
 
 Step 4: Verification
 ~~~~~~~~~~~~~~~~~~~~
