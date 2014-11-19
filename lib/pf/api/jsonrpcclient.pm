@@ -27,6 +27,7 @@ use pf::log;
 use WWW::Curl::Easy;
 use JSON::XS;
 use Moo;
+use HTTP::Status qw(:constants);
 
 =head1 Attributes
 
@@ -148,7 +149,7 @@ sub notify {
     # Looking at the results...
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-        if($response_code != 204) {
+        if($response_code != HTTP_NO_CONTENT) {
             get_logger->error( "An error occured while processing the JSONRPC request return code ($response_code)");
         }
     } else {
