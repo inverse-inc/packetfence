@@ -38,6 +38,7 @@ sub generateConfig {
     my %tags;
     my %direct_subnets;
     $tags{'template'} = "$conf_dir/dhcpd.conf";
+    $tags{'omapi'} = omapi_section();
     $tags{'networks'} = '';
 
     foreach my $interface ( @listen_ints ) {
@@ -85,6 +86,31 @@ EOT
 
     parse_template( \%tags, "$conf_dir/dhcpd.conf", "$generated_conf_dir/dhcpd.conf" );
     return 1;
+}
+
+
+=head2 omapi_section
+
+Generate the omapi section if it is defined
+
+=cut
+
+sub omapi_section {
+    return '' if isdisabled($Config{advanced}{use_omapi_to_lookup_mac});
+    my $section = "omapi-port $Config{advanced}{omapi_port};\n";
+    my $keyname = $Config{advanced}{omapi_key_name};
+    my $key_base64 = $Config{advanced}{omapi_key_base64};
+    if ( $keyname && $key_base64 ) {
+        $section .=<<EOT;
+key $keyname {
+        algorithm HMAC-MD5;
+        secret "$key_base64";
+};
+omapi-key $keyname;
+EOT
+    }
+
+    return $section;
 }
 
 =head2 assign_defaults
