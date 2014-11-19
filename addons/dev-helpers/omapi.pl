@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+
 =head1 NAME
 
 omapi - test script for checking omapi connections
@@ -22,23 +23,23 @@ my %options = (
     port => 7911
 );
 
-GetOptions (\%options,
-    "port=i", "host=s", "keyname=s", "key_base64=s","ip=s","mac=s"
-)  || die "Invalid parameter passed";
+GetOptions(\%options, "port=i", "host=s", "keyname=s", "key_base64=s", "ip=s", "mac=s")
+  || die "Invalid parameter passed";
 
-die "not keyname, key_base64 not provided or mac or ip" unless defined $options{keyname} && defined $options{key_base64} && (defined $options{ip} || defined $options{mac} );
+die " keyname, key_base64 not provided or mac or ip"
+  unless defined $options{keyname} && defined $options{key_base64} && (defined $options{ip} || defined $options{mac});
 
-my $ip = delete $options{ip};
+my $ip  = delete $options{ip};
 my $mac = delete $options{mac};
 
-my $omapi = pf::OMAPI->new (\%options);
+my $omapi = pf::OMAPI->new(\%options);
 my $data;
 
-if( defined $ip) {
-    $data = $omapi->lookup({type => 'lease'}, { 'ip-address' => $ip });
+if (defined $ip) {
+    $data = $omapi->lookup({type => 'lease'}, {'ip-address' => $ip});
 }
-if($mac) {
-    $data = $omapi->lookup({type => 'lease'}, { 'hardware-address' => $mac });
+if (defined $mac) {
+    $data = $omapi->lookup({type => 'lease'}, {'hardware-address' => $mac});
 }
 
 use Data::Dumper;
