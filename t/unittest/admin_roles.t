@@ -17,7 +17,7 @@ BEGIN {
     use PfFilePaths;
 }
 
-use Test::More tests => 5;                      # last test to print
+use Test::More tests => 7;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -29,6 +29,17 @@ ok(!admin_can(["User Manager"],'NODES_READ'),"User Manager cannot read a node");
 
 ok(admin_can(["ALL"],'USERS_CREATE'),"ALL can create a user");
 
+is_deeply(
+    [admin_allowed_options(["User Manager"], 'allowed_access_levels')],
+    ['User Manager', 'Node Manager', 'NONE'],
+    "User Manager allowed options for access levels"
+);
+
+is_deeply(
+    [admin_allowed_options(['User Manager',"Alt User Manager"], 'allowed_access_levels')],
+    ['User Manager', 'Node Manager', 'NONE','Violation Manager'],
+    "Alt User Manager and User Manager allowed options for access levels"
+);
  
 =head1 AUTHOR
 
