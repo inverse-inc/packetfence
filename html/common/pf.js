@@ -97,7 +97,7 @@ function performRedirect(destination_url) {
 
 Date.now = Date.now || function() { return +new Date; };
 
-function detectNetworkAccess(retry_delay, destination_url, external_ip, gif_path) {
+function detectNetworkAccess(retry_delay, destination_url, external_ip, image_path) {
     "use strict";
     var errorDetected, loaded, netdetect, checker, initNetDetect;
 
@@ -113,7 +113,7 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip, gif_path
     initNetDetect = function() {
         errorDetected = loaded = undefined;
         var netdetect = $('netdetect');
-        netdetect.src = "http://" + external_ip + gif_path + Date.now();
+        netdetect.src = "http://" + external_ip + image_path + "?r=" + Date.now();
         checker.delay(retry_delay);
     };
     checker = function() {
