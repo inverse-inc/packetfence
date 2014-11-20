@@ -59,13 +59,16 @@ sub test {
                 $test =~ s/\&/ \&\& /g;
                 if (eval $test) {
                     $logger->info("Match Vlan rule: ".$rule." for ".$mac);
-                    my $role = $ConfigVlanFilters{$rule}->{'role'};
-                    if ( $ConfigVlanFilters{$rule}->{'action'} ) {
+                    if ( defined($ConfigVlanFilters{$rule}->{'action'}) && $ConfigVlanFilters{$rule}->{'action'} ne '' ) {
                         $self->dispatch_actions($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request)
                     }
-                    #TODO Add action that can be sent to the WebAPI
-                    my $vlan = $switch->getVlanByName($role);
-                    return ($vlan, $role);
+                    if ( defined($ConfigVlanFilters{$rule}->{'role'}) && $ConfigVlanFilters{$rule}->{'role'} ne '' ) {
+                        my $role = $ConfigVlanFilters{$rule}->{'role'};
+                        my $vlan = $switch->getVlanByName($role);
+                        return ($vlan, $role);
+                    } else {
+                        return (0,0);
+                    }
                 }
             }
         }
