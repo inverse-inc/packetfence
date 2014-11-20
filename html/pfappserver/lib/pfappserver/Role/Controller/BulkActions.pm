@@ -91,7 +91,7 @@ sub bulk_apply_role : Local : Args(1) {
     my $request = $c->request;
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
-        ($status, $status_msg) = $self->getModel($c)->bulkApplyRole(@ids);
+        ($status, $status_msg) = $self->getModel($c)->bulkApplyRole($role,@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -112,7 +112,7 @@ sub bulk_apply_violation : Local : Args(1) {
     my $request = $c->request;
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
-        ($status, $status_msg) = $self->getModel($c)->bulkApplyViolation(@ids);
+        ($status, $status_msg) = $self->getModel($c)->bulkApplyViolation($violation,@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
