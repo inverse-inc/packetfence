@@ -16,13 +16,15 @@ Version x.x.x released on xxxx-xx-xx
 
 New Features
 ++++++++++++
+
 * Added support for MAC authentication floating devices on Juniper EX series, and on the Cisco Catalyst series
 * Added a hybrid 802.1x + web authentication mode for Cisco Catalyst 2960
-* Added a web notification when network access is granted.
-* Add the ability to tag functions that are allowed to be exposed through the web api
+* Added a web notification when network access is granted
+* Add the ability to tag functions that are allowed to be exposed through the web API
 
 Enhancements
 ++++++++++++
+
 * Added httpd.aaa service as a new API service for the exclusive use of RADIUS
 * More precisely define which dhcp message types we are listening for
 * Removed dead code referring to 'external' interface type which was, anyway, no longer supported
@@ -31,17 +33,40 @@ Enhancements
 
 Bug Fixes
 +++++++++
+
 * Fix old MAC addresses being left on port-security enabled ports in a RADIUS + port-security environment
 * Fix firewall rule that allows httpd.portal to be reached on management IP when pre-registration enabled
 * Fix creating a new file from the Portal Profile GUI in a subdirectory
 * Improved log rotation handling
-* Fix previewing templates in the admin gui
+* Fix previewing templates in the admin GUI
+
+Version 4.5.1 released on 2014-11-10
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Added compliance enforcement to OPSWAT GEARS provisioner
+
+Enhancements
+++++++++++++
+
+* Make Cisco web authentication sessions use less memory
+* Internationalized the provisioners templates
+
+Bug Fixes
++++++++++
+
+* Fix node pagination when sorting
+* Fix provisioners that were not enforced on external authentication sources
+* Fix IBM and Symantec provisioners configuration form
 
 Version 4.5.0 released on 2014-10-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
+
 * Added provisioning support for Symantec SEPM, MobileIron and OPSWAT
 * Barracuda Networks firewall integration for Single Sign-On
 * pfmon can now run tasks on different intervals
@@ -53,6 +78,7 @@ New Features
 
 Enhancements
 ++++++++++++
+
 * Cache the ipset rule update to avoid unnecessary calls to ipset
 * Dynamically load violations and nodes for a user for display in admin gui
 * Dynamically load violations for a node for display in admin gui
@@ -60,8 +86,9 @@ Enhancements
 
 Bug Fixes
 +++++++++
+
 * Fix issue with userMiscellaneous and userCustomFields not showing if user does not have NODES_READ privilege
-* Fix MAC detection from IP on the Catalyst portal when using web authentication on the WLC controller.
+* Fix MAC detection from IP on the Catalyst portal when using web authentication on the WLC controller
 * Fix timestamp resolution not catching sub second changes in file in cache layer
 * Fixed handling of expiration time on the captive portal's status page
 * Fixed viewing node pagination sorted
