@@ -303,7 +303,7 @@ our @ON_DESTROY_REFS = (
 
 our %CONFIG_DATA;
 
-Readonly::Scalar our $WRITE_PERMISSIONS => '0664';
+Readonly::Scalar our $WRITE_PERMISSIONS => 0664;
 
 =head1 METHODS
 
@@ -392,7 +392,6 @@ sub RewriteConfig {
         die "Config $file was modified from last loading\n";
     }
     my $result;
-    umask 2;
     my $lock = lockFileForWriting($file);
     #lock will release when out of scope
     if ( exists $self->{imported} && defined $self->{imported}) {
@@ -612,6 +611,8 @@ sub _makeLocker {
     my $lockfile = _makeFileLock($file);
     umask 2;
     open(my $fh,"+>>",$lockfile);
+    my (undef,undef,$uid,$gid) = getpwnam('pf');
+    chown($uid,$gid,$lockfile);
     return pf::FileLocker->new( fh => $fh);
 }
 
@@ -1139,11 +1140,13 @@ sub clearAllConfigs {
 
 sub _ExpireFile {
     my ($self,$file) = @_;
-    sysopen(my $fh,$file,O_RDWR | O_CREAT);
+    my $old_mask = umask(0);
+    sysopen(my $fh,$file,O_RDWR | O_CREAT, 0660);
     POSIX::2008::futimens(fileno $fh);
     close($fh);
     my (undef,undef,$uid,$gid) = getpwnam('pf');
     chown($uid,$gid,$file);
+    umask($old_mask);
 }
 
 
