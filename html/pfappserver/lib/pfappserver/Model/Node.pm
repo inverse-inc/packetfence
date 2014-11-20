@@ -786,7 +786,7 @@ sub bulkApplyRole {
 =cut
 
 sub bulkReevaluateAccess {
-    my ($self, $role, @macs) = @_;
+    my ($self, @macs) = @_;
     my $count = 0;
     foreach my $mac (@macs) {
         if (reevaluate_access($mac, "node_modify")){
