@@ -393,7 +393,7 @@ Deregister a node
 
 =cut
 
-sub deregister_node {
+sub deregister_node : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
