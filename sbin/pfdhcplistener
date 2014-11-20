@@ -476,7 +476,7 @@ sub rogue_dhcp_handling {
            'tid' => $ROGUE_DHCP_TRIGGER,
            'type' => 'INTERNAL',
         );
-        $apiclient->notify('trigger_violation', \%data );
+        $apiclient->notify('trigger_violation', %data );
     } else {
         $logger->info("Unable to find MAC based on IP $dhcp_srv_ip for rogue DHCP server");
         $dhcp_srv_mac = 'unknown';
@@ -579,7 +579,7 @@ sub process_fingerprint {
            'tid' => $fingerprint_info[0]->{'id'},
            'type' => 'OS',
         );
-        $apiclient->notify('trigger_violation', \%data );
+        $apiclient->notify('trigger_violation', %data );
 
         # class fingerprints
         foreach my $class_trigger (@fingerprint_info) {
@@ -590,7 +590,7 @@ sub process_fingerprint {
                'tid' => $fingerprint_info[0]->{'classid'},
                'type' => 'OS',
             );
-            $apiclient->notify('trigger_violation', \%data );
+            $apiclient->notify('trigger_violation', %data );
         }
 
     } else {

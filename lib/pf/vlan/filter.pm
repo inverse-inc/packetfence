@@ -17,6 +17,7 @@ use warnings;
 
 use Log::Log4perl;
 use Time::Period;
+use pf::api::jsonrpcclient;
 use pf::config qw(%connection_type_to_str);
 use pf::person qw(person_view);
 our (%ConfigVlanFilters, $cached_vlan_filters_config);
@@ -84,13 +85,6 @@ our %RULE_PARSERS = (
     radius_request => \&radius_parser,
 );
 
-our %ACTION_PARSERS = (
-    deregister_node => \&deregister_node,
-    register_node => \&register_node,
-    modify_node => \&modify_node,
-    trigger_violation => \&trigger_violation,
-);
-
 =item dispatch_rules
 
 Return the reference to the function that parses the rule.
@@ -116,11 +110,31 @@ Return the reference to the function that call the api.
 
 sub dispatch_actions {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    return $ACTION_PARSERS{$rule->{'action'}}->($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    my $param = $self->eval_param($rule->{'action_param'},$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    my $apiclient = pf::api::jsonrpcclient->new;
+    $apiclient->notify($rule->{'action'},%{$$param});
 }
 
+=item eval_param
+
+evaluate action parameters
+
+=cut
+
+sub eval_param {
+    my ($self, $action_param, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
+    $action_param =~ s/\s//g;
+    my @params = split(',', $action_param);
+    my $return = {};
+
+    foreach my $param (@params) {
+        $param =~ s/(\$.*)/$1/gee;
+        my @param_unit = split('=',$param);
+        $return = { %$return, @param_unit };
+    }
+    return \$return;
+}
 
 our %RULE_OPS = (
     is => sub { $_[0] eq $_[1] ? 1 : 0  },
