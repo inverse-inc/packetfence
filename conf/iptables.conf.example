@@ -41,6 +41,8 @@
 -A input-management-if -p vrrp -j ACCEPT
 # Mysql
 -A input-management-if --protocol tcp --match tcp --dport 3306 --jump ACCEPT
+# DHCP Cluster
+-A input-management-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
 
 # HTTPS for email confirmation or sponsor activation on the captive portal (if enabled)
 %%input_mgmt_guest_rules%%
