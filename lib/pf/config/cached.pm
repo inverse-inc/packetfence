@@ -291,6 +291,7 @@ our %ON_FILE_RELOAD_ONCE;
 our %ON_CACHE_RELOAD;
 our %ON_POST_RELOAD;
 our %FILE_LOCKERS;
+our $NO_DESTROY;
 
 our @ON_DESTROY_REFS = (
     \%ON_RELOAD,
@@ -731,6 +732,7 @@ Will load the C<Config::IniFiles> object from cache or filesystem and update the
 
 sub computeFromPath {
     my ($self,$file,$computeSub,$expire) = @_;
+    local $NO_DESTROY = 1;
     my $computeWrapper = sub {
         my $config = $computeSub->();
         $config->SetLastModTimestamp();
@@ -977,6 +979,7 @@ Cleaning up externally stored
 
 sub DESTROY {
     my ($self) = @_;
+    return if $NO_DESTROY;
     unless ($self->{no_destroy}) {
         my $file = $self->GetFileName;
         return unless $file;
