@@ -104,7 +104,7 @@ foreach my $interface ( @{$cs->readAllIds} ) {
     $interface = "interface $interface";
     my $ip = $Config{$interface}{'vip'} || $Config{$interface}{'ip'};
     if ( defined ($Config{$interface}{'enforcement'}) && ( ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) || is_type_inline($Config{$interface}{'enforcement'}) ) ) {
-        $loadb_ip->{$ip} = $Config{$interface}{'haproxyip'} if (defined($Config{$interface}{'haproxyip'}));
+        $loadb_ip->{$ip} = $Config{$interface}{'active_active_ip'} if (defined($Config{$interface}{'active_active_ip'}) && isenabled($Config{$interface}{'active_active_enabled'}));
         push @ip_addr, $ip;
     }
 }
