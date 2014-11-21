@@ -36,9 +36,9 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        valid_date valid_ip reverse_ip clean_ip
-        clean_mac valid_mac mac2nb macoui2nb format_mac_for_acct format_mac_as_cisco
-        ip2int int2ip sort_ip
+        valid_date valid_ip valid_ips reverse_ip clean_ip
+        clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct format_mac_as_cisco
+        ip2interface ip2device ip2int int2ip sort_ip
         isenabled isdisabled isempty
         getlocalmac
         readpid
@@ -91,6 +91,7 @@ sub valid_date {
 }
 
 our $VALID_IP_REGEX = qr/^(?:\d{1,3}\.){3}\d{1,3}$/;
+our $VALID_IPS_REGEX = qr/^((?:\d{1,3}\.){3}\d{1,3},*)+?$/;
 our $NON_VALID_IP_REGEX = qr/^(?:0\.){3}0$/;
 
 sub valid_ip {
@@ -100,6 +101,19 @@ sub valid_ip {
         my $caller = ( caller(1) )[3] || basename($0);
         $caller =~ s/^(pf::\w+|main):://;
         $logger->debug("invalid IP: $ip from $caller");
+        return (0);
+    } else {
+        return (1);
+    }
+}
+
+sub valid_ips {
+    my ($ip) = @_;
+    my $logger = get_logger();
+    if ( !$ip || $ip !~ $VALID_IPS_REGEX) {
+        my $caller = ( caller(1) )[3] || basename($0);
+        $caller =~ s/^(pf::\w+|main):://;
+        $logger->debug("invalid IPs: $ip from $caller");
         return (0);
     } else {
         return (1);
