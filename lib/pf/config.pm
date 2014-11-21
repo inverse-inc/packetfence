@@ -636,7 +636,7 @@ sub readPfConfigFiles {
                             crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                             ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
                             ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
-                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com
+                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com certificates.godaddy.com
                         )
                     ];
                 } else {
@@ -647,7 +647,7 @@ sub readPfConfigFiles {
                             crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                             ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
                             ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
-                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com
+                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com certificates.godaddy.com
                         )
                     ];
                 }
