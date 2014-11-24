@@ -59,8 +59,8 @@ Creating a pf::config::cached object with some callbacks
 
 =head3 Behavior
 
-The callbacks are triggered by calling C<ReadConfig> and there has been a change in the cache or filesystem.
-  $config->ReadConfig()
+The callbacks are triggered by calling C<ReloadConfig> and there has been a change in the cache or filesystem.
+  $config->ReloadConfig()
 
 To reload all the configs that have been created call C<ReloadConfigs>.
 
@@ -182,7 +182,7 @@ Example:
 =head3 Reloading configurations
 
 In general, reloading configurations should only happen at the start or end of an event loop to ensure the latest data is loaded.
-A good rule to follow for a function other than initialization is to not call C<$config->ReadConfig()> or C<ReloadConfigs()>.
+A good rule to follow for a function other than initialization is to not call C<$config->ReloadConfig()> or C<ReloadConfigs()>.
 
 =head2 Daemons
 
@@ -645,19 +645,15 @@ sub _makeFileLock {
 }
 
 
-=head2 ReadConfig
+=head2 ReloadConfig
 
 Will reload the config when changed on the filesystem and call any register callbacks
 
 =cut
 
-sub ReadConfig {
+sub ReloadConfig {
     my ($self,$force) = @_;
     my $file   = $self->GetFileName;
-    # If no file is defined this coming from new
-    # Just return the results from the super class
-    return $self->SUPER::ReadConfig() unless defined $file;
-
     my $cache  = $self->cache;
     my $reloaded;
     my $reloaded_from_cache = 0;
@@ -665,14 +661,13 @@ sub ReadConfig {
     #If considered latest version of file it is always succesful
     my $result = 1;
     my $logger = get_logger();
-    $logger->trace("ReadConfig for $file");
     my $new_self = $self->computeFromPath(
         $file,
         sub {
             #reread files
             #lock will release when out of scope
             my $lock = lockFileForReading($file);
-            $result = $self->SUPER::ReadConfig();
+            $result = $self->ReadConfig();
             $reloaded_from_file = 1;
             return $self;
         },
@@ -866,15 +861,11 @@ sub ReloadConfigs {
     my ($force) = @_;
     my $logger = get_logger();
     $logger->trace("Started Reloading all configs");
-    LOOP: foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
+    foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
+        next unless $config;
         $logger->trace("Reloading config $config->{cf}");
-        eval {{
         next unless $config->LockFileHasChanged;
-        $config->ReadConfig($force);
-        }};
-        if($@) {
-            die $@ if $@;
-        }
+        $config->ReloadConfig($force);
     }
     $logger->trace("Finished Reloading all configs");
 }

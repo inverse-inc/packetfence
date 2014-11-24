@@ -100,7 +100,7 @@ if($pid == 0) {
 }
 waitpid ($pid,0);
 
-$config->ReadConfig();
+$config->ReloadConfig();
 
 ok("newval" eq $DATA1{"section1"}{"param2"},"on reload was called");
 
