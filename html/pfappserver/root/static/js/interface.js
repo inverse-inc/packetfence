@@ -93,7 +93,6 @@ InterfaceView.prototype.readInterface = function(e) {
             modal.append(data);
             modal.find('.switch').bootstrapSwitch();
             modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
-            modal.find('[name="dns"]').closest('.control-group').hide();
             modal.find('[name="dhcpd_enabled"]').closest('.control-group').hide();
             modal.find('[name="high_availability"]').closest('.control-group').hide();
             modal.find('[name="vip"]').closest('.control-group').hide();
