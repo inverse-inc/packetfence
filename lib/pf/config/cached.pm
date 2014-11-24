@@ -653,8 +653,12 @@ Will reload the config when changed on the filesystem and call any register call
 
 sub ReadConfig {
     my ($self,$force) = @_;
-    my $cache  = $self->cache;
     my $file   = $self->GetFileName;
+    # If no file is defined this coming from new
+    # Just return the results from the super class
+    return $self->SUPER::ReadConfig() unless defined $file;
+
+    my $cache  = $self->cache;
     my $reloaded;
     my $reloaded_from_cache = 0;
     my $reloaded_from_file = 0;
