@@ -216,7 +216,7 @@ sub readAuthenticationConfigFile {
         $cached_profiles_config->addPostReloadCallbacks(update_profiles_guest_modes => \&update_profiles_guest_modes);
 
     } else {
-        $cached_authentication_config->ReadConfig();
+        $cached_authentication_config->ReloadConfig();
     }
 }
 
