@@ -267,7 +267,6 @@ use pf::log;
 use pf::CHI;
 use pf::IniFiles;
 use Scalar::Util qw(refaddr reftype tainted blessed weaken);
-use Fcntl qw(:DEFAULT :flock);
 use Storable;
 use File::Flock;
 use File::Spec::Functions qw(splitpath catpath);
