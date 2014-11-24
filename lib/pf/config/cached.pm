@@ -347,7 +347,8 @@ sub new {
     my $onFileReload = delete $params{'-onfilereload'} || [];
     my $onCacheReload = delete $params{'-oncachereload'} || [];
     my $onPostReload = delete $params{'-onpostreload'} || [];
-    my $reload_onfile;
+    my $noCache = delete $params{'-nocache'};
+    my $reload_onfile = 0;
     die "param -file missing or empty" unless $file;
     delete $params{'-file'} unless -e $file;
     $self = $class->computeFromPath(
@@ -369,6 +370,7 @@ sub new {
     $ON_CACHE_RELOAD{$file} ||= [];
     $ON_POST_RELOAD{$file} ||= [];
     #Adding to the loaded config
+    $self->{nocache} = $noCache;
     $self->addToLoadedConfigs();
     $self->addReloadCallbacks(@$onReload) if @$onReload;
     $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
