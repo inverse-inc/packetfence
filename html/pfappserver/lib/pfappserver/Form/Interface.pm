@@ -97,6 +97,13 @@ has_field 'active_active_members' => (
     label => 'Active/Active ip members',
 );
 
+has_field 'active_active_dhcpd_master' => (
+    type => 'Toggle',
+    checkbox_value => 1,
+    unchecked_value => 0,
+    default => 0,
+    label => 'Select as dhcpd master',
+);
 
 =head2 options_type
 
