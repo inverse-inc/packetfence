@@ -184,6 +184,7 @@ sub generate_filter_if_src_to_chain {
             }
             $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
             $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
+            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647\n" if ( isenabled($Config{"interface $dev"}{'active_active_enabled'}));
             $rules .= "-A INPUT --in-interface $dev -d ".$Config{"interface $dev"}{'active_active_ip'}." --jump $FW_FILTER_INPUT_INT_VLAN\n" if ((defined($Config{"interface $dev"}{'active_active_ip'})) && isenabled($Config{"interface $dev"}{'active_active_enabled'}));
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
@@ -197,7 +198,8 @@ sub generate_filter_if_src_to_chain {
             my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
             $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
             $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
-            $rules .= "-A INPUT --in-interface $dev -d ".$Config{"interface $dev"}{'active_active_ip'}." --jump $FW_FILTER_INPUT_INT_VLAN\n" if ((defined($Config{"interface $dev"}{'active_active_ip'})) && isenabled($Config{"interface $dev"}{'active_active_enabled'}));
+            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647\n" if ( isenabled($Config{"interface $dev"}{'active_active_enabled'}));
+            $rules .= "-A INPUT --in-interface $dev -d ".$Config{"interface $dev"}{'active_active_ip'}." --jump $FW_FILTER_INPUT_INT_INLINE\n" if ((defined($Config{"interface $dev"}{'active_active_ip'})) && isenabled($Config{"interface $dev"}{'active_active_enabled'}));
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d $mgmt_ip --protocol tcp --match tcp --dport 443 --jump ACCEPT\n";
