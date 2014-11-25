@@ -52,11 +52,6 @@ session {
 
 post-auth {
         exec
-        if ( User-Name =~ /^[^\\]+[\\]+([^\\]+)/ ) {
-                update request {
-                    User-Name := "%{1}";
-            }
-        }
         update control {
             PacketFence-RPC-Server = ${rpc_host}
             PacketFence-RPC-Port = ${rpc_port}

@@ -70,7 +70,8 @@ our (
     %mark_type_to_str, %mark_type,
     $thread, $default_pid, $fqdn,
     %CAPTIVE_PORTAL,
-
+#realm.conf
+    %ConfigRealm, $cached_realm,
 );
 
 BEGIN {
@@ -119,6 +120,7 @@ BEGIN {
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
         $OS
         %Doc_Config
+        %ConfigRealm $cached_realm
     );
 }
 
@@ -418,6 +420,7 @@ sub init_config {
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
     readFirewallSSOFile();
+    readRealmFile();
 }
 
 =item ipset_version -  check the ipset version on the system
@@ -773,6 +776,24 @@ sub readFirewallSSOFile {
             my ($config) = @_;
             $config->toHash(\%ConfigFirewallSSO);
             $config->cleanupWhitespace(\%ConfigFirewallSSO);
+        }]
+    );
+    if(@Config::IniFiles::errors) {
+        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
+    }
+}
+
+=item readRealmFile - realm.conf
+
+=cut
+
+sub readRealmFile {
+    $cached_realm = pf::config::cached->new(
+        -file => $realm_config_file,
+        -allowempty => 1,
+        -onreload => [ reload_realm_config => sub {
+            my ($config) = @_;
+            $config->toHash(\%ConfigRealm);
         }]
     );
     if(@Config::IniFiles::errors) {

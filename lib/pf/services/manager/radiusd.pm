@@ -29,6 +29,7 @@ sub generateConfig {
     generate_radiusd_mainconf();
     generate_radiusd_eapconf();
     generate_radiusd_sqlconf();
+    generate_radiusd_proxy();
 }
 
 =head2 generate_radiusd_mainconf
@@ -86,6 +87,30 @@ sub generate_radiusd_sqlconf {
    $tags{'db_password'} = $Config{'database'}{'pass'};
 
    parse_template( \%tags, "$conf_dir/radiusd/sql.conf", "$install_dir/raddb/sql.conf" );
+}
+
+=head2 generate_radiusd_proxy
+
+Generates the proxy.conf.inc configuration file
+
+=cut
+
+sub generate_radiusd_proxy {
+    my %tags;
+
+    $tags{'template'} = "$conf_dir/radiusd/proxy.conf.inc";
+    $tags{'install_dir'} = $install_dir;
+    $tags{'config'} = '';
+
+    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+        $tags{'config'} .= <<"EOT";
+realm $realm {
+$pf::config::ConfigRealm{$realm}->{'options'}
+}
+
+EOT
+    }
+    parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
 }
 
 =head1 AUTHOR

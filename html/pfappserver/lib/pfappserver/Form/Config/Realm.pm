@@ -1,47 +1,49 @@
-package pfappserver::Form::Config::Authentication::Source::Kerberos;
+package pfappserver::Form::Config::Realm;
 
 =head1 NAME
 
-pfappserver::Form::Config::Authentication::Source::Kerberos - Web form for a Kerberos user source
+pfappserver::Form::Config::Realm - Web form for a floating device
 
 =head1 DESCRIPTION
 
-Form definition to create or update a Kerberos user source.
+Form definition to create or update realm.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::Authentication::Source';
+extends 'pfappserver::Base::Form';
+with 'pfappserver::Base::Form::Role::Help';
 
-# Form fields
-has_field 'host' =>
-  (
-   type => 'Text',
-   label => 'Host',
-   required => 1,
-   element_class => ['input-small'],
-   element_attr => {'placeholder' => '127.0.0.1'},
-  );
-has_field 'realm' =>
+use pf::config;
+use pf::util;
+
+## Definition
+has_field 'id' =>
   (
    type => 'Text',
    label => 'Realm',
    required => 1,
+   messages => { required => 'Please specify a Realm' },
   );
-has_field 'stripped_user_name' =>
+
+has_field 'options' =>
   (
-   type            => 'Toggle',
-   checkbox_value  => 'yes',
-   unchecked_value => 'no',
-   default         => 'yes',
-   label           => 'Use stripped username ',
+   type => 'TextArea',
+   label => 'Realm Options',
+   required => 0,
+   default => 'strip',
    tags => { after_element => \&help,
-             help => 'Use stripped username returned by RADIUS to test the following rules.' },
+             help => 'You can add options in the realm definition' },
   );
+
+
+=over
+
+=back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2014 Inverse inc.
 
 =head1 LICENSE
 

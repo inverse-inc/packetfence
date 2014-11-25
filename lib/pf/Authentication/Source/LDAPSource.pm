@@ -27,16 +27,17 @@ use constant {
     TLS => "starttls",
 };
 
-has '+type'              => ( default => 'LDAP' );
-has 'host'               => ( isa     => 'Maybe[Str]', is => 'rw', default => '127.0.0.1' );
-has 'port'               => ( isa     => 'Maybe[Int]', is => 'rw', default => 389 );
+has '+type' => (default => 'LDAP');
+has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
+has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
 has 'connection_timeout' => ( isa     => 'Int', is => 'rw', default => 5 );
-has 'basedn'             => ( isa     => 'Str', is => 'rw', required => 1 );
-has 'binddn'            => ( isa => 'Maybe[Str]', is => 'rw' );
-has 'password'          => ( isa => 'Maybe[Str]', is => 'rw' );
-has 'encryption'        => ( isa => 'Str',        is => 'rw', required => 1 );
-has 'scope'             => ( isa => 'Str',        is => 'rw', required => 1 );
-has 'usernameattribute' => ( isa => 'Str',        is => 'rw', required => 1 );
+has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
+has 'binddn' => (isa => 'Maybe[Str]', is => 'rw');
+has 'password' => (isa => 'Maybe[Str]', is => 'rw');
+has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
+has 'scope' => (isa => 'Str', is => 'rw', required => 1);
+has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
+has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 
 =head1 METHODS
 
@@ -347,6 +348,7 @@ sub ldap_filter_for_conditions {
   my ($self, $conditions, $match, $usernameattribute, $params) = @_;
 
   my (@ldap_conditions, $expression);
+  $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
   if ($params->{'username'}) {
       $expression = '(' . $usernameattribute . '=' . $params->{'username'} . ')';
   } elsif ($params->{'email'}) {

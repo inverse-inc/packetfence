@@ -21,6 +21,16 @@ has_field 'path' =>
    required => 1,
    element_class => ['input-xxlarge'],
   );
+has_field 'stripped_user_name' =>
+  (
+   type            => 'Toggle',
+   checkbox_value  => 'yes',
+   unchecked_value => 'no',
+   default         => 'yes',
+   label           => 'Use stripped username ',
+   tags => { after_element => \&help,
+             help => 'Use stripped username returned by RADIUS to test the following rules.' },
+  );
 
 =head2 validate
 

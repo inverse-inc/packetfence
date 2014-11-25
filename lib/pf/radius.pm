@@ -72,7 +72,7 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 sub authorize {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-    my($switch_mac, $switch_ip,$source_ip) = $this->_parseRequest($radius_request);
+    my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $this->_parseRequest($radius_request);
 
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
@@ -158,7 +158,7 @@ sub authorize {
             $logger->error("[$mac] auto-registration of node failed");
         }
         $switch->synchronize_locationlog($port, undef, $mac, $isPhone ? $VOIP : $NO_VOIP,
-            $connection_type, $user_name, $ssid);
+            $connection_type, $user_name, $ssid, $stripped_user_name, $realm);
     }
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
@@ -179,7 +179,7 @@ sub authorize {
     $this->_handleAccessFloatingDevices($switch, $mac, $port);
 
     # Fetch VLAN depending on node status
-    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request);
+    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
@@ -192,7 +192,7 @@ sub authorize {
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
     $switch->synchronize_locationlog($port, $vlan, $mac,
-        $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
+        $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid, $stripped_user_name, $realm
     ) if (!$wasInline);
 
     # does the switch support Dynamic VLAN Assignment, bypass if using Inline
@@ -229,7 +229,7 @@ sub accounting {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    my ( $switch_mac, $switch_ip, $source_ip ) = $this->_parseRequest($radius_request);
+    my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $this->_parseRequest($radius_request);
 
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->getInstance()
@@ -305,7 +305,15 @@ sub _parseRequest {
     # freeradius 2 provides the client IP in NAS-IP-Address not Client-IP-Address (non-standard freeradius1 attribute)
     my $networkdevice_ip = $radius_request->{'NAS-IP-Address'} || $radius_request->{'Client-IP-Address'};
     my $source_ip = $radius_request->{'FreeRADIUS-Client-IP-Address'};
-    return ($ap_mac, $networkdevice_ip, $source_ip);
+    my $stripped_user_name;
+    if (defined($radius_request->{'Stripped-User-Name'})) {
+        $stripped_user_name = $radius_request->{'Stripped-User-Name'};
+    }
+    my $realm;
+    if (defined($radius_request->{'Realm'})) {
+        $realm = $radius_request->{'Realm'};
+    }
+    return ($ap_mac, $networkdevice_ip, $source_ip, $stripped_user_name, $realm);
 }
 
 sub extractApMacFromRadiusRequest {

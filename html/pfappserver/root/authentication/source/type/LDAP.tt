@@ -16,3 +16,4 @@
             <a class="btn" id="testSource" href="[% c.uri_for(c.controller('Config::Authentication::Source').action_for('test'), [source.type]) %]">[% l('Test') %]</a>
           </div>
         </div>
+[% form.field('stripped_user_name').render %]

@@ -2,6 +2,7 @@ server packetfence {
 
     authorize {
         suffix
+        ntdomain
         preprocess
         eap {
             ok = return
