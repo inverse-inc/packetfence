@@ -40,10 +40,28 @@ sub generateConfig {
     $tags{'template'} = "$conf_dir/dhcpd.conf";
     $tags{'omapi'} = omapi_section();
     $tags{'networks'} = '';
+    $tags{'active'} = '';
 
     foreach my $interface ( @listen_ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
+        if ($cfg->{'active_active_enabled'}) {
+            my $master;
+            ( $cfg->{'active_active_dhcpd_master'} ) ? $master = 'primary' : $master = 'secondary'; 
+            $tags{'active'} .= <<"EOT";
+failover peer "$cfg->{'ip'}" {
+  $master;
+  address $cfg->{'ip'};
+  port 647;
+  peer address $cfg->{'active_active_members'};
+  peer port 647;
+  max-response-delay 30;
+  max-unacked-updates 10;
+  load balance max seconds 3;
+}
+
+EOT
+        }
         my $net = Net::Netmask->new($cfg->{'ip'}, $cfg->{'mask'});
         my ($base,$mask) = ($net->base(), $net->mask());
         $direct_subnets{"subnet $base netmask $mask"} = $TRUE;
@@ -54,10 +72,35 @@ sub generateConfig {
         my %net = %{$ConfigNetworks{$network}};
 
         if ( $net{'dhcpd'} eq 'enabled' ) {
+            my $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'}) || new NetAddr::IP::Lite clean_ip($net{'gateway'});
+            my $active = '0';
+            foreach my $interface ( @listen_ints ) {
+                my $cfg = $Config{"interface $interface"};
+                my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
+                $active = $cfg->{'ip'} if $current_network->contains($ip);
+            }
             my $domain = sprintf("%s.%s", $net{'type'}, $Config{general}{domain});
             delete $direct_subnets{"subnet $network netmask $net{'netmask'}"};
 
             %net = _assign_defaults(%net);
+
+            if ($active) {
+                $tags{'networks'} .= <<"EOT";
+subnet $network netmask $net{'netmask'} {
+  option routers $net{'gateway'};
+  option subnet-mask $net{'netmask'};
+  option domain-name "$domain";
+  option domain-name-servers $net{'dns'};
+  pool {
+      failover peer "$active";
+      range $net{'dhcp_start'} $net{'dhcp_end'};
+      default-lease-time $net{'dhcp_default_lease_time'};
+      max-lease-time $net{'dhcp_max_lease_time'};
+  }
+}
+
+EOT
+            } else {
 
             $tags{'networks'} .= <<"EOT";
 subnet $network netmask $net{'netmask'} {
@@ -69,8 +112,8 @@ subnet $network netmask $net{'netmask'} {
   default-lease-time $net{'dhcp_default_lease_time'};
   max-lease-time $net{'dhcp_max_lease_time'};
 }
-
 EOT
+            }
         }
     }
 
@@ -199,4 +242,3 @@ USA.
 =cut
 
 1;
-
