@@ -81,6 +81,8 @@ EOT
 }
 EOT
             }
+}
+
         }
         my $net = Net::Netmask->new($cfg->{'ip'}, $cfg->{'mask'});
         my ($base,$mask) = ($net->base(), $net->mask());
@@ -131,6 +133,24 @@ EOT
                 }
 
               $tags{'networks'} .= <<"EOT";
+      range $net{'dhcp_start'} $net{'dhcp_end'};
+      default-lease-time $net{'dhcp_default_lease_time'};
+      max-lease-time $net{'dhcp_max_lease_time'};
+  }
+}
+
+EOT
+            } else {
+
+            if ($active) {
+                $tags{'networks'} .= <<"EOT";
+subnet $network netmask $net{'netmask'} {
+  option routers $net{'gateway'};
+  option subnet-mask $net{'netmask'};
+  option domain-name "$domain";
+  option domain-name-servers $net{'dns'};
+  pool {
+      failover peer "$active";
       range $net{'dhcp_start'} $net{'dhcp_end'};
       default-lease-time $net{'dhcp_default_lease_time'};
       max-lease-time $net{'dhcp_max_lease_time'};
