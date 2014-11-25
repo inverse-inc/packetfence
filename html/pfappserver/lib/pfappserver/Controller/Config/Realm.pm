@@ -25,7 +25,7 @@ BEGIN {
 __PACKAGE__->config(
     action => {
         # Reconfigure the object action from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'configuration/realm', CaptureArgs => 1 },
+        object => { Chained => '/', PathPart => 'config/realm', CaptureArgs => 1 },
         # Configure access rights
         view   => { AdminRole => 'REALM_READ' },
         list   => { AdminRole => 'REALM_READ' },
@@ -51,7 +51,7 @@ Show the 'view' template when creating or cloning realm.
 after [qw(create clone)] => sub {
     my ($self, $c) = @_;
     if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
-        $c->stash->{template} = 'configuration/realm/view.tt';
+        $c->stash->{template} = 'config/realm/view.tt';
     }
 };
 
@@ -73,7 +73,7 @@ after view => sub {
 
 =head2 index
 
-Usage: /configuration/realm/
+Usage: /config/realm/
 
 =cut
 

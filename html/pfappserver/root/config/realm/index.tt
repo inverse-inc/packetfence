@@ -17,7 +17,7 @@
 
       <h2>[% l('Realm')  %]</h2>
 
-      [% INCLUDE configuration/realm/list.tt %]
+      [% INCLUDE config/realm/list.tt %]
 
       [%- IF can_access("REALM_CREATE") %]
       <div class="form-actions">

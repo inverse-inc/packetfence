@@ -130,7 +130,7 @@ table.sources {
               [%- END %]
               [%- IF can_access("REALM_READ") %]
               <li class="nav-header">[% l('Radius') %]</li>
-              [% pf_section_entry( 'realm', 'realm') %]
+              [% list_entry( 'Config::Realm', 'index', 'Realms') %]
               [%- END %]
               [%- IF can_access_any("VIOLATIONS_READ","SOH_READ") %]
               <li class="nav-header">[% l('Compliance') %]</li>
