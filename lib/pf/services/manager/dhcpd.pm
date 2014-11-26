@@ -47,12 +47,14 @@ sub generateConfig {
         if ($cfg->{'active_active_enabled'}) {
             my $master;
             ( $cfg->{'active_active_dhcpd_master'} ) ? $master = 'primary' : $master = 'secondary'; 
+            my @active_members = split(',',$cfg->{'active_active_members'});
+            my $members = join(',',grep { $_ ne $cfg->{'ip'} } @active_members);
             $tags{'active'} .= <<"EOT";
 failover peer "$cfg->{'ip'}" {
   $master;
   address $cfg->{'ip'};
   port 647;
-  peer address $cfg->{'active_active_members'};
+  peer address $members;
   peer port 647;
   max-response-delay 30;
   max-unacked-updates 10;

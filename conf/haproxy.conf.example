@@ -3,9 +3,10 @@ global
 	user haproxy
 	group haproxy
 	daemon
-	log %%local_ip%% local0
+	log %%active_active_ip%% local0
 	stats socket /tmp/proxystats level admin
 	maxconn 4000
+        tune.ssl.default-dh-param 2048
 
 defaults
 	log	global
@@ -33,4 +34,3 @@ listen galera %%active_active_ip%%:3306
 %%mysql_backend%%
 
 %%http%%
-

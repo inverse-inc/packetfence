@@ -208,6 +208,7 @@ InterfaceView.prototype.typeChanged = function(e) {
                     vip.find(':input').removeAttr('disabled');
                     nat.hide('fast');
                     nat.find(':input').attr('disabled','disabled');
+                    active_active_dhcpd_master.hide('fast');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
                     if (modal.find('[name="high_availability"]').is(":checked")) {
@@ -235,13 +236,11 @@ InterfaceView.prototype.typeChanged = function(e) {
                         vip.hide('fast');
                         active_active_ip.show('fast');
                         active_active_members.show('fast');
-                        active_active_dhcpd_master.show('fast');
                     } else {
                         high_availability.show('fast');
                         vip.show('fast');
                         active_active_ip.hide('fast');
                         active_active_members.hide('fast');
-                        active_active_dhcpd_master.hide('fast');
                     }
                     modal.find('[name="active_active_enabled"]').change(function(){
                         if (this.checked) {
@@ -249,13 +248,11 @@ InterfaceView.prototype.typeChanged = function(e) {
                             vip.hide('fast');
                             active_active_ip.show('fast');
                             active_active_members.show('fast');
-                            active_active_dhcpd_master.show('fast');
                         } else {
                             high_availability.show('fast');
                             vip.show('fast');
                             active_active_ip.hide('fast');
                             active_active_members.hide('fast');
-                            active_active_dhcpd_master.hide('fast');
                         }
                     });
                     break;
