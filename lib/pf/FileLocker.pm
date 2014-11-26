@@ -33,6 +33,7 @@ has fh => ( is => 'rw', required => 1 );
 has blocking => ( is => 'rw', default => sub { 0 } );
 has unlockOnDestroy => ( is => 'rw', default => sub { 0 } );
 has timeout => ( is => 'rw', default => sub { 0 } );
+has lockAcquired => ( is => 'rw', default => sub { 0 } );
  
 =head2 DESTROY
 
@@ -42,7 +43,7 @@ TODO: documention
 
 sub DESTROY {
     my ($self) = @_;
-    $self->unlock if $self->unlockOnDestroy;
+    $self->unlock if $self->unlockOnDestroy && $self->lockAcquired;
 }
 
 =head2 unlock
@@ -94,7 +95,9 @@ sub _doRealLock {
     my ($self,$type) = @_;
     my $fs = $self->fcntlLock;
     $fs->l_type($type);
-    return $fs->lock($self->fh, $self->blocking ? F_SETLKW : F_SETLK);
+    my $result = $fs->lock($self->fh, $self->blocking ? F_SETLKW : F_SETLK);
+    $self->lockAcquired($result);
+    return $result;
 }
 
 =head2 writeLock
