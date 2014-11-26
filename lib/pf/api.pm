@@ -15,7 +15,7 @@ use strict;
 use warnings;
 
 use base qw(pf::api::attributes);
-use threads::cached;
+use threads::shared;
 use pf::config();
 use pf::iplog();
 use pf::log();
