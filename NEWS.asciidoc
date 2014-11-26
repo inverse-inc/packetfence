@@ -39,6 +39,7 @@ Bug Fixes
 * Fix creating a new file from the Portal Profile GUI in a subdirectory
 * Improved log rotation handling
 * Fix previewing templates in the admin GUI
+* Fix bulk applying of roles and violations in the admin GUI
 
 Version 4.5.1 released on 2014-11-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
