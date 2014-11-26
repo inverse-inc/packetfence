@@ -117,6 +117,19 @@ sub readLock {
     return $_[0]->_doLock(F_RDLCK);
 }
 
+=head2 isWriteLocked
+
+See if there is a write lock on the file
+
+=cut
+
+sub isWriteLocked {
+    my ($self) = @_;
+    my $fs = $self->fcntlLock;
+    $fs->lock($self->fh, F_GETLK);
+    return $fs->F_WRLCK == $fs->l_type;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
