@@ -4767,7 +4767,7 @@ msgstr "IP"
 
 # conf/documentation.conf
 msgid "captive_portal.image_path"
-msgstr "GIF path"
+msgstr "IMG path"
 
 # conf/documentation.conf
 msgid "captive_portal.secure_redirect"
