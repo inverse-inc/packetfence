@@ -296,8 +296,8 @@ sub _node_determine_and_set_into_VLAN {
     $switch->setVlan(
         $ifIndex,
         $vlan,
-        undef,
-        { $switch->id => {} }
+        { $switch->id => {} },
+        $mac,
     );
 }
 
