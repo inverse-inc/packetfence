@@ -102,7 +102,7 @@ has_field 'active_active_dhcpd_master' => (
     checkbox_value => 1,
     unchecked_value => 0,
     default => 0,
-    label => 'Select as dhcpd master',
+    label => 'Define dhcpd master',
 );
 
 =head2 options_type
