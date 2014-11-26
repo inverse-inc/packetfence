@@ -14,7 +14,7 @@ pf::api
 use strict;
 use warnings;
 
-use threads::cached;
+use threads::shared;
 use pf::config();
 use pf::iplog();
 use pf::log();
