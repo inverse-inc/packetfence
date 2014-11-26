@@ -433,6 +433,11 @@ ldap_auth=enabled
 # Should DHCPd be managed by PacketFence?
 dhcpd=enabled
 #
+# services.haproxy
+#
+# Should haproxy be started?
+haproxy=enabled
+#
 # services.pfdns
 #
 # Should pfdns be managed by PacketFence?
@@ -522,6 +527,11 @@ snort_binary=/usr/sbin/snort
 # 
 # Location of the suricata binary.
 suricata_binary=/usr/bin/suricata
+#
+# services.haproxy_binary
+#
+# Location of the haproxy binary. Only necessary to change if you are not running the RPMed version.
+haproxy_binary=/usr/sbin/haproxy
 #
 # services.httpd_binary
 #
