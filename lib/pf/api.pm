@@ -14,6 +14,7 @@ pf::api
 use strict;
 use warnings;
 
+use threads::cached;
 use pf::config();
 use pf::iplog();
 use pf::log();
@@ -292,10 +293,13 @@ sub _node_determine_and_set_into_VLAN {
 
     my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex, $connection_type);
 
+    my %locker_ref;
+    $locker_ref{$switch->{_ip}} = &share({});
+
     $switch->setVlan(
         $ifIndex,
         $vlan,
-        undef,
+        \%locker_ref,
         $mac
     );
 }
