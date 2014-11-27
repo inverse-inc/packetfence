@@ -16,12 +16,30 @@ use warnings;
 
 use Apache2::RequestRec ();
 use pf::config::cached;
+use pf::db;
+use pf::CHI;
+use Cache::Memcached;
 
 use Apache2::Const -compile => 'OK';
 
 sub handler {
     my $r = shift;
     pf::config::cached::ReloadConfigs();
+    return Apache2::Const::OK;
+}
+
+
+=head2 post_config
+
+Reset all cached connections before initializing children
+
+=cut
+
+sub post_config {
+    my ($conf_pool, $log_pool, $temp_pool, $s) = @_;
+    db_disconnect();
+    pf::CHI->clear_memoized_cache_objects;
+    Cache::Memcached->disconnect_all;
     return Apache2::Const::OK;
 }
 
