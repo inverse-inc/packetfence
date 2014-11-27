@@ -14,6 +14,7 @@
     [% form.field('active_active_ip').render%]
     [% form.field('active_active_members').render%]
     [% form.field('active_active_dhcpd_master').render%]
+    [% form.field('active_active_mysql_master').render%]
     [% form.field('dns').render %]
     [% form.field('vip').render %]
     [% form.field('dhcpd_enabled').render %]
