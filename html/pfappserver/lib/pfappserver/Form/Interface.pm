@@ -105,6 +105,11 @@ has_field 'active_active_dhcpd_master' => (
     label => 'Define dhcpd master',
 );
 
+has_field 'active_active_mysql_master' => (
+    type => 'IPAddres',
+    label => 'Define mysql master',
+);
+
 =head2 options_type
 
 =cut
