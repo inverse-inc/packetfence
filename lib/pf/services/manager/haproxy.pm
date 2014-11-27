@@ -23,9 +23,12 @@ use pf::util;
 
 extends 'pf::services::manager';
 with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
+
 has '+name' => (default => sub { 'haproxy' } );
 
 has '+launcher' => (default => sub { "sudo %1\$s -f $generated_conf_dir/haproxy.conf -D -p $var_dir/run/haproxy.pid" } );
+
+has '+shouldCheckup' => ( default => sub { 0 }  );
 
 sub executable {
     my ($self) = @_;
@@ -46,7 +49,6 @@ sub generateConfig {
     my @ints = uniq(@listen_ints,@dhcplistener_ints);
     my $j = 0;
     foreach my $interface ( @ints ) {
-        $logger->warn($interface);
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
         next if (!isenabled($cfg->{'active_active_enabled'}));
@@ -54,11 +56,13 @@ sub generateConfig {
         if ($cfg->{'type'} eq 'management') {
             $tags{'active_active_ip'} = $cfg->{'active_active_ip'};
             my @mysql_backend = split(',',$cfg->{'active_active_members'});
+            my $backup = '';
             foreach my $mysql_back (@mysql_backend) {
                 $tags{'mysql_backend'} .= <<"EOT";
         server MySQL$i $mysql_back:3306 check weight 1
 EOT
             $i++;
+            $backup = 'backup';
             }
         }
         if ($cfg->{'type'} eq 'internal') {
@@ -113,7 +117,15 @@ sub stop {
 
 sub isManaged {
     my ($self) = @_;
-    return 1;
+    my @ints = uniq(@listen_ints,@dhcplistener_ints);
+    foreach my $interface ( @ints ) {
+        my $cfg = $Config{"interface $interface"};
+        next unless $cfg;
+        if (isenabled($cfg->{'active_active_enabled'})) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 =head1 AUTHOR
