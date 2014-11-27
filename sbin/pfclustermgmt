@@ -1,0 +1,135 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+pfdhcpd - PacketFence DHCP server and listener
+
+=head1 SYNOPSIS
+
+pfdhcpd
+
+=cut
+
+use warnings;
+use strict;
+use English qw( -no_match_vars ) ; # Avoids regex performance penalty
+use File::Basename qw(basename);
+use Getopt::Std;
+use Log::Log4perl;
+use Pod::Usage;
+use POSIX qw(:signal_h);
+use Sys::Hostname;
+use Readonly;
+use JSON::RPC::Server::Daemon;
+use IO::Interface::Simple;
+
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfclustermgmt');
+}
+
+use pf::config;
+use pf::config::cached;
+use pf::services::util;
+use pf::util;
+
+my $server;
+
+# initialization
+# --------------
+$PROGRAM_NAME = basename($0);
+
+my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+
+# init signal handlers
+POSIX::sigaction(
+    &POSIX::SIGHUP,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("basename($PROGRAM_NAME): could not set SIGHUP handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("basename($PROGRAM_NAME): could not set SIGTERM handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("basename($PROGRAM_NAME): could not set SIGINT handler: $!");
+
+
+my %args;
+getopts( 'dh:', \%args );
+
+my $daemonize = $args{d};
+
+pod2usage( -verbose => 1 ) if ( $args{h} );
+
+# standard signals and daemonize
+daemonize($PROGRAM_NAME) if ($daemonize);
+
+END {
+    deletepid($PROGRAM_NAME) unless $args{h};
+}
+
+#my @ip_addr;
+#foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
+#    my $ip = $Config{$interface}{'ip'};
+#    if (isenabled($Config{"interface $interface"}{'active_active_enabled'})) {
+#        push @ip_addr, $ip;
+#    }
+#}
+
+my $int = $management_network->{'Tint'};
+if ( ($Config{"interface $int"}{'type'} eq 'management') && (isenabled($Config{"interface $int"}{'active_active_enabled'}) ) ) {
+    my $if   = IO::Interface::Simple->new($int);
+#    $server = JSON::RPC::Server::Daemon->new(LocalAddr => [@ip_addr], LocalPort => 32274);
+    $server = JSON::RPC::Server::Daemon->new(LocalAddr => $if->address, LocalPort => 32274);
+    $server->dispatch({'/cluster' => 'pf::clustermgmt'})->handle();
+#    use Data::Dumper;
+#    print Dumper $server;
+}
+
+$logger->warn("pas de mgmt");
+    
+sub normal_sighandler {
+    #$RUNNING = 0;
+    $logger->debug( "$PROGRAM_NAME: caught SIG" . $_[0] . " - terminating" );
+}
+
+=back
+
+=head1 BUGS AND LIMITATIONS
+
+Probably
+
+=head1 COPYRIGHT
+
+Copyright (C) 2007-2014 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
