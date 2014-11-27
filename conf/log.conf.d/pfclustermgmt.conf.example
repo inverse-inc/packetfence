@@ -1,0 +1,18 @@
+### pfclustermgmt logger ###
+log4perl.rootLogger = INFO, PFCLUSTERMGMT
+
+### Categories ###
+# Below, you can specify different categories (based on package names) for different logging levels
+#log4perl.category.pf.SNMP = WARN
+
+### Logging for pfclustermgmt
+log4perl.appender.PFCLUSTERMGMT                              = Log::Log4perl::Appender::File
+log4perl.appender.PFCLUSTERMGMT.filename                     = /usr/local/pf/logs/pfclustermgmt.log
+log4perl.appender.PFCLUSTERMGMT.syswrite                     = 1
+log4perl.appender.PFCLUSTERMGMT.mode                         = append
+log4perl.appender.PFCLUSTERMGMT.layout                       = PatternLayout
+log4perl.appender.PFCLUSTERMGMT.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
+log4perl.appender.PFCLUSTERMGMT.umask                        = 0002
+log4perl.appender.PFCLUSTERMGMT.user                         = pf
+log4perl.appender.PFCLUSTERMGMT.group                        = pf
+
