@@ -291,6 +291,8 @@ run all runtasks
 
 sub runtasks {
     db_disconnect();
+    pf::CHI->clear_memoized_cache_objects;
+    Cache::Memcached->disconnect_all;
     while(@REGISTERED_TASKS) {
         my $task = shift @REGISTERED_TASKS;
         runtask($task);
