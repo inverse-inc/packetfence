@@ -21,6 +21,7 @@ New Features
 * Added a hybrid 802.1x + web authentication mode for Cisco Catalyst 2960
 * Added a web notification when network access is granted
 * Add the ability to tag functions that are allowed to be exposed through the web API
+* Add WiFi autoconfiguration for Windows through packetfence-windows-agent
 
 Enhancements
 ++++++++++++
