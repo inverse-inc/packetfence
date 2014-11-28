@@ -369,8 +369,8 @@ sub new {
     $ON_FILE_RELOAD_ONCE{$file} ||= [];
     $ON_CACHE_RELOAD{$file} ||= [];
     $ON_POST_RELOAD{$file} ||= [];
-    #Adding to the loaded config
     $self->{nocache} = $noCache;
+    #Adding to the loaded config
     $self->addToLoadedConfigs();
     $self->addReloadCallbacks(@$onReload) if @$onReload;
     $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
@@ -508,21 +508,13 @@ sub doCallbacks {
         my $logger = get_logger;
         $logger->trace("doing callbacks for " . $self->GetFileName . " file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
         $self->_callReloadCallbacks;
-        if($file_reloaded) {
-            my $locker = _getLocker($self->GetFileName); 
-            $locker->blocking(0); 
-            if($locker->writeLock) {
-                $logger->trace("Got writelock for " . $self->GetFileName);
-                $self->_callFileReloadCallbacks;
-            } else {
-                $cache_reloaded = 1;
-            }
+        if ($file_reloaded) {
+            $self->_callFileReloadCallbacks;
         }
         $self->_callCacheReloadCallbacks if $cache_reloaded;
         $self->_callPostReloadCallbacks;
     }
 }
-
 
 sub GetDotFileName {
     return _makeIntoDotFile (shift->GetFileName);
@@ -611,11 +603,25 @@ creates the locker for file
 sub _makeLocker {
     my ($file) = @_;
     my $lockfile = _makeFileLock($file);
-    umask 2;
-    open(my $fh,"+>>",$lockfile);
-    my (undef,undef,$uid,$gid) = getpwnam('pf');
-    chown($uid,$gid,$lockfile);
+    umask 0;
+    sysopen(my $fh,$lockfile,O_CREAT|O_RDWR,0660);
+#    my (undef,undef,$uid,$gid) = getpwnam('pf');
+#    chown($uid,$gid,$lockfile);
     return pf::FileLocker->new( fh => $fh);
+}
+
+=head2 _lockFileForOnReload
+
+Locks the lock file for reloading a file
+
+=cut
+
+sub _lockFileForOnReload {
+    my ($file) = @_;
+    my $locker = _getLocker("${file}.onreload");
+    $locker->blocking(0);
+    $locker->unlockOnDestroy(1);
+    return $locker;
 }
 
 =head2 lockFileForReading
@@ -659,6 +665,8 @@ sub ReloadConfig {
     my $reloaded;
     my $reloaded_from_cache = 0;
     my $reloaded_from_file = 0;
+    #Keep the reload lock file for the scope of the function
+    my $locker = _lockFileForOnReload($self->GetFileName);
     #If considered latest version of file it is always succesful
     my $result = 1;
     my $logger = get_logger();
@@ -674,7 +682,9 @@ sub ReloadConfig {
         },
         $force
     );
+
     $reloaded_from_cache = refaddr($self) != refaddr($new_self);
+    
     if($reloaded_from_cache) {
         $self->_swap_data($new_self);
     }
@@ -692,8 +702,8 @@ sub _swap_data {
     my ($self,$new_self) = @_;
     Data::Swap::swap($self,$new_self); 
     $self->addToLoadedConfigs();
-    #Unbless the old data to avoid DESTROY from being called
-    unbless($new_self);
+    #Setting no_destroy to avoid removal of call back data
+    $new_self->{no_destroy} = 1;
     my $cache = $self->cache;
     #Repopulate the in new memory cache after the swap
     if($cache->has_subcaches) {
@@ -701,8 +711,6 @@ sub _swap_data {
         $l1_cache = $l1_cache->l1_cache while $l1_cache->has_subcaches;
         $l1_cache->set($self->GetFileName,$self) if $l1_cache->driver_class eq 'CHI::Driver::RawMemory';
     }
-    #Setting no_destroy to avoid removal of call back data
-    $new_self->{no_destroy} = 1;
 }
 
 =head2 TIEHASH
@@ -746,8 +754,7 @@ sub computeFromPath {
                 return 1 if $expire;
                 my $value = $_[0]->value;
                 return 1 unless $value;
-                return 1 if ref($value) eq 'HASH' ;
-                return $value->HasExpired();
+                return $value->HasExpired($_[1]);
             },
         },
         $computeWrapper
@@ -797,26 +804,42 @@ check to see if the file has expired
 =cut
 
 sub HasExpired {
-    my ($self) = @_;
-    get_logger->trace( sub { "LockFile time stamp ". $self->GetLockFileTimeStamp . " for " . $self->GetFileName });
-    get_logger->trace( sub { "time stamp ". $self->GetLastModTimestamp . " for " . $self->GetFileName });
-    return $self->LockFileHasChanged() && $self->HasChanged() &&  $self->NoWriteLock;
+    my ($self, $chi) = @_;
+    #If the LockFileHasChanged and the Config file has changed
+    return undef unless $self->LockFileHasChanged() && $self->HasChanged();
+
+    if($chi->is_subcache) {
+        return !$self->IsReloadWriteLocked;
+    }
+    else {
+      return $self->HasReloadWriteLock;
+    }
 }
 
-=head2 NoWriteLock
+=head2 IsReloadWriteLocked
 
-The is no currently writelock
+Check to see if there is a current write lock on the reload lock file
 
 =cut
 
-sub NoWriteLock {
+sub IsReloadWriteLocked {
     my ($self) = @_;
-    get_logger->trace("NoWriteLock");
-    my $locker = _getLocker($self->GetFileName); 
+    my $locker = _lockFileForOnReload($self->GetFileName);
+    return $locker->isWriteLocked;
+}
+
+=head2 HasReloadWriteLock
+
+Gets an existing write lock
+
+=cut
+
+sub HasReloadWriteLock {
+    my ($self) = @_;
+    my $locker = _lockFileForOnReload($self->GetFileName);
     $locker->blocking(0); 
-    my $result = $locker->readLock;
-    get_logger->trace("Has no write lock") if $result;
-    return $locker->readLock;
+    my $result = $locker->writeLock;
+    return $result;
 }
 
 =head2 LockFileHasChanged
@@ -969,19 +992,19 @@ sub addPostReloadCallbacks {
 
 =head2 DESTROY
 
-Cleaning up externally stored
+Cleaning up externally stored data
 
 =cut
 
 sub DESTROY {
     my ($self) = @_;
-    return if $NO_DESTROY;
-    unless ($self->{no_destroy}) {
-        my $file = $self->GetFileName;
-        return unless $file;
-        foreach my $hash_ref (@ON_DESTROY_REFS) {
-            delete $hash_ref->{$file};
-        }
+    #Do nothing if no destroy is set
+    return if $NO_DESTROY || $self->{no_destroy};
+
+    my $file = $self->GetFileName;
+    return unless $file;
+    foreach my $hash_ref (@ON_DESTROY_REFS) {
+        #delete $hash_ref->{$file};
     }
 }
 
