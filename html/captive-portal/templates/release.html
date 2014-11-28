@@ -23,7 +23,7 @@ document.observe("dom:loaded", function() {
   }
   
   detectNetworkAccess.delay([% initial_delay %], 
-    [% retry_delay %], "[% destination_url %]", "[% external_ip %]"
+    [% retry_delay %], "[% destination_url %]", "[% external_ip %]", "[% image_path %]"
   );
 
   //require access to web notifications now so it's ready when the access is activated

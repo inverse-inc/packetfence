@@ -284,6 +284,7 @@ sub checkIfPending : Private {
                 redirect_url => $Config{'trapping'}{'redirecturl'},
                 initial_delay =>
                   $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
+                image_path => $Config{'captive_portal'}{'image_path'},
             );
 
             # override destination_url if we enabled the always_use_redirecturl option
