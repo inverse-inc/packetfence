@@ -345,6 +345,7 @@ sub new {
     $file = $1;
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
+    my $onFileReloadOnce = delete $params{'-onfilereloadonce'} || [];
     my $onCacheReload = delete $params{'-oncachereload'} || [];
     my $onPostReload = delete $params{'-onpostreload'} || [];
     my $noCache = delete $params{'-nocache'};
@@ -354,7 +355,7 @@ sub new {
     $self = $class->computeFromPath(
         $file,
         sub {
-            my $lock = lockFileForReading($file);
+#            my $lock = lockFileForReading($file);
             my $config = $class->SUPER::new(%params);
             die "$file cannot be loaded" unless $config;
             $config->SetFileName($file);
@@ -374,6 +375,7 @@ sub new {
     $self->addToLoadedConfigs();
     $self->addReloadCallbacks(@$onReload) if @$onReload;
     $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
+    $self->addFileReloadOnceCallbacks(@$onFileReloadOnce) if @$onFileReloadOnce;
     $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
     $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
     $self->doCallbacks($reload_onfile,!$reload_onfile);
@@ -394,7 +396,7 @@ sub RewriteConfig {
         die "Config $file was modified from last loading\n";
     }
     my $result;
-    my $lock = lockFileForWriting($file);
+#    my $lock = lockFileForWriting($file);
     #lock will release when out of scope
     if ( exists $self->{imported} && defined $self->{imported}) {
         #localizing for saving only what is in
@@ -478,6 +480,18 @@ Call all the file reload callbacks
 sub _callFileReloadCallbacks {
     my ($self) = @_;
     $self->_callCallbacks(\%ON_FILE_RELOAD);
+}
+
+=head2 _callFileReloadOnceCallbacks
+
+Call all the file reload callbacks that should be called only once
+
+=cut
+
+sub _callFileReloadOnceCallbacks {
+    my ($self,$force) = @_;
+    my $callbacks = $ON_FILE_RELOAD_ONCE{$self->GetFileName} ||= [];
+    $self->_doLockOnce( sub { $self->_callCallbacks(\%ON_FILE_RELOAD_ONCE) }, $force ) if @$callbacks;
 }
 
 =head2 _callCacheReloadCallbacks
@@ -675,7 +689,7 @@ sub ReloadConfig {
         sub {
             #reread files
             #lock will release when out of scope
-            my $lock = lockFileForReading($file);
+#            my $lock = lockFileForReading($file);
             $result = $self->ReadConfig();
             $reloaded_from_file = 1;
             return $self;
@@ -805,15 +819,16 @@ check to see if the file has expired
 
 sub HasExpired {
     my ($self, $chi) = @_;
-    #If the LockFileHasChanged and the Config file has changed
+    #Do not expire if there is a lock inplace
+    return undef if $self->IsReloadWriteLocked;
+    #If the LockFileHasChanged and the Config file have not changed  do not expire
     return undef unless $self->LockFileHasChanged() && $self->HasChanged();
 
-    if($chi->is_subcache) {
-        return !$self->IsReloadWriteLocked;
-    }
-    else {
-      return $self->HasReloadWriteLock;
-    }
+    #Expire a subcache
+    return 1 if $chi->is_subcache;
+
+    #Only one process can expire main cache
+    return $self->GotReloadWriteLock;
 }
 
 =head2 IsReloadWriteLocked
@@ -828,18 +843,17 @@ sub IsReloadWriteLocked {
     return $locker->isWriteLocked;
 }
 
-=head2 HasReloadWriteLock
+=head2 GotReloadWriteLock
 
 Gets an existing write lock
 
 =cut
 
-sub HasReloadWriteLock {
+sub GotReloadWriteLock {
     my ($self) = @_;
     my $locker = _lockFileForOnReload($self->GetFileName);
     $locker->blocking(0); 
-    my $result = $locker->writeLock;
-    return $result;
+    return $locker->writeLock;
 }
 
 =head2 LockFileHasChanged
@@ -882,13 +896,19 @@ ReloadConfigs reload all configs and call any register callbacks
 =cut
 
 sub ReloadConfigs {
-    my ($force) = @_;
+    my ($force,$updateControlFile) = @_;
     my $logger = get_logger();
     $logger->trace("Started Reloading all configs");
     foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
         next unless $config;
         $logger->trace("Reloading config $config->{cf}");
+	my $locker = _lockFileForOnReload($config->GetFileName);
+	if($updateControlFile) {
+		$config->ExpireFile() if $force;
+		$config->ExpireLockFile() if $config->HasChanged;
+	}
         next unless $config->LockFileHasChanged;
+	$config->GotReloadWriteLock();
         $config->ReloadConfig($force);
     }
     $logger->trace("Finished Reloading all configs");
@@ -1141,13 +1161,13 @@ sub _ExpireFile {
 
 sub ExpireLockFile {
     my ($self) = @_;
-    my $locker = lockFileForWriting($self->GetFileName);
+#    my $locker = lockFileForWriting($self->GetFileName);
     $self->_ExpireFile($self->GetLockFileName());
 }
 
 sub ExpireFile {
     my ($self) = @_;
-    my $locker = lockFileForWriting($self->GetFileName);
+#    my $locker = lockFileForWriting($self->GetFileName);
     $self->_ExpireFile($self->GetFileName());
 }
 
