@@ -765,7 +765,8 @@ sub bulkApplyRole {
     my $count = 0;
     foreach my $mac (@macs) {
         my $node = node_view($mac);
-        if ($node->{category_id} != $role) {
+        my $old_category_id = $node->{category_id};
+        if (!defined($old_category_id) || $old_category_id != $role) {
             # Role has changed
             $node->{category_id} = $role;
             if (node_modify($mac, %{$node})) {
@@ -785,7 +786,7 @@ sub bulkApplyRole {
 =cut
 
 sub bulkReevaluateAccess {
-    my ($self, $role, @macs) = @_;
+    my ($self, @macs) = @_;
     my $count = 0;
     foreach my $mac (@macs) {
         if (reevaluate_access($mac, "node_modify")){
