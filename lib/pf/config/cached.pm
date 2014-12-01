@@ -638,6 +638,19 @@ sub _lockFileForOnReload {
     return $locker;
 }
 
+=head2 _lockFileForGlobalOnReload
+
+Locks the lock file for reloading a file
+
+=cut
+
+sub _lockFileForGlobalOnReload {
+    my ($file) = @_;
+    my $locker = _getLocker($cache_control_file);
+    $locker->unlockOnDestroy(1);
+    return $locker;
+}
+
 =head2 lockFileForReading
 
 Locks the lock file for reading a file
@@ -819,6 +832,7 @@ check to see if the file has expired
 
 sub HasExpired {
     my ($self, $chi) = @_;
+    return undef if $self->IsGlobalReloadWriteLocked;
     #Do not expire if there is a lock inplace
     return undef if $self->IsReloadWriteLocked;
     #If the LockFileHasChanged and the Config file have not changed  do not expire
@@ -840,7 +854,19 @@ Check to see if there is a current write lock on the reload lock file
 sub IsReloadWriteLocked {
     my ($self) = @_;
     my $locker = _lockFileForOnReload($self->GetFileName);
-    return $locker->isWriteLocked;
+    return $locker->isWriteLockedByAnother;
+}
+
+=head2 IsGlobalReloadWriteLocked
+
+Check to see if there is a current write lock on the global reload lock file
+
+=cut
+
+sub IsGlobalReloadWriteLocked {
+    my ($self) = @_;
+    my $locker = _lockFileForGlobalOnReload();
+    return $locker->isWriteLockedByAnother;
 }
 
 =head2 GotReloadWriteLock
@@ -916,6 +942,8 @@ sub ReloadConfigs {
     my ($force) = @_;
     my $logger = get_logger();
     $logger->trace("Started Reloading all configs");
+    my $globalLocker = _lockFileForGlobalOnReload();
+    $globalLocker->writeLock();
     foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
         next unless $config;
         $logger->trace("Reloading config $config->{cf}");
