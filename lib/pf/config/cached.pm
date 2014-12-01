@@ -889,6 +889,23 @@ sub cacheForData {
     return pf::CHI->new(namespace => 'configfilesdata' );
 }
 
+=head2 RefreshConfigs
+
+refresh configs and call any register callbacks 
+
+=cut
+
+sub RefreshConfigs {
+    my $logger = get_logger();
+    $logger->trace("Started Reloading all configs");
+    foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
+        next unless $config;
+        next unless $config->LockFileHasChanged;
+        $config->ReloadConfig();
+    }
+    $logger->trace("Finished Reloading all configs");
+}
+
 =head2 ReloadConfigs
 
 ReloadConfigs reload all configs and call any register callbacks
@@ -896,41 +913,22 @@ ReloadConfigs reload all configs and call any register callbacks
 =cut
 
 sub ReloadConfigs {
-    my ($force,$updateControlFile) = @_;
+    my ($force) = @_;
     my $logger = get_logger();
     $logger->trace("Started Reloading all configs");
     foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
         next unless $config;
         $logger->trace("Reloading config $config->{cf}");
+	#Getting the lockfile and locking the reload lock file
 	my $locker = _lockFileForOnReload($config->GetFileName);
-	if($updateControlFile) {
-		$config->ExpireFile() if $force;
-		$config->ExpireLockFile() if $config->HasChanged;
-	}
-        next unless $config->LockFileHasChanged;
 	$config->GotReloadWriteLock();
+	$config->ExpireFile() if $force;
+	$config->ExpireLockFile() if $config->HasChanged;
+        next unless $config->LockFileHasChanged;
         $config->ReloadConfig($force);
     }
     $logger->trace("Finished Reloading all configs");
 }
-
-=head2 UpdateControlConfigs
-
-ReloadConfigs reload all configs and call any register callbacks
-
-=cut
-
-sub UpdateControlConfigs {
-    my ($force) = @_;
-    my $logger = get_logger();
-    $logger->trace("Started Reloading all configs");
-    foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
-        $config->ExpireFile() if $force;
-        $config->ExpireLockFile() if $config->HasChanged;
-    }
-    $logger->trace("Finished Reloading all configs");
-}
-
 
 =head2 addReloadCallbacks
 
