@@ -230,7 +230,7 @@ sub forms {
 }
 
 before handle_request => sub {
-    pf::config::cached::ReloadConfigs();
+    pf::config::cached::RefreshConfigs();
 };
 
 after finalize => sub {

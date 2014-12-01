@@ -24,7 +24,7 @@ use Apache2::Const -compile => 'OK';
 
 sub handler {
     my $r = shift;
-    pf::config::cached::ReloadConfigs();
+    pf::config::cached::RefreshConfigs();
     return Apache2::Const::OK;
 }
 
@@ -37,6 +37,7 @@ Reset all cached connections before initializing children
 
 sub post_config {
     my ($conf_pool, $log_pool, $temp_pool, $s) = @_;
+    pf::config::cached::RefreshConfigs();
     db_disconnect();
     pf::CHI->clear_memoized_cache_objects;
     Cache::Memcached->disconnect_all;
