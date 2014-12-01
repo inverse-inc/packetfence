@@ -16,7 +16,7 @@ has_field 'eap_type' =>
   (
    type => 'Select',
    multiple => 0,
-   label => 'Roles',
+   label => 'EAP Type',
    options_method => \&options_eap_type,
    element_class => ['chzn-deselect'],
    tags => { after_element => \&help,
