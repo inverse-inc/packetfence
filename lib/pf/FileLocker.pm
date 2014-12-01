@@ -120,17 +120,17 @@ sub readLock {
     return $_[0]->_doLock(F_RDLCK);
 }
 
-=head2 isWriteLocked
+=head2 isWriteLockedByAnother
 
-See if there is a write lock on the file
+See if there is a write lock on the file by another process
 
 =cut
 
-sub isWriteLocked {
+sub isWriteLockedByAnother {
     my ($self) = @_;
     my $fs = $self->fcntlLock;
     $fs->lock($self->fh, F_GETLK);
-    return F_WRLCK == $fs->l_type;
+    return F_WRLCK == $fs->l_type && $fs->pid != $$;
 }
 
 =head1 AUTHOR
