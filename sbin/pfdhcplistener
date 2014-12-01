@@ -587,7 +587,7 @@ sub process_fingerprint {
             $logger->debug("$chaddr sending $class_data trigger");
             my %data = (
                'mac' => $chaddr,
-               'tid' => $fingerprint_info[0]->{'classid'},
+               'tid' => $class_trigger->{'classid'},
                'type' => 'OS',
             );
             $apiclient->notify('trigger_violation', %data );

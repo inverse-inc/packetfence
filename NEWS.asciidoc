@@ -23,7 +23,7 @@ New Features
 * Add the ability to tag functions that are allowed to be exposed through the web API
 * Add WiFi autoconfiguration for Windows through packetfence-windows-agent
 * Added a "Chained" authentication source where a user must first login in order to register by SMS,Email or SponsorEmail
-* Added call to the web api from the vlan filters
+* Added call to the web API from the vlan filters
 
 Enhancements
 ++++++++++++
