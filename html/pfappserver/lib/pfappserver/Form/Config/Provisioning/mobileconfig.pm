@@ -43,13 +43,13 @@ has_block definition =>
 sub options_eap_type {
     my $self = shift;
     my @eap_types = ["13" => "TLS",
-                      "17" => "LEAP",
-                      "18" => "EAP-SIM", 
-                      "21" => "TTLS",
-                      "23" => "EAP-AKA",
-                      "25" => "PEAP",
-                      "43" => "EAP-FAST",
-                     ];
+                     "17" => "LEAP",
+                     "18" => "EAP-SIM", 
+                     "21" => "TTLS",
+                     "23" => "EAP-AKA",
+                     "25" => "PEAP",
+                     "43" => "EAP-FAST",
+                    ];
     return @eap_types;
 }
 =head1 COPYRIGHT
