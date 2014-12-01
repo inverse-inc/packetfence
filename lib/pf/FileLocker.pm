@@ -130,7 +130,7 @@ sub isWriteLocked {
     my ($self) = @_;
     my $fs = $self->fcntlLock;
     $fs->lock($self->fh, F_GETLK);
-    return $fs->F_WRLCK == $fs->l_type;
+    return F_WRLCK == $fs->l_type;
 }
 
 =head1 AUTHOR
