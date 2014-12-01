@@ -140,7 +140,7 @@ END {
 
 sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
-    pf::config::cached::ReloadConfigs();
+    pf::config::cached::RefreshConfigs();
     my $ip = new NetAddr::IP::Lite clean_ip($peerhost);
     foreach my $network (@routed_registration_nets_named) {
         if ($network->contains($ip)) {

@@ -2053,7 +2053,7 @@ sub getSwitch {
     {
         lock $switchFactory_locker;
         $lockLogger->trace("locking - obtained lock on switchFactory_locker");
-        pf::config::cached::ReloadConfigs();
+        pf::config::cached::RefreshConfigs();
         $switch = $switchFactory->instantiate($switch_id);
         if($switch) {
             add_to_switch_locker($switch->{_id});

@@ -172,8 +172,8 @@ sub dhcp_detector {
 sub process_pkt {
     my ( $user_data, $hdr, $pkt ) = @_;
     listen_dhcp( $pkt, $user_data );
-    #reload all cached configs after each iteration
-    pf::config::cached::ReloadConfigs();
+    #refresh all cached configs after each iteration
+    pf::config::cached::RefreshConfigs();
     #Only perform stats when in debug mode
     $logger->debug( sub {
         my $pcap = $user_data->[1];
