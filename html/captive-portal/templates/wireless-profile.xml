@@ -10,7 +10,7 @@
                         <dict>
                                 <key>AcceptEAPTypes</key>
                                 <array>
-                                        <integer>25</integer>
+                                        <integer>[% provisioner.eap_type %]</integer>
                                 </array>
                                 <key>EAPFASTProvisionPAC</key>
                                 <false/>

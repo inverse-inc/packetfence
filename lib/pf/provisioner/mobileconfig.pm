@@ -34,6 +34,14 @@ The ssid
 
 has ssid => (is => 'rw');
 
+=head2 eap_type
+
+The EAP type
+
+=cut
+
+has eap_type => (is => 'rw');
+
 =head2 ca_cert_path
 
 The ca cert_path
