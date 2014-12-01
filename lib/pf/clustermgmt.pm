@@ -1,21 +1,36 @@
 package pf::clustermgmt;
 
+=head1 NAME
+
+pf::clustermgmt
+
+=cut
+
+=head1 DESCRIPTION
+
+Use as a rpc server and as a rpc client.
+It will sync between all the cluster members somes configurations parameters.
+
+=cut
+
 use strict;
 use pf::config;
 use pf::config::cached;
-use pf::log(service => 'pfclustermgmt');
+use pf::log;
 use pf::util;
 use Data::Dumper;
 use pf::ConfigStore::Interface;
 use NetAddr::IP;
 use List::MoreUtils qw(uniq);
+use JSON::RPC::Client;
 
 use base qw(JSON::RPC::Procedure);  # for :Public and :Private attributes
 
-sub sum : Public(a:num, b:num) {
-    my ($s, $obj) = @_;
-    return $obj->{a} + $obj->{b};
-}
+=head2 active_active
+
+RPC server function that return his local cluster configuration and adapt his own.
+
+=cut
 
 sub active_active : Public(ip:str, dhcpd:bool, activeip:str, mysql:str) {
     my($s, $obj) = @_;
@@ -33,8 +48,6 @@ sub active_active : Public(ip:str, dhcpd:bool, activeip:str, mysql:str) {
         next if (!isenabled($cfg->{'active_active_enabled'}));
         my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
         if ( $current_network->contains($ip) ) {
-
-            $logger->warn($interface.":".$obj->{mysql}.":".$obj->{mysql});
             $cs->update($interface, { active_active_mysql_master => $obj->{mysql}}) if (defined($obj->{mysql}) && $obj->{mysql});
             $cs->update($interface, { active_active_dhcpd_master => '0'}) if $obj->{dhcpd};
             $cs->update($interface, { active_active_ip => $obj->{activeip}}) if $obj->{activeip};
@@ -44,12 +57,12 @@ sub active_active : Public(ip:str, dhcpd:bool, activeip:str, mysql:str) {
                 push(@members, $obj->{ip});
                 push(@members, $cfg->{'ip'});
                 @members = uniq(@members);
-                $logger->warn(Dumper @members);
                 $cs->update($interface, { active_active_members => join(',',@members)});
             }
             $cs->commit();
             my $hash_ref = { active_active_members => $cfg->{'active_active_members'},
                              dhcpd_master => $cfg->{'active_active_dhcpd_master'},
+                             member_ip => $cfg->{'ip'},
                            };
             $hash_ref->{'mysql_master'} = $cfg->{'active_active_mysql_master'} || $obj->{mysql} if (defined($obj->{mysql}) && $obj->{mysql});
             return $hash_ref;
@@ -57,5 +70,105 @@ sub active_active : Public(ip:str, dhcpd:bool, activeip:str, mysql:str) {
     }
     return;
 }
+
+=head2 sync_cluster
+
+RPC Client that send his configuration and adapt his own
+
+=cut
+
+sub sync_cluster {
+    my $logger = get_logger;
+    pf::config::cached::ReloadConfigs();
+
+    my $client = new JSON::RPC::Client;
+
+    my @members;
+    my @all_members;
+
+    my $int = $management_network->{'Tint'};
+    if ( ($Config{"interface $int"}{'type'} eq 'management') && (isenabled($Config{"interface $int"}{'active_active_enabled'}) ) ) {
+        @members = split(',',$Config{"interface $int"}{'active_active_members'});
+    }
+
+    my @ints = uniq(@listen_ints,@dhcplistener_ints);
+
+    foreach my $interface ( @ints ) {
+        my $dhcpd_master = 0;
+        my $mysql_master = 0;
+        my $cfg = $Config{"interface $interface"};
+        if (isenabled($cfg->{'active_active_enabled'})) {
+            my @all_members;
+            for my $member (@members) {
+                my $uri = "http://$member:32274/cluster";
+                my $obj = {
+                    method => 'active_active',
+                    params => { ip => $cfg->{'ip'},
+                                dhcpd => $cfg->{'active_active_dhcpd_master'},
+                                activeip => $cfg->{'active_active_ip'},
+                                mysql => $cfg->{'active_active_mysql_master'} || 0,
+                    },
+                };
+
+                my $res = $client->call( $uri, $obj );
+                if ($res){
+                    if ($res->is_error) {
+                        $logger->error($res->error_message);
+                    } else {
+                        my $result =  $res->result;
+                        $dhcpd_master = $result->{'dhcpd_master'} if ($result->{'dhcpd_master'} && defined($cfg->{'active_active_dhcpd_master'}));
+                        $mysql_master = $result->{'mysql_master'} if ($result->{'mysql_master'} && defined($cfg->{'active_active_mysql_master'}));
+                        push(@all_members , split(',',$result->{'active_active_members'}));
+                        push(@all_members , $result->{'member_ip'});
+                        $logger->error("There is more than one dhcpd master, fix that") if ($result->{'dhcpd_master'} && $Config{"interface $int"}{'active_active_dhcpd_master'});
+                    }
+                } else {
+                    # Maybe we have to give a chance to the member
+                    @all_members = grep { $_ ne $member } @all_members;
+                }
+            }
+            push (@all_members,$cfg->{'ip'});
+            my @uniq_members = uniq(@all_members);
+
+            my $cs = pf::ConfigStore::Interface->new();
+            $cs->update($interface, { active_active_members => join(',',@uniq_members)});
+            $cs->update($interface, { active_active_dhcpd_master => 0}) if ($dhcpd_master && defined($cfg->{'active_active_dhcpd_master'} ) && $cfg->{'type'} ne 'management');
+            $cs->update($interface, { active_active_mysql_master => $mysql_master}) if ($mysql_master && defined($cfg->{'active_active_mysql_master'} ) &&  $cfg->{'type'} eq 'management');
+            $cs->update($interface, { active_active_dhcpd_master => 1}) if (!$dhcpd_master && defined($cfg->{'active_active_dhcpd_master'} ) && $cfg->{'type'} ne 'management');
+            $cs->update($interface, { active_active_mysql_master => $Config{"interface $int"}{ip}}) if (!$mysql_master && defined($cfg->{'active_active_mysql_master'} ) && $cfg->{'type'} eq 'management' );
+            $cs->commit();
+            undef(@all_members);
+        }
+        #Reload configuration
+        pf::config::cached::ReloadConfigs();
+    }
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2014 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and::or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
 
 1;

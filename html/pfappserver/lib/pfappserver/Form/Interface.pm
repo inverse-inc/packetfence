@@ -106,7 +106,7 @@ has_field 'active_active_dhcpd_master' => (
 );
 
 has_field 'active_active_mysql_master' => (
-    type => 'IPAddres',
+    type => 'IPAddress',
     label => 'Define mysql master',
 );
 

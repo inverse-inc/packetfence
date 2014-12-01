@@ -518,6 +518,11 @@ pfmon=enabled
 # Should pfdhcplistener be started?
 pfdhcplistener=enabled
 #
+# services.pfclustermgmt
+#
+# Should pfclustermgmt be started ? Keep enabled unless you know what you're doing.
+pfclustermgmt=enabled
+#
 # services.snort_binary
 #
 # Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
@@ -965,3 +970,8 @@ provisioning_compliance_poll_interval=300s
 #
 # Interval at which Packetfence purges the ldap_auth cache
 ldap_auth_cache_cleanup_interval=600s
+
+# maintenance.cluster_sync_interval
+#
+# Interval at which PacketFence runs the sync between all the members of the cluster
+cluster_sync_interval=600s

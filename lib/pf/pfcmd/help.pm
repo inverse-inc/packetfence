@@ -160,6 +160,7 @@ Services managed by PacketFence:
   iptables         | PacketFence firewall rules
   pf               | all services that should be running based on your config
   pfbandwidthd     | A pf service to monitor bandwidth usages
+  pfclustermgmt    | RPC cluster synchronisation
   pfdetect         | PF snort alert parser
   pfdhcplistener   | PF DHCP monitoring daemon
   pfdns            | DNS daemon

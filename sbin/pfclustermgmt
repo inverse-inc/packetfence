@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-pfdhcpd - PacketFence DHCP server and listener
+pfclustermgmt - PacketFence RPC server for cluster sync
 
 =head1 SYNOPSIS
 
-pfdhcpd
+pfclustermgmt
 
 =cut
 
@@ -80,28 +80,14 @@ END {
     deletepid($PROGRAM_NAME) unless $args{h};
 }
 
-#my @ip_addr;
-#foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
-#    my $ip = $Config{$interface}{'ip'};
-#    if (isenabled($Config{"interface $interface"}{'active_active_enabled'})) {
-#        push @ip_addr, $ip;
-#    }
-#}
-
 my $int = $management_network->{'Tint'};
 if ( ($Config{"interface $int"}{'type'} eq 'management') && (isenabled($Config{"interface $int"}{'active_active_enabled'}) ) ) {
     my $if   = IO::Interface::Simple->new($int);
-#    $server = JSON::RPC::Server::Daemon->new(LocalAddr => [@ip_addr], LocalPort => 32274);
     $server = JSON::RPC::Server::Daemon->new(LocalAddr => $if->address, LocalPort => 32274);
     $server->dispatch({'/cluster' => 'pf::clustermgmt'})->handle();
-#    use Data::Dumper;
-#    print Dumper $server;
 }
 
-$logger->warn("pas de mgmt");
-    
 sub normal_sighandler {
-    #$RUNNING = 0;
     $logger->debug( "$PROGRAM_NAME: caught SIG" . $_[0] . " - terminating" );
 }
 

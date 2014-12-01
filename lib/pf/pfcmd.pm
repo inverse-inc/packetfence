@@ -312,7 +312,7 @@ sub parseCommandLine {
                                    )
                                  $ }xms,
         'service'         => qr{ ^ ( dhcpd | pfdns | pfdetect | pfbandwidthd
-                                     | pf | pfdhcplistener | pfmon
+                                     | pf | pfdhcplistener | pfclustermgmt | pfmon
                                      | pfsetvlan | radiusd | snmptrapd
                                      | snort | suricata | haproxy | httpd\.webservices | httpd\.admin | httpd\.portal | httpd\.portal\.catalyst | httpd\.proxy | httpd\.aaa | memcached | iptables)
                                    \s+
