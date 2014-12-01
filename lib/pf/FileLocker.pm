@@ -130,7 +130,7 @@ sub isWriteLockedByAnother {
     my ($self) = @_;
     my $fs = $self->fcntlLock;
     $fs->lock($self->fh, F_GETLK);
-    return F_WRLCK == $fs->l_type && $fs->pid != $$;
+    return F_WRLCK == $fs->l_type && $fs->l_pid != $$;
 }
 
 =head1 AUTHOR
