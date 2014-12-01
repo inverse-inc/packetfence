@@ -32,6 +32,7 @@ Enhancements
 * Added vlan filter in getNodeInfoForAutoReg and update/create person even if the device has been autoreg
 * Refactor the vlan filter code to reduce code duplication
 * Added IMG path configuration parameter in admin
+* Added EAP security options in IOS/Android provisionners
 
 Bug Fixes
 +++++++++
