@@ -19,6 +19,7 @@ use pf::config::cached;
 use pf::log;
 use pf::util;
 use pf::ConfigStore::Interface;
+use pf::ConfigStore::Pf;
 use NetAddr::IP;
 use List::MoreUtils qw(uniq);
 use JSON::RPC::Client;
@@ -63,6 +64,15 @@ sub active_active : Public(ip:str, dhcpd:bool, activeip:str, mysql:str, priority
                 $priority = 120;
             } else {
                 $priority = $cfg->{'active_active_priority'};
+            }
+            if ($cfg->{'type'} eq 'management') {
+                my $pfcs = pf::ConfigStore::Pf->new();
+                push(@members, $obj->{ip});
+                push(@members, $cfg->{'ip'});
+                my $local_members = $pfcs->read('active_active');
+                push(@members,split(',',$local_members->{'members'}));
+                $pfcs->update('active_active', { members =>  join(',',uniq(@members))});
+                $pfcs->commit();
             }
             $cs->update($interface, { active_active_priority => $priority });
             $cs->commit();
@@ -154,7 +164,7 @@ sub sync_cluster {
             $cs->update($interface, { active_active_mysql_master => $mysql_master}) if ($mysql_master && defined($cfg->{'active_active_mysql_master'} ) &&  $cfg->{'type'} eq 'management');
             $cs->update($interface, { active_active_dhcpd_master => 1}) if (!$dhcpd_master && defined($cfg->{'active_active_dhcpd_master'} ) && $cfg->{'type'} ne 'management');
             $cs->update($interface, { active_active_mysql_master => $Config{"interface $int"}{ip}}) if (!$mysql_master && defined($cfg->{'active_active_mysql_master'} ) && $cfg->{'type'} eq 'management' );
-            #$cs->commit();
+            $cs->update($interface, { active_active_priority => $priority}) if ($priority eq 150);
             undef(@all_members);
         }
         if (my @found = grep { $_ eq $priority } @priority) {

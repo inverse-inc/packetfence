@@ -59,7 +59,7 @@ sub generateConfig {
 vrrp_instance $cfg->{'ip'} {
   virtual_router_id 50
   advert_int 1
-  priority 100      # 101 on master, 100 on backup
+  priority $cfg->{'active_active_priority'}      # 150 on master less on backup
   state MASTER
   interface $interface
   virtual_ipaddress {

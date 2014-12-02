@@ -985,3 +985,15 @@ ldap_auth_cache_cleanup_interval=600s
 #
 # Interval at which PacketFence runs the sync between all the members of the cluster
 cluster_sync_interval=600s
+
+[active_active]
+#
+# active_active.members
+#
+# List of ip separate by a comma of all the cluster members
+members=
+#
+# active_active.password
+#
+# Shared KEY to sync cluster configuration (Must be the same on all members).
+password=
