@@ -270,6 +270,7 @@ Requires: perl(Net::UDP)
 Requires: mod_qos
 Requires: %{real_name}-config = %{ver}
 Requires: %{real_name}-pfcmd-suid = %{ver}
+Requires: haproxy >= 1.5, keepalived >= 1.2
 
 %description -n %{real_name}
 
@@ -844,6 +845,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
                         /usr/local/pf/conf/vlan_filters.conf.example
 %config                 /usr/local/pf/conf/dhcpd.conf
+%config(noreplace)      /usr/local/pf/conf/haproxy.conf
+                        /usr/local/pf/conf/haproxy.conf.example
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.aaa
@@ -856,6 +859,8 @@ fi
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
+%config(noreplace)      /usr/local/pf/conf/keepalived.conf
+                        /usr/local/pf/conf/keepalived.conf.example
 %config(noreplace)      /usr/local/pf/conf/listener.msg
                         /usr/local/pf/conf/listener.msg.example
 %config(noreplace)      /usr/local/pf/conf/popup.msg
@@ -1010,6 +1015,7 @@ fi
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfclustermgmt
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
