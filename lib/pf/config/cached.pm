@@ -355,7 +355,7 @@ sub new {
     $self = $class->computeFromPath(
         $file,
         sub {
-#            my $lock = lockFileForReading($file);
+            my $lock = lockFileForReading($file);
             my $config = $class->SUPER::new(%params);
             die "$file cannot be loaded" unless $config;
             $config->SetFileName($file);
@@ -395,8 +395,11 @@ sub RewriteConfig {
     if( $self->HasChanged(1) ) {
         die "Config $file was modified from last loading\n";
     }
+    if($self->IsGlobalReloadWriteLocked || $self->IsReloadWriteLocked) {
+        die "Config $file is currently being reloaded into the cache please retry after reloading is done\n";
+    }
     my $result;
-#    my $lock = lockFileForWriting($file);
+    my $lock = lockFileForWriting($file);
     #lock will release when out of scope
     if ( exists $self->{imported} && defined $self->{imported}) {
         #localizing for saving only what is in
@@ -947,14 +950,15 @@ sub ReloadConfigs {
     foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
         next unless $config;
         $logger->trace("Reloading config $config->{cf}");
-	#Getting the lockfile and locking the reload lock file
-	my $locker = _lockFileForOnReload($config->GetFileName);
-	$config->GotReloadWriteLock();
-	$config->ExpireFile() if $force;
-	$config->ExpireLockFile() if $config->HasChanged;
+        #Getting the lockfile and locking the reload lock file
+        my $locker = _lockFileForOnReload($config->GetFileName);
+        $config->GotReloadWriteLock();
+        $config->ExpireFile() if $force;
+        $config->ExpireLockFile() if $config->HasChanged;
         next unless $config->LockFileHasChanged;
         $config->ReloadConfig($force);
     }
+
     $logger->trace("Finished Reloading all configs");
 }
 
@@ -1187,13 +1191,13 @@ sub _ExpireFile {
 
 sub ExpireLockFile {
     my ($self) = @_;
-#    my $locker = lockFileForWriting($self->GetFileName);
+    my $locker = lockFileForWriting($self->GetFileName);
     $self->_ExpireFile($self->GetLockFileName());
 }
 
 sub ExpireFile {
     my ($self) = @_;
-#    my $locker = lockFileForWriting($self->GetFileName);
+    my $locker = lockFileForWriting($self->GetFileName);
     $self->_ExpireFile($self->GetFileName());
 }
 
