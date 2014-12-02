@@ -1032,6 +1032,7 @@ fi
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfclustermgmt
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
