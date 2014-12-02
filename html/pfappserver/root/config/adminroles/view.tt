@@ -19,6 +19,9 @@
             [% form.field('actions').render %]
           </div>
         </div>
+        [% form.field('allowed_access_levels').render %]
+        [% form.field('allowed_roles').render %]
+        [% form.field('allowed_access_durations').render %]
   </div><!--modal-body-->
 
   <div class="modal-footer">

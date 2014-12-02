@@ -57,7 +57,7 @@ sub index : Path : Args(0) {
         $logger->info("Valid PIN -- Registering user");
         my $pid = $c->session->{"guest_pid"} || "admin";
         my $sms_type = pf::Authentication::Source::SMSSource->getDefaultOfType();
-        my $source = $profile->getSourceByType($sms_type);
+        my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
         my $auth_params = { 'username' => $pid, 'user_email' => $pid };
 
         if ($source) {

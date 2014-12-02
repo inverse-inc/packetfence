@@ -4098,6 +4098,26 @@ msgid "USERS_ROLES"
 msgstr "Users Roles"
 
 # pf::admin_roles (Actions)
+msgid "USERS_SET_ROLE"
+msgstr "Users - Set Role"
+
+# pf::admin_roles (Actions)
+msgid "USERS_SET_ACCESS_DURATION"
+msgstr "Users - Set Access Duration"
+
+# pf::admin_roles (Actions)
+msgid "USERS_SET_UNREG_DATE"
+msgstr "Users - Set Unreg Date"
+
+# pf::admin_roles (Actions)
+msgid "USERS_SET_ACCESS_LEVEL"
+msgstr "Users - Set Access Level"
+
+# pf::admin_roles (Actions)
+msgid "USERS_MARK_AS_SPONSOR"
+msgstr "Users - Mark as Sponsor"
+
+# pf::admin_roles (Actions)
 msgid "USERS_ROLES_CREATE"
 msgstr "Users Roles - Create"
 

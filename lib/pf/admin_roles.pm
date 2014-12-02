@@ -17,10 +17,10 @@ use warnings;
 
 use base qw(Exporter);
 use pf::file_paths;
-use List::MoreUtils qw(any all);
+use List::MoreUtils qw(any all uniq);
 use pf::config::cached;
 
-our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config);
+our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config admin_allowed_options admin_allowed_options_all);
 our %ADMIN_ROLES;
 our @ADMIN_ACTIONS = qw(
     ADMIN_ROLES_CREATE
@@ -82,10 +82,15 @@ our @ADMIN_ACTIONS = qw(
 
     USERAGENTS_READ
 
-    USERS_CREATE
-    USERS_DELETE
     USERS_READ
+    USERS_CREATE
     USERS_UPDATE
+    USERS_DELETE
+    USERS_SET_ROLE
+    USERS_SET_ACCESS_DURATION
+    USERS_SET_UNREG_DATE
+    USERS_SET_ACCESS_LEVEL
+    USERS_MARK_AS_SPONSOR
 
     USERS_ROLES_CREATE
     USERS_ROLES_DELETE
@@ -149,7 +154,7 @@ sub admin_can {
     return 0 if any {$_ eq 'NONE'} @$roles;
     return any {
         my $role = $_;
-        exists $ADMIN_ROLES{$role} && all { exists $ADMIN_ROLES{$role}{$_} } @actions
+        exists $ADMIN_ROLES{$role} && all { exists $ADMIN_ROLES{$role}{ACTIONS}{$_} } @actions
     } @$roles;
 }
 
@@ -159,24 +164,22 @@ sub admin_can_do_any {
     return 0 if any {$_ eq 'NONE'} @$roles;
     return any {
         my $role = $_;
-        exists $ADMIN_ROLES{$role} && any { exists $ADMIN_ROLES{$role}{$_} } @actions
+        exists $ADMIN_ROLES{$role} && any { exists $ADMIN_ROLES{$role}{ACTIONS}{$_} } @actions
     } @$roles;
 }
 
 sub reloadConfig {
     my ($config,$name) = @_;
 
-    my %temp;
-    $config->toHash(\%temp);
-    $config->cleanupWhitespace(\%temp);
-    %ADMIN_ROLES = ();
-    while (my ($role,$data) = each %temp) {
+    $config->toHash(\%ADMIN_ROLES);
+    $config->cleanupWhitespace(\%ADMIN_ROLES);
+    foreach my $data (values %ADMIN_ROLES) {
         my $actions = $data->{actions} || '';
         my %action_data = map {$_ => undef} split /\s*,\s*/, $actions;
-        $ADMIN_ROLES{$role} = \%action_data;
+        $data->{ACTIONS} = \%action_data;
     }
-    $ADMIN_ROLES{NONE} = {};
-    $ADMIN_ROLES{ALL} = { map {$_ => undef} @ADMIN_ACTIONS };
+    $ADMIN_ROLES{NONE}{ACTIONS} = { };
+    $ADMIN_ROLES{ALL}{ACTIONS} = { map {$_ => undef} @ADMIN_ACTIONS };
     $config->cacheForData->set("ADMIN_ROLES", \%ADMIN_ROLES);
 }
 
@@ -198,6 +201,45 @@ our $cached_adminroles_config = pf::config::cached->new(
         }
     ],
 );
+
+=head2 admin_allowed_options
+
+Get the allowed options for the given roles
+Will return empty if any role allows all the values
+
+=cut
+
+sub admin_allowed_options {
+    my ($roles,$option) = @_;
+    #return an empty value if any of the roles are all
+    return unless all { $_ ne 'ALL' } @$roles;
+
+    my @options;
+    foreach my $role (@$roles) {
+        next unless exists $ADMIN_ROLES{$role};
+        #If no option is defined then all are allowed
+        return unless exists $ADMIN_ROLES{$role}{$option};
+
+        my $allowed_options = $ADMIN_ROLES{$role}{$option};
+        #If the allowed options is empty the all are allowed
+        return unless defined $allowed_options && length $allowed_options;
+
+        push @options, split /\s*,\s*/, $allowed_options;
+    }
+    return uniq @options;
+}
+
+
+=head2 admin_allowed_options_all
+
+Get all the allowed values for a given role
+
+=cut
+
+sub admin_allowed_options_all {
+    my ($roles, $option) = @_;
+    return uniq map {split /\s*,\s*/, ($ADMIN_ROLES{$_}{$option} || '')} grep { exists $ADMIN_ROLES{$_} && exists $ADMIN_ROLES{$_}{$option} }  @$roles;
+}
 
 =head1 AUTHOR
 

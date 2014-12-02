@@ -332,10 +332,9 @@ Return an instance of pf::Authentication::Source::* for the given id
 
 sub getAuthenticationSource {
     my $id = shift;
-    if (exists $authentication_lookup{$id}) {
-        return $authentication_lookup{$id};
-    }
-    return undef;
+    return unless defined $id && exists $authentication_lookup{$id};
+
+    return $authentication_lookup{$id};
 }
 
 =item getAllAuthenticationSources
@@ -353,8 +352,19 @@ Return instances of pf::Authentication::Source for internal sources
 =cut
 
 sub getInternalAuthenticationSources {
-    my @internal = grep { $_->{'class'} eq 'internal' } @authentication_sources;
-    return \@internal;
+    my @sources = grep { $_->{'class'} eq 'internal' } @authentication_sources;
+    return \@sources;
+}
+
+=item getExternalAuthenticationSources
+
+Return instances of pf::Authentication::Source for external sources
+
+=cut
+
+sub getExternalAuthenticationSources {
+    my @sources = grep { $_->{'class'} eq 'external' } @authentication_sources;
+    return \@sources;
 }
 
 =item deleteAuthenticationSource

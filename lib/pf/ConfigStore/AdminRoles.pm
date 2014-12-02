@@ -19,7 +19,7 @@ use pf::file_paths;
 use pf::admin_roles;
 extends 'pf::ConfigStore';
 
-sub expandableParams { return (qw(actions)); }
+sub expandableParams { return (qw(actions allowed_roles allowed_access_levels)); }
 
 sub _buildCachedConfig { $cached_adminroles_config }
 
