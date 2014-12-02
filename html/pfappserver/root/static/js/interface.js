@@ -307,7 +307,7 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.find(':input').attr('disabled','disabled');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
-                    active_active_dhcpd_master.hide('fast');
+                    active_active_mysql_master.hide('fast');
                     if (modal.find('[name="active_active_enabled"]').is(":checked")) {
                         vip.hide('fast');
                     } else {

@@ -45,7 +45,7 @@ sub generateConfig {
     my %tags;
     $tags{'template'} = "$conf_dir/keepalived.conf";
     $tags{'emailaddr'} = $Config{'alerting'}{'emailaddr'};
-    $tags{'fromaddr'} = $Config{'alerting'}{'fromaddr'};
+    $tags{'fromaddr'} = $Config{'alerting'}{'fromaddr'} || 'root@localhost';
     $tags{'smtpserver'} = $Config{'alerting'}{'smtpserver'};
 
     $tags{'vrrp'} = '';
@@ -55,11 +55,12 @@ sub generateConfig {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
         next if (!isenabled($cfg->{'active_active_enabled'}));
+        my $priority = $cfg->{'active_active_priority'} || 100;
         $tags{'vrrp'} .= <<"EOT";
 vrrp_instance $cfg->{'ip'} {
   virtual_router_id 50
   advert_int 1
-  priority $cfg->{'active_active_priority'}      # 150 on master less on backup
+  priority $priority      # 150 on master less on backup
   state MASTER
   interface $interface
   virtual_ipaddress {
@@ -72,7 +73,7 @@ vrrp_instance $cfg->{'ip'} {
   }
   authentication {
     auth_type PASS
-    auth_pass 1234
+    auth_pass $Config{'active_active'}{'password'}
   }
   smtp_alert
 }
