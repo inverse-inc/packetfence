@@ -162,7 +162,7 @@ sub doEmailSelfRegistration : Private {
     # fetch role for this user
     my $email_type =
       pf::Authentication::Source::EmailSource->getDefaultOfType;
-    my $source      = $profile->getSourceByType($email_type);
+    my $source = $profile->getSourceByType($email_type) || $profile->getSourceByTypeForChained($email_type);
     my $auth_params = {
         'username'   => $pid,
         'user_email' => $email
@@ -274,7 +274,7 @@ sub doSponsorSelfRegistration : Private {
 
     my $sponsor_type =
       pf::Authentication::Source::SponsorEmailSource->getDefaultOfType;
-    my $source      = $profile->getSourceByType($sponsor_type);
+    my $source = $profile->getSourceByType($sponsor_type) || $profile->getSourceByTypeForChained($sponsor_type);
     my $auth_params = {
         'username'   => $pid,
         'user_email' => $email
@@ -398,7 +398,7 @@ sub doSmsSelfRegistration : Private {
         # fetch role for this user
         my $sms_type =
           pf::Authentication::Source::SMSSource->getDefaultOfType;
-        my $source      = $profile->getSourceByType($sms_type);
+        my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
         my $auth_params = {
             'username'    => $pid,
             'phonenumber' => $phone
@@ -537,7 +537,7 @@ sub validateByEmailSource : Private {
     my $request = $c->request;
     my $email_type =
       pf::Authentication::Source::EmailSource->getDefaultOfType;
-    my $source      = $profile->getSourceByType($email_type);
+    my $source = $profile->getSourceByType($email_type) || $profile->getSourceByTypeForChained($email_type);
     my $localdomain = $Config{'general'}{'domain'};
     if (   $source
         && isdisabled( $source->{allow_localdomain} )
@@ -613,7 +613,7 @@ sub showSelfRegistrationPage : Private {
     my $sms_type =
       pf::Authentication::Source::SMSSource->meta->get_attribute('type')
       ->default;
-    my $source     = $profile->getSourceByType($sms_type);
+    my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
 
     $c->stash(
         post_uri            => "$WEB::URL_SIGNUP?mode=guest-register",
