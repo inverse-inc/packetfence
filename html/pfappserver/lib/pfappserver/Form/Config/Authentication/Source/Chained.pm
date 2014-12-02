@@ -33,13 +33,6 @@ has_field 'authentication_source' =>
    options_method => \&options_authentication_source,
   );
 
-has_field 'use_rules_from_authentication_source' =>
-  (
-   type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-  );
-
 our %ALLOWED_CHAINED_SOURCES = (
     SMS          => undef,
     Email        => undef,

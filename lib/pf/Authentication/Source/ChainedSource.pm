@@ -30,10 +30,8 @@ extends 'pf::Authentication::Source';
 has '+class' => (default => 'internal');
 has '+type' => (default => 'Chained');
 has '+unique' => (default => 1 );
-has rules_from_sources => ( is => 'rw' );
 has chained_authentication_source => ( is => 'rw', required => 1 );
 has authentication_source => ( is => 'rw', required => 1 );
-has use_rules_from_authentication_source => ( is => 'rw' );
 
 =head2 available_attributes
 
@@ -63,20 +61,6 @@ sub available_actions {
             $Actions::SET_UNREG_DATE,
             $Actions::SET_ACCESS_LEVEL,
            ];
-}
-
-=head2 match
-
-=cut
-
-sub match {
-    my ($self,@args) = @_;
-    if (isenabled($self->use_rules_from_authentication_source) ) {
-        my $source = pf::authentication::getAuthenticationSource($self->authentication_source);
-        return undef unless $source;
-        return $source->match(@args);
-    }
-    return $self->SUPER::match(@args);
 }
 
 =head2 match_in_subclass
