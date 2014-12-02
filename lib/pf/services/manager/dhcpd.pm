@@ -49,7 +49,8 @@ sub generateConfig {
             ( $cfg->{'active_active_dhcpd_master'} ) ? $master = 'primary' : $master = 'secondary'; 
             my @active_members = split(',',$cfg->{'active_active_members'});
             my $members = join(',',grep { $_ ne $cfg->{'ip'} } @active_members);
-            $tags{'active'} .= <<"EOT";
+            if ($members) {
+                $tags{'active'} .= <<"EOT";
 failover peer "$cfg->{'ip'}" {
   $master;
   address $cfg->{'ip'};
@@ -62,6 +63,7 @@ failover peer "$cfg->{'ip'}" {
 }
 
 EOT
+            }
         }
         my $net = Net::Netmask->new($cfg->{'ip'}, $cfg->{'mask'});
         my ($base,$mask) = ($net->base(), $net->mask());
@@ -73,12 +75,21 @@ EOT
         my %net = %{$ConfigNetworks{$network}};
 
         if ( $net{'dhcpd'} eq 'enabled' ) {
-            my $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'}) || new NetAddr::IP::Lite clean_ip($net{'gateway'});
+            my $ip = new NetAddr::IP::Lite clean_ip($net{'gateway'});
+            if (defined($net{'next_hop'})) {
+                $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'})
+            }
             my $active = '0';
             foreach my $interface ( @listen_ints ) {
                 my $cfg = $Config{"interface $interface"};
                 my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
-                $active = $cfg->{'ip'} if $current_network->contains($ip);
+                if (isenabled($cfg->{'active_active_enabled'})) {
+                    my @active_members = split(',',$cfg->{'active_active_members'});
+                    my $members = join(',',grep { $_ ne $cfg->{'ip'} } @active_members);
+                    if ($members) {
+                        $active = $cfg->{'ip'} if $current_network->contains($ip);
+                    }
+                }
             }
             my $domain = sprintf("%s.%s", $net{'type'}, $Config{general}{domain});
             delete $direct_subnets{"subnet $network netmask $net{'netmask'}"};

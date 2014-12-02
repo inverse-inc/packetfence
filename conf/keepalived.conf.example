@@ -2,7 +2,7 @@ global_defs {
    notification_email {
      %%emailaddr%%
    }
-   notification_email_from %%emailfrom%%
+   notification_email_from %%fromaddr%%
    smtp_server %%smtpserver%%
    smtp_connect_timeout 30
    router_id LVS_DEVEL
