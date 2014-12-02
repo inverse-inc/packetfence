@@ -334,9 +334,8 @@ sub violation_delayed_run : Public {
     return ;
 }
 
-=head2
+=head2 trigger_violation
 
-trigger_violation
 Trigger a violation
 
 =cut
@@ -352,9 +351,8 @@ sub trigger_violation : Public {
 }
 
 
-=head2
+=head2 add_node
 
-add_node
 Add a node
 
 =cut
@@ -369,9 +367,8 @@ sub modify_node : Public {
     return;
 }
 
-=head2
+=head2 register_node
 
-register_node
 Register a node
 
 =cut
@@ -386,9 +383,8 @@ sub register_node : Public {
     return;
 }
 
-=head2
+=head2 deregister_node
 
-deregister_node
 Deregister a node
 
 =cut
@@ -403,9 +399,8 @@ sub deregister_node : Public {
     return;
 }
 
-=head2
+=head2 node_information
 
-node_information
 Return all the node attributes
 
 =cut

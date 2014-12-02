@@ -54,13 +54,13 @@ sub test {
         if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq $scope) {
             if ($rule =~ /^\w+:(.*)$/) {
                 my $test = $1;
-                $test =~ s/(\w+)/$self->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request,$1)/gee;
+                $test =~ s/(\w+)/$self->dispatchRule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request,$1)/gee;
                 $test =~ s/\|/ \|\| /g;
                 $test =~ s/\&/ \&\& /g;
                 if (eval $test) {
                     $logger->info("Match Vlan rule: ".$rule." for ".$mac);
                     if ( defined($ConfigVlanFilters{$rule}->{'action'}) && $ConfigVlanFilters{$rule}->{'action'} ne '' ) {
-                        $self->dispatch_actions($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request)
+                        $self->dispatchAction($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request)
                     }
                     if ( defined($ConfigVlanFilters{$rule}->{'role'}) && $ConfigVlanFilters{$rule}->{'role'} ne '' ) {
                         my $role = $ConfigVlanFilters{$rule}->{'role'};
@@ -88,13 +88,13 @@ our %RULE_PARSERS = (
     radius_request => \&radius_parser,
 );
 
-=item dispatch_rules
+=item dispatchRule
 
 Return the reference to the function that parses the rule.
 
 =cut
 
-sub dispatch_rule {
+sub dispatchRule {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $name) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
@@ -105,27 +105,27 @@ sub dispatch_rule {
     return $RULE_PARSERS{$rule->{'filter'}}->($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
 }
 
-=item dispatch_actions
+=item dispatchAction
 
 Return the reference to the function that call the api.
 
 =cut
 
-sub dispatch_actions {
+sub dispatchAction {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
 
-    my $param = $self->eval_param($rule->{'action_param'},$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    my $param = $self->evalParam($rule->{'action_param'},$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     my $apiclient = pf::api::jsonrpcclient->new;
     $apiclient->notify($rule->{'action'},%{$$param});
 }
 
-=item eval_param
+=item evalParam
 
 evaluate action parameters
 
 =cut
 
-sub eval_param {
+sub evalParam {
     my ($self, $action_param, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
     $action_param =~ s/\s//g;
     my @params = split(',', $action_param);
