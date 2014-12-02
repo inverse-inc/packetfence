@@ -523,6 +523,11 @@ pfdhcplistener=enabled
 # Should pfclustermgmt be started ? Keep enabled unless you know what you're doing.
 pfclustermgmt=enabled
 #
+# services.keepalived
+#
+# Should keepalived be started?
+keepalived=enabled
+#
 # services.snort_binary
 #
 # Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
@@ -572,6 +577,11 @@ iptables_binary=/sbin/iptables
 # 
 # Location of the memcached binary. Only necessary to change if you are not running the pre-packaged version.
 memcached_binary=/usr/bin/memcached
+#
+# services.keepalived_binary
+#
+# Location of the keepalived binary. Only necessary to change if you are not running the RPMed version.
+keepalived_binary=/usr/sbin/keepalived
 # 
 # services.memcached_memory_usage
 # 

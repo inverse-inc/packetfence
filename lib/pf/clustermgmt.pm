@@ -18,7 +18,6 @@ use pf::config;
 use pf::config::cached;
 use pf::log;
 use pf::util;
-use Data::Dumper;
 use pf::ConfigStore::Interface;
 use NetAddr::IP;
 use List::MoreUtils qw(uniq);
@@ -32,7 +31,7 @@ RPC server function that return his local cluster configuration and adapt his ow
 
 =cut
 
-sub active_active : Public(ip:str, dhcpd:bool, activeip:str, mysql:str) {
+sub active_active : Public(ip:str, dhcpd:bool, activeip:str, mysql:str, priority:int) {
     my($s, $obj) = @_;
     my $logger = get_logger;
 
@@ -59,10 +58,18 @@ sub active_active : Public(ip:str, dhcpd:bool, activeip:str, mysql:str) {
                 @members = uniq(@members);
                 $cs->update($interface, { active_active_members => join(',',@members)});
             }
+            my $priority;
+            if (!defined($cfg->{'active_active_priority'})) {
+                $priority = 120;
+            } else {
+                $priority = $cfg->{'active_active_priority'};
+            }
+            $cs->update($interface, { active_active_priority => $priority });
             $cs->commit();
             my $hash_ref = { active_active_members => $cfg->{'active_active_members'},
                              dhcpd_master => $cfg->{'active_active_dhcpd_master'},
                              member_ip => $cfg->{'ip'},
+                             priority => $priority,
                            };
             $hash_ref->{'mysql_master'} = $cfg->{'active_active_mysql_master'} || $obj->{mysql} if (defined($obj->{mysql}) && $obj->{mysql});
             return $hash_ref;
@@ -93,6 +100,17 @@ sub sync_cluster {
 
     my @ints = uniq(@listen_ints,@dhcplistener_ints);
 
+    my $priority = 0;
+    my @priority;
+
+    if ( (defined $Config{"interface $int"}{'active_active_mysql_master'}) && ($Config{"interface $int"}{'ip'} eq $Config{"interface $int"}{'active_active_mysql_master'}) ) {
+        $priority = '150';
+    } else {
+        $priority = $Config{"interface $int"}{'active_active_priority'} || 0;
+    }
+
+    my $cs = pf::ConfigStore::Interface->new();
+
     foreach my $interface ( @ints ) {
         my $dhcpd_master = 0;
         my $mysql_master = 0;
@@ -107,6 +125,7 @@ sub sync_cluster {
                                 dhcpd => $cfg->{'active_active_dhcpd_master'},
                                 activeip => $cfg->{'active_active_ip'},
                                 mysql => $cfg->{'active_active_mysql_master'} || 0,
+                                priority => $priority,
                     },
                 };
 
@@ -121,24 +140,34 @@ sub sync_cluster {
                         push(@all_members , split(',',$result->{'active_active_members'}));
                         push(@all_members , $result->{'member_ip'});
                         $logger->error("There is more than one dhcpd master, fix that") if ($result->{'dhcpd_master'} && $Config{"interface $int"}{'active_active_dhcpd_master'});
+                        push(@priority, $result->{'priority'});
                     }
                 } else {
-                    # Maybe we have to give a chance to the member
                     @all_members = grep { $_ ne $member } @all_members;
                 }
             }
             push (@all_members,$cfg->{'ip'});
             my @uniq_members = uniq(@all_members);
 
-            my $cs = pf::ConfigStore::Interface->new();
             $cs->update($interface, { active_active_members => join(',',@uniq_members)});
             $cs->update($interface, { active_active_dhcpd_master => 0}) if ($dhcpd_master && defined($cfg->{'active_active_dhcpd_master'} ) && $cfg->{'type'} ne 'management');
             $cs->update($interface, { active_active_mysql_master => $mysql_master}) if ($mysql_master && defined($cfg->{'active_active_mysql_master'} ) &&  $cfg->{'type'} eq 'management');
             $cs->update($interface, { active_active_dhcpd_master => 1}) if (!$dhcpd_master && defined($cfg->{'active_active_dhcpd_master'} ) && $cfg->{'type'} ne 'management');
             $cs->update($interface, { active_active_mysql_master => $Config{"interface $int"}{ip}}) if (!$mysql_master && defined($cfg->{'active_active_mysql_master'} ) && $cfg->{'type'} eq 'management' );
-            $cs->commit();
+            #$cs->commit();
             undef(@all_members);
         }
+        if (my @found = grep { $_ eq $priority } @priority) {
+            my $i = 100;
+            while (my @found = grep { $_ eq $priority } @priority) {
+                $priority = $i;
+                $i++;
+            }
+            $cs->update($int, { active_active_priority => $priority});
+        } else {
+            $cs->update($int, { active_active_priority => $priority});
+        }
+        $cs->commit();
         #Reload configuration
         pf::config::cached::ReloadConfigs();
     }
