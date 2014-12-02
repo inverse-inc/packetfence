@@ -997,3 +997,8 @@ members=
 #
 # Shared KEY to sync cluster configuration (Must be the same on all members).
 password=
+#
+# active_active.syncport
+#
+# TCP port used to sync the cluster (Must be the same on all members).
+syncport=32274

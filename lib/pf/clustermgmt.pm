@@ -53,7 +53,7 @@ sub active_active : Public(ip:str, dhcpd:bool, activeip:str, mysql:str, priority
             $cs->update($interface, { active_active_ip => $obj->{activeip}}) if $obj->{activeip};
 
             my @members = split(',',$cfg->{'active_active_members'});
-            if (!( my @found = grep { $_ eq $obj->{ip} } @members ) || !( my @found = grep { $_ eq $cfg->{'ip'} } @members )) {
+            if (!( grep { $_ eq $obj->{ip} } @members ) || !( grep { $_ eq $cfg->{'ip'} } @members )) {
                 push(@members, $obj->{ip});
                 push(@members, $cfg->{'ip'});
                 @members = uniq(@members);
@@ -100,18 +100,14 @@ sub sync_cluster {
 
     my $client = new JSON::RPC::Client;
 
-    my @members;
     my @all_members;
+    my $priority;
+    my @priority;
 
     my $int = $management_network->{'Tint'};
-    if ( ($Config{"interface $int"}{'type'} eq 'management') && (isenabled($Config{"interface $int"}{'active_active_enabled'}) ) ) {
-        @members = split(',',$Config{"interface $int"}{'active_active_members'});
-    }
+    my @members = split(',',$Config{"active_active"}{'members'});
 
     my @ints = uniq(@listen_ints,@dhcplistener_ints);
-
-    my $priority = 0;
-    my @priority;
 
     if ( (defined $Config{"interface $int"}{'active_active_mysql_master'}) && ($Config{"interface $int"}{'ip'} eq $Config{"interface $int"}{'active_active_mysql_master'}) ) {
         $priority = '150';
@@ -128,7 +124,7 @@ sub sync_cluster {
         if (isenabled($cfg->{'active_active_enabled'})) {
             my @all_members;
             for my $member (@members) {
-                my $uri = "http://$member:32274/cluster";
+                my $uri = "http://$member:".$Config{'active_active'}{'syncport'}."/cluster";
                 my $obj = {
                     method => 'active_active',
                     params => { ip => $cfg->{'ip'},
@@ -167,9 +163,9 @@ sub sync_cluster {
             $cs->update($interface, { active_active_priority => $priority}) if ($priority eq 150);
             undef(@all_members);
         }
-        if (my @found = grep { $_ eq $priority } @priority) {
+        if (grep { $_ eq $priority } @priority) {
             my $i = 100;
-            while (my @found = grep { $_ eq $priority } @priority) {
+            while (grep { $_ eq $priority } @priority) {
                 $priority = $i;
                 $i++;
             }

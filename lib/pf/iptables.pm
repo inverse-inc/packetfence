@@ -100,6 +100,7 @@ sub iptables_generate {
     $tags{'web_admin_port'} = $Config{'ports'}{'admin'};
     $tags{'webservices_port'} = $Config{'ports'}{'soap'};
     $tags{'aaa_port'} = $Config{'ports'}{'aaa'};
+    $tags{'cluster_sync_port'} = $Config{'active_active'}{'syncport'};
     # FILTER
     # per interface-type pointers to pre-defined chains
     $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();
