@@ -2472,7 +2472,7 @@ realm ntdomain {
 VLAN Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~
 
-We added the ability to specify filters directly in the portion of code that re-evaluates the VLAN. 
+We added the ability to specify filters directly in the portion of code that re-evaluates the VLAN or do a call to the API. 
 
 These rules are available in different scopes:
 
@@ -2481,6 +2481,7 @@ These rules are available in different scopes:
   NormalVlan
   InlineVlan
   AutoRegister
+  NodeInfoForAutoReg
 
 And can be defined using different criteria like:
 
@@ -2517,6 +2518,23 @@ from Monday to Friday when it try to connect as a registered device :
   [1:category&ssid&time]
   scope = NormalVlan
   role = nointernet
+
+The second example will create a violation if the SSID is OPEN and the owner is igmout
+
+  [igmout]
+  filter = owner
+  operator = is
+  value = igmout
+
+  [open]
+  filter = ssid
+  operator = is
+  value = OPEN
+
+  [2:igmout&ssid]
+  scope = NormalVlan
+  action = trigger_violation
+  action_param = mac = $mac, tid = 1100012, type = INTERNAL
 
 You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
 

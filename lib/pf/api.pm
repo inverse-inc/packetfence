@@ -104,11 +104,14 @@ sub update_iplog : Public {
 }
  
 sub unreg_node_for_pid : Public {
-    my ($class, $pid) = @_;
-
+    my ($class, %postdata) = @_;
     my $logger = pf::log::get_logger();
-    my @node_infos =  pf::node::node_view_reg_pid($pid->{'pid'});
-    $logger->info("Unregistering ".scalar(@node_infos)." node(s) for $pid");
+    my @require = qw(pid);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
+    my @node_infos =  pf::node::node_view_reg_pid($postdata{'pid'});
+    $logger->info("Unregistering ".scalar(@node_infos)." node(s) for ".$postdata{'pid'});
 
     foreach my $node_info ( @node_infos ) {
         pf::node::node_deregister($node_info->{'mac'});
@@ -152,13 +155,6 @@ sub close_now_iplog : Public {
     return (pf::iplog::iplog_close_now($ip));
 }
 
-sub trigger_violation : Public {
-    my ( $class, $mac, $tid, $type ) = @_;
-    my $logger = pf::log::get_logger();
-
-    return (pf::violation::violation_trigger($mac, $tid, $type));
-}
-
 sub ipset_node_update : Public {
     my ( $class, $oldip, $srcip, $srcmac ) = @_;
     my $logger = pf::log::get_logger();
@@ -167,7 +163,11 @@ sub ipset_node_update : Public {
 }
 
 sub firewallsso : Public {
-    my ($class, $info) = @_;
+    my ($class, %postdata) = @_;
+    my @require = qw(method mac ip timeout);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
     my $logger = pf::log::get_logger();
 
     foreach my $firewall_conf ( sort keys %pf::config::ConfigFirewallSSO ) {
@@ -179,7 +179,7 @@ sub firewallsso : Public {
             return 0;
         }
         my $firewall = $module_name->new();
-        $firewall->action($firewall_conf,$info->{'method'},$info->{'mac'},$info->{'ip'},$info->{'timeout'});
+        $firewall->action($firewall_conf,$postdata{'method'},$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
     }
     return $pf::config::TRUE;
 }
@@ -187,6 +187,10 @@ sub firewallsso : Public {
 
 sub ReAssignVlan : Public {
     my ($class, %postdata )  = @_;
+    my @require = qw(connection_type switch mac ifIndex _deauthMethod);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
     my $logger = pf::log::get_logger();
 
     if ( not defined( $postdata{'connection_type'} )) { 
@@ -218,6 +222,10 @@ sub ReAssignVlan : Public {
 
 sub desAssociate : Public {
     my ($class, %postdata )  = @_;
+    my @require = qw(switch mac _deauthMethod);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
     my $logger = pf::log::get_logger();
 
     my $switch = pf::SwitchFactory->getInstance()->instantiate($postdata{'switch'});
@@ -237,6 +245,10 @@ sub desAssociate : Public {
 
 sub firewall : Public {
     my ($class, %postdata )  = @_;
+    my @require = qw(mac);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
     my $logger = pf::log::get_logger();
 
     # verify if firewall rule is ok
@@ -313,11 +325,95 @@ runs the delayed violation now
 =cut
 
 sub violation_delayed_run : Public {
-    my ($self, $violation) = @_;
-    pf::violation::_violation_run_delayed($violation);
+    my ($self, %postdata) = @_;
+    my @require = qw(mac vid id);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
+    pf::violation::_violation_run_delayed(%postdata);
     return ;
 }
 
+=head2 trigger_violation
+
+Trigger a violation
+
+=cut
+
+sub trigger_violation : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac tid type);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
+
+    return (pf::violation::violation_trigger($postdata{'mac'}, $postdata{'tid'}, $postdata{'type'}));
+}
+
+
+=head2 add_node
+
+Add a node
+
+=cut
+
+sub modify_node : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
+    pf::node::node_modify($postdata{'mac'}, %postdata);
+    return;
+}
+
+=head2 register_node
+
+Register a node
+
+=cut
+
+sub register_node : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac pid);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
+    pf::node::node_register($postdata{'mac'}, $postdata{'pid'}, %postdata);
+    return;
+}
+
+=head2 deregister_node
+
+Deregister a node
+
+=cut
+
+sub deregister_node : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
+    pf::node::node_deregister($postdata{'mac'}, %postdata);
+    return;
+}
+
+=head2 node_information
+
+Return all the node attributes
+
+=cut
+
+sub node_information : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
+    my $node_info = pf::node::node_view($postdata{'mac'});
+    return $node_info;
+}
 
 =head1 AUTHOR
 

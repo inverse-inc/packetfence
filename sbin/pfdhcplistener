@@ -471,7 +471,12 @@ sub rogue_dhcp_handling {
     # if I have a MAC use it, otherwise look it up
     $dhcp_srv_mac = ip2mac($dhcp_srv_ip) if (!defined($dhcp_srv_mac));
     if ($dhcp_srv_mac) {
-        $apiclient->notify('trigger_violation', $dhcp_srv_mac, $ROGUE_DHCP_TRIGGER, 'INTERNAL' );
+        my %data = (
+           'mac' => $dhcp_srv_mac,
+           'tid' => $ROGUE_DHCP_TRIGGER,
+           'type' => 'INTERNAL',
+        );
+        $apiclient->notify('trigger_violation', %data );
     } else {
         $logger->info("Unable to find MAC based on IP $dhcp_srv_ip for rogue DHCP server");
         $dhcp_srv_mac = 'unknown';
@@ -569,13 +574,23 @@ sub process_fingerprint {
         # precise fingerprint
         $fingerprint_data = "OS::".$fingerprint_info[0]->{'id'}." (".$fingerprint_info[0]->{'os'}.")";
         $logger->debug("$chaddr sending $fingerprint_data trigger");
-        $apiclient->notify('trigger_violation', $chaddr, $fingerprint_info[0]->{'id'}, "OS" );
+        my %data = (
+           'mac' => $chaddr,
+           'tid' => $fingerprint_info[0]->{'id'},
+           'type' => 'OS',
+        );
+        $apiclient->notify('trigger_violation', %data );
 
         # class fingerprints
         foreach my $class_trigger (@fingerprint_info) {
             my $class_data = "OS::".$class_trigger->{'classid'}." (".$class_trigger->{'class'}.")";
             $logger->debug("$chaddr sending $class_data trigger");
-            $apiclient->notify('trigger_violation', $chaddr, $class_trigger->{'classid'}, "OS" );
+            my %data = (
+               'mac' => $chaddr,
+               'tid' => $class_trigger->{'classid'},
+               'type' => 'OS',
+            );
+            $apiclient->notify('trigger_violation', %data );
         }
 
     } else {
