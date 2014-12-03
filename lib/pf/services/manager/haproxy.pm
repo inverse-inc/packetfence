@@ -46,6 +46,11 @@ sub generateConfig {
     $tags{'template'} = "$conf_dir/haproxy.conf";
     $tags{'http'} = '';
     $tags{'mysql_backend'} = '';
+    if ($OS eq 'debian') {
+        $tags{'os_path'} = '/etc/haproxy/errors/';
+    } else {
+         $tags{'os_path'} = '/usr/share/haproxy/';
+    }
     my @ints = uniq(@listen_ints,@dhcplistener_ints);
     my $j = 0;
     foreach my $interface ( @ints ) {
@@ -73,6 +78,7 @@ EOT
             }
         }
         if ($cfg->{'type'} eq 'internal') {
+            my @backend_ip = $cfg->{'ip'};
             if (defined($cfg->{'active_active_members'})) {
                 @backend_ip = split(',',$cfg->{'active_active_members'});
             }

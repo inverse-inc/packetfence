@@ -1,3 +1,4 @@
+package pf::services::manager::dhcpd;
 =head1 NAME
 
 pf::services::manager::dhcpd add documentation
@@ -45,8 +46,8 @@ sub generateConfig {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
         if ($cfg->{'active_active_enabled'}) {
-            my $master;
-            ( $cfg->{'active_active_dhcpd_master'} ) ? $master = 'primary' : $master = 'secondary'; 
+            my $master = 'secondary';
+            $master = 'primary' if ( isenabled($cfg->{'active_active_dhcpd_master'} ) );
             my @active_members = '';
             if (defined($cfg->{'active_active_members'})) {
                 @active_members = split(',',$cfg->{'active_active_members'});
@@ -63,9 +64,18 @@ failover peer "$cfg->{'ip'}" {
   max-response-delay 30;
   max-unacked-updates 10;
   load balance max seconds 3;
-}
-
 EOT
+                if ($master eq 'primary') {
+                    $tags{'active'} .= <<"EOT";
+  mclt 1800;
+  split 128;
+}
+EOT
+                } else {
+                    $tags{'active'} .= <<"EOT";
+}
+EOT
+                }
             }
         }
         my $net = Net::Netmask->new($cfg->{'ip'}, $cfg->{'mask'});
