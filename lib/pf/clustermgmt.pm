@@ -106,6 +106,7 @@ sub sync_cluster {
 
     my $int = $management_network->{'Tint'};
     my @members = split(',',$Config{"active_active"}{'members'});
+    @members = grep { $_ ne $Config{"interface $int"}{'ip'} } @members;
 
     my @ints = uniq(@listen_ints,@dhcplistener_ints);
 
