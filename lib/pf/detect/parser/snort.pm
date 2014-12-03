@@ -14,8 +14,6 @@ pf::detect::parser::snort
 use strict;
 use warnings;
 
-our $portscan_sid = 1200003;
-
 sub parse {
     my ($line) = @_;
     my $data;
