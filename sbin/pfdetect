@@ -41,6 +41,7 @@ use pf::util;
 use pf::services::util;
 use pf::violation;
 use pf::factory::detect::parser;
+use pf::client;
 
 # initialization
 # --------------
@@ -99,6 +100,8 @@ my $parser_type = $Config{trapping}{detection_parser} || $Config{trapping}{detec
 
 my $parser = pf::factory::detect::parser->new($parser_type);
 
+my $client = pf::client->getClient();
+
 while (<$snortpipe_fh>) {
     $logger->info("alert received: $_");
     my $data = $parser->parse($_);
@@ -106,19 +109,8 @@ while (<$snortpipe_fh>) {
         $logger->warn("unknown input: $_ ");
         next;
     }
+    $client->notify( event_add => ($data->{date}, $data->{srcip}, "detect", $data->{sid} || $portscan_sid));
 
-    my $srcip = $data->{srcip};
-    my $srcmac = pf::iplog::ip2mac($data->{srcip});
-    my $sid = $data->{sid} || $portscan_sid;
-    my $descr = $data->{descr};
-
-    if ($srcmac) {
-        $logger->info("pfdetect: violation $sid [$descr]: $srcmac");
-        violation_trigger($srcmac, $sid, "detect", ( ip => $srcip ));
-    } else {
-        $logger->warn(
-            "pfdetect: $srcip MAC NOT FOUND for violation $sid [$descr]");
-    }
     #reload all cached configs after each iteration
     pf::config::cached::ReloadConfigs();
 }
