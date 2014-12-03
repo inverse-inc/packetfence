@@ -37,7 +37,6 @@ sub parse {
     {
         $data = {
             date  => $1,
-            sid   => $portscan_sid,
             srcip => $3,
             descr => "PORTSCAN",
         };
@@ -47,7 +46,6 @@ sub parse {
     {
         $data = {
             date  => $1,
-            sid   => $portscan_sid,
             srcip => $3,
             descr => "PORTSCAN",
         };
