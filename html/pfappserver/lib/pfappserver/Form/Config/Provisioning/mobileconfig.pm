@@ -48,7 +48,6 @@ sub options_eap_type {
                      "18" => "EAP-SIM", 
                      "21" => "TTLS",
                      "23" => "EAP-AKA",
-                     "43" => "EAP-FAST",
                     ];
     return @eap_types;
 }

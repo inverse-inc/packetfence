@@ -46,6 +46,26 @@
                         <key>SSID_STR</key>
                         <string>[% provisioner.ssid %]</string>
                 </dict>
+                <dict>
+                        <key>PayloadCertificateFileName</key>
+                        <string>[% provisioner.file %]</string>
+                        <key>PayloadContent</key>
+                        <data>[% provisioner.data %]</data>
+                        <key>PayloadDescription</key>
+                        <string>Provides device authentication (certificate or identity).</string>
+                        <key>PayloadDisplayName</key>
+                        <string>[% provisioner.file %]</string>
+                        <key>PayloadIdentifier</key>
+                        <string>credential</string>
+                        <key>PayloadOrganization</key>
+                        <string></string>
+                        <key>PayloadType</key>
+                        <string>com.apple.security.root</string>
+                        <key>PayloadUUID</key>
+                        <string></string>
+                        <key>PayloadVersion</key>
+                        <integer>1</integer>
+                </dict>
         </array>
         <key>PayloadDescription</key>
         <string>Profile description.</string>

@@ -70,6 +70,27 @@ sub authorize {
     return 1;
 }
 
+=head2 cert
+
+always cert
+
+=cut
+
+sub cert {
+    my $path = $ca_cert_path;
+    $path =~ /.*\/([a-zA-Z0-9.]+)$/;
+    my $file = $1;
+    open FILE, "< $path" or die $!;
+    my $data = "";
+
+    while (<FILE>) {
+        $data .= $_;
+    }
+    
+    $data =~ s/-----BEGIN CERTIFICATE-----\n//g; 
+    $data =~ s/-----END CERTIFICATE-----\n//g;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
