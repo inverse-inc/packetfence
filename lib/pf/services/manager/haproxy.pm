@@ -55,7 +55,10 @@ sub generateConfig {
         my $i = 0;
         if ($cfg->{'type'} eq 'management') {
             $tags{'active_active_ip'} = $cfg->{'active_active_ip'};
-            my @mysql_backend = split(',',$cfg->{'active_active_members'});
+            my @mysql_backend = $cfg->{'ip'};
+            if (defined($cfg->{'active_active_members'})) {
+                @mysql_backend = split(',',$cfg->{'active_active_members'});
+            }
             foreach my $mysql_back (@mysql_backend) {
                 if (defined($cfg->{'active_active_mysql_master'}) && $cfg->{'active_active_mysql_master'} eq $mysql_back) {
                 $tags{'mysql_backend'} .= <<"EOT";
@@ -70,7 +73,9 @@ EOT
             }
         }
         if ($cfg->{'type'} eq 'internal') {
-            my @backend_ip = split(',',$cfg->{'active_active_members'});
+            if (defined($cfg->{'active_active_members'})) {
+                @backend_ip = split(',',$cfg->{'active_active_members'});
+            }
             my $backend_ip_config = '';
             foreach my $back_ip ( @backend_ip ) {
 

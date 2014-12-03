@@ -1,4 +1,3 @@
-package pf::services::manager::dhcpd;
 =head1 NAME
 
 pf::services::manager::dhcpd add documentation
@@ -47,7 +46,10 @@ sub generateConfig {
         if ($cfg->{'active_active_enabled'}) {
             my $master;
             ( $cfg->{'active_active_dhcpd_master'} ) ? $master = 'primary' : $master = 'secondary'; 
-            my @active_members = split(',',$cfg->{'active_active_members'});
+            my @active_members = '';
+            if (defined($cfg->{'active_active_members'})) {
+                @active_members = split(',',$cfg->{'active_active_members'});
+            }
             my $members = join(',',grep { $_ ne $cfg->{'ip'} } @active_members);
             if ($members) {
                 $tags{'active'} .= <<"EOT";
@@ -84,7 +86,10 @@ EOT
                 my $cfg = $Config{"interface $interface"};
                 my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
                 if (isenabled($cfg->{'active_active_enabled'})) {
-                    my @active_members = split(',',$cfg->{'active_active_members'});
+                    my @active_members = $cfg->{'ip'};
+                    if (defined($cfg->{'active_active_members'})) {
+                        @active_members = split(',',$cfg->{'active_active_members'});
+                    }
                     my $members = join(',',grep { $_ ne $cfg->{'ip'} } @active_members);
                     if ($members) {
                         $active = $cfg->{'ip'} if $current_network->contains($ip);
