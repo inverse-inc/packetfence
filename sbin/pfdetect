@@ -98,7 +98,9 @@ if ( !open( $snortpipe_fh, '<', "$snortpipe" ) ) {
     $logger->info("listening on $snortpipe");
 }
 
-my $parser = pf::factory::detect::parser->new($Config{trapping}{detection_engine});
+my $parser_type = $Config{trapping}{detection_parser} || $Config{trapping}{detection_engine};
+
+my $parser = pf::factory::detect::parser->new($parser_type);
 
 while (<$snortpipe_fh>) {
     $logger->info("alert received: $_");
