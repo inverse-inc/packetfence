@@ -80,6 +80,11 @@ EOT
                 $tags{'active'} .= <<"EOT";
 }
 EOT
+                } else {
+                    $tags{'active'} .= <<"EOT";
+}
+EOT
+                }
             }
 }
 
