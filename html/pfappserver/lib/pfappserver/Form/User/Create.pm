@@ -16,6 +16,7 @@ extends 'pfappserver::Base::Form::Authentication::Action';
 use List::Util qw(first);
 use List::MoreUtils qw(none);
 use pf::admin_roles;
+use DateTime;
 has '+source_type' => ( default => 'SQL' );
 
 # Form fields
@@ -23,6 +24,7 @@ has_field 'valid_from' =>
   (
    type => 'DatePicker',
    required => 1,
+   default => DateTime->now->ymd(),
   );
 
 has_field 'expiration' =>
