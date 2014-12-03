@@ -95,6 +95,7 @@ has_field 'active_active_ip' => (
 has_field 'active_active_members' => (
     type => 'IPAddresses',
     label => 'Active/Active ip members',
+    readonly => 1,
 );
 
 has_field 'active_active_dhcpd_master' => (
