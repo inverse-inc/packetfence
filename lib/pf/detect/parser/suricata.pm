@@ -13,7 +13,8 @@ pf::detect::parser::suricata
 
 use strict;
 use warnings;
-use base qw(pf::detect::parser::snort);
+use Moo;
+extends qw(pf::detect::parser::snort);
 
 =head1 AUTHOR
 

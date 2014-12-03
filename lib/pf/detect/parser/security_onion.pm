@@ -14,9 +14,11 @@ pf::detect::parser::security_onion
 
 use strict;
 use warnings;
+use Moo;
+extends qw(pf::detect::parser);
 
 sub parse {
-    my ($line) = @_;
+    my ($self,$line) = @_;
     my $data;
 
     if (index($line, "OSSEC") == -1) {

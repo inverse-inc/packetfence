@@ -13,9 +13,11 @@ pf::detect::parser::snort
 
 use strict;
 use warnings;
+use Moo;
+extends qw(pf::detect::parser);
 
 sub parse {
-    my ($line) = @_;
+    my ($self,$line) = @_;
     my $data;
     if ( $line
         =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/

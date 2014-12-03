@@ -13,6 +13,7 @@ pf::detect::parser
 
 use strict;
 use warnings;
+use Moo;
  
 =head1 AUTHOR
 
