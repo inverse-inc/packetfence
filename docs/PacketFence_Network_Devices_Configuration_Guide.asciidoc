@@ -1995,6 +1995,49 @@ Don't forget to permit address moves and the reauth period.  x represents the po
    
 (Thanks to Jean-Francois Laporte for this contribution)
 
+2610
+^^^^
+
+802.1X
+++++++
+
+Assumption: We use x as the port name.
+
+Define the RADIUS server host:
+
+   radius-server host a.b.c.d key "verysecret"
+   radius-server host a.b.c.d acct-port 1813 key "verysecret"
+
+Define the SNMP configuration:
+
+   snmp-server host a.b.c.d community "public" informs trap-level not-info
+   no snmp-server enable traps link-change x
+
+Configure the server-group:
+
+   aaa server-group radius "packetfence" host a.b.c.d
+
+Configure authentication:
+
+   aaa authentication port-access eap-radius server-group "packetfence"
+   aaa authentication mac-based chap-radius server-group "packetfence"
+
+Configure the port-security:
+
+   port-security x learn-mode port-access action send-alarm
+
+Configuration of the port:
+
+   aaa port-access authenticator x
+   aaa port-access authenticator x client-limit 1
+   aaa port-access authenticator active
+   aaa port-access mac-based x
+   aaa port-access mac-based x addr-moves
+   aaa port-access mac-based x reauth-period 14400
+   aaa port-access x controlled-direction in
+
+(Thanks to Denis Bonnenfant for this contribution)
+
 4100, 5300, 5400 Series
 ^^^^^^^^^^^^^^^^^^^^^^^
 
