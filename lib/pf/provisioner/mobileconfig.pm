@@ -70,14 +70,15 @@ sub authorize {
     return 1;
 }
 
-=head2 cert
+=head2 build_cert
 
-always cert
+build certificate
 
 =cut
 
-sub cert {
-    my $path = $ca_cert_path;
+sub build_cert {
+    my ($self) = @_;
+    my $path = $self->{ca_cert_path};
     $path =~ /.*\/([a-zA-Z0-9.]+)$/;
     my $file = $1;
     open FILE, "< $path" or die $!;
