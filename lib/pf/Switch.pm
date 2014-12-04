@@ -1439,6 +1439,7 @@ sub isStaticPortSecurityEnabled {
 Connects to the switch and configures the specified port to be RADIUS floating device ready
 
 =cut
+
 sub enableMABFloatingDevice {
     my ($this, $ifIndex) = @_; 
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1450,6 +1451,7 @@ sub enableMABFloatingDevice {
 Connects to the switch and removes the RADIUS floating device configuration
 
 =cut
+
 sub disableMABFloatingDevice {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -3030,6 +3032,7 @@ sub parseTrap {
 Used to override L<pf::Connection::identifyType> behavior if needed on a per switch module basis.
 
 =cut
+
 sub identifyConnectionType {
     my ( $self, $connection ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
