@@ -22,9 +22,7 @@ use pf::ConfigStore::Interface;
 use pf::ConfigStore::Pf;
 use NetAddr::IP;
 use List::MoreUtils qw(uniq);
-use JSON::RPC::Client;
-
-use base qw(JSON::RPC::Procedure);  # for :Public and :Private attributes
+use pf::api::jsonrpcclient;
 
 =head2 active_active
 
@@ -125,18 +123,17 @@ sub sync_cluster {
         if (isenabled($cfg->{'active_active_enabled'})) {
             my @all_members;
             for my $member (@members) {
-                my $uri = "http://$member:".$Config{'active_active'}{'syncport'}."/cluster";
-                my $obj = {
-                    method => 'active_active',
-                    params => { ip => $cfg->{'ip'},
-                                dhcpd => $cfg->{'active_active_dhcpd_master'},
-                                activeip => $cfg->{'active_active_ip'},
-                                mysql => $cfg->{'active_active_mysql_master'} || 0,
-                                priority => $priority,
-                    },
-                };
+                my %data = (
+                    'ip' => $cfg->{'ip'},
+                    'dhcpd' => $cfg->{'active_active_dhcpd_master'},
+                    'activeip' => $cfg->{'active_active_ip'},
+                    'mysql' => $cfg->{'active_active_mysql_master'} || 0,
+                    'priority' => $priority,
+                );
+                $client->{'proto'} = 'https';
+                $client->{'host'} = $member;
+                my $res = $client->call('active_active',%data);
 
-                my $res = $client->call( $uri, $obj );
                 if ($res){
                     if ($res->is_error) {
                         $logger->error($res->error_message);
