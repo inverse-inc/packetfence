@@ -518,11 +518,6 @@ pfmon=enabled
 # Should pfdhcplistener be started?
 pfdhcplistener=enabled
 #
-# services.pfclustermgmt
-#
-# Should pfclustermgmt be started ? Keep enabled unless you know what you're doing.
-pfclustermgmt=enabled
-#
 # services.keepalived
 #
 # Should keepalived be started?
