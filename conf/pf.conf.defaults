@@ -995,10 +995,5 @@ members=
 #
 # active_active.password
 #
-# Shared KEY to sync cluster configuration (Must be the same on all members).
+# Shared KEY for vrrp protocol (Must be the same on all members).
 password=1234
-#
-# active_active.syncport
-#
-# TCP port used to sync the cluster (Must be the same on all members).
-syncport=32274
