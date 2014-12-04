@@ -141,7 +141,7 @@ Description: Test suite for packetfence
 
 Package: packetfence-pfcmd-suid
 Architecture: any
-Depends: ${misc:Depends}, packetfence (>= 3.6.0)
+Depends: ${misc:Depends}, ${shlibs:Depends}, packetfence (>= 3.6.0)
 Replaces: packetfence (<< 3.6.0)
 Breaks: packetfence (<< 3.6.0)
 Description: C wrapper that replace perl-suid dependence
