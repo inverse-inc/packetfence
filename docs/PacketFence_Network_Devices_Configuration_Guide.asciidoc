@@ -2001,21 +2001,19 @@ Don't forget to permit address moves and the reauth period.  x represents the po
 802.1X
 ++++++
 
-Assumption: We use x as the port name.
-
 Define the RADIUS server host:
 
-   radius-server host a.b.c.d key "verysecret"
-   radius-server host a.b.c.d acct-port 1813 key "verysecret"
+   radius-server host 192.168.1.5 key "verysecret"
+   radius-server host 192.168.1.5 acct-port 1813 key "verysecret"
 
 Define the SNMP configuration:
 
-   snmp-server host a.b.c.d community "public" informs trap-level not-info
-   no snmp-server enable traps link-change x
+   snmp-server host 192.168.1.5 community "public" informs trap-level not-info
+   no snmp-server enable traps link-change C1
 
 Configure the server-group:
 
-   aaa server-group radius "packetfence" host a.b.c.d
+   aaa server-group radius "packetfence" host 192.168.1.5
 
 Configure authentication:
 
@@ -2028,13 +2026,13 @@ Configure the port-security:
 
 Configuration of the port:
 
-   aaa port-access authenticator x
-   aaa port-access authenticator x client-limit 1
+   aaa port-access authenticator C1
+   aaa port-access authenticator C1 client-limit 1
    aaa port-access authenticator active
-   aaa port-access mac-based x
-   aaa port-access mac-based x addr-moves
-   aaa port-access mac-based x reauth-period 14400
-   aaa port-access x controlled-direction in
+   aaa port-access mac-based C1
+   aaa port-access mac-based C1 addr-moves
+   aaa port-access mac-based C1 reauth-period 14400
+   aaa port-access C1 controlled-direction in   
 
 (Thanks to Denis Bonnenfant for this contribution)
 
