@@ -24,68 +24,6 @@ use NetAddr::IP;
 use List::MoreUtils qw(uniq);
 use pf::api::jsonrpcclient;
 
-=head2 active_active
-
-RPC server function that return his local cluster configuration and adapt his own.
-
-=cut
-
-sub active_active : Public(ip:str, dhcpd:bool, activeip:str, mysql:str, priority:int) {
-    my($s, $obj) = @_;
-    my $logger = get_logger;
-
-    pf::config::cached::ReloadConfigs();
-
-    my $ip = new NetAddr::IP::Lite clean_ip($obj->{ip});
-    my @ints = uniq(@listen_ints,@dhcplistener_ints);
-    my $cs = pf::ConfigStore::Interface->new();
-
-    foreach my $interface ( @ints ) {
-        my $cfg = $Config{"interface $interface"};
-        next unless $cfg;
-        next if (!isenabled($cfg->{'active_active_enabled'}));
-        my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
-        if ( $current_network->contains($ip) ) {
-            $cs->update($interface, { active_active_mysql_master => $obj->{mysql}}) if (defined($obj->{mysql}) && $obj->{mysql});
-            $cs->update($interface, { active_active_dhcpd_master => '0'}) if $obj->{dhcpd};
-            $cs->update($interface, { active_active_ip => $obj->{activeip}}) if $obj->{activeip};
-
-            my @members = split(',',$cfg->{'active_active_members'});
-            if (!( grep { $_ eq $obj->{ip} } @members ) || !( grep { $_ eq $cfg->{'ip'} } @members )) {
-                push(@members, $obj->{ip});
-                push(@members, $cfg->{'ip'});
-                @members = uniq(@members);
-                $cs->update($interface, { active_active_members => join(',',@members)});
-            }
-            my $priority;
-            if (!defined($cfg->{'active_active_priority'})) {
-                $priority = 120;
-            } else {
-                $priority = $cfg->{'active_active_priority'};
-            }
-            if ($cfg->{'type'} eq 'management') {
-                my $pfcs = pf::ConfigStore::Pf->new();
-                push(@members, $obj->{ip});
-                push(@members, $cfg->{'ip'});
-                my $local_members = $pfcs->read('active_active');
-                push(@members,split(',',$local_members->{'members'}));
-                $pfcs->update('active_active', { members =>  join(',',uniq(@members))});
-                $pfcs->commit();
-            }
-            $cs->update($interface, { active_active_priority => $priority });
-            $cs->commit();
-            my $hash_ref = { active_active_members => $cfg->{'active_active_members'},
-                             dhcpd_master => $cfg->{'active_active_dhcpd_master'},
-                             member_ip => $cfg->{'ip'},
-                             priority => $priority,
-                           };
-            $hash_ref->{'mysql_master'} = $cfg->{'active_active_mysql_master'} || $obj->{mysql} if (defined($obj->{mysql}) && $obj->{mysql});
-            return $hash_ref;
-        }
-    }
-    return;
-}
-
 =head2 sync_cluster
 
 RPC Client that send his configuration and adapt his own
@@ -132,20 +70,15 @@ sub sync_cluster {
                 );
                 $client->{'proto'} = 'https';
                 $client->{'host'} = $member;
-                my $res = $client->call('active_active',%data);
-
-                if ($res){
-                    if ($res->is_error) {
-                        $logger->error($res->error_message);
-                    } else {
-                        my $result =  $res->result;
-                        $dhcpd_master = $result->{'dhcpd_master'} if ($result->{'dhcpd_master'} && defined($cfg->{'active_active_dhcpd_master'}));
-                        $mysql_master = $result->{'mysql_master'} if ($result->{'mysql_master'} && defined($cfg->{'active_active_mysql_master'}));
-                        push(@all_members , split(',',$result->{'active_active_members'}));
-                        push(@all_members , $result->{'member_ip'});
-                        $logger->error("There is more than one dhcpd master, fix that") if ($result->{'dhcpd_master'} && $Config{"interface $int"}{'active_active_dhcpd_master'});
-                        push(@priority, $result->{'priority'});
-                    }
+                my ($result) = $client->call('active_active',%data);
+                if ($result){
+                    my $result =  $res->result;
+                    $dhcpd_master = $result->{'dhcpd_master'} if ($result->{'dhcpd_master'} && defined($cfg->{'active_active_dhcpd_master'}));
+                    $mysql_master = $result->{'mysql_master'} if ($result->{'mysql_master'} && defined($cfg->{'active_active_mysql_master'}));
+                    push(@all_members , split(',',$result->{'active_active_members'}));
+                    push(@all_members , $result->{'member_ip'});
+                    $logger->error("There is more than one dhcpd master, fix that") if ($result->{'dhcpd_master'} && $Config{"interface $int"}{'active_active_dhcpd_master'});
+                    push(@priority, $result->{'priority'});
                 } else {
                     @all_members = grep { $_ ne $member } @all_members;
                 }
