@@ -19,6 +19,7 @@ use Test::NoWarnings;
 use Test::Pod;
 
 BEGIN {
+    use lib qw(/usr/local/pf/lib);
     use lib qw(/usr/local/pf/t);
     use PfFilePaths;
 }
