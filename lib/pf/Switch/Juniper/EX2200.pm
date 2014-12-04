@@ -285,11 +285,12 @@ sub wiredeauthTechniques {
 
 }
 
-=item enableMABFloatingDevice
+=head2 enableMABFloatingDevice
 
 Connects to the switch and configures the specified port to be RADIUS floating device ready
 
 =cut
+
 sub enableMABFloatingDevice{
     my ($this, $ifIndex) = @_; 
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -343,11 +344,12 @@ sub enableMABFloatingDevice{
 
 }
 
-=item disableMABFloatingDevice
+=head2 disableMABFloatingDevice
 
 Connects to the switch and removes the RADIUS floating device configuration
 
 =cut
+
 sub disableMABFloatingDevice{
     my ($this, $ifIndex) = @_; 
     my $logger = Log::Log4perl::get_logger( ref($this) );

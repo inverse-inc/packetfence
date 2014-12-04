@@ -586,8 +586,6 @@ sub enableMABByIfIndex {
     return ( defined($result) );
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

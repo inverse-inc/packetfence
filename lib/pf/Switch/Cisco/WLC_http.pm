@@ -329,8 +329,6 @@ sub parseRequest {
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id);
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
