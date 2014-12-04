@@ -1,5 +1,5 @@
 Source: packetfence
-Section: main/net
+Section: net
 Priority: optional
 Maintainer: Durand fabrice <fdurand@inverse.ca>
 Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc
