@@ -37,7 +37,7 @@ use HTTP::Status qw(:constants);
 
 =cut
 
-has username => ( is => 'rw', default => sub {$Config{'webservices'}{'username'}} );
+has username => ( is => 'rw', default => sub {$Config{'webservices'}{'user'}} );
 
 =head2 password
 
@@ -45,7 +45,7 @@ has username => ( is => 'rw', default => sub {$Config{'webservices'}{'username'}
 
 =cut
 
-has password => ( is => 'rw', default => sub {$Config{'webservices'}{'password'}} );
+has password => ( is => 'rw', default => sub {$Config{'webservices'}{'pass'}} );
 
 =head2 proto
 
