@@ -469,11 +469,14 @@ TODO: documention
 sub setupSelfRegistrationSession : Private {
     my ( $self, $c ) = @_;
     my $request = $c->request;
+    my $phone = $request->param("phone");
     $c->session->{firstname} = $request->param("firstname");
     $c->session->{lastname}  = $request->param("lastname");
     $c->session->{company}   = $request->param("organization");
+    $c->session->{telephone} =
+      pf::web::util::validate_phone_number( $phone );
     $c->session->{phone} =
-      pf::web::util::validate_phone_number( $request->param("phone") );
+      pf::web::util::validate_phone_number( $phone );
     $c->session->{email}   = lc( $request->param("email") );
     $c->session->{sponsor} = lc( $request->param("sponsor_email") );
 
@@ -511,7 +514,7 @@ sub validateBySponsorSource : Private {
     if ( $request->param('by_sponsor') ) {
         my $sponsor_email = lc( $request->param('sponsor_email') );
         my $value = &pf::authentication::match( &pf::authentication::getInternalAuthenticationSources(),
-                                                { email => $sponsor_email },
+                                                { email => $sponsor_email, username => $sponsor_email },
                                                 $Actions::MARK_AS_SPONSOR );
 
         if (!defined $value) {
