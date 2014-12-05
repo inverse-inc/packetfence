@@ -159,9 +159,9 @@ EOT
 EOT
             $i++;
         }
-        parse_template( \%tags, "$conf_dir/radiusd/packetfence-actif", "$install_dir/raddb/site-available/packetfence-actif" );
+        parse_template( \%tags, "$conf_dir/radiusd/packetfence-actif", "$install_dir/raddb/sites-enabled/packetfence-actif" );
     } else {
-        my $file = $install_dir."/raddb/site-available/packetfence-actif";
+        my $file = $install_dir."/raddb/sites-enabled/packetfence-actif";
         unlink($file);
     }
     $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
