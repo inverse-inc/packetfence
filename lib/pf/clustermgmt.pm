@@ -13,6 +13,12 @@ It will sync between all the cluster members somes configurations parameters.
 
 =cut
 
+use Apache2::RequestRec ();
+use Apache2::Request;
+use Apache2::Access;
+use Apache2::Connection;
+use Apache2::Const;
+
 use strict;
 use pf::config;
 use pf::config::cached;
@@ -23,6 +29,24 @@ use pf::ConfigStore::Pf;
 use NetAddr::IP;
 use List::MoreUtils qw(uniq);
 use pf::api::jsonrpcclient;
+
+=item handler
+
+The handler check the status of all the services of the cluster and only allow connection from
+the management network (need it for haproxy check)
+
+=cut
+
+sub handler {
+
+    my $r = (shift);
+    my $req = Apache2::Request->new($r);
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+
+    # TODO ...
+
+    return Apache2::Const::OK
+}
 
 =head2 sync_cluster
 
