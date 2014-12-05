@@ -32,7 +32,6 @@ use pf::web::filter;
 use pf::web::util;
 use pf::proxypassthrough::constants;
 use pf::Portal::Session;
-use pf::web::provisioning::custom;
 use pf::web::externalportal;
 
 =head1 SUBROUTINES
@@ -109,7 +108,6 @@ sub handler {
     }
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES_MOD_PERL/o) {
         $r->handler('modperl');
-        my $provisioning = pf::web::provisioning::custom->new();
         if ($r->uri =~ /$WEB::MOD_PERL_WISPR/o) {
             $r->pnotes->{session_id} = $1;
             $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
