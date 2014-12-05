@@ -512,7 +512,7 @@ sub validateBySponsorSource : Private {
     if ( $request->param('by_sponsor') ) {
         my $sponsor_email = lc( $request->param('sponsor_email') );
         my $value = &pf::authentication::match( &pf::authentication::getInternalAuthenticationSources(),
-                                                { email => $sponsor_email, username => $sponsor_email },
+                                                { email => $sponsor_email },
                                                 $Actions::MARK_AS_SPONSOR );
 
         if (!defined $value) {
