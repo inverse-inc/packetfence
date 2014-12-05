@@ -14,62 +14,27 @@ listen {
 
 %%members%%
 
-
-home_server pf1.example.com {
-        type = auth+acct
-        ipaddr = 172.20.135.1
-        port = 1812
-        secret = testing1234
-
-        response_window = 6
-        status_check = status-server
-        revive_interval = 120
-        check_interval = 30
-        num_answers_to_alive = 3
-}
-
-home_server pf2.example.com {
-        type = auth+acct
-        ipaddr = 172.20.135.2
-        port = 1812
-        secret = testing1234
-
-        response_window = 6
-        status_check = status-server
-        revive_interval = 120
-        check_interval = 30
-        num_answers_to_alive = 3
-}
-
 #  Put all of the servers into a pool.
-home_server_pool pf_pool.example.com {
+home_server_pool pf_pool.actif {
         type = client-port-balance
 
-        home_server = pf1.example.com
-        home_server = pf2.example.com
-        # add more home_server's here.
+%%home_server%%
 
-        #virtual_server = home.example.com
 }
 
-home_server_pool pfacct_pool.example.com {
+home_server_pool pfacct_pool.actif {
         type = load-balance
 
-        home_server = pf1.example.com
-        home_server = pf2.example.com
-        # add more home_server's here.
+%%home_server%%
 
-        #virtual_server = pf.example.com
 }
 
-#  (3) Define a realm for these home servers.
-#  It should NOT be used as part of normal proxying decisions#!
 realm packetfence {
-        auth_pool = pf_pool.example.com
-        acct_pool = pfacct_pool.example.com
+        auth_pool = pf_pool.actif
+        acct_pool = pfacct_pool.actif
 }
 
-server pf.example.com {
+server pf.actif {
         pre-proxy {
                 #  Insert pre-proxy rules here
         }
