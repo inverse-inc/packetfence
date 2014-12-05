@@ -111,6 +111,8 @@ sub handler {
         if ($r->uri =~ /$WEB::MOD_PERL_WISPR/o) {
             $r->pnotes->{session_id} = $1;
             $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
+        } elsif ($r->uri =~ /$WEB::MOD_PERL_STATUS/o) {
+            $r->set_handlers( PerlResponseHandler => ['pf::clustermgmt'] );
         }
         return Apache2::Const::OK;
     }
