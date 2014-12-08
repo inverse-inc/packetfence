@@ -815,6 +815,10 @@ fi
 %config(noreplace)      /usr/local/pf/conf/provisioning.conf
                         /usr/local/pf/conf/provisioning.conf.example
 %dir			/usr/local/pf/conf/radiusd
+%config(noreplace)      /usr/local/pf/conf/radiusd/clients.conf.inc
+                        /usr/local/pf/conf/radiusd/clients.conf.inc.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-actif
+                        /usr/local/pf/conf/radiusd/packetfence-actif.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.inc
                         /usr/local/pf/conf/radiusd/proxy.conf.inc.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf

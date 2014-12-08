@@ -20,6 +20,9 @@
 -A input-management-if --protocol tcp --match tcp --dport %%webservices_port%% --jump ACCEPT
 # AAA 
 -A input-management-if --protocol tcp --match tcp --dport %%aaa_port%% --jump ACCEPT
+# PacketFence Status
+-A input-management-if --protocol tcp --match tcp --dport %%status_port%% --jump ACCEPT
+
 # RADIUS
 -A input-management-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
 -A input-management-if --protocol udp --match udp --dport 1812 --jump ACCEPT

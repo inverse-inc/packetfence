@@ -89,15 +89,18 @@ $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 
 if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
     if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
-        $Listen = $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'admin'};
-        $vhost = $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'admin'};
+        push (@Listen, $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'admin'});
+        push (@Listen, $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'pf_status'});
+        $vhost = $management_network->{'Tvip'};
     } else {
-        $Listen = $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'admin'};
-        $vhost = $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'admin'};
+        push (@Listen, $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'admin'});
+        push (@Listen, $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'pf_status'});
+        $vhost = $management_network->{'Tip'};
    }
 } else {
-    $Listen = "0.0.0.0:".$PfConfig->{'ports'}{'admin'};
-    $vhost = "0.0.0.0:".$PfConfig->{'ports'}{'admin'};
+    push (@Listen, "0.0.0.0:".$PfConfig->{'ports'}{'admin'});
+    push (@Listen, "0.0.0.0:".$PfConfig->{'ports'}{'pf_status'});
+    $vhost = "0.0.0.0";
 }
 
 $User = "pf";
@@ -163,6 +166,22 @@ push @{ $VirtualHost{$vhost} },
              },
              "/static" => {
                  SetHandler => 'default-handler',
+             },
+         },
+    };
+push @{ $VirtualHost{$vhost.":".$PfConfig->{'ports'}{'pf_status'}} },
+    {
+         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+         DocumentRoot => $install_dir.'/html/pfappserver/lib',
+         ErrorLog     => $install_dir.'/logs/httpd.admin.error',
+         CustomLog    => $install_dir.'/logs/httpd.admin.access combined',
+         AllowEncodedSlashes => "on",
+         PerlModule        => 'pf::clustermgmt',
+         PerlTransHandler  => 'pf::clustermgmt',
+         Location     => {
+             "/" => {
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'pf::clustermgmt',
              },
          },
     };
