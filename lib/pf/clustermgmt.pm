@@ -58,7 +58,7 @@ sub sync_cluster {
     my $logger = get_logger;
     pf::config::cached::ReloadConfigs();
 
-    my $client = new JSON::RPC::Client;
+    my $client = pf::api::jsonrpcclient->new;
 
     my @all_members;
     my $priority;
@@ -96,7 +96,6 @@ sub sync_cluster {
                 $client->{'host'} = $member;
                 my ($result) = $client->call('active_active',%data);
                 if ($result){
-                    my $result =  $res->result;
                     $dhcpd_master = $result->{'dhcpd_master'} if ($result->{'dhcpd_master'} && defined($cfg->{'active_active_dhcpd_master'}));
                     $mysql_master = $result->{'mysql_master'} if ($result->{'mysql_master'} && defined($cfg->{'active_active_mysql_master'}));
                     push(@all_members , split(',',$result->{'active_active_members'}));

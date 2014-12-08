@@ -140,8 +140,10 @@ $SSLHonorCipherOrder = "on";
 
 $ErrorLog = $install_dir.'/logs/httpd.admin.error';
 
-$NameVirtualHost => $vhost;
-push @{ $VirtualHost{$vhost} },
+push (@NameVirtualHost,$vhost.":".$PfConfig->{'ports'}{'admin'});
+push (@NameVirtualHost,$vhost.":".$PfConfig->{'ports'}{'pf_status'});
+
+push @{ $VirtualHost{$vhost.":".$PfConfig->{'ports'}{'admin'}} },
     {
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => $install_dir.'/html/pfappserver/lib',
