@@ -2003,13 +2003,13 @@ Don't forget to permit address moves and the reauth period.  x represents the po
 
 Define the RADIUS server host:
 
-   radius-server host 192.168.1.5 key "verysecret"
-   radius-server host 192.168.1.5 acct-port 1813 key "verysecret"
+   radius-server host 192.168.1.5 key "useStrongerSecret"
+   radius-server host 192.168.1.5 acct-port 1813 key "useStrongerSecret"
 
 Define the SNMP configuration:
 
    snmp-server host 192.168.1.5 community "public" informs trap-level not-info
-   no snmp-server enable traps link-change C1
+   no snmp-server enable traps link-change C3
 
 Configure the server-group:
 
@@ -2026,13 +2026,13 @@ Configure the port-security:
 
 Configuration of the port:
 
-   aaa port-access authenticator C1
-   aaa port-access authenticator C1 client-limit 1
+   aaa port-access authenticator x
+   aaa port-access authenticator x client-limit 1
    aaa port-access authenticator active
-   aaa port-access mac-based C1
-   aaa port-access mac-based C1 addr-moves
-   aaa port-access mac-based C1 reauth-period 14400
-   aaa port-access C1 controlled-direction in   
+   aaa port-access mac-based x
+   aaa port-access mac-based x addr-moves
+   aaa port-access mac-based x reauth-period 14400
+   aaa port-access x controlled-direction in   
 
 (Thanks to Denis Bonnenfant for this contribution)
 
@@ -2066,10 +2066,6 @@ You should configure interfaces like this:
 MAC Authentication (with VoIP)
 ++++++++++++++++++++++++++++++
 
-In order to have MAC Authentication working with VoIP, you need to ensure that the Voice VLAN is tagged on all the port first. You also need to activate lldp notification on all ports that will handle VoIP. 
-*Finally, make sure to change the value of the $VOICEVLANAME variable in the Procurve 5400 module's source code.*
-
-RADIUS configuration
 
   radius-server host 192.168.1.5 key strongKey
 
@@ -4013,6 +4009,10 @@ set service-profile PF-Open 11n mode-na required
 set service-profile PF-Open attr vlan-name WLAN_REG
 
 set service-profile PF-Secure ssid-name PacketFence-Secure
+set service-profile PF-Secure cipher-tkip enable
+set service-profile PF-Secure cipher-ccmp enable
+set service-profile PF-Secure cipher-tkip enable
+set service-profile PF-Secure cipher-ccmp enable
 set service-profile PF-Secure cipher-tkip enable
 set service-profile PF-Secure cipher-ccmp enable
 set service-profile PF-Secure wpa-ie enable
