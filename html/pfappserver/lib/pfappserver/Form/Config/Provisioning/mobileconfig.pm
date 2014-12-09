@@ -35,9 +35,20 @@ has_field 'ca_cert_path' =>
    label => 'Certificate',
   );
 
+has_field 'cert_type' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'Certificate type',
+   options_method => \&option_cert_type,
+   element_class => ['chzn-deselect'],
+   tags => { after_element => \&help,
+             help => 'Select the type of certifiate you use' },
+
+  );
 has_block definition =>
   (
-   render_list => [ qw(id type description category ssid ca_cert_path eap_type) ],
+   render_list => [ qw(id type description category ssid ca_cert_path eap_type cert_type) ],
   );
 
 sub options_eap_type {
@@ -51,6 +62,15 @@ sub options_eap_type {
                     ];
     return @eap_types;
 }
+
+sub option_cert_type {
+    my $self = shift;
+    my @cert_types = ["com.apple.security.pem" => "PEM",
+                      "com.apple.security.root" => "DER",
+                     ];
+    return @cert_types;
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2014 Inverse inc.

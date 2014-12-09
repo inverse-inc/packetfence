@@ -29,6 +29,7 @@ sub index : Path : Args(0) {
     my $mac = $c->portalSession->clientMac;
     my $provisioner = $c->profile->findProvisioner($mac);
     $provisioner->authorize($mac) if (defined($provisioner));
+    $provisioner->build_cert();
     $c->stash(
         template     => 'wireless-profile.xml',
         current_view => 'MobileConfig',

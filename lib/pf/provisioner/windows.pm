@@ -26,6 +26,15 @@ The set the default Windows OS
 
 has oses => (is => 'rw', default => sub { [qw(Windows)] });
 
+=head 2 Method
+
+The build cert
+
+=cut
+
+sub build_cert{
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

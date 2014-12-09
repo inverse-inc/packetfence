@@ -55,6 +55,11 @@ has skipDeAuth => (is => 'rw', default => sub{ 1 });
 
 has for_username => (is => 'rw');
 
+has cert_content => (is => 'rw');
+has cert_file => (is => 'rw');
+has cert_send => (is => 'rw');
+has cert_type => (is => 'rw');
+
 =head1 METHODS
 
 =head2 authorize
@@ -90,6 +95,13 @@ sub build_cert {
     
     $data =~ s/-----BEGIN CERTIFICATE-----\n//g; 
     $data =~ s/-----END CERTIFICATE-----\n//g;
+    
+    my $send = $file;
+    $send=~ s/.crt//g;
+ 
+    $self->{cert_content} = $data; 
+    $self->{cert_file} = $file; 
+    $self->{cert_send} = $send; 
 }
 
 =head1 AUTHOR

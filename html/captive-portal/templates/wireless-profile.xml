@@ -48,21 +48,21 @@
                 </dict>
                 <dict>
                         <key>PayloadCertificateFileName</key>
-                        <string>[% provisioner.file %]</string>
+                        <string>omglol</string>
                         <key>PayloadContent</key>
-                        <data>[% provisioner.data %]</data>
+                        <data>[% provisioner.cert_content %]</data>
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
-                        <string>[% provisioner.file %]</string>
+                        <string>PacketFence CA</string>
                         <key>PayloadIdentifier</key>
-                        <string>credential</string>
+                        <string>wifi.packetfence</string>
                         <key>PayloadOrganization</key>
-                        <string></string>
+                        <string>Inverse</string>
                         <key>PayloadType</key>
-                        <string>com.apple.security.root</string>
+                        <string>[% provisioner.cert_type %]</string>
                         <key>PayloadUUID</key>
-                        <string></string>
+                        <string>506CD34F-0AD1-4421-9F98-BA19DC4E0253</string>
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                 </dict>
