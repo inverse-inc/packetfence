@@ -15,20 +15,34 @@ It will sync between all the cluster members somes configurations parameters.
 
 use Apache2::RequestRec ();
 use Apache2::Request;
-use Apache2::Access;
-use Apache2::Connection;
 use Apache2::Const;
+use APR::URI ();
+use NetAddr::IP;
+use List::MoreUtils qw(uniq);
 
 use strict;
 use pf::config;
 use pf::config::cached;
-use pf::log;
+use pf::db;
+use pf::log(service => 'httpd.admin');
 use pf::util;
 use pf::ConfigStore::Interface;
 use pf::ConfigStore::Pf;
 use NetAddr::IP;
 use List::MoreUtils qw(uniq);
 use pf::api::jsonrpcclient;
+use pf::services;
+
+
+our %STATUS_PARSERS = (
+    status => \&status,
+    mysql => \&mysql,
+);
+
+our %MYSQL_ACTION = (
+    connect => \&connect,
+    cluster => \&cluster,
+);
 
 =item handler
 
@@ -40,12 +54,89 @@ the management network (need it for haproxy check)
 sub handler {
 
     my $r = (shift);
-    my $req = Apache2::Request->new($r);
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
 
-    # TODO ...
+    my $parsed = APR::URI->parse($r->pool, $r->uri);
 
-    return Apache2::Const::OK
+    my @uri_elements = split('/',$parsed->path);
+    shift @uri_elements;
+
+    my $action = shift @uri_elements;
+    $r->handler('modperl');
+    $r->set_handlers( PerlResponseHandler => \&answer );
+    if (defined( $STATUS_PARSERS{$action} )) {
+        return $STATUS_PARSERS{$action}($r,\@uri_elements);
+    } else {
+        return  Apache2::Const::SERVER_ERROR;
+    }
+
+}
+
+=head2 status
+
+Return 200 if the service is running, 500 else
+
+=cut
+
+sub status {
+
+    my ($r,$uri_elements) = @_;
+
+    my $service = shift $uri_elements;
+    if (grep { $_ eq $service } @pf::services::ALL_SERVICES) {
+        my $manager = pf::services::get_service_manager($service);
+        if ($manager->status('1')) {
+            return  Apache2::Const::OK;
+        } else {
+            return  Apache2::Const::SERVER_ERROR;
+        }
+    } else {
+        return  Apache2::Const::SERVER_ERROR;
+    }
+    return Apache2::Const::OK;
+}
+
+=head2 mysql
+
+Check the status of mysql, is it running, can we connect, what the status of the database
+
+=cut
+
+sub mysql {
+
+    my ($r,$uri_elements) = @_;
+
+    my $action = shift $uri_elements;
+    return $MYSQL_ACTION{$action}($r);
+}
+
+=head2 connect
+
+Check if we can connect to mysql
+
+=cut
+
+sub connect {
+
+    my ($r) = @_;
+
+    if (db_ping()) {
+        return Apache2::Const::OK;
+    } else {
+        return  Apache2::Const::SERVER_ERROR;
+    }
+}
+
+=head2 answer
+
+ResponseHandler answer
+
+=cut
+
+sub answer {
+
+    my ($r) = @_;
+
+    return Apache2::Const::OK;
 }
 
 =head2 sync_cluster
