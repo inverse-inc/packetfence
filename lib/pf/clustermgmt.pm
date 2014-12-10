@@ -100,7 +100,7 @@ sub status {
 
     my ($r,$uri_elements) = @_;
 
-    my $service = shift $uri_elements;
+    my $service = shift @{$uri_elements};
     if (grep { $_ eq $service } @pf::services::ALL_SERVICES) {
         my $manager = pf::services::get_service_manager($service);
         if ($manager->status('1')) {
@@ -124,7 +124,7 @@ sub mysql {
 
     my ($r,$uri_elements) = @_;
 
-    my $action = shift $uri_elements;
+    my $action = shift @{$uri_elements};
     return $MYSQL_ACTION{$action}($r);
 }
 
