@@ -67,11 +67,11 @@ sub generateConfig {
             foreach my $mysql_back (@mysql_backend) {
                 if (defined($cfg->{'active_active_mysql_master'}) && $cfg->{'active_active_mysql_master'} eq $mysql_back) {
                 $tags{'mysql_backend'} .= <<"EOT";
-        server MySQL$i $mysql_back:3306 check weight 1
+        server MySQL$i $mysql_back:3306 check port 9191 weight 1
 EOT
                 } else {
                 $tags{'mysql_backend'} .= <<"EOT";
-        server MySQL$i $mysql_back:3306 check weight 1 backup
+        server MySQL$i $mysql_back:3306 check port 9191 weight 1 backup
 EOT
                 }
             $i++;

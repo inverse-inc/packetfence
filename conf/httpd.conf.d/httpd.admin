@@ -180,12 +180,6 @@ push @{ $VirtualHost{$vhost.":".$PfConfig->{'ports'}{'pf_status'}} },
          AllowEncodedSlashes => "on",
          PerlModule        => 'pf::clustermgmt',
          PerlTransHandler  => 'pf::clustermgmt',
-         Location     => {
-             "/" => {
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'pf::clustermgmt',
-             },
-         },
     };
 
 </Perl>

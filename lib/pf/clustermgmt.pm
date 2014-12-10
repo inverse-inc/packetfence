@@ -19,6 +19,7 @@ use Apache2::Const;
 use APR::URI ();
 use NetAddr::IP;
 use List::MoreUtils qw(uniq);
+use Try::Tiny;
 
 use strict;
 use pf::config;
@@ -43,6 +44,24 @@ our %MYSQL_ACTION = (
     connect => \&connect,
     cluster => \&cluster,
 );
+
+# DATABASE HANDLING
+use constant CLUSTERMGMT       => 'clustermgmt';
+our $clustermgmt_db_prepared   = 0;
+our $clustermgmt_statements    = {};
+
+sub clustermgmt_db_prepare {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $logger->debug("Preparing database statements.");
+
+    $clustermgmt_statements->{'cluster_test_sql'} = get_db_handle()->prepare(qq[
+            SELECT 1 FROM node LIMIT 1
+    ]);
+
+    $clustermgmt_db_prepared = 1;
+    return 1;
+}
 
 =item handler
 
@@ -120,6 +139,28 @@ sub connect {
     my ($r) = @_;
 
     if (db_ping()) {
+        return Apache2::Const::OK;
+    } else {
+        return  Apache2::Const::SERVER_ERROR;
+    }
+}
+
+=head2 cluster
+
+Check the status of the cluster
+
+=cut
+
+sub cluster {
+
+    my ($r) = @_;
+
+    my $query = db_query_execute(CLUSTERMGMT, $clustermgmt_statements, 'cluster_test_sql') || 0;
+    if ($query eq '0') {
+        return  Apache2::Const::SERVER_ERROR;
+    }
+    my ($val) = $query->fetchrow_array();
+    if ($val eq '1') {
         return Apache2::Const::OK;
     } else {
         return  Apache2::Const::SERVER_ERROR;
