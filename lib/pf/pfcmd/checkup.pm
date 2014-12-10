@@ -574,6 +574,7 @@ sub is_config_documented {
         next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
         next if ( ( $group eq 'provisioning' ) && ( $item eq 'certificate') );
+        next if ( $item =~ /^temporary_/i );
 
         if ( !exists $Config{$group} || !exists $Config{$group}{$item} ) {
             add_problem( $FATAL, "pf.conf value $group\.$item is not defined!" );
