@@ -35,14 +35,12 @@ use pf::api::jsonrpcclient;
 use pf::services;
 
 
-our %STATUS_PARSERS = (
+our %REST_PARSERS = (
     status => \&status,
-    mysql => \&mysql,
-);
-
-our %MYSQL_ACTION = (
-    connect => \&connect,
-    cluster => \&cluster,
+    mysql => {
+        connect => \&connect,
+        cluster => \&cluster,
+    },
 );
 
 # DATABASE HANDLING
@@ -63,7 +61,7 @@ sub clustermgmt_db_prepare {
     return 1;
 }
 
-=item handler
+=head2 handler
 
 The handler check the status of all the services of the cluster and only allow connection from
 the management network (need it for haproxy check)
@@ -79,15 +77,34 @@ sub handler {
     my @uri_elements = split('/',$parsed->path);
     shift @uri_elements;
 
-    my $action = shift @uri_elements;
+    my $function = findhash($r,\@uri_elements);
     $r->handler('modperl');
     $r->set_handlers( PerlResponseHandler => \&answer );
-    if (defined( $STATUS_PARSERS{$action} )) {
-        return $STATUS_PARSERS{$action}($r,\@uri_elements);
+    if (defined(my $funct= eval $function) ) {
+        return $funct->($r,\@uri_elements);
     } else {
         return  Apache2::Const::SERVER_ERROR;
     }
 
+}
+
+=head2 findhash
+
+Find the corresponding sub based on the uri
+
+=cut
+
+sub findhash {
+    my ($r,$uri_elements) =@_;
+
+    my $function = '$REST_PARSERS';
+    for my $elements (@{$uri_elements}) {
+        $function .= '{'.$elements.'}';
+        if (ref(eval($function)) eq 'CODE') {
+            last;
+        }
+    }
+    return $function;
 }
 
 =head2 status
@@ -100,7 +117,7 @@ sub status {
 
     my ($r,$uri_elements) = @_;
 
-    my $service = shift @{$uri_elements};
+    my $service = pop @{$uri_elements};
     if (grep { $_ eq $service } @pf::services::ALL_SERVICES) {
         my $manager = pf::services::get_service_manager($service);
         if ($manager->status('1')) {
@@ -112,20 +129,6 @@ sub status {
         return  Apache2::Const::SERVER_ERROR;
     }
     return Apache2::Const::OK;
-}
-
-=head2 mysql
-
-Check the status of mysql, is it running, can we connect, what the status of the database
-
-=cut
-
-sub mysql {
-
-    my ($r,$uri_elements) = @_;
-
-    my $action = shift @{$uri_elements};
-    return $MYSQL_ACTION{$action}($r);
 }
 
 =head2 connect
