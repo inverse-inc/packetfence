@@ -44,21 +44,34 @@ has_field 'cert_type' =>
    element_class => ['chzn-deselect'],
    tags => { after_element => \&help,
              help => 'Select the type of certifiate you use' },
+  );
 
+has_field 'security_type' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'Security type',
+   options_method => \&option_security,
+   element_class => ['chzn-deselect'],
+   tags => { after_element => \&help,
+             help => 'Select the type of security applied for your SSID' },
+  );
+
+has_field 'passcode' =>
+  (
+   type => 'Text',
+   label => 'Wifi Key',
   );
 has_block definition =>
   (
-   render_list => [ qw(id type description category ssid ca_cert_path eap_type cert_type) ],
+   render_list => [ qw(id type description category ssid security_type passcode eap_type cert_type ca_cert_path) ],
   );
 
 sub options_eap_type {
     my $self = shift;
     my @eap_types = ["25" => "PEAP",
-                     "13" => "TLS",
-                     "17" => "LEAP",
-                     "18" => "EAP-SIM", 
-                     "21" => "TTLS",
-                     "23" => "EAP-AKA",
+                     "13" => "EAP-TLS",
+                     "21" => "EAP-TTLS",
                     ];
     return @eap_types;
 }
@@ -71,6 +84,15 @@ sub option_cert_type {
     return @cert_types;
 }
 
+sub option_security {
+    my $self = shift;
+    my @security_type = ["None" => "Open",
+                         "WEP" => "WEP",
+                         "WPA" => "WPA",
+                         "WPA" => "WPA2",
+                        ];
+    return @security_type;
+}
 =head1 COPYRIGHT
 
 Copyright (C) 2014 Inverse inc.

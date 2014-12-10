@@ -26,7 +26,7 @@
                                 <string></string>
                         </dict>
                         <key>EncryptionType</key>
-                        <string>WPA</string>
+                        <string>[% provisioner.security_type %]</string>
                         <key>HIDDEN_NETWORK</key>
                         <true/>
                         <key>PayloadDescription</key>
@@ -45,10 +45,13 @@
                         <integer>1</integer>
                         <key>SSID_STR</key>
                         <string>[% provisioner.ssid %]</string>
+                        <key>Password</key>
+                        <string>[% provisioner.passcode %]</string>
                 </dict>
+                [% IF provisioner.ca_cert_path.defined and provisioner.ca_cert_path != "" %]
                 <dict>
                         <key>PayloadCertificateFileName</key>
-                        <string>omglol</string>
+                        <string>[% provisioner.cert_file %]</string>
                         <key>PayloadContent</key>
                         <data>[% provisioner.cert_content %]</data>
                         <key>PayloadDescription</key>
@@ -66,6 +69,7 @@
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                 </dict>
+                [% END %]
         </array>
         <key>PayloadDescription</key>
         <string>Profile description.</string>

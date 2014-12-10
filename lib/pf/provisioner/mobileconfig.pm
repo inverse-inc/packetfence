@@ -59,6 +59,8 @@ has cert_content => (is => 'rw');
 has cert_file => (is => 'rw');
 has cert_send => (is => 'rw');
 has cert_type => (is => 'rw');
+has security_type => (is => 'rw');
+has passcode => (is => 'rw');
 
 =head1 METHODS
 
@@ -83,25 +85,26 @@ build certificate
 
 sub build_cert {
     my ($self) = @_;
-    my $path = $self->{ca_cert_path};
-    $path =~ /.*\/([a-zA-Z0-9.]+)$/;
-    my $file = $1;
-    open FILE, "< $path" or die $!;
-    my $data = "";
+    if (defined ($self->{ca_cert_path}) && !($self->{ca_cert_path} eq "")){
+        my $path = $self->{ca_cert_path};
+        $path =~ /.*\/([a-zA-Z0-9.]+)$/;
+        my $file = $1;
+        open FILE, "< $path" or die $!;
+        my $data = "";
 
-    while (<FILE>) {
-        $data .= $_;
-    }
-    
-    $data =~ s/-----BEGIN CERTIFICATE-----\n//g; 
-    $data =~ s/-----END CERTIFICATE-----\n//g;
-    
-    my $send = $file;
-    $send=~ s/.crt//g;
+        while (<FILE>) {
+            $data .= $_;
+        }
+        
+        $data =~ s/.*-----BEGIN CERTIFICATE-----\n//smg; 
+        $data =~ s/-----END CERTIFICATE-----\n.*//smg;
+        
+        my $send = $file;
+        $send=~ s/.crt//g;
  
-    $self->{cert_content} = $data; 
-    $self->{cert_file} = $file; 
-    $self->{cert_send} = $send; 
+        $self->{cert_content} = $data; 
+        $self->{cert_file} = $file; 
+    }
 }
 
 =head1 AUTHOR
