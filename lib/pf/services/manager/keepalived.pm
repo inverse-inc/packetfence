@@ -66,8 +66,9 @@ vrrp_instance $cfg->{'ip'} {
   virtual_ipaddress {
     $cfg->{'active_active_ip'} dev $interface
   }
-#  notify_master /etc/keepalived/reload_conf.sh
-#  notify_backup /etc/keepalived/reload_conf.sh
+  notify_master $install_dir/bin/pfupdate --mode=master
+  notify_backup $install_dir/bin/pfupdate --mode=slave
+  notify_fault $install_dir/bin/pfupdate --mode=slave
   track_script {
     haproxy
   }
