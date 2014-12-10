@@ -59,7 +59,7 @@ my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
 POSIX::sigaction(
     &POSIX::SIGHUP,
     POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+        'reload_config', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
 ) or $logger->logdie("pfdhcplistener: could not set SIGHUP handler: $!");
 
@@ -96,6 +96,14 @@ my @local_dhcp_servers_ip;
 my @local_dhcp_servers_mac;
 my $pcap;
 my $apiclient = pf::api::jsonrpcclient->new;
+my $process;
+
+sub reload_config {
+
+    $process = pf::clustermgmt::is_vip_running
+}
+
+reload_config;
 
 $PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
 
@@ -175,7 +183,7 @@ sub dhcp_detector {
 
 sub process_pkt {
     my ( $user_data, $hdr, $pkt ) = @_;
-    listen_dhcp( $pkt, $user_data );
+    listen_dhcp( $pkt, $user_data ) if (($process eq '0') || ($process eq 'master'));
     #reload all cached configs after each iteration
     pf::config::cached::ReloadConfigs();
     #Only perform stats when in debug mode
