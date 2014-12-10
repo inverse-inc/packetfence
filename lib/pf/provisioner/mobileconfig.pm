@@ -99,9 +99,6 @@ sub build_cert {
         $data =~ s/.*-----BEGIN CERTIFICATE-----\n//smg; 
         $data =~ s/-----END CERTIFICATE-----\n.*//smg;
         
-        my $send = $file;
-        $send=~ s/.crt//g;
- 
         $self->{cert_content} = $data; 
         $self->{cert_file} = $file; 
     }
