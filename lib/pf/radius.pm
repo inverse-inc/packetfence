@@ -151,7 +151,7 @@ sub authorize {
 
         # automatic registration
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch, $port,
-            $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid, $eap_type, $radius_request);
+            $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name);
 
         $logger->debug("[$mac] auto-registering node");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
