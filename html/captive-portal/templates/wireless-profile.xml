@@ -57,11 +57,11 @@
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
-                        <string>PacketFence CA</string>
+                        <string>[% provisioner.id %]</string>
                         <key>PayloadIdentifier</key>
-                        <string>wifi.packetfence</string>
+                        <string>[% provisioner.reversedns %]</string>
                         <key>PayloadOrganization</key>
-                        <string>Inverse</string>
+                        <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
                         <string>[% provisioner.cert_type %]</string>
                         <key>PayloadUUID</key>
@@ -74,11 +74,11 @@
         <key>PayloadDescription</key>
         <string>Profile description.</string>
         <key>PayloadDisplayName</key>
-        <string>PacketFence</string>
+        <string>[% provisioner.id %]</string>
         <key>PayloadIdentifier</key>
-        <string>org.packetfence.profile</string>
+        <string>[% provisioner.reversedns %]</string>
         <key>PayloadOrganization</key>
-        <string></string>
+        <string>[% provisioner.company %]</string>
         <key>PayloadRemovalDisallowed</key>
         <false/>
         <key>PayloadType</key>

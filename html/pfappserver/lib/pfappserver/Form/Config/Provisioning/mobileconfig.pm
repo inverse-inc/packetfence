@@ -62,9 +62,26 @@ has_field 'passcode' =>
    type => 'Text',
    label => 'Wifi Key',
   );
+
+has_field 'reversedns' =>
+  (
+   type => 'Text',
+   label => 'Reverse DNS Identifier',
+   required => 1,
+   tags => { after_element => \&help,
+             help => 'Example: com.packetfence' },
+  );
+
+has_field 'company' =>
+  (
+   type => 'Text',
+   label => 'Company Name',
+   required => 1,
+  );
+
 has_block definition =>
   (
-   render_list => [ qw(id type description category ssid security_type passcode eap_type cert_type ca_cert_path) ],
+   render_list => [ qw(id type description company reversedns category ssid security_type passcode eap_type ca_cert_path cert_type) ],
   );
 
 sub options_eap_type {

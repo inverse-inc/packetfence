@@ -28,11 +28,13 @@ has oses => (is => 'rw', default => sub { ['Apple iPod, iPhone or iPad'] });
 
 =head2 ssid
 
-The ssid
+The ssid informations
 
 =cut
 
 has ssid => (is => 'rw');
+has passcode => (is => 'rw');
+has security_type => (is => 'rw');
 
 =head2 eap_type
 
@@ -55,12 +57,17 @@ has skipDeAuth => (is => 'rw', default => sub{ 1 });
 
 has for_username => (is => 'rw');
 
+=head2
+
+The cert informations
+
+=cut 
+
 has cert_content => (is => 'rw');
 has cert_file => (is => 'rw');
-has cert_send => (is => 'rw');
 has cert_type => (is => 'rw');
-has security_type => (is => 'rw');
-has passcode => (is => 'rw');
+has company => (is => 'rw');
+has reversedns => (is => 'rw');
 
 =head1 METHODS
 

@@ -30,15 +30,13 @@ var ProvisionerView = function(options) {
 
     // Hide the passcode field when 'Open' is selected
     options.parent.on('change', 'form[name="modalProvisioner"] select[name="security_type"]', this.togglepasscode);
-    // Hide the ca_cert_path, cert_type field when 'PEAP' is not selected
+    // Hide the ca_cert_path, cert_type, reversedns and company fields when 'PEAP' is selected
     options.parent.on('change', 'form[name="modalProvisioner"] select[name="eap_type"]', this.togglecert);
-
-
+    // Hide fileds on opening the provisioner
     options.parent.on('show', '#modalProvisioner', function(e) {
       that.togglecert(e);
       that.togglepasscode(e);
     }); 
-
 };
 
 ProvisionerView.prototype = (function(){
@@ -68,7 +66,8 @@ ProvisionerView.prototype.togglecert = function(e) {
 
     if  ($('#eap_type option:selected').text() == "PEAP"){
         certpath_input.val("");
-        certpath.hide(), cert.hide();
+        certpath.hide();
+        cert.hide();
         }
     else{
         cert.show();
