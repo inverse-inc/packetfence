@@ -126,6 +126,11 @@ our $running = 1;
 daemonize($PROGRAM_NAME) if ($daemonize);
 our $PARENT_PID = $$;
 
+my $vip_running = pf::clustermgmt::is_vip_running();
+
+pf::clustermgmt::update_services($vip_running) if ($vip_running);
+
+
 registertasks();
 runtasks();
 waitforit();

@@ -30,6 +30,7 @@ use pf::util;
 use pf::ConfigStore::Interface;
 use pf::ConfigStore::Pf;
 use NetAddr::IP;
+use Net::Interface;
 use List::MoreUtils qw(uniq);
 use pf::api::jsonrpcclient;
 use pf::services;
@@ -267,6 +268,71 @@ sub sync_cluster {
         pf::config::cached::ReloadConfigs();
     }
 }
+
+=head2 update_services
+
+Update some configuration parameter to run or stop task
+
+=cut
+
+sub update_services {
+    my($mode) =@_;
+
+    my $pfcs = pf::ConfigStore::Pf->new();
+    my $maintenance = $pfcs->read('maintenance');
+
+    my $iplog_cleanup_interval = $maintenance->{'temporary_iplog_cleanup_interval'} || $maintenance->{'iplog_cleanup_interval'};
+    my $locationlog_cleanup_interval = $maintenance->{'temporary_locationlog_cleanup_interval'} || $maintenance->{'locationlog_cleanup_interval'};
+    my $node_cleanup_interval = $maintenance->{'temporary_node_cleanup_interval'} || $maintenance->{'node_cleanup_interval'};
+    my $traplog_cleanup_interval = $maintenance->{'temporary_traplog_cleanup_interval'} || $maintenance->{'traplog_cleanup_interval'};
+    my $nodes_maintenance_interval = $maintenance->{'temporary_nodes_maintenance_interval'} || $maintenance->{'nodes_maintenance_interval'};
+    my $violation_maintenance_interval = $maintenance->{'temporary_violation_maintenance_interval'} || $maintenance->{'violation_maintenance_interval'};
+    my $inline_accounting_maintenance_interval = $maintenance->{'temporary_inline_accounting_maintenance_interval'} || $maintenance->{'inline_accounting_maintenance_interval'};
+    my $acct_maintenance_interval = $maintenance->{'temporary_acct_maintenance_interval'} || $maintenance->{'acct_maintenance_interval'};
+    my $provisioning_compliance_poll_interval = $maintenance->{'temporary_provisioning_compliance_poll_interval'} || $maintenance->{'provisioning_compliance_poll_interval'};
+
+    if ($mode eq 'master') {
+
+        $pfcs->update('maintenance', { iplog_cleanup_interval => $iplog_cleanup_interval, locationlog_cleanup_interval => $locationlog_cleanup_interval, node_cleanup_interval => $node_cleanup_interval, traplog_cleanup_interval =>  $traplog_cleanup_interval, nodes_maintenance_interval => $nodes_maintenance_interval, violation_maintenance_interval => $violation_maintenance_interval, inline_accounting_maintenance_interval => $inline_accounting_maintenance_interval, acct_maintenance_interval => $acct_maintenance_interval, provisioning_compliance_poll_interval => $provisioning_compliance_poll_interval});
+
+    } elsif ($mode eq 'slave') {
+
+        $pfcs->update('maintenance', { iplog_cleanup_interval => '0', locationlog_cleanup_interval => '0', node_cleanup_interval => '0', traplog_cleanup_interval =>  '0', nodes_maintenance_interval => '0', violation_maintenance_interval => '0', inline_accounting_maintenance_interval => '0', acct_maintenance_interval => '0', provisioning_compliance_poll_interval => '0'});
+        $pfcs->update('maintenance', { temporary_iplog_cleanup_interval => $iplog_cleanup_interval, temporary_locationlog_cleanup_interval => $locationlog_cleanup_interval, temporary_node_cleanup_interval => $node_cleanup_interval, temporary_traplog_cleanup_interval =>  $traplog_cleanup_interval, temporary_nodes_maintenance_interval => $nodes_maintenance_interval, temporary_violation_maintenance_interval => $violation_maintenance_interval, temporary_inline_accounting_maintenance_interval => $inline_accounting_maintenance_interval, temporary_acct_maintenance_interval => $acct_maintenance_interval, temporary_provisioning_compliance_poll_interval => $provisioning_compliance_poll_interval});
+
+    }
+
+    $pfcs->commit();
+}
+
+=head2 is_vip_running
+
+=cut
+
+sub is_vip_running {
+
+    my $int = $management_network->{'Tint'};
+    my $cfg = $Config{"interface $int"};
+
+    if (isenabled($cfg->{'active_active_enabled'})) {
+
+        my @all_ifs = Net::Interface->interfaces();
+        foreach my $inf (@all_ifs) {
+            if ($inf->name eq $int) {
+                my @masks = $inf->netmask(AF_INET());
+                my @addresses = $inf->address(AF_INET());
+                for my $i (0 .. $#masks) {
+                    if (inet_ntoa($addresses[$i]) eq $Config{"interface $int"}{'active_active_ip'}) {
+                        return 'master';
+                    }
+                }
+                return 'slave';
+            }
+        }
+    }
+    return 0;
+}
+
 
 =head1 AUTHOR
 
