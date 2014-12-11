@@ -842,7 +842,7 @@ sub HasExpired {
     return undef unless $self->LockFileHasChanged() && $self->HasChanged();
 
     #Expire a subcache
-    return 1 if $chi->is_subcache;
+    return 1 if $chi && $chi->is_subcache;
 
     #Only one process can expire main cache
     return $self->GotReloadWriteLock;
