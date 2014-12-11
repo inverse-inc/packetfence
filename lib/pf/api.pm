@@ -538,7 +538,11 @@ sub active_active : Public {
                              'member_ip' => $cfg->{'ip'},
                              'priority' => $priority,
                            );
-            $hash_ref{'mysql_master'} = $cfg->{'active_active_mysql_master'} || $postdata{mysql} if (defined($postdata{mysql}) && $postdata{mysql});
+            if (defined($postdata{mysql}) && $postdata{mysql}) {
+                $hash_ref{'mysql_master'} = $postdata{mysql};
+            } else {
+                $hash_ref{'mysql_master'} = $cfg->{'active_active_mysql_master'};
+            }
             return \%hash_ref;
         }
     }

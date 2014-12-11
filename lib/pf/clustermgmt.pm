@@ -207,12 +207,6 @@ sub sync_cluster {
 
     my @ints = uniq(@listen_ints,@dhcplistener_ints);
 
-    if ( (defined $Config{"interface $int"}{'active_active_mysql_master'}) && ($Config{"interface $int"}{'ip'} eq $Config{"interface $int"}{'active_active_mysql_master'}) ) {
-        $priority = '150';
-    } else {
-        $priority = $Config{"interface $int"}{'active_active_priority'} || 0;
-    }
-
     my $cs = pf::ConfigStore::Interface->new();
 
     foreach my $interface ( @ints ) {
@@ -220,6 +214,12 @@ sub sync_cluster {
         my $mysql_master = 0;
         my $cfg = $Config{"interface $interface"};
         if (isenabled($cfg->{'active_active_enabled'})) {
+
+            if ( (defined $Config{"interface $int"}{'active_active_mysql_master'}) && ($Config{"interface $int"}{'ip'} eq $Config{"interface $int"}{'active_active_mysql_master'}) ) {
+                $priority = '150';
+            } else {
+                $priority = $Config{"interface $interface"}{'active_active_priority'} || 0;
+            }
             my @all_members;
             for my $member (@members) {
                 my %data = (
@@ -239,6 +239,14 @@ sub sync_cluster {
                     push(@all_members , $result->{'member_ip'});
                     $logger->error("There is more than one dhcpd master, fix that") if ($result->{'dhcpd_master'} && $Config{"interface $int"}{'active_active_dhcpd_master'});
                     push(@priority, $result->{'priority'});
+                    if ($priority eq $result->{'priority'}) {
+                        my $i = 100;
+                        while (grep { $_ eq $priority } @priority) {
+                            $priority = $i;
+                            $i++;
+                        }
+                        $cs->update($interface, { active_active_priority => $priority});
+                    }
                 } else {
                     @all_members = grep { $_ ne $member } @all_members;
                 }
@@ -253,16 +261,6 @@ sub sync_cluster {
             $cs->update($interface, { active_active_mysql_master => $Config{"interface $int"}{ip}}) if (!$mysql_master && defined($cfg->{'active_active_mysql_master'} ) && $cfg->{'type'} eq 'management' );
             $cs->update($interface, { active_active_priority => $priority}) if ($priority eq 150);
             undef(@all_members);
-        }
-        if (grep { $_ eq $priority } @priority) {
-            my $i = 100;
-            while (grep { $_ eq $priority } @priority) {
-                $priority = $i;
-                $i++;
-            }
-            $cs->update($int, { active_active_priority => $priority});
-        } else {
-            $cs->update($int, { active_active_priority => $priority});
         }
         $cs->commit();
         #Reload configuration
