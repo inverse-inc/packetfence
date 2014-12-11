@@ -26,6 +26,15 @@ The set the default OS Andriod
 
 has oses => (is => 'rw', default => sub { [qw(Android)] });
 
+=head 2 Method
+
+The build cert
+
+=cut
+
+sub build_cert{
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
