@@ -25,3 +25,4 @@ if (! ($mode =~ /^master|slave$/)) {
 
 pf::clustermgmt::update_services($mode);
 
+print `pkill -1 pfdhcplistener 2>&1`;

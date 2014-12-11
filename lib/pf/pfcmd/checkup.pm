@@ -613,6 +613,7 @@ sub is_config_documented {
                   || ($section =~ /^(services|interface|nessus_category_policy|nessus_scan_by_fingerprint)/));
 
         foreach my $item  (keys %{$Config{$section}}) {
+            next if ( $item =~ /^temporary_/i );
             if ( !defined( $Doc_Config{"$section.$item"} ) ) {
                 add_problem( $FATAL,
                     "unknown configuration parameter $section.$item ".

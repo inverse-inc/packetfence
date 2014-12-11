@@ -20,6 +20,7 @@ use APR::URI ();
 use NetAddr::IP;
 use List::MoreUtils qw(uniq);
 use Try::Tiny;
+use Socket;
 
 use strict;
 use pf::config;
@@ -310,8 +311,8 @@ sub update_services {
 =cut
 
 sub is_vip_running {
+    my ($int) = @_;
 
-    my $int = $management_network->{'Tint'};
     my $cfg = $Config{"interface $int"};
 
     if (isenabled($cfg->{'active_active_enabled'})) {
