@@ -491,6 +491,14 @@ sub active_active : Public {
     my $ip = new NetAddr::IP::Lite pf::util::clean_ip($postdata{ip});
     my @ints = uniq(@pf::config::listen_ints,@pf::config::dhcplistener_ints);
     my $cs = pf::ConfigStore::Interface->new();
+    my $int = $pf::config::management_network->{'Tint'};
+    my $cfg_mgmt = $pf::config::Config{"interface $int"};
+
+    my $master = 0;
+
+    if ($cfg_mgmt->{'ip'} eq $cfg_mgmt->{'active_active_mysql_master'} ) {
+        $master = 1;
+    }
 
     foreach my $interface ( @ints ) {
         my $cfg = $pf::config::Config{"interface $interface"};
@@ -500,7 +508,7 @@ sub active_active : Public {
         if ( $current_network->contains($ip) ) {
             $cs->update($interface, { active_active_mysql_master => $postdata{mysql}}) if (defined($postdata{mysql}) && $postdata{mysql});
             $cs->update($interface, { active_active_dhcpd_master => '0'}) if $postdata{dhcpd};
-            $cs->update($interface, { active_active_ip => $postdata{activeip}}) if $postdata{activeip};
+            $cs->update($interface, { active_active_ip => $postdata{activeip}}) if ($postdata{activeip} && !$master);
 
             my @members = split(',',$cfg->{'active_active_members'});
             if (!( grep { $_ eq $postdata{ip} } @members ) || !( grep { $_ eq $cfg->{'ip'} } @members )) {
