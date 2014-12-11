@@ -267,6 +267,7 @@ InterfaceView.prototype.typeChanged = function(e) {
                     });
                     break;
                 case '':
+                case 'other':
                 case 'none':
                     dhcpd.hide('fast');
                     high_availability.show('fast');
@@ -283,33 +284,6 @@ InterfaceView.prototype.typeChanged = function(e) {
                     active_active_ip.hide('fast');
                     active_active_members.hide('fast');
                     active_active_mysql_master.hide('fast');
-                    active_active_dhcpd_master.hide('fast');
-                    if (modal.find('[name="high_availability"]').is(":checked")) {
-                        vip.show('fast');
-                    } else {
-                        vip.hide('fast');
-                    }
-                    modal.find('[name="high_availability"]').change(function(){
-                        if (this.checked) {
-                            vip.show('fast');
-                        } else {
-                            active_active_enabled.hide('fast');
-                            vip.hide('fast');
-                        }
-                    });
-                    break;
-                case 'other':
-                    dhcpd.hide('fast');
-                    high_availability.hide('fast');
-                    high_availability.find(':input').attr('disabled','disabled');
-                    dns.hide('fast');
-                    dns.find(':input').attr('disabled','disabled');
-                    vip.hide('fast');
-                    vip.find(':input').attr('disabled','disabled');
-                    nat.hide('fast');
-                    nat.find(':input').attr('disabled','disabled');
-                    $(".info_inline").hide('fast');
-                    $(".info_routed").hide('fast');
                     active_active_dhcpd_master.hide('fast');
                     break;
                 case 'vlan-registration':
@@ -515,4 +489,3 @@ InterfaceView.prototype.deleteNetwork = function(e) {
         errorSibling: modal_body.children().first()
     });
 };
-
