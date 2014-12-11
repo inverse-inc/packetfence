@@ -1178,7 +1178,7 @@ sub getIfIndexByNasPortId {
     my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};
-        if ( $ifDesc =~ /$ifDesc_param$/i ) {
+        if ( $ifDesc =~ /^$ifDesc_param$/i ) {
             $key =~ /^$OID_ifDesc\.(\d+)$/;
             return $1;
         }
