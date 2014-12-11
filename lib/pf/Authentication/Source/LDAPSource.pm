@@ -206,8 +206,8 @@ sub is_match_cacheable {
     #First check to see caching is disabled to see if we can exit quickly
     return 0 unless $self->cache_match;
     #Check rules for timed based operations return false first one found
-    foreach my $rule (@{$self->rules}) {
-        foreach my $condition (@{$rule->conditions}) {
+    foreach my $rule (@{$self->{rules}}) {
+        foreach my $condition (@{$rule->{conditions}}) {
             my $op = $condition->{operator};
             return 0 if $op eq $Conditions::IS_BEFORE || $op eq $Conditions::IS_AFTER;
         }
