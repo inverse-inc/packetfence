@@ -2,14 +2,14 @@ listen {
         ipaddr = %%virt_ip%%
         port = 0
         type = auth
-        virtual_server = pf.example.com
+        virtual_server = pf.actif
 }
 
 listen {
         ipaddr = %%virt_ip%%
         port = 0
         type = acct
-        virtual_server = pf.example.com
+        virtual_server = pf.actif
 }
 
 %%members%%
