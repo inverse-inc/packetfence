@@ -13,7 +13,7 @@ extends 'pfappserver::Form::Config::Provisioning::mobileconfig';
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category ssid passcode ca_cert_path) ],
+   render_list => [ qw(id description company reversedns type category ssid security_type passcode eap_type ca_cert_path) ],
   );
 
 

@@ -28,14 +28,14 @@ var ProvisionerView = function(options) {
     this.parent = options.parent;
     this.items = options.items;
 
-    // Hide the passcode field when 'Open' is selected
-    options.parent.on('change', 'form[name="modalProvisioner"] select[name="security_type"]', this.togglepasscode);
+    // Hide the sectype, eap_type fields when 'Open' is selected
+    options.parent.on('change', 'form[name="modalProvisioner"] select[name="security_type"]', this.togglesectype);
     // Hide the ca_cert_path, cert_type, reversedns and company fields when 'PEAP' is selected
     options.parent.on('change', 'form[name="modalProvisioner"] select[name="eap_type"]', this.togglecert);
     // Hide fileds on opening the provisioner
     options.parent.on('show', '#modalProvisioner', function(e) {
       that.togglecert(e);
-      that.togglepasscode(e);
+      that.togglesectype(e);
     }); 
 };
 
@@ -47,15 +47,28 @@ ProvisionerView.prototype = (function(){
 
 ProvisionerView.prototype.constructor = ProvisionerView;
 
-ProvisionerView.prototype.togglepasscode = function(e) {
+ProvisionerView.prototype.togglesectype = function(e) {
     var select = $('form[name="modalProvisioner"] select[name="security_type"]').first();
-    var passcode = select.closest('form').find('input[name="passcode"]').closest('.control-group');
+    var passcode_input = select.closest('form').find('input[name="passcode"]');
+    var passcode = passcode_input.closest('.control-group');
+    var eap = select.closest('form').find('select[name="eap_type"]').closest('.control-group');
+    var select2 = $('form[name="modalProvisioner"] select[name="eap_type"]').first();
+    var cert = select2.closest('form').find('select[name="cert_type"]').closest('.control-group');
+    var certpath = select2.closest('form').find('input[name="ca_cert_path"]').closest('.control-group');
 
-    if ($('#security_type option:selected').text() == "Open")
+    if ($('#security_type option:selected').text() == "Open"){
+        passcode_input.val("");
         passcode.hide();
-    else
+        eap.hide();
+        cert.hide();
+        certpath.hide();
+        }
+    else{
         passcode.show();
-   
+        eap.show();
+        cert.show();
+        certpath.show();
+        }
 };
 
 ProvisionerView.prototype.togglecert = function(e) {

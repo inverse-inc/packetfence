@@ -6,6 +6,7 @@
         <key>PayloadContent</key>
         <array>
                 <dict>
+                        [% IF provisioner.eap_type != "" and provisioner.security_type != "none" %]
                         <key>EAPClientConfiguration</key>
                         <dict>
                                 <key>AcceptEAPTypes</key>
@@ -25,6 +26,7 @@
                                 <key>UserPassword</key>
                                 <string></string>
                         </dict>
+                        [% END %]
                         <key>EncryptionType</key>
                         <string>[% provisioner.security_type %]</string>
                         <key>HIDDEN_NETWORK</key>

@@ -89,6 +89,7 @@ sub options_eap_type {
     my @eap_types = ["25" => "PEAP",
                      "13" => "EAP-TLS",
                      "21" => "EAP-TTLS",
+                     "" => "No EAP",
                     ];
     return @eap_types;
 }
