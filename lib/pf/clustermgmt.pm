@@ -310,7 +310,7 @@ sub update_services {
 
     } elsif ($mode eq 'slave') {
 
-        $pfcs->update('maintenance', { iplog_cleanup_interval => '0', locationlog_cleanup_interval => '0', node_cleanup_interval => '0', traplog_cleanup_interval =>  '0', nodes_maintenance_interval => '0', violation_maintenance_interval => '0', inline_accounting_maintenance_interval => '0', acct_maintenance_interval => '0', provisioning_compliance_poll_interval => '0'});
+        $pfcs->update('maintenance', { iplog_cleanup_interval => '0s', locationlog_cleanup_interval => '0s', node_cleanup_interval => '0s', traplog_cleanup_interval =>  '0s', nodes_maintenance_interval => '0s', violation_maintenance_interval => '0s', inline_accounting_maintenance_interval => '0s', acct_maintenance_interval => '0s', provisioning_compliance_poll_interval => '0s'});
         $pfcs->update('maintenance', { temporary_iplog_cleanup_interval => $iplog_cleanup_interval, temporary_locationlog_cleanup_interval => $locationlog_cleanup_interval, temporary_node_cleanup_interval => $node_cleanup_interval, temporary_traplog_cleanup_interval =>  $traplog_cleanup_interval, temporary_nodes_maintenance_interval => $nodes_maintenance_interval, temporary_violation_maintenance_interval => $violation_maintenance_interval, temporary_inline_accounting_maintenance_interval => $inline_accounting_maintenance_interval, temporary_acct_maintenance_interval => $acct_maintenance_interval, temporary_provisioning_compliance_poll_interval => $provisioning_compliance_poll_interval});
 
     }
