@@ -1,0 +1,25 @@
+      <div class="modal modal-large fade hide" id="modalItem">
+      </div>
+
+      <div class="modal fade hide" id="deleteItem">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>[% l('Delete Admin Role') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this admin role?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <h2>[% l('User Agents') %]</h2>
+
+      [% INCLUDE config/fingerbank/mac_vendor/list.tt %]
+
+      <div id="noRole" class="unwell[% ' hidden' IF items.size %]">
+        <i class="icon-unlock icon-large"></i><p>[% l('No mac_vendor defined') %]</p>
+      </div>
+

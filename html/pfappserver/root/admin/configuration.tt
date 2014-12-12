@@ -154,6 +154,13 @@ table.sources {
               [% list_entry('Config::MacAddress', 'index', 'MAC Addresses') %]
               [%- END %]
               [%- END %]
+              <li class="nav-header">[% l('Fingerbank') %]</li>
+              [% list_entry('Config::Fingerbank::Combination', 'index', 'Combination') %]
+              [% list_entry('Config::Fingerbank::Device', 'index', 'Device') %]
+              [% list_entry('Config::Fingerbank::DHCP_Fingerprint', 'index', 'DHCP Fingerprint') %]
+              [% list_entry('Config::Fingerbank::DHCP_Vendor', 'index', 'DHCP Vendor') %]
+              [% list_entry('Config::Fingerbank::MAC_Vendor', 'index', 'MAC Vendor') %]
+              [% list_entry('Config::Fingerbank::User_Agent', 'index', 'User Agent') %]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
