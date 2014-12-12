@@ -165,7 +165,8 @@ EOT
         unlink($file);
     }
     $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
-    my $net = NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
+    my $ip = NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
+    my $net = $ip->network();
     $tags{'config'} .= <<"EOT";
 client $net {
         secret = testing1234
