@@ -636,7 +636,7 @@ sub _prepare_interface_for_pfconf {
     };
 
     if (isenabled($int_model->{'active_active_enabled'})) {
-        $int_config_ref->{'vip'} = '';
+        undef $int_config_ref->{'vip'};
     }
 
     # logic to match our awkward relationship between pf.conf's type and
