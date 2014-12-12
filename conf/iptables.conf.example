@@ -44,8 +44,6 @@
 -A input-management-if -p vrrp -j ACCEPT
 # Mysql
 -A input-management-if --protocol tcp --match tcp --dport 3306 --jump ACCEPT
-# DHCP Cluster
--A input-management-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
 
 # HTTPS for email confirmation or sponsor activation on the captive portal (if enabled)
 %%input_mgmt_guest_rules%%
@@ -60,6 +58,7 @@
 # HTTP (captive-portal) 
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
+-A input-internal-vlan-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
 %%input_inter_vlan_if%%
 
 :input-internal-inline-if - [0:0]
@@ -82,6 +81,7 @@
 # allow everyone else behind inline interface (not registered, isolated, etc.)
 -A input-internal-inline-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-internal-inline-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
+-A input-internal-inline-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
 %%input_inter_inline_rules%%
 
 :input-highavailability-if - [0:0]
