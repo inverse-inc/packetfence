@@ -19,6 +19,7 @@ use IPC::Cmd qw[can_run run];
 use POSIX;
 use Net::Netmask;
 use pf::constants;
+use NetAddr::IP;
 use pf::config;
 use pf::log;
 use pf::util;
@@ -53,8 +54,10 @@ sub generateConfig {
             }
             my $members = join(',',grep { $_ ne $cfg->{'ip'} } @active_members);
             if ($members) {
+                my $ip = NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
+                my $net = $ip->network();
                 $tags{'active'} .= <<"EOT";
-failover peer "$cfg->{'ip'}" {
+failover peer "$net" {
   $master;
   address $cfg->{'ip'};
   port 647;
@@ -102,7 +105,7 @@ EOT
                     }
                     my $members = join(',',grep { $_ ne $cfg->{'ip'} } @active_members);
                     if ($members) {
-                        $active = $cfg->{'ip'} if $current_network->contains($ip);
+                        $active =  NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'}) if $current_network->contains($ip);
                     }
                 }
             }
@@ -112,6 +115,7 @@ EOT
             %net = _assign_defaults(%net);
 
             if ($active) {
+                my $peer = $active->network();
                 $tags{'networks'} .= <<"EOT";
 subnet $network netmask $net{'netmask'} {
   option routers $net{'gateway'};
@@ -119,7 +123,7 @@ subnet $network netmask $net{'netmask'} {
   option domain-name "$domain";
   option domain-name-servers $net{'dns'};
   pool {
-      failover peer "$active";
+      failover peer "$peer";
       range $net{'dhcp_start'} $net{'dhcp_end'};
       default-lease-time $net{'dhcp_default_lease_time'};
       max-lease-time $net{'dhcp_max_lease_time'};
