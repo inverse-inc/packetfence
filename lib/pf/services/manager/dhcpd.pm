@@ -148,6 +148,7 @@ EOT
             } else {
 
             if ($active) {
+                my $peer = $active->network();
                 $tags{'networks'} .= <<"EOT";
 subnet $network netmask $net{'netmask'} {
   option routers $net{'gateway'};
@@ -155,7 +156,7 @@ subnet $network netmask $net{'netmask'} {
   option domain-name "$domain";
   option domain-name-servers $net{'dns'};
   pool {
-      failover peer "$active";
+      failover peer "$peer";
       range $net{'dhcp_start'} $net{'dhcp_end'};
       default-lease-time $net{'dhcp_default_lease_time'};
       max-lease-time $net{'dhcp_max_lease_time'};
