@@ -17,6 +17,7 @@ use Apache2::RequestRec ();
 use Apache2::Request;
 use Apache2::Const;
 use APR::URI ();
+use DBI;
 use NetAddr::IP;
 use List::MoreUtils qw(uniq);
 use Try::Tiny;
@@ -25,7 +26,6 @@ use Socket;
 use strict;
 use pf::config;
 use pf::config::cached;
-use pf::db;
 use pf::log(service => 'httpd.admin');
 use pf::util;
 use pf::ConfigStore::Interface;
@@ -44,24 +44,6 @@ our %REST_PARSERS = (
         cluster => \&cluster,
     },
 );
-
-# DATABASE HANDLING
-use constant CLUSTERMGMT       => 'clustermgmt';
-our $clustermgmt_db_prepared   = 0;
-our $clustermgmt_statements    = {};
-
-sub clustermgmt_db_prepare {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    $logger->debug("Preparing database statements.");
-
-    $clustermgmt_statements->{'cluster_test_sql'} = get_db_handle()->prepare(qq[
-            SELECT 1 FROM node LIMIT 1
-    ]);
-
-    $clustermgmt_db_prepared = 1;
-    return 1;
-}
 
 =head2 handler
 
@@ -133,6 +115,30 @@ sub status {
     return Apache2::Const::OK;
 }
 
+=head2 connect_db
+
+Local DBI connection, we use it to test the local database connection
+
+=cut
+
+sub connect_db {
+
+    my $DB_Config = $Config{'database'};
+    #we only want to test local access
+    my $host = 'localhost';
+    my $port = $DB_Config->{'port'};
+    my $user = $DB_Config->{'user'};
+    my $pass = $DB_Config->{'pass'};
+    my $db   = $DB_Config->{'db'};
+    my $mydbh = DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
+        $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
+    if ($mydbh) {
+        return ($mydbh);
+    } else {
+        return ();
+    }
+}
+
 =head2 connect
 
 Check if we can connect to mysql
@@ -143,8 +149,13 @@ sub connect {
 
     my ($r) = @_;
 
-    if (db_ping()) {
-        return Apache2::Const::OK;
+    my $mydbh = connect_db();
+    if ($mydbh) {
+        if ($mydbh->ping) {
+            return Apache2::Const::OK;
+        } else {
+            return  Apache2::Const::SERVER_ERROR;
+        }
     } else {
         return  Apache2::Const::SERVER_ERROR;
     }
@@ -160,13 +171,16 @@ sub cluster {
 
     my ($r) = @_;
 
-    my $query = db_query_execute(CLUSTERMGMT, $clustermgmt_statements, 'cluster_test_sql') || 0;
-    if ($query eq '0') {
-        return  Apache2::Const::SERVER_ERROR;
-    }
-    my ($val) = $query->fetchrow_array();
-    if ($val eq '1') {
-        return Apache2::Const::OK;
+    my $mydbh = connect_db();
+    if ($mydbh) {
+        my $query = $mydbh->prepare('SELECT 1 FROM node LIMIT 1');
+        $query->execute;
+        my ($val) = $query->fetchrow_array();
+        if ($val eq '1') {
+            return Apache2::Const::OK;
+        } else {
+            return  Apache2::Const::SERVER_ERROR;
+        }
     } else {
         return  Apache2::Const::SERVER_ERROR;
     }
