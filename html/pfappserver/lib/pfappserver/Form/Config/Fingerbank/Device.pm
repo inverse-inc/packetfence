@@ -23,19 +23,37 @@ has roles => ( is => 'rw', default => sub { [] } );
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Usergent ID',
+   label => 'Id',
    required => 1,
   );
 
-has_field 'value' =>
+has_field name =>
   (
    type => 'Text',
-   label => 'Useragent',
+   readonly => 1,
+  );
+
+has_field [qw(mobile tablet)] =>
+  (
+   type => 'Toggle',
+   readonly => 1,
+  );
+
+has_field created_at =>
+  (
+  type => 'Text',
+  readonly => 1,
+  );
+
+has_field updated_at =>
+  (
+  type => 'Text',
+  readonly => 1,
   );
 
 has_block definition =>
   (
-    render_list => [qw(value)],
+    render_list => [qw(name mobile tablet created_at updated_at)],
   );
 
 =head1 COPYRIGHT
