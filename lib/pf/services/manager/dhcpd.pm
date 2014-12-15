@@ -1,4 +1,5 @@
 package pf::services::manager::dhcpd;
+
 =head1 NAME
 
 pf::services::manager::dhcpd add documentation
@@ -96,17 +97,21 @@ EOT
                 $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'})
             }
             my $active = '0';
+            my $dns ='0';
             foreach my $interface ( @listen_ints ) {
                 my $cfg = $Config{"interface $interface"};
                 my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
                 if (isenabled($cfg->{'active_active_enabled'})) {
-                    my @active_members = $cfg->{'ip'};
+                    my @active_members;
                     if (defined($cfg->{'active_active_members'})) {
                         @active_members = split(',',$cfg->{'active_active_members'});
                     }
                     my $members = join(',',grep { $_ ne $cfg->{'ip'} } @active_members);
                     if ($members) {
-                        $active =  NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'}) if $current_network->contains($ip);
+                        if ($current_network->contains($ip)) {
+                            $dns = $cfg->{'active_active_members'};
+                            $active =  NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
+                        }
                     }
                 }
             }
@@ -114,7 +119,7 @@ EOT
             delete $direct_subnets{"subnet $network netmask $net{'netmask'}"};
 
             %net = _assign_defaults(%net);
-
+            $dns = $net{'dns'} if (!$dns);
             if ($active) {
                 my $peer = $active->network();
                 $tags{'networks'} .= <<"EOT";
@@ -122,7 +127,7 @@ subnet $network netmask $net{'netmask'} {
   option routers $net{'gateway'};
   option subnet-mask $net{'netmask'};
   option domain-name "$domain";
-  option domain-name-servers $net{'dns'};
+  option domain-name-servers $dns;
   pool {
       failover peer "$peer";
       range $net{'dhcp_start'} $net{'dhcp_end'};
