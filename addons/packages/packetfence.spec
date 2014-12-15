@@ -128,6 +128,8 @@ Requires: perl(Time::HiRes)
 Requires: ipset, sudo
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
+Requires: perl(Net::IP)
+Requires: perl(Digest::HMAC_MD5)
 # TODO: we should depend on perl modules not perl-libwww-perl package
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
 # LWP::Simple is one of them (required by inlined Net::MAC::Vendor and probably other stuff)
