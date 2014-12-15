@@ -63,6 +63,14 @@ ProvisionerView.prototype.togglesectype = function(e) {
         cert.hide();
         certpath.hide();
         }
+    else if ($('#security_type option:selected').text() == "WEP"){
+        passcode_input.val("");
+        passcode.show();
+        eap.hide();
+        cert.hide();
+        certpath.hide();
+        }
+    
     else{
         passcode.show();
         eap.show();
@@ -77,7 +85,7 @@ ProvisionerView.prototype.togglecert = function(e) {
     var certpath_input = select.closest('form').find('input[name="ca_cert_path"]');
     var certpath = certpath_input.closest('.control-group');
 
-    if  ($('#eap_type option:selected').text() == "PEAP"){
+    if  ($('#eap_type option:selected').text() == "PEAP" || $('#eap_type option:selected').text() == "No EAP"){
         certpath_input.val("");
         certpath.hide();
         cert.hide();
