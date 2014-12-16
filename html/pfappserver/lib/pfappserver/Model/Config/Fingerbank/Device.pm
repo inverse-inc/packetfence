@@ -28,7 +28,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2014 Inverse inc.
 
 =head1 LICENSE
 
@@ -50,4 +50,3 @@ USA.
 =cut
 
 1;
-
