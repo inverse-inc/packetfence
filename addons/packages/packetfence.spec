@@ -251,6 +251,8 @@ Requires: perl(IO::Interface)
 Requires: perl(Time::Period)
 # configuration-wizard
 Requires: iproute, vconfig
+# wmi
+Requires: wmi, perl(Net::WMIClient)
 
 Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
