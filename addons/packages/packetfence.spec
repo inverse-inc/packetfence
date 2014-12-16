@@ -256,7 +256,9 @@ Requires: perl(IO::Interface)
 Requires: perl(Time::Period)
 Requires: iproute >= 3.0.0, samba, krb5-workstation
 # configuration-wizard
-Requires: vconfig
+Requires: iproute, vconfig
+# wmi
+Requires: wmi, perl(Net::WMIClient)
 
 Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #

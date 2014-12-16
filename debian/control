@@ -106,6 +106,8 @@ Depends: ${misc:Depends}, vlan, make,
 # used by bin/pftest
  libio-interactive-perl,
  haproxy (>= 1.5), keepalived (>= 1.2),
+# wmi                                                                                                                                                                                    
+ libnet-wmiclient-perl, libwmiclient1, wmi_client
 Recommends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql, freeradius-mysql, freeradius-krb5, isc-dhcp-server | dhcp3-server
 Description: PacketFence network registration / worm mitigation system
  PacketFence is an open source network access control (NAC) system.
