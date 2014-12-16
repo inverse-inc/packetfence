@@ -168,10 +168,8 @@ Removes an existing item
 sub remove {
     my ( $self, $id ) = @_;
     my ( $status, $status_msg );
-    my $primaryKey = $self->primaryKey;
-    my $object = $self->manager->object_class->new( $primaryKey => $id );
-    if ( $object->delete ) {
-        $status = HTTP_OK;
+    my $status = $self->fingerbankModel->delete($id);
+    if ( $status == HTTP_OK ) {
         $status_msg = [ "removed [_1]", $id ];
     } else {
         $status = HTTP_PRECONDITION_FAILED;
@@ -187,17 +185,11 @@ Copies a section
 =cut
 
 sub copy {
-    my ( $self, $from, $to ) = @_;
-    my ( $status, $status_msg );
-    my $config = $self->configStore;
-    if ( $config->copy( $from, $to ) ) {
-        $status = HTTP_OK;
-        $status_msg = [ '"[_1]" successfully copied to [_2]', $from, $to ];
-    } else {
-        $status_msg = [ '"[_]" already exists', $to ];
-        $status = HTTP_PRECONDITION_FAILED;
-    }
-    return ( $status, $status_msg );
+    my ($self, $from, $to) = @_;
+    my ($status, $status_msg);
+    $status     = HTTP_BAD_REQUEST;
+    $status_msg = "Items cannot be copy";
+    return ($status, $status_msg);
 }
 
 =head2 renameItem
