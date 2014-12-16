@@ -22,6 +22,8 @@ extends 'pfappserver::Base::Model::Config';
 
 has fingerbankModel => (is => 'ro' , required => 1);
 
+has scope => (is => 'ro', required => 1, default => sub { 'Upstream' } );
+
 =head1 FIELDS
 
 =cut
@@ -36,7 +38,7 @@ sub readAll {
     my ( $self, $pageNum, $perPage ) = @_;
     $pageNum = 1 if $pageNum <= 0;
     my $offset = ($pageNum - 1) * $perPage;
-    my @results = $self->fingerbankModel->list_paginated({offset => $offset, nb_of_rows => $perPage, order => 'asc', order_by => 'id'});
+    my @results = $self->fingerbankModel->list_paginated({offset => $offset, nb_of_rows => $perPage, order => 'asc', order_by => 'id', schema => $self->scope });
     return ( HTTP_OK, \@results );
 }
 
@@ -238,7 +240,7 @@ sub commit {
 
 sub ACCEPT_CONTEXT {
     my ( $self, $c, %args ) = @_;
-    return $self->new( \%args );
+    return $self->new(  { scope => $c->stash->{scope} || 'Upstream', %args } );
 }
 
 __PACKAGE__->meta->make_immutable;
