@@ -27,15 +27,31 @@ has_field 'id' =>
    required => 1,
   );
 
-has_field 'value' =>
+has_field 'name' =>
   (
    type => 'Text',
-   label => 'Useragent',
+   label => 'Vendor',
+  );
+
+has_field 'mac' =>
+  (
+   type => 'Text',
+   label => 'MAC',
+  );
+
+has_field created_at =>
+  (
+  type => 'Text',
+  );
+
+has_field updated_at =>
+  (
+  type => 'Text',
   );
 
 has_block definition =>
   (
-    render_list => [qw(value)],
+    render_list => [qw(name mac created_at updated_at)],
   );
 
 =head1 COPYRIGHT

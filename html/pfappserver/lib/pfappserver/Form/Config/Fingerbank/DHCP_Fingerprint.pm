@@ -30,12 +30,22 @@ has_field 'id' =>
 has_field 'value' =>
   (
    type => 'Text',
-   label => 'Useragent',
+   label => 'DHCP Fingerprint',
+  );
+
+has_field created_at =>
+  (
+  type => 'Text',
+  );
+
+has_field updated_at =>
+  (
+  type => 'Text',
   );
 
 has_block definition =>
   (
-    render_list => [qw(value)],
+    render_list => [qw(value created_at updated_at)],
   );
 
 =head1 COPYRIGHT
