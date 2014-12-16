@@ -15,21 +15,21 @@
           [% IF pageNumber == 1 %]
           <li class="disabled"><a>&larr;</a></li>
           [% ELSE %]
-          <li><a href="[% c.uri_for(c.controller.action_for(action),pageNumber - 1,perPage) %]">&larr;</a></li>
+          <li><a href="[% c.uri_for(c.controller.action_for(action),[scope],pageNumber - 1,perPage) %]">&larr;</a></li>
           [% END %]
           [% currentPage = firstPage %]
           [% WHILE currentPage <= lastPage %]
             [%IF currentPage == pageNumber %]
               <li class="disabled"><a>[%currentPage%]</a></li>
             [% ELSE  %]
-              <li><a href="[% c.uri_for(c.controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
+              <li><a href="[% c.uri_for(c.controller.action_for(action),[scope],currentPage,perPage) %]">[%currentPage%]</a></li>
             [%END%]
           [%currentPage = currentPage + 1%]
           [% END %]
           [% IF pageNumber == lastPage %]
           <li class="disabled"><a >&rarr;</a></li>
           [% ELSE %]
-          <li><a href="[% c.uri_for(c.controller.action_for(action),pageNumber + 1,perPage) %]">&rarr;</a></li>
+          <li><a href="[% c.uri_for(c.controller.action_for(action),[ scope ],pageNumber + 1,perPage) %]">&rarr;</a></li>
           [% END %]
         </ul>
     </div>
@@ -38,25 +38,39 @@
         <thead>
           <tr>
             <th colspan="3">
+              <div class="tab-content">
+                <ul class="nav nav-tabs">
+                  <li [% IF scope == 'Upstream' %]class="active" [% END %]>
+                    <a href="[% c.uri_for(c.controller.action_for('list'),['Upstream']) %]" >[% l('Upstream')  %]</a>
+                  </li>
+                  <li [% IF scope == 'Local' %]class="active" [% END %]>
+                    <a href="[% c.uri_for(c.controller.action_for('list'),['Local']) %]" >[% l('Local')  %]</a>
+                  </li>
+                </ul>
+              </div>
+            </th>
+          </tr>
+          <tr>
+            <th colspan="3">
               [% pagination('list', pageNum, perPage, pageCount) %]</th>
             <th>
           </tr>
           <tr>
-            <th>[% l('User Agent ID') %]</th>
+            <th>[% l('DHCP_Fingerprint ID') %]</th>
             <th>[% l('Description') %]</th>
           </tr>
         </thead>
         <tbody>
           [% FOREACH item IN items %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td><a href="[% c.uri_for(c.controller.action_for('view'), [scope, item.id ]) %]">[% item.id | html %]</a></td>
             <td>[% item.value | html%]</td>
             <td>
-              [%- IF can_access("SWITCHES_CREATE") %]
-              <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id ]) %]">[% l('Clone') %]</a>
+              [%- IF can_access("FINGERBANK_CREATE") %]
+              <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ scope,  item.id ]) %]">[% l('Clone') %]</a>
               [%- END %]
-              [%- IF can_access("SWITCHES_DELETE") %]
-              <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
+              [%- IF scope == 'Local' && can_access("FINGERBANK_DELETE") %]
+              <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ scope, item.id ]) %]">[% l('Delete') %]</a>
               [%- END %]
             </td>
           </tr>

@@ -7,7 +7,7 @@
   [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF item %]<i>[% l('User Agent') %]</i> [% item.id | html %][% ELSE %][% l('New User Agent') %][% END %]</h3>
+    <h3>[% IF item %]<i>[% l('Device') %]</i> [% item.id | html %][% ELSE %][% l('New Device') %][% END %]</h3>
   </div>
 
   <div class="modal-body">
@@ -18,7 +18,7 @@
 
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-    [% IF can_access("ADMIN_ROLES_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+    [% IF scope == 'Local' && can_access("FINGERBANK_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
   </div>
 
 </form>
