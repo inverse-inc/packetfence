@@ -6,59 +6,33 @@ pfappserver::Controller::Config::Fingerbank::Device - Catalyst Controller
 
 =head1 DESCRIPTION
 
-Controller for admin roles management.
+Controller for managing the fingerbank Device data
 
 =cut
 
-use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
-use pfappserver::Form::Config::Switch;
-use pf::config::cached;
-
 BEGIN {
     extends 'pfappserver::Base::Controller';
-    with 'pfappserver::Base::Controller::Crud::Config' => { -excludes => [qw(list)] };
-    with 'pfappserver::Base::Controller::Crud::Pagination';
-    with 'pfappserver::Base::Controller::Crud::Config::Clone';
+    with 'pfappserver::Base::Controller::Crud::Fingerbank';
 }
 
 __PACKAGE__->config(
     action => {
-        # Reconfigure the object action from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'config/fingerbank/device', CaptureArgs => 1 },
-        # Configure access rights
-        view   => { AdminRole => 'ADMIN_ROLES_READ' },
-        list   => { AdminRole => 'ADMIN_ROLES_READ' },
-        create => { AdminRole => 'ADMIN_ROLES_CREATE' },
-        clone  => { AdminRole => 'ADMIN_ROLES_CREATE' },
-        update => { AdminRole => 'ADMIN_ROLES_UPDATE' },
-        remove => { AdminRole => 'ADMIN_ROLES_DELETE' },
+        # Reconfigure the object and scope actions from
+        __PACKAGE__->action_defaults,
+        scope  => { Chained => '/', PathPart => 'config/fingerbank/device', CaptureArgs => 1 },
     },
     action_args => {
         # Setting the global model and form for all actions
-        '*' => { model => "Config::Fingerbank::Device", form => "Config::Fingerbank::Device" },
+        '*' => { model => __PACKAGE__->get_model_name , form => __PACKAGE__->get_form_name },
     },
 );
 
-=head1 METHODS
-
-=head2 index
-
-Usage: /config/adminroles/
-
-=cut
-
-sub index :Path :Args(0) {
-    my ($self, $c) = @_;
-
-    $c->forward('list');
-}
-
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2014 Inverse inc.
 
 =head1 LICENSE
 
