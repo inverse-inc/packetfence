@@ -79,6 +79,7 @@ sub get_module_name {
     my ($class) = @_;
     my $module = $class;
     $module =~ s/^pfappserver::Controller:://;
+    return $module;
 }
 
 =head2 get_form_name
