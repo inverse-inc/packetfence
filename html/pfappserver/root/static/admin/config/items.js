@@ -65,7 +65,7 @@ var ItemView = function(options) {
     options.parent.on('click', id + ' [href$="/delete"]', delete_item);
 
     var list_items = $.proxy(this.listItems, this);
-    options.parent.on('click', id + ' [href*="/list/"]', list_items);
+    options.parent.on('click', id + ' [href*="/list"]', list_items);
     //
     // Save the modifications from the modal
     var search = $.proxy(this.search, this);
