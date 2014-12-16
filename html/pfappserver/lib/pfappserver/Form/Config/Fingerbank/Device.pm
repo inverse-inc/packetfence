@@ -24,31 +24,27 @@ has_field 'id' =>
   (
    type => 'Text',
    label => 'Id',
-   required => 1,
+   readonly => 1,
   );
 
 has_field name =>
   (
    type => 'Text',
-   readonly => 1,
   );
 
 has_field [qw(mobile tablet)] =>
   (
    type => 'Toggle',
-   readonly => 1,
   );
 
 has_field created_at =>
   (
   type => 'Text',
-  readonly => 1,
   );
 
 has_field updated_at =>
   (
   type => 'Text',
-  readonly => 1,
   );
 
 has_block definition =>
