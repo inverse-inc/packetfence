@@ -78,7 +78,7 @@ sub external_captive_portal {
                 $logger->debug("Adding additionnal session parameter for url detected : $key : ".$req->param($key));
                 $portalSession->session->param("ecwp-original-param-$key", $req->param($key));
             }
-            iplog_update($client_mac,$client_ip,100) if (defined ($client_ip) && defined ($client_mac));
+            iplog_update($client_mac,$client_ip,3600) if (defined ($client_ip) && defined ($client_mac));
             return ($portalSession->session->id(), $redirect_url);
         } else {
             return 0;
@@ -98,7 +98,7 @@ sub external_captive_portal {
             my $portalSession = pf::Portal::Session->new(%session_id);
             $portalSession->setClientMac($session_id{client_mac}) if (defined($session_id{client_mac}));
             $portalSession->setDestinationUrl($r->headers_in->{'Referer'}) if (defined($r->headers_in->{'Referer'}));
-            iplog_update($session_id{client_mac},$r->connection->remote_ip,100) if (defined ($r->connection->remote_ip) && defined ($session_id{client_mac}));
+            iplog_update($session_id{client_mac},$r->connection->remote_ip,3600) if (defined ($r->connection->remote_ip) && defined ($session_id{client_mac}));
             return $portalSession->session->id();
         } else {
             return 0;
