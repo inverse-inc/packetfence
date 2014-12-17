@@ -82,6 +82,14 @@
             </ul>
             <ul class="nav pull-right">
               <li class="dropdown">
+                <a href="#" id="checkup_dropdown_toggle" class="dropdown-toggle" data-toggle="dropdown">Perform checkup</a>
+                <ul class="dropdown-menu" id="checkup_dropdown">
+                  <li class="disabled"><a href="#"><img src="/static/app/loader-48.gif"></a></li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="nav pull-right">
+              <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-info-sign icon-white"></i></a>
                 <ul class="dropdown-menu">
                   <li class="disabled"><a href="#">[% pf_release | html %]</a></li>
