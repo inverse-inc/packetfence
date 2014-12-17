@@ -31,7 +31,7 @@ sub getModuleName {
     my ($class,$type) = @_;
     my $mainClass = $class->factory_for;
     my $subclass = "${mainClass}::${type}";
-    die "$type is not a valid type" unless any { $_ eq $subclass  } @MODULES;
+    die "Invalid trigger type $type" unless any { $_ eq $subclass  } @MODULES;
     return $subclass;
 }
 
