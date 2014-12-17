@@ -1,52 +1,21 @@
-package pf::triggerParser;
+package pf::triggerParser::soh;
 =head1 NAME
 
-pf::triggerParser - Trigger for openvas
+pf::triggerParser::soh - Trigger for soh
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser
+pf::triggerParser::soh
 
 =cut
 
 use strict;
 use warnings;
 use Moo;
+extends 'pf::triggerParser';
 
-
-=head2 parseTid
-
-Parse the trigger id
-
-=cut
-
-sub parseTid {
-    my ($self, $type, $tid) = @_;
-    die("Invalid trigger id: ${type}::${tid}") unless $self->validateTid($tid);
-    return [$self->parseTidStartEnd($tid),$type];
-}
-
-sub validateTid {
-    my ($self,$tid) = @_;
-    return $tid =~ /^[\d\.-]+\s*$/;
-}
-
-sub parseTidStartEnd {
-    my ($self,$tid) = @_;
-    if ($tid =~ /(\d+)-(\d+)/) {
-        if ($2 > $1) {
-            return ($1, $2);
-        }
-        else {
-            die("Invalid trigger range ($1 - $2)");
-        }
-    }
-    return ($tid,$tid);
-
-}
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

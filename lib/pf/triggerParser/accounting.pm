@@ -1,52 +1,32 @@
-package pf::triggerParser;
+package pf::triggerParser::accounting;
 =head1 NAME
 
-pf::triggerParser - Trigger for openvas
+pf::triggerParser::accounting - Trigger for accounting
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser
+pf::triggerParser::accounting
 
 =cut
 
 use strict;
 use warnings;
+use pf::config;
+use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
 use Moo;
-
-
-=head2 parseTid
-
-Parse the trigger id
-
-=cut
-
-sub parseTid {
-    my ($self, $type, $tid) = @_;
-    die("Invalid trigger id: ${type}::${tid}") unless $self->validateTid($tid);
-    return [$self->parseTidStartEnd($tid),$type];
-}
+extends 'pf::triggerParser';
 
 sub validateTid {
-    my ($self,$tid) = @_;
-    return $tid =~ /^[\d\.-]+\s*$/;
+    my ($self, $tid) = @_;
+    die("Invalid accounting trigger id: $tid")
+      unless ($tid =~ /^$ACCOUNTING_TRIGGER_RE$/
+        || $tid eq $ACCOUNTING_POLICY_TIME
+        || $tid eq $ACCOUNTING_POLICY_BANDWIDTH);
+    return 1;
 }
 
-sub parseTidStartEnd {
-    my ($self,$tid) = @_;
-    if ($tid =~ /(\d+)-(\d+)/) {
-        if ($2 > $1) {
-            return ($1, $2);
-        }
-        else {
-            die("Invalid trigger range ($1 - $2)");
-        }
-    }
-    return ($tid,$tid);
-
-}
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

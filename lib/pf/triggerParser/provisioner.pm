@@ -1,52 +1,28 @@
-package pf::triggerParser;
+package pf::triggerParser::provisioner;
 =head1 NAME
 
-pf::triggerParser - Trigger for openvas
+pf::triggerParser::provisioner - Trigger for provisioner
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser
+pf::triggerParser::provisioner
 
 =cut
 
 use strict;
 use warnings;
+use pf::config;
 use Moo;
-
-
-=head2 parseTid
-
-Parse the trigger id
-
-=cut
-
-sub parseTid {
-    my ($self, $type, $tid) = @_;
-    die("Invalid trigger id: ${type}::${tid}") unless $self->validateTid($tid);
-    return [$self->parseTidStartEnd($tid),$type];
-}
+extends 'pf::triggerParser';
 
 sub validateTid {
-    my ($self,$tid) = @_;
-    return $tid =~ /^[\d\.-]+\s*$/;
+    my ($self, $tid) = @_;
+    die("Invalid provisioner trigger id: $tid") if $tid ne $TRIGGER_ID_PROVISIONER;
+    return 1;
 }
 
-sub parseTidStartEnd {
-    my ($self,$tid) = @_;
-    if ($tid =~ /(\d+)-(\d+)/) {
-        if ($2 > $1) {
-            return ($1, $2);
-        }
-        else {
-            die("Invalid trigger range ($1 - $2)");
-        }
-    }
-    return ($tid,$tid);
-
-}
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
