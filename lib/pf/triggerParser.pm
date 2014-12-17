@@ -1,51 +1,63 @@
-package pf::factory::trigger;
-
+package pf::triggerParser;
 =head1 NAME
 
-pf::factory::trigger add documentation
+pf::triggerParser - Trigger for openvas
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::factory::trigger
+pf::triggerParser
 
 =cut
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::trigger', sub_name => 'modules' , require => 1;
-use List::MoreUtils qw(any);
+use Moo;
 
-our @MODULES = __PACKAGE__->modules;
 
-sub factory_for { 'pf::trigger' }
+=head2 parseTid
 
-sub new {
-    my ($class,$type) = @_;
-    my $subclass = $class->getModuleName($type);
-    return $subclass->new();
+Parse the trigger id
+
+=cut
+
+sub parseTid {
+    my ($self, $type, $tid) = @_;
+    die("Invalid trigger id: ${type}::${tid}") unless $self->validateTid($tid);
+    return [$self->parseTidStartEnd(),$type];
 }
 
-sub getModuleName {
-    my ($class,$type) = @_;
-    my $mainClass = $class->factory_for;
-    my $subclass = "${mainClass}::${type}";
-    die "$type is not a valid type" unless any { $_ eq $subclass  } @MODULES;
-    return $subclass;
+sub validateTid {
+    my ($self,$tid) = @_;
+    return $tid !~ /^[\d\.-]+\s*$/;
 }
 
+sub parseTidStartEnd {
+    my ($self,$tid) = @_;
+    if ($tid =~ /(\d+)-(\d+)/) {
+        if ($2 > $1) {
+            return ($1, $2);
+        }
+        else {
+            die("Invalid trigger range ($1 - $2)");
+        }
+    }
+    return ($tid,$tid);
+
+}
+ 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -63,4 +75,3 @@ USA.
 =cut
 
 1;
-
