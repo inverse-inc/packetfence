@@ -39,7 +39,7 @@
               <option value="[% type | html %]">[% l(type) %]</option>
               [% END -%]
             </select>
-            <input class="input-medium" type="text" placeholder="[% l('Enter the trigger ID') %]" />
+            <input class="input-medium" type="text" placeholder="[% l('Enter the trigger ID') %]" autocomplete="off" data-provide="typeahead"/>
             <a class="btn" href="#addTrigger">[% l('Add') %]</a>
           </div>
         </div>
