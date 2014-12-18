@@ -60,6 +60,7 @@ ProvisionerView.prototype.togglesectype = function(e) {
         passcode_input.val("");
         passcode.hide();
         eap.hide();
+        select2.val("");
         cert.hide();
         certpath.hide();
         }
@@ -67,6 +68,7 @@ ProvisionerView.prototype.togglesectype = function(e) {
         passcode_input.val("");
         passcode.show();
         eap.hide();
+        select2.val("");
         cert.hide();
         certpath.hide();
         }
@@ -84,15 +86,29 @@ ProvisionerView.prototype.togglecert = function(e) {
     var cert = select.closest('form').find('select[name="cert_type"]').closest('.control-group');
     var certpath_input = select.closest('form').find('input[name="ca_cert_path"]');
     var certpath = certpath_input.closest('.control-group');
+    var passcode = select.closest('form').find('input[name="passcode"]').closest('.control-group');
 
-    if  ($('#eap_type option:selected').text() == "PEAP" || $('#eap_type option:selected').text() == "No EAP"){
+    if ($('#eap_type option:selected').text() == "PEAP"){
         certpath_input.val("");
         certpath.hide();
         cert.hide();
+        passcode.hide();
+        }
+    else if ($('#eap_type option:selected').text() == "No EAP"){
+        certpath_input.val("");
+        certpath.hide();
+        cert.hide();
+        passcode.show();
+        }
+    else if ($('#eap_type option:selected').text() == "EAP-TLS"){
+        certpath.show();
+        cert.show();
+        passcode.hide();
         }
     else{
         cert.show();
         certpath.show();
+        passcode.hide();
         }
 };
 
