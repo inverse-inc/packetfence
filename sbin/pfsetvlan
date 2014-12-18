@@ -1226,8 +1226,9 @@ sub handleTrap {
                     $logger->info(
                         "de-authorizing VoIP $oldVoIPPhone at old location $switch_id ifIndex $switch_port VLAN $voiceVlan"
                     );
-                    $switch->authorizeMAC( $switch_port, $oldVoIPPhone, 0,
-                        $voiceVlan, 0 );
+                    my $fakeMac = $switch->generateFakeMac(1, $switch_port );
+                    $switch->authorizeMAC( $switch_port, $oldVoIPPhone, $fakeMac,
+                        $voiceVlan, $voiceVlan );
                 }
                 $logger->debug(
                     "closing VoIP $oldVoIPPhone locationlog entry at $switch_id ifIndex $switch_port VLAN $voiceVlan"
