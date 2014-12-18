@@ -187,7 +187,7 @@ sub firewallsso : Public {
 
 sub ReAssignVlan : Public {
     my ($class, %postdata )  = @_;
-    my @require = qw(connection_type switch mac ifIndex _deauthMethod);
+    my @require = qw(connection_type switch mac ifIndex);
     my @found = grep {exists $postdata{$_}} @require;
     return unless @require == @found;
 
@@ -222,7 +222,7 @@ sub ReAssignVlan : Public {
 
 sub desAssociate : Public {
     my ($class, %postdata )  = @_;
-    my @require = qw(switch mac _deauthMethod);
+        my @require = qw(switch mac connection_type ifIndex);
     my @found = grep {exists $postdata{$_}} @require;
     return unless @require == @found;
 
