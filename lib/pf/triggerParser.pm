@@ -11,8 +11,6 @@ pf::triggerParser
 
 =cut
 
-use strict;
-use warnings;
 use Moo;
 
 
@@ -45,6 +43,10 @@ sub parseTidStartEnd {
     }
     return ($tid,$tid);
 
+}
+
+sub search {
+    return [];
 }
  
 =head1 AUTHOR
