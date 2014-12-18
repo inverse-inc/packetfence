@@ -1,5 +1,27 @@
 $(function() { // DOM ready
 
+    function getTrigger(query, process) {
+        console.log(query);
+        var input = $('#violationTriggers [data-provide="typeahead"]');
+        var control = input.closest('.control-group');
+    /*
+        $.ajax('/')
+            .done(function(data) {
+                var results = $.map(data.items, function(i) {
+                    return i.pid;
+                });
+                if (results.length == 0)
+                    control.addClass('error');
+                else
+                    control.removeClass('error');
+                process(results);
+            })
+            .fail(function(jqXHR) {
+                control.addClass('error');
+            });
+    */
+    }
+
     /* Show a violation from the received HTML */
     function showViolation(data) {
         var modal = $('#modalViolation');
@@ -10,6 +32,12 @@ $(function() { // DOM ready
         modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
         modal.one('shown', function() {
             $('#actions').trigger('change');
+        });
+        modal.find('[data-provide="typeahead"]').typeahead({
+            source: getTrigger,
+            minLength: 2,
+            items: 11,
+            matcher: function(item) { return true; }
         });
         modal.modal('show');
     }
@@ -183,4 +211,5 @@ $(function() { // DOM ready
 
         return false;
     });
+
 });
