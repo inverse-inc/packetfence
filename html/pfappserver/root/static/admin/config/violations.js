@@ -1,12 +1,14 @@
 $(function() { // DOM ready
 
     function getTrigger(query, process) {
-        console.log(query);
         var input = $('#violationTriggers [data-provide="typeahead"]');
+        var trigger_type = $('#trigger_type');
+        var type = trigger_type.val();
+        //console.log(trigger_type);
         var control = input.closest('.control-group');
-    /*
-        $.ajax('/')
+        $.ajax('/trigger/search/' + type + "/" + query)
             .done(function(data) {
+                /*
                 var results = $.map(data.items, function(i) {
                     return i.pid;
                 });
@@ -14,12 +16,12 @@ $(function() { // DOM ready
                     control.addClass('error');
                 else
                     control.removeClass('error');
-                process(results);
+                */
+                process(data.items);
             })
             .fail(function(jqXHR) {
                 control.addClass('error');
             });
-    */
     }
 
     /* Show a violation from the received HTML */
@@ -34,10 +36,18 @@ $(function() { // DOM ready
             $('#actions').trigger('change');
         });
         modal.find('[data-provide="typeahead"]').typeahead({
-            source: getTrigger,
             minLength: 2,
             items: 11,
-            matcher: function(item) { return true; }
+            source: getTrigger,
+            matcher: function(item) { return true; },
+            updater: function(item) { return item.value; },
+            sorter: function(items) { return items; },
+            highlighter: function (item) {
+              var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
+              return item.display.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+                return '<strong>' + match + '</strong>'
+              })
+            }
         });
         modal.modal('show');
     }
@@ -157,16 +167,16 @@ $(function() { // DOM ready
     /* Modal Editor: add a trigger */
     $('body').on('click', '[href="#addTrigger"]', function(event) {
         event.preventDefault();
-
-        var id = $(this).prev().val();
-        var type_select = $(this).prev().prev().find(':selected');
+        var tid =  $('#tid');
+        var id = tid.val();
+        var type_select = $('#trigger_type').find(':selected');
         var type = type_select.val();
         var type_name = type_select.text();
         var value = type + "::" + id;
         var name = type_name + "::" + id;
         var select = $('#trigger');
         var last = true;
-        $(this).prev().val('');
+        tid.val('');
         select.find('option').each(function() {
             if ($(this).val() > value) {
                 $('<option value="' + value + '" selected="selected">' + name + '</option>').insertBefore(this);
@@ -211,5 +221,27 @@ $(function() { // DOM ready
 
         return false;
     });
+
+    $.fn.typeahead.Constructor.prototype.select = function () {
+      var val = this.$menu.find('.active').data('item')
+      this.$element
+        .val(this.updater(val))
+        .change()
+      return this.hide()
+    };
+
+    $.fn.typeahead.Constructor.prototype.render = function (items) {
+      var that = this
+
+      items = $(items).map(function (i, item) {
+        i = $(that.options.item).data('item', item)
+        i.find('a').html(that.highlighter(item))
+        return i[0]
+      })
+
+      items.first().addClass('active')
+      this.$menu.html(items)
+      return this
+    };
 
 });
