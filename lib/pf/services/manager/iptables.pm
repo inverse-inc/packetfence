@@ -47,9 +47,9 @@ sub startService {
     }
     $technique ||= getIptablesTechnique();
     $technique->iptables_generate();
-    open(PIDFILE, '>>'.$self->pidFile);
-    print PIDFILE "-1";
-    close(PIDFILE);
+    open(my $fh, '>>'.$self->pidFile);
+    print $fh "-1";
+    close($fh);
     return 1;
 }
 
@@ -108,7 +108,7 @@ Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
