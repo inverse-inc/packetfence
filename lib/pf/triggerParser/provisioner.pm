@@ -17,10 +17,18 @@ use pf::config;
 use Moo;
 extends 'pf::triggerParser';
 
+our @TRIGGER_IDS = ($TRIGGER_ID_PROVISIONER);
+
 sub validateTid {
     my ($self, $tid) = @_;
     die("Invalid provisioner trigger id: $tid") if $tid ne $TRIGGER_ID_PROVISIONER;
     return 1;
+}
+
+sub search {
+    my ($self,$query) = @_;
+    my @items = map { { display => $_, value => $_ } } grep { $_ =~ /\Q$query\E/i } @TRIGGER_IDS;
+    return \@items;
 }
 
 =head1 AUTHOR
