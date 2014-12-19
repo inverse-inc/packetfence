@@ -301,14 +301,13 @@ sub sortItems {
 sub commit {
     my ($self) = @_;
     my ($status,$status_msg);
-    my ($result,$error) = $self->configStore->commit();
-    if($result) {
+    if($self->configStore->commit()) {
         $status = HTTP_OK;
         $status_msg = "Changes successfully commited";
     }
     else {
         $status = HTTP_INTERNAL_SERVER_ERROR;
-        $status_msg = "$error\n";
+        $status_msg = "Unable to commit changes to file please run pfcmd fixpermissions and try again";
     }
     return ($status,$status_msg);
 }

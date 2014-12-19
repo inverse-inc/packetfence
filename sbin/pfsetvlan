@@ -2053,8 +2053,9 @@ sub getSwitch {
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     {
         lock $switchFactory_locker;
+    #    $pf::ConfigStore::SwitchOverlay::switches_overlay_cached_config->ReadConfig();
         $lockLogger->trace("locking - obtained lock on switchFactory_locker");
-        pf::config::cached::RefreshConfigs();
+        pf::config::cached::ReloadConfigs();
         $switch = $switchFactory->instantiate($switch_id);
         if($switch) {
             add_to_switch_locker($switch->{_id});

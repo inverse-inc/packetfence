@@ -388,18 +388,14 @@ sub flatten_list {
 sub commit {
     my ($self) = @_;
     my $result;
-    my $error;
     eval {
         $result = $self->rewriteConfig();
     };
-    if($@) {
-        $error = $@;
-        get_logger->error($error);
-    }
+    get_logger->error($@) if $@;
     unless($result) {
         $self->rollback();
     }
-    return ($result,$error);
+    return $result;
 }
 
 =head2 search
