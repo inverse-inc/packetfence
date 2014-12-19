@@ -11,12 +11,12 @@ pf::triggerParser::accounting
 
 =cut
 
-use strict;
-use warnings;
-use pf::config;
-use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
 use Moo;
 extends 'pf::triggerParser';
+use pf::config;
+use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
+
+our @TRIGGER_IDS = ($ACCOUNTING_POLICY_BANDWIDTH, $ACCOUNTING_POLICY_TIME);
 
 sub validateTid {
     my ($self, $tid) = @_;
@@ -25,6 +25,12 @@ sub validateTid {
         || $tid eq $ACCOUNTING_POLICY_TIME
         || $tid eq $ACCOUNTING_POLICY_BANDWIDTH);
     return 1;
+}
+
+sub search {
+    my ($self,$query) = @_;
+    my @items = map { { display => $_, value => $_ } } grep { $_ =~ /\Q$query\E/i } @TRIGGER_IDS;
+    return \@items;
 }
 
 =head1 AUTHOR
