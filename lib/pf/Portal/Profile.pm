@@ -24,6 +24,8 @@ use pf::util;
 use pf::log;
 use pf::node;
 use pf::factory::provisioner;
+use pf::os;
+use pf::ConfigStore::Scan;
 
 =head1 METHODS
 
@@ -406,6 +408,60 @@ Reuse dot1x credentials when authenticating
 sub dot1xRecomputeRoleFromPortal {
     my ($self) = @_;
     return $self->{'_dot1x_recompute_role_from_portal'};
+}
+
+=item getScans
+
+Returns the Scans IDs for the profile
+
+=cut
+
+sub getScans {
+    my ($self) = @_;
+    return $self->{'_scans'};
+}
+
+=item scanObjects
+
+The scanObjects
+
+=cut
+
+sub scanObjects {
+    my ($self) = @_;
+    return grep { defined $_ } map { pf::factory::scan->new($_) } @{ $self->getScans || [] };
+}
+
+=item findScan
+
+return the first scan that match the device
+
+=cut
+
+sub findScan {
+    my ($self, $mac, $node_attributes) = @_;
+    my $logger = get_logger();
+    my $scancs = pf::ConfigStore::Scan->new();
+    $node_attributes ||= node_attributes($mac);
+    my ($fingerprint) =
+      dhcp_fingerprint_view( $node_attributes->{'dhcp_fingerprint'} );
+    foreach my $scan (split(',',$self->getScans)) {
+        my $scan_config = $scancs->read($scan);
+        if (!defined($scan_config->{'oses'}) && !defined($scan_config->{'categories'})) {
+            return $scan_config;
+        } elsif (defined($scan_config->{'oses'}) && defined($scan_config->{'categories'})) {
+            if (grep { $_ eq $fingerprint->{'os'} } @{ $scan_config->{'oses'} } || grep { $_ eq $node_attributes->{'category'} } @{ $scan_config->{'categories'} } ) {
+                return $scan_config;
+            }
+        } elsif (defined($scan_config->{'oses'}) xor defined($scan_config->{'categories'})) {
+            if (defined($scan_config->{'oses'}) && grep { $_ eq $fingerprint->{'os'} } @{ $scan_config->{'oses'} }) {
+                return $scan_config;
+            } elsif (defined($scan_config->{'categories'}) && grep { $_ eq $node_attributes->{'category'} } @{ $scan_config->{'categories'} } ) {
+                return $scan_config;
+            }
+        }
+    }
+    return 0;
 }
 
 =back

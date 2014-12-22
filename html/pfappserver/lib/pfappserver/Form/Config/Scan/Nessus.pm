@@ -20,8 +20,16 @@ use File::Find qw(find);
 
 ## Definition
 has 'roles' => (is => 'ro', default => sub {[]});
+has oses => ( is => 'rw' );
 
 has_field 'id' =>
+  (
+   type => 'Text',
+   label => 'Name',
+   required => 1,
+   messages => { required => 'Please specify a name for the scan engine' },
+  );
+has_field 'ip' =>
   (
    type => 'Text',
    label => 'Hostname or IP Address',
@@ -64,7 +72,7 @@ has_field 'categories' =>
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a role'},
    tags => { after_element => \&help,
-             help => 'Nodes with the selected roles will be affected' },
+             help => 'Nodes with the selected roles will not be affected' },
   );
 
 has_field 'duration' =>
@@ -78,14 +86,13 @@ has_field 'duration' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type username password port nessus_clientpolicy categories duration registration dot1x dot1x_type) ],
+   render_list => [ qw(id ip type username password port nessus_clientpolicy categories oses duration registration dot1x dot1x_type) ],
   );
 
 has_field 'registration' =>
   (
    type => 'Checkbox',
    label => 'Scan on reg',
-   checkbox_value => 'no',
    tags => { after_element => \&help,
              help => 'If this option is enabled, the PF system will scan each host after registration is complete.' },
   );
@@ -94,7 +101,6 @@ has_field 'dot1x' =>
   (
    type => 'Checkbox',
    label => '802.1x',
-   checkbox_value => 'no',
    tags => { after_element => \&help,
              help => 'If this option is enabled, PacketFence will scan all the 802.1x auto-registration connections.' },
   );
@@ -115,6 +121,17 @@ has_field 'nessus_clientpolicy' =>
              help => 'Name of the policy to use on the nessus server' },
   );
 
+has_field 'oses' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'OS',
+   options_method => \&options_oses,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add an OS'},
+   tags => { after_element => \&help,
+             help => 'Nodes with the selected OS will be affected' },
+  );
 
 =head2 Methods
 
@@ -132,6 +149,14 @@ sub options_categories {
     return ('' => '', @roles);
 }
 
+=head2 options_oses
+
+=cut
+
+sub options_oses {
+    my $self = shift;
+    return $self->form->oses;
+}
 
 
 =over

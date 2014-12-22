@@ -83,6 +83,7 @@ use pf::nodecategory;
 use pf::scan qw($SCAN_VID);
 use pf::util;
 use pf::violation;
+use pf::Portal::ProfileFactory;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $node_db_prepared = 0;
@@ -902,22 +903,26 @@ sub node_register {
         return (0);
     }
 
-    if ( !$auto_registered ) {
-        # triggering a violation used to communicate the scan to the user
-        if ( isenabled($Config{'scan'}{'registration'}) && $Config{'scan'}{'engine'} ne 'none' ) {
-            violation_add( $mac, $SCAN_VID );
+    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    my $scan = $profile->findScan($mac,\%info);
+    if ($scan) {
+        if ( !$auto_registered ) {
+            # triggering a violation used to communicate the scan to the user
+            if ( isenabled($scan->{'registration'})) {
+                violation_add( $mac, $SCAN_VID );
+            }
         }
-    }
 
-    # if autoregister and it´s a EAP connection and scan dot1x is activated then we scan the node
-    if ( $auto_registered && defined($Config{'scan'}{'dot1x'}) ) {
-        my @dot1x_type = split(',',$Config{'scan'}{'dot1x_type'});
-        my %params = map { $_ => 1 } @dot1x_type;
-        if (defined($info{'eap_type'})) {
-            if (exists($params{$info{'eap_type'}})) {
-                # triggering a violation used to communicate the scan to the user
-                if ( isenabled($Config{'scan'}{'registration'}) && $Config{'scan'}{'engine'} ne 'none' ) {
-                    violation_add( $mac, $SCAN_VID );
+        # if autoregister and it´s a EAP connection and scan dot1x is activated then we scan the node
+        if ( $auto_registered && defined($scan->{'dot1x'}) ) {
+            my @dot1x_type = split(',',$scan->{'dot1x_type'});
+            my %params = map { $_ => 1 } @dot1x_type;
+            if (defined($info{'eap_type'})) {
+                if (exists($params{$info{'eap_type'}})) {
+                    # triggering a violation used to communicate the scan to the user
+                    if ( isenabled($scan->{'registration'})) {
+                        violation_add( $mac, $SCAN_VID );
+                    }
                 }
             }
         }

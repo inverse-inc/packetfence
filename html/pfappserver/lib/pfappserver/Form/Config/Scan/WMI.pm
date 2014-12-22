@@ -1,12 +1,12 @@
-package pfappserver::Form::Config::Scan::OpenVAS;
+package pfappserver::Form::Config::Scan::WMI;
 
 =head1 NAME
 
-pfappserver::Form::Config::Scan::OpenVAS - Web form to add a OpenVAS Scan Engine
+pfappserver::Form::Config::Scan::WMI - Web form to add a WMI Scan Engine
 
 =head1 DESCRIPTION
 
-Form definition to create or update a OpenVAS Scan Engine.
+Form definition to create or update a WMI Scan Engine.
 
 =cut
 
@@ -26,21 +26,21 @@ has_field 'id' =>
    type => 'Text',
    label => 'Name',
    required => 1,
-   messages => { required => 'Please specify a name for the scan engine' },
-  );
-has_field 'ip' =>
-  (
-   type => 'Text',
-   label => 'Hostname or IP Address',
-   required => 1,
-   messages => { required => 'Please specify the hostname or IP of the scan engine' },
+   messages => { required => 'Please specify a name for the scan' },
   );
 has_field 'username' =>
   (
    type => 'Text',
    label => 'Username',
    required => 1,
-   messages => { required => 'Please specify the username for the Scan Engine' },
+   messages => { required => 'Please specify the username with sufficient rights to connect on the device' },
+  );
+has_field 'domain' =>
+  (
+   type => 'Text',
+   label => 'Domain',
+   required => 1,
+   messages => { required => 'Please specify the windows domain' },
   );
 has_field 'password' =>
   (
@@ -49,14 +49,6 @@ has_field 'password' =>
    required => 1,
    password => 0,
    messages => { required => 'You must specify the password' },
-  );
-has_field 'port' =>
-  (
-   type => 'PosInteger',
-   label => 'Port of the service',
-   tags => { after_element => \&help,
-             help => 'If you use an alternative port, please specify' },
-   default => 9390,
   );
 has_field 'type' =>
   (
@@ -85,7 +77,7 @@ has_field 'duration' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id ip type username password port openvas_configid openvas_reportformatid categories duration registration dot1x dot1x_type) ],
+   render_list => [ qw(id type username domain password categories duration registration dot1x dot1x_type) ],
   );
 
 has_field 'registration' =>
@@ -112,22 +104,14 @@ has_field 'dot1x_type' =>
              help => 'Comma-delimited list of EAP-Type attributes that will pass to the scan engine.' },
   );
 
-has_field 'openvas_configid' =>
+has_field 'wmi_policy' =>
   (
    type => 'Text',
-   label => 'OpenVAS config ID',
+   label => 'WMI client policy',
    tags => { after_element => \&help,
-             help => 'ID of the scanning configuration on the OpenVAS server' },
+             help => 'Name of the policy to use' },
   );
 
-has_field 'openvas_reportformatid' =>
-  (
-   type => 'Text',
-   label => 'OpenVAS report format',
-   default => 'f5c2a364-47d2-4700-b21d-0a7693daddab',
-   tags => { after_element => \&help,
-             help => 'ID of the .NBE report format on the OpenVAS server' },
-  );
 
 =head2 Methods
 
