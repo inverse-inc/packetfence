@@ -101,6 +101,21 @@ sub options_categories {
     return ('' => '', @roles);
 }
 
+=head2 ACCEPT_CONTEXT
+
+To automatically add the context to the Form
+
+=cut
+
+sub ACCEPT_CONTEXT {
+    my ($self, $c, @args) = @_;
+    my @oses = ["Windows" => "Windows",
+                "Mac OS" => "Mac OS",
+                "Android" => "Android",
+                "Apple" => "Apple IOS device"
+               ];
+    return $self->SUPER::ACCEPT_CONTEXT($c, oses => @oses, @args);
+}
 
 
 =over
