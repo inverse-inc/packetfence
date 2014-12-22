@@ -26,6 +26,8 @@ use pf::util;
 use pf::node;
 use Net::Nessus::XMLRPC;
 
+sub description { 'Nessus Scanner' }
+
 =head1 SUBROUTINES
 
 =over   

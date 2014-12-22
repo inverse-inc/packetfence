@@ -852,6 +852,8 @@ fi
                         /usr/local/pf/conf/realm.conf.example
 %config(noreplace)      /usr/local/pf/conf/domain.conf
                         /usr/local/pf/conf/domain.conf.example
+%config(noreplace)      /usr/local/pf/conf/scan.conf
+                        /usr/local/pf/conf/scan.conf.example
 %dir                    /usr/local/pf/conf/snort
 %config(noreplace)      /usr/local/pf/conf/snort/classification.config
                         /usr/local/pf/conf/snort/classification.config.example
