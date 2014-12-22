@@ -27,6 +27,8 @@ use pf::node;
 use Net::Nessus::XMLRPC;
 use pf::os qw(dhcp_fingerprint_view);
 
+sub description { 'Nessus Scanner' }
+
 =head1 SUBROUTINES
 
 =over   
