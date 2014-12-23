@@ -910,7 +910,6 @@ sub _fetch_virtual_ip {
     # [interface $int].vip= ... always wins
     return $Config{$config_section}{'vip'} if defined($Config{$config_section}{'vip'});
 
-    return if (defined($Config{$config_section}{'active_active_ip'}) && isenabled($Config{$config_section}{'active_active_enabled'}));
 
     my $if = Net::Interface->new($interface);
     return if (!defined($if));
