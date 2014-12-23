@@ -903,6 +903,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
+%config(noreplace)      /usr/local/pf/conf/wmi.conf
+                        /usr/local/pf/conf/wmi.conf.example
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
