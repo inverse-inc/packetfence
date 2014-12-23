@@ -447,16 +447,16 @@ sub findScan {
       dhcp_fingerprint_view( $node_attributes->{'dhcp_fingerprint'} );
     foreach my $scan (split(',',$self->getScans)) {
         my $scan_config = $scancs->read($scan);
-        if (!defined($scan_config->{'oses'}) && !defined($scan_config->{'categories'})) {
+        if ( !scalar(@{ $scan_config->{'oses'} }) && !scalar($scan_config->{'categories'}) ) {
             return $scan_config;
-        } elsif (defined($scan_config->{'oses'}) && defined($scan_config->{'categories'})) {
-            if (grep { $_ eq $fingerprint->{'os'} } @{ $scan_config->{'oses'} } || grep { $_ eq $node_attributes->{'category'} } @{ $scan_config->{'categories'} } ) {
+        } elsif ( scalar(@{ $scan_config->{'oses'} }) && scalar(@{ $scan_config->{'categories'} }) ) {
+            if ( (grep { $fingerprint->{'os'} =~ $_ } @{ $scan_config->{'oses'} }) || (grep { $_ eq $node_attributes->{'category'} } @{ $scan_config->{'categories'} }) ) {
                 return $scan_config;
             }
-        } elsif (defined($scan_config->{'oses'}) xor defined($scan_config->{'categories'})) {
-            if (defined($scan_config->{'oses'}) && grep { $_ eq $fingerprint->{'os'} } @{ $scan_config->{'oses'} }) {
+        } elsif (scalar(@{ $scan_config->{'oses'} }) xor scalar(@{ $scan_config->{'categories'} })) {
+            if (scalar(@{ $scan_config->{'oses'} }) && (grep { $fingerprint->{'os'} =~ $_ } @{ $scan_config->{'oses'} }) ) {
                 return $scan_config;
-            } elsif (defined($scan_config->{'categories'}) && grep { $_ eq $node_attributes->{'category'} } @{ $scan_config->{'categories'} } ) {
+            } elsif (scalar(@{ $scan_config->{'categories'} }) && (grep { $_ eq $node_attributes->{'category'} } @{ $scan_config->{'categories'} }) ) {
                 return $scan_config;
             }
         }

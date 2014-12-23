@@ -46,7 +46,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(categories);
+    return qw(categories oses);
 }
 
 __PACKAGE__->meta->make_immutable;

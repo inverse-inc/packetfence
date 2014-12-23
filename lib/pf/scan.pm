@@ -38,6 +38,7 @@ use pf::scan::nessus;
 use pf::scan::openvas;
 use pf::util;
 use pf::violation qw(violation_close violation_exist_open violation_trigger violation_modify);
+use pf::Portal::ProfileFactory;
 
 Readonly our $SCAN_VID          => 1200001;
 Readonly our $SEVERITY_HOLE     => 1;
@@ -217,6 +218,7 @@ sub run_scan {
     my ( $host_ip ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
+
     $host_ip =~ s/\//\\/g;          # escape slashes
     $host_ip = clean_ip($host_ip);  # untainting ip
 
@@ -227,11 +229,17 @@ sub run_scan {
         return;
     }
 
+    my $profile = pf::Portal::ProfileFactory->instantiate($host_mac);
+    my $scanner = $profile->findScan($host_mac);
+    # If no scan detected then we abort
+    if (!$scanner) {
+        return;
+    }
     # Preparing the scan attributes
     my $epoch   = time;
     my $date    = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($epoch));
     my $id      = generate_id($epoch, $host_mac);
-    my $type    = lc($Config{'scan'}{'engine'});
+    my $type    = lc($scanner->{'type'});
 
     # Check the scan engine
     # If set to "none" we abort the scan
@@ -244,6 +252,7 @@ sub run_scan {
             scanIp     => $host_ip,
             scanMac    => $host_mac,
             type       => $type,
+            %$scanner,
     );
 
     db_query_execute(SCAN, $scan_statements, 'scan_insert_sql',

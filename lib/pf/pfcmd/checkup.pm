@@ -999,7 +999,7 @@ sub portal_profiles {
         billing_engine|description|sources|redirecturl|always_use_redirecturl|
         mandatory_fields|nbregpages|allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
-        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal)/x;
+        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan)/x;
 
     foreach my $portal_profile ( keys %Profiles_Config ) {
         my $data = $Profiles_Config{$portal_profile};
