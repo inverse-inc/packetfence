@@ -36,7 +36,7 @@ has_field 'type' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type username domain password categories oses duration registration dot1x dot1x_type) ],
+   render_list => [ qw(id type username domain password categories oses duration registration dot1x dot1x_type rules) ],
   );
 
 has_field 'wmi_policy' =>
@@ -54,6 +54,31 @@ has_field 'oses' =>
    label => 'OS',
    default => 'Windows',
   );
+
+
+has_field 'rules' =>
+(
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+);
+
+has_field 'rules.contains' =>
+(
+    type => 'Select',
+    options_method => \&options_wmirules,
+    widget_wrapper => 'DynamicTableRow',
+);
+
+=head2 options_wmirules
+
+Returns the list of wmi rules to be displayed
+
+=cut
+
+sub options_wmirules {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::WMI->new->readAllIds};
+}
 
 =over
 
