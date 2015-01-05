@@ -149,7 +149,7 @@ sub authorize {
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node $mac failed");
         }
-        locationlog_synchronize($switch, $switch_ip, $switch_mac, $port, undef, $mac,
+        $switch->synchronize_locationlog($port, undef, $mac,
             $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
         );
     }
