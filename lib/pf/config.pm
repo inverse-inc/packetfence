@@ -114,6 +114,8 @@ our (
     %ConfigDomain, 
 #scan.conf
     %ConfigScan, $cached_scan,
+#wmi.conf
+    %ConfigWmi, $cached_wmi,
 );
 
 BEGIN {
@@ -160,7 +162,8 @@ BEGIN {
         %ConfigProvisioning
         %ConfigDomain 
         $TRUE $FALSE $default_pid
-        %ConfigScan 
+        %ConfigScan
+        %ConfigWmi
     );
 }
 
@@ -462,6 +465,8 @@ sub init_config {
     tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 
     tie %ConfigScan, 'pfconfig::cached_hash', 'config::Scan';
+
+    tie %ConfigWmi, 'pfconfig::cached_hash', 'config::Wmi';
 }
 
 =item ipset_version -  check the ipset version on the system
