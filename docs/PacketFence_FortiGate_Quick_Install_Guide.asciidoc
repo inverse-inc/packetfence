@@ -51,7 +51,7 @@ Select the interface that will communicate with PacketFence and check 'Listen fo
 
 image::docs/images/doc-fortigate-SSO_accouting.png[scaledwidth="100%",alt="Configure the accouting listening in the FortiGate"]
 
-Step 3: SSO Configuration in PacketFence
+Step 4: SSO Configuration in PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Go to *Configuration -> Firewall SSO -> Add Firewall -> FortiGate*.
@@ -64,7 +64,7 @@ Go to *Configuration -> Firewall SSO -> Add Firewall -> FortiGate*.
 
 image::docs/images/doc-fortigate-cfg_SSO_pf.png[scaledwidth="100%",alt="Configure the FortiGate SSO in PacketFence"]
 
-Step 4: Verification
+Step 5: Verification
 ~~~~~~~~~~~~~~~~~~~~
 
 If you want to see if it's working, you can log into the firewall over SSH and run these following commands:
