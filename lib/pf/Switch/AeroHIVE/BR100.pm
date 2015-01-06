@@ -2,12 +2,11 @@ package pf::Switch::AeroHIVE::BR100;
 
 =head1 NAME
 
-pf::Switch::AeroHIVE::AP - Object oriented module to access AP series via Telnet/SSH
+pf::Switch::AeroHIVE::BR100
 
 =head1 SYNOPSIS
 
-The pf::Switch::AeroHIVE::AP module implements an object oriented interface
-to access AP  Series via Telnet/SSH
+Object oriented module to access and configure a AeroHIVE Branch Router 100.
 
 =head1 STATUS
 
@@ -22,12 +21,7 @@ use Net::SNMP;
 use Try::Tiny;
 
 use base ('pf::Switch::AeroHIVE');
-use pf::config;
 use pf::Switch::constants;
-use pf::util;
-use pf::accounting qw(node_accounting_current_sessionid);
-use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_coa perform_disconnect);
 sub description { 'AeroHive BR100' }
 
 
@@ -40,7 +34,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
