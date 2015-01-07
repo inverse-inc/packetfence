@@ -125,7 +125,7 @@ sub parseResult {
         my @values = split(/\|/,$line);
         my $j = 0;
         foreach my $elements (@entries) {
-            $resultat->{"$elements"} = @values[$j];
+            $resultat->{"$elements"} = $values[$j];
             $j++;
         }
         $result[$i] = $resultat;
