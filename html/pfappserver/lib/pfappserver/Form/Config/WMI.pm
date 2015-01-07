@@ -40,6 +40,8 @@ has_field 'action' =>
    type => 'TextArea',
    label => 'Rules Actions',
    required => 1,
+   inflate_default_method => \&filter_inflate ,
+   deflate_default_method => \&filter_deflate ,
    tags => { after_element => \&help,
              help => 'Add the action based on the result of the request' },
   );
@@ -48,6 +50,20 @@ has_block definition =>
   (
    render_list => [ qw(request action) ],
   );
+
+sub filter_inflate {
+    my ($self, $value) = @_;
+    if(ref($value) eq 'ARRAY' ) {
+         return (join("\n",@{$value}));
+    }
+    return $value;
+}
+
+sub filter_deflate {
+    my ($self, $value) = @_;
+    return [split /\n/,$value];
+}
+
 
 =over
 
