@@ -47,6 +47,7 @@ Enhancements
 * Create a single ldap connection when matching against multiple rules
 * Reduce the numbers of entries in iplog table (update end_time instead of closing and inserting a new line)
 * Now matching on language and not only language/country combination for violation templates (See UPGRADE guide)
+* PacketFence FreeRADIUS will return reject on "NAS-Prompt-User" Service-Type requests. (Console login using RADIUS as backend)
 
 Bug Fixes
 +++++++++
