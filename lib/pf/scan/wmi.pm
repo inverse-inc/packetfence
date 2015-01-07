@@ -25,6 +25,7 @@ use pf::scan;
 use pf::util;
 use pf::node;
 use pf::scan::wmi::rules;
+use pf::violation qw(violation_close);
 
 sub description { 'WMI Scanner' }
 
@@ -76,8 +77,14 @@ sub startScan {
     my $rule_tester = new pf::scan::wmi::rules;
     my $result = $rule_tester->test($this);
 
-    # TODO 
-    #pf::scan::parse_scan_report($this);
+    my $grace = violation_close($this->{'_scanMac'}, $pf::scan::SCAN_VID);
+    if ( $grace == -1 ) {
+        $logger->warn("Problem trying to close scan violation");
+            return;
+    }
+
+    $this->setStatus($pf::scan::STATUS_CLOSED);
+    $this->statusReportSyncToDb();
 }
 
 =back
