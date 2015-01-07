@@ -16,9 +16,6 @@ This module is currently only a placeholder, see pf::Switch::AeroHIVE
 
 use strict;
 use warnings;
-use Log::Log4perl;
-use Net::SNMP;
-use Try::Tiny;
 
 use base ('pf::Switch::AeroHIVE');
 use pf::Switch::constants;
