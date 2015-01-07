@@ -62,7 +62,7 @@ mschap {
 	# attribute, and do prefix/suffix checks in order to obtain
 	# the "best" user name for the request.
 	#
-	ntlm_auth = "/usr/bin/ntlm_auth --request-nt-key --username=%{%{Stripped-User-Name}:-%{%{User-Name}:-None}} --challenge=%{%{mschap:Challenge}:-00} --nt-response=%{%{mschap:NT-Response}:-00}"
+	ntlm_auth = "/usr/bin/ntlm_auth --request-nt-key --username=%{%{Stripped-User-Name}:-%{%{User-Name}:-None}} --challenge=%{%{mschap:Challenge}:-00} --nt-response=%{%{mschap:NT-Response}:-00} --configfile=%{PacketFence-SMB-Config-File}"
 
     # ntlm_auth should take less than three seconds.
     # If it takes longer than that, something is probably wrong.

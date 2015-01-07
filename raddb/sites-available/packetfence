@@ -4,6 +4,7 @@ server packetfence {
         suffix
         ntdomain
         preprocess
+        packetfence-multi-domain
         eap {
             ok = return
         }

@@ -2,6 +2,10 @@ perl packetfence {
 	module = ${confdir}/packetfence.pm
 }
 
+perl packetfence-multi-domain {
+	module = ${confdir}/packetfence-multi-domain.pm
+}
+
 perl packetfence-soh {
 	module = ${confdir}/packetfence-soh.pm
 }
