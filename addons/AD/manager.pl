@@ -148,10 +148,11 @@ sub regenerate_configuration {
 
 my %actions = ("join" => \&register_new_domain, "unjoin" => \&unjoin_domain, "refresh" => \&regenerate_configuration);
 
-if(exists $actions{$ARGV[0]}){
+if(defined($ARGV[0]) && exists $actions{$ARGV[0]}){
   $actions{$ARGV[0]}->();
 }
 else{
-  print "Unknown operation...";
+  print "Unknown operation...\n";
+  print "Valid operation are : \n".Dumper(keys %actions)."\n";
 }
 
