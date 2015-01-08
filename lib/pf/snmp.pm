@@ -11,6 +11,16 @@ pf::snmp - Class for accessing snmp via net-snmp's SNMP.pm module
     # $switch is a pf::Switch object.
     my $snmp = pf::snmp->new( switch => $switch );
 
+    # or if inside pf::Switch, you could add it as an attribute with the constructor.
+
+    $self->{snmp} = pf::snmp->new( switch => $self );
+    
+    #from there you  can access all snmp methods from within the switch.
+    # this assumes that pf::Switch will move to a Moose based class.
+    $switch->snmp->read
+
+
+
 =head1 DESCRIPTION
 
 This class simplifies and duplicates the same functions as Net::SNMP only with much higher performance and overhead.
@@ -33,18 +43,19 @@ It duplicates some of the methods on pf::Switch to allow for graduale migration.
 
 =head1 METHODS
 
-=head2 connectRead
 
-Duplicates the connectRead in pf::switch only using net-snmp instead of Net::SNMP
+=head2 read
+
+Duplicates the read in pf::switch only using net-snmp instead of Net::SNMP
 Options are pulled from the pf::Switch object to connect.
 
 =cut
 
-    sub connectRead { # {{{
+    sub read { # {{{
         my $self = shift;
         my $logger = Log::Log4perl::get_logger( ref($self->switch) );
         if ( defined( $self->switch->{_sessionRead} ) ) {
-            return 1;
+            return $self->switch->{_sessionRead};
         }
 
         my %snmp_args;
@@ -95,7 +106,7 @@ Options are pulled from the pf::Switch object to connect.
                 return 0;
             }
         }
-        return 1;
+        return $self->switch->{_sessionRead};
     } # }}}
 
 =head2 get
@@ -111,7 +122,7 @@ simplified snmpget. Returns a hash in the same manner as Net::SNMP.
     sub get { #{{{
         my ($self,$oids) = @_;
         my $vars;
-        $self->connectRead unless $self->sessionRead;
+        $self->read;
         foreach (@$oids) {
             push(@$vars,[ $_ ]);
         }
@@ -140,7 +151,7 @@ Easy way to get a table or tables or portions within a table. Returns a single h
 
     sub get_tables { #{{{
         my ($self,$base_oids,$max_it) = @_;
-        $self->connectRead unless $self->sessionRead;
+        $self->read unless $self->sessionRead;
         $self->{_base_oids} = $base_oids;
         $self->{_base_oid} = shift @{$self->{_base_oids}};
         $self->{_max_it} = $max_it || 10;
