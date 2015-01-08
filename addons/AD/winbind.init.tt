@@ -1,0 +1,124 @@
+#!/bin/sh
+#
+# chkconfig: - 24 92
+# description: Starts and stops the Samba winbind daemon
+#	       #
+# pidfile: dynamic 
+# config:  dynamic
+
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Avoid using root's TMPDIR
+unset TMPDIR
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+DOMAIN="[% domain %]"
+CHROOT_PATH="/chroots/$DOMAIN"
+PIDFILE="$CHROOT_PATH/var/run/samba$DOMAIN/winbindd-$DOMAIN.conf.pid"
+CONFIGFILE="/etc/samba/$DOMAIN.conf"
+LOGDIRECTORY="/var/log/samba$DOMAIN"
+OUTERLOGDIRECTORY="$CHROOT_PATH/$LOGDIRECTORY"
+OUTERRUNDIRECTORY="$CHROOT_PATH/var/run/samba$DOMAIN"
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 1
+
+# Check that conf exists.
+[ -f $CONFIGFILE ] || exit 6
+
+[ -d $OUTERLOGDIRECTORY ] || (mkdir -p $OUTERLOGDIRECTORY && chown root.root $OUTERLOGDIRECTORY)
+
+[ -d $OUTERRUNDIRECTORY ] || (mkdir -p $OUTERRUNDIRECTORY && chown root.root $OUTERRUNDIRECTORY)
+
+[ -f /etc/sysconfig/samba ] && . /etc/sysconfig/samba
+
+RETVAL=0
+start() {
+  if [ -f $PIDFILE ] && ps -p $(cat $PIDFILE) > /dev/null; then
+    echo "Already running.."
+    return 0
+  fi
+  rm -f $PIDFILE
+  /usr/local/pf/addons/create_chroot.sh $DOMAIN
+  KIND="Winbind"
+	echo -n $"Starting $KIND services: "
+	daemon chroot $CHROOT_PATH winbindd -D -s $CONFIGFILE -l $LOGDIRECTORY
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/winbindd || RETVAL=1
+	return $RETVAL
+}	
+
+stop() {
+        echo
+	KIND="Winbind"
+	echo -n $"Shutting down $KIND services: "
+	kill $(cat $PIDFILE)
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/winbindd
+	echo ""
+	return $RETVAL
+}	
+
+restart() {
+	stop
+  sleep 3
+	start
+}	
+
+reload() {
+        echo -n $"Reloading smb.conf file: "
+	kill $(cat $PIDFILE) -HUP
+	RETVAL=$?
+	echo
+	return $RETVAL
+}	
+
+rhstatus() {
+	if [ -f $PIDFILE ] && ps -p $(cat $PIDFILE) > /dev/null; then
+        echo "Running with pid $(cat $PIDFILE)"
+        return 0
+    else
+        echo "Not running..."
+        return 1
+    fi
+}	
+
+# Allow status as non-root.
+if [ "$1" = status ]; then
+       rhstatus
+       exit $?
+fi
+
+# Check that we can write to it... so non-root users stop here
+[ -w /etc/samba/smb.conf ] || exit 4
+
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+  	restart
+	;;
+  reload)
+  	reload
+	;;
+  status)
+  	rhstatus
+	;;
+  condrestart)
+  	[ -f /var/lock/subsys/winbindd ] && restart || :
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|restart|reload|status|condrestart}"
+	exit 2
+esac
+
+exit $?

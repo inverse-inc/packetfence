@@ -65,12 +65,9 @@ sub authorize {
     my $realm = $ConfigRealm{$RAD_REQUEST{"Realm"}};
 
     use Data::Dumper;
-    if( defined($realm) && defined($realm->{samba_config_file}) && -e $realm->{samba_config_file} ) {
-        &radiusd::radlog($RADIUS::L_INFO, Dumper($realm));
-        $RAD_REQUEST{"PacketFence-SMB-Config-File"} = $realm->{samba_config_file};
-    }
-    else{
-        $RAD_REQUEST{"PacketFence-SMB-Config-File"} = "/etc/samba/smb.conf";
+    #&radiusd::radlog($RADIUS::L_INFO, Dumper($realm));
+    if( defined($realm) && defined($realm->{domain}) ) {
+        $RAD_REQUEST{"PacketFence-Domain"} = $realm->{domain};
     }
         
     return $RADIUS::RLM_MODULE_UPDATED;

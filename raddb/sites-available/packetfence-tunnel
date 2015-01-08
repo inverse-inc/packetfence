@@ -42,7 +42,12 @@ authorize {
 
 authenticate {
         Auth-Type MS-CHAP {
+            if(PacketFence-Domain){
+                chrooted_mschap
+            }
+            else{
                 mschap
+            }
         }
         eap
 }

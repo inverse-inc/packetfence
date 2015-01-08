@@ -1,0 +1,50 @@
+[global]
+
+## Browsing/Identification ###
+
+# Change this to the workgroup/NT-domain name your Samba server will part of
+workgroup = [% workgroup %]
+realm = [% dns_name %]
+
+netbios name = [% server_name %]
+server string =  [% server_name %]
+
+pid directory = /var/run/samba[% domain %]
+lock directory = /var/cache/samba[% domain %]
+private dir = /var/cache/samba[% domain %]
+
+security = ADS
+winbind use default domain = no
+idmap uid = 600-20000
+idmap gid = 600-20000
+template shell = /bin/bash
+winbind expand groups = 10
+password server = [% ad_server %]
+domain master = no
+local master = no
+preferred master = no
+
+inherit permissions = yes
+admin users = @[% workgroup %]\"domain admins"
+
+hide files = /~*/Thumbs.db/desktop.ini/ntuser.ini/NTUSER.*/SMax.*/
+veto files = /lost+found/
+
+allow trusted domains = yes
+
+# No printers on this host
+show add printer wizard = no
+disable spoolss = yes
+load printers = no
+printing = bsd
+printcap name = /dev/null
+
+# No usershares here
+usershare max shares = 0
+
+# By default no guests and invisible
+browseable = no
+guest ok = no
+
+#interfaces = 169.254.0.1
+#bind interfaces only = yes

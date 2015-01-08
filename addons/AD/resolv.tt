@@ -1,0 +1,2 @@
+search [% dns_name %]
+nameserver [% dns_server %]
