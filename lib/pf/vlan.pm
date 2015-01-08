@@ -395,6 +395,7 @@ sub getNormalVlan {
                 $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
             }
             if (defined $value) {
+                $value = pf::config::dynamic_unreg_date($value);
                 my %info = (
                     'unregdate' => $value,
                     'category' => $role,
