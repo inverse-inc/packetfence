@@ -78,7 +78,7 @@ use pf::constants;
 use pf::config;
 use pf::db;
 use pf::nodecategory;
-use pf::scan qw($SCAN_VID);
+use pf::scan qw($SCAN_VID $POST_SCAN_VID);
 use pf::util;
 use pf::violation;
 use pf::Portal::ProfileFactory;
@@ -877,6 +877,8 @@ sub node_register {
             # triggering a violation used to communicate the scan to the user
             if ( isenabled($scan->{'registration'})) {
                 violation_add( $mac, $SCAN_VID );
+            } else {
+                violation_add( $mac, $POST_SCAN_VID );
             }
         }
 
@@ -889,6 +891,8 @@ sub node_register {
                     # triggering a violation used to communicate the scan to the user
                     if ( isenabled($scan->{'registration'})) {
                         violation_add( $mac, $SCAN_VID );
+                    } else {
+                        violation_add( $mac, $POST_SCAN_VID );
                     }
                 }
             }

@@ -185,6 +185,16 @@ enabled=Y
 auto_enable=N
 vlan=registration
 
+[1200004]
+priority=9
+desc=Post Reg System Scan 
+# someone should always be able to try to scan its system again
+max_enable=0
+grace=1s
+actions=log
+enabled=N
+auto_enable=Y
+
 #
 # 1300000 - 1399999 Reserved for PacketFence violations
 #

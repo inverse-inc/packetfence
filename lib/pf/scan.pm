@@ -26,7 +26,7 @@ BEGIN {
     use Exporter ();
     our (@ISA, @EXPORT, @EXPORT_OK);
     @ISA = qw(Exporter);
-    @EXPORT = qw(run_scan $SCAN_VID $scan_db_prepared scan_db_prepare);
+    @EXPORT = qw(run_scan $SCAN_VID $POST_SCAN_VID $scan_db_prepared scan_db_prepare);
     @EXPORT_OK = qw(scan_insert_sql scan_select_sql scan_update_status_sql);
 }
 
@@ -41,6 +41,7 @@ use pf::violation qw(violation_close violation_exist_open violation_trigger viol
 use pf::Portal::ProfileFactory;
 
 Readonly our $SCAN_VID          => 1200001;
+Readonly our $POST_SCAN_VID     => 1200004;
 Readonly our $SEVERITY_HOLE     => 1;
 Readonly our $SEVERITY_WARNING  => 2;
 Readonly our $SEVERITY_INFO     => 3;
