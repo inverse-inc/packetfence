@@ -69,6 +69,9 @@ sub authorize {
     if( defined($realm) && defined($realm->{domain}) ) {
         $RAD_REQUEST{"PacketFence-Domain"} = $realm->{domain};
     }
+    elsif ( defined($ConfigRealm{"default"}) ){
+        $RAD_REQUEST{"PacketFence-Domain"} = $ConfigRealm{"default"}->{domain};
+    }
         
     return $RADIUS::RLM_MODULE_UPDATED;
         
