@@ -7,21 +7,21 @@ use lib INSTALL_DIR . "/lib";
 
 use Data::Dumper;
 use Net::SNMP;
-use Config::IniFiles;
 use Template;
 use pf::util;
+use pf::config;
+use pf::ConfigStore::Domain;
 
 
 our $CONF_FILE = "/usr/local/pf/conf/domain.conf";
 
 sub register_new_domain {
-  my $cfg = Config::IniFiles->new( -file => $CONF_FILE );
-
+  my $cfg = pf::ConfigStore::Domain->new;
   my $info;
 
   print "Enter the friendly domain name : ";
-  $info->{domain} = <STDIN>;
-  $info->{domain} =~ s/\n//g;
+  my $domain = <STDIN>;
+  $domain =~ s/\n//g;
 
   print "Enter the workgroup : ";
   $info->{workgroup} = <STDIN>;
@@ -51,60 +51,30 @@ sub register_new_domain {
   $info->{bind_pass} = <STDIN>;
   $info->{bind_pass} =~ s/\n//g;
 
-
-  $cfg->AddSection($info->{domain});
-  setval($cfg, $info->{domain}, "workgroup", $info->{workgroup});
-  setval($cfg, $info->{domain}, "dns_name", $info->{dns_name});
-  setval($cfg, $info->{domain}, "server_name", $info->{server_name});
-  setval($cfg, $info->{domain}, "ad_server", $info->{ad_server});
-  setval($cfg, $info->{domain}, "dns_server", $info->{dns_server});
-  setval($cfg, $info->{domain}, "bind_dn", $info->{bind_dn});
-  setval($cfg, $info->{domain}, "bind_pass", $info->{bind_pass});
-
-  $cfg->WriteConfig($CONF_FILE);
+  $cfg->update_or_create($domain, $info);
+  $cfg->commit;
 }
 
 sub generate_krb5_conf {
-  my %domains;
-  tie %domains, 'Config::IniFiles', (-file=>$CONF_FILE );
-
-  use Data::Dumper;
-  print Dumper(\%domains);
-
-  my $vars = {domains => \%domains};
+  my $vars = {domains => \%ConfigDomain};
 
   my $template = Template->new;
   my $data = $template->process("addons/AD/krb5.tt", $vars, "/etc/krb5.conf");
-  print $data;
 }
 
 sub generate_smb_conf {
-  my %domains;
-  tie %domains, 'Config::IniFiles', (-file=>$CONF_FILE );
-
-  foreach my $domain (keys %domains){
+  foreach my $domain (keys %ConfigDomain){
     my %vars = (domain => $domain);
-    my %tmp = (%vars, %{%domains->{$domain}});
+    my %tmp = (%vars, %{$ConfigDomain{$domain}});
     %vars = %tmp;
-    use Data::Dumper;
-    print Dumper(\%vars);
     my $template = Template->new;
     $template->process("addons/AD/smb.tt", \%vars, "/etc/samba/$domain.conf"); 
   }
 }
 
 sub generate_init_conf {
-  my %domains;
-  tie %domains, 'Config::IniFiles', (-file=>$CONF_FILE );
-
-  use Data::Dumper;
-  print Dumper(\%domains);
-
-
-  foreach my $domain (keys %domains){
+  foreach my $domain (keys %ConfigDomain){
     my %vars = (domain => $domain);
-    use Data::Dumper;
-    print Dumper(\%vars);
     my $template = Template->new;
     $template->process("addons/AD/winbind.init.tt", \%vars, "/etc/init.d/winbind.$domain"); 
     pf_run("chmod ug+x /etc/init.d/winbind.$domain")
@@ -112,18 +82,10 @@ sub generate_init_conf {
 }
 
 sub generate_resolv_conf {
-  my %domains;
-  tie %domains, 'Config::IniFiles', (-file=>$CONF_FILE );
-
-  use Data::Dumper;
-  print Dumper(\%domains);
-
-  foreach my $domain (keys %domains){
+  foreach my $domain (keys %ConfigDomain){
     pf_run("mkdir -p /etc/netns/$domain");
     my %vars = (domain => $domain);
-    my %tmp = (%vars, %{%domains->{$domain}});
-    %vars = %tmp;    use Data::Dumper;
-    print Dumper(\%vars);
+    my %tmp = (%vars, %{$ConfigDomain{$domain}});
     my $template = Template->new;
     $template->process("addons/AD/resolv.tt", \%vars, "/etc/netns/$domain/resolv.conf"); 
   }  
@@ -149,3 +111,4 @@ sub regenerate_configuration {
 }
 
 regenerate_configuration();
+#register_new_domain();
