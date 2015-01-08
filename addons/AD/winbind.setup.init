@@ -37,13 +37,9 @@ start() {
         ip netns exec $domain route add default gw 192.168.0.$(echo $(($i+1))) dev $domain-a
         ip netns exec $domain ip link set dev lo up
 
-        iptables -A FORWARD -o $domain-b -j ACCEPT
-        iptables -A FORWARD -i $domain-b -j ACCEPT
         i=$(echo $(($i+4)))
       fi
     done
-        
-    iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o eth0 -j SNAT --to-source 172.20.20.109
 
 }	
 
