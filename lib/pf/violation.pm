@@ -82,6 +82,9 @@ use pf::enforcement;
 use pf::db;
 use pf::node;
 use pf::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
+=======
+use pf::scan qw($SCAN_VID $POST_SCAN_VID);
+>>>>>>> 732662d... Create a post scan violation
 use pf::util;
 use pf::config::util;
 use pf::client;
