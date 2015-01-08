@@ -76,8 +76,10 @@ sub startScan {
 
     my $rule_tester = new pf::scan::wmi::rules;
     my $result = $rule_tester->test($this);
-
-    my $grace = violation_close($this->{'_scanMac'}, $pf::scan::SCAN_VID);
+ 
+    my $scan_vid = $pf::scan::POST_SCAN_VID;
+    $scan_vid = $pf::scan::SCAN_VID if ($this->{'_registration'});
+    my $grace = violation_close($this->{'_scanMac'}, $scan_vid);
     if ( $grace == -1 ) {
         $logger->warn("Problem trying to close scan violation");
             return;

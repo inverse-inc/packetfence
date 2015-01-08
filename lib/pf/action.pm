@@ -78,6 +78,7 @@ use pf::class qw(class_view class_view_actions);
 use pf::violation qw(violation_force_close);
 use pf::Portal::ProfileFactory;
 use pf::log;
+use pf::scan qw($POST_SCAN_VID);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $action_db_prepared = 0;
@@ -211,7 +212,7 @@ sub action_execute {
             $logger->error( "unknown action '$action' for class $vid", 1 );
         }
     }
-    if ( !$leave_open ) {
+    if ( !$leave_open && $vid ne $POST_SCAN_VID ) {
         $logger->info("this is a non-trap violation, closing violation entry now");
         require pf::violation;
         pf::violation::violation_force_close( $mac, $vid );

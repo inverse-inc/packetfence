@@ -52,7 +52,7 @@ has_field 'oses' =>
   (
    type => 'Hidden',
    label => 'OS',
-   default => 'Windows',
+   default => "Windows",
   );
 
 
