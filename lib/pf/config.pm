@@ -110,6 +110,8 @@ our (
     %ConfigRealm,
 #provisioning.conf
     %ConfigProvisioning,
+#domain.conf
+    %ConfigDomain, $cached_domain,
 );
 
 BEGIN {
@@ -154,6 +156,7 @@ BEGIN {
         %Doc_Config
         %ConfigRealm
         %ConfigProvisioning
+        %ConfigDomain $cached_domain
     );
 }
 
@@ -437,7 +440,6 @@ sub os_detection {
         return "rhel";
     }
 }
-
 
 =item access_duration
 
