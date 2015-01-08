@@ -79,6 +79,8 @@ sub unjoin_domain {
   my $info = $cfg->read($domain);
   if($info){
     print system("ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
+    print system("ip netns delete $domain");
+    print pf_run("rm -f /etc/init.d/winbind.$domain");
     $cfg->remove($domain);
     $cfg->commit;
     exit 1;
@@ -146,7 +148,26 @@ sub regenerate_configuration {
   print pf_run("/usr/local/pf/bin/pfcmd service iptables restart");
 }
 
-my %actions = ("join" => \&register_new_domain, "unjoin" => \&unjoin_domain, "refresh" => \&regenerate_configuration);
+sub status {
+  my $cfg = pf::ConfigStore::Domain->new;
+  
+  print "Enter the friendly domain name : ";
+  my $domain = <STDIN>;
+  $domain =~ s/\n//g;
+
+  my $info = $cfg->read($domain);
+  if($info){
+    print system("chroot /chroots/$domain ntlm_auth --username=$info->{bind_dn} --password=$info->{bind_pass}");
+  }
+  else{
+    print "Domain is not configured";
+    exit 1;
+  }
+
+ 
+}
+
+my %actions = ("join" => \&register_new_domain, "unjoin" => \&unjoin_domain, "refresh" => \&regenerate_configuration, "status" => \&status);
 
 if(defined($ARGV[0]) && exists $actions{$ARGV[0]}){
   $actions{$ARGV[0]}->();
