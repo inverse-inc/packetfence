@@ -147,6 +147,7 @@ sub regenerate_configuration {
   generate_init_conf();
   generate_resolv_conf();
   print pf_run("cp addons/AD/winbind.setup.init /etc/init.d/winbind.setup");
+  print pf_run("chkconfig winbind.setup on");
   print pf_run("/etc/init.d/winbind.setup restart");
   print pf_run("/usr/local/pf/bin/pfcmd service iptables restart");
 }
