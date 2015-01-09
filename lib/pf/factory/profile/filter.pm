@@ -2,13 +2,15 @@ package pf::factory::profile::filter;
 
 =head1 NAME
 
-pf::factory::profile::filter add documentation
+pf::factory::profile::filter - factory for Profile filters
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::factory::profile::filter
+
+Loads and instantiates profile filters
 
 =cut
 
