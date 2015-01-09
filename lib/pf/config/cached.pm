@@ -1040,24 +1040,6 @@ sub addPostReloadCallbacks {
     $self->_addCallbacks($ON_POST_RELOAD{$self->GetFileName},@args);
 }
 
-=head2 DESTROY
-
-Cleaning up externally stored data
-
-=cut
-
-sub DESTROY {
-    my ($self) = @_;
-    #Do nothing if no destroy is set
-    return if $NO_DESTROY || $self->{no_destroy};
-
-    my $file = $self->GetFileName;
-    return unless $file;
-    foreach my $hash_ref (@ON_DESTROY_REFS) {
-        #delete $hash_ref->{$file};
-    }
-}
-
 =head2 addToLoadedConfigs
 
 adds the cached config from the internal global cache
