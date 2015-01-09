@@ -69,6 +69,12 @@ has_field 'filter.contains' =>
    widget_wrapper => 'DynamicTableRow',
   );
 
+=head2 filter_match_style
+
+The field for filter_match_style
+
+=cut
+
 has_field 'filter_match_style' =>
 (
     type => 'Select',
