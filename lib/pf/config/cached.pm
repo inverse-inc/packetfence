@@ -845,7 +845,7 @@ sub HasExpired {
     return 1 if $chi->is_subcache;
 
     #Only one process can expire main cache
-    return $self->GotReloadWriteLock;
+    return $self->GetReloadWriteLock;
 }
 
 =head2 IsReloadWriteLocked
@@ -872,13 +872,13 @@ sub IsGlobalReloadWriteLocked {
     return $locker->isWriteLockedByAnother;
 }
 
-=head2 GotReloadWriteLock
+=head2 GetReloadWriteLock
 
-Gets an existing write lock
+Check if the current process has an existing write lock
 
 =cut
 
-sub GotReloadWriteLock {
+sub GetReloadWriteLock {
     my ($self) = @_;
     my $locker = _lockFileForOnReload($self->GetFileName);
     $locker->blocking(0); 
@@ -952,7 +952,7 @@ sub ReloadConfigs {
         $logger->trace("Reloading config $config->{cf}");
         #Getting the lockfile and locking the reload lock file
         my $locker = _lockFileForOnReload($config->GetFileName);
-        $config->GotReloadWriteLock();
+        $config->GetReloadWriteLock();
         $config->ExpireFile() if $force;
         $config->ExpireLockFile() if $config->HasChanged;
         next unless $config->LockFileHasChanged;
