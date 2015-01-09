@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-loop add documentation
+loop.pl - a script to help test reloading config
 
 =cut
 
