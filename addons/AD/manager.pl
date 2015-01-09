@@ -67,6 +67,8 @@ sub register_new_domain {
 
   print system("/etc/init.d/winbind.$domain restart");
 
+  print system("chkconfig winbind.$domain on");
+
 }
 
 sub unjoin_domain {
@@ -144,6 +146,7 @@ sub regenerate_configuration {
   generate_smb_conf();
   generate_init_conf();
   generate_resolv_conf();
+  print pf_run("cp addons/AD/winbind.setup.init /etc/init.d/winbind.setup");
   print pf_run("/etc/init.d/winbind.setup restart");
   print pf_run("/usr/local/pf/bin/pfcmd service iptables restart");
 }

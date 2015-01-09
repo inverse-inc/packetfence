@@ -32,9 +32,9 @@ start() {
         ip netns add $domain
         ip link add $domain-a type veth peer name $domain-b
         ip link set $domain-a netns $domain
-        ip netns exec $domain ifconfig $domain-a up 192.168.0.$i netmask 255.255.255.252
-        ifconfig $domain-b up 192.168.0.$(echo $(($i+1))) netmask 255.255.255.252
-        ip netns exec $domain route add default gw 192.168.0.$(echo $(($i+1))) dev $domain-a
+        ip netns exec $domain ifconfig $domain-a up 169.254.0.$i netmask 255.255.255.252
+        ifconfig $domain-b up 169.254.0.$(echo $(($i+1))) netmask 255.255.255.252
+        ip netns exec $domain route add default gw 169.254.0.$(echo $(($i+1))) dev $domain-a
         ip netns exec $domain ip link set dev lo up
 
         i=$(echo $(($i+4)))

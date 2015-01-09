@@ -678,7 +678,7 @@ sub generate_domain_rules {
     }
 
     # MOVE ME TO SOMEWHERE - BUT WHERE ????? - ANYWHERE IS BETTER THAN THIS !
-    my $domain_network = "192.168.0.0/24";
+    my $domain_network = "169.254.0.0/16";
 
     my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
     my $mgmt_int = $management_network->tag('int');
