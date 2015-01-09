@@ -681,14 +681,17 @@ sub readProfileConfigFile {
                 #Clearing the Profile filters
                 @Profile_Filters = ();
                 my $default_description = $Profiles_Config{'default'}{'description'};
-                while (my ($profile_id, $profile) = each %Profiles_Config) {
+                foreach my $profile_id ($config->Sections()) {
+                    my $profile = $Profiles_Config{$profile_id};
                     $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
                     foreach my $field (qw(locale mandatory_fields sources filter provisioners) ) {
                         $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
                     }
-                    #Adding filters in profile order
-                    foreach my $filter (@{$profile->{'filter'}}) {
-                        push @Profile_Filters, pf::factory::profile::filter->instantiate($profile_id,$filter);
+                    if ($profile_id ne 'default') {
+                        #Adding filters in profile order
+                        foreach my $filter (@{$profile->{'filter'}}) {
+                            push @Profile_Filters, pf::factory::profile::filter->instantiate($profile_id,$filter);
+                        }
                     }
                 }
                 #Add the default filter so it always matches if no other filter matches

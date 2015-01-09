@@ -48,6 +48,7 @@ Bug Fixes
 * Fix importing of nodes when no pid is given
 * Added a cleanup of trailing and leading spaces of the posted username during the login
 * Fix wrong regex to detect ifindex in Cisco switches
+* Honor order of profiles when matching profile filters
 
 Version 4.5.1 released on 2014-11-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
