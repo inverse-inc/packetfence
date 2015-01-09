@@ -887,7 +887,7 @@ sub GotReloadWriteLock {
 
 =head2 LockFileHasChanged
 
-TODO: documention
+Checks if lock file has changed
 
 =cut
 
