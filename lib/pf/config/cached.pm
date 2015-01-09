@@ -1177,6 +1177,12 @@ sub clearAllConfigs {
     $class->cache->remove_multi(\@stored_config_files);
 }
 
+=head2 _ExpireFile
+
+Sets the modify time of a file to the current time
+
+=cut
+
 sub _ExpireFile {
     my ($self,$file) = @_;
     my $old_mask = umask(0);
@@ -1188,12 +1194,24 @@ sub _ExpireFile {
     umask($old_mask);
 }
 
+=head2 ExpireLockFile
+
+Sets the modify time of the lock file to the current time
+
+=cut
 
 sub ExpireLockFile {
     my ($self) = @_;
     my $locker = lockFileForWriting($self->GetFileName);
     $self->_ExpireFile($self->GetLockFileName());
 }
+
+
+=head2 ExpireFile
+
+Sets the modify time of the config file to the current time
+
+=cut
 
 sub ExpireFile {
     my ($self) = @_;
