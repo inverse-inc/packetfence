@@ -42,7 +42,6 @@ use Time::Local;
 use DateTime;
 use pf::factory::profile::filter;
 use pf::profile::filter;
-use pf::profile::filter::any;
 use pf::profile::filter::all;
 
 # Categorized by feature, pay attention when modifying
@@ -691,17 +690,15 @@ sub readProfileConfigFile {
                     }
                     my $filters = $profile->{'filter'};
                     if($profile_id ne 'default' && @$filters) {
-                        my @value;
+                        my @filterObjects;
                         foreach my $filter (@{$profile->{'filter'}}) {
-                            push @value, pf::factory::profile::filter->instantiate($profile_id,$filter);
+                            push @filterObjects, pf::factory::profile::filter->instantiate($profile_id,$filter);
                         }
-                        my $filterObject;
                         if($profile->{filter_match_style} eq 'all') {
-                            $filterObject = pf::profile::filter::all->new(profile => $profile_id, value => \@value);
+                            push @Profile_Filters,  pf::profile::filter::all->new(profile => $profile_id, value => \@filterObjects);
                         } else {
-                            $filterObject = pf::profile::filter::any->new(profile => $profile_id, value => \@value);
+                            push @Profile_Filters,@filterObjects;
                         }
-                        push @Profile_Filters, $filterObject;
                     }
                 }
                 #Add the default filter so it always matches if no other filter matches
