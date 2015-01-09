@@ -31,7 +31,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id description logo redirecturl always_use_redirecturl reuse_dot1x_credentials billing_engine nbregpages) ],
+   render_list => [ qw(id description logo redirecturl always_use_redirecturl reuse_dot1x_credentials billing_engine nbregpages filter_match_style) ],
   );
 
 =head1 FIELDS
@@ -68,6 +68,18 @@ has_field 'filter.contains' =>
    label => 'Filter',
    widget_wrapper => 'DynamicTableRow',
   );
+
+has_field 'filter_match_style' =>
+(
+    type => 'Select',
+    default => 'any',
+    options_method => \&options_filter_match_style,
+);
+
+sub options_filter_match_style {
+    return  map { { value => $_, label => $_ } } qw(all any);
+}
+
 
 =head1 METHODS
 
