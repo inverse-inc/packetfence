@@ -278,7 +278,7 @@ Takes FreeRADIUS' RAD_REQUEST hash and process it to return
 
 sub _parseRequest {
     my ($this, $radius_request) = @_;
-    my $ap_mac = extractApMacFromRadiusRequest($radius_request);
+    my $ap_mac = $this->extractApMacFromRadiusRequest($radius_request);
     # freeradius 2 provides the client IP in NAS-IP-Address not Client-IP-Address (non-standard freeradius1 attribute)
     my $networkdevice_ip = $radius_request->{'NAS-IP-Address'} || $radius_request->{'Client-IP-Address'};
     my $source_ip = $radius_request->{'FreeRADIUS-Client-IP-Address'};
