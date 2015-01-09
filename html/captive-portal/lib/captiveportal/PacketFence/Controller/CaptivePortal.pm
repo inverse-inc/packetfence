@@ -135,7 +135,7 @@ sub checkForViolation : Private {
         # There is a violation, redirect the user
         # FIXME: there is not enough validation below
         my $vid      = $violation->{'vid'};
-        my $SCAN_VID = 12003;
+        my $SCAN_VID = 1200001;
 
         # detect if a system scan is in progress, if so redirect to scan in progress page
         if (   $vid == $SCAN_VID
