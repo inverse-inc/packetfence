@@ -121,6 +121,12 @@ sub showSmsConfirmation : Private {
 sub sms_validation {
     my ( $self, $c ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $retries = $c->session->{sms_retries} || 0;
+    $retries++;
+    $c->session->{sms_retries}  = $retries;
+    if($retries > 3 ) {
+        return ( $FALSE, $GUEST::ERROR_MAX_RETRIES );
+    }
 
     # no form was submitted, assume first time
     my $pin = $c->request->param("pin");
