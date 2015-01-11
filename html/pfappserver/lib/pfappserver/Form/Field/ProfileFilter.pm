@@ -39,11 +39,9 @@ has_field 'match' =>
 has_field 'type' =>
   (
    type => 'Select',
-   widget => 'ButtonGroup',
    do_label => 0,
    required => 1,
-   wrapper_class => ['btn-group'],
-   wrapper_attr => {'data-toggle' => 'buttons-radio'},
+   widget_wrapper => 'None',
    default => 'ssid',
    options_method => \&options_type,
   );
