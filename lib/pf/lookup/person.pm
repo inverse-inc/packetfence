@@ -26,8 +26,8 @@ sub lookup_person {
     my $logger = Log::Log4perl::get_logger('pf::lookup::person');
     my $source = pf::authentication::getAuthenticationSource($source_id);
     if (!$source) {
-       $logger->info("Unable to locate the source '$pid'");
-       return "Unable to locate the source '$pid'!\n";
+       $logger->info("Unable to locate the source $source");
+       return "Unable to locate the source $source!\n";
     } 
     
     unless (person_exist($pid)) {
