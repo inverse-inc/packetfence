@@ -58,7 +58,8 @@ sub test {
     foreach my $rule  ( @{$rules->{'_rules'}} ) {
         $logger->warn($rule);
         my $rule_config = $wmics->read($rule);
-        my $result = $self->runWmi($rules,$rule_config);
+        my ($rc, $result) = $self->runWmi($rules,$rule_config);
+        return $rc if (!$rc);
         my $action = join("\n", @{$rule_config->{'action'}});
         my %cfg;
         tie %cfg, 'Config::IniFiles', ( -file => \$action );
@@ -74,12 +75,12 @@ sub test {
                     if ( defined($cfg{$test}->{'action'}) && $cfg{$test}->{'action'} ne '' ) {
                         last if ($cfg{$test}->{'action'} =~ /allow/i);
                         $self->dispatchAction($cfg{$test},$rules);
-                        $logger->warn($cfg{$test}->{'action'});
                     }
                 }
             }
         }
     }
+    return 0;
 }
 
 =item runWMI
@@ -96,7 +97,7 @@ sub runWmi {
     $request->{'Host'} = $rules->{'_scanIp'};
     $request->{'Query'} = $rule->{'request'};
     my ($rc, $ret_string) = wmiclient($request);
-    return $self->parseResult($ret_string);
+    return ($rc,$self->parseResult($ret_string));
 
 }
 

@@ -36,9 +36,11 @@ use pf::db;
 use pf::iplog;
 use pf::scan::nessus;
 use pf::scan::openvas;
+use pf::scan::wmi;
 use pf::util;
 use pf::violation qw(violation_close violation_exist_open violation_trigger violation_modify);
 use pf::Portal::ProfileFactory;
+use pf::api::jsonrpcclient;
 
 Readonly our $SCAN_VID          => 1200001;
 Readonly our $POST_SCAN_VID     => 1200004;
@@ -121,7 +123,7 @@ Parse a scan report from the scan object and trigger violations if needed
 =cut
 
 sub parse_scan_report {
-    my ( $scan ) = @_;
+    my ( $scan, $scan_vid ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $logger->debug("Scan report to analyze. Scan id: $scan"); 
@@ -159,17 +161,17 @@ sub parse_scan_report {
     #   Do nothing
 
     # The way we accomplish the above workflow is to differentiate by checking if special violation exists or not
-    if ( my $violation_id = violation_exist_open($mac, $SCAN_VID) ) {
+    if ( my $violation_id = violation_exist_open($mac, $scan_vid) ) {
         $logger->trace("Scan is completed and there is an open scan violation. We have something to do!");
 
         # We passed the scan so we can close the scan violation
         if ( !$failed_scan ) {
-            my $grace = violation_close($mac, $SCAN_VID);
-            if ( $grace == -1 ) {
-                $logger->warn("Problem trying to close scan violation");
-                return;
-            }
-
+            my $apiclient = pf::api::jsonrpcclient->new;
+            my %data = (
+               'vid' => $scan_vid,
+               'mac' => $mac,
+            );
+            $apiclient->notify('close_violation', %data );
         # Scan completed but a violation has been found
         # HACK: we empty the violation's ticket_ref field which we use to track if scan is in progress or not
         } else {
@@ -216,7 +218,7 @@ Prepare the scan attributes, call the engine instantiation and start the scan
 =cut
 
 sub run_scan {
-    my ( $host_ip ) = @_;
+    my ( $host_ip, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 
@@ -224,7 +226,7 @@ sub run_scan {
     $host_ip = clean_ip($host_ip);  # untainting ip
 
     # Resolve mac address
-    my $host_mac = pf::iplog::ip2mac($host_ip);
+    my $host_mac = $mac || pf::iplog::ip2mac($host_ip);
     if ( !$host_mac ) {
         $logger->warn("Unable to find MAC address for the scanned host $host_ip. Scan aborted.");
         return;
@@ -263,18 +265,18 @@ sub run_scan {
     # Instantiate the new scan object
     my $scan = instantiate_scan_engine($type, %scan_attributes);
 
-    # Start the scan
+    # Start the scan (it return the scan_id if it failed)
     my $failed_scan = $scan->startScan();
     
     # Hum ... somethings wrong in the scan ?
     if ( $failed_scan ) {
-        my $cmd = $bin_dir . "/pfcmd manage vclose $host_mac $SCAN_VID";
-        $logger->info("Calling $cmd");
-        my $grace = pf_run("$cmd");
-        # FIXME shouldn't we focus on return code instead of output? pretty sure this is broken
-        if ( $grace == -1 ) {
-            $logger->warn("Problem trying to close scan violation");
-        }
+
+        my $apiclient = pf::api::jsonrpcclient->new;
+        my %data = (
+           'vid' => $failed_scan,
+           'mac' => $host_mac,
+        );
+        $apiclient->notify('close_violation', %data );
     }
 }
 

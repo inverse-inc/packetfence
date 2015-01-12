@@ -40,6 +40,7 @@ use List::MoreUtils qw(uniq);
 use NetAddr::IP;
 use pf::factory::firewallsso;
 
+use pf::scan();
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -625,6 +626,47 @@ Return the parent function name
 =cut
 
 sub whowasi { ( caller(2) )[3] }
+
+=head2 scan_run
+
+Launch the scan on the target device
+
+=cut
+
+sub scan_run : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(ip mac);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
+    my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
+    # get violation id
+    my $vid = $top_violation->{'vid'};
+
+    pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid == $pf::scan::POST_SCAN_VID);
+    return;
+}
+
+=head2 close_violation
+
+Close a violation
+
+=cut
+
+sub close_violation : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac vid);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
+    my $logger = pf::log::get_logger();
+
+    my $grace = pf::violation::violation_close($postdata{'mac'}, $postdata{'vid'});
+    if ( $grace == -1 ) {
+        $logger->warn("Problem trying to close scan violation");
+    }
+    return;
+}
 
 =head1 AUTHOR
 

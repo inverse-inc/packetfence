@@ -97,6 +97,7 @@ my @local_dhcp_servers_ip;
 my @local_dhcp_servers_mac;
 my $pcap;
 my $apiclient = pf::api::jsonrpcclient->new;
+my $net_type;
 
 $PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
 
@@ -119,7 +120,7 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
                 $accessControl = new pf::inline::custom();
             }
         }
-
+        $net_type = $Config{"interface $interface"}{'type'};
         $interface_ip = $Config{"interface $interface"}{'ip'};
         $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
 
@@ -403,6 +404,12 @@ sub parse_dhcp_ack {
         );
         update_iplog( $dhcp->{'chaddr'}, $dhcp->{'yiaddr'}, $lease_length );
 
+        my %data = (
+           'ip' => $dhcp->{'yiaddr'},
+           'mac' => $dhcp->{'chaddr'},
+        );
+        $apiclient->notify('scan_run', %data ) if ($net_type =~ /management|^dhcp-?listener$|managed/i);
+
     } elsif ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
 
         $logger->info(
@@ -410,6 +417,12 @@ sub parse_dhcp_ack {
             . ( defined($lease_length) ? " for $lease_length seconds" : "")
         );
         update_iplog( $dhcp->{'chaddr'}, $dhcp->{'ciaddr'}, $lease_length );
+
+        my %data = (
+           'ip' => $dhcp->{'ciaddr'},
+           'mac' => $dhcp->{'chaddr'},
+        );
+        $apiclient->notify('scan_run', %data ) if ($net_type =~ /management|^dhcp-?listener$|managed/i);
 
     } else {
         $logger->warn(
