@@ -99,6 +99,22 @@ has_field 'registration' =>
              help => 'If this option is enabled, the PF system will scan each host after registration is complete.' },
   );
 
+has_field 'pre_registration' =>
+  (
+   type => 'Checkbox',
+   label => 'Scan before registration',
+   tags => { after_element => \&help,
+             help => 'If this option is enabled, the PF system will scan host before the registration.' },
+  );
+
+has_field 'post_registration' =>
+  (
+   type => 'Checkbox',
+   label => 'Scan after reg',
+   tags => { after_element => \&help,
+             help => 'If this option is enabled, the PF system will scan host after on the production vlan.' },
+  );
+
 has_field 'oses' =>
   (
    type => 'Select',
