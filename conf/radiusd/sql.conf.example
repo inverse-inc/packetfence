@@ -102,7 +102,7 @@ sql pfsponsor {
         sql_user_name = "%{User-Name}"
         authorize_check_query = "SELECT 1, pid, \"Cleartext-Password\", password, \":=\" \
           FROM ${authcheck_table} \
-          JOIN temporary_password using (pid) \
+          JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sponsor\" \
             AND now() <= temporary_password.unregdate \
@@ -129,7 +129,7 @@ sql pfsms {
         acct_table1 = "radacct"
         acct_table2 = "radacct"
         postauth_table = "radpostauth"
-	authcheck_table = "activation"
+	authcheck_table = "temporary_password"
 
         authreply_table = "radreply"
         groupcheck_table = "radgroupcheck"
@@ -145,7 +145,7 @@ sql pfsms {
         sql_user_name = "%{User-Name}"
         authorize_check_query = "SELECT 1, pid, \"Cleartext-Password\", password, \":=\" \
           FROM ${authcheck_table} \
-          JOIN temporary_password using (pid) \
+          JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sms\" \
             AND now() <= temporary_password.unregdate \
