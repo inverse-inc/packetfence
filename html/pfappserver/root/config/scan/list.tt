@@ -1,7 +1,7 @@
       <table id="items" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
         <thead>
           <tr>
-            <th>[% l('Hostname or IP') %]</th>
+            <th>[% l('Name') %]</th>
             <th>[% l('Scan Engine') %]</th>
             <th></th>
           </tr>
@@ -9,7 +9,7 @@
         <tbody>
           [% FOREACH item IN items %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td><a href="[% c.pf_hash_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
             <td>[% item.type | html %]</td>
             <td>
               [%- IF can_access("SCAN_CREATE") %]
