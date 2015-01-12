@@ -98,6 +98,8 @@ has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
 sub ACCEPT_CONTEXT {
     my ( $self, $c, @args ) = @_;
     my $class = ref $self || $self;
+    my $previous_model = $c->session->{$class};
+    return $previous_model if(defined($previous_model) && $previous_model->{options}->{in_uri_portal});
     my $model;
     my $request       = $c->request;
     my $r = $request->{'env'}->{'psgi.input'};
@@ -109,9 +111,10 @@ sub ACCEPT_CONTEXT {
     my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'} if $management_network;
     my $destination_url = $request->param('destination_url');
 
-    if( $r->isa('Apache2::Request') &&  defined ( my $last_uri = $r->pnotes('last_uri') )) {
+    if( defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
             'last_uri' => $last_uri,
+            'in_uri_portal' => 1,
         };
     } elsif ( $c->controller->isa('captiveportal::Controller::Activate::Email') && $c->action->name eq 'code' ) {
         my $code = $c->request->arguments->[0];
@@ -132,6 +135,7 @@ sub ACCEPT_CONTEXT {
         _destination_url => $destination_url,
         @args,
     );
+    $c->session->{$class} = $model;
     return $model;
 }
 
