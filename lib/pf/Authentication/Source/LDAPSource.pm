@@ -38,6 +38,7 @@ has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
 has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
+has '_cached_connection' => (is => 'rw');
 
 =head1 METHODS
 
@@ -185,18 +186,12 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
 
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-
-    my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
-    if (! defined($connection)) {
+    my $cached_connection = $self->_cached_connection;
+    unless ( $cached_connection ) {
         return undef;
     }
+    my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
 
-    my $result = $self->bind_with_credentials($connection);
-
-    if ($result->is_error) {
-        $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-        return undef;
-    }
 
     my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
     if (! defined($filter)) {
@@ -206,7 +201,7 @@ sub match_in_subclass {
     $logger->debug("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
 
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
-    $result = $connection->search(
+    my $result = $connection->search(
       base => $self->{'basedn'},
       filter => $filter,
       scope => $self->{'scope'},
@@ -276,8 +271,6 @@ sub match_in_subclass {
                 }
             }
         }
-
-        $connection->unbind;
 
         if ($entry_matches) {
             # If we found a result, we push all conditions as matched ones.
@@ -435,6 +428,45 @@ sub search_attributes {
          $logger->info("PID: '$pid' found in the directory");
     }
     return $entry;
+}
+
+=head2 postMatchProcessing
+
+Tear down any resources created in preMatchProcessing
+
+=cut
+
+sub postMatchProcessing {
+    my ($self) = @_;
+    my $cached_connection = $self->_cached_connection;
+    if($cached_connection) {
+        my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
+        $connection->unbind;
+        $self->_cached_connection(undef);
+    }
+}
+
+=head2 preMatchProcessing
+
+Setup any resouces need for matching
+
+=cut
+
+sub preMatchProcessing {
+    my ($self) = @_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
+    if (! defined($connection)) {
+        return undef;
+    }
+
+    my $result = $self->bind_with_credentials($connection);
+
+    if ($result->is_error) {
+        $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
+        return undef;
+    }
+    $self->_cached_connection([$connection, $LDAPServer, $LDAPServerPort]);
 }
 
 =head1 AUTHOR
