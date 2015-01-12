@@ -45,7 +45,7 @@ has_field 'type' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id ip type username password port openvas_configid openvas_reportformatid categories oses duration registration dot1x dot1x_type) ],
+   render_list => [ qw(id ip type username password port openvas_configid openvas_reportformatid categories oses duration pre_registration registration post_registration dot1x dot1x_type) ],
   );
 
 has_field 'openvas_configid' =>
