@@ -4426,6 +4426,12 @@ msgstr "Maintenance"
 msgid "maintenance.iplog_cleanup_interval"
 msgstr "Iplog Cleanup Interval"
 
+msgid "maintenance.iplog_cleanup_batch"
+msgstr "Iplog Cleanup Batch"
+
+msgid "maintenance.iplog_cleanup_timeout"
+msgstr "Iplog Cleanup Timeout"
+
 # conf/documentation.conf (maintenance.node_cleanup_interval)
 msgid "maintenance.node_cleanup_interval"
 msgstr "Node Cleanup Interval"
@@ -4433,6 +4439,14 @@ msgstr "Node Cleanup Interval"
 # conf/documentation.conf (maintenance.locationlog_cleanup_interval)
 msgid "maintenance.locationlog_cleanup_interval"
 msgstr "Locationlog Cleanup Interval"
+
+# conf/documentation.conf (maintenance.locationlog_cleanup_interval)
+msgid "maintenance.locationlog_cleanup_batch"
+msgstr "Locationlog Cleanup Batch"
+
+# conf/documentation.conf (maintenance.locationlog_cleanup_interval)
+msgid "maintenance.locationlog_cleanup_timeout"
+msgstr "Locationlog Cleanup Timeout"
 
 # conf/documentation.conf (maintenance.traplog_cleanup_interval)
 msgid "maintenance.traplog_cleanup_interval"
@@ -4469,6 +4483,10 @@ msgstr "Inline Accounting Maintenance Interval"
 # conf/documentation.conf (maintenance.acct_maintenance_interval)
 msgid "maintenance.acct_maintenance_interval"
 msgstr "Acct Maintenance Interval"
+
+# conf/documentation.conf (maintenance.acct_maintenance_interval)
+msgid "maintenance.provisioning_compliance_poll_interval"
+msgstr "Provisioning Compliance Poll Interval"
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "manage_deregister"

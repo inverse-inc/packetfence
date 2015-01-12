@@ -151,13 +151,13 @@ exit(0);
 sub registertasks  {
     register_task(
         'iplog cleanup','iplog_cleanup_interval',sub {
-            iplog_cleanup( $Config{'expire'}{'iplog'} )
+            iplog_cleanup( $Config{'expire'}{'iplog'} ,$Config{maintenance}{iplog_cleanup_batch},$Config{maintenance}{iplog_cleanup_timeout})
               if ( $Config{'expire'}{'iplog'} );
         }
     );
     register_task(
         'locationlog cleanup','locationlog_cleanup_interval',sub {
-            locationlog_cleanup( $Config{'expire'}{'locationlog'} )
+            locationlog_cleanup( $Config{'expire'}{'locationlog'}, $Config{maintenance}{locationlog_cleanup_batch},$Config{maintenance}{locationlog_cleanup_timeout})
               if ( $Config{'expire'}{'locationlog'} );
         }
     );

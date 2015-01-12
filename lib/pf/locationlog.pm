@@ -242,7 +242,7 @@ sub locationlog_db_prepare {
         qq [ UPDATE locationlog SET end_time = now() WHERE (ISNULL(end_time) or end_time = 0)]);
 
     $locationlog_statements->{'locationlog_cleanup_sql'} = get_db_handle()->prepare(
-        qq [ delete from locationlog where unix_timestamp(end_time) < (unix_timestamp(now()) - ?) and end_time != 0 ]);
+        qq [ delete from locationlog where end_time < DATE_SUB(?, INTERVAL ? SECOND) and end_time != 0 LIMIT ?]);
 
     $locationlog_db_prepared = 1;
 }
@@ -523,16 +523,24 @@ sub locationlog_close_all {
 }
 
 sub locationlog_cleanup {
-    my ($time) = @_;
+    my ($expire_seconds, $batch, $time_limit) = @_;
     my $logger = Log::Log4perl::get_logger('pf::locationlog');
-
-    $logger->debug("calling locationlog_cleanup with time=$time");
-    my $query = db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_cleanup_sql', $time)
+    $logger->debug("calling locationlog_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
+    my $now = db_now();
+    my $start_time = time;
+    my $end_time;
+    my $rows_deleted = 0;
+    while (1) {
+        my $query = db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_cleanup_sql', $now, $expire_seconds, $batch)
         || return (0);
-
-    my $rows = $query->rows;
-    $logger->log( ( ( $rows > 0 ) ? $INFO : $DEBUG ),
-        "deleted $rows entries from locationlog during locationlog cleanup" );
+        my $rows = $query->rows;
+        $query->finish;
+        $end_time = time;
+        $rows_deleted+=$rows if $rows > 0;
+        $logger->trace( sub { "deleted $rows_deleted entries from locationlog during locationlog cleanup ($start_time $end_time) " });
+        last if $rows == 0 || (( $end_time - $start_time) > $time_limit );
+    }
+    $logger->trace( "deleted $rows_deleted entries from locationlog during locationlog cleanup ($start_time $end_time) " );
     return (0);
 }
 

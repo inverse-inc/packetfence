@@ -38,7 +38,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query);
+    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now);
 
 }
 
@@ -330,6 +330,24 @@ sub db_query_execute {
     } else {
         return $db_statement;
     }
+}
+
+our $PREPARED_NOW_STMT;
+
+=item db_now
+
+Get the current timestamp of the mysql query
+
+=cut
+
+sub db_now {
+    my $dbh = get_db_handle();
+    $PREPARED_NOW_STMT = $dbh->prepare("SELECT NOW();") unless $PREPARED_NOW_STMT;
+    return unless $PREPARED_NOW_STMT->execute();
+    my $row = $PREPARED_NOW_STMT->fetch;
+    $PREPARED_NOW_STMT->finish;
+    return unless $row;
+    return $row->[0];
 }
 
 =item * db_cancel_current_query
