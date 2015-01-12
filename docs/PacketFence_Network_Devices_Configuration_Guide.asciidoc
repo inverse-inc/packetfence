@@ -1995,6 +1995,47 @@ Don't forget to permit address moves and the reauth period.  x represents the po
    
 (Thanks to Jean-Francois Laporte for this contribution)
 
+2610
+^^^^
+
+802.1X
+++++++
+
+Define the RADIUS server host:
+
+   radius-server host 192.168.1.5 key "useStrongerSecret"
+   radius-server host 192.168.1.5 acct-port 1813 key "useStrongerSecret"
+
+Define the SNMP configuration:
+
+   snmp-server host 192.168.1.5 community "public" informs trap-level not-info
+   no snmp-server enable traps link-change C1
+
+Configure the server-group:
+
+   aaa server-group radius "packetfence" host 192.168.1.5
+
+Configure authentication:
+
+   aaa authentication port-access eap-radius server-group "packetfence"
+   aaa authentication mac-based chap-radius server-group "packetfence"
+
+Configure the port-security:
+
+   port-security C1 learn-mode port-access action send-alarm
+
+Configuration of the port:
+
+   aaa port-access authenticator C1
+   aaa port-access authenticator C1 client-limit 1
+   aaa port-access authenticator active
+   aaa port-access mac-based C1
+   aaa port-access mac-based C1 addr-moves
+   aaa port-access mac-based C1 reauth-period 14400
+   aaa port-access C1 controlled-direction in   
+
+(Thanks to Denis Bonnenfant for this contribution)
+
 4100, 5300, 5400 Series
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -2029,7 +2070,6 @@ In order to have MAC Authentication working with VoIP, you need to ensure that t
 *Finally, make sure to change the value of the $VOICEVLANAME variable in the Procurve 5400 module's source code.*
 
 RADIUS configuration
-
   radius-server host 192.168.1.5 key strongKey
 
 MAC Authentication
