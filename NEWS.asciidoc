@@ -26,6 +26,7 @@ New Features
 * Added call to the web API from the vlan filters
 * Added a way to retrieve user information after the first registration.
 * Added the ability to filter profiles by connection type
+* Profiles can be matched by all or any of it's filters
 
 Enhancements
 ++++++++++++
