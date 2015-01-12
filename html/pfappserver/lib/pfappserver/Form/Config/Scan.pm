@@ -94,7 +94,7 @@ has_field 'duration' =>
 has_field 'registration' =>
   (
    type => 'Checkbox',
-   label => 'Scan on reg',
+   label => 'Scan on registration',
    tags => { after_element => \&help,
              help => 'If this option is enabled, the PF system will scan each host after registration is complete.' },
   );
@@ -110,7 +110,7 @@ has_field 'pre_registration' =>
 has_field 'post_registration' =>
   (
    type => 'Checkbox',
-   label => 'Scan after reg',
+   label => 'Scan after registration',
    tags => { after_element => \&help,
              help => 'If this option is enabled, the PF system will scan host after on the production vlan.' },
   );
