@@ -26,6 +26,7 @@ use pf::util;
 use pf::node;
 use pf::scan::wmi::rules;
 use pf::violation qw(violation_close);
+use pf::api::jsonrpcclient;
 
 sub description { 'WMI Scanner' }
 
@@ -55,7 +56,7 @@ sub new {
             '_policy'   => undef,
             '_type'     => undef,
             '_status'   => undef,
-            '_domain'   => undef;
+            '_domain'   => undef,
     }, $class;
 
     foreach my $value ( keys %data ) {
@@ -79,14 +80,22 @@ sub startScan {
  
     my $scan_vid = $pf::scan::POST_SCAN_VID;
     $scan_vid = $pf::scan::SCAN_VID if ($this->{'_registration'});
-    my $grace = violation_close($this->{'_scanMac'}, $scan_vid);
-    if ( $grace == -1 ) {
-        $logger->warn("Problem trying to close scan violation");
-            return;
+
+    if (!$result) {
+        $logger->warn("WMI scan doesnt start");
+        return $scan_vid;
     }
+
+    my $apiclient = pf::api::jsonrpcclient->new;
+    my %data = (
+       'vid' => $scan_vid,
+       'mac' => $this->{'_scanMac'},
+    );
+    $apiclient->notify('close_violation', %data );
 
     $this->setStatus($pf::scan::STATUS_CLOSED);
     $this->statusReportSyncToDb();
+    return 0;
 }
 
 =back

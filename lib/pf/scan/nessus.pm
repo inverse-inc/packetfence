@@ -94,9 +94,13 @@ sub startScan {
     }
     my $scanname = "pf-".$hostaddr."-".$nessus_clientpolicy;
     my $scanid = $n->scan_new($polid, $scanname, $hostaddr);
+
+    my $scan_vid = $pf::scan::POST_SCAN_VID;
+    $scan_vid = $pf::scan::SCAN_VID if ($this->{'_registration'});
+
     if ( $scanid eq "") {
         $logger->warn("Nessus scan doesnt start");
-        return 1;
+        return $scan_vid;
     }
     $logger->info("executing Nessus scan with this policy ".$nessus_clientpolicy);
     $this->{'_status'} = $pf::scan::STATUS_STARTED;
@@ -122,7 +126,7 @@ sub startScan {
     # Clean the report
     $this->{'_report'} = [ split("\n", $this->{'_report'}) ];
 
-    pf::scan::parse_scan_report($this);
+    pf::scan::parse_scan_report($this,$scan_vid);
 }
 
 =back
