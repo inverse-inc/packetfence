@@ -24,6 +24,7 @@ New Features
 * Add WiFi autoconfiguration for Windows through packetfence-windows-agent
 * Added a "Chained" authentication source where a user must first login in order to register by SMS,Email or SponsorEmail
 * Added call to the web API from the vlan filters
+* Added a way to retrieve user information after the first registration.
 
 Enhancements
 ++++++++++++

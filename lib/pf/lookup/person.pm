@@ -13,83 +13,44 @@ or as the content of a violation action
 
 Define this function to return whatever data you'd like.
 
-=head1 EXAMPLE
-
-  use Net::LDAP;
-  use Log::Log4perl;
-
-  sub lookup_person {
-      my ($pid) = @_;
-      my $logger = Log::Log4perl::get_logger('pf::lookup::person');
-
-      my $ldapserver = $Config{'lookup'}{'ldapserver'};
-      my $userdn     = $Config{'lookup'}{'userdn'};
-      my $username   = $Config{'lookup'}{'ldapuser'};
-      my $password   = $Config{'lookup'}{'ldappass'};
-
-      my $return = "";
-
-      if (person_exist($pid)) {
-
-          my $ldap = Net::LDAP->new($ldapserver, version=>3)
-              or die("Unable to contact $ldapserver!\n");
-
-          my $msg = $ldap->bind ( $username, 
-                                  password => $password, 
-                                  version  => 3);
-          my $searchresult = $ldap->search ( 
-              base => $userdn, 
-              filter => "(cn=$pid)"
-          );
-          my $entry = $searchresult->entry();
-
-          if (!$entry) {
-              $logger->info("pfcmd: pidinfo: unable to locate PID '$pid'");
-              $return = "Unable to locate PID '$pid'!\n";
-          } 
-          else {
-              my $name = $entry->get_value("cn");
-              my $address = $entry->get_value("postalAddress");
-              $address =~ s/\$/\n/g;
-              my $phone = $entry->get_value("telephoneNumber");
-              my $email = $entry->get_value("mail");
-
-              $return .= "Id : $pid\n";
-              $return .= "Name : $name\n" if ($name =~ /\W/);
-              $return .= "Address : $address\n" if ($address =~ /\W/);
-              $return .= "Phone : $phone\n" if ($phone =~ /\W/);
-              $return .= "Email : $email\n" if ($email =~ /\W/);
-
-              # If you want to alter the database, you can call person_modify here
-              #if ($name =~ /^(.+), (.+)$/) {
-              #     person_modify($pid, (firstname => $2, lastname => $1));
-              #}
-
-          }
-          $ldap->unbind();
-      }
-      else {
-          $return = "Person $pid is not a registered user!\n";
-      }
-
-      return $return;
-  }
-
 =cut
-
 
 use strict;
 use warnings;
+use Net::LDAP;
 
 use pf::person;
 
 sub lookup_person {
-    my ($pid) = @_;
-    if ( person_exist($pid) ) {
-        return ($pid);
-    } else {
-        return ("Person $pid is not a registered user!\n");
+    my ($pid,$source_id) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::lookup::person');
+    my $source = pf::authentication::getAuthenticationSource($source_id);
+    if (!$source) {
+       $logger->info("Unable to locate the source $source_id");
+       return "Unable to locate the source $source_id!\n";
+    } 
+    
+    unless (person_exist($pid)) {
+        return "Person $pid is not a registered user!\n";
     }
+    my $result = $source->search_attributes($pid);
+    if (!$result) {
+       $logger->info("Unable to locate PID in LDAP '$pid'");
+       return "Unable to locate PID in LDAP '$pid'!\n";
+    } 
+    # prepare to modify person's entry based on info found
+    my %person;
+    $person{'firstname'} = $result->get_value("givenName") if (defined($result->get_value("givenName")));
+    $person{'lastname'} = $result->get_value("sn") if (defined($result->get_value("sn")));
+    $person{'address'} = $result->get_value("physicalDeliveryOfficeName") if (defined($result->get_value("physicalDeliveryOfficeName")));
+    $person{'telephone'} = $result->get_value("telephoneNumber") if (defined($result->get_value("telephoneNumber")));
+    $person{'email'} = $result->get_value("mail") if (defined($result->get_value("mail")));
+    $person{'work_phone'} = $result->get_value("homePhone") if (defined($result->get_value("homePhone")));
+    $person{'cell_phone'} = $result->get_value("mobile") if (defined($result->get_value("mobile")));
+    $person{'company'} = $result->get_value("company") if (defined($result->get_value("company")));
+    $person{'title'} = $result->get_value("title") if (defined($result->get_value("title")));
+    
+    person_modify($pid, %person) if (%person);
 }
 
 =head1 AUTHOR

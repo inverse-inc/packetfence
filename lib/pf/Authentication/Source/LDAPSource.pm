@@ -404,6 +404,39 @@ sub bind_with_credentials {
     return $result;
 }
 
+=head2 search based on a attribute
+
+=cut
+
+sub search_attributes {
+    my ($self, $pid) = @_;
+    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+    my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
+    if (!defined($connection)) {
+      return ($FALSE, 'Unable to connect to the LDAP Server');
+    }
+    my $result = $self->bind_with_credentials($connection);
+  
+    if ($result->is_error) {
+      $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
+      return ($FALSE, 'Unable to validate credentials at the moment');
+    }
+    my $searchresult = $connection->search(
+                  base => $self->{'basedn'},
+                  filter => "($self->{'usernameattribute'}=$pid)"
+    );
+    my $entry = $searchresult->entry();
+    $connection->unbind();
+    
+    if (!$entry) {
+        $logger->warn("Unable to locate PID '$pid'");
+    }
+    else {
+         $logger->info("PID: '$pid' found in the directory");
+    }
+    return $entry;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
