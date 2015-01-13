@@ -73,7 +73,7 @@ has_field 'filter.contains' =>
 
 =head2 update_fields
 
-The redirection URL is mandatory for the default profile.
+Don't allow to edit the profile id when editing an existing profile.
 
 =cut
 
