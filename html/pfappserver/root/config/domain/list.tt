@@ -1,0 +1,37 @@
+      <table id="items" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
+        <thead>
+          <tr>
+            <th>[% l('Domain') %]</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH item IN items %]
+          <tr>
+            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td>
+              [%- IF can_access("DOMAIN_CREATE") %]
+              <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>
+              [%- END %]
+              [%- IF can_access("DOMAIN_DELETE") %]
+              <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
+              [%- END %]
+            </td>
+            <td>
+              [%- IF item.winbind_status == 0 %]
+              <span>Winbind is running</span>
+              [% ELSE %]
+              <span>Winbind is not running</span>
+              [% END %]
+            </td>
+            <td>
+              [% IF item.ntlm_auth_status == 0 %]
+              <span>Test ntlm_auth success!</span>
+              [% ELSE %]
+              <span>Test ntlm_auth fail!</span>
+              [% END %]
+            </td>
+          </tr>
+          [% END -%]
+        </tbody>
+      </table>
