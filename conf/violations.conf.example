@@ -195,6 +195,17 @@ actions=log
 enabled=N
 auto_enable=Y
 
+[1200005]
+priority=9
+desc=Pre Reg System Scan
+# someone should always be able to try to scan its system again
+max_enable=0
+grace=1h
+actions=log
+enabled=N
+auto_enable=Y
+vlan=registration
+
 #
 # 1300000 - 1399999 Reserved for PacketFence violations
 #
