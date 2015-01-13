@@ -22,6 +22,7 @@ use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::iplog();
 use pf::log();
+use pf::Portal::ProfileFactory();
 use pf::radius::custom();
 use pf::violation();
 use pf::soh::custom();
@@ -627,23 +628,37 @@ Return the parent function name
 
 sub whowasi { ( caller(2) )[3] }
 
-=head2 scan_run
+=head2 trigger_scan
 
-Launch the scan on the target device
+Check if we have to launch a scan for the device
 
 =cut
 
-sub scan_run : Public {
+sub trigger_scan : Public {
     my ($class, %postdata )  = @_;
-    my @require = qw(ip mac);
+    my @require = qw(ip mac net_type);
     my @found = grep {exists $postdata{$_}} @require;
     return unless @require == @found;
 
-    my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
-    # get violation id
-    my $vid = $top_violation->{'vid'};
+    # post_registration (production vlan)
+    if ($postdata{'net_type'} =~ /management|^dhcp-?listener$|managed/i) {
+        my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
+        # get violation id
+        my $vid = $top_violation->{'vid'};
 
-    pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid == $pf::scan::POST_SCAN_VID);
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid == $pf::scan::POST_SCAN_VID);
+    }
+    # pre_registration
+    else {
+        my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
+        my $scanner = $profile->findScan($postdata{'mac'});
+        if (pf::util::isenabled($scanner->{'pre_registration'})) {
+            pf::violation::violation_add( $postdata{'mac'}, $pf::scan::PRE_SCAN_VID );
+            my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
+            my $vid = $top_violation->{'vid'};
+            pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid == $pf::scan::PRE_SCAN_VID);
+        }
+    }
     return;
 }
 

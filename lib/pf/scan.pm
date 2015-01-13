@@ -26,7 +26,7 @@ BEGIN {
     use Exporter ();
     our (@ISA, @EXPORT, @EXPORT_OK);
     @ISA = qw(Exporter);
-    @EXPORT = qw(run_scan $SCAN_VID $POST_SCAN_VID $scan_db_prepared scan_db_prepare);
+    @EXPORT = qw(run_scan $SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID $scan_db_prepared scan_db_prepare);
     @EXPORT_OK = qw(scan_insert_sql scan_select_sql scan_update_status_sql);
 }
 
@@ -44,6 +44,7 @@ use pf::api::jsonrpcclient;
 
 Readonly our $SCAN_VID          => 1200001;
 Readonly our $POST_SCAN_VID     => 1200004;
+Readonly our $PRE_SCAN_VID      => 1200005;
 Readonly our $SEVERITY_HOLE     => 1;
 Readonly our $SEVERITY_WARNING  => 2;
 Readonly our $SEVERITY_INFO     => 3;

@@ -366,6 +366,14 @@ sub parse_dhcp_request {
             . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
         );
         update_iplog( $dhcp->{'chaddr'}, $client_ip, $lease_length );
+
+        my %data = (
+           'ip' => $client_ip,
+           'mac' => $dhcp->{'chaddr'},
+           'net_type' => $net_type,
+        );
+        $apiclient->notify('trigger_scan', %data );
+
         if(defined($lease_length)) {
             my $firewallsso = pf::firewallsso->new;
             $firewallsso->do_sso('Start',$dhcp->{'chaddr'}, $client_ip,$lease_length);
@@ -407,8 +415,9 @@ sub parse_dhcp_ack {
         my %data = (
            'ip' => $dhcp->{'yiaddr'},
            'mac' => $dhcp->{'chaddr'},
+           'net_type' => $net_type,
         );
-        $apiclient->notify('scan_run', %data ) if ($net_type =~ /management|^dhcp-?listener$|managed/i);
+        $apiclient->notify('trigger_scan', %data );
 
     } elsif ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
 
@@ -421,8 +430,9 @@ sub parse_dhcp_ack {
         my %data = (
            'ip' => $dhcp->{'ciaddr'},
            'mac' => $dhcp->{'chaddr'},
+           'net_type' => $net_type,
         );
-        $apiclient->notify('scan_run', %data ) if ($net_type =~ /management|^dhcp-?listener$|managed/i);
+        $apiclient->notify('trigger_scan', %data );
 
     } else {
         $logger->warn(
