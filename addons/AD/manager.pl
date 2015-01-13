@@ -14,6 +14,8 @@ use pf::ConfigStore::Domain;
 
 
 our $CONF_FILE = "/usr/local/pf/conf/domain.conf";
+our $TT_OPTIONS = {ABSOLUTE => 1};
+our $template = Template->new($TT_OPTIONS);
 
 sub register_new_domain {
   my $cfg = pf::ConfigStore::Domain->new;
@@ -71,6 +73,20 @@ sub register_new_domain {
 
 }
 
+sub rejoin_domain {
+  my $cfg = pf::ConfigStore::Domain->new;
+
+  print "Enter the friendly domain name : ";
+  my $domain = <STDIN>;
+  $domain =~ s/\n//g;
+
+  my $info = $cfg->read($domain);
+  if($info){
+    print system("ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
+    print system("ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
+  }
+}
+
 sub unjoin_domain {
   my $cfg = pf::ConfigStore::Domain->new;
   
@@ -97,8 +113,7 @@ sub unjoin_domain {
 sub generate_krb5_conf {
   my $vars = {domains => \%ConfigDomain};
 
-  my $template = Template->new;
-  my $data = $template->process("addons/AD/krb5.tt", $vars, "/etc/krb5.conf");
+  my $data = $template->process("/usr/local/pf/addons/AD/krb5.tt", $vars, "/etc/krb5.conf");
 }
 
 sub generate_smb_conf {
@@ -106,16 +121,14 @@ sub generate_smb_conf {
     my %vars = (domain => $domain);
     my %tmp = (%vars, %{$ConfigDomain{$domain}});
     %vars = %tmp;
-    my $template = Template->new;
-    $template->process("addons/AD/smb.tt", \%vars, "/etc/samba/$domain.conf"); 
+    $template->process("/usr/local/pf/addons/AD/smb.tt", \%vars, "/etc/samba/$domain.conf") || die $template->error();; 
   }
 }
 
 sub generate_init_conf {
   foreach my $domain (keys %ConfigDomain){
     my %vars = (domain => $domain);
-    my $template = Template->new;
-    $template->process("addons/AD/winbind.init.tt", \%vars, "/etc/init.d/winbind.$domain"); 
+    $template->process("/usr/local/pf/addons/AD/winbind.init.tt", \%vars, "/etc/init.d/winbind.$domain"); 
     pf_run("chmod ug+x /etc/init.d/winbind.$domain")
   } 
 }
@@ -126,8 +139,13 @@ sub generate_resolv_conf {
     my %vars = (domain => $domain);
     my %tmp = (%vars, %{$ConfigDomain{$domain}});
     %vars = %tmp;
-    my $template = Template->new;
-    $template->process("addons/AD/resolv.tt", \%vars, "/etc/netns/$domain/resolv.conf"); 
+    $template->process("/usr/local/pf/addons/AD/resolv.tt", \%vars, "/etc/netns/$domain/resolv.conf"); 
+  }  
+}
+
+sub restart_winbinds {
+  foreach my $domain (keys %ConfigDomain){
+    pf_run("/etc/init.d/winbind.$domain restart");
   }  
 }
 
@@ -146,10 +164,11 @@ sub regenerate_configuration {
   generate_smb_conf();
   generate_init_conf();
   generate_resolv_conf();
-  print pf_run("cp addons/AD/winbind.setup.init /etc/init.d/winbind.setup");
+  print pf_run("cp /usr/local/pf/addons/AD/winbind.setup.init /etc/init.d/winbind.setup");
   print pf_run("chkconfig winbind.setup on");
   print pf_run("/etc/init.d/winbind.setup restart");
   print pf_run("/usr/local/pf/bin/pfcmd service iptables restart");
+  restart_winbinds();
 }
 
 sub status {
@@ -171,7 +190,7 @@ sub status {
  
 }
 
-my %actions = ("join" => \&register_new_domain, "unjoin" => \&unjoin_domain, "refresh" => \&regenerate_configuration, "status" => \&status);
+my %actions = ("join" => \&register_new_domain, "unjoin" => \&unjoin_domain, "rejoin" => \&rejoin_domain, "refresh" => \&regenerate_configuration, "status" => \&status);
 
 if(defined($ARGV[0]) && exists $actions{$ARGV[0]}){
   $actions{$ARGV[0]}->();
