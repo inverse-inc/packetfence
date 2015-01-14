@@ -1,5 +1,6 @@
 package captiveportal;
 use Moose;
+use Moose::Util qw(apply_all_roles);
 use namespace::autoclean;
 use Log::Log4perl::Catalyst;
 
@@ -18,7 +19,6 @@ use Catalyst::Runtime 5.80;
 #                 directory
 
 use Catalyst qw/
-  -Debug
   ConfigLoader
   Static::Simple
   I18N
@@ -39,11 +39,19 @@ BEGIN {
     use pf::log service => 'httpd.portal', reinit => 1;
 }
 
+use captiveportal::Role::Request;
 use pf::config::cached;
 use pf::file_paths;
 use pf::CHI;
 
 extends 'Catalyst';
+
+Catalyst::Request->meta->make_mutable;
+
+#Apply a role for the Catalyst::Request object
+apply_all_roles('Catalyst::Request','captiveportal::Role::Request');
+
+Catalyst::Request->meta->make_immutable;
 
 our $VERSION = '0.01';
 
@@ -162,6 +170,7 @@ $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
 
 # Start the application
 __PACKAGE__->setup();
+
 
 =head1 NAME
 

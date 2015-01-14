@@ -106,7 +106,7 @@ sub login : Private {
     my ( $self, $c ) = @_;
     $c->stash(
         template => $pf::web::guest::SPONSOR_LOGIN_TEMPLATE,
-        username => encode_entities( $c->request->param("username") )
+        username => $c->request->param_encoded("username"),
     );
 }
 
