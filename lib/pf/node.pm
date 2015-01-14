@@ -910,7 +910,7 @@ sub node_register {
             # triggering a violation used to communicate the scan to the user
             if ( isenabled($scan->{'registration'})) {
                 violation_add( $mac, $SCAN_VID );
-            } else {
+            } elsif (isenabled($scan->{'post_registration'})) {
                 violation_add( $mac, $POST_SCAN_VID );
             }
         }

@@ -16,6 +16,7 @@ use warnings;
 
 use base qw(pf::api::attributes);
 use threads::shared;
+use pf::authentication();
 use pf::config();
 use pf::config::cached;
 use pf::ConfigStore::Interface();
@@ -42,6 +43,8 @@ use NetAddr::IP;
 use pf::factory::firewallsso;
 
 use pf::scan();
+use pf::person();
+use pf::lookup::person();
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -681,6 +684,70 @@ sub close_violation : Public {
         $logger->warn("Problem trying to close scan violation");
     }
     return;
+}
+
+=head2 dynamic_register_node
+
+Register a node based on mac username
+
+=cut
+
+sub dynamic_register_node : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac username);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless @require == @found;
+
+    my $logger = pf::log::get_logger();
+    my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
+    my $node_info = pf::node::node_view($postdata{'mac'});
+    my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
+    my $stripped_user = '';
+
+    $logger->warn($postdata{'username'});
+    my $params = {
+        username => $postdata{'username'},
+        connection_type => $node_info->{'last_connection_type'},
+        SSID => $node_info->{'last_ssid'},
+        stripped_user_name => $stripped_user,
+    };
+
+    my $source;
+    my $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, $source);
+    #Compute autoreg if we use autoreg
+    my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
+    if (defined $value) {
+        $logger->trace("No unregdate found - computing it from access duration");
+        $value = pf::config::access_duration($value);
+    }
+    else {
+        $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+    }
+    if (defined $value) {
+        my %info = (
+            'unregdate' => $value,
+            'category' => $role,
+            'autoreg' => 'yes',
+            'pid' => $postdata{'username'},
+        );
+        if (defined $role) {
+            %info = (%info, (category => $role));
+        }
+        # create a person entry for pid if it doesn't exist
+        if ( !pf::person::person_exist($postdata{'username'}) ) {
+            $logger->info("creating person $postdata{'username'} because it doesn't exist");
+            pf::person::person_add($postdata{'username'});
+            pf::lookup::person::lookup_person($postdata{'username'});
+        } else {
+            $logger->debug("person $postdata{'username'} already exists");
+        }
+        pf::person::person_modify($postdata{'username'},
+            'source'  => \$source,
+            'portal'  => $profile->getName,
+        );
+        pf::node::node_modify($postdata{'mac'},%info);
+        pf::node::node_register($postdata{'mac'}, $postdata{'pid'}, %postdata);
+    }
 }
 
 =head1 AUTHOR
