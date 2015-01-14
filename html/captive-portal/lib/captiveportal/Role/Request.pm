@@ -27,6 +27,14 @@ sub param_encoded {
     return encode_entities($self->param($param));
 }
 
+=head2 around param
+
+This was overridden to always return a single value
+
+See L<http://blog.gerv.net/2014/10/new-class-of-vulnerability-in-perl-web-applications/> for further information
+
+=cut
+
 around param => sub {
     my ($orig,$self,@args) = @_;
     return @args ? scalar $self->$orig(@args) : undef;
