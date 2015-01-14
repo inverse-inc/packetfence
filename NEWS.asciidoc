@@ -53,7 +53,7 @@ Bug Fixes
 * Fix wrong regex to detect ifindex in Cisco switches
 * Honor order of profiles when matching profile filters
 * Fixed URI based portal profiles
-* Removed XSS error in the portal
+* Fixed XSS vulnerabilities in the portal
 
 Version 4.5.1 released on 2014-11-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
