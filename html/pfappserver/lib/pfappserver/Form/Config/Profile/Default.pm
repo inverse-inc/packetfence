@@ -29,7 +29,19 @@ has_block 'definition' =>
    render_list => [ qw(id description logo redirecturl always_use_redirecturl reuse_dot1x_credentials billing_engine nbregpages) ],
   );
 
+has_block 'definition' =>
+  (
+   render_list => [ qw(id description reuse_dot1x_credentials billing_engine ) ],
+  );
+
+has_block 'captive_portal' =>
+  (
+   render_list => [ qw(logo redirecturl always_use_redirecturl nbregpages) ],
+  );
+
 has_field '+redirecturl' => ( required => 1 );
+
+has_field '+logo' => ( required => 1 );
 
 
 =head1 COPYRIGHT

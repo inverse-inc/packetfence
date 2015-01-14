@@ -61,7 +61,6 @@ has_field 'logo' =>
   (
    type => 'Text',
    label => 'Logo',
-   required => 1,
   );
 
 =head2 locale
