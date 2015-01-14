@@ -16,6 +16,12 @@ use warnings;
 use Moose::Role;
 use HTML::Entities qw(encode_entities);
 
+=head2 param_encoded
+
+Returns the parameter as the encoded value
+
+=cut
+
 sub param_encoded {
     my ($self,$param) = @_;
     return encode_entities($self->param($param));
