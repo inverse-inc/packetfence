@@ -74,7 +74,7 @@ sub test {
                     $logger->info("Match WMI ."$rule". rule: ".$test." for ". $rules->{'_scanMac'});
                     if ( defined($cfg{$test}->{'action'}) && $cfg{$test}->{'action'} ne '' ) {
                         last if ($cfg{$test}->{'action'} =~ /allow/i);
-                        $self->dispatchAction($cfg{$test},$rules);
+                        $self->dispatchAction($cfg{$test},$rules,shift $result);
                     }
                 }
             }
@@ -175,8 +175,8 @@ Return the reference to the function that call the api.
 =cut
 
 sub dispatchAction {
-    my ($self, $rule, $attributes) = @_;
-    my $param = $self->evalParam($rule->{'action_param'},$attributes->{_scanMac});
+    my ($self, $rule, $attributes, $result) = @_;
+    my $param = $self->evalParam($rule->{'action_param'}, $attributes->{_scanMac}, $result, $attributes->{'_domain'});
     my $apiclient = pf::api::jsonrpcclient->new;
     $apiclient->notify($rule->{'action'},%{$$param});
 }
@@ -188,19 +188,19 @@ evaluate action parameters
 =cut
 
 sub evalParam {
-    my ($self, $action_param, $mac) = @_;
+    my ($self, $action_param, $mac, $result, $realm) = @_;
     $action_param =~ s/\s//g;
     my @params = split(',', $action_param);
     my $return = {};
 
     foreach my $param (@params) {
         $param =~ s/(\$.*)/$1/gee;
+        $param =~ s/$realm\\//g;
         my @param_unit = split('=',$param);
         $return = { %$return, @param_unit };
     }
     return \$return;
 }
-
 
 =back
 
