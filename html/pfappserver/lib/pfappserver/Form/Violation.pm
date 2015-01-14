@@ -186,6 +186,13 @@ has_field 'redirect_url' =>
    tags => { after_element => \&help,
              help => 'Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the portal profile configuration.' }
   );
+has_field 'external_command' =>
+  (
+   type => 'Text',
+   label => 'External Command',
+   element_class => ['input-large'],
+   messages => { required => 'Please specify the command you want to execute.' },
+  );
 
 =head2 around has_errors
 
