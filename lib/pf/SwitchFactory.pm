@@ -36,6 +36,18 @@ tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
 my @SwitchRanges;
 tie @SwitchRanges, 'pfconfig::cached_array', 'resource::switches_ranges';
 
+#Loading all the switch modules ahead of time
+use Module::Pluggable
+  search_path => [qw(pf::Switch)],
+  'require' => 1,
+  sub_name    => 'modules';
+
+our @MODULES = __PACKAGE__->modules;
+
+our ($singleton);
+
+
+
 =head1 METHODS
 
 =over
@@ -142,13 +154,6 @@ sub instantiate {
     }
     $type = untaint_chain($type);
     # load the module to instantiate
-    if ( !(eval "$type->require()" ) ) {
-        $logger->error("Can not load perl module for switch $requestedSwitch, type: $type. "
-            . "Either the type is unknown or the perl module has compilation errors. "
-            . "Read the following message for details: $@");
-        return 0;
-    }
-    });
 
     my $result;
     pfconfig::timeme::timeme('creating', sub {
