@@ -28,14 +28,6 @@ has '+wrapper_class' => (builder => 'filter_wrapper_class');
 
 sub filter_wrapper_class {[qw(compound-input-btn-group)] }
 
-has_field 'match' =>
-  (
-   type => 'Text',
-   do_label => 0,
-   widget_wrapper => 'None',
-   element_class => ['input-medium'],
-   required => 1,
-  );
 has_field 'type' =>
   (
    type => 'Select',
@@ -44,6 +36,14 @@ has_field 'type' =>
    widget_wrapper => 'None',
    default => 'ssid',
    options_method => \&options_type,
+  );
+has_field 'match' =>
+  (
+   type => 'Text',
+   do_label => 0,
+   widget_wrapper => 'None',
+   element_class => ['input-medium'],
+   required => 1,
   );
 
 sub filter_inflate {
@@ -68,8 +68,9 @@ sub filter_deflate {
 }
 
 sub options_type {
+    my $self = shift;
     local $_;
-    return map { /([^:]+)$/; { value => $1, label => uc($1) } } sort @pf::factory::profile::filter::MODULES;
+    return map { /([^:]+)$/; { value => $1, label => $self->_localize($1) } } sort @pf::factory::profile::filter::MODULES;
 }
 
 =head1 COPYRIGHT

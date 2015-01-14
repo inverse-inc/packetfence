@@ -5905,7 +5905,7 @@ msgstr "Proxies"
 
 # pf::filter (Portal Profile Filters)
 msgid "realm"
-msgstr ""
+msgstr "Realm"
 
 # conf/documentation.conf (advanced.pfcmd_error_color options)
 # conf/documentation.conf (advanced.pfcmd_success_color options)
@@ -6237,11 +6237,11 @@ msgstr ""
 
 # pf::filter (Portal Profile Filters)
 msgid "switch"
-msgstr ""
+msgstr "Switch"
 
 # pf::filter (Portal Profile Filters)
 msgid "switch_port"
-msgstr ""
+msgstr "Switch Port"
 
 # pf::provisioner (Provisioners)
 msgid "symantec"
@@ -6343,7 +6343,7 @@ msgstr ""
 
 # pf::filter (Portal Profile Filters)
 msgid "uri"
-msgstr ""
+msgstr "URI"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
