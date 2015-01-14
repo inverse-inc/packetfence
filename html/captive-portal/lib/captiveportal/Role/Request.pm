@@ -32,38 +32,31 @@ around param => sub {
     return @args ? scalar $self->$orig(@args) : undef;
 };
 
-sub param_old {
-    my $self = shift;
 
-    if ( @_ == 0 ) {
-        return keys %{ $self->parameters };
-    }
 
-    if ( @_ == 1 ) {
+=head2 param_multiple
 
-        my $param = shift;
+Return multiple
 
-        unless ( exists $self->parameters->{$param} ) {
-            return wantarray ? () : undef;
-        }
+=cut
 
-        if ( ref $self->parameters->{$param} eq 'ARRAY' ) {
-            return (wantarray)
-              ? @{ $self->parameters->{$param} }
-              : $self->parameters->{$param}->[0];
-        }
-        else {
-            return (wantarray)
-              ? ( $self->parameters->{$param} )
-              : $self->parameters->{$param};
-        }
-    }
-    elsif ( @_ > 1 ) {
-        my $field = shift;
-        $self->parameters->{$field} = [@_];
-    }
+sub param_multiple {
+    my ($self,$param) = @_;
+    return () unless exists $self->parameters->{$param};
+    return @{ $self->parameters->{$param} };
 }
- 
+
+=head2 param_names
+
+Return the parameters names
+
+=cut
+
+sub param_names {
+    my ($self) = @_;
+    return keys %{ $self->parameters };
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
