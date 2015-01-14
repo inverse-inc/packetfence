@@ -69,8 +69,6 @@ ok($config->hasId("section7") && $config->cachedConfig->val("section7","param2")
 
 Inverse inc. <info@inverse.ca>
 
-Minor parts of this file may have been contributed. See CREDITS.
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2013 Inverse inc.

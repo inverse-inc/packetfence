@@ -1,27 +1,30 @@
-package pf::ConfigStore::Wrix;
+package pf::profile::filter::connection_type;
 =head1 NAME
 
-pf::ConfigStore::Wrix add documentation
+pf::profile::filter::connection_type - Class for connection_type
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Wrix
+pf::profile::filter::connection_type
 
 =cut
 
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
-use Text::CSV;
+extends 'pf::profile::filter::key';
 
-extends 'pf::ConfigStore';
+=head1 ATTRIBUTES
 
-has '+configFile' => (default => sub { $wrix_config_file  });
+=head2 key
 
+Setting the key to connection_type
 
+=cut
+
+has '+key' => ( default => sub { 'last_connection_type' } );
 
 =head1 AUTHOR
 
@@ -29,7 +32,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
@@ -51,4 +54,3 @@ USA.
 =cut
 
 1;
-
