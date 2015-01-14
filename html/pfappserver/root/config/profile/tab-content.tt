@@ -1,9 +1,15 @@
           [% form.block('definition').render %]
           [% IF form.field('filter') %]
           <div class="control-group">
-            <label class="control-label" for="sources">[% l('Filter') %] <i class="icon-exclamation-sign"></i> </label>
+            <label class="control-label" for="sources">[% l('Filters') %] <i class="icon-exclamation-sign"></i> </label>
             <div class="controls">
+            <dl>
+              <dt>[% l('If [_1] of the following conditions are met:', [ form.field('filter_match_style').render_element ]) %]</dt>
+              <dd>
+              <br/>
               [% form.field('filter').render %]
+              </dd>
+            </dl>
             </div>
           </div>
           [% END -%]
