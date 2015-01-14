@@ -26,3 +26,9 @@ ALTER TABLE violation ADD INDEX violation_release_date (release_date);
 --
 
 ALTER TABLE locationlog ADD INDEX locationlog_end_time (end_time);
+-- Alter Class for external_command
+--
+
+ALTER TABLE class
+    ADD `external_command` varchar(255) DEFAULT NULL;
+

@@ -19,6 +19,7 @@ CREATE TABLE class (
   vlan varchar(255),
   target_category varchar(255),
   delay_by int(11) NOT NULL default 0,
+  external_command varchar(255) DEFAULT NULL,
   PRIMARY KEY (vid)
 ) ENGINE=InnoDB;
 

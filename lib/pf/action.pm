@@ -23,6 +23,7 @@ use warnings;
 use Log::Log4perl;
 use Readonly;
 use pf::node;
+use pf::util;
 
 use constant ACTION => 'action';
 
@@ -46,9 +47,7 @@ Readonly::Array our @VIOLATION_ACTIONS =>
    $EMAIL,
    $TRAP,
    $LOG,
-   # remove the external action from the selection since it's bug in the admin gui
-   # it needs to be created with a suffix id and create a path in pf.conf [path.external<id>]
-   #$EXTERNAL,
+   $EXTERNAL,
    $WINPOPUP,
    $CLOSE,
    $ROLE,
@@ -167,14 +166,11 @@ sub action_delete_all {
 
 # TODO what is that? Isn't it dangerous?
 sub action_api {
-    my ($mac, $vid, $external_id) = @_;
+    my ($mac, $vid) = @_;
     my $class_info = class_view($vid);
-    my @args =
-      (
-       $Config{'paths'}{ 'external' . $external_id },
-       $mac, $class_info->{'description'}
-    );
-    system(@args);
+    my $cmd = "LANG=C sudo $class_info->{'external_command'} 2>&1";
+    my @lines  = pf_run($cmd);
+
 }
 
 sub action_execute {
@@ -194,8 +190,8 @@ sub action_execute {
             action_email( $mac, $vid, $notes );
         } elsif ( $action eq $LOG ) {
             action_log( $mac, $vid );
-        } elsif ( $action =~ /^$EXTERNAL(\d+)$/ ) {
-            action_api( $mac, $vid, $1 );
+        } elsif ( $action eq $EXTERNAL ) {
+            action_api( $mac, $vid );
         } elsif ( $action eq $WINPOPUP ) {
             action_winpopup( $mac, $vid );
         } elsif ( $action eq $AUTOREG ) {
