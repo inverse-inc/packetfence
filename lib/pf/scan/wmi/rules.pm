@@ -195,6 +195,7 @@ sub evalParam {
 
     foreach my $param (@params) {
         $param =~ s/(\$.*)/$1/gee;
+        #We remove the realm from the return value
         $param =~ s/$realm\\//g;
         my @param_unit = split('=',$param);
         $return = { %$return, @param_unit };

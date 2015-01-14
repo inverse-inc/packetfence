@@ -45,6 +45,7 @@ use pf::factory::firewallsso;
 use pf::scan();
 use pf::person();
 use pf::lookup::person();
+use pf::enforcement();
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -648,7 +649,7 @@ sub trigger_scan : Public {
         my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
         # get violation id
         my $vid = $top_violation->{'vid'};
-
+        sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
         pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid == $pf::scan::POST_SCAN_VID);
     }
     # pre_registration
@@ -659,6 +660,7 @@ sub trigger_scan : Public {
             pf::violation::violation_add( $postdata{'mac'}, $pf::scan::PRE_SCAN_VID );
             my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
             my $vid = $top_violation->{'vid'};
+            sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
             pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid == $pf::scan::PRE_SCAN_VID);
         }
     }
@@ -704,7 +706,6 @@ sub dynamic_register_node : Public {
     my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
     my $stripped_user = '';
 
-    $logger->warn($postdata{'username'});
     my $params = {
         username => $postdata{'username'},
         connection_type => $node_info->{'last_connection_type'},
@@ -729,24 +730,15 @@ sub dynamic_register_node : Public {
             'category' => $role,
             'autoreg' => 'yes',
             'pid' => $postdata{'username'},
+            'source'  => \$source,
+            'portal'  => $profile->getName,
+            'status' => 'reg',
         );
         if (defined $role) {
             %info = (%info, (category => $role));
         }
-        # create a person entry for pid if it doesn't exist
-        if ( !pf::person::person_exist($postdata{'username'}) ) {
-            $logger->info("creating person $postdata{'username'} because it doesn't exist");
-            pf::person::person_add($postdata{'username'});
-            pf::lookup::person::lookup_person($postdata{'username'});
-        } else {
-            $logger->debug("person $postdata{'username'} already exists");
-        }
-        pf::person::person_modify($postdata{'username'},
-            'source'  => \$source,
-            'portal'  => $profile->getName,
-        );
-        pf::node::node_modify($postdata{'mac'},%info);
-        pf::node::node_register($postdata{'mac'}, $postdata{'pid'}, %postdata);
+        pf::node::node_register($postdata{'mac'}, $postdata{'username'}, %info);
+        pf::enforcement::reevaluate_access( $postdata{'mac'}, 'manage_register' );
     }
 }
 
