@@ -985,6 +985,7 @@ sub portal_profiles {
         }
 
         my %external;
+        # Verifing there is only one external source of each type
         foreach my $source ( grep { $_ && $_->class eq 'external' } map { pf::authentication::getAuthenticationSource($_) } @{$data->{'sources'}} ) {
             my $type = $source->{'type'};
             $external{$type} = 0 unless (defined $external{$type});
