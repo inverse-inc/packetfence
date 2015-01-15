@@ -459,7 +459,9 @@ sub authenticationLogin : Private {
         my $mac       = $portalSession->clientMac;
         my $node_info = node_view($mac);
         my $username = $node_info->{'last_dot1x_username'};
-        if ($username =~ /^(.*)@/ || $username =~ /^[^\/]+\/(.*)$/ ) {
+        #Strip the username when using machine auth
+        #TODO Do we config stripping the username for machine and user auth
+        if ( $username =~ /^[^\/]+\/(.*)$/ ) {
             $username = $1;
         }
         $c->session(
