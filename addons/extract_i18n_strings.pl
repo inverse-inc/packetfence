@@ -367,7 +367,7 @@ sub extract_modules {
     @values = sort grep {$_} map { /^pf::provisioner::(.*)/; $1 } @pf::factory::provisioner::MODULES;
     const('pf::provisioner', 'Provisioners', \@values);
 
-    @values = sort grep {$_} map { /^pf::profile::filter::(.*)/; $1 } @pf::factory::profile::filter::MODULES;
+    @values = sort @pf::factory::profile::filter::MODULES;
     const('pf::filter', 'Portal Profile Filters', \@values);
 
     @values = sort grep {$_} map { /^pf::firewallsso::(.*)/; $1 } @pf::factory::firewallsso::MODULES;

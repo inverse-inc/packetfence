@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.6.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-01-12 21:34-0400\n"
+"PO-Revision-Date: 2015-01-15 11:31-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -5731,7 +5731,6 @@ msgid "nessus"
 msgstr "Nessus"
 
 # conf/documentation.conf
-# pf::filter (Portal Profile Filters)
 msgid "network"
 msgstr "Network"
 
@@ -5831,6 +5830,42 @@ msgstr "Other"
 msgid "pending"
 msgstr "pending"
 
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::connection_type"
+msgstr "Connection Type"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::network"
+msgstr "Network"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::port"
+msgstr "Port"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::realm"
+msgstr "Realm"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::ssid"
+msgstr "SSID"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::switch"
+msgstr "Switch"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::switch_port"
+msgstr "Switch Port"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::uri"
+msgstr "URI"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::vlan"
+msgstr "VLAN"
+
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "pfcmd_vlan"
 msgstr ""
@@ -5846,7 +5881,6 @@ msgstr ""
 
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
-# pf::filter (Portal Profile Filters)
 msgid "port"
 msgstr "Port"
 
@@ -5902,10 +5936,6 @@ msgstr "SSID"
 # conf/documentation.conf
 msgid "proxies"
 msgstr "Proxies"
-
-# pf::filter (Portal Profile Filters)
-msgid "realm"
-msgstr "Realm"
 
 # conf/documentation.conf (advanced.pfcmd_error_color options)
 # conf/documentation.conf (advanced.pfcmd_success_color options)
@@ -6210,7 +6240,6 @@ msgid "sponsor_email"
 msgstr ""
 
 # pf::config (Inline triggers)
-# pf::filter (Portal Profile Filters)
 # pfappserver::Controller::Graph (ssid fields)
 msgid "ssid"
 msgstr "Wi-Fi Network SSID"
@@ -6234,14 +6263,6 @@ msgstr ""
 # conf/documentation.conf (trapping.detection_engine options)
 msgid "suricata"
 msgstr ""
-
-# pf::filter (Portal Profile Filters)
-msgid "switch"
-msgstr "Switch"
-
-# pf::filter (Portal Profile Filters)
-msgid "switch_port"
-msgstr "Switch Port"
 
 # pf::provisioner (Provisioners)
 msgid "symantec"
@@ -6341,10 +6362,6 @@ msgstr "Deregister node"
 msgid "up2date"
 msgstr ""
 
-# pf::filter (Portal Profile Filters)
-msgid "uri"
-msgstr "URI"
-
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
 msgstr ""
@@ -6394,7 +6411,6 @@ msgid "violation_modify"
 msgstr ""
 
 # conf/documentation.conf (interface.enforcement options)
-# pf::filter (Portal Profile Filters)
 msgid "vlan"
 msgstr "SNMP"
 

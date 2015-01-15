@@ -70,7 +70,7 @@ sub filter_deflate {
 sub options_type {
     my $self = shift;
     local $_;
-    return map { /([^:]+)$/; { value => $1, label => $self->_localize($1) } } sort @pf::factory::profile::filter::MODULES;
+    return map { /([^:]+)$/; { value => $1, label => $self->_localize($_) } } sort @pf::factory::profile::filter::MODULES;
 }
 
 =head1 COPYRIGHT
