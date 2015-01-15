@@ -17,6 +17,8 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config;
 use pf::util;
 
+has domains => ( is => 'rw');
+
 ## Definition
 has_field 'id' =>
   (
@@ -35,6 +37,40 @@ has_field 'options' =>
    tags => { after_element => \&help,
              help => 'You can add options in the realm definition' },
   );
+
+has_field 'domain' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'Domain',
+   options_method => \&options_domains,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to select a domain'},
+   tags => { after_element => \&help,
+             help => 'The domain to use for the authentication in that realm' },
+  );
+
+=head2 options_roles
+
+=cut
+
+sub options_domains {
+    my $self = shift;
+    my @domains = map { $_->{id} => $_->{id} } @{$self->form->domains} if ($self->form->domains);
+    return @domains;
+}
+
+=head2 ACCEPT_CONTEXT
+
+To automatically add the context to the Form
+
+=cut
+
+sub ACCEPT_CONTEXT {
+    my ($self, $c, @args) = @_;
+    my (undef, $domains) = $c->model('Config::Domain')->readAll();
+    return $self->SUPER::ACCEPT_CONTEXT($c, domains => $domains, @args);
+}
 
 
 =over

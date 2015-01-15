@@ -16,6 +16,7 @@ use namespace::autoclean;
 
 use pf::config::cached;
 use pf::util;
+use pf::domain;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -28,12 +29,14 @@ __PACKAGE__->config(
         # Reconfigure the object action from pfappserver::Base::Controller::Crud
         object => { Chained => '/', PathPart => 'config/domain', CaptureArgs => 1 },
         # Configure access rights
-        view   => { AdminRole => 'DOMAIN_READ' },
-        list   => { AdminRole => 'DOMAIN_READ' },
-        create => { AdminRole => 'DOMAIN_CREATE' },
-        clone  => { AdminRole => 'DOMAIN_CREATE' },
-        update => { AdminRole => 'DOMAIN_UPDATE' },
-        remove => { AdminRole => 'DOMAIN_DELETE' },
+        view            => { AdminRole => 'DOMAIN_READ' },
+        list            => { AdminRole => 'DOMAIN_READ' },
+        create          => { AdminRole => 'DOMAIN_CREATE' },
+        clone           => { AdminRole => 'DOMAIN_CREATE' },
+        update          => { AdminRole => 'DOMAIN_UPDATE' },
+        refresh_domains => { AdminRole => 'DOMAIN_UPDATE' },
+        rejoin          => { AdminRole => 'DOMAIN_UPDATE' },
+        remove          => { AdminRole => 'DOMAIN_DELETE' },
     },
     action_args => {
         # Setting the global model and form for all actions
@@ -58,8 +61,15 @@ after [qw(create clone)] => sub {
 
 after [qw(create update)] => sub {
     my ($self, $c) = @_;
-    $c->model('Config::Domain')->configStore->commit;
-    $c->log->warn("ZI OUTPUT : ".pf_run("sudo /usr/local/pf/addons/AD/manager.pl refresh"));
+    if($c->request->method eq 'POST' ){
+        pf::domain::regenerate_configuration();
+        pf::domain::join_domain($c->req->param('id'));
+    }
+};
+
+before [qw(remove)] => sub{
+    my ($self, $c) = @_;
+    pf::domain::unjoin_domain($c->stash->{'id'});
 };
 
 =head2 after view
@@ -81,15 +91,11 @@ after view => sub {
 after list => sub {
     my ($self, $c) = @_;
 
-    use Data::Dumper;
     # now we add additionnal information in the hash
 
     foreach my $item (@{$c->stash->{items}}) {
-      $c->log->info(Dumper($item));
       ($item->{winbind_status}, $item->{winbind_output}, $item->{ntlm_auth_status}, $item->{ntlm_auth_output}) = $c->model('Config::Domain')->status($item->{id});
     }
-
-    $c->log->info(Dumper($c->stash()));
 
 };
 
@@ -103,6 +109,33 @@ sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
     $c->forward('list');
+}
+
+=head2 refresh_domains
+
+Usage: /config/domain/refresh_domains
+
+=cut
+
+sub refresh_domains :Local {
+    my ($self, $c) = @_;
+    pf::domain::regenerate_configuration();
+    $c->stash->{status_msg} = "Refreshed the domains";
+    $c->stash->{current_view} = 'JSON';
+}
+
+=head2 rejoin
+
+Usage: /config/domain/rejoin/:domainId
+
+=cut
+
+
+sub rejoin :Local :Args(1) {
+    my ($self, $c, $domain) = @_;
+    pf::domain::rejoin_domain($domain);
+    $c->stash->{status_msg} = "Rejoined the domain";
+    $c->stash->{current_view} = 'JSON';
 }
 
 =head1 COPYRIGHT

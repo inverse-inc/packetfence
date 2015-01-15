@@ -11,6 +11,7 @@
   <div class="modal-body">
         [% form.field('id').render UNLESS item.id %]
         [% form.field('options').render %]
+        [% form.field('domain').render %]
   </div><!--modal-body-->
 
   <div class="modal-footer">

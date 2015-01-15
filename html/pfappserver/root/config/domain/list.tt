@@ -10,26 +10,27 @@
           <tr>
             <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
             <td>
+              [%- IF item.winbind_status == 0 %]
+              <span class="label label-success">Winbind is running</span>
+              [% ELSE %]
+              <span class="label label-important">Winbind is not running</span>
+              [% END %]
+              [% IF item.ntlm_auth_status == 0 %]
+              <span class="label label-success">Test ntlm_auth success!</span>
+              [% ELSE %]
+              <span class="label label-important">Test ntlm_auth fail!</span>
+              [% END %]
+            </td>
+            <td>
               [%- IF can_access("DOMAIN_CREATE") %]
               <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>
+              [%- END %]
+              [%- IF can_access("DOMAIN_UPDATE") %]
+              <a class="btn btn-mini btn-danger" href="javascript:void(0)" onclick="javascript:rejoin_domain(this)">[% l('Rejoin') %]</a>
               [%- END %]
               [%- IF can_access("DOMAIN_DELETE") %]
               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
               [%- END %]
-            </td>
-            <td>
-              [%- IF item.winbind_status == 0 %]
-              <span>Winbind is running</span>
-              [% ELSE %]
-              <span>Winbind is not running</span>
-              [% END %]
-            </td>
-            <td>
-              [% IF item.ntlm_auth_status == 0 %]
-              <span>Test ntlm_auth success!</span>
-              [% ELSE %]
-              <span>Test ntlm_auth fail!</span>
-              [% END %]
             </td>
           </tr>
           [% END -%]
