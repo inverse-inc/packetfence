@@ -1,3 +1,4 @@
+
       <div class="modal fade hide" id="modalItem">
       </div>
 
@@ -23,57 +24,6 @@
       [%- IF can_access("DOMAIN_CREATE") %]
         <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Domain') %]</a>
       [%- END %]
-        <a class="btn btn-default" id="refresh_domains" href="javascript:void(0)" onclick="javascript:refresh_domains()">[% l('Refresh domain configuration') %]</a>
+        <a class="btn btn-default" id="refresh_domains" href="[% c.uri_for(c.controller.action_for('refresh_domains')) %]">[% l('Refresh domain configuration') %]</a>
       </div>
-<script>
-function refresh_domains() {
-    var initial_content = $('#refresh_domains').html();
-    $('#refresh_domains').attr('disabled', 'disabled');
-    $('#refresh_domains').html("[% l('Refreshing domains') %]");
-    $.ajax({
-        'url'   : "[% c.uri_for(c.controller.action_for('refresh_domains')) %]",
-        'type'  : "GET",
-        })
-        .success(function(data) {
-            console.log(data);
-            $("body,html").animate({scrollTop:0}, 'fast');
-            showSuccess($('#section h2'), data.status_msg);
-            $('#refresh_domains').html(initial_content);
-            $('#refresh_domains').removeAttr('disabled');
-        })
-        .fail(function(jqXHR) {
-            $("body,html").animate({scrollTop:0}, 'fast');
-            var status_msg = getStatusMsg(jqXHR);
-            showError($('#section h2'), status_msg);
-            $('#refresh_domains').html(initial_content);
-            $('#refresh_domains').removeAttr('disabled');
-        });
 
-}
-
-function rejoin_domain(btn) {
-    var jbtn = $(btn);
-    var initial_content = jbtn.html();
-    jbtn.attr('disabled', 'disabled');
-    jbtn.html("[% l('Rejoining domain') %]");
-    $.ajax({
-        'url'   : "[% c.uri_for(c.controller.action_for('rejoin')) %]",
-        'type'  : "GET",
-        })
-        .success(function(data) {
-            console.log(data);
-            $("body,html").animate({scrollTop:0}, 'fast');
-            showSuccess($('#section h2'), data.status_msg);
-            jbtn.html(initial_content);
-            jbtn.removeAttr('disabled');
-        })
-        .fail(function(jqXHR) {
-            $("body,html").animate({scrollTop:0}, 'fast');
-            var status_msg = getStatusMsg(jqXHR);
-            showError($('#section h2'), status_msg);
-            jbtn.html(initial_content);
-            jbtn.removeAttr('disabled');
-        });
-
-}
-</script>

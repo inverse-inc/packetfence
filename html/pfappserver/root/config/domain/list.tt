@@ -26,7 +26,7 @@
               <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>
               [%- END %]
               [%- IF can_access("DOMAIN_UPDATE") %]
-              <a class="btn btn-mini btn-danger" href="javascript:void(0)" onclick="javascript:rejoin_domain(this)">[% l('Rejoin') %]</a>
+              <a class="rejoin_domain btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('rejoin'), [ item.id ]) %]">[% l('Rejoin') %]</a>
               [%- END %]
               [%- IF can_access("DOMAIN_DELETE") %]
               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
