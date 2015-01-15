@@ -39,6 +39,7 @@ Enhancements
 * The ability to restricts the roles, access levels and access durations for an admin users based on their admin role/access level
 * Reduce deadlocks caused by the cleaning of the iplog table
 * Reduce deadlocks caused by the cleaning of the locationlog table
+* Only strip user name for machine auth
 
 Bug Fixes
 +++++++++
