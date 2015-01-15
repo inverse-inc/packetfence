@@ -167,10 +167,23 @@ sub action_delete_all {
 # TODO what is that? Isn't it dangerous?
 sub action_api {
     my ($mac, $vid) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::action');
     my $class_info = class_view($vid);
-    my $cmd = "LANG=C sudo $class_info->{'external_command'} 2>&1";
-    my @lines  = pf_run($cmd);
+    my @params = split(' ', $class_info->{'external_command'});
+    my $return;
+    my $node_info = node_view($mac);
+    my $ip = pf::iplog::mac2ip($mac) || 0;
+    $node_info = {%$node_info, 'last_ip' => $ip};
+    foreach my $param (@params) {
+        $param =~ s/\$(.*)/$node_info->{$1}/ge;
+        $return .= $param." ";
+    }
+    $logger->warn($return);
 
+    my $cmd = "LANG=C sudo $return 2>&1";
+
+    my @lines  = pf_run($cmd);
+    return;
 }
 
 sub action_execute {
