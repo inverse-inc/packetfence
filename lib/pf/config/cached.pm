@@ -622,8 +622,6 @@ sub _makeLocker {
     my $lockfile = _makeFileLock($file);
     umask 0;
     sysopen(my $fh,$lockfile,O_CREAT|O_RDWR,0660);
-#    my (undef,undef,$uid,$gid) = getpwnam('pf');
-#    chown($uid,$gid,$lockfile);
     return pf::FileLocker->new( fh => $fh);
 }
 
