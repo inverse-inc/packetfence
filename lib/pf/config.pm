@@ -695,7 +695,7 @@ sub readProfileConfigFile {
                             push @filterObjects, pf::factory::profile::filter->instantiate($profile_id,$filter);
                         }
                         if(defined ($profile->{filter_match_style}) && $profile->{filter_match_style} eq 'all') {
-                            push @Profile_Filters,  pf::profile::filter::all->new(profile => $profile_id, value => \@filterObjects);
+                            push @Profile_Filters, pf::profile::filter::all->new(profile => $profile_id, value => \@filterObjects);
                         } else {
                             push @Profile_Filters,@filterObjects;
                         }
