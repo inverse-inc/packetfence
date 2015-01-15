@@ -47,7 +47,9 @@ stop() {
     base="/etc/init.d/winbind."
     for name in $base*;do
       domain=${name/$base/}
-      ip netns delete $domain
+      if [ "$domain" != "setup" ];then
+        ip netns delete $domain
+      fi
     done   
 }
 
