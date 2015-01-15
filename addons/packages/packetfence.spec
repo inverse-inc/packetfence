@@ -226,7 +226,7 @@ Requires: perl(File::Slurp)
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
 Requires: perl(Moose) <= 2.1005
-Requires: perl(CHI) >= 0.56
+Requires: perl(CHI) >= 0.59
 Requires: perl(Data::Serializer)
 Requires: perl(Data::Structure::Util)
 Requires: perl(Data::Swap)

@@ -92,21 +92,27 @@ sub loadViolationsIntoDb {
 }
 
 $cached_violations_config = pf::config::cached->new(
-    -file => $violations_config_file,
-    -allowempty => 1,
-    -default => 'defaults',
-    -onfilereload => [file_reload_violation_config => \&fileReloadViolationConfig ],
-    -onfilereloadonce => [ file_reload_once_violation_config => \&loadViolationsIntoDb ],
+    -file         => $violations_config_file,
+    -allowempty   => 1,
+    -default      => 'defaults',
+    -onfilereload => [
+        file_reload_violation_config => sub {
+            my ($config, $name) = @_;
+            fileReloadViolationConfig($config, $name);
+            loadViolationsIntoDb($config, $name);
+          }
+    ],
     -oncachereload => [
         cache_reload_violation_config => sub {
-            my ($config,$name) = @_;
+            my ($config, $name) = @_;
             my $data = $config->fromCacheForDataUntainted("Violation_Config");
-            if($data) {
+            if ($data) {
                 %Violation_Config = %$data;
-            } else {
-                $config->_callFileReloadCallbacks();
             }
-        }
+            else {
+                fileReloadViolationConfig($config, $name);
+            }
+          }
     ],
 );
 
