@@ -1,13 +1,15 @@
-package pf::profile::filter::profile::filter::all;
+package pf::profile::filter::all;
 =head1 NAME
 
-pf::profile::filter::profile::filter::all - Class for profile::filter::all
+pf::profile::filter::all - Class for profile::filter::all
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::profile::filter::all
+pf::profile::filter::all
+
+This is an internal filter to match sub filters
 
 =cut
 
