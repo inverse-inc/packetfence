@@ -463,6 +463,7 @@ sub authenticationLogin : Private {
         #TODO Do we config stripping the username for machine and user auth
         if ( $username =~ /^[^\/]+\/(.*)$/ ) {
             $username = $1;
+            $logger->warn("Reuse Dot1x has been enabled on this portal, here the username from 802.1x connection ".$node_info->{'last_dot1x_username'}." , here the stripped username $username");
         }
         $c->session(
             "username"  => $username,
