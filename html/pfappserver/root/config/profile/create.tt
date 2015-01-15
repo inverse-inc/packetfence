@@ -36,7 +36,7 @@
         </li>
       </ul>
       <div class="tab-pane fade in active" id="settings">
-      [% INCLUDE 'config/profile/tab-content.tt' tab='settings' %]
+        [% INCLUDE 'config/profile/tab-content.tt' tab='settings' %]
       </div>
       <div class="tab-pane fade in [% 'active' IF tab == 'captive-portal' %]" id="captive-portal">
       [% INCLUDE 'config/profile/captive-portal-settings.tt' tab='settings' %]
