@@ -1,12 +1,10 @@
 =head1 NAME
 
-profile/filter/all.t
-
-=cut
+t/profile/filter/all.t
 
 =head1 DESCRIPTION
 
-value
+Test for pf::profile::filter::all module
 
 =cut
 
@@ -41,7 +39,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
