@@ -36,7 +36,6 @@ $pf::ConfigStore::Switch::switches_cached_config->addCacheReloadCallbacks(
     pf::CHI->clear_memoized_cache_objects;
     db_disconnect();
 }
-#    local $pf::config::cached::NO_DESTROY = 1;
 
 for (1 .. 30) {
     my $pid = fork;
