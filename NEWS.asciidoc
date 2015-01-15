@@ -33,8 +33,8 @@ Enhancements
 * Added httpd.aaa service as a new API service for the exclusive use of RADIUS
 * More precisely define which dhcp message types we are listening for
 * Removed dead code referring to 'external' interface type which was, anyway, no longer supported
-* Added vlan filter in getNodeInfoForAutoReg and update/create person even if the device has been autoreg
-* Refactor the vlan filter code to reduce code duplication
+* Added VLAN filter in getNodeInfoForAutoReg and update/create person even if the device has been autoreg
+* Refactor the VLAN filter code to reduce code duplication
 * Added IMG path configuration parameter in admin
 * The ability to restricts the roles, access levels and access durations for an admin users based on their admin role/access level
 * Reduce deadlocks caused by the cleaning of the iplog table
