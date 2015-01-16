@@ -33,7 +33,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description reuse_dot1x_credentials)],
+    render_list => [qw(id description reuse_dot1x_credentials billing_engine)],
   );
 
 =head2 captive_portal
@@ -44,7 +44,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl billing_engine nbregpages)],
+    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages)],
   );
 
 =head1 Fields
