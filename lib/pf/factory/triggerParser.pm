@@ -14,7 +14,7 @@ pf::factory::triggerParser
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::triggerParser', sub_name => 'modules' , require => 1;
+use Module::Pluggable search_path => 'pf::triggerParser', 'sub_name' => 'modules' , 'require' => 1, except => qr/^pf::triggerParser::roles/;
 use List::MoreUtils qw(any);
 
 our @MODULES = __PACKAGE__->modules;
