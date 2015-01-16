@@ -56,7 +56,6 @@ Bug Fixes
 * Honor order of profiles when matching profile filters
 * Fixed URI based portal profiles
 * Fixed XSS vulnerabilities in the portal
-* Fixed issue with cache reloading increasing memory usage while reloading the cache
 
 Version 4.5.1 released on 2014-11-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

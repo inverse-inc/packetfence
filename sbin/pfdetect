@@ -138,8 +138,8 @@ while (<$snortpipe_fh>) {
         $logger->warn(
             "pfdetect: $srcip MAC NOT FOUND for violation $sid [$descr]");
     }
-    #refresh all cached configs after each iteration
-    pf::config::cached::RefreshConfigs();
+    #reload all cached configs after each iteration
+    pf::config::cached::ReloadConfigs();
 }
 
 END {

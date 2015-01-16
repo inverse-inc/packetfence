@@ -63,9 +63,6 @@ Hash::Merge::specify_behavior(
 our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay);
 
 our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1) or die;
-
-our %DATASTORE;
-
 our %DEFAULT_CONFIG = (
     'namespace' => {
         map { $_ => { 'storage' => $_ } } @CACHE_NAMESPACES
@@ -74,7 +71,7 @@ our %DEFAULT_CONFIG = (
     'defaults'              => {'serializer' => 'Sereal'},
     'storage'               => {
         'raw' => {
-            'datastore' => \%DATASTORE,
+            'global' => '1',
             'driver' => 'RawMemory'
         },
         'memcached' => {

@@ -98,7 +98,7 @@ __PACKAGE__->config(
 );
 
 before handle_request => sub {
-    pf::config::cached::RefreshConfigs();
+    pf::config::cached::ReloadConfigs();
 };
 
 sub loadCustomStatic {
