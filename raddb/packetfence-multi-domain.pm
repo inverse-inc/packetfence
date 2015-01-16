@@ -2,31 +2,19 @@
 
 =head1 NAME
 
-packetfence.pm - FreeRADIUS PacketFence integration module
+packetfence-multi-domain.pm - FreeRADIUS PacketFence multi domain integration module
 
 =head1 DESCRIPTION
 
-This module forwards normal RADIUS requests to PacketFence.
+This module finds the Domain to use from the Realm defined in FreeRADIUS
 
 =head1 NOTES
 
 Note1:
 
-Our pf::config package is loading all kind of stuff and should be reworked a bit. We need to use that package to load
-configuration parameters from the configuration file. Until the package is cleaned, we will define the configuration
-parameter here.
-
-Once cleaned:
-
-- Uncommented line: use pf::config
-
-- Remove line: use constant RPC_PORT => '9090';
-
-- Remove line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . RPC_PORT);
-
-- Uncomment line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'});
-
-Search for 'note1' to find the appropriate lines.
+Our pf::config package loads all the earth. 
+This code is executed both in the PacketFence and PacketFence tunnel in FreeRADIUS
+We need access to the ConfigDomain hash so either we should go though the the ConfigStore directly or find a better way to load it's configuration
 
 =cut
 
@@ -62,17 +50,23 @@ sub authorize {
     # For debugging purposes only
     #&log_request_attributes;
 
+    # We try to find the realm that's configured in PacketFence
     my $realm = $ConfigRealm{$RAD_REQUEST{"Realm"}};
 
-    use Data::Dumper;
+    #use Data::Dumper;
     #&radiusd::radlog($RADIUS::L_INFO, Dumper($realm));
+    
     if( defined($realm) && defined($realm->{domain}) ) {
+        # We have found this realm in PacketFence. We use the domain associated with it for the authentication
         $RAD_REQUEST{"PacketFence-Domain"} = $realm->{domain};
     }
     elsif ( defined($ConfigRealm{"default"}) ){
+        # We haven't found the realm that was detected in FreeRADIUS but there is a default realm in PacketFence.
+        # We use it's domain for authentication.
         $RAD_REQUEST{"PacketFence-Domain"} = $ConfigRealm{"default"}->{domain};
     }
-        
+    # If it doesn't go into any of the conditions above, then the behavior will be the same as before (non chrooted ntlm_auth)    
+    
     return $RADIUS::RLM_MODULE_UPDATED;
         
 }
@@ -197,11 +191,7 @@ L<http://wiki.freeradius.org/Rlm_perl>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2002  The FreeRADIUS server project
-
-Copyright (C) 2002  Boian Jordanov <bjordanov@orbitel.bg>
-
-Copyright (C) 2006-2010, 2013 Inverse inc.
+Copyright (C) 2006-2015, 2015 Inverse inc.
 
 =head1 LICENSE
 
