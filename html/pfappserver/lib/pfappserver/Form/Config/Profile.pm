@@ -71,7 +71,8 @@ has_field 'filter.contains' =>
 
 =head2 filter_match_style
 
-The field for filter_match_style
+The form field for filter_match_style
+Field defining how the configured filters will be applied for matching
 
 =cut
 
