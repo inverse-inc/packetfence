@@ -109,6 +109,11 @@ sub logout : Local {
 
 =head1 AUTHOR
 
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
@@ -128,7 +133,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
-__PACKAGE__->meta->make_immutable;
 
 1;
