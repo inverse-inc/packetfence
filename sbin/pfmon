@@ -332,7 +332,7 @@ sub _runtask {
     my ($id,$parameter,$task) = @_;
     $0 = "pfmon - $id";
     while ($running) {
-        pf::config::cached::ReloadConfigs();
+        pf::config::cached::RefreshConfigs();
         my $interval = $Config{'maintenance'}{$parameter};
         unless ($interval) {
             $logger->trace("task $id is disabled");
