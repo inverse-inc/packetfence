@@ -34,10 +34,18 @@ has blocking => ( is => 'rw', default => sub { 0 } );
 has unlockOnDestroy => ( is => 'rw', default => sub { 0 } );
 has timeout => ( is => 'rw', default => sub { 0 } );
 has lockAcquired => ( is => 'rw', default => sub { 0 } );
- 
+
 =head2 DESTROY
 
-TODO: documention
+Unlocks the file on destroy of the object
+
+=head3 Usage
+
+    DESTROY()
+
+=head3 Return
+
+    Nothing
 
 =cut
 
@@ -48,7 +56,16 @@ sub DESTROY {
 
 =head2 unlock
 
-TODO: documention
+Unlocks the file handle
+
+=head3 Usage
+
+    $obj->unlock()
+
+=head3 Return
+
+    1 on success
+    0 on failure
 
 =cut
 
@@ -58,7 +75,17 @@ sub unlock {
 
 =head2 _doLock
 
-TODO: documention
+Wraps the (un)locking of the file handle to deal with timeouts
+
+=head3 Usage
+
+    $obj->_doLock()
+
+=head3 Return
+
+    1 on success
+    0 on failure
+
 
 =cut
 
@@ -88,6 +115,17 @@ sub _doLock {
 
 =head2 _doRealLock
 
+Wraps the (un)locking of the file handle to deal with blocking locks
+
+=head3 Usage
+
+    $obj->_doRealLock()
+
+=head3 Return
+
+    1 on success
+    0 on failure
+
 
 =cut
 
@@ -95,14 +133,23 @@ sub _doRealLock {
     my ($self,$type) = @_;
     my $fs = $self->fcntlLock;
     $fs->l_type($type);
-    my $result = $fs->lock($self->fh, $self->blocking ? F_SETLKW : F_SETLK);
+    my $result = $fs->lock($self->fh, $self->blocking ? F_SETLKW : F_SETLK) ? 1 : 0;
     $self->lockAcquired($result);
     return $result;
 }
 
 =head2 writeLock
 
-writeLock 
+Get the write lock on the file handle
+
+=head3 Usage
+
+    $obj->writeLock()
+
+=head3 Return
+
+    1 on success
+    0 on failure
 
 =cut
 
@@ -110,9 +157,18 @@ sub writeLock {
     return $_[0]->_doLock(F_WRLCK);
 }
 
-=head2 _doLock
+=head2 readLock
 
-TODO: documention
+Get the read lock on the file handle
+
+=head3 Usage
+
+    $obj->readLock()
+
+=head3 Return
+
+    1 on success
+    0 on failure
 
 =cut
 
@@ -122,7 +178,16 @@ sub readLock {
 
 =head2 isWriteLockedByAnother
 
-See if there is a write lock on the file by another process
+Check if a write lock is own by another process for the file handle
+
+=head3 Usage
+
+    $obj->isWriteLockedByAnother()
+
+=head3 Return
+
+    1 on success
+    0 on failure
 
 =cut
 
