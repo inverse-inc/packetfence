@@ -34,6 +34,11 @@ sub initStatsd {
     $statsd = Etsy::StatsD->new($Config{'monitoring'}{'statsd_host'}, $Config{'monitoring'}{'statsd_port'},);
 }
 
+
+sub CLONE {
+    initStatsd;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

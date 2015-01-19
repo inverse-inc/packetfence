@@ -16,6 +16,7 @@ use warnings;
 
 use Apache2::RequestRec ();
 use pf::config::cached;
+use pf::StatsD;
 
 use Apache2::Const -compile => 'OK';
 
@@ -24,6 +25,11 @@ sub handler {
     pf::config::cached::ReloadConfigs();
     return Apache2::Const::OK;
 }
+
+sub init_child { 
+    pf::StatsD->initStatsd;
+}
+
 
 =head1 AUTHOR
 
