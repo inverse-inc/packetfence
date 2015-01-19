@@ -26,8 +26,9 @@ sub handler {
     return Apache2::Const::OK;
 }
 
-sub init_child { 
+sub child_init { 
     pf::StatsD->initStatsd;
+    return Apache2::Const::OK;
 }
 
 
