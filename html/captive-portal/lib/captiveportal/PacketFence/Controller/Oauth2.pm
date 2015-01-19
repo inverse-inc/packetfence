@@ -193,10 +193,8 @@ sub oauth2Result : Path : Args(1) {
                 # Grab JSON content
                 my $json      = new JSON;
                 my $json_text = $json->decode($response->content());
-                if ($provider eq 'google' || $provider eq 'github') {
+                if ($provider eq 'google' || $provider eq 'github' || $provider eq 'facebook') {
                     $pid = $json_text->{email};
-                } elsif ($provider eq 'facebook') {
-                    $pid = $json_text->{username} . '@facebook.com';
                 } elsif ($provider eq 'windowslive'){
                     $pid = $json_text->{emails}->{account};
                 }
