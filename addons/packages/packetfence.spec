@@ -227,6 +227,7 @@ Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
 Requires: perl(Moose) <= 2.1005
 Requires: perl(CHI) >= 0.59
+Requires: perl(File::FcntlLock)
 Requires: perl(Data::Serializer)
 Requires: perl(Data::Structure::Util)
 Requires: perl(Data::Swap)
@@ -533,9 +534,9 @@ done
 #Make ssl certificate
 if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
     openssl req -x509 -new -nodes -days 365 -batch\
-    	-out /usr/local/pf/conf/ssl/server.crt\
-    	-keyout /usr/local/pf/conf/ssl/server.key\
-    	-nodes -config /usr/local/pf/conf/openssl.cnf
+        -out /usr/local/pf/conf/ssl/server.crt\
+        -keyout /usr/local/pf/conf/ssl/server.key\
+        -nodes -config /usr/local/pf/conf/openssl.cnf
 fi
 
 
@@ -755,14 +756,14 @@ fi
                         /usr/local/pf/conf/pf-release
 %config(noreplace)      /usr/local/pf/conf/provisioning.conf
                         /usr/local/pf/conf/provisioning.conf.example
-%dir			/usr/local/pf/conf/radiusd
+%dir                    /usr/local/pf/conf/radiusd
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.inc
                         /usr/local/pf/conf/radiusd/proxy.conf.inc.example
-%config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
+%config(noreplace)      /usr/local/pf/conf/radiusd/eap.conf
                         /usr/local/pf/conf/radiusd/eap.conf.example
-%config(noreplace)	/usr/local/pf/conf/radiusd/radiusd.conf
+%config(noreplace)      /usr/local/pf/conf/radiusd/radiusd.conf
                         /usr/local/pf/conf/radiusd/radiusd.conf.example
-%config(noreplace)	/usr/local/pf/conf/radiusd/sql.conf
+%config(noreplace)      /usr/local/pf/conf/radiusd/sql.conf
                         /usr/local/pf/conf/radiusd/sql.conf.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
@@ -788,7 +789,7 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.aaa
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
-%config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
+%config(noreplace)      /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
