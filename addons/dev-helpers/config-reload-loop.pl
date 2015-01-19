@@ -2,13 +2,11 @@
 
 =head1 NAME
 
-loop.pl - a script to help test reloading config
-
-=cut
+config-reload-loop.pl - a script to help test reloading config
 
 =head1 DESCRIPTION
 
-loop
+Stress test by refreshing configuration by 30 different processes every 2 seconds
 
 =cut
 

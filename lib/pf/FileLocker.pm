@@ -1,13 +1,26 @@
 package pf::FileLocker;
+
 =head1 NAME
 
-pf::FileLocker add documentation
+pf::FileLocker - a class for wrapping file locking
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::FileLocker
+pf::FileLocker encapsulates fcntl file locking
+
+fcntl is prefer to flock based locking since flock can be shared across children
+
+=head1 USAGE
+
+    open(my $fh,"file.lock");
+    {
+        my $fl = pf::FileLocker->new(fh => $fh, unlockOnDestroy => 1, blocking => 1);
+        $fl->writeLock();
+        .... #File is lock during this scope
+    }
+    #File is now unlocked
 
 =cut
 
