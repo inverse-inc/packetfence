@@ -103,9 +103,10 @@ sub generate_radiusd_proxy {
     $tags{'config'} = '';
 
     foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+        my $options = $pf::config::ConfigRealm{$realm}->{'options'} || '';
         $tags{'config'} .= <<"EOT";
 realm $realm {
-$pf::config::ConfigRealm{$realm}->{'options'}
+$options
 }
 
 EOT
