@@ -16,23 +16,23 @@ pf::StatsD  contains the code necessary to create a Global StatsD object.
 Read the following configuration files: F<pf.conf.defaults>
 
 =cut
+
 use strict;
 use warnings;
-use lib ' /usr/local/pf/lib' ;
 use Etsy::StatsD;
-use pf::ConfigStore::Pf();
+use pf::config;
 
 our $VERSION = 1.000000;
 
 our @EXPORT = qw($statsd);
 
-my $PfConfig = pf::ConfigStore::Pf->new();
+our $statsd;
 
-our $statsd = Etsy::StatsD->new( 
-    $PfConfig->{'monitoring'}{'statsd_host'},
-    $PfConfig->{'monitoring'}{'statsd_port'}, );
+initStatsd();
 
-=back
+sub initStatsd {
+    $statsd = Etsy::StatsD->new($Config{'monitoring'}{'statsd_host'}, $Config{'monitoring'}{'statsd_port'},);
+}
 
 =head1 AUTHOR
 
