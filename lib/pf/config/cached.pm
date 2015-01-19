@@ -918,24 +918,32 @@ sub cacheForData {
 
 =head2 RefreshConfigs
 
-refresh configs and call any register callbacks 
+refresh configs from the cache that have changed
 
 =cut
 
 sub RefreshConfigs {
     my $logger = get_logger();
-    $logger->trace("Started Reloading all configs");
+    $logger->trace("Started Refreshing all configs");
     foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
         next unless $config;
         next unless $config->LockFileHasChanged;
         $config->ReloadConfig();
     }
-    $logger->trace("Finished Reloading all configs");
+    $logger->trace("Finished Refreshing all configs");
 }
 
 =head2 ReloadConfigs
 
-ReloadConfigs reload all configs and call any register callbacks
+ReloadConfigs reload all expired configs from the cache or filesystem
+
+=head3 Usage
+
+    ReloadConfigs($force_expiration);
+
+=head3 Return
+
+    Nothing
 
 =cut
 
