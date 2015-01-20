@@ -34,7 +34,8 @@ sub _build_pfdhcplistenerManagers {
         pf::services::manager->new ({
             executable => $self->executable,
             name => "pfdhcplistener_$_",
-            launcher => "sudo %1\$s -i '$_' -d &"
+            launcher => "sudo %1\$s -i '$_' -d &",
+            forceManaged => $self->isManaged,
         })
     } uniq @listen_ints, @dhcplistener_ints;
     return \@managers;
