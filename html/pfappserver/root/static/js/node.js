@@ -462,8 +462,6 @@ NodeView.prototype.refreshPage = function() {
     return false;
 };
 
-
-
 NodeView.prototype.submitSearch = function(e) {
     e.preventDefault();
     var that = this;
