@@ -30,12 +30,22 @@ sub index : Path : Args(0) {
     my $provisioner = $c->profile->findProvisioner($mac);
     $provisioner->authorize($mac) if (defined($provisioner));
     $provisioner->build_cert();
-    $c->stash(
-        template     => 'wireless-profile.xml',
-        current_view => 'MobileConfig',
-        provisioner  => $provisioner,
-        username     => $username
-    );
+    if ($provisioner = eap) {
+        $c->stash(
+            template     => 'eaptls',
+            current_view => 'MobileConfig',
+            provisioner  => $provisioner,
+            username     => $last_dot1x_username,
+            );
+         }
+    else {
+        $c->stash(
+            template     => 'wireless-profile.xml',
+            current_view => 'MobileConfig',
+            provisioner  => $provisioner,
+            username     => $username
+            );
+         }
 }
 
 sub profile_xml : Path('/profile.xml') : Args(0) {
