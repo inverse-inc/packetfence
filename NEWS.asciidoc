@@ -56,6 +56,7 @@ Bug Fixes
 * Honor order of profiles when matching profile filters
 * Fixed URI based portal profiles
 * Fixed XSS vulnerabilities in the portal
+* Refresh node page after updating a node
 
 Version 4.5.1 released on 2014-11-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -239,6 +239,7 @@ NodeView.prototype.createNode = function(e) {
 NodeView.prototype.updateNode = function(e) {
     e.preventDefault();
 
+    var that = this;
     var modal = $('#modalNode');
     var modal_body = modal.find('.modal-body').first();
     var form = modal.find('form').first();
@@ -256,6 +257,9 @@ NodeView.prototype.updateNode = function(e) {
             },
             success: function(data) {
                 modal.modal('hide');
+                modal.on('hidden', function() {
+                    that.refreshPage();
+                });
             },
             errorSibling: modal_body.children().first()
         });
@@ -264,6 +268,7 @@ NodeView.prototype.updateNode = function(e) {
 
 NodeView.prototype.deleteNode = function(e) {
     e.preventDefault();
+    var that = this;
 
     var modal = $('#modalNode');
     var modal_body = modal.find('.modal-body');
@@ -273,6 +278,9 @@ NodeView.prototype.deleteNode = function(e) {
         url: url,
         success: function(data) {
             modal.modal('hide');
+            modal.on('hidden', function() {
+                that.refreshPage();
+            });
         },
         errorSibling: modal_body.children().first()
     });
@@ -394,6 +402,39 @@ NodeView.prototype.searchPagination = function(e) {
     var pagination = link.closest('.pagination');
     var formId = pagination.attr('data-from-from') || '#search';
     var form = $(formId);
+    if(form.length == 0) {
+        form = $('#search');
+    }
+    var columns = $('#columns');
+    var href = link.attr("href");
+    var section = $('#section');
+    var status_container = $("#section").find('h2').first();
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5);
+    section.fadeTo('fast', 0.5, function() {
+        that.nodes.post({
+            url: href,
+            data: form.serialize() + "&" + columns.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                section.html(data);
+            },
+            errorSibling: status_container
+        });
+    });
+    return false;
+};
+
+NodeView.prototype.refreshPage = function() {
+    var that = this;
+    var pagination = $('.pagination').first();
+    var formId = pagination.attr('data-from-from') || '#search';
+    var form = $(formId);
+    var link = pagination.find('li.disabled a').first();
     if(form.length == 0) {
         form = $('#search');
     }
