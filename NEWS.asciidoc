@@ -57,7 +57,7 @@ Bug Fixes
 * Fixed URI based portal profiles
 * Fixed XSS vulnerabilities in the portal
 * Refresh node page after updating a node
-* Fixed issued which caused multiple pfdhcplistener to be spawned
+* Fixed multiple pfdhcplistener spawning
 
 Version 4.5.1 released on 2014-11-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
