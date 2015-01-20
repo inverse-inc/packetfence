@@ -11,20 +11,20 @@ to update the Checkpoint user table.
 
 =cut
 
-
 use strict;
 use warnings;
 
+use Log::Log4perl;
+use POSIX;
+
 use base ('pf::firewallsso');
 
-use POSIX;
-use Log::Log4perl;
-
-use pf::config;
-sub description { 'Checkpoint Firewall' }
-use pf::util::radius qw(perform_rsso);
-use pf::node qw(node_view);
 use pf::accounting qw(node_accounting_current_sessionid);
+use pf::config;
+use pf::node qw(node_view);
+use pf::util::radius qw(perform_rsso);
+
+sub description { 'Checkpoint Firewall' }
 
 =head1 METHODS
 
@@ -35,7 +35,7 @@ Perform a radius accounting request based on the registered status of the node a
 =cut
 
 sub action {
-    my ($self,$firewall_conf,$method,$mac,$ip,$timeout) = @_;
+    my ($self, $firewall_conf, $method, $mac, $ip, $timeout) = @_;
     my $logger = Log::Log4perl::get_logger(ref($self));
 
     my $node_info = node_view($mac);
@@ -49,7 +49,10 @@ sub action {
     ){
         my $username = $node_info->{'pid'};
         $username = $node_info->{'last_dot1x_username'} if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x');
-        return 0 if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x' && $node_info->{'last_dot1x_username'} eq '');
+        if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x' && $node_info->{'last_dot1x_username'} eq ''){
+            $logger->info("We don't use the  dot1x username for the Firewall");
+            return $FALSE;
+        };
         my $acctsessionid = node_accounting_current_sessionid($mac);
         my $connection_info = {
           nas_ip => $firewall_conf,
