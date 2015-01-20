@@ -256,6 +256,9 @@ NodeView.prototype.updateNode = function(e) {
             },
             success: function(data) {
                 modal.modal('hide');
+                modal.on('hidden', function() {
+                    $(window).hashchange();
+                });
             },
             errorSibling: modal_body.children().first()
         });
@@ -273,6 +276,9 @@ NodeView.prototype.deleteNode = function(e) {
         url: url,
         success: function(data) {
             modal.modal('hide');
+            modal.on('hidden', function() {
+                $(window).hashchange();
+            });
         },
         errorSibling: modal_body.children().first()
     });
