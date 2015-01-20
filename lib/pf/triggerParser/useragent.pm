@@ -15,6 +15,10 @@ use strict;
 use warnings;
 use Moo;
 extends 'pf::triggerParser';
+use fingerbank::Model::User_Agent;
+with 'pf::triggerParser::roles::fingerbank';
+
+has '+fingerbankModel' => ( default => sub { "fingerbank::Model::User_Agent" });
 
 =head1 AUTHOR
 

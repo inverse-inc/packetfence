@@ -15,6 +15,12 @@ use strict;
 use warnings;
 use Moo;
 extends 'pf::triggerParser';
+use fingerbank::Model::MAC_Vendor;
+with 'pf::triggerParser::roles::fingerbank';
+
+has '+fingerbankModel' => ( default => sub { "fingerbank::Model::MAC_Vendor" });
+
+has '+lookupField' => ( default => sub { "name" });
 
 =head1 AUTHOR
 
