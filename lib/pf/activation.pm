@@ -172,8 +172,8 @@ sub activation_db_prepare {
         qq [ UPDATE activation SET status = ? WHERE mac = ? AND pid = ? AND contact_info = ? AND status = ? ]
     );
 
-    $activation_statements->{'activation_change_status_same_mac_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE activation SET status = ? WHERE mac = ? AND status = ? ]
+    $activation_statements->{'activation_change_status_by_mac_type_sql'} = get_db_handle()->prepare(
+        qq [ UPDATE activation SET status = ? WHERE mac = ? AND type = ? AND status = ? ]
     );
 
     $activation_statements->{'activation_change_status_old_same_pid_contact_info_sql'} = get_db_handle()->prepare(
@@ -316,7 +316,8 @@ sub invalidate_codes {
 =over
 
 =item Usage
-    invalidate_codes_for_mac($mac)
+
+    invalidate_codes_for_mac($mac, $activation_type)
 
 =item Return
 
@@ -327,12 +328,12 @@ sub invalidate_codes {
 =cut
 
 sub invalidate_codes_for_mac {
-    my ($mac) = @_;
+    my ($mac, $type) = @_;
     my $logger = get_logger();
     if ($mac) {
         # Invalidate previous activation codes matching MAC, pid (user or sponsor email) and contact_info
         db_query_execute(ACTIVATION, $activation_statements,
-                         'activation_change_status_same_mac_sql', $INVALIDATED, $mac, $UNVERIFIED
+                         'activation_change_status_by_mac_type_sql', $INVALIDATED, $mac, $type, $UNVERIFIED
 
                         ) || $logger->warn("problems trying to invalidate activation codes using mac $mac");
     }
