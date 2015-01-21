@@ -79,7 +79,7 @@ sub index : Path : Args(0) {
 
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
-            $c->stash->{info}=\%info; 
+            $c->stash->{info}=\%info;
             $c->stash->{sms_pin} = $request->param_encoded("pin");  # We are putting the SMS PIN in stash to use it as a password in case we create a local account
             $c->forward('Authenticate' => 'postAuthentication');
             $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
@@ -119,25 +119,30 @@ sub showSmsConfirmation : Private {
 }
 
 sub sms_validation {
-    my ( $self, $c ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    if ($self->reached_retry_limit('sms_retries',3)) {
-        return ( $FALSE, $GUEST::ERROR_MAX_RETRIES );
-    }
+    my ($self, $c) = @_;
+    my $logger = $c->log;
 
     # no form was submitted, assume first time
     my $pin = $c->request->param("pin");
     if ($pin) {
-        $c->log->info("Mobile phone number validation attempt");
-        if ( pf::activation::validate_code($pin) ) {
-            return ( $TRUE, 0 );
-        } else {
-            return ( $FALSE, $GUEST::ERROR_INVALID_PIN );
+        $logger->info("Mobile phone number validation attempt");
+        if ($self->reached_retry_limit($c, 'sms_retries', 3)) {
+            my $mac = $c->portalSession->clientMac;
+            $logger->info("Max tries reached invalidating code for $mac");
+            pf::activation::invalidate_codes_for_mac($mac,'sms');
+            $c->stash(txt_validation_error => i18n_format($GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES}));
+            $c->detach(Signup => 'index');
         }
-    } else {
-
+        if (pf::activation::validate_code($pin)) {
+            return ($TRUE, 0);
+        }
+        else {
+            return ($FALSE, $GUEST::ERROR_INVALID_PIN);
+        }
+    }
+    else {
         # this won't display an error
-        return ( $FALSE, 0 );
+        return ($FALSE, 0);
     }
 }
 
