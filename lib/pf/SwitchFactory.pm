@@ -47,7 +47,6 @@ our @MODULES;
 our %TYPE_TO_MODULE;
 our %VENDORS;
 
-
 =head1 METHODS
 
 =over
@@ -182,6 +181,14 @@ sub config {
     return \%temp;
 }
 
+=item getModule
+
+Get the module from the type
+
+    my $module = getModule($typeOfSwitch);
+
+=cut
+
 sub getModule {
     my ($type) = @_;
     return (exists $TYPE_TO_MODULE{$type} ) ? $TYPE_TO_MODULE{$type} : undef;;
@@ -191,11 +198,7 @@ sub getModule {
 
 Build the vendor list
 
-Example Usage:
-
     buildVendorsList()
-
-Return: N/A
 
 =cut
 
@@ -205,6 +208,7 @@ sub buildVendorsList {
         $switch =~ s/^pf::Switch:://;
         my @p = split /::/, $switch;
         my $vendor = shift @p;
+        #Include only concrete classes indictated by is the have a description or not
         if ($module->can('description')) {
             $VENDORS{$vendor} = {} unless ($VENDORS{$vendor});
             $VENDORS{$vendor}->{$switch} = $module->description;
@@ -227,8 +231,25 @@ sub preLoadModules {
             $type =~ s/^pf::Switch:://;
             $type => $_
         } grep {$_->can('description')} @MODULES;
+        buildTypeToModuleMap();
         buildVendorsList();
     }
+}
+
+=item buildTypeToModuleMap
+
+builds the type to module map
+
+=cut
+
+sub buildTypeToModuleMap {
+    %TYPE_TO_MODULE = map {
+        my $type = $_;
+        $type =~ s/^pf::Switch:://;
+        return ($type => $_);
+      }
+      #Include only concrete classes indictated by is the have a description or not
+      grep { $_->can('description') } @MODULES;
 }
 
 =back
