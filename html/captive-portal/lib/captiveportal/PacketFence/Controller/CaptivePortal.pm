@@ -342,9 +342,9 @@ sub unknownState : Private {
             $logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate [$mac]");
             $c->stash(
                 template => 'webFormRelease.html',
-                content => $switch->getAcceptForm($mac, 
-                                $c->stash->{destination_url}, 
-                                new pf::Portal::Session()->session, 
+                content => $switch->getAcceptForm($mac,
+                                $c->stash->{destination_url},
+                                new pf::Portal::Session()->session,
                                 ),
             );
             $c->detach;
@@ -438,7 +438,7 @@ sub webNodeRegister : Private {
     node_register( $mac, $pid, %info );
 
     my $provisioner = $c->profile->findProvisioner($mac);
-    unless ( (defined($provisioner) && $provisioner->skipDeAuth) || $c->user_cache->get("mac:$mac:do_not_deauth") ) {
+    unless ( (defined($provisioner) && $provisioner->skipDeAuth) || $c->user_cache->get("do_not_deauth") ) {
         my $node = node_view($mac);
         my $switch;
         if( pf::SwitchFactory->hasId($node->{last_switch}) ){
@@ -449,9 +449,9 @@ sub webNodeRegister : Private {
             $logger->info("Switch supports web form release.");
             $c->stash(
                 template => 'webFormRelease.html',
-                content => $switch->getAcceptForm($mac, 
-                                $c->stash->{destination_url}, 
-                                new pf::Portal::Session()->session, 
+                content => $switch->getAcceptForm($mac,
+                                $c->stash->{destination_url},
+                                new pf::Portal::Session()->session,
                                 ),
             );
             $c->detach;
