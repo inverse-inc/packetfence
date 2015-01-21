@@ -275,11 +275,12 @@ sub doSponsorSelfRegistration : Private {
     my $sponsor_type =
       pf::Authentication::Source::SponsorEmailSource->getDefaultOfType;
     my $source = $profile->getSourceByType($sponsor_type) || $profile->getSourceByTypeForChained($sponsor_type);
-    my $auth_params = {
-        'username'   => $pid,
-        'user_email' => $email
-    };
-
+    # fetch the connection information
+    $c->forward(Authenticate => 'setupMatchParams');
+    my $auth_params = $c->stash->{matchParams};
+    $auth_params->{username} = $pid; 
+    $auth_params->{user_email} = $email;    
+ 
     # form valid, adding person (using modify in case person already exists)
     person_modify(
         $pid,
