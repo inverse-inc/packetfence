@@ -43,6 +43,7 @@ use captiveportal::Role::Request;
 use pf::config::cached;
 use pf::file_paths;
 use pf::CHI;
+use CHI::Driver::SubNamespace;
 
 extends 'Catalyst';
 
@@ -111,8 +112,16 @@ sub loadCustomStatic {
     return $dirs;
 }
 
+=head2 user_cache
+
+Returns the user specific cache
+
+=cut
+
 sub user_cache {
-    return pf::CHI->new( namespace => 'httpd.portal');
+    my ($c) = @_;
+    #Return a CHI::Driver that prefixes each
+    return CHI->new( driver => 'SubNamespace', chi_object => pf::CHI->new(namespace => 'httpd.portal'), namespace => $c->portalSession->clientMac );
 }
 
 has portalSession => (
