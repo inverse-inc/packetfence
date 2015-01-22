@@ -114,14 +114,17 @@ sub loadCustomStatic {
 
 =head2 user_cache
 
-Returns the user specific cache
+Returns the user/mac specific cache
 
 =cut
 
 sub user_cache {
     my ($c) = @_;
-    #Return a CHI::Driver that prefixes each
-    return CHI->new( driver => 'SubNamespace', chi_object => pf::CHI->new(namespace => 'httpd.portal'), namespace => $c->portalSession->clientMac );
+    return CHI->new(
+        driver     => 'SubNamespace',
+        chi_object => pf::CHI->new(namespace => 'httpd.portal'),
+        namespace  => $c->portalSession->clientMac
+    );
 }
 
 has portalSession => (
