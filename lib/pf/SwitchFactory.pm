@@ -241,7 +241,7 @@ sub buildTypeToModuleMap {
     %TYPE_TO_MODULE = map {
         my $type = $_;
         $type =~ s/^pf::Switch:://;
-        return ($type => $_);
+        $type => $_
       }
       #Include only concrete classes indictated by the existence of the description method
       grep { $_->can('description') } @MODULES;
