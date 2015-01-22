@@ -45,7 +45,7 @@ To enable RADIUS Accounting for a Security Gateway:
 Step 3: Configuring RADIUS Accounting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-image::docs/images/doc-checkpoint-accounting_settings.png[scaledwidth="100%",alt="Accouting settings"]
+image::docs/images/doc-checkpoint-accounting_settings.png[scaledwidth="50%",alt="Accouting settings"]
 
 1. In the 'Check Point Gateway' window > 'Identity Awareness' panel, click 'Settings' (to the right of the RADIUS Accounting option).
 2. In the 'RADIUS Accounting Settings' window, configure the 'Message Attribute Indices' like this:
@@ -75,7 +75,7 @@ image::docs/images/doc-checkpoint-ldap_groups.png[scaledwidth="100%",alt="LDAP G
 Step 6: SSO Configuration in PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Go to *'Configuration' -> 'Firewall SSO' -> 'Add Firewal'l -> 'Checkpoint'*.
+Go to *'Configuration' -> 'Firewall SSO' -> 'Add Firewall' -> 'Checkpoint' *.
 
 [options="compact"]
 * *Hostname or IP Address*: IP of your Checkpoint firewall
