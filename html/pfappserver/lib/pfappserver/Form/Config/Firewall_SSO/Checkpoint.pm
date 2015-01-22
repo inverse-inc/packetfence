@@ -67,18 +67,10 @@ has_field 'uid' =>
    options_method => \&uid_type,
   );
 
-has_block definition =>
+has_block 'definition' =>
   (
    render_list => [ qw(id type password port uid categories) ],
   );
-
-has_field 'uid' =>
-  (
-   type => 'Select',
-   label => 'UID type',
-   options_method => \&uid_type,
-  );
-
 
 =head2 Methods
 
