@@ -79,9 +79,32 @@ has_field 'company' =>
    required => 1,
   );
 
+has_field 'pki' =>
+  (
+   type => 'Text',
+   label => 'PKI URI',
+   required => 1,
+   tags => { after_element => \&help,
+             help => 'Example: https://packetfence.org:8081/pki/api/' },
+  );
+
+has_field 'pki_username' =>
+  (
+   type => 'Text',
+   label => 'PKI Username',
+   required => 1,
+  );
+
+has_field 'pki_passwd' =>
+  (
+   type => 'Text',
+   label => 'PKI Password',
+   required => 1,
+  );
+
 has_block definition =>
   (
-   render_list => [ qw(id type description company reversedns category ssid security_type passcode eap_type ca_cert_path cert_type) ],
+   render_list => [ qw(id type description company reversedns category ssid security_type passcode eap_type ca_cert_path cert_type pki pki_username pki_passwd) ],
   );
 
 sub options_eap_type {
