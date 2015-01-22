@@ -127,7 +127,6 @@ sub instantiate {
         my $switch = $switch_overlay_cache->get($switch_mac) || {};
         my $controllerIp = $switchRequest->{controllerIp};
         if($controllerIp && (  !defined $switch->{controllerIp} || $controllerIp ne $switch->{controllerIp} )) {
-#            $switch_overlay_config->remove($switch->{controllerIp}) if defined $switch->{controllerIp};
             $switch_overlay_cache->set(
                 $switch_mac,
                 {
@@ -185,8 +184,6 @@ sub config {
 
 Get the module from the type
 
-    my $module = getModule($typeOfSwitch);
-
 =cut
 
 sub getModule {
@@ -198,8 +195,6 @@ sub getModule {
 
 Build the vendor list
 
-    buildVendorsList()
-
 =cut
 
 sub buildVendorsList {
@@ -208,7 +203,7 @@ sub buildVendorsList {
         $switch =~ s/^pf::Switch:://;
         my @p = split /::/, $switch;
         my $vendor = shift @p;
-        #Include only concrete classes indictated by is the have a description or not
+        #Include only concrete classes indictated by the existence of the description method
         if ($module->can('description')) {
             $VENDORS{$vendor} = {} unless ($VENDORS{$vendor});
             $VENDORS{$vendor}->{$switch} = $module->description;
@@ -248,7 +243,7 @@ sub buildTypeToModuleMap {
         $type =~ s/^pf::Switch:://;
         return ($type => $_);
       }
-      #Include only concrete classes indictated by is the have a description or not
+      #Include only concrete classes indictated by the existence of the description method
       grep { $_->can('description') } @MODULES;
 }
 
