@@ -16,7 +16,7 @@
                 [%- FOREACH user IN items -%]
                 <tr>
                   <td><input type="checkbox" name="items" value="[% user.pid | html %]"/></td>
-                  <td><a href="[% c.uri_for(c.controller.action_for('view'), [ user.pid ]) %]">[% user.pid %]</a>[% IF user.password %] <i class="icon-pencil"></i>[% END %]</td>
+                  <td><a href="[% c.uri_for(c.controller.action_for('view'), [ user.pid ]) %]">[% user.pid %]</a>[% IF user.password %][% END %]</td>
                   <td class="hidden-phone">[% user.firstname | html %]</td>
                   <td class="hidden-phone">[% user.lastname | html %]</td>
                   <td>[% user.email | html %]</td>
