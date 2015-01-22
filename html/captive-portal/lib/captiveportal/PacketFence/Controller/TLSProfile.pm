@@ -1,11 +1,11 @@
-package captiveportal::PacketFence::Controller::WirelessProfile;
+package captiveportal::PacketFence::Controller::TLSProfile;
 use Moose;
 use namespace::autoclean;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 use pf::config;
 
-__PACKAGE__->config( namespace => 'wireless-profile.mobileconfig', );
+__PACKAGE__->config( namespace => 'wirelesss-profile.mobileconfig', );
 
 =head1 NAME
 
@@ -31,11 +31,11 @@ sub index : Path : Args(0) {
     $provisioner->authorize($mac) if (defined($provisioner));
     $provisioner->build_cert();
     $c->stash(
-            template     => 'wireless-profile.xml',
-            current_view => 'MobileConfig',
-            provisioner  => $provisioner,
-            username     => $username,
-            );
+        template     => 'windows-profile.xml',
+        current_view => 'MobileConfig',
+        provisioner  => $provisioner,
+        username     => $username
+        );
 }
 
 sub profile_xml : Path('/profile.xml') : Args(0) {
