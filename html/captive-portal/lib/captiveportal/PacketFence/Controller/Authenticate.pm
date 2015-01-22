@@ -459,8 +459,11 @@ sub authenticationLogin : Private {
         my $mac       = $portalSession->clientMac;
         my $node_info = node_view($mac);
         my $username = $node_info->{'last_dot1x_username'};
-        if ($username =~ /^(.*)@/ || $username =~ /^[^\/]+\/(.*)$/ ) {
+        #Strip the username when using machine auth
+        #TODO Do we config stripping the username for machine and user auth
+        if ( $username =~ /^[^\/]+\/(.*)$/ ) {
             $username = $1;
+            $logger->warn("Reuse Dot1x has been enabled on this portal, here the username from 802.1x connection ".$node_info->{'last_dot1x_username'}." , here the stripped username $username");
         }
         $c->session(
             "username"  => $username,
