@@ -42,6 +42,7 @@ use Time::Local;
 use DateTime;
 use pf::factory::profile::filter;
 use pf::profile::filter;
+use pf::profile::filter::all;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -687,10 +688,16 @@ sub readProfileConfigFile {
                     foreach my $field (qw(locale mandatory_fields sources filter provisioners) ) {
                         $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
                     }
-                    if ($profile_id ne 'default') {
-                        #Adding filters in profile order
+                    my $filters = $profile->{'filter'};
+                    if($profile_id ne 'default' && @$filters) {
+                        my @filterObjects;
                         foreach my $filter (@{$profile->{'filter'}}) {
-                            push @Profile_Filters, pf::factory::profile::filter->instantiate($profile_id,$filter);
+                            push @filterObjects, pf::factory::profile::filter->instantiate($profile_id,$filter);
+                        }
+                        if(defined ($profile->{filter_match_style}) && $profile->{filter_match_style} eq 'all') {
+                            push @Profile_Filters, pf::profile::filter::all->new(profile => $profile_id, value => \@filterObjects);
+                        } else {
+                            push @Profile_Filters,@filterObjects;
                         }
                     }
                 }

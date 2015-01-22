@@ -69,6 +69,26 @@ has_field 'filter.contains' =>
    widget_wrapper => 'DynamicTableRow',
   );
 
+=head2 filter_match_style
+
+The form field for filter_match_style
+Field defining how the configured filters will be applied for matching
+
+=cut
+
+has_field 'filter_match_style' =>
+(
+    type => 'Select',
+    default => 'any',
+    options_method => \&options_filter_match_style,
+    element_class => ['input-mini'],
+);
+
+sub options_filter_match_style {
+    return  map { { value => $_, label => $_ } } qw(all any);
+}
+
+
 =head1 METHODS
 
 =head2 update_fields
