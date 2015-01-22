@@ -154,7 +154,7 @@ sub instantiate {
     unless ($module) {
         $logger->error("Can not load perl module for switch $requestedSwitch, type: $type. "
                   . "The type is unknown or the perl module has compilation errors. ");
-        return undef;
+        return 0;
     }
     $module = untaint_chain($module);
     });
