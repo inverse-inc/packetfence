@@ -69,6 +69,17 @@ has cert_type => (is => 'rw');
 has company => (is => 'rw');
 has reversedns => (is => 'rw');
 
+=head2
+
+The pki informations
+
+=cut
+
+has pki => (is => 'rw');
+has pki_passwd => (is => 'rw');
+has pki_username => (is => 'rw');
+
+
 =head1 METHODS
 
 =head2 authorize
