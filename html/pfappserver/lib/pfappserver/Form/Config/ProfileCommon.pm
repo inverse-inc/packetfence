@@ -44,7 +44,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages)],
+    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages sms_pin_retry_limit)],
   );
 
 =head1 Fields
@@ -241,6 +241,17 @@ has_field 'nbregpages' =>
     default => 0,
   );
 
+=head2 sms_pin_retry_limit
+
+=cut
+
+has_field 'sms_pin_retry_limit' =>
+  (
+    type => 'PosInteger',
+    label => 'SMS Pin Retry Limit',
+    default => 3,
+
+  );
 
 =head1 METHODS
 
