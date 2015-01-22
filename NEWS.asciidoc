@@ -42,6 +42,7 @@ Enhancements
 * Reduce deadlocks caused by the cleaning of the iplog table
 * Reduce deadlocks caused by the cleaning of the locationlog table
 * Reorganize the portal profile option page
+* Reduce the numbers of entries in iplog tables (update endtime instead of close and insert a new line)
 
 Bug Fixes
 +++++++++
