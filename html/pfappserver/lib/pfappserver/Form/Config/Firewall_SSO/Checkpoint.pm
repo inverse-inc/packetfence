@@ -31,10 +31,10 @@ has_field 'id' =>
 has_field 'password' =>
   (
    type => 'Password',
-   label => 'Secret or Key',
+   label => 'Secret',
    required => 1,
    password => 0,
-   messages => { required => 'You must specify the password or the key' },
+   messages => { required => 'You must specify the radius shared secret' },
   );
 has_field 'port' =>
   (
