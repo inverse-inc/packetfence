@@ -21,19 +21,6 @@ use pf::config;
 use pf::log;
 use List::MoreUtils qw(uniq);
 
-=head1 BLOCKS
-
-=head2 definition
-
-The main definition block
-
-=cut
-
-has_block 'definition' =>
-  (
-   render_list => [ qw(id description logo redirecturl always_use_redirecturl reuse_dot1x_credentials billing_engine nbregpages) ],
-  );
-
 =head1 FIELDS
 
 =head2 filter

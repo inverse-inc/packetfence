@@ -28,19 +28,25 @@
         <li class="active">
           <a href="#settings" data-toggle="tab">[% l('Settings') %]</a>
         </li>
+        <li [% IF tab == 'captive-portal' %]class="active" [% END %]>
+          <a href="#captive-portal" data-toggle="tab">[% l('Captive Portal') %]</a>
+        </li>
         <li class="disabled">
           <a>[% l('Files')  %]</a>
         </li>
       </ul>
       <div class="tab-pane fade in active" id="settings">
-      [% INCLUDE 'config/profile/tab-content.tt' tab='settings' %]
+        [% INCLUDE 'config/profile/tab-content.tt' tab='settings' %]
+      </div>
+      <div class="tab-pane fade in [% 'active' IF tab == 'captive-portal' %]" id="captive-portal">
+        [% INCLUDE 'config/profile/captive-portal-settings.tt' tab='settings' %]
+      </div>
       [%- IF can_access("PORTAL_PROFILES_CREATE") %]
       <div class="form-actions">
         <a data-target="#createProfile" data-toggle="modal" class="btn btn-primary">[% l('Save') %]</a>
         <button type="reset" class="btn">[% l('Reset') %]</button>
       </div>
       [%- END %]
-      </div>
     </div>
     </form>
   </div>

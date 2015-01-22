@@ -23,6 +23,30 @@ use pf::ConfigStore::Provisioning;
 use pf::web::constants;
 with 'pfappserver::Base::Form::Role::Help';
 
+=head1 BLOCKS
+
+=head2 definition
+
+The main definition block
+
+=cut
+
+has_block 'definition' =>
+  (
+    render_list => [qw(id description reuse_dot1x_credentials billing_engine)],
+  );
+
+=head2 captive_portal
+
+The captival portal block
+
+=cut
+
+has_block 'captive_portal' =>
+  (
+    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages)],
+  );
+
 =head1 Fields
 
 =head2 id
@@ -61,7 +85,6 @@ has_field 'logo' =>
   (
    type => 'Text',
    label => 'Logo',
-   required => 1,
   );
 
 =head2 locale
