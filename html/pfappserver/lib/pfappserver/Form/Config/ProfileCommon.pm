@@ -254,6 +254,16 @@ has_field 'sms_pin_retry_limit' =>
              help => 'Maximum number of times a user can retry a SMS PIN before having to request another PIN. A value of 0 disables the limit.' },
 
   );
+=head2 login_attempt_limit
+
+=cut
+
+has_field 'login_attempt_limit' =>
+  (
+    type => 'PosInteger',
+    label => 'Login Attempt Limit',
+    default => 0,
+  );
 
 =head2 sms_request_retries
 
