@@ -97,26 +97,10 @@ sub soh_authorize : Public {
 }
 
 sub update_iplog : Public {
-    my ($class, %postdata) = @_;
-    my @require = qw(mac ip lease_length oldmac oldip);
-    my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
-
+    my ( $class, $srcmac, $srcip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
-    if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
-        $logger->info(
-            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing iplog entry"
-        );
-        pf::iplog::close_now_iplog($postdata{'ip'});
-    } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
-        $logger->info(
-            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing iplog entry"
-        );
-        pf::iplog::close_now_iplog($postdata{'oldip'});
-    }
-
-    return (pf::iplog::open_iplog($postdata{'mac'}, $postdata{'ip'}, $postdata{'lease_length'}));
+    return (pf::iplog::iplog_update($srcmac, $srcip, $lease_length));
 }
  
 sub unreg_node_for_pid : Public {

@@ -532,8 +532,9 @@ sub update_iplog {
     }
 
     my $oldip  = mac2ip($srcmac);
-    my $oldmac = ip2mac($srcip);
+
     if ( $oldip && $oldip ne $srcip ) {
+        my $oldmac = ip2mac($srcip);
         my $view_mac = node_view($srcmac);
         my $firewallsso = pf::firewallsso->new;
         $firewallsso->do_sso('Stop',$oldmac,$oldip,undef);
@@ -541,14 +542,7 @@ sub update_iplog {
             $apiclient->notify('ipset_node_update',$oldip, $srcip, $srcmac);
         }
     }
-    my %data = (
-        'mac' => $srcmac,
-        'ip' => $srcip,
-        'lease_length' => $lease_length,
-        'oldid' => $oldip,
-        'oldmac' => $oldmac,
-    );
-    $apiclient->notify('update_iplog', %data );
+    $apiclient->notify('update_iplog', $srcmac, $srcip, $lease_length );
 }
 
 =item process_fingerprint
