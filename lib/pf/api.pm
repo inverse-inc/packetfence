@@ -100,7 +100,19 @@ sub update_iplog : Public {
     my ( $class, $srcmac, $srcip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::iplog_update($srcmac, $srcip, $lease_length));
+    if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
+        $logger->info(
+            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing iplog entry"
+        );
+        pf::iplog::iplog_close_now($postdata{'ip'});
+    } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
+        $logger->info(
+            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing iplog entry"
+        );
+        pf::iplog::iplog_close_now($postdata{'oldip'});
+    }
+
+    return (pf::iplog::iplog_open($postdata{'mac'}, $postdata{'ip'}, $postdata{'lease_length'}));
 }
  
 sub unreg_node_for_pid : Public {
