@@ -47,17 +47,19 @@ sub showError {
 =head2 reached_retry_limit
 
 Test if the retry limit has been reached for a session key
+If the max is undef or 0 then it will return true
 
 =cut
 
 sub reached_retry_limit {
     my ( $self, $c, $retry_key, $max ) = @_;
+    return 1 unless $max;
     my $cache = $c->user_cache;
-    my $retries = $cache->get($retry_key) || 0;
-    $retries++;
+    my $retries = $cache->get($retry_key) || 1;
     if($retries > $max ) {
         return 1;
     }
+    $retries++;
     $cache->set($retry_key,$retries);
     return 0;
 }
