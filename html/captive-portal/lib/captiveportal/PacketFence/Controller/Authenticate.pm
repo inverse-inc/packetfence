@@ -167,6 +167,7 @@ sub login : Local : Args(0) {
 
         # External authentication
         $c->forward('validateLogin');
+        $c->forward('testLoginRetryLimit');
         $c->forward('authenticationLogin');
         $c->forward('postAuthentication');
         $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
@@ -176,6 +177,24 @@ sub login : Local : Args(0) {
     # Return login
     $c->forward('showLogin');
 
+}
+
+=head2 testLoginRetryLimit
+
+Limit the amount of time a user can retry a password
+
+=cut
+
+sub testLoginRetryLimit : Private {
+    my ( $self, $c ) = @_;
+    my $username = $c->request->param("username");
+    if($username) {
+        if ($self->reached_retry_limit($c, "login_retries", $c->profile->{'_login_attempt_retry_limit'})) {
+            $c->log->info("Max tries reached login code for $username");
+            $c->stash(txt_validation_error => i18n_format($GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES}));
+            $c->detach('showLogin');
+        }
+    }
 }
 
 =head2 postAuthentication
@@ -345,7 +364,7 @@ sub createLocalAccount : Private {
 
     $logger->debug("External source local account creation is enabled for this source. We proceed");
 
-    # We create a "temporary password" (also known as a user account) using the pid 
+    # We create a "temporary password" (also known as a user account) using the pid
     # with different parameters coming from the authentication source (ie.: expiration date)
     my $actions = &pf::authentication::match( $c->session->{source_id}, $auth_params );
 
