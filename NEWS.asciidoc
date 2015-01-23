@@ -43,6 +43,7 @@ Enhancements
 * Reduce deadlocks caused by the cleaning of the locationlog table
 * Reorganize the portal profile option page
 * Reduce the numbers of entries in iplog tables (update endtime instead of close and insert a new line)
+* Added checkup on apache filters and vlan filters
 
 Bug Fixes
 +++++++++
