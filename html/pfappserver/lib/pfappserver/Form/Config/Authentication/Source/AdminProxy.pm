@@ -17,6 +17,25 @@ use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source';
 
+has_block definition => (
+    render_list => [qw(proxy_addresses user_header group_header)],
+);
+
+has_field 'proxy_addresses' => (
+    type => 'Text',
+    required => 1
+);
+
+has_field 'user_header' => (
+    type => 'Text',
+    required => 1
+);
+
+has_field 'group_header' => (
+    type => 'Text',
+    required => 1
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
