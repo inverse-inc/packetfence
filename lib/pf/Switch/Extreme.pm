@@ -66,6 +66,7 @@ use Net::SNMP;
 use SOAP::Lite;
 use Try::Tiny;
 
+use pf::constants;
 use pf::config;
 # importing switch constants
 use pf::Switch::constants;

@@ -5,6 +5,7 @@ use Log::Log4perl;
 use POSIX;
 use URI::Escape::XS qw(uri_escape);
 
+use pf::constants;
 use pf::config;
 use pf::iplog;
 use pf::node;

@@ -7,6 +7,7 @@ BEGIN { extends 'captiveportal::Base::Controller'; }
 use Log::Log4perl;
 use POSIX;
 
+use pf::constants;
 use pf::config;
 use pf::activation qw($GUEST_ACTIVATION $SPONSOR_ACTIVATION);
 use pf::node;

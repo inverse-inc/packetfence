@@ -18,6 +18,7 @@ See F<pf::web::custom> for details.
 use strict;
 use warnings;
 
+use pf::constants;
 use pf::config;
 use pf::util;
 use pf::web;
@@ -94,7 +95,7 @@ sub is_creditcardexpiration_valid {
     ) {
         return 1;
     }
-    return 0; 
+    return 0;
 }
 
 =item is_credidcardnumber_valid
@@ -167,7 +168,7 @@ sub is_name_valid {
     my ( $name ) = @_;
     if ( $name =~ /
             \w              # only letters are accepted
-            /x 
+            /x
     ) {
         return 1;
     }
