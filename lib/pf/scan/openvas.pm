@@ -21,6 +21,7 @@ use Readonly;
 
 use base ('pf::scan');
 
+use pf::constants;
 use pf::config;
 use pf::util;
 

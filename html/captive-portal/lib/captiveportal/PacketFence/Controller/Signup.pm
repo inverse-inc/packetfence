@@ -3,6 +3,7 @@ use Moose;
 use namespace::autoclean;
 use Date::Format qw(time2str);
 use pf::log;
+use pf::constants;
 use pf::config;
 use pf::temporary_password 1.11;
 use pf::util;

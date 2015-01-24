@@ -15,6 +15,7 @@ use warnings;
 
 use Log::Log4perl qw(get_logger);
 
+use pf::constants;
 use pf::config;
 use pf::config::cached;
 

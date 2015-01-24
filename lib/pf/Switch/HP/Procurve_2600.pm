@@ -26,6 +26,7 @@ sub description { 'HP ProCurve 2600 Series' }
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
+use pf::constants;
 use pf::config;
 
 # CAPABILITIES

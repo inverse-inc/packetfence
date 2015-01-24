@@ -8,7 +8,7 @@ pf::Authentication::Source::LDAPSource
 
 =cut
 
-use pf::config qw($TRUE $FALSE);
+use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::Authentication::Condition;
 
@@ -416,7 +416,7 @@ sub search_attributes {
       return ($FALSE, 'Unable to connect to the LDAP Server');
     }
     my $result = $self->bind_with_credentials($connection);
-  
+
     if ($result->is_error) {
       $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
       return ($FALSE, 'Unable to validate credentials at the moment');
@@ -427,7 +427,7 @@ sub search_attributes {
     );
     my $entry = $searchresult->entry();
     $connection->unbind();
-    
+
     if (!$entry) {
         $logger->warn("Unable to locate PID '$pid'");
     }

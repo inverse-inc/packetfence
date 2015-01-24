@@ -29,6 +29,7 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 BEGIN { use lib qw(/usr/local/pf/t); }
 BEGIN { use PfFilePaths; }
 
+use pf::constants;
 use pf::config;
 use pf::SwitchFactory;
 use pf::Switch::constants;

@@ -29,6 +29,7 @@ use base ('pf::Switch::Juniper');
 use Log::Log4perl;
 use Net::Appliance::Session;
 
+use pf::constants;
 use pf::config;
 sub description { 'Juniper EX 2200 Series' }
 

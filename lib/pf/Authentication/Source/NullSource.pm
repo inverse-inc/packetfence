@@ -14,7 +14,8 @@ pf::Authentication::Source::NullSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($FALSE $TRUE $default_pid);
+use pf::constants;
+use pf::config;
 use Email::Valid;
 use pf::util;
 

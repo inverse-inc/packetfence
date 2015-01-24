@@ -8,7 +8,7 @@ pf::Authentication::Source::SMSSource
 
 =cut
 
-use pf::config qw($TRUE $FALSE);
+use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 
 use Log::Log4perl qw(get_logger);

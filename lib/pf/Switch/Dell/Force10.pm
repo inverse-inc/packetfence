@@ -19,6 +19,7 @@ F<conf/switches.conf>
 use strict;
 use warnings;
 use Log::Log4perl;
+use pf::constants;
 use pf::config;
 use base ('pf::Switch::Dell');
 

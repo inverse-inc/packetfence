@@ -110,6 +110,7 @@ use Net::SNMP;
 use Try::Tiny;
 
 use base ('pf::Switch::Cisco::Catalyst_2950');
+use pf::constants;
 use pf::config;
 use pf::Switch::constants;
 use pf::util;

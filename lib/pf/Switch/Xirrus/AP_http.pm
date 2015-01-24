@@ -29,6 +29,7 @@ use warnings;
 use base ('pf::Switch::Xirrus');
 use Log::Log4perl;
 
+use pf::constants;
 use pf::config;
 use pf::util;
 use pf::node;
