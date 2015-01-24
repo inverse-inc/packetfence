@@ -40,6 +40,7 @@ BEGIN {
     );
 }
 
+use pf::constants;
 use pf::config;
 use pf::db;
 use pf::violation;

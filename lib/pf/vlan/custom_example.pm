@@ -54,6 +54,7 @@ BEGIN {
     );
 }
 
+use pf::constants;
 use pf::config;
 use pf::node qw(node_attributes node_add_simple node_exist);
 use pf::util;

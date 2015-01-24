@@ -17,6 +17,7 @@ use Fcntl ':mode'; # symbolic file permissions
 use Try::Tiny;
 use Readonly;
 
+use pf::constants;
 use pf::config;
 use pf::config::cached;
 use pf::violation_config;

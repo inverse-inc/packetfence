@@ -24,6 +24,7 @@ use Try::Tiny;
 
 use base ('pf::Switch::Enterasys');
 
+use pf::constants;
 use pf::config;
 sub description { 'Enterasys V2110' }
 

@@ -8,7 +8,7 @@ pf::Authentication::Source::SQLSource
 
 =cut
 
-use pf::config qw($TRUE $FALSE);
+use pf::constants qw($TRUE $FALSE);
 use pf::temporary_password;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -72,7 +72,7 @@ sub match {
     } elsif ($params->{'email'}) {
         $result = pf::temporary_password::view_email($params->{'email'});
     }
-    
+
     # User is defined in SQL source, let's build the actions and return that
     if (defined $result) {
 

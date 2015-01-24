@@ -23,6 +23,7 @@ use POSIX;
 
 use base ('pf::Switch');
 
+use pf::constants;
 use pf::config;
 sub description { 'EdgeCore' }
 

@@ -18,6 +18,7 @@ use File::Touch;
 use IPC::Cmd qw[can_run run];
 use POSIX;
 use Net::Netmask;
+use pf::constants;
 use pf::config;
 use pf::log;
 use pf::util;
