@@ -63,6 +63,7 @@ use Log::Log4perl;
 use Net::Telnet;
 use Try::Tiny;
 
+use pf::constants;
 use pf::config;
 use pf::Switch::constants;
 use pf::util;

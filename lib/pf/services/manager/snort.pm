@@ -17,6 +17,7 @@ use Moo;
 extends 'pf::services::manager';
 with 'pf::services::manager::roles::pf_conf_trapping_engine';
 use pf::file_paths;
+use pf::constants;
 use pf::config;
 use pf::violation_config;
 use pf::util qw(get_all_internal_ips parse_template listify);

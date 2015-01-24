@@ -15,6 +15,7 @@ use warnings;
 
 use Log::Log4perl;
 use Net::SNMP;
+use pf::constants;
 use pf::config;
 use pf::Switch::constants;
 

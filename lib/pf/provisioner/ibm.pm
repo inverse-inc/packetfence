@@ -16,7 +16,7 @@ use warnings;
 use pf::log;
 use URI::Escape::XS;
 use Moo;
-use pf::config qw($TRUE $FALSE);
+use pf::constants qw($TRUE $FALSE);
 use List::MoreUtils qw(any);
 use pf::util qw(valid_mac clean_mac);
 use Sub::Name;

@@ -42,6 +42,7 @@ BEGIN {
     );
 }
 
+use pf::constants;
 use pf::config;
 use pf::config::cached;
 use pf::db;

@@ -19,7 +19,7 @@ use warnings;
 
 use List::Util qw(first);
 use List::MoreUtils qw(all none any);
-use pf::config qw($TRUE $FALSE);
+use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::log;
 use pf::node;

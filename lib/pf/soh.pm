@@ -25,6 +25,7 @@ use Log::Log4perl;
 use Data::Dumper;
 use Try::Tiny;
 
+use pf::constants;
 use pf::config;
 use pf::db;
 use pf::radius::constants;

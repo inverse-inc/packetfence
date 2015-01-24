@@ -42,6 +42,7 @@ use base ('pf::Switch');
 use Log::Log4perl;
 
 use pf::accounting qw(node_accounting_dynauth_attr);
+use pf::constants;
 use pf::config;
 use pf::util;
 
