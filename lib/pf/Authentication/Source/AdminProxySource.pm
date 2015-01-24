@@ -14,17 +14,49 @@ pf::Authentication::Source::AdminProxySource
 use strict;
 use warnings;
 use Moose;
+use pf::config;
+use pf::Authentication::constants;
+use pf::Authentication::Condition;
 extends 'pf::Authentication::Source';
 
 has '+type' => (default => 'AdminProxy');
 
 has '+class' => (default => 'admin');
 
+has 'proxy_addresses' => (is => 'rw', required => 1);
+
+has 'user_header' => (is => 'rw', required => 1);
+
+has 'group_header' => (is => 'rw', required => 1);
+
+=head1 METHODS
+
+=head2 available_attributes
+
+=cut
+
+sub available_attributes {
+  my $self = shift;
+
+  my $super_attributes = $self->SUPER::available_attributes;
+  my @attributes = map { { value => $_, type => $Conditions::SUBSTRING } } qw(group_header);
+
+  return [@$super_attributes, sort { $a->{value} cmp $b->{value} } @attributes];
+}
+
+=head2 authenticate
+
+=cut
+
+sub authenticate {
+    my ($self, $username, $password) = @_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    return ($FALSE, 'Invalid login or password');
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
-
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
