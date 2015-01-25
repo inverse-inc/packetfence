@@ -135,7 +135,7 @@ NodeView.prototype.showNode = function(e) {
     });
     modal.find('.datepicker').datepicker({ autoclose: true });
     modal.find('[data-toggle="tooltip"]').tooltip({placement: 'right'}).click(function(e) {
-        e.preventDefault;
+        e.preventDefault();
         return false;
     });
     modal.find('#pid').typeahead({
