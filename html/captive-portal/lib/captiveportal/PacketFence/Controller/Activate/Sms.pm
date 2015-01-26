@@ -125,7 +125,7 @@ sub sms_validation {
     # no form was submitted, assume first time
     my $pin = $c->request->param("pin");
     if ($pin) {
-        $logger->info("Mobile phone number validation attempt");
+        $logger->debug("Mobile phone number validation attempt");
         my $portalSession = $c->portalSession;
         if ($self->reached_retry_limit($c, 'sms_retries', $portalSession->profile->{_sms_pin_retry_limit})) {
             my $mac = $portalSession->clientMac;
