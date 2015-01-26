@@ -42,7 +42,7 @@ Enhancements
 * Reduce deadlocks caused by the cleaning of the iplog table
 * Reduce deadlocks caused by the cleaning of the locationlog table
 * Reorganize the portal profile option page
-* Added checkup on apache filters and vlan filters
+* Added checkup on Apache filters and VLAN filters
 
 Bug Fixes
 +++++++++

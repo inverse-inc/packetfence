@@ -99,7 +99,7 @@ sub dispatchRule {
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if (!defined($rule) || !(defined($rule->{'filter'}) && defined($rule->{'operator'}) && defined($rule->{'value'}) ) ) {
-        $logger->error("The rule $name you try to test doesn´t exist or an attribute is missing");
+        $logger->error("The rule $name you try to test doesn't exist or an attribute is missing");
         return 0;
     }
 

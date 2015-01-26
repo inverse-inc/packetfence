@@ -1001,7 +1001,7 @@ sub portal_profiles {
 
 =item vlan_filter_rules
 
-Make sure that the minimum parameters has been defined in vlan filter rules
+Make sure that the minimum parameters have been defined in vlan filter rules
 
 =cut
 
@@ -1026,7 +1026,7 @@ sub vlan_filter_rules {
 
 =item apache_filter_rules
 
-Make sure that the minimum parameters has been defined in apache filter rules
+Make sure that the minimum parameters have been defined in apache filter rules
 
 =cut
 
