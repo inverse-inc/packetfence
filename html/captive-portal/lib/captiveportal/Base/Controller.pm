@@ -47,7 +47,7 @@ sub showError {
 =head2 reached_retry_limit
 
 Test if the retry limit has been reached for a session key
-If the max is undef or 0 then it will return true
+If the max is undef or 0 then check is disabled
 
 =cut
 
