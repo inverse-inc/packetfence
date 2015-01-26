@@ -5638,7 +5638,7 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "maintenance.ldap_auth_cache_cleanup_interval"
-msgstr "ldap_auth cache clean up interval"
+msgstr "Ldap Auth cache clean up interval"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_batch"
