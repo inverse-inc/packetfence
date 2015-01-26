@@ -251,7 +251,7 @@ has_field 'sms_pin_retry_limit' =>
     label => 'SMS Pin Retry Limit',
     default => 0,
     tags => { after_element => \&help,
-             help => 'How many times a user can retry an sms pin having to request anothor pin. A value of 0 mean disables retries check.' },
+             help => 'Maximum number of times a user can retry a SMS PIN before having to request another PIN. A value of 0 disables the limit.' },
 
   );
 
