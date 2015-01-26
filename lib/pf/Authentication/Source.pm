@@ -210,7 +210,8 @@ sub match_condition {
 =cut
 
 sub search_attributes {
-    logger->debug("Search_attributes is not supported on this source.");
+    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+    $logger->debug("Search_attributes is not supported on this source.");
 
 }
 
