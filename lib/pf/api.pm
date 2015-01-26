@@ -97,7 +97,11 @@ sub soh_authorize : Public {
 }
 
 sub update_iplog : Public {
-    my ( $class, $srcmac, $srcip, $lease_length ) = @_;
+    my ($class, %postdata) = @_;
+    my @require = qw(mac ip lease_length oldmac oldip);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
     my $logger = pf::log::get_logger();
 
     if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
@@ -120,7 +124,7 @@ sub unreg_node_for_pid : Public {
     my $logger = pf::log::get_logger();
     my @require = qw(pid);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
+    return unless validate_argv(\@require,  \@found);
 
     my @node_infos =  pf::node::node_view_reg_pid($postdata{'pid'});
     $logger->info("Unregistering ".scalar(@node_infos)." node(s) for ".$postdata{'pid'});
@@ -178,7 +182,7 @@ sub firewallsso : Public {
     my ($class, %postdata) = @_;
     my @require = qw(method mac ip timeout);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
+    return unless validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
@@ -201,7 +205,7 @@ sub ReAssignVlan : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(connection_type switch mac ifIndex);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
+    return unless validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
@@ -234,9 +238,9 @@ sub ReAssignVlan : Public {
 
 sub desAssociate : Public {
     my ($class, %postdata )  = @_;
-        my @require = qw(switch mac connection_type ifIndex);
+    my @require = qw(switch mac connection_type ifIndex);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
+    return unless validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
@@ -259,7 +263,7 @@ sub firewall : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
+    return unless validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
@@ -340,7 +344,7 @@ sub violation_delayed_run : Public {
     my ($self, %postdata) = @_;
     my @require = qw(mac vid id);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
+    return unless validate_argv(\@require,  \@found);
 
     pf::violation::_violation_run_delayed(%postdata);
     return ;
@@ -356,8 +360,7 @@ sub trigger_violation : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac tid type);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
-
+    return unless validate_argv(\@require,  \@found);
 
     return (pf::violation::violation_trigger($postdata{'mac'}, $postdata{'tid'}, $postdata{'type'}));
 }
@@ -373,7 +376,7 @@ sub modify_node : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
+    return unless validate_argv(\@require,  \@found);
 
     pf::node::node_modify($postdata{'mac'}, %postdata);
     return;
@@ -389,7 +392,7 @@ sub register_node : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac pid);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
+    return unless validate_argv(\@require,  \@found);
 
     pf::node::node_register($postdata{'mac'}, $postdata{'pid'}, %postdata);
     return;
@@ -405,7 +408,7 @@ sub deregister_node : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
+    return unless validate_argv(\@require,  \@found);
 
     pf::node::node_deregister($postdata{'mac'}, %postdata);
     return;
@@ -421,11 +424,39 @@ sub node_information : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
+    return unless validate_argv(\@require,  \@found);
 
     my $node_info = pf::node::node_view($postdata{'mac'});
     return $node_info;
 }
+
+=head2 validate_arg
+
+Test if the required arguments are provided
+
+=cut
+
+sub validate_argv {
+    my ($require, $found) = @_;
+    my $logger = pf::log::get_logger();
+
+    if (!(@{$require} == @{$found})) {
+        my %diff;
+        @diff{ @{$require} } = @{$require};
+        delete @diff{ @{$found} };
+        $logger->error("Missing argument ". join(',',keys %diff) ." for the function ".whowasi());
+        return 0;
+    }
+    return 1;
+}
+
+=head2 whowasi
+
+Return the parent function name
+
+=cut
+
+sub whowasi { ( caller(2) )[3] }
 
 =head1 AUTHOR
 
