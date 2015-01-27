@@ -20,7 +20,7 @@ use POSIX;
 use base ('pf::firewallsso');
 
 use pf::accounting qw(node_accounting_current_sessionid);
-use pf::config;
+use pf::config qw($TRUE $FALSE);
 use pf::node qw(node_view);
 use pf::util::radius qw(perform_rsso);
 
@@ -72,10 +72,10 @@ sub action {
         my $vsa = [];
 
         perform_rsso($connection_info,$attributes,$vsa);
-        $logger->info("Node $mac registered and allowed to pass the Checkpoint Firewall");
-        return 1;
+        $logger->info("$method sent to the Checkpoint firewall for the node $mac");
+        return $TRUE;
     } else {
-        return 0;
+        return $FALSE;
     }
 }
 

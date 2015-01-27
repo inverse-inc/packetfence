@@ -26,7 +26,7 @@ has_field 'id' =>
    type => 'Text',
    label => 'Hostname or IP Address',
    required => 1,
-   messages => { required => 'Please specify the hostname or IP of the Checkpoint' },
+   messages => { required => 'Please specify the hostname or IP of the Check point firewall' },
   );
 has_field 'password' =>
   (
