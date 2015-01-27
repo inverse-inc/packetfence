@@ -395,7 +395,8 @@ sub RewriteConfig {
     if( $self->HasChanged(1) ) {
         die "Config $file was modified from last loading\n";
     }
-    if($self->IsGlobalReloadWriteLocked || $self->IsReloadWriteLocked) {
+    my $locker = _lockFileForOnReload($file);
+    if($self->IsGlobalReloadWriteLocked || $self->GetReloadWriteLock ) {
         die "Config $file is currently being reloaded into the cache please retry after reloading is done\n";
     }
     my $result;
@@ -929,6 +930,7 @@ sub RefreshConfigs {
     foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
         last if IsGlobalReloadWriteLocked();
         next unless $config;
+        next if $config->IsReloadWriteLocked();
         next unless $config->LockFileHasChanged;
         $config->ReloadConfig();
     }
