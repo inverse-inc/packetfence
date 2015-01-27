@@ -396,7 +396,7 @@ sub RewriteConfig {
         die "Config $file was modified from last loading\n";
     }
     my $locker = _lockFileForOnReload($file);
-    if($self->IsGlobalReloadWriteLocked || $self->GetReloadWriteLock ) {
+    if($self->IsGlobalReloadWriteLocked || !$self->GetReloadWriteLock ) {
         die "Config $file is currently being reloaded into the cache please retry after reloading is done\n";
     }
     my $result;
