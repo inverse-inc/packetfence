@@ -186,6 +186,12 @@ sub registertasks  {
         }
     );
     register_task(
+        'expire ldap_auth cache','ldap_auth_cache_cleanup_interval',sub {
+            purge_cache('ldap_auth')
+              if ( isenabled($Config{'expire'}{'ldap_auth'}) );
+        }
+    );
+    register_task(
         'checking registered nodes for expiration','nodes_maintenance_interval',sub {
             nodes_maintenance();
         }
@@ -265,7 +271,7 @@ sub purge_cache {
     my $cache = pf::CHI->new( namespace => $namespace );
     for my $key ($cache->get_keys) {
         if($cache->exists_and_is_expired($key)) {
-            #Add an eval in case of the value deleted before 
+            #Add an eval in case of the value deleted before
             eval {
                 $cache->remove($key);
             };

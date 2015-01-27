@@ -20,7 +20,7 @@ has 'unique' => (isa => 'Bool', is => 'ro', default => 0);
 has 'class' => (isa => 'Str', is => 'ro', default => 'internal');
 has 'type' => (isa => 'Str', is => 'ro', default => 'generic', required => 1);
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
-has 'rules' => (isa => 'ArrayRef', is => 'rw', required => 0);
+has 'rules' => (isa => 'ArrayRef', is => 'rw', required => 0, default => sub { [] });
 
 =head2 add_rule
 
@@ -134,6 +134,8 @@ sub match {
     my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
     my $current_date = sprintf("%d-%02d-%02d", $year+1900, $mon+1, $mday);
     my $current_time = sprintf("%02d:%02d", $hour, $min);
+    # Make a copy of the keys to allow caching of the parameters
+    $params = {%$params};
     $params->{current_date} = $current_date;
     $params->{current_time} = $current_time;
 

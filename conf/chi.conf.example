@@ -4,6 +4,12 @@ storage=file
 [storage DEFAULT l1_cache]
 storage=memcached
 
+[storage ldap_auth]
+expires_in=10m
+
+[storage ldap_auth l1_cache]
+expires_on_backend=1
+
 [storage httpd.admin]
 expires_in=1d
 

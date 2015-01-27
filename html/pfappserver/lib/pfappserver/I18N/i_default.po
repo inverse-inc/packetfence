@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.6.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-01-15 11:31-0400\n"
+"PO-Revision-Date: 2015-01-26 11:53-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -223,11 +223,11 @@ msgstr ""
 msgid "Add a condition."
 msgstr ""
 
-# html/pfappserver/root/config/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Add a language."
 msgstr ""
 
-# html/pfappserver/root/config/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Add a mandatory field."
 msgstr ""
 
@@ -474,6 +474,10 @@ msgstr ""
 msgid "Automatically expire httpd portal sessions"
 msgstr ""
 
+# conf/documentation.conf (expire.ldap_auth)
+msgid "Automatically expire ldap auth cache"
+msgstr ""
+
 # html/pfappserver/root/config/profile/edit.tt
 msgid "Available Variables"
 msgstr ""
@@ -547,6 +551,10 @@ msgstr "Main Configuration - Update"
 msgid "CSV File"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+msgid "Cache match"
+msgstr ""
+
 # html/pfappserver/root/config/adminroles/index.tt
 # html/pfappserver/root/config/authentication.tt
 # html/pfappserver/root/config/firewall_sso/index.tt
@@ -573,6 +581,12 @@ msgstr ""
 # html/pfappserver/root/configurator/wrapper.tt
 msgid "Cannot Load Content"
 msgstr "An error occured while contacting the server. Please try again later."
+
+# html/pfappserver/root/config/profile/create.tt
+# html/pfappserver/root/config/profile/files.tt
+# html/pfappserver/root/config/profile/view.tt
+msgid "Captive Portal"
+msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Captive portal"
@@ -1528,9 +1542,12 @@ msgid "Files"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Profile.pm
-# html/pfappserver/root/config/profile/tab-content.tt
 # html/pfappserver/root/soh/read.tt
 msgid "Filter"
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Filters"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -1753,6 +1770,7 @@ msgid "Identifier"
 msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
+# html/pfappserver/root/config/profile/tab-content.tt
 msgid "If [_1] of the following conditions are met:"
 msgstr ""
 
@@ -1877,6 +1895,10 @@ msgstr ""
 msgid "Internal Sources"
 msgstr ""
 
+# conf/documentation.conf (maintenance.ldap_auth_cache_cleanup_interval)
+msgid "Interval at which Packetfence purges the ldap_auth cache"
+msgstr ""
+
 # conf/documentation.conf (maintenance.acct_maintenance_interval)
 msgid "Interval at which Packetfence runs accounting maintenance"
 msgstr ""
@@ -1950,7 +1972,7 @@ msgstr ""
 msgid "Keep The Same"
 msgstr ""
 
-# html/pfappserver/root/config/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Languages"
 msgstr ""
 
@@ -2166,7 +2188,7 @@ msgstr ""
 msgid "Maintenance"
 msgstr ""
 
-# html/pfappserver/root/config/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Mandatory Fields"
 msgstr ""
 
@@ -2402,7 +2424,7 @@ msgstr ""
 msgid "No location history"
 msgstr ""
 
-# html/pfappserver/root/config/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "No mandatory fields specified."
 msgstr ""
 
@@ -4662,6 +4684,10 @@ msgstr ""
 msgid "Whitelisted Roles"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+msgid "Will cache results of matching a rule"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Window"
 msgstr ""
@@ -4682,11 +4708,11 @@ msgstr ""
 msgid "With no condition, the inline mode will never be activated."
 msgstr ""
 
-# html/pfappserver/root/config/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "With no language specified, all supported locales will be available."
 msgstr ""
 
-# html/pfappserver/root/config/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "With no mandatory fields specified, the mandatory fields of the default profile will be used."
 msgstr ""
 
@@ -5149,6 +5175,7 @@ msgstr ""
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (expire.httpd_admin options)
 # conf/documentation.conf (expire.httpd_portal options)
+# conf/documentation.conf (expire.ldap_auth options)
 # conf/documentation.conf (guests_self_registration.preregistration options)
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
@@ -5221,6 +5248,7 @@ msgstr "Send email"
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (expire.httpd_admin options)
 # conf/documentation.conf (expire.httpd_portal options)
+# conf/documentation.conf (expire.ldap_auth options)
 # conf/documentation.conf (guests_self_registration.preregistration options)
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
@@ -5297,6 +5325,10 @@ msgstr "Portal sessions expiration"
 # conf/documentation.conf
 msgid "expire.iplog"
 msgstr "IP/MAC logs"
+
+# conf/documentation.conf
+msgid "expire.ldap_auth"
+msgstr "Ldap Auth cache expiration"
 
 # conf/documentation.conf
 msgid "expire.locationlog"
@@ -5603,6 +5635,10 @@ msgstr ""
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_timeout"
 msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.ldap_auth_cache_cleanup_interval"
+msgstr "Ldap Auth cache clean up interval"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_batch"

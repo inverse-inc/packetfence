@@ -420,6 +420,11 @@ httpd_portal=enabled
 #
 # Please note that this table should not become too big since it 
 httpd_admin=enabled
+#
+# expire.ldap_auth
+#
+# Enable expiration of the ldap_auth cache
+ldap_auth=enabled
 
 [services]
 #
@@ -939,3 +944,8 @@ acct_maintenance_interval=60s
 #
 # Interval at which Packetfence runs the polling enforcement on the provisioners
 provisioning_compliance_poll_interval=300s
+#
+# maintenance.ldap_auth_cache_cleanup_interval
+#
+# Interval at which Packetfence purges the ldap_auth cache
+ldap_auth_cache_cleanup_interval=600s

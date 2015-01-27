@@ -11,6 +11,7 @@ pf::Authentication::Source::LDAPSource
 use pf::config qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::Authentication::Condition;
+use pf::CHI;
 
 use Net::LDAP;
 use Net::LDAPS;
@@ -39,6 +40,7 @@ has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 has '_cached_connection' => (is => 'rw');
+has 'cache_match' => ( isa => 'Bool',       is => 'rw', default => 0 );
 
 =head1 METHODS
 
@@ -166,6 +168,51 @@ sub _connect {
     $logger->error("[$self->{'id'}] Unable to connect to any LDAP server");
   }
   return undef;
+}
+
+
+=head2 match
+
+    Overrided to add caching to avoid a hit to the database
+
+=cut
+
+sub match {
+    my ($self, $params) = @_;
+    if($self->is_match_cacheable) {
+        return $self->cache->compute([$self->id, $params], sub { return $self->SUPER::match($params)});
+    }
+    return $self->SUPER::match($params);
+}
+
+=head2 cache
+
+    get the cache object
+
+=cut
+
+sub cache {
+    return pf::CHI->new( namespace => 'ldap_auth');
+}
+
+=head2 is_match_cacheable
+
+Checks to see if the match can be cached
+
+=cut
+
+sub is_match_cacheable {
+    my ($self) = @_;
+    #First check to see caching is disabled to see if we can exit quickly
+    return 0 unless $self->cache_match;
+    #Check rules for timed based operations return false first one found
+    foreach my $rule (@{$self->{rules}}) {
+        foreach my $condition (@{$rule->{conditions}}) {
+            my $op = $condition->{operator};
+            return 0 if $op eq $Conditions::IS_BEFORE || $op eq $Conditions::IS_AFTER;
+        }
+    }
+    return $self->cache_match;
 }
 
 
@@ -409,7 +456,7 @@ sub search_attributes {
       return ($FALSE, 'Unable to connect to the LDAP Server');
     }
     my $result = $self->bind_with_credentials($connection);
-  
+
     if ($result->is_error) {
       $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
       return ($FALSE, 'Unable to validate credentials at the moment');
@@ -420,7 +467,7 @@ sub search_attributes {
     );
     my $entry = $searchresult->entry();
     $connection->unbind();
-    
+
     if (!$entry) {
         $logger->warn("Unable to locate PID '$pid'");
     }
