@@ -27,6 +27,12 @@ has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'http
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'login.live.com,auth.gfx.ms,account.live.com');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
+=head2 lookup_from_provider_info
+
+Lookup the person information from the authentication hash received during the OAuth process
+
+=cut
+
 sub lookup_from_provider_info {
     my ( $self, $pid, $info ) = @_;
     my $logger = get_logger();

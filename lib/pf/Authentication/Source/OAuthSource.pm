@@ -56,6 +56,12 @@ sub match_in_subclass {
     return $username;
 }
 
+=head2 lookup_from_provider_info
+
+Lookup the person information from the authentication hash received during the OAuth process
+
+=cut
+
 sub lookup_from_provider_info {
     my ( $self, $pid, $info ) = @_;
     my $logger = get_logger;
@@ -68,7 +74,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
