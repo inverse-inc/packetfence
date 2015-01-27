@@ -939,3 +939,15 @@ acct_maintenance_interval=60s
 #
 # Interval at which Packetfence runs the polling enforcement on the provisioners
 provisioning_compliance_poll_interval=300s
+
+
+[monitoring]
+#
+# monitoring.statsd_host
+#
+statsd_host=localhost
+#
+# monitoring.statsd_port
+#
+statsd_port=8125
+

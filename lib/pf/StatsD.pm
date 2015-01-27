@@ -1,45 +1,51 @@
-package pf::WebAPI::InitHandler;
+package pf::StatsD;
+
 =head1 NAME
 
-pf::WebAPI::InitHandler
+pf::StatsD - PacketFence StatsD support
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::WebAPI::InitHandler
+pf::StatsD  contains the code necessary to create a Global StatsD object.
+
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the following configuration files: F<pf.conf.defaults>
 
 =cut
 
 use strict;
 use warnings;
+use Etsy::StatsD;
+use pf::config;
 
-use Apache2::RequestRec ();
-use pf::config::cached;
-use pf::StatsD;
+our $VERSION = 1.000000;
 
-use Apache2::Const -compile => 'OK';
+our @EXPORT = qw($statsd);
 
-sub handler {
-    my $r = shift;
-    pf::config::cached::ReloadConfigs();
-    return Apache2::Const::OK;
+our $statsd;
+
+initStatsd();
+
+sub initStatsd {
+    $statsd = Etsy::StatsD->new($Config{'monitoring'}{'statsd_host'}, $Config{'monitoring'}{'statsd_port'},);
 }
 
-sub child_init { 
-    pf::StatsD->initStatsd;
-    return Apache2::Const::OK;
-}
 
+sub CLONE {
+    initStatsd;
+}
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
-
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
@@ -62,3 +68,6 @@ USA.
 
 1;
 
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
