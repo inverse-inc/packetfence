@@ -143,7 +143,7 @@ sub checkForViolation : Private {
             =~ /^Scan in progress, started at: (.*)$/ ) {
             $logger->info(
                 "[$mac] captive portal redirect to the scan in progress page");
-            $c->detach( 'scan_status', [$1] );
+            $c->detach( 'Remediation', 'scan_status', [$1] );
         }
         my $class    = class_view($vid);
         my $template = $class->{'template'};
