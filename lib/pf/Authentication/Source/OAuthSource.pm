@@ -2,9 +2,11 @@ package pf::Authentication::Source::OAuthSource;
 
 =head1 NAME
 
-pf::Authentication::Source::FacebookSource
+pf::Authentication::Source::OAuthSource
 
 =head1 DESCRIPTION
+
+Abstract class for OAuth sources.
 
 =cut
 
