@@ -1,5 +1,5 @@
 Source: packetfence
-Section: main/net
+Section: net
 Priority: optional
 Maintainer: Durand fabrice <fdurand@inverse.ca>
 Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc
@@ -11,8 +11,7 @@ Homepage: http://www.packetfence.org/
 Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
-Pre-Depends:  ca-certificates, freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
- freeradius-mysql, freeradius-krb5, dhcp3-server
+Pre-Depends:  ca-certificates
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra,
@@ -102,6 +101,7 @@ Depends: ${misc:Depends}, vlan, make,
  libio-interactive-perl,
 # required for perl 5.12+ (made perl setuid optional) and most distros went without it
  packetfence-pfcmd-suid
+Recommends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql, freeradius-mysql, freeradius-krb5, isc-dhcp-server | dhcp3-server, snort | suricata
 Description: PacketFence network registration / worm mitigation system
  PacketFence is an open source network access control (NAC) system.
  It can be used to effectively secure networks, from small to very large
@@ -141,7 +141,7 @@ Description: Test suite for packetfence
 
 Package: packetfence-pfcmd-suid
 Architecture: any
-Depends: ${misc:Depends}, packetfence (>= 3.6.0)
+Depends: ${misc:Depends}, ${shlibs:Depends}, packetfence (>= 3.6.0)
 Replaces: packetfence (<< 3.6.0)
 Breaks: packetfence (<< 3.6.0)
 Description: C wrapper that replace perl-suid dependence
