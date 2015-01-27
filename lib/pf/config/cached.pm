@@ -712,7 +712,7 @@ sub ReloadConfig {
     );
 
     $reloaded_from_cache = refaddr($self) != refaddr($new_self);
-    
+
     if($reloaded_from_cache) {
         $self->_swap_data($new_self);
     }
@@ -728,7 +728,7 @@ Swap the data with cached data
 
 sub _swap_data {
     my ($self,$new_self) = @_;
-    Data::Swap::swap($self,$new_self); 
+    Data::Swap::swap($self,$new_self);
     $self->addToLoadedConfigs();
     #Setting no_destroy to avoid removal of call back data
     $new_self->{no_destroy} = 1;
@@ -879,7 +879,7 @@ Check if the current process has an existing write lock
 sub GetReloadWriteLock {
     my ($self) = @_;
     my $locker = _lockFileForOnReload($self->GetFileName);
-    $locker->blocking(0); 
+    $locker->blocking(0);
     return $locker->writeLock;
 }
 
@@ -924,8 +924,10 @@ refresh configs from the cache that have changed
 
 sub RefreshConfigs {
     my $logger = get_logger();
+    return if IsGlobalReloadWriteLocked();
     $logger->trace("Started Refreshing all configs");
     foreach my $config (@LOADED_CONFIGS{@LOADED_CONFIGS_FILE}) {
+        last if IsGlobalReloadWriteLocked();
         next unless $config;
         next unless $config->LockFileHasChanged;
         $config->ReloadConfig();
