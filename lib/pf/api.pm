@@ -430,7 +430,7 @@ sub node_information : Public {
     return $node_info;
 }
 
-=head2 validate_arg
+=head2 validate_argv
 
 Test if the required arguments are provided
 

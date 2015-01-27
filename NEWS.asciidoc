@@ -44,6 +44,7 @@ Enhancements
 * Reorganize the portal profile option page
 * Added checkup on Apache filters and VLAN filters
 * Create a single ldap connection when matching against multiple rules
+* Reduce the numbers of entries in iplog table (update end_time instead of closing and inserting a new line)
 
 Bug Fixes
 +++++++++
