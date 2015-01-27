@@ -12,7 +12,7 @@ use pf::log;
 use Moose;
 extends 'pf::Authentication::Source';
 
-has '+class' => (default => 'external');
+has '+class' => (default => 'abstact');
 has '+type' => (default => 'OAuth');
 has '+unique' => (default => 1);
 
