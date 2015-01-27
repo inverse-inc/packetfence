@@ -98,8 +98,9 @@ sub dispatchRule {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $name) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    if (!defined($rule)) {
-        $logger->error("The rule $name you try to test doesn´t exist");
+    if (!defined($rule) || !(defined($rule->{'filter'}) && defined($rule->{'operator'}) && defined($rule->{'value'}) ) ) {
+        $logger->error("The rule $name you try to test doesn't exist or an attribute is missing");
+        return 0;
     }
 
     return $RULE_PARSERS{$rule->{'filter'}}->($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);

@@ -25,6 +25,7 @@ use pf::services;
 use pf::trigger;
 use pf::authentication;
 use NetAddr::IP;
+use pf::web::filter;
 
 use lib $conf_dir;
 
@@ -128,6 +129,8 @@ sub sanity_check {
     portal_profiles();
     guests();
     unsupported();
+    vlan_filter_rules();
+    apache_filter_rules();
 
     return @problems;
 }
@@ -992,6 +995,58 @@ sub portal_profiles {
             $external{$type}++;
             add_problem ( $FATAL, "many authentication sources of type $type are selected for profile $portal_profile" )
               if ($external{$type} > 1);
+        }
+    }
+}
+
+=item vlan_filter_rules
+
+Make sure that the minimum parameters have been defined in vlan filter rules
+
+=cut
+
+sub vlan_filter_rules {
+    my %ConfigVlanFilters = %pf::vlan::filter::ConfigVlanFilters;
+    foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
+        if ($rule =~ /^\w+:(.*)$/) {
+            add_problem ( $FATAL, "Missing scope attribute in $rule vlan filter rule")
+                if (!defined($ConfigVlanFilters{$rule}->{'scope'}));
+            add_problem ( $FATAL, "Missing role attribute in $rule vlan filter rule")
+                if (!defined($ConfigVlanFilters{$rule}->{'role'}));
+        } else {
+            add_problem ( $FATAL, "Missing filter attribute in $rule vlan filter rule")
+                if (!defined($ConfigVlanFilters{$rule}->{'filter'}));
+            add_problem ( $FATAL, "Missing operator attribute in $rule vlan filter rule")
+                if (!defined($ConfigVlanFilters{$rule}->{'operator'}));
+            add_problem ( $FATAL, "Missing value attribute in $rule vlan filter rule")
+                if (!defined($ConfigVlanFilters{$rule}->{'value'}));
+        }
+    }
+}
+
+=item apache_filter_rules
+
+Make sure that the minimum parameters have been defined in apache filter rules
+
+=cut
+
+sub apache_filter_rules {
+    my %ConfigApacheFilters = %pf::web::filter::ConfigApacheFilters;
+    foreach my $rule  ( sort keys  %ConfigApacheFilters ) {
+        if ($rule =~ /^\w+:(.*)$/) {
+            add_problem ( $FATAL, "Missing action attribute in $rule apache filter rule")
+                if (!defined($ConfigApacheFilters{$rule}->{'action'}));
+            add_problem ( $FATAL, "Missing redirect_url attribute in $rule apache filter rule")
+                if (!defined($ConfigApacheFilters{$rule}->{'redirect_url'}));
+        } else {
+            add_problem ( $FATAL, "Missing filter attribute in $rule apache filter rule")
+                if (!defined($ConfigApacheFilters{$rule}->{'filter'}));
+            add_problem ( $FATAL, "Missing method attribute in $rule apache filter rule")
+                if (!defined($ConfigApacheFilters{$rule}->{'method'}));
+            add_problem ( $FATAL, "Missing value attribute in $rule apache filter rule")
+                if (!defined($ConfigApacheFilters{$rule}->{'value'}));
+            add_problem ( $FATAL, "Missing operator attribute in $rule apache filter rule")
+                if (!defined($ConfigApacheFilters{$rule}->{'operator'}));
         }
     }
 }
