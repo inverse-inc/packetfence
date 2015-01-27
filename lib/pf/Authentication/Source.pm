@@ -10,6 +10,7 @@ We must at least always have one rule defined, the fallback one.
 
 =cut
 
+use pf::config;
 use Moose;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -212,7 +213,7 @@ sub match_condition {
 sub search_attributes {
     my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
     $logger->debug("Search_attributes is not supported on this source.");
-
+    return $FALSE;
 }
 
 
