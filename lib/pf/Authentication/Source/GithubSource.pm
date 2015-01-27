@@ -9,7 +9,6 @@ pf::Authentication::Source::GithubSource
 =cut
 
 use pf::person;
-use pf::log;
 use Moose;
 extends 'pf::Authentication::Source::OAuthSource';
 
@@ -35,7 +34,6 @@ Lookup the person information from the authentication hash received during the O
 
 sub lookup_from_provider_info {
     my ( $self, $pid, $info ) = @_;
-    my $logger = get_logger();
     my ($first_name, $last_name) = split(' ', $info->{name});
     person_modify( $pid, firstname => $first_name, lastname => $last_name );
 }

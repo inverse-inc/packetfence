@@ -9,7 +9,6 @@ pf::Authentication::Source::WindowsLiveSource
 =cut
 
 use pf::person;
-use pf::log;
 use Moose;
 extends 'pf::Authentication::Source::OAuthSource';
 
@@ -36,8 +35,6 @@ Lookup the person information from the authentication hash received during the O
 
 sub lookup_from_provider_info {
     my ( $self, $pid, $info ) = @_;
-    my $logger = get_logger();
-
     person_modify( $pid, firstname => $info->{first_name}, lastname => $info->{last_name} );
 }
 
