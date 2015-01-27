@@ -43,6 +43,7 @@ Enhancements
 * Reduce deadlocks caused by the cleaning of the locationlog table
 * Reorganize the portal profile option page
 * Added checkup on Apache filters and VLAN filters
+* Create a single ldap connection when matching against multiple rules
 
 Bug Fixes
 +++++++++
