@@ -138,6 +138,7 @@ sub match {
     $params->{current_time} = $current_time;
 
     my @matching_rules = ();
+    $self->preMatchProcessing;
 
     foreach my $rule ( @{$self->{'rules'}} ) {
         my @matching_conditions = ();
@@ -176,10 +177,12 @@ sub match {
         # so let's keep the @matching_rules array for now.
         if (scalar @matching_rules == 1) {
             $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
+            $self->postMatchProcessing;
             return $rule->{'actions'};
         }
 
     } # foreach my $rule ( @{$self->{'rules'}} ) {
+    $self->postMatchProcessing;
 
     return undef;
 }
@@ -216,6 +219,21 @@ sub search_attributes {
     return $FALSE;
 }
 
+=head2 postMatchProcessing
+
+Tear down any resources created in preMatchProcessing
+
+=cut
+
+sub postMatchProcessing { }
+
+=head2 preMatchProcessing
+
+Setup any resouces need for matching
+
+=cut
+
+sub preMatchProcessing { }
 
 =head1 AUTHOR
 
