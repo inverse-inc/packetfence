@@ -37,6 +37,7 @@ case "$1" in
 
         chown pf:pf $PACKETFENCE
         find $PACKETFENCE '(' -type d -or -type f ')' -not -name pfcmd -print0 | xargs -0 chown pf:pf
+        chown dhcpd:dhcpd $PACKETFENCE/var/dhcpd/dhcpd.leases
 
         # link to latest SQL schema
         if [ ! -e "$PACKETFENCE/db/pf-schema.sql" ]; then
