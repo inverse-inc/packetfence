@@ -173,6 +173,45 @@ sub getExternalAuthenticationSources {
     return \@sources;
 }
 
+=item getAdminInternalAuthenticationSources
+
+Returns instances of pf::Authentication::Source for internal sources containing only the configured rules to authenticate web admin
+
+=cut
+
+sub getAdminInternalAuthenticationSources {
+    my @sources = ();
+
+    # Iterate through all configured internal authentication sources
+    foreach my $source ( @{ getInternalAuthenticationSources() } ) {
+
+        # We want to make sure the local SQL source is always available
+        push (@sources, $source) if $source->{'id'} eq 'local';
+
+        my @rules = ();
+        # Iterate through all configured rules of the authentication source
+        foreach my $rule ( @{ $source->{'rules'} } ) {
+            # Iterate through all configured actions of a rule in the authentication source
+            foreach my $action ( @{ $rule->{'actions'} } ) {
+                # If there's a 'set_access_level' action, we consider this source as an admin authentication source
+                if ( $action->{'type'} eq 'set_access_level' ) {
+                    push (@rules, $rule);
+                }
+            }
+        }
+
+        # If we have @rules defined and not empty, we consider this source as an admin authentication source and we 
+        # recreate it with only specific rules
+        if ( @rules ) {
+            @{$source->{'rules'}} = ();
+            push (@{$source->{'rules'}}, @rules);
+            push (@sources, $source);
+        }
+
+    }
+
+    return \@sources
+}
 
 # =head2 source_for_user
 
