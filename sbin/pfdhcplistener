@@ -518,9 +518,8 @@ sub update_iplog {
     }
 
     my $oldip  = mac2ip($srcmac);
-
+    my $oldmac = ip2mac($srcip);
     if ( $oldip && $oldip ne $srcip ) {
-        my $oldmac = ip2mac($srcip);
         my $view_mac = node_view($srcmac);
         # if there is at least a firewall sso defined in the config
         if(%ConfigFirewallSSO){
@@ -531,7 +530,14 @@ sub update_iplog {
             $apiclient->notify('ipset_node_update',$oldip, $srcip, $srcmac);
         }
     }
-    $apiclient->notify('update_iplog', $srcmac, $srcip, $lease_length );
+    my %data = (
+        'mac' => $srcmac,
+        'ip' => $srcip,
+        'lease_length' => $lease_length,
+        'oldip' => $oldip,
+        'oldmac' => $oldmac,
+    );
+    $apiclient->notify('update_iplog', %data );
 }
 
 =item process_fingerprint

@@ -96,11 +96,56 @@ sub soh_authorize {
 }
 
 sub update_iplog {
-    my ( $class, $srcmac, $srcip, $lease_length ) = @_;
+    my ($class, %postdata) = @_;
+    my @require = qw(mac ip lease_length oldmac oldip);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::iplog_update($srcmac, $srcip, $lease_length));
+    if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
+        $logger->info(
+            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing iplog entry"
+        );
+        pf::iplog::iplog_close_now($postdata{'ip'});
+    } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
+        $logger->info(
+            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing iplog entry"
+        );
+        pf::iplog::iplog_close_now($postdata{'oldip'});
+    }
+
+    return (pf::iplog::iplog_open($postdata{'mac'}, $postdata{'ip'}, $postdata{'lease_length'}));
 }
+
+=head2 validate_arg
+
+Test if the required arguments are provided
+
+=cut
+
+sub validate_argv {
+    my ($require, $found) = @_;
+    my $logger = pf::log::get_logger();
+
+    if (!(@{$require} == @{$found})) {
+        my %diff;
+        @diff{ @{$require} } = @{$require};
+        delete @diff{ @{$found} };
+        $logger->error("Missing argument ". join(',',keys %diff) ." for the function ".whowasi());
+        return 0;
+    }
+    return 1;
+}
+
+=head2 whowasi
+
+Return the parent function name
+
+=cut
+
+sub whowasi { ( caller(2) )[3] }
+
  
 sub unreg_node_for_pid {
     my ($class, $pid) = @_;
