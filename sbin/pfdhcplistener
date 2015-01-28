@@ -545,7 +545,7 @@ sub update_iplog {
         'mac' => $srcmac,
         'ip' => $srcip,
         'lease_length' => $lease_length,
-        'oldid' => $oldip,
+        'oldip' => $oldip,
         'oldmac' => $oldmac,
     );
     $apiclient->notify('update_iplog', %data );
