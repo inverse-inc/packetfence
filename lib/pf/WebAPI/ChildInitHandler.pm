@@ -1,4 +1,4 @@
-package pf::WebAPI::InitHandler;
+package pf::WebAPI::ChildInitHandler;
 =head1 NAME
 
 pf::WebAPI::InitHandler
@@ -22,7 +22,7 @@ use Apache2::Const -compile => 'OK';
 
 sub handler {
     my $r = shift;
-    pf::config::cached::ReloadConfigs();
+    pf::StatsD->initStatsd;
     return Apache2::Const::OK;
 }
 

@@ -36,6 +36,7 @@ use pf::floatingdevice::custom;
 # constants used by this module are provided by
 use pf::radius::constants;
 use List::Util qw(first);
+use Time::HiRes;
 
 our $VERSION = 1.03;
 
@@ -73,6 +74,8 @@ sub authorize {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $this->_parseRequest($radius_request);
+
+    my $start = Time::HiRes::gettimeofday();
 
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
@@ -217,6 +220,10 @@ sub authorize {
     # cleanup
     $switch->disconnectRead();
     $switch->disconnectWrite();
+
+    my $end = Time::HiRes::gettimeofday();
+    my $elapsed_time = $end - $start;
+    $pf::StatsD::statsd->timing(__PACKAGE__ . ".timing" , 1000 * $elapsed_time );
 
     return $RAD_REPLY_REF;
 }

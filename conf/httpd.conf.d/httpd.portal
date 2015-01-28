@@ -175,6 +175,8 @@ $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 $User = "pf";
 $Group = "pf";
 
+$PerlChildInitHandler = "pf::WebAPI::ChildInitHandler";
+
 $PerlOptions = "+GlobalRequest";
 $ProxyRequests = "Off";
 
