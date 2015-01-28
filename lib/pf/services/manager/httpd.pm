@@ -89,20 +89,26 @@ sub generateConfig {
     $tags{'proxies'} = join( "\n", @proxies );
 
     # Guest related URLs allowed through Apache ACL's
-    $tags{'allowed_from_all_urls'} = "|$WEB::URL_STATUS";
+    my $status_only_on_production = isenabled($Config{captive_portal}{status_only_on_production});
+    print "$status_only_on_production\n";
+    my $allowed_from_all_urls = '';
+    unless ($status_only_on_production) {
+        $allowed_from_all_urls .= "|$WEB::URL_STATUS";
+    }
     # signup and preregister if pre-registration is allowed
     my $guest_regist_allowed = scalar keys %guest_self_registration;
     if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
         # | is for a regexp "or" as this is pulled from a 'Location ~' statement
-        $tags{'allowed_from_all_urls'} .= "|$WEB::URL_SIGNUP|$WEB::CGI_SIGNUP|$WEB::URL_PREREGISTER";
+        $allowed_from_all_urls .= "|$WEB::URL_SIGNUP|$WEB::CGI_SIGNUP|$WEB::URL_PREREGISTER";
     }
     # /activate/email allowed if sponsor or email mode enabled
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
     if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
         # | is for a regexp "or" as this is pulled from a 'Location ~' statement
-        $tags{'allowed_from_all_urls'} .= "|$WEB::URL_EMAIL_ACTIVATION|$WEB::CGI_EMAIL_ACTIVATION";
+        $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION|$WEB::CGI_EMAIL_ACTIVATION";
     }
+    $tags{'allowed_from_all_urls'} = $allowed_from_all_urls;
 
     #unuse since httpd.conf has been rewrite in perl
     #$logger->info("generating $generated_conf_dir/httpd.conf");
