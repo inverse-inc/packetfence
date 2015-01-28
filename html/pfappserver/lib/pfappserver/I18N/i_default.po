@@ -1813,6 +1813,12 @@ msgid ""
   "forward to the captive portal."
 msgstr ""
 
+# conf/documentation.conf (captive_portal.status_only_on_production)
+msgid ""
+  "If status only onproduction is enabled, the /status page will only be available on the"
+  "production network. This is disabled by default"
+msgstr ""
+
 # conf/documentation.conf (captive_portal.loadbalancers_ip)
 msgid ""
   "If the captive portal is put behind load-balancer(s) that act at Layer 7 "
@@ -5051,6 +5057,10 @@ msgstr "IP"
 msgid "captive_portal.secure_redirect"
 msgstr "Secure redirect"
 
+# conf/documentation.conf
+msgid "captive_portal.status_only_on_production"
+msgstr "Status URI only on production network"
+
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "cell_phone"
@@ -5209,6 +5219,7 @@ msgstr ""
 
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
+# conf/documentation.conf (captive_portal.status_only_on_production options)
 # conf/documentation.conf (expire.httpd_admin options)
 # conf/documentation.conf (expire.httpd_portal options)
 # conf/documentation.conf (expire.ldap_auth options)
@@ -5282,6 +5293,7 @@ msgstr "Send email"
 
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
+# conf/documentation.conf (captive_portal.status_only_on_production options)
 # conf/documentation.conf (expire.httpd_admin options)
 # conf/documentation.conf (expire.httpd_portal options)
 # conf/documentation.conf (expire.ldap_auth options)
