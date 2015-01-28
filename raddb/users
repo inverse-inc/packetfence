@@ -1,1 +1,5 @@
+# PacketFence FreeRADIUS should not deal with NAS login requests (login into a switch)
+DEFAULT Service-Type == "NAS-Prompt-User", Auth-Type := Reject
+
+# Default user. IMPORTANT, DO NOT MODIFY
 DEFAULT EAP-Message !* "", Auth-Type := Accept
