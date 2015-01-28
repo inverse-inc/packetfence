@@ -37,15 +37,13 @@ use MIME::Lite;
 
 =head1 CONSTANTS
 
-=over
-
-=item database
+=head2 database
 
 =cut
 
 use constant ACTIVATION => 'activation';
 
-=item Status-related
+=head2 Status-related
 
 =cut
 
@@ -54,13 +52,13 @@ Readonly::Scalar our $VERIFIED => 'verified';
 Readonly::Scalar our $EXPIRED => 'expired';
 Readonly::Scalar our $INVALIDATED => 'invalidated'; # for example if a new code is requested
 
-=item Expiration time (in seconds)
+=head2 Expiration time (in seconds)
 
 =cut
 
 Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 
-=item Hashing formats related
+=head2 Hashing formats related
 
 =cut
 
@@ -69,17 +67,14 @@ Readonly::Scalar our $HASH_FORMAT => 1;
 # Hash formats
 Readonly::Scalar our $SIMPLE_MD5 => 1;
 
-=item Email activation types
+=head2 Email activation types
+
 
 =cut
 
 Readonly our $SPONSOR_ACTIVATION => 'sponsor';
 Readonly our $GUEST_ACTIVATION => 'guest';
 
-
-=back
-
-=cut
 
 BEGIN {
     use Exporter ();
@@ -122,8 +117,6 @@ our $activation_statements = {};
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
-
-=over
 
 =cut
 
@@ -188,7 +181,9 @@ sub activation_db_prepare {
     $activation_db_prepared = 1;
 }
 
-=item view - view a an pending activation record, returns an hashref
+=head2 view
+
+view a an pending activation record, returns an hashref
 
 =cut
 
@@ -202,7 +197,9 @@ sub view {
     return ($ref);
 }
 
-=item find_code - view an pending activation record by activation code without hash-format. Returns an hashref
+=head2 find_code
+
+view an pending activation record by activation code without hash-format. Returns an hashref
 
 =cut
 
@@ -217,7 +214,9 @@ sub find_code {
     return ($ref);
 }
 
-=item find_unverified_code - find an unused pending activation record by doing a LIKE in the code, returns an hashref
+=head2 find_unverified_code
+
+find an unused pending activation record by doing a LIKE in the code, returns an hashref
 
 =cut
 
@@ -234,7 +233,9 @@ sub find_unverified_code {
     return ($ref);
 }
 
-=item view_by_code - view an pending  activation record by exact activation code (including hash format). Returns an hashref
+=head2 view_by_code
+
+view an pending  activation record by exact activation code (including hash format). Returns an hashref
 
 =cut
 
@@ -249,7 +250,9 @@ sub view_by_code {
     return ($ref);
 }
 
-=item add - add an pending activation record to the database
+=head2 add
+
+add an pending activation record to the database
 
 =cut
 
@@ -263,7 +266,9 @@ sub add {
             $data{'expiration'}, $data{'status'}, $data{'type'}, $data{'portal'}));
 }
 
-=item _delete - delete an pending activation record
+=head2 _delete
+
+delete an pending activation record
 
 =cut
 
@@ -273,7 +278,9 @@ sub _delete {
     return(db_query_execute(ACTIVATION, $activation_statements, 'activation_delete_sql', $code_id));
 }
 
-=item modify_status - update the status of a given pending activation record
+=head2 modify_status
+
+update the status of a given pending activation record
 
 =cut
 
@@ -284,7 +291,9 @@ sub modify_status {
         'activation_modify_status_sql', $new_status, $code_id));
 }
 
-=item invalidate_code - invalidate all unverified activation codes for a given mac and contact_info
+=head2 invalidate_code
+
+invalidate all unverified activation codes for a given mac and contact_info
 
 =cut
 
@@ -307,23 +316,9 @@ sub invalidate_codes {
     return;
 }
 
-=item invalidate_codes_for_mac
+=head2 invalidate_codes_for_mac
 
-    invalidate codes for mac
-
-=cut
-
-=over
-
-=item Usage
-
-    invalidate_codes_for_mac($mac, $activation_type)
-
-=item Return
-
-    Nothing
-
-=back
+invalidate codes for mac
 
 =cut
 
@@ -340,7 +335,9 @@ sub invalidate_codes_for_mac {
     return ;
 }
 
-=item create - create a new activation code
+=head2 create
+
+create a new activation code
 
 Returns the activation code
 
@@ -380,7 +377,9 @@ sub create {
     }
 }
 
-=item _generate_activation_code - generate proper activation code. Created to encapsulate flexible hash types.
+=head2 _generate_activation_code
+
+generate proper activation code. Created to encapsulate flexible hash types.
 
 =cut
 
@@ -414,7 +413,9 @@ sub _generate_activation_code {
     }
 }
 
-=item _unpack_activation_code - grab the hash-format and the activation hash out of the activation code
+=head2 _unpack_activation_code
+
+grab the hash-format and the activation hash out of the activation code
 
 Returns a list of: hash version, hash
 
@@ -430,7 +431,9 @@ sub _unpack_activation_code {
     return;
 }
 
-=item send_email - Send an email with the activation code
+=head2 send_email
+
+Send an email with the activation code
 
 =cut
 
@@ -527,7 +530,7 @@ sub validate_code {
     return $activation_record;
 }
 
-=item set_status_verified
+=head2 set_status_verified
 
 Change the status of a given pending activation code to VERIFIED which means it can't be used anymore.
 
@@ -550,11 +553,13 @@ sub activation_has_entry {
     return $rows;
 }
 
-=item sms_activation_create_send - Create and send PIN code
+=head2 sms_activation_create_send
 
-The attribute %info is only meant to be used for debugging purposes.
+Create and send PIN code
 
 =cut
+
+#The attribute %info is only meant to be used for debugging purposes.
 
 sub sms_activation_create_send {
     my ($mac, $pid, $phone_number, $portal, $provider_id, %info) = @_;
@@ -574,7 +579,9 @@ sub sms_activation_create_send {
     return ($success, $err);
 }
 
-=item send_sms - Send SMS with activation code
+=head2 send_sms -
+
+Send SMS with activation code
 
 =cut
 
@@ -614,8 +621,6 @@ sub send_sms {
 }
 
 # TODO: add an expire / cleanup sub
-
-=back
 
 =head1 AUTHOR
 
