@@ -8,6 +8,10 @@ Notes on upgrading from an older release.
 Upgrading from a version prior to X.X.X
 ---------------------------------------
 
+Violation template pages language handling
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Code to match violation template pages have been reworked. Make sure to lowercase FR to fr in french template files name.
 
 Upgrading from a version prior to 4.5.0
 ---------------------------------------
