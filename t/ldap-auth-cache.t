@@ -155,7 +155,6 @@ use Test::More tests => 6;    # last test to print
 
 use Test::NoWarnings;
 use pf::authentication;
-use DDP;
 
 my $source = getAuthenticationSource('LDAP');
 
