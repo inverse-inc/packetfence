@@ -15,6 +15,11 @@
               [% ELSE %]
               <span class="label label-important">Winbind is not running</span>
               [% END %]
+              [% IF item.join_status == 0 %]
+              <span class="label label-success">Test join success!</span>
+              [% ELSE %]
+              <span class="label label-important">Test join fail![% item.join_output %]</span>
+              [% END %]
               [% IF item.ntlm_auth_status == 0 %]
               <span class="label label-success">Test ntlm_auth success!</span>
               [% ELSE %]

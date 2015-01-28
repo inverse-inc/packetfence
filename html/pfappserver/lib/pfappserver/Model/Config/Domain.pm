@@ -59,9 +59,10 @@ sub status {
     my $info = $self->configStore->read($domain);
 
     my ($winbind_status, $winbind_output) = $self->run("sudo /etc/init.d/winbind.$domain status");
+    my ($join_status, $join_output) = $self->run("sudo /sbin/ip netns exec $domain /usr/bin/net ads testjoin -s /etc/samba/$domain.conf");
     my ($ntlm_auth_status, $ntlm_auth_output) = $self->run("/usr/bin/sudo /usr/sbin/chroot /chroots/$domain /usr/bin/ntlm_auth --username=$info->{bind_dn} --password=$info->{bind_pass}");
   
-    return ($winbind_status, $winbind_output, $ntlm_auth_status, $ntlm_auth_output);
+    return ($winbind_status, $winbind_output, $ntlm_auth_status, $ntlm_auth_output, $join_status, $join_output);
 
 }
 
