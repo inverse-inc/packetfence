@@ -167,7 +167,7 @@ sub login : Local : Args(0) {
 
         # External authentication
         $c->forward('validateLogin');
-        $c->forward('testLoginRetryLimit');
+        $c->forward('enforceLoginRetryLimit');
         $c->forward('authenticationLogin');
         $c->forward('postAuthentication');
         $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
@@ -179,13 +179,13 @@ sub login : Local : Args(0) {
 
 }
 
-=head2 testLoginRetryLimit
+=head2 enforceLoginRetryLimit
 
 Limit the amount of time a user can retry a password
 
 =cut
 
-sub testLoginRetryLimit : Private {
+sub enforceLoginRetryLimit : Private {
     my ( $self, $c ) = @_;
     my $username = $c->request->param("username");
     if($username) {
