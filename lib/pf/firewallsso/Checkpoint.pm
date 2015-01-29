@@ -20,7 +20,7 @@ use POSIX;
 use base ('pf::firewallsso');
 
 use pf::accounting qw(node_accounting_current_sessionid);
-use pf::config qw($TRUE $FALSE);
+use pf::config qw($TRUE $FALSE %ConfigFirewallSSO);
 use pf::node qw(node_view);
 use pf::util::radius qw(perform_rsso);
 
