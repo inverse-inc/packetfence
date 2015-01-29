@@ -52,6 +52,8 @@ use pfconfig::cached_hash;
 #
 our @authentication_sources;
 tie @authentication_sources, 'pfconfig::cached_array', 'resource::authentication_sources';
+our @admin_authentication_sources = ();
+our @auth_authentication_sources = ();
 our %authentication_lookup;
 tie %authentication_lookup, 'pfconfig::cached_hash', 'resource::authentication_lookup';
 our %guest_self_registration;
@@ -66,6 +68,7 @@ BEGIN {
       qw(
             @authentication_sources
             @admin_authentication_sources
+            @auth_authentication_sources
             availableAuthenticationSourceTypes
             newAuthenticationSource
             getAuthenticationSource
@@ -182,6 +185,16 @@ sub getAdminAuthenticationSources {
     return \@admin_authentication_sources;
 }
 
+=item getAuthAuthenticationSources
+
+Returns cached instances of pf::Authentication::Source for authentication sources builded for authentication purposes
+
+=cut
+
+sub getAuthAuthenticationSources {
+    return \@auth_authentication_sources;
+}
+
 =item buildAdminAuthenticationSources
 
 Builds an array of pf::Authentication::Source instances based on internal authentication sources containing only web admin access actions.
@@ -222,6 +235,52 @@ sub buildAdminAuthenticationSources {
     }
 
     return \@sources
+}
+
+=item buildAuthAuthenticationSources
+
+Builds an array of pf::Authentication::Source instances based on external authentication sources and internal authentication sources that doesn't contains any 'set_access_level' rules action.
+
+=cut
+
+sub buildAuthAuthenticationSources {
+    my @sources = ();
+
+    # Iterate through all the configured internal authencation sources
+    foreach my $originalSource ( @{ getInternalAuthenticationSources() } ) {
+        # Since the source (originalSource) is actually a reference, we want to clone and work on that cloned copy
+        my $clonedSource = clone($originalSource);
+
+        # We want to make sure the local SQL source is always available
+        push (@sources, $clonedSource) if $clonedSource->{'id'} eq 'local';
+
+        my @rules = ();
+        # Iterate through all configured rules of the authentication source
+        foreach my $rule ( @{ $clonedSource->{'rules'} } ) {
+            # Iterate through all configured actions of a rule in the authentication source
+            foreach my $action ( @{ $rule->{'actions'} } ) {
+                # We want to skip all 'set_access_level' action for authentication purposes
+                next if $action->{'type'} eq 'set_access_level';
+                push (@rules, $rule);
+            }
+        }
+
+        # If we have @rules defined and not empty, we consider this source as an 'auth' authentication source and we 
+        # recreate it with only specific rules
+        if ( @rules ) {
+            @{$clonedSource->{'rules'}} = ();
+            push (@{$clonedSource->{'rules'}}, @rules);
+            push (@sources, $clonedSource);
+        }
+    }
+
+    # Iterate through all the configured external authentication sources
+    # We doesn't modify anything in them, simply cloning them
+    foreach my $originalSource ( @{ getExternalAuthenticationSources() } ) {
+        push (@sources, clone($originalSource));
+    }
+
+    return \@sources;
 }
 
 # =head2 source_for_user
