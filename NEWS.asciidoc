@@ -21,46 +21,47 @@ New Features
 * Added support for MAC authentication floating devices on Juniper EX series, and on the Cisco Catalyst series
 * Added a hybrid 802.1x + web authentication mode for Cisco Catalyst 2960
 * Added a web notification when network access is granted
-* Add the ability to tag functions that are allowed to be exposed through the web API
-* Add WiFi autoconfiguration for Windows through packetfence-windows-agent
-* Added a "Chained" authentication source where a user must first login in order to register by SMS,Email or SponsorEmail
-* Added call to the web API from the vlan filters
-* Added a way to retrieve user information after the first registration.
+* Added the ability to tag functions that are allowed to be exposed through the web API
+* Added WiFi autoconfiguration for Windows through packetfence-windows-agent
+* Added a "Chained" authentication source where a user must first login in order to register by SMS, Email or SponsorEmail
+* Added call to the web API from the VLAN filters
+* Added a way to retrieve user information after the first registration
 * Added the ability to filter profiles by connection type
 * Profiles can be matched by all or any of its filters
-* Can optionally cache the results of ldap rule matching for a user
+* Can optionally cache the results of LDAP rule matching for a user
+* New portal profile parameter to set a retry limit for SMS-based activation
 
 Enhancements
 ++++++++++++
 
 * Added httpd.aaa service as a new API service for the exclusive use of RADIUS
-* More precisely define which dhcp message types we are listening for
-* Removed dead code referring to 'external' interface type which was, anyway, no longer supported
+* More precisely define which DHCP message types we are listening for
+* Removed dead code referring to 'external' interface type which was no longer supported
 * Added VLAN filter in getNodeInfoForAutoReg and update/create person even if the device has been autoreg
-* Refactor the VLAN filter code to reduce code duplication
+* Refactored the VLAN filter code to reduce code duplication
 * Added IMG path configuration parameter in admin
-* The ability to restricts the roles, access levels and access durations for an admin users based on their admin role/access level
-* Reduce deadlocks caused by the cleaning of the iplog table
-* Reduce deadlocks caused by the cleaning of the locationlog table
-* Reorganize the portal profile option page
+* Added the ability to restrict the roles, access levels and access durations for admin users based on their role/access level
+* Reduced deadlocks caused by the cleaning of the iplog table
+* Reduced deadlocks caused by the cleaning of the locationlog table
+* Reorganized the portal profile configuration page
 * Added checkup on Apache filters and VLAN filters
-* Create a single ldap connection when matching against multiple rules
-* Reduce the numbers of entries in iplog table (update end_time instead of closing and inserting a new line)
+* Created a single LDAP connection when matching against multiple rules
+* Reduced the numbers of entries in iplog table (update end_time instead of closing and inserting a new line)
 * Now matching on language and not only language/country combination for violation templates (See UPGRADE guide)
-* PacketFence FreeRADIUS will return reject on "NAS-Prompt-User" Service-Type requests. (Console login using RADIUS as backend)
+* PacketFence FreeRADIUS will return reject on "NAS-Prompt-User" Service-Type requests (Console login using RADIUS as backend)
 
 Bug Fixes
 +++++++++
 
-* Fix old MAC addresses being left on port-security enabled ports in a RADIUS + port-security environment
-* Fix firewall rule that allows httpd.portal to be reached on management IP when pre-registration enabled
-* Fix creating a new file from the Portal Profile GUI in a subdirectory
+* Fixed old MAC addresses being left on port-security enabled ports in a RADIUS + port-security environment
+* Fixed firewall rule that allows httpd.portal to be reached on management IP when pre-registration enabled
+* Fixed creating a new file from the Portal Profile GUI in a subdirectory
 * Improved log rotation handling
-* Fix previewing templates in the admin GUI
-* Fix bulk applying of roles and violations in the admin GUI
-* Fix importing of nodes when no pid is given
+* Fixed previewing templates in the admin GUI
+* Fixed bulk applying of roles and violations in the admin GUI
+* Fixed importing of nodes when no pid is given
 * Added a cleanup of trailing and leading spaces of the posted username during the login
-* Fix wrong regex to detect ifindex in Cisco switches
+* Fixed wrong regex to detect ifindex in Cisco switches
 * Honor order of profiles when matching profile filters
 * Fixed URI based portal profiles
 * Fixed XSS vulnerabilities in the portal
