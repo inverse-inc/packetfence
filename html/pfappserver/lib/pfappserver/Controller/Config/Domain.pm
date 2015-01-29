@@ -94,8 +94,7 @@ after list => sub {
     # now we add additionnal information in the hash
 
     foreach my $item (@{$c->stash->{items}}) {
-      ( $item->{winbind_status}, $item->{winbind_output}, 
-        $item->{ntlm_auth_status}, $item->{ntlm_auth_output},
+      ( $item->{ntlm_auth_status}, $item->{ntlm_auth_output},
         $item->{join_status}, $item->{join_output},
       ) = $c->model('Config::Domain')->status($item->{id});
     }

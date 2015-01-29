@@ -314,7 +314,7 @@ sub parseCommandLine {
         'service'         => qr{ ^ ( dhcpd | pfdns | pfdetect | pfbandwidthd
                                      | pf | pfdhcplistener | pfmon
                                      | pfsetvlan | radiusd | snmptrapd
-                                     | snort | suricata | haproxy | httpd\.webservices | httpd\.admin | httpd\.portal | httpd\.portal\.catalyst | httpd\.proxy | httpd\.aaa | memcached | iptables | keepalived)
+                                     | snort | suricata | haproxy | httpd\.webservices | httpd\.admin | httpd\.portal | httpd\.portal\.catalyst | httpd\.proxy | httpd\.aaa | memcached | iptables | keepalived | winbindd)
                                    \s+
                                    ( restart | start | status | stop
                                      | watch )

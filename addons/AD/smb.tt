@@ -9,7 +9,7 @@ realm = [% dns_name %]
 netbios name = [% server_name %]
 server string =  [% server_name %]
 
-pid directory = /var/run/samba[% domain %]
+pid directory = /usr/local/pf/var/run
 lock directory = /var/cache/samba[% domain %]
 private dir = /var/cache/samba[% domain %]
 

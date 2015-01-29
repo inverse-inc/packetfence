@@ -167,6 +167,7 @@ Services managed by PacketFence:
   pfmon            | PF ARP monitoring daemon
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
+  winbindd         | Winbind daemon
   snmptrapd        | SNMP trap receiver daemon
   snort            | Sourcefire Snort IDS
   suricata         | Suricata IDS

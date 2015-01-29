@@ -10,11 +10,6 @@
           <tr>
             <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
             <td>
-              [%- IF item.winbind_status == 0 %]
-              <span class="label label-success">Winbind is running</span>
-              [% ELSE %]
-              <span class="label label-important">Winbind is not running</span>
-              [% END %]
               [% IF item.join_status == 0 %]
               <span class="label label-success">Test join success!</span>
               [% ELSE %]

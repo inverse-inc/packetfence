@@ -19,6 +19,7 @@ use pf::util;
 use pf::config;
 use pf::ConfigStore::Domain;
 use pf::log;
+use pf::services;
 
 our $TT_OPTIONS = {ABSOLUTE => 1};
 our $template = Template->new($TT_OPTIONS);
@@ -28,14 +29,13 @@ sub join_domain {
   my $logger = get_logger();
   my $cfg = pf::ConfigStore::Domain->new;
 
+  regenerate_configuration();
+
   my $info = $cfg->read($domain);
+  $logger->debug("Joining $domain");
   $logger->debug("domain join : ".pf_run("sudo ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}"));
 
-  $logger->debug("winbind restart : ".pf_run("sudo /etc/init.d/winbind.$domain restart"));
-
-  $logger->debug("chkconfig $domain : ".pf_run("sudo /sbin/chkconfig --add winbind.$domain"));
-  $logger->debug("chkconfig $domain : ".pf_run("sudo /sbin/chkconfig --add winbind.$domain on"));
-
+  restart_winbinds();
 }
 
 sub rejoin_domain {
@@ -45,8 +45,9 @@ sub rejoin_domain {
 
   my $info = $cfg->read($domain);
   if($info){
-    $logger->debug("domain leave : ".system("sudo ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}"));
-    $logger->debug("domain join : ".system("sudo ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}"));
+    $logger->debug("domain leave : ".pf_run("sudo ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}"));
+    $logger->debug("domain join : ".pf_run("sudo ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}"));
+    restart_winbinds();
   }
 }
 
@@ -59,8 +60,7 @@ sub unjoin_domain {
   if($info){
     $logger->debug("domain leave : ".system("sudo ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}"));
     $logger->debug("netns deletion : ".system("sudo ip netns delete $domain"));
-    pf_run("sudo /etc/init.d/winbind.$domain stop");
-    pf_run("sudo rm -f /etc/init.d/winbind.$domain");
+    #restart_winbinds();
   }
   else{
     $logger->error("Domain $domain is not configured");
@@ -117,9 +117,8 @@ sub generate_resolv_conf {
 
 sub restart_winbinds {
   my $logger = get_logger();
-  foreach my $domain (keys %ConfigDomain){
-    pf_run("sudo /etc/init.d/winbind.$domain restart");
-  }  
+  #my $result = pf::services::service_ctl("winbindd", "restart");
+  pf_run("sudo /usr/local/pf/bin/pfcmd service winbindd restart");
 }
 
 
@@ -129,9 +128,6 @@ sub regenerate_configuration {
   generate_smb_conf();
   generate_init_conf();
   generate_resolv_conf();
-  pf_run("sudo cp /usr/local/pf/addons/AD/winbind.setup.init /etc/init.d/winbind.setup");
-  pf_run("sudo chkconfig winbind.setup on");
-  pf_run("sudo /etc/init.d/winbind.setup restart");
   pf_run("sudo /usr/local/pf/bin/pfcmd service iptables restart");
   restart_winbinds();
 }
