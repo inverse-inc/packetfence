@@ -158,13 +158,14 @@ binary-arch: build install
 		-X$(NAME)sbin/pfarp_remote
 	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
 	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
-	chown dhcpd:dhcpd $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
-	# Set setuid root on bin/pfcmd
-	chown pf:pf -R $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/
+	# Nop, dhcpd won't exists on the build machine
+	# Maybe it should be done by the postinst script ?
+	# Or handled by the DHCP Server init script ?
+	#chown dhcpd:dhcpd $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
 	chown root:root $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	chmod ug+s $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 #	dh_perl
-#	dh_makeshlibs
+	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol

@@ -25,7 +25,9 @@ case "$1" in
 
     remove)
         #remove user and group pf
-        invoke-rc.d packetfence stop
+        if [ -x /etc/init.d/packetfence ]; then
+            invoke-rc.d packetfence stop
+        fi
         userdel pf
         if [ -e /etc/lsb-release ]; then
             groupdel pf
