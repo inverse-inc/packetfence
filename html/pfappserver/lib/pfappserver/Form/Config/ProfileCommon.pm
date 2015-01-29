@@ -44,7 +44,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages sms_pin_retry_limit sms_request_retries)],
+    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages sms_pin_retry_limit sms_request_retries login_attempt_limit)],
   );
 
 =head1 Fields
