@@ -447,6 +447,7 @@ sub Rollback {
     $cache->l1_cache->remove($file);
     my $old_config = $cache->get($file);
     $self->_swap_data($old_config);
+    undef $old_config;
     $self->doCallbacks(0,1);
 }
 
@@ -716,6 +717,7 @@ sub ReloadConfig {
 
     if($reloaded_from_cache) {
         $self->_swap_data($new_self);
+        undef $new_self;
     }
     $self->doCallbacks($reloaded_from_file,$reloaded_from_cache,$force);
     return $result;
