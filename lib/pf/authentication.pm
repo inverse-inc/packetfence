@@ -32,6 +32,7 @@ use Module::Pluggable
   'require'     => 1,
   ;
 
+use Clone qw(clone);
 use List::Util qw(first);
 use List::MoreUtils qw(none any);
 use pf::util;
@@ -183,14 +184,16 @@ sub getAdminInternalAuthenticationSources {
     my @sources = ();
 
     # Iterate through all configured internal authentication sources
-    foreach my $source ( @{ getInternalAuthenticationSources() } ) {
+    foreach my $originalSource ( @{ getInternalAuthenticationSources() } ) {
+        # Since the source (originalSource) is actually a reference, we want to clone and work on that cloned copy
+        my $clonedSource = clone($originalSource);
 
         # We want to make sure the local SQL source is always available
-        push (@sources, $source) if $source->{'id'} eq 'local';
+        push (@sources, $clonedSource) if $clonedSource->{'id'} eq 'local';
 
         my @rules = ();
         # Iterate through all configured rules of the authentication source
-        foreach my $rule ( @{ $source->{'rules'} } ) {
+        foreach my $rule ( @{ $clonedSource->{'rules'} } ) {
             # Iterate through all configured actions of a rule in the authentication source
             foreach my $action ( @{ $rule->{'actions'} } ) {
                 # If there's a 'set_access_level' action, we consider this source as an admin authentication source
@@ -203,9 +206,9 @@ sub getAdminInternalAuthenticationSources {
         # If we have @rules defined and not empty, we consider this source as an admin authentication source and we 
         # recreate it with only specific rules
         if ( @rules ) {
-            @{$source->{'rules'}} = ();
-            push (@{$source->{'rules'}}, @rules);
-            push (@sources, $source);
+            @{$clonedSource->{'rules'}} = ();
+            push (@{$clonedSource->{'rules'}}, @rules);
+            push (@sources, $clonedSource);
         }
 
     }
