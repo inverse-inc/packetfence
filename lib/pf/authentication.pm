@@ -65,6 +65,7 @@ BEGIN {
     @EXPORT =
       qw(
             @authentication_sources
+            @admin_authentication_sources
             availableAuthenticationSourceTypes
             newAuthenticationSource
             getAuthenticationSource
@@ -128,9 +129,6 @@ sub newAuthenticationSource {
     return $source;
 }
 
-
-
-
 =item getAuthenticationSource
 
 Return an instance of pf::Authentication::Source::* for the given id
@@ -174,13 +172,23 @@ sub getExternalAuthenticationSources {
     return \@sources;
 }
 
-=item getAdminInternalAuthenticationSources
+=item getAdminAuthenticationSources
 
-Returns instances of pf::Authentication::Source for internal sources containing only the configured rules to authenticate web admin
+Returns cached instances of pf::Authentication::Source for authentication sources builded for web admin access purposes
 
 =cut
 
-sub getAdminInternalAuthenticationSources {
+sub getAdminAuthenticationSources {
+    return \@admin_authentication_sources;
+}
+
+=item buildAdminAuthenticationSources
+
+Builds an array of pf::Authentication::Source instances based on internal authentication sources containing only web admin access actions.
+
+=cut
+
+sub buildAdminAuthenticationSources {
     my @sources = ();
 
     # Iterate through all configured internal authentication sources
@@ -203,7 +211,7 @@ sub getAdminInternalAuthenticationSources {
             }
         }
 
-        # If we have @rules defined and not empty, we consider this source as an admin authentication source and we 
+        # If we have @rules defined and not empty, we consider this source as an 'admin' authentication source and we 
         # recreate it with only specific rules
         if ( @rules ) {
             @{$clonedSource->{'rules'}} = ();
