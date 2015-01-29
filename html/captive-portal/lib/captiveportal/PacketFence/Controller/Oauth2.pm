@@ -79,6 +79,7 @@ sub oauth2_client {
         $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
     } elsif (lc($provider) eq 'github') {
         $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
+        $token_scheme = "uri-query:access_token";
     } elsif (lc($provider) eq 'google') {
         $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
     } elsif (lc($provider) eq 'linkedin'){
@@ -193,12 +194,16 @@ sub oauth2Result : Path : Args(1) {
                 # Grab JSON content
                 my $json      = new JSON;
                 my $json_text = $json->decode($response->content());
-                if ($provider eq 'google' || $provider eq 'github' || $provider eq 'facebook') {
+                if ($provider eq 'google' || $provider eq 'facebook') {
                     $pid = $json_text->{email};
                 } elsif ($provider eq 'windowslive'){
                     $pid = $json_text->{emails}->{account};
+                } elsif ($provider eq 'github'){
+                    # github doesn't provide email by default
+                    $pid = $json_text->{login}.'@github';
                 }
                 $logger->info("OAuth2 successfull, register and release for username $pid");
+                $source->lookup_from_provider_info($pid, $json_text);
             }         
         } else {
             $logger->info(
@@ -207,24 +212,6 @@ sub oauth2Result : Path : Args(1) {
             $c->stash->{txt_auth_error} = i18n("OAuth2 Error: Failed to validate the token, please retry");
             $c->detach(Authenticate => 'showLogin');
         }
-
-        # Setting access timeout and role (category) dynamically
-        $info{'unregdate'} =
-          &pf::authentication::match( $source->{id}, { username => $pid },
-            $Actions::SET_ACCESS_DURATION );
-
-        if ( defined $info{'unregdate'} ) {
-            $info{'unregdate'} = pf::config::access_duration($info{'unregdate'});
-        } else {
-            $info{'unregdate'} =
-              &pf::authentication::match( $source->{id},
-                { username => $pid },
-                $Actions::SET_UNREG_DATE );
-        }
-
-        $info{'category'} =
-          &pf::authentication::match( $source->{id}, { username => $pid },
-            $Actions::SET_ROLE );
 
         $c->session->{"username"} = $pid;
         $c->session->{source_id} = $source->{id};
