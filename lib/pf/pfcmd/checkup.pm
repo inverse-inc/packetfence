@@ -972,7 +972,7 @@ sub portal_profiles {
         qr/(?:locale |filter|logo|guest_self_reg|guest_modes|template_path|
         billing_engine|description|sources|redirecturl|always_use_redirecturl|
         mandatory_fields|nbregpages|allowed_devices|allow_android_devices|
-        reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit)/x;
+        reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|sms_request_retries)/x;
 
     foreach my $portal_profile ( $cached_profiles_config->Sections) {
         my $data = $Profiles_Config{$portal_profile};
