@@ -7,7 +7,7 @@
           <h3><i>[% l('Delete DHCP_Fingerprint') %]</i> <span></span></h3>
         </div>
         <div class="modal-body">
-          <p>[% l('Really delete this [DHCP_Fingerprint?') %]</p>
+          <p>[% l('Really delete this DHCP_Fingerprint?') %]</p>
         </div>
         <div class="modal-footer">
           <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
