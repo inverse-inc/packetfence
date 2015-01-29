@@ -44,6 +44,26 @@ sub showError {
     $c->detach;
 }
 
+=head2 reached_retry_limit
+
+Test if the retry limit has been reached for a session key
+If the max is undef or 0 then check is disabled
+
+=cut
+
+sub reached_retry_limit {
+    my ( $self, $c, $retry_key, $max ) = @_;
+    return 0 unless $max;
+    my $cache = $c->user_cache;
+    my $retries = $cache->get($retry_key) || 1;
+    if($retries > $max ) {
+        return 1;
+    }
+    $retries++;
+    $cache->set($retry_key,$retries);
+    return 0;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

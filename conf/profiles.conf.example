@@ -8,3 +8,4 @@ mandatory_fields=firstname,lastname,phone,email
 locale=en_US
 nbregpages=0
 filter_match_style=any
+sms_pin_retry_limit=0

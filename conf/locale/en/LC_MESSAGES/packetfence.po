@@ -835,6 +835,9 @@ msgstr ""
 msgid "Guest pre-registration is not allowed by policy"
 msgstr ""
 
+msgid "Maximum amount of retries attempted"
+msgstr ""
+
 msgid "If you choose to have your access <strong>sponsored</strong>, we will send an email to the Sponsor email you provided with an activation link. The sponsor will need to click on that link and authenticate in order to approve you in."
 msgstr ""
 
