@@ -6068,6 +6068,10 @@ msgid "pf::profile::filter::switch_port"
 msgstr "Switch Port"
 
 # pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::time_of_day"
+msgstr "Time of day"
+
+# pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::uri"
 msgstr "URI"
 
