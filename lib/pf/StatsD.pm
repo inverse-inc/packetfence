@@ -19,7 +19,9 @@ Read the following configuration files: F<pf.conf.defaults>
 
 use strict;
 use warnings;
-use Etsy::StatsD;
+use Carp;
+use base "Etsy::StatsD";
+use Sys::Hostname;
 use pf::config;
 
 our $VERSION = 1.000000;
@@ -30,14 +32,87 @@ our $statsd;
 
 initStatsd();
 
+# we override new to add a "hostname" attribute.
+sub new {
+	my ( $class, $host, $port, $sample_rate ) = @_;
+	$host = 'localhost' unless defined $host;
+	$port = 8125        unless defined $port;
+	my $hostname = hostname; 
+
+	my $sock = new IO::Socket::INET(
+		PeerAddr => $host,
+		PeerPort => $port,
+		Proto    => 'udp',
+	) or croak "Failed to initialize socket: $!";
+
+	bless { hostname => $hostname, socket => $sock, sample_rate => $sample_rate }, $class;
+}
+
 sub initStatsd {
-    $statsd = Etsy::StatsD->new($Config{'monitoring'}{'statsd_host'}, $Config{'monitoring'}{'statsd_port'},);
+    $statsd = __PACKAGE__->new($Config{'monitoring'}{'statsd_host'}, $Config{'monitoring'}{'statsd_port'},);
 }
 
 
 sub CLONE {
     initStatsd;
 }
+
+
+=item timing(STAT, TIME, SAMPLE_RATE)
+
+Log timing information
+
+=cut
+
+sub timing {
+	my ( $self, $stat, $time, $sample_rate ) = @_;
+	$stat = $self->{hostname} . ".$stat";
+	$self->send( { $stat => "$time|ms" }, $sample_rate );
+}
+
+=item increment(STATS, SAMPLE_RATE)
+
+Increment one of more stats counters.
+
+=cut
+
+sub increment {
+	my ( $self, $stats, $sample_rate ) = @_;
+	$stats = $self->{hostname} . ".$stats";
+	$self->update( $stats, 1, $sample_rate );
+}
+
+=item decrement(STATS, SAMPLE_RATE)
+
+Decrement one of more stats counters.
+
+=cut
+
+sub decrement {
+	my ( $self, $stats, $sample_rate ) = @_;
+	$stats = $self->{hostname} . ".$stats";
+	$self->update( $stats, -1, $sample_rate );
+}
+
+=item update(STATS, DELTA, SAMPLE_RATE)
+
+Update one of more stats counters by arbitrary amounts.
+
+=cut
+
+sub update {
+	my ( $self, $stats, $delta, $sample_rate ) = @_;
+	$delta = 1 unless defined $delta;
+	my %data;
+	if ( ref($stats) eq 'ARRAY' ) {
+		%data = map { "$self->{hostname}\.$_" => "$delta|c" }, @$stats;
+	}
+	else {
+		%data = ( "$self->{hostname}\.$stats" => "$delta|c" );
+	}
+	$self->send( \%data, $sample_rate );
+}
+
 
 =head1 AUTHOR
 
