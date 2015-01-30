@@ -188,7 +188,7 @@ Get the module from the type
 
 sub getModule {
     my ($type) = @_;
-    return (exists $TYPE_TO_MODULE{$type} ) ? $TYPE_TO_MODULE{$type} : undef;;
+    return (exists $TYPE_TO_MODULE{$type} ) ? $TYPE_TO_MODULE{$type} : undef;
 }
 
 =item buildVendorsList
