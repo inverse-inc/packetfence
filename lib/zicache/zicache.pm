@@ -58,8 +58,7 @@ sub to_hash {
 # going all javascript and sh*t
 my $config_builder = sub {
   my ($file) = @_;
-  my $cfg = Config::IniFiles->new(-file => $file, -default => "default");
-  my %tmp_cfg = to_hash($cfg);
+  tie %tmp_cfg, 'Config::IniFiles', ( -file => $file );
 
   $tmp_cfg{'127.0.0.1'} = {
       id                => '127.0.0.1',
