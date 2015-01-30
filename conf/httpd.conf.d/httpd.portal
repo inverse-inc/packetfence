@@ -1,106 +1,106 @@
 <IfDefine debian>
-  <IfModule !mod_perl.c>
-    LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
-  </IfModule>
-  <IfModule !mod_log_config.c>
-    LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
-  </IfModule>
-  <IfModule !mod_ssl.c>
-    LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
-  </IfModule>
-  <IfModule !mod_headers.c>
-    LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
-  </IfModule>
-  <IfModule !mod_proxy.c>
-    LoadModule proxy_module /usr/lib/apache2/modules/mod_proxy.so
-  </IfModule>
-  <IfModule !proxy_http.c>
-    LoadModule proxy_http_module /usr/lib/apache2/modules/mod_proxy_http.so
-  </IfModule>
-  <IfModule !mod_authz_host.c>
-    LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
-  </IfModule>
-  <IfModule !mod_setenvif.c>
-    LoadModule setenvif_module /usr/lib/apache2/modules/mod_setenvif.so
-  </IfModule>
-  <IfModule !mod_rewrite.c>
-    LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
-  </IfModule>
-  <IfModule !mod_alias.c>
-    LoadModule alias_module /usr/lib/apache2/modules/mod_alias.so
-  </IfModule>
-  <IfModule !mod_mime.c>
-    LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
-  </IfModule>
-  <IfModule !mod_apreq2.c>
-    LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
-  </IfModule>
-  # To activate this module add an entry in /etc/hosts for this server hostname.
-  #<IfModule !mod_unique_id.c>
-  #  LoadModule unique_id_module /usr/lib/apache2/modules/mod_unique_id.so
-  #</IfModule>
-  <IfModule !mod_qos.c>
-    LoadModule qos_module /usr/lib/apache2/modules/mod_qos.so
-  </IfModule>
-  <IfModule !mod_deflate.c>
-    LoadModule deflate_module /usr/lib/apache2/modules/mod_deflate.so
-  </IfModule>
-  <IfModule !mod_status.c>
-    LoadModule status_module /usr/lib/apache2/modules/mod_status.so
-  </IfModule>
+    <IfModule !mod_perl.c>
+        LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
+    </IfModule>
+    <IfModule !mod_log_config.c>
+        LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
+    </IfModule>
+    <IfModule !mod_ssl.c>
+        LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
+    </IfModule>
+    <IfModule !mod_headers.c>
+        LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
+    </IfModule>
+    <IfModule !mod_proxy.c>
+        LoadModule proxy_module /usr/lib/apache2/modules/mod_proxy.so
+    </IfModule>
+    <IfModule !proxy_http.c>
+        LoadModule proxy_http_module /usr/lib/apache2/modules/mod_proxy_http.so
+    </IfModule>
+    <IfModule !mod_authz_host.c>
+        LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
+    </IfModule>
+    <IfModule !mod_setenvif.c>
+        LoadModule setenvif_module /usr/lib/apache2/modules/mod_setenvif.so
+    </IfModule>
+    <IfModule !mod_rewrite.c>
+        LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
+    </IfModule>
+    <IfModule !mod_alias.c>
+        LoadModule alias_module /usr/lib/apache2/modules/mod_alias.so
+    </IfModule>
+    <IfModule !mod_mime.c>
+        LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
+    </IfModule>
+    <IfModule !mod_apreq2.c>
+        LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
+    </IfModule>
+    # To activate this module add an entry in /etc/hosts for this server hostname.
+    #<IfModule !mod_unique_id.c>
+    #    LoadModule unique_id_module /usr/lib/apache2/modules/mod_unique_id.so
+    #</IfModule>
+    <IfModule !mod_qos.c>
+        LoadModule qos_module /usr/lib/apache2/modules/mod_qos.so
+    </IfModule>
+    <IfModule !mod_deflate.c>
+        LoadModule deflate_module /usr/lib/apache2/modules/mod_deflate.so
+    </IfModule>
+    <IfModule !mod_status.c>
+        LoadModule status_module /usr/lib/apache2/modules/mod_status.so
+    </IfModule>
 </IfDefine>
 
 #RHEL specific
 <IfDefine rhel>
-  <IfModule !mod_perl.c>
-    LoadModule perl_module modules/mod_perl.so
-  </IfModule>
-  <IfModule !mod_log_config.c>
-    LoadModule log_config_module modules/mod_log_config.so
-  </IfModule>
-  <IfModule !mod_ssl.c>
-    LoadModule ssl_module modules/mod_ssl.so
-  </IfModule>
-  <IfModule !mod_headers.c>
-    LoadModule headers_module modules/mod_headers.so
-  </IfModule>
-  <IfModule !mod_proxy.c>
-    LoadModule proxy_module modules/mod_proxy.so
-  </IfModule>
-  <IfModule !proxy_http.c>
-    LoadModule proxy_http_module modules/mod_proxy_http.so
-  </IfModule>
-  <IfModule !mod_authz_host.c>
-    LoadModule authz_host_module modules/mod_authz_host.so
-  </IfModule>
-  <IfModule !mod_setenvif.c>
-    LoadModule setenvif_module modules/mod_setenvif.so
-  </IfModule>
-  <IfModule !mod_rewrite.c>
-    LoadModule rewrite_module modules/mod_rewrite.so
-  </IfModule>
-  <IfModule !mod_alias.c>
-    LoadModule alias_module modules/mod_alias.so
-  </IfModule>
-  <IfModule !mod_mime.c>
-    LoadModule mime_module modules/mod_mime.so
-  </IfModule>
-  <IfModule !mod_apreq2.c>
-    LoadModule apreq_module modules/mod_apreq2.so
-  </IfModule>
-  # To activate this module add an entry in /etc/hosts for this server hostname.
-  #<IfModule !mod_unique_id.c>
-  #  LoadModule unique_id_module modules/mod_unique_id.so
-  #</IfModule>
-  <IfModule !mod_qos.c>
-    LoadModule qos_module modules/mod_qos.so
-  </IfModule>
-  <IfModule !mod_deflate.c>
-    LoadModule deflate_module modules/mod_deflate.so
-  </IfModule>
-  <IfModule !mod_status.c>
-    LoadModule status_module modules/mod_status.so
-  </IfModule>
+    <IfModule !mod_perl.c>
+        LoadModule perl_module modules/mod_perl.so
+    </IfModule>
+    <IfModule !mod_log_config.c>
+        LoadModule log_config_module modules/mod_log_config.so
+    </IfModule>
+    <IfModule !mod_ssl.c>
+        LoadModule ssl_module modules/mod_ssl.so
+    </IfModule>
+    <IfModule !mod_headers.c>
+        LoadModule headers_module modules/mod_headers.so
+    </IfModule>
+    <IfModule !mod_proxy.c>
+        LoadModule proxy_module modules/mod_proxy.so
+    </IfModule>
+    <IfModule !proxy_http.c>
+        LoadModule proxy_http_module modules/mod_proxy_http.so
+    </IfModule>
+    <IfModule !mod_authz_host.c>
+        LoadModule authz_host_module modules/mod_authz_host.so
+    </IfModule>
+    <IfModule !mod_setenvif.c>
+        LoadModule setenvif_module modules/mod_setenvif.so
+    </IfModule>
+    <IfModule !mod_rewrite.c>
+        LoadModule rewrite_module modules/mod_rewrite.so
+    </IfModule>
+    <IfModule !mod_alias.c>
+        LoadModule alias_module modules/mod_alias.so
+    </IfModule>
+    <IfModule !mod_mime.c>
+        LoadModule mime_module modules/mod_mime.so
+    </IfModule>
+    <IfModule !mod_apreq2.c>
+        LoadModule apreq_module modules/mod_apreq2.so
+    </IfModule>
+    # To activate this module add an entry in /etc/hosts for this server hostname.
+    #<IfModule !mod_unique_id.c>
+    #    LoadModule unique_id_module modules/mod_unique_id.so
+    #</IfModule>
+    <IfModule !mod_qos.c>
+        LoadModule qos_module modules/mod_qos.so
+    </IfModule>
+    <IfModule !mod_deflate.c>
+        LoadModule deflate_module modules/mod_deflate.so
+    </IfModule>
+    <IfModule !mod_status.c>
+        LoadModule status_module modules/mod_status.so
+    </IfModule>
 </IfDefine>
 
 PerlSwitches -I/usr/local/pf/lib
@@ -124,33 +124,35 @@ ServerLimit 512
 Header always set X-DNS-Prefetch-Control off
 
 <Proxy *>
-  Order deny,allow
-  Allow from all
+    Order deny,allow
+    Allow from all
 </Proxy>
 
 <Files ~ "\.(cgi?)$">
-  SSLOptions +StdEnvVars
+    SSLOptions +StdEnvVars
 </Files>
 
 SetEnvIf User-Agent ".*MSIE.*" \
-  nokeepalive ssl-unclean-shutdown \
-  downgrade-1.0 force-response-1.0
+    nokeepalive ssl-unclean-shutdown \
+    downgrade-1.0 force-response-1.0
 
 TypesConfig /etc/mime.types
 
-
-
 <Perl>
+
 BEGIN {
     use pf::log 'service' => 'httpd.portal';
 }
-use pf::config qw();
-use pf::util qw(isenabled);
-use pf::authentication();
-use pf::web::constants();
-use Tie::DxHash;
-use pf::services::manager::httpd();
+
 use Apache::SSLLookup;
+use List::MoreUtils qw(uniq);
+use Tie::DxHash;
+
+use pf::authentication();
+use pf::config qw();
+use pf::services::manager::httpd();
+use pf::util qw(isenabled);
+use pf::web::constants();
 
 sub gen_conf {
     my %conf;
@@ -165,7 +167,7 @@ my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 my @internal_nets = @pf::config::internal_nets;
-my $host;
+my @portal_nets = @pf::config::portal_nets;
 my $vhost;
 
 $PidFile = $install_dir.'/var/run/httpd.portal.pid';
@@ -235,231 +237,150 @@ if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
     $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION";
 }
 
-foreach my $interface (@internal_nets) {
-    if (defined($interface->{'Tip'}) && $interface->{'Tip'} ne '') {
-        if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
-            $vhost = $interface->{'Tvip'};
-        } else {
-            $vhost = $interface->{'Tip'};
-       }
+# Generate vhosts for each interfaces configured accordingly (portal_nets)
+# internal_nets is kept for backward compatibility
+foreach my $interface (uniq @internal_nets, @portal_nets) {
+    # Handling virtual IP
+    if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
+        $vhost = $interface->{'Tvip'};
+    } else {
+        $vhost = $interface->{'Tip'};
     }
+
     push (@Listen,$vhost.":80");
     push (@Listen,$vhost.":443");
     push (@NameVirtualHost,$vhost.":80");
     push (@NameVirtualHost,$vhost.":443");
+
+    # Unsecure captive-portal (http)
     push (@{ $VirtualHost{$vhost.":80"} }, gen_conf(
-         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
-         Include => "${var_dir}/conf/captive-portal-common.conf",
-         AllowEncodedSlashes => "on",
-         Alias        => "/static ${install_dir}/html/captive-portal/root/static",
-         Alias        => "/common ${install_dir}/html/common",
-         PerlModule   => 'captiveportal',
-         PerlTransHandler => 'pf::web::dispatcher::custom',
-         Location     => {
-             "/" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-             "/static" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'default-handler',
-             },
-             "/common" => {
-                 "Allow" => "from all",
-                 SetHandler => 'default-handler',
-             },
-             "/release" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler =>  'modperl',
-                 PerlResponseHandler =>  'pf::web::release',
-                 PerlOptions => '+GlobalRequest +ParseHeaders'
-             },
-             "/content" => {
+        ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+        DocumentRoot => "${install_dir}/html/captive-portal/lib",
+        ErrorLog     => "${install_dir}/logs/httpd.portal.error",
+        CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+        Include => "${var_dir}/conf/captive-portal-common.conf",
+        AllowEncodedSlashes => "on",
+        Alias        => "/static ${install_dir}/html/captive-portal/root/static",
+        Alias        => "/common ${install_dir}/html/common",
+        PerlModule   => 'captiveportal',
+        PerlTransHandler => 'pf::web::dispatcher::custom',
+        Location     => {
+            "/" => {
+                "Order" => "deny,allow",
+                "Deny" => "from all",
+                "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                SetHandler => 'modperl',
+                PerlResponseHandler => 'captiveportal',
+            },
+            "/static" => {
+                "Order" => "deny,allow",
+                "Deny" => "from all",
+                "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                SetHandler => 'default-handler',
+            },
+            "/common" => {
                 "Allow" => "from all",
-             },
-             "~ \"/$allowed_from_all_urls\"" => {
+                SetHandler => 'default-handler',
+            },
+            "/release" => {
+                "Order" => "deny,allow",
+                "Deny" => "from all",
+                "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                SetHandler =>  'modperl',
+                PerlResponseHandler =>  'pf::web::release',
+                PerlOptions => '+GlobalRequest +ParseHeaders'
+            },
+            "/content" => {
                 "Allow" => "from all",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-         },
+            },
+            "~ \"/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
+                SetHandler => 'modperl',
+                PerlResponseHandler => 'captiveportal',
+            },
+        },
     ));
+
+    # Secure captive-portal (https)
     push (@{ $VirtualHost{$vhost.":443"} }, gen_conf(
-         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
-         Include => "${var_dir}/conf/captive-portal-common.conf",
-         AllowEncodedSlashes => "on",
-         Alias        => "/static ${install_dir}/html/captive-portal/root/static",
-         Alias        => "/common ${install_dir}/html/common",
-         PerlModule   => 'captiveportal',
-         PerlTransHandler => 'pf::web::dispatcher::custom',
-         Location     => {
-             "/" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-             "/static" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'default-handler',
-             },
-             "/common" => {
-                 "Allow" => "from all",
-                 SetHandler => 'default-handler',
-             },
-             "/release" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler =>  'modperl',
-                 PerlResponseHandler =>  'pf::web::release',
-                 PerlOptions => '+GlobalRequest +ParseHeaders'
-             },
-             "/content" => {
+        ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+        DocumentRoot => "${install_dir}/html/captive-portal/lib",
+        ErrorLog     => "${install_dir}/logs/httpd.portal.error",
+        CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+        Include => "${var_dir}/conf/captive-portal-common.conf",
+        AllowEncodedSlashes => "on",
+        Alias        => "/static ${install_dir}/html/captive-portal/root/static",
+        Alias        => "/common ${install_dir}/html/common",
+        PerlModule   => 'captiveportal',
+        PerlTransHandler => 'pf::web::dispatcher::custom',
+        Location     => {
+            "/" => {
+                "Order" => "deny,allow",
+                "Deny" => "from all",
+                "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                SetHandler => 'modperl',
+                PerlResponseHandler => 'captiveportal',
+            },
+            "/static" => {
+                "Order" => "deny,allow",
+                "Deny" => "from all",
+                "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                SetHandler => 'default-handler',
+            },
+            "/common" => {
                 "Allow" => "from all",
-             },
-             "~ \"/$allowed_from_all_urls\"" => {
+                SetHandler => 'default-handler',
+            },
+            "/release" => {
+               "Order" => "deny,allow",
+                "Deny" => "from all",
+                "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+                SetHandler =>  'modperl',
+                PerlResponseHandler =>  'pf::web::release',
+                PerlOptions => '+GlobalRequest +ParseHeaders'
+            },
+            "/content" => {
                 "Allow" => "from all",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-         },
-         SSLEngine => 'on',
-         SSLProxyEngine    => 'on',
-         Include      => "${var_dir}/conf/ssl-certificates.conf",
+            },
+            "~ \"/$allowed_from_all_urls\"" => {
+                "Allow" => "from all",
+                SetHandler => 'modperl',
+                PerlResponseHandler => 'captiveportal',
+            },
+        },
+        SSLEngine => 'on',
+        SSLProxyEngine    => 'on',
+        Include      => "${var_dir}/conf/ssl-certificates.conf",
     ));
 }
 
+# Generate vhost for diagnostic purposes (mod_status)
 if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+    # Handling virtual IP
     if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
-        $host = $management_network->{'Tvip'};
+        $vhost = $management_network->{'Tvip'};
     } else {
-        $host = $management_network->{'Tip'};
+        $vhost = $management_network->{'Tip'};
     }
 
-    push (@Listen,$host.":80");
-    push (@Listen,$host.":443");
-    push (@NameVirtualHost,$host.":80");
-    push (@NameVirtualHost,$host.":443");
+    push (@Listen,$vhost.":".$PfConfig->{'ports'}{'portal_modstatus'});
+    push (@NameVirtualHost,$vhost.":".$PfConfig->{'ports'}{'portal_modstatus'});
 
-    push @{ $VirtualHost{$host.":80"} }, gen_conf(
-         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
-         Include => "${var_dir}/conf/captive-portal-common.conf",
-         AllowEncodedSlashes => "on",
-         Alias        => "/static ${install_dir}/html/captiveportal/root/static",
-         Alias        => "/common ${install_dir}/html/common",
-         PerlModule   => 'captiveportal',
-         PerlTransHandler => 'pf::web::dispatcher::custom',
-         Location     => {
-             "/" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-             "/static" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'default-handler',
-             },
-             "/common" => {
-                 "Allow" => "from all",
-                 SetHandler => 'default-handler',
-             },
-             "/release" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler =>  'modperl',
-                 PerlResponseHandler =>  'pf::web::release',
-                 PerlOptions => '+GlobalRequest +ParseHeaders'
-             },
-             "/content" => {
-                "Allow" => "from all",
-             },
-             "~ \"/$allowed_from_all_urls\"" => {
-                "Allow" => "from all",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             }, 
-             "/apache_status/" => {
-                 SetHandler => 'server-status',
-             },
-         },
-    );
-    push @{ $VirtualHost{$host.":443"} }, gen_conf(
-         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
-         Include => "${var_dir}/conf/captive-portal-common.conf",
-         AllowEncodedSlashes => "on",
-         Alias        => "/static ${install_dir}/html/captiveportal/root/static",
-         Alias        => "/common ${install_dir}/html/common",
-         PerlModule   => 'captiveportal',
-         PerlTransHandler => 'pf::web::dispatcher::custom',
-         Location     => {
-             "/" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-             "/static" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'default-handler',
-             },
-             "/common" => {
-                 "Allow" => "from all",
-                 SetHandler => 'default-handler',
-             },
-             "/release" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler =>  'modperl',
-                 PerlResponseHandler =>  'pf::web::release',
-                 PerlOptions => '+GlobalRequest +ParseHeaders'
-             },
-             "/content" => {
-                "Allow" => "from all",
-             },
-             "~ \"/$allowed_from_all_urls\"" => {
-                "Allow" => "from all",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-         },
-         SSLEngine => 'on',
-         SSLProxyEngine    => 'on',
-         Include      => "${var_dir}/conf/ssl-certificates.conf",
-    );
+    push (@{ $VirtualHost{$vhost.":".$PfConfig->{'ports'}{'portal_modstatus'}} }, gen_conf(
+        ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+        DocumentRoot => "${install_dir}/html/captive-portal/lib",
+        ErrorLog     => "${install_dir}/logs/httpd.portal.error",
+        CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+        Location     => {
+            "/server-status/" => {
+                SetHandler => 'server-status',
+            },
+        },
 
-} 
+        SSLEngine => 'on',
+        SSLProxyEngine    => 'on',
+        Include      => "${var_dir}/conf/ssl-certificates.conf",
+    ));
+}
 
 </Perl>
-

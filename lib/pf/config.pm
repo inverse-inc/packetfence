@@ -47,7 +47,7 @@ use pf::profile::filter::all;
 # Categorized by feature, pay attention when modifying
 our (
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
-    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets,
+    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @portal_nets,
     @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
 #pf.conf.default variables
     %Default_Config, $cached_pf_default_config,
@@ -82,7 +82,7 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int
-        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network
+        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @portal_nets
         @inline_enforcement_nets @vlan_enforcement_nets
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         $IPSET_VERSION %mark_type_to_str %mark_type
@@ -553,7 +553,7 @@ sub readPfConfigFiles {
                 #clearing older interfaces infor
                 $monitor_int = $management_network = '';
                 @listen_ints = @dhcplistener_ints = @ha_ints =
-                  @internal_nets =
+                  @internal_nets = @portal_nets =
                   @inline_enforcement_nets = @vlan_enforcement_nets = ();
 
                 my @time_values = grep { my $t = $Doc_Config{$_}{type}; defined $t && $t eq 'time' } keys %Doc_Config;
@@ -600,7 +600,7 @@ sub readPfConfigFiles {
                     }
 
                     die "Missing mandatory element ip or netmask on interface $int"
-                        if ($type =~ /internal|managed|management/ && !defined($int_obj));
+                        if ($type =~ /internal|managed|management|portal/ && !defined($int_obj));
 
                     foreach my $type ( split( /\s*,\s*/, $type ) ) {
                         if ( $type eq 'internal' ) {
@@ -627,6 +627,9 @@ sub readPfConfigFiles {
                             push @dhcplistener_ints, $int;
                         } elsif ( $type eq 'high-availability' ) {
                             push @ha_ints, $int;
+                        } elsif ( $type eq 'portal' ) {
+                            $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
+                            push @portal_nets, $int_obj;
                         }
                     }
                 }
@@ -655,7 +658,7 @@ sub readPfConfigFiles {
                         )
                     ];
                 }
-                $Config{network}{dhcp_filter_by_message_types} = [split(/\s*,\s*/,$Config{network}{dhcp_filter_by_message_types} || '')],
+                $Config{captive_portal}{detection_urls} = [split(/\s*,\s*/,$Config{captive_portal}{detection_urls} || '') ];
 
                 _load_captive_portal();
             }]

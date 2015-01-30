@@ -247,12 +247,6 @@ sub generate_enabler_page {
     render_template($portalSession, 'enabler.html');
 }
 
-sub generate_redirect_page {
-    my ( $portalSession ) = @_;
-
-    render_template($portalSession, 'redirect.html');
-}
-
 =item generate_aup_standalone_page
 
 Called when someone clicked on /aup which is the pop-up URL for mobile phones.
