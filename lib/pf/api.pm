@@ -55,7 +55,9 @@ sub radius_authorize : Public {
     my ($class, %radius_request) = @_;
     my $logger = pf::log::get_logger();
 
+    $logger->info("managed to enter function");
     my $radius = new pf::radius::custom();
+    $logger->info("managed to make radius object");
     my $return;
     eval {
         $return = $radius->authorize(\%radius_request);
