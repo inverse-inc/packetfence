@@ -100,8 +100,9 @@ sub instantiate {
     my $requestedSwitch;
     my $switch_ip;
     my $switch_mac;
-    my $switch_overlay_cache = pf::CHI->new(namespace => 'switch.overlay');
+    #my $switch_overlay_cache = pf::CHI->new(namespace => 'switch.overlay');
 
+    zicache::timeme::timeme('building stuff', sub {
     if(ref($switchRequest) eq 'HASH') {
         if(exists $switchRequest->{switch_mac} && defined $switchRequest->{switch_mac}) {
             $switch_mac = $switchRequest->{switch_mac};
@@ -119,10 +120,9 @@ sub instantiate {
             $switch_mac = $switchRequest;
         }
     }
+    });
 
-    $logger->info("Just before find");
-    
-    use Data::Dumper;
+    zicache::timeme::timeme('searching for the switch', sub {
     foreach my $search (@requestedSwitches){
         if($SwitchConfig{$search}){
             $requestedSwitch = $SwitchConfig{$search};
@@ -133,31 +133,33 @@ sub instantiate {
         $logger->error("WARNING ! Unknown switch(es) ". join(" ",@requestedSwitches));
         return 0;
     }
-    $logger->info("Just after find");
-    use Data::Dumper;
-    $logger->info(Dumper($requestedSwitch));
+    });
 
     my $switch_data = $requestedSwitch;
 
-    if( $switch_mac && $requestedSwitch eq $switch_mac && ref($switchRequest) eq 'HASH' && !defined ($switch_data->{controllerIp}) ) {
-        my $switch = $switch_overlay_cache->get($switch_mac) || {};
-        my $controllerIp = $switchRequest->{controllerIp};
-        if($controllerIp && (  !defined $switch->{controllerIp} || $controllerIp ne $switch->{controllerIp} )) {
-#            $switch_overlay_config->remove($switch->{controllerIp}) if defined $switch->{controllerIp};
-            $switch_overlay_cache->set(
-                $switch_mac,
-                {
-                    controllerIp => $controllerIp,
-                    ip => $switch_ip
-                }
-            );
-        }
-    }
+    #if( $switch_mac && $requestedSwitch eq $switch_mac && ref($switchRequest) eq 'HASH' && !defined ($switch_data->{controllerIp}) ) {
+    #    my $switch = $switch_overlay_cache->get($switch_mac) || {};
+    #    my $controllerIp = $switchRequest->{controllerIp};
+    #    if($controllerIp && (  !defined $switch->{controllerIp} || $controllerIp ne $switch->{controllerIp} )) {
+#   #         $switch_overlay_config->remove($switch->{controllerIp}) if defined $switch->{controllerIp};
+    #        $switch_overlay_cache->set(
+    #            $switch_mac,
+    #            {
+    #                controllerIp => $controllerIp,
+    #                ip => $switch_ip
+    #            }
+    #        );
+    #    }
+    #}
 
 
-    # find the module to instantiate
-    my $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
+   # my $switchOverlay;
+   # zicache::timeme::timeme('overlayget', sub {
+   # # find the module to instantiate
+   # $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
+   # });
     my $type;
+    zicache::timeme::timeme('type import', sub {
     if ($requestedSwitch ne 'default') {
         $type = "pf::Switch::" . $switch_data->{'type'};
     } else {
@@ -171,16 +173,21 @@ sub instantiate {
             . "Read the following message for details: $@");
         return 0;
     }
+    });
 
+    my $result;
+    zicache::timeme::timeme('creating', sub {
     $logger->debug("creating new $type object");
-    return $type->new(
+    $result = $type->new(
          id => $requestedSwitch,
          ip => $switch_ip,
          switchIp => $switch_ip,
          switchMac => $switch_mac,
          %$switch_data,
-         %$switchOverlay
+         {}
     );
+    });
+    return $result;
 }
 
 sub config {

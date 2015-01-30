@@ -7,6 +7,7 @@ use zicache::zicache;
 use Data::Dumper;
 use Time::HiRes;
 use zicache::timeme;
+$zicache::timeme::VERBOSE = 1;
 
 my $socket_path = '/tmp/zicache';
 unlink($socket_path);
