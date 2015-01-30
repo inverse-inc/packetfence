@@ -389,7 +389,7 @@ sub doSmsSelfRegistration : Private {
     if ($self->reached_retry_limit($c, 'sms_request_retries', $portalSession->profile->{_sms_request_retries})) {
         $logger->info("Max tries reached for requesting sms for $mac");
         $c->stash(txt_validation_error => i18n_format($GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES}));
-        $c->detach(Signup => 'index');
+        $c->detach('showSelfRegistrationPage');
     }
     # User chose to register by SMS
     $logger->info("registering $mac  guest by SMS $phone @ $mobileprovider");
