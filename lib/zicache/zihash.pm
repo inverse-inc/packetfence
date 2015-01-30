@@ -18,7 +18,7 @@ sub TIEHASH {
 
 # helper to build socket
 sub get_socket {
-  my $socket_path = '/tmp/zicache';
+  my $socket_path = '/usr/local/pf/var/run/config.sock';
   $socket = IO::Socket::UNIX->new(
      Type => SOCK_STREAM,
      Peer => $socket_path,

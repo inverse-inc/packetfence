@@ -31,16 +31,7 @@ use pf::CHI;
 use zicache::zihash;
 
 my %SwitchConfig;
-tie %SwitchConfig, 'zicache::zihash', '/usr/local/pf/conf/switches.conf';
-#$SwitchConfig{'127.0.0.1'} = {
-#    %{ $SwitchConfig{default} },
-#    type              => 'PacketFence',
-#    mode              => 'production',
-#    uplink            => ['dynamic'],
-#    SNMPVersionTrap   => '1',
-#    SNMPCommunityTrap => 'public'
-#};
-
+tie %SwitchConfig, 'zicache::zihash', 'Switch';
 
 our ($singleton);
 
