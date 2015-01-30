@@ -19,15 +19,28 @@ use warnings;
 use Carp;
 use UNIVERSAL::require;
 use pf::log;
-use pf::config::cached;
+#use pf::config::cached;
 use pf::util;
 use pf::freeradius;
 use pf::file_paths;
 use Time::HiRes qw(gettimeofday);
 use Benchmark qw(:all);
 use List::Util qw(first);
-use pf::ConfigStore::Switch;
+#use pf::ConfigStore::Switch;
 use pf::CHI;
+use zicache::zihash;
+
+my %SwitchConfig;
+tie %SwitchConfig, 'zicache::zihash', '/usr/local/pf/conf/switches.conf';
+#$SwitchConfig{'127.0.0.1'} = {
+#    %{ $SwitchConfig{default} },
+#    type              => 'PacketFence',
+#    mode              => 'production',
+#    uplink            => ['dynamic'],
+#    SNMPVersionTrap   => '1',
+#    SNMPCommunityTrap => 'public'
+#};
+
 
 our ($singleton);
 
@@ -87,7 +100,6 @@ sub instantiate {
     my $requestedSwitch;
     my $switch_ip;
     my $switch_mac;
-    my $switch_config = pf::ConfigStore::Switch->new;
     my $switch_overlay_cache = pf::CHI->new(namespace => 'switch.overlay');
 
     if(ref($switchRequest) eq 'HASH') {
@@ -108,13 +120,24 @@ sub instantiate {
         }
     }
 
-    $requestedSwitch = first {exists $SwitchConfig{$_} } @requestedSwitches;
+    $logger->info("Just before find");
+    
+    use Data::Dumper;
+    foreach my $search (@requestedSwitches){
+        if($SwitchConfig{$search}){
+            $requestedSwitch = $SwitchConfig{$search};
+            last;
+        }
+    }
     unless ($requestedSwitch) {
         $logger->error("WARNING ! Unknown switch(es) ". join(" ",@requestedSwitches));
         return 0;
     }
+    $logger->info("Just after find");
+    use Data::Dumper;
+    $logger->info(Dumper($requestedSwitch));
 
-    my $switch_data = $SwitchConfig{$requestedSwitch};
+    my $switch_data = $requestedSwitch;
 
     if( $switch_mac && $requestedSwitch eq $switch_mac && ref($switchRequest) eq 'HASH' && !defined ($switch_data->{controllerIp}) ) {
         my $switch = $switch_overlay_cache->get($switch_mac) || {};
