@@ -36,8 +36,10 @@ sub send_rpc_request {
     $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
+    &radiusd::radlog($RADIUS::L_INFO, "GOING TO SEND !");
     # Starts the actual request
     my $curl_return_code = $curl->perform;
+    &radiusd::radlog($RADIUS::L_INFO, "CAME BACK IN LIB !");
 
     # Looking at the results...
     if ( $curl_return_code == 0 ) {

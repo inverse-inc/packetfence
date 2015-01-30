@@ -130,6 +130,7 @@ sub post_auth {
         }
         my $config = _get_rpc_config();
         my $data = send_rpc_request($config, "radius_authorize", \%RAD_REQUEST);
+        &radiusd::radlog($RADIUS::L_INFO, "CAME BACK !");
 
         if ($data) {
 
@@ -299,6 +300,7 @@ sub accounting {
 
         my $config = _get_rpc_config();
         my $data = send_rpc_request($config, "radius_accounting", \%RAD_REQUEST);
+        &radiusd::radlog($RADIUS::L_INFO, "CAME BACK !");
         if ($data) {
             my $elements = $data->[0];
 
