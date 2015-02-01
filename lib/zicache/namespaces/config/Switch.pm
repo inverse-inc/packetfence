@@ -1,11 +1,19 @@
-package zicache::namespaces::Switch;
+package zicache::namespaces::config::Switch;
 
 use Config::IniFiles;
+use Data::Dumper;
 
-my $file = "/usr/local/pf/conf/switches.conf";
+use base 'zicache::namespaces::config';
 
-sub build {
-  tie %tmp_cfg, 'Config::IniFiles', ( -file => $file );
+sub init {
+  my ($self) = @_;
+  $self->{file} = "/usr/local/pf/conf/switches.conf";
+}
+
+sub build_child {
+  my ($self) = @_;
+
+  my %tmp_cfg = %{$self->{cfg}}; 
 
   $tmp_cfg{'127.0.0.1'} = {
       id                => '127.0.0.1',
