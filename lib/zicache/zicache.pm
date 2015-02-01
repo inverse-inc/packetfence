@@ -19,7 +19,10 @@ sub config_builder {
           . "Read the following message for details: $@";
   }
 
-  my %tmp = $type->build();
+  my $elem = $type->new;
+  my %tmp = $elem->build();
+
+  print Dumper(\%tmp);
 
   return \%tmp;
 };
