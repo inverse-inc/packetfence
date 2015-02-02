@@ -90,7 +90,6 @@ sub generateConfig {
 
     # Guest related URLs allowed through Apache ACL's
     my $status_only_on_production = isenabled($Config{captive_portal}{status_only_on_production});
-    print "$status_only_on_production\n";
     my $allowed_from_all_urls = '';
     unless ($status_only_on_production) {
         $allowed_from_all_urls .= "|$WEB::URL_STATUS";
