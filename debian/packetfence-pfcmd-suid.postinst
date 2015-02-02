@@ -25,7 +25,7 @@ case "$1" in
         # User pf:pf created within packentfence preinst script
 	# and I'm depending on it
         #
-        chown pf:pf -R /usr/local/pf/bin/pfcmd
+        chown root:root -R /usr/local/pf/bin/pfcmd
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
