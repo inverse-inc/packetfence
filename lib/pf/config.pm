@@ -688,6 +688,7 @@ sub readProfileConfigFile {
                     foreach my $field (qw(locale mandatory_fields sources filter provisioners) ) {
                         $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
                     }
+                    $profile->{block_interval} = normalize_time($profile->{block_interval} || '10m');
                     my $filters = $profile->{'filter'};
                     if($profile_id ne 'default' && @$filters) {
                         my @filterObjects;
