@@ -39,12 +39,12 @@ sub FETCH {
   return $result;
 }
 
-sub FIRSTKEY {
+sub keys {
   my ($self) = @_;
   
   my @keys = @{$self->_get_from_socket($self{_namespace}, "keys")};
 
-  return $keys[0];
+  return @keys;
 }
 
 sub FIRSTKEY {

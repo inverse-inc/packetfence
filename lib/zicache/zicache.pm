@@ -20,7 +20,7 @@ sub config_builder {
           . "Read the following message for details: $@";
   }
 
-  my $elem = $type->new;
+  my $elem = $type->new($self);
   my $tmp = $elem->build();
 
   return $tmp;
