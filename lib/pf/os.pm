@@ -109,6 +109,7 @@ sub update_dhcp_fingerprints_conf {
     require LWP::UserAgent;
     my $logger = Log::Log4perl::get_logger('pf::os');
     my $browser = LWP::UserAgent->new;
+    $browser->env_proxy;
     my $response = $browser->get($dhcp_fingerprints_url);
     my ($status,$version_or_msg,$total) = ($response->code,undef,undef);
     if ( !$response->is_success ) {
