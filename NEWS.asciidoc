@@ -51,7 +51,6 @@ Enhancements
 * Reduced the numbers of entries in iplog table (update end_time instead of closing and inserting a new line)
 * Now matching on language and not only language/country combination for violation templates (See UPGRADE guide)
 * PacketFence FreeRADIUS will return reject on "NAS-Prompt-User" Service-Type requests (Console login using RADIUS as backend)
-* Added proxy support to dhcp fingerprint update
 
 Bug Fixes
 +++++++++
