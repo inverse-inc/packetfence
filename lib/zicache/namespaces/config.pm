@@ -2,14 +2,7 @@ package zicache::namespaces::config;
 
 use Data::Dumper;
 
-sub new {
-  my ($class) = @_;
-  my $self = bless {}, $class;
-
-  $self->init();
-
-  return $self;
-}
+use base 'zicache::namespaces::resource';
 
 sub build {
   my ($self) = @_;
