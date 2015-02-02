@@ -31,8 +31,9 @@ use Test::NoWarnings;
 for my $module ( pf->modules ) {
     my $test = "${module}.t";
     my @parts = split(/::/,$test);
+    shift @parts;
     $test = join('/',@parts);
-    my $file = catfile('/usr/local/pf/t/unit/',@parts);
+    my $file = catfile('/usr/local/pf/t/unittest',@parts);
     ok -e $file,"$module has a test $file";
 }
 
