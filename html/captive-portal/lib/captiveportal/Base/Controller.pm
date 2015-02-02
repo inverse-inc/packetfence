@@ -56,12 +56,9 @@ sub reached_retry_limit {
     return 0 unless $max;
     my $cache = $c->user_cache;
     my $retries = $cache->get($retry_key) || 1;
-    if($retries > $max ) {
-        return 1;
-    }
     $retries++;
-    $cache->set($retry_key,$retries);
-    return 0;
+    $cache->set($retry_key,$retries,$c->profile->{_block_interval});
+    return $retries > $max;
 }
 
 =head1 AUTHOR
