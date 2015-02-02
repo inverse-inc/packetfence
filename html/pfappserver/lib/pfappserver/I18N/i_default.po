@@ -514,6 +514,10 @@ msgstr ""
 msgid "Bind DN"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Block Interval"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 msgid "Browser"
 msgstr ""
@@ -4000,6 +4004,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "The ID of the Switch"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "The amount of time a user is blocked after reaching the defined limit"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm

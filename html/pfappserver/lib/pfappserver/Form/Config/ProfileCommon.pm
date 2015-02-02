@@ -44,7 +44,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages sms_pin_retry_limit sms_request_limit login_attempt_limit)],
+    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit)],
   );
 
 =head1 Fields
@@ -239,6 +239,22 @@ has_field 'nbregpages' =>
     type => 'PosInteger',
     label => 'Number of Registration Pages',
     default => 0,
+  );
+
+=head2 block_interval
+
+The amount of time a user is block after reaching a limit
+
+=cut
+
+has_field 'block_interval' =>
+  (
+    type => 'Duration',
+    label => 'Block Interval',
+    default => '10m',
+    tags => { after_element => \&help,
+             help => 'The amount of time a user is blocked after reaching the defined limit' },
+
   );
 
 =head2 sms_pin_retry_limit
