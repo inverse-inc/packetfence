@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.6.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-01-26 11:53-0400\n"
+"PO-Revision-Date: 2015-01-29 09:57-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -2229,6 +2229,14 @@ msgid ""
   "a minute without being flagged as DoS. Defaults to 100."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Maximum number of times a user can request a SMS PIN. A value of 0 disables the limit."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Maximum number of times a user can retry a SMS PIN before having to request another PIN. A value of 0 disables the limit."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc."
 msgstr ""
@@ -3371,6 +3379,14 @@ msgstr "Services"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
 msgid "SMS Carriers"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "SMS Pin Retry Limit"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "SMS Request Retry Limit"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt

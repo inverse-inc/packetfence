@@ -278,9 +278,9 @@ sub doSponsorSelfRegistration : Private {
     # fetch the connection information
     $c->forward(Authenticate => 'setupMatchParams');
     my $auth_params = $c->stash->{matchParams};
-    $auth_params->{username} = $pid; 
-    $auth_params->{user_email} = $email;    
- 
+    $auth_params->{username} = $pid;
+    $auth_params->{user_email} = $email;
+
     # form valid, adding person (using modify in case person already exists)
     person_modify(
         $pid,
@@ -386,6 +386,11 @@ sub doSmsSelfRegistration : Private {
     my $mobileprovider = $request->param("mobileprovider");
     my ($pid, $phone)  = @{$session}{qw(guest_pid phone)};
 
+    if ($self->reached_retry_limit($c, 'sms_request_retries', $portalSession->profile->{_sms_request_retries})) {
+        $logger->info("Max tries reached for requesting sms for $mac");
+        $c->stash(txt_validation_error => i18n_format($GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES}));
+        $c->detach('showSelfRegistrationPage');
+    }
     # User chose to register by SMS
     $logger->info("registering $mac  guest by SMS $phone @ $mobileprovider");
     my ( $auth_return, $err, $errargs_ref ) =
@@ -519,7 +524,7 @@ sub validateBySponsorSource : Private {
                                                 $Actions::MARK_AS_SPONSOR );
 
         if (!defined $value) {
-            # sponsor check did not pass 
+            # sponsor check did not pass
             $self->validationError( $c,
                 $GUEST::ERROR_SPONSOR_NOT_ALLOWED,
                 $sponsor_email );
