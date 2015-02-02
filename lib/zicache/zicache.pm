@@ -22,8 +22,6 @@ sub config_builder {
   my $elem = $type->new;
   my %tmp = $elem->build();
 
-  print Dumper(\%tmp);
-
   return \%tmp;
 };
 
@@ -57,10 +55,10 @@ sub init_cache {
 sub touch_cache {
   my ($self, $what) = @_;
   $what =~ s/\//;/g;
-  open HANDLE, ">>tmp/$what-control" or die "touch $filename: $!\n"; 
+  open HANDLE, ">>/usr/local/pf/var/$what-control" or die "touch $filename: $!\n"; 
   close HANDLE;
   my $now = time;
-  utime $now, $now, "tmp/$what-control";
+  utime $now, $now, "/usr/local/pf/var/$what-control";
 }
 
 # get a key in the cache
@@ -85,7 +83,8 @@ sub get_cache {
     else {
       print "loading from outside\n";
       my $result = $self->config_builder($what);
-      $self->{cache}->set($what, $result, 864000) ;
+      my $cache_w = $self->{cache}->set($what, $result, 864000) ;
+      print "Cache write gave : $cache_w \n";
       $self->touch_cache($what);
       $self->{memory}->{$what} = $cached;
       $self->{memorized_at}->{$what} = time; 
@@ -100,7 +99,7 @@ sub is_valid {
   my ($self, $what) = @_;
   my $control_file;
   ($control_file = $what) =~ s/\//;/g;
-  my $epoch_timestamp = (stat("tmp/".$control_file."-control"))[9];
+  my $epoch_timestamp = (stat("var/".$control_file."-control"))[9];
   print "ts : ".$epoch_timestamp."\n";
   print "memorized ts : ".$self->{memorized_at}->{$what}."\n";
   # if the timestamp of the file is after the one we have in memory

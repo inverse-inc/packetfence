@@ -75,3 +75,5 @@ sub build_child {
   return %tmp_cfg;
 
 }
+
+1;
