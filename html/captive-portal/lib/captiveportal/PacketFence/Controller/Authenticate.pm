@@ -186,9 +186,9 @@ Limit the amount of time a user can retry a password
 =cut
 
 sub enforceLoginRetryLimit : Private {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
     my $username = $c->request->param("username");
-    if($username) {
+    if ($username) {
         if ($self->reached_retry_limit($c, "login_retries", $c->profile->{'_login_attempt_limit'})) {
             $c->log->info("Max tries reached login code for $username");
             $c->stash(txt_auth_error => i18n_format($GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES}));
