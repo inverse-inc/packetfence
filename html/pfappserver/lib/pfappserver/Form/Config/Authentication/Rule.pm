@@ -292,7 +292,6 @@ Validate the following constraints :
  - an access duration and an unregistration date cannot be both defined
  - an access duration or an unregistration date must be defined when setting a role
  - one of these actions must be defined: set role, mark as sponsor, set access level
- - a 'set access level' action should be exclusive to a rule
  - oauth2 sources must have a set role action
 
 =cut
@@ -326,13 +325,6 @@ sub validate {
     } @{$self->value->{actions}};
     if (scalar @actions == 0) {
         $self->field('actions')->add_error("You must at least set a role, mark the user as a sponsor, or set an access level.");
-    }
-
-    @actions = grep { $_->{type} eq $Actions::SET_ACCESS_LEVEL } @{$self->value->{actions}};
-    if ( scalar @actions > 0 ) {
-        if ( @{$self->value->{actions}} > 1 ) {
-            $self->field('actions')->add_error("'set access level' should be an exclusive action to a rule.");
-        }
     }
 
     if ($self->source_type eq 'Facebook' || $self->source_type eq 'Google' || $self->source_type eq 'Github') {
