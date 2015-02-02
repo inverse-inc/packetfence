@@ -22,11 +22,6 @@ sub build {
   return $child_resource;
 }
 
-sub build_child {
-  my ($self) = @_;
-  return undef;
-}
-
 sub init {
   # abstact
 }
