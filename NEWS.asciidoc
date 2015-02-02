@@ -50,6 +50,7 @@ Enhancements
 * Reduced the numbers of entries in iplog table (update end_time instead of closing and inserting a new line)
 * Now matching on language and not only language/country combination for violation templates (See UPGRADE guide)
 * PacketFence FreeRADIUS will return reject on "NAS-Prompt-User" Service-Type requests (Console login using RADIUS as backend)
+* PacketFence now allows limiting the number of times a user can request an sms message
 
 Bug Fixes
 +++++++++
@@ -70,6 +71,7 @@ Bug Fixes
 * Fixed multiple pfdhcplistener spawning
 * Fixed double display of the user page
 * Fixed displaying of rules description after updating source
+* Removed executable bit on some files which do not require it
 
 Version 4.5.1 released on 2014-11-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
