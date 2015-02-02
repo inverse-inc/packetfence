@@ -69,6 +69,7 @@ Bug Fixes
 * Refresh node page after updating a node
 * Fixed multiple pfdhcplistener spawning
 * Fixed double display of the user page
+* Fixed displaying of rules description after updating source
 
 Version 4.5.1 released on 2014-11-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
