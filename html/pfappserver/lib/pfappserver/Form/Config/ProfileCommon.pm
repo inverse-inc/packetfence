@@ -21,6 +21,7 @@ use List::MoreUtils qw(uniq);
 use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::web::constants;
+use pf::constants::Portal::Profile;
 with 'pfappserver::Base::Form::Role::Help';
 
 =head1 BLOCKS
@@ -243,7 +244,7 @@ has_field 'nbregpages' =>
 
 =head2 block_interval
 
-The amount of time a user is block after reaching a limit
+The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry
 
 =cut
 
@@ -251,9 +252,9 @@ has_field 'block_interval' =>
   (
     type => 'Duration',
     label => 'Block Interval',
-    default => '10m',
+    default => $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE,
     tags => { after_element => \&help,
-             help => 'The amount of time a user is blocked after reaching the defined limit' },
+             help => 'The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.' },
 
   );
 
