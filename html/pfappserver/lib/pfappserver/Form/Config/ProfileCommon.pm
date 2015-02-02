@@ -243,6 +243,8 @@ has_field 'nbregpages' =>
 
 =head2 sms_pin_retry_limit
 
+The amount of times a pin can try use a pin
+
 =cut
 
 has_field 'sms_pin_retry_limit' =>
@@ -256,6 +258,8 @@ has_field 'sms_pin_retry_limit' =>
   );
 =head2 login_attempt_limit
 
+The amount of login attempts allowed per mac
+
 =cut
 
 has_field 'login_attempt_limit' =>
@@ -264,10 +268,12 @@ has_field 'login_attempt_limit' =>
     label => 'Login Attempt Limit',
     default => 0,
     tags => { after_element => \&help,
-             help => 'Maximum number of times a user attempt to login before being blocked. A value of 0 disables the limit.' },
+             help => 'Limit the number of login attempts. A value of 0 disables the limit.' },
   );
 
 =head2 sms_request_retries
+
+The amount of sms request allowed per mac
 
 =cut
 
