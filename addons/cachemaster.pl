@@ -105,7 +105,7 @@ sub get_keys {
     }
     else{
       print STDERR "Unknown key in cache $query->{key} \n";
-      print $socket encode_json({});
+      print $socket encode_json([]);
     }
 }
 
@@ -124,8 +124,10 @@ sub get_next_key {
       $next_key = $keys[0];
     }
     else{
-      my $last_index = first_index { $_ eq $last_key} @keys ;
-
+      my $last_index;
+      zicache::timeme::timeme('find last index', sub {
+        $last_index = first_index { $_ eq $last_key} @keys ;
+      });
       print "last_index $last_index";
 
       if($last_index >= scalar @keys){
@@ -140,7 +142,7 @@ sub get_next_key {
   }
   else{
     print STDERR "Unknown key in cache $query->{key} \n";
-    print $socket encode_json({});
+    print $socket encode_json({next_key => undef});
   }
 
 }
