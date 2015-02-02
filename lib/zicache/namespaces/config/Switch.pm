@@ -72,7 +72,9 @@ sub build_child {
       }
   }
 
-  return %tmp_cfg;
+  $self->{cfg} = \%tmp_cfg;
+
+  return \%tmp_cfg;
 
 }
 

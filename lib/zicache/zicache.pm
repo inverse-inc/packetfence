@@ -7,6 +7,7 @@ use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
 use UNIVERSAL::require;
 use Data::Dumper;
+use zicache::backend::memcached;
 
 sub config_builder {
   my ($self, $namespace) = @_;
@@ -20,9 +21,9 @@ sub config_builder {
   }
 
   my $elem = $type->new;
-  my %tmp = $elem->build();
+  my $tmp = $elem->build();
 
-  return \%tmp;
+  return $tmp;
 };
 
 sub new {
@@ -36,15 +37,8 @@ sub new {
 
 sub init_cache {
   my ($self) = @_;
-  #my %options = (
-  #  cache_root => "tmp/",
-  #  namespace => "Zi::Namespace",
-  #  default_expires_in => 300, # seconds
-  #);
-  #$self->{cache} = Cache::BDB->new(%options);
-  $self->{cache} = new Cache::Memcached {
-    'servers' => ['127.0.0.1:11211']
-  };
+
+  $self->{cache} = zicache::backend::memcached->new;
 
   $self->{memory} = {};
   $self->{memorized_at} = {};
@@ -83,10 +77,11 @@ sub get_cache {
     else {
       print "loading from outside\n";
       my $result = $self->config_builder($what);
+      print "in get cache".Dumper($result);
       my $cache_w = $self->{cache}->set($what, $result, 864000) ;
       print "Cache write gave : $cache_w \n";
       $self->touch_cache($what);
-      $self->{memory}->{$what} = $cached;
+      $self->{memory}->{$what} = $result;
       $self->{memorized_at}->{$what} = time; 
       return $result;
     }

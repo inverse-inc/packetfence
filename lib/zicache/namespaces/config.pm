@@ -18,7 +18,13 @@ sub build {
 
   $self->{cfg} = \%tmp_cfg;
 
-  return $self->build_child();
+  my $child_resource = $self->build_child();
+  return $child_resource;
+}
+
+sub build_child {
+  my ($self) = @_;
+  return undef;
 }
 
 sub init {
