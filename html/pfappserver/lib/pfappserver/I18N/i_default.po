@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.6.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-01-29 09:57-0400\n"
+"PO-Revision-Date: 2015-02-02 14:12-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -594,6 +594,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "Certificate"
+msgstr ""
+
+# pf::firewallsso (Firewall SSO)
+msgid "Checkpoint"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
@@ -1646,6 +1650,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Hostname or IP Address"
@@ -1842,6 +1847,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "If you use an alternative port, please specify"
@@ -2510,6 +2516,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
@@ -2647,6 +2654,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "PID"
@@ -2840,6 +2848,10 @@ msgstr ""
 msgid "Please specify the gateway."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
+msgid "Please specify the hostname or IP of the Check point firewall"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Please specify the hostname or IP of the Firewall"
@@ -2890,6 +2902,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Port of the service"
@@ -3340,6 +3353,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
@@ -3563,6 +3577,7 @@ msgid "Search..."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 msgid "Secret"
 msgstr ""
 
@@ -4267,6 +4282,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "UID type"
@@ -4788,6 +4804,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "You must specify the password or the key"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
+msgid "You must specify the radius shared secret"
 msgstr ""
 
 # html/pfappserver/root/configurator/services.tt
@@ -6437,6 +6457,7 @@ msgstr "UserAgent"
 # pf::Authentication::Source::KerberosSource (available_attributes)
 # pf::Authentication::Source::LinkedInSource (available_attributes)
 # pf::Authentication::Source::NullSource (available_attributes)
+# pf::Authentication::Source::OAuthSource (available_attributes)
 # pf::Authentication::Source::RADIUSSource (available_attributes)
 # pf::Authentication::Source::WindowsLiveSource (available_attributes)
 msgid "username"
