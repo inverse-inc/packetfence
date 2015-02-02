@@ -27,6 +27,17 @@ package Rules;
 Readonly::Scalar our $ANY => 'any';
 Readonly::Scalar our $ALL => 'all';
 
+=item Class
+
+The class of a rule in an authentication source.
+
+Also used as class for actions in a rule.
+
+=cut
+
+Readonly::Scalar our $AUTH => 'auth';
+Readonly::Scalar our $ADMIN => 'admin';
+
 =head1 Conditions
 
 Constants related to conditions rules.

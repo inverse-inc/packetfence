@@ -29,6 +29,18 @@ has_field 'id' =>
    messages => { required => 'Please specify an identifier for the rule.' },
    apply => [ { check => qr/^\S+$/, message => 'The name must not contain spaces.' } ],
   );
+has_field 'class' =>
+  (
+  type => 'Select',
+  label => 'Class',
+  localize_labels => 1,
+  options =>
+  [
+    { value => $Rules::AUTH, label => 'auth' },
+    { value => $Rules::ADMIN, label => 'admin' },
+  ],
+  default => 'auth',
+  );
 has_field 'description' =>
   (
    type => 'Text',

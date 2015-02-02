@@ -43,6 +43,10 @@ has_field 'rules.id' =>
    type => 'Hidden',
    widget_wrapper => 'None',
   );
+has_field 'rules.class' =>
+  (
+   type => 'Text',
+  );
 has_field 'rules.description' =>
   (
    type => 'Text',

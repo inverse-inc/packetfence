@@ -197,7 +197,7 @@ sub getAuthAuthenticationSources {
 
 =item buildAdminAuthenticationSources
 
-Builds an array of pf::Authentication::Source instances based on internal authentication sources containing only web admin access actions.
+Builds an array of pf::Authentication::Source instances based on internal authentication sources containing only 'admin' class rules.
 
 =cut
 
@@ -215,13 +215,8 @@ sub buildAdminAuthenticationSources {
         my @rules = ();
         # Iterate through all configured rules of the authentication source
         foreach my $rule ( @{ $clonedSource->{'rules'} } ) {
-            # Iterate through all configured actions of a rule in the authentication source
-            foreach my $action ( @{ $rule->{'actions'} } ) {
-                # If there's a 'set_access_level' action, we consider this source as an admin authentication source
-                if ( $action->{'type'} eq 'set_access_level' ) {
-                    push (@rules, $rule);
-                }
-            }
+            # If the rule class is 'admin', we keep it
+            push (@rules, $rule) if $rule->{'class'} eq $Rules::ADMIN; 
         }
 
         # If we have @rules defined and not empty, we consider this source as an 'admin' authentication source and we 
@@ -239,7 +234,7 @@ sub buildAdminAuthenticationSources {
 
 =item buildAuthAuthenticationSources
 
-Builds an array of pf::Authentication::Source instances based on external authentication sources and internal authentication sources that doesn't contains any 'set_access_level' rules action.
+Builds an array of pf::Authentication::Source instances based on external authentication sources and internal authentication sources containing only 'auth' class rules.
 
 =cut
 
@@ -257,12 +252,8 @@ sub buildAuthAuthenticationSources {
         my @rules = ();
         # Iterate through all configured rules of the authentication source
         foreach my $rule ( @{ $clonedSource->{'rules'} } ) {
-            # Iterate through all configured actions of a rule in the authentication source
-            foreach my $action ( @{ $rule->{'actions'} } ) {
-                # We want to skip all 'set_access_level' action for authentication purposes
-                next if $action->{'type'} eq 'set_access_level';
-                push (@rules, $rule);
-            }
+            # If the rle calss is 'auth', we keep it
+            push (@rules, $rule) if $rule->{'class'} eq $Rules::AUTH;
         }
 
         # If we have @rules defined and not empty, we consider this source as an 'auth' authentication source and we 

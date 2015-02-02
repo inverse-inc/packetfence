@@ -10,7 +10,8 @@ pf::Authentication::Action
 
 use Moose;
 
-has 'type' => (isa => 'Str', is => 'rw', required => 1);
+has 'type'  => (isa => 'Str', is => 'rw', required => 1);
+has 'class' => (isa => 'Str', is => 'rw', default => $Rules::AUTH);
 has 'value' => (isa => 'Str', is => 'rw', required => 0);
 
 =head1 AUTHOR

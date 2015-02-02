@@ -13,6 +13,7 @@ use Moose;
 use pf::Authentication::constants;
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
+has 'class' => (isa => 'Str', is => 'rw', default => $Rules::AUTH);
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
 has 'match' => (isa => 'Maybe[Str]', is => 'rw', default => $Rules::ANY);
 has 'actions' => (isa => 'ArrayRef', is => 'rw', required => 0);
