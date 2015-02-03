@@ -31,7 +31,6 @@ New Features
 * Can optionally cache the results of LDAP rule matching for a user
 * New portal profile parameter to set a retry limit for SMS-based activation
 * The information available from an OAuth source (first name, last name, ...) are now added to the person when registering
-* Added support for HP ProCurve 2920
 
 Enhancements
 ++++++++++++
