@@ -18,14 +18,6 @@ extends 'pf::provisioner';
 
 =head1 Atrributes
 
-=head2 oses
-
-The set the default OS to IOS
-
-=cut
-
-has oses => (is => 'rw', default => sub { ['Apple iPod, iPhone or iPad'] });
-
 =head2 ssid
 
 The ssid
