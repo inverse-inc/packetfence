@@ -240,6 +240,7 @@ sub _set_guest_self_registration {
                   $SELFREG_MODE_GOOGLE,
                   $SELFREG_MODE_FACEBOOK,
                   $SELFREG_MODE_GITHUB,
+                  $SELFREG_MODE_CHAINED,
                  ) {
         $guest_self_registration{$mode} = $TRUE
           if is_in_list($mode, $modes);
@@ -250,7 +251,7 @@ sub _guest_modes_from_sources {
     my ($sources) = @_;
     $sources ||= [];
     my %is_in = map {$_ => undef } @$sources;
-    return join(',', map { lc($_->type)} grep { exists $is_in{$_->id} && $_->class eq 'external'} @authentication_sources);
+    return join(',', map { lc($_->type)} grep { exists $is_in{$_->id} && ($_->class eq 'external' || $_->type eq 'Chained')} @authentication_sources);
 }
 
 =item writeAuthenticationConfigFile
