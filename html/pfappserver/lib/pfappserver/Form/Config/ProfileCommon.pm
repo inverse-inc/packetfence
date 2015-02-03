@@ -44,7 +44,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages sms_pin_retry_limit sms_request_retries login_attempt_limit)],
+    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages sms_pin_retry_limit sms_request_limit login_attempt_limit)],
   );
 
 =head1 Fields
@@ -271,13 +271,13 @@ has_field 'login_attempt_limit' =>
              help => 'Limit the number of login attempts. A value of 0 disables the limit.' },
   );
 
-=head2 sms_request_retries
+=head2 sms_request_limit
 
 The amount of sms request allowed per mac
 
 =cut
 
-has_field 'sms_request_retries' =>
+has_field 'sms_request_limit' =>
   (
     type => 'PosInteger',
     label => 'SMS Request Retry Limit',
