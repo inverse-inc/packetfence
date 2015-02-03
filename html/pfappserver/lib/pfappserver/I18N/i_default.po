@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.6.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-02-02 14:16-0400\n"
+"PO-Revision-Date: 2015-02-03 11:02-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -2005,6 +2005,10 @@ msgstr ""
 msgid "Legend"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Limit the number of login attempts. A value of 0 disables the limit."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "List of access levels available to the admin user. If none are provided then all access levels are available"
 msgstr ""
@@ -2136,6 +2140,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/login.tt
 msgid "Login"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Login Attempt Limit"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -5376,7 +5384,7 @@ msgstr "IP/MAC logs"
 
 # conf/documentation.conf
 msgid "expire.ldap_auth"
-msgstr "Ldap Auth cache expiration"
+msgstr "LDAP Auth cache expiration"
 
 # conf/documentation.conf
 msgid "expire.locationlog"
@@ -5686,7 +5694,7 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "maintenance.ldap_auth_cache_cleanup_interval"
-msgstr "Ldap Auth cache clean up interval"
+msgstr "LDAP Auth cache clean up interval"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_batch"
