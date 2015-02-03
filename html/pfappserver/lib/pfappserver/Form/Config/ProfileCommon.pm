@@ -22,6 +22,7 @@ use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::web::constants;
 use pf::constants::Portal::Profile;
+use pfappserver::Form::Field::Duration;
 with 'pfappserver::Base::Form::Role::Help';
 
 =head1 BLOCKS
@@ -252,10 +253,10 @@ has_field 'block_interval' =>
   (
     type => 'Duration',
     label => 'Block Interval',
-    default => $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE,
+    #Use the inflate method from pfappserver::Form::Field::Duration
+    default => pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE),
     tags => { after_element => \&help,
              help => 'The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.' },
-
   );
 
 =head2 sms_pin_retry_limit
@@ -273,6 +274,7 @@ has_field 'sms_pin_retry_limit' =>
              help => 'Maximum number of times a user can retry a SMS PIN before having to request another PIN. A value of 0 disables the limit.' },
 
   );
+
 =head2 login_attempt_limit
 
 The amount of login attempts allowed per mac
@@ -377,7 +379,6 @@ sub validate {
         }
     }
 }
-
 
 =head1 AUTHOR
 
