@@ -39,7 +39,9 @@ sub supportsRadiusVoip   { return $TRUE; }
 sub inlineCapabilities { return ( $MAC, $PORT ); }
 
 =item getVoipVSA
+
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
 =cut
 
 sub getVoipVsa {
@@ -51,7 +53,9 @@ sub getVoipVsa {
 }
 
 =item getPhonesLLDPAtIfIndex
+
 Using SNMP and LLDP we determine if there is VoIP connected on the switch port
+
 =cut
 
 sub getPhonesLLDPAtIfIndex {
