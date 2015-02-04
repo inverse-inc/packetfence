@@ -1,9 +1,23 @@
 #!/bin/bash
-cd /chroot-tools
 
 PFDIR=/usr/local/pf
 
+GIT_REPO=https://github.com/inverse-inc/packetfence.git
+
 BRANCH=devel
+
+git clone -b $BRANCH "$GIT_REPO" "$PFDIR"
+
+
+YUM="yum --enablerepo=packetfence --enablerepo=packetfence-devel -y"
+$YUM makecache
+echo installing the packetfence dependecies
+
+REPOQUERY="repoquery --queryformat=%{NAME} --enablerepo=packetfence --enablerepo=packetfence-devel -c /etc/yum.conf -C --pkgnarrow=all"
+
+rpm -q --requires --specfile $PFDIR/addons/packages/packetfence.spec | grep -v packetfence | perl -pi -e's/ +$//' | sort -u | xargs -d '\n' $REPOQUERY --whatprovides | sort -u | grep -v perl-LDAP | xargs $YUM install
+
+cd /chroot-tools
 
 cp -f my.cnf /etc/
 
@@ -13,9 +27,8 @@ mysql -uroot < init-pf-db.sql
 
 adduser pf
 
-git clone -b $BRANCH https://github.com/inverse-inc/packetfence.git $PFDIR
 
-cat <<EOF >> $PFDIR/conf/pf.conf
+cat <<EOF > $PFDIR/conf/pf.conf
 [interface eth0]
 ip=$(ip addr show dev eth0 | grep -Poh '(?<=inet )\d+(\.\d+){3}')
 type=management
