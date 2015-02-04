@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.6.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-02-03 11:02-0400\n"
+"PO-Revision-Date: 2015-02-04 10:40-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -4015,7 +4015,7 @@ msgid "The ID of the Switch"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
-msgid "The amount of time a user is blocked after reaching the defined limit"
+msgid "The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
