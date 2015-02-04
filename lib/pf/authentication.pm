@@ -459,12 +459,12 @@ This method tries to match a set of params in one or multiple sources.
 
 If action is undef, all actions will be returned.
 If action is set, it will return the value of the action immediately.
-If source_ref is defined then it will be set to the matching source_id
+If source_id_ref is defined then it will be set to the matching source_id
 
 =cut
 
 sub match {
-    my ($source_id, $params, $action,$source_ref) = @_;
+    my ($source_id, $params, $action, $source_id_ref) = @_;
     my ($actions, @sources);
 
     $logger->debug("Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
@@ -478,24 +478,27 @@ sub match {
         }
     }
     my $source = first { defined ($actions = $_->match($params)) } @sources;
+    if($source) {
+        #Store the source id
+        $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
 
-    if (defined $action && defined $actions) {
-        my $found_action = first { $_->type eq $action } @{$actions};
-        if (defined $found_action) {
-            $logger->debug("[".$source->id."] Returning '".$found_action->value."' for action $action for username ".$params->{'username'});
-            return $found_action->value
+        if (defined $action ) {
+            my $found_action = first { $_->type eq $action } @{$actions};
+            if (defined $found_action) {
+                $logger->debug("[".$source->id."] Returning '".$found_action->value."' for action $action for username ".$params->{'username'});
+                return $found_action->value
+            }
+            $logger->debug("[".$source->id."] Params don't match rules for action $action for parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
+            return;
         }
-        $logger->debug("[".$source->id."] Params don't match rules for action $action for parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
-        return undef;
-    }
 
-    if (defined $action) {
-        $logger->debug("No source matches action $action");
-    } elsif (defined $source) {
-        $actions ||= [];
-        $logger->debug("[".$source->id."] Returning actions ".join(', ', map { $_->type." = ".$_->value } @$actions ));
+        if (defined $action) {
+            $logger->debug("No source matches action $action");
+        } elsif (defined $source) {
+            $actions ||= [];
+            $logger->debug("[".$source->id."] Returning actions ".join(', ', map { $_->type." = ".$_->value } @$actions ));
+        }
     }
-    $$source_ref = $source->id if defined $source_ref;
 
     return $actions;
 }
