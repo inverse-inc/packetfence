@@ -14,7 +14,7 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 5;                      # last test to print
+use Test::More tests => 6;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -45,8 +45,9 @@ is_deeply(
     "match all email actions"
 );
 
+my $source_id_ref;
 is_deeply(
-    pf::authentication::match("htpasswd1", { username => 'user_manager' }),
+    pf::authentication::match("htpasswd1", { username => 'user_manager' }, undef, \$source_id_ref),
     [
         pf::Authentication::Action->new({
             'value' => 'User Manager',
@@ -55,6 +56,8 @@ is_deeply(
     ],
     "match htpasswd1 by username"
 );
+
+is($source_id_ref, "htpasswd1", "Source id ref is found");
 
 is(pf::authentication::username_from_email('user@domain.com'), 'htpasswd1', "Found username associated to an email");
 
