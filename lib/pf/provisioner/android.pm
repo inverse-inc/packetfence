@@ -16,16 +16,6 @@ use warnings;
 use Moo;
 extends 'pf::provisioner::mobileconfig';
 
-=head1 Atrributes
-
-=head2 oses
-
-The set the default OS Andriod
-
-=cut
-
-has oses => (is => 'rw', default => sub { [qw(Android)] });
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
