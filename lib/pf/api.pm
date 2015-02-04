@@ -341,12 +341,8 @@ runs the delayed violation now
 =cut
 
 sub violation_delayed_run : Public {
-    my ($self, %postdata) = @_;
-    my @require = qw(mac vid id);
-    my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
-
-    pf::violation::_violation_run_delayed(%postdata);
+    my ($self, $violation) = @_;
+    pf::violation::_violation_run_delayed($violation);
     return ;
 }
 
