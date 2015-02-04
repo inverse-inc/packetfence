@@ -43,6 +43,7 @@ use DateTime;
 use pf::factory::profile::filter;
 use pf::profile::filter;
 use pf::profile::filter::all;
+use pf::constants::Portal::Profile;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -689,6 +690,8 @@ sub readProfileConfigFile {
                     foreach my $field (qw(locale mandatory_fields sources filter provisioners) ) {
                         $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
                     }
+                    $profile->{block_interval} = normalize_time($profile->{block_interval}
+                          || $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE);
                     my $filters = $profile->{'filter'};
                     if($profile_id ne 'default' && @$filters) {
                         my @filterObjects;

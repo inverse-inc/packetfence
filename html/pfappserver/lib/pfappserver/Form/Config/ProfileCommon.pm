@@ -21,6 +21,8 @@ use List::MoreUtils qw(uniq);
 use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::web::constants;
+use pf::constants::Portal::Profile;
+use pfappserver::Form::Field::Duration;
 with 'pfappserver::Base::Form::Role::Help';
 
 =head1 BLOCKS
@@ -44,7 +46,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages sms_pin_retry_limit sms_request_limit login_attempt_limit)],
+    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit)],
   );
 
 =head1 Fields
@@ -241,6 +243,22 @@ has_field 'nbregpages' =>
     default => 0,
   );
 
+=head2 block_interval
+
+The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry
+
+=cut
+
+has_field 'block_interval' =>
+  (
+    type => 'Duration',
+    label => 'Block Interval',
+    #Use the inflate method from pfappserver::Form::Field::Duration
+    default => pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE),
+    tags => { after_element => \&help,
+             help => 'The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.' },
+  );
+
 =head2 sms_pin_retry_limit
 
 The amount of times a pin can try use a pin
@@ -256,6 +274,7 @@ has_field 'sms_pin_retry_limit' =>
              help => 'Maximum number of times a user can retry a SMS PIN before having to request another PIN. A value of 0 disables the limit.' },
 
   );
+
 =head2 login_attempt_limit
 
 The amount of login attempts allowed per mac
@@ -360,7 +379,6 @@ sub validate {
         }
     }
 }
-
 
 =head1 AUTHOR
 
