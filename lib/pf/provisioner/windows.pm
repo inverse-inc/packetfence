@@ -24,7 +24,8 @@ The set the default Windows OS
 
 =cut
 
-has oses => (is => 'rw', default => sub { [qw(Windows)] });
+# Will always ignore the oses parameter provided and use [Windows]
+has 'oses' => (is => 'ro', default => sub { [qw(Windows)] }, coerce => sub { [qw(Windows)] });
 
 =head1 AUTHOR
 
