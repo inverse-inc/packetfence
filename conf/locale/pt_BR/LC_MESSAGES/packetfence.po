@@ -13,8 +13,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2014-08-12 00:24+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2014-10-18 00:58+0000\n"
+"Last-Translator: Diego de Souza Lopes <djkakaroto@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/packetfence/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -109,10 +109,10 @@ msgid "Sign up"
 msgstr "Registrar"
 
 msgid "register: skip registration"
-msgstr "Pular registro"
+msgstr "Pular Registro"
 
 msgid "release: enabling network"
-msgstr "Habilitar o acesso à rede"
+msgstr "Habilitando o acesso à rede"
 
 msgid "release: reopen browser"
 msgstr "Você pode ter que re-abrir o seu navegador para ter acesso à Internet. Se o usuário estiver conectado a um telefone, o usuário precisará reiniciar o computador para ter acesso à Internet."
@@ -145,7 +145,7 @@ msgid "grace"
 msgstr "grace"
 
 msgid "Hostname"
-msgstr "Nome do Equipamento"
+msgstr "Nome do Host"
 
 msgid "IP"
 msgstr "Endereço IP"
@@ -166,7 +166,7 @@ msgid "Node"
 msgstr "Nó"
 
 msgid "PacketFence Registration System"
-msgstr "Sistema de Registro PacketFence"
+msgstr "Sistema de Registro do PacketFence"
 
 msgid "Guest Registration"
 msgstr "Registro de Convidado"
@@ -226,7 +226,7 @@ msgid "Sorry"
 msgstr "Desculpe!"
 
 msgid "Status"
-msgstr "Estado"
+msgstr "Status"
 
 msgid "unknown"
 msgstr "desconhecido"
@@ -235,7 +235,7 @@ msgid "unreg"
 msgstr "não registrado"
 
 msgid "Username"
-msgstr "Usuário"
+msgstr "Nome de Usuário"
 
 msgid "Violations"
 msgstr "Violações"
@@ -1065,15 +1065,15 @@ msgid "room_number"
 msgstr "Número do Quarto/Sala"
 
 msgid "Please wait. Processing payment..."
-msgstr ""
+msgstr "Por favor, aguarde. Processando pagamento..."
 
 msgid ""
 "Remember to enable ip_forward on your operating system for the inline mode "
 "to work."
-msgstr ""
+msgstr "Lembre-se de habilitar ip_forward em seu sistema operacional para trabalhar no modo INLINE."
 
 msgid ""
 "Since NATting mode is disabled, PacketFence will adjust iptables to rules to"
 " route traffic rather than natting it. Make sure to add the routes on the "
 "system."
-msgstr ""
+msgstr "Desde que o modo NAT é desativado, o PacketFence irá ajustar às regras do iptables para rotear o tráfego em vez de NAT. Certifique-se de adicionar as rotas no sistema."
