@@ -28,8 +28,6 @@ use pf::authentication;
 use pf::Authentication::constants;
 use pf::Portal::ProfileFactory;
 use pf::vlan::filter;
-use pf::person;
-use pf::lookup::person;
 
 our $VERSION = 1.04;
 
@@ -519,18 +517,7 @@ sub getNodeInfoForAutoReg {
             if (defined $role) {
                 %node_info = (%node_info, (category => $role));
             }
-            # create a person entry for pid if it doesn't exist
-            if ( !pf::person::person_exist($user_name) ) {
-                $logger->info("creating person $user_name because it doesn't exist");
-                pf::person::person_add($user_name);
-                pf::lookup::person::lookup_person($user_name,$source);
-            } else {
-                $logger->debug("person $user_name already exists");
-            }
-            pf::person::person_modify($user_name,
-                'source'  => $source,
-                'portal'  => $profile->getName,
-            );
+            %node_info = (%node_info, (source  => $source, portal => $profile->getName));
         }
         $node_info{'pid'} = $user_name;
     }
