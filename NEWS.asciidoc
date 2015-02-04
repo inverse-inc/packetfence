@@ -32,6 +32,7 @@ New Features
 * New portal profile parameter to set a retry limit for SMS-based activation
 * The information available from an OAuth source (first name, last name, ...) are now added to the person when registering
 * Allow limiting the user login attempts
+* Added Check Point firewall integration for Single Sign-On
 
 Enhancements
 ++++++++++++
