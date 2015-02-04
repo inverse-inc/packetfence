@@ -2,21 +2,24 @@ package pf::firewallsso;
 
 =head1 NAME
 
-pf::web::firewallsso
+pf::firewallsso
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::web::firewall. 
+pf::firewallsso
+
+This module is used for sending firewallsso request to the web api
 
 =cut
 
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use pf::client;
+use pf::config;
+use pf::log;
 
 =head1 SUBROUTINES
 
@@ -27,7 +30,7 @@ use pf::client;
 =cut
 
 sub new {
-   my $logger = Log::Log4perl::get_logger("pf::firewallsso");
+   my $logger = get_logger();
    $logger->debug("instantiating new pf::firewallsso");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
@@ -42,7 +45,8 @@ Send the firewall sso update request to the webapi.
 
 sub do_sso {
     my ($self, $method, $mac, $ip, $timeout) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    return unless scalar keys %ConfigFirewallSSO;
+    my $logger = get_logger();
 
     my $client = pf::client::getClient();
 
@@ -52,6 +56,7 @@ sub do_sso {
        'ip'               => $ip,
        'timeout'          => $timeout
     );
+    $logger->trace("Sending a firewallsso $method for ($mac,$ip) ");
 
     $client->notify('firewallsso', \%data );
 

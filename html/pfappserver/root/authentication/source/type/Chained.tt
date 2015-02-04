@@ -1,0 +1,2 @@
+[% form.field('authentication_source').render %]
+[% form.field('chained_authentication_source').render %]

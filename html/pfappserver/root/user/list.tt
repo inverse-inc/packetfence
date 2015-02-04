@@ -1,0 +1,29 @@
+
+          <form id="items" method="POST">
+            <table id="users" class="table table-condensed table-striped">
+              <thead>
+                <tr>
+                  <th><input type="checkbox" value="on" id="toggle_all_items"/></th>
+                  [% header('pid', l('Username')) %]
+                  [% header('firstname', l('Firstname'), 'hidden-phone') %]
+                  [% header('lastname', l('Lastname'), 'hidden-phone') %]
+                  [% header('email', l('Email')) %]
+                  [% header('telephone', l('Telephone')) %]
+                  [% header('nodes', l('# nodes')) %]
+                </tr>
+              </thead>
+              <tbody>
+                [%- FOREACH user IN items -%]
+                <tr>
+                  <td><input type="checkbox" name="items" value="[% user.pid | html %]"/></td>
+                  <td><a href="[% c.uri_for(c.controller.action_for('view'), [ user.pid ]) %]">[% user.pid %]</a></td>
+                  <td class="hidden-phone">[% user.firstname | html %]</td>
+                  <td class="hidden-phone">[% user.lastname | html %]</td>
+                  <td>[% user.email | html %]</td>
+                  <td>[% user.telephone | html %]</td>
+                  <td>[% IF user.nodes > 0 %]<span class="badge">[% user.nodes | html %]</span>[% END %]</td>
+                </tr>
+                [%- END -%]
+              </tbody>
+            </table>
+          </form>

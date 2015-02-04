@@ -59,7 +59,7 @@ name of service
 
 =cut
 
-has name => ( is => 'rw');
+has name => ( is => 'rw', required => 1);
 
 =head2 shouldCheckup
 
@@ -118,6 +118,14 @@ If the service is a virtual service
 =cut
 
 has isvirtual => ( is => 'rw', default => sub { 0 } );
+
+=head2 forceManaged
+
+If set then the service is forced to be considered managed
+
+=cut
+
+has forceManaged => ( is => 'rw', default => sub { 0 } );
 
 
 =head1 Methods
@@ -521,7 +529,7 @@ sub isManaged {
     require pf::config;
     my $name = $self->name;
     $name =~ s/\./_/g;
-    return isenabled($pf::config::Config{'services'}{$name});
+    return $self->forceManaged || isenabled($pf::config::Config{'services'}{$name});
 }
 
 
@@ -536,7 +544,7 @@ Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.

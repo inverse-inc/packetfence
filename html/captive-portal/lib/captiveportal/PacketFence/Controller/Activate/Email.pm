@@ -106,7 +106,7 @@ sub login : Private {
     my ( $self, $c ) = @_;
     $c->stash(
         template => $pf::web::guest::SPONSOR_LOGIN_TEMPLATE,
-        username => encode_entities( $c->request->param("username") )
+        username => $c->request->param_encoded("username"),
     );
 }
 
@@ -131,7 +131,7 @@ sub doEmailRegistration : Private {
 
     my $email_type =
       pf::Authentication::Source::EmailSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($email_type);
+    my $source = $profile->getSourceByType($email_type) || $profile->getSourceByTypeForChained($email_type);
 
     if ($source) {
 
@@ -229,7 +229,7 @@ sub doSponsorRegistration : Private {
     my $profile = $c->profile;
     my $sponsor_type =
       pf::Authentication::Source::SponsorEmailSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($sponsor_type);
+    my $source = $profile->getSourceByType($sponsor_type) || $profile->getSourceByTypeForChained($sponsor_type);
 
     if ($source) {
 

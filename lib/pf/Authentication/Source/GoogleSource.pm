@@ -8,11 +8,12 @@ pf::Authentication::Source::GoogleSource
 
 =cut
 
+use pf::person;
 use Moose;
-extends 'pf::Authentication::Source';
+extends 'pf::Authentication::Source::OAuthSource';
 
-has '+class' => (default => 'external');
 has '+type' => (default => 'Google');
+has '+class' => (default => 'external');
 has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1, default => 'YOUR_API_ID.apps.googleusercontent.com');
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
@@ -26,46 +27,16 @@ has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'http
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.google.com,*.gstatic.com,googleapis.com,accounts.youtube.com');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
-=head2 available_actions
+=head2 lookup_from_provider_info
 
-For an oauth2 source, we limit the available actions to B<set role>, B<set access duration>, and B<set unreg date>.
-
-=cut
-
-sub available_actions {
-    return [
-            $Actions::SET_ROLE,
-            $Actions::SET_ACCESS_DURATION,
-            $Actions::SET_UNREG_DATE,
-           ];
-}
-
-=head2 available_attributes
+Lookup the person information from the authentication hash received during the OAuth process
 
 =cut
 
-sub available_attributes {
-    my $self = shift;
-    return([@{$self->SUPER::available_attributes}, {value => 'username', type => $Conditions::SUBSTRING }]);
+sub lookup_from_provider_info {
+    my ( $self, $pid, $info ) = @_;
+    person_modify( $pid, firstname => $info->{given_name}, lastname => $info->{family_name} );
 }
-
-=head2 match_in_subclass
-
-=cut
-
-sub match_in_subclass {
-    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    my $username =  $params->{'username'};
-    foreach my $condition (@{ $own_conditions }) {
-        if ($condition->{'attribute'} eq "username") {
-            if ( $condition->matches("username", $username) ) {
-                push(@{ $matching_conditions }, $condition);
-            }
-        }
-    }
-    return $username;
-}
-
 
 =head1 AUTHOR
 

@@ -47,6 +47,9 @@ function networkAccessCallback(destination_url) {
 
     network_redirected = true;
 
+    //show a web notification
+    if(txt_web_notification) showWebNotification(txt_web_notification, '/content/images/unlock.png');
+
     // browser redirect
     // Firefox 3/4 needs a new forced destination and a little delay
     if (Prototype.Browser.Gecko) {
@@ -94,7 +97,7 @@ function performRedirect(destination_url) {
 
 Date.now = Date.now || function() { return +new Date; };
 
-function detectNetworkAccess(retry_delay, destination_url, external_ip) {
+function detectNetworkAccess(retry_delay, destination_url, external_ip, image_path) {
     "use strict";
     var errorDetected, loaded, netdetect, checker, initNetDetect;
 
@@ -110,7 +113,7 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip) {
     initNetDetect = function() {
         errorDetected = loaded = undefined;
         var netdetect = $('netdetect');
-        netdetect.src = "http://" + external_ip + "/common/network-access-detection.gif?r=" + Date.now();
+        netdetect.src = "http://" + external_ip + image_path + "?r=" + Date.now();
         checker.delay(retry_delay);
     };
     checker = function() {
@@ -158,5 +161,45 @@ function confirmToQuit (e) {
  */
 function addConfirmToQuit() {
   window.onbeforeunload = confirmToQuit;
+}
+
+/**
+ initWebNotifications
+
+ Requests the necessary permissions to display Web Notifications if it's supported by the browser
+ */
+function initWebNotifications(){
+  if(window.Notification){
+    Notification.requestPermission(function (status) {
+      // This allows to use Notification.permission with Chrome/Safari
+      if (Notification.permission !== status) {
+        Notification.permission = status;
+        console.log(Notification.status);
+      }
+    });
+  }
+}
+
+/**
+ canWebNotifications
+
+ Checks if the browser supports Web notifications and that the user has granted the permissions to show Web notifications
+ */
+function canWebNotifications(){
+  if (window.Notification && Notification.permission === "granted") {
+    return true;
+  }
+  return false;
+}
+
+/**
+ showWebNotifications
+
+ Displays a web notification if the user accepted it and if the browser supports it.
+ */
+function showWebNotification(message, icon){
+  if(canWebNotifications()){
+    var notification = new Notification(message, {icon:icon});
+  }  
 }
 

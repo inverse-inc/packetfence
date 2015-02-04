@@ -38,10 +38,13 @@ use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
 use Try::Tiny;
+use pf::util;
 
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsRadiusVoip { return $TRUE; }
 # special features
+sub supportsFloatingDevice {return $TRUE}
+sub supportsMABFloatingDevices { return $TRUE }
 sub supportsLldp { return $TRUE; }
 sub isVoIPEnabled {return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
@@ -280,6 +283,123 @@ sub wiredeauthTechniques {
         $logger->error("This authentication mode is not supported");
     }
 
+}
+
+=head2 enableMABFloatingDevice
+
+Connects to the switch and configures the specified port to be RADIUS floating device ready
+
+=cut
+
+sub enableMABFloatingDevice{
+    my ($this, $ifIndex) = @_; 
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    
+    my $session;
+    eval {
+        $session = Net::Appliance::Session->new(
+            Host      => $this->{_ip},
+            Timeout   => 20,
+            Transport => $this->{_cliTransport},        
+            Platform  => "JUNOS",    
+        );
+        
+        $session->connect(
+            Name     => $this->{_cliUser},
+            Password => $this->{_cliPwd}
+        );  
+    };  
+    
+    if ($@) {
+        $logger->error("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $@");
+        return;
+    }   
+
+    my $port = $this->getIfName($ifIndex);
+
+    my $command_mac_limit = "set ethernet-switching-options secure-access-port interface $port mac-limit 26000";
+    my $command_disconnect_flap = "delete protocols dot1x authenticator interface $port mac-radius flap-on-disconnect";
+
+    my @output;
+    eval {
+        # fake priviledged mode
+        $session->in_privileged_mode(1);
+        $session->begin_configure();
+
+    
+        @output = $session->cmd(String => $command_mac_limit, Timeout => '5');
+        @output = $session->cmd(String => $command_disconnect_flap, Timeout => '5');
+        @output = $session->cmd(String => 'commit comment "configured floating device"', Timeout => '30');
+
+        $session->in_privileged_mode(0);
+    };
+
+    if ($@) {
+        $logger->error("Unable to set mac limit for port $port: $@");
+        $session->close();
+        return;
+    }
+    $session->close();
+    return 1;
+
+}
+
+=head2 disableMABFloatingDevice
+
+Connects to the switch and removes the RADIUS floating device configuration
+
+=cut
+
+sub disableMABFloatingDevice{
+    my ($this, $ifIndex) = @_; 
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    
+    my $session;
+    eval {
+        $session = Net::Appliance::Session->new(
+            Host      => $this->{_ip},
+            Timeout   => 20,
+            Transport => $this->{_cliTransport},        
+            Platform  => "JUNOS",    
+        );
+        
+        $session->connect(
+            Name     => $this->{_cliUser},
+            Password => $this->{_cliPwd}
+        );  
+    };  
+    
+    if ($@) {
+        $logger->error("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $@");
+        return;
+    }   
+
+    my $port = $this->getIfName($ifIndex);
+
+    my $command_mac_limit = "delete ethernet-switching-options secure-access-port interface $port mac-limit";
+    my $command_disconnect_flap = "set protocols dot1x authenticator interface $port mac-radius flap-on-disconnect";
+    my @output;
+    eval {
+        # fake priviledged mode
+        $session->in_privileged_mode(1);
+        $session->begin_configure();
+
+    
+        @output = $session->cmd(String => $command_mac_limit, Timeout => '5');
+        @output = $session->cmd(String => $command_disconnect_flap, Timeout => '5');
+        @output = $session->cmd(String => 'commit comment "deconfigured floating device"', Timeout => '30');
+
+        $session->in_privileged_mode(0);
+    };
+
+    if ($@) {
+        $logger->error("Unable to set mac limit for port $port: $@");
+        $session->close();
+        return;
+    }
+    $session->close();
+
+    return 1;
 }
 
 =head1 AUTHOR

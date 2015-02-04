@@ -113,6 +113,19 @@ sub returnRadiusAccessAccept {
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     my $radius_reply_ref = {};
+
+    # If we're doing 802.1x then instead of doing web auth, we'll do classic VLAN isolation
+    # This allows to have different VLANs for the roles
+    if ($connection_type == $WIRED_802_1X){
+        $radius_reply_ref = {
+            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+            'Tunnel-Type' => $RADIUS::VLAN,
+            'Tunnel-Private-Group-ID' => $vlan,
+        };
+
+        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+    }
+
     # TODO this is experimental
     try {
 
@@ -272,30 +285,19 @@ sub radiusDisconnect {
 
 =head2 parseRequest
 
-Takes FreeRADIUS' RAD_REQUEST hash and process it to return
-NAS Port type (Ethernet, Wireless, etc.)
-Network Device IP
-EAP
-MAC
-NAS-Port (port)
-User-Name
+Redefinition of pf::Switch::parseRequest due to specific attribute being used for webauth
 
 =cut
 
 sub parseRequest {
-    my ($this, $radius_request) = @_;
-    my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'});
-    my $user_name = $radius_request->{'User-Name'};
-    my $nas_port_type = $radius_request->{'NAS-Port-Type'};
-    my $port = $radius_request->{'NAS-Port'};
-    my $eap_type = 0;
-    if (exists($radius_request->{'EAP-Type'})) {
-        $eap_type = $radius_request->{'EAP-Type'};
-    }
-    my $nas_port_id;
-    if (defined($radius_request->{'NAS-Port-Id'})) {
-        $nas_port_id = $radius_request->{'NAS-Port-Id'};
-    }
+    my ( $this, $radius_request ) = @_;
+    my $client_mac      = clean_mac($radius_request->{'Calling-Station-Id'});
+    my $user_name       = $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
+    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
+    my $port            = $radius_request->{'NAS-Port'};
+    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
+    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+    
     my $session_id;
     if (defined($radius_request->{'Cisco-AVPair'})) {
         if ($radius_request->{'Cisco-AVPair'} =~ /audit-session-id=(.*)/ig ) {

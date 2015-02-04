@@ -1,0 +1,31 @@
+          [% form.block('captive_portal').render %]
+          <div class="control-group">
+            <label class="control-label" for="locale">[% l('Languages') %]</label>
+            <div class="controls">
+              [% form.field('locale').render %]
+              <div id="localeEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('locale').index > 1 %]">
+                <p>
+                  <i class="icon-comments icon-large"></i>
+                  [% l('With no language specified, all supported locales will be available.') %]
+                  <a href="#add">[% l('Add a language.') %]</a>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="mandatory_fields">[% l('Mandatory Fields') %]</label>
+            <div class="controls">
+              [% form.field('mandatory_fields').render %]
+              <div id="mandatory_fieldsEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('mandatory_fields').index > 1 %]">
+                <p>
+                  <i class="icon-keyboard icon-large"></i>
+                  [%- IF form.isa('pfappserver::Form::Config::Profile::Default') -%]
+                  [% l('No mandatory fields specified.') %]
+                  [%- ELSE -%]
+                  [% l('With no mandatory fields specified, the mandatory fields of the default profile will be used.') %]
+                  [%- END -%]<br/>
+                  <a href="#add">[% l('Add a mandatory field.') %]</a>
+                </p>
+              </div>
+            </div>
+          </div>

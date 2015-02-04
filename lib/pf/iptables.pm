@@ -99,6 +99,7 @@ sub iptables_generate {
     # global substitution variables
     $tags{'web_admin_port'} = $Config{'ports'}{'admin'};
     $tags{'webservices_port'} = $Config{'ports'}{'soap'};
+    $tags{'aaa_port'} = $Config{'ports'}{'aaa'};
     # FILTER
     # per interface-type pointers to pre-defined chains
     $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();
@@ -132,10 +133,13 @@ sub iptables_generate {
 
     # per-feature firewall rules
     # self-registered guest by email or sponsored or gaming registration
+    # pre-registration guest
     my $device_registration_enabled = isenabled($Config{'registration'}{'device_registration'});
+    my $pre_registration_enabled    = isenabled($Config{'guests_self_registration'}{'preregistration'});
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
-    if ( $email_enabled || $sponsor_enabled || $device_registration_enabled ) {
+    my $chained_enabled = $guest_self_registration{$SELFREG_MODE_CHAINED};
+    if ( $email_enabled || $sponsor_enabled || $chained_enabled || $device_registration_enabled || $pre_registration_enabled ) {
         $tags{'input_mgmt_guest_rules'} =
             "-A $FW_FILTER_INPUT_MGMT --protocol tcp --match tcp --dport 443 --jump ACCEPT"
         ;

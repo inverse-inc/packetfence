@@ -1,2 +1,3 @@
 [% form.field('host').render %]
 [% form.field('realm').render %]
+[% form.field('stripped_user_name').render %]

@@ -5,3 +5,4 @@
           </div>
         </div>
 [% form.field('secret').render %]
+[% form.field('stripped_user_name').render %]

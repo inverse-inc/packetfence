@@ -23,7 +23,7 @@ use base qw(Exporter);
 our @EXPORT = qw(send_rpc_request build_msgpack_request);
 
 # Configuration parameter
-use constant SOAP_PORT => '9090'; #TODO: See note1
+use constant SOAP_PORT => '7070'; #TODO: See note1
 
 sub send_rpc_request {
     use bytes;
@@ -125,7 +125,7 @@ Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.

@@ -29,6 +29,7 @@ sub generateConfig {
     generate_radiusd_mainconf();
     generate_radiusd_eapconf();
     generate_radiusd_sqlconf();
+    generate_radiusd_proxy();
 }
 
 =head2 generate_radiusd_mainconf
@@ -46,7 +47,7 @@ sub generate_radiusd_mainconf {
     $tags{'arch'} = `uname -m` eq "x86_64" ? "64" : "";
     $tags{'rpc_pass'} = $Config{webservices}{pass} || "''";
     $tags{'rpc_user'} = $Config{webservices}{user} || "''";
-    $tags{'rpc_port'} = $Config{webservices}{port} || "9090";
+    $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
     $tags{'rpc_host'} = $Config{webservices}{host} || "127.0.0.1";
     $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
 
@@ -88,6 +89,31 @@ sub generate_radiusd_sqlconf {
    parse_template( \%tags, "$conf_dir/radiusd/sql.conf", "$install_dir/raddb/sql.conf" );
 }
 
+=head2 generate_radiusd_proxy
+
+Generates the proxy.conf.inc configuration file
+
+=cut
+
+sub generate_radiusd_proxy {
+    my %tags;
+
+    $tags{'template'} = "$conf_dir/radiusd/proxy.conf.inc";
+    $tags{'install_dir'} = $install_dir;
+    $tags{'config'} = '';
+
+    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+        my $options = $pf::config::ConfigRealm{$realm}->{'options'} || '';
+        $tags{'config'} .= <<"EOT";
+realm $realm {
+$options
+}
+
+EOT
+    }
+    parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -99,7 +125,7 @@ Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.

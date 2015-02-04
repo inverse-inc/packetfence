@@ -58,6 +58,7 @@ our (
     $log_conf_dir,
     $vlan_filters_config_file,
     $pfcmd_binary,
+    $realm_config_file,
 );
 
 BEGIN {
@@ -94,6 +95,7 @@ BEGIN {
         $log_conf_dir
         $vlan_filters_config_file
         $pfcmd_binary
+        $realm_config_file
     );
 }
 
@@ -139,6 +141,7 @@ $allowed_device_types_file = catfile($conf_dir,"allowed_device_types.txt");
 $apache_filters_config_file = catfile($conf_dir, "apache_filters.conf");
 $vlan_filters_config_file = catfile($conf_dir, "vlan_filters.conf");
 $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
+$realm_config_file = catfile($conf_dir,"realm.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -181,7 +184,7 @@ Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.

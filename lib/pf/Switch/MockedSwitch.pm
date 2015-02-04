@@ -86,6 +86,7 @@ sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
+sub supportsMABFloatingDevices { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
 sub supportsAccessListBasedEnforcement { return $TRUE }
 # VoIP technology supported
@@ -2927,7 +2928,7 @@ User-Name
 sub parseRequest {
     my ($this, $radius_request) = @_;
     my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'});
-    my $user_name = $radius_request->{'User-Name'};
+    my $user_name       = $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
     my $nas_port_type = $radius_request->{'NAS-Port-Type'};
     my $port = $radius_request->{'NAS-Port'};
     my $eap_type = 0;
@@ -2952,59 +2953,6 @@ sub parseUrl {
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->warn("Not implemented");
     return;
-}
-
-=item * _identifyConnectionType
-
-Identify the connection type based information provided by RADIUS call
-
-Returns the constants $WIRED or $WIRELESS. Undef if unable to identify.
-
-=cut
-
-sub _identifyConnectionType {
-    my ($this, $nas_port_type, $eap_type, $mac, $user_name) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-
-    $eap_type = 0 if (not defined($eap_type));
-    if (defined($nas_port_type)) {
-
-        if ($nas_port_type =~ /^Wireless-802\.11/) {
-
-            if ($eap_type) {
-                return $WIRELESS_802_1X;
-            } else {
-                return $WIRELESS_MAC_AUTH;
-            }
-        } elsif ($nas_port_type =~ /^Ethernet/ ) {
-
-            if ($eap_type) {
-
-                # some vendor do EAP-based Wired MAC Authentication, as far as PacketFence is concerned
-                # this is still MAC Authentication so we need to cheat a little bit here
-                # TODO: consider moving this logic later once the switch is initialized so we can ask it
-                # (supportsEAPMacAuth?)
-                $mac =~ s/[^[:xdigit:]]//g;
-                if (lc $mac eq lc $user_name) {
-                    return $WIRED_MAC_AUTH;
-                } else {
-                    return $WIRED_802_1X;
-                }
-
-            } else {
-                return $WIRED_MAC_AUTH;
-            }
-
-        } else {
-            # we didn't recognize request_type, this is a problem
-            $logger->warn("Unknown connection_type. NAS-Port-Type: $nas_port_type, EAP-Type: $eap_type.");
-            return;
-        }
-    } else {
-        $logger->warn("Request type was not set. There is a problem with the NAS, your radius config "
-            ."or rlm_perl packetfence.pm FreeRADIUS module.");
-        return;
-    }
 }
 
 sub getAcceptForm {

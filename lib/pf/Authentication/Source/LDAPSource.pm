@@ -11,6 +11,7 @@ pf::Authentication::Source::LDAPSource
 use pf::config qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::Authentication::Condition;
+use pf::CHI;
 
 use Net::LDAP;
 use Net::LDAPS;
@@ -27,16 +28,19 @@ use constant {
     TLS => "starttls",
 };
 
-has '+type'              => ( default => 'LDAP' );
-has 'host'               => ( isa     => 'Maybe[Str]', is => 'rw', default => '127.0.0.1' );
-has 'port'               => ( isa     => 'Maybe[Int]', is => 'rw', default => 389 );
+has '+type' => (default => 'LDAP');
+has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
+has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
 has 'connection_timeout' => ( isa     => 'Int', is => 'rw', default => 5 );
-has 'basedn'             => ( isa     => 'Str', is => 'rw', required => 1 );
-has 'binddn'            => ( isa => 'Maybe[Str]', is => 'rw' );
-has 'password'          => ( isa => 'Maybe[Str]', is => 'rw' );
-has 'encryption'        => ( isa => 'Str',        is => 'rw', required => 1 );
-has 'scope'             => ( isa => 'Str',        is => 'rw', required => 1 );
-has 'usernameattribute' => ( isa => 'Str',        is => 'rw', required => 1 );
+has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
+has 'binddn' => (isa => 'Maybe[Str]', is => 'rw');
+has 'password' => (isa => 'Maybe[Str]', is => 'rw');
+has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
+has 'scope' => (isa => 'Str', is => 'rw', required => 1);
+has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
+has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
+has '_cached_connection' => (is => 'rw');
+has 'cache_match' => ( isa => 'Bool',       is => 'rw', default => 0 );
 
 =head1 METHODS
 
@@ -167,6 +171,51 @@ sub _connect {
 }
 
 
+=head2 match
+
+    Overrided to add caching to avoid a hit to the database
+
+=cut
+
+sub match {
+    my ($self, $params) = @_;
+    if($self->is_match_cacheable) {
+        return $self->cache->compute([$self->id, $params], sub { return $self->SUPER::match($params)});
+    }
+    return $self->SUPER::match($params);
+}
+
+=head2 cache
+
+    get the cache object
+
+=cut
+
+sub cache {
+    return pf::CHI->new( namespace => 'ldap_auth');
+}
+
+=head2 is_match_cacheable
+
+Checks to see if the match can be cached
+
+=cut
+
+sub is_match_cacheable {
+    my ($self) = @_;
+    #First check to see caching is disabled to see if we can exit quickly
+    return 0 unless $self->cache_match;
+    #Check rules for timed based operations return false first one found
+    foreach my $rule (@{$self->{rules}}) {
+        foreach my $condition (@{$rule->{conditions}}) {
+            my $op = $condition->{operator};
+            return 0 if $op eq $Conditions::IS_BEFORE || $op eq $Conditions::IS_AFTER;
+        }
+    }
+    return $self->cache_match;
+}
+
+
 =head2 match_in_subclass
 
 C<$params> are the parameters gathered at authentication (username, SSID, connection type, etc).
@@ -184,18 +233,12 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
 
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-
-    my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
-    if (! defined($connection)) {
+    my $cached_connection = $self->_cached_connection;
+    unless ( $cached_connection ) {
         return undef;
     }
+    my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
 
-    my $result = $self->bind_with_credentials($connection);
-
-    if ($result->is_error) {
-        $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-        return undef;
-    }
 
     my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
     if (! defined($filter)) {
@@ -205,7 +248,7 @@ sub match_in_subclass {
     $logger->debug("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
 
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
-    $result = $connection->search(
+    my $result = $connection->search(
       base => $self->{'basedn'},
       filter => $filter,
       scope => $self->{'scope'},
@@ -276,8 +319,6 @@ sub match_in_subclass {
             }
         }
 
-        $connection->unbind;
-
         if ($entry_matches) {
             # If we found a result, we push all conditions as matched ones.
             # That is normal, as we used them all to build our LDAP filter.
@@ -347,6 +388,7 @@ sub ldap_filter_for_conditions {
   my ($self, $conditions, $match, $usernameattribute, $params) = @_;
 
   my (@ldap_conditions, $expression);
+  $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
   if ($params->{'username'}) {
       $expression = '(' . $usernameattribute . '=' . $params->{'username'} . ')';
   } elsif ($params->{'email'}) {
@@ -400,6 +442,78 @@ sub bind_with_credentials {
         $result = $connection->bind;
     }
     return $result;
+}
+
+=head2 search based on a attribute
+
+=cut
+
+sub search_attributes {
+    my ($self, $pid) = @_;
+    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+    my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
+    if (!defined($connection)) {
+      return ($FALSE, 'Unable to connect to the LDAP Server');
+    }
+    my $result = $self->bind_with_credentials($connection);
+
+    if ($result->is_error) {
+      $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
+      return ($FALSE, 'Unable to validate credentials at the moment');
+    }
+    my $searchresult = $connection->search(
+                  base => $self->{'basedn'},
+                  filter => "($self->{'usernameattribute'}=$pid)"
+    );
+    my $entry = $searchresult->entry();
+    $connection->unbind();
+
+    if (!$entry) {
+        $logger->warn("Unable to locate PID '$pid'");
+    }
+    else {
+         $logger->info("PID: '$pid' found in the directory");
+    }
+    return $entry;
+}
+
+=head2 postMatchProcessing
+
+Tear down any resources created in preMatchProcessing
+
+=cut
+
+sub postMatchProcessing {
+    my ($self) = @_;
+    my $cached_connection = $self->_cached_connection;
+    if($cached_connection) {
+        my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
+        $connection->unbind;
+        $self->_cached_connection(undef);
+    }
+}
+
+=head2 preMatchProcessing
+
+Setup any resouces need for matching
+
+=cut
+
+sub preMatchProcessing {
+    my ($self) = @_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
+    if (! defined($connection)) {
+        return undef;
+    }
+
+    my $result = $self->bind_with_credentials($connection);
+
+    if ($result->is_error) {
+        $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
+        return undef;
+    }
+    $self->_cached_connection([$connection, $LDAPServer, $LDAPServerPort]);
 }
 
 =head1 AUTHOR

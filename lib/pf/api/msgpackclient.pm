@@ -27,6 +27,7 @@ use pf::log;
 use WWW::Curl::Easy;
 use Data::MessagePack;
 use Moo;
+use HTTP::Status qw(:constants);
 
 =head1 Attributes
 
@@ -36,7 +37,7 @@ use Moo;
 
 =cut
 
-has username => ( is => 'rw', default => sub {$Config{'webservices'}{'username'}} );
+has username => ( is => 'rw', default => sub {$Config{'webservices'}{'user'}} );
 
 =head2 password
 
@@ -44,7 +45,7 @@ has username => ( is => 'rw', default => sub {$Config{'webservices'}{'username'}
 
 =cut
 
-has password => ( is => 'rw', default => sub {$Config{'webservices'}{'password'}} );
+has password => ( is => 'rw', default => sub {$Config{'webservices'}{'pass'}} );
 
 =head2 proto
 
@@ -111,7 +112,7 @@ sub call {
     # Looking at the results...
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-        if($response_code == 200) {
+        if($response_code == HTTP_OK) {
             $response = Data::MessagePack->unpack($response_body);
         } else {
             $response = Data::MessagePack->unpack($response_body);
@@ -148,7 +149,7 @@ sub notify {
     # Looking at the results...
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-        if($response_code != 200) {
+        if($response_code != HTTP_NO_CONTENT) {
             get_logger->error( "An error occured while processing the MSGPACK request return code ($response_code)");
         }
     } else {
@@ -176,6 +177,9 @@ sub curl {
         $curl->setopt(CURLOPT_HTTPAUTH, CURLOPT_HTTPAUTH);
         $curl->setopt(CURLOPT_USERNAME, $self->username);
         $curl->setopt(CURLOPT_PASSWORD, $self->password);
+        # Removed SSL verification
+        $curl->setopt(CURLOPT_SSL_VERIFYHOST, 0);
+        $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
     }
     return $curl;
 }
@@ -233,7 +237,7 @@ Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.

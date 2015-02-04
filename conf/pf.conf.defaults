@@ -58,6 +58,12 @@ rogueinterval=10
 # This feature is only available if the dhcpdetector is activated.
 dhcpoption82logger=disabled
 #
+# network.dhcp_filter_by_message_types
+#
+# Which dhcp message types are being listened by the pfdhcplistener.
+# Do not change unless you know what you are doing
+dhcp_filter_by_message_types=DHCPOFFER,DHCPREQUEST,DHCPDECLINE,DHCPACK,DHCPRELEASE
+#
 # network.interfaceSNAT
 # Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)
 interfaceSNAT=
@@ -263,6 +269,11 @@ admin=1443
 #
 # Port of the soap interface listens on.
 soap=9090
+#
+# ports.aaa
+#
+# Port of the aaa http interface listens on.
+aaa=7070
 
 [scan]
 #
@@ -409,6 +420,11 @@ httpd_portal=enabled
 #
 # Please note that this table should not become too big since it 
 httpd_admin=enabled
+#
+# expire.ldap_auth
+#
+# Enable expiration of the ldap_auth cache
+ldap_auth=enabled
 
 [services]
 #
@@ -466,6 +482,11 @@ httpd_portal=enabled
 #
 # Should httpd.webservices be started?
 httpd_webservices=enabled
+#
+# services.httpd_aaa
+#
+# Should httpd.aaa be started?
+httpd_aaa=enabled
 #
 # services.httpd_proxy
 #
@@ -681,6 +702,12 @@ network_detection=enabled
 #
 network_detection_ip = 192.95.20.194
 #
+# captive_portal.image_path
+#
+# This is the path where the gif is on the webserver to detect if the network access
+# has been enabled.
+image_path = /common/network-access-detection.gif
+#
 # captive_portal.loadbalancers_ip
 #
 # If the captive portal is put behind load-balancer(s) that act at Layer 7 
@@ -702,6 +729,12 @@ loadbalancers_ip=
 # If secure_redirect is enabled, the captive portal uses HTTPS when redirecting
 # captured clients. This is the default behavior.
 secure_redirect=enabled
+#
+# captive_portal.status_only_on_production
+#
+# If status_only_on_production is enabled, the /status page will only be available on the
+# production network. This is disabled by default
+status_only_on_production=disabled
 
 [advanced]
 #
@@ -825,6 +858,11 @@ proto=http
 #
 # port to use
 port=9090
+#
+# webservices.aaa_port
+#
+# port to use for authentication
+aaa_port=7070
 
 [maintenance]
 #
@@ -833,10 +871,30 @@ port=9090
 # iplog cleanup interval
 iplog_cleanup_interval=60s
 #
+# maintenance.iplog_cleanup_batch
+#
+# iplog cleanup batch
+iplog_cleanup_batch=100
+#
+# maintenance.iplog_cleanup_timeout
+#
+# iplog cleanup timeout
+iplog_cleanup_timeout=10s
+#
 # maintenance.node_cleanup_interval
 #
 # locationlog cleanup interval
 locationlog_cleanup_interval=60s
+#
+# maintenance.locationlog_cleanup_batch
+#
+# locationlog cleanup batch
+locationlog_cleanup_batch=100
+#
+# maintenance.locationlog_cleanup_timeout
+#
+# locationlog cleanup timeout
+locationlog_cleanup_timeout=10s
 #
 # maintenance.node_cleanup_interval
 #
@@ -892,3 +950,8 @@ acct_maintenance_interval=60s
 #
 # Interval at which Packetfence runs the polling enforcement on the provisioners
 provisioning_compliance_poll_interval=300s
+#
+# maintenance.ldap_auth_cache_cleanup_interval
+#
+# Interval at which Packetfence purges the ldap_auth cache
+ldap_auth_cache_cleanup_interval=600s

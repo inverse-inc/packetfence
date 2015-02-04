@@ -226,7 +226,7 @@ Requires: perl(File::Slurp)
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
 Requires: perl(Moose) <= 2.1005
-Requires: perl(CHI) >= 0.56
+Requires: perl(CHI) >= 0.59
 Requires: perl(Data::Serializer)
 Requires: perl(Data::Structure::Util)
 Requires: perl(Data::Swap)
@@ -341,7 +341,7 @@ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
     /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
     docs/docbook/xsl/titlepage-fo.xml
 # admin, network device config, devel and ZEN install guides
-for GUIDE in PacketFence_Administration_Guide PacketFence_Developers_Guide PacketFence_Network_Devices_Configuration_Guide PacketFenceZEN_Installation_Guide PacketFence_Anyfi_Quick_Install_Guide PacketFence_Brocade_Quick_Install_Guide PacketFence_Cisco_Quick_Install_Guide PacketFence_Ruckus_Quick_Install_Guide PacketFence_OPSWAT_Quick_Install_Guide PacketFence_MobileIron_Quick_Install_Guide PacketFence_SEPM_Quick_Install_Guide PacketFence_PaloAlto_Quick_Install_Guide PacketFence_Barracuda_Quick_Install_Guide; do 
+for GUIDE in $(ls docs/PacketFence*.asciidoc | xargs -n1 -I'{}' basename '{}' .asciidoc) ;do
 asciidoc -a docinfo2 -b docbook -d book \
     -o docs/docbook/$GUIDE.docbook \
     docs/$GUIDE.asciidoc
@@ -756,12 +756,16 @@ fi
 %config(noreplace)      /usr/local/pf/conf/provisioning.conf
                         /usr/local/pf/conf/provisioning.conf.example
 %dir			/usr/local/pf/conf/radiusd
+%config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.inc
+                        /usr/local/pf/conf/radiusd/proxy.conf.inc.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
                         /usr/local/pf/conf/radiusd/eap.conf.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/radiusd.conf
                         /usr/local/pf/conf/radiusd/radiusd.conf.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/sql.conf
                         /usr/local/pf/conf/radiusd/sql.conf.example
+%config(noreplace)      /usr/local/pf/conf/realm.conf
+                        /usr/local/pf/conf/realm.conf.example
 %dir                    /usr/local/pf/conf/snort
 %config(noreplace)      /usr/local/pf/conf/snort/classification.config
                         /usr/local/pf/conf/snort/classification.config.example
@@ -777,10 +781,12 @@ fi
 %config                 /usr/local/pf/conf/dhcpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.aaa
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.aaa
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
@@ -829,6 +835,7 @@ fi
                         /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
                         /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
+                        /usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
 %dir                    /usr/local/pf/html/captive-portal/lib
@@ -976,6 +983,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Wed Feb 04 2015 Inverse <info@inverse.ca> - 4.6.0-1
+- New release 4.6.0
+
 * Mon Nov 10 2014 Inverse <info@inverse.ca> - 4.5.1-1
 - New release 4.5.1
 

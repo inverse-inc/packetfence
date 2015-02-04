@@ -121,7 +121,7 @@ document.observe("dom:loaded", function() {
           <p>[% i18n("Your Network Access Status") %]</p>
           <hr/>
         </div>
-        <div class="input">
+        <div>
           [%- IF node.status == 'reg' %]
           <div>[% i18n_format("You device is registered to <strong>%s</strong>", node.pid) %]</div>
           [%- ELSE %]

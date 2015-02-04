@@ -69,7 +69,7 @@ sub do_query {
 sub add_searches {
     my ($self,$builder,$params) = @_;
     my @searches = map {$self->process_query($_)} @{$params->{searches}};
-    my $all_or_any = $params->{all_or_any};
+    my $all_or_any = $params->{all_or_any} || 'all';
     if ($all_or_any eq 'any' ) {
         $all_or_any = 'or';
     } else {

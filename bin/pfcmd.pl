@@ -1263,12 +1263,17 @@ sub getManagers {
         grep { (!exists $seen{$_->name}) && ($seen{$_->name} = 1) && ( !$justManaged || $_->isManaged ) && !$_->isvirtual }
         map {
             my $m = $_;
-            my @managers =
-                grep { defined $_ }
-                map { pf::services::get_service_manager($_) }
-                @{$m->dependsOnServices}
-                if $includeDependsOn;
-            push @managers,$m;
+            my @managers;
+            if ($includeDependsOn) {
+                push @managers, grep {defined $_}
+                  map {pf::services::get_service_manager($_)} @{$m->dependsOnServices};
+            }
+            if($m->isa("pf::services::manager::submanager")) {
+                push @managers,$m->managers;
+            } else {
+                push @managers,$m;
+            }
+
             @managers
         }
         grep { defined $_ }

@@ -341,17 +341,21 @@ sub importCSV {
 
     # Read CSV file
     $count = 0;
+    my $has_pid = exists $index{'pid'};
     if (open (my $import_fh, "<", $tmpfilename)) {
         my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
         while (my $row = $csv->getline($import_fh)) {
             my ($pid, $mac, $node, %data, $result);
 
-            $pid = $row->[$index{'pid'}] || undef if exists $index{'pid'};
-            if ($pid && ($pid !~ /$pf::person::PID_RE/ || !person_exist($pid))) {
-                $logger->debug("Ignored unknown PID ($pid)");
-                $skipped++;
-                next;
+            if($has_pid) {
+                $pid = $row->[$index{'pid'}] || undef;
+                if ( $pid && ($pid !~ /$pf::person::PID_RE/ || !person_exist($pid))) {
+                    $logger->debug("Ignored unknown PID ($pid)");
+                    $skipped++;
+                    next;
+                }
             }
+
             $mac = $row->[$index{'mac'}] || undef;
             if (!$mac || !valid_mac($mac)) {
                 $logger->debug("Ignored invalid MAC ($mac)");
@@ -765,7 +769,8 @@ sub bulkApplyRole {
     my $count = 0;
     foreach my $mac (@macs) {
         my $node = node_view($mac);
-        if ($node->{category_id} != $role) {
+        my $old_category_id = $node->{category_id};
+        if (!defined($old_category_id) || $old_category_id != $role) {
             # Role has changed
             $node->{category_id} = $role;
             if (node_modify($mac, %{$node})) {
@@ -785,7 +790,7 @@ sub bulkApplyRole {
 =cut
 
 sub bulkReevaluateAccess {
-    my ($self, $role, @macs) = @_;
+    my ($self, @macs) = @_;
     my $count = 0;
     foreach my $mac (@macs) {
         if (reevaluate_access($mac, "node_modify")){

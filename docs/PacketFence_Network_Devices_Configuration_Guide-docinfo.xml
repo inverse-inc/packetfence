@@ -1,9 +1,17 @@
 <copyright>
-  <year>2014</year>
+  <year>2015</year>
   <holder>Inverse inc.</holder>
 </copyright>
 
 <revhistory>
+  <revision>
+    <revnumber>2.9</revnumber>
+    <date>2015-02-04</date>
+    <revremark>
+    - Adding 802.1x documentation for HP Procurve 2610
+    - Adding Juniper floating config to documentation
+    </revremark>
+  </revision>
   <revision>
     <revnumber>2.8</revnumber>
     <date>2014-09-10</date>

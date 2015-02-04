@@ -327,30 +327,19 @@ sub getPhonesLLDPAtIfIndex {
 
 =head2 parseRequest
 
-Takes FreeRADIUS' RAD_REQUEST hash and process it to return
-NAS Port type (Ethernet, Wireless, etc.)
-Network Device IP
-EAP
-MAC
-NAS-Port (port)
-User-Name
+Redefinition of pf::Switch::parseRequest due to client mac being parsed from User-Name rather than Calling-Station-Id
 
 =cut
 
 sub parseRequest {
-    my ($this, $radius_request) = @_;
-    my $client_mac = clean_mac($radius_request->{'User-Name'});
-    my $user_name = $radius_request->{'User-Name'};
-    my $nas_port_type = $radius_request->{'NAS-Port-Type'};
-    my $port = $radius_request->{'NAS-Port'};
-    my $eap_type = 0;
-    if (exists($radius_request->{'EAP-Type'})) {
-        $eap_type = $radius_request->{'EAP-Type'};
-    }
-    my $nas_port_id;
-    if (defined($radius_request->{'NAS-Port-Id'})) {
-        $nas_port_id = $radius_request->{'NAS-Port-Id'};
-    }
+    my ( $this, $radius_request ) = @_;
+    my $client_mac      = clean_mac($radius_request->{'User-Name'});
+    my $user_name       = $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
+    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
+    my $port            = $radius_request->{'NAS-Port'};
+    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
+    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef);
 }
 

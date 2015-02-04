@@ -9,10 +9,12 @@
 [% form.field('scope').render %]
 [% form.field('usernameattribute').render %]
 [% form.field('binddn').render %]
+[% form.field('cache_match').render %]
         <div class="control-group">
           <label class="control-label">[% l('Password') %] <i class="icon-exclamation-sign"></i></label>
           <div class="controls">
             [% form.field('password').render_element %]
-            <a class="btn" id="testSource" href="[% c.uri_for(c.controller('Authentication::Source').action_for('test'), [source.type]) %]">[% l('Test') %]</a>
+            <a class="btn" id="testSource" href="[% c.uri_for(c.controller('Config::Authentication::Source').action_for('test'), [source.type]) %]">[% l('Test') %]</a>
           </div>
         </div>
+[% form.field('stripped_user_name').render %]

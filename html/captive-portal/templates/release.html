@@ -12,6 +12,8 @@ var action = function() {
 }; 
   
 var txt_ie = "[% i18n("Some versions of Internet Explorer may take a while before redirection occur.") | html %]";
+var txt_web_notification = "[% i18n("Network access has been granted") %]"
+
 // once the page is loaded
 document.observe("dom:loaded", function() {
   [% IF auto_redirect == "enabled" %]
@@ -21,10 +23,15 @@ document.observe("dom:loaded", function() {
   }
   
   detectNetworkAccess.delay([% initial_delay %], 
-    [% retry_delay %], "[% destination_url %]", "[% external_ip %]"
+    [% retry_delay %], "[% destination_url %]", "[% external_ip %]", "[% image_path %]"
   );
+
+  //require access to web notifications now so it's ready when the access is activated
+  initWebNotifications();
+
   [% END %]
 });
+
 </script>
 
         <div id="about">

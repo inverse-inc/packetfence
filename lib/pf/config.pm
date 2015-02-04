@@ -42,11 +42,13 @@ use Time::Local;
 use DateTime;
 use pf::factory::profile::filter;
 use pf::profile::filter;
+use pf::profile::filter::all;
+use pf::constants::Portal::Profile;
 
 # Categorized by feature, pay attention when modifying
 our (
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
-    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @external_nets,
+    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets,
     @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
 #pf.conf.default variables
     %Default_Config, $cached_pf_default_config,
@@ -70,7 +72,8 @@ our (
     %mark_type_to_str, %mark_type,
     $thread, $default_pid, $fqdn,
     %CAPTIVE_PORTAL,
-
+#realm.conf
+    %ConfigRealm, $cached_realm,
 );
 
 BEGIN {
@@ -80,7 +83,7 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int
-        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @external_nets
+        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network
         @inline_enforcement_nets @vlan_enforcement_nets
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         $IPSET_VERSION %mark_type_to_str %mark_type
@@ -104,7 +107,7 @@ BEGIN {
         %connection_group %connection_group_to_str
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
         $ROLE_API_LEVEL
-        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_NULL
+        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_NULL $SELFREG_MODE_CHAINED
         %CAPTIVE_PORTAL
         $HTTP $HTTPS
         normalize_time $TIME_MODIFIER_RE $ACCT_TIME_MODIFIER_RE $DEADLINE_UNIT access_duration
@@ -119,6 +122,7 @@ BEGIN {
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
         $OS
         %Doc_Config
+        %ConfigRealm $cached_realm
     );
 }
 
@@ -328,6 +332,7 @@ Readonly our $SELFREG_MODE_GITHUB => 'github';
 Readonly our $SELFREG_MODE_LINKEDIN   => 'linkedin';
 Readonly our $SELFREG_MODE_WIN_LIVE   => 'windowslive';
 Readonly our $SELFREG_MODE_NULL   => 'null';
+Readonly our $SELFREG_MODE_CHAINED   => 'chained';
 
 # SoH filters
 Readonly our $SOH_ACTION_ACCEPT => 'accept';
@@ -418,6 +423,7 @@ sub init_config {
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
     readFirewallSSOFile();
+    readRealmFile();
 }
 
 =item ipset_version -  check the ipset version on the system
@@ -549,7 +555,7 @@ sub readPfConfigFiles {
                 #clearing older interfaces infor
                 $monitor_int = $management_network = '';
                 @listen_ints = @dhcplistener_ints = @ha_ints =
-                  @internal_nets = @external_nets =
+                  @internal_nets =
                   @inline_enforcement_nets = @vlan_enforcement_nets = ();
 
                 my @time_values = grep { my $t = $Doc_Config{$_}{type}; defined $t && $t eq 'time' } keys %Doc_Config;
@@ -596,7 +602,7 @@ sub readPfConfigFiles {
                     }
 
                     die "Missing mandatory element ip or netmask on interface $int"
-                        if ($type =~ /internal|managed|management|external/ && !defined($int_obj));
+                        if ($type =~ /internal|managed|management/ && !defined($int_obj));
 
                     foreach my $type ( split( /\s*,\s*/, $type ) ) {
                         if ( $type eq 'internal' ) {
@@ -617,8 +623,6 @@ sub readPfConfigFiles {
                             # adding management to dhcp listeners by default (if it's not already there)
                             push @dhcplistener_ints, $int if ( not scalar grep({ $_ eq $int } @dhcplistener_ints) );
 
-                        } elsif ( $type eq 'external' ) {
-                            push @external_nets, $int_obj;
                         } elsif ( $type eq 'monitor' ) {
                             $monitor_int = $int;
                         } elsif ( $type =~ /^dhcp-?listener$/i ) {
@@ -638,7 +642,7 @@ sub readPfConfigFiles {
                             crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                             ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
                             ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
-                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com
+                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com certificates.godaddy.com
                         )
                     ];
                 } else {
@@ -649,10 +653,11 @@ sub readPfConfigFiles {
                             crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                             ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
                             ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
-                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com
+                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com certificates.godaddy.com
                         )
                     ];
                 }
+                $Config{network}{dhcp_filter_by_message_types} = [split(/\s*,\s*/,$Config{network}{dhcp_filter_by_message_types} || '')],
 
                 _load_captive_portal();
             }]
@@ -679,14 +684,25 @@ sub readProfileConfigFile {
                 #Clearing the Profile filters
                 @Profile_Filters = ();
                 my $default_description = $Profiles_Config{'default'}{'description'};
-                while (my ($profile_id, $profile) = each %Profiles_Config) {
+                foreach my $profile_id ($config->Sections()) {
+                    my $profile = $Profiles_Config{$profile_id};
                     $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
                     foreach my $field (qw(locale mandatory_fields sources filter provisioners) ) {
                         $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
                     }
-                    #Adding filters in profile order
-                    foreach my $filter (@{$profile->{'filter'}}) {
-                        push @Profile_Filters, pf::factory::profile::filter->instantiate($profile_id,$filter);
+                    $profile->{block_interval} = normalize_time($profile->{block_interval}
+                          || $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE);
+                    my $filters = $profile->{'filter'};
+                    if($profile_id ne 'default' && @$filters) {
+                        my @filterObjects;
+                        foreach my $filter (@{$profile->{'filter'}}) {
+                            push @filterObjects, pf::factory::profile::filter->instantiate($profile_id,$filter);
+                        }
+                        if(defined ($profile->{filter_match_style}) && $profile->{filter_match_style} eq 'all') {
+                            push @Profile_Filters, pf::profile::filter::all->new(profile => $profile_id, value => \@filterObjects);
+                        } else {
+                            push @Profile_Filters,@filterObjects;
+                        }
                     }
                 }
                 #Add the default filter so it always matches if no other filter matches
@@ -774,6 +790,24 @@ sub readFirewallSSOFile {
             my ($config) = @_;
             $config->toHash(\%ConfigFirewallSSO);
             $config->cleanupWhitespace(\%ConfigFirewallSSO);
+        }]
+    );
+    if(@Config::IniFiles::errors) {
+        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
+    }
+}
+
+=item readRealmFile - realm.conf
+
+=cut
+
+sub readRealmFile {
+    $cached_realm = pf::config::cached->new(
+        -file => $realm_config_file,
+        -allowempty => 1,
+        -onreload => [ reload_realm_config => sub {
+            my ($config) = @_;
+            $config->toHash(\%ConfigRealm);
         }]
     );
     if(@Config::IniFiles::errors) {

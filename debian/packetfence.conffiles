@@ -22,6 +22,7 @@
 /usr/local/pf/conf/oui.txt
 /usr/local/pf/conf/pf.conf.defaults
 /usr/local/pf/conf/provisioning.conf
+/usr/local/pf/conf/realm.conf
 /usr/local/pf/conf/snort/classification.config
 /usr/local/pf/conf/snort/local.rules
 /usr/local/pf/conf/snort/reference.config
@@ -30,6 +31,7 @@
 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
+/usr/local/pf/conf/httpd.conf.d/httpd.aaa
 /usr/local/pf/conf/httpd.conf.d/httpd.portal
 /usr/local/pf/conf/httpd.conf.d/httpd.admin
 /usr/local/pf/conf/httpd.conf.d/log.conf

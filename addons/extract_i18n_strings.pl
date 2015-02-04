@@ -20,11 +20,13 @@ use pf::admin_roles;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::factory::provisioner;
+use pf::factory::firewallsso;
+use pf::factory::profile::filter;
 use pf::Switch::constants;
 use pfappserver::Controller::Graph;
 use pfappserver::Model::Node;
 use pfappserver::Form::Config::Wrix;
-use pfappserver::Form::Portal::Common;
+use pfappserver::Form::Config::ProfileCommon;
 use pf::config;
 
 use constant {
@@ -165,7 +167,7 @@ Extract localizable strings from Models and Controllers classes.
 
 sub parse_mc {
     my $base = APP.'/lib/pfappserver/';
-    my @dir = qw/Base Controller Model/;
+    my @dir = qw/Base Controller Model Form/;
     my @modules = ();
 
     my $pm = sub {
@@ -182,8 +184,8 @@ sub parse_mc {
         open(PM, $module);
         while (defined($line = <PM>)) {
             chomp $line;
-            if ($line =~ m/\$c->loc\(['"](.+?[^'"\\])["']\)/) {
-                my $string = $1;
+            if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["']\)/) {
+                my $string = $2;
                 $string =~ s/\\'/'/g;
                 add_string($string, $module);
             }
@@ -307,6 +309,9 @@ sub extract_modules {
     }
 
     const('pf::config', 'VALID_TRIGGER_TYPES', \@pf::config::VALID_TRIGGER_TYPES);
+    const('pf::config', 'SoH Actions', \@pf::config::SOH_ACTIONS);
+    const('pf::config', 'SoH Classes', \@pf::config::SOH_CLASSES);
+    const('pf::config', 'SoH Status', \@pf::config::SOH_STATUS);
     const('pf::config', 'Inline triggers', [$pf::config::MAC, $pf::config::PORT, $pf::config::SSID, $pf::config::ALWAYS]);
     const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
 
@@ -341,7 +346,9 @@ sub extract_modules {
             encryption => '',
             scope => '',
             path => '',
-            client_id => ''
+            client_id => '',
+            authentication_source => undef,
+            chained_authentication_source => undef
            });
         $attributes = $source->available_attributes();
 
@@ -357,10 +364,13 @@ sub extract_modules {
     @values = map { @$_ } values %Conditions::OPERATORS;
     const('pf::Authentication::constants', 'Conditions', \@values);
 
-    @values = sort grep {$_} map { /^pf::provisioner::(.*)/;$1  } @pf::factory::provisioner::MODULES;
+    @values = sort grep {$_} map { /^pf::provisioner::(.*)/; $1 } @pf::factory::provisioner::MODULES;
     const('pf::provisioner', 'Provisioners', \@values);
 
-    @values = sort grep {$_} map { /^pf::firewallsso::(.*)/;$1  } @pf::factory::firewallsso::MODULES;
+    @values = sort @pf::factory::profile::filter::MODULES;
+    const('pf::filter', 'Portal Profile Filters', \@values);
+
+    @values = sort grep {$_} map { /^pf::firewallsso::(.*)/; $1 } @pf::factory::firewallsso::MODULES;
     const('pf::firewallsso', 'Firewall SSO', \@values);
 
     const('pf::Switch::constants', 'Modes', \@SNMP::MODES);
@@ -381,9 +391,11 @@ sub extract_modules {
 
     const('pfappserver::Form::Config::Wrix', 'open hours', \@pfappserver::Form::Config::Wrix::HOURS);
 
-    @values = pfappserver::Form::Portal::Common->options_mandatory_fields();
+    @values = pfappserver::Form::Config::ProfileCommon->options_mandatory_fields();
     @values = map { $_->{label} } @values;
-    const('pfappserver::Form::Portal::Common', 'mandatory fields', \@values);
+    const('pfappserver::Form::Config::ProfileCommon', 'mandatory fields', \@values);
+
+    const('pfappserver::Form::Field::Duration', 'Operators', ['add', 'subtract']);
 
     const('html/pfappserver/root/user/list_password.tt', 'options', ['mail_loading']);
 }

@@ -1,6 +1,6 @@
 # Vlan filter configuration
 # 
-# you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegister, InlineVlan)
+# you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegister, InlineVlan, NodeInfoForAutoReg)
 #
 # Make a simple rule like this:
 #
@@ -43,6 +43,18 @@
 # the default one and the ssid is OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday,
 # we return the role "nointernet" (which you will have configured in the switch configuration).
 #
+# Web API call:
+#
+# [3:3]
+# scope = NormalVlan
+# action = trigger_violation
+# action_param = mac = $mac, tid = 1100010, type = INTERNAL
+#
+# It means that if the SSID is OpenWrt-SECURE then we send a API call to the function trigger_violation and
+# trigger the violation 1100010
+#
+# action_param is computed by PacketFence so you can set static and dynamic values
+#
 # filter can be:
 #
 #     node_info
@@ -54,6 +66,7 @@
 #     ssid
 #     time
 #     owner
+#     radius_request
 #
 # operator can be:
 #     is
@@ -142,6 +155,21 @@
 #    can_sponsor
 #    unregdate
 #    category
+#
+# - for the radius_request
+#    All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
+#
+# action can be:
+#
+#    deregister_node (require param => mac)
+#    register_node (require param => mac pid)
+#    modify_node (require param => mac)
+#    trigger_violation (require param => mac tid type)
+#
+# action_param can be:
+#    The require param and optional attributes like (for action = modify_node):
+#    action_param = mac = $mac, notes = $radius_request->{'Called-Station-Id'}
+#
 #
 # The value of a time is specific and follow this logic:
 # http://search.cpan.org/~pryan/Period-1.20/Period.pm

@@ -1,0 +1,46 @@
+          [% form.block('definition').render %]
+          [% IF form.field('filter') %]
+            <div class="control-group">
+              <label class="control-label" for="sources">[% l('Filters') %] <i class="icon-exclamation-sign"></i> </label>
+              <div class="controls">
+                <dl>
+                  <dt>[% l('If [_1] of the following conditions are met:', [ form.field('filter_match_style').render_element ]) %]</dt>
+                  <dd><br/> [% form.field('filter').render %] </dd>
+                </dl>
+              </div>
+            </div>
+          [% END -%]
+          <div class="control-group">
+            <label class="control-label" for="sources">[% l('Sources') %]</label>
+            <div class="controls">
+              [% form.field('sources').render %]
+              <div id="sourcesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('sources').index > 1 %]">
+                <p>
+                  <i class="icon-group icon-large"></i>
+                  [%- IF form.isa('pfappserver::Form::Config::Profile::Default') -%]
+                  [% l('With no source specified, all internal and external sources will be used.') %]
+                  [%- ELSE -%]
+                  [% l('With no source specified, the sources of the default profile will be used.') %]
+                  [%- END -%]<br/>
+                  <a href="#add">[% l('Add a source.') %]</a>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="provisioners">[% l('Provisioners') %]</label>
+            <div class="controls">
+              [% form.field('provisioners').render %]
+              <div id="provisionersEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('provisioners').index > 1 %]">
+                <p>
+                  <i class="icon-cog icon-large"></i>
+                  [%- IF form.isa('pfappserver::Form::Portal::Profile::Default') -%]
+                  [% l('No provisioner specified.') %]
+                  [%- ELSE -%]
+                  [% l('With no provisioners specified, the provisioners of the default profile will be used.') %]
+                  [%- END -%]<br/>
+                  <a href="#add">[% l('Add a provisioner.') %]</a>
+                </p>
+              </div>
+            </div>
+          </div>

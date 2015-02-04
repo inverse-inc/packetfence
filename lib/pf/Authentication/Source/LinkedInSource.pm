@@ -11,10 +11,10 @@ pf::Authentication::Source::LinkedInSource
 use WWW::Curl::Easy;
 use JSON qw( decode_json );
 use Moose;
-extends 'pf::Authentication::Source';
+extends 'pf::Authentication::Source::OAuthSource';
 
-has '+class' => (default => 'external');
 has '+type' => (default => 'LinkedIn');
+has '+class' => (default => 'external');
 has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
@@ -26,47 +26,6 @@ has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://a
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/linkedin');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'www.linkedin.com,api.linkedin.com,static.licdn.com');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
-
-=head2 available_actions
-
-For an oauth2 source, we limit the available actions to B<set role>, B<set access duration>, and B<set unreg date>.
-
-=cut
-
-sub available_actions {
-    return [
-            $Actions::SET_ROLE,
-            $Actions::SET_ACCESS_DURATION,
-            $Actions::SET_UNREG_DATE,
-           ];
-}
-
-=head2 available_attributes
-
-=cut
-
-sub available_attributes {
-    my $self = shift;
-    return([@{$self->SUPER::available_attributes}, {value => 'username', type => $Conditions::SUBSTRING }]);
-}
-
-=head2 match_in_subclass
-
-=cut
-
-sub match_in_subclass {
-    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    my $username =  $params->{'username'};
-    foreach my $condition (@{ $own_conditions }) {
-        if ($condition->{'attribute'} eq "username") {
-            if ( $condition->matches("username", $username) ) {
-                push(@{ $matching_conditions }, $condition);
-            }
-        }
-    }
-    return $username;
-}
-
 
 =head1 AUTHOR
 

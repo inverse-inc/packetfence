@@ -24,7 +24,8 @@ The set the default OS to IOS
 
 =cut
 
-has oses => (is => 'rw', default => sub { ['Apple iPod, iPhone or iPad'] });
+# Will always ignore the oses parameter provided and use ['Apple iPod, iPhone or iPad']
+has 'oses' => (is => 'ro', default => sub { ['Apple iPod, iPhone or iPad'] }, coerce => sub { ['Apple iPod, iPhone or iPad'] });
 
 =head2 ssid
 
@@ -42,7 +43,7 @@ The ca cert_path
 
 has ca_cert_path => (is => 'rw');
 
-# make it skip deauth by default 
+# make it skip deauth by default
 has skipDeAuth => (is => 'rw', default => sub{ 1 });
 
 has for_username => (is => 'rw');
@@ -55,7 +56,7 @@ always authorize
 
 =cut
 
-sub authorize { 
+sub authorize {
     my ($self, $mac) = @_;
     my $info = pf::node::node_view($mac);
     $self->for_username($info->{pid});
@@ -72,7 +73,7 @@ Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.

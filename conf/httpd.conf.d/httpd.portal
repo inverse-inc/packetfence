@@ -220,7 +220,23 @@ $ErrorLog = $install_dir.'/logs/portal_error_log';
 
 my $routedNets = join(" ", pf::util::get_routed_isolation_nets(), pf::util::get_routed_registration_nets() , pf::util::get_inline_nets());
 my $loadbalancersIp = join(" ", keys %{$pf::config::CAPTIVE_PORTAL{'loadbalancers_ip'}});
-my $allowed_from_all_urls = "|$WEB::URL_STATUS";
+my $status_only_on_production = pf::config::isenabled ($PfConfig->{captive_portal}{status_only_on_production});
+my $allowed_from_all_urls = '';
+my @status_options;
+if($status_only_on_production) {
+    @status_options = (
+        "/status" => {
+            "Order"             => "allow,deny",
+            "Deny"              => "from $routedNets $loadbalancersIp 127.0.0.1 ",
+            "Allow"             => "from all",
+            SetHandler          => 'modperl',
+            PerlResponseHandler => 'captiveportal',
+        },
+    );
+}
+else {
+    $allowed_from_all_urls = "|$WEB::URL_STATUS";
+}
 # signup and preregister if pre-registration is allowed
 my $guest_regist_allowed = scalar keys %pf::authentication::guest_self_registration;
 if ($guest_regist_allowed && isenabled($pf::config::Config{'guests_self_registration'}{'preregistration'})) {
@@ -233,6 +249,16 @@ my $sponsor_enabled = $pf::authentication::guest_self_registration{$SELFREG_MODE
 if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
     # | is for a regexp "or" as this is pulled from a 'Location ~' statement
     $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION";
+}
+my @allowed_from_all_options;
+if ($allowed_from_all_urls) {
+    @allowed_from_all_options = (
+        "~ \"/$allowed_from_all_urls\"" => {
+            "Allow"             => "from all",
+            SetHandler          => 'modperl',
+            PerlResponseHandler => 'captiveportal',
+        },
+    );
 }
 
 foreach my $interface (@internal_nets) {
@@ -287,11 +313,8 @@ foreach my $interface (@internal_nets) {
              "/content" => {
                 "Allow" => "from all",
              },
-             "~ \"/$allowed_from_all_urls\"" => {
-                "Allow" => "from all",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
+             @status_options,
+             @allowed_from_all_options,
          },
     ));
     push (@{ $VirtualHost{$vhost.":443"} }, gen_conf(
@@ -334,11 +357,8 @@ foreach my $interface (@internal_nets) {
              "/content" => {
                 "Allow" => "from all",
              },
-             "~ \"/$allowed_from_all_urls\"" => {
-                "Allow" => "from all",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
+             @status_options,
+             @allowed_from_all_options,
          },
          SSLEngine => 'on',
          SSLProxyEngine    => 'on',
@@ -398,11 +418,8 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
              "/content" => {
                 "Allow" => "from all",
              },
-             "~ \"/$allowed_from_all_urls\"" => {
-                "Allow" => "from all",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             }, 
+             @status_options,
+             @allowed_from_all_options,
              "/apache_status/" => {
                  SetHandler => 'server-status',
              },
@@ -448,11 +465,8 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
              "/content" => {
                 "Allow" => "from all",
              },
-             "~ \"/$allowed_from_all_urls\"" => {
-                "Allow" => "from all",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
+             @status_options,
+             @allowed_from_all_options,
          },
          SSLEngine => 'on',
          SSLProxyEngine    => 'on',

@@ -37,6 +37,11 @@ case "$1" in
 
         chown pf:pf $PACKETFENCE
         find $PACKETFENCE '(' -type d -or -type f ')' -not -name pfcmd -print0 | xargs -0 chown pf:pf
+        if [ -e /etc/lsb-release ]; then
+            chown dhcpd:dhcpd $PACKETFENCE/var/dhcpd/dhcpd.leases
+        else
+            chown root:root $PACKETFENCE/var/dhcpd/dhcpd.leases
+        fi
 
         # link to latest SQL schema
         if [ ! -e "$PACKETFENCE/db/pf-schema.sql" ]; then

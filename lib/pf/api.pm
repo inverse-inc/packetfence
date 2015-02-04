@@ -14,6 +14,8 @@ pf::api
 use strict;
 use warnings;
 
+use base qw(pf::api::attributes);
+use threads::shared;
 use pf::config();
 use pf::iplog();
 use pf::log();
@@ -25,7 +27,7 @@ use pf::node();
 use pf::locationlog();
 use pf::ipset();
 
-sub event_add {
+sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
     my $logger = pf::log::get_logger();
     $logger->info("violation: $id - IP $srcip");
@@ -44,12 +46,12 @@ sub event_add {
     return (1);
 }
 
-sub echo {
+sub echo : Public {
     my ($class, @args) = @_;
     return @args;
 }
 
-sub radius_authorize {
+sub radius_authorize : Public {
     my ($class, %radius_request) = @_;
     my $logger = pf::log::get_logger();
 
@@ -64,7 +66,7 @@ sub radius_authorize {
     return $return;
 }
 
-sub radius_accounting {
+sub radius_accounting : Public {
     my ($class, %radius_request) = @_;
     my $logger = pf::log::get_logger();
 
@@ -79,7 +81,7 @@ sub radius_accounting {
     return $return;
 }
 
-sub soh_authorize {
+sub soh_authorize : Public {
     my ($class, %radius_request) = @_;
     my $logger = pf::log::get_logger();
 
@@ -94,19 +96,38 @@ sub soh_authorize {
     return $return;
 }
 
-sub update_iplog {
-    my ( $class, $srcmac, $srcip, $lease_length ) = @_;
+sub update_iplog : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(mac ip lease_length oldmac oldip);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::iplog_update($srcmac, $srcip, $lease_length));
+    if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
+        $logger->info(
+            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing iplog entry"
+        );
+        pf::iplog::iplog_close_now($postdata{'ip'});
+    } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
+        $logger->info(
+            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing iplog entry"
+        );
+        pf::iplog::iplog_close_now($postdata{'oldip'});
+    }
+
+    return (pf::iplog::iplog_open($postdata{'mac'}, $postdata{'ip'}, $postdata{'lease_length'}));
 }
  
-sub unreg_node_for_pid {
-    my ($class, $pid) = @_;
-
+sub unreg_node_for_pid : Public {
+    my ($class, %postdata) = @_;
     my $logger = pf::log::get_logger();
-    my @node_infos =  pf::node::node_view_reg_pid($pid->{'pid'});
-    $logger->info("Unregistering ".scalar(@node_infos)." node(s) for $pid");
+    my @require = qw(pid);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
+    my @node_infos =  pf::node::node_view_reg_pid($postdata{'pid'});
+    $logger->info("Unregistering ".scalar(@node_infos)." node(s) for ".$postdata{'pid'});
 
     foreach my $node_info ( @node_infos ) {
         pf::node::node_deregister($node_info->{'mac'});
@@ -115,57 +136,54 @@ sub unreg_node_for_pid {
     return 1;
 }
 
-sub synchronize_locationlog {
-    my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid ) = @_;
+sub synchronize_locationlog : Public {
+    my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid ,$stripped_user_name, $realm) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid));
+    return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid, $stripped_user_name, $realm));
 }
 
-sub insert_close_locationlog {
-    my ($class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid);
+sub insert_close_locationlog : Public {
+    my ($class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid, $stripped_user_name, $realm);
     my $logger = pf::log::get_logger();
 
-    return(pf::locationlog::locationlog_insert_closed($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid));
+    return(pf::locationlog::locationlog_insert_closed($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid, $stripped_user_name, $realm));
 }
 
-sub open_iplog {
+sub open_iplog : Public {
     my ( $class, $mac, $ip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
     return (pf::iplog::iplog_open($mac, $ip, $lease_length));
 }
 
-sub close_iplog {
+sub close_iplog : Public {
     my ( $class, $ip ) = @_;
     my $logger = pf::log::get_logger();
 
     return (pf::iplog::iplog_close($ip));
 }
 
-sub close_now_iplog {
+sub close_now_iplog : Public {
     my ( $class, $ip ) = @_;
     my $logger = pf::log::get_logger();
 
     return (pf::iplog::iplog_close_now($ip));
 }
 
-sub trigger_violation {
-    my ( $class, $mac, $tid, $type ) = @_;
-    my $logger = pf::log::get_logger();
-
-    return (pf::violation::violation_trigger($mac, $tid, $type));
-}
-
-sub ipset_node_update {
+sub ipset_node_update : Public {
     my ( $class, $oldip, $srcip, $srcmac ) = @_;
     my $logger = pf::log::get_logger();
 
     return(pf::ipset::update_node($oldip, $srcip, $srcmac));
 }
 
-sub firewallsso {
-    my ($class, $info) = @_;
+sub firewallsso : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(method mac ip timeout);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
     my $logger = pf::log::get_logger();
 
     foreach my $firewall_conf ( sort keys %pf::config::ConfigFirewallSSO ) {
@@ -177,14 +195,18 @@ sub firewallsso {
             return 0;
         }
         my $firewall = $module_name->new();
-        $firewall->action($firewall_conf,$info->{'method'},$info->{'mac'},$info->{'ip'},$info->{'timeout'});
+        $firewall->action($firewall_conf,$postdata{'method'},$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
     }
     return $pf::config::TRUE;
 }
 
 
-sub ReAssignVlan {
+sub ReAssignVlan : Public {
     my ($class, %postdata )  = @_;
+    my @require = qw(connection_type switch mac ifIndex);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
     my $logger = pf::log::get_logger();
 
     if ( not defined( $postdata{'connection_type'} )) { 
@@ -214,8 +236,12 @@ sub ReAssignVlan {
     }
 }
 
-sub desAssociate {
+sub desAssociate : Public {
     my ($class, %postdata )  = @_;
+    my @require = qw(switch mac connection_type ifIndex);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
     my $logger = pf::log::get_logger();
 
     my $switch = pf::SwitchFactory->getInstance()->instantiate($postdata{'switch'});
@@ -233,8 +259,12 @@ sub desAssociate {
     $switch->$deauthTechniques($postdata{'mac'});
 }
 
-sub firewall {
+sub firewall : Public {
     my ($class, %postdata )  = @_;
+    my @require = qw(mac);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
     my $logger = pf::log::get_logger();
 
     # verify if firewall rule is ok
@@ -266,7 +296,7 @@ sub _reassignSNMPConnections {
         # We treat phones differently. We never bounce their ports except if there is an outstanding
         # violation. 
         if ( $switch->hasPhoneAtIfIndex($ifIndex)  ) {
-            my @violations = violation_view_open_desc($mac);
+            my @violations = pf::violation::violation_view_open_desc($mac);
             if ( scalar(@violations) == 0 ) {
                 $logger->warn("[$mac] VLAN changed and is behind VoIP phone. Not bouncing the port!");
                 return;
@@ -292,10 +322,13 @@ sub _node_determine_and_set_into_VLAN {
 
     my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex, $connection_type);
 
+    my %locker_ref;
+    $locker_ref{$switch->{_ip}} = &share({});
+
     $switch->setVlan(
         $ifIndex,
         $vlan,
-        undef,
+        \%locker_ref,
         $mac
     );
 }
@@ -307,12 +340,119 @@ runs the delayed violation now
 
 =cut
 
-sub violation_delayed_run {
+sub violation_delayed_run : Public {
     my ($self, $violation) = @_;
     pf::violation::_violation_run_delayed($violation);
     return ;
 }
 
+=head2 trigger_violation
+
+Trigger a violation
+
+=cut
+
+sub trigger_violation : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac tid type);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
+    return (pf::violation::violation_trigger($postdata{'mac'}, $postdata{'tid'}, $postdata{'type'}));
+}
+
+
+=head2 add_node
+
+Add a node
+
+=cut
+
+sub modify_node : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
+    pf::node::node_modify($postdata{'mac'}, %postdata);
+    return;
+}
+
+=head2 register_node
+
+Register a node
+
+=cut
+
+sub register_node : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac pid);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
+    pf::node::node_register($postdata{'mac'}, $postdata{'pid'}, %postdata);
+    return;
+}
+
+=head2 deregister_node
+
+Deregister a node
+
+=cut
+
+sub deregister_node : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
+    pf::node::node_deregister($postdata{'mac'}, %postdata);
+    return;
+}
+
+=head2 node_information
+
+Return all the node attributes
+
+=cut
+
+sub node_information : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
+    my $node_info = pf::node::node_view($postdata{'mac'});
+    return $node_info;
+}
+
+=head2 validate_argv
+
+Test if the required arguments are provided
+
+=cut
+
+sub validate_argv {
+    my ($require, $found) = @_;
+    my $logger = pf::log::get_logger();
+
+    if (!(@{$require} == @{$found})) {
+        my %diff;
+        @diff{ @{$require} } = @{$require};
+        delete @diff{ @{$found} };
+        $logger->error("Missing argument ". join(',',keys %diff) ." for the function ".whowasi());
+        return 0;
+    }
+    return 1;
+}
+
+=head2 whowasi
+
+Return the parent function name
+
+=cut
+
+sub whowasi { ( caller(2) )[3] }
 
 =head1 AUTHOR
 
@@ -324,7 +464,7 @@ Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.

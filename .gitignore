@@ -37,6 +37,8 @@ conf/networks.conf
 conf/radiusd/eap.conf
 conf/radiusd/radiusd.conf
 conf/radiusd/sql.conf
+conf/radiusd/proxy.conf.inc
+conf/realm.conf
 conf/snort/classification.config
 conf/snort/local.rules
 conf/snort/reference.config
@@ -53,6 +55,10 @@ conf/snort.conf.pre_snort-2.8
 conf/suricata.yaml
 conf/ui-global.conf
 conf/violations.conf
+conf/allowed_device_oui.txt
+conf/apache_filters.conf
+conf/firewall_sso.conf
+conf/vlan_filters.conf
 html/captive-portal/captive_portal.conf
 conf/pfdetect_remote.conf
 conf/pfarp_remote.conf

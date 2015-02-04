@@ -6,7 +6,7 @@ all:
 	@echo " 'doc-developers-pdf' will build the Develoeprs guide in PDF"
 	@echo " 'doc-networkdevices-pdf' will build the Network Devices Configuration guide in PDF"
 
-pdf: doc-admin-pdf doc-developers-pdf doc-networkdevices-pdf doc-opswat-pdf doc-mobileiron-pdf doc-sepm-pdf
+pdf: doc-admin-pdf doc-developers-pdf doc-networkdevices-pdf doc-opswat-pdf doc-mobileiron-pdf doc-sepm-pdf doc-paloalto-pdf doc-barracuda-pdf doc-fortigate-pdf doc-opendaylight-pdf doc-checkpoint-pdf
 
 doc-admin-pdf:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Administration_Guide.docbook docs/PacketFence_Administration_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Administration_Guide.docbook  -pdf docs/PacketFence_Administration_Guide.pdf
@@ -16,7 +16,6 @@ doc-developers-pdf:
 
 doc-mobileiron-pdf:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_MobileIron_Quick_Install_Guide.docbook docs/PacketFence_MobileIron_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_MobileIron_Quick_Install_Guide.docbook  -pdf docs/PacketFence_MobileIron_Quick_Install_Guide.pdf
-
 
 doc-networkdevices-pdf:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Network_Devices_Configuration.docbook docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Network_Devices_Configuration.docbook -pdf docs/PacketFence_Network_Devices_Configuration.pdf
@@ -39,6 +38,11 @@ doc-fortigate-pdf:
 doc-barracuda-pdf:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Barracuda_Quick_Install_Guide.docbook docs/PacketFence_Barracuda_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Barracuda_Quick_Install_Guide.docbook  -pdf docs/PacketFence_Barracuda_Quick_Install_Guide.pdf
 
+doc-opendaylight-pdf:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_OpenDaylight_Install_Guide.docbook docs/PacketFence_OpenDaylight_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_OpenDaylight_Install_Guide.docbook  -pdf docs/PacketFence_OpenDaylight_Install_Guide.pdf
+
+doc-checkpoint-pdf:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Checkpoint_Quick_Install_Guide.docbook docs/PacketFence_Checkpoint_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Checkpoint_Quick_Install_Guide.docbook  -pdf docs/PacketFence_Checkpoint_Quick_Install_Guide.pdf
 
 .PHONY: configurations
 

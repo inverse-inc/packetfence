@@ -91,7 +91,7 @@ sub bulk_apply_role : Local : Args(1) {
     my $request = $c->request;
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
-        ($status, $status_msg) = $self->getModel($c)->bulkApplyRole(@ids);
+        ($status, $status_msg) = $self->getModel($c)->bulkApplyRole($role,@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -112,7 +112,7 @@ sub bulk_apply_violation : Local : Args(1) {
     my $request = $c->request;
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
-        ($status, $status_msg) = $self->getModel($c)->bulkApplyViolation(@ids);
+        ($status, $status_msg) = $self->getModel($c)->bulkApplyViolation($violation,@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -154,7 +154,7 @@ Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
