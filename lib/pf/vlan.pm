@@ -403,7 +403,7 @@ sub getNormalVlan {
             stripped_user_name => $stripped_user,
         };
         my $source;
-        $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, $source);
+        $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
         #Compute autoreg if we use autoreg
         if (isenabled($node_info->{'autoreg'})) {
             my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
@@ -429,12 +429,12 @@ sub getNormalVlan {
                 if ( !pf::person::person_exist($user_name) ) {
                     $logger->info("creating person $user_name because it doesn't exist");
                     pf::person::person_add($user_name);
-                    pf::lookup::person::lookup_person($user_name,$info{'source'});
+                    pf::lookup::person::lookup_person($user_name,$source);
                 } else {
                     $logger->debug("person $user_name already exists");
                 }
                 pf::person::person_modify($user_name,
-                    'source'  => \$source,
+                    'source'  => $source,
                     'portal'  => $profile->getName,
                 );
                 node_modify($mac,%info);
