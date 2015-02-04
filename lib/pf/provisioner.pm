@@ -85,7 +85,7 @@ The oses to match against
 
 =cut
 
-#has oses => (is => 'rw', default => sub { [] } );
+has oses => (is => 'rw', default => sub { [] } );
 
 =head2 enforce
 
