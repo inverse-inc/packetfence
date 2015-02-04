@@ -28,6 +28,8 @@ use pf::authentication;
 use pf::Authentication::constants;
 use pf::Portal::ProfileFactory;
 use pf::vlan::filter;
+use pf::person;
+use pf::lookup::person;
 
 our $VERSION = 1.04;
 
@@ -390,8 +392,43 @@ sub getNormalVlan {
     # the role based on the rules defined in the different authentication sources.
     # FIRST HIT MATCH
     elsif ( defined $user_name && $connection_type && ($connection_type & $EAP) == $EAP ) {
-        $logger->info("[$mac] Connection type is EAP. Getting role from node_info" );
-        $role = $node_info->{'category'};
+        # Attributes has been computed in getNodeInfoForAutoReg
+        if (isenabled($node_info->{'autoreg'})) {
+            $logger->info("[$mac] Connection type is EAP. Getting role from node_info" );
+            $role = $node_info->{'category'};
+        } else {
+            my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
+            my $stripped_user = '';
+            $stripped_user = $stripped_user_name if(defined($stripped_user_name));
+            my $params = {
+                username => $user_name,
+                connection_type => connection_type_to_str($connection_type),
+                SSID => $ssid,
+                stripped_user_name => $stripped_user,
+            };
+            my $source;
+            $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
+            # create a person entry for pid if it doesn't exist
+            if ( !pf::person::person_exist($user_name) ) {
+                $logger->info("creating person $user_name because it doesn't exist");
+                pf::person::person_add($user_name);
+                pf::lookup::person::lookup_person($user_name,$source);
+            } else {
+                $logger->debug("person $user_name already exists");
+            }
+            pf::person::person_modify($user_name,
+                'source'  => $source,
+                'portal'  => $profile->getName,
+            );
+            my %info = (
+                'autoreg' => 'no',
+                'pid' => $user_name,
+            );
+            if (defined $role) {
+                %info = (%info, (category => $role));
+            }
+            node_modify($mac,%info);
+        }
     }
     # If a user based role has been found by matching authentication sources rules, we return it
     if ( defined($role) && $role ne '' ) {
