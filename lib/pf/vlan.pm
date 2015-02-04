@@ -392,54 +392,8 @@ sub getNormalVlan {
     # the role based on the rules defined in the different authentication sources.
     # FIRST HIT MATCH
     elsif ( defined $user_name && $connection_type && ($connection_type & $EAP) == $EAP ) {
-        $logger->debug("[$mac] EAP connection with a username \"$user_name\". Trying to match rules from authentication sources.");
-        my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
-        my $stripped_user = '';
-        $stripped_user = $stripped_user_name if(defined($stripped_user_name));
-        my $params = {
-            username => $user_name,
-            connection_type => connection_type_to_str($connection_type),
-            SSID => $ssid,
-            stripped_user_name => $stripped_user,
-        };
-        my $source;
-        $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
-        #Compute autoreg if we use autoreg
-        if (isenabled($node_info->{'autoreg'})) {
-            my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
-            if (defined $value) {
-                $logger->trace("No unregdate found - computing it from access duration");
-                $value = access_duration($value);
-            }
-            else {
-                $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
-                $value = pf::config::dynamic_unreg_date($value);
-            }
-            if (defined $value) {
-                my %info = (
-                    'unregdate' => $value,
-                    'category' => $role,
-                    'autoreg' => 'yes',
-                    'pid' => $user_name,
-                );
-                if (defined $role) {
-                    %info = (%info, (category => $role));
-                }
-                # create a person entry for pid if it doesn't exist
-                if ( !pf::person::person_exist($user_name) ) {
-                    $logger->info("creating person $user_name because it doesn't exist");
-                    pf::person::person_add($user_name);
-                    pf::lookup::person::lookup_person($user_name,$source);
-                } else {
-                    $logger->debug("person $user_name already exists");
-                }
-                pf::person::person_modify($user_name,
-                    'source'  => $source,
-                    'portal'  => $profile->getName,
-                );
-                node_modify($mac,%info);
-            }
-        }
+        $logger->info("[$mac] Connection type is EAP. Getting role from node_info" );
+        $role = $node_info->{'category'};
     }
     # If a user based role has been found by matching authentication sources rules, we return it
     if ( defined($role) && $role ne '' ) {
@@ -506,6 +460,7 @@ sub getNodeInfoForAutoReg {
     my ($this, $switch, $switch_port, $mac, $vlan,
         $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name) = @_;
     my $logger = Log::Log4perl->get_logger();
+    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
     my $filter = new pf::vlan::filter;
 
     my ($result,$role) = $filter->test('NodeInfoForAutoReg',$switch, $switch_port, $mac, undef, $conn_type, $user_name, $ssid, $radius_request);
@@ -534,6 +489,49 @@ sub getNodeInfoForAutoReg {
 
     # under 802.1X EAP, we trust the username provided since it authenticated
     if (defined($conn_type) && (($conn_type & $EAP) == $EAP) && defined($user_name)) {
+        $logger->debug("[$mac] EAP connection with a username \"$user_name\". Trying to match rules from authentication sources.");
+        my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
+        my $stripped_user = '';
+        $stripped_user = $stripped_user_name if(defined($stripped_user_name));
+        my $params = {
+            username => $user_name,
+            connection_type => connection_type_to_str($conn_type),
+            SSID => $ssid,
+            stripped_user_name => $stripped_user,
+        };
+
+        my $source;
+        # Don't override vlan filter role 
+        if (!defined($role)) {
+            $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
+        }
+        my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
+        if (defined $value) {
+            $logger->trace("No unregdate found - computing it from access duration");
+            $value = access_duration($value);
+        }
+        else {
+            $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+        }
+        if (defined $value) {
+            $value = pf::config::dynamic_unreg_date($value);
+            $node_info{'unregdate'} = $value;
+            if (defined $role) {
+                %node_info = (%node_info, (category => $role));
+            }
+            # create a person entry for pid if it doesn't exist
+            if ( !pf::person::person_exist($user_name) ) {
+                $logger->info("creating person $user_name because it doesn't exist");
+                pf::person::person_add($user_name);
+                pf::lookup::person::lookup_person($user_name,$source);
+            } else {
+                $logger->debug("person $user_name already exists");
+            }
+            pf::person::person_modify($user_name,
+                'source'  => $source,
+                'portal'  => $profile->getName,
+            );
+        }
         $node_info{'pid'} = $user_name;
     }
 
