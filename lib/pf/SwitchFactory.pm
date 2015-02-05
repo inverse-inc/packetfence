@@ -19,19 +19,17 @@ use warnings;
 use Carp;
 use UNIVERSAL::require;
 use pf::log;
-#use pf::config::cached;
 use pf::util;
 use pf::freeradius;
 use pf::file_paths;
 use Time::HiRes qw(gettimeofday);
 use Benchmark qw(:all);
 use List::Util qw(first);
-#use pf::ConfigStore::Switch;
 use pf::CHI;
 use pfconfig::cached_hash;
 
 my %SwitchConfig;
-tie %SwitchConfig, 'pfconfig::cached_hash', 'Switch';
+tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
 
 our ($singleton);
 
@@ -149,6 +147,8 @@ sub instantiate {
    # # find the module to instantiate
    # $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
    # });
+   # FIX ME !!!!!
+    my $switchOverlay = {};
     my $type;
     pfconfig::timeme::timeme('type import', sub {
     if ($requestedSwitch ne 'default') {
@@ -175,7 +175,7 @@ sub instantiate {
          switchIp => $switch_ip,
          switchMac => $switch_mac,
          %$switch_data,
-         {}
+         %$switchOverlay,
     );
     });
     return $result;
