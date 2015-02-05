@@ -1,8 +1,8 @@
-package zicache::namespaces::config;
+package pfconfig::namespaces::config;
 
 use Data::Dumper;
 
-use base 'zicache::namespaces::resource';
+use base 'pfconfig::namespaces::resource';
 
 sub build {
   my ($self) = @_;

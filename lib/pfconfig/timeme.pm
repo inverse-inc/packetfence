@@ -1,4 +1,4 @@
-package zicache::timeme;
+package pfconfig::timeme;
 
 our $VERBOSE = 0;
 

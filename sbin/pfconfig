@@ -1,15 +1,17 @@
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
 use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
 use JSON;
-use zicache::zicache;
+use pfconfig::manager;
 use Data::Dumper;
 use Time::HiRes;
-use zicache::timeme;
+use pfconfig::timeme;
 use Switch;
 use List::MoreUtils qw(first_index);
-$zicache::timeme::VERBOSE = 1;
+$pfconfig::timeme::VERBOSE = 1;
 
 my $socket_path = '/usr/local/pf/var/run/config.sock';
 unlink($socket_path);
@@ -21,7 +23,7 @@ my $listner = IO::Socket::UNIX->new(
 )
    or die("Can't create server socket: $!\n");
 
-my $cache = zicache::zicache->new;
+my $cache = pfconfig::manager->new;
 
 while(1) {
   my $socket = $listner->accept()
@@ -43,8 +45,6 @@ while(1) {
       case 'keys' { get_keys($query, $socket) }
       case 'next_key' { get_next_key($query, $socket) }
     }
-
-
   };
   if($@){
       print STDERR $@;
@@ -56,7 +56,7 @@ sub get_from_cache {
     my ($what) = @_;
     my $elem;
     # let's get the top namespace element
-    zicache::timeme::timeme('get all config in cache', sub {
+    pfconfig::timeme::timeme('get all config in cache', sub {
       $elem = $cache->get_cache($what);
     });
 
@@ -125,7 +125,7 @@ sub get_next_key {
     }
     else{
       my $last_index;
-      zicache::timeme::timeme('find last index', sub {
+      pfconfig::timeme::timeme('find last index', sub {
         $last_index = first_index { $_ eq $last_key} @keys ;
       });
       print "last_index $last_index";
