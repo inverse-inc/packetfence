@@ -16,6 +16,8 @@ prog="/usr/local/pf/sbin/pfconfig"
 prog_base="$(basename ${prog})"
 
 RETVAL=0
+User="pf"
+Group="pf"
 
 start() {
 	echo -n $"Starting ${prog_base}: "
@@ -24,7 +26,7 @@ start() {
 		echo
 		return 0
 	fi
-	daemon ${prog} -d 
+	daemon --user=$User ${prog} -d 
 	RETVAL=$?
 	echo
 	return $RETVAL
