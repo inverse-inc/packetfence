@@ -1,6 +1,6 @@
-package zicache::backend::memcached;
+package pfconfig::backend::memcached;
 
-use base 'zicache::backend';
+use base 'pfconfig::backend';
 
 sub init {
   my ($self) = @_;

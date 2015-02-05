@@ -1,10 +1,10 @@
-package zicache::namespaces::resource::default_switch;
+package pfconfig::namespaces::resource::default_switch;
 
 use strict;
 use warnings;
 use Data::Dumper;
 
-use base 'zicache::namespaces::resource';
+use base 'pfconfig::namespaces::resource';
 
 sub init {
   my ($self) = @_;

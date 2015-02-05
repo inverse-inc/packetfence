@@ -44,7 +44,7 @@ use pf::factory::profile::filter;
 use pf::profile::filter;
 use pf::profile::filter::all;
 use pf::constants::Portal::Profile;
-use zicache::zihash;
+use pfconfig::cached_hash;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -803,7 +803,7 @@ sub readFirewallSSOFile {
 =cut
 
 sub readRealmFile {
-    tie %ConfigRealm, 'zicache::zihash', $realm_config_file;
+    tie %ConfigRealm, 'pfconfig::cached_hash', $realm_config_file;
 }
 
 =item normalize_time - formats date
