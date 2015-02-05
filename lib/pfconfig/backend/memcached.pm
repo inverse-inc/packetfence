@@ -1,5 +1,8 @@
 package pfconfig::backend::memcached;
 
+use strict;
+use warnings;
+
 use base 'pfconfig::backend';
 
 sub init {

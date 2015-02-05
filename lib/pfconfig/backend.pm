@@ -1,5 +1,8 @@
 package pfconfig::backend;
 
+use strict;
+use warnings;
+
 # abstract class for a backend
 
 sub new {
@@ -7,7 +10,7 @@ sub new {
   my $self = bless {}, $class;
 
   # this needs to be defined in init
-  $self->{cache};
+  $self->{cache} = undef;
 
   $self->init();
 

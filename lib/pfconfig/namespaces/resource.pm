@@ -16,13 +16,9 @@ sub new {
 }
 
 sub init {
-  my ($self) = @_;
-  return undef;
 }
 
 sub build {
-  my ($self) = @_;
-  return undef;
 }
 
 1;
