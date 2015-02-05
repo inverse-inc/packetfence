@@ -5,7 +5,7 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
-Upgrading from a version prior to X.X.X
+Upgrading from a version prior to 4.6.0
 ---------------------------------------
 
 Database schema update
