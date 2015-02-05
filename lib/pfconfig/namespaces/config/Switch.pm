@@ -1,5 +1,9 @@
 package pfconfig::namespaces::config::Switch;
 
+use strict;
+use warnings;
+
+use pfconfig::namespaces::config;
 use Config::IniFiles;
 use Data::Dumper;
 
@@ -8,6 +12,9 @@ use base 'pfconfig::namespaces::config';
 sub init {
   my ($self) = @_;
   $self->{file} = "/usr/local/pf/conf/switches.conf";
+  $self->{child_resources} = [
+    'resource::default_switch',
+  ]
 }
 
 sub build_child {
