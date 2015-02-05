@@ -46,7 +46,8 @@ use pf::traplog;
 use pf::util;
 use pf::services::util;
 use pf::violation qw(violation_maintenance);
-use pf::provisioner;
+use pf::ConfigStore::Provisioning;
+use pf::factory::provisioner;
 
 # initialization
 # --------------
@@ -210,7 +211,7 @@ sub registertasks  {
     );
     register_task(
         'provisioner polling enforcement','provisioning_compliance_poll_interval',sub {
-            pf::provisioner::provisioner_compliance_poll();
+            provisioner_compliance_poll();
         }
     );
     register_task(
@@ -275,6 +276,21 @@ sub purge_cache {
             eval {
                 $cache->remove($key);
             };
+        }
+    }
+}
+
+=head2 provisioner_compliance_poll
+
+Polls each provisioner to enforce compliance
+
+=cut
+
+sub provisioner_compliance_poll {
+    foreach my $id (@{pf::ConfigStore::Provisioning->new->readAllIds}) {
+        my $provisioner = pf::factory::provisioner->new($id);
+        if($provisioner->supportsPolling){
+            $provisioner->pollAndEnforce($Config{maintenance}{provisioning_compliance_poll_interval});
         }
     }
 }

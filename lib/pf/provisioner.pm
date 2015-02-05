@@ -174,22 +174,6 @@ sub match {
     return $self->matchOS($os) && $self->matchCategory($node_attributes);
 }
 
-=head2 provisioner_compliance_poll
-
-=cut
-
-sub provisioner_compliance_poll {
-    use Data::Dumper;
-    use pf::ConfigStore::Provisioning;
-    use pf::factory::provisioner;
-    foreach my $id (@{pf::ConfigStore::Provisioning->new->readAllIds}) {
-        my $provisioner = pf::factory::provisioner->new($id);
-        if($provisioner->supportsPolling){
-            $provisioner->pollAndEnforce($Config{maintenance}{provisioning_compliance_poll_interval});
-        }
-    }
-} 
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
