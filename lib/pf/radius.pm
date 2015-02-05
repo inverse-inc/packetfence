@@ -75,11 +75,9 @@ sub authorize {
     my $logger = Log::Log4perl::get_logger(ref($this));
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $this->_parseRequest($radius_request);
 
-    use Data::Dumper;
-    $logger->info("instantiating switch with".Dumper({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip}));
+    $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
 
-    $logger->info("instanciated switch");
     # is switch object correct?
     if (!$switch) {
         $logger->warn(
@@ -88,8 +86,6 @@ sub authorize {
         );
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
-
-    $logger->info("maanged to instanciate switch");
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
 
