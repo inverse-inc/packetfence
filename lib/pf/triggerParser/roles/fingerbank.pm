@@ -28,7 +28,7 @@ Lookup
 sub search {
     my ($self,$query) = @_;
     my $lookup = $self->lookupField;
-    my ($status,$result) = $self->fingerbankModel->search_schemas([{ $lookup => { -like => "%$query%" } }]);
+    my ($status,$result) = $self->fingerbankModel->search([{ $lookup => { -like => "%$query%" } }]);
     my @items;
     foreach my $resultset ( @$result) {
         while(my $row = $resultset->next) {

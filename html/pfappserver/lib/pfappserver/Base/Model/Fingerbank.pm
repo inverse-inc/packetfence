@@ -38,8 +38,8 @@ sub readAll {
     my ( $self, $pageNum, $perPage ) = @_;
     $pageNum = 1 if $pageNum <= 0;
     my $offset = ($pageNum - 1) * $perPage;
-    my @results = $self->fingerbankModel->list_paginated({offset => $offset, nb_of_rows => $perPage, order => 'asc', order_by => 'id', schema => $self->scope });
-    return ( HTTP_OK, \@results );
+    my ($status, $results) = $self->fingerbankModel->list_paginated({offset => $offset, nb_of_rows => $perPage, order => 'asc', order_by => 'id', schema => $self->scope });
+    return ( HTTP_OK, $results );
 }
 
 sub countAll {
