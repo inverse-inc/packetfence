@@ -120,7 +120,7 @@ sub is_valid {
   my $logger = get_logger;
   my $control_file;
   ($control_file = $what) =~ s/\//;/g;
-  my $file_timestamp = (stat("var/".$control_file."-control"))[9];
+  my $file_timestamp = (stat("/usr/local/pf/var/".$control_file."-control"))[9];
 
   unless(defined($file_timestamp)){
     $logger->warn("Filesystem timestamp is not set for $what. Setting it as now and considering memory as invalid.");
