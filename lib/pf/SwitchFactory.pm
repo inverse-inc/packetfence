@@ -28,10 +28,10 @@ use Benchmark qw(:all);
 use List::Util qw(first);
 #use pf::ConfigStore::Switch;
 use pf::CHI;
-use zicache::zihash;
+use pfconfig::cached_hash;
 
 my %SwitchConfig;
-tie %SwitchConfig, 'zicache::zihash', 'Switch';
+tie %SwitchConfig, 'pfconfig::cached_hash', 'Switch';
 
 our ($singleton);
 
@@ -93,7 +93,7 @@ sub instantiate {
     my $switch_mac;
     #my $switch_overlay_cache = pf::CHI->new(namespace => 'switch.overlay');
 
-    zicache::timeme::timeme('building stuff', sub {
+    pfconfig::timeme::timeme('building stuff', sub {
     if(ref($switchRequest) eq 'HASH') {
         if(exists $switchRequest->{switch_mac} && defined $switchRequest->{switch_mac}) {
             $switch_mac = $switchRequest->{switch_mac};
@@ -113,7 +113,7 @@ sub instantiate {
     }
     });
 
-    zicache::timeme::timeme('searching for the switch', sub {
+    pfconfig::timeme::timeme('searching for the switch', sub {
     foreach my $search (@requestedSwitches){
         if($SwitchConfig{$search}){
             $requestedSwitch = $SwitchConfig{$search};
@@ -145,12 +145,12 @@ sub instantiate {
 
 
    # my $switchOverlay;
-   # zicache::timeme::timeme('overlayget', sub {
+   # pfconfig::timeme::timeme('overlayget', sub {
    # # find the module to instantiate
    # $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
    # });
     my $type;
-    zicache::timeme::timeme('type import', sub {
+    pfconfig::timeme::timeme('type import', sub {
     if ($requestedSwitch ne 'default') {
         $type = "pf::Switch::" . $switch_data->{'type'};
     } else {
@@ -167,7 +167,7 @@ sub instantiate {
     });
 
     my $result;
-    zicache::timeme::timeme('creating', sub {
+    pfconfig::timeme::timeme('creating', sub {
     $logger->debug("creating new $type object");
     $result = $type->new(
          id => $requestedSwitch,

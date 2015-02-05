@@ -1,9 +1,9 @@
-package zicache::namespaces::config::Switch;
+package pfconfig::namespaces::config::Switch;
 
 use Config::IniFiles;
 use Data::Dumper;
 
-use base 'zicache::namespaces::config';
+use base 'pfconfig::namespaces::config';
 
 sub init {
   my ($self) = @_;

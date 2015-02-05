@@ -1,4 +1,4 @@
-package zicache::zicache;
+package pfconfig::manager;
 
 #use Cache::BDB;
 use Cache::Memcached;
@@ -7,12 +7,12 @@ use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
 use UNIVERSAL::require;
 use Data::Dumper;
-use zicache::backend::memcached;
+use pfconfig::backend::memcached;
 
 sub config_builder {
   my ($self, $namespace) = @_;
 
-  my $type = "zicache::namespaces::$namespace";
+  my $type = "pfconfig::namespaces::$namespace";
 
   # load the module to instantiate
   if ( !(eval "$type->require()" ) ) {
@@ -38,7 +38,7 @@ sub new {
 sub init_cache {
   my ($self) = @_;
 
-  $self->{cache} = zicache::backend::memcached->new;
+  $self->{cache} = pfconfig::backend::memcached->new;
 
   $self->{memory} = {};
   $self->{memorized_at} = {};

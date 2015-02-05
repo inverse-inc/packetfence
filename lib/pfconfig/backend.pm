@@ -1,4 +1,4 @@
-package zicache::backend;
+package pfconfig::backend;
 
 # abstract class for a backend
 

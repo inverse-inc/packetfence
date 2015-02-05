@@ -1,9 +1,9 @@
-package zicache::zihash;
+package pfconfig::cached_hash;
 
 use Tie::Hash;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON;
-use zicache::timeme;
+use pfconfig::timeme;
 use List::MoreUtils qw(first_index);
 use Data::Dumper;
 our @ISA = 'Tie::StdHash';
@@ -87,14 +87,14 @@ sub _get_from_socket {
      
   # we ask the cachemaster for our namespaced key
   my $line;
-  zicache::timeme::timeme('socket fetching', sub {
+  pfconfig::timeme::timeme('socket fetching', sub {
     print $socket "$payload\n";
     chomp( $line = <$socket> );
   });
 
   # it returns it as a json hash - maybe not the best choice but it works
   my $result;
-  zicache::timeme::timeme('decoding the socket result', sub {
+  pfconfig::timeme::timeme('decoding the socket result', sub {
     $result = decode_json($line) if $line;
   });
 

@@ -1,4 +1,4 @@
-package zicache::namespaces::resource;
+package pfconfig::namespaces::resource;
 
 use strict;
 use warnings;
