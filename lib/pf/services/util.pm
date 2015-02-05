@@ -38,7 +38,7 @@ sub daemonize {
         or $logger->logdie("Can't read /dev/null: $!");
     open STDOUT, '>', '/dev/null'
         or $logger->logdie("Can't open /dev/null: $!");
-    open STDERR, '>', '/usr/local/pf/stderr'
+    open STDERR, '>', '/dev/null'
         or $logger->logdie("Can't open /dev/null: $!");
     tie *STDERR,'pf::log::trapper',$ERROR;
     tie *STDOUT,'pf::log::trapper',$DEBUG;
