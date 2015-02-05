@@ -185,7 +185,7 @@ sub remove {
 sub commit {
     my ( $self ) = @_;
     my $result = $self->SUPER::commit();
-    pfconfig::manager::expire($switches_config_file);
+    pfconfig::manager->new->expire('config::Switch');
     return $result;
 }
 
