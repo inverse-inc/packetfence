@@ -56,7 +56,7 @@ our %VALID_PARAMS =
 
 =head2 auto
 
-Allow only authenticated users
+Allow only authenticated users except from the configurator realm
 
 =cut
 
