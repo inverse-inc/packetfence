@@ -12,6 +12,7 @@ Form definition to create or update a RADIUS user source.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source';
+with 'pfappserver::Base::Form::Role::Help';
 
 # Form fields
 has_field 'host' =>
