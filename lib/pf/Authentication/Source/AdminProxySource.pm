@@ -14,6 +14,8 @@ pf::Authentication::Source::AdminProxySource
 use strict;
 use warnings;
 use Moose;
+use List::MoreUtils qw(any);
+
 use pf::config;
 use pf::Authentication::constants;
 use pf::Authentication::Condition;
@@ -46,13 +48,58 @@ sub available_attributes {
 
 =head2 authenticate
 
+Authenticate using the address and headers
+
 =cut
 
 sub authenticate {
-    my ($self, $username, $password) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-    return ($FALSE, 'Invalid login or password');
+    my ($self, $address, $headers) = @_;
+    my @address = split /\s*,\s*/ , $self->proxy_addresses;
+    return ($FALSE, 'Invalid proxy address') unless any { $_ eq $address } @address ;
+    return ($TRUE, "Valid proxy address");
 }
+
+=head2 getUserFromHeader
+
+get the user name from the headers
+
+=cut
+
+sub getUserFromHeader {
+    my ($self,$headers) = @_;
+    return $headers->header($self->user_header);
+}
+
+=head2 getGroupFromHeader
+
+get the group from the headers
+
+=cut
+
+sub getGroupFromHeader {
+    my ($self,$headers) = @_;
+    return $headers->header($self->group_header);
+}
+
+=head2 match_in_subclass
+
+Match against the group_header
+
+=cut
+
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    my $group_header =  $params->{'group_header'};
+    foreach my $condition (@{ $own_conditions }) {
+        if ($condition->{'attribute'} eq "group_header") {
+            if ( $condition->matches("group_header", $group_header) ) {
+                push(@{ $matching_conditions }, $group_header);
+            }
+        }
+    }
+    return $group_header;
+}
+
 
 =head1 AUTHOR
 
