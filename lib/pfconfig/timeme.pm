@@ -17,7 +17,7 @@ to a function passed as an argument
 
 use strict;
 use warnings;
-use pf::log;
+use pfconfig::log;
 
 our $VERBOSE = 0;
 
@@ -30,6 +30,7 @@ sub timeme {
   if($VERBOSE) {
     my $time = sprintf("%.4f\n", $end - $start);
     $logger->trace("$desc took : $time");
+    #print "$desc took : $time\n";
   }
   return $end - $start;
 }

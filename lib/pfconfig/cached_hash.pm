@@ -49,7 +49,7 @@ use JSON;
 use pfconfig::timeme;
 use List::MoreUtils qw(first_index);
 use Data::Dumper;
-use pf::log;
+use pfconfig::log;
 our @ISA = 'Tie::StdHash';
 
 # constructor of the tied hash

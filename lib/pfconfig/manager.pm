@@ -40,7 +40,8 @@ use Scalar::Util qw(refaddr reftype tainted blessed);
 use UNIVERSAL::require;
 use Data::Dumper;
 use pfconfig::backend::memcached;
-use pf::log;
+use pfconfig::log;
+use Time::HiRes qw(stat time);
 
 sub config_builder {
   my ($self, $namespace) = @_;
@@ -94,10 +95,11 @@ sub touch_cache {
   my $logger = get_logger;
   $what =~ s/\//;/g;
   my $filename = "/usr/local/pf/var/$what-control";
-  open HANDLE, ">>$filename" or die "touch $filename: $!\n"; 
-  close HANDLE;
-  my $now = time;
-  utime $now, $now, "$filename";
+  `touch $filename`;
+  #open HANDLE, ">>$filename" or die "touch $filename: $!\n"; 
+  #close HANDLE;
+  #my $now = time;
+  #utime $now, $now, "$filename";
 }
 
 # get a key in the cache
@@ -105,9 +107,10 @@ sub get_cache {
   my ($self, $what) = @_;
   my $logger = get_logger;
   # we look in raw memory and make sure that it's not expired
-  if(defined($self->{memory}->{$what}) && $self->is_valid($what)){
+  my $memory = $self->{memory}->{$what};
+  if(defined($memory) && $self->is_valid($what)){
     $logger->debug("Getting $what from memory");
-    return $self->{memory}->{$what};
+    return $memory;
   }
   else {
     my $cached = $self->{cache}->get($what);
