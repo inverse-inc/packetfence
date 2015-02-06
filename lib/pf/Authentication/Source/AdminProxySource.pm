@@ -23,7 +23,7 @@ extends 'pf::Authentication::Source';
 
 has '+type' => (default => 'AdminProxy');
 
-has '+class' => (default => 'admin');
+has '+class' => (default => 'exclusive');
 
 has 'proxy_addresses' => (is => 'rw', required => 1);
 
