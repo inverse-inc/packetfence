@@ -1,14 +1,14 @@
-package pf::util::logging;
+package pf::StatsD::util;
 
 =head1 NAME
 
-pf::util::logging - module for generic logging relate functions and utilities.
+pf::StatsD::util - module for StatsD related utilities
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::util::logging contains functions and utilities used by the other different
+pf::StatsD::util contains functions and utilities used to send StatsD messages.
 modules.
 
 =cut
@@ -29,11 +29,13 @@ Returns the name of the function enclosing this call.
 
 E.g. sub mysub { called() }; should return "mysub".
 
-=back
 =cut
+
 sub called {
     return (caller(1))[3];
 }
+
+=back
 
 =head1 AUTHOR
 
