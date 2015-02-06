@@ -46,6 +46,16 @@ sub available_attributes {
   return [@$super_attributes, sort { $a->{value} cmp $b->{value} } @attributes];
 }
 
+=head2 available_actions
+
+The only available action for this source is SET_ACCESS_LEVEL
+
+=cut
+
+sub available_actions {
+    return [$Actions::SET_ACCESS_LEVEL];
+}
+
 =head2 authenticate
 
 Authenticate using the address and headers
