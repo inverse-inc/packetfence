@@ -28,6 +28,7 @@ use strict;
 use warnings;
 
 use Data::Dumper;
+use JSON;
 
 use base 'pfconfig::namespaces::resource';
 
@@ -38,11 +39,34 @@ sub build {
 
   tie %tmp_cfg, 'Config::IniFiles', ( -file => $self->{file} );
 
-  $self->{cfg} = \%tmp_cfg;
+  my $json = encode_json(\%tmp_cfg);
+  my $cfg = decode_json($json);
+
+  $self->{cfg} = $cfg;
 
   my $child_resource = $self->build_child();
   return $child_resource;
 }
+
+=head2 expand_list
+
+=cut
+
+sub expand_list {
+    my ( $self,$object,@columns ) = @_;
+    foreach my $column (@columns) {
+        if (exists $object->{$column}) {
+            $object->{$column} = [ $self->split_list($object->{$column}) ];
+        }
+    }
+}
+
+sub split_list {
+    my ($self,$list) = @_;
+    return split(/\s*,\s*/,$list);
+}
+
+
 
 =back
 
