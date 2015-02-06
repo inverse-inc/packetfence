@@ -21,6 +21,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use Config::IniFiles;
 use Data::Dumper;
+use pfconfig::log;
 
 use base 'pfconfig::namespaces::config';
 
@@ -38,7 +39,7 @@ sub build_child {
   my %tmp_cfg = %{$self->{cfg}}; 
 
   $tmp_cfg{'127.0.0.1'} = {
-      id                => '127.0.0.1',
+#      id                => '127.0.0.1',
       type              => 'PacketFence',
       mode              => 'production',
       SNMPVersionTrap   => '1',
@@ -58,11 +59,11 @@ sub build_child {
 
   foreach my $switch ( values %tmp_cfg ) {
 
-      # transforming uplink and inlineTrigger to arrays
-      foreach my $key (qw(uplink inlineTrigger)) {
-          my $value = $switch->{$key} || "";
-          $switch->{$key} = [ split /\s*,\s*/, $value ];
-      }
+        # transforming uplink and inlineTrigger to arrays
+        foreach my $key (qw(uplink inlineTrigger)) {
+            my $value = $switch->{$key} || "";
+            $switch->{$key} = [ split /\s*,\s*/, $value ];
+        }
 
       # transforming vlans and roles to hashes
       my %merged = ( Vlan => {}, Role => {}, AccessList => {} );
@@ -94,10 +95,35 @@ sub build_child {
       }
   }
 
+  foreach my $key ( keys %tmp_cfg){
+      $self->cleanupAfterRead($key, $tmp_cfg{$key});
+#      print Dumper($tmp_cfg{$key});
+  }
+
   $self->{cfg} = \%tmp_cfg;
 
   return \%tmp_cfg;
 
+}
+
+sub cleanupAfterRead {
+    my ( $self, $id, $switch ) = @_;
+    my $logger = get_logger();
+
+    if ( $switch->{uplink} && $switch->{uplink} eq 'dynamic' ) {
+        $switch->{uplink_dynamic} = 'dynamic';
+        $switch->{uplink}         = undef;
+    }
+    if ( exists $switch->{inlineTrigger} ) {
+        $switch->{inlineTrigger} =
+          [ map { _splitInlineTrigger($_) } @{ $switch->{inlineTrigger} } ];
+    }
+}
+
+sub _splitInlineTrigger {
+    my ($trigger) = @_;
+    my ( $type, $value ) = split( /::/, $trigger );
+    return { type => $type, value => $value };
 }
 
 =back
