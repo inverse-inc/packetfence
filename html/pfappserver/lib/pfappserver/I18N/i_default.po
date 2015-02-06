@@ -6040,6 +6040,10 @@ msgid "pf::profile::filter::connection_type"
 msgstr "Connection Type"
 
 # pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::day_of_week"
+msgstr "Day Of Week"
+
+# pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::network"
 msgstr "Network"
 
