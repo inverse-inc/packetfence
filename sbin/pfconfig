@@ -56,11 +56,13 @@ while(1) {
     #  - line = 'config' return the whole config hash
     #  - line = 'config;value' return the value in the config hash
 
-    switch ($query->{method}) {
-      case 'element' { get_element($query, $socket) }
-      case 'keys' { get_keys($query, $socket) }
-      case 'next_key' { get_next_key($query, $socket) }
-    }
+    pfconfig::timeme::timeme("replying to $line", sub {
+      switch ($query->{method}) {
+        case 'element' { get_element($query, $socket) }
+        case 'keys' { get_keys($query, $socket) }
+        case 'next_key' { get_next_key($query, $socket) }
+      }
+    });
   };
   if($@){
       print STDERR $@;
