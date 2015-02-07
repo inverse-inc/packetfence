@@ -22,12 +22,13 @@ use pfconfig::namespaces::config;
 use Config::IniFiles;
 use Data::Dumper;
 use pfconfig::log;
+use pf::file_paths;
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
   my ($self) = @_;
-  $self->{file} = "/usr/local/pf/conf/switches.conf";
+  $self->{file} = $switches_config_file;
   $self->{child_resources} = [
     'resource::default_switch',
   ]
