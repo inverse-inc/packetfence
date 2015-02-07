@@ -33,7 +33,7 @@ add a trigger to the value to create/update start_time and end_time
 
 =cut
 
-has '+value' => ( trigger => 1 );
+has '+value' => ( trigger => 1, isa => sub { $_[0] =~ /^\d{2}:\d{2}-\d{2}:\d{2}$/ || die "value is not in the form HH:MM-HH:MM" } );
 
 =head1 METHODS
 

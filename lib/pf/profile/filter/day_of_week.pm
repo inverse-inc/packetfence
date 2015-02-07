@@ -33,7 +33,7 @@ add a trigger to the value to create/update allowed_days
 
 =cut
 
-has '+value' => ( trigger => 1 );
+has '+value' => ( trigger => 1, isa => sub { $_[0] =~ /^[1-7](\s*,\s*[1-7])*$/ || die "value is not a comma separated list of number 1-7" } );
 
 =head1 METHODS
 
