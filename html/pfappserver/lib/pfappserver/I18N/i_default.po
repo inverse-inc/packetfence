@@ -6041,7 +6041,7 @@ msgstr "Connection Type"
 
 # pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::day_of_week"
-msgstr "Day Of Week"
+msgstr "Day of week"
 
 # pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::network"
