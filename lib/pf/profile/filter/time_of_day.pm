@@ -1,7 +1,7 @@
 package pf::profile::filter::time_of_day;
 =head1 NAME
 
-pf::profile::filter::time_of_day add documentation
+pf::profile::filter::time_of_day - Time of day filter for profiles
 
 =cut
 
@@ -29,7 +29,7 @@ has [qw(start_time end_time)] => ( is => 'rw' );
 
 =head2 value
 
-add a trigger to the value
+add a trigger to the value to create/update start_time and end_time
 
 =cut
 
@@ -40,7 +40,7 @@ has '+value' => ( trigger => 1 );
 =head2 match
 
     Matches the time of day against the value
-    The value is expected to be in the following format 
+    The value is expected to be in the following format
     Start-End
     From midnight to 6am
     00:00-06:00
@@ -53,7 +53,7 @@ sub match {
     my $current = time2str("%H:%M",time);
     return ($self->start_time le $current) && ($current le $self->end_time);
 }
- 
+
 =head2 _trigger_value
 
 Set start_time and end_time from the value
@@ -73,7 +73,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

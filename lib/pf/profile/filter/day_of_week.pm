@@ -1,7 +1,7 @@
 package pf::profile::filter::day_of_week;
 =head1 NAME
 
-pf::profile::filter::day_of_week add documentation
+pf::profile::filter::day_of_week - Day of week filter for profiles
 
 =cut
 
@@ -29,7 +29,7 @@ has allowed_days => ( is => 'rw' );
 
 =head2 value
 
-add a trigger to the value to create update allowed_days
+add a trigger to the value to create/update allowed_days
 
 =cut
 
@@ -56,7 +56,7 @@ has '+value' => ( trigger => 1 );
 sub match {
     my ($self) = @_;
     my $current = time2str("%W",time);
-    return exists ${$self->allowed_days}{$current};
+    return ${$self->allowed_days}{$current};
 }
 
 =head2 _trigger_value
@@ -67,7 +67,7 @@ Set allowed_days from the value
 
 sub _trigger_value {
     my ($self) = @_;
-    my %allowed_days = map { $_ => undef} split /\s*,\s*/ ,$self->value;
+    my %allowed_days = map { $_ => 1 } split /\s*,\s*/ ,$self->value;
     $self->allowed_days(\%allowed_days);
 }
 
@@ -77,7 +77,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
