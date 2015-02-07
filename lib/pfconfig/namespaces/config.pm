@@ -42,10 +42,32 @@ sub build {
   my $json = encode_json(\%tmp_cfg);
   my $cfg = decode_json($json);
 
+  $self->unarray_parameters($cfg);
+
   $self->{cfg} = $cfg;
 
   my $child_resource = $self->build_child();
   return $child_resource;
+}
+
+sub unarray_parameters {
+    my ($self, $hash) = @_;
+    foreach my $data (values %$hash ) {
+        foreach my $key (keys %$data) {
+            next unless defined $data->{$key};
+            $data->{$key} = ref($data->{$key}) eq 'ARRAY' ? join("\n", @{$data->{$key}}) : $data->{$key};
+        }
+    }
+}
+
+sub cleanup_whitespaces {
+    my ($self,$hash) = @_;
+    foreach my $data (values %$hash ) {
+        foreach my $key (keys %$data) {
+            next unless defined $data->{$key};
+            $data->{$key} =~ s/\s+$//;
+        }
+    }
 }
 
 =head2 expand_list

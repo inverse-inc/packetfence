@@ -12,12 +12,13 @@ BEGIN {
 }
 
 use Test::More;
-#use Test::NoWarnings;
 use Test::Deep;
 use Config::IniFiles;
 use pf::config::cached;
 use Data::Dumper;
 use Data::Compare;
+
+use_ok('pf::ConfigStore::config');
 
 use_ok('pfconfig::manager');
 use_ok('pfconfig::cached_hash');
@@ -26,21 +27,66 @@ my %NewSwitchConfig;
 tie %NewSwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
 
 use_ok('pf::ConfigStore::Switch');
-#my $switch_cs = pf::ConfigStore::Switch->new;
-#my $cs_ids = $switch_cs->readAllIds;
 
 my %CSSwitchConfig = %pf::ConfigStore::Switch::SwitchConfig;
 
-
 foreach my $key (keys %CSSwitchConfig){
-  #my $cs_cfg = $switch_cs->read($key);
-  print Dumper($NewSwitchConfig{$key}{inlineTrigger});
-  print Dumper($CSSwitchConfig{$key}{inlineTrigger});
-  my ($ok, $stack) = Test::Deep::cmp_details($NewSwitchConfig{$key}, $CSSwitchConfig{$key});
-  ok($ok);
+  my $old = $CSSwitchConfig{$key};
+  my $new = $NewSwitchConfig{$key};
+
+  # ignoring inline triggers as the new config seems to 
+  # do a better job at building them
+  $new->{inlineTrigger} = Test::Deep::ignore();
+
+  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
+  ok($ok, "Switch $key matches in old and new store");
   print "$key ".Test::Deep::deep_diag($stack) unless $ok;
 }
 
+my %CSDefault_Config = %pf::ConfigStore::config::Default_Config;
+
+my %NewDefault_Config;
+tie %NewDefault_Config, 'pfconfig::cached_hash', 'config::PfDefault';
+
+foreach my $key (keys %CSDefault_Config){
+  my $old = $CSDefault_Config{$key};
+  my $new = $NewDefault_Config{$key};
+  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
+  ok($ok, "Default config $key matches in old and new store");
+  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
+}
+
+my %CSDoc_Config = %pf::ConfigStore::config::Doc_Config;
+
+my %NewDoc_Config;
+tie %NewDoc_Config, 'pfconfig::cached_hash', 'config::Documentation';
+
+foreach my $key (keys %CSDoc_Config){
+  my $old = $CSDoc_Config{$key};
+  my $new = $NewDoc_Config{$key};
+#  print "old : ".Dumper($old->{description})."\n";
+#  print "new : ".Dumper($new->{description})."\n";
+  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
+  ok($ok, "Doc config $key matches in old and new store");
+  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
+}
+
+my %CSConfig = %pf::ConfigStore::config::Config;
+
+my %NewConfig;
+tie %NewConfig, 'pfconfig::cached_hash', 'config::Pf';
+
+foreach my $key (keys %CSConfig){
+  my $old = $CSConfig{$key};
+  my $new = $NewConfig{$key};
+#  print "old : ".Dumper($old->{description})."\n";
+#  print "new : ".Dumper($new->{description})."\n";
+  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
+  ok($ok, "PF config $key matches in old and new store");
+  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
+}
+
+done_testing();
 
 =head1 AUTHOR
 
