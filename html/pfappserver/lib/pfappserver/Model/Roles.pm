@@ -166,7 +166,7 @@ sub update {
 
 =head1 COPYRIGHT
 
-Copyright 2012 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

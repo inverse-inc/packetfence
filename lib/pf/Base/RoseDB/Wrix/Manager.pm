@@ -24,7 +24,7 @@ __PACKAGE__->make_manager_methods('wrix');
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
