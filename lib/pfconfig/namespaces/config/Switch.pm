@@ -31,7 +31,7 @@ sub init {
   $self->{file} = $switches_config_file;
   $self->{child_resources} = [
     'resource::default_switch',
-  ]
+  ];
 }
 
 sub build_child {
@@ -97,8 +97,7 @@ sub build_child {
   }
 
   foreach my $key ( keys %tmp_cfg){
-      $self->cleanupAfterRead($key, $tmp_cfg{$key});
-#      print Dumper($tmp_cfg{$key});
+      $self->cleanup_after_read($key, $tmp_cfg{$key});
   }
 
   $self->{cfg} = \%tmp_cfg;
@@ -107,7 +106,7 @@ sub build_child {
 
 }
 
-sub cleanupAfterRead {
+sub cleanup_after_read {
     my ( $self, $id, $switch ) = @_;
     my $logger = get_logger();
 
