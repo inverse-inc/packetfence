@@ -30,9 +30,33 @@ __PACKAGE__->config(
     },
 );
 
+=head2 index
+
+Show the top level devices
+
+=cut
+
+sub index : Path :Args(0) {
+    my ($self, $c) = @_;
+    $self->children($c,undef);
+}
+
+=head2 children
+
+Show child devices
+
+=cut
+
+sub children : Local : Args(1) {
+    my ($self, $c, $parent_id) = @_;
+    my $model = $self->getModel($c);
+    my ($status, $devices) = $model->getSubDevices($parent_id);
+    $c->stash->{items} = $devices;
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2014 Inverse inc.
+Copyright (C) 2015 Inverse inc.
 
 =head1 LICENSE
 
