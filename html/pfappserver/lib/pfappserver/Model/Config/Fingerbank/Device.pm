@@ -23,12 +23,30 @@ extends 'pfappserver::Base::Model::Fingerbank';
 
 has '+fingerbankModel' => ( default => 'fingerbank::Model::Device');
 
+=head2 getSubDevices
+
+Returns the sub device for a parent id
+
+=cut
+
+sub getSubDevices {
+    my ($self, $parent_id) = @_;
+    my ($status, $resultSets) = $self->fingerbankModel->search([{parent_id => $parent_id}]);
+    my @items;
+    foreach my $resultSet (@$resultSets) {
+        while (my $item = $resultSet->next) {
+            push @items,$item;
+        }
+    }
+    return ($status,\@items);
+}
+
 
 __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
