@@ -92,8 +92,14 @@ sub get_element {
       my $json_elem;
       # if we want a subnamespace we handle it here
       if($keys[1]){
-        my $sub_elem = $elem->{$keys[1]} || {};
-        $json_elem = encode_json($sub_elem);
+        my $sub_elem = $elem->{$keys[1]} || undef;
+        if(defined($sub_elem)){
+          $json_elem = encode_json($sub_elem);
+        }
+        else{
+          print STDERR "Unknown key $query->{key}";
+          $json_elem = "undef";
+        }
       }
       # we want the whole namespace
       else {
@@ -104,7 +110,7 @@ sub get_element {
     # sh*t happens
     else{
       print STDERR "Unknown key in cache $query->{key} \n";
-      print $socket encode_json({});
+      print $socket "undef";
     }
 }
 
