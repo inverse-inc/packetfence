@@ -621,11 +621,11 @@ sub shouldAutoRegister {
     my $node_info = node_attributes($mac);
     my $filter = new pf::vlan::filter;
     my ($result,$role) = $filter->test('AutoRegister',$switch, $port, $mac, $node_info, $conn_type, $user_name, $ssid, $radius_request);
-    if ($role) {
-        if ($switch->getVlanByName($role) eq -1) {
+    if ($result) {
+        if ($switch->getVlanByName($role) eq '-1') {
             return 0;
         } else {
-            return $switch->getVlanByName($role);
+            return $result;
         }
     }
 
