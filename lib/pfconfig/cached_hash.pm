@@ -146,8 +146,13 @@ sub _get_from_socket {
   # it returns it as a json hash - maybe not the best choice but it works
   my $result;
   pfconfig::timeme::timeme('decoding the socket result', sub {
-    $result = decode_json($line) if $line;
-  });
+    if($line && $line ne "undef"){
+      $result = decode_json($line);
+    }
+    else {
+      return undef;
+    }
+  }); 
 
   return $result
 }
