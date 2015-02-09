@@ -58,7 +58,7 @@ sub do_sso {
     );
     $logger->trace("Sending a firewallsso $method for ($mac,$ip) ");
 
-    $client->notify('firewallsso', \%data );
+    $client->notify('firewallsso', %data );
 
 }
 
