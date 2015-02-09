@@ -63,7 +63,7 @@ sub hasId {
     }
     else
     {
-        if ( $self->fingerbankModel->read($id)) 
+        if ( $self->fingerbankModel->read($id))
         {
             $status = HTTP_OK;
             $status_msg = [ "[_1] exists", $id ];
@@ -98,7 +98,7 @@ sub read {
             $result = [ "[_1] does not exists", $id ];
         }
     }
-    
+
     return ( $status, $result );
 }
 
@@ -230,6 +230,12 @@ sub commit {
     return ( $status, $status_msg );
 }
 
+=head2 ACCEPT_CONTEXT
+
+Create the fingerbank model using the current catalyst context
+
+=cut
+
 sub ACCEPT_CONTEXT {
     my ( $self, $c, %args ) = @_;
     return $self->new(  { scope => $c->stash->{scope} || 'Upstream', %args } );
@@ -239,7 +245,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
