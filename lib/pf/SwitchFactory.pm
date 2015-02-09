@@ -111,20 +111,19 @@ sub instantiate {
     }
     });
 
-    pfconfig::timeme::timeme('searching for the switch', sub {
+    my $switch_data;
     foreach my $search (@requestedSwitches){
         if($SwitchConfig{$search}){
-            $requestedSwitch = $SwitchConfig{$search};
+            $requestedSwitch = $search;
+            $switch_data = $SwitchConfig{$search};
             last;
         }
     }
-    unless ($requestedSwitch) {
+    unless (defined($requestedSwitch)) {
         $logger->error("WARNING ! Unknown switch(es) ". join(" ",@requestedSwitches));
         return 0;
     }
-    });
 
-    my $switch_data = $requestedSwitch;
 
     #if( $switch_mac && $requestedSwitch eq $switch_mac && ref($switchRequest) eq 'HASH' && !defined ($switch_data->{controllerIp}) ) {
     #    my $switch = $switch_overlay_cache->get($switch_mac) || {};
