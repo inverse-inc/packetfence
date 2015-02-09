@@ -32,6 +32,12 @@ use JSON;
 
 use base 'pfconfig::namespaces::resource';
 
+sub init {
+  my ($self) = @_;
+  $self->{expandable_params} = [];
+  $self->{child_resources} = [];
+}
+
 sub build {
   my ($self) = @_;
 
