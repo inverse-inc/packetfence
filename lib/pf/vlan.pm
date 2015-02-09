@@ -287,13 +287,9 @@ sub getRegistrationVlan {
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name) = @_;
     my $logger = Log::Log4perl->get_logger();
+    my $filter = new pf::vlan::filter;
 
     # trapping on registration is enabled
-
-    # Vlan Filter
-    my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
-    return ($result,$role) if $result;
 
     if (!isenabled($Config{'trapping'}{'registration'})) {
         $logger->debug("[$mac] Registration trapping disabled: skipping node is registered test");
@@ -301,12 +297,25 @@ sub getRegistrationVlan {
     }
 
     if (!defined($node_info)) {
+        # Vlan Filter
+        my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, undef, $connection_type, $user_name, $ssid, $radius_request);
+        if $result {
+            $logger->info("[$mac] doesn't have a node entry; belongs into $role VLAN");
+            return ($result,$role) if $result;
+        }
         $logger->info("[$mac] doesn't have a node entry; belongs into registration VLAN");
-        return ($switch->getVlanByName('registration'),'registration');
+        my $vlan = $switch->getVlanByName('registration');
+        return ($vlan ,'registration');
     }
 
     my $n_status = $node_info->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
+        # Vlan Filter
+        my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+        if $result {
+            $logger->info("[$mac] is of status $n_status; belongs into $role VLAN");
+            return ($result,$role) if $result;
+        }
         $logger->info("[$mac] is of status $n_status; belongs into registration VLAN");
         my $vlan = $switch->getVlanByName('registration');
         return ($vlan ,'registration');
