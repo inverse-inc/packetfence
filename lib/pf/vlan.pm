@@ -402,7 +402,7 @@ sub getNormalVlan {
     # FIRST HIT MATCH
     elsif ( defined $user_name && $connection_type && ($connection_type & $EAP) == $EAP ) {
         # Attributes has been computed in getNodeInfoForAutoReg
-        if (isenabled($node_info->{'autoreg'})) {
+        if (isenabled($node_info->{'autoreg'}) || isenabled($profile->dot1xRecomputeRoleFromPortal)) {
             $logger->info("[$mac] Connection type is EAP. Getting role from node_info" );
             $role = $node_info->{'category'};
         } else {

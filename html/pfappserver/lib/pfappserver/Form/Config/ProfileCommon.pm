@@ -35,7 +35,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description reuse_dot1x_credentials billing_engine)],
+    render_list => [qw(id description reuse_dot1x_credentials dot1x_recompute_role_from_portal billing_engine)],
   );
 
 =head2 captive_portal
