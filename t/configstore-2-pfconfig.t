@@ -17,6 +17,7 @@ use Config::IniFiles;
 use pf::config::cached;
 use Data::Dumper;
 use Data::Compare;
+use pf::file_paths;
 
 use_ok('pf::ConfigStore::config');
 
@@ -85,6 +86,21 @@ foreach my $key (keys %CSConfig){
   ok($ok, "PF config $key matches in old and new store");
   print "$key ".Test::Deep::deep_diag($stack) unless $ok;
 }
+
+use_ok('pf::admin_roles');
+my %CSConfigAdminRoles = %pf::admin_roles::ADMIN_ROLES;
+
+my %NewConfigAdminRoles;
+tie %NewConfigAdminRoles, 'pfconfig::cached_hash', 'config::AdminRoles';
+
+foreach my $key (keys %CSConfigAdminRoles){
+  my $old = $CSConfigAdminRoles{$key};
+  my $new = $NewConfigAdminRoles{$key};
+  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
+  ok($ok, "Admin roles config $key matches in old and new store");
+  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
+}
+
 
 done_testing();
 
