@@ -299,9 +299,9 @@ sub getRegistrationVlan {
     if (!defined($node_info)) {
         # Vlan Filter
         my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, undef, $connection_type, $user_name, $ssid, $radius_request);
-        if $result {
+        if ($result) {
             $logger->info("[$mac] doesn't have a node entry; belongs into $role VLAN");
-            return ($result,$role) if $result;
+            return ($result,$role);
         }
         $logger->info("[$mac] doesn't have a node entry; belongs into registration VLAN");
         my $vlan = $switch->getVlanByName('registration');
@@ -312,9 +312,9 @@ sub getRegistrationVlan {
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
         # Vlan Filter
         my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
-        if $result {
+        if ($result) {
             $logger->info("[$mac] is of status $n_status; belongs into $role VLAN");
-            return ($result,$role) if $result;
+            return ($result,$role);
         }
         $logger->info("[$mac] is of status $n_status; belongs into registration VLAN");
         my $vlan = $switch->getVlanByName('registration');
