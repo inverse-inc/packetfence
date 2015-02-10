@@ -151,10 +151,11 @@ sub authorize {
     my $isPhone = $switch->isPhoneAtIfIndex($mac, $port);
 
     my $vlan_obj = new pf::vlan::custom();
+    my $autoreg = 0;
     # should we auto-register? let's ask the VLAN object
     if ($vlan_obj->shouldAutoRegister($mac, $switch->isRegistrationMode(), 0, $isPhone,
         $connection_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request)) {
-
+        $autoreg = 1;
         # automatic registration
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch, $port,
             $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name);
@@ -185,7 +186,7 @@ sub authorize {
     $this->_handleAccessFloatingDevices($switch, $mac, $port);
 
     # Fetch VLAN depending on node status
-    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name);
+    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
