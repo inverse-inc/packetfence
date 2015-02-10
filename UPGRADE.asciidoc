@@ -5,6 +5,31 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to 4.6.0
+---------------------------------------
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+The locationlog and locationlog_history table have 2 new columns stripped_user_name and realm.
+We added new INDEX on iplog, violation and locationlog tables.
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < db/upgrade-4.5.0-4.6.0.sql
+
+
+Violation template pages language handling
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Code to match violation template pages have been reworked. Make sure to lowercase FR to fr in french template files name.
+
+Realm configuration
+^^^^^^^^^^^^^^^^^^^
+
+Realm are now managed by Freeradius server so if your users authenticate with a username like username@acme.com then add the realm acme.com
+in the Radius Realms configuration menu and in your Active Directory source select 'Use stripped username'.
+
 Upgrading from a version prior to 4.5.0
 ---------------------------------------
 

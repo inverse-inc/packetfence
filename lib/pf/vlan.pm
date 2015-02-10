@@ -393,7 +393,6 @@ sub getNormalVlan {
     # FIRST HIT MATCH
     elsif ( defined $user_name && $connection_type && ($connection_type & $EAP) == $EAP ) {
         $logger->debug("[$mac] EAP connection with a username \"$user_name\". Trying to match rules from authentication sources.");
-        my $profile = pf::Portal::ProfileFactory->instantiate($mac);
         my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
         my $stripped_user = '';
         $stripped_user = $stripped_user_name if(defined($stripped_user_name));
@@ -404,7 +403,7 @@ sub getNormalVlan {
             stripped_user_name => $stripped_user,
         };
         my $source;
-        $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, $source);
+        $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
         #Compute autoreg if we use autoreg
         if (isenabled($node_info->{'autoreg'})) {
             my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
@@ -416,6 +415,7 @@ sub getNormalVlan {
                 $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
             }
             if (defined $value) {
+                $value = pf::config::dynamic_unreg_date($value);
                 my %info = (
                     'unregdate' => $value,
                     'category' => $role,
@@ -429,12 +429,12 @@ sub getNormalVlan {
                 if ( !pf::person::person_exist($user_name) ) {
                     $logger->info("creating person $user_name because it doesn't exist");
                     pf::person::person_add($user_name);
-                    pf::lookup::person::lookup_person($user_name);
+                    pf::lookup::person::lookup_person($user_name,$source);
                 } else {
                     $logger->debug("person $user_name already exists");
                 }
                 pf::person::person_modify($user_name,
-                    'source'  => \$source,
+                    'source'  => $source,
                     'portal'  => $profile->getName,
                 );
                 node_modify($mac,%info);
@@ -479,7 +479,7 @@ sub getInlineVlan {
     my $logger = Log::Log4perl->get_logger();
 
     my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name);
+    my ($result,$role) = $filter->test('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     return $result if $result;
 
     return $switch->getVlanByName('inline');
@@ -504,7 +504,7 @@ sub getNodeInfoForAutoReg {
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
     my ($this, $switch, $switch_port, $mac, $vlan,
-        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $radius_request) = @_;
+        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name) = @_;
     my $logger = Log::Log4perl->get_logger();
     my $filter = new pf::vlan::filter;
 

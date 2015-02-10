@@ -11,12 +11,6 @@ pfappserver::Form::Config::Provisioning - Web form for a switch
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Provisioning::mobileconfig';
 
-has_block definition =>
-  (
-   render_list => [ qw(id description company reversedns type category ssid security_type passcode eap_type ca_cert_path) ],
-  );
-
-
 =head1 COPYRIGHT
 
 Copyright (C) 2014 Inverse inc.

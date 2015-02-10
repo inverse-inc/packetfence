@@ -226,7 +226,7 @@ Requires: perl(File::Slurp)
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
 Requires: perl(Moose) <= 2.1005
-Requires: perl(CHI) >= 0.56
+Requires: perl(CHI) >= 0.59
 Requires: perl(Data::Serializer)
 Requires: perl(Data::Structure::Util)
 Requires: perl(Data::Swap)
@@ -983,6 +983,12 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Wed Feb 04 2015 Inverse <info@inverse.ca> - 4.6.0-1
+- New release 4.6.0
+
+* Mon Nov 10 2014 Inverse <info@inverse.ca> - 4.5.1-1
+- New release 4.5.1
+
 * Wed Oct 22 2014 Inverse <info@inverse.ca> - 4.5.0-1
 - New release 4.5.0
 

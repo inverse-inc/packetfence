@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 4.5.0\n"
+"Project-Id-Version: 4.6.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2014-10-23 21:13-0400\n"
+"PO-Revision-Date: 2015-02-04 10:40-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -48,6 +48,10 @@ msgstr ""
 msgid "<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it doesn't do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "A comma seperated list of access durations available to the admin user. If none are provided then the configured values are used"
+msgstr ""
+
 # html/pfappserver/root/service/status.tt
 msgid "A manual start from the command line will be required. Are you sure you want to continue?"
 msgstr ""
@@ -72,47 +76,47 @@ msgstr "Admin Roles - Read"
 msgid "ADMIN_ROLES_UPDATE"
 msgstr "Admin Roles - Update"
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API Authorize Path"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API ID"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API Secret"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API Token Path"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API URL"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API URL of logged user"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SponsorEmail.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
 msgid "Accept self-registration with email address from the local domain"
 msgstr ""
 
@@ -132,11 +136,11 @@ msgstr ""
 msgid "Access Time Balance"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Access Token Parameter"
 msgstr ""
 
@@ -175,7 +179,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
-# html/pfappserver/root/configuration/adminroles/view.tt
+# html/pfappserver/root/config/adminroles/view.tt
 # html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
@@ -198,40 +202,44 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-# html/pfappserver/root/configuration/firewall_sso/index.tt
+# html/pfappserver/root/config/firewall_sso/index.tt
 msgid "Add Firewall"
+msgstr ""
+
+# html/pfappserver/root/config/realm/index.tt
+msgid "Add Realm"
 msgstr ""
 
 # html/pfappserver/root/interface/list.tt
 msgid "Add VLAN"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/index.tt
+# html/pfappserver/root/config/wrix/index.tt
 msgid "Add Wrix Entry"
 msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "Add a condition."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Add a language."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Add a mandatory field."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/tab-content.tt
 msgid "Add a provisioner."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/tab-content.tt
 msgid "Add a source."
 msgstr ""
 
-# html/pfappserver/root/configuration/adminroles/index.tt
+# html/pfappserver/root/config/adminroles/index.tt
 msgid "Add admin role"
 msgstr ""
 
@@ -239,11 +247,11 @@ msgstr ""
 msgid "Add filter"
 msgstr ""
 
-# html/pfappserver/root/configuration/floatingdevice/index.tt
+# html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Add floating device"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/index.tt
+# html/pfappserver/root/config/profile/index.tt
 msgid "Add profile"
 msgstr ""
 
@@ -263,11 +271,11 @@ msgstr ""
 msgid "Add rule"
 msgstr ""
 
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
 msgid "Add source"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/config/switch/index.tt
 msgid "Add switch"
 msgstr ""
 
@@ -304,11 +312,11 @@ msgstr ""
 msgid "Admin Login"
 msgstr ""
 
-# html/pfappserver/root/configuration/adminroles/view.tt
+# html/pfappserver/root/config/adminroles/view.tt
 msgid "Admin Role"
 msgstr ""
 
-# html/pfappserver/root/configuration/adminroles/index.tt
+# html/pfappserver/root/config/adminroles/index.tt
 msgid "Admin Roles"
 msgstr ""
 
@@ -350,9 +358,21 @@ msgstr ""
 msgid "All imported nodes will be registered. If a MAC matches an existing node, it will also be registered."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SponsorEmail.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
 msgid "Allow Local Domain"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Allowed access durations"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Allowed access levels"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Allowed roles"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -367,17 +387,17 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 msgid "App ID"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 msgid "App Secret"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 msgid "App URL"
 msgstr ""
 
@@ -400,13 +420,13 @@ msgid ""
   "complete."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Are you sure want to rename file?"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/edit.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/config/profile/create.tt
+# html/pfappserver/root/config/profile/edit.tt
+# html/pfappserver/root/config/profile/view.tt
 msgid "Are you sure want to save your changes?"
 msgstr ""
 
@@ -434,11 +454,11 @@ msgstr ""
 msgid "Auth Protocol Write"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Authorized domains"
 msgstr ""
 
@@ -454,7 +474,11 @@ msgstr ""
 msgid "Automatically expire httpd portal sessions"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# conf/documentation.conf (expire.ldap_auth)
+msgid "Automatically expire ldap auth cache"
+msgstr ""
+
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Available Variables"
 msgstr ""
 
@@ -470,11 +494,15 @@ msgstr ""
 msgid "Bandwith per Operating System"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# pf::firewallsso (Firewall SSO)
+msgid "BarracudaNG"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Base DN"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Base Object"
 msgstr ""
 
@@ -482,8 +510,12 @@ msgstr ""
 msgid "Billing"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Bind DN"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Block Interval"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -502,7 +534,7 @@ msgstr ""
 msgid "CAD"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "CLI"
 msgstr ""
 
@@ -523,16 +555,21 @@ msgstr "Main Configuration - Update"
 msgid "CSV File"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+msgid "Cache match"
+msgstr ""
+
+# html/pfappserver/root/config/adminroles/index.tt
+# html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/firewall_sso/index.tt
+# html/pfappserver/root/config/floatingdevice/index.tt
+# html/pfappserver/root/config/profile/files.tt
+# html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/provisioning/index.tt
-# html/pfappserver/root/configuration/adminroles/index.tt
-# html/pfappserver/root/configuration/authentication.tt
-# html/pfappserver/root/configuration/firewall_sso/index.tt
-# html/pfappserver/root/configuration/floatingdevice/index.tt
-# html/pfappserver/root/configuration/switch/index.tt
-# html/pfappserver/root/configuration/wrix/index.tt
+# html/pfappserver/root/config/realm/index.tt
+# html/pfappserver/root/config/switch/index.tt
+# html/pfappserver/root/config/wrix/index.tt
 # html/pfappserver/root/interface/create.tt
-# html/pfappserver/root/portal/profile/files.tt
-# html/pfappserver/root/portal/profile/index.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/service/status.tt
 # html/pfappserver/root/soh/index.tt
@@ -540,7 +577,7 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Cancel Revert"
 msgstr ""
 
@@ -548,6 +585,12 @@ msgstr ""
 # html/pfappserver/root/configurator/wrapper.tt
 msgid "Cannot Load Content"
 msgstr "An error occured while contacting the server. Please try again later."
+
+# html/pfappserver/root/config/profile/create.tt
+# html/pfappserver/root/config/profile/files.tt
+# html/pfappserver/root/config/profile/view.tt
+msgid "Captive Portal"
+msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Captive portal"
@@ -557,7 +600,11 @@ msgstr ""
 msgid "Certificate"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# pf::firewallsso (Firewall SSO)
+msgid "Checkpoint"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Children"
 msgstr ""
 
@@ -593,29 +640,31 @@ msgstr ""
 msgid "Client Secret"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Client Support"
 msgstr ""
 
+# html/pfappserver/root/config/adminroles/list.tt
+# html/pfappserver/root/config/firewall_sso/list.tt
+# html/pfappserver/root/config/floatingdevice/list.tt
 # html/pfappserver/root/config/provisioning/list.tt
-# html/pfappserver/root/configuration/adminroles/list.tt
-# html/pfappserver/root/configuration/firewall_sso/list.tt
-# html/pfappserver/root/configuration/floatingdevice/list.tt
-# html/pfappserver/root/configuration/switch/list.tt
-# html/pfappserver/root/configuration/wrix/list.tt
+# html/pfappserver/root/config/realm/list.tt
+# html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/wrix/list.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Clone"
 msgstr ""
 
 # html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/authentication/source/rule_read.tt
+# html/pfappserver/root/config/adminroles/view.tt
+# html/pfappserver/root/config/firewall_sso/view.tt
+# html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
-# html/pfappserver/root/configuration/adminroles/view.tt
-# html/pfappserver/root/configuration/firewall_sso/view.tt
-# html/pfappserver/root/configuration/floatingdevice/view.tt
-# html/pfappserver/root/configuration/switch/view.tt
-# html/pfappserver/root/configuration/wrix/view.tt
+# html/pfappserver/root/config/realm/view.tt
+# html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
@@ -664,11 +713,11 @@ msgstr ""
 msgid "Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Comma separated list of domains that will be resolve with the correct IP addresses."
 msgstr ""
 
@@ -811,37 +860,37 @@ msgid ""
   "parameters. Default is enabled."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Copy"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Copy File"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Coverage Area"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/interface/create.tt
-# html/pfappserver/root/portal/profile/create.tt
 msgid "Create"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SMS.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SponsorEmail.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Create Local Account"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Create New File"
 msgstr ""
 
@@ -853,20 +902,20 @@ msgstr ""
 msgid "Create Users"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Create a local account on the PacketFence system based on the account email address provided."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SponsorEmail.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
 msgid "Create a local account on the PacketFence system based on the email address provided."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SMS.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
 msgid "Create a local account on the PacketFence system based on the phone number provided."
 msgstr ""
 
@@ -908,6 +957,38 @@ msgstr ""
 
 # html/pfappserver/root/user/view.tt
 msgid "Custom Fields"
+msgstr ""
+
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
+msgid "DHCPACK"
+msgstr ""
+
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
+msgid "DHCPDECLINE"
+msgstr ""
+
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
+msgid "DHCPDISCOVER"
+msgstr ""
+
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
+msgid "DHCPINFORM"
+msgstr ""
+
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
+msgid "DHCPNAK"
+msgstr ""
+
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
+msgid "DHCPOFFER"
+msgstr ""
+
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
+msgid "DHCPRELEASE"
+msgstr ""
+
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
+msgid "DHCPREQUEST"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
@@ -952,7 +1033,7 @@ msgstr ""
 msgid "Default Owner"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/index.tt
+# html/pfappserver/root/config/profile/index.tt
 msgid "Default Profile"
 msgstr ""
 
@@ -960,7 +1041,7 @@ msgstr ""
 msgid "Default Role"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Default URL to redirect to on registration/mitigation release. This is only used if a per-violation redirect URL is not defined."
 msgstr ""
 
@@ -976,11 +1057,11 @@ msgstr ""
 msgid "Default pid value to assign to imported nodes."
 msgstr ""
 
-# html/pfappserver/root/configuration/adminroles/index.tt
+# html/pfappserver/root/config/adminroles/index.tt
 msgid "Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source."
 msgstr ""
 
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
 msgid "Define the authentication sources to let users access the captive portal or the admin Web interface."
 msgstr ""
 
@@ -992,7 +1073,7 @@ msgstr ""
 msgid "Define the roles which will apply to all devices on your network."
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/violation/view.tt
 msgid "Definition"
 msgstr ""
@@ -1012,24 +1093,26 @@ msgid ""
   "for the usual proprietary OS."
 msgstr ""
 
+# html/pfappserver/root/config/adminroles/index.tt
+# html/pfappserver/root/config/adminroles/list.tt
+# html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/firewall_sso/index.tt
+# html/pfappserver/root/config/firewall_sso/list.tt
+# html/pfappserver/root/config/floatingdevice/index.tt
+# html/pfappserver/root/config/floatingdevice/list.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/config/profile/files.tt
+# html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/provisioning/index.tt
 # html/pfappserver/root/config/provisioning/list.tt
-# html/pfappserver/root/configuration/adminroles/index.tt
-# html/pfappserver/root/configuration/adminroles/list.tt
-# html/pfappserver/root/configuration/authentication.tt
-# html/pfappserver/root/configuration/firewall_sso/index.tt
-# html/pfappserver/root/configuration/firewall_sso/list.tt
-# html/pfappserver/root/configuration/floatingdevice/index.tt
-# html/pfappserver/root/configuration/floatingdevice/list.tt
-# html/pfappserver/root/configuration/switch/index.tt
-# html/pfappserver/root/configuration/switch/list.tt
-# html/pfappserver/root/configuration/wrix/index.tt
-# html/pfappserver/root/configuration/wrix/list.tt
+# html/pfappserver/root/config/realm/index.tt
+# html/pfappserver/root/config/realm/list.tt
+# html/pfappserver/root/config/switch/index.tt
+# html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/wrix/index.tt
+# html/pfappserver/root/config/wrix/list.tt
 # html/pfappserver/root/interface/list.tt
 # html/pfappserver/root/node/view.tt
-# html/pfappserver/root/portal/profile/files.tt
-# html/pfappserver/root/portal/profile/index.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/user/view.tt
@@ -1037,11 +1120,11 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-# html/pfappserver/root/configuration/adminroles/index.tt
+# html/pfappserver/root/config/adminroles/index.tt
 msgid "Delete Admin Role"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Delete File"
 msgstr ""
 
@@ -1049,15 +1132,15 @@ msgstr ""
 msgid "Delete Filter"
 msgstr ""
 
-# html/pfappserver/root/configuration/firewall_sso/index.tt
+# html/pfappserver/root/config/firewall_sso/index.tt
 msgid "Delete Firewall SSO"
 msgstr ""
 
-# html/pfappserver/root/configuration/floatingdevice/index.tt
+# html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Delete Floating Device"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/index.tt
+# html/pfappserver/root/config/profile/index.tt
 msgid "Delete Profile"
 msgstr ""
 
@@ -1065,15 +1148,19 @@ msgstr ""
 msgid "Delete Provisioning Entry"
 msgstr ""
 
+# html/pfappserver/root/config/realm/index.tt
+msgid "Delete Realm"
+msgstr ""
+
 # html/pfappserver/root/roles/index.tt
 msgid "Delete Role"
 msgstr ""
 
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
 msgid "Delete Source"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/config/switch/index.tt
 msgid "Delete Switch"
 msgstr ""
 
@@ -1081,7 +1168,7 @@ msgstr ""
 msgid "Delete Violation"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/index.tt
+# html/pfappserver/root/config/wrix/index.tt
 msgid "Delete WRIX Entry"
 msgstr ""
 
@@ -1115,16 +1202,16 @@ msgid ""
   "PacketFence acts as a filtering gateway."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source.pm
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 # html/pfappserver/root/authentication/source/rules_read.tt
-# html/pfappserver/root/configuration/adminroles/list.tt
-# html/pfappserver/root/configuration/authentication.tt
-# html/pfappserver/root/configuration/switch/list.tt
+# html/pfappserver/root/config/adminroles/list.tt
+# html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/profile/index.tt
+# html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/node/violations.tt
-# html/pfappserver/root/portal/profile/index.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/user/violations.tt
 # html/pfappserver/root/violation/list.tt
@@ -1143,11 +1230,11 @@ msgstr ""
 msgid "Devices"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Dismiss Changes"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Dismiss Changes for "
 msgstr ""
 
@@ -1168,7 +1255,7 @@ msgstr ""
 msgid "Don't worry, you can always come back to this step if you change your mind."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Drop"
 msgstr ""
 
@@ -1208,15 +1295,15 @@ msgstr ""
 msgid "Each account will be printed on a single page with the acceptable user policy."
 msgstr ""
 
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
 msgid "Each portal profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections."
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/list.tt
+# html/pfappserver/root/config/switch/list.tt
 msgid "Edit floating device"
 msgstr ""
 
-# html/pfappserver/root/configuration/floatingdevice/list.tt
+# html/pfappserver/root/config/floatingdevice/list.tt
 msgid "Edit switch"
 msgstr ""
 
@@ -1226,7 +1313,7 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
 msgid "Email Activation Timeout"
 msgstr ""
 
@@ -1253,7 +1340,7 @@ msgid ""
   "goes to."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Enable Billing Engine"
 msgstr ""
 
@@ -1309,7 +1396,7 @@ msgid ""
   "username/password are sent by email)."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Encryption"
 msgstr ""
 
@@ -1337,11 +1424,11 @@ msgstr ""
 msgid "Engine ID"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "English Location City"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "English Location Name"
 msgstr ""
 
@@ -1354,10 +1441,10 @@ msgid "Enter the trigger ID"
 msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/configurator/wrapper.tt
 # html/pfappserver/root/node/create.tt
-# html/pfappserver/root/portal/profile/index.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/user/create.tt
@@ -1368,11 +1455,11 @@ msgstr ""
 msgid "Example"
 msgstr ""
 
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
 msgid "Exclusive"
 msgstr ""
 
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
 msgid "Exclusive Sources"
 msgstr ""
 
@@ -1381,15 +1468,15 @@ msgstr ""
 msgid "Expiration"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/index.tt
+# html/pfappserver/root/config/wrix/index.tt
 msgid "Export All"
 msgstr ""
 
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
 msgid "External"
 msgstr ""
 
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
 msgid "External Sources"
 msgstr ""
 
@@ -1449,37 +1536,40 @@ msgstr "Floating Devices - Update"
 msgid "Fake MAC Address"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "File Name"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Htpasswd.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Htpasswd.pm
 msgid "File Path"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/edit.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Files"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/lib/pfappserver/Form/Config/Profile.pm
 # html/pfappserver/root/soh/read.tt
 msgid "Filter"
 msgstr ""
 
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Filters"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/fingerprints/simple_search.tt
+# html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "Fingerprints"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/firewall_sso/view.tt
+# html/pfappserver/root/config/firewall_sso/view.tt
 msgid "Firewall SSO"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
-# html/pfappserver/root/configuration/firewall_sso/list.tt
+# html/pfappserver/root/config/firewall_sso/list.tt
 msgid "Firewall Type"
 msgstr ""
 
@@ -1490,20 +1580,21 @@ msgstr ""
 msgid "Firstname"
 msgstr ""
 
-# html/pfappserver/root/configuration/floatingdevice/view.tt
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/floatingdevice/view.tt
 msgid "Floating Device"
 msgstr ""
 
-# html/pfappserver/root/admin/configuration.tt
-msgid "Floating devices"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Force redirection URL"
 msgstr ""
 
 # conf/documentation.conf (captive_portal.secure_redirect)
 msgid "Force the captive portal to use HTTPS when redirecting captured clients."
+msgstr ""
+
+# pf::firewallsso (Firewall SSO)
+msgid "FortiGate"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -1515,15 +1606,15 @@ msgstr ""
 msgid "Grace"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 msgid "Graph API Token Path"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 msgid "Graph API URL"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 msgid "Graph API URL of logged user"
 msgstr ""
 
@@ -1531,9 +1622,9 @@ msgstr ""
 msgid "HTML template the host will be redirected to while in violation. You can create new templates from the <em>Portal Profiles</em> configuration section."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Kerberos.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/RADIUS.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
 # html/pfappserver/root/authentication/source/type/AD.tt
 # html/pfappserver/root/authentication/source/type/LDAP.tt
 # html/pfappserver/root/authentication/source/type/RADIUS.tt
@@ -1557,19 +1648,28 @@ msgstr ""
 msgid "Hostname of this PacketFence server. This value is concatenated with the above domain name and therefore must be resolvable by devices on your network."
 msgstr ""
 
-# html/pfappserver/root/configuration/firewall_sso/list.tt
+# html/pfappserver/root/config/firewall_sso/list.tt
 msgid "Hostname or IP"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Hostname or IP Address"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/view.tt
+# html/pfappserver/root/config/wrix/view.tt
 msgid "Hours"
+msgstr ""
+
+# conf/documentation.conf (maintenance.iplog_cleanup_timeout)
+msgid "How long is the iplog cleanup task is allowed to run"
+msgstr ""
+
+# conf/documentation.conf (maintenance.locationlog_cleanup_timeout)
+msgid "How long is the locationlog clean task is allowed to run"
 msgstr ""
 
 # conf/documentation.conf (maintenance.violation_maintenance_timeout)
@@ -1581,6 +1681,14 @@ msgid ""
   "How long to display the progress bar during trap release. Default value is "
   "based on VLAN enforcement techniques. Inline enforcement only users could "
   "lower the value."
+msgstr ""
+
+# conf/documentation.conf (maintenance.iplog_cleanup_batch)
+msgid "How many iplog entries does pfmon batch delete"
+msgstr ""
+
+# conf/documentation.conf (maintenance.locationlog_cleanup_batch)
+msgid "How many locationlog entries does pfmon batch delete"
 msgstr ""
 
 # conf/documentation.conf (trapping.wait_for_redirect)
@@ -1628,8 +1736,8 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
-# html/pfappserver/root/configuration/floatingdevice/list.tt
-# html/pfappserver/root/configuration/switch/list.tt
+# html/pfappserver/root/config/floatingdevice/list.tt
+# html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/interface/list.tt
 # html/pfappserver/root/node/view.tt
 msgid "IP Address"
@@ -1654,7 +1762,7 @@ msgid ""
 msgstr ""
 
 # html/pfappserver/root/config/provisioning/list.tt
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/violation/list.tt
@@ -1662,7 +1770,7 @@ msgid "Id"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/wrix/view.tt
+# html/pfappserver/root/config/wrix/view.tt
 msgid "Identification"
 msgstr ""
 
@@ -1671,6 +1779,7 @@ msgid "Identifier"
 msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
+# html/pfappserver/root/config/profile/tab-content.tt
 msgid "If [_1] of the following conditions are met:"
 msgstr ""
 
@@ -1742,6 +1851,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "If you use an alternative port, please specify"
@@ -1758,7 +1868,7 @@ msgid "Info"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "Inline"
 msgstr ""
 
@@ -1787,12 +1897,16 @@ msgstr ""
 msgid "Interfaces & Networks"
 msgstr ""
 
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
 msgid "Internal"
 msgstr ""
 
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
 msgid "Internal Sources"
+msgstr ""
+
+# conf/documentation.conf (maintenance.ldap_auth_cache_cleanup_interval)
+msgid "Interval at which Packetfence purges the ldap_auth cache"
 msgstr ""
 
 # conf/documentation.conf (maintenance.acct_maintenance_interval)
@@ -1827,6 +1941,10 @@ msgstr ""
 msgid "Interval at which Packetfence runs nodes maintenance"
 msgstr ""
 
+# conf/documentation.conf (maintenance.provisioning_compliance_poll_interval)
+msgid "Interval at which Packetfence runs the polling enforcement on the provisioners."
+msgstr ""
+
 # conf/documentation.conf (maintenance.traplog_cleanup_interval)
 msgid "Interval at which Packetfence runs traplog cleanup"
 msgstr ""
@@ -1854,17 +1972,17 @@ msgstr ""
 msgid "Isolation"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/edit.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/config/profile/create.tt
+# html/pfappserver/root/config/profile/edit.tt
+# html/pfappserver/root/config/profile/view.tt
 msgid "Keep Editing"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Keep The Same"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Languages"
 msgstr ""
 
@@ -1875,7 +1993,7 @@ msgstr ""
 msgid "Lastname"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Latitude"
 msgstr ""
 
@@ -1883,12 +2001,20 @@ msgstr ""
 msgid "Leave it empty if you want to generate a random password."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Leave this field empty if you want to perform an anonymous bind."
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
 msgid "Legend"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Limit the number of login attempts. A value of 0 disables the limit."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "List of access levels available to the admin user. If none are provided then all access levels are available"
 msgstr ""
 
 # conf/documentation.conf (guests_admin_registration.access_duration_choices)
@@ -1897,50 +2023,54 @@ msgid ""
   "authentication source."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SMS.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
 msgid "List of phone carriers available to the user"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/view.tt
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "List of roles available to the admin user. If none are provided then all roles are available"
+msgstr ""
+
+# html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/node/view.tt
 msgid "Location"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Location Address 1"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Location Address 2"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Location Country Name"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Location Identifier"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Location Phone Number"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Location State Province Name"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Location Type"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Location URL"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Location Zip Postal Code"
 msgstr ""
 
@@ -2016,7 +2146,11 @@ msgstr ""
 msgid "Login"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Login Attempt Limit"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Logo"
 msgstr ""
 
@@ -2024,17 +2158,17 @@ msgstr ""
 msgid "Logs"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Longitude"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/view.tt
+# html/pfappserver/root/config/wrix/view.tt
 msgid "Longitude/Latitude"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Base/Controller.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/configuration/floatingdevice/list.tt
+# html/pfappserver/root/config/floatingdevice/list.tt
 # html/pfappserver/root/user/nodes.tt
 # html/pfappserver/root/user/violations.tt
 # pf::admin_roles (Actions groups)
@@ -2043,12 +2177,12 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "MAC Address"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/macaddress/simple_search.tt
+# html/pfappserver/root/config/macaddress/simple_search.tt
 msgid "MAC Addresses"
 msgstr ""
 
@@ -2072,7 +2206,7 @@ msgstr ""
 msgid "Maintenance"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Mandatory Fields"
 msgstr ""
 
@@ -2082,7 +2216,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Match [_1] of the following conditions:"
 msgstr ""
 
@@ -2113,6 +2247,14 @@ msgid ""
   "a minute without being flagged as DoS. Defaults to 100."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Maximum number of times a user can request a SMS PIN. A value of 0 disables the limit."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Maximum number of times a user can retry a SMS PIN before having to request another PIN. A value of 0 disables the limit."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc."
 msgstr ""
@@ -2122,7 +2264,7 @@ msgid "Miscellaneous"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-# html/pfappserver/root/configuration/switch/list.tt
+# html/pfappserver/root/config/switch/list.tt
 msgid "Mode"
 msgstr ""
 
@@ -2158,16 +2300,16 @@ msgstr "Nodes - Read"
 msgid "NODES_UPDATE"
 msgstr "Nodes - Update"
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 # html/pfappserver/lib/pfappserver/Form/SavedSearch.pm
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
 # html/pfappserver/root/authentication/source/rules_read.tt
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/configurator/database.tt
-# html/pfappserver/root/portal/profile/index.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/soh/read.tt
@@ -2183,7 +2325,7 @@ msgid "Name of the policy inside the NessusClient file"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
-# html/pfappserver/root/configuration/floatingdevice/list.tt
+# html/pfappserver/root/config/floatingdevice/list.tt
 msgid "Native VLAN"
 msgstr ""
 
@@ -2220,15 +2362,15 @@ msgstr ""
 msgid "Networks"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "New"
 msgstr ""
 
-# html/pfappserver/root/configuration/adminroles/view.tt
+# html/pfappserver/root/config/adminroles/view.tt
 msgid "New Admin Role"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "New File"
 msgstr ""
 
@@ -2236,11 +2378,11 @@ msgstr ""
 msgid "New Filter"
 msgstr ""
 
-# html/pfappserver/root/configuration/firewall_sso/view.tt
+# html/pfappserver/root/config/firewall_sso/view.tt
 msgid "New Firewall SSO"
 msgstr ""
 
-# html/pfappserver/root/configuration/floatingdevice/view.tt
+# html/pfappserver/root/config/floatingdevice/view.tt
 msgid "New Floating Device"
 msgstr ""
 
@@ -2260,6 +2402,10 @@ msgstr ""
 msgid "New Provisioning Entry"
 msgstr ""
 
+# html/pfappserver/root/config/realm/view.tt
+msgid "New Realm"
+msgstr ""
+
 # html/pfappserver/root/roles/read.tt
 msgid "New Role"
 msgstr ""
@@ -2268,7 +2414,7 @@ msgstr ""
 msgid "New Rule"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "New Switch"
 msgstr ""
 
@@ -2280,7 +2426,7 @@ msgstr ""
 msgid "New Violation"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/view.tt
+# html/pfappserver/root/config/wrix/view.tt
 msgid "New WRIX Information"
 msgstr ""
 
@@ -2296,7 +2442,7 @@ msgstr ""
 msgid "No filter defined"
 msgstr ""
 
-# html/pfappserver/root/configuration/fingerprints/simple_search.tt
+# html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "No fingerprint found"
 msgstr ""
 
@@ -2304,11 +2450,11 @@ msgstr ""
 msgid "No location history"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "No mandatory fields specified."
 msgstr ""
 
-# html/pfappserver/root/configuration/macaddress/simple_search.tt
+# html/pfappserver/root/config/macaddress/simple_search.tt
 msgid "No matching mac addresses"
 msgstr ""
 
@@ -2318,11 +2464,11 @@ msgstr ""
 msgid "No node found"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/tab-content.tt
 msgid "No provisioner specified."
 msgstr ""
 
-# html/pfappserver/root/configuration/adminroles/index.tt
+# html/pfappserver/root/config/adminroles/index.tt
 # html/pfappserver/root/roles/index.tt
 msgid "No role defined"
 msgstr ""
@@ -2331,7 +2477,7 @@ msgstr ""
 msgid "No rule defined"
 msgstr ""
 
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
 msgid "No source defined"
 msgstr ""
 
@@ -2340,7 +2486,7 @@ msgstr ""
 msgid "No user found"
 msgstr ""
 
-# html/pfappserver/root/configuration/useragents/simple_search.tt
+# html/pfappserver/root/config/useragents/simple_search.tt
 msgid "No useragent found"
 msgstr ""
 
@@ -2382,6 +2528,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
@@ -2392,7 +2539,11 @@ msgstr ""
 msgid "Nodes with the selected roles won't be affected by a violation of this type."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "Non compliance violation"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "None"
 msgstr ""
@@ -2410,7 +2561,7 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Number of Registration Pages"
 msgstr ""
 
@@ -2448,7 +2599,7 @@ msgstr ""
 msgid "On this page, you need to modify the default admin user password that will be used to access the web administrative interface of PacketFence."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "One-level"
 msgstr ""
 
@@ -2464,37 +2615,37 @@ msgstr ""
 msgid "Only works for accounting violations.  The violation will be opened according to the time you set in the accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month)."
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 # pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Friday"
 msgstr "Open Friday"
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 # pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Monday"
 msgstr "Open Monday"
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 # pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Saturday"
 msgstr "Open Saturday"
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 # pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Sunday"
 msgstr "Open Sunday"
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 # pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Thursday"
 msgstr "Open Thursday"
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 # pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Tuesday"
 msgstr "Open Tuesday"
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 # pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Wednesday"
 msgstr "Open Wednesday"
@@ -2515,6 +2666,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "PID"
@@ -2572,7 +2724,11 @@ msgstr ""
 msgid "PacketFence uses a MySQL database. On this page, you need to specify the root password to access the MySQL server to create an account specific to PacketFence and create the required database tables and indexes."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# pf::firewallsso (Firewall SSO)
+msgid "PaloAlto"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
@@ -2632,6 +2788,10 @@ msgstr ""
 msgid "Please select the type of the switch."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+msgid "Please specify a Realm"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Interface/Create.pm
 msgid "Please specify a VLAN ID."
 msgstr ""
@@ -2644,11 +2804,11 @@ msgstr ""
 msgid "Please specify a name for the category."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 msgid "Please specify an identifier for the rule."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source.pm
 msgid "Please specify an identifier for the source."
 msgstr ""
 
@@ -2700,6 +2860,10 @@ msgstr ""
 msgid "Please specify the gateway."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
+msgid "Please specify the hostname or IP of the Check point firewall"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Please specify the hostname or IP of the Firewall"
@@ -2742,14 +2906,15 @@ msgstr ""
 msgid "Please specify the username for the Barracuda"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/RADIUS.pm
-# html/pfappserver/root/configuration/firewall_sso/list.tt
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
+# html/pfappserver/root/config/firewall_sso/list.tt
 msgid "Port"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Port of the service"
@@ -2771,17 +2936,17 @@ msgstr ""
 msgid "Portal Profiles"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/edit.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/config/profile/create.tt
+# html/pfappserver/root/config/profile/edit.tt
+# html/pfappserver/root/config/profile/view.tt
 msgid "Portal Profiles and Pages"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Portal URL"
 msgstr ""
@@ -2796,14 +2961,14 @@ msgid ""
   "Redirecting 53/udp (DNS) seems to have issues and is also not recommended."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/index.tt
+# html/pfappserver/root/config/profile/index.tt
 msgid "Present a different captive portal according to the SSID, the VLAN, or the switch IP the client connects to."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
-# html/pfappserver/root/portal/profile/files.tt
-# html/pfappserver/root/portal/profile/index.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/config/profile/edit.tt
+# html/pfappserver/root/config/profile/files.tt
+# html/pfappserver/root/config/profile/index.tt
+# html/pfappserver/root/config/profile/view.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Preview"
 msgstr ""
@@ -2842,11 +3007,11 @@ msgstr ""
 msgid "Priv Protocol Write"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Processing dropped files..."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Processing..."
 msgstr ""
 
@@ -2855,16 +3020,16 @@ msgstr ""
 msgid "Profile"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Profile Description"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Profile Name"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/tab-content.tt
 msgid "Provisioners"
 msgstr ""
 
@@ -2888,8 +3053,28 @@ msgstr ""
 msgid "Quantity"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "RADIUS"
+msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "REALM"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "REALM_CREATE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "REALM_DELETE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "REALM_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "REALM_UPDATE"
 msgstr ""
 
 # pf::admin_roles (Actions groups)
@@ -2897,11 +3082,19 @@ msgstr ""
 msgid "REPORTS"
 msgstr "Reports"
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "Radius"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
+msgid "Raise the non compliance violation the number of critical issues is greater or equal than this. 0 deactivates it"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one."
 msgstr ""
 
-# html/pfappserver/root/configuration/firewall_sso/index.tt
+# html/pfappserver/root/config/firewall_sso/index.tt
 msgid "Really delete this Firewall SSO?"
 msgstr ""
 
@@ -2909,19 +3102,23 @@ msgstr ""
 msgid "Really delete this Provisioning entry?"
 msgstr ""
 
-# html/pfappserver/root/configuration/adminroles/index.tt
+# html/pfappserver/root/config/realm/index.tt
+msgid "Really delete this Realm ?"
+msgstr ""
+
+# html/pfappserver/root/config/adminroles/index.tt
 msgid "Really delete this admin role?"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Really delete this file?"
 msgstr ""
 
-# html/pfappserver/root/configuration/floatingdevice/index.tt
+# html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Really delete this floating device?"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/index.tt
+# html/pfappserver/root/config/profile/index.tt
 msgid "Really delete this profile?"
 msgstr ""
 
@@ -2933,11 +3130,11 @@ msgstr ""
 msgid "Really delete this statement of health filter?"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/config/switch/index.tt
 msgid "Really delete this switch?"
 msgstr ""
 
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
 msgid "Really delete this users source?"
 msgstr ""
 
@@ -2945,35 +3142,46 @@ msgstr ""
 msgid "Really delete this violation?"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/index.tt
+# html/pfappserver/root/config/wrix/index.tt
 msgid "Really delete this wrix entry?"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Really dismiss changes?"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Really revert all files?"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Really revert this file?"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Really?"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Kerberos.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+# html/pfappserver/root/config/realm/list.tt
+# html/pfappserver/root/config/realm/view.tt
 msgid "Realm"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+msgid "Realm Options"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Realms"
 msgstr ""
 
 # html/pfappserver/root/service/status.tt
 msgid "Reconnecting to the Admin Service in "
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Redirection URL"
 msgstr ""
@@ -3048,11 +3256,11 @@ msgid ""
   "most cases."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Rename File"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Rename File "
 msgstr ""
 
@@ -3061,9 +3269,9 @@ msgid "Reports"
 msgstr ""
 
 # html/pfappserver/root/authentication/source/read.tt
+# html/pfappserver/root/config/profile/create.tt
+# html/pfappserver/root/config/profile/view.tt
 # html/pfappserver/root/configuration/section.tt
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/view.tt
 msgid "Reset"
 msgstr ""
 
@@ -3079,7 +3287,7 @@ msgstr ""
 msgid "Restart All"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Restricted Access"
 msgstr ""
 
@@ -3091,7 +3299,7 @@ msgstr ""
 msgid "Results"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Retry"
 msgstr ""
 
@@ -3104,19 +3312,19 @@ msgstr ""
 msgid "Retype your password"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Revert"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Revert All Files"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Revert Changes"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Revert File"
 msgstr ""
 
@@ -3127,7 +3335,7 @@ msgid "Role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
-# html/pfappserver/root/configuration/adminroles/list.tt
+# html/pfappserver/root/config/adminroles/list.tt
 msgid "Role Name"
 msgstr ""
 
@@ -3143,25 +3351,26 @@ msgstr ""
 msgid "Role by access list"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "Role mapping by VLAN ID"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "Role mapping by access list"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "Role mapping by switch role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "Roles"
 msgstr ""
 
@@ -3194,12 +3403,20 @@ msgstr ""
 msgid "SERVICES"
 msgstr "Services"
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SMS.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
 msgid "SMS Carriers"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "SMS Pin Retry Limit"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "SMS Request Retry Limit"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "SNMP"
 msgstr ""
 
@@ -3225,24 +3442,24 @@ msgstr "SoH Filters - Update"
 
 # html/pfappserver/lib/pfappserver/Controller/Graph.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
-# html/pfappserver/root/configuration/wrix/view.tt
+# html/pfappserver/root/config/wrix/view.tt
 # pf::Authentication::Source (common_attributes)
 msgid "SSID"
 msgstr "SSID"
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "SSID 1X"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "SSID 1X Broadcasted"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "SSID Broadcasted"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "SSID Open Auth"
 msgstr ""
 
@@ -3250,7 +3467,7 @@ msgstr ""
 msgid "SSIDs"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "SSL"
 msgstr ""
 
@@ -3277,20 +3494,21 @@ msgstr "Switches - Update"
 # html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
+# html/pfappserver/root/config/adminroles/view.tt
+# html/pfappserver/root/config/firewall_sso/view.tt
+# html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/config/profile/create.tt
+# html/pfappserver/root/config/profile/edit.tt
+# html/pfappserver/root/config/profile/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
-# html/pfappserver/root/configuration/adminroles/view.tt
-# html/pfappserver/root/configuration/firewall_sso/view.tt
-# html/pfappserver/root/configuration/floatingdevice/view.tt
+# html/pfappserver/root/config/realm/view.tt
+# html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/configuration/section.tt
-# html/pfappserver/root/configuration/switch/view.tt
-# html/pfappserver/root/configuration/wrix/view.tt
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/edit.tt
-# html/pfappserver/root/portal/profile/view.tt
 # html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/view.tt
@@ -3298,8 +3516,8 @@ msgstr "Switches - Update"
 msgid "Save"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/config/profile/create.tt
+# html/pfappserver/root/config/profile/view.tt
 msgid "Save Profile"
 msgstr ""
 
@@ -3312,7 +3530,7 @@ msgstr ""
 msgid "Save as..."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Save file"
 msgstr ""
 
@@ -3323,13 +3541,14 @@ msgstr ""
 
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
+# html/pfappserver/root/config/adminroles/view.tt
+# html/pfappserver/root/config/firewall_sso/view.tt
+# html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
-# html/pfappserver/root/configuration/adminroles/view.tt
-# html/pfappserver/root/configuration/firewall_sso/view.tt
-# html/pfappserver/root/configuration/floatingdevice/view.tt
-# html/pfappserver/root/configuration/switch/view.tt
-# html/pfappserver/root/configuration/wrix/view.tt
+# html/pfappserver/root/config/realm/view.tt
+# html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/roles/read.tt
@@ -3339,12 +3558,12 @@ msgstr ""
 msgid "Saving"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Saving File "
 msgstr ""
 
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/config/profile/create.tt
+# html/pfappserver/root/config/profile/view.tt
 msgid "Saving profile "
 msgstr ""
 
@@ -3352,24 +3571,25 @@ msgstr ""
 msgid "Scan"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Scope"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Search"
 msgstr ""
 
-# html/pfappserver/root/configuration/listing.inc
+# html/pfappserver/root/config/listing.inc
 msgid "Search..."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/RADIUS.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 msgid "Secret"
 msgstr ""
 
@@ -3387,7 +3607,7 @@ msgstr ""
 msgid "Secure your network"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Security Protocol 1X"
 msgstr ""
 
@@ -3419,7 +3639,7 @@ msgid ""
   "you don't change it!"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Service Provider Brand"
 msgstr ""
 
@@ -3437,7 +3657,7 @@ msgstr ""
 msgid "Set a MySQL root password"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "Set inline mode if any of the following conditions are met:"
 msgstr ""
 
@@ -3445,9 +3665,9 @@ msgstr ""
 msgid "Set role"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/create.tt
-# html/pfappserver/root/portal/profile/files.tt
-# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/config/profile/create.tt
+# html/pfappserver/root/config/profile/files.tt
+# html/pfappserver/root/config/profile/view.tt
 msgid "Settings"
 msgstr ""
 
@@ -3455,11 +3675,11 @@ msgstr ""
 msgid "Setup your NAC"
 msgstr ""
 
-# html/pfappserver/root/configuration/fingerprints/simple_search.tt
+# html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "Share Unknown Fingerprints"
 msgstr ""
 
-# html/pfappserver/root/configuration/useragents/simple_search.tt
+# html/pfappserver/root/config/useragents/simple_search.tt
 msgid "Share Unknown User Agents"
 msgstr ""
 
@@ -3469,6 +3689,10 @@ msgstr ""
 
 # conf/documentation.conf (inline.should_reauth_on_vlan_change)
 msgid "Should have to reauthenticate the node if vlan change"
+msgstr ""
+
+# conf/documentation.conf (services.httpd_aaa)
+msgid "Should httpd.aaa be started ? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # conf/documentation.conf (services.httpd_admin)
@@ -3563,7 +3787,7 @@ msgid ""
   "This controls inline accouting tasks in pfmon."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/config/profile/edit.tt
 msgid "Show line numbers"
 msgstr ""
 
@@ -3582,7 +3806,7 @@ msgstr ""
 msgid "Single"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Size"
 msgstr ""
 
@@ -3599,7 +3823,7 @@ msgid "Source switch IP"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/tab-content.tt
 msgid "Sources"
 msgstr ""
 
@@ -3639,7 +3863,7 @@ msgstr ""
 msgid "Start PacketFence"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Start TLS"
 msgstr ""
 
@@ -3699,7 +3923,7 @@ msgstr ""
 msgid "Stopped"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Sub Location Type"
 msgstr ""
 
@@ -3710,25 +3934,25 @@ msgid ""
   "message."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Subtree"
 msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/authentication/source/read.tt
-# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/configurator/admin.tt
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/configurator/wrapper.tt
-# html/pfappserver/root/portal/profile/index.tt
 msgid "Success!"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "Switch"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/list.tt
+# html/pfappserver/root/config/switch/list.tt
 msgid "Switch ID"
 msgstr ""
 
@@ -3737,7 +3961,7 @@ msgid "Switch/AP"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/config/switch/index.tt
 msgid "Switches"
 msgstr ""
 
@@ -3782,11 +4006,19 @@ msgstr ""
 msgid "Text displayed on the violation form to hosts."
 msgstr ""
 
+# conf/documentation.conf (webservices.aaa_port)
+msgid "The AAA webservice port"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "The ID of the Switch"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
 msgid "The authentication source was not found."
 msgstr ""
 
@@ -3814,11 +4046,11 @@ msgstr ""
 msgid "The hidden SSID where the user should connect to after registration"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LinkedIn.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "The hostname must be the one of your captive portal."
 msgstr ""
 
@@ -3868,9 +4100,9 @@ msgstr ""
 msgid "The payment gateway to process the payments"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/WindowsLive.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "The permissions the application requests."
 msgstr ""
 
@@ -3886,7 +4118,7 @@ msgstr ""
 msgid "The role to assign to gaming devices. If none is selected, the role of the registrant is used."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
 msgid "The rule was not found."
 msgstr ""
 
@@ -3951,8 +4183,14 @@ msgid ""
   "above list of access duration choices."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
 msgid "This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link."
+msgstr ""
+
+# conf/documentation.conf (captive_portal.image_path)
+msgid ""
+  "This is the path where the gif is on the webserver to detect if the network access"
+  "has been enabled."
 msgstr ""
 
 # conf/documentation.conf (proxies)
@@ -4042,14 +4280,14 @@ msgid "Triggers"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
-# html/pfappserver/root/configuration/floatingdevice/list.tt
+# html/pfappserver/root/config/floatingdevice/list.tt
 msgid "Trunk Port"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
-# html/pfappserver/root/configuration/authentication.tt
-# html/pfappserver/root/configuration/switch/list.tt
+# html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/interface/list.tt
 msgid "Type"
 msgstr ""
@@ -4060,6 +4298,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "UID type"
@@ -4089,6 +4328,11 @@ msgstr "Users - Create"
 msgid "USERS_DELETE"
 msgstr "Users - Delete"
 
+# pf::admin_roles (Actions groups)
+# pf::admin_roles (Actions)
+msgid "USERS_MARK_AS_SPONSOR"
+msgstr "Users - Mark as Sponsor"
+
 # pf::admin_roles (Actions)
 msgid "USERS_READ"
 msgstr "Users - Read"
@@ -4114,6 +4358,26 @@ msgid "USERS_ROLES_UPDATE"
 msgstr "Users Roles - Update"
 
 # pf::admin_roles (Actions groups)
+# pf::admin_roles (Actions)
+msgid "USERS_SET_ACCESS_DURATION"
+msgstr "Users - Set Access Duration"
+
+# pf::admin_roles (Actions groups)
+# pf::admin_roles (Actions)
+msgid "USERS_SET_ACCESS_LEVEL"
+msgstr "Users - Set Access Level"
+
+# pf::admin_roles (Actions groups)
+# pf::admin_roles (Actions)
+msgid "USERS_SET_ROLE"
+msgstr "Users - Set Role"
+
+# pf::admin_roles (Actions groups)
+# pf::admin_roles (Actions)
+msgid "USERS_SET_UNREG_DATE"
+msgstr "Users - Set Unreg Date"
+
+# pf::admin_roles (Actions groups)
 msgid "USERS_SOURCES"
 msgstr "Users Sources"
 
@@ -4137,16 +4401,16 @@ msgstr "Users Sources - Update"
 msgid "USERS_UPDATE"
 msgstr "Users - Update"
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "UTC Timezone"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Controller/Admin.pm
-# html/pfappserver/lib/pfappserver/Controller/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
 msgid "Unexpected error. See server-side logs for details."
 msgstr ""
 
@@ -4162,11 +4426,11 @@ msgstr ""
 msgid "Unregistration Date"
 msgstr ""
 
-# html/pfappserver/root/configuration/fingerprints/simple_search.tt
+# html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "Update Fingerprints"
 msgstr ""
 
-# html/pfappserver/root/configuration/macaddress/simple_search.tt
+# html/pfappserver/root/config/macaddress/simple_search.tt
 msgid "Update OUI Prefixes"
 msgstr ""
 
@@ -4174,11 +4438,11 @@ msgstr ""
 msgid "Uplinks"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Upload"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "Upload failed"
 msgstr ""
 
@@ -4190,6 +4454,13 @@ msgstr ""
 msgid "Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Htpasswd.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
+msgid "Use stripped username returned by RADIUS to test the following rules."
+msgstr ""
+
 # html/pfappserver/root/user/view.tt
 msgid "User"
 msgstr ""
@@ -4199,7 +4470,7 @@ msgid "User Agent"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/useragents/simple_search.tt
+# html/pfappserver/root/config/useragents/simple_search.tt
 msgid "User Agents"
 msgstr ""
 
@@ -4240,7 +4511,7 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Username Attribute"
 msgstr ""
 
@@ -4354,15 +4625,15 @@ msgstr ""
 msgid "Voice Over IP (yes/no)"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "WEP Key"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "WEP Key Entry Method"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "WEP Key Size"
 msgstr ""
 
@@ -4381,15 +4652,15 @@ msgid "WPA2"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/wrix/index.tt
+# html/pfappserver/root/config/wrix/index.tt
 msgid "WRIX"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/list.tt
+# html/pfappserver/root/config/wrix/list.tt
 msgid "WRIX Identifer"
 msgstr ""
 
-# html/pfappserver/root/configuration/wrix/view.tt
+# html/pfappserver/root/config/wrix/view.tt
 msgid "WRIX Information"
 msgstr ""
 
@@ -4404,7 +4675,7 @@ msgid "Warning!"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "Web Services"
 msgstr ""
 
@@ -4417,13 +4688,19 @@ msgstr ""
 msgid "What's going on?"
 msgstr ""
 
+# conf/documentation.conf (captive_portal.status_only_on_production)
+msgid ""
+  "When enabled the /status page will only be available on the"
+  "production network. By default this is disabled"
+msgstr ""
+
 # conf/documentation.conf (trapping.passthrough)
 msgid ""
   "When enabled, PacketFence uses pfdns if you defined <i>Passthroughs</i> or Apache mod-proxy "
   "if you defined <i>Proxy passthroughs</i> to allow trapped devices to reach web sites."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "When enabling the billing engine, all authentication sources bellow are ignored."
 msgstr ""
 
@@ -4443,12 +4720,26 @@ msgstr ""
 msgid "When selecting the <strong>role</strong> action, triggering the violation will change the node to this role."
 msgstr ""
 
+# conf/documentation.conf (network.dhcp_filter_by_message_types)
+msgid ""
+  "Which dhcp message types are being listened by the pfdhcplistener."
+  "Do not change unless you know what you are doing"
+msgstr ""
+
 # conf/documentation.conf (scan.engine)
 msgid "Which scan engine to use to perform client-side policy compliance."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "Which violation should be raised when non compliance is detected"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Whitelisted Roles"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+msgid "Will cache results of matching a rule"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -4467,27 +4758,27 @@ msgstr ""
 msgid "Wireless SSID"
 msgstr ""
 
-# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/config/switch/view.tt
 msgid "With no condition, the inline mode will never be activated."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "With no language specified, all supported locales will be available."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "With no mandatory fields specified, the mandatory fields of the default profile will be used."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/tab-content.tt
 msgid "With no provisioners specified, the provisioners of the default profile will be used."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/tab-content.tt
 msgid "With no source specified, all internal and external sources will be used."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/tab-content.tt
+# html/pfappserver/root/config/profile/tab-content.tt
 msgid "With no source specified, the sources of the default profile will be used."
 msgstr ""
 
@@ -4497,6 +4788,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Controller/Admin.pm
 msgid "Wrong username or password."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+msgid "You can add options in the realm definition"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Controller/Admin.pm
@@ -4531,6 +4826,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "You must specify the password or the key"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
+msgid "You must specify the radius shared secret"
 msgstr ""
 
 # html/pfappserver/root/configurator/services.tt
@@ -4575,6 +4874,7 @@ msgid "accttotal"
 msgstr "Total"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+# pfappserver::Form::Field::Duration (Operators)
 msgid "add"
 msgstr ""
 
@@ -4630,9 +4930,9 @@ msgstr "Subject prefix"
 msgid "alerting.wins_server"
 msgstr "WINS server"
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "all"
 msgstr ""
 
@@ -4649,7 +4949,7 @@ msgid "android"
 msgstr "Android"
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "anniversary"
 msgstr ""
 
@@ -4661,14 +4961,14 @@ msgstr ""
 msgid "antivirus"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "any"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "apartment_number"
 msgstr ""
 
@@ -4725,7 +5025,7 @@ msgid "billing.mirapay_url"
 msgstr "Mirapay URL"
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "birthday"
 msgstr ""
 
@@ -4736,7 +5036,7 @@ msgid "blue"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "building_number"
 msgstr ""
 
@@ -4754,6 +5054,10 @@ msgid "captive_portal"
 msgstr "Captive portal"
 
 # conf/documentation.conf
+msgid "captive_portal.image_path"
+msgstr "IMG path"
+
+# conf/documentation.conf
 msgid "captive_portal.loadbalancers_ip"
 msgstr "Load balancers IP"
 
@@ -4766,15 +5070,15 @@ msgid "captive_portal.network_detection_ip"
 msgstr "IP"
 
 # conf/documentation.conf
-msgid "captive_portal.image_path"
-msgstr "IMG path"
-
-# conf/documentation.conf
 msgid "captive_portal.secure_redirect"
 msgstr "Secure redirect"
 
+# conf/documentation.conf
+msgid "captive_portal.status_only_on_production"
+msgstr "Status URI only on production network"
+
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "cell_phone"
 msgstr ""
 
@@ -4813,47 +5117,47 @@ msgid "current_time"
 msgstr "Current time"
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "custom_field_1"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "custom_field_2"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "custom_field_3"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "custom_field_4"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "custom_field_5"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "custom_field_6"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "custom_field_7"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "custom_field_8"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "custom_field_9"
 msgstr ""
 
@@ -4891,7 +5195,7 @@ msgstr "User"
 msgid "days"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/index.tt
+# html/pfappserver/root/config/profile/index.tt
 msgid "default"
 msgstr ""
 
@@ -4931,8 +5235,10 @@ msgstr ""
 
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
+# conf/documentation.conf (captive_portal.status_only_on_production options)
 # conf/documentation.conf (expire.httpd_admin options)
 # conf/documentation.conf (expire.httpd_portal options)
+# conf/documentation.conf (expire.ldap_auth options)
 # conf/documentation.conf (guests_self_registration.preregistration options)
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
@@ -4944,6 +5250,7 @@ msgstr ""
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin options)
 # conf/documentation.conf (services.httpd_mod_qos options)
 # conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device options)
@@ -4992,7 +5299,7 @@ msgstr ""
 # conf/documentation.conf (guests_self_registration.guest_pid options)
 # conf/documentation.conf (vlan.trap_limit_action options)
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "email"
 msgstr ""
 
@@ -5002,8 +5309,10 @@ msgstr "Send email"
 
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
+# conf/documentation.conf (captive_portal.status_only_on_production options)
 # conf/documentation.conf (expire.httpd_admin options)
 # conf/documentation.conf (expire.httpd_portal options)
+# conf/documentation.conf (expire.ldap_auth options)
 # conf/documentation.conf (guests_self_registration.preregistration options)
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
@@ -5015,6 +5324,7 @@ msgstr "Send email"
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin options)
 # conf/documentation.conf (services.httpd_mod_qos options)
 # conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device options)
@@ -5051,8 +5361,8 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/configuration/switch/list.tt
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "ends with"
 msgstr ""
 
@@ -5081,6 +5391,10 @@ msgid "expire.iplog"
 msgstr "IP/MAC logs"
 
 # conf/documentation.conf
+msgid "expire.ldap_auth"
+msgstr "LDAP Auth cache expiration"
+
+# conf/documentation.conf
 msgid "expire.locationlog"
 msgstr "Location logs"
 
@@ -5097,12 +5411,12 @@ msgid "firewall"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "firstname"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "gender"
 msgstr ""
 
@@ -5196,6 +5510,10 @@ msgstr ""
 msgid "http"
 msgstr ""
 
+# conf/documentation.conf (ports.aaa)
+msgid "httpd listening port for AAA webservice"
+msgstr ""
+
 # pf::provisioner (Provisioners)
 msgid "ibm"
 msgstr "IBM"
@@ -5272,8 +5590,8 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/configuration/switch/list.tt
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr ""
@@ -5292,8 +5610,8 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/configuration/switch/list.tt
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
 msgstr ""
@@ -5303,12 +5621,12 @@ msgid "isnot"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "lang"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "lastname"
 msgstr ""
 
@@ -5371,11 +5689,31 @@ msgid "maintenance.inline_accounting_maintenance_interval"
 msgstr ""
 
 # conf/documentation.conf
+msgid "maintenance.iplog_cleanup_batch"
+msgstr ""
+
+# conf/documentation.conf
 msgid "maintenance.iplog_cleanup_interval"
 msgstr ""
 
 # conf/documentation.conf
+msgid "maintenance.iplog_cleanup_timeout"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.ldap_auth_cache_cleanup_interval"
+msgstr "LDAP Auth cache clean up interval"
+
+# conf/documentation.conf
+msgid "maintenance.locationlog_cleanup_batch"
+msgstr ""
+
+# conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.locationlog_cleanup_timeout"
 msgstr ""
 
 # conf/documentation.conf
@@ -5384,6 +5722,10 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "maintenance.nodes_maintenance_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.provisioning_compliance_poll_interval"
 msgstr ""
 
 # conf/documentation.conf
@@ -5433,8 +5775,8 @@ msgstr "Mark as sponsor"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/configuration/switch/list.tt
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "matches"
 msgstr ""
 
@@ -5467,7 +5809,7 @@ msgstr "Apple Devices"
 msgid "mobileiron"
 msgstr "MobileIron"
 
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "mobileprovider"
 msgstr ""
 
@@ -5493,6 +5835,10 @@ msgid "network"
 msgstr "Network"
 
 # conf/documentation.conf
+msgid "network.dhcp_filter_by_message_types"
+msgstr ""
+
+# conf/documentation.conf
 msgid "network.dhcpdetector"
 msgstr "DHCP detector"
 
@@ -5513,7 +5859,7 @@ msgid "network.rogueinterval"
 msgstr "Rogue interval"
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "nickname"
 msgstr ""
 
@@ -5568,7 +5914,7 @@ msgid "opswat"
 msgstr "OPSWAT"
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "organization"
 msgstr ""
 
@@ -5584,12 +5930,48 @@ msgstr "Other"
 msgid "pending"
 msgstr "pending"
 
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::connection_type"
+msgstr "Connection Type"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::network"
+msgstr "Network"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::port"
+msgstr "Port"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::realm"
+msgstr "Realm"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::ssid"
+msgstr "SSID"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::switch"
+msgstr "Switch"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::switch_port"
+msgstr "Switch Port"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::uri"
+msgstr "URI"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::vlan"
+msgstr "VLAN"
+
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "pfcmd_vlan"
 msgstr ""
 
 # conf/documentation.conf (guests_self_registration.guest_pid options)
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "phone"
 msgstr ""
 
@@ -5605,6 +5987,10 @@ msgstr "Port"
 # conf/documentation.conf
 msgid "ports"
 msgstr "Ports"
+
+# conf/documentation.conf
+msgid "ports.aaa"
+msgstr ""
 
 # conf/documentation.conf
 msgid "ports.admin"
@@ -5691,7 +6077,7 @@ msgid "role_action"
 msgstr "Set role"
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "room_number"
 msgstr ""
 
@@ -5791,6 +6177,10 @@ msgstr "dhcpd"
 # conf/documentation.conf
 msgid "services.dhcpd_binary"
 msgstr "dhcpd path"
+
+# conf/documentation.conf
+msgid "services.httpd_aaa"
+msgstr ""
 
 # conf/documentation.conf
 msgid "services.httpd_admin"
@@ -5945,7 +6335,7 @@ msgstr "SoH Filters"
 msgid "sponsor"
 msgstr ""
 
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "sponsor_email"
 msgstr ""
 
@@ -5960,12 +6350,13 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/configuration/switch/list.tt
-# html/pfappserver/root/configuration/wrix/search_form.tt
+# html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 msgid "starts with"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+# pfappserver::Form::Field::Duration (Operators)
 msgid "subtract"
 msgstr ""
 
@@ -5986,7 +6377,7 @@ msgid "testing"
 msgstr "Testing"
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "title"
 msgstr ""
 
@@ -6086,6 +6477,7 @@ msgstr "UserAgent"
 
 # html/pfappserver/root/admin/users.tt
 # pf::Authentication::Source::BlackholeSource (available_attributes)
+# pf::Authentication::Source::ChainedSource (available_attributes)
 # pf::Authentication::Source::FacebookSource (available_attributes)
 # pf::Authentication::Source::GithubSource (available_attributes)
 # pf::Authentication::Source::GoogleSource (available_attributes)
@@ -6093,6 +6485,7 @@ msgstr "UserAgent"
 # pf::Authentication::Source::KerberosSource (available_attributes)
 # pf::Authentication::Source::LinkedInSource (available_attributes)
 # pf::Authentication::Source::NullSource (available_attributes)
+# pf::Authentication::Source::OAuthSource (available_attributes)
 # pf::Authentication::Source::RADIUSSource (available_attributes)
 # pf::Authentication::Source::WindowsLiveSource (available_attributes)
 msgid "username"
@@ -6163,6 +6556,10 @@ msgid "webservices"
 msgstr "Webservices"
 
 # conf/documentation.conf
+msgid "webservices.aaa_port"
+msgstr ""
+
+# conf/documentation.conf
 msgid "webservices.host"
 msgstr "Host"
 
@@ -6186,12 +6583,16 @@ msgstr "Username"
 msgid "weeks"
 msgstr ""
 
+# pf::provisioner (Provisioners)
+msgid "windows"
+msgstr ""
+
 # pf::action (VIOLATION_ACTIONS)
 msgid "winpopup_action"
 msgstr "Windows popup message"
 
 # html/pfappserver/root/admin/users.tt
-# pfappserver::Form::Portal::Common (mandatory fields)
+# pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "work_phone"
 msgstr ""
 
@@ -6209,7 +6610,7 @@ msgstr ""
 msgid "yes"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/config/profile/files.tt
 msgid "{percent}% of {total_size}"
 msgstr ""
 

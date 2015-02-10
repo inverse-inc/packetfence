@@ -45,15 +45,15 @@ sub handler {
         ($status, $pass) = $r->get_basic_auth_pw;
         if ($status == Apache2::Const::OK) {
             my $user = $r->user;
-            unless ( defined $user && defined $pass &&
+            if ( defined $user && defined $pass &&
                     $webservices_user eq $user &&
                     $webservices_pass eq $pass  ) {
-                $r->note_basic_auth_failure;
-                $status = Apache2::Const::HTTP_UNAUTHORIZED;
+                return Apache2::Const::OK;
             }
         }
     }
-    return $status;
+    $r->note_basic_auth_failure;
+    return Apache2::Const::HTTP_UNAUTHORIZED;
 }
 
 1;

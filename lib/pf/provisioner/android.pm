@@ -24,16 +24,8 @@ The set the default OS Andriod
 
 =cut
 
-has oses => (is => 'rw', default => sub { [qw(Android)] });
-
-=head 2 Method
-
-The build cert
-
-=cut
-
-sub build_cert{
-}
+# Will always ignore the oses parameter provided and use [Android]
+has 'oses' => (is => 'ro', default => sub { [qw(Android)] }, coerce => sub { [qw(Android)] });
 
 =head1 AUTHOR
 
@@ -45,7 +37,7 @@ Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.

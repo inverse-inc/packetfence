@@ -37,7 +37,7 @@ use HTTP::Status qw(:constants);
 
 =cut
 
-has username => ( is => 'rw', default => sub {$Config{'webservices'}{'username'}} );
+has username => ( is => 'rw', default => sub {$Config{'webservices'}{'user'}} );
 
 =head2 password
 
@@ -45,7 +45,7 @@ has username => ( is => 'rw', default => sub {$Config{'webservices'}{'username'}
 
 =cut
 
-has password => ( is => 'rw', default => sub {$Config{'webservices'}{'password'}} );
+has password => ( is => 'rw', default => sub {$Config{'webservices'}{'pass'}} );
 
 =head2 proto
 
@@ -177,6 +177,9 @@ sub curl {
         $curl->setopt(CURLOPT_HTTPAUTH, CURLOPT_HTTPAUTH);
         $curl->setopt(CURLOPT_USERNAME, $self->username);
         $curl->setopt(CURLOPT_PASSWORD, $self->password);
+        # Removed SSL verification
+        $curl->setopt(CURLOPT_SSL_VERIFYHOST, 0);
+        $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
     }
     return $curl;
 }
@@ -234,7 +237,7 @@ Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.

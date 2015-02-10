@@ -103,9 +103,10 @@ sub generate_radiusd_proxy {
     $tags{'config'} = '';
 
     foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+        my $options = $pf::config::ConfigRealm{$realm}->{'options'} || '';
         $tags{'config'} .= <<"EOT";
 realm $realm {
-$pf::config::ConfigRealm{$realm}->{'options'}
+$options
 }
 
 EOT
@@ -124,7 +125,7 @@ Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.

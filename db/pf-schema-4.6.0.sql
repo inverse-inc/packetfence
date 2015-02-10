@@ -195,6 +195,7 @@ CREATE TABLE violation (
   KEY vid (vid),
   KEY status (status),
   KEY ind1 (mac,status,vid),
+  KEY violation_release_date (release_date),
   CONSTRAINT `0_60` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `0_61` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY (id)
@@ -209,9 +210,9 @@ CREATE TABLE iplog (
   ip varchar(15) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
-  KEY mac (mac),
   KEY `ip_view_open` (`ip`, `end_time`),
   KEY `mac_view_open` (`mac`, `end_time`),
+  KEY `iplog_end_time` ( `end_time`),
   CONSTRAINT `0_63` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
@@ -268,9 +269,10 @@ CREATE TABLE `locationlog` (
   `end_time` datetime default NULL,
   `switch_ip` varchar(17) DEFAULT NULL,
   `switch_mac` varchar(17) DEFAULT NULL,
-  `stripped_user_name` varchar (255) NOT NULL default '',
-  `realm`  varchar (255) NOT NULL default '',
+  `stripped_user_name` varchar (255) DEFAULT NULL,
+  `realm`  varchar (255) DEFAULT NULL,
   KEY `locationlog_view_mac` (`mac`, `end_time`),
+  KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;
 
@@ -286,9 +288,10 @@ CREATE TABLE `locationlog_history` (
   `end_time` datetime default NULL,
   `switch_ip` varchar(17) DEFAULT NULL,
   `switch_mac` varchar(17) DEFAULT NULL,
-  `stripped_user_name` varchar (255) NOT NULL default '',
-  `realm`  varchar (255) NOT NULL default '',
+  `stripped_user_name` varchar (255) DEFAULT NULL,
+  `realm`  varchar (255) DEFAULT NULL,
   KEY `locationlog_history_view_mac` (`mac`, `end_time`),
+  KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;
 

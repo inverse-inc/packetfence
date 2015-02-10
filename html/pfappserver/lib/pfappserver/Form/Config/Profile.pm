@@ -21,19 +21,6 @@ use pf::config;
 use pf::log;
 use List::MoreUtils qw(uniq);
 
-=head1 BLOCKS
-
-=head2 definition
-
-The main definition block
-
-=cut
-
-has_block 'definition' =>
-  (
-   render_list => [ qw(id description logo redirecturl always_use_redirecturl reuse_dot1x_credentials billing_engine nbregpages) ],
-  );
-
 =head1 FIELDS
 
 =head2 filter
@@ -69,11 +56,31 @@ has_field 'filter.contains' =>
    widget_wrapper => 'DynamicTableRow',
   );
 
+=head2 filter_match_style
+
+The form field for filter_match_style
+Field defining how the configured filters will be applied for matching
+
+=cut
+
+has_field 'filter_match_style' =>
+(
+    type => 'Select',
+    default => 'any',
+    options_method => \&options_filter_match_style,
+    element_class => ['input-mini'],
+);
+
+sub options_filter_match_style {
+    return  map { { value => $_, label => $_ } } qw(all any);
+}
+
+
 =head1 METHODS
 
 =head2 update_fields
 
-The redirection URL is mandatory for the default profile.
+Don't allow to edit the profile id when editing an existing profile.
 
 =cut
 

@@ -42,6 +42,8 @@ use Time::Local;
 use DateTime;
 use pf::factory::profile::filter;
 use pf::profile::filter;
+use pf::profile::filter::all;
+use pf::constants::Portal::Profile;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -105,7 +107,7 @@ BEGIN {
         %connection_group %connection_group_to_str
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
         $ROLE_API_LEVEL
-        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_NULL
+        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_NULL $SELFREG_MODE_CHAINED
         %CAPTIVE_PORTAL
         $HTTP $HTTPS
         normalize_time $TIME_MODIFIER_RE $ACCT_TIME_MODIFIER_RE $DEADLINE_UNIT access_duration
@@ -330,6 +332,7 @@ Readonly our $SELFREG_MODE_GITHUB => 'github';
 Readonly our $SELFREG_MODE_LINKEDIN   => 'linkedin';
 Readonly our $SELFREG_MODE_WIN_LIVE   => 'windowslive';
 Readonly our $SELFREG_MODE_NULL   => 'null';
+Readonly our $SELFREG_MODE_CHAINED   => 'chained';
 
 # SoH filters
 Readonly our $SOH_ACTION_ACCEPT => 'accept';
@@ -681,14 +684,25 @@ sub readProfileConfigFile {
                 #Clearing the Profile filters
                 @Profile_Filters = ();
                 my $default_description = $Profiles_Config{'default'}{'description'};
-                while (my ($profile_id, $profile) = each %Profiles_Config) {
+                foreach my $profile_id ($config->Sections()) {
+                    my $profile = $Profiles_Config{$profile_id};
                     $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
                     foreach my $field (qw(locale mandatory_fields sources filter provisioners) ) {
                         $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
                     }
-                    #Adding filters in profile order
-                    foreach my $filter (@{$profile->{'filter'}}) {
-                        push @Profile_Filters, pf::factory::profile::filter->instantiate($profile_id,$filter);
+                    $profile->{block_interval} = normalize_time($profile->{block_interval}
+                          || $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE);
+                    my $filters = $profile->{'filter'};
+                    if($profile_id ne 'default' && @$filters) {
+                        my @filterObjects;
+                        foreach my $filter (@{$profile->{'filter'}}) {
+                            push @filterObjects, pf::factory::profile::filter->instantiate($profile_id,$filter);
+                        }
+                        if(defined ($profile->{filter_match_style}) && $profile->{filter_match_style} eq 'all') {
+                            push @Profile_Filters, pf::profile::filter::all->new(profile => $profile_id, value => \@filterObjects);
+                        } else {
+                            push @Profile_Filters,@filterObjects;
+                        }
                     }
                 }
                 #Add the default filter so it always matches if no other filter matches

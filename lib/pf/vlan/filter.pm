@@ -17,6 +17,7 @@ use warnings;
 
 use Log::Log4perl;
 use Time::Period;
+use pf::api::jsonrpcclient;
 use pf::config qw(%connection_type_to_str);
 use pf::person qw(person_view);
 our (%ConfigVlanFilters, $cached_vlan_filters_config);
@@ -53,15 +54,21 @@ sub test {
         if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq $scope) {
             if ($rule =~ /^\w+:(.*)$/) {
                 my $test = $1;
-                $test =~ s/(\w+)/$self->dispatch_rule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request,$1)/gee;
+                $test =~ s/(\w+)/$self->dispatchRule($ConfigVlanFilters{$1},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request,$1)/gee;
                 $test =~ s/\|/ \|\| /g;
                 $test =~ s/\&/ \&\& /g;
                 if (eval $test) {
                     $logger->info("Match Vlan rule: ".$rule." for ".$mac);
-                    my $role = $ConfigVlanFilters{$rule}->{'role'};
-                    #TODO Add action that can be sent to the WebAPI
-                    my $vlan = $switch->getVlanByName($role);
-                    return ($vlan, $role);
+                    if ( defined($ConfigVlanFilters{$rule}->{'action'}) && $ConfigVlanFilters{$rule}->{'action'} ne '' ) {
+                        $self->dispatchAction($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request)
+                    }
+                    if ( defined($ConfigVlanFilters{$rule}->{'role'}) && $ConfigVlanFilters{$rule}->{'role'} ne '' ) {
+                        my $role = $ConfigVlanFilters{$rule}->{'role'};
+                        my $vlan = $switch->getVlanByName($role);
+                        return ($vlan, $role);
+                    } else {
+                        return (0,0);
+                    }
                 }
             }
         }
@@ -81,21 +88,56 @@ our %RULE_PARSERS = (
     radius_request => \&radius_parser,
 );
 
-=item dispatch_rules
+=item dispatchRule
 
 Return the reference to the function that parses the rule.
 
 =cut
 
-sub dispatch_rule {
+sub dispatchRule {
     my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $name) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    if (!defined($rule)) {
-        $logger->error("The rule $name you try to test doesn´t exist");
+    if (!defined($rule) || !(defined($rule->{'filter'}) && defined($rule->{'operator'}) && defined($rule->{'value'}) ) ) {
+        $logger->error("The rule $name you try to test doesn't exist or an attribute is missing");
+        return 0;
     }
 
     return $RULE_PARSERS{$rule->{'filter'}}->($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+}
+
+=item dispatchAction
+
+Return the reference to the function that call the api.
+
+=cut
+
+sub dispatchAction {
+    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
+
+    my $param = $self->evalParam($rule->{'action_param'},$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    my $apiclient = pf::api::jsonrpcclient->new;
+    $apiclient->notify($rule->{'action'},%{$$param});
+}
+
+=item evalParam
+
+evaluate action parameters
+
+=cut
+
+sub evalParam {
+    my ($self, $action_param, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
+    $action_param =~ s/\s//g;
+    my @params = split(',', $action_param);
+    my $return = {};
+
+    foreach my $param (@params) {
+        $param =~ s/(\$.*)/$1/gee;
+        my @param_unit = split('=',$param);
+        $return = { %$return, @param_unit };
+    }
+    return \$return;
 }
 
 our %RULE_OPS = (
@@ -291,8 +333,6 @@ sub readVlanFiltersFile {
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
-
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 

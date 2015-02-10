@@ -138,7 +138,8 @@ sub iptables_generate {
     my $pre_registration_enabled    = isenabled($Config{'guests_self_registration'}{'preregistration'});
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
-    if ( $email_enabled || $sponsor_enabled || $device_registration_enabled || $pre_registration_enabled ) {
+    my $chained_enabled = $guest_self_registration{$SELFREG_MODE_CHAINED};
+    if ( $email_enabled || $sponsor_enabled || $chained_enabled || $device_registration_enabled || $pre_registration_enabled ) {
         $tags{'input_mgmt_guest_rules'} =
             "-A $FW_FILTER_INPUT_MGMT --protocol tcp --match tcp --dport 443 --jump ACCEPT"
         ;

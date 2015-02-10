@@ -20,6 +20,8 @@ use pf::admin_roles;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::factory::provisioner;
+use pf::factory::firewallsso;
+use pf::factory::profile::filter;
 use pf::Switch::constants;
 use pfappserver::Controller::Graph;
 use pfappserver::Model::Node;
@@ -344,7 +346,9 @@ sub extract_modules {
             encryption => '',
             scope => '',
             path => '',
-            client_id => ''
+            client_id => '',
+            authentication_source => undef,
+            chained_authentication_source => undef
            });
         $attributes = $source->available_attributes();
 
@@ -360,10 +364,13 @@ sub extract_modules {
     @values = map { @$_ } values %Conditions::OPERATORS;
     const('pf::Authentication::constants', 'Conditions', \@values);
 
-    @values = sort grep {$_} map { /^pf::provisioner::(.*)/;$1  } @pf::factory::provisioner::MODULES;
+    @values = sort grep {$_} map { /^pf::provisioner::(.*)/; $1 } @pf::factory::provisioner::MODULES;
     const('pf::provisioner', 'Provisioners', \@values);
 
-    @values = sort grep {$_} map { /^pf::firewallsso::(.*)/;$1  } @pf::factory::firewallsso::MODULES;
+    @values = sort @pf::factory::profile::filter::MODULES;
+    const('pf::filter', 'Portal Profile Filters', \@values);
+
+    @values = sort grep {$_} map { /^pf::firewallsso::(.*)/; $1 } @pf::factory::firewallsso::MODULES;
     const('pf::firewallsso', 'Firewall SSO', \@values);
 
     const('pf::Switch::constants', 'Modes', \@SNMP::MODES);

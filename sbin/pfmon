@@ -151,13 +151,13 @@ exit(0);
 sub registertasks  {
     register_task(
         'iplog cleanup','iplog_cleanup_interval',sub {
-            iplog_cleanup( $Config{'expire'}{'iplog'} )
+            iplog_cleanup( $Config{'expire'}{'iplog'} ,$Config{maintenance}{iplog_cleanup_batch},$Config{maintenance}{iplog_cleanup_timeout})
               if ( $Config{'expire'}{'iplog'} );
         }
     );
     register_task(
         'locationlog cleanup','locationlog_cleanup_interval',sub {
-            locationlog_cleanup( $Config{'expire'}{'locationlog'} )
+            locationlog_cleanup( $Config{'expire'}{'locationlog'}, $Config{maintenance}{locationlog_cleanup_batch},$Config{maintenance}{locationlog_cleanup_timeout})
               if ( $Config{'expire'}{'locationlog'} );
         }
     );
@@ -183,6 +183,12 @@ sub registertasks  {
         'expire httpd.portal sessions','httpd_portal_cleanup_interval',sub {
             purge_cache('httpd.portal')
               if ( isenabled($Config{'expire'}{'httpd_portal'}) );
+        }
+    );
+    register_task(
+        'expire ldap_auth cache','ldap_auth_cache_cleanup_interval',sub {
+            purge_cache('ldap_auth')
+              if ( isenabled($Config{'expire'}{'ldap_auth'}) );
         }
     );
     register_task(
@@ -265,7 +271,7 @@ sub purge_cache {
     my $cache = pf::CHI->new( namespace => $namespace );
     for my $key ($cache->get_keys) {
         if($cache->exists_and_is_expired($key)) {
-            #Add an eval in case of the value deleted before 
+            #Add an eval in case of the value deleted before
             eval {
                 $cache->remove($key);
             };

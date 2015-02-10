@@ -10,6 +10,7 @@ We must at least always have one rule defined, the fallback one.
 
 =cut
 
+use pf::config;
 use Moose;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -19,7 +20,7 @@ has 'unique' => (isa => 'Bool', is => 'ro', default => 0);
 has 'class' => (isa => 'Str', is => 'ro', default => 'internal');
 has 'type' => (isa => 'Str', is => 'ro', default => 'generic', required => 1);
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
-has 'rules' => (isa => 'ArrayRef', is => 'rw', required => 0);
+has 'rules' => (isa => 'ArrayRef', is => 'rw', required => 0, default => sub { [] });
 
 =head2 add_rule
 
@@ -133,10 +134,13 @@ sub match {
     my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
     my $current_date = sprintf("%d-%02d-%02d", $year+1900, $mon+1, $mday);
     my $current_time = sprintf("%02d:%02d", $hour, $min);
+    # Make a copy of the keys to allow caching of the parameters
+    $params = {%$params};
     $params->{current_date} = $current_date;
     $params->{current_time} = $current_time;
 
     my @matching_rules = ();
+    $self->preMatchProcessing;
 
     foreach my $rule ( @{$self->{'rules'}} ) {
         my @matching_conditions = ();
@@ -175,10 +179,12 @@ sub match {
         # so let's keep the @matching_rules array for now.
         if (scalar @matching_rules == 1) {
             $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
+            $self->postMatchProcessing;
             return $rule->{'actions'};
         }
 
     } # foreach my $rule ( @{$self->{'rules'}} ) {
+    $self->postMatchProcessing;
 
     return undef;
 }
@@ -204,6 +210,32 @@ sub match_condition {
 
   return $r;
 }
+
+=head2 search_attributes
+
+=cut
+
+sub search_attributes {
+    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+    $logger->debug("Search_attributes is not supported on this source.");
+    return $FALSE;
+}
+
+=head2 postMatchProcessing
+
+Tear down any resources created in preMatchProcessing
+
+=cut
+
+sub postMatchProcessing { }
+
+=head2 preMatchProcessing
+
+Setup any resouces need for matching
+
+=cut
+
+sub preMatchProcessing { }
 
 =head1 AUTHOR
 

@@ -334,7 +334,7 @@ Redefinition of pf::Switch::parseRequest due to client mac being parsed from Use
 sub parseRequest {
     my ( $this, $radius_request ) = @_;
     my $client_mac      = clean_mac($radius_request->{'User-Name'});
-    my $user_name       = $radius_request->{'User-Name'};
+    my $user_name       = $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
     my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );

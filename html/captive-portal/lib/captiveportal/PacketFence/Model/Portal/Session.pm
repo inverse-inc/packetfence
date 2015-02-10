@@ -83,8 +83,14 @@ has redirectURL => (
     is       => 'rw',
 );
 
-has destination_url => (
+has _destination_url => (
     is       => 'rw',
+);
+
+has destinationUrl => (
+    is      => 'ro',
+    builder => '_build_destinationUrl',
+    lazy => 1,
 );
 
 has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
@@ -92,6 +98,8 @@ has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
 sub ACCEPT_CONTEXT {
     my ( $self, $c, @args ) = @_;
     my $class = ref $self || $self;
+    my $previous_model = $c->session->{$class};
+    return $previous_model if(defined($previous_model) && $previous_model->{options}->{in_uri_portal});
     my $model;
     my $request       = $c->request;
     my $r = $request->{'env'}->{'psgi.input'};
@@ -100,13 +108,13 @@ sub ACCEPT_CONTEXT {
     my $redirectURL;
     my $uri = $request->uri;
     my $options;
-    my $destination_url;
     my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'} if $management_network;
-    $destination_url = $request->param('destination_url') if defined($request->param('destination_url'));
+    my $destination_url = $request->param('destination_url');
 
-    if( $r->isa('Apache2::Request') &&  defined ( my $last_uri = $r->pnotes('last_uri') )) {
+    if( defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
             'last_uri' => $last_uri,
+            'in_uri_portal' => 1,
         };
     } elsif ( $c->controller->isa('captiveportal::Controller::Activate::Email') && $c->action->name eq 'code' ) {
         my $code = $c->request->arguments->[0];
@@ -124,22 +132,23 @@ sub ACCEPT_CONTEXT {
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
         options       => $options,
-        destination_url => $destination_url,
+        _destination_url => $destination_url,
         @args,
     );
+    $c->session->{$class} = $model;
     return $model;
 }
 
 sub _build_destinationUrl {
     my ($self) = @_;
-
+    my $url = $self->_destination_url;
     # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
-    if (!defined($self->destination_url) || isenabled($self->profile->forceRedirectURL)) {
+    if (!defined($url) || isenabled($self->profile->forceRedirectURL)) {
         return $self->profile->getRedirectURL;
     }
 
     # Respect the user's initial destination URL
-    return decode_entities(uri_unescape($self->destination_url));
+    return decode_entities(uri_unescape($url));
 }
 
 sub _build_clientIp {

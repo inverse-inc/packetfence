@@ -2,13 +2,15 @@ package pf::factory::profile::filter;
 
 =head1 NAME
 
-pf::factory::profile::filter add documentation
+pf::factory::profile::filter - factory for Profile filters
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::factory::profile::filter
+
+Loads and instantiates profile filters
 
 =cut
 
@@ -20,7 +22,7 @@ use Module::Pluggable
 # Don't explicilty load pf::profile::filter::key
 # Since it will not be explictly used
 
-  except => [qw(pf::profile::filter::key pf::profile::filter::key_couple)],
+  except => [qw(pf::profile::filter::key pf::profile::filter::key_couple pf::profile::filter::all)],
   'require' => 1,
   sub_name    => 'modules';
 use List::MoreUtils qw(any);
@@ -81,7 +83,7 @@ Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.

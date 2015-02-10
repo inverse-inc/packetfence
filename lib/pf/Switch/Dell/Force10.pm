@@ -39,7 +39,7 @@ sub getMinOSVersion {
     return '112';
 }
 
-=item getIfIndexByNasPortId
+=head2 getIfIndexByNasPortId
 
 Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 

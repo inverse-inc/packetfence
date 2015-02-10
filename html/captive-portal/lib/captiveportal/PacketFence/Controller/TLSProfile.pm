@@ -1,6 +1,7 @@
 package captiveportal::PacketFence::Controller::TLSProfile;
 use Moose;
 use namespace::autoclean;
+use WWW:Curl:Easy;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 use pf::config;
@@ -44,6 +45,39 @@ sub profile_xml : Path('/profile.xml') : Args(0) {
     $c->forward('index');
 }  
 
+sub get_cert {
+    use bytes;
+    use pf::profile_list;
+    my ($self,$function,@args) = @_;
+    my $uri = "http://172.20.20.22:9191/pki/cert/eaptls/cac/";
+    my $username = "admin";
+    my $password = "password";
+    my $email = 'aamacher@inverse.ca';
+    my $last_dot1x_username = "demCert";
+    my $organisation = "Inverse";
+    my $state = "QC";
+    my $profile = "Antoine";
+    my $country = "CA";
+    my $response;
+    my $curl = WWW::Curl::Easy->new; #$self->curl($function);
+    my $request = "username=$username&password=$password&cn=$dot1x_username&mail=$email&organisation=$organisation&st=$state&country=$country&profile=$profile"
+    my $response_body;
+    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
+    $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
+    $curl->setopt(CURLOPT_HEADER, 0);
+    $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
+    $curl->setopt(CURLOPT_NOSIGNAL, 1);
+    $curl->setopt(CURLOPT_URL, $uri);
+  
+    # Starts the actual request
+    my $curl_return_code = $curl->perform;
+
+    $response = $response_body;
+    print $response;
+    return $response;
+}
+ 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

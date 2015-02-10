@@ -28,6 +28,15 @@ has '+wrapper_class' => (builder => 'filter_wrapper_class');
 
 sub filter_wrapper_class {[qw(compound-input-btn-group)] }
 
+has_field 'type' =>
+  (
+   type => 'Select',
+   do_label => 0,
+   required => 1,
+   widget_wrapper => 'None',
+   default => 'ssid',
+   options_method => \&options_type,
+  );
 has_field 'match' =>
   (
    type => 'Text',
@@ -35,17 +44,6 @@ has_field 'match' =>
    widget_wrapper => 'None',
    element_class => ['input-medium'],
    required => 1,
-  );
-has_field 'type' =>
-  (
-   type => 'Select',
-   widget => 'ButtonGroup',
-   do_label => 0,
-   required => 1,
-   wrapper_class => ['btn-group'],
-   wrapper_attr => {'data-toggle' => 'buttons-radio'},
-   default => 'ssid',
-   options_method => \&options_type,
   );
 
 sub filter_inflate {
@@ -70,8 +68,9 @@ sub filter_deflate {
 }
 
 sub options_type {
+    my $self = shift;
     local $_;
-    return map { /([^:]+)$/; { value => $1, label => uc($1) } } sort @pf::factory::profile::filter::MODULES;
+    return map { /([^:]+)$/; { value => $1, label => $self->_localize($_) } } sort @pf::factory::profile::filter::MODULES;
 }
 
 =head1 COPYRIGHT

@@ -162,7 +162,7 @@ sub doEmailSelfRegistration : Private {
     # fetch role for this user
     my $email_type =
       pf::Authentication::Source::EmailSource->getDefaultOfType;
-    my $source      = $profile->getSourceByType($email_type);
+    my $source = $profile->getSourceByType($email_type) || $profile->getSourceByTypeForChained($email_type);
     my $auth_params = {
         'username'   => $pid,
         'user_email' => $email
@@ -274,11 +274,12 @@ sub doSponsorSelfRegistration : Private {
 
     my $sponsor_type =
       pf::Authentication::Source::SponsorEmailSource->getDefaultOfType;
-    my $source      = $profile->getSourceByType($sponsor_type);
-    my $auth_params = {
-        'username'   => $pid,
-        'user_email' => $email
-    };
+    my $source = $profile->getSourceByType($sponsor_type) || $profile->getSourceByTypeForChained($sponsor_type);
+    # fetch the connection information
+    $c->forward(Authenticate => 'setupMatchParams');
+    my $auth_params = $c->stash->{matchParams};
+    $auth_params->{username} = $pid;
+    $auth_params->{user_email} = $email;
 
     # form valid, adding person (using modify in case person already exists)
     person_modify(
@@ -385,6 +386,11 @@ sub doSmsSelfRegistration : Private {
     my $mobileprovider = $request->param("mobileprovider");
     my ($pid, $phone)  = @{$session}{qw(guest_pid phone)};
 
+    if ($self->reached_retry_limit($c, 'sms_request_limit', $portalSession->profile->{_sms_request_limit})) {
+        $logger->info("Maximum number of SMS signup requests reached for $mac");
+        $c->stash(txt_validation_error => i18n_format($GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES}));
+        $c->detach('showSelfRegistrationPage');
+    }
     # User chose to register by SMS
     $logger->info("registering $mac  guest by SMS $phone @ $mobileprovider");
     my ( $auth_return, $err, $errargs_ref ) =
@@ -398,7 +404,7 @@ sub doSmsSelfRegistration : Private {
         # fetch role for this user
         my $sms_type =
           pf::Authentication::Source::SMSSource->getDefaultOfType;
-        my $source      = $profile->getSourceByType($sms_type);
+        my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
         my $auth_params = {
             'username'    => $pid,
             'phonenumber' => $phone
@@ -435,7 +441,9 @@ sub doSmsSelfRegistration : Private {
 
 sub checkGuestModes : Private {
     my ( $self, $c ) = @_;
-    if ( @{ $c->profile->getGuestModes } == 0 ) {
+    my $profile = $c->profile;
+    my @modes = (@{ $profile->getGuestModes }, @{ $profile->getChainedGuestModes });
+    if ( @modes == 0 ) {
         $c->response->redirect( "/captive-portal?destination_url="
               . uri_escape( $c->stash->{destination_url} ) );
         $c->detach;
@@ -467,11 +475,14 @@ TODO: documention
 sub setupSelfRegistrationSession : Private {
     my ( $self, $c ) = @_;
     my $request = $c->request;
+    my $phone = $request->param("phone");
     $c->session->{firstname} = $request->param("firstname");
     $c->session->{lastname}  = $request->param("lastname");
     $c->session->{company}   = $request->param("organization");
+    $c->session->{telephone} =
+      pf::web::util::validate_phone_number( $phone );
     $c->session->{phone} =
-      pf::web::util::validate_phone_number( $request->param("phone") );
+      pf::web::util::validate_phone_number( $phone );
     $c->session->{email}   = lc( $request->param("email") );
     $c->session->{sponsor} = lc( $request->param("sponsor_email") );
 
@@ -480,6 +491,32 @@ sub setupSelfRegistrationSession : Private {
       $c->session->{ $Config{'guests_self_registration'}{'guest_pid'} };
 }
 
+sub regPki : Private {
+    use pf::profile_list;
+    my ( $self, $c ) = @_;
+    my $logger  = get_logger;
+    my $profile = $c->profile;
+    my $request = $c->request;
+
+    my $ad_type =
+      pf::Authentication::Source::ADSource->meta->get_attribute('type')
+      ->default;
+    my $source = $profile->getSourceByType($ad_type);
+
+    $c->stash(
+        post_uri            => "$WEB::URL_SIGNUP?mode=certpki",
+        username            => $request->param_encoded("cn") || '',
+        password            => $request->param_encoded("pwd") || '',
+        organization        => $request->param_encoded("organization") || '',
+        email               => lc( $request->param_encoded("email") || '' ),
+        profile             => $request->param_encoded("profile"), #profile
+        profile_list        => profile_list_total($source),
+        is_preregistration  => $c->session->{'preregistration'},
+        $self->allowedGuestModes($c),
+    );
+
+    $c->stash( template => 'pki.html' );
+}
 
 =head2 validatePreregistration
 
@@ -513,7 +550,7 @@ sub validateBySponsorSource : Private {
                                                 $Actions::MARK_AS_SPONSOR );
 
         if (!defined $value) {
-            # sponsor check did not pass 
+            # sponsor check did not pass
             $self->validationError( $c,
                 $GUEST::ERROR_SPONSOR_NOT_ALLOWED,
                 $sponsor_email );
@@ -535,7 +572,7 @@ sub validateByEmailSource : Private {
     my $request = $c->request;
     my $email_type =
       pf::Authentication::Source::EmailSource->getDefaultOfType;
-    my $source      = $profile->getSourceByType($email_type);
+    my $source = $profile->getSourceByType($email_type) || $profile->getSourceByTypeForChained($email_type);
     my $localdomain = $Config{'general'}{'domain'};
     if (   $source
         && isdisabled( $source->{allow_localdomain} )
@@ -611,27 +648,45 @@ sub showSelfRegistrationPage : Private {
     my $sms_type =
       pf::Authentication::Source::SMSSource->meta->get_attribute('type')
       ->default;
-    my $source     = $profile->getSourceByType($sms_type);
-    my $guestModes = $profile->getGuestModes;
+    my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
 
     $c->stash(
         post_uri            => "$WEB::URL_SIGNUP?mode=guest-register",
-        firstname           => $request->param("firstname") || '',
-        lastname            => $request->param("lastname") || '',
-        organization        => $request->param("organization") || '',
-        phone               => $request->param("phone") || '',
-        mobileprovider      => $request->param("mobileprovider") || '',
-        email               => lc( $request->param("email") || '' ),
-        sponsor_email       => lc( $request->param("sponsor_email") || '' ),
+        firstname           => $request->param_encoded("firstname") || '',
+        lastname            => $request->param_encoded("lastname") || '',
+        organization        => $request->param_encoded("organization") || '',
+        phone               => $request->param_encoded("phone") || '',
+        mobileprovider      => $request->param_encoded("mobileprovider") || '',
+        email               => lc( $request->param_encoded("email") || '' ),
+        sponsor_email       => lc( $request->param_encoded("sponsor_email") || '' ),
         sms_carriers        => sms_carrier_view_all($source),
         is_preregistration  => $c->session->{'preregistration'},
-        sms_guest_allowed   => is_in_list( $SELFREG_MODE_SMS, $guestModes ),
-        email_guest_allowed => is_in_list( $SELFREG_MODE_EMAIL, $guestModes ),
-        sponsored_guest_allowed =>
-          is_in_list( $SELFREG_MODE_SPONSOR, $guestModes ),
+        $self->allowedGuestModes($c),
     );
 
     $c->stash( template => 'guest.html' );
+}
+
+
+=head2 allowedGuestModes
+
+Calculates the allowed guest modes
+
+=cut
+
+sub allowedGuestModes {
+    my ($self, $c) = @_;
+    my $modes = $c->session->{allowed_guest_modes};
+    unless ($modes) {
+        my $profile    = $c->profile;
+        my $guestModes = $profile->getGuestModes;
+        $modes = {
+            sms_guest_allowed       => is_in_list($SELFREG_MODE_SMS,     $guestModes),
+            email_guest_allowed     => is_in_list($SELFREG_MODE_EMAIL,   $guestModes),
+            sponsored_guest_allowed => is_in_list($SELFREG_MODE_SPONSOR, $guestModes),
+        };
+    }
+    return %$modes;
 }
 
 =head1 AUTHOR

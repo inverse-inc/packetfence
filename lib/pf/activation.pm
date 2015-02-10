@@ -9,16 +9,16 @@ pf::activation - module to view, query and manage pending activations
 =head1 DESCRIPTION
 
 pf::activation contains the functions necessary to manage all aspects
-of pending activation: creation, deletion, activation, etc. It also includes 
+of pending activation: creation, deletion, activation, etc. It also includes
 utility methods generate activation codes and validate them.
 
 =head1 DEVELOPER NOTES
 
 Notice that this module doesn't export all its subs like our other modules do.
-This is an attempt to shift our paradigm towards calling with package names 
-and avoid the double naming. 
+This is an attempt to shift our paradigm towards calling with package names
+and avoid the double naming.
 
-For ex: pf::activation::view() instead of 
+For ex: pf::activation::view() instead of
 pf::activation::activation_view()
 
 Remove this note when it will be no longer relevant. ;)
@@ -29,7 +29,6 @@ use strict;
 use warnings;
 
 use Digest::MD5 qw(md5_hex);
-use Log::Log4perl;
 use POSIX;
 use Readonly;
 use Time::HiRes qw(time);
@@ -38,15 +37,13 @@ use MIME::Lite;
 
 =head1 CONSTANTS
 
-=over
-
-=item database
+=head2 database
 
 =cut
 
 use constant ACTIVATION => 'activation';
 
-=item Status-related
+=head2 Status-related
 
 =cut
 
@@ -55,13 +52,13 @@ Readonly::Scalar our $VERIFIED => 'verified';
 Readonly::Scalar our $EXPIRED => 'expired';
 Readonly::Scalar our $INVALIDATED => 'invalidated'; # for example if a new code is requested
 
-=item Expiration time (in seconds)
+=head2 Expiration time (in seconds)
 
 =cut
 
 Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 
-=item Hashing formats related
+=head2 Hashing formats related
 
 =cut
 
@@ -70,17 +67,14 @@ Readonly::Scalar our $HASH_FORMAT => 1;
 # Hash formats
 Readonly::Scalar our $SIMPLE_MD5 => 1;
 
-=item Email activation types
+=head2 Email activation types
+
 
 =cut
 
 Readonly our $SPONSOR_ACTIVATION => 'sponsor';
 Readonly our $GUEST_ACTIVATION => 'guest';
 
-
-=back
-
-=cut
 
 BEGIN {
     use Exporter ();
@@ -95,6 +89,7 @@ BEGIN {
         view add modify
         view_by_code
         invalidate_codes
+        invalidate_codes_for_mac
         validate_code
         modify_status
         create
@@ -123,12 +118,10 @@ our $activation_statements = {};
 
 TODO: This list is incomplete
 
-=over
-
 =cut
 
 sub activation_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::activation');
+    my $logger = get_logger;
     $logger->debug("Preparing pf::activation database queries");
 
     $activation_statements->{'activation_view_sql'} = get_db_handle()->prepare(qq[
@@ -156,7 +149,7 @@ sub activation_db_prepare {
     ]);
 
     $activation_statements->{'activation_add_sql'} = get_db_handle()->prepare(qq[
-        INSERT INTO activation (pid, mac, contact_info, carrier_id, activation_code, expiration, status, type, portal) 
+        INSERT INTO activation (pid, mac, contact_info, carrier_id, activation_code, expiration, status, type, portal)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ]);
 
@@ -172,6 +165,10 @@ sub activation_db_prepare {
         qq [ UPDATE activation SET status = ? WHERE mac = ? AND pid = ? AND contact_info = ? AND status = ? ]
     );
 
+    $activation_statements->{'activation_change_status_by_mac_type_sql'} = get_db_handle()->prepare(
+        qq [ UPDATE activation SET status = ? WHERE mac = ? AND type = ? AND status = ? ]
+    );
+
     $activation_statements->{'activation_change_status_old_same_pid_contact_info_sql'} = get_db_handle()->prepare(
         qq [ UPDATE activation SET status = ? WHERE mac IS NULL AND pid = ? AND contact_info = ? AND status = ? ]
     );
@@ -184,7 +181,9 @@ sub activation_db_prepare {
     $activation_db_prepared = 1;
 }
 
-=item view - view a an pending activation record, returns an hashref
+=head2 view
+
+view a an pending activation record, returns an hashref
 
 =cut
 
@@ -198,13 +197,15 @@ sub view {
     return ($ref);
 }
 
-=item find_code - view an pending activation record by activation code without hash-format. Returns an hashref
+=head2 find_code
+
+view an pending activation record by activation code without hash-format. Returns an hashref
 
 =cut
 
 sub find_code {
     my ($activation_code) = @_;
-    my $query = db_query_execute(ACTIVATION, $activation_statements, 
+    my $query = db_query_execute(ACTIVATION, $activation_statements,
         'activation_find_code_sql', '%'.$activation_code);
     my $ref = $query->fetchrow_hashref();
 
@@ -213,7 +214,9 @@ sub find_code {
     return ($ref);
 }
 
-=item find_unverified_code - find an unused pending activation record by doing a LIKE in the code, returns an hashref
+=head2 find_unverified_code
+
+find an unused pending activation record by doing a LIKE in the code, returns an hashref
 
 =cut
 
@@ -230,13 +233,15 @@ sub find_unverified_code {
     return ($ref);
 }
 
-=item view_by_code - view an pending  activation record by exact activation code (including hash format). Returns an hashref
+=head2 view_by_code
+
+view an pending  activation record by exact activation code (including hash format). Returns an hashref
 
 =cut
 
 sub view_by_code {
     my ($activation_code) = @_;
-    my $query = db_query_execute(ACTIVATION, $activation_statements, 
+    my $query = db_query_execute(ACTIVATION, $activation_statements,
         'activation_view_by_code_sql', $activation_code);
     my $ref = $query->fetchrow_hashref();
 
@@ -245,7 +250,9 @@ sub view_by_code {
     return ($ref);
 }
 
-=item add - add an pending activation record to the database
+=head2 add
+
+add an pending activation record to the database
 
 =cut
 
@@ -254,12 +261,14 @@ sub add {
 
     # TODO some validation required?
 
-    return(db_data(ACTIVATION, $activation_statements, 
-            'activation_add_sql', $data{'pid'}, $data{'mac'}, $data{'contact_info'},$data{'carrier_id'}, $data{'activation_code'}, 
+    return(db_data(ACTIVATION, $activation_statements,
+            'activation_add_sql', $data{'pid'}, $data{'mac'}, $data{'contact_info'},$data{'carrier_id'}, $data{'activation_code'},
             $data{'expiration'}, $data{'status'}, $data{'type'}, $data{'portal'}));
 }
 
-=item _delete - delete an pending activation record
+=head2 _delete
+
+delete an pending activation record
 
 =cut
 
@@ -269,24 +278,28 @@ sub _delete {
     return(db_query_execute(ACTIVATION, $activation_statements, 'activation_delete_sql', $code_id));
 }
 
-=item modify_status - update the status of a given pending activation record
+=head2 modify_status
+
+update the status of a given pending activation record
 
 =cut
 
 sub modify_status {
     my ($code_id, $new_status) = @_;
 
-    return(db_query_execute(ACTIVATION, $activation_statements, 
+    return(db_query_execute(ACTIVATION, $activation_statements,
         'activation_modify_status_sql', $new_status, $code_id));
 }
 
-=item invalidate_code - invalidate all unverified activation codes for a given mac and contact_info
+=head2 invalidate_code
+
+invalidate all unverified activation codes for a given mac and contact_info
 
 =cut
 
 sub invalidate_codes {
     my ($mac, $pid, $contact_info) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::activation');
+    my $logger = get_logger;
 
     if ($mac) {
         # Invalidate previous activation codes matching MAC, pid (user or sponsor email) and contact_info
@@ -303,7 +316,28 @@ sub invalidate_codes {
     return;
 }
 
-=item create - create a new activation code
+=head2 invalidate_codes_for_mac
+
+invalidate codes for mac
+
+=cut
+
+sub invalidate_codes_for_mac {
+    my ($mac, $type) = @_;
+    my $logger = get_logger();
+    if ($mac) {
+        # Invalidate previous activation codes matching MAC, pid (user or sponsor email) and contact_info
+        db_query_execute(ACTIVATION, $activation_statements,
+                         'activation_change_status_by_mac_type_sql', $INVALIDATED, $mac, $type, $UNVERIFIED
+
+                        ) || $logger->warn("problems trying to invalidate activation codes using mac $mac");
+    }
+    return ;
+}
+
+=head2 create
+
+create a new activation code
 
 Returns the activation code
 
@@ -311,7 +345,7 @@ Returns the activation code
 
 sub create {
     my ($mac, $pid, $pending_addr, $type, $portal, $provider_id) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::activation');
+    my $logger = get_logger;
 
     # invalidate older codes for the same MAC / contact_info
     invalidate_codes($mac, $pid, $pending_addr);
@@ -343,13 +377,15 @@ sub create {
     }
 }
 
-=item _generate_activation_code - generate proper activation code. Created to encapsulate flexible hash types.
+=head2 _generate_activation_code
+
+generate proper activation code. Created to encapsulate flexible hash types.
 
 =cut
 
 sub _generate_activation_code {
     my (%data) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::activation');
+    my $logger = get_logger;
 
     if ($HASH_FORMAT == $SIMPLE_MD5) {
         my $code;
@@ -377,7 +413,9 @@ sub _generate_activation_code {
     }
 }
 
-=item _unpack_activation_code - grab the hash-format and the activation hash out of the activation code
+=head2 _unpack_activation_code
+
+grab the hash-format and the activation hash out of the activation code
 
 Returns a list of: hash version, hash
 
@@ -393,13 +431,15 @@ sub _unpack_activation_code {
     return;
 }
 
-=item send_email - Send an email with the activation code
+=head2 send_email
+
+Send an email with the activation code
 
 =cut
 
 sub send_email {
     my ($activation_code, $template, %info) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::activation');
+    my $logger = get_logger;
 
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
@@ -416,7 +456,7 @@ sub send_email {
     # Hash merge. Note that on key collisions the result of view_by_code() will win
     %info = (%info, %{view_by_code($activation_code)});
 
-    my %options; 
+    my %options;
     $options{INCLUDE_PATH} = "$conf_dir/templates/";
     $options{ENCODING} = "utf8";
 
@@ -428,16 +468,16 @@ sub send_email {
         );
         return $FALSE;
     }
-    my $msg = MIME::Lite::TT->new( 
+    my $msg = MIME::Lite::TT->new(
         From        =>  $info{'from'},
-        To          =>  $info{'contact_info'}, 
+        To          =>  $info{'contact_info'},
         Cc          =>  $info{'cc'},
         Subject     =>  $info{'subject'},
         Template    =>  "emails-$template.txt.tt",
         'Content-Type' => 'text/plain; charset="utf-8"',
-        TmplOptions =>  \%options, 
-        TmplParams  =>  \%info, 
-    ); 
+        TmplOptions =>  \%options,
+        TmplParams  =>  \%info,
+    );
 
     my $result = 0;
     try {
@@ -448,7 +488,7 @@ sub send_email {
     catch {
       $logger->error("Can't send email to ".$info{'contact_info'}.": $!");
     };
-    
+
     return $result;
 }
 
@@ -469,7 +509,7 @@ sub create_and_send_activation_code {
 # returns the validated activation record hashref or undef
 sub validate_code {
     my ($activation_code) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::activation');
+    my $logger = get_logger;
 
     my $activation_record = find_unverified_code($activation_code);
     if (!defined($activation_record) || ref($activation_record eq 'HASH')) {
@@ -490,7 +530,7 @@ sub validate_code {
     return $activation_record;
 }
 
-=item set_status_verified 
+=head2 set_status_verified
 
 Change the status of a given pending activation code to VERIFIED which means it can't be used anymore.
 
@@ -498,7 +538,7 @@ Change the status of a given pending activation code to VERIFIED which means it 
 
 sub set_status_verified {
     my ($activation_code) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger;
 
     my $activation_record = find_code($activation_code);
     modify_status($activation_record->{'code_id'}, $VERIFIED);
@@ -513,11 +553,13 @@ sub activation_has_entry {
     return $rows;
 }
 
-=item sms_activation_create_send - Create and send PIN code
+=head2 sms_activation_create_send
 
-The attribute %info is only meant to be used for debugging purposes.
+Create and send PIN code
 
 =cut
+
+#The attribute %info is only meant to be used for debugging purposes.
 
 sub sms_activation_create_send {
     my ($mac, $pid, $phone_number, $portal, $provider_id, %info) = @_;
@@ -537,7 +579,9 @@ sub sms_activation_create_send {
     return ($success, $err);
 }
 
-=item send_sms - Send SMS with activation code
+=head2 send_sms -
+
+Send SMS with activation code
 
 =cut
 
@@ -577,8 +621,6 @@ sub send_sms {
 }
 
 # TODO: add an expire / cleanup sub
-
-=back
 
 =head1 AUTHOR
 

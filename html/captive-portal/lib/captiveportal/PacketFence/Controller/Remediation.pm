@@ -91,6 +91,7 @@ sub scan_status : Private {
 
     $c->stash(
         template    => 'scan-in-progress.html',
+        timer         => $Config{'trapping'}{'redirtimer'},
         txt_message => i18n_format(
             'scan in progress contact support if too long',
             $scan_start_time

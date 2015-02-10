@@ -92,6 +92,19 @@ sub getGuestModes {
 
 *guest_modes = \&getGuestModes;
 
+=item getChainedGuestModes
+
+Returns the available enabled modes for guest self-registration for chained sources for the current captive portal profile.
+
+=cut
+
+sub getChainedGuestModes {
+    my ($self) = @_;
+    return $self->{'_chained_guest_modes'};
+}
+
+*chained_guest_modes = \&getChainedGuestModes;
+
 =item getTemplatePath
 
 Returns the path for custom templates for the current captive portal profile.
@@ -210,7 +223,7 @@ Returns the internal authentication sources objects for the current captive port
 
 sub getInternalSources {
     my ($self) = @_;
-    return grep { $_->{'class'} eq 'internal' } $self->getSourcesAsObjects();
+    return $self->getSourcesByClass( 'internal' );
 }
 
 =item getExternalSources
@@ -221,7 +234,7 @@ Returns the external authentication sources objects for the current captive port
 
 sub getExternalSources {
     my ($self) = @_;
-    return grep { $_->{'class'} eq 'external' } $self->getSourcesAsObjects();
+    return $self->getSourcesByClass( 'external' );
 }
 
 =item getExclusiveSources
@@ -232,7 +245,30 @@ Returns the exclusive authentication sources objects for the current captive por
 
 sub getExclusiveSources {
     my ($self) = @_;
-    return grep { $_->{'class'} eq 'exclusive' } $self->getSourcesAsObjects();
+    return $self->getSourcesByClass( 'exclusive' );
+}
+
+=item getSourcesByClass
+
+Returns the sources for that match the class
+
+=cut
+
+sub getSourcesByClass {
+    my ($self, $class) = @_;
+    return unless defined $class;
+    return grep { $_->class eq $class } $self->getSourcesAsObjects();
+}
+
+=item hasChained
+
+If the profile has a chained auth source
+
+=cut
+
+sub hasChained {
+    my ($self) = @_;
+    return defined ($self->getSourceByType('chained')) ;
 }
 
 =item getSourceByType
@@ -243,13 +279,22 @@ Returns the first source object for the requested source type for the current ca
 
 sub getSourceByType {
     my ($self, $type) = @_;
-    my $result;
-    if ($type) {
-        $type = uc($type);
-        $result = first {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
-    }
+    return unless $type;
+    $type = uc($type);
+    return first {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
+}
 
-    return $result;
+=item getSourceByTypeForChained
+
+Returns the first source object for the requested source type for chained sources in the current captive portal profile.
+
+=cut
+
+sub getSourceByTypeForChained {
+    my ($self, $type) = @_;
+    return unless $type;
+    $type = uc($type);
+    return first {uc($_->{'type'}) eq $type} map { $_->getChainedAuthenticationSourceObject } grep { $_->type eq 'Chained' }  $self->getSourcesAsObjects;
 }
 
 =item guestRegistrationOnly
@@ -283,7 +328,7 @@ Verify if the guest mode is allowed for the profile
 
 sub guestModeAllowed {
     my ($self, $mode) = @_;
-    return any { $mode eq $_} @{$self->getGuestModes} ;
+    return any { $mode eq $_} @{$self->getGuestModes}, @{$self->getChainedGuestModes} ;
 }
 
 =item nbregpages

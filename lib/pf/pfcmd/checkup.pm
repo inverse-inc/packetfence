@@ -25,6 +25,7 @@ use pf::services;
 use pf::trigger;
 use pf::authentication;
 use NetAddr::IP;
+use pf::web::filter;
 
 use lib $conf_dir;
 
@@ -128,6 +129,8 @@ sub sanity_check {
     portal_profiles();
     guests();
     unsupported();
+    vlan_filter_rules();
+    apache_filter_rules();
 
     return @problems;
 }
@@ -965,28 +968,89 @@ Make sure only one external authentication source is selected for each type.
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub portal_profiles {
 
-    my $profile_params = qr/(?:locale|filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources|redirecturl|always_use_redirecturl|mandatory_fields|nbregpages|allowed_devices|allow_android_devices|reuse_dot1x_credentials|provisioners)/;
+    my $profile_params = qr/(?:locale |filter|logo|guest_self_reg|guest_modes|template_path|
+        billing_engine|description|sources|redirecturl|always_use_redirecturl|
+        mandatory_fields|nbregpages|allowed_devices|allow_android_devices|
+        reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
+        sms_request_limit|login_attempt_limit|block_interval)/x;
 
     foreach my $portal_profile ( $cached_profiles_config->Sections) {
-        if ($portal_profile ne 'default' && !-d "$install_dir/html/captive-portal/profile-templates/$portal_profile") {
+        my $data = $Profiles_Config{$portal_profile};
+        # Checks for the non default profiles
+        if ($portal_profile ne 'default' ) {
             add_problem( $WARN, "template directory '$install_dir/html/captive-portal/profile-templates/$portal_profile' for profile $portal_profile does not exist using default templates" )
+                if (!-d "$install_dir/html/captive-portal/profile-templates/$portal_profile");
+
+            add_problem ( $FATAL, "missing filter parameter for profile $portal_profile" )
+                if (!defined($data->{'filter'}) );
         }
 
-        add_problem ( $FATAL, "missing filter parameter for profile $portal_profile" )
-            if ( $portal_profile ne 'default' &&  !defined($Profiles_Config{$portal_profile}{'filter'}) );
 
-        foreach my $key ( keys %{$Profiles_Config{$portal_profile}} ) {
+        foreach my $key ( keys %$data ) {
             add_problem( $WARN, "invalid parameter $key for profile $portal_profile" )
                 if ( $key !~ /$profile_params/ );
         }
 
         my %external;
-        foreach my $source ( grep { $_ && $_->class eq 'external' } map { pf::authentication::getAuthenticationSource($_) } @{$Profiles_Config{$portal_profile}{'sources'}} ) {
+        # Verifing there is only one external source of each type
+        foreach my $source ( grep { $_ && $_->class eq 'external' } map { pf::authentication::getAuthenticationSource($_) } @{$data->{'sources'}} ) {
             my $type = $source->{'type'};
             $external{$type} = 0 unless (defined $external{$type});
             $external{$type}++;
             add_problem ( $FATAL, "many authentication sources of type $type are selected for profile $portal_profile" )
               if ($external{$type} > 1);
+        }
+    }
+}
+
+=item vlan_filter_rules
+
+Make sure that the minimum parameters have been defined in vlan filter rules
+
+=cut
+
+sub vlan_filter_rules {
+    my %ConfigVlanFilters = %pf::vlan::filter::ConfigVlanFilters;
+    foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
+        if ($rule =~ /^\w+:(.*)$/) {
+            add_problem ( $FATAL, "Missing scope attribute in $rule vlan filter rule")
+                if (!defined($ConfigVlanFilters{$rule}->{'scope'}));
+            add_problem ( $FATAL, "Missing role attribute in $rule vlan filter rule")
+                if (!defined($ConfigVlanFilters{$rule}->{'role'}));
+        } else {
+            add_problem ( $FATAL, "Missing filter attribute in $rule vlan filter rule")
+                if (!defined($ConfigVlanFilters{$rule}->{'filter'}));
+            add_problem ( $FATAL, "Missing operator attribute in $rule vlan filter rule")
+                if (!defined($ConfigVlanFilters{$rule}->{'operator'}));
+            add_problem ( $FATAL, "Missing value attribute in $rule vlan filter rule")
+                if (!defined($ConfigVlanFilters{$rule}->{'value'}));
+        }
+    }
+}
+
+=item apache_filter_rules
+
+Make sure that the minimum parameters have been defined in apache filter rules
+
+=cut
+
+sub apache_filter_rules {
+    my %ConfigApacheFilters = %pf::web::filter::ConfigApacheFilters;
+    foreach my $rule  ( sort keys  %ConfigApacheFilters ) {
+        if ($rule =~ /^\w+:(.*)$/) {
+            add_problem ( $FATAL, "Missing action attribute in $rule apache filter rule")
+                if (!defined($ConfigApacheFilters{$rule}->{'action'}));
+            add_problem ( $FATAL, "Missing redirect_url attribute in $rule apache filter rule")
+                if (!defined($ConfigApacheFilters{$rule}->{'redirect_url'}));
+        } else {
+            add_problem ( $FATAL, "Missing filter attribute in $rule apache filter rule")
+                if (!defined($ConfigApacheFilters{$rule}->{'filter'}));
+            add_problem ( $FATAL, "Missing method attribute in $rule apache filter rule")
+                if (!defined($ConfigApacheFilters{$rule}->{'method'}));
+            add_problem ( $FATAL, "Missing value attribute in $rule apache filter rule")
+                if (!defined($ConfigApacheFilters{$rule}->{'value'}));
+            add_problem ( $FATAL, "Missing operator attribute in $rule apache filter rule")
+                if (!defined($ConfigApacheFilters{$rule}->{'operator'}));
         }
     }
 }

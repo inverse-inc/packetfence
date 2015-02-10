@@ -420,6 +420,11 @@ httpd_portal=enabled
 #
 # Please note that this table should not become too big since it 
 httpd_admin=enabled
+#
+# expire.ldap_auth
+#
+# Enable expiration of the ldap_auth cache
+ldap_auth=enabled
 
 [services]
 #
@@ -724,6 +729,12 @@ loadbalancers_ip=
 # If secure_redirect is enabled, the captive portal uses HTTPS when redirecting
 # captured clients. This is the default behavior.
 secure_redirect=enabled
+#
+# captive_portal.status_only_on_production
+#
+# If status_only_on_production is enabled, the /status page will only be available on the
+# production network. This is disabled by default
+status_only_on_production=disabled
 
 [advanced]
 #
@@ -860,10 +871,30 @@ aaa_port=7070
 # iplog cleanup interval
 iplog_cleanup_interval=60s
 #
+# maintenance.iplog_cleanup_batch
+#
+# iplog cleanup batch
+iplog_cleanup_batch=100
+#
+# maintenance.iplog_cleanup_timeout
+#
+# iplog cleanup timeout
+iplog_cleanup_timeout=10s
+#
 # maintenance.node_cleanup_interval
 #
 # locationlog cleanup interval
 locationlog_cleanup_interval=60s
+#
+# maintenance.locationlog_cleanup_batch
+#
+# locationlog cleanup batch
+locationlog_cleanup_batch=100
+#
+# maintenance.locationlog_cleanup_timeout
+#
+# locationlog cleanup timeout
+locationlog_cleanup_timeout=10s
 #
 # maintenance.node_cleanup_interval
 #
@@ -919,3 +950,8 @@ acct_maintenance_interval=60s
 #
 # Interval at which Packetfence runs the polling enforcement on the provisioners
 provisioning_compliance_poll_interval=300s
+#
+# maintenance.ldap_auth_cache_cleanup_interval
+#
+# Interval at which Packetfence purges the ldap_auth cache
+ldap_auth_cache_cleanup_interval=600s
