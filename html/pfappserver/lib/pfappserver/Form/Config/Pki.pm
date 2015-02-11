@@ -11,6 +11,8 @@ pfappserver::Form::Config::Pki - Web form for a PKI to contact
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
+use pf::config;
+use pf::util;
 
 has pki_ip => ( is => 'rw' );
 has pki_username => ( is => 'rw' );
@@ -39,20 +41,12 @@ has_field 'description' =>
 #   messages => { required => 'Please select Provisioning type' },
 #  );
 
-has_field 'pki_ip' =>
-  (
-   type => 'Text',
-   label => 'IP',
-   required => 1,
-   messages => { required => 'Please specify the IP:port of the PKI'}
-  );
-
 has_field 'pki_uri' =>
   (
    type => 'Text',
    label => 'URI',
    required => 1,
-   messages => { required => 'Please specify the URI (without IP:port) of the PKI'}
+   messages => { required => 'Please specify the URI of the PKI'}
   );
 
 
@@ -83,11 +77,36 @@ has_field 'pki_profile' =>
    element_attr => {'data-placeholder' => 'Click to add a Profile'},
    tags => { after_element => \&help,
              help => 'Profile are here to help you ditribute certificate by service in your company' },
-  
   );
+
+has_field 'pki_organisation'  =>
+  (
+   type => 'Text',
+   label => 'Organisation',
+   required => 1,
+   messages => { required => 'Please specify the name of the organisation'}
+  );
+
+has_field 'pki_state'  =>
+  (
+   type => 'Text',
+   label => 'State',
+   required => 1,
+   messages => { required => 'Please specify the state where the organisation is'}
+  );
+
+has_field 'pki_country'  =>
+  (
+   type => 'Text',
+   label => 'Country',
+   required => 1,
+   messages => { required => 'Please specify the country where the organisation is'}
+  );
+
+
 has_block definition =>
   (
-   render_list => [ qw(id type description pki_ip pki_uri pki_profile pki_username pki_password) ],
+   render_list => [ qw(id type description pki_uri pki_profile pki_username pki_password pki_organisation pki_country pki_state) ],
   );
 
 =head2 options_profile

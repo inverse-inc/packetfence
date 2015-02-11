@@ -2,11 +2,12 @@ package captiveportal::PacketFence::Controller::TLSProfile;
 use Moose;
 use namespace::autoclean;
 use WWW:Curl:Easy;
+use pf::pki;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 use pf::config;
 
-__PACKAGE__->config( namespace => 'wirelesss-profile.mobileconfig', );
+__PACKAGE__->config( namespace => 'tlsprofle', );
 
 =head1 NAME
 
@@ -32,7 +33,7 @@ sub index : Path : Args(0) {
     $provisioner->authorize($mac) if (defined($provisioner));
     $provisioner->build_cert();
     $c->stash(
-        template     => 'windows-profile.xml',
+        template     => 'wireless-profile.xml',
         current_view => 'MobileConfig',
         provisioner  => $provisioner,
         username     => $username
@@ -49,15 +50,15 @@ sub get_cert {
     use bytes;
     use pf::profile_list;
     my ($self,$function,@args) = @_;
-    my $uri = "http://172.20.20.22:9191/pki/cert/eaptls/cac/";
-    my $username = "admin";
-    my $password = "password";
+    my $uri = $pki_uri;
+    my $username = $pki_username;
+    my $password = $pki_password;
     my $email = 'aamacher@inverse.ca';
-    my $last_dot1x_username = "demCert";
-    my $organisation = "Inverse";
-    my $state = "QC";
-    my $profile = "Antoine";
-    my $country = "CA";
+    my $dot1x_username = "demCert";
+    my $organisation = $pki_organisation;
+    my $state = $pki_state;
+    my $profile = \$profile_list;
+    my $country = $pki_country;
     my $response;
     my $curl = WWW::Curl::Easy->new; #$self->curl($function);
     my $request = "username=$username&password=$password&cn=$dot1x_username&mail=$email&organisation=$organisation&st=$state&country=$country&profile=$profile"

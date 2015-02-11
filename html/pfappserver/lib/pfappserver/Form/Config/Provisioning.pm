@@ -74,6 +74,17 @@ has_field 'non_compliance_violation' =>
              help => 'Which violation should be raised when non compliance is detected' },
   );
 
+has_filed 'pki' =>
+  (
+   type => 'Text',
+   label => 'PKI',
+   option_method => \$options_pki,
+   element_class => ['chzn-deselct'],
+   element_attr => {'data-placeholder' => 'Click to add your PKI'},
+   tage => { after_element => \$help,
+             help => 'Select your PKI' },
+   
+  );
 has_block definition =>
   (
    render_list => [ qw(id type description category oses) ],
@@ -86,6 +97,15 @@ has_block definition =>
 sub options_oses {
     my $self = shift;
     return $self->form->oses;
+}
+
+=head2 options_pki
+
+=cut
+
+sub options_pki {
+    my $self = shift;
+    #import pki_list; FUCKING PERL
 }
 
 =head2 options_roles
