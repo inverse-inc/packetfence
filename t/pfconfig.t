@@ -7,19 +7,20 @@ use diagnostics;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
     use pf::log(service => 'pfconfig');
 }
 
 use Test::More;
-use Test::NoWarnings;
+use Test::Deep;
 use Config::IniFiles;
+use Data::Dumper;
 
 my %default_cfg;
 my %doc;
 
 use_ok('pfconfig::manager');
 use_ok('pfconfig::cached_hash');
+use_ok('pfconfig::cached_array');
 
 my %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
@@ -75,7 +76,23 @@ $role = $default_switch{registrationRole};
 
 ok(($role eq $new_role), "role is changed in default switch in pfconfig resource::default_switch");
 
+##
+# Test undefined values
 
+ok(!defined($default_switch{zammit}), 'Undefined switch comes up as undefined');
+
+##
+# Test cached_array
+my @array_test;
+tie @array_test, 'pfconfig::cached_array', 'resource::array_test';
+
+ok(@array_test eq 3, "test array test is valid");
+
+my @array_test_result = ("first", "second", "third");
+
+ok(@array_test ~~ @array_test_result, "test arrays are the same");
+
+done_testing();
 
 =head1 AUTHOR
 
