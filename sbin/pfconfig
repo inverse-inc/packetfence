@@ -43,6 +43,7 @@ my $daemonize = $args{d};
 # standard signals and daemonize
 daemonize("pfconfig") if ($daemonize);
 
+my $logger = get_logger;
 while(1) {
   my $socket = $listner->accept()
      or die("Can't accept connection: $!\n");
@@ -50,6 +51,8 @@ while(1) {
     chomp( my $line = <$socket> );
 
     my $query = decode_json($line);
+    use Data::Dumper;
+    $logger->debug(Dumper($query));
 
     # we support hash namespaced queries
     # where 
@@ -58,15 +61,18 @@ while(1) {
 
     pfconfig::timeme::timeme("replying to $line", sub {
       switch ($query->{method}) {
-        case 'element' { get_element($query, $socket) }
+        case 'hash_element' { get_hash_element($query, $socket) }
         case 'keys' { get_keys($query, $socket) }
         case 'next_key' { get_next_key($query, $socket) }
+        case 'array_element' { get_array_element($query, $socket) }
+        case 'array_size' { get_array_size($query, $socket) }
+        else { $logger->error("Unknown method $query->{method}"); print "undef" }
       }
     });
   };
   if($@){
-      print STDERR $@;
-      print $socket undef;
+      $logger->error("Unknown key $@");
+      print $socket "undef";
   }
 }
 
@@ -81,92 +87,127 @@ sub get_from_cache {
     return $elem;
 }
 
-sub get_element {
+sub get_hash_element {
     my ($query, $socket) = @_;
+    my $logger = get_logger;
 
     my @keys = split ';', $query->{key};
   
-    my $elem = get_from_cache($keys[0]);
+    my $elem = get_from_cache_or_croak($keys[0], $socket) || return;
+
+    my $json_elem;
+    # if we want a subnamespace we handle it here
+    if($keys[1]){
+      my $sub_elem = $elem->{$keys[1]} || undef;
+      if(defined($sub_elem)){
+        $json_elem = encode_json({element => $sub_elem});
+      }
+      else{
+        print STDERR "Unknown key $query->{key}";
+        $logger->error("Unknown key $query->{key}");
+        $json_elem = "undef";
+      }
+    }
+    # we want the whole namespace
+    else {
+      $json_elem = encode_json($elem);
+    }
+    print $socket $json_elem;
+    
+}
+
+sub get_from_cache_or_croak {
+    my ($key, $socket) = @_;
+    my $elem = get_from_cache($key);
 
     if($elem){
-      my $json_elem;
-      # if we want a subnamespace we handle it here
-      if($keys[1]){
-        my $sub_elem = $elem->{$keys[1]} || undef;
-        if(defined($sub_elem)){
-          $json_elem = encode_json($sub_elem);
-        }
-        else{
-          print STDERR "Unknown key $query->{key}";
-          $json_elem = "undef";
-        }
-      }
-      # we want the whole namespace
-      else {
-        $json_elem = encode_json($elem);
-      }
-      print $socket $json_elem;
+        return $elem;
     }
-    # sh*t happens
     else{
-      print STDERR "Unknown key in cache $query->{key} \n";
-      print $socket "undef";
+        print STDERR "Unknown key in cache $key \n";
+        $logger->error("Unknown key $key");
+        print $socket "undef";
+        return undef;
     }
+
 }
 
 sub get_keys {
     my ($query, $socket) = @_;
 
-    my $elem = get_from_cache($query->{key});
+    my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
 
-    if($elem){
-      my @keys = keys(%{$elem});
-
-      my $json_elem = encode_json(\@keys);
-
-      print $socket $json_elem;
-
-    }
-    else{
-      print STDERR "Unknown key in cache $query->{key} \n";
-      print $socket encode_json([]);
-    }
+    my @keys = keys(%{$elem});
+    my $json_elem = encode_json(\@keys);
+    print $socket $json_elem;
 }
 
 sub get_next_key {
-  my ($query, $socket) = @_;
+    my ($query, $socket) = @_;
 
-  my $elem = get_from_cache($query->{key});
+    my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
 
-  if($elem){
     my @keys = keys(%{$elem});
 
     my $last_key = $query->{last_key};
 
     my $next_key;
     unless($last_key){
-      $next_key = $keys[0];
+        $next_key = $keys[0];
     }
     else{
-      my $last_index;
-      pfconfig::timeme::timeme('find last index', sub {
-        $last_index = first_index { $_ eq $last_key} @keys ;
-      });
-      print "last_index $last_index";
+        my $last_index;
+        pfconfig::timeme::timeme('find last index', sub {
+          $last_index = first_index { $_ eq $last_key} @keys ;
+        });
+        print "last_index $last_index";
 
-      if($last_index >= scalar @keys){
-        $next_key = undef;
-      }
+        if($last_index >= scalar @keys){
+          $next_key = undef;
+        }
 
-      $next_key = $keys[$last_index+1];
+        $next_key = $keys[$last_index+1];
     }
     my $json_elem = encode_json({next_key => $next_key});
     print $socket $json_elem;
+}
 
-  }
-  else{
-    print STDERR "Unknown key in cache $query->{key} \n";
-    print $socket encode_json({next_key => undef});
-  }
+sub get_array_element {
+    my ($query, $socket) = @_;
+    my $logger = get_logger;
 
+    my @keys = split ';', $query->{key};
+  
+    my $elem = get_from_cache_or_croak($keys[0], $socket) || return;
+
+    $logger->info("GOT FROM CACHE : ".Dumper($elem));
+
+    my $json_elem;
+    # if we want an index we handle it here
+    if(defined($keys[1])){
+      my $sub_elem = $$elem[$keys[1]] || undef;
+      $logger->info("SUB ELEM : ".Dumper($sub_elem));
+      if(defined($sub_elem)){
+        $json_elem = encode_json({element => $sub_elem});
+      }
+      else{
+        print STDERR "Unknown index in $query->{key}";
+        $logger->error("Unknown index in $query->{key}");
+        $json_elem = "undef";
+      }
+    }
+    # we want the whole namespace
+    else {
+      $json_elem = encode_json($elem);
+    }
+    print $socket $json_elem;
+    
+}
+
+sub get_array_size {
+    my ($query, $socket) = @_;
+    my $logger = get_logger;
+    my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
+    my $size = @$elem;
+    print $socket encode_json({size => $size});
 }
