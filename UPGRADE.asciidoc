@@ -5,6 +5,11 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to X.Y.Z
+---------------------------------------
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+
 Upgrading from a version prior to 4.6.0
 ---------------------------------------
 
