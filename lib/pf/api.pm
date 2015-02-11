@@ -76,7 +76,7 @@ sub radius_accounting : Public {
         $return = $radius->accounting(\%radius_request);
     };
     if ($@) {
-        $logger->logdie("radius accounting failed with error: $@");
+        $logger->error("radius accounting failed with error: $@");
     }
     return $return;
 }
@@ -91,7 +91,7 @@ sub radius_update_locationlog : Public {
         $return = $radius->update_locationlog_accounting(\%radius_request);
     };
     if ($@) {
-        $logger->logdie("radius update locationlog accounting failed with error: $@");
+        $logger->error("radius update locationlog accounting failed with error: $@");
     }
     return $return;
 }
