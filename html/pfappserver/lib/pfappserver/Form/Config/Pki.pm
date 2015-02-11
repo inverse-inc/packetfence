@@ -14,9 +14,7 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config;
 use pf::util;
 
-has pki_ip => ( is => 'rw' );
-has pki_username => ( is => 'rw' );
-has pki_password => ( is => 'rw');
+has pki_profile => ( is => 'rw' );
 
 ## Definition
 has_field 'id' =>
@@ -116,11 +114,11 @@ has_block definition =>
 sub options_profile {
     my $self = shift;
     my @profiles = ["Staff" => "Employes",
-                   "HR" => "Human Resources",
-                   "Dir" => "Direction", 
-                   "Compta" => "Comptability",
-                   "Students" => "Students",
-                  ];
+                    "HR" => "Human Resources",
+                    "Dir" => "Direction", 
+                    "Compta" => "Comptability",
+                    "Students" => "Students",
+                   ];
     return @profiles;
 }
 
