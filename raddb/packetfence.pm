@@ -293,12 +293,15 @@ sub accounting {
 
         # We only perform a RPC call on stop/update types
         unless ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop' ||
-                $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update') {
+                $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update' ||
+                $RAD_REQUEST{'Acct-Status-Type'} eq 'Start') {
             return $RADIUS::RLM_MODULE_OK;
         }
 
         my $config = _get_rpc_config();
-        my $data = send_rpc_request($config, "radius_accounting", \%RAD_REQUEST);
+        my $data;
+        $data = send_rpc_request($config, "radius_accounting", \%RAD_REQUEST) if ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop' || $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update');
+        $data = send_rpc_request($config, "radius_update_locationlog", \%RAD_REQUEST) if ($RAD_REQUEST{'Acct-Status-Type'} eq 'Start');
         if ($data) {
             my $elements = $data->[0];
 

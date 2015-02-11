@@ -64,6 +64,8 @@ sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
+# locationlog update capabilities
+sub supportsRoamingAccounting { return $TRUE };
 
 =item getVersion
 
