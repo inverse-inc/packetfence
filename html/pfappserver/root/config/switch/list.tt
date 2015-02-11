@@ -39,7 +39,7 @@
         <thead>
           <tr>
             <th colspan="5">
-              <form id="search" class="form-inline" action="[% c.uri_for(c.controller('Configuration::Switch').action_for('search')) %]" method="POST">
+              <form id="search" class="form-inline" action="[% c.uri_for(c.controller.action_for('search')) %]" method="POST">
                 <div class="pull-right">
                   <select name="searches.0.name" class="input-medium"[% ' disabled="disabled"' IF disabled %]>
                     <option value="id">[% l('Switch ID') %]</option>
