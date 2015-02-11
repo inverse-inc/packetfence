@@ -1,4 +1,4 @@
-package pfconfig::cached_hash;
+package pfconfig::cached_array;
 
 =head1 NAME
 
@@ -8,15 +8,15 @@ pfconfig::cached_hash
 
 =head1 DESCRIPTION
 
-pfconfig::cached_hash
+pfconfig::cached_array
 
-This module serves as an interface to create a hash that
+This module serves as an interface to create an array that
 will proxy the access to it's attributes to the pfconfig
 service
 
 It is used as a bridge between a pfconfig namespace element
-and a hash without having a memory footprint unless when
-accessing data in the hash
+and an array without having a memory footprint unless when
+accessing data in the array
 
 =cut
 
@@ -25,35 +25,34 @@ accessing data in the hash
 This class is used with tiying
 
 Example : 
-my %hash;
-tie %hash, 'pfconfig::cached_hash', 'resource::default_switch';
+my @array;
+tie @array, 'pfconfig::cached_array', 'resource::authentication_sources';
 print $hash{_ip};
 
-This ties %hash to the namespace 'resource::default_switch' defined in
+This ties @array to the namespace 'resource::authentication_sources' defined in
 lib/pfconfig/namespaces/ and served though pfconfig
 
-The access to the attribute _ip then generates a GET though pfconfig
+The access to index 0 then generates a GET though pfconfig
 that uses a UNIX socket
 
 In order to call a method on this tied object 
-my @keys = tied(%hash)->keys
+my $zammit = tied(%hash)->zammit
 
 =cut
 
 use strict;
 use warnings;
 
-use Tie::Hash;
+use Tie::Array;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON;
 use pfconfig::timeme;
-use List::MoreUtils qw(first_index);
 use Data::Dumper;
 use pfconfig::log;
-our @ISA = 'Tie::StdHash';
+our @ISA = 'Tie::Array';
 
-# constructor of the tied hash
-sub TIEHASH {
+# constructor of the tied array
+sub TIEARRAY {
   my ($class, $config) = @_;
   my $self = bless {}, $class;
 
@@ -73,55 +72,30 @@ sub get_socket {
   return $socket;
 }
 
-# accessor of the hash
+# accessor of the array
 sub FETCH {
-  my ($self, $key) = @_;
+  my ($self, $index) = @_;
   my $logger = get_logger;
 
-  return $self->{_internal_elements}{$key} if $self->{_internal_elements}{$key};
-
-  my $result = $self->_get_from_socket("$self->{_namespace};$key")->{element};
+  my $result = $self->_get_from_socket("$self->{_namespace};$index")->{element};
 
   return $result;
 }
 
-sub keys {
+sub FETCHSIZE {
   my ($self) = @_;
   my $logger = get_logger;
-  
-  my @keys = @{$self->_get_from_socket($self->{_namespace}, "keys")};
 
-  return @keys;
-}
+  my $result = $self->_get_from_socket($self->{_namespace}, "array_size")->{size};
 
-sub FIRSTKEY {
-  my ($self) = @_;
-  my $logger = get_logger;
-  return $self->_get_from_socket($self->{_namespace}, "next_key", (last_key => undef))->{next_key};
-}
-
-sub NEXTKEY {
-  my ($self, $last_key) = @_;
-  my $logger = get_logger;
-  return $self->_get_from_socket($self->{_namespace}, "next_key", (last_key => $last_key))->{next_key};
-}
-
-# setter of the hash
-# stores it in the hash without any saving capabilities.
-sub STORE {
-  my( $self, $key, $value ) = @_;
-  my $logger = get_logger;
-  
-  $self->{_internal_elements} = {} unless(defined($self->{_internal_elements}));
-
-  $self->{_internal_elements}{$key} = $value;
+  return $result;
 }
 
 sub _get_from_socket {
   my ($self, $what, $method, %additionnal_info) = @_;
   my $logger = get_logger;
 
-  $method = $method || "hash_element";
+  $method = $method || "array_element";
 
   my %info = ((method => $method, key => $what), %additionnal_info);
   my $payload = encode_json(\%info);
