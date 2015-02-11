@@ -12,6 +12,7 @@ use pf::config qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::Authentication::Condition;
 use pf::CHI;
+use pf::util;
 
 use Net::LDAP;
 use Net::LDAPS;
