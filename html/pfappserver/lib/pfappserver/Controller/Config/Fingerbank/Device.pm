@@ -15,7 +15,8 @@ use namespace::autoclean;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
-    with 'pfappserver::Base::Controller::Crud::Fingerbank';
+    #Since we are creating our own index action to import it into our namespace
+    with 'pfappserver::Base::Controller::Crud::Fingerbank' => { -exclude => 'index' };
 }
 
 __PACKAGE__->config(
@@ -38,6 +39,7 @@ Show the top level devices
 
 sub index : Path :Args(0) {
     my ($self, $c) = @_;
+
     $self->children($c,undef);
 }
 
