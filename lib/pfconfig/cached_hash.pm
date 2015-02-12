@@ -50,7 +50,8 @@ use pfconfig::timeme;
 use List::MoreUtils qw(first_index);
 use Data::Dumper;
 use pfconfig::log;
-our @ISA = ('Tie::StdHash');
+use pfconfig::cached;
+our @ISA = ('Tie::StdHash', 'pfconfig::cached');
 
 # constructor of the tied hash
 sub TIEHASH {
@@ -59,41 +60,10 @@ sub TIEHASH {
 
   $self->{"_namespace"} = $config;
 
+  $self->{element_socket_method} = "hash_element";
+
   return $self;
 }
-
-# helper to build socket
-sub get_socket {
-  my $logger = get_logger;
-  my $socket_path = '/dev/shm/pfconfig.sock';
-  my $socket = IO::Socket::UNIX->new(
-     Type => SOCK_STREAM,
-     Peer => $socket_path,
-  );
-  return $socket;
-}
-
-sub get_from_subcache {
-  my ($self, $key) = @_;
-  if($self->is_valid()){
-    return $self->{_subcache}{$key} if $self->{_subcache}{$key};
-  }
-  else{
-    $self->{_subcache} = {};
-    $self->{memorized_at} = time;
-    return undef;
-  }
-  return undef;
-}
-
-sub set_in_subcache {
-  my ($self, $key, $result) = @_;
-
-  $self->{memorized_at} = time unless $self->{memorized_at};
-  $self->{_subcache} = {} unless $self->{_subcache};
-  $self->{_subcache}{$key} = $result;
-
-} 
 
 # accessor of the hash
 sub FETCH {
@@ -101,12 +71,12 @@ sub FETCH {
   my $logger = get_logger;
 
   my $subcache_value = $self->get_from_subcache($key);
-  return $subcache_value if $subcache_value; 
+  return $subcache_value if defined($subcache_value); 
 
-  return $self->{_internal_elements}{$key} if $self->{_internal_elements}{$key};
+  return $self->{_internal_elements}{$key} if defined($self->{_internal_elements}{$key});
 
   my $reply = $self->_get_from_socket("$self->{_namespace};$key");
-  my $result = $reply ? $self->_get_from_socket("$self->{_namespace};$key")->{element} : undef;
+  my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace};$key")->{element} : undef;
 
   $self->set_in_subcache($key, $result);
 
@@ -143,74 +113,6 @@ sub STORE {
   $self->{_internal_elements} = {} unless(defined($self->{_internal_elements}));
 
   $self->{_internal_elements}{$key} = $value;
-}
-
-sub _get_from_socket {
-  my ($self, $what, $method, %additionnal_info) = @_;
-  my $logger = get_logger;
-
-  $method = $method || "hash_element";
-
-  my %info = ((method => $method, key => $what), %additionnal_info);
-  my $payload = encode_json(\%info);
-
-  my $socket;
-  
-  # we need the connection to the cachemaster
-  until($socket){
-    $socket = $self->get_socket();
-    last if($socket);
-    $logger->error("Failed to connect to config service, retrying");
-    select(undef, undef, undef, 0.1);
-  }
-     
-  # we ask the cachemaster for our namespaced key
-  my $line;
-  pfconfig::timeme::timeme('socket fetching', sub {
-    print $socket "$payload\n";
-    chomp( $line = <$socket> );
-  }, 0);
-
-  # it returns it as a json hash - maybe not the best choice but it works
-  my $result;
-  pfconfig::timeme::timeme('decoding the socket result', sub {
-    if($line && $line ne "undef"){
-      $result = decode_json($line);
-    }
-    else {
-      return undef;
-    }
-  }); 
-
-  return $result
-}
-
-# helper to know if the raw memory cache is still valid
-sub is_valid {
-  my ($self) = @_;
-  my $what = $self->{_namespace};
-  my $logger = get_logger;
-  my $control_file;
-  ($control_file = $what) =~ s/\//;/g;
-  my $file_timestamp = (stat("/usr/local/pf/var/".$control_file."-control"))[9];
-
-  unless(defined($file_timestamp)){
-    $logger->warn("Filesystem timestamp is not set for $what. Considering memory as invalid.");
-    return 0;
-  }
-
-  my $memory_timestamp = $self->{memorized_at} || time;
-  $logger->trace("Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what");
-  # if the timestamp of the file is after the one we have in memory
-  # then we are expired
-  if ($memory_timestamp > $file_timestamp){
-    $logger->trace("Memory configuration is still valid for key $what in local cached_hash");
-    return 1;
-  }
-  else{
-    $logger->info("Memory configuration is not valid anymore for key $what in local cached_hash");
-    return 0;
-  }
 }
 
 =back

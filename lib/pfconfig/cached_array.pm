@@ -49,7 +49,7 @@ use JSON;
 use pfconfig::timeme;
 use Data::Dumper;
 use pfconfig::log;
-our @ISA = 'Tie::Array';
+our @ISA = ('Tie::Array', 'pfconfig::cached');
 
 # constructor of the tied array
 sub TIEARRAY {
@@ -57,19 +57,10 @@ sub TIEARRAY {
   my $self = bless {}, $class;
 
   $self->{"_namespace"} = $config;
+  
+  $self->{element_socket_method} = "array_element";
 
   return $self;
-}
-
-# helper to build socket
-sub get_socket {
-  my $logger = get_logger;
-  my $socket_path = '/dev/shm/pfconfig.sock';
-  my $socket = IO::Socket::UNIX->new(
-     Type => SOCK_STREAM,
-     Peer => $socket_path,
-  );
-  return $socket;
 }
 
 # accessor of the array
@@ -77,9 +68,16 @@ sub FETCH {
   my ($self, $index) = @_;
   my $logger = get_logger;
 
-  my $result = $self->_get_from_socket("$self->{_namespace};$index")->{element};
+  my $subcache_value = $self->get_from_subcache($index);
+  return $subcache_value if defined($subcache_value); 
+
+  my $reply = $self->_get_from_socket("$self->{_namespace};$index");
+  my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace};$index")->{element} : undef;
+
+  $self->set_in_subcache($index, $result);
 
   return $result;
+
 }
 
 sub FETCHSIZE {
@@ -89,46 +87,6 @@ sub FETCHSIZE {
   my $result = $self->_get_from_socket($self->{_namespace}, "array_size")->{size};
 
   return $result;
-}
-
-sub _get_from_socket {
-  my ($self, $what, $method, %additionnal_info) = @_;
-  my $logger = get_logger;
-
-  $method = $method || "array_element";
-
-  my %info = ((method => $method, key => $what), %additionnal_info);
-  my $payload = encode_json(\%info);
-
-  my $socket;
-  
-  # we need the connection to the cachemaster
-  until($socket){
-    $socket = $self->get_socket();
-    last if($socket);
-    $logger->error("Failed to connect to config service, retrying");
-    select(undef, undef, undef, 0.1);
-  }
-     
-  # we ask the cachemaster for our namespaced key
-  my $line;
-  pfconfig::timeme::timeme('socket fetching', sub {
-    print $socket "$payload\n";
-    chomp( $line = <$socket> );
-  });
-
-  # it returns it as a json hash - maybe not the best choice but it works
-  my $result;
-  pfconfig::timeme::timeme('decoding the socket result', sub {
-    if($line && $line ne "undef"){
-      $result = decode_json($line);
-    }
-    else {
-      return undef;
-    }
-  }); 
-
-  return $result
 }
 
 =back
