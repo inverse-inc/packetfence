@@ -1118,3 +1118,41 @@ db_port=3306
 # monitoring.db_host
 #
 db_host=localhost
+
+#
+[pki]
+#
+# pki.uri
+#
+# uri of the pki
+uri=
+#
+# pki.username
+#
+# Username to connect to the PKI
+username=
+#
+# pki.password
+#
+# Password to connect to the PKI
+password=
+#
+# pki.profiles
+#
+# Profiles avialable to use
+profiles=
+#
+# pki.country
+#
+# Country where the company is based
+country=
+#
+# pki.state
+#
+# State where the company is based
+state=
+#
+# pki.organisation
+#
+# Company name to put on the certificate
+organisation=

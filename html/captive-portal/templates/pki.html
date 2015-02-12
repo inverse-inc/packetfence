@@ -1,0 +1,72 @@
+[% title = i18n("PacketFence Certificate Initialisation System") %]
+[% INCLUDE header.html
+    body_attributes = 'onload="$(\'firstfield\').focus();"';
+%]
+
+        <div id="about" class="underlined">
+          <img src="/content/images/registration.png" alt="Registration" />
+          <h1>[% i18n("Guest Registration") %]</h1>
+          <p>[% i18n("guest network disclaimer") %]</p>
+          <hr/>
+        </div>
+
+        [%# Error %]
+        [% IF txt_validation_error.defined %]<div class="error"><p>[% txt_validation_error %]</p></div>[% END %]
+        <form method="post" action="[% post_uri %]">
+          <input type="hidden" name="destination_url" value="[% destination_url %]" />
+
+          <div class="input">
+            <span>[% i18n("Username") %]</span>
+            <input class="field" name="cn" id="firstfield" type="text" value="[% certificate_cn | html %]" />
+            
+            <span>[% i18n("Password") %]</span>
+            <input class="field" name="pwd" id="firstfield" type="text" value="[% certificate_pwd | html %]" />
+          </div>
+
+          <div class="input">
+              <span>[% i18n("Service") %]</span>
+              <select name="service">
+                <option value="">[% i18n("Select your service") %]</option>
+                    [% FOREACH profile IN profile_list %]<option value="[% profile_list %]"[% IF service == profile %] selected[% END %]>[% profile %]</option>
+                    [% END %]
+              </select>
+
+            <span>[% i18n("Email") %]</span>
+            <input class="field" name="email" type="text" value="[% certificate_email | html %]" /><br/>
+          </div>
+
+          [% skipFields = {username => undef, password => undef, profile => undef, email => undef} %]
+          [% FOREACH field IN mandatory_fields %]
+          [%- NEXT IF skipFields.exists(field) -%]
+          <div class="input">
+            <span>[% i18n(field_names.$field) %]</span>
+            <input class="field" name="[%field%]" type="text" value="" /><br/>
+          </div>
+          [% END %]
+
+          [%# AUP %]
+          <div class="input">
+            <div>[% i18n("Acceptable Use Policy") %]</div>
+            <div id="aup">
+              <div class="notmobile">
+                [% INCLUDE aup_text.html %]
+              </div>
+              <div class="mobile">
+                <input name="aup_signed" type="checkbox" value="on" /> [% i18n("I have read and accept the terms") %]
+              </div>
+            </div>
+            <div class="notmobile"><label><input name="aup_signed" type="checkbox" value="on" /> [% i18n("I accept the terms") %]</label></div>
+          </div>
+
+          [% submit %]
+          <div class="input">
+
+            <input type="submit" class="btn" name="get_cert" value="[% i18n("Certificate Request") %]" /><br/>
+
+          </div>
+
+        </form>
+
+[% INCLUDE footer.html 
+    dont_show_help = is_preregistration
+%]

@@ -221,18 +221,23 @@ sub postAuthentication : Private {
     my $session = $c->session;
     my $profile = $c->profile;
     my $source_id = $session->{source_id};
+    my $source = getAuthenticationSource($source_id);
     my $info = $c->stash->{info} ||= {};
     my $pid = $session->{"username"};
     $pid = $default_pid if !defined $pid && $c->profile->noUsernameNeeded;
     $info->{pid} = $pid;
     $c->stash->{info} = $info;
-
-    $c->forward('setupMatchParams');
-    $c->forward('setRole');
-    $c->forward('setUnRegDate');
-    $info->{source} = $source_id;
-    $info->{portal} = $profile->getName;
-    $c->forward('checkIfProvisionIsNeeded');
+    
+    if ($source->type eq 'AD') {
+        $c->detach(TLSProfile => 'regPki');
+    } else {
+        $c->forward('setupMatchParams');
+        $c->forward('setRole');
+        $c->forward('setUnRegDate');
+        $info->{source} = $source_id;
+        $info->{portal} = $profile->getName;
+        $c->forward('checkIfProvisionIsNeeded');
+    }
 }
 
 =head2 checkIfChainedAuth

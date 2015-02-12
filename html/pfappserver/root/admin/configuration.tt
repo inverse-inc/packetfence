@@ -96,6 +96,7 @@ table.sources {
               [% pf_section_entry( 'webservices', 'Web Services') %]
               [% pf_section_entry( 'monitoring', 'Monitoring') %]
               [% pf_section_entry( 'active_active', 'Clustering') %]
+              [% pf_section_entry( 'pki', 'PKI') %]
               [%- END %]
               [%- IF can_access("PORTAL_PROFILES_READ") %]
               [% list_entry('Config::Profile', 'index', 'Portal Profiles') %]
