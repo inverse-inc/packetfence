@@ -79,3 +79,10 @@ ALTER TABLE iplog_archive MODIFY end_time datetime NOT NULL;
 --- Alter for bypass_role
 ---
 ALTER TABLE node ADD `bypass_role_id` INT DEFAULT NULL;
+
+--
+-- Insert a new 'default' user
+--
+
+INSERT INTO `person` (pid,notes) VALUES ("default","Default User - do not delete");
+INSERT INTO password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('default', 'default', NOW(), '2038-01-01', NULL, 'NONE', NULL);
