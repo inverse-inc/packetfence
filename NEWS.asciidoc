@@ -23,6 +23,9 @@ Enhancements
 Bug Fixes
 +++++++++
 
+* Fix dynamic unregdate breaking when handling the infinite unregdate '0000-00-00'
+* Fixed issue where the same password can be generated multiple times
+
 Version 4.6.0 released on 2015-02-04
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
