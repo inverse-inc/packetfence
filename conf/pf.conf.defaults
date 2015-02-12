@@ -864,7 +864,7 @@ mirapay_hash_password =
 # node_import.pid
 #
 # Default pid value to assign to imported nodes.
-pid=admin
+pid=default
 #
 # node_import.category
 #
