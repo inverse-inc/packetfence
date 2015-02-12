@@ -64,7 +64,7 @@ sub TIEARRAY {
 # helper to build socket
 sub get_socket {
   my $logger = get_logger;
-  my $socket_path = '/usr/local/pf/var/run/config.sock';
+  my $socket_path = '/dev/shm/pfconfig.sock';
   my $socket = IO::Socket::UNIX->new(
      Type => SOCK_STREAM,
      Peer => $socket_path,
