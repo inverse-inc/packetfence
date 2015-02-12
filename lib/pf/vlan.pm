@@ -31,6 +31,7 @@ use pf::authentication;
 use pf::Authentication::constants;
 use pf::Portal::ProfileFactory;
 use pf::vlan::filter;
+use pf::vlan::pool;
 use pf::person;
 use pf::lookup::person;
 use Time::HiRes;
@@ -496,6 +497,8 @@ sub getNormalVlan {
     }
     $vlan = $switch->getVlanByName($role);
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
+    my $vlanpool = new pf::vlan::pool;
+    $vlan = $vlanpool->getVlanPool($vlan, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     return ($vlan, $role);
 }
 
