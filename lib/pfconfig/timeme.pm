@@ -22,17 +22,27 @@ use pfconfig::log;
 our $VERBOSE = 0;
 
 sub timeme {
-  my ($desc, $fct) = @_;
+  my ($desc, $fct, $verbose) = @_;
   my $logger = get_logger;
   my $start = Time::HiRes::gettimeofday();
   $fct->();
   my $end = Time::HiRes::gettimeofday();
-  if($VERBOSE) {
-    my $time = sprintf("%.4f\n", $end - $start);
+  if($VERBOSE || $verbose) {
+    my $time = sprintf("%.5f\n", $end - $start);
     $logger->trace("$desc took : $time");
-    #print "$desc took : $time\n";
+    print "$desc took : $time\n";
   }
   return $end - $start;
+}
+
+sub time_me_x {
+  my ($desc, $times, $fct, $verbose) = @_;
+  my @range = (1..$times);
+  timeme("$desc $times times", sub {
+    foreach my $i (@range){
+      $fct->();
+    }
+  }, $verbose);
 }
 
 =back
