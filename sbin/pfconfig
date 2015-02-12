@@ -7,7 +7,7 @@ BEGIN {
     # log4perl init
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
-    use pf::log(service => 'pfconfig');
+    use pfconfig::log;
 }
 
 use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
@@ -21,9 +21,9 @@ use List::MoreUtils qw(first_index);
 use Getopt::Std;
 use POSIX qw(:signal_h);
 use pf::services::util;
-$pfconfig::timeme::VERBOSE = 1;
+$pfconfig::timeme::VERBOSE = 0;
 
-my $socket_path = '/usr/local/pf/var/run/config.sock';
+my $socket_path = '/dev/shm/pfconfig.sock';
 unlink($socket_path);
 
 my $listner = IO::Socket::UNIX->new(
@@ -51,8 +51,8 @@ while(1) {
     chomp( my $line = <$socket> );
 
     my $query = decode_json($line);
-    use Data::Dumper;
-    $logger->debug(Dumper($query));
+    #use Data::Dumper;
+    #$logger->debug(Dumper($query));
 
     # we support hash namespaced queries
     # where 
@@ -68,7 +68,7 @@ while(1) {
         case 'array_size' { get_array_size($query, $socket) }
         else { $logger->error("Unknown method $query->{method}"); print "undef" }
       }
-    });
+    }, 0);
   };
   if($@){
       $logger->error("Unknown key $@");
@@ -89,6 +89,7 @@ sub get_from_cache {
 
 sub get_hash_element {
     my ($query, $socket) = @_;
+    pfconfig::timeme::timeme('doing the get_hash_element', sub {
     my $logger = get_logger;
 
     my @keys = split ';', $query->{key};
@@ -100,7 +101,9 @@ sub get_hash_element {
     if($keys[1]){
       my $sub_elem = $elem->{$keys[1]} || undef;
       if(defined($sub_elem)){
+        pfconfig::timeme::timeme("encoding the reply", sub {
         $json_elem = encode_json({element => $sub_elem});
+        });
       }
       else{
         print STDERR "Unknown key $query->{key}";
@@ -112,8 +115,10 @@ sub get_hash_element {
     else {
       $json_elem = encode_json($elem);
     }
-    print $socket $json_elem;
-    
+    pfconfig::timeme::timeme('printing in the socket', sub {
+      print $socket $json_elem;
+    });
+    });
 }
 
 sub get_from_cache_or_croak {

@@ -57,31 +57,31 @@ sub new {
 sub fatal {
   my ($self, $message) = @_;
   $message .= " (".whowasi().")";
-  $self->{logger}->ERR($message);
+#  $self->{logger}->ERR($message);
 }
 
 sub error {
   my ($self, $message) = @_;
   $message .= " (".whowasi().")";
-  $self->{logger}->ERR($message);
+#  $self->{logger}->ERR($message);
 }
 
 sub warn {
   my ($self, $message) = @_;
   $message .= " (".whowasi().")";
-  $self->{logger}->WARN($message);
+#  $self->{logger}->WARN($message);
 }
 
 sub info {
   my ($self, $message) = @_;
   $message = "$message (".whowasi().")";
-  $self->{logger}->INFO($message);
+#  $self->{logger}->INFO($message);
 }
 
 sub debug {
   my ($self, $message) = @_;
   $message .= " (".whowasi().")";
-  $self->{logger}->DEBUG($message);
+#  $self->{logger}->DEBUG($message);
 }
 
 sub trace {
