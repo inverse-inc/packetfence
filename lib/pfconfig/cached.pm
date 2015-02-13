@@ -128,9 +128,9 @@ sub _get_from_socket {
 sub is_valid {
   my ($self) = @_;
   my $what = $self->{_namespace};
-  my $logger = get_logger;
+  #my $logger = get_logger;
   my $control_file;
-  ($control_file = $what) =~ s/\//;/g;
+  $control_file = $what;
   my $file_timestamp = (stat("/usr/local/pf/var/".$control_file."-control"))[9];
 
   unless(defined($file_timestamp)){
