@@ -23,16 +23,19 @@ our $VERBOSE = 0;
 
 sub timeme {
   my ($desc, $fct, $verbose) = @_;
+  if($VERBOSE || $verbose){
   my $logger = get_logger;
   my $start = Time::HiRes::gettimeofday();
   $fct->();
   my $end = Time::HiRes::gettimeofday();
-  if($VERBOSE || $verbose) {
-    my $time = sprintf("%.5f\n", $end - $start);
-    $logger->trace("$desc took : $time");
-    print "$desc took : $time\n";
-  }
+  my $time = sprintf("%.5f\n", $end - $start);
+  $logger->trace("$desc took : $time");
+  print "$desc took : $time\n";
   return $end - $start;
+  }
+  else{
+    $fct->();
+  }
 }
 
 sub time_me_x {
