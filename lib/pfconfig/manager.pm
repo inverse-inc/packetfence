@@ -192,6 +192,11 @@ sub expire {
 
 }
 
+sub list_namespaces {
+  my ($self, $what) = @_;
+  
+}
+
 =back
 
 =head1 AUTHOR
