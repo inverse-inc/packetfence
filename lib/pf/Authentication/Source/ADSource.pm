@@ -24,6 +24,7 @@ sub available_attributes {
      { value => "sAMAccountName", type => $Conditions::SUBSTRING },
      { value => "sAMAccountType", type => $Conditions::SUBSTRING },
      { value => "userAccountControl", type => $Conditions::SUBSTRING },
+     { value => "memberOf:1.2.840.113556.1.4.1941:", type => $Conditions::SUBSTRING },
     ];
   
   return [@$super_attributes, @$ad_attributes];
