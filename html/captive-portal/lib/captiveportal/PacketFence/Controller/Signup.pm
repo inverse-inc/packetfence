@@ -112,8 +112,6 @@ sub index : Path : Args(0) {
     if ( $mode && $mode eq $pf::web::guest::GUEST_REGISTRATION ) {
         $c->forward('validateSelfRegistration');
         $c->forward('doSelfRegistration');
-    } elsif ( $mode && $mode eq $pf::web::guest::CERT_PKI ) {
-        $c->forward( TLSProfile => 'get_cert'); 
     }  
     $c->forward('showSelfRegistrationPage');
 }
