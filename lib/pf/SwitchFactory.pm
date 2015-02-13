@@ -28,6 +28,9 @@ use Benchmark qw(:all);
 use List::Util qw(first);
 use pf::ConfigStore::Switch;
 use pf::CHI;
+use Scalar::Util qw(weaken);
+
+our %WEAKEN_REFS;
 
 our ($singleton);
 
@@ -100,6 +103,10 @@ sub instantiate {
             push @requestedSwitches,$switch_ip;
         }
     } else {
+        #Check to see if the switch was already requested before
+        if( exists $WEAKEN_REFS{$switchRequest} && defined (my $object = $WEAKEN_REFS{$switchRequest} ) ) {
+            return $object;
+        }
         @requestedSwitches = ($switchRequest);
         if(valid_ip($switchRequest)) {
             $switch_ip = $switchRequest;
@@ -108,11 +115,18 @@ sub instantiate {
         }
     }
 
+
+
     $requestedSwitch = first {exists $SwitchConfig{$_} } @requestedSwitches;
     unless ($requestedSwitch) {
         $logger->error("WARNING ! Unknown switch(es) ". join(" ",@requestedSwitches));
         return 0;
     }
+    #Check to see if the switch was already requested before
+    if( exists $WEAKEN_REFS{$requestedSwitch} && defined (my $object = $WEAKEN_REFS{$requestedSwitch} ) ) {
+        return $object;
+    }
+
 
     my $switch_data = $SwitchConfig{$requestedSwitch};
 
@@ -150,7 +164,7 @@ sub instantiate {
     }
 
     $logger->debug("creating new $type object");
-    return $type->new(
+    my $object = $type->new(
          id => $requestedSwitch,
          ip => $switch_ip,
          switchIp => $switch_ip,
@@ -158,6 +172,11 @@ sub instantiate {
          %$switch_data,
          %$switchOverlay
     );
+    #Cache switch object
+    $WEAKEN_REFS{$requestedSwitch} = $object;
+    #Weaken so the reference is cleaned after switch drops out of scope
+    weaken $WEAKEN_REFS{$requestedSwitch};
+    return $object;
 }
 
 sub config {
