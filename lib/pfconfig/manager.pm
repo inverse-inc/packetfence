@@ -41,7 +41,9 @@ use UNIVERSAL::require;
 use Data::Dumper;
 use pfconfig::backend::memcached;
 use pfconfig::log;
+use pf::util;
 use Time::HiRes qw(stat time);
+use File::Find;
 
 sub config_builder {
   my ($self, $namespace) = @_;
@@ -56,7 +58,9 @@ sub config_builder {
 sub get_namespace {
   my ($self, $name) = @_;
   my $logger = get_logger;
-   my $type = "pfconfig::namespaces::$name";
+  my $type = "pfconfig::namespaces::$name";
+
+  $type = untaint_chain($type);
 
   # load the module to instantiate
   if ( !(eval "$type->require()" ) ) {
@@ -95,6 +99,7 @@ sub touch_cache {
   my $logger = get_logger;
   $what =~ s/\//;/g;
   my $filename = "/usr/local/pf/var/$what-control";
+  $filename = untaint_chain($filename);
   `touch $filename`;
   #open HANDLE, ">>$filename" or die "touch $filename: $!\n"; 
   #close HANDLE;
@@ -194,7 +199,35 @@ sub expire {
 
 sub list_namespaces {
   my ($self, $what) = @_;
-  
+  my @skip = ("config", "resource", "config::template");
+  my $namespace_dir = "/usr/local/pf/lib/pfconfig/namespaces";
+  my @modules;
+  find({ wanted => sub {
+    my $module = $_;
+    return if $module eq $namespace_dir;
+    $module =~ s/$namespace_dir\///g; 
+    $module =~ s/\.pm$//g;
+    $module =~ s/\//::/g;
+    return if grep(/^$module$/, @skip);
+    push @modules, $module;
+  }, no_chdir => 1 }, $namespace_dir);
+  return @modules;
+}
+
+sub load_all {
+  my ($self) = @_;
+  my @namespaces = $self->list_namespaces;
+  foreach my $namespace (@namespaces){
+    $self->get_cache($namespace);
+  }
+}
+
+sub expire_all {
+  my ($self) = @_;
+  my @namespaces = $self->list_namespaces;
+  foreach my $namespace (@namespaces){
+    $self->cache_resource($namespace);
+  }  
 }
 
 =back
