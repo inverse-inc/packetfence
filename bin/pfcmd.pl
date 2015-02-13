@@ -2475,6 +2475,9 @@ sub configreload {
     require pf::vlan::filter;
     pf::config::cached::updateCacheControl();
     pf::config::cached::ReloadConfigs($force);
+    require pfconfig::manager;
+    my $manager = pfconfig::manager->new;
+    $manager->expire_all;
     return 0;
 }
 
