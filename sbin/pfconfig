@@ -23,7 +23,7 @@ use POSIX qw(:signal_h);
 use pf::services::util;
 $pfconfig::timeme::VERBOSE = 0;
 
-my $socket_path = '/dev/shm/pfconfig.sock';
+my $socket_path = '/usr/local/pf/var/pfconfig.sock';
 unlink($socket_path);
 
 my $listner = IO::Socket::UNIX->new(
@@ -52,26 +52,24 @@ while(1) {
 
     my $query = decode_json($line);
     #use Data::Dumper;
-    #$logger->debug(Dumper($query));
+    #print Dumper($query);
 
     # we support hash namespaced queries
     # where 
     #  - line = 'config' return the whole config hash
     #  - line = 'config;value' return the value in the config hash
 
-    pfconfig::timeme::timeme("replying to $line", sub {
-      switch ($query->{method}) {
-        case 'hash_element' { get_hash_element($query, $socket) }
-        case 'keys' { get_keys($query, $socket) }
-        case 'next_key' { get_next_key($query, $socket) }
-        case 'array_element' { get_array_element($query, $socket) }
-        case 'array_size' { get_array_size($query, $socket) }
-        else { $logger->error("Unknown method $query->{method}"); print "undef" }
-      }
-    }, 0);
+    switch ($query->{method}) {
+      case 'hash_element' { get_hash_element($query, $socket) }
+      case 'keys' { get_keys($query, $socket) }
+      case 'next_key' { get_next_key($query, $socket) }
+      case 'array_element' { get_array_element($query, $socket) }
+      case 'array_size' { get_array_size($query, $socket) }
+      else { $logger->error("Unknown method $query->{method}"); print "undef" }
+    }
   };
   if($@){
-      $logger->error("Unknown key $@");
+      print STDERR $@;
       print $socket "undef";
   }
 }
@@ -80,16 +78,13 @@ sub get_from_cache {
     my ($what) = @_;
     my $elem;
     # let's get the top namespace element
-    pfconfig::timeme::timeme('get all config in cache', sub {
-      $elem = $cache->get_cache($what);
-    });
+    $elem = $cache->get_cache($what);
 
     return $elem;
 }
 
 sub get_hash_element {
     my ($query, $socket) = @_;
-    pfconfig::timeme::timeme('doing the get_hash_element', sub {
     my $logger = get_logger;
 
     my @keys = split ';', $query->{key};
@@ -101,9 +96,7 @@ sub get_hash_element {
     if($keys[1]){
       my $sub_elem = $elem->{$keys[1]} || undef;
       if(defined($sub_elem)){
-        pfconfig::timeme::timeme("encoding the reply", sub {
         $json_elem = encode_json({element => $sub_elem});
-        });
       }
       else{
         print STDERR "Unknown key $query->{key}";
@@ -115,10 +108,7 @@ sub get_hash_element {
     else {
       $json_elem = encode_json($elem);
     }
-    pfconfig::timeme::timeme('printing in the socket', sub {
-      print $socket $json_elem;
-    });
-    });
+    print $socket $json_elem;
 }
 
 sub get_from_cache_or_croak {
@@ -144,7 +134,7 @@ sub get_keys {
 
     my @keys = keys(%{$elem});
     my $json_elem = encode_json(\@keys);
-    print $socket $json_elem;
+    print $socket $json_elem."\n";
 }
 
 sub get_next_key {
@@ -162,10 +152,7 @@ sub get_next_key {
     }
     else{
         my $last_index;
-        pfconfig::timeme::timeme('find last index', sub {
-          $last_index = first_index { $_ eq $last_key} @keys ;
-        });
-        print "last_index $last_index";
+        $last_index = first_index { $_ eq $last_key} @keys ;
 
         if($last_index >= scalar @keys){
           $next_key = undef;
