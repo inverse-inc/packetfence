@@ -229,7 +229,7 @@ sub postAuthentication : Private {
     $c->stash->{info} = $info;
     
     if ($source->type eq 'AD') {
-        $c->detach(TLSProfile => 'regPki');
+        $c->detach(TLSProfile => 'index');
     } else {
         $c->forward('setupMatchParams');
         $c->forward('setRole');

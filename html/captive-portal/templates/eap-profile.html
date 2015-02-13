@@ -1,0 +1,24 @@
+[% title = i18n("PacketFence Certificate Intallation System") %]
+[% INCLUDE header.html
+    body_attributes = 'onload="$(\'firstfield\').focus();"';
+%]
+
+        <div id="about" class="underlined">
+          <img src="/content/images/registration.png" alt="Registration" />
+          <h1>[% i18n("Certificate installation for EAP TLS connection") %]</h1>
+          <p>[% i18n("guest network disclaimer") %]</p>
+          <hr/>
+        </div>
+        
+        <div class="cert">
+          <img src="/content/images/unlock.png" alt="Access granted" />
+          <p>[% i18n("In order to complete your connection to the secure SSID, you will need to download the certificate and then run the agent available below.") %]</p>
+          <p>
+          <a href="/TEMP_LOCATION_CERTIFICATE">[% i18n("Click to download the certificate.") %]</a>
+          <a href="/content/packetfence-windows-agent.exe">[% i18n("Click to download the agent.") %]</a>
+          </p>
+        </div>
+
+[% INCLUDE footer.html %]
+
+
