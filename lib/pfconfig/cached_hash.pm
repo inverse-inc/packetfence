@@ -58,9 +58,12 @@ sub TIEHASH {
   my ($class, $config) = @_;
   my $self = bless {}, $class;
 
+  $self->init();
+
   $self->{"_namespace"} = $config;
 
   $self->{element_socket_method} = "hash_element";
+
 
   return $self;
 }
@@ -70,13 +73,15 @@ sub FETCH {
   my ($self, $key) = @_;
   my $logger = get_logger;
 
-  my $subcache_value = $self->get_from_subcache($key);
+  my $subcache_value;
+  $subcache_value = $self->get_from_subcache($key);
   return $subcache_value if defined($subcache_value); 
 
   return $self->{_internal_elements}{$key} if defined($self->{_internal_elements}{$key});
 
+  my $result;
   my $reply = $self->_get_from_socket("$self->{_namespace};$key");
-  my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace};$key")->{element} : undef;
+  $result = defined($reply) ? $reply->{element} : undef;
 
   $self->set_in_subcache($key, $result);
 
