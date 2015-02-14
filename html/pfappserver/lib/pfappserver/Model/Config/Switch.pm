@@ -108,7 +108,7 @@ sub search {
     }
     return (HTTP_OK,
         {   $self->itemsKey => \@items,
-            pageNumber      => $pageNum,
+            pageNum         => $pageNum,
             perPage         => $perPage,
             pageCount       => $pageCount,
             itemsKey        => $self->itemsKey
