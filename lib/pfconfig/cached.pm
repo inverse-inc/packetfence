@@ -129,9 +129,10 @@ sub is_valid {
   my ($self) = @_;
   my $what = $self->{_namespace};
   #my $logger = get_logger;
-  my $control_file;
-  $control_file = $what;
-  my $file_timestamp = (stat("/usr/local/pf/var/".$control_file."-control"))[9];
+  my $control_file = $what;
+  #($control_file = $what) =~ s/\//;/g;
+  $control_file = "/usr/local/pf/var/".$control_file."-control";
+  my $file_timestamp = (stat($control_file))[9] ;
 
   unless(defined($file_timestamp)){
     #$logger->warn("Filesystem timestamp is not set for $what. Considering memory as invalid.");
