@@ -23,7 +23,7 @@ use Config::IniFiles;
 use Data::Dumper;
 use pfconfig::log;
 use pf::file_paths;
-use pf::admin_roles;
+use pf::constants::admin_roles;
 
 use base 'pfconfig::namespaces::config';
 
@@ -45,7 +45,7 @@ sub build_child {
         $data->{ACTIONS} = \%action_data;
     }
     $ADMIN_ROLES{NONE}{ACTIONS} = { };
-    $ADMIN_ROLES{ALL}{ACTIONS} = { map {$_ => undef} @pf::admin_roles::ADMIN_ACTIONS };
+    $ADMIN_ROLES{ALL}{ACTIONS} = { map {$_ => undef} @pf::constants::admin_roles::ADMIN_ACTIONS };
 
     foreach my $key ( keys %ADMIN_ROLES){
         $self->cleanup_after_read($key, $ADMIN_ROLES{$key});

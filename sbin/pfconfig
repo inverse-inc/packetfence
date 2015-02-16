@@ -23,6 +23,7 @@ use POSIX qw(:signal_h);
 use pf::services::util;
 $pfconfig::timeme::VERBOSE = 0;
 
+
 my $socket_path = '/usr/local/pf/var/pfconfig.sock';
 unlink($socket_path);
 
@@ -65,7 +66,7 @@ while(1) {
       case 'next_key' { get_next_key($query, $socket) }
       case 'array_element' { get_array_element($query, $socket) }
       case 'array_size' { get_array_size($query, $socket) }
-      else { $logger->error("Unknown method $query->{method}"); print "undef" }
+      else { print STDERR "Unknown method $query->{method}"; print "undef" }
     }
   };
   if($@){

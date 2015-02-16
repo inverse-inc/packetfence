@@ -98,12 +98,19 @@ sub _get_from_socket {
 
   my $socket;
   
+  my $failed_once = 0;
   # we need the connection to the cachemaster
   until($socket){
     $socket = $self->get_socket();
-    last if($socket);
-    $logger->error("Failed to connect to config service, retrying");
-    print STDERR "Failed to connect to config service, retrying";
+    if($socket){
+      # we want to show a success message if we failed at least once
+      print "Connected to config service successfully for namespace $self->{_namespace}" if $failed_once;
+      last;
+    }
+    my $message = "[".time."] Failed to connect to config service for namespace $self->{_namespace}, retrying";
+    $failed_once = 1;
+    $logger->error($message);
+    print STDERR "$message\n";
     select(undef, undef, undef, 0.1);
   }
      
