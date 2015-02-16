@@ -24,8 +24,7 @@ BEGIN {
 }
 
 # create the object
-my $switchFactory = new pf::SwitchFactory;
-my $switch = $switchFactory->instantiate('10.0.0.3');
+my $switch = pf::SwitchFactory->instantiate('10.0.0.3');
 
 # test the object
 isa_ok($switch, 'pf::Switch::ThreeCom::Switch_4200G');

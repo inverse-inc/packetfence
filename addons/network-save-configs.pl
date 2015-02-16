@@ -101,15 +101,14 @@ if ( $logLevel == 0 ) {
 Log::Log4perl->easy_init({ level  => $logLevel, layout => '%p: %m (%rms elapsed)%n' });
 my $logger = Log::Log4perl->get_logger('');
 
-my $networkDeviceFactory = new pf::SwitchFactory( -configFile => CONF_FILE );
 
-my %Config = %{ $networkDeviceFactory->config };
+my %Config = %{ pf::SwitchFactory->config };
 
 foreach my $network_device_ip ( sort keys %Config ) {
     next if ($network_device_ip eq 'default');
     next if ($network_device_ip eq '127.0.0.1');
 
-    my $networkDevice = $networkDeviceFactory->instantiate($network_device_ip);
+    my $networkDevice = pf::SwitchFactory->instantiate($network_device_ip);
 
     if (!$networkDevice) {
         $logger->error("[$network_device_ip] Can't instantiate network device!");

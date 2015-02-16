@@ -37,8 +37,7 @@ can_ok($fd, qw(
     disablePortConfig
 ));
 
-my $switchFactory = new pf::SwitchFactory;
-my $switch = $switchFactory->instantiate('10.0.0.1');
+my $switch = pf::SwitchFactory->instantiate('10.0.0.1');
 my $switch_port = '10001';
 my $switch_locker;
 my $result;

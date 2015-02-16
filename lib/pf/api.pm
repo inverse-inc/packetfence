@@ -133,7 +133,7 @@ sub update_iplog : Public {
 
     return (pf::iplog::iplog_open($postdata{'mac'}, $postdata{'ip'}, $postdata{'lease_length'}));
 }
- 
+
 sub unreg_node_for_pid : Public {
     my ($class, %postdata) = @_;
     my $logger = pf::log::get_logger();
@@ -224,18 +224,18 @@ sub ReAssignVlan : Public {
 
     my $logger = pf::log::get_logger();
 
-    if ( not defined( $postdata{'connection_type'} )) { 
-        $logger->error("Connection type is unknown. Could not reassign VLAN."); 
+    if ( not defined( $postdata{'connection_type'} )) {
+        $logger->error("Connection type is unknown. Could not reassign VLAN.");
         return;
     }
 
-    my $switch = pf::SwitchFactory->getInstance()->instantiate( $postdata{'switch'} );
+    my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'} );
     unless ($switch) {
         $logger->error("switch $postdata{'switch'} not found for ReAssignVlan");
         return;
     }
 
-    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'}; 
+    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
 
     # SNMP traps connections need to be handled specially to account for port-security etc.
     if ( ($postdata{'connection_type'} & $pf::config::WIRED_SNMP_TRAPS) == $pf::config::WIRED_SNMP_TRAPS ) {
@@ -246,8 +246,8 @@ sub ReAssignVlan : Public {
             = $switch->wiredeauthTechniques( $switch->{_deauthMethod}, $postdata{'connection_type'} );
         $switch->$deauthTechniques( $postdata{'ifIndex'}, $postdata{'mac'} );
     }
-    else { 
-        $logger->error("Connection type is not wired. Could not reassign VLAN."); 
+    else {
+        $logger->error("Connection type is not wired. Could not reassign VLAN.");
     }
 }
 
@@ -259,7 +259,7 @@ sub desAssociate : Public {
 
     my $logger = pf::log::get_logger();
 
-    my $switch = pf::SwitchFactory->getInstance()->instantiate($postdata{'switch'});
+    my $switch = pf::SwitchFactory->instantiate($postdata{'switch'});
     unless ($switch) {
         $logger->error("switch $postdata{'switch'} not found for desAssociate");
         return;
@@ -268,7 +268,7 @@ sub desAssociate : Public {
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
 
     # sleep long enough to give the device enough time to fetch the redirection page.
-    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'}; 
+    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
 
     $logger->info("[$postdata{'mac'}] DesAssociating mac on switch (".$switch->{'_id'}.")");
     $switch->$deauthTechniques($postdata{'mac'});
@@ -301,15 +301,15 @@ sub _reassignSNMPConnections {
         return;
     }
 
-    # case PORTSEC : When doing port-security we need to reassign the VLAN before 
-    # bouncing the port. 
+    # case PORTSEC : When doing port-security we need to reassign the VLAN before
+    # bouncing the port.
     if ( $switch->isPortSecurityEnabled($ifIndex) ) {
         $logger->info( "[$mac] security traps are configured on (".$switch->{'_id'}.") ifIndex $ifIndex. Re-assigning VLAN" );
 
         _node_determine_and_set_into_VLAN( $mac, $switch, $ifIndex, $connection_type );
-        
+
         # We treat phones differently. We never bounce their ports except if there is an outstanding
-        # violation. 
+        # violation.
         if ( $switch->hasPhoneAtIfIndex($ifIndex)  ) {
             my @violations = pf::violation::violation_view_open_desc($mac);
             if ( scalar(@violations) == 0 ) {
@@ -319,7 +319,7 @@ sub _reassignSNMPConnections {
         }
 
     } # end case PORTSEC
-    
+
     $logger->info( "[$mac] Flipping admin status on switch (".$switch->{'_id'}.") ifIndex $ifIndex. " );
     $switch->bouncePort($ifIndex);
 }
