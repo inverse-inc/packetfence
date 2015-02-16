@@ -19,9 +19,9 @@ use pf::config;
 use pf::util;
 use pf::log();
 
-use pf::Portal::ProfileFactory;
-use pf::person;
 use pf::node;
+
+use Number::Range;
 
 =head1 SUBROUTINES
 
@@ -37,27 +37,48 @@ Constructor.
 
 sub new {
     my $logger =  pf::log::get_logger();
-    $logger->debug("instantiating new pf::vlan object");
+    $logger->debug("instantiating new pf::vlan::pool object");
     my ( $class, %argv ) = @_;
     my $this = bless {}, $class;
     return $this;
 }
 
-=head2 getVlanPool
-
-Calculate the vlan in a pool
-
-=cut
-
 sub getVlanPool {
     my ($self, $vlan, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
     my $logger =  pf::log::get_logger();
 
-    return $vlan if ($vlan !~ /(\d+)-(\d+)/);
-    # TODO select algo based on the portal profile or on the switch
-    $vlan = $self->getRoundRobbin($1, $2, $mac, $node_info);
+    return $vlan if $self->rangeValidator($vlan);
+    my $range = Number::Range->new($vlan);
+
+    $vlan = $self->getRoundRobbin($mac, $node_info, $range);
     return $vlan;
 }
+
+=head2 rangeValidator
+
+Validate the range definition
+Should be something like that 20..23 or 20..23,27..30
+
+=cut
+
+sub rangeValidator {
+    my ($self, $range) =@_;
+    my $rangesep = qr/(?:\.\.)/;
+    my $sectsep  = qr/(?:\s|,)/;
+    my $validation = qr/(?:
+         [^0-9,. -]|
+         $rangesep$sectsep|
+         $sectsep$rangesep|
+         \d-\d|
+         ^$sectsep|
+         ^$rangesep|
+         $sectsep$|
+         $rangesep$
+         )/x;
+    return 1 if ($range =~ m/$validation/g);
+    return 0;
+}
+
 
 =head2 getRoundRobbin
 
@@ -66,27 +87,36 @@ Return the vlan id based on round robbin
 =cut
 
 sub getRoundRobbin {
-    my ($self, $first_vlan, $last_vlan, $mac, $node_info) = @_;
+    my ($self, $mac, $node_info, $range) = @_;
     my $logger =  pf::log::get_logger();
 
-    my $vlan_count = $last_vlan - $first_vlan +1;
+    my $vlan_count = $range->size;
     my $node_info_complete = node_view($mac);
-    if ( defined($node_info_complete->{'last_vlan'}) && $node_info_complete->{'last_vlan'} ~~ [$first_vlan..$last_vlan] ) {
+    if ( defined($node_info_complete->{'last_vlan'}) && $range->inrange($node_info_complete->{'last_vlan'}) ) {
+        $logger->debug("NODE LAST VLAN ".$node_info_complete->{'last_vlan'});
         return ($node_info_complete->{'last_vlan'});
     }
-    my $last_reg_mac = node_last_reg_non_inline($mac, $node_info->{'category'});
+    my $last_reg_mac = node_last_reg_non_inline_on_category($mac, $node_info->{'category'});
+    my @array = $range->range;
+
     if (defined($last_reg_mac) && $last_reg_mac ne '') {
         my $new_vlan;
         my $last_reg_mac_info = node_view($last_reg_mac);
-        if(defined($last_reg_mac_info->{'last_vlan'}) && $first_vlan <= $last_reg_mac_info->{'last_vlan'} && $last_reg_mac_info->{'last_vlan'} <= $last_vlan) {
-            $new_vlan = (($last_reg_mac_info->{'last_vlan'} - $first_vlan) + 1) % $vlan_count + $first_vlan;
+        $logger->debug("LAST VLAN FROM REG $last_reg_mac_info->{'last_vlan'}");
+        if (defined($last_reg_mac_info->{'last_vlan'})) {
+            my ( $index )= grep { $array[$_] =~ /^$last_reg_mac_info->{'last_vlan'}$/ } 0..$#array;
+            if( 0 <= $index && $index <= $vlan_count) {
+                $new_vlan = ($index + 1) % $vlan_count;
+            } else {
+               $new_vlan = 0;
+            }
         } else {
-            $new_vlan = $first_vlan;
+            $new_vlan = 0;
         }
-        return ($new_vlan);
+        return ($array[$new_vlan]);
     } else {
-        $logger->warn("Welcome to the workflow, you are the first registered node YEAH !!!!");
-        return ($first_vlan);
+        $logger->warn("Welcome to the workflow, you are the first registered node");
+        return ($array[0]);
     }
 }
 
@@ -96,7 +126,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
