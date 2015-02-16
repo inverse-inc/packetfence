@@ -41,7 +41,7 @@ use UNIVERSAL::require;
 use Data::Dumper;
 use pfconfig::backend::memcached;
 use pfconfig::log;
-use pf::util;
+#use pf::util;
 use Time::HiRes qw(stat time);
 use File::Find;
 
@@ -60,7 +60,7 @@ sub get_namespace {
   my $logger = get_logger;
   my $type = "pfconfig::namespaces::$name";
 
-  $type = untaint_chain($type);
+  $type = $self->untaint_chain($type);
 
   # load the module to instantiate
   if ( !(eval "$type->require()" ) ) {
@@ -99,7 +99,7 @@ sub touch_cache {
   my $logger = get_logger;
   $what =~ s/\//;/g;
   my $filename = "/usr/local/pf/var/$what-control";
-  $filename = untaint_chain($filename);
+  $filename = $self->untaint_chain($filename);
   `touch $filename`;
   #open HANDLE, ">>$filename" or die "touch $filename: $!\n"; 
   #close HANDLE;
@@ -143,6 +143,10 @@ sub cache_resource {
     my $result = $self->config_builder($what);
     my $cache_w = $self->{cache}->set($what, $result, 864000) ;
     $logger->trace("Cache write gave : $cache_w");
+    unless($cache_w){
+      print STDERR "Could not write to L2 cache ! This is bad.";
+      $logger->error("Could not write to L2 cache ! This is bad.");
+    }
     $self->touch_cache($what);
     $self->{memory}->{$what} = $result;
     $self->{memorized_at}->{$what} = time; 
@@ -209,6 +213,7 @@ sub list_namespaces {
     $module =~ s/$namespace_dir\///g; 
     $module =~ s/\.pm$//g;
     $module =~ s/\//::/g;
+    return if $module =~ /::\..*$/;
     return if grep(/^$module$/, @skip);
     push @modules, $module;
   }, no_chdir => 1 }, $namespace_dir);
@@ -229,6 +234,13 @@ sub expire_all {
   foreach my $namespace (@namespaces){
     $self->cache_resource($namespace);
   }  
+}
+
+sub untaint_chain {
+    my ($self, $chain) = @_;
+    if ($chain =~ /^(.+)$/) {
+        return $1;
+    }
 }
 
 =back
