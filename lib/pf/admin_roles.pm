@@ -19,112 +19,12 @@ use base qw(Exporter);
 use pf::file_paths;
 use List::MoreUtils qw(any all uniq);
 use pf::config::cached;
+use pf::factory::config;
 
 our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config admin_allowed_options admin_allowed_options_all);
 our %ADMIN_ROLES;
-our @ADMIN_ACTIONS = qw(
-    ADMIN_ROLES_CREATE
-    ADMIN_ROLES_DELETE
-    ADMIN_ROLES_READ
-    ADMIN_ROLES_UPDATE
-
-    CONFIGURATION_MAIN_READ
-    CONFIGURATION_MAIN_UPDATE
-
-    FINGERPRINTS_READ
-    FINGERPRINTS_UPDATE
-
-    FIREWALL_SSO_READ
-    FIREWALL_SSO_CREATE
-    FIREWALL_SSO_UPDATE
-    FIREWALL_SSO_DELETE
-
-    FLOATING_DEVICES_CREATE
-    FLOATING_DEVICES_DELETE
-    FLOATING_DEVICES_READ
-    FLOATING_DEVICES_UPDATE
-
-    INTERFACES_CREATE
-    INTERFACES_DELETE
-    INTERFACES_READ
-    INTERFACES_UPDATE
-
-    MAC_READ
-    MAC_UPDATE
-
-    NODES_CREATE
-    NODES_DELETE
-    NODES_READ
-    NODES_UPDATE
-
-    PORTAL_PROFILES_CREATE
-    PORTAL_PROFILES_DELETE
-    PORTAL_PROFILES_READ
-    PORTAL_PROFILES_UPDATE
-
-    PROVISIONING_CREATE
-    PROVISIONING_DELETE
-    PROVISIONING_READ
-    PROVISIONING_UPDATE
-
-    REPORTS
-    SERVICES
-
-    SOH_CREATE
-    SOH_DELETE
-    SOH_READ
-    SOH_UPDATE
-
-    SWITCHES_CREATE
-    SWITCHES_DELETE
-    SWITCHES_READ
-    SWITCHES_UPDATE
-
-    USERAGENTS_READ
-
-    USERS_READ
-    USERS_CREATE
-    USERS_UPDATE
-    USERS_DELETE
-    USERS_SET_ROLE
-    USERS_SET_ACCESS_DURATION
-    USERS_SET_UNREG_DATE
-    USERS_SET_ACCESS_LEVEL
-    USERS_MARK_AS_SPONSOR
-
-    USERS_ROLES_CREATE
-    USERS_ROLES_DELETE
-    USERS_ROLES_READ
-    USERS_ROLES_UPDATE
-
-    USERS_SOURCES_CREATE
-    USERS_SOURCES_DELETE
-    USERS_SOURCES_READ
-    USERS_SOURCES_UPDATE
-
-    VIOLATIONS_CREATE
-    VIOLATIONS_DELETE
-    VIOLATIONS_READ
-    VIOLATIONS_UPDATE
-    SOH_READ
-    SOH_CREATE
-    SOH_UPDATE
-    SOH_DELETE
-    FINGERPRINTS_READ
-    FINGERPRINTS_UPDATE
-    USERAGENTS_READ
-    MAC_READ
-    MAC_UPDATE
-    FIREWALL_SSO_READ
-    FIREWALL_SSO_CREATE
-    FIREWALL_SSO_UPDATE
-    FIREWALL_SSO_DELETE
-    REALM_READ
-    REALM_CREATE
-    REALM_UPDATE
-    REALM_DELETE
-);
-
+%ADMIN_ROLES = pf::factory::config->new('cached_hash', 'config::AdminRoles');
+our @ADMIN_ACTIONS = @pf::constants::admin_roles::ADMIN_ACTIONS;
 
 our %ADMIN_GROUP_ACTIONS = (
     CONFIGURATION_GROUP_READ => [
@@ -168,39 +68,6 @@ sub admin_can_do_any {
     } @$roles;
 }
 
-sub reloadConfig {
-    my ($config,$name) = @_;
-
-    $config->toHash(\%ADMIN_ROLES);
-    $config->cleanupWhitespace(\%ADMIN_ROLES);
-    foreach my $data (values %ADMIN_ROLES) {
-        my $actions = $data->{actions} || '';
-        my %action_data = map {$_ => undef} split /\s*,\s*/, $actions;
-        $data->{ACTIONS} = \%action_data;
-    }
-    $ADMIN_ROLES{NONE}{ACTIONS} = { };
-    $ADMIN_ROLES{ALL}{ACTIONS} = { map {$_ => undef} @ADMIN_ACTIONS };
-    $config->cacheForData->set("ADMIN_ROLES", \%ADMIN_ROLES);
-}
-
-our $cached_adminroles_config = pf::config::cached->new(
-    -file => $admin_roles_config_file,
-    -allowempty => 1,
-    -onfilereload => [
-        file_reload_violation_config => \&reloadConfig
-    ],
-    -oncachereload => [
-        cache_reload_violation_config => sub {
-            my ($config,$name) = @_;
-            my $data = $config->fromCacheForDataUntainted("ADMIN_ROLES");
-            if ($data) {
-                %ADMIN_ROLES = %$data;
-            } else {
-                $config->_callFileReloadCallbacks();
-            }
-        }
-    ],
-);
 
 =head2 admin_allowed_options
 

@@ -44,6 +44,7 @@ use pf::factory::profile::filter;
 use pf::profile::filter;
 use pf::profile::filter::all;
 use pf::constants::Portal::Profile;
+use pf::factory::config;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -417,7 +418,8 @@ multi-threaded daemons.
 =cut
 
 sub init_config {
-    readPfDocConfigFiles();
+#    readPfDocConfigFiles();
+    %Doc_Config = pf::factory::config->new('cached_hash', 'config::Documentation');
     readPfConfigFiles();
     readProfileConfigFile();
     readNetworkConfigFile();
