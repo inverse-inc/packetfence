@@ -89,6 +89,7 @@ Bug Fixes
 * Fixed double display of the user page
 * Fixed displaying of rules description after updating source
 * Removed executable bit on some files which do not require it
+* Fix searching for switches in the admin gui
 
 Version 4.5.1 released on 2014-11-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
