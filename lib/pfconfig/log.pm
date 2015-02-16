@@ -31,26 +31,6 @@ sub new {
         fh              => $fh,
     });
 
-    #$self->{logger}->config({
-    #    level           => 'DEBUG',
-    #    prefix          => '%D %T [%L] : ',
-    #    type            => 'fh',
-    #    fh              => \*STDOUT,
-    #});
-
-    #$self->{logger}->config({
-    #    prefix          => '',
-    #    type            => 'unix',
-    #    path            => '/dev/log',
-    #    facility        => LOG_DAEMON,
-    #    add_timestamp   => 1,
-    #    add_hostname    => 1,
-    #    hostname        => 'packetfence',
-    #    ident           => 'pfconfig',
-    #    add_pid         => 1,
-    #    pid             => $$,
-    #});
-
     return $self;
 }
 
