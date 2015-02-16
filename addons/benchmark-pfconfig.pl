@@ -13,9 +13,10 @@ pfconfig::timeme::timeme("loading the tied switch config", sub {
 }, 1);
 my @keys = tied(%switches)->keys;
 my $size = @keys;
-pfconfig::timeme::time_me_x("Accessing registration vlan on a switch though pfconfig", 100000, sub {
+pfconfig::timeme::time_me_x("Accessing registration vlan on a switch though pfconfig", 1, sub {
   my $rand = int(rand($size));
   my $reg = $switches{$keys[$rand]}{registrationVlan};
+  print $reg."\n"
 }, 1 );
 
 #my %switches;
