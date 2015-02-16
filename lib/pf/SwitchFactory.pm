@@ -89,7 +89,7 @@ sub instantiate {
     my $requestedSwitch;
     my $switch_ip;
     my $switch_mac;
-    #my $switch_overlay_cache = pf::CHI->new(namespace => 'switch.overlay');
+    my $switch_overlay_cache = pf::CHI->new(namespace => 'switch.overlay');
 
     pfconfig::timeme::timeme('building stuff', sub {
     if(ref($switchRequest) eq 'HASH') {
@@ -125,29 +125,27 @@ sub instantiate {
     }
 
 
-    #if( $switch_mac && $requestedSwitch eq $switch_mac && ref($switchRequest) eq 'HASH' && !defined ($switch_data->{controllerIp}) ) {
-    #    my $switch = $switch_overlay_cache->get($switch_mac) || {};
-    #    my $controllerIp = $switchRequest->{controllerIp};
-    #    if($controllerIp && (  !defined $switch->{controllerIp} || $controllerIp ne $switch->{controllerIp} )) {
-#   #         $switch_overlay_config->remove($switch->{controllerIp}) if defined $switch->{controllerIp};
-    #        $switch_overlay_cache->set(
-    #            $switch_mac,
-    #            {
-    #                controllerIp => $controllerIp,
-    #                ip => $switch_ip
-    #            }
-    #        );
-    #    }
-    #}
+    if( $switch_mac && $requestedSwitch eq $switch_mac && ref($switchRequest) eq 'HASH' && !defined ($switch_data->{controllerIp}) ) {
+        my $switch = $switch_overlay_cache->get($switch_mac) || {};
+        my $controllerIp = $switchRequest->{controllerIp};
+        if($controllerIp && (  !defined $switch->{controllerIp} || $controllerIp ne $switch->{controllerIp} )) {
+#            $switch_overlay_config->remove($switch->{controllerIp}) if defined $switch->{controllerIp};
+            $switch_overlay_cache->set(
+                $switch_mac,
+                {
+                    controllerIp => $controllerIp,
+                    ip => $switch_ip
+                }
+            );
+        }
+    }
 
 
-   # my $switchOverlay;
-   # pfconfig::timeme::timeme('overlayget', sub {
-   # # find the module to instantiate
-   # $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
-   # });
-   # FIX ME !!!!!
-    my $switchOverlay = {};
+    my $switchOverlay;
+    pfconfig::timeme::timeme('overlayget', sub {
+    # find the module to instantiate
+    $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
+    });
     my $type;
     pfconfig::timeme::timeme('type import', sub {
     if ($requestedSwitch ne 'default') {
