@@ -556,9 +556,9 @@ sub getNodeInfoForAutoReg {
         }
         else {
             $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+            $value = pf::config::dynamic_unreg_date($value);
         }
         if (defined $value) {
-            $value = pf::config::dynamic_unreg_date($value);
             $node_info{'unregdate'} = $value;
             if (defined $role) {
                 %node_info = (%node_info, (category => $role));
