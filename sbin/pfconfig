@@ -51,6 +51,8 @@ while(1) {
   eval {
     chomp( my $line = <$socket> );
 
+    if($line eq "exit") {exit}
+
     my $query = decode_json($line);
     #use Data::Dumper;
     #print Dumper($query);
@@ -92,24 +94,24 @@ sub get_hash_element {
   
     my $elem = get_from_cache_or_croak($keys[0], $socket) || return;
 
-    my $json_elem;
+    my $encoded_elem;
     # if we want a subnamespace we handle it here
     if($keys[1]){
       my $sub_elem = $elem->{$keys[1]} || undef;
       if(defined($sub_elem)){
-        $json_elem = encode_json({element => $sub_elem});
+        $encoded_elem = encode_output({element => $sub_elem});
       }
       else{
         print STDERR "Unknown key $query->{key}";
         $logger->error("Unknown key $query->{key}");
-        $json_elem = "undef";
+        $encoded_elem = "undef";
       }
     }
     # we want the whole namespace
     else {
-      $json_elem = encode_json($elem);
+      $encoded_elem = encode_output($elem);
     }
-    print $socket $json_elem;
+    print $socket $encoded_elem;
 }
 
 sub get_from_cache_or_croak {
@@ -134,8 +136,8 @@ sub get_keys {
     my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
 
     my @keys = keys(%{$elem});
-    my $json_elem = encode_json(\@keys);
-    print $socket $json_elem."\n";
+    my $encoded_elem = encode_output(\@keys);
+    print $socket $encoded_elem;
 }
 
 sub get_next_key {
@@ -161,8 +163,8 @@ sub get_next_key {
 
         $next_key = $keys[$last_index+1];
     }
-    my $json_elem = encode_json({next_key => $next_key});
-    print $socket $json_elem;
+    my $encoded_elem = encode_output({next_key => $next_key});
+    print $socket $encoded_elem;
 }
 
 sub get_array_element {
@@ -175,25 +177,25 @@ sub get_array_element {
 
     $logger->info("GOT FROM CACHE : ".Dumper($elem));
 
-    my $json_elem;
+    my $encoded_elem;
     # if we want an index we handle it here
     if(defined($keys[1])){
       my $sub_elem = $$elem[$keys[1]] || undef;
       $logger->info("SUB ELEM : ".Dumper($sub_elem));
       if(defined($sub_elem)){
-        $json_elem = encode_json({element => $sub_elem});
+        $encoded_elem = encode_output({element => $sub_elem});
       }
       else{
         print STDERR "Unknown index in $query->{key}";
         $logger->error("Unknown index in $query->{key}");
-        $json_elem = "undef";
+        $encoded_elem = "undef";
       }
     }
     # we want the whole namespace
     else {
-      $json_elem = encode_json($elem);
+      $encoded_elem = encode_output($elem);
     }
-    print $socket $json_elem;
+    print $socket $encoded_elem;
     
 }
 
@@ -202,5 +204,11 @@ sub get_array_size {
     my $logger = get_logger;
     my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
     my $size = @$elem;
-    print $socket encode_json({size => $size});
+    print $socket encode_output({size => $size});
+}
+
+sub encode_output {
+    my ($data) = @_;
+    $data = encode_json($data);
+    return $data;
 }

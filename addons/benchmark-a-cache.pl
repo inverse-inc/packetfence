@@ -136,9 +136,9 @@ my $write = $cache->set('test', $switch);
 print "Cache write gave : $write \n";
 
 $mem_usage->record("get switch in cache");
-pfconfig::timeme::timeme('getting switch', sub {
+pfconfig::timeme::time_me_x('getting switch', 1000, sub {
   my $switch = $cache->get('test');
-  print "IP of switch : ".$switch->{_ip}."\n";
+#  print "IP of switch : ".$switch->{_ip}."\n";
 }, 1);
 
 #pfconfig::timeme::time_me_x('getting switch', 10, sub {
