@@ -36,8 +36,6 @@ use pfconfig::timeme;
 use Data::Dumper;
 use pfconfig::log;
 
-my $_socket = 0;
-
 # helper to build socket
 sub get_socket {
     my ($self) = @_;
