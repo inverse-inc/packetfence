@@ -1,3 +1,7 @@
+#!/usr/bin/perl
+
+use lib '/usr/local/pf/lib';
+
 use Time::HiRes;
 use Data::Dumper;
 use pfconfig::timeme;
