@@ -44,6 +44,7 @@ use pfconfig::log;
 #use pf::util;
 use Time::HiRes qw(stat time);
 use File::Find;
+use pfconfig::util;
 
 sub config_builder {
   my ($self, $namespace) = @_;
@@ -98,7 +99,7 @@ sub touch_cache {
   my ($self, $what) = @_;
   my $logger = get_logger;
   $what =~ s/\//;/g;
-  my $filename = "/usr/local/pf/var/$what-control";
+  my $filename = pfconfig::util::control_file_path($what);
   $filename = $self->untaint_chain($filename);
   `touch $filename`;
   #open HANDLE, ">>$filename" or die "touch $filename: $!\n"; 
@@ -160,9 +161,7 @@ sub cache_resource {
 sub is_valid {
   my ($self, $what) = @_;
   my $logger = get_logger;
-  my $control_file;
-  ($control_file = $what) =~ s/\//;/g;
-  $control_file = "/usr/local/pf/var/".$control_file."-control";
+  my $control_file = pfconfig::util::control_file_path($what); 
   my $file_timestamp = (stat($control_file))[9];
 
   unless(defined($file_timestamp)){
