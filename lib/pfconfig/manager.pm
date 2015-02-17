@@ -144,8 +144,9 @@ sub cache_resource {
     my $cache_w = $self->{cache}->set($what, $result, 864000) ;
     $logger->trace("Cache write gave : $cache_w");
     unless($cache_w){
-      print STDERR "Could not write to L2 cache ! This is bad.";
-      $logger->error("Could not write to L2 cache ! This is bad.");
+      my $message = "Could not write namespace $what to L2 cache ! This is bad.";
+      print STDERR $message."\n";
+      $logger->error($message);
     }
     $self->touch_cache($what);
     $self->{memory}->{$what} = $result;
