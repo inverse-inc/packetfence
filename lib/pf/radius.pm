@@ -123,7 +123,7 @@ sub authorize {
     node_mac_wakeup($mac);
 
     # Handling machine auth detection
-    if ( defined($user_name) && $user_name =~ /host\// ) {
+    if ( defined($user_name) && $user_name =~ /^host\// ) {
         $logger->info("[$mac] is doing machine auth with account '$user_name'.");
         node_modify($mac, ('machine_account' => $user_name));
     }
