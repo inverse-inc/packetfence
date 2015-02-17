@@ -17,6 +17,10 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+# Force the LC_CTYPE to C to avoid i18n problems during postinstallation.
+LC_CTYPE=C
+export LC_CTYPE
+
 
 case "$1" in
     configure)
