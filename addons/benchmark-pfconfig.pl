@@ -6,18 +6,34 @@ use pfconfig::timeme;
 
 $pfconfig::timeme::VERBOSE = 0;
 
+use Memory::Usage;
+
+my $mem_usage = Memory::Usage->new;
+
+$mem_usage->record("initializing the cache");
+
 my %switches;
 pfconfig::timeme::timeme("loading the tied switch config", sub {
   use pfconfig::cached_hash;
   tie %switches, 'pfconfig::cached_hash', 'config::Switch';
 }, 1);
-my @keys = tied(%switches)->keys;
-my $size = @keys;
-pfconfig::timeme::time_me_x("Accessing registration vlan on a switch though pfconfig", 1, sub {
-  my $rand = int(rand($size));
-  my $reg = $switches{$keys[$rand]}{registrationVlan};
-  print $reg."\n"
-}, 1 );
+
+$mem_usage->record("getting the switch");
+
+pfconfig::timeme::timeme("loading the tied switch config", sub {
+  my $switch = $switches{"127.0.0.1"};
+}, 1);
+
+$mem_usage->dump();
+
+
+#my @keys = tied(%switches)->keys;
+#my $size = @keys;
+#pfconfig::timeme::time_me_x("Accessing registration vlan on a switch though pfconfig", 1, sub {
+#  my $rand = int(rand($size));
+#  my $reg = $switches{$keys[$rand]}{registrationVlan};
+#  print $reg."\n"
+#}, 1 );
 
 #my %switches;
 #pfconfig::timeme::timeme("loading the configStore", sub {
