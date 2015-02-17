@@ -145,6 +145,8 @@ pfconfig::timeme::time_me_x('getting switch', 1000, sub {
 #  print "IP of switch : ".$switch->{_ip}."\n";
 }, 1);
 
+$mem_usage->record("done with everything");
+
 #pfconfig::timeme::time_me_x('getting switch', 10, sub {
 #  my $switch = $cache->get('test');
 #  my $reg = $switch{_registrationVlan};

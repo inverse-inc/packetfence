@@ -25,6 +25,8 @@ pfconfig::timeme::time_me_x("loading a switch", 1000, sub {
   $obj->_get_from_socket("config::Switch;127.0.0.1");
 }, 1);
 
+$mem_usage->record("done with everything");
+
 
 ## we make the tied hash process exit so we can profile it
 #my $socket = tied(%switches)->get_socket();
