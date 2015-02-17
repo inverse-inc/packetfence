@@ -413,9 +413,9 @@ sub getNormalVlan {
             }
             else {
                 $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+                $value = pf::config::dynamic_unreg_date($value);
             }
             if (defined $value) {
-                $value = pf::config::dynamic_unreg_date($value);
                 my %info = (
                     'unregdate' => $value,
                     'category' => $role,
