@@ -35,13 +35,14 @@ use JSON;
 use pfconfig::timeme;
 use Data::Dumper;
 use pfconfig::log;
+use pfconfig::util;
 
 # helper to build socket
 sub get_socket {
     my ($self) = @_;
 
     my $socket;
-    my $socket_path = '/usr/local/pf/var/pfconfig.sock';
+    my $socket_path = pfconfig::util::socket_path();
     $socket = IO::Socket::UNIX->new(
        Type => SOCK_STREAM,
        Peer => $socket_path,
@@ -133,10 +134,7 @@ sub _get_from_socket {
 sub is_valid {
   my ($self) = @_;
   my $what = $self->{_namespace};
-  #my $logger = get_logger;
-  my $control_file = $what;
-  #($control_file = $what) =~ s/\//;/g;
-  $control_file = "/usr/local/pf/var/".$control_file."-control";
+  my $control_file = pfconfig::util::control_file_path($what);
   my $file_timestamp = (stat($control_file))[9] ;
 
   unless(defined($file_timestamp)){

@@ -21,10 +21,11 @@ use List::MoreUtils qw(first_index);
 use Getopt::Std;
 use POSIX qw(:signal_h);
 use pf::services::util;
+use pfconfig::util;
 $pfconfig::timeme::VERBOSE = 0;
 
 
-my $socket_path = '/usr/local/pf/var/pfconfig.sock';
+my $socket_path = pfconfig::util::socket_path();
 unlink($socket_path);
 
 my $listner = IO::Socket::UNIX->new(
