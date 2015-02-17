@@ -35,6 +35,7 @@ my $listner = IO::Socket::UNIX->new(
    or die("Can't create server socket: $!\n");
 
 my $cache = pfconfig::manager->new;
+$cache->load_all();
 
 my %args;
 getopts( 'dhi:', \%args );
