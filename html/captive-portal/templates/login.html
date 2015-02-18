@@ -63,7 +63,7 @@ document.observe("dom:loaded", function() {
           [% UNLESS no_username %]
           <div class="input">
             <span>[% IF null_source %][% i18n("Email") %] [% ELSE %] [% i18n("Username") %][% END %]</span>
-	    <input class="field" name="username" id="username" type="text" value="[% username %]" />
+	    <input class="field" name="username" id="username" type="text" autocorrect="off" autocapitalize="off" value="[% username %]" />
           </div>
           [% END %]
           [% UNLESS null_source || no_password %]
