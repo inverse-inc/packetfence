@@ -1,68 +1,28 @@
-      <table id="fingerbankdevices" class="table items[% ' hidden' UNLESS items.size %]" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
-        <thead>
-          <tr>
-            <th colspan="4">
-              <div class="tab-content">
-                <ul class="nav nav-tabs">
-                  <li [% IF scope == 'Upstream' %]class="active" [% END %]>
-                    <a href="[% c.uri_for(c.controller.action_for('list'),['Upstream']) %]" >[% l('Upstream')  %]</a>
-                  </li>
-                  <li [% IF scope == 'Local' %]class="active" [% END %]>
-                    <a href="[% c.uri_for(c.controller.action_for('list'),['Local']) %]" >[% l('Local')  %]</a>
-                  </li>
-                </ul>
-              </div>
-            </th>
-          </tr>
-          <tr>
-            <th colspan="4">
-              [% pagination('list', pageNum, perPage, pageCount) %]</th>
-            <th>
-          </tr>
-          <tr>
-            <th></th>
-            <th>[% l('Device ID') %]</th>
-            <th>[% l('Description') %]</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          [% FOREACH item IN items %]
-          <tr>
-            <td>
-                <a href="[% c.uri_for(c.controller.action_for('view'), ['Upstream', item.id ]) %]">[% item.id | html %]</a>
-                <a data-toggle="collapse" target="#children_[% item.id %]" >+</a>
-            </td>
-            <td>[% item.value | html%]</td>
-            <td>
-              [%- IF can_access("FINGERBANK_CREATE") %]
-              <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ scope,  item.id ]) %]">[% l('Clone') %]</a>
-              <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('add_child'), [ scope,  item.id ]) %]">[% l('Add Child') %]</a>
-              [%- END %]
-              [%- IF scope == 'Local' && can_access("FINGERBANK_DELETE") %]
-              <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ scope, item.id ]) %]">[% l('Delete') %]</a>
-              [%- END %]
-            </td>
-          </tr>
-          <tr class="hidden">
-            <td colspan="4" id="children_[%item.id%]"></td>
-          </tr>
-          [% END -%]
-        </tbody>
-        <tfoot>
-          <tr>
-            <th colspan="3">
-              [% pagination('list', pageNum, perPage, pageCount) %]</th>
-            <th>
-          </tr>
-         [%- IF scope == 'Local' && can_access("FINGERBANK_CREATE") %]
-          <tr>
-            <th colspan="3">
-              <div class="form-actions">
-                <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Device') %]</a>
-              </div>
-            </th>
-          </tr>
-         [%- END %]
-        </tfoot>
-      </table>
+[% FOREACH item IN items %]
+  <tr>
+    <td>
+        <a href="[% c.uri_for(c.controller.action_for('view'), ['Upstream', item.id ]) %]">[% item.id | html %]</a>
+        <a data-target="#children_[%item.id%]" href="[% c.uri_for(c.controller.action_for('children'), ['Upstream', item.id] ) %]" >+</a>
+    </td>
+    <td>[% item.value | html%]</td>
+    <td>
+      [%- IF can_access("FINGERBANK_CREATE") %]
+      <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ scope,  item.id ]) %]">[% l('Clone') %]</a>
+      <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('add_child'), [ scope,  item.id ]) %]">[% l('Add Child') %]</a>
+      [%- END %]
+      [%- IF scope == 'Local' && can_access("FINGERBANK_DELETE") %]
+      <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ scope, item.id ]) %]">[% l('Delete') %]</a>
+      [%- END %]
+    </td>
+  </tr>
+  <tr class="hidden">
+    <td colspan="4">
+        <div class="collapse" id="children_[%item.id%]">
+            <table></table>
+        </div>
+    </td>
+  </tr>
+
+
+[% END -%]
+<tr><td colspan="4"> </td></tr>
