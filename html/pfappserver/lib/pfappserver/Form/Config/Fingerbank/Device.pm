@@ -32,7 +32,7 @@ has_field name =>
    type => 'Text',
   );
 
-has_field [qw(mobile tablet)] =>
+has_field [qw(mobile tablet approved)] =>
   (
    type => 'Toggle',
   );
@@ -47,9 +47,14 @@ has_field updated_at =>
   type => 'Text',
   );
 
+has_field submitter_id =>
+  (
+  type => 'Text',
+  );
+
 has_block definition =>
   (
-    render_list => [qw(name mobile tablet created_at updated_at)],
+    render_list => [qw(name submitter_id mobile tablet approved created_at updated_at)],
   );
 
 =head1 COPYRIGHT
