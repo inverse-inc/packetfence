@@ -33,6 +33,7 @@ sub getSubDevices {
     my ($self, $parent_id) = @_;
     my ($status, $resultSets) = $self->fingerbankModel->search([{parent_id => $parent_id}]);
     my @items;
+    return ($status, $resultSets) if is_error($status);
     foreach my $resultSet (@$resultSets) {
         while (my $item = $resultSet->next) {
             push @items,$item;
