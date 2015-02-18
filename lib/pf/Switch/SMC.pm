@@ -6,12 +6,12 @@ pf::Switch::SMC - Object oriented module to access SNMP enabled SMC switches
 
 =head1 STATUS
 
-This modules holds functions common to the SMC switches but details and documentation are in each sub-module. 
+This modules holds functions common to the SMC switches but details and documentation are in each sub-module.
 Refer to them for more information.
 
 =head1 BUGS AND LIMITATIONS
 
-This modules holds functions common to the SMC switches but details and documentation are in each sub-module. 
+This modules holds functions common to the SMC switches but details and documentation are in each sub-module.
 Refer to them for more information.
 
 =cut
@@ -31,8 +31,8 @@ use pf::util;
 # FIXME: add to admin guide instruction to cut up/down traps and get rid of the 02:00... traps
 
 =head1 SUBROUTINES
-            
-=over   
+
+=over
 
 =cut
 
@@ -92,7 +92,7 @@ sub _setVlan {
     }
 
     # calculate new settings
-    my $egressPortsOldVlan = $this->modifyBitmask( 
+    my $egressPortsOldVlan = $this->modifyBitmask(
         $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"}, $dot1dBasePort - 1, 0 );
     my $egressPortsVlan = $this->modifyBitmask(
         $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"}, $dot1dBasePort - 1, 1 );
@@ -114,7 +114,7 @@ sub _setVlan {
             "$OID_dot1qVlanStaticUntaggedPorts.$newVlan", Net::SNMP::OCTET_STRING, $untaggedPortsVlan ] );
 
     if ( !defined($result) ) {
-        $logger->error( "error setting egressPorts and untaggedPorts for old and new vlan: " 
+        $logger->error( "error setting egressPorts and untaggedPorts for old and new vlan: "
             . $this->{_sessionWrite}->error );
     }
 
@@ -206,7 +206,7 @@ sub getAllSecureMacAddresses {
     $this->{_sessionRead}->translate(1);
 
     while ( my $oid_including_mac = each( %{$result} ) ) {
-        # here is an example for port ethernet 1/16 
+        # here is an example for port ethernet 1/16
         # result is HEX and $y is bits
         #
         # the length of result varies based on SMC model, 480 bits on 8xxx and 64 bits on 6xxx
@@ -219,7 +219,7 @@ sub getAllSecureMacAddresses {
         while($port_list =~ /1/g) {
             my $ifIndex = pos($port_list);
 
-            if ($oid_including_mac =~ 
+            if ($oid_including_mac =~
                 /^$OID_dot1qStaticUnicastAllowedToGoTo\.               # oid
                 ([0-9]+)\.                                             # vlan
                 ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\.     # mac in oid format
@@ -239,8 +239,8 @@ sub getAllSecureMacAddresses {
 
 Returns an hashref with MAC => Array(VLANs)
 
-This method here has to handle different PortList sizes. 
-TigerStack 8xxx has a 480bit length port list and the 6xxx a 64bit length one. 
+This method here has to handle different PortList sizes.
+TigerStack 8xxx has a 480bit length port list and the 6xxx a 64bit length one.
 Have that in mind when doing maintenance.
 
 =cut
@@ -264,7 +264,7 @@ sub getSecureMacAddresses {
 
         # if bit at ifIndex position is On, this MAC is on the ifIndex we are looking for, store it
         if ($this->getBitAtPosition($result->{$oid_including_mac}, $ifIndex-1)) {
-            if ($oid_including_mac =~ 
+            if ($oid_including_mac =~
                 /^$OID_dot1qStaticUnicastAllowedToGoTo\.                               # query OID
                 ([0-9]+)\.                                                             # <vlan>.
                 ([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)   # MAC in OID format
@@ -286,20 +286,20 @@ sub authorizeMAC {
     # from Q-BRIDGE-MIB (RFC4363)
     my $OID_dot1qStaticUnicastStatus = '1.3.6.1.2.1.17.7.1.3.1.1.4';
     my $OID_dot1qStaticUnicastAllowedToGoTo = '1.3.6.1.2.1.17.7.1.3.1.1.3';
-    
+
     # Add a static entry for 00-00-00-00-00-0F on ethernet 1/5 in VLAN 1
-    # snmpset ... 1.3.6.1.2.1.17.7.1.3.1.1.4.1.0.0.0.0.0.255.0 i 3  
+    # snmpset ... 1.3.6.1.2.1.17.7.1.3.1.1.4.1.0.0.0.0.0.255.0 i 3
     #               dot1qStaticUnicastStatus.x.y.y.y.y.y.y.0     3: permanent
     #                                index = x.y.y.y.y.y.y       x = VLAN     y = MAC-address entry
     # snmpset ... 1.3.6.1.2.1.17.7.1.3.1.1.3.1.0.0.0.0.0.255.0 x 080000
-    #        dot1qStaticUnicastAllowedToGoTo.x.y.y.y.y.y.y.0     080000 = 0000 1000 0000 0000 0000 0000  means int 1/5 
+    #        dot1qStaticUnicastAllowedToGoTo.x.y.y.y.y.y.y.0     080000 = 0000 1000 0000 0000 0000 0000  means int 1/5
     #
     # Remove static entry 00-00-00-00-00-0F
-    # snmpset ... 1.3.6.1.2.1.17.7.1.3.1.1.4.4.2.0.0.0.0.0.255.0 i 2 
+    # snmpset ... 1.3.6.1.2.1.17.7.1.3.1.1.4.4.2.0.0.0.0.0.255.0 i 2
     #               dot1qStaticUnicastStatus.x.y.y.y.y.y.y.0       2: deletepermanent
 
     if ( !$this->isProductionMode() ) {
-        $logger->info("not in production mode ... we won't add or delete a static entry in the MAC address table");  
+        $logger->info("not in production mode ... we won't add or delete a static entry in the MAC address table");
         return 1;
     }
 
@@ -327,7 +327,7 @@ sub authorizeMAC {
         my $portList = $this->createPortListWithOneItem($ifIndex);
 
         # Warning: this may seem counter-intuitive but I'm authorizing the new MAC on the old VLAN
-        # because the switch won't accept it for a VLAN that doesn't exist on that port. 
+        # because the switch won't accept it for a VLAN that doesn't exist on that port.
         # When changed by _setVlan later, the MAC will be re-authorized on the right VLAN
         my $vlan = $this->getVlan($ifIndex);
 
@@ -355,7 +355,7 @@ Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENCE
 

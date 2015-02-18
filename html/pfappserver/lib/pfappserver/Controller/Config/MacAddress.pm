@@ -51,7 +51,7 @@ sub update :Local :Args(0) :AdminRole('MAC_UPDATE') {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
