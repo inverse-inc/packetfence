@@ -12,6 +12,7 @@ Controller for managing the fingerbank Device data
 
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
+use HTTP::Status qw(:constants :is);
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -39,8 +40,9 @@ Show the top level devices
 
 sub index : Path :Args(0) {
     my ($self, $c) = @_;
-
-    $self->children($c,undef);
+    my $model = $self->getModel($c);
+    my ($status, $devices) = $model->getSubDevices(undef);
+    $c->stash->{items} = $devices;
 }
 
 =head2 children
@@ -49,11 +51,15 @@ Show child devices
 
 =cut
 
-sub children : Local : Args(1) {
-    my ($self, $c, $parent_id) = @_;
+sub children : Chained('object'): Local :Args(0) {
+    my ($self, $c) = @_;
     my $model = $self->getModel($c);
-    my ($status, $devices) = $model->getSubDevices($parent_id);
-    $c->stash->{items} = $devices;
+    my ($status, $devices) = $model->getSubDevices($c->stash->{item}->{id});
+    if(is_success($status)) {
+        $c->stash->{items} = $devices;
+    } else {
+        $c->stash->{items} = [];
+    }
 }
 
 =head1 COPYRIGHT
