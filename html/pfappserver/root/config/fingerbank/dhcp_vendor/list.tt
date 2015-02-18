@@ -56,7 +56,7 @@
             <th>
           </tr>
           <tr>
-            <th>[% l('DHCP_Vendor ID') %]</th>
+            <th>[% l('DHCP Vendor ID') %]</th>
             <th>[% l('Description') %]</th>
           </tr>
         </thead>

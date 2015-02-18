@@ -56,7 +56,7 @@
             <th>
           </tr>
           <tr>
-            <th>[% l('DHCP_Fingerprint ID') %]</th>
+            <th>[% l('DHCP Fingerprint ID') %]</th>
             <th>[% l('Description') %]</th>
           </tr>
         </thead>

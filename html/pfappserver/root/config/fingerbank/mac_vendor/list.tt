@@ -56,7 +56,7 @@
             <th>
           </tr>
           <tr>
-            <th>[% l('MAC_Vendor ID') %]</th>
+            <th>[% l('MAC Vendor ID') %]</th>
             <th>[% l('Description') %]</th>
           </tr>
         </thead>
