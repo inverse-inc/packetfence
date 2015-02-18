@@ -102,10 +102,6 @@ sub touch_cache {
   my $filename = pfconfig::util::control_file_path($what);
   $filename = $self->untaint_chain($filename);
   `touch $filename`;
-  #open HANDLE, ">>$filename" or die "touch $filename: $!\n"; 
-  #close HANDLE;
-  #my $now = time;
-  #utime $now, $now, "$filename";
 }
 
 # get a key in the cache
@@ -214,10 +210,21 @@ sub list_namespaces {
     $module =~ s/\.pm$//g;
     $module =~ s/\//::/g;
     return if $module =~ /::\..*$/;
+    return if $module =~ /^\..*$/;
     return if grep(/^$module$/, @skip);
     push @modules, $module;
   }, no_chdir => 1 }, $namespace_dir);
   return @modules;
+}
+
+sub preload_all {
+  my ($self) = @_;
+  my @namespaces = $self->list_namespaces;
+  foreach my $namespace (@namespaces){
+    print "Preloading $namespace\n";
+    $self->cache_resource($namespace);
+    $self->get_cache($namespace);
+  }
 }
 
 sub load_all {
