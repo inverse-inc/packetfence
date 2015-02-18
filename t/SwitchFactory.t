@@ -4,7 +4,8 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 44;
+use Scalar::Util qw(refaddr);
+use Test::More tests => 46;
 use lib '/usr/local/pf/lib';
 
 BEGIN {
@@ -85,7 +86,7 @@ isa_ok($switch, 'pf::Switch');
 $switch = $switchFactory->instantiate('01:01:01:01:01:01');
 isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960',"mac address style switch id");
 
-#Test using mac address 
+#Test using mac address
 $switch = $switchFactory->instantiate({ switch_mac => "01:01:01:01:01:02", switch_ip => "192.168.1.2", controllerIp => "1.1.1.1"});
 isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
 is($switch->{_id}, '01:01:01:01:01:02', "Proper id is set");
@@ -99,6 +100,23 @@ is($switch->{_controllerIp}, '1.2.3.4', "Do not override  controllerIp address i
 $switch = $switchFactory->instantiate({ switch_mac => "ff:01:01:01:01:04", switch_ip => "192.168.0.1", controllerIp => "1.1.1.1"});
 isa_ok( $switch, 'pf::Switch::Cisco::Catalyst_2900XL' );
 is($switch->{_id}, '192.168.0.1', "Proper id is set");
+
+my $switch_1 = $switchFactory->instantiate('01:01:01:01:01:01');
+my $switch_2 = $switchFactory->instantiate('01:01:01:01:01:01');
+
+ok( refaddr($switch_1) == refaddr($switch_2) ,"The same object is used in the same scope");
+
+$switch_1 = undef;
+$switch_2 = undef;
+
+$switch_1 = $switchFactory->instantiate('01:01:01:01:01:01');
+
+my $old_ref = refaddr($switch_1);
+$switch_1 = undef;
+$switch_2 = $switchFactory->instantiate('01:01:01:01:01:01');
+
+ok( $old_ref != refaddr($switch_2) ,"The different object is used after object falls out of scope");
+
 
 
 =head1 AUTHOR
