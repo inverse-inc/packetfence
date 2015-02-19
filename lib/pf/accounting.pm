@@ -430,8 +430,9 @@ sub acct_maintenance {
                 }
             }
         }
-        elsif ($acct_policy ne $ACCOUNTING_POLICY_TIME ||
-               $acct_policy ne $ACCOUNTING_POLICY_BANDWIDTH) {
+        elsif (($acct_policy ne $ACCOUNTING_POLICY_TIME &&
+               $acct_policy ne $ACCOUNTING_POLICY_BANDWIDTH) &&
+                isenabled($acct_triggers->{'enabled'})) {
             $logger->warn("Invalid trigger for accounting maintenance: $acct_policy");
         }
     }
