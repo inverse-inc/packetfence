@@ -243,7 +243,7 @@ has_field 'dot1x_recompute_role_from_portal' =>
     unchecked_value => 'disabled',
     default => 'enabled',
     tags => { after_element => \&help,
-             help => 'When enabled PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.' },
+             help => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.' },
   );
 
 

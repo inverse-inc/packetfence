@@ -402,7 +402,7 @@ sub getNormalVlan {
     # FIRST HIT MATCH
     elsif ( defined $user_name && $connection_type && ($connection_type & $EAP) == $EAP ) {
         # Attributes has been computed in getNodeInfoForAutoReg
-        if ((isenabled($node_info->{'autoreg'}) && $autoreg) || !(isenabled($profile->dot1xRecomputeRoleFromPortal))) {
+        if ((isenabled($node_info->{'autoreg'}) && $autoreg) || isdisabled($profile->dot1xRecomputeRoleFromPortal)) {
             $logger->info("[$mac] Connection type is EAP. Getting role from node_info" );
             $role = $node_info->{'category'};
         } else {
@@ -622,7 +622,7 @@ sub shouldAutoRegister {
     my $filter = new pf::vlan::filter;
     my ($result,$role) = $filter->test('AutoRegister',$switch, $port, $mac, $node_info, $conn_type, $user_name, $ssid, $radius_request);
     if ($result) {
-        if ($switch->getVlanByName($role) eq '-1') {
+        if ($switch->getVlanByName($role) == -1) {
             return 0;
         } else {
             return $result;
