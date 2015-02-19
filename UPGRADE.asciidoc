@@ -7,7 +7,7 @@ Upgrade procedure
 -----------------
 For RedHat-based systems, run the following command:
 
-  yum update --enablerepo=packetfence
+  yum update packetfence --enablerepo=packetfence
   
 PacketFence should now be upgraded.  However, there may be extra steps required depending on the version you are upgrading from.  Please review the following notes about upgrading from an older release.
 
