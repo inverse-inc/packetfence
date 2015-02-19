@@ -5,7 +5,7 @@
 # - building directly from git
 # - specifying branch to build
 #
-# Copyright (C) 2005-2013 Inverse inc.
+# Copyright (C) 2005-2015 Inverse inc.
 #
 # Author: Inverse inc. <info@inverse.ca>
 #

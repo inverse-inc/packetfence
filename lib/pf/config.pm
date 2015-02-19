@@ -901,6 +901,11 @@ sub dynamic_unreg_date {
     my $current_date = time;
     my $unreg_date;
 
+    if($trigger =~ /0000-00-00/){
+      $logger->debug("Stopping dynamic unreg date handling because unreg date is set to infinite : $trigger");
+      return $trigger;
+    }
+
     my ($year,$month,$day) = $trigger =~ /(\d{1,4})?-?(\d{2})-(\d{2})/;
     my $current_year = POSIX::strftime("%Y",localtime($current_date));
 
@@ -1284,7 +1289,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

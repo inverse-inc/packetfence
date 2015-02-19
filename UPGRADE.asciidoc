@@ -3,7 +3,13 @@ PacketFence Upgrade Guide
 
 http://www.packetfence.org/
 
-Notes on upgrading from an older release.
+Upgrade procedure
+-----------------
+For RedHat-based systems, run the following command:
+
+  yum update packetfence --enablerepo=packetfence
+  
+PacketFence should now be upgraded.  However, there may be extra steps required depending on the version you are upgrading from.  Please review the following notes about upgrading from an older release.
 
 Upgrading from a version prior to 4.6.0
 ---------------------------------------
@@ -16,7 +22,7 @@ We added new INDEX on iplog, violation and locationlog tables.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < db/upgrade-4.5.0-4.6.0.sql
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.5.0-4.6.0.sql
 
 
 Violation template pages language handling
@@ -40,7 +46,7 @@ The class table has a new column delay_by.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < db/upgrade-4.4.0-4.5.0.sql
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.4.0-4.5.0.sql
 
 Upgrading from a version prior to 4.4.0
 ---------------------------------------
@@ -65,7 +71,7 @@ The tables email_activation and sms_activation have been merged in a table named
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < db/upgrade-4.2.0-4.3.0.sql
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.2.0-4.3.0.sql
 
 Configuration changes
 ^^^^^^^^^^^^^^^^^^^^^
@@ -98,7 +104,7 @@ New table for WRIX data.
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < db/upgrade-4.1.0-4.2.0.sql
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.1.0-4.2.0.sql
 
 Configuration changes
 ^^^^^^^^^^^^^^^^^^^^^
@@ -128,7 +134,7 @@ Also, the access_level of the temporary_password table is now a string instead o
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < db/upgrade-4.0.0-4.1.0.sql
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.0.0-4.1.0.sql
 
 Configuration changes
 ^^^^^^^^^^^^^^^^^^^^^
@@ -208,7 +214,7 @@ Moreover, an "admin" user is now automatically created. The default password
 is also "admin". Finally, a new table has been added for saved searches in the
 new Web administrative interface.
 
-  mysql -u root -p pf -v < db/upgrade-3.6.1-4.0.0.sql
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-3.6.1-4.0.0.sql
 
 Other important changes
 ^^^^^^^^^^^^^^^^^^^^^^^

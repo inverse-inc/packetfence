@@ -1,3 +1,1021 @@
+commit f64aa63acc896fbe1d94170d04fbc53a331e974c
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Feb 19 14:02:26 2015 -0500
+
+    Updated NEWS.asciidoc and changelog
+
+M	NEWS.asciidoc
+M	addons/packages/packetfence.spec
+M	debian/changelog
+
+commit c64ac188b8499f5d7c988a01c1425601196b9ad0
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Feb 19 13:56:27 2015 -0500
+
+    Updated traduction
+
+M	conf/locale/de/LC_MESSAGES/packetfence.po
+M	conf/locale/es/LC_MESSAGES/packetfence.po
+M	conf/locale/fr/LC_MESSAGES/packetfence.po
+M	conf/locale/he_IL/LC_MESSAGES/packetfence.po
+M	conf/locale/it/LC_MESSAGES/packetfence.po
+M	conf/locale/nl/LC_MESSAGES/packetfence.po
+M	conf/locale/pl_PL/LC_MESSAGES/packetfence.po
+M	conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+M	html/pfappserver/lib/pfappserver/I18N/fr.po
+
+commit 012bbd530060cc36230c2a2203e2b902545b1e66
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Feb 19 13:53:44 2015 -0500
+
+    No new database schema
+
+D	db/pf-schema-X.Y.Z.sql
+D	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit b6486bdee393bcfd6e3dfc9b00b1d65deb8d3f46
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Feb 19 13:51:13 2015 -0500
+
+    Update document version
+
+M	docs/PacketFenceZEN_Installation_Guide-docinfo.xml
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit 6c4162b4054ba2b3aa5e0861c64622c77d36ac34
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Feb 19 13:36:39 2015 -0500
+
+    We are upgrading PacketFence, not the whole OS
+
+M	UPGRADE.asciidoc
+
+commit 45fc18073dda55a5c51d6cb6c46f8f8c685398b0
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Feb 19 09:38:35 2015 -0500
+
+    Fixed warn log in pf::accounting::acct_maintenance
+
+M	lib/pf/accounting.pm
+
+commit 07456ebba3e442397821a138e3d3713a7978d395
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Feb 18 10:02:49 2015 -0500
+
+    Updated NEWS.asciidoc file
+
+M	NEWS.asciidoc
+
+commit 8fd780c05f3e7f748a98d3baf41917f40ef64053
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Feb 17 11:06:48 2015 -0500
+
+    Assigned LC_CTYPE to C during postinstall script on debian to prevent
+    i18n issues during installation.
+
+M	debian/packetfence.postinst
+
+commit 6ef3c3cabcfc44837bc87c813c7eed717a8ed817
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Feb 17 10:21:06 2015 -0500
+
+    Call dynamic_unreg_date only with SET_UNREG_DATE
+
+M	lib/pf/vlan.pm
+
+commit c86c0e08f521cffff0dee2a91d71a28bbb138901
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Feb 16 15:00:10 2015 -0500
+
+    Updated NEWS.asciidoc for PR 339.
+
+M	NEWS.asciidoc
+
+commit cedfa283c863efdda7756af4dcb5ab2bda1a8ca2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Sat Feb 14 14:05:56 2015 -0500
+
+    Redisplay the search values
+
+M	html/pfappserver/root/config/switch/list.tt
+
+commit bfbd01eed98924a6ed01ac366cdeea789179e478
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Sat Feb 14 14:03:53 2015 -0500
+
+    Correct the page number variable name
+
+M	html/pfappserver/lib/pfappserver/Model/Config/Switch.pm
+
+commit 5c453cf74e0868451f491ac70d70971b024867ab
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Sat Feb 7 19:31:23 2015 -0500
+
+    Updated copyright
+
+M	addons/accounting.pl
+M	addons/autodiscover.pl
+M	addons/captive-portal/proxy-bypass/squid-redirector.pl
+M	addons/connect_and_read.pl
+M	addons/convertToPortSecurity.pl
+M	addons/database-backup-and-maintenance.sh
+M	addons/dev-helpers/dump.pl
+M	addons/dev-helpers/radius-hook.pl
+M	addons/dev-helpers/test-billing.pl
+M	addons/dev-helpers/useragent-build-regexp.pl
+M	addons/dhcp_dumper.pl
+M	addons/extract_i18n_strings.pl
+M	addons/high-availability/pf-diff
+M	addons/high-availability/rdiff
+M	addons/import-node-csv.pl
+M	addons/integration-testing/replay-snmptrapd-logs.pl
+M	addons/iplog-cleanup.pl
+M	addons/locationlog-cleanup.pl
+M	addons/migrate-to-locationlog_history.sh
+M	addons/monitorpfsetvlan.pl
+M	addons/network-save-configs.pl
+M	addons/packages/packetfence-rpm-build.sh
+M	addons/packages/perl-Net-Appliance-Session.spec.diff
+M	addons/pf-maint.pl
+M	addons/pfarp_remote/sbin/pfarp_remote
+M	addons/pfdetect_remote/sbin/pfdetect_remote
+M	addons/recovery.pl
+M	addons/snort/update_rules.pl
+M	addons/template-from-csv.pl
+M	addons/upgrade/to-2.2.0-update-all-useragents.pl
+M	addons/upgrade/to-3.0-networks.conf.pl
+M	addons/upgrade/to-3.0-pf.conf.pl
+M	addons/upgrade/to-3.0-violations.conf.pl
+M	addons/upgrade/to-3.5-pf.conf.pl
+M	addons/watchdog/freeradius-watchdog.sh
+M	addons/watchdog/pfdhcpdlistener-watchdog.sh
+M	bin/pfcmd.pl
+M	bin/pfcmd_vlan
+M	bin/pftest
+M	conf/dhcp_fingerprints.conf
+M	conf/floating_network_device.conf.example
+M	conf/locale/de/LC_MESSAGES/packetfence.po
+M	conf/locale/en/LC_MESSAGES/packetfence.po
+M	conf/locale/es/LC_MESSAGES/packetfence.po
+M	conf/locale/fr/LC_MESSAGES/packetfence.po
+M	conf/locale/he_IL/LC_MESSAGES/packetfence.po
+M	conf/locale/it/LC_MESSAGES/packetfence.po
+M	conf/locale/nl/LC_MESSAGES/packetfence.po
+M	conf/locale/pl_PL/LC_MESSAGES/packetfence.po
+M	conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+M	conf/switches.conf.example
+M	debian/copyright
+M	docs/docbook/xsl/headerfooter-fo.xsl
+M	docs/docbook/xsl/packetfence-fo-article.xsl
+M	docs/docbook/xsl/packetfence-fo.xsl
+M	docs/docbook/xsl/titlepage-fo.xml
+M	docs/includes/additional-info.asciidoc
+M	docs/includes/commercial-support.asciidoc
+M	docs/includes/global-attributes.asciidoc
+M	docs/includes/license.asciidoc
+M	html/captive-portal/lib/captiveportal.pm
+M	html/captive-portal/lib/captiveportal/Base/Controller.pm
+M	html/captive-portal/lib/captiveportal/Controller/Access.pm
+M	html/captive-portal/lib/captiveportal/Controller/Activate/Email.pm
+M	html/captive-portal/lib/captiveportal/Controller/Activate/Sms.pm
+M	html/captive-portal/lib/captiveportal/Controller/Aup.pm
+M	html/captive-portal/lib/captiveportal/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/Controller/CaptivePortal.pm
+M	html/captive-portal/lib/captiveportal/Controller/DeviceRegistration.pm
+M	html/captive-portal/lib/captiveportal/Controller/Enabler.pm
+M	html/captive-portal/lib/captiveportal/Controller/Node/Manager.pm
+M	html/captive-portal/lib/captiveportal/Controller/Oauth2.pm
+M	html/captive-portal/lib/captiveportal/Controller/Pay.pm
+M	html/captive-portal/lib/captiveportal/Controller/PreRegister.pm
+M	html/captive-portal/lib/captiveportal/Controller/Redirect.pm
+M	html/captive-portal/lib/captiveportal/Controller/Release.pm
+M	html/captive-portal/lib/captiveportal/Controller/Remediation.pm
+M	html/captive-portal/lib/captiveportal/Controller/Root.pm
+M	html/captive-portal/lib/captiveportal/Controller/Signup.pm
+M	html/captive-portal/lib/captiveportal/Controller/Status.pm
+M	html/captive-portal/lib/captiveportal/Controller/WirelessProfile.pm
+M	html/captive-portal/lib/captiveportal/Model/Portal/Session.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Access.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Sms.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Aup.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/CaptivePortal.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Enabler.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Node/Manager.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Oauth2.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Pay.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/PreRegister.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Redirect.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Release.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Root.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Signup.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Model/Portal/Session.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/View/HTML.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/View/MobileConfig.pm
+M	html/captive-portal/lib/captiveportal/Role/Action/Hookable.pm
+M	html/captive-portal/lib/captiveportal/View/HTML.pm
+M	html/captive-portal/lib/captiveportal/View/MobileConfig.pm
+M	html/pfappserver/lib/pfappserver/Authentication/Store/PacketFence.pm
+M	html/pfappserver/lib/pfappserver/Authentication/Store/PacketFence/User.pm
+M	html/pfappserver/lib/pfappserver/Base/Action/AdminRole.pm
+M	html/pfappserver/lib/pfappserver/Base/Action/SimpleSearch.pm
+M	html/pfappserver/lib/pfappserver/Base/Controller.pm
+M	html/pfappserver/lib/pfappserver/Base/Controller/Crud.pm
+M	html/pfappserver/lib/pfappserver/Base/Controller/Crud/Clone.pm
+M	html/pfappserver/lib/pfappserver/Base/Controller/Crud/Config.pm
+M	html/pfappserver/lib/pfappserver/Base/Controller/Crud/Config/Clone.pm
+M	html/pfappserver/lib/pfappserver/Base/Controller/Crud/DB.pm
+M	html/pfappserver/lib/pfappserver/Base/Form.pm
+M	html/pfappserver/lib/pfappserver/Base/Form/Authentication/Action.pm
+M	html/pfappserver/lib/pfappserver/Base/Form/Role/Help.pm
+M	html/pfappserver/lib/pfappserver/Base/Model.pm
+M	html/pfappserver/lib/pfappserver/Base/Model/Config.pm
+M	html/pfappserver/lib/pfappserver/Base/Model/DB.pm
+M	html/pfappserver/lib/pfappserver/Base/Model/SavedSearch.pm
+M	html/pfappserver/lib/pfappserver/Base/Model/Search.pm
+M	html/pfappserver/lib/pfappserver/Controller/Admin.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/AdminRoles.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/Authentication.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/Firewall_SSO.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/FloatingDevice.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/MacAddress.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/Networks.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/Pf.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/Profile.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/Profile/Default.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/Provisioning.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/Realm.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/Switch.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/System.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/UserAgents.pm
+M	html/pfappserver/lib/pfappserver/Controller/Config/Wrix.pm
+M	html/pfappserver/lib/pfappserver/Controller/Configuration.pm
+M	html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+M	html/pfappserver/lib/pfappserver/Controller/DB.pm
+M	html/pfappserver/lib/pfappserver/Controller/Graph.pm
+M	html/pfappserver/lib/pfappserver/Controller/Interface.pm
+M	html/pfappserver/lib/pfappserver/Controller/Node.pm
+M	html/pfappserver/lib/pfappserver/Controller/Roles.pm
+M	html/pfappserver/lib/pfappserver/Controller/Root.pm
+M	html/pfappserver/lib/pfappserver/Controller/SavedSearch/Node.pm
+M	html/pfappserver/lib/pfappserver/Controller/SavedSearch/User.pm
+M	html/pfappserver/lib/pfappserver/Controller/Service.pm
+M	html/pfappserver/lib/pfappserver/Controller/SoH.pm
+M	html/pfappserver/lib/pfappserver/Controller/User.pm
+M	html/pfappserver/lib/pfappserver/Controller/Violation.pm
+M	html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/AD.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Blackhole.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Chained.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Htpasswd.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Null.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Profile.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Profile/Default.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/accept.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/android.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/deny.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/ibm.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileiron.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sepm.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/symantec.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/windows.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/DatePicker.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/DateTimePicker.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/DynamicTable.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/IPAddress.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/MACAddress.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/SwitchID.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/TimePicker.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/Toggle.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/Uneditable.pm
+M	html/pfappserver/lib/pfappserver/Form/Interface.pm
+M	html/pfappserver/lib/pfappserver/Form/Interface/Create.pm
+M	html/pfappserver/lib/pfappserver/Form/Node.pm
+M	html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal.pm
+M	html/pfappserver/lib/pfappserver/Form/Role.pm
+M	html/pfappserver/lib/pfappserver/Form/SavedSearch.pm
+M	html/pfappserver/lib/pfappserver/Form/SoH.pm
+M	html/pfappserver/lib/pfappserver/Form/User.pm
+M	html/pfappserver/lib/pfappserver/Form/User/Create.pm
+M	html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+M	html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
+M	html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+M	html/pfappserver/lib/pfappserver/Form/Violation.pm
+M	html/pfappserver/lib/pfappserver/Form/Widget/Field/ButtonGroup.pm
+M	html/pfappserver/lib/pfappserver/Form/Widget/Field/DynamicTable.pm
+M	html/pfappserver/lib/pfappserver/Form/Widget/Field/ExtendedDuration.pm
+M	html/pfappserver/lib/pfappserver/Form/Widget/Field/Span.pm
+M	html/pfappserver/lib/pfappserver/Form/Widget/Field/Switch.pm
+M	html/pfappserver/lib/pfappserver/Form/Widget/Wrapper/DynamicTableRow.pm
+M	html/pfappserver/lib/pfappserver/I18N/en.po
+M	html/pfappserver/lib/pfappserver/I18N/fr.po
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+M	html/pfappserver/lib/pfappserver/Model/Admin.pm
+M	html/pfappserver/lib/pfappserver/Model/Authentication.pm
+M	html/pfappserver/lib/pfappserver/Model/Authentication/Source.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/AdminRoles.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Authentication.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Firewall_SSO.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/FloatingDevice.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Interface.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Network.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Pf.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Profile.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Provisioning.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Realm.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Rules.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Switch.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/System.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Violations.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Wrix.pm
+M	html/pfappserver/lib/pfappserver/Model/Configurator.pm
+M	html/pfappserver/lib/pfappserver/Model/DB.pm
+M	html/pfappserver/lib/pfappserver/Model/Enforcement.pm
+M	html/pfappserver/lib/pfappserver/Model/Graph.pm
+M	html/pfappserver/lib/pfappserver/Model/Interface.pm
+M	html/pfappserver/lib/pfappserver/Model/MacAddress.pm
+M	html/pfappserver/lib/pfappserver/Model/Node.pm
+M	html/pfappserver/lib/pfappserver/Model/OS.pm
+M	html/pfappserver/lib/pfappserver/Model/PfConfigAdapter.pm
+M	html/pfappserver/lib/pfappserver/Model/Roles.pm
+M	html/pfappserver/lib/pfappserver/Model/SavedSearch/Node.pm
+M	html/pfappserver/lib/pfappserver/Model/SavedSearch/User.pm
+M	html/pfappserver/lib/pfappserver/Model/Search/Node.pm
+M	html/pfappserver/lib/pfappserver/Model/Search/User.pm
+M	html/pfappserver/lib/pfappserver/Model/Services.pm
+M	html/pfappserver/lib/pfappserver/Model/SoH.pm
+M	html/pfappserver/lib/pfappserver/Model/User.pm
+M	html/pfappserver/lib/pfappserver/Model/UserAgent.pm
+M	html/pfappserver/lib/pfappserver/Role/Controller/BulkActions.pm
+M	html/pfappserver/lib/pfappserver/View/Admin.pm
+M	html/pfappserver/lib/pfappserver/View/Configurator.pm
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+M	lib/Catalyst/Plugin/Session/Store/CHI.pm
+M	lib/pf/Authentication/Action.pm
+M	lib/pf/Authentication/Condition.pm
+M	lib/pf/Authentication/Rule.pm
+M	lib/pf/Authentication/Source.pm
+M	lib/pf/Authentication/Source/ADSource.pm
+M	lib/pf/Authentication/Source/BlackholeSource.pm
+M	lib/pf/Authentication/Source/ChainedSource.pm
+M	lib/pf/Authentication/Source/EmailSource.pm
+M	lib/pf/Authentication/Source/FacebookSource.pm
+M	lib/pf/Authentication/Source/GithubSource.pm
+M	lib/pf/Authentication/Source/GoogleSource.pm
+M	lib/pf/Authentication/Source/HtpasswdSource.pm
+M	lib/pf/Authentication/Source/KerberosSource.pm
+M	lib/pf/Authentication/Source/LDAPSource.pm
+M	lib/pf/Authentication/Source/LinkedInSource.pm
+M	lib/pf/Authentication/Source/NullSource.pm
+M	lib/pf/Authentication/Source/RADIUSSource.pm
+M	lib/pf/Authentication/Source/SMSSource.pm
+M	lib/pf/Authentication/Source/SQLSource.pm
+M	lib/pf/Authentication/Source/SponsorEmailSource.pm
+M	lib/pf/Authentication/Source/WindowsLiveSource.pm
+M	lib/pf/Authentication/constants.pm
+M	lib/pf/Base/RoseDB/Object.pm
+M	lib/pf/Base/RoseDB/Object/Manager.pm
+M	lib/pf/Base/RoseDB/Wrix.pm
+M	lib/pf/Base/RoseDB/Wrix/Manager.pm
+M	lib/pf/CHI.pm
+M	lib/pf/ConfigStore.pm
+M	lib/pf/ConfigStore/AdminRoles.pm
+M	lib/pf/ConfigStore/Authentication.pm
+M	lib/pf/ConfigStore/Firewall_SSO.pm
+M	lib/pf/ConfigStore/FloatingDevice.pm
+M	lib/pf/ConfigStore/Group.pm
+M	lib/pf/ConfigStore/Interface.pm
+M	lib/pf/ConfigStore/Network.pm
+M	lib/pf/ConfigStore/Pf.pm
+M	lib/pf/ConfigStore/Profile.pm
+M	lib/pf/ConfigStore/Provisioning.pm
+M	lib/pf/ConfigStore/Realm.pm
+M	lib/pf/ConfigStore/Role/ValidGenericID.pm
+M	lib/pf/ConfigStore/Switch.pm
+M	lib/pf/ConfigStore/Violations.pm
+M	lib/pf/ConfigStore/VlanFilters.pm
+M	lib/pf/ConfigStore/Wrix.pm
+M	lib/pf/Connection.pm
+M	lib/pf/IniFiles.pm
+M	lib/pf/MAC.pm
+M	lib/pf/Portal/Profile.pm
+M	lib/pf/Portal/ProfileFactory.pm
+M	lib/pf/Portal/Session.pm
+M	lib/pf/Role/CHI/Driver/FileUmask.pm
+M	lib/pf/Role/CHI/Driver/Untaint.pm
+M	lib/pf/RoseDB.pm
+M	lib/pf/RoseDB/Wrix.pm
+M	lib/pf/RoseDB/Wrix/Manager.pm
+M	lib/pf/SearchBuilder.pm
+M	lib/pf/Switch.pm
+M	lib/pf/Switch/Accton.pm
+M	lib/pf/Switch/Accton/ES3526XA.pm
+M	lib/pf/Switch/Accton/ES3528M.pm
+M	lib/pf/Switch/AeroHIVE.pm
+M	lib/pf/Switch/AeroHIVE/AP.pm
+M	lib/pf/Switch/AeroHIVE/AP_http.pm
+M	lib/pf/Switch/AlliedTelesis.pm
+M	lib/pf/Switch/AlliedTelesis/AT8000GS.pm
+M	lib/pf/Switch/Amer.pm
+M	lib/pf/Switch/Amer/SS2R24i.pm
+M	lib/pf/Switch/Anyfi.pm
+M	lib/pf/Switch/Aruba.pm
+M	lib/pf/Switch/Aruba/Controller_200.pm
+M	lib/pf/Switch/ArubaSwitch.pm
+M	lib/pf/Switch/Avaya.pm
+M	lib/pf/Switch/Avaya/ERS2500.pm
+M	lib/pf/Switch/Avaya/ERS4000.pm
+M	lib/pf/Switch/Avaya/ERS5000.pm
+M	lib/pf/Switch/Avaya/ERS5000_6x.pm
+M	lib/pf/Switch/Avaya/WC.pm
+M	lib/pf/Switch/Belair.pm
+M	lib/pf/Switch/Brocade.pm
+M	lib/pf/Switch/Brocade/RFS.pm
+M	lib/pf/Switch/Cisco.pm
+M	lib/pf/Switch/Cisco/Aironet.pm
+M	lib/pf/Switch/Cisco/Aironet_1130.pm
+M	lib/pf/Switch/Cisco/Aironet_1242.pm
+M	lib/pf/Switch/Cisco/Aironet_1250.pm
+M	lib/pf/Switch/Cisco/Aironet_WDS.pm
+M	lib/pf/Switch/Cisco/Catalyst_2900XL.pm
+M	lib/pf/Switch/Cisco/Catalyst_2950.pm
+M	lib/pf/Switch/Cisco/Catalyst_2960.pm
+M	lib/pf/Switch/Cisco/Catalyst_2960G.pm
+M	lib/pf/Switch/Cisco/Catalyst_2960_http.pm
+M	lib/pf/Switch/Cisco/Catalyst_2970.pm
+M	lib/pf/Switch/Cisco/Catalyst_3500XL.pm
+M	lib/pf/Switch/Cisco/Catalyst_3550.pm
+M	lib/pf/Switch/Cisco/Catalyst_3560.pm
+M	lib/pf/Switch/Cisco/Catalyst_3560G.pm
+M	lib/pf/Switch/Cisco/Catalyst_3750.pm
+M	lib/pf/Switch/Cisco/Catalyst_3750G.pm
+M	lib/pf/Switch/Cisco/Catalyst_4500.pm
+M	lib/pf/Switch/Cisco/Catalyst_6500.pm
+M	lib/pf/Switch/Cisco/ISR_1800.pm
+M	lib/pf/Switch/Cisco/WLC.pm
+M	lib/pf/Switch/Cisco/WLC_2100.pm
+M	lib/pf/Switch/Cisco/WLC_2106.pm
+M	lib/pf/Switch/Cisco/WLC_2500.pm
+M	lib/pf/Switch/Cisco/WLC_4400.pm
+M	lib/pf/Switch/Cisco/WLC_5500.pm
+M	lib/pf/Switch/Cisco/WLC_http.pm
+M	lib/pf/Switch/Cisco/WiSM.pm
+M	lib/pf/Switch/Cisco/WiSM2.pm
+M	lib/pf/Switch/Dell.pm
+M	lib/pf/Switch/Dell/Force10.pm
+M	lib/pf/Switch/Dell/PowerConnect3424.pm
+M	lib/pf/Switch/Dlink.pm
+M	lib/pf/Switch/Dlink/DES_3028.pm
+M	lib/pf/Switch/Dlink/DES_3526.pm
+M	lib/pf/Switch/Dlink/DES_3550.pm
+M	lib/pf/Switch/Dlink/DGS_3100.pm
+M	lib/pf/Switch/Dlink/DGS_3200.pm
+M	lib/pf/Switch/Dlink/DWL.pm
+M	lib/pf/Switch/Dlink/DWS_3026.pm
+M	lib/pf/Switch/EdgeCore.pm
+M	lib/pf/Switch/Enterasys.pm
+M	lib/pf/Switch/Enterasys/D2.pm
+M	lib/pf/Switch/Enterasys/Matrix_N3.pm
+M	lib/pf/Switch/Enterasys/SecureStack_C2.pm
+M	lib/pf/Switch/Enterasys/SecureStack_C3.pm
+M	lib/pf/Switch/Enterasys/V2110.pm
+M	lib/pf/Switch/Extreme.pm
+M	lib/pf/Switch/Extreme/Summit.pm
+M	lib/pf/Switch/Extreme/Summit_X250e.pm
+M	lib/pf/Switch/Extricom.pm
+M	lib/pf/Switch/Extricom/EXSW.pm
+M	lib/pf/Switch/Foundry.pm
+M	lib/pf/Switch/Foundry/FastIron_4802.pm
+M	lib/pf/Switch/Foundry/MC.pm
+M	lib/pf/Switch/H3C.pm
+M	lib/pf/Switch/H3C/S5120.pm
+M	lib/pf/Switch/HP.pm
+M	lib/pf/Switch/HP/Controller_MSM710.pm
+M	lib/pf/Switch/HP/E4800G.pm
+M	lib/pf/Switch/HP/E5500G.pm
+M	lib/pf/Switch/HP/MSM.pm
+M	lib/pf/Switch/HP/Procurve_2500.pm
+M	lib/pf/Switch/HP/Procurve_2600.pm
+M	lib/pf/Switch/HP/Procurve_3400cl.pm
+M	lib/pf/Switch/HP/Procurve_4100.pm
+M	lib/pf/Switch/HP/Procurve_5300.pm
+M	lib/pf/Switch/HP/Procurve_5400.pm
+M	lib/pf/Switch/Hostapd.pm
+M	lib/pf/Switch/Huawei.pm
+M	lib/pf/Switch/Huawei/S5710.pm
+M	lib/pf/Switch/Intel.pm
+M	lib/pf/Switch/Intel/Express_460.pm
+M	lib/pf/Switch/Intel/Express_530.pm
+M	lib/pf/Switch/Juniper.pm
+M	lib/pf/Switch/Juniper/EX.pm
+M	lib/pf/Switch/Juniper/EX2200.pm
+M	lib/pf/Switch/LG.pm
+M	lib/pf/Switch/LG/ES4500G.pm
+M	lib/pf/Switch/Linksys.pm
+M	lib/pf/Switch/Linksys/SRW224G4.pm
+M	lib/pf/Switch/Meru.pm
+M	lib/pf/Switch/Meru/MC.pm
+M	lib/pf/Switch/Mikrotik.pm
+M	lib/pf/Switch/MockedSwitch.pm
+M	lib/pf/Switch/Motorola.pm
+M	lib/pf/Switch/Motorola/RFS.pm
+M	lib/pf/Switch/Netgear.pm
+M	lib/pf/Switch/Netgear/FSM726v1.pm
+M	lib/pf/Switch/Netgear/FSM7328S.pm
+M	lib/pf/Switch/Netgear/GS110.pm
+M	lib/pf/Switch/Netgear/MSeries.pm
+M	lib/pf/Switch/Nortel.pm
+M	lib/pf/Switch/Nortel/BPS2000.pm
+M	lib/pf/Switch/Nortel/BayStack4550.pm
+M	lib/pf/Switch/Nortel/BayStack470.pm
+M	lib/pf/Switch/Nortel/BayStack5500.pm
+M	lib/pf/Switch/Nortel/BayStack5500_6x.pm
+M	lib/pf/Switch/Nortel/ERS2500.pm
+M	lib/pf/Switch/Nortel/ERS4000.pm
+M	lib/pf/Switch/Nortel/ERS5000.pm
+M	lib/pf/Switch/Nortel/ERS5000_6x.pm
+M	lib/pf/Switch/Nortel/ES325.pm
+M	lib/pf/Switch/PacketFence.pm
+M	lib/pf/Switch/Ruckus.pm
+M	lib/pf/Switch/SMC.pm
+M	lib/pf/Switch/SMC/TS6128L2.pm
+M	lib/pf/Switch/SMC/TS6224M.pm
+M	lib/pf/Switch/SMC/TS8800M.pm
+M	lib/pf/Switch/ThreeCom.pm
+M	lib/pf/Switch/ThreeCom/E4800G.pm
+M	lib/pf/Switch/ThreeCom/E5500G.pm
+M	lib/pf/Switch/ThreeCom/NJ220.pm
+M	lib/pf/Switch/ThreeCom/SS4200.pm
+M	lib/pf/Switch/ThreeCom/SS4500.pm
+M	lib/pf/Switch/ThreeCom/Switch_4200G.pm
+M	lib/pf/Switch/Trapeze.pm
+M	lib/pf/Switch/WirelessModuleTemplate.pm
+M	lib/pf/Switch/Xirrus.pm
+M	lib/pf/Switch/Xirrus/AP_http.pm
+M	lib/pf/Switch/constants.pm
+M	lib/pf/SwitchFactory.pm
+M	lib/pf/WebAPI.pm
+M	lib/pf/WebAPI/AuthenHandler.pm
+M	lib/pf/WebAPI/InitHandler.pm
+M	lib/pf/WebAPI/JSONRPC.pm
+M	lib/pf/WebAPI/MsgPack.pm
+M	lib/pf/accounting.pm
+M	lib/pf/action.pm
+M	lib/pf/activation.pm
+M	lib/pf/admin_roles.pm
+M	lib/pf/api.pm
+M	lib/pf/api/attributes.pm
+M	lib/pf/api/jsonrpcclient.pm
+M	lib/pf/api/local.pm
+M	lib/pf/api/msgpackclient.pm
+M	lib/pf/authentication.pm
+M	lib/pf/billing.pm
+M	lib/pf/billing/constants.pm
+M	lib/pf/billing/custom.pm
+M	lib/pf/billing/gateway/authorize_net.pm
+M	lib/pf/billing/gateway/mirapay.pm
+M	lib/pf/billing/gateway/mirapay/request.pm
+M	lib/pf/billing/gateway/mirapay/response.pm
+M	lib/pf/class.pm
+M	lib/pf/client.pm
+M	lib/pf/cmd.pm
+M	lib/pf/cmd/help.pm
+M	lib/pf/cmd/roles/show_help.pm
+M	lib/pf/cmd/roles/show_parent_help.pm
+M	lib/pf/cmd/subcmd.pm
+M	lib/pf/config.pm
+M	lib/pf/config/cached.pm
+M	lib/pf/config/ui.pm
+M	lib/pf/configfile.pm
+M	lib/pf/db.pm
+M	lib/pf/enforcement.pm
+M	lib/pf/error.pm
+M	lib/pf/factory/firewallsso.pm
+M	lib/pf/factory/profile/filter.pm
+M	lib/pf/factory/provisioner.pm
+M	lib/pf/file_paths.pm
+M	lib/pf/firewallsso.pm
+M	lib/pf/firewallsso/BarracudaNG.pm
+M	lib/pf/firewallsso/FortiGate.pm
+M	lib/pf/firewallsso/PaloAlto.pm
+M	lib/pf/floatingdevice.pm
+M	lib/pf/floatingdevice/custom.pm
+M	lib/pf/freeradius.pm
+M	lib/pf/ifoctetslog.pm
+M	lib/pf/import.pm
+M	lib/pf/inline.pm
+M	lib/pf/inline/accounting.pm
+M	lib/pf/inline/custom.pm
+M	lib/pf/iplog.pm
+M	lib/pf/ipset.pm
+M	lib/pf/iptables.pm
+M	lib/pf/locationlog.pm
+M	lib/pf/log.pm
+M	lib/pf/log/trapper.pm
+M	lib/pf/lookup/node.pm
+M	lib/pf/lookup/person.pm
+M	lib/pf/node.pm
+M	lib/pf/nodecategory.pm
+M	lib/pf/os.pm
+M	lib/pf/person.pm
+M	lib/pf/pfcmd.pm
+M	lib/pf/pfcmd/checkup.pm
+M	lib/pf/pfcmd/dashboard.pm
+M	lib/pf/pfcmd/graph.pm
+M	lib/pf/pfcmd/help.pm
+M	lib/pf/pfcmd/pfcmd.pm
+M	lib/pf/pfcmd/report.pm
+M	lib/pf/pfdns/constants.pm
+M	lib/pf/pftest.pm
+M	lib/pf/pftest/authentication.pm
+M	lib/pf/pftest/help.pm
+M	lib/pf/pftest/iplogs_not_closed.pm
+M	lib/pf/pftest/mysql.pm
+M	lib/pf/pftest/mysql/tuner.pm
+M	lib/pf/profile/filter.pm
+M	lib/pf/profile/filter/key.pm
+M	lib/pf/profile/filter/key_couple.pm
+M	lib/pf/profile/filter/network.pm
+M	lib/pf/profile/filter/port.pm
+M	lib/pf/profile/filter/realm.pm
+M	lib/pf/profile/filter/ssid.pm
+M	lib/pf/profile/filter/switch.pm
+M	lib/pf/profile/filter/switch_port.pm
+M	lib/pf/profile/filter/uri.pm
+M	lib/pf/profile/filter/vlan.pm
+M	lib/pf/provisioner.pm
+M	lib/pf/provisioner/accept.pm
+M	lib/pf/provisioner/android.pm
+M	lib/pf/provisioner/deny.pm
+M	lib/pf/provisioner/ibm.pm
+M	lib/pf/provisioner/mobileconfig.pm
+M	lib/pf/provisioner/mobileiron.pm
+M	lib/pf/provisioner/opswat.pm
+M	lib/pf/provisioner/sepm.pm
+M	lib/pf/provisioner/symantec.pm
+M	lib/pf/provisioner/windows.pm
+M	lib/pf/proxypassthrough/constants.pm
+M	lib/pf/radius.pm
+M	lib/pf/radius/constants.pm
+M	lib/pf/radius/custom.pm
+M	lib/pf/radius/rpc.pm
+M	lib/pf/radius/soapclient.pm
+M	lib/pf/roles.pm
+M	lib/pf/roles/custom.pm
+M	lib/pf/savedsearch.pm
+M	lib/pf/scan.pm
+M	lib/pf/scan/nessus.pm
+M	lib/pf/scan/openvas.pm
+M	lib/pf/schedule.pm
+M	lib/pf/services.pm
+M	lib/pf/services/manager.pm
+M	lib/pf/services/manager/dhcpd.pm
+M	lib/pf/services/manager/httpd.pm
+M	lib/pf/services/manager/httpd_aaa.pm
+M	lib/pf/services/manager/httpd_admin.pm
+M	lib/pf/services/manager/httpd_portal.pm
+M	lib/pf/services/manager/httpd_proxy.pm
+M	lib/pf/services/manager/httpd_webservices.pm
+M	lib/pf/services/manager/iptables.pm
+M	lib/pf/services/manager/memcached.pm
+M	lib/pf/services/manager/pfbandwidthd.pm
+M	lib/pf/services/manager/pfdetect.pm
+M	lib/pf/services/manager/pfdhcplistener.pm
+M	lib/pf/services/manager/pfdns.pm
+M	lib/pf/services/manager/pfmon.pm
+M	lib/pf/services/manager/pfsetvlan.pm
+M	lib/pf/services/manager/radiusd.pm
+M	lib/pf/services/manager/roles/is_managed_vlan_inline_enforcement.pm
+M	lib/pf/services/manager/roles/pf_conf_trapping_engine.pm
+M	lib/pf/services/manager/snmptrapd.pm
+M	lib/pf/services/manager/snort.pm
+M	lib/pf/services/manager/submanager.pm
+M	lib/pf/services/manager/suricata.pm
+M	lib/pf/services/util.pm
+M	lib/pf/sms_carrier.pm
+M	lib/pf/soh.pm
+M	lib/pf/soh/custom.pm
+M	lib/pf/temporary_password.pm
+M	lib/pf/traplog.pm
+M	lib/pf/trigger.pm
+M	lib/pf/useragent.pm
+M	lib/pf/util.pm
+M	lib/pf/util/apache.pm
+M	lib/pf/util/dhcp.pm
+M	lib/pf/util/freeradius.pm
+M	lib/pf/util/radius.pm
+M	lib/pf/violation.pm
+M	lib/pf/violation_config.pm
+M	lib/pf/vlan.pm
+M	lib/pf/vlan/custom.pm
+M	lib/pf/vlan/custom_example.pm
+M	lib/pf/vlan/filter.pm
+M	lib/pf/web.pm
+M	lib/pf/web/aaa_modperl_require.pl
+M	lib/pf/web/admin.pm
+M	lib/pf/web/backend_modperl_require.pl
+M	lib/pf/web/billing.pm
+M	lib/pf/web/captiveportal_modperl_require.pl
+M	lib/pf/web/constants.pm
+M	lib/pf/web/custom.pm
+M	lib/pf/web/device_registration.pm
+M	lib/pf/web/dispatcher.pm
+M	lib/pf/web/dispatcher/custom.pm
+M	lib/pf/web/externalportal.pm
+M	lib/pf/web/filter.pm
+M	lib/pf/web/gaming.pm
+M	lib/pf/web/guest.pm
+M	lib/pf/web/interceptproxy.pm
+M	lib/pf/web/proxy_modperl_require.pl
+M	lib/pf/web/release.pm
+M	lib/pf/web/util.pm
+M	lib/pf/web/webservices_modperl_require.pl
+M	lib/pf/web/wispr.pm
+M	raddb/dictionary.inverse
+M	raddb/packetfence-soh.pm
+M	raddb/packetfence.pm
+M	sbin/pfbandwidthd
+M	sbin/pfdetect
+M	sbin/pfdhcplistener
+M	sbin/pfdns
+M	sbin/pfmon
+M	sbin/pfsetvlan
+M	src/pfcmd.c
+M	t/ConfigStore.t
+M	t/ConfigStore/Base.t
+M	t/ConfigStore/Group.t
+M	t/PfFilePaths.pm
+M	t/Portal.t
+M	t/SNMP.t
+M	t/SwitchFactory.t
+M	t/TestUtils.pm
+M	t/all.t
+M	t/authentication.t
+M	t/benchmarks/pf-node.pl
+M	t/benchmarks/pf-util.pl
+M	t/benchmarks/switchFactory.pl
+M	t/benchmarks/tieconfig.pl
+M	t/benchmarks/trap-parsing.pl
+M	t/benchmarks/webservices_client/msgpack_vs_soap.pl
+M	t/binaries.t
+M	t/chi-stats/chi_stats.pl
+M	t/chi-stats/chi_stats_memcache_file.pl
+M	t/chi-stats/chi_stats_memcache_vs_dbi.pl
+M	t/coding-style.t
+M	t/config-cached.t
+M	t/config.t
+M	t/critic.t
+M	t/daemon.t
+M	t/dao/data.t
+M	t/dao/graph.t
+M	t/dao/node.t
+M	t/dao/os.t
+M	t/dao/person.t
+M	t/dao/report.t
+M	t/data/switches.conf
+M	t/enforcement.t
+M	t/floatingdevice.t
+M	t/hardware-snmp-objects.t
+M	t/i18n.t
+M	t/import.t
+M	t/inline.t
+M	t/integration.t
+M	t/integration/Portal.t
+M	t/integration/captive-portal.t
+M	t/integration/pfcmd.t
+M	t/integration/radius.t
+M	t/ldap-auth-cache.t
+M	t/linux.t
+M	t/network-devices/cisco.t
+M	t/network-devices/roles.t
+M	t/network-devices/threecom.t
+M	t/network-devices/wired.t
+M	t/network-devices/wireless.t
+M	t/nodecategory.t
+M	t/person.t
+M	t/pfcmd.t
+M	t/pfcmd_vlan.t
+M	t/pfdhcplistener.t
+M	t/pfsetvlan.t
+M	t/pod.t
+M	t/podCoverage.t
+M	t/radius.t
+M	t/services.t
+M	t/smoke.t
+M	t/soh.t
+M	t/stress-test/coa-calls.pl
+M	t/stress-test/coa-server.pl
+M	t/stress-test/eap-calls
+M	t/stress-test/radius-calls
+M	t/stress-test/soap-calls-radius_authorize
+M	t/stress-test/soap-calls-snort
+M	t/trigger.t
+M	t/unittest/admin_roles.t
+M	t/unittest/api/attributes.t
+M	t/unittest/profile/filter/key.t
+M	t/unittest/profile/filter/network.t
+M	t/unittest/provisioner.t
+M	t/unittest/provisioner/symantec.t
+M	t/useragent.t
+M	t/util-dhcp.t
+M	t/util-radius.t
+M	t/util.t
+M	t/vlan.t
+M	t/web-auth.t
+M	t/web.t
+
+commit 9069a307ff5b64e6f589231c1bc8f43ad5b6b466
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Feb 12 13:31:15 2015 -0500
+
+    Updated NEWS.asciidoc
+
+M	NEWS.asciidoc
+
+commit 231c203b6ba63a17c74cda9ed6a13e25f8d55918
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Feb 12 13:10:32 2015 -0500
+
+    Added all files in /usr/local/pf/conf/radiusd/ as configuration files in debian packaging
+
+M	debian/packetfence.conffiles
+
+commit 56b6f643bd5fe7dd5ae5155995e504b0d6b070d9
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Feb 11 20:18:00 2015 -0500
+
+    Adjusted
+
+M	conf/pf-release
+
+commit 34f7c7aa387cbfb7a163fa2ae1558b7aa6470228
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Feb 11 18:33:29 2015 -0500
+
+    Post-release codebase maintenance
+
+M	NEWS.asciidoc
+M	UPGRADE.asciidoc
+M	conf/pf-release
+A	db/pf-schema-X.Y.Z.sql
+A	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit f865f6f92f95a0bed0a05e6d4ac9bf0f344c11ef
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Feb 11 14:45:29 2015 -0500
+
+    Fixed reference to wrong controller
+
+M	html/pfappserver/root/config/switch/list.tt
+
+commit 7c4be2956d9e1e7f1d476a974fd74fa2b2e3b1b2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Feb 11 14:40:49 2015 -0500
+
+    Fixed reset search box
+
+M	html/pfappserver/root/static/admin/config/switches.js
+
+commit de88990348b7f43298c02cf865801d5380e7fc92
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Feb 11 14:36:30 2015 -0500
+
+    Fixed forwarding to the wrong controller
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration.pm
+
+commit 6926614e8b0ed45c9f7df4b6087c91bdc803ce7e
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Feb 11 09:55:50 2015 -0500
+
+    missing pf::util import in ldap source (breaks the realms)
+
+M	lib/pf/Authentication/Source/LDAPSource.pm
+
+commit 0b0fd26244d628caf36e8b1481d1f776c2b3d3c3
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Feb 9 10:36:40 2015 -0500
+
+    Fixed firewall sso issue
+
+M	lib/pf/firewallsso.pm
+
+commit dd9c1a6794f57948ec992f3053b1769d48448ac6
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Feb 6 13:04:05 2015 -0500
+
+    Call srand on initization of child process
+
+M	conf/httpd.conf.d/httpd.admin
+M	lib/pf/WebAPI/InitHandler.pm
+
+commit 42184e0adcee7666ca60a8e90afe620e9d559151
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Feb 6 09:20:35 2015 -0500
+
+    Fixed missing lib in Radius and Kerberos authentication source
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
+
+commit 9d775ee7822d874bf5a476e5666aa3e08f85d706
+Author: tristanbob <tristan.rhodes@gmail.com>
+Date:   Thu Feb 5 10:13:50 2015 -0700
+
+    Corrected capitalization of PacketFence
+
+M	UPGRADE.asciidoc
+
+commit 9f853d593ed4650ce87596aff23e943b6dd12e54
+Author: tristanbob <tristan.rhodes@gmail.com>
+Date:   Thu Feb 5 09:30:06 2015 -0700
+
+    Update UPGRADE.asciidoc
+    
+    Added the most important step, running "yum update  --enablerepo=packetfence".
+    
+    Also changed relative paths for MYSQL upgrades to absolute path.  If someone did a default install or used Packetfence ZEN appliance, these commands will now work.   If they installed PacketFence in a custom location, they will likely be skilled enough to change to the path of these commands.
+
+M	UPGRADE.asciidoc
+
+commit d73949913f81e8f233812efe0a9f3e16ac01137c
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Feb 5 10:27:44 2015 -0500
+
+    Fix infinite dynamic unreg date breaking the registration process
+
+M	lib/pf/config.pm
+
+commit 21004d152c5570a781c1fd41203025e75b45bb69
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Feb 5 10:21:59 2015 -0500
+
+    Updated NEWS.asciidoc for the next release
+
+M	NEWS.asciidoc
+
+commit 4277365b0a3b5878627bd9004c83de7b65d966b5
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Feb 5 10:20:02 2015 -0500
+
+    Update version
+
+M	NEWS.asciidoc
+M	UPGRADE.asciidoc
+M	addons/packages/packetfence.spec
+M	debian/changelog
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit 252be42d688833ee4e6d069d4119001b41d1f7fc
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Feb 4 16:50:08 2015 -0500
+
+    Prepare 4.6.0
+
+M	ChangeLog
+
 commit 25ea4b7f507e5ed54222bc3bcf26b59f301bd5b3
 Author: Durand Fabrice <fdurand@inverse.ca>
 Date:   Wed Feb 4 16:49:06 2015 -0500

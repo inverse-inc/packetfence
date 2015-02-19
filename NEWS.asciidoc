@@ -11,6 +11,24 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.6.1 released on 2015-02-19
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+Enhancements
+++++++++++++
+
+Bug Fixes
++++++++++
+
+* Fix dynamic unregdate breaking when handling the infinite unregdate '0000-00-00'
+* Fixed issue where the same password can be generated multiple times
+* Assigned LC_CTYPE to C during postinstall script on debian to prevent i18n issues during installation.
+* Fixed dynamic_unreg_dated called from the wrong place
+* Fix searching for switches in the admin gui
+
 Version 4.6.0 released on 2015-02-04
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

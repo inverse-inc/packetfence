@@ -165,7 +165,7 @@ sub interfaces :Local {
 sub switches :Local {
     my ($self, $c) = @_;
 
-    $c->go('Controller::Configuration::Switch', 'index');
+    $c->go('Controller::Config::Switch', 'index');
 }
 
 =head2 floating_devices
@@ -175,7 +175,7 @@ sub switches :Local {
 sub floating_devices :Local {
     my ($self, $c) = @_;
 
-    $c->go('Controller::Configuration::FloatingDevice', 'index');
+    $c->go('Controller::Config::FloatingDevice', 'index');
 }
 
 =head2 authentication
@@ -230,7 +230,7 @@ sub roles :Local {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

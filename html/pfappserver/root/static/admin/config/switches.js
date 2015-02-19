@@ -314,7 +314,7 @@ SwitchView.prototype.resetSearch = function(e) {
     loader.show();
     section.fadeTo('fast', 0.5, function() {
         that.switches.post({
-            url: '/configuration/switches/list',
+            url: '/config/switch/list',
             always: function() {
                 loader.hide();
                 section.fadeTo('fast', 1.0);

@@ -39,20 +39,22 @@
         <thead>
           <tr>
             <th colspan="5">
-              <form id="search" class="form-inline" action="[% c.uri_for(c.controller('Configuration::Switch').action_for('search')) %]" method="POST">
+              <form id="search" class="form-inline" action="[% c.uri_for(c.controller.action_for('search')) %]" method="POST">
                 <div class="pull-right">
-                  <select name="searches.0.name" class="input-medium"[% ' disabled="disabled"' IF disabled %]>
-                    <option value="id">[% l('Switch ID') %]</option>
-                    <option value="description">[% l('Description') %]</option>
+                  [% name_value = form.field('searches.0.name').value%]
+                  <select name="searches.0.name" class="input-medium">
+                    <option value="id" [% "selected='selected'" IF name_value == "id" %]>[% l('Switch ID') %]</option>
+                    <option value="description" [% "selected='selected'" IF name_value == "description" %]>[% l('Description') %]</option>
                   </select>
-                  <select name="searches.0.op" class="input-medium"[% ' disabled="disabled"' IF disabled %]>
-                    <option value="equal">[% l('is') %]</option>
-                    <option value="not_equal">[% l('is not') %]</option>
-                    <option value="starts_with">[% l('starts with') %]</option>
-                    <option value="ends_with">[% l('ends with') %]</option>
-                    <option value="like">[% l('matches') %]</option>
+                  [% op_value = form.field('searches.0.op').value%]
+                  <select name="searches.0.op" class="input-medium">
+                    <option value="equal" [% "selected='selected'" IF op_value == "equal" %]>[% l('is') %]</option>
+                    <option value="not_equal" [% "selected='selected'" IF op_value == "not_equal" %]>[% l('is not') %]</option>
+                    <option value="starts_with" [% "selected='selected'" IF op_value == "starts_with" %]>[% l('starts with') %]</option>
+                    <option value="ends_with" [% "selected='selected'" IF op_value == "ends_with" %]>[% l('ends with') %]</option>
+                    <option value="like" [% "selected='selected'" IF op_value == "like" %]>[% l('matches') %]</option>
                   </select>
-                  <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" placeholder="String..."/>
+                  <input name="searches.0.value" type="text" placeholder="String..." value="[%form.field('searches.0.value').value%]"/>
                   <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i></button>
                   <button type="reset" class="btn btn-primary">&times;</button>
                 </div>

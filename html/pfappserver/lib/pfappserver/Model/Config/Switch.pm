@@ -108,7 +108,7 @@ sub search {
     }
     return (HTTP_OK,
         {   $self->itemsKey => \@items,
-            pageNumber      => $pageNum,
+            pageNum         => $pageNum,
             perPage         => $perPage,
             pageCount       => $pageCount,
             itemsKey        => $self->itemsKey
@@ -124,7 +124,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

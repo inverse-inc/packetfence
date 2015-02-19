@@ -58,7 +58,7 @@ sub do_sso {
     );
     $logger->trace("Sending a firewallsso $method for ($mac,$ip) ");
 
-    $client->notify('firewallsso', \%data );
+    $client->notify('firewallsso', %data );
 
 }
 
@@ -71,7 +71,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

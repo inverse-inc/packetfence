@@ -12,6 +12,7 @@ use pf::config qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::Authentication::Condition;
 use pf::CHI;
+use pf::util;
 
 use Net::LDAP;
 use Net::LDAPS;
@@ -522,7 +523,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

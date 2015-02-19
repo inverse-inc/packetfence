@@ -430,8 +430,9 @@ sub acct_maintenance {
                 }
             }
         }
-        elsif ($acct_policy ne $ACCOUNTING_POLICY_TIME ||
-               $acct_policy ne $ACCOUNTING_POLICY_BANDWIDTH) {
+        elsif (($acct_policy ne $ACCOUNTING_POLICY_TIME &&
+               $acct_policy ne $ACCOUNTING_POLICY_BANDWIDTH) &&
+                isenabled($acct_triggers->{'enabled'})) {
             $logger->warn("Invalid trigger for accounting maintenance: $acct_policy");
         }
     }
@@ -679,7 +680,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

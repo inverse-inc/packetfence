@@ -11,7 +11,7 @@ to access SNMP enabled Dlink DES 3526 switches.
 
 Tested on Firmware: Build 5.01.B65.
 Supports MAC detection traps with linkup/linkdown.
-No port security support, no RADIUS. 
+No port security support, no RADIUS.
 
 =cut
 
@@ -31,22 +31,22 @@ sub parseTrap {
     my @fields = split '\|', $trapString;
 
     # REGULAR EXPRESSIONS
-    # match 00 24 BE B1 F6 31 
+    # match 00 24 BE B1 F6 31
     my $mac_re = qr/
         (                               # capture: $1 is the MAC
         (?: [[:xdigit:]] {2}\s) {5}     # 5 pairs of xdigits followed by one space
-        [[:xdigit:]]{2}                 # a final pair of x digits 
+        [[:xdigit:]]{2}                 # a final pair of x digits
         )
     /x;
 
     # match .1.3.6.1.4.1.171.11.64.1.2.15.1 = Hex-STRING: 01 00 1C C0 91 72 B9 00 01 00 1A 00  END VARIABLEBINDINGS
     my $mac_notification_re = qr/
-        ^ \.1\.3\.6\.1\.4\.1\.171\.11\.64\.[12]\.2\.15\.1 
+        ^ \.1\.3\.6\.1\.4\.1\.171\.11\.64\.[12]\.2\.15\.1
         \s=\s
         Hex-STRING:\s
         ([[:xdigit:]]{2}) \s                        # Capture: $1 is op status code
         $mac_re \s                                  # Capture: $2 is the MAC
-        (?:[[:xdigit:]]{2} \s [[:xdigit:]]{2})\s    # non capturing 
+        (?:[[:xdigit:]]{2} \s [[:xdigit:]]{2})\s    # non capturing
         ([[:xdigit:]]{2} \s [[:xdigit:]]{2})        # Capture: $3 is the ifIndex
     /x ;
 
@@ -95,7 +95,7 @@ Inverse inc. <info@inverse.ca> for the updated version.
 
 =head1 COPYRIGHT
 
-Copyright (C) Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

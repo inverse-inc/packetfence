@@ -4,7 +4,7 @@
 # 
 # Translators:
 # Antoine Amacher <aamacher@inverse.ca>, 2015
-# oeufdure <fdurand@inverse.ca>, 2014
+# oeufdure <fdurand@inverse.ca>, 2014-2015
 # inverse <info@inverse.ca>, 2014
 # julsemaan <jsemaan@inverse.ca>, 2014
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-02-04 21:42+0000\n"
-"Last-Translator: lzammit <lzammit@inverse.ca>\n"
+"PO-Revision-Date: 2015-02-06 18:08+0000\n"
+"Last-Translator: Antoine Amacher <aamacher@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -3181,19 +3181,19 @@ msgstr "REALM"
 
 # pf::admin_roles (Actions)
 msgid "REALM_CREATE"
-msgstr "REALM_CREATION"
+msgstr "Créer le Realm"
 
 # pf::admin_roles (Actions)
 msgid "REALM_DELETE"
-msgstr "REALM_SUPPRIMER"
+msgstr "Supprimer le Realm"
 
 # pf::admin_roles (Actions)
 msgid "REALM_READ"
-msgstr "REALM_LIRE"
+msgstr "Lire le Realm"
 
 # pf::admin_roles (Actions)
 msgid "REALM_UPDATE"
-msgstr "REALM_METTRE_A_JOUR"
+msgstr "Mettre à jour le Realm"
 
 # pf::admin_roles (Actions groups)
 # pf::admin_roles (Actions)
@@ -4765,7 +4765,7 @@ msgstr "Violations"
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "Virtual IP Address"
-msgstr "IP Virtuel"
+msgstr "IP Virtuelle"
 
 # html/pfappserver/lib/pfappserver/Form/Interface/Create.pm
 msgid "Virtual LAN ID"
@@ -5859,23 +5859,23 @@ msgstr "Interval de"
 
 # conf/documentation.conf
 msgid "maintenance.httpd_admin_cleanup_interval"
-msgstr "maintenance.httpd_admin_intervalle_nettoyage"
+msgstr "httpd.admin intervalle de nettoyage"
 
 # conf/documentation.conf
 msgid "maintenance.httpd_portal_cleanup_interval"
-msgstr "maintenance.httpd_portail_intervalle_nettoyage"
+msgstr "httpd.portal intervalle de nettoyage"
 
 # conf/documentation.conf
 msgid "maintenance.inline_accounting_maintenance_interval"
-msgstr "maintenance.intervalle_maintenance_inline_accouting"
+msgstr "intervalle de maintenance de l´inline accouting"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_batch"
-msgstr "maintenance.iplog_entrées_nettoyage"
+msgstr "Nombre d´entrées iplog à nettoyer"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_interval"
-msgstr "maintenance.iplog_intervalle_nettoyage"
+msgstr "intervalle de nettayage de l´iplog"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_timeout"
@@ -5887,11 +5887,11 @@ msgstr "Intervalle du néttoyage du cache d'authentification LDAP "
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_batch"
-msgstr "maintenance.locationlog_entrées_nettoyage"
+msgstr "Nettoyage des entrées du locationlog"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_interval"
-msgstr "maintenance.locationlog_intervalle_nettoyage"
+msgstr "Intervalle de nettoyage du locationlog"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_timeout"
@@ -5899,11 +5899,11 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "maintenance.node_cleanup_interval"
-msgstr "maintenance.neuds_entrées_nettoyage"
+msgstr "Intervalle de nettoyage des noeuds"
 
 # conf/documentation.conf
 msgid "maintenance.nodes_maintenance_interval"
-msgstr "maintenance.neuds_intervalle_nettoyage"
+msgstr "Intervalle de maintenance des noeuds"
 
 # conf/documentation.conf
 msgid "maintenance.provisioning_compliance_poll_interval"
@@ -5911,7 +5911,7 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "maintenance.traplog_cleanup_interval"
-msgstr "maintenance.traplog_intervalle_nettoyage"
+msgstr "Intervalle de nettoyage du traplog"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_batch"
@@ -6171,7 +6171,7 @@ msgstr "Ports"
 
 # conf/documentation.conf
 msgid "ports.aaa"
-msgstr "ports.aaa"
+msgstr "Port AAA"
 
 # conf/documentation.conf
 msgid "ports.admin"
@@ -6361,7 +6361,7 @@ msgstr "Emplacement de dhcpd"
 
 # conf/documentation.conf
 msgid "services.httpd_aaa"
-msgstr "services.httpd_aaa"
+msgstr "Service httpd AAA"
 
 # conf/documentation.conf
 msgid "services.httpd_admin"
