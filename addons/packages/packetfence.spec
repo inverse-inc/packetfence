@@ -983,6 +983,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Thu Feb 19 2015 Inverse <info@inverse.ca> - 4.6.1-1
+- New release 4.6.1
+
 * Wed Feb 04 2015 Inverse <info@inverse.ca> - 4.6.0-1
 - New release 4.6.0
 
