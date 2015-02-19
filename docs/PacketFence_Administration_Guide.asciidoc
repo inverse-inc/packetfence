@@ -15,14 +15,14 @@ Administration Guide
 
 include::includes/global-attributes.asciidoc[]
 
-About this Guide
+About this Guide
 ----------------
 
 This guide will walk you through the installation and the day to day administration of the PacketFence solution.
 
 The latest version of this guide is available at http://www.packetfence.org/documentation/
 
-Other sources of information
+Other sources of information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Network Devices Configuration Guide::
@@ -93,8 +93,8 @@ Command-line and Web-based management::
 Guest Access::
   PacketFence supports a special guest VLAN out of the box. You configure your network so that the guest VLAN only goes out to the Internet and the registration VLAN and the captive portal are the components used to explain to the guest how to register for access and how his access works. This is usually branded by the organization offering the access. Several means of registering guests are possible. PacketFence does also support guest access bulk creations and imports.
 
-Gaming devices registration::
-  A registered user can access a special Web page to register a gaming device of his own. This registration process will require login from the user and then will register gaming devices with pre-approved MAC OUI into a configurable category.
+Devices registration::
+  A registered user can access a special Web page to register a device of his own. This registration process will require login from the user and then will register devices with pre-approved MAC OUI into a configurable category.
 
 PacketFence is developed by a community of developers located mainly in North America. More information can be found at http://www.packetfence.org.
 
@@ -121,12 +121,12 @@ PacketFence reuses many components in an infrastructure. Thus, it requires the f
 [options="compact"]
 * Database server (MySQL or MariaDB)
 * Web server (Apache)
+* DHCP server (ISC DHCP)
+* RADIUS server (FreeRADIUS)
 
 Depending on your setup you may have to install additional components like:
 
 [options="compact"]
-* DHCP server (ISC DHCP)
-* RADIUS server (FreeRADIUS)
 * NIDS (Snort/Suricata)
 
 In this guide, we assume that all those components are running on the same server (i.e., "localhost" or "127.0.0.1") that PacketFence will be installed on.
@@ -140,7 +140,7 @@ The following table provides recommendations for the required components, togeth
 |MySQL server     |MySQL 5.1
 |Web server       |Apache 2.2
 |DHCP server      |DHCP 4.1
-|RADIUS server    |FreeRADIUS 2.2.0
+|RADIUS server    |FreeRADIUS 2.2.x
 |Snort            |Snort 2.9.1
 |Suricata         |Suricata 1.4.1
 |========================================
@@ -346,11 +346,12 @@ Apache Configuration
 
 The PacketFence´s Apache configuration are located in `/usr/local/pf/conf/httpd.conf.d/`.
 
-In this directory you have three important files: `httpd.admin`, `httpd.portal`, `httpd.webservice`.
+In this directory you have three important files: `httpd.admin`, `httpd.portal`, `httpd.webservice`, `httpd.aaa`.
 
 * `httpd.admin` is used to manage PacketFence admin interface
 * `httpd.portal` is used to manage PacketFence captive portal interface
 * `httpd.webservices` is used to manage PacketFence webservices interface
+* `httpd.aaa` is use to manage incoming radius request
 
 These files have been written using the Perl language and are completely dynamic - so they activate services only on the network interfaces provided for this purpose.
 
@@ -371,17 +372,17 @@ For some browsers, it is preferable to redirect the user to a specific URL inste
 
 This IP is used as the web server who hosts the `common/network-access-detection.gif` which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is black-holed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easier and more accessible solution.
 
-SELinux
-~~~~~~~
+SELinux and AppArmor
+~~~~~~~~~~~~~~~~~~~~
 
-Even if this feature may be wanted by some organizations, PacketFence will not run properly if SELinux is set to enforced. You will need to explicitly disable it in the `/etc/selinux/config` file.
+Even if this feature may be wanted by some organizations, PacketFence will not run properly if SELinux or AppArmor is set to enforced. You will need to explicitly disable SELinux in the `/etc/selinux/config` file and AppArmor with *update-rc.d -f apparmor stop*, *update-rc.d -f apparmor teardown* and *update-rc.d -f apparmor remove*.
 
 Roles Management
 ~~~~~~~~~~~~~~~~
 
 Roles in PacketFence can be created from PacketFence administrative GUI - from the *Configuration -> Users -> Roles* section. From this interface, you can also limit the number of devices users belonging to certain roles can register.
 
-Roles are dynamically computed by PacketFence, based on the rules (ie., a set of conditions and actions) from authentication sources, using a first-match wins algorithm. Roles are then matched to VLAN or internal roles on equipment from the *Configuration -> Network -> Switches* module.
+Roles are dynamically computed by PacketFence, based on the rules (ie., a set of conditions and actions) from authentication sources, using a first-match wins algorithm. Roles are then matched to VLAN or internal roles or ACL on equipment from the *Configuration -> Network -> Switches* module.
 
 Authentication
 ~~~~~~~~~~~~~~
@@ -486,7 +487,7 @@ and a switch section for each switch (managed by PacketFence) including:
 [options="compact"]
 * Switch IP
 * Switch vendor/type
-* Switch uplink ports (trunks and non-managed ports)
+* Switch uplink ports (trunks and non-managed IfIndex)
 * per-switch re-definition of the VLANs (if required)
 
 NOTE: `switches.conf` is loaded at startup. A reload is required when changes 
@@ -885,7 +886,7 @@ Option 2: Authentication against Active Directory (AD)
 Samba / Kerberos / Winbind
 ++++++++++++++++++++++++++
 
-Install Samba 3 and NOT Samba 4. You can either use the sources or use the package for your OS. For RHEL/CentOS, do:
+Install Samba. You can either use the sources or use the package for your OS. For RHEL/CentOS, do:
 
 ----
 yum install samba krb5-workstation
@@ -1051,10 +1052,56 @@ Add your user's entries at the end of the `/usr/local/pf/raddb/users` file with 
 
   username Cleartext-Password := "password"
 
-Option 4: Authentication against OpenLDAP
+Option 4: EAP authentication against OpenLDAP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  To be contributed...
+To authenticate 802.1x connection against OpenLDAP you need to define the ldap connection in `/usr/local/pf/raddb/modules/ldap` and
+be sure that the userpassword is define as a NTHASH or as cleartext.
+
+----
+	ldap openldap {
+		server = "ldap.acme.com"
+		identity = "uid=admin,dc=acme,dc=com"
+		password = "password"
+		basedn = "dc=district,dc=acme,dc=com"
+		filter = "(uid=%{mschap:User-Name})"
+		ldap_connections_number = 5
+		timeout = 4
+		timelimit = 3
+		net_timeout = 1
+		tls {
+		}
+		dictionary_mapping = ${confdir}/ldap.attrmap
+		edir_account_policy_check = no
+
+		keepalive {
+			# LDAP_OPT_X_KEEPALIVE_IDLE
+			idle = 60
+
+			# LDAP_OPT_X_KEEPALIVE_PROBES
+			probes = 3
+
+			# LDAP_OPT_X_KEEPALIVE_INTERVAL
+			interval = 3
+		}
+	}
+----
+
+Next in `/usr/local/pf/raddb/sites-available/packetfence-tunnel` add in the authorize section:
+
+----
+authorize {	
+        suffix
+        ntdomain
+        eap {
+                ok = return
+        }
+        files
+        openldap
+    }
+----
+
+
 
 Option 5: EAP Guest Authentication on email, sponsor and sms registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1199,6 +1246,8 @@ Here are the most important PacketFence log files:
 * `/usr/local/pf/logs/httpd.admin.error` — Apache – Web Admin/Services Error Log
 * `/usr/local/pf/logs/httpd.webservices.access` — Apache – Webservices Access Log
 * `/usr/local/pf/logs/httpd.webservices.error` — Apache – Webservices Error Log
+* `/usr/local/pf/logs/httpd.aaa.access` — Apache – AAA Access Log
+* `/usr/local/pf/logs/httpd.aaa.error` — Apache – AAA Error Log
 
 There are other log files in `/usr/local/pf/logs/` that could be relevant depending on what issue you are experiencing. Make sure you take a look at them.
 
@@ -1405,8 +1454,7 @@ Here is the `/usr/local/pf/conf/pf.conf` file for our setup. For more informatio
 ----
 [general]
 domain=yourdomain.org
-#Put your External/Infra DNS servers here
-dnsservers=4.2.2.2,4.2.2.1
+#Put your External/Infra DHCP servers here
 dhcpservers=192.168.2.1,192.168.3.1,192.168.5.1
 
 [trapping]
@@ -1668,7 +1716,7 @@ Installation
 Nessus
 ++++++
 
-Please visit http://www.nessus.org/download/ to download and install the Nessus package for your operating system. You will also need to register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
+Please visit http://www.nessus.org/download/ to download Nessus v5 and install the Nessus package for your operating system. You will also need to register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
 
 After you installed Nessus, follow the Nessus documentation for the configuration of the Nessus Server, and to create a user for PacketFence.
 
@@ -2558,6 +2606,27 @@ The second example will create a violation if the SSID is OPEN and the owner is 
   scope = NormalVlan
   action = trigger_violation
   action_param = mac = $mac, tid = 1100012, type = INTERNAL
+
+The third example will autoregister the device and assign the role staff to each device where the username is igmout.
+
+  [igmout]
+  filter = username
+  operator = is
+  value = igmout
+
+  [secure]
+  filter = ssid
+  operator = is
+  value = SECURE
+
+  [3:igmout&secure]
+  scope = AutoRegister
+  role = staff
+
+  [4:igmout&secure]
+  scope = NodeInfoForAutoReg
+  role = staff
+
 
 You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
 
