@@ -36,6 +36,7 @@ use pfconfig::timeme;
 use Data::Dumper;
 use pfconfig::log;
 use pfconfig::util;
+use Sereal::Decoder;
 
 # helper to build socket
 sub get_socket {
@@ -55,6 +56,7 @@ sub init {
     my ($self) = @_;
     $self->{element_socket_method} = "override-me";
 
+    $self->{decoder} = Sereal::Decoder->new;
 
 }
 
@@ -124,14 +126,20 @@ sub _get_from_socket {
   my $response = '';
   while($line_read < $count){
     chomp($line = <$socket>);
-    $response .= $line;
+    $response .= $line."\n";
     $line_read += 1;
   }
 
-  # it returns it as a json hash - maybe not the best choice but it works
+  # it returns it as a sereal hash
   my $result;
-  if($response && $response ne "undef"){
-    $result = decode_json($response);
+  if($response && $response ne "undef\n"){
+    eval { 
+      $result = $self->{decoder}->decode($response);
+    };
+    if ($@){
+      print STDERR $@;
+      print STDERR "$what $response";
+    }
   }
   else {
     $result = undef;
