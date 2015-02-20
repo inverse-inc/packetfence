@@ -77,7 +77,7 @@ while(1) {
   };
   if($@){
       print STDERR $@;
-      print $socket "undef" if $socket;
+      send_output("undef", $socket) if $socket;
   }
 }
 
@@ -98,24 +98,19 @@ sub get_hash_element {
   
     my $elem = get_from_cache_or_croak($keys[0], $socket) || return;
 
-    my $encoded_elem;
     # if we want a subnamespace we handle it here
     if($keys[1]){
       my $sub_elem = $elem->{$keys[1]} || undef;
       if(defined($sub_elem)){
-        $encoded_elem = encode_output({element => $sub_elem});
+        $elem = {element => $sub_elem};
       }
       else{
         print STDERR "Unknown key $query->{key}";
         $logger->error("Unknown key $query->{key}");
-        $encoded_elem = "undef";
+        $elem = "undef";
       }
     }
-    # we want the whole namespace
-    else {
-      $encoded_elem = encode_output($elem);
-    }
-    print $socket $encoded_elem;
+    send_output($elem, $socket);
 }
 
 sub get_from_cache_or_croak {
@@ -128,7 +123,7 @@ sub get_from_cache_or_croak {
     else{
         print STDERR "Unknown key in cache $key \n";
         $logger->error("Unknown key $key");
-        print $socket "undef";
+        send_output("undef", $socket);
         return undef;
     }
 
@@ -140,8 +135,7 @@ sub get_keys {
     my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
 
     my @keys = keys(%{$elem});
-    my $encoded_elem = encode_output(\@keys);
-    print $socket $encoded_elem;
+    send_output(\@keys, $socket);
 }
 
 sub get_next_key {
@@ -167,8 +161,7 @@ sub get_next_key {
 
         $next_key = $keys[$last_index+1];
     }
-    my $encoded_elem = encode_output({next_key => $next_key});
-    print $socket $encoded_elem;
+    send_output({next_key => $next_key}, $socket);
 }
 
 sub get_array_element {
@@ -181,25 +174,21 @@ sub get_array_element {
 
     $logger->info("GOT FROM CACHE : ".Dumper($elem));
 
-    my $encoded_elem;
     # if we want an index we handle it here
     if(defined($keys[1])){
       my $sub_elem = $$elem[$keys[1]] || undef;
       $logger->info("SUB ELEM : ".Dumper($sub_elem));
       if(defined($sub_elem)){
-        $encoded_elem = encode_output({element => $sub_elem});
+        $elem = {element => $sub_elem};
       }
       else{
         print STDERR "Unknown index in $query->{key}";
         $logger->error("Unknown index in $query->{key}");
-        $encoded_elem = "undef";
+        $elem = "undef";
       }
     }
-    # we want the whole namespace
-    else {
-      $encoded_elem = encode_output($elem);
-    }
-    print $socket $encoded_elem;
+
+    send_output($elem, $socket);
     
 }
 
@@ -208,11 +197,26 @@ sub get_array_size {
     my $logger = get_logger;
     my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
     my $size = @$elem;
-    print $socket encode_output({size => $size});
+    send_output({size => $size}, $socket);
 }
 
 sub encode_output {
     my ($data) = @_;
     $data = encode_json($data);
     return $data;
+}
+
+sub send_output {
+    my ($data, $socket) = @_;
+    unless($data eq "undef"){
+      my $data = encode_output($data);
+      my $lines = $data =~ tr/\n//;
+      $lines += 1;
+      print $socket $lines."\n";
+      print $socket $data;
+    }
+    else{
+      print $socket "1\n";
+      print $socket "$data\n";
+    }
 }

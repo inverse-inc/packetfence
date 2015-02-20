@@ -2,6 +2,7 @@
 
 use lib '/usr/local/pf/lib';
 
+use Data::Dumper;
 use pfconfig::timeme;
 
 $pfconfig::timeme::VERBOSE = 0;
@@ -22,8 +23,12 @@ $mem_usage->record("getting the switch");
 
 my $obj = tied(%switches);
 pfconfig::timeme::time_me_x("loading a switch", 1000, sub {
-  $obj->_get_from_socket("config::Switch;127.0.0.1");
+  my $response = $obj->_get_from_socket("config::Switch;127.0.0.1");
+#  print "reg : ".$response->{element}->{registrationVlan};
 }, 1);
+
+#my $response = $obj->_get_from_socket("config::Switch;1.2.3.4");
+#print Dumper($response);
 
 $mem_usage->record("done with everything");
 
