@@ -6,11 +6,12 @@
         <key>PayloadContent</key>
         <array>
                 <dict>
+                        [% IF provisioner.eap_type != "" and provisioner.security_type != "none" %]
                         <key>EAPClientConfiguration</key>
                         <dict>
                                 <key>AcceptEAPTypes</key>
                                 <array>
-                                        <integer>25</integer>
+                                        <integer>[% provisioner.eap_type %]</integer>
                                 </array>
                                 <key>EAPFASTProvisionPAC</key>
                                 <false/>
@@ -25,8 +26,9 @@
                                 <key>UserPassword</key>
                                 <string></string>
                         </dict>
+                        [% END %]
                         <key>EncryptionType</key>
-                        <string>WPA</string>
+                        <string>[% provisioner.security_type %]</string>
                         <key>HIDDEN_NETWORK</key>
                         <true/>
                         <key>PayloadDescription</key>
@@ -34,9 +36,9 @@
                         <key>PayloadDisplayName</key>
                         <string>Wi-Fi ([% provisioner.ssid %])</string>
                         <key>PayloadIdentifier</key>
-                        <string>org.packetfence.profile.</string>
+                        <string>[% provsioner.reversedns %]</string>
                         <key>PayloadOrganization</key>
-                        <string></string>
+                        <string>[% provsioner.company %]</string>
                         <key>PayloadType</key>
                         <string>com.apple.wifi.managed</string>
                         <key>PayloadUUID</key>
@@ -45,16 +47,40 @@
                         <integer>1</integer>
                         <key>SSID_STR</key>
                         <string>[% provisioner.ssid %]</string>
+                        <key>Password</key>
+                        <string>[% provisioner.passcode %]</string>
                 </dict>
+                [% IF provisioner.eap_type.defined and provisioner.eap_type != "25" %]
+                <dict>
+                        <key>PayloadCertificateFileName</key>
+                        <string>[% certificate_in_session %]</string>
+                        <key>PayloadContent</key>
+                        <data>[% provisioner.cert_content %]</data>
+                        <key>PayloadDescription</key>
+                        <string>Provides device authentication (certificate or identity).</string>
+                        <key>PayloadDisplayName</key>
+                        <string>[% provisioner.id %]</string>
+                        <key>PayloadIdentifier</key>
+                        <string>[% provisioner.reversedns %]</string>
+                        <key>PayloadOrganization</key>
+                        <string>[% provisioner.company %]</string>
+                        <key>PayloadType</key>
+                        <string>com.apple.security.root</string>
+                        <key>PayloadUUID</key>
+                        <string>506CD34F-0AD1-4421-9F98-BA19DC4E0253</string>
+                        <key>PayloadVersion</key>
+                        <integer>1</integer>
+                </dict>
+                [% END %]
         </array>
         <key>PayloadDescription</key>
         <string>Profile description.</string>
         <key>PayloadDisplayName</key>
-        <string>PacketFence</string>
+        <string>[% provisioner.id %]</string>
         <key>PayloadIdentifier</key>
-        <string>org.packetfence.profile</string>
+        <string>[% provisioner.reversedns %]</string>
         <key>PayloadOrganization</key>
-        <string></string>
+        <string>[% provisioner.company %]</string>
         <key>PayloadRemovalDisallowed</key>
         <false/>
         <key>PayloadType</key>

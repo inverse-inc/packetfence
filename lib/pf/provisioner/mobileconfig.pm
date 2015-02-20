@@ -29,24 +29,44 @@ has 'oses' => (is => 'ro', default => sub { ['Apple iPod, iPhone or iPad'] }, co
 
 =head2 ssid
 
-The ssid
+The ssid informations
 
 =cut
 
 has ssid => (is => 'rw');
+has passcode => (is => 'rw');
+has security_type => (is => 'rw');
 
-=head2 ca_cert_path
+=head2 eap_type
 
-The ca cert_path
+The EAP type
 
 =cut
 
-has ca_cert_path => (is => 'rw');
+has eap_type => (is => 'rw');
 
 # make it skip deauth by default
+
 has skipDeAuth => (is => 'rw', default => sub{ 1 });
 
 has for_username => (is => 'rw');
+
+=head2
+
+The cert informations
+
+=cut 
+
+has company => (is => 'rw');
+has reversedns => (is => 'rw');
+
+=head2
+
+The pki informations
+
+=cut
+
+has pki => (is => 'rw');
 
 =head1 METHODS
 
@@ -61,6 +81,33 @@ sub authorize {
     my $info = pf::node::node_view($mac);
     $self->for_username($info->{pid});
     return 1;
+}
+
+=head2 build_cert
+
+build certificate
+
+=cut
+
+sub build_cert {
+    my ($self) = @_;
+    if (defined ($self->{ca_cert_path}) && !($self->{ca_cert_path} eq "")){
+        my $path = $self->{ca_cert_path};
+        $path =~ /.*\/([a-zA-Z0-9.]+)$/;
+        my $file = $1;
+        open FILE, "< $path" or die $!;
+        my $data = "";
+
+        while (<FILE>) {
+            $data .= $_;
+        }
+        
+        $data =~ s/.*-----BEGIN CERTIFICATE-----\n//smg; 
+        $data =~ s/-----END CERTIFICATE-----\n.*//smg;
+        
+        $self->{cert_content} = $data; 
+        $self->{cert_file} = $file; 
+    }
 }
 
 =head1 AUTHOR
