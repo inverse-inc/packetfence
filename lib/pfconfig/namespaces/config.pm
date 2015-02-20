@@ -123,6 +123,19 @@ sub isenabled {
     }
 }
 
+sub GroupMembers {
+    my ($self, $group) = @_;
+    my %cfg = %{$self->{cfg}};
+    my @members;
+    foreach my $key (keys %cfg){
+        my @values = split (' ', $key);
+        if (@values > 1 && $values[0] eq $group){
+            push @members, $key;
+        }
+    }
+    return @members;
+}
+
 =back
 
 =head1 AUTHOR

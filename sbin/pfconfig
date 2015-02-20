@@ -52,10 +52,11 @@ daemonize("pfconfig") if ($daemonize);
 my $logger = get_logger;
 while(1) {
   my $socket;
+  my $line;
   eval {
     $socket = $listner->accept()
      or die("Can't accept connection: $!\n");
-    chomp( my $line = <$socket> );
+    chomp( $line = <$socket> );
 
     if($line eq "exit") {exit}
 
@@ -69,6 +70,7 @@ while(1) {
     #  - line = 'config;value' return the value in the config hash
 
     switch ($query->{method}) {
+      case 'element' { get_element($query, $socket) }
       case 'hash_element' { get_hash_element($query, $socket) }
       case 'keys' { get_keys($query, $socket) }
       case 'next_key' { get_next_key($query, $socket) }
@@ -79,7 +81,7 @@ while(1) {
     }
   };
   if($@){
-      print STDERR $@;
+      print STDERR "$line : $@";
       send_output("undef", $socket) if $socket;
   }
 }
@@ -93,17 +95,26 @@ sub get_from_cache {
     return $elem;
 }
 
+sub get_element {
+    my ($query, $socket) = @_;
+    my $logger = get_logger;
+    my $elem = get_from_cache_or_croak($query->{key}, $socket);
+    return unless(defined($elem));
+    send_output({element => $elem}, $socket);
+}
+
 sub get_hash_element {
     my ($query, $socket) = @_;
     my $logger = get_logger;
 
     my @keys = split ';', $query->{key};
   
-    my $elem = get_from_cache_or_croak($keys[0], $socket) || return;
+    my $elem = get_from_cache_or_croak($keys[0], $socket);
+    return unless(defined($elem));
 
     # if we want a subnamespace we handle it here
     if($keys[1]){
-      my $sub_elem = $elem->{$keys[1]} || undef;
+      my $sub_elem = $elem->{$keys[1]};
       if(defined($sub_elem)){
         $elem = {element => $sub_elem};
       }
@@ -113,6 +124,9 @@ sub get_hash_element {
         $elem = "undef";
       }
     }
+    else{
+      $elem = {element => $elem};
+    }
     send_output($elem, $socket);
 }
 
@@ -120,7 +134,7 @@ sub get_from_cache_or_croak {
     my ($key, $socket) = @_;
     my $elem = get_from_cache($key);
 
-    if($elem){
+    if(defined($elem)){
         return $elem;
     }
     else{
@@ -135,7 +149,8 @@ sub get_from_cache_or_croak {
 sub get_keys {
     my ($query, $socket) = @_;
 
-    my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
+    my $elem = get_from_cache_or_croak($query->{key}, $socket);
+    return unless(defined($elem));
 
     my @keys = keys(%{$elem});
     send_output(\@keys, $socket);
@@ -179,8 +194,7 @@ sub get_array_element {
 
     # if we want an index we handle it here
     if(defined($keys[1])){
-      my $sub_elem = $$elem[$keys[1]] || undef;
-      $logger->info("SUB ELEM : ".Dumper($sub_elem));
+      my $sub_elem = $$elem[$keys[1]];
       if(defined($sub_elem)){
         $elem = {element => $sub_elem};
       }
@@ -213,7 +227,7 @@ sub send_output {
     my ($data, $socket) = @_;
     unless($data eq "undef"){
       my $data = encode_output($data);
-      my $lines = $data =~ tr/\n//;
+      my $lines = $data =~ tr/\n// || 0;
       $lines += 1;
       print $socket $lines."\n";
       print $socket $data;
