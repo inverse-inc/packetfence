@@ -178,7 +178,7 @@ sub post_auth {
         }
 
         # For debugging purposes
-        #&radiusd::radlog($RADIUS::L_INFO, "radius_return_code: $radius_return_code");
+        &radiusd::radlog($RADIUS::L_INFO, "radius_return_code: $radius_return_code");
 
         if ( $radius_return_code == $RADIUS::RLM_MODULE_OK ) {
             if ( defined($RAD_REPLY{'Tunnel-Private-Group-ID'}) ) {

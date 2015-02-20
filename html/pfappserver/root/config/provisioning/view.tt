@@ -3,7 +3,7 @@
 [%ELSE%]
 [% SET action_url = c.req.uri %]
 [%END%]
-<form name="modalItem" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
+<form name="modalProvisioner" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
     <h3>[% IF item.id.defined %]<i>[% l('Provisioning Entry') %]</i> [% item.id %][% ELSE %][% l('New Provisioning Entry') %][% END %] <small>[% l(item.type) %]</small></h3>

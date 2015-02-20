@@ -1,4 +1,4 @@
-      <div class="modal fade hide" id="modalItem">
+      <div class="modal fade hide" id="modalProvisioner">
       </div>
 
       <div class="modal fade hide" id="deleteItem">
