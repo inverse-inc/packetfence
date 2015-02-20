@@ -1,47 +1,35 @@
-package pf::factory::config;
+NAME=$1
+
+CONTENT="package pfconfig::namespaces::resource::$NAME;
 
 =head1 NAME
 
-pf::factory::config 
+pfconfig::namespaces::resource::$NAME
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::factory::config
-
-The factory for creating pfconfig::cached based objects
+pfconfig::namespaces::resource::$NAME
 
 =cut
 
 use strict;
 use warnings;
-use pfconfig::cached_hash;
-use pfconfig::cached_array;
-use pfconfig::cached_scalar;
 
-sub new {
-    my ($class,$type,$namespace) = @_;
+use base 'pfconfig::namespaces::resource';
 
-    if ($type eq "cached_hash") {
-        my %object;
-        tie %object, 'pfconfig::cached_hash', $namespace;
-        return %object;
-    }
-    elsif ($type eq "cached_array"){
-        my @object;
-        tie @object, 'pfconfig::cached_array', $namespace;
-        return @object;
-    }
-    elsif ($type eq "cached_scalar"){
-        my $object;
-        tie $object, 'pfconfig::cached_scalar', $namespace;
-        return $object;
-    }
-    else {
-        die "$type is not a valid type";
-    }
+sub init {
+    my (\$self) = @_;
 }
+
+sub build {
+    my (\$self) = @_;
+
+    return undef;
+}
+
+=back
 
 =head1 AUTHOR
 
@@ -71,4 +59,11 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+"
+
+echo "$CONTENT" > /usr/local/pf/lib/pfconfig/namespaces/resource/$NAME.pm
 

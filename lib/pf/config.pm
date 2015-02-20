@@ -46,6 +46,7 @@ use pf::profile::filter;
 use pf::profile::filter::all;
 use pf::constants::Portal::Profile;
 use pf::factory::config;
+use pf::constants::config;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -181,10 +182,10 @@ Readonly::Scalar our $OS => os_detection();
 Readonly our $IF_INTERNAL => 'internal';
 
 # Interface enforcement techniques
-Readonly our $IF_ENFORCEMENT_VLAN => 'vlan';
-Readonly our $IF_ENFORCEMENT_INLINE => 'inline';
-Readonly our $IF_ENFORCEMENT_INLINE_L2 => 'inlinel2';
-Readonly our $IF_ENFORCEMENT_INLINE_L3 => 'inlinel3';
+Readonly our $IF_ENFORCEMENT_VLAN => $pf::constants::config::IF_ENFORCEMENT_VLAN;
+Readonly our $IF_ENFORCEMENT_INLINE => $pf::constants::config::IF_ENFORCEMENT_INLINE;
+Readonly our $IF_ENFORCEMENT_INLINE_L2 => $pf::constants::config::IF_ENFORCEMENT_INLINE_L2;
+Readonly our $IF_ENFORCEMENT_INLINE_L3 => $pf::constants::config::IF_ENFORCEMENT_INLINE_L3;
 
 # Network configuration parameters.
 Readonly our $NET_TYPE_VLAN_REG => 'vlan-registration';
@@ -412,8 +413,23 @@ multi-threaded daemons.
 sub init_config {
 #    readPfDocConfigFiles();
     %Doc_Config = pf::factory::config->new('cached_hash', 'config::Documentation');
-    readPfConfigFiles();
+#    readPfConfigFiles();
     %Config = pf::factory::config->new('cached_hash', 'config::Pf');
+
+    @dhcplistener_ints = pf::factory::config->new('cached_array', 'resource::interfaces::dhcplistener_ints');
+    @ha_ints = pf::factory::config->new('cached_array', 'resource::interfaces::ha_ints');
+    @listen_ints = pf::factory::config->new('cached_array', 'resource::interfaces::listen_ints');
+
+    @inline_enforcement_nets = pf::factory::config->new('cached_array', 'resource::interfaces::inline_enforcement_nets');
+    @internal_nets = pf::factory::config->new('cached_array', 'resource::interfaces::internal_nets');
+    @vlan_enforcement_nets = pf::factory::config->new('cached_array', 'resource::interfaces::vlan_enforcement_nets');
+
+    $management_network = pf::factory::config->new('cached_scalar', 'resource::interfaces::management_network');
+    $monitor_int = pf::factory::config->new('cached_scalar', 'resource::interfaces::monitor_int');
+
+    %CAPTIVE_PORTAL = pf::factory::config->new('cached_hash', 'resource::CaptivePortal');
+    $fqdn = pf::factory::config->new('cached_scalar', 'resource::fqdn');
+
     readProfileConfigFile();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
