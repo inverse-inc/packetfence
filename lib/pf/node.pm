@@ -127,7 +127,7 @@ sub node_db_prepare {
             detect_date=?, regdate=?, unregdate=?, lastskip=?, time_balance=?, bandwidth_balance=?,
             user_agent=?, computername=?, dhcp_fingerprint=?,
             last_arp=?, last_dhcp=?,
-            notes=?, autoreg=?, sessionid=? 
+            notes=?, autoreg=?, sessionid=?, machine_account=?
         WHERE mac=?
     ]);
 
@@ -137,7 +137,7 @@ sub node_db_prepare {
             detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
-            node.notes, autoreg, sessionid 
+            node.notes, autoreg, sessionid, machine_account 
         FROM node
             LEFT JOIN node_category USING (category_id)
         WHERE mac = ?
@@ -149,7 +149,7 @@ sub node_db_prepare {
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint,
             last_arp, last_dhcp,
-            node.notes, autoreg, sessionid 
+            node.notes, autoreg, sessionid, machine_account 
         FROM node
             LEFT JOIN node_category USING (category_id)
             LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint
@@ -185,7 +185,7 @@ sub node_db_prepare {
             node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
             node.user_agent, node.computername, node.dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
-            node.notes, node.autoreg, node.sessionid,
+            node.notes, node.autoreg, node.sessionid, node.machine_account,
             UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
             UNIX_TIMESTAMP(node.unregdate) AS unregdate_timestamp
         FROM node
@@ -803,7 +803,7 @@ sub node_modify {
         $existing->{lastskip}, $existing->{time_balance}, $existing->{bandwidth_balance},
         $existing->{user_agent}, $existing->{computername}, $existing->{dhcp_fingerprint},
         $existing->{last_arp}, $existing->{last_dhcp},
-        $existing->{notes},$existing->{autoreg},$existing->{sessionid},
+        $existing->{notes},$existing->{autoreg},$existing->{sessionid},$existing->{machine_account},
         $mac
     );
     return ($sth->rows);

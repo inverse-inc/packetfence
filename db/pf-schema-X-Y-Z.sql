@@ -131,6 +131,7 @@ CREATE TABLE node (
   voip enum('no','yes') NOT NULL DEFAULT 'no',
   autoreg enum('no','yes') NOT NULL DEFAULT 'no',
   sessionid varchar(30) default NULL,
+  machine_account varchar(255) default NULL,
   PRIMARY KEY (mac),
   KEY pid (pid),
   KEY category_id (category_id),
