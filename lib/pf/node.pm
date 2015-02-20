@@ -107,32 +107,37 @@ sub node_db_prepare {
         WHERE status = 'reg' AND pid = ? AND category_id = ?
     ]);
 
-    $node_statements->{'node_add_sql'} = get_db_handle()->prepare(qq[
+    $node_statements->{'node_add_sql'} = get_db_handle()->prepare(
+        qq[
         INSERT INTO node (
-            mac, pid, category_id, status, voip, bypass_vlan,
+            mac, pid, category_id, status, voip, bypass_vlan, bypass_role,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             notes, autoreg, sessionid
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? 
         )
-    ]);
+    ]
+    );
 
     $node_statements->{'node_delete_sql'} = get_db_handle()->prepare(qq[ delete from node where mac=? ]);
 
-    $node_statements->{'node_modify_sql'} = get_db_handle()->prepare(qq[
+    $node_statements->{'node_modify_sql'} = get_db_handle()->prepare(
+        qq[
         UPDATE node SET
-            mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?,
+            mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?, bypass_role=?,
             detect_date=?, regdate=?, unregdate=?, lastskip=?, time_balance=?, bandwidth_balance=?,
             user_agent=?, computername=?, dhcp_fingerprint=?,
             last_arp=?, last_dhcp=?,
             notes=?, autoreg=?, sessionid=?, machine_account=?
         WHERE mac=?
-    ]);
+    ]
+    );
 
-    $node_statements->{'node_attributes_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, pid, voip, status, bypass_vlan,
+    $node_statements->{'node_attributes_sql'} = get_db_handle()->prepare(
+        qq[
+        SELECT mac, pid, voip, status, bypass_vlan, bypass_role,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
             detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
             user_agent, computername, dhcp_fingerprint,
@@ -141,10 +146,12 @@ sub node_db_prepare {
         FROM node
             LEFT JOIN node_category USING (category_id)
         WHERE mac = ?
-    ]);
+    ]
+    );
 
-    $node_statements->{'node_attributes_with_fingerprint_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, pid, voip, status, bypass_vlan,
+    $node_statements->{'node_attributes_with_fingerprint_sql'} = get_db_handle()->prepare(
+        qq[
+        SELECT mac, pid, voip, status, bypass_vlan, bypass_role,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint,
@@ -156,11 +163,13 @@ sub node_db_prepare {
             LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type
             LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id
         WHERE mac = ?
-    ]);
+    ]
+    );
 
     # DEPRECATED see _node_view_old()
-    $node_statements->{'node_view_old_sql'} = get_db_handle()->prepare(qq[
-        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
+    $node_statements->{'node_view_old_sql'} = get_db_handle()->prepare(
+        qq[
+        SELECT node.mac, node.pid, node.voip, node.bypass_vlan,  node.bypass_role, node.status,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
             node.detect_date, node.regdate, node.unregdate, node.lastskip,
             node.user_agent, node.computername, node.dhcp_fingerprint,
@@ -177,10 +186,11 @@ sub node_db_prepare {
             LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
         GROUP BY node.mac
         HAVING node.mac=?
-    ]);
+    ]
+    );
 
     $node_statements->{'node_view_sql'} = get_db_handle()->prepare(<<'    SQL');
-        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status, node.category_id,
+        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.bypass_role, node.status, node.category_id,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
             node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
             node.user_agent, node.computername, node.dhcp_fingerprint,
@@ -212,8 +222,9 @@ sub node_db_prepare {
     SQL
 
     # DEPRECATED see node_view_with_fingerprint()'s POD
-    $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(qq[
-        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
+    $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(
+        qq[
+        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.bypass_role, node.status,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
             node.detect_date, node.regdate, node.unregdate, node.lastskip,
             node.user_agent, node.computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint,
@@ -233,11 +244,12 @@ sub node_db_prepare {
             LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
         GROUP BY node.mac
         HAVING node.mac=?
-    ]);
+    ]
+    );
 
     # This guy here is not in a prepared statement yet, have a look in node_view_all to see why
     $node_statements->{'node_view_all_sql'} = qq[
-        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
+        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.bypass_role, node.status,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
             IF(node.detect_date = '0000-00-00 00:00:00', '', node.detect_date) as detect_date,
             IF(node.regdate = '0000-00-00 00:00:00', '', node.regdate) as regdate,
@@ -277,18 +289,20 @@ sub node_db_prepare {
     $node_statements->{'node_expire_lastdhcp_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_dhcp) < (unix_timestamp(now()) - ?) and last_dhcp !=0 and status="$STATUS_UNREGISTERED" ]);
 
-    $node_statements->{'node_is_unregistered_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, pid, voip, bypass_vlan, status,
+    $node_statements->{'node_is_unregistered_sql'} = get_db_handle()->prepare(
+        qq[
+        SELECT mac, pid, voip, bypass_vlan, bypass_role, status,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             notes
         FROM node
         WHERE status = "$STATUS_UNREGISTERED" AND mac = ?
-    ]);
+    ]
+    );
 
     $node_statements->{'nodes_unregistered_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, pid, voip, bypass_vlan, status,
+        SELECT mac, pid, voip, bypass_vlan, bypass_role, status,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
@@ -297,15 +311,17 @@ sub node_db_prepare {
         WHERE status = "$STATUS_UNREGISTERED"
     ]);
 
-    $node_statements->{'nodes_registered_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, pid, voip, bypass_vlan, status,
+    $node_statements->{'nodes_registered_sql'} = get_db_handle()->prepare(
+        qq[
+        SELECT mac, pid, voip, bypass_vlan, bypass_role, status,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             notes
         FROM node
         WHERE status = "$STATUS_REGISTERED"
-    ]);
+    ]
+    );
 
     $node_statements->{'nodes_registered_not_violators_sql'} = get_db_handle()->prepare(qq[
         SELECT node.mac FROM node
@@ -413,22 +429,17 @@ sub node_add {
 
     if ( node_exist($mac) ) {
         $logger->warn("attempt to add existing node $mac");
-
-        #return node_modify($mac,%data);
         return (2);
     }
 
-    #foreach my $row (node_desc()){
-    #    $data{$row->{'Field'}}="" if (!defined $data{$row->{'Field'}});
-    #}
-
     foreach my $field (
-        'pid', 'voip', 'bypass_vlan', 'status',
-        'detect_date', 'regdate', 'unregdate', 'lastskip',
-        'user_agent', 'computername', 'dhcp_fingerprint',
-        'last_arp', 'last_dhcp',
-        'notes', 'autoreg', 'sessionid'
-    ) {
+        'pid',      'voip',        'bypass_vlan',  'bypass_role',
+        'status',   'detect_date', 'regdate',      'unregdate',
+        'lastskip', 'user_agent',  'computername', 'dhcp_fingerprint',
+        'last_arp', 'last_dhcp',   'notes',        'autoreg',
+        'sessionid'
+        )
+    {
         $data{$field} = "" if ( !defined $data{$field} );
     }
     if ( ( $data{status} eq $STATUS_REGISTERED ) && ( $data{regdate} eq '' ) ) {
@@ -437,17 +448,17 @@ sub node_add {
 
     # category handling
     $data{'category_id'} = _node_category_handling(%data);
-    if (defined($data{'category_id'}) && $data{'category_id'} == 0) {
+    if ( defined( $data{'category_id'} ) && $data{'category_id'} == 0 ) {
         $logger->error("Unable to insert node because specified category doesn't exist");
         return (0);
     }
 
-    db_query_execute(NODE, $node_statements, 'node_add_sql',
-        $mac, $data{pid}, $data{category_id}, $data{status}, $data{voip}, $data{bypass_vlan},
-        $data{detect_date}, $data{regdate}, $data{unregdate}, $data{lastskip},
-        $data{user_agent}, $data{computername}, $data{dhcp_fingerprint},
-        $data{last_arp}, $data{last_dhcp},
-        $data{notes}, $data{autoreg}, $data{sessionid}
+    db_query_execute( NODE, $node_statements, 'node_add_sql', $mac,
+        $data{pid},              $data{category_id}, $data{status},      $data{voip},
+        $data{bypass_vlan},      $data{bypass_role}, $data{detect_date}, $data{regdate},
+        $data{unregdate},        $data{lastskip},    $data{user_agent},  $data{computername},
+        $data{dhcp_fingerprint}, $data{last_arp},    $data{last_dhcp},   $data{notes},
+        $data{autoreg},          $data{sessionid}
     ) || return (0);
     return (1);
 }
@@ -796,17 +807,21 @@ sub node_modify {
         $existing->{regdate} = mysql_date();
     }
 
-    my $sth = db_query_execute(NODE, $node_statements, 'node_modify_sql',
-        $new_mac, $existing->{pid}, $existing->{category_id}, $existing->{status}, $existing->{voip},
-        $existing->{bypass_vlan},
-        $existing->{detect_date}, $existing->{regdate}, $existing->{unregdate},
-        $existing->{lastskip}, $existing->{time_balance}, $existing->{bandwidth_balance},
-        $existing->{user_agent}, $existing->{computername}, $existing->{dhcp_fingerprint},
-        $existing->{last_arp}, $existing->{last_dhcp},
-        $existing->{notes},$existing->{autoreg},$existing->{sessionid},$existing->{machine_account},
-        $mac
+    my $sth = db_query_execute( NODE, $node_statements,
+        'node_modify_sql',             $new_mac,
+        $existing->{pid},              $existing->{category_id},
+        $existing->{status},           $existing->{voip},
+        $existing->{bypass_vlan},      $existing->{bypass_role},
+        $existing->{detect_date},      $existing->{regdate},
+        $existing->{unregdate},        $existing->{lastskip},
+        $existing->{time_balance},     $existing->{bandwidth_balance},
+        $existing->{user_agent},       $existing->{computername},
+        $existing->{dhcp_fingerprint}, $existing->{last_arp},
+        $existing->{last_dhcp},        $existing->{notes},
+        $existing->{autoreg},          $existing->{sessionid},
+        $existing->{machine_account},  $mac
     );
-    return ($sth->rows);
+    return ( $sth->rows );
 }
 
 sub node_register {
