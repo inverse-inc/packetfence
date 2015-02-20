@@ -61,7 +61,7 @@ document.observe("dom:loaded", function() {
           [%# User / Pass %]
           <div class="input">
             <span>[% i18n("Username") %]</span>
-	    <input class="field" name="username" id="username" type="text" value="[% username %]" />
+	    <input class="field" name="username" id="username" type="text" autocorrect="off" autocapitalize="off" value="[% username %]" />
           </div>
           <div class="input">
             <span>[% i18n("Password") %]</span><input class="field" name="password" type="password" />
