@@ -100,7 +100,8 @@ sub keys {
 sub FIRSTKEY {
   my ($self) = @_;
   my $logger = get_logger;
-  return $self->_get_from_socket($self->{_namespace}, "next_key", (last_key => undef))->{next_key};
+  my $first_key = $self->_get_from_socket($self->{_namespace}, "next_key", (last_key => undef));
+  return $first_key ? $first_key->{next_key} : undef;
 }
 
 sub NEXTKEY {
