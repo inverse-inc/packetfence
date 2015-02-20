@@ -114,14 +114,24 @@ sub _get_from_socket {
   }
      
   # we ask the cachemaster for our namespaced key
-  my $line;
   print $socket "$payload\n";
-  chomp( $line = <$socket> );
+  
+  # this will give us the line length to read
+  chomp( my $count = <$socket> );
+  
+  my $line;
+  my $line_read = 0;
+  my $response = '';
+  while($line_read < $count){
+    chomp($line = <$socket>);
+    $response .= $line;
+    $line_read += 1;
+  }
 
   # it returns it as a json hash - maybe not the best choice but it works
   my $result;
-  if($line && $line ne "undef"){
-    $result = decode_json($line);
+  if($response && $response ne "undef"){
+    $result = decode_json($response);
   }
   else {
     $result = undef;
