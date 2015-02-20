@@ -56,6 +56,8 @@ sub TIEARRAY {
   my ($class, $config) = @_;
   my $self = bless {}, $class;
 
+  $self->init();
+
   $self->{"_namespace"} = $config;
   
   $self->{element_socket_method} = "array_element";
