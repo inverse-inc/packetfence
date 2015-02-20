@@ -38,6 +38,9 @@ sub build {
 
   tie %tmp_cfg, 'Config::IniFiles', ( -file => $self->{file}, -import => $pf_conf_defaults);
 
+  # for pfcmd checkup
+  $self->{_file_cfg} = { %tmp_cfg };
+
   my $json = encode_json(\%tmp_cfg);
   my $cfg = decode_json($json);
 
@@ -54,6 +57,10 @@ sub init {
   $self->{file} = $pf_config_file;
   $self->{default_config} = $self->{cache}->get_cache('config::PfDefault');
   $self->{doc_config} = $self->{cache}->get_cache('config::Documentation');
+  $self->{child_resources} = [
+    'resource::CaptivePortal',
+    'resource::Database',
+  ]; 
 }
 
 sub build_child {
@@ -62,13 +69,6 @@ sub build_child {
     my %Config = %{$self->{cfg}}; 
     my %Doc_Config = %{$self->{doc_config}};
     my %Default_Config = %{$self->{default_config}};
-
-    #clearing older interfaces infor
-    #CREATE RESOURCE
-    #$monitor_int = $management_network = '';
-    #@listen_ints = @dhcplistener_ints = @ha_ints =
-    #  @internal_nets =
-    #  @inline_enforcement_nets = @vlan_enforcement_nets = ();
 
     my @time_values = grep { my $t = $Doc_Config{$_}{type}; defined $t && $t eq 'time' } keys %Doc_Config;
 
@@ -91,63 +91,6 @@ sub build_child {
     #                $Config{'general'}{'hostname'} || $Default_Config{'general'}{'hostname'},
     #                $Config{'general'}{'domain'} || $Default_Config{'general'}{'domain'});
 
-    #CREATE RESOURCE
-    #WILL NEED GroupMembers implementation
-    #foreach my $interface ( $config->GroupMembers("interface") ) {
-    #    my $int_obj;
-    #    my $int = $interface;
-    #    $int =~ s/interface //;
-
-    #    my $ip             = $Config{$interface}{'ip'};
-    #    my $mask           = $Config{$interface}{'mask'};
-    #    my $type           = $Config{$interface}{'type'};
-
-    #    if ( defined($ip) && defined($mask) ) {
-    #        $ip   =~ s/ //g;
-    #        $mask =~ s/ //g;
-    #        $int_obj = new Net::Netmask( $ip, $mask );
-    #        $int_obj->tag( "ip",      $ip );
-    #        $int_obj->tag( "int",     $int );
-    #    }
-
-    #    if (!defined($type)) {
-    #        $logger->warn("$int: interface type not defined");
-    #        # setting type to empty to avoid warnings on split below
-    #        $type = '';
-    #    }
-
-    #    die "Missing mandatory element ip or netmask on interface $int"
-    #        if ($type =~ /internal|managed|management/ && !defined($int_obj));
-
-    #    #CREATE RESOURCE
-    #    #foreach my $type ( split( /\s*,\s*/, $type ) ) {
-    #    #    if ( $type eq 'internal' ) {
-    #    #        $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
-    #    #        push @internal_nets, $int_obj;
-    #    #        if ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
-    #    #            push @vlan_enforcement_nets, $int_obj;
-    #    #        } elsif (is_type_inline($Config{$interface}{'enforcement'})) {
-    #    #            push @inline_enforcement_nets, $int_obj;
-    #    #        }
-    #    #        if ($int =~ m/(\w+):\d+/) {
-    #    #            $int = $1;
-    #    #        }
-    #    #        push @listen_ints, $int if ( $int !~ /:\d+$/ );
-    #    #    } elsif ( $type eq 'managed' || $type eq 'management' ) {
-    #    #        $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
-    #    #        $management_network = $int_obj;
-    #    #        # adding management to dhcp listeners by default (if it's not already there)
-    #    #        push @dhcplistener_ints, $int if ( not scalar grep({ $_ eq $int } @dhcplistener_ints) );
-
-    #    #    } elsif ( $type eq 'monitor' ) {
-    #    #        $monitor_int = $int;
-    #    #    } elsif ( $type =~ /^dhcp-?listener$/i ) {
-    #    #        push @dhcplistener_ints, $int;
-    #    #    } elsif ( $type eq 'high-availability' ) {
-    #    #        push @ha_ints, $int;
-    #    #    }
-    #    #}
-    #}
     $Config{trapping}{passthroughs} = [split(/\s*,\s*/,$Config{trapping}{passthroughs} || '') ];
     if ($self->isenabled($Config{'trapping'}{'passthrough'})) {
         $Config{trapping}{proxy_passthroughs} = [
@@ -175,10 +118,7 @@ sub build_child {
     }
     $Config{network}{dhcp_filter_by_message_types} = [split(/\s*,\s*/,$Config{network}{dhcp_filter_by_message_types} || '')],
 
-    #CREATE RESOURCE
-    #_load_captive_portal();
-
-
+  
     $self->{cfg} = \%Config;
 
     return \%Config;

@@ -1,47 +1,26 @@
-package pf::factory::config;
+package pf::constants::config;
 
 =head1 NAME
 
-pf::factory::config 
+pf::constants::config - constants for config object
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::factory::config
-
-The factory for creating pfconfig::cached based objects
+pf::constants::config
 
 =cut
 
 use strict;
 use warnings;
-use pfconfig::cached_hash;
-use pfconfig::cached_array;
-use pfconfig::cached_scalar;
 
-sub new {
-    my ($class,$type,$namespace) = @_;
+use Readonly;
 
-    if ($type eq "cached_hash") {
-        my %object;
-        tie %object, 'pfconfig::cached_hash', $namespace;
-        return %object;
-    }
-    elsif ($type eq "cached_array"){
-        my @object;
-        tie @object, 'pfconfig::cached_array', $namespace;
-        return @object;
-    }
-    elsif ($type eq "cached_scalar"){
-        my $object;
-        tie $object, 'pfconfig::cached_scalar', $namespace;
-        return $object;
-    }
-    else {
-        die "$type is not a valid type";
-    }
-}
+Readonly our $IF_ENFORCEMENT_VLAN => 'vlan';
+Readonly our $IF_ENFORCEMENT_INLINE => 'inline';
+Readonly our $IF_ENFORCEMENT_INLINE_L2 => 'inlinel2';
+Readonly our $IF_ENFORCEMENT_INLINE_L3 => 'inlinel3';
 
 =head1 AUTHOR
 
@@ -53,7 +32,7 @@ Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
