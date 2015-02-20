@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 4.6.1\n"
+"Project-Id-Version: 4.6.2\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-02-18 13:57-0400\n"
+"PO-Revision-Date: 2015-02-20 12:51-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -5934,6 +5934,10 @@ msgstr "Other"
 # pfappserver::Model::Node (availableStatus)
 msgid "pending"
 msgstr "pending"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::category"
+msgstr "Category - Role"
 
 # pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::connection_type"
