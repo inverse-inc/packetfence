@@ -48,9 +48,10 @@ daemonize("pfconfig") if ($daemonize);
 
 my $logger = get_logger;
 while(1) {
-  my $socket = $listner->accept()
-     or die("Can't accept connection: $!\n");
+  my $socket;
   eval {
+    $socket = $listner->accept()
+     or die("Can't accept connection: $!\n");
     chomp( my $line = <$socket> );
 
     if($line eq "exit") {exit}
@@ -70,12 +71,13 @@ while(1) {
       case 'next_key' { get_next_key($query, $socket) }
       case 'array_element' { get_array_element($query, $socket) }
       case 'array_size' { get_array_size($query, $socket) }
+      case 'sleep' { sleep(10) }
       else { print STDERR "Unknown method $query->{method}"; print "undef" }
     }
   };
   if($@){
       print STDERR $@;
-      print $socket "undef";
+      print $socket "undef" if $socket;
   }
 }
 

@@ -413,11 +413,14 @@ sub init_config {
 #    readPfDocConfigFiles();
     %Doc_Config = pf::factory::config->new('cached_hash', 'config::Documentation');
     readPfConfigFiles();
+    %Config = pf::factory::config->new('cached_hash', 'config::Pf');
     readProfileConfigFile();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
-    readFirewallSSOFile();
-    readRealmFile();
+#    readFirewallSSOFile();
+    %ConfigFirewallSSO = pf::factory::config->new('cached_hash', 'config::FirewallSSO');
+#    readRealmFile();
+    %ConfigRealm = pf::factory::config->new('cached_hash', 'config::Realm');
 }
 
 =item ipset_version -  check the ipset version on the system
