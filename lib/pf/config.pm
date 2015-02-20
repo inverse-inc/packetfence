@@ -418,7 +418,7 @@ sub init_config {
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
 #    readFirewallSSOFile();
-    %ConfigFirewallSSO = pf::factory::config->new('cached_hash', 'config::FirewallSSO');
+    %ConfigFirewallSSO = pf::factory::config->new('cached_hash', 'config::Firewall_SSO');
 #    readRealmFile();
     %ConfigRealm = pf::factory::config->new('cached_hash', 'config::Realm');
 }
