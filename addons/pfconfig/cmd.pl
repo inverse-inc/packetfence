@@ -40,18 +40,11 @@ switch($cmd) {
   case 'get' {
     my $namespace = $ARGV[1];
     if(defined($namespace)){
-      my @namespaces = $manager->list_namespaces();
-      if ( grep {$_ eq $namespace} @namespaces){
-        use pfconfig::cached;
-        use Data::Dumper;
-        my $obj = pfconfig::cached->new;
-        my $response = $obj->_get_from_socket($namespace, "element");
-        print Dumper($response);
-      }
-      else{
-        print STDERR "ERROR ! Unknown namespace.\n";
-        exit;
-      }
+      use pfconfig::cached;
+      use Data::Dumper;
+      my $obj = pfconfig::cached->new;
+      my $response = $obj->_get_from_socket($namespace, "element");
+      print Dumper($response);
     }
     else{
       print STDERR "ERROR ! No namespace specified.\n";
