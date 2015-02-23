@@ -1,31 +1,31 @@
-package pfconfig::namespaces::resource::interfaces::inline_enforcement_nets;
+package pfconfig::namespaces::interfaces::internal_nets;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::inline_enforcement_nets
+pfconfig::namespaces::interfaces::internal_nets
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::inline_enforcement_nets
+pfconfig::namespaces::interfaces::internal_nets
 
 =cut
 
 use strict;
 use warnings;
 
-use base 'pfconfig::namespaces::resource';
+use base 'pfconfig::namespaces::interfaces';
 
 sub init {
     my ($self) = @_;
-    $self->{_interfaces} = $self->{cache}->get_cache('resource::interfaces');
+    $self->{_interfaces} = $self->{cache}->get_cache('interfaces');
 }
 
 sub build {
     my ($self) = @_;
 
-    return $self->{_interfaces}->{inline_enforcement_nets};
+    return $self->{_interfaces}->{internal_nets};
 }
 
 =back

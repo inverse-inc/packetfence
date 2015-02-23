@@ -1,31 +1,31 @@
-package pfconfig::namespaces::resource::interfaces::dhcplistener_ints;
+package pfconfig::namespaces::interfaces::ha_ints;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::dhcplistener_ints
+pfconfig::namespaces::interfaces::ha_ints
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::dhcplistener_ints
+pfconfig::namespaces::interfaces::ha_ints
 
 =cut
 
 use strict;
 use warnings;
 
-use base 'pfconfig::namespaces::resource';
+use base 'pfconfig::namespaces::interfaces';
 
 sub init {
     my ($self) = @_;
-    $self->{_interfaces} = $self->{cache}->get_cache('resource::interfaces');
+    $self->{_interfaces} = $self->{cache}->get_cache('interfaces');
 }
 
 sub build {
     my ($self) = @_;
 
-    return $self->{_interfaces}->{dhcplistener_ints};
+    return $self->{_interfaces}->{ha_ints};
 }
 
 =back

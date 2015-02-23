@@ -1,31 +1,31 @@
-package pfconfig::namespaces::resource::interfaces::ha_ints;
+package pfconfig::namespaces::interfaces::management_network;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::ha_ints
+pfconfig::namespaces::interfaces::management_network
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::ha_ints
+pfconfig::namespaces::interfaces::management_network
 
 =cut
 
 use strict;
 use warnings;
 
-use base 'pfconfig::namespaces::resource';
+use base 'pfconfig::namespaces::interfaces';
 
 sub init {
     my ($self) = @_;
-    $self->{_interfaces} = $self->{cache}->get_cache('resource::interfaces');
+    $self->{_interfaces} = $self->{cache}->get_cache('interfaces');
 }
 
 sub build {
     my ($self) = @_;
 
-    return $self->{_interfaces}->{ha_ints};
+    return $self->{_interfaces}->{management_network};
 }
 
 =back
