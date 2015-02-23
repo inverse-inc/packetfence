@@ -1,50 +1,40 @@
-package pfconfig::namespaces::config::Profiles;
+package pfconfig::namespaces::interfaces::routed_registration_nets;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Profiles
+pfconfig::namespaces::interfaces::routed_registration_nets
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Profiles
-
-This module creates the configuration hash associated to profiles.conf
+pfconfig::namespaces::interfaces::routed_registration_nets
 
 =cut
 
-
 use strict;
 use warnings;
+use pfconfig::namespaces::config::Network;
 
-use pfconfig::namespaces::config;
-use Data::Dumper;
-use pfconfig::log;
-use pf::file_paths;
-
-use base 'pfconfig::namespaces::config';
+use base 'pfconfig::namespaces::interfaces';
 
 sub init {
-  my ($self) = @_;
-  $self->{file} = $profiles_config_file;
-  $self->{child_resources} = [
-    'resource::Profile_Filters',
-  ];
+    my ($self) = @_;
+    $self->{network_config} = $self->{cache}->get_cache('config::Network');
 }
 
-sub build_child {
+sub build {
     my ($self) = @_;
-
-    my %Profiles_Config = %{$self->{cfg}};
-    $self->cleanup_whitespaces(\%Profiles_Config);
-
-    foreach my $key (%Profiles_Config){
-      $self->expand_list($Profiles_Config{$key}, qw(sources filter locale mandatory_fields allowed_devices provisioners));
+    my %ConfigNetworks = %{$self->{network_config}};
+    my @routed_registration_nets = ();
+    foreach my $network ( keys %ConfigNetworks ) {
+        my $type = $ConfigNetworks{$network}{type};
+        if ( pfconfig::namespaces::config::Network::is_network_type_vlan_reg($type) ) {
+            my $registration_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+            push @routed_registration_nets, $registration_obj;
+        } 
     }
-
-    return \%Profiles_Config;
-
+    return \@routed_registration_nets;
 }
 
 =back
