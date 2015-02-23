@@ -416,16 +416,16 @@ sub init_config {
 #    readPfConfigFiles();
     %Config = pf::factory::config->new('cached_hash', 'config::Pf');
 
-    @dhcplistener_ints = pf::factory::config->new('cached_array', 'resource::interfaces::dhcplistener_ints');
-    @ha_ints = pf::factory::config->new('cached_array', 'resource::interfaces::ha_ints');
-    @listen_ints = pf::factory::config->new('cached_array', 'resource::interfaces::listen_ints');
+    @dhcplistener_ints = pf::factory::config->new('cached_array', 'interfaces::dhcplistener_ints');
+    @ha_ints = pf::factory::config->new('cached_array', 'interfaces::ha_ints');
+    @listen_ints = pf::factory::config->new('cached_array', 'interfaces::listen_ints');
 
-    @inline_enforcement_nets = pf::factory::config->new('cached_array', 'resource::interfaces::inline_enforcement_nets');
-    @internal_nets = pf::factory::config->new('cached_array', 'resource::interfaces::internal_nets');
-    @vlan_enforcement_nets = pf::factory::config->new('cached_array', 'resource::interfaces::vlan_enforcement_nets');
+    @inline_enforcement_nets = pf::factory::config->new('cached_array', 'interfaces::inline_enforcement_nets');
+    @internal_nets = pf::factory::config->new('cached_array', 'interfaces::internal_nets');
+    @vlan_enforcement_nets = pf::factory::config->new('cached_array', 'interfaces::vlan_enforcement_nets');
 
-    $management_network = pf::factory::config->new('cached_scalar', 'resource::interfaces::management_network');
-    $monitor_int = pf::factory::config->new('cached_scalar', 'resource::interfaces::monitor_int');
+    $management_network = pf::factory::config->new('cached_scalar', 'interfaces::management_network');
+    $monitor_int = pf::factory::config->new('cached_scalar', 'interfaces::monitor_int');
 
     %CAPTIVE_PORTAL = pf::factory::config->new('cached_hash', 'resource::CaptivePortal');
     $fqdn = pf::factory::config->new('cached_scalar', 'resource::fqdn');

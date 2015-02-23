@@ -1,31 +1,31 @@
-package pfconfig::namespaces::resource::interfaces::management_network;
+package pfconfig::namespaces::interfaces::vlan_enforcement_nets;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::management_network
+pfconfig::namespaces::interfaces::vlan_enforcement_nets
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::management_network
+pfconfig::namespaces::interfaces::vlan_enforcement_nets
 
 =cut
 
 use strict;
 use warnings;
 
-use base 'pfconfig::namespaces::resource';
+use base 'pfconfig::namespaces::interfaces';
 
 sub init {
     my ($self) = @_;
-    $self->{_interfaces} = $self->{cache}->get_cache('resource::interfaces');
+    $self->{_interfaces} = $self->{cache}->get_cache('interfaces');
 }
 
 sub build {
     my ($self) = @_;
 
-    return $self->{_interfaces}->{management_network};
+    return $self->{_interfaces}->{vlan_enforcement_nets};
 }
 
 =back
