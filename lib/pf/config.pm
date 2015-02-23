@@ -430,7 +430,12 @@ sub init_config {
     %CAPTIVE_PORTAL = pf::factory::config->new('cached_hash', 'resource::CaptivePortal');
     $fqdn = pf::factory::config->new('cached_scalar', 'resource::fqdn');
 
+    # FIX ME ! 
+    # Needs to be removed but until authentication is migrated it needs to stay here
     readProfileConfigFile();
+
+    %Profiles_Config = pf::factory::config->new('cached_hash', 'config::Profiles');
+    @Profile_Filters = pf::factory::config->new('cached_array', 'resource::Profile_Filters');
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
 #    readFirewallSSOFile();
