@@ -14,6 +14,27 @@ use Moose;
 
 BEGIN { extends 'pfappserver::PacketFence::Controller::Node'; }
 
+=head2 bulk_apply_bypass_role
+
+=cut
+
+sub bulk_apply_bypass_role : Local : Args(1) :AdminRole('NODES_UPDATE') {
+    my ( $self, $c, $role ) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ( $status, $status_msg );
+    my $request = $c->request;
+    if ($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $self->getModel($c)->bulkApplyBypassRole($role,@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash->{status_msg} = $status_msg;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

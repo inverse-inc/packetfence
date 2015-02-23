@@ -16,7 +16,7 @@
             <h2>
               [% l('Results') %]
             </h2>
-            [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions"%]
+            [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions" bulk_type='node'%]
             <div class="btn-group hidden-phone">
               <form id="columns" action="[% c.uri_for(c.controller('Node').action_for('advanced_search'), 'filter', filter, 'by', column, 'direction', new_direction) %]" method="POST">
               <a class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
@@ -35,7 +35,7 @@
                 [% column_checkbox('dhcp_fingerprint', 'OS (DHCP)') %]
                 [% column_checkbox('category', 'Role') %]
                 [% column_checkbox('bypass_vlan', 'Bypass VLAN') %]
-                % column_checkbox('bypass_role', 'Bypass Role') %]
+                [% column_checkbox('bypass_role', 'Bypass Role') %]
               </ul>
               </form>
             </div>

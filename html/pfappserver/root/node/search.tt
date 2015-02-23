@@ -55,7 +55,7 @@
             <h2>
               [% l('Results') %]
             </h2>
-            [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions"%]
+            [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions" bulk_type='node'%]
             <div class="btn-group hidden-phone">
               <form id="columns" action="[% c.uri_for(search_action,1,per_page) %]" method="POST">
               <a class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
