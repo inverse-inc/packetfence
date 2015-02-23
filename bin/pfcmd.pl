@@ -81,7 +81,6 @@ use constant {
 use lib INSTALL_DIR . "/lib";
 
 use pf::log;
-use pf::constants;
 use pf::config;
 use pf::config::ui;
 use pf::pfcmd;
