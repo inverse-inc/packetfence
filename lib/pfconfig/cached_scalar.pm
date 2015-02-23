@@ -45,7 +45,7 @@ use pfconfig::timeme;
 use Data::Dumper;
 use pfconfig::log;
 use pfconfig::cached;
-our @ISA = ('Tie::StdScalar', 'pfconfig::cached');
+our @ISA = ('Tie::Scalar', 'pfconfig::cached');
 
 # constructor of the object
 sub TIESCALAR {
