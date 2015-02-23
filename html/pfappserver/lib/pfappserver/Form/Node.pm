@@ -93,6 +93,10 @@ has_field 'last_dot1x_username' =>
    type => 'Uneditable',
    label => '802.1X Username',
   );
+has_field 'bypass_role' => (
+    type  => 'Text',
+    label => 'Bypass Role',
+);
 has_field 'user_agent' =>
   (
    type => 'Uneditable',
