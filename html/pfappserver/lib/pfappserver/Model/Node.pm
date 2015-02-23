@@ -785,6 +785,31 @@ sub bulkApplyRole {
     return ($STATUS::OK, ["Role was changed for [_1] node(s)", $count]);
 }
 
+=head2 bulkApplyBypassRole
+
+=cut
+
+sub bulkApplyBypassRole {
+    my ($self, $role, @macs) = @_;
+    my $count = 0;
+    foreach my $mac (@macs) {
+        my $node = node_view($mac);
+        my $old_bypass_role = $node->{bypass_role};
+        if (!defined($old_bypass_role) || $old_bypass_role != $role) {
+            # Role has changed
+            $node->{bypass_role} = $role;
+            if (node_modify($mac, %{$node})) {
+                $count++;
+                if (!defined($node->{last_dot1x_username}) || length($node->{last_dot1x_username}) == 0) {
+                    # The role has changed and is not currently using 802.1X
+                    reevaluate_access($mac, "node_modify");
+                }
+            }
+        }
+    }
+    return ($STATUS::OK, ["Bypass Role was changed for [_1] node(s)", $count]);
+}
+
 =head2 bulkReevaluateAccess
 
 =cut

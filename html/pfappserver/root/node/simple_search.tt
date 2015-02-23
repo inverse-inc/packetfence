@@ -16,7 +16,7 @@
             <h2>
               [% l('Results') %]
             </h2>
-            [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions"%]
+            [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions" bulk_type='node'%]
             <div class="btn-group hidden-phone">
               <form action="[% c.uri_for(c.action, 'filter', filter, 'by', column, 'direction', new_direction, 'page_num', page_num, 'per_page', per_page) %]" method="POST">
               <a class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
