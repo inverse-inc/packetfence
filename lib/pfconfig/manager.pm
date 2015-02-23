@@ -200,7 +200,7 @@ sub expire {
 
 sub list_namespaces {
   my ($self, $what) = @_;
-  my @skip = ("config", "resource", "config::template");
+  my @skip = ('config', 'resource', 'config::template', 'config::Authentication', 'resource::authentication_sources', 'resource::authentication_lookup');
   my $namespace_dir = "/usr/local/pf/lib/pfconfig/namespaces";
   my @modules;
   find({ wanted => sub {
