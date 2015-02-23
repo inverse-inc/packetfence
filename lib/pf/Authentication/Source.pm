@@ -10,7 +10,8 @@ We must at least always have one rule defined, the fallback one.
 
 =cut
 
-#use pf::config;
+use pf::config;
+use pf::constants;
 use Moose;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
