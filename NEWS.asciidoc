@@ -21,6 +21,7 @@ Enhancements
 ++++++++++++
 * Add the ability to search nodes by status
 * Removed SSLv3 support from default httpd configuration to prevent POODLE exploit.
+* Display Bypass VLAN of a node
 
 Bug Fixes
 +++++++++
