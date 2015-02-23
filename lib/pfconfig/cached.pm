@@ -38,6 +38,15 @@ use pfconfig::log;
 use pfconfig::util;
 use Sereal::Decoder;
 
+sub new {
+  my ($class) = @_;
+  my $self = bless {}, $class;
+
+  $self->init();
+
+  return $self;
+}
+
 # helper to build socket
 sub get_socket {
     my ($self) = @_;
