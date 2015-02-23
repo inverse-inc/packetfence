@@ -22,6 +22,13 @@ Readonly our $IF_ENFORCEMENT_INLINE => 'inline';
 Readonly our $IF_ENFORCEMENT_INLINE_L2 => 'inlinel2';
 Readonly our $IF_ENFORCEMENT_INLINE_L3 => 'inlinel3';
 
+Readonly our $NET_TYPE_VLAN_REG => 'vlan-registration';
+Readonly our $NET_TYPE_VLAN_ISOL => 'vlan-isolation';
+Readonly our $NET_TYPE_INLINE => 'inline';
+Readonly our $NET_TYPE_INLINE_L2 => 'inlinel2';
+Readonly our $NET_TYPE_INLINE_L3 => 'inlinel3';
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
