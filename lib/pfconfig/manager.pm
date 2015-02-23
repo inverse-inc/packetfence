@@ -200,7 +200,16 @@ sub expire {
 
 sub list_namespaces {
   my ($self, $what) = @_;
-  my @skip = ('config', 'resource', 'config::template', 'config::Authentication', 'resource::authentication_sources', 'resource::authentication_lookup');
+  my @skip = (
+    'config', 
+    'resource', 
+    'config::template', 
+    'interfaces',
+    # authentication is broken for now
+    'config::Authentication', 
+    'resource::authentication_sources', 
+    'resource::authentication_lookup'
+  );
   my $namespace_dir = "/usr/local/pf/lib/pfconfig/namespaces";
   my @modules;
   find({ wanted => sub {
@@ -220,19 +229,12 @@ sub list_namespaces {
 sub preload_all {
   my ($self) = @_;
   my @namespaces = $self->list_namespaces;
+  print "\n------------------\n";
   foreach my $namespace (@namespaces){
     print "Preloading $namespace\n";
-#    $self->cache_resource($namespace);
     $self->get_cache($namespace);
   }
-}
-
-sub load_all {
-  my ($self) = @_;
-  my @namespaces = $self->list_namespaces;
-  foreach my $namespace (@namespaces){
-    $self->get_cache($namespace);
-  }
+  print "------------------\n";
 }
 
 sub expire_all {
