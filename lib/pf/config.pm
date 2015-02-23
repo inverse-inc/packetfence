@@ -443,7 +443,9 @@ sub init_config {
     @routed_registration_nets = pf::factory::config->new('cached_array', 'interfaces::routed_registration_nets');    
     @inline_nets = pf::factory::config->new('cached_array', 'interfaces::inline_nets');
 
-    readFloatingNetworkDeviceFile();
+#    readFloatingNetworkDeviceFile();
+    %ConfigFloatingDevices = pf::factory::config->new('cached_hash', 'config::FloatingDevices');
+
 #    readFirewallSSOFile();
     %ConfigFirewallSSO = pf::factory::config->new('cached_hash', 'config::Firewall_SSO');
 #    readRealmFile();
