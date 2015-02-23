@@ -1,37 +1,30 @@
-package pf::Switch::EdgeCore;
-
-
+package pf::constants;
 =head1 NAME
 
-pf::Switch::EdgeCore
+pf::constants add documentation
 
-=head1 SYNOPSIS
+=cut
 
-The pf::Switch::EdgeCore module manages access to EdgeCore
+=head1 DESCRIPTION
 
-=head1 STATUS
-
-Tested on EdgeCore 4510 running v1.3.2.0 
+pf::constants
 
 =cut
 
 use strict;
 use warnings;
+use Readonly;
+use base qw(Exporter);
+our @EXPORT = qw(
+    $FALSE $TRUE $YES $NO $default_pid
+);
+# some global constants
+Readonly::Scalar our $FALSE => 0;
+Readonly::Scalar our $TRUE => 1;
+Readonly::Scalar our $YES => 'yes';
+Readonly::Scalar our $NO => 'no';
+Readonly::Scalar our $default_pid => 'admin';
 
-use Log::Log4perl;
-use POSIX;
-
-use base ('pf::Switch');
-
-use pf::constants;
-use pf::config;
-sub description { 'EdgeCore' }
-
-=head1 SUBROUTINES
-
-=cut
-
-sub supportsWiredMacAuth { return $TRUE; }
 
 =head1 AUTHOR
 
@@ -39,7 +32,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
@@ -61,7 +54,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:

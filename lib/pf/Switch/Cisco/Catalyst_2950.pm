@@ -92,6 +92,7 @@ use Net::Appliance::Session;
 use Net::SNMP;
 use Data::Dumper;
 
+use pf::constants;
 use pf::config;
 use pf::locationlog;
 sub description { 'Cisco Catalyst 2950' }

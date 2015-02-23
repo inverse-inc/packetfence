@@ -20,6 +20,7 @@ use Net::SNMP;
 use Net::Appliance::Session;
 use Try::Tiny;
 
+use pf::constants;
 use pf::config;
 # importing switch constants
 use pf::Switch::constants;

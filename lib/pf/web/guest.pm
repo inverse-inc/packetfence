@@ -44,6 +44,7 @@ BEGIN {
     @EXPORT = qw();
 }
 
+use pf::constants;
 use pf::config;
 use pf::temporary_password 1.11;
 use pf::util;

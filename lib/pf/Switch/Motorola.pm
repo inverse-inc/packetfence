@@ -57,6 +57,7 @@ use base ('pf::Switch');
 use Log::Log4perl;
 
 use pf::accounting qw(node_accounting_current_sessionid);
+use pf::constants;
 use pf::config;
 use pf::util;
 

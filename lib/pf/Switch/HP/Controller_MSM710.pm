@@ -30,6 +30,7 @@ use POSIX;
 
 use base ('pf::Switch::HP');
 
+use pf::constants;
 use pf::config;
 sub description { 'HP ProCurve MSM710 Mobility Controller' }
 

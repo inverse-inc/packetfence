@@ -14,6 +14,7 @@ pf::services::manager::suricata
 use strict;
 use warnings;
 use pf::file_paths;
+use pf::constants;
 use pf::config;
 use pf::violation_config;
 use Moo;

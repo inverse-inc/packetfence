@@ -25,6 +25,7 @@ use POSIX;
 
 use base ('pf::Switch');
 
+use pf::constants;
 use pf::config;
 use pf::radius::constants;
 use pf::Switch::constants;

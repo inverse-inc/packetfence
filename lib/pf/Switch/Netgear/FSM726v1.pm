@@ -47,6 +47,7 @@ use Log::Log4perl;
 use Net::SNMP;
 
 use pf::Switch::constants;
+use pf::constants;
 use pf::config;
 use pf::util;
 

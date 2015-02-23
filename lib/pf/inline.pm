@@ -16,6 +16,7 @@ use warnings;
 
 use Log::Log4perl;
 
+use pf::constants;
 use pf::config;
 use pf::node qw(node_attributes);
 use pf::violation qw(violation_count_trap);

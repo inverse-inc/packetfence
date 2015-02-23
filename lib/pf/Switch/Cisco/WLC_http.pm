@@ -31,6 +31,7 @@ use Try::Tiny;
 
 use base ('pf::Switch::Cisco::WLC');
 
+use pf::constants;
 use pf::config;
 use pf::Switch::constants;
 use pf::util;

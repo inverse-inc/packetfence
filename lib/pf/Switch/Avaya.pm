@@ -35,6 +35,7 @@ use Net::SNMP;
 
 use base ('pf::Switch::Nortel');
 
+use pf::constants;
 use pf::config;
 use pf::Switch::constants;
 use pf::util;

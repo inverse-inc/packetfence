@@ -8,7 +8,7 @@ pf::Authentication::Source::RADIUSSource
 
 =cut
 
-use pf::config qw($TRUE $FALSE);
+use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 
 use Authen::Radius;

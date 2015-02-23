@@ -30,6 +30,7 @@ use Try::Tiny;
 
 use base ('pf::Switch::Cisco::Catalyst_2960');
 
+use pf::constants;
 use pf::config;
 use pf::Switch::constants;
 use pf::util;

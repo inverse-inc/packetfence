@@ -30,6 +30,7 @@ BEGIN {
     @EXPORT_OK = qw(scan_insert_sql scan_select_sql scan_update_status_sql);
 }
 
+use pf::constants;
 use pf::config;
 use pf::db;
 use pf::iplog qw(ip2mac);
