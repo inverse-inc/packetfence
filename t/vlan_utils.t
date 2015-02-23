@@ -25,50 +25,60 @@ BEGIN {
     use PfFilePaths;
 }
 
-use Test::More tests => 4;
+use Test::More tests => 6;
 
 #This test will running last
 #use Test::NoWarnings;
+my $mac = '00:12:f0:13:32:BA';
 
 my $node_info = {
-    mac         => '00:12:f0:13:32:BA',
     bypass_vlan => 1,
     bypass_role => "default"
 };
 
-is( pf::vlan::_check_bypass($node_info),
+is( pf::vlan::_check_bypass($mac, $node_info),
     ( 1, "default" ),
     "check_bypass returns the bypass_vlan and bypass_role"
 );
 
 $node_info = {
-    mac         => '00:12:f0:13:32:BA',
     bypass_role => "default"
 };
 
-is( pf::vlan::_check_bypass($node_info),
+is( pf::vlan::_check_bypass($mac, $node_info),
     ( undef, "default" ),
     "check_bypass returns the undef bypass_vlan and bypass_role"
 );
 
 $node_info = {
-    mac         => '00:12:f0:13:32:BA',
     bypass_vlan => 1,
 };
 
-is( pf::vlan::_check_bypass($node_info),
+is( pf::vlan::_check_bypass($mac, $node_info),
     ( 1, undef ),
     "check_bypass returns the bypass_vlan and undef bypass_role"
 );
 
 $node_info = {
-    mac         => '00:12:f0:13:32:BA',
 };
 
-is( pf::vlan::_check_bypass($node_info),
+is( pf::vlan::_check_bypass($mac, $node_info),
     ( undef, undef ),
     "check_bypass returns the undef bypass_vlan and undef bypass_role"
 );
+
+undef $node_info; 
+is( pf::vlan::_check_bypass($mac, $node_info),
+    ( undef, undef ),
+    "check_bypass returns the undef bypass_vlan and undef bypass_role when passed undef node_info"
+);
+
+undef $mac;
+is( pf::vlan::_check_bypass($mac, $node_info),
+    ( undef, undef ),
+    "check_bypass returns the undef bypass_vlan and undef bypass_role when passed undef mac"
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

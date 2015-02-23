@@ -395,7 +395,7 @@ sub getNormalVlan {
         $logger->info("[$mac] Can't find provisioner");
     }
 
-    ( $vlan, $role ) = _check_bypass($node_info);
+    ( $vlan, $role ) = _check_bypass($mac, $node_info);
     if($vlan || $role) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ( $vlan, $role );
@@ -731,10 +731,13 @@ sub isInlineTrigger {
 }
 
 sub _check_bypass {
-    my ( $node_info ) = @_;
+    my ( $mac, $node_info ) = @_;
     my $logger = Log::Log4perl::get_logger( ref(__PACKAGE__) );
 
-    my $mac = $node_info->{'mac'};
+    if ( not defined $mac or not defined $node_info ) {
+        return ( undef, undef );
+    }
+
     # Bypass VLAN/role is configured in node record so we return accordingly
     if (   ( defined( $node_info->{'bypass_vlan'} ) && $node_info->{'bypass_vlan'} ne '' )
         or ( defined( $node_info->{'bypass_role'} ) && $node_info->{'bypass_role'} ne '' ) )
