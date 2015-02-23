@@ -34,6 +34,7 @@
                 [% column_checkbox('last_ip', 'IP Address') %]
                 [% column_checkbox('dhcp_fingerprint', 'OS (DHCP)') %]
                 [% column_checkbox('category', 'Role') %]
+                [% column_checkbox('bypass_vlan', 'Bypass VLAN', 'hidden-phone') %]
               </ul>
               </form>
             </div>
@@ -56,6 +57,7 @@
                     [% header('last_ip', 'IP Address') %]
                     [% header('dhcp_fingerprint', 'OS (DHCP)', 'hidden-phone') %]
                     [% header('category', 'Role', 'hidden-phone') %]
+                    [% header('bypass_vlan', 'Bypass VLAN', 'hidden-phone') %]
                   </tr>
                 </thead>
                 <tbody>
@@ -91,6 +93,9 @@
                     [%- END %]
                     [%- IF c.session.nodecolumns.category %]
                     <td class="hidden-phone">[% node.category | html %]</td>
+                    [%- END %]
+                    [%- IF c.session.nodecolumns.bypass_vlan %]
+                    <td class="hidden-phone">[% node.bypass_vlan | html %]</td>
                     [%- END %]
                   </tr>
                   [%- END -%]

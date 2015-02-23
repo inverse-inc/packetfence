@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 4.6.0\n"
+"Project-Id-Version: 4.6.1\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-02-04 10:40-0400\n"
+"PO-Revision-Date: 2015-02-18 13:57-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -529,6 +529,11 @@ msgstr ""
 # conf/documentation.conf (node_import.voip)
 msgid "By default is an imported node a Voice over IP device or not?"
 msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/nodes.tt
+msgid "Bypass VLAN"
+msgstr "Bypass VLAN"
 
 # conf/documentation.conf (billing.mirapay_currency options)
 msgid "CAD"
