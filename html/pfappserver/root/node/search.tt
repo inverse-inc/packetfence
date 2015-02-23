@@ -55,7 +55,7 @@
             <h2>
               [% l('Results') %]
             </h2>
-            [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions"%]
+            [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions" bulk_type='node'%]
             <div class="btn-group hidden-phone">
               <form id="columns" action="[% c.uri_for(search_action,1,per_page) %]" method="POST">
               <a class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
@@ -73,6 +73,7 @@
                 [% column_checkbox('last_ip', l('IP Address')) %]
                 [% column_checkbox('dhcp_fingerprint', l('OS (DHCP)')) %]
                 [% column_checkbox('category', l('Role')) %]
+                [% column_checkbox('bypass_role', l('Bypass Role')) %]
               </ul>
               </form>
             </div>
@@ -92,6 +93,7 @@
                     [% header('last_ip', l('IP Address')) %]
                     [% header('dhcp_fingerprint', l('OS (DHCP)'), 'hidden-phone') %]
                     [% header('category', l('Role'), 'hidden-phone') %]
+                    [% header('bypass_role', l('Bypass Role'), 'hidden-phone') %]
                   </tr>
                 </thead>
                 <tbody>
@@ -127,6 +129,9 @@
                     [%- END %]
                     [%- IF c.session.nodecolumns.category %]
                     <td class="hidden-phone">[% node.category | html %]</td>
+                    [%- END %]
+                    [%- IF c.session.nodecolumns.bypass_role %]
+                    <td class="hidden-phone">[% node.bypass_role | html %]</td>
                     [%- END %]
                   </tr>
                   [%- END -%]

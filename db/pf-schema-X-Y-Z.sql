@@ -128,6 +128,7 @@ CREATE TABLE node (
   last_dhcp datetime NOT NULL default "0000-00-00 00:00:00",
   dhcp_fingerprint varchar(255) default NULL,
   bypass_vlan varchar(50) default NULL,
+  bypass_role varchar(255) default NULL,
   voip enum('no','yes') NOT NULL DEFAULT 'no',
   autoreg enum('no','yes') NOT NULL DEFAULT 'no',
   sessionid varchar(30) default NULL,

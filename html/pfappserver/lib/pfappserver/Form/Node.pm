@@ -47,6 +47,13 @@ has_field 'category_id' =>
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'No role'},
   );
+has_field 'bypass_role' =>
+  (
+   type => 'Select',
+   label => 'Bypass Role',
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'No role'},
+  );
 has_field 'regdate' =>
   (
    type => 'Uneditable',
@@ -93,6 +100,10 @@ has_field 'last_dot1x_username' =>
    type => 'Uneditable',
    label => '802.1X Username',
   );
+has_field 'bypass_role' => (
+    type  => 'Text',
+    label => 'Bypass Role',
+);
 has_field 'user_agent' =>
   (
    type => 'Uneditable',
@@ -139,6 +150,15 @@ sub options_category_id {
     my @roles = map { $_->{category_id} => $_->{name} } @{$self->roles} if ($self->roles);
 
     return ('' => '', @roles);
+}
+
+=head2 options_bypass_role
+
+=cut
+
+sub options_bypass_role {
+    my $self = shift;
+    return $self->options_category_id();
 }
 
 =head2 validate
