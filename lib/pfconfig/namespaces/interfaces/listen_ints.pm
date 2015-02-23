@@ -1,25 +1,25 @@
-package pfconfig::namespaces::resource::interfaces::listen_ints;
+package pfconfig::namespaces::interfaces::listen_ints;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::listen_ints
+pfconfig::namespaces::interfaces::listen_ints
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::listen_ints
+pfconfig::namespaces::interfaces::listen_ints
 
 =cut
 
 use strict;
 use warnings;
 
-use base 'pfconfig::namespaces::resource';
+use base 'pfconfig::namespaces::interfaces';
 
 sub init {
     my ($self) = @_;
-    $self->{_interfaces} = $self->{cache}->get_cache('resource::interfaces');
+    $self->{_interfaces} = $self->{cache}->get_cache('interfaces');
 }
 
 sub build {

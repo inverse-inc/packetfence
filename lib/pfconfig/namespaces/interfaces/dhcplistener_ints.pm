@@ -1,31 +1,31 @@
-package pfconfig::namespaces::resource::interfaces::monitor_int;
+package pfconfig::namespaces::interfaces::dhcplistener_ints;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::monitor_int
+pfconfig::namespaces::interfaces::dhcplistener_ints
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::monitor_int
+pfconfig::namespaces::interfaces::dhcplistener_ints
 
 =cut
 
 use strict;
 use warnings;
 
-use base 'pfconfig::namespaces::resource';
+use base 'pfconfig::namespaces::interfaces';
 
 sub init {
     my ($self) = @_;
-    $self->{_interfaces} = $self->{cache}->get_cache('resource::interfaces');
+    $self->{_interfaces} = $self->{cache}->get_cache('interfaces');
 }
 
 sub build {
     my ($self) = @_;
 
-    return $self->{_interfaces}->{monitor_int};
+    return $self->{_interfaces}->{dhcplistener_ints};
 }
 
 =back

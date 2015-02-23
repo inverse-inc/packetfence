@@ -1,31 +1,31 @@
-package pfconfig::namespaces::resource::interfaces::internal_nets;
+package pfconfig::namespaces::interfaces::monitor_int;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::internal_nets
+pfconfig::namespaces::interfaces::monitor_int
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::internal_nets
+pfconfig::namespaces::interfaces::monitor_int
 
 =cut
 
 use strict;
 use warnings;
 
-use base 'pfconfig::namespaces::resource';
+use base 'pfconfig::namespaces::interfaces';
 
 sub init {
     my ($self) = @_;
-    $self->{_interfaces} = $self->{cache}->get_cache('resource::interfaces');
+    $self->{_interfaces} = $self->{cache}->get_cache('interfaces');
 }
 
 sub build {
     my ($self) = @_;
 
-    return $self->{_interfaces}->{internal_nets};
+    return $self->{_interfaces}->{monitor_int};
 }
 
 =back
