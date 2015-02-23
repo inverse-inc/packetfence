@@ -188,11 +188,11 @@ Readonly our $IF_ENFORCEMENT_INLINE_L2 => $pf::constants::config::IF_ENFORCEMENT
 Readonly our $IF_ENFORCEMENT_INLINE_L3 => $pf::constants::config::IF_ENFORCEMENT_INLINE_L3;
 
 # Network configuration parameters.
-Readonly our $NET_TYPE_VLAN_REG => 'vlan-registration';
-Readonly our $NET_TYPE_VLAN_ISOL => 'vlan-isolation';
-Readonly our $NET_TYPE_INLINE => 'inline';
-Readonly our $NET_TYPE_INLINE_L2 => 'inlinel2';
-Readonly our $NET_TYPE_INLINE_L3 => 'inlinel3';
+Readonly our $NET_TYPE_VLAN_REG => $pf::constants::config::NET_TYPE_VLAN_REG;
+Readonly our $NET_TYPE_VLAN_ISOL => $pf::constants::config::NET_TYPE_VLAN_ISOL;
+Readonly our $NET_TYPE_INLINE => $pf::constants::config::NET_TYPE_INLINE;
+Readonly our $NET_TYPE_INLINE_L2 => $pf::constants::config::NET_TYPE_INLINE_L2;
+Readonly our $NET_TYPE_INLINE_L3 => $pf::constants::config::NET_TYPE_INLINE_L3;
 Readonly our %NET_INLINE_TYPES =>  (
     $NET_TYPE_INLINE    => undef,
     $NET_TYPE_INLINE_L2 => undef,
@@ -436,7 +436,13 @@ sub init_config {
 
     %Profiles_Config = pf::factory::config->new('cached_hash', 'config::Profiles');
     @Profile_Filters = pf::factory::config->new('cached_array', 'resource::Profile_Filters');
-    readNetworkConfigFile();
+
+#    readNetworkConfigFile();
+    %ConfigNetworks = pf::factory::config->new('cached_hash', 'config::Network');
+    @routed_isolation_nets = pf::factory::config->new('cached_array', 'interfaces::routed_isolation_nets');    
+    @routed_registration_nets = pf::factory::config->new('cached_array', 'interfaces::routed_registration_nets');    
+    @inline_nets = pf::factory::config->new('cached_array', 'interfaces::inline_nets');
+
     readFloatingNetworkDeviceFile();
 #    readFirewallSSOFile();
     %ConfigFirewallSSO = pf::factory::config->new('cached_hash', 'config::Firewall_SSO');
