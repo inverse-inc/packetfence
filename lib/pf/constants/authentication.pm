@@ -15,6 +15,18 @@ pf::constants::authentication
 use strict;
 use warnings;
 
+use Module::Pluggable
+  'search_path' => [qw(pf::Authentication::Source)],
+  'sub_name'    => 'sources',
+  'require'     => 1,
+  ;
+
+our @SOURCES = __PACKAGE__->sources();
+
+our %TYPE_TO_SOURCE = map { lc($_->meta->get_attribute('type')->default) => $_ } @SOURCES;
+
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
