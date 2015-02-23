@@ -24,6 +24,7 @@ use pf::Authentication::Action;
 use pf::Authentication::Condition;
 use pf::Authentication::Rule;
 use pf::Authentication::Source;
+use pf::constants::authentication;
 
 use Module::Pluggable
   'search_path' => [qw(pf::Authentication::Source)],
@@ -76,9 +77,9 @@ BEGIN {
 
 }
 
-our @SOURCES = __PACKAGE__->sources();
+our @SOURCES = @pf::constants::authentication::SOURCES;
 
-our %TYPE_TO_SOURCE = map { lc($_->meta->get_attribute('type')->default) => $_ } @SOURCES;
+our %TYPE_TO_SOURCE = %pf::constants::authentication::TYPE_TO_SOURCE;
 
 our $logger = get_logger();
 
