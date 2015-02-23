@@ -19,6 +19,8 @@ New Features
 
 Enhancements
 ++++++++++++
+* Add the ability to search nodes by status
+* Removed SSLv3 support from default httpd configuration to prevent POODLE exploit.
 
 Bug Fixes
 +++++++++
@@ -31,7 +33,6 @@ New Features
 
 Enhancements
 ++++++++++++
-* Add the ability to search nodes by status
 
 Bug Fixes
 +++++++++
