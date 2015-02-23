@@ -44,73 +44,87 @@ foreach my $key (keys %CSSwitchConfig){
   print "$key ".Test::Deep::deep_diag($stack) unless $ok;
 }
 
-my %CSDefault_Config = %pf::ConfigStore::config::Default_Config;
 
-my %NewDefault_Config;
-tie %NewDefault_Config, 'pfconfig::cached_hash', 'config::PfDefault';
+use_ok('pf::config');
 
-foreach my $key (keys %CSDefault_Config){
-  my $old = $CSDefault_Config{$key};
-  my $new = $NewDefault_Config{$key};
-  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
-  ok($ok, "Default config $key matches in old and new store");
-  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
+my @exported = @pf::config::EXPORT;
+
+foreach my $variable (@exported){
+  # we are only testing variables since we're changing the subs
+  if($variable =~ /^[\$@%]{1}/){
+    my ($ok, $stack) = Test::Deep::cmp_details(eval("pf::config::$variable" ), eval("pf::ConfigStore::config::$variable"));
+    ok($ok, "$variable is same in pf::config as before");
+  }
 }
 
-my %CSDoc_Config = %pf::ConfigStore::config::Doc_Config;
+#my %CSDefault_Config = %pf::ConfigStore::config::Default_Config;
+#
+#my %NewDefault_Config;
+#tie %NewDefault_Config, 'pfconfig::cached_hash', 'config::PfDefault';
+#
+#foreach my $key (keys %CSDefault_Config){
+#  my $old = $CSDefault_Config{$key};
+#  my $new = $NewDefault_Config{$key};
+#  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
+#  ok($ok, "Default config $key matches in old and new store");
+#  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
+#}
+#
+#my %CSDoc_Config = %pf::ConfigStore::config::Doc_Config;
+#
+#my %NewDoc_Config;
+#tie %NewDoc_Config, 'pfconfig::cached_hash', 'config::Documentation';
+#
+#foreach my $key (keys %CSDoc_Config){
+#  my $old = $CSDoc_Config{$key};
+#  my $new = $NewDoc_Config{$key};
+##  print "old : ".Dumper($old->{description})."\n";
+##  print "new : ".Dumper($new->{description})."\n";
+#  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
+#  ok($ok, "Doc config $key matches in old and new store");
+#  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
+#}
+#
+#my %CSConfig = %pf::ConfigStore::config::Config;
+#
+#my %NewConfig;
+#tie %NewConfig, 'pfconfig::cached_hash', 'config::Pf';
+#
+#foreach my $key (keys %CSConfig){
+#  my $old = $CSConfig{$key};
+#  my $new = $NewConfig{$key};
+#  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
+#  ok($ok, "PF config $key matches in old and new store");
+#  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
+#}
+#
+#use_ok('pf::admin_roles');
+#my %CSConfigAdminRoles = %pf::admin_roles::ADMIN_ROLES;
+#
+#my %NewConfigAdminRoles;
+#tie %NewConfigAdminRoles, 'pfconfig::cached_hash', 'config::AdminRoles';
+#
+#foreach my $key (keys %CSConfigAdminRoles){
+#  my $old = $CSConfigAdminRoles{$key};
+#  my $new = $NewConfigAdminRoles{$key};
+#  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
+#  ok($ok, "Admin roles config $key matches in old and new store");
+#  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
+#}
+#
+#my %CSConfigFirewallSSO = %pf::ConfigStore::config::ConfigFirewallSSO;
+#
+#my %NewConfigFirewallSSO;
+#tie %NewConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
+#
+#foreach my $key (keys %CSConfigFirewallSSO){
+#  my $old = $CSConfigFirewallSSO{$key};
+#  my $new = $NewConfigFirewallSSO{$key};
+#  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
+#  ok($ok, "Firewall SSO config $key matches in old and new store");
+#  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
+#}
 
-my %NewDoc_Config;
-tie %NewDoc_Config, 'pfconfig::cached_hash', 'config::Documentation';
-
-foreach my $key (keys %CSDoc_Config){
-  my $old = $CSDoc_Config{$key};
-  my $new = $NewDoc_Config{$key};
-#  print "old : ".Dumper($old->{description})."\n";
-#  print "new : ".Dumper($new->{description})."\n";
-  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
-  ok($ok, "Doc config $key matches in old and new store");
-  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
-}
-
-my %CSConfig = %pf::ConfigStore::config::Config;
-
-my %NewConfig;
-tie %NewConfig, 'pfconfig::cached_hash', 'config::Pf';
-
-foreach my $key (keys %CSConfig){
-  my $old = $CSConfig{$key};
-  my $new = $NewConfig{$key};
-  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
-  ok($ok, "PF config $key matches in old and new store");
-  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
-}
-
-use_ok('pf::admin_roles');
-my %CSConfigAdminRoles = %pf::admin_roles::ADMIN_ROLES;
-
-my %NewConfigAdminRoles;
-tie %NewConfigAdminRoles, 'pfconfig::cached_hash', 'config::AdminRoles';
-
-foreach my $key (keys %CSConfigAdminRoles){
-  my $old = $CSConfigAdminRoles{$key};
-  my $new = $NewConfigAdminRoles{$key};
-  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
-  ok($ok, "Admin roles config $key matches in old and new store");
-  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
-}
-
-my %CSConfigFirewallSSO = %pf::ConfigStore::config::ConfigFirewallSSO;
-
-my %NewConfigFirewallSSO;
-tie %NewConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
-
-foreach my $key (keys %CSConfigFirewallSSO){
-  my $old = $CSConfigFirewallSSO{$key};
-  my $new = $NewConfigFirewallSSO{$key};
-  my ($ok, $stack) = Test::Deep::cmp_details($old, $new);
-  ok($ok, "Firewall SSO config $key matches in old and new store");
-  print "$key ".Test::Deep::deep_diag($stack) unless $ok;
-}
 
 
 done_testing();
