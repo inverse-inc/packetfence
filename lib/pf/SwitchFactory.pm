@@ -19,15 +19,17 @@ use warnings;
 use Carp;
 use UNIVERSAL::require;
 use pf::log;
-use pf::config::cached;
 use pf::util;
 use pf::freeradius;
 use pf::file_paths;
 use Time::HiRes qw(gettimeofday);
 use Benchmark qw(:all);
 use List::Util qw(first);
-use pf::ConfigStore::Switch;
 use pf::CHI;
+use pfconfig::cached_hash;
+use pf::factory::config;
+
+my %SwitchConfig = pf::factory::config->new('cached_hash', 'config::Switch');
 
 our ($singleton);
 
@@ -87,9 +89,9 @@ sub instantiate {
     my $requestedSwitch;
     my $switch_ip;
     my $switch_mac;
-    my $switch_config = pf::ConfigStore::Switch->new;
     my $switch_overlay_cache = pf::CHI->new(namespace => 'switch.overlay');
 
+    pfconfig::timeme::timeme('building stuff', sub {
     if(ref($switchRequest) eq 'HASH') {
         if(exists $switchRequest->{switch_mac} && defined $switchRequest->{switch_mac}) {
             $switch_mac = $switchRequest->{switch_mac};
@@ -107,14 +109,21 @@ sub instantiate {
             $switch_mac = $switchRequest;
         }
     }
+    });
 
-    $requestedSwitch = first {exists $SwitchConfig{$_} } @requestedSwitches;
-    unless ($requestedSwitch) {
+    my $switch_data;
+    foreach my $search (@requestedSwitches){
+        if($SwitchConfig{$search}){
+            $requestedSwitch = $search;
+            $switch_data = $SwitchConfig{$search};
+            last;
+        }
+    }
+    unless (defined($requestedSwitch)) {
         $logger->error("WARNING ! Unknown switch(es) ". join(" ",@requestedSwitches));
         return 0;
     }
 
-    my $switch_data = $SwitchConfig{$requestedSwitch};
 
     if( $switch_mac && $requestedSwitch eq $switch_mac && ref($switchRequest) eq 'HASH' && !defined ($switch_data->{controllerIp}) ) {
         my $switch = $switch_overlay_cache->get($switch_mac) || {};
@@ -132,9 +141,13 @@ sub instantiate {
     }
 
 
+    my $switchOverlay;
+    pfconfig::timeme::timeme('overlayget', sub {
     # find the module to instantiate
-    my $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
+    $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
+    });
     my $type;
+    pfconfig::timeme::timeme('type import', sub {
     if ($requestedSwitch ne 'default') {
         $type = "pf::Switch::" . $switch_data->{'type'};
     } else {
@@ -148,16 +161,21 @@ sub instantiate {
             . "Read the following message for details: $@");
         return 0;
     }
+    });
 
+    my $result;
+    pfconfig::timeme::timeme('creating', sub {
     $logger->debug("creating new $type object");
-    return $type->new(
+    $result = $type->new(
          id => $requestedSwitch,
          ip => $switch_ip,
          switchIp => $switch_ip,
          switchMac => $switch_mac,
          %$switch_data,
-         %$switchOverlay
+         %$switchOverlay,
     );
+    });
+    return $result;
 }
 
 sub config {

@@ -19,6 +19,7 @@ use pf::file_paths;
 use pf::util;
 use HTTP::Status qw(:constants is_error is_success);
 use List::MoreUtils qw(part);
+use pfconfig::manager;
 
 extends qw(pf::ConfigStore Exporter);
 
@@ -179,6 +180,13 @@ sub remove {
         return undef;
     }
     return $self->SUPER::remove($id);
+}
+
+sub commit {
+    my ( $self ) = @_;
+    my $result = $self->SUPER::commit();
+    pfconfig::manager->new->expire('config::Switch');
+    return $result;
 }
 
 before rewriteConfig => sub {
