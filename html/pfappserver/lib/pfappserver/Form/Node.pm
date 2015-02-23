@@ -98,6 +98,10 @@ has_field 'bypass_vlan' =>
    type => 'Text',
    label => 'Bypass VLAN',
   );
+has_field 'bypass_role' => (
+    type  => 'Text',
+    label => 'Bypass Role',
+);
 has_field 'user_agent' =>
   (
    type => 'Uneditable',
