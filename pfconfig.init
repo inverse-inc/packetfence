@@ -12,6 +12,9 @@
 
 . /etc/rc.d/init.d/functions
 
+control_files_dir="/usr/local/pf/var/control"
+socket_path="/dev/shm/pfconfig.sock"
+
 prog="/usr/local/pf/sbin/pfconfig"
 prog_base="$(basename ${prog})"
 
@@ -26,6 +29,9 @@ start() {
 		echo
 		return 0
 	fi
+  # fix rights and remove previous socket
+  chown -R $User.$User $control_files_dir
+  rm -f $socket_path
 	daemon --user=$User ${prog} -d 
 	RETVAL=$?
 	echo
