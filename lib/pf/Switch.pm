@@ -3024,7 +3024,9 @@ sub parseTrap {
     my $self   = shift;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->warn("SNMP trap handling not implemented for this type of switch.");
-    return undef;
+    my $trapHashRef;
+    $trapHashRef->{'trapType'} = 'unknown';
+    return $trapHashRef;
 }
 
 =item identifyConnectionType
