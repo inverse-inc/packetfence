@@ -2,7 +2,10 @@
 This guide summarizes the installation of the pfconfig service.
 ---------------------------------------------------------------
 
-First, make sure pfconfig has the executable bit on.
+Before installing the patch, you need to stop all the pf services
+# service packetfence stop
+
+Then, make sure pfconfig has the executable bit on.
 # ll /usr/local/pf/sbin/pfconfig
 
 Now go in the pf directory
@@ -20,8 +23,8 @@ Now, install the memcached init script provided (only for RHEL based systems)
 # cp addons/pfconfig/memcached.init /etc/init.d/memcached
 # chmod +x /etc/init.d/memcached
 
-Stop PacketFence completely
-# service packetfence stop
+Install Log::Fast (only on CPAN for now)
+# cpan Log::Fast
 
 Start memcached and set it on for boot
 # service memcached start
