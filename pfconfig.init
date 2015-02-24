@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# Init script for PacketFence remote Snort sensor
+#
+# Written by Inverse inc. <info@inverse.ca>
+#
+# chkconfig: - 35 65
+# description: PacketFence remote Snort sensor
+#
+# processname: 
+# config: /usr/local/pf/conf/pfconfig.conf
+
+. /etc/rc.d/init.d/functions
+
+control_files_dir="/usr/local/pf/var/control"
+socket_path="/dev/shm/pfconfig.sock"
+
+prog="/usr/local/pf/sbin/pfconfig"
+prog_base="$(basename ${prog})"
+
+RETVAL=0
+User="pf"
+Group="pf"
+
+start() {
+	echo -n $"Starting ${prog_base}: "
+	if [ -f /usr/local/pf/var/run/pfconfig.pid ] && ps -p $(cat /usr/local/pf/var/run/pfconfig.pid) > /dev/null; then
+		echo -n $"${prog_base}: already running"
+		echo
+		return 0
+	fi
+  # create directory, fix rights and remove previous socket
+  mkdir -p $control_files_dir
+  chown -R $User.$User $control_files_dir
+  rm -f $socket_path
+	daemon --user=$User ${prog} -d 
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Shutting down ${prog_base}:"
+	killproc ${prog_base}
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+restart() {
+	stop
+	start
+}
+
+case "$1" in
+  start)
+	start
+	RETVAL=$?
+	;;
+  stop)
+	stop
+	RETVAL=$?
+	;;
+  status)
+	status ${prog_base}
+	RETVAL=$?
+	;;
+  restart)
+        restart
+	RETVAL=$?
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|restart|status}"
+	RETVAL=1
+esac
+
+exit $RETVAL
