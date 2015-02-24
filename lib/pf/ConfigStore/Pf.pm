@@ -28,6 +28,8 @@ extends 'pf::ConfigStore';
 
 sub _buildCachedConfig { $cached_pf_config }
 
+sub pfconfigNamespace {'config::Pf'}
+
 =item remove
 
 Delete an existing item

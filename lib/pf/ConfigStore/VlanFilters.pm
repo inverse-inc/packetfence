@@ -19,6 +19,8 @@ extends 'pf::ConfigStore';
 
 sub configFile { $pf::file_paths::vlan_filters_config_file };
 
+sub pfconfigNamespace {'config::VlanFilters'}
+
 __PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR

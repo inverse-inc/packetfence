@@ -23,6 +23,8 @@ use pfconfig::manager;
 
 extends qw(pf::ConfigStore Exporter);
 
+sub pfconfigNamespace {'config::Switch'}
+
 our ( $switches_cached_config, %SwitchConfig );
 our @EXPORT = qw(%SwitchConfig);
 use pf::freeradius;
@@ -180,13 +182,6 @@ sub remove {
         return undef;
     }
     return $self->SUPER::remove($id);
-}
-
-sub commit {
-    my ( $self ) = @_;
-    my $result = $self->SUPER::commit();
-    pfconfig::manager->new->expire('config::Switch');
-    return $result;
 }
 
 before rewriteConfig => sub {
