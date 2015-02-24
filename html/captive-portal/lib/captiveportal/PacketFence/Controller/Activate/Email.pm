@@ -104,6 +104,10 @@ TODO: documention
 
 sub login : Private {
     my ( $self, $c ) = @_;
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
     $c->stash(
         template => $pf::web::guest::SPONSOR_LOGIN_TEMPLATE,
         username => $c->request->param_encoded("username"),
@@ -141,7 +145,7 @@ sub doEmailRegistration : Private {
             my %info;
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
-            $c->stash->{info}=\%info; 
+            $c->stash->{info}=\%info;
             $c->forward('Authenticate' => 'postAuthentication');
             $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
 
@@ -157,12 +161,12 @@ sub doEmailRegistration : Private {
 
             $c->stash(
                 template   => $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE,
-                expiration => $c->stash->{info}{unregdate} 
+                expiration => $c->stash->{info}{unregdate}
             );
-        } 
+        }
 
         # Pre-registration email guests self-registration
-        # if we don't have the MAC it means it's a preregister guest generate a password and send 
+        # if we don't have the MAC it means it's a preregister guest generate a password and send
         # an email with an access code
         else {
             my %info = (
@@ -251,6 +255,18 @@ sub doSponsorRegistration : Private {
             $c->forward(Authenticate => 'authenticationLogin');
             $c->detach('login') if $c->has_errors;
         }
+        # Verify if the user has the role mark as sponsor
+        my $source_match = $c->session->{source_match} || $c->session->{source_id};
+        my $value = &pf::authentication::match($source_match, {username => $c->session->{"username"}},
+            $Actions::MARK_AS_SPONSOR);
+        unless (defined $value) {
+            $c->log->error( $c->session->{"username"} . " does not have permission to sponsor a user"  );
+            $c->session->{username} = undef;
+            $c->error("does not have permission to sponsor a user");
+            $c->detach('login');
+        }
+
+
 
         # handling log out (not exposed to the UI at this point)
         # TODO: if we ever expose it, we'll need to alter the form action to make sure to trim it
@@ -296,7 +312,7 @@ sub doSponsorRegistration : Private {
 
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
-            $c->stash->{info}=\%info; 
+            $c->stash->{info}=\%info;
             $c->forward('Authenticate' => 'postAuthentication');
             $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
