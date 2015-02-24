@@ -39,7 +39,7 @@ use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
 use UNIVERSAL::require;
 use Data::Dumper;
-use pfconfig::backend::memcached;
+use pfconfig::backend::bdb;
 use pfconfig::log;
 #use pf::util;
 use Time::HiRes qw(stat time);
@@ -87,7 +87,7 @@ sub init_cache {
   my ($self) = @_;
   my $logger = get_logger;
 
-  $self->{cache} = pfconfig::backend::memcached->new;
+  $self->{cache} = pfconfig::backend::bdb->new;
 
   $self->{memory} = {};
   $self->{memorized_at} = {};
