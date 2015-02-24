@@ -125,6 +125,7 @@ BEGIN {
         $OS
         %Doc_Config
         %ConfigRealm $cached_realm
+        $TRUE $FALSE $default_pid
     );
 }
 
@@ -132,7 +133,6 @@ sub import {
     pf::config->export_to_level(1,@_);
     pf::file_paths->export_to_level(1);
 }
-
 use pf::util::apache qw(url_parser);
 
 $thread = 0;
