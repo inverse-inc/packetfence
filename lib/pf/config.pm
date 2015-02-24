@@ -45,8 +45,11 @@ use pf::factory::profile::filter;
 use pf::profile::filter;
 use pf::profile::filter::all;
 use pf::constants::Portal::Profile;
-use pf::factory::config;
 use pf::constants::config;
+use pfconfig::cached_array;
+use pfconfig::cached_scalar;
+use pfconfig::cached_hash;
+use pf::factory::config;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -412,44 +415,44 @@ multi-threaded daemons.
 
 sub init_config {
 #    readPfDocConfigFiles();
-    %Doc_Config = pf::factory::config->new('cached_hash', 'config::Documentation');
+    tie %Doc_Config, 'pfconfig::cached_hash', 'config::Documentation';
 #    readPfConfigFiles();
-    %Config = pf::factory::config->new('cached_hash', 'config::Pf');
+    tie %Config, 'pfconfig::cached_hash', 'config::Pf';
 
-    @dhcplistener_ints = pf::factory::config->new('cached_array', 'interfaces::dhcplistener_ints');
-    @ha_ints = pf::factory::config->new('cached_array', 'interfaces::ha_ints');
-    @listen_ints = pf::factory::config->new('cached_array', 'interfaces::listen_ints');
+    tie @dhcplistener_ints,  'pfconfig::cached_array', 'interfaces::dhcplistener_ints';
+    tie @ha_ints, 'pfconfig::cached_array', 'interfaces::ha_ints';
+    tie @listen_ints, 'pfconfig::cached_array', 'interfaces::listen_ints';
 
-    @inline_enforcement_nets = pf::factory::config->new('cached_array', 'interfaces::inline_enforcement_nets');
-    @internal_nets = pf::factory::config->new('cached_array', 'interfaces::internal_nets');
-    @vlan_enforcement_nets = pf::factory::config->new('cached_array', 'interfaces::vlan_enforcement_nets');
+    tie @inline_enforcement_nets, 'pfconfig::cached_array', 'interfaces::inline_enforcement_nets';
+    tie @internal_nets, 'pfconfig::cached_array', 'interfaces::internal_nets';
+    tie @vlan_enforcement_nets, 'pfconfig::cached_array', 'interfaces::vlan_enforcement_nets';
 
-    $management_network = pf::factory::config->new('cached_scalar', 'interfaces::management_network');
-    $monitor_int = pf::factory::config->new('cached_scalar', 'interfaces::monitor_int');
+    tie $management_network, 'pfconfig::cached_scalar', 'interfaces::management_network';
+    tie $monitor_int, 'pfconfig::cached_scalar', 'interfaces::monitor_int';
 
-    %CAPTIVE_PORTAL = pf::factory::config->new('cached_hash', 'resource::CaptivePortal');
-    $fqdn = pf::factory::config->new('cached_scalar', 'resource::fqdn');
+    tie %CAPTIVE_PORTAL, 'pfconfig::cached_hash', 'resource::CaptivePortal';
+    tie $fqdn, 'pfconfig::cached_scalar', 'resource::fqdn';
 
     # FIX ME ! 
     # Needs to be removed but until authentication is migrated it needs to stay here
     readProfileConfigFile();
 
-    %Profiles_Config = pf::factory::config->new('cached_hash', 'config::Profiles');
-    @Profile_Filters = pf::factory::config->new('cached_array', 'resource::Profile_Filters');
+    tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
+    tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
 
 #    readNetworkConfigFile();
-    %ConfigNetworks = pf::factory::config->new('cached_hash', 'config::Network');
-    @routed_isolation_nets = pf::factory::config->new('cached_array', 'interfaces::routed_isolation_nets');    
-    @routed_registration_nets = pf::factory::config->new('cached_array', 'interfaces::routed_registration_nets');    
-    @inline_nets = pf::factory::config->new('cached_array', 'interfaces::inline_nets');
+    tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
+    tie @routed_isolation_nets, 'pfconfig::cached_array', 'interfaces::routed_isolation_nets';    
+    tie @routed_registration_nets, 'pfconfig::cached_array', 'interfaces::routed_registration_nets';    
+    tie @inline_nets, 'pfconfig::cached_array', 'interfaces::inline_nets';
 
 #    readFloatingNetworkDeviceFile();
-    %ConfigFloatingDevices = pf::factory::config->new('cached_hash', 'config::FloatingDevices');
+    tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
 
 #    readFirewallSSOFile();
-    %ConfigFirewallSSO = pf::factory::config->new('cached_hash', 'config::Firewall_SSO');
+    tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 #    readRealmFile();
-    %ConfigRealm = pf::factory::config->new('cached_hash', 'config::Realm');
+    tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 }
 
 =item ipset_version -  check the ipset version on the system

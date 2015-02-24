@@ -27,9 +27,9 @@ use Benchmark qw(:all);
 use List::Util qw(first);
 use pf::CHI;
 use pfconfig::cached_hash;
-use pf::factory::config;
 
-my %SwitchConfig = pf::factory::config->new('cached_hash', 'config::Switch');
+my %SwitchConfig;
+tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
 
 our ($singleton);
 

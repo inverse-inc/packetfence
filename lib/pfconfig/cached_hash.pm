@@ -121,6 +121,18 @@ sub STORE {
   $self->{_internal_elements}{$key} = $value;
 }
 
+# rewrite me to talk directly to the pfconfig socket
+sub EXISTS {
+  my( $self, $key ) = @_;
+  my @keys = $self->keys;
+  if($key ~~ @keys){
+    return 1;
+  }
+  else{
+    return 0;
+  } 
+}
+
 =back
 
 =head1 AUTHOR

@@ -37,6 +37,7 @@ use Data::Dumper;
 use pfconfig::log;
 use pfconfig::util;
 use Sereal::Decoder;
+use Time::HiRes qw(stat time);
 
 sub new {
   my ($class) = @_;
@@ -160,12 +161,13 @@ sub _get_from_socket {
 # helper to know if the raw memory cache is still valid
 sub is_valid {
   my ($self) = @_;
+  my $logger = get_logger;
   my $what = $self->{_namespace};
   my $control_file = pfconfig::util::control_file_path($what);
   my $file_timestamp = (stat($control_file))[9] ;
 
   unless(defined($file_timestamp)){
-    #$logger->warn("Filesystem timestamp is not set for $what. Considering memory as invalid.");
+    $logger->warn("Filesystem timestamp is not set for $what. Considering memory as invalid.");
     return 0;
   }
 
@@ -174,11 +176,11 @@ sub is_valid {
   # if the timestamp of the file is after the one we have in memory
   # then we are expired
   if ($memory_timestamp > $file_timestamp){
-    #$logger->trace("Memory configuration is still valid for key $what in local cached_hash");
+    $logger->trace("Memory configuration is still valid for key $what in local cached_hash");
     return 1;
   }
   else{
-    #$logger->info("Memory configuration is not valid anymore for key $what in local cached_hash");
+    $logger->info("Memory configuration is not valid anymore for key $what in local cached_hash");
     return 0;
   }
 }
