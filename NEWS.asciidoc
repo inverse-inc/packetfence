@@ -43,6 +43,7 @@ Bug Fixes
 * Assigned LC_CTYPE to C during postinstall script on debian to prevent i18n issues during installation.
 * Fixed dynamic_unreg_dated called from the wrong place
 * Fix searching for switches in the admin gui
+* Fixed broken default behavior when receiving an SNMP trap.
 
 Version 4.6.0 released on 2015-02-04
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
