@@ -395,10 +395,10 @@ sub getNormalVlan {
         $logger->info("[$mac] Can't find provisioner");
     }
 
-    ( $vlan, $role ) = _check_bypass($mac, $node_info);
-    if($vlan || $role) {
+    $vlan = _check_bypass($mac, $node_info, $switch);
+    if( $vlan ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
-        return ( $vlan, $role );
+        return $vlan;
     }
 
     $logger->debug("[$mac] Trying to determine VLAN from role.");
@@ -731,24 +731,25 @@ sub isInlineTrigger {
 }
 
 sub _check_bypass {
-    my ( $mac, $node_info ) = @_;
+    my ( $mac, $node_info, $switch ) = @_;
     my $logger = Log::Log4perl::get_logger( ref(__PACKAGE__) );
 
-    if ( not defined $mac or not defined $node_info ) {
-        return ( undef, undef );
-    }
+    if ( @_ < 3 ) { return undef; }
 
     # Bypass VLAN/role is configured in node record so we return accordingly
-    if (   ( defined( $node_info->{'bypass_vlan'} ) && $node_info->{'bypass_vlan'} ne '' )
-        or ( defined( $node_info->{'bypass_role'} ) && $node_info->{'bypass_role'} ne '' ) )
-    {
-        $logger->info( "[$mac] A bypass is configured. Returning (VLAN,role): "
-                . $node_info->{'bypass_vlan'} . ","
-                . $node_info->{'bypass_role'} );
-        return ( $node_info->{'bypass_vlan'}, $node_info->{'bypass_role'} );
+    if ( defined( $node_info->{'bypass_vlan'} ) && ( $node_info->{'bypass_vlan'} ne '' ) ) {
+        $logger->info( "[$mac] A bypass VLAN is configured. Returning VLAN: " . $node_info->{'bypass_vlan'} );
+        return $node_info->{'bypass_vlan'};
     }
-    return ( undef, undef );
+    elsif ( defined( $node_info->{'bypass_role'} ) && ( $node_info->{'bypass_role'} ne '' ) ) {
+        $logger->info( "[$mac] A bypass Role is configured. Returning Role: " . $node_info->{'bypass_role'} );
+        return $switch->getVlanByName( $node_info->{'bypass_role'} );
+    }
+    else {
+        return undef;
+    }
 }
+
 
 =head1 AUTHOR
 
