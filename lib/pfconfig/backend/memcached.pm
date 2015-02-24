@@ -18,6 +18,7 @@ use strict;
 use warnings;
 
 use base 'pfconfig::backend';
+use Cache::Memcached;
 
 sub init {
   my ($self) = @_;
