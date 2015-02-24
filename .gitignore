@@ -25,7 +25,6 @@ db/pf-schema.sql
 raddb/eap.conf
 raddb/radiusd.conf
 raddb/sql.conf
-conf/templates/*
 conf/adminroles.conf
 conf/authentication.conf
 conf/floating_network_device.conf

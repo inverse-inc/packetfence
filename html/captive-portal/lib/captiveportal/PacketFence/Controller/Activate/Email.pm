@@ -277,7 +277,7 @@ sub doSponsorRegistration : Private {
                 $logger->warn(
                     "Problem finding more information about a MAC address ($node_mac) to enable guest access"
                 );
-                $self->showError(
+                $self->showError($c,
                     "There was a problem trying to find the computer to register. The problem has been logged."
                 );
             }
@@ -285,9 +285,9 @@ sub doSponsorRegistration : Private {
 
                     $logger->warn(
                         "node mac: $node_mac has already been registered.");
-                    $self->showError(
-                        "The device with MAC address %s has already been authorized to your network.",
-                        $node_mac
+                    $self->showError($c,
+                        ["The device with MAC address %s has already been authorized to your network.",
+                        $node_mac]
                     );
             }
 
@@ -302,7 +302,7 @@ sub doSponsorRegistration : Private {
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
             # We send email to the guest confirming that network access has been enabled
-            $template = $pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION;
+            $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_CONFIRMED;
             $info{'email'} = $info{'pid'};
             $info{'subject'} = i18n_format("%s: Guest network access enabled", $Config{'general'}{'domain'});
             pf::web::guest::send_template_email($template, $info{'subject'}, \%info);
