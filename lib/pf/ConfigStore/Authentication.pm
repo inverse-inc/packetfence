@@ -30,6 +30,8 @@ extends 'pf::ConfigStore';
 
 sub configFile { $authentication_config_file }
 
+sub pfconfigNamespace {'config::Authentication'}
+
 before rewriteConfig => sub {
     my ($self) = @_;
     $self->cachedConfig->ReorderByGroup();

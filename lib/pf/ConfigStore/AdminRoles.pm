@@ -23,6 +23,8 @@ sub expandableParams { return (qw(actions allowed_roles allowed_access_levels));
 
 sub configFile { $admin_roles_config_file }
 
+sub pfconfigNamespace { 'config::AdminRoles' }
+
 #sub _buildCachedConfig { $cached_adminroles_config }
 
 =head2 cleanupAfterRead

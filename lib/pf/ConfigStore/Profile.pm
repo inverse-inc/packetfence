@@ -29,6 +29,8 @@ with 'pf::ConfigStore::Role::ValidGenericID';
 
 sub _buildCachedConfig { $cached_profiles_config }
 
+sub pfconfigNamespace {'config::Profiles'}
+
 =head2 remove
 
 Delete an existing item
