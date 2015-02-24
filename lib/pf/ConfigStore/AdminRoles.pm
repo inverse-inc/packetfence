@@ -16,12 +16,14 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moo;
 use namespace::autoclean;
 use pf::file_paths;
-use pf::admin_roles;
+#use pf::admin_roles;
 extends 'pf::ConfigStore';
 
 sub expandableParams { return (qw(actions allowed_roles allowed_access_levels)); }
 
-sub _buildCachedConfig { $cached_adminroles_config }
+sub configFile { $admin_roles_config_file }
+
+#sub _buildCachedConfig { $cached_adminroles_config }
 
 =head2 cleanupAfterRead
 

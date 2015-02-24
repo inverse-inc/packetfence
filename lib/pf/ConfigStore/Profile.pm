@@ -14,7 +14,7 @@ pf::ConfigStore::Profile
 
 use Moo;
 use namespace::autoclean;
-use pf::config;
+use pf::ConfigStore::config;
 
 use pf::ConfigStore;
 

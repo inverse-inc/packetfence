@@ -14,14 +14,17 @@ pf::ConfigStore::Violations
 
 use Moo;
 use namespace::autoclean;
+use pf::file_paths;
 
 use pf::violation_config;
 
 extends 'pf::ConfigStore';
 
-sub _buildCachedConfig {
-    $pf::violation_config::cached_violations_config
-};
+#sub _buildCachedConfig {
+#    $pf::violation_config::cached_violations_config
+#};
+
+sub configFile { $violations_config_file }
 
 =head1 Methods
 
