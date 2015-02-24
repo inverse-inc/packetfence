@@ -14,7 +14,7 @@ pf::ConfigStore::Network
 
 use Moo;
 use namespace::autoclean;
-use pf::config;
+use pf::ConfigStore::config;
 use pf::util qw(isenabled);
 
 extends 'pf::ConfigStore';
@@ -25,7 +25,7 @@ extends 'pf::ConfigStore';
 
 =cut
 
-sub _buildCachedConfig { $pf::config::cached_network_config }
+sub _buildCachedConfig { $pf::ConfigStore::config::cached_network_config }
 
 =head2 getRoutedNetworks
 

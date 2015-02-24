@@ -14,7 +14,8 @@ pf::ConfigStore::Authentication
 
 use Moo;
 use namespace::autoclean;
-use pf::authentication;
+#use pf::authentication;
+use pf::file_paths;
 use HTTP::Status qw(:constants is_error is_success);
 
 extends 'pf::ConfigStore';
@@ -25,7 +26,9 @@ extends 'pf::ConfigStore';
 
 =cut
 
-sub _buildCachedConfig { $pf::authentication::cached_authentication_config };
+#sub _buildCachedConfig { $pf::authentication::cached_authentication_config };
+
+sub configFile { $authentication_config_file }
 
 before rewriteConfig => sub {
     my ($self) = @_;
