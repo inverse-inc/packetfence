@@ -39,6 +39,8 @@ use pfconfig::util;
 use Sereal::Decoder;
 use Time::HiRes qw(stat time);
 
+our $DECODER = Sereal::Decoder->new;
+
 sub new {
   my ($class) = @_;
   my $self = bless {}, $class;
@@ -65,8 +67,6 @@ sub get_socket {
 sub init {
     my ($self) = @_;
     $self->{element_socket_method} = "override-me";
-
-    $self->{decoder} = Sereal::Decoder->new;
 
 }
 
@@ -144,7 +144,7 @@ sub _get_from_socket {
   my $result;
   if($response && $response ne "undef\n"){
     eval { 
-      $result = $self->{decoder}->decode($response);
+      $result = $DECODER->decode($response);
     };
     if ($@){
       print STDERR $@;
@@ -183,6 +183,10 @@ sub is_valid {
     $logger->info("Memory configuration is not valid anymore for key $what in local cached_hash");
     return 0;
   }
+}
+
+sub CLONE {
+  $DECODER = Sereal::Decoder->new;
 }
 
 =back
