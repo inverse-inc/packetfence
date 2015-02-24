@@ -23,6 +23,7 @@ use DBI;
 use File::Basename;
 use pf::log;
 use pf::config;
+use pfconfig::cached_hash;
 
 # Constants
 use constant MAX_RETRIES  => 3;
@@ -54,7 +55,7 @@ END {
     $DBH = undef;
 }
 
-%$DB_Config = pf::factory::config->new('cached_hash', 'resource::Database');
+tie %$DB_Config, 'pfconfig::cached_hash', 'resource::Database';
 
 =head1 SUBROUTINES
 

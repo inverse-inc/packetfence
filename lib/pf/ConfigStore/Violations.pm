@@ -26,6 +26,8 @@ extends 'pf::ConfigStore';
 
 sub configFile { $violations_config_file }
 
+sub pfconfigNamespace { 'config::Violations' }
+
 =head1 Methods
 
 =head2 remove
@@ -147,6 +149,13 @@ sub cleanupBeforeCommit {
         $violation->{'window'} = 'dynamic';
     }
     delete $violation->{'window_dynamic'};
+}
+
+sub commit {
+    my ( $self ) = @_;
+    my $result = $self->SUPER::commit();
+    pf::violation_config::loadViolationsIntoDb();
+    return $result;
 }
 
 =head1 AUTHOR

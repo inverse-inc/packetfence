@@ -49,6 +49,7 @@ use JSON;
 use pfconfig::timeme;
 use Data::Dumper;
 use pfconfig::log;
+use pfconfig::cached;
 our @ISA = ('Tie::Array', 'pfconfig::cached');
 
 # constructor of the tied array
