@@ -27,6 +27,11 @@ has_field 'id' =>
    readonly => 1,
   );
 
+has_field parent_id =>
+  (
+   type => 'Text',
+  );
+
 has_field name =>
   (
    type => 'Text',
