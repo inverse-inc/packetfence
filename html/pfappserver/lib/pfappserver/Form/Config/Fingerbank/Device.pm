@@ -59,7 +59,7 @@ has_field submitter_id =>
 
 has_block definition =>
   (
-    render_list => [qw(name submitter_id mobile tablet approved created_at updated_at)],
+    render_list => [qw(name parent_id submitter_id mobile tablet approved created_at updated_at)],
   );
 
 =head1 COPYRIGHT
