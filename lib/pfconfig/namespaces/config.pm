@@ -29,6 +29,7 @@ use warnings;
 
 use Data::Dumper;
 use JSON;
+use pfconfig::log;
 
 use base 'pfconfig::namespaces::resource';
 
@@ -43,7 +44,11 @@ sub build {
 
   my %tmp_cfg;
 
-  tie %tmp_cfg, 'Config::IniFiles', ( -file => $self->{file} );
+  my %added_params = ();
+
+  $added_params{-file} = $self->{file};
+
+  tie %tmp_cfg, 'Config::IniFiles', %added_params;
 
   my $json = encode_json(\%tmp_cfg);
   my $cfg = decode_json($json);
@@ -52,8 +57,30 @@ sub build {
 
   $self->{cfg} = $cfg;
 
+  $self->do_defaults();
+
   my $child_resource = $self->build_child();
   return $child_resource;
+}
+
+sub do_defaults {
+    my ($self) = @_;
+    my $logger = get_logger;
+    my %tmp_cfg = %{$self->{cfg}};
+    unless(defined($self->{default_section})){
+        $logger->debug("No default section defined when building $self->{file}");
+        return;
+    }
+    foreach my $section_name (keys %tmp_cfg){
+      unless($section_name eq $self->{default_section}){
+        foreach my $element_name (keys %{$tmp_cfg{$self->{default_section}}}){
+          unless (exists $tmp_cfg{$section_name}{$element_name}){
+            $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{$self->{default_section}}{$element_name};
+          }
+        }
+      }
+    }
+    $self->{cfg} = \%tmp_cfg;
 }
 
 sub unarray_parameters {
@@ -82,6 +109,7 @@ sub cleanup_whitespaces {
 
 sub expand_list {
     my ( $self,$object,@columns ) = @_;
+    print Dumper(\@columns);
     foreach my $column (@columns) {
         if (exists $object->{$column}) {
             $object->{$column} = [ $self->split_list($object->{$column}) ];

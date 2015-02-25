@@ -1,16 +1,16 @@
-package pfconfig::namespaces::config::Violations;
+package pfconfig::namespaces::config::VlanFilters;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Violations
+pfconfig::namespaces::config::template
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Violations
+pfconfig::namespaces::config::template
 
-This module creates the configuration hash associated to violations.conf
+This module creates the configuration hash associated to somefile.conf
 
 =cut
 
@@ -27,8 +27,7 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
   my ($self) = @_;
-  $self->{file} = $violations_config_file;
-  $self->{default_section} = "defaults";
+  $self->{file} = $vlan_filters_config_file;
 }
 
 sub build_child {
