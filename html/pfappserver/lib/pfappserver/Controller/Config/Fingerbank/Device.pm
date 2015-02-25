@@ -62,6 +62,29 @@ sub children : Chained('object'): Local :Args(0) {
     }
 }
 
+=head2 add_child
+
+create a child device
+
+=cut
+
+sub add_child : Chained('object') :PathPart('add_child') :Args(0) {
+    my ( $self, $c ) = @_;
+    if ($c->request->method eq 'POST') {
+        $self->_processCreatePost($c);
+    }
+    else {
+        my $model = $self->getModel($c);
+        my $itemKey = $model->itemKey;
+        my $idKey = $model->idKey;
+        my $item = delete $c->stash->{$itemKey};
+        my $parent_id = delete $item->{$idKey};
+        my $form = $self->getForm($c);
+        $form->process(init_object => {parent_id => $parent_id} );
+        $c->stash(form => $form);
+    }
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2015 Inverse inc.

@@ -28,6 +28,8 @@ var FingerBankDeviceView = function(options) {
     // Display sub children
     var showChildren = $.proxy(this.showChildren, this);
     options.parent.on('click', '#fingerbankdevices [href$="/children"]', showChildren);
+    var read = $.proxy(this.readItem, this);
+    options.parent.on('click', '#fingerbankdevices [href$="/add_child"], ', read);
     options.parent.on('show hidden','.collapse',function(event) {
         var that = $(this);
         var tr = that.closest('tr').first();
