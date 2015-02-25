@@ -17,7 +17,7 @@ use HTTP::Status qw(:constants :is);
 BEGIN {
     extends 'pfappserver::Base::Controller';
     #Since we are creating our own list action to import it into our namespace
-    with 'pfappserver::Base::Controller::Crud::Fingerbank' => { -exclude => 'list' };
+    with 'pfappserver::Base::Controller::Crud::Fingerbank' => { -excludes => 'list' };
 }
 
 __PACKAGE__->config(
