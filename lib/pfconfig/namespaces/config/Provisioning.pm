@@ -1,16 +1,16 @@
-package pfconfig::namespaces::config::Violations;
+package pfconfig::namespaces::config::Provisioning;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Violations
+pfconfig::namespaces::config::template
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Violations
+pfconfig::namespaces::config::template
 
-This module creates the configuration hash associated to violations.conf
+This module creates the configuration hash associated to somefile.conf
 
 =cut
 
@@ -27,8 +27,7 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
   my ($self) = @_;
-  $self->{file} = $violations_config_file;
-  $self->{default_section} = "defaults";
+  $self->{file} = $provisioning_config_file;
 }
 
 sub build_child {
@@ -36,12 +35,23 @@ sub build_child {
 
   my %tmp_cfg = %{$self->{cfg}}; 
 
-  $self->cleanup_whitespaces(\%tmp_cfg);
-
   $self->{cfg} = \%tmp_cfg;
+
+  foreach my $key ( keys %tmp_cfg){
+      $self->cleanup_after_read($key, $tmp_cfg{$key});
+  }
+
 
   return \%tmp_cfg;
 
+}
+
+sub cleanup_after_read {
+    my ($self, $id, $data) = @_;
+    $self->expand_list($data, qw(category oses));
+    if(exists $data->{oses} && defined $data->{oses}) {
+        $data->{oses} = ref($data->{oses}) eq 'ARRAY' ? $data->{oses} : [$data->{oses}];
+    }
 }
 
 =back

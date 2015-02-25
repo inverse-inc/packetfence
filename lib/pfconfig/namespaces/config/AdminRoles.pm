@@ -30,7 +30,6 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $admin_roles_config_file;
-    $self->{expandable_params} = [qw(actions allowed_roles allowed_access_levels)];
 }
 
 sub build_child {
@@ -59,7 +58,9 @@ sub build_child {
 
 sub cleanup_after_read {
     my ($self, $id, $item) = @_;
-    $self->expand_list($item, $self->{expandable_params});
+    # Seems we don't need to do it for the HASH, but I'll leave it here 
+    # just in case. Remove this when confirmed everything works fine
+#    $self->expand_list($item, qw(actions allowed_roles allowed_access_levels));
 }
 
 

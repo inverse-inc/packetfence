@@ -80,6 +80,8 @@ our (
     %CAPTIVE_PORTAL,
 #realm.conf
     %ConfigRealm, $cached_realm,
+#provisioning.conf    
+    %ConfigProvisioning,
 );
 
 BEGIN {
@@ -128,6 +130,7 @@ BEGIN {
         $OS
         %Doc_Config
         %ConfigRealm $cached_realm
+        %ConfigProvisioning
         $TRUE $FALSE $default_pid
     );
 }
@@ -454,6 +457,9 @@ sub init_config {
     tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 #    readRealmFile();
     tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
+
+    tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
+
 }
 
 =item ipset_version -  check the ipset version on the system

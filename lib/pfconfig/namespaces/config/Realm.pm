@@ -28,7 +28,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
   my ($self) = @_;
   $self->{file} = $realm_config_file;
-  $self->{expandable_params} = [qw(categories)];
+  $self->{expandable_params} = qw(categories);
 }
 
 sub build_child {

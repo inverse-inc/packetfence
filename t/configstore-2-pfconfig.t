@@ -44,30 +44,96 @@ foreach my $key (keys %CSSwitchConfig){
   print "$key ".Test::Deep::deep_diag($stack) unless $ok;
 }
 
+# encapsultate these in subs to isolate them
+sub {
+  use_ok('pf::config');
+  use_ok('pf::ConfigStore::config');
 
-use_ok('pf::config');
-use_ok('pf::ConfigStore::config');
+  my @exported = @pf::config::EXPORT;
+  my @badvalues = ('%ConfigProvisioning');
+  @exported = grep { !($_ ~~ @badvalues ) } @exported;
+  compare_files("pf::config", "pf::ConfigStore::config", @exported);
 
-my @exported = @pf::config::EXPORT;
 
-foreach my $variable (@exported){
-  # we are only testing variables since we're changing the subs
-  if($variable =~ s/^([\$@%]{1})// && !($variable =~ /^cached_.*/ )){
-    my $sign = $1;
-    $sign =~ s/%/\\%/;
-    $sign =~ s/@/\\@/;
-    my $old = $sign."pf::ConfigStore::config::$variable";
-    my $new = $sign."pf::config::$variable"; 
-    my $old_elem = eval($old);
-    my $new_elem = eval($new);
+}->();
+
+sub {
+  use_ok('pf::violation_config');
+  use_ok('pf::ConfigStore::violation_config');
+
+  my @variables = ('%Violation_Config');
+  compare_files("pf::violation_config", "pf::ConfigStore::violation_config", @variables);
+
+}->();
+
+sub {
+  use_ok('pf::admin_roles');
+  use_ok('pf::ConfigStore::admin_roles');
+
+  my @exported = @pf::admin_roles::EXPORT;
+  compare_files("pf::admin_roles", "pf::ConfigStore::admin_roles", @exported);
+
+}->();
+
+sub {
+  use_ok('pf::vlan::filter');
+  use_ok('pf::ConfigStore::vlan_filters');
+
+  my @variables = ('%ConfigVlanFilters');
+  compare_files("pf::vlan::filter", "pf::ConfigStore::vlan_filters", @variables);
+
+}->();
+
+sub {
+  use_ok('pf::ConfigStore::Provisioning');
+  use_ok('pf::config');
+
+  my $cs = pf::ConfigStore::Provisioning->new;
+  my @provisioners = @{$cs->readAllIds};
+
+  my %ConfigProvisioning = %pf::config::ConfigProvisioning;
+
+  for my $key (@provisioners){ 
+    my $old_elem = $cs->read($key);
+    my $new_elem = $ConfigProvisioning{$key};
+    # oses are broken in configstore
+    $old_elem->{oses} = [];
+    $new_elem->{oses} = [];
     my ($ok, $stack) = Test::Deep::cmp_details($old_elem, $new_elem);
-    ok($ok, "$variable is same in pf::config as before");
+    ok($ok, "$key is same in ConfigStore and new pf::config::ConfigProvisioning");
     unless($ok) {
-      print "$variable ".Test::Deep::deep_diag($stack);
-      print "OLD : ".Dumper(eval($old));
-      print "NEW : ".Dumper(eval($new));
+      print "$key ".Test::Deep::deep_diag($stack);
+      print "$key in configstore : ".Dumper($old_elem);
+      print "$key in pf::config (new) : ".Dumper($new_elem);
     }
   }
+  
+
+}->();
+
+
+sub compare_files {
+  my ($file1, $file2, @variables) = @_;
+  foreach my $variable (@variables){
+    # we are only testing variables since we're changing the subs
+    # we also don't want the pf::config::cached variables
+    if($variable =~ s/^([\$@%]{1})// && !($variable =~ /^cached_.*/ )){
+      my $sign = $1;
+      $sign =~ s/%/\\%/;
+      $sign =~ s/@/\\@/;
+      my $old = $sign.$file1."::$variable";
+      my $new = $sign.$file2."::$variable"; 
+      my $old_elem = eval($old);
+      my $new_elem = eval($new);
+      my ($ok, $stack) = Test::Deep::cmp_details($old_elem, $new_elem);
+      ok($ok, "$variable is same in $file1 and $file2");
+      unless($ok) {
+        print "$variable ".Test::Deep::deep_diag($stack);
+        print "$file1 : ".Dumper(eval($old));
+        print "$file2 : ".Dumper(eval($new));
+      }
+    }
+  } 
 }
 
 #my %CSDefault_Config = %pf::ConfigStore::config::Default_Config;
