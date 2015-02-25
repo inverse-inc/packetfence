@@ -225,7 +225,7 @@ my $allowed_from_all_urls = '';
 my @status_options;
 if($status_only_on_production) {
     @status_options = (
-        "/status" => {
+        '~ "/|/status"' => {
             "Order"             => "allow,deny",
             "Deny"              => "from $routedNets $loadbalancersIp 127.0.0.1 ",
             "Allow"             => "from all",
@@ -284,7 +284,7 @@ foreach my $interface (@internal_nets) {
          Alias        => "/common ${install_dir}/html/common",
          PerlModule   => 'captiveportal',
          PerlTransHandler => 'pf::web::dispatcher::custom',
-         Location     => {
+         Location     => gen_conf(
              "/" => {
                  "Order" => "deny,allow",
                  "Deny" => "from all",
@@ -315,7 +315,7 @@ foreach my $interface (@internal_nets) {
              },
              @status_options,
              @allowed_from_all_options,
-         },
+         ),
     ));
     push (@{ $VirtualHost{$vhost.":443"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
@@ -328,7 +328,7 @@ foreach my $interface (@internal_nets) {
          Alias        => "/common ${install_dir}/html/common",
          PerlModule   => 'captiveportal',
          PerlTransHandler => 'pf::web::dispatcher::custom',
-         Location     => {
+         Location     => gen_conf(
              "/" => {
                  "Order" => "deny,allow",
                  "Deny" => "from all",
@@ -359,7 +359,7 @@ foreach my $interface (@internal_nets) {
              },
              @status_options,
              @allowed_from_all_options,
-         },
+         ),
          SSLEngine => 'on',
          SSLProxyEngine    => 'on',
          Include      => "${var_dir}/conf/ssl-certificates.conf",
@@ -389,7 +389,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
          Alias        => "/common ${install_dir}/html/common",
          PerlModule   => 'captiveportal',
          PerlTransHandler => 'pf::web::dispatcher::custom',
-         Location     => {
+         Location     => gen_conf(
              "/" => {
                  "Order" => "deny,allow",
                  "Deny" => "from all",
@@ -423,7 +423,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
              "/apache_status/" => {
                  SetHandler => 'server-status',
              },
-         },
+         ),
     );
     push @{ $VirtualHost{$host.":443"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
@@ -436,7 +436,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
          Alias        => "/common ${install_dir}/html/common",
          PerlModule   => 'captiveportal',
          PerlTransHandler => 'pf::web::dispatcher::custom',
-         Location     => {
+         Location     => gen_conf(
              "/" => {
                  "Order" => "deny,allow",
                  "Deny" => "from all",
@@ -467,13 +467,11 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
              },
              @status_options,
              @allowed_from_all_options,
-         },
+         ),
          SSLEngine => 'on',
          SSLProxyEngine    => 'on',
          Include      => "${var_dir}/conf/ssl-certificates.conf",
     );
 
 } 
-
 </Perl>
-
