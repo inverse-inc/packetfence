@@ -1,4 +1,4 @@
-<table id="fingerbankdevices" class="table items[% ' hidden' UNLESS items.size %]" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
+<table id="fingerbankdevices" class="table items[% ' hidden' UNLESS items.size %]" data-list-uri="[% c.uri_for(c.controller.action_for('list'),[scope]) %]">
   <thead>
     <tr>
       <th colspan="4">
