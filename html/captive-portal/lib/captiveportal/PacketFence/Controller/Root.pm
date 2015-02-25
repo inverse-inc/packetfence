@@ -194,6 +194,8 @@ sub getLanguages :Private {
         }
     }
 
+    # 4. Check the closest language that match the browser
+    # Browser = fr_FR and portal is en_US and fr_CA then fr_CA will be used
     foreach my $browser_language (@$browser_languages) {
         $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
         my $language = $1;
