@@ -39,6 +39,10 @@ sub readAll {
     $pageNum = 1 if $pageNum <= 0;
     my $offset = ($pageNum - 1) * $perPage;
     my ($status, $results) = $self->fingerbankModel->list_paginated({offset => $offset, nb_of_rows => $perPage, order => 'asc', order_by => 'id', schema => $self->scope });
+    unless(is_success($status)) {
+        get_logger->error($results);
+        $results = [];
+    }
     return ( HTTP_OK, $results );
 }
 
