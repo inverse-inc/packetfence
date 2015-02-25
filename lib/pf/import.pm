@@ -14,8 +14,8 @@ of bulk imports
 =head1 DEVELOPER NOTES
 
 Notice that this module doesn't export all its subs like our other modules do.
-This is an attempt to shift our paradigm towards calling with package names 
-and avoid the double naming. 
+This is an attempt to shift our paradigm towards calling with package names
+and avoid the double naming.
 
 For ex: pf::import::nodes() instead of pf::import::import_nodes()
 
@@ -38,6 +38,7 @@ BEGIN {
     @EXPORT_OK = qw();
 }
 
+use pf::constants;
 use pf::config;
 use pf::node;
 use pf::util;
@@ -98,8 +99,8 @@ sub nodes {
             # TODO time / memory tradeoff by removing already registered node before looping on each MAC
             # should we register the MAC?
             my $node = node_view($mac);
-            # if node entry doesn't exist 
-            # or if entry is valid and node is not registered 
+            # if node entry doesn't exist
+            # or if entry is valid and node is not registered
             if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
                 # try to register
                 my $pid = $info{'pid'} || $default_pid;

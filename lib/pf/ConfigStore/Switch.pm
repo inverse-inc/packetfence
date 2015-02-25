@@ -19,8 +19,11 @@ use pf::file_paths;
 use pf::util;
 use HTTP::Status qw(:constants is_error is_success);
 use List::MoreUtils qw(part);
+use pfconfig::manager;
 
 extends qw(pf::ConfigStore Exporter);
+
+sub pfconfigNamespace {'config::Switch'}
 
 our ( $switches_cached_config, %SwitchConfig );
 our @EXPORT = qw(%SwitchConfig);

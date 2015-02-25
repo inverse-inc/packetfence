@@ -14,6 +14,7 @@ pf::services::manager::snmptrapd
 use strict;
 use warnings;
 use Moo;
+use pf::constants;
 use pf::config;
 use pf::SwitchFactory;
 use pf::util;

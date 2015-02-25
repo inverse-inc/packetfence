@@ -14,7 +14,7 @@ pf::ConfigStore::PF
 
 use Moo;
 use namespace::autoclean;
-use pf::config;
+use pf::ConfigStore::config;
 
 extends 'pf::ConfigStore';
 
@@ -27,6 +27,8 @@ extends 'pf::ConfigStore';
 =cut
 
 sub _buildCachedConfig { $cached_pf_config }
+
+sub pfconfigNamespace {'config::Pf'}
 
 =item remove
 

@@ -19,6 +19,7 @@ use warnings;
 
 use base ('pf::Switch::AeroHIVE');
 use pf::Switch::constants;
+use pf::constants;
 use pf::config;
 sub description { 'AeroHive BR100' }
 

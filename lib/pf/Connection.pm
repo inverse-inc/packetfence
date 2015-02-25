@@ -2,6 +2,7 @@ package pf::Connection;
 
 use Moose;
 
+use pf::constants;
 use pf::config;
 use pf::log;
 

@@ -26,6 +26,7 @@ use warnings;
 use pf::log;
 use pf::config::cached;
 use pf::file_paths;
+use pf::constants;
 use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
@@ -44,6 +45,11 @@ use pf::factory::profile::filter;
 use pf::profile::filter;
 use pf::profile::filter::all;
 use pf::constants::Portal::Profile;
+use pf::constants::config;
+use pfconfig::cached_array;
+use pfconfig::cached_scalar;
+use pfconfig::cached_hash;
+use pf::factory::config;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -70,7 +76,7 @@ our (
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
-    $thread, $default_pid, $fqdn,
+    $thread, $fqdn,
     %CAPTIVE_PORTAL,
 #realm.conf
     %ConfigRealm, $cached_realm,
@@ -95,8 +101,7 @@ BEGIN {
         $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER @VALID_TRIGGER_TYPES
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
         $TRIGGER_ID_PROVISIONER
-        $WIPS_VID $thread $default_pid $fqdn
-        $FALSE $TRUE $YES $NO
+        $WIPS_VID $thread $fqdn
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
         $NET_TYPE_INLINE $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3
@@ -123,6 +128,7 @@ BEGIN {
         $OS
         %Doc_Config
         %ConfigRealm $cached_realm
+        $TRUE $FALSE $default_pid
     );
 }
 
@@ -130,18 +136,11 @@ sub import {
     pf::config->export_to_level(1,@_);
     pf::file_paths->export_to_level(1);
 }
-
 use pf::util::apache qw(url_parser);
 
 $thread = 0;
 
 my $logger = Log::Log4perl->get_logger('pf::config');
-
-# some global constants
-Readonly::Scalar our $FALSE => 0;
-Readonly::Scalar our $TRUE => 1;
-Readonly::Scalar our $YES => 'yes';
-Readonly::Scalar our $NO => 'no';
 
 # Violation trigger types
 Readonly::Scalar our $TRIGGER_TYPE_ACCOUNTING => 'accounting';
@@ -177,8 +176,6 @@ Readonly::Scalar our $ACCOUNTING_POLICY_TIME => 'TimeExpired';
 Readonly::Scalar our $ACCOUNTING_POLICY_BANDWIDTH => 'BandwidthExpired';
 
 
-$default_pid  = "admin";
-
 Readonly our $WIPS_VID => '1100020';
 
 # OS Specific
@@ -188,17 +185,17 @@ Readonly::Scalar our $OS => os_detection();
 Readonly our $IF_INTERNAL => 'internal';
 
 # Interface enforcement techniques
-Readonly our $IF_ENFORCEMENT_VLAN => 'vlan';
-Readonly our $IF_ENFORCEMENT_INLINE => 'inline';
-Readonly our $IF_ENFORCEMENT_INLINE_L2 => 'inlinel2';
-Readonly our $IF_ENFORCEMENT_INLINE_L3 => 'inlinel3';
+Readonly our $IF_ENFORCEMENT_VLAN => $pf::constants::config::IF_ENFORCEMENT_VLAN;
+Readonly our $IF_ENFORCEMENT_INLINE => $pf::constants::config::IF_ENFORCEMENT_INLINE;
+Readonly our $IF_ENFORCEMENT_INLINE_L2 => $pf::constants::config::IF_ENFORCEMENT_INLINE_L2;
+Readonly our $IF_ENFORCEMENT_INLINE_L3 => $pf::constants::config::IF_ENFORCEMENT_INLINE_L3;
 
 # Network configuration parameters.
-Readonly our $NET_TYPE_VLAN_REG => 'vlan-registration';
-Readonly our $NET_TYPE_VLAN_ISOL => 'vlan-isolation';
-Readonly our $NET_TYPE_INLINE => 'inline';
-Readonly our $NET_TYPE_INLINE_L2 => 'inlinel2';
-Readonly our $NET_TYPE_INLINE_L3 => 'inlinel3';
+Readonly our $NET_TYPE_VLAN_REG => $pf::constants::config::NET_TYPE_VLAN_REG;
+Readonly our $NET_TYPE_VLAN_ISOL => $pf::constants::config::NET_TYPE_VLAN_ISOL;
+Readonly our $NET_TYPE_INLINE => $pf::constants::config::NET_TYPE_INLINE;
+Readonly our $NET_TYPE_INLINE_L2 => $pf::constants::config::NET_TYPE_INLINE_L2;
+Readonly our $NET_TYPE_INLINE_L3 => $pf::constants::config::NET_TYPE_INLINE_L3;
 Readonly our %NET_INLINE_TYPES =>  (
     $NET_TYPE_INLINE    => undef,
     $NET_TYPE_INLINE_L2 => undef,
@@ -417,13 +414,45 @@ multi-threaded daemons.
 =cut
 
 sub init_config {
-    readPfDocConfigFiles();
-    readPfConfigFiles();
+#    readPfDocConfigFiles();
+    tie %Doc_Config, 'pfconfig::cached_hash', 'config::Documentation';
+#    readPfConfigFiles();
+    tie %Config, 'pfconfig::cached_hash', 'config::Pf';
+
+    tie @dhcplistener_ints,  'pfconfig::cached_array', 'interfaces::dhcplistener_ints';
+    tie @ha_ints, 'pfconfig::cached_array', 'interfaces::ha_ints';
+    tie @listen_ints, 'pfconfig::cached_array', 'interfaces::listen_ints';
+
+    tie @inline_enforcement_nets, 'pfconfig::cached_array', 'interfaces::inline_enforcement_nets';
+    tie @internal_nets, 'pfconfig::cached_array', 'interfaces::internal_nets';
+    tie @vlan_enforcement_nets, 'pfconfig::cached_array', 'interfaces::vlan_enforcement_nets';
+
+    tie $management_network, 'pfconfig::cached_scalar', 'interfaces::management_network';
+    tie $monitor_int, 'pfconfig::cached_scalar', 'interfaces::monitor_int';
+
+    tie %CAPTIVE_PORTAL, 'pfconfig::cached_hash', 'resource::CaptivePortal';
+    tie $fqdn, 'pfconfig::cached_scalar', 'resource::fqdn';
+
+    # FIX ME ! 
+    # Needs to be removed but until authentication is migrated it needs to stay here
     readProfileConfigFile();
-    readNetworkConfigFile();
-    readFloatingNetworkDeviceFile();
-    readFirewallSSOFile();
-    readRealmFile();
+
+    tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
+    tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
+
+#    readNetworkConfigFile();
+    tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
+    tie @routed_isolation_nets, 'pfconfig::cached_array', 'interfaces::routed_isolation_nets';    
+    tie @routed_registration_nets, 'pfconfig::cached_array', 'interfaces::routed_registration_nets';    
+    tie @inline_nets, 'pfconfig::cached_array', 'interfaces::inline_nets';
+
+#    readFloatingNetworkDeviceFile();
+    tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
+
+#    readFirewallSSOFile();
+    tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
+#    readRealmFile();
+    tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 }
 
 =item ipset_version -  check the ipset version on the system

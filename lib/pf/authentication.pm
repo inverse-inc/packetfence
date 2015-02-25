@@ -15,6 +15,7 @@ use warnings;
 
 use Log::Log4perl qw(get_logger);
 
+use pf::constants;
 use pf::config;
 use pf::config::cached;
 
@@ -75,7 +76,7 @@ BEGIN {
 
 }
 
-our @SOURCES = __PACKAGE__->sources();
+our @SOURCES = __PACKAGE__->sources(); 
 
 our %TYPE_TO_SOURCE = map { lc($_->meta->get_attribute('type')->default) => $_ } @SOURCES;
 

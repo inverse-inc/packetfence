@@ -193,6 +193,7 @@ Cleanup work after the starting the service
 sub postStartCleanup {
     my ($self,$quick) = @_;
     my $pidFile = $self->pidFile;
+    $pidFile = untaint_chain($pidFile);
     my $result = 0;
     my $inotify = $self->inotify;
     unless (-e $pidFile) {
@@ -492,6 +493,7 @@ sub removeStalePid {
     my $logger = get_logger;
     my $pid = $self->pidFromFile;
     my $pidFile = $self->pidFile;
+    $pidFile = untaint_chain($pidFile);
     if($pid && $pid =~ /^(.*)$/) {
         $pid = $1;
         $logger->info("verifying process $pid");

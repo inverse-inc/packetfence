@@ -35,6 +35,7 @@ BEGIN {
     @EXPORT_OK = qw(reevaluate_access);
 }
 
+use pf::constants;
 use pf::config;
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iptables;

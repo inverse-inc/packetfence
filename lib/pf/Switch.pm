@@ -23,6 +23,7 @@ use Try::Tiny;
 
 our $VERSION = 2.10;
 
+use pf::constants;
 use pf::config;
 use pf::locationlog;
 use pf::node;
