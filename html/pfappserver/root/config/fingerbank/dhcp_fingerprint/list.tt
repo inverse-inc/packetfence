@@ -39,7 +39,7 @@
           <tr>
             <th colspan="3">
               <div class="tab-content">
-                <ul class="nav nav-tabs">
+                <ul class="nav nav-pills">
                   <li [% IF scope == 'Upstream' %]class="active" [% END %]>
                     <a href="[% c.uri_for(c.controller.action_for('list'),['Upstream']) %]" >[% l('Upstream')  %]</a>
                   </li>
@@ -58,6 +58,7 @@
           <tr>
             <th>[% l('DHCP Fingerprint ID') %]</th>
             <th>[% l('Description') %]</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>

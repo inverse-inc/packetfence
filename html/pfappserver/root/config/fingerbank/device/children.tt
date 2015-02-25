@@ -16,7 +16,7 @@
     </td>
   </tr>
   <tr class="hidden">
-    <td colspan="4">
+    <td colspan="3">
         <div class="collapse" id="children_[%item.id%]">
             <table></table>
         </div>
