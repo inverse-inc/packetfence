@@ -168,7 +168,7 @@ Removes an existing item
 sub remove {
     my ( $self, $id ) = @_;
     my ( $status, $status_msg );
-    my $status = $self->fingerbankModel->delete($id);
+    $status = $self->fingerbankModel->delete($id);
     if ( $status == HTTP_OK ) {
         $status_msg = [ "removed [_1]", $id ];
     } else {
