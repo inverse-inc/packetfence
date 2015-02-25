@@ -418,6 +418,7 @@ sub init_config {
     tie %Doc_Config, 'pfconfig::cached_hash', 'config::Documentation';
 #    readPfConfigFiles();
     tie %Config, 'pfconfig::cached_hash', 'config::Pf';
+    tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
 
     tie @dhcplistener_ints,  'pfconfig::cached_array', 'interfaces::dhcplistener_ints';
     tie @ha_ints, 'pfconfig::cached_array', 'interfaces::ha_ints';
