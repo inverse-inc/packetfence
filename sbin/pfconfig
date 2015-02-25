@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 BEGIN {
-    # log4perl init
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
     use pfconfig::log;
