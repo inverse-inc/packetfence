@@ -1,7 +1,7 @@
 [% FOREACH item IN items %]
   <tr>
     <td>
-        <a href="[% c.uri_for(c.controller.action_for('view'), ['Upstream', item.id ]) %]">[% item.id | html %]</a>
+        <a href="[% c.uri_for(c.controller.action_for('view'), [scope, item.id ]) %]">[% item.id | html %]</a>
         <a data-target="#children_[%item.id%]" href="[% c.uri_for(c.controller.action_for('children'), ['Upstream', item.id] ) %]" >+</a>
     </td>
     <td>[% item.value | html%]</td>
