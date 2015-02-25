@@ -39,12 +39,12 @@ has_field [qw(mobile tablet approved)] =>
 
 has_field created_at =>
   (
-  type => 'Text',
+  type => 'Uneditable',
   );
 
 has_field updated_at =>
   (
-  type => 'Text',
+  type => 'Uneditable',
   );
 
 has_field submitter_id =>

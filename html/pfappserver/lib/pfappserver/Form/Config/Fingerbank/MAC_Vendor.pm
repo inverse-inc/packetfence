@@ -41,12 +41,12 @@ has_field 'mac' =>
 
 has_field created_at =>
   (
-  type => 'Text',
+  type => 'Uneditable',
   );
 
 has_field updated_at =>
   (
-  type => 'Text',
+  type => 'Uneditable',
   );
 
 has_block definition =>
