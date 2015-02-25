@@ -15,11 +15,6 @@
       </th>
     </tr>
     <tr>
-      <th colspan="4">
-        [% pagination('list', pageNum, perPage, pageCount) %]</th>
-      <th>
-    </tr>
-    <tr>
       <th></th>
       <th>[% l('Device ID') %]</th>
       <th>[% l('Description') %]</th>
