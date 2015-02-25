@@ -50,7 +50,6 @@ FingerBankDeviceView.prototype.showChildren = function(e) {
     var link = $(e.currentTarget);
     var href = link.attr("href");
     var target = link.attr("data-target");
-    console.log(target);
     var children_div = $(target);
     var row = children_div.closest("tr");
     children_div.collapse({toggle: false});
