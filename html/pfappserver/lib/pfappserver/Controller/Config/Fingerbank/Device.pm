@@ -16,8 +16,8 @@ use HTTP::Status qw(:constants :is);
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
-    #Since we are creating our own index action to import it into our namespace
-    with 'pfappserver::Base::Controller::Crud::Fingerbank' => { -exclude => 'index' };
+    #Since we are creating our own list action to import it into our namespace
+    with 'pfappserver::Base::Controller::Crud::Fingerbank' => { -exclude => 'list' };
 }
 
 __PACKAGE__->config(
@@ -32,17 +32,17 @@ __PACKAGE__->config(
     },
 );
 
-=head2 index
+=head2 list
 
-Show the top level devices
+List the top level devices
 
 =cut
 
-sub index : Path :Args(0) {
+sub list : Path :Args(0) {
     my ($self, $c) = @_;
-    my $model = $self->getModel($c);
-    my ($status, $devices) = $model->getSubDevices(undef);
-    $c->stash->{items} = $devices;
+    #setting the id of the parent to undef
+    $c->stash->{item} = { id => undef };
+    $c->forward('children');
 }
 
 =head2 children
