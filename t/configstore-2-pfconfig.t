@@ -46,14 +46,27 @@ foreach my $key (keys %CSSwitchConfig){
 
 
 use_ok('pf::config');
+use_ok('pf::ConfigStore::config');
 
 my @exported = @pf::config::EXPORT;
 
 foreach my $variable (@exported){
   # we are only testing variables since we're changing the subs
-  if($variable =~ /^[\$@%]{1}/){
-    my ($ok, $stack) = Test::Deep::cmp_details(eval("pf::config::$variable" ), eval("pf::ConfigStore::config::$variable"));
+  if($variable =~ s/^([\$@%]{1})// && !($variable =~ /^cached_.*/ )){
+    my $sign = $1;
+    $sign =~ s/%/\\%/;
+    $sign =~ s/@/\\@/;
+    my $old = $sign."pf::ConfigStore::config::$variable";
+    my $new = $sign."pf::config::$variable"; 
+    my $old_elem = eval($old);
+    my $new_elem = eval($new);
+    my ($ok, $stack) = Test::Deep::cmp_details($old_elem, $new_elem);
     ok($ok, "$variable is same in pf::config as before");
+    unless($ok) {
+      print "$variable ".Test::Deep::deep_diag($stack);
+      print "OLD : ".Dumper(eval($old));
+      print "NEW : ".Dumper(eval($new));
+    }
   }
 }
 
