@@ -169,7 +169,7 @@ ItemView.prototype.deleteItem = function(e) {
 };
 
 ItemView.prototype.list = function() {
-    var table = $('#items');
+    var table = $(this.items.id);
     this.listRefresh(table.attr('data-list-uri'));
 };
 
@@ -180,7 +180,7 @@ ItemView.prototype.listItems = function(e) {
 };
 
 ItemView.prototype.listRefresh = function(list_url) {
-    var table = $('#items');
+    var table = $(this.items.id);
     var that = this;
     table.fadeTo('fast',0.5,function() {
         that.items.get({
@@ -191,7 +191,7 @@ ItemView.prototype.listRefresh = function(list_url) {
             success: function(data) {
                 table.replaceWith(data);
             },
-            errorSibling: $('#items')
+            errorSibling: table
         });
     });
 };
@@ -213,7 +213,7 @@ ItemView.prototype.searchNext = function(e) {
 };
 
 ItemView.prototype.searchRefresh = function(search_url,form) {
-    var table = $('#items');
+    var table = $(this.items.id);
     var that = this;
     table.fadeTo('fast',0.5,function() {
         that.items.post({
@@ -225,7 +225,7 @@ ItemView.prototype.searchRefresh = function(search_url,form) {
             success: function(data) {
                 table.replaceWith(data);
             },
-            errorSibling: $('#items')
+            errorSibling: table
         });
     });
 };
