@@ -15,6 +15,9 @@ Next install the init file on the system (only for RHEL based systems).
 # cp addons/pfconfig/pfconfig.init /etc/init.d/pfconfig
 # chmod +x /etc/init.d/pfconfig
 
+Install BerkeleyDB (from epel)
+yum install perl-BerkeleyDB --enablerepo=epel
+
 Install Log::Fast (only on CPAN for now)
 # cpan Log::Fast
 
