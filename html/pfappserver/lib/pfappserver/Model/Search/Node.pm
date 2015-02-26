@@ -282,10 +282,10 @@ sub add_order_by {
 sub add_date_range {
     my ($self, $builder, $params, $start, $end) = @_;
     if ($start) {
-        $builder->where('detect_date', '>=', $start);
+        $builder->where('detect_date', '>=', "$start 00:00");
     }
     if ($end) {
-        $builder->where('detect_date', '<=', $end);
+        $builder->where('detect_date', '<=', "$end 23:59");
     }
 }
 
