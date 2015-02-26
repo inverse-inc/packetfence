@@ -207,45 +207,31 @@ sub schema {
 =cut
 
 sub resetUserPassword {
-    my ($self, $user, $password) = @_;
+    my ( $self, $user, $password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my ($status, $status_msg);
-
-    # We need to establish connection to the database using database configuration parameters
-    my $database_ref = \%{$Config{'database'}};
-    my ($db_user, $db_password, $db_name) = @{$database_ref}{qw/user pass db/};
-    if ($db_user && $db_password && $db_name) {
-        $dbHandler = DBI->connect( "dbi:mysql:dbname=$db_name;host=localhost;port=3306", $db_user, $db_password );
-        if ( !$dbHandler ) {
-            $status_msg = ["Error while changing the password of [_1].",$user];
-            $logger->warn($DBI::errstr);
-            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-        }
-    } else {
-        $status_msg = ["Error while changing the password of [_1].",$user];
-        $logger->warn($DBI::errstr);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
-
+    my ( $status, $status_msg );
     # Making sure username/password are "ok"
-    if ( !defined($user) || !defined($password) || (length($user) == 0) || (length($password) == 0) ) {
-        $status_msg = ["Error while changing the password of [_1].",$user];
-        $logger->warn($DBI::errstr);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    if (   !defined($user)
+        || !defined($password)
+        || ( length($user) == 0 )
+        || ( length($password) == 0 ) )
+    {
+        $status_msg = [ "Error while changing the password of [_1].", $user ];
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
     # Doing the update
-    my $sql_query = "UPDATE temporary_password SET password=? WHERE pid=?";
-    $dbHandler->do($sql_query, undef, $password, $user);
-    if ( $DBI::errstr ) {
-        $status_msg = ["Error while changing the password of [_1].",$user];
-        $logger->warn($DBI::errstr);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    if ( pf::temporary_password::reset_password( $user, $password ) ) {
+        $status_msg =
+          [ "The password of [_1] was successfully modified.", $user ];
+        return ( $STATUS::OK, $status_msg );
     }
-
-    $status_msg = ["The password of [_1] was successfully modified.",$user];
-    return ($STATUS::OK, $status_msg);
+    else {                                                                                                            
+        $logger->warn("Error while changing the password of $user");
+        $status_msg = [ "Error while changing the password of [_1].", $user ];
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    }
 }
 
 =head1 AUTHORS
