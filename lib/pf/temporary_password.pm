@@ -564,7 +564,7 @@ sub reset_password {
     # Making sure pid/password are "ok"
     if ( !defined($pid) || !defined($password) || (length($pid) == 0) || (length($password) == 0) ) {
         $logger->error("Error while resetting the user password. Missing values.");
-        return;
+        return undef;
     }
 
     # hash the password if required
@@ -574,7 +574,7 @@ sub reset_password {
 
     db_query_execute(
         TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_reset_password_sql', $password, $pid
-    ) || return;
+    ) || return undef;
 }
 
 =back
