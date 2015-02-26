@@ -24,7 +24,7 @@ has_field 'id' =>
   (
    type => 'Text',
    label => 'User Agent ID',
-   required => 1,
+   readonly => 1,
   );
 
 has_field 'value' =>

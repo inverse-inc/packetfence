@@ -24,7 +24,7 @@ has_field 'id' =>
   (
    type => 'Text',
    label => 'MAC Vendor ID',
-   required => 1,
+   readonly => 1,
   );
 
 has_field 'name' =>
