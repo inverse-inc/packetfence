@@ -5,6 +5,7 @@ package pf::config::util;
 use strict;
 use warnings;
 
+use pf::config;
 use English qw( -no_match_vars );
 use File::Basename;
 use FileHandle;
@@ -333,4 +334,4 @@ sub get_translatable_time {
    return;
 }
 
-
+1;
