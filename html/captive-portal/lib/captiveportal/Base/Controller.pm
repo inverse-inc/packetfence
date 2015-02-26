@@ -37,6 +37,7 @@ sub showError {
     } else {
         $text_message = i18n($error);
     }
+    utf8::decode($text_message);
     $c->stash(
         template    => 'error.html',
         txt_message => $text_message,
