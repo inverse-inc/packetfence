@@ -156,6 +156,7 @@ sub generate_selfregistration_page {
         # ideally we'll set the array_ref always and won't need the following
         $error_args_ref = [] if (!defined($error_args_ref));
         $portalSession->stash->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
+        utf8::decode($portalSession->stash->{'txt_validation_error'});
     }
 
     render_template($portalSession, $pf::web::guest::SELF_REGISTRATION_TEMPLATE);
@@ -307,7 +308,7 @@ sub prepare_email_guest_activation_info {
     $info{'telephone'} = $session->param("phone");
     $info{'company'} = $session->param("company");
     $info{'subject'} = i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
-
+    utf8::decode($info{'subject'});
     return %info;
 }
 
@@ -332,7 +333,7 @@ sub prepare_sponsor_guest_activation_info {
     $info{'company'} = $session->param("company");
     $info{'sponsor'} = $session->param('sponsor');
     $info{'subject'} = i18n_format("%s: Guest access request", $Config{'general'}{'domain'});
-
+    utf8::decode($info{'subject'});
     $info{'is_preregistration'} = $session->param('preregistration');
 
     return %info;
@@ -418,6 +419,7 @@ sub generate_sms_confirmation_page {
     # Error management
     if (defined($error_code) && $error_code != 0) {
         $portalSession->stash->{'txt_auth_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
+        utf8::decode($portalSession->stash->{'txt_auth_error'});
     }
 
     render_template($portalSession, 'guest/sms_confirmation.html');
