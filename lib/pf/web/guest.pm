@@ -394,11 +394,12 @@ sub send_template_email {
         );
         return $FALSE;
     }
+    utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
         To          =>  $info->{'email'},
         Cc          =>  $info->{'cc'},
-        Subject     =>  encode("MIME-Q", $subject),
+        Subject     =>  encode("MIME-Header", $subject),
         Template    =>  "emails-$template.txt.tt",
         TmplOptions =>  { INCLUDE_PATH => "$conf_dir/templates/" },
         TmplParams  =>  $info,
