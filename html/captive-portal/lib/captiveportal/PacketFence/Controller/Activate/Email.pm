@@ -168,10 +168,10 @@ sub doEmailRegistration : Private {
             my %info = (
                 'pid'     => $pid,
                 'email'   => $email,
-                'subject' => i18n_format(
+                'subject' => utf8::decode(i18n_format(
                     "%s: Guest access confirmed!",
                     $Config{'general'}{'domain'}
-                ),
+                )),
                 'currentdate' =>
                   POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime )
             );
