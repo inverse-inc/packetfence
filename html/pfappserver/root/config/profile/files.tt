@@ -19,18 +19,18 @@ td a.btn { margin-left: 5px; }
             <script type="text/javascript">
                     $('#[% uploader_id %]').fineUploader({
                          request: {
-                           endpoint: '[% c.uri_for(c.controller('Config::Profile').action_for('upload'),[id],paths) %]',
+                           endpoint: '[% c.uri_for(c.controller('Config::Profile').action_for('upload'),[id],paths) | replace( "'", "\\'" ) %]',
                            paramsInBody : true
                          },
                          text: {
-                           uploadButton: '[% l('Upload') %]',
-                           dragZone: '[% l('Drop') %]',
-                           cancelButton: '[% l('Cancel') %]',
-                           retry: '[% l('Retry') %]',
-                           failUpload: '[% l('Upload failed') %]',
-                           dropProcessing: '[% l('Processing dropped files...') %]',
-                           formatProgress: '[% l('{percent}% of {total_size}') %]',
-                           waitingForResponse: '[% l('Processing...') %]'
+                           uploadButton: '[% l('Upload') | replace( "'", "\\'" ) %]',
+                           dragZone: '[% l('Drop') | replace( "'", "\\'" ) %]',
+                           cancelButton: '[% l('Cancel') | replace( "'", "\\'" ) %]',
+                           retry: '[% l('Retry') | replace( "'", "\\'" ) %]',
+                           failUpload: '[% l('Upload failed') | replace( "'", "\\'" ) %]',
+                           dropProcessing: '[% l('Processing dropped files...') | replace( "'", "\\'" ) %]',
+                           formatProgress: '[% l('{percent}% of {total_size}') | replace( "'", "\\'" ) %]',
+                           waitingForResponse: '[% l('Processing...') | replace( "'", "\\'" ) %]'
                          },
                          template:
                            '<div class="qq-uploader">' +
