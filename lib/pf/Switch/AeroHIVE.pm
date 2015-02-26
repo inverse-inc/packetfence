@@ -102,31 +102,8 @@ sub parseTrap {
     my $trapHashRef;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    if ($trapString =~ /\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: $AEROHIVE::ahConnectionChangeEvent/ ) {
-        $trapHashRef->{'trapType'} = 'roaming';
-        my @values = split(/\|/, $trapString);
-        my %valeurs;
-        foreach my $val (@values) {
-            my ($oid, $temp) =  split(/ = /, $val);
-            my ($tempo, $value) = split(/: /, $temp);
-            $value =~ s/^\s+|\s+$//g if (defined($value));
-            $valeurs{$oid} = $value;
-        }
-        $trapHashRef->{'trapSSID'} = $valeurs{$AEROHIVE::ahSSID};
-        $trapHashRef->{'trapSSID'} =~ s/"//g;
-        $trapHashRef->{'trapIfIndex'} = $valeurs{$AEROHIVE::ahIfIndex};
-        $trapHashRef->{'trapVlan'} = $valeurs{$AEROHIVE::ahClientVLAN};
-        $trapHashRef->{'trapMac'} = $valeurs{$AEROHIVE::ahRemoteId};
-        $trapHashRef->{'trapClientUserName'} = $valeurs{$AEROHIVE::ahClientUserName};
-        $trapHashRef->{'trapConnectionType'} = $WIRELESS_MAC_AUTH;
-        if ($valeurs{$AEROHIVE::ahClientAuthMethod} eq '6' || $valeurs{$AEROHIVE::ahClientAuthMethod} eq '7') {
-            $trapHashRef->{'trapConnectionType'} = $WIRELESS_802_1X;
-        }
-    }
-    else {
-        $logger->debug("trap currently not handled");
-        $trapHashRef->{'trapType'} = 'unknown';
-    }
+    $logger->debug("trap currently not handled");
+    $trapHashRef->{'trapType'} = 'unknown';
     return $trapHashRef;
 }
 
