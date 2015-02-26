@@ -319,7 +319,8 @@ sub setRole : Private {
         $logger->debug("Got role '$value' for username \"$pid\"");
         $info->{category} = $value;
     } else {
-        $logger->debug("Got no role for username \"$pid\"");
+        $logger->info("Got no role for username \"$pid\"");
+        $self->showError($c, "The username you have used does not match any configured role.");
     }
 
 }
@@ -352,6 +353,10 @@ sub setUnRegDate : Private {
     if ( defined $value ) {
         $logger->debug("Got unregdate $value for username \"$pid\"");
         $info->{unregdate} = $value;
+    }
+    else {
+        $logger->info("Got no unregdate for username \"$pid\"");
+        $self->showError($c, "The username you have used does not match any configured unregistration date.");
     }
 
     # We put the unregistration date in session since we may want to use it later in the flow
