@@ -1137,10 +1137,10 @@ username=
 # Password to connect to the PKI
 password=
 #
-# pki.profiles
+# pki.profile
 #
-# Profiles avialable to use
-profiles=
+# Profile avialable to use
+profile=
 #
 # pki.country
 #
