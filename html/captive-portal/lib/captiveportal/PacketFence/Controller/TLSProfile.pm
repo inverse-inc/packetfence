@@ -41,20 +41,6 @@ Catalyst Controller.
 
 =cut
 
-#sub index : Path : Args(0) {
-#    my ( $self, $c ) = @_;
-#    my $username = $c->session->{username} || '';
-#    my $mac = $c->portalSession->clientMac;
-#    my $provisioner = $c->profile->findProvisioner($mac);
-#    $provisioner->authorize($mac) if (defined($provisioner));
-#    $c->stash(
-#        template     => 'eap-profile.html',
-#        current_view => 'MobileConfig',
-#        provisioner  => $provisioner,
-#        username     => $username,
-#        );
-#}
-
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $username = $c->session->{username};
@@ -71,7 +57,7 @@ sub index : Path : Args(0) {
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
         certificate_email   => lc( $request->param_encoded("certificate_email")),
         service             => $request->param_encoded("service"),
-        profile_list        => $Config{'pki'}{'profiles'},
+        profile_list        => $Config{'pki'}{'profile'},
         template            => 'pki.html',
         provisioner         => $provisioner,
         username            => $username,
@@ -98,7 +84,7 @@ sub get_cert : Private {
     my $dot1x_username = $stash->{'certificate_cn'};
     my $organisation = $Config{'pki'}{'organisation'};
     my $state = $Config{'pki'}{'state'};
-    my $profile = $stash->{'service'};
+    my $profile = $Config{'pki'}{'profile'};
     my $country = $Config{'pki'}{'country'};
     my $certpwd = $stash->{'certificate_pwd'};
     my $response = '';
@@ -126,6 +112,7 @@ sub cert : Local {
     my ($self,$c,) = @_;
     $c->forward('validateform');
     $c->forward('get_cert');
+    $c->forward('export_fingerprint');
     $c->forward('cert_p12');
 }
 
@@ -140,6 +127,28 @@ sub validateform : Private {
 
 }
 
+sub extport_fingerprint : Local {
+    my ($self, $c) = @_;
+    my $stash = $c->stash;
+    my $pass = $stash->{'certificate_pwd'};
+    my $certfile = $stash->{'certificate_cn'};
+    my $certp12 = Crypt::OpenSSL::PKCS12->new_from_file("$certfile.p12");
+    if ($certp12->mac_ok($pass)){
+        my ($self, $c) = @_;
+        print "GREAT SUCCESS\n";
+        #my $certfile = "testout";#$c->Session('cn');
+        system("openssl pkcs12 -in $certfile.p12 -passin pass:$pass -out $certfile.pem -passout pass::");
+        system("openssl x509 -in $certfile.pem -outform DER -out $certfile.cer");
+        my $cmd = "openssl x509 -inform DER -in $certfile.cer -fingerprint";
+        my $data = pf_run($cmd);
+        $data =~ /.*\/([a-zA-Z0-9.]+)$/;
+        $data =~ s/.*SHA1 Fingerprint=//smg; 
+        $data =~ s/-----BEGIN CERTIFICATE-----\n.*//smg;
+        $data =~ s/\:/\ /smg;
+        #print $data;
+        #$data->Provisioner{bob};
+    }
+}
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

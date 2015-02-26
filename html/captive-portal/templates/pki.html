@@ -20,20 +20,21 @@
             <input class="field" name="certificate_cn" id="firstfield" type="text" value="[% certificate_cn | html %]" />
             
             <span>[% i18n("Password") %]</span>
-            <input class="field" name="certificate_pwd" id="firstfield" type="text" value="[% certificate_pwd | html %]" />
+            <input class="field" name="certificate_pwd" type="text" value="[% certificate_pwd | html %]" />
+
+            <span>[% i18n("Email") %]</span>
+            <input class="field" name="certificate_email" type="text" value="[% certificate_email | html %]" />
+
           </div>
 
-          <div class="input">
+          <!--<div class="input">
               <span>[% i18n("Service") %]</span>
               <select name="service">
                 <option value="">[% i18n("Select your service") %]</option>
                     [% FOREACH profile IN profile_list %]<option value="[% profile %]"[% IF service == profile %] selected[% END %]>[% profile %]</option>
                     [% END %]
               </select>
-
-            <span>[% i18n("Email") %]</span>
-            <input class="field" name="certificate_email" type="text" value="[% certificate_email | html %]" /><br/>
-          </div>
+          </div>-->
 
           [% skipFields = {username => undef, password => undef, profile => undef, email => undef} %]
           [% FOREACH field IN mandatory_fields %]
