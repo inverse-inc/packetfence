@@ -11,7 +11,6 @@
   </div>
 
   <div class="modal-body">
-        [% form.field('id').render IF c.action.name == "view" %]
         [% form.block('definition').render %]
         
   </div><!--modal-body-->
