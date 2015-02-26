@@ -109,7 +109,6 @@ sub cleanup_whitespaces {
 
 sub expand_list {
     my ( $self,$object,@columns ) = @_;
-    print Dumper(\@columns);
     foreach my $column (@columns) {
         if (exists $object->{$column}) {
             $object->{$column} = [ $self->split_list($object->{$column}) ];
