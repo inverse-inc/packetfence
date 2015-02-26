@@ -241,6 +241,7 @@ sub prepareEmailGuestActivationInfo : Private {
     $info{'telephone'} = $session->{"phone"};
     $info{'company'} = $session->{"company"};
     $info{'subject'} = i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
+    utf8::decode($info{'subject'});
 
     return %info;
 }
@@ -335,7 +336,7 @@ sub doSponsorSelfRegistration : Private {
     $info{is_preregistration} = $c->session->{preregistration};
     $info{'subject'} =
       i18n_format( "%s: Guest access request", $Config{'general'}{'domain'} );
-
+    utf8::decode($info{'subject'});
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
     my ( $auth_return, $err, $errargs_ref ) =
       pf::activation::create_and_send_activation_code(
@@ -389,6 +390,7 @@ sub doSmsSelfRegistration : Private {
     if ($self->reached_retry_limit($c, 'sms_request_limit', $portalSession->profile->{_sms_request_limit})) {
         $logger->info("Maximum number of SMS signup requests reached for $mac");
         $c->stash(txt_validation_error => i18n_format($GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES}));
+        utf8::decode($c->stash->{'txt_validation_error'});
         $c->detach('showSelfRegistrationPage');
     }
     # User chose to register by SMS
@@ -560,6 +562,7 @@ sub validationError {
     my ( $self, $c, $error_code, @error_args ) = @_;
     $c->stash->{'txt_validation_error'} =
       i18n_format( $GUEST::ERRORS{$error_code}, @error_args );
+    utf8::decode($c->stash->{'txt_validation_error'});
     $c->detach('showSelfRegistrationPage');
 }
 
