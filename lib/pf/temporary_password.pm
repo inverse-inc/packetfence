@@ -44,7 +44,7 @@ use Switch;
 use pf::nodecategory;
 use pf::Authentication::constants;
 
-our $VERSION = 1.11;
+our $VERSION = 2.01;
 
 # Constants
 use constant TEMPORARY_PASSWORD => 'temporary_password';
