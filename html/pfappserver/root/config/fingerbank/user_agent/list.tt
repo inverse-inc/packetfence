@@ -56,9 +56,9 @@
             <th>
           </tr>
           <tr>
-            <th>[% l('User_Agent ID') %]</th>
+            <th>[% l('User Agent ID') %]</th>
             <th>[% l('Description') %]</th>
-            <th></th>
+            <th>[% l('Actions') %]</th>
           </tr>
         </thead>
         <tbody>

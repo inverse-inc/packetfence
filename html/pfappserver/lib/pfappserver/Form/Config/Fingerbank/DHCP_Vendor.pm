@@ -23,7 +23,7 @@ has roles => ( is => 'rw', default => sub { [] } );
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Usergent ID',
+   label => 'DHCP Vendor ID',
    required => 1,
   );
 

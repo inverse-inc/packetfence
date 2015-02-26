@@ -15,7 +15,7 @@
     <tr>
       <th>[% l('Device ID') %]</th>
       <th>[% l('Description') %]</th>
-      <th></th>
+      <th>[% l('Actions') %]</th>
     </tr>
   </thead>
   <tbody>

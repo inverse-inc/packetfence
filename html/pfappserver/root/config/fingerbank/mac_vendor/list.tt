@@ -58,7 +58,7 @@
           <tr>
             <th>[% l('MAC Vendor ID') %]</th>
             <th>[% l('Description') %]</th>
-            </th></th>
+            <th>[% l('Actions') %]</th>
           </tr>
         </thead>
         <tbody>
@@ -87,7 +87,7 @@
           <tr>
             <th colspan="3">
               <div class="form-actions">
-                <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Device') %]</a>
+                <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add MAC Vendor') %]</a>
               </div>
             </th>
           </tr>
