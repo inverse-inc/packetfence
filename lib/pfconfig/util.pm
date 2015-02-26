@@ -23,7 +23,7 @@ sub control_file_path {
 }
 
 sub socket_path {
-    return '/usr/local/pf/var/run/pfconfig.sock';  
+    return '/var/run/pfconfig.sock';  
 }
 
 =back
