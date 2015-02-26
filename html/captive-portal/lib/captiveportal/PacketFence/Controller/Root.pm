@@ -155,7 +155,6 @@ sub getLanguages :Private {
     unless (scalar @authorized_locales > 0) {
         @authorized_locales = @WEB::LOCALES;
     }
-    @authorized_locales = map { $_ =~ m/^(\w{2})_\w+/ ? ( $_, $1 ) : $_ } @authorized_locales;
     $logger->debug("Authorized locale(s) are " . join(', ', @authorized_locales));
 
     # 1. Check if a language is specified in the URL
