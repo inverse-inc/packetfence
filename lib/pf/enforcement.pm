@@ -43,6 +43,7 @@ use pf::locationlog;
 use pf::node;
 use pf::SwitchFactory;
 use pf::util;
+use pf::config::util;
 use pf::vlan::custom $VLAN_API_LEVEL;
 use pf::client;
 

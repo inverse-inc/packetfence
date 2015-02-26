@@ -86,6 +86,7 @@ use pf::config;
 use pf::config::ui;
 use pf::pfcmd;
 use pf::util;
+use pf::config::util;
 use HTTP::Status qw(is_success);
 use List::MoreUtils qw(all true);
 use List::Util qw(first);

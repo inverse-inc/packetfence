@@ -22,6 +22,7 @@ use pf::config;
 use pf::config::cached;
 use pf::violation_config;
 use pf::util;
+use pf::config::util;
 use pf::services;
 use pf::trigger;
 use pf::authentication;

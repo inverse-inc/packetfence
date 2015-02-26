@@ -64,6 +64,7 @@ use pf::Switch::constants;
 use pf::SwitchFactory;
 use pf::traplog;
 use pf::util;
+use pf::config::util;
 use pf::services::util;
 use pf::violation;
 use pf::vlan::custom $VLAN_API_LEVEL;
