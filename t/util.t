@@ -8,11 +8,12 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use PfFilePaths;
 }
-use Test::More tests => 29;
+use Test::More tests => 30;
 use Test::NoWarnings;
 
 BEGIN {
     use_ok('pf::util');
+    use_ok('pf::config::util');
     use_ok('pf::util::apache');
 }
 
