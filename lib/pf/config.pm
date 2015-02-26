@@ -49,7 +49,6 @@ use pf::constants::config;
 use pfconfig::cached_array;
 use pfconfig::cached_scalar;
 use pfconfig::cached_hash;
-use pf::factory::config;
 
 # Categorized by feature, pay attention when modifying
 our (

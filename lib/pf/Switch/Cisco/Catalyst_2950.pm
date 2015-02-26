@@ -100,6 +100,7 @@ sub description { 'Cisco Catalyst 2950' }
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
+use pf::config::util;
 use pf::vlan::custom $VLAN_API_LEVEL;
 
 =head1 SUBROUTINES

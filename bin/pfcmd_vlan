@@ -98,6 +98,7 @@ use pf::enforcement;
 use pf::locationlog;
 use pf::SwitchFactory;
 use pf::util;
+use pf::config::util;
 use pf::log;
 
 use threads;

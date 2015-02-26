@@ -21,6 +21,7 @@ use warnings;
 use pf::constants;
 use pf::config;
 use pf::util;
+use pf::config::util;
 use pf::web;
 use Apache::Session::Generate::MD5;
 use Apache::Session::Flex;

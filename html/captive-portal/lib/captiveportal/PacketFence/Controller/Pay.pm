@@ -12,6 +12,7 @@ use pf::trigger;
 use pf::person qw(person_modify);
 use pf::Portal::Session;
 use pf::util;
+use pf::config::util;
 use pf::violation;
 use pf::web;
 use pf::web::billing 1.00;

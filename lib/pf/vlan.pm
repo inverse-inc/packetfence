@@ -22,6 +22,7 @@ use pf::config;
 use pf::node qw(node_attributes node_exist node_modify);
 use pf::Switch::constants;
 use pf::util;
+use pf::config::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top violation_trigger);
 use pf::floatingdevice::custom;
 
