@@ -281,21 +281,11 @@ sub add_order_by {
 
 sub add_date_range {
     my ($self, $builder, $params, $start, $end) = @_;
-    if ($start || $end) {
-        unless (grep { $_->{name} eq 'switch_ip'} @{$params->{searches}}) {
-            $builder->from(@{$COLUMN_MAP{switch_ip}{'joins'}})
-        }
-        if ($start) {
-            $builder->where({ table =>'locationlog', name => 'start_time' }, '>=', $start);
-        }
-        if ($end) {
-            $builder
-                ->where('(')
-                ->where({ table =>'locationlog', name => 'end_time' }, '<=' , $end)
-                ->or()
-                ->where({ table =>'locationlog', name => 'end_time' }, 'IS NULL')
-                ->where(')');
-        }
+    if ($start) {
+        $builder->where('detect_date', '>=', $start);
+    }
+    if ($end) {
+        $builder->where('detect_date', '<=', $end);
     }
 }
 
