@@ -366,11 +366,12 @@ Updates temporary_password field from an action
 =cut
 
 sub _update_field_for_action {
-    my ($data, $actions, $action, $field, $default) = @_;
+    my ( $data, $actions, $action, $field, $default ) = @_;
     my @values = grep { $_->{type} eq $action } @{$actions};
-    if (scalar @values > 0) {
+    if ( scalar @values > 0 ) {
         $data->{$field} = $values[0]->{value};
-    } else {
+    }
+    else {
         $data->{$field} = $default;
     }
 }
@@ -382,22 +383,23 @@ Modify the temporary_password actions
 =cut
 
 sub modify_actions {
-    my ($temporary_password, $actions) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ( $temporary_password, $actions ) = @_;
+    my $logger        = Log::Log4perl::get_logger(__PACKAGE__);
     my @ACTION_FIELDS = qw(
         valid_from expiration
         access_duration access_level category sponsor unregdate
-    ); # respect the prepared statement placeholders order
+        );    # respect the prepared statement placeholders order
     delete @{$temporary_password}{@ACTION_FIELDS};
-    _update_from_actions($temporary_password, $actions);
-    my $pid = $temporary_password->{pid};
+    _update_from_actions( $temporary_password, $actions );
+    my $pid   = $temporary_password->{pid};
     my $query = db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements,
+        TEMPORARY_PASSWORD,
+        $temporary_password_statements,
         'temporary_password_modify_actions_sql',
         @{$temporary_password}{@ACTION_FIELDS}, $pid
     );
     my $rows = $query->rows;
-    $logger->info("pid $pid modified") if $rows ;
+    $logger->info("pid $pid modified") if $rows;
     return ($rows);
 }
 
@@ -564,6 +566,11 @@ sub reset_password {
         $logger->error("Error while resetting the user password. Missing values.");
         return;
     }
+
+    # hash the password if required
+    if ( $Config{'database'}{'hash_passwords'} ne 'plaintext' ) { 
+        $password = _hash_password( $password, ( algorithm => $Config{'database'}{'hash_passwords'} ));
+    } 
 
     db_query_execute(
         TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_reset_password_sql', $password, $pid
