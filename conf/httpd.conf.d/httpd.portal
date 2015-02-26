@@ -225,7 +225,7 @@ my $allowed_from_all_urls = '';
 my @status_options;
 if($status_only_on_production) {
     @status_options = (
-        '~ "/|/status"' => {
+        '~ "/status"' => {
             "Order"             => "allow,deny",
             "Deny"              => "from $routedNets $loadbalancersIp 127.0.0.1 ",
             "Allow"             => "from all",
@@ -418,7 +418,11 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
              "/content" => {
                 "Allow" => "from all",
              },
-             @status_options,
+             '~ "/|/status"' => {
+                "Allow"             => "from all",
+                SetHandler          => 'modperl',
+                PerlResponseHandler => 'captiveportal',
+             },
              @allowed_from_all_options,
              "/apache_status/" => {
                  SetHandler => 'server-status',
@@ -465,7 +469,11 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
              "/content" => {
                 "Allow" => "from all",
              },
-             @status_options,
+             '~ "/|/status"' => {
+                "Allow"             => "from all",
+                SetHandler          => 'modperl',
+                PerlResponseHandler => 'captiveportal',
+             },
              @allowed_from_all_options,
          ),
          SSLEngine => 'on',
@@ -474,4 +482,5 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
     );
 
 } 
+
 </Perl>
