@@ -205,10 +205,6 @@ sub list_namespaces {
     'resource', 
     'config::template', 
     'interfaces',
-    # authentication is broken for now
-    'config::Authentication', 
-    'resource::authentication_sources', 
-    'resource::authentication_lookup'
   );
   my $namespace_dir = "/usr/local/pf/lib/pfconfig/namespaces";
   my @modules;

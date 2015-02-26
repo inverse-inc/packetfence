@@ -85,6 +85,15 @@ sub {
 }->();
 
 sub {
+  use_ok('pf::authentication');
+  use_ok('pf::ConfigStore::authentication');
+
+  my @exported = (@pf::authentication::EXPORT, '%authentication_lookup', '%TYPE_TO_SOURCE');
+  compare_files("pf::authentication", "pf::ConfigStore::authentication", @exported);
+
+}->();
+
+sub {
   use_ok('pf::ConfigStore::Provisioning');
   use_ok('pf::config');
 

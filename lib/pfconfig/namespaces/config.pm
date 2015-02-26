@@ -50,6 +50,8 @@ sub build {
 
   tie %tmp_cfg, 'Config::IniFiles', %added_params;
 
+  @{$self->{ordered_sections}} = keys %tmp_cfg;
+
   my $json = encode_json(\%tmp_cfg);
   my $cfg = decode_json($json);
 
