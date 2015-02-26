@@ -1,4 +1,4 @@
-
+#!/usr/bin/perl
 
 BEGIN {
     # log4perl init
