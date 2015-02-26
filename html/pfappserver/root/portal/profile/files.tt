@@ -23,14 +23,14 @@ td a.btn { margin-left: 5px; }
                            paramsInBody : true
                          },
                          text: {
-                           uploadButton: '[% l('Upload') %]',
-                           dragZone: '[% l('Drop') %]',
-                           cancelButton: '[% l('Cancel') %]',
-                           retry: '[% l('Retry') %]',
-                           failUpload: '[% l('Upload failed') %]',
-                           dropProcessing: '[% l('Processing dropped files...') %]',
-                           formatProgress: '[% l('{percent}% of {total_size}') %]',
-                           waitingForResponse: '[% l('Processing...') %]'
+                           uploadButton: '[% l('Upload') | js %]',
+                           dragZone: '[% l('Drop') | js %]',
+                           cancelButton: '[% l('Cancel') | js %]',
+                           retry: '[% l('Retry') | js %]',
+                           failUpload: '[% l('Upload failed') | js %]',
+                           dropProcessing: '[% l('Processing dropped files...') | js %]',
+                           formatProgress: '[% l('{percent}% of {total_size}') | js %]',
+                           waitingForResponse: '[% l('Processing...') | js %]'
                          },
                          template:
                            '<div class="qq-uploader">' +
