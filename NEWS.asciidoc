@@ -26,6 +26,8 @@ Enhancements
 Bug Fixes
 +++++++++
 
+* Fixed broken default behavior when receiving an SNMP trap
+
 Version 4.6.1 released on 2015-02-19
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
