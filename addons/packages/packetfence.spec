@@ -264,6 +264,7 @@ Requires: perl(Test::NoWarnings)
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: mod_qos
+Requires: %{real_name}-pfconfig
 
 %description -n %{real_name}
 
@@ -323,7 +324,6 @@ Group: System Environment/Daemons
 Requires: perl(Cache::BDB)
 Requires: perl(Log::Fast)
 Requires: perl(Test::CheckManifest)
-Requires: %{real_name} >= 4.7.0
 AutoReqProv: 0
 Summary: Manage PacketFence Configuration
 
