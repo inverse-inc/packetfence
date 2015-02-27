@@ -9,7 +9,7 @@
         <tbody>
           [% FOREACH item IN items %]
           <tr>
-            <td><a href="[% c.pf_hash_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
             <td>[% item.type | html %]</td>
             <td>
               [%- IF can_access("SCAN_CREATE") %]
