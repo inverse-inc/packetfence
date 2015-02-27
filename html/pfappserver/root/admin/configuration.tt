@@ -19,6 +19,7 @@
         'admin/config/violations',
         'admin/config/soh',
         'admin/config/roles',
+        'admin/config/scan-wmi',
         'js/interface',
         'js/bootstrapSwitch',
         ]
