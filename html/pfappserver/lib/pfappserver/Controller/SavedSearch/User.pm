@@ -2,54 +2,21 @@ package pfappserver::Controller::SavedSearch::User;
 
 =head1 NAME
 
-pfappserver::Controller::SavedSearch::User add documentation
-
-=cut
+pfappserver::Controller::SavedSearch::User
 
 =head1 DESCRIPTION
 
-User
+Place all customization for Controller::SavedSearch::User here
 
 =cut
 
-use strict;
-use warnings;
 use Moose;
-use HTTP::Status qw(:constants is_error is_success);
 
-BEGIN {
-    extends 'pfappserver::Base::Controller';
-    with 'pfappserver::Base::Controller::Crud';
-}
+BEGIN { extends 'pfappserver::PacketFence::Controller::SavedSearch::User'; }
 
-__PACKAGE__->config(
-    action => {
-        # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'savedsearch/user', CaptureArgs => 1 },
-        view   => { AdminRole => 'USERS_READ' },
-        list   => { AdminRole => 'USERS_READ' },
-        create => { AdminRole => 'USERS_READ' },
-        update => { AdminRole => 'USERS_READ' },
-        remove => { AdminRole => 'USERS_READ' },
-    },
-    action_args => {
-        '*' => { model => 'SavedSearch::User', form => 'SavedSearch'}
-    }
-);
+=head1 AUTHOR
 
-=head1 METHODS
-
-=head2 before create
-
-=cut
-
-before 'create' => sub {
-    my ( $self, $c ) = @_;
-    $c->request->parameters->{pid} = $c->user->id;
-};
-
-
-__PACKAGE__->meta->make_immutable;
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -74,5 +41,7 @@ USA.
 
 =cut
 
-1;
 
+__PACKAGE__->meta->make_immutable;
+
+1;

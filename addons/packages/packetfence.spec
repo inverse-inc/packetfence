@@ -874,6 +874,39 @@ fi
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
                         /usr/local/pf/html/pfappserver/
+%config(noreplace)      /usr/local/pf/html/pfappserver/pfappserver.conf
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Admin.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/AdminRoles.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Firewall_SSO.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/FloatingDevice.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/MacAddress.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Networks.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Pf.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Profile/Default.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Profile.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Provisioning.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Realm.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Switch.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/System.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Configuration.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/UserAgents.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Wrix.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/DB.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Graph.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Interface.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Node.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Roles.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Root.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/Node.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/User.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Service.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SoH.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/User.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Violation.pm
                         /usr/local/pf/lib
 %config(noreplace)      /usr/local/pf/lib/pf/billing/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm

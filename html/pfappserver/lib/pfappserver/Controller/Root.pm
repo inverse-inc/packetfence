@@ -2,88 +2,17 @@ package pfappserver::Controller::Root;
 
 =head1 NAME
 
-pfappserver::Controller::Root - Catalyst Controller
+pfappserver::Controller::Root
 
 =head1 DESCRIPTION
 
-Catalyst Controller.
+Place all customization for Controller::Root here
 
 =cut
-
-use strict;
-use warnings;
 
 use Moose;
-use namespace::autoclean;
 
-BEGIN { extends 'Catalyst::Controller' }
-
-#
-# Sets the actions in this controller to be registered with no prefix
-# so they function identically to actions created in MyApp.pm
-#
-__PACKAGE__->config(namespace => '');
-
-
-=head1 METHODS
-
-=over
-
-=item index
-
-The root page (/)
-
-=cut
-
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
-    my $installation_type = $c->model('Configurator')->checkForUpgrade();
-    if ($installation_type ne $pfappserver::Model::Configurator::INSTALLATION) {
-        # Redirect to the admin interface
-        my $admin_url = $c->uri_for($c->controller('Admin')->action_for('index'));
-        $c->log->info("Redirecting to admin interface $admin_url");
-        $c->response->redirect($admin_url);
-    } else {
-        # Redirect to the configurator
-        $c->response->redirect($c->uri_for($c->controller('Configurator')->action_for('index')));
-    }
-    $c->detach();
-}
-
-=item default
-
-Standard 404 error page
-
-=cut
-
-sub default :Path {
-    my ( $self, $c ) = @_;
-    $c->response->body( 'Page not found' );
-    $c->response->status(404);
-}
-
-=item end
-
-Attempt to render a view, if needed.
-
-=cut
-
-sub end : ActionClass('RenderView') {
-    my ( $self, $c ) = @_;
-    if (scalar @{$c->error}) {
-        for my $error ( @{ $c->error } ) {
-            $c->log->error($error);
-        }
-        $c->stash->{status_msg} = $c->pf_localize('An error condition has occured. See server side logs for details.');
-        $c->response->status(500);
-        $c->clear_errors;
-    }
-    elsif (exists $c->stash->{status_msg} && defined $c->stash->{status_msg} ) {
-        $c->stash->{status_msg} = $c->pf_localize($c->stash->{status_msg});
-    }
-}
-
-=back
+BEGIN { extends 'pfappserver::PacketFence::Controller::Root'; }
 
 =head1 AUTHOR
 
@@ -111,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
 
 __PACKAGE__->meta->make_immutable;
 
