@@ -1020,7 +1020,7 @@ fi
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/pfconfig
                         /usr/local/pf/lib/pfconfig/*
-%attr(0755, pf, pf)     /usr/local/sbin/pfconfig
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 
 %changelog
 * Thu Feb 19 2015 Inverse <info@inverse.ca> - 4.6.1-1
