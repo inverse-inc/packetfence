@@ -167,9 +167,10 @@ sub doEmailSelfRegistration : Private {
         'username'   => $pid,
         'user_email' => $email
     };
-    $info{'category'} =
-      &pf::authentication::match( $source->{id}, $auth_params,
-        $Actions::SET_ROLE );
+    
+    $c->stash->{pid} = $pid;
+    $c->stash->{info} = $info;
+    $c->forward('setRole');
 
     # form valid, adding person (using modify in case person already exists)
     person_modify(
@@ -300,9 +301,9 @@ sub doSponsorSelfRegistration : Private {
     $logger->info( "Adding guest person " . $c->session->{'guest_pid'} );
 
     # fetch role for this user
-    $info{'category'} =
-      &pf::authentication::match( $source->{id}, $auth_params,
-        $Actions::SET_ROLE );
+    $c->stash->{pid} = $pid;
+    $c->stash->{info} = $info;
+    $c->forward('setRole');
 
     # Setting access timeout and role (category) dynamically
     $info{'unregdate'} =
@@ -402,8 +403,6 @@ sub doSmsSelfRegistration : Private {
         $info{'pid'} = $pid;
 
         $logger->info("redirecting to mobile confirmation page");
-
-        # fetch role for this user
         my $sms_type =
           pf::Authentication::Source::SMSSource->getDefaultOfType;
         my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
@@ -427,9 +426,11 @@ sub doSmsSelfRegistration : Private {
             )
         );
 
-        $info{'category'} =
-          &pf::authentication::match( $source->{id}, $auth_params,
-            $Actions::SET_ROLE );
+        # fetch role for this user
+        $c->stash->{pid} = $pid;
+        $c->stash->{info} = $info;
+        $c->forward('setRole');
+
 
         # set node in pending mode with the appropriate role
         $info{'status'} = $pf::node::STATUS_PENDING;
