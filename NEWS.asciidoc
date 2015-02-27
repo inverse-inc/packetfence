@@ -37,7 +37,8 @@ Bug Fixes
 * Fixed email confirmation template for sponsor
 * Fixed email subject encoding
 * Fixes allowing a non-sponsored user to verify a sponsored email address
-* Fix invalid floating device creation where the MAC address was not cleaned.
+* Fixed invalid floating device creation where the MAC address was not cleaned.
+* Fixed the date range search in node advanced search.
 
 Version 4.6.1 released on 2015-02-19
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
