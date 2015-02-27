@@ -18,6 +18,7 @@ use warnings;
 use pf::profile::filter;
 use pf::factory::profile::filter;
 use pf::constants::Portal::Profile;
+use pfconfig::namespaces::config;
 
 use base 'pfconfig::namespaces::resource';
 
