@@ -25,6 +25,7 @@ Enhancements
 * Adds nested groups support for Active Directory.
 * Devices will now avoid autocorrect / uppercasing the login field in the captive portal.
 * Adds the ability to display the bypass VLAN of a node.
+* Will now record which devices have machine authenticated (with AD) in the database.
 
 Bug Fixes
 +++++++++
