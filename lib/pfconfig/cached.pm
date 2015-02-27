@@ -109,6 +109,7 @@ sub _get_from_socket {
   my $socket;
   
   my $failed_once = 0;
+  my $times = 0;
   # we need the connection to the cachemaster
   until($socket){
     $socket = $self->get_socket();
@@ -119,9 +120,11 @@ sub _get_from_socket {
     }
     my $message = "[".time."] Failed to connect to config service for namespace $self->{_namespace}, retrying";
     $failed_once = 1;
+    $times += 1;
     $logger->error($message);
     print STDERR "$message\n";
     select(undef, undef, undef, 0.1);
+    die ("Cannot connect to service pfconfig!") if ($times >= 600);
   }
      
   # we ask the cachemaster for our namespaced key
