@@ -158,3 +158,8 @@ Depends: ${misc:Depends}, libfile-tail-perl, libconfig-inifiles-perl (>= 2.4.0),
 Conflicts: packetfence
 Description: Files needed for sending MAC and IP from ARP requeststo
  PacketFence server. 
+
+Package: packetfence-pfconfig
+Architecture: all
+Depends: ${misc:Depends}, libcache-bdb-perl, libLog-fast-perl, libtest-checkmanifest, packetfence (>= 4.7.0)
+Description: Service use to manage PacketFence configuration.
