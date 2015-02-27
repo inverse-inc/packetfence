@@ -41,6 +41,16 @@ apply
          my ( $value, $field ) = @_;
          return $field->get_message('mac');
      },
+    },
+    {
+     transform => sub {
+         my ($value, $field ) = @_;
+         return clean_mac($value);
+     },
+     message => sub {
+         my ( $value, $field ) = @_;
+         return $field->get_message('mac');
+     },
     }
    ]
   );
