@@ -101,7 +101,7 @@ Depends: ${misc:Depends}, vlan, make,
 # used by bin/pftest
  libio-interactive-perl,
 # required for perl 5.12+ (made perl setuid optional) and most distros went without it
- packetfence-pfcmd-suid
+ packetfence-pfcmd-suid, packetfence-pfconfig
 Recommends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql, freeradius-mysql, freeradius-krb5, isc-dhcp-server | dhcp3-server, snort | suricata
 Description: PacketFence network registration / worm mitigation system
  PacketFence is an open source network access control (NAC) system.
@@ -161,5 +161,5 @@ Description: Files needed for sending MAC and IP from ARP requeststo
 
 Package: packetfence-pfconfig
 Architecture: all
-Depends: ${misc:Depends}, libcache-bdb-perl, libLog-fast-perl, libtest-checkmanifest, packetfence (>= 4.7.0)
+Depends: ${misc:Depends}, libcache-bdb-perl, libLog-fast-perl, libtest-checkmanifest
 Description: Service use to manage PacketFence configuration.
