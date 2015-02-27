@@ -56,27 +56,27 @@ has_field 'oses' =>
   );
 
 
-has_field 'rules' =>
+has_field 'wmi_rules' =>
 (
     'type' => 'DynamicTable',
     'sortable' => 1,
     'do_label' => 0,
 );
 
-has_field 'rules.contains' =>
+has_field 'wmi_rules.contains' =>
 (
     type => 'Select',
-    options_method => \&options_wmirules,
+    options_method => \&options_wmi_rules,
     widget_wrapper => 'DynamicTableRow',
 );
 
-=head2 options_wmirules
+=head2 options_wmi_rules
 
 Returns the list of wmi rules to be displayed
 
 =cut
 
-sub options_wmirules {
+sub options_wmi_rules {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::WMI->new->readAllIds};
 }
 
@@ -86,7 +86,7 @@ sub options_wmirules {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
