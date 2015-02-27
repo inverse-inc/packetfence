@@ -1017,7 +1017,7 @@ fi
 %files -n %{real_name}-pfcmd-suid
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
-%files -n %{real_name}-pfconfig
+%files -n %{real_name}-config
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/pfconfig
