@@ -1016,6 +1016,7 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %files -n %{real_name}-config
+%attr(0755, root, root) %{_initrddir}/packetfence-config
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/pfconfig
