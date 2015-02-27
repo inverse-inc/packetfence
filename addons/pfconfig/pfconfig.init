@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-# Init script for PacketFence remote Snort sensor
+# Init script for PacketFence pfconfig
 #
 # Written by Inverse inc. <info@inverse.ca>
 #
-# chkconfig: - 35 65
-# description: PacketFence remote Snort sensor
+# chkconfig: - 345 85 5
+# description: PacketFence pfconfig
 #
 # processname: 
 # config: /usr/local/pf/conf/pfconfig.conf
