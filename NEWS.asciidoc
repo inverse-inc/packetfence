@@ -19,18 +19,23 @@ New Features
 
 Enhancements
 ++++++++++++
-* Adds the ability to search nodes by status.
+* Adds the ability to search nodes by status
 * Removed SSLv3 support from default httpd configuration to prevent POODLE exploit.
 * Adds an option to display Bypass VLAN of a node in the Admin GUI.
-* Adds nested groups support for Active Directory.
-* Devices will now avoid autocorrect / uppercasing the login field in the captive portal.
-* Adds the ability to display the bypass VLAN of a node.
-* Will now record which devices have machine authenticated (with AD) in the database.
+* Adds nested groups support for Active Directory
+* We keep track of EAP machine auth by keeping the hostname in the 'node' table.
+* Detect the closest language to use on the portal.
+* Device will avoid autocorrect / uppercasing the login field in the captive portal
+* Display Bypass VLAN of a node
+* Refactored autoregistration workflow in getNormalVlan and getNodeInfoForAutoreg
 
 Bug Fixes
 +++++++++
 
 * Fixed broken default behavior when receiving an SNMP trap
+* Fixed email confirmation template for sponsor
+* Fixed email subject encoding
+* Fixes allowing a non-sponsored user to verify a sponsored email address
 
 Version 4.6.1 released on 2015-02-19
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
