@@ -161,5 +161,5 @@ Description: Files needed for sending MAC and IP from ARP requeststo
 
 Package: packetfence-config
 Architecture: all
-Depends: ${misc:Depends}, libcache-bdb-perl, libLog-fast-perl, libtest-checkmanifest
+Depends: ${misc:Depends}, libcache-bdb-perl, liblog-fast-perl, libtest-checkmanifest
 Description: Service use to manage PacketFence configuration.
