@@ -1,5 +1,5 @@
 #!/bin/sh
-# preinst script for packetfence-pfconfig
+# preinst script for packetfence-config
 #
 # see: dh_installdeb(1)
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for packetfence-pfconfig
+# postinst script for packetfence-config
 #
 # see: dh_installdeb(1)
 
@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-	update-rc.d packetfence-pfconfig defaults 60 || exit 0
+	update-rc.d packetfence-config defaults 60 || exit 0
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

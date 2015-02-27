@@ -264,7 +264,7 @@ Requires: perl(Test::NoWarnings)
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: mod_qos
-Requires: %{real_name}-pfconfig
+Requires: %{real_name}-config
 
 %description -n %{real_name}
 
@@ -319,7 +319,7 @@ Summary: Replace pfcmd by a C wrapper for suid
 The %{real_name}-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
 See https://bugzilla.redhat.com/show_bug.cgi?id=611009
 
-%package -n %{real_name}-pfconfig
+%package -n %{real_name}-config
 Group: System Environment/Daemons
 Requires: perl(Cache::BDB)
 Requires: perl(Log::Fast)
@@ -327,8 +327,8 @@ Requires: perl(Test::CheckManifest)
 AutoReqProv: 0
 Summary: Manage PacketFence Configuration
 
-%description -n %{real_name}-pfconfig
-The %{real_name}-pfconfig is a daemon that manage PacketFence configuration.
+%description -n %{real_name}-config
+The %{real_name}-config is a daemon that manage PacketFence configuration.
 
 
 %prep
@@ -448,7 +448,7 @@ cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
 #pfconfig
-%{__install} -D -m0755 addons/pfconfig/pfconfig.init $RPM_BUILD_ROOT%{_initrddir}/packetfence-pfconfig
+%{__install} -D -m0755 addons/pfconfig/pfconfig.init $RPM_BUILD_ROOT%{_initrddir}/packetfence-config
 #end pfconfig
 # logfiles
 for LOG in %logfiles; do
@@ -624,9 +624,9 @@ echo "Adding PacketFence remote Snort Sensor startup script"
 echo "Adding PacketFence remote ARP Sensor startup script"
 /sbin/chkconfig --add pfarp
 
-%post -n %{real_name}-pfconfig
+%post -n %{real_name}-config
 echo "Adding PacketFence config startup script"
-/sbin/chkconfig --add packetfence-pfconfig
+/sbin/chkconfig --add packetfence-config
 
 %preun -n %{real_name}
 if [ $1 -eq 0 ] ; then
@@ -646,10 +646,10 @@ if [ $1 -eq 0 ] ; then
         /sbin/chkconfig --del pfarp
 fi
 
-%preun -n %{real_name}-pfconfig
+%preun -n %{real_name}-config
 if [ $1 -eq 0 ] ; then
-        /sbin/service packetfence-pfconfig stop &>/dev/null || :
-        /sbin/chkconfig --del packetfence-pfconfig
+        /sbin/service packetfence-config stop &>/dev/null || :
+        /sbin/chkconfig --del packetfence-config
 fi
 
 %postun -n %{real_name}
@@ -670,7 +670,7 @@ if [ $1 -eq 0 ]; then
         /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 fi
 
-%postun -n %{real_name}-pfconfig
+%postun -n %{real_name}-config
 if [ $1 -eq 0 ]; then
         /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 fi

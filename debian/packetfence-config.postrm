@@ -1,5 +1,5 @@
 #!/bin/sh
-# postrm script for packetfence-pfconfig
+# postrm script for packetfence-config
 #
 # see: dh_installdeb(1)
 
@@ -27,8 +27,8 @@ case "$1" in
     ;;
     purge)
 	export PACKETFENCE=/usr/local/pf
-	update-rc.d packetfence-pfconfig remove >/dev/null || exit 0
-	rm /etc/init.d/packetfence-pfconfig 
+	update-rc.d packetfence-config remove >/dev/null || exit 0
+	rm /etc/init.d/packetfence-config 
 	rm $PACKETFENCE/sbin/pfconfig
 	rm -fr $PACKETFENCE/lib/pfconfig	
     ;;
