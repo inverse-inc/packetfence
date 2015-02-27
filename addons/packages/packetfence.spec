@@ -320,6 +320,15 @@ Summary: Replace pfcmd by a C wrapper for suid
 The %{real_name}-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
 See https://bugzilla.redhat.com/show_bug.cgi?id=611009
 
+%package -n %{real_name}-config
+Group: System Environment/Daemons
+Requires: %{real_name} >= 4.7.0
+AutoReqProv: 0
+Summary: Manage PacketFence Configuration
+
+%description -n %{real_name}-config
+The %{real_name}-config is a daemon that manage PacketFence configuration.
+
 
 %prep
 %setup -q -n %{real_name}-%{version}
@@ -437,6 +446,9 @@ cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
+#pfconfig
+%{__install} -D -m0755 addons/pfconfig/pfconfig.init $RPM_BUILD_ROOT%{_initrddir}/pfconfig
+#end pfconfig
 # logfiles
 for LOG in %logfiles; do
     touch $RPM_BUILD_ROOT%logdir/$LOG
@@ -611,6 +623,10 @@ echo "Adding PacketFence remote Snort Sensor startup script"
 echo "Adding PacketFence remote ARP Sensor startup script"
 /sbin/chkconfig --add pfarp
 
+%post -n %{real_name}-pfconfig
+echo "Adding PacketFence config startup script"
+/sbin/chkconfig --add pfconfig
+
 %preun -n %{real_name}
 if [ $1 -eq 0 ] ; then
         /sbin/service packetfence stop &>/dev/null || :
@@ -629,6 +645,12 @@ if [ $1 -eq 0 ] ; then
         /sbin/chkconfig --del pfarp
 fi
 
+%preun -n %{real_name}-config
+if [ $1 -eq 0 ] ; then
+        /sbin/service pfconfig stop &>/dev/null || :
+        /sbin/chkconfig --del pfconfig
+fi
+
 %postun -n %{real_name}
 if [ $1 -eq 0 ]; then
         /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
@@ -643,6 +665,11 @@ if [ $1 -eq 0 ]; then
 fi
 
 %postun -n %{real_name}-remote-arp-sensor
+if [ $1 -eq 0 ]; then
+        /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+fi
+
+%postun -n %{real_name}-pfconfig
 if [ $1 -eq 0 ]; then
         /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 fi
@@ -878,6 +905,7 @@ fi
                         /usr/local/pf/html/common/*
                         /usr/local/pf/html/pfappserver/
                         /usr/local/pf/lib
+%exclude                /usr/local/pf/lib/pfconfig*
 %config(noreplace)      /usr/local/pf/lib/pf/billing/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
@@ -986,6 +1014,13 @@ fi
 
 %files -n %{real_name}-pfcmd-suid
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
+
+%files -n %{real_name}-pfconfig
+%dir                    /usr/local/pf
+%dir                    /usr/local/pf/lib
+%dir                    /usr/local/pf/lib/pfconfig
+                        /usr/local/pf/lib/pfconfig/*
+%attr(0755, pf, pf)     /usr/local/sbin/pfconfig
 
 %changelog
 * Thu Feb 19 2015 Inverse <info@inverse.ca> - 4.6.1-1
