@@ -34,8 +34,8 @@ sub init {
       internal_nets => [],
       inline_enforcement_nets => [],
       vlan_enforcement_nets => [],
-      monitor_int => '',
-      management_network => '',
+      monitor_int => {},
+      management_network => {},
     };
     $self->{child_resources} = [
       'interfaces::listen_ints',
@@ -111,7 +111,6 @@ sub build {
             }
         }
     }
-
 
     return $self->{_interfaces};
 }
