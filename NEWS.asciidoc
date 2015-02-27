@@ -24,7 +24,7 @@ Enhancements
 * Adds an option to display Bypass VLAN of a node in the Admin GUI.
 * Adds nested groups support for Active Directory.
 * Devices will now avoid autocorrect / uppercasing the login field in the captive portal.
-* Admin GUI will now display bypass VLAN of a node.
+* Adds the ability to display the bypass VLAN of a node.
 
 Bug Fixes
 +++++++++
