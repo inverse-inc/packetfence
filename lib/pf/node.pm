@@ -833,7 +833,7 @@ sub node_register {
     }
     pf::person::person_modify($pid,
                     'source'  => $info{'source'},
-                    'portal'     => $info{'portal'},
+                    'portal'  => $info{'portal'},
     );
     delete $info{'source'};
     delete $info{'portal'};
