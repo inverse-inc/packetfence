@@ -353,15 +353,15 @@ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
     /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
     docs/docbook/xsl/titlepage-fo.xml
 # admin, network device config, devel and ZEN install guides
-for GUIDE in $(ls docs/PacketFence*.asciidoc | xargs -n1 -I'{}' basename '{}' .asciidoc) ;do
-asciidoc -a docinfo2 -b docbook -d book \
-    -o docs/docbook/$GUIDE.docbook \
-    docs/$GUIDE.asciidoc
-fop -c docs/fonts/fop-config.xml \
-    -xml docs/docbook/$GUIDE.docbook \
-    -xsl docs/docbook/xsl/packetfence-fo.xsl \
-    -pdf docs/$GUIDE.pdf
-done
+#for GUIDE in $(ls docs/PacketFence*.asciidoc | xargs -n1 -I'{}' basename '{}' .asciidoc) ;do
+#asciidoc -a docinfo2 -b docbook -d book \
+#    -o docs/docbook/$GUIDE.docbook \
+#    docs/$GUIDE.asciidoc
+#fop -c docs/fonts/fop-config.xml \
+#    -xml docs/docbook/$GUIDE.docbook \
+#    -xsl docs/docbook/xsl/packetfence-fo.xsl \
+#    -pdf docs/$GUIDE.pdf
+#done
 %endif
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
