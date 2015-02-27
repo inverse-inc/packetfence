@@ -204,7 +204,6 @@ sub list_namespaces {
     'config', 
     'resource', 
     'config::template', 
-    'interfaces',
   );
   my $namespace_dir = "/usr/local/pf/lib/pfconfig/namespaces";
   my @modules;
