@@ -1,5 +1,5 @@
 #!/bin/sh
-# prerm script for packetfence-pfconfig
+# prerm script for packetfence-config
 #
 # see: dh_installdeb(1)
 
@@ -22,11 +22,11 @@ case "$1" in
     ;;
 
     remove)
-        if [ -x "/etc/init.d/packetfence-pfconfig" ]; then
+        if [ -x "/etc/init.d/packetfence-config" ]; then
                 if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                        invoke-rc.d packetfence-pfconfig stop || exit $?
+                        invoke-rc.d packetfence-config stop || exit $?
                 else
-                        /etc/init.d/packetfence-pfconfig stop || exit $?
+                        /etc/init.d/packetfence-config stop || exit $?
                 fi
         fi
     ;;

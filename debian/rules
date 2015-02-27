@@ -61,10 +61,10 @@ install: build
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/$$i; \
 	done
         for i in `find * -path 'lib/pfconfig/*' -type d`; do \
-                install -d -m0700 $(CURDIR)/debian/packetfence-pfconfig$(PREFIX)/$(NAME)/$$i; \
+                install -d -m0700 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/$$i; \
         done
         for i in `find * -path 'lib/pfconfig/*' ! -type d`; do \
-                $(INSTALL) $$i $(CURDIR)/debian/packetfence-pfconfig$(PREFIX)/$(NAME)/$$i; \
+                $(INSTALL) $$i $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/$$i; \
         done
 	# generate translations
 	# TODO this is duplicated in our RPM spec, we should aim to consolidate in a 'make' style step
@@ -110,8 +110,8 @@ install: build
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
-	install -d $(CURDIR)/debian/packetfence-pfconfig$(PREFIX)/$(NAME)/sbin
-	install -m0755 sbin/pfconfig $(CURDIR)/debian/packetfence-pfconfig$(PREFIX)/$(NAME)/sbin
+	install -d $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
+	install -m0755 sbin/pfconfig $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
 	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
 	# Install our logrotate file into debian/ so dh_installlogrotate will be able to do it's magic
 	install addons/logrotate $(CURDIR)/debian/packetfence.logrotate
@@ -172,7 +172,7 @@ binary-arch: build install
 	chown root:root $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	chmod ug+s $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	#pfconfig
-	chmod 0755 $(CURDIR)/debian/packetfence-pfconfig$(PREFIX)/$(NAME)/sbin/*
+	chmod 0755 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin/*
 #	dh_perl
 	dh_makeshlibs
 	dh_installdeb
