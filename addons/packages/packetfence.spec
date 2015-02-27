@@ -187,7 +187,6 @@ Requires: perl(Try::Tiny)
 Requires: perl(Crypt::GeneratePassword)
 Requires: perl(MIME::Lite::TT)
 Requires: perl(Cache::Cache), perl(HTML::Parser)
-Requires: perl(Cache::BDB)
 Requires: perl(URI::Escape::XS)
 # Used by Captive Portal authentication modules
 Requires: perl(Apache::Htpasswd)
@@ -208,7 +207,6 @@ Requires: perl(Catalyst::Plugin::Session::State::Cookie)
 Requires: perl(Catalyst::Plugin::I18N)
 Requires: perl(Catalyst::View::TT)
 Requires: perl(Catalyst::View::JSON), perl(Log::Log4perl::Catalyst)
-Requires: perl(Log::Fast)
 Requires: perl(Catalyst::Plugin::Authentication)
 Requires: perl(Catalyst::Authentication::Credential::HTTP)
 Requires: perl(Catalyst::Authentication::Store::Htpasswd)
@@ -322,6 +320,9 @@ See https://bugzilla.redhat.com/show_bug.cgi?id=611009
 
 %package -n %{real_name}-config
 Group: System Environment/Daemons
+Requires: perl(Cache::BDB)
+Requires: perl(Log::Fast)
+Requires: perl(Test::CheckManifest)
 Requires: %{real_name} >= 4.7.0
 AutoReqProv: 0
 Summary: Manage PacketFence Configuration
