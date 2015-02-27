@@ -19,10 +19,11 @@ New Features
 
 Enhancements
 ++++++++++++
-* Adds the ability to search nodes by status
+* Adds the ability to search nodes by status.
 * Removed SSLv3 support from default httpd configuration to prevent POODLE exploit.
 * Adds an option to display Bypass VLAN of a node in the Admin GUI.
-* Adds nested groups support for Active Directory
+* Adds nested groups support for Active Directory.
+* Devices will now avoid autocorrect / uppercasing the login field in the captive portal.
 
 Bug Fixes
 +++++++++
