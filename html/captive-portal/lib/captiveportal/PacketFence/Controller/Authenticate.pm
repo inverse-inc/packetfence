@@ -320,7 +320,7 @@ sub setRole : Private {
         $info->{category} = $value;
     } else {
         $logger->info("Got no role for username \"$pid\"");
-        $self->showError($c, "The username you have used does not match any configured role.");
+        $self->showError($c, "You do not have the permission to register a device with this username.");
     }
 
 }
