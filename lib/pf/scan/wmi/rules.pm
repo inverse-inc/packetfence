@@ -71,7 +71,7 @@ sub test {
                 $condition =~ s/\&/ \&\& /g;
                 $logger->warn($condition);
                 if (eval $condition) {
-                    $logger->info("Match WMI ."$rule". rule: ".$test." for ". $rules->{'_scanMac'});
+                    $logger->info("Match WMI ".$rule." rule: ".$test." for ". $rules->{'_scanMac'});
                     if ( defined($cfg{$test}->{'action'}) && $cfg{$test}->{'action'} ne '' ) {
                         last if ($cfg{$test}->{'action'} =~ /allow/i);
                         $self->dispatchAction($cfg{$test},$rules,shift $result);
