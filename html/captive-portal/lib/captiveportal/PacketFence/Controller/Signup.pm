@@ -169,7 +169,7 @@ sub doEmailSelfRegistration : Private {
     };
     
     $c->stash->{pid} = $pid;
-    $c->stash->{info} = %info;
+    $c->stash->{info} = \%info;
     $c->forward(Authenticate => 'setRole');
 
     # form valid, adding person (using modify in case person already exists)
@@ -302,7 +302,7 @@ sub doSponsorSelfRegistration : Private {
 
     # fetch role for this user
     $c->stash->{pid} = $pid;
-    $c->stash->{info} = %info;
+    $c->stash->{info} = \%info;
     $c->forward('Authenticate' => 'setRole');
 
     # Setting access timeout and role (category) dynamically
@@ -428,7 +428,7 @@ sub doSmsSelfRegistration : Private {
 
         # fetch role for this user
         $c->stash->{pid} = $pid;
-        $c->stash->{info} = %info;
+        $c->stash->{info} = \%info;
         $c->forward(Authenticate => 'setRole');
 
 
