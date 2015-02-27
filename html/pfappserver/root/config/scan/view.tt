@@ -16,20 +16,8 @@
   END -%]
     [% form.block('definition').render %]
   </div><!--modal-body-->
+  [% INCLUDE "config/scan/type/${item.type}.tt" %]
 
-  <div class="control-group">
-    <label class="control-label" for="rules">[% l('WMI Rules') %]</label>
-    <div class="controls">
-      [% form.field('rules').render %]
-      <div id="rulesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('rules').index > 1 %]">
-        <p>
-          <i class="icon-cog icon-large"></i>
-          [% l('With no WMI rules specified, the scan engine will not be triggered.') %]
-          <a href="#add">[% l('Add a WMI rule.') %]</a>
-        </p>
-      </div>
-    </div>
-  </div>
 
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
