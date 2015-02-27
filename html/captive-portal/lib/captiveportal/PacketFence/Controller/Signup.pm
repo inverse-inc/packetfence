@@ -169,8 +169,8 @@ sub doEmailSelfRegistration : Private {
     };
     
     $c->stash->{pid} = $pid;
-    $c->stash->{info} = $info;
-    $c->forward('setRole');
+    $c->stash->{info} = %info;
+    $c->forward(Authenticate => 'setRole');
 
     # form valid, adding person (using modify in case person already exists)
     person_modify(
@@ -302,8 +302,8 @@ sub doSponsorSelfRegistration : Private {
 
     # fetch role for this user
     $c->stash->{pid} = $pid;
-    $c->stash->{info} = $info;
-    $c->forward('setRole');
+    $c->stash->{info} = %info;
+    $c->forward('Authenticate' => 'setRole');
 
     # Setting access timeout and role (category) dynamically
     $info{'unregdate'} =
@@ -428,8 +428,8 @@ sub doSmsSelfRegistration : Private {
 
         # fetch role for this user
         $c->stash->{pid} = $pid;
-        $c->stash->{info} = $info;
-        $c->forward('setRole');
+        $c->stash->{info} = %info;
+        $c->forward(Authenticate => 'setRole');
 
 
         # set node in pending mode with the appropriate role
