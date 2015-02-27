@@ -1,9 +1,9 @@
 
   <div class="control-group">
-    <label class="control-label" for="rules">[% l('WMI Rules') %]</label>
+    <label class="control-label" for="wmi_rules">[% l('WMI Rules') %]</label>
     <div class="controls">
-      [% form.field('rules').render %]
-      <div id="rulesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('rules').index > 1 %]">
+      [% form.field('wmi_rules').render %]
+      <div id="wmi_rulesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('wmi_rules').index > 1 %]">
         <p>
           <i class="icon-cog icon-large"></i>
           [% l('With no WMI rules specified, the scan engine will not be triggered.') %]
