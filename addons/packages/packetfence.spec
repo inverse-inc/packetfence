@@ -318,7 +318,7 @@ Summary: Replace pfcmd by a C wrapper for suid
 The %{real_name}-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
 See https://bugzilla.redhat.com/show_bug.cgi?id=611009
 
-%package -n %{real_name}-config
+%package -n %{real_name}-pfconfig
 Group: System Environment/Daemons
 Requires: perl(Cache::BDB)
 Requires: perl(Log::Fast)
@@ -327,8 +327,8 @@ Requires: %{real_name} >= 4.7.0
 AutoReqProv: 0
 Summary: Manage PacketFence Configuration
 
-%description -n %{real_name}-config
-The %{real_name}-config is a daemon that manage PacketFence configuration.
+%description -n %{real_name}-pfconfig
+The %{real_name}-pfconfig is a daemon that manage PacketFence configuration.
 
 
 %prep
@@ -448,7 +448,7 @@ cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
 #pfconfig
-%{__install} -D -m0755 addons/pfconfig/pfconfig.init $RPM_BUILD_ROOT%{_initrddir}/pfconfig
+%{__install} -D -m0755 addons/pfconfig/pfconfig.init $RPM_BUILD_ROOT%{_initrddir}/packetfence-pfconfig
 #end pfconfig
 # logfiles
 for LOG in %logfiles; do
@@ -626,7 +626,7 @@ echo "Adding PacketFence remote ARP Sensor startup script"
 
 %post -n %{real_name}-pfconfig
 echo "Adding PacketFence config startup script"
-/sbin/chkconfig --add pfconfig
+/sbin/chkconfig --add packetfence-pfconfig
 
 %preun -n %{real_name}
 if [ $1 -eq 0 ] ; then
@@ -646,10 +646,10 @@ if [ $1 -eq 0 ] ; then
         /sbin/chkconfig --del pfarp
 fi
 
-%preun -n %{real_name}-config
+%preun -n %{real_name}-pfconfig
 if [ $1 -eq 0 ] ; then
-        /sbin/service pfconfig stop &>/dev/null || :
-        /sbin/chkconfig --del pfconfig
+        /sbin/service packetfence-pfconfig stop &>/dev/null || :
+        /sbin/chkconfig --del packetfence-pfconfig
 fi
 
 %postun -n %{real_name}
