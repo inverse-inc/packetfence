@@ -8,7 +8,7 @@ pf::scan::wmi::rules - Test wmi rules
 
 =head1 DESCRIPTION
 
-pf::scan::wmi::rules deny or allow based on rules. 
+pf::scan::wmi::rules deny or allow based on rules.
 
 =cut
 
@@ -74,7 +74,7 @@ sub test {
                     $logger->info("Match WMI ".$rule." rule: ".$test." for ". $rules->{'_scanMac'});
                     if ( defined($cfg{$test}->{'action'}) && $cfg{$test}->{'action'} ne '' ) {
                         last if ($cfg{$test}->{'action'} =~ /allow/i);
-                        $self->dispatchAction($cfg{$test},$rules,shift $result);
+                        $self->dispatchAction($cfg{$test},$rules,shift @$result);
                     }
                 }
             }
