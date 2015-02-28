@@ -111,7 +111,7 @@ sub authorize {
 
     $logger->info("[$mac] handling radius autz request: from switch_ip => ($switch_ip), "
         . "connection_type => " . connection_type_to_str($connection_type) . ","
-        . "switch_mac => ($switch_mac), mac => [$mac], port => $port, username => \"$user_name\"");
+        . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\"");
 
     #add node if necessary
     if ( !node_exist($mac) ) {
