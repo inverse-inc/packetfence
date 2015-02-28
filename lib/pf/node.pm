@@ -847,7 +847,7 @@ sub node_register {
             $logger->error("modify of node $mac failed");
             return (0);
         }
-           $logger->info("autoregister a node that is already registered, do nothing.");
+           $logger->info("[$mac] autoregister a node that is already registered, do nothing.");
            return 1;
        }
     }
