@@ -58,7 +58,7 @@ sub test {
                 $test =~ s/\|/ \|\| /g;
                 $test =~ s/\&/ \&\& /g;
                 if (eval $test) {
-                    $logger->info("Match Vlan rule: ".$rule." for ".$mac);
+                    $logger->info("[$mac] Match Vlan rule: ".$rule);
                     if ( defined($ConfigVlanFilters{$rule}->{'action'}) && $ConfigVlanFilters{$rule}->{'action'} ne '' ) {
                         $self->dispatchAction($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request)
                     }

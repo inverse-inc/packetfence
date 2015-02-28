@@ -357,11 +357,11 @@ sub getNormalVlan {
 
     my $provisioner = $profile->findProvisioner($mac,$node_info);
     if (defined($provisioner) && $provisioner->{enforce}) {
-        $logger->info("Triggering provisioner check for $mac");
+        $logger->info("[$mac] Triggering provisioner check");
         violation_trigger($mac, $TRIGGER_ID_PROVISIONER, $TRIGGER_TYPE_PROVISIONER);
     }
     else{
-        $logger->info("Can't find provisioner for $mac");
+        $logger->info("[$mac] Can't find provisioner");
     }
 
     # Bypass VLAN is configured in node record so we return accordingly
