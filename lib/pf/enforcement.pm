@@ -35,6 +35,7 @@ BEGIN {
     @EXPORT_OK = qw(reevaluate_access);
 }
 
+use pf::constants;
 use pf::config;
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iptables;
@@ -42,6 +43,7 @@ use pf::locationlog;
 use pf::node;
 use pf::SwitchFactory;
 use pf::util;
+use pf::config::util;
 use pf::vlan::custom $VLAN_API_LEVEL;
 use pf::client;
 

@@ -14,7 +14,8 @@ pf::Authentication::Source::BlackholeSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($FALSE $TRUE $default_pid);
+use pf::constants;
+use pf::config;
 use pf::Authentication::constants;
 use pf::util;
 

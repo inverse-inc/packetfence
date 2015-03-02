@@ -1,0 +1,32 @@
+Tested with stress-rad-v2.sh on superfence using this command : 
+# bash /root/stress-rad-v2.sh 172.20.20.109 secret /root/admin-peap.conf zilog
+
+Only used pfconfig for the SwitchFactory
+
+Commits tested : 
+- fix/cache : 286911094f594abf36fcf9ae1bef5db485105803
+- devel : 9069a307ff5b64e6f589231c1bc8f43ad5b6b466
+
+Tested using ~500 RADIUS requests
+
+Tested devel 3 times
+RADIUS timing | Webservices timing
+168 ms        | 8 ms
+167 ms        | 7 ms
+167 ms        | 8 ms
+
+Tested fix/cache 3 times
+RADIUS timing | Webservices timing
+162 ms        | 7 ms
+162 ms        | 7 ms
+161 ms        | 7 ms
+
+Tested devel 2 times
+RADIUS timing | Webservices timing
+161 ms        | 7 ms
+161 ms        | 7 ms
+
+Tested fix/cache 2 times
+RADIUS timing | Webservices timing
+168 ms        | 8 ms
+162 ms        | 7 ms

@@ -21,6 +21,7 @@ extends 'pf::ConfigStore';
 
 sub configFile { $pf::file_paths::floating_devices_config_file }
 
+sub pfconfigNamespace {'config::FloatingDevices'}
 
 __PACKAGE__->meta->make_immutable;
 

@@ -49,6 +49,7 @@ use Net::SNMP;
 
 use base ('pf::Switch::Dlink');
 
+use pf::constants;
 use pf::config;
 use pf::util;
 

@@ -24,6 +24,7 @@ use Try::Tiny;
 
 use base ('pf::Switch');
 
+use pf::constants;
 use pf::config;
 sub description { 'Huawei AC6605' }
 

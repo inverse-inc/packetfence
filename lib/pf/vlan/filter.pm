@@ -314,19 +314,7 @@ sub time_parser {
 =cut
 
 sub readVlanFiltersFile {
-    $cached_vlan_filters_config = pf::config::cached->new(
-        -file => $vlan_filters_config_file,
-        -allowempty => 1,
-        -onreload => [ reload_vlan_filters_config => sub {
-            my ($config) = @_;
-            $config->toHash(\%ConfigVlanFilters);
-            $config->cleanupWhitespace(\%ConfigVlanFilters);
-        }]
-    );
-    if(@Config::IniFiles::errors) {
-        my $logger = Log::Log4perl::get_logger("pf::vlan::filter");
-        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
-    }
+  tie %ConfigVlanFilters, 'pfconfig::cached_hash', 'config::VlanFilters';
 }
 
 =back

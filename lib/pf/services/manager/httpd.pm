@@ -18,6 +18,7 @@ use Moo;
 use POSIX;
 use pf::class qw(class_view_all);
 use pf::util;
+use pf::config::util;
 use pf::util::apache qw(url_parser);
 use pf::web::constants;
 use pf::authentication;

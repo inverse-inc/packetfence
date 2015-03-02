@@ -14,7 +14,7 @@ pf::ConfigStore::Profile
 
 use Moo;
 use namespace::autoclean;
-use pf::config;
+use pf::ConfigStore::config;
 
 use pf::ConfigStore;
 
@@ -28,6 +28,8 @@ with 'pf::ConfigStore::Role::ValidGenericID';
 =cut
 
 sub _buildCachedConfig { $cached_profiles_config }
+
+sub pfconfigNamespace {'config::Profiles'}
 
 =head2 remove
 

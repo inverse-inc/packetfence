@@ -83,6 +83,7 @@ use pf::db;
 use pf::node;
 use pf::scan qw($SCAN_VID);
 use pf::util;
+use pf::config::util;
 use pf::client;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)

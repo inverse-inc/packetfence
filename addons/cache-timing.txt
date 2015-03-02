@@ -1,0 +1,18 @@
+
+Cache backends tested with addons/benchmark-a-cache.pl
+pfconfig tested with addons/benchmark-pfconfig.pl
+
+Memory usage at the end of the process :
+time    vsz (  diff)    rss (  diff) shared (  diff)   code ( diff)   data (  diff)
+1  183680 (     0)  15476 (   160)   3472 (    92)      8 (     0) 13044 (     0) BDB
+2  186616 (  2104)  15056 (   172)   2944 (    92)      8 (     0) 13040 (     0) memcached
+7  184972 (   152)  16268 (    76)   2972 (    32)      8 (     0) 13456 (   152) Redis
+2  259024 (  4428)  40968 (   436)   3548 (   136)      8 (     0) 37336 (   264) pf::CHI
+0  154612 (     0)   7940 (    12)   2540 (    12)      8 (     0) 5592 (     0) pfconfig
+
+Timing 1 switch get :
+~0.0003 w/o tying - memcached
+~0.0004 w/o tying - redis
+~0.0003 w/o tying - bdb
+~0.0010 w/o tying - pf::CHI
+~0.0006 with tying - pfconfig 
