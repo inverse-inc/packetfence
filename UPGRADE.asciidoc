@@ -53,6 +53,13 @@ Make sure you run the following to update your schema:
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.4.0-4.5.0.sql
 
+Violation configuration
+^^^^^^^^^^^^^^^^^^^^^^^
+
+A new parameter 'delay_by' has been introduced in the violation configuration. Make sure to add the following to the 'defaults' section of 'conf/violations.conf' to avoid any problem.
+
+delay_by=0s
+
 Upgrading from a version prior to 4.4.0
 ---------------------------------------
 
@@ -63,13 +70,6 @@ The serialization of the objects in the cache changed, making all the previous c
 With PacketFence completely stopped do :
 
   rm -fr /usr/local/pf/var/cache/*
-
-Violation configuration
-^^^^^^^^^^^^^^^^^^^^^^^
-
-A new parameter 'delay_by' has been introduced in the violation configuration. Make sure to add the following to the 'defaults' section of 'conf/violations.conf' to avoid any problem.
-
-delay_by=0s
 
 Upgrading from a version prior to 4.3.0
 ---------------------------------------
