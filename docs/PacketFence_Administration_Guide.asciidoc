@@ -2695,7 +2695,7 @@ Validate with Ok and give the account who will run this task. (Usually _DOMAIN\A
 DHCP remote sensor
 ~~~~~~~~~~~~~~~~~~
 
-The DHCP remote sensor consists of a lightweight binary that is installed on your production DHCP server in order to replicate the DHCP traffic 1 to 1 to the PacketFence server. This solution is more reliable than the DHCP relaying since it receives a copy of all your DHCP traffic and not only the broadcasted DHCP traffic. Supported DHCP servers are Microsoft DHCP server and CentOS 6 and 7.
+The DHCP remote sensor consists of a lightweight binary that is installed on your production DHCP server in order to replicate the DHCP traffic 1 to 1 to the PacketFence server. This solution is more reliable than the DHCP relaying since PacketFence receives a copy of all your DHCP traffic and not only the broadcasted DHCP traffic. Supported DHCP servers are Microsoft DHCP server and CentOS 6 and 7.
 
 These sensors work by capturing the packets at the lowest level possible on your DHCP server and forward them to the PacketFence management interface
 
@@ -2717,25 +2717,25 @@ Go in Startup/Task Scheduler
 Create a new Task
 
 In General : 
-- Name it dhcp-reflector
-- Select 'Run whether the user is logged on or not'
-- Check 'Run with highest privileges'
+ - Name it dhcp-reflector
+ - Select 'Run whether the user is logged on or not'
+ - Check 'Run with highest privileges'
 
 In Triggers : 
-- Create a new trigger
-- Select 'Begin the task : ', 'At startup'
-- Leave the other options as default and save.
+ - Create a new trigger
+ - Select 'Begin the task : ', 'At startup'
+ - Leave the other options as default and save.
 
 In Actions : 
-- Create a new action
-- Set the action to 'Start a program'
-- In 'Program/script' set it to 'C:\udp-reflector\udp_reflector.exe,
-- In 'Add arguments' put '-s pcap0:67 -d 192.168.1.5:767 -b 25000'
+ - Create a new action
+ - Set the action to 'Start a program'
+ - In 'Program/script' set it to 'C:\udp-reflector\udp_reflector.exe,
+ - In 'Add arguments' put '-s pcap0:67 -d 192.168.1.5:767 -b 25000'
   - where pcap0 is the interface where your DHCP is listening (use 'C:\udp-reflector\udp_reflector.exe -l' to list interfaces)
   - where 192.168.1.5 is the management IP of PacketFence
 
 In Settings : 
-- Uncheck 'Stop the task if it runs longer than :'
+ - Uncheck 'Stop the task if it runs longer than :'
 
 Then press OK and save the task
 
@@ -2752,54 +2752,54 @@ CentOS 6 and 7 servers
 ++++++++++++++++++++++
 
 For CentOS 6
----
+----
 # for i386
 # wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/i386/RPMS/udp-reflector-1.0-6.1.i686.rpm
 
 # for x86_64
 # wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
----
+----
 
 For CentOS 7
----
+----
 # for i386
 # wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/i386/RPMS/udp-reflector-1.0-6.1.i686.rpm
 
 # for x86_64
 # wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
----
+----
 
 Now install the sensor
----
+----
 # rpm -i udp-reflector-*.rpm
----
+----
 
 Compiling the sensor from source on a Linux system
 ++++++++++++++++++++++++++++++++++++++++++++++++++
 
 First make sure you have the following packages installed : 
-- libpcap
-- libpcap-devel
-- gcc-c++
+ - libpcap
+ - libpcap-devel
+ - gcc-c++
 
 Get the source code of the sensor
----
+----
 # mkdir -p ~/udp-reflector && cd ~/udp-reflector
 # wget https://raw.githubusercontent.com/julsemaan/udp-reflector/master/linux/udp_reflector.cpp
 # g++ udp_reflector.cpp -o /usr/local/bin/udp_reflector -lpcap
----
+----
 
 Configuring the sensor
 ++++++++++++++++++++++
 
 Now in /etc/rc.local, place the following line '/usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &'
-- where pcap0 is the pcap interface where your DHCP server listens on. (List them using 'udp_reflector -l')
-- where 192.168.1.5 is the management IP of your PacketFence server
+ - where pcap0 is the pcap interface where your DHCP server listens on. (List them using 'udp_reflector -l')
+ - where 192.168.1.5 is the management IP of your PacketFence server
 
 Now start the sensor with
----
+----
 # /usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
----
+----
 
 The DHCP traffic should now be reflected on your PacketFence server
 
