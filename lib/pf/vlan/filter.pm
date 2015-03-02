@@ -64,6 +64,7 @@ sub test {
                     }
                     if ( defined($ConfigVlanFilters{$rule}->{'role'}) && $ConfigVlanFilters{$rule}->{'role'} ne '' ) {
                         my $role = $ConfigVlanFilters{$rule}->{'role'};
+                        $role =~ s/(\$.*)/$1/gee;
                         my $vlan = $switch->getVlanByName($role);
                         return (1,$role) if ($scope eq 'AutoRegister');
                         return ($vlan, $role);
