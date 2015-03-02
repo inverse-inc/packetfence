@@ -441,6 +441,27 @@ sub node_information : Public {
     return $node_info;
 }
 
+=head2 set_unreg_date
+
+Set the unreg for a specific node
+
+=cut
+
+sub set_unreg_date : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(mac date);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
+    my $unregdate;
+    if (pf::util::valid_date($postdata{'date'})) {
+        $unregdate = pf::config::dynamic_unreg_date($postdata{'date'});
+    } else {
+        $unregdate = pf::config::access_duration($postdata{'date'});
+    }
+    pf::node::node_modify($postdata{'mac'}, ('unregdate' => $unregdate));
+}
+
 =head2 validate_argv
 
 Test if the required arguments are provided
