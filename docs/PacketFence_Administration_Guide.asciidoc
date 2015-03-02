@@ -2717,25 +2717,25 @@ Go in Startup/Task Scheduler
 Create a new Task
 
 In General : 
- - Name it dhcp-reflector
- - Select 'Run whether the user is logged on or not'
- - Check 'Run with highest privileges'
+* Name it dhcp-reflector
+* Select 'Run whether the user is logged on or not'
+* Check 'Run with highest privileges'
 
 In Triggers : 
- - Create a new trigger
- - Select 'Begin the task : ', 'At startup'
- - Leave the other options as default and save.
+* Create a new trigger
+* Select 'Begin the task : ', 'At startup'
+* Leave the other options as default and save.
 
 In Actions : 
- - Create a new action
- - Set the action to 'Start a program'
- - In 'Program/script' set it to 'C:\udp-reflector\udp_reflector.exe,
- - In 'Add arguments' put '-s pcap0:67 -d 192.168.1.5:767 -b 25000'
-  - where pcap0 is the interface where your DHCP is listening (use 'C:\udp-reflector\udp_reflector.exe -l' to list interfaces)
-  - where 192.168.1.5 is the management IP of PacketFence
+* Create a new action
+* Set the action to 'Start a program'
+* In 'Program/script' set it to 'C:\udp-reflector\udp_reflector.exe,
+* In 'Add arguments' put '-s pcap0:67 -d 192.168.1.5:767 -b 25000'
+  * where pcap0 is the interface where your DHCP is listening (use 'C:\udp-reflector\udp_reflector.exe -l' to list interfaces)
+  * where 192.168.1.5 is the management IP of PacketFence
 
 In Settings : 
- - Uncheck 'Stop the task if it runs longer than :'
+* Uncheck 'Stop the task if it runs longer than :'
 
 Then press OK and save the task
 
@@ -2778,9 +2778,9 @@ Compiling the sensor from source on a Linux system
 ++++++++++++++++++++++++++++++++++++++++++++++++++
 
 First make sure you have the following packages installed : 
- - libpcap
- - libpcap-devel
- - gcc-c++
+* libpcap
+* libpcap-devel
+* gcc-c++
 
 Get the source code of the sensor
 ----
