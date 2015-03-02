@@ -326,6 +326,7 @@ Requires: perl(Log::Fast)
 Requires: perl(Test::CheckManifest)
 AutoReqProv: 0
 Summary: Manage PacketFence Configuration
+BuildArch: noarch
 
 %description -n %{real_name}-config
 The %{real_name}-config is a daemon that manage PacketFence configuration.
