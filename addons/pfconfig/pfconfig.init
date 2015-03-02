@@ -4,7 +4,7 @@
 #
 # Written by Inverse inc. <info@inverse.ca>
 #
-# chkconfig: - 345 85 5
+# chkconfig: 345 85 5
 # description: PacketFence pfconfig
 #
 # processname: 
