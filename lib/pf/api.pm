@@ -76,7 +76,22 @@ sub radius_accounting : Public {
         $return = $radius->accounting(\%radius_request);
     };
     if ($@) {
-        $logger->logdie("radius accounting failed with error: $@");
+        $logger->error("radius accounting failed with error: $@");
+    }
+    return $return;
+}
+
+sub radius_update_locationlog : Public {
+    my ($class, %radius_request) = @_;
+    my $logger = pf::log::get_logger();
+
+    my $radius = new pf::radius::custom();
+    my $return;
+    eval {
+        $return = $radius->update_locationlog_accounting(\%radius_request);
+    };
+    if ($@) {
+        $logger->error("radius update locationlog accounting failed with error: $@");
     }
     return $return;
 }

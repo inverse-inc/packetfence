@@ -297,6 +297,46 @@ sub accounting {
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
 }
 
+=item update_locationlog_accounting
+
+Update the location log based on the accounting information
+
+=cut
+
+sub update_locationlog_accounting {
+    my ($this, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $this->_parseRequest($radius_request);
+
+    $logger->debug("instantiating switch");
+    my $switch = pf::SwitchFactory->getInstance()
+        ->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip } );
+
+    # is switch object correct?
+    if ( !$switch ) {
+        $logger->warn( "Can't instantiate switch ($switch_ip). This request will be failed. "
+                . "Are you sure your switches.conf is correct?" );
+        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
+    }
+
+    if ($switch->supportsRoamingAccounting()) {
+        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+        my $connection = pf::Connection->new;
+        $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+        my $connection_type = $connection->attributesToBackwardCompatible;
+        my $ssid;
+        if (($connection_type & $WIRELESS) == $WIRELESS) {
+            $ssid = $switch->extractSsid($radius_request);
+            $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
+        }
+        my $vlan;
+        $vlan = $radius_request->{'Tunnel-Private-Group-ID'} if ( (defined( $radius_request->{'Tunnel-Type'}) && $radius_request->{'Tunnel-Type'} eq '13') && (defined($radius_request->{'Tunnel-Medium-Type'}) && $radius_request->{'Tunnel-Medium-Type'} eq '6') );
+        $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $user_name, $ssid, $stripped_user_name, $realm);
+    }
+    return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Update locationlog from accounting ok") ];
+}
+
 =item * _parseRequest
 
 Takes FreeRADIUS' RAD_REQUEST hash and process it to return

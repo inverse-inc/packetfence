@@ -40,6 +40,9 @@ server packetfence {
     accounting {
         sql
         attr_filter.accounting_response
+        update request {
+            FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+        }
         update control {
             PacketFence-RPC-Server = ${rpc_host}
             PacketFence-RPC-Port = ${rpc_port}
