@@ -4343,6 +4343,11 @@ msgstr "Users"
 msgid "USERS_CREATE"
 msgstr "Users - Create"
 
+# pf::admin_roles (Actions groups)
+# pf::admin_roles (Actions)
+msgid "USERS_CREATE_MULTIPLE"
+msgstr "Users - Create Multiple"
+
 # pf::admin_roles (Actions)
 msgid "USERS_DELETE"
 msgstr "Users - Delete"

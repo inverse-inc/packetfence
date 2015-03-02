@@ -91,7 +91,7 @@ sub options_actions {
     my @options;
 
     map {
-        m/^(.+?)(_(READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|MARK_AS_SPONSOR))?$/;
+        m/^(.+?)(_(READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|MARK_AS_SPONSOR|CREATE_MULTIPLE))?$/;
         $groups{$1} = [] unless $groups{$1};
         push(@{$groups{$1}}, { value => $_, label => $self->_localize($_) })
     } @ADMIN_ACTIONS;
