@@ -34,14 +34,14 @@ before execute => sub {
     $roles = [$c->user->roles] if $c->user_exists;
     my $can_access;
     my $actions;
-    if ($actions = $self->attributes->{AdminRole}) {
+    if ($actions = $attributes->{AdminRole}) {
         $can_access = admin_can($roles, @$actions);
-    } elsif (my $action = $self->attributes->{AdminRoleAny}) {
+    } elsif ($actions = $attributes->{AdminRoleAny}) {
         $can_access = admin_can_do_any($roles, @$actions);
     }
     unless($can_access) {
         if($c->user_exists) {
-            $c->log->debug( sub { sprintf('Access to action %s was refused to user %s with admin roles %s',
+            $c->log->debug( sub { sprintf('Access to action(s) %s was refused to user %s with admin roles %s',
                                    join(", ",@$actions), $c->user->id, join(',', @$roles))} );
         }
         $c->response->status(HTTP_UNAUTHORIZED);
