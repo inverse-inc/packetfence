@@ -96,6 +96,7 @@ sub supportsFloatingDevice { return $TRUE; }
 sub supportsSaveConfig { return $FALSE; }
 sub supportsCdp { return $TRUE; }
 sub supportsLldp { return $FALSE; }
+sub supportsRoamingAccounting { return $FALSE }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT,$SSID); }
 
