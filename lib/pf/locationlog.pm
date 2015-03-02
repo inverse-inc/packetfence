@@ -358,7 +358,7 @@ sub locationlog_view_open_mac {
 }
 
 sub locationlog_insert_start {
-    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid, $stripped_user_name, $realm ) = @_;
+    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid, $stripped_user_name, $realm, $locationlog_mac ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::locationlog');
 
     my $conn_type = connection_type_to_str($connection_type)
