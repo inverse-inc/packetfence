@@ -1,0 +1,238 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+BEGIN {
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pfconfig::log;
+}
+
+use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
+use JSON;
+use pfconfig::manager;
+use Data::Dumper;
+use Time::HiRes;
+use pfconfig::timeme;
+use Switch;
+use List::MoreUtils qw(first_index);
+use Getopt::Std;
+use POSIX qw(:signal_h);
+use pf::services::util;
+use pfconfig::util;
+use Sereal::Encoder;
+$pfconfig::timeme::VERBOSE = 0;
+
+
+my $socket_path = pfconfig::util::socket_path();
+unlink($socket_path);
+
+my $listner = IO::Socket::UNIX->new(
+   Type   => SOCK_STREAM,
+   Local  => $socket_path,
+   Listen => SOMAXCONN,
+)
+   or die("Can't create server socket: $!\n");
+
+my $cache = pfconfig::manager->new;
+$cache->preload_all();
+
+my $encoder = Sereal::Encoder->new;
+
+my %args;
+getopts( 'dhi:', \%args );
+
+my $daemonize = $args{d};
+
+# standard signals and daemonize
+daemonize("pfconfig") if ($daemonize);
+
+my $logger = get_logger;
+while(1) {
+  my $socket;
+  my $line;
+  eval {
+    $socket = $listner->accept()
+     or die("Can't accept connection: $!\n");
+    chomp( $line = <$socket> );
+
+    if($line eq "exit") {exit}
+
+    my $query = decode_json($line);
+    #use Data::Dumper;
+    #print Dumper($query);
+
+    # we support hash namespaced queries
+    # where 
+    #  - line = 'config' return the whole config hash
+    #  - line = 'config;value' return the value in the config hash
+
+    switch ($query->{method}) {
+      case 'element' { get_element($query, $socket) }
+      case 'hash_element' { get_hash_element($query, $socket) }
+      case 'keys' { get_keys($query, $socket) }
+      case 'next_key' { get_next_key($query, $socket) }
+      case 'array_element' { get_array_element($query, $socket) }
+      case 'array_size' { get_array_size($query, $socket) }
+      case 'sleep' { sleep(10) }
+      else { print STDERR "Unknown method $query->{method}"; print "undef" }
+    }
+  };
+  if($@){
+      print STDERR "$line : $@";
+      send_output("undef", $socket) if $socket;
+  }
+}
+
+sub get_from_cache {
+    my ($what) = @_;
+    my $elem;
+    # let's get the top namespace element
+    $elem = $cache->get_cache($what);
+
+    return $elem;
+}
+
+sub get_element {
+    my ($query, $socket) = @_;
+    my $logger = get_logger;
+    my $elem = get_from_cache_or_croak($query->{key}, $socket);
+    return unless(defined($elem));
+    send_output({element => $elem}, $socket);
+}
+
+sub get_hash_element {
+    my ($query, $socket) = @_;
+    my $logger = get_logger;
+
+    my @keys = split ';', $query->{key};
+  
+    my $elem = get_from_cache_or_croak($keys[0], $socket);
+    return unless(defined($elem));
+
+    # if we want a subnamespace we handle it here
+    if($keys[1]){
+      my $sub_elem = $elem->{$keys[1]};
+      if(defined($sub_elem)){
+        $elem = {element => $sub_elem};
+      }
+      else{
+        print STDERR "Unknown key $query->{key}";
+        $logger->error("Unknown key $query->{key}");
+        $elem = "undef";
+      }
+    }
+    else{
+      $elem = {element => $elem};
+    }
+    send_output($elem, $socket);
+}
+
+sub get_from_cache_or_croak {
+    my ($key, $socket) = @_;
+    my $elem = get_from_cache($key);
+
+    if(defined($elem)){
+        return $elem;
+    }
+    else{
+        print STDERR "Unknown key in cache $key \n";
+        $logger->error("Unknown key $key");
+        send_output("undef", $socket);
+        return undef;
+    }
+
+}
+
+sub get_keys {
+    my ($query, $socket) = @_;
+
+    my $elem = get_from_cache_or_croak($query->{key}, $socket);
+    return unless(defined($elem));
+
+    my @keys = keys(%{$elem});
+    send_output(\@keys, $socket);
+}
+
+sub get_next_key {
+    my ($query, $socket) = @_;
+
+    my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
+
+    my @keys = keys(%{$elem});
+
+    my $last_key = $query->{last_key};
+
+    my $next_key;
+    unless($last_key){
+        $next_key = $keys[0];
+    }
+    else{
+        my $last_index;
+        $last_index = first_index { $_ eq $last_key} @keys ;
+
+        if($last_index >= scalar @keys){
+          $next_key = undef;
+        }
+
+        $next_key = $keys[$last_index+1];
+    }
+    send_output({next_key => $next_key}, $socket);
+}
+
+sub get_array_element {
+    my ($query, $socket) = @_;
+    my $logger = get_logger;
+
+    my @keys = split ';', $query->{key};
+  
+    my $elem = get_from_cache_or_croak($keys[0], $socket) || return;
+
+    $logger->info("GOT FROM CACHE : ".Dumper($elem));
+
+    # if we want an index we handle it here
+    if(defined($keys[1])){
+      my $sub_elem = $$elem[$keys[1]];
+      if(defined($sub_elem)){
+        $elem = {element => $sub_elem};
+      }
+      else{
+        print STDERR "Unknown index in $query->{key}";
+        $logger->error("Unknown index in $query->{key}");
+        $elem = "undef";
+      }
+    }
+
+    send_output($elem, $socket);
+    
+}
+
+sub get_array_size {
+    my ($query, $socket) = @_;
+    my $logger = get_logger;
+    my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
+    my $size = @$elem;
+    send_output({size => $size}, $socket);
+}
+
+sub encode_output {
+    my ($data) = @_;
+    $data = $encoder->encode($data);
+    return $data;
+}
+
+sub send_output {
+    my ($data, $socket) = @_;
+    unless($data eq "undef"){
+      my $data = encode_output($data);
+      my $lines = $data =~ tr/\n// || 0;
+      $lines += 1;
+      print $socket $lines."\n";
+      print $socket $data;
+    }
+    else{
+      print $socket "1\n";
+      print $socket "$data";
+    }
+}
