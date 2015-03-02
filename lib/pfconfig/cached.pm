@@ -36,9 +36,11 @@ use pfconfig::timeme;
 use Data::Dumper;
 use pfconfig::log;
 use pfconfig::util;
+use Sereal::Encoder;
 use Sereal::Decoder;
 use Time::HiRes qw(stat time);
 
+our $ENCODER = Sereal::Encoder->new;
 our $DECODER = Sereal::Decoder->new;
 
 sub new {
@@ -189,6 +191,7 @@ sub is_valid {
 }
 
 sub CLONE {
+  $ENCODER = Sereal::Encoder->new;
   $DECODER = Sereal::Decoder->new;
 }
 
