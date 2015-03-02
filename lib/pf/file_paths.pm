@@ -22,7 +22,7 @@ use File::Spec::Functions;
 
 our (
     #Directories
-    $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, $generated_conf_dir, $var_dir,
+    $install_dir, $bin_dir, $conf_dir, $lib_dir, $html_dir, $cert_dir, $log_dir, $generated_conf_dir, $var_dir,
     $tt_compile_cache_dir, $pfconfig_cache_dir, $domains_chroot_dir,
 
     #Config files
@@ -75,7 +75,7 @@ BEGIN {
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
-        $install_dir $bin_dir $conf_dir $lib_dir $log_dir $generated_conf_dir $var_dir
+        $install_dir $bin_dir $conf_dir $lib_dir $html_dir $cert_dir $log_dir $generated_conf_dir $var_dir
         $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir
         $default_config_file $pf_default_file
         $config_file $pf_config_file
@@ -116,6 +116,7 @@ $bin_dir  = catdir( $install_dir,"bin" );
 $conf_dir = catdir( $install_dir,"conf" );
 $var_dir  = catdir( $install_dir,"var" );
 $lib_dir  = catdir( $install_dir,"lib" );
+$html_dir = catdir( $install_dir,"html" );
 $log_dir  = catdir( $install_dir,"logs" );
 $log_conf_dir  = catdir( $conf_dir,"log.conf.d" );
 
@@ -164,6 +165,8 @@ $wmi_config_file = catfile($conf_dir,"wmi.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
+
+$cert_dir = catdir( $html_dir, "captive-portal/certs");
 
 @log_files = map {catfile($log_dir, $_)}
   qw(
