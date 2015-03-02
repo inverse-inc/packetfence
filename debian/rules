@@ -60,10 +60,10 @@ install: build
 	for i in `find * -path 't*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/$$i; \
 	done
-	for i in `find * -path 'lib/pfconfig/*' -path 'sbin/pfconfig' -type d`; do \
+	for i in `find * -path 'lib/pfconfig*' -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/$$i; \
 	done
-	for i in `find * -path 'lib/pfconfig/*' -path 'sbin/pfconfig' ! -type d`; do \
+	for i in `find * -path 'lib/pfconfig/*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/$$i; \
 	done
 	# generate translations
