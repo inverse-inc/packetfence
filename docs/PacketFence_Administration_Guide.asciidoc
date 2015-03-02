@@ -2717,24 +2717,28 @@ Go in Startup/Task Scheduler
 Create a new Task
 
 In General : 
+[options="compact"]
 * Name it dhcp-reflector
 * Select 'Run whether the user is logged on or not'
 * Check 'Run with highest privileges'
 
 In Triggers : 
+[options="compact"]
 * Create a new trigger
-* Select 'Begin the task : ', 'At startup'
+* In 'Begin the task : ', select At startup
 * Leave the other options as default and save.
 
 In Actions : 
+[options="compact"]
 * Create a new action
 * Set the action to 'Start a program'
-* In 'Program/script' set it to 'C:\udp-reflector\udp_reflector.exe,
-* In 'Add arguments' put '-s pcap0:67 -d 192.168.1.5:767 -b 25000'
-  * where pcap0 is the interface where your DHCP is listening (use 'C:\udp-reflector\udp_reflector.exe -l' to list interfaces)
+* In 'Program/script' set it to ''C:\udp-reflector\udp_reflector.exe'',
+* In 'Add arguments' put ''-s pcap0:67 -d 192.168.1.5:767 -b 25000''
+  * where pcap0 is the interface where your DHCP is listening (use ''C:\udp-reflector\udp_reflector.exe -l'' to list interfaces)
   * where 192.168.1.5 is the management IP of PacketFence
 
 In Settings : 
+[options="compact"]
 * Uncheck 'Stop the task if it runs longer than :'
 
 Then press OK and save the task
@@ -2778,6 +2782,7 @@ Compiling the sensor from source on a Linux system
 ++++++++++++++++++++++++++++++++++++++++++++++++++
 
 First make sure you have the following packages installed : 
+[options="compact"]
 * libpcap
 * libpcap-devel
 * gcc-c++
@@ -2792,9 +2797,12 @@ Get the source code of the sensor
 Configuring the sensor
 ++++++++++++++++++++++
 
-Now in /etc/rc.local, place the following line '/usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &'
- - where pcap0 is the pcap interface where your DHCP server listens on. (List them using 'udp_reflector -l')
- - where 192.168.1.5 is the management IP of your PacketFence server
+Place the following line in /etc/rc.local 
+* where pcap0 is the pcap interface where your DHCP server listens on. (List them using 'udp_reflector -l')
+* where 192.168.1.5 is the management IP of your PacketFence server
+----
+/usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
+----
 
 Now start the sensor with
 ----
