@@ -309,6 +309,7 @@ sub setRole : Private {
     my $info = $c->stash->{info};
     my $pid = $info->{pid};
     my $source_match = $session->{source_match} || $session->{source_id};
+
     # obtain node information provided by authentication module. We need to get the role (category here)
     # as web_node_register() might not work if we've reached the limit
     my $value =
