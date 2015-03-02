@@ -323,7 +323,6 @@ See https://bugzilla.redhat.com/show_bug.cgi?id=611009
 Group: System Environment/Daemons
 Requires: perl(Cache::BDB)
 Requires: perl(Log::Fast)
-Requires: perl(Test::CheckManifest)
 AutoReqProv: 0
 Summary: Manage PacketFence Configuration
 BuildArch: noarch
