@@ -92,6 +92,12 @@ sub FETCHSIZE {
   return $result;
 }
 
+sub EXISTS {
+  my ($self, $index) = @_;
+
+  return $self->_get_from_socket($self->{_namespace}, "array_index_exists", (index => $index))->{result};
+}
+
 =back
 
 =head1 AUTHOR

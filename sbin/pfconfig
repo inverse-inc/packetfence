@@ -77,6 +77,7 @@ while(1) {
       case 'key_exists' { get_key_exists($query, $socket) }
       case 'array_element' { get_array_element($query, $socket) }
       case 'array_size' { get_array_size($query, $socket) }
+      case 'array_index_exists' { get_array_index_exists($query, $socket) }
       case 'sleep' { sleep(10) }
       else { print STDERR "Unknown method $query->{method}"; print "undef" }
     }
@@ -223,9 +224,25 @@ sub get_array_element {
         $elem = "undef";
       }
     }
+    else {
+      $elem = {element => $elem}; 
+    }
 
     send_output($elem, $socket);
     
+}
+
+sub get_array_index_exists {
+    my ($query, $socket) = @_;
+    my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
+
+    if(exists($$elem[$query->{index}])) {
+        send_output({result => 1}, $socket);
+    }
+    else{
+        send_output({result => 0}, $socket);
+    }
+
 }
 
 sub get_array_size {

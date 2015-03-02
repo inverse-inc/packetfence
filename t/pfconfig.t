@@ -99,6 +99,15 @@ my @array_test_result = ("first", "second", "third");
 
 ok(@array_test ~~ @array_test_result, "test arrays are the same");
 
+##
+# Test exists in array
+
+ok(exists($array_test[0]), "First element exists");
+ok(exists($array_test[1]), "Second element exists");
+ok(exists($array_test[2]), "Third element exists");
+ok(!exists($array_test[3]), "Fourth element doesn't exists");
+ok(exists($array_test[-1]), "-1 element exists");
+
 done_testing();
 
 =head1 AUTHOR

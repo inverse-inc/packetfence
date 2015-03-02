@@ -125,12 +125,7 @@ sub STORE {
 sub EXISTS {
   my( $self, $key ) = @_;
   my @keys = $self->keys;
-  if($key ~~ @keys){
-    return 1;
-  }
-  else{
-    return 0;
-  } 
+  return $self->_get_from_socket($self->{_namespace}, "key_exists", (search => $key))->{result};
 }
 
 =back
