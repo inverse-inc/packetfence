@@ -45,7 +45,7 @@ sub instantiate {
     # and try to match a portal profile using the previously fetched filters.
     # If no match, we instantiate the default portal profile.
     my $node_info = node_view($mac) || {};
-    $node_info = { %$options, %$node_info } ;
+    $node_info = { %$node_info, %$options } ;
     my $filter = first { $_->match($node_info) } @Profile_Filters;
     my $profile_name = $filter ? $filter->profile : 'default';
     $logger->trace("Instantiate profile $profile_name");

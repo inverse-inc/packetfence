@@ -504,7 +504,17 @@ sub getNodeInfoForAutoReg {
     my ($this, $switch, $switch_port, $mac, $vlan,
         $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name) = @_;
     my $logger = Log::Log4perl->get_logger();
-    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+
+    #define the current connection value to instantiate the correct portal
+    my $options;
+    $options->{'last_connection_type'} = $conn_type if (defined($conn_type));
+    $options->{'last_switch'}          = $switch->{_id} if (defined($switch->{_id}));
+    $options->{'last_port'}            = $switch_port if (defined($switch_port));
+    $options->{'last_vlan'}            = $vlan if (defined($vlan));
+    $options->{'last_ssid'}            = $ssid if (defined($ssid));
+    $options->{'last_dot1x_username'}  = $user_name if (defined($user_name));
+
+    my $profile = pf::Portal::ProfileFactory->instantiate($mac,$options);
     my $filter = new pf::vlan::filter;
 
     my ($result,$role) = $filter->test('NodeInfoForAutoReg',$switch, $switch_port, $mac, undef, $conn_type, $user_name, $ssid, $radius_request);
