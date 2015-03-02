@@ -312,7 +312,8 @@ sub doSponsorRegistration : Private {
 
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
-            $c->stash->{info}=\%info;
+            $c->session->{source_match} = undef;
+            $c->stash->{info}=\%info; 
             $c->forward('Authenticate' => 'postAuthentication');
             $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);

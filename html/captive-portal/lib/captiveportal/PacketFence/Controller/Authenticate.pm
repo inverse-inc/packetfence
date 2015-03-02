@@ -309,6 +309,7 @@ sub setRole : Private {
     my $info = $c->stash->{info};
     my $pid = $info->{pid};
     my $source_match = $session->{source_match} || $session->{source_id};
+
     # obtain node information provided by authentication module. We need to get the role (category here)
     # as web_node_register() might not work if we've reached the limit
     my $value =
@@ -319,7 +320,8 @@ sub setRole : Private {
         $logger->debug("Got role '$value' for username \"$pid\"");
         $info->{category} = $value;
     } else {
-        $logger->debug("Got no role for username \"$pid\"");
+        $logger->info("Got no role for username \"$pid\"");
+        $self->showError($c, "You do not have the permission to register a device with this username.");
     }
 
 }
@@ -352,6 +354,10 @@ sub setUnRegDate : Private {
     if ( defined $value ) {
         $logger->debug("Got unregdate $value for username \"$pid\"");
         $info->{unregdate} = $value;
+    }
+    else {
+        $logger->info("Got no unregdate for username \"$pid\"");
+        $self->showError($c, "The username you have used does not match any configured unregistration date.");
     }
 
     # We put the unregistration date in session since we may want to use it later in the flow
