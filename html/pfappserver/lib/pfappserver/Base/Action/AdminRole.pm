@@ -28,15 +28,21 @@ Verify that the user has the rights to execute the controller's action.
 
 before execute => sub {
     my ( $self, $controller, $c, @args ) = @_;
-
-    my $action = $self->attributes->{AdminRole}[0];
+    my $attributes = $self->attributes;
+    return unless exists $attributes->{AdminRole} || $attributes->{AdminRoleAny} ;
     my $roles = [];
     $roles = [$c->user->roles] if $c->user_exists;
-
-    unless(admin_can($roles, $action)) {
+    my $can_access;
+    my $actions;
+    if ($actions = $self->attributes->{AdminRole}) {
+        $can_access = admin_can($roles, @$actions);
+    } elsif (my $action = $self->attributes->{AdminRoleAny}) {
+        $can_access = admin_can_do_any($roles, @$actions);
+    }
+    unless($can_access) {
         if($c->user_exists) {
-            $c->log->debug(sprintf('Access to action %s was refused to user %s with admin roles %s',
-                                   $action, $c->user->id, join(',', @$roles)));
+            $c->log->debug( sub { sprintf('Access to action %s was refused to user %s with admin roles %s',
+                                   join(", ",@$actions), $c->user->id, join(',', @$roles))} );
         }
         $c->response->status(HTTP_UNAUTHORIZED);
         $c->stash->{status_msg} = "You don't have the rights to perform this action.";
