@@ -77,6 +77,13 @@ $role = $default_switch{registrationRole};
 ok(($role eq $new_role), "role is changed in default switch in pfconfig resource::default_switch");
 
 ##
+# Test exists
+
+ok(exists($switches{default}), "default switch exists");
+ok(exists($switches{"127.0.0.1"}), "127.0.0.1 switch exists");
+ok(!exists($switches{zammit}), "zammit switch doesn't exists");
+
+##
 # Test undefined values
 
 ok(!defined($default_switch{zammit}), 'Undefined switch comes up as undefined');
