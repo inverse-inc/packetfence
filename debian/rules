@@ -60,12 +60,12 @@ install: build
 	for i in `find * -path 't*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/$$i; \
 	done
-        for i in `find * -path 'lib/pfconfig/*' -type d`; do \
-                install -d -m0700 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/$$i; \
-        done
-        for i in `find * -path 'lib/pfconfig/*' ! -type d`; do \
-                $(INSTALL) $$i $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/$$i; \
-        done
+	for i in `find * -path 'lib/pfconfig/*' -type d`; do \
+		install -d -m0700 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/$$i; \
+	done
+	for i in `find * -path 'lib/pfconfig/*' ! -type d`; do \
+		$(INSTALL) $$i $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/$$i; \
+	done
 	# generate translations
 	# TODO this is duplicated in our RPM spec, we should aim to consolidate in a 'make' style step
 	for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do \
