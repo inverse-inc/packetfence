@@ -5936,7 +5936,7 @@ msgid "pending"
 msgstr "pending"
 
 # pf::filter (Portal Profile Filters)
-msgid "pf::profile::filter::category"
+msgid "pf::profile::filter::node_role"
 msgstr "Node role"
 
 # pf::filter (Portal Profile Filters)
