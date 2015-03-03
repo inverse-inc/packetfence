@@ -68,7 +68,7 @@ sub cert_p12 : Path('/eap-profile.html') : Args(0) {
     $c->response->body($c->stash->{'cert_content'});
     my $headers = $c->response->headers;
     $headers->content_type('application/x-pkcs12');
-    my $certname = $c->stash->{'certifacte_cn'} . "p12";
+    my $certname = $c->stash->{'certificate_cn'} . "p12";
     $headers->header( 'Content-Disposition', "attachment; filename=\"$certname\"" );
 }
 
@@ -112,8 +112,8 @@ sub cert : Local {
     my ($self,$c,) = @_;
     $c->forward('validateform');
     $c->forward('get_cert');
-    $c->forward('export_fingerprint');
     $c->forward('cert_p12');
+    $c->forward('export_fingerprint');
 }
 
 sub validateform : Private {
