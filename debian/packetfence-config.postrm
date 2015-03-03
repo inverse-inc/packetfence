@@ -28,10 +28,6 @@ case "$1" in
     purge)
 	export PACKETFENCE=/usr/local/pf
 	update-rc.d packetfence-config remove >/dev/null || exit 0
-	if [ -d "/usr/local/pf" ]; then
-		/usr/bin/find /usr/local/pf -path "*pfconfig*" ! -type d|sort|xargs rm
-		/usr/bin/find /usr/local/pf -path "*pfconfig*" -type d|sort -r|xargs rm -r
-	fi
     ;;
     *)
         echo "postrm called with unknown argument \`$1'" >&2
