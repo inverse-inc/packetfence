@@ -262,7 +262,7 @@ sub doSponsorRegistration : Private {
         unless (defined $value) {
             $c->log->error( $c->session->{"username"} . " does not have permission to sponsor a user"  );
             $c->session->{username} = undef;
-            $c->error("does not have permission to sponsor a user");
+            $self->showError($c,"does not have permission to sponsor a user");
             $c->detach('login');
         }
 

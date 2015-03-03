@@ -823,6 +823,9 @@ msgstr ""
 msgid "There was a problem trying to find the computer to register. The problem has been logged."
 msgstr ""
 
+msgid "does not have permission to sponsor a user"
+msgstr ""
+
 msgid "The device with MAC address %s has already been authorized to your network."
 msgstr ""
 
