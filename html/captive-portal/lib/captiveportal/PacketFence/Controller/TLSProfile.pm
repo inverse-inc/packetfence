@@ -65,11 +65,13 @@ sub index : Path : Args(0) {
 }
 sub cert_p12 : Path('/eap-profile.html') : Args(0) {
     my ( $self, $c ) = @_;
-    $c->response->body($c->stash->{'cert_content'});
-    my $headers = $c->response->headers;
-    $headers->content_type('application/x-pkcs12');
+    my $cert_data = $c->response->body($c->stash->{'cert_content'});
+    #my $headers = $c->response->headers;
+    #$headers->content_type('application/x-pkcs12');
     my $certname = $c->stash->{'certificate_cn'} . "p12";
-    $headers->header( 'Content-Disposition', "attachment; filename=\"$certname\"" );
+    #$headers->header( 'Content-Disposition', "attachment; filename=\"$certname\"" );
+    open FH, "> $cert_dir/$certname" or die $!;
+    print FH "$cert_data\n";
 }
 
 
@@ -127,17 +129,15 @@ sub validateform : Private {
 
 }
 
-sub extport_fingerprint : Local {
+sub export_fingerprint : Local {
     my ($self, $c) = @_;
     my $stash = $c->stash;
+    my $cwd = $cert_dir;
     my $pass = $stash->{'certificate_pwd'};
     my $certfile = $stash->{'certificate_cn'};
-    my $certp12 = Crypt::OpenSSL::PKCS12->new_from_file("$certfile.p12");
+    my $certp12 = Crypt::OpenSSL::PKCS12->new_from_file("$cwd/$certfile.p12");
     if ($certp12->mac_ok($pass)){
-        my ($self, $c) = @_;
-        print "GREAT SUCCESS\n";
-        #my $certfile = "testout";#$c->Session('cn');
-        system("openssl pkcs12 -in $certfile.p12 -passin pass:$pass -out $certfile.pem -passout pass::");
+        system("openssl pkcs12 -in $certfile.p12 -passin pass:$pass -out $certfile.pem -passout pass:");
         system("openssl x509 -in $certfile.pem -outform DER -out $certfile.cer");
         my $cmd = "openssl x509 -inform DER -in $certfile.cer -fingerprint";
         my $data = pf_run($cmd);
@@ -145,7 +145,6 @@ sub extport_fingerprint : Local {
         $data =~ s/.*SHA1 Fingerprint=//smg; 
         $data =~ s/-----BEGIN CERTIFICATE-----\n.*//smg;
         $data =~ s/\:/\ /smg;
-        #print $data;
         #$data->Provisioner{bob};
     }
 }
