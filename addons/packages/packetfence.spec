@@ -534,6 +534,14 @@ if ! /usr/bin/id pf &>/dev/null; then
                 echo Unexpected error adding user "pf" && exit
 fi
 
+%pre -n %{real_name}-config
+
+if ! /usr/bin/id pf &>/dev/null; then
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
+                echo Unexpected error adding user "pf" && exit
+fi
+
+
 %post -n %{real_name}
 echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
