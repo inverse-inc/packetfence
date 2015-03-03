@@ -379,7 +379,7 @@ sub trigger_violation : Public {
 
 =head2 add_node
 
-Add a node
+Modify a node
 
 =cut
 
@@ -389,6 +389,13 @@ sub modify_node : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require,  \@found);
 
+    if (defined($postdata{'unregdate'})) {
+        if (pf::util::valid_date($postdata{'unregdate'})) {
+            $postdata{'unregdate'} = pf::config::dynamic_unreg_date($postdata{'unregdate'});
+        } else {
+            $postdata{'unregdate'} = pf::config::access_duration($postdata{'unregdate'});
+        }
+    }
     pf::node::node_modify($postdata{'mac'}, %postdata);
     return;
 }
@@ -439,27 +446,6 @@ sub node_information : Public {
 
     my $node_info = pf::node::node_view($postdata{'mac'});
     return $node_info;
-}
-
-=head2 set_unreg_date
-
-Set the unreg for a specific node
-
-=cut
-
-sub set_unreg_date : Public {
-    my ($class, %postdata) = @_;
-    my @require = qw(mac date);
-    my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
-
-    my $unregdate;
-    if (pf::util::valid_date($postdata{'date'})) {
-        $unregdate = pf::config::dynamic_unreg_date($postdata{'date'});
-    } else {
-        $unregdate = pf::config::access_duration($postdata{'date'});
-    }
-    pf::node::node_modify($postdata{'mac'}, ('unregdate' => $unregdate));
 }
 
 =head2 validate_argv
