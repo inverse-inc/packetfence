@@ -94,11 +94,23 @@ $(function() {
         if (to_form.length == 0) {
             to_form   =  $("#" + target + "Search"  );
         }
-        var first_row = to_form.find('tbody tr.dynamic-row:not(.hidden)').first();
-        first_row.nextAll("tr.dynamic-row:not(.hidden)").remove();
-        var new_searches =  from_form.find('[name^="searches."]').length / 3 - 1;
-        for(var i = 0; i < new_searches; i++) {
-            first_row.find('[href="#add"]').click();
+        var new_searches =  from_form.find('[name^="searches."]');
+        if(new_searches.length > 0) {
+            var first_row = to_form.find('tbody tr.dynamic-row:not(.hidden)').first();
+            //Check for no rows
+            if(first_row.length == 0) {
+                var table = to_form.find('table');
+                var emptyId = '#' + table.attr('id') + 'Empty';
+                $(emptyId).find('[href="#add"]').click();
+                var first_row = to_form.find('tbody tr.dynamic-row:not(.hidden)').first();
+            }
+            first_row.nextAll("tr.dynamic-row:not(.hidden)").remove();
+            var rows_to_add = new_searches.length / 3 - 1;
+            for(var i = 0; i < rows_to_add; i++) {
+                first_row.find('[href="#add"]').click();
+            }
+        } else {
+            to_form.find('tbody tr.dynamic-row:not(.hidden)').remove();
         }
         from_form.find(':input').each(function(e){
             to_form.find('[name="' + this.name + '"]:not(:disabled)').val(this.value);
