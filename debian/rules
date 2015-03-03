@@ -111,6 +111,7 @@ install: build
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	install -d $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
+	install -d $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/var/control
 	install -m0755 sbin/pfconfig $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
 	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
 	# Install our logrotate file into debian/ so dh_installlogrotate will be able to do it's magic
