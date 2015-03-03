@@ -1066,6 +1066,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 %dir                    /usr/local/pf/addons/pfconfig
 %attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/cmd.pl
+%exclude                /usr/local/pf/addons/pfconfig/README.asciidoc
+%exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
 * Thu Feb 19 2015 Inverse <info@inverse.ca> - 4.6.1-1
