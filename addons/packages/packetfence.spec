@@ -397,6 +397,7 @@ done
 touch $RPM_BUILD_ROOT/usr/local/pf/var/cache_control
 cp Makefile $RPM_BUILD_ROOT/usr/local/pf/
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
+cp -r addons/pfconfig/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/dev-helpers/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
