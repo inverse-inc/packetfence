@@ -13,6 +13,17 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
 
+has_field 'company' =>
+  (
+   type => 'hidden',
+   value => $Config{'pki'}{'organisation'},
+  )
+
+has_field 'fingerprint' =>
+  (
+   type => 'hidden'.
+   value => $data,
+  )
 
 has_field 'ssid' =>
   (
