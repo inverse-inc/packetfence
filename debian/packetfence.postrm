@@ -37,8 +37,8 @@ case "$1" in
         # removing init scripts
         update-rc.d -f packetfence remove >/dev/null || exit 0
         # purging all files
-        /usr/bin/find /usr/local/pf ! -path "*pfconfig*" ! -type d|sort|xargs rm
-        /usr/bin/find /usr/local/pf ! -path "*pfconfig*" ! -path "/usr/local/pf" ! -path "usr/local/pf/lib" !-path "/usr/local/pf/bin/pfcmd" -type d|sort -r|xargs rm -r
+        # /usr/bin/find /usr/local/pf ! -path "*pfconfig*" ! -type d|sort|xargs rm
+        /usr/bin/find /usr/local/pf ! -path "*pfconfig*" ! -path "/usr/local/pf" ! -path "usr/local/pf/lib"  ! -path "/usr/local/pf/bin" ! -path "/usr/local/pf/bin/pfcmd" -type d|sort -r|xargs rm -r
         ;;
     *)
         echo "postrm called with unknown argument \`$1'" >&2
