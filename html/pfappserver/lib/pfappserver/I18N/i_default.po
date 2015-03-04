@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.6.2\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-02-20 12:51-0400\n"
+"PO-Revision-Date: 2015-03-04 11:40-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -218,6 +218,7 @@ msgstr ""
 msgid "Add Wrix Entry"
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "Add a condition."
@@ -486,7 +487,7 @@ msgstr ""
 msgid "Bandwidth Balance"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "Bandwidth per Operating System Class"
 msgstr ""
 
@@ -832,7 +833,7 @@ msgstr ""
 msgid "Connections"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "Connections Types"
 msgstr ""
 
@@ -2395,7 +2396,7 @@ msgstr ""
 msgid "New Network"
 msgstr ""
 
-# pfappserver::Controller::Graph (graph type)
+# pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "New Nodes"
 msgstr ""
 
@@ -2516,7 +2517,7 @@ msgstr ""
 msgid "Node role"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/admin/wrapper.tt
@@ -2655,7 +2656,7 @@ msgstr "Open Tuesday"
 msgid "Open_Wednesday"
 msgstr "Open Wednesday"
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/reports.tt
 msgid "Operating Systems"
 msgstr ""
@@ -3200,7 +3201,7 @@ msgstr ""
 msgid "Register"
 msgstr ""
 
-# pfappserver::Controller::Graph (graph type)
+# pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Registered Nodes"
 msgstr ""
 
@@ -3445,8 +3446,8 @@ msgstr "SoH Filters - Read"
 msgid "SOH_UPDATE"
 msgstr "SoH Filters - Update"
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/config/wrix/view.tt
 # pf::Authentication::Source (common_attributes)
 msgid "SSID"
@@ -3894,6 +3895,7 @@ msgid "Statement of Health"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/service/status.tt
@@ -4023,7 +4025,7 @@ msgstr ""
 msgid "The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "The authentication source was not found."
 msgstr ""
 
@@ -4123,7 +4125,7 @@ msgstr ""
 msgid "The role to assign to gaming devices. If none is selected, the role of the registrant is used."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "The rule was not found."
 msgstr ""
 
@@ -4256,7 +4258,7 @@ msgstr ""
 msgid "Top 25 Bandwith Consumers"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "Top Bandwidth Consumers"
 msgstr ""
 
@@ -4414,12 +4416,12 @@ msgstr ""
 msgid "Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Admin.pm
-# html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "Unexpected error. See server-side logs for details."
 msgstr ""
 
-# pfappserver::Controller::Graph (graph type)
+# pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Unregistered Nodes"
 msgstr ""
 
@@ -4597,12 +4599,12 @@ msgstr ""
 msgid "Violation to close"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/user/view.tt
-# pfappserver::Controller::Graph (graph type)
+# pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Violations"
 msgstr ""
 
@@ -4706,6 +4708,10 @@ msgid ""
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "When enabling the billing engine, all authentication sources bellow are ignored."
 msgstr ""
 
@@ -4751,11 +4757,11 @@ msgstr ""
 msgid "Window"
 msgstr ""
 
-# pfappserver::Controller::Graph (graph type)
+# pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Wired Connections"
 msgstr ""
 
-# pfappserver::Controller::Graph (graph type)
+# pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Wireless Connections"
 msgstr ""
 
@@ -4791,7 +4797,7 @@ msgstr ""
 msgid "Without condition, this rule will act as a catch-all."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
 msgid "Wrong username or password."
 msgstr ""
 
@@ -4799,11 +4805,11 @@ msgstr ""
 msgid "You can add options in the realm definition"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
 msgid "You don't have the rights to perform this action."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
 msgid "You have been logged out."
 msgstr ""
 
@@ -4811,7 +4817,7 @@ msgstr ""
 msgid "You have successfully configured and launched PacketFence."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "You must choose at least one enforcement mechanism."
 msgstr ""
 
@@ -4819,7 +4825,7 @@ msgstr ""
 msgid "You must complete all steps in order to start the services."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "You must specifiy a gateway address."
 msgstr ""
 
@@ -4849,7 +4855,7 @@ msgstr ""
 msgid "Your saved search will appear in the menu on the left side of your screen."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
 msgid "Your session has expired."
 msgstr ""
 
@@ -5050,7 +5056,7 @@ msgid "bytes"
 msgstr ""
 
 # pf::pfcmd::report (report_nodebandwidth)
-# pfappserver::Controller::Graph (nodebandwidth fields)
+# pfappserver::PacketFence::Controller::Graph (nodebandwidth fields)
 msgid "callingstationid"
 msgstr "MAC Address"
 
@@ -5101,11 +5107,11 @@ msgid "computer_name"
 msgstr "Computer name"
 
 # pf::Authentication::Source (common_attributes)
-# pfappserver::Controller::Graph (connectiontype fields)
+# pfappserver::PacketFence::Controller::Graph (connectiontype fields)
 msgid "connection_type"
 msgstr "Connection type"
 
-# pfappserver::Controller::Graph (connectiontype fields)
+# pfappserver::PacketFence::Controller::Graph (connectiontype fields)
 msgid "connections"
 msgstr ""
 
@@ -5113,7 +5119,7 @@ msgstr ""
 msgid "contains"
 msgstr ""
 
-# pfappserver::Controller::Graph (os fields)
+# pfappserver::PacketFence::Controller::Graph (os fields)
 msgid "count"
 msgstr ""
 
@@ -5217,7 +5223,9 @@ msgstr "Deny"
 msgid "department"
 msgstr ""
 
-# pfappserver::Controller::Graph (os fields)
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+# pfappserver::PacketFence::Controller::Graph (os fields)
 msgid "description"
 msgstr ""
 
@@ -5230,7 +5238,7 @@ msgid "dhcp-listener"
 msgstr ""
 
 # pf::pfcmd::report (SQL)
-# pfappserver::Controller::Graph (osclassbandwidth fields)
+# pfappserver::PacketFence::Controller::Graph (osclassbandwidth fields)
 msgid "dhcp_fingerprint"
 msgstr "Operating System Class"
 
@@ -5462,6 +5470,11 @@ msgstr ""
 # conf/documentation.conf (advanced.pfcmd_success_color options)
 # conf/documentation.conf (advanced.pfcmd_warning_color options)
 msgid "green"
+msgstr ""
+
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "groupMembership"
 msgstr ""
 
 # conf/documentation.conf
@@ -5794,6 +5807,10 @@ msgstr ""
 msgid "memberOf"
 msgstr ""
 
+# pf::Authentication::Source::ADSource (available_attributes)
+msgid "memberOf:1.2.840.113556.1.4.1941:"
+msgstr ""
+
 # pf::config (SoH Status)
 msgid "microsoft"
 msgstr ""
@@ -5892,7 +5909,7 @@ msgstr ""
 msgid "node_modify"
 msgstr ""
 
-# pfappserver::Controller::Graph (ssid fields)
+# pfappserver::PacketFence::Controller::Graph (ssid fields)
 msgid "nodes"
 msgstr ""
 
@@ -5936,16 +5953,16 @@ msgid "pending"
 msgstr "pending"
 
 # pf::filter (Portal Profile Filters)
-msgid "pf::profile::filter::node_role"
-msgstr "Node role"
-
-# pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::connection_type"
 msgstr "Connection Type"
 
 # pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::network"
 msgstr "Network"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::node_role"
+msgstr "Node role"
 
 # pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::port"
@@ -6349,7 +6366,7 @@ msgid "sponsor_email"
 msgstr ""
 
 # pf::config (Inline triggers)
-# pfappserver::Controller::Graph (ssid fields)
+# pfappserver::PacketFence::Controller::Graph (ssid fields)
 msgid "ssid"
 msgstr "Wi-Fi Network SSID"
 
