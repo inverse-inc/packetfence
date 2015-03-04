@@ -5,7 +5,7 @@ BEGIN { extends 'captiveportal::PacketFence::Controller::TLSProfile'; }
 
 =head1 NAME
 
-captiveportal::Controller::Root - Root Controller for captiveportal
+captiveportal::Controller:::TLSProfile - EAPTLS Controller
 
 =head1 DESCRIPTION
 
@@ -19,7 +19,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

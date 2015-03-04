@@ -27,16 +27,7 @@
 
           </div>
 
-          <!--<div class="input">
-              <span>[% i18n("Service") %]</span>
-              <select name="service">
-                <option value="">[% i18n("Select your service") %]</option>
-                    [% FOREACH profile IN profile_list %]<option value="[% profile %]"[% IF service == profile %] selected[% END %]>[% profile %]</option>
-                    [% END %]
-              </select>
-          </div>-->
-
-          [% skipFields = {username => undef, password => undef, profile => undef, email => undef} %]
+          [% skipFields = {username => undef, password => undef, email => undef} %]
           [% FOREACH field IN mandatory_fields %]
           [%- NEXT IF skipFields.exists(field) -%]
           <div class="input">
@@ -68,6 +59,4 @@
 
         </form>
 
-[% INCLUDE footer.html 
-    dont_show_help = is_preregistration
-%]
+[% INCLUDE footer.html %]
