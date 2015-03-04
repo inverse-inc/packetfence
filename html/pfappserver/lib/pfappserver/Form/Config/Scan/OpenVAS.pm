@@ -20,7 +20,6 @@ use File::Find qw(find);
 
 ## Definition
 has 'roles' => (is => 'ro', default => sub {[]});
-has oses => ( is => 'rw' );
 
 has_field 'ip' =>
   (
