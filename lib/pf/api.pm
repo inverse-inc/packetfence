@@ -113,11 +113,14 @@ sub soh_authorize : Public {
 
 sub update_iplog : Public {
     my ($class, %postdata) = @_;
-    my @require = qw(mac ip lease_length oldmac oldip);
+    my @require = qw(mac ip);
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
+
+    $postdata{'oldip'}  = pf::iplog::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
+    $postdata{'oldmac'} = pf::iplog::ip2mac($postdata{'ip'}) if (!defined($postdata{'oldmac'}));
 
     if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
         $logger->info(
