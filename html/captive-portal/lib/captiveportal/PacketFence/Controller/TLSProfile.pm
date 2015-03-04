@@ -35,7 +35,7 @@ Controller for EAPTLS connections.
 =cut
 
 sub index : Path : Args(0) {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
     my $username = $c->session->{username};
     my $logger  = get_logger;
     my $profile = $c->profile;
@@ -57,7 +57,7 @@ sub index : Path : Args(0) {
         );
 }
 sub build_cert_p12 : Path('/eap-profile.html') : Args(0) {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
     my $cert_data = $c->response->body($c->stash->{'cert_content'});
     my $certname = $c->stash->{'certificate_cn'} . "p12";
     open FH, "> $cert_dir/$certname" or die $!;
@@ -67,7 +67,7 @@ sub build_cert_p12 : Path('/eap-profile.html') : Args(0) {
 
 sub get_cert : Private {
     use bytes;
-    my ($self,$c,) = @_;
+    my ($self,$c) = @_;
     my $stash = $c->stash;
     my $uri = $Config{'pki'}{'uri'};
     my $username = $Config{'pki'}{'username'};
@@ -109,7 +109,7 @@ sub cert_verify : Local {
 }
 
 sub validateform : Private {
-    my ($self,$c,) = @_;
+    my ($self,$c) = @_;
     $c->stash(
         service => $c->request->param('service'),
         certificate_cn => $c->request->param('certificate_cn'),
