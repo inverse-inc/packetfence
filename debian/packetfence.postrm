@@ -28,10 +28,18 @@ case "$1" in
         if [ -x /etc/init.d/packetfence ]; then
             invoke-rc.d packetfence stop
         fi
+        set -x
         userdel pf
+        if [ $? -ne 0 ]; then
+            echo "Unable to remove pf user"
+        fi
         if [ -e /etc/lsb-release ]; then
             groupdel pf
+            if [ $? -ne 0 ]; then
+                echo "Unable to remove pf group"
+            fi
         fi
+        set -e
         # removing init scripts
         if [ -e /etc/lsb-release ]; then
             update-rc.d -f packetfence remove > /dev/null 2>&1
