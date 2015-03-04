@@ -28,7 +28,7 @@ case "$1" in
         if [ -x /etc/init.d/packetfence ]; then
             invoke-rc.d packetfence stop
         fi
-        set -x
+        set +e
         userdel pf
         if [ $? -ne 0 ]; then
             echo "Unable to remove pf user"
