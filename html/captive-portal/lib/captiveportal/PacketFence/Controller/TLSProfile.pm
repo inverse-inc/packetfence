@@ -13,6 +13,7 @@ use Readonly;
 use POSIX;
 use URI::Escape::XS qw(uri_escape);
 use pf::web;
+use pf::Email::Valid;
 use lib qw(/usr/local/pf/lib);
 
 
@@ -110,11 +111,13 @@ sub validateform : Private {
     my ($self,$c) = @_;
     $c->stash(
         service => $c->request->param('service'),
-        certificate_cn => $c->request->param('certificate_cn'),
-        certificate_email => $c->request->param('certificate_email'),
-        certificate_pwd => $c->request->param('certificate_pwd'),
+        my $usern = certificate_cn => $c->request->param('certificate_cn'),
+        my $email_addr = certificate_email => $c->request->param('certificate_email'),
+        my $userpwd = certificate_pwd => $c->request->param('certificate_pwd'),
     );
-
+    unless (Email::Valid->address($email_addr)){
+        print "Sorry, that email address is not valid!";
+    }
 }
 
 sub export_fingerprint : Local {
