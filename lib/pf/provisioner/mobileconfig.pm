@@ -29,12 +29,26 @@ has 'oses' => (is => 'ro', default => sub { ['Apple iPod, iPhone or iPad'] }, co
 
 =head2 ssid
 
-The ssid informations
+The ssid boarcast name
 
 =cut
 
 has ssid => (is => 'rw');
+
+=head2
+
+Passphrase if activated
+
+=cut 
+
 has passcode => (is => 'rw');
+
+=head2
+
+Security encryption used
+
+=cut 
+
 has security_type => (is => 'rw');
 
 =head2 eap_type
@@ -53,11 +67,18 @@ has for_username => (is => 'rw');
 
 =head2
 
-The cert informations
+Organisation information
 
 =cut 
 
 has company => (is => 'rw');
+
+=head2
+
+Organisation reversedns
+
+=cut 
+
 has reversedns => (is => 'rw');
 
 =head2
@@ -83,13 +104,13 @@ sub authorize {
     return 1;
 }
 
-=head2 build_cert
+=head2 export_cert
 
-build certificate
+extract cert data
 
 =cut
 
-sub build_cert {
+sub extract_cert {
     my ($self) = @_;
     if (defined ($self->{ca_cert_path}) && !($self->{ca_cert_path} eq "")){
         my $path = $self->{ca_cert_path};
