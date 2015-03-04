@@ -36,7 +36,7 @@ has_field 'type' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type username domain password categories oses duration pre_registration registration post_registration dot1x dot1x_type) ],
+   render_list => [ qw(id type username domain password categories duration pre_registration registration post_registration dot1x dot1x_type) ],
   );
 
 has_field 'wmi_policy' =>
@@ -45,14 +45,6 @@ has_field 'wmi_policy' =>
    label => 'WMI client policy',
    tags => { after_element => \&help,
              help => 'Name of the policy to use' },
-  );
-
-
-has_field 'oses' =>
-  (
-   type => 'Hidden',
-   label => 'OS',
-   default => "Windows",
   );
 
 
