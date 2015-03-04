@@ -45,7 +45,7 @@ sub index : Path : Args(0) {
     my $provisioner = $c->profile->findProvisioner($mac);
     $provisioner->authorize($mac) if (defined($provisioner));
     $c->stash(
-        post_uri            => '/tlsprofile/cert',
+        post_uri            => '/tlsprofile/cert_process',
         destination_url     => 'eap-profile.html',
         certificate_cn      => $request->param_encoded("certificate_cn"),
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
@@ -136,7 +136,6 @@ sub export_fingerprint : Local {
         $data =~ s/.*SHA1 Fingerprint=//smg; 
         $data =~ s/-----BEGIN CERTIFICATE-----\n.*//smg;
         $data =~ s/\:/\ /smg;
-        #$data->Provisioner{bob};
     }
 }
 =head1 AUTHOR
