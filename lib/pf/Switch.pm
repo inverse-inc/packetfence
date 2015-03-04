@@ -2843,7 +2843,7 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan and role $role");
+    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan ".( defined($role) ? "and role $role" : "" ));
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
