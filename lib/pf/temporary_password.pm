@@ -290,12 +290,12 @@ sub generate {
     $data{'pid'} = $pid;
 
     # generate password
-    if ( $Config{'database'}{'hash_passwords'} eq 'plaintext' ) { 
+    if ( $Config{'advanced'}{'hash_passwords'} eq 'plaintext' ) { 
         $data{'password'} = $password || _generate_password();
     } else { 
         $data{'password'} = _hash_password(
              $password || _generate_password(), 
-             algorithm => $Config{'database'}{'hash_passwords'},
+             algorithm => $Config{'advanced'}{'hash_passwords'},
         );
     }
              
@@ -537,7 +537,7 @@ sub bcrypt {
 
     my $salt
         = $params{"salt"} ? de_base64( $params{"salt"} ) : rand_bits( 16 * 8 );  # blowfish requires 16 octets
-    my $cost = $params{"cost"} // $Config{'database'}{'hashing_cost'}
+    my $cost = $params{"cost"} // $Config{'advanced'}{'hashing_cost'}
         // 8;    # TODO: remove fallback once tests work
 
     # A bcrypt hash looks like this:
@@ -568,8 +568,8 @@ sub reset_password {
     }
 
     # hash the password if required
-    if ( $Config{'database'}{'hash_passwords'} ne 'plaintext' ) { 
-        $password = _hash_password( $password, ( algorithm => $Config{'database'}{'hash_passwords'} ));
+    if ( $Config{'advanced'}{'hash_passwords'} ne 'plaintext' ) { 
+        $password = _hash_password( $password, ( algorithm => $Config{'advanced'}{'hash_passwords'} ));
     } 
 
     db_query_execute(

@@ -770,6 +770,18 @@ pfcmd_warning_color=yellow
 #
 # Color of the success text for pfcmd
 pfcmd_success_color=green
+#
+# advanced.hash_passwords
+#
+# The algorithm to use to hash the passwords in the local database.
+hash_passwords=plaintext
+
+#
+# advanced.hashing_cost
+#
+# The cost factor to apply to the password hashing if applicable.
+# Currently only applies to bcrypt.
+hashing_cost=8
 
 [provisioning]
 #
