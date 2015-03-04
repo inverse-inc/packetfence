@@ -24,7 +24,7 @@ Setting the key to node_role
 
 =cut
 
-has '+key' => ( default => sub { 'node_role' } );
+has '+key' => ( default => sub { 'category' } );
 
 =head1 AUTHOR
 
