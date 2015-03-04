@@ -58,7 +58,7 @@ sub index : Path : Args(0) {
 }
 sub build_cert_p12 : Path('/eap-profile.html') : Args(0) {
     my ($self, $c) = @_;
-    my $cert_data = $c->response->body($c->stash->{'cert_content'});
+    my $cert_data = $c->stash->{'cert_content'};
     my $certname = $c->stash->{'certificate_cn'} . "p12";
     open FH, "> $cert_dir/$certname" or die $!;
     print FH "$cert_data\n";
@@ -79,7 +79,6 @@ sub get_cert : Private {
     my $profile = $Config{'pki'}{'profile'};
     my $country = $Config{'pki'}{'country'};
     my $certpwd = $stash->{'certificate_pwd'};
-    my $response = '';
     my $curl = WWW::Curl::Easy->new; 
     my $request = "username=$username&password=$password&cn=$dot1x_username&mail=$email&organisation=$organisation&st=$state&country=$country&profile=$profile&pwd=$certpwd";
     my $response_body = '';
@@ -94,13 +93,12 @@ sub get_cert : Private {
     # Starts the actual request
     my $curl_return_code = $curl->perform;
 
-    $response = $response_body;
     $c->stash(
         cert_content    => $response_body,
     );
 }
  
-sub cert_verify : Local {
+sub cert_process : Local {
     my ($self,$c) = @_;
     $c->forward('validateform');
     $c->forward('get_cert');
