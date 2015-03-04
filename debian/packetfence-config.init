@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          pfconfig
+# Provides:          packetfence-config
 # Required-Start:    $network $local_fs
 # Required-Stop:
 # Default-Start:     2 3 4 5
@@ -15,8 +15,8 @@
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC=pfconfig             # Introduce a short description here
-NAME=pfconfig            # Introduce the short server's name here
+DESC=packetfence-config             # Introduce a short description here
+NAME=packetfence-config            # Introduce the short server's name here
 DAEMON=/usr/local/pf/sbin/pfconfig # Introduce the server's location here
 PIDFILE=/usr/local/pf/var/run/pfconfig.pid
 SCRIPTNAME=/etc/init.d/$NAME
