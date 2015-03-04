@@ -29,13 +29,13 @@ var ProvisionerView = function(options) {
     this.items = options.items;
 
     // Hide the sectype, eap_type fields when 'Open' is selected
-    options.parent.on('change', 'form[name="modalProvisioner"] select[name="security_type"]', this.togglesectype);
+    options.parent.on('change', 'form[name="modalProvisioner"] select[name="security_type"]', this.toggleSecurityType);
     // Hide the ca_cert_path, cert_type, reversedns and company fields when 'PEAP' is selected
-    options.parent.on('change', 'form[name="modalProvisioner"] select[name="eap_type"]', this.togglecert);
+    options.parent.on('change', 'form[name="modalProvisioner"] select[name="eap_type"]', this.toggleEapType);
     // Hide fileds on opening the provisioner
     options.parent.on('show', '#modalProvisioner', function(e) {
-      that.togglecert(e);
-      that.togglesectype(e);
+      that.toggleEapType(e);
+      that.toggleSecurityType(e);
     }); 
 };
 
@@ -47,20 +47,20 @@ ProvisionerView.prototype = (function(){
 
 ProvisionerView.prototype.constructor = ProvisionerView;
 
-ProvisionerView.prototype.togglesectype = function(e) {
+ProvisionerView.prototype.toggleSecurityType = function(e) {
     var select = $('form[name="modalProvisioner"] select[name="security_type"]').first();
     var passcode_input = select.closest('form').find('input[name="passcode"]');
     var passcode = passcode_input.closest('.control-group');
     var eap = select.closest('form').find('select[name="eap_type"]').closest('.control-group');
-    var select2 = $('form[name="modalProvisioner"] select[name="eap_type"]').first();
-    var cert = select2.closest('form').find('select[name="cert_type"]').closest('.control-group');
-    var certpath = select2.closest('form').find('input[name="ca_cert_path"]').closest('.control-group');
+    var eap_type = $('form[name="modalProvisioner"] select[name="eap_type"]').first();
+    var cert = eap_type.closest('form').find('select[name="cert_type"]').closest('.control-group');
+    var certpath = eap_type.closest('form').find('input[name="ca_cert_path"]').closest('.control-group');
 
     if ($('#security_type option:selected').text() == "Open"){
         passcode_input.val("");
         passcode.hide();
         eap.hide();
-        select2.val("");
+        eap_type.val("");
         cert.hide();
         certpath.hide();
         }
@@ -68,7 +68,7 @@ ProvisionerView.prototype.togglesectype = function(e) {
         passcode_input.val("");
         passcode.show();
         eap.hide();
-        select2.val("");
+        eap_type.val("");
         cert.hide();
         certpath.hide();
         }
@@ -81,7 +81,7 @@ ProvisionerView.prototype.togglesectype = function(e) {
         }
 };
 
-ProvisionerView.prototype.togglecert = function(e) {
+ProvisionerView.prototype.toggleEapType = function(e) {
     var select = $('form[name="modalProvisioner"] select[name="eap_type"]').first();
     var cert = select.closest('form').find('select[name="cert_type"]').closest('.control-group');
     var certpath_input = select.closest('form').find('input[name="ca_cert_path"]');
