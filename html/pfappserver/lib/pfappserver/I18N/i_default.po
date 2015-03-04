@@ -4929,6 +4929,14 @@ msgid "advanced.reevaluate_access_reasons"
 msgstr "Reevaluate access reasons"
 
 # conf/documentation.conf
+msgid "advanced.hash_passwords"
+msgstr "Database passwords hashing method"
+
+# conf/documentation.conf
+msgid "advanced.hashing_cost"
+msgstr "Database passwords hashing cost factor" 
+
+# conf/documentation.conf
 msgid "alerting"
 msgstr "Alerting"
 
