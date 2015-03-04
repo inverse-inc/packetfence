@@ -5,16 +5,9 @@ use WWW::Curl::Easy;
 use Date::Format qw(time2str);
 use pf::log;
 use pf::config;
-use pf::temporary_password 1.11;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format render_template);
 use pf::web::constants;
-use pf::web::util;
-use pf::web::guest;
-use pf::activation;
-use pf::Authentication::constants;
-use pf::Authentication::Action;
-use pf::authentication;
 use List::MoreUtils qw(uniq any);
 use Readonly;
 use POSIX;
@@ -27,11 +20,11 @@ BEGIN { extends 'captiveportal::Base::Controller'; }
 
 =head1 NAME
 
-captiveportal::PacketFence::Controller::WirelessProfile - Catalyst Controller
+captiveportal::PacketFence::Controller::TLSProfile - EAPTLS Controller
 
 =head1 DESCRIPTION
 
-Catalyst Controller.
+Controller for EAPTLS connections.
 
 =head1 METHODS
 
@@ -63,13 +56,10 @@ sub index : Path : Args(0) {
         username            => $username,
         );
 }
-sub cert_p12 : Path('/eap-profile.html') : Args(0) {
+sub build_cert_p12 : Path('/eap-profile.html') : Args(0) {
     my ( $self, $c ) = @_;
     my $cert_data = $c->response->body($c->stash->{'cert_content'});
-    #my $headers = $c->response->headers;
-    #$headers->content_type('application/x-pkcs12');
     my $certname = $c->stash->{'certificate_cn'} . "p12";
-    #$headers->header( 'Content-Disposition', "attachment; filename=\"$certname\"" );
     open FH, "> $cert_dir/$certname" or die $!;
     print FH "$cert_data\n";
 }
@@ -90,7 +80,7 @@ sub get_cert : Private {
     my $country = $Config{'pki'}{'country'};
     my $certpwd = $stash->{'certificate_pwd'};
     my $response = '';
-    my $curl = WWW::Curl::Easy->new; #$self->curl($function);
+    my $curl = WWW::Curl::Easy->new; 
     my $request = "username=$username&password=$password&cn=$dot1x_username&mail=$email&organisation=$organisation&st=$state&country=$country&profile=$profile&pwd=$certpwd";
     my $response_body = '';
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
@@ -110,8 +100,8 @@ sub get_cert : Private {
     );
 }
  
-sub cert : Local {
-    my ($self,$c,) = @_;
+sub cert_verify : Local {
+    my ($self,$c) = @_;
     $c->forward('validateform');
     $c->forward('get_cert');
     $c->forward('cert_p12');
@@ -137,8 +127,8 @@ sub export_fingerprint : Local {
     my $certfile = $stash->{'certificate_cn'};
     my $certp12 = Crypt::OpenSSL::PKCS12->new_from_file("$cwd/$certfile.p12");
     if ($certp12->mac_ok($pass)){
-        system("openssl pkcs12 -in $certfile.p12 -passin pass:$pass -out $certfile.pem -passout pass:");
-        system("openssl x509 -in $certfile.pem -outform DER -out $certfile.cer");
+        pf_run("openssl pkcs12 -in $certfile.p12 -passin pass:$pass -out $certfile.pem -passout pass:");
+        pf_run("openssl x509 -in $certfile.pem -outform DER -out $certfile.cer");
         my $cmd = "openssl x509 -inform DER -in $certfile.cer -fingerprint";
         my $data = pf_run($cmd);
         $data =~ /.*\/([a-zA-Z0-9.]+)$/;
@@ -154,7 +144,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

@@ -483,29 +483,6 @@ sub setupSelfRegistrationSession : Private {
         $c->session->{ $Config{'guests_self_registration'}{'guest_pid'} };
 }
 
-#sub regPki : Private {
-#    my ( $self, $c ) = @_;
-#    my $logger  = get_logger;
-#    my $profile = $c->profile;
-#    my $request = $c->request;
-#
-#    my $ad_type =
-#      pf::Authentication::Source::ADSource->meta->get_attribute('type')
-#      ->default;
-#    my $source = $profile->getSourceByType($ad_type);
-#
-#    $c->stash(
-#        post_uri            => "$WEB::URL_EAP_PROFILE?mode=eap-profile",
-#        certificate_cn      => $request->param_encoded("certificate_cn"),
-#        certificate_pwd     => $request->param_encoded("certificate_pwd"),
-#        certificate_email   => lc( $request->param_encoded("certificate_email")),
-#        service             => $request->param_encoded("service"),
-#        profile_list        => $Config{'pki'}{'profiles'},
-#    );
-#
-#    $c->stash( template => 'pki.html' );
-#}
-
 =head2 validatePreregistration
 
 TODO: documention

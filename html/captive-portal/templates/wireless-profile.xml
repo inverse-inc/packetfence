@@ -36,9 +36,9 @@
                         <key>PayloadDisplayName</key>
                         <string>Wi-Fi ([% provisioner.ssid %])</string>
                         <key>PayloadIdentifier</key>
-                        <string>[% provsioner.reversedns %]</string>
+                        <string>[% provisioner.reversedns %]</string>
                         <key>PayloadOrganization</key>
-                        <string>[% provsioner.company %]</string>
+                        <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
                         <string>com.apple.wifi.managed</string>
                         <key>PayloadUUID</key>
