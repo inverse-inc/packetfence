@@ -397,6 +397,7 @@ sub commit {
         get_logger->error($error);
     }
     unless($result) {
+        $error //= "Unable to commit changes to file please run pfcmd fixpermissions and try again";
         $self->rollback();
     }
     return ($result,$error);
