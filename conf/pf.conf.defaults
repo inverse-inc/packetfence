@@ -1129,12 +1129,12 @@ uri=
 #
 # pki.username
 #
-# Username to connect to the PKI
+# Username to connect to the pki api
 username=
 #
 # pki.password
 #
-# Password to connect to the PKI
+# Password to connect to the pki api
 password=
 #
 # pki.profile
@@ -1144,15 +1144,15 @@ profile=
 #
 # pki.country
 #
-# Country where the company is based
+# Country where your organisation is based
 country=
 #
 # pki.state
 #
-# State where the company is based
+# State where your organisation is based
 state=
 #
 # pki.organisation
 #
-# Company name to put on the certificate
+# Your organisation name to put on the certificate
 organisation=
