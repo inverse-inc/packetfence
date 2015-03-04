@@ -94,9 +94,14 @@ sub get_cert : Private {
     # Starts the actual request
     my $curl_return_code = $curl->perform;
 
-    $c->stash(
-        cert_content    => $response_body,
-    );
+    if $curl_return_code = 0 {
+        $c->stash(
+            cert_content    => $response_body,
+        );
+    }
+    elsif $curl_return_code = -1{
+        print "There was an issue with the generation of your certificate please contact your IT support."
+    }
 }
  
 sub cert_process : Local {
@@ -136,6 +141,9 @@ sub export_fingerprint : Local {
         $data =~ s/.*SHA1 Fingerprint=//smg; 
         $data =~ s/-----BEGIN CERTIFICATE-----\n.*//smg;
         $data =~ s/\:/\ /smg;
+    }
+    else {
+        print "We could not verifiy the integrity of your certificate, please contact your IT support."
     }
 }
 =head1 AUTHOR
