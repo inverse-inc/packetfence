@@ -36,7 +36,12 @@ has_field 'type' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type username domain password categories duration pre_registration registration post_registration dot1x dot1x_type) ],
+   render_list => [ qw(id type username domain password categories oses duration pre_registration registration post_registration dot1x dot1x_type) ],
+  );
+
+has_field '+oses' =>
+  (
+    default => ['Windows'],
   );
 
 has_field 'wmi_policy' =>
@@ -70,6 +75,10 @@ Returns the list of wmi rules to be displayed
 
 sub options_wmi_rules {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::WMI->new->readAllIds};
+}
+
+sub oses {
+    return ["Windows" => "Windows"];
 }
 
 =over
