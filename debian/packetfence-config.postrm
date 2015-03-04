@@ -24,10 +24,14 @@ case "$1" in
     ;;
 
     remove)
+	# removing init scripts
+	if [ -e /etc/lsb-release ]; then
+		update-rc.d -f packetfence-config remove > /dev/null 2>&1
+	else
+		update-rc.d packetfence-config remove > /dev/null 2>&1
+	fi
     ;;
     purge)
-	export PACKETFENCE=/usr/local/pf
-	update-rc.d packetfence-config remove >/dev/null || exit 0
     ;;
     *)
         echo "postrm called with unknown argument \`$1'" >&2

@@ -32,10 +32,15 @@ case "$1" in
         if [ -e /etc/lsb-release ]; then
             groupdel pf
         fi
+        # removing init scripts
+        if [ -e /etc/lsb-release ]; then
+            update-rc.d -f packetfence remove > /dev/null 2>&1
+        else
+            update-rc.d packetfence remove > /dev/null 2>&1
+        fi
+        # removing init scripts
     ;;
     purge)
-        # removing init scripts
-        update-rc.d -f packetfence remove >/dev/null || exit 0
         # purging all files
         # /usr/bin/find /usr/local/pf ! -path "*pfconfig*" ! -type d|sort|xargs rm
         /usr/bin/find /usr/local/pf ! -path "*pfconfig*" ! -path "/usr/local/pf" ! -path "usr/local/pf/lib"  ! -path "/usr/local/pf/bin" ! -path "/usr/local/pf/bin/pfcmd" -type d|sort -r|xargs rm -r
