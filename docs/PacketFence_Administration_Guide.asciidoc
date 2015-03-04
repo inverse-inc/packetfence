@@ -356,17 +356,6 @@ Important parameters to configure regarding the captive portal are the following
 
 For some browsers, is it preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be the one where the user will be redirected. Affected browsers are Firefox 3 and later.
 
-* Filters under *Configuration -> Portal Profile -> Portal Name -> Fitlers*
-
-It's possible to get a specific portal profile based on filters. Actually in Packetfence you have the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI and VLAN.
-
-Example with the most common one:
-
-* SSID: Guest-SSID
-* VLAN: 100
-
-CAUTION: Node role will take effect only with a 802.1x connection and if you use vlan_filters.
-
 * IP under *Configuration -> Captive portal*
 
 This IP is used as the web server who hosts the `common/network-access-detection.gif` which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is black-holed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easier and more accessible solution.
@@ -2191,6 +2180,17 @@ Here are the different configuration parameters that can be set for each portal 
   sources = comma-separated list of authentications sources (IDs) to use
 
 Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
+
+* Filters under *Configuration -> Portal Profile -> Portal Name -> Fitlers*
+
+Packetfence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI and VLAN.
+
+Example with the most common ones:
+
+* SSID: Guest-SSID
+* VLAN: 100
+
+CAUTION: Node role will take effect only with a 802.1x connection or if you use VLAN filters.
 
 OAuth2 Authentication
 ~~~~~~~~~~~~~~~~~~~~~
