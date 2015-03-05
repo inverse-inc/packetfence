@@ -42,15 +42,13 @@ sub index : Path : Args(0) {
     my $request = $c->request;
     my $mac = $c->portalSession->clientMac;
     my $provisioner = $c->profile->findProvisioner($mac);
-    $provisioner->authorize($mac) if (defined($provisioner));
+    #my $prov = $provisioner->authorize($mac) if (defined($provisioner));
     $c->stash(
         post_uri            => '/tlsprofile/cert_process',
-        destination_url     => 'eap-profile.html',
+        #destination_url     => $prov,
         certificate_cn      => $request->param_encoded("certificate_cn"),
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
         certificate_email   => lc( $request->param_encoded("certificate_email")),
-        service             => $request->param_encoded("service"),
-        profile_list        => $Config{'pki'}{'profile'},
         template            => 'pki.html',
         provisioner         => $provisioner,
         username            => $username,
