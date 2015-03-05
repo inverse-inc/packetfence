@@ -1205,7 +1205,7 @@ msgid "Your current device is not registered on our network."
 msgstr ""
 
 # html/captive-portal/templates/status.html
-msgid "Your network access ends in <strong id="expiration"></strong>"
+msgid "Your network access ends in <strong id=\"expiration\"></strong>"
 msgstr ""
 
 # html/captive-portal/templates/status.html
