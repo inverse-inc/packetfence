@@ -78,7 +78,7 @@ sub modeToPath {
 
 sub default : Path {
     my ( $self, $c ) = @_;
-    $c->error("error: incorrect mode");
+    $self->showError($c,"error: incorrect mode");
 }
 
 sub next_page : Local : Args(0) {
@@ -125,7 +125,7 @@ sub next_page : Local : Args(0) {
 
         $c->stash->{template} = 'register.html';
     } else {
-        $c->error( "error: invalid page number" );
+        $self->showError($c,"error: invalid page number" );
     }
 }
 
@@ -140,7 +140,7 @@ sub deregister : Local : Args(0) {
         if ( $c->session->{username} eq $pid ) {
             pf::node::node_deregister($mac);
         } else {
-            $c->error( "error: access denied not owner" );
+            $self->showError($c,"error: access denied not owner" );
         }
     } else {
         $c->forward('login');
@@ -443,7 +443,7 @@ sub validateLogin : Private {
         my $aup_signed = $request->param("aup_signed");
         if (   !defined($aup_signed)
             || !$aup_signed ) {
-            $c->error('You need to accept the terms before proceeding any further.');
+            $self->showError($c,'You need to accept the terms before proceeding any further.');
             $c->detach('showLogin');
         }
     } else {

@@ -60,7 +60,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     }
     else {
         $c->res->status(HTTP_NOT_FOUND);
-        $c->error("$config_item is not found");
+        $self->showError($c,"$config_item is not found");
     }
 }
 

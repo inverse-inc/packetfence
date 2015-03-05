@@ -63,7 +63,7 @@ sub code : Path : Args(1) {
         || ref($activation_record) ne 'HASH'
         || !defined( $activation_record->{'type'} ) ) {
 
-        $c->error(
+        $self->showError($c,
                 "The activation code provided is invalid."
               . " Reasons could be: it never existed, it was already used or has expired."
         );
