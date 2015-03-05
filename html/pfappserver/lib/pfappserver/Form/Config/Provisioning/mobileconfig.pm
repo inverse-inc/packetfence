@@ -15,15 +15,15 @@ with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'company' =>
   (
-   type => 'hidden',
+   type => 'Text',
    value => $Config{'pki'}{'organisation'},
-  )
+  );
 
-has_field 'fingerprint' =>
-  (
-   type => 'hidden'.
-   value => $data,
-  )
+#has_field 'fingerprint' =>
+#  (
+#   type => 'hidden',
+#   value => $data,
+#  )
 
 has_field 'ssid' =>
   (

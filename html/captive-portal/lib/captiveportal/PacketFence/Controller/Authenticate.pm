@@ -228,16 +228,12 @@ sub postAuthentication : Private {
     $info->{pid} = $pid;
     $c->stash->{info} = $info;
     
-    if ($source->type eq 'AD') {
-        $c->detach(TLSProfile => 'index');
-    } else {
-        $c->forward('setupMatchParams');
-        $c->forward('setRole');
-        $c->forward('setUnRegDate');
-        $info->{source} = $source_id;
-        $info->{portal} = $profile->getName;
-        $c->forward('checkIfProvisionIsNeeded');
-    }
+    $c->forward('setupMatchParams');
+    $c->forward('setRole');
+    $c->forward('setUnRegDate');
+    $info->{source} = $source_id;
+    $info->{portal} = $profile->getName;
+    $c->forward('checkIfProvisionIsNeeded');
 }
 
 =head2 checkIfChainedAuth
@@ -333,6 +329,9 @@ sub setRole : Private {
     if ( defined $value ) {
         $logger->debug("Got role '$value' for username \"$pid\"");
         $info->{category} = $value;
+        if ( $value == 'tls-enrolement') {
+            $c->detach(TLSProfile => 'index');
+        }
     } else {
         $logger->info("Got no role for username \"$pid\"");
         $self->showError($c, "You do not have the permission to register a device with this username.");
