@@ -26,6 +26,9 @@
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
   </IfModule>
+  <IfModule !mod_headers.c>
+    LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -53,6 +56,9 @@
   </IfModule>
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module modules/mod_apreq2.so
+  </IfModule>
+  <IfModule !mod_headers.c>
+    LoadModule headers_module modules/mod_headers.so
   </IfModule>
 </IfDefine>
 
@@ -125,8 +131,8 @@ $SSLRandomSeed = "startup builtin";
 $SSLRandomSeed = "startup file:/dev/urandom 1024";
 $SSLRandomSeed = "connect builtin";
 $SSLRandomSeed = "connect file:/dev/urandom 1024";
-$SSLProtocol = "All -SSLv2";
-$SSLCipherSuite = "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:ECDHE-RSA-RC4-SHA:ECDHE-ECDSA-RC4-SHA:AES128:AES256:RC4-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!3DES:!MD5:!PSK";
+$SSLProtocol = "All -SSLv2 -SSLv3";
+$SSLCipherSuite = "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA";
 $SSLHonorCipherOrder = "on";
 
 $ErrorLog = $install_dir.'/logs/httpd.admin.error';
@@ -142,6 +148,8 @@ push @{ $VirtualHost{$vhost} },
          SSLEngine    => 'on',
          Include      => $var_dir.'/conf/ssl-certificates.conf',
          SSLProxyEngine    => 'on',
+         # HSTS (mod_headers is required) (15768000 seconds = 6 months)
+         Header             =>  'always add Strict-Transport-Security "max-age=15768000"'
          PerlModule        => 'pf::web::admin',
          PerlTransHandler  => 'pf::web::admin->proxy_portal',
          ProxyRequests     => 'off',
