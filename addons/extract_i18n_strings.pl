@@ -32,6 +32,7 @@ use pf::config;
 use constant {
     APP => 'html/pfappserver',
     CONF => 'conf',
+    PORTAL => 'html/captive-portal/templates'
 };
 
 my %strings = ();
@@ -158,6 +159,37 @@ sub parse_tt {
     }
     close(TT);
 }
+
+=head2 parse_html
+
+Extract localizable strings from HTML templates.
+
+=cut
+
+sub parse_html {
+    my $dir = PORTAL;
+    my @templates = ();
+
+    my $tt = sub {
+        return unless -f && m/\.(html)$/;
+        push(@templates, $File::Find::name);
+    };
+
+    find($tt, $dir);
+
+    my $line;
+    foreach my $template (@templates) {
+        open(TT, $template);
+        while (defined($line = <TT>)) {
+            chomp $line;
+            while ($line =~ m/i18n\(['"](.+?(?!\\))['"](,.*)?\)/g) {
+                add_string($1, $template) unless ($1 =~ m/\${/);
+            }
+        }
+        close(TT);
+    }
+}
+
 
 =head2 parse_mc
 
@@ -482,6 +514,7 @@ sub verify {
 &parse_mc;
 &parse_forms;
 &parse_conf;
+&parse_html;
 &extract_modules;
 &print_po;
 &verify;
