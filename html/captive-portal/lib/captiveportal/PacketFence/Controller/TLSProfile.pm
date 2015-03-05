@@ -2,10 +2,10 @@ package captiveportal::PacketFence::Controller::TLSProfile;
 use Moose;
 use namespace::autoclean;
 use WWW::Curl::Easy;
-use Date::Format qw(time2str);
 use pf::log;
 use pf::config;
 use pf::util;
+use pf::node;
 use pf::web qw(i18n ni18n i18n_format render_template);
 use pf::web::constants;
 use List::MoreUtils qw(uniq any);
@@ -13,8 +13,7 @@ use Readonly;
 use POSIX;
 use URI::Escape::XS qw(uri_escape);
 use pf::web;
-use pf::Email::Valid;
-use lib qw(/usr/local/pf/lib);
+use Email::Valid;
 
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -57,18 +56,40 @@ sub index : Path : Args(0) {
         username            => $username,
         );
 }
-sub build_cert_p12 : Path('/eap-profile.html') : Args(0) {
+sub build_cert_p12 : Path : Args(0) {
     my ($self, $c) = @_;
+    my $logger = $c->log;
     my $cert_data = $c->stash->{'cert_content'};
     my $certname = $c->stash->{'certificate_cn'} . "p12";
-    open FH, "> $cert_dir/$certname" or die $!;
-    print FH "$cert_data\n";
+    my $pid = "";
+    open FH, "> $cert_dir/$certname";
+    unless ( $c->has_errors ){
+        my $portalSession = $c->portalSession;
+        my $mac           = $portalSession->clientMac;
+        my $node_info     = node_view($mac);
+        my $pid           = $node_info->{'pid'};
+    }
+    if(tell(FH) != -1) {
+        $logger->debug("The certificate file could not be saved for username \"$pid\"");
+        $self->showError($c,"An error has occured while trying to save your certificate, please contact your IT support");
+    }
+    else {
+        print FH "$cert_data\n";
+    }
 }
 
 
 sub get_cert : Private {
     use bytes;
     my ($self,$c) = @_;
+    my $logger = $c->log;
+    my $pid = "";
+    unless ( $c->has_errors ){
+        my $portalSession = $c->portalSession;
+        my $mac           = $portalSession->clientMac;
+        my $node_info     = node_view($mac);
+        my $pid           = $node_info->{'pid'};
+    }
     my $stash = $c->stash;
     my $uri = $Config{'pki'}{'uri'};
     my $username = $Config{'pki'}{'username'};
@@ -94,13 +115,14 @@ sub get_cert : Private {
     # Starts the actual request
     my $curl_return_code = $curl->perform;
 
-    if $curl_return_code = 0 {
+    if ($curl_return_code == 0) {
         $c->stash(
             cert_content    => $response_body,
         );
     }
-    elsif $curl_return_code = -1{
-        print "There was an issue with the generation of your certificate please contact your IT support."
+    elsif ($curl_return_code == -1) {
+        $logger->debug("Username \"$pid\" certificate couldnt not be acquire, check out logs on the pki");
+        $self->showError($c, "There was an issue with the generation of your certificate please contact your IT support.");
     }
 }
  
@@ -114,6 +136,14 @@ sub cert_process : Local {
 
 sub validateform : Private {
     my ($self,$c) = @_;
+    my $logger = $c->log;
+    my $pid = "";
+    unless ( $c->has_errors ){
+        my $portalSession = $c->portalSession;
+        my $mac           = $portalSession->clientMac;
+        my $node_info     = node_view($mac);
+        my $pid           = $node_info->{'pid'};
+    }
     $c->stash(
         service => $c->request->param('service'),
         my $usern = certificate_cn => $c->request->param('certificate_cn'),
@@ -121,12 +151,21 @@ sub validateform : Private {
         my $userpwd = certificate_pwd => $c->request->param('certificate_pwd'),
     );
     unless (Email::Valid->address($email_addr)){
-        print "Sorry, that email address is not valid!";
+        $logger->debug("Email enter is invalid for username \"$pid\"");
+        $self->showError($c,"Please enter a vaild email address");
     }
 }
 
 sub export_fingerprint : Local {
     my ($self, $c) = @_;
+    my $logger = $c->log;
+    my $pid = "";
+    unless ( $c->has_errors ){
+        my $portalSession = $c->portalSession;
+        my $mac           = $portalSession->clientMac;
+        my $node_info     = node_view($mac);
+        my $pid           = $node_info->{'pid'};
+    }
     my $stash = $c->stash;
     my $cwd = $cert_dir;
     my $pass = $stash->{'certificate_pwd'};
@@ -143,7 +182,7 @@ sub export_fingerprint : Local {
         $data =~ s/\:/\ /smg;
     }
     else {
-        print "We could not verifiy the integrity of your certificate, please contact your IT support."
+        $logger->debug("We could not extract CA fingerprint from username \"$pid\" certificate");
     }
 }
 =head1 AUTHOR
