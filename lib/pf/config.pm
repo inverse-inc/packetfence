@@ -901,28 +901,39 @@ sub dynamic_unreg_date {
     my $current_date = time;
     my $unreg_date;
 
+    unless(defined($trigger)){
+        $logger->warn("Trying to compute the unreg date from an undefined value. Stopping processing and making unreg date undefined.");
+        return $trigger;
+    }
+
     if($trigger =~ /0000-00-00/){
-      $logger->debug("Stopping dynamic unreg date handling because unreg date is set to infinite : $trigger");
-      return $trigger;
+        $logger->debug("Stopping dynamic unreg date handling because unreg date is set to infinite : $trigger");
+        return $trigger;
     }
 
     my ($year,$month,$day) = $trigger =~ /(\d{1,4})?-?(\d{2})-(\d{2})/;
     my $current_year = POSIX::strftime("%Y",localtime($current_date));
 
     if ( !defined $year || $year == 0 || $year < $current_year ) {
-            $year = $current_year;
-            $trigger = "$year-$month-$day";
-            $logger->warn("The year was past, null or undefined. We used current year");
+        $year = $current_year;
+        $trigger = "$year-$month-$day";
+        $logger->warn("The year was past, null or undefined. We used current year");
     }
 
-    my $time_zone = DateTime::TimeZone->new( name => 'local' );
-    if (DateTime->new(year => $year, month => $month, day => $day, time_zone => $time_zone )->epoch <= DateTime->now(time_zone => $time_zone)->epoch) {
-        $logger->warn("The DAY is today or before today. Setting date to next year");
-        $year += 1;
-        $unreg_date = "$year-$month-$day";
-    } else {
-        $unreg_date = "$year-$month-$day";
-    }
+    try {
+        my $time_zone = DateTime::TimeZone->new( name => 'local' );
+        if (DateTime->new(year => $year, month => $month, day => $day, time_zone => $time_zone )->epoch <= DateTime->now(time_zone => $time_zone)->epoch) {
+            $logger->warn("The DAY is today or before today. Setting date to next year");
+            $year += 1;
+            $unreg_date = "$year-$month-$day";
+        } else {
+            $unreg_date = "$year-$month-$day";
+        }
+    } catch {
+        $logger->error("Couldn't compute unregistration date from value '$trigger'. Unregistration date will be undefined.");
+        $unreg_date = undef; 
+    };
+
     return $unreg_date;
 }
 
