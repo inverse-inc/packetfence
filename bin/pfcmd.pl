@@ -2437,11 +2437,12 @@ sub field_order {
 sub fixpermissions {
     my $pfcmd = "${bin_dir}/pfcmd";
     my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions);
-    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, @extra_var_dirs);
+    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs);
     _changeFilesToOwner('root',$pfcmd);
     chmod(06755,$pfcmd);
     chmod(0664, @stored_config_files);
-    chmod(02775, $conf_dir, $var_dir, $log_dir, $generated_conf_dir,$install_dir, @extra_var_dirs);
+    chmod(02775, $conf_dir, $var_dir, $log_dir, $generated_conf_dir,$install_dir, $pfconfig_cache_dir, @extra_var_dirs);
+    chmod(02770, $pfconfig_cache_dir);
     return 0;
 }
 
