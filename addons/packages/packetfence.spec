@@ -323,7 +323,6 @@ See https://bugzilla.redhat.com/show_bug.cgi?id=611009
 Group: System Environment/Daemons
 Requires: perl(Cache::BDB)
 Requires: perl(Log::Fast)
-Requires: perl(Test::CheckManifest)
 AutoReqProv: 0
 Summary: Manage PacketFence Configuration
 BuildArch: noarch
@@ -398,6 +397,7 @@ done
 touch $RPM_BUILD_ROOT/usr/local/pf/var/cache_control
 cp Makefile $RPM_BUILD_ROOT/usr/local/pf/
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
+cp -r addons/pfconfig/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/dev-helpers/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -534,6 +534,14 @@ if ! /usr/bin/id pf &>/dev/null; then
                 echo Unexpected error adding user "pf" && exit
 fi
 
+%pre -n %{real_name}-config
+
+if ! /usr/bin/id pf &>/dev/null; then
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
+                echo Unexpected error adding user "pf" && exit
+fi
+
+
 %post -n %{real_name}
 echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
@@ -655,20 +663,33 @@ fi
 
 %postun -n %{real_name}
 if [ $1 -eq 0 ]; then
-        /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-#       /usr/sbin/groupdel pf || %logmsg "Group \"pf\" could not be deleted."
-#else
-#       /sbin/service pf condrestart &>/dev/null || :
+        if /usr/bin/id pf &>/dev/null; then
+               /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+#               /usr/sbin/groupdel pf || %logmsg "Group \"pf\" could not be deleted."
+#        else
+#               /sbin/service pf condrestart &>/dev/null || :
+        fi
 fi
 
 %postun -n %{real_name}-remote-snort-sensor
 if [ $1 -eq 0 ]; then
-        /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+        if /usr/bin/id pf &>/dev/null; then
+                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+        fi
 fi
 
 %postun -n %{real_name}-remote-arp-sensor
 if [ $1 -eq 0 ]; then
-        /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+        if /usr/bin/id pf &>/dev/null; then
+                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+        fi
+fi
+
+%postun -n %{real_name}-config
+if [ $1 -eq 0 ]; then
+        if /usr/bin/id pf &>/dev/null; then
+                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+        fi
 fi
 
 %postun -n %{real_name}-config
@@ -906,6 +927,39 @@ fi
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
                         /usr/local/pf/html/pfappserver/
+%config(noreplace)      /usr/local/pf/html/pfappserver/pfappserver.conf
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Admin.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/AdminRoles.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Firewall_SSO.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/FloatingDevice.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/MacAddress.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Networks.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Pf.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Profile/Default.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Profile.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Provisioning.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Realm.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Switch.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/System.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Configuration.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/UserAgents.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Wrix.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/DB.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Graph.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Interface.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Node.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Roles.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Root.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/Node.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/User.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Service.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SoH.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/User.pm
+%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Violation.pm
                         /usr/local/pf/lib
 %exclude                /usr/local/pf/lib/pfconfig*
 %config(noreplace)      /usr/local/pf/lib/pf/billing/custom.pm
@@ -1024,6 +1078,10 @@ fi
 %dir                    /usr/local/pf/lib/pfconfig
                         /usr/local/pf/lib/pfconfig/*
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
+%dir                    /usr/local/pf/addons/pfconfig
+%attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/cmd.pl
+%exclude                /usr/local/pf/addons/pfconfig/README.asciidoc
+%exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
 * Thu Feb 19 2015 Inverse <info@inverse.ca> - 4.6.1-1

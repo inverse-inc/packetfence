@@ -834,7 +834,7 @@ sub node_register {
     }
     pf::person::person_modify($pid,
                     'source'  => $info{'source'},
-                    'portal'     => $info{'portal'},
+                    'portal'  => $info{'portal'},
     );
     delete $info{'source'};
     delete $info{'portal'};
@@ -848,7 +848,7 @@ sub node_register {
             $logger->error("modify of node $mac failed");
             return (0);
         }
-           $logger->info("autoregister a node that is already registered, do nothing.");
+           $logger->info("[$mac] autoregister a node that is already registered, do nothing.");
            return 1;
        }
     }

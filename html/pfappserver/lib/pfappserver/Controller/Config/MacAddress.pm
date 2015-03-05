@@ -2,52 +2,21 @@ package pfappserver::Controller::Config::MacAddress;
 
 =head1 NAME
 
-pfappserver::Controller::Config::MacAddress - Catalyst Controller
+pfappserver::Controller::Config::MacAddress
 
 =head1 DESCRIPTION
 
-Catalyst Controller.
+Place all customization for Controller::Config::MacAddress here
 
 =cut
 
-use strict;
-use warnings;
-
-use HTTP::Status qw(:constants is_error is_success);
 use Moose;
-use namespace::autoclean;
 
-use pf::util qw(load_oui download_oui);
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::MacAddress'; }
 
-BEGIN { extends 'pfappserver::Base::Controller'; }
+=head1 AUTHOR
 
-=head2 index
-
-=cut
-
-sub index :Path {
-    my ( $self, $c ) = @_;
-    $c->go('simple_search');
-}
-
-=head2 simple_search
-
-=cut
-
-sub simple_search :Local :Args() :SimpleSearch('MacAddress') :AdminRole('MAC_READ') { }
-
-=head2 update
-
-=cut
-
-sub update :Local :Args(0) :AdminRole('MAC_UPDATE') {
-    my ( $self, $c ) = @_;
-    $c->stash->{current_view} = 'JSON';
-    my ($status, $status_msg) = download_oui();
-    load_oui(1);
-    $c->response->status($status);
-    $c->stash->{status_msg} = $status_msg;
-}
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -71,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
 
 __PACKAGE__->meta->make_immutable;
 

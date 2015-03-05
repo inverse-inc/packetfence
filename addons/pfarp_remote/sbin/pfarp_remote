@@ -200,7 +200,12 @@ sub soap_send {
           uri => 'http://www.packetfence.org/PFAPI',
           proxy => 'https://' . $ADMIN_USER . ':' . $ADMIN_PWD . '@' . $PF_HOST
         );
-        my $result = $soap->update_iplog($srcmac,$srcip);
+        my %data = (
+            'mac' => $srcmac,
+            'ip' => $srcip,
+        );
+
+        my $result = $soap->update_iplog(%data);
         if ($result->fault) {
           syslog("warning", "arp could not be added");
         } else {

@@ -64,7 +64,7 @@ sub code : Path : Args(1) {
         || ref($activation_record) ne 'HASH'
         || !defined( $activation_record->{'type'} ) ) {
 
-        $c->error(
+        $self->showError($c,
                 "The activation code provided is invalid."
               . " Reasons could be: it never existed, it was already used or has expired."
         );
@@ -105,6 +105,10 @@ TODO: documention
 
 sub login : Private {
     my ( $self, $c ) = @_;
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
     $c->stash(
         template => $pf::web::guest::SPONSOR_LOGIN_TEMPLATE,
         username => $c->request->param_encoded("username"),
@@ -142,7 +146,7 @@ sub doEmailRegistration : Private {
             my %info;
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
-            $c->stash->{info}=\%info; 
+            $c->stash->{info}=\%info;
             $c->forward('Authenticate' => 'postAuthentication');
             $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
 
@@ -158,21 +162,21 @@ sub doEmailRegistration : Private {
 
             $c->stash(
                 template   => $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE,
-                expiration => $c->stash->{info}{unregdate} 
+                expiration => $c->stash->{info}{unregdate}
             );
-        } 
+        }
 
         # Pre-registration email guests self-registration
-        # if we don't have the MAC it means it's a preregister guest generate a password and send 
+        # if we don't have the MAC it means it's a preregister guest generate a password and send
         # an email with an access code
         else {
             my %info = (
                 'pid'     => $pid,
                 'email'   => $email,
-                'subject' => i18n_format(
+                'subject' => utf8::decode(i18n_format(
                     "%s: Guest access confirmed!",
                     $Config{'general'}{'domain'}
-                ),
+                )),
                 'currentdate' =>
                   POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime )
             );
@@ -252,6 +256,18 @@ sub doSponsorRegistration : Private {
             $c->forward(Authenticate => 'authenticationLogin');
             $c->detach('login') if $c->has_errors;
         }
+        # Verify if the user has the role mark as sponsor
+        my $source_match = $c->session->{source_match} || $c->session->{source_id};
+        my $value = &pf::authentication::match($source_match, {username => $c->session->{"username"}},
+            $Actions::MARK_AS_SPONSOR);
+        unless (defined $value) {
+            $c->log->error( $c->session->{"username"} . " does not have permission to sponsor a user"  );
+            $c->session->{username} = undef;
+            $self->showError($c,"does not have permission to sponsor a user");
+            $c->detach('login');
+        }
+
+
 
         # handling log out (not exposed to the UI at this point)
         # TODO: if we ever expose it, we'll need to alter the form action to make sure to trim it
@@ -278,7 +294,7 @@ sub doSponsorRegistration : Private {
                 $logger->warn(
                     "Problem finding more information about a MAC address ($node_mac) to enable guest access"
                 );
-                $self->showError(
+                $self->showError($c,
                     "There was a problem trying to find the computer to register. The problem has been logged."
                 );
             }
@@ -286,9 +302,9 @@ sub doSponsorRegistration : Private {
 
                     $logger->warn(
                         "node mac: $node_mac has already been registered.");
-                    $self->showError(
-                        "The device with MAC address %s has already been authorized to your network.",
-                        $node_mac
+                    $self->showError($c,
+                        ["The device with MAC address %s has already been authorized to your network.",
+                        $node_mac]
                     );
             }
 
@@ -297,13 +313,14 @@ sub doSponsorRegistration : Private {
 
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
+            $c->session->{source_match} = undef;
             $c->stash->{info}=\%info; 
             $c->forward('Authenticate' => 'postAuthentication');
             $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
             # We send email to the guest confirming that network access has been enabled
-            $template = $pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION;
+            $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_CONFIRMED;
             $info{'email'} = $info{'pid'};
             $info{'subject'} = i18n_format("%s: Guest network access enabled", $Config{'general'}{'domain'});
             pf::web::guest::send_template_email($template, $info{'subject'}, \%info);

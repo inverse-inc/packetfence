@@ -168,9 +168,12 @@ sub doEmailSelfRegistration : Private {
         'username'   => $pid,
         'user_email' => $email
     };
-    $info{'category'} =
-      &pf::authentication::match( $source->{id}, $auth_params,
-        $Actions::SET_ROLE );
+    $c->stash->{matchParams} = $auth_params;
+    
+    $c->stash->{pid} = $pid;
+    $c->stash->{info} = \%info;
+    $session->{source_id} = $source->{id};
+    $c->forward(Authenticate => 'setRole');
 
     # form valid, adding person (using modify in case person already exists)
     person_modify(
@@ -242,6 +245,7 @@ sub prepareEmailGuestActivationInfo : Private {
     $info{'telephone'} = $session->{"phone"};
     $info{'company'} = $session->{"company"};
     $info{'subject'} = i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
+    utf8::decode($info{'subject'});
 
     return %info;
 }
@@ -257,6 +261,7 @@ sub doSponsorSelfRegistration : Private {
     my $logger        = get_logger;
     my $profile       = $c->profile;
     my $request       = $c->request;
+    my $session       = $c->session;
     my $portalSession = $c->portalSession;
     my %info;
     $logger->info(
@@ -281,6 +286,7 @@ sub doSponsorSelfRegistration : Private {
     my $auth_params = $c->stash->{matchParams};
     $auth_params->{username} = $pid;
     $auth_params->{user_email} = $email;
+    $c->stash->{matchParams} = $auth_params;
 
     # form valid, adding person (using modify in case person already exists)
     person_modify(
@@ -300,9 +306,10 @@ sub doSponsorSelfRegistration : Private {
     $logger->info( "Adding guest person " . $c->session->{'guest_pid'} );
 
     # fetch role for this user
-    $info{'category'} =
-      &pf::authentication::match( $source->{id}, $auth_params,
-        $Actions::SET_ROLE );
+    $c->stash->{pid} = $pid;
+    $c->stash->{info} = \%info;
+    $session->{source_id} = $source->{id};
+    $c->forward('Authenticate' => 'setRole');
 
     # Setting access timeout and role (category) dynamically
     $info{'unregdate'} =
@@ -336,7 +343,7 @@ sub doSponsorSelfRegistration : Private {
     $info{is_preregistration} = $c->session->{preregistration};
     $info{'subject'} =
       i18n_format( "%s: Guest access request", $Config{'general'}{'domain'} );
-
+    utf8::decode($info{'subject'});
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
     my ( $auth_return, $err, $errargs_ref ) =
       pf::activation::create_and_send_activation_code(
@@ -390,54 +397,57 @@ sub doSmsSelfRegistration : Private {
     if ($self->reached_retry_limit($c, 'sms_request_limit', $portalSession->profile->{_sms_request_limit})) {
         $logger->info("Maximum number of SMS signup requests reached for $mac");
         $c->stash(txt_validation_error => i18n_format($GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES}));
+        utf8::decode($c->stash->{'txt_validation_error'});
         $c->detach('showSelfRegistrationPage');
     }
     # User chose to register by SMS
     $logger->info("registering $mac  guest by SMS $phone @ $mobileprovider");
+
+    $info{'pid'} = $pid;
+
+    $logger->info("redirecting to mobile confirmation page");
+    my $sms_type =
+      pf::Authentication::Source::SMSSource->getDefaultOfType;
+    my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
+    my $auth_params = {
+        'username'    => $pid,
+        'phonenumber' => $phone
+    };
+    $c->stash->{matchParams} = $auth_params;
+
+    # form valid, adding person (using modify in case person already exists)
+    $logger->info("Adding guest person $pid ($phone)");
+    person_modify(
+        $pid,
+        (   map { $_ => $c->session->{$_} }
+              qw(firstname lastname company  email)
+        ),
+        (   'telephone' => $phone,
+            'notes'     => 'sms confirmation. Date of arrival: '
+              . time2str( "%Y-%m-%d %H:%M:%S", time ),
+            'portal'    => $profile->getName,
+            'source'    => $source->{id},
+        )
+    );
+
+    # fetch role for this user
+    $c->stash->{pid} = $pid;
+    $c->stash->{info} = \%info;
+    $session->{source_id} = $source->{id};
+    $c->forward(Authenticate => 'setRole');
+
     my ( $auth_return, $err, $errargs_ref ) =
       pf::activation::sms_activation_create_send( $mac, $pid, $phone, $profile->getName, $mobileprovider );
-    if ($auth_return) {
 
-        $info{'pid'} = $pid;
-
-        $logger->info("redirecting to mobile confirmation page");
-
-        # fetch role for this user
-        my $sms_type =
-          pf::Authentication::Source::SMSSource->getDefaultOfType;
-        my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
-        my $auth_params = {
-            'username'    => $pid,
-            'phonenumber' => $phone
-        };
-
-        # form valid, adding person (using modify in case person already exists)
-        $logger->info("Adding guest person $pid ($phone)");
-        person_modify(
-            $pid,
-            (   map { $_ => $c->session->{$_} }
-                  qw(firstname lastname company  email)
-            ),
-            (   'telephone' => $phone,
-                'notes'     => 'sms confirmation. Date of arrival: '
-                  . time2str( "%Y-%m-%d %H:%M:%S", time ),
-                'portal'    => $profile->getName,
-                'source'    => $source->{id},
-            )
-        );
-
-        $info{'category'} =
-          &pf::authentication::match( $source->{id}, $auth_params,
-            $Actions::SET_ROLE );
-
-        # set node in pending mode with the appropriate role
-        $info{'status'} = $pf::node::STATUS_PENDING;
-        node_modify( $portalSession->clientMac(), %info );
-        $c->detach( 'Activate::Sms' => 'showSmsConfirmation' );
-
-    } else {
+    unless ($auth_return) {
         $self->validationError( $c, $err );
-    }
+    } 
+
+    # set node in pending mode with the appropriate role
+    $info{'status'} = $pf::node::STATUS_PENDING;
+    node_modify( $portalSession->clientMac(), %info );
+    $c->detach( 'Activate::Sms' => 'showSmsConfirmation' );
+
 }    # SMS
 
 sub checkGuestModes : Private {
@@ -561,6 +571,7 @@ sub validationError {
     my ( $self, $c, $error_code, @error_args ) = @_;
     $c->stash->{'txt_validation_error'} =
       i18n_format( $GUEST::ERRORS{$error_code}, @error_args );
+    utf8::decode($c->stash->{'txt_validation_error'});
     $c->detach('showSelfRegistrationPage');
 }
 

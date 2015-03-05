@@ -34,6 +34,7 @@ use Readonly;
 use Time::HiRes qw(time);
 use Try::Tiny;
 use MIME::Lite;
+use Encode qw(encode);
 
 =head1 CONSTANTS
 
@@ -469,11 +470,12 @@ sub send_email {
         );
         return $FALSE;
     }
+    utf8::decode($info{'subject'});
     my $msg = MIME::Lite::TT->new(
         From        =>  $info{'from'},
         To          =>  $info{'contact_info'},
         Cc          =>  $info{'cc'},
-        Subject     =>  $info{'subject'},
+        Subject     =>  encode("MIME-Header", $info{'subject'}),
         Template    =>  "emails-$template.txt.tt",
         'Content-Type' => 'text/plain; charset="utf-8"',
         TmplOptions =>  \%options,

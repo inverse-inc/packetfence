@@ -20,11 +20,12 @@ use warnings;
 use base 'pfconfig::backend';
 use Cache::BDB;
 use pfconfig::empty_string;
+use pf::file_paths;
 
 sub init {
   my ($self) = @_;
   my %options = (
-    cache_root => "/usr/local/pf/var/cache/pfconfig",
+    cache_root => $pfconfig_cache_dir,
     namespace  => "pfconfig",
     default_expires_in => 86400,
   );

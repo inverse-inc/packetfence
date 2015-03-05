@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 BEGIN {
-    # log4perl init
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
     use pfconfig::log;
@@ -61,8 +60,8 @@ while(1) {
     if($line eq "exit") {exit}
 
     my $query = decode_json($line);
-    use Data::Dumper;
-    print Dumper($query);
+    #use Data::Dumper;
+    #print Dumper($query);
 
     # we support hash namespaced queries
     # where 

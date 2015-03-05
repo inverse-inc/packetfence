@@ -76,7 +76,22 @@ sub radius_accounting : Public {
         $return = $radius->accounting(\%radius_request);
     };
     if ($@) {
-        $logger->logdie("radius accounting failed with error: $@");
+        $logger->error("radius accounting failed with error: $@");
+    }
+    return $return;
+}
+
+sub radius_update_locationlog : Public {
+    my ($class, %radius_request) = @_;
+    my $logger = pf::log::get_logger();
+
+    my $radius = new pf::radius::custom();
+    my $return;
+    eval {
+        $return = $radius->update_locationlog_accounting(\%radius_request);
+    };
+    if ($@) {
+        $logger->error("radius update locationlog accounting failed with error: $@");
     }
     return $return;
 }
@@ -98,11 +113,14 @@ sub soh_authorize : Public {
 
 sub update_iplog : Public {
     my ($class, %postdata) = @_;
-    my @require = qw(mac ip lease_length oldmac oldip);
+    my @require = qw(mac ip);
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
+
+    $postdata{'oldip'}  = pf::iplog::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
+    $postdata{'oldmac'} = pf::iplog::ip2mac($postdata{'ip'}) if (!defined($postdata{'oldmac'}));
 
     if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
         $logger->info(
@@ -364,7 +382,7 @@ sub trigger_violation : Public {
 
 =head2 add_node
 
-Add a node
+Modify a node
 
 =cut
 
@@ -374,6 +392,13 @@ sub modify_node : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require,  \@found);
 
+    if (defined($postdata{'unregdate'})) {
+        if (pf::util::valid_date($postdata{'unregdate'})) {
+            $postdata{'unregdate'} = pf::config::dynamic_unreg_date($postdata{'unregdate'});
+        } else {
+            $postdata{'unregdate'} = pf::config::access_duration($postdata{'unregdate'});
+        }
+    }
     pf::node::node_modify($postdata{'mac'}, %postdata);
     return;
 }

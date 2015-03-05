@@ -58,13 +58,15 @@ sub test {
                 $test =~ s/\|/ \|\| /g;
                 $test =~ s/\&/ \&\& /g;
                 if (eval $test) {
-                    $logger->info("Match Vlan rule: ".$rule." for ".$mac);
+                    $logger->info("[$mac] Match Vlan rule: ".$rule);
                     if ( defined($ConfigVlanFilters{$rule}->{'action'}) && $ConfigVlanFilters{$rule}->{'action'} ne '' ) {
                         $self->dispatchAction($ConfigVlanFilters{$rule},$switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request)
                     }
                     if ( defined($ConfigVlanFilters{$rule}->{'role'}) && $ConfigVlanFilters{$rule}->{'role'} ne '' ) {
                         my $role = $ConfigVlanFilters{$rule}->{'role'};
+                        $role =~ s/(\$.*)/$1/gee;
                         my $vlan = $switch->getVlanByName($role);
+                        return (1,$role) if ($scope eq 'AutoRegister');
                         return ($vlan, $role);
                     } else {
                         return (0,0);

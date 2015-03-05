@@ -2,144 +2,21 @@ package pfappserver::Controller::Config::Profile::Default;
 
 =head1 NAME
 
-pfappserver::Controller::ConfigProfile add documentation
-
-=cut
+pfappserver::Controller::Config::Profile::Default
 
 =head1 DESCRIPTION
 
-PortalProfile
+Place all customization for Controller::Config::Profile::Default here
 
 =cut
 
-use strict;
-use warnings;
 use Moose;
-use namespace::autoclean;
-use pf::config;
-use File::Copy;
-use HTTP::Status qw(:constants is_error is_success);
-use pf::util;
-use File::Slurp qw(read_dir read_file);
-use File::Spec::Functions;
-use File::Copy::Recursive qw(dircopy);
-use File::Basename qw(fileparse);
-use Readonly;
 
-BEGIN { extends 'pfappserver::Controller::Config::Profile'; }
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Profile::Default'; }
 
-__PACKAGE__->config(
-    # Configure the model and the form for actions
-    action_args => {
-        '*' => { model => "Config::Profile", form => 'Config::Profile::Default'},
-    },
-    action => {
-        # Configure access rights
-        view   => { AdminRole => 'PORTAL_PROFILES_READ' },
-        list   => { AdminRole => 'PORTAL_PROFILES_READ' },
-        create => { AdminRole => 'PORTAL_PROFILES_CREATE' },
-        update => { AdminRole => 'PORTAL_PROFILES_UPDATE' },
-    },
-);
+=head1 AUTHOR
 
-
-=head2 Methods
-
-=over
-
-=item index
-
-=cut
-
-sub index :Path :Args(0) {
-    my ($self, $c) = @_;
-    $c->forward('object');
-}
-
-
-=item isDeleteOrRevertDisabled
-
-=cut
-
-sub isDeleteOrRevertDisabled {return 1};
-
-=item object
-
-The default chained dispatcher
-
-/config/profile/default
-
-=cut
-
-sub object :Chained('/') :PathPart('config/profile/default') :CaptureArgs(0) {
-    my ($self, $c) = @_;
-    return $self->SUPER::object($c,'default');
-}
-
-=item _make_file_path
-
-=cut
-
-sub _makeFilePath {
-    my ($self,@args) = @_;
-    return $self->_makeDefaultFilePath(@args);
-}
-
-=item delete_file
-
-=cut
-
-sub delete_file :Chained('object') :PathPart('delete') :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
-    my ($self,$c,@pathparts) = @_;
-    $c->stash->{status_msg} = "Cannot delete a file in the default profile";
-    $c->go('bad_request');
-}
-
-=item revert_file
-
-=cut
-
-sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
-    my ($self,$c,@pathparts) = @_;
-    $c->stash->{status_msg} = "Cannot revert a file in the default profile";
-    $c->go('bad_request');
-}
-
-=item revert_all
-
-=cut
-
-sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_UPDATE') {
-    my ($self,$c) = @_;
-    $c->stash->{status_msg} = "Cannot revert files in the default profile";
-    $c->go('bad_request');
-}
-
-=item remove
-
-=cut
-
-sub remove :Chained('object') :PathPart :Args(0) {
-    my ($self,$c) = @_;
-    $c->stash->{status_msg} = "Cannot delete the default profile";
-    $c->go('bad_request');
-}
-
-=item end
-
-=cut
-
-sub end: Private {
-    my ($self,$c) = @_;
-    if(! exists($c->stash->{template})) {
-        $c->stash(
-            template => 'config/profile/' . $c->action->name . '.tt'
-        );
-    }
-    $c->forward('Controller::Root','end');
-}
-
-=back
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -164,5 +41,7 @@ USA.
 
 =cut
 
-1;
 
+__PACKAGE__->meta->make_immutable;
+
+1;

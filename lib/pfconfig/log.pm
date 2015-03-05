@@ -25,7 +25,7 @@ sub new {
     open(my $fh, ">>", "/usr/local/pf/logs/pfconfig.log");
 
     $self->{logger}->config({
-        level           => 'DEBUG',
+        level           => 'ERR',
         prefix          => '%D %T [%L] : ',
         type            => 'fh',
         fh              => $fh,

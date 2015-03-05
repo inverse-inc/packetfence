@@ -23,7 +23,7 @@ use pf::factory::provisioner;
 use pf::factory::firewallsso;
 use pf::factory::profile::filter;
 use pf::Switch::constants;
-use pfappserver::Controller::Graph;
+use pfappserver::PacketFence::Controller::Graph;
 use pfappserver::Model::Node;
 use pfappserver::Form::Config::Wrix;
 use pfappserver::Form::Config::ProfileCommon;
@@ -168,7 +168,7 @@ Extract localizable strings from Models and Controllers classes.
 
 sub parse_mc {
     my $base = APP.'/lib/pfappserver/';
-    my @dir = qw/Base Controller Model Form/;
+    my @dir = qw(Base PacketFence/Controller Model Form);
     my @modules = ();
 
     my $pm = sub {
@@ -382,13 +382,13 @@ sub extract_modules {
     $attributes = pfappserver::Model::Node->availableStatus();
     const('pfappserver::Model::Node', 'availableStatus', $attributes);
 
-    const('pfappserver::Controller::Graph', 'graph type', \@pfappserver::Controller::Graph::GRAPHS);
+    const('pfappserver::PacketFence::Controller::Graph', 'graph type', \@pfappserver::PacketFence::Controller::Graph::GRAPHS);
 
-    const('pfappserver::Controller::Graph', 'os fields', [qw/description count/]);
-    const('pfappserver::Controller::Graph', 'connectiontype fields', [qw/connection_type connections/]);
-    const('pfappserver::Controller::Graph', 'ssid fields', [qw/ssid nodes/]);
-    const('pfappserver::Controller::Graph', 'nodebandwidth fields', [qw/callingstationid/]);
-    const('pfappserver::Controller::Graph', 'osclassbandwidth fields', [qw/dhcp_fingerprint/]);
+    const('pfappserver::PacketFence::Controller::Graph', 'os fields', [qw/description count/]);
+    const('pfappserver::PacketFence::Controller::Graph', 'connectiontype fields', [qw/connection_type connections/]);
+    const('pfappserver::PacketFence::Controller::Graph', 'ssid fields', [qw/ssid nodes/]);
+    const('pfappserver::PacketFence::Controller::Graph', 'nodebandwidth fields', [qw/callingstationid/]);
+    const('pfappserver::PacketFence::Controller::Graph', 'osclassbandwidth fields', [qw/dhcp_fingerprint/]);
 
     const('pfappserver::Form::Config::Wrix', 'open hours', \@pfappserver::Form::Config::Wrix::HOURS);
 

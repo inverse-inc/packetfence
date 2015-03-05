@@ -2,82 +2,21 @@ package pfappserver::Controller::Config::Firewall_SSO;
 
 =head1 NAME
 
-pfappserver::Controller::Config::Firewall_SSO - Catalyst Controller
+pfappserver::Controller::Config::Firewall_SSO
 
 =head1 DESCRIPTION
 
-Controller for firewall sso  management.
+Place all customization for Controller::Config::Firewall_SSO here
 
 =cut
 
-use HTTP::Status qw(:constants is_error is_success);
-use Moose;  # automatically turns on strict and warnings
-use namespace::autoclean;
+use Moose;
 
-use pf::config::cached;
-use pf::factory::firewallsso;
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Firewall_SSO'; }
 
-BEGIN {
-    extends 'pfappserver::Base::Controller';
-    with 'pfappserver::Base::Controller::Crud::Config';
-    with 'pfappserver::Base::Controller::Crud::Config::Clone';
-}
+=head1 AUTHOR
 
-__PACKAGE__->config(
-    action => {
-        # Reconfigure the object action from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'config/firewall_sso', CaptureArgs => 1 },
-        # Configure access rights
-        view   => { AdminRole => 'FIREWALL_SSO_READ' },
-        list   => { AdminRole => 'FIREWALL_SSO_READ' },
-        create => { AdminRole => 'FIREWALL_SSO_CREATE' },
-        clone  => { AdminRole => 'FIREWALL_SSO_CREATE' },
-        update => { AdminRole => 'FIREWALL_SSO_UPDATE' },
-        remove => { AdminRole => 'FIREWALL_SSO_DELETE' },
-    },
-    action_args => {
-        # Setting the global model and form for all actions
-        '*' => { model => "Config::Firewall_SSO", form => "Config::Firewall_SSO" },
-    },
-);
-
-=head1 METHODS
-
-=head2 after create clone
-
-Show the 'view' template when creating or cloning a floating device.
-
-=cut
-
-before [qw(clone view _processCreatePost update)] => sub {
-    my ($self, $c, @args) = @_;
-    my $model = $self->getModel($c);
-    my $itemKey = $model->itemKey;
-    my $item = $c->stash->{$itemKey};
-    my $type = $item->{type};
-    my $form = $c->action->{form};
-    $c->stash->{current_form} = "${form}::${type}";
-};
-
-sub create_type : Path('create') : Args(1) {
-    my ($self, $c, $type) = @_;
-    my $model = $self->getModel($c);
-    my $itemKey = $model->itemKey;
-    $c->stash->{$itemKey}{type} = $type;
-    $c->forward('create');
-}
-
-=head2 index
-
-Usage: /config/firewall_sso/
-
-=cut
-
-sub index :Path :Args(0) {
-    my ($self, $c) = @_;
-    $c->stash->{types} = [ sort grep {$_} map { /^pf::firewallsso::(.*)/;$1  } @pf::factory::firewallsso::MODULES];
-    $c->forward('list');
-}
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -101,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
 
 __PACKAGE__->meta->make_immutable;
 

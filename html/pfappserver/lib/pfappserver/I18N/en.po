@@ -4532,6 +4532,11 @@ msgstr ""
 msgid "memberOf"
 msgstr ""
 
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "memberOf:1.2.840.113556.1.4.1941:"
+msgstr "nested group"
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"
 msgstr ""

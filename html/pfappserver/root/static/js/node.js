@@ -73,6 +73,16 @@ var NodeView = function(options) {
 
     this.proxyClick($('body'), '#node_bulk_actions .bulk_action', this.submitItems);
 
+    this.proxyClick($('body'), '[id$="Empty"] [href="#add"]', function(e) {
+        var emptyDiv = $(e.currentTarget).closest('[id$="Empty"]');
+        var match = /(.+)Empty/.exec(emptyDiv.attr('id'));
+        var id = match[1];
+        var emptyId = match[0];
+        $('#'+id).trigger('addrow');
+        $('#'+emptyId).addClass('hidden');
+        return false;
+    });
+
     this.proxyFor($('body'), 'section.loaded', '#section', function(e) {
         /* Enable autocompletion of owner on tab of single node creation */
         $('[data-provide="typeahead"]').typeahead({

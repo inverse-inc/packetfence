@@ -184,6 +184,13 @@ sub remove {
     return $self->SUPER::remove($id);
 }
 
+sub commit {
+    my ( $self ) = @_;
+    my $result = $self->SUPER::commit();
+    pfconfig::manager->new->expire('config::Switch');
+    return $result;
+}
+
 before rewriteConfig => sub {
     my ($self) = @_;
     my $config = $self->cachedConfig;

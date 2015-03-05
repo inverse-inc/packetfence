@@ -394,7 +394,7 @@ sub RewriteConfig {
     my $logger = get_logger();
     my $file = $self->GetFileName;
     if( $self->HasChanged(1) ) {
-        die "Config $file was modified from last loading\n";
+        die "Config $file was modified from last loading manually verify file and run pfcmd configreload\n";
     }
     my $result;
     umask 2;
@@ -717,7 +717,7 @@ Swap the data with cached data
 
 sub _swap_data {
     my ($self,$new_self) = @_;
-    Data::Swap::swap($self,$new_self); 
+    Data::Swap::swap($self,$new_self);
     $self->addToLoadedConfigs();
     #Unbless the old data to avoid DESTROY from being called
     unbless($new_self);

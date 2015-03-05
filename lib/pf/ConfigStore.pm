@@ -391,11 +391,16 @@ sub flatten_list {
 sub commit {
     my ($self) = @_;
     my $result;
+    my $error;
     eval {
         $result = $self->rewriteConfig();
     };
-    get_logger->error($@) if $@;
+    if($@) {
+        $error = $@;
+        get_logger->error($error);
+    }
     unless($result) {
+        $error //= "Unable to commit changes to file please run pfcmd fixpermissions and try again";
         $self->rollback();
     }
 
@@ -406,7 +411,7 @@ sub commit {
       get_logger->error("Can't expire pfconfig in ".__PACKAGE__." because the pfconfig namespace is not defined.");
     }
 
-    return $result;
+    return ($result, $error);
 }
 
 =head2 search

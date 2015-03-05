@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          pfconfig
+# Provides:          packetfence-config
 # Required-Start:    $network $local_fs
 # Required-Stop:
 # Default-Start:     2 3 4 5
@@ -15,12 +15,16 @@
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC=pfconfig             # Introduce a short description here
-NAME=pfconfig            # Introduce the short server's name here
+DESC=packetfence-config            # Introduce a short description here
+NAME=packetfence-config            # Introduce the short server's name here
 DAEMON=/usr/local/pf/sbin/pfconfig # Introduce the server's location here
-PIDFILE=/usr/local/pf/var/run/pfconfig.pid
 SCRIPTNAME=/etc/init.d/$NAME
 PROGBASE="$(basename ${DAEMON})"
+DAEMON_ARGS="-d"
+PIDDIR=/usr/local/pf/var/run/
+PIDFILE=$PIDDIR/pfconfig.pid
+USER=pf
+GROUP=pf
 
 # Exit if the package is not installed
 [ -x $DAEMON ] || exit 0
@@ -44,7 +48,13 @@ do_start()
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
-	$DAEMON -d
+	if [ ! -d $PIDDIR ]
+	then
+		mkdir $PIDDIR
+	fi
+	chown $USER:$GROUP $PIDDIR
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON --test --chuid $USER > /dev/null || return 1
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON --chuid $USER -- $DAEMON_ARGS > /dev/null || return 2
 	#	|| return 0
 	# Add code here, if necessary, that waits for the process to be ready
 	# to handle requests from services started subsequently which depend
@@ -74,19 +84,18 @@ do_stop()
 	return 0
 }
 
-#
-# Function that sends a SIGHUP to the daemon/service
-#
-
-
 case "$1" in
   start)
     [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC " "$NAME"
-    do_start
-    case "$?" in
-		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
-		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
-	esac
+    if [ -e /usr/local/pf/conf/pf-release ]; then
+        do_start
+        case "$?" in
+                0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+                2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+        esac
+    else
+        log_end_msg 1
+    fi
   ;;
   stop)
 	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
@@ -99,15 +108,6 @@ case "$1" in
   status)
        status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
        ;;
-  #reload|force-reload)
-	#
-	# If do_reload() is not implemented then leave this commented out
-	# and leave 'force-reload' as an alias for 'restart'.
-	#
-	#log_daemon_msg "Reloading $DESC" "$NAME"
-	#do_reload
-	#log_end_msg $?
-	#;;
   restart|force-reload)
 	#
 	# If the "reload" option is implemented then remove the

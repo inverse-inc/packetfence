@@ -15,20 +15,14 @@ Next install the init file on the system (only for RHEL based systems).
 # cp addons/pfconfig/pfconfig.init /etc/init.d/pfconfig
 # chmod +x /etc/init.d/pfconfig
 
-Now, unmanage memcached from PacketFence by adding this to pf.conf
-[services]
-memcached=disabled
-
-Now, install the memcached init script provided (only for RHEL based systems)
-# cp addons/pfconfig/memcached.init /etc/init.d/memcached
-# chmod +x /etc/init.d/memcached
+Install BerkeleyDB (from epel)
+yum install perl-BerkeleyDB --enablerepo=epel
 
 Install Log::Fast (only on CPAN for now)
 # cpan Log::Fast
 
-Start memcached and set it on for boot
-# service memcached start
-# chkconfig memcached on
+Install Cache::BDB
+# cpan Cache::BDB
 
 Start pfconfig and set it on for boot
 # service pfconfig start

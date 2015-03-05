@@ -45,6 +45,8 @@ use pfconfig::log;
 use Time::HiRes qw(stat time);
 use File::Find;
 use pfconfig::util;
+use POSIX;
+use POSIX::2008;
 
 sub config_builder {
   my ($self, $namespace) = @_;
@@ -101,7 +103,22 @@ sub touch_cache {
   $what =~ s/\//;/g;
   my $filename = pfconfig::util::control_file_path($what);
   $filename = $self->untaint_chain($filename);
-  `touch $filename`;
+
+  if ( !-e $filename) {
+      my $fh;
+      unless(open($fh,">$filename")){
+        $logger->error("Can't create $filename\nPlease run 'pfcmd fixpermissions'");
+        return 0;
+      }
+      close($fh);
+  }
+  if(-e $filename) {
+      sysopen(my $fh,$filename,O_RDWR | O_CREAT);
+      POSIX::2008::futimens(fileno $fh);
+      close($fh);
+  }
+  my (undef,undef,$uid,$gid) = getpwnam('pf');
+  chown($uid,$gid,$filename);
 }
 
 # get a key in the cache

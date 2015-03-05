@@ -72,6 +72,7 @@ Readonly our $GUEST_REGISTRATION => "guest-register";
 # Available default email templates
 Readonly our $TEMPLATE_EMAIL_GUEST_ACTIVATION => 'guest_email_activation';
 Readonly our $TEMPLATE_EMAIL_SPONSOR_ACTIVATION => 'guest_sponsor_activation';
+Readonly our $TEMPLATE_EMAIL_SPONSOR_CONFIRMED => 'guest_sponsor_confirmed';
 Readonly our $TEMPLATE_EMAIL_EMAIL_PREREGISTRATION => 'guest_email_preregistration';
 Readonly our $TEMPLATE_EMAIL_EMAIL_PREREGISTRATION_CONFIRMED => 'guest_email_preregistration_confirmed';
 Readonly our $TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION => 'guest_sponsor_preregistration';
@@ -156,6 +157,7 @@ sub generate_selfregistration_page {
         # ideally we'll set the array_ref always and won't need the following
         $error_args_ref = [] if (!defined($error_args_ref));
         $portalSession->stash->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
+        utf8::decode($portalSession->stash->{'txt_validation_error'});
     }
 
     render_template($portalSession, $pf::web::guest::SELF_REGISTRATION_TEMPLATE);
@@ -307,7 +309,7 @@ sub prepare_email_guest_activation_info {
     $info{'telephone'} = $session->param("phone");
     $info{'company'} = $session->param("company");
     $info{'subject'} = i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
-
+    utf8::decode($info{'subject'});
     return %info;
 }
 
@@ -332,7 +334,7 @@ sub prepare_sponsor_guest_activation_info {
     $info{'company'} = $session->param("company");
     $info{'sponsor'} = $session->param('sponsor');
     $info{'subject'} = i18n_format("%s: Guest access request", $Config{'general'}{'domain'});
-
+    utf8::decode($info{'subject'});
     $info{'is_preregistration'} = $session->param('preregistration');
 
     return %info;
@@ -394,11 +396,12 @@ sub send_template_email {
         );
         return $FALSE;
     }
+    utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
         To          =>  $info->{'email'},
         Cc          =>  $info->{'cc'},
-        Subject     =>  encode("MIME-Q", $subject),
+        Subject     =>  encode("MIME-Header", $subject),
         Template    =>  "emails-$template.txt.tt",
         TmplOptions =>  { INCLUDE_PATH => "$conf_dir/templates/" },
         TmplParams  =>  $info,
@@ -417,6 +420,7 @@ sub generate_sms_confirmation_page {
     # Error management
     if (defined($error_code) && $error_code != 0) {
         $portalSession->stash->{'txt_auth_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
+        utf8::decode($portalSession->stash->{'txt_auth_error'});
     }
 
     render_template($portalSession, 'guest/sms_confirmation.html');

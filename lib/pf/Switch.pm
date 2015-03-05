@@ -188,6 +188,17 @@ sub supportsAccessListBasedEnforcement {
     return $FALSE;
 }
 
+=item supportsRoamingAccounting
+
+=cut
+
+sub supportsRoamingAccounting {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->info("Update of the locationlog based on accounting data is not supported on network device type " . ref($this) . ". ");
+    return $FALSE;
+}
+
 =item supportsSaveConfig
 
 =cut
@@ -2833,7 +2844,7 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan and role $role");
+    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan ".( defined($role) ? "and role $role" : "" ));
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
