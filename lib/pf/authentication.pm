@@ -68,7 +68,6 @@ BEGIN {
             getAuthenticationSource
             getAllAuthenticationSources
             deleteAuthenticationSource
-            writeAuthenticationConfigFile
             %guest_self_registration
        );
     @EXPORT_OK =
@@ -160,76 +159,6 @@ sub _guest_modes_from_sources {
     return join(',', map { lc($_->type)} grep { exists $is_in{$_->id} && ($_->class eq 'external' || $_->type eq 'Chained')} @authentication_sources);
 }
 
-=item writeAuthenticationConfigFile
-
-Write the configuration file to disk
-
-=cut
-
-sub writeAuthenticationConfigFile {
-    # Remove deleted sections
-    my %new_sources = map { $_->id => undef } @authentication_sources;
-    foreach my $id ( grep { !exists $new_sources{$_} } $cached_authentication_config->Sections) {
-        $cached_authentication_config->DeleteSection($id);
-    }
-    tie(my %cfg,$cached_authentication_config);
-
-    # Update existing sections and create new ones
-    foreach my $source ( @authentication_sources ) {
-        $logger->debug("Writing source " . $source->id . " (" . ref($source)->meta->name . ")");
-        $cfg{$source->{id}} = {};
-        $cfg{$source->{id}}{description} = $source->{'description'};
-
-        for my $attr ( $source->meta->get_all_attributes ) {
-            $attr = $attr->name;
-            # Don't write static attributes (see pfappserver::Model::Authentication::Source::update)
-            next if (grep { $_ eq $attr } qw[id rules unique class]);
-            next unless ($source->{$attr});
-            my $value = $source->{$attr};
-            if (ref($value)) {
-                $value = join(',', @$value);
-            }
-            $cfg{$source->{id}}{$attr} = $value;
-        }
-
-        # We flush rules, including conditions and actions.
-        foreach my $rule ( @{$source->{'rules'}} ) {
-            my $rule_id = $source->{'id'} . " rule " . $rule->{'id'};
-
-            # Since 'description' is defined in the parent section, set the paramater through the object
-            # for proper cfgtialization
-            $cached_authentication_config->newval($rule_id, 'description', $rule->{'description'});
-            $cfg{$rule_id}{match} = $rule->{'match'};
-
-            my $index = 0;
-            foreach my $action ( @{$rule->{'actions'}} ) {
-                my $action_id = 'action' . $index;
-                if (defined $action->{'value'}) {
-                    $cfg{$rule_id}{$action_id} = $action->{'type'} . '=' . $action->{'value'};
-                } else {
-                    $cfg{$rule_id}{$action_id} = $action->{'type'};
-                }
-                $index++;
-            }
-
-            $index = 0;
-            foreach my $condition ( @{$rule->{'conditions'}} ) {
-                my $condition_id = 'condition' . $index;
-                $cfg{$rule_id}{$condition_id} = $condition->{'attribute'} . ',' . $condition->{'operator'} . ',' . $condition->{'value'};
-                $index++;
-            }
-        }
-    }
-    $cached_authentication_config->ReorderByGroup();
-    my $result;
-    eval {
-        $result = $cached_authentication_config->RewriteConfig();
-    };
-    unless($result) {
-        $cached_authentication_config->Rollback();
-        die "Error writing authentication configuration\n";
-    }
-}
 
 =item getAuthenticationSource
 
@@ -274,29 +203,6 @@ sub getExternalAuthenticationSources {
     return \@sources;
 }
 
-=item deleteAuthenticationSource
-
-Delete an authentication source along its rules. Returns the number of source(s)
-deleted.
-
-=cut
-
-sub deleteAuthenticationSource {
-    my $id = shift;
-
-    my $result = 0;
-    if (none { any {$_ eq $id} @{$_->{sources}} } values %Profiles_Config) {
-        for (my $i = 0; $i < scalar(@authentication_sources); $i++) {
-            my $source = $authentication_sources[$i];
-            if ($source->{id} eq $id) {
-                splice(@authentication_sources, $i, 1);
-                $result = 1;
-                last;
-            }
-        }
-    }
-    return $result;
-}
 
 # =head2 source_for_user
 

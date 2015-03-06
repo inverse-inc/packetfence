@@ -154,9 +154,8 @@ sub isenabled {
 
 sub GroupMembers {
     my ($self, $group) = @_;
-    my %cfg = %{$self->{cfg}};
     my @members;
-    foreach my $key (keys %cfg){
+    foreach my $key (@{$self->{ordered_sections}}){
         my @values = split (' ', $key);
         if (@values > 1 && $values[0] eq $group){
             push @members, $key;

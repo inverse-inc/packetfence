@@ -18,6 +18,7 @@ use namespace::autoclean;
 
 use pf::authentication;
 use pf::error qw(is_error is_success);
+use pf::ConfigStore::Authentication;
 
 =head2 update
 
@@ -35,7 +36,7 @@ sub update {
         unless ($source_obj) {
             $logger->error("Authentication source of type $type is not supported.");
         }
-        push(@authentication_sources, $source_obj);
+        push(@pf::ConfigStore::Authentication::auth_sources, $source_obj);
     }
 
     # Update attributes
@@ -60,7 +61,8 @@ sub update {
 
     # Write configuration file to disk
     eval {
-        writeAuthenticationConfigFile();
+        my $cs = pf::ConfigStore::Authentication->new;
+        $cs->writeAuthenticationConfigFile();
     };
     if($@) {
         return ($STATUS::INTERNAL_SERVER_ERROR, $@);
@@ -76,11 +78,12 @@ sub update {
 sub delete {
     my ($self, $source_obj) = @_;
 
-    my $count = deleteAuthenticationSource($source_obj->id);
+    my $count = pf::ConfigStore::Authentication::deleteSource($source_obj->id);
     if ($count > 0) {
         # Write configuration file to disk
         eval {
-            writeAuthenticationConfigFile();
+            my $cs = pf::ConfigStore::Authentication->new;
+            $cs->writeAuthenticationConfigFile();
         };
         if ($@) {
             return ($STATUS::INTERNAL_SERVER_ERROR, $@);
@@ -100,7 +103,7 @@ sub delete {
 sub updateRule {
     my ($self, $source_id, $rule_id, $def_ref) = @_;
 
-    my $source = getAuthenticationSource($source_id);
+    my $source = pf::ConfigStore::Authentication::getSource($source_id);
     if ($source) {
         my $rule;
         if ($rule_id) {
@@ -122,7 +125,8 @@ sub updateRule {
         }
         # Write configuration file to disk
         eval {
-            writeAuthenticationConfigFile();
+            my $cs = pf::ConfigStore::Authentication->new;
+            $cs->writeAuthenticationConfigFile();
         };
         if($@) {
             return ($STATUS::INTERNAL_SERVER_ERROR, $@);
