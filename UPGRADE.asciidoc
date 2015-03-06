@@ -14,6 +14,15 @@ PacketFence should now be upgraded.  However, there may be extra steps required 
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+The 'node' table have 1 new column (machine_account).
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
 Upgrading from a version prior to 4.6.0
