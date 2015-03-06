@@ -207,6 +207,8 @@ tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 
 tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 
+tie %ConfigDomain, 'pfconfig::cached_hash', 'config::Domain';
+
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 
 sub import {

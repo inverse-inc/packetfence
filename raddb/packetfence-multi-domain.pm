@@ -24,12 +24,14 @@ use warnings;
 
 use lib '/usr/local/pf/lib/';
 
-use pf::config;
+#use pf::config;
 use pf::radius::constants;
 use pf::radius::soapclient;
 use pf::radius::rpc;
 use pf::util::freeradius qw(clean_mac);
-
+use pfconfig::cached_hash;
+our %ConfigRealm;
+tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 
 require 5.8.8;
 
