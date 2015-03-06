@@ -28,7 +28,7 @@ use warnings;
 use Log::Log4perl;
 use POSIX;
 
-use base ('pf::Switch::HP');
+use base ('pf::Switch');
 
 use pf::config;
 sub description { 'HP ProCurve MSM710 Mobility Controller' }

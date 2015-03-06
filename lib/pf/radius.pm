@@ -111,7 +111,7 @@ sub authorize {
 
     $logger->info("[$mac] handling radius autz request: from switch_ip => ($switch_ip), "
         . "connection_type => " . connection_type_to_str($connection_type) . ","
-        . "switch_mac => ($switch_mac), mac => [$mac], port => $port, username => \"$user_name\"");
+        . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\"");
 
     #add node if necessary
     if ( !node_exist($mac) ) {
@@ -121,6 +121,12 @@ sub authorize {
 
     # There is activity from that mac, call node wakeup
     node_mac_wakeup($mac);
+
+    # Handling machine auth detection
+    if ( defined($user_name) && $user_name =~ /^host\// ) {
+        $logger->info("[$mac] is doing machine auth with account '$user_name'.");
+        node_modify($mac, ('machine_account' => $user_name));
+    }
 
     if (defined($session_id)) {
          node_modify($mac, ('sessionid' => $session_id));
@@ -145,10 +151,11 @@ sub authorize {
     my $isPhone = $switch->isPhoneAtIfIndex($mac, $port);
 
     my $vlan_obj = new pf::vlan::custom();
+    my $autoreg = 0;
     # should we auto-register? let's ask the VLAN object
     if ($vlan_obj->shouldAutoRegister($mac, $switch->isRegistrationMode(), 0, $isPhone,
         $connection_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request)) {
-
+        $autoreg = 1;
         # automatic registration
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch, $port,
             $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name);
@@ -179,7 +186,7 @@ sub authorize {
     $this->_handleAccessFloatingDevices($switch, $mac, $port);
 
     # Fetch VLAN depending on node status
-    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name);
+    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
@@ -288,6 +295,46 @@ sub accounting {
     }
 
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
+}
+
+=item update_locationlog_accounting
+
+Update the location log based on the accounting information
+
+=cut
+
+sub update_locationlog_accounting {
+    my ($this, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $this->_parseRequest($radius_request);
+
+    $logger->debug("instantiating switch");
+    my $switch = pf::SwitchFactory->getInstance()
+        ->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip } );
+
+    # is switch object correct?
+    if ( !$switch ) {
+        $logger->warn( "Can't instantiate switch ($switch_ip). This request will be failed. "
+                . "Are you sure your switches.conf is correct?" );
+        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
+    }
+
+    if ($switch->supportsRoamingAccounting()) {
+        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+        my $connection = pf::Connection->new;
+        $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+        my $connection_type = $connection->attributesToBackwardCompatible;
+        my $ssid;
+        if (($connection_type & $WIRELESS) == $WIRELESS) {
+            $ssid = $switch->extractSsid($radius_request);
+            $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
+        }
+        my $vlan;
+        $vlan = $radius_request->{'Tunnel-Private-Group-ID'} if ( (defined( $radius_request->{'Tunnel-Type'}) && $radius_request->{'Tunnel-Type'} eq '13') && (defined($radius_request->{'Tunnel-Medium-Type'}) && $radius_request->{'Tunnel-Medium-Type'} eq '6') );
+        $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $user_name, $ssid, $stripped_user_name, $realm);
+    }
+    return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Update locationlog from accounting ok") ];
 }
 
 =item * _parseRequest

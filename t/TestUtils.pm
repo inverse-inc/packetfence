@@ -38,7 +38,7 @@ our @cli_tests = qw(
 );
 
 our @compile_tests = qw(
-    pf.t binaries.t pfappserver_libs.t captive-portal_libs.t
+    pf.t pfconfig.t binaries.t pfappserver_libs.t captive-portal_libs.t
 );
 
 our @dao_tests = qw(
@@ -61,7 +61,7 @@ our @unit_tests = qw(
     config.t enforcement.t floatingdevice.t hardware-snmp-objects.t import.t inline.t linux.t network-devices/cisco.t
     network-devices/roles.t network-devices/threecom.t network-devices/wireless.t nodecategory.t person.t pfsetvlan.t
     Portal.t radius.t services.t SNMP.t soh.t SwitchFactory.t trigger.t useragent.t util.t util-dhcp.t util-radius.t
-    vlan.t web.t unittest/profile/filter/network.t unittest/profile/filter/key.t unittest/provisioner.t 
+    vlan.t web.t unittest/profile/filter/network.t unittest/profile/filter/key.t unittest/provisioner.t
     unittest/provisioner/symantec.t
 );
 

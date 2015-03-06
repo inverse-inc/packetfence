@@ -28,7 +28,7 @@ sub begin : Private {
     my ( $self, $c ) = @_;
     if (isdisabled( $Config{'registration'}{'device_registration'} ) )
     {
-        $c->error( "Device registration module is not enabled" );
+        $self->showError($c,"Device registration module is not enabled" );
         $c->detach;
     }
     $c->stash->{console_types} = \@pf::web::device_registration::DEVICE_TYPES;
@@ -49,7 +49,7 @@ sub index : Path : Args(0) {
         # Verify if user is authenticated
         $c->forward('userNotLoggedIn');
     } elsif ( $request->param('cancel') ) {
-        $c->error('Registration canceled. Please try again.');
+        $self->showError($c,"Registration canceled. Please try again.");
         $c->delete_session;
         $c->detach('login');
     } elsif ( $request->param('device_mac') ) {
@@ -65,7 +65,7 @@ sub index : Path : Args(0) {
                 $c->detach('landing');
             }
         } else {
-            $c->stash(txt_auth_error => "Please verify the provided MAC address.");
+            $c->stash(txt_auth_error => i18n_format("Please verify the provided MAC address."));
         }
     }
     # User is authenticated so display registration page
@@ -133,7 +133,7 @@ sub registerNode : Private {
     if ( pf::web::device_registration::is_allowed($mac) ) {
         my ($node) = node_view($mac);
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
-            $c->error("$mac is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator");
+            $self->showError($c,"$mac is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator");
         } else {
             my $session = $c->session;
             my $source_id = $session->{source_id};
@@ -174,7 +174,7 @@ sub registerNode : Private {
             $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
         }
     } else {
-        $c->error("Please verify the provided MAC address.");
+        $self->showError($c,"Please verify the provided MAC address.");
     }
 }
 

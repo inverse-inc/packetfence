@@ -404,6 +404,17 @@ sub findProvisioner {
     return first { $_->match($os,$node_attributes) } $self->provisionerObjects;
 }
 
+=item dot1xRecomputeRoleFromPortal
+
+Reuse dot1x credentials when authenticating
+
+=cut
+
+sub dot1xRecomputeRoleFromPortal {
+    my ($self) = @_;
+    return $self->{'_dot1x_recompute_role_from_portal'};
+}
+
 =back
 
 =head1 AUTHOR

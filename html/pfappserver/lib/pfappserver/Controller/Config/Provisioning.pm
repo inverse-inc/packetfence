@@ -1,76 +1,22 @@
-
 package pfappserver::Controller::Config::Provisioning;
 
 =head1 NAME
 
-pfappserver::Controller::Config::Provisioning - Catalyst Controller
+pfappserver::Controller::Config::Provisioning
 
 =head1 DESCRIPTION
 
-Controller for Config::Provisioning management
+Place all customization for Controller::Config::Provisioning here
 
 =cut
 
-use HTTP::Status qw(:constants is_error is_success);
-use Moose;  # automatically turns on strict and warnings
-use namespace::autoclean;
-use pf::factory::provisioner;
+use Moose;
 
-BEGIN {
-    extends 'pfappserver::Base::Controller';
-    with 'pfappserver::Base::Controller::Crud::Config';
-    with 'pfappserver::Base::Controller::Crud::Config::Clone';
-}
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Provisioning'; }
 
-__PACKAGE__->config(
-    action => {
-        # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'config/provisioning', CaptureArgs => 1 },
-        # Configure access rights
-        view   => { AdminRole => 'PROVISIONING_READ' },
-        list   => { AdminRole => 'PROVISIONING_READ' },
-        create => { AdminRole => 'PROVISIONING_CREATE' },
-        clone  => { AdminRole => 'PROVISIONING_CREATE' },
-        update => { AdminRole => 'PROVISIONING_UPDATE' },
-        remove => { AdminRole => 'PROVISIONING_DELETE' },
-    },
-    action_args => {
-        # Setting the global model and form for all actions
-        '*' => { model => "Config::Provisioning",form => "Config::Provisioning" },
-    },
-);
+=head1 AUTHOR
 
-=head1 METHODS
-
-=head2 index
-
-Usage: /config/provisioning
-
-=cut
-
-sub index :Path :Args(0) {
-    my ($self, $c) = @_;
-    $c->stash->{types} = [ sort grep {$_} map { /^pf::provisioner::(.*)/;$1  } @pf::factory::provisioner::MODULES];
-    $c->forward('list');
-}
-
-before [qw(clone view _processCreatePost update)] => sub {
-    my ($self, $c, @args) = @_;
-    my $model = $self->getModel($c);
-    my $itemKey = $model->itemKey;
-    my $item = $c->stash->{$itemKey};
-    my $type = $item->{type};
-    my $form = $c->action->{form};
-    $c->stash->{current_form} = "${form}::${type}";
-};
-
-sub create_type : Path('create') : Args(1) {
-    my ($self, $c, $type) = @_;
-    my $model = $self->getModel($c);
-    my $itemKey = $model->itemKey;
-    $c->stash->{$itemKey}{type} = $type;
-    $c->forward('create');
-}
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -95,7 +41,7 @@ USA.
 
 =cut
 
+
 __PACKAGE__->meta->make_immutable;
 
 1;
-

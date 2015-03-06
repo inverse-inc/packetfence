@@ -34,6 +34,7 @@ use Readonly;
 use Time::HiRes qw(time);
 use Try::Tiny;
 use MIME::Lite;
+use Encode qw(encode);
 
 =head1 CONSTANTS
 
@@ -468,11 +469,12 @@ sub send_email {
         );
         return $FALSE;
     }
+    utf8::decode($info{'subject'});
     my $msg = MIME::Lite::TT->new(
         From        =>  $info{'from'},
         To          =>  $info{'contact_info'},
         Cc          =>  $info{'cc'},
-        Subject     =>  $info{'subject'},
+        Subject     =>  encode("MIME-Header", $info{'subject'}),
         Template    =>  "emails-$template.txt.tt",
         'Content-Type' => 'text/plain; charset="utf-8"',
         TmplOptions =>  \%options,
@@ -525,8 +527,8 @@ sub validate_code {
     }
 
     # At this point, code is validated: return the activation record
-    $logger->info("Activation code sent to email $activation_record->{contact_info} from $activation_record->{pid} successfully verified. "
-                . "Node authorized: " . ($activation_record->{mac}?$activation_record->{mac}:"<unknown>") . " of activation type: $activation_record->{type}");
+    $logger->info(($activation_record->{mac}?"[$activation_record->{mac}]":"[unknown]") . " Activation code sent to email $activation_record->{contact_info} from $activation_record->{pid} successfully verified. "
+                . " for activation type: $activation_record->{type}");
     return $activation_record;
 }
 

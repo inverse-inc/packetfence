@@ -187,6 +187,17 @@ sub supportsAccessListBasedEnforcement {
     return $FALSE;
 }
 
+=item supportsRoamingAccounting
+
+=cut
+
+sub supportsRoamingAccounting {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->info("Update of the locationlog based on accounting data is not supported on network device type " . ref($this) . ". ");
+    return $FALSE;
+}
+
 =item supportsSaveConfig
 
 =cut
@@ -2739,7 +2750,7 @@ sub radiusDisconnect {
         return;
     }
 
-    $logger->info("deauthenticating $mac");
+    $logger->info("[$mac] deauthenticating");
 
     # Where should we send the RADIUS Disconnect-Request?
     # to network device by default
@@ -2832,7 +2843,7 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan and role $role");
+    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan ".( defined($role) ? "and role $role" : "" ));
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
@@ -3024,7 +3035,9 @@ sub parseTrap {
     my $self   = shift;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->warn("SNMP trap handling not implemented for this type of switch.");
-    return undef;
+    my $trapHashRef;
+    $trapHashRef->{'trapType'} = 'unknown';
+    return $trapHashRef;
 }
 
 =item identifyConnectionType

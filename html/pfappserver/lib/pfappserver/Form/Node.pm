@@ -93,6 +93,11 @@ has_field 'last_dot1x_username' =>
    type => 'Uneditable',
    label => '802.1X Username',
   );
+has_field 'bypass_vlan' =>
+  (
+   type => 'Text',
+   label => 'Bypass VLAN',
+  );
 has_field 'user_agent' =>
   (
    type => 'Uneditable',

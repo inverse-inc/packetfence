@@ -18,6 +18,8 @@ use Cache::FileCache;
 use List::Util qw(first);
 use POSIX;
 use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
+use List::Util 'first';
+use List::MoreUtils qw(uniq);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -153,7 +155,6 @@ sub getLanguages :Private {
     unless (scalar @authorized_locales > 0) {
         @authorized_locales = @WEB::LOCALES;
     }
-    @authorized_locales = map { $_ =~ m/^(\w{2})_\w+/ ? ( $_, $1 ) : $_ } @authorized_locales;
     $logger->debug("Authorized locale(s) are " . join(', ', @authorized_locales));
 
     # 1. Check if a language is specified in the URL
@@ -192,14 +193,30 @@ sub getLanguages :Private {
         }
     }
 
+    # 4. Check the closest language that match the browser
+    # Browser = fr_FR and portal is en_US and fr_CA then fr_CA will be used
+    foreach my $browser_language (@$browser_languages) {
+        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        my $language = $1;
+        if (grep(/^$language$/, @authorized_locales)) {
+            $lang = $browser_language;
+            my $match = first { /$language(.*)/ } @authorized_locales;
+            push(@languages, $match) unless (grep/^$language$/, @languages);
+            $logger->debug("Language locale from the browser is $lang");
+        }
+        else {
+            $logger->debug("Language locale from the browser $browser_language is not supported");
+        }
+    }
+
     if (scalar @languages > 0) {
         $logger->debug("prefered user languages are " . join(", ", @languages));
     }
     else {
         push(@languages, $authorized_locales[0]);
     }
-
-    return \@languages;
+    my @returned_languages = uniq(@languages);
+    return \@returned_languages;
 }
 
 =head2 getRequestLanguages

@@ -339,7 +339,7 @@ sub person_modify {
     }
 
     db_query_execute(PERSON, $person_statements, 'person_modify_sql', @{$existing}{@FIELDS}, $pid) || return (0);
-    $logger->info("person $pid modified to $new_pid");
+    $logger->info("person $pid modified to $new_pid") if ($pid ne $new_pid);
     return (1);
 }
 

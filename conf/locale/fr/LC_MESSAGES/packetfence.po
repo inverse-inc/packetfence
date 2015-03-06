@@ -1,13 +1,14 @@
-# Copyright (C) 2006-2013 Inverse inc.
+# Copyright (C) 2005-2015 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
 # 
 # Translators:
 # Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
 # 
 # Translators:
+# Antoine Amacher <aamacher@inverse.ca>, 2015
 # Derek Wuelfrath <dwuelfrath@inverse.ca>, 2012
 # Dominique Couot <dcouot@hotmail.com>, 2012
-# oeufdure <fdurand@inverse.ca>, 2014
+# oeufdure <fdurand@inverse.ca>, 2014-2015
 # inverse <info@inverse.ca>, 2013-2014
 # inverse <info@inverse.ca>, 2012-2013
 # lzammit <lzammit@inverse.ca>, 2014
@@ -15,8 +16,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2014-09-10 19:56+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2015-03-06 16:13+0000\n"
+"Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -49,7 +50,7 @@ msgid "pt_BR"
 msgstr "Português"
 
 msgid "error: access denied not owner"
-msgstr "Accès refusé : vous n'êtes pas le propriétaire de ce noeud !"
+msgstr "Accès refusé: vous n'êtes pas le propriétaire de cet appareil !"
 
 msgid "error: incorrect mode"
 msgstr "Mode incorrect !"
@@ -65,16 +66,16 @@ msgid "error: invalid page number"
 msgstr "Numéro de page invalide"
 
 msgid "error: max re-enables reached"
-msgstr "Nombre maximum de réactivations atteint !"
+msgstr "Réactivation maximale atteinte !"
 
 msgid "error: not found in the database"
-msgstr "Votre ordinateur n'a pas pu être trouvé dans la base de données de PacketFence. Veuillez redémarrer afin de résoudre ce problème."
+msgstr "Votre ordinateur n´a pas été trouvé dans la base de donnée de PacketFence. Veuillez redémarrer pour résoudre ce problème."
 
 msgid "error: not trappable IP"
-msgstr "Accès refusé : IP ne peut pas être isolé !"
+msgstr "Accès refusé: L´adresse IP ne peut pas être isolée !"
 
 msgid "error: only register max nodes"
-msgstr "Vous pouvez seulement vous enregistrer pour un maximum de %s nœuds!"
+msgstr "Vous pouvez seulement enregistrer un maximum de %s appareils !"
 
 # deprecated but kept for a couple of versions (until at least early 2013)
 msgid "error: unable to validate credentials at the moment"
@@ -84,7 +85,7 @@ msgid "Unable to validate credentials at the moment"
 msgstr "Impossible de valider votre login et mot de passe en ce moment"
 
 msgid "error: something went wrong creating the guest"
-msgstr "Il y a eu un problème pour créer l'invité"
+msgstr "Il y a eu un problème à la création du compte de Invité."
 
 msgid "help: provide info"
 msgstr "Si vous avez des questions par rapport à cette page, veuillez contacter votre équipe informatique et leur fournir les informations suivantes : "
@@ -132,7 +133,7 @@ msgid "Acceptable Use Policy"
 msgstr "Politique d'utilisation du réseau"
 
 msgid "Addresses"
-msgstr "Adresses"
+msgstr "Addresses"
 
 msgid "De-register node"
 msgstr "Désenregistrer le noeud"
@@ -144,7 +145,7 @@ msgid "Gateway"
 msgstr "Passerelle"
 
 msgid "grace"
-msgstr "grâce"
+msgstr "Periode de grace "
 
 msgid "Hostname"
 msgstr "Nom d'hôte"
@@ -159,7 +160,7 @@ msgid "MAC"
 msgstr "MAC"
 
 msgid "network access is being enabled"
-msgstr "Votre accès au réseau est en cours d'activation. Une fois la connectivité établie vous serez automatiquement redirigé."
+msgstr "Votre accès réseau est actuellement en activation.  Une fois la connectivité réseau établie, vous serez automatiquement redirigé."
 
 msgid "system scan in progress"
 msgstr "Analyse de votre système en cours - ce processus prendra approximativement %s secondes."
@@ -174,7 +175,7 @@ msgid "Guest Registration"
 msgstr "Inscription"
 
 msgid "guest network disclaimer"
-msgstr "Ce réseau public est fourni exclusivement pour faciliter l'accès aux invités et aux visiteurs.  L'accès n'implique aucune garantie de fiabilité, de vitesse ou de confidentialité.  Ce réseau est strictement fourni pour donner un accès à l'Internet.  Son utilisation implique l'acceptation de tous les termes et conditions contenus dans notre <b>Politique d'accès réseau</b>."
+msgstr "Ce réseau public est fournis exclusivement pour la convenence des invités et des visiteurs.  L'accès n'implique aucune garantie de fiabilité, de vitesse ou de confidentialité.  Ce réseau est strictement fournis pour donner un accés a Internet.  Son utilisation implique l'acceptation de tous les termes et conditions contenus dans notre <b>Politique d'accès réseau</b>."
 
 msgid ""
 "In the fields below please enter your name, phone number and a valid email "
@@ -311,12 +312,12 @@ msgid "Please contact your support staff for more information."
 msgstr "Veuillez contacter votre équipe de soutien technique."
 
 msgid "Hub Detection"
-msgstr "Périphérique réseau problématique"
+msgstr "Détection d´un HUB"
 
 msgid ""
 "You have been detected using a hub. Such device is not permitted on the "
 "network.  Please remove it."
-msgstr "Il se peut qu'un (que des) équipement(s) de connectivité(s) réseau de votre appareil fasse défaut ou que vous ayez branché un appareil de type commutateur/routeur/\"hub\". Pour une mise à jour, contactez votre technicien(ne) ou débranchez l'appareil fautif."
+msgstr "Nous avons détecter que vous utilisez un ´HUB. Ce type d´équipement n´est pas autorisé dur le réseau. Veuillez débrancher l´équipement."
 
 msgid "Peer-to-Peer"
 msgstr "Poste-à-Poste"
@@ -344,7 +345,7 @@ msgid ""
 "or \"spam\") to other systems. Due to the threat this poses for other "
 "systems on the network, network connectivity has been disabled until "
 "corrective action is taken."
-msgstr "Votre système semble envoyer des courriels indésirables (spam), Du au danger de cette problématique pour tous les autres ordinateurs du réseau, votre accè a été désactivé"
+msgstr "Votre système semble envoyer des courriels indésirables (spam), Du au danger de cette problématique pour tous les autres ordinateurs du réseau, votre accès a été désactivé"
 
 msgid ""
 "Your system may need to be rebuilt. Please contact your local support staff "
@@ -358,7 +359,7 @@ msgid "guest registration form"
 msgstr "Formulaire d'enregistrement d'invités"
 
 msgid "guest registration instructions"
-msgstr "Instructions d'enregistrement d'invités"
+msgstr "Veuillez remplir tous les champs ci-dessous pour que l´accès invité soit crée. Les invités ne pourront s´enregistrer avant la date d´arrivée ou après la date d´arrivée plus la durée d´accès avec une journée de tolérance. La durée d´accès commencera une fois que l´invité se sera enregistré sur le portail captif. "
 
 msgid "Firstname"
 msgstr "Prénom"
@@ -434,8 +435,8 @@ msgstr "Retour"
 
 msgid "second"
 msgid_plural "seconds"
-msgstr[0] "seconde"
-msgstr[1] "secondes"
+msgstr[0] "second"
+msgstr[1] "seconds"
 
 msgid "minute"
 msgid_plural "minutes"
@@ -449,22 +450,22 @@ msgstr[1] "heures"
 
 msgid "day"
 msgid_plural "days"
-msgstr[0] "jour"
+msgstr[0] "day"
 msgstr[1] "jours"
 
 msgid "week"
 msgid_plural "weeks"
-msgstr[0] "semaine"
+msgstr[0] "week"
 msgstr[1] "semaines"
 
 msgid "month"
 msgid_plural "months"
-msgstr[0] "mois"
+msgstr[0] "month"
 msgstr[1] "mois"
 
 msgid "year"
 msgid_plural "years"
-msgstr[0] "an"
+msgstr[0] "year"
 msgstr[1] "ans"
 
 msgid "Invalid access duration provided"
@@ -591,7 +592,7 @@ msgid "I accept the terms"
 msgstr "J'accepte les termes"
 
 msgid "I have read and accept the terms"
-msgstr "J'ai lu et j'accepte les <a href='/aup' target='_blank'>termes</a>"
+msgstr "J´ai lu et accepté les <a href='/aup' target='_blank'>termes</a>"
 
 msgid "You need to accept the terms before proceeding any further."
 msgstr "Vous devez accepter les termes afin de vous connecter au réseau."
@@ -939,6 +940,9 @@ msgid ""
 " been logged."
 msgstr "Il y a eu un problème en tentant de trouver le serveur pour s'enregistrer. Le problème a été notifié."
 
+msgid "does not have permission to sponsor a user"
+msgstr "n'a pas le droit de sponsoriser un utilistateur"
+
 msgid ""
 "The device with MAC address %s has already been authorized to your network."
 msgstr "Le dispositif avec l'adresse MAC %s a déjà été autorisé sur le réseau."
@@ -952,12 +956,15 @@ msgstr "%s: Demande d'accès réseau invité accepté"
 msgid "Guest pre-registration is not allowed by policy"
 msgstr "Le pré enregistrement des invités n'est pas autorisé"
 
+msgid "Maximum amount of retries attempted"
+msgstr "Trop de tentatives "
+
 msgid ""
 "If you choose to have your access <strong>sponsored</strong>, we will send "
 "an email to the Sponsor email you provided with an activation link. The "
 "sponsor will need to click on that link and authenticate in order to approve"
 " you in."
-msgstr "Si vous choisissez d'avoir votre accès <strong>sponsorisé<strong>, nous enverrons un courriel au courriel du sponsor que vous avez fourni avec un lien d'activation. Le sponsor devra suivre ce lien et s’authentifier afin d'approuvé votre accès."
+msgstr "Si vous choisissez d'avoir votre accès <strong>sponsorisé</strong>, nous enverrons un courriel au courriel du sponsor que vous avez fourni avec un lien d'activation. Le sponsor devra suivre ce lien et s’authentifier afin d'approuver votre accès."
 
 msgid "You will receive guest credentials by email once approved."
 msgstr "Vous recevrez vos identifiants d'invité par courriel une fois approuvé."
@@ -1052,7 +1059,7 @@ msgid "cell_phone"
 msgstr "Cellulaire"
 
 msgid "work_phone"
-msgstr "Téléphone au travail"
+msgstr "Téléphone de bureau"
 
 msgid "title"
 msgstr "Titre"
@@ -1079,3 +1086,283 @@ msgid ""
 " route traffic rather than natting it. Make sure to add the routes on the "
 "system."
 msgstr "Si le mode NATting est désactivé, PacketFence utilisera les règles iptables plutôt que celles du natting. Assurez-vous d'ajouter les routes sur le système."
+
+# html/captive-portal/templates/activated.html
+msgid ""
+"A local account has been created to allow access to node status features. "
+"Here are the information associated with that account"
+msgstr "Un compte local à été créer pour autoriser l'accès aux status des noeuds. Voici les informations relatives à ce compte"
+
+# html/captive-portal/templates/provisioner/deny.html
+msgid ""
+"According to the provisioner configuration, this device cannot access the "
+"network."
+msgstr "Selon l´approvisionneur (MDM) cet appareil n´est pas autorisé sur le réseau. "
+
+# html/captive-portal/templates/provisioner/sepm.html
+msgid "Alternate installer"
+msgstr "Installateur alternatif"
+
+# html/captive-portal/templates/provisioner/mobileiron.html
+# html/captive-portal/templates/provisioner/sepm.html
+msgid "Click here to download"
+msgstr "Cliquez ici pour télécharger"
+
+# html/captive-portal/templates/provisioner/ibm.html
+# html/captive-portal/templates/provisioner/opswat.html
+# html/captive-portal/templates/provisioner/symantec.html
+msgid "Click here to go to the download website"
+msgstr "Cliquez ici pour accéder au site du téléchargmeent"
+
+# html/captive-portal/templates/provisioner/windows.html
+msgid "Click to download the agent."
+msgstr "Cliquez ici pour télécharger l'agent"
+
+# html/captive-portal/templates/device-registration.html
+# html/captive-portal/templates/gaming-registration.html
+msgid "Device MAC address"
+msgstr "Adresse MAC de l'appareil"
+
+# html/captive-portal/templates/device-landing.html
+msgid "Device Registration Landing"
+msgstr "Page d'enregistrement du device"
+
+# html/captive-portal/templates/device-registration.html
+msgid "Device Type"
+msgstr "Type d'appareil"
+
+# html/captive-portal/templates/status.html
+msgid "Extend Access"
+msgstr "Étendre l´accès"
+
+# html/captive-portal/templates/violations/bandwidth_expiration.html
+# html/captive-portal/templates/violations/time_expiration.html
+msgid "Expiration"
+msgstr "Expiration"
+
+# html/captive-portal/templates/gaming-registration.html
+msgid "Gaming Device Type"
+msgstr "Type de console de jeux"
+
+# html/captive-portal/templates/gaming-landing.html
+msgid "Gaming Landing"
+msgstr "Page d´enregistrement de console de jeux"
+
+# html/captive-portal/templates/guest/sms_confirmation.html
+msgid "I don't have a PIN"
+msgstr "Je n'ai pas de NIP"
+
+# html/captive-portal/templates/provisioner/mobileiron.html
+msgid "If you are using an Android phone or tablet,"
+msgstr "Si vous utilisez un téléphone Android ou une tablette,"
+
+# html/captive-portal/templates/provisioner/windows.html
+msgid ""
+"In order to complete your connection to the secure SSID, you will need to "
+"run the agent available below."
+msgstr "Pour terminer votre connexion au SSID sécurisé, vous allez devoir lancer l'agent disponible ci-dessous."
+
+# html/captive-portal/templates/activated.html
+msgid "Local account creation"
+msgstr "Création de compte local"
+
+# html/captive-portal/templates/status.html
+msgid "Login to manage registered devices"
+msgstr "Connectez vous pour administrer les appareils enregistrés"
+
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "Login with Facebook account"
+msgstr "Connectez vous avec votre compte Facebook"
+
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "Login with GitHub account"
+msgstr "Connectez vous avec votre compte GitHub"
+
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "Login with Google account"
+msgstr "Connectez vous avec votre compte Google"
+
+# html/captive-portal/templates/login.html
+msgid "Login with LinkedIn account"
+msgstr "Connectez vous avec votre compte LinkedIn"
+
+# html/captive-portal/templates/login.html
+msgid "Login with Windows Live account"
+msgstr "Connectez vous avec votre compte Windows Live"
+
+# html/captive-portal/templates/pending.html
+# html/captive-portal/templates/release.html
+msgid "Network access has been granted"
+msgstr "Accès au réseau accordé"
+
+# html/captive-portal/templates/status.html
+msgid "OS Type"
+msgstr "Type d'OS"
+
+# html/captive-portal/templates/provisioner/ibm.html
+# html/captive-portal/templates/provisioner/opswat.html
+# html/captive-portal/templates/provisioner/symantec.html
+msgid ""
+"Once the application is installed, click 'Continue' to activate your network"
+" connection"
+msgstr "Lorsque l'application est installée, cliquez 'Continue' pour activez votre accès réseau"
+
+# html/captive-portal/templates/provisioner/mobileiron.html
+# html/captive-portal/templates/provisioner/sepm.html
+msgid ""
+"Once the application is installed, click next to activate your network "
+"connection"
+msgstr "Lorsque l'application est installée, cliquez 'Next' pour activez votre accès réseau"
+
+# html/captive-portal/templates/status.html
+msgid "Open in new popup window"
+msgstr "Ouvrir dans une nouvelle fenêtre popup"
+
+# html/captive-portal/templates/violations/bandwidth_expiration.html
+# html/captive-portal/templates/violations/bandwidth_limit.fr.html
+# html/captive-portal/templates/violations/bandwidth_limit.html
+# html/captive-portal/templates/violations/banned_devices.fr.html
+# html/captive-portal/templates/violations/banned_devices.html
+# html/captive-portal/templates/violations/banned_os.fr.html
+# html/captive-portal/templates/violations/banned_os.html
+# html/captive-portal/templates/violations/darknet.fr.html
+# html/captive-portal/templates/violations/darknet.html
+# html/captive-portal/templates/violations/failed_scan.es_ES.html
+# html/captive-portal/templates/violations/failed_scan.fr.html
+# html/captive-portal/templates/violations/failed_scan.html
+# html/captive-portal/templates/violations/generic.fr.html
+# html/captive-portal/templates/violations/generic.html
+# html/captive-portal/templates/violations/lsass.es_ES.html
+# html/captive-portal/templates/violations/lsass.fr.html
+# html/captive-portal/templates/violations/lsass.html
+# html/captive-portal/templates/violations/malware.es_ES.html
+# html/captive-portal/templates/violations/malware.fr.html
+# html/captive-portal/templates/violations/malware.html
+# html/captive-portal/templates/violations/nat.fr.html
+# html/captive-portal/templates/violations/nat.html
+# html/captive-portal/templates/violations/p2p.fr.html
+# html/captive-portal/templates/violations/p2p.html
+# html/captive-portal/templates/violations/roguedhcp.fr.html
+# html/captive-portal/templates/violations/roguedhcp.html
+# html/captive-portal/templates/violations/sample.fr.html
+# html/captive-portal/templates/violations/sample.html
+# html/captive-portal/templates/violations/scanning.fr.html
+# html/captive-portal/templates/violations/scanning.html
+# html/captive-portal/templates/violations/spam.fr.html
+# html/captive-portal/templates/violations/spam.html
+# html/captive-portal/templates/violations/system_scan.fr.html
+# html/captive-portal/templates/violations/system_scan.html
+# html/captive-portal/templates/violations/time_expiration.html
+# html/captive-portal/templates/violations/trojan.fr.html
+# html/captive-portal/templates/violations/trojan.html
+# html/captive-portal/templates/violations/zotob.fr.html
+# html/captive-portal/templates/violations/zotob.html
+msgid "Quarantine"
+msgstr "Quarantaine"
+
+# html/captive-portal/templates/device-registration.html
+# html/captive-portal/templates/gaming-registration.html
+msgid "Register"
+msgstr "Enregistrement"
+
+# html/captive-portal/templates/device-registration.html
+# html/captive-portal/templates/gaming-registration.html
+msgid "Registration"
+msgstr "Enregistrement"
+
+# html/captive-portal/templates/status.html
+msgid "Registration Date"
+msgstr "Date d'enregistrement"
+
+# html/captive-portal/templates/device-registration.html
+msgid "Select Console"
+msgstr "Choisissez votre console"
+
+# html/captive-portal/templates/gaming-registration.html
+msgid "Select Gaming Console"
+msgstr "Choisissez votre console de jeux"
+
+# html/captive-portal/templates/status.html
+msgid "State - Network Access"
+msgstr "Etat - Accès réseau"
+
+# html/captive-portal/templates/provisioner/mobileiron.html
+msgid "To complete your network activation you need to install MobileIron"
+msgstr "Pour finaliser votre accès au réseau vous devez installer le client MobileIron."
+
+# html/captive-portal/templates/provisioner/ibm.html
+msgid ""
+"To complete your network activation you need to install the IBM client."
+msgstr "Pour finaliser votre accès au réseau vous devez installer le client IBM."
+
+# html/captive-portal/templates/provisioner/opswat.html
+msgid ""
+"To complete your network activation you need to install the OPSWAT GEARS "
+"client."
+msgstr "Pour finaliser votre accès au réseau vous devez installer le client OPSWAT GEARS."
+
+# html/captive-portal/templates/provisioner/sepm.html
+msgid ""
+"To complete your network activation you need to install the Symantec "
+"Endpoint Manager"
+msgstr "Pour finaliser votre accès au réseau vous devez installer le client Symantec Endpoint Manager"
+
+# html/captive-portal/templates/provisioner/symantec.html
+msgid ""
+"To complete your network activation you need to install the Symantec client."
+msgstr "Pour finaliser votre accès au réseau vous devez installer le client Symantec."
+
+# html/captive-portal/templates/provisioner/accept.html
+msgid ""
+"To the administrator : you should probably file a bug report on the "
+"PacketFence website"
+msgstr "Vous devez probablement reporter un bug sur le site web de PacketFence"
+
+# html/captive-portal/templates/provisioner/accept.html
+msgid "To the user : try clicking Continue to see if it fixes the problem"
+msgstr "Cliquez sur continue pour vérifier si cela corrige le problème"
+
+# html/captive-portal/templates/status.html
+msgid "Unregister"
+msgstr "Désenregistrer"
+
+# html/captive-portal/templates/status.html
+msgid "You have no registered devices."
+msgstr "Vous n'avez pas d'appareil enregistré"
+
+# html/captive-portal/templates/provisioner/accept.html
+msgid "You should not seeing this page, something went wrong."
+msgstr "Vous ne devriez pas voir cette page, quelque chose d´incorrect est arrivé."
+
+# html/captive-portal/templates/status.html
+msgid "Your Network Access Status"
+msgstr "État de vos accès au réseau"
+
+# html/captive-portal/templates/status.html
+msgid "Your current device is not registered on our network."
+msgstr "Votre appareil n´est actuellement pas enregistré sur le réseau."
+
+# html/captive-portal/templates/status.html
+msgid "Your network access ends in <strong id=\"expiration\"></strong>"
+msgstr "Votre accès au réseau se termine dans <strong id=\"expiration\"></strong>"
+
+# html/captive-portal/templates/status.html
+msgid "Your network access has expired."
+msgstr "Votre accès au réseau a expiré."
+
+# html/captive-portal/templates/status.html
+msgid "Your network access is <strong>paused</strong>"
+msgstr "Votre accès au réseau est en <strong>pause</strong>"
+
+# html/captive-portal/templates/status.html
+msgid "Your registered devices"
+msgstr "Vos appareils enregistrés"

@@ -2,6 +2,7 @@
   <div>
   <select name="searches.0.name"[% ' disabled="disabled"' IF disabled %] class="span4">
     <option value="mac">[% l('Node MAC') %]</option>
+    <option value="status">[% l('Status') %]</option>
     <option value="last_ip">[% l('Node IP') %]</option>
     <option value="category">[% l('Node role') %]</option>
     <option value="notes">[% l('Notes') %]</option>
@@ -11,6 +12,7 @@
     <option value="dhcp_fingerprint">[% l('OS (DHCP)') %]</option>
     <option value="switch_ip">[% l('Source switch IP') %]</option>
     <option value="computername">[% l('Computer Name') %]</option>
+    <option value="bypass_vlan">[% l('Bypass VLAN') %]</option>
   </select>
   <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
     <option value="equal">[% l('is') %]</option>
@@ -130,22 +132,24 @@ form {
                 </div>
                 <div class="tab-pane well" id="advanced">
                   <form id="advancedSearch" name="advancedNodeSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
+                  <div>
+                    [% match_options = BLOCK %]
+                      <select name="all_or_any" class="input-mini">
+                        <option value="all">[% l('all') %]</option>
+                        <option value="any">[% l('any') %]</option>
+                      </select>
+                    [% END %]
+                    [% l('Match [_1] of the following conditions:', [match_options]) %]
+                  </div>
+                  <br/>
                   <div class="input-daterange datepicker">
+                    <label class="control-label">[% l('Detected Between :') %]</label>
                     <input type="text" class="input-small" name="start" data-date-format="yyyy-mm-dd" />
                     <i class="icon-arrow-right"></i>
                     <input type="text" class="input-small" name="end" data-date-format="yyyy-mm-dd" />
                     <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
                   </div>
-                  <div>
-                          [% match_options = BLOCK %]
-                          <select name="all_or_any" class="input-mini">
-                            <option value="all">[% l('all') %]</option>
-                            <option value="any">[% l('any') %]</option>
-                          </select>
-                          [% END %]
-                          [% l('Match [_1] of the following conditions:', [match_options]) %]
-                  </div>
-                  <table class="table-dynamic">
+                  <table id="advancedSearchConditions" class="table-dynamic">
                     <tbody>
                       <tr class="hidden dynamic-row">
                         <td>
@@ -162,9 +166,11 @@ form {
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                          <!-- first condition cannot be deleted -->
+                          <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
                         </td>
                       </tr>
+                    </tbody>
+                    <tfoot>
                       <tr>
                         <td colspan="2" style="padding-top: 1em">
                           <div class="btn-group pull-right">
@@ -176,8 +182,12 @@ form {
                           </div>
                         </td>
                       </tr>
-                    </tbody>
+                    </tfoot>
                   </table>
+                  <div id="advancedSearchConditionsEmpty" class="unwell unwell-horizontal hidden">
+                      <span><i class="icon-search" style="font-size:1em"> </i></span>
+                      <a href="#add">[% l('Add a condition.') %]</a>
+                  </div>
                 </div>
               </div>
             </div>

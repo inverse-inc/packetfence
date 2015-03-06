@@ -16,6 +16,13 @@ extends 'pf::Authentication::Source::LDAPSource';
 
 has '+type' => ( default => 'AD' );
 
+=head2 available_attributes
+
+Available ldap search attributes for Active Directory
+memberOf:1.2.840.113556.1.4.1941: attribute is for nested group, see https://msdn.microsoft.com/en-us/library/aa746475%28v=vs.85%29.aspx
+
+=cut
+
 sub available_attributes {
   my $self = shift;
   my $super_attributes = $self->SUPER::available_attributes;
@@ -24,6 +31,7 @@ sub available_attributes {
      { value => "sAMAccountName", type => $Conditions::SUBSTRING },
      { value => "sAMAccountType", type => $Conditions::SUBSTRING },
      { value => "userAccountControl", type => $Conditions::SUBSTRING },
+     { value => "memberOf:1.2.840.113556.1.4.1941:", type => $Conditions::SUBSTRING },
     ];
   
   return [@$super_attributes, @$ad_attributes];

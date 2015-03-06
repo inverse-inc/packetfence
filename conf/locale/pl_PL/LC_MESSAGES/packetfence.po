@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2013 Inverse inc.
+# Copyright (C) 2005-2015 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
 # 
 # Translators:
@@ -14,7 +14,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2014-08-12 00:24+0000\n"
+"PO-Revision-Date: 2015-03-05 20:55+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: Polish (Poland) (http://www.transifex.com/projects/p/packetfence/language/pl_PL/)\n"
 "MIME-Version: 1.0\n"
@@ -945,6 +945,9 @@ msgid ""
 " been logged."
 msgstr "Wystąpił problem podczas próby znalezienia komputera do zarejestrowania. Problem został zapisany do dziennika."
 
+msgid "does not have permission to sponsor a user"
+msgstr ""
+
 msgid ""
 "The device with MAC address %s has already been authorized to your network."
 msgstr "Urządzenie o adresie MAC %s zostało iuż autoryzowane w Twojej sieci."
@@ -957,6 +960,9 @@ msgstr "%s: Zaakceptowano żądanie dostepu gościnnego"
 
 msgid "Guest pre-registration is not allowed by policy"
 msgstr "Pre-rejestracja gości nie jest dozwolona przez zasady"
+
+msgid "Maximum amount of retries attempted"
+msgstr ""
 
 msgid ""
 "If you choose to have your access <strong>sponsored</strong>, we will send "
@@ -1084,4 +1090,284 @@ msgid ""
 "Since NATting mode is disabled, PacketFence will adjust iptables to rules to"
 " route traffic rather than natting it. Make sure to add the routes on the "
 "system."
+msgstr ""
+
+# html/captive-portal/templates/activated.html
+msgid ""
+"A local account has been created to allow access to node status features. "
+"Here are the information associated with that account"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/deny.html
+msgid ""
+"According to the provisioner configuration, this device cannot access the "
+"network."
+msgstr ""
+
+# html/captive-portal/templates/provisioner/sepm.html
+msgid "Alternate installer"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/mobileiron.html
+# html/captive-portal/templates/provisioner/sepm.html
+msgid "Click here to download"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/ibm.html
+# html/captive-portal/templates/provisioner/opswat.html
+# html/captive-portal/templates/provisioner/symantec.html
+msgid "Click here to go to the download website"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/windows.html
+msgid "Click to download the agent."
+msgstr ""
+
+# html/captive-portal/templates/device-registration.html
+# html/captive-portal/templates/gaming-registration.html
+msgid "Device MAC address"
+msgstr ""
+
+# html/captive-portal/templates/device-landing.html
+msgid "Device Registration Landing"
+msgstr ""
+
+# html/captive-portal/templates/device-registration.html
+msgid "Device Type"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Extend Access"
+msgstr ""
+
+# html/captive-portal/templates/violations/bandwidth_expiration.html
+# html/captive-portal/templates/violations/time_expiration.html
+msgid "Expiration"
+msgstr ""
+
+# html/captive-portal/templates/gaming-registration.html
+msgid "Gaming Device Type"
+msgstr ""
+
+# html/captive-portal/templates/gaming-landing.html
+msgid "Gaming Landing"
+msgstr ""
+
+# html/captive-portal/templates/guest/sms_confirmation.html
+msgid "I don't have a PIN"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/mobileiron.html
+msgid "If you are using an Android phone or tablet,"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/windows.html
+msgid ""
+"In order to complete your connection to the secure SSID, you will need to "
+"run the agent available below."
+msgstr ""
+
+# html/captive-portal/templates/activated.html
+msgid "Local account creation"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Login to manage registered devices"
+msgstr ""
+
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "Login with Facebook account"
+msgstr ""
+
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "Login with GitHub account"
+msgstr ""
+
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "Login with Google account"
+msgstr ""
+
+# html/captive-portal/templates/login.html
+msgid "Login with LinkedIn account"
+msgstr ""
+
+# html/captive-portal/templates/login.html
+msgid "Login with Windows Live account"
+msgstr ""
+
+# html/captive-portal/templates/pending.html
+# html/captive-portal/templates/release.html
+msgid "Network access has been granted"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "OS Type"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/ibm.html
+# html/captive-portal/templates/provisioner/opswat.html
+# html/captive-portal/templates/provisioner/symantec.html
+msgid ""
+"Once the application is installed, click 'Continue' to activate your network"
+" connection"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/mobileiron.html
+# html/captive-portal/templates/provisioner/sepm.html
+msgid ""
+"Once the application is installed, click next to activate your network "
+"connection"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Open in new popup window"
+msgstr ""
+
+# html/captive-portal/templates/violations/bandwidth_expiration.html
+# html/captive-portal/templates/violations/bandwidth_limit.fr.html
+# html/captive-portal/templates/violations/bandwidth_limit.html
+# html/captive-portal/templates/violations/banned_devices.fr.html
+# html/captive-portal/templates/violations/banned_devices.html
+# html/captive-portal/templates/violations/banned_os.fr.html
+# html/captive-portal/templates/violations/banned_os.html
+# html/captive-portal/templates/violations/darknet.fr.html
+# html/captive-portal/templates/violations/darknet.html
+# html/captive-portal/templates/violations/failed_scan.es_ES.html
+# html/captive-portal/templates/violations/failed_scan.fr.html
+# html/captive-portal/templates/violations/failed_scan.html
+# html/captive-portal/templates/violations/generic.fr.html
+# html/captive-portal/templates/violations/generic.html
+# html/captive-portal/templates/violations/lsass.es_ES.html
+# html/captive-portal/templates/violations/lsass.fr.html
+# html/captive-portal/templates/violations/lsass.html
+# html/captive-portal/templates/violations/malware.es_ES.html
+# html/captive-portal/templates/violations/malware.fr.html
+# html/captive-portal/templates/violations/malware.html
+# html/captive-portal/templates/violations/nat.fr.html
+# html/captive-portal/templates/violations/nat.html
+# html/captive-portal/templates/violations/p2p.fr.html
+# html/captive-portal/templates/violations/p2p.html
+# html/captive-portal/templates/violations/roguedhcp.fr.html
+# html/captive-portal/templates/violations/roguedhcp.html
+# html/captive-portal/templates/violations/sample.fr.html
+# html/captive-portal/templates/violations/sample.html
+# html/captive-portal/templates/violations/scanning.fr.html
+# html/captive-portal/templates/violations/scanning.html
+# html/captive-portal/templates/violations/spam.fr.html
+# html/captive-portal/templates/violations/spam.html
+# html/captive-portal/templates/violations/system_scan.fr.html
+# html/captive-portal/templates/violations/system_scan.html
+# html/captive-portal/templates/violations/time_expiration.html
+# html/captive-portal/templates/violations/trojan.fr.html
+# html/captive-portal/templates/violations/trojan.html
+# html/captive-portal/templates/violations/zotob.fr.html
+# html/captive-portal/templates/violations/zotob.html
+msgid "Quarantine"
+msgstr ""
+
+# html/captive-portal/templates/device-registration.html
+# html/captive-portal/templates/gaming-registration.html
+msgid "Register"
+msgstr ""
+
+# html/captive-portal/templates/device-registration.html
+# html/captive-portal/templates/gaming-registration.html
+msgid "Registration"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Registration Date"
+msgstr ""
+
+# html/captive-portal/templates/device-registration.html
+msgid "Select Console"
+msgstr ""
+
+# html/captive-portal/templates/gaming-registration.html
+msgid "Select Gaming Console"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "State - Network Access"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/mobileiron.html
+msgid "To complete your network activation you need to install MobileIron"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/ibm.html
+msgid ""
+"To complete your network activation you need to install the IBM client."
+msgstr ""
+
+# html/captive-portal/templates/provisioner/opswat.html
+msgid ""
+"To complete your network activation you need to install the OPSWAT GEARS "
+"client."
+msgstr ""
+
+# html/captive-portal/templates/provisioner/sepm.html
+msgid ""
+"To complete your network activation you need to install the Symantec "
+"Endpoint Manager"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/symantec.html
+msgid ""
+"To complete your network activation you need to install the Symantec client."
+msgstr ""
+
+# html/captive-portal/templates/provisioner/accept.html
+msgid ""
+"To the administrator : you should probably file a bug report on the "
+"PacketFence website"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/accept.html
+msgid "To the user : try clicking Continue to see if it fixes the problem"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Unregister"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "You have no registered devices."
+msgstr ""
+
+# html/captive-portal/templates/provisioner/accept.html
+msgid "You should not seeing this page, something went wrong."
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Your Network Access Status"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Your current device is not registered on our network."
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Your network access ends in <strong id=\"expiration\"></strong>"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Your network access has expired."
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Your network access is <strong>paused</strong>"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Your registered devices"
 msgstr ""

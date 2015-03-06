@@ -1,3 +1,6 @@
+          [% IF item && item.id.defined %]
+            [% form.field('id').set_element_attr('readonly','readonly') %]
+          [% END %]
           [% form.block('definition').render %]
           [% IF form.field('filter') %]
             <div class="control-group">

@@ -28,16 +28,30 @@ case "$1" in
         if [ -x /etc/init.d/packetfence ]; then
             invoke-rc.d packetfence stop
         fi
+        set +e
         userdel pf
+        if [ $? -ne 0 ]; then
+            echo "Unable to remove pf user"
+        fi
         if [ -e /etc/lsb-release ]; then
             groupdel pf
+            if [ $? -ne 0 ]; then
+                echo "Unable to remove pf group"
+            fi
         fi
+        set -e
+        # removing init scripts
+        if [ -e /etc/lsb-release ]; then
+            update-rc.d -f packetfence remove > /dev/null 2>&1
+        else
+            update-rc.d packetfence remove > /dev/null 2>&1
+        fi
+        # removing init scripts
     ;;
     purge)
-        # removing init scripts
-        update-rc.d -f packetfence remove >/dev/null || exit 0
         # purging all files
-        rm -fr /usr/local/pf
+        # /usr/bin/find /usr/local/pf ! -path "*pfconfig*" ! -type d|sort|xargs rm
+        /usr/bin/find /usr/local/pf ! -path "*pfconfig*" ! -path "/usr/local/pf" ! -path "usr/local/pf/lib"  ! -path "/usr/local/pf/bin" ! -path "/usr/local/pf/bin/pfcmd" -type d|sort -r|xargs rm -r
         ;;
     *)
         echo "postrm called with unknown argument \`$1'" >&2

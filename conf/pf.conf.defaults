@@ -80,12 +80,6 @@ tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.exe
 
 [trapping]
 #
-# trapping.range
-#
-# Comma-delimited list of address ranges/CIDR blocks that PacketFence will monitor/detect/trap on.  Gateway, network, and 
-# broadcast addresses are ignored.
-range=192.168.0.0/24
-#
 # trapping.registration
 #
 # If enabled, nodes will be required to register on first network access.  Further registration options are configured in the 
@@ -125,6 +119,12 @@ detection=disabled
 # Let you choose from our supported IDS: snort or suricata
 #
 detection_engine=snort
+#
+# trapping.range
+#
+# Comma-delimited list of address ranges/CIDR blocks that Snort/Suricata will monitor/detect/trap on.  Gateway, network, and 
+# broadcast addresses are ignored.
+range=192.168.0.0/24
 
 #
 # trapping.wireless_ips

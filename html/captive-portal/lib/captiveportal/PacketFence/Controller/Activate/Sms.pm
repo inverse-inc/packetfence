@@ -50,6 +50,7 @@ sub index : Path : Args(0) {
         if ( $auth_return != 1 ) {
             $c->stash(
                 txt_auth_error => i18n_format( $GUEST::ERRORS{$err} ) );
+            utf8::decode($c->stash->{'txt_auth_error'});
             $c->detach('showSmsConfirmation');
         }
         my $profile = $c->profile;
@@ -132,6 +133,7 @@ sub sms_validation {
             $logger->info("Max tries reached invalidating code for $mac");
             pf::activation::invalidate_codes_for_mac($mac,'sms');
             $c->stash(txt_validation_error => i18n_format($GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES}));
+            utf8::decode($c->stash->{'txt_auth_error'});
             $c->detach(Signup => 'index');
         }
         if (pf::activation::validate_code($pin)) {

@@ -1,7 +1,7 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          packetfence
-# Required-Start:    mysql $network $local_fs
+# Required-Start:    packetfence-config mysql $network $local_fs
 # Required-Stop:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
@@ -48,6 +48,7 @@ do_start()
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
+	pfconfig
 	if [ `find /lib/modules/$UNAME/ -name ip_set.ko` ]
 	then
 		modprobe ip_set
@@ -70,6 +71,7 @@ do_stop()
 	#   1 if daemon was already stopped
 	#   2 if daemon could not be stopped
 	#   other if a failure occurred
+	pfconfig
 	$DAEMON service pf stop
 	# Wait for children to finish too if this is a daemon that forks
 	# and if the daemon is only ever run from this initscript.
@@ -91,8 +93,18 @@ do_reload() {
 	# restarting (for example, when it is sent a SIGHUP),
 	# then implement that here.
 	#
+	pfconfig
 	$DAEMON service pf restart > /dev/null
 	return 0
+}
+
+pfconfig() {
+    # Check if packetfence-config is started
+	  if [ ! -f /usr/local/pf/var/run/pfconfig.pid ] || ! ps -p $(cat /usr/local/pf/var/run/pfconfig.pid) > /dev/null; then
+            if [ -f /etc/init.d/packetfence-config ]; then
+                    /etc/init.d/packetfence-config start
+            fi
+    fi
 }
 
 case "$1" in
@@ -113,6 +125,7 @@ case "$1" in
 	esac
 	;;
  status)
+        pfconfig
         /usr/local/pf/bin/pfcmd service pf status
         if [ ! -f /usr/local/pf/var/run/pfmon.pid ]; then
           exit 3

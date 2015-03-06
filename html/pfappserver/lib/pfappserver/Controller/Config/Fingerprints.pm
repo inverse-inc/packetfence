@@ -2,117 +2,21 @@ package pfappserver::Controller::Config::Fingerprints;
 
 =head1 NAME
 
-pfappserver::Controller::Config::Fingerprints - Catalyst Controller
+pfappserver::Controller::Config::Fingerprints
 
 =head1 DESCRIPTION
 
-Catalyst Controller.
+Place all customization for Controller::Config::Fingerprints here
 
 =cut
 
-use strict;
-use warnings;
-
-use HTTP::Status qw(:constants is_error is_success);
 use Moose;
-use namespace::autoclean;
-use URI::Escape::XS;
-use URI::Escape;
 
-use pf::config;
-use pf::os;
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Fingerprints'; }
 
-BEGIN { extends 'pfappserver::Base::Controller'; }
+=head1 AUTHOR
 
-my %FIELD_MAP = (
-    dhcp_fingerprint => 'fprint[]',
-    vendor => 'desc[]',
-    computername => 'compname[]',
-    user_agent => 'useragent[]'
-);
-
-=head2 index
-
-=cut
-
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
-    $c->go('simple_search');
-}
-
-=head2 index
-
-=cut
-
-sub simple_search :Local :Args() :SimpleSearch('OS') :AdminRole('FINGERPRINTS_READ') { }
-
-=head2 update
-
-=cut
-
-sub update :Local :Args(0) :AdminRole('FINGERPRINTS_UPDATE') {
-    my ( $self, $c ) = @_;
-    $c->stash->{current_view} = 'JSON';
-    my ( $status, $version_msg, $total ) = update_dhcp_fingerprints_conf();
-    # TODO : format & translate
-    $c->stash->{status_msg} = (is_success($status) ) ? (
-        " $status DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n"
-        . "$total DHCP fingerprints reloaded\n") : $version_msg;
-    $c->response->status($status);
-}
-
-=head2 upload
-
-=cut
-
-sub upload :Local :Args(0) :AdminRole('FINGERPRINTS_READ') {
-    my ( $self, $c ) = @_;
-    $c->stash->{current_view} = 'JSON';
-
-    require pf::pfcmd::report;
-    import pf::pfcmd::report qw(report_unknownprints_all);
-
-    my @field_name = qw(dhcp_fingerprint vendor computername user_agent);
-    my $status = HTTP_OK;
-    my $content =
-      join("&", (map
-                 {
-                     my $obj = $_;
-                     map
-                       {
-                           $FIELD_MAP{$_} . "=" . uri_escape($obj->{$_})
-                       } qw(dhcp_fingerprint vendor computername user_agent)
-                   } report_unknownprints_all()
-                )
-          );
-    if ($content) {
-        my $release = $c->model('Admin')->pf_release();
-        my $fingerbank_version = "Fingerbank version " . $c->model('Admin')->fingerbank_version();
-        $content .= '&ref=' . uri_escape($c->uri_for($c->action->name)) .
-                    '&email=' . uri_escape($Config{'alerting'}{'emailaddr'}) .
-                    '&pf_release=' . uri_escape($release) .
-                    '&fingerbank_version=' . uri_escape($fingerbank_version) .
-                    '&submit=Submit%20Fingerprints';
-        require LWP::UserAgent;
-        my $browser  = LWP::UserAgent->new;
-        my $response = $browser->post(
-            'http://www.packetfence.org/fingerprintsv2.php',
-            Content => $content
-        );
-        if ($response->content =~ /Thank you for submitting the following fingerprints/) {
-            $c->stash->{status_msg} = "Thank you for submitting your fingerprints";
-        }
-        else {
-            $c->stash->{status_msg} = "Error uploading fingerprints";
-            $status = HTTP_INTERNAL_SERVER_ERROR;
-        }
-    }
-    else {
-        $c->stash->{status_msg} = "No unknown fingerprints found";
-        $status = HTTP_NOT_FOUND;
-    }
-    $c->response->status($status);
-}
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -136,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
 
 __PACKAGE__->meta->make_immutable;
 

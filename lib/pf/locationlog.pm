@@ -358,7 +358,7 @@ sub locationlog_view_open_mac {
 }
 
 sub locationlog_insert_start {
-    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid, $stripped_user_name, $realm ) = @_;
+    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid, $stripped_user_name, $realm, $locationlog_mac ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::locationlog');
 
     my $conn_type = connection_type_to_str($connection_type)
@@ -367,6 +367,10 @@ sub locationlog_insert_start {
     # warning avoidance
     $user_name = "" if (!defined($user_name));
     $ssid = "" if (!defined($ssid));
+
+    if (!(defined($vlan)) && defined($locationlog_mac->{'vlan'})) {
+        $vlan = $locationlog_mac->{'vlan'};
+    }
 
     if ( defined($mac) ) {
         db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_start_with_mac_sql',
@@ -467,7 +471,7 @@ sub locationlog_synchronize {
                 $logger->debug("closing old locationlog entry because something about this node changed");
                 db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_mac_sql', $mac)
                     || return (0);
-                $mustInsert = 1;
+                locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid, $stripped_user_name, $realm, $locationlog_mac);
             }
 
         } else {
@@ -561,7 +565,10 @@ sub _is_locationlog_accurate {
     $ssid = '' if (!defined($ssid));
 
     # did something changed
-    my $vlanChanged = ($locationlog_mac->{'vlan'} != $vlan);
+    my $vlanChanged = '0';
+    if (defined($vlan)) {
+        $vlanChanged = ($locationlog_mac->{'vlan'} != $vlan);
+    }
     my $switchChanged = ($locationlog_mac->{'switch'} ne $switch);
     my $conn_typeChanged = ($locationlog_mac->{connection_type} ne connection_type_to_str($connection_type));
     my $userChanged = ($locationlog_mac->{'dot1x_username'} ne $user_name);
