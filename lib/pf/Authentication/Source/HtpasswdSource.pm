@@ -11,6 +11,7 @@ pf::Authentication::Source::HtpasswdSource
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::Authentication::Source;
+use pf::util;
 
 use Apache::Htpasswd;
 
