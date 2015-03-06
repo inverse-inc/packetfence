@@ -438,7 +438,7 @@ sub init_config {
 
     # FIX ME ! 
     # Needs to be removed but until authentication is migrated it needs to stay here
-    readProfileConfigFile();
+#    readProfileConfigFile();
 
     tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
     tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
