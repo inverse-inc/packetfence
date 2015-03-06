@@ -416,10 +416,10 @@ multi-threaded daemons.
 =cut
 
 sub init_config {
-#    readPfDocConfigFiles();
     tie %Doc_Config, 'pfconfig::cached_hash', 'config::Documentation';
-#    readPfConfigFiles();
+
     tie %Config, 'pfconfig::cached_hash', 'config::Pf';
+
     tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
 
     tie @dhcplistener_ints,  'pfconfig::cached_array', 'interfaces::dhcplistener_ints';
@@ -436,25 +436,18 @@ sub init_config {
     tie %CAPTIVE_PORTAL, 'pfconfig::cached_hash', 'resource::CaptivePortal';
     tie $fqdn, 'pfconfig::cached_scalar', 'resource::fqdn';
 
-    # FIX ME ! 
-    # Needs to be removed but until authentication is migrated it needs to stay here
-#    readProfileConfigFile();
-
     tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
     tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
 
-#    readNetworkConfigFile();
     tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
     tie @routed_isolation_nets, 'pfconfig::cached_array', 'interfaces::routed_isolation_nets';    
     tie @routed_registration_nets, 'pfconfig::cached_array', 'interfaces::routed_registration_nets';    
     tie @inline_nets, 'pfconfig::cached_array', 'interfaces::inline_nets';
 
-#    readFloatingNetworkDeviceFile();
     tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
 
-#    readFirewallSSOFile();
     tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
-#    readRealmFile();
+
     tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 
     tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
