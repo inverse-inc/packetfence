@@ -25,7 +25,7 @@ Enhancements
 ++++++++++++
 
 * Nodes are now searchable by status
-* Removed SSLv3 support from default httpd configuration to prevent POODLE exploit.
+* Removed SSLv3 and legacy ciper suites support from default httpd configuration to prevent POODLE exploit ad FREAK attack.
 * Added an option to display Bypass VLAN of a node in the Admin GUI.
 * Added nested groups support for Active Directory.
 * It is now possible to check if a device has already authenticated as member of an Active-Directory domain prior to user authentication.
