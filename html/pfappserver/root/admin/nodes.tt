@@ -143,7 +143,7 @@ form {
                   </div>
                   <br/>
                   <div class="input-daterange datepicker">
-                    <label class="control-label">Detected Between : </label>
+                    <label class="control-label">[% l('Detected Between :') %]</label>
                     <input type="text" class="input-small" name="start" data-date-format="yyyy-mm-dd" />
                     <i class="icon-arrow-right"></i>
                     <input type="text" class="input-small" name="end" data-date-format="yyyy-mm-dd" />
