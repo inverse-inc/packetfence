@@ -354,7 +354,7 @@ Important parameters to configure regarding the captive portal are the following
 
 * Redirect URL under *Configuration -> Portal Profile -> Portal Name*
 
-For some browsers, is it preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be the one where the user will be redirected. Affected browsers are Firefox 3 and later.
+For some browsers, it is preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be the one where the user will be redirected. Affected browsers are Firefox 3 and later.
 
 * IP under *Configuration -> Captive portal*
 

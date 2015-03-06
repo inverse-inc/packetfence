@@ -53,7 +53,7 @@
                 [% IF provisioner.eap_type.defined and provisioner.eap_type != "25" %]
                 <dict>
                         <key>PayloadCertificateFileName</key>
-                        <string>[% certificate_in_session %]</string>
+                        <string>Name</string>
                         <key>PayloadContent</key>
                         <data>[% provisioner.cert_content %]</data>
                         <key>PayloadDescription</key>

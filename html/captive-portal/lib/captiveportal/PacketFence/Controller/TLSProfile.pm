@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::TLSProfile;
 use Moose;
 use namespace::autoclean;
 use WWW::Curl::Easy;
+use Crypt::OpenSSL::PKCS12;
 use pf::log;
 use pf::config;
 use pf::util;
@@ -17,6 +18,8 @@ use Email::Valid;
 
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
+
+__PACKAGE__->config( namespace => 'tlsprofile', );
 
 =head1 NAME
 
@@ -42,7 +45,7 @@ sub index : Path : Args(0) {
     my $request = $c->request;
     my $mac = $c->portalSession->clientMac;
     my $provisioner = $c->profile->findProvisioner($mac);
-    #my $prov = $provisioner->authorize($mac) if (defined($provisioner));
+    $provisioner->authorize($mac) if (defined($provisioner));
     $c->stash(
         post_uri            => '/tlsprofile/cert_process',
         #destination_url     => $prov,
@@ -50,7 +53,7 @@ sub index : Path : Args(0) {
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
         certificate_email   => lc( $request->param_encoded("certificate_email")),
         template            => 'pki.html',
-        provisioner         => $provisioner,
+        provisioner         => 'checkIfProvisionIsNeeded', #provisioner,
         username            => $username,
         );
 }
@@ -128,8 +131,29 @@ sub cert_process : Local {
     my ($self,$c) = @_;
     $c->forward('validateform');
     $c->forward('get_cert');
-    $c->forward('cert_p12');
-    $c->forward('export_fingerprint');
+    $c->forward('build_cert_p12');
+    #$c->forward('export_fingerprint');
+    $c->forward('checkIfProvisionIsNeeded');
+    $self->showError($c,"We could not match your operating system, please contact IT support.");
+}
+
+sub checkIfProvisionIsNeeded : Private {
+    my ( $self, $c ) = @_;
+    my $portalSession = $c->portalSession;
+    my $info = $c->stash->{info};
+    my $mac = $portalSession->clientMac;
+    my $profile = $c->profile;
+    if (defined( my $provisioner = $profile->findProvisioner($mac))) {
+        if ($provisioner->authorize($mac) == 0) {
+            $info->{status} = $pf::node::STATUS_PENDING;
+            node_modify($mac, %$info);
+            $c->stash(
+                template    => $provisioner->template,
+                provisioner => $provisioner,
+            );
+            $c->detach();
+        }
+    }
 }
 
 sub validateform : Private {
@@ -148,15 +172,16 @@ sub validateform : Private {
         my $email_addr = certificate_email => $c->request->param('certificate_email'),
         my $userpwd = certificate_pwd => $c->request->param('certificate_pwd'),
     );
-    unless (Email::Valid->address($email_addr)){
-        $logger->debug("Email enter is invalid for username \"$pid\"");
-        $self->showError($c,"Please enter a vaild email address");
-    }
+    #unless (Email::Valid->address($email_addr)){
+    #    $logger->debug("Email enter is invalid for username \"$pid\"");
+    #    $self->showError($c,"Please enter a vaild email address");
+    #}
 }
 
 sub export_fingerprint : Local {
     my ($self, $c) = @_;
     my $logger = $c->log;
+    my $session = $c->session;
     my $pid = "";
     unless ( $c->has_errors ){
         my $portalSession = $c->portalSession;
@@ -178,6 +203,7 @@ sub export_fingerprint : Local {
         $data =~ s/.*SHA1 Fingerprint=//smg; 
         $data =~ s/-----BEGIN CERTIFICATE-----\n.*//smg;
         $data =~ s/\:/\ /smg;
+        $c->session( ca_fingerprint => $data );
     }
     else {
         $logger->debug("We could not extract CA fingerprint from username \"$pid\" certificate");
