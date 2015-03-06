@@ -33,7 +33,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
-    @EXPORT = qw(%Violation_Config $cached_violations_config);
+    @EXPORT = qw(%Violation_Config);
 }
 
 #sub fileReloadViolationConfig {
@@ -100,25 +100,6 @@ sub loadViolationsIntoDb {
         );
     }
 }
-
-#$cached_violations_config = pf::config::cached->new(
-#    -file => $violations_config_file,
-#    -allowempty => 1,
-#    -default => 'defaults',
-#    -onfilereload => [file_reload_violation_config => \&fileReloadViolationConfig ],
-#    -onfilereloadonce => [ file_reload_once_violation_config => \&loadViolationsIntoDb ],
-#    -oncachereload => [
-#        cache_reload_violation_config => sub {
-#            my ($config,$name) = @_;
-#            my $data = $config->fromCacheForDataUntainted("Violation_Config");
-#            if($data) {
-#                %Violation_Config = %$data;
-#            } else {
-#                $config->_callFileReloadCallbacks();
-#            }
-#        }
-#    ],
-#);
 
 =head1 AUTHOR
 

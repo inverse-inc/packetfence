@@ -20,7 +20,7 @@ use Time::Period;
 use pf::api::jsonrpcclient;
 use pf::config qw(%connection_type_to_str);
 use pf::person qw(person_view);
-our (%ConfigVlanFilters, $cached_vlan_filters_config);
+our (%ConfigVlanFilters);
 
 readVlanFiltersFile();
 

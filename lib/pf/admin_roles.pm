@@ -18,11 +18,10 @@ use warnings;
 use base qw(Exporter);
 use pf::file_paths;
 use List::MoreUtils qw(any all uniq);
-use pf::config::cached;
 use pfconfig::cached_hash;
 use pf::constants::admin_roles;
 
-our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config admin_allowed_options admin_allowed_options_all);
+our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group @ADMIN_ACTIONS %ADMIN_ROLES admin_allowed_options admin_allowed_options_all);
 our %ADMIN_ROLES;
 tie %ADMIN_ROLES, 'pfconfig::cached_hash', 'config::AdminRoles';
 our @ADMIN_ACTIONS = @pf::constants::admin_roles::ADMIN_ACTIONS;

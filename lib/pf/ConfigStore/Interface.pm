@@ -13,7 +13,7 @@ pf::ConfigStore::Switch;
 
 use Moo;
 use namespace::autoclean;
-use pf::ConfigStore::config;
+use pf::ConfigStore::Pf;
 
 extends 'pf::ConfigStore::Group';
 
@@ -27,7 +27,7 @@ sub group { 'interface' };
 
 =cut
 
-sub _buildCachedConfig { $pf::ConfigStore::config::cached_pf_config }
+sub _buildCachedConfig { pf::ConfigStore::Pf->new->cachedConfig() }
 
 __PACKAGE__->meta->make_immutable;
 

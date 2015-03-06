@@ -52,7 +52,6 @@ our @authentication_sources;
 tie @authentication_sources, 'pfconfig::cached_array', 'resource::authentication_sources';
 our %authentication_lookup;
 tie %authentication_lookup, 'pfconfig::cached_hash', 'resource::authentication_lookup'; 
-our $cached_authentication_config;
 our %guest_self_registration;
 
 BEGIN {

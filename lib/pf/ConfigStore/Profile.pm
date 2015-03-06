@@ -14,20 +14,14 @@ pf::ConfigStore::Profile
 
 use Moo;
 use namespace::autoclean;
-use pf::ConfigStore::config;
+use pf::file_paths;
 
 use pf::ConfigStore;
 
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ValidGenericID';
 
-=head1 METHODS
-
-=head2 _buildCachedConfig
-
-=cut
-
-sub _buildCachedConfig { $cached_profiles_config }
+sub configFile { $profiles_config_file }
 
 sub pfconfigNamespace {'config::Profiles'}
 
