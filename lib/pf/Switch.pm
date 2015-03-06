@@ -2750,7 +2750,7 @@ sub radiusDisconnect {
         return;
     }
 
-    $logger->info("deauthenticating $mac");
+    $logger->info("[$mac] deauthenticating");
 
     # Where should we send the RADIUS Disconnect-Request?
     # to network device by default
