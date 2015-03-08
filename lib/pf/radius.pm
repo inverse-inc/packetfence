@@ -23,6 +23,7 @@ use Readonly;
 
 use pf::authentication;
 use pf::Connection;
+use pf::constants;
 use pf::config;
 use pf::locationlog;
 use pf::node;

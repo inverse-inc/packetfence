@@ -73,6 +73,7 @@ use Net::Appliance::Session;
 
 use base ('pf::Switch');
 
+use pf::constants;
 use pf::config;
 # importing switch constants
 use pf::Switch::constants;

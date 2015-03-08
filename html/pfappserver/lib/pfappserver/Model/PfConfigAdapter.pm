@@ -6,6 +6,7 @@ extends 'Catalyst::Model';
 
 use Try::Tiny;
 
+use pf::constants;
 use pf::config;
 
 =head1 NAME

@@ -26,6 +26,7 @@ use warnings;
 use pf::log;
 use pf::config::cached;
 use pf::file_paths;
+use pf::constants;
 use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
@@ -70,7 +71,7 @@ our (
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
-    $thread, $default_pid, $fqdn,
+    $thread, $fqdn,
     %CAPTIVE_PORTAL,
 #realm.conf
     %ConfigRealm, $cached_realm,
@@ -95,8 +96,7 @@ BEGIN {
         $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER @VALID_TRIGGER_TYPES
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
         $TRIGGER_ID_PROVISIONER
-        $WIPS_VID $thread $default_pid $fqdn
-        $FALSE $TRUE $YES $NO
+        $WIPS_VID $thread $fqdn
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
         $NET_TYPE_INLINE $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3
@@ -137,12 +137,6 @@ $thread = 0;
 
 my $logger = Log::Log4perl->get_logger('pf::config');
 
-# some global constants
-Readonly::Scalar our $FALSE => 0;
-Readonly::Scalar our $TRUE => 1;
-Readonly::Scalar our $YES => 'yes';
-Readonly::Scalar our $NO => 'no';
-
 # Violation trigger types
 Readonly::Scalar our $TRIGGER_TYPE_ACCOUNTING => 'accounting';
 Readonly::Scalar our $TRIGGER_TYPE_DETECT => 'detect';
@@ -176,8 +170,6 @@ Readonly our @VALID_TRIGGER_TYPES =>
 Readonly::Scalar our $ACCOUNTING_POLICY_TIME => 'TimeExpired';
 Readonly::Scalar our $ACCOUNTING_POLICY_BANDWIDTH => 'BandwidthExpired';
 
-
-$default_pid  = "admin";
 
 Readonly our $WIPS_VID => '1100020';
 

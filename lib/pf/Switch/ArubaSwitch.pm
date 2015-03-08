@@ -37,6 +37,7 @@ sub description { 'Aruba Switches' }
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
+use pf::constants;
 use pf::config;
 
 =head1 SUBROUTINES
