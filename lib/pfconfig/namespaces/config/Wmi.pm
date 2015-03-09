@@ -39,8 +39,6 @@ sub build_child {
         $self->cleanup_after_read($key, $tmp_cfg{$key});
     }
 
-    $self->{cfg} = \%tmp_cfg;
-
     return \%tmp_cfg;
 
 }
