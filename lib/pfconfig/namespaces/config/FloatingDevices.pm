@@ -45,8 +45,6 @@ sub build_child {
         }
     }
 
-    $self->{cfg} = \%ConfigFloatingDevices;
-
     return \%ConfigFloatingDevices;
 
 }

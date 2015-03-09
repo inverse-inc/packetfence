@@ -50,8 +50,6 @@ sub build_child {
         $self->cleanup_after_read($key, $ADMIN_ROLES{$key});
     }
 
-    $self->{cfg} = \%ADMIN_ROLES;
-
     return \%ADMIN_ROLES;
 
 }

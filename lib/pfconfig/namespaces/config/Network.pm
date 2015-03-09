@@ -53,8 +53,6 @@ sub build_child {
         }
     }
 
-    $self->{cfg} = \%ConfigNetworks;
-
     return \%ConfigNetworks;
 
 }

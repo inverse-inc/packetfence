@@ -43,8 +43,6 @@ sub build_child {
         $self->expand_list($Profiles_Config{$key}, qw(sources filter locale mandatory_fields allowed_devices provisioners));
     }
 
-    $self->{cfg} = \%Profiles_Config;
-
     return \%Profiles_Config;
 
 }

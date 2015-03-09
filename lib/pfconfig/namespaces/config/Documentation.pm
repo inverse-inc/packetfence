@@ -61,8 +61,6 @@ sub build_child {
         }
     }
 
-    $self->{cfg} = \%Doc_Config;
-
     return \%Doc_Config;
 
 }

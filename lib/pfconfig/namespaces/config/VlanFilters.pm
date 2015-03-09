@@ -37,8 +37,6 @@ sub build_child {
 
     $self->cleanup_whitespaces(\%tmp_cfg);
 
-    $self->{cfg} = \%tmp_cfg;
-
     return \%tmp_cfg;
 
 }

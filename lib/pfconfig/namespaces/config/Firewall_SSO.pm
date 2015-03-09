@@ -33,12 +33,7 @@ sub init {
 sub build_child {
     my ($self) = @_;
 
-    my %tmp_cfg = %{$self->{cfg}}; 
-
-    $self->{cfg} = \%tmp_cfg;
-
-    return \%tmp_cfg;
-
+    return $self->{cfg};
 }
 
 =back

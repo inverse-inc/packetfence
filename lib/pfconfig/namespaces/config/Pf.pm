@@ -51,6 +51,7 @@ sub build {
     $self->{cfg} = $cfg;
 
     my $child_resource = $self->build_child();
+    $self->{cfg} = $child_resource;
     return $child_resource;
 }
 
@@ -121,8 +122,6 @@ sub build_child {
     $Config{network}{dhcp_filter_by_message_types} = [split(/\s*,\s*/,$Config{network}{dhcp_filter_by_message_types} || '')],
 
   
-    $self->{cfg} = \%Config;
-
     return \%Config;
 
 }

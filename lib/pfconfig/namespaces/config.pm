@@ -62,6 +62,7 @@ sub build {
     $self->do_defaults();
 
     my $child_resource = $self->build_child();
+    $self->{cfg} = $child_resource;
     return $child_resource;
 }
 
