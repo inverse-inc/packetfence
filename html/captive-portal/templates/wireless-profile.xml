@@ -21,6 +21,10 @@
                                 <false/>
                                 <key>TLSAllowTrustExceptions</key>
                                 <true/>
+                                <key>TLSTrustedServerNames</key>
+                                <array>
+                                    <string>packetfence.org</string>
+                                </array>
                                 <key>UserName</key>
                                 <string>[% username %]</string>
                                 <key>UserPassword</key>
@@ -30,7 +34,7 @@
                         <key>EncryptionType</key>
                         <string>[% provisioner.security_type %]</string>
                         <key>HIDDEN_NETWORK</key>
-                        <true/>
+                        <false/>
                         <key>PayloadDescription</key>
                         <string>Configures wireless connectivity settings.</string>
                         <key>PayloadDisplayName</key>
@@ -53,9 +57,9 @@
                 [% IF provisioner.eap_type.defined and provisioner.eap_type != "25" %]
                 <dict>
                         <key>PayloadCertificateFileName</key>
-                        <string>Name</string>
+                        <string>[% certcn %]</string>
                         <key>PayloadContent</key>
-                        <data>[% provisioner.cert_content %]</data>
+                        <data>[% certdata %]</data>
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
@@ -65,7 +69,7 @@
                         <key>PayloadOrganization</key>
                         <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
-                        <string>com.apple.security.root</string>
+                        <string>com.apple.security.pkcs12</string>
                         <key>PayloadUUID</key>
                         <string>506CD34F-0AD1-4421-9F98-BA19DC4E0253</string>
                         <key>PayloadVersion</key>

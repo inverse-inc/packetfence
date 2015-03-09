@@ -110,26 +110,26 @@ extract cert data
 
 =cut
 
-sub extract_cert {
-    my ($self) = @_;
-    if (defined ($self->{ca_cert_path}) && !($self->{ca_cert_path} eq "")){
-        my $path = $self->{ca_cert_path};
-        $path =~ /.*\/([a-zA-Z0-9.]+)$/;
-        my $file = $1;
-        open FILE, "< $path" or die $!;
-        my $data = "";
-
-        while (<FILE>) {
-            $data .= $_;
-        }
-        
-        $data =~ s/.*-----BEGIN CERTIFICATE-----\n//smg; 
-        $data =~ s/-----END CERTIFICATE-----\n.*//smg;
-        
-        $self->{cert_content} = $data; 
-        $self->{cert_file} = $file; 
-    }
-}
+#sub extract_cert {
+#    my ($self) = @_;
+#    if (defined ($self->{ca_cert_path}) && !($self->{ca_cert_path} eq "")){
+#        my $path = $self->{ca_cert_path};
+#        $path =~ /.*\/([a-zA-Z0-9.]+)$/;
+#        my $file = $1;
+#        open FILE, "< $path" or die $!;
+#        my $data = "";
+#
+#        while (<FILE>) {
+#            $data .= $_;
+#        }
+#        
+#        $data =~ s/.*-----BEGIN CERTIFICATE-----\n//smg; 
+#        $data =~ s/-----END CERTIFICATE-----\n.*//smg;
+#        
+#        $self->{cert_content} = $data; 
+#        $self->{cert_file} = $file; 
+#    }
+#}
 
 =head1 AUTHOR
 

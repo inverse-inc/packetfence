@@ -64,7 +64,7 @@ has_field 'reversedns' =>
    type => 'Text',
    label => 'ReverseDNS identifier',
    tags => { after_element => \&help,
-             help => 'Example : org.packetfence.www'},
+             help => 'Example : if your dns name is www.packetfence.org it become org.packetfence.www'},
   );
 
 has_block definition =>

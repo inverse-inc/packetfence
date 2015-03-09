@@ -230,10 +230,31 @@ sub postAuthentication : Private {
     
     $c->forward('setupMatchParams');
     $c->forward('setRole');
+    $c->forward('checkIfTlsEnrolement');
     $c->forward('setUnRegDate');
     $info->{source} = $source_id;
     $info->{portal} = $profile->getName;
     $c->forward('checkIfProvisionIsNeeded');
+}
+
+=head2 checkIfTlsEnrolement
+
+Checked to see if the role redirect you to TLS enrolement
+
+=cut
+
+sub checkIfTlsEnrolement : Private {
+    my ($self, $c) = @_;
+    my $source_id = $c->session->{source_id};
+    my $portalSession = $c->portalSession;
+    my $source = getAuthenticationSource($source_id);
+    my $mac = $portalSession->clientMac;
+    my $node_info = node_view($mac);
+    my $role = $node_info->{'category'};
+    #if role is tls-enrolement then process to define controller
+    if ($role == "tls-enrolement"){
+        $c->detach(tlsprofile => 'index');
+    }
 }
 
 =head2 checkIfChainedAuth
@@ -329,14 +350,16 @@ sub setRole : Private {
     if ( defined $value ) {
         $logger->debug("Got role '$value' for username \"$pid\"");
         $info->{category} = $value;
-        if ( $value == 'tls-enrolement') {
-            $c->detach(TLSProfile => 'index');
-        }
+        #if ( $value == 'tls-enrolement') {
+        #    $c->detach(TLSProfile => 'index');
+        #}
     } else {
         $logger->info("Got no role for username \"$pid\"");
         $self->showError($c, "You do not have the permission to register a device with this username.");
     }
-
+    $c->stash(
+        role => $value,
+    );
 }
 
 sub setUnRegDate : Private {

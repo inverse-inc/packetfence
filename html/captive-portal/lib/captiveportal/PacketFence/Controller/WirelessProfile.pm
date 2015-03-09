@@ -27,13 +27,16 @@ sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $username = $c->session->{username} || '';
     my $mac = $c->portalSession->clientMac;
+    my $session = $c->session;
     my $provisioner = $c->profile->findProvisioner($mac);
     $provisioner->authorize($mac) if (defined($provisioner));
     $c->stash(
         template     => 'wireless-profile.xml',
         current_view => 'MobileConfig',
         provisioner  => $provisioner,
-        username     => $username
+        username     => $username,
+        certdata     => $c->session->{cert_content},
+        certcn       => $c->session->{certificate_cn},
     );
 }
 
