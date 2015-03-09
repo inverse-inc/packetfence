@@ -26,20 +26,20 @@ use pf::file_paths;
 use base 'pfconfig::namespaces::config';
 
 sub init {
-  my ($self) = @_;
-  $self->{file} = $vlan_filters_config_file;
+    my ($self) = @_;
+    $self->{file} = $vlan_filters_config_file;
 }
 
 sub build_child {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  my %tmp_cfg = %{$self->{cfg}}; 
+    my %tmp_cfg = %{$self->{cfg}}; 
 
-  $self->cleanup_whitespaces(\%tmp_cfg);
+    $self->cleanup_whitespaces(\%tmp_cfg);
 
-  $self->{cfg} = \%tmp_cfg;
+    $self->{cfg} = \%tmp_cfg;
 
-  return \%tmp_cfg;
+    return \%tmp_cfg;
 
 }
 

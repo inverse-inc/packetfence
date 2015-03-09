@@ -26,18 +26,18 @@ use pf::file_paths;
 use base 'pfconfig::namespaces::config';
 
 sub init {
-  my ($self) = @_;
-  $self->{file} = "somefile.conf";
+    my ($self) = @_;
+    $self->{file} = "somefile.conf";
 }
 
 sub build_child {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  my %tmp_cfg = %{$self->{cfg}}; 
+    my %tmp_cfg = %{$self->{cfg}}; 
 
-  $self->{cfg} = \%tmp_cfg;
+    $self->{cfg} = \%tmp_cfg;
 
-  return \%tmp_cfg;
+    return \%tmp_cfg;
 
 }
 

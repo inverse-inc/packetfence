@@ -27,13 +27,13 @@ use pf::constants::config;
 use base 'pfconfig::namespaces::config';
 
 sub init {
-  my ($self) = @_;
-  $self->{file} = $network_config_file;
-  $self->{child_resources} = [
-    'interfaces::routed_isolation_nets',
-    'interfaces::routed_registration_nets',
-    'interfaces::inline_nets',
-  ]
+    my ($self) = @_;
+    $self->{file} = $network_config_file;
+    $self->{child_resources} = [
+        'interfaces::routed_isolation_nets',
+        'interfaces::routed_registration_nets',
+        'interfaces::inline_nets',
+    ]
 }
 
 sub build_child {

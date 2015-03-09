@@ -21,48 +21,48 @@ use DBI;
 use base 'pfconfig::backend';
 
 sub init {
-  # abstact
+    # abstact
 }
 
 sub _get_db {
-  my ($self) = @_;
-  my $db = DBI->connect("DBI:mysql:database=pf;host=localhost",
-                         "pf", "pf",
-                         {'RaiseError' => 1});
-  return $db 
+    my ($self) = @_;
+    my $db = DBI->connect("DBI:mysql:database=pf;host=localhost",
+                           "pf", "pf",
+                           {'RaiseError' => 1});
+    return $db 
 }
 
 
 sub get {
-  my ($self, $key) = @_;
-  my $db = $self->_get_db();
-  my $statement = $db->prepare("SELECT value FROM keyed WHERE id=".$db->quote($key));
-  $statement->execute();
-  my $element;
-  while(my $row = $statement->fetchrow_hashref()){
-    my $decoder = Sereal::Decoder->new;
-    $element = $decoder->decode($row->{value});
-  }
-  $db->disconnect();
-  return $element;
+    my ($self, $key) = @_;
+    my $db = $self->_get_db();
+    my $statement = $db->prepare("SELECT value FROM keyed WHERE id=".$db->quote($key));
+    $statement->execute();
+    my $element;
+    while(my $row = $statement->fetchrow_hashref()){
+        my $decoder = Sereal::Decoder->new;
+        $element = $decoder->decode($row->{value});
+    }
+    $db->disconnect();
+    return $element;
 } 
 
 sub set {
-  my ($self, $key, $value) = @_;
-  my $db = $self->_get_db();
-  my $encoder = Sereal::Encoder->new;
-  $value = $encoder->encode($value);
-  my $result = $db->do("REPLACE INTO keyed (id, value) VALUES(?,?)", undef, $key, $value);
-  $db->disconnect();
-  return $result;
+    my ($self, $key, $value) = @_;
+    my $db = $self->_get_db();
+    my $encoder = Sereal::Encoder->new;
+    $value = $encoder->encode($value);
+    my $result = $db->do("REPLACE INTO keyed (id, value) VALUES(?,?)", undef, $key, $value);
+    $db->disconnect();
+    return $result;
 }
 
 sub remove {
-  my ($self, $key) = @_;
-  my $db = $self->_get_db();
-  my $result = $db->do("DELETE FROM keyed where id=?", undef, $key);
-  $db->disconnect();
-  return $result;
+    my ($self, $key) = @_;
+    my $db = $self->_get_db();
+    my $result = $db->do("DELETE FROM keyed where id=?", undef, $key);
+    $db->disconnect();
+    return $result;
 }
 
 =back

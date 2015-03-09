@@ -26,11 +26,11 @@ use pf::file_paths;
 use base 'pfconfig::namespaces::config';
 
 sub init {
-  my ($self) = @_;
-  $self->{file} = $profiles_config_file;
-  $self->{child_resources} = [
-    'resource::Profile_Filters',
-  ];
+    my ($self) = @_;
+    $self->{file} = $profiles_config_file;
+    $self->{child_resources} = [
+        'resource::Profile_Filters',
+    ];
 }
 
 sub build_child {
@@ -40,8 +40,10 @@ sub build_child {
     $self->cleanup_whitespaces(\%Profiles_Config);
 
     foreach my $key (%Profiles_Config){
-      $self->expand_list($Profiles_Config{$key}, qw(sources filter locale mandatory_fields allowed_devices provisioners));
+        $self->expand_list($Profiles_Config{$key}, qw(sources filter locale mandatory_fields allowed_devices provisioners));
     }
+
+    $self->{cfg} = \%Profiles_Config;
 
     return \%Profiles_Config;
 

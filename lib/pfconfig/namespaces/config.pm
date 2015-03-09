@@ -34,35 +34,35 @@ use pfconfig::log;
 use base 'pfconfig::namespaces::resource';
 
 sub init {
-  my ($self) = @_;
-  $self->{expandable_params} = [];
-  $self->{child_resources} = [];
+    my ($self) = @_;
+    $self->{expandable_params} = [];
+    $self->{child_resources} = [];
 }
 
 sub build {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  my %tmp_cfg;
+    my %tmp_cfg;
 
-  my %added_params = ();
+    my %added_params = ();
 
-  $added_params{-file} = $self->{file};
+    $added_params{-file} = $self->{file};
 
-  tie %tmp_cfg, 'Config::IniFiles', %added_params;
+    tie %tmp_cfg, 'Config::IniFiles', %added_params;
 
-  @{$self->{ordered_sections}} = keys %tmp_cfg;
+    @{$self->{ordered_sections}} = keys %tmp_cfg;
 
-  my $json = encode_json(\%tmp_cfg);
-  my $cfg = decode_json($json);
+    my $json = encode_json(\%tmp_cfg);
+    my $cfg = decode_json($json);
 
-  $self->unarray_parameters($cfg);
+    $self->unarray_parameters($cfg);
 
-  $self->{cfg} = $cfg;
+    $self->{cfg} = $cfg;
 
-  $self->do_defaults();
+    $self->do_defaults();
 
-  my $child_resource = $self->build_child();
-  return $child_resource;
+    my $child_resource = $self->build_child();
+    return $child_resource;
 }
 
 sub do_defaults {
@@ -74,13 +74,13 @@ sub do_defaults {
         return;
     }
     foreach my $section_name (keys %tmp_cfg){
-      unless($section_name eq $self->{default_section}){
-        foreach my $element_name (keys %{$tmp_cfg{$self->{default_section}}}){
-          unless (exists $tmp_cfg{$section_name}{$element_name}){
-            $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{$self->{default_section}}{$element_name};
-          }
+        unless($section_name eq $self->{default_section}){
+            foreach my $element_name (keys %{$tmp_cfg{$self->{default_section}}}){
+                unless (exists $tmp_cfg{$section_name}{$element_name}){
+                    $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{$self->{default_section}}{$element_name};
+                }
+            }
         }
-      }
     }
     $self->{cfg} = \%tmp_cfg;
 }

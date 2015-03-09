@@ -28,18 +28,17 @@ use pf::constants::authentication;
 use pf::Authentication::constants;
 use pf::Authentication::Condition;
 use pf::Authentication::Rule;
-#use pf::authentication;
 use pf::constants::authentication;
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
-  my ($self) = @_;
-  $self->{file} = $authentication_config_file;
-  $self->{child_resources} = [
-    'resource::authentication_lookup',
-    'resource::authentication_sources',
-  ];
+    my ($self) = @_;
+    $self->{file} = $authentication_config_file;
+    $self->{child_resources} = [
+        'resource::authentication_lookup',
+        'resource::authentication_sources',
+    ];
 }
 
 sub build_child {
@@ -53,7 +52,7 @@ sub build_child {
 
         # We skip groups from our ini files
         if ($source_id =~ m/\s/) {
-          next;
+            next;
         }
 
         # Keep aside the source type

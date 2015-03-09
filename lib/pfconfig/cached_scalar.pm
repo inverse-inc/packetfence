@@ -54,16 +54,16 @@ Constructor of the object
 =cut
 
 sub TIESCALAR {
-  my ($class, $config) = @_;
-  my $self = bless {}, $class;
+    my ($class, $config) = @_;
+    my $self = bless {}, $class;
 
-  $self->init();
+    $self->init();
 
-  $self->{"_namespace"} = $config;
-  
-  $self->{element_socket_method} = "element";
+    $self->{"_namespace"} = $config;
+    
+    $self->{element_socket_method} = "element";
 
-  return $self;
+    return $self;
 }
 
 =head2 FETCH
@@ -74,19 +74,18 @@ Other than that it proxies the call to pfconfig
 
 =cut
 sub FETCH {
-  my ($self) = @_;
-  my $logger = get_logger;
+    my ($self) = @_;
+    my $logger = get_logger;
 
-  my $subcache_value = $self->get_from_subcache("myself");
-  return $subcache_value if defined($subcache_value); 
+    my $subcache_value = $self->get_from_subcache("myself");
+    return $subcache_value if defined($subcache_value); 
 
-  my $reply = $self->_get_from_socket("$self->{_namespace}");
-  my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace}")->{element} : undef;
+    my $reply = $self->_get_from_socket("$self->{_namespace}");
+    my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace}")->{element} : undef;
 
-  $self->set_in_subcache("myself", $result);
+    $self->set_in_subcache("myself", $result);
 
-  return $result;
-
+    return $result;
 }
 
 

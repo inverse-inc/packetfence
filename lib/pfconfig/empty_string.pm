@@ -13,9 +13,9 @@ Used to represent an empty string in the BDB backend since Cache::BDB doesn't st
 =cut
 
 sub new {
-  my ($class) = @_;
-  my $self = bless {}, $class;
-  return $self;
+    my ($class) = @_;
+    my $self = bless {}, $class;
+    return $self;
 }
 
 1;

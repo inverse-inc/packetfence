@@ -59,16 +59,16 @@ Constructor of the array
 =cut
 
 sub TIEARRAY {
-  my ($class, $config) = @_;
-  my $self = bless {}, $class;
+    my ($class, $config) = @_;
+    my $self = bless {}, $class;
 
-  $self->init();
+    $self->init();
 
-  $self->{"_namespace"} = $config;
-  
-  $self->{element_socket_method} = "array_element";
+    $self->{"_namespace"} = $config;
+    
+    $self->{element_socket_method} = "array_element";
 
-  return $self;
+    return $self;
 }
 
 =head2 FETCH
@@ -80,18 +80,18 @@ Other than that it proxies the call to pfconfig
 =cut
 
 sub FETCH {
-  my ($self, $index) = @_;
-  my $logger = get_logger;
+    my ($self, $index) = @_;
+    my $logger = get_logger;
 
-  my $subcache_value = $self->get_from_subcache($index);
-  return $subcache_value if defined($subcache_value); 
+    my $subcache_value = $self->get_from_subcache($index);
+    return $subcache_value if defined($subcache_value); 
 
-  my $reply = $self->_get_from_socket("$self->{_namespace};$index");
-  my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace};$index")->{element} : undef;
+    my $reply = $self->_get_from_socket("$self->{_namespace};$index");
+    my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace};$index")->{element} : undef;
 
-  $self->set_in_subcache($index, $result);
+    $self->set_in_subcache($index, $result);
 
-  return $result;
+    return $result;
 
 }
 
@@ -103,12 +103,12 @@ Proxies the call to pfconfig
 =cut
 
 sub FETCHSIZE {
-  my ($self) = @_;
-  my $logger = get_logger;
+    my ($self) = @_;
+    my $logger = get_logger;
 
-  my $result = $self->_get_from_socket($self->{_namespace}, "array_size")->{size};
+    my $result = $self->_get_from_socket($self->{_namespace}, "array_size")->{size};
 
-  return $result;
+    return $result;
 }
 
 =head2 EXISTS
@@ -119,9 +119,9 @@ Proxies the call to pfconfig
 =cut
 
 sub EXISTS {
-  my ($self, $index) = @_;
+    my ($self, $index) = @_;
 
-  return $self->_get_from_socket($self->{_namespace}, "array_index_exists", (index => $index))->{result};
+    return $self->_get_from_socket($self->{_namespace}, "array_index_exists", (index => $index))->{result};
 }
 
 =back

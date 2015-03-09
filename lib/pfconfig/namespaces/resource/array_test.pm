@@ -18,8 +18,8 @@ use warnings;
 use base 'pfconfig::namespaces::resource';
 
 sub build {
-  my ($self) = @_;
-  return ["first", "second", "third"];
+    my ($self) = @_;
+    return ["first", "second", "third"];
 }
 
 =back

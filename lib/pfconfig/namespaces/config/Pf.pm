@@ -30,39 +30,39 @@ use base 'pfconfig::namespaces::config';
 
 # need to override it since it imports data from pf.conf.defaults
 sub build {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  my %tmp_cfg;
+    my %tmp_cfg;
 
-  my $pf_conf_defaults = Config::IniFiles->new(-file => $pf_default_file);
+    my $pf_conf_defaults = Config::IniFiles->new(-file => $pf_default_file);
 
-  tie %tmp_cfg, 'Config::IniFiles', ( -file => $self->{file}, -import => $pf_conf_defaults);
+    tie %tmp_cfg, 'Config::IniFiles', ( -file => $self->{file}, -import => $pf_conf_defaults);
 
-  # for pfcmd checkup
-  $self->{_file_cfg} = { %tmp_cfg };
+    # for pfcmd checkup
+    $self->{_file_cfg} = { %tmp_cfg };
 
-  @{$self->{ordered_sections}} = keys %tmp_cfg;
+    @{$self->{ordered_sections}} = keys %tmp_cfg;
 
-  my $json = encode_json(\%tmp_cfg);
-  my $cfg = decode_json($json);
+    my $json = encode_json(\%tmp_cfg);
+    my $cfg = decode_json($json);
 
-  $self->unarray_parameters($cfg);
+    $self->unarray_parameters($cfg);
 
-  $self->{cfg} = $cfg;
+    $self->{cfg} = $cfg;
 
-  my $child_resource = $self->build_child();
-  return $child_resource;
+    my $child_resource = $self->build_child();
+    return $child_resource;
 }
 
 sub init {
-  my ($self) = @_;
-  $self->{file} = $pf_config_file;
-  $self->{default_config} = $self->{cache}->get_cache('config::PfDefault');
-  $self->{doc_config} = $self->{cache}->get_cache('config::Documentation');
-  $self->{child_resources} = [
-    'resource::CaptivePortal',
-    'resource::Database',
-  ]; 
+    my ($self) = @_;
+    $self->{file} = $pf_config_file;
+    $self->{default_config} = $self->{cache}->get_cache('config::PfDefault');
+    $self->{doc_config} = $self->{cache}->get_cache('config::Documentation');
+    $self->{child_resources} = [
+        'resource::CaptivePortal',
+        'resource::Database',
+    ]; 
 }
 
 sub build_child {

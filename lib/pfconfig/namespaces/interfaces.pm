@@ -28,24 +28,24 @@ use base 'pfconfig::namespaces::resource';
 sub init {
     my ($self) = @_;
     $self->{_interfaces} = {
-      listen_ints => [],
-      dhcplistener_ints => [],
-      ha_ints => [],
-      internal_nets => [],
-      inline_enforcement_nets => [],
-      vlan_enforcement_nets => [],
-      monitor_int => '',
-      management_network => '',
+        listen_ints => [],
+        dhcplistener_ints => [],
+        ha_ints => [],
+        internal_nets => [],
+        inline_enforcement_nets => [],
+        vlan_enforcement_nets => [],
+        monitor_int => '',
+        management_network => '',
     };
     $self->{child_resources} = [
-      'interfaces::listen_ints',
-      'interfaces::dhcplistener_ints',
-      'interfaces::ha_ints',
-      'interfaces::internal_nets',
-      'interfaces::inline_enforcement_nets',
-      'interfaces::vlan_enforcement_nets',
-      'interfaces::monitor_int',
-      'interfaces::management_network',
+        'interfaces::listen_ints',
+        'interfaces::dhcplistener_ints',
+        'interfaces::ha_ints',
+        'interfaces::internal_nets',
+        'interfaces::inline_enforcement_nets',
+        'interfaces::vlan_enforcement_nets',
+        'interfaces::monitor_int',
+        'interfaces::management_network',
     ];
 }
 

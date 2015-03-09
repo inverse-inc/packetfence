@@ -72,9 +72,9 @@ Logs to error since Log::Fast doesn't have fatal
 =cut
 
 sub fatal {
-  my ($self, $message) = @_;
-  $message .= " (".whowasi().")";
-  $self->{logger}->ERR($message);
+    my ($self, $message) = @_;
+    $message .= " (".whowasi().")";
+    $self->{logger}->ERR($message);
 }
 
 =head2 error
@@ -84,9 +84,9 @@ Used for $logger->error($msg)
 =cut
 
 sub error {
-  my ($self, $message) = @_;
-  $message .= " (".whowasi().")";
-  $self->{logger}->ERR($message);
+    my ($self, $message) = @_;
+    $message .= " (".whowasi().")";
+    $self->{logger}->ERR($message);
 }
 
 =head2 warn
@@ -96,9 +96,9 @@ Used for $logger->warn($msg)
 =cut
 
 sub warn {
-  my ($self, $message) = @_;
-  $message .= " (".whowasi().")";
-  $self->{logger}->WARN($message);
+    my ($self, $message) = @_;
+    $message .= " (".whowasi().")";
+    $self->{logger}->WARN($message);
 }
 
 =head2 info
@@ -108,9 +108,9 @@ Used for $logger->info($msg)
 =cut
 
 sub info {
-  my ($self, $message) = @_;
-  $message = "$message (".whowasi().")";
-  $self->{logger}->INFO($message);
+    my ($self, $message) = @_;
+    $message = "$message (".whowasi().")";
+    $self->{logger}->INFO($message);
 }
 
 =head2 debug
@@ -120,9 +120,9 @@ Used for $logger->debug($msg)
 =cut
 
 sub debug {
-  my ($self, $message) = @_;
-  $message .= " (".whowasi().")";
-  $self->{logger}->DEBUG($message);
+    my ($self, $message) = @_;
+    $message .= " (".whowasi().")";
+    $self->{logger}->DEBUG($message);
 }
 
 =head2 trace
@@ -133,9 +133,9 @@ Logs to debug since Log::Fast doesn't have trace
 =cut
 
 sub trace {
-  my ($self, $message) = @_;
-  $message .= " (".whowasi().")";
-  $self->{logger}->DEBUG($message);
+    my ($self, $message) = @_;
+    $message .= " (".whowasi().")";
+    $self->{logger}->DEBUG($message);
 }
 
 sub whowasi { ( caller(2) )[3] }

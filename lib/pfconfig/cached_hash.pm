@@ -60,17 +60,16 @@ Constructor of the hash
 =cut
 
 sub TIEHASH {
-  my ($class, $config) = @_;
-  my $self = bless {}, $class;
+    my ($class, $config) = @_;
+    my $self = bless {}, $class;
 
-  $self->init();
+    $self->init();
 
-  $self->{"_namespace"} = $config;
+    $self->{"_namespace"} = $config;
 
-  $self->{element_socket_method} = "hash_element";
+    $self->{element_socket_method} = "hash_element";
 
-
-  return $self;
+    return $self;
 }
 
 =head2 FETCH
@@ -81,22 +80,22 @@ Other than that it proxies the call to pfconfig
 
 =cut 
 sub FETCH {
-  my ($self, $key) = @_;
-  my $logger = get_logger;
+    my ($self, $key) = @_;
+    my $logger = get_logger;
 
-  my $subcache_value;
-  $subcache_value = $self->get_from_subcache($key);
-  return $subcache_value if defined($subcache_value); 
+    my $subcache_value;
+    $subcache_value = $self->get_from_subcache($key);
+    return $subcache_value if defined($subcache_value); 
 
-  return $self->{_internal_elements}{$key} if defined($self->{_internal_elements}{$key});
+    return $self->{_internal_elements}{$key} if defined($self->{_internal_elements}{$key});
 
-  my $result;
-  my $reply = $self->_get_from_socket("$self->{_namespace};$key");
-  $result = defined($reply) ? $reply->{element} : undef;
+    my $result;
+    my $reply = $self->_get_from_socket("$self->{_namespace};$key");
+    $result = defined($reply) ? $reply->{element} : undef;
 
-  $self->set_in_subcache($key, $result);
+    $self->set_in_subcache($key, $result);
 
-  return $result;
+    return $result;
 }
 
 =head2 keys
@@ -108,12 +107,12 @@ Call it using tied(%hash)->keys
 =cut
 
 sub keys {
-  my ($self) = @_;
-  my $logger = get_logger;
-  
-  my @keys = @{$self->_get_from_socket($self->{_namespace}, "keys")};
+    my ($self) = @_;
+    my $logger = get_logger;
+    
+    my @keys = @{$self->_get_from_socket($self->{_namespace}, "keys")};
 
-  return @keys;
+    return @keys;
 }
 
 =head2 FIRSTKEY
@@ -124,10 +123,10 @@ Proxies to pfconfig
 =cut
 
 sub FIRSTKEY {
-  my ($self) = @_;
-  my $logger = get_logger;
-  my $first_key = $self->_get_from_socket($self->{_namespace}, "next_key", (last_key => undef));
-  return $first_key ? $first_key->{next_key} : undef;
+    my ($self) = @_;
+    my $logger = get_logger;
+    my $first_key = $self->_get_from_socket($self->{_namespace}, "next_key", (last_key => undef));
+    return $first_key ? $first_key->{next_key} : undef;
 }
 
 =head2 FIRSTKEY
@@ -138,9 +137,9 @@ Proxies to pfconfig
 =cut
 
 sub NEXTKEY {
-  my ($self, $last_key) = @_;
-  my $logger = get_logger;
-  return $self->_get_from_socket($self->{_namespace}, "next_key", (last_key => $last_key))->{next_key};
+    my ($self, $last_key) = @_;
+    my $logger = get_logger;
+    return $self->_get_from_socket($self->{_namespace}, "next_key", (last_key => $last_key))->{next_key};
 }
 
 =head2 STORE
@@ -151,12 +150,12 @@ Stores it without any saving capability
 =cut
 
 sub STORE {
-  my( $self, $key, $value ) = @_;
-  my $logger = get_logger;
-  
-  $self->{_internal_elements} = {} unless(defined($self->{_internal_elements}));
+    my( $self, $key, $value ) = @_;
+    my $logger = get_logger;
+    
+    $self->{_internal_elements} = {} unless(defined($self->{_internal_elements}));
 
-  $self->{_internal_elements}{$key} = $value;
+    $self->{_internal_elements}{$key} = $value;
 }
 
 =head2 STORE
@@ -167,9 +166,9 @@ Proxies to pfconfig
 =cut
 
 sub EXISTS {
-  my( $self, $key ) = @_;
-  my @keys = $self->keys;
-  return $self->_get_from_socket($self->{_namespace}, "key_exists", (search => $key))->{result};
+    my( $self, $key ) = @_;
+    my @keys = $self->keys;
+    return $self->_get_from_socket($self->{_namespace}, "key_exists", (search => $key))->{result};
 }
 
 =back

@@ -26,23 +26,22 @@ use pf::file_paths;
 use base 'pfconfig::namespaces::config';
 
 sub init {
-  my ($self) = @_;
-  $self->{file} = $provisioning_config_file;
+    my ($self) = @_;
+    $self->{file} = $provisioning_config_file;
 }
 
 sub build_child {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  my %tmp_cfg = %{$self->{cfg}}; 
+    my %tmp_cfg = %{$self->{cfg}}; 
 
-  $self->{cfg} = \%tmp_cfg;
+    foreach my $key ( keys %tmp_cfg){
+        $self->cleanup_after_read($key, $tmp_cfg{$key});
+    }
 
-  foreach my $key ( keys %tmp_cfg){
-      $self->cleanup_after_read($key, $tmp_cfg{$key});
-  }
+    $self->{cfg} = \%tmp_cfg;
 
-
-  return \%tmp_cfg;
+    return \%tmp_cfg;
 
 }
 
