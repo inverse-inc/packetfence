@@ -68,6 +68,12 @@ sub {
 
 }->();
 
+sub {
+  use pf::SwitchFactory;
+
+  $configs{switches} = pf::SwitchFactory->getInstance()->config();
+
+}->();
 
 my $output = $ENCODER->encode(\%configs);
 open(my $fh, ">", "/tmp/config-comparator/$BASE.out") 
