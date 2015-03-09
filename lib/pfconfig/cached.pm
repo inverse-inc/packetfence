@@ -40,8 +40,27 @@ use Sereal::Encoder;
 use Sereal::Decoder;
 use Time::HiRes qw(stat time);
 
+=head2 ENCODER
+
+The encoder for the communications with pfconfig
+See CLONE where this needs to be recreated
+
+=cut
 our $ENCODER = Sereal::Encoder->new;
+
+=head2 DECODER
+
+The decoder for the communications with pfconfig
+See CLONE where this needs to be recreated
+
+=cut
 our $DECODER = Sereal::Decoder->new;
+
+=head2 new
+
+Creates the object but shouldn't be used since it's made as an interface to use pfconfig
+
+=cut
 
 sub new {
   my ($class) = @_;
@@ -52,7 +71,12 @@ sub new {
   return $self;
 }
 
-# helper to build socket
+=head2 get_socket
+
+Method that gives an IO::Socket to communicate with pfconfig
+
+=cut
+
 sub get_socket {
     my ($self) = @_;
 
@@ -66,11 +90,26 @@ sub get_socket {
     return $socket;
 }
 
+=head2 init
+
+Method called during the initialisation process
+Should set element_socket_method
+
+=cut
+
 sub init {
     my ($self) = @_;
     $self->{element_socket_method} = "override-me";
 
 }
+
+=head2 get_from_subcache
+
+Tries to get an element from the subcache (per process)
+It also checks if the subcache is still valid
+It will return undef if it's not there or invalid
+
+=cut
 
 sub get_from_subcache {
     my ($self, $key) = @_;
@@ -88,6 +127,12 @@ sub get_from_subcache {
     return undef;
 }
 
+=head2 get_from_subcache
+
+Sets an element in the subcache so it can be reused accross accesses
+
+=cut
+
 sub set_in_subcache {
     my ($self, $key, $result) = @_;
 
@@ -97,6 +142,14 @@ sub set_in_subcache {
 
 } 
 
+=head2 _get_from_socket
+
+Method that gets a key from pfconfig
+Will wait for the connection if pfconfig is not alive
+Will send a JSON payload for the request
+Will receive the amount of lines of the reply then the reply as a Sereal string
+
+=cut
 
 sub _get_from_socket {
   my ($self, $what, $method, %additionnal_info) = @_;
@@ -163,7 +216,13 @@ sub _get_from_socket {
   return $result
 }
 
-# helper to know if the raw memory cache is still valid
+=head2 is_valid
+
+Method that is used to determine if the object has been refreshed in pfconfig
+Uses the control files in var/control and the memorized_at hash to know if a namespace has expired
+
+=cut
+
 sub is_valid {
   my ($self) = @_;
   my $logger = get_logger;
@@ -189,6 +248,12 @@ sub is_valid {
     return 0;
   }
 }
+
+=head2 CLONE
+
+Called when cloning the module. Used to create new encoders, if not they'll be undefed
+
+=cut
 
 sub CLONE {
   $ENCODER = Sereal::Encoder->new;

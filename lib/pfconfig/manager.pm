@@ -48,6 +48,13 @@ use pfconfig::util;
 use POSIX;
 use POSIX::2008;
 
+=head2 config_builder
+
+Builds the object associated to a namespace
+See it as a mini-factory
+
+=cut
+
 sub config_builder {
   my ($self, $namespace) = @_;
   my $logger = get_logger;
@@ -57,6 +64,12 @@ sub config_builder {
 
   return $tmp;
 };
+
+=head2 get_namespace
+
+Dynamicly requires the namespace module and instanciates the object associated to it
+
+=cut
 
 sub get_namespace {
   my ($self, $name) = @_;
@@ -76,6 +89,12 @@ sub get_namespace {
   return $elem;
 }
 
+=head2 new
+
+Constructor for the manager
+
+=cut
+
 sub new {
   my ($class) = @_;
   my $self = bless {}, $class;
@@ -84,6 +103,12 @@ sub new {
 
   return $self;
 }
+
+=head2 init_cache
+
+Creates the backend and internal data structures for the L1 and L2 cache
+
+=cut
 
 sub init_cache {
   my ($self) = @_;
@@ -95,8 +120,13 @@ sub init_cache {
   $self->{memorized_at} = {};
 }
 
-# update the timestamp on the control file
-# send the signal that the raw memory is expired
+=head2 touch_cache
+
+Updates the timestamp on the control file
+That sends the signal that the raw memory is expired
+
+=cut
+
 sub touch_cache {
   my ($self, $what) = @_;
   my $logger = get_logger;
@@ -121,7 +151,14 @@ sub touch_cache {
   chown($uid,$gid,$filename);
 }
 
-# get a key in the cache
+=head2 get_cache
+
+Gets a namespace either in the L1, L2 or L3 (builds it)
+Will use the memorized_at hash to know if it's still valid
+It should not have to build the L3 since that's the slowest. The L3 should be built externally and this should only have to call the L2
+
+=cut
+
 sub get_cache {
   my ($self, $what) = @_;
   my $logger = get_logger;
@@ -149,6 +186,12 @@ sub get_cache {
  
 }
 
+=head2 cache_resource
+
+Builds the resource associated to a namespace and then caches it in the L1 and L2
+
+=cut
+
 sub cache_resource {
     my ($self, $what) = @_;
     my $logger = get_logger;
@@ -170,7 +213,13 @@ sub cache_resource {
 
 }
 
-# helper to know if the raw memory cache is still valid
+=head2 is_valid
+
+Method that is used to determine if the object has been refreshed in pfconfig
+Uses the control files in var/control and the memorized_at hash to know if a namespace has expired
+
+=cut
+
 sub is_valid {
   my ($self, $what) = @_;
   my $logger = get_logger;
@@ -197,8 +246,13 @@ sub is_valid {
   }
 }
 
-# expire a key in the cache and rebuild it
-# will expire the memory cache after building
+=head2 expire
+
+Expire a namespace in the cache and rebuild it
+If the namespace has child resources, it expires them too.
+Will expire the memory cache after building
+
+=cut
 sub expire {
   my ($self, $what) = @_;
   my $logger = get_logger;
@@ -214,6 +268,13 @@ sub expire {
   }
 
 }
+
+=head2 list_namespaces
+
+Method that lists the namespaces available to pfconfig
+Has an ignore list declared below
+
+=cut
 
 sub list_namespaces {
   my ($self, $what) = @_;
@@ -238,6 +299,13 @@ sub list_namespaces {
   return @modules;
 }
 
+=head2 preload_all
+
+Method that preloads all the objects through the get_cache method
+Will build the object if needed and make sure it's in L1
+
+=cut
+
 sub preload_all {
   my ($self) = @_;
   my @namespaces = $self->list_namespaces;
@@ -249,6 +317,12 @@ sub preload_all {
   print "------------------\n";
 }
 
+=head2 expire_all
+
+Method that expires all the namespaces defined by list_namespaces
+
+=cut
+
 sub expire_all {
   my ($self) = @_;
   my @namespaces = $self->list_namespaces;
@@ -256,6 +330,12 @@ sub expire_all {
     $self->cache_resource($namespace);
   }  
 }
+
+=head2 untaint_chain
+
+taken from pf::util, it should be removable now since pf::util doesn't depend on pf::config anymore
+
+=cut
 
 sub untaint_chain {
     my ($self, $chain) = @_;

@@ -47,7 +47,12 @@ use pfconfig::log;
 use pfconfig::cached;
 our @ISA = ('Tie::Scalar', 'pfconfig::cached');
 
-# constructor of the object
+=head2 TIESCALAR
+
+Constructor of the object
+
+=cut
+
 sub TIESCALAR {
   my ($class, $config) = @_;
   my $self = bless {}, $class;
@@ -61,7 +66,13 @@ sub TIESCALAR {
   return $self;
 }
 
-# accessor of the object
+=head2 FETCH
+
+Accesses the object
+Will serve it from it's subcache if it has it and it's still has it
+Other than that it proxies the call to pfconfig
+
+=cut
 sub FETCH {
   my ($self) = @_;
   my $logger = get_logger;

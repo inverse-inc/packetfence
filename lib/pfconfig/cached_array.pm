@@ -52,7 +52,12 @@ use pfconfig::log;
 use pfconfig::cached;
 our @ISA = ('Tie::Array', 'pfconfig::cached');
 
-# constructor of the tied array
+=head2 TIEARRAY
+
+Constructor of the array
+
+=cut
+
 sub TIEARRAY {
   my ($class, $config) = @_;
   my $self = bless {}, $class;
@@ -66,7 +71,14 @@ sub TIEARRAY {
   return $self;
 }
 
-# accessor of the array
+=head2 FETCH
+
+Access an element by index in the array
+Will serve it from it's subcache (per process) if it has it and it's still valid
+Other than that it proxies the call to pfconfig
+
+=cut
+
 sub FETCH {
   my ($self, $index) = @_;
   my $logger = get_logger;
@@ -83,6 +95,13 @@ sub FETCH {
 
 }
 
+=head2 FETCHSIZE
+
+Get the size of the array
+Proxies the call to pfconfig
+
+=cut
+
 sub FETCHSIZE {
   my ($self) = @_;
   my $logger = get_logger;
@@ -91,6 +110,13 @@ sub FETCHSIZE {
 
   return $result;
 }
+
+=head2 EXISTS
+
+Check if an element exists in the array
+Proxies the call to pfconfig
+
+=cut
 
 sub EXISTS {
   my ($self, $index) = @_;

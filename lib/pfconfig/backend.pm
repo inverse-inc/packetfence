@@ -26,7 +26,12 @@ This cache object will work out of the box if it supports the following methods 
 use strict;
 use warnings;
 
-# abstract class for a backend
+=head2 new
+
+Creates a new backend. Shouldn't be used directly.
+Use init for subclass initialisation
+
+=cut
 
 sub new {
   my ($class) = @_;
@@ -40,19 +45,43 @@ sub new {
   return $self;
 }
 
+=head2 init
+
+Initialization function for subclasses
+
+=cut
+
 sub init {
   # abstact
 }
+
+=head2 get
+
+Get an element in the backend
+
+=cut
 
 sub get {
   my ($self, $key) = @_;
   return $self->{cache}->get($key);
 } 
 
+=head2 set
+
+Set an element in the backend
+
+=cut
+
 sub set {
   my ($self, $key, $value) = @_;
   return $self->{cache}->set($key, $value);
 }
+
+=head2
+
+Remove an element in the backend
+
+=cut
 
 sub remove {
   my ($self, $key) = @_;

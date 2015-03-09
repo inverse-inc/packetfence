@@ -19,7 +19,20 @@ use strict;
 use warnings;
 use pfconfig::log;
 
+=head2 VERBOSE
+
+Defines if the module should be verbose
+Set to 1 to activate
+
+=cut
+
 our $VERBOSE = 0;
+
+=head2 timeme
+
+Used to time a method ($fct)
+
+=cut
 
 sub timeme {
   my ($desc, $fct, $verbose) = @_;
@@ -37,6 +50,12 @@ sub timeme {
     $fct->();
   }
 }
+
+=head2 time_me_x
+
+Used to time a method for x amount of times
+
+=cut
 
 sub time_me_x {
   my ($desc, $times, $fct, $verbose) = @_;

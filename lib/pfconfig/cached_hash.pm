@@ -53,7 +53,12 @@ use pfconfig::log;
 use pfconfig::cached;
 our @ISA = ('Tie::StdHash', 'pfconfig::cached');
 
-# constructor of the tied hash
+=head2 TIEHASH
+
+Constructor of the hash
+
+=cut
+
 sub TIEHASH {
   my ($class, $config) = @_;
   my $self = bless {}, $class;
@@ -68,7 +73,13 @@ sub TIEHASH {
   return $self;
 }
 
-# accessor of the hash
+=head2 FETCH
+
+Access an element by key in the hash
+Will serve it from it's subcache (per process) if it has it and it's still valid
+Other than that it proxies the call to pfconfig
+
+=cut 
 sub FETCH {
   my ($self, $key) = @_;
   my $logger = get_logger;
@@ -88,6 +99,14 @@ sub FETCH {
   return $result;
 }
 
+=head2 keys
+
+Added method that can be called on the underlying object of the tied hash
+Will do 1 call to fetch all the keys of the hash instead of using the next key method
+Call it using tied(%hash)->keys
+
+=cut
+
 sub keys {
   my ($self) = @_;
   my $logger = get_logger;
@@ -97,6 +116,13 @@ sub keys {
   return @keys;
 }
 
+=head2 FIRSTKEY
+
+Get the first key of the hash
+Proxies to pfconfig
+
+=cut
+
 sub FIRSTKEY {
   my ($self) = @_;
   my $logger = get_logger;
@@ -104,14 +130,26 @@ sub FIRSTKEY {
   return $first_key ? $first_key->{next_key} : undef;
 }
 
+=head2 FIRSTKEY
+
+Get the next key of the hash
+Proxies to pfconfig
+
+=cut
+
 sub NEXTKEY {
   my ($self, $last_key) = @_;
   my $logger = get_logger;
   return $self->_get_from_socket($self->{_namespace}, "next_key", (last_key => $last_key))->{next_key};
 }
 
-# setter of the hash
-# stores it in the hash without any saving capabilities.
+=head2 STORE
+
+Set a value in the hash
+Stores it without any saving capability
+
+=cut
+
 sub STORE {
   my( $self, $key, $value ) = @_;
   my $logger = get_logger;
@@ -121,7 +159,13 @@ sub STORE {
   $self->{_internal_elements}{$key} = $value;
 }
 
-# rewrite me to talk directly to the pfconfig socket
+=head2 STORE
+
+Check if a key exists in the hash
+Proxies to pfconfig
+
+=cut
+
 sub EXISTS {
   my( $self, $key ) = @_;
   my @keys = $self->keys;
