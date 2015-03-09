@@ -7,12 +7,14 @@ use pf::log;
 use pf::config;
 use pf::util;
 use pf::node;
-use pf::web qw(i18n ni18n i18n_format render_template);
+#use pf::web qw(i18n ni18n i18n_format render_template);
 use pf::web::constants;
 use List::MoreUtils qw(uniq any);
-use Readonly;
-use POSIX;
-use URI::Escape::XS qw(uri_escape);
+#use Readonly;
+#use POSIX;
+use pf::authentication;
+use HTML::Entities;
+#use URI::Escape::XS qw(uri_escape);
 use pf::web;
 use Email::Valid;
 
@@ -53,15 +55,17 @@ sub index : Path : Args(0) {
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
         certificate_email   => lc( $request->param_encoded("certificate_email")),
         template            => 'pki.html',
-        provisioner         => 'checkIfProvisionIsNeeded', #provisioner,
+        provisioner         => $provisioner, #'checkIfProvisionIsNeeded',
         username            => $username,
         );
 }
 sub build_cert_p12 : Path : Args(0) {
     my ($self, $c) = @_;
     my $logger = $c->log;
+    my $session = $c->session;
     my $cert_data = $c->stash->{'cert_content'};
     my $certname = $c->stash->{'certificate_cn'} . "p12";
+    $c->session( certificate_cn => "$certname" );
     my $pid = "";
     open FH, "> $cert_dir/$certname";
     unless ( $c->has_errors ){
@@ -92,6 +96,7 @@ sub get_cert : Private {
         my $pid           = $node_info->{'pid'};
     }
     my $stash = $c->stash;
+    my $session = $c->session;
     my $uri = $Config{'pki'}{'uri'};
     my $username = $Config{'pki'}{'username'};
     my $password = $Config{'pki'}{'password'};
@@ -117,9 +122,8 @@ sub get_cert : Private {
     my $curl_return_code = $curl->perform;
 
     if ($curl_return_code == 0) {
-        $c->stash(
-            cert_content    => $response_body,
-        );
+        $c->stash( cert_content    => $response_body );
+        $c->session( cert_content    => $response_body );
     }
     elsif ($curl_return_code == -1) {
         $logger->debug("Username \"$pid\" certificate couldnt not be acquire, check out logs on the pki");
@@ -133,7 +137,7 @@ sub cert_process : Local {
     $c->forward('get_cert');
     $c->forward('build_cert_p12');
     #$c->forward('export_fingerprint');
-    $c->forward('checkIfProvisionIsNeeded');
+    $c->forward(Authenticate => 'checkIfProvisionIsNeeded');
     $self->showError($c,"We could not match your operating system, please contact IT support.");
 }
 
@@ -209,6 +213,8 @@ sub export_fingerprint : Local {
         $logger->debug("We could not extract CA fingerprint from username \"$pid\" certificate");
     }
 }
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
