@@ -65,7 +65,7 @@ sub setupCurrentNodeInfo : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $node_info     = node_view( $portalSession->clientMac() );
-    if( $node_info && ($node_info->{pid} ne $default_pid || $node_info->{pid} ne $admin_pid ) ) {
+    if( $node_info && ($node_info->{pid} ne $default_pid && $node_info->{pid} ne $admin_pid ) ) {
         setExpiration($node_info);
     }
     $c->stash(

@@ -32,7 +32,7 @@ sub unreg :Local :Args(1) {
     my $node = node_view($mac);
     if ($username && $node) {
         $c->log->info("$username attempting to unregister $mac");
-        if (($username ne $default_pid || $username ne $admin_pid ) && $username eq $node->{pid}) {
+        if (($username ne $default_pid && $username ne $admin_pid ) && $username eq $node->{pid}) {
             node_deregister($mac, %$node);
             reevaluate_access($mac, "node_modify");
             $c->response->redirect("/status");
