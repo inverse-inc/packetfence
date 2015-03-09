@@ -19,30 +19,29 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use Data::Dumper;
 use pfconfig::log;
 use pf::file_paths;
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
-  my ($self) = @_;
-  $self->{file} = $wmi_config_file;
-  $self->{expandable_params} = qw(actions);
+    my ($self) = @_;
+    $self->{file} = $wmi_config_file;
+    $self->{expandable_params} = qw(actions);
 }
 
 sub build_child {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  my %tmp_cfg = %{$self->{cfg}};
+    my %tmp_cfg = %{$self->{cfg}};
 
-  foreach my $key ( keys %tmp_cfg){
-      $self->cleanup_after_read($key, $tmp_cfg{$key});
-  }
+    foreach my $key ( keys %tmp_cfg){
+        $self->cleanup_after_read($key, $tmp_cfg{$key});
+    }
 
-  $self->{cfg} = \%tmp_cfg;
+    $self->{cfg} = \%tmp_cfg;
 
-  return \%tmp_cfg;
+    return \%tmp_cfg;
 
 }
 
