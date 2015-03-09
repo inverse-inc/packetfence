@@ -54,6 +54,7 @@ BEGIN {
         trim_path format_bytes log_of ordinal_suffix
         untaint_chain read_dir_recursive all_defined
         valid_mac_or_ip listify
+        normalize_time
     );
 }
 
@@ -898,6 +899,33 @@ Will change a scalar to an array ref if it is not one already
 
 sub listify {
     ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
+}
+
+=item normalize_time - formats date
+
+Returns the number of seconds represented by the time period.
+
+Months and years are approximate. Do not use for anything serious about time.
+
+=cut
+
+sub normalize_time {
+    my ($date) = @_;
+    if ( $date =~ /^\d+$/ ) {
+        return ($date);
+
+    } else {
+        my ( $num, $modifier ) = $date =~ /^(\d+)($pf::constants::config::TIME_MODIFIER_RE)/ or return (0);
+
+        if ( $modifier eq "s" ) { return ($num);
+        } elsif ( $modifier eq "m" ) { return ( $num * 60 );
+        } elsif ( $modifier eq "h" ) { return ( $num * 60 * 60 );
+        } elsif ( $modifier eq "D" ) { return ( $num * 24 * 60 * 60 );
+        } elsif ( $modifier eq "W" ) { return ( $num * 7 * 24 * 60 * 60 );
+        } elsif ( $modifier eq "M" ) { return ( $num * 30 * 24 * 60 * 60 );
+        } elsif ( $modifier eq "Y" ) { return ( $num * 365 * 24 * 60 * 60 );
+        }
+    }
 }
 
 =back

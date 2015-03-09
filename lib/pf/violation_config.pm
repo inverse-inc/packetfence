@@ -22,6 +22,7 @@ use pf::trigger qw(trigger_delete_all parse_triggers);
 use pf::class qw(class_merge);
 use pf::db;
 use pfconfig::cached_hash;
+use pf::util;
 
 our (%Violation_Config);
 

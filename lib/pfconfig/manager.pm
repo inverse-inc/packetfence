@@ -41,7 +41,7 @@ use UNIVERSAL::require;
 use Data::Dumper;
 use pfconfig::backend::bdb;
 use pfconfig::log;
-#use pf::util;
+use pf::util;
 use Time::HiRes qw(stat time);
 use File::Find;
 use pfconfig::util;
@@ -76,7 +76,7 @@ sub get_namespace {
   my $logger = get_logger;
   my $type = "pfconfig::namespaces::$name";
 
-  $type = $self->untaint_chain($type);
+  $type = untaint_chain($type);
 
   # load the module to instantiate
   if ( !(eval "$type->require()" ) ) {
@@ -132,7 +132,7 @@ sub touch_cache {
   my $logger = get_logger;
   $what =~ s/\//;/g;
   my $filename = pfconfig::util::control_file_path($what);
-  $filename = $self->untaint_chain($filename);
+  $filename = untaint_chain($filename);
 
   if ( !-e $filename) {
       my $fh;
@@ -329,19 +329,6 @@ sub expire_all {
   foreach my $namespace (@namespaces){
     $self->cache_resource($namespace);
   }  
-}
-
-=head2 untaint_chain
-
-taken from pf::util, it should be removable now since pf::util doesn't depend on pf::config anymore
-
-=cut
-
-sub untaint_chain {
-    my ($self, $chain) = @_;
-    if ($chain =~ /^(.+)$/) {
-        return $1;
-    }
 }
 
 =back

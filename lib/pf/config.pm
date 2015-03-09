@@ -49,6 +49,7 @@ use pf::constants::config;
 use pfconfig::cached_array;
 use pfconfig::cached_scalar;
 use pfconfig::cached_hash;
+use pf::util;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -383,9 +384,9 @@ my $cache_vlan_enforcement_enabled;
 my $cache_inline_enforcement_enabled;
 
 # Accepted time modifier values
-our $TIME_MODIFIER_RE = qr/[smhDWMY]/;
-our $ACCT_TIME_MODIFIER_RE = qr/[DWMY]/;
-our $DEADLINE_UNIT = qr/[RF]/;
+our $TIME_MODIFIER_RE = $pf::constants::config::TIME_MODIFIER_RE;
+our $ACCT_TIME_MODIFIER_RE = $pf::constants::config::ACCT_TIME_MODIFIER_RE;
+our $DEADLINE_UNIT = $pf::constants::config::DEADLINE_UNIT;
 
 # Bandwdith accounting values
 our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
@@ -484,33 +485,6 @@ sub os_detection {
     }
 }
 
-
-=item normalize_time - formats date
-
-Returns the number of seconds represented by the time period.
-
-Months and years are approximate. Do not use for anything serious about time.
-
-=cut
-
-sub normalize_time {
-    my ($date) = @_;
-    if ( $date =~ /^\d+$/ ) {
-        return ($date);
-
-    } else {
-        my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)/ or return (0);
-
-        if ( $modifier eq "s" ) { return ($num);
-        } elsif ( $modifier eq "m" ) { return ( $num * 60 );
-        } elsif ( $modifier eq "h" ) { return ( $num * 60 * 60 );
-        } elsif ( $modifier eq "D" ) { return ( $num * 24 * 60 * 60 );
-        } elsif ( $modifier eq "W" ) { return ( $num * 7 * 24 * 60 * 60 );
-        } elsif ( $modifier eq "M" ) { return ( $num * 30 * 24 * 60 * 60 );
-        } elsif ( $modifier eq "Y" ) { return ( $num * 365 * 24 * 60 * 60 );
-        }
-    }
-}
 
 =item access_duration
 
@@ -942,22 +916,6 @@ sub _load_captive_portal {
     %{$CAPTIVE_PORTAL{'loadbalancers_ip'}} =
         map { $_ => $TRUE } split(/\s*,\s*/, $Config{'captive_portal'}{'loadbalancers_ip'})
     ;
-}
-
-=item isenabled
-
-Is the given configuration parameter considered enabled? y, yes, true, enable
-and enabled are all positive values for PacketFence.
-
-=cut
-
-sub isenabled {
-    my ($enabled) = @_;
-    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i ) {
-        return (1);
-    } else {
-        return (0);
-    }
 }
 
 =back

@@ -123,35 +123,6 @@ sub split_list {
     return split(/\s*,\s*/,$list);
 }
 
-sub normalize_time {
-    my ($self, $date) = @_;
-    my $TIME_MODIFIER_RE = qr/[smhDWMY]/;
-    if ( $date =~ /^\d+$/ ) {
-        return ($date);
-
-    } else {
-        my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)/ or return (0);
-
-        if ( $modifier eq "s" ) { return ($num);
-        } elsif ( $modifier eq "m" ) { return ( $num * 60 );
-        } elsif ( $modifier eq "h" ) { return ( $num * 60 * 60 );
-        } elsif ( $modifier eq "D" ) { return ( $num * 24 * 60 * 60 );
-        } elsif ( $modifier eq "W" ) { return ( $num * 7 * 24 * 60 * 60 );
-        } elsif ( $modifier eq "M" ) { return ( $num * 30 * 24 * 60 * 60 );
-        } elsif ( $modifier eq "Y" ) { return ( $num * 365 * 24 * 60 * 60 );
-        }
-    }
-}
-
-sub isenabled {
-    my ($self, $enabled) = @_;
-    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i ) {
-        return (1);
-    } else {
-        return (0);
-    }
-}
-
 sub GroupMembers {
     my ($self, $group) = @_;
     my @members;

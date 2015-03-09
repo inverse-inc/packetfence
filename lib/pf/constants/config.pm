@@ -28,6 +28,10 @@ Readonly our $NET_TYPE_INLINE => 'inline';
 Readonly our $NET_TYPE_INLINE_L2 => 'inlinel2';
 Readonly our $NET_TYPE_INLINE_L3 => 'inlinel3';
 
+Readonly our $TIME_MODIFIER_RE => qr/[smhDWMY]/;
+Readonly our $ACCT_TIME_MODIFIER_RE => qr/[DWMY]/;
+Readonly our $DEADLINE_UNIT => qr/[RF]/;
+
 
 =head1 AUTHOR
 

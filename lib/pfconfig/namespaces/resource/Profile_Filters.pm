@@ -19,6 +19,7 @@ use pf::profile::filter;
 use pf::factory::profile::filter;
 use pf::constants::Portal::Profile;
 use pfconfig::namespaces::config;
+use pf::util;
 
 use base 'pfconfig::namespaces::resource';
 
@@ -29,10 +30,6 @@ sub init {
 
 sub build {
     my ($self) = @_;
-
-    # CHANGE ME !!!! THIS IS FOR normalize_time
-    # Waiting for pf::util / pf::config circular dependency remediation
-    my $config_module = pfconfig::namespaces::config->new;
 
     my %Profiles_Config = %{$self->{profiles_config}};
 
@@ -45,7 +42,7 @@ sub build {
         foreach my $field (qw(locale mandatory_fields sources filter provisioners) ) {
             $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
         }
-        $profile->{block_interval} = $config_module->normalize_time($profile->{block_interval}
+        $profile->{block_interval} = normalize_time($profile->{block_interval}
               || $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE);
         my $filters = $profile->{'filter'};
         if($profile_id ne 'default' && @$filters) {

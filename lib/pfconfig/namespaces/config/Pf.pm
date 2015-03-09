@@ -23,7 +23,7 @@ use Config::IniFiles;
 use Data::Dumper;
 use pfconfig::log;
 use pf::file_paths;
-#use pf::util;
+use pf::util;
 use JSON;
 
 use base 'pfconfig::namespaces::config';
@@ -77,7 +77,7 @@ sub build_child {
     # normalize time
     foreach my $val (@time_values ) {
         my ( $group, $item ) = split( /\./, $val );
-        $Config{$group}{$item} = $self->normalize_time($Config{$group}{$item}) if ($Config{$group}{$item});
+        $Config{$group}{$item} = normalize_time($Config{$group}{$item}) if ($Config{$group}{$item});
     }
 
     # determine absolute paths
@@ -94,7 +94,7 @@ sub build_child {
     #                $Config{'general'}{'domain'} || $Default_Config{'general'}{'domain'});
 
     $Config{trapping}{passthroughs} = [split(/\s*,\s*/,$Config{trapping}{passthroughs} || '') ];
-    if ($self->isenabled($Config{'trapping'}{'passthrough'})) {
+    if (isenabled($Config{'trapping'}{'passthrough'})) {
         $Config{trapping}{proxy_passthroughs} = [
             split(/\s*,\s*/,$Config{trapping}{proxy_passthroughs} || ''),
             qw(
