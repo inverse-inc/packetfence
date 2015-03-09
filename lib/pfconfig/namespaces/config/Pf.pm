@@ -41,6 +41,8 @@ sub build {
   # for pfcmd checkup
   $self->{_file_cfg} = { %tmp_cfg };
 
+  @{$self->{ordered_sections}} = keys %tmp_cfg;
+
   my $json = encode_json(\%tmp_cfg);
   my $cfg = decode_json($json);
 
