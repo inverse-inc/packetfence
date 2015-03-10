@@ -21,6 +21,10 @@ use pf::ConfigStore;
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ValidGenericID';
 
+=head1 METHODS
+
+=cut
+
 sub configFile { $profiles_config_file }
 
 sub pfconfigNamespace {'config::Profiles'}

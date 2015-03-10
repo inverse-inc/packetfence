@@ -20,10 +20,6 @@ use pf::violation_config;
 
 extends 'pf::ConfigStore';
 
-#sub _buildCachedConfig {
-#    $pf::violation_config::cached_violations_config
-#};
-
 sub configFile { $violations_config_file }
 
 sub pfconfigNamespace { 'config::Violations' }

@@ -7,3 +7,4 @@ host=localhost
 user=pf
 pass=pf
 db=pf
+port=3306
