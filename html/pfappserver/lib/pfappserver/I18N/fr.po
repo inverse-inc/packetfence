@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-02-06 18:08+0000\n"
-"Last-Translator: Antoine Amacher <aamacher@inverse.ca>\n"
+"PO-Revision-Date: 2015-03-06 18:27+0000\n"
+"Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -236,6 +236,7 @@ msgstr "Ajouter un VLAN"
 msgid "Add Wrix Entry"
 msgstr "Ajouter une entrée Wrix"
 
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "Add a condition."
@@ -317,7 +318,7 @@ msgid ""
 "Gateway, network, and broadcast addresses are ignored. Comma-delimited "
 "entries should be of the form "
 "<ul><li>a.b.c.0/24</li><li>a.b.c.0-255</li><li>a.b.c.0-a.b.c.255</li><li>a.b.c.d</li></ul>"
-msgstr "Les plages d'adresses / les blocs CIDR que PacketFence surveillera/détectera/piègera. Les adresses de passerelle, de réseau et de diffusion sont ignorées. Les entrées doivent être  séparées par des virgules tel que : <ul><li>a.b.c.0/24</li><li>a.b.c.0-255</li><li>a.b.c.0-a.b.c.255</li><li>a.b.c.d</li></ul>"
+msgstr "Les plages d'adresses / les blocs CIDR que Snort/Suricata surveillera/détectera/piègera. Les adresses de passerelle, de réseau et de diffusion sont ignorées. Les entrées doivent être  séparées par des virgules tel que : <ul><li>a.b.c.0/24</li><li>a.b.c.0-255</li><li>a.b.c.0-a.b.c.255</li><li>a.b.c.d</li></ul>"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Admin Access"
@@ -512,7 +513,7 @@ msgstr "Variables disponibles"
 msgid "Bandwidth Balance"
 msgstr "Bande passante restante"
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "Bandwidth per Operating System Class"
 msgstr "Bande passante par classe de Système d´exploitation"
 
@@ -540,6 +541,10 @@ msgstr "Facturation"
 msgid "Bind DN"
 msgstr "DN de connexion"
 
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Block Interval"
+msgstr "Bloc d´intervale"
+
 # html/pfappserver/root/node/view.tt
 msgid "Browser"
 msgstr "Navigateur"
@@ -551,6 +556,11 @@ msgstr "Texte du bouton"
 # conf/documentation.conf (node_import.voip)
 msgid "By default is an imported node a Voice over IP device or not?"
 msgstr "Par défaut est ce un noeud importé de VOIX IP ou pas ?"
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/nodes.tt
+msgid "Bypass VLAN"
+msgstr "VLAN de contournement"
 
 # conf/documentation.conf (billing.mirapay_currency options)
 msgid "CAD"
@@ -579,7 +589,7 @@ msgstr "Fichier CSV"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Cache match"
-msgstr ""
+msgstr "Cache match"
 
 # html/pfappserver/root/config/adminroles/index.tt
 # html/pfappserver/root/config/authentication.tt
@@ -638,7 +648,7 @@ msgstr "Choisissez parmi les IDS supportés."
 msgid ""
 "Choose interface(s) where you want to enable snat for passthrough (by "
 "default it's the management interface)"
-msgstr "Choisissez l'interface(s) sur laquelle vous voulez activer le Source NAT (par défaut c'est l'interface de gestion)"
+msgstr "Choisissez l'interface(s) sur laquelle vous voulez activer le Source NAT (par défaut c'est l'interface de Management)"
 
 # html/pfappserver/root/configurator/enforcement.tt
 msgid "Choose your enforcement mechanisms"
@@ -852,11 +862,15 @@ msgstr "Félicitation !"
 msgid "Connection Type"
 msgstr "Type de Connexion"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+msgid "Connection timeout"
+msgstr "Délai de connexion"
+
 # html/pfappserver/root/admin/reports.tt
 msgid "Connections"
 msgstr "Connexions"
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "Connections Types"
 msgstr "Types de Connexions"
 
@@ -1274,6 +1288,10 @@ msgid ""
 " this type is open."
 msgstr "VLAN de destination dans lequel PacketFence mettra l´appareil quand une violation de ce type est ouverte."
 
+# html/pfappserver/root/admin/nodes.tt
+msgid "Detected Between :"
+msgstr "Détecté entre:"
+
 # html/pfappserver/root/user/view.tt
 msgid "Devices"
 msgstr "Appareils"
@@ -1411,7 +1429,7 @@ msgstr "Activer la translation d´adresse"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Enable Password"
-msgstr "Mot de passe <i>Enable</i>"
+msgstr "Mot de passe Enable"
 
 # html/pfappserver/root/configurator/networks.tt
 msgid ""
@@ -1444,7 +1462,7 @@ msgstr "Activer"
 
 # conf/documentation.conf (services.httpd_mod_qos)
 msgid "Enables mod_qos for the portal "
-msgstr "Activer le mod_qos pour le portail"
+msgstr "Activer mod_qos pour le portail"
 
 # conf/documentation.conf (trapping.detection)
 msgid ""
@@ -1738,11 +1756,11 @@ msgstr "Heures"
 
 # conf/documentation.conf (maintenance.iplog_cleanup_timeout)
 msgid "How long is the iplog cleanup task is allowed to run"
-msgstr "Pour combien de temps le nettoyage de l'iplog est autorisé à tourner"
+msgstr "Temps maximum d'exécution autorisé pour le nettoyage de l'iplog. "
 
 # conf/documentation.conf (maintenance.locationlog_cleanup_timeout)
 msgid "How long is the locationlog clean task is allowed to run"
-msgstr "Pour combien de temps le nettoyage du locationlog est autorisé à tourner"
+msgstr "Temps maximum d'exécution autorisé pour le nettoyage du locationlog."
 
 # conf/documentation.conf (maintenance.violation_maintenance_timeout)
 msgid "How long is the violation maintenance task is allowed to run"
@@ -1992,11 +2010,11 @@ msgstr "Intervalle à laquelle PacketFence lance la tâche de maintenance de l´
 
 # conf/documentation.conf (maintenance.httpd_admin_cleanup_interval)
 msgid "Interval at which Packetfence runs httpd admin cleanup"
-msgstr "Intervalle à laquelle PacketFence lance le nettoyage du cache de httpd admin "
+msgstr "Intervalle de temps pour laquelle PacketFence lance le nettoyage du cache de httpd admin "
 
 # conf/documentation.conf (maintenance.httpd_portal_cleanup_interval)
 msgid "Interval at which Packetfence runs httpd portal cleanup"
-msgstr "Intervalle à laquelle PacketFence lance le nettoyage du cache de httpd portal "
+msgstr "Intervalle de temps pour laquelle PacketFence lance le nettoyage du cache de httpd portal "
 
 # conf/documentation.conf (maintenance.inline_accounting_maintenance_interval)
 msgid "Interval at which Packetfence runs inline accounting maintenance"
@@ -2482,7 +2500,7 @@ msgstr "Nouvel appareil itinérant "
 msgid "New Network"
 msgstr "Nouveau réseau"
 
-# pfappserver::Controller::Graph (graph type)
+# pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "New Nodes"
 msgstr "Nouveaux Nœuds"
 
@@ -2603,7 +2621,7 @@ msgstr "Adresse MAC du noeud"
 msgid "Node role"
 msgstr "Rôle du noeud"
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/admin/wrapper.tt
@@ -2758,7 +2776,7 @@ msgstr "Ouvert le Mardi"
 msgid "Open_Wednesday"
 msgstr "Ouvert le Mercredi"
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/reports.tt
 msgid "Operating Systems"
 msgstr "Système d'exploitation"
@@ -3317,7 +3335,7 @@ msgstr "Réévaluer l'accès "
 msgid "Register"
 msgstr "Enregistrement"
 
-# pfappserver::Controller::Graph (graph type)
+# pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Registered Nodes"
 msgstr "Nœuds enregistrés"
 
@@ -3564,8 +3582,8 @@ msgstr "Filtres SoH - Lecture"
 msgid "SOH_UPDATE"
 msgstr "Filtres SoH - Mise à jours"
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/config/wrix/view.tt
 # pf::Authentication::Source (common_attributes)
 msgid "SSID"
@@ -3909,7 +3927,7 @@ msgstr "Est-ce que pfsetvlan doit être démarré ? Gardez le activé sauf si vo
 
 # conf/documentation.conf (services.radiusd)
 msgid "Should radiusd be managed by PacketFence?"
-msgstr "Est-ce radiusd est géré par PacketFence ?"
+msgstr "Est-ce radiusd doit être géré par PacketFence ?"
 
 # conf/documentation.conf (services.snmptrapd)
 msgid ""
@@ -4038,6 +4056,7 @@ msgid "Statement of Health"
 msgstr "Déclaration d'intégrité (SoH)"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/service/status.tt
@@ -4162,7 +4181,13 @@ msgstr "Port du AAA webservice"
 msgid "The ID of the Switch"
 msgstr "L'identifiant du commutateur"
 
-# html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid ""
+"The amount of time a user is blocked after reaching the defined limit for "
+"login, sms request and sms pin retry."
+msgstr "Nombre de fois pour lequel un utilisateur est bloqué pour avoir atteint la limite pour s´authentifier (Enregistrement SMS et essai du NIP)"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "The authentication source was not found."
 msgstr "La source d´authentification n´a pu être trouvée."
 
@@ -4269,7 +4294,7 @@ msgid ""
 "registrant is used."
 msgstr "Le rôle à attribuer à des consoles de jeux. Si aucun n'est sélectionné, on utilise le rôle de la personne inscrite."
 
-# html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "The rule was not found."
 msgstr "La règle n´a pas été trouvée. "
 
@@ -4406,7 +4431,7 @@ msgstr "Aujourd'hui"
 msgid "Top 25 Bandwith Consumers"
 msgstr "Top 25 des consommateurs de bande passante"
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "Top Bandwidth Consumers"
 msgstr "Top 25 des consommateurs de bande passante"
 
@@ -4567,12 +4592,12 @@ msgid ""
 "redirect the user to the redirection URL."
 msgstr "Dans la plupart des cas nous pouvons rediriger l´appareil sur l´URL originellement demandée. Cependant vous pourriez préférer forcer le portail captif à rediriger l´appareil sur une URL spécifique."
 
-# html/pfappserver/lib/pfappserver/Controller/Admin.pm
-# html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "Unexpected error. See server-side logs for details."
 msgstr "Erreur inattendue. Regardez les journaux du serveurs pour plus de détails.  "
 
-# pfappserver::Controller::Graph (graph type)
+# pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Unregistered Nodes"
 msgstr "Nœuds non enregistrés"
 
@@ -4615,6 +4640,13 @@ msgid ""
 "Use instead this IP address for de-authentication requests. Normally used "
 "for Wi-Fi only"
 msgstr "Utilisez plutôt cette adresse IP pour la requête de désassociation . Normalement seulement utilisé pour le Wi-Fi."
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Htpasswd.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
+msgid "Use stripped username "
+msgstr "Utilisez l'attribut stripped username"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Htpasswd.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
@@ -4754,12 +4786,12 @@ msgstr "Nom de la violation"
 msgid "Violation to close"
 msgstr "Violation a fermer"
 
-# html/pfappserver/lib/pfappserver/Controller/Graph.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/user/view.tt
-# pfappserver::Controller::Graph (graph type)
+# pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Violations"
 msgstr "Violations"
 
@@ -4866,6 +4898,12 @@ msgstr "Si activé, PacketFence autorisera les appareils pris au piège à attei
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid ""
+"When enabled, PacketFence will not use the role initialy computed on the "
+"portal but will use the dot1x username to recompute the role."
+msgstr "Si activé PacketFence n´utilisera pas le rôle initialement défini par le portail mais utilisera dynamiquement l´attribut username pour recompiler le rôle."
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid ""
 "When enabling the billing engine, all authentication sources bellow are "
 "ignored."
 msgstr "Si le module de facturation est activé, alors toutes les sources d´authentification en dessous seront ignorées."
@@ -4916,11 +4954,11 @@ msgstr "Mettre en cache les résultats d'une règle qui match"
 msgid "Window"
 msgstr "Fenêtre "
 
-# pfappserver::Controller::Graph (graph type)
+# pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Wired Connections"
 msgstr "Connexions Filaires"
 
-# pfappserver::Controller::Graph (graph type)
+# pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Wireless Connections"
 msgstr "Connexions sans fils"
 
@@ -4962,7 +5000,7 @@ msgstr "Si aucune source n'est spécifiée, les sources du profil par défaut se
 msgid "Without condition, this rule will act as a catch-all."
 msgstr "Sans condition, cette règle agira comme un catch-all."
 
-# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
 msgid "Wrong username or password."
 msgstr "Mauvais nom d´utilisateur ou mot de passe."
 
@@ -4970,11 +5008,11 @@ msgstr "Mauvais nom d´utilisateur ou mot de passe."
 msgid "You can add options in the realm definition"
 msgstr "Vous pouvez ajouter des options dans la définition du Realm"
 
-# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
 msgid "You don't have the rights to perform this action."
 msgstr "Vous n´avez pas les droits pour effectuer cette opération."
 
-# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
 msgid "You have been logged out."
 msgstr "Vous avez été déconnecté."
 
@@ -4982,7 +5020,7 @@ msgstr "Vous avez été déconnecté."
 msgid "You have successfully configured and launched PacketFence."
 msgstr "Vous avez correctement configuré et lancé PacketFence,"
 
-# html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "You must choose at least one enforcement mechanism."
 msgstr "Vous devez choisir au moins un mode de fonctionnement."
 
@@ -4990,7 +5028,7 @@ msgstr "Vous devez choisir au moins un mode de fonctionnement."
 msgid "You must complete all steps in order to start the services."
 msgstr "Vous devez effectuer toutes les étapes pour démarrer les services."
 
-# html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "You must specifiy a gateway address."
 msgstr "Vous devez spécifier une adresse de routeur."
 
@@ -5023,7 +5061,7 @@ msgid ""
 "Your saved search will appear in the menu on the left side of your screen."
 msgstr "Votre recherche personnalisée va apparaître sur la gauche de votre écran. "
 
-# html/pfappserver/lib/pfappserver/Controller/Admin.pm
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
 msgid "Your session has expired."
 msgstr "Votre session a expirée."
 
@@ -5224,7 +5262,7 @@ msgid "bytes"
 msgstr "bytes"
 
 # pf::pfcmd::report (report_nodebandwidth)
-# pfappserver::Controller::Graph (nodebandwidth fields)
+# pfappserver::PacketFence::Controller::Graph (nodebandwidth fields)
 msgid "callingstationid"
 msgstr "Adresse MAC"
 
@@ -5275,11 +5313,11 @@ msgid "computer_name"
 msgstr "Nom de l'ordinateur"
 
 # pf::Authentication::Source (common_attributes)
-# pfappserver::Controller::Graph (connectiontype fields)
+# pfappserver::PacketFence::Controller::Graph (connectiontype fields)
 msgid "connection_type"
 msgstr "Type de connexion"
 
-# pfappserver::Controller::Graph (connectiontype fields)
+# pfappserver::PacketFence::Controller::Graph (connectiontype fields)
 msgid "connections"
 msgstr "Connexions"
 
@@ -5287,7 +5325,7 @@ msgstr "Connexions"
 msgid "contains"
 msgstr "contient"
 
-# pfappserver::Controller::Graph (os fields)
+# pfappserver::PacketFence::Controller::Graph (os fields)
 msgid "count"
 msgstr "Nombre"
 
@@ -5391,7 +5429,9 @@ msgstr "Refuser"
 msgid "department"
 msgstr "département"
 
-# pfappserver::Controller::Graph (os fields)
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+# pfappserver::PacketFence::Controller::Graph (os fields)
 msgid "description"
 msgstr "Description"
 
@@ -5404,7 +5444,7 @@ msgid "dhcp-listener"
 msgstr "écoute-dhcp"
 
 # pf::pfcmd::report (SQL)
-# pfappserver::Controller::Graph (osclassbandwidth fields)
+# pfappserver::PacketFence::Controller::Graph (osclassbandwidth fields)
 msgid "dhcp_fingerprint"
 msgstr "Classe de système d'exploitation"
 
@@ -5549,7 +5589,7 @@ msgstr "finit par"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "enforce_provisioning_action"
-msgstr ""
+msgstr "Forcer l'approvisionnement"
 
 # pf::Authentication::constants (Conditions)
 msgid "equals"
@@ -5639,6 +5679,11 @@ msgstr "givenName"
 # conf/documentation.conf (advanced.pfcmd_warning_color options)
 msgid "green"
 msgstr "vert"
+
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "groupMembership"
+msgstr "groupMembership"
 
 # conf/documentation.conf
 msgid "guests_admin_registration"
@@ -5855,7 +5900,7 @@ msgstr "Maintenance"
 
 # conf/documentation.conf
 msgid "maintenance.acct_maintenance_interval"
-msgstr "Interval de"
+msgstr "Intervalle de maintenance de l'accouting"
 
 # conf/documentation.conf
 msgid "maintenance.httpd_admin_cleanup_interval"
@@ -5875,15 +5920,15 @@ msgstr "Nombre d´entrées iplog à nettoyer"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_interval"
-msgstr "intervalle de nettayage de l´iplog"
+msgstr "intervalle de nettoyage de l'iplog"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_timeout"
-msgstr ""
+msgstr "Temps maximum du nettoyage de l'iplog"
 
 # conf/documentation.conf
 msgid "maintenance.ldap_auth_cache_cleanup_interval"
-msgstr "Intervalle du néttoyage du cache d'authentification LDAP "
+msgstr "Intervalle du nettoyage du cache d'authentification LDAP"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_batch"
@@ -5895,7 +5940,7 @@ msgstr "Intervalle de nettoyage du locationlog"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_timeout"
-msgstr ""
+msgstr "Temps maximum de nettoyage du locationlog"
 
 # conf/documentation.conf
 msgid "maintenance.node_cleanup_interval"
@@ -5907,7 +5952,7 @@ msgstr "Intervalle de maintenance des noeuds"
 
 # conf/documentation.conf
 msgid "maintenance.provisioning_compliance_poll_interval"
-msgstr ""
+msgstr "Intervale de temps pour appliquer la conformité des appareils"
 
 # conf/documentation.conf
 msgid "maintenance.traplog_cleanup_interval"
@@ -5915,15 +5960,15 @@ msgstr "Intervalle de nettoyage du traplog"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_batch"
-msgstr ""
+msgstr "Nombre maximum de violation traitées simultanément"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_interval"
-msgstr ""
+msgstr "Intervale de maintenance"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_timeout"
-msgstr ""
+msgstr "Temps de nettoyage alloué pour la maintenance des violations"
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "manage_deregister"
@@ -5969,6 +6014,10 @@ msgstr "correspond à l'expression régulière"
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "memberOf"
 msgstr "memberOf"
+
+# pf::Authentication::Source::ADSource (available_attributes)
+msgid "memberOf:1.2.840.113556.1.4.1941:"
+msgstr "groupe imbriqué (dn)"
 
 # pf::config (SoH Status)
 msgid "microsoft"
@@ -6017,7 +6066,7 @@ msgstr "Réseau"
 
 # conf/documentation.conf
 msgid "network.dhcp_filter_by_message_types"
-msgstr ""
+msgstr "Filtre dhcp par type de message"
 
 # conf/documentation.conf
 msgid "network.dhcpdetector"
@@ -6068,7 +6117,7 @@ msgstr "node_import.voip"
 msgid "node_modify"
 msgstr "noeud_modifié"
 
-# pfappserver::Controller::Graph (ssid fields)
+# pfappserver::PacketFence::Controller::Graph (ssid fields)
 msgid "nodes"
 msgstr "nœuds"
 
@@ -6118,6 +6167,10 @@ msgstr "Type de connexion"
 # pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::network"
 msgstr "Réseau"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::node_role"
+msgstr "Role du noeud"
 
 # pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::port"
@@ -6361,7 +6414,7 @@ msgstr "Emplacement de dhcpd"
 
 # conf/documentation.conf
 msgid "services.httpd_aaa"
-msgstr "Service httpd AAA"
+msgstr "httpd.aaa"
 
 # conf/documentation.conf
 msgid "services.httpd_admin"
@@ -6521,7 +6574,7 @@ msgid "sponsor_email"
 msgstr "Email du sponsor"
 
 # pf::config (Inline triggers)
-# pfappserver::Controller::Graph (ssid fields)
+# pfappserver::PacketFence::Controller::Graph (ssid fields)
 msgid "ssid"
 msgstr "SSID du réseau sans-fil"
 

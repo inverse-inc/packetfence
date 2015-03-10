@@ -12,33 +12,49 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
 Version X.Y.Z released on xxxx-xx-xx
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
-* The admin GUI is now customizable.
-* Add category filter on portal profile
+
 
 Enhancements
 ++++++++++++
-* Adds the ability to search nodes by status
-* Removed SSLv3 support from default httpd configuration to prevent POODLE exploit.
-* Adds an option to display Bypass VLAN of a node in the Admin GUI.
-* Adds nested groups support for Active Directory
-* We keep track of EAP machine auth by keeping the hostname in the 'node' table.
-* Detect the closest language to use on the portal.
-* Device will avoid autocorrect / uppercasing the login field in the captive portal
-* Display Bypass VLAN of a node
-* Refactored autoregistration workflow in getNormalVlan and getNodeInfoForAutoreg
+
 
 Bug Fixes
 +++++++++
 
-* Fixed broken default behavior when receiving an SNMP trap
-* Fixed email confirmation template for sponsor
-* Fixed email subject encoding
-* Fixes allowing a non-sponsored user to verify a sponsored email address
-* Fixed invalid floating device creation where the MAC address was not cleaned.
+Version 4.7.0 released on 2015-03-06
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* The admin GUI is now customizable.
+* New category filter on portal profile allows to select a portal based on existing role of a device.
+* New PacketFence-config service allows effortless scaling to thousands of switches and reduces memory use.
+
+Enhancements
+++++++++++++
+
+* Nodes are now searchable by status
+* Removed SSLv3 and legacy ciper suites support from default httpd configuration to prevent POODLE exploit and FREAK attack.
+* Added an option to display Bypass VLAN of a node in the Admin GUI.
+* Added nested groups support for Active Directory.
+* It is now possible to check if a device has already authenticated as member of an Active-Directory domain prior to user authentication.
+* Improved portal language detection.
+* Devices will now avoid autocorrect / uppercasing the login field in the captive portal.
+* Now supports roaming without SNMP on Aerohive APs.
+
+Bug Fixes
++++++++++
+
+* Fixed broken default behaviour when receiving an SNMP trap.
+* Fixed email confirmation template for sponsor.
+* Fixed email subject encoding.
+* Fixes allowing a non-sponsored user to verify a sponsored email address.
+* Fixed invalid floating device creation where the MAC address was not normalized.
 * Fixed the date range search in node advanced search.
 
 Version 4.6.1 released on 2015-02-19

@@ -217,8 +217,8 @@ sub parse_forms {
         open(PM, $form);
         while (defined($line = <PM>)) {
             chomp $line;
-            if ($line =~ m/(?:label|required|help) => "(.+?[^\\])["]/ ||
-                $line =~ m/(?:label|required|help) => '(.+?[^\\])[']/) {
+            if ($line =~ m/(?:label|required|help)\s+=>\s+"(.+?[^\\])["]/ ||
+                $line =~ m/(?:label|required|help)\s+=>\s+'(.+?[^\\])[']/) {
                 my $string = $1;
                 $string =~ s/\\'/'/g;
                 add_string($string, $form);
