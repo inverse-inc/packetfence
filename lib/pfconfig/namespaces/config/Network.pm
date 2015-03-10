@@ -42,18 +42,6 @@ sub build_child {
     my ($config) = @_;
     $self->cleanup_whitespaces( \%ConfigNetworks );
 
-    foreach my $network ( keys %ConfigNetworks ) {
-
-        # transition pf_gateway to next_hop
-        # TODO we can deprecate pf_gateway in 2012
-        if ( defined( $ConfigNetworks{$network}{'pf_gateway'} )
-            && !defined( $ConfigNetworks{$network}{'next_hop'} ) )
-        {
-            # carry over the parameter so that things still work
-            $ConfigNetworks{$network}{'next_hop'} = $ConfigNetworks{$network}{'pf_gateway'};
-        }
-    }
-
     return \%ConfigNetworks;
 
 }
