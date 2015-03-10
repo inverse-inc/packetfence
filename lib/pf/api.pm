@@ -642,15 +642,17 @@ sub trigger_scan : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(ip mac net_type);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless @require == @found;
+    return unless validate_argv(\@require,  \@found);
 
+
+    my $logger = pf::log::get_logger();
     # post_registration (production vlan)
     if ($postdata{'net_type'} =~ /management|^dhcp-?listener$|managed/i) {
         my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
         # get violation id
         my $vid = $top_violation->{'vid'};
         sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid == $pf::scan::POST_SCAN_VID);
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::scan::POST_SCAN_VID);
     }
     # pre_registration
     else {
@@ -661,7 +663,7 @@ sub trigger_scan : Public {
             my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
             my $vid = $top_violation->{'vid'};
             sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
-            pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid == $pf::scan::PRE_SCAN_VID);
+            pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::scan::PRE_SCAN_VID);
         }
     }
     return;

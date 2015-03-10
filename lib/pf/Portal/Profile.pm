@@ -445,19 +445,21 @@ sub findScan {
     $node_attributes ||= node_attributes($mac);
     my ($fingerprint) =
       dhcp_fingerprint_view( $node_attributes->{'dhcp_fingerprint'} );
-    foreach my $scan (split(',',$self->getScans)) {
-        my $scan_config = $scancs->read($scan);
-        if ( !scalar(@{ $scan_config->{'oses'} }) && !scalar($scan_config->{'categories'}) ) {
-            return $scan_config;
-        } elsif ( scalar(@{ $scan_config->{'oses'} }) && scalar(@{ $scan_config->{'categories'} }) ) {
-            if ( (grep { $fingerprint->{'os'} =~ $_ } @{ $scan_config->{'oses'} }) || (grep { $_ eq $node_attributes->{'category'} } @{ $scan_config->{'categories'} }) ) {
+    if (defined($self->getScans)) {
+        foreach my $scan (split(',',$self->getScans)) {
+            my $scan_config = $scancs->read($scan);
+            if ( !scalar(@{ $scan_config->{'oses'} }) && !scalar($scan_config->{'categories'}) ) {
                 return $scan_config;
-            }
-        } elsif (scalar(@{ $scan_config->{'oses'} }) xor scalar(@{ $scan_config->{'categories'} })) {
-            if (scalar(@{ $scan_config->{'oses'} }) && (grep { $fingerprint->{'os'} =~ $_ } @{ $scan_config->{'oses'} }) ) {
-                return $scan_config;
-            } elsif (scalar(@{ $scan_config->{'categories'} }) && (grep { $_ eq $node_attributes->{'category'} } @{ $scan_config->{'categories'} }) ) {
-                return $scan_config;
+            } elsif ( scalar(@{ $scan_config->{'oses'} }) && scalar(@{ $scan_config->{'categories'} }) ) {
+                if ( (grep { $fingerprint->{'os'} =~ $_ } @{ $scan_config->{'oses'} }) || (grep { $_ eq $node_attributes->{'category'} } @{ $scan_config->{'categories'} }) ) {
+                    return $scan_config;
+                }
+            } elsif (scalar(@{ $scan_config->{'oses'} }) xor scalar(@{ $scan_config->{'categories'} })) {
+                if (scalar(@{ $scan_config->{'oses'} }) && (grep { $fingerprint->{'os'} =~ $_ } @{ $scan_config->{'oses'} }) ) {
+                    return $scan_config;
+                } elsif (scalar(@{ $scan_config->{'categories'} }) && (grep { $_ eq $node_attributes->{'category'} } @{ $scan_config->{'categories'} }) ) {
+                    return $scan_config;
+                }
             }
         }
     }
