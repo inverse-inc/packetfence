@@ -61,6 +61,7 @@ conf/vlan_filters.conf
 html/captive-portal/captive_portal.conf
 conf/pfdetect_remote.conf
 conf/pfarp_remote.conf
+conf/pfconfig.conf
 conf/allowed-gaming-oui.txt
 conf/templates/emails-billing_confirmation.txt.tt
 conf/templates/emails-guest_admin_pregistration.txt.tt
