@@ -75,6 +75,14 @@ sub {
 
 }->();
 
+sub {
+  use pf::web::filter;
+
+  my @variables = ('%ConfigApacheFilters');
+  dump_module("pf::web::filter", @variables);
+
+}->();
+
 my $output = $ENCODER->encode(\%configs);
 open(my $fh, ">", "/tmp/config-comparator/$BASE.out") 
   or die "cannot open > /tmp/config-comparator/$BASE.out: $!";

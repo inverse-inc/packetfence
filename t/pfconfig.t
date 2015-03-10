@@ -7,7 +7,7 @@ use diagnostics;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use pf::log(service => 'pfconfig');
+    use pf::log;
 }
 
 use Test::More;
