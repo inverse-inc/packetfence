@@ -14,7 +14,6 @@ This module creates the configuration hash associated to profiles.conf
 
 =cut
 
-
 use strict;
 use warnings;
 
@@ -30,58 +29,58 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $profiles_config_file;
+    $self->{file}            = $profiles_config_file;
     $self->{default_section} = "default";
-    $self->{child_resources} = [
-        'resource::Profile_Filters',
-    ];
+    $self->{child_resources} = [ 'resource::Profile_Filters', ];
 }
 
 sub build_child {
     my ($self) = @_;
 
-    my %Profiles_Config = %{$self->{cfg}};
-    $self->cleanup_whitespaces(\%Profiles_Config);
+    my %Profiles_Config = %{ $self->{cfg} };
+    $self->cleanup_whitespaces( \%Profiles_Config );
 
-    while( my ($key,$profile) = each %Profiles_Config){
-        foreach my $field (qw(locale mandatory_fields sources filter provisioners) ) {
-            $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
+    while ( my ( $key, $profile ) = each %Profiles_Config ) {
+        foreach my $field (qw(locale mandatory_fields sources filter provisioners)) {
+            $profile->{$field} = [ split( /\s*,\s*/, $profile->{$field} || '' ) ];
         }
     }
 
-    my @profiles = @{$self->{ordered_sections}};
+    my @profiles = @{ $self->{ordered_sections} };
 
-    my $config_guest_modes = pfconfig::namespaces::resource::guest_self_registration->new($self->{cache});
-    while (my ($id,$profile) = each %Profiles_Config) {
-        my $guest_modes = $config_guest_modes->_guest_modes_from_sources($profile->{sources});
-        $profile->{guest_modes} = @$guest_modes ? join(',', @$guest_modes) : '';
+    my $config_guest_modes = pfconfig::namespaces::resource::guest_self_registration->new( $self->{cache} );
+    while ( my ( $id, $profile ) = each %Profiles_Config ) {
+        my $guest_modes = $config_guest_modes->_guest_modes_from_sources( $profile->{sources} );
+        $profile->{guest_modes} = @$guest_modes ? join( ',', @$guest_modes ) : '';
     }
 
     #Clearing the Profile filters
-    my @Profile_Filters = ();
+    my @Profile_Filters     = ();
     my $default_description = $Profiles_Config{'default'}{'description'};
     foreach my $profile_id (@profiles) {
         my $profile = $Profiles_Config{$profile_id};
-        $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
-        $profile->{block_interval} = normalize_time($profile->{block_interval}
-              || $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE);
+        $profile->{'description'} = ''
+            if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
+        $profile->{block_interval} = normalize_time( $profile->{block_interval}
+                || $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE );
         my $filters = $profile->{'filter'};
-        if($profile_id ne 'default' && @$filters) {
+        if ( $profile_id ne 'default' && @$filters ) {
             my @filterObjects;
-            foreach my $filter (@{$profile->{'filter'}}) {
-                push @filterObjects, pf::factory::profile::filter->instantiate($profile_id,$filter);
+            foreach my $filter ( @{ $profile->{'filter'} } ) {
+                push @filterObjects, pf::factory::profile::filter->instantiate( $profile_id, $filter );
             }
-            if(defined ($profile->{filter_match_style}) && $profile->{filter_match_style} eq 'all') {
-                push @Profile_Filters, pf::profile::filter::all->new(profile => $profile_id, value => \@filterObjects);
-            } else {
-                push @Profile_Filters,@filterObjects;
+            if ( defined( $profile->{filter_match_style} ) && $profile->{filter_match_style} eq 'all' ) {
+                push @Profile_Filters,
+                    pf::profile::filter::all->new( profile => $profile_id, value => \@filterObjects );
+            }
+            else {
+                push @Profile_Filters, @filterObjects;
             }
         }
     }
+
     #Add the default filter so it always matches if no other filter matches
     push @Profile_Filters, pf::profile::filter->new( { profile => 'default', value => 1 } );
-
-
 
     $self->{profile_filters} = \@Profile_Filters;
 

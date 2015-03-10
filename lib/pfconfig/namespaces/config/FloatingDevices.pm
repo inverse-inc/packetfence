@@ -14,7 +14,6 @@ This module creates the configuration hash associated to somefile.conf
 
 =cut
 
-
 use strict;
 use warnings;
 
@@ -33,14 +32,17 @@ sub init {
 sub build_child {
     my ($self) = @_;
 
-    my %ConfigFloatingDevices = %{$self->{cfg}}; 
+    my %ConfigFloatingDevices = %{ $self->{cfg} };
 
-    $self->cleanup_whitespaces(\%ConfigFloatingDevices);
+    $self->cleanup_whitespaces( \%ConfigFloatingDevices );
 
-    foreach my $section ( keys %ConfigFloatingDevices) {
-        if (defined($ConfigFloatingDevices{$section}{"trunkPort"}) && $ConfigFloatingDevices{$section}{"trunkPort"} =~ /^\s*(y|yes|true|enabled|1)\s*$/i) {
+    foreach my $section ( keys %ConfigFloatingDevices ) {
+        if ( defined( $ConfigFloatingDevices{$section}{"trunkPort"} )
+            && $ConfigFloatingDevices{$section}{"trunkPort"} =~ /^\s*(y|yes|true|enabled|1)\s*$/i )
+        {
             $ConfigFloatingDevices{$section}{"trunkPort"} = '1';
-        } else {
+        }
+        else {
             $ConfigFloatingDevices{$section}{"trunkPort"} = '0';
         }
     }

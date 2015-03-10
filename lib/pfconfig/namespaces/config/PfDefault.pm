@@ -14,7 +14,6 @@ This module creates the configuration hash associated to pf.conf.defaults
 
 =cut
 
-
 use strict;
 use warnings;
 
@@ -27,10 +26,8 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = "/usr/local/pf/conf/pf.conf.defaults";
-    $self->{child_resources} = [
-        'config::Pf',
-    ];
+    $self->{file}            = "/usr/local/pf/conf/pf.conf.defaults";
+    $self->{child_resources} = [ 'config::Pf', ];
 }
 
 sub build_child {
@@ -38,7 +35,6 @@ sub build_child {
 
     return $self->{cfg};
 }
-
 
 =back
 

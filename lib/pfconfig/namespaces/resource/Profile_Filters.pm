@@ -30,9 +30,9 @@ sub init {
 sub build {
     my ($self) = @_;
 
-    my $config_profiles = pfconfig::namespaces::config::Profiles->new($self->{cache});
-    my %Profiles_Config = %{$config_profiles->build};
-    my @Profile_Filters = @{$config_profiles->{profile_filters}};
+    my $config_profiles = pfconfig::namespaces::config::Profiles->new( $self->{cache} );
+    my %Profiles_Config = %{ $config_profiles->build };
+    my @Profile_Filters = @{ $config_profiles->{profile_filters} };
 
     return \@Profile_Filters;
 }

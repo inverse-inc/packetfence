@@ -14,7 +14,6 @@ This module creates the configuration hash associated to realm.conf
 
 =cut
 
-
 use strict;
 use warnings;
 
@@ -27,17 +26,17 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $realm_config_file;
+    $self->{file}              = $realm_config_file;
     $self->{expandable_params} = qw(categories);
 }
 
 sub build_child {
     my ($self) = @_;
 
-    my %tmp_cfg = %{$self->{cfg}}; 
+    my %tmp_cfg = %{ $self->{cfg} };
 
-    foreach my $key ( keys %tmp_cfg){
-        $self->cleanup_after_read($key, $tmp_cfg{$key});
+    foreach my $key ( keys %tmp_cfg ) {
+        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
     }
 
     return \%tmp_cfg;
@@ -45,8 +44,8 @@ sub build_child {
 }
 
 sub cleanup_after_read {
-    my ($self, $id, $item) = @_;
-    $self->expand_list($item, $self->{expandable_params});
+    my ( $self, $id, $item ) = @_;
+    $self->expand_list( $item, $self->{expandable_params} );
 }
 
 =back

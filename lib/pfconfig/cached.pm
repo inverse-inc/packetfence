@@ -46,6 +46,7 @@ The encoder for the communications with pfconfig
 See CLONE where this needs to be recreated
 
 =cut
+
 our $ENCODER = Sereal::Encoder->new;
 
 =head2 DECODER
@@ -54,6 +55,7 @@ The decoder for the communications with pfconfig
 See CLONE where this needs to be recreated
 
 =cut
+
 our $DECODER = Sereal::Decoder->new;
 
 =head2 new
@@ -83,8 +85,8 @@ sub get_socket {
     my $socket;
     my $socket_path = pfconfig::util::socket_path();
     $socket = IO::Socket::UNIX->new(
-       Type => SOCK_STREAM,
-       Peer => $socket_path,
+        Type => SOCK_STREAM,
+        Peer => $socket_path,
     );
 
     return $socket;
@@ -112,14 +114,14 @@ It will return undef if it's not there or invalid
 =cut
 
 sub get_from_subcache {
-    my ($self, $key) = @_;
-    if(defined($self->{_subcache}{$key})){
+    my ( $self, $key ) = @_;
+    if ( defined( $self->{_subcache}{$key} ) ) {
         my $valid = $self->is_valid();
-        if($valid){
-            return $self->{_subcache}{$key}; 
+        if ($valid) {
+            return $self->{_subcache}{$key};
         }
-        else{
-            $self->{_subcache} = {};
+        else {
+            $self->{_subcache}    = {};
             $self->{memorized_at} = time;
             return undef;
         }
@@ -134,13 +136,13 @@ Sets an element in the subcache so it can be reused accross accesses
 =cut
 
 sub set_in_subcache {
-    my ($self, $key, $result) = @_;
+    my ( $self, $key, $result ) = @_;
 
     $self->{memorized_at} = time unless $self->{memorized_at};
-    $self->{_subcache} = {} unless $self->{_subcache};
+    $self->{_subcache}    = {}   unless $self->{_subcache};
     $self->{_subcache}{$key} = $result;
 
-} 
+}
 
 =head2 _get_from_socket
 
@@ -152,59 +154,63 @@ Will receive the amount of lines of the reply then the reply as a Sereal string
 =cut
 
 sub _get_from_socket {
-    my ($self, $what, $method, %additionnal_info) = @_;
+    my ( $self, $what, $method, %additionnal_info ) = @_;
     my $logger = get_logger;
 
     $method = $method || $self->{element_socket_method};
 
     my %info;
     my $payload;
-    %info = ((method => $method, key => $what), %additionnal_info);
-    $payload = encode_json(\%info);
+    %info = ( ( method => $method, key => $what ), %additionnal_info );
+    $payload = encode_json( \%info );
 
     my $socket;
-    
+
     my $failed_once = 0;
-    my $times = 0;
+    my $times       = 0;
+
     # we need the connection to the cachemaster
-    until($socket){
+    until ($socket) {
         $socket = $self->get_socket();
-        if($socket){
+        if ($socket) {
+
             # we want to show a success message if we failed at least once
-            print "Connected to config service successfully for namespace $self->{_namespace}" if $failed_once;
+            print "Connected to config service successfully for namespace $self->{_namespace}"
+                if $failed_once;
             last;
         }
-        my $message = "[".time."] Failed to connect to config service for namespace $self->{_namespace}, retrying";
+        my $message
+            = "["
+            . time
+            . "] Failed to connect to config service for namespace $self->{_namespace}, retrying";
         $failed_once = 1;
         $times += 1;
         $logger->error($message);
         print STDERR "$message\n";
-        select(undef, undef, undef, 0.1);
-        die ("Cannot connect to service pfconfig!") if ($times >= 600);
+        select( undef, undef, undef, 0.1 );
+        die("Cannot connect to service pfconfig!") if ( $times >= 600 );
     }
-       
+
     # we ask the cachemaster for our namespaced key
     print $socket "$payload\n";
-    
+
     # this will give us the line length to read
     chomp( my $count = <$socket> );
-    
+
     my $line;
     my $line_read = 0;
-    my $response = '';
-    while($line_read < $count){
-        chomp($line = <$socket>);
-        $response .= $line."\n";
+    my $response  = '';
+    while ( $line_read < $count ) {
+        chomp( $line = <$socket> );
+        $response .= $line . "\n";
         $line_read += 1;
     }
 
     # it returns it as a sereal hash
     my $result;
-    if($response && $response ne "undef\n"){
-        eval { 
-            $result = $DECODER->decode($response);
-        };
-        if ($@){
+    if ( $response && $response ne "undef\n" ) {
+        eval { $result = $DECODER->decode($response); };
+        if ($@) {
             print STDERR $@;
             print STDERR "$what $response";
         }
@@ -213,7 +219,7 @@ sub _get_from_socket {
         $result = undef;
     }
 
-    return $result
+    return $result;
 }
 
 =head2 is_valid
@@ -224,26 +230,27 @@ Uses the control files in var/control and the memorized_at hash to know if a nam
 =cut
 
 sub is_valid {
-    my ($self) = @_;
-    my $logger = get_logger;
-    my $what = $self->{_namespace};
-    my $control_file = pfconfig::util::control_file_path($what);
-    my $file_timestamp = (stat($control_file))[9] ;
+    my ($self)         = @_;
+    my $logger         = get_logger;
+    my $what           = $self->{_namespace};
+    my $control_file   = pfconfig::util::control_file_path($what);
+    my $file_timestamp = ( stat($control_file) )[9];
 
-    unless(defined($file_timestamp)){
+    unless ( defined($file_timestamp) ) {
         $logger->warn("Filesystem timestamp is not set for $what. Considering memory as invalid.");
         return 0;
     }
 
     my $memory_timestamp = $self->{memorized_at} || time;
-    #$logger->trace("Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what");
-    # if the timestamp of the file is after the one we have in memory
-    # then we are expired
-    if ($memory_timestamp > $file_timestamp){
+
+#$logger->trace("Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what");
+# if the timestamp of the file is after the one we have in memory
+# then we are expired
+    if ( $memory_timestamp > $file_timestamp ) {
         $logger->trace("Memory configuration is still valid for key $what in local cached_hash");
         return 1;
     }
-    else{
+    else {
         $logger->info("Memory configuration is not valid anymore for key $what in local cached_hash");
         return 0;
     }

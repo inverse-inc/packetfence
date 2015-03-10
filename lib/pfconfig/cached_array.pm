@@ -50,7 +50,7 @@ use pfconfig::timeme;
 use Data::Dumper;
 use pfconfig::log;
 use pfconfig::cached;
-our @ISA = ('Tie::Array', 'pfconfig::cached');
+our @ISA = ( 'Tie::Array', 'pfconfig::cached' );
 
 =head2 TIEARRAY
 
@@ -59,13 +59,13 @@ Constructor of the array
 =cut
 
 sub TIEARRAY {
-    my ($class, $config) = @_;
+    my ( $class, $config ) = @_;
     my $self = bless {}, $class;
 
     $self->init();
 
     $self->{"_namespace"} = $config;
-    
+
     $self->{element_socket_method} = "array_element";
 
     return $self;
@@ -80,16 +80,16 @@ Other than that it proxies the call to pfconfig
 =cut
 
 sub FETCH {
-    my ($self, $index) = @_;
+    my ( $self, $index ) = @_;
     my $logger = get_logger;
 
     my $subcache_value = $self->get_from_subcache($index);
-    return $subcache_value if defined($subcache_value); 
+    return $subcache_value if defined($subcache_value);
 
     my $reply = $self->_get_from_socket("$self->{_namespace};$index");
     my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace};$index")->{element} : undef;
 
-    $self->set_in_subcache($index, $result);
+    $self->set_in_subcache( $index, $result );
 
     return $result;
 
@@ -106,7 +106,7 @@ sub FETCHSIZE {
     my ($self) = @_;
     my $logger = get_logger;
 
-    my $result = $self->_get_from_socket($self->{_namespace}, "array_size")->{size};
+    my $result = $self->_get_from_socket( $self->{_namespace}, "array_size" )->{size};
 
     return $result;
 }
@@ -119,9 +119,10 @@ Proxies the call to pfconfig
 =cut
 
 sub EXISTS {
-    my ($self, $index) = @_;
+    my ( $self, $index ) = @_;
 
-    return $self->_get_from_socket($self->{_namespace}, "array_index_exists", (index => $index))->{result};
+    return $self->_get_from_socket( $self->{_namespace}, "array_index_exists", ( index => $index ) )
+        ->{result};
 }
 
 =back

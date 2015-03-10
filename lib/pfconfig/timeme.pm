@@ -35,18 +35,18 @@ Used to time a method ($fct)
 =cut
 
 sub timeme {
-    my ($desc, $fct, $verbose) = @_;
-    if($VERBOSE || $verbose){
+    my ( $desc, $fct, $verbose ) = @_;
+    if ( $VERBOSE || $verbose ) {
         my $logger = get_logger;
-        my $start = Time::HiRes::gettimeofday();
+        my $start  = Time::HiRes::gettimeofday();
         $fct->();
         my $end = Time::HiRes::gettimeofday();
-        my $time = sprintf("%.5f\n", $end - $start);
+        my $time = sprintf( "%.5f\n", $end - $start );
         $logger->trace("$desc took : $time");
         print "$desc took : $time\n";
         return $end - $start;
     }
-    else{
+    else {
         $fct->();
     }
 }
@@ -58,13 +58,17 @@ Used to time a method for x amount of times
 =cut
 
 sub time_me_x {
-    my ($desc, $times, $fct, $verbose) = @_;
-    my @range = (1..$times);
-    timeme("$desc $times times", sub {
-        foreach my $i (@range){
-            $fct->();
-        }
-    }, $verbose);
+    my ( $desc, $times, $fct, $verbose ) = @_;
+    my @range = ( 1 .. $times );
+    timeme(
+        "$desc $times times",
+        sub {
+            foreach my $i (@range) {
+                $fct->();
+            }
+        },
+        $verbose
+    );
 }
 
 =back

@@ -52,6 +52,7 @@ Initialization function for subclasses
 =cut
 
 sub init {
+
     # abstact
 }
 
@@ -62,9 +63,9 @@ Get an element in the backend
 =cut
 
 sub get {
-    my ($self, $key) = @_;
+    my ( $self, $key ) = @_;
     return $self->{cache}->get($key);
-} 
+}
 
 =head2 set
 
@@ -73,8 +74,8 @@ Set an element in the backend
 =cut
 
 sub set {
-    my ($self, $key, $value) = @_;
-    return $self->{cache}->set($key, $value);
+    my ( $self, $key, $value ) = @_;
+    return $self->{cache}->set( $key, $value );
 }
 
 =head2
@@ -84,7 +85,7 @@ Remove an element in the backend
 =cut
 
 sub remove {
-    my ($self, $key) = @_;
+    my ( $self, $key ) = @_;
     return $self->{cache}->remove($key);
 }
 

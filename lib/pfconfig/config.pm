@@ -12,16 +12,16 @@ sub new {
 
 sub init {
     my ($self) = @_;
-    my $file = pfconfig::util::config_file_path();    
-    
+    my $file = pfconfig::util::config_file_path();
+
     my %cfg;
-    tie %cfg, 'Config::IniFiles', (-file => $file);
+    tie %cfg, 'Config::IniFiles', ( -file => $file );
 
     $self->{cfg} = \%cfg;
 }
 
 sub section {
-    my ($self,$name) = @_;
+    my ( $self, $name ) = @_;
     return $self->{cfg}{$name};
 }
 

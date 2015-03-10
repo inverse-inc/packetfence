@@ -19,7 +19,7 @@ use base 'pfconfig::namespaces::resource';
 
 sub build {
     my ($self) = @_;
-    return ["first", "second", "third"];
+    return [ "first", "second", "third" ];
 }
 
 =back

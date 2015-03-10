@@ -51,7 +51,7 @@ use List::MoreUtils qw(first_index);
 use Data::Dumper;
 use pfconfig::log;
 use pfconfig::cached;
-our @ISA = ('Tie::StdHash', 'pfconfig::cached');
+our @ISA = ( 'Tie::StdHash', 'pfconfig::cached' );
 
 =head2 TIEHASH
 
@@ -60,7 +60,7 @@ Constructor of the hash
 =cut
 
 sub TIEHASH {
-    my ($class, $config) = @_;
+    my ( $class, $config ) = @_;
     my $self = bless {}, $class;
 
     $self->init();
@@ -79,11 +79,12 @@ Will serve it from it's subcache (per process) if it has it and it's still valid
 Other than that it proxies the call to pfconfig
 
 =cut 
+
 sub FETCH {
-    my ($self, $key) = @_;
+    my ( $self, $key ) = @_;
     my $logger = get_logger;
 
-    unless(defined($key)){
+    unless ( defined($key) ) {
         my $caller = ( caller(1) )[3];
         $logger->error("Accessing hash $self->{_namespace} with undef key. Caller : $caller.");
         return undef;
@@ -91,15 +92,15 @@ sub FETCH {
 
     my $subcache_value;
     $subcache_value = $self->get_from_subcache($key);
-    return $subcache_value if defined($subcache_value); 
+    return $subcache_value if defined($subcache_value);
 
-    return $self->{_internal_elements}{$key} if defined($self->{_internal_elements}{$key});
+    return $self->{_internal_elements}{$key} if defined( $self->{_internal_elements}{$key} );
 
     my $result;
     my $reply = $self->_get_from_socket("$self->{_namespace};$key");
     $result = defined($reply) ? $reply->{element} : undef;
 
-    $self->set_in_subcache($key, $result);
+    $self->set_in_subcache( $key, $result );
 
     return $result;
 }
@@ -115,8 +116,8 @@ Call it using tied(%hash)->keys
 sub keys {
     my ($self) = @_;
     my $logger = get_logger;
-    
-    my @keys = @{$self->_get_from_socket($self->{_namespace}, "keys")};
+
+    my @keys = @{ $self->_get_from_socket( $self->{_namespace}, "keys" ) };
 
     return @keys;
 }
@@ -131,7 +132,7 @@ Proxies to pfconfig
 sub FIRSTKEY {
     my ($self) = @_;
     my $logger = get_logger;
-    my $first_key = $self->_get_from_socket($self->{_namespace}, "next_key", (last_key => undef));
+    my $first_key = $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => undef ) );
     return $first_key ? $first_key->{next_key} : undef;
 }
 
@@ -143,9 +144,9 @@ Proxies to pfconfig
 =cut
 
 sub NEXTKEY {
-    my ($self, $last_key) = @_;
+    my ( $self, $last_key ) = @_;
     my $logger = get_logger;
-    return $self->_get_from_socket($self->{_namespace}, "next_key", (last_key => $last_key))->{next_key};
+    return $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => $last_key ) )->{next_key};
 }
 
 =head2 STORE
@@ -156,10 +157,10 @@ Stores it without any saving capability
 =cut
 
 sub STORE {
-    my( $self, $key, $value ) = @_;
+    my ( $self, $key, $value ) = @_;
     my $logger = get_logger;
-    
-    $self->{_internal_elements} = {} unless(defined($self->{_internal_elements}));
+
+    $self->{_internal_elements} = {} unless ( defined( $self->{_internal_elements} ) );
 
     $self->{_internal_elements}{$key} = $value;
 }
@@ -172,9 +173,9 @@ Proxies to pfconfig
 =cut
 
 sub EXISTS {
-    my( $self, $key ) = @_;
+    my ( $self, $key ) = @_;
     my @keys = $self->keys;
-    return $self->_get_from_socket($self->{_namespace}, "key_exists", (search => $key))->{result};
+    return $self->_get_from_socket( $self->{_namespace}, "key_exists", ( search => $key ) )->{result};
 }
 
 =back

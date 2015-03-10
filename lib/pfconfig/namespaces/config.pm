@@ -36,7 +36,7 @@ use base 'pfconfig::namespaces::resource';
 sub init {
     my ($self) = @_;
     $self->{expandable_params} = [];
-    $self->{child_resources} = [];
+    $self->{child_resources}   = [];
 }
 
 sub build {
@@ -50,10 +50,10 @@ sub build {
 
     tie %tmp_cfg, 'Config::IniFiles', %added_params;
 
-    @{$self->{ordered_sections}} = keys %tmp_cfg;
+    @{ $self->{ordered_sections} } = keys %tmp_cfg;
 
-    my $json = encode_json(\%tmp_cfg);
-    my $cfg = decode_json($json);
+    my $json = encode_json( \%tmp_cfg );
+    my $cfg  = decode_json($json);
 
     $self->unarray_parameters($cfg);
 
@@ -67,18 +67,19 @@ sub build {
 }
 
 sub do_defaults {
-    my ($self) = @_;
-    my $logger = get_logger;
-    my %tmp_cfg = %{$self->{cfg}};
-    unless(defined($self->{default_section})){
+    my ($self)  = @_;
+    my $logger  = get_logger;
+    my %tmp_cfg = %{ $self->{cfg} };
+    unless ( defined( $self->{default_section} ) ) {
         $logger->debug("No default section defined when building $self->{file}");
         return;
     }
-    foreach my $section_name (keys %tmp_cfg){
-        unless($section_name eq $self->{default_section}){
-            foreach my $element_name (keys %{$tmp_cfg{$self->{default_section}}}){
-                unless (exists $tmp_cfg{$section_name}{$element_name}){
-                    $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{$self->{default_section}}{$element_name};
+    foreach my $section_name ( keys %tmp_cfg ) {
+        unless ( $section_name eq $self->{default_section} ) {
+            foreach my $element_name ( keys %{ $tmp_cfg{ $self->{default_section} } } ) {
+                unless ( exists $tmp_cfg{$section_name}{$element_name} ) {
+                    $tmp_cfg{$section_name}{$element_name}
+                        = $tmp_cfg{ $self->{default_section} }{$element_name};
                 }
             }
         }
@@ -87,19 +88,20 @@ sub do_defaults {
 }
 
 sub unarray_parameters {
-    my ($self, $hash) = @_;
-    foreach my $data (values %$hash ) {
-        foreach my $key (keys %$data) {
+    my ( $self, $hash ) = @_;
+    foreach my $data ( values %$hash ) {
+        foreach my $key ( keys %$data ) {
             next unless defined $data->{$key};
-            $data->{$key} = ref($data->{$key}) eq 'ARRAY' ? join("\n", @{$data->{$key}}) : $data->{$key};
+            $data->{$key}
+                = ref( $data->{$key} ) eq 'ARRAY' ? join( "\n", @{ $data->{$key} } ) : $data->{$key};
         }
     }
 }
 
 sub cleanup_whitespaces {
-    my ($self,$hash) = @_;
-    foreach my $data (values %$hash ) {
-        foreach my $key (keys %$data) {
+    my ( $self, $hash ) = @_;
+    foreach my $data ( values %$hash ) {
+        foreach my $key ( keys %$data ) {
             next unless defined $data->{$key};
             $data->{$key} =~ s/\s+$//;
         }
@@ -111,25 +113,25 @@ sub cleanup_whitespaces {
 =cut
 
 sub expand_list {
-    my ( $self,$object,@columns ) = @_;
+    my ( $self, $object, @columns ) = @_;
     foreach my $column (@columns) {
-        if (exists $object->{$column}) {
-            $object->{$column} = [ $self->split_list($object->{$column}) ];
+        if ( exists $object->{$column} ) {
+            $object->{$column} = [ $self->split_list( $object->{$column} ) ];
         }
     }
 }
 
 sub split_list {
-    my ($self,$list) = @_;
-    return split(/\s*,\s*/,$list);
+    my ( $self, $list ) = @_;
+    return split( /\s*,\s*/, $list );
 }
 
 sub GroupMembers {
-    my ($self, $group) = @_;
+    my ( $self, $group ) = @_;
     my @members;
-    foreach my $key (@{$self->{ordered_sections}}){
-        my @values = split (' ', $key);
-        if (@values > 1 && $values[0] eq $group){
+    foreach my $key ( @{ $self->{ordered_sections} } ) {
+        my @values = split( ' ', $key );
+        if ( @values > 1 && $values[0] eq $group ) {
             push @members, $key;
         }
     }

@@ -14,7 +14,6 @@ This module creates the configuration hash associated to switches.conf
 
 =cut
 
-
 use strict;
 use warnings;
 
@@ -28,35 +27,33 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $switches_config_file;
-    $self->{child_resources} = [
-        'resource::default_switch',
-    ];
+    $self->{file}            = $switches_config_file;
+    $self->{child_resources} = [ 'resource::default_switch', ];
 }
 
 sub build_child {
     my ($self) = @_;
 
-    my %tmp_cfg = %{$self->{cfg}}; 
+    my %tmp_cfg = %{ $self->{cfg} };
 
     $tmp_cfg{'127.0.0.1'} = {
-  #      id                => '127.0.0.1',
+
+        #      id                => '127.0.0.1',
         type              => 'PacketFence',
         mode              => 'production',
         SNMPVersionTrap   => '1',
         SNMPCommunityTrap => 'public'
     };
 
-    foreach my $section_name (keys %tmp_cfg){
-      unless($section_name eq "default"){
-        foreach my $element_name (keys %{$tmp_cfg{default}}){
-          unless (exists $tmp_cfg{$section_name}{$element_name}){
-            $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{default}{$element_name};
-          }
+    foreach my $section_name ( keys %tmp_cfg ) {
+        unless ( $section_name eq "default" ) {
+            foreach my $element_name ( keys %{ $tmp_cfg{default} } ) {
+                unless ( exists $tmp_cfg{$section_name}{$element_name} ) {
+                    $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{default}{$element_name};
+                }
+            }
         }
-      }
     }
-
 
     foreach my $switch ( values %tmp_cfg ) {
 
@@ -77,7 +74,7 @@ sub build_child {
         $switch->{roles}        = $merged{Role};
         $switch->{vlans}        = $merged{Vlan};
         $switch->{access_lists} = $merged{AccessList};
-        $switch->{VoIPEnabled} = (
+        $switch->{VoIPEnabled}  = (
             $switch->{VoIPEnabled} =~ /^\s*(y|yes|true|enabled|1)\s*$/i
             ? 1
             : 0
@@ -85,19 +82,18 @@ sub build_child {
         $switch->{mode} = lc( $switch->{mode} );
         $switch->{'wsUser'} ||= $switch->{'htaccessUser'};
         $switch->{'wsPwd'} ||= $switch->{'htaccessPwd'} || '';
+
         foreach my $cli_default (qw(EnablePwd Pwd User)) {
-            $switch->{"cli${cli_default}"}
-              ||= $switch->{"telnet${cli_default}"};
+            $switch->{"cli${cli_default}"} ||= $switch->{"telnet${cli_default}"};
         }
-        foreach my $snmpDefault (
-            qw(communityRead communityTrap communityWrite version)) {
+        foreach my $snmpDefault (qw(communityRead communityTrap communityWrite version)) {
             my $snmpkey = "SNMP" . ucfirst($snmpDefault);
             $switch->{$snmpkey} ||= $switch->{$snmpDefault};
         }
     }
 
-    foreach my $key ( keys %tmp_cfg){
-        $self->cleanup_after_read($key, $tmp_cfg{$key});
+    foreach my $key ( keys %tmp_cfg ) {
+        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
     }
 
     return \%tmp_cfg;
@@ -113,8 +109,7 @@ sub cleanup_after_read {
         $switch->{uplink}         = undef;
     }
     if ( exists $switch->{inlineTrigger} ) {
-        $switch->{inlineTrigger} =
-          [ map { _splitInlineTrigger($_) } @{ $switch->{inlineTrigger} } ];
+        $switch->{inlineTrigger} = [ map { _splitInlineTrigger($_) } @{ $switch->{inlineTrigger} } ];
     }
 }
 

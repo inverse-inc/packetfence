@@ -21,6 +21,7 @@ use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
+
     # we depend on the switch configuration object (russian doll style)
     $self->{switches} = $self->{cache}->get_cache('config::Switch');
 }

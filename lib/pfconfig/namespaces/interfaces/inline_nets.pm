@@ -24,15 +24,15 @@ sub init {
 }
 
 sub build {
-    my ($self) = @_;
-    my %ConfigNetworks = %{$self->{network_config}};
-    my @inline_nets = ();
+    my ($self)         = @_;
+    my %ConfigNetworks = %{ $self->{network_config} };
+    my @inline_nets    = ();
     foreach my $network ( keys %ConfigNetworks ) {
         my $type = $ConfigNetworks{$network}{type};
         if ( pfconfig::namespaces::config::Network::is_network_type_inline($type) ) {
             my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
             push @inline_nets, $inline_obj;
-        } 
+        }
     }
     return \@inline_nets;
 }

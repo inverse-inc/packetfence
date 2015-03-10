@@ -29,7 +29,7 @@ use warnings;
 use Data::Dumper;
 
 sub new {
-    my ($class, $cache) = @_;
+    my ( $class, $cache ) = @_;
     my $self = bless {}, $class;
 
     $self->{cache} = $cache;

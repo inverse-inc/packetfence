@@ -14,7 +14,6 @@ This module creates the configuration hash associated to somefile.conf
 
 =cut
 
-
 use strict;
 use warnings;
 
@@ -33,10 +32,10 @@ sub init {
 sub build_child {
     my ($self) = @_;
 
-    my %tmp_cfg = %{$self->{cfg}}; 
+    my %tmp_cfg = %{ $self->{cfg} };
 
-    foreach my $key ( keys %tmp_cfg){
-        $self->cleanup_after_read($key, $tmp_cfg{$key});
+    foreach my $key ( keys %tmp_cfg ) {
+        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
     }
 
     return \%tmp_cfg;
@@ -44,10 +43,10 @@ sub build_child {
 }
 
 sub cleanup_after_read {
-    my ($self, $id, $data) = @_;
-    $self->expand_list($data, qw(category oses));
-    if(exists $data->{oses} && defined $data->{oses}) {
-        $data->{oses} = ref($data->{oses}) eq 'ARRAY' ? $data->{oses} : [$data->{oses}];
+    my ( $self, $id, $data ) = @_;
+    $self->expand_list( $data, qw(category oses) );
+    if ( exists $data->{oses} && defined $data->{oses} ) {
+        $data->{oses} = ref( $data->{oses} ) eq 'ARRAY' ? $data->{oses} : [ $data->{oses} ];
     }
 }
 

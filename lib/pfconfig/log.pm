@@ -19,7 +19,7 @@ use Log::Fast;
 use Sys::Syslog qw( LOG_DAEMON );
 use Exporter;
 
-our @ISA = qw(Exporter);
+our @ISA    = qw(Exporter);
 our @EXPORT = qw(get_logger);
 
 =head2 logger
@@ -52,14 +52,15 @@ sub new {
 
     $self->{logger} = Log::Fast->global();
 
-    open(my $fh, ">>", "/usr/local/pf/logs/pfconfig.log");
+    open( my $fh, ">>", "/usr/local/pf/logs/pfconfig.log" );
 
-    $self->{logger}->config({
-        level           => 'ERR',
-        prefix          => '%D %T [%L] : ',
-        type            => 'fh',
-        fh              => $fh,
-    });
+    $self->{logger}->config(
+        {   level  => 'ERR',
+            prefix => '%D %T [%L] : ',
+            type   => 'fh',
+            fh     => $fh,
+        }
+    );
 
     return $self;
 }
@@ -72,8 +73,8 @@ Logs to error since Log::Fast doesn't have fatal
 =cut
 
 sub fatal {
-    my ($self, $message) = @_;
-    $message .= " (".whowasi().")";
+    my ( $self, $message ) = @_;
+    $message .= " (" . whowasi() . ")";
     $self->{logger}->ERR($message);
 }
 
@@ -84,8 +85,8 @@ Used for $logger->error($msg)
 =cut
 
 sub error {
-    my ($self, $message) = @_;
-    $message .= " (".whowasi().")";
+    my ( $self, $message ) = @_;
+    $message .= " (" . whowasi() . ")";
     $self->{logger}->ERR($message);
 }
 
@@ -96,8 +97,8 @@ Used for $logger->warn($msg)
 =cut
 
 sub warn {
-    my ($self, $message) = @_;
-    $message .= " (".whowasi().")";
+    my ( $self, $message ) = @_;
+    $message .= " (" . whowasi() . ")";
     $self->{logger}->WARN($message);
 }
 
@@ -108,8 +109,8 @@ Used for $logger->info($msg)
 =cut
 
 sub info {
-    my ($self, $message) = @_;
-    $message = "$message (".whowasi().")";
+    my ( $self, $message ) = @_;
+    $message = "$message (" . whowasi() . ")";
     $self->{logger}->INFO($message);
 }
 
@@ -120,8 +121,8 @@ Used for $logger->debug($msg)
 =cut
 
 sub debug {
-    my ($self, $message) = @_;
-    $message .= " (".whowasi().")";
+    my ( $self, $message ) = @_;
+    $message .= " (" . whowasi() . ")";
     $self->{logger}->DEBUG($message);
 }
 
@@ -133,8 +134,8 @@ Logs to debug since Log::Fast doesn't have trace
 =cut
 
 sub trace {
-    my ($self, $message) = @_;
-    $message .= " (".whowasi().")";
+    my ( $self, $message ) = @_;
+    $message .= " (" . whowasi() . ")";
     $self->{logger}->DEBUG($message);
 }
 

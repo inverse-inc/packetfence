@@ -14,7 +14,6 @@ This module creates the configuration hash associated to somefile.conf
 
 =cut
 
-
 use strict;
 use warnings;
 
@@ -33,9 +32,9 @@ sub init {
 sub build_child {
     my ($self) = @_;
 
-    my %tmp_cfg = %{$self->{cfg}}; 
+    my %tmp_cfg = %{ $self->{cfg} };
 
-    $self->cleanup_whitespaces(\%tmp_cfg);
+    $self->cleanup_whitespaces( \%tmp_cfg );
 
     return \%tmp_cfg;
 

@@ -14,7 +14,6 @@ This module creates the configuration hash associated to firewall_sso.conf
 
 =cut
 
-
 use strict;
 use warnings;
 

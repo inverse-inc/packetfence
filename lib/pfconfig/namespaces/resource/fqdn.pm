@@ -19,17 +19,17 @@ use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
+
     # we depend on the switch configuration object (russian doll style)
     $self->{default_config} = $self->{cache}->get_cache('config::PfDefault');
-    $self->{config} = $self->{cache}->get_cache('config::Pf');
+    $self->{config}         = $self->{cache}->get_cache('config::Pf');
 }
 
 sub build {
     my ($self) = @_;
-    my $fqdn = sprintf("%s.%s",
-                    $self->{config}{'general'}{'hostname'} || $self->{default_config}{'general'}{'hostname'},
-                    $self->{config}{'general'}{'domain'} || $self->{default_config}{'general'}{'domain'});
-
+    my $fqdn = sprintf( "%s.%s",
+        $self->{config}{'general'}{'hostname'} || $self->{default_config}{'general'}{'hostname'},
+        $self->{config}{'general'}{'domain'}   || $self->{default_config}{'general'}{'domain'} );
 
     return $fqdn;
 }

@@ -28,7 +28,6 @@ In order to access the configuration namespaces :
 
 =cut
 
-
 use strict;
 use warnings;
 
@@ -56,14 +55,14 @@ See it as a mini-factory
 =cut
 
 sub config_builder {
-    my ($self, $namespace) = @_;
+    my ( $self, $namespace ) = @_;
     my $logger = get_logger;
 
     my $elem = $self->get_namespace($namespace);
-    my $tmp = $elem->build();
+    my $tmp  = $elem->build();
 
     return $tmp;
-};
+}
 
 =head2 get_namespace
 
@@ -72,19 +71,18 @@ Dynamicly requires the namespace module and instanciates the object associated t
 =cut
 
 sub get_namespace {
-    my ($self, $name) = @_;
+    my ( $self, $name ) = @_;
     my $logger = get_logger;
-    my $type = "pfconfig::namespaces::$name";
+    my $type   = "pfconfig::namespaces::$name";
 
     $type = untaint_chain($type);
 
     # load the module to instantiate
-    if ( !(eval "$type->require()" ) ) {
-        $logger->error( "Can not load namespace $name "
-            . "Read the following message for details: $@" );
+    if ( !( eval "$type->require()" ) ) {
+        $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
     }
 
-    my $elem = $type->new($self); 
+    my $elem = $type->new($self);
 
     return $elem;
 }
@@ -116,7 +114,7 @@ sub init_cache {
 
     $self->{cache} = pfconfig::backend::mysql->new;
 
-    $self->{memory} = {};
+    $self->{memory}       = {};
     $self->{memorized_at} = {};
 }
 
@@ -128,27 +126,27 @@ That sends the signal that the raw memory is expired
 =cut
 
 sub touch_cache {
-    my ($self, $what) = @_;
+    my ( $self, $what ) = @_;
     my $logger = get_logger;
     $what =~ s/\//;/g;
     my $filename = pfconfig::util::control_file_path($what);
     $filename = untaint_chain($filename);
 
-    if ( !-e $filename) {
+    if ( !-e $filename ) {
         my $fh;
-        unless(open($fh,">$filename")){
+        unless ( open( $fh, ">$filename" ) ) {
             $logger->error("Can't create $filename\nPlease run 'pfcmd fixpermissions'");
             return 0;
         }
         close($fh);
     }
-    if(-e $filename) {
-        sysopen(my $fh,$filename,O_RDWR | O_CREAT);
-        POSIX::2008::futimens(fileno $fh);
+    if ( -e $filename ) {
+        sysopen( my $fh, $filename, O_RDWR | O_CREAT );
+        POSIX::2008::futimens( fileno $fh );
         close($fh);
     }
-    my (undef,undef,$uid,$gid) = getpwnam('pf');
-    chown($uid,$gid,$filename);
+    my ( undef, undef, $uid, $gid ) = getpwnam('pf');
+    chown( $uid, $gid, $filename );
 }
 
 =head2 get_cache
@@ -160,30 +158,33 @@ It should not have to build the L3 since that's the slowest. The L3 should be bu
 =cut
 
 sub get_cache {
-    my ($self, $what) = @_;
+    my ( $self, $what ) = @_;
     my $logger = get_logger;
+
     # we look in raw memory and make sure that it's not expired
     my $memory = $self->{memory}->{$what};
-    if(defined($memory) && $self->is_valid($what)){
+    if ( defined($memory) && $self->is_valid($what) ) {
         $logger->debug("Getting $what from memory");
         return $memory;
     }
     else {
         my $cached = $self->{cache}->get($what);
+
         # raw memory is expired but cache is not
-        if($cached){
+        if ($cached) {
             $logger->debug("Getting $what from cache backend");
-            $self->{memory}->{$what} = $cached;
-            $self->{memorized_at}->{$what} = time; 
+            $self->{memory}->{$what}       = $cached;
+            $self->{memorized_at}->{$what} = time;
             return $cached;
         }
+
         # everything is expired. need to rebuild completely
         else {
             my $result = $self->cache_resource($what);
             return $result;
         }
     }
-   
+
 }
 
 =head2 cache_resource
@@ -193,21 +194,21 @@ Builds the resource associated to a namespace and then caches it in the L1 and L
 =cut
 
 sub cache_resource {
-    my ($self, $what) = @_;
+    my ( $self, $what ) = @_;
     my $logger = get_logger;
 
     $logger->debug("loading $what from outside");
     my $result = $self->config_builder($what);
-    my $cache_w = $self->{cache}->set($what, $result, 864000) ;
+    my $cache_w = $self->{cache}->set( $what, $result, 864000 );
     $logger->trace("Cache write gave : $cache_w");
-    unless($cache_w){
+    unless ($cache_w) {
         my $message = "Could not write namespace $what to L2 cache ! This is bad.";
-        print STDERR $message."\n";
+        print STDERR $message . "\n";
         $logger->error($message);
     }
     $self->touch_cache($what);
-    $self->{memory}->{$what} = $result;
-    $self->{memorized_at}->{$what} = time; 
+    $self->{memory}->{$what}       = $result;
+    $self->{memorized_at}->{$what} = time;
 
     return $result;
 
@@ -221,26 +222,31 @@ Uses the control files in var/control and the memorized_at hash to know if a nam
 =cut
 
 sub is_valid {
-    my ($self, $what) = @_;
-    my $logger = get_logger;
-    my $control_file = pfconfig::util::control_file_path($what); 
-    my $file_timestamp = (stat($control_file))[9];
+    my ( $self, $what ) = @_;
+    my $logger         = get_logger;
+    my $control_file   = pfconfig::util::control_file_path($what);
+    my $file_timestamp = ( stat($control_file) )[9];
 
-    unless(defined($file_timestamp)){
-        $logger->warn("Filesystem timestamp is not set for $what. Setting it as now and considering memory as invalid.");
+    unless ( defined($file_timestamp) ) {
+        $logger->warn(
+            "Filesystem timestamp is not set for $what. Setting it as now and considering memory as invalid."
+        );
         $self->touch_cache($what);
         return 0;
     }
 
     my $memory_timestamp = $self->{memorized_at}->{$what};
-    $logger->trace("Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what");
+    $logger->trace(
+        "Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what"
+    );
+
     # if the timestamp of the file is after the one we have in memory
     # then we are expired
-    if ($memory_timestamp > $file_timestamp){
+    if ( $memory_timestamp > $file_timestamp ) {
         $logger->trace("Memory configuration is still valid for key $what");
         return 1;
     }
-    else{
+    else {
         $logger->info("Memory configuration is not valid anymore for key $what");
         return 0;
     }
@@ -253,15 +259,16 @@ If the namespace has child resources, it expires them too.
 Will expire the memory cache after building
 
 =cut
+
 sub expire {
-    my ($self, $what) = @_;
+    my ( $self, $what ) = @_;
     my $logger = get_logger;
     $logger->info("Expiring resource : $what");
     $self->cache_resource($what);
 
     my $namespace = $self->get_namespace($what);
-    if ($namespace->{child_resources}){
-        foreach my $child_resource (@{$namespace->{child_resources}}){
+    if ( $namespace->{child_resources} ) {
+        foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
             $logger->info("Expiring child resource $child_resource. Master resource is $what");
             $self->expire($child_resource);
         }
@@ -277,25 +284,26 @@ Has an ignore list declared below
 =cut
 
 sub list_namespaces {
-    my ($self, $what) = @_;
-    my @skip = (
-        'config', 
-        'resource', 
-        'config::template', 
-    );
+    my ( $self, $what ) = @_;
+    my @skip = ( 'config', 'resource', 'config::template', );
     my $namespace_dir = "/usr/local/pf/lib/pfconfig/namespaces";
     my @modules;
-    find({ wanted => sub {
-        my $module = $_;
-        return if $module eq $namespace_dir;
-        $module =~ s/$namespace_dir\///g; 
-        $module =~ s/\.pm$//g;
-        $module =~ s/\//::/g;
-        return if $module =~ /::\..*$/;
-        return if $module =~ /^\..*$/;
-        return if grep(/^$module$/, @skip);
-        push @modules, $module;
-    }, no_chdir => 1 }, $namespace_dir);
+    find(
+        {   wanted => sub {
+                my $module = $_;
+                return if $module eq $namespace_dir;
+                $module =~ s/$namespace_dir\///g;
+                $module =~ s/\.pm$//g;
+                $module =~ s/\//::/g;
+                return if $module =~ /::\..*$/;
+                return if $module =~ /^\..*$/;
+                return if grep( /^$module$/, @skip );
+                push @modules, $module;
+            },
+            no_chdir => 1
+        },
+        $namespace_dir
+    );
     return @modules;
 }
 
@@ -310,7 +318,7 @@ sub preload_all {
     my ($self) = @_;
     my @namespaces = $self->list_namespaces;
     print "\n------------------\n";
-    foreach my $namespace (@namespaces){
+    foreach my $namespace (@namespaces) {
         print "Preloading $namespace\n";
         $self->get_cache($namespace);
     }
@@ -326,9 +334,9 @@ Method that expires all the namespaces defined by list_namespaces
 sub expire_all {
     my ($self) = @_;
     my @namespaces = $self->list_namespaces;
-    foreach my $namespace (@namespaces){
+    foreach my $namespace (@namespaces) {
         $self->cache_resource($namespace);
-    }  
+    }
 }
 
 =back

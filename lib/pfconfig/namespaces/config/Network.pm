@@ -14,7 +14,6 @@ This module creates the configuration hash associated to somefile.conf
 
 =cut
 
-
 use strict;
 use warnings;
 
@@ -28,26 +27,28 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $network_config_file;
+    $self->{file}            = $network_config_file;
     $self->{child_resources} = [
-        'interfaces::routed_isolation_nets',
-        'interfaces::routed_registration_nets',
+        'interfaces::routed_isolation_nets', 'interfaces::routed_registration_nets',
         'interfaces::inline_nets',
-    ]
+    ];
 }
 
 sub build_child {
     my ($self) = @_;
 
-    my %ConfigNetworks = %{$self->{cfg}}; 
+    my %ConfigNetworks = %{ $self->{cfg} };
 
     my ($config) = @_;
-    $self->cleanup_whitespaces(\%ConfigNetworks);
+    $self->cleanup_whitespaces( \%ConfigNetworks );
 
     foreach my $network ( keys %ConfigNetworks ) {
+
         # transition pf_gateway to next_hop
         # TODO we can deprecate pf_gateway in 2012
-        if ( defined($ConfigNetworks{$network}{'pf_gateway'}) && !defined($ConfigNetworks{$network}{'next_hop'}) ) {
+        if ( defined( $ConfigNetworks{$network}{'pf_gateway'} )
+            && !defined( $ConfigNetworks{$network}{'next_hop'} ) )
+        {
             # carry over the parameter so that things still work
             $ConfigNetworks{$network}{'next_hop'} = $ConfigNetworks{$network}{'pf_gateway'};
         }
@@ -67,9 +68,10 @@ sub is_network_type_vlan_reg {
     my ($type) = @_;
 
     my $result = get_network_type($type);
-    if (defined($result) && $result eq $pf::constants::config::NET_TYPE_VLAN_REG) {
+    if ( defined($result) && $result eq $pf::constants::config::NET_TYPE_VLAN_REG ) {
         return 1;
-    } else {
+    }
+    else {
         return 0;
     }
 }
@@ -84,9 +86,10 @@ sub is_network_type_vlan_isol {
     my ($type) = @_;
 
     my $result = get_network_type($type);
-    if (defined($result) && $result eq $pf::constants::config::NET_TYPE_VLAN_ISOL) {
+    if ( defined($result) && $result eq $pf::constants::config::NET_TYPE_VLAN_ISOL ) {
         return 1;
-    } else {
+    }
+    else {
         return 0;
     }
 }
@@ -101,9 +104,10 @@ sub is_network_type_inline {
     my ($type) = @_;
 
     my $result = get_network_type($type);
-    if (defined($result) && $result eq $pf::constants::config::NET_TYPE_INLINE) {
+    if ( defined($result) && $result eq $pf::constants::config::NET_TYPE_INLINE ) {
         return 1;
-    } else {
+    }
+    else {
         return 0;
     }
 }
@@ -111,26 +115,37 @@ sub is_network_type_inline {
 sub get_network_type {
     my ($type) = @_;
 
-    if (!defined($type)) {
+    if ( !defined($type) ) {
+
         # not defined
         return;
-    } elsif ($type =~ /^$pf::constants::config::NET_TYPE_VLAN_REG$/i) {
+    }
+    elsif ( $type =~ /^$pf::constants::config::NET_TYPE_VLAN_REG$/i ) {
+
         # vlan-registration
         return $pf::constants::config::NET_TYPE_VLAN_REG;
 
-    } elsif ($type =~ /^$pf::constants::config::NET_TYPE_VLAN_ISOL$/i) {
+    }
+    elsif ( $type =~ /^$pf::constants::config::NET_TYPE_VLAN_ISOL$/i ) {
+
         # vlan-isolation
         return $pf::constants::config::NET_TYPE_VLAN_ISOL;
 
-    } elsif (is_type_inline($type)) {
+    }
+    elsif ( is_type_inline($type) ) {
+
         # inline
         return $pf::constants::config::NET_TYPE_INLINE;
 
-    } elsif ($type =~ /^registration$/i) {
+    }
+    elsif ( $type =~ /^registration$/i ) {
+
         # deprecated registration
         return $pf::constants::config::NET_TYPE_VLAN_REG;
 
-    } elsif ($type =~ /^isolation$/i) {
+    }
+    elsif ( $type =~ /^isolation$/i ) {
+
         # deprecated isolation
         return $pf::constants::config::NET_TYPE_VLAN_ISOL;
     }

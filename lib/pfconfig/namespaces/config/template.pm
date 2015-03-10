@@ -14,7 +14,6 @@ This module creates the configuration hash associated to somefile.conf
 
 =cut
 
-
 use strict;
 use warnings;
 

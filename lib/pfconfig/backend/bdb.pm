@@ -25,29 +25,31 @@ use pf::file_paths;
 sub init {
     my ($self) = @_;
     my %options = (
-        cache_root => $pfconfig_cache_dir,
-        namespace  => "pfconfig",
+        cache_root         => $pfconfig_cache_dir,
+        namespace          => "pfconfig",
         default_expires_in => 86400,
     );
     $self->{cache} = Cache::BDB->new(%options);
 }
 
 sub set {
-    my ($self, $key, $value) = @_;
+    my ( $self, $key, $value ) = @_;
+
     # BDB doesn't write empty strings
     # We workaround it using a class that represents an empty string
-    if ("$value" eq '') {
+    if ( "$value" eq '' ) {
         $value = pfconfig::empty_string->new;
     }
-    $self->SUPER::set($key, $value);
+    $self->SUPER::set( $key, $value );
 }
 
 sub get {
-    my ($self, $key) = @_;
+    my ( $self, $key ) = @_;
     my $value = $self->SUPER::get($key);
+
     # BDB doesn't write empty strings
     # We workaround it using a class that represents an empty string
-    if(ref($value) eq "pfconfig::empty_string" && $value->isa("pfconfig::empty_string")){
+    if ( ref($value) eq "pfconfig::empty_string" && $value->isa("pfconfig::empty_string") ) {
         $value = '';
     }
     return $value;

@@ -25,8 +25,8 @@ sub init {
 sub build {
     my ($self) = @_;
 
-    my %Config = %{$self->{config}};
-    return $Config{'database'}; 
+    my %Config = %{ $self->{config} };
+    return $Config{'database'};
 }
 
 =back

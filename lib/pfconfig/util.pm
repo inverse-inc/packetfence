@@ -35,7 +35,7 @@ Returns the control file path for a namespace
 
 sub control_file_path {
     my ($namespace) = @_;
-    return "/usr/local/pf/var/control/".$namespace."-control";
+    return "/usr/local/pf/var/control/" . $namespace . "-control";
 }
 
 =head2 socket_path
@@ -45,7 +45,7 @@ Returns the path of the socket on the system
 =cut
 
 sub socket_path {
-    return '/usr/local/pf/var/run/pfconfig.sock';  
+    return '/usr/local/pf/var/run/pfconfig.sock';
 }
 
 =back

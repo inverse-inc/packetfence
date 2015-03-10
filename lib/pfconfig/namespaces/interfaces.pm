@@ -28,24 +28,20 @@ use base 'pfconfig::namespaces::resource';
 sub init {
     my ($self) = @_;
     $self->{_interfaces} = {
-        listen_ints => [],
-        dhcplistener_ints => [],
-        ha_ints => [],
-        internal_nets => [],
+        listen_ints             => [],
+        dhcplistener_ints       => [],
+        ha_ints                 => [],
+        internal_nets           => [],
         inline_enforcement_nets => [],
-        vlan_enforcement_nets => [],
-        monitor_int => '',
-        management_network => '',
+        vlan_enforcement_nets   => [],
+        monitor_int             => '',
+        management_network      => '',
     };
     $self->{child_resources} = [
-        'interfaces::listen_ints',
-        'interfaces::dhcplistener_ints',
-        'interfaces::ha_ints',
-        'interfaces::internal_nets',
-        'interfaces::inline_enforcement_nets',
-        'interfaces::vlan_enforcement_nets',
-        'interfaces::monitor_int',
-        'interfaces::management_network',
+        'interfaces::listen_ints',             'interfaces::dhcplistener_ints',
+        'interfaces::ha_ints',                 'interfaces::internal_nets',
+        'interfaces::inline_enforcement_nets', 'interfaces::vlan_enforcement_nets',
+        'interfaces::monitor_int',             'interfaces::management_network',
     ];
 }
 
@@ -53,61 +49,69 @@ sub build {
     my ($self) = @_;
     my $logger = get_logger;
 
-    my $config = pfconfig::namespaces::config::Pf->new($self->{cache});
+    my $config = pfconfig::namespaces::config::Pf->new( $self->{cache} );
     $self->{config} = $config->build();
-    my %Config = %{$self->{config}};
+    my %Config = %{ $self->{config} };
 
     foreach my $interface ( $config->GroupMembers("interface") ) {
         my $int_obj;
         my $int = $interface;
         $int =~ s/interface //;
 
-        my $ip             = $Config{$interface}{'ip'};
-        my $mask           = $Config{$interface}{'mask'};
-        my $type           = $Config{$interface}{'type'};
+        my $ip   = $Config{$interface}{'ip'};
+        my $mask = $Config{$interface}{'mask'};
+        my $type = $Config{$interface}{'type'};
 
         if ( defined($ip) && defined($mask) ) {
-            $ip   =~ s/ //g;
+            $ip =~ s/ //g;
             $mask =~ s/ //g;
             $int_obj = new Net::Netmask( $ip, $mask );
-            $int_obj->tag( "ip",      $ip );
-            $int_obj->tag( "int",     $int );
+            $int_obj->tag( "ip",  $ip );
+            $int_obj->tag( "int", $int );
         }
 
-        if (!defined($type)) {
+        if ( !defined($type) ) {
             $logger->warn("$int: interface type not defined");
+
             # setting type to empty to avoid warnings on split below
             $type = '';
         }
 
         die "Missing mandatory element ip or netmask on interface $int"
-            if ($type =~ /internal|managed|management/ && !defined($int_obj));
+            if ( $type =~ /internal|managed|management/ && !defined($int_obj) );
 
         foreach my $type ( split( /\s*,\s*/, $type ) ) {
             if ( $type eq 'internal' ) {
-                $int_obj->tag("vip", $self->_fetch_virtual_ip($int, $interface));
-                push @{$self->{_interfaces}->{internal_nets}}, $int_obj;
-                if ($Config{$interface}{'enforcement'} eq $pf::constants::config::IF_ENFORCEMENT_VLAN) {
-                    push @{$self->{_interfaces}->{vlan_enforcement_nets}}, $int_obj;
-                } elsif (is_type_inline($Config{$interface}{'enforcement'})) {
-                    push @{$self->{_interfaces}->{inline_enforcement_nets}}, $int_obj;
+                $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
+                push @{ $self->{_interfaces}->{internal_nets} }, $int_obj;
+                if ( $Config{$interface}{'enforcement'} eq $pf::constants::config::IF_ENFORCEMENT_VLAN ) {
+                    push @{ $self->{_interfaces}->{vlan_enforcement_nets} }, $int_obj;
                 }
-                if ($int =~ m/(\w+):\d+/) {
+                elsif ( is_type_inline( $Config{$interface}{'enforcement'} ) ) {
+                    push @{ $self->{_interfaces}->{inline_enforcement_nets} }, $int_obj;
+                }
+                if ( $int =~ m/(\w+):\d+/ ) {
                     $int = $1;
                 }
-                push @{$self->{_interfaces}->{listen_ints}}, $int if ( $int !~ /:\d+$/ );
-            } elsif ( $type eq 'managed' || $type eq 'management' ) {
-                $int_obj->tag("vip", $self->_fetch_virtual_ip($int, $interface));
+                push @{ $self->{_interfaces}->{listen_ints} }, $int if ( $int !~ /:\d+$/ );
+            }
+            elsif ( $type eq 'managed' || $type eq 'management' ) {
+                $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
                 $self->{_interfaces}->{management_network} = $int_obj;
-                # adding management to dhcp listeners by default (if it's not already there)
-                push @{$self->{_interfaces}->{dhcplistener_ints}}, $int if ( not scalar grep({ $_ eq $int } @{$self->{_interfaces}->{dhcplistener_ints}}) );
 
-            } elsif ( $type eq 'monitor' ) {
+                # adding management to dhcp listeners by default (if it's not already there)
+                push @{ $self->{_interfaces}->{dhcplistener_ints} }, $int
+                    if ( not scalar grep( { $_ eq $int } @{ $self->{_interfaces}->{dhcplistener_ints} } ) );
+
+            }
+            elsif ( $type eq 'monitor' ) {
                 $self->{_interfaces}->{monitor_int} = $int;
-            } elsif ( $type =~ /^dhcp-?listener$/i ) {
-                push @{$self->{_interfaces}->{dhcplistener_ints}}, $int;
-            } elsif ( $type eq 'high-availability' ) {
-                push @{$self->{_interfaces}->{ha_ints}}, $int;
+            }
+            elsif ( $type =~ /^dhcp-?listener$/i ) {
+                push @{ $self->{_interfaces}->{dhcplistener_ints} }, $int;
+            }
+            elsif ( $type eq 'high-availability' ) {
+                push @{ $self->{_interfaces}->{ha_ints} }, $int;
             }
         }
     }
@@ -116,22 +120,22 @@ sub build {
 }
 
 sub _fetch_virtual_ip {
-    my ($self, $interface, $config_section) = @_;
+    my ( $self, $interface, $config_section ) = @_;
 
-    my %Config = %{$self->{config}};
+    my %Config = %{ $self->{config} };
 
     # [interface $int].vip= ... always wins
-    return $Config{$config_section}{'vip'} if defined($Config{$config_section}{'vip'});
+    return $Config{$config_section}{'vip'} if defined( $Config{$config_section}{'vip'} );
 
     my $if = Net::Interface->new($interface);
-    return if (!defined($if));
+    return if ( !defined($if) );
 
     # these array are ordered the same way, that's why we can assume the following
-    my @masks = $if->netmask(AF_INET());
-    my @addresses = $if->address(AF_INET());
+    my @masks     = $if->netmask( AF_INET() );
+    my @addresses = $if->address( AF_INET() );
 
-    for my $i (0 .. $#masks) {
-        return inet_ntoa($addresses[$i]) if (inet_ntoa($masks[$i]) eq '255.255.255.255');
+    for my $i ( 0 .. $#masks ) {
+        return inet_ntoa( $addresses[$i] ) if ( inet_ntoa( $masks[$i] ) eq '255.255.255.255' );
     }
     return;
 }

@@ -24,15 +24,15 @@ sub init {
 }
 
 sub build {
-    my ($self) = @_;
-    my %ConfigNetworks = %{$self->{network_config}};
+    my ($self)                = @_;
+    my %ConfigNetworks        = %{ $self->{network_config} };
     my @routed_isolation_nets = ();
     foreach my $network ( keys %ConfigNetworks ) {
         my $type = $ConfigNetworks{$network}{type};
         if ( pfconfig::namespaces::config::Network::is_network_type_vlan_isol($type) ) {
             my $isolation_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
             push @routed_isolation_nets, $isolation_obj;
-        } 
+        }
     }
     return \@routed_isolation_nets;
 }

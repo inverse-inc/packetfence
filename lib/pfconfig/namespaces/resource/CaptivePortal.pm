@@ -26,23 +26,23 @@ sub init {
 
 sub build {
     my ($self) = @_;
-    my %Config = %{$self->{config}};
+    my %Config = %{ $self->{config} };
+
     # CAPTIVE-PORTAL RELATED
     # Captive Portal constants
     my %CAPTIVE_PORTAL = (
-        "NET_DETECT_INITIAL_DELAY" => floor($Config{'trapping'}{'redirtimer'} / 4),
-        "NET_DETECT_RETRY_DELAY" => 2,
+        "NET_DETECT_INITIAL_DELAY"         => floor( $Config{'trapping'}{'redirtimer'} / 4 ),
+        "NET_DETECT_RETRY_DELAY"           => 2,
         "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
-        "NET_DETECT_PENDING_RETRY_DELAY" => 30,
-        "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
-        "PROFILE_TEMPLATE_DIR" => "$install_dir/html/captive-portal/profile-templates",
-        "ADMIN_TEMPLATE_DIR" => "$install_dir/html/admin/templates",
+        "NET_DETECT_PENDING_RETRY_DELAY"   => 30,
+        "TEMPLATE_DIR"                     => "$install_dir/html/captive-portal/templates",
+        "PROFILE_TEMPLATE_DIR"             => "$install_dir/html/captive-portal/profile-templates",
+        "ADMIN_TEMPLATE_DIR"               => "$install_dir/html/admin/templates",
     );
 
     # process pf.conf's parameter into an IP => 1 hash
-    %{$CAPTIVE_PORTAL{'loadbalancers_ip'}} =
-        map { $_ => 1 } split(/\s*,\s*/, $Config{'captive_portal'}{'loadbalancers_ip'})
-    ;
+    %{ $CAPTIVE_PORTAL{'loadbalancers_ip'} }
+        = map { $_ => 1 } split( /\s*,\s*/, $Config{'captive_portal'}{'loadbalancers_ip'} );
     return \%CAPTIVE_PORTAL;
 }
 
