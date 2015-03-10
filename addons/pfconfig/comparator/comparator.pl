@@ -31,6 +31,20 @@ my $file2 = $ARGV[1];
 my $data1 = read_decode($file1);
 my $data2 = read_decode($file2);
 
+###
+# We remove the ignored keys here
+
+# stored_config_files was removed
+delete $data1->{'pf::config'}->{'\\@pf::config::stored_config_files'};
+delete $data2->{'pf::config'}->{'\\@pf::config::stored_config_files'};
+
+# YES an NO were removed
+delete $data1->{'pf::config'}->{'$pf::config::NO'};
+delete $data2->{'pf::config'}->{'$pf::config::NO'};
+
+delete $data1->{'pf::config'}->{'$pf::config::YES'};
+delete $data2->{'pf::config'}->{'$pf::config::YES'};
+
 foreach my $ns (keys %$data1){
   my ($ok, $stack) = Test::Deep::cmp_details($data1->{$ns}, $data2->{$ns});
   if($ok) {
