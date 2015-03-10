@@ -2477,9 +2477,15 @@ sub configreload {
     require pf::vlan::filter;
     pf::config::cached::updateCacheControl();
     pf::config::cached::ReloadConfigs($force);
+
+    # reload pfconfig's config
     require pfconfig::manager;
     my $manager = pfconfig::manager->new;
     $manager->expire_all;
+
+    # reload violations into DB
+    require pf::violation_config;
+    pf::violation_config::loadViolationsIntoDb();
     return 0;
 }
 
