@@ -24,6 +24,7 @@ use pfconfig::log;
 use pf::file_paths;
 use pf::util;
 use pfconfig::namespaces::resource::guest_self_registration;
+use pf::factory::profile::filter;
 
 use base 'pfconfig::namespaces::config';
 
@@ -51,7 +52,6 @@ sub build_child {
     my @profiles = @{$self->{ordered_sections}};
 
     my $config_guest_modes = pfconfig::namespaces::resource::guest_self_registration->new($self->{cache});
-    $config_guest_modes->build();
     while (my ($id,$profile) = each %Profiles_Config) {
         my $guest_modes = $config_guest_modes->_guest_modes_from_sources($profile->{sources});
         $profile->{guest_modes} = @$guest_modes ? join(',', @$guest_modes) : '';

@@ -24,13 +24,14 @@ use base 'pfconfig::namespaces::resource';
 sub init {
     my ($self) = @_;
     $self->{_authentication_config} = $self->{cache}->get_cache('config::Authentication');
-    $self->{Profiles_Config} = $self->{cache}->get_cache('config::Profiles');
 }
 
 
 sub build {
     my ($self) = @_;
     my %guest_self_registration = ();
+
+    $self->{Profiles_Config} = $self->{cache}->get_cache('config::Profiles');
     my %Profiles_Config = %{$self->{Profiles_Config}};
     $self->{guest_self_registration} = \%guest_self_registration;
     while (my ($id,$profile) = each %Profiles_Config) {
