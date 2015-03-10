@@ -413,10 +413,10 @@ sub commitPfconfig {
     my ($self) = @_;
 
     if(defined($self->pfconfigNamespace)){
-      pfconfig::manager->new->expire($self->pfconfigNamespace);
+        pfconfig::manager->new->expire($self->pfconfigNamespace);
     }
     else{
-      get_logger->error("Can't expire pfconfig in ".__PACKAGE__." because the pfconfig namespace is not defined.");
+        get_logger->error("Can't expire pfconfig in ".__PACKAGE__." because the pfconfig namespace is not defined.");
     }
 }
 
