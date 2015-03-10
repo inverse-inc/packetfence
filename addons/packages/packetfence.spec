@@ -692,11 +692,6 @@ if [ $1 -eq 0 ]; then
         fi
 fi
 
-%postun -n %{real_name}-config
-if [ $1 -eq 0 ]; then
-        /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-fi
-
 # TODO we should simplify this file manifest to the maximum keeping treating 
 # only special attributes explicitly 
 # "To make this situation a bit easier, if the %files list contains a path 
@@ -998,7 +993,6 @@ fi
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
