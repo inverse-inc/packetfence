@@ -83,6 +83,12 @@ sub FETCH {
     my ($self, $key) = @_;
     my $logger = get_logger;
 
+    unless(defined($key)){
+        my $caller = ( caller(1) )[3];
+        $logger->error("Accessing hash $self->{_namespace} with undef key. Caller : $caller.");
+        return undef;
+    }
+
     my $subcache_value;
     $subcache_value = $self->get_from_subcache($key);
     return $subcache_value if defined($subcache_value); 
