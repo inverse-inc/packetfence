@@ -38,6 +38,7 @@ sub init {
     $self->{child_resources} = [
         'resource::authentication_lookup',
         'resource::authentication_sources',
+        'resource::guest_self_registration',
     ];
 }
 
