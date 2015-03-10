@@ -17,6 +17,7 @@ use warnings;
 use Sereal::Encoder;
 use Sereal::Decoder;
 use DBI;
+use pfconfig::config;
 
 use base 'pfconfig::backend';
 
@@ -26,8 +27,9 @@ sub init {
 
 sub _get_db {
     my ($self) = @_;
-    my $db = DBI->connect("DBI:mysql:database=pf;host=localhost",
-                           "pf", "pf",
+    my $cfg = pfconfig::config->new->section('mysql');
+    my $db = DBI->connect("DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port}",
+                           $cfg->{user}, $cfg->{pass},
                            {'RaiseError' => 1});
     return $db 
 }

@@ -321,16 +321,16 @@ Readonly::Scalar our $NO_VLAN => 0;
 
 # Guest related
 # The values matches the external authentication sources types
-Readonly our $SELFREG_MODE_EMAIL => 'email';
-Readonly our $SELFREG_MODE_SMS => 'sms';
-Readonly our $SELFREG_MODE_SPONSOR => 'sponsoremail';
-Readonly our $SELFREG_MODE_GOOGLE => 'google';
-Readonly our $SELFREG_MODE_FACEBOOK => 'facebook';
-Readonly our $SELFREG_MODE_GITHUB => 'github';
-Readonly our $SELFREG_MODE_LINKEDIN   => 'linkedin';
-Readonly our $SELFREG_MODE_WIN_LIVE   => 'windowslive';
-Readonly our $SELFREG_MODE_NULL   => 'null';
-Readonly our $SELFREG_MODE_CHAINED   => 'chained';
+Readonly our $SELFREG_MODE_EMAIL => $pf::constants::config::SELFREG_MODE_EMAIL;
+Readonly our $SELFREG_MODE_SMS => $pf::constants::config::SELFREG_MODE_SMS;
+Readonly our $SELFREG_MODE_SPONSOR => $pf::constants::config::SELFREG_MODE_SPONSOR;
+Readonly our $SELFREG_MODE_GOOGLE => $pf::constants::config::SELFREG_MODE_GOOGLE;
+Readonly our $SELFREG_MODE_FACEBOOK => $pf::constants::config::SELFREG_MODE_FACEBOOK;
+Readonly our $SELFREG_MODE_GITHUB => $pf::constants::config::SELFREG_MODE_GITHUB;
+Readonly our $SELFREG_MODE_LINKEDIN   => $pf::constants::config::SELFREG_MODE_LINKEDIN;
+Readonly our $SELFREG_MODE_WIN_LIVE   => $pf::constants::config::SELFREG_MODE_WIN_LIVE;
+Readonly our $SELFREG_MODE_NULL   => $pf::constants::config::SELFREG_MODE_NULL;
+Readonly our $SELFREG_MODE_CHAINED   => $pf::constants::config::SELFREG_MODE_CHAINED;
 
 # SoH filters
 Readonly our $SOH_ACTION_ACCEPT => 'accept';

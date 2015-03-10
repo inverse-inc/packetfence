@@ -28,7 +28,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $violations_config_file;
-  #  $self->{default_section} = "defaults";
+    $self->{default_section} = "defaults";
 }
 
 sub build_child {

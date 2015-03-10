@@ -32,6 +32,18 @@ Readonly our $TIME_MODIFIER_RE => qr/[smhDWMY]/;
 Readonly our $ACCT_TIME_MODIFIER_RE => qr/[DWMY]/;
 Readonly our $DEADLINE_UNIT => qr/[RF]/;
 
+# Guest related
+# The values matches the external authentication sources types
+Readonly our $SELFREG_MODE_EMAIL => 'email';
+Readonly our $SELFREG_MODE_SMS => 'sms';
+Readonly our $SELFREG_MODE_SPONSOR => 'sponsoremail';
+Readonly our $SELFREG_MODE_GOOGLE => 'google';
+Readonly our $SELFREG_MODE_FACEBOOK => 'facebook';
+Readonly our $SELFREG_MODE_GITHUB => 'github';
+Readonly our $SELFREG_MODE_LINKEDIN   => 'linkedin';
+Readonly our $SELFREG_MODE_WIN_LIVE   => 'windowslive';
+Readonly our $SELFREG_MODE_NULL   => 'null';
+Readonly our $SELFREG_MODE_CHAINED   => 'chained';
 
 =head1 AUTHOR
 

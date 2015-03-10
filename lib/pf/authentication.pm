@@ -53,6 +53,7 @@ tie @authentication_sources, 'pfconfig::cached_array', 'resource::authentication
 our %authentication_lookup;
 tie %authentication_lookup, 'pfconfig::cached_hash', 'resource::authentication_lookup'; 
 our %guest_self_registration;
+tie %guest_self_registration, 'pfconfig::cached_hash', 'resource::guest_self_registration';
 
 BEGIN {
     use Exporter ();
@@ -125,38 +126,7 @@ sub newAuthenticationSource {
     return $source;
 }
 
-sub update_profiles_guest_modes {
-    my ($config,$name) = @_;
-    %guest_self_registration = ();
-    while (my ($id,$profile) = each %Profiles_Config) {
-        my $guest_modes = _guest_modes_from_sources($profile->{sources});
-        $profile->{guest_modes} = $guest_modes;
-        _set_guest_self_registration($guest_modes);
-    }
-}
 
-sub _set_guest_self_registration {
-    my ($modes) = @_;
-    for my $mode (
-                  $SELFREG_MODE_EMAIL,
-                  $SELFREG_MODE_SMS,
-                  $SELFREG_MODE_SPONSOR,
-                  $SELFREG_MODE_GOOGLE,
-                  $SELFREG_MODE_FACEBOOK,
-                  $SELFREG_MODE_GITHUB,
-                  $SELFREG_MODE_CHAINED,
-                 ) {
-        $guest_self_registration{$mode} = $TRUE
-          if is_in_list($mode, $modes);
-    }
-}
-
-sub _guest_modes_from_sources {
-    my ($sources) = @_;
-    $sources ||= [];
-    my %is_in = map {$_ => undef } @$sources;
-    return join(',', map { lc($_->type)} grep { exists $is_in{$_->id} && ($_->class eq 'external' || $_->type eq 'Chained')} @authentication_sources);
-}
 
 
 =item getAuthenticationSource

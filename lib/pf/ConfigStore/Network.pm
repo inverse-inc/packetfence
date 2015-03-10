@@ -14,7 +14,7 @@ pf::ConfigStore::Network
 
 use Moo;
 use namespace::autoclean;
-use pf::ConfigStore::config;
+use pf::config;
 use pf::util qw(isenabled);
 use pf::file_paths;
 

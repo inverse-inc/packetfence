@@ -17,6 +17,16 @@ Utilities function for pfconfig
 use strict;
 use warnings;
 
+=head2 config_file_path
+
+Returns the config file path
+
+=cut
+
+sub config_file_path {
+    return "/usr/local/pf/conf/pfconfig.conf";
+}
+
 =head2 control_file_path
 
 Returns the control file path for a namespace
