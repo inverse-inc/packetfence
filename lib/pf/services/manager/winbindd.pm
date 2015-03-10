@@ -54,8 +54,6 @@ sub _build_winbinddManagers {
 sub build_namespaces(){
     my ($self) = @_;
 
-    print "building namespaces\n";
-
     my $out = pf_run("sudo /sbin/ip netns list");
     foreach my $net (split /\n/, $out) {
         # untaint the variable
