@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.6.2\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-03-04 11:40-0400\n"
+"PO-Revision-Date: 2015-03-06 13:22-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -829,6 +829,10 @@ msgstr ""
 msgid "Connection Type"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+msgid "Connection timeout"
+msgstr ""
+
 # html/pfappserver/root/admin/reports.tt
 msgid "Connections"
 msgstr ""
@@ -1230,6 +1234,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Destination VLAN where PacketFence should put the client when a violation of this type is open."
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+msgid "Detected Between :"
 msgstr ""
 
 # html/pfappserver/root/user/view.tt
@@ -4459,6 +4467,13 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Htpasswd.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
+msgid "Use stripped username "
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Htpasswd.pm

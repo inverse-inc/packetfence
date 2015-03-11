@@ -26,17 +26,16 @@ by doing the following :
 
 use strict;
 use warnings;
-use Data::Dumper;
 
 sub new {
-  my ($class, $cache) = @_;
-  my $self = bless {}, $class;
+    my ( $class, $cache ) = @_;
+    my $self = bless {}, $class;
 
-  $self->{cache} = $cache;
+    $self->{cache} = $cache;
 
-  $self->init();
+    $self->init();
 
-  return $self;
+    return $self;
 }
 
 sub init {

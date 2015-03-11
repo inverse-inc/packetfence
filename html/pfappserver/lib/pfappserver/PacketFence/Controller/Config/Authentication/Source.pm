@@ -18,6 +18,8 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
+use pf::ConfigStore::Authentication;
+
 use pf::authentication;
 use pfappserver::Form::Config::Authentication::Source;
 use pfappserver::Form::Config::Authentication::Rule;
@@ -76,7 +78,7 @@ Authentication source chained dispatcher
 sub object :Chained('/') :PathPart('authentication') :CaptureArgs(1) {
     my ($self, $c, $id) = @_;
 
-    my $source = getAuthenticationSource($id);
+    my $source = pf::ConfigStore::Authentication::getSource($id);
 
     if (defined $source) {
         $c->stash->{source_id} = $id;

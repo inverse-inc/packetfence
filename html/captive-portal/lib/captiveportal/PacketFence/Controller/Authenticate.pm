@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::Authenticate;
 
 use Moose;
 use namespace::autoclean;
+use pf::constants;
 use pf::config;
 use pf::web qw(i18n i18n_format);
 use pf::node;

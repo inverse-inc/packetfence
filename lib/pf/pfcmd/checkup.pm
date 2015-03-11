@@ -17,15 +17,19 @@ use Fcntl ':mode'; # symbolic file permissions
 use Try::Tiny;
 use Readonly;
 
+use pf::constants;
 use pf::config;
 use pf::config::cached;
 use pf::violation_config;
 use pf::util;
+use pf::config::util;
 use pf::services;
 use pf::trigger;
 use pf::authentication;
 use NetAddr::IP;
 use pf::web::filter;
+use pfconfig::manager;
+use pfconfig::namespaces::config::Pf;
 
 use lib $conf_dir;
 
@@ -159,6 +163,9 @@ sub interfaces_defined {
 
     my $nb_management_interface = 0;
 
+    # TODO - change me ?
+    my $cached_pf_config = pfconfig::namespaces::config::Pf->new(pfconfig::manager->new);
+    $cached_pf_config->build();
     foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
         my %int_conf = %{$Config{$interface}};
         my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability)/;
@@ -549,7 +556,9 @@ sub registration {
 
 # TODO Consider moving to a test
 sub is_config_documented {
-
+    # TODO - change me ?
+    my $cached_pf_config = pfconfig::namespaces::config::Pf->new(pfconfig::manager->new);
+    $cached_pf_config->build();
     if (!-e $conf_dir . '/pf.conf') {
         add_problem($WARN, 'We have been unable to load your configuration. Are you sure you ran configurator ?');
         return;
@@ -570,14 +579,14 @@ sub is_config_documented {
             add_problem( $FATAL, "pf.conf value $group\.$item is not defined!" );
         } elsif (defined( $Config{$group}{$item} ) ) {
             if ( $type eq "time" ) {
-                if ( $cached_pf_config->val($group,$item) !~ /\d+$TIME_MODIFIER_RE$/ ) {
+                if ( $cached_pf_config->{_file_cfg}{$group}{$item} !~ /\d+$TIME_MODIFIER_RE$/ ) {
                     add_problem( $FATAL,
                         "pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) " .
                         "- please define it before running packetfence"
                     );
                 }
             } elsif ( $type eq "multi" || $type eq "toggle" ) {
-                my @selectedOptions = split( /\s*,\s*/, $cached_pf_config->val($group,$item) );
+                my @selectedOptions = split( /\s*,\s*/, $cached_pf_config->{_file_cfg}{$group}{$item} );
                 my @availableOptions = @{$Doc_Config{$section}{'options'}};
                 foreach my $currentSelectedOption (@selectedOptions) {
                     if ( grep(/^$currentSelectedOption$/, @availableOptions) == 0 ) {
@@ -974,7 +983,7 @@ sub portal_profiles {
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
         sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal)/x;
 
-    foreach my $portal_profile ( $cached_profiles_config->Sections) {
+    foreach my $portal_profile ( keys %Profiles_Config ) {
         my $data = $Profiles_Config{$portal_profile};
         # Checks for the non default profiles
         if ($portal_profile ne 'default' ) {

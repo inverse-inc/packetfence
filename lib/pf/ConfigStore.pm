@@ -19,6 +19,7 @@ use namespace::autoclean;
 use pf::config::cached;
 use Log::Log4perl qw(get_logger);
 use List::MoreUtils qw(uniq);
+use pfconfig::manager;
 
 =head1 FIELDS
 
@@ -35,6 +36,8 @@ has cachedConfig =>
 );
 
 has configFile => ( is => 'ro');
+
+has pfconfigNamespace => ( is => 'ro', default => sub {undef});
 
 has default_section => ( is => 'ro');
 
@@ -400,7 +403,21 @@ sub commit {
         $error //= "Unable to commit changes to file please run pfcmd fixpermissions and try again";
         $self->rollback();
     }
-    return ($result,$error);
+
+    $self->commitPfconfig;
+
+    return ($result, $error);
+}
+
+sub commitPfconfig {
+    my ($self) = @_;
+
+    if(defined($self->pfconfigNamespace)){
+        pfconfig::manager->new->expire($self->pfconfigNamespace);
+    }
+    else{
+        get_logger->error("Can't expire pfconfig in ".ref($self)." because the pfconfig namespace is not defined.");
+    }
 }
 
 =head2 search

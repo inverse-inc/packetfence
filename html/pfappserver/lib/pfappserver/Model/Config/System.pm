@@ -148,6 +148,35 @@ sub start_mysqld_service {
     }
 }
 
+=head2 restart_pfconfig
+
+=cut
+
+sub restart_pfconfig {
+    my ( $self ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status, $status_msg);
+
+    # please keep LANG=C in case we need to fetch the output of the command
+    my $cmd = "LANG=C setsid sudo service packetfence-config restart 2>&1";
+    $logger->debug("Restarting packetfence-config service: $cmd");
+    $status = pf_run($cmd);
+
+    # Everything goes as expected
+    if ( defined($status) ) {
+        $status_msg = "packetfence-config successfully restarted";
+        $logger->info($status_msg);
+        return ($STATUS::OK, $status_msg);
+    }
+    # Something wen't wrong
+    else {
+        $status_msg = "Something wen't wrong while restarting packetfence-config";
+        $logger->warn($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+}
+
 =head2 write_network_persistent
 
 =cut

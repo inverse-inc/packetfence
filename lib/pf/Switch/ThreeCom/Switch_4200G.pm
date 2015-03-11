@@ -90,6 +90,7 @@ use POSIX;
 
 use base ('pf::Switch::ThreeCom::SS4500');
 
+use pf::constants;
 use pf::config;
 use pf::Switch::constants;
 

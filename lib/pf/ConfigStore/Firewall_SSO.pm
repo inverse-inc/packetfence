@@ -19,6 +19,8 @@ extends 'pf::ConfigStore';
 
 sub configFile { $pf::file_paths::firewall_sso_config_file };
 
+sub pfconfigNamespace { 'config::Firewall_SSO' }
+
 =head2 cleanupAfterRead
 
 Clean up switch data

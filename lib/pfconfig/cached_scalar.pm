@@ -42,42 +42,51 @@ use warnings;
 use Tie::Scalar;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use pfconfig::timeme;
-use Data::Dumper;
 use pfconfig::log;
 use pfconfig::cached;
-our @ISA = ('Tie::Scalar', 'pfconfig::cached');
+our @ISA = ( 'Tie::Scalar', 'pfconfig::cached' );
 
-# constructor of the object
+=head2 TIESCALAR
+
+Constructor of the object
+
+=cut
+
 sub TIESCALAR {
-  my ($class, $config) = @_;
-  my $self = bless {}, $class;
+    my ( $class, $config ) = @_;
+    my $self = bless {}, $class;
 
-  $self->init();
+    $self->init();
 
-  $self->{"_namespace"} = $config;
-  
-  $self->{element_socket_method} = "element";
+    $self->{"_namespace"} = $config;
 
-  return $self;
+    $self->{element_socket_method} = "element";
+
+    return $self;
 }
 
-# accessor of the object
+=head2 FETCH
+
+Accesses the object
+Will serve it from it's subcache if it has it and it's still has it
+Other than that it proxies the call to pfconfig
+
+=cut
+
 sub FETCH {
-  my ($self) = @_;
-  my $logger = get_logger;
+    my ($self) = @_;
+    my $logger = get_logger;
 
-  my $subcache_value = $self->get_from_subcache("myself");
-  return $subcache_value if defined($subcache_value); 
+    my $subcache_value = $self->get_from_subcache("myself");
+    return $subcache_value if defined($subcache_value);
 
-  my $reply = $self->_get_from_socket("$self->{_namespace}");
-  my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace}")->{element} : undef;
+    my $reply = $self->_get_from_socket("$self->{_namespace}");
+    my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace}")->{element} : undef;
 
-  $self->set_in_subcache("myself", $result);
+    $self->set_in_subcache( "myself", $result );
 
-  return $result;
-
+    return $result;
 }
-
 
 =back
 

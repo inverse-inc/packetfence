@@ -101,6 +101,7 @@ BEGIN {
     );
 }
 
+use pf::constants;
 use pf::config;
 use pf::db;
 use pf::util;
@@ -527,8 +528,8 @@ sub validate_code {
     }
 
     # At this point, code is validated: return the activation record
-    $logger->info("Activation code sent to email $activation_record->{contact_info} from $activation_record->{pid} successfully verified. "
-                . "Node authorized: " . ($activation_record->{mac}?$activation_record->{mac}:"<unknown>") . " of activation type: $activation_record->{type}");
+    $logger->info(($activation_record->{mac}?"[$activation_record->{mac}]":"[unknown]") . " Activation code sent to email $activation_record->{contact_info} from $activation_record->{pid} successfully verified. "
+                . " for activation type: $activation_record->{type}");
     return $activation_record;
 }
 

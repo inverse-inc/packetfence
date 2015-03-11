@@ -20,6 +20,8 @@ extends 'pf::ConfigStore';
 
 sub configFile { $pf::file_paths::realm_config_file };
 
+sub pfconfigNamespace {'config::Realm'}
+
 =head2 cleanupAfterRead
 
 Clean up realm data

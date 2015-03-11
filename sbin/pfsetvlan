@@ -53,6 +53,7 @@ use constant {
 
 use lib INSTALL_DIR . '/lib';
 
+use pf::constants;
 use pf::config;
 use pf::floatingdevice::custom;
 use pf::inline::custom $INLINE_API_LEVEL;
@@ -63,6 +64,7 @@ use pf::Switch::constants;
 use pf::SwitchFactory;
 use pf::traplog;
 use pf::util;
+use pf::config::util;
 use pf::services::util;
 use pf::violation;
 use pf::vlan::custom $VLAN_API_LEVEL;

@@ -449,6 +449,8 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->session->{started} = 1;
             #Loading the fingerprints into the database
             read_dhcp_fingerprints_conf();
+            # restart pfconfig
+            $c->model("Config::System")->restart_pfconfig();
             $c->detach(Service => 'pf_start'); 
         } else { 
             my ($HTTP_CODE, $services) = $c->model('Services')->status;

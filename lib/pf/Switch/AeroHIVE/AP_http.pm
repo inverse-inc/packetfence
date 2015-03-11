@@ -26,6 +26,7 @@ Using the default success page of AeroHIVE works.
 use strict;
 use warnings;
 use Log::Log4perl;
+use pf::constants;
 use pf::config;
 use pf::node;
 use pf::violation;

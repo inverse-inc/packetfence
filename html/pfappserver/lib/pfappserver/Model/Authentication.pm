@@ -18,6 +18,7 @@ use namespace::autoclean;
 
 use pf::authentication;
 use pf::error qw(is_error is_success);
+use pf::ConfigStore::Authentication;
 
 =head2 update
 
@@ -29,17 +30,18 @@ sub update {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     
     # Update sources order
-    my %valid_sources = map { $_->{id} => $_ } @authentication_sources;
+    my %valid_sources = map { $_->{id} => $_ } @pf::ConfigStore::auth_sources;
     my @sorted_sources;
     foreach my $source (@{$sources}) {
         if ($valid_sources{$source->{id}}) {
             push(@sorted_sources, $valid_sources{$source->{id}});
         }
     }
-    @authentication_sources = @sorted_sources;
+    @pf::ConfigStore::auth_sources = @sorted_sources;
 
     # Write configuration file to disk
-    writeAuthenticationConfigFile();
+    my $cs = pf::ConfigStore::Authentication->new;
+    $cs->writeAuthenticationConfigFile();
 
     return ($STATUS::OK, "The sources order was successfully saved.");
 }

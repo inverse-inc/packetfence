@@ -14,31 +14,24 @@ This module creates the configuration hash associated to somefile.conf
 
 =cut
 
-
 use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use Data::Dumper;
 use pfconfig::log;
 use pf::file_paths;
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
-  my ($self) = @_;
-  $self->{file} = "somefile.conf";
+    my ($self) = @_;
+    $self->{file} = "somefile.conf";
 }
 
 sub build_child {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  my %tmp_cfg = %{$self->{cfg}}; 
-
-  $self->{cfg} = \%tmp_cfg;
-
-  return \%tmp_cfg;
-
+    return $self->{cfg};
 }
 
 =back

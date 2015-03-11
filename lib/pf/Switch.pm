@@ -23,6 +23,7 @@ use Try::Tiny;
 
 our $VERSION = 2.10;
 
+use pf::constants;
 use pf::config;
 use pf::locationlog;
 use pf::node;
@@ -2750,7 +2751,7 @@ sub radiusDisconnect {
         return;
     }
 
-    $logger->info("deauthenticating $mac");
+    $logger->info("[$mac] deauthenticating");
 
     # Where should we send the RADIUS Disconnect-Request?
     # to network device by default
