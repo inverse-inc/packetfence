@@ -20,7 +20,6 @@ use strict;
 use warnings;
 
 use Sereal::Decoder;
-use Data::Dumper;
 use Test::Deep;
 
 my $DECODER = Sereal::Decoder->new;

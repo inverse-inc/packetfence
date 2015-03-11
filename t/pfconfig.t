@@ -13,7 +13,6 @@ BEGIN {
 use Test::More;
 use Test::Deep;
 use Config::IniFiles;
-use Data::Dumper;
 
 my %default_cfg;
 my %doc;

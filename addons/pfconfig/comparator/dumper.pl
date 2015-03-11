@@ -20,7 +20,6 @@ use strict;
 use warnings;
 
 use Sereal::Encoder;
-use Data::Dumper;
 
 my $BASE = $ARGV[1];
 use lib $ARGV[0];
