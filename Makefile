@@ -48,6 +48,7 @@ doc-checkpoint-pdf:
 
 configurations:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp -n $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
+	touch /usr/local/pf/conf/pf.conf
 
 .PHONY: ssl-certs
 
