@@ -33,10 +33,10 @@ sub pfconfigNamespace {'config::Pf'}
 
 sub _buildCachedConfig {
     my ($self) = @_;
-    my @args = (-allowempty => 1);
-    push @args, -file   => $config_file;
-    push @args, -import => $default_config_file;
-    return pf::config::cached->new(@args);
+    my $cached_pf_default_config = pf::config::cached->new(-file => $default_config_file);
+    my @args = (-file   => $config_file, -allowempty => 1, -import => $cached_pf_default_config);
+    my $file = pf::config::cached->new(@args);
+    return $file;
 }
 
 =item remove
