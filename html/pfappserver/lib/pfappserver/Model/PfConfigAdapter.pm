@@ -8,6 +8,7 @@ use Try::Tiny;
 
 use pf::constants;
 use pf::config;
+use pfconfig::manager;
 
 =head1 NAME
 
@@ -65,16 +66,11 @@ sub reloadConfiguration {
 
     $logger->info("reloading PacketFence configuration");
 
-    $logger->info("done reloading PacketFence configuration");
-    return $TRUE if ($status == $TRUE);
+    my $status = pfconfig::manager->new->expire_all;
 
-    chomp($error);
-    $logger->error($error);
-    if ($error =~ /Fatal error preventing configuration to load/) {
-        return ($FALSE, $error);
-    }
-    # otherwise
-    return ($FALSE, 'Unidentified error see server side logs for details.');
+    $logger->info("done reloading PacketFence configuration");
+    return $TRUE;
+
 }
 
 =head1 AUTHOR
