@@ -563,6 +563,7 @@ sub _listInterfaces {
     my ($self, $ifname) = @_;
 
     my @interfaces_list = ();
+    my @domains = keys %ConfigDomain;
 
     $ifname = '' if ($ifname eq 'all');
     my $cmd =
@@ -600,7 +601,8 @@ sub _listInterfaces {
                     $interface->{netmask} = $netmask;
                 }
             }
-            push(@interfaces_list, $interface);
+            # we add it to the interfaces if it's not a virtual interface for the domains
+            push(@interfaces_list, $interface) unless($interface->{name} ~~ @domains);
         }
     }
 
