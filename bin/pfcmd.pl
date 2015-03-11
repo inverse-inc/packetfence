@@ -1600,6 +1600,15 @@ sub config_entry {
 }
 
 #
+# This doesn't work anymore with pfconfig
+# pfcmd will be rewritten so we leave it empty with a nice message
+#
+sub config {
+    print STDERR "This command has been deprecated. Please use the web administration interface.\n";
+    exit(1);
+}
+
+#
 # run reports
 #
 sub report {
