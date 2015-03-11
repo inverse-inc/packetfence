@@ -1,12 +1,12 @@
-package pf::temporary_password;
+package pf::password;
 
 =head1 NAME
 
-pf::temporary_password - module to view, query and manage temporary passwords
+pf::password - module to view, query and manage temporary passwords
 
 =head1 DESCRIPTION
 
-pf::temporary_password contains the functions necessary to manage all aspects
+pf::password contains the functions necessary to manage all aspects
 of temporary passwords: creation, deletion, etc.
 utility methods generate activation codes and validate them.
 
@@ -16,8 +16,8 @@ Notice that this module doesn't export all its subs like our other modules do.
 This is an attempt to shift our paradigm towards calling with package names
 and avoid the double naming.
 
-For ex: pf::temporary_password::view() instead of
-pf::temporary_password::temporary_password_view()
+For ex: pf::password::view() instead of
+pf::password::password_view()
 
 Remove this note when it will be no longer relevant. ;)
 
@@ -47,7 +47,7 @@ use pf::Authentication::constants;
 our $VERSION = 2.01;
 
 # Constants
-use constant TEMPORARY_PASSWORD => 'temporary_password';
+use constant PASSWORD => 'password';
 
 
 # Authenticatation return codes
@@ -64,8 +64,8 @@ BEGIN {
     our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        temporary_password_db_prepare
-        $temporary_password_db_prepared
+        password_db_prepare
+        $password_db_prepared
     );
 
     @EXPORT_OK = qw(
@@ -82,10 +82,10 @@ use pf::db;
 use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $temporary_password_db_prepared = 0;
+our $password_db_prepared = 0;
 # in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
 # the hash if required
-our $temporary_password_statements = {};
+our $password_statements = {};
 
 =head1 SUBROUTINES
 
@@ -94,64 +94,64 @@ TODO: This list is incomlete
 =over
 
 
-=item temporary_password_db_prepare
+=item password_db_prepare
 
 Instantiate SQL statements to be prepared
 
 =cut
 
-sub temporary_password_db_prepare {
+sub password_db_prepare {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $logger->debug("Preparing pf::temporary_password database queries");
+    $logger->debug("Preparing pf::password database queries");
 
-    $temporary_password_statements->{'temporary_password_view_sql'} = get_db_handle()->prepare(qq[
+    $password_statements->{'password_view_sql'} = get_db_handle()->prepare(qq[
         SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
             p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
-        FROM temporary_password t
+        FROM password t
         LEFT JOIN person p ON t.pid = p.pid
         LEFT JOIN node_category c ON t.category = c.category_id
         WHERE t.pid = ?
     ]);
 
-    $temporary_password_statements->{'temporary_password_view_email_sql'} = get_db_handle()->prepare(qq[
+    $password_statements->{'password_view_email_sql'} = get_db_handle()->prepare(qq[
         SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
             p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
-        FROM person p, temporary_password t
+        FROM person p, password t
         LEFT JOIN node_category c ON t.category = c.category_id
         WHERE t.pid = p.pid AND p.email = ?
     ]);
 
-    $temporary_password_statements->{'temporary_password_add_sql'} = get_db_handle()->prepare(qq[
-        INSERT INTO temporary_password
+    $password_statements->{'password_add_sql'} = get_db_handle()->prepare(qq[
+        INSERT INTO password
             (pid, password, valid_from, expiration, access_duration, access_level, category, sponsor, unregdate)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ]);
 
-    $temporary_password_statements->{'temporary_password_delete_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM temporary_password WHERE pid = ? ]
+    $password_statements->{'password_delete_sql'} = get_db_handle()->prepare(
+        qq [ DELETE FROM password WHERE pid = ? ]
     );
 
-    $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[
+    $password_statements->{'password_validate_password_sql'} = get_db_handle()->prepare(qq[
         SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from,
             UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59")) AS expiration,
             access_duration, category
-        FROM temporary_password
+        FROM password
         WHERE pid = ?
         ORDER BY expiration DESC
         LIMIT 1
     ]);
 
-    $temporary_password_statements->{'temporary_password_modify_actions_sql'} = get_db_handle()->prepare(qq[
-        UPDATE temporary_password
+    $password_statements->{'password_modify_actions_sql'} = get_db_handle()->prepare(qq[
+        UPDATE password
         SET valid_from = ?, expiration = ?, access_duration = ?, access_level = ?, category = ?, sponsor = ?, unregdate = ?
         WHERE pid = ?
     ]);
 
-    $temporary_password_statements->{'temporary_password_reset_password_sql'} = get_db_handle()->prepare(qq[
-        UPDATE temporary_password SET password = ? WHERE pid = ?
+    $password_statements->{'password_reset_password_sql'} = get_db_handle()->prepare(qq[
+        UPDATE password SET password = ? WHERE pid = ?
     ]);
 
-    $temporary_password_db_prepared = 1;
+    $password_db_prepared = 1;
 }
 
 =item view
@@ -163,7 +163,7 @@ view a temporary password record, returns an hashref
 sub view {
     my ($pid) = @_;
     my $query = db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_view_sql', $pid
+        PASSWORD, $password_statements, 'password_view_sql', $pid
     ) || return;
     my $ref = $query->fetchrow_hashref();
 
@@ -181,7 +181,7 @@ view the temporary password record associated to an email address, returns an ha
 sub view_email {
     my ($email) = @_;
     my $query = db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_view_email_sql', $email
+        PASSWORD, $password_statements, 'password_view_email_sql', $email
     ) || return;
     my $ref = $query->fetchrow_hashref();
 
@@ -190,20 +190,6 @@ sub view_email {
     return ($ref);
 }
 
-=item add
-
-add a temporary password record to the database
-
-=cut
-
-#sub add {
-#    my (%data) = @_;
-#
-#    return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements,
-#        'temporary_password_add_sql',
-#        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}
-#    ));
-#}
 
 =item _delete
 
@@ -215,7 +201,7 @@ sub _delete {
     my ($pid) = @_;
 
     return(db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_delete_sql', $pid
+        PASSWORD, $password_statements, 'password_delete_sql', $pid
     ));
 }
 
@@ -228,8 +214,8 @@ Creates a temporary password record for a given pid. Valid until given expiratio
 sub create {
     my (%data) = @_;
 
-    return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements,
-        'temporary_password_add_sql',
+    return(db_data(PASSWORD, $password_statements,
+        'password_add_sql',
         $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}, $data{'access_level'}, $data{'category'}, $data{'sponsor'}, $data{'unregdate'}
     ));
 }
@@ -320,7 +306,7 @@ sub generate {
 
 =item _update_from_actions
 
-Updates temporary_password fields from an action list
+Updates password fields from an action list
 
 =cut
 
@@ -361,7 +347,7 @@ sub _update_from_actions {
 
 =item _update_field_for_action
 
-Updates temporary_password field from an action
+Updates password field from an action
 
 =cut
 
@@ -378,25 +364,25 @@ sub _update_field_for_action {
 
 =item modify_actions
 
-Modify the temporary_password actions
+Modify the password actions
 
 =cut
 
 sub modify_actions {
-    my ( $temporary_password, $actions ) = @_;
+    my ( $password, $actions ) = @_;
     my $logger        = Log::Log4perl::get_logger(__PACKAGE__);
     my @ACTION_FIELDS = qw(
         valid_from expiration
         access_duration access_level category sponsor unregdate
         );    # respect the prepared statement placeholders order
-    delete @{$temporary_password}{@ACTION_FIELDS};
-    _update_from_actions( $temporary_password, $actions );
-    my $pid   = $temporary_password->{pid};
+    delete @{$password}{@ACTION_FIELDS};
+    _update_from_actions( $password, $actions );
+    my $pid   = $password->{pid};
     my $query = db_query_execute(
-        TEMPORARY_PASSWORD,
-        $temporary_password_statements,
-        'temporary_password_modify_actions_sql',
-        @{$temporary_password}{@ACTION_FIELDS}, $pid
+        PASSWORD,
+        $password_statements,
+        'password_modify_actions_sql',
+        @{$password}{@ACTION_FIELDS}, $pid
     );
     my $rows = $query->rows;
     $logger->info("pid $pid modified") if $rows;
@@ -422,9 +408,9 @@ sub validate_password {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $query = db_query_execute(
-        TEMPORARY_PASSWORD,
-        $temporary_password_statements,
-        'temporary_password_validate_password_sql', $pid
+        PASSWORD,
+        $password_statements,
+        'password_validate_password_sql', $pid
     );
 
     my $temppass_record = $query->fetchrow_hashref();
@@ -553,7 +539,7 @@ sub bcrypt {
 
 =item reset_password
 
-Reset (change) a password for a user in the temporary_password table.
+Reset (change) a password for a user in the password table.
 
 =cut
 
@@ -573,7 +559,7 @@ sub reset_password {
     } 
 
     db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_reset_password_sql', $password, $pid
+        PASSWORD, $password_statements, 'password_reset_password_sql', $password, $pid
     ) || return undef;
 }
 

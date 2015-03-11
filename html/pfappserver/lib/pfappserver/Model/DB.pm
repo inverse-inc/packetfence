@@ -222,7 +222,7 @@ sub resetUserPassword {
     }
 
     # Doing the update
-    if ( pf::temporary_password::reset_password( $user, $password ) ) {
+    if ( pf::password::reset_password( $user, $password ) ) {
         $status_msg =
           [ "The password of [_1] was successfully modified.", $user ];
         return ( $STATUS::OK, $status_msg );

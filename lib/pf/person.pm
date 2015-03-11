@@ -106,7 +106,7 @@ sub person_db_prepare {
                    nc.name as 'category'
             FROM person p
             LEFT JOIN node n ON p.pid = n.pid
-            LEFT JOIN temporary_password t ON p.pid = t.pid
+            LEFT JOIN password t ON p.pid = t.pid
             LEFT JOIN node_category nc ON nc.category_id = t.category
             WHERE p.pid = ? ]);
 
@@ -124,7 +124,7 @@ sub person_db_prepare {
                    t.category as 'category'
             FROM person p
             LEFT JOIN node n ON p.pid = n.pid
-            LEFT JOIN temporary_password t ON p.pid = t.pid
+            LEFT JOIN password t ON p.pid = t.pid
             GROUP BY pid ];
 
     $person_statements->{'person_count_all_sql'} = qq[ SELECT count(*) as nb FROM person ];

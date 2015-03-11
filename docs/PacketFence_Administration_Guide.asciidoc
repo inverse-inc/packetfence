@@ -1078,10 +1078,10 @@ authorize {
 #            update control {
 #                MS-CHAP-Use-NTLM-Auth := No
 #            }
-## Check temporary_password table with email and password for a sponsor registration
+## Check password table with email and password for a sponsor registration
 #            pfguest
 #            if (fail || notfound) {
-## Check temporary_password table with email and password for a guest registration
+## Check password table with email and password for a guest registration
 #                pfsponsor
 #                if (fail || notfound) {
 ## Check activation table with phone number and PIN code
@@ -1116,7 +1116,7 @@ If it failled then we reactivate NTLM Auth.
 #            update control {
 #                MS-CHAP-Use-NTLM-Auth := No
 #            }
-## Check temporary_password table for local user
+## Check password table for local user
 #            pflocal
 #            if (fail || notfound) {
 #                update control {
