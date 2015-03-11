@@ -65,10 +65,6 @@ sub reloadConfiguration {
 
     $logger->info("reloading PacketFence configuration");
 
-    # reloading packetfence's configuration using fancy Try::Tiny syntax
-    my ($status, $error) = try { pf::config::init_config(); return $TRUE; }
-    catch { return ($FALSE, $_); };
-
     $logger->info("done reloading PacketFence configuration");
     return $TRUE if ($status == $TRUE);
 

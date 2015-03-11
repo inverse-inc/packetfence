@@ -19,6 +19,8 @@ extends 'pf::ConfigStore::Group';
 
 sub group { 'interface' };
 
+sub pfconfigNamespace {'config::Pf'};
+
 =head2 Methods
 
 =over

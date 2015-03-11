@@ -18,6 +18,8 @@ use Sereal::Encoder;
 use Sereal::Decoder;
 use DBI;
 use pfconfig::config;
+use Try::Tiny;
+use pfconfig::log;
 
 use base 'pfconfig::backend';
 
@@ -29,14 +31,29 @@ sub init {
 sub _get_db {
     my ($self) = @_;
     my $cfg    = pfconfig::config->new->section('mysql');
-    my $db     = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port}",
-        $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1 } );
+    my $db;
+    try {
+        $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port}",
+            $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1 } );
+    } catch {
+        return undef;
+    }
     return $db;
+}
+
+sub _db_error {
+    my ($self) = @_;
+    my $logger = get_logger;
+    $logger->error("Couldn't connect to MySQL database to access L2. This is a major problem ! Check the MySQL section in /usr/local/pf/conf/pfconfig.conf and make sure your database schema is up to date !");
 }
 
 sub get {
     my ( $self, $key ) = @_;
-    my $db        = $self->_get_db();
+    my $db = $self->_get_db();
+    unless($db){ 
+        $self->_db_error();
+        return undef;
+    }
     my $statement = $db->prepare( "SELECT value FROM keyed WHERE id=" . $db->quote($key) );
     $statement->execute();
     my $element;
@@ -50,7 +67,11 @@ sub get {
 
 sub set {
     my ( $self, $key, $value ) = @_;
-    my $db      = $self->_get_db();
+    my $db = $self->_get_db();
+    unless($db){ 
+        $self->_db_error();
+        return 0;
+    }
     my $encoder = Sereal::Encoder->new;
     $value = $encoder->encode($value);
     my $result = $db->do( "REPLACE INTO keyed (id, value) VALUES(?,?)", undef, $key, $value );
@@ -61,6 +82,10 @@ sub set {
 sub remove {
     my ( $self, $key ) = @_;
     my $db = $self->_get_db();
+    unless($db){ 
+        $self->_db_error();
+        return 0;
+    }
     my $result = $db->do( "DELETE FROM keyed where id=?", undef, $key );
     $db->disconnect();
     return $result;
