@@ -37,7 +37,7 @@ BEGIN {
             push @main_args, $1;
         }
     }
-    $tests = 55 + scalar @main_args;
+    $tests = 53 + scalar @main_args;
 }
 
 
@@ -388,14 +388,6 @@ is($CHILD_ERROR, 0, "pfcmd help exit with status 0");
 
 # required to have help placed into the admin guide asciidoc during build
 ok(@pfcmd_help, "pfcmd help outputs on STDOUT");
-
-# pfcmd's exit status
-# see perldoc perlvar on CHILD_ERROR for the reason behind the >> 8 shift
-my $pfcmd_config_unknown_param_stdout = `/usr/local/pf/bin/pfcmd.pl config get invalid.fail`;
-is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM, "exit status: invalid pfcmd set config");
-
-my $pfcmd_config_no_help_stdout = `/usr/local/pf/bin/pfcmd.pl config help invalid.fail`;
-is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_NO_HELP, "exit status: pfcmd config help w/o help");
 
 =back
 
