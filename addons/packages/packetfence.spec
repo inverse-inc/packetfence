@@ -594,6 +594,15 @@ else
   echo "DH already exists, won't touch it!"
 fi
 
+#Check if RADIUS have a dh
+if [ ! -f /usr/local/pf/conf/pf.conf ]; then
+  echo "Touch pf.conf because it doesnt exist"
+  touch /usr/local/pf/conf/pf.conf
+  chown pf.pf /usr/local/pf/conf/pf.conf
+else
+  echo "pf.conf already exists, won't touch it!"
+fi
+
 #Add for sudo 
 if (grep "^Defaults.*requiretty" /etc/sudoers > /dev/null  ) ; then
   sed -i 's/^Defaults.*requiretty/#Defaults requiretty/g' /etc/sudoers
