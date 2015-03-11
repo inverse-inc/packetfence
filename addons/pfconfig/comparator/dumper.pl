@@ -27,60 +27,60 @@ use lib $ARGV[0];
 my $ENCODER = Sereal::Encoder->new;
 our %configs;
 
-sub {
+{
   use pf::config;
   my @exported = @pf::config::EXPORT;
   my @badvalues = ('%ConfigProvisioning');
   @exported = grep { !($_ ~~ @badvalues ) } @exported;
   dump_module('pf::config', @exported);
-}->();
+}
 
-sub {
+{
   use pf::violation_config;
 
   my @variables = ('%Violation_Config');
   dump_module("pf::violation_config", @variables);
 
-}->();
+}
 
-sub {
+{
   use pf::admin_roles;
 
   my @exported = @pf::admin_roles::EXPORT;
   dump_module("pf::admin_roles", @exported);
 
-}->();
+}
 
-sub {
+{
   use pf::vlan::filter;
 
   my @variables = ('%ConfigVlanFilters');
   dump_module("pf::vlan::filter", @variables);
 
-}->();
+}
 
-sub {
+{
   use pf::authentication;
 
   my @exported = (@pf::authentication::EXPORT, '%authentication_lookup', '%TYPE_TO_SOURCE');
   dump_module("pf::authentication", @exported);
 
-}->();
+}
 
-sub {
+{
   use pf::SwitchFactory;
 
   $configs{switches} = pf::SwitchFactory->getInstance()->config();
 
-}->();
+}
 
-sub {
+{
   use pf::web::filter;
 
   my @variables = ('%ConfigApacheFilters');
   dump_module("pf::web::filter", @variables);
 
-}->();
+}
 
 my $output = $ENCODER->encode(\%configs);
 open(my $fh, ">", "/tmp/config-comparator/$BASE.out") 
