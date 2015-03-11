@@ -69,6 +69,8 @@ sub assign :Path('assign') :Args(1) {
         ($status, $message) = $db_model->update('database',{'user' => $pf_user, 'pass' => $pf_password});
         if(is_success($status)) {
             $db_model->commit();
+            my $pfconfig = $c->model('Config::Pfconfig');
+            $pfconfig->update_mysql_credentials($pf_user, $pf_password);
             pf::db::db_disconnect();
         }
     }
