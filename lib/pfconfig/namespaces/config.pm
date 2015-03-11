@@ -27,7 +27,6 @@ the attribute cfg
 use strict;
 use warnings;
 
-use Data::Dumper;
 use JSON;
 use pfconfig::log;
 

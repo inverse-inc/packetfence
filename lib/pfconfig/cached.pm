@@ -33,7 +33,6 @@ use warnings;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON;
 use pfconfig::timeme;
-use Data::Dumper;
 use pfconfig::log;
 use pfconfig::util;
 use Sereal::Encoder;

@@ -26,7 +26,6 @@ by doing the following :
 
 use strict;
 use warnings;
-use Data::Dumper;
 
 sub new {
     my ( $class, $cache ) = @_;

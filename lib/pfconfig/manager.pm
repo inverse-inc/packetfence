@@ -37,7 +37,6 @@ use Config::IniFiles;
 use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
 use UNIVERSAL::require;
-use Data::Dumper;
 use pfconfig::backend::mysql;
 use pfconfig::log;
 use pf::util;

@@ -19,7 +19,6 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use Config::IniFiles;
-use Data::Dumper;
 use pfconfig::log;
 
 use base 'pfconfig::namespaces::config';

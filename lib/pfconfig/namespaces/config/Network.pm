@@ -18,7 +18,6 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use Data::Dumper;
 use pfconfig::log;
 use pf::file_paths;
 use pf::constants::config;

@@ -18,7 +18,6 @@ use warnings;
 use pfconfig::log;
 use pf::constants::config;
 use pfconfig::namespaces::config::Pf;
-use Data::Dumper;
 use Net::Netmask;
 use Net::Interface;
 use Socket;

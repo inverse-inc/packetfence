@@ -47,7 +47,6 @@ use Tie::Array;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON;
 use pfconfig::timeme;
-use Data::Dumper;
 use pfconfig::log;
 use pfconfig::cached;
 our @ISA = ( 'Tie::Array', 'pfconfig::cached' );

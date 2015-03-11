@@ -42,7 +42,6 @@ use warnings;
 use Tie::Scalar;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use pfconfig::timeme;
-use Data::Dumper;
 use pfconfig::log;
 use pfconfig::cached;
 our @ISA = ( 'Tie::Scalar', 'pfconfig::cached' );
