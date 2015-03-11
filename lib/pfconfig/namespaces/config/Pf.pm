@@ -84,11 +84,6 @@ sub build_child {
         }
     }
 
-    #CREATE RESOURCE
-    #$fqdn = sprintf("%s.%s",
-    #                $Config{'general'}{'hostname'} || $Default_Config{'general'}{'hostname'},
-    #                $Config{'general'}{'domain'} || $Default_Config{'general'}{'domain'});
-
     $Config{trapping}{passthroughs} = [ split( /\s*,\s*/, $Config{trapping}{passthroughs} || '' ) ];
     if ( isenabled( $Config{'trapping'}{'passthrough'} ) ) {
         $Config{trapping}{proxy_passthroughs} = [
