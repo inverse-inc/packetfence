@@ -1,34 +1,27 @@
-package pfconfig::util;
+package pfconfig::constants;
 
 =head1 NAME
 
-pfconfig::util
+pfconfig::constants
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::util
+pfconfig::constants
 
-Utilities function for pfconfig
+Constants for pfconfig
 
 =cut
 
 use strict;
 use warnings;
+use Readonly;
 
-=head2 control_file_path
+Readonly::Scalar our $CONFIG_FILE_PATH => "/usr/local/pf/conf/pfconfig.conf";
+Readonly::Scalar our $SOCKET_PATH => "/usr/local/pf/var/run/pfconfig.sock";
 
-Returns the control file path for a namespace
-
-=cut
-
-sub control_file_path {
-    my ($namespace) = @_;
-    return "/usr/local/pf/var/control/" . $namespace . "-control";
-}
-
-=back
+=bac
 
 =head1 AUTHOR
 

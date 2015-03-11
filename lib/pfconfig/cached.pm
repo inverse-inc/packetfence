@@ -35,6 +35,7 @@ use JSON;
 use pfconfig::timeme;
 use pfconfig::log;
 use pfconfig::util;
+use pfconfig::constants;
 use Sereal::Encoder;
 use Sereal::Decoder;
 use Time::HiRes qw(stat time);
@@ -82,7 +83,7 @@ sub get_socket {
     my ($self) = @_;
 
     my $socket;
-    my $socket_path = pfconfig::util::socket_path();
+    my $socket_path = $pfconfig::constants::SOCKET_PATH;
     $socket = IO::Socket::UNIX->new(
         Type => SOCK_STREAM,
         Peer => $socket_path,

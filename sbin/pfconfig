@@ -20,12 +20,12 @@ use List::MoreUtils qw(first_index);
 use Getopt::Std;
 use POSIX qw(:signal_h);
 use pf::services::util;
-use pfconfig::util;
+use pfconfig::constants;
 use Sereal::Encoder;
 $pfconfig::timeme::VERBOSE = 0;
 
 
-my $socket_path = pfconfig::util::socket_path();
+my $socket_path = $pfconfig::constants::SOCKET_PATH;
 unlink($socket_path);
 
 my $listner = IO::Socket::UNIX->new(
