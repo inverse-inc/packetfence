@@ -270,36 +270,30 @@ Defaults to 0 (no per user limit)
 =cut
 
 sub generate {
-    my ($pid, $actions, $password) = @_;
+    my ( $pid, $actions, $password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my %data;
     $data{'pid'} = $pid;
+    $password ||= _generate_password();
 
-    # generate password
-    if ( $Config{'advanced'}{'hash_passwords'} eq 'plaintext' ) { 
-        $data{'password'} = $password || _generate_password();
-    } else { 
-        $data{'password'} = _hash_password(
-             $password || _generate_password(), 
-             algorithm => $Config{'advanced'}{'hash_passwords'},
-        );
-    }
-             
+    # hash password
+    $data{'password'} = _hash_password( $password, algorithm => $Config{'advanced'}{'hash_passwords'}, );
 
-    _update_from_actions(\%data, $actions);
+    _update_from_actions( \%data, $actions );
 
     # if an entry of the same pid already exist, delete it
-    if (defined(view($pid))) {
+    if ( defined( view($pid) ) ) {
         $logger->info("a new temporary account has been requested for $pid. Deleting previous entry");
         _delete($pid);
     }
 
     my @result = create(%data);
-    if (scalar @result == 1 && $result[0] == 0) {
+    if ( scalar @result == 1 && $result[0] == 0 ) {
         $logger->warn("something went wrong creating a new temporary password for $pid");
         return;
-    } else {
+    }
+    else {
         $logger->info("new temporary account successfully generated");
         return $password;
     }
