@@ -37,13 +37,6 @@ BEGIN {
     @EXPORT = qw(%Violation_Config);
 }
 
-#sub fileReloadViolationConfig {
-#    my ($config,$name) = @_;
-#    $config->toHash(\%Violation_Config);
-#    $config->cleanupWhitespace(\%Violation_Config);
-#    $config->cacheForData->set("Violation_Config",\%Violation_Config);
-#}
-
 sub loadViolationsIntoDb {
     my $logger = get_logger();
     unless(db_ping){
