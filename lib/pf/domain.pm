@@ -20,9 +20,15 @@ use pf::config;
 use pf::ConfigStore::Domain;
 use pf::log;
 use pf::services;
+use pf::file_paths;
 
 our $TT_OPTIONS = {ABSOLUTE => 1};
 our $template = Template->new($TT_OPTIONS);
+
+sub chroot_path {
+    my ($domain) = @_;
+    return $domains_chroot_dir."/".$domain; 
+}
 
 sub join_domain {
   my ($domain) = @_;

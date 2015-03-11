@@ -23,7 +23,7 @@ use File::Spec::Functions;
 our (
     #Directories
     $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, $generated_conf_dir, $var_dir,
-    $tt_compile_cache_dir, $pfconfig_cache_dir,
+    $tt_compile_cache_dir, $pfconfig_cache_dir, $domains_chroot_dir,
 
     #Config files
     #pf.conf.default
@@ -74,7 +74,7 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
         $install_dir $bin_dir $conf_dir $lib_dir $log_dir $generated_conf_dir $var_dir
-        $tt_compile_cache_dir $pfconfig_cache_dir
+        $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir
         $default_config_file $pf_default_file
         $config_file $pf_config_file
         $network_config_file
@@ -121,6 +121,7 @@ $log_conf_dir  = catdir( $conf_dir,"log.conf.d" );
 $generated_conf_dir   = catdir( $var_dir,"conf");
 $tt_compile_cache_dir = catdir( $var_dir,"tt_compile_cache");
 $pfconfig_cache_dir = catdir( $var_dir,"cache/pfconfig");
+$domains_chroot_dir = catdir( $var_dir,"chroots");
 
 $pfcmd_binary   = catfile($bin_dir, "pfcmd");
 

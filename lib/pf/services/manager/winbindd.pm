@@ -20,6 +20,8 @@ use List::MoreUtils qw(any all uniq);
 use Linux::Inotify2;
 use Errno qw(EINTR EAGAIN);
 use pf::log;
+use pf::file_paths;
+use pf::domain;
 
 extends 'pf::services::manager::submanager';
 
@@ -36,7 +38,7 @@ sub _build_winbinddManagers {
 
     my @managers = map {
         my $DOMAIN=$_;
-        my $CHROOT_PATH="/chroots/$DOMAIN";
+        my $CHROOT_PATH=pf::domain::chroot_path($DOMAIN);
         my $CONFIGFILE="/etc/samba/$DOMAIN.conf";
         my $LOGDIRECTORY="/var/log/samba$DOMAIN";
         my $binary = $Config{services}{winbindd_binary};
@@ -67,14 +69,14 @@ sub build_namespaces(){
 
     foreach my $domain (keys %ConfigDomain){
 
-        my $CHROOT_PATH="/chroots/$domain";
+        my $CHROOT_PATH=pf::domain::chroot_path($domain);
         my $LOGDIRECTORY="/var/log/samba$domain";
         my $OUTERLOGDIRECTORY="$CHROOT_PATH/$LOGDIRECTORY";
         my $OUTERRUNDIRECTORY="$CHROOT_PATH/var/run/samba$domain";
         pf_run("sudo mkdir -p $OUTERLOGDIRECTORY && sudo chown root.root $OUTERLOGDIRECTORY");
         pf_run("sudo mkdir -p $OUTERRUNDIRECTORY && sudo chown root.root $OUTERRUNDIRECTORY");
 
-        pf_run("sudo /usr/local/pf/addons/create_chroot.sh $domain");
+        pf_run("sudo /usr/local/pf/addons/create_chroot.sh $domain $domains_chroot_dir");
         my $ip_a = "169.254.0.".$i;
         my $ip_b = "169.254.0.".($i+1);
         pf_run("sudo ip netns add $domain");
