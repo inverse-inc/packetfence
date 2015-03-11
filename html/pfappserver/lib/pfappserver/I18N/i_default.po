@@ -15,10 +15,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# conf/documentation.conf (billing.mirapay_iframe_url options)
-msgid "https://staging.eigendev.com/MiraSecure/GetToken.php"
-msgstr "staging"
-
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/graph/dashboard.tt
@@ -6075,11 +6071,15 @@ msgstr ""
 
 # conf/documentation.conf (billing.mirapay_iframe_url options)
 msgid "https://ms1.eigendev.com/MiraSecure/GetToken.php"
-msgstr ""
+msgstr "prod1"
 
 # conf/documentation.conf (billing.mirapay_iframe_url options)
 msgid "https://ms2.eigendev.com/MiraSecure/GetToken.php"
-msgstr ""
+msgstr "prod2"
+
+# conf/documentation.conf (billing.mirapay_iframe_url options)
+msgid "https://staging.eigendev.com/MiraSecure/GetToken.php"
+msgstr "staging"
 
 # pf::provisioner (Provisioners)
 msgid "ibm"
