@@ -30,12 +30,15 @@ sub init {
 
 sub _get_db {
     my ($self) = @_;
+    my $logger = get_logger;
     my $cfg    = pfconfig::config->new->section('mysql');
     my $db;
-    try {
+    eval {
         $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port}",
             $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1 } );
-    } catch {
+    }; 
+    if($@) {
+        $logger->error("Caught error $@ while connecting to database.");
         return undef;
     }
     return $db;
@@ -49,13 +52,20 @@ sub _db_error {
 
 sub get {
     my ( $self, $key ) = @_;
+    my $logger = get_logger;
     my $db = $self->_get_db();
     unless($db){ 
         $self->_db_error();
         return undef;
     }
     my $statement = $db->prepare( "SELECT value FROM keyed WHERE id=" . $db->quote($key) );
-    $statement->execute();
+    eval {
+        $statement->execute();
+    };
+    if($@){
+        $logger->error("Couldn't select from table. Error : $@");
+        return undef;
+    }
     my $element;
     while ( my $row = $statement->fetchrow_hashref() ) {
         my $decoder = Sereal::Decoder->new;
@@ -67,6 +77,7 @@ sub get {
 
 sub set {
     my ( $self, $key, $value ) = @_;
+    my $logger = get_logger;
     my $db = $self->_get_db();
     unless($db){ 
         $self->_db_error();
@@ -74,7 +85,14 @@ sub set {
     }
     my $encoder = Sereal::Encoder->new;
     $value = $encoder->encode($value);
-    my $result = $db->do( "REPLACE INTO keyed (id, value) VALUES(?,?)", undef, $key, $value );
+    my $result;
+    eval {
+        $result = $db->do( "REPLACE INTO keyed (id, value) VALUES(?,?)", undef, $key, $value );
+    };
+    if($@){
+        $logger->error("Couldn't insert in table. Error : $@");
+        return 0;
+    }
     $db->disconnect();
     return $result;
 }
