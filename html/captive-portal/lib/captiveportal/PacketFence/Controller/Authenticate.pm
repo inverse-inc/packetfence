@@ -11,7 +11,6 @@ use pf::locationlog;
 use pf::authentication;
 use HTML::Entities;
 use List::MoreUtils qw(any);
-use pf::constants;
 use pf::config;
 
 
