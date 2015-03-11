@@ -761,7 +761,7 @@ pfcmd_success_color=green
 # advanced.hash_passwords
 #
 # The algorithm to use to hash the passwords in the local database.
-hash_passwords=plaintext
+hash_passwords=bcrypt
 
 #
 # advanced.hashing_cost
