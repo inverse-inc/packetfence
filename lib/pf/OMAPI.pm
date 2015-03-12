@@ -150,6 +150,8 @@ The key base64 representation of the key
 
 has key_base64 => (is => 'rw');
 
+#The different message types
+
 our $OPEN    = 1;
 our $REFRESH = 2;
 our $UPDATE  = 3;
@@ -158,27 +160,34 @@ our $ERROR   = 5;
 our $DELETE  = 6;
 
 
+#The unpack format for the different return dhcp objects
+#
+
 our %FORMATLIST = (
-    'flags'                  => 'C',
-    'ends'                   => 'N',
-    'tstp'                   => 'N',
-    'tsfp'                   => 'N',
-    'cltt'                   => 'N',
-    'pool'                   => 'N',
-    'state'                  => 'N',
-    'atsfp'                  => 'N',
-    'starts'                 => 'N',
-    'subnet'                 => 'N',
-    'hardware-type'          => 'N',
-    'result'          => 'N',
+    'flags'         => 'C',
+    'ends'          => 'N',
+    'tstp'          => 'N',
+    'tsfp'          => 'N',
+    'cltt'          => 'N',
+    'pool'          => 'N',
+    'state'         => 'N',
+    'atsfp'         => 'N',
+    'starts'        => 'N',
+    'subnet'        => 'N',
+    'hardware-type' => 'N',
+    'result'        => 'N',
 );
 
 
+#The methods used to unpack special values
+#
 our %UNPACK_DATA = (
     'ip-address' => , \&unpack_ip_address,
     'hardware-address' =>,\&unpack_hardware_address,
 );
 
+#The methods used to pack special values
+#
 our %PACK_DATA = (
     'ip-address' => , \&pack_ip_address,
     'hardware-address' =>,\&pack_hardware_address,
