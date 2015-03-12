@@ -264,7 +264,8 @@ Requires: perl(Test::NoWarnings)
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: mod_qos
-Requires: %{real_name}-config
+Requires: %{real_name}-config = %{ver}
+Requires: %{real_name}-pfcmd-suid = %{ver}
 
 %description -n %{real_name}
 
@@ -311,7 +312,6 @@ for sending MAC and IP from ARP requests to a PacketFence server.
 %package -n %{real_name}-pfcmd-suid
 Group: System Environment/Daemons
 BuildRequires: gcc
-Requires: %{real_name} >= 3.6.0
 AutoReqProv: 0
 Summary: Replace pfcmd by a C wrapper for suid
 
