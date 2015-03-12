@@ -333,7 +333,7 @@ sub unknownState : Private {
         );
         my $node = node_view($mac);
         my $switch;
-        if( pf::SwitchFactory->hasId($node->{last_switch}) ){
+        if( pf::SwitchFactory::hasId($node->{last_switch}) ){
             $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
         }
 
@@ -440,7 +440,7 @@ sub webNodeRegister : Private {
     unless ( (defined($provisioner) && $provisioner->skipDeAuth) || $c->user_cache->get("do_not_deauth") ) {
         my $node = node_view($mac);
         my $switch;
-        if( pf::SwitchFactory->hasId($node->{last_switch}) ){
+        if( pf::SwitchFactory::hasId($node->{last_switch}) ){
             $switch = pf::SwitchFactory->getInstance()->instantiate($node->{last_switch});
         }
 
