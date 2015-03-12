@@ -20,6 +20,8 @@ extends 'pf::ConfigStore';
 
 sub configFile { $pf::file_paths::domain_config_file };
 
+sub pfconfigNamespace {'config::Domain'}
+
 __PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
