@@ -280,6 +280,7 @@ sub create :Local :AdminRole('USERS_CREATE') {
                 %data = (%{$form->value}, %{$form_single->value});
                 ($status, $message) = $self->getModel($c)->createSingle(\%data, $c->user);
                 @options = ('mail');
+                $c->session->{'users_created'} = $message;
             }
         }
         elsif ($type eq 'multiple') {
@@ -290,6 +291,7 @@ sub create :Local :AdminRole('USERS_CREATE') {
             else {
                 %data = (%{$form->value}, %{$form_multiple->value});
                 ($status, $message) = $self->getModel($c)->createMultiple(\%data, $c->user);
+                $c->session->{'users_created'} = $message;
             }
         }
         elsif ($type eq 'import') {
@@ -304,6 +306,7 @@ sub create :Local :AdminRole('USERS_CREATE') {
                 %data = (%{$form->value}, %{$form_import->value});
                 ($status, $message) = $self->getModel($c)->importCSV(\%data, $c->user);
                 @options = ('mail');
+                $c->session->{'users_created'} = $message;
             }
         }
         else {
@@ -390,8 +393,18 @@ sub print :Local :AdminRole('USERS_UPDATE') {
 
     my ($status, $result);
     my @pids = split(/,/, $c->request->params->{pids});
+    # we get the created users from the session so we have a copy of the cleartext password
+    my %users_created_by_pid = map { $_->{'pid'}, $_ }  @{ $c->session->{'users_created'} };
 
     ($status, $result) = $self->getModel($c)->read($c, \@pids);
+    # we overwrite the password found in the database with the one in the session for the same user
+    for my $user ( @$result ) { 
+        my $pid = $user->{'pid'};
+        if ( exists $users_created_by_pid{ $pid } ) { 
+            $user->{'password'} = $users_created_by_pid{ $pid }->{'password'}; 
+        }
+    }
+
     if (is_success($status)) {
         $c->stash->{users} = $result;
     }
