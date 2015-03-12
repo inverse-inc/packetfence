@@ -23,6 +23,7 @@ has_field 'id' =>
    type => 'Text',
    label => 'Domain',
    required => 1,
+   maxlength => 10,
    messages => { required => 'Please specify a domain' },
   );
 
@@ -72,6 +73,7 @@ has_field 'server_name' =>
    type => 'Text',
    label => 'This server\'s name',
    required => 1,
+   maxlength => 14,
    messages => { required => 'Please specify the server\s name' },
   );
 
