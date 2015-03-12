@@ -219,10 +219,10 @@ Will connect and authenticate to the omapi server
 sub connect {
     my ($self) = @_;
     return 1 if $self->connected;
-    my ($recieved_startup_message,$len);
+    my ($received_startup_message,$len);
     my $sock = $self->sock;
-    $len = $sock->read($recieved_startup_message,8);
-    my ($version,$headerLength) = unpack('N2',$recieved_startup_message);
+    $len = $sock->read($received_startup_message,8);
+    my ($version,$headerLength) = unpack('N2',$received_startup_message);
     my $startup_message = pack("N2",$version,$headerLength);
     $len = $sock->send($startup_message) || die "error sending startup message";
 
