@@ -65,6 +65,7 @@ conf/scan.conf
 conf/wmi.conf
 conf/pfdetect.conf
 conf/billing_tiers.conf
+conf/redis.conf
 conf/snort/classification.config
 conf/snort/local.rules
 conf/snort/reference.config
