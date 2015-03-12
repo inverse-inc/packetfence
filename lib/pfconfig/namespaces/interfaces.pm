@@ -16,8 +16,9 @@ use strict;
 use warnings;
 
 use pfconfig::log;
-use pf::constants::config;
+use pf::constants::config qw(%NET_INLINE_TYPES);
 use pfconfig::namespaces::config::Pf;
+use pfconfig::util qw(is_type_inline);
 use Net::Netmask;
 use Net::Interface;
 use Socket;
@@ -139,7 +140,6 @@ sub _fetch_virtual_ip {
     return;
 }
 
-=back
 
 =head1 AUTHOR
 

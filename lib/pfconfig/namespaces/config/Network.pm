@@ -21,6 +21,7 @@ use pfconfig::namespaces::config;
 use pfconfig::log;
 use pf::file_paths;
 use pf::constants::config;
+use pfconfig::util qw(is_type_inline);
 
 use base 'pfconfig::namespaces::config';
 
@@ -45,7 +46,7 @@ sub build_child {
 
 }
 
-=item is_network_type_vlan_reg
+=head2 is_network_type_vlan_reg
 
 Returns true if given network is of type vlan-registration and false otherwise.
 
@@ -63,7 +64,7 @@ sub is_network_type_vlan_reg {
     }
 }
 
-=item is_network_type_vlan_isol
+=head2 is_network_type_vlan_isol
 
 Returns true if given network is of type vlan-isolation and false otherwise.
 
@@ -81,7 +82,7 @@ sub is_network_type_vlan_isol {
     }
 }
 
-=item is_network_type_inline
+=head2 is_network_type_inline
 
 Returns true if given network is of type inline and false otherwise.
 
@@ -139,8 +140,6 @@ sub get_network_type {
 
     return;
 }
-
-=back
 
 =head1 AUTHOR
 
