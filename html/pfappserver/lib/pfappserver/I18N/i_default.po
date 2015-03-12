@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 4.6.2\n"
+"Project-Id-Version: 4.7.1\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-03-06 13:22-0400\n"
+"PO-Revision-Date: 2015-03-12 14:30-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -910,6 +910,10 @@ msgstr ""
 
 # html/pfappserver/root/user/create.tt
 msgid "Create Users"
+msgstr ""
+
+# html/pfappserver/root/configurator/database.tt
+msgid "Create a PacketFence account"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
