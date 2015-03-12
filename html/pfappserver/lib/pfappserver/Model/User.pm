@@ -268,10 +268,18 @@ sub mail {
     my ($status, $status_msg) = ($STATUS::OK);
     my @users;
 
+    # we get the created users from the session so we have a copy of the cleartext password
+    my %users_passwords_by_pid = map { $_->{'pid'}, $_ } @{ $c->session->{'users_passwords'} };
     # Fetch user information
     ($status, $status_msg) = $self->read($c, $pids);
     if (is_success($status)) {
         foreach my $user (@$status_msg) {
+            # we overwrite the password found in the database with the one in the session for the same user
+            my $pid = $user->{'pid'};
+            if ( exists $users_passwords_by_pid{$pid} ) {
+                $user->{'password'} = $users_passwords_by_pid{$pid}->{'password'};
+            }
+
             eval {
                 if (length $user->{email} > 0) {
                     $user->{username} = $user->{pid};
