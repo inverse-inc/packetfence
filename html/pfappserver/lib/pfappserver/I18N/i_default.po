@@ -4107,6 +4107,22 @@ msgstr ""
 msgid "The node will be automatically registered. If the MAC matches an existing node, it will also be modified and registered."
 msgstr ""
 
+# conf/documentation.conf (omapi.key_base64)
+msgid "The omapi base64 key for signing messages"
+msgstr ""
+
+# conf/documentation.conf (omapi.host)
+msgid "The omapi host"
+msgstr ""
+
+# conf/documentation.conf (omapi.key_name)
+msgid "The omapi key name for signing messages"
+msgstr ""
+
+# conf/documentation.conf (omapi.port)
+msgid "The omapi port number"
+msgstr ""
+
 # conf/documentation.conf (billing.authorizenet_posturl)
 msgid "The payment gateway processing URL (Provided by Authorize.net)"
 msgstr ""
@@ -4471,6 +4487,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only"
+msgstr ""
+
+# conf/documentation.conf (omapi.ip2mac_lookup)
+msgid "Use omapi to query dhcpd for the mac address of an ip"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Htpasswd.pm
@@ -5285,6 +5305,7 @@ msgstr ""
 # conf/documentation.conf (network.dhcpdetector options)
 # conf/documentation.conf (network.dhcpoption82logger options)
 # conf/documentation.conf (network.rogue_dhcp_detection options)
+# conf/documentation.conf (omapi.ip2mac_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (registration.device_registration options)
 # conf/documentation.conf (scan.dot1x options)
@@ -5359,6 +5380,7 @@ msgstr "Send email"
 # conf/documentation.conf (network.dhcpdetector options)
 # conf/documentation.conf (network.dhcpoption82logger options)
 # conf/documentation.conf (network.rogue_dhcp_detection options)
+# conf/documentation.conf (omapi.ip2mac_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (registration.device_registration options)
 # conf/documentation.conf (scan.dot1x options)
@@ -5952,6 +5974,30 @@ msgstr ""
 # pf::config (SoH Status)
 msgid "ok"
 msgstr ""
+
+# conf/documentation.conf
+msgid "omapi"
+msgstr "OMAPI"
+
+# conf/documentation.conf
+msgid "omapi.host"
+msgstr "OMAPI host"
+
+# conf/documentation.conf
+msgid "omapi.ip2mac_lookup"
+msgstr "Enabled ip2mac lookup using OMAPI"
+
+# conf/documentation.conf
+msgid "omapi.key_base64"
+msgstr "OMAPI base64 key"
+
+# conf/documentation.conf
+msgid "omapi.key_name"
+msgstr "OMAPI Key name"
+
+# conf/documentation.conf
+msgid "omapi.port"
+msgstr "OMAPI Port"
 
 # conf/documentation.conf (scan.engine options)
 # pf::config (VALID_TRIGGER_TYPES)
