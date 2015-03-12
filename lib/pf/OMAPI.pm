@@ -17,7 +17,7 @@ Perhaps a little code snippet.
 
     use pf::OMAPI;
 
-    my $omapi = pf::OMAPI->new( keyname => 'defomapi',key_base64 => 'xJviCHiQKcDu6hk7+Ffa3A==', host => 'localhost', port => 7911);
+    my $omapi = pf::OMAPI->new( key_name => 'pf_omapi_key',key_base64 => 'xJviCHiQKcDu6hk7+Ffa3A==', host => 'localhost', port => 7911);
 
     my $data = $omapi->lookup({'ip-address' => "10.229.25.247" });
 
@@ -77,13 +77,13 @@ A check if we are connected to the omapi service
 
 has connected => (is => 'rw' , default => sub { 0 } );
 
-=head2 keyname
+=head2 key_name
 
-The name of the key 
+The name of the key
 
 =cut
 
-has keyname => (is => 'rw');
+has key_name => (is => 'rw');
 
 =head2 op
 
@@ -198,7 +198,7 @@ sub _trigger_key_base64 {
     $self->key(decode_base64($self->key_base64));
 }
 
-=head2 _build_key 
+=head2 _build_key
 
 builds the key from base64 version of the key
 
@@ -246,8 +246,8 @@ send the auto info
 sub send_auth {
     my ($self) = @_;
     #no key if the we are good to go
-    return 1 unless $self->key && $self->keyname;
-    my $reply = $self->send_msg($OPEN,{type => 'authenticator'},{ name => $self->keyname, algorithm => 'hmac-md5.SIG-ALG.REG.INT.'});
+    return 1 unless $self->key && $self->key_name;
+    my $reply = $self->send_msg($OPEN,{type => 'authenticator'},{ name => $self->key_name, algorithm => 'hmac-md5.SIG-ALG.REG.INT.'});
     return 0 unless $reply->{op} == $UPDATE;
 
     $self->authid ($reply->{handle});
@@ -387,7 +387,7 @@ pack data and apeends it the buffer
 
 sub _pack_and_append {
     my ($self,$format,@data) = @_;
-    my $data = pack($format,@data); 
+    my $data = pack($format,@data);
     my $buf = $self->buffer;
     $$buf .= $data;
 }
@@ -432,9 +432,9 @@ sub parse_name_value_pairs {
     my ($self,$rest) = @_;
     my %data;
     my ($value,$name);
-    ($name,$rest) = unpack('n/a a*',$rest); 
+    ($name,$rest) = unpack('n/a a*',$rest);
     while($name) {
-        ($value,$rest) = unpack('N/a a*',$rest); 
+        ($value,$rest) = unpack('N/a a*',$rest);
         if(exists $FORMATLIST{$name}) {
             $value = unpack($FORMATLIST{$name},$value);
         }
@@ -442,8 +442,8 @@ sub parse_name_value_pairs {
             $value = $UNPACK_DATA{$name}->($self,$value);
         }
         $data{$name} = $value;
-        
-        ($name,$rest) = unpack('n/a a*',$rest); 
+
+        ($name,$rest) = unpack('n/a a*',$rest);
     }
     return (\%data,$rest);
 }
