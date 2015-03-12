@@ -2,14 +2,14 @@ package pf::iplog;
 
 =head1 NAME
 
-pf::iplog - module to manage the DHCP information and history. 
+pf::iplog - module to manage the DHCP information and history.
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::iplog contains the functions necessary to read and manage the DHCP
-information gathered by PacketFence on the network. 
+information gathered by PacketFence on the network.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -40,14 +40,14 @@ BEGIN {
         $iplog_db_prepared
 
         iplog_expire          iplog_shutdown
-        iplog_history_ip      iplog_history_mac 
+        iplog_history_ip      iplog_history_mac
         iplog_view_open       iplog_view_open_ip
-        iplog_view_open_mac   iplog_view_all 
-        iplog_open            iplog_close 
-        iplog_close_now       iplog_cleanup 
+        iplog_view_open_mac   iplog_view_all
+        iplog_open            iplog_close
+        iplog_close_now       iplog_cleanup
         iplog_update          iplog_close_mac
 
-        mac2ip 
+        mac2ip
         mac2allips
         ip2mac
     );
@@ -141,7 +141,7 @@ sub iplog_history_ip {
 
     if ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) )
     {
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_ip_date_sql', 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_ip_date_sql',
             $ip, $params{'end_time'}, $params{'start_time'});
 
     } elsif (defined($params{'date'})) {
@@ -158,11 +158,11 @@ sub iplog_history_mac {
 
     if ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) )
     {
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_date_sql', $mac, 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_date_sql', $mac,
             $params{'end_time'}, $params{'start_time'});
 
     } elsif ( defined( $params{'date'} ) ) {
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_date_sql', $mac, 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_date_sql', $mac,
             $params{'date'}, $params{'date'});
 
     } else {
@@ -403,16 +403,9 @@ return undef if omapi is disabled
 
 sub _get_omapi_client {
     my ($self) = @_;
-    return unless isenabled($Config{advanced}{use_omapi_to_lookup_mac});
+    return unless isenabled($Config{omapi}{ip2mac_lookup});
 
-    my ($host, $port, $keyname, $key_base64) =
-      @{$Config{advanced}}{qw( omapi_host omapi_port omapi_key_name omapi_key_base64 )};
-    return pf::OMAPI->new(
-        host       => $host,
-        port       => $port,
-        keyname    => $keyname,
-        key_base64 => $key_base64
-    );
+    return pf::OMAPI->new( $Config{omapi} );
 }
 
 sub mac2ip {

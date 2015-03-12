@@ -96,10 +96,11 @@ Generate the omapi section if it is defined
 =cut
 
 sub omapi_section {
-    return '' if isdisabled($Config{advanced}{use_omapi_to_lookup_mac});
-    my $section = "omapi-port $Config{advanced}{omapi_port};\n";
-    my $keyname = $Config{advanced}{omapi_key_name};
-    my $key_base64 = $Config{advanced}{omapi_key_base64};
+    my $omapi_section = $Config{omapi};
+    return '"# OMAPI is not enabled on this server' if isdisabled($omapi_section->{ip2mac_lookup});
+    my $section = "omapi-port $omapi_section->{port};\n";
+    my $keyname = $omapi_section->{key_name};
+    my $key_base64 = $omapi_section->{key_base64};
     if ( $keyname && $key_base64 ) {
         $section .=<<EOT;
 key $keyname {

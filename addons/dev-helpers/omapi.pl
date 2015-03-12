@@ -23,11 +23,11 @@ my %options = (
     port => 7911
 );
 
-GetOptions(\%options, "port=i", "host=s", "keyname=s", "key_base64=s", "ip=s", "mac=s")
+GetOptions(\%options, "port=i", "host=s", "key_name=s", "key_base64=s", "ip=s", "mac=s")
   || die "Invalid parameter passed";
 
 die " keyname, key_base64 not provided or mac or ip"
-  unless defined $options{keyname} && defined $options{key_base64} && (defined $options{ip} || defined $options{mac});
+  unless defined $options{key_name} && defined $options{key_base64} && (defined $options{ip} || defined $options{mac});
 
 my $ip  = delete $options{ip};
 my $mac = delete $options{mac};
