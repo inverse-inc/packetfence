@@ -34,3 +34,4 @@ addons/pfconfig/cmd.pl get config::Switch
 Start PacketFence
 # service packetfence start
 
+

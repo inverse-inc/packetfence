@@ -892,3 +892,13 @@ CREATE TABLE activation (
   KEY `activation` (activation_code, status)
 ) ENGINE=InnoDB;
 
+
+--
+-- Table structure for table `keyed`
+--
+
+CREATE TABLE keyed (
+  id VARCHAR(255),
+  value LONGBLOB,
+  PRIMARY KEY(id)
+) ENGINE=InnoDB;

@@ -43,7 +43,7 @@ our (
     #oui.txt variables
     $oui_file, $oui_url,
     #profiles.conf variables
-    $profiles_config_file, %Profiles_Config, $cached_profiles_config,
+    $profiles_config_file, %Profiles_Config,
     #Other configuraton files variables
     $switches_config_file, $violations_config_file, $authentication_config_file,
     $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file,
@@ -80,7 +80,7 @@ BEGIN {
         $floating_devices_config_file
         $dhcp_fingerprints_file $dhcp_fingerprints_url
         $oui_file $oui_url
-        $profiles_config_file %Profiles_Config $cached_profiles_config
+        $profiles_config_file %Profiles_Config 
         $switches_config_file $violations_config_file $authentication_config_file
         $chi_config_file $ui_config_file $floating_devices_file $log_config_file
         @stored_config_files @log_files

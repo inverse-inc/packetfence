@@ -144,8 +144,10 @@ TypesConfig /etc/mime.types
 BEGIN {
     use pf::log 'service' => 'httpd.portal';
 }
-use pf::config qw();
+use pf::config qw(); 
+use pf::constants::config;
 use pf::util qw(isenabled);
+use pf::config::util;
 use pf::authentication();
 use pf::web::constants();
 use Tie::DxHash;
@@ -218,7 +220,7 @@ $SSLHonorCipherOrder = "on";
 
 $ErrorLog = $install_dir.'/logs/portal_error_log';
 
-my $routedNets = join(" ", pf::util::get_routed_isolation_nets(), pf::util::get_routed_registration_nets() , pf::util::get_inline_nets());
+my $routedNets = join(" ", pf::config::util::get_routed_isolation_nets(), pf::config::util::get_routed_registration_nets() , pf::config::util::get_inline_nets());
 my $loadbalancersIp = join(" ", keys %{$pf::config::CAPTIVE_PORTAL{'loadbalancers_ip'}});
 my $status_only_on_production = pf::config::isenabled ($PfConfig->{captive_portal}{status_only_on_production});
 my $allowed_from_all_urls = '';
@@ -244,8 +246,8 @@ if ($guest_regist_allowed && isenabled($pf::config::Config{'guests_self_registra
     $allowed_from_all_urls .= "|$WEB::URL_SIGNUP|$WEB::CGI_SIGNUP|$WEB::URL_PREREGISTER";
 }
 # /activate/email allowed if sponsor or email mode enabled
-my $email_enabled = $pf::authentication::guest_self_registration{$SELFREG_MODE_EMAIL};
-my $sponsor_enabled = $pf::authentication::guest_self_registration{$SELFREG_MODE_SPONSOR};
+my $email_enabled = $pf::authentication::guest_self_registration{$pf::constants::config::SELFREG_MODE_EMAIL};
+my $sponsor_enabled = $pf::authentication::guest_self_registration{$pf::constants::config::SELFREG_MODE_SPONSOR};
 if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
     # | is for a regexp "or" as this is pulled from a 'Location ~' statement
     $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION";

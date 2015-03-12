@@ -21,30 +21,34 @@ use pf::config;
 use pf::trigger qw(trigger_delete_all parse_triggers);
 use pf::class qw(class_merge);
 use pf::db;
+use pfconfig::cached_hash;
+use pf::util;
 
-our (%Violation_Config, $cached_violations_config);
+our (%Violation_Config);
+
+tie %Violation_Config, 'pfconfig::cached_hash', 'config::Violations';
+
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
-    @EXPORT = qw(%Violation_Config $cached_violations_config);
-}
-
-sub fileReloadViolationConfig {
-    my ($config,$name) = @_;
-    $config->toHash(\%Violation_Config);
-    $config->cleanupWhitespace(\%Violation_Config);
-    $config->cacheForData->set("Violation_Config",\%Violation_Config);
+    @EXPORT = qw(%Violation_Config);
 }
 
 sub loadViolationsIntoDb {
-    my ($config,$name) = @_;
     my $logger = get_logger();
-    return unless db_ping;
+    unless(db_ping){
+        $logger->error("Can't connect to db");
+        return;
+    }
+    use Data::Dumper;
+    $logger->info(Dumper(\%Violation_Config));
     trigger_delete_all();
     while(my ($violation,$data) = each %Violation_Config) {
+        $logger->info(Dumper($violation));
+        $logger->info(Dumper($data));
         # parse triggers if they exist
         my $triggers_ref = [];
         if ( defined $data->{'trigger'} ) {
@@ -90,25 +94,6 @@ sub loadViolationsIntoDb {
         );
     }
 }
-
-$cached_violations_config = pf::config::cached->new(
-    -file => $violations_config_file,
-    -allowempty => 1,
-    -default => 'defaults',
-    -onfilereload => [file_reload_violation_config => \&fileReloadViolationConfig ],
-    -onfilereloadonce => [ file_reload_once_violation_config => \&loadViolationsIntoDb ],
-    -oncachereload => [
-        cache_reload_violation_config => sub {
-            my ($config,$name) = @_;
-            my $data = $config->fromCacheForDataUntainted("Violation_Config");
-            if($data) {
-                %Violation_Config = %$data;
-            } else {
-                $config->_callFileReloadCallbacks();
-            }
-        }
-    ],
-);
 
 =head1 AUTHOR
 

@@ -26,6 +26,7 @@ use warnings;
 use pf::log;
 use pf::config::cached;
 use pf::file_paths;
+use pf::constants;
 use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
@@ -44,6 +45,11 @@ use pf::factory::profile::filter;
 use pf::profile::filter;
 use pf::profile::filter::all;
 use pf::constants::Portal::Profile;
+use pf::constants::config;
+use pfconfig::cached_array;
+use pfconfig::cached_scalar;
+use pfconfig::cached_hash;
+use pf::util;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -51,29 +57,31 @@ our (
     @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets,
     @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
 #pf.conf.default variables
-    %Default_Config, $cached_pf_default_config,
+    %Default_Config,
 #pf.conf variables
-    %Config, $cached_pf_config,
+    %Config, 
 #network.conf variables
-    %ConfigNetworks, $cached_network_config,
+    %ConfigNetworks,
 #oauth2 variables
     %ConfigOAuth,
 #documentation.conf variables
-    %Doc_Config, $cached_pf_doc_config,
+    %Doc_Config, 
 #floating_network_device.conf variables
-    %ConfigFloatingDevices, $cached_floating_device_config,
+    %ConfigFloatingDevices, 
 #firewall_sso.conf variables
-    %ConfigFirewallSSO, $cached_firewall_sso,
+    %ConfigFirewallSSO,
 #profiles.conf variables
-    @Profile_Filters, %Profiles_Config, $cached_profiles_config,
+    @Profile_Filters, %Profiles_Config, 
 
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
-    $thread, $default_pid, $fqdn,
+    $thread, $fqdn,
     %CAPTIVE_PORTAL,
 #realm.conf
-    %ConfigRealm, $cached_realm,
+    %ConfigRealm,
+#provisioning.conf    
+    %ConfigProvisioning,
 );
 
 BEGIN {
@@ -95,8 +103,7 @@ BEGIN {
         $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER @VALID_TRIGGER_TYPES
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
         $TRIGGER_ID_PROVISIONER
-        $WIPS_VID $thread $default_pid $fqdn
-        $FALSE $TRUE $YES $NO
+        $WIPS_VID $thread $fqdn
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
         $NET_TYPE_INLINE $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3
@@ -115,33 +122,62 @@ BEGIN {
         is_vlan_enforcement_enabled is_inline_enforcement_enabled is_type_inline
         is_in_list
         $LOG4PERL_RELOAD_TIMER
-        init_config
-        @Profile_Filters %Profiles_Config $cached_profiles_config
-        $cached_pf_config $cached_network_config $cached_floating_device_config
-        %ConfigFirewallSSO $cached_firewall_sso
-        $cached_pf_default_config $cached_pf_doc_config @stored_config_files
+        @Profile_Filters %Profiles_Config 
+        %ConfigFirewallSSO 
         $OS
         %Doc_Config
-        %ConfigRealm $cached_realm
+        %ConfigRealm
+        %ConfigProvisioning
+        $TRUE $FALSE $default_pid
     );
 }
+
+tie %Doc_Config, 'pfconfig::cached_hash', 'config::Documentation';
+
+tie %Config, 'pfconfig::cached_hash', 'config::Pf';
+
+tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
+
+tie @dhcplistener_ints,  'pfconfig::cached_array', 'interfaces::dhcplistener_ints';
+tie @ha_ints, 'pfconfig::cached_array', 'interfaces::ha_ints';
+tie @listen_ints, 'pfconfig::cached_array', 'interfaces::listen_ints';
+
+tie @inline_enforcement_nets, 'pfconfig::cached_array', 'interfaces::inline_enforcement_nets';
+tie @internal_nets, 'pfconfig::cached_array', 'interfaces::internal_nets';
+tie @vlan_enforcement_nets, 'pfconfig::cached_array', 'interfaces::vlan_enforcement_nets';
+
+tie $management_network, 'pfconfig::cached_scalar', 'interfaces::management_network';
+tie $monitor_int, 'pfconfig::cached_scalar', 'interfaces::monitor_int';
+
+tie %CAPTIVE_PORTAL, 'pfconfig::cached_hash', 'resource::CaptivePortal';
+tie $fqdn, 'pfconfig::cached_scalar', 'resource::fqdn';
+
+tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
+tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
+
+tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
+tie @routed_isolation_nets, 'pfconfig::cached_array', 'interfaces::routed_isolation_nets';    
+tie @routed_registration_nets, 'pfconfig::cached_array', 'interfaces::routed_registration_nets';    
+tie @inline_nets, 'pfconfig::cached_array', 'interfaces::inline_nets';
+
+tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
+
+tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
+
+tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
+
+tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
+
 
 sub import {
     pf::config->export_to_level(1,@_);
     pf::file_paths->export_to_level(1);
 }
-
 use pf::util::apache qw(url_parser);
 
 $thread = 0;
 
 my $logger = Log::Log4perl->get_logger('pf::config');
-
-# some global constants
-Readonly::Scalar our $FALSE => 0;
-Readonly::Scalar our $TRUE => 1;
-Readonly::Scalar our $YES => 'yes';
-Readonly::Scalar our $NO => 'no';
 
 # Violation trigger types
 Readonly::Scalar our $TRIGGER_TYPE_ACCOUNTING => 'accounting';
@@ -177,8 +213,6 @@ Readonly::Scalar our $ACCOUNTING_POLICY_TIME => 'TimeExpired';
 Readonly::Scalar our $ACCOUNTING_POLICY_BANDWIDTH => 'BandwidthExpired';
 
 
-$default_pid  = "admin";
-
 Readonly our $WIPS_VID => '1100020';
 
 # OS Specific
@@ -188,17 +222,17 @@ Readonly::Scalar our $OS => os_detection();
 Readonly our $IF_INTERNAL => 'internal';
 
 # Interface enforcement techniques
-Readonly our $IF_ENFORCEMENT_VLAN => 'vlan';
-Readonly our $IF_ENFORCEMENT_INLINE => 'inline';
-Readonly our $IF_ENFORCEMENT_INLINE_L2 => 'inlinel2';
-Readonly our $IF_ENFORCEMENT_INLINE_L3 => 'inlinel3';
+Readonly our $IF_ENFORCEMENT_VLAN => $pf::constants::config::IF_ENFORCEMENT_VLAN;
+Readonly our $IF_ENFORCEMENT_INLINE => $pf::constants::config::IF_ENFORCEMENT_INLINE;
+Readonly our $IF_ENFORCEMENT_INLINE_L2 => $pf::constants::config::IF_ENFORCEMENT_INLINE_L2;
+Readonly our $IF_ENFORCEMENT_INLINE_L3 => $pf::constants::config::IF_ENFORCEMENT_INLINE_L3;
 
 # Network configuration parameters.
-Readonly our $NET_TYPE_VLAN_REG => 'vlan-registration';
-Readonly our $NET_TYPE_VLAN_ISOL => 'vlan-isolation';
-Readonly our $NET_TYPE_INLINE => 'inline';
-Readonly our $NET_TYPE_INLINE_L2 => 'inlinel2';
-Readonly our $NET_TYPE_INLINE_L3 => 'inlinel3';
+Readonly our $NET_TYPE_VLAN_REG => $pf::constants::config::NET_TYPE_VLAN_REG;
+Readonly our $NET_TYPE_VLAN_ISOL => $pf::constants::config::NET_TYPE_VLAN_ISOL;
+Readonly our $NET_TYPE_INLINE => $pf::constants::config::NET_TYPE_INLINE;
+Readonly our $NET_TYPE_INLINE_L2 => $pf::constants::config::NET_TYPE_INLINE_L2;
+Readonly our $NET_TYPE_INLINE_L3 => $pf::constants::config::NET_TYPE_INLINE_L3;
 Readonly our %NET_INLINE_TYPES =>  (
     $NET_TYPE_INLINE    => undef,
     $NET_TYPE_INLINE_L2 => undef,
@@ -323,16 +357,16 @@ Readonly::Scalar our $NO_VLAN => 0;
 
 # Guest related
 # The values matches the external authentication sources types
-Readonly our $SELFREG_MODE_EMAIL => 'email';
-Readonly our $SELFREG_MODE_SMS => 'sms';
-Readonly our $SELFREG_MODE_SPONSOR => 'sponsoremail';
-Readonly our $SELFREG_MODE_GOOGLE => 'google';
-Readonly our $SELFREG_MODE_FACEBOOK => 'facebook';
-Readonly our $SELFREG_MODE_GITHUB => 'github';
-Readonly our $SELFREG_MODE_LINKEDIN   => 'linkedin';
-Readonly our $SELFREG_MODE_WIN_LIVE   => 'windowslive';
-Readonly our $SELFREG_MODE_NULL   => 'null';
-Readonly our $SELFREG_MODE_CHAINED   => 'chained';
+Readonly our $SELFREG_MODE_EMAIL => $pf::constants::config::SELFREG_MODE_EMAIL;
+Readonly our $SELFREG_MODE_SMS => $pf::constants::config::SELFREG_MODE_SMS;
+Readonly our $SELFREG_MODE_SPONSOR => $pf::constants::config::SELFREG_MODE_SPONSOR;
+Readonly our $SELFREG_MODE_GOOGLE => $pf::constants::config::SELFREG_MODE_GOOGLE;
+Readonly our $SELFREG_MODE_FACEBOOK => $pf::constants::config::SELFREG_MODE_FACEBOOK;
+Readonly our $SELFREG_MODE_GITHUB => $pf::constants::config::SELFREG_MODE_GITHUB;
+Readonly our $SELFREG_MODE_LINKEDIN   => $pf::constants::config::SELFREG_MODE_LINKEDIN;
+Readonly our $SELFREG_MODE_WIN_LIVE   => $pf::constants::config::SELFREG_MODE_WIN_LIVE;
+Readonly our $SELFREG_MODE_NULL   => $pf::constants::config::SELFREG_MODE_NULL;
+Readonly our $SELFREG_MODE_CHAINED   => $pf::constants::config::SELFREG_MODE_CHAINED;
 
 # SoH filters
 Readonly our $SOH_ACTION_ACCEPT => 'accept';
@@ -386,45 +420,17 @@ my $cache_vlan_enforcement_enabled;
 my $cache_inline_enforcement_enabled;
 
 # Accepted time modifier values
-our $TIME_MODIFIER_RE = qr/[smhDWMY]/;
-our $ACCT_TIME_MODIFIER_RE = qr/[DWMY]/;
-our $DEADLINE_UNIT = qr/[RF]/;
+our $TIME_MODIFIER_RE = $pf::constants::config::TIME_MODIFIER_RE;
+our $ACCT_TIME_MODIFIER_RE = $pf::constants::config::ACCT_TIME_MODIFIER_RE;
+our $DEADLINE_UNIT = $pf::constants::config::DEADLINE_UNIT;
 
 # Bandwdith accounting values
 our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
 our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 
-
-# constants are done, let's load the configuration
-try {
-    init_config();
-} catch {
-    chomp($_);
-    $logger->logdie("Fatal error preventing configuration to load. Please review your configuration. Error: $_");
-};
-
 =head1 SUBROUTINES
 
 =over
-
-=item init_config
-
-Load configuration. Can be used to reload it too.
-
-WARNING: This has been recently introduced and was not tested with our
-multi-threaded daemons.
-
-=cut
-
-sub init_config {
-    readPfDocConfigFiles();
-    readPfConfigFiles();
-    readProfileConfigFile();
-    readNetworkConfigFile();
-    readFloatingNetworkDeviceFile();
-    readFirewallSSOFile();
-    readRealmFile();
-}
 
 =item ipset_version -  check the ipset version on the system
 
@@ -458,389 +464,6 @@ sub os_detection {
     }
 }
 
-=item readPfDocConfigFiles
-
-=cut
-
-sub readPfDocConfigFiles {
-    $cached_pf_doc_config = pf::config::cached->new(
-        -file => $pf_doc_file,
-        -allowempty => 1,
-        -onreload => [ 'reload_pf_doc_config' =>  sub {
-            my ($config,$name) = @_;
-            $config->toHash(\%Doc_Config);
-            $config->cleanupWhitespace(\%Doc_Config);
-            foreach my $doc_data (values %Doc_Config) {
-                if (exists $doc_data->{options} && defined $doc_data->{options}) {
-                    my $options = $doc_data->{options};
-                    $doc_data->{options} = [split(/\|/, $options)] if defined $options;
-                } else {
-                    $doc_data->{options} = [];
-                }
-                if (exists $doc_data->{description} && defined $doc_data->{description}) {
-                    # Limited formatting from text to html
-                    my $description = $doc_data->{description};
-                    $description =~ s/</&lt;/g; # convert < to HTML entity
-                    $description =~ s/>/&gt;/g; # convert > to HTML entity
-                    $description =~ s/(\S*(&lt;|&gt;)\S*)(?=[\s,\.])/<code>$1<\/code>/g; # enclose strings that contain < or >
-                    $description =~ s/(\S+\.(html|tt|pm|pl|txt))\b(?!<\/code>)/<code>$1<\/code>/g; # enclose strings that ends with .html, .tt, etc
-                    $description =~ s/^ \* (.+?)$/<li>$1<\/li>/mg; # create list elements for lines beginning with " * "
-                    $description =~ s/(<li>.*<\/li>)/<ul>$1<\/ul>/s; # create lists from preceding substitution
-                    $description =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
-                    $description =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
-                    $description =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
-                    $doc_data->{description} = $description;
-                }
-            }
-        }]
-    );
-}
-
-=item readPfConfigFiles -  pf.conf.defaults & pf.conf
-
-=cut
-
-sub readPfConfigFiles {
-
-    # load default and override by local config (most common case)
-    $cached_pf_default_config = pf::config::cached->new(
-                -file => $default_config_file,
-                -onfilereload => [
-                    onfile_pf_defaults_reload => sub {
-                        my ( $config, $name ) = @_;
-                        $config->toHash(\%Default_Config);
-                        $config->cleanupWhitespace(\%Default_Config);
-                        $config->cacheForData->set( "Default_Config", \%Default_Config );
-                    },
-                ],
-                -oncachereload => [
-                    oncache_pf_defaults_reload => sub {
-                        my ( $config, $name ) = @_;
-                        my $data = $config->fromCacheForDataUntainted("Default_Config");
-                        if($data) {
-                            %Default_Config = %$data;
-                        } else {
-                            $config->_callFileReloadCallbacks();
-                        }
-                    },
-                ],
-    );
-
-    if ( -e $default_config_file || -e $config_file ) {
-        $cached_pf_config = pf::config::cached->new(
-            -file   => $config_file,
-            -import => $cached_pf_default_config,
-            -allowempty => 1,
-            -onfilereload => [
-                onfile_pf_reload => sub {
-                    my ( $config, $name ) = @_;
-                    $config->toHash(\%Config);
-                    $config->cleanupWhitespace(\%Config);
-                    $config->cacheForData->set( "Config", \%Config );
-                },
-            ],
-            -oncachereload => [
-                oncache_pf_defaults_reload => sub {
-                    my ( $config, $name ) = @_;
-                    my $data = $config->fromCacheForDataUntainted("Config");
-                    if($data) {
-                        %Config = %$data;
-                    } else {
-                        $config->_callFileReloadCallbacks();
-                    }
-                },
-            ],
-            -onpostreload => [ 'reload_pf_config' =>  sub {
-                my ($config) = @_;
-                #clearing older interfaces infor
-                $monitor_int = $management_network = '';
-                @listen_ints = @dhcplistener_ints = @ha_ints =
-                  @internal_nets =
-                  @inline_enforcement_nets = @vlan_enforcement_nets = ();
-
-                my @time_values = grep { my $t = $Doc_Config{$_}{type}; defined $t && $t eq 'time' } keys %Doc_Config;
-
-                # normalize time
-                foreach my $val (@time_values ) {
-                    my ( $group, $item ) = split( /\./, $val );
-                    $Config{$group}{$item} = normalize_time($Config{$group}{$item}) if ($Config{$group}{$item});
-                }
-
-                # determine absolute paths
-                foreach my $val ("alerting.log") {
-                    my ( $group, $item ) = split( /\./, $val );
-                    if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
-                        $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
-                    }
-                }
-
-                $fqdn = sprintf("%s.%s",
-                                $Config{'general'}{'hostname'} || $Default_Config{'general'}{'hostname'},
-                                $Config{'general'}{'domain'} || $Default_Config{'general'}{'domain'});
-
-                foreach my $interface ( $config->GroupMembers("interface") ) {
-                    my $int_obj;
-                    my $int = $interface;
-                    $int =~ s/interface //;
-
-                    my $ip             = $Config{$interface}{'ip'};
-                    my $mask           = $Config{$interface}{'mask'};
-                    my $type           = $Config{$interface}{'type'};
-
-                    if ( defined($ip) && defined($mask) ) {
-                        $ip   =~ s/ //g;
-                        $mask =~ s/ //g;
-                        $int_obj = new Net::Netmask( $ip, $mask );
-                        $int_obj->tag( "ip",      $ip );
-                        $int_obj->tag( "int",     $int );
-                    }
-
-                    if (!defined($type)) {
-                        $logger->warn("$int: interface type not defined");
-                        # setting type to empty to avoid warnings on split below
-                        $type = '';
-                    }
-
-                    die "Missing mandatory element ip or netmask on interface $int"
-                        if ($type =~ /internal|managed|management/ && !defined($int_obj));
-
-                    foreach my $type ( split( /\s*,\s*/, $type ) ) {
-                        if ( $type eq 'internal' ) {
-                            $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
-                            push @internal_nets, $int_obj;
-                            if ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
-                                push @vlan_enforcement_nets, $int_obj;
-                            } elsif (is_type_inline($Config{$interface}{'enforcement'})) {
-                                push @inline_enforcement_nets, $int_obj;
-                            }
-                            if ($int =~ m/(\w+):\d+/) {
-                                $int = $1;
-                            }
-                            push @listen_ints, $int if ( $int !~ /:\d+$/ );
-                        } elsif ( $type eq 'managed' || $type eq 'management' ) {
-                            $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
-                            $management_network = $int_obj;
-                            # adding management to dhcp listeners by default (if it's not already there)
-                            push @dhcplistener_ints, $int if ( not scalar grep({ $_ eq $int } @dhcplistener_ints) );
-
-                        } elsif ( $type eq 'monitor' ) {
-                            $monitor_int = $int;
-                        } elsif ( $type =~ /^dhcp-?listener$/i ) {
-                            push @dhcplistener_ints, $int;
-                        } elsif ( $type eq 'high-availability' ) {
-                            push @ha_ints, $int;
-                        }
-                    }
-                }
-                $Config{trapping}{passthroughs} = [split(/\s*,\s*/,$Config{trapping}{passthroughs} || '') ];
-                if (isenabled($Config{'trapping'}{'passthrough'})) {
-                    $Config{trapping}{proxy_passthroughs} = [
-                        split(/\s*,\s*/,$Config{trapping}{proxy_passthroughs} || ''),
-                        qw(
-                            crl.geotrust.com ocsp.geotrust.com crl.thawte.com ocsp.thawte.com
-                            crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
-                            crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
-                            ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
-                            ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
-                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com certificates.godaddy.com
-                        )
-                    ];
-                } else {
-                    $Config{trapping}{proxy_passthroughs} = [
-                        qw(
-                            crl.geotrust.com ocsp.geotrust.com crl.thawte.com ocsp.thawte.com
-                            crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
-                            crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
-                            ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
-                            ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
-                            www.microsoft.com crl.godaddy.com ocsp.godaddy.com certificates.godaddy.com
-                        )
-                    ];
-                }
-                $Config{network}{dhcp_filter_by_message_types} = [split(/\s*,\s*/,$Config{network}{dhcp_filter_by_message_types} || '')],
-
-                _load_captive_portal();
-            }]
-        );
-    } else {
-        die ("No configuration files present.");
-    }
-
-    if ( @Config::IniFiles::errors) {
-        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
-    }
-
-}
-
-sub readProfileConfigFile {
-    $cached_profiles_config = pf::config::cached->new(
-            -file => $profiles_config_file,
-            -allowempty => 1,
-            -default => 'default',
-            -onreload => [ 'reload_profile_config' => sub {
-                my ($config,$name) = @_;
-                $config->toHash(\%Profiles_Config);
-                $config->cleanupWhitespace(\%Profiles_Config);
-                #Clearing the Profile filters
-                @Profile_Filters = ();
-                my $default_description = $Profiles_Config{'default'}{'description'};
-                foreach my $profile_id ($config->Sections()) {
-                    my $profile = $Profiles_Config{$profile_id};
-                    $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
-                    foreach my $field (qw(locale mandatory_fields sources filter provisioners) ) {
-                        $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || '')];
-                    }
-                    $profile->{block_interval} = normalize_time($profile->{block_interval}
-                          || $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE);
-                    my $filters = $profile->{'filter'};
-                    if($profile_id ne 'default' && @$filters) {
-                        my @filterObjects;
-                        foreach my $filter (@{$profile->{'filter'}}) {
-                            push @filterObjects, pf::factory::profile::filter->instantiate($profile_id,$filter);
-                        }
-                        if(defined ($profile->{filter_match_style}) && $profile->{filter_match_style} eq 'all') {
-                            push @Profile_Filters, pf::profile::filter::all->new(profile => $profile_id, value => \@filterObjects);
-                        } else {
-                            push @Profile_Filters,@filterObjects;
-                        }
-                    }
-                }
-                #Add the default filter so it always matches if no other filter matches
-                push @Profile_Filters, pf::profile::filter->new( { profile => 'default', value => 1 } );
-            }]
-    );
-}
-
-=item readNetworkConfigFiles - networks.conf
-
-=cut
-
-sub readNetworkConfigFile {
-    $cached_network_config = pf::config::cached->new(
-        -file => $network_config_file,
-        -allowempty => 1,
-        -onreload => [ reload_network_config =>  sub {
-            my ($config) = @_;
-            $config->toHash(\%ConfigNetworks);
-            $config->cleanupWhitespace(\%ConfigNetworks);
-            @routed_isolation_nets = @routed_registration_nets = @inline_nets = ();
-            foreach my $network ( $config->Sections ) {
-
-                # populate routed nets variables
-                if ( is_network_type_vlan_isol($network) ) {
-                    my $isolation_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                    push @routed_isolation_nets, $isolation_obj;
-                } elsif ( is_network_type_vlan_reg($network) ) {
-                    my $registration_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                    push @routed_registration_nets, $registration_obj;
-                } elsif ( is_network_type_inline($network) ) {
-                    my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                    push @inline_nets, $inline_obj;
-                }
-
-                # transition pf_gateway to next_hop
-                # TODO we can deprecate pf_gateway in 2012
-                if ( defined($ConfigNetworks{$network}{'pf_gateway'}) && !defined($ConfigNetworks{$network}{'next_hop'}) ) {
-                    # carry over the parameter so that things still work
-                    $ConfigNetworks{$network}{'next_hop'} = $ConfigNetworks{$network}{'pf_gateway'};
-                }
-            }
-        }]
-    );
-    if(@Config::IniFiles::errors) {
-        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
-    }
-}
-
-=item readFloatingNetworkDeviceFile - floating_network_device.conf
-
-=cut
-
-sub readFloatingNetworkDeviceFile {
-    $cached_floating_device_config = pf::config::cached->new(
-        -file => $floating_devices_file,
-        -allowempty => 1,
-        -onreload => [ reload_floating_network_device_config => sub {
-            my ($config) = @_;
-            $config->toHash(\%ConfigFloatingDevices);
-            $config->cleanupWhitespace(\%ConfigFloatingDevices);
-            foreach my $section ( keys %ConfigFloatingDevices) {
-                if (defined($ConfigFloatingDevices{$section}{"trunkPort"}) && $ConfigFloatingDevices{$section}{"trunkPort"} =~ /^\s*(y|yes|true|enabled|1)\s*$/i) {
-                    $ConfigFloatingDevices{$section}{"trunkPort"} = '1';
-                } else {
-                    $ConfigFloatingDevices{$section}{"trunkPort"} = '0';
-                }
-            }
-        }]
-    );
-    if(@Config::IniFiles::errors) {
-        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
-    }
-}
-
-=item readFirewallSSOFile - firewall_sso.conf
-
-=cut
-
-sub readFirewallSSOFile {
-    $cached_firewall_sso = pf::config::cached->new(
-        -file => $firewall_sso_config_file,
-        -allowempty => 1,
-        -onreload => [ reload_firewall_sso_config => sub {
-            my ($config) = @_;
-            $config->toHash(\%ConfigFirewallSSO);
-            $config->cleanupWhitespace(\%ConfigFirewallSSO);
-        }]
-    );
-    if(@Config::IniFiles::errors) {
-        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
-    }
-}
-
-=item readRealmFile - realm.conf
-
-=cut
-
-sub readRealmFile {
-    $cached_realm = pf::config::cached->new(
-        -file => $realm_config_file,
-        -allowempty => 1,
-        -onreload => [ reload_realm_config => sub {
-            my ($config) = @_;
-            $config->toHash(\%ConfigRealm);
-        }]
-    );
-    if(@Config::IniFiles::errors) {
-        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
-    }
-}
-
-=item normalize_time - formats date
-
-Returns the number of seconds represented by the time period.
-
-Months and years are approximate. Do not use for anything serious about time.
-
-=cut
-
-sub normalize_time {
-    my ($date) = @_;
-    if ( $date =~ /^\d+$/ ) {
-        return ($date);
-
-    } else {
-        my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)/ or return (0);
-
-        if ( $modifier eq "s" ) { return ($num);
-        } elsif ( $modifier eq "m" ) { return ( $num * 60 );
-        } elsif ( $modifier eq "h" ) { return ( $num * 60 * 60 );
-        } elsif ( $modifier eq "D" ) { return ( $num * 24 * 60 * 60 );
-        } elsif ( $modifier eq "W" ) { return ( $num * 7 * 24 * 60 * 60 );
-        } elsif ( $modifier eq "M" ) { return ( $num * 30 * 24 * 60 * 60 );
-        } elsif ( $modifier eq "Y" ) { return ( $num * 365 * 24 * 60 * 60 );
-        }
-    }
-}
 
 =item access_duration
 
@@ -1272,22 +895,6 @@ sub _load_captive_portal {
     %{$CAPTIVE_PORTAL{'loadbalancers_ip'}} =
         map { $_ => $TRUE } split(/\s*,\s*/, $Config{'captive_portal'}{'loadbalancers_ip'})
     ;
-}
-
-=item isenabled
-
-Is the given configuration parameter considered enabled? y, yes, true, enable
-and enabled are all positive values for PacketFence.
-
-=cut
-
-sub isenabled {
-    my ($enabled) = @_;
-    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i ) {
-        return (1);
-    } else {
-        return (0);
-    }
 }
 
 =back

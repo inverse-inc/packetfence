@@ -23,6 +23,8 @@ use pfconfig::manager;
 
 extends qw(pf::ConfigStore Exporter);
 
+sub pfconfigNamespace {'config::Switch'}
+
 our ( $switches_cached_config, %SwitchConfig );
 our @EXPORT = qw(%SwitchConfig);
 use pf::freeradius;

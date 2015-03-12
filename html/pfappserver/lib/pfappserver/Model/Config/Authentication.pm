@@ -42,7 +42,7 @@ We especially don't want to allow the modification of the local SQL database.
 sub readAll {
     my ($self) = @_;
     my $sql_type = pf::Authentication::Source::SQLSource->meta->get_attribute('type')->default;
-    my @sources = grep { $_->{type} ne $sql_type } @authentication_sources;
+    my @sources = grep { $_->{type} ne $sql_type } @pf::ConfigStore::Authentication::auth_sources;
 
     return ($STATUS::OK, \@sources);
 }

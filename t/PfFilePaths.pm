@@ -32,6 +32,10 @@ BEGIN {
     $pf::file_paths::vlan_filters_config_file = catfile($test_dir,'data/vlan_filters.conf');
 }
 
+# we need to load the proper data in pfconfig
+use pfconfig::manager;
+pfconfig::manager->new->expire_all;
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

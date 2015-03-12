@@ -37,6 +37,7 @@ use warnings;
 use base ('pf::Switch');
 use Log::Log4perl;
 
+use pf::constants;
 use pf::config;
 use pf::util;
 

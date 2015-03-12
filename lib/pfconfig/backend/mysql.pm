@@ -17,52 +17,96 @@ use warnings;
 use Sereal::Encoder;
 use Sereal::Decoder;
 use DBI;
+use pfconfig::config;
+use Try::Tiny;
+use pfconfig::log;
 
 use base 'pfconfig::backend';
 
 sub init {
-  # abstact
+
+    # abstact
 }
 
 sub _get_db {
-  my ($self) = @_;
-  my $db = DBI->connect("DBI:mysql:database=pf;host=localhost",
-                         "pf", "pf",
-                         {'RaiseError' => 1});
-  return $db 
+    my ($self) = @_;
+    my $logger = get_logger;
+    my $cfg    = pfconfig::config->new->section('mysql');
+    my $db;
+    eval {
+        $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port}",
+            $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1 } );
+    }; 
+    if($@) {
+        $logger->error("Caught error $@ while connecting to database.");
+        return undef;
+    }
+    return $db;
 }
 
+sub _db_error {
+    my ($self) = @_;
+    my $logger = get_logger;
+    $logger->error("Couldn't connect to MySQL database to access L2. This is a major problem ! Check the MySQL section in /usr/local/pf/conf/pfconfig.conf and make sure your database schema is up to date !");
+}
 
 sub get {
-  my ($self, $key) = @_;
-  my $db = $self->_get_db();
-  my $statement = $db->prepare("SELECT value FROM keyed WHERE id=".$db->quote($key));
-  $statement->execute();
-  my $element;
-  while(my $row = $statement->fetchrow_hashref()){
-    my $decoder = Sereal::Decoder->new;
-    $element = $decoder->decode($row->{value});
-  }
-  $db->disconnect();
-  return $element;
-} 
+    my ( $self, $key ) = @_;
+    my $logger = get_logger;
+    my $db = $self->_get_db();
+    unless($db){ 
+        $self->_db_error();
+        return undef;
+    }
+    my $statement = $db->prepare( "SELECT value FROM keyed WHERE id=" . $db->quote($key) );
+    eval {
+        $statement->execute();
+    };
+    if($@){
+        $logger->error("Couldn't select from table. Error : $@");
+        return undef;
+    }
+    my $element;
+    while ( my $row = $statement->fetchrow_hashref() ) {
+        my $decoder = Sereal::Decoder->new;
+        $element = $decoder->decode( $row->{value} );
+    }
+    $db->disconnect();
+    return $element;
+}
 
 sub set {
-  my ($self, $key, $value) = @_;
-  my $db = $self->_get_db();
-  my $encoder = Sereal::Encoder->new;
-  $value = $encoder->encode($value);
-  my $result = $db->do("REPLACE INTO keyed (id, value) VALUES(?,?)", undef, $key, $value);
-  $db->disconnect();
-  return $result;
+    my ( $self, $key, $value ) = @_;
+    my $logger = get_logger;
+    my $db = $self->_get_db();
+    unless($db){ 
+        $self->_db_error();
+        return 0;
+    }
+    my $encoder = Sereal::Encoder->new;
+    $value = $encoder->encode($value);
+    my $result;
+    eval {
+        $result = $db->do( "REPLACE INTO keyed (id, value) VALUES(?,?)", undef, $key, $value );
+    };
+    if($@){
+        $logger->error("Couldn't insert in table. Error : $@");
+        return 0;
+    }
+    $db->disconnect();
+    return $result;
 }
 
 sub remove {
-  my ($self, $key) = @_;
-  my $db = $self->_get_db();
-  my $result = $db->do("DELETE FROM keyed where id=?", undef, $key);
-  $db->disconnect();
-  return $result;
+    my ( $self, $key ) = @_;
+    my $db = $self->_get_db();
+    unless($db){ 
+        $self->_db_error();
+        return 0;
+    }
+    my $result = $db->do( "DELETE FROM keyed where id=?", undef, $key );
+    $db->disconnect();
+    return $result;
 }
 
 =back

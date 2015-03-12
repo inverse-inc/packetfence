@@ -48,6 +48,7 @@ BEGIN {
 }
 
 use pf::authentication;
+use pf::constants;
 use pf::config;
 use pf::enforcement qw(reevaluate_access);
 use pf::iplog qw(ip2mac);

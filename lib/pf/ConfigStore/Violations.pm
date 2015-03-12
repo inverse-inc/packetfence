@@ -14,14 +14,15 @@ pf::ConfigStore::Violations
 
 use Moo;
 use namespace::autoclean;
+use pf::file_paths;
 
 use pf::violation_config;
 
 extends 'pf::ConfigStore';
 
-sub _buildCachedConfig {
-    $pf::violation_config::cached_violations_config
-};
+sub configFile { $violations_config_file }
+
+sub pfconfigNamespace { 'config::Violations' }
 
 =head1 Methods
 
@@ -144,6 +145,13 @@ sub cleanupBeforeCommit {
         $violation->{'window'} = 'dynamic';
     }
     delete $violation->{'window_dynamic'};
+}
+
+sub commit {
+    my ( $self ) = @_;
+    my $result = $self->SUPER::commit();
+    pf::violation_config::loadViolationsIntoDb();
+    return $result;
 }
 
 =head1 AUTHOR

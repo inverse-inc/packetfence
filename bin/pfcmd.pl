@@ -81,10 +81,12 @@ use constant {
 use lib INSTALL_DIR . "/lib";
 
 use pf::log;
+use pf::constants;
 use pf::config;
 use pf::config::ui;
 use pf::pfcmd;
 use pf::util;
+use pf::config::util;
 use HTTP::Status qw(is_success);
 use List::MoreUtils qw(all true);
 use List::Util qw(first);
@@ -1598,100 +1600,12 @@ sub config_entry {
 }
 
 #
-# parse pf.conf and defaults from pf.conf.defaults
+# This doesn't work anymore with pfconfig
+# pfcmd will be rewritten so we leave it empty with a nice message
 #
 sub config {
-    my $option = $cmd{command}[1];
-    my $param  = $cmd{command}[2];
-    my $value  = "";
-
-    if ( lc($option) eq 'set' ) {
-        if ($param =~ /^([^=]+)=(.+)?$/) {
-            $param = $1;
-            $value = (defined($2) ? $2 : '');
-        }
-        else {
-            require pf::pfcmd::help;
-            pf::pfcmd::help::usage("config");
-        }
-    }
-
-    # get rid of spaces (a la [interface X])
-    #$param =~ s/\s+/./g;
-
-    my $parm;
-    my $section;
-
-    if ( $param =~ /^(interface)\.(.+)+\.([^.]+)$/ ) {
-        $parm    = $3;
-        $section = "$1 $2";
-    } elsif ( $param =~ /^(proxies)\.(.+)$/ ) {
-        $parm = $2;
-        $section = $1;
-    } else {
-        my @stuff = split( /\./, $param );
-        $parm = pop(@stuff);
-        $section = join( " ", @stuff );
-    }
-
-    if ( lc($option) eq 'get' ) {
-        if ( $param eq 'all' ) {
-            foreach my $a ( sort keys(%Config) ) {
-                foreach my $b ( keys( %{ $Config{$a} } ) ) {
-                    print config_entry( $a, $b );
-                }
-            }
-            exit;
-        }
-        if ( defined( $Config{$section}{$parm} ) ) {
-            print config_entry( $section, $parm );
-        } else {
-            print "Unknown configuration parameter: $section.$param!\n";
-            exit($pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM);
-        }
-    } elsif ( lc($option) eq 'help' ) {
-        if ( defined( $Doc_Config{$param}{'description'} ) ) {
-            print uc($param) . "\n";
-            print "Default: $Default_Config{$section}{$parm}\n"
-                if ( defined( $Default_Config{$section}{$parm} ) );
-            print "Options: $Doc_Config{$param}{'options'}\n"
-                if ( defined( $Doc_Config{$param}{'options'} ) );
-            if ( ref( $Doc_Config{$param}{'description'} ) eq 'ARRAY' ) {
-                print join( "\n", @{ $Doc_Config{$param}{'description'} } )
-                    . "\n";
-            } else {
-                print $Doc_Config{$param}{'description'} . "\n";
-            }
-        } else {
-            print "No help available for $param\n";
-            exit($pf::pfcmd::ERROR_CONFIG_NO_HELP);;
-        }
-    } elsif ( lc($option) eq 'set' ) {
-        if ( !defined( $Config{$section}{$parm} ) ) {
-            print "Unknown configuration parameter $section.$parm!\n";
-            exit($pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM);
-        } else {
-
-            #write out the local config only - with the new value.
-            if ( defined( $Config{$section}{$parm} ) ) {
-                if (   ( !defined( $Config{$section}{$param} ) )
-                    || ( $Default_Config{$section}{$parm} ne $value ) )
-                {
-                    $cached_pf_config->setval( $section, $parm, $value );
-                } else {
-                    $cached_pf_config->delval( $section, $parm );
-                }
-            } elsif ( $Default_Config{$section}{$parm} ne $value ) {
-                $cached_pf_config->newval( $section, $parm, $value );
-            }
-            $cached_pf_config->RewriteConfig()
-                or $logger->logdie("Unable to write config to $pf_config_file. "
-                    ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
-            require pf::configfile;
-            import pf::configfile;
-            configfile_import( $conf_dir . "/pf.conf" );
-        }
-    }
+    print STDERR "This command has been deprecated. Please use the web administration interface.\n";
+    exit(1);
 }
 
 #
@@ -2475,9 +2389,15 @@ sub configreload {
     require pf::vlan::filter;
     pf::config::cached::updateCacheControl();
     pf::config::cached::ReloadConfigs($force);
+
+    # reload pfconfig's config
     require pfconfig::manager;
     my $manager = pfconfig::manager->new;
     $manager->expire_all;
+
+    # reload violations into DB
+    require pf::violation_config;
+    pf::violation_config::loadViolationsIntoDb();
     return 0;
 }
 
