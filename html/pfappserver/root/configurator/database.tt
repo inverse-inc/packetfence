@@ -85,7 +85,7 @@
                 [% IF c.session.completed.database %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
               </div>
             </div>
-            <h3>Create a PacketFence account</h3>
+            <h3>[% l('Create a PacketFence account') %]</h3>
             <div class="control-group">
               <label class="control-label" for="pf_user">[% l('Username') %]</label>
               <div class="controls">
@@ -118,6 +118,6 @@
         </div>
       </div>
       <footer>
-        <p>&copy; Inverse 2014</p>
+        <p>&copy; Inverse 2015</p>
       </footer>
     </div><!--/container-->

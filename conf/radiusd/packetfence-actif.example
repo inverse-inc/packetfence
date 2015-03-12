@@ -1,0 +1,60 @@
+listen {
+        ipaddr = %%virt_ip%%
+        port = 0
+        type = auth
+        virtual_server = pf.actif
+}
+
+listen {
+        ipaddr = %%virt_ip%%
+        port = 0
+        type = acct
+        virtual_server = pf.actif
+}
+
+%%members%%
+
+#  Put all of the servers into a pool.
+home_server_pool pf_pool.actif {
+        type = client-port-balance
+
+%%home_server%%
+
+}
+
+home_server_pool pfacct_pool.actif {
+        type = load-balance
+
+%%home_server%%
+
+}
+
+realm packetfence {
+        auth_pool = pf_pool.actif
+        acct_pool = pfacct_pool.actif
+}
+
+server pf.actif {
+        pre-proxy {
+                #  Insert pre-proxy rules here
+        }
+
+        post-proxy {
+        }
+
+        authorize {
+                update control {
+                        Proxy-To-Realm := "packetfence"
+                }
+        }
+
+ 
+        authenticate {
+        }
+        accounting {
+                update control {
+                        Proxy-To-Realm := "packetfence"
+                }
+        }
+
+}

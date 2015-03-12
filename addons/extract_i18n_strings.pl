@@ -27,7 +27,6 @@ use pfappserver::PacketFence::Controller::Graph;
 use pfappserver::Model::Node;
 use pfappserver::Form::Config::Wrix;
 use pfappserver::Form::Config::ProfileCommon;
-use pf::constants;
 use pf::config;
 
 use constant {

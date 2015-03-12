@@ -1,4 +1,5 @@
 package pf::services::manager::dhcpd;
+
 =head1 NAME
 
 pf::services::manager::dhcpd add documentation
@@ -19,6 +20,7 @@ use IPC::Cmd qw[can_run run];
 use POSIX;
 use Net::Netmask;
 use pf::constants;
+use NetAddr::IP;
 use pf::config;
 use pf::log;
 use pf::util;
@@ -39,10 +41,46 @@ sub generateConfig {
     my %direct_subnets;
     $tags{'template'} = "$conf_dir/dhcpd.conf";
     $tags{'networks'} = '';
+    $tags{'active'} = '';
 
     foreach my $interface ( @listen_ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
+        if ($cfg->{'active_active_enabled'}) {
+            my $master = 'secondary';
+            $master = 'primary' if ( isenabled($cfg->{'active_active_dhcpd_master'} ) );
+            my @active_members = '';
+            if (defined($cfg->{'active_active_members'})) {
+                @active_members = split(',',$cfg->{'active_active_members'});
+            }
+            my $members = join(',',grep { $_ ne $cfg->{'ip'} } @active_members);
+            if ($members) {
+                my $ip = NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
+                my $net = $ip->network();
+                $tags{'active'} .= <<"EOT";
+failover peer "$net" {
+  $master;
+  address $cfg->{'ip'};
+  port 647;
+  peer address $members;
+  peer port 647;
+  max-response-delay 30;
+  max-unacked-updates 10;
+  load balance max seconds 3;
+EOT
+                if ($master eq 'primary') {
+                    $tags{'active'} .= <<"EOT";
+  mclt 1800;
+  split 128;
+}
+EOT
+                } else {
+                    $tags{'active'} .= <<"EOT";
+}
+EOT
+                }
+            }
+        }
         my $net = Net::Netmask->new($cfg->{'ip'}, $cfg->{'mask'});
         my ($base,$mask) = ($net->base(), $net->mask());
         $direct_subnets{"subnet $base netmask $mask"} = $TRUE;
@@ -53,10 +91,52 @@ sub generateConfig {
         my %net = %{$ConfigNetworks{$network}};
 
         if ( $net{'dhcpd'} eq 'enabled' ) {
+            my $ip = new NetAddr::IP::Lite clean_ip($net{'gateway'});
+            if (defined($net{'next_hop'})) {
+                $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'})
+            }
+            my $active = '0';
+            my $dns ='0';
+            foreach my $interface ( @listen_ints ) {
+                my $cfg = $Config{"interface $interface"};
+                my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
+                if (isenabled($cfg->{'active_active_enabled'})) {
+                    my @active_members;
+                    if (defined($cfg->{'active_active_members'})) {
+                        @active_members = split(',',$cfg->{'active_active_members'});
+                    }
+                    my $members = join(',',grep { $_ ne $cfg->{'ip'} } @active_members);
+                    if ($members) {
+                        if ($current_network->contains($ip)) {
+                            $dns = $cfg->{'active_active_members'};
+                            $active =  NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
+                        }
+                    }
+                }
+            }
             my $domain = sprintf("%s.%s", $net{'type'}, $Config{general}{domain});
             delete $direct_subnets{"subnet $network netmask $net{'netmask'}"};
 
             %net = _assign_defaults(%net);
+            $dns = $net{'dns'} if (!$dns);
+            if ($active) {
+                my $peer = $active->network();
+                $tags{'networks'} .= <<"EOT";
+subnet $network netmask $net{'netmask'} {
+  option routers $net{'gateway'};
+  option subnet-mask $net{'netmask'};
+  option domain-name "$domain";
+  option domain-name-servers $dns;
+  pool {
+      failover peer "$peer";
+      range $net{'dhcp_start'} $net{'dhcp_end'};
+      default-lease-time $net{'dhcp_default_lease_time'};
+      max-lease-time $net{'dhcp_max_lease_time'};
+  }
+}
+
+EOT
+            } else {
 
             $tags{'networks'} .= <<"EOT";
 subnet $network netmask $net{'netmask'} {
@@ -68,8 +148,8 @@ subnet $network netmask $net{'netmask'} {
   default-lease-time $net{'dhcp_default_lease_time'};
   max-lease-time $net{'dhcp_max_lease_time'};
 }
-
 EOT
+            }
         }
     }
 
@@ -172,4 +252,3 @@ USA.
 =cut
 
 1;
-

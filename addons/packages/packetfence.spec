@@ -265,6 +265,7 @@ Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: mod_qos
 Requires: %{real_name}-config
+Requires: haproxy >= 1.5, keepalived >= 1.2
 
 %description -n %{real_name}
 
@@ -561,6 +562,7 @@ if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
     	-out /usr/local/pf/conf/ssl/server.crt\
     	-keyout /usr/local/pf/conf/ssl/server.key\
     	-nodes -config /usr/local/pf/conf/openssl.cnf
+    cat /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key > /usr/local/pf/conf/ssl/server.pem
 fi
 
 
@@ -592,6 +594,15 @@ if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
   make dh
 else
   echo "DH already exists, won't touch it!"
+fi
+
+#Check if RADIUS have a dh
+if [ ! -f /usr/local/pf/conf/pf.conf ]; then
+  echo "Touch pf.conf because it doesnt exist"
+  touch /usr/local/pf/conf/pf.conf
+  chown pf.pf /usr/local/pf/conf/pf.conf
+else
+  echo "pf.conf already exists, won't touch it!"
 fi
 
 #Add for sudo 
@@ -735,6 +746,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfupdate
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
                         /usr/local/pf/conf/*.example
@@ -804,6 +816,10 @@ fi
 %config(noreplace)      /usr/local/pf/conf/provisioning.conf
                         /usr/local/pf/conf/provisioning.conf.example
 %dir			/usr/local/pf/conf/radiusd
+%config(noreplace)      /usr/local/pf/conf/radiusd/clients.conf.inc
+                        /usr/local/pf/conf/radiusd/clients.conf.inc.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-actif
+                        /usr/local/pf/conf/radiusd/packetfence-actif.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.inc
                         /usr/local/pf/conf/radiusd/proxy.conf.inc.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
@@ -827,6 +843,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
                         /usr/local/pf/conf/vlan_filters.conf.example
 %config                 /usr/local/pf/conf/dhcpd.conf
+%config(noreplace)      /usr/local/pf/conf/haproxy.conf
+                        /usr/local/pf/conf/haproxy.conf.example
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.aaa
@@ -839,6 +857,8 @@ fi
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
+%config(noreplace)      /usr/local/pf/conf/keepalived.conf
+                        /usr/local/pf/conf/keepalived.conf.example
 %config(noreplace)      /usr/local/pf/conf/listener.msg
                         /usr/local/pf/conf/listener.msg.example
 %config(noreplace)      /usr/local/pf/conf/popup.msg

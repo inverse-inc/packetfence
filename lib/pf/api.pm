@@ -17,6 +17,9 @@ use warnings;
 use base qw(pf::api::attributes);
 use threads::shared;
 use pf::config();
+use pf::config::cached;
+use pf::ConfigStore::Interface();
+use pf::ConfigStore::Pf();
 use pf::iplog();
 use pf::log();
 use pf::radius::custom();
@@ -26,6 +29,9 @@ use pf::util();
 use pf::node();
 use pf::locationlog();
 use pf::ipset();
+
+use List::MoreUtils qw(uniq);
+use NetAddr::IP;
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -479,6 +485,78 @@ Return the parent function name
 
 sub whowasi { ( caller(2) )[3] }
 
+sub active_active : Public {
+    my($class, %postdata) = @_;
+    my @require = qw(ip dhcpd activeip mysql priority);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
+    my $logger =  pf::log::get_logger;
+
+    pf::config::cached::ReloadConfigs();
+
+    my $ip = new NetAddr::IP::Lite pf::util::clean_ip($postdata{ip});
+    my @ints = uniq(@pf::config::listen_ints,@pf::config::dhcplistener_ints);
+    my $cs = pf::ConfigStore::Interface->new();
+    my $int = $pf::config::management_network->{'Tint'};
+    my $cfg_mgmt = $pf::config::Config{"interface $int"};
+
+    my $master = 0;
+
+    if ($cfg_mgmt->{'ip'} eq $cfg_mgmt->{'active_active_mysql_master'} ) {
+        $master = 1;
+    }
+
+    foreach my $interface ( @ints ) {
+        my $cfg = $pf::config::Config{"interface $interface"};
+        next unless $cfg;
+        next if (!pf::util::isenabled($cfg->{'active_active_enabled'}));
+        my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
+        if ( $current_network->contains($ip) ) {
+            $cs->update($interface, { active_active_mysql_master => $postdata{mysql}}) if (defined($postdata{mysql}) && $postdata{mysql});
+            $cs->update($interface, { active_active_dhcpd_master => '0'}) if $postdata{dhcpd};
+            $cs->update($interface, { active_active_ip => $postdata{activeip}}) if ($postdata{activeip} && !$master);
+
+            my @members = split(',',$cfg->{'active_active_members'});
+            if (!( grep { $_ eq $postdata{ip} } @members ) || !( grep { $_ eq $cfg->{'ip'} } @members )) {
+                push(@members, $postdata{ip});
+                push(@members, $cfg->{'ip'});
+                @members = uniq(@members);
+                $cs->update($interface, { active_active_members => join(',',@members)});
+            }
+            my $priority;
+            if (!defined($cfg->{'active_active_priority'})) {
+                $priority = 120;
+            } else {
+                $priority = $cfg->{'active_active_priority'};
+            }
+            if ($cfg->{'type'} eq 'management') {
+                my $pfcs = pf::ConfigStore::Pf->new();
+                push(@members, $postdata{ip});
+                push(@members, $cfg->{'ip'});
+                my $local_members = $pfcs->read('active_active');
+                push(@members,split(',',$local_members->{'members'}));
+                $pfcs->update('active_active', { members =>  join(',',uniq(@members))});
+                $pfcs->commit();
+            }
+            $cs->update($interface, { active_active_priority => $priority });
+            $cs->commit();
+            my %hash_ref = ( 'active_active_members' => $cfg->{'active_active_members'},
+                             'dhcpd_master' => $cfg->{'active_active_dhcpd_master'},
+                             'member_ip' => $cfg->{'ip'},
+                             'priority' => $priority,
+                           );
+            if (defined($postdata{mysql}) && $postdata{mysql}) {
+                $hash_ref{'mysql_master'} = $postdata{mysql};
+            } else {
+                $hash_ref{'mysql_master'} = $cfg->{'active_active_mysql_master'};
+            }
+            return \%hash_ref;
+        }
+    }
+    return;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -507,4 +585,3 @@ USA.
 =cut
 
 1;
-

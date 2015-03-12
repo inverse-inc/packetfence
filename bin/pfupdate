@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+
+=head1 pfupdate
+
+Update configuration values to prevent some services to run on slave member
+
+=cut
+
+use constant INSTALL_DIR => '/usr/local/pf';
+use lib INSTALL_DIR . "/lib";
+
+use Getopt::Long;
+use pf::ConfigStore::Pf();
+use pf::clustermgmt;
+use pf::util;
+
+my $mode;
+
+GetOptions(
+    "mode=s" => \$mode,
+) ;
+
+if (! ($mode =~ /^master|slave$/)) {
+    exit;
+}
+
+pf::clustermgmt::update_services($mode);
+
+pf_run("pkill -1 pfdhcplistener");

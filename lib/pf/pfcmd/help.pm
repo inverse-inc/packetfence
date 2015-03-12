@@ -151,12 +151,14 @@ watch acts as a service watcher which can send email/restart the services
 
 Services managed by PacketFence:
   dhcpd            | dhcpd daemon
+  haproxy          | haproxy daemon
   httpd.webservices| Apache Webservices
   httpd.aaa        | Apache AAA webservice 
   httpd.admin      | Apache Web admin
   httpd.portal     | Apache Captive Portal
   httpd.proxy      | Apache Proxy Interception
   iptables         | PacketFence firewall rules
+  keepalived       | Virtual IP management
   pf               | all services that should be running based on your config
   pfbandwidthd     | A pf service to monitor bandwidth usages
   pfdetect         | PF snort alert parser

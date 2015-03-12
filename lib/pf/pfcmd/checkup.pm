@@ -574,6 +574,7 @@ sub is_config_documented {
         next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
         next if ( ( $group eq 'provisioning' ) && ( $item eq 'certificate') );
+        next if ( $item =~ /^temporary_/i );
 
         if ( !exists $Config{$group} || !exists $Config{$group}{$item} ) {
             add_problem( $FATAL, "pf.conf value $group\.$item is not defined!" );
@@ -611,6 +612,7 @@ sub is_config_documented {
                   || ($section =~ /^(services|interface|nessus_category_policy|nessus_scan_by_fingerprint)/));
 
         foreach my $item  (keys %{$Config{$section}}) {
+            next if ( $item =~ /^temporary_/i );
             if ( !defined( $Doc_Config{"$section.$item"} ) ) {
                 add_problem( $FATAL,
                     "unknown configuration parameter $section.$item ".

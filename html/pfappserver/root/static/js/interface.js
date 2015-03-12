@@ -93,7 +93,6 @@ InterfaceView.prototype.readInterface = function(e) {
             modal.append(data);
             modal.find('.switch').bootstrapSwitch();
             modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
-            modal.find('[name="dns"]').closest('.control-group').hide();
             modal.find('[name="dhcpd_enabled"]').closest('.control-group').hide();
             modal.find('[name="high_availability"]').closest('.control-group').hide();
             modal.find('[name="vip"]').closest('.control-group').hide();
@@ -121,6 +120,11 @@ InterfaceView.prototype.typeChanged = function(e) {
             var high_availability = modal.find('[name="high_availability"]').closest('.control-group');
             var vip = modal.find('[name="vip"]').closest('.control-group');
             var nat = modal.find('[name="nat_enabled"]').closest('.control-group');
+            var active_active_enabled = modal.find('[name="active_active_enabled"]').closest('.control-group');
+            var active_active_ip = modal.find('[name="active_active_ip"]').closest('.control-group');
+            var active_active_members = modal.find('[name="active_active_members"]').closest('.control-group');
+            var active_active_dhcpd_master = modal.find('[name="active_active_dhcpd_master"]').closest('.control-group');
+            var active_active_mysql_master = modal.find('[name="active_active_mysql_master"]').closest('.control-group');
 
             switch ( type.val() ) {
                 case 'inlinel2': 
@@ -129,11 +133,60 @@ InterfaceView.prototype.typeChanged = function(e) {
                     dhcpd.show('fast');
                     high_availability.hide('fast');
                     high_availability.find(':input').attr('disabled','disabled');
-                    vip.show('fast');
+                    vip.hide('fast');
                     vip.find(':input').removeAttr('disabled');
                     nat.show('fast');
                     nat.find(':input').removeAttr('disabled');
+                    active_active_mysql_master.hide('fast');
                     $(".info_inline").show('fast');
+                    if (modal.find('[name="high_availability"]').is(":checked")) {
+                        active_active_enabled.hide('fast');
+                        active_active_ip.hide('fast');
+                        active_active_members.hide('fast');
+                    } else {
+                        active_active_enabled.show('fast');
+                        active_active_ip.show('fast');
+                        active_active_members.show('fast');
+                    }
+                    modal.find('[name="high_availability"]').change(function(){
+                        if (this.checked) {
+                            active_active_enabled.hide('fast');
+                            active_active_ip.hide('fast');
+                            active_active_members.hide('fast');
+                        } else {
+                            active_active_enabled.show('fast');
+                            active_active_ip.show('fast');
+                            active_active_members.show('fast');
+                        }
+                    });
+                    if (modal.find('[name="active_active_enabled"]').is(":checked")) {
+                        high_availability.hide('fast');
+                        vip.hide('fast');
+                        active_active_ip.show('fast');
+                        active_active_members.show('fast');
+                        active_active_dhcpd_master.show('fast');
+                    } else {
+                        high_availability.show('fast');
+                        vip.show('fast');
+                        active_active_ip.hide('fast');
+                        active_active_members.hide('fast');
+                        active_active_dhcpd_master.hide('fast');
+                    }
+                    modal.find('[name="active_active_enabled"]').change(function(){
+                        if (this.checked) {
+                            high_availability.hide('fast');
+                            vip.hide('fast');
+                            active_active_ip.show('fast');
+                            active_active_members.show('fast');
+                            active_active_dhcpd_master.show('fast');
+                        } else {
+                            high_availability.show('fast');
+                            //vip.show('fast');
+                            active_active_ip.hide('fast');
+                            active_active_members.hide('fast');
+                            active_active_dhcpd_master.hide('fast');
+                        }
+                    });
                     if (modal.find('[name="nat_enabled"]').is(":checked")) {
                         $(".info_routed").hide('fast');
                     } else {
@@ -151,16 +204,70 @@ InterfaceView.prototype.typeChanged = function(e) {
                     dhcpd.hide('fast');
                     high_availability.show('fast');
                     high_availability.find(':input').removeAttr('disabled');
+                    active_active_mysql_master.find(':input').removeAttr('disabled');
                     dns.hide('fast');
                     dns.find(':input').attr('disabled','disabled');
-                    vip.show('fast');
                     vip.find(':input').removeAttr('disabled');
+                    vip.show('fast');
                     nat.hide('fast');
                     nat.find(':input').attr('disabled','disabled');
+                    active_active_dhcpd_master.hide('fast');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
+                    if (modal.find('[name="high_availability"]').is(":checked")) {
+                        active_active_enabled.hide('fast');
+                        active_active_ip.hide('fast');
+                        active_active_members.hide('fast');
+                        active_active_mysql_master.hide('fast');
+                    } else {
+                        active_active_enabled.show('fast');
+                        active_active_ip.show('fast');
+                        active_active_members.show('fast');
+                        active_active_mysql_master.show('fast');
+                    }
+                    modal.find('[name="high_availability"]').change(function(){
+                        if (this.checked) {
+                            active_active_enabled.hide('fast');
+                            active_active_ip.hide('fast');
+                            active_active_members.hide('fast');
+                            active_active_mysql_master.hide('fast');
+                            vip.show('fast');
+                        } else {
+                            active_active_enabled.show('fast');
+                            vip.show('fast');
+                        }
+                    });
+                    if (modal.find('[name="active_active_enabled"]').is(":checked")) {
+                        high_availability.hide('fast');
+                        vip.hide('fast');
+                        active_active_ip.show('fast');
+                        active_active_members.show('fast');
+                        active_active_mysql_master.show('fast');
+                    } else {
+                        high_availability.show('fast');
+                        vip.show('fast');
+                        active_active_ip.hide('fast');
+                        active_active_members.hide('fast');
+                        active_active_mysql_master.hide('fast');
+                    }
+                    modal.find('[name="active_active_enabled"]').change(function(){
+                        if (this.checked) {
+                            high_availability.hide('fast');
+                            vip.hide('fast');
+                            active_active_ip.show('fast');
+                            active_active_members.show('fast');
+                            active_active_mysql_master.show('fast');
+                        } else {
+                            high_availability.show('fast');
+                            vip.show('fast');
+                            active_active_ip.hide('fast');
+                            active_active_members.hide('fast');
+                            active_active_mysql_master.hide('fast');
+                        }
+                    });
                     break;
                 case '':
+                case 'other':
                 case 'none':
                     dhcpd.hide('fast');
                     high_availability.show('fast');
@@ -173,26 +280,20 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.find(':input').attr('disabled','disabled');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
-                    break;
-                case 'other':
-                    dhcpd.hide('fast');
-                    high_availability.hide('fast');
-                    high_availability.find(':input').attr('disabled','disabled');
-                    dns.hide('fast');
-                    dns.find(':input').attr('disabled','disabled');
-                    vip.hide('fast');
-                    vip.find(':input').attr('disabled','disabled');
-                    nat.hide('fast');
-                    nat.find(':input').attr('disabled','disabled');
-                    $(".info_inline").hide('fast');
-                    $(".info_routed").hide('fast');
+                    active_active_enabled.hide('fast');
+                    active_active_ip.hide('fast');
+                    active_active_members.hide('fast');
+                    active_active_mysql_master.hide('fast');
+                    active_active_dhcpd_master.hide('fast');
                     break;
                 case 'vlan-registration':
                 case 'vlan-isolation':
                     vip.show('fast');
                     vip.find(':input').removeAttr('disabled');
-                    high_availability.hide('fast');
+                    high_availability.show('fast');
                     high_availability.find(':input').attr('disabled','disabled');
+                    active_active_enabled.show('fast');
+                    active_active_mysql_master.find(':input').attr('disabled','disabled');
                     dhcpd.show('fast');
                     dns.hide('fast');
                     dns.find(':input').attr('disabled','disabled');
@@ -200,6 +301,25 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.find(':input').attr('disabled','disabled');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
+                    active_active_mysql_master.hide('fast');
+                    if (modal.find('[name="active_active_enabled"]').is(":checked")) {
+                        vip.hide('fast');
+                    } else {
+                        vip.show('fast');
+                    }
+                    modal.find('[name="active_active_enabled"]').change(function(){
+                        if (this.checked) {
+                            active_active_ip.show('fast');
+                            active_active_members.show('fast');
+                            active_active_dhcpd_master.show('fast');
+                            vip.hide('fast');
+                        } else {
+                            vip.show('fast');
+                            active_active_ip.hide('fast');
+                            active_active_members.hide('fast');
+                            active_active_dhcpd_master.hide('fast');
+                        }
+                    });
                     break;
                 default:
                     dhcpd.hide('fast');
@@ -207,7 +327,7 @@ InterfaceView.prototype.typeChanged = function(e) {
                     high_availability.find(':input').attr('disabled','disabled');
                     dns.hide('fast');
                     dns.find(':input').attr('disabled','disabled');
-                    vip.show('fast');
+                    vip.hide('fast');
                     vip.find(':input').removeAttr('disabled');
                     nat.hide('fast');
                     nat.find(':input').attr('disabled','disabled');

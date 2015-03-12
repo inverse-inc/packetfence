@@ -42,7 +42,7 @@ has_field 'type' =>
   );
 has_field 'dns' =>
   (
-   type => 'IPAddress',
+   type => 'IPAddresses',
    label => 'DNS',
    wrapper_attr => { 'style' => 'display: none' },
    tags => { after_element => \&help,
@@ -64,6 +64,7 @@ has_field 'high_availability' =>
     unchecked_value => 0,
     default => 0,
    );
+
 has_field 'vip' =>
   (
    type => 'IPAddress',
@@ -76,6 +77,38 @@ has_field 'nat_enabled' => (
     unchecked_value => 0,
     default => 1,
     label => 'Enable NATting',
+);
+
+has_field 'active_active_enabled' => (
+    type => 'Toggle',
+    checkbox_value => 1,
+    unchecked_value => 0,
+    default => 0,
+    label => 'Enable Active/Active',
+);
+
+has_field 'active_active_ip' => (
+    type => 'IPAddress',
+    label => 'Active/Active IP Address',
+);
+
+has_field 'active_active_members' => (
+    type => 'IPAddresses',
+    label => 'Active/Active ip members',
+    readonly => 1,
+);
+
+has_field 'active_active_dhcpd_master' => (
+    type => 'Toggle',
+    checkbox_value => 1,
+    unchecked_value => 0,
+    default => 0,
+    label => 'Define dhcpd master',
+);
+
+has_field 'active_active_mysql_master' => (
+    type => 'IPAddress',
+    label => 'Define mysql master',
 );
 
 =head2 options_type
