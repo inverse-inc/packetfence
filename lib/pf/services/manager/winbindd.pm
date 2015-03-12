@@ -22,6 +22,7 @@ use Errno qw(EINTR EAGAIN);
 use pf::log;
 use pf::file_paths;
 use pf::domain;
+use pfconfig::manager;
 
 extends 'pf::services::manager::submanager';
 
@@ -33,6 +34,11 @@ has '+name' => (default => sub { 'winbindd'} );
 
 sub _build_winbinddManagers {
     my ($self) = @_;
+
+    # we want to refresh the domain list to the latest available
+    # when restarting the service
+    # Restarting through pfcmd service pf restart does the configreload after the managers have been instanciated
+    $self->_refresh_domains();
 
     $self->build_namespaces();
 
@@ -51,6 +57,11 @@ sub _build_winbinddManagers {
         })
     } uniq keys %ConfigDomain;
     return \@managers;
+}
+
+sub _refresh_domains {
+    my ($self) = @_;
+    pfconfig::manager->new->expire("config::Domain");
 }
 
 sub build_namespaces(){
