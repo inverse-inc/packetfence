@@ -1,7 +1,7 @@
 package pf::OMAPI;
 =head1 NAME
 
-pf::OMAPI add documentation
+pf::OMAPI
 
 =cut
 
