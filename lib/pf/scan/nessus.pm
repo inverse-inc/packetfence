@@ -25,7 +25,8 @@ use pf::scan;
 use pf::util;
 use pf::node;
 use Net::Nessus::XMLRPC;
-use pf::os qw(dhcp_fingerprint_view);
+
+sub description { 'Nessus Scanner' }
 
 =head1 SUBROUTINES
 
@@ -45,10 +46,10 @@ sub new {
 
     my $this = bless {
             '_id'       => undef,
-            '_host'     => $Config{'scan'}{'host'},
+            '_ip'       => undef,
             '_port'     => undef,
-            '_user'     => $Config{'scan'}{'user'},
-            '_pass'     => $Config{'scan'}{'pass'},
+            '_username' => undef,
+            '_password' => undef,
             '_scanIp'   => undef,
             '_scanMac'  => undef,
             '_report'   => undef,
@@ -61,10 +62,6 @@ sub new {
     foreach my $value ( keys %data ) {
         $this->{'_' . $value} = $data{$value};
     }
-
-    # Nessus specific attributes
-    $this->{_port} = $Config{'scan'}{'nessus_port'};
-    $this->{_policy} = getPolicyByCategory($this);
 
     return $this;
 }
@@ -82,11 +79,11 @@ sub startScan {
     my $id                  = $this->{_id};
     my $hostaddr            = $this->{_scanIp};
     my $mac                 = $this->{_scanMac};
-    my $host                = $this->{_host};
+    my $host                = $this->{_ip};
     my $port                = $this->{_port};
-    my $user                = $this->{_user};
-    my $pass                = $this->{_pass};
-    my $nessus_clientpolicy = $this->{_policy};
+    my $user                = $this->{_username};
+    my $pass                = $this->{_password};
+    my $nessus_clientpolicy = $this->{_nessus_clientpolicy};
     my $n = Net::Nessus::XMLRPC->new('https://'.$host.':'.$port.'/', $user, $pass);
 
     # select nessus policy on the server, set scan name and launch the scan
@@ -97,9 +94,14 @@ sub startScan {
     }
     my $scanname = "pf-".$hostaddr."-".$nessus_clientpolicy;
     my $scanid = $n->scan_new($polid, $scanname, $hostaddr);
+
+    my $scan_vid = $pf::scan::POST_SCAN_VID;
+    $scan_vid = $pf::scan::SCAN_VID if ($this->{'_registration'});
+    $scan_vid = $pf::scan::PRE_SCAN_VID if ($this->{'_pre_registration'});
+
     if ( $scanid eq "") {
         $logger->warn("Nessus scan doesnt start");
-        return 1;
+        return $scan_vid;
     }
     $logger->info("executing Nessus scan with this policy ".$nessus_clientpolicy);
     $this->{'_status'} = $pf::scan::STATUS_STARTED;
@@ -125,44 +127,8 @@ sub startScan {
     # Clean the report
     $this->{'_report'} = [ split("\n", $this->{'_report'}) ];
 
-    pf::scan::parse_scan_report($this);
+    pf::scan::parse_scan_report($this,$scan_vid);
 }
-
-=item getPolicyByCategory
-
-Get the policy to apply to a category
-
-=cut
-
-sub getPolicyByCategory {
-    my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $mac = clean_mac($this->{_scanMac});
-    my $node_info = node_view($mac);
-    my @fingerprint = dhcp_fingerprint_view($node_info->{'dhcp_fingerprint'});
-
-    if (defined ($Config{'nessus_scan_by_fingerprint'} ) ){
-        my %finger_rule = %{ $Config{'nessus_scan_by_fingerprint'} };
-
-        foreach my $scan ( keys %finger_rule ) {
-            if (defined($fingerprint[0]->{'os'}) && $fingerprint[0]->{'os'} =~ m/$scan/i) {
-                return $finger_rule{$scan};
-            }
-        }
-    } elsif (defined($node_info->{'category'})) {
-        if (defined($Config{'nessus_category_policy'}{$node_info->{'category'}})) {
-            return $Config{'nessus_category_policy'}{$node_info->{'category'}};
-        }
-        else {
-            return $Config{'scan'}{'nessus_clientpolicy'};
-        }
-    }
-    else {
-        return $Config{'scan'}{'nessus_clientpolicy'};
-    }
-}
-
 
 =back
 

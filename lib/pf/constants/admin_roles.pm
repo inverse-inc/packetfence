@@ -79,6 +79,7 @@ our @ADMIN_ACTIONS = qw(
     USERS_CREATE
     USERS_UPDATE
     USERS_DELETE
+
     USERS_SET_ROLE
     USERS_SET_ACCESS_DURATION
     USERS_SET_UNREG_DATE
@@ -99,23 +100,40 @@ our @ADMIN_ACTIONS = qw(
     VIOLATIONS_DELETE
     VIOLATIONS_READ
     VIOLATIONS_UPDATE
+
     SOH_READ
     SOH_CREATE
     SOH_UPDATE
     SOH_DELETE
+
     FINGERPRINTS_READ
     FINGERPRINTS_UPDATE
+
     USERAGENTS_READ
+
     MAC_READ
     MAC_UPDATE
+
     FIREWALL_SSO_READ
     FIREWALL_SSO_CREATE
     FIREWALL_SSO_UPDATE
     FIREWALL_SSO_DELETE
+
     REALM_READ
     REALM_CREATE
     REALM_UPDATE
     REALM_DELETE
+
+    SCAN_READ
+    SCAN_CREATE
+    SCAN_UPDATE                                                                                                                                                                          
+    SCAN_DELETE
+
+    WMI_READ
+    WMI_CREATE
+    WMI_UPDATE
+    WMI_DELETE
+
 );
 
 =head1 AUTHOR

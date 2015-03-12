@@ -72,11 +72,19 @@ case "$1" in
         fi
 
 	if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
-	    echo "Bulding default RADIUS certificates..."
+	    echo "Building default RADIUS certificates..."
 	    cd /usr/local/pf/raddb/certs
 	    make dh 
 	else
 	    echo "DH already exists, won't touch it!"
+        fi
+
+        if [ ! -f /usr/local/pf/conf/pf.conf ]; then
+            echo "pf.conf doesnt exits"
+            touch /usr/local/pf/conf/pf.conf
+            chown pf.pf /usr/local/pf/conf/pf.conf
+        else
+            echo "pf.conf already exists, won't touch it!"
         fi
 
         # managing services

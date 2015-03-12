@@ -251,6 +251,8 @@ Requires: perl(IO::Interface)
 Requires: perl(Time::Period)
 # configuration-wizard
 Requires: iproute, vconfig
+# wmi
+Requires: wmi, perl(Net::WMIClient)
 
 Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
@@ -594,6 +596,15 @@ else
   echo "DH already exists, won't touch it!"
 fi
 
+#Check if RADIUS have a dh
+if [ ! -f /usr/local/pf/conf/pf.conf ]; then
+  echo "Touch pf.conf because it doesnt exist"
+  touch /usr/local/pf/conf/pf.conf
+  chown pf.pf /usr/local/pf/conf/pf.conf
+else
+  echo "pf.conf already exists, won't touch it!"
+fi
+
 #Add for sudo 
 if (grep "^Defaults.*requiretty" /etc/sudoers > /dev/null  ) ; then
   sed -i 's/^Defaults.*requiretty/#Defaults requiretty/g' /etc/sudoers
@@ -814,6 +825,8 @@ fi
                         /usr/local/pf/conf/radiusd/sql.conf.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
+%config(noreplace)      /usr/local/pf/conf/scan.conf
+                        /usr/local/pf/conf/scan.conf.example
 %dir                    /usr/local/pf/conf/snort
 %config(noreplace)      /usr/local/pf/conf/snort/classification.config
                         /usr/local/pf/conf/snort/classification.config.example
@@ -857,6 +870,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
+%config(noreplace)      /usr/local/pf/conf/wmi.conf
+                        /usr/local/pf/conf/wmi.conf.example
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*

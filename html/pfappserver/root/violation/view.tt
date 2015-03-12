@@ -26,6 +26,7 @@
         [% form.field('actions').render %]
         [% form.field('vclose').render %]
         [% form.field('target_category').render %]
+        [% form.field('external_command').render %]
         [% form.field('priority').render %]
         [% form.field('whitelisted_categories').render %]
       </div><!-- tab-pane -->

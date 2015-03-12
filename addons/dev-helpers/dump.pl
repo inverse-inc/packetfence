@@ -11,7 +11,7 @@ dump add documentation
 
 =head1 SYNOPSIS
 
-dump.pl <apachefilters|config|defaultconfig|doc_config|floatingdevices|firewallsso|profiles_filters|profiles|sources|switch <id>|switches|admin_roles|chiconfig|vlan_filters>
+dump.pl <apachefilters|config|defaultconfig|doc_config|floatingdevices|firewallsso|profiles_filters|profiles|sources|switch <id>|switches|admin_roles|chiconfig|vlan_filters|scan|wmi>
 
 =head1 DESCRIPTION
 
@@ -159,6 +159,26 @@ __PACKAGE__->mark_as_loaded();
 sub _run {
     require pf::config;
     print Data::Dumper::Dumper(\%pf::config::ConfigFirewallSSO);
+}
+
+package pf::dump::scan;
+use base qw(pf::dump::cmd);
+use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
+
+sub _run {
+    require pf::config;
+    print Data::Dumper::Dumper(\%pf::config::ConfigScan);
+}
+
+package pf::dump::wmi;
+use base qw(pf::dump::cmd);
+use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
+
+sub _run {
+    require pf::config;
+    print Data::Dumper::Dumper(\%pf::config::ConfigWmi);
 }
 
 package main;

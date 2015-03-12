@@ -88,6 +88,7 @@ sub loadViolationsIntoDb {
             $data->{'vlan'},
             $data->{'target_category'},
             $data->{'delay_by'},
+            $data->{'external_command'},
             $data->{'whitelisted_categories'} || '',
             $data->{'actions'},
             $triggers_ref
@@ -124,4 +125,3 @@ USA.
 =cut
 
 1;
-
