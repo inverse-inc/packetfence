@@ -253,6 +253,7 @@ sub checkIfTlsEnrolement : Private {
     my $role = $node_info->{'category'};
     #if role is tls-enrolement then process to define controller
     if ($role == "tls-enrolement"){
+        $c->session->{info} = $c->stash->{info};
         $c->detach(tlsprofile => 'index');
     }
 }

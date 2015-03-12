@@ -133,20 +133,27 @@ sub get_cert : Private {
  
 sub cert_process : Local {
     my ($self,$c) = @_;
+    my $logger = $c->log;
+    my $stash = $c->stash;
+    $c->stash(info => $c->session->{info});
     $c->forward('validateform');
     $c->forward('get_cert');
     $c->forward('build_cert_p12');
+    use Data::Dumper;
+    $logger->warn(Dumper $stash); 
     #$c->forward('export_fingerprint');
-    $c->forward(Authenticate => 'checkIfProvisionIsNeeded');
-    $self->showError($c,"We could not match your operating system, please contact IT support.");
+    $c->forward('checkIfProvisionIsNeeded');
+    #$self->showError($c,"We could not match your operating system, please contact IT support.");
 }
 
 sub checkIfProvisionIsNeeded : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $info = $c->stash->{info};
+    my $logger = $c->log;
     my $mac = $portalSession->clientMac;
     my $profile = $c->profile;
+    my $bob = $profile->findProvisioner($mac);
     if (defined( my $provisioner = $profile->findProvisioner($mac))) {
         if ($provisioner->authorize($mac) == 0) {
             $info->{status} = $pf::node::STATUS_PENDING;
