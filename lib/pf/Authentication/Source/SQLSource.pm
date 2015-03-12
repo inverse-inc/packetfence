@@ -9,7 +9,7 @@ pf::Authentication::Source::SQLSource
 =cut
 
 use pf::constants qw($TRUE $FALSE);
-use pf::temporary_password;
+use pf::password;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 use pf::Authentication::Source;
@@ -41,9 +41,9 @@ sub available_attributes {
 sub authenticate {
    my ( $self, $username, $password ) = @_;
 
-   my $result = pf::temporary_password::validate_password($username, $password);
+   my $result = pf::password::validate_password($username, $password);
 
-   if ($result == $pf::temporary_password::AUTH_SUCCESS) {
+   if ($result == $pf::password::AUTH_SUCCESS) {
      return ($TRUE, 'Successful authentication using SQL');
    }
 
@@ -55,9 +55,9 @@ sub authenticate {
 The SQLSource class overrides the match method of the Source parent class.
 
 It has no conditions and therefore acts as a catchall as long as the username is found
-in the temporary_password table.
+in the password table.
 
-The actions are defined in the temporary_password table and can be modified for each user
+The actions are defined in the password table and can be modified for each user
 through the web admin interface.
 
 =cut
@@ -68,9 +68,9 @@ sub match {
 
     my $result;
     if ($params->{'username'}) {
-        $result = pf::temporary_password::view($params->{'username'});
+        $result = pf::password::view($params->{'username'});
     } elsif ($params->{'email'}) {
-        $result = pf::temporary_password::view_email($params->{'email'});
+        $result = pf::password::view_email($params->{'email'});
     }
 
     # User is defined in SQL source, let's build the actions and return that
