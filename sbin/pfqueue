@@ -1,0 +1,430 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+pfqueue - pf queue handler service
+
+=head1 SYNOPSIS
+
+pfqueue [options]
+
+ Options:
+   -d      Daemonize
+   -h      Help
+   -v      Verbose
+
+=cut
+
+use warnings;
+use strict;
+use Getopt::Std;
+use Net::Pcap 0.16;
+use File::Basename qw(basename);
+use POSIX qw(:signal_h pause :sys_wait_h);
+use Pod::Usage;
+use Fcntl qw(:flock);
+use Redis::Fast;
+use Scalar::Util qw(blessed);
+use Time::HiRes qw(usleep);
+
+#pf::log must always be initilized first
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfqueue');
+}
+
+use pf::file_paths;
+use pf::util;
+use pf::services::util;
+use pf::factory::worker;
+use Sereal::Decoder;
+use pf::db;
+use Config::IniFiles;
+use pf::constants::pfqueue
+  qw($QUEUE_DELAYED_ZSET $QUEUE_DELAYED_QUEUE $QUEUE_DELAYED_HASH $QUEUE_PREFIX $QUEUE_DYNAMIC_PREFIX);
+
+our $config = Config::IniFiles->new( -file => "$install_dir/conf/services/pfqueue.conf");
+# initialization
+# --------------
+# assign process name (see #1464)
+our $PROGRAM_NAME = $0 = basename($0);
+our @REGISTERED_TASKS;
+our $IS_CHILD = 0;
+our %CHILDREN;
+our @TASKS_RUN;
+our $ALARM_RECV = 0;
+our $DECODER = Sereal::Decoder->new;
+
+my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
+
+POSIX::sigaction(
+    &POSIX::SIGALRM,
+    POSIX::SigAction->new(
+        'alarm_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or die("pfqueue could not set SIGALRM handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGHUP,
+    POSIX::SigAction->new(
+        'normal_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or die("pfqueue could not set SIGHUP handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or die("pfqueue could not set SIGINT handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or die("pfqueue could not set SIGTERM handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGCHLD,
+    POSIX::SigAction->new(
+        'child_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or die("pfqueue could not set SIGCHLD handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGUSR1,
+    POSIX::SigAction->new(
+        'usr1_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or die("pfqueue could not set SIGUSR1 handler: $!");
+
+my %args;
+getopts( 'dhvr', \%args );
+
+pod2usage( -verbose => 1 ) if ( $args{h} );
+
+my $daemonize = $args{d};
+my $verbose   = $args{v};
+my $restart   = $args{r};
+
+my $pidfile = "${var_dir}/run/pfqueue.pid";
+
+our $HAS_LOCK = 0;
+open(my $fh,">>$pidfile");
+flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfqueue is running\n";
+$HAS_LOCK = 1;
+
+our $running = 1;
+
+# standard signals and daemonize
+daemonize($PROGRAM_NAME) if ($daemonize);
+our $PARENT_PID = $$;
+
+registertasks();
+runtasks();
+waitforit();
+cleanup();
+
+END {
+    if ( !$args{h} && $HAS_LOCK ) {
+        unless($IS_CHILD) {
+            deletepid();
+            $logger->info("stopping pfqueue");
+        }
+    }
+}
+
+exit(0);
+
+=head1 SUBROUTINES
+
+=head2 registertasks
+
+    Register all tasks
+
+=cut
+
+sub registertasks {
+    foreach my $section ($config->GroupMembers('queue')) {
+        my $queue = $section;
+        $queue =~ s/^queue +//;
+        my $type = $config->val($section, 'type', 'simple');
+        if($type eq 'simple') {
+            my $worker = $config->val($section, 'workers', 10);
+            foreach  (1 .. $worker) {
+                register_task("queue/$queue", "queue/$queue", \&process_queue);
+            }
+        }
+        elsif($type eq 'delayed') {
+            my $submit_queue = $config->val($section, 'submit_queue');
+            register_task("delayed/$submit_queue", "queue/$submit_queue", \&process_delayed_jobs);
+        }
+    }
+}
+
+=head2 cleanup
+
+cleans after children
+
+=cut
+
+sub cleanup {
+    kill_and_wait_for_children('INT',30);
+    kill_and_wait_for_children('USR1',10);
+    signal_children('KILL');
+}
+
+=head2 kill_and_wait_for_children
+
+signal children and waits for them to exit process
+
+=cut
+
+sub kill_and_wait_for_children {
+    my ($signal,$waittime) = @_;
+    signal_children($signal);
+    my $not_done = 1;
+    $ALARM_RECV = 0;
+    alarm $waittime;
+    while (((keys %CHILDREN) != 0 ) && !$ALARM_RECV) {
+        pause;
+    }
+}
+
+=head2 signal_children
+
+sends a signal to all active children
+
+=cut
+
+sub signal_children {
+    my ($signal) = @_;
+    kill ( $signal, keys %CHILDREN);
+}
+
+=head2 normal_sighandler
+
+the signal handler to shutdown the service
+
+=cut
+
+sub normal_sighandler {
+    $running = 0;
+}
+
+=head2 runtasks
+
+run all runtasks
+
+=cut
+
+sub runtasks {
+    db_disconnect();
+    while(@REGISTERED_TASKS) {
+        my $task = shift @REGISTERED_TASKS;
+        runtask($task);
+    }
+}
+
+=head2 runtask
+
+creates a new child to run a task
+
+=cut
+
+sub runtask {
+    my ($task) = @_;
+    my $pid = fork();
+    if($pid) {
+        $CHILDREN{$pid} = $task;
+    } elsif ($pid == 0) {
+        $SIG{CHLD} = "DEFAULT";
+        $IS_CHILD = 1;
+        _runtask(@$task);
+    } else {
+    }
+}
+
+=head2 _runtask
+
+the task to is ran in a loop until it is finished
+
+=cut
+
+sub _runtask {
+    my ($id,$queue,$task) = @_;
+    $0 = "pfqueue - $id";
+    my $redis = Redis::Fast->new(sock => "$var_dir/run/redis.sock");
+    while ($running) {
+        pf::config::cached::ReloadConfigs();
+        eval {
+            #reload all cached configs before running the task
+            $task->($redis,$queue);
+        };
+        if ($@) {
+            $logger->error("Error running task $id: $@");
+        }
+        #Stop running if parent is no longer alive
+        unless(is_parent_alive()) {
+            $logger->error("Parent is no longer running shutting down");
+            $running = 0;
+        }
+    }
+    $redis->quit;
+    $logger->trace("$$ shutting down");
+    exit;
+}
+
+=head2 is_parent_alive
+
+Checks to see if parent is alive
+
+=cut
+
+sub is_parent_alive {
+    kill (0,$PARENT_PID)
+}
+
+=head2 register_task
+
+registers the task to run
+
+=cut
+
+sub register_task {
+    my ($taskId, $parameter,$function) = @_;
+    push @REGISTERED_TASKS, [ $taskId , $parameter, $function ];
+
+}
+
+=head2 process_queue
+
+Process queue
+
+=cut
+
+sub process_queue {
+    my ($redis,$queue_name) = @_;
+    my ($queue,$item_data) = $redis->brpop($queue_name,1);
+    if($queue) {
+        my $item;
+        $DECODER->decode($item_data,$item);
+        if(blessed $item && $item->can("work")) {
+            eval {
+                $item->work();
+            };
+            if($@) {
+                get_logger->error($@);
+            }
+        }
+    }
+}
+
+sub process_delayed_jobs {
+    my ($redis,   $queue_name) = @_;
+    #Getting the current time from the redis service
+    my ($seconds, $micro)      = $redis->time;
+    my $time_milli = $seconds * 1000 + int($micro / 1000);
+    #Get the first job within our time range
+    my @jobs = $redis->zrangebyscore($QUEUE_DELAYED_ZSET, 0, $time_milli, 'LIMIT', 0, 1);
+    while (@jobs) {
+        #All values should
+        my @data = grep {defined $_} $redis->hmget($QUEUE_DELAYED_HASH, @jobs);
+        if(@data) {
+            $redis->lpush($queue_name, @data, sub { });
+            $redis->zrem($QUEUE_DELAYED_ZSET, @jobs, sub { });
+            $redis->hdel($QUEUE_DELAYED_HASH, @jobs, sub { });
+            $redis->lpop($QUEUE_DELAYED_QUEUE, @jobs, sub { });
+            $redis->wait_all_responses();
+        }
+        @jobs = $redis->zrangebyscore($QUEUE_DELAYED_ZSET, 0, $time_milli, 'LIMIT', 0, 1);
+    }
+    #Wait for another item to be placed into the helper queue
+    my ($queue,$item_data) = $redis->brpop($QUEUE_DELAYED_QUEUE,1);
+}
+
+=head2 waitforit
+
+waits for signals
+
+=cut
+
+sub waitforit {
+    while($running) {
+        pause;
+        runtasks();
+    }
+}
+
+=head2 alarm_sighandler
+
+the alarm signal handler
+
+=cut
+
+sub alarm_sighandler {
+    $ALARM_RECV = 1;
+}
+
+=head2 child_sighandler
+
+reaps the children
+
+=cut
+
+sub child_sighandler {
+    local ($!, $?);
+    while(1) {
+        my $child = waitpid(-1, WNOHANG);
+        last unless $child > 0;
+        my $task = delete $CHILDREN{$child};
+        register_task(@$task);
+    }
+}
+
+=head2 usr1_sighandler
+
+the handler to cancel any currently running database queries
+
+=cut
+
+sub usr1_sighandler {
+   db_cancel_current_query();
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+Minor parts of this file may have been contributed. See CREDITS.
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2015 Inverse inc.
+
+Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2005 David LaPorte
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
