@@ -89,6 +89,14 @@ The pki informations
 
 has pki => (is => 'rw');
 
+=head2
+
+The CA path
+
+=cut
+
+has ca_path => (is => 'rw');
+
 =head1 METHODS
 
 =head2 authorize

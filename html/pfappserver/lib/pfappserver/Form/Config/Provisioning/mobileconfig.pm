@@ -67,9 +67,17 @@ has_field 'reversedns' =>
              help => 'Example : if your dns name is www.packetfence.org it become org.packetfence.www'},
   );
 
+has_field 'ca_path' =>
+  (
+   type => 'Text',
+   label => 'Certificate of Authority path',
+   tags => { after_element => \&help,
+             help => 'Write the absolute path of your CA'},
+  );
+
 has_block definition =>
   (
-   render_list => [ qw(id description reversedns type category ssid eap_type security_type passcode) ],
+   render_list => [ qw(id description reversedns type category ssid eap_type security_type passcode ca_path) ],
   );
 
 sub options_eap_type {

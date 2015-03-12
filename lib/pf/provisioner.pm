@@ -160,6 +160,7 @@ sub matchCategory {
 sub matchOS {
     my ($self, $os) = @_;
     my @oses = @{$self->oses || []};
+    get_logger->info("Tring to match $os against " . join(",", @oses));
     #if if no oses are defined then it will match all the oses
     local $_;
     return @oses == 0 || any { $os =~ $_ } @oses;
