@@ -43,12 +43,8 @@ sub loadViolationsIntoDb {
         $logger->error("Can't connect to db");
         return;
     }
-    use Data::Dumper;
-    $logger->info(Dumper(\%Violation_Config));
     trigger_delete_all();
     while(my ($violation,$data) = each %Violation_Config) {
-        $logger->info(Dumper($violation));
-        $logger->info(Dumper($data));
         # parse triggers if they exist
         my $triggers_ref = [];
         if ( defined $data->{'trigger'} ) {
