@@ -47,7 +47,7 @@ sub action {
         $username =  $node_info->{'last_dot1x_username'} if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x');
         return 0 if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x' && $node_info->{'last_dot1x_username'} eq '');
 
-        my @categories = split(/,/, $ConfigFirewallSSO{$firewall_conf}->{categories});
+        my @categories = @{$self->{categories}};
         if (
             defined($node_info) &&
             (ref($node_info) eq 'HASH') &&
@@ -83,7 +83,7 @@ XML
         $username = $node_info->{'last_dot1x_username'} if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x');
         return 0 if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x' && $node_info->{'last_dot1x_username'} eq '');
 
-        my @categories = split(/,/, $ConfigFirewallSSO{$firewall_conf}->{categories});
+        my @categories = @{$self->{categories}};
         if (
             defined($node_info) &&
             (ref($node_info) eq 'HASH') &&

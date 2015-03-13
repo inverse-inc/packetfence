@@ -34,6 +34,7 @@ sub new {
    $logger->debug("instantiating new pf::firewallsso");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
+   $self->{categories} = $argv{categories};
    return $self;
 }
 
