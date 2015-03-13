@@ -81,7 +81,7 @@ use pf::config;
 use pf::enforcement;
 use pf::db;
 use pf::node;
-use pf::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
+use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::util;
 use pf::config::util;
 use pf::client;

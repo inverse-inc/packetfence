@@ -22,6 +22,7 @@ use Readonly;
 use base ('pf::scan');
 
 use pf::constants;
+use pf::constants::scan;
 use pf::config;
 use pf::util;
 
@@ -194,9 +195,9 @@ sub processReport {
         # We need to manipulate the scan report.
         # Each line of the scan report is pushed into an arrayref
         $this->{'_report'} = [ split("\n", $this->{'_report'}) ];
-        my $scan_vid = $pf::scan::POST_SCAN_VID;
-        $scan_vid = $pf::scan::SCAN_VID if ($this->{'_registration'});
-        $scan_vid = $pf::scan::PRE_SCAN_VID if ($this->{'_pre_registration'});
+        my $scan_vid = $POST_SCAN_VID;
+        $scan_vid = $SCAN_VID if ($this->{'_registration'});
+        $scan_vid = $PRE_SCAN_VID if ($this->{'_pre_registration'});
         pf::scan::parse_scan_report($this,$scan_vid);
 
         return $TRUE;
@@ -292,7 +293,7 @@ sub startTask {
     if ( defined($response) && $response eq $RESPONSE_REQUEST_SUBMITTED ) {
         $logger->info("Scan task named $name successfully started");
         $this->{_reportId} = $report_id;
-        $this->{'_status'} = $pf::scan::STATUS_STARTED;
+        $this->{'_status'} = $STATUS_STARTED;
         $this->statusReportSyncToDb();
         return $TRUE;
     }

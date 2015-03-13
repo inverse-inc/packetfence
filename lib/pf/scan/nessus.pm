@@ -24,6 +24,8 @@ use pf::config;
 use pf::scan;
 use pf::util;
 use pf::node;
+use pf::constants::scan;
+
 use Net::Nessus::XMLRPC;
 
 sub description { 'Nessus Scanner' }
@@ -95,16 +97,16 @@ sub startScan {
     my $scanname = "pf-".$hostaddr."-".$nessus_clientpolicy;
     my $scanid = $n->scan_new($polid, $scanname, $hostaddr);
 
-    my $scan_vid = $pf::scan::POST_SCAN_VID;
-    $scan_vid = $pf::scan::SCAN_VID if ($this->{'_registration'});
-    $scan_vid = $pf::scan::PRE_SCAN_VID if ($this->{'_pre_registration'});
+    my $scan_vid = $POST_SCAN_VID;
+    $scan_vid = $SCAN_VID if ($this->{'_registration'});
+    $scan_vid = $PRE_SCAN_VID if ($this->{'_pre_registration'});
 
     if ( $scanid eq "") {
         $logger->warn("Nessus scan doesnt start");
         return $scan_vid;
     }
     $logger->info("executing Nessus scan with this policy ".$nessus_clientpolicy);
-    $this->{'_status'} = $pf::scan::STATUS_STARTED;
+    $this->{'_status'} = $STATUS_STARTED;
     $this->statusReportSyncToDb();
 
     # Wait the scan to finish
