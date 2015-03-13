@@ -28,6 +28,7 @@ use pfappserver::Model::Node;
 use pfappserver::Form::Config::Wrix;
 use pfappserver::Form::Config::ProfileCommon;
 use pf::config;
+use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 
 use constant {
     APP => 'html/pfappserver',

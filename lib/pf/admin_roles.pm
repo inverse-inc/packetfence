@@ -19,12 +19,11 @@ use base qw(Exporter);
 use pf::file_paths;
 use List::MoreUtils qw(any all uniq);
 use pfconfig::cached_hash;
-use pf::constants::admin_roles;
+use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 
-our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group @ADMIN_ACTIONS %ADMIN_ROLES admin_allowed_options admin_allowed_options_all);
+our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all);
 our %ADMIN_ROLES;
 tie %ADMIN_ROLES, 'pfconfig::cached_hash', 'config::AdminRoles';
-*ADMIN_ACTIONS = \@pf::constants::admin_roles::ADMIN_ACTIONS;
 
 our %ADMIN_GROUP_ACTIONS = (
     CONFIGURATION_GROUP_READ => [
