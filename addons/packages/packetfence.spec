@@ -730,6 +730,10 @@ fi
                         /usr/local/pf/addons/logrotate
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
+%dir                    /usr/local/pf/addons/pfconfig
+%dir                    /usr/local/pf/addons/pfconfig/comparator
+%attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.sh
 %dir                    /usr/local/pf/addons/snort
 %attr(0755, pf, pf)     /usr/local/pf/addons/snort/update_rules.pl
                         /usr/local/pf/addons/snort/oinkmaster.conf
@@ -1077,6 +1081,8 @@ fi
 %files -n %{real_name}-config
 %attr(0755, root, root) %{_initrddir}/packetfence-config
 %dir                    /usr/local/pf
+%dir                    /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/pfconfig.conf
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/pfconfig
                         /usr/local/pf/lib/pfconfig/*
