@@ -2,14 +2,14 @@ package pf::iplog;
 
 =head1 NAME
 
-pf::iplog - module to manage the DHCP information and history. 
+pf::iplog - module to manage the DHCP information and history.
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::iplog contains the functions necessary to read and manage the DHCP
-information gathered by PacketFence on the network. 
+information gathered by PacketFence on the network.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -27,6 +27,7 @@ use Log::Log4perl;
 use Log::Log4perl::Level;
 use IO::Interface::Simple;
 use Net::ARP;
+use Time::Local;
 
 use constant IPLOG => 'iplog';
 
@@ -39,14 +40,14 @@ BEGIN {
         $iplog_db_prepared
 
         iplog_expire          iplog_shutdown
-        iplog_history_ip      iplog_history_mac 
+        iplog_history_ip      iplog_history_mac
         iplog_view_open       iplog_view_open_ip
-        iplog_view_open_mac   iplog_view_all 
-        iplog_open            iplog_close 
-        iplog_close_now       iplog_cleanup 
+        iplog_view_open_mac   iplog_view_all
+        iplog_open            iplog_close
+        iplog_close_now       iplog_cleanup
         iplog_update          iplog_close_mac
 
-        mac2ip 
+        mac2ip
         mac2allips
         ip2mac
     );
@@ -56,6 +57,8 @@ use pf::config;
 use pf::db;
 use pf::node qw(node_add_simple node_exist);
 use pf::util;
+use pf::CHI;
+use pf::OMAPI;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $iplog_db_prepared = 0;
@@ -138,7 +141,7 @@ sub iplog_history_ip {
 
     if ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) )
     {
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_ip_date_sql', 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_ip_date_sql',
             $ip, $params{'end_time'}, $params{'start_time'});
 
     } elsif (defined($params{'date'})) {
@@ -155,11 +158,11 @@ sub iplog_history_mac {
 
     if ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) )
     {
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_date_sql', $mac, 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_date_sql', $mac,
             $params{'end_time'}, $params{'start_time'});
 
     } elsif ( defined( $params{'date'} ) ) {
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_date_sql', $mac, 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_date_sql', $mac,
             $params{'date'}, $params{'date'});
 
     } else {
@@ -280,11 +283,15 @@ sub ip2mac {
         my @iplog = iplog_history_ip( $ip, ( 'date' => str2time($date) ) );
         $mac = $iplog[0]->{'mac'};
     } else {
-        my $iplog = iplog_view_open_ip($ip);
-        $mac = $iplog->{'mac'};
+        $mac = ip2macomapi($ip);
+
+        unless ($mac) {
+            my $iplog = iplog_view_open_ip($ip);
+            $mac = $iplog->{'mac'};
+        }
         if ( !$mac ) {
             $logger->debug("could not resolve $ip to mac in iplog table");
-            $mac = ip2macinarp($ip);
+            $mac = ip2macinarp($ip) unless $mac;
             if ( !$mac ) {
                 $logger->debug("trying to resolve $ip to mac using ping");
                 my @lines  = pf_run("/sbin/ip address show");
@@ -337,6 +344,15 @@ sub ip2mac {
     }
 }
 
+
+=head2 iplogCache
+
+Get the iplog cache
+
+=cut
+
+sub iplogCache { pf::CHI->new(namespace => 'iplog') }
+
 sub ip2macinarp {
     my ($ip) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iplog');
@@ -352,6 +368,44 @@ sub ip2macinarp {
     }
     $logger->info("could not resolve $ip to mac in ARP table");
     return (0);
+}
+
+=head2 ip2macomapi
+
+Look for the mac in the dhcpd lease entry using omapi
+
+=cut
+
+sub ip2macomapi {
+    my ($ip) = @_;
+    my $data = _lookup_cached_omapi('ip-address' => $ip);
+    return $data->{'obj'}{'hardware-address'} if defined $data;
+}
+
+=head2 mac2ipomapi
+
+Look for the ip in the dhcpd lease entry using omapi
+
+=cut
+
+sub mac2ipomapi {
+    my ($mac) = @_;
+    my $data = _lookup_cached_omapi('hardware-address' => $mac);
+    return $data->{'obj'}{'ip-address'} if defined $data;
+}
+
+=head2 _get_omapi_client
+
+Get the omapi client
+return undef if omapi is disabled
+
+=cut
+
+sub _get_omapi_client {
+    my ($self) = @_;
+    return unless isenabled($Config{omapi}{ip2mac_lookup});
+
+    return pf::OMAPI->new( $Config{omapi} );
 }
 
 sub mac2ip {
@@ -373,6 +427,61 @@ sub mac2ip {
         return ($ip);
     }
 }
+
+
+=head2 _lookup_cached_omapi
+
+Will retrieve the lease from the cache or from the dhcpd server using omapi
+
+=cut
+
+sub _lookup_cached_omapi {
+    my ($type, $id) = @_;
+    my $cache = iplogCache();
+    return $cache->compute(
+        $id,
+        {expire_if => \&_expire_lease},
+        sub {
+            my $data = _get_lease_from_omapi($type, $id);
+            return undef unless $data && $data->{op} == 3;
+            return $data;
+        }
+    );
+}
+
+=head2 _get_lease_from_omapi
+
+Get the lease information using omapi
+
+=cut
+
+sub _get_lease_from_omapi {
+    my ($type,$id) = @_;
+    my $omapi = _get_omapi_client();
+    return unless $omapi;
+    my $data;
+    eval {
+        $data = $omapi->lookup({type => 'lease'}, { $type => $id});
+    };
+    if($@) {
+        get_logger->error("$@");
+    }
+    return $data;
+}
+
+=head2 _expire_lease
+
+Check if the lease has expired
+
+=cut
+
+sub _expire_lease {
+    my ($cache_object) = @_;
+    my $lease = $cache_object->value;
+    return 1 unless defined $lease && defined $lease->{obj}->{ends};
+    return $lease->{obj}->{ends} < timegm( localtime()  );
+}
+
 
 sub mac2allips {
     my ($mac) = @_;

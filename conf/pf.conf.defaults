@@ -758,6 +758,33 @@ pfcmd_warning_color=yellow
 # Color of the success text for pfcmd
 pfcmd_success_color=green
 
+[omapi]
+#
+# omapi.use_omapi_to_lookup_mac
+#
+# Use omapi to query dhcpd for the mac address of an ip
+ip2mac_lookup=enabled
+#
+# omapi.omapi_key_name
+#
+# The omapi key name for signing messages
+key_name=pf_omapi_key
+#
+# omapi.omapi_key_base64
+#
+# The omapi base64 key for signing messages
+key_base64=
+#
+# omapi.omapi_port
+#
+# Use omapi port number
+port=7911
+#
+# omapi.omapi_host
+#
+# The omapi host
+host=localhost
+
 [provisioning]
 #
 # provisioning.autoconfig
