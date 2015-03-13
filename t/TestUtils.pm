@@ -16,6 +16,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 use File::Find;
+use FindBin qw($Bin);
 
 BEGIN {
     use Exporter ();
@@ -62,8 +63,6 @@ our @unit_tests = qw(
     Portal.t radius.t services.t SNMP.t soh.t SwitchFactory.t trigger.t useragent.t util.t util-dhcp.t util-radius.t
     vlan.t web.t
 );
-
-push @unit_tests,get_all_unittests();
 
 our @unit_failing_tests = qw(
     network-devices/wired.t
@@ -235,10 +234,10 @@ sub get_all_unittests {
     # find2perl /usr/local/pf/lib/pf/Switch -name "*.pm"
     File::Find::find({
         wanted => sub {
-            if ($File::Find::name =~ m#^/usr/local/pf/t/unittest/(.*\.t)$# ) {
+            if ($File::Find::name =~ m#^\Q$Bin\E/unittest/(.*\.t)$# ) {
                 push(@list, "unittest/$1");
             }
-        }}, '/usr/local/pf/t/unittest'
+        }}, "$Bin/unittest"
     );
     return @list;
 }
