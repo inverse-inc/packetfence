@@ -41,7 +41,6 @@ use pf::node qw(nodes_registered_not_violators);
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::authentication;
-use pf::ConfigStore::Provisioning;
 
 # This is the content that needs to match in the iptable rules for the service
 # to be considered as running
@@ -639,13 +638,13 @@ sub generate_interception_rules {
 
 sub generate_provisioning_passthroughs {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
-    foreach my $config (pf::ConfigStore::Provisioning->new->search(type => 'sepm')) {
+    foreach my $config (search_hash(\%ConfigProvisioning, type => 'sepm')) {
         $logger->info("Adding passthrough for Symantec Endpoint Manager");
         my $cmd = "LANG=C sudo ipset --add pfsession_passthrough $config->{'host'},8014 2>&1";
         my @lines  = pf_run($cmd); 
     }
 
-    foreach my $config (pf::ConfigStore::Provisioning->new->search(type => 'mobileiron')) {
+    foreach my $config (search_hash(\%ConfigProvisioning, type => 'mobileiron')) {
         $logger->info("Adding passthrough for MobileIron");
         # Allow the host for the onboarding of devices
         my $cmd = "LANG=C sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1";
@@ -658,7 +657,7 @@ sub generate_provisioning_passthroughs {
         @lines  = pf_run($cmd); 
     }
 
-    foreach my $config (pf::ConfigStore::Provisioning->new->search(type => 'opswat')) {
+    foreach my $config (search_hash(\%ConfigProvisioning, type => 'opswat')) {
         $logger->info("Adding passthrough for OPSWAT");
         # Allow http communication with the MobileIron server
         my $cmd = "LANG=C sudo ipset --add pfsession_passthrough $config->{host},80 2>&1";

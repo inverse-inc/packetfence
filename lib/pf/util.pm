@@ -55,6 +55,7 @@ BEGIN {
         untaint_chain read_dir_recursive all_defined
         valid_mac_or_ip listify
         normalize_time
+        search_hash
     );
 }
 
@@ -926,6 +927,27 @@ sub normalize_time {
         } elsif ( $modifier eq "Y" ) { return ( $num * 365 * 24 * 60 * 60 );
         }
     }
+}
+
+=item search_hash
+
+Used to search for an element in a hash that has a specific value in one of it's field
+
+Ex : 
+my %h = {
+  'test' => {'result' => '2'},
+  'test2' => {'result' => 'success'}
+}
+
+Searching for field result with value 'success' would return the value of test2
+
+{'result' => 'success'} == search_hash(\%h, 'result', 'success');
+
+=cut
+
+sub search_hash {
+    my ($h, $field, $value) = @_;
+    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } values %{$h};
 }
 
 =back
