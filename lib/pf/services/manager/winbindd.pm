@@ -72,14 +72,16 @@ sub build_namespaces(){
         # untaint the variable
         $net =~ m|([\w\-\/]*)|;
         $net = $1;
-        my @args = ("sudo", "ip", "netns", "delete", $net);
+        my @args = ("sudo", "ip", "link", "delete", "$net-b");
         system(@args);
+        @args = ("sudo", "ip", "netns", "delete", $net);
+        system(@args);
+
     } 
 
     my $i = 1;
 
     foreach my $domain (keys %ConfigDomain){
-
         my $CHROOT_PATH=pf::domain::chroot_path($domain);
         my $LOGDIRECTORY="/var/log/samba$domain";
         my $OUTERLOGDIRECTORY="$CHROOT_PATH/$LOGDIRECTORY";
