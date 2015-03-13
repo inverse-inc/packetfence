@@ -270,109 +270,52 @@ sub iplog_expire {
     return db_data(IPLOG, $iplog_statements, 'iplog_expire_sql', $time);
 }
 
-sub ip2mac {
-    my ( $ip, $date ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iplog');
-    my $mac;
-    return (0) if ( !valid_ip($ip) );
-    if (ref($management_network) && $management_network->{'Tip'} eq $ip) {
-        return ( clean_mac("00:11:22:33:44:55") );
-    }
-    if ($date) {
-        return if ( !valid_date($date) );
-        my @iplog = iplog_history_ip( $ip, ( 'date' => str2time($date) ) );
-        $mac = $iplog[0]->{'mac'};
-    } else {
-        $mac = ip2macomapi($ip);
+=head2 ip2mac
 
-        unless ($mac) {
-            my $iplog = iplog_view_open_ip($ip);
-            $mac = $iplog->{'mac'};
-        }
-        if ( !$mac ) {
-            $logger->debug("could not resolve $ip to mac in iplog table");
-            $mac = ip2macinarp($ip) unless $mac;
-            if ( !$mac ) {
-                $logger->debug("trying to resolve $ip to mac using ping");
-                my @lines  = pf_run("/sbin/ip address show");
-                my $lineNb = 0;
-                my $src_ip = undef;
-                while (( $lineNb < scalar(@lines) )
-                    && ( !defined($src_ip) ) )
-                {
-                    my $line = $lines[$lineNb];
-                    if ( $line
-                        =~ /inet ([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\/([0-9]+)/
-                        )
-                    {
-                        my $tmp_src_ip   = $1;
-                        my $tmp_src_bits = $2;
-                        my $block
-                            = new Net::Netmask("$tmp_src_ip/$tmp_src_bits");
-                        if ( $block->match($ip) ) {
-                            $src_ip = $tmp_src_ip;
-                            $logger->debug(
-                                "found $ip in Network $tmp_src_ip/$tmp_src_bits"
-                            );
-                        }
-                    }
-                    $lineNb++;
-                }
-                if ( defined($src_ip) ) {
-                    my $ping = Net::Ping->new();
-                    $logger->debug("binding ping src IP to $src_ip for ping");
-                    $ping->bind($src_ip);
-                    $ip = clean_ip($ip);
-                    $ping->ping( $ip, 2 );
-                    $ping->close();
-                    $mac = ip2macinarp($ip);
-                } else {
-                    $logger->debug("unable to find an IP address on PF host in the same broadcast domain than $ip "
-                        . "-> won't send ping");
-                }
-            }
-            if ($mac) {
-                iplog_open( $mac, $ip );
-            }
-        }
-    }
-    if ( !$mac ) {
-        $logger->warn("could not resolve $ip to mac");
-        return (0);
-    } else {
-        return ( clean_mac($mac) );
-    }
-}
+Lookup for the MAC address of a given IP address
 
-
-=head2 iplogCache
-
-Get the iplog cache
+Returns '0' if no match
 
 =cut
 
-sub iplogCache { pf::CHI->new(namespace => 'iplog') }
-
-sub ip2macinarp {
-    my ($ip) = @_;
+sub ip2mac {
+    my ( $ip ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iplog');
+
     return (0) if ( !valid_ip($ip) );
-    $ip = clean_ip($ip);
-    my @interfaces = IO::Interface::Simple->interfaces;
-    for my $if (@interfaces) {
-        my $mac = Net::ARP::arp_lookup($if,$ip);
-        if ( $mac ne 'unknown') {
-            $mac = clean_mac($mac);
-            return $mac;
-        }
+
+    my $mac;
+
+    # TODO: Special case that need to be documented
+    if (ref($management_network) && $management_network->{'Tip'} eq $ip) {
+        return ( clean_mac("00:11:22:33:44:55") );
     }
-    $logger->info("could not resolve $ip to mac in ARP table");
-    return (0);
+
+    # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
+    if ( isenabled($Config{omapi}{ip2mac_lookup}) ) {
+        $logger->debug("Trying to match MAC address to IP '$ip' using OMAPI");
+        $mac = ip2macomapi($ip);
+        $logger->info("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
+    }
+
+    # If we don't have a result from OMAPI, we use the SQL iplog table
+    unless ($mac) {
+        $logger->debug("Trying to match MAC address to IP '$ip' using SQL iplog table");
+        $mac = ip2macsql($ip);
+        $logger->info("Matched IP '$ip' to MAC address '$mac' using SQL iplog table") if $mac;
+    }
+
+    if ( !$mac ) {
+        $logger->warn("Unable to match MAC address to IP '$ip'");
+        return (0);
+    }
+
+    return clean_mac($mac);
 }
 
 =head2 ip2macomapi
 
-Look for the mac in the dhcpd lease entry using omapi
+Look for the MAC address of a given IP address in the DHCP leases using OMAPI
 
 =cut
 
@@ -381,6 +324,26 @@ sub ip2macomapi {
     my $data = _lookup_cached_omapi('ip-address' => $ip);
     return $data->{'obj'}{'hardware-address'} if defined $data;
 }
+
+=head2 ip2macsql
+
+Look for the MAC address of a given IP address using the SQL 'iplog' table
+
+=cut
+
+sub ip2macsql {
+    my ( $ip ) = @_;
+    my $iplog = iplog_view_open_ip($ip);
+    return $iplog->{'mac'};
+}
+
+=head2 iplogCache
+
+Get the iplog cache
+
+=cut
+
+sub iplogCache { pf::CHI->new(namespace => 'iplog') }
 
 =head2 mac2ipomapi
 
