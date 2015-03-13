@@ -279,7 +279,7 @@ Returns '0' if no match
 
 sub ip2mac {
     my ( $ip ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iplog');
+    my $logger = pf::log::get_logger();
 
     return (0) if ( !valid_ip($ip) );
 
@@ -297,11 +297,11 @@ sub ip2mac {
         $logger->info("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
     }
 
-    # If we don't have a result from OMAPI, we use the SQL iplog table
+    # If we don't have a result from OMAPI, we use the SQL 'iplog' table
     unless ($mac) {
-        $logger->debug("Trying to match MAC address to IP '$ip' using SQL iplog table");
+        $logger->debug("Trying to match MAC address to IP '$ip' using SQL 'iplog' table");
         $mac = ip2macsql($ip);
-        $logger->info("Matched IP '$ip' to MAC address '$mac' using SQL iplog table") if $mac;
+        $logger->info("Matched IP '$ip' to MAC address '$mac' using SQL 'iplog' table") if $mac;
     }
 
     if ( !$mac ) {
