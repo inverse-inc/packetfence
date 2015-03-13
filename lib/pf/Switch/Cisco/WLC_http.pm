@@ -164,8 +164,9 @@ sub returnRadiusAccessAccept {
     }
 
 
-    # if Roles aren't configured, return VLAN information
-    if (isenabled($this->{_VlanMap}) ) {
+    # if vlan assignement is activated, then we use it for 802.1x connections
+    # we don't return a VLAN for MAC auth since that's why the other WLC modules are there
+    if (isenabled($this->{_VlanMap}) && !($connection_type eq $WIRELESS_MAC_AUTH)) {
 
         $radius_reply_ref = {
             %$radius_reply_ref,
