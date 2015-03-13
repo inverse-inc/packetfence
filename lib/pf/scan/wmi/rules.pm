@@ -120,7 +120,7 @@ sub parseResult {
     my @entries = split(/\|/,shift @answer);
 
 
-    foreach $line (@ans) {
+    foreach $line (@answer) {
         my @values = split(/\|/,$line);
         my $j = 0;
         foreach my $elements (@entries) {
