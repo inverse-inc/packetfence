@@ -23,6 +23,7 @@ use pf::file_paths;
 use pf::util;
 use pfconfig::namespaces::resource::guest_self_registration;
 use pf::factory::profile::filter;
+use pf::constants::Portal::Profile;
 
 use base 'pfconfig::namespaces::config';
 
@@ -86,8 +87,6 @@ sub build_child {
     return \%Profiles_Config;
 
 }
-
-=back
 
 =head1 AUTHOR
 
