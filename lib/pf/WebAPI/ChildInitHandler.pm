@@ -1,4 +1,4 @@
-package pf::WebAPI::InitHandler;
+package pf::WebAPI::ChildInitHandler;
 =head1 NAME
 
 pf::WebAPI::InitHandler
@@ -16,25 +16,13 @@ use warnings;
 
 use Apache2::RequestRec ();
 use pf::config::cached;
+use pf::StatsD;
 
 use Apache2::Const -compile => 'OK';
 
 sub handler {
     my $r = shift;
-    pf::config::cached::ReloadConfigs();
-    return Apache2::Const::OK;
-}
-
-=head2 child_init
-
-Initialize the child process
-
-=cut
-
-sub child_init {
-    my ($child_pool, $s) = @_;
-    #Avoid child processes having the same random seed
-    srand();
+    pf::StatsD->initStatsd;
     return Apache2::Const::OK;
 }
 
@@ -46,7 +34,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
