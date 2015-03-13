@@ -18,7 +18,6 @@ use Template;
 use pf::util;
 use pf::config;
 use pf::log;
-use pf::services;
 use pf::file_paths;
 
 our $TT_OPTIONS = {ABSOLUTE => 1};
