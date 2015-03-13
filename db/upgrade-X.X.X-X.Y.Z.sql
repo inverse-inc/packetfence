@@ -31,6 +31,7 @@ CREATE TABLE iplog_old (
 
 ALTER TABLE iplog MODIFY mac varchar(255) NOT NULL;
 ALTER TABLE iplog MODIFY ip varchar(255) NOT NULL;
+ALTER TABLE iplog ADD PRIMARY KEY(ip);
 
 --
 -- Table structure for table 'iplog_history'

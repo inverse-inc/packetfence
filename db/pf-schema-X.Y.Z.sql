@@ -211,6 +211,7 @@ CREATE TABLE iplog (
   ip varchar(255) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
+  PRIMARY KEY (ip),
   KEY `ip_view_open` (`ip`, `end_time`),
   KEY `mac_view_open` (`mac`, `end_time`),
   KEY `iplog_end_time` ( `end_time`),
