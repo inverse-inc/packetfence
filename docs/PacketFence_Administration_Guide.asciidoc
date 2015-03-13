@@ -2787,7 +2787,7 @@ First make sure you have the following packages installed :
 Get the source code of the sensor
 ----
 # mkdir -p ~/udp-reflector && cd ~/udp-reflector
-# wget https://raw.githubusercontent.com/julsemaan/udp-reflector/master/linux/udp_reflector.cpp
+# wget http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.cpp
 # g++ udp_reflector.cpp -o /usr/local/bin/udp_reflector -lpcap
 ----
 
