@@ -27,14 +27,13 @@
         <a class="btn btn-default" id="refresh_domains" href="[% c.uri_for(c.controller.action_for('refresh_domains')) %]">[% l('Refresh domain configuration') %]</a>
       </div>
 
-<div class="modal modal-large fade hide" id="modalDomainWait">
+<div class="modal modal-large fade hide" id="modalDomainWait" data-backdrop="static" data-keyboard="false">
   <div class="modal-body">
     <h3>The server is currently connecting to your Active directory</h3>
+    <div class="progress progress-info">
+      <div id="domainProgressBar" class="bar" style="width:1%"></div>
+    </div>
   </div><!--modal-body-->
-
-  <div class="modal-footer">
-    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-  </div>
 </div>
 
 <div class="modal modal-large fade hide" id="modalDomainInfo">

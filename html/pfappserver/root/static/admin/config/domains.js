@@ -1,7 +1,7 @@
-var view;
+var domainView;
 $(function() { // DOM ready
     var items = new Domains();
-    view = new DomainView({ items: items, parent: $('#section') });
+    domainView = new DomainView({ items: items, parent: $('#section') });
 });
 
 /*
@@ -29,41 +29,49 @@ DomainView.prototype = (function(){
     return new F();
 })();
 
-DomainView.prototype.constructor = FloatingDeviceView;
+DomainView.prototype.constructor = ItemView;
 
-ItemView.prototype.updateItem = function(e) {
-    e.preventDefault();
+DomainView.prototype.showWait = function(title) {
+  var that = this;
+  $('#modalDomainWait h3').html(title); 
+  $('#modalDomainWait').modal('show');
+  $('#domainProgressBar').css('width', '1%');
+}
 
-    var that = this;
-    var form = $(e.target);
-    var table = $(this.items.id);
-    var btn = form.find('.btn-primary');
-    var modal = form.closest('.modal');
-    var valid = isFormValid(form);
-    if (valid) {
-        var modal_body = modal.find('.modal-body').first();
-        resetAlert(modal_body);
-        btn.button('loading');
-        form.find('tr.hidden :input').attr('disabled', 'disabled');
-        this.items.post({
-            url: form.attr('action'),
-            data: form.serialize(),
-            always: function() {
-                // Restore hidden/template rows
-                form.find('tr.hidden :input').removeAttr('disabled');
-                btn.button('reset');
-            },
-            success: function(data) {
-                modal.modal('toggle');
-                var content = $('<div></div>');
-                content.append('<h3>Result of the domain join</h3>'); 
-                content.append($('<pre>'+data.items['join_output']+'</pre>')); 
-                that.showResultModal(content); 
-                that.list();
-            },
-            errorSibling: modal_body.children().first()
-        });
-    }
+DomainView.prototype.updateItem = function(e) {
+  e.preventDefault();
+
+  var that = this;
+  var form = $(e.target);
+  var table = $(this.items.id);
+  var btn = form.find('.btn');
+  var modal = form.closest('.modal');
+  var valid = isFormValid(form);
+  if (valid) {
+      var modal_body = modal.find('.modal-body').first();
+      resetAlert(modal_body);
+      form.find('tr.hidden :input').attr('disabled', 'disabled');
+      modal.modal('hide');
+      that.showWait("The server is currently joining the domain");
+      this.items.post({
+          url: form.attr('action'),
+          data: form.serialize(),
+          always: function() {
+              // Restore hidden/template rows
+              form.find('tr.hidden :input').removeAttr('disabled');
+              btn.button('reset');
+              $('#modalDomainWait').modal('hide');          
+          },
+          success: function(data) {
+              var content = $('<div></div>');
+              content.append('<h3>Result of the domain join</h3>'); 
+              content.append($('<pre>'+data.items['join_output']+'</pre>')); 
+              that.showResultModal(content); 
+              that.list();
+          },
+          errorSibling: $('#section')
+      });
+  }
 };
 
 DomainView.prototype.showResultModal = function(title, content){
@@ -82,19 +90,20 @@ $(document).ready(function(){
     jbtn.attr('disabled', 'disabled');
     // needs to be i18ned 
     jbtn.html("Rejoining domain");
+    domainView.showWait("The server is rejoining the domain.");
     $.ajax({
         'url'   : jbtn.attr('href'),
         'type'  : "GET",
         })
         .success(function(data) {
-            console.log(data);
             $("body,html").animate({scrollTop:0}, 'fast');
             var content = $('<div></div>');
             content.append('<h3>Result of the domain leave</h3>'); 
             content.append($('<pre>'+data.items['leave_output']+'</pre>')); 
             content.append('<h3>Result of the domain join</h3>'); 
             content.append($('<pre>'+data.items['join_output']+'</pre>')); 
-            view.showResultModal(content); 
+            $('#modalDomainWait').modal('hide');
+            domainView.showResultModal(content); 
             jbtn.html(initial_content);
             jbtn.removeAttr('disabled');
         })
@@ -109,20 +118,20 @@ $(document).ready(function(){
   });
 
   $('#section').on('click', '#refresh_domains', function(event){
-    console.log("hello")
     
     event.preventDefault()
     var initial_content = $('#refresh_domains').html();
     $('#refresh_domains').attr('disabled', 'disabled');
     // need to be i18ned 
     $('#refresh_domains').html("Refreshing domains");
+    domainView.showWait("The server is refreshing the configuration.");
     $.ajax({
         'url'   : $('#refresh_domains').attr('href'),
         'type'  : "GET",
         })
         .success(function(data) {
-            console.log(data);
             $("body,html").animate({scrollTop:0}, 'fast');
+            $('#modalDomainWait').modal('hide');
             showSuccess($('#section h2'), data.status_msg);
             $('#refresh_domains').html(initial_content);
             $('#refresh_domains').removeAttr('disabled');
@@ -135,5 +144,22 @@ $(document).ready(function(){
             $('#refresh_domains').removeAttr('disabled');
         });
     });
-    return false;
+
+  setInterval(function(){
+    var width = $('#domainProgressBar').width();
+    if(!width && width !== 0) return; 
+    var parentWidth = $('#domainProgressBar').offsetParent().width();
+    var width = 100*width/parentWidth;
+    if(width == 100){
+      width = 0;
+    }
+    else{
+      width += 10;
+      if(width > 100){
+        width = 100;
+      }
+    }
+    $('#domainProgressBar').css('width', width+'%');
+  }, 15000);
+
 })
