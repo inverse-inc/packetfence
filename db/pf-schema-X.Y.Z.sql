@@ -207,8 +207,8 @@ CREATE TABLE violation (
 --
 
 CREATE TABLE iplog (
-  mac varchar(17) NOT NULL,
-  ip varchar(15) NOT NULL,
+  mac varchar(255) NOT NULL,
+  ip varchar(255) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
   KEY `ip_view_open` (`ip`, `end_time`),
@@ -218,12 +218,23 @@ CREATE TABLE iplog (
 ) ENGINE=InnoDB;
 
 --
+-- Table structure for table `iplog_old`
+--
+
+CREATE TABLE iplog_old (
+  mac varchar(255) NOT NULL,
+  ip varchar(255) NOT NULL,
+  start_time datetime NOT NULL,
+  end_time datetime default "0000-00-00 00:00:00"
+) ENGINE=InnoDB;
+
+--
 -- Table structure for table `iplog_history`
 --
 
 CREATE TABLE iplog_history (
-  mac varchar(17) NOT NULL,
-  ip varchar(15) NOT NULL,
+  mac varchar(255) NOT NULL,
+  ip varchar(255) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00"
 ) ENGINE=InnoDB;
