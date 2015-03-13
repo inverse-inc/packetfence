@@ -30,6 +30,7 @@ use Net::ARP;
 use Time::Local;
 
 use constant IPLOG => 'iplog';
+use constant IPLOG_CACHE_EXPIRE => 60;
 
 BEGIN {
     use Exporter ();
@@ -404,7 +405,7 @@ sub _lookup_cached_omapi {
     my $cache = iplogCache();
     return $cache->compute(
         $id,
-        {expire_if => \&_expire_lease},
+        {expire_if => \&_expire_lease, expire_in => IPLOG_CACHE_EXPIRE},
         sub {
             my $data = _get_lease_from_omapi($type, $id);
             return undef unless $data && $data->{op} == 3;
