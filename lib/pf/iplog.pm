@@ -20,13 +20,10 @@ Read the F<pf.conf> configuration file.
 use strict;
 use warnings;
 
-use Net::Netmask;
-use Net::Ping;
 use Date::Parse;
 use Log::Log4perl;
 use Log::Log4perl::Level;
 use IO::Interface::Simple;
-use Net::ARP;
 use Time::Local;
 
 use constant IPLOG => 'iplog';
