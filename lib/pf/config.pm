@@ -418,57 +418,6 @@ our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 
 =over
 
-=item init_config
-
-Load configuration. Can be used to reload it too.
-
-WARNING: This has been recently introduced and was not tested with our
-multi-threaded daemons.
-
-=cut
-
-sub init_config {
-    tie %Doc_Config, 'pfconfig::cached_hash', 'config::Documentation';
-
-    tie %Config, 'pfconfig::cached_hash', 'config::Pf';
-
-    tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
-
-    tie @dhcplistener_ints,  'pfconfig::cached_array', 'interfaces::dhcplistener_ints';
-    tie @ha_ints, 'pfconfig::cached_array', 'interfaces::ha_ints';
-    tie @listen_ints, 'pfconfig::cached_array', 'interfaces::listen_ints';
-
-    tie @inline_enforcement_nets, 'pfconfig::cached_array', 'interfaces::inline_enforcement_nets';
-    tie @internal_nets, 'pfconfig::cached_array', 'interfaces::internal_nets';
-    tie @vlan_enforcement_nets, 'pfconfig::cached_array', 'interfaces::vlan_enforcement_nets';
-
-    tie $management_network, 'pfconfig::cached_scalar', 'interfaces::management_network';
-    tie $monitor_int, 'pfconfig::cached_scalar', 'interfaces::monitor_int';
-
-    tie %CAPTIVE_PORTAL, 'pfconfig::cached_hash', 'resource::CaptivePortal';
-    tie $fqdn, 'pfconfig::cached_scalar', 'resource::fqdn';
-
-    tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
-    tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
-
-    tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
-    tie @routed_isolation_nets, 'pfconfig::cached_array', 'interfaces::routed_isolation_nets';    
-    tie @routed_registration_nets, 'pfconfig::cached_array', 'interfaces::routed_registration_nets';    
-    tie @inline_nets, 'pfconfig::cached_array', 'interfaces::inline_nets';
-
-    tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
-
-    tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
-
-    tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
-
-    tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
-
-    tie %ConfigScan, 'pfconfig::cached_hash', 'config::Scan';
-
-    tie %ConfigWmi, 'pfconfig::cached_hash', 'config::Wmi';
-}
-
 =item ipset_version -  check the ipset version on the system
 
 =cut
