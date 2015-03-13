@@ -211,11 +211,7 @@ CREATE TABLE iplog (
   ip varchar(255) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
-  PRIMARY KEY (ip),
-  KEY `ip_view_open` (`ip`, `end_time`),
-  KEY `mac_view_open` (`mac`, `end_time`),
-  KEY `iplog_end_time` ( `end_time`),
-  CONSTRAINT `0_63` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE
+  PRIMARY KEY (ip)
 ) ENGINE=InnoDB;
 
 --
@@ -226,7 +222,7 @@ CREATE TABLE iplog_old (
   mac varchar(255) NOT NULL,
   ip varchar(255) NOT NULL,
   start_time datetime NOT NULL,
-  end_time datetime default "0000-00-00 00:00:00"
+  end_time datetime NOT NULL default CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 --
@@ -237,7 +233,7 @@ CREATE TABLE iplog_history (
   mac varchar(255) NOT NULL,
   ip varchar(255) NOT NULL,
   start_time datetime NOT NULL,
-  end_time datetime default "0000-00-00 00:00:00"
+  end_time datetime NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE os_type (
