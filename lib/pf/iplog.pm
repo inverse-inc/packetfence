@@ -405,7 +405,9 @@ sub _lookup_cached_omapi {
         {expire_if => \&_expire_lease, expires_in => IPLOG_CACHE_EXPIRE},
         sub {
             my $data = _get_lease_from_omapi($type, $id);
-            return undef unless $data && $data->{op} == 3;
+            return unless $data && $data->{op} == 3;
+            #Do not return the lease if it has expires
+            return if $data->{obj}->{ends} < timegm( localtime()  );
             return $data;
         }
     );
