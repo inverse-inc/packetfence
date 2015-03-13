@@ -14,6 +14,9 @@ pf::constants::admin_roles
 
 use strict;
 use warnings;
+use base qw(Exporter);
+
+our @EXPORT_OK = qw(@ADMIN_ACTIONS);
 
 our @ADMIN_ACTIONS = qw(
     ADMIN_ROLES_CREATE
