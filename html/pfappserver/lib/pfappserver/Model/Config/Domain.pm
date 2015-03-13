@@ -19,6 +19,8 @@ use pf::config::cached;
 use pf::config;
 use pf::ConfigStore::Domain;
 use pf::util;
+use pf::domain;
+use pf::file_paths;
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -43,24 +45,14 @@ sub search {
     }
 }
 
-sub run {
-    my ($self, $cmd) = @_;
-
-    my $result = `$cmd`;
-    my $code = $? >> 8;
-
-    return ($code , $result);
-
-}
-
 sub status {
     my ($self, $domain) = @_;
 
     my $info = $self->configStore->read($domain);
 
     my $chroot_path = pf::domain::chroot_path($domain);
-    my ($join_status, $join_output) = $self->run("sudo /sbin/ip netns exec $domain /usr/bin/net ads testjoin -s /etc/samba/$domain.conf");
-    my ($ntlm_auth_status, $ntlm_auth_output) = $self->run("/usr/bin/sudo /usr/sbin/chroot $chroot_path /usr/bin/ntlm_auth --username=$info->{bind_dn} --password=$info->{bind_pass}");
+    my ($ntlm_auth_status, $ntlm_auth_output) = pf::domain::test_auth($domain);
+    my ($join_status, $join_output) = pf::domain::test_join($domain);
   
     return ($ntlm_auth_status, $ntlm_auth_output, $join_status, $join_output);
 

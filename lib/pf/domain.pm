@@ -17,7 +17,6 @@ use Net::SNMP;
 use Template;
 use pf::util;
 use pf::config;
-use pf::ConfigStore::Domain;
 use pf::log;
 use pf::services;
 use pf::file_paths;
@@ -30,48 +29,73 @@ sub chroot_path {
     return $domains_chroot_dir."/".$domain; 
 }
 
+sub run {
+    my ($cmd) = @_;
+
+    my $result = `$cmd`;
+    my $code = $? >> 8;
+
+    return ($code , $result);
+}
+
+sub test_join {
+    my ($domain) = @_;
+    my ($status, $output) = run("sudo /sbin/ip netns exec $domain /usr/bin/net ads testjoin -s /etc/samba/$domain.conf");
+    return ($status, $output);
+}
+
+sub test_auth {
+    my ($domain) = @_;
+    my $chroot_path = chroot_path($domain);
+    my $info = $ConfigDomain{$domain};
+    my ($status, $output) = run("/usr/bin/sudo /usr/sbin/chroot $chroot_path /usr/bin/ntlm_auth --username=$info->{bind_dn} --password=$info->{bind_pass}");
+    return ($status, $output);
+}
+
+
 sub join_domain {
   my ($domain) = @_;
   my $logger = get_logger();
-  my $cfg = pf::ConfigStore::Domain->new;
 
   regenerate_configuration();
 
-  my $info = $cfg->read($domain);
-  $logger->debug("Joining $domain");
-  $logger->debug("domain join : ".pf_run("sudo ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}"));
+  my $info = $ConfigDomain{$domain};
+  my ($status, $output) = run("sudo ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
+  $logger->info("domain join : ".$output);
 
   restart_winbinds();
+  
+  return $output; 
 }
 
 sub rejoin_domain {
   my ($domain) = @_;
   my $logger = get_logger();
-  my $cfg = pf::ConfigStore::Domain->new;
 
-  my $info = $cfg->read($domain);
+  my $info = $ConfigDomain{$domain};
   if($info){
-    $logger->debug("domain leave : ".pf_run("sudo ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}"));
-    $logger->debug("domain join : ".pf_run("sudo ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}"));
-    restart_winbinds();
+    my ($leave_output) = unjoin_domain($domain);
+
+    my $join_output = join_domain($domain);
+
+    return {leave_output => $leave_output, join_output => $join_output};
   }
 }
 
 sub unjoin_domain {
   my ($domain) = @_;
   my $logger = get_logger();
-  my $cfg = pf::ConfigStore::Domain->new;
 
-  my $info = $cfg->read($domain);
+  my $info = $ConfigDomain{$domain};
   if($info){
-    $logger->debug("domain leave : ".system("sudo ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}"));
-    $logger->debug("netns deletion : ".system("sudo ip netns delete $domain"));
-    #restart_winbinds();
+    my ($status, $output) = run("sudo ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
+    $logger->info("domain leave : ".$output);
+    $logger->info("netns deletion : ".run("sudo ip netns delete $domain"));
+    return $output;
   }
   else{
     $logger->error("Domain $domain is not configured");
   }
-
 
 }
 
@@ -94,17 +118,6 @@ sub generate_smb_conf {
     pf_run("sudo chown pf_admin.pf_admin /etc/samba/$domain.conf");
     $template->process("/usr/local/pf/addons/AD/smb.tt", \%vars, "/etc/samba/$domain.conf") || $logger->error("Can't generate samba configuration for $domain : ".$template->error()); 
   }
-}
-
-sub generate_init_conf {
-  my $logger = get_logger();
-  foreach my $domain (keys %ConfigDomain){
-    my %vars = (domain => $domain);
-    pf_run("sudo touch /etc/init.d/winbind.$domain");
-    pf_run("sudo chown pf_admin.pf_admin /etc/init.d/winbind.$domain");
-    $template->process("/usr/local/pf/addons/AD/winbind.init.tt", \%vars, "/etc/init.d/winbind.$domain") || $logger->error("Can't generate init script for $domain : ".$template->error); 
-    pf_run("sudo chmod ug+x /etc/init.d/winbind.$domain");
-  } 
 }
 
 sub generate_resolv_conf {
@@ -132,7 +145,6 @@ sub regenerate_configuration {
   my $logger = get_logger();
   generate_krb5_conf();
   generate_smb_conf();
-  generate_init_conf();
   generate_resolv_conf();
   pf_run("sudo /usr/local/pf/bin/pfcmd service iptables restart");
   restart_winbinds();
