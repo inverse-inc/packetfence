@@ -264,7 +264,8 @@ Requires: perl(Test::NoWarnings)
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: mod_qos
-Requires: %{real_name}-config
+Requires: %{real_name}-config = %{ver}
+Requires: %{real_name}-pfcmd-suid = %{ver}
 
 %description -n %{real_name}
 
@@ -311,7 +312,6 @@ for sending MAC and IP from ARP requests to a PacketFence server.
 %package -n %{real_name}-pfcmd-suid
 Group: System Environment/Daemons
 BuildRequires: gcc
-Requires: %{real_name} >= 3.6.0
 AutoReqProv: 0
 Summary: Replace pfcmd by a C wrapper for suid
 
@@ -594,6 +594,15 @@ else
   echo "DH already exists, won't touch it!"
 fi
 
+#Check if RADIUS have a dh
+if [ ! -f /usr/local/pf/conf/pf.conf ]; then
+  echo "Touch pf.conf because it doesnt exist"
+  touch /usr/local/pf/conf/pf.conf
+  chown pf.pf /usr/local/pf/conf/pf.conf
+else
+  echo "pf.conf already exists, won't touch it!"
+fi
+
 #Add for sudo 
 if (grep "^Defaults.*requiretty" /etc/sudoers > /dev/null  ) ; then
   sed -i 's/^Defaults.*requiretty/#Defaults requiretty/g' /etc/sudoers
@@ -721,6 +730,10 @@ fi
                         /usr/local/pf/addons/logrotate
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
+%dir                    /usr/local/pf/addons/pfconfig
+%dir                    /usr/local/pf/addons/pfconfig/comparator
+%attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.sh
 %dir                    /usr/local/pf/addons/snort
 %attr(0755, pf, pf)     /usr/local/pf/addons/snort/update_rules.pl
                         /usr/local/pf/addons/snort/oinkmaster.conf
@@ -1068,6 +1081,8 @@ fi
 %files -n %{real_name}-config
 %attr(0755, root, root) %{_initrddir}/packetfence-config
 %dir                    /usr/local/pf
+%dir                    /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/pfconfig.conf
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/pfconfig
                         /usr/local/pf/lib/pfconfig/*

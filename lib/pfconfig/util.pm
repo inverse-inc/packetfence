@@ -16,6 +16,12 @@ Utilities function for pfconfig
 
 use strict;
 use warnings;
+use base qw(Exporter);
+use pf::constants::config qw(%NET_INLINE_TYPES);
+
+our @EXPORT_OK = qw(
+    is_type_inline
+);
 
 =head2 control_file_path
 
@@ -28,7 +34,14 @@ sub control_file_path {
     return "/usr/local/pf/var/control/" . $namespace . "-control";
 }
 
-=back
+=head2 is_type_inline
+
+=cut
+
+sub is_type_inline {
+    my ($type) = @_;
+    return exists $NET_INLINE_TYPES{$type};
+}
 
 =head1 AUTHOR
 

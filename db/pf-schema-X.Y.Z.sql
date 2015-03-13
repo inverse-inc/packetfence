@@ -332,10 +332,10 @@ CREATE TABLE `configfile` (
 ) ENGINE=InnoDB default CHARSET=latin1;
 
 --
--- Table structure for table `temporary_password`
+-- Table structure for table `password`
 --
 
-CREATE TABLE temporary_password (
+CREATE TABLE `password` (
   `pid` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `valid_from` datetime default NULL,
@@ -353,18 +353,18 @@ CREATE TABLE temporary_password (
 --
 
 INSERT INTO `person` (pid,notes) VALUES ("admin","Default Admin User - do not delete");
-INSERT INTO temporary_password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('admin', 'admin', NOW(), '2038-01-01', NULL, 'ALL', NULL);
+INSERT INTO password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('admin', 'admin', NOW(), '2038-01-01', NULL, 'ALL', NULL);
 
 --
--- Trigger to delete the temp password from 'temporary_password' when deleting the pid associated with
+-- Trigger to delete the temp password from 'password' when deleting the pid associated with
 --
 
-DROP TRIGGER IF EXISTS temporary_password_delete_trigger;
+DROP TRIGGER IF EXISTS password_delete_trigger;
 DELIMITER /
-CREATE TRIGGER temporary_password_delete_trigger AFTER DELETE ON person
+CREATE TRIGGER password_delete_trigger AFTER DELETE ON person
 FOR EACH ROW
 BEGIN
-  DELETE FROM temporary_password WHERE pid = OLD.pid;
+  DELETE FROM `password` WHERE pid = OLD.pid;
 END /
 DELIMITER ;
 

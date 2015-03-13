@@ -45,7 +45,34 @@ use pf::factory::profile::filter;
 use pf::profile::filter;
 use pf::profile::filter::all;
 use pf::constants::Portal::Profile;
-use pf::constants::config;
+use pf::constants::config qw(
+  $IF_ENFORCEMENT_VLAN
+  $IF_ENFORCEMENT_INLINE
+  $IF_ENFORCEMENT_INLINE_L2
+  $IF_ENFORCEMENT_INLINE_L3
+
+  $NET_TYPE_VLAN_REG
+  $NET_TYPE_VLAN_ISOL
+  $NET_TYPE_INLINE
+  $NET_TYPE_INLINE_L2
+  $NET_TYPE_INLINE_L3
+
+  $TIME_MODIFIER_RE
+  $ACCT_TIME_MODIFIER_RE
+  $DEADLINE_UNIT
+
+  $SELFREG_MODE_EMAIL
+  $SELFREG_MODE_SMS
+  $SELFREG_MODE_SPONSOR
+  $SELFREG_MODE_GOOGLE
+  $SELFREG_MODE_FACEBOOK
+  $SELFREG_MODE_GITHUB
+  $SELFREG_MODE_LINKEDIN
+  $SELFREG_MODE_WIN_LIVE
+  $SELFREG_MODE_NULL
+  $SELFREG_MODE_CHAINED
+  %NET_INLINE_TYPES
+);
 use pfconfig::cached_array;
 use pfconfig::cached_scalar;
 use pfconfig::cached_hash;
@@ -59,19 +86,19 @@ our (
 #pf.conf.default variables
     %Default_Config,
 #pf.conf variables
-    %Config, 
+    %Config,
 #network.conf variables
     %ConfigNetworks,
 #oauth2 variables
     %ConfigOAuth,
 #documentation.conf variables
-    %Doc_Config, 
+    %Doc_Config,
 #floating_network_device.conf variables
-    %ConfigFloatingDevices, 
+    %ConfigFloatingDevices,
 #firewall_sso.conf variables
     %ConfigFirewallSSO,
 #profiles.conf variables
-    @Profile_Filters, %Profiles_Config, 
+    @Profile_Filters, %Profiles_Config,
 
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
@@ -80,7 +107,7 @@ our (
     %CAPTIVE_PORTAL,
 #realm.conf
     %ConfigRealm,
-#provisioning.conf    
+#provisioning.conf
     %ConfigProvisioning,
 );
 
@@ -122,8 +149,8 @@ BEGIN {
         is_vlan_enforcement_enabled is_inline_enforcement_enabled is_type_inline
         is_in_list
         $LOG4PERL_RELOAD_TIMER
-        @Profile_Filters %Profiles_Config 
-        %ConfigFirewallSSO 
+        @Profile_Filters %Profiles_Config
+        %ConfigFirewallSSO
         $OS
         %Doc_Config
         %ConfigRealm
@@ -156,8 +183,8 @@ tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
 tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
 
 tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
-tie @routed_isolation_nets, 'pfconfig::cached_array', 'interfaces::routed_isolation_nets';    
-tie @routed_registration_nets, 'pfconfig::cached_array', 'interfaces::routed_registration_nets';    
+tie @routed_isolation_nets, 'pfconfig::cached_array', 'interfaces::routed_isolation_nets';
+tie @routed_registration_nets, 'pfconfig::cached_array', 'interfaces::routed_registration_nets';
 tie @inline_nets, 'pfconfig::cached_array', 'interfaces::inline_nets';
 
 tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
@@ -222,23 +249,6 @@ Readonly::Scalar our $OS => os_detection();
 Readonly our $IF_INTERNAL => 'internal';
 
 # Interface enforcement techniques
-Readonly our $IF_ENFORCEMENT_VLAN => $pf::constants::config::IF_ENFORCEMENT_VLAN;
-Readonly our $IF_ENFORCEMENT_INLINE => $pf::constants::config::IF_ENFORCEMENT_INLINE;
-Readonly our $IF_ENFORCEMENT_INLINE_L2 => $pf::constants::config::IF_ENFORCEMENT_INLINE_L2;
-Readonly our $IF_ENFORCEMENT_INLINE_L3 => $pf::constants::config::IF_ENFORCEMENT_INLINE_L3;
-
-# Network configuration parameters.
-Readonly our $NET_TYPE_VLAN_REG => $pf::constants::config::NET_TYPE_VLAN_REG;
-Readonly our $NET_TYPE_VLAN_ISOL => $pf::constants::config::NET_TYPE_VLAN_ISOL;
-Readonly our $NET_TYPE_INLINE => $pf::constants::config::NET_TYPE_INLINE;
-Readonly our $NET_TYPE_INLINE_L2 => $pf::constants::config::NET_TYPE_INLINE_L2;
-Readonly our $NET_TYPE_INLINE_L3 => $pf::constants::config::NET_TYPE_INLINE_L3;
-Readonly our %NET_INLINE_TYPES =>  (
-    $NET_TYPE_INLINE    => undef,
-    $NET_TYPE_INLINE_L2 => undef,
-    $NET_TYPE_INLINE_L3 => undef,
-);
-
 # connection type constants
 Readonly our $WIRELESS_802_1X   => 0b110000001;
 Readonly our $WIRELESS_MAC_AUTH => 0b100000010;
@@ -355,19 +365,6 @@ Readonly::Scalar our $ALWAYS => "always";
 Readonly::Scalar our $NO_PORT => 0;
 Readonly::Scalar our $NO_VLAN => 0;
 
-# Guest related
-# The values matches the external authentication sources types
-Readonly our $SELFREG_MODE_EMAIL => $pf::constants::config::SELFREG_MODE_EMAIL;
-Readonly our $SELFREG_MODE_SMS => $pf::constants::config::SELFREG_MODE_SMS;
-Readonly our $SELFREG_MODE_SPONSOR => $pf::constants::config::SELFREG_MODE_SPONSOR;
-Readonly our $SELFREG_MODE_GOOGLE => $pf::constants::config::SELFREG_MODE_GOOGLE;
-Readonly our $SELFREG_MODE_FACEBOOK => $pf::constants::config::SELFREG_MODE_FACEBOOK;
-Readonly our $SELFREG_MODE_GITHUB => $pf::constants::config::SELFREG_MODE_GITHUB;
-Readonly our $SELFREG_MODE_LINKEDIN   => $pf::constants::config::SELFREG_MODE_LINKEDIN;
-Readonly our $SELFREG_MODE_WIN_LIVE   => $pf::constants::config::SELFREG_MODE_WIN_LIVE;
-Readonly our $SELFREG_MODE_NULL   => $pf::constants::config::SELFREG_MODE_NULL;
-Readonly our $SELFREG_MODE_CHAINED   => $pf::constants::config::SELFREG_MODE_CHAINED;
-
 # SoH filters
 Readonly our $SOH_ACTION_ACCEPT => 'accept';
 Readonly our $SOH_ACTION_REJECT => 'reject';
@@ -418,11 +415,6 @@ Readonly our $LOG4PERL_RELOAD_TIMER => 5 * 60;
 # simple cache for faster config lookup
 my $cache_vlan_enforcement_enabled;
 my $cache_inline_enforcement_enabled;
-
-# Accepted time modifier values
-our $TIME_MODIFIER_RE = $pf::constants::config::TIME_MODIFIER_RE;
-our $ACCT_TIME_MODIFIER_RE = $pf::constants::config::ACCT_TIME_MODIFIER_RE;
-our $DEADLINE_UNIT = $pf::constants::config::DEADLINE_UNIT;
 
 # Bandwdith accounting values
 our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
@@ -554,7 +546,7 @@ sub dynamic_unreg_date {
         }
     } catch {
         $logger->error("Couldn't compute unregistration date from value '$trigger'. Unregistration date will be undefined.");
-        $unreg_date = undef; 
+        $unreg_date = undef;
     };
 
     return $unreg_date;

@@ -14,6 +14,36 @@ pf::constants::config
 
 use strict;
 use warnings;
+use base qw(Exporter);
+
+our @EXPORT_OK = qw(
+  $IF_ENFORCEMENT_VLAN
+  $IF_ENFORCEMENT_INLINE
+  $IF_ENFORCEMENT_INLINE_L2
+  $IF_ENFORCEMENT_INLINE_L3
+
+  $NET_TYPE_VLAN_REG
+  $NET_TYPE_VLAN_ISOL
+  $NET_TYPE_INLINE
+  $NET_TYPE_INLINE_L2
+  $NET_TYPE_INLINE_L3
+
+  $TIME_MODIFIER_RE
+  $ACCT_TIME_MODIFIER_RE
+  $DEADLINE_UNIT
+
+  $SELFREG_MODE_EMAIL
+  $SELFREG_MODE_SMS
+  $SELFREG_MODE_SPONSOR
+  $SELFREG_MODE_GOOGLE
+  $SELFREG_MODE_FACEBOOK
+  $SELFREG_MODE_GITHUB
+  $SELFREG_MODE_LINKEDIN
+  $SELFREG_MODE_WIN_LIVE
+  $SELFREG_MODE_NULL
+  $SELFREG_MODE_CHAINED
+  %NET_INLINE_TYPES
+);
 
 use Readonly;
 
@@ -44,6 +74,13 @@ Readonly our $SELFREG_MODE_LINKEDIN   => 'linkedin';
 Readonly our $SELFREG_MODE_WIN_LIVE   => 'windowslive';
 Readonly our $SELFREG_MODE_NULL   => 'null';
 Readonly our $SELFREG_MODE_CHAINED   => 'chained';
+
+Readonly our %NET_INLINE_TYPES =>  (
+    $NET_TYPE_INLINE    => undef,
+    $NET_TYPE_INLINE_L2 => undef,
+    $NET_TYPE_INLINE_L3 => undef,
+);
+
 
 =head1 AUTHOR
 

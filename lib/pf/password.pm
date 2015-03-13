@@ -1,12 +1,12 @@
-package pf::temporary_password;
+package pf::password;
 
 =head1 NAME
 
-pf::temporary_password - module to view, query and manage temporary passwords
+pf::password - module to view, query and manage temporary passwords
 
 =head1 DESCRIPTION
 
-pf::temporary_password contains the functions necessary to manage all aspects
+pf::password contains the functions necessary to manage all aspects
 of temporary passwords: creation, deletion, etc.
 utility methods generate activation codes and validate them.
 
@@ -16,8 +16,8 @@ Notice that this module doesn't export all its subs like our other modules do.
 This is an attempt to shift our paradigm towards calling with package names
 and avoid the double naming.
 
-For ex: pf::temporary_password::view() instead of
-pf::temporary_password::temporary_password_view()
+For ex: pf::password::view() instead of
+pf::password::password_view()
 
 Remove this note when it will be no longer relevant. ;)
 
@@ -39,14 +39,15 @@ use Crypt::GeneratePassword qw(word);
 use Log::Log4perl;
 use POSIX;
 use Readonly;
+use Switch;
 
 use pf::nodecategory;
 use pf::Authentication::constants;
 
-our $VERSION = 1.11;
+our $VERSION = 2.01;
 
 # Constants
-use constant TEMPORARY_PASSWORD => 'temporary_password';
+use constant PASSWORD => 'password';
 
 
 # Authenticatation return codes
@@ -63,14 +64,15 @@ BEGIN {
     our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        temporary_password_db_prepare
-        $temporary_password_db_prepared
+        password_db_prepare
+        $password_db_prepared
     );
 
     @EXPORT_OK = qw(
         view add modify
         create match_by_mail
         validate_password
+        bcrypt
         $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID
     );
 }
@@ -80,10 +82,10 @@ use pf::db;
 use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $temporary_password_db_prepared = 0;
+our $password_db_prepared = 0;
 # in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
 # the hash if required
-our $temporary_password_statements = {};
+our $password_statements = {};
 
 =head1 SUBROUTINES
 
@@ -92,64 +94,64 @@ TODO: This list is incomlete
 =over
 
 
-=item temporary_password_db_prepare
+=item password_db_prepare
 
 Instantiate SQL statements to be prepared
 
 =cut
 
-sub temporary_password_db_prepare {
+sub password_db_prepare {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $logger->debug("Preparing pf::temporary_password database queries");
+    $logger->debug("Preparing pf::password database queries");
 
-    $temporary_password_statements->{'temporary_password_view_sql'} = get_db_handle()->prepare(qq[
+    $password_statements->{'password_view_sql'} = get_db_handle()->prepare(qq[
         SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
             p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
-        FROM temporary_password t
+        FROM password t
         LEFT JOIN person p ON t.pid = p.pid
         LEFT JOIN node_category c ON t.category = c.category_id
         WHERE t.pid = ?
     ]);
 
-    $temporary_password_statements->{'temporary_password_view_email_sql'} = get_db_handle()->prepare(qq[
+    $password_statements->{'password_view_email_sql'} = get_db_handle()->prepare(qq[
         SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
             p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
-        FROM person p, temporary_password t
+        FROM person p, password t
         LEFT JOIN node_category c ON t.category = c.category_id
         WHERE t.pid = p.pid AND p.email = ?
     ]);
 
-    $temporary_password_statements->{'temporary_password_add_sql'} = get_db_handle()->prepare(qq[
-        INSERT INTO temporary_password
+    $password_statements->{'password_add_sql'} = get_db_handle()->prepare(qq[
+        INSERT INTO password
             (pid, password, valid_from, expiration, access_duration, access_level, category, sponsor, unregdate)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ]);
 
-    $temporary_password_statements->{'temporary_password_delete_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM temporary_password WHERE pid = ? ]
+    $password_statements->{'password_delete_sql'} = get_db_handle()->prepare(
+        qq [ DELETE FROM password WHERE pid = ? ]
     );
 
-    $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[
+    $password_statements->{'password_validate_password_sql'} = get_db_handle()->prepare(qq[
         SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from,
             UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59")) AS expiration,
             access_duration, category
-        FROM temporary_password
+        FROM password
         WHERE pid = ?
         ORDER BY expiration DESC
         LIMIT 1
     ]);
 
-    $temporary_password_statements->{'temporary_password_modify_actions_sql'} = get_db_handle()->prepare(qq[
-        UPDATE temporary_password
+    $password_statements->{'password_modify_actions_sql'} = get_db_handle()->prepare(qq[
+        UPDATE password
         SET valid_from = ?, expiration = ?, access_duration = ?, access_level = ?, category = ?, sponsor = ?, unregdate = ?
         WHERE pid = ?
     ]);
 
-    $temporary_password_statements->{'temporary_password_reset_password_sql'} = get_db_handle()->prepare(qq[
-        UPDATE temporary_password SET password = ? WHERE pid = ?
+    $password_statements->{'password_reset_password_sql'} = get_db_handle()->prepare(qq[
+        UPDATE password SET password = ? WHERE pid = ?
     ]);
 
-    $temporary_password_db_prepared = 1;
+    $password_db_prepared = 1;
 }
 
 =item view
@@ -161,7 +163,7 @@ view a temporary password record, returns an hashref
 sub view {
     my ($pid) = @_;
     my $query = db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_view_sql', $pid
+        PASSWORD, $password_statements, 'password_view_sql', $pid
     ) || return;
     my $ref = $query->fetchrow_hashref();
 
@@ -179,7 +181,7 @@ view the temporary password record associated to an email address, returns an ha
 sub view_email {
     my ($email) = @_;
     my $query = db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_view_email_sql', $email
+        PASSWORD, $password_statements, 'password_view_email_sql', $email
     ) || return;
     my $ref = $query->fetchrow_hashref();
 
@@ -188,20 +190,6 @@ sub view_email {
     return ($ref);
 }
 
-=item add
-
-add a temporary password record to the database
-
-=cut
-
-#sub add {
-#    my (%data) = @_;
-#
-#    return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements,
-#        'temporary_password_add_sql',
-#        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}
-#    ));
-#}
 
 =item _delete
 
@@ -213,7 +201,7 @@ sub _delete {
     my ($pid) = @_;
 
     return(db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_delete_sql', $pid
+        PASSWORD, $password_statements, 'password_delete_sql', $pid
     ));
 }
 
@@ -226,8 +214,8 @@ Creates a temporary password record for a given pid. Valid until given expiratio
 sub create {
     my (%data) = @_;
 
-    return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements,
-        'temporary_password_add_sql',
+    return(db_data(PASSWORD, $password_statements,
+        'password_add_sql',
         $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}, $data{'access_level'}, $data{'category'}, $data{'sponsor'}, $data{'unregdate'}
     ));
 }
@@ -281,36 +269,38 @@ Defaults to 0 (no per user limit)
 =cut
 
 sub generate {
-    my ($pid, $actions, $password) = @_;
+    my ( $pid, $actions, $password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my %data;
     $data{'pid'} = $pid;
+    $password ||= _generate_password();
 
-    # generate password
-    $data{'password'} = $password || _generate_password();
+    # hash password
+    $data{'password'} = _hash_password( $password, algorithm => $Config{'advanced'}{'hash_passwords'}, );
 
-    _update_from_actions(\%data, $actions);
+    _update_from_actions( \%data, $actions );
 
     # if an entry of the same pid already exist, delete it
-    if (defined(view($pid))) {
+    if ( defined( view($pid) ) ) {
         $logger->info("a new temporary account has been requested for $pid. Deleting previous entry");
         _delete($pid);
     }
 
     my @result = create(%data);
-    if (scalar @result == 1 && $result[0] == 0) {
+    if ( scalar @result == 1 && $result[0] == 0 ) {
         $logger->warn("something went wrong creating a new temporary password for $pid");
         return;
-    } else {
+    }
+    else {
         $logger->info("new temporary account successfully generated");
-        return $data{'password'};
+        return $password;
     }
 }
 
 =item _update_from_actions
 
-Updates temporary_password fields from an action list
+Updates password fields from an action list
 
 =cut
 
@@ -351,43 +341,45 @@ sub _update_from_actions {
 
 =item _update_field_for_action
 
-Updates temporary_password field from an action
+Updates password field from an action
 
 =cut
 
 sub _update_field_for_action {
-    my ($data, $actions, $action, $field, $default) = @_;
+    my ( $data, $actions, $action, $field, $default ) = @_;
     my @values = grep { $_->{type} eq $action } @{$actions};
-    if (scalar @values > 0) {
+    if ( scalar @values > 0 ) {
         $data->{$field} = $values[0]->{value};
-    } else {
+    }
+    else {
         $data->{$field} = $default;
     }
 }
 
 =item modify_actions
 
-Modify the temporary_password actions
+Modify the password actions
 
 =cut
 
 sub modify_actions {
-    my ($temporary_password, $actions) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ( $password, $actions ) = @_;
+    my $logger        = Log::Log4perl::get_logger(__PACKAGE__);
     my @ACTION_FIELDS = qw(
         valid_from expiration
         access_duration access_level category sponsor unregdate
-    ); # respect the prepared statement placeholders order
-    delete @{$temporary_password}{@ACTION_FIELDS};
-    _update_from_actions($temporary_password, $actions);
-    my $pid = $temporary_password->{pid};
+        );    # respect the prepared statement placeholders order
+    delete @{$password}{@ACTION_FIELDS};
+    _update_from_actions( $password, $actions );
+    my $pid   = $password->{pid};
     my $query = db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements,
-        'temporary_password_modify_actions_sql',
-        @{$temporary_password}{@ACTION_FIELDS}, $pid
+        PASSWORD,
+        $password_statements,
+        'password_modify_actions_sql',
+        @{$password}{@ACTION_FIELDS}, $pid
     );
     my $rows = $query->rows;
-    $logger->info("pid $pid modified") if $rows ;
+    $logger->info("pid $pid modified") if $rows;
     return ($rows);
 }
 
@@ -405,35 +397,38 @@ Return values:
 =cut
 
 sub validate_password {
-    my ($pid, $password) = @_;
+    my ( $pid, $password ) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $query = db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements,
-        'temporary_password_validate_password_sql', $pid
+        PASSWORD,
+        $password_statements,
+        'password_validate_password_sql', $pid
     );
 
     my $temppass_record = $query->fetchrow_hashref();
+
     # just get one row
     $query->finish();
 
-    if (!defined($temppass_record) || ref($temppass_record) ne 'HASH') {
+    if ( !defined($temppass_record) || ref($temppass_record) ne 'HASH' ) {
         return $AUTH_FAILED_INVALID;
     }
 
-    if ($temppass_record->{'password'} eq $password) {
+    if ( _check_password( $password, $temppass_record->{'password'}) ) {
+
         # password is valid but not yet valid
         # valid_from is in unix timestamp format so an int comparison is enough
         my $valid_from = $temppass_record->{'valid_from'};
-        if (defined $valid_from && $valid_from > time) {
+        if ( defined $valid_from && $valid_from > time ) {
             $logger->info("Password validation failed for $pid: password not yet valid");
             return $AUTH_FAILED_NOT_YET_VALID;
         }
 
         # password is valid but expired
         # expiration is in unix timestamp format so an int comparison is enough
-        if ($temppass_record->{'expiration'} < time) {
+        if ( $temppass_record->{'expiration'} < time ) {
             $logger->info("Password validation failed for $pid: password has expired");
             return $AUTH_FAILED_EXPIRED;
         }
@@ -447,9 +442,98 @@ sub validate_password {
     return $AUTH_FAILED_INVALID;
 }
 
+sub _check_password {
+    my ( $plaintext, $hash_string ) = @_;
+
+    # the algorithm is contained in the prefix of the password such as
+    # {md5}, {bcrypt} etc.
+    # Plaintext passwords have no prefix.
+    # We need to quotemeta the regex because it contains { and }
+    my $bcrypt_re = quotemeta('{bcrypt}');
+    my $md5_re    = quotemeta('{md5}');
+    my $nthash_re = quotemeta('{NT}');
+
+    switch ($hash_string) {
+        case /$bcrypt_re/ { return _check_bcrypt(@_) }
+        case /$md5_re/    { return undef }
+        case /$nthash_re/ { return undef }
+        else {
+            return $plaintext eq $hash_string ? $TRUE : $FALSE;
+        }
+    }
+}
+
+sub _hash_password {
+    my ( $plaintext, %params ) = @_;
+
+    switch ( $params{"algorithm"} ) {
+        case 'plaintext' { return $plaintext }
+        case 'bcrypt'    { return bcrypt( $plaintext, %params ) }
+        case 'nthash'    { return nthash $plaintext }
+        case 'md5'       { return md5 $plaintext }
+        else {
+            logger->error( "Unsupported hash algorithm " . $params{"algorithm"} );
+        }
+    }
+}
+
+sub nthash { return undef; }    # TODO
+
+sub md5 { return undef; }       # TODO
+
+sub _check_bcrypt {
+    my ( $plaintext, $hash_string ) = @_;
+    my ( $cost, $salt, $hash_value, $hashed_plaintext );
+
+    # Bcrypt is special. We need to parse the hash to know the work factor before comparing.
+    # A bcrypt hash looks like this:
+    # '$2a$05$1kdrBExRmcKCcDlNSKHREutpl02jsbx7.ug5C3SZ86N1QhqUF.aSW'
+    # where '$2a$' is the bcrypt prefix, 05 is the work factor, and the rest (after the final $)
+    # is the bcrypt base64 encoded salt (first 22 char) followed by the bcrypt base64 encoded hash value.
+    my $prefix_len        = 12;
+    my $cost_len          = 2;
+    my $salt_len          = 22;
+    my $before_salt       = $prefix_len + $cost_len + 1;    # +1 for the trailing $
+    my $before_hash_value = $before_salt + $salt_len;
+    $cost = substr( $hash_string, $prefix_len,  $cost_len );
+    $salt = substr( $hash_string, $before_salt, $salt_len );
+    $hash_value = substr( $hash_string, $before_hash_value );    # substr to the end of the string
+
+    $hashed_plaintext = _hash_password( $plaintext, algorithm => 'bcrypt', salt => $salt, cost => $cost );
+
+    if ( $hashed_plaintext eq $hash_string ) {
+        return $TRUE;
+    }
+    else {
+        return $FALSE;
+    }
+}
+
+sub bcrypt {
+    my ( $plaintext, %params ) = @_;
+
+    use Data::Entropy::Algorithms qw( rand_bits );
+    use Crypt::Eksblowfish::Bcrypt qw(bcrypt_hash en_base64 de_base64 );
+
+    my $salt
+        = $params{"salt"} ? de_base64( $params{"salt"} ) : rand_bits( 16 * 8 );  # blowfish requires 16 octets
+    my $cost = $params{"cost"} // $Config{'advanced'}{'hashing_cost'}
+        // 8;    # TODO: remove fallback once tests work
+
+    # A bcrypt hash looks like this:
+    # '$2a$05$1kdrBExRmcKCcDlNSKHREutpl02jsbx7.ug5C3SZ86N1QhqUF.aSW'
+    # where '$2a$' is the bcrypt prefix, 05 is the work factor, and the rest (after the final $)
+    # is the bcrypt base64 encoded salt (first 22 char) followed by the bcrypt base64 encoded hash value.
+    my $hash     = bcrypt_hash( { key_nul => 1, cost => $cost, salt => $salt, }, $plaintext );
+    my $hash_str = en_base64($hash);
+    my $cost_str = sprintf( "%02d", $cost ) . '$';
+    my $salt_str = en_base64($salt);
+    return '{bcrypt}' . '$2a$' . $cost_str . $salt_str . $hash_str;
+}
+
 =item reset_password
 
-Reset (change) a password for a user in the temporary_password table.
+Reset (change) a password for a user in the password table.
 
 =cut
 
@@ -460,12 +544,17 @@ sub reset_password {
     # Making sure pid/password are "ok"
     if ( !defined($pid) || !defined($password) || (length($pid) == 0) || (length($password) == 0) ) {
         $logger->error("Error while resetting the user password. Missing values.");
-        return;
+        return undef;
     }
 
+    # hash the password if required
+    if ( $Config{'advanced'}{'hash_passwords'} ne 'plaintext' ) { 
+        $password = _hash_password( $password, ( algorithm => $Config{'advanced'}{'hash_passwords'} ));
+    } 
+
     db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_reset_password_sql', $password, $pid
-    ) || return;
+        PASSWORD, $password_statements, 'password_reset_password_sql', $password, $pid
+    ) || return undef;
 }
 
 =back
