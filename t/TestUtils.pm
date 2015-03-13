@@ -29,7 +29,6 @@ BEGIN {
         get_networkdevices_modules get_networkdevices_classes
     );
 }
-
 use pf::config;
 
 # Tests are categorized here
@@ -61,9 +60,10 @@ our @unit_tests = qw(
     config.t enforcement.t floatingdevice.t hardware-snmp-objects.t import.t inline.t linux.t network-devices/cisco.t
     network-devices/roles.t network-devices/threecom.t network-devices/wireless.t nodecategory.t person.t pfsetvlan.t
     Portal.t radius.t services.t SNMP.t soh.t SwitchFactory.t trigger.t useragent.t util.t util-dhcp.t util-radius.t
-    vlan.t web.t unittest/profile/filter/network.t unittest/profile/filter/key.t unittest/provisioner.t
-    unittest/provisioner/symantec.t
+    vlan.t web.t
 );
+
+push @unit_tests,get_all_unittests();
 
 our @unit_failing_tests = qw(
     network-devices/wired.t
@@ -219,6 +219,27 @@ sub get_networkdevices_modules {
         }}, '/usr/local/pf/lib/pf/Switch'
     );
 
+    return @list;
+}
+
+=head2 get_all_unittests
+
+Return all the files /usr/loca/pf/t/unitest
+
+=cut
+
+sub get_all_unittests {
+
+    my @list;
+
+    # find2perl /usr/local/pf/lib/pf/Switch -name "*.pm"
+    File::Find::find({
+        wanted => sub {
+            if ($File::Find::name =~ m#^/usr/local/pf/t/unittest/(.*\.t)$# ) {
+                push(@list, "unittest/$1");
+            }
+        }}, '/usr/local/pf/t/unittest'
+    );
     return @list;
 }
 
