@@ -22,7 +22,6 @@ use JSON qw( decode_json );
 use XML::Simple;
 use Log::Log4perl;
 use pf::iplog;
-use pf::ConfigStore::Provisioning;
 use MIME::Base64;
 
 =head1 Atrributes
