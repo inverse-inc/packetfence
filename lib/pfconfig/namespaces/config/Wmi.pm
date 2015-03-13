@@ -2,15 +2,15 @@ package pfconfig::namespaces::config::Wmi;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::config::Wmi
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::config::Wmi
 
-This module creates the configuration hash associated to somefile.conf
+This module creates the configuration hash associated to wmi.conf
 
 =cut
 

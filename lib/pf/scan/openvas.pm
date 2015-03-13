@@ -22,7 +22,7 @@ use Readonly;
 use base ('pf::scan');
 
 use pf::constants;
-use pf::constants::scan;
+use pf::constants::scan qw($SCAN_VID $PRE_SCAN_VID $POST_SCAN_VID $STATUS_STARTED);
 use pf::config;
 use pf::util;
 

@@ -77,7 +77,7 @@ use pf::class qw(class_view class_view_actions);
 use pf::violation qw(violation_force_close);
 use pf::Portal::ProfileFactory;
 use pf::log;
-use pf::scan qw($POST_SCAN_VID $PRE_SCAN_VID);
+use pf::constants::scan qw($POST_SCAN_VID $PRE_SCAN_VID);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $action_db_prepared = 0;
@@ -174,6 +174,7 @@ sub action_api {
     my $node_info = node_view($mac);
     my $ip = pf::iplog::mac2ip($mac) || 0;
     $node_info = {%$node_info, 'last_ip' => $ip};
+    # Replace parameters in the cli by the real one (for example: $last_ip will be changed to the value of $node_info->{last_ip})
     foreach my $param (@params) {
         $param =~ s/\$(.*)/$node_info->{$1}/ge;
         $return .= $param." ";

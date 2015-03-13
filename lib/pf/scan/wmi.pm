@@ -83,7 +83,7 @@ sub startScan {
     $scan_vid = $pf::scan::PRE_SCAN_VID if ($this->{'_pre_registration'});
 
     if (!$result) {
-        $logger->warn("WMI scan doesnt start");
+        $logger->warn("WMI scan didnt start");
         return $scan_vid;
     }
 

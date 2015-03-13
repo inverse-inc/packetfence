@@ -26,7 +26,7 @@ use pf::util;
 use pf::config::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top violation_trigger);
 use pf::floatingdevice::custom;
-use pf::scan qw($POST_SCAN_VID);
+use pf::constants::scan qw($POST_SCAN_VID);
 use pf::authentication;
 use pf::Authentication::constants;
 use pf::Portal::ProfileFactory;
@@ -254,7 +254,7 @@ sub getViolationVlan {
     my $vid = $top_violation->{'vid'};
 
     # Scan violation that must be done in the production vlan
-    return 0 if ($vid == $POST_SCAN_VID);
+    return $FALSE if ($vid == $POST_SCAN_VID);
 
     # find violation class based on violation id
     require pf::class;

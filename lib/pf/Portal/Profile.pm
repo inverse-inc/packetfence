@@ -441,13 +441,12 @@ return the first scan that match the device
 sub findScan {
     my ($self, $mac, $node_attributes) = @_;
     my $logger = get_logger();
-    my $scancs = pf::ConfigStore::Scan->new();
     $node_attributes ||= node_attributes($mac);
     my ($fingerprint) =
       dhcp_fingerprint_view( $node_attributes->{'dhcp_fingerprint'} );
     if (defined($self->getScans)) {
         foreach my $scan (split(',',$self->getScans)) {
-            my $scan_config = $scancs->read($scan);
+            my $scan_config = $pf::config::ConfigScan{$scan};
             if ( !scalar(@{ $scan_config->{'oses'} }) && !scalar($scan_config->{'categories'}) ) {
                 return $scan_config;
             } elsif ( scalar(@{ $scan_config->{'oses'} }) && scalar(@{ $scan_config->{'categories'} }) ) {

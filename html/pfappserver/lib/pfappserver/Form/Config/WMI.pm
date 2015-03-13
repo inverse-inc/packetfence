@@ -31,7 +31,7 @@ has_field 'request' =>
    type => 'Text',
    label => 'Request',
    required => 1,
-   messages => { required => 'Please specify a Request' },
+   messages => { required => 'Please specify the sql request like "select * from Win32_Product"' },
   );
 
 
@@ -43,7 +43,7 @@ has_field 'action' =>
    inflate_default_method => \&filter_inflate ,
    deflate_default_method => \&filter_deflate ,
    tags => { after_element => \&help,
-             help => 'Add the action based on the result of the request' },
+             help => 'Add an action based on the result of the request' },
   );
 
 has_block definition =>

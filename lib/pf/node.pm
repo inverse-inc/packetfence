@@ -80,7 +80,7 @@ use pf::constants;
 use pf::config;
 use pf::db;
 use pf::nodecategory;
-use pf::scan qw($SCAN_VID $POST_SCAN_VID);
+use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
 use pf::util;
 use pf::violation;
 use pf::Portal::ProfileFactory;

@@ -15,11 +15,11 @@ pf::scan::wmi::rules deny or allow based on rules.
 use strict;
 use warnings;
 
+use pf::config;
 use Log::Log4perl;
 use Net::WMIClient qw(wmiclient);
 use Config::IniFiles;
 use pf::api::jsonrpcclient;
-use pf::ConfigStore::WMI();
 
 our %RULE_OPS = (
     is => sub { $_[0] eq $_[1] ? 1 : 0  },
@@ -53,11 +53,9 @@ Test all the rules
 sub test {
     my ($self, $rules) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
-    my $wmics = pf::ConfigStore::WMI->new();
 
     foreach my $rule  ( @{$rules->{'_rules'}} ) {
-        $logger->warn($rule);
-        my $rule_config = $wmics->read($rule);
+        my $rule_config = $pf::config::ConfigWmi{$rule};
         my ($rc, $result) = $self->runWmi($rules,$rule_config);
         return $rc if (!$rc);
         my $action = join("\n", @{$rule_config->{'action'}});
@@ -111,29 +109,29 @@ sub parseResult {
     my ($self, $string) = @_;
     $string =~ s/\r\n/\n/g;
 
-    my @ans = split('\n', $string);
+    my @answer = split('\n', $string);
     my $i = 0;
     my $line;
     my @result;
 
-    my $resultat = {};
+    my $response = {};
 
-    shift @ans;
-    my @entries = split(/\|/,shift @ans);
+    shift @answer;
+    my @entries = split(/\|/,shift @answer);
 
 
     foreach $line (@ans) {
         my @values = split(/\|/,$line);
         my $j = 0;
         foreach my $elements (@entries) {
-            $resultat->{"$elements"} = $values[$j];
+            $response->{"$elements"} = $values[$j];
             $j++;
         }
-        $result[$i] = $resultat;
-        undef $resultat;
+        $result[$i] = $response;
+        undef $response;
         $i++;
     }
-return \@result;
+    return \@result;
 }
 
 =item parse
@@ -145,9 +143,9 @@ Parse all result and try to match
 sub parse {
     my ($self, $cfg, $result) = @_;
     foreach my $value (@{$result}) {
-        return 1 if ($self->_match_rule_against_value($cfg,$value->{$cfg->{'attribute'}}));
+        return $TRUE if ($self->_match_rule_against_value($cfg,$value->{$cfg->{'attribute'}}));
     }
-    return 0;
+    return $FALSE;
 }
 
 =item _match_rule_against_value
@@ -165,7 +163,7 @@ sub _match_rule_against_value {
             return $RULE_OPS{$op}->($value, $rule->{'value'});
         }
     }
-    return 0;
+    return $FALSE;
 }
 
 =item dispatchAction

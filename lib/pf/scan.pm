@@ -31,7 +31,7 @@ BEGIN {
 }
 
 use pf::constants;
-use pf::constants::scan;
+use pf::constants::scan qw($SEVERITY_HOLE $SEVERITY_WARNING $SEVERITY_INFO $STATUS_CLOSED $STATUS_NEW $STATUS_STARTED);
 use pf::config;
 use pf::db;
 use pf::iplog;
@@ -228,7 +228,7 @@ sub run_scan {
     my $scanner = $profile->findScan($host_mac);
     # If no scan detected then we abort
     if (!$scanner) {
-        return;
+        return $FALSE;
     }
     # Preparing the scan attributes
     my $epoch   = time;
@@ -239,7 +239,7 @@ sub run_scan {
     # Check the scan engine
     # If set to "none" we abort the scan
     if ( $type eq "none" ) {
-        return;
+        return $FALSE;
     }
 
     my %scan_attributes = (

@@ -2,15 +2,15 @@ package pfconfig::namespaces::config::Scan;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::config::Scan
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::config::Scan
 
-This module creates the configuration hash associated to somefile.conf
+This module creates the configuration hash associated to scan.conf
 
 =cut
 
