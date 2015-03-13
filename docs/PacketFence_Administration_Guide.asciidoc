@@ -2766,9 +2766,6 @@ For CentOS 6
 
 For CentOS 7
 ----
-# for i386
-# wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/i386/RPMS/udp-reflector-1.0-6.1.i686.rpm
-
 # for x86_64
 # wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
