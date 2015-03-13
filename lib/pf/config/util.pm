@@ -5,6 +5,7 @@ package pf::config::util;
 use strict;
 use warnings;
 
+use pf::constants;
 use pf::config;
 use English qw( -no_match_vars );
 use File::Basename;
@@ -32,9 +33,13 @@ BEGIN {
     get_internal_devs get_internal_devs_phy
     get_internal_macs get_internal_info
     connection_type_to_str str_to_connection_type
-    get_translatable_time trappable_mac 
+    get_translatable_time trappable_mac
   );
 }
+
+=head1 METHODS
+
+=cut
 
 sub trappable_mac {
     my ($mac) = @_;
@@ -91,7 +96,7 @@ sub ip2device {
     return (0);
 }
 
-=item pfmailer - send an email
+=head2 pfmailer - send an email
 
 =cut
 
@@ -125,7 +130,7 @@ sub pfmailer {
     return 1;
 }
 
-=item send_email - Send an email using a template
+=head2 send_email - Send an email using a template
 
 =cut
 
@@ -247,7 +252,7 @@ sub get_internal_info {
     return;
 }
 
-=item connection_type_to_str
+=head2 connection_type_to_str
 
 In the database we store the connection type as a string but we use a constant binary value internally.
 This converts from the constant binary value to the string.
@@ -272,7 +277,7 @@ sub connection_type_to_str {
 }
 
 
-=item str_to_connection_type
+=head2 str_to_connection_type
 
 In the database we store the connection type as a string but we use a constant binary value internally.
 This parses the string from the database into the the constant binary value.
@@ -301,7 +306,7 @@ sub str_to_connection_type {
     }
 }
 
-=item get_translatable_time
+=head2 get_translatable_time
 
 Returns a triplet with singular and plural english string representation plus integer of a time string
 as defined in pf.conf.

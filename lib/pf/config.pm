@@ -155,7 +155,6 @@ BEGIN {
         %Doc_Config
         %ConfigRealm
         %ConfigProvisioning
-        $TRUE $FALSE $default_pid
     );
 }
 

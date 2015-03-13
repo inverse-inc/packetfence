@@ -46,10 +46,10 @@ BEGIN {
         get_total_system_memory
         parse_mac_from_trap
         get_vlan_from_int
-        get_abbr_time 
+        get_abbr_time
         pretty_bandwidth
         unpretty_bandwidth
-        pf_run 
+        pf_run
         generate_id load_oui download_oui
         trim_path format_bytes log_of ordinal_suffix
         untaint_chain read_dir_recursive all_defined
@@ -61,6 +61,7 @@ BEGIN {
 # TODO pf::util shouldn't rely on pf::config as this prevent pf::config from
 #      being able to use pf::util
 use pf::constants;
+use pf::constants::config;
 #use pf::config;
 use pf::log;
 
