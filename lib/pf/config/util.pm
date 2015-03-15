@@ -7,6 +7,7 @@ use warnings;
 
 use pf::constants;
 use pf::config;
+use pf::constants::config qw($TIME_MODIFIER_RE);
 use English qw( -no_match_vars );
 use File::Basename;
 use FileHandle;

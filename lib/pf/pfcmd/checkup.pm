@@ -18,6 +18,7 @@ use Try::Tiny;
 use Readonly;
 
 use pf::constants;
+use pf::constants::config qw($TIME_MODIFIER_RE);
 use pf::config;
 use pf::config::cached;
 use pf::violation_config;

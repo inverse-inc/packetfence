@@ -92,6 +92,7 @@ use List::MoreUtils qw(all true);
 use List::Util qw(first);
 use Term::ANSIColor;
 use IO::Interactive qw(is_interactive);
+use pf::constants::config qw($TIME_MODIFIER_RE);
 
 # Perl taint mode setup (see: perlsec)
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
