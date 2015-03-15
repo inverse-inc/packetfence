@@ -19,7 +19,7 @@ use strict;
 use warnings;
 
 use pf::constants;
-use pf::constants::config qw($TIME_MODIFIER_RE);
+use pf::constants::config qw($TIME_MODIFIER_RE $DEADLINE_UNIT);
 use pf::config;
 use pf::util;
 use pf::config::util;

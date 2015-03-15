@@ -49,6 +49,7 @@ BEGIN {
 
 use pf::constants;
 use pf::config;
+use pf::constants::config qw($ACCT_TIME_MODIFIER_RE);
 use pf::db;
 use pf::violation;
 use pf::util;
@@ -116,7 +117,7 @@ sub accounting_db_prepare {
                username,IF(ISNULL(acctstoptime),'connected','not connected') AS status,acctstarttime,acctstoptime,FORMAT(acctsessiontime/60,2) AS acctsessiontime,
                nasipaddress,nasportid,nasporttype,acctinputoctets AS acctoutput,
                acctoutputoctets AS acctinput,(acctinputoctets+acctoutputoctets) AS accttotal,
-               IF(ISNULL(acctstoptime),'',acctterminatecause) AS acctterminatecause 
+               IF(ISNULL(acctstoptime),'',acctterminatecause) AS acctterminatecause
         FROM (SELECT * FROM radacct ORDER BY acctstarttime DESC) AS tmp
         GROUP BY callingstationid
         ORDER BY status ASC, acctstarttime DESC;
@@ -187,7 +188,7 @@ sub accounting_db_prepare {
     ]);
 
     $accounting_statements->{'acct_maintenance_bw_daily_inbound'} = get_db_handle()->prepare(qq[
-        SELECT radacct.callingstationid, 
+        SELECT radacct.callingstationid,
                 SUM(radacct_log.acctinputoctets) AS acctinput
         FROM radacct_log
         RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
@@ -201,7 +202,7 @@ sub accounting_db_prepare {
                 SUM(radacct_log.acctinputoctets) AS acctinput
         FROM radacct_log
         RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
-        WHERE YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE()) AND timestamp >= ? 
+        WHERE YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING acctinput >= ?;
     ]);
@@ -289,7 +290,7 @@ sub accounting_db_prepare {
         GROUP BY radacct.callingstationid
         HAVING accttotal >= ?;
     ]);
- 
+
     $accounting_statements->{'acct_maintenance_bw_monthly_all'} = get_db_handle()->prepare(qq[
         SELECT radacct.callingstationid,
                SUM(radacct_log.acctinputoctets) AS acctinput,
@@ -383,7 +384,7 @@ sub acct_maintenance {
                 } elsif ($4 eq 'Y') {
                     $interval = "yearly";
                 }
-            } 
+            }
             # no interval given so we assume from beginning of time
             else {
                 $interval = "all";
@@ -615,7 +616,7 @@ sub node_acct_maintenance_bw_inbound {
 
 sub node_acct_maintenance_bw_outbound {
     my ($interval,$releaseDate,$bytes) = @_;
-    my $query = "acct_maintenance_bw_" . $interval . "_outbound";    
+    my $query = "acct_maintenance_bw_" . $interval . "_outbound";
     return db_data(ACCOUNTING, $accounting_statements, $query, $releaseDate, $bytes );
 
 }
