@@ -46,7 +46,7 @@ $cache->preload_all();
 my $encoder = Sereal::Encoder->new;
 
 my %args;
-getopts( 'dh:', \%args );
+getopts( 'dh', \%args );
 
 my $logger = get_logger;
 
