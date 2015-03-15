@@ -16,12 +16,13 @@ Util functions for pf services
 use strict;
 use warnings;
 use base qw(Exporter);
-our @EXPORT = qw(daemonize createpid);
+our @EXPORT = qw(daemonize createpid deletepid);
 use pf::log;
 use pf::log::trapper;
 use pf::file_paths;
 use Log::Log4perl::Level;
 use File::Basename qw(basename);
+use Fcntl qw(:flock);
 
 
 =head2 daemonize
@@ -66,14 +67,23 @@ sub createpid {
     my $pidfile = $var_dir . "/run/$pname.pid";
     $logger->info("$pname starting and writing $pid to $pidfile");
     if ( open ( my $outfile, ">$pidfile") ) {
+        flock($outfile, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfmon is running\n";
         print $outfile $pid;
-        $outfile->close;
         return ($pid);
     } else {
         $logger->error("$pname: unable to open $pidfile for writing: $!");
         return (-1);
     }
 }
+
+sub deletepid {
+    my ($pname) = @_;
+    $pname = basename($0) if ( !$pname );
+    my $pidfile = $var_dir . "/run/$pname.pid";
+    unlink($pidfile) || return (-1);
+    return (1);
+}
+
 
 
 =head1 AUTHOR

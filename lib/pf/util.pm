@@ -41,7 +41,7 @@ BEGIN {
         ip2int int2ip sort_ip
         isenabled isdisabled isempty
         getlocalmac
-        readpid deletepid
+        readpid
         parse_template mysql_date oui_to_vendor mac2oid oid2mac
         get_total_system_memory
         parse_mac_from_trap
@@ -419,14 +419,6 @@ sub readpid {
         $logger->error("$pname: unable to open $pidfile for reading: $!");
         return (-1);
     }
-}
-
-sub deletepid {
-    my ($pname) = @_;
-    $pname = basename($0) if ( !$pname );
-    my $pidfile = $var_dir . "/run/$pname.pid";
-    unlink($pidfile) || return (-1);
-    return (1);
 }
 
 sub parse_template {
