@@ -11,10 +11,6 @@ pf::OMAPI
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
-
     use pf::OMAPI;
 
     my $omapi = pf::OMAPI->new( key_name => 'pf_omapi_key',key_base64 => 'xJviCHiQKcDu6hk7+Ffa3A==', host => 'localhost', port => 7911);
