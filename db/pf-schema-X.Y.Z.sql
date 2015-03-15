@@ -207,7 +207,7 @@ CREATE TABLE violation (
 --
 
 CREATE TABLE iplog (
-  mac varchar(255) NOT NULL,
+  mac varchar(17) NOT NULL,
   ip varchar(255) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
@@ -236,7 +236,7 @@ DELIMITER ;
 --
 
 CREATE TABLE iplog_old (
-  mac varchar(255) NOT NULL,
+  mac varchar(17) NOT NULL,
   ip varchar(255) NOT NULL,
   start_time datetime NOT NULL,
   end_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -247,7 +247,7 @@ CREATE TABLE iplog_old (
 --
 
 CREATE TABLE iplog_history (
-  mac varchar(255) NOT NULL,
+  mac varchar(17) NOT NULL,
   ip varchar(255) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime NOT NULL
