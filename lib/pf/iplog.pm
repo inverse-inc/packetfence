@@ -280,8 +280,10 @@ Returns '0' if no match
 sub ip2mac {
     my ( $ip ) = @_;
     my $logger = pf::log::get_logger();
-
-    return (0) if ( !valid_ip($ip) );
+    unless (valid_ip($ip)) {
+        $logger->warn("invalid ip (" . ($ip // "undef") . ") ip2mac");
+        return (0);
+    }
 
     my $mac;
 
@@ -293,14 +295,14 @@ sub ip2mac {
     # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
     if ( isenabled($Config{omapi}{ip2mac_lookup}) ) {
         $logger->debug("Trying to match MAC address to IP '$ip' using OMAPI");
-        $mac = ip2macomapi($ip);
+        $mac = ip2mac_omapi($ip);
         $logger->info("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
     }
 
     # If we don't have a result from OMAPI, we use the SQL 'iplog' table
     unless ($mac) {
         $logger->debug("Trying to match MAC address to IP '$ip' using SQL 'iplog' table");
-        $mac = ip2macsql($ip);
+        $mac = ip2mac_sql($ip);
         $logger->info("Matched IP '$ip' to MAC address '$mac' using SQL 'iplog' table") if $mac;
     }
 
@@ -312,25 +314,25 @@ sub ip2mac {
     return clean_mac($mac);
 }
 
-=head2 ip2macomapi
+=head2 ip2mac_omapi
 
 Look for the MAC address of a given IP address in the DHCP leases using OMAPI
 
 =cut
 
-sub ip2macomapi {
+sub ip2mac_omapi {
     my ($ip) = @_;
     my $data = _lookup_cached_omapi('ip-address' => $ip);
     return $data->{'obj'}{'hardware-address'} if defined $data;
 }
 
-=head2 ip2macsql
+=head2 ip2mac_sql
 
 Look for the MAC address of a given IP address using the SQL 'iplog' table
 
 =cut
 
-sub ip2macsql {
+sub ip2mac_sql {
     my ( $ip ) = @_;
     my $iplog = iplog_view_open_ip($ip);
     return $iplog->{'mac'};
@@ -344,13 +346,13 @@ Get the iplog cache
 
 sub iplogCache { pf::CHI->new(namespace => 'iplog') }
 
-=head2 mac2ipomapi
+=head2 mac2ip_omapi
 
 Look for the ip in the dhcpd lease entry using omapi
 
 =cut
 
-sub mac2ipomapi {
+sub mac2ip_omapi {
     my ($mac) = @_;
     my $data = _lookup_cached_omapi('hardware-address' => $mac);
     return $data->{'obj'}{'ip-address'} if defined $data;
@@ -406,7 +408,7 @@ sub _lookup_cached_omapi {
         sub {
             my $data = _get_lease_from_omapi($type, $id);
             return unless $data && $data->{op} == 3;
-            #Do not return the lease if it has expires
+            #Do not return if the lease is expired
             return if $data->{obj}->{ends} < timegm( localtime()  );
             return $data;
         }
