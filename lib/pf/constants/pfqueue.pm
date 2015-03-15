@@ -21,14 +21,16 @@ our @EXPORT_OK = qw(
   $QUEUE_DELAYED_QUEUE
   $QUEUE_DELAYED_ZSET
   $QUEUE_DYNAMIC_PREFIX
+  $QUEUE_DYNAMIC_QUEUE
   $QUEUE_PREFIX
 );
 
-our $QUEUE_DELAYED_ZSET   = "delayed-zset";
+our $QUEUE_DELAYED_ZSET   = "queue-delayed-zset";
 our $QUEUE_DELAYED_QUEUE  = "queue-delayed";
 our $QUEUE_DELAYED_HASH   = "queue-delayed-data";
 our $QUEUE_PREFIX         = "queue";
 our $QUEUE_DYNAMIC_PREFIX = "queue-dynamic";
+our $QUEUE_DYNAMIC_QUEUE  = "queue-dynamic-helper";
 
 =head1 AUTHOR
 
