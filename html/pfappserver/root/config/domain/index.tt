@@ -1,5 +1,5 @@
 
-      <div class="modal fade hide" id="modalItem">
+      <div class="modal fade hide" id="modalDomain">
       </div>
 
       <div class="modal fade hide" id="deleteItem">
