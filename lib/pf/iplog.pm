@@ -343,7 +343,7 @@ sub ip2mac {
     my $logger = pf::log::get_logger();
 
     unless (valid_ip($ip)) {
-        $logger->warn("Trying to match MAC address with invalid ip '" . ($ip // "undef") . "'");
+        $logger->warn("Trying to match MAC address with an invalid IP address '" . ($ip // "undef") . "'");
         return (0);
     }
 
