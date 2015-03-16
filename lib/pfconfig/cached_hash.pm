@@ -177,6 +177,46 @@ sub EXISTS {
     return $self->_get_from_socket( $self->{_namespace}, "key_exists", ( search => $key ) )->{result};
 }
 
+=head2 values
+
+Added method that can be called on the underlying object of the tied hash
+Will return all the values of the hash. Mostly for internal use
+Call it using tied(%hash)->values
+
+=cut
+
+sub values {
+    my ( $self ) = @_;
+    my @keys = $self->keys;
+    my @values;
+    foreach my $key (@keys){
+        push @values, $self->FETCH($key);
+    }
+    return @values;
+}
+
+=item search
+
+Used to search for an element in our hash that has a specific value in one of it's field
+
+Ex (%h is us) : 
+my %h = {
+  'test' => {'result' => '2'},
+  'test2' => {'result' => 'success'}
+}
+
+Searching for field result with value 'success' would return the value of test2
+
+This has to be called on the underlying object of the tied hash
+Call it using tied(%hash)->search('result', 'success')
+
+=cut
+
+sub search {
+    my ($self, $field, $value ) = @_;
+    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } $self->values;
+}
+
 =back
 
 =head1 AUTHOR

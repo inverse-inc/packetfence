@@ -30,8 +30,19 @@ sub init {
 
 sub build_child {
     my ($self) = @_;
+    my %tmp_cfg = %{ $self->{cfg} };
 
-    return $self->{cfg};
+    foreach my $key ( keys %tmp_cfg ) {
+        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
+    }
+
+    return \%tmp_cfg;
+
+}
+
+sub cleanup_after_read {
+    my ( $self, $id, $data ) = @_;
+    $self->expand_list( $data, qw(categories) );
 }
 
 =back
