@@ -44,8 +44,6 @@ use Switch;
 use pf::nodecategory;
 use pf::Authentication::constants;
 
-our $VERSION = 2.01;
-
 # Constants
 use constant PASSWORD => 'password';
 

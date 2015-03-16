@@ -5,7 +5,7 @@ use Date::Format qw(time2str);
 use pf::log;
 use pf::constants;
 use pf::config;
-use pf::password 2.01;
+use pf::password;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format render_template);
 use pf::web::constants;
