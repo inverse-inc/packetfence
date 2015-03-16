@@ -11,3 +11,5 @@ CREATE TABLE keyed (
   value LONGBLOB,
   PRIMARY KEY(id)
 ) ENGINE=InnoDB;
+
+RENAME TABLE temporary_password TO `password`;

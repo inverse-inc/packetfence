@@ -22,7 +22,7 @@ use List::MoreUtils qw(any none);
 
 use pf::config;
 use pf::Authentication::constants;
-use pf::temporary_password;
+use pf::password;
 use pf::error qw(is_error is_success);
 use pf::person;
 use pf::log;
@@ -247,9 +247,9 @@ sub update_actions {
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg) = ($STATUS::OK);
-    my $tp = pf::temporary_password::view($pid);
-    # Only update the actions if the user has an entry in temporary_password
-    unless (!$tp || pf::temporary_password::modify_actions($tp, $actions)) {
+    my $tp = pf::password::view($pid);
+    # Only update the actions if the user has an entry in password
+    unless (!$tp || pf::password::modify_actions($tp, $actions)) {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
         $status_msg = 'An error occurred while updating the user actions.';
     }
@@ -310,7 +310,7 @@ sub delete {
     my ($status, $status_msg) = ($STATUS::OK, 'The user was successfully deleted.');
 
     eval {
-        my $result = person_delete($pid); # entry from temporary_password will be automatically deleted
+        my $result = person_delete($pid); # entry from password will be automatically deleted
         unless ($result) {
             ($status, $status_msg) = ($STATUS::INTERNAL_SERVER_ERROR, "The user still owns nodes and can't be deleted.");
         }
@@ -362,7 +362,7 @@ sub createSingle {
         # Add the registration window to the actions
         push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
         push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-        $result = pf::temporary_password::generate($pid, 
+        $result = pf::password::generate($pid, 
                                                    $data->{actions},
                                                    $data->{password});
         if ($result) {
@@ -443,7 +443,7 @@ sub createMultiple {
             # Add the registration window to the actions
             push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
             push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-            $result = pf::temporary_password::generate($pid, 
+            $result = pf::password::generate($pid, 
                                                        $data->{actions});
             if ($result) {
                 push(@users, { pid => $pid, email => $data->{email}, password => $result });
@@ -536,7 +536,7 @@ sub importCSV {
                 # The registration window is add to the actions
                 push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
                 push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-                $result = pf::temporary_password::generate($pid, 
+                $result = pf::password::generate($pid, 
                                                            $data->{actions},
                                                            $row->[$index{'c_password'}]);
                 push(@users, { pid => $pid, email => $person{email}, password => $result });

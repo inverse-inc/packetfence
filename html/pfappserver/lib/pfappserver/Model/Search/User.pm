@@ -27,7 +27,7 @@ sub make_builder {
     my $builder = new pf::SearchBuilder;
     return $builder
     ->select(@pf::person::FIELDS,
-            (map { { table => 'temporary_password', name => $_  } } qw(valid_from expiration access_duration category password)),
+            (map { { table => 'password', name => $_  } } qw(valid_from expiration access_duration category password)),
             L_("count(node.mac)", "nodes"),
             L_("concat(firstname,' ', lastname)", "person_name"),
     )->from('person',
@@ -37,7 +37,7 @@ sub make_builder {
                 'using' => 'pid',
             },
             {
-                'table'  => 'temporary_password',
+                'table'  => 'password',
                 'join' => 'LEFT',
                 'using' => 'pid',
             },
