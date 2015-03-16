@@ -39,7 +39,7 @@ BEGIN {
 
         iplog_history_ip      iplog_history_mac
         iplog_view_open       iplog_view_open_ip
-        iplog_view_open_mac   iplog_view_all
+        iplog_view_open_mac
         iplog_open            iplog_close
         iplog_cleanup
 
@@ -75,8 +75,6 @@ sub iplog_db_prepare {
 
     $iplog_statements->{'iplog_view_open_mac_sql'} = get_db_handle()->prepare(
         qq [ select mac,ip,start_time,end_time from iplog where mac=? and (end_time=0 or end_time > now()) order by start_time desc]);
-
-    $iplog_statements->{'iplog_view_all_sql'} = get_db_handle()->prepare(qq [ select mac,ip,start_time,end_time from iplog ]);
 
     $iplog_statements->{'iplog_history_ip_date_sql'} = get_db_handle()->prepare(
         qq [ select mac,ip,start_time,end_time from iplog where ip=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0) order by start_time desc ]);
@@ -191,10 +189,6 @@ sub iplog_view_open_mac {
 sub iplog_view_all_open_mac {
     my ($mac) = @_;
     return db_data(IPLOG, $iplog_statements, 'iplog_view_open_mac_sql', $mac);
-}
-
-sub iplog_view_all {
-    return db_data(IPLOG, $iplog_statements, 'iplog_view_all_sql');
 }
 
 =head2 _iplog_exists
