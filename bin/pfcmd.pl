@@ -23,7 +23,6 @@ $< = 0;
 use pf::cmd::pf;
 exit pf::cmd::pf->new({args => \@ARGV})->run();
 
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
