@@ -226,12 +226,12 @@ sub iplog_open {
     }
 
     if ( _iplog_exists ) {
-        $logger->info("An iplog entry already exists for that IP ($ip). Proceed with updating it");
+        $logger->debug("An iplog entry already exists for that IP ($ip). Proceed with updating it");
         _iplog_update($mac, $ip, $lease_length);
     }
 
     else {
-        $logger->info();
+        $logger->debug("No iplog entry found for that IP ($ip). Creating a new one");
         _iplog_insert($mac, $ip, $lease_length);
     }
 
