@@ -33,12 +33,17 @@ our $PROGRAM_NAME = $0 = basename($0);
 my $socket_path = $pfconfig::constants::SOCKET_PATH;
 unlink($socket_path);
 
+#Ensure that the file permissions of the socket is correct 0770
+umask(0007);
+
 my $listner = IO::Socket::UNIX->new(
    Type   => SOCK_STREAM,
    Local  => $socket_path,
    Listen => SOMAXCONN,
 )
    or die("Can't create server socket: $!\n");
+
+umask(0);
 
 my $cache = pfconfig::manager->new;
 $cache->preload_all();
