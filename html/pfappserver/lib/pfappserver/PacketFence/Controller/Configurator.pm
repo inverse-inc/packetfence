@@ -264,7 +264,7 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
 
     if ($c->request->method eq 'GET') {
         delete $c->session->{completed}->{$c->action->name};
-
+        $c->stash->{'hash_passwords'} = $Config{'advanced'}{'hash_passwords'};
         # Check if the database and user exist
         my $database_ref = \%{$Config{'database'}};
         $c->stash->{'database'} = $database_ref;
@@ -292,37 +292,44 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
 
     my $pf_model = $c->model('Config::Pf');
     if ($c->request->method eq 'GET') {
-        my (%config, $status, $general_ref, $alerting_ref);
+        my (%config, $status, $general_ref, $alerting_ref, $advanced_ref);
         ($status, $general_ref) = $pf_model->read('general');
-        if(is_success($status)) {
+        if (is_success($status)) {
             ($status, $alerting_ref) = $pf_model->read('alerting');
             if (is_success($status)) {
-                @config{qw(
-                    general.domain
-                    general.hostname
-                    general.dhcpservers
-                    alerting.emailaddr
-                )} = (
-                    @$general_ref{qw(
-                        domain
-                        hostname
-                        dhcpservers
-                    )},
-                    @$alerting_ref{emailaddr}
-                );
-                $c->stash->{'config'} = \%config;
+                ($status, $advanced_ref) = $pf_model->read('advanced');
+                if (is_success($status)) {
+                    @config{qw(
+                                  general.domain
+                                  general.hostname
+                                  general.dhcpservers
+                                  alerting.emailaddr
+                                  advanced.hash_passwords
+                             )} = (
+                                   @$general_ref{qw(
+                                                       domain
+                                                       hostname
+                                                       dhcpservers
+                                                  )},
+                                   @$alerting_ref{emailaddr},
+                                   @$advanced_ref{hash_passwords}
+                                  );
+                    $c->stash->{'config'} = \%config;
+                }
             }
         }
     }
     elsif ($c->request->method eq 'POST') {
         # Save configuration
         my ( $status, $message ) = (HTTP_OK);
-        my $general_domain      = $c->request->params->{'general.domain'};
-        my $general_hostname    = $c->request->params->{'general.hostname'};
-        my $general_dhcpservers = $c->request->params->{'general.dhcpservers'};
-        my $alerting_emailaddr  = $c->request->params->{'alerting.emailaddr'};
+        my $general_domain          = $c->request->params->{'general.domain'};
+        my $general_hostname        = $c->request->params->{'general.hostname'};
+        my $general_dhcpservers     = $c->request->params->{'general.dhcpservers'};
+        my $alerting_emailaddr      = $c->request->params->{'alerting.emailaddr'};
+        my $advanced_hash_passwords = $c->request->params->{'advanced.hash_passwords'};
 
-        unless ($general_domain && $general_hostname && $general_dhcpservers && $alerting_emailaddr) {
+        unless ($general_domain && $general_hostname && $general_dhcpservers &&
+                $alerting_emailaddr && $advanced_hash_passwords) {
             ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
         }
         if (is_success($status)) {
@@ -337,6 +344,12 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
             }
             ( $status, $message ) = $pf_model->update('alerting' => {
                 'emailaddr'  => $alerting_emailaddr
+            });
+            if (is_error($status)) {
+                delete $c->session->{completed}->{$c->action->name};
+            }
+            ( $status, $message ) = $pf_model->update('advanced' => {
+                'hash_passwords'  => $advanced_hash_passwords
             });
             if (is_error($status)) {
                 delete $c->session->{completed}->{$c->action->name};
