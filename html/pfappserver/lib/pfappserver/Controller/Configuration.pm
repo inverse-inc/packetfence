@@ -11,61 +11,6 @@ Place all customization for Controller::Configuration here
 =cut
 
 use Moose;
-use namespace::autoclean;
-use POSIX;
-use URI::Escape::XS;
-use Log::Log4perl qw(get_logger);
-
-use pf::os;
-use pf::util qw(load_oui download_oui);
-# imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
-# imported but it's better than duplicating regex all over the place.
-use pf::config;
-use pf::admin_roles;
-use pfappserver::Form::Config::Pf;
-
-BEGIN {extends 'pfappserver::Base::Controller'; }
-
-=head1 METHODS
-
-=cut
-
-=head2 _process_section
-
-=cut
-
-our %ALLOWED_SECTIONS = (
-    general => undef,
-    network => undef,
-    trapping => undef,
-    registration => undef,
-    guests_self_registration => undef,
-    guests_admin_registration => undef,
-    billing => undef,
-    alerting => undef,
-    scan => undef,
-    maintenance => undef,
-    expire => undef,
-    services => undef,
-    vlan => undef,
-    inline => undef,
-    servicewatch => undef,
-    captive_portal => undef,
-    advanced => undef,
-    provisioning => undef,
-    webservices => undef,
-    active_active => undef,
-);
-
-
-=head2 index
-
-=cut
-
-sub index :Path :Args(0) { }
-
-
-=head2 section
 
 BEGIN { extends 'pfappserver::PacketFence::Controller::Configuration'; }
 
