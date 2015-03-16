@@ -10,6 +10,8 @@ Form definition to create or update an admin role
 
 =cut
 
+use strict;
+use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
@@ -89,12 +91,11 @@ sub options_actions {
 
     my %groups;
     my @options;
-
-    map {
-        m/^(.+?)(_(READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|MARK_AS_SPONSOR|CREATE_MULTIPLE))?$/;
+    foreach my $role (@ADMIN_ACTIONS) {
+        $role =~ m/^(.+?)(_(READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|MARK_AS_SPONSOR|CREATE_MULTIPLE))?$/;
         $groups{$1} = [] unless $groups{$1};
-        push(@{$groups{$1}}, { value => $_, label => $self->_localize($_) })
-    } @ADMIN_ACTIONS;
+        push(@{$groups{$1}}, { value => $role, label => $self->_localize($role) })
+    }
 
     @options = map {
         { group => $self->_localize($_), options => $groups{$_} }
@@ -120,7 +121,7 @@ sub options_allowed_access_levels {
 
 sub options_roles {
     my $self = shift;
-    my @roles = map { { label => $_->{name}, value => $_->{name} } } @{$self->form->roles} if ($self->form->roles);
+    my @roles = map { { label => $_->{name}, value => $_->{name} } } @{$self->form->roles || []};
     return \@roles;
 }
 
