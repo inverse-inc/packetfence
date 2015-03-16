@@ -263,8 +263,9 @@ Returns '0' if no match
 sub ip2mac {
     my ( $ip ) = @_;
     my $logger = pf::log::get_logger();
+
     unless (valid_ip($ip)) {
-        $logger->warn("invalid ip (" . ($ip // "undef") . ") ip2mac");
+        $logger->warn("Trying to match MAC address with invalid ip '" . ($ip // "undef") . "'");
         return (0);
     }
 
