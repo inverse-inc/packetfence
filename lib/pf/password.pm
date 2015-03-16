@@ -449,13 +449,10 @@ sub _check_password {
     # Plaintext passwords have no prefix.
     # We need to quotemeta the regex because it contains { and }
     my $bcrypt_re = quotemeta('{bcrypt}');
-    my $md5_re    = quotemeta('{md5}');
-    my $nthash_re = quotemeta('{NT}');
 
     switch ($hash_string) {
         case /$bcrypt_re/ { return _check_bcrypt(@_) }
-        case /$md5_re/    { return undef }
-        case /$nthash_re/ { return undef }
+        # I am leaving room for additional cases (NT hashes, md5 etc.)
         else {
             return $plaintext eq $hash_string ? $TRUE : $FALSE;
         }
@@ -468,17 +465,11 @@ sub _hash_password {
     switch ( $params{"algorithm"} ) {
         case 'plaintext' { return $plaintext }
         case 'bcrypt'    { return bcrypt( $plaintext, %params ) }
-        case 'nthash'    { return nthash $plaintext }
-        case 'md5'       { return md5 $plaintext }
         else {
             logger->error( "Unsupported hash algorithm " . $params{"algorithm"} );
         }
     }
 }
-
-sub nthash { return undef; }    # TODO
-
-sub md5 { return undef; }       # TODO
 
 sub _check_bcrypt {
     my ( $plaintext, $hash_string ) = @_;
