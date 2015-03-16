@@ -37,8 +37,8 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw(
         valid_date valid_ip valid_ips reverse_ip clean_ip
-        clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct format_mac_as_cisco
-        ip2interface ip2device ip2int int2ip sort_ip
+        clean_mac valid_mac mac2nb macoui2nb format_mac_for_acct format_mac_as_cisco
+        ip2int int2ip sort_ip
         isenabled isdisabled isempty
         getlocalmac
         readpid
