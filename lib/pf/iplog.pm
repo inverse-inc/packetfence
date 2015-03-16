@@ -225,6 +225,16 @@ sub iplog_open {
         node_add_simple($mac);
     }
 
+    unless (valid_ip($ip)) {
+        $logger->warn("Trying to open iplog entry with an invalid IP address '" . ($ip // "undef") . "'");
+        return;
+    }
+
+    unless (valid_mac($mac)) {
+        $logger->warn("Trying to open iplog entry with an invalid MAC address '" . ($mac // "undef") . "'");
+        return;
+    }
+
     if ( _iplog_exists ) {
         $logger->debug("An iplog entry already exists for that IP ($ip). Proceed with updating it");
         _iplog_update($mac, $ip, $lease_length);
