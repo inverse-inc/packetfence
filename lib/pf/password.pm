@@ -43,16 +43,21 @@ use Switch;
 
 use pf::nodecategory;
 use pf::Authentication::constants;
+use Data::Entropy::Algorithms qw( rand_bits );
+use Crypt::Eksblowfish::Bcrypt qw(bcrypt_hash en_base64 de_base64 );
+
 
 # Constants
 use constant PASSWORD => 'password';
 
 
 # Authenticatation return codes
-Readonly our $AUTH_SUCCESS => 0;
-Readonly our $AUTH_FAILED_INVALID => 1;
-Readonly our $AUTH_FAILED_EXPIRED => 2;
+Readonly our $AUTH_SUCCESS              => 0;
+Readonly our $AUTH_FAILED_INVALID       => 1;
+Readonly our $AUTH_FAILED_EXPIRED       => 2;
 Readonly our $AUTH_FAILED_NOT_YET_VALID => 3;
+Readonly our $PLAINTEXT                 => 'plaintext';
+Readonly our $BCRYPT                    => 'bcrypt';
 
 # Expiration time in seconds
 Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
@@ -60,7 +65,7 @@ Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT, @EXPORT_OK );
-    @ISA = qw(Exporter);
+    @ISA    = qw(Exporter);
     @EXPORT = qw(
         password_db_prepare
         $password_db_prepared
@@ -71,7 +76,7 @@ BEGIN {
         create match_by_mail
         validate_password
         bcrypt
-        $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID
+        $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID $BCRYPT $PLAINTEXT
     );
 }
 
@@ -463,8 +468,8 @@ sub _hash_password {
     my ( $plaintext, %params ) = @_;
 
     switch ( $params{"algorithm"} ) {
-        case 'plaintext' { return $plaintext }
-        case 'bcrypt'    { return bcrypt( $plaintext, %params ) }
+        case /$PLAINTEXT/ { return $plaintext }
+        case /$BCRYPT/    { return bcrypt( $plaintext, %params ) }
         else {
             logger->error( "Unsupported hash algorithm " . $params{"algorithm"} );
         }
@@ -489,7 +494,7 @@ sub _check_bcrypt {
     $salt = substr( $hash_string, $before_salt, $salt_len );
     $hash_value = substr( $hash_string, $before_hash_value );    # substr to the end of the string
 
-    $hashed_plaintext = _hash_password( $plaintext, algorithm => 'bcrypt', salt => $salt, cost => $cost );
+    $hashed_plaintext = _hash_password( $plaintext, algorithm => $BCRYPT, salt => $salt, cost => $cost );
 
     if ( $hashed_plaintext eq $hash_string ) {
         return $TRUE;
@@ -501,9 +506,6 @@ sub _check_bcrypt {
 
 sub bcrypt {
     my ( $plaintext, %params ) = @_;
-
-    use Data::Entropy::Algorithms qw( rand_bits );
-    use Crypt::Eksblowfish::Bcrypt qw(bcrypt_hash en_base64 de_base64 );
 
     my $salt
         = $params{"salt"} ? de_base64( $params{"salt"} ) : rand_bits( 16 * 8 );  # blowfish requires 16 octets
