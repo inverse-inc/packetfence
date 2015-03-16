@@ -19,19 +19,17 @@ use warnings;
 use Module::Pluggable search_path => 'pf::scan', sub_name => 'modules' , require => 1, except => qr/^pf::scan::wmi::(.*)$/;
 use List::MoreUtils qw(any);
 use pf::scan;
-use pf::ConfigStore::Scan;
+use pf::config;
 
 our @MODULES = __PACKAGE__->modules;
 
 sub factory_for { 'pf::scan' }
 
-sub configStoreClass { 'pf::ConfigStore::Scan' }
-
 sub new {
     my ($class,$name) = @_;
     my $object;
-    my $configStore = $class->configStoreClass->new;
-    my $data = $configStore->read($name,'id');
+    my $data = $ConfigScan{$name};
+    $data->{id} = $name;
     if ($data) {
         my $subclass = $class->getModuleName($name,$data);
         $object = $subclass->new($data);
