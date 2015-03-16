@@ -20,7 +20,7 @@ RENAME TABLE temporary_password TO `password`;
 
 CREATE TABLE iplog_old (
   mac varchar(17) NOT NULL,
-  ip varchar(255) NOT NULL,
+  ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
   end_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -30,7 +30,7 @@ CREATE TABLE iplog_old (
 --
 
 ALTER TABLE iplog MODIFY mac varchar(17) NOT NULL;
-ALTER TABLE iplog MODIFY ip varchar(255) NOT NULL;
+ALTER TABLE iplog MODIFY ip varchar(45) NOT NULL;
 ALTER TABLE iplog ADD PRIMARY KEY(ip);
 ALTER TABLE iplog DROP INDEX ip_view_open;
 ALTER TABLE iplog DROP INDEX mac_view_open;
@@ -59,5 +59,5 @@ DELIMITER ;
 --
 
 ALTER TABLE iplog_history MODIFY mac varchar(17) NOT NULL;
-ALTER TABLE iplog_history MODIFY ip varchar(255) NOT NULL;
+ALTER TABLE iplog_history MODIFY ip varchar(45) NOT NULL;
 ALTER TABLE iplog_history MODIFY end_time datetime NOT NULL;

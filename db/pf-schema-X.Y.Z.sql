@@ -208,7 +208,7 @@ CREATE TABLE violation (
 
 CREATE TABLE iplog (
   mac varchar(17) NOT NULL,
-  ip varchar(255) NOT NULL,
+  ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
   PRIMARY KEY (ip)
@@ -237,7 +237,7 @@ DELIMITER ;
 
 CREATE TABLE iplog_old (
   mac varchar(17) NOT NULL,
-  ip varchar(255) NOT NULL,
+  ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
   end_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -248,7 +248,7 @@ CREATE TABLE iplog_old (
 
 CREATE TABLE iplog_history (
   mac varchar(17) NOT NULL,
-  ip varchar(255) NOT NULL,
+  ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime NOT NULL
 ) ENGINE=InnoDB;
