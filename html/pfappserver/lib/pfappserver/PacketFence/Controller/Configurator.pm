@@ -329,8 +329,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
         my $advanced_hash_passwords = $c->request->params->{'advanced.hash_passwords'};
 
         unless ($general_domain && $general_hostname && $general_dhcpservers &&
-                $alerting_emailaddr &&
-                $advanced_hash_passwords) {
+                $alerting_emailaddr && $advanced_hash_passwords) {
             ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
         }
         if (is_success($status)) {
