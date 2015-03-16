@@ -456,7 +456,7 @@ sub _check_password {
     my $bcrypt_re = quotemeta('{bcrypt}');
 
     switch ($hash_string) {
-        case /$bcrypt_re/ { return _check_bcrypt(@_) }
+        case /^$bcrypt_re/ { return _check_bcrypt(@_) }
         # I am leaving room for additional cases (NT hashes, md5 etc.)
         else {
             return $plaintext eq $hash_string ? $TRUE : $FALSE;
