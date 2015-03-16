@@ -37,7 +37,6 @@ BEGIN {
         iplog_db_prepare
         $iplog_db_prepared
 
-        iplog_expire          iplog_shutdown
         iplog_history_ip      iplog_history_mac
         iplog_view_open       iplog_view_open_ip
         iplog_view_open_mac   iplog_view_all
@@ -68,9 +67,6 @@ our $iplog_statements = {};
 sub iplog_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::iplog');
     $logger->debug("Preparing pf::iplog database queries");
-
-    $iplog_statements->{'iplog_shutdown_sql'} = get_db_handle()->prepare(
-        qq [ update iplog set end_time=now() where end_time=0 ]);
 
     $iplog_statements->{'iplog_view_open_sql'} = get_db_handle()->prepare(
         qq [ select mac,ip,start_time,end_time from iplog where end_time=0 or end_time > now() ]);
@@ -125,14 +121,6 @@ sub iplog_db_prepare {
         qq [ update iplog set end_time=now() where mac=? and (end_time=0 or end_time > now()) ]);
 
     $iplog_db_prepared = 1;
-}
-
-sub iplog_shutdown {
-    my $logger = Log::Log4perl::get_logger('pf::iplog');
-    $logger->info("closing open iplogs");
-
-    db_query_execute(IPLOG, $iplog_statements, 'iplog_shutdown_sql') || return (0);
-    return (1);
 }
 
 sub iplog_history_ip {
@@ -262,11 +250,6 @@ sub iplog_cleanup {
     }
     $logger->info( "deleted $rows_deleted entries from iplog during iplog cleanup ($start_time $end_time) ");
     return (0);
-}
-
-sub iplog_expire {
-    my ($time) = @_;
-    return db_data(IPLOG, $iplog_statements, 'iplog_expire_sql', $time);
 }
 
 =head2 ip2mac
