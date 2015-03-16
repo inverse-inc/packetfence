@@ -540,7 +540,7 @@ sub reset_password {
     }
 
     # hash the password if required
-    if ( $Config{'advanced'}{'hash_passwords'} ne 'plaintext' ) { 
+    if ( $Config{'advanced'}{'hash_passwords'} ne $PLAINTEXT ) { 
         $password = _hash_password( $password, ( algorithm => $Config{'advanced'}{'hash_passwords'} ));
     } 
 
