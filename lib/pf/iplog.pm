@@ -41,8 +41,7 @@ BEGIN {
         iplog_view_open       iplog_view_open_ip
         iplog_view_open_mac   iplog_view_all
         iplog_open            iplog_close
-        iplog_close_now       iplog_cleanup
-        iplog_update          iplog_close_mac
+        iplog_cleanup
 
         mac2ip
         mac2allips
@@ -99,26 +98,32 @@ sub iplog_db_prepare {
                UNIX_TIMESTAMP(end_time) AS end_timestamp
              FROM iplog WHERE mac=? ORDER BY start_time DESC LIMIT 25 ]);
 
-    $iplog_statements->{'iplog_open_sql'} = get_db_handle()->prepare(
-        qq [ insert into iplog(mac,ip,start_time) values(?,?,now()) ]);
+    $iplog_statements->{'iplog_exists_sql'} = get_db_handle()->prepare(
+        qq [ SELECT 1 FROM iplog WHERE ip = ? ]
+    );
 
-    $iplog_statements->{'iplog_open_with_lease_length_sql'} = get_db_handle()->prepare(
-        qq [ insert into iplog(mac,ip,start_time,end_time) values(?,?,now(),adddate(now(), interval ? second)) ]);
+    $iplog_statements->{'iplog_insert_sql'} = get_db_handle()->prepare(
+        qq [ INSERT INTO iplog (mac, ip, start_time) VALUES (?, ?, NOW()) ]
+    );
 
-    $iplog_statements->{'iplog_open_update_end_time_sql'} = get_db_handle()->prepare(
-        qq [ update iplog set end_time = adddate(now(), interval ? second) where mac=? and ip=? and (end_time = 0 or end_time > now()) ]);
+    $iplog_statements->{'iplog_insert_with_lease_length_sql'} = get_db_handle()->prepare(
+        qq [ INSERT INTO iplog (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ]
+    );
+
+    $iplog_statements->{'iplog_update_sql'} = get_db_handle()->prepare(
+        qq [ UPDATE iplog SET mac = ?, start_time = NOW() WHERE ip = ? ]
+    );
+
+    $iplog_statements->{'iplog_update_with_lease_length_sql'} = get_db_handle()->prepare(
+        qq [ UPDATE iplog SET mac = ?, start_time = NOW(), end_time = DATE_ADD(NOW(), INTERVAL ? SECOND) WHERE ip = ? ]
+    );
 
     $iplog_statements->{'iplog_close_sql'} = get_db_handle()->prepare(
-        qq [ update iplog set end_time=now() where ip=? and end_time=0 ]);
-
-    $iplog_statements->{'iplog_close_now_sql'} = get_db_handle()->prepare(
-        qq [ update iplog set end_time=now() where ip=? and (end_time=0 or end_time > now())]);
+        qq [ UPDATE iplog SET end_time = NOW() WHERE ip = ? ]
+    );
 
     $iplog_statements->{'iplog_cleanup_sql'} = get_db_handle()->prepare(
         qq [ delete from iplog where end_time < DATE_SUB(?, INTERVAL ? SECOND) and end_time != 0 LIMIT ?]);
-
-    $iplog_statements->{'iplog_close_mac_sql'} = get_db_handle()->prepare(
-        qq [ update iplog set end_time=now() where mac=? and (end_time=0 or end_time > now()) ]);
 
     $iplog_db_prepared = 1;
 }
@@ -192,42 +197,105 @@ sub iplog_view_all {
     return db_data(IPLOG, $iplog_statements, 'iplog_view_all_sql');
 }
 
+=head2 _iplog_exists
+
+Check if there is an existing iplog entry for the IP address.
+
+Should not be used outside of this class
+
+=cut
+
+sub _iplog_exists {
+    my ( $ip ) = @_;
+    return db_data(IPLOG, $iplog_statements, 'iplog_exists_sql', $ip);
+}
+
+=head2 iplog_open
+
+Handle 'iplog' table "new" entries. Will take care of either adding or updating a new entry.
+
+=cut
+
 sub iplog_open {
     my ( $mac, $ip, $lease_length ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iplog');
+    my $logger = pf::log::get_logger();
 
+    # TODO: Should this really belong here ? Is it part of the responsability of iplog to check that ?
     if ( !node_exist($mac) ) {
         node_add_simple($mac);
     }
 
-    if ($lease_length) {
-        if ( !defined( iplog_view_open_mac($mac) ) ) {
-            $logger->debug("creating new entry for ($mac - $ip)");
-            db_query_execute(IPLOG, $iplog_statements, 'iplog_open_with_lease_length_sql', $mac, $ip, $lease_length);
-
-        } else {
-            $logger->debug("updating end_time for ($mac - $ip)");
-            db_query_execute(IPLOG, $iplog_statements, 'iplog_open_update_end_time_sql', $lease_length, $mac, $ip);
-        }
-
-    } elsif ( !defined( iplog_view_open_mac($mac) ) ) {
-        $logger->debug("creating new entry for ($mac - $ip) with empty end_time");
-        db_query_execute(IPLOG, $iplog_statements, 'iplog_open_sql', $mac, $ip) || return (0);
+    if ( _iplog_exists ) {
+        $logger->info("An iplog entry already exists for that IP ($ip). Proceed with updating it");
+        _iplog_update($mac, $ip, $lease_length);
     }
+
+    else {
+        $logger->info();
+        _iplog_insert($mac, $ip, $lease_length);
+    }
+
     return (0);
 }
+
+=head2 _iplog_insert
+
+Insert a new 'iplog' table entry.
+
+Should not be used outside of this class. Refer to L<iplog_open>
+
+=cut
+
+sub _iplog_insert {
+    my ( $ip, $mac, $lease_length ) = @_;
+    my $logger = pf::log::get_logger();
+
+    if ( $lease_length ) {
+        $logger->debug("Adding a new iplog entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
+        db_query_execute(IPLOG, $iplog_statements, 'iplog_insert_with_lease_length_sql', $mac, $ip, $lease_length);
+    } else {
+        $logger->debug("Adding a new iplog entry for IP address '$ip' with MAC address '$mac' (No lease provided)");
+        db_query_execute(IPLOG, $iplog_statements, 'iplog_insert_sql', $mac, $ip);
+    }
+}
+
+=head2 _iplog_update
+
+Update an existing 'iplog' table entry.
+
+Please note that a trigger exists in the database schema to copy the old existing record into the 'iplog_old' table and adjust the
+end_time accordingly.
+
+Should not be used outside of this class. Refer to L<iplog_open>
+
+=cut
+
+sub _iplog_update {
+    my ( $ip, $mac, $lease_length ) = @_;
+    my $logger = pf::log::get_logger();
+
+    if ( $lease_length ) {
+        $logger->debug("Updating an existing iplog entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
+        db_query_execute(IPLOG, $iplog_statements, 'iplog_update_with_lease_length_sql', $mac, $ip, $lease_length);
+    } else {
+        $logger->debug("Updating an existing iplog entry for IP address '$ip' with MAC address '$mac' (No lease provided)");
+        db_query_execute(IPLOG, $iplog_statements, 'iplog_update_sql', $mac, $ip);
+    }
+}
+
+=head2 iplog_close
+
+Close (update the end_time as of now) an existing 'iplog' table entry.
+
+=cut
 
 sub iplog_close {
-    my ($ip) = @_;
+    my ( $ip ) = @_;
+    my $logger = pf::log::get_logger();
 
+    $logger->debug("Closing existing iplog entry for IP address '$ip' as of now");
     db_query_execute(IPLOG, $iplog_statements, 'iplog_close_sql', $ip);
-    return (0);
-}
 
-sub iplog_close_now {
-    my ($ip) = @_;
-
-    db_query_execute(IPLOG, $iplog_statements, 'iplog_close_now_sql', $ip);
     return (0);
 }
 
@@ -446,34 +514,6 @@ sub mac2allips {
     }
     return @all_ips;
 }
-
-sub iplog_close_mac {
-    my ($mac) = @_;
-    db_query_execute(IPLOG, $iplog_statements, 'iplog_close_mac_sql', $mac);
-    return (0);
-}
-
-sub iplog_update {
-    my ( $srcmac, $srcip, $lease_length ) = @_;
-    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
-
-    # return if MAC or IP is not valid
-    if ( !valid_mac($srcmac) || !valid_ip($srcip) ) {
-        $logger->error("invalid MAC or IP: $srcmac $srcip");
-        return;
-    }
-
-    $logger->debug(
-        "closing iplog for mac ($srcmac) and ip $srcip - closing iplog entries"
-    );
-
-    iplog_close_mac($srcmac);
-    iplog_close_now($srcip);
-
-    iplog_open( $srcmac, $srcip, $lease_length );
-    return (1);
-}
-
 
 =head1 AUTHOR
 
