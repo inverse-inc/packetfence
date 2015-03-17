@@ -86,13 +86,14 @@ sub make_builder {
     my ($self) = @_;
     return pf::SearchBuilder->new
         ->select(qw(
-            mac pid voip bypass_vlan status category_id
+            mac pid voip bypass_vlan status category_id bypass_role_id
             user_agent computername last_arp last_dhcp notes),
             L_("IF(lastskip = '0000-00-00 00:00:00', '', lastskip)", 'lastskip'),
             L_("IF(detect_date = '0000-00-00 00:00:00', '', detect_date)", 'detect_date'),
             L_("IF(regdate = '0000-00-00 00:00:00', '', regdate)", 'regdate'),
             L_("IF(unregdate = '0000-00-00 00:00:00', '', unregdate)", 'unregdate'),
             L_("IFNULL(node_category.name, '')", 'category'),
+            L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
             L_("IFNULL(os_type.description, ' ')", 'dhcp_fingerprint'),
             { table => 'iplog', name => 'ip', as => 'last_ip' }
         )->from('node',
@@ -110,6 +111,25 @@ sub make_builder {
                             {
                                 'table'  => 'node',
                                 'name'   => 'category_id',
+                            }
+                        ],
+                    ],
+                },
+                {
+                    'table' => 'node_category',
+                    'as'  => 'node_category_bypass_role',
+                    'join' => 'LEFT',
+                    'on' =>
+                    [
+                        [
+                            {
+                                'table'  => 'node_category_bypass_role',
+                                'name'   => 'category_id',
+                            },
+                            '=',
+                            {
+                                'table'  => 'node',
+                                'name'   => 'bypass_role_id',
                             }
                         ],
                     ],
