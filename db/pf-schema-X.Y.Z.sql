@@ -215,15 +215,15 @@ CREATE TABLE iplog (
 ) ENGINE=InnoDB;
 
 --
--- Trigger to insert old record from 'iplog' in 'iplog_old' before updating the current one
+-- Trigger to insert old record from 'iplog' in 'iplog_history' before updating the current one
 --
 
-DROP TRIGGER IF EXISTS iplog_insert_iplog_old_before_update_trigger;
+DROP TRIGGER IF EXISTS iplog_insert_in_iplog_history_before_update_trigger;
 DELIMITER /
-CREATE TRIGGER iplog_insert_iplog_old_before_update_trigger BEFORE UPDATE ON iplog
+CREATE TRIGGER iplog_insert_in_iplog_history_before_update_trigger BEFORE UPDATE ON iplog
 FOR EACH ROW
 BEGIN
-  INSERT INTO iplog_old SET ip = OLD.ip, mac = OLD.mac, start_time = OLD.start_time, end_time = CASE
+  INSERT INTO iplog_history SET ip = OLD.ip, mac = OLD.mac, start_time = OLD.start_time, end_time = CASE
     WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
     WHEN OLD.end_time > NOW() THEN NOW()
     ELSE OLD.end_time
@@ -232,10 +232,10 @@ END /
 DELIMITER ;
 
 --
--- Table structure for table `iplog_old`
+-- Table structure for table `iplog_history`
 --
 
-CREATE TABLE iplog_old (
+CREATE TABLE iplog_history (
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
@@ -243,10 +243,10 @@ CREATE TABLE iplog_old (
 ) ENGINE=InnoDB;
 
 --
--- Table structure for table `iplog_history`
+-- Table structure for table `iplog_archive`
 --
 
-CREATE TABLE iplog_history (
+CREATE TABLE iplog_archive (
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,

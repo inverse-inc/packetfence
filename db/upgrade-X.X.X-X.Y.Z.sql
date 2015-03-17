@@ -15,10 +15,16 @@ CREATE TABLE keyed (
 RENAME TABLE temporary_password TO `password`;
 
 --
--- Table structure for table `iplog_old`
+-- Rename existing `iplog_history` to `iplog_archive`
 --
 
-CREATE TABLE iplog_old (
+RENAME TABLE iplog_history TO iplog_archive;
+
+--
+-- Table structure for new `iplog_history` table
+--
+
+CREATE TABLE iplog_history (
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
@@ -38,15 +44,15 @@ ALTER TABLE iplog DROP INDEX iplog_end_time;
 ALTER TABLE iplog DROP FOREIGN KEY 0_63;
 
 --
--- Trigger to insert old record from 'iplog' in 'iplog_old' before updating the current one
+-- Trigger to insert old record from 'iplog' in 'iplog_history' before updating the current one
 --
 
-DROP TRIGGER IF EXISTS iplog_insert_iplog_old_before_update_trigger;
+DROP TRIGGER IF EXISTS iplog_insert_in_iplog_history_before_update_trigger;
 DELIMITER /
-CREATE TRIGGER iplog_insert_iplog_old_before_update_trigger BEFORE UPDATE ON iplog
+CREATE TRIGGER iplog_insert_in_iplog_history_before_update_trigger BEFORE UPDATE ON iplog
 FOR EACH ROW
 BEGIN
-  INSERT INTO iplog_old SET ip = OLD.ip, mac = OLD.mac, start_time = OLD.start_time, end_time = CASE
+  INSERT INTO iplog_history SET ip = OLD.ip, mac = OLD.mac, start_time = OLD.start_time, end_time = CASE
     WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
     WHEN OLD.end_time > NOW() THEN NOW()
     ELSE OLD.end_time
@@ -55,9 +61,9 @@ END /
 DELIMITER ;
 
 --
--- Table structure for table 'iplog_history'
+-- Table structure for table 'iplog_archive'
 --
 
-ALTER TABLE iplog_history MODIFY mac varchar(17) NOT NULL;
-ALTER TABLE iplog_history MODIFY ip varchar(45) NOT NULL;
-ALTER TABLE iplog_history MODIFY end_time datetime NOT NULL;
+ALTER TABLE iplog_archive MODIFY mac varchar(17) NOT NULL;
+ALTER TABLE iplog_archive MODIFY ip varchar(45) NOT NULL;
+ALTER TABLE iplog_archive MODIFY end_time datetime NOT NULL;
