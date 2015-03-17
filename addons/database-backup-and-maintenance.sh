@@ -2,10 +2,10 @@
 #
 # Database maintenance and backup
 #
-# - Move entries older than a month from locationlog to locationlog_history
+# - Move entries older than a month from locationlog to locationlog_archive
 # - Optimize tables on sunday
 # - compressed mysqldump to $BACKUP_DIRECTORY, rotate and clean
-# - archive locationlog_history entries older than a year the first day of each month
+# - archive locationlog_archive entries older than a year the first day of each month
 #
 # Copyright (C) 2005-2015 Inverse inc.
 #
@@ -13,7 +13,7 @@
 #
 # Licensed under the GPL
 #
-# Installation: make sure you have locationlog_history (based on locationlog) and edit DB_PWD to fit your password.
+# Installation: make sure you have locationlog_archive (based on locationlog) and edit DB_PWD to fit your password.
 
 NB_DAYS_TO_KEEP_DB=30
 NB_DAYS_TO_KEEP_FILES=30
@@ -59,9 +59,9 @@ fi
 # is MySQL running? meaning we are the live packetfence
 if [ -f /var/run/mysqld/mysqld.pid ]; then
 
-    # locationlog cleanup: all the closed entries older than a month are moved to locationlog_history
+    # locationlog cleanup: all the closed entries older than a month are moved to locationlog_archive
     # in order to keep locationlog small
-    mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "INSERT INTO locationlog_history SELECT * FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
+    mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "INSERT INTO locationlog_archive SELECT * FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
     mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
 
     # iplog cleanup: all the closed entries older than a month are moved to iplog_archive
@@ -94,11 +94,11 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
 
     # let's archive on the first day of the month
     if [ `/bin/date +%d` -eq '01' ]; then
-        # flushing old locationlog_history records into sql files for archival then removing from database
+        # flushing old locationlog_archive records into sql files for archival then removing from database
         current_filename=$ARCHIVE_DIRECTORY/$ARCHIVE_DB_FILENAME-`date +%Y%m%d`.sql
-        mysqldump -u $DB_USER -p$DB_PWD $DB_NAME --tables locationlog_history --skip-opt --no-create-info --quick --where='((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR),"%Y-%m-01"))' > $current_filename && \
+        mysqldump -u $DB_USER -p$DB_PWD $DB_NAME --tables locationlog_archive --skip-opt --no-create-info --quick --where='((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR),"%Y-%m-01"))' > $current_filename && \
             gzip $current_filename && \
-            mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'LOCK TABLES locationlog_history WRITE; DELETE FROM locationlog_history WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR),"%Y-%m-01")); UNLOCK TABLES;'
+            mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'LOCK TABLES locationlog_archive WRITE; DELETE FROM locationlog_archive WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR),"%Y-%m-01")); UNLOCK TABLES;'
 
         #Clean Accounting for previous year... if needed
         mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'DELETE FROM radacct WHERE YEAR(acctstarttime) < YEAR(CURRENT_DATE());'

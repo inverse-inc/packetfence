@@ -21,6 +21,12 @@ RENAME TABLE temporary_password TO `password`;
 RENAME TABLE iplog_history TO iplog_archive;
 
 --
+-- Rename existing `locationlog_history` to `locationlog_archive`
+--
+
+RENAME TABLE locationlog_history TO locationlog_archive;
+
+--
 -- Table structure for new `iplog_history` table
 --
 

@@ -302,7 +302,7 @@ CREATE TABLE `locationlog` (
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `locationlog_history` (
+CREATE TABLE `locationlog_archive` (
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(8) NOT NULL default '',
@@ -316,7 +316,7 @@ CREATE TABLE `locationlog_history` (
   `switch_mac` varchar(17) DEFAULT NULL,
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
-  KEY `locationlog_history_view_mac` (`mac`, `end_time`),
+  KEY `locationlog_archive_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;

@@ -3376,7 +3376,7 @@ Keeping tables small
 
 Over time, some of the tables will grow large and this will drag down performance (this is especially true on a wireless setup).
 
-One such table is the `locationlog` table. We recommend that closed entries in this table be moved to the archive table `locationlog_history` after some time. A closed record is one where the `end_time` field is set to a date (strickly speaking it is when `end_time` is not null and not equals to 0).
+One such table is the `locationlog` table. We recommend that closed entries in this table be moved to the archive table `locationlog_archive` after some time. A closed record is one where the `end_time` field is set to a date (strickly speaking it is when `end_time` is not null and not equals to 0).
 
 We provide a script called `database-backup-and-maintenance.sh` located in `addons/` that performs this cleanup in addition to optimize tables on Sunday and daily backups.
 
