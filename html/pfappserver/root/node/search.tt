@@ -134,6 +134,7 @@
                     [%- END %]
                     [%- IF c.session.nodecolumns.bypass_vlan %]
                     <td class="hidden-phone">[% node.bypass_vlan | html %]</td>
+                    [%- END %]
                     [%- IF c.session.nodecolumns.bypass_role %]
                     <td class="hidden-phone">[% node.bypass_role | html %]</td>
                     [%- END %]
