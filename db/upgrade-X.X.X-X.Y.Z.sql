@@ -78,5 +78,26 @@ ALTER TABLE iplog_archive MODIFY end_time datetime NOT NULL;
 ---
 --- Alter for bypass_role
 ---
-ALTER TABLE node
-    ADD `bypass_role` varchar(255) DEFAULT NULL;
+DROP PROCEDURE IF EXISTS add_bypass_role_to_node;
+
+DELIMITER $$
+
+CREATE DEFINER=CURRENT_USER PROCEDURE add_bypass_role_to_node ( )
+BEGIN
+    DECLARE colName TEXT;
+    SELECT column_name INTO colName
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+        AND table_name = 'node'
+        AND column_name = 'bypass_role';
+
+    IF colName is null THEN
+        ALTER TABLE node ADD `bypass_role` varchar(255) DEFAULT NULL;
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL add_bypass_role_to_node;
+
+DROP PROCEDURE add_bypass_role_to_node;
