@@ -296,8 +296,7 @@ sub _iplog_insert {
 
 Update an existing 'iplog' table entry.
 
-Please note that a trigger (iplog_insert_iplog_old_before_update_trigger) exists in the database schema to copy the old existing record into the 'iplog_old' table and adjust the
-end_time accordingly.
+Please note that a trigger (iplog_insert_in_iplog_history_before_update_trigger) exists in the database schema to copy the old existing record into the 'iplog_history' table and adjust the end_time accordingly.
 
 Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_open>
 
