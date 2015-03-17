@@ -20,6 +20,7 @@ use POSIX;
 use pf::config;
 use pf::log;
 use pf::util;
+use pf::cluster;
 
 extends 'pf::services::manager';
 with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
@@ -56,16 +57,13 @@ sub generateConfig {
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
-        next if (!isenabled($cfg->{'active_active_enabled'}));
+        next if !$cluster_enabled;
         my $i = 0;
         if ($cfg->{'type'} eq 'management') {
-            $tags{'active_active_ip'} = $cfg->{'active_active_ip'};
-            my @mysql_backend = $cfg->{'ip'};
-            if (defined($cfg->{'active_active_members'})) {
-                @mysql_backend = split(',',$cfg->{'active_active_members'});
-            }
+            $tags{'active_active_ip'} = pf::cluster::management_cluster_ip();
+            my @mysql_backend = values %{pf::cluster::members_ips($interface)};
             foreach my $mysql_back (@mysql_backend) {
-                if (defined($cfg->{'active_active_mysql_master'}) && $cfg->{'active_active_mysql_master'} eq $mysql_back) {
+                if ($i == 0) {
                 $tags{'mysql_backend'} .= <<"EOT";
         server MySQL$i $mysql_back:3306 check port 9191 weight 1
 EOT
@@ -78,10 +76,8 @@ EOT
             }
         }
         if ($cfg->{'type'} eq 'internal') {
-            my @backend_ip = $cfg->{'ip'};
-            if (defined($cfg->{'active_active_members'})) {
-                @backend_ip = split(',',$cfg->{'active_active_members'});
-            }
+            my $cluster_ip = pf::cluster::cluster_ip($interface);
+            my @backend_ip = values %{pf::cluster::members_ips($interface)};
             my $backend_ip_config = '';
             foreach my $back_ip ( @backend_ip ) {
 
@@ -93,12 +89,12 @@ EOT
  
             $tags{'http'} .= <<"EOT";
 frontend http-$j
-        bind $cfg->{'active_active_ip'}:80
+        bind $cluster_ip:80
         reqadd X-Forwarded-Proto:\\ http
         default_backend $j-backend
 
 frontend https-$j
-        bind $cfg->{'active_active_ip'}:443 ssl crt /usr/local/pf/conf/ssl/server.pem
+        bind $cluster_ip:443 ssl crt /usr/local/pf/conf/ssl/server.pem
         reqadd X-Forwarded-Proto:\\ https
         default_backend $j-backend
 
@@ -132,15 +128,7 @@ sub stop {
 
 sub isManaged {
     my ($self) = @_;
-    my @ints = uniq(@listen_ints,@dhcplistener_ints);
-    foreach my $interface ( @ints ) {
-        my $cfg = $Config{"interface $interface"};
-        next unless $cfg;
-        if (isenabled($cfg->{'active_active_enabled'})) {
-            return 1;
-        }
-    }
-    return 0;
+    return $cluster_enabled;
 }
 
 =head1 AUTHOR

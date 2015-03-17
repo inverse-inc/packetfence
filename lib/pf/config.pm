@@ -194,7 +194,6 @@ tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 
-
 sub import {
     pf::config->export_to_level(1,@_);
     pf::file_paths->export_to_level(1);

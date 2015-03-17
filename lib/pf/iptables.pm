@@ -41,6 +41,7 @@ use pf::node qw(nodes_registered_not_violators);
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::authentication;
+use pf::cluster;
 
 # This is the content that needs to match in the iptable rules for the service
 # to be considered as running
@@ -178,6 +179,7 @@ sub generate_filter_if_src_to_chain {
         my $ip = $interface->tag("vip") || $interface->tag("ip");
         my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
 
+        my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $dev"}->{ip};
         # VLAN enforcement
         if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
             if ($dev =~ m/(\w+):\d+/) {
@@ -185,8 +187,8 @@ sub generate_filter_if_src_to_chain {
             }
             $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
             $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
-            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647\n" if ( isenabled($Config{"interface $dev"}{'active_active_enabled'}));
-            $rules .= "-A INPUT --in-interface $dev -d ".$Config{"interface $dev"}{'active_active_ip'}." --jump $FW_FILTER_INPUT_INT_VLAN\n" if ((defined($Config{"interface $dev"}{'active_active_ip'})) && isenabled($Config{"interface $dev"}{'active_active_enabled'}));
+            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647\n" if ($pf::cluster_enabled);
+            $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $FW_FILTER_INPUT_INT_VLAN\n" if ($cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
             if ($passthrough_enabled) {
@@ -199,8 +201,8 @@ sub generate_filter_if_src_to_chain {
             my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
             $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
             $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
-            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647\n" if ( isenabled($Config{"interface $dev"}{'active_active_enabled'}));
-            $rules .= "-A INPUT --in-interface $dev -d ".$Config{"interface $dev"}{'active_active_ip'}." --jump $FW_FILTER_INPUT_INT_INLINE\n" if ((defined($Config{"interface $dev"}{'active_active_ip'})) && isenabled($Config{"interface $dev"}{'active_active_enabled'}));
+            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647\n" if ($cluster_enabled);
+            $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $FW_FILTER_INPUT_INT_INLINE\n" if ($cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d $mgmt_ip --protocol tcp --match tcp --dport 443 --jump ACCEPT\n";

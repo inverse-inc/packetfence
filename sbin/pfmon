@@ -225,11 +225,11 @@ sub registertasks  {
             acct_maintenance();
         }
     );
-    register_task(
-        'Sync Cluster','cluster_sync_interval',sub {
-            pf::clustermgmt::sync_cluster;
-        }
-    );
+    #register_task(
+    #    'Sync Cluster','cluster_sync_interval',sub {
+    #        pf::clustermgmt::sync_cluster;
+    #    }
+    #);
 }
 
 =head2 cleanup

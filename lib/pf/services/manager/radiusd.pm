@@ -18,6 +18,7 @@ use pf::util;
 use pf::config;
 use Moo;
 use NetAddr::IP;
+use pf::cluster;
 
 extends 'pf::services::manager';
 
@@ -131,13 +132,10 @@ sub generate_radiusd_actif {
     $tags{'members'} = '';
     $tags{'config'} ='';
 
-    if (isenabled($cfg->{'active_active_enabled'})) {
+    if ($cluster_enabled) {
         $tags{'template'}    = "$conf_dir/radiusd/packetfence-actif";
-        $tags{'virt_ip'} = $cfg->{'active_active_ip'};
-        my @radius_backend = $cfg->{'ip'};
-        if (defined($cfg->{'active_active_members'})) {
-             @radius_backend = split(',',$cfg->{'active_active_members'});
-        }
+        $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
+        my @radius_backend = values %{pf::cluster::members_ips($int)};
         my $i = 0;
         foreach my $radius_back (@radius_backend) {
             $tags{'members'} .= <<"EOT";

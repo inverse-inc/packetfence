@@ -20,6 +20,7 @@ use POSIX;
 use pf::config;
 use pf::log;
 use pf::util;
+use pf::cluster;
 
 extends 'pf::services::manager';
 with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
@@ -54,17 +55,18 @@ sub generateConfig {
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
-        next if (!isenabled($cfg->{'active_active_enabled'}));
-        my $priority = $cfg->{'active_active_priority'} || 100;
+        next if (!$cluster_enabled);
+        my $priority = 100 - pf::cluster::cluster_index();
+        my $cluster_ip = pf::cluster::cluster_ip($interface);
         $tags{'vrrp'} .= <<"EOT";
 vrrp_instance $cfg->{'ip'} {
   virtual_router_id 50
   advert_int 1
-  priority $priority      # 150 on master less on backup
+  priority $priority
   state MASTER
   interface $interface
   virtual_ipaddress {
-    $cfg->{'active_active_ip'} dev $interface
+    $cluster_ip dev $interface
   }
   notify_master "$install_dir/bin/pfupdate --mode=master"
   notify_backup "$install_dir/bin/pfupdate --mode=slave"
@@ -99,15 +101,7 @@ sub stop {
 
 sub isManaged {
     my ($self) = @_;
-    my @ints = uniq(@listen_ints,@dhcplistener_ints);
-    foreach my $interface ( @ints ) {
-        my $cfg = $Config{"interface $interface"};
-        next unless $cfg;
-        if (isenabled($cfg->{'active_active_enabled'})) {
-            return 1;
-        }
-    }
-    return 0;
+    return $cluster_enabled;
 }
 
 =head1 AUTHOR

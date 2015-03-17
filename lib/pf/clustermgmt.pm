@@ -24,9 +24,10 @@ use Try::Tiny;
 use Socket;
 
 use strict;
+use warnings;
 use pf::config;
 use pf::config::cached;
-use pf::log(service => 'httpd.admin');
+use pf::log;
 use pf::util;
 use pf::ConfigStore::Interface;
 use pf::ConfigStore::Pf;
@@ -35,7 +36,6 @@ use Net::Interface;
 use List::MoreUtils qw(uniq);
 use pf::api::jsonrpcclient;
 use pf::services;
-
 
 our %REST_PARSERS = (
     status => \&status,

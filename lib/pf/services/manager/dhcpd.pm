@@ -24,6 +24,7 @@ use NetAddr::IP;
 use pf::config;
 use pf::log;
 use pf::util;
+use pf::cluster;
 
 extends 'pf::services::manager';
 with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
@@ -37,6 +38,8 @@ sub generateConfig {
     my ($package, $filename, $line) = caller();
     $logger->info("$package, $filename, $line");
 
+
+
     my %tags;
     my %direct_subnets;
     $tags{'template'} = "$conf_dir/dhcpd.conf";
@@ -47,18 +50,13 @@ sub generateConfig {
     foreach my $interface ( @listen_ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
-        if ($cfg->{'active_active_enabled'}) {
-            my $master = 'secondary';
-            $master = 'primary' if ( isenabled($cfg->{'active_active_dhcpd_master'} ) );
-            my @active_members = '';
-            if (defined($cfg->{'active_active_members'})) {
-                @active_members = split(',',$cfg->{'active_active_members'});
-            }
-            my $members = join(',',grep { $_ ne $cfg->{'ip'} } @active_members);
-            if ($members) {
-                my $ip = NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
-                my $net = $ip->network();
-                $tags{'active'} .= <<"EOT";
+        my $master = 'secondary';
+        $master = 'primary' if ( pf::cluster::is_dhcpd_primary() );
+        my $members = pf::cluster::dhcpd_peer($interface);
+        if ($members) {
+            my $ip = NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
+            my $net = $ip->network();
+            $tags{'active'} .= <<"EOT";
 failover peer "$net" {
   $master;
   address $cfg->{'ip'};
@@ -69,17 +67,16 @@ failover peer "$net" {
   max-unacked-updates 10;
   load balance max seconds 3;
 EOT
-                if ($master eq 'primary') {
-                    $tags{'active'} .= <<"EOT";
+            if ($master eq 'primary') {
+                $tags{'active'} .= <<"EOT";
   mclt 1800;
   split 128;
 }
 EOT
-                } else {
-                    $tags{'active'} .= <<"EOT";
+            } else {
+                $tags{'active'} .= <<"EOT";
 }
 EOT
-                }
             }
         }
         my $net = Net::Netmask->new($cfg->{'ip'}, $cfg->{'mask'});
@@ -92,26 +89,21 @@ EOT
         my %net = %{$ConfigNetworks{$network}};
 
         if ( $net{'dhcpd'} eq 'enabled' ) {
-            my $ip = new NetAddr::IP::Lite clean_ip($net{'gateway'});
+            my $ip = NetAddr::IP::Lite->new(clean_ip($net{'gateway'}));
             if (defined($net{'next_hop'})) {
-                $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'})
+                $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
             }
             my $active = '0';
             my $dns ='0';
             foreach my $interface ( @listen_ints ) {
                 my $cfg = $Config{"interface $interface"};
                 my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
-                if (isenabled($cfg->{'active_active_enabled'})) {
-                    my @active_members;
-                    if (defined($cfg->{'active_active_members'})) {
-                        @active_members = split(',',$cfg->{'active_active_members'});
-                    }
-                    my $members = join(',',grep { $_ ne $cfg->{'ip'} } @active_members);
-                    if ($members) {
-                        if ($current_network->contains($ip)) {
-                            $dns = $cfg->{'active_active_members'};
-                            $active =  NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
-                        }
+                my @active_members = values %{pf::cluster::members_ips($interface)};
+                my $members = join(',',@active_members);
+                if ($members) {
+                    if ($current_network->contains($ip)) {
+                        $dns = $members;
+                        $active =  NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
                     }
                 }
             }
@@ -247,6 +239,15 @@ sub manageStaticRoute {
             my @out = pf_run($cmd);
         }
     }
+}
+
+sub isManaged {
+    my $logger = get_logger;
+    if($cluster_enabled && !pf::cluster::should_offer_dhcp()){
+        $logger->info("This server cannot offer dhcp according to pf::cluster");
+        return 0;
+    }
+    return 1;
 }
 
 =head1 AUTHOR
