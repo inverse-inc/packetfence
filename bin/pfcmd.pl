@@ -1125,11 +1125,7 @@ sub history {
     my $date;
     $date = str2time( $cmd{command}[2] ) if ( defined $cmd{command}[1] );
     my ( $function, %params );
-    if ( $addr =~ /^(\d{1,3}\.){3}\d{1,3}$/ ) {
-        $function = "iplog_history_ip";
-    } else {
-        $function = "iplog_history_mac";
-    }
+    $function = "iplog_history";
     if ($date) {
         $params{'date'} = $date;
     }
@@ -1141,11 +1137,7 @@ sub ipmachistory {
     import pf::iplog;
     my $addr = $cmd{command}[1];
     my ( $function, %params );
-    if ( $addr =~ /^(\d{1,3}\.){3}\d{1,3}$/ ) {
-        $function = "iplog_history_ip";
-    } else {
-        $function = "iplog_history_mac";
-    }
+    $function = "iplog_history";
     if (scalar(@{$cmd{command}}) == 4) {
         $params{'start_time'} = str2time( $cmd{command}[2] );
         $params{'end_time'}   = str2time( $cmd{command}[3] );

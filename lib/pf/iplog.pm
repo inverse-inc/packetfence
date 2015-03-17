@@ -37,7 +37,7 @@ BEGIN {
         iplog_db_prepare
         $iplog_db_prepared
 
-        iplog_history_ip      iplog_history_mac
+        iplog_history
         iplog_view_open       iplog_view_open_ip
         iplog_view_open_mac
         iplog_open            iplog_close
@@ -126,7 +126,30 @@ sub iplog_db_prepare {
     $iplog_db_prepared = 1;
 }
 
-sub iplog_history_ip {
+=head2 iplog_history
+
+Get the full iplog for a given IP address or MAC address.
+
+=cut
+
+sub iplog_history {
+    my ( $search_by, %params ) = @_;
+    my $logger = pf::log::get_logger();
+
+    _iplog_history_mac($search_by, %params) if ( valid_mac($search_by) );
+
+    _iplog_history_ip($search_by, %params) if ( valid_ip($search_by) );
+}
+
+=head2 _iplog_history_ip
+
+Get the full iplog for a given IP address.
+
+Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_history>
+
+=cut
+
+sub _iplog_history_ip {
     my ( $ip, %params ) = @_;
 
     if ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) )
@@ -142,7 +165,15 @@ sub iplog_history_ip {
     }
 }
 
-sub iplog_history_mac {
+=head2 _iplog_history_mac
+
+Get the full iplog for a given MAC address.
+
+Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_history>
+
+=cut
+
+sub _iplog_history_mac {
     my ( $mac, %params ) = @_;
     $mac = clean_mac($mac);
 

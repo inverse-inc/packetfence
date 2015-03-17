@@ -53,7 +53,7 @@ sub lookup_node {
             $return .= "\n";
             
         } else {
-            my @node_iplog_history_info = iplog_history_mac($mac);
+            my @node_iplog_history_info = iplog_history($mac);
             if (ref($node_iplog_history_info[0]) eq 'HASH' && defined($node_iplog_history_info[0]->{'ip'})) {
                 my $latest_iplog = $node_iplog_history_info[0];
                 $return .= "IP Address     : ".$latest_iplog->{'ip'}." (inactive)\n";
