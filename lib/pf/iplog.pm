@@ -193,9 +193,9 @@ sub iplog_view_all_open_mac {
 
 =head2 _iplog_exists
 
-Check if there is an existing iplog entry for the IP address.
+Check if there is an existing 'iplog' table entry for the IP address.
 
-Should not be used outside of this class
+Not meant to be used outside of this class.
 
 =cut
 
@@ -206,7 +206,7 @@ sub _iplog_exists {
 
 =head2 iplog_open
 
-Handle 'iplog' table "new" entries. Will take care of either adding or updating a new entry.
+Handle 'iplog' table "new" entries. Will take care of either adding or updating an entry.
 
 =cut
 
@@ -220,22 +220,20 @@ sub iplog_open {
     }
 
     unless (valid_ip($ip)) {
-        $logger->warn("Trying to open iplog entry with an invalid IP address '" . ($ip // "undef") . "'");
+        $logger->warn("Trying to open an 'iplog' table entry with an invalid IP address '" . ($ip // "undef") . "'");
         return;
     }
 
     unless (valid_mac($mac)) {
-        $logger->warn("Trying to open iplog entry with an invalid MAC address '" . ($mac // "undef") . "'");
+        $logger->warn("Trying to open an 'iplog' table entry with an invalid MAC address '" . ($mac // "undef") . "'");
         return;
     }
 
     if ( _iplog_exists ) {
-        $logger->debug("An iplog entry already exists for that IP ($ip). Proceed with updating it");
+        $logger->debug("An 'iplog' table entry already exists for that IP ($ip). Proceed with updating it");
         _iplog_update($mac, $ip, $lease_length);
-    }
-
-    else {
-        $logger->debug("No iplog entry found for that IP ($ip). Creating a new one");
+    } else {
+        $logger->debug("No 'iplog' table entry found for that IP ($ip). Creating a new one");
         _iplog_insert($mac, $ip, $lease_length);
     }
 
@@ -246,7 +244,7 @@ sub iplog_open {
 
 Insert a new 'iplog' table entry.
 
-Should not be used outside of this class. Refer to L<iplog_open>
+Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_open> 
 
 =cut
 
@@ -255,10 +253,10 @@ sub _iplog_insert {
     my $logger = pf::log::get_logger();
 
     if ( $lease_length ) {
-        $logger->debug("Adding a new iplog entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
+        $logger->debug("Adding a new 'iplog' table entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
         db_query_execute(IPLOG, $iplog_statements, 'iplog_insert_with_lease_length_sql', $mac, $ip, $lease_length);
     } else {
-        $logger->debug("Adding a new iplog entry for IP address '$ip' with MAC address '$mac' (No lease provided)");
+        $logger->debug("Adding a new 'iplog' table entry for IP address '$ip' with MAC address '$mac' (No lease provided)");
         db_query_execute(IPLOG, $iplog_statements, 'iplog_insert_sql', $mac, $ip);
     }
 }
@@ -270,7 +268,7 @@ Update an existing 'iplog' table entry.
 Please note that a trigger (iplog_insert_iplog_old_before_update_trigger) exists in the database schema to copy the old existing record into the 'iplog_old' table and adjust the
 end_time accordingly.
 
-Should not be used outside of this class. Refer to L<iplog_open>
+Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_open>
 
 =cut
 
@@ -279,10 +277,10 @@ sub _iplog_update {
     my $logger = pf::log::get_logger();
 
     if ( $lease_length ) {
-        $logger->debug("Updating an existing iplog entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
+        $logger->debug("Updating an existing 'iplog' table entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
         db_query_execute(IPLOG, $iplog_statements, 'iplog_update_with_lease_length_sql', $mac, $ip, $lease_length);
     } else {
-        $logger->debug("Updating an existing iplog entry for IP address '$ip' with MAC address '$mac' (No lease provided)");
+        $logger->debug("Updating an existing 'iplog' table entry for IP address '$ip' with MAC address '$mac' (No lease provided)");
         db_query_execute(IPLOG, $iplog_statements, 'iplog_update_sql', $mac, $ip);
     }
 }
@@ -297,7 +295,7 @@ sub iplog_close {
     my ( $ip ) = @_;
     my $logger = pf::log::get_logger();
 
-    $logger->debug("Closing existing iplog entry for IP address '$ip' as of now");
+    $logger->debug("Closing existing 'iplog' table entry for IP address '$ip' as of now");
     db_query_execute(IPLOG, $iplog_statements, 'iplog_close_sql', $ip);
 
     return (0);
