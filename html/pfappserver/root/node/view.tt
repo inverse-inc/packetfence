@@ -59,7 +59,7 @@
             [% form.field('computername').render IF node.computername -%]
             [% form.field('voip').render %]
             [% form.field('bypass_vlan').render %]
-            [% form.field('bypass_role').render %]
+            [% form.field('bypass_role_id').render %]
             [% form.field('notes').render %]
 
             [% IF node.last_switch OR node.last_ssid -%]

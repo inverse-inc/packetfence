@@ -113,13 +113,13 @@ sub node_db_prepare {
     $node_statements->{'node_add_sql'} = get_db_handle()->prepare(
         qq[
         INSERT INTO node (
-            mac, pid, category_id, status, voip, bypass_vlan, bypass_role,
+            mac, pid, category_id, status, voip, bypass_vlan, bypass_role_id,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             notes, autoreg, sessionid
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? 
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     ]
     );
@@ -129,7 +129,7 @@ sub node_db_prepare {
     $node_statements->{'node_modify_sql'} = get_db_handle()->prepare(
         qq[
         UPDATE node SET
-            mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?, bypass_role=?,
+            mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?, bypass_role_id=?,
             detect_date=?, regdate=?, unregdate=?, lastskip=?, time_balance=?, bandwidth_balance=?,
             user_agent=?, computername=?, dhcp_fingerprint=?,
             last_arp=?, last_dhcp=?,
@@ -141,31 +141,31 @@ sub node_db_prepare {
     $node_statements->{'node_attributes_sql'} = get_db_handle()->prepare(
         qq[
         SELECT mac, pid, voip, status, bypass_vlan ,
-            IF(ISNULL(nc.name), '', nc.name) as category,                                                                                                                                                                  
+            IF(ISNULL(nc.name), '', nc.name) as category,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role,
             detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             node.notes, autoreg, sessionid, machine_account
         FROM node
-            LEFT JOIN node_category as nc on node.bypass_role = nc.category_id
-            LEFT JOIN node_category as nr on node.category_id = nr.category_id
+            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
+            LEFT JOIN node_category as nc on node.category_id = nc.category_id
         WHERE mac = ?
     ]
     );
 
     $node_statements->{'node_attributes_with_fingerprint_sql'} = get_db_handle()->prepare(
         qq[
-        SELECT mac, pid, voip, status, bypass_vlan, 
-            IF(ISNULL(nc.name), '', nc.name) as category,                                                                                                                                                                  
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role , 
+        SELECT mac, pid, voip, status, bypass_vlan,
+            IF(ISNULL(nc.name), '', nc.name) as category,
+            IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint,
             last_arp, last_dhcp,
-            node.notes, autoreg, sessionid, machine_account 
+            node.notes, autoreg, sessionid, machine_account
         FROM node
-            LEFT JOIN node_category as nc on node.bypass_role = nc.category_id            
-            LEFT JOIN node_category as nr on node.category_id = nr.category_id  
+            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
+            LEFT JOIN node_category as nc on node.category_id = nc.category_id
             LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint
             LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type
             LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id
@@ -177,8 +177,8 @@ sub node_db_prepare {
     $node_statements->{'node_view_old_sql'} = get_db_handle()->prepare(
         qq[
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
-            IF(ISNULL(nc.name), '', nc.name) as category,                                                                                                                                                                  
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role , 
+            IF(ISNULL(nc.name), '', nc.name) as category,
+            IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             node.detect_date, node.regdate, node.unregdate, node.lastskip,
             node.user_agent, node.computername, node.dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
@@ -189,8 +189,8 @@ sub node_db_prepare {
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
         FROM node
-            LEFT JOIN node_category as nc on node.bypass_role = nc.category_id            
-            LEFT JOIN node_category as nr on node.category_id = nr.category_id  
+            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
+            LEFT JOIN node_category as nc on node.category_id = nc.category_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
             LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
         GROUP BY node.mac
@@ -199,9 +199,9 @@ sub node_db_prepare {
     );
 
     $node_statements->{'node_view_sql'} = get_db_handle()->prepare(<<'    SQL');
-        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status, node.category_id,
-            IF(ISNULL(nc.name), '', nc.name) as category,                                                                                                                                                                  
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role , 
+        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status, node.category_id, node.bypass_role_id,
+            IF(ISNULL(nc.name), '', nc.name) as category,
+            IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
             node.user_agent, node.computername, node.dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
@@ -209,8 +209,8 @@ sub node_db_prepare {
             UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
             UNIX_TIMESTAMP(node.unregdate) AS unregdate_timestamp
         FROM node
-            LEFT JOIN node_category as nc on node.bypass_role = nc.category_id            
-            LEFT JOIN node_category as nr on node.category_id = nr.category_id 
+            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
+            LEFT JOIN node_category as nc on node.category_id = nc.category_id
         WHERE node.mac=?
     SQL
 
@@ -235,8 +235,8 @@ sub node_db_prepare {
     # DEPRECATED see node_view_with_fingerprint()'s POD
     $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(
         qq[
-        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,                                                                                                                                 
-            IF(ISNULL(nc.name), '', nc.name) as category,                                                                                                                                                                  
+        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
+            IF(ISNULL(nc.name), '', nc.name) as category,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             node.detect_date, node.regdate, node.unregdate, node.lastskip,
             node.user_agent, node.computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint,
@@ -248,8 +248,8 @@ sub node_db_prepare {
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
         FROM node
-            LEFT JOIN node_category as nc on node.bypass_role = nc.category_id            
-            LEFT JOIN node_category as nr on node.category_id = nr.category_id 
+            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
+            LEFT JOIN node_category as nc on node.category_id = nc.category_id
             LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint
             LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type
             LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id
@@ -262,8 +262,8 @@ sub node_db_prepare {
 
     # This guy here is not in a prepared statement yet, have a look in node_view_all to see why
     $node_statements->{'node_view_all_sql'} = qq[
-       SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,                                                                                                                                                
-            IF(ISNULL(nc.name), '', nc.name) as category,                                                                                                                                                                  
+       SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
+            IF(ISNULL(nc.name), '', nc.name) as category,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             IF(node.detect_date = '0000-00-00 00:00:00', '', node.detect_date) as detect_date,
             IF(node.regdate = '0000-00-00 00:00:00', '', node.regdate) as regdate,
@@ -279,8 +279,8 @@ sub node_db_prepare {
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
         FROM node
-            LEFT JOIN node_category as nc on node.bypass_role = nc.category_id            
-            LEFT JOIN node_category as nr on node.category_id = nr.category_id 
+            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
+            LEFT JOIN node_category as nc on node.category_id = nc.category_id
             LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint = dhcp_fingerprint.fingerprint
             LEFT JOIN os_type ON dhcp_fingerprint.os_id = os_type.os_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
@@ -306,14 +306,14 @@ sub node_db_prepare {
 
     $node_statements->{'node_is_unregistered_sql'} = get_db_handle()->prepare(
         qq[
-        SELECT mac, pid, voip, bypass_vlan, status,  
+        SELECT mac, pid, voip, bypass_vlan, status,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             notes
         FROM node
-            LEFT JOIN node_category as nr on node.category_id = nr.category_id 
+            LEFT JOIN node_category as nr on node.category_id = nr.category_id
         WHERE status = "$STATUS_UNREGISTERED" AND mac = ?
     ]
     );
@@ -326,7 +326,7 @@ sub node_db_prepare {
             last_arp, last_dhcp,
             notes
         FROM node
-            LEFT JOIN node_category as nr on node.category_id = nr.category_id 
+            LEFT JOIN node_category as nr on node.category_id = nr.category_id
         WHERE status = "$STATUS_UNREGISTERED"
     ]);
 
@@ -339,7 +339,7 @@ sub node_db_prepare {
             last_arp, last_dhcp,
             notes
         FROM node
-            LEFT JOIN node_category as nr on node.category_id = nr.category_id 
+            LEFT JOIN node_category as nr on node.category_id = nr.category_id
         WHERE status = "$STATUS_REGISTERED"
     ]
     );
@@ -454,7 +454,7 @@ sub node_add {
     }
 
     foreach my $field (
-        'pid',      'voip',        'bypass_vlan',  'bypass_role',
+        'pid',      'voip',        'bypass_vlan',  'bypass_role_id',
         'status',   'detect_date', 'regdate',      'unregdate',
         'lastskip', 'user_agent',  'computername', 'dhcp_fingerprint',
         'last_arp', 'last_dhcp',   'notes',        'autoreg',
@@ -476,7 +476,7 @@ sub node_add {
 
     db_query_execute( NODE, $node_statements, 'node_add_sql', $mac,
         $data{pid},              $data{category_id}, $data{status},      $data{voip},
-        $data{bypass_vlan},      $data{bypass_role}, $data{detect_date}, $data{regdate},
+        $data{bypass_vlan},      $data{bypass_role_id}, $data{detect_date}, $data{regdate},
         $data{unregdate},        $data{lastskip},    $data{user_agent},  $data{computername},
         $data{dhcp_fingerprint}, $data{last_arp},    $data{last_dhcp},   $data{notes},
         $data{autoreg},          $data{sessionid}
@@ -832,7 +832,7 @@ sub node_modify {
         'node_modify_sql',             $new_mac,
         $existing->{pid},              $existing->{category_id},
         $existing->{status},           $existing->{voip},
-        $existing->{bypass_vlan},      $existing->{bypass_role},
+        $existing->{bypass_vlan},      $existing->{bypass_role_id},
         $existing->{detect_date},      $existing->{regdate},
         $existing->{unregdate},        $existing->{lastskip},
         $existing->{time_balance},     $existing->{bandwidth_balance},
