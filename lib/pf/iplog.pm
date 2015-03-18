@@ -328,7 +328,7 @@ sub iplog_open {
         return;
     }
 
-    if ( _iplog_exists ) {
+    if ( _iplog_exists($ip) ) {
         $logger->debug("An 'iplog' table entry already exists for that IP ($ip). Proceed with updating it");
         _iplog_update($mac, $ip, $lease_length);
     } else {
