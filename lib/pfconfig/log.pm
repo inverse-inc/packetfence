@@ -18,6 +18,8 @@ use warnings;
 use Log::Fast;
 use Sys::Syslog qw( LOG_DAEMON );
 use Exporter;
+use pfconfig::config;
+use Log::Log4perl;
 
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(get_logger);
@@ -50,17 +52,9 @@ sub new {
     my ($class) = @_;
     my $self = bless {}, $class;
 
-    $self->{logger} = Log::Fast->global();
-
-    open( my $fh, ">>", "/usr/local/pf/logs/pfconfig.log" );
-
-    $self->{logger}->config(
-        {   level  => 'ERR',
-            prefix => '%D %T [%L] : ',
-            type   => 'fh',
-            fh     => $fh,
-        }
-    );
+    my $log_level = pfconfig::config->new->section('general')->{log_level};
+    Log::Log4perl->init('/usr/local/pf/conf/log.conf.d/pfconfig.conf');
+    $self->{logger} = Log::Log4perl->get_logger;
 
     return $self;
 }
@@ -75,7 +69,7 @@ Logs to error since Log::Fast doesn't have fatal
 sub fatal {
     my ( $self, $message ) = @_;
     $message .= " (" . whowasi() . ")";
-    $self->{logger}->ERR($message);
+    $self->{logger}->error($message);
 }
 
 =head2 error
@@ -87,7 +81,7 @@ Used for $logger->error($msg)
 sub error {
     my ( $self, $message ) = @_;
     $message .= " (" . whowasi() . ")";
-    $self->{logger}->ERR($message);
+    $self->{logger}->error($message);
 }
 
 =head2 warn
@@ -99,7 +93,7 @@ Used for $logger->warn($msg)
 sub warn {
     my ( $self, $message ) = @_;
     $message .= " (" . whowasi() . ")";
-    $self->{logger}->WARN($message);
+    $self->{logger}->warn($message);
 }
 
 =head2 info
@@ -110,8 +104,8 @@ Used for $logger->info($msg)
 
 sub info {
     my ( $self, $message ) = @_;
-    $message = "$message (" . whowasi() . ")";
-    $self->{logger}->INFO($message);
+    #$message = "$message (" . whowasi() . ")";
+    $self->{logger}->info($message);
 }
 
 =head2 debug
@@ -123,7 +117,7 @@ Used for $logger->debug($msg)
 sub debug {
     my ( $self, $message ) = @_;
     $message .= " (" . whowasi() . ")";
-    $self->{logger}->DEBUG($message);
+    $self->{logger}->debug($message);
 }
 
 =head2 trace
@@ -136,10 +130,10 @@ Logs to debug since Log::Fast doesn't have trace
 sub trace {
     my ( $self, $message ) = @_;
     $message .= " (" . whowasi() . ")";
-    $self->{logger}->DEBUG($message);
+    $self->{logger}->debug($message);
 }
 
-sub whowasi { ( caller(2) )[3] }
+sub whowasi { return ( caller(2) )[3] || 'unknown' }
 
 =back
 
