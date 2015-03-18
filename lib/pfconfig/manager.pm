@@ -45,6 +45,8 @@ use File::Find;
 use pfconfig::util;
 use POSIX;
 use POSIX::2008;
+use JSON;
+use List::MoreUtils qw(first_index);
 
 =head2 config_builder
 
@@ -71,7 +73,18 @@ Dynamicly requires the namespace module and instanciates the object associated t
 
 sub get_namespace {
     my ( $self, $name ) = @_;
+
     my $logger = get_logger;
+
+    my $full_name = $name;
+
+    my @args;
+    ($name, @args) = pfconfig::util::parse_namespace($name);
+    my $args_size = @args;
+    if($args_size){
+        $self->add_namespace_to_overlay($full_name);
+    }
+
     my $type   = "pfconfig::namespaces::$name";
 
     $type = untaint_chain($type);
@@ -81,9 +94,23 @@ sub get_namespace {
         $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
     }
 
-    my $elem = $type->new($self);
+    my $elem = $type->new($self, @args);
 
     return $elem;
+}
+
+sub add_namespace_to_overlay {
+    my ($self, $namespace) = @_;
+    my $logger = get_logger;
+    $logger->info("We're doing namespace overlaying for $namespace");
+   
+    my $namespaces = $self->{cache}->get('_namespace_overlay') || ();
+
+    my $ns_index = first_index {$_ eq $namespace} @$namespaces;
+    if($ns_index == -1){
+        push @$namespaces, $namespace;
+    }
+    $self->{cache}->set('_namespace_overlay', $namespaces);
 }
 
 =head2 new
@@ -303,7 +330,8 @@ sub list_namespaces {
         },
         $namespace_dir
     );
-    return @modules;
+    my $overlayed_namespaces = $self->{cache}->get('_namespace_overlay') || [];
+    return (@modules, @$overlayed_namespaces);
 }
 
 =head2 preload_all

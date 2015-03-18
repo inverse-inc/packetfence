@@ -19,10 +19,34 @@ use warnings;
 use base qw(Exporter);
 use pf::constants::config qw(%NET_INLINE_TYPES);
 use pfconfig::constants;
+use pfconfig::log;
 
 our @EXPORT_OK = qw(
     is_type_inline
 );
+
+sub parse_namespace {
+    my ($namespace) = @_;
+    my $logger = get_logger;
+    $logger->debug("doing ns : $namespace");
+    my $args;
+    my @args_list = ();
+    if($namespace =~ /([(]{1}.*[)]{1})$/){
+        $args = $1;
+    
+        use Data::Dumper;
+        $logger->debug("args =".Dumper($args));
+        my $quoted_args = quotemeta($args);
+
+        $namespace =~ s/$quoted_args$//;
+
+        $args =~ s/^[(]{1}//;
+        $args =~ s/[)]{1}$//;
+        @args_list = split(',', $args);
+    }
+    $logger->debug("returning : ".Dumper(\@args_list));
+    return ($namespace, @args_list);
+}
 
 =head2 control_file_path
 

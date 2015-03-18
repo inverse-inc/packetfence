@@ -54,19 +54,44 @@ sub build {
 }
 
 sub init {
-    my ($self) = @_;
+    my ($self, $host_id) = @_;
     $self->{file}            = $pf_config_file;
     $self->{default_config}  = $self->{cache}->get_cache('config::PfDefault');
     $self->{doc_config}      = $self->{cache}->get_cache('config::Documentation');
-    $self->{child_resources} = [ 'resource::CaptivePortal', 'resource::Database', ];
+    $self->{cluster_config}  = $self->{cache}->get_cache('config::Cluster');
+
+    $self->{child_resources} = [ 'resource::CaptivePortal', 'resource::Database' ];
+    if(defined($host_id)){
+        push @{$self->{child_resources}}, "interfaces($host_id)";
+    }
+    else{
+        push @{$self->{child_resources}}, "interfaces";
+    }
+    $self->{host_id} = $host_id;
 }
 
 sub build_child {
     my ($self) = @_;
+    my $logger = get_logger;
 
     my %Config         = %{ $self->{cfg} };
     my %Doc_Config     = %{ $self->{doc_config} };
     my %Default_Config = %{ $self->{default_config} };
+    my %ConfigCluster  = %{ $self->{cluster_config} };
+
+    # for cluster overlaying
+    if(defined($self->{host_id}) && exists($ConfigCluster{$self->{host_id}})){
+        $logger->debug("Doing the cluster overlaying for host $self->{host_id}");
+        while(my ($key, $config) = (each %{$ConfigCluster{$self->{host_id}}})){
+            if($key =~ /^interface /){
+                $logger->debug("Reconfiguring interface $key with cluster information");
+                $Config{$key} = $config;
+            }
+        } 
+    } 
+    elsif(defined($self->{host_id})){
+        $logger->warn("A host was defined for the config::Pf namespace but no cluster configuration was found. This is not a big issue but it's worth noting.")
+    }
 
     my @time_values = grep { my $t = $Doc_Config{$_}{type}; defined $t && $t eq 'time' } keys %Doc_Config;
 

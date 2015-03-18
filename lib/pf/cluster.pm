@@ -24,10 +24,12 @@ tie $cluster_enabled, 'pfconfig::cached_scalar', 'resource::cluster_enabled';
 our $CLUSTER = "CLUSTER";
 
 our $host_id = hostname();
-if($cluster_enabled && !exists($ConfigCluster{$host_id})){
-    my $logger = get_logger;
-    $logger->error("This machine ($host_id) is cluster enabled but doesn't have a cluster configuration. This will certainly cause problems. Please check your cluster.conf or disable clustering on this server.");
-}
+
+# we comment so we're not dependent to pfconfig during the use
+#if($cluster_enabled && !exists($ConfigCluster{$host_id})){
+#    my $logger = get_logger;
+#    $logger->error("This machine ($host_id) is cluster enabled but doesn't have a cluster configuration. This will certainly cause problems. Please check your cluster.conf or disable clustering on this server.");
+#}
 
 sub cluster_ip {
     my ($interface) = @_;
@@ -67,7 +69,7 @@ sub members_ips {
     my ($interface) = @_;
     my $logger = get_logger;
     unless(exists($ConfigCluster{$host_id}->{"interface $interface"}->{ip})){
-        $logger->error("requesting member ips for an undefined interface...");
+        #$logger->error("requesting member ips for an undefined interface...");
         return undef;
     }
     my %data = map { $_->{host} => $_->{"interface $interface"}->{ip} } @cluster_servers;

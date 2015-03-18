@@ -15,6 +15,8 @@ pfconfig::namespaces::resource::fqdn
 use strict;
 use warnings;
 
+use pfconfig::namespaces::config::Cluster;
+
 use base 'pfconfig::namespaces::resource';
 
 sub init {

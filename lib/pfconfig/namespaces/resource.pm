@@ -28,12 +28,12 @@ use strict;
 use warnings;
 
 sub new {
-    my ( $class, $cache ) = @_;
+    my ( $class, $cache, @args ) = @_;
     my $self = bless {}, $class;
 
     $self->{cache} = $cache;
 
-    $self->init();
+    $self->init(@args);
 
     return $self;
 }
