@@ -287,16 +287,22 @@ Will expire the memory cache after building
 =cut
 
 sub expire {
-    my ( $self, $what ) = @_;
+    my ( $self, $what, $light ) = @_;
     my $logger = get_logger;
-    $logger->info("Expiring resource : $what");
-    $self->cache_resource($what);
+    if(defined($light) && $light){
+        $logger->info("Light expiring resource : $what");
+        delete $self->{memorized_at}->{$what}
+    }
+    else {
+        $logger->info("Hard expiring resource : $what");
+        $self->cache_resource($what);
+    }
 
     my $namespace = $self->get_namespace($what);
     if ( $namespace->{child_resources} ) {
         foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
             $logger->info("Expiring child resource $child_resource. Master resource is $what");
-            $self->expire($child_resource);
+            $self->expire($child_resource, $light);
         }
     }
 
@@ -359,10 +365,18 @@ Method that expires all the namespaces defined by list_namespaces
 =cut
 
 sub expire_all {
-    my ($self) = @_;
+    my ($self, $light) = @_;
+    my $logger = get_logger;
     my @namespaces = $self->list_namespaces;
     foreach my $namespace (@namespaces) {
-        $self->cache_resource($namespace);
+        if(defined($light) && $light){
+            $logger->info("Light expiring $namespace");
+            delete $self->{memorized_at}->{$namespace};
+        }
+        else{
+            $logger->info("Hard expiring $namespace");
+            $self->cache_resource($namespace);
+        }
     }
 }
 
