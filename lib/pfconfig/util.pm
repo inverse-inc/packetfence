@@ -20,31 +20,63 @@ use base qw(Exporter);
 use pf::constants::config qw(%NET_INLINE_TYPES);
 use pfconfig::constants;
 use pfconfig::log;
+use pfconfig::constants;
+use IO::Socket::UNIX;
+use Sereal::Decoder;
 
 our @EXPORT_OK = qw(
     is_type_inline
 );
 
+sub fetch_socket {
+    my ($socket, $payload) = @_;
+    # we ask the cachemaster for our namespaced key
+    print $socket "$payload\n";
+
+    # this will give us the line length to read
+    chomp( my $count = <$socket> );
+
+    my $line;
+    my $line_read = 0;
+    my $response  = '';
+    while ( $line_read < $count ) {
+        chomp( $line = <$socket> );
+        $response .= $line . "\n";
+        $line_read += 1;
+    }
+    return $response;
+}
+
+sub fetch_decode_socket {
+    my ($payload) = @_;
+
+    my $socket;
+    my $socket_path = $pfconfig::constants::SOCKET_PATH;
+    $socket = IO::Socket::UNIX->new(
+        Type => SOCK_STREAM,
+        Peer => $socket_path,
+    );
+
+    my $decoder = Sereal::Decoder->new;
+    my $response = fetch_socket($socket, $payload);
+    return $decoder->decode($response);
+
+}
+
 sub parse_namespace {
     my ($namespace) = @_;
-    my $logger = get_logger;
-    $logger->debug("doing ns : $namespace");
     my $args;
     my @args_list = ();
     if($namespace =~ /([(]{1}.*[)]{1})$/){
         $args = $1;
     
-        use Data::Dumper;
-        $logger->debug("args =".Dumper($args));
         my $quoted_args = quotemeta($args);
-
         $namespace =~ s/$quoted_args$//;
 
         $args =~ s/^[(]{1}//;
         $args =~ s/[)]{1}$//;
         @args_list = split(',', $args);
     }
-    $logger->debug("returning : ".Dumper(\@args_list));
     return ($namespace, @args_list);
 }
 

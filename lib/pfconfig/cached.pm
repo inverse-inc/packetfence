@@ -191,25 +191,7 @@ sub _get_from_socket {
         die("Cannot connect to service pfconfig!") if ( $times >= 600 );
     }
 
-    # we ask the cachemaster for our namespaced key
-    print $socket "$payload\n";
-
-    # this will give us the line length to read
-    chomp( my $count = <$socket> );
-
-    my $line;
-    my $line_read = 0;
-    my $response  = '';
-    # This is evil but we're getting lines with no content in them.
-    # This throws a warning that $line is undefined. 
-    # We workaround this by deactivating warnings when we read though the socket
-    no warnings;
-    while ( $line_read < $count ) {
-        chomp( $line = <$socket> );
-        $response .= $line . "\n";
-        $line_read += 1;
-    }
-    use warnings;
+    my $response = pfconfig::util::fetch_socket($socket, $payload);
 
     # it returns it as a sereal hash
     my $result;
