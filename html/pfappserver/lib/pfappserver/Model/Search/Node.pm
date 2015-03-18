@@ -204,6 +204,10 @@ my %COLUMN_MAP = (
         table => 'node_category',
         name  => 'name',
     },
+    bypass_role => {
+        table => 'node_category_bypass_role',
+        name  => 'name',
+    },
     dhcp_fingerprint   => {
        table => 'os_type',
        name  => 'description',
