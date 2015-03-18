@@ -127,6 +127,7 @@ while($RUNNING) {
             #  - line = 'config;value' return the value in the config hash
 
             switch ($query->{method}) {
+                case 'expire' { expire($query, $socket) }
                 case 'element' { get_element($query, $socket) }
                 case 'hash_element' { get_hash_element($query, $socket) }
                 case 'keys' { get_keys($query, $socket) }
@@ -152,6 +153,21 @@ END {
     if ( !$args{h} ) {
         deletepid($PROGRAM_NAME);
     }
+}
+
+sub expire {
+    my ($query, $socket) = @_;
+    my $namespace = $query->{namespace};
+    my $logger = get_logger;
+    my $light = $query->{light};
+    if($namespace eq "__all__"){
+        $cache->expire_all($light);
+    }
+    else{
+        $logger->info("expiring $namespace");
+        $cache->expire($namespace, $light);
+    }
+    send_output({status => "OK."}, $socket);
 }
 
 sub get_from_cache {
