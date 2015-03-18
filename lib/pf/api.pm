@@ -29,6 +29,9 @@ use pf::util();
 use pf::node();
 use pf::locationlog();
 use pf::ipset();
+use pfconfig::util;
+use pfconfig::manager;
+use JSON;
 
 use List::MoreUtils qw(uniq);
 use NetAddr::IP;
@@ -448,6 +451,43 @@ sub node_information : Public {
 
     my $node_info = pf::node::node_view($postdata{'mac'});
     return $node_info;
+}
+
+sub expire_cluster : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(namespace);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+}
+
+sub expire : Public {
+    my ($class, %postdata ) = @_;
+    my $logger = pf::log::get_logger;
+    my @require = qw(namespace light);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    if($postdata{light}){
+        my $payload = {
+          method => "expire",
+          namespace => $postdata{namespace},
+          light => $postdata{light},
+        };
+    
+        use Data::Dumper;
+        pfconfig::util::fetch_decode_socket(encode_json($payload));
+    }
+    else {
+        my $all = $postdata{namespace} eq "__all__" ? 1 : 0;
+        if($all){
+            pfconfig::manager->new->expire_all();
+        }
+        else{
+            pfconfig::manager->new->expire($postdata{namespace});
+        }
+    }
+    # refactor me, it's most probably not always a success
+    return 1;
 }
 
 =head2 validate_argv
