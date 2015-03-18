@@ -790,6 +790,7 @@ sub node_modify {
     my $old_status = $existing->{status};
     # special handling for category to category_id conversion
     $existing->{'category_id'} = nodecategory_lookup($existing->{'category'});
+    $existing->{'bypass_role_id'} = nodecategory_lookup($existing->{'bypass_role'});
     foreach my $item ( keys(%data) ) {
         $existing->{$item} = $data{$item};
     }
