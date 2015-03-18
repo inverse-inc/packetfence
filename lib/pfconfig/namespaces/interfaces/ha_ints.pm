@@ -18,8 +18,8 @@ use warnings;
 use base 'pfconfig::namespaces::interfaces';
 
 sub init {
-    my ($self) = @_;
-    $self->{_interfaces} = $self->{cache}->get_cache('interfaces');
+    my ($self, $host_id) = @_;
+    $self->{_interfaces} = defined($host_id) ? $self->{cache}->get_cache("interfaces($host_id)") : $self->{cache}->get_cache("interfaces");
 }
 
 sub build {
