@@ -76,25 +76,77 @@ sub iplog_db_prepare {
     $iplog_statements->{'iplog_view_open_mac_sql'} = get_db_handle()->prepare(
         qq [ select mac,ip,start_time,end_time from iplog where mac=? and (end_time=0 or end_time > now()) order by start_time desc]);
 
-    $iplog_statements->{'iplog_history_ip_date_sql'} = get_db_handle()->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where ip=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0) order by start_time desc ]);
+    # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
+    # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
+    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
+    $iplog_statements->{'iplog_history_by_ip_sql'} = get_db_handle()->prepare(
+        qq [ SELECT * FROM
+                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp 
+                FROM iplog 
+                WHERE ip = ? 
+                ORDER BY start_time DESC) AS a
+             UNION ALL
+             SELECT * FROM
+                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp 
+                FROM iplog_history 
+                WHERE ip = ? 
+                ORDER BY start_time DESC) AS b
+             ORDER BY start_time DESC LIMIT 25 ]
+    );
 
-    $iplog_statements->{'iplog_history_mac_date_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac,ip,start_time,end_time,
-               UNIX_TIMESTAMP(start_time) AS start_timestamp,
-               UNIX_TIMESTAMP(end_time) AS end_timestamp
-             FROM iplog
-             WHERE mac=? AND start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0)
-             ORDER BY start_time ASC ]);
+    # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
+    # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
+    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
+    $iplog_statements->{'iplog_history_by_ip_with_date_sql'} = get_db_handle()->prepare(
+        qq [ SELECT * FROM
+                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                FROM iplog 
+                WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
+                ORDER BY start_time DESC) AS a
+             UNION ALL
+             SELECT * FROM
+                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                FROM iplog_history 
+                WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
+                ORDER BY start_time DESC) AS b
+             ORDER BY start_time DESC LIMIT 25 ]
+    );
 
-    $iplog_statements->{'iplog_history_ip_sql'} = get_db_handle()->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where ip=? order by start_time desc ]);
+    # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
+    # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
+    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
+    $iplog_statements->{'iplog_history_by_mac_sql'} = get_db_handle()->prepare(
+        qq [ SELECT * FROM
+                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                FROM iplog 
+                WHERE mac = ? 
+                ORDER BY start_time DESC) AS a
+             UNION ALL
+             SELECT * FROM
+                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                FROM iplog_history 
+                WHERE mac = ? 
+                ORDER BY start_time DESC) AS b
+             ORDER BY start_time DESC LIMIT 25 ]
+    );
 
-    $iplog_statements->{'iplog_history_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac,ip,start_time,end_time,
-               UNIX_TIMESTAMP(start_time) AS start_timestamp,
-               UNIX_TIMESTAMP(end_time) AS end_timestamp
-             FROM iplog WHERE mac=? ORDER BY start_time DESC LIMIT 25 ]);
+    # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
+    # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
+    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
+    $iplog_statements->{'iplog_history_by_mac_with_date_sql'} = get_db_handle()->prepare(
+        qq [ SELECT * FROM
+                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                FROM iplog 
+                WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
+                ORDER BY start_time DESC) AS a
+             UNION ALL
+             SELECT * FROM
+                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                FROM iplog_history
+                WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
+                ORDER BY start_time DESC) AS b
+             ORDER BY start_time DESC LIMIT 25 ]
+    );
 
     $iplog_statements->{'iplog_exists_sql'} = get_db_handle()->prepare(
         qq [ SELECT 1 FROM iplog WHERE ip = ? ]
@@ -134,7 +186,7 @@ Get the full iplog for a given IP address or MAC address.
 
 sub iplog_history {
     my ( $search_by, %params ) = @_;
-    my $logger = pf::log::get_logger();
+    my $logger = pf::log::get_logger;
 
     _iplog_history_mac($search_by, %params) if ( valid_mac($search_by) );
 
@@ -151,17 +203,25 @@ Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_history>
 
 sub _iplog_history_ip {
     my ( $ip, %params ) = @_;
+    my $logger = pf::log::get_logger;
 
-    if ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) )
-    {
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_ip_date_sql',
-            $ip, $params{'end_time'}, $params{'start_time'});
+    if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
+        # We are passing the arguments twice to match the prepare statement of the query
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql', 
+            $ip, $params{'end_time'}, $params{'start_time'}, $ip, $params{'end_time'}, $params{'start_time'}
+        );
+    } 
 
-    } elsif (defined($params{'date'})) {
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_ip_date_sql', $ip, $params{'date'}, $params{'date'});
+    elsif ( defined($params{'date'}) ) {
+        # We are passing the arguments twice to match the prepare statement of the query
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql', 
+            $ip, $params{'date'}, $params{'date'}, $ip, $params{'date'}, $params{'date'}
+        );
+    } 
 
-    } else {
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_ip_sql', $ip);
+    else {
+        # We are passing the arguments twice to match the prepare statement of the query
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_sql', $ip, $ip);
     }
 }
 
@@ -175,19 +235,27 @@ Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_history>
 
 sub _iplog_history_mac {
     my ( $mac, %params ) = @_;
+    my $logger = pf::log::get_logger;
+
     $mac = clean_mac($mac);
 
-    if ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) )
-    {
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_date_sql', $mac,
-            $params{'end_time'}, $params{'start_time'});
+    if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
+        # We are passing the arguments twice to match the prepare statement of the query
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql', 
+            $mac, $params{'end_time'}, $params{'start_time'}, $mac, $params{'end_time'}, $params{'start_time'}
+        );
+    } 
 
-    } elsif ( defined( $params{'date'} ) ) {
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_date_sql', $mac,
-            $params{'date'}, $params{'date'});
+    elsif ( defined($params{'date'}) ) {
+        # We are passing the arguments twice to match the prepare statement of the query
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql', 
+            $mac, $params{'date'}, $params{'date'}, $mac, $params{'date'}, $params{'date'}
+        );
+    }
 
-    } else {
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_sql', $mac);
+    else {
+        # We are passing the arguments twice to match the prepare statement of the query
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_sql', $mac, $mac);
     }
 }
 
