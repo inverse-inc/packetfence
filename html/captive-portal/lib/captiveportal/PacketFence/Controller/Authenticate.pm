@@ -449,8 +449,12 @@ sub checkIfProvisionIsNeeded : Private {
     my $portalSession = $c->portalSession;
     my $info = $c->stash->{info};
     my $mac = $portalSession->clientMac;
+    my $logger = $c->log;
     my $profile = $c->profile;
+    use Data::Dumper;
+    $logger->info(Dumper $profile);
     if (defined( my $provisioner = $profile->findProvisioner($mac))) {
+        $logger->info(Dumper $provisioner);
         if ($provisioner->authorize($mac) == 0) {
             $info->{status} = $pf::node::STATUS_PENDING;
             node_modify($mac, %$info);

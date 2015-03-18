@@ -139,11 +139,12 @@ sub cert_process : Local {
     $c->forward('validateform');
     $c->forward('get_cert');
     $c->forward('build_cert_p12');
-    use Data::Dumper;
-    $logger->warn(Dumper $stash); 
     #$c->forward('export_fingerprint');
     $c->forward('checkIfProvisionIsNeeded');
     #$self->showError($c,"We could not match your operating system, please contact IT support.");
+    $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
+    $c->forward( 'CaptivePortal' => 'endPortalSession' );
+
 }
 
 sub checkIfProvisionIsNeeded : Private {
@@ -162,7 +163,7 @@ sub checkIfProvisionIsNeeded : Private {
                 template    => $provisioner->template,
                 provisioner => $provisioner,
             );
-            $c->detach();
+            $c->forward();
         }
     }
 }
