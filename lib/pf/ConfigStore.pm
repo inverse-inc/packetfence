@@ -20,6 +20,7 @@ use pf::config::cached;
 use Log::Log4perl qw(get_logger);
 use List::MoreUtils qw(uniq);
 use pfconfig::manager;
+use pf::api::jsonrpcclient;
 
 =head1 FIELDS
 
@@ -413,10 +414,22 @@ sub commitPfconfig {
     my ($self) = @_;
 
     if(defined($self->pfconfigNamespace)){
-        pfconfig::manager->new->expire($self->pfconfigNamespace);
+        $self->commitCluster();
     }
     else{
         get_logger->error("Can't expire pfconfig in ".ref($self)." because the pfconfig namespace is not defined.");
+    }
+}
+
+sub commitCluster {
+    my ($self) = @_;
+    my $apiclient = pf::api::jsonrpcclient->new();
+    my %data = (
+        namespace => $self->pfconfigNamespace,
+    );
+    my $result = $apiclient->notify('expire_cluster', %data );
+    unless($result){
+        get_logger->error("Couldn't contact API to expire the configuration.");
     }
 }
 
