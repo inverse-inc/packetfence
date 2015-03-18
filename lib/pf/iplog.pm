@@ -188,9 +188,9 @@ sub iplog_history {
     my ( $search_by, %params ) = @_;
     my $logger = pf::log::get_logger;
 
-    _iplog_history_mac($search_by, %params) if ( valid_mac($search_by) );
+    return _iplog_history_mac($search_by, %params) if ( valid_mac($search_by) );
 
-    _iplog_history_ip($search_by, %params) if ( valid_ip($search_by) );
+    return _iplog_history_ip($search_by, %params) if ( valid_ip($search_by) );
 }
 
 =head2 _iplog_history_ip
