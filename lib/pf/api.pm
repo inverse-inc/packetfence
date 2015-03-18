@@ -31,6 +31,8 @@ use pf::locationlog();
 use pf::ipset();
 use pfconfig::util;
 use pfconfig::manager;
+use pf::api::jsonrpcclient;
+use pf::cluster;
 use JSON;
 
 use List::MoreUtils qw(uniq);
@@ -458,6 +460,26 @@ sub expire_cluster : Public {
     my @require = qw(namespace);
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require, \@found);
+
+    my $logger = pf::log::get_logger;
+
+    $postdata{light} = 0;
+    expire($class, %postdata);
+    foreach my $server (@cluster_servers){
+        next if($host_id eq $server->{host});
+        my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+        my %data = (
+            namespace => $postdata{namespace},
+            light => 1
+        );
+        eval {
+            $apiclient->call('expire', %data ); 
+        };
+        if($@){
+            $logger->error("Can't connect to $server->{management_ip} to expire the configuration.")
+        }
+    }
+    return 1;
 }
 
 sub expire : Public {
