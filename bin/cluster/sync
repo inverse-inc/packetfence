@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+
+use constant INSTALL_DIR => '/usr/local/pf';
+use lib INSTALL_DIR . "/lib";
+
+use pf::log;
+use pf::api::jsonrpcclient;
+my $logger = get_logger;
+
+print "Synching cluster with this node as the configuration master\n";
+
+use pf::api::jsonrpcclient;
+my $apiclient = pf::api::jsonrpcclient->new();
+
+use Module::Pluggable
+  'search_path' => [qw(pf::ConfigStore)],
+  'sub_name'    => 'stores',
+  'require'     => 1,
+  ;
+
+our @stores = __PACKAGE__->stores();
+
+my @ignored = qw(pf::ConfigStore::Group pf::ConfigStore::Wrix pf::ConfigStore::Interface);
+foreach my $store (@stores){
+    next if ($store ~~ @ignored);
+    eval {
+      my $cs = $store->new;
+      my $pfconfig_namespace = $cs->pfconfigNamespace;
+      my $config_file = $cs->configFile;
+      print "Synching storage : $store\n";
+      my %data = (
+          namespace => $pfconfig_namespace,
+          conf_file => $config_file,          
+      );
+      my ($result) = $apiclient->call( 'expire_cluster', %data );
+    };
+}
+
