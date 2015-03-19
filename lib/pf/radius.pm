@@ -230,9 +230,7 @@ sub authorize {
     $switch->disconnectRead();
     $switch->disconnectWrite();
 
-    my $end = Time::HiRes::gettimeofday();
-    my $elapsed_time = $end - $start;
-    $pf::StatsD::statsd->timing(called() . ".timing" , 1000 * $elapsed_time );
+    $pf::StatsD::statsd->end(called() . ".timing" , $start );
 
     return $RAD_REPLY_REF;
 }
@@ -244,6 +242,7 @@ sub authorize {
 sub accounting {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+    my $start = Time::HiRes::gettimeofday();
 
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $this->_parseRequest($radius_request);
 
@@ -255,6 +254,7 @@ sub accounting {
     if ( !$switch ) {
         $logger->warn( "Can't instantiate switch ($switch_ip). This request will be failed. "
                 . "Are you sure your switches.conf is correct?" );
+        $pf::StatsD::statsd->increment(called() . ".error" );
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
 
@@ -303,6 +303,7 @@ sub accounting {
         }
     }
 
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
 }
 
@@ -315,6 +316,7 @@ Update the location log based on the accounting information
 sub update_locationlog_accounting {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+    my $start = Time::HiRes::gettimeofday();
 
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $this->_parseRequest($radius_request);
 
@@ -326,6 +328,7 @@ sub update_locationlog_accounting {
     if ( !$switch ) {
         $logger->warn( "Can't instantiate switch ($switch_ip). This request will be failed. "
                 . "Are you sure your switches.conf is correct?" );
+        $pf::StatsD::statsd->increment(called() . ".error" );
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
 
@@ -343,6 +346,7 @@ sub update_locationlog_accounting {
         $vlan = $radius_request->{'Tunnel-Private-Group-ID'} if ( (defined( $radius_request->{'Tunnel-Type'}) && $radius_request->{'Tunnel-Type'} eq '13') && (defined($radius_request->{'Tunnel-Medium-Type'}) && $radius_request->{'Tunnel-Medium-Type'} eq '6') );
         $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $user_name, $ssid, $stripped_user_name, $realm);
     }
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Update locationlog from accounting ok") ];
 }
 
@@ -475,12 +479,14 @@ Returns the same structure as authorize(), see it's POD doc for details.
 sub _authorizeVoip {
     my ($this, $connection_type, $switch, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+    my $start = Time::HiRes::gettimeofday();
 
     if (!$switch->supportsRadiusVoip()) {
         $logger->warn("[$mac] Returning failure to RADIUS.");
         $switch->disconnectRead();
         $switch->disconnectWrite();
 
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return [
             $RADIUS::RLM_MODULE_FAIL,
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
@@ -491,6 +497,7 @@ sub _authorizeVoip {
     my %RAD_REPLY = $switch->getVoipVsa();
     $switch->disconnectRead();
     $switch->disconnectWrite();
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
 }
 
@@ -587,6 +594,7 @@ sub _rewriteAccessAccept {
 
 sub _handleStaticPortSecurityMovement {
     my ($self,$switch,$mac) = @_;
+    my $start = Time::HiRes::gettimeofday(); 
     my $logger = Log::Log4perl::get_logger("pf::radius");
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($mac);
@@ -628,6 +636,7 @@ sub _handleStaticPortSecurityMovement {
     } else {
         $logger->info("MAC not found on node's previous switch secure table or switch inaccessible.");
     }
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
     locationlog_update_end_mac($mac);
 }
 
