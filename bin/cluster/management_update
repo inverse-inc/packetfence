@@ -5,7 +5,6 @@ use lib INSTALL_DIR . "/lib";
 
 use pf::log;
 
-my $mode;
 my $logger = get_logger;
 
 $logger->info("Got a notification from keepalived");
