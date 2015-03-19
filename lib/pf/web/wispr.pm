@@ -26,7 +26,7 @@ use Template;
 
 use pf::authentication;
 use pf::config;
-use pf::iplog qw(ip2mac);
+use pf::iplog;
 use pf::node;
 use pf::web;
 use pf::Portal::Session;

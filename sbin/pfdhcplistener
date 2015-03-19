@@ -36,7 +36,7 @@ use pf::config::cached;
 use pf::db;
 use pf::firewallsso;
 use pf::inline::custom $INLINE_API_LEVEL;
-use pf::iplog qw(ip2mac mac2ip);
+use pf::iplog;
 use pf::lookup::node;
 use pf::node;
 use pf::os;
@@ -471,7 +471,7 @@ sub rogue_dhcp_handling {
     push @{ $rogue_servers{$dhcp_srv_ip} }, $rogue_offer;
 
     # if I have a MAC use it, otherwise look it up
-    $dhcp_srv_mac = ip2mac($dhcp_srv_ip) if (!defined($dhcp_srv_mac));
+    $dhcp_srv_mac = pf::iplog::ip2mac($dhcp_srv_ip) if (!defined($dhcp_srv_mac));
     if ($dhcp_srv_mac) {
         my %data = (
            'mac' => $dhcp_srv_mac,
@@ -533,8 +533,8 @@ sub update_iplog {
         return;
     }
 
-    my $oldip  = mac2ip($srcmac);
-    my $oldmac = ip2mac($srcip);
+    my $oldip  = pf::iplog::mac2ip($srcmac);
+    my $oldmac = pf::iplog::ip2mac($srcip);
     if ( $oldip && $oldip ne $srcip ) {
         my $view_mac = node_view($srcmac);
         my $firewallsso = pf::firewallsso->new;

@@ -152,7 +152,7 @@ exit(0);
 sub registertasks  {
     register_task(
         'iplog cleanup','iplog_cleanup_interval',sub {
-            iplog_cleanup( $Config{'expire'}{'iplog'} ,$Config{maintenance}{iplog_cleanup_batch},$Config{maintenance}{iplog_cleanup_timeout})
+            pf::iplog::cleanup( $Config{'expire'}{'iplog'} ,$Config{maintenance}{iplog_cleanup_batch},$Config{maintenance}{iplog_cleanup_timeout})
               if ( $Config{'expire'}{'iplog'} );
         }
     );

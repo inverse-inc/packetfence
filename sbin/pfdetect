@@ -128,7 +128,7 @@ while (<$snortpipe_fh>) {
         next;
     }
 
-    $srcmac = ip2mac($srcip);
+    $srcmac = pf::iplog::ip2mac($srcip);
 
     if ($srcmac) {
 

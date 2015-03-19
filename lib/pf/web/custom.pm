@@ -26,7 +26,7 @@ use Readonly;
 
 use pf::config;
 use pf::util;
-use pf::iplog qw(ip2mac);
+use pf::iplog;
 use pf::node qw(node_attributes node_view node_modify);
 use pf::useragent;
 use pf::web;

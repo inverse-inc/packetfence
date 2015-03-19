@@ -38,14 +38,6 @@ BEGIN {
         $iplog_db_prepared
 
         iplog_history
-        iplog_view_open       iplog_view_open_ip
-        iplog_view_open_mac
-        iplog_open            iplog_close
-        iplog_cleanup
-
-        mac2ip
-        mac2allips
-        ip2mac
     );
 }
 
@@ -265,7 +257,7 @@ Look for the MAC address of a given IP address using the SQL 'iplog' table
 
 sub ip2mac_sql {
     my ( $ip ) = @_;
-    my $iplog = _iplog_view_open_ip($ip);
+    my $iplog = _view_by_ip($ip);
     return $iplog->{'mac'};
 }
 
@@ -278,7 +270,7 @@ sub mac2ip {
     if ($cache) {
         $ip = $cache->{clean_mac($mac)};
     } else {
-        my $iplog = _iplog_view_open_mac($mac);
+        my $iplog = _view_by_mac($mac);
         $ip = $iplog->{'ip'} || 0;
     }
     if ( !$ip ) {
@@ -305,18 +297,20 @@ sub mac2ip_omapi {
 
 Get the full iplog for a given IP address or MAC address.
 
+TODO: Rename to 'history' once the "issue" with pfcmd is resolved. Also remove from the export...
+
 =cut
 
 sub iplog_history {
     my ( $search_by, %params ) = @_;
     my $logger = pf::log::get_logger;
 
-    return _iplog_history_mac($search_by, %params) if ( valid_mac($search_by) );
+    return _history_by_mac($search_by, %params) if ( valid_mac($search_by) );
 
-    return _iplog_history_ip($search_by, %params) if ( valid_ip($search_by) );
+    return _history_by_ip($search_by, %params) if ( valid_ip($search_by) );
 }
 
-=head2 _iplog_history_ip
+=head2 _history_by_ip
 
 Get the full iplog for a given IP address.
 
@@ -324,7 +318,7 @@ Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_history>
 
 =cut
 
-sub _iplog_history_ip {
+sub _history_by_ip {
     my ( $ip, %params ) = @_;
     my $logger = pf::log::get_logger;
 
@@ -348,7 +342,7 @@ sub _iplog_history_ip {
     }
 }
 
-=head2 _iplog_history_mac
+=head2 _history_by_mac
 
 Get the full iplog for a given MAC address.
 
@@ -356,7 +350,7 @@ Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_history>
 
 =cut
 
-sub _iplog_history_mac {
+sub _history_by_mac {
     my ( $mac, %params ) = @_;
     my $logger = pf::log::get_logger;
 
@@ -382,19 +376,19 @@ sub _iplog_history_mac {
     }
 }
 
-sub iplog_view_open {
+sub view {
     my ( $search_by ) = @_;
     my $logger = pf::log::get_logger;
 
-    return _iplog_view_open_mac($search_by) if ( defined($search_by) && valid_mac($search_by) );
+    return _view_by_mac($search_by) if ( defined($search_by) && valid_mac($search_by) );
 
-    return _iplog_view_open_ip($search_by) if ( defined($search_by) && valid_ip($search_by) );
+    return _view_by_ip($search_by) if ( defined($search_by) && valid_ip($search_by) );
 }
 
-sub _iplog_view_open_ip {
+sub _view_by_ip {
     my ($ip) = @_;
 
-    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_open_by_ip_sql', $ip) || return (0);
+    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_by_ip_sql', $ip) || return (0);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -402,10 +396,10 @@ sub _iplog_view_open_ip {
     return ($ref);
 }
 
-sub _iplog_view_open_mac {
+sub _view_by_mac {
     my ($mac) = @_;
 
-    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_open_by_mac_sql', $mac) || return (0);
+    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_by_mac_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -413,32 +407,32 @@ sub _iplog_view_open_mac {
     return ($ref);
 }
 
-sub iplog_list_open {
+sub list_open {
     my ( $search_by ) = @_;
     my $logger = pf::log::get_logger;
 
-    return _iplog_list_open_mac($search_by) if ( defined($search_by) && valid_mac($search_by) );
+    return _list_open_by_mac($search_by) if ( defined($search_by) && valid_mac($search_by) );
 
-    return _iplog_list_open_ip($search_by) if ( defined($search_by) && valid_ip($search_by) );
+    return _list_open_by_ip($search_by) if ( defined($search_by) && valid_ip($search_by) );
 
     return db_data(IPLOG, $iplog_statements, 'iplog_list_open_sql') if ( !defined($search_by) );
 }
 
-sub _iplog_list_open_ip {
+sub _list_open_by_ip {
     my ( $ip ) = @_;
     my $logger = pf::log::get_logger;
 
     return db_data(IPLOG, $iplog_statements, 'iplog_list_open_by_ip_sql', $ip);
 }
 
-sub _iplog_list_open_mac {
+sub _list_open_by_mac {
     my ( $mac ) = @_;
     my $logger = pf::log::get_logger;
 
     return db_data(IPLOG, $iplog_statements, 'iplog_list_open_by_mac_sql', $mac);
 }
 
-=head2 _iplog_exists
+=head2 _exists
 
 Check if there is an existing 'iplog' table entry for the IP address.
 
@@ -446,18 +440,18 @@ Not meant to be used outside of this class.
 
 =cut
 
-sub _iplog_exists {
+sub _exists {
     my ( $ip ) = @_;
     return db_data(IPLOG, $iplog_statements, 'iplog_exists_sql', $ip);
 }
 
-=head2 iplog_open
+=head2 open
 
 Handle 'iplog' table "new" entries. Will take care of either adding or updating an entry.
 
 =cut
 
-sub iplog_open {
+sub open {
     my ( $mac, $ip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
@@ -476,18 +470,18 @@ sub iplog_open {
         return;
     }
 
-    if ( _iplog_exists($ip) ) {
+    if ( _exists($ip) ) {
         $logger->debug("An 'iplog' table entry already exists for that IP ($ip). Proceed with updating it");
-        _iplog_update($mac, $ip, $lease_length);
+        _update($mac, $ip, $lease_length);
     } else {
         $logger->debug("No 'iplog' table entry found for that IP ($ip). Creating a new one");
-        _iplog_insert($mac, $ip, $lease_length);
+        _insert($mac, $ip, $lease_length);
     }
 
     return (0);
 }
 
-=head2 _iplog_insert
+=head2 _insert
 
 Insert a new 'iplog' table entry.
 
@@ -495,7 +489,7 @@ Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_open>
 
 =cut
 
-sub _iplog_insert {
+sub _insert {
     my ( $ip, $mac, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
@@ -508,7 +502,7 @@ sub _iplog_insert {
     }
 }
 
-=head2 _iplog_update
+=head2 _update
 
 Update an existing 'iplog' table entry.
 
@@ -518,7 +512,7 @@ Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_open>
 
 =cut
 
-sub _iplog_update {
+sub _update {
     my ( $ip, $mac, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
@@ -531,13 +525,13 @@ sub _iplog_update {
     }
 }
 
-=head2 iplog_close
+=head2 close
 
 Close (update the end_time as of now) an existing 'iplog' table entry.
 
 =cut
 
-sub iplog_close {
+sub close {
     my ( $ip ) = @_;
     my $logger = pf::log::get_logger();
 
@@ -547,7 +541,7 @@ sub iplog_close {
     return (0);
 }
 
-sub iplog_cleanup {
+sub cleanup {
     my ($expire_seconds, $batch, $time_limit) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iplog');
     $logger->debug("calling iplog_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
