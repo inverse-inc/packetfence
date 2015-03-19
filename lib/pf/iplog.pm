@@ -67,10 +67,12 @@ sub iplog_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::iplog');
     $logger->debug("Preparing pf::iplog database queries");
 
+    # We could have used the iplog_list_open_by_ip_sql statement but for performances, we enforce the LIMIT 1
     $iplog_statements->{'iplog_view_by_ip_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM iplog WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC LIMIT 1 ]
     );
 
+    # We could have used the iplog_list_open_by_mac_sql statement but for performances, we enforce the LIMIT 1
     $iplog_statements->{'iplog_view_by_mac_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM iplog WHERE mac = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC LIMIT 1 ]
     );
@@ -79,7 +81,13 @@ sub iplog_db_prepare {
         qq [ SELECT * FROM iplog WHERE end_time=0 OR end_time > NOW() ]
     );
 
+    $iplog_statements->{'iplog_list_open_by_ip_sql'} = get_db_handle()->prepare(
+        qq [ SELECT * FROM iplog WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC ]
+    );
 
+    $iplog_statements->{'iplog_list_open_by_mac_sql'} = get_db_handle()->prepare(
+        qq [ SELECT * FROM iplog WHERE mac = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC ]
+    );
 
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
     # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
@@ -310,6 +318,21 @@ sub iplog_list_open {
 
     return db_data(IPLOG, $iplog_statements, 'iplog_list_open_sql') if ( !defined($search_by) );
 }
+
+sub _iplog_list_open_ip {
+    my ( $ip ) = @_;
+    my $logger = pf::log::get_logger;
+
+    return db_data(IPLOG, $iplog_statements, 'iplog_list_open_by_ip_sql', $ip);
+}
+
+sub _iplog_list_open_mac {
+    my ( $mac ) = @_;
+    my $logger = pf::log::get_logger;
+
+    return db_data(IPLOG, $iplog_statements, 'iplog_list_open_by_mac_sql', $mac);
+}
+
 =head2 _iplog_exists
 
 Check if there is an existing 'iplog' table entry for the IP address.
