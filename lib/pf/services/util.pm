@@ -67,8 +67,8 @@ sub createpid {
     my $pidfile = $var_dir . "/run/$pname.pid";
     $logger->info("$pname starting and writing $pid to $pidfile");
     if ( open ( my $outfile, ">$pidfile") ) {
-        flock($outfile, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfmon is running\n";
         print $outfile $pid;
+        $outfile->close;
         return ($pid);
     } else {
         $logger->error("$pname: unable to open $pidfile for writing: $!");
