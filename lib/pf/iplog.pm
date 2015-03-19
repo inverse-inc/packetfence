@@ -67,14 +67,19 @@ sub iplog_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::iplog');
     $logger->debug("Preparing pf::iplog database queries");
 
-    $iplog_statements->{'iplog_view_open_sql'} = get_db_handle()->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where end_time=0 or end_time > now() ]);
+    $iplog_statements->{'iplog_view_by_ip_sql'} = get_db_handle()->prepare(
+        qq [ SELECT * FROM iplog WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC LIMIT 1 ]
+    );
 
-    $iplog_statements->{'iplog_view_open_ip_sql'} = get_db_handle()->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where ip=? and (end_time=0 or end_time > now()) limit 1]);
+    $iplog_statements->{'iplog_view_by_mac_sql'} = get_db_handle()->prepare(
+        qq [ SELECT * FROM iplog WHERE mac = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC LIMIT 1 ]
+    );
 
-    $iplog_statements->{'iplog_view_open_mac_sql'} = get_db_handle()->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where mac=? and (end_time=0 or end_time > now()) order by start_time desc]);
+    $iplog_statements->{'iplog_list_open_sql'} = get_db_handle()->prepare(
+        qq [ SELECT * FROM iplog WHERE end_time=0 OR end_time > NOW() ]
+    );
+
+
 
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
     # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
@@ -260,13 +265,18 @@ sub _iplog_history_mac {
 }
 
 sub iplog_view_open {
-    return db_data(IPLOG, $iplog_statements, 'iplog_view_open_sql');
+    my ( $search_by ) = @_;
+    my $logger = pf::log::get_logger;
+
+    return _iplog_view_open_mac($search_by) if ( defined($search_by) && valid_mac($search_by) );
+
+    return _iplog_view_open_ip($search_by) if ( defined($search_by) && valid_ip($search_by) );
 }
 
-sub iplog_view_open_ip {
+sub _iplog_view_open_ip {
     my ($ip) = @_;
 
-    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_open_ip_sql', $ip) || return (0);
+    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_open_by_ip_sql', $ip) || return (0);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -274,10 +284,10 @@ sub iplog_view_open_ip {
     return ($ref);
 }
 
-sub iplog_view_open_mac {
+sub _iplog_view_open_mac {
     my ($mac) = @_;
 
-    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_open_mac_sql', $mac) || return (0);
+    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_open_by_mac_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -290,6 +300,16 @@ sub iplog_view_all_open_mac {
     return db_data(IPLOG, $iplog_statements, 'iplog_view_open_mac_sql', $mac);
 }
 
+sub iplog_list_open {
+    my ( $search_by ) = @_;
+    my $logger = pf::log::get_logger;
+
+    return _iplog_list_open_mac($search_by) if ( defined($search_by) && valid_mac($search_by) );
+
+    return _iplog_list_open_ip($search_by) if ( defined($search_by) && valid_ip($search_by) );
+
+    return db_data(IPLOG, $iplog_statements, 'iplog_list_open_sql') if ( !defined($search_by) );
+}
 =head2 _iplog_exists
 
 Check if there is an existing 'iplog' table entry for the IP address.
@@ -486,7 +506,7 @@ Look for the MAC address of a given IP address using the SQL 'iplog' table
 
 sub ip2mac_sql {
     my ( $ip ) = @_;
-    my $iplog = iplog_view_open_ip($ip);
+    my $iplog = _iplog_view_open_ip($ip);
     return $iplog->{'mac'};
 }
 
@@ -533,7 +553,7 @@ sub mac2ip {
     if ($cache) {
         $ip = $cache->{clean_mac($mac)};
     } else {
-        my $iplog = iplog_view_open_mac($mac);
+        my $iplog = _iplog_view_open_mac($mac);
         $ip = $iplog->{'ip'} || 0;
     }
     if ( !$ip ) {

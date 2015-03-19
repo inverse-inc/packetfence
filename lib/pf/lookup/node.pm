@@ -42,7 +42,7 @@ sub lookup_node {
         $return .= "MAC Address    : $mac\n";
 
         # fetch IP and DHCP information
-        my $node_iplog_info = iplog_view_open_mac($mac);
+        my $node_iplog_info = iplog_view_open($mac);
         if (defined($node_iplog_info->{'ip'})) {
 
             $return .= "IP Address     : ".$node_iplog_info->{'ip'}." (active)\n";

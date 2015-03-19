@@ -162,7 +162,7 @@ sub view {
         }
 
         # Fetch IP information
-        $node->{iplog} = iplog_view_open_mac($mac);
+        $node->{iplog} = iplog_view_open($mac);
 
         # Fetch the IP activity of the past 14 days
 #        my $start_time = time() - 14 * 24 * 60 * 60;

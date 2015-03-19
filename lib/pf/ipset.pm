@@ -123,7 +123,7 @@ sub generate_mangle_rules {
     }
 
     # Build lookup table for MAC/IP mapping
-    my @iplog_open = iplog_view_open();
+    my @iplog_open = iplog_list_open();
     my %iplog_lookup = map { $_->{'mac'} => $_->{'ip'} } @iplog_open;
 
     # mark registered nodes that should not be isolated
