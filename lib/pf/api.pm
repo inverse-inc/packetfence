@@ -455,9 +455,49 @@ sub node_information : Public {
     return $node_info;
 }
 
+sub notify_configfile_changed : Public {
+    my ($class, %postdata) = @_;
+    my $logger = pf::log::get_logger;
+    my @require = qw(server conf_file);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    my $master_server = $ConfigCluster{$postdata{server}};
+    die "Master server is not in configuration" unless $master_server;
+
+    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
+
+    eval {
+        my %data = ( conf_file => $postdata{conf_file} );
+        my ($result) = $apiclient->call( 'download_configfile', %data );
+        open(my $fh, '>', $postdata{conf_file});
+        print $fh $result;
+        close($fh);
+        $logger->info("Successfully downloaded configuration $postdata{conf_file} from $postdata{server}");
+    };
+    if($@){
+        $logger->error("Couldn't download configuration file $postdata{conf_file} from $postdata{server}");
+    }
+
+    return 1;
+}
+
+sub download_configfile : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(conf_file);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    use File::Slurp;
+    die "Config file doesn't exist" unless(-e $postdata{conf_file});
+    my $config = read_file($postdata{conf_file});
+
+    return $config;
+}
+
 sub expire_cluster : Public {
     my ($class, %postdata) = @_;
-    my @require = qw(namespace);
+    my @require = qw(namespace conf_file);
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require, \@found);
 
@@ -465,6 +505,7 @@ sub expire_cluster : Public {
 
     $postdata{light} = 0;
     expire($class, %postdata);
+
     foreach my $server (@cluster_servers){
         next if($host_id eq $server->{host});
         my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
@@ -475,8 +516,22 @@ sub expire_cluster : Public {
         eval {
             $apiclient->call('expire', %data ); 
         };
+
         if($@){
             $logger->error("Can't connect to $server->{management_ip} to expire the configuration.")
+        }
+
+        %data = (
+            conf_file => $postdata{conf_file},
+            server => $host_id,
+        );
+
+        eval {
+            $apiclient->call('notify_configfile_changed', %data);
+        };
+
+        if($@){
+            $logger->error("Can't connect to $server->{management_ip} to have him download the new configuration.")
         }
     }
     return 1;

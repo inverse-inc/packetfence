@@ -426,6 +426,7 @@ sub commitCluster {
     my $apiclient = pf::api::jsonrpcclient->new();
     my %data = (
         namespace => $self->pfconfigNamespace,
+        conf_file => $self->configFile,
     );
     my $result = $apiclient->notify('expire_cluster', %data );
     unless($result){
