@@ -113,6 +113,23 @@ sub add_namespace_to_overlay {
     $self->{cache}->set('_namespace_overlay', $namespaces);
 }
 
+sub overlayed_namespaces {
+    my ($self, $base_namespace) = @_;
+    if($base_namespace =~ /.*\(.+\)/){
+        return ();
+    }
+    my $namespaces_ref = $self->{cache}->get('_namespace_overlay') || ();
+    my @namespaces = @$namespaces_ref;
+    my @overlayed_namespaces;
+    $base_namespace = quotemeta($base_namespace);
+    foreach my $namespace (@namespaces){
+        if($namespace =~ /^$base_namespace/){
+            push @overlayed_namespaces, $namespace;
+        }
+    }
+    return @overlayed_namespaces;
+}
+
 =head2 new
 
 Constructor for the manager
@@ -306,6 +323,12 @@ sub expire {
         }
     }
 
+    # expire overlayed namespaces
+    my @overlayed_namespaces = $self->overlayed_namespaces($what);
+    foreach my $namespace (@overlayed_namespaces){
+        $logger->info("Expiring overlayed resource from base resource $what.");
+        $self->expire($namespace, $light);
+    }
 }
 
 =head2 list_namespaces
