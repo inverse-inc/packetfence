@@ -232,7 +232,7 @@ sub authorize {
 
     my $end = Time::HiRes::gettimeofday();
     my $elapsed_time = $end - $start;
-    $pf::StatsD::statsd->timing(__PACKAGE__ . ".timing" , 1000 * $elapsed_time );
+    $pf::StatsD::statsd->timing(called() . ".timing" , 1000 * $elapsed_time );
 
     return $RAD_REPLY_REF;
 }

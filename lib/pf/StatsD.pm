@@ -57,7 +57,23 @@ sub CLONE {
     initStatsd;
 }
 
-=over
+=head1 METHODS
+
+=over       
+        
+=item end(STAT, START_TIME, SAMPLE_RATE)                                                                               
+                                                                                                                       
+Convenience method to log timing information.                                                                          
+This one wraps timing() by taking a start time and automatically calculating the elapsed time since.                   
+=cut                                                                                                                   
+
+sub end {                                                                                                              
+    my ( $self, $stat, $start_time, $sample_rate ) = @_;                                                               
+    my $end          = Time::HiRes::gettimeofday();                                                                    
+    my $elapsed_time = $end - $start_time;                                                                             
+    $self->timing( $stat, 1000 * $elapsed_time, $sample_rate );                                                        
+}
+
 
 =item timing(STAT, TIME, SAMPLE_RATE)
 
