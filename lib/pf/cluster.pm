@@ -9,6 +9,9 @@ use pfconfig::cached_hash;
 use pfconfig::cached_array;
 use pfconfig::cached_scalar;
 use List::MoreUtils qw(first_index);
+use Net::Interface;
+use NetAddr::IP;
+use Socket;
 
 use Exporter;
 our ( @ISA, @EXPORT );
@@ -30,6 +33,22 @@ our $host_id = hostname();
 #    my $logger = get_logger;
 #    $logger->error("This machine ($host_id) is cluster enabled but doesn't have a cluster configuration. This will certainly cause problems. Please check your cluster.conf or disable clustering on this server.");
 #}
+
+sub is_management {
+    my $cluster_ip = management_cluster_ip();
+    my @all_ifs = Net::Interface->interfaces();
+    foreach my $inf (@all_ifs) {
+        my @masks = $inf->netmask(AF_INET());
+        my @addresses = $inf->address(AF_INET());
+        for my $i (0 .. $#masks) {
+            if (inet_ntoa($addresses[$i]) eq $cluster_ip) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+
+}
 
 sub cluster_ip {
     my ($interface) = @_;

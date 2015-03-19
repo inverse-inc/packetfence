@@ -17,12 +17,9 @@ use warnings;
 
 use Log::Fast;
 use Sys::Syslog qw( LOG_DAEMON );
-use Exporter;
 use pfconfig::config;
 use Log::Log4perl;
-
-our @ISA    = qw(Exporter);
-our @EXPORT = qw(get_logger);
+use pf::file_paths;
 
 =head2 logger
 
@@ -30,6 +27,7 @@ The logger object
 
 =cut
 
+Log::Log4perl->wrapper_register(__PACKAGE__);
 my $logger = pfconfig::log->new;
 
 =head2 get_logger
@@ -52,11 +50,40 @@ sub new {
     my ($class) = @_;
     my $self = bless {}, $class;
 
-    my $log_level = pfconfig::config->new->section('general')->{log_level};
-    Log::Log4perl->init('/usr/local/pf/conf/log.conf.d/pfconfig.conf');
-    $self->{logger} = Log::Log4perl->get_logger;
-
+    $self->setup(service => 'pfconfig');
+    
     return $self;
+}
+
+sub setup {
+    Log::Log4perl->wrapper_register(__PACKAGE__);
+    my ($self,%args) = @_;
+    my ($package, $filename, $line) = caller;
+    if(!Log::Log4perl->initialized || $args{reinit} ) {
+        my $service = $args{service} if defined $args{service};
+        if($service) {
+            Log::Log4perl->init_and_watch("$log_conf_dir/${service}.conf",5 * 60);
+            Log::Log4perl::MDC->put( 'proc', $service );
+        } else {
+            Log::Log4perl->init($log_config_file);
+            Log::Log4perl::MDC->put( 'proc', basename($0) );
+        }
+        #Install logging in the die handler
+        $SIG{__DIE__} = sub {
+            # We're in an eval {} and don't want log
+            return unless defined $^S && $^S == 0;
+            $Log::Log4perl::caller_depth++;
+            my $logger = get_logger("");
+            $logger->fatal(@_);
+            die @_; # Now terminate really
+        };
+    }
+    Log::Log4perl::MDC->put( 'tid', $$ );
+    {
+        no strict qw(refs);
+        *{"${package}::get_logger"} = \&get_logger;
+    }
+    $self->{logger} = Log::Log4perl->get_logger(@_);
 }
 
 =head2 fatal

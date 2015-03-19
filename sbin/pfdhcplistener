@@ -97,15 +97,6 @@ my @local_dhcp_servers_ip;
 my @local_dhcp_servers_mac;
 my $pcap;
 my $apiclient = pf::api::jsonrpcclient->new;
-my $process;
-
-sub reload_config {
-
-    $process = pf::clustermgmt::is_vip_running($interface);
-    $logger->info("Reload configuration on $interface with status $process");
-}
-
-reload_config;
 
 $PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
 
@@ -185,7 +176,7 @@ sub dhcp_detector {
 
 sub process_pkt {
     my ( $user_data, $hdr, $pkt ) = @_;
-    listen_dhcp( $pkt, $user_data ) if (($process eq '0') || ($process eq 'master'));
+    listen_dhcp( $pkt, $user_data );
     #reload all cached configs after each iteration
     pf::config::cached::ReloadConfigs();
     #Only perform stats when in debug mode

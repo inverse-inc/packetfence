@@ -72,7 +72,7 @@ sub init {
 
 sub build_child {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     my %Config         = %{ $self->{cfg} };
     my %Doc_Config     = %{ $self->{doc_config} };

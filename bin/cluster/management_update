@@ -1,11 +1,5 @@
 #!/usr/bin/perl
 
-=head1 pfupdate
-
-Update configuration values to prevent some services to run on slave member
-
-=cut
-
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
@@ -14,10 +8,8 @@ use pf::log;
 my $mode;
 my $logger = get_logger;
 
-exit;
-
 $logger->info("Got a notification from keepalived");
 
 $logger->info("Refreshing services for management mode");
-$logger->info(`/usr/local/pf/bin/pfcmd service pfdhcplistener restart`);
-$logger->info(`/usr/local/pf/bin/pfcmd service pfmon restart`);
+`/usr/local/pf/bin/pfcmd service pfdhcplistener restart`;
+`/usr/local/pf/bin/pfcmd service pfmon restart`;

@@ -39,11 +39,16 @@ sub fetch_socket {
     my $line;
     my $line_read = 0;
     my $response  = '';
+    # This is evil but we're getting lines with no content in them.
+    # This throws a warning that $line is undefined. 
+    # We workaround this by deactivating warnings when we read though the socket
+    no warnings;
     while ( $line_read < $count ) {
         chomp( $line = <$socket> );
         $response .= $line . "\n";
         $line_read += 1;
     }
+    use warnings;
     return $response;
 }
 

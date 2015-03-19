@@ -34,7 +34,6 @@ BEGIN {
 
 use pf::file_paths;
 use pf::accounting qw(acct_maintenance);
-use pf::clustermgmt;
 use pf::config;
 use pf::config::cached;
 use pf::inline::accounting;
@@ -126,14 +125,17 @@ our $running = 1;
 daemonize($PROGRAM_NAME) if ($daemonize);
 our $PARENT_PID = $$;
 
-my $vip_running = pf::clustermgmt::is_vip_running();
 
-pf::clustermgmt::update_services($vip_running) if ($vip_running);
+sub start {
+    my $vip_running = pf::cluster::is_management();
+    if($vip_running){
+        registertasks();
+    }
+    runtasks();
+    waitforit();
+}
 
-
-registertasks();
-runtasks();
-waitforit();
+start();
 cleanup();
 
 END {
@@ -225,11 +227,6 @@ sub registertasks  {
             acct_maintenance();
         }
     );
-    #register_task(
-    #    'Sync Cluster','cluster_sync_interval',sub {
-    #        pf::clustermgmt::sync_cluster;
-    #    }
-    #);
 }
 
 =head2 cleanup
@@ -460,6 +457,7 @@ the handler to cancel any currently running database queries
 sub usr1_sighandler {
    db_cancel_current_query();
 }
+
 
 =head1 AUTHOR
 

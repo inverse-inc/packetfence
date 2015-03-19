@@ -55,7 +55,6 @@ sub generateConfig {
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
-        next if (!$cluster_enabled);
         my $priority = 100 - pf::cluster::cluster_index();
         my $cluster_ip = pf::cluster::cluster_ip($interface);
         $tags{'vrrp'} .= <<"EOT";
@@ -68,6 +67,12 @@ vrrp_instance $cfg->{'ip'} {
   virtual_ipaddress {
     $cluster_ip dev $interface
   }
+EOT
+        if(defined($cfg->{type}) && $cfg->{type} eq "management"){
+            $tags{'vrrp'} .= "  notify \"$install_dir/bin/cluster/management_update\"\n";
+        }
+
+        $tags{'vrrp'} .= <<"EOT";
   notify_master "$install_dir/bin/pfupdate --mode=master"
   notify_backup "$install_dir/bin/pfupdate --mode=slave"
   notify_fault "$install_dir/bin/pfupdate --mode=slave"

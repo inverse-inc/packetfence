@@ -75,7 +75,7 @@ Other than that it proxies the call to pfconfig
 
 sub FETCH {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     my $subcache_value = $self->get_from_subcache("myself");
     return $subcache_value if defined($subcache_value);

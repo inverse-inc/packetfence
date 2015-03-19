@@ -18,6 +18,7 @@ use warnings;
 use pfconfig::log;
 use pf::constants::config qw(%NET_INLINE_TYPES);
 use pfconfig::namespaces::config::Pf;
+use pfconfig::namespaces::resource::cluster_enabled;
 use pfconfig::util qw(is_type_inline);
 use Net::Netmask;
 use Net::Interface;
@@ -48,11 +49,12 @@ sub init {
         @{$self->{child_resources}} = map { "$_($host_id)" } @{$self->{child_resources}}; 
     }
     $self->{config_resource} = pfconfig::namespaces::config::Pf->new( $self->{cache}, $host_id );
+    $self->{cluster_enabled} = pfconfig::namespaces::resource::cluster_enabled->new( $self->{cache} )->build();
 }
 
 sub build {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     my $config = $self->{config_resource};
     $self->{config} = $config->build();
@@ -128,11 +130,12 @@ sub _fetch_virtual_ip {
     my ( $self, $interface, $config_section ) = @_;
 
     my %Config = %{ $self->{config} };
+    my $cluster_enabled = $self->{cluster_enabled};
 
     # [interface $int].vip= ... always wins
     return $Config{$config_section}{'vip'} if defined( $Config{$config_section}{'vip'} );
 
-    return if (defined($Config{$config_section}{'active_active_ip'}) && isenabled($Config{$config_section}{'active_active_enabled'}));
+    return if ($cluster_enabled);
 
     my $if = Net::Interface->new($interface);
     return if ( !defined($if) );

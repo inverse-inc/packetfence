@@ -37,7 +37,7 @@ Used to time a method ($fct)
 sub timeme {
     my ( $desc, $fct, $verbose ) = @_;
     if ( $VERBOSE || $verbose ) {
-        my $logger = get_logger;
+        my $logger = pfconfig::log::get_logger;
         my $start  = Time::HiRes::gettimeofday();
         $fct->();
         my $end = Time::HiRes::gettimeofday();

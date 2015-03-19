@@ -81,7 +81,7 @@ Other than that it proxies the call to pfconfig
 
 sub FETCH {
     my ( $self, $key ) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     unless ( defined($key) ) {
         my $caller = ( caller(1) )[3];
@@ -114,7 +114,7 @@ Call it using tied(%hash)->keys
 
 sub keys {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     my @keys = @{ $self->_get_from_socket( $self->{_namespace}, "keys" ) };
 
@@ -130,7 +130,7 @@ Proxies to pfconfig
 
 sub FIRSTKEY {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
     my $first_key = $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => undef ) );
     return $first_key ? $first_key->{next_key} : undef;
 }
@@ -144,7 +144,7 @@ Proxies to pfconfig
 
 sub NEXTKEY {
     my ( $self, $last_key ) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
     return $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => $last_key ) )->{next_key};
 }
 
@@ -157,7 +157,7 @@ Stores it without any saving capability
 
 sub STORE {
     my ( $self, $key, $value ) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     $self->{_internal_elements} = {} unless ( defined( $self->{_internal_elements} ) );
 
