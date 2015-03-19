@@ -23,6 +23,8 @@ use pfconfig::manager;
 
 extends qw(pf::ConfigStore Exporter);
 
+sub configFile {$switches_config_file}
+
 sub pfconfigNamespace {'config::Switch'}
 
 our ( $switches_cached_config, %SwitchConfig );
