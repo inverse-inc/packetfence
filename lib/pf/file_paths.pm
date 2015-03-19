@@ -59,6 +59,7 @@ our (
     $vlan_filters_config_file,
     $pfcmd_binary,
     $realm_config_file,
+    $cluster_config_file,
 );
 
 BEGIN {
@@ -96,6 +97,7 @@ BEGIN {
         $vlan_filters_config_file
         $pfcmd_binary
         $realm_config_file
+        $cluster_config_file
     );
 }
 
@@ -143,6 +145,7 @@ $apache_filters_config_file = catfile($conf_dir, "apache_filters.conf");
 $vlan_filters_config_file = catfile($conf_dir, "vlan_filters.conf");
 $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
 $realm_config_file = catfile($conf_dir,"realm.conf");
+$cluster_config_file = catfile($conf_dir,"cluster.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
