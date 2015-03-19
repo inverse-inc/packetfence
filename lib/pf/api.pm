@@ -473,6 +473,10 @@ sub notify_configfile_changed : Public {
         open(my $fh, '>', $postdata{conf_file});
         print $fh $result;
         close($fh);
+        use pf::config::cached;
+        pf::config::cached::updateCacheControl();
+        pf::config::cached::ReloadConfigs(1);
+
         $logger->info("Successfully downloaded configuration $postdata{conf_file} from $postdata{server}");
     };
     if($@){
