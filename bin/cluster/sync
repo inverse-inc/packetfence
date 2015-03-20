@@ -15,6 +15,8 @@ Made for keepalived so the pf services can be adjusted depending of the running 
 
 =cut
 
+use strict;
+use warnings;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
@@ -24,8 +26,9 @@ use pf::api::jsonrpcclient;
 use Getopt::Long;
 use pf::api::jsonrpcclient;
 use pf::config::cached;
+use pf::file_paths;
 
-my ($master_server, $as_master);
+my ($master_server, $as_master, $api_user, $api_password);
 GetOptions (
     "from=s"   => \$master_server, 
     "api-user=s" => \$api_user,
@@ -63,15 +66,16 @@ if($as_master){
     print "Synching cluster with this node as the configuration master\n";
 
     my $apiclient = pf::api::jsonrpcclient->new();
+
     foreach my $store (@stores){
         eval {
+            print "Synching storage : $store\n";
             my $cs = $store->new;
             my $pfconfig_namespace = $cs->pfconfigNamespace;
             my $config_file = $cs->configFile;
-            print "Synching storage : $store\n";
             my %data = (
                 namespace => $pfconfig_namespace,
-                conf_file => $config_file,          
+                conf_file => $store,          
             );
             my ($result) = $apiclient->call( 'expire_cluster', %data );
         };
@@ -86,19 +90,26 @@ if($master_server){
     
     my $apiclient = pf::api::jsonrpcclient->new(host => $master_server, proto => 'https', username => $api_user, password => $api_password);
 
-    foreach my $store (@stores){
+    my @files = ($server_cert, $server_key, $server_pem);
+
+    foreach my $store (@stores) {
+        my $cs = $store->new;
+        my $config_file = $cs->configFile;
+        push @files, $config_file;
+    }
+
+    foreach my $file (@files){
         eval {
-            my $cs = $store->new;
-            my $config_file = $cs->configFile;
-            print "Synching storage : $store\n";
-            my %data = ( conf_file => $config_file );
+            print "Synching file : $file\n";
+            my %data = ( conf_file => $file );
             my ($result) = $apiclient->call( 'download_configfile', %data );
-            open(my $fh, '>', $config_file);
+            open(my $fh, '>', $file);
             print $fh $result;
             close($fh);
+            `chown pf.pf $file`;
         };
         if($@){
-            print STDERR "Failed to sync store : $store \n";
+            print STDERR "Failed to sync file : $file \n";
         }
     }
 
