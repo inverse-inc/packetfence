@@ -126,15 +126,15 @@ sub update_iplog : Public {
         $logger->info(
             "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing iplog entry"
         );
-        pf::iplog::iplog_close_now($postdata{'ip'});
+        pf::iplog::close($postdata{'ip'});
     } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
         $logger->info(
             "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing iplog entry"
         );
-        pf::iplog::iplog_close_now($postdata{'oldip'});
+        pf::iplog::close($postdata{'oldip'});
     }
 
-    return (pf::iplog::iplog_open($postdata{'mac'}, $postdata{'ip'}, $postdata{'lease_length'}));
+    return (pf::iplog::open($postdata{'mac'}, $postdata{'ip'}, $postdata{'lease_length'}));
 }
  
 sub unreg_node_for_pid : Public {
@@ -172,21 +172,14 @@ sub open_iplog : Public {
     my ( $class, $mac, $ip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::iplog_open($mac, $ip, $lease_length));
+    return (pf::iplog::open($mac, $ip, $lease_length));
 }
 
 sub close_iplog : Public {
     my ( $class, $ip ) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::iplog_close($ip));
-}
-
-sub close_now_iplog : Public {
-    my ( $class, $ip ) = @_;
-    my $logger = pf::log::get_logger();
-
-    return (pf::iplog::iplog_close_now($ip));
+    return (pf::iplog::close($ip));
 }
 
 sub ipset_node_update : Public {

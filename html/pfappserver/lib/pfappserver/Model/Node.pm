@@ -162,18 +162,18 @@ sub view {
         }
 
         # Fetch IP information
-        $node->{iplog} = iplog_view_open_mac($mac);
+        $node->{iplog} = pf::iplog::view($mac);
 
         # Fetch the IP activity of the past 14 days
 #        my $start_time = time() - 14 * 24 * 60 * 60;
 #        my $end_time = time();
-#        my @iplog_history = iplog_history_mac($mac,
+#        my @iplog_history = iplog_history($mac,
 #                                              (start_time => $start_time, end_time => $end_time));
 #        $node->{iplog}->{history} = \@iplog_history;
 #        _graphIplogHistory($node, $start_time, $end_time);
 
         # Fetch IP address history
-        my @iplog_history = iplog_history_mac($mac);
+        my @iplog_history = iplog_history($mac);
         map { $_->{end_time} = '' if ($_->{end_time} eq '0000-00-00 00:00:00') } @iplog_history;
         $node->{iplog}->{history} = \@iplog_history;
 

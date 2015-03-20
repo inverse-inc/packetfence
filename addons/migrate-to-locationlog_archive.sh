@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# Slowly migrate content of locationlog to locationlog_history
+# Slowly migrate content of locationlog to locationlog_archive
 #
 # Only useful if your locationlog is too big and you want to slowly move it 
-# into locationlog_history and you do not want to do it in one batch like the 
+# into locationlog_archive and you do not want to do it in one batch like the 
 # database-backup-and-maintenance script would do
 #
 # It will proceed day by day starting by the older entries first and sleeping 
 # for 5 minutes between each batch.
 #
-# Usage: migrate-to-locationlog_history.sh <days>
+# Usage: migrate-to-locationlog_archive.sh <days>
 # Where <days> is the number of days to migrate the records of.
 #
 # Copyright (C) 2005-2015 Inverse inc.
@@ -40,7 +40,7 @@ if [[ -n "$1" ]]; then
 
   # move day by day (from last day) the content of locationlog for the number of iterations specified on CLI
   for ((I=1; I<=$1; I++)); do
-    /usr/bin/mysql -u $DB_USER -p$DB_PASS $DB_NAME -vvv -e "INSERT INTO locationlog_history select * from locationlog where ((end_time IS NOT NULL OR end_time <> 0) and end_time < adddate(\"$EARLIEST\",$I))"
+    /usr/bin/mysql -u $DB_USER -p$DB_PASS $DB_NAME -vvv -e "INSERT INTO locationlog_archive select * from locationlog where ((end_time IS NOT NULL OR end_time <> 0) and end_time < adddate(\"$EARLIEST\",$I))"
     /usr/bin/mysql -u $DB_USER -p$DB_PASS $DB_NAME -vvv -e "delete from locationlog where ((end_time IS NOT NULL OR end_time <> 0) and end_time < adddate(\"$EARLIEST\",$I))"
     echo "Sleeping for 5 minutes. Zzz"
     sleep 300

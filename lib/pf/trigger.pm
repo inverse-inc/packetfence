@@ -47,7 +47,7 @@ use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
 use pf::config;
 use pf::db;
 use pf::util;
-use pf::iplog qw(ip2mac);
+use pf::iplog;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $trigger_db_prepared = 0;

@@ -208,14 +208,28 @@ CREATE TABLE violation (
 
 CREATE TABLE iplog (
   mac varchar(17) NOT NULL,
-  ip varchar(15) NOT NULL,
+  ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
-  KEY `ip_view_open` (`ip`, `end_time`),
-  KEY `mac_view_open` (`mac`, `end_time`),
-  KEY `iplog_end_time` ( `end_time`),
-  CONSTRAINT `0_63` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE
+  PRIMARY KEY (ip)
 ) ENGINE=InnoDB;
+
+--
+-- Trigger to insert old record from 'iplog' in 'iplog_history' before updating the current one
+--
+
+DROP TRIGGER IF EXISTS iplog_insert_in_iplog_history_before_update_trigger;
+DELIMITER /
+CREATE TRIGGER iplog_insert_in_iplog_history_before_update_trigger BEFORE UPDATE ON iplog
+FOR EACH ROW
+BEGIN
+  INSERT INTO iplog_history SET ip = OLD.ip, mac = OLD.mac, start_time = OLD.start_time, end_time = CASE
+    WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
+    WHEN OLD.end_time > NOW() THEN NOW()
+    ELSE OLD.end_time
+  END;
+END /
+DELIMITER ;
 
 --
 -- Table structure for table `iplog_history`
@@ -223,9 +237,20 @@ CREATE TABLE iplog (
 
 CREATE TABLE iplog_history (
   mac varchar(17) NOT NULL,
-  ip varchar(15) NOT NULL,
+  ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
-  end_time datetime default "0000-00-00 00:00:00"
+  end_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `iplog_archive`
+--
+
+CREATE TABLE iplog_archive (
+  mac varchar(17) NOT NULL,
+  ip varchar(45) NOT NULL,
+  start_time datetime NOT NULL,
+  end_time datetime NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE os_type (
@@ -277,7 +302,7 @@ CREATE TABLE `locationlog` (
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `locationlog_history` (
+CREATE TABLE `locationlog_archive` (
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(8) NOT NULL default '',
@@ -291,7 +316,7 @@ CREATE TABLE `locationlog_history` (
   `switch_mac` varchar(17) DEFAULT NULL,
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
-  KEY `locationlog_history_view_mac` (`mac`, `end_time`),
+  KEY `locationlog_archive_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;

@@ -33,7 +33,7 @@ BEGIN {
 use pf::constants;
 use pf::config;
 use pf::db;
-use pf::iplog qw(ip2mac);
+use pf::iplog;
 use pf::scan::nessus;
 use pf::scan::openvas;
 use pf::util;
@@ -221,7 +221,7 @@ sub run_scan {
     $host_ip = clean_ip($host_ip);  # untainting ip
 
     # Resolve mac address
-    my $host_mac = ip2mac($host_ip);
+    my $host_mac = pf::iplog::ip2mac($host_ip);
     if ( !$host_mac ) {
         $logger->warn("Unable to find MAC address for the scanned host $host_ip. Scan aborted.");
         return;

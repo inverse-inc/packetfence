@@ -888,6 +888,20 @@ sub _load_captive_portal {
     ;
 }
 
+=item is_omapi_enabled
+
+Check whether pf::iplog::ip2mac or pf::iplog::mac2ip are configured to use OMAPI based on configuration parameters.
+
+=cut
+
+sub is_omapi_enabled {
+    if ( isenabled($Config{'omapi'}{'ip2mac_lookup'}) || isenabled($Config{'omapi'}{'mac2ip_lookup'}) ) {
+        return $TRUE;
+    }
+
+    return $FALSE;
+}
+
 =back
 
 =head1 AUTHOR

@@ -233,7 +233,7 @@ sub validate_ip_in_sepm {
 
 sub authorize {
     my ($self,$mac) = @_;
-    my $ip = mac2ip($mac); 
+    my $ip = pf::iplog::mac2ip($mac); 
     if(defined($ip)){
         my $logger = Log::Log4perl::get_logger( ref($self) );
         my $result = $self->validate_ip_in_sepm($ip); 
