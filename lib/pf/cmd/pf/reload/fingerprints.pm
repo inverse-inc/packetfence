@@ -14,7 +14,7 @@ pf::cmd::pf::reload::fingerprints
 use strict;
 use warnings;
 use base qw(pf::cmd);
-use pf::config;
+use pf::constants;
 use pf::os;
 use pf::log;
 
@@ -22,6 +22,7 @@ sub run  {
     my $fp_total = pf::os::import_dhcp_fingerprints({ force => $TRUE });
     get_logger->info("$fp_total DHCP fingerprints reloaded");
     print "$fp_total DHCP fingerprints reloaded\n";
+    return 0;
 }
 
 =head1 AUTHOR
@@ -32,7 +33,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
