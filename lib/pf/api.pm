@@ -529,7 +529,7 @@ sub download_configfile : Public {
     return unless validate_argv(\@require, \@found);
 
     use File::Slurp;
-    die "Config file doesn't exist" unless(-e $postdata{conf_file});
+    die "Config file $postdata{conf_file} doesn't exist" unless(-e $postdata{conf_file});
     my $config = read_file($postdata{conf_file});
 
     return $config;
