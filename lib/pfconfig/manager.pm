@@ -399,7 +399,7 @@ sub expire_all {
         }
         else{
             $logger->info("Hard expiring $namespace");
-            $self->cache_resource($namespace);
+            $self->expire($namespace);
         }
     }
 }
