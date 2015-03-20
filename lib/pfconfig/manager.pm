@@ -308,7 +308,7 @@ sub expire {
     my $logger = pfconfig::log::get_logger;
     if(defined($light) && $light){
         $logger->info("Light expiring resource : $what");
-        delete $self->{memorized_at}->{$what}
+        delete $self->{memorized_at}->{$what};
         $self->touch_cache($what);
     }
     else {
