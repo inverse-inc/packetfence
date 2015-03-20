@@ -49,7 +49,13 @@ sub new {
 }
 
 sub initStatsd {
-    $statsd = __PACKAGE__->new($Config{'monitoring'}{'statsd_host'}, $Config{'monitoring'}{'statsd_port'},);
+    my ( $host, $port ) = ( $Config{'monitoring'}{'statsd_host'}, $Config{'monitoring'}{'statsd_port'} );
+
+    # we need to make sure the host and port are not tainted.
+    ($host) = $host =~ m/^(.*)$/;
+    ($port) = $port =~ m/^(.*)$/;
+
+    $statsd = __PACKAGE__->new( $host, $port, );
 }
 
 
