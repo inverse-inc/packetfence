@@ -2,27 +2,27 @@ listen {
         ipaddr = %%virt_ip%%
         port = 0
         type = auth
-        virtual_server = pf.actif
+        virtual_server = pf.cluster
 }
 
 listen {
         ipaddr = %%virt_ip%%
         port = 0
         type = acct
-        virtual_server = pf.actif
+        virtual_server = pf.cluster
 }
 
 %%members%%
 
 #  Put all of the servers into a pool.
-home_server_pool pf_pool.actif {
+home_server_pool pf_pool.cluster {
         type = client-port-balance
 
 %%home_server%%
 
 }
 
-home_server_pool pfacct_pool.actif {
+home_server_pool pfacct_pool.cluster {
         type = load-balance
 
 %%home_server%%
@@ -30,11 +30,11 @@ home_server_pool pfacct_pool.actif {
 }
 
 realm packetfence {
-        auth_pool = pf_pool.actif
-        acct_pool = pfacct_pool.actif
+        auth_pool = pf_pool.cluster
+        acct_pool = pfacct_pool.cluster
 }
 
-server pf.actif {
+server pf.cluster {
         pre-proxy {
                 #  Insert pre-proxy rules here
         }
