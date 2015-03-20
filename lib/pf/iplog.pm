@@ -2,7 +2,7 @@ package pf::iplog;
 
 =head1 NAME
 
-pf::iplog - module to manage the DHCP information and history.
+pf::iplog - Module to manage IP address <-> MAC address bindings
 
 =cut
 
@@ -10,10 +10,6 @@ pf::iplog - module to manage the DHCP information and history.
 
 pf::iplog contains the functions necessary to read and manage the DHCP
 information gathered by PacketFence on the network.
-
-=head1 CONFIGURATION AND ENVIRONMENT
-
-Read the F<pf.conf> configuration file.
 
 =cut
 
@@ -201,7 +197,7 @@ Returns '0' if no match
 
 sub ip2mac {
     my ( $ip ) = @_;
-    my $logger = pf::log::get_logger();
+    my $logger = pf::log::get_logger;
 
     unless (valid_ip($ip)) {
         $logger->warn("Trying to match MAC address with an invalid IP address '" . ($ip // "undef") . "'");
@@ -395,8 +391,6 @@ sub _history_by_mac {
     my ( $mac, %params ) = @_;
     my $logger = pf::log::get_logger;
 
-    $mac = clean_mac($mac);
-
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
         return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql', 
@@ -417,6 +411,14 @@ sub _history_by_mac {
     }
 }
 
+=head2 view
+
+Consult the 'iplog' SQL table for a given IP address or MAC address.
+
+Returns a single row for the given parameter.
+
+=cut
+
 sub view {
     my ( $search_by ) = @_;
     my $logger = pf::log::get_logger;
@@ -424,29 +426,62 @@ sub view {
     return _view_by_mac($search_by) if ( defined($search_by) && valid_mac($search_by) );
 
     return _view_by_ip($search_by) if ( defined($search_by) && valid_ip($search_by) );
+
+    # Nothing has been returned due to invalid "search" parameter
+    $logger->warn("Trying to view an 'iplog' table entry without a valid parameter '" . ($search_by // "undef") . "'");
 }
 
+=head2 _view_by_ip
+
+Consult the 'iplog' SQL table for a given IP address.
+
+Not meant to be used outside of this class. Refer to L<pf::iplog::view> 
+
+=cut
+
 sub _view_by_ip {
-    my ($ip) = @_;
+    my ( $ip ) = @_;
+    my $logger = pf::log::get_logger;
+
+    $logger->debug("Viewing an 'iplog' table entry for the following IP address '$ip'");
 
     my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_by_ip_sql', $ip) || return (0);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
     $query->finish();
+
     return ($ref);
 }
 
+=head2 _view_by_mac
+
+Consult the 'iplog' SQL table for a given MAC address.
+
+Not meant to be used outside of this class. Refer to L<pf::iplog::view>
+
+=cut
+
 sub _view_by_mac {
-    my ($mac) = @_;
+    my ( $mac ) = @_;
+    my $logger = pf::log::get_logger;
+
+    $logger->debug("Viewing an 'iplog' table entry for the following MAC address '$mac'");
 
     my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_by_mac_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
     $query->finish();
+
     return ($ref);
 }
+
+=head2 list_open
+
+List all the current open 'iplog' SQL table entries (either for a given IP address, MAC address of both)
+
+=cut
 
 sub list_open {
     my ( $search_by ) = @_;
@@ -456,19 +491,43 @@ sub list_open {
 
     return _list_open_by_ip($search_by) if ( defined($search_by) && valid_ip($search_by) );
 
+    # We are either trying to list all the currently open 'iplog' table entries or the given parameter was not valid.
+    # Either way, we return the complete list
+    $logger->debug("Listing all currently open 'iplog' table entries");
+    $logger->debug("For debugging purposes, here's the given parameter if any: '" . ($search_by // "undef") . "'");
     return db_data(IPLOG, $iplog_statements, 'iplog_list_open_sql') if ( !defined($search_by) );
 }
+
+=head2 _list_open_by_ip
+
+List all the current open 'iplog' SQL table entries for a given IP address
+
+Not meant to be used outside of this class. Refer to L<pf::iplog::list_open>
+
+=cut
 
 sub _list_open_by_ip {
     my ( $ip ) = @_;
     my $logger = pf::log::get_logger;
 
+    $logger->debug("Listing all currently open 'iplog' table entries for the following IP address '$ip'");
+
     return db_data(IPLOG, $iplog_statements, 'iplog_list_open_by_ip_sql', $ip);
 }
+
+=head2 _list_open_by_mac
+
+List all the current open 'iplog' SQL table entries for a given MAC address
+
+Not meant to be used outside of this class. Refer to L<pf::iplog::list_open>
+
+=cut
 
 sub _list_open_by_mac {
     my ( $mac ) = @_;
     my $logger = pf::log::get_logger;
+
+    $logger->debug("Listing all currently open 'iplog' table entries for the following MAC address '$mac'");
 
     return db_data(IPLOG, $iplog_statements, 'iplog_list_open_by_mac_sql', $mac);
 }
@@ -494,19 +553,19 @@ Handle 'iplog' table "new" entries. Will take care of either adding or updating 
 
 sub open {
     my ( $mac, $ip, $lease_length ) = @_;
-    my $logger = pf::log::get_logger();
+    my $logger = pf::log::get_logger;
 
     # TODO: Should this really belong here ? Is it part of the responsability of iplog to check that ?
     if ( !node_exist($mac) ) {
         node_add_simple($mac);
     }
 
-    unless (valid_ip($ip)) {
+    unless ( valid_ip($ip) ) {
         $logger->warn("Trying to open an 'iplog' table entry with an invalid IP address '" . ($ip // "undef") . "'");
         return;
     }
 
-    unless (valid_mac($mac)) {
+    unless ( valid_mac($mac) ) {
         $logger->warn("Trying to open an 'iplog' table entry with an invalid MAC address '" . ($mac // "undef") . "'");
         return;
     }
@@ -526,13 +585,13 @@ sub open {
 
 Insert a new 'iplog' table entry.
 
-Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_open> 
+Not meant to be used outside of this class. Refer to L<pf::iplog::open> 
 
 =cut
 
 sub _insert {
     my ( $ip, $mac, $lease_length ) = @_;
-    my $logger = pf::log::get_logger();
+    my $logger = pf::log::get_logger;
 
     if ( $lease_length ) {
         $logger->debug("Adding a new 'iplog' table entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
@@ -549,13 +608,13 @@ Update an existing 'iplog' table entry.
 
 Please note that a trigger (iplog_insert_in_iplog_history_before_update_trigger) exists in the database schema to copy the old existing record into the 'iplog_history' table and adjust the end_time accordingly.
 
-Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_open>
+Not meant to be used outside of this class. Refer to L<pf::iplog::open>
 
 =cut
 
 sub _update {
     my ( $ip, $mac, $lease_length ) = @_;
-    my $logger = pf::log::get_logger();
+    my $logger = pf::log::get_logger;
 
     if ( $lease_length ) {
         $logger->debug("Updating an existing 'iplog' table entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
@@ -574,7 +633,12 @@ Close (update the end_time as of now) an existing 'iplog' table entry.
 
 sub close {
     my ( $ip ) = @_;
-    my $logger = pf::log::get_logger();
+    my $logger = pf::log::get_logger;
+
+    unless ( valid_ip($ip) ) {
+        $logger->warn("Trying to close an 'iplog' table entry with an invalid IP address '" . ($ip // "undef") . "'");
+        return (0);
+    }
 
     $logger->debug("Closing existing 'iplog' table entry for IP address '$ip' as of now");
     db_query_execute(IPLOG, $iplog_statements, 'iplog_close_sql', $ip);
