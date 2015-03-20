@@ -30,7 +30,7 @@ sub _run {
     chmod(0664, @stored_config_files);
     chmod(02775, $conf_dir, $var_dir, $log_dir);
     print "Done\n";
-    return 1;
+    return 0;
 }
 
 sub _changeFilesToOwner {
