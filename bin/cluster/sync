@@ -75,7 +75,7 @@ if($as_master){
             my $config_file = $cs->configFile;
             my %data = (
                 namespace => $pfconfig_namespace,
-                conf_file => $store,          
+                conf_file => $config_file,          
             );
             my ($result) = $apiclient->call( 'expire_cluster', %data );
         };
