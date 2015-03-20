@@ -49,7 +49,8 @@ sub new {
 }
 
 sub initStatsd {
-    my ( $host, $port ) = ( $Config{'monitoring'}{'statsd_host'}, $Config{'monitoring'}{'statsd_port'} );
+    my $host = $Config{'monitoring'}{'statsd_host'} // '127.0.0.1';
+    my $port = $Config{'monitoring'}{'statsd_port'} // 8125;
 
     # we need to make sure the host and port are not tainted.
     ($host) = $host =~ m/^(.*)$/;
