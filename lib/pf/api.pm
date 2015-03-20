@@ -456,47 +456,20 @@ sub node_information : Public {
     return $node_info;
 }
 
-sub update_cluster_configuration : Public {
-    my ($class, %postdata) = @_;
-    my $logger = pf::log::get_logger;
-    my @require = qw(server_ip);
-    my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require, \@found);
-            
-    # we light expire pfconfig on this server so it uses the distributed configuration
-    my $payload = {
-      method => "expire",
-      namespace => 'config::Cluster',
-      light => $postdata{light},
-    };
-    pfconfig::util::fetch_decode_socket(encode_json($payload));
-
-
-    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $postdata{server_ip});
-    eval {
-        my %data = ( conf_file => $cluster_config_file );
-        my ($result) = $apiclient->call( 'download_configfile', %data );
-        open(my $fh, '>', $cluster_config_file);
-        print $fh $result;
-        close($fh);
-        use pf::config::cached;
-        pf::config::cached::updateCacheControl();
-        pf::config::cached::ReloadConfigs(1);
-
-        $logger->info("Successfully downloaded cluster configuration from $postdata{server_ip}");
-    };
-    if($@){
-        $logger->error("Couldn't download cluster configuration from $postdata{server_ip}. $@");
-    }
-
-}
-
 sub notify_configfile_changed : Public {
     my ($class, %postdata) = @_;
     my $logger = pf::log::get_logger;
     my @require = qw(server conf_file);
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require, \@found);
+
+    # we light expire pfconfig cluster configuration on this server so it uses the distributed configuration
+    my $payload = {
+        method => "expire",
+        namespace => 'config::Cluster',
+        light => 1,
+    };
+    pfconfig::util::fetch_decode_socket(encode_json($payload));
 
     my $master_server = $ConfigCluster{$postdata{server}};
     die "Master server is not in configuration" unless ($master_server);
