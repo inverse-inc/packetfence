@@ -179,13 +179,13 @@ sub iplog_db_prepare {
     $iplog_db_prepared = 1;
 }
 
-=head2 iplogCache
+=head2 omapiCache
 
-Get the iplog cache
+Get the OMAPI cache
 
 =cut
 
-sub iplogCache { pf::CHI->new(namespace => 'iplog') }
+sub omapiCache { pf::CHI->new(namespace => 'omapi') }
 
 =head2 ip2mac
 
@@ -689,7 +689,7 @@ Will retrieve the lease from the cache or from the dhcpd server using omapi
 
 sub _lookup_cached_omapi {
     my ($type, $id) = @_;
-    my $cache = iplogCache();
+    my $cache = omapiCache();
     return $cache->compute(
         $id,
         {expire_if => \&_expire_lease, expires_in => IPLOG_CACHE_EXPIRE},
