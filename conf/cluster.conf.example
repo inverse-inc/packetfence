@@ -1,0 +1,6 @@
+# Cluster configuration file for active/active
+# This file will have it deactivated by default
+# To activate the active/active mode, set a management IP in the cluster section
+# Before doing any changes to this file, read the documentation
+[CLUSTER]
+management_ip=
