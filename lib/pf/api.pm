@@ -34,6 +34,7 @@ use pfconfig::manager;
 use pf::api::jsonrpcclient;
 use pf::cluster;
 use JSON;
+use pf::file_paths;
 
 use List::MoreUtils qw(uniq);
 use NetAddr::IP;
@@ -455,6 +456,41 @@ sub node_information : Public {
     return $node_info;
 }
 
+sub update_cluster_configuration : Public {
+    my ($class, %postdata) = @_;
+    my $logger = pf::log::get_logger;
+    my @require = qw(server_ip);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+            
+    # we light expire pfconfig on this server so it uses the distributed configuration
+    my $payload = {
+      method => "expire",
+      namespace => 'config::Cluster',
+      light => $postdata{light},
+    };
+    pfconfig::util::fetch_decode_socket(encode_json($payload));
+
+
+    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $postdata{server_ip});
+    eval {
+        my %data = ( conf_file => $cluster_config_file );
+        my ($result) = $apiclient->call( 'download_configfile', %data );
+        open(my $fh, '>', $cluster_config_file);
+        print $fh $result;
+        close($fh);
+        use pf::config::cached;
+        pf::config::cached::updateCacheControl();
+        pf::config::cached::ReloadConfigs(1);
+
+        $logger->info("Successfully downloaded cluster configuration from $postdata{server_ip}");
+    };
+    if($@){
+        $logger->error("Couldn't download cluster configuration from $postdata{server_ip}. $@");
+    }
+
+}
+
 sub notify_configfile_changed : Public {
     my ($class, %postdata) = @_;
     my $logger = pf::log::get_logger;
@@ -463,7 +499,7 @@ sub notify_configfile_changed : Public {
     return unless validate_argv(\@require, \@found);
 
     my $master_server = $ConfigCluster{$postdata{server}};
-    die "Master server is not in configuration" unless $master_server;
+    die "Master server is not in configuration" unless ($master_server);
 
     my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
 
@@ -480,7 +516,7 @@ sub notify_configfile_changed : Public {
         $logger->info("Successfully downloaded configuration $postdata{conf_file} from $postdata{server}");
     };
     if($@){
-        $logger->error("Couldn't download configuration file $postdata{conf_file} from $postdata{server}");
+        $logger->error("Couldn't download configuration file $postdata{conf_file} from $postdata{server}. $@");
     }
 
     return 1;
@@ -522,7 +558,7 @@ sub expire_cluster : Public {
         };
 
         if($@){
-            $logger->error("Can't connect to $server->{management_ip} to expire the configuration.")
+            $logger->error("Can't connect to $server->{management_ip} to expire the configuration. $@")
         }
 
         %data = (
@@ -535,7 +571,7 @@ sub expire_cluster : Public {
         };
 
         if($@){
-            $logger->error("Can't connect to $server->{management_ip} to have him download the new configuration.")
+            $logger->error("Can't connect to $server->{management_ip} to have him download the new configuration. $@")
         }
     }
     return 1;

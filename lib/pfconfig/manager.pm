@@ -309,6 +309,7 @@ sub expire {
     if(defined($light) && $light){
         $logger->info("Light expiring resource : $what");
         delete $self->{memorized_at}->{$what}
+        $self->touch_cache($what);
     }
     else {
         $logger->info("Hard expiring resource : $what");
