@@ -58,6 +58,7 @@ $VERSION = eval $VERSION;
 
 __PACKAGE__->config(
     name => 'pfappserver',
+    default_view =>  'HTML',
     setup_components => {
         search_extra => [ qw(::Form ::F) ],
     },
