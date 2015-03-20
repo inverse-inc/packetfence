@@ -4490,7 +4490,11 @@ msgid "Use instead this IP address for de-authentication requests. Normally used
 msgstr ""
 
 # conf/documentation.conf (omapi.ip2mac_lookup)
-msgid "Use omapi to query dhcpd for the mac address of an ip"
+msgid "Use OMAPI to query DHCPd for the MAC address of a given IP address"
+msgstr ""
+
+# conf/documentation.conf (omapi.mac2ip_lookup)
+msgid "Use OMAPI to query DHCPd for the IP address of a given MAC address"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Htpasswd.pm
@@ -5306,6 +5310,7 @@ msgstr ""
 # conf/documentation.conf (network.dhcpoption82logger options)
 # conf/documentation.conf (network.rogue_dhcp_detection options)
 # conf/documentation.conf (omapi.ip2mac_lookup options)
+# conf/documentation.conf (omapi.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (registration.device_registration options)
 # conf/documentation.conf (scan.dot1x options)
@@ -5381,6 +5386,7 @@ msgstr "Send email"
 # conf/documentation.conf (network.dhcpoption82logger options)
 # conf/documentation.conf (network.rogue_dhcp_detection options)
 # conf/documentation.conf (omapi.ip2mac_lookup options)
+# conf/documentation.conf (omapi.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (registration.device_registration options)
 # conf/documentation.conf (scan.dot1x options)
@@ -5986,6 +5992,10 @@ msgstr "OMAPI host"
 # conf/documentation.conf
 msgid "omapi.ip2mac_lookup"
 msgstr "Enabled ip2mac lookup using OMAPI"
+
+# conf/documentation.conf
+msgid "omapi.mac2ip_lookup"
+msgstr "Enabled mac2ip lookup using OMAPI"
 
 # conf/documentation.conf
 msgid "omapi.key_base64"

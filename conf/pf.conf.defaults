@@ -774,27 +774,32 @@ hashing_cost=8
 #
 # omapi.ip2mac_lookup
 #
-# Use omapi to query dhcpd for the mac address of an ip
+# Use OMAPI to query DHCPd for the MAC address of a given IP address
 ip2mac_lookup=enabled
+#
+# omapi.mac2ip_lookup
+#
+# Use OMAPI to query DHCPd for the IP address of a given MAC address
+mac2ip_lookup=enabled
 #
 # omapi.key_name
 #
-# The omapi key name for signing messages
+# The OMAPI key name for signing messages
 key_name=pf_omapi_key
 #
 # omapi.key_base64
 #
-# The omapi base64 key for signing messages
+# The OMAPI base64 key for signing messages
 key_base64=
 #
 # omapi.port
 #
-# Use omapi port number
+# The OMAPI port number
 port=7911
 #
 # omapi.host
 #
-# The omapi host
+# The OMAPI host
 host=localhost
 
 [provisioning]
