@@ -5,12 +5,22 @@ use lib INSTALL_DIR . "/lib";
 
 use pf::log;
 use pf::api::jsonrpcclient;
+use Getopt::Long;
+
+my ($master_server, $as_master);
+GetOptions (
+    "from=s"   => \$master_server, 
+    "api-user=s" => \$api_user,
+    "api-password=s" => \$api_password,
+    "as-master" => \$as_master
+); 
+
+unless($master_server || $as_master){
+    print STDERR "You should either set --from or --as-master \n";
+    exit;
+}
+
 my $logger = get_logger;
-
-print "Synching cluster with this node as the configuration master\n";
-
-use pf::api::jsonrpcclient;
-my $apiclient = pf::api::jsonrpcclient->new();
 
 use Module::Pluggable
   'search_path' => [qw(pf::ConfigStore)],
@@ -18,21 +28,66 @@ use Module::Pluggable
   'require'     => 1,
   ;
 
-our @stores = __PACKAGE__->stores();
+our @tmp_stores = __PACKAGE__->stores();
 
-my @ignored = qw(pf::ConfigStore::Group pf::ConfigStore::Wrix pf::ConfigStore::Interface);
-foreach my $store (@stores){
+my @ignored = qw(pf::ConfigStore::Group pf::ConfigStore::Wrix pf::ConfigStore::Interface pf::ConfigStore::Role::ValidGenericID);
+
+our @stores;
+
+foreach my $store (@tmp_stores){
     next if ($store ~~ @ignored);
-    eval {
-      my $cs = $store->new;
-      my $pfconfig_namespace = $cs->pfconfigNamespace;
-      my $config_file = $cs->configFile;
-      print "Synching storage : $store\n";
-      my %data = (
-          namespace => $pfconfig_namespace,
-          conf_file => $config_file,          
-      );
-      my ($result) = $apiclient->call( 'expire_cluster', %data );
-    };
+    push @stores, $store;
 }
 
+
+
+if($as_master){
+    print "Synching cluster with this node as the configuration master\n";
+
+    use pf::api::jsonrpcclient;
+    my $apiclient = pf::api::jsonrpcclient->new();
+    foreach my $store (@stores){
+        eval {
+            my $cs = $store->new;
+            my $pfconfig_namespace = $cs->pfconfigNamespace;
+            my $config_file = $cs->configFile;
+            print "Synching storage : $store\n";
+            my %data = (
+                namespace => $pfconfig_namespace,
+                conf_file => $config_file,          
+            );
+            my ($result) = $apiclient->call( 'expire_cluster', %data );
+        };
+        if($@){
+            print STDERR "Failed to sync store : $store \n";
+        }
+    }
+}
+
+if($master_server){
+    print "Synching this server from node $master_server \n";
+    
+    use pf::api::jsonrpcclient;
+    my $apiclient = pf::api::jsonrpcclient->new(host => $master_server, proto => 'https', username => $api_user, password => $api_password);
+
+    foreach my $store (@stores){
+        eval {
+            my $cs = $store->new;
+            my $config_file = $cs->configFile;
+            print "Synching storage : $store\n";
+            my %data = ( conf_file => $config_file );
+            my ($result) = $apiclient->call( 'download_configfile', %data );
+            open(my $fh, '>', $config_file);
+            print $fh $result;
+            close($fh);
+        };
+        if($@){
+            print STDERR "Failed to sync store : $store \n";
+        }
+    }
+
+    use pf::config::cached;
+    pf::config::cached::updateCacheControl();
+    pf::config::cached::ReloadConfigs(1);
+
+}
