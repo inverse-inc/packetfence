@@ -22,6 +22,8 @@ use lib INSTALL_DIR . "/lib";
 use pf::log;
 use pf::api::jsonrpcclient;
 use Getopt::Long;
+use pf::api::jsonrpcclient;
+use pf::config::cached;
 
 my ($master_server, $as_master);
 GetOptions (
@@ -60,7 +62,6 @@ foreach my $store (@tmp_stores){
 if($as_master){
     print "Synching cluster with this node as the configuration master\n";
 
-    use pf::api::jsonrpcclient;
     my $apiclient = pf::api::jsonrpcclient->new();
     foreach my $store (@stores){
         eval {
@@ -83,7 +84,6 @@ if($as_master){
 if($master_server){
     print "Synching this server from node $master_server \n";
     
-    use pf::api::jsonrpcclient;
     my $apiclient = pf::api::jsonrpcclient->new(host => $master_server, proto => 'https', username => $api_user, password => $api_password);
 
     foreach my $store (@stores){
@@ -102,7 +102,6 @@ if($master_server){
         }
     }
 
-    use pf::config::cached;
     pf::config::cached::updateCacheControl();
     pf::config::cached::ReloadConfigs(1);
 
