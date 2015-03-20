@@ -218,14 +218,14 @@ sub ip2mac {
     # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
     if ( isenabled($Config{omapi}{ip2mac_lookup}) ) {
         $logger->debug("Trying to match MAC address to IP '$ip' using OMAPI");
-        $mac = ip2mac_omapi($ip);
+        $mac = _ip2mac_omapi($ip);
         $logger->info("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
     }
 
     # If we don't have a result from OMAPI, we use the SQL 'iplog' table
     unless ($mac) {
         $logger->debug("Trying to match MAC address to IP '$ip' using SQL 'iplog' table");
-        $mac = ip2mac_sql($ip);
+        $mac = _ip2mac_sql($ip);
         $logger->info("Matched IP '$ip' to MAC address '$mac' using SQL 'iplog' table") if $mac;
     }
 
@@ -237,60 +237,101 @@ sub ip2mac {
     return clean_mac($mac);
 }
 
-=head2 ip2mac_omapi
+=head2 _ip2mac_omapi
 
 Look for the MAC address of a given IP address in the DHCP leases using OMAPI
 
+Not meant to be used outside of this class. Refer to L<pf::iplog::ip2mac>
+
 =cut
 
-sub ip2mac_omapi {
-    my ($ip) = @_;
+sub _ip2mac_omapi {
+    my ( $ip ) = @_;
     my $data = _lookup_cached_omapi('ip-address' => $ip);
     return $data->{'obj'}{'hardware-address'} if defined $data;
 }
 
-=head2 ip2mac_sql
+=head2 _ip2mac_sql
 
 Look for the MAC address of a given IP address using the SQL 'iplog' table
 
+Not meant to be used outside of this class. Refer to L<pf::iplog::ip2mac>
+
 =cut
 
-sub ip2mac_sql {
+sub _ip2mac_sql {
     my ( $ip ) = @_;
     my $iplog = _view_by_ip($ip);
     return $iplog->{'mac'};
 }
 
-sub mac2ip {
-    my ( $mac, $cache ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iplog');
-    my $ip;
-    return () if ( !valid_mac($mac) );
+=head2 mac2ip
 
-    if ($cache) {
-        $ip = $cache->{clean_mac($mac)};
-    } else {
-        my $iplog = _view_by_mac($mac);
-        $ip = $iplog->{'ip'} || 0;
-    }
-    if ( !$ip ) {
-        $logger->warn("unable to resolve $mac to ip");
-        return ();
-    } else {
-        return ($ip);
-    }
-}
+Lookup for the IP address of a given MAC address
 
-=head2 mac2ip_omapi
-
-Look for the ip in the dhcpd lease entry using omapi
+Returns '0' if no match
 
 =cut
 
-sub mac2ip_omapi {
-    my ($mac) = @_;
+sub mac2ip {
+    my ( $mac ) = @_;
+    my $logger = pf::log::get_logger;
+
+    unless (valid_mac($mac)) {
+        $logger->warn("Trying to match IP address with an invalid MAC address '" . ($mac // "undef") . "'");
+        return (0);
+    }
+
+    my $ip;
+
+    # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
+    if ( isenabled($Config{omapi}{mac2ip_lookup}) ) {
+        $logger->debug("Trying to match IP address to MAC '$mac' using OMAPI");
+        $ip = _mac2ip_omapi($mac);
+        $logger->info("Matched MAC '$mac' to IP address '$ip' using OMAPI") if $ip;
+    }
+
+    # If we don't have a result from OMAPI, we use the SQL 'iplog' table
+    unless ($ip) {
+        $logger->debug("Trying to match IP address to MAC '$mac' using SQL 'iplog' table");
+        $ip = _mac2ip_sql($mac);
+        $logger->info("Matched MAC '$mac' to IP address '$ip' using SQL 'iplog' table") if $ip;
+    }
+
+    if ( !$ip ) {
+        $logger->warn("Unable to match IP address to MAC '$mac'");
+        return (0);
+    }
+
+    return $ip;
+}
+
+=head2 _mac2ip_omapi
+
+Look for the IP address of a given MAC address in the DHCP leases using OMAPI
+
+Not meant to be used outside of this class. Refer to L<pf::iplog::mac2ip>
+
+=cut
+
+sub _mac2ip_omapi {
+    my ( $mac ) = @_;
     my $data = _lookup_cached_omapi('hardware-address' => $mac);
     return $data->{'obj'}{'ip-address'} if defined $data;
+}
+
+=head2 _mac2ip_sql
+
+Look for the IP address of a given MAC address using the SQL 'iplog' table
+
+Not meant to be used outside of this class. Refer to L<pf::iplog::mac2ip>
+
+=cut
+
+sub _mac2ip_sql {
+    my ( $mac ) = @_;
+    my $iplog = _view_by_mac($mac);
+    return $iplog->{'ip'};
 }
 
 =head2 iplog_history
