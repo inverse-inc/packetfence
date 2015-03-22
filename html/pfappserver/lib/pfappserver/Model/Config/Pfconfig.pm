@@ -1,7 +1,7 @@
 package pfappserver::Model::Config::Pfconfig;
 =head1 NAME
 
-pfappserver::Model::Config::Pfconfig 
+pfappserver::Model::Config::Pfconfig
 
 =cut
 
@@ -36,7 +36,7 @@ has config_file => (
    builder => '_build_config_file'
 );
 
-=item _build_config_file
+=head2 _build_config_file
 
 =cut
 
@@ -46,7 +46,7 @@ sub _build_config_file {
     return $config;
 }
 
-=item remove
+=head2 remove
 
 Delete an existing item
 
@@ -59,14 +59,13 @@ sub remove {
 
 sub update_mysql_credentials {
     my ($self, $user, $password) = @_;
-    $self->config_file->setval('mysql', 'user', $user); 
-    $self->config_file->setval('mysql', 'pass', $password); 
+    $self->config_file->setval('mysql', 'user', $user);
+    $self->config_file->setval('mysql', 'pass', $password);
     return ($self->config_file->RewriteConfig(), undef);
 }
 
 __PACKAGE__->meta->make_immutable;
 
-=back
 
 =head1 COPYRIGHT
 

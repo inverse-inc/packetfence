@@ -74,7 +74,7 @@ sub getSource {
     return $auth_lookup{$id};
 }
 
-=item deleteSource
+=head2 deleteSource
 
 Delete an authentication source along its rules. Returns the number of source(s)
 deleted.
@@ -102,7 +102,7 @@ sub deleteSource {
     return $result;
 }
 
-=item writeAuthenticationConfigFile
+=head2 writeAuthenticationConfigFile
 
 Write the configuration file to disk
 
