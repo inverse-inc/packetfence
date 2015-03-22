@@ -134,7 +134,7 @@ sub generate_mangle_rules {
             next if ( !pf::config::is_network_type_inline($network) );
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
             my $mac = $row->{'mac'};
-            my $iplog = $iplog_lookup->{clean_mac($mac)};
+            my $iplog = $iplog_lookup{clean_mac($mac)};
             if (defined $iplog) {
                 my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                 if ($net_addr->contains($ip)) {
@@ -157,7 +157,7 @@ sub generate_mangle_rules {
                 next if ( !pf::config::is_network_type_inline($network) );
                 my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
                 my $mac = $row->{'mac'};
-                my $iplog = $iplog_lookup->{clean_mac($mac)};
+                my $iplog = $iplog_lookup{clean_mac($mac)};
                 if (defined $iplog) {
                     my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                     if ($net_addr->contains($ip)) {
