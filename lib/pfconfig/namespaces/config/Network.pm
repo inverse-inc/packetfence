@@ -29,8 +29,7 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $network_config_file;
     $self->{child_resources} = [
-        'interfaces::routed_isolation_nets', 'interfaces::routed_registration_nets',
-        'interfaces::inline_nets',
+        'interfaces'
     ];
 }
 
