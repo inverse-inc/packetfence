@@ -77,21 +77,21 @@ POSIX::sigaction(
     POSIX::SigAction->new(
         'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
-) or $logger->logdie("pfbandwidthd: could not set SIGHUP handler: $!");
+) or $logger->logdie("pfconfig: could not set SIGHUP handler: $!");
 
 POSIX::sigaction(
     &POSIX::SIGTERM,
     POSIX::SigAction->new(
         'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
-) or $logger->logdie("pfbandwidthd: could not set SIGTERM handler: $!");
+) or $logger->logdie("pfconfig: could not set SIGTERM handler: $!");
 
 POSIX::sigaction(
     &POSIX::SIGINT,
     POSIX::SigAction->new(
         'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
-) or $logger->logdie("pfbandwidthd: could not set SIGINT handler: $!");
+) or $logger->logdie("pfconfig: could not set SIGINT handler: $!");
 
 
 # empty control file directory so subcaches in other processes
