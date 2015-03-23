@@ -2,15 +2,15 @@ package pfconfig::namespaces::config::Network;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::config::Network
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::config::Network
 
-This module creates the configuration hash associated to somefile.conf
+This module creates the configuration hash associated to networks.conf
 
 =cut
 
