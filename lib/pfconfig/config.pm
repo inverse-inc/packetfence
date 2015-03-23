@@ -39,11 +39,6 @@ sub section {
     return $self->{cfg}{$name};
 }
 
-sub log_level {
-    my ($self) = @_;
-    return $self->{cfg}{general}{log_level};
-}
-
 =back
 
 =head1 AUTHOR

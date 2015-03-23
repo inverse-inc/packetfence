@@ -1,7 +1,3 @@
-[general]
-# ERR, WARN, NOTICE, INFO, DEBUG
-log_level=ERR
-
 [mysql]
 host=localhost
 user=pf
