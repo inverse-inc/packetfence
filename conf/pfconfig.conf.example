@@ -5,6 +5,6 @@ log_level=ERR
 [mysql]
 host=localhost
 user=pf
-pass=pf
+pass=packet
 db=pf
 port=3306
