@@ -53,7 +53,7 @@ sub generateConfig {
         my $master = 'secondary';
         $master = 'primary' if ( pf::cluster::is_dhcpd_primary() );
         my $members = pf::cluster::dhcpd_peer($interface);
-        if ($members) {
+        if (defined($members)) {
             my $ip = NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
             my $net = $ip->network();
             $tags{'active'} .= <<"EOT";
@@ -121,7 +121,13 @@ subnet $network netmask $net{'netmask'} {
   option domain-name "$domain";
   option domain-name-servers $dns;
   pool {
-      failover peer "$peer";
+EOT
+
+                if(defined(pf::cluster::dhcpd_peer())){
+                    $tags{'networks'} .= "failover peer \"$peer\";\n"
+                }
+
+              $tags{'networks'} .= <<"EOT";
       range $net{'dhcp_start'} $net{'dhcp_end'};
       default-lease-time $net{'dhcp_default_lease_time'};
       max-lease-time $net{'dhcp_max_lease_time'};

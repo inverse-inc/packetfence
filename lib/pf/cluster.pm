@@ -82,6 +82,10 @@ sub should_offer_dhcp {
 sub dhcpd_peer {
     my ($interface) = @_;
     
+    unless(defined($cluster_servers[1])){
+        return undef;
+    }
+
     if(cluster_index() == 0){
         return $cluster_servers[1]{"interface $interface"}->{ip};
     }
