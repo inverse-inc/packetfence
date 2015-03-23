@@ -19,6 +19,7 @@ No need to use it directly, use addons/pfconfig/comparator/config-comparator.sh
 use strict;
 use warnings;
 
+use Data::Dumper;
 use Sereal::Encoder;
 
 my $BASE = $ARGV[1];
@@ -30,16 +31,21 @@ our %configs;
 {
   use pf::config;
   my @exported = @pf::config::EXPORT;
-  my @badvalues = ('%ConfigProvisioning');
+  my @badvalues = ('%ConfigProvisioning', '$ACCT_TIME_MODIFIER_RE', '$DEADLINE_UNIT', '$FALSE', '$TRUE', '$TIME_MODIFIER_RE', '$default_pid');
   @exported = grep { !($_ ~~ @badvalues ) } @exported;
-  dump_module('pf::config', @exported);
+  $configs{'pf::config'} = dump_module('pf::config', @exported);
+
+  # we ignore categories since they're now inflated
+  foreach my $firewall (keys %{$configs{'pf::config'}{'\\%pf::config::ConfigFirewallSSO'}}){
+    $configs{'pf::config'}{'\\%pf::config::ConfigFirewallSSO'}{$firewall}{categories} = undef;
+  }
 }
 
 {
   use pf::violation_config;
 
   my @variables = ('%Violation_Config');
-  dump_module("pf::violation_config", @variables);
+  $configs{'pf::violation_config'} = dump_module("pf::violation_config", @variables);
 
 }
 
@@ -47,7 +53,9 @@ our %configs;
   use pf::admin_roles;
 
   my @exported = @pf::admin_roles::EXPORT;
-  dump_module("pf::admin_roles", @exported);
+  my @badvalues = ('@ADMIN_ACTIONS');
+  @exported = grep { !($_ ~~ @badvalues ) } @exported;
+  $configs{'pf::admin_roles'} = dump_module("pf::admin_roles", @exported);
 
 }
 
@@ -55,7 +63,7 @@ our %configs;
   use pf::vlan::filter;
 
   my @variables = ('%ConfigVlanFilters');
-  dump_module("pf::vlan::filter", @variables);
+  $configs{'pf::vlan::filter'} = dump_module("pf::vlan::filter", @variables);
 
 }
 
@@ -63,7 +71,7 @@ our %configs;
   use pf::authentication;
 
   my @exported = (@pf::authentication::EXPORT, '%authentication_lookup', '%TYPE_TO_SOURCE');
-  dump_module("pf::authentication", @exported);
+  $configs{'pf::authentication'} = dump_module("pf::authentication", @exported);
 
 }
 
@@ -78,7 +86,7 @@ our %configs;
   use pf::web::filter;
 
   my @variables = ('%ConfigApacheFilters');
-  dump_module("pf::web::filter", @variables);
+  $configs{'pf::web::filter'} = dump_module("pf::web::filter", @variables);
 
 }
 
@@ -102,7 +110,7 @@ sub dump_module {
       $data{$name} = $elem;
     }
   } 
-  $configs{$file1} = \%data;
+  return \%data;
 }
 
 =back
