@@ -466,12 +466,13 @@ sub _check_password {
 
 sub _hash_password {
     my ( $plaintext, %params ) = @_;
+    my $logger = pf::log::get_logger;
 
     switch ( $params{"algorithm"} ) {
         case /$PLAINTEXT/ { return $plaintext }
         case /$BCRYPT/    { return bcrypt( $plaintext, %params ) }
         else {
-            logger->error( "Unsupported hash algorithm " . $params{"algorithm"} );
+            $logger->error( "Unsupported hash algorithm " . $params{"algorithm"} );
         }
     }
 }
