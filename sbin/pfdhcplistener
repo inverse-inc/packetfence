@@ -30,6 +30,7 @@ BEGIN {
     use pf::log(service => 'pfdhcplistener');
 }
 
+use pf::CHI;
 use pf::constants;
 use pf::clustermgmt;
 use pf::config;
@@ -48,6 +49,8 @@ use pf::util::dhcp;
 use List::MoreUtils qw(any);
 use pf::api::jsonrpcclient;
 use NetAddr::IP;
+
+use constant FINGERBANK_CACHE_EXPIRE => 300;    # Expires cache entry after 300s (5 minutes)
 
 # initialization
 # --------------
