@@ -18,6 +18,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use pf::constants::config qw(%NET_INLINE_TYPES);
+use pfconfig::constants;
 
 our @EXPORT_OK = qw(
     is_type_inline
@@ -31,7 +32,7 @@ Returns the control file path for a namespace
 
 sub control_file_path {
     my ($namespace) = @_;
-    return "/usr/local/pf/var/control/" . $namespace . "-control";
+    return "$pfconfig::constants::CONTROL_FILE_DIR/" . $namespace . "-control";
 }
 
 =head2 is_type_inline

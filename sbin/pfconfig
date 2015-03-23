@@ -94,6 +94,10 @@ POSIX::sigaction(
 ) or $logger->logdie("pfbandwidthd: could not set SIGINT handler: $!");
 
 
+# empty control file directory so subcaches in other processes
+# are expired when pfconfig is starting
+unlink glob "$pfconfig::constants::CONTROL_FILE_DIR/*";
+
 my $daemonize = $args{d};
 
 # standard signals and daemonize
