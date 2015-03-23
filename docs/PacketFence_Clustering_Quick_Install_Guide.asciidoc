@@ -1,0 +1,232 @@
+Clustering Quick Installation Guide
+===================================
+:encoding: UTF-8
+:lang: en
+:doctype: book
+
+include::includes/global-attributes.asciidoc[]
+
+About this Guide
+----------------
+This guide has been created to give a quick start to install active/active clustering in PacketFence 5+. This guide does not include advanced troubleshooting of the active/active clustering. Refer to the documentation of HAProxy and Keepalive for advanced features.
+
+Assumptions
+-----------
+* You have at least two servers with a fresh install of PacketFence 5+
+* Both servers are identical copies for the network interfaces
+* Both servers have access to the same layer 2 network on all their network interfaces
+
+Quick installation
+------------------
+Step 1: Install MariaDB Galera cluster
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you're migrating from a previous PacketFence infrastructure, you will need to export your database now and reimport it at the end of the process.
+See the annex for the procedure. This part assumes you are are starting this on a fresh server.
+
+Configure the MariaDB repo 
+++++++++++++++++++++++++++
+
+On CentOS add in : /etc/yum.repos.d/mariadb.repo
+
+----
+[mariadb]
+name=mariadb
+baseurl=http://mariadb.mirror.iweb.com/mariadb-5.5.42/yum/centos6-amd64/
+gpgcheck=0
+enabled=1
+----
+
+Now install the MariaDB Galera cluster package
+
+----
+# rpm --nodeps -ev mysql-server
+# yum install MariaDB-Galera-server
+----
+
+Configuring MariaDB Galera Cluster
+++++++++++++++++++++++++++++++++++
+
+Configure the cluster in /etc/my.cnf.d/cluster.cnf
+
+----
+[mysqld]
+query_cache_size=0
+binlog_format=ROW
+default-storage-engine=innodb
+innodb_autoinc_lock_mode=2
+query_cache_type=0
+
+# Galera Provider Configuration
+wsrep_provider=/usr/lib64/galera/libgalera_smm.so
+
+# Galera Cluster Configuration
+wsrep_cluster_name="---NAME OF CLUSTER---"
+wsrep_cluster_address="gcomm://---CSV LIST OF IPS---"
+
+# Galera Synchronization Congifuration
+wsrep_sst_method=rsync
+
+# Galera Node Configuration
+wsrep_node_address="---THIS NODE MGMT IP---"
+wsrep_node_name="---THIS NODE UNIQUE NAME---"
+----
+
+Configure MySQL in my.cnf. Adjust these to your needs
+
+----
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+user=mysql
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+innodb_file_per_table
+max_connections=500
+innodb_buffer_pool_size=500M
+innodb_additional_mem_pool_size=20M
+key_buffer_size=100M
+innodb_flush_log_at_trx_commit=2
+table_cache=300
+query_cache_size=256M
+thread_cache_size=10
+innodb_log_file_size = 48M
+bind_address=127.0.0.1
+
+[mysqld_safe]
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+----
+
+If it's the first server to join the MariaDB cluster
+
+----
+# service mysql start --wsrep-new-cluster
+----
+
+If this is a new server in an existing cluster, do.
+
+----
+# service mysql start
+----
+
+NOTE : When adding a server in an existing cluster, do not forget to add it to the list of wsrep_cluster_address parameter in cluster.cnf on the existing nodes.
+
+If the server is alone but was already created with --wsrep-new-cluster, use this command to have start in standalone mode
+
+----
+service mysql start --wsrep_cluster_address=gcomm://
+----
+
+You should now have two MariaDB database servers connected in cluster. 
+
+You can now start PacketFence and do the initial configuration in the Configurator.
+
+See instructions below to connect a new slave server after the database join has been made.
+
+
+Step 2 : Create a new cluster
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to create a new cluster, the only thing needed is to configure cluster.conf
+
+You will need to configure it with your server hostname. To get it use : *hostname* in a command line.
+
+In the case of this example it will be 'packetfence.local'. 
+
+The 'CLUSTER' section represents the virtual IP addresses of your cluster that will be shared by your servers.
+
+In this example, eth0 is the management interface, eth1.2 is the registration interface and eth1.3 is the isolation interface.
+
+Create a configuration similar to this : 
+
+----
+
+[CLUSTER]
+management_ip=192.168.1.10
+
+[CLUSTER interface eth0]
+ip=192.168.1.10
+type=management
+
+[CLUSTER interface eth1.2]
+ip=192.168.2.10
+type=internal
+
+[CLUSTER interface eth1.3]
+ip=192.168.3.10
+type=internal
+
+[packetfence.local]
+management_ip=192.168.1.5
+
+[packetfence.local interface eth0]
+ip=192.168.1.5
+type=management
+mask=255.255.255.0
+
+[packetfence.local interface eth1.2]
+enforcement=vlan
+ip=192.168.2.5
+type=internal
+mask=255.255.255.0
+
+[packetfence.local interface eth1.3]
+enforcement=vlan
+ip=192.168.3.5
+type=internal
+mask=255.255.255.0
+
+----
+
+Once this configuration is done, restart PacketFence to have it applied. 
+If done properly this should start two additionnal services : haproxy and keepalived
+
+You should now have service on the IP addresses defined in the 'CLUSTER' sections
+
+
+Step 3 : Connect a slave packetfence server.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First, connect the server to the MariaDB cluster using the instructions above
+
+Go through the configurator to setup the interfaces and then stop
+
+Get the webservices user and password on the master node in 'Configuration/Web Services'
+If there's none, set the user, password and then restart httpd.webservices
+
+Do (and make sure it does it without any errors) :
+
+----
+# /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=fence
+----
+
+Where : 
+* '192.168.1.5' is the management IP of the other PacketFence node
+* 'packet' is the webservices username on the master node
+* 'fence' is the webservices password on the master node
+
+Edit cluster.conf and create the server's configuration using the other node as an example.
+
+Reload the configuation and start the webservices on the new server
+
+----
+bin/pfcmd configreload
+bin/pfcmd service httpd.webservices restart
+----
+
+Make sure that this server is binding to it's own management address. If it's not, verify the cluster.conf management interface configuration.
+
+----
+netstat -nlp | grep 9090
+----
+
+Now replicate this server configuration to the other nodes in the cluster
+
+----
+# bin/cluster/sync --as-master
+----
+
+Make sure at least cluster.conf was replicated to the other servers
+
+Now restart packetfence on each cluster server keeping the new node as the last one to be restarted.
