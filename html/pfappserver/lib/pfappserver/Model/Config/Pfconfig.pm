@@ -64,6 +64,12 @@ sub update_mysql_credentials {
     return ($self->config_file->RewriteConfig(), undef);
 }
 
+sub update_db_name {
+    my ($self, $db) = @_;
+    $self->config_file->setval('mysql', 'db', $db);
+    return ($self->config_file->RewriteConfig(), undef);
+}
+
 __PACKAGE__->meta->make_immutable;
 
 

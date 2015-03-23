@@ -123,6 +123,8 @@ sub create :Path('create') :Args(1) {
         ($status, $message) = $db_model->update('database',{'db' => $db});
         if(is_success($status)) {
             $db_model->commit();
+            my $pfconfig = $c->model('Config::Pfconfig');
+            $pfconfig->update_db_name($db);
         }
     }
     if ( is_error($status) ) {
