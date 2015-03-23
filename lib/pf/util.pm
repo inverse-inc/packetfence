@@ -703,6 +703,7 @@ sub pf_run {
     # Using perl trickery to figure out what the caller expects so I can return him just that
     # this is to perfectly emulate the backtick operator behavior
     my (@result, $result);
+    $command = untaint_chain($command);
     if (not defined wantarray) {
         # void context
         `$command`;
