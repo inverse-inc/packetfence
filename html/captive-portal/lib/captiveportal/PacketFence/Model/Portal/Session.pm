@@ -203,7 +203,7 @@ sub _build_clientMac {
                 my $fake_mac = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $ip->addr());
                 my $gateway = $network_config->{'gateway'};
                 locationlog_synchronize($gateway, $gateway, undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
-                pf::iplog::open($fake_mac, $ip->addr());
+                pf::iplog::open($ip->addr(), $fake_mac);
                 return $fake_mac;
             }
         }

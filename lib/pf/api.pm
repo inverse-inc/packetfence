@@ -134,7 +134,7 @@ sub update_iplog : Public {
         pf::iplog::close($postdata{'oldip'});
     }
 
-    return (pf::iplog::open($postdata{'mac'}, $postdata{'ip'}, $postdata{'lease_length'}));
+    return (pf::iplog::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'lease_length'}));
 }
  
 sub unreg_node_for_pid : Public {
@@ -172,7 +172,7 @@ sub open_iplog : Public {
     my ( $class, $mac, $ip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::open($mac, $ip, $lease_length));
+    return (pf::iplog::open($ip, $mac, $lease_length));
 }
 
 sub close_iplog : Public {

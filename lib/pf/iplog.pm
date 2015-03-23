@@ -552,7 +552,7 @@ Handle 'iplog' table "new" entries. Will take care of either adding or updating 
 =cut
 
 sub open {
-    my ( $mac, $ip, $lease_length ) = @_;
+    my ( $ip, $mac, $lease_length ) = @_;
     my $logger = pf::log::get_logger;
 
     # TODO: Should this really belong here ? Is it part of the responsability of iplog to check that ?
@@ -572,10 +572,10 @@ sub open {
 
     if ( _exists($ip) ) {
         $logger->debug("An 'iplog' table entry already exists for that IP ($ip). Proceed with updating it");
-        _update($mac, $ip, $lease_length);
+        _update($ip, $mac, $lease_length);
     } else {
         $logger->debug("No 'iplog' table entry found for that IP ($ip). Creating a new one");
-        _insert($mac, $ip, $lease_length);
+        _insert($ip, $mac, $lease_length);
     }
 
     return (0);
