@@ -41,7 +41,6 @@ sub generateConfig {
     my ($self,$quick) = @_;
     my $logger = get_logger();
     my ($package, $filename, $line) = caller();
-    $logger->info("$package, $filename, $line");
 
     my %tags;
     $tags{'template'} = "$conf_dir/haproxy.conf";
@@ -61,8 +60,9 @@ sub generateConfig {
         my $i = 0;
         if ($cfg->{'type'} eq 'management') {
             $tags{'active_active_ip'} = pf::cluster::management_cluster_ip();
-            my @mysql_backend = values %{pf::cluster::members_ips($interface)};
+            my @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
             foreach my $mysql_back (@mysql_backend) {
+                # the second server (the one without the VIP) will be the prefered MySQL server
                 if ($i == 0) {
                 $tags{'mysql_backend'} .= <<"EOT";
         server MySQL$i $mysql_back:3306 check port 9191 weight 1

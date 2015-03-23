@@ -799,7 +799,7 @@ Checking for switches configurations
 
 sub switches {
     my %switches_conf;
-    tie %switches_conf, 'pf::config::cached', ( -file => "$conf_dir/switches.conf" );
+    tie %switches_conf, 'pf::config::cached', ( -file => "$conf_dir/switches.conf", -default => 'default' );
 
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {

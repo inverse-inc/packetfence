@@ -65,7 +65,14 @@ sub cluster_index {
 }
 
 sub is_dhcpd_primary {
-    cluster_index() == 0 ? 1 : 0;
+    if(scalar(@cluster_servers) > 1){
+        # the non-management node is the primary
+        return cluster_index() == 1 ? 1 : 0;
+    }
+    else {
+        # the server is alone so it's the primary
+        return 1;
+    }
 }
 
 sub should_offer_dhcp {
@@ -79,8 +86,20 @@ sub dhcpd_peer {
         return $cluster_servers[1]{"interface $interface"}->{ip};
     }
     else {
-        use Data::Dumper;
         return $cluster_servers[0]{"interface $interface"}->{ip};
+    }
+}
+
+sub mysql_servers {
+    if(scalar(@cluster_servers) >= 1){
+        # we make the prefered management node the last prefered for MySQL
+        my @servers = @cluster_servers;
+        my $management = shift @servers;
+        push @servers, $management;
+        return @servers;
+    }
+    else{
+        return @cluster_servers;
     }
 }
 
@@ -88,7 +107,7 @@ sub members_ips {
     my ($interface) = @_;
     my $logger = get_logger;
     unless(exists($ConfigCluster{$host_id}->{"interface $interface"}->{ip})){
-        #$logger->error("requesting member ips for an undefined interface...");
+        $logger->error("requesting member ips for an undefined interface...");
         return undef;
     }
     my %data = map { $_->{host} => $_->{"interface $interface"}->{ip} } @cluster_servers;
