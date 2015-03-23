@@ -49,7 +49,7 @@ has_field 'bind_pass' =>
    label => 'Password',
    required => 1,
    password => 0,
-   messages => { required => 'Please specify the password to bind to the Active directory' },
+   messages => { required => 'Please specify the password to bind to the Active Directory' },
   );
 
 has_field 'bind_dn' =>
@@ -62,7 +62,7 @@ has_field 'bind_dn' =>
 
 has_field 'dns_server' =>
   (
-   type => 'Text',
+   type => 'IPAddress',
    label => 'DNS server',
    required => 1,
    messages => { required => 'Please specify the DNS server' },
