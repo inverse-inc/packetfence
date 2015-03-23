@@ -829,65 +829,6 @@ sub is_in_list {
     return $FALSE;
 }
 
-=item _fetch_virtual_ip
-
-Returns the virtual IP (vip) on a given interface.
-
-First, if there's a vip parameter defined on the interface, we return that.
-
-Othwerise, we assume that the vip has a /32 netmask and that's how we fetch it.
-
-We return the first vip that matches the above criteria in decimal dotted notation (ex: 192.168.1.1).
-Undef if nothing is found.
-
-=cut
-
-# TODO IPv6 support
-sub _fetch_virtual_ip {
-    my ($interface, $config_section) = @_;
-
-    # [interface $int].vip= ... always wins
-    return $Config{$config_section}{'vip'} if defined($Config{$config_section}{'vip'});
-
-    my $if = Net::Interface->new($interface);
-    return if (!defined($if));
-
-    # these array are ordered the same way, that's why we can assume the following
-    my @masks = $if->netmask(AF_INET());
-    my @addresses = $if->address(AF_INET());
-
-    for my $i (0 .. $#masks) {
-        return inet_ntoa($addresses[$i]) if (inet_ntoa($masks[$i]) eq '255.255.255.255');
-    }
-    return;
-}
-
-=item _load_captive_portal
-
-Populate captive portal related configuration and constants.
-
-=cut
-
-sub _load_captive_portal {
-
-    # CAPTIVE-PORTAL RELATED
-    # Captive Portal constants
-    %CAPTIVE_PORTAL = (
-        "NET_DETECT_INITIAL_DELAY" => floor($Config{'trapping'}{'redirtimer'} / 4),
-        "NET_DETECT_RETRY_DELAY" => 2,
-        "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
-        "NET_DETECT_PENDING_RETRY_DELAY" => 30,
-        "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
-        "PROFILE_TEMPLATE_DIR" => "$install_dir/html/captive-portal/profile-templates",
-        "ADMIN_TEMPLATE_DIR" => "$install_dir/html/admin/templates",
-    );
-
-    # process pf.conf's parameter into an IP => 1 hash
-    %{$CAPTIVE_PORTAL{'loadbalancers_ip'}} =
-        map { $_ => $TRUE } split(/\s*,\s*/, $Config{'captive_portal'}{'loadbalancers_ip'})
-    ;
-}
-
 =item is_omapi_enabled
 
 Check whether pf::iplog::ip2mac or pf::iplog::mac2ip are configured to use OMAPI based on configuration parameters.
