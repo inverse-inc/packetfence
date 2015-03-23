@@ -1323,9 +1323,7 @@ sub stopService {
 
 sub restartService {
     my ($service,@services) = @_;
-    stopService(@_);
-    local $SERVICE_HEADER = '';
-    startService(@_);
+    `sudo reboot`;
 }
 
 sub watchService {
