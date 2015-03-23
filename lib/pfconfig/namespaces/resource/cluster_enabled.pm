@@ -28,7 +28,8 @@ sub init {
 sub build {
     my ($self) = @_;
 
-    return valid_ip($self->{cluster_config}->{CLUSTER}->{management_ip});
+    my $ip = $self->{cluster_config}->{CLUSTER}->{management_ip};
+    return defined($ip) && valid_ip($ip);
 }
 
 =back
