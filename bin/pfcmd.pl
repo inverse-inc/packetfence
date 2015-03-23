@@ -49,6 +49,7 @@ pfcmd <command> [options]
  version                     | output version information
  violation                   | violation manipulation
  violationconfig             | query/modify violations.conf configuration parameters
+ zammit                      | reboot the server
 
 =cut
 
@@ -214,6 +215,7 @@ if (! exists($cmd_tmp{'grammar'})) {
             exit(1);
         },
         'violationconfig' => sub { violationconfig(); exit(1); },
+        'zammit' => sub { `sudo reboot` },
     );
     if ( $commands{ $cmd{'command'}[0] } ) {
         $commands{ $cmd{'command'}[0] }->();
