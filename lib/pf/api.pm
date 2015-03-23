@@ -16,13 +16,13 @@ use warnings;
 
 use base qw(pf::api::attributes);
 use threads::shared;
+use pf::log();
 use pf::authentication();
 use pf::config();
 use pf::config::cached;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::iplog();
-use pf::log();
 use pf::Portal::ProfileFactory();
 use pf::radius::custom();
 use pf::violation();
@@ -46,6 +46,8 @@ use pf::scan();
 use pf::person();
 use pf::lookup::person();
 use pf::enforcement();
+use pf::password();
+use pf::web::guest();
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -547,7 +549,7 @@ sub expire_cluster : Public {
             light => 1
         );
         eval {
-            $apiclient->call('expire', %data ); 
+            $apiclient->call('expire', %data );
         };
 
         if($@){
@@ -585,7 +587,7 @@ sub expire : Public {
           namespace => $postdata{namespace},
           light => $postdata{light},
         };
-    
+
         my $result = pfconfig::util::fetch_decode_socket(encode_json($payload));
         unless ( $result->{status} eq "OK." ) {
             $logger->error("Couldn't light expire namespace $postdata{namespace}");
@@ -623,6 +625,80 @@ sub validate_argv {
     }
     return 1;
 }
+
+
+=head2 add_person
+
+Add a new person
+
+=cut
+
+sub add_person : Public {
+    my ($class, %params) = @_;
+    my $logger = pf::log::get_logger();
+    my $pid    = delete $params{pid};
+    my $sendmail = delete $params{sendmail};
+    if(pf::person::person_exist($pid)) {
+        my $msg = "person $pid already exists\n";
+        $logger->error($msg);
+        die $msg;
+    }
+    my $result = pf::person::person_modify($pid, %params);
+    unless ($result) {
+        my $msg = "Unable to create user $pid\n";
+        $logger->error($msg);
+        die $msg;
+    }
+    $logger->info("Created user account $pid.");
+    # Add the registration window to the actions
+    push(@{$params{actions}}, {type => 'valid_from', value => $params{valid_from}});
+    push(@{$params{actions}}, {type => 'expiration', value => $params{expiration}});
+    my $password = pf::password::generate($pid, $params{actions}, $params{password});
+    unless ($password) {
+        my $msg = "Unable to generate password\n";
+        $logger->error($msg);
+        die $msg;
+    }
+
+    return 1;
+}
+
+=head2 view_person
+
+View a person entry
+
+=cut
+
+sub view_person : Public {
+    my ($class,$pid) = @_;
+    my $logger = pf::log::get_logger();
+    unless(pf::person::person_exist($pid)) {
+        my $msg = "person $pid does not exist\n";
+        $logger->error($msg);
+        die $msg;
+    }
+    my $person = pf::person::person_view($pid);
+    unless ($person) {
+        my $msg = "Error retrieving $pid\n";
+        $logger->error($msg);
+        die $msg;
+    }
+    return $person;
+}
+
+=head2 modify_person
+
+Modify an existing person
+
+=cut
+
+sub modify_person : Public {
+    my ($class, %params) = @_;
+    my $pid = delete $params{pid};
+    my $result = pf::person::person_modify($pid, %params);
+    return $result;
+}
+
 
 =head2 whowasi
 
