@@ -53,7 +53,7 @@ restart() {
                 fi
         fi
 	echo -n $"Restarting PacketFence..."
-	/usr/local/pf/bin/pfcmd service pf restart
+	reboot
 	RETVAL=$?
 	echo
 	return $RETVAL
