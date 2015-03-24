@@ -47,6 +47,8 @@ sub generateConfig {
     $tags{'networks'} = '';
     $tags{'active'} = '';
 
+    my $failover_activated = 0;
+
     foreach my $interface ( @listen_ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
@@ -54,6 +56,7 @@ sub generateConfig {
         $master = 'primary' if ( pf::cluster::is_dhcpd_primary() );
         my $members = pf::cluster::dhcpd_peer($interface);
         if (defined($members)) {
+            $failover_activated = 1;
             my $ip = NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
             my $net = $ip->network();
             $tags{'active'} .= <<"EOT";
@@ -123,7 +126,7 @@ subnet $network netmask $net{'netmask'} {
   pool {
 EOT
 
-                if(defined(pf::cluster::dhcpd_peer())){
+                if($failover_activated){
                     $tags{'networks'} .= "failover peer \"$peer\";\n"
                 }
 
