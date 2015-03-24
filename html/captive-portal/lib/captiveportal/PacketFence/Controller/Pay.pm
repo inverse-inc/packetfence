@@ -3,6 +3,7 @@ use Moose;
 use namespace::autoclean;
 use pf::config;
 use URI::Escape::XS qw(uri_escape uri_unescape);
+use Digest::SHA qw(sha256_hex);
 use pf::billing::constants;
 use pf::billing::custom;
 use pf::config;
@@ -16,6 +17,7 @@ use pf::config::util;
 use pf::violation;
 use pf::web;
 use pf::web::billing 1.00;
+use List::Util qw(pairmap);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -51,9 +53,12 @@ sub begin : Private {
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $request = $c->request;
+    if ($Config{'billing'}{'gateway'} eq 'mirapay_iframe') {
+        $c->detach('mirapay_iframe');
+    }
     if ( $request->method eq 'POST' ) {
         $c->detach('processBilling');
-    } 
+    }
     for my $p ('firstname', 'lastname', 'email', 'ccnumber', 'ccexpiration', 'ccvalidation') {
         $c->request->param($p => undef);
     }
@@ -150,80 +155,8 @@ sub processTransaction : Private {
     my $pid = $c->session->{'login'};
 
     if ($paymentStatus eq $BILLING::SUCCESS) {
+        $c->forward('processSuccessPayment',[$tier, $transaction_infos_ref]);
 
-        # Adding person (using modify in case person already exists)
-        person_modify(
-            $pid,
-            (   'firstname' => $request->param('firstname'),
-                'lastname'  => $request->param('lastname'),
-                'email'     => lc($request->param('email')),
-                'notes'     => 'billing engine activation - ' . $tier,
-                'portal'    => $profile->getName,
-                'source'    => 'billing',
-            )
-        );
-
-        # Grab additional infos about the node
-        my %info;
-        my $timeout = normalize_time($tiers_infos{$tier}{'timeout'});
-        $info{'pid'}      = $pid;
-        $info{'category'} = $tiers_infos{$tier}{'category'};
-        $info{'unregdate'} =
-          POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $timeout));
-
-        if ($tiers_infos{$tier}{'usage_duration'}) {
-            $info{'time_balance'} =
-              normalize_time($tiers_infos{$tier}{'usage_duration'});
-
-            # Check if node has some access time left; if so, add it to the new duration
-            my $node = node_view($mac);
-            if ($node && $node->{'time_balance'} > 0) {
-                if ($node->{'last_start_timestamp'} > 0) {
-
-                    # Node is active; compute the actual access time left
-                    my $expiration = $node->{'last_start_timestamp'}
-                      + $node->{'time_balance'};
-                    my $now = time;
-                    if ($expiration > $now) {
-                        $info{'time_balance'} += ($expiration - $now);
-                    }
-                } else {
-
-                    # Node is inactive; add the remaining access time to the purchased access time
-                    $info{'time_balance'} += $node->{'time_balance'};
-                }
-            }
-            $logger->info(
-                "Usage duration for $mac is now " . $info{'time_balance'});
-        }
-
-        # Close violations that use the 'Accounting::BandwidthExpired' trigger
-        my @tid = trigger_view_tid($ACCOUNTING_POLICY_TIME);
-        foreach my $violation (@tid) {
-
-            # Close any existing violation
-            violation_force_close($mac, $violation->{'vid'});
-        }
-
-        # Register the node
-        $c->forward( 'CaptivePortal' => 'webNodeRegister', [$info{pid}, %info] ); 
-    
-        my $confirmationInfo = {
-            tier => $request->param('tier'),
-            firstname => $request->param('firstname'),
-            lastname => $request->param('lastname'),
-            email => $request->param('email'),
-        };
-        # Send confirmation email
-        my %data =
-          $billingObj->prepareConfirmationInfo($transaction_infos_ref, $confirmationInfo);
-        pf::util::send_email('billing_confirmation', $data{'email'},
-            $data{'subject'}, \%data);
-
-        # Generate the release page
-        # XXX Should be part of the portal profile
-
-        $c->forward( 'CaptivePortal' => 'endPortalSession' ); 
     } else { # There was an error with the payment processing
         $logger->warn(
             "There was an error with the payment processing for email $transaction_infos_ref->{email} "
@@ -256,40 +189,239 @@ sub showBilling : Private {
 
 }
 
-=head1 AUTHOR
+sub processSuccessPayment : Private {
+    my ($self, $c, $tier, $transaction_infos_ref) = @_;
+    my $pid     = $c->session->{'login'};
+    my $profile = $c->profile;
+    my $logger  = $c->log;
+    my $request = $c->request;
+    my $portalSession = $c->portalSession;
+    my $mac = $portalSession->clientMac;
+    my $billingObj  = new pf::billing::custom();
+    my %tiers_infos           = $billingObj->getAvailableTiers();
 
-Inverse inc. <info@inverse.ca>
+    # Adding person (using modify in case person already exists)
+    person_modify(
+        $pid,
+        (   'firstname' => $request->param('firstname'),
+            'lastname'  => $request->param('lastname'),
+            'email'     => lc($request->param('email')),
+            'notes'     => 'billing engine activation - ' . $tier,
+            'portal'    => $profile->getName,
+            'source'    => 'billing',
+        )
+    );
 
-=head1 COPYRIGHT
+    # Grab additional infos about the node
+    my %info;
+    my $timeout = normalize_time($tiers_infos{$tier}{'timeout'});
+    $info{'pid'}      = $pid;
+    $info{'category'} = $tiers_infos{$tier}{'category'};
+    $info{'unregdate'} =
+      POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $timeout));
 
-Copyright (C) 2005-2015 Inverse inc.
+    if ($tiers_infos{$tier}{'usage_duration'}) {
+        $info{'time_balance'} =
+          normalize_time($tiers_infos{$tier}{'usage_duration'});
 
-=head1 LICENSE
+        # Check if node has some access time left; if so, add it to the new duration
+        my $node = node_view($mac);
+        if ($node && $node->{'time_balance'} > 0) {
+            if ($node->{'last_start_timestamp'} > 0) {
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+                # Node is active; compute the actual access time left
+                my $expiration = $node->{'last_start_timestamp'} + $node->{'time_balance'};
+                my $now        = time;
+                if ($expiration > $now) {
+                    $info{'time_balance'} += ($expiration - $now);
+                }
+            }
+            else {
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+                # Node is inactive; add the remaining access time to the purchased access time
+                $info{'time_balance'} += $node->{'time_balance'};
+            }
+        }
+        $logger->info("Usage duration for $mac is now " . $info{'time_balance'});
+    }
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.
+    # Close violations that use the 'Accounting::BandwidthExpired' trigger
+    my @tid = trigger_view_tid($ACCOUNTING_POLICY_TIME);
+    foreach my $violation (@tid) {
+
+        # Close any existing violation
+        violation_force_close($mac, $violation->{'vid'});
+    }
+
+    # Register the node
+    $c->forward('CaptivePortal' => 'webNodeRegister', [$info{pid}, %info]);
+
+    my $confirmationInfo = {
+        tier      => $request->param('tier'),
+        firstname => $request->param('firstname'),
+        lastname  => $request->param('lastname'),
+        email     => $request->param('email'),
+    };
+
+    # Send confirmation email
+    my %data = $billingObj->prepareConfirmationInfo($transaction_infos_ref, $confirmationInfo);
+    pf::util::send_email('billing_confirmation', $data{'email'}, $data{'subject'}, \%data);
+
+    # Generate the release page
+    # XXX Should be part of the portal profile
+
+    $c->forward('CaptivePortal' => 'endPortalSession');
+}
+
+=head2 mirapay_iframe
 
 =cut
 
+sub mirapay_iframe : Private {
+    my ($self, $c) = @_;
+    $c->forward('showBilling');
+    $c->stash->{template} = 'billing/mirapay_iframe_choose.html';
+}
+
+=head2 mirapay_iframe_pay
+
+=cut
+
+sub mirapay_iframe_pay : Local {
+    my ($self, $c) = @_;
+    my $portalSession = $c->portalSession;
+
+    # First blast for portalSession object consumption
+    my $request = $c->request();
+
+    # Fetch available tiers hash to check if the tier in param is ok
+    my $billingObj            = new pf::billing::custom();
+    my %available_tiers       = $billingObj->getAvailableTiers();
+    my $tier                  = $request->param('tier');
+    my %tiers_infos           = $billingObj->getAvailableTiers();
+    my $mac                   = $portalSession->clientMac;
+    my $transaction_infos_ref = {
+        ip          => $portalSession->clientIp(),
+        mac         => $mac,
+        item        => $tier,
+        price       => $tiers_infos{$tier}{'price'},
+        description => $tiers_infos{$tier}{'description'},
+    };
+    $c->stash(
+        template    => 'billing/mirapay_iframe_pay.html',
+        mirapay_url => $self->_build_mirapay_url($c, $transaction_infos_ref)
+    );
+}
+
+=head2 _build_mirapay_url
+
+=cut
+
+sub _build_mirapay_url {
+    my ($self, $c, $transaction_infos_ref) = @_;
+    my $request      = $c->request;
+    my $billing      = $Config{billing};
+    my $url          = $billing->{mirapay_iframe_url};
+    my $merchant_id  = $billing->{mirapay_iframe_merchant_id};
+    my $cardholdername = $request->param('firstname') . ' ' . $request->param('lastname') ;
+    my $redirect_url = "https://fence.packet.org/pay/mirapay_iframe_process";
+    my @params       = (
+        MerchantID  => $merchant_id,
+        RedirectURL => $redirect_url,
+        Amount      => $transaction_infos_ref->{price} * 100
+    );
+    my $mkey = $self->calc_mkey($c, @params);
+    my $query = join("&", pairmap {"$a=" . uri_escape($b)} @params, 'MKEY', $mkey);
+    return "$url?$query";
+}
+
+=head2 mirapay_iframe_process
+
+=cut
+
+sub mirapay_iframe_process : Local {
+    my ($self, $c) = @_;
+    if ($self->_mirapay_verify_request($c)) {
+        $c->stash->{template} = 'billing/mirapay_iframe_process.html';
+    }
+    else {
+        $c->stash->{template} = 'billing/mirapay_iframe_process_error.html';
+    }
+}
+
+our %MirapayResponseCode = (
+    01 => 'Approved',
+    10 => 'Invalid MKEY',
+    11 => 'Bad Session',
+    12 => 'Session Expired',
+    14 => 'Bad Amount',
+    15 => 'Bad TermID Group',
+    16 => 'Bad Statement Descriptor',
+    18 => 'Invalid Origin Server',
+    30 => 'No Token',
+    80 => 'VBV Error',
+    81 => 'VBV Declined',
+);
+
+=head2 _mirapay_request_process
+
+=cut
+
+sub _mirapay_request_process {
+    my ($self, $c) = @_;
+    my $request = $c->request;
+    my $action_code = $request->param('ActionCode');
+    my $approval_code = $request->param('ApprovalCode');
+    my $bank_response = $request->param('BankResponse');
+    my $cvv_response = $request->param('CVVResponse');
+    my $date_time = $request->param('DateTime');
+    my $response_code = $request->param('ResponseCode');
+    my $avs_response = $request->param('AVSResponse');
+}
+
+=head2 calc_mkey
+
+Calaulate the mkey from parameters given
+
+=cut
+
+sub calc_mkey {
+    my ($self,$c,@params) = @_;
+    sha256_hex(@params,$Config{billing}{mirapay_iframe_shared_secret});
+}
+
+
+=head2 _verify_mkey
+
+Verify the mkey provide back from mirapay
+Concat all the query names and values into one string (except MKEY)
+Append the shared secret digest it using sha_256 and compare the results with the MKEY
+
+=cut
+
+sub _verify_mkey {
+    my ($self,$c) = @_;
+    my $logger = $c->log;
+    my $query = $c->request->uri->query;
+    my @params;
+    for my $item (split ('&',$query)) {
+        my ($name,$value) = split ('=',$item);
+        push @params, uri_unescape($name),uri_unescape($value // '');
+    }
+    my $mkey = pop @params;
+    my $name = pop @params;
+    if ($name ne 'MKEY') {
+         $logger->error("Invalid query the last query parameter is not MKEY $query");
+         return 0;
+    }
+    my $test_key = $self->calc_mkey(@params);
+    return $test_key eq $mkey ;
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
-
-=head1 COPYRIGHT
-
-Copyright (C) 2005-2015 Inverse inc.
 
 =head1 COPYRIGHT
 
