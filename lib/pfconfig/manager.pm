@@ -118,8 +118,8 @@ sub overlayed_namespaces {
     if($base_namespace =~ /.*\(.+\)/){
         return ();
     }
-    my $namespaces_ref = $self->{cache}->get('_namespace_overlay') || ();
-    my @namespaces = @$namespaces_ref;
+    my $namespaces_ref = $self->{cache}->get('_namespace_overlay');
+    my @namespaces = defined($namespaces_ref) ? @$namespaces_ref : ();
     my @overlayed_namespaces;
     $base_namespace = quotemeta($base_namespace);
     foreach my $namespace (@namespaces){
