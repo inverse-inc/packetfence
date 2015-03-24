@@ -23,7 +23,7 @@ use Log::Log4perl qw(get_logger);
 use Log::Log4perl::Level;
 use Readonly;
 use pf::StatsD;
-use pf::StatsD::util qw(called);  
+use pf::util::statsd qw(called);  
 
 use constant NODE => 'node';
 

@@ -33,7 +33,7 @@ use pf::vlan::filter;
 use pf::person;
 use pf::lookup::person;
 use Time::HiRes;
-use pf::StatsD::util qw(called);
+use pf::util::statsd qw(called);
 
 our $VERSION = 1.04;
 

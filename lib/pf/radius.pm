@@ -39,7 +39,7 @@ use pf::floatingdevice::custom;
 use pf::radius::constants;
 use List::Util qw(first);
 use Time::HiRes;
-use pf::StatsD::util qw(called);
+use pf::util::statsd qw(called);
 
 our $VERSION = 1.03;
 

@@ -40,7 +40,7 @@ use lib '/usr/local/pf/lib/';
 use pf::radius::constants;
 use pf::radius::soapclient;
 use pf::radius::rpc;
-use pf::StatsD::util qw(called);
+use pf::util::statsd qw(called);
 use Time::HiRes;
 use pf::util::freeradius qw(clean_mac);
 use pf::StatsD;
