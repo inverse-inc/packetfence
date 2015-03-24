@@ -26,6 +26,8 @@ use pf::util();
 use pf::node();
 use pf::locationlog();
 use pf::ipset();
+use pf::factory::firewallsso;
+
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -198,14 +200,7 @@ sub firewallsso : Public {
     my $logger = pf::log::get_logger();
 
     foreach my $firewall_conf ( sort keys %pf::config::ConfigFirewallSSO ) {
-        my $module_name = 'pf::firewallsso::'.$pf::config::ConfigFirewallSSO{$firewall_conf}->{'type'};
-        $module_name = pf::util::untaint_chain($module_name);
-        # load the module to instantiate
-        if ( !(eval "$module_name->require()" ) ) {
-            $logger->error("Can not load perl module: $@");
-            return 0;
-        }
-        my $firewall = $module_name->new();
+        my $firewall = pf::factory::firewallsso->new($firewall_conf);
         $firewall->action($firewall_conf,$postdata{'method'},$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
     }
     return $pf::config::TRUE;
