@@ -25,7 +25,7 @@ If you're migrating from a previous PacketFence infrastructure, you will need to
 See the annex for the procedure. This part assumes you are are starting this on a fresh server.
 
 Configure the MariaDB repo 
-++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 On CentOS add in : /etc/yum.repos.d/mariadb.repo
 
@@ -45,7 +45,7 @@ Now install the MariaDB Galera cluster package
 ----
 
 Configuring MariaDB Galera Cluster
-++++++++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Configure the cluster in /etc/my.cnf.d/cluster.cnf
 
@@ -71,6 +71,13 @@ wsrep_sst_method=rsync
 wsrep_node_address="---THIS NODE MGMT IP---"
 wsrep_node_name="---THIS NODE UNIQUE NAME---"
 ----
+
+Where
+^^^^^
+* 'wsrep_cluster_name' is the friendly name of your cluster
+* 'wsrep_cluster_address' is the IP addresses of the management interfaces of your cluster delimited by commas. Should give : 'gcomm://192.168.1.5,192.168.1.6'
+* 'wsrep_node_address' is the management IP address of this server
+* 'wsrep_node_name' is the unique name of the server in the cluster. We suggest you put the hostname.
 
 Configure MySQL in my.cnf. Adjust these to your needs
 
@@ -110,7 +117,7 @@ If this is a new server in an existing cluster, do.
 # service mysql start
 ----
 
-NOTE : When adding a server in an existing cluster, do not forget to add it to the list of wsrep_cluster_address parameter in cluster.cnf on the existing nodes.
+NOTE: When adding a server in an existing cluster, do not forget to add it to the list of wsrep_cluster_address parameter in cluster.cnf on the existing nodes.
 
 If the server is alone but was already created with --wsrep-new-cluster, use this command to have start in standalone mode
 
@@ -120,10 +127,24 @@ service mysql start --wsrep_cluster_address=gcomm://
 
 You should now have two MariaDB database servers connected in cluster. 
 
-You can now start PacketFence and do the initial configuration in the Configurator.
+Testing the cluster
+^^^^^^^^^^^^^^^^^^^
 
-See instructions below to connect a new slave server after the database join has been made.
+Connect to the database server using the command line client on one of the servers and create a new database.
 
+----
+# mysql -u root -e 'create database test_replication'
+----
+
+Now go on your other server and verify that the database has been created there too.
+
+----
+# mysql -u root -e 'show databases'
+----
+
+If the database has been properly replicated, you can now start PacketFence on one of the servers and do the initial configuration in the Configurator.
+
+See instructions below to connect a slave server after the database join has been made.
 
 Step 2 : Create a new cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -157,6 +178,9 @@ type=internal
 ip=192.168.3.10
 type=internal
 
+----
+----
+
 [packetfence.local]
 management_ip=192.168.1.5
 
@@ -185,8 +209,8 @@ If done properly this should start two additionnal services : haproxy and keepal
 You should now have service on the IP addresses defined in the 'CLUSTER' sections
 
 
-Step 3 : Connect a slave packetfence server.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Step 3 : Connect a slave packetfence server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First, connect the server to the MariaDB cluster using the instructions above
 
@@ -202,6 +226,7 @@ Do (and make sure it does it without any errors) :
 ----
 
 Where : 
+^^^^^^^
 * '192.168.1.5' is the management IP of the other PacketFence node
 * 'packet' is the webservices username on the master node
 * 'fence' is the webservices password on the master node
@@ -211,14 +236,14 @@ Edit cluster.conf and create the server's configuration using the other node as 
 Reload the configuation and start the webservices on the new server
 
 ----
-bin/pfcmd configreload
-bin/pfcmd service httpd.webservices restart
+# bin/pfcmd configreload
+# bin/pfcmd service httpd.webservices restart
 ----
 
 Make sure that this server is binding to it's own management address. If it's not, verify the cluster.conf management interface configuration.
 
 ----
-netstat -nlp | grep 9090
+# netstat -nlp | grep 9090
 ----
 
 Now replicate this server configuration to the other nodes in the cluster
@@ -230,3 +255,68 @@ Now replicate this server configuration to the other nodes in the cluster
 Make sure at least cluster.conf was replicated to the other servers
 
 Now restart packetfence on each cluster server keeping the new node as the last one to be restarted.
+
+
+Annex 1 : Migrating to MariaDB from an existing infrastructure
+--------------------------------------------------------------
+
+In the event that you are migrating from an existing Infrastructure, you will need to export your database before upgrading to MariaDB in order to reimport it once you have setup MariaDB.
+
+CAUTION: This is an advanced procedure. Advanced technical knowledge is highly suggested before you continue this procedure.
+
+Exporting the data
+~~~~~~~~~~~~~~~~~~
+
+First we will dump your current PacketFence database to an SQL text file.
+
+----
+# mysqldump -u DBUSER -pDBPASSWORD DBNAME > packetfence.sql
+----
+
+Where
+^^^^^
+* 'DBUSER' is the username to connect to your database (available in pf.conf, 'pf' by default)
+* 'DBPASSWORD' is the password to connect to your database (available in pf.conf, 'packet' by default)
+* 'DBNAME' is the database name (available in pf.conf, 'pf' by default)
+
+Make sure you stop MySQL and then move it's data directory to do a backup.
+
+----
+On CentOS
+# service mysqld stop
+
+On Debian/Ubuntu
+# service mysql stop
+
+# mkdir /root/mysql-backup
+# mv -frp /var/lib/mysql/* /root/mysql-backup
+----
+
+You can now follow the instructions described in 'Step 1' and continue once you have your 2 servers with database connectivity.
+
+Reimporting data
+~~~~~~~~~~~~~~~~
+
+Now that you have a new database server, you can import the data in your SQL file.
+
+NOTE: This step may be extremely long depending on the size of your database.
+
+----
+
+# mysql -u root -e 'create database pf'
+# mysql -u root pf < packetfence.sql
+
+----
+
+Once this step has been done, you will need to grant the proper rights to the PacketFence user on the database by using :
+
+----
+# mysql -u root -e "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES ON pf.* TO 'pf'@'localhost' IDENTIFIED BY packet"
+# mysql -u root -e "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES ON pf.* TO 'pf'@'%' IDENTIFIED BY packet"
+# mysql -u root -e "FLUSH PRIVILEGES"
+----
+
+Make sure you configure the password at the end to something else than 'packet'.
+
+Now, configure this database account in /usr/local/pf/conf/pf.conf and /usr/local/pf/conf/pfconfig.conf. Leave them unchanged if you configured the same credentials as they were in MySQL.
+
