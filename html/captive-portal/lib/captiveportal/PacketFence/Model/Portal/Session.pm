@@ -110,7 +110,7 @@ sub ACCEPT_CONTEXT {
     my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'} if $management_network;
     my $destination_url = $request->param('destination_url');
 
-    if( defined ( my $last_uri = $r->pnotes('last_uri') )) {
+    if( $r->can('pnotes') && defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
             'last_uri' => $last_uri,
             'in_uri_portal' => 1,
