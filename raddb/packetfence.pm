@@ -40,7 +40,10 @@ use lib '/usr/local/pf/lib/';
 use pf::radius::constants;
 use pf::radius::soapclient;
 use pf::radius::rpc;
+use pf::util::statsd qw(called);
+use Time::HiRes;
 use pf::util::freeradius qw(clean_mac);
+use pf::StatsD;
 
 # Configuration parameter
 use constant RPC_PORT_KEY   => 'PacketFence-RPC-Port';
@@ -59,6 +62,7 @@ require 5.8.8;
 # This is very important! Without this, the script will not get the filled hashes from FreeRADIUS.
 our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK, %RAD_CONFIG);
 
+
 =head1 SUBROUTINES
 
 =over
@@ -73,6 +77,7 @@ sub authorize {
     # For debugging purposes only
     #&log_request_attributes;
 
+    my $start = Time::HiRes::gettimeofday();
     # is it EAP-based Wired MAC Authentication?
     if ( is_eap_mac_authentication() ) {
         # in MAC Authentication the User-Name is the MAC address stripped of all non-hex characters
@@ -80,10 +85,12 @@ sub authorize {
         # Password will be the MAC address, we set Cleartext-Password so that EAP Auth will perform auth properly
         $RAD_CHECK{'Cleartext-Password'} = $mac;
         &radiusd::radlog($RADIUS::L_DBG, "This is a Wired MAC Authentication request with EAP for MAC: $mac. Authentication should pass. File a bug report if it doesn't");
+        $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
         return $RADIUS::RLM_MODULE_UPDATED;
     }
 
     # otherwise, we don't do a thing
+    $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
     return $RADIUS::RLM_MODULE_NOOP;
 }
 
@@ -111,6 +118,7 @@ Once we authenticated the user's identity, we perform PacketFence's Network Acce
 
 sub post_auth {
     my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
+    my $start = Time::HiRes::gettimeofday();
     eval {
         my $mac;
         if (defined($RAD_REQUEST{'User-Name'})) {
@@ -126,6 +134,7 @@ sub post_auth {
         # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
         if ( length($mac) != 17 ) {
             &radiusd::radlog($RADIUS::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
+            $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
             return $RADIUS::RLM_MODULE_OK;
         }
         my $config = _get_rpc_config();
@@ -139,6 +148,7 @@ sub post_auth {
             $radius_return_code = shift @$elements;
 
             if ( !defined($radius_return_code) || !($radius_return_code > $RADIUS::RLM_MODULE_REJECT && $radius_return_code < $RADIUS::RLM_MODULE_NUMCODES) ) {
+                $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
                 return invalid_answer_handler();
             }
 
@@ -163,6 +173,7 @@ sub post_auth {
             }
             %RAD_REPLY = (%RAD_REPLY, %$attributes); # the rest of result is the reply hash passed by the radius_authorize
         } else {
+            $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
             return server_error_handler();
         }
 
@@ -194,6 +205,7 @@ sub post_auth {
         &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize RPC request: $@");
     }
 
+    $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
     return $radius_return_code;
 }
 
@@ -207,6 +219,7 @@ If a customer wants to degrade gracefully, he should put some logic here to assi
 
 sub server_error_handler {
    # no need to log here as on_fault is already triggered
+   $pf::StatsD::statsd->increment("freeradius::" . called() . ".count" );
    return $RADIUS::RLM_MODULE_FAIL;
 
    # TODO provide complete examples
@@ -229,6 +242,7 @@ sub invalid_answer_handler {
     &radiusd::radlog($RADIUS::L_ERR, "No or invalid reply in RPC communication with server. Check server side logs for details.");
     &radiusd::radlog($RADIUS::L_DBG, "PacketFence UNDEFINED RESULT RESPONSE CODE");
     &radiusd::radlog($RADIUS::L_DBG, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
+    $pf::StatsD::statsd->increment("freeradius::" . called() . ".count" );
     return $RADIUS::RLM_MODULE_FAIL;
 }
 
@@ -280,6 +294,7 @@ sub preacct {
 
 # Function to handle accounting
 sub accounting {
+    my $start = Time::HiRes::gettimeofday();
     my $radius_return_code = eval {
         my $rc = $RADIUS::RLM_MODULE_REJECT;
         my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
@@ -288,6 +303,7 @@ sub accounting {
         # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
         if ( length($mac) != 17 ) {
             &radiusd::radlog($RADIUS::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
+            $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
             return $RADIUS::RLM_MODULE_OK;
         }
 
@@ -295,6 +311,7 @@ sub accounting {
         unless ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop' ||
                 $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update' ||
                 $RAD_REQUEST{'Acct-Status-Type'} eq 'Start') {
+            $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
             return $RADIUS::RLM_MODULE_OK;
         }
 
@@ -309,6 +326,7 @@ sub accounting {
             $rc = shift @$elements;
 
             if ( !defined($rc) || !($rc > $RADIUS::RLM_MODULE_REJECT && $rc < $RADIUS::RLM_MODULE_NUMCODES) ) {
+                $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
                 return invalid_answer_handler();
             }
 
@@ -316,9 +334,11 @@ sub accounting {
             my $attributes = {@$elements};
             %RAD_REPLY = (%RAD_REPLY, %$attributes); # the rest of result is the reply hash passed by the radius_authorize
         } else {
+            $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
             return server_error_handler();
         }
 
+        $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
         return $rc;
     };
     if ($@) {
@@ -337,6 +357,7 @@ sub accounting {
     # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
     # &radiusd::radlog($RADIUS::L_DBG, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
 
+        $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
     return $radius_return_code;
 }
 

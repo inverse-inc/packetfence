@@ -94,6 +94,7 @@ $User = "pf";
 $Group = "pf";
 
 $PerlInitHandler = "pf::WebAPI::InitHandler";
+$PerlChildInitHandler = "pf::WebAPI::InitHandler::child_init";
 
 if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fromaddr'} ne '') {
     $ServerAdmin = $PfConfig->{'alerting'}{'fromaddr'};

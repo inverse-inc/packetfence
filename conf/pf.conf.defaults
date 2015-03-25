@@ -999,3 +999,14 @@ provisioning_compliance_poll_interval=300s
 #
 # Interval at which Packetfence purges the ldap_auth cache
 ldap_auth_cache_cleanup_interval=600s
+
+[monitoring]
+#
+# monitoring.statsd_host
+#
+statsd_host=localhost
+#
+# monitoring.statsd_port
+#
+statsd_port=8125
+

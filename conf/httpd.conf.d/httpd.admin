@@ -68,7 +68,6 @@ PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/pfappserver/lib
 PerlLoadModule pfappserver
 PerlLoadModule pf::WebAPI::InitHandler
-PerlChildInitHandler  pf::WebAPI::InitHandler::child_init
 
 <Perl>
 BEGIN {
@@ -87,6 +86,8 @@ $PidFile = $install_dir.'/var/run/httpd.admin.pid';
 
 $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 
+$PerlChildInitHandler = "pf::WebAPI::InitHandler::child_init";
+
 if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
     if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
         $Listen = $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'admin'};
@@ -102,6 +103,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
 
 $User = "pf";
 $Group = "pf";
+
 
 $TypesConfig = '/etc/mime.types';
 
