@@ -78,7 +78,8 @@ Get the module name without pfappserver::Controller:: prefix
 sub get_module_name {
     my ($class) = @_;
     my $module = $class;
-    $module =~ s/^pfappserver::Controller:://;
+    $module =~ s/^pfappserver::Controller::// if $class =~ /^pfappserver::Controller::/;
+    $module =~ s/^pfappserver::PacketFence::Controller::// if $class =~ /^pfappserver::PacketFence::Controller::/;
     return $module;
 }
 

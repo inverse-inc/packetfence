@@ -2,33 +2,24 @@ package pfappserver::Controller::Config::Fingerbank::DHCP_Vendor;
 
 =head1 NAME
 
-pfappserver::Controller::Config::Fingerbank::DHCP_Vendor - Catalyst Controller
+pfappserver::Controller::Config::Fingerbank::DHCP_Vendor
 
 =head1 DESCRIPTION
 
-Controller for managing the fingerbank DHCP_Vendor data
+Meant to override / customize Config::Fingerbank::DHCP_Vendor controller.
+
+Refer to L<pfappserver::PacketFence::Controller::Config::Fingerbank::DHCP_Vendor>
 
 =cut
 
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
-BEGIN {
-    extends 'pfappserver::Base::Controller';
-    with 'pfappserver::Base::Controller::Crud::Fingerbank';
-}
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Fingerbank::DHCP_Vendor'; }
 
-__PACKAGE__->config(
-    action => {
-        # Reconfigure the object and scope actions from
-        __PACKAGE__->action_defaults,
-        scope  => { Chained => '/', PathPart => 'config/fingerbank/dhcp_vendor', CaptureArgs => 1 },
-    },
-    action_args => {
-        # Setting the global model and form for all actions
-        '*' => { model => __PACKAGE__->get_model_name , form => __PACKAGE__->get_form_name },
-    },
-);
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
