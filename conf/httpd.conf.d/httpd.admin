@@ -86,6 +86,8 @@ $PidFile = $install_dir.'/var/run/httpd.admin.pid';
 
 $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 
+$PerlChildInitHandler = "pf::WebAPI::InitHandler::child_init";
+
 if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
     if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
         $Listen = $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'admin'};
