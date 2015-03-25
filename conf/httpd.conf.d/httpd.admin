@@ -102,7 +102,6 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
 $User = "pf";
 $Group = "pf";
 
-$PerlChildInitHandler = "pf::WebAPI::ChildInitHandler";
 
 $TypesConfig = '/etc/mime.types';
 
