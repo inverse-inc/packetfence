@@ -29,6 +29,10 @@ Clean up realm data
 sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
     $self->expand_list($profile, $self->_fields_expanded);
+    # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
+    if(ref($profile->{options}) eq 'ARRAY'){
+        $profile->{options} = $self->join_options($profile->{options});
+    }
 }
 
 =head2 cleanupBeforeCommit
@@ -48,6 +52,18 @@ sub cleanupBeforeCommit {
 
 sub _fields_expanded {
     return qw(categories);
+}
+
+
+=head2 join_options
+
+Join options in array with a newline
+
+=cut
+
+sub join_options {
+    my ($self,$options) = @_;
+    return join("\n",@$options);
 }
 
 __PACKAGE__->meta->make_immutable;
