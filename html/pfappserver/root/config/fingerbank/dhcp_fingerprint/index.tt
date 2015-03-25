@@ -17,6 +17,13 @@
 
       <h2>[% l('DHCP Fingerprint') %]</h2>
 
+      <div class="options">
+        <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Config::Fingerbank::DB').action_for('submit') )%]" ><i class="icon-share"></i> [% l('Submit Unknown/Unmatched Fingerprints') %]</a>
+        [% IF can_access("FINGERPRINTS_UPDATE") %] 
+           | <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Config::Fingerbank::DB').action_for('update') )%]" ><i class="icon-refresh"></i> [% l('Update Fingerbank DB') %]</a>
+        [% END %]
+      </div>
+
       [% INCLUDE config/fingerbank/dhcp_fingerprint/list.tt %]
 
       <div id="noRole" class="unwell[% ' hidden' IF items.size %]">
