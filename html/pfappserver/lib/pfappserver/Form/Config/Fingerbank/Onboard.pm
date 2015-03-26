@@ -16,8 +16,9 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'api_key' => (
-   type     => 'Text',
-   label    => 'API Key',
+    type     => 'Text',
+    label    => 'API Key',
+    required => 1,
 );
 
 =head1 AUTHOR

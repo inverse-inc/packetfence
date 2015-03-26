@@ -40,17 +40,18 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
 
     $c->forward('index') if ( fingerbank::Config::is_api_key_configured );
 
-    my ( $status, $status_msg );
-
+    my ( $status, $status_msg ) = HTTP_OK;
     my $form = $c->form("Config::Fingerbank::Onboard");
 
-    if ($c->request->method eq 'POST') {
+    if ( $c->request->method eq 'POST' ) {
         $form->process(params => $c->req->params);
-        if ($form->has_errors) {
+        if ( $form->has_errors ) {
             $status = HTTP_PRECONDITION_FAILED;
             $status_msg = $form->field_errors;
         } else {
-
+            # TODO: Finish that part
+            # We need to write the API key in the Fingerbank configuration file
+            # After that, redirect to the 'Settings' page
         }
     }
 
@@ -58,6 +59,15 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
         $form->process;
         $c->stash->{form} = $form;
     }
+
+    if ( is_error($status) ) {
+        $c->stash(
+            current_view => 'JSON',
+            status_msg => $status_msg
+        );
+    }
+
+    $c->response->status($status);
 }
 
 =head2 index
@@ -70,20 +80,33 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
 
     $c->forward('check_for_api_key');
 
-    my $config = fingerbank::Config::get_config;
-
+    my ( $status, $status_msg ) = HTTP_OK;
     my $form = $c->form("Config::Fingerbank::Settings");
-    $form->process(init_object => $config);
-    $c->stash->{form} = $form;
 
+    if ( $c->request->method eq 'POST' ) {
+        $form->process(params => $c->req->params);
+        if ( $form->has_errors ) {
+            $status = HTTP_PRECONDITION_FAILED;
+            $status_msg = $form->field_errors;
+        } else {
+            ( $status, $status_msg ) = fingerbank::Config::write_config($c->req->params);
+        }
+    }
 
-#    my $form;
-#    foreach my $section ( keys %$config ) {
-#        $c->stash->{section} = $section;
-#        $form .= $c->form("Config::Fingerbank::Settings", section => $section);
-#        $form->process(init_object => $config->{$section}); 
-#        $c->stash->{form} = $form;
-#    }
+    else {
+        my $config = fingerbank::Config::get_config;
+        $form->process(init_object => $config);
+        $c->stash->{form} = $form;
+    }
+
+    if ( is_error($status) ) {
+        $c->stash(
+            current_view => 'JSON',
+            status_msg => $status_msg
+        );
+    }
+
+    $c->response->status($status);
 }
 
 =head1 AUTHOR
