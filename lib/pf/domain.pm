@@ -20,13 +20,26 @@ use pf::config;
 use pf::log;
 use pf::file_paths;
 
+# This is to create the templates for the domain info
 our $TT_OPTIONS = {ABSOLUTE => 1};
 our $template = Template->new($TT_OPTIONS);
+
+=item chroot_path
+
+Returns the path to a domain chroot
+
+=cut
 
 sub chroot_path {
     my ($domain) = @_;
     return $domains_chroot_dir."/".$domain; 
 }
+
+=item run
+
+Executes a command and returns the results as the domain interfaces expect it
+
+=cut
 
 sub run {
     my ($cmd) = @_;
@@ -37,11 +50,23 @@ sub run {
     return ($code , $result);
 }
 
+=item test_join
+
+Executes the command in the OS to test the domain join
+
+=cut
+
 sub test_join {
     my ($domain) = @_;
     my ($status, $output) = run("sudo /sbin/ip netns exec $domain /usr/bin/net ads testjoin -s /etc/samba/$domain.conf");
     return ($status, $output);
 }
+
+=item test_auth
+
+Executes the command on the OS to test an authentication to the domain
+
+=cut
 
 sub test_auth {
     my ($domain) = @_;
@@ -52,99 +77,150 @@ sub test_auth {
 }
 
 
+=item join_domain
+
+Joins the domain
+
+=cut
+
 sub join_domain {
-  my ($domain) = @_;
-  my $logger = get_logger();
+    my ($domain) = @_;
+    my $logger = get_logger();
 
-  regenerate_configuration();
+    regenerate_configuration();
 
-  my $info = $ConfigDomain{$domain};
-  my ($status, $output) = run("sudo ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
-  $logger->info("domain join : ".$output);
+    my $info = $ConfigDomain{$domain};
+    my ($status, $output) = run("sudo ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
+    $logger->info("domain join : ".$output);
 
-  restart_winbinds();
-  
-  return $output; 
+    restart_winbinds();
+    
+    return $output; 
 }
+
+=item rejoin_domain
+
+Unjoins then joins the domain
+
+=cut
 
 sub rejoin_domain {
-  my ($domain) = @_;
-  my $logger = get_logger();
+    my ($domain) = @_;
+    my $logger = get_logger();
 
-  my $info = $ConfigDomain{$domain};
-  if($info){
-    my ($leave_output) = unjoin_domain($domain);
+    my $info = $ConfigDomain{$domain};
+    if($info){
+        my ($leave_output) = unjoin_domain($domain);
 
-    my $join_output = join_domain($domain);
+        my $join_output = join_domain($domain);
 
-    return {leave_output => $leave_output, join_output => $join_output};
-  }
+        return {leave_output => $leave_output, join_output => $join_output};
+    }
 }
+
+=item unjoin_domain
+
+Joins the domain through the ip namespace
+
+=cut
 
 sub unjoin_domain {
-  my ($domain) = @_;
-  my $logger = get_logger();
+    my ($domain) = @_;
+    my $logger = get_logger();
 
-  my $info = $ConfigDomain{$domain};
-  if($info){
-    my ($status, $output) = run("sudo ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
-    $logger->info("domain leave : ".$output);
-    $logger->info("netns deletion : ".run("sudo ip netns delete $domain"));
-    return $output;
-  }
-  else{
-    $logger->error("Domain $domain is not configured");
-  }
+    my $info = $ConfigDomain{$domain};
+    if($info){
+        my ($status, $output) = run("sudo ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
+        $logger->info("domain leave : ".$output);
+        $logger->info("netns deletion : ".run("sudo ip netns delete $domain"));
+        return $output;
+    }
+    else{
+        $logger->error("Domain $domain is not configured");
+    }
 
 }
+
+=item generate_krb5_conf
+
+Generates the OS krb5.conf with all the domains configured in domain.conf
+
+=cut
 
 sub generate_krb5_conf {
-  my $logger = get_logger();
-  my $vars = {domains => \%ConfigDomain};
+    my $logger = get_logger();
+    my $vars = {domains => \%ConfigDomain};
 
-  pf_run("sudo touch /etc/krb5.conf");
-  pf_run("sudo chown pf.pf /etc/krb5.conf");
-  $template->process("/usr/local/pf/addons/AD/krb5.tt", $vars, "/etc/krb5.conf") || $logger->error("Can't generate krb5 configuration : ".$template->error);
+    pf_run("sudo touch /etc/krb5.conf");
+    pf_run("sudo chown pf.pf /etc/krb5.conf");
+    $template->process("/usr/local/pf/addons/AD/krb5.tt", $vars, "/etc/krb5.conf") || $logger->error("Can't generate krb5 configuration : ".$template->error);
 }
+
+=item generate_smb_conf
+
+Generates all files for the domains configured in domain.conf
+Will generate one samba config file per domain
+It will be in /etc/samba/$domain.conf
+
+=cut
 
 sub generate_smb_conf {
-  my $logger = get_logger();
-  foreach my $domain (keys %ConfigDomain){
-    my %vars = (domain => $domain);
-    my %tmp = (%vars, %{$ConfigDomain{$domain}});
-    %vars = %tmp;
-    pf_run("sudo touch /etc/samba/$domain.conf");
-    pf_run("sudo chown pf.pf /etc/samba/$domain.conf");
-    my $fname = untaint_chain("/etc/samba/$domain.conf");
-    $template->process("/usr/local/pf/addons/AD/smb.tt", \%vars, $fname) || $logger->error("Can't generate samba configuration for $domain : ".$template->error()); 
-  }
+    my $logger = get_logger();
+    foreach my $domain (keys %ConfigDomain){
+        my %vars = (domain => $domain);
+        my %tmp = (%vars, %{$ConfigDomain{$domain}});
+        %vars = %tmp;
+        pf_run("sudo touch /etc/samba/$domain.conf");
+        pf_run("sudo chown pf.pf /etc/samba/$domain.conf");
+        my $fname = untaint_chain("/etc/samba/$domain.conf");
+        $template->process("/usr/local/pf/addons/AD/smb.tt", \%vars, $fname) || $logger->error("Can't generate samba configuration for $domain : ".$template->error()); 
+    }
 }
+
+=item generate_resolv_conf
+
+Generates the resolv.conf for the domain and puts it in the ip namespace configuration
+
+=cut
 
 sub generate_resolv_conf {
-  my $logger = get_logger();
-  foreach my $domain (keys %ConfigDomain){
-    pf_run("sudo mkdir -p /etc/netns/$domain");
-    my %vars = (domain => $domain);
-    my %tmp = (%vars, %{$ConfigDomain{$domain}});
-    %vars = %tmp;
-    pf_run("sudo chown pf.pf /etc/netns/$domain");
-    pf_run("sudo touch /etc/netns/$domain/resolv.conf");
-    pf_run("sudo chown pf.pf /etc/netns/$domain/resolv.conf");
-    my $fname = untaint_chain("/etc/netns/$domain/resolv.conf");
-    $template->process("/usr/local/pf/addons/AD/resolv.tt", \%vars, $fname) || $logger->error("Can't generate resolv.conf for $domain : ".$template->error); 
-  }  
+    my $logger = get_logger();
+    foreach my $domain (keys %ConfigDomain){
+        pf_run("sudo mkdir -p /etc/netns/$domain");
+        my %vars = (domain => $domain);
+        my %tmp = (%vars, %{$ConfigDomain{$domain}});
+        %vars = %tmp;
+        pf_run("sudo chown pf.pf /etc/netns/$domain");
+        pf_run("sudo touch /etc/netns/$domain/resolv.conf");
+        pf_run("sudo chown pf.pf /etc/netns/$domain/resolv.conf");
+        my $fname = untaint_chain("/etc/netns/$domain/resolv.conf");
+        $template->process("/usr/local/pf/addons/AD/resolv.tt", \%vars, $fname) || $logger->error("Can't generate resolv.conf for $domain : ".$template->error); 
+    }  
 }
+
+=item restart_winbinds
+
+Calls pfcmd to restart the winbind processes
+
+=cut
 
 sub restart_winbinds {
-  my $logger = get_logger();
-  #my $result = pf::services::service_ctl("winbindd", "restart");
-  pf_run("sudo /usr/local/pf/bin/pfcmd service winbindd restart");
+    my $logger = get_logger();
+    pf_run("sudo /usr/local/pf/bin/pfcmd service winbindd restart");
 }
 
 
+=item regenerate_configuration
+
+This generates the configuration for the domain
+Since this needs elevated rights and that it's called by pf owned processes it needs to do it through pfcmd
+A better solution should be found eventually
+
+=cut
+
 sub regenerate_configuration {
-  my $logger = get_logger();
-  pf_run("sudo /usr/local/pf/bin/pfcmd generatedomainconfig");
+    my $logger = get_logger();
+    pf_run("sudo /usr/local/pf/bin/pfcmd generatedomainconfig");
 }
 
 
