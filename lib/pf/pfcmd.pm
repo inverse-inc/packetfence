@@ -67,6 +67,7 @@ sub parseCommandLine {
                                    \s+
                                    ( all | $RE{net}{MAC} | stub )
                                  $  /xms,
+        'generatedomainconfig'        => qr{ ^ $ }xms,
         'graph'           => qr/ ^ (?:
                                      ( nodes | registered
                                        | unregistered

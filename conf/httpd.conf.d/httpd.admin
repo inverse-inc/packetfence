@@ -111,8 +111,8 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
     $vhost = "0.0.0.0";
 }
 
-$User = "pf_admin";
-$Group = "pf_admin";
+$User = "pf";
+$Group = "pf";
 
 
 $TypesConfig = '/etc/mime.types';

@@ -103,7 +103,7 @@ sub generate_krb5_conf {
   my $vars = {domains => \%ConfigDomain};
 
   pf_run("sudo touch /etc/krb5.conf");
-  pf_run("sudo chown pf_admin.pf_admin /etc/krb5.conf");
+  pf_run("sudo chown pf.pf /etc/krb5.conf");
   $template->process("/usr/local/pf/addons/AD/krb5.tt", $vars, "/etc/krb5.conf") || $logger->error("Can't generate krb5 configuration : ".$template->error);
 }
 
@@ -114,8 +114,9 @@ sub generate_smb_conf {
     my %tmp = (%vars, %{$ConfigDomain{$domain}});
     %vars = %tmp;
     pf_run("sudo touch /etc/samba/$domain.conf");
-    pf_run("sudo chown pf_admin.pf_admin /etc/samba/$domain.conf");
-    $template->process("/usr/local/pf/addons/AD/smb.tt", \%vars, "/etc/samba/$domain.conf") || $logger->error("Can't generate samba configuration for $domain : ".$template->error()); 
+    pf_run("sudo chown pf.pf /etc/samba/$domain.conf");
+    my $fname = untaint_chain("/etc/samba/$domain.conf");
+    $template->process("/usr/local/pf/addons/AD/smb.tt", \%vars, $fname) || $logger->error("Can't generate samba configuration for $domain : ".$template->error()); 
   }
 }
 
@@ -126,10 +127,11 @@ sub generate_resolv_conf {
     my %vars = (domain => $domain);
     my %tmp = (%vars, %{$ConfigDomain{$domain}});
     %vars = %tmp;
-    pf_run("sudo chown pf_admin.pf_admin /etc/netns/$domain");
+    pf_run("sudo chown pf.pf /etc/netns/$domain");
     pf_run("sudo touch /etc/netns/$domain/resolv.conf");
-    pf_run("sudo chown pf_admin.pf_admin /etc/netns/$domain/resolv.conf");
-    $template->process("/usr/local/pf/addons/AD/resolv.tt", \%vars, "/etc/netns/$domain/resolv.conf") || $logger->error("Can't generate resolv.conf for $domain : ".$template->error); 
+    pf_run("sudo chown pf.pf /etc/netns/$domain/resolv.conf");
+    my $fname = untaint_chain("/etc/netns/$domain/resolv.conf");
+    $template->process("/usr/local/pf/addons/AD/resolv.tt", \%vars, $fname) || $logger->error("Can't generate resolv.conf for $domain : ".$template->error); 
   }  
 }
 
@@ -142,11 +144,7 @@ sub restart_winbinds {
 
 sub regenerate_configuration {
   my $logger = get_logger();
-  generate_krb5_conf();
-  generate_smb_conf();
-  generate_resolv_conf();
-  pf_run("sudo /usr/local/pf/bin/pfcmd service iptables restart");
-  restart_winbinds();
+  pf_run("sudo /usr/local/pf/bin/pfcmd generatedomainconfig");
 }
 
 
