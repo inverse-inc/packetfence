@@ -111,7 +111,7 @@ our (
 #provisioning.conf
     %ConfigProvisioning,
 #domain.conf
-    %ConfigDomain, $cached_domain,
+    %ConfigDomain, 
 );
 
 BEGIN {
@@ -156,7 +156,7 @@ BEGIN {
         %Doc_Config
         %ConfigRealm
         %ConfigProvisioning
-        %ConfigDomain $cached_domain
+        %ConfigDomain 
     );
 }
 
