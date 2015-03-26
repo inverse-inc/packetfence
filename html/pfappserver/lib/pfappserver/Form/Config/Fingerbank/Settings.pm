@@ -11,6 +11,7 @@ Form definition to modify Fingerbank configuration
 =cut
 
 use HTML::FormHandler::Moose;
+use fingerbank::Config;
 
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
@@ -28,11 +29,12 @@ sub field_list {
     foreach my $section ( keys %$config ) {
         push @$list, $section => {id => $section, type => 'Compound'};
         foreach my $parameter ( keys %{$config->{$section}} ) {
+            my $field_name = $section . "." . $parameter;
             my $field = {
-                id => $section . "." . $parameter,
+                id => $field_name,
                 type => 'Text',
             };
-            push ( @$list, $parameter => $field );
+            push ( @$list, $field_name => $field );
         }
     }
 
