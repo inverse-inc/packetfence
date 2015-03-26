@@ -58,7 +58,7 @@ Executes the command in the OS to test the domain join
 
 sub test_join {
     my ($domain) = @_;
-    my ($status, $output) = run("sudo /sbin/ip netns exec $domain /usr/bin/net ads testjoin -s /etc/samba/$domain.conf");
+    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/bin/net ads testjoin -s /etc/samba/$domain.conf");
     return ($status, $output);
 }
 
@@ -90,7 +90,7 @@ sub join_domain {
     regenerate_configuration();
 
     my $info = $ConfigDomain{$domain};
-    my ($status, $output) = run("sudo ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
+    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
     $logger->info("domain join : ".$output);
 
     restart_winbinds();
@@ -130,9 +130,9 @@ sub unjoin_domain {
 
     my $info = $ConfigDomain{$domain};
     if($info){
-        my ($status, $output) = run("sudo ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
+        my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
         $logger->info("domain leave : ".$output);
-        $logger->info("netns deletion : ".run("sudo ip netns delete $domain"));
+        $logger->info("netns deletion : ".run("/usr/bin/sudo /sbin/ip netns delete $domain"));
         return $output;
     }
     else{
@@ -151,8 +151,8 @@ sub generate_krb5_conf {
     my $logger = get_logger();
     my $vars = {domains => \%ConfigDomain};
 
-    pf_run("sudo touch /etc/krb5.conf");
-    pf_run("sudo chown pf.pf /etc/krb5.conf");
+    pf_run("/usr/bin/sudo touch /etc/krb5.conf");
+    pf_run("/usr/bin/sudo /bin/chown pf.pf /etc/krb5.conf");
     $template->process("/usr/local/pf/addons/AD/krb5.tt", $vars, "/etc/krb5.conf") || $logger->error("Can't generate krb5 configuration : ".$template->error);
 }
 
@@ -170,8 +170,8 @@ sub generate_smb_conf {
         my %vars = (domain => $domain);
         my %tmp = (%vars, %{$ConfigDomain{$domain}});
         %vars = %tmp;
-        pf_run("sudo touch /etc/samba/$domain.conf");
-        pf_run("sudo chown pf.pf /etc/samba/$domain.conf");
+        pf_run("/usr/bin/sudo touch /etc/samba/$domain.conf");
+        pf_run("/usr/bin/sudo /bin/chown pf.pf /etc/samba/$domain.conf");
         my $fname = untaint_chain("/etc/samba/$domain.conf");
         $template->process("/usr/local/pf/addons/AD/smb.tt", \%vars, $fname) || $logger->error("Can't generate samba configuration for $domain : ".$template->error()); 
     }
@@ -186,13 +186,13 @@ Generates the resolv.conf for the domain and puts it in the ip namespace configu
 sub generate_resolv_conf {
     my $logger = get_logger();
     foreach my $domain (keys %ConfigDomain){
-        pf_run("sudo mkdir -p /etc/netns/$domain");
+        pf_run("/usr/bin/sudo /bin/mkdir -p /etc/netns/$domain");
         my %vars = (domain => $domain);
         my %tmp = (%vars, %{$ConfigDomain{$domain}});
         %vars = %tmp;
-        pf_run("sudo chown pf.pf /etc/netns/$domain");
-        pf_run("sudo touch /etc/netns/$domain/resolv.conf");
-        pf_run("sudo chown pf.pf /etc/netns/$domain/resolv.conf");
+        pf_run("/usr/bin/sudo /bin/chown pf.pf /etc/netns/$domain");
+        pf_run("/usr/bin/sudo touch /etc/netns/$domain/resolv.conf");
+        pf_run("/usr/bin/sudo chown pf.pf /etc/netns/$domain/resolv.conf");
         my $fname = untaint_chain("/etc/netns/$domain/resolv.conf");
         $template->process("/usr/local/pf/addons/AD/resolv.tt", \%vars, $fname) || $logger->error("Can't generate resolv.conf for $domain : ".$template->error); 
     }  
@@ -206,7 +206,7 @@ Calls pfcmd to restart the winbind processes
 
 sub restart_winbinds {
     my $logger = get_logger();
-    pf_run("sudo /usr/local/pf/bin/pfcmd service winbindd restart");
+    pf_run("/usr/bin/sudo /usr/local/pf/bin/pfcmd service winbindd restart");
 }
 
 
@@ -220,7 +220,7 @@ A better solution should be found eventually
 
 sub regenerate_configuration {
     my $logger = get_logger();
-    pf_run("sudo /usr/local/pf/bin/pfcmd generatedomainconfig");
+    pf_run("/usr/bin/sudo /usr/local/pf/bin/pfcmd generatedomainconfig");
 }
 
 
