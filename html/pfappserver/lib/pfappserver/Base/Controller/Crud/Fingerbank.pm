@@ -66,6 +66,7 @@ Setup the scope and forwards
 sub index {
     my ($self, $c) = @_;
     $c->stash->{scope} = 'Upstream';
+    $c->stash->{fingerbank_configured} = fingerbank::Config::is_api_key_configured;
     $c->forward('list');
 }
 

@@ -15,6 +15,8 @@ Customizations can be made using L<pfappserver::Controller::Config::Fingerbank::
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
+use HTTP::Status qw(:constants is_error is_success);
+
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head2 check_for_api_key
@@ -28,8 +30,33 @@ sub check_for_api_key :Private {
     if ( !fingerbank::Config::is_api_key_configured ) {
         $logger->warn("Fingerbank API key is not configured. Running with limited features");
         my $status_msg = "It looks like Fingerbank API key is not configured. You may have forgot the onboard process. To fully beneficiate of Fingerbank, please proceed here: https://fingerbank.inverse.ca/onboard";
-        $c->stash->{template} = "config/fingerbank/settings/onboard.tt";
-        return 0;
+        $c->go('onboard');
+    }
+}
+
+sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
+    my ( $self, $c ) = @_;
+    my $logger = pf::log::get_logger;
+
+    $c->forward('index') if ( fingerbank::Config::is_api_key_configured );
+
+    my ( $status, $status_msg );
+
+    my $form = $c->form("Config::Fingerbank::Onboard");
+
+    if ($c->request->method eq 'POST') {
+        $form->process(params => $c->req->params);
+        if ($form->has_errors) {
+            $status = HTTP_PRECONDITION_FAILED;
+            $status_msg = $form->field_errors;
+        } else {
+
+        }
+    }
+
+    else {
+        $form->process;
+        $c->stash->{form} = $form;
     }
 }
 

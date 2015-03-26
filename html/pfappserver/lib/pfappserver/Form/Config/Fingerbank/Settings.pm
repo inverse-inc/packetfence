@@ -23,9 +23,10 @@ sub field_list {
     my $list = [];
 
     my $config = fingerbank::Config::get_config;
-    my @sections = keys %$config;
-    push @$list, map{$_ => { id => $_, type => 'Compound' } } @sections;
+#    my @sections = keys %$config;
+#    push @$list, map{$_ => { id => $_, type => 'Compound' } } @sections;
     foreach my $section ( keys %$config ) {
+        push @$list, $section => {id => $section, type => 'Compound'};
         foreach my $parameter ( keys %{$config->{$section}} ) {
             my $field = {
                 id => $section . "." . $parameter,
