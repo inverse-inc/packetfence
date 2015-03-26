@@ -59,10 +59,10 @@ sub external_captive_portal {
     my $switch;
     if (defined($switchId)) {
         if (pf::SwitchFactory::hasId($switchId)) {
-            $switch =  pf::SwitchFactory->getInstance()->instantiate($switchId);
+            $switch =  pf::SwitchFactory->instantiate($switchId);
         } else {
             my $locationlog_entry = locationlog_view_open_mac($switchId);
-            $switch = pf::SwitchFactory->getInstance()->instantiate($locationlog_entry->{'switch'});
+            $switch = pf::SwitchFactory->instantiate($locationlog_entry->{'switch'});
         }
 
         if (defined($switch) && $switch ne '0' && $switch->supportsExternalPortal) {
@@ -90,7 +90,7 @@ sub external_captive_portal {
         if ($session_id{_session_id} eq $session) {
             my $switch;
             if(defined($session_id{switch_id})){
-                $switch = pf::SwitchFactory->getInstance()->instantiate($session_id{switch_id});
+                $switch = pf::SwitchFactory->instantiate($session_id{switch_id});
             }
             else{
                 $switch = $session_id{switch};
@@ -131,7 +131,7 @@ sub handle {
                 . "Either the type is unknown or the perl module has compilation errors. "
                 . "Read the following message for details: $@");
         }
-        my $switchId = $type->parseSwitchIdFromRequest(\$req);  
+        my $switchId = $type->parseSwitchIdFromRequest(\$req);
         $logger->debug("Found switchId : $switchId");
 
         my ($cgi_session_id, $redirect_url) = $self->external_captive_portal($switchId,$req,$r,undef);

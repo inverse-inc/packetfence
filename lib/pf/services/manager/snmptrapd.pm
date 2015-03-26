@@ -68,15 +68,14 @@ Returns a tuple of two hashref. One with SNMPv3 Trap Users Auth parameters and o
 sub _fetch_trap_users_and_communities {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $switchFactory = pf::SwitchFactory->getInstance();
-    my %switchConfig = %{ $switchFactory->config };
+    my %switchConfig = %{ pf::SwitchFactory->config };
 
     my (%snmpv3_users, %snmp_communities);
     foreach my $key ( sort keys %switchConfig ) {
         next if ( $key =~ /^default$/i );
 
         # TODO we can probably make this more performant if we avoid object instantiation (can we?)
-        my $switch = $switchFactory->instantiate($key);
+        my $switch = pf::SwitchFactory->instantiate($key);
         if (!$switch) {
             $logger->error("Can not instantiate switch $key!");
         } else {

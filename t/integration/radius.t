@@ -29,6 +29,7 @@ BEGIN {
 
 use pf::config;
 use pf::radius::constants;
+use pf::SwitchFactory;
 
 BEGIN {
     use_ok('pf::radius');
@@ -82,8 +83,7 @@ is_deeply($radius_response,
 
 
 # VoIP tests
-my $switchFactory = new pf::SwitchFactory;
-my $switch = $switchFactory->instantiate('192.168.0.1');
+my $switch = pf::SwitchFactory->instantiate('192.168.0.1');
 $switch->{_VoIPEnabled} = 1;
 
 $radius_response = $radius->_authorizeVoip(

@@ -35,15 +35,12 @@ use Thread::Pool;
 
 my $logger = Log::Log4perl->get_logger('');
 
-my $switchFactory = new pf::SwitchFactory(
-    -configFile => INSTALL_DIR . '/conf/switches.conf'
-);
 
 my $pool = Thread::Pool->new(
     {   workers => 10,
         do      => sub {
             my ($switchDesc) = @_;
-            my $switch = $switchFactory->instantiate($switchDesc);
+            my $switch = pf::SwitchFactory->instantiate($switchDesc);
             if (!$switch) {
                 $logger->error("Can not instantiate switch $switchDesc !");
                 return 0;
@@ -91,7 +88,7 @@ my $pool = Thread::Pool->new(
     }
 );
 
-my %Config = %{ $switchFactory->config };
+my %Config = %{ pf::SwitchFactory->config };
 delete $Config{'default'};
 delete $Config{'127.0.0.1'};
 

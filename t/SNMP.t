@@ -103,8 +103,7 @@ is($SNMP->extractSsid($radius_request), 'Secure SSID',
 # Switch object tests
 # BE CAREFUL: if you change the configuration files, tests will break!
 # getting a switch instance (pf::Switch::PacketFence but still inherit most subs from pf::Switch)
-my $switchFactory = new pf::SwitchFactory;
-my $switch = $switchFactory->instantiate('127.0.0.1');
+my $switch = pf::SwitchFactory->instantiate('127.0.0.1');
 
 # setVlanByName
 ok(!defined($switch->setVlanByName(1001, 'inexistantVlan', {})),
@@ -121,21 +120,21 @@ ok(!defined($switch->setVlanByName(1001, 'customVlan2', {})),
 #
 # Role parsing tests
 #
-$switch = $switchFactory->instantiate('10.0.0.6');
+$switch = pf::SwitchFactory->instantiate('10.0.0.6');
 is($switch->getRoleByName('admin'), 'full-access', 'normal role lookup (not cached)');
 is($switch->getRoleByName('guest'), 'restricted', 'normal role lookup (from cache)');
 is($switch->getRoleByName('admin'), 'full-access', 'normal role lookup (from cache)');
 
-$switch = $switchFactory->instantiate('10.0.0.7');
+$switch = pf::SwitchFactory->instantiate('10.0.0.7');
 is($switch->getRoleByName('admin'), 'full-access', 'normal role lookup with undefined role (not cached)');
 is($switch->getRoleByName('guest'), undef, 'expecting undef (from cache)');
 is($switch->getRoleByName('admin'), 'full-access', 'normal role lookup with undefined role (from cache)');
 
-$switch = $switchFactory->instantiate('10.0.0.8');
+$switch = pf::SwitchFactory->instantiate('10.0.0.8');
 is($switch->getRoleByName('admin'), undef, 'category but no assignment expecting undef (not cached)');
 is($switch->getRoleByName('admin'), undef, 'category but no assignment expecting undef (from cache)');
 
-$switch = $switchFactory->instantiate('10.0.0.9');
+$switch = pf::SwitchFactory->instantiate('10.0.0.9');
 is($switch->getRoleByName('admin'), undef, 'roles not configured expecting undef (not cached)');
 is($switch->getRoleByName('admin'), undef, 'roles not configured expecting undef (from cache)');
 

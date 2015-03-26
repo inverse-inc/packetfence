@@ -31,42 +31,9 @@ use pfconfig::cached_hash;
 my %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
 
-our ($singleton);
-
-
 =head1 METHODS
 
 =over
-
-=item getInstance
-
-Get the singleton instance of switchFactory. Create it if it doesn't exist.
-
-=cut
-
-sub getInstance {
-    my ( $class, %args ) = @_;
-
-    if (!defined($singleton)) {
-        $singleton = $class->new(%args);
-    }
-
-    return $singleton;
-}
-
-=item new
-
-Create a switchFactory instance
-
-=cut
-
-sub new {
-    my $logger = get_logger();
-    $logger->debug("instantiating new SwitchFactory object");
-    my ( $class, %argv ) = @_;
-    my $self;
-    return bless \$self, $class;
-}
 
 =item hasId
 
@@ -84,7 +51,7 @@ sub hasId { exists $SwitchConfig{$_[0]} }
 
 sub instantiate {
     my $logger = get_logger();
-    my ( $self, $switchRequest ) = @_;
+    my ( $class, $switchRequest ) = @_;
     my @requestedSwitches;
     my $requestedSwitch;
     my $switch_ip;

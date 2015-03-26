@@ -182,8 +182,7 @@ sub _should_we_reassign_vlan {
     my $vlan_obj = new pf::vlan::custom();
 
     # TODO avoidable load?
-    my $switch = pf::SwitchFactory->getInstance()
-        ->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip } );
+    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip } );
     if ( !$switch ) {
         $logger->error("Can't instantiate switch (".$switch_ip.")! Check your configuration!");
         return $FALSE;

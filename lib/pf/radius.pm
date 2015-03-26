@@ -81,7 +81,7 @@ sub authorize {
     my $start = Time::HiRes::gettimeofday();
 
     $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
+    my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
 
     # is switch object correct?
     if (!$switch) {
@@ -97,7 +97,7 @@ sub authorize {
     my $connection = pf::Connection->new;
     $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
     my $connection_type = $connection->attributesToBackwardCompatible;
-    
+
     $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
 
     $logger->trace("received a radius authorization request with parameters: ".
@@ -248,8 +248,7 @@ sub accounting {
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $this->_parseRequest($radius_request);
 
     $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->getInstance()
-        ->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip } );
+    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip } );
 
     # is switch object correct?
     if ( !$switch ) {
@@ -269,7 +268,7 @@ sub accounting {
         $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
         my $connection_type = $connection->attributesToBackwardCompatible;
 
-        $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port); 
+        $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
 
         if($isStop){
             #handle radius floating devices
@@ -606,8 +605,7 @@ sub _handleStaticPortSecurityMovement {
     #Nothing to do if it is the same switch
     return if $old_switch_id eq $switch->{_id};
 
-    my $switchFactory = pf::SwitchFactory->getInstance();
-    my $oldSwitch = $switchFactory->instantiate($old_switch_id);
+    my $oldSwitch = pf::SwitchFactory->instantiate($old_switch_id);
     if (!$oldSwitch) {
         $logger->error("Can not instantiate switch $old_switch_id !");
         return;
@@ -641,7 +639,7 @@ sub _handleStaticPortSecurityMovement {
     locationlog_update_end_mac($mac);
 }
 
-=item * _handleFloatingDevices 
+=item * _handleFloatingDevices
 
 Takes care of handling the flow for the RADIUS floating devices when receiving an Accept-Request
 
@@ -653,7 +651,7 @@ sub _handleAccessFloatingDevices{
     if( exists( $ConfigFloatingDevices{$mac} ) ){
         my $floatingDeviceManager = new pf::floatingdevice::custom();
         $floatingDeviceManager->enableMABFloating($mac, $switch, $port);
-    } 
+    }
 }
 
 =item * _handleAccountingFloatingDevices
@@ -677,10 +675,10 @@ sub _handleAccountingFloatingDevices{
         }
 
         $logger->info("Floating device $mac has just been detected as unplugged. Disabling floating device mode on $switch->{_ip} port $port");
-        # close location log entry to remove the port from the floating mode. 
+        # close location log entry to remove the port from the floating mode.
         locationlog_update_end_mac($mac);
         # disable floating device mode on the port
-        $floatingDeviceManager->disableMABFloating($switch, $port); 
+        $floatingDeviceManager->disableMABFloating($switch, $port);
     }
 }
 

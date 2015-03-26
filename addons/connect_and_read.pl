@@ -81,13 +81,12 @@ Log::Log4perl->easy_init(
 );
 my $logger = Log::Log4perl->get_logger('');
 
-my $switchFactory = new pf::SwitchFactory( -configFile => CONF_FILE );
 
-my %Config = %{ $switchFactory->config };
+my %Config = %{ pf::SwitchFactory->config };
 
 foreach my $switch_ip ( sort keys %Config ) {
     if ( ( $switch_ip ne '127.0.0.1' ) && ( $switch_ip ne 'default' ) ) {
-        my $switch = $switchFactory->instantiate($switch_ip);
+        my $switch = pf::SwitchFactory->instantiate($switch_ip);
         if (!$switch) {
             print "Can not instantiate switch $switch_ip ! See log for details\n";
         } else {

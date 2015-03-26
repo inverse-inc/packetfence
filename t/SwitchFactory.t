@@ -13,10 +13,9 @@ BEGIN {
     use_ok('pf::SwitchFactory');
 }
 
-my $switchFactory = pf::SwitchFactory->getInstance;
 
-my $switch;
-$switch = $switchFactory->instantiate('192.168.0.1');
+my $switch = pf::SwitchFactory->instantiate('192.168.0.1');
+
 isa_ok( $switch, 'pf::Switch::Cisco::Catalyst_2900XL' );
 is( $switch->{_ip}, '192.168.0.1', 'IP Address of 192.168.0.1' );
 is_deeply( $switch->{_uplink}, [qw(23)], 'Uplink of 192.168.0.1' );
@@ -78,25 +77,25 @@ is( $switch->{_SNMPPrivPasswordWrite},
     'privPassWrite', 'SNMP write priv pwd of 192.168.0.1' );
 
 # switch of default type
-$switch = $switchFactory->instantiate('default');
+$switch = pf::SwitchFactory->instantiate('default');
 isa_ok($switch, 'pf::Switch');
 
 #Test using mac address as an id
-$switch = $switchFactory->instantiate('01:01:01:01:01:01');
+$switch = pf::SwitchFactory->instantiate('01:01:01:01:01:01');
 isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960',"mac address style switch id");
 
-#Test using mac address 
-$switch = $switchFactory->instantiate({ switch_mac => "01:01:01:01:01:02", switch_ip => "192.168.1.2", controllerIp => "1.1.1.1"});
+#Test using mac address
+$switch = pf::SwitchFactory->instantiate({ switch_mac => "01:01:01:01:01:02", switch_ip => "192.168.1.2", controllerIp => "1.1.1.1"});
 isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
 is($switch->{_id}, '01:01:01:01:01:02', "Proper id is set");
 is($switch->{_ip}, '192.168.1.2',       "Proper ip address is set");
 is($switch->{_controllerIp}, '1.1.1.1', "Proper controllerIp address is set");
 
-$switch = $switchFactory->instantiate({ switch_mac => "01:01:01:01:01:03", switch_ip => "192.168.1.2", controllerIp => "1.1.1.1"});
+$switch = pf::SwitchFactory->instantiate({ switch_mac => "01:01:01:01:01:03", switch_ip => "192.168.1.2", controllerIp => "1.1.1.1"});
 isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
 is($switch->{_controllerIp}, '1.2.3.4', "Do not override  controllerIp address if set");
 
-$switch = $switchFactory->instantiate({ switch_mac => "ff:01:01:01:01:04", switch_ip => "192.168.0.1", controllerIp => "1.1.1.1"});
+$switch = pf::SwitchFactory->instantiate({ switch_mac => "ff:01:01:01:01:04", switch_ip => "192.168.0.1", controllerIp => "1.1.1.1"});
 isa_ok( $switch, 'pf::Switch::Cisco::Catalyst_2900XL' );
 is($switch->{_id}, '192.168.0.1', "Proper id is set");
 
