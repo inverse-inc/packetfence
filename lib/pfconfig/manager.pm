@@ -180,7 +180,21 @@ sub touch_cache {
     my $filename = pfconfig::util::control_file_path($what);
     $filename = untaint_chain($filename);
 
-    `touch $filename`;
+    if ( !-e $filename ) {
+        my $fh;
+        unless ( open( $fh, ">$filename" ) ) {
+            $logger->error("Can't create $filename\nPlease run 'pfcmd fixpermissions'");
+            return 0;
+        }
+        close($fh);
+    }
+    if ( -e $filename ) {
+        sysopen( my $fh, $filename, O_RDWR | O_CREAT );
+        POSIX::2008::futimens( fileno $fh );
+        close($fh);
+    }
+    my ( undef, undef, $uid, $gid ) = getpwnam('pf');
+    chown( $uid, $gid, $filename );
 }
 
 =head2 get_cache
