@@ -38,6 +38,8 @@ use pf::file_paths;
 
 use List::MoreUtils qw(uniq);
 use NetAddr::IP;
+use pf::factory::firewallsso;
+
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -146,9 +148,9 @@ sub update_iplog : Public {
         pf::iplog::close($postdata{'oldip'});
     }
 
-    return (pf::iplog::open($postdata{'mac'}, $postdata{'ip'}, $postdata{'lease_length'}));
+    return (pf::iplog::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'lease_length'}));
 }
- 
+
 sub unreg_node_for_pid : Public {
     my ($class, %postdata) = @_;
     my $logger = pf::log::get_logger();
@@ -184,7 +186,7 @@ sub open_iplog : Public {
     my ( $class, $mac, $ip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::open($mac, $ip, $lease_length));
+    return (pf::iplog::open($ip, $mac, $lease_length));
 }
 
 sub close_iplog : Public {
@@ -210,14 +212,7 @@ sub firewallsso : Public {
     my $logger = pf::log::get_logger();
 
     foreach my $firewall_conf ( sort keys %pf::config::ConfigFirewallSSO ) {
-        my $module_name = 'pf::firewallsso::'.$pf::config::ConfigFirewallSSO{$firewall_conf}->{'type'};
-        $module_name = pf::util::untaint_chain($module_name);
-        # load the module to instantiate
-        if ( !(eval "$module_name->require()" ) ) {
-            $logger->error("Can not load perl module: $@");
-            return 0;
-        }
-        my $firewall = $module_name->new();
+        my $firewall = pf::factory::firewallsso->new($firewall_conf);
         $firewall->action($firewall_conf,$postdata{'method'},$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
     }
     return $pf::config::TRUE;
@@ -232,18 +227,18 @@ sub ReAssignVlan : Public {
 
     my $logger = pf::log::get_logger();
 
-    if ( not defined( $postdata{'connection_type'} )) { 
-        $logger->error("Connection type is unknown. Could not reassign VLAN."); 
+    if ( not defined( $postdata{'connection_type'} )) {
+        $logger->error("Connection type is unknown. Could not reassign VLAN.");
         return;
     }
 
-    my $switch = pf::SwitchFactory->getInstance()->instantiate( $postdata{'switch'} );
+    my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'} );
     unless ($switch) {
         $logger->error("switch $postdata{'switch'} not found for ReAssignVlan");
         return;
     }
 
-    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'}; 
+    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
 
     # SNMP traps connections need to be handled specially to account for port-security etc.
     if ( ($postdata{'connection_type'} & $pf::config::WIRED_SNMP_TRAPS) == $pf::config::WIRED_SNMP_TRAPS ) {
@@ -254,8 +249,8 @@ sub ReAssignVlan : Public {
             = $switch->wiredeauthTechniques( $switch->{_deauthMethod}, $postdata{'connection_type'} );
         $switch->$deauthTechniques( $postdata{'ifIndex'}, $postdata{'mac'} );
     }
-    else { 
-        $logger->error("Connection type is not wired. Could not reassign VLAN."); 
+    else {
+        $logger->error("Connection type is not wired. Could not reassign VLAN.");
     }
 }
 
@@ -267,7 +262,7 @@ sub desAssociate : Public {
 
     my $logger = pf::log::get_logger();
 
-    my $switch = pf::SwitchFactory->getInstance()->instantiate($postdata{'switch'});
+    my $switch = pf::SwitchFactory->instantiate($postdata{'switch'});
     unless ($switch) {
         $logger->error("switch $postdata{'switch'} not found for desAssociate");
         return;
@@ -276,7 +271,7 @@ sub desAssociate : Public {
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
 
     # sleep long enough to give the device enough time to fetch the redirection page.
-    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'}; 
+    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
 
     $logger->info("[$postdata{'mac'}] DesAssociating mac on switch (".$switch->{'_id'}.")");
     $switch->$deauthTechniques($postdata{'mac'});
@@ -309,15 +304,15 @@ sub _reassignSNMPConnections {
         return;
     }
 
-    # case PORTSEC : When doing port-security we need to reassign the VLAN before 
-    # bouncing the port. 
+    # case PORTSEC : When doing port-security we need to reassign the VLAN before
+    # bouncing the port.
     if ( $switch->isPortSecurityEnabled($ifIndex) ) {
         $logger->info( "[$mac] security traps are configured on (".$switch->{'_id'}.") ifIndex $ifIndex. Re-assigning VLAN" );
 
         _node_determine_and_set_into_VLAN( $mac, $switch, $ifIndex, $connection_type );
-        
+
         # We treat phones differently. We never bounce their ports except if there is an outstanding
-        # violation. 
+        # violation.
         if ( $switch->hasPhoneAtIfIndex($ifIndex)  ) {
             my @violations = pf::violation::violation_view_open_desc($mac);
             if ( scalar(@violations) == 0 ) {
@@ -327,7 +322,7 @@ sub _reassignSNMPConnections {
         }
 
     } # end case PORTSEC
-    
+
     $logger->info( "[$mac] Flipping admin status on switch (".$switch->{'_id'}.") ifIndex $ifIndex. " );
     $switch->bouncePort($ifIndex);
 }

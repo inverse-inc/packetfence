@@ -219,7 +219,6 @@ if ($logLevel) {
 }
 
 # TODO we should consolidate calls which need similar parameters and unduplicate tests and error reporting
-my $switchFactory = pf::SwitchFactory->getInstance();
 if ($reevaluateAccess) {
 
     if (!defined($mac) || $mac eq '' ) {
@@ -236,7 +235,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    my $switch = pf::SwitchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     } else {
@@ -256,7 +255,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    my $switch = pf::SwitchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     } else {
@@ -273,7 +272,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    my $switch = pf::SwitchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     } else {
@@ -287,7 +286,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    my $switch = pf::SwitchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     } else {
@@ -302,7 +301,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    my $switch = pf::SwitchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     } else {
@@ -386,7 +385,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    my $switch = pf::SwitchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     } else {
@@ -407,7 +406,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    my $switch = pf::SwitchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     } else {
@@ -443,7 +442,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    my $switch = pf::SwitchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     } else {
@@ -462,7 +461,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    my $switch = pf::SwitchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     } else {
@@ -505,7 +504,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    my $switch = pf::SwitchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     } else {
@@ -556,7 +555,7 @@ if ($reevaluateAccess) {
                         "switch ".$switch->{_ip}." ifIndex $ifIndex " .
                         "connection type: ".$connection_type_explained{$conn_type}
                     );
-                    my $trapSender = $switchFactory->instantiate('127.0.0.1');
+                    my $trapSender = pf::SwitchFactory->instantiate('127.0.0.1');
                     $trapSender->sendLocalReAssignVlanTrap($switch, $ifIndex, $conn_type);
                 } else {
                     $logger->warn(
@@ -639,7 +638,7 @@ if ($reevaluateAccess) {
        exit_wrong_args("The MAC argument is necessary");
     }
     $logger->debug("start handling 'getLocation' command");
-    my %Config = %{ $switchFactory->config };
+    my %Config = %{ pf::SwitchFactory->config };
 
     #remove unwanted switches
     if ( $switchDescRegExp eq '' ) {
@@ -666,7 +665,7 @@ if ($reevaluateAccess) {
         $i++;
         if ( ( $key ne 'default' ) && ( $key ne '127.0.0.1') ) {
             $switch_ip = $key;
-            my $switch = $switchFactory->instantiate($switch_ip);
+            my $switch = pf::SwitchFactory->instantiate($switch_ip);
             if (!$switch) {
                 print "Can not instantiate switch $switch_ip ! See log files for details\n";
             } else {

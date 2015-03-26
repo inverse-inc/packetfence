@@ -1,48 +1,51 @@
-#!/usr/bin/perl
+package pf::util::statsd;
+
 =head1 NAME
 
-switchFactory.pl
+pf::StatsD::util - module for StatsD related utilities
+
+=cut
 
 =head1 DESCRIPTION
 
-Some performance benchmarks on switchFactory object creation
+pf::StatsD::util contains functions and utilities used to send StatsD messages.
+modules.
 
 =cut
 
-use strict;
-use warnings;
-use diagnostics;
+our $VERSION = 1.000000;
 
-use Benchmark qw(cmpthese);
+use Exporter 'import';
 
-use lib '/usr/local/pf/lib';
+our @EXPORT_OK = qw(called);
 
-=head1 TESTS
+=head1 SUBROUTINES
+
+=over
+
+=item called
+
+Returns the name of the function enclosing this call.
+
+E.g. sub mysub { called() }; should return "mysub".
 
 =cut
 
-use pf::SwitchFactory;
+sub called {
+    return (caller(1))[3];
+}
 
-=head2 Singleton gain
-
-=cut
-
-cmpthese(1000, {
-    getInstance => sub { 
-        pf::SwitchFactory->getInstance();
-    },
-    'new' => sub { 
-        pf::SwitchFactory->new();
-    }
-});
+=back
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
+Minor parts of this file may have been contributed. See CREDITS.
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2015 Inverse inc.
 
 =head1 LICENSE
 
@@ -59,6 +62,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
+USA.
 
 =cut
+
+1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

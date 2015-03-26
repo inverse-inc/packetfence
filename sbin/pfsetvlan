@@ -127,7 +127,6 @@ pod2usage( -verbose => 1 ) if $help;
 # }}}1
 
 # startup {{{1
-my $switchFactory = pf::SwitchFactory->getInstance();
 
 # building trap-matcher regexp
 my $TRAP_PATTERN = qr/
@@ -161,7 +160,7 @@ my @completeThreadList;
 
 my %switch_locker : shared;
 
-foreach my $switch_id ( grep { $_ ne 'default' } keys %{ $switchFactory->config } ) {
+foreach my $switch_id ( grep { $_ ne 'default' } keys %{ pf::SwitchFactory->config } ) {
     $switch_locker{$switch_id} = &share( {} );
 }
 
@@ -746,7 +745,7 @@ sub signalHandlerThreadListQueued {
     use pf::log(service => 'pfsetvlan', reinit => 1);
     my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
-    
+
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     while (1) {
@@ -1923,7 +1922,7 @@ sub do_port_security {
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($mac);
     if ( defined($locationlog_mac) &&
-         ( exists($switchFactory->config->{$locationlog_mac->{'switch'}}) )
+         ( exists(pf::SwitchFactory->config->{$locationlog_mac->{'switch'}}) )
        ) {
         my $old_switch = $locationlog_mac->{'switch'};
         my $old_port   = $locationlog_mac->{'port'};
@@ -2058,7 +2057,7 @@ sub getSwitch {
     #    $pf::ConfigStore::SwitchOverlay::switches_overlay_cached_config->ReadConfig();
         $lockLogger->trace("locking - obtained lock on switchFactory_locker");
         pf::config::cached::ReloadConfigs();
-        $switch = $switchFactory->instantiate($switch_id);
+        $switch = pf::SwitchFactory->instantiate($switch_id);
         if($switch) {
             add_to_switch_locker($switch->{_id});
         } else {

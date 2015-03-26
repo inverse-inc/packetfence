@@ -121,7 +121,7 @@ sub parseArgs {
 sub _run {
     my ($self) = @_;
     require pf::SwitchFactory;
-    print Data::Dumper::Dumper(pf::SwitchFactory->getInstance->instantiate($self->args));
+    print Data::Dumper::Dumper(pf::SwitchFactory->instantiate($self->args));
 }
 
 package pf::dump::switches;

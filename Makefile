@@ -113,9 +113,7 @@ translation:
 .PHONY: mysql-schema
 
 mysql-schema:
-	cd /usr/local/pf/db;\
-	VERSIONSQL=$$( ls -r pf-schema-[0-9]*.[0-9]*.[0-9]*.sql | head -1);\
-	ln -f -s $$VERSIONSQL ./pf-schema.sql;
+	ln -f -s /usr/local/pf/db/pf-schema-X.Y.Z.sql /usr/local/pf/db/pf-schema.sql;
 
 .PHONY: chown_pf
 

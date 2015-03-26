@@ -1041,3 +1041,14 @@ members=
 #
 # Shared KEY for vrrp protocol (Must be the same on all members).
 password=1234
+
+[monitoring]
+#
+# monitoring.statsd_host
+#
+statsd_host=localhost
+#
+# monitoring.statsd_port
+#
+statsd_port=8125
+

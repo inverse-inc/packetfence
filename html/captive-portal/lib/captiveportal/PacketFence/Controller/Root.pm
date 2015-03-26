@@ -66,7 +66,7 @@ sub default : Path {
     my ( $self, $c ) = @_;
     my $request  = $c->request;
     my $r = $request->{'env'}->{'psgi.input'};
-    if ($r->pnotes('last_uri') ) {
+    if ($r->can('pnotes') && $r->pnotes('last_uri') ) {
         $c->forward(CaptivePortal => 'index');
     }
     $c->response->body('Page not found');
@@ -113,7 +113,7 @@ sub setupLanguage : Private {
 
     my $locale = shift @$locales;
     $logger->debug("Setting locale to ".$locale);
-    setlocale(POSIX::LC_MESSAGES, "$locale.utf8"); 
+    setlocale(POSIX::LC_MESSAGES, "$locale.utf8");
     my $newlocale = setlocale(POSIX::LC_MESSAGES);
     if ($newlocale !~ m/^$locale/) {
         $logger->error("Error while setting locale to $locale.utf8. Is the locale generated on your system?");

@@ -38,6 +38,8 @@ use pf::floatingdevice::custom;
 # constants used by this module are provided by
 use pf::radius::constants;
 use List::Util qw(first);
+use Time::HiRes;
+use pf::util::statsd qw(called);
 
 our $VERSION = 1.03;
 
@@ -76,8 +78,10 @@ sub authorize {
     my $logger = Log::Log4perl::get_logger(ref($this));
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $this->_parseRequest($radius_request);
 
+    my $start = Time::HiRes::gettimeofday();
+
     $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
+    my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
 
     # is switch object correct?
     if (!$switch) {
@@ -93,7 +97,7 @@ sub authorize {
     my $connection = pf::Connection->new;
     $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
     my $connection_type = $connection->attributesToBackwardCompatible;
-    
+
     $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
 
     $logger->trace("received a radius authorization request with parameters: ".
@@ -227,6 +231,8 @@ sub authorize {
     $switch->disconnectRead();
     $switch->disconnectWrite();
 
+    $pf::StatsD::statsd->end(called() . ".timing" , $start );
+
     return $RAD_REPLY_REF;
 }
 
@@ -237,17 +243,18 @@ sub authorize {
 sub accounting {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+    my $start = Time::HiRes::gettimeofday();
 
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $this->_parseRequest($radius_request);
 
     $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->getInstance()
-        ->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip } );
+    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip } );
 
     # is switch object correct?
     if ( !$switch ) {
         $logger->warn( "Can't instantiate switch ($switch_ip). This request will be failed. "
                 . "Are you sure your switches.conf is correct?" );
+        $pf::StatsD::statsd->increment(called() . ".error" );
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
 
@@ -261,7 +268,7 @@ sub accounting {
         $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
         my $connection_type = $connection->attributesToBackwardCompatible;
 
-        $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port); 
+        $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
 
         if($isStop){
             #handle radius floating devices
@@ -296,6 +303,7 @@ sub accounting {
         }
     }
 
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
 }
 
@@ -308,6 +316,7 @@ Update the location log based on the accounting information
 sub update_locationlog_accounting {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+    my $start = Time::HiRes::gettimeofday();
 
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $this->_parseRequest($radius_request);
 
@@ -319,6 +328,7 @@ sub update_locationlog_accounting {
     if ( !$switch ) {
         $logger->warn( "Can't instantiate switch ($switch_ip). This request will be failed. "
                 . "Are you sure your switches.conf is correct?" );
+        $pf::StatsD::statsd->increment(called() . ".error" );
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
 
@@ -336,6 +346,7 @@ sub update_locationlog_accounting {
         $vlan = $radius_request->{'Tunnel-Private-Group-ID'} if ( (defined( $radius_request->{'Tunnel-Type'}) && $radius_request->{'Tunnel-Type'} eq '13') && (defined($radius_request->{'Tunnel-Medium-Type'}) && $radius_request->{'Tunnel-Medium-Type'} eq '6') );
         $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $user_name, $ssid, $stripped_user_name, $realm);
     }
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Update locationlog from accounting ok") ];
 }
 
@@ -468,12 +479,14 @@ Returns the same structure as authorize(), see it's POD doc for details.
 sub _authorizeVoip {
     my ($this, $connection_type, $switch, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+    my $start = Time::HiRes::gettimeofday();
 
     if (!$switch->supportsRadiusVoip()) {
         $logger->warn("[$mac] Returning failure to RADIUS.");
         $switch->disconnectRead();
         $switch->disconnectWrite();
 
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return [
             $RADIUS::RLM_MODULE_FAIL,
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
@@ -484,6 +497,7 @@ sub _authorizeVoip {
     my %RAD_REPLY = $switch->getVoipVsa();
     $switch->disconnectRead();
     $switch->disconnectWrite();
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
 }
 
@@ -580,6 +594,7 @@ sub _rewriteAccessAccept {
 
 sub _handleStaticPortSecurityMovement {
     my ($self,$switch,$mac) = @_;
+    my $start = Time::HiRes::gettimeofday(); 
     my $logger = Log::Log4perl::get_logger("pf::radius");
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($mac);
@@ -590,8 +605,7 @@ sub _handleStaticPortSecurityMovement {
     #Nothing to do if it is the same switch
     return if $old_switch_id eq $switch->{_id};
 
-    my $switchFactory = pf::SwitchFactory->getInstance();
-    my $oldSwitch = $switchFactory->instantiate($old_switch_id);
+    my $oldSwitch = pf::SwitchFactory->instantiate($old_switch_id);
     if (!$oldSwitch) {
         $logger->error("Can not instantiate switch $old_switch_id !");
         return;
@@ -621,10 +635,11 @@ sub _handleStaticPortSecurityMovement {
     } else {
         $logger->info("MAC not found on node's previous switch secure table or switch inaccessible.");
     }
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
     locationlog_update_end_mac($mac);
 }
 
-=item * _handleFloatingDevices 
+=item * _handleFloatingDevices
 
 Takes care of handling the flow for the RADIUS floating devices when receiving an Accept-Request
 
@@ -636,7 +651,7 @@ sub _handleAccessFloatingDevices{
     if( exists( $ConfigFloatingDevices{$mac} ) ){
         my $floatingDeviceManager = new pf::floatingdevice::custom();
         $floatingDeviceManager->enableMABFloating($mac, $switch, $port);
-    } 
+    }
 }
 
 =item * _handleAccountingFloatingDevices
@@ -660,10 +675,10 @@ sub _handleAccountingFloatingDevices{
         }
 
         $logger->info("Floating device $mac has just been detected as unplugged. Disabling floating device mode on $switch->{_ip} port $port");
-        # close location log entry to remove the port from the floating mode. 
+        # close location log entry to remove the port from the floating mode.
         locationlog_update_end_mac($mac);
         # disable floating device mode on the port
-        $floatingDeviceManager->disableMABFloating($switch, $port); 
+        $floatingDeviceManager->disableMABFloating($switch, $port);
     }
 }
 

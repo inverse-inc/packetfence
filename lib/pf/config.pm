@@ -720,7 +720,7 @@ sub is_type_inline {
     return exists $NET_INLINE_TYPES{$type};
 }
 
-=item get_newtork_type
+=item get_network_type
 
 Returns the type of a network. The call encapsulate the type configuration changes that we made.
 

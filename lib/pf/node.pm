@@ -22,6 +22,8 @@ use warnings;
 use Log::Log4perl qw(get_logger);
 use Log::Log4perl::Level;
 use Readonly;
+use pf::StatsD;
+use pf::util::statsd qw(called);  
 
 use constant NODE => 'node';
 
@@ -813,6 +815,7 @@ sub node_modify {
 sub node_register {
     my ( $mac, $pid, %info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $pf::StatsD::statsd->increment( called() . ".called" );
     $mac = lc($mac);
     my $auto_registered = 0;
 
@@ -895,6 +898,7 @@ sub node_register {
 sub node_deregister {
     my ($mac, %info) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $pf::StatsD::statsd->increment( called() . ".called" );
 
     $info{'status'}    = 'unreg';
     $info{'regdate'}   = 0;
