@@ -46,6 +46,7 @@ use pf::util;
 use pf::config::util;
 use pf::services::util;
 use pf::util::dhcp;
+use fingerbank::Query;
 use List::MoreUtils qw(any);
 use pf::api::jsonrpcclient;
 use NetAddr::IP;
@@ -300,9 +301,21 @@ sub listen_dhcp {
         # see #1216 for details
         my %tmp;
         $tmp{'dhcp_fingerprint'} = defined($dhcp->{'options'}{'55'}) ? $dhcp->{'options'}{'55'} : '';
+        $tmp{'dhcp_vendor'} = defined($dhcp->{'options'}{'60'}) ? $dhcp->{'options'}{'60'} : '';
         $tmp{'last_dhcp'} = mysql_date();
         $tmp{'computername'} = defined($dhcp->{'options'}{'12'}) ? $dhcp->{'options'}{'12'} : '';
         node_modify( $dhcp->{'chaddr'}, %tmp );
+
+        # Fingerbank interaction
+        my %fingerbank_args = (
+            dhcp_fingerprint => $tmp{'dhcp_fingerprint'},
+            dhcp_vendor => $tmp{'dhcp_vendor'},
+            mac_vendor => $dhcp->{'chaddr'},
+        );
+        my $fingerbank_result = _process_fingerbank(\%fingerbank_args);
+
+use Data::Dumper;
+$logger->info("DEREK: Fingerbank result: " . Dumper($fingerbank_result));
 
         my $fingerprint_data = process_fingerprint($dhcp);
 
@@ -611,6 +624,24 @@ sub process_fingerprint {
     }
 
     return $fingerprint_data;
+}
+
+sub _process_fingerbank {
+    my ( $args ) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $cache = pf::CHI->new(namespace => 'fingerbank');
+
+    # We are doing a shallow copy of the args hashref to delete the 'mac_vendor' part of it since we don't want it to be part of the cache key.
+    my $cached_args = { %$args };
+    delete $cached_args->{'mac_vendor'};
+
+    return $cache->compute($cached_args, {expires_in => FINGERBANK_CACHE_EXPIRE},
+        sub {
+            my $fingerbank = fingerbank::Query->new;
+            return $fingerbank->match($args);
+        }
+    );
 }
 
 sub normal_sighandler {
