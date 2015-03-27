@@ -115,7 +115,7 @@ sub ACCEPT_CONTEXT {
             'last_uri' => $last_uri,
             'in_uri_portal' => 1,
         };
-    } elsif ( $c->controller->isa('captiveportal::Controller::Activate::Email') && $c->action->name eq 'code' ) {
+    } elsif ( $c->action && $c->controller->isa('captiveportal::Controller::Activate::Email') && $c->action->name eq 'code' ) {
         my $code = $c->request->arguments->[0];
         my $data = view_by_code("1:".$code);
         $options = {
