@@ -1025,17 +1025,7 @@ provisioning_compliance_poll_interval=300s
 # Interval at which Packetfence purges the ldap_auth cache
 ldap_auth_cache_cleanup_interval=600s
 
-# maintenance.cluster_sync_interval
-#
-# Interval at which PacketFence runs the sync between all the members of the cluster
-cluster_sync_interval=60s
-
 [active_active]
-#
-# active_active.members
-#
-# List of ip separate by a comma of all the cluster members
-members=
 #
 # active_active.password
 #
