@@ -73,9 +73,6 @@ EOT
         }
 
         $tags{'vrrp'} .= <<"EOT";
-  notify_master "$install_dir/bin/pfupdate --mode=master"
-  notify_backup "$install_dir/bin/pfupdate --mode=slave"
-  notify_fault "$install_dir/bin/pfupdate --mode=slave"
   track_script {
     haproxy
   }
