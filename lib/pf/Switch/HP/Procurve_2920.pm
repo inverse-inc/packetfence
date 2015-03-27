@@ -6,7 +6,7 @@ pf::Switch::HP::Procurve_2920 - Object oriented module to access SNMP enabled HP
 
 =head1 SYNOPSIS
 
-The pf::Switch::HP::Procurve_2920 module implements an object 
+The pf::Switch::HP::Procurve_2920 module implements an object
 oriented interface to access SNMP enabled HP Procurve 2920 switches.
 
 =head1 BUGS AND LIMITATIONS
@@ -27,6 +27,7 @@ sub description {'HP ProCurve 2920 Series'}
 use pf::Switch::constants;
 use pf::util;
 use pf::config;
+use pf::constants;
 
 # CAPABILITIES
 # access technology supported
@@ -38,7 +39,7 @@ sub supportsRadiusVoip   { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ( $MAC, $PORT ); }
 
-=item getVoipVSA
+=head2 getVoipVSA
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
@@ -52,7 +53,7 @@ sub getVoipVsa {
     return ( 'Egress-VLANID' => $hexvlan, );
 }
 
-=item getPhonesLLDPAtIfIndex
+=head2 getPhonesLLDPAtIfIndex
 
 Using SNMP and LLDP we determine if there is VoIP connected on the switch port
 
