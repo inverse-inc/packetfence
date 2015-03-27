@@ -50,9 +50,10 @@ our ($RESET_COLOR, $WARNING_COLOR, $ERROR_COLOR, $SUCCESS_COLOR);
 use pf::log;
 use pf::file_paths;
 use pf::config;
+use pf::util;
 use pf::constants;
 use pf::services;
-use List::MoreUtils qw(part any);
+use List::MoreUtils qw(part any true all);
 use constant {
     JUST_MANAGED       => 1,
     INCLUDE_DEPENDS_ON => 2,
@@ -86,7 +87,6 @@ sub parseArgs {
 
 sub _run {
     my ($self) = @_;
-    require pf::config;
     my $service = $self->{service};
     my $services = $self->{services};
     my $action = $self->{action};
@@ -108,8 +108,6 @@ sub _run {
 sub startService {
     my ($service,@services) = @_;
     my @managers = getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
-    use DDP;
-    p @managers;
     print $SERVICE_HEADER;
     my $count = 0;
     if(isIptablesManaged($service) && -e $pf_config_file) {
