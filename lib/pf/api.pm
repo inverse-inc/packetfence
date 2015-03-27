@@ -526,7 +526,7 @@ sub expire_cluster : Public {
         };
 
         if($@){
-            $logger->error("Can't connect to $server->{management_ip} to expire the configuration. $@")
+            $logger->error("An error occured while expiring the configuration on $server->{management_ip}. $@")
         }
 
         %data = (
@@ -539,7 +539,7 @@ sub expire_cluster : Public {
         };
 
         if($@){
-            $logger->error("Can't connect to $server->{management_ip} to have him download the new configuration. $@")
+            $logger->error("An error occured while notifying the change of configuration on $server->{management_ip}. $@")
         }
     }
     return 1;
@@ -552,6 +552,8 @@ sub expire : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require, \@found);
 
+    # this is to detect failures in the light expire which has the most chances of failing since it requires the pfconfig service to be alive
+    my $error = 0;
     if($postdata{light}){
         my $payload = {
           method => "expire",
@@ -559,8 +561,11 @@ sub expire : Public {
           light => $postdata{light},
         };
     
-        use Data::Dumper;
-        pfconfig::util::fetch_decode_socket(encode_json($payload));
+        my $result = pfconfig::util::fetch_decode_socket(encode_json($payload));
+        unless ( $result->{status} eq "OK." ) {
+            $logger->error("Couldn't light expire namespace $postdata{namespace}");
+            $error = 1;
+        }
     }
     else {
         my $all = $postdata{namespace} eq "__all__" ? 1 : 0;
@@ -571,8 +576,7 @@ sub expire : Public {
             pfconfig::manager->new->expire($postdata{namespace});
         }
     }
-    # refactor me, it's most probably not always a success
-    return 1;
+    return { error => $error };
 }
 
 =head2 validate_argv
