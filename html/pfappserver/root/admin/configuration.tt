@@ -15,6 +15,7 @@
         'admin/config/switches',
         'admin/config/floatingdevices',
         'admin/config/fingerbank-devices',
+        'admin/config/fingerbank-settings',
         'admin/config/authentication',
         'admin/config/portal_profile',
         'admin/config/violations',
