@@ -11,12 +11,12 @@ Form definition to modify Fingerbank configuration
 =cut
 
 use HTML::FormHandler::Moose;
+use Switch;
+
 use fingerbank::Config;
 
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
-
-has 'section' => ( is => 'ro' );
 
 sub field_list {
     my ( $self ) = @_;
@@ -24,40 +24,42 @@ sub field_list {
     my $list = [];
 
     my $config = fingerbank::Config::get_config;
-#    my @sections = keys %$config;
-#    push @$list, map{$_ => { id => $_, type => 'Compound' } } @sections;
+    my $config_doc = fingerbank::Config::get_documentation;
+
+    
+
     foreach my $section ( keys %$config ) {
         push @$list, $section => {id => $section, type => 'Compound'};
         foreach my $parameter ( keys %{$config->{$section}} ) {
             my $field_name = $section . "." . $parameter;
+            my $field_doc = $config_doc->{$field_name};
+            $field_doc->{description} =~ s/\n//sg;
+
             my $field = {
-                id => $field_name,
-                type => 'Text',
+                id      => $field_name,
+                label   => $field_name,
+#                element_attr => { 'placeholder' => $config_defaults->{$field_name} },
+                tags => {
+                    after_element   => \&help,
+                    help            => $field_doc->{description},
+                },
             };
+
+            my $type = $field_doc->{type};
+            switch ( $type ) {
+                case "toggle" {
+                    $field->{type} = 'Toggle';
+                    $field->{checkbox_value} = 'enabled';
+                    $field->{unchecked_value} = 'disabled';
+                }
+                else { $field->{type} = 'Text'; }
+            }
+
             push ( @$list, $field_name => $field );
         }
     }
 
     return $list;
-
-
-#    my $section = $self->section;
-#
-#    my @section_fields;
-#    my $config = fingerbank::Config::get_config($section);
-#    foreach my $field ( keys %$config ) {
-#        push @section_fields, $field;
-#    }
-#
-#    foreach my $name ( @section_fields ) {
-#        my $field = {
-#            id => $name,
-#            type => 'Text',
-#        };
-#        push ( @$list, $name => $field );
-#    }
-#
-#    return $list;
 }
 
 =head1 COPYRIGHT

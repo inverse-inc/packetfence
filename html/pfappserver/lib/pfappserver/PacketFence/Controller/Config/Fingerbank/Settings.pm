@@ -49,10 +49,10 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
             $status = HTTP_PRECONDITION_FAILED;
             $status_msg = $form->field_errors;
         } else {
-            # TODO: Finish that part
-            # TODO: $c->req->params should be formatted as { upstream.api_key => VALUE }
-            ( $status, $status_msg ) = fingerbank::Config::write_config($c->req->params);
-            # After that, redirect to the 'Settings' page
+            my %params = ();
+            %params->{'upstream'}{'api_key'} = $c->req->params->{'api_key'};
+            ( $status, $status_msg ) = fingerbank::Config::write_config(\%params);
+            # TODO: After that, redirect to the 'Settings' page
         }
     }
 
@@ -90,7 +90,14 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
             $status = HTTP_PRECONDITION_FAILED;
             $status_msg = $form->field_errors;
         } else {
-            ( $status, $status_msg ) = fingerbank::Config::write_config($c->req->params);
+            my $params = $form->value;
+
+            # TODO: Ugly hack to handle the fact that unchecked checkboxes are not being returned as a param by HTTP and needs 
+            # to be set as 'disabled'
+            ( !$params->{'upstream'}{'interrogate'} ) ? $params->{'upstream'}{'interrogate'} = 'disabled':();
+            ( !$params->{'query'}{'record_unmatched'} ) ? $params->{'query'}{'record_unmatched'} = 'disabled':();
+
+            ( $status, $status_msg ) = fingerbank::Config::write_config($params);
         }
     }
 
