@@ -35,6 +35,11 @@ our $host_id = hostname();
 #}
 
 sub is_management {
+    my $logger = get_logger;
+    unless($cluster_enabled){
+        $logger->info("Clustering is not enabled. Cannot be management node.");
+        return 0;
+    }
     my $cluster_ip = management_cluster_ip();
     my @all_ifs = Net::Interface->interfaces();
     foreach my $inf (@all_ifs) {
@@ -112,7 +117,7 @@ sub members_ips {
     my $logger = get_logger;
     unless(exists($ConfigCluster{$host_id}->{"interface $interface"}->{ip})){
         $logger->error("requesting member ips for an undefined interface...");
-        return undef;
+        return {};
     }
     my %data = map { $_->{host} => $_->{"interface $interface"}->{ip} } @cluster_servers;
     return \%data;
