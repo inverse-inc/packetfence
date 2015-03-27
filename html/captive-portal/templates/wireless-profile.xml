@@ -59,9 +59,13 @@
                         <key>PayloadCertificateFileName</key>
                         <string>[% certcn %]</string>
                         <key>PayloadContent</key>
+                        [% IF provisioner.eap_type == "13" and provisoner.matchOS == "Windows" %]
+                        <string>[% certdata %]</string>
+                        [% ELSE %]
                         <data>[% certdata %]</data>
+                        [% END %]
                         <key>PayloadDescription</key>
-                        <string>Provides device authentication (certificate or identity).</string>
+                        <string>Provides device authentication (certificate or identity).[% fingerprint %]</string>
                         <key>PayloadDisplayName</key>
                         <string>[% provisioner.id %]</string>
                         <key>PayloadIdentifier</key>

@@ -50,39 +50,47 @@ sub index : Path : Args(0) {
     $provisioner->authorize($mac) if (defined($provisioner));
     $c->stash(
         post_uri            => '/tlsprofile/cert_process',
-        #destination_url     => $prov,
         certificate_cn      => $request->param_encoded("certificate_cn"),
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
         certificate_email   => lc( $request->param_encoded("certificate_email")),
         template            => 'pki.html',
-        provisioner         => $provisioner, #'checkIfProvisionIsNeeded',
+        provisioner         => $provisioner, 
         username            => $username,
         );
 }
 sub build_cert_p12 : Path : Args(0) {
     my ($self, $c) = @_;
     my $logger = $c->log;
+    use Data::Dumper;
     my $session = $c->session;
     my $cert_data = $c->stash->{'cert_content'};
-    my $certname = $c->stash->{'certificate_cn'} . "p12";
-    $c->session( certificate_cn => "$certname" );
+    my $cert = $c->stash->{'certificate_cn'} . ".p12";
+    my $certname = "$cert_dir/$cert";
+    $c->session( certificate_cn => "$cert" );
     my $pid = "";
-    open FH, "> $cert_dir/$certname";
+    my $fh;
+    open ($fh, '>', $certname);
+    if (-e $certname) { 
+        $logger->info("Certificate for user \"$pid\" successfully created."); 
+    }
+    else {
+        $logger->info("The certificate file could not be saved for username \"$pid\"");
+        $self->showError($c,"An error has occured while trying to save your certificate, please contact your IT support");
+    }
     unless ( $c->has_errors ){
         my $portalSession = $c->portalSession;
         my $mac           = $portalSession->clientMac;
         my $node_info     = node_view($mac);
         my $pid           = $node_info->{'pid'};
     }
-    if(tell(FH) != -1) {
-        $logger->debug("The certificate file could not be saved for username \"$pid\"");
-        $self->showError($c,"An error has occured while trying to save your certificate, please contact your IT support");
-    }
-    else {
-        print FH "$cert_data\n";
-    }
+    print $fh "$cert_data\n";
+    close $fh;
 }
 
+sub cert_Clean : Local {
+    my ($self,$c) = @_;
+  
+}
 
 sub get_cert : Private {
     use bytes;
@@ -123,10 +131,9 @@ sub get_cert : Private {
 
     if ($curl_return_code == 0) {
         $c->stash( cert_content    => $response_body );
-        $c->session( cert_content    => $response_body );
     }
     elsif ($curl_return_code == -1) {
-        $logger->debug("Username \"$pid\" certificate couldnt not be acquire, check out logs on the pki");
+        $logger->info("Username \"$pid\" certificate couldnt not be acquire, check out logs on the pki");
         $self->showError($c, "There was an issue with the generation of your certificate please contact your IT support.");
     }
 }
@@ -139,12 +146,11 @@ sub cert_process : Local {
     $c->forward('validateform');
     $c->forward('get_cert');
     $c->forward('build_cert_p12');
-    #$c->forward('export_fingerprint');
-    $c->forward('checkIfProvisionIsNeeded');
-    #$self->showError($c,"We could not match your operating system, please contact IT support.");
+    $c->forward('b64_cert');
+    $c->forward('export_fingerprint');
+    $c->forward( 'Authenticate' => 'checkIfProvisionIsNeeded' );
     $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
     $c->forward( 'CaptivePortal' => 'endPortalSession' );
-
 }
 
 sub checkIfProvisionIsNeeded : Private {
@@ -163,7 +169,7 @@ sub checkIfProvisionIsNeeded : Private {
                 template    => $provisioner->template,
                 provisioner => $provisioner,
             );
-            $c->forward();
+            $c->detach();
         }
     }
 }
@@ -190,6 +196,19 @@ sub validateform : Private {
     #}
 }
 
+sub b64_cert : Local {
+    my ($self,$c) = @_;
+    my $logger = $c->log;
+    my $session = $c->session;
+    my $stash = $c->stash;
+    my $cwd = $cert_dir;
+    my $certfile = $stash->{'certificate_cn'};
+    my $certp12 = "$cwd/$certfile.p12";
+    my $b64 = pf_run("base64 $certp12");
+    $c->session(
+        b64_cert => $b64,
+    );
+}
 sub export_fingerprint : Local {
     my ($self, $c) = @_;
     my $logger = $c->log;
@@ -203,23 +222,28 @@ sub export_fingerprint : Local {
     }
     my $stash = $c->stash;
     my $cwd = $cert_dir;
+    use Data::Dumper;
     my $pass = $stash->{'certificate_pwd'};
     my $certfile = $stash->{'certificate_cn'};
-    my $certp12 = Crypt::OpenSSL::PKCS12->new_from_file("$cwd/$certfile.p12");
-    if ($certp12->mac_ok($pass)){
-        pf_run("openssl pkcs12 -in $certfile.p12 -passin pass:$pass -out $certfile.pem -passout pass:");
-        pf_run("openssl x509 -in $certfile.pem -outform DER -out $certfile.cer");
-        my $cmd = "openssl x509 -inform DER -in $certfile.cer -fingerprint";
-        my $data = pf_run($cmd);
+    my $certp12 = "$cwd/$certfile.p12";
+    my $certpem = "$cwd/$certfile.pem";
+    #my $certp12 = Crypt::OpenSSL::PKCS12->new_from_file("$cwd/$certfile.p12");
+    #if ($certp12->mac_ok($pass)){
+        pf_run("openssl pkcs12 -in $certp12 -passin pass:$pass -out $certpem -passout pass:$pass");
+        my $file = $1;
+        #my $certpem = "$cwd/$certfile.pem";
+        open FH, "< $certpem" or die $!;
+        my $data = "";
+
+        while (<FH>) {
+            $data .= $_;
+        }
+        
         $data =~ /.*\/([a-zA-Z0-9.]+)$/;
         $data =~ s/.*SHA1 Fingerprint=//smg; 
         $data =~ s/-----BEGIN CERTIFICATE-----\n.*//smg;
         $data =~ s/\:/\ /smg;
-        $c->session( ca_fingerprint => $data );
-    }
-    else {
-        $logger->debug("We could not extract CA fingerprint from username \"$pid\" certificate");
-    }
+        $c->session( fingerprint => $data );
 }
 
 

@@ -31,6 +31,16 @@ has_field 'ssid' =>
    label => 'SSID',
   );
 
+has_field 'broadcast' =>
+  (
+   type => 'Checkbox',
+   label => 'Broadcast network',
+   value => 'true',
+   checkbox_value => 'false',
+   tags => { after_element => \&help,
+             help => 'Check this box if your network is using a hidden SSID' },
+  );
+
 has_field 'security_type' =>
   (
    type => 'Select',
@@ -77,7 +87,7 @@ has_field 'ca_path' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id description reversedns type category ssid eap_type security_type passcode ca_path) ],
+   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode ca_path) ],
   );
 
 sub options_eap_type {
