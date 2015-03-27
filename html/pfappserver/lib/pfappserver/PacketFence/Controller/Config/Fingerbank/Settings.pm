@@ -50,7 +50,8 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
             $status_msg = $form->field_errors;
         } else {
             # TODO: Finish that part
-            # We need to write the API key in the Fingerbank configuration file
+            # TODO: $c->req->params should be formatted as { upstream.api_key => VALUE }
+            ( $status, $status_msg ) = fingerbank::Config::write_config($c->req->params);
             # After that, redirect to the 'Settings' page
         }
     }
