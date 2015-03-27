@@ -1056,3 +1056,13 @@ statsd_host=localhost
 #
 statsd_port=8125
 
+#
+# monitoring.graphite_host
+#
+graphite_host=localhost
+
+#
+# monitoring.graphite_port
+#
+graphite_port=2013
+
