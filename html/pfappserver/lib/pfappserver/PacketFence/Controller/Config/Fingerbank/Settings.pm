@@ -52,7 +52,8 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
             my %params = ();
             %params->{'upstream'}{'api_key'} = $c->req->params->{'api_key'};
             ( $status, $status_msg ) = fingerbank::Config::write_config(\%params);
-            # TODO: After that, redirect to the 'Settings' page
+            $c->req->method('GET'); # We need to change the request method since there's a filter  on it in the index part.
+            $c->go('index');
         }
     }
 
