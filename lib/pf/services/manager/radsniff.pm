@@ -1,0 +1,31 @@
+package pf::services::manager::radsniff;
+
+=head1 NAME
+
+pf::services::manager::radsniff3 management module. 
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::services::manager::radsniff
+
+=cut
+
+use strict;
+use warnings;
+use pf::file_paths;
+use pf::util;
+use pf::config;
+use Moo;
+
+extends 'pf::services::manager';
+
+has '+name' => ( default => sub {'radsniff'} );
+
+has '+launcher' => (
+    default => sub {
+        "sudo %1\$s -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff.pid -W10 -O /var/run/collectd-unixsock"
+    }
+);
+

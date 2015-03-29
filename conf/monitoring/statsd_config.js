@@ -88,7 +88,7 @@ Optional Variables:
 */
 {
   graphitePort: 2013
-, graphiteHost: "localhost"
+, graphiteHost: "%%management_ip%%"
 , port: 8125
 , backends: [ "./backends/graphite" ]
 , graphite: {
