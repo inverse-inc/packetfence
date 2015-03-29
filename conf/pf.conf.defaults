@@ -572,6 +572,31 @@ radiusd_binary=/usr/sbin/radiusd
 # location of the arp binary. only necessary to change if you are not running the rpmed version.
 arp_binary=/sbin/arp
 # 
+# services.carbon_cache_binary
+# 
+# Location of the carbon cache binary. Only necessary to change if you are not running the pre-packaged version.
+carbon_cache_binary=/usr/bin/carbon_cache
+# 
+# services.carbon_relay_binary
+# 
+# Location of the carbon relay binary. Only necessary to change if you are not running the pre-packaged version.
+carbon_relay_binary=/usr/bin/carbon_relay
+# 
+# services.statsd_binary
+# 
+# Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
+statsd_binary=/usr/bin/node
+# 
+# services.collectd_binary
+# 
+# Location of the collectd binary. Only necessary to change if you are not running the pre-packaged version.
+collectd_binary=/usr/sbin/collectd
+# 
+# services.radsniff_binary
+# 
+# Location of the radsniff3 binary. Only necessary to change if you are not running the pre-packaged version.
+radsniff_binary=/usr/local/pf/bin/radsniff
+# 
 # services.iptables_binary
 # 
 # location of the iptables binary. only necessary to change if you are not running the rpmed version.

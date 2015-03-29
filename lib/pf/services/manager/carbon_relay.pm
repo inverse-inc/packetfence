@@ -28,7 +28,6 @@ has '+launcher' =>
     ( default => sub {"sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon-relay.pid --logdir=$install_dir/logs"} );
 
 sub generateConfig {
-    generate_storage_config();
     generate_carbon_config();
 }
 
@@ -41,11 +40,3 @@ sub generate_carbon_config {
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/carbon.conf" );
 }
 
-sub generate_storage_config { 
-    my %tags;
-    $tags{'template'}      = "$conf_dir/monitoring/storage-schemas.conf";
-    $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
-    $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
-
-    parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/storage-schemas.conf" );
-}

@@ -33,7 +33,18 @@ has '+launcher' => (
 sub generateConfig {
     generate_local_settings();
     generate_dashboard_settings();
+    generate_storage_config();
     generate_carbon_config();
+}
+
+sub generate_storage_config {
+    my %tags;
+    $tags{'template'}      = "$conf_dir/monitoring/storage-schemas.conf";
+    $tags{'hostname'}      = "$Config{'general'}{'hostname'}";
+    $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
+    $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
+
+    parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/storage-schemas.conf" );
 }
 
 sub generate_local_settings {
@@ -45,20 +56,20 @@ sub generate_local_settings {
         = defined( $management_network->tag('vip') )
         ? $management_network->tag('vip')
         : $management_network->tag('ip');
-    $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
-    $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
-    $tags{'db_host'}       = $Config{'database'}{'host'};
-    $tags{'db_port'}       = $Config{'database'}{'port'};
-    $tags{'db_graphite_database'}   = $Config{'monitoring'}{'db'};
-    $tags{'db_username'}   = $Config{'database'}{'user'};
-    $tags{'db_password'}   = $Config{'database'}{'pass'};
+    $tags{'graphite_host'}        = "$Config{'monitoring'}{'graphite_host'}";
+    $tags{'graphite_port'}        = "$Config{'monitoring'}{'graphite_port'}";
+    $tags{'db_host'}              = $Config{'database'}{'host'};
+    $tags{'db_port'}              = $Config{'database'}{'port'};
+    $tags{'db_graphite_database'} = $Config{'monitoring'}{'db'};
+    $tags{'db_username'}          = $Config{'database'}{'user'};
+    $tags{'db_password'}          = $Config{'database'}{'pass'};
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/local_settings.py" );
 }
 
-sub generate_dashboard_settings { 
+sub generate_dashboard_settings {
     my %tags;
-    $tags{'template'}    = "$conf_dir/monitoring/dashboard.conf";
+    $tags{'template'} = "$conf_dir/monitoring/dashboard.conf";
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/dashboard.conf" );
 }
