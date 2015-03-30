@@ -364,3 +364,12 @@ actions=trap,email,log
 enabled=N
 priority=10
 trigger=VENDORMAC::5046,OS::703
+
+# Zammit
+[3000006]
+desc=Zammit's violation
+template=zammit
+actions=reboot
+enabled=N
+priority=1
+trigger=Always::Always
