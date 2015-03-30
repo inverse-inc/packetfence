@@ -91,7 +91,7 @@ if($master_server){
     
     my $apiclient = pf::api::jsonrpcclient->new(host => $master_server, proto => 'https', username => $api_user, password => $api_password);
 
-    my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH);
+    my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf");
 
     foreach my $store (@stores) {
         my $cs = $store->new;
