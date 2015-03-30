@@ -165,7 +165,7 @@ sub matchOS {
     my $os = pf::fingerbank::is_a($device_type);
 
     get_logger->trace( sub { "Tring to match $os against " . join(",", @oses) });
-    #if if no oses are defined then it will match all the oses
+    #if no oses are defined then it will match all the oses
     local $_;
     return @oses == 0 || any { $os eq $_ } @oses;
 }

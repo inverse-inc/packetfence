@@ -46,8 +46,10 @@ sub index : Path : Args(0) {
     my $profile = $c->profile;
     my $request = $c->request;
     my $mac = $c->portalSession->clientMac;
+    my $node_info = node_view($mac);
+    my $pid = $node_info->{'pid'};
     my $provisioner = $c->profile->findProvisioner($mac);
-    $provisioner->authorize($mac) if (defined($provisioner));
+    #$provisioner->authorize($mac) if (defined($provisioner));
     $c->stash(
         post_uri            => '/tlsprofile/cert_process',
         certificate_cn      => $request->param_encoded("certificate_cn"),
@@ -56,12 +58,13 @@ sub index : Path : Args(0) {
         template            => 'pki.html',
         provisioner         => $provisioner, 
         username            => $username,
+        mac                 => $mac,
+        pid                 => $pid,
         );
 }
 sub build_cert_p12 : Path : Args(0) {
     my ($self, $c) = @_;
     my $logger = $c->log;
-    use Data::Dumper;
     my $session = $c->session;
     my $cert_data = $c->stash->{'cert_content'};
     my $cert = $c->stash->{'certificate_cn'} . ".p12";
@@ -141,15 +144,16 @@ sub get_cert : Private {
 sub cert_process : Local {
     my ($self,$c) = @_;
     my $logger = $c->log;
-    my $stash = $c->stash;
     $c->stash(info => $c->session->{info});
     $c->forward('validateform');
     $c->forward('get_cert');
     $c->forward('build_cert_p12');
     $c->forward('b64_cert');
     $c->forward('export_fingerprint');
-    $c->forward( 'Authenticate' => 'checkIfProvisionIsNeeded' );
-    $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
+    #$c->forward( 'Authenticate' => 'checkIfProvisionIsNeeded' );
+    use Data::Dumper;
+    $logger->info(Dumper($c->stash->{info}).'bob');
+    $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}{pid}, %{$c->stash->{info}}]);
     $c->forward( 'CaptivePortal' => 'endPortalSession' );
 }
 
@@ -221,29 +225,23 @@ sub export_fingerprint : Local {
         my $pid           = $node_info->{'pid'};
     }
     my $stash = $c->stash;
-    my $cwd = $cert_dir;
+    my $cacert = $stash->{provisioner}->{ca_path};
     use Data::Dumper;
-    my $pass = $stash->{'certificate_pwd'};
-    my $certfile = $stash->{'certificate_cn'};
-    my $certp12 = "$cwd/$certfile.p12";
-    my $certpem = "$cwd/$certfile.pem";
-    #my $certp12 = Crypt::OpenSSL::PKCS12->new_from_file("$cwd/$certfile.p12");
-    #if ($certp12->mac_ok($pass)){
-        pf_run("openssl pkcs12 -in $certp12 -passin pass:$pass -out $certpem -passout pass:$pass");
-        my $file = $1;
-        #my $certpem = "$cwd/$certfile.pem";
-        open FH, "< $certpem" or die $!;
-        my $data = "";
+    $logger->info(Dumper($cacert).'cacert');
+    my $data = pf_run("openssl x509 -in $cacert -fingerprint");
+    #my $file = $1;
+    #open FH, "< $cacert" or die $!;
+    #my $data = "";
 
-        while (<FH>) {
-            $data .= $_;
-        }
+    #while (<FH>) {
+    #    $data .= $_;
+    #}
         
-        $data =~ /.*\/([a-zA-Z0-9.]+)$/;
-        $data =~ s/.*SHA1 Fingerprint=//smg; 
-        $data =~ s/-----BEGIN CERTIFICATE-----\n.*//smg;
-        $data =~ s/\:/\ /smg;
-        $c->session( fingerprint => $data );
+    $data =~ /.*\/([a-zA-Z0-9.]+)$/;
+    $data =~ s/.*SHA1 Fingerprint=//smg; 
+    $data =~ s/-----BEGIN CERTIFICATE-----\n.*//smg;
+    $data =~ s/\:/\ /smg;
+    $c->session( fingerprint => $data );
 }
 
 

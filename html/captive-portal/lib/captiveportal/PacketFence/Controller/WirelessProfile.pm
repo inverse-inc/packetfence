@@ -28,11 +28,12 @@ sub index : Path : Args(0) {
     my $username = $c->session->{username} || '';
     my $mac = $c->portalSession->clientMac;
     my $session = $c->session;
+    my $stash = $c->stash;
     use Data::Dumper;
     my $logger = $c->log;
     my $provisioner = $c->profile->findProvisioner($mac);
     $provisioner->authorize($mac) if (defined($provisioner));
-    $logger->info(Dumper $provisioner);
+    $logger->info(Dumper($provisioner));
     $c->stash(
         template     => 'wireless-profile.xml',
         current_view => 'MobileConfig',
@@ -41,6 +42,7 @@ sub index : Path : Args(0) {
         certdata     => $c->session->{b64_cert},#$c->session->{cert_data},
         certcn       => $c->session->{certificate_cn},
         fingerprint  => $c->session->{fingerprint},
+        for_windows  => ($provisioner->{type} eq 'windows'),
     );
 }
 
