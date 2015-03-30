@@ -110,7 +110,7 @@ if($master_server){
             `chown pf.pf $file`;
         };
         if($@){
-            print STDERR "Failed to sync file : $file \n";
+            print STDERR "Failed to sync file : $file . $@\n";
         }
     }
 
