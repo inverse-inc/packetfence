@@ -25,9 +25,13 @@ defaults
         errorfile 504 %%os_path%%504.http
 
 frontend  main localhost:3306
+    mode tcp
+    option tcplog
     default_backend             mysql
 
 backend mysql
+    mode tcp
+    option tcplog
     %%mysql_backend%%
 
 
