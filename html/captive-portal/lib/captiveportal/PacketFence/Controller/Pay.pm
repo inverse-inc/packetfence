@@ -378,7 +378,7 @@ sub _build_mirapay_url {
     my $url          = $billing->{mirapay_iframe_url};
     my $merchant_id  = $billing->{mirapay_iframe_merchant_id};
     my $cardholdername = $request->param('firstname') . ' ' . $request->param('lastname') ;
-    my $redirect_url = "https://fence.packet.org/pay/mirapay_iframe_process";
+    my $redirect_url = "https://" . join(".",$Config{general}{hostname},$Config{general}{domain}) . "/pay/mirapay_iframe_process";
     my @params       = (
         MerchantID  => $merchant_id,
         RedirectURL => $redirect_url,
