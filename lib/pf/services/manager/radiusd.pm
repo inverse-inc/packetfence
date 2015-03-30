@@ -26,7 +26,7 @@ has '+name' => ( default => sub { 'radiusd' } );
 
 has '+launcher' => ( default => sub { "sudo %1\$s -d $install_dir/raddb/"} );
 
-sub generateconfig {
+sub generateConfig {
     my ($self,$quick) = @_;
     generate_radiusd_mainconf();
     generate_radiusd_eapconf();
