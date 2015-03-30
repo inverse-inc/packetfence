@@ -221,10 +221,10 @@ sub postAuthentication : Private {
     
     $c->forward('setupMatchParams');
     $c->forward('setRole');
-    $c->forward('checkIfTlsEnrolement');
     $c->forward('setUnRegDate');
     $info->{source} = $source_id;
     $info->{portal} = $profile->getName;
+    $c->forward('checkIfTlsEnrolement');
     $c->forward('checkIfProvisionIsNeeded');
 }
 
@@ -240,10 +240,12 @@ sub checkIfTlsEnrolement : Private {
     my $portalSession = $c->portalSession;
     my $source = getAuthenticationSource($source_id);
     my $mac = $portalSession->clientMac;
-    my $node_info = node_view($mac);
-    my $role = $node_info->{'category'};
+    my $info = $c->stash->{info};
+    my $role = $info->{category};
     #if role is tls-enrolement then process to define controller
-    if ($role == "tls-enrolement"){
+    if ($role eq "tls-enrolement"){
+        #$info->{status} = $pf::node::STATUS_PENDING;
+        node_modify($mac, %$info);
         $c->session->{info} = $c->stash->{info};
         $c->detach(tlsprofile => 'index');
     }
@@ -434,12 +436,8 @@ sub checkIfProvisionIsNeeded : Private {
     my $portalSession = $c->portalSession;
     my $info = $c->stash->{info};
     my $mac = $portalSession->clientMac;
-    my $logger = $c->log;
     my $profile = $c->profile;
-    use Data::Dumper;
-    $logger->info(Dumper $profile);
     if (defined( my $provisioner = $profile->findProvisioner($mac))) {
-        $logger->info(Dumper $provisioner);
         if ($provisioner->authorize($mac) == 0) {
             $info->{status} = $pf::node::STATUS_PENDING;
             node_modify($mac, %$info);
