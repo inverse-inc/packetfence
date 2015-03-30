@@ -24,13 +24,11 @@ defaults
         errorfile 503 %%os_path%%503.http
         errorfile 504 %%os_path%%504.http
 
-listen galera %%active_active_ip%%:3306
-        balance source
-        maxconn 2000
-        mode tcp
-        option tcplog
-        option tcpka
-        option httpchk /mysql/cluster
-%%mysql_backend%%
+frontend  main localhost:3306
+    default_backend             mysql
+
+backend mysql
+    %%mysql_backend%%
+
 
 %%http%%

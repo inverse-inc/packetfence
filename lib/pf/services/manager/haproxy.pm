@@ -58,7 +58,7 @@ sub generateConfig {
         next unless $cfg;
         next if !$cluster_enabled;
         my $i = 0;
-        if ($cfg->{'type'} eq 'management') {
+        if ($interface eq $management_network->tag('int')) {
             $tags{'active_active_ip'} = pf::cluster::management_cluster_ip();
             my @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
             foreach my $mysql_back (@mysql_backend) {
