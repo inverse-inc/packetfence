@@ -1,7 +1,7 @@
 package pf::cmd::pf::checkup;
 =head1 NAME
 
-pf::cmd::checkup add documentation
+pf::cmd::pf::checkup
 
 =head1 SYNOPSIS
 

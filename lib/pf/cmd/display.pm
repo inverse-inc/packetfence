@@ -1,13 +1,13 @@
 package pf::cmd::display;
 =head1 NAME
 
-pf::cmd::pf::fingerprint::view add documentation
+pf::cmd::display the base class for displaying items
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::cmd::pf::fingerprint::view
+pf::cmd::display
 
 =cut
 

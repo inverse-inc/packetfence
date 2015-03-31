@@ -1,13 +1,13 @@
 package pf::base::cmd::config_store;
 =head1 NAME
 
-pf::cmd::config_store add documentation
+pf::base::cmd::config_store base class for config store commands
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::cmd::config_store
+pf::base::cmd::config_store
 
 =cut
 
