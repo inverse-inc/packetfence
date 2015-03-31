@@ -105,23 +105,24 @@ sub _run {
     return $actionHandler->($service,@$services);
 }
 
+sub postPfStartService {
+    my ($managers) = @_;
+    my $count = true {$_->status ne '0'} @$managers;
+    configreload('hard') unless $count;
+}
+
+sub configreload {
+
+}
+
 sub startService {
     my ($service,@services) = @_;
     my @managers = getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
-    if(isIptablesManaged($service) && -e $pf_config_file) {
-        $logger->info("saving current iptables to var/iptables.bak");
-        my $technique;
-        if(all { $_->status eq '0'  } @managers) {
-            $technique = getIptablesTechnique();
-            $technique->iptables_save( $install_dir . '/var/iptables.bak' );
-        }
-        $technique ||= getIptablesTechnique();
-        $technique->iptables_generate();
-    }
+    postPfStartService(\@managers) if $service eq 'pf';
 
-    my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup} @managers;
+    my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup } @managers;
 
     if($noCheckupManagers && @$noCheckupManagers) {
         foreach my $manager (@$noCheckupManagers) {
@@ -193,20 +194,20 @@ sub getManagers {
     my %seen;
     my $includeDependsOn = $flags & INCLUDE_DEPENDS_ON;
     my $justManaged      = $flags & JUST_MANAGED;
-    my @serviceManagers =
-        grep { (!exists $seen{$_->name}) && ($seen{$_->name} = 1) && ( !$justManaged || $_->isManaged ) }
-        map {
-            my $m = $_;
-            my @managers =
-                grep { defined $_ }
-                map { pf::services::get_service_manager($_) }
-                @{$m->dependsOnServices}
-                if $includeDependsOn;
-            push @managers,$m;
-            @managers
+    my @temp = grep { defined $_ } map { pf::services::get_service_manager($_) } @$services;
+    my @serviceManagers;
+    foreach my $m (@temp) {
+        next if exists $seen{$m->name};
+        $seen{$m->name}++;
+        my @managers;
+        #Get dependencies
+        if ($includeDependsOn) {
+            @managers = grep { defined $_ } map { pf::services::get_service_manager($_) } @{$m->dependsOnServices}
         }
-        grep { defined $_ }
-        map { pf::services::get_service_manager($_) } @$services;
+        #filter out managers already seen
+        @managers = grep { !$seen{$_->name}++ } @managers;
+        push @serviceManagers,@managers,$m;
+    }
     return @serviceManagers;
 }
 
