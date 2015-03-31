@@ -28,7 +28,7 @@ sub parseTid {
 
 sub validateTid {
     my ($self,$tid) = @_;
-    return $tid =~ /^[\d\.-]+\s*$/;
+    return $tid =~ /^[L\d\.-]+\s*$/;
 }
 
 sub parseTidStartEnd {
