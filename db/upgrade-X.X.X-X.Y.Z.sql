@@ -74,10 +74,10 @@ ALTER TABLE iplog_archive MODIFY mac varchar(17) NOT NULL,
             MODIFY ip varchar(45) NOT NULL,
             MODIFY end_time datetime NOT NULL;
 
-
 ---
 --- Alter for bypass_role
 ---
+
 ALTER TABLE node ADD `bypass_role_id` INT DEFAULT NULL;
 
 --
@@ -91,3 +91,10 @@ INSERT INTO `person` (pid,notes) VALUES ("default","Default User - do not delete
 --
 
 UPDATE `node` SET pid = 'default' WHERE status = 'unreg' AND pid = 'admin';
+
+--
+-- Table structure for table 'node'
+--
+
+ALTER TABLE node ADD dhcp_vendor VARCHAR(255) AFTER dhcp_fingerprint;
+ALTER TABLE node ADD device_type VARCHAR(255) AFTER dhcp_vendor;
