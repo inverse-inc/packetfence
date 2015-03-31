@@ -16,6 +16,7 @@ use strict;
 use warnings;
 
 use base 'pfconfig::namespaces::resource';
+use pfconfig::namespaces::config::Cluster;
 
 sub init {
     my ($self) = @_;
