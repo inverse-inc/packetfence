@@ -23,7 +23,6 @@ use pf::util;
 use pf::cluster;
 
 extends 'pf::services::manager';
-with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
 
 has '+name' => (default => sub { 'haproxy' } );
 
@@ -56,7 +55,6 @@ sub generateConfig {
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
-        next if !$cluster_enabled;
         my $i = 0;
         if ($interface eq $management_network->tag('int')) {
             $tags{'active_active_ip'} = pf::cluster::management_cluster_ip();
