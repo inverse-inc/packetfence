@@ -1,24 +1,38 @@
-#!/usr/bin/perl
+package pf::cmd::pf::import::nodes;
 =head1 NAME
 
-pfcmd
+pf::cmd::pf::import::nodes add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-driver script for pfcmd
+pf::cmd::pf::import::nodes
 
 =cut
 
 use strict;
 use warnings;
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
+use base qw(pf::cmd);
+use Role::Tiny::With;
+with 'pf::cmd::roles::show_parent_help';
 
-use pf::cmd::pf;
-exit pf::cmd::pf->new({args => \@ARGV})->run();
+sub parseArgs {
+    my ($self) = @_;
+    my ($file) = $self->args;
+    if($file) {
+        $self->{file} = $file;
+        return 1;
+    }
+    return 0;
+}
 
+sub _run {
+    my ($self) = @_;
+    require pf::import;
+    pf::import::nodes($self->{file});
+    print "Import process complete\n";
+}
 
 =head1 AUTHOR
 
@@ -32,7 +46,7 @@ Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -48,4 +62,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 

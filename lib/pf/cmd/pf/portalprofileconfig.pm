@@ -1,24 +1,38 @@
-#!/usr/bin/perl
+package pf::cmd::pf::portalprofileconfig;
 =head1 NAME
 
-pfcmd
+pf::cmd::pf::portalprofileconfig add documentation
 
-=cut
+=head1 SYNOPSIS
+
+pfcmd portalprofileconfig get <all|default|ID>
+
+pfcmd portalprofileconfig add <ID> [assignments]
+
+pfcmd portalprofileconfig edit <ID> [assignments]
+
+pfcmd portalprofileconfig delete <ID>
+
+pfcmd portalprofileconfig clone <TO_ID> <FROM_IP> [assignments]
+
+query/modify profiles.conf configuration file
 
 =head1 DESCRIPTION
 
-driver script for pfcmd
+pf::cmd::pf::portalprofileconfig
 
 =cut
 
 use strict;
 use warnings;
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
+use base qw(pf::base::cmd::config_store);
+use pf::ConfigStore::Profile;
 
-use pf::cmd::pf;
-exit pf::cmd::pf->new({args => \@ARGV})->run();
+sub configStoreName { "pf::ConfigStore::Profile" }
 
+sub display_fields { qw(profile description logo billing_engine redirecturl always_use_redirecturl mandatory_fields locale) }
+
+sub idKey { 'profile' }
 
 =head1 AUTHOR
 
@@ -32,7 +46,7 @@ Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -48,4 +62,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 

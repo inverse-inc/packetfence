@@ -1,24 +1,29 @@
-#!/usr/bin/perl
+package pf::cmd::pf::configfiles;
 =head1 NAME
 
-pfcmd
+pf::cmd::pf::configfiles add documentation
 
-=cut
+=head1 SYNOPSIS
+
+pfcmd configfiles <push|pull>
+
+push configfiles into database or pull them from database
+
+examples:
+
+  pfcmd configfiles push
+  pfcmd configfiles pull
+
 
 =head1 DESCRIPTION
 
-driver script for pfcmd
+pf::cmd::pf::configfiles
 
 =cut
 
 use strict;
 use warnings;
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
-
-use pf::cmd::pf;
-exit pf::cmd::pf->new({args => \@ARGV})->run();
-
+use base qw(pf::cmd::subcmd);
 
 =head1 AUTHOR
 
@@ -32,7 +37,7 @@ Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -48,4 +53,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 

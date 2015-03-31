@@ -1,24 +1,33 @@
-#!/usr/bin/perl
+package pf::cmd::pf::violationconfig;
 =head1 NAME
 
-pfcmd
+pf::cmd::pf::violationconfig add documentation
 
-=cut
+=head1 SYNOPSIS
+
+ pfcmd violationconfig get <all|defaults|vid>
+       pfcmd violationconfig add <vid> [assignments]
+       pfcmd violationconfig edit <vid> [assignments]
+       pfcmd violationconfig delete <vid>
+
+query/modify violations.conf configuration file
 
 =head1 DESCRIPTION
 
-driver script for pfcmd
+pf::cmd::pf::violationconfig
 
 =cut
 
 use strict;
 use warnings;
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
+use pf::ConfigStore::Violations;
+use base qw(pf::base::cmd::config_store);
 
-use pf::cmd::pf;
-exit pf::cmd::pf->new({args => \@ARGV})->run();
+sub configStoreName { "pf::ConfigStore::Violations" }
 
+sub display_fields { qw(vid desc enabled auto_enable actions max_enable grace window vclose priority template button_text trigger vlan whitelisted_categories target_category ) }
+
+sub idKey { 'vid' }
 
 =head1 AUTHOR
 
@@ -32,7 +41,7 @@ Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -48,4 +57,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 

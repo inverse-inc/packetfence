@@ -1,24 +1,33 @@
-#!/usr/bin/perl
+package pf::cmd::pf::networkconfig;
 =head1 NAME
 
-pfcmd
+pf::cmd::pf::networkconfig add documentation
 
-=cut
+=head1 SYNOPSIS
+
+ pfcmd networkconfig get <all|network>
+       pfcmd networkconfig add <network> [assignments]
+       pfcmd networkconfig edit <network> [assignments]
+       pfcmd networkconfig delete <network>
+
+query/modify networks.conf configuration file
 
 =head1 DESCRIPTION
 
-driver script for pfcmd
+pf::cmd::pf::networkconfig
 
 =cut
 
 use strict;
 use warnings;
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
+use pf::ConfigStore::Network;
+use base qw(pf::base::cmd::config_store);
 
-use pf::cmd::pf;
-exit pf::cmd::pf->new({args => \@ARGV})->run();
+sub configStoreName { "pf::ConfigStore::Network" }
 
+sub display_fields { qw(network type named dhcpd netmask gateway next_hop domain-name dns dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time) }
+
+sub idKey { 'network' }
 
 =head1 AUTHOR
 
@@ -32,7 +41,7 @@ Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -48,4 +57,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 

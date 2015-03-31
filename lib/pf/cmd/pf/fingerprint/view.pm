@@ -1,24 +1,40 @@
-#!/usr/bin/perl
+package pf::cmd::pf::fingerprint::view;
 =head1 NAME
 
-pfcmd
+pf::cmd::pf::fingerprint::view add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-driver script for pfcmd
+pf::cmd::pf::fingerprint::view
 
 =cut
 
 use strict;
 use warnings;
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
+use base qw(pf::cmd::display);
+use pf::os qw(dhcp_fingerprint_view dhcp_fingerprint_view_all);
+use pf::config::ui;
 
-use pf::cmd::pf;
-exit pf::cmd::pf->new({args => \@ARGV})->run();
 
+sub parseArgs {
+    my ($self) = @_;
+    my ($id) = $self->args;
+    my $function;
+    my %params;
+    if(defined $id && $id ne 'all') {
+        $function = \&dhcp_fingerprint_view;
+    } else {
+        $function = \&dhcp_fingerprint_view_all;
+    }
+    $self->{function} = $function;
+    $self->{key} = $id;
+    $self->{params} = \%params;
+    return 1;
+}
+
+sub field_ui { "fingerprint view" }
 
 =head1 AUTHOR
 
@@ -32,7 +48,7 @@ Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -48,4 +64,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 
