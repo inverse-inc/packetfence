@@ -91,7 +91,7 @@ sub _trigger_violations {
         my $trigger_data;
         switch ( $trigger_type ) {
             case 'Device' {
-                $trigger_data = $query_result->{'device_id'};
+                $trigger_data = $query_result->{'device'}{'id'};
             }
 
             case 'MAC_Vendor' {
