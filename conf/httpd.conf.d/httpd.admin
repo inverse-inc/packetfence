@@ -150,8 +150,6 @@ push @{ $VirtualHost{$vhost} },
          SSLEngine    => 'on',
          Include      => $var_dir.'/conf/ssl-certificates.conf',
          SSLProxyEngine    => 'on',
-         # HSTS (mod_headers is required) (15768000 seconds = 6 months)
-         Header             =>  'always add Strict-Transport-Security "max-age=15768000"',
          PerlModule        => 'pf::web::admin',
          PerlTransHandler  => 'pf::web::admin->proxy_portal',
          ProxyRequests     => 'off',

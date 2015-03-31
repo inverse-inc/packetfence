@@ -367,8 +367,6 @@ foreach my $interface (@internal_nets) {
          SSLEngine         => 'on',
          SSLProxyEngine    => 'on',
          Include           => "${var_dir}/conf/ssl-certificates.conf",
-         # HSTS (mod_headers is required) (15768000 seconds = 6 months)
-         Header            =>  'always add Strict-Transport-Security "max-age=15768000"'
     ));
 }
 
@@ -485,8 +483,6 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
          SSLEngine         => 'on',
          SSLProxyEngine    => 'on',
          Include           => "${var_dir}/conf/ssl-certificates.conf",
-         # HSTS (mod_headers is required) (15768000 seconds = 6 months)
-         Header            =>  'always add Strict-Transport-Security "max-age=15768000"'
     );
 
 } 
