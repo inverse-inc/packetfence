@@ -2,7 +2,6 @@
   <tr>
     <td>
         <a href="[% c.uri_for(c.controller.action_for('view'), [scope, item.id ]) %]">[% item.id | html %]</a>
-        <a data-target="#children_[%item.id%]" href="[% c.uri_for(c.controller.action_for('children'), [scope, item.id] ) %]" >+</a>
     </td>
     <td>[% item.value | html%]</td>
     <td>
@@ -15,14 +14,4 @@
       [%- END %]
     </td>
   </tr>
-  <tr class="hidden">
-    <td colspan="3">
-        <div class="collapse" id="children_[%item.id%]">
-            <table></table>
-        </div>
-    </td>
-  </tr>
-
-
 [% END -%]
-<tr><td colspan="4"> </td></tr>

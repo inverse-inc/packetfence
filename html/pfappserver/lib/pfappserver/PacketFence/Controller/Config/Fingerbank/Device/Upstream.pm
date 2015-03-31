@@ -1,8 +1,8 @@
-package pfappserver::PacketFence::Controller::Config::Fingerbank::Device;
+package pfappserver::PacketFence::Controller::Config::Fingerbank::Device::Upstream;
 
 =head1 NAME
 
-pfappserver::PacketFence::Controller::Config::Fingerbank::Device
+pfappserver::PacketFence::Controller::Config::Fingerbank::Device::Upstream
 
 =head1 DESCRIPTION
 
@@ -17,27 +17,34 @@ use HTTP::Status qw(:constants :is);
 BEGIN {
     extends 'pfappserver::Base::Controller';
     #Since we are creating our own list action to import it into our namespace
-    with 'pfappserver::Base::Controller::Crud::Fingerbank' => { -excludes => 'index' };
+    with 'pfappserver::Base::Controller::Crud::Fingerbank' => { -excludes => 'list' };
 }
 
 __PACKAGE__->config(
     action => {
         # Reconfigure the object and scope actions from
         __PACKAGE__->action_defaults,
-        scope  => { Chained => '/', PathPart => 'config/fingerbank/device', CaptureArgs => 1 },
+        scope  => { Chained => '/', PathPart => 'config/fingerbank/device/Upstream', CaptureArgs => 0 },
     },
     action_args => {
         # Setting the global model and form for all actions
-        '*' => { model => __PACKAGE__->get_model_name , form => __PACKAGE__->get_form_name },
+        '*' => { model => 'Config::Fingerbank::Device', form => 'Config::Fingerbank::Device' },
     },
 );
 
 
-sub index: Path :Args(0) {
-    my ($self, $c) = @_;
-    $c->go('Config::Fingerbank::Device::Upstream' => 'index');
-}
+=head2 list
 
+List the top level devices
+
+=cut
+
+sub list : Local :Args(0) {
+    my ($self, $c) = @_;
+    #setting the id of the parent to undef
+    $c->stash(item => { id => undef });
+    $c->forward('children');
+}
 
 =head2 children
 

@@ -19,6 +19,7 @@ use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
 use Log::Log4perl qw(get_logger);
 use HTML::FormHandler::Params;
+use fingerbank::Config;
 
 with 'pfappserver::Base::Controller::Crud::Config' => { -excludes => [qw(list)] };
 with 'pfappserver::Base::Controller::Crud::Pagination';
