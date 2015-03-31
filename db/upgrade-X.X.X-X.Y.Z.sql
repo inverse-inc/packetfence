@@ -78,5 +78,4 @@ ALTER TABLE iplog_archive MODIFY end_time datetime NOT NULL;
 ---
 --- Alter for bypass_role
 ---
-ALTER TABLE node ADD `bypass_role_id` INT DEFAULT NULL,
- ADD  CONSTRAINT `node_bypass_role_key` FOREIGN KEY (`bypass_role_id`) REFERENCES `node_category` (`category_id`);
+ALTER TABLE node ADD `bypass_role_id` INT DEFAULT NULL;
