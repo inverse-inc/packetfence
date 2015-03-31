@@ -149,8 +149,6 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
              CustomLog           => $install_dir.'/logs/httpd.aaa.access combined',
              SSLEngine           => 'on',
              Include             => $var_dir.'/conf/ssl-certificates.conf',
-             # HSTS (mod_headers is required) (15768000 seconds = 6 months)
-             Header             =>  'always add Strict-Transport-Security "max-age=15768000"',
              Location     => {
                   "/" => {
                       SetHandler          => 'modperl',
