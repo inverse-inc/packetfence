@@ -149,9 +149,9 @@ sub cleanupBeforeCommit {
 
 sub commit {
     my ( $self ) = @_;
-    my $result = $self->SUPER::commit();
+    my ($result,$msg) = $self->SUPER::commit();
     pf::violation_config::loadViolationsIntoDb();
-    return $result;
+    return ($result,$msg);
 }
 
 =head1 AUTHOR
