@@ -26,7 +26,7 @@ use pf::CHI;
 use pf::log;
 use pf::node qw(node_modify);
 
-use constant FINGERBANK_CACHE_EXPIRE => 5;    # Expires cache entry after 300s (5 minutes)
+use constant FINGERBANK_CACHE_EXPIRE => 300;    # Expires cache entry after 300s (5 minutes)
 
 our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
 
@@ -44,9 +44,6 @@ sub process {
 
     # Querying for a resultset
     my $query_result = _query($query_args);
-
-use Data::Dumper;
-$logger->info(Dumper($query_result));
 
     # Updating the node device type based on the result
     node_modify( $mac, ( 'device_type' => $query_result->{'device'}{'name'} ) );
