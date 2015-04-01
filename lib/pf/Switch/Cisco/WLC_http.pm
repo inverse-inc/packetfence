@@ -40,7 +40,7 @@ use pf::accounting qw(node_accounting_current_sessionid);
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::node qw(node_attributes node_view);
 use pf::web::util;
-use pf::violation qw(violation_count_trap);
+use pf::violation;
 
 sub description { 'Cisco Wireless Controller (WLC HTTP)' }
 
@@ -142,7 +142,8 @@ sub returnRadiusAccessAccept {
     # Roles are configured and the user should have one
     if (defined($role) && isenabled($this->{_RoleMap})) {
         my $node_info = node_view($mac);
-        if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED) {
+        my $violation = pf::violation::violation_view_top($mac);
+        if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
             $radius_reply_ref = {
                 'User-Name' => $mac,
                 $this->returnRoleAttribute => $role,
