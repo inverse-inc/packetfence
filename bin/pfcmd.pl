@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -T
 =head1 NAME
 
 pfcmd
@@ -13,8 +13,7 @@ driver script for pfcmd
 
 use strict;
 use warnings;
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
+use lib qw(/usr/local/pf/lib);
 
 use pf::cmd::pf;
 exit pf::cmd::pf->new({args => \@ARGV})->run();
