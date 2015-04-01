@@ -237,7 +237,7 @@ sub reset :Chained('object') :PathPart('reset') :Args(0) :AdminRole('USERS_UPDAT
 
 =cut
 
-sub create :Local :AdminRole('USERS_CREATE') {
+sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULITPLE') {
     my ($self, $c) = @_;
 
     my (@roles, $form, $form_single, $form_multiple, $form_import, $params);
@@ -266,8 +266,15 @@ sub create :Local :AdminRole('USERS_CREATE') {
     $form_multiple->process(params => $params);
 
     if ($c->request->method eq 'POST') {
-        # Create new user accounts
         $type = $c->request->param('type');
+        #check if they can do multiple actions
+        unless ($type eq 'single' || admin_can([$c->user->roles], 'USERS_CREATE_MULTIPLE')) {
+            $c->response->status(HTTP_UNAUTHORIZED);
+            $c->stash->{status_msg}   = "You don't have the rights to perform this action.";
+            $c->stash->{current_view} = 'JSON';
+            $c->detach();
+        }
+        # Create new user accounts
         if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;
             $message = $form->field_errors;
