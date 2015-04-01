@@ -825,8 +825,8 @@ fi
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)      /usr/local/pf/conf/radiusd/clients.conf.inc
                         /usr/local/pf/conf/radiusd/clients.conf.inc.example
-%config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-actif
-                        /usr/local/pf/conf/radiusd/packetfence-actif.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster
+                        /usr/local/pf/conf/radiusd/packetfence-cluster.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.inc
                         /usr/local/pf/conf/radiusd/proxy.conf.inc.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
@@ -866,6 +866,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
                         /usr/local/pf/conf/keepalived.conf.example
+%config(noreplace)      /usr/local/pf/conf/cluster.conf
+                        /usr/local/pf/conf/cluster.conf.example
 %config(noreplace)      /usr/local/pf/conf/listener.msg
                         /usr/local/pf/conf/listener.msg.example
 %config(noreplace)      /usr/local/pf/conf/popup.msg
