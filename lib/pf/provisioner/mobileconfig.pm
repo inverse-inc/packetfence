@@ -25,7 +25,7 @@ The set the default OS to IOS
 =cut
 
 # Will always ignore the oses parameter provided and use ['Apple iPod, iPhone or iPad']
-has 'oses' => (is => 'ro', default => sub { ['Apple iPod, iPhone or iPad'] }, coerce => sub { ['Apple iPod, iPhone or iPad'] });
+has 'oses' => (is => 'ro', default => sub { ['Apple iPod, iPhone or iPad', 'Mac OS X Lion'] }, coerce => sub { ['Apple iPod, iPhone or iPad', 'Mac OS X Lion'] });
 
 =head2 ssid
 

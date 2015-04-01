@@ -33,7 +33,6 @@ sub index : Path : Args(0) {
     my $logger = $c->log;
     my $provisioner = $c->profile->findProvisioner($mac);
     $provisioner->authorize($mac) if (defined($provisioner));
-    $logger->info(Dumper($provisioner));
     $c->stash(
         template     => 'wireless-profile.xml',
         current_view => 'MobileConfig',
@@ -43,7 +42,27 @@ sub index : Path : Args(0) {
         certcn       => $c->session->{certificate_cn},
         fingerprint  => $c->session->{fingerprint},
         for_windows  => ($provisioner->{type} eq 'windows'),
+        for_ios      => ($provisioner->{type} eq 'mobileconfig'),
+        cacn         => $c->session->{cacn},
+        svrcn        => $c->session->{svrcn},
+        svrdata      => $c->session->{svrdata},
+        cadata       => $c->session->{cadata},
     );
+    #if ($provisioner->{type} eq 'windows'){
+    #    my $fh;
+    #    my $filename = "/usr/local/pf/html/captive-portal/content/test.exe";
+    #    $logger->info(Dumper($filename)); 
+    #    $logger->info(Dumper($stash)); 
+    #    open ($fh, '>>', $filename);
+    #    print $fh "$stash->{'fingerprint'}\n";
+    #    print $fh "$stash->{'certcn'}\n";
+    #    print $fh "$stash->{'certdata'}\n";
+    #    print $fh "$stash->{'provisioner'}->{'type'}\n";
+    #    print $fh "$stash->{'username'}\n";
+    #    my $cmd = pf_run("cat $filename");
+    #    $logger->info(Dumper($cmd));
+    #    close $fh;
+    #}
 }
 
 sub profile_xml : Path('/profile.xml') : Args(0) {

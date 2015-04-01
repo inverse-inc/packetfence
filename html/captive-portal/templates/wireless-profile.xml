@@ -20,10 +20,12 @@
                                 <key>EAPFASTUsePAC</key>
                                 <false/>
                                 <key>TLSAllowTrustExceptions</key>
-                                <true/>
+                                <false/>
                                 <key>TLSTrustedServerNames</key>
                                 <array>
-                                    <string>packetfence.org</string>
+                                    <string>svr</string>
+                                    <string>*pf-aa.antoine*</string>
+                                    <string>TestEAP</string>
                                 </array>
                                 <key>UserName</key>
                                 <string>[% username %]</string>
@@ -54,12 +56,12 @@
                         <key>Password</key>
                         <string>[% provisioner.passcode %]</string>
                 </dict>
-                [% IF provisioner.eap_type.defined and provisioner.eap_type != "25" %]
+                [% IF provisioner.eap_type.defined and provisioner.eap_type == "13" %]
                 <dict>
                         <key>PayloadCertificateFileName</key>
                         <string>[% certcn %]</string>
                         <key>PayloadContent</key>
-                        [% IF provisioner.eap_type == "13" and provisoner.matchOS == "Windows" %]
+                        [% IF for_windows %]
                         <string>[% certdata %]</string>
                         [% ELSE %]
                         <data>[% certdata %]</data>
@@ -76,6 +78,50 @@
                         <string>com.apple.security.pkcs12</string>
                         <key>PayloadUUID</key>
                         <string>506CD34F-0AD1-4421-9F98-BA19DC4E0253</string>
+                        <key>PayloadVersion</key>
+                        <integer>1</integer>
+                </dict>
+                [% END %]
+                [% IF for_ios and provisioner.eap_type == "13" %]
+                <dict>
+                        <key>PayloadCertificateFileName</key>
+                        <string>[% cacn %]</string>
+                        <key>PayloadContent</key>
+                        <data>[% cadata %]</data>
+                        <key>PayloadDescription</key>
+                        <string>Provides device authentication (certificate or identity).</string>
+                        <key>PayloadDisplayName</key>
+                        <string>[% provisioner.id %]</string>
+                        <key>PayloadIdentifier</key>
+                        <string>[% provisioner.reversedns %]</string>
+                        <key>PayloadOrganization</key>
+                        <string>[% provisioner.company %]</string>
+                        <key>PayloadType</key>
+                        <string>com.apple.security.pem</string>
+                        <key>PayloadUUID</key>
+                        <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
+                        <key>PayloadVersion</key>
+                        <integer>1</integer>
+                </dict>
+                [% END %]
+                [% IF for_ios and provisioner.eap_type == "13" %]
+                <dict>
+                        <key>PayloadCertificateFileName</key>
+                        <string>[% svrcn %]</string>
+                        <key>PayloadContent</key>
+                        <data>[% svrdata %]</data>
+                        <key>PayloadDescription</key>
+                        <string>Provides device authentication (certificate or identity).</string>
+                        <key>PayloadDisplayName</key>
+                        <string>[% provisioner.id %]</string>
+                        <key>PayloadIdentifier</key>
+                        <string>[% provisioner.reversedns %]</string>
+                        <key>PayloadOrganization</key>
+                        <string>[% provisioner.company %]</string>
+                        <key>PayloadType</key>
+                        <string>com.apple.security.pem</string>
+                        <key>PayloadUUID</key>
+                        <string>96148a46-d87a-11e4-b9d6-1681e6b88ec1</string>
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                 </dict>
