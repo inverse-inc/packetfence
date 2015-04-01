@@ -134,7 +134,7 @@ sub fetchVlanForNode {
         $logger->warn("[$mac] Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
         $vlan = $switch->getVlanByName('macDetection');
     }
-    $logger->info("[$mac] PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. " Returned VLAN: $vlan, Role: $user_role ");
+    $logger->info("[$mac] PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. " Returned VLAN: $vlan, Role: " . (defined $user_role ? $user_role : "(undefined)") );
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return ( $vlan, 0, $user_role );
 }
