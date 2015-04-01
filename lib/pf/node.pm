@@ -491,7 +491,7 @@ sub node_add_simple {
     my ($mac) = @_;
     my $date  = mysql_date();
     my %tmp   = (
-        'pid'         => 'admin',
+        'pid'         => 'default',
         'detect_date' => $date,
         'regdate'     => 0,
         'unregdate'   => 0,
@@ -1194,7 +1194,7 @@ sub is_max_reg_nodes_reached {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # default_pid is a special case: no limit for this user
-    return $FALSE if ($pid eq $default_pid);
+    return $FALSE if ($pid eq $default_pid || $pid eq $admin_pid);
 
     # per-category max node per pid limit
     if ( $category || $category_id ) {

@@ -505,10 +505,13 @@ sub database {
 
     try {
 
-        # make sure pid "admin" exists
+        # make sure pid "admin" and "default" exists
         require pf::person;
         if ( !pf::person::person_exist("admin") ) {
             add_problem( $FATAL, "person user id \"admin\" must exist - please reinitialize your database" );
+        }
+        if ( !pf::person::person_exist("default") ) {
+            add_problem( $FATAL, "person user id \"default\" must exist - please reinitialize your database" );
         }
 
     } catch {

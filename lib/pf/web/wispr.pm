@@ -89,7 +89,7 @@ sub handler {
             $mac = $portalSession->getClientMac;
         }
 
-        $info{'pid'} = 'admin';
+        $info{'pid'} = 'default';
         $pid = $req->param("username") if (defined $req->param("username"));
         $r->pnotes->{pid}=$pid;
         $r->pnotes->{mac} = $mac;

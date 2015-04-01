@@ -16,15 +16,15 @@ use warnings;
 use Readonly;
 use base qw(Exporter);
 our @EXPORT = qw(
-    $FALSE $TRUE $YES $NO $default_pid
+    $FALSE $TRUE $YES $NO $default_pid $admin_pid
 );
 # some global constants
 Readonly::Scalar our $FALSE => 0;
 Readonly::Scalar our $TRUE => 1;
 Readonly::Scalar our $YES => 'yes';
 Readonly::Scalar our $NO => 'no';
-Readonly::Scalar our $default_pid => 'admin';
-
+Readonly::Scalar our $default_pid => 'default';
+Readonly::Scalar our $admin_pid => 'admin';
 
 =head1 AUTHOR
 

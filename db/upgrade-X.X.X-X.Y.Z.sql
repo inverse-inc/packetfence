@@ -79,3 +79,15 @@ ALTER TABLE iplog_archive MODIFY end_time datetime NOT NULL;
 --- Alter for bypass_role
 ---
 ALTER TABLE node ADD `bypass_role_id` INT DEFAULT NULL;
+
+--
+-- Insert a new 'default' user
+--
+
+INSERT INTO `person` (pid,notes) VALUES ("default","Default User - do not delete");
+
+--
+-- Reassigning all unregistered nodes to the 'default' pid
+--
+
+UPDATE `node` SET pid = 'default' WHERE status = 'unreg';
