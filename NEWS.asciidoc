@@ -25,6 +25,7 @@ Enhancements
 
 Bug Fixes
 +++++++++
+* Fixed violations applying portal redirection when using web authentication on a Cisco WLC
 
 Version 4.7.0 released on 2015-03-06
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
