@@ -25,7 +25,8 @@ sub showHelp {
     my $location = pod_where({-inc => 1}, $package);
     pod2usage({
         -message => $self->{help_msg} ,
-        -input => $location
+        -input => $location,
+        -exitval => 0,
     });
 }
 
