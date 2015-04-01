@@ -85,3 +85,9 @@ ALTER TABLE node ADD `bypass_role_id` INT DEFAULT NULL;
 --
 
 INSERT INTO `person` (pid,notes) VALUES ("default","Default User - do not delete");
+
+--
+-- Reassigning all unregistered nodes to the 'default' pid
+--
+
+UPDATE `node` SET pid = 'default' WHERE status = 'unreg';
