@@ -20,6 +20,7 @@ New Features
 
 Enhancements
 ++++++++++++
+* New admin role action USERS_CREATE_MULTIPLE for more fine grain control of the admin GUI
 
 
 Bug Fixes
