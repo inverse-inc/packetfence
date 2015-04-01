@@ -100,7 +100,7 @@ sub fetchVlanForNode {
     my ($violation,$registration,$role);
     # violation handling
     ($violation,$role) = $this->getViolationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
-    if (defined($violation) && $violation != 0) {
+    if (defined($violation) && $violation ne 0) {
         return ( $violation, 0, $role);
     } elsif (!defined($violation)) {
         $logger->warn("[$mac] There was a problem identifying vlan for violation. Will act as if there was no violation.");
@@ -108,7 +108,7 @@ sub fetchVlanForNode {
 
     # there were no violation, now onto registration handling
     ($registration,$role) = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
-    if (defined($registration) && $registration != 0) {
+    if (defined($registration) && $registration ne 0) {
         if ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
             if (isenabled($node_info->{'autoreg'})) {
                 $logger->info("[$mac] Connection type is WIRELESS_MAC_AUTH and the device was coming from a secure SSID with auto registration");
