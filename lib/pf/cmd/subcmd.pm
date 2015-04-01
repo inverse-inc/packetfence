@@ -42,6 +42,8 @@ sub parseArgs {
             my $base = ref($self) || $self;
             $module = "${base}::${action}";
         }
+        $module =~ /^(.*)$/;
+        $module = $1;
         eval {
             load $module unless is_loaded($module);
             $cmd = $module;
