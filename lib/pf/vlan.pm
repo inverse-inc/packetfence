@@ -134,7 +134,7 @@ sub fetchVlanForNode {
         $logger->warn("[$mac] Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
         $vlan = $switch->getVlanByName('macDetection');
     }
-    $logger->info("[$mac] PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
+    $logger->info("[$mac] PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. " Returned VLAN: $vlan, Role: $user_role ");
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return ( $vlan, 0, $user_role );
 }
@@ -228,7 +228,7 @@ sub getViolationVlan {
     # Vlan Filter
     my $filter = new pf::vlan::filter;
     my ($result,$role) = $filter->test('ViolationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
-    if ($result) { 
+    if ($result) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ($result,$role);
     }
@@ -384,6 +384,8 @@ sub getNormalVlan {
     my $start = Time::HiRes::gettimeofday();
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
 
+    my ($vlan, $role, $result);
+
     my $provisioner = $profile->findProvisioner($mac,$node_info);
     if (defined($provisioner) && $provisioner->{enforce}) {
         $logger->info("[$mac] Triggering provisioner check");
@@ -393,19 +395,18 @@ sub getNormalVlan {
         $logger->info("[$mac] Can't find provisioner");
     }
 
-    # Bypass VLAN is configured in node record so we return accordingly
-    if ( defined($node_info->{'bypass_vlan'}) && $node_info->{'bypass_vlan'} ne '' ) {
-        $logger->info("[$mac] Bypass VLAN '" . $node_info->{'bypass_vlan'} . "' is configured.");
+    $vlan = _check_bypass($mac, $node_info, $switch);
+    if( $vlan ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
-        return $node_info->{'bypass_vlan'};
+        return $vlan;
     }
 
     $logger->debug("[$mac] Trying to determine VLAN from role.");
 
     # Vlan Filter
     my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('NormalVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
-    if ( $result ) { 
+    ($result,$role) = $filter->test('NormalVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    if ( $result ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ($result,$role);
     }
@@ -480,7 +481,7 @@ sub getNormalVlan {
         $role = $node_info->{'category'};
         $logger->info("[$mac] Username was NOT defined or unable to match a role - returning node based role '$role'");
     }
-    my $vlan = $switch->getVlanByName($role);
+    $vlan = $switch->getVlanByName($role);
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return ($vlan, $role);
 }
@@ -513,7 +514,7 @@ sub getInlineVlan {
 
     my $filter = new pf::vlan::filter;
     my ($result,$role) = $filter->test('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
-    if ( $result ) { 
+    if ( $result ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return $result;
     }
@@ -595,7 +596,7 @@ sub getNodeInfoForAutoReg {
         };
 
         my $source;
-        # Don't override vlan filter role 
+        # Don't override vlan filter role
         if (!defined($role)) {
             $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
         }
@@ -728,6 +729,27 @@ sub isInlineTrigger {
         }
     }
 }
+
+sub _check_bypass {
+    my ( $mac, $node_info, $switch ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref(__PACKAGE__) );
+
+    if ( @_ < 3 ) { return undef; }
+
+    # Bypass VLAN/role is configured in node record so we return accordingly
+    if ( defined( $node_info->{'bypass_vlan'} ) && ( $node_info->{'bypass_vlan'} ne '' ) ) {
+        $logger->info( "[$mac] A bypass VLAN is configured. Returning VLAN: " . $node_info->{'bypass_vlan'} );
+        return $node_info->{'bypass_vlan'};
+    }
+    elsif ( defined( $node_info->{'bypass_role'} ) && ( $node_info->{'bypass_role'} ne '' ) ) {
+        $logger->info( "[$mac] A bypass Role is configured. Returning Role: " . $node_info->{'bypass_role'} );
+        return $switch->getVlanByName( $node_info->{'bypass_role'} );
+    }
+    else {
+        return undef;
+    }
+}
+
 
 =head1 AUTHOR
 

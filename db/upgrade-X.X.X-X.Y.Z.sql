@@ -73,3 +73,9 @@ DELIMITER ;
 ALTER TABLE iplog_archive MODIFY mac varchar(17) NOT NULL;
 ALTER TABLE iplog_archive MODIFY ip varchar(45) NOT NULL;
 ALTER TABLE iplog_archive MODIFY end_time datetime NOT NULL;
+
+
+---
+--- Alter for bypass_role
+---
+ALTER TABLE node ADD `bypass_role_id` INT DEFAULT NULL;

@@ -17,6 +17,17 @@
         [% END %]
       </ul>
     </li>
+    [% IF bulk_type == 'node' %]
+        <li class="divider"></li>
+        <li class="dropdown-submenu">
+          <a tabindex="-1">[% l('Apply Bypass Role') %]</a>
+          <ul class="dropdown-menu" id="apply_roles">
+            [% FOREACH role IN roles %]
+            <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_apply_bypass_role'),[role.category_id])  %]">[% role.name %]</a></li>
+            [% END %]
+          </ul>
+        </li>
+    [% END %]
     <li class="divider"></li>
     <li class="dropdown-submenu">
       <a  tabindex="-1">[% l('Apply Violation') %]</a>

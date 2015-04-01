@@ -13,6 +13,7 @@
     <option value="switch_ip">[% l('Source switch IP') %]</option>
     <option value="computername">[% l('Computer Name') %]</option>
     <option value="bypass_vlan">[% l('Bypass VLAN') %]</option>
+    <option value="bypass_role">[% l('Bypass Role') %]</option>
   </select>
   <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
     <option value="equal">[% l('is') %]</option>
