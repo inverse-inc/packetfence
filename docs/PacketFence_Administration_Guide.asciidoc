@@ -2183,7 +2183,7 @@ Portal profiles should be managed from PacketFence's Web administrative GUI - fr
 
 * Filters under *Configuration -> Portal Profile -> Portal Name -> Fitlers*
 
-Packetfence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI and VLAN.
+PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI and VLAN.
 
 Example with the most common ones:
 
