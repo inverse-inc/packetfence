@@ -108,7 +108,7 @@ sub fetchVlanForNode {
     my ($violation,$registration,$role);
     # violation handling
     ($violation,$role) = $this->getViolationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
-    if (defined($violation) && $violation != 0) {
+    if (defined($violation) && $violation ne "0" ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ( $violation, 0, $role);
     } elsif (!defined($violation)) {
@@ -436,7 +436,7 @@ sub getNormalVlan {
     # FIRST HIT MATCH
     elsif ( defined $user_name && $connection_type && ($connection_type & $EAP) == $EAP ) {
         # Attributes has been computed in getNodeInfoForAutoReg
-        if ((isenabled($node_info->{'autoreg'}) && $autoreg) || isdisabled($profile->dot1xRecomputeRoleFromPortal)) {
+        if ((isenabled($node_info->{'autoreg'}) && $autoreg) && isdisabled($profile->dot1xRecomputeRoleFromPortal)) {
             $logger->info("[$mac] Connection type is EAP. Getting role from node_info" );
             $role = $node_info->{'category'};
         } else {
