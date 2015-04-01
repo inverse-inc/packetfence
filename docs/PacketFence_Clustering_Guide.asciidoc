@@ -36,7 +36,7 @@ During the OS installation, reduce the size of the main partition and create a n
 Partitioning
 ^^^^^^^^^^^^
 
-After the install, you need to create the extra partition for drbd. Using fdisk, create you new partition and save the table. You will probably need to reboot your server after this step.
+After the install, you need to create the extra partition for drbd. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
 
 DRBD and Linux-HA Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -132,7 +132,7 @@ where:
 [options="compact"]
 * `mysql` is the name of the partition you created when installing the OS
 * `pf1_server_name` and `pf2_server_name` by the real server names (http://en.wikipedia.org/wiki/Fully_qualified_domain_name[FQDN])
-* `ha_interface_ip_address_1` and `ha_interface_ip_address_2` by the IP addresses dedicated to DRBD on each server (use a dedicated NIC for this, not the main one with all the IPs)
+* `ha_interface_ip_address_1` and `ha_interface_ip_address_2` by the IP addresses of the management interface on both servers.
 * `storage_device` is the device to use for the MySQL partition (ie. `/dev/sda2`)
 
 Then initialize the partition:
