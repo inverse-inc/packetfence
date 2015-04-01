@@ -52,10 +52,10 @@ has_field 'dhcp_max_lease_time' =>
   );
 has_field 'dns' =>
   (
-   type => 'IPAddress',
+   type => 'IPAddresses',
    label => 'DNS Server',
    required_when => { 'fake_mac_enabled' => sub { $_[0] ne '1' } },
-   messages => { required => "Please specify the DNS server's IP address." },
+   messages => { required => "Please specify the DNS server's IP address(es)." },
    tags => { after_element => \&help,
              help => 'Should match the IP of a registration interface or the production DNS server if the network is Inline L3' },
   );
