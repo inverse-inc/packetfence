@@ -253,7 +253,6 @@ sub checkIfTlsEnrolement : Private {
     my $role = $info->{category};
     #if role is tls-enrolement then process to define controller
     if ($role eq "tls-enrolement"){
-        #$info->{status} = $pf::node::STATUS_PENDING;
         node_modify($mac, %$info);
         $c->session->{info} = $c->stash->{info};
         $c->detach(tlsprofile => 'index');

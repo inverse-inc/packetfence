@@ -16,8 +16,8 @@
           <input type="hidden" name="destination_url" value="[% destination_url %]" /> 
 
           <div class="input">
-            <span>[% i18n("Username") %]</span>
-            <input class="field" name="certificate_cn" id="firstfield" type="text" value="[% certificate_cn | html %]" />
+            <!--<span>[% i18n("Username") %]</span>
+            <input class="field" name="certificate_cn" id="firstfield" type="text" value="[% certificate_cn | html %]" />-->
             
             <span>[% i18n("Password") %]</span>
             <input class="field" name="certificate_pwd" type="text" value="[% certificate_pwd | html %]" />
@@ -27,7 +27,7 @@
 
           </div>
 
-          [% skipFields = {username => undef, password => undef, email => undef} %]
+          [% skipFields = {password => undef, email => undef} %]
           [% FOREACH field IN mandatory_fields %]
           [%- NEXT IF skipFields.exists(field) -%]
           <div class="input">

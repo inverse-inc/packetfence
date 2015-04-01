@@ -16,6 +16,7 @@ use pf::authentication;
 use HTML::Entities;
 #use URI::Escape::XS qw(uri_escape);
 use pf::web;
+use File::Basename;
 use Email::Valid;
 
 
@@ -48,11 +49,13 @@ sub index : Path : Args(0) {
     my $mac = $c->portalSession->clientMac;
     my $node_info = node_view($mac);
     my $pid = $node_info->{'pid'};
+    #my $host = "";
+    #my $ldapreq = "ldapsearch -h $host -s sub -b $basedn -D $binddn -w $passwd \"(cn=$username)\" | grep mail ";
     my $provisioner = $c->profile->findProvisioner($mac);
     #$provisioner->authorize($mac) if (defined($provisioner));
     $c->stash(
         post_uri            => '/tlsprofile/cert_process',
-        certificate_cn      => $request->param_encoded("certificate_cn"),
+        certificate_cn      => $username, #$request->param_encoded("certificate_cn"),
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
         certificate_email   => lc( $request->param_encoded("certificate_email")),
         template            => 'pki.html',
@@ -70,7 +73,10 @@ sub build_cert_p12 : Path : Args(0) {
     my $cert = $c->stash->{'certificate_cn'} . ".p12";
     my $certname = "$cert_dir/$cert";
     $c->session( certificate_cn => "$cert" );
-    my $pid = "";
+    my $portalSession = $c->portalSession;
+    my $mac           = $portalSession->clientMac;
+    my $node_info     = node_view($mac);
+    my $pid           = $node_info->{'pid'};
     my $fh;
     open ($fh, '>', $certname);
     if (-e $certname) { 
@@ -80,19 +86,14 @@ sub build_cert_p12 : Path : Args(0) {
         $logger->info("The certificate file could not be saved for username \"$pid\"");
         $self->showError($c,"An error has occured while trying to save your certificate, please contact your IT support");
     }
-    unless ( $c->has_errors ){
-        my $portalSession = $c->portalSession;
-        my $mac           = $portalSession->clientMac;
-        my $node_info     = node_view($mac);
-        my $pid           = $node_info->{'pid'};
-    }
     print $fh "$cert_data\n";
     close $fh;
 }
 
-sub cert_Clean : Local {
+sub cert_clean : Local {
     my ($self,$c) = @_;
-  
+    #remove certificates older than 1 days store on pf
+    pf_run("find $cert_dir -mtime +1 -exec rm {} \;");
 }
 
 sub get_cert : Private {
@@ -136,7 +137,7 @@ sub get_cert : Private {
         $c->stash( cert_content    => $response_body );
     }
     elsif ($curl_return_code == -1) {
-        $logger->info("Username \"$pid\" certificate couldnt not be acquire, check out logs on the pki");
+        $logger->info("Username \"$pid\" certificate could not be acquire, check out logs on the pki");
         $self->showError($c, "There was an issue with the generation of your certificate please contact your IT support.");
     }
 }
@@ -150,32 +151,11 @@ sub cert_process : Local {
     $c->forward('build_cert_p12');
     $c->forward('b64_cert');
     $c->forward('export_fingerprint');
-    #$c->forward( 'Authenticate' => 'checkIfProvisionIsNeeded' );
+    $c->forward( 'Authenticate' => 'checkIfProvisionIsNeeded' );
     use Data::Dumper;
     $logger->info(Dumper($c->stash->{info}).'bob');
     $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}{pid}, %{$c->stash->{info}}]);
     $c->forward( 'CaptivePortal' => 'endPortalSession' );
-}
-
-sub checkIfProvisionIsNeeded : Private {
-    my ( $self, $c ) = @_;
-    my $portalSession = $c->portalSession;
-    my $info = $c->stash->{info};
-    my $logger = $c->log;
-    my $mac = $portalSession->clientMac;
-    my $profile = $c->profile;
-    my $bob = $profile->findProvisioner($mac);
-    if (defined( my $provisioner = $profile->findProvisioner($mac))) {
-        if ($provisioner->authorize($mac) == 0) {
-            $info->{status} = $pf::node::STATUS_PENDING;
-            node_modify($mac, %$info);
-            $c->stash(
-                template    => $provisioner->template,
-                provisioner => $provisioner,
-            );
-            $c->detach();
-        }
-    }
 }
 
 sub validateform : Private {
@@ -217,33 +197,30 @@ sub export_fingerprint : Local {
     my ($self, $c) = @_;
     my $logger = $c->log;
     my $session = $c->session;
-    my $pid = "";
-    unless ( $c->has_errors ){
-        my $portalSession = $c->portalSession;
-        my $mac           = $portalSession->clientMac;
-        my $node_info     = node_view($mac);
-        my $pid           = $node_info->{'pid'};
-    }
     my $stash = $c->stash;
-    my $cacert = $stash->{provisioner}->{ca_path};
-    use Data::Dumper;
-    $logger->info(Dumper($cacert).'cacert');
-    my $data = pf_run("openssl x509 -in $cacert -fingerprint");
-    #my $file = $1;
-    #open FH, "< $cacert" or die $!;
-    #my $data = "";
-
-    #while (<FH>) {
-    #    $data .= $_;
-    #}
-        
-    $data =~ /.*\/([a-zA-Z0-9.]+)$/;
-    $data =~ s/.*SHA1 Fingerprint=//smg; 
+    #my $provisioner = $stash->{'provisioner'};
+    #$logger->info('CA_PATH'.Dumper($provisioner));
+    #my $cacert = $provisioner->{'ca_path'};
+    #$logger->info('CA_PATH'.Dumper($cacert));
+    my $capath = "/usr/local/pf/raddb/certs/TestEAP.pem"; 
+    my $svrpath = "/usr/local/pf/raddb/certs/svr.pem"; 
+    my $data = pf_run("openssl x509 -in $capath -fingerprint");
+    my $cadata = pf_run("openssl x509 -in $capath -text");
+    my $svrdata = pf_run("openssl x509 -in $svrpath -text");
+    my $cafile = basename($capath);
+    my $svrfile = basename($svrpath);
+    $c->session( cacn => $cafile );
+    $c->session( svrcn => $svrfile );
+    $cadata =~ s/-----END CERTIFICATE-----\n.*//smg;
+    $cadata =~ s/.*-----BEGIN CERTIFICATE-----\n//smg; 
+    $c->session( cadata => $cadata );
+    $svrdata =~ s/-----END CERTIFICATE-----\n.*//smg;
+    $svrdata =~ s/.*-----BEGIN CERTIFICATE-----\n//smg; 
+    $c->session( svrdata => $svrdata );
     $data =~ s/-----BEGIN CERTIFICATE-----\n.*//smg;
     $data =~ s/\:/\ /smg;
     $c->session( fingerprint => $data );
 }
-
 
 =head1 AUTHOR
 
