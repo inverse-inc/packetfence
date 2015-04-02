@@ -14,6 +14,7 @@ Customizations can be made using L<pfappserver::Controller::Config::Fingerbank::
 
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
+use fingerbank::Config;
 
 use HTTP::Status qw(:constants is_error is_success);
 
@@ -50,7 +51,7 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
             $status_msg = $form->field_errors;
         } else {
             my %params = ();
-            %params->{'upstream'}{'api_key'} = $c->req->params->{'api_key'};
+            $params{'upstream'}{'api_key'} = $c->req->params->{'api_key'};
             ( $status, $status_msg ) = fingerbank::Config::write_config(\%params);
             $c->req->method('GET'); # We need to change the request method since there's a filter  on it in the index part.
             $c->go('index');
@@ -93,7 +94,7 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
         } else {
             my $params = $form->value;
 
-            # TODO: Ugly hack to handle the fact that unchecked checkboxes are not being returned as a param by HTTP and needs 
+            # TODO: Ugly hack to handle the fact that unchecked checkboxes are not being returned as a param by HTTP and needs
             # to be set as 'disabled'
             ( !$params->{'upstream'}{'interrogate'} ) ? $params->{'upstream'}{'interrogate'} = 'disabled':();
             ( !$params->{'query'}{'record_unmatched'} ) ? $params->{'query'}{'record_unmatched'} = 'disabled':();
