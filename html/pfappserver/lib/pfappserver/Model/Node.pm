@@ -31,7 +31,6 @@ use pf::iplog;
 use pf::locationlog;
 use Log::Log4perl qw(get_logger);
 use pf::node;
-use pf::os;
 use pf::person;
 use pf::enforcement qw(reevaluate_access);
 use pf::useragent qw(node_useragent_view);
@@ -195,12 +194,6 @@ sub view {
         # Fetch user-agent information
         if ($node->{user_agent}) {
             $node->{useragent} = node_useragent_view($mac);
-        }
-
-        # Fetch DHCP fingerprint information
-        if ($node->{'dhcp_fingerprint'}) {
-            my @fingerprint_info = dhcp_fingerprint_view( $node->{'dhcp_fingerprint'} );
-            $node->{dhcp} = pop @fingerprint_info;
         }
 
         #    my $node_accounting = node_accounting_view($mac);

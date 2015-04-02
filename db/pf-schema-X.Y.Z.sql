@@ -256,36 +256,6 @@ CREATE TABLE iplog_archive (
   end_time datetime NOT NULL
 ) ENGINE=InnoDB;
 
-CREATE TABLE os_type (
-  os_id int(11) NOT NULL,
-  description varchar(255) NOT NULL,
-  PRIMARY KEY os_id (os_id)
-) ENGINE=InnoDB;
-
-CREATE TABLE dhcp_fingerprint (
-  fingerprint varchar(255) NOT NULL,
-  os_id int(11) NOT NULL,
-  PRIMARY KEY fingerprint (fingerprint),
-  KEY os_id_key (os_id),
-  CONSTRAINT `0_65` FOREIGN KEY (`os_id`) REFERENCES `os_type` (`os_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
-CREATE TABLE os_class (
-  class_id int(11) NOT NULL,
-  description varchar(255) NOT NULL,
-  PRIMARY KEY class_id (class_id)
-) ENGINE=InnoDB;
-
-CREATE TABLE os_mapping (
-  os_type int(11) NOT NULL,
-  os_class int(11) NOT NULL,
-  PRIMARY KEY  (os_type,os_class),
-  KEY os_type_key (os_type),
-  KEY os_class_key (os_class),
-  CONSTRAINT `0_66` FOREIGN KEY (`os_type`) REFERENCES `os_type` (`os_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `0_67` FOREIGN KEY (`os_class`) REFERENCES `os_class` (`class_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
 CREATE TABLE `locationlog` (
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',

@@ -25,7 +25,6 @@ use pf::scan;
 use pf::util;
 use pf::node;
 use Net::Nessus::XMLRPC;
-use pf::os qw(dhcp_fingerprint_view);
 
 =head1 SUBROUTINES
 
@@ -140,27 +139,10 @@ sub getPolicyByCategory {
 
     my $mac = clean_mac($this->{_scanMac});
     my $node_info = node_view($mac);
-    my @fingerprint = dhcp_fingerprint_view($node_info->{'dhcp_fingerprint'});
 
-    if (defined ($Config{'nessus_scan_by_fingerprint'} ) ){
-        my %finger_rule = %{ $Config{'nessus_scan_by_fingerprint'} };
-
-        foreach my $scan ( keys %finger_rule ) {
-            if (defined($fingerprint[0]->{'os'}) && $fingerprint[0]->{'os'} =~ m/$scan/i) {
-                return $finger_rule{$scan};
-            }
-        }
-    } elsif (defined($node_info->{'category'})) {
-        if (defined($Config{'nessus_category_policy'}{$node_info->{'category'}})) {
-            return $Config{'nessus_category_policy'}{$node_info->{'category'}};
-        }
-        else {
-            return $Config{'scan'}{'nessus_clientpolicy'};
-        }
-    }
-    else {
-        return $Config{'scan'}{'nessus_clientpolicy'};
-    }
+    # NOTE ! Removed the logic here since the config parameters didn't even exist anymore
+    # No sure it will work but it already has better chances of working
+    return $Config{'scan'}{'nessus_clientpolicy'};
 }
 
 

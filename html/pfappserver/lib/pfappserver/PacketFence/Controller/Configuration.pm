@@ -21,7 +21,6 @@ use POSIX;
 use URI::Escape::XS;
 use Log::Log4perl qw(get_logger);
 
-use pf::os;
 use pf::util qw(load_oui download_oui);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
 # imported but it's better than duplicating regex all over the place.

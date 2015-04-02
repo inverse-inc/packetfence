@@ -17,7 +17,6 @@ use pf::violation;
 use pf::class;
 use Cache::FileCache;
 use pf::activation;
-use pf::os;
 use List::MoreUtils qw(any);
 use List::Util qw(first);
 use pf::factory::provisioner;
