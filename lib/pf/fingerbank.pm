@@ -40,7 +40,7 @@ sub process {
     my ( $query_args ) = @_;
     my $logger = pf::log::get_logger;
 
-    my $mac = $query_args->{'mac_vendor'};
+    my $mac = $query_args->{'mac'};
 
     # Querying for a resultset
     my $query_result = _query($query_args);
@@ -48,7 +48,7 @@ sub process {
     # Updating the node device type based on the result
     node_modify( $mac, ( 'device_type' => $query_result->{'device'}{'name'} ) );
 
-    _trigger_violations($mac, $query_args, $query_result);
+    _trigger_violations($query_args, $query_result);
 
     return $query_result->{'device'}{'name'};
 }
@@ -63,10 +63,10 @@ sub _query {
 
     my $cache = pf::CHI->new( namespace => 'fingerbank' );
 
-    # Doing a shallow copy or the args hashref to remove 'mac_vendor' from it.
-    # We are using the args as the cache key and don't want to have 'mac_vendor' since it is too specific
+    # Doing a shallow copy or the args hashref to remove 'mac' from it.
+    # We are using the args as the cache key and don't want to have 'mac' since it is too specific
     my $cached_args = { %$args };
-    delete $cached_args->{'mac_vendor'};
+    delete $cached_args->{'mac'};
 
     return $cache->compute($cached_args, {expires_in => FINGERBANK_CACHE_EXPIRE},
         sub {
@@ -82,8 +82,10 @@ sub _query {
 =cut
 
 sub _trigger_violations {
-    my ( $mac, $query_args, $query_result ) = @_;
+    my ( $query_args, $query_result ) = @_;
     my $logger = pf::log::get_logger;
+
+    my $mac = $query_args->{'mac'};
 
     my $apiclient = pf::api::jsonrpcclient->new;
 
