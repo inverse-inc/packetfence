@@ -80,7 +80,7 @@ Other than that it proxies the call to pfconfig
 
 sub FETCH {
     my ( $self, $index ) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     my $subcache_value = $self->get_from_subcache($index);
     return $subcache_value if defined($subcache_value);
@@ -103,7 +103,7 @@ Proxies the call to pfconfig
 
 sub FETCHSIZE {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     my $result = $self->_get_from_socket( $self->{_namespace}, "array_size" )->{size};
 

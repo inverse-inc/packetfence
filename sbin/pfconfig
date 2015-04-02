@@ -69,7 +69,7 @@ my $encoder = Sereal::Encoder->new;
 my %args;
 getopts( 'dh', \%args );
 
-my $logger = get_logger;
+my $logger = pfconfig::log::get_logger;
 
 # init signal handlers
 POSIX::sigaction(
@@ -127,6 +127,7 @@ while($RUNNING) {
             #  - line = 'config;value' return the value in the config hash
 
             switch ($query->{method}) {
+                case 'expire' { expire($query, $socket) }
                 case 'element' { get_element($query, $socket) }
                 case 'hash_element' { get_hash_element($query, $socket) }
                 case 'keys' { get_keys($query, $socket) }
@@ -154,6 +155,21 @@ END {
     }
 }
 
+sub expire {
+    my ($query, $socket) = @_;
+    my $namespace = $query->{namespace};
+    my $logger = pfconfig::log::get_logger;
+    my $light = $query->{light};
+    if($namespace eq "__all__"){
+        $cache->expire_all($light);
+    }
+    else{
+        $logger->info("expiring $namespace");
+        $cache->expire($namespace, $light);
+    }
+    send_output({status => "OK."}, $socket);
+}
+
 sub get_from_cache {
     my ($what) = @_;
     my $elem;
@@ -165,7 +181,7 @@ sub get_from_cache {
 
 sub get_element {
     my ($query, $socket) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
     my $elem = get_from_cache_or_croak($query->{key}, $socket);
     return unless(defined($elem));
     send_output({element => $elem}, $socket);
@@ -173,7 +189,7 @@ sub get_element {
 
 sub get_hash_element {
     my ($query, $socket) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     my @keys = split ';', $query->{key};
 
@@ -270,7 +286,7 @@ sub get_next_key {
 
 sub get_array_element {
     my ($query, $socket) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     my @keys = split ';', $query->{key};
 
@@ -313,7 +329,7 @@ sub get_array_index_exists {
 
 sub get_array_size {
     my ($query, $socket) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
     my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
     my $size = @$elem;
     send_output({size => $size}, $socket);

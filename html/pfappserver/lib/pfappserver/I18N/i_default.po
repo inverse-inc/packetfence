@@ -6693,6 +6693,14 @@ msgstr "Protocol"
 msgid "webservices.user"
 msgstr "Username"
 
+# conf/documentation.conf
+msgid "active_active"
+msgstr "Active Active"
+
+# conf/documentation.conf
+msgid "active_active.password"
+msgstr "Shared KEY"
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "weeks"
 msgstr ""

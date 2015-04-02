@@ -67,7 +67,7 @@ sub build {
 
 sub do_defaults {
     my ($self)  = @_;
-    my $logger  = get_logger;
+    my $logger  = pfconfig::log::get_logger;
     my %tmp_cfg = %{ $self->{cfg} };
     unless ( defined( $self->{default_section} ) ) {
         $logger->debug("No default section defined when building $self->{file}");

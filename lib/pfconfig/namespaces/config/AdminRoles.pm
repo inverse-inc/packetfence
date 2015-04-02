@@ -19,7 +19,6 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use Config::IniFiles;
-use pfconfig::log;
 use pf::file_paths;
 use pf::constants::admin_roles;
 

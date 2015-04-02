@@ -116,7 +116,7 @@ my $pidfile = "${var_dir}/run/pfmon.pid";
 
 our $HAS_LOCK = 0;
 open(my $fh,">>$pidfile");
-flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfmon is running\n";
+#flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfmon is running\n";
 $HAS_LOCK = 1;
 
 our $running = 1;
@@ -125,9 +125,17 @@ our $running = 1;
 daemonize($PROGRAM_NAME) if ($daemonize);
 our $PARENT_PID = $$;
 
-registertasks();
-runtasks();
-waitforit();
+
+sub start {
+    my $vip_running = pf::cluster::is_management();
+    if($vip_running){
+        registertasks();
+    }
+    runtasks();
+    waitforit();
+}
+
+start();
 cleanup();
 
 END {
@@ -449,6 +457,7 @@ the handler to cancel any currently running database queries
 sub usr1_sighandler {
    db_cancel_current_query();
 }
+
 
 =head1 AUTHOR
 

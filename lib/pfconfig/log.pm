@@ -17,10 +17,9 @@ use warnings;
 
 use Log::Fast;
 use Sys::Syslog qw( LOG_DAEMON );
-use Exporter;
-
-our @ISA    = qw(Exporter);
-our @EXPORT = qw(get_logger);
+use pfconfig::config;
+use Log::Log4perl;
+use pf::file_paths;
 
 =head2 logger
 
@@ -28,6 +27,7 @@ The logger object
 
 =cut
 
+Log::Log4perl->wrapper_register(__PACKAGE__);
 my $logger = pfconfig::log->new;
 
 =head2 get_logger
@@ -50,19 +50,40 @@ sub new {
     my ($class) = @_;
     my $self = bless {}, $class;
 
-    $self->{logger} = Log::Fast->global();
-
-    open( my $fh, ">>", "/usr/local/pf/logs/pfconfig.log" );
-
-    $self->{logger}->config(
-        {   level  => 'ERR',
-            prefix => '%D %T [%L] : ',
-            type   => 'fh',
-            fh     => $fh,
-        }
-    );
-
+    $self->setup(service => 'pfconfig');
+    
     return $self;
+}
+
+sub setup {
+    Log::Log4perl->wrapper_register(__PACKAGE__);
+    my ($self,%args) = @_;
+    my ($package, $filename, $line) = caller;
+    if(!Log::Log4perl->initialized || $args{reinit} ) {
+        my $service = $args{service} if defined $args{service};
+        if($service) {
+            Log::Log4perl->init_and_watch("$log_conf_dir/${service}.conf",5 * 60);
+            Log::Log4perl::MDC->put( 'proc', $service );
+        } else {
+            Log::Log4perl->init($log_config_file);
+            Log::Log4perl::MDC->put( 'proc', basename($0) );
+        }
+        #Install logging in the die handler
+        $SIG{__DIE__} = sub {
+            # We're in an eval {} and don't want log
+            return unless defined $^S && $^S == 0;
+            $Log::Log4perl::caller_depth++;
+            my $logger = get_logger("");
+            $logger->fatal(@_);
+            die @_; # Now terminate really
+        };
+    }
+    Log::Log4perl::MDC->put( 'tid', $$ );
+    {
+        no strict qw(refs);
+        *{"${package}::get_logger"} = \&get_logger;
+    }
+    $self->{logger} = Log::Log4perl->get_logger(@_);
 }
 
 =head2 fatal
@@ -75,7 +96,7 @@ Logs to error since Log::Fast doesn't have fatal
 sub fatal {
     my ( $self, $message ) = @_;
     $message .= " (" . whowasi() . ")";
-    $self->{logger}->ERR($message);
+    $self->{logger}->error($message);
 }
 
 =head2 error
@@ -87,7 +108,7 @@ Used for $logger->error($msg)
 sub error {
     my ( $self, $message ) = @_;
     $message .= " (" . whowasi() . ")";
-    $self->{logger}->ERR($message);
+    $self->{logger}->error($message);
 }
 
 =head2 warn
@@ -99,7 +120,7 @@ Used for $logger->warn($msg)
 sub warn {
     my ( $self, $message ) = @_;
     $message .= " (" . whowasi() . ")";
-    $self->{logger}->WARN($message);
+    $self->{logger}->warn($message);
 }
 
 =head2 info
@@ -110,8 +131,8 @@ Used for $logger->info($msg)
 
 sub info {
     my ( $self, $message ) = @_;
-    $message = "$message (" . whowasi() . ")";
-    $self->{logger}->INFO($message);
+    #$message = "$message (" . whowasi() . ")";
+    $self->{logger}->info($message);
 }
 
 =head2 debug
@@ -123,7 +144,7 @@ Used for $logger->debug($msg)
 sub debug {
     my ( $self, $message ) = @_;
     $message .= " (" . whowasi() . ")";
-    $self->{logger}->DEBUG($message);
+    $self->{logger}->debug($message);
 }
 
 =head2 trace
@@ -136,10 +157,10 @@ Logs to debug since Log::Fast doesn't have trace
 sub trace {
     my ( $self, $message ) = @_;
     $message .= " (" . whowasi() . ")";
-    $self->{logger}->DEBUG($message);
+    $self->{logger}->debug($message);
 }
 
-sub whowasi { ( caller(2) )[3] }
+sub whowasi { return ( caller(2) )[3] || 'unknown' }
 
 =back
 

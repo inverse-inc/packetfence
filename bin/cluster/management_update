@@ -1,0 +1,75 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+Script to call when there is a change in the management state
+
+=head1 SYNOPSIS
+
+bin/cluster/management_update <change_type> <vrrp_ip> <state> <priority>
+
+=head1 DESCRIPTION
+
+Made for keepalived so the pf services can be adjusted depending of the running node
+
+=cut
+
+use constant INSTALL_DIR => '/usr/local/pf';
+use lib INSTALL_DIR . "/lib";
+
+use pf::log;
+
+my $logger = get_logger;
+
+$logger->info("Refreshing services for management mode");
+
+my $vrrp_ip = $ARGV[1];
+my $state = $ARGV[2];
+my $priority = $ARGV[3];
+
+if($state eq "MASTER"){
+    $logger->info("Transition to master state, starting management services.");
+    `/usr/local/pf/bin/pfcmd service pfdhcplistener start`;
+    `/usr/local/pf/bin/pfcmd service pfmon start`;
+}
+elsif($state eq "SLAVE"){
+    $logger->info("Transition to master state, stoping management services.");
+    `/usr/local/pf/bin/pfcmd service pfdhcplistener stop`;
+    `/usr/local/pf/bin/pfcmd service pfmon stop`;
+}
+
+=back
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2015 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+

@@ -45,6 +45,8 @@ use File::Find;
 use pfconfig::util;
 use POSIX;
 use POSIX::2008;
+use JSON;
+use List::MoreUtils qw(first_index);
 
 =head2 config_builder
 
@@ -55,7 +57,7 @@ See it as a mini-factory
 
 sub config_builder {
     my ( $self, $namespace ) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     my $elem = $self->get_namespace($namespace);
     my $tmp  = $elem->build();
@@ -71,7 +73,18 @@ Dynamicly requires the namespace module and instanciates the object associated t
 
 sub get_namespace {
     my ( $self, $name ) = @_;
-    my $logger = get_logger;
+
+    my $logger = pfconfig::log::get_logger;
+
+    my $full_name = $name;
+
+    my @args;
+    ($name, @args) = pfconfig::util::parse_namespace($name);
+    my $args_size = @args;
+    if($args_size){
+        $self->add_namespace_to_overlay($full_name);
+    }
+
     my $type   = "pfconfig::namespaces::$name";
 
     $type = untaint_chain($type);
@@ -81,9 +94,40 @@ sub get_namespace {
         $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
     }
 
-    my $elem = $type->new($self);
+    my $elem = $type->new($self, @args);
 
     return $elem;
+}
+
+sub add_namespace_to_overlay {
+    my ($self, $namespace) = @_;
+    my $logger = pfconfig::log::get_logger;
+    $logger->info("We're doing namespace overlaying for $namespace");
+   
+    my $namespaces = $self->{cache}->get('_namespace_overlay') || ();
+
+    my $ns_index = first_index {$_ eq $namespace} @$namespaces;
+    if($ns_index == -1){
+        push @$namespaces, $namespace;
+    }
+    $self->{cache}->set('_namespace_overlay', $namespaces);
+}
+
+sub overlayed_namespaces {
+    my ($self, $base_namespace) = @_;
+    if($base_namespace =~ /.*\(.+\)/){
+        return ();
+    }
+    my $namespaces_ref = $self->{cache}->get('_namespace_overlay');
+    my @namespaces = defined($namespaces_ref) ? @$namespaces_ref : ();
+    my @overlayed_namespaces;
+    $base_namespace = quotemeta($base_namespace);
+    foreach my $namespace (@namespaces){
+        if($namespace =~ /^$base_namespace/){
+            push @overlayed_namespaces, $namespace;
+        }
+    }
+    return @overlayed_namespaces;
 }
 
 =head2 new
@@ -109,7 +153,7 @@ Creates the backend and internal data structures for the L1 and L2 cache
 
 sub init_cache {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     $self->{cache} = pfconfig::backend::mysql->new;
 
@@ -126,7 +170,7 @@ That sends the signal that the raw memory is expired
 
 sub touch_cache {
     my ( $self, $what ) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
     $what =~ s/\//;/g;
     my $filename = pfconfig::util::control_file_path($what);
     $filename = untaint_chain($filename);
@@ -158,7 +202,7 @@ It should not have to build the L3 since that's the slowest. The L3 should be bu
 
 sub get_cache {
     my ( $self, $what ) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     # we look in raw memory and make sure that it's not expired
     my $memory = $self->{memory}->{$what};
@@ -194,7 +238,7 @@ Builds the resource associated to a namespace and then caches it in the L1 and L
 
 sub cache_resource {
     my ( $self, $what ) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     $logger->debug("loading $what from outside");
     my $result = $self->config_builder($what);
@@ -222,7 +266,7 @@ Uses the control files in var/control and the memorized_at hash to know if a nam
 
 sub is_valid {
     my ( $self, $what ) = @_;
-    my $logger         = get_logger;
+    my $logger         = pfconfig::log::get_logger;
     my $control_file   = pfconfig::util::control_file_path($what);
     my $file_timestamp = ( stat($control_file) )[9];
 
@@ -260,19 +304,32 @@ Will expire the memory cache after building
 =cut
 
 sub expire {
-    my ( $self, $what ) = @_;
-    my $logger = get_logger;
-    $logger->info("Expiring resource : $what");
-    $self->cache_resource($what);
+    my ( $self, $what, $light ) = @_;
+    my $logger = pfconfig::log::get_logger;
+    if(defined($light) && $light){
+        $logger->info("Light expiring resource : $what");
+        delete $self->{memorized_at}->{$what};
+        $self->touch_cache($what);
+    }
+    else {
+        $logger->info("Hard expiring resource : $what");
+        $self->cache_resource($what);
+    }
 
     my $namespace = $self->get_namespace($what);
     if ( $namespace->{child_resources} ) {
         foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
             $logger->info("Expiring child resource $child_resource. Master resource is $what");
-            $self->expire($child_resource);
+            $self->expire($child_resource, $light);
         }
     }
 
+    # expire overlayed namespaces
+    my @overlayed_namespaces = $self->overlayed_namespaces($what);
+    foreach my $namespace (@overlayed_namespaces){
+        $logger->info("Expiring overlayed resource from base resource $what.");
+        $self->expire($namespace, $light);
+    }
 }
 
 =head2 list_namespaces
@@ -303,7 +360,8 @@ sub list_namespaces {
         },
         $namespace_dir
     );
-    return @modules;
+    my $overlayed_namespaces = $self->{cache}->get('_namespace_overlay') || [];
+    return (@modules, @$overlayed_namespaces);
 }
 
 =head2 preload_all
@@ -331,10 +389,18 @@ Method that expires all the namespaces defined by list_namespaces
 =cut
 
 sub expire_all {
-    my ($self) = @_;
+    my ($self, $light) = @_;
+    my $logger = pfconfig::log::get_logger;
     my @namespaces = $self->list_namespaces;
     foreach my $namespace (@namespaces) {
-        $self->cache_resource($namespace);
+        if(defined($light) && $light){
+            $logger->info("Light expiring $namespace");
+            delete $self->{memorized_at}->{$namespace};
+        }
+        else{
+            $logger->info("Hard expiring $namespace");
+            $self->expire($namespace);
+        }
     }
 }
 

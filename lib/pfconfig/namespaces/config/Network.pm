@@ -18,7 +18,6 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pfconfig::log;
 use pf::file_paths;
 use pf::constants::config;
 use pfconfig::util qw(is_type_inline);

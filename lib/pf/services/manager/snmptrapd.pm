@@ -24,7 +24,14 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'snmptrapd' } );
 
-has '+launcher' => (default => sub { "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On" } );
+my $management_ip = '';
+
+if (ref($management_network)) {
+    $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    $management_ip .= ':162';
+}
+
+has '+launcher' => (default => sub { "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On $management_ip" } );
 
 =head2 generateConfig
 

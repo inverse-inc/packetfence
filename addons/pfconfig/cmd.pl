@@ -31,15 +31,27 @@ Shows a namespace as viewed by pfconfig::cached (does the get on the socket)
 =cut
 
 use lib '/usr/local/pf/lib';
+use strict;
+use warnings;
 
 use Switch;
 use pfconfig::manager;
+use pfconfig::util;
 
 my $cmd = $ARGV[0];
 
 my $manager = pfconfig::manager->new;
 
 switch($cmd) {
+  case 'expire' {
+    my $namespace = $ARGV[1];
+    if(defined($namespace)){
+        $manager->expire($namespace);
+    }
+    else{
+      print STDERR "ERROR ! Namespace not defined"
+    }
+  }
   case 'reload' {
     $manager->expire_all(); 
   }  
@@ -50,12 +62,13 @@ switch($cmd) {
     }
   }
   case 'show' {
-    my $namespace = $ARGV[1];
+    my $full_namespace = $ARGV[1];
+    my ($namespace, @args) = pfconfig::util::parse_namespace($full_namespace);
     if(defined($namespace)){
       my @namespaces = $manager->list_namespaces();
       if ( grep {$_ eq $namespace} @namespaces){
         use Data::Dumper;
-        print Dumper($manager->get_cache($namespace));
+        print Dumper($manager->get_cache($full_namespace));
       }
       else{
         print STDERR "ERROR ! Unknown namespace.\n";

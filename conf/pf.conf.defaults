@@ -274,6 +274,11 @@ soap=9090
 #
 # Port of the aaa http interface listens on.
 aaa=7070
+#
+#port.pf_status
+#
+# Port of the packetfence status http interface listends on.
+pf_status=9191
 
 [scan]
 #
@@ -433,6 +438,11 @@ ldap_auth=enabled
 # Should DHCPd be managed by PacketFence?
 dhcpd=enabled
 #
+# services.haproxy
+#
+# Should haproxy be started?
+haproxy=enabled
+#
 # services.pfdns
 #
 # Should pfdns be managed by PacketFence?
@@ -513,6 +523,11 @@ pfmon=enabled
 # Should pfdhcplistener be started?
 pfdhcplistener=enabled
 #
+# services.keepalived
+#
+# Should keepalived be started?
+keepalived=enabled
+#
 # services.snort_binary
 #
 # Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
@@ -522,6 +537,11 @@ snort_binary=/usr/sbin/snort
 # 
 # Location of the suricata binary.
 suricata_binary=/usr/bin/suricata
+#
+# services.haproxy_binary
+#
+# Location of the haproxy binary. Only necessary to change if you are not running the RPMed version.
+haproxy_binary=/usr/sbin/haproxy
 #
 # services.httpd_binary
 #
@@ -557,6 +577,11 @@ iptables_binary=/sbin/iptables
 # 
 # Location of the memcached binary. Only necessary to change if you are not running the pre-packaged version.
 memcached_binary=/usr/bin/memcached
+#
+# services.keepalived_binary
+#
+# Location of the keepalived binary. Only necessary to change if you are not running the RPMed version.
+keepalived_binary=/usr/sbin/keepalived
 # 
 # services.memcached_memory_usage
 # 
@@ -999,6 +1024,13 @@ provisioning_compliance_poll_interval=300s
 #
 # Interval at which Packetfence purges the ldap_auth cache
 ldap_auth_cache_cleanup_interval=600s
+
+[active_active]
+#
+# active_active.password
+#
+# Shared KEY for vrrp protocol (Must be the same on all members).
+password=1234
 
 [monitoring]
 #

@@ -14,12 +14,18 @@ pf::services::manager::pfmon
 use strict;
 use warnings;
 use Moo;
+use pf::cluster;
 
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'pfmon' } );
 
 has '+launcher' => (default => sub { '%1$s -d' } );
+
+sub isManaged {
+    my ($self) = @_;
+    return $self->SUPER::isManaged() && pf::cluster::is_management();
+}
 
 =head1 AUTHOR
 

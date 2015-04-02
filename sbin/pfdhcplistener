@@ -31,6 +31,7 @@ BEGIN {
 }
 
 use pf::constants;
+use pf::clustermgmt;
 use pf::config;
 use pf::config::cached;
 use pf::db;
@@ -59,7 +60,7 @@ my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
 POSIX::sigaction(
     &POSIX::SIGHUP,
     POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+        'reload_config', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
 ) or $logger->logdie("pfdhcplistener: could not set SIGHUP handler: $!");
 

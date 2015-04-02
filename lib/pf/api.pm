@@ -17,6 +17,9 @@ use warnings;
 use base qw(pf::api::attributes);
 use threads::shared;
 use pf::config();
+use pf::config::cached;
+use pf::ConfigStore::Interface();
+use pf::ConfigStore::Pf();
 use pf::iplog();
 use pf::log();
 use pf::radius::custom();
@@ -26,6 +29,15 @@ use pf::util();
 use pf::node();
 use pf::locationlog();
 use pf::ipset();
+use pfconfig::util;
+use pfconfig::manager;
+use pf::api::jsonrpcclient;
+use pf::cluster;
+use JSON;
+use pf::file_paths;
+
+use List::MoreUtils qw(uniq);
+use NetAddr::IP;
 use pf::factory::firewallsso;
 
 
@@ -439,6 +451,134 @@ sub node_information : Public {
     return $node_info;
 }
 
+sub notify_configfile_changed : Public {
+    my ($class, %postdata) = @_;
+    my $logger = pf::log::get_logger;
+    my @require = qw(server conf_file);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    # we light expire pfconfig cluster configuration on this server so it uses the distributed configuration
+    my $payload = {
+        method => "expire",
+        namespace => 'config::Cluster',
+        light => 1,
+    };
+    pfconfig::util::fetch_decode_socket(encode_json($payload));
+
+    my $master_server = $ConfigCluster{$postdata{server}};
+    die "Master server is not in configuration" unless ($master_server);
+
+    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
+
+    eval {
+        my %data = ( conf_file => $postdata{conf_file} );
+        my ($result) = $apiclient->call( 'download_configfile', %data );
+        open(my $fh, '>', $postdata{conf_file}) or die "Cannot open file $postdata{conf_file} for writing. This is excessively bad. Run '/usr/local/pf/bin/pfcmd fixpermissions'";
+        print $fh $result;
+        close($fh);
+        use pf::config::cached;
+        pf::config::cached::updateCacheControl();
+        pf::config::cached::ReloadConfigs(1);
+
+        $logger->info("Successfully downloaded configuration $postdata{conf_file} from $postdata{server}");
+    };
+    if($@){
+        $logger->error("Couldn't download configuration file $postdata{conf_file} from $postdata{server}. $@");
+    }
+
+    return 1;
+}
+
+sub download_configfile : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(conf_file);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    use File::Slurp;
+    die "Config file $postdata{conf_file} doesn't exist" unless(-e $postdata{conf_file});
+    my $config = read_file($postdata{conf_file});
+
+    return $config;
+}
+
+sub expire_cluster : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(namespace conf_file);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    my $logger = pf::log::get_logger;
+
+    $postdata{light} = 0;
+    expire($class, %postdata);
+
+    foreach my $server (@cluster_servers){
+        next if($host_id eq $server->{host});
+        my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+        my %data = (
+            namespace => $postdata{namespace},
+            light => 1
+        );
+        eval {
+            $apiclient->call('expire', %data ); 
+        };
+
+        if($@){
+            $logger->error("An error occured while expiring the configuration on $server->{management_ip}. $@")
+        }
+
+        %data = (
+            conf_file => $postdata{conf_file},
+            server => $host_id,
+        );
+
+        eval {
+            $apiclient->call('notify_configfile_changed', %data);
+        };
+
+        if($@){
+            $logger->error("An error occured while notifying the change of configuration on $server->{management_ip}. $@")
+        }
+    }
+    return 1;
+}
+
+sub expire : Public {
+    my ($class, %postdata ) = @_;
+    my $logger = pf::log::get_logger;
+    my @require = qw(namespace light);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    # this is to detect failures in the light expire which has the most chances of failing since it requires the pfconfig service to be alive
+    my $error = 0;
+    if($postdata{light}){
+        my $payload = {
+          method => "expire",
+          namespace => $postdata{namespace},
+          light => $postdata{light},
+        };
+    
+        my $result = pfconfig::util::fetch_decode_socket(encode_json($payload));
+        unless ( $result->{status} eq "OK." ) {
+            $logger->error("Couldn't light expire namespace $postdata{namespace}");
+            $error = 1;
+        }
+    }
+    else {
+        my $all = $postdata{namespace} eq "__all__" ? 1 : 0;
+        if($all){
+            pfconfig::manager->new->expire_all();
+        }
+        else{
+            pfconfig::manager->new->expire($postdata{namespace});
+        }
+    }
+    return { error => $error };
+}
+
 =head2 validate_argv
 
 Test if the required arguments are provided
@@ -495,4 +635,3 @@ USA.
 =cut
 
 1;
-

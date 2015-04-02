@@ -44,6 +44,10 @@ doc-opendaylight-pdf:
 doc-checkpoint-pdf:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Checkpoint_Quick_Install_Guide.docbook docs/PacketFence_Checkpoint_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Checkpoint_Quick_Install_Guide.docbook  -pdf docs/PacketFence_Checkpoint_Quick_Install_Guide.pdf
 
+doc-clustering-pdf:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Clustering_Guide.docbook docs/PacketFence_Clustering_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Clustering_Guide.docbook  -pdf docs/PacketFence_Clustering_Guide.pdf
+
+
 .PHONY: configurations
 
 configurations:

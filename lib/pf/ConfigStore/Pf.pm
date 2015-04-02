@@ -27,7 +27,7 @@ extends 'pf::ConfigStore';
 
 =cut
 
-has configFile => ( is => 'ro');
+sub configFile {$pf_config_file};
 
 sub pfconfigNamespace {'config::Pf'}
 

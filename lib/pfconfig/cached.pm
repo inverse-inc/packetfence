@@ -155,7 +155,7 @@ Will receive the amount of lines of the reply then the reply as a Sereal string
 
 sub _get_from_socket {
     my ( $self, $what, $method, %additionnal_info ) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     $method = $method || $self->{element_socket_method};
 
@@ -191,25 +191,7 @@ sub _get_from_socket {
         die("Cannot connect to service pfconfig!") if ( $times >= 600 );
     }
 
-    # we ask the cachemaster for our namespaced key
-    print $socket "$payload\n";
-
-    # this will give us the line length to read
-    chomp( my $count = <$socket> );
-
-    my $line;
-    my $line_read = 0;
-    my $response  = '';
-    # This is evil but we're getting lines with no content in them.
-    # This throws a warning that $line is undefined. 
-    # We workaround this by deactivating warnings when we read though the socket
-    no warnings;
-    while ( $line_read < $count ) {
-        chomp( $line = <$socket> );
-        $response .= $line . "\n";
-        $line_read += 1;
-    }
-    use warnings;
+    my $response = pfconfig::util::fetch_socket($socket, $payload);
 
     # it returns it as a sereal hash
     my $result;
@@ -236,7 +218,7 @@ Uses the control files in var/control and the memorized_at hash to know if a nam
 
 sub is_valid {
     my ($self)         = @_;
-    my $logger         = get_logger;
+    my $logger         = pfconfig::log::get_logger;
     my $what           = $self->{_namespace};
     my $control_file   = pfconfig::util::control_file_path($what);
     my $file_timestamp = ( stat($control_file) )[9];

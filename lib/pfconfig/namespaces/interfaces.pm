@@ -18,15 +18,17 @@ use warnings;
 use pfconfig::log;
 use pf::constants::config qw(%NET_INLINE_TYPES);
 use pfconfig::namespaces::config::Pf;
+use pfconfig::namespaces::resource::cluster_enabled;
 use pfconfig::util qw(is_type_inline);
 use Net::Netmask;
 use Net::Interface;
 use Socket;
+use pf::util;
 
 use base 'pfconfig::namespaces::resource';
 
 sub init {
-    my ($self) = @_;
+    my ($self, $host_id) = @_;
     $self->{_interfaces} = {
         listen_ints             => [],
         dhcplistener_ints       => [],
@@ -43,13 +45,18 @@ sub init {
         'interfaces::inline_enforcement_nets', 'interfaces::vlan_enforcement_nets',
         'interfaces::monitor_int',             'interfaces::management_network',
     ];
+    if($host_id){
+        @{$self->{child_resources}} = map { "$_($host_id)" } @{$self->{child_resources}}; 
+    }
+    $self->{config_resource} = pfconfig::namespaces::config::Pf->new( $self->{cache}, $host_id );
+    $self->{cluster_enabled} = pfconfig::namespaces::resource::cluster_enabled->new( $self->{cache} )->build();
 }
 
 sub build {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
-    my $config = pfconfig::namespaces::config::Pf->new( $self->{cache} );
+    my $config = $self->{config_resource};
     $self->{config} = $config->build();
     my %Config = %{ $self->{config} };
 
@@ -123,9 +130,12 @@ sub _fetch_virtual_ip {
     my ( $self, $interface, $config_section ) = @_;
 
     my %Config = %{ $self->{config} };
+    my $cluster_enabled = $self->{cluster_enabled};
 
     # [interface $int].vip= ... always wins
     return $Config{$config_section}{'vip'} if defined( $Config{$config_section}{'vip'} );
+
+    return if ($cluster_enabled);
 
     my $if = Net::Interface->new($interface);
     return if ( !defined($if) );

@@ -101,7 +101,7 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $switch ) = @_;
-    my $logger = get_logger();
+    my $logger = pfconfig::log::get_logger();
 
     if ( $switch->{uplink} && $switch->{uplink} eq 'dynamic' ) {
         $switch->{uplink_dynamic} = 'dynamic';

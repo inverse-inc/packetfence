@@ -18,7 +18,6 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pfconfig::log;
 use pf::file_paths;
 
 use base 'pfconfig::namespaces::config';

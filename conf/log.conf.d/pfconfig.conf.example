@@ -1,0 +1,18 @@
+### pfdns logger ###
+log4perl.rootLogger = ERROR, PFCONFIG
+
+### Categories ###
+# Below, you can specify different categories (based on package names) for different logging levels
+#log4perl.category.pf.SNMP = WARN
+
+### Logging for pfdns
+log4perl.appender.PFCONFIG                              = Log::Log4perl::Appender::File
+log4perl.appender.PFCONFIG.filename                     = /usr/local/pf/logs/pfconfig.log
+log4perl.appender.PFCONFIG.syswrite                     = 1
+log4perl.appender.PFCONFIG.mode                         = append
+log4perl.appender.PFCONFIG.layout                       = PatternLayout
+log4perl.appender.PFCONFIG.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m %n
+log4perl.appender.PFCONFIG.umask                        = 0002
+log4perl.appender.PFCONFIG.user                         = pf
+log4perl.appender.PFCONFIG.group                        = pf
+

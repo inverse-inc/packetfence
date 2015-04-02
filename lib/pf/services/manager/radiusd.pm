@@ -17,6 +17,8 @@ use pf::file_paths;
 use pf::util;
 use pf::config;
 use Moo;
+use NetAddr::IP;
+use pf::cluster;
 
 extends 'pf::services::manager';
 
@@ -30,6 +32,7 @@ sub generateConfig {
     generate_radiusd_eapconf();
     generate_radiusd_sqlconf();
     generate_radiusd_proxy();
+    generate_radiusd_cluster();
 }
 
 =head2 generate_radiusd_mainconf
@@ -113,6 +116,64 @@ EOT
     }
     parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
 }
+
+=head2 generate_radiusd_cluster
+
+Generates the load balancer configuration
+
+=cut
+
+sub generate_radiusd_cluster {
+    my %tags;
+
+    my $int = $management_network->{'Tint'};
+    my $cfg = $Config{"interface $int"};
+
+    $tags{'members'} = '';
+    $tags{'config'} ='';
+
+    if ($cluster_enabled) {
+        $tags{'template'}    = "$conf_dir/radiusd/packetfence-cluster";
+        $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
+        my @radius_backend = values %{pf::cluster::members_ips($int)};
+        my $i = 0;
+        foreach my $radius_back (@radius_backend) {
+            $tags{'members'} .= <<"EOT";
+home_server pf$i.cluster {
+        type = auth+acct
+        ipaddr = $radius_back
+        port = 1812
+        secret = testing1234
+
+        response_window = 6
+        status_check = status-server
+        revive_interval = 120
+        check_interval = 30
+        num_answers_to_alive = 3
+}
+EOT
+            $tags{'home_server'} .= <<"EOT";
+        home_server =  pf$i.cluster
+EOT
+            $i++;
+        }
+        parse_template( \%tags, "$conf_dir/radiusd/packetfence-cluster", "$install_dir/raddb/sites-enabled/packetfence-cluster" );
+    } else {
+        my $file = $install_dir."/raddb/sites-enabled/packetfence-cluster";
+        unlink($file);
+    }
+    $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
+    my $ip = NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
+    my $net = $ip->network();
+    $tags{'config'} .= <<"EOT";
+client $net {
+        secret = testing1234
+        shortname = pf
+}
+EOT
+    parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
+}
+
 
 =head1 AUTHOR
 
