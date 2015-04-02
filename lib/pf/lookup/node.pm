@@ -27,7 +27,6 @@ use pf::config;
 use pf::iplog;
 use pf::locationlog;
 use pf::node;
-use pf::os;
 use pf::useragent qw(node_useragent_view);
 use pf::util;
 
@@ -106,16 +105,6 @@ sub lookup_node {
             $return .= "Is a mobile?   : " . $node_useragent->{'mobile'} . "\n" if ( $node_useragent->{'mobile'} );
         }
 
-        $return .= "\nNODE DHCP INFORMATION\n";
-        if ( $node_info->{'dhcp_fingerprint'} ) {
-            my @fingerprint_info_array
-                = dhcp_fingerprint_view( $node_info->{'dhcp_fingerprint'} );
-            if ( scalar(@fingerprint_info_array == 1) ) {
-                my $fingerprint_info = $fingerprint_info_array[0];
-                my $os = $fingerprint_info->{'os'};
-                $return .= "OS             : $os\n" if ( defined($os) );
-            }
-        }
         $return .= "DHCP Info      : Last DHCP request at ".$node_info->{'last_dhcp'}."\n";
 
         my @last_locationlog_entry = locationlog_history_mac($mac);

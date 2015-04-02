@@ -105,11 +105,6 @@ is_deeply(\%cmd,
           { 'command' => [ 'configfiles', 'push' ] },
           'pfcmd configfiles push');
 
-%cmd = pf::pfcmd::parseCommandLine('fingerprint view all');
-is_deeply(\%cmd,
-          { 'command' => [ 'fingerprint', 'view', 'all' ] },
-          'pfcmd fingerprint view all');
-
 %cmd = pf::pfcmd::parseCommandLine('graph toto');
 is_deeply(\%cmd,
           { 'command' => [ 'help', 'graph' ] },
@@ -234,11 +229,6 @@ is_deeply(\%cmd,
     { 'command' => [ 'person', 'view', 'user name' ], 'person_options' => [ 'view', 'user name' ] },
     'pfcmd person view pid with space'
 );
-
-%cmd = pf::pfcmd::parseCommandLine('reload fingerprints');
-is_deeply(\%cmd,
-          { 'command' => [ 'reload', 'fingerprints' ] },
-          'pfcmd reload fingerprints');
 
 %cmd = pf::pfcmd::parseCommandLine('report active');
 is_deeply(\%cmd,

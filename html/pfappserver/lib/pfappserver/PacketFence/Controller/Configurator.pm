@@ -15,7 +15,6 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 
 use pf::config;
-use pf::os;
 use List::MoreUtils qw(all);
 #use namespace::autoclean;
 
@@ -460,8 +459,6 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
         # Start the services
         if (!$c->session->{started}) {
             $c->session->{started} = 1;
-            #Loading the fingerprints into the database
-            read_dhcp_fingerprints_conf();
             # restart pfconfig
             $c->model("Config::System")->restart_pfconfig();
             $c->detach(Service => 'pf_start'); 

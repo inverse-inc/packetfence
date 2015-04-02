@@ -22,6 +22,11 @@ use warnings;
 use Data::Dumper;
 use Sereal::Encoder;
 
+unless ($ARGV[0] && $ARGV[1]){
+  print "Missing arguments";
+  exit;
+}
+
 my $BASE = $ARGV[1];
 use lib $ARGV[0];
 
