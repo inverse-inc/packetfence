@@ -1,7 +1,7 @@
 package pf::triggerParser;
 =head1 NAME
 
-pf::triggerParser - Trigger for openvas
+pf::triggerParser
 
 =cut
 
@@ -48,7 +48,7 @@ sub parseTidStartEnd {
 sub search {
     return [];
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
