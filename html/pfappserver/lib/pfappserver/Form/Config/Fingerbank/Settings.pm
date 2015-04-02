@@ -16,7 +16,6 @@ use Switch;
 use fingerbank::Config;
 
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
 
 sub field_list {
     my ( $self ) = @_;
@@ -26,7 +25,7 @@ sub field_list {
     my $config = fingerbank::Config::get_config;
     my $config_doc = fingerbank::Config::get_documentation;
 
-    
+
 
     foreach my $section ( keys %$config ) {
         push @$list, $section => {id => $section, type => 'Compound'};
