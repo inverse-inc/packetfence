@@ -223,6 +223,7 @@ sub authenticate {
     unless (@sources) {
         @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
     }
+    my $display_username = (defined $username) ? $username : "(anonymous)";
 
     # If a rule class is defined, we filter out authentication sources rules that doesn't match it
     if ( defined($params->{'rule_class'}) ) {
@@ -241,23 +242,23 @@ sub authenticate {
         }
     }
 
-    $logger->debug(sub {"Authenticating '$username' from source(s) " . join( ', ', map { $_->id } @sources ) });
+    $logger->debug(sub {"Authenticating '$display_username' from source(s) ".join(', ', map { $_->id } @sources) });
 
     my $message;
     foreach my $current_source (@sources) {
-        my $result;
-        $logger->trace("Trying to authenticate ".(defined($username) ? "'$username'" : "anonymous")." with source '".$current_source->id."'");
+        my ($result, $message);
+        $logger->trace("Trying to authenticate '$display_username' with source '".$current_source->id."'");
         eval {
             ($result, $message) = $current_source->authenticate($username, $password);
         };
         # First match wins!
         if ($result) {
-            $logger->info("Authentication successful for ".(defined($username) ? "'$username'" : "anonymous")." in source ".$current_source->id." (".$current_source->type.")");
+            $logger->info("Authentication successful for $display_username in source ".$current_source->id." (".$current_source->type.")");
             return ($result, $message, $current_source->id);
         }
     }
 
-    $logger->trace("Authentication failed for '$username' for all ".scalar(@sources)." sources");
+    $logger->trace("Authentication failed for '$display_username' for all ".scalar(@sources)." sources");
     return ($FALSE, $message ? $message : $AUTH_FAIL_MSG);
 }
 
