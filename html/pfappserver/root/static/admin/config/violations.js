@@ -8,15 +8,6 @@ $(function() { // DOM ready
         var control = input.closest('.control-group');
         $.ajax('/trigger/search/' + type + "/" + query)
             .done(function(data) {
-                /*
-                var results = $.map(data.items, function(i) {
-                    return i.pid;
-                });
-                if (results.length == 0)
-                    control.addClass('error');
-                else
-                    control.removeClass('error');
-                */
                 process(data.items);
             })
             .fail(function(jqXHR) {
