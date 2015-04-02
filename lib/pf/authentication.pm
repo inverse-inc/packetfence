@@ -51,7 +51,7 @@ use pfconfig::cached_hash;
 our @authentication_sources;
 tie @authentication_sources, 'pfconfig::cached_array', 'resource::authentication_sources';
 our %authentication_lookup;
-tie %authentication_lookup, 'pfconfig::cached_hash', 'resource::authentication_lookup'; 
+tie %authentication_lookup, 'pfconfig::cached_hash', 'resource::authentication_lookup';
 our %guest_self_registration;
 tie %guest_self_registration, 'pfconfig::cached_hash', 'resource::guest_self_registration';
 
@@ -79,7 +79,7 @@ BEGIN {
 
 }
 
-our @SOURCES = __PACKAGE__->sources(); 
+our @SOURCES = __PACKAGE__->sources();
 
 our %TYPE_TO_SOURCE = map { lc($_->meta->get_attribute('type')->default) => $_ } @SOURCES;
 
@@ -214,23 +214,24 @@ sub authenticate {
     unless (@sources) {
         @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
     }
+    my $display_username = (defined $username) ? $username : "(undefined)";
 
-    $logger->debug(sub {"Authenticating '$username' from source(s) ".join(', ', map { $_->id } @sources) });
+    $logger->debug(sub {"Authenticating '$display_username' from source(s) ".join(', ', map { $_->id } @sources) });
 
     foreach my $current_source (@sources) {
         my ($result, $message);
-        $logger->trace("Trying to authenticate '$username' with source '".$current_source->id."'");
+        $logger->trace("Trying to authenticate '$display_username' with source '".$current_source->id."'");
         eval {
             ($result, $message) = $current_source->authenticate($username, $password);
         };
         # First match wins!
         if ($result) {
-            $logger->info("Authentication successful for $username in source ".$current_source->id." (".$current_source->type.")");
+            $logger->info("Authentication successful for $display_username in source ".$current_source->id." (".$current_source->type.")");
             return ($result, $message, $current_source->id);
         }
     }
 
-    $logger->trace("Authentication failed for '$username' for all ".scalar(@sources)." sources");
+    $logger->trace("Authentication failed for '$display_username' for all ".scalar(@sources)." sources");
     return ($FALSE, 'Wrong username or password.');
 }
 

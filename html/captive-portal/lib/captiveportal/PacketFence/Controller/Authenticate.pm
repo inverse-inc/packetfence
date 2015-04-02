@@ -566,6 +566,7 @@ sub showLogin : Private {
 
 sub _clean_username {
     my ($username) = @_;
+    return $username unless defined $username;
     # Do cleaning that could be related to a human error input ( like a space after the username )
 
     # This removes trailing and leading whitespaces
