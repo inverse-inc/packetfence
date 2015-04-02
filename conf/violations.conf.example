@@ -67,14 +67,14 @@ enabled=N
 # Right now the only way to find the os id is to query the database but it should be feasible
 # from the pfcmd tool or the web gui in the future.
 # From a MySQL prompt, a 'select * from os_type;' will give you what you need. Just put in 
-# the os_id next to OS::. In exemple to block Windows 95 you would use: OS::104
+# the os_id next to DEVICE::. In exemple to block Windows 95 you would use: DEVICE::30
 #
 # The below example blocks Windows 95, 98, 98SE, NT4 and ME.
 #
 [1100004]
 desc=Ancient OS isolation example
 template=banned_os
-trigger=OS::104,OS::103,OS::106,OS::105,OS::102
+trigger=DEVICE:28,DEVICE:29,DEVICE:30,DEVICE:31,DEVICE:32
 actions=trap,email,log
 enabled=N
 
@@ -100,14 +100,14 @@ enabled=N
 [1100007]
 desc=Auto-register Device example
 priority=1
-trigger=OS::3,OS::6,OS::7,OS::8,OS::10,OS::12,OS::13
+trigger=DEVICE::3,DEVICE::6,DEVICE::7,DEVICE::8,DEVICE::10,DEVICE::12,DEVICE::13
 actions=log,autoreg
 enabled=N
 
 [1100008]
 desc=Disable NATing Routers and APs
 template=nat
-trigger=Detect::1100005,Detect::1100006,Detect::1100007,OS::4
+trigger=Detect::1100005,Detect::1100006,Detect::1100007,DEVICE::4
 actions=trap,email,log
 enabled=N
 
@@ -329,7 +329,7 @@ template=banned_devices
 actions=email,log,trap
 enabled=N
 priority=10
-trigger=USERAGENT::300,OS::11
+trigger=USERAGENT::300,DEVICE::11
 
 [3000002]
 desc=Block iPhone and iPod touch
@@ -337,7 +337,7 @@ template=banned_devices
 actions=trap,email,log
 enabled=N
 priority=10
-trigger=OS::1102,USERAGENT::101,USERAGENT::102
+trigger=DEVICE::193,USERAGENT::101,USERAGENT::102
 
 # MAC vendors: 00:0f:86, 00:1c:cc, 00:21:06, 00:23:7a, 00:24:9f, 00:25:57
 [3000003]
@@ -354,7 +354,7 @@ template=banned_devices
 actions=trap,email,log
 enabled=N
 priority=10
-trigger=USERAGENT::111,USERAGENT::112,OS::605
+trigger=USERAGENT::111,USERAGENT::112,DEVICE::274
 
 # MAC vendor: 00:13:b6
 [3000005]
@@ -363,4 +363,4 @@ template=banned_devices
 actions=trap,email,log
 enabled=N
 priority=10
-trigger=VENDORMAC::5046,OS::703
+trigger=VENDORMAC::5046,DEVICE::143
