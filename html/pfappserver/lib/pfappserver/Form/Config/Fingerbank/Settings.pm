@@ -37,7 +37,6 @@ sub field_list {
             my $field = {
                 id      => $field_name,
                 label   => $field_name,
-#                element_attr => { 'placeholder' => $config_defaults->{$field_name} },
                 tags => {
                     after_element   => \&help,
                     help            => $field_doc->{description},
