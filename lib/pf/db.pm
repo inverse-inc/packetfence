@@ -33,7 +33,7 @@ use constant PREPARE_SUB       => '_db_prepare';  # sub with <modulename>_db_pre
 use constant PREPARED_VAR      => '_db_prepared'; # prepare flag with <modulename>_db_prepared
 use constant PREPARE_PF_PREFIX => 'pf::';         # prefix to access exported _prepare(d) variables
 
-our ( $DBH, $LAST_CONNECT, $NO_DIE_ON_DBH_ERROR );
+our ( $DBH, $LAST_CONNECT, $DB_Config, $NO_DIE_ON_DBH_ERROR );
 
 BEGIN {
     use Exporter ();
@@ -55,6 +55,8 @@ END {
     $DBH = undef;
 }
 
+tie %$DB_Config, 'pfconfig::cached_hash', 'resource::Database';
+
 =head1 SUBROUTINES
 
 =over
@@ -72,7 +74,7 @@ sub db_connect {
     my $caller = ( caller(1) )[3] || basename($0);
     $logger->debug("function $caller is calling db_connect");
 
-    my $tid = $$;
+    my $tid = threads->self->tid;
     $mydbh = $DBH if ($DBH);
 
     my $recently_connected = (defined($LAST_CONNECT) && $LAST_CONNECT && (time()-$LAST_CONNECT < 30));
@@ -89,7 +91,6 @@ sub db_connect {
     }
 
     $logger->debug("(Re)Connecting to MySQL (thread id: $tid)");
-    my $DB_Config = $Config{'database'};
 
     my $host = $DB_Config->{'host'};
     my $port = $DB_Config->{'port'};
@@ -136,6 +137,7 @@ sub db_ping {
 =cut
 
 sub db_disconnect {
+    my $tid = threads->self->tid;
     if (defined($DBH)) {
         my $logger = get_logger();
         $logger->debug("disconnecting db");

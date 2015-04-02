@@ -60,7 +60,7 @@ sub init {
     $self->{doc_config}      = $self->{cache}->get_cache('config::Documentation');
     $self->{cluster_config}  = $self->{cache}->get_cache('config::Cluster');
 
-    $self->{child_resources} = [ 'resource::CaptivePortal' ];
+    $self->{child_resources} = [ 'resource::CaptivePortal', 'resource::Database' ];
     if(defined($host_id)){
         push @{$self->{child_resources}}, "interfaces($host_id)";
     }
@@ -87,8 +87,8 @@ sub build_child {
                 $logger->debug("Reconfiguring interface $key with cluster information");
                 $Config{$key} = $config;
             }
-        }
-    }
+        } 
+    } 
     elsif(defined($self->{host_id})){
         $logger->warn("A host was defined for the config::Pf namespace but no cluster configuration was found. This is not a big issue but it's worth noting.")
     }
@@ -141,6 +141,8 @@ sub build_child {
         return \%Config;
 
 }
+
+=back
 
 =head1 AUTHOR
 
