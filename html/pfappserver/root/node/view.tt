@@ -49,7 +49,6 @@
                 </span></span></div>
             </div>
 
-            [% form.field('device_type').render %]
             [% form.field('vendor').render %]
             [% IF node.dhcp -%]
             <div class="control-group">
