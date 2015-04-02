@@ -271,6 +271,7 @@ Requires: mod_qos
 Requires: %{real_name}-config = %{ver}
 Requires: %{real_name}-pfcmd-suid = %{ver}
 Requires: haproxy >= 1.5, keepalived >= 1.2
+Requires: fingerbank
 
 %description -n %{real_name}
 
@@ -493,6 +494,10 @@ ln -s ../sites-available/packetfence-soh packetfence-soh
 ln -s ../sites-available/packetfence-tunnel packetfence-tunnel
 ln -s ../sites-available/dynamic-clients dynamic-clients
 
+# Fingerbank symlinks
+cd $RPM_BUILD_ROOT/usr/local/pf/lib
+ln -s /usr/local/fingerbank/lib/fingerbank fingerbank
+
 cd $curdir
 #end create symlinks
 
@@ -505,6 +510,7 @@ if ! /usr/bin/id pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
 fi
+/usr/sbin/useradd -G fingerbank pf
 
 #if [ ! `tty | cut -c0-8` = "/dev/tty" ];
 #then
