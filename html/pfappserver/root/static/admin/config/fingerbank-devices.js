@@ -1,28 +1,28 @@
 $(function() { // DOM ready
-    var items = new FingerBankDevices();
-    var view = new FingerBankDeviceView({ items: items, parent: $('#section') });
+    var items = new FingerbankDevices();
+    var view = new FingerbankDeviceView({ items: items, parent: $('#section') });
 });
 
 /*
- * The FingerBankDevices class defines the operations available from the controller.
+ * The FingerbankDevices class defines the operations available from the controller.
  */
-var FingerBankDevices = function() {
+var FingerbankDevices = function() {
 };
 
-FingerBankDevices.prototype = new Items();
+FingerbankDevices.prototype = new Items();
 
-FingerBankDevices.prototype.id  = '#fingerbankdevices';
+FingerbankDevices.prototype.id  = '#fingerbankdevices';
 
-FingerBankDevices.prototype.formName  = 'modalFingerBankDevice';
+FingerbankDevices.prototype.formName  = 'modalFingerbankDevice';
 
-FingerBankDevices.prototype.modalId   = '#modalFingerBankDevice';
+FingerbankDevices.prototype.modalId   = '#modalFingerbankDevice';
 
 /*
- * The FingerBankDeviceView class defines the DOM operations from the Web interface.
+ * The FingerbankDeviceView class defines the DOM operations from the Web interface.
  */
 
 
-var FingerBankDeviceView = function(options) {
+var FingerbankDeviceView = function(options) {
     ItemView.call(this,options);
     var that = this;
     // Display sub children
@@ -39,15 +39,15 @@ var FingerBankDeviceView = function(options) {
 
 };
 
-FingerBankDeviceView.prototype = (function(){
+FingerbankDeviceView.prototype = (function(){
     function F(){};
     F.prototype = ItemView.prototype;
     return new F();
 })();
 
-FingerBankDeviceView.prototype.constructor = FingerBankDeviceView;
+FingerbankDeviceView.prototype.constructor = FingerbankDeviceView;
 
-FingerBankDeviceView.prototype.showChildren = function(e) {
+FingerbankDeviceView.prototype.showChildren = function(e) {
     var that = this;
     var link = $(e.currentTarget);
     var href = link.attr("href");
