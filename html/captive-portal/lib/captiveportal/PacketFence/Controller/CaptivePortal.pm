@@ -333,8 +333,9 @@ sub unknownState : Private {
         );
         my $node = node_view($mac);
         my $switch;
-        if( pf::SwitchFactory::hasId($node->{last_switch}) ){
-            $switch = pf::SwitchFactory->instantiate($node->{last_switch});
+        my $last_switch_id = $node->{last_switch};
+        if( defined $last_switch_id ) {
+            $switch = pf::SwitchFactory->instantiate($last_switch_id);
         }
 
         if(defined($switch) && $switch->supportsWebFormRegistration){
@@ -440,8 +441,9 @@ sub webNodeRegister : Private {
     unless ( (defined($provisioner) && $provisioner->skipDeAuth) || $c->user_cache->get("do_not_deauth") ) {
         my $node = node_view($mac);
         my $switch;
-        if( pf::SwitchFactory::hasId($node->{last_switch}) ){
-            $switch = pf::SwitchFactory->instantiate($node->{last_switch});
+        my $last_switch_id = $node->{last_switch};
+        if( defined $last_switch_id ) {
+            $switch = pf::SwitchFactory->instantiate($last_switch_id);
         }
 
         if(defined($switch) && $switch->supportsWebFormRegistration){
