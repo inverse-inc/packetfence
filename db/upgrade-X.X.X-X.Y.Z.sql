@@ -41,13 +41,13 @@ CREATE TABLE iplog_history (
 -- Table structure for table 'iplog'
 --
 
-ALTER TABLE iplog MODIFY mac varchar(17) NOT NULL;
-ALTER TABLE iplog MODIFY ip varchar(45) NOT NULL;
-ALTER TABLE iplog ADD PRIMARY KEY(ip);
-ALTER TABLE iplog DROP INDEX ip_view_open;
-ALTER TABLE iplog DROP INDEX mac_view_open;
-ALTER TABLE iplog DROP INDEX iplog_end_time;
-ALTER TABLE iplog DROP FOREIGN KEY 0_63;
+ALTER TABLE iplog MODIFY mac varchar(17) NOT NULL,
+            MODIFY ip varchar(45) NOT NULL,
+            ADD PRIMARY KEY(ip),
+            DROP INDEX ip_view_open,
+            DROP INDEX mac_view_open,
+            DROP INDEX iplog_end_time,
+            DROP FOREIGN KEY 0_63;
 
 --
 -- Trigger to insert old record from 'iplog' in 'iplog_history' before updating the current one
@@ -70,9 +70,9 @@ DELIMITER ;
 -- Table structure for table 'iplog_archive'
 --
 
-ALTER TABLE iplog_archive MODIFY mac varchar(17) NOT NULL;
-ALTER TABLE iplog_archive MODIFY ip varchar(45) NOT NULL;
-ALTER TABLE iplog_archive MODIFY end_time datetime NOT NULL;
+ALTER TABLE iplog_archive MODIFY mac varchar(17) NOT NULL,
+            MODIFY ip varchar(45) NOT NULL,
+            MODIFY end_time datetime NOT NULL;
 
 
 ---
