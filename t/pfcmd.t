@@ -37,7 +37,7 @@ BEGIN {
             push @main_args, $1;
         }
     }
-    $tests = 53 + scalar @main_args;
+    $tests = 51 + scalar @main_args;
 }
 
 
