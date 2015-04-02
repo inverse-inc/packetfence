@@ -233,17 +233,17 @@ sub postAuthentication : Private {
     $c->forward('setUnRegDate');
     $info->{source} = $source_id;
     $info->{portal} = $profile->getName;
-    $c->forward('checkIfTlsEnrolement');
+    $c->forward('checkIfTlsEnrolment');
     $c->forward('checkIfProvisionIsNeeded');
 }
 
-=head2 checkIfTlsEnrolement
+=head2 checkIfTlsEnrolment
 
 Checked to see if the role redirect you to TLS enrolement
 
 =cut
 
-sub checkIfTlsEnrolement : Private {
+sub checkIfTlsEnrolment : Private {
     my ($self, $c) = @_;
     my $source_id = $c->session->{source_id};
     my $portalSession = $c->portalSession;
@@ -252,7 +252,7 @@ sub checkIfTlsEnrolement : Private {
     my $info = $c->stash->{info};
     my $role = $info->{category};
     #if role is tls-enrolement then process to define controller
-    if ($role eq "tls-enrolement"){
+    if ($role eq $Config{'pki'}{'role'}){
         node_modify($mac, %$info);
         $c->session->{info} = $c->stash->{info};
         $c->detach(tlsprofile => 'index');

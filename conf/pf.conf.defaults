@@ -1156,3 +1156,7 @@ state=
 #
 # Your organisation name to put on the certificate
 organisation=
+# pki.role
+#
+# Role on which we should provide the tls-enrolment
+role=

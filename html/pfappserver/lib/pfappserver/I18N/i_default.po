@@ -3919,6 +3919,10 @@ msgstr ""
 msgid "Role mapping by switch role"
 msgstr ""
 
+# conf/documentation.conf (pki.role)
+msgid "Role on which we should provide the tls-enrolment"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
@@ -6942,6 +6946,10 @@ msgstr "Password"
 # conf/documentation.conf
 msgid "pki.profile"
 msgstr "Profile"
+
+# conf/documentation.conf
+msgid "pki.role"
+msgstr "Role"
 
 # conf/documentation.conf
 msgid "pki.state"
