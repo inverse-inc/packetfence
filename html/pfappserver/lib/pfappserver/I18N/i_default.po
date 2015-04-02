@@ -585,6 +585,10 @@ msgstr ""
 msgid "Block Interval"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "Broadcast network"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 msgid "Browser"
 msgstr ""
@@ -684,7 +688,11 @@ msgid "Captive portal"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
-msgid "Certificate"
+msgid "Certificate of Authority path"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "Check this box if your network is using a hidden SSID"
 msgstr ""
 
 # pf::firewallsso (Firewall SSO)
@@ -979,6 +987,10 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Copy File"
+msgstr ""
+
+# conf/documentation.conf (pki.country)
+msgid "Country that will appear in the certificate (2letters code)"
 msgstr ""
 
 # html/pfappserver/root/config/wrix/search_form.tt
@@ -1551,6 +1563,10 @@ msgstr ""
 msgid "EAP TTLS"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "EAP type"
+msgstr ""
+
 # html/pfappserver/root/user/print.tt
 msgid "Each account will be printed on a single page with the acceptable user policy."
 msgstr ""
@@ -1700,6 +1716,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
 msgid "Example"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "Example : if your dns name is www.packetfence.org it become org.packetfence.www"
 msgstr ""
 
 # html/pfappserver/root/config/authentication.tt
@@ -2631,6 +2651,10 @@ msgstr ""
 msgid "Name of the mysql database used by PacketFence."
 msgstr ""
 
+# conf/documentation.conf (pki.organisation)
+msgid "Name of the organisation that will appear on the certificate"
+msgstr ""
+
 # conf/documentation.conf (scan.nessus_clientpolicy)
 msgid "Name of the policy inside the NessusClient file"
 msgstr ""
@@ -3050,6 +3074,10 @@ msgstr ""
 msgid "PID"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "PKI"
+msgstr ""
+
 # pf::admin_roles (Actions groups)
 msgid "PORTAL_PROFILES"
 msgstr "Portal Profiles"
@@ -3130,6 +3158,10 @@ msgstr ""
 
 # conf/documentation.conf (database.pass)
 msgid "Password for the mysql database used by PacketFence."
+msgstr ""
+
+# conf/documentation.conf (pki.password)
+msgid "Password to connect to the pki api"
 msgstr ""
 
 # conf/documentation.conf (scan.pass)
@@ -3498,6 +3530,10 @@ msgstr ""
 msgid "Profile Name"
 msgstr ""
 
+# conf/documentation.conf (pki.profile)
+msgid "Profile from the pki for eap-tls clients"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Provisioners"
@@ -3826,6 +3862,10 @@ msgstr ""
 
 # html/pfappserver/root/configurator/database.tt
 msgid "Retype your password"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "ReverseDNS identifier"
 msgstr ""
 
 # html/pfappserver/root/config/profile/files.tt
@@ -4203,8 +4243,20 @@ msgstr ""
 msgid "Security Protocol 1X"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "Security type"
+msgstr ""
+
 # html/pfappserver/root/node/violations.tt
 msgid "Select a violation"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "Select the EAP type of your SSID"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "Select the type of security applied for your SSID"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -4511,6 +4563,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Starting IP Address"
+msgstr ""
+
+# conf/documentation.conf (pki.state)
+msgid "State that will appear in the certificate (2letters code)"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -5216,6 +5272,10 @@ msgstr ""
 msgid "Username of the account with access to the mysql database used by PacketFence."
 msgstr ""
 
+# conf/documentation.conf (pki.username)
+msgid "Username to connect to the pki api"
+msgstr ""
+
 # conf/documentation.conf (scan.user)
 msgid "Username to log into scanning engine with."
 msgstr ""
@@ -5459,6 +5519,10 @@ msgstr ""
 msgid "Whitelisted Roles"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "Wifi Key"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Will cache results of matching a rule"
 msgstr ""
@@ -5521,6 +5585,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Workgroup"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "Write the absolute path of your CA"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
@@ -6855,6 +6923,38 @@ msgstr ""
 msgid "plaintext"
 msgstr ""
 
+# conf/documentation.conf
+msgid "pki"
+msgstr "PKI"
+
+# conf/documentation.conf
+msgid "pki.country"
+msgstr "Country"
+
+# conf/documentation.conf
+msgid "pki.organisation"
+msgstr "Organisation"
+
+# conf/documentation.conf
+msgid "pki.password"
+msgstr "Password"
+
+# conf/documentation.conf
+msgid "pki.profile"
+msgstr "Profile"
+
+# conf/documentation.conf
+msgid "pki.state"
+msgstr "State"
+
+# conf/documentation.conf
+msgid "pki.uri"
+msgstr "URI"
+
+# conf/documentation.conf
+msgid "pki.username"
+msgstr "Username"
+
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
 msgid "port"
@@ -7441,6 +7541,10 @@ msgstr "Upstream URL"
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.submit_url"
 msgstr "Upstream Submit URL"
+
+# conf/documentation.conf (pki.uri)
+msgid "uri to contact the pki"
+msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
