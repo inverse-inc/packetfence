@@ -65,7 +65,7 @@ var ItemView = function(options) {
     options.parent.on('click', id + ' [href$="/delete"]', delete_item);
 
     var list_items = $.proxy(this.listItems, this);
-    options.parent.on('click', id + ' [href*="/list"]', list_items);
+    options.parent.on('click', id + ' [href*="/list/"]', list_items);
     //
     // Save the modifications from the modal
     var search = $.proxy(this.search, this);
@@ -169,7 +169,7 @@ ItemView.prototype.deleteItem = function(e) {
 };
 
 ItemView.prototype.list = function() {
-    var table = $(this.items.id);
+    var table = $('#items');
     this.listRefresh(table.attr('data-list-uri'));
 };
 
@@ -180,7 +180,7 @@ ItemView.prototype.listItems = function(e) {
 };
 
 ItemView.prototype.listRefresh = function(list_url) {
-    var table = $(this.items.id);
+    var table = $('#items');
     var that = this;
     table.fadeTo('fast',0.5,function() {
         that.items.get({
@@ -191,7 +191,7 @@ ItemView.prototype.listRefresh = function(list_url) {
             success: function(data) {
                 table.replaceWith(data);
             },
-            errorSibling: table
+            errorSibling: $('#items')
         });
     });
 };
@@ -213,7 +213,7 @@ ItemView.prototype.searchNext = function(e) {
 };
 
 ItemView.prototype.searchRefresh = function(search_url,form) {
-    var table = $(this.items.id);
+    var table = $('#items');
     var that = this;
     table.fadeTo('fast',0.5,function() {
         that.items.post({
@@ -225,7 +225,7 @@ ItemView.prototype.searchRefresh = function(search_url,form) {
             success: function(data) {
                 table.replaceWith(data);
             },
-            errorSibling: table
+            errorSibling: $('#items')
         });
     });
 };

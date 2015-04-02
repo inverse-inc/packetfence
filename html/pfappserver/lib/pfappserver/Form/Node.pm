@@ -89,11 +89,6 @@ has_field 'computername' =>
    type => 'Uneditable',
    label => 'Name',
   );
-has_field 'device_type' =>
-  (
-   type => 'Uneditable',
-   label => 'Device Type',
-  );
 has_field 'voip' =>
   (
    type => 'Checkbox',
