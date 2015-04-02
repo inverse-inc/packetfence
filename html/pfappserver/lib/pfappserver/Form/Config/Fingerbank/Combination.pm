@@ -13,7 +13,6 @@ Form definition for Fingerbank Combination
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'id' => (
     type => 'Text',

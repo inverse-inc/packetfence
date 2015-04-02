@@ -2,22 +2,16 @@ package pfappserver::Form::Config::Fingerbank::MAC_Vendor;
 
 =head1 NAME
 
-pfappserver::Form::Config::Fingerbank::MAC_Vendor - Web form for an admin role
+pfappserver::Form::Config::Fingerbank::MAC_Vendor
 
 =head1 DESCRIPTION
 
-Form definition to create or update an admin role
+Web form for Fingerbank MAC Vendor
 
 =cut
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
-
-use pf::admin_roles;
-use pf::log;
-
-has roles => ( is => 'rw', default => sub { [] } );
 
 ## Definition
 has_field 'id' =>
