@@ -55,7 +55,7 @@ sub index : Path : Args(0) {
     #$provisioner->authorize($mac) if (defined($provisioner));
     $c->stash(
         post_uri            => '/tlsprofile/cert_process',
-        certificate_cn      => $username, #$request->param_encoded("certificate_cn"),
+        certificate_cn      => $request->param_encoded("certificate_cn"),
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
         certificate_email   => lc( $request->param_encoded("certificate_email")),
         template            => 'pki.html',
