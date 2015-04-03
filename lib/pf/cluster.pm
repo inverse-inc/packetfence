@@ -24,6 +24,8 @@ use List::MoreUtils qw(first_index);
 use Net::Interface;
 use NetAddr::IP;
 use Socket;
+use pf::file_paths;
+use pf::util;
 
 use Exporter;
 our ( @ISA, @EXPORT );
@@ -34,7 +36,11 @@ our ($cluster_enabled, %ConfigCluster, @cluster_servers, @cluster_hosts);
 tie %ConfigCluster, 'pfconfig::cached_hash', 'config::Cluster';
 tie @cluster_servers, 'pfconfig::cached_array', 'resource::cluster_servers';
 tie @cluster_hosts, 'pfconfig::cached_array', 'resource::cluster_hosts';
-tie $cluster_enabled, 'pfconfig::cached_scalar', 'resource::cluster_enabled';
+$cluster_enabled = sub {
+    my $cfg = Config::IniFiles->new( -file => $cluster_config_file );
+    my $mgmt_ip = $cfg->val('CLUSTER', 'management_ip');
+    defined($mgmt_ip) && valid_ip($mgmt_ip) ? 1 : 0 ;
+}->();
 
 our $CLUSTER = "CLUSTER";
 
