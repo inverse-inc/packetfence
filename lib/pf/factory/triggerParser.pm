@@ -14,10 +14,14 @@ pf::factory::triggerParser
 
 use strict;
 use warnings;
+use base qw(Exporter);
+our @EXPORT_OK = qw(@VALID_TRIGGER_TYPES);
 use Module::Pluggable search_path => 'pf::triggerParser', 'sub_name' => 'modules' , 'require' => 1, except => qr/^pf::triggerParser::roles/;
 use List::MoreUtils qw(any);
 
 our @MODULES = __PACKAGE__->modules;
+
+our @VALID_TRIGGER_TYPES = map {my $t = $_; $t =~ s/^pf::triggerParser:://; $t} @MODULES;
 
 sub factory_for { 'pf::triggerParser' }
 
