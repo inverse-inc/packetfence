@@ -18,7 +18,6 @@ use warnings;
 use pfconfig::log;
 use pf::constants::config qw(%NET_INLINE_TYPES);
 use pfconfig::namespaces::config::Pf;
-use pfconfig::namespaces::resource::cluster_enabled;
 use pfconfig::util qw(is_type_inline);
 use Net::Netmask;
 use Net::Interface;
@@ -49,7 +48,9 @@ sub init {
         @{$self->{child_resources}} = map { "$_($host_id)" } @{$self->{child_resources}}; 
     }
     $self->{config_resource} = pfconfig::namespaces::config::Pf->new( $self->{cache}, $host_id );
-    $self->{cluster_enabled} = pfconfig::namespaces::resource::cluster_enabled->new( $self->{cache} )->build();
+    #$self->{cluster_enabled} = pfconfig::namespaces::resource::cluster_enabled->new( $self->{cache} )->build();
+    require pf::cluster;
+    $self->{cluster_enabled} = $pf::cluster::cluster_enabled;
 }
 
 sub build {
