@@ -507,7 +507,7 @@ sub getNodeInfoForAutoReg {
 
     #define the current connection value to instantiate the correct portal
     my $options;
-    $options->{'last_connection_type'} = $conn_type if (defined($conn_type));
+    $options->{'last_connection_type'} = connection_type_to_str($conn_type) if (defined($conn_type));
     $options->{'last_switch'}          = $switch->{_id} if (defined($switch->{_id}));
     $options->{'last_port'}            = $switch_port if (defined($switch_port));
     $options->{'last_vlan'}            = $vlan if (defined($vlan));
