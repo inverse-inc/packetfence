@@ -45,7 +45,7 @@ These files are included in the package and release tarballs.
 Introduction
 ------------
 
-PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with the Snort/Suricata IDS and the Nessus vulnerability scanner; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks.
+PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with IDS, vulnerability scanners and firewalls; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks.
 
 Features
 ~~~~~~~~
@@ -54,29 +54,29 @@ Out of band (VLAN Enforcement)::
   PacketFence's operation is completely out of band when using VLAN enforcement which allows the solution to scale geographically and to be more resilient to failures.
 
 In Band (Inline Enforcement)::
-  PacketFence can also be configured to be in-band, especially when you have non-manageable network switches or access points. PacketFence can also work with both VLAN and Inline enforcement activated for maximum scalability and security while allowing older hardware to still be secured using Inline enforcement.
+  PacketFence can also be configured to be in-band, especially when you have non-manageable network switches or access points. PacketFence can also work with both VLAN and Inline enforcement activated for maximum scalability and security while allowing older hardware to still be secured using inline enforcement. Both layer-2 and layer-3 are supported for inline enforcement.
 
 Hybrid support (Inline Enforcement with RADIUS support)::
   PacketFence can also be configured as hybrid, if you have a manageable device that supports 802.1X and/or MAC-authentication. This feature can be enabled using a RADIUS attribute (MAC address, SSID, port) or using full inline mode on the equipment.
 
 Hotspot support (Web Auth Enforcement)::
-  PacketFence can also be configured as hotspot, if you have a manageable device that support an external captive portal (like
+  PacketFence can also be configured as hotspot, if you have a manageable device that supports an external captive portal (like
 Cisco WLC or Aruba IAP).
 
 Voice over IP (VoIP) support::
-  Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Edge-Core, HP, LinkSys, Nortel Networks and many more).
+  Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Avaya, HP and many more).
 
 802.1X::
-  802.1X wireless and wired is supported through a http://www.freeradius.org[FreeRADIUS] module.
+  802.1X wireless and wired is supported through our http://www.freeradius.org[FreeRADIUS] module.
 
 Wireless integration::
-  PacketFence integrates perfectly with wireless networks through a http://www.freeradius.org/[FreeRADIUS] module. This allows you to secure your wired and wireless networks the same way using the same user database and using the same captive portal, providing a consistent user experience. Mixing Access Points (AP) vendors and Wireless Controllers is supported.
+  PacketFence integrates perfectly with wireless networks through our http://www.freeradius.org/[FreeRADIUS] module. This allows you to secure your wired and wireless networks the same way using the same user database and using the same captive portal, providing a consistent user experience. Mixing Access Points (AP) vendors and Wireless Controllers is supported.
 
 Registration::
   PacketFence supports an optional registration mechanism similar to "captive portal" solutions. Contrary to most captive portal solutions, PacketFence remembers users who previously registered and will automatically give them access without another authentication. Of course, this is configurable. An Acceptable Use Policy can be specified such that users cannot enable network access without first accepting it.
 
 Detection of abnormal network activities::
-  Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using local and remote http://www.snort.org/[Snort] or Suricata sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
+  Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using local and remote http://www.snort.org/[Snort] or http://suricata-ids.org/[Suricata] sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
 
 Proactive vulnerability scans::
   Either http://www.nessus.org/nessus/[Nessus] or http://www.openvas.org[OpenVAS] vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the scan engine vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
@@ -86,6 +86,9 @@ Isolation of problematic devices::
 
 Remediation through a captive portal::
   Once trapped, all network traffic is terminated by the PacketFence system. Based on the node's current status (unregistered, open violation, etc), the user is redirected to the appropriate URL. In the case of a violation, the user will be presented with instructions for the particular situation he/she is in reducing costly help desk intervention.
+
+Firewall integration::
+  PacketFence provides Single-Sign On features with many firewalls. Upon connection on the wired or wireless network, PacketFence can dynamically update the IP/user association on firewalls for them to apply, if required, per-user or per-group filtering policies.
 
 Command-line and Web-based management::
   Web-based and command-line interfaces for all management tasks.
@@ -150,11 +153,11 @@ More recent versions of the software mentioned above can also be used.
 Minimum Hardware Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following provides a list of server hardware recommendations:
+The following provides a list of the minimum server hardware recommendations:
 
 [options="compact"]
 * Intel or AMD CPU 3 GHz
-* 4 GB of RAM
+* 8 GB of RAM
 * 100 GB of disk space (RAID-1 recommended)
 * 1 Network card
  - +1 for high-availability
@@ -474,13 +477,13 @@ Network Devices Definition (switches.conf)
 
 This section applies only for VLAN enforcement. Users planning to do inline enforcement only can skip this section.
 
-PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. All this information is stored in `/usr/local/pf/conf/switches.conf`. You can modify the configuration directly in the `switches.conf` file or you can do it in the Web Administration panel under *Configuration -> Network -> Switches*.
+PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. All this information is stored in `/usr/local/pf/conf/switches.conf`. You can modify the configuration directly in the `switches.conf` file or you can do it from the Web Administration panel under *Configuration -> Network -> Switches*.
 
-This files contains a default section including:
+The `/usr/local/pf/conf/switches.conf` configuration file contains a default section including:
 
 [options="compact"]
 * Default SNMP read/write communities for the switches
-* Default working mode (see note about working mode below)
+* Default working mode (see the note below about possible working modes)
 
 and a switch section for each switch (managed by PacketFence) including:
 
@@ -496,7 +499,7 @@ are manually made to this file `/usr/local/pf/bin/pfcmd configreload`.
 Working modes
 ^^^^^^^^^^^^^
 
-There are three different working modes:
+There are three different working modes for a switch in PacketFence:
 
 Testing::
 pfsetvlan writes in the log files what it would normally do, but it doesn't do anything.
@@ -508,7 +511,7 @@ pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.
 SNMP v1, v2c and v3
 ^^^^^^^^^^^^^^^^^^^
 
-PacketFence uses SNMP to communicate with most switches. Starting with 1.8, PacketFence now supports SNMP v3. You can use SNMP v3 for communication in both directions: from the switch to PacketFence and from PacketFence to the switch.
+PacketFence uses SNMP to communicate with most switches. PacketFence also supports SNMP v3. You can use SNMP v3 for communication in both directions: from the switch to PacketFence and from PacketFence to the switch.
 
 From PacketFence to a switch
 ++++++++++++++++++++++++++++
@@ -558,7 +561,7 @@ Command-Line Interface: Telnet and SSH
 
 WARNING: Privilege detection is disabled in the current PacketFence version due to some issues (see http://www.packetfence.org/bugs/view.php?id=1370[#1370]). So make sure that the `cliUser` and `cliPwd` you provide always get you into a privileged mode (except for Trapeze hardware).
 
-PackeFence needs sometimes to establish an interactive command-line session with a switch. This can be done using Telnet. Starting with 1.8, you can now use SSH. In order to do so, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+PackeFence needs sometimes to establish an interactive command-line session with a switch. This can be done using Telnet. You can also use SSH. In order to do so, edit the switch configuration file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
 
   cliTransport = SSH (or Telnet)
   cliUser = admin
@@ -576,7 +579,7 @@ PackeFence sometimes needs to establish a dialog with the Web Services capabilit
   wsUser = admin
   wsPwd = admin_pwd
 
-NOTE: as of PacketFence 1.9.1 few switches require Web Services configuration in order to work. It can also be done through the Web Administration Interface under *Configuration -> Switches*.
+It can also be done through the Web Administration Interface under *Configuration -> Switches*.
 
 Radius Secret
 ^^^^^^^^^^^^^
@@ -590,9 +593,9 @@ Also, starting with PacketFence 3.1, the RADIUS secret is required for our suppo
 Role-based enforcement support
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Some network devices support the assignment of a specific set of rules (firewall or ACLs) to a user. The idea is that these rules can be a lot more precise to control what a user can or cannot do compared to VLAN which have a larger network management overhead.
+Some network devices support the assignment of a specific set of rules (firewall or ACLs) to a user. The idea is that these rules can be a lot more accurate to control what a user can or cannot do compared to VLAN which have a larger network management overhead.
 
-PacketFence supports assigning roles on devices that supports it. The current role assignment strategy is to assign it along with the VLAN (that may change in the future). A special internal role to external role assignment must be configured in the switch configuration file (`/usr/local/pf/conf/switches.conf`).
+PacketFence supports assigning roles on devices for switches and WiFi controllers that support it. The current role assignment strategy is to assign it along with the VLAN (that may change in the future). A special internal role to external role assignment must be configured in the switch configuration file (`/usr/local/pf/conf/switches.conf`).
 
 The current format is the following:
 
@@ -604,9 +607,11 @@ And you assign it to the global `roles` parameter or the per-switch one. For exa
   engineeringRole=full-access
   salesRole=little-access
 
-would return the `full-access` role to the nodes categorized as admin or engineering and the role `little-access` to nodes categorized as sales.
+would return the `full-access` role to the nodes categorized as admin or engineering and the role `little-access` to nodes categorized as sales. It can also be done through the Web Administration Interface under *Configuration -> Switches*.
+
 
 CAUTION: Make sure that the roles are properly defined on the network devices prior to assigning roles!
+
 
 Default VLAN/role assignment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -629,10 +634,10 @@ The inline enforcement is a very convenient method of performing access control 
 An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by these users should be your actual production DNS server - which shouldn't be in the same broadcast domain as your inline users. The next section shows you how to configure the proper inline interface and it is in this section that you should refer to the proper production DNS. 
 
 Inline enforcement uses `ipset` to mark nodes as registered, unregistered and isolated.
-It is also now possible to use multiple inline interfaces. A node registered on the first inline interface is marked with an ip:mac tuple (for L2, only ip for L3), so when the node tries to register on an other inline interface, PacketFence detects that the node is already registered on the first VLAN.
-It is also possible to enable inline.should_reauth_on_vlan_change to force users to reauthenticate when they change VLAN.
+It is also now possible to use multiple inline interfaces. A node registered on the first inline interface is marked with an IP:MAC tuple (for L2, only ip for L3), so when the node tries to register on an other inline interface, PacketFence detects that the node is already registered on the first VLAN.
+It is also possible to enable `inline.should_reauth_on_vlan_change` to force users to reauthenticate when they change VLAN.
 
-The outgoing interface should be specified by adding in pf.conf the option interfaceSNAT in inline section. It is a comma delimited list of network interfaces like eth0,eth0.100. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network sections.
+The outgoing interface should be specified by adding in `/usr/local/pf/conf/pf.conf` the option `interfaceSNAT` in inline section. It is a comma-delimited list of network interfaces like eth0,eth0.100. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option `nat=no` under one or more network sections.
 
 Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface IP address, it is mandatory to set it to this IP (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
 
@@ -862,13 +867,13 @@ attempting to attack each other.
 FreeRADIUS Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the devices, and then to push the proper VLAN to the network equipment.
+This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all require a RADIUS server to authenticate the users and the devices, and then to push the proper roles or VLAN attributes to the network equipment.
 
 Option 1: Dynamic switch configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Since PacketFence version 4.1 you are now be able to enable dynamic clients.
-It mean that when you add a new switch configuration in PacketFence´s administration interface you don´t have to restart radiusd service.
+It mean that when you add a new switch configuration in PacketFence's administration interface you don't have to restart the RADIUS service.
 
 To enable this feature make a symlink in `/usr/local/pf/raddb/site-enabled` directory:
 
@@ -1103,7 +1108,7 @@ authorize {
 
 
 
-Option 5: EAP Guest Authentication on email, sponsor and sms registration
+Option 5: EAP Guest Authentication on email, sponsor and SMS registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The goal here is to be able to use the credential PacketFence created on guest access and use this one on a secure connection.
@@ -1260,12 +1265,12 @@ In order to use the passthrough feature in PacketFence, you need to enable it fr
 *Configuration -> Trapping* and check *Passthrough*.
 
 There are two solutions for passthroughs - one using DNS resolution and iptables and the other one using Apache's mod_proxy module.
-When enabled, PacketFence will use pfdns if you defined *Passthroughs*, or Apache mod-proxy if you defined *Proxy Passthroughs* to allow trapped devices to reach web sites.
+When enabled, PacketFence will use `pfdns` if you defined *Passthroughs*, or Apache mod-proxy if you defined *Proxy Passthroughs* to allow trapped devices to reach external websites.
 
-*DNS passthrough:
+* DNS passthrough:
 Add a new FQDN (should be a wildcard domain like *.google.com) in the Passthroughs section. When PacketFence receives a DNS request for this domain, it will answer the real IP address and punch a hole in the firewall (using iptables) to allow access. With this method, PacketFence must be the default gateway of your device.
 
-*mod_proxy passthrough:
+* mod_proxy passthrough:
 Add a new FQDN (should be a wildcard domain like *.google.com) in the Proxy Passthroughs section. For this FQDN, PacketFence will answer the IP address of the captive portal and when a device hits the captive portal, PacketFence will detect that this FQDN has a passthrough configuration and will forward the traffic to mod_proxy.
 
 These two methods can be used together but DNS-based passthroughs have higher priority.
@@ -1273,7 +1278,7 @@ These two methods can be used together but DNS-based passthroughs have higher pr
 Proxy Interception
 ~~~~~~~~~~~~~~~~~~
 
-PacketFence enables you to intercept proxy requests and forward them to the captive portal. It only works in layer 2 network because PacketFence must be the default gateway.
+PacketFence enables you to intercept proxy requests and forward them to the captive portal. It only works one layer-2 networks  because PacketFence must be the default gateway.
 In order to use the Proxy Interception feature, you need to enable it from the GUI in
 *Configuration -> Trapping* and check *Proxy Interception*.
 
