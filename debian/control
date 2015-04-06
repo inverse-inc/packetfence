@@ -58,7 +58,7 @@ Depends: ${misc:Depends}, vlan, make,
  liblinux-fd-perl, liblinux-inotify2-perl, libfile-touch-perl, libhash-merge-perl,
  libcrypt-openssl-x509-perl,libconst-fast-perl,
  libtime-period-perl, libsereal-encoder-perl, libsereal-decoder-perl, libdata-serializer-sereal-perl (>= 1.04), libphp-serialization-perl,
- libnet-ip-perl,libdigest-hmac_md5,
+ libnet-ip-perl, libdigest-hmac-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313
@@ -69,7 +69,7 @@ Depends: ${misc:Depends}, vlan, make,
  libparse-nessus-nbe-perl, libtest-mockdbi-perl,
  libsoap-lite-perl (>= 1.0), libnet-frame-perl, libthread-pool-perl,
  libwww-curl-perl, libposix-2008-perl, libdata-messagepack-stream-perl, libdata-messagepack-perl,
- libnet-nessus-xmlrpc-perl (>= 0.4),libfile-slurp-perl,
+ libnet-nessus-xmlrpc-perl (>= 0.4), libfile-slurp-perl,
 # required for ipset
  libnetaddr-ip-perl, libfile-which-perl,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
