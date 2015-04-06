@@ -575,6 +575,7 @@ sub getNodeInfoForAutoReg {
     # if we are called from a violation with action=autoreg, say so
     if (defined($violation_autoreg) && $violation_autoreg) {
         $node_info{'notes'} = 'AUTO-REGISTERED by violation';
+        $node_info{'autoreg'} = 'no'; # This flag has not to be used for violation autoreg
     }
 
     # this might look circular but if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP
