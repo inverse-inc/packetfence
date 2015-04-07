@@ -25,6 +25,17 @@ use warnings;
 
 use base qw(pf::base::cmd::action_cmd);
 
+sub parseArgs {
+    my ($self) = @_;
+    my ($action,@args) = $self->args;
+    $action = 'soft' unless defined $action;
+    if($self->is_valid_action($action)) {
+        $self->{action} = $action;
+        return $self->_parseArgs(@args);
+    }
+    return 0;
+}
+
 sub action_soft {
     my ($self) = @_;
     $self->configreload();

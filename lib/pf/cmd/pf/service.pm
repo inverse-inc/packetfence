@@ -197,7 +197,7 @@ sub getManagers {
     my @temp = grep { defined $_ } map { pf::services::get_service_manager($_) } @$services;
     my @serviceManagers;
     foreach my $m (@temp) {
-        next if exists $seen{$m->name};
+        next if exists $seen{$m->name} || ( $justManaged && !$m->isManaged );
         $seen{$m->name}++;
         my @managers;
         #Get dependencies

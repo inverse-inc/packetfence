@@ -19,12 +19,14 @@ use strict;
 use warnings;
 use base qw(pf::cmd);
 use pf::file_paths;
+use File::Spec::Functions qw(catfile);
 
 sub parseArgs { 1 }
 
 sub _run {
     my $pfcmd = "${bin_dir}/pfcmd";
-    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir);
+    my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions);
+    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs);
     _changeFilesToOwner('root',$pfcmd);
     chmod(06755,$pfcmd);
     chmod(0664, @stored_config_files);

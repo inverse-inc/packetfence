@@ -18,6 +18,7 @@ use warnings;
 use Log::Log4perl;
 
 use pf::constants;
+use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER);
 use pf::config;
 use pf::node qw(node_attributes node_exist node_modify);
 use pf::Switch::constants;
@@ -548,7 +549,7 @@ sub getNodeInfoForAutoReg {
 
     #define the current connection value to instantiate the correct portal
     my $options;
-    $options->{'last_connection_type'} = $conn_type if (defined($conn_type));
+    $options->{'last_connection_type'} = connection_type_to_str($conn_type) if (defined($conn_type));
     $options->{'last_switch'}          = $switch->{_id} if (defined($switch->{_id}));
     $options->{'last_port'}            = $switch_port if (defined($switch_port));
     $options->{'last_vlan'}            = $vlan if (defined($vlan));
@@ -575,6 +576,7 @@ sub getNodeInfoForAutoReg {
     # if we are called from a violation with action=autoreg, say so
     if (defined($violation_autoreg) && $violation_autoreg) {
         $node_info{'notes'} = 'AUTO-REGISTERED by violation';
+        $node_info{'autoreg'} = 'no'; # This flag has not to be used for violation autoreg
     }
 
     # this might look circular but if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP

@@ -34,6 +34,11 @@ sub field_list {
             my $field_doc = $config_doc->{$field_name};
             $field_doc->{description} =~ s/\n//sg;
 
+            use pf::log;
+            use Data::Dumper;
+            get_logger->warn("field name : $field_name");
+            get_logger->warn("field doc : ".Dumper($field_doc));
+
             my $field = {
                 id      => $field_name,
                 label   => $field_name,

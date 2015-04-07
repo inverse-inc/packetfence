@@ -13,7 +13,7 @@ pf::triggerParser::provisioner
 
 use strict;
 use warnings;
-use pf::config;
+use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER);
 use Moo;
 extends 'pf::triggerParser';
 

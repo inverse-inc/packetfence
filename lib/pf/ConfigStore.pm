@@ -21,6 +21,7 @@ use Log::Log4perl qw(get_logger);
 use List::MoreUtils qw(uniq);
 use pfconfig::manager;
 use pf::api::jsonrpcclient;
+use pf::cluster;
 
 =head1 FIELDS
 
@@ -414,7 +415,13 @@ sub commitPfconfig {
     my ($self) = @_;
 
     if(defined($self->pfconfigNamespace)){
-        $self->commitCluster();
+        if($cluster_enabled){
+            $self->commitCluster();
+        }
+        else {
+            my $manager = pfconfig::manager->new;
+            $manager->expire($self->pfconfigNamespace);            
+        }
     }
     else{
         get_logger->error("Can't expire pfconfig in ".ref($self)." because the pfconfig namespace is not defined.");

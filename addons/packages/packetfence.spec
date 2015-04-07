@@ -510,7 +510,7 @@ if ! /usr/bin/id pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
 fi
-/usr/sbin/useradd -G fingerbank pf
+/usr/sbin/usermod -G fingerbank pf
 
 #if [ ! `tty | cut -c0-8` = "/dev/tty" ];
 #then
