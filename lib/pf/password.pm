@@ -43,8 +43,8 @@ use Switch;
 
 use pf::nodecategory;
 use pf::Authentication::constants;
-use Data::Entropy::Algorithms qw( rand_bits );
 use Crypt::Eksblowfish::Bcrypt qw(bcrypt_hash en_base64 de_base64 );
+use Bytes::Random::Secure;
 
 
 # Constants
@@ -508,8 +508,14 @@ sub _check_bcrypt {
 sub bcrypt {
     my ( $plaintext, %params ) = @_;
 
+    my $random = Bytes::Random::Secure->new(
+        Bits        => 64,
+        NonBlocking => 1,
+    );
+    my $bytes = $random->bytes(16); # blowfish requires 16 octets
+
     my $salt
-        = $params{"salt"} ? de_base64( $params{"salt"} ) : rand_bits( 16 * 8 );  # blowfish requires 16 octets
+        = $params{"salt"} ? de_base64( $params{"salt"} ) : $bytes;
     my $cost = $params{"cost"} // $Config{'advanced'}{'hashing_cost'}
         // 8;    # TODO: remove fallback once tests work
 
