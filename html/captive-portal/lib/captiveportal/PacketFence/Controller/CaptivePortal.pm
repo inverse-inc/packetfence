@@ -7,6 +7,7 @@ use HTML::Entities;
 use pf::enforcement qw(reevaluate_access);
 use pf::config;
 use pf::log;
+use pf::fingerbank;
 use pf::util;
 use pf::Portal::Session;
 use pf::web;
@@ -55,6 +56,7 @@ sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     $c->forward('validateMac');
     $c->forward('nodeRecordUserAgent');
+    $c->forward('processFingerbank');
     $c->forward('checkForViolation');
     $c->forward('checkIfNeedsToRegister');
     $c->forward('checkIfPending');
@@ -113,6 +115,28 @@ sub nodeRecordUserAgent : Private {
 
     # updates the node_useragent information and fires relevant violations triggers
     return pf::useragent::process_useragent( $mac, $user_agent );
+}
+
+=head2 processFingerbank
+
+=cut
+
+sub processFingerbank :Private {
+    my ( $self, $c ) = @_;
+
+    my $portalSession   = $c->portalSession;
+    my $mac             = $portalSession->clientMac;
+    my $user_agent      = $c->request->user_agent;
+    my $node_attributes = node_attributes($mac);
+
+    my %fingerbank_query_args = (
+        user_agent          => $user_agent,
+        mac                 => $mac,
+        dhcp_fingerprint    => $node_attributes->{'dhcp_fingerprint'},
+        dhcp_vendor         => $node_attributes->{'dhcp_vendor'},
+    );
+
+    pf::fingerbank::process(\%fingerbank_query_args);
 }
 
 =head2 checkForViolation
