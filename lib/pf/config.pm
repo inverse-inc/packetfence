@@ -128,9 +128,7 @@ BEGIN {
         %Config
         %ConfigNetworks %ConfigOAuth
         %ConfigFloatingDevices
-        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER @VALID_TRIGGER_TYPES
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
-        $TRIGGER_ID_PROVISIONER
         $WIPS_VID $thread $fqdn
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
@@ -218,34 +216,6 @@ $thread = 0;
 
 my $logger = Log::Log4perl->get_logger('pf::config');
 
-# Violation trigger types
-Readonly::Scalar our $TRIGGER_TYPE_ACCOUNTING => 'accounting';
-Readonly::Scalar our $TRIGGER_TYPE_DETECT => 'detect';
-Readonly::Scalar our $TRIGGER_TYPE_INTERNAL => 'internal';
-Readonly::Scalar our $TRIGGER_TYPE_MAC => 'mac';
-Readonly::Scalar our $TRIGGER_TYPE_NESSUS => 'nessus';
-Readonly::Scalar our $TRIGGER_TYPE_OPENVAS => 'openvas';
-Readonly::Scalar our $TRIGGER_TYPE_OS => 'os';
-Readonly::Scalar our $TRIGGER_TYPE_SOH => 'soh';
-Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
-Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
-Readonly::Scalar our $TRIGGER_TYPE_PROVISIONER => 'provisioner';
-Readonly::Scalar our $TRIGGER_ID_PROVISIONER => 'check';
-
-Readonly our @VALID_TRIGGER_TYPES =>
-  (
-   $TRIGGER_TYPE_ACCOUNTING,
-   $TRIGGER_TYPE_DETECT,
-   $TRIGGER_TYPE_INTERNAL,
-   $TRIGGER_TYPE_MAC,
-   $TRIGGER_TYPE_NESSUS,
-   $TRIGGER_TYPE_OPENVAS,
-   $TRIGGER_TYPE_OS,
-   $TRIGGER_TYPE_SOH,
-   $TRIGGER_TYPE_USERAGENT,
-   $TRIGGER_TYPE_VENDORMAC,
-   $TRIGGER_TYPE_PROVISIONER,
-  );
 
 # Accounting trigger policies
 Readonly::Scalar our $ACCOUNTING_POLICY_TIME => 'TimeExpired';

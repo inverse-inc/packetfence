@@ -24,6 +24,7 @@ use Readonly;
 use pf::authentication;
 use pf::Connection;
 use pf::constants;
+use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::config;
 use pf::locationlog;
 use pf::node;
@@ -594,7 +595,7 @@ sub _rewriteAccessAccept {
 
 sub _handleStaticPortSecurityMovement {
     my ($self,$switch,$mac) = @_;
-    my $start = Time::HiRes::gettimeofday(); 
+    my $start = Time::HiRes::gettimeofday();
     my $logger = Log::Log4perl::get_logger("pf::radius");
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($mac);

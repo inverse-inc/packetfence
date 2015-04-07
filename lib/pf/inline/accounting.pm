@@ -50,6 +50,7 @@ BEGIN {
 }
 
 use pf::config;
+use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::config::cached;
 use pf::db;
 use pf::trigger;

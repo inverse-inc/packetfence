@@ -50,6 +50,7 @@ BEGIN {
 use pf::constants;
 use pf::config;
 use pf::constants::config qw($ACCT_TIME_MODIFIER_RE);
+use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::db;
 use pf::violation;
 use pf::util;
