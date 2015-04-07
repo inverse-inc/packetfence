@@ -14,8 +14,11 @@ pf::cmd::roles::show_help
 use strict;
 use warnings;
 use Pod::Usage qw(pod2usage);
+use IO::Interactive qw(is_interactive);
 use Pod::Text::Termcap;
+if(is_interactive) {
 @Pod::Usage::ISA = ('Pod::Text::Termcap');
+}
 use Pod::Find qw(pod_where);
 use Role::Tiny;
 
