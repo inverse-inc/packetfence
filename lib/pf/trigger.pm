@@ -48,6 +48,7 @@ use pf::config;
 use pf::db;
 use pf::util;
 use pf::iplog;
+use pf::factory::triggerParser;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $trigger_db_prepared = 0;
@@ -198,38 +199,9 @@ sub parse_triggers {
 
         # make sure trigger is a valid trigger type
         # TODO refactor into an ListUtil test or an hash lookup (see Perl Best Practices)
-        if ( !grep( { lc($_) eq $type } @VALID_TRIGGER_TYPES ) ) {
-            die("Invalid trigger type ($type)");
-        }
-
-        # special accouting only trigger parser
-        if ($type eq 'accounting') {
-            unless ($tid =~ /^$ACCOUNTING_TRIGGER_RE$/ ||
-                    $tid eq $ACCOUNTING_POLICY_TIME ||
-                    $tid eq $ACCOUNTING_POLICY_BANDWIDTH) {
-                die("Invalid accounting trigger id: $trigger");
-            }
-        }
-        # special provisioning only trigger parser
-        elsif ($type eq 'provisioner') {
-            die("Invalid provisioner trigger id: $trigger")
-                if ( $tid ne $TRIGGER_ID_PROVISIONER );
-        }
-        # usual trigger allowing digits, ranges and dots with optional trailing whitespace
-        else {
-            die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[\d\.-]+\s*$/);
-        }
-
-        # process range
-        if ( $tid =~ /(\d+)-(\d+)/ ) {
-            if ( $2 > $1 ) {
-                push @$triggers_ref, [ $1, $2, $type ];
-            } else {
-                die("Invalid trigger range ($1 - $2)");
-            }
-        } else {
-            push @$triggers_ref, [ $tid, $tid, $type ];
-        }
+        my $triggerClass = pf::factory::triggerParser->new($type);
+        die("Invalid trigger type ($type)") unless $triggerClass;
+        push @$triggers_ref,$triggerClass->parseTid($type,$tid);
     }
     return $triggers_ref;
 }

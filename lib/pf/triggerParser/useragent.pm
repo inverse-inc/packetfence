@@ -1,18 +1,24 @@
-package pfappserver::Controller::Config::Fingerprints;
-
+package pf::triggerParser::useragent;
 =head1 NAME
 
-pfappserver::Controller::Config::Fingerprints
-
-=head1 DESCRIPTION
-
-Place all customization for Controller::Config::Fingerprints here
+pf::triggerParser::useragent - Trigger for useragent
 
 =cut
 
-use Moose;
+=head1 DESCRIPTION
 
-BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Fingerprints'; }
+pf::triggerParser::useragent
+
+=cut
+
+use strict;
+use warnings;
+use Moo;
+extends 'pf::triggerParser';
+use fingerbank::Model::User_Agent;
+with 'pf::triggerParser::roles::fingerbank';
+
+has '+fingerbankModel' => ( default => sub { "fingerbank::Model::User_Agent" });
 
 =head1 AUTHOR
 
@@ -40,8 +46,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
-
-__PACKAGE__->meta->make_immutable;
 
 1;

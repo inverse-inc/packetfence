@@ -1,35 +1,25 @@
-package pf::cmd::pf::reload::fingerprints;
+package pfappserver::Controller::Config::Fingerbank::DB;
+
 =head1 NAME
 
-pf::cmd::pf::reload::fingerprints add documentation
-
-=cut
+pfappserver::Controller::Config::Fingerbank::DB
 
 =head1 DESCRIPTION
 
-pf::cmd::pf::reload::fingerprints
+Meant to override / customize Config::Fingerbank::DB controller.
+
+Refer to L<pfappserver::PacketFence::Controller::Config::Fingerbank::DB>
 
 =cut
 
-use strict;
-use warnings;
-use base qw(pf::cmd);
-use pf::constants;
-use pf::os;
-use pf::log;
+use Moose;  # automatically turns on strict and warnings
+use namespace::autoclean;
 
-sub run  {
-    my $fp_total = pf::os::import_dhcp_fingerprints({ force => $TRUE });
-    get_logger->info("$fp_total DHCP fingerprints reloaded");
-    print "$fp_total DHCP fingerprints reloaded\n";
-    return 0;
-}
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Fingerbank::DB'; }
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
-
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
@@ -37,7 +27,7 @@ Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -54,5 +44,6 @@ USA.
 
 =cut
 
-1;
+__PACKAGE__->meta->make_immutable;
 
+1;

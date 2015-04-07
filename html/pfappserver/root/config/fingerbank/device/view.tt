@@ -1,0 +1,23 @@
+[% IF c.action.name == "view"  %]
+[% SET action_url = c.uri_for(c.controller.action_for('update'), [ scope, item.id ]) %]
+[%ELSE%]
+[% SET action_url = c.req.uri %]
+[% END %]
+<form name="modalFingerbankDevice" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
+  [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3>[% IF item %]<i>[% l('Device') %]</i> [% item.id | html %][% ELSE %][% l('New Device') %][% END %]</h3>
+  </div>
+
+  <div class="modal-body">
+        [% form.block('definition').render %]
+        
+  </div><!--modal-body-->
+
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    [% IF can_access("FINGERBANK_UPDATE") && (scope == 'Local' || c.action.name != 'view') %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+  </div>
+
+</form>

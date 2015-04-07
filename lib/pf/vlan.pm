@@ -18,6 +18,7 @@ use warnings;
 use Log::Log4perl;
 
 use pf::constants;
+use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER);
 use pf::config;
 use pf::node qw(node_attributes node_exist node_modify);
 use pf::Switch::constants;

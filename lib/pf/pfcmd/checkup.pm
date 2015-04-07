@@ -122,6 +122,7 @@ sub sanity_check {
 
     database();
     network();
+    fingerbank();
     inline() if (is_inline_enforcement_enabled());
     apache();
     web_admin();
@@ -265,6 +266,17 @@ sub freeradius {
     }
 }
 
+=item fingerbank
+
+Validation to make sure Fingerbank outside lib symlink is present
+
+=cut
+
+sub fingerbank {
+    if ( !-l '/usr/local/pf/lib/fingerbank' ) {
+        add_problem( $FATAL, "Fingerbank symlink does not exists" );
+    }
+}
 
 =item ids
 

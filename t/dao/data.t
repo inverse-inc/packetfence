@@ -49,7 +49,6 @@ BEGIN {
     use_ok('pf::locationlog');
     use_ok('pf::node');
     use_ok('pf::nodecategory');
-    use_ok('pf::os');
     use_ok('pf::person');
     use_ok('pf::scan');
     use_ok('pf::switchlocation');
@@ -74,7 +73,6 @@ my @data_modules = qw(
     pf::locationlog
     pf::node
     pf::nodecategory
-    pf::os
     pf::person
     pf::scan
     pf::switchlocation
