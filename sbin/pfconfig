@@ -43,7 +43,7 @@ use Errno qw(EINTR);
 $pfconfig::timeme::VERBOSE = 0;
 our $RUNNING = 1;
 
-our $PROGRAM_NAME = $0 = basename($0);
+our $PROGRAM_NAME = $0 = "pfconfig";
 
 
 my $socket_path = $pfconfig::constants::SOCKET_PATH;

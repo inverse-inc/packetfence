@@ -52,7 +52,7 @@ use NetAddr::IP;
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = basename($0);
+our $PROGRAM_NAME = "pfdhcplistener";
 
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
 

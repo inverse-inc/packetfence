@@ -46,7 +46,7 @@ use pf::ConfigStore::Interface;
 # assign process name (see #1464)
 
 # init signal handlers
-our $PROGRAM_NAME = $0 = basename($0);
+our $PROGRAM_NAME = $0 = "pfdns";
 
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
 

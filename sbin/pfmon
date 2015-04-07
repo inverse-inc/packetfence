@@ -52,7 +52,7 @@ use pf::factory::provisioner;
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = $0 = basename($0);
+our $PROGRAM_NAME = $0 = "pfmon";
 our @REGISTERED_TASKS;
 our $IS_CHILD = 0;
 our %CHILDREN;

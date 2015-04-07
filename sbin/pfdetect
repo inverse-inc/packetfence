@@ -44,7 +44,7 @@ use pf::violation;
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = $0 = basename($0);
+our $PROGRAM_NAME = $0 = "pfdetect";
 
 my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
 

@@ -77,7 +77,7 @@ $thread = 1;
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = $0 = basename($0);
+our $PROGRAM_NAME = $0 = "pfsetvlan";
 
 my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
 
