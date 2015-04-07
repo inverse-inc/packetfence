@@ -296,7 +296,9 @@ sub node_db_prepare {
     ];
 
     $node_statements->{'node_expire_unreg_field_sql'} = get_db_handle()->prepare(
-        qq [ select mac from node where status="reg" and unregdate != 0 and unregdate < now() ]);
+        qq [ select mac from node where ( 
+                status="reg" and unregdate != 0 and unregdate < now() ) or (
+                status="pending" and unregdate < now() ) ]);
 
     $node_statements->{'node_expire_lastarp_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_arp) < (unix_timestamp(now()) - ?) and last_arp!=0 ]);
