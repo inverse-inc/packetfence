@@ -35,6 +35,11 @@
         </div><!--/span-->
         <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
         <div id="section" class="span10">
+          <div id="dashboard" class="row-fluid">
+            <span style="float: left; height: 320px">
+              <!-- This span is required to compute the real section's width in JavaScript -->
+            </span>
+          </div>
         </div><!--/span-->
       </div><!--/row-->
     </div><!--/container-->
