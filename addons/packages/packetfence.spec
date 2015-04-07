@@ -965,7 +965,6 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/AdminRoles.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
-%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Firewall_SSO.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/FloatingDevice.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/MacAddress.pm
