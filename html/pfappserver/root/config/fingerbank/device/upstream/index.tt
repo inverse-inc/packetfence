@@ -1,4 +1,4 @@
-      <div class="modal modal-large fade hide" id="modalFingerBankDevice">
+      <div class="modal modal-large fade hide" id="modalFingerbankDevice">
       </div>
 
       <div class="modal fade hide" id="deleteItem">
