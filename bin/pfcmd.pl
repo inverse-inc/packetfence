@@ -15,6 +15,11 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
 
+# force UID/EUID to root to allow socket binds, etc
+# required for non-root (and GUI) service restarts to work
+$> = 0;
+$< = 0;
+
 use pf::cmd::pf;
 exit pf::cmd::pf->new({args => \@ARGV})->run();
 
