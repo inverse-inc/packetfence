@@ -503,6 +503,11 @@ httpd_aaa=enabled
 # Should httpd.proxy be started?
 httpd_proxy=enabled
 #
+# services.httpd_graphite
+#
+# Should httpd.graphite be started?
+httpd_graphite=enabled
+#
 # services.pfsetvlan
 #
 # Should pfsetvlan be managed by PacketFence?
@@ -531,6 +536,30 @@ keepalived=enabled
 #
 # Should winbindd be started?
 winbindd=enabled
+# services.carbon_cache
+#
+# Should carbon_cache be started?
+carbon_cache=enabled
+#
+# services.carbon_relay
+#
+# Should carbon_relay be started?
+carbon_relay=enabled
+#
+# services.collectd
+#
+# Should collectd be started?
+collectd=enabled
+#
+# services.statsd
+#
+# Should statsd be started?
+statsd=enabled
+#
+# services.radsniff
+#
+# Should radsniff be started?
+radsniff=enabled
 #
 # services.snort_binary
 #
@@ -581,6 +610,31 @@ carbon_cache_binary=/usr/bin/carbon_cache
 # 
 # Location of the carbon relay binary. Only necessary to change if you are not running the pre-packaged version.
 carbon_relay_binary=/usr/bin/carbon_relay
+# 
+# services.statsd_binary
+# 
+# Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
+statsd_binary=/usr/bin/node
+# 
+# services.collectd_binary
+# 
+# Location of the collectd binary. Only necessary to change if you are not running the pre-packaged version.
+collectd_binary=/usr/sbin/collectd
+# 
+# services.radsniff_binary
+# 
+# Location of the radsniff3 binary. Only necessary to change if you are not running the pre-packaged version.
+radsniff_binary=/usr/local/pf/bin/radsniff
+# 
+# services.carbon_cache_binary
+# 
+# Location of the carbon cache binary. Only necessary to change if you are not running the pre-packaged version.
+carbon_cache_binary=/usr/bin/carbon-cache
+# 
+# services.carbon_relay_binary
+# 
+# Location of the carbon relay binary. Only necessary to change if you are not running the pre-packaged version.
+carbon_relay_binary=/usr/bin/carbon-relay
 # 
 # services.statsd_binary
 # 
@@ -1080,6 +1134,16 @@ statsd_host=localhost
 # monitoring.statsd_port
 #
 statsd_port=8125
+
+#
+# monitoring.graphite_host
+#
+graphite_host=localhost
+
+#
+# monitoring.graphite_port
+#
+graphite_port=2013
 
 #
 # monitoring.graphite_host

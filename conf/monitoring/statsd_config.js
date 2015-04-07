@@ -90,6 +90,7 @@ Optional Variables:
   graphitePort: 2013
 , graphiteHost: "%%management_ip%%"
 , port: 8125
+, pidFile: "%%pid_file%%"
 , backends: [ "./backends/graphite" ]
 , graphite: {
     legacyNamespace: false

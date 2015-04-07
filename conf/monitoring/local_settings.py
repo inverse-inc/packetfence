@@ -178,7 +178,7 @@ DATABASES = {
 # remote server in the cluster. These servers must each have local access to
 # metric data. Note that the first server to return a match for a query will be
 # used.
-CLUSTER_SERVERS = ["%%graphite_host%%:%%graphite_port%%", "%%other_graphite_host%%"]
+CLUSTER_SERVERS = ["%%graphite_host%%:%%graphite_port%%",]
 
 ## These are timeout values (in seconds) for requests to remote webapps
 #REMOTE_STORE_FETCH_TIMEOUT = 6   # Timeout to fetch series data

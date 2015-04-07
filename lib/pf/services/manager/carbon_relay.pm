@@ -22,10 +22,10 @@ use Moo;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub {'carbon-relay'} );
+has '+name' => ( default => sub {'carbon_relay'} );
 
 has '+launcher' =>
-    ( default => sub {"sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon-relay.pid --logdir=$install_dir/logs"} );
+    ( default => sub {"sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon_relay.pid --logdir=$install_dir/logs start"} );
 
 sub generateConfig {
     generate_carbon_config();
@@ -40,3 +40,6 @@ sub generate_carbon_config {
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/carbon.conf" );
 }
 
+has dependsOnServices => (is => 'ro', default => sub { [qw(carbon_cache)] } );
+
+1;

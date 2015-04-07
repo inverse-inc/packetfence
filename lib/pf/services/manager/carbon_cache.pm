@@ -22,11 +22,11 @@ use Moo;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub {'carbon-cache'} );
+has '+name' => ( default => sub {'carbon_cache'} );
 
 has '+launcher' => (
     default => sub {
-        "sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon.pid --logdir=$install_dir/logs";
+        "sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon_cache.pid --logdir=$install_dir/logs start";
     }
 );
 
@@ -74,7 +74,7 @@ sub generate_dashboard_settings {
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/dashboard.conf" );
 }
 
-sub generate_carbon_Config {
+sub generate_carbon_config {
     my %tags;
     $tags{'template'}    = "$conf_dir/monitoring/carbon.conf";
     $tags{'install_dir'} = "$install_dir";
@@ -88,3 +88,4 @@ sub generate_carbon_Config {
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/carbon.conf" );
 }
 
+1;

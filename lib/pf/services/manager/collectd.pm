@@ -22,17 +22,25 @@ use Moo;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub {'collectd'} );
+has '+name' => ( default => sub { 'collectd' } );
 
-has '+launcher' =>
-    ( default => sub {"sudo %1\$s -P $install_dir/var/run/collectd.pid -C $install_dir/var/conf/collectd.conf"} );
+has '+launcher' => (
+    default => sub {
+"sudo %1\$s -P $install_dir/var/run/collectd.pid -C $install_dir/var/conf/collectd.conf";
+    }
+);
 
 sub generateConfig {
     my %tags;
     $tags{'template'}      = "$conf_dir/monitoring/collectd.conf";
+    $tags{'install_dir'}   = "$install_dir";
     $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
     $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
 
-    parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/collectd.conf" );
+    parse_template( \%tags, "$tags{'template'}",
+        "$install_dir/var/conf/collectd.conf" );
 }
 
+has dependsOnServices => ( is => 'ro', default => sub { [qw(carbon_relay)] } );
+
+1;
