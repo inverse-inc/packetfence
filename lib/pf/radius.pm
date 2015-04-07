@@ -377,7 +377,7 @@ sub _parseRequest {
 }
 
 sub extractApMacFromRadiusRequest {
-    my ($radius_request) = @_;
+    my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     # it's put in Called-Station-Id
     # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
