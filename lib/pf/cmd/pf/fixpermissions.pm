@@ -19,6 +19,7 @@ use strict;
 use warnings;
 use base qw(pf::cmd);
 use pf::file_paths;
+use File::Spec::Functions qw(catfile);
 
 sub parseArgs { 1 }
 
