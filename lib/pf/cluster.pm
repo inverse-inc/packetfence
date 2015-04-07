@@ -38,6 +38,7 @@ tie @cluster_servers, 'pfconfig::cached_array', 'resource::cluster_servers';
 tie @cluster_hosts, 'pfconfig::cached_array', 'resource::cluster_hosts';
 $cluster_enabled = sub {
     my $cfg = Config::IniFiles->new( -file => $cluster_config_file );
+    return 0 unless($cfg);
     my $mgmt_ip = $cfg->val('CLUSTER', 'management_ip');
     defined($mgmt_ip) && valid_ip($mgmt_ip) ? 1 : 0 ;
 }->();
