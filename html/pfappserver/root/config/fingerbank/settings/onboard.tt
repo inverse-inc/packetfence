@@ -1,0 +1,15 @@
+<h2>[% l('Fingerbank Onboarding') %]</h2>
+
+<p>Proceed here: <a href="https://fingerbank.inverse.ca/users/register" target="_blank">https://fingerbank.inverse.ca/users/register</a></p>
+
+<p>Once done, you will be issued an API key that you need to enter in the following field, then complete the process by clicking "Get Aboard!"</p>
+
+<form id="fingerbankonboard" class="form-horizontal" action="[%c.uri_for(c.controller.action_for('onboard'))%]" method="post">
+  [% FOREACH field IN form.fields %]
+    [% form.field(field.name).render %]
+  [% END %]
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Get Aboard!</button>
+  </div>
+</form>

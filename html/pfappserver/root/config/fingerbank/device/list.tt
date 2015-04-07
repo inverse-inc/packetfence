@@ -1,0 +1,35 @@
+<table id="fingerbankdevices" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list'),[scope]) %]">
+  <thead>
+    <tr>
+      <td colspan="3">
+          <ul class="nav nav-pills">
+            <li [% IF scope == 'Upstream' %]class="active" [% END %]>
+              <a href="[% c.uri_for(c.controller.action_for('list'),['Upstream']) %]" >[% l('Upstream')  %]</a>
+            </li>
+            <li [% IF scope == 'Local' %]class="active" [% END %]>
+              <a href="[% c.uri_for(c.controller.action_for('list'),['Local']) %]" >[% l('Local')  %]</a>
+            </li>
+          </ul>
+      </td>
+    </tr>
+    <tr>
+      <th>[% l('Device ID') %]</th>
+      <th>[% l('Description') %]</th>
+      <th>[% l('Actions') %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [%INCLUDE config/fingerbank/device/children.tt %]
+  </tbody>
+  <tfoot>
+   [%- IF scope == 'Local' && can_access("FINGERBANK_CREATE") %]
+    <tr>
+      <th colspan="3">
+        <div class="form-actions">
+          <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Device') %]</a>
+        </div>
+      </th>
+    </tr>
+   [%- END %]
+  </tfoot>
+</table>
