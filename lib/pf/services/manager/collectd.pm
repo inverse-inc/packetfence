@@ -23,6 +23,7 @@ use Moo;
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'collectd' } );
+has dependsOnServices => ( is => 'ro', default => sub { [qw(carbon_relay)] } );
 
 has '+launcher' => (
     default => sub {
@@ -37,10 +38,15 @@ sub generateConfig {
     $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
     $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
 
-    parse_template( \%tags, "$tags{'template'}",
-        "$install_dir/var/conf/collectd.conf" );
+    parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/collectd.conf" );
 }
 
-has dependsOnServices => ( is => 'ro', default => sub { [qw(carbon_relay)] } );
+sub generateTypes { 
+    my %tags;
+    $tags{'template'}      = "$conf_dir/monitoring/types.db";
+    $tags{'install_dir'}   = "$install_dir";
+
+    parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/types.db" );
+}
 
 1;
