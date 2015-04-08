@@ -55,31 +55,31 @@ is_deeply(
     "validating single trigger results"
 );
 
-lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005,OS::4,Openvas::1.3.6.1.4.1.25623.1.0.80001") }
+lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005,DEVICE::4,Openvas::1.3.6.1.4.1.25623.1.0.80001") }
     'parsing multiple triggers'
 ;
 is_deeply(
     $parsing_result_ref,
-    [ [ 1100005, 1100005, "detect" ], [ 4, 4, "os" ], 
+    [ [ 1100005, 1100005, "detect" ], [ 4, 4, "device" ],
     [ "1.3.6.1.4.1.25623.1.0.80001", "1.3.6.1.4.1.25623.1.0.80001", "openvas"] ],
     'validating multiple triggers'
 );
 
-lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005-1100007,OS::4") }
+lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005-1100007,DEVICE::4") }
     'parsing triggers with a range'
 ;
 is_deeply(
     $parsing_result_ref,
-    [ [ 1100005, 1100007, "detect" ], [ 4, 4, "os" ] ],
+    [ [ 1100005, 1100007, "detect" ], [ 4, 4, "device" ] ],
     'validating triggers with a range'
 );
 
-throws_ok { parse_triggers("Detect::1100005,OS::4,INVALID::7") }
+throws_ok { parse_triggers("Detect::1100005,DEVICE::4,INVALID::7") }
     qr/Invalid trigger type/,
     'parsing triggers with an invalid trigger type expecting exception'
 ;
 
-throws_ok { parse_triggers("Detect::1100005-1100001,OS::4") }
+throws_ok { parse_triggers("Detect::1100005-1100001,DEVICE::4") }
     qr/Invalid trigger range/,
     'parsing triggers with an invalid trigger range expecting exception'
 ;
@@ -89,7 +89,7 @@ throws_ok { parse_triggers("Openvas::1.3.6.1.4.1.25.1.0.801-1.3.6.1.4.1.25.1.0.8
     'parsing triggers with a range in an OpenVAS OID expecting exception'
 ;
 
-throws_ok { parse_triggers("VENDORMAC::00:22:FA,VENDORMAC::00:22:68,VENDORMAC::00:13:e8") }
+throws_ok { parse_triggers("MAC_VENDOR::00:22:FA,MAC_VENDOR::00:22:68,MAC_VENDOR::00:13:e8") }
     qr/Invalid trigger id/,
     'parsing triggers with an invalid trigger id expecting exception'
 ;
@@ -103,12 +103,12 @@ is_deeply(
     "validating single trigger with a trailing space"
 );
 
-lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005 ,OS::4") }
+lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005 ,DEVICE::4") }
     'parsing triggers with spaces in between'
 ;
 is_deeply(
     $parsing_result_ref,
-    [ [ 1100005, 1100005, "detect" ], [ 4, 4, "os" ] ],
+    [ [ 1100005, 1100005, "detect" ], [ 4, 4, "device" ] ],
     'validating triggers with spaces in between'
 );
 
@@ -122,7 +122,7 @@ is_deeply(
     'validating bandwidth accounting trigger'
 );
 
-throws_ok { parse_triggers("VENDORMAC::TOT20GB") }
+throws_ok { parse_triggers("MAC_VENDOR::TOT20GB") }
     qr/Invalid trigger id/,
     'parsing a trigger with an invalid trigger id out of the accounting context expecting exception'
 ;
@@ -177,7 +177,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
+USA.
 
 =cut
 
