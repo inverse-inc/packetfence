@@ -32,6 +32,11 @@ has '+launcher' => (
 );
 
 sub generateConfig {
+    generateCollectd();
+    generateTypes();
+}
+
+sub generateCollectd {
     my %tags;
     $tags{'template'}      = "$conf_dir/monitoring/collectd.conf";
     $tags{'install_dir'}   = "$install_dir";
