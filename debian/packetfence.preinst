@@ -23,11 +23,12 @@ stop_service_if_exists() {
 case "$1" in
     install)
         if [ -z "$(getent passwd pf)" ]; then
-                useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
+                useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
                 echo "create pf user"
         else
                 echo "pf user already exist"
         fi
+        usermod -G fingerbank pf
         if [ -e /etc/lsb-release ]; then
             usermod -a -G pf dhcpd
         fi
