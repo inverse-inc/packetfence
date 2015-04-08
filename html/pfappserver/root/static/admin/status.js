@@ -60,7 +60,8 @@ function init() {
         var startDate = [start.getUTCFullYear(), (start.getUTCMonth() + 1), start.getUTCDate()].join('-');
         var end = dp.dates[1];
         var endDate = [end.getUTCFullYear(), (end.getUTCMonth() + 1), end.getUTCDate()].join('-');
-        location.hash = ['graph', 'dashboard', startDate, endDate].join('/');
+        var width = $('#dashboard').width();
+        location.hash = ['graph', 'dashboard', startDate, endDate].join('/') + '?width=' + width;
     });
 
     /* Automatically refresh dashboard every X seconds */
