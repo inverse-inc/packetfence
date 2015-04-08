@@ -4418,6 +4418,10 @@ msgstr ""
 msgid "The ID of the Switch"
 msgstr ""
 
+# conf/documentation.conf (billing.mirapay_iframe_merchant_id)
+msgid "The Mirapay merchant id"
+msgstr ""
+
 # conf/documentation.conf (omapi.key_base64)
 msgid "The OMAPI base64 key for signing messages"
 msgstr ""
@@ -4432,6 +4436,12 @@ msgstr ""
 
 # conf/documentation.conf (omapi.port)
 msgid "The OMAPI port number"
+msgstr ""
+
+# conf/documentation.conf (billing.mirapay_iframe_url)
+msgid ""
+  "The URL to submit the request. By default it is set to the staging URL."
+  "In production it should be set to a production url"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -4510,10 +4520,6 @@ msgstr ""
 msgid "The merchant's unique Transaction Key (Provided by Authorize.net)"
 msgstr ""
 
-# conf/documentation.conf (billing.mirapay_iframe_merchant_id)
-msgid "The mirapay merchant id"
-msgstr ""
-
 # html/pfappserver/root/node/create.tt
 msgid "The node will be automatically registered. If the MAC matches an existing node, it will also be modified and registered."
 msgstr ""
@@ -4553,7 +4559,7 @@ msgid "The rule was not found."
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_iframe_shared_secret)
-msgid "The shared secret for mirapay"
+msgid "The shared secret for Mirapay"
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_terminal_id)
@@ -4562,12 +4568,6 @@ msgstr ""
 
 # conf/documentation.conf (billing.mirapay_terminal_id_group)
 msgid "The terminal id group for mirapay"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_iframe_url)
-msgid ""
-  "The url to submit the request by default it is set to the test."
-  "In production it should be set to a production url"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
@@ -4603,7 +4603,7 @@ msgid "The webservices user name"
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_language)
-msgid "The what language to display by default"
+msgid "The what language to display. By default it is set to english."
 msgstr ""
 
 # html/pfappserver/root/graph/line.tt
