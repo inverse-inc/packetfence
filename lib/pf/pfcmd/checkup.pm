@@ -31,6 +31,7 @@ use NetAddr::IP;
 use pf::web::filter;
 use pfconfig::manager;
 use pfconfig::namespaces::config::Pf;
+use pf::version;
 
 use lib $conf_dir;
 
@@ -137,6 +138,7 @@ sub sanity_check {
     unsupported();
     vlan_filter_rules();
     apache_filter_rules();
+    db_version();
 
     return @problems;
 }
@@ -1079,6 +1081,19 @@ sub apache_filter_rules {
             add_problem ( $FATAL, "Missing operator attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'operator'}));
         }
+    }
+}
+
+=item db_version
+
+Make sure the database matches the current version
+Return the current version if it matches or undef if it does not match
+
+=cut
+
+sub db_version {
+    unless(pf::version::version_check()) {
+        add_problem ( $FATAL, "the database does not match the current version $PF_VERSION" );
     }
 }
 
