@@ -478,8 +478,6 @@ sub _mirapay_verify_request {
 
 =head2 mirapay_iframe_verify_input
 
-Verify
-
 =cut
 
 sub mirapay_iframe_verify_input : Private {
