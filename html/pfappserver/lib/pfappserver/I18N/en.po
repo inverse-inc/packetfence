@@ -4043,7 +4043,7 @@ msgstr ""
 
 # pf::pfcmd::report (SQL)
 msgid "dhcp_fingerprint"
-msgstr "Operating System Class"
+msgstr "DHCP Fingerprint"
 
 # conf/documentation.conf (interface.type options)
 msgid "dhcplistener"
