@@ -74,7 +74,7 @@ enabled=N
 [1100004]
 desc=Ancient OS isolation example
 template=banned_os
-trigger=DEVICE:28,DEVICE:29,DEVICE:30,DEVICE:31,DEVICE:32
+trigger=DEVICE::28,DEVICE::29,DEVICE::30,DEVICE::31,DEVICE::32
 actions=trap,email,log
 enabled=N
 
