@@ -68,7 +68,7 @@ vrrp_instance $cfg->{'ip'} {
     $cluster_ip dev $interface
   }
 EOT
-        if(defined($cfg->{type}) && $cfg->{type} eq "management"){
+        if(defined($cfg->{type}) && $cfg->{type} =~ /management/){
             $tags{'vrrp'} .= "  notify \"$install_dir/bin/cluster/management_update\"\n";
         }
 
