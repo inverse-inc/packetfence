@@ -27,7 +27,7 @@ our $version_statements = {};
 
 =head1 SUBROUTINES
 
-=head2 pf_version_db_prepare
+=head2 version_db_prepare
 
 Initialize database prepared statements
 
@@ -42,7 +42,7 @@ sub version_db_prepare {
     return 1;
 }
 
-=head2 pf_version_check
+=head2 version_check
 
 Checks the version of db
 
