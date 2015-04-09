@@ -655,6 +655,7 @@ echo "Adding PacketFence remote ARP Sensor startup script"
 /sbin/chkconfig --add pfarp
 
 %post -n %{real_name}-config
+chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
 /sbin/chkconfig --add packetfence-config
 
