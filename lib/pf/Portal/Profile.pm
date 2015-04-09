@@ -389,12 +389,7 @@ sub findProvisioner {
     my ($self, $mac, $node_attributes) = @_;
     my $logger = get_logger();
     $node_attributes ||= node_attributes($mac);
-    my ($fingerprint) = $node_attributes->{'device_type'};
-    unless($fingerprint){
-        $logger->warn("Can't find provisioner for $mac since we don't have it's fingerprint");
-        return;
-    }
-    my $os = $fingerprint->{'os'};
+    my $os = $node_attributes->{'device_class'};
     unless(defined $os){
         $logger->warn("Can't find provisioner for $mac since we don't have it's OS");
         return;
