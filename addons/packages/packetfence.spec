@@ -555,7 +555,6 @@ fi
 
 
 %post -n %{real_name}
-echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
 
 #Check if log files exist and create them with the correct owner
