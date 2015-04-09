@@ -16,10 +16,9 @@ use warnings;
 use Readonly;
 use base qw(Exporter);
 our @EXPORT = qw(
-    $FALSE $TRUE $YES $NO $default_pid $admin_pid $PF_VERSION
+    $FALSE $TRUE $YES $NO $default_pid $admin_pid
 );
 
-Readonly::Scalar our $PF_VERSION => '5.0.0';
 # some global constants
 Readonly::Scalar our $FALSE => 0;
 Readonly::Scalar our $TRUE => 1;
