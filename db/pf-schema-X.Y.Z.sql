@@ -129,6 +129,7 @@ CREATE TABLE node (
   dhcp_fingerprint varchar(255) default NULL,
   dhcp_vendor varchar(255) default NULL,
   device_type varchar(255) default NULL,
+  device_class varchar(255) default NULL,
   bypass_vlan varchar(50) default NULL,
   voip enum('no','yes') NOT NULL DEFAULT 'no',
   autoreg enum('no','yes') NOT NULL DEFAULT 'no',

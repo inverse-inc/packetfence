@@ -45,8 +45,14 @@ sub process {
     # Querying for a resultset
     my $query_result = _query($query_args);
 
+    # Processing the device class based on it's parents
+    my $class = _process_class($query_result);
+
     # Updating the node device type based on the result
-    node_modify( $mac, ( 'device_type' => $query_result->{'device'}{'name'} ) );
+    node_modify( $mac, ( 
+        'device_type'   => $query_result->{'device'}{'name'},
+        'device_class'  => $class,
+    ) );
 
     _trigger_violations($query_args, $query_result);
 
@@ -123,6 +129,22 @@ sub _trigger_violations {
 
         $logger->debug("Trying to trigger a violation type $trigger_type for MAC $mac with data $trigger_data");
         $apiclient->notify('trigger_violation', %violation_data);
+    }
+}
+
+=head2 _process_class
+
+We are looking at the top-level parent to determine the device class
+
+=cut
+
+sub _process_class {
+    my ( $args ) = @_;
+    my $logger = pf::log::get_logger;
+
+    foreach my $parent ( @{ $args->{'device'}{'parents'} } ) {
+        next if $parent->{'parent_id'};
+        return $parent->{'name'};
     }
 }
 

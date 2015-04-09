@@ -98,3 +98,4 @@ UPDATE `node` SET pid = 'default' WHERE status = 'unreg' AND pid = 'admin';
 
 ALTER TABLE node ADD dhcp_vendor VARCHAR(255) AFTER dhcp_fingerprint;
 ALTER TABLE node ADD device_type VARCHAR(255) AFTER dhcp_vendor;
+ALTER TABLE node ADD device_class VARCHAR(255) AFTER device_type;
