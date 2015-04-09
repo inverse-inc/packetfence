@@ -473,7 +473,7 @@ extract the type of hash for the password
 sub password_get_hash_type {
     my ($passwd) = @_;
     my $type  = 'plaintext';
-    if ($passwd =~ /\{([^{}]*)\}/ ) {
+    if ($passwd =~ /^\{([^{}]*)\}/ ) {
         $type = $1;
     }
     return $type;
