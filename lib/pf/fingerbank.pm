@@ -96,6 +96,7 @@ sub _trigger_violations {
     my $apiclient = pf::api::jsonrpcclient->new;
 
     foreach my $trigger_type ( @fingerbank_based_violation_triggers ) {
+        next if !$mac || !$query_args->{lc($trigger_type)};
         my $trigger_data;
         switch ( $trigger_type ) {
             case 'Device' {
