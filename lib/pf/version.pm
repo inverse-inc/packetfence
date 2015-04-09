@@ -15,7 +15,9 @@ use strict;
 use warnings;
 
 use pf::constants;
+use pf::file_paths;
 use pf::db;
+use pf::log;
 
 use constant PF_VERSION => 'version';
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -49,12 +51,42 @@ Checks the version of db
 =cut
 
 sub version_check {
-   my $sth = db_query_execute(PF_VERSION, $version_statements, 'version_check_sql', $PF_VERSION);
+   my $sth = db_query_execute(PF_VERSION, $version_statements, 'version_check_sql', version_current());
    return unless $sth;
    my $row = $sth->fetch;
    $sth->finish;
    return unless $row;
    return $row->[0];
+}
+
+=head2 version_release
+
+Get the current release of packetence
+
+=cut
+
+sub version_release {
+    my ( $pfrelease_fh, $release );
+    open( $pfrelease_fh, '<', "$conf_dir/pf-release" )
+        || get_logger->logdie("Unable to open $conf_dir/pf-release: $!");
+    $release = <$pfrelease_fh>;
+    close($pfrelease_fh);
+    chomp($release);
+    return $release ;
+}
+
+=head2 version_current
+
+Get the current version of packetence
+
+=cut
+
+sub version_current {
+    my $release = version_release();
+    return undef unless $release;
+    my $version = $release;
+    $version =~ s/^PacketFence //;
+    return $version ;
 }
 
 =head1 AUTHOR
