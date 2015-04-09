@@ -200,7 +200,7 @@ check the Netmask objs and make sure a managed and internal interface exist
 sub interfaces {
 
     if ( !scalar(get_internal_devs()) ) {
-        add_problem( $FATAL, "internal network(s) not defined!" );
+        add_problem( $WARN, "internal network(s) not defined!" );
     }
 
     my %seen;
