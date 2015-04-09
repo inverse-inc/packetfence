@@ -24,7 +24,6 @@ use pf::util;
 use pf::log;
 use pf::node;
 use pf::factory::provisioner;
-use pf::os;
 use pf::ConfigStore::Scan;
 
 =head1 METHODS
@@ -442,8 +441,7 @@ sub findScan {
     my ($self, $mac, $node_attributes) = @_;
     my $logger = get_logger();
     $node_attributes ||= node_attributes($mac);
-    my ($fingerprint) =
-      dhcp_fingerprint_view( $node_attributes->{'dhcp_fingerprint'} );
+    my ($fingerprint) = $node_attributes->{'device_type'};
     if (defined($self->getScans)) {
         foreach my $scan (split(',',$self->getScans)) {
             my $scan_config = $pf::config::ConfigScan{$scan};
