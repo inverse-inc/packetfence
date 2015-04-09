@@ -94,6 +94,11 @@ has_field 'device_type' =>
    type => 'Uneditable',
    label => 'Device Type',
   );
+has_field 'device_class' =>
+ (
+   type => 'Uneditable',
+   label => 'Device class',
+ );
 has_field 'voip' =>
   (
    type => 'Checkbox',

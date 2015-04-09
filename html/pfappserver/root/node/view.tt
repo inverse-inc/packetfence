@@ -50,6 +50,7 @@
             </div>
 
             [% form.field('device_type').render %]
+            [% form.field('device_class').render %]
             [% form.field('vendor').render %]
             [% form.field('computername').render IF node.computername -%]
             [% form.field('voip').render %]
