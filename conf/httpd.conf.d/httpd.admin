@@ -75,8 +75,11 @@ BEGIN {
 }
 
 use pf::config qw();
+use pf::cluster qw();
 
 my $PfConfig = \%pf::config::Config;
+my $cluster_enabled = $pf::cluster::cluster_enabled;
+my $ConfigCluster = \%pf::cluster::ConfigCluster;
 my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
@@ -93,6 +96,10 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
         push (@Listen, $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'admin'});
         push (@Listen, $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'pf_status'});
         $vhost = $management_network->{'Tvip'};
+    } elsif ( $cluster_enabled ){
+        push (@Listen, $ConfigCluster->{'CLUSTER'}{'management_ip'}.":".$PfConfig->{'ports'}{'admin'}); 
+        push (@Listen, $ConfigCluster->{'CLUSTER'}{'management_ip'}.":".$PfConfig->{'ports'}{'pf_status'}); 
+        $vhost = $ConfigCluster->{'CLUSTER'}{'management_ip'};
     } else {
         push (@Listen, $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'admin'});
         push (@Listen, $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'pf_status'});
