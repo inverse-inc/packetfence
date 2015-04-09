@@ -123,6 +123,7 @@ chown_pf:
 .PHONY: fingerbank
 
 fingerbank:
-	ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
+	rm -f /usr/local/pf/lib/fingerbank
+	ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
 
 devel: configurations conf/ssl/server.crt bin/pfcmd raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions
