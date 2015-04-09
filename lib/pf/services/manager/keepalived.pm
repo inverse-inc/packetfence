@@ -23,7 +23,6 @@ use pf::util;
 use pf::cluster;
 
 extends 'pf::services::manager';
-with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
 
 has '+name' => (default => sub { 'keepalived' } );
 
