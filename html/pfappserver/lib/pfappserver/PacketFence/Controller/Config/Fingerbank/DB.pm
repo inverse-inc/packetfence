@@ -14,6 +14,7 @@ Customizations can be made using L<pfappserver::Controller::Config::Fingerbank::
 
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
+use fingerbank::DB;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
