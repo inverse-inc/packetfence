@@ -263,14 +263,25 @@ Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database
 server, DHCP server, RADIUS server) using:
 
-  yum groupinstall --enablerepo=packetfence Packetfence-complete
-
-Or, if you prefer, to install only the core PacketFence without all the external services, you can use:
-
   yum install --enablerepo=packetfence packetfence
+
 
 Debian and Ubuntu
 ^^^^^^^^^^^^^^^^^
+
+First for debian, you must enable non-free and backports repository:
+
+For non-free, edit the file `/etc/apt/source.list` and add non-free like that:
+
+   deb http://debian.mirror.iweb.ca/debian/ wheezy main non-free
+
+For backports:
+
+   echo 'deb http://http.debian.net/debian wheezy-backports main' > /etc/apt/sources.list.d/wheezy-backports.list
+
+For Ubuntu you need to enable another repository:
+
+   add-apt-repository ppa:vbernat/haproxy-1.5
 
 In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list` with the following content when using Debian 7.0 (Wheezy):
 
