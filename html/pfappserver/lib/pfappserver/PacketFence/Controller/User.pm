@@ -129,6 +129,10 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('USERS_READ') 
     $form->process();
     $form->field('actions')->add_extra unless @{$c->stash->{user}{actions}}; # an action must be chosen
     $c->stash->{form} = $form;
+    my $password = $c->stash->{user}{password};
+    if(defined $password) {
+        $c->stash->{password_hash_type} = pf::password::password_get_hash_type($password);
+    }
 }
 
 =head2 delete

@@ -52,7 +52,7 @@
                   <a class="btn" id="resetPassword" href="[% c.uri_for(c.controller('User').action_for('reset'), [user.pid]) %]">[% l('Reset Password') %]</a>
                 </div>
               </div>
-              <div id="reminder" class="hidden"> 
+              <div id="reminder" [%IF password_hash_type != 'plaintext' %] class="hidden" [% END %]> 
                 <div class="control-group">
                   <div class="controls">
                     <h6>[% l('Password Reminder') %]</h6>
