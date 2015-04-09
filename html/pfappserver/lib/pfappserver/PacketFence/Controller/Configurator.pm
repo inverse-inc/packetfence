@@ -263,7 +263,6 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
 
     if ($c->request->method eq 'GET') {
         delete $c->session->{completed}->{$c->action->name};
-        $c->stash->{'hash_passwords'} = $Config{'advanced'}{'hash_passwords'};
         # Check if the database and user exist
         my $database_ref = \%{$Config{'database'}};
         $c->stash->{'database'} = $database_ref;

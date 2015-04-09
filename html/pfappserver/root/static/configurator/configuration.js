@@ -33,7 +33,7 @@ function saveStep(href) {
                    'general.hostname': $('#general_hostname').val(),
                    'general.dhcpservers': $('#general_dhcpservers').val(),
                    'alerting.emailaddr': $('#alerting_emailaddr').val(),
-                   'advanced.hash_passwords': $('input[name="advanced.hash_passwords"]').val()}
+                   'advanced.hash_passwords': $('input[name="advanced.hash_passwords"]:checked').val()}
         }).done (function(data) {
             window.location.href = href;
         }).fail(function(jqXHR) {
