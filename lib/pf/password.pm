@@ -464,6 +464,21 @@ sub _check_password {
     }
 }
 
+=item password_get_hash_type
+
+extract the type of hash for the password
+
+=cut
+
+sub password_get_hash_type {
+    my ($passwd) = @_;
+    my $type  = 'plaintext';
+    if ($passwd =~ /\{([^{}]*)\}/ ) {
+        $type = $1;
+    }
+    return $type;
+}
+
 sub _hash_password {
     my ( $plaintext, %params ) = @_;
     my $logger = pf::log::get_logger;
@@ -547,9 +562,9 @@ sub reset_password {
     }
 
     # hash the password if required
-    if ( $Config{'advanced'}{'hash_passwords'} ne $PLAINTEXT ) { 
+    if ( $Config{'advanced'}{'hash_passwords'} ne $PLAINTEXT ) {
         $password = _hash_password( $password, ( algorithm => $Config{'advanced'}{'hash_passwords'} ));
-    } 
+    }
 
     db_query_execute(
         PASSWORD, $password_statements, 'password_reset_password_sql', $password, $pid
