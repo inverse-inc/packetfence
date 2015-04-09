@@ -94,7 +94,7 @@ sub make_builder {
             L_("IF(unregdate = '0000-00-00 00:00:00', '', unregdate)", 'unregdate'),
             L_("IFNULL(node_category.name, '')", 'category'),
             L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
-            L_("IFNULL(os_type.description, ' ')", 'dhcp_fingerprint'),
+            L_("IFNULL(device_class, ' ')", 'dhcp_fingerprint'),
             { table => 'iplog', name => 'ip', as => 'last_ip' }
         )->from('node',
                 {
@@ -130,24 +130,6 @@ sub make_builder {
                             {
                                 'table'  => 'node',
                                 'name'   => 'bypass_role_id',
-                            }
-                        ],
-                    ],
-                },
-                {
-                    'table' => 'dhcp_fingerprint',
-                    'join' => 'LEFT',
-                    'on' =>
-                    [
-                        [
-                            {
-                                'table'  => 'dhcp_fingerprint',
-                                'name'   => 'fingerprint',
-                            },
-                            '=',
-                            {
-                                'table'  => 'node',
-                                'name'   => 'dhcp_fingerprint',
                             }
                         ],
                     ],
@@ -190,11 +172,6 @@ sub make_builder {
                      [ ')' ],
                     ],
                 },
-                {
-                    'table' => 'os_type',
-                    'join' => 'LEFT',
-                    'using' => 'os_id',
-                },
         );
 }
 
@@ -209,8 +186,8 @@ my %COLUMN_MAP = (
         name  => 'name',
     },
     dhcp_fingerprint   => {
-       table => 'os_type',
-       name  => 'description',
+       table => 'node',
+       name  => 'device_class',
     },
     switch_ip   => {
        table => 'locationlog_distinct',

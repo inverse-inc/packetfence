@@ -160,15 +160,12 @@ sub node_db_prepare {
             IF(ISNULL(nc.name), '', nc.name) as category,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             detect_date, regdate, unregdate, lastskip,
-            user_agent, computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint,
+            user_agent, computername, device_class AS dhcp_fingerprint,
             last_arp, last_dhcp,
             node.notes, autoreg, sessionid, machine_account
         FROM node
             LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
             LEFT JOIN node_category as nc on node.category_id = nc.category_id
-            LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint
-            LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type
-            LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id
         WHERE mac = ?
     ]
     );
@@ -239,7 +236,7 @@ sub node_db_prepare {
             IF(ISNULL(nc.name), '', nc.name) as category,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             node.detect_date, node.regdate, node.unregdate, node.lastskip,
-            node.user_agent, node.computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint,
+            node.user_agent, node.computername, device_class AS dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
@@ -250,9 +247,6 @@ sub node_db_prepare {
         FROM node
             LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
             LEFT JOIN node_category as nc on node.category_id = nc.category_id
-            LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint
-            LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type
-            LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
             LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
         GROUP BY node.mac
@@ -269,7 +263,7 @@ sub node_db_prepare {
             IF(node.regdate = '0000-00-00 00:00:00', '', node.regdate) as regdate,
             IF(node.unregdate = '0000-00-00 00:00:00', '', node.unregdate) as unregdate,
             IF(node.lastskip = '0000-00-00 00:00:00', '', node.lastskip) as lastskip,
-            node.user_agent, node.computername, IFNULL(os_type.description, ' ') as dhcp_fingerprint,
+            node.user_agent, node.computername, device_class AS dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
@@ -281,8 +275,6 @@ sub node_db_prepare {
         FROM node
             LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
             LEFT JOIN node_category as nc on node.category_id = nc.category_id
-            LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint = dhcp_fingerprint.fingerprint
-            LEFT JOIN os_type ON dhcp_fingerprint.os_id = os_type.os_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
             LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
             LEFT JOIN iplog ON node.mac=iplog.mac AND (iplog.end_time = '0000-00-00 00:00:00' OR iplog.end_time > NOW())
