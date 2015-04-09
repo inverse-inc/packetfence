@@ -139,7 +139,7 @@ our @ADMIN_ACTIONS = qw(
 
     SCAN_READ
     SCAN_CREATE
-    SCAN_UPDATE                                                                                                                                                                          
+    SCAN_UPDATE
     SCAN_DELETE
 
     WMI_READ
