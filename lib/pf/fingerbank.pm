@@ -46,7 +46,7 @@ sub process {
     my $query_result = _query($query_args);
 
     # Processing the device class based on it's parents
-    my $class = _process_class($query_result);
+    my $class = _fetch_class($query_result);
 
     # Updating the node device type based on the result
     node_modify( $mac, ( 
@@ -133,19 +133,30 @@ sub _trigger_violations {
     }
 }
 
-=head2 _process_class
+=head2 _fetch_class
 
 We are looking at the top-level parent to determine the device class
 
 =cut
 
-sub _process_class {
+sub _fetch_class {
     my ( $args ) = @_;
     my $logger = pf::log::get_logger;
 
+    my $class;
+
+    # It is possible that a device doesn't have any parent. We need to handle that case first
+    if ( !@{ $args->{'device'}{'parents'} } ) {
+        $class = $args->{'device'}{'name'};
+        $logger->debug("Device doesn't have any parent. We use the device name '$class' as class.");
+        return $class;
+    }
+
     foreach my $parent ( @{ $args->{'device'}{'parents'} } ) {
         next if $parent->{'parent_id'};
-        return $parent->{'name'};
+        $class = $parent->{'name'};
+        $logger->debug("Device does have parent(s). Returning top-level parent name '$class' as class");
+        return $class;
     }
 }
 
