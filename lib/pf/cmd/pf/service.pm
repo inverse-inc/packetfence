@@ -197,16 +197,21 @@ sub getManagers {
     my @temp = grep { defined $_ } map { pf::services::get_service_manager($_) } @$services;
     my @serviceManagers;
     foreach my $m (@temp) {
-        next if exists $seen{$m->name} || ( $justManaged && !$m->isManaged );
-        $seen{$m->name}++;
+        next if $seen{$m->name} || ( $justManaged && !$m->isManaged );
         my @managers;
         #Get dependencies
         if ($includeDependsOn) {
             @managers = grep { defined $_ } map { pf::services::get_service_manager($_) } @{$m->dependsOnServices}
         }
+        if($m->isa("pf::services::manager::submanager")) {
+            push @managers,$m->managers;
+        } else {
+            push @managers,$m;
+        }
         #filter out managers already seen
         @managers = grep { !$seen{$_->name}++ } @managers;
-        push @serviceManagers,@managers,$m;
+        $seen{$m->name}++;
+        push @serviceManagers,@managers;
     }
     return @serviceManagers;
 }
