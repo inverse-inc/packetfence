@@ -102,6 +102,7 @@ html/admin/traplog/
 
 # built by package or installer
 lib/pf/pfcmd/pfcmd_pregrammar.pm
+lib/fingerbank
 
 # directories that can be ignored
 logs/
