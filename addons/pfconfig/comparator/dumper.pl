@@ -83,7 +83,7 @@ our %configs;
 {
   use pf::SwitchFactory;
 
-  $configs{switches} = pf::SwitchFactory->getInstance()->config();
+  $configs{switches} = pf::SwitchFactory->config();
 
 }
 
