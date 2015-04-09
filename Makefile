@@ -120,4 +120,9 @@ mysql-schema:
 chown_pf:
 	chown -R pf:pf *
 
-devel: configurations conf/ssl/server.crt bin/pfcmd raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled chown_pf permissions
+.PHONY: fingerbank
+
+fingerbank:
+	ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
+
+devel: configurations conf/ssl/server.crt bin/pfcmd raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions
