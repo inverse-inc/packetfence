@@ -94,10 +94,13 @@ switch($cmd) {
       exit;
     }   
   }
+  case 'clear_overlay' {
+    $manager->clear_overlayed_namespaces();
+  }
   else {
     print STDERR "ERROR ! Unknown command.\n";
     print STDERR "Commands : \n";
-    print STDERR "reload|list|show <namespace>|get <namespace> \n";
+    print STDERR "reload|list|show <namespace>|get <namespace>|clear_overlay \n";
     exit;
   }
 };
