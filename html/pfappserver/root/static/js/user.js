@@ -272,6 +272,7 @@ UserView.prototype.resetPassword = function(e) {
             data: { password: password.val() },
             success: function(data) {
                 showSuccess(password_control, data.status_msg);
+                $('#reminder').removeClass('hidden');
             },
             errorSibling: password_control
         });

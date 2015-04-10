@@ -52,17 +52,19 @@
                   <a class="btn" id="resetPassword" href="[% c.uri_for(c.controller('User').action_for('reset'), [user.pid]) %]">[% l('Reset Password') %]</a>
                 </div>
               </div>
-              <div class="control-group">
-                <div class="controls">
-                  <h6>[% l('Password Reminder') %]</h6>
+              <div id="reminder" [%IF password_hash_type != 'plaintext' %] class="hidden" [% END %]> 
+                <div class="control-group">
+                  <div class="controls">
+                    <h6>[% l('Password Reminder') %]</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="control-group">
-                <div class="controls">
-                  <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('print'), [], [], { pids => user.pid }) %]" target="_new">[% l('Print') %]</a>
-                  <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('mail'), [], [], { pids => user.pid }) %]" id="mailPassword" data-loading-text="[% l('mail_loading') %]">[% l('mail_btn') %]</a>
+                <div class="control-group">
+                  <div class="controls">
+                    <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('print'), [], [], { pids => user.pid }) %]" target="_new">[% l('Print') %]</a>
+                    <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('mail'), [], [], { pids => user.pid }) %]" id="mailPassword" data-loading-text="[% l('mail_loading') %]">[% l('mail_btn') %]</a>
+                  </div>
                 </div>
-              </div>
+              </div> 
             </div><!--tab-pane-->
             [%- END %]
 
