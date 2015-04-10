@@ -1440,7 +1440,13 @@ realm DEFAULT {
 
 Thirdly, you must configure the packetfence FreeRADIUS virtual servers to treat the requests properly.
 
+<<<<<<< HEAD
 In /usr/local/pf/raddb/sites-enabled/packetfence, modify the authorize section like this:
+=======
+PacketFence supports either Nessus, OpenVAS and WMI as a scanning engine for compliance checks.
+Since PacketFence v5 you are now able to create multiples scan engines configuration and assign them on specific captive portals.
+It mean per example that you are anow able to active a scan for specific Operating System only on a specific SSID.
+>>>>>>> Updated scanner documentation
 
 raddb/sites-enabled/packetfence example:
 ----
