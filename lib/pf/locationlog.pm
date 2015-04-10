@@ -51,6 +51,9 @@ BEGIN {
         locationlog_update_end_switchport_no_VoIP
         locationlog_update_end_switchport_only_VoIP
         locationlog_synchronize
+
+        locationlog_set_session
+        locationlog_get_session
     );
 }
 
@@ -244,6 +247,12 @@ sub locationlog_db_prepare {
 
     $locationlog_statements->{'locationlog_cleanup_sql'} = get_db_handle()->prepare(
         qq [ delete from locationlog where end_time < DATE_SUB(?, INTERVAL ? SECOND) and end_time != 0 LIMIT ?]);
+
+    $locationlog_statements->{'locationlog_set_session_sql'} = get_db_handle()->prepare(
+        qq [ UPDATE locationlog SET session_id=? WHERE mac=? AND (ISNULL(end_time) or end_time = 0) ]);
+
+    $locationlog_statements->{'locationlog_get_session_sql'} = get_db_handle()->prepare(
+        qq [ SELECT mac, switch, switch_ip, switch_mac, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm, session_id from locationlog WHERE mac=? AND (ISNULL(end_time) or end_time = 0)  order by start_time desc]);
 
     $locationlog_db_prepared = 1;
 }
@@ -587,6 +596,17 @@ sub _is_locationlog_accurate {
         $logger->debug("latest locationlog entry is still accurate");
         return 1;
     }
+}
+
+sub locationlog_get_session {
+    my ( $mac ) = @_;
+    my @entries = db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_get_session_sql', $mac );
+    return $entries[0];
+}
+
+sub locationlog_set_session {
+    my ( $mac, $session_id ) = @_;
+    return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_set_session_sql', $session_id, $mac );
 }
 
 =back

@@ -24,7 +24,7 @@ use UNIVERSAL::require;
 
 use pf::config;
 use pf::iplog;
-use pf::locationlog qw(locationlog_view_open_mac);
+use pf::locationlog qw(locationlog_view_open_mac locationlog_get_session);
 use pf::Portal::Session;
 use pf::util;
 use pf::web::constants;
@@ -85,24 +85,11 @@ sub external_captive_portal {
         }
     }
     elsif (defined($session)) {
-        my (%session_id);
-        pf::web::util::session(\%session_id,$session);
-        if ($session_id{_session_id} eq $session) {
-            my $switch;
-            if(defined($session_id{switch_id})){
-                $switch = pf::SwitchFactory->instantiate($session_id{switch_id});
-            }
-            else{
-                $switch = $session_id{switch};
-            }
-            my $portalSession = pf::Portal::Session->new(%session_id);
-            $portalSession->setClientMac($session_id{client_mac}) if (defined($session_id{client_mac}));
-            $portalSession->setDestinationUrl($r->headers_in->{'Referer'}) if (defined($r->headers_in->{'Referer'}));
-            pf::iplog::open($r->connection->remote_ip,$session_id{client_mac},3600) if (defined ($r->connection->remote_ip) && defined ($session_id{client_mac}));
-            return $portalSession->session->id();
-        } else {
-            return 0;
-        }
+        my $locationlog = locationlog_get_session($session);
+        my $switch = $locationlog->{switch};
+        $switch = pf::SwitchFactory->instantiate($switch);
+        pf::iplog::open($r->connection->remote_ip,$locationlog->{mac},3600) if defined ($r->connection->remote_ip);
+        return $session;
     }
     else {
         return 0;
