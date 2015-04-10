@@ -102,7 +102,7 @@ sub stop {
 
 sub isManaged {
     my ($self) = @_;
-    return 1; 
+    return $cluster_enabled; 
 }
 
 =head1 AUTHOR
