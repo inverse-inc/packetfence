@@ -46,7 +46,7 @@ sub process {
     my $query_result = _query($query_args);
 
     # Processing the device class based on it's parents
-    my $class = _fetch_class($query_result);
+    my ( $class, $parents ) = _parse_parents($query_result);
 
     # Updating the node device type based on the result
     node_modify( $mac, ( 
@@ -54,7 +54,7 @@ sub process {
         'device_class'  => $class,
     ) );
 
-    _trigger_violations($query_args, $query_result);
+    _trigger_violations($query_args, $query_result, $parents);
 
     return $query_result->{'device'}{'name'};
 }
@@ -88,7 +88,7 @@ sub _query {
 =cut
 
 sub _trigger_violations {
-    my ( $query_args, $query_result ) = @_;
+    my ( $query_args, $query_result, $parents ) = @_;
     my $logger = pf::log::get_logger;
 
     my $mac = $query_args->{'mac'};
@@ -135,33 +135,53 @@ sub _trigger_violations {
         $logger->debug("Trying to trigger a violation type '$trigger_type' for MAC '$mac' with data '$trigger_data'");
         $apiclient->notify('trigger_violation', %violation_data);
     }
+
+    # Parent(s) based violations
+    if ( @$parents ) {
+        $logger->debug("Device of ID '" . $query_result->{'device'}{'id'} . "' with MAC address '$mac' does have parent(s). Trying to trigger violation type 'Device' for each of them");
+        foreach my $parent ( @$parents ) {
+            my %violation_data = (
+                'mac'   => $mac,
+                'tid'   => $parent,
+                'type'  => 'Device',
+            );
+
+            $logger->debug("Trying to trigger a violation type 'Device' based on parent(s) for MAC address '$mac' with data '$parent'");
+            $apiclient->notify('trigger_violation', %violation_data);
+        }
+    }
 }
 
-=head2 _fetch_class
+=head2 _parse_parents
 
-We are looking at the top-level parent to determine the device class
+Parsing the parents into an array of IDs to be able to trigger violations based on them.
+
+Also, looking at the top-level parent to determine the device class
 
 =cut
 
-sub _fetch_class {
+sub _parse_parents {
     my ( $args ) = @_;
     my $logger = pf::log::get_logger;
 
     my $class;
+    my @parents = ();
 
     # It is possible that a device doesn't have any parent. We need to handle that case first
     if ( !@{ $args->{'device'}{'parents'} } ) {
         $class = $args->{'device'}{'name'};
         $logger->debug("Device doesn't have any parent. We use the device name '$class' as class.");
-        return $class;
+        return ( $class, \@parents );
     }
 
     foreach my $parent ( @{ $args->{'device'}{'parents'} } ) {
+        push @parents, $parent->{'id'};
         next if $parent->{'parent_id'};
         $class = $parent->{'name'};
         $logger->debug("Device does have parent(s). Returning top-level parent name '$class' as class");
-        return $class;
     }
+
+    return ( $class, \@parents );
 }
 
 =head1 AUTHOR
