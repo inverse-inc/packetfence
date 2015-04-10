@@ -55,10 +55,12 @@ sub test {
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     my @rules = split("\n",$rules->{'_wmi_rules'});
+    my $success = 0;
     foreach my $rule  ( @rules ) {
         my $rule_config = $pf::config::ConfigWmi{$rule};
         my ($rc, $result) = $self->runWmi($rules,$rule_config);
         return $rc if (!$rc);
+        $success = $rc;
         my $action = $rule_config->{'action'};
         my %cfg;
         tie %cfg, 'Config::IniFiles', ( -file => \$action );
@@ -78,7 +80,7 @@ sub test {
             }
         }
     }
-    return 0;
+    return $success;
 }
 
 =item runWMI
