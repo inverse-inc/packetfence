@@ -57,7 +57,7 @@ Edit the repo file to disable ELRepo by default:
   name=ELRepo.org Community Enterprise Linux Repository - el6
   baseurl=http://elrepo.org/linux/elrepo/el6/$basearch/
   mirrorlist=http://elrepo.org/mirrors-elrepo.el6
-  enabled=1
+  enabled=0
   gpgcheck=1
   gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
   protect=0
@@ -154,6 +154,8 @@ You should see something similar to this when typing cat /proc/drbd:
    0: cs:Connected ro:Secondary/Secondary ds:Inconsistent/Inconsistent C r----
       ns:0 nr:0 dw:0 dr:0 al:0 bm:0 lo:0 pe:0 ua:0 ap:0 ep:1 wo:b oos:30702640
 
+NOTE: If you get connectivity issues make sure your iptables are disabled.
+
 Synchronize the servers by forcing one to become the primary. So on pf1 do:
 
   # drbdadm primary --force mysql
@@ -200,7 +202,8 @@ The command `cat /proc/drbd` should display something like:
 Stop and backup previous MySQL data
 
   # service mysqld stop
-  # mv /var/lib/mysql /var/lib/mysql.bak
+  # mkdir /var/lib/mysql.bak
+  # mv /var/lib/mysql/* /var/lib/mysql.bak/
 
 Mount the partition with:
 
@@ -335,7 +338,7 @@ Make sure you restart MySQL, packetfence-config and packetfence
 Step 3 : Create a new cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to create a new cluster, the only thing needed is to configure cluster.conf
+In order to create a new cluster, the only thing needed is to configure /usr/local/pf/conf/cluster.conf
 
 You will need to configure it with your server hostname. To get it use : *hostname* in a command line.
 
@@ -400,6 +403,10 @@ Step 4 : Connect a slave packetfence server
 
 First, connect the server to the database cluster using the instructions above
 
+On CentOS, add the following line in /etc/sysctl.conf and then reload with 'sysctl -p'
+
+  net.ipv4.ip_nonlocal_bind = 1
+
 Go through the configurator to setup the interfaces and then stop
 
 Get the webservices user and password on the master node in 'Configuration/Web Services'
@@ -415,15 +422,16 @@ Where :
 * 'packet' is the webservices username on the master node
 * 'fence' is the webservices password on the master node
 
-Edit cluster.conf and create the server's configuration using the other node as an example.
+Edit /usr/local/pf/conf/cluster.conf and create the server's configuration using the other node as an example.
 
 Reload the configuation and start the webservices on the new server
 
+  # service packetfence-config restart
   # /usr/local/pf/bin/pfcmd configreload
   # /usr/local/pf/bin/pfcmd service haproxy restart
   # /usr/local/pf/bin/pfcmd service httpd.webservices restart
 
-Make sure that this server is binding to it's own management address. If it's not, verify the cluster.conf management interface configuration.
+Make sure that this server is binding to it's own management address. If it's not, verify the /usr/local/pf/conf/cluster.conf management interface configuration.
 
   # netstat -nlp | grep 9090
 
@@ -431,7 +439,7 @@ Now replicate this server configuration to the other nodes in the cluster
 
   # /usr/local/pf/bin/cluster/sync --as-master
 
-Make sure at least cluster.conf was replicated to the other servers
+Make sure at least /usr/local/pf/conf/cluster.conf was replicated to the other servers
 
 Now restart packetfence on each cluster server keeping the new node as the last one to be restarted.
 
@@ -445,7 +453,7 @@ First, you will need to stop PacketFence on your server and put it offline.
   # service packetfence stop
   # shutdown -h 0
 
-Then you need to remove all the configuration associated to the server from cluster.conf on one of the remaining nodes. 
+Then you need to remove all the configuration associated to the server from /usr/local/pf/conf/cluster.conf on one of the remaining nodes. 
 Configuration for a server is always prefixed by the server's hostname.
 
 Once you have removed the configuration, you need to reload it and synchronize it with the remaining nodes in the cluster.
