@@ -1,7 +1,7 @@
 package pf::version;
 =head1 NAME
 
-pf::version add documentation
+pf::version
 
 =cut
 
@@ -117,4 +117,3 @@ USA.
 =cut
 
 1;
-
