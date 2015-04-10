@@ -397,6 +397,10 @@ If done properly this should start two additionnal services : haproxy and keepal
 
 You should now have service on the IP addresses defined in the 'CLUSTER' sections
 
+Additionnal steps
+^^^^^^^^^^^^^^^^^
+
+It is highly recommended to modify the keepalive shared secret in your cluster to prevent attacks. In the administration interface, go in 'Configuration/Clustering' and change the 'Shared KEY'. Make sure you restart keepalive on your server using `/usr/local/pf/bin/pfcmd service keepalived restart`
 
 Step 4 : Connect a slave packetfence server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
