@@ -56,6 +56,7 @@ BEGIN {
         valid_mac_or_ip listify
         normalize_time
         search_hash
+        is_prod_interface
     );
 }
 
@@ -961,6 +962,21 @@ Searching for field result with value 'success' would return the value of test2
 sub search_hash {
     my ($h, $field, $value) = @_;
     return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } values %{$h};
+}
+
+=item is_prod_interface
+
+return true if the interface is a management interface
+
+=cut
+
+sub is_prod_interface {
+    my ($int) = @_;
+    if ($int =~ /management|^dhcp-?listener$|managed/i) {
+        return $TRUE;
+    } else {
+        return $FALSE;
+    }
 }
 
 =back
