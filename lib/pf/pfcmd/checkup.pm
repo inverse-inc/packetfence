@@ -1086,14 +1086,14 @@ sub apache_filter_rules {
 
 =item db_version
 
-Make sure the database matches the current version
-Return the current version if it matches or undef if it does not match
+Make sure the database matches the current version of packetfence
 
 =cut
 
 sub db_version {
     unless(pf::version::version_check()) {
-        add_problem ( $FATAL, "the database does not match the current version $PF_VERSION" );
+        my $version = pf::version::version_current;
+        add_problem ( $FATAL, "the database does not match the current version $version" );
     }
 }
 
