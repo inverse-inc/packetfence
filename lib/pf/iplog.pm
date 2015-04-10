@@ -618,7 +618,7 @@ sub _update {
 
     if ( $lease_length ) {
         $logger->debug("Updating an existing 'iplog' table entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
-        db_query_execute(IPLOG, $iplog_statements, 'iplog_update_with_lease_length_sql', $mac, $ip, $lease_length);
+        db_query_execute(IPLOG, $iplog_statements, 'iplog_update_with_lease_length_sql', $mac, $lease_length, $ip);
     } else {
         $logger->debug("Updating an existing 'iplog' table entry for IP address '$ip' with MAC address '$mac' (No lease provided)");
         db_query_execute(IPLOG, $iplog_statements, 'iplog_update_sql', $mac, $ip);
