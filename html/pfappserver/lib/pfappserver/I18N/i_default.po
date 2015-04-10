@@ -6669,7 +6669,7 @@ msgstr "Webservices"
 
 # conf/documentation.conf
 msgid "webservices.aaa_port"
-msgstr ""
+msgstr "AAA port"
 
 # conf/documentation.conf
 msgid "webservices.host"

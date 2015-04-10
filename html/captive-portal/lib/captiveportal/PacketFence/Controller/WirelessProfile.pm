@@ -47,21 +47,17 @@ sub index : Path : Args(0) {
         svrcn        => $c->session->{svrcn},
         svrdata      => $c->session->{svrdata},
         cadata       => $c->session->{cadata},
+        #filesid      => $c->session->{filesid},
     );
     #if ($provisioner->{type} eq 'windows'){
-    #    my $fh;
-    #    my $filename = "/usr/local/pf/html/captive-portal/content/test.exe";
-    #    $logger->info(Dumper($filename)); 
-    #    $logger->info(Dumper($stash)); 
-    #    open ($fh, '>>', $filename);
-    #    print $fh "$stash->{'fingerprint'}\n";
-    #    print $fh "$stash->{'certcn'}\n";
-    #    print $fh "$stash->{'certdata'}\n";
-    #    print $fh "$stash->{'provisioner'}->{'type'}\n";
-    #    print $fh "$stash->{'username'}\n";
-    #    my $cmd = pf_run("cat $filename");
-    #    $logger->info(Dumper($cmd));
-    #    close $fh;
+    #    my ($self,$c) = @_;
+    #    my $sid = $c->session->{sid};
+    #    my $filename = "/usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe";
+    #    my $newfile = "/usr/local/pf/html/captive-portal/content/packetfence-$sid.exe";
+    #    my $magicfile = "/usr/local/pf/html/captive-portal/content/packetfence-\*.exe";
+    #    rename $magicfile, $filename;
+    #    rename $filename, $newfile;
+    #    $c->stash( filesid => $newfile );
     #}
 }
 

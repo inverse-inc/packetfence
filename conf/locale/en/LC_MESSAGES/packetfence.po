@@ -168,6 +168,9 @@ msgstr ""
 msgid "guest network disclaimer"
 msgstr "This guest network is provided exclusively for the convenience of guests and visitors. Access implies no guarantee of reliability, speed or privacy; this network is provided for the express purpose of facilitating simple Internet web communication. Use implies agreement with all terms and conditions of appropriate behavior of our <b>Acceptable Use Policy.</b>"
 
+msgid "tls enrolment network"
+msgstr "You have been provide to register for a certificate generation. This network is used to create your profile to login the secure network. Fill in the information and let your profile setup the network for you. Use implies agreement with all terms and conditions of appropriate behavior of our <b>Acceptable Use Policy.</b>"
+
 msgid "In the fields below please enter your name, phone number and a valid email address."
 msgstr ""
 
