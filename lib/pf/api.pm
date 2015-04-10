@@ -732,7 +732,7 @@ sub dynamic_register_node : Public {
         my %info = (
             'unregdate' => $value,
             'category' => $role,
-            'autoreg' => 'yes',
+            'autoreg' => 'no',
             'pid' => $postdata{'username'},
             'source'  => \$source,
             'portal'  => $profile->getName,

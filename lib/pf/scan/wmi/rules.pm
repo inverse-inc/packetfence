@@ -54,11 +54,12 @@ sub test {
     my ($self, $rules) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    foreach my $rule  ( @{$rules->{'_rules'}} ) {
+    my @rules = split("\n",$rules->{'_wmi_rules'});
+    foreach my $rule  ( @rules ) {
         my $rule_config = $pf::config::ConfigWmi{$rule};
         my ($rc, $result) = $self->runWmi($rules,$rule_config);
         return $rc if (!$rc);
-        my $action = join("\n", @{$rule_config->{'action'}});
+        my $action = $rule_config->{'action'};
         my %cfg;
         tie %cfg, 'Config::IniFiles', ( -file => \$action );
         foreach my $test  ( sort keys %cfg ) {
@@ -67,7 +68,6 @@ sub test {
                 $condition =~ s/(\w+)/$self->parse($cfg{$1},$result)/gee;
                 $condition =~ s/\|/ \|\| /g;
                 $condition =~ s/\&/ \&\& /g;
-                $logger->warn($condition);
                 if (eval $condition) {
                     $logger->info("Match WMI ".$rule." rule: ".$test." for ". $rules->{'_scanMac'});
                     if ( defined($cfg{$test}->{'action'}) && $cfg{$test}->{'action'} ne '' ) {
