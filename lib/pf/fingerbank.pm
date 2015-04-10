@@ -96,14 +96,15 @@ sub _trigger_violations {
     my $apiclient = pf::api::jsonrpcclient->new;
 
     foreach my $trigger_type ( @fingerbank_based_violation_triggers ) {
-        next if !$mac || !$query_args->{lc($trigger_type)};
         my $trigger_data;
         switch ( $trigger_type ) {
             case 'Device' {
+                next if !$query_result->{'device'}{'id'};
                 $trigger_data = $query_result->{'device'}{'id'};
             }
 
             case 'MAC_Vendor' {
+                next if !$mac;
                 my $mac_oui = $mac;
                 $mac_oui =~ s/[:|\s|-]//g;          # Removing separators
                 $mac_oui = lc($mac_oui);            # Lowercasing
@@ -115,6 +116,7 @@ sub _trigger_violations {
             }
 
             else {
+                next if !$query_args->{lc($trigger_type)};
                 my $trigger_query;
                 $trigger_query->{'value'} = $query_args->{lc($trigger_type)};
                 my ( $status, $result ) = "fingerbank::Model::$trigger_type"->find([$trigger_query, { columns => ['id'] }]);
@@ -122,13 +124,15 @@ sub _trigger_violations {
             }
         }
 
+        next if !$trigger_data;
+
         my %violation_data = (
             'mac'   => $mac,
             'tid'   => $trigger_data,
             'type'  => $trigger_type,
         );
 
-        $logger->debug("Trying to trigger a violation type $trigger_type for MAC $mac with data $trigger_data");
+        $logger->debug("Trying to trigger a violation type '$trigger_type' for MAC '$mac' with data '$trigger_data'");
         $apiclient->notify('trigger_violation', %violation_data);
     }
 }
