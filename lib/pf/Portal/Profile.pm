@@ -445,16 +445,20 @@ sub findScan {
     if (defined($self->getScans)) {
         foreach my $scan (split(',',$self->getScans)) {
             my $scan_config = $pf::config::ConfigScan{$scan};
-            if ( !scalar(@{ $scan_config->{'oses'} }) && !scalar($scan_config->{'categories'}) ) {
+            my @categories = split(',',$scan_config->{'categories'});
+            # if there are no oses and no categories defined for the scan then select it
+            if ( !scalar(@{ $scan_config->{'oses'} }) && !scalar(@categories) ) {
                 return $scan_config;
-            } elsif ( scalar(@{ $scan_config->{'oses'} }) && scalar(@{ $scan_config->{'categories'} }) ) {
-                if ( (grep { $fingerprint->{'os'} =~ $_ } @{ $scan_config->{'oses'} }) || (grep { $_ eq $node_attributes->{'category'} } @{ $scan_config->{'categories'} }) ) {
+            # if there are an os and a category defined
+            } elsif ( scalar(@{ $scan_config->{'oses'} }) && scalar(@categories) ) {
+                if ( (grep { $fingerprint =~ $_ } @{ $scan_config->{'oses'} }) && (grep { $_ eq $node_attributes->{'category'} } @categories ) ) {
                     return $scan_config;
                 }
-            } elsif (scalar(@{ $scan_config->{'oses'} }) xor scalar(@{ $scan_config->{'categories'} })) {
-                if (scalar(@{ $scan_config->{'oses'} }) && (grep { $fingerprint->{'os'} =~ $_ } @{ $scan_config->{'oses'} }) ) {
+            # if there are an os or a category
+            } elsif (scalar(@{ $scan_config->{'oses'} }) xor scalar(@categories) ) {
+                if (scalar(@{ $scan_config->{'oses'} }) && (grep { $fingerprint =~ $_ } @{ $scan_config->{'oses'} }) ) {
                     return $scan_config;
-                } elsif (scalar(@{ $scan_config->{'categories'} }) && (grep { $_ eq $node_attributes->{'category'} } @{ $scan_config->{'categories'} }) ) {
+                } elsif (scalar(@categories) && (grep { $_ eq $node_attributes->{'category'} } @categories ) ) {
                     return $scan_config;
                 }
             }
