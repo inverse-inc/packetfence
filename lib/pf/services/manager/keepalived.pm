@@ -58,7 +58,7 @@ sub generateConfig {
         my $cluster_ip = pf::cluster::cluster_ip($interface);
         $tags{'vrrp'} .= <<"EOT";
 vrrp_instance $cfg->{'ip'} {
-  virtual_router_id 50
+  virtual_router_id $Config{'active_active'}{'virtual_router_id'}
   advert_int 1
   priority $priority
   state MASTER
@@ -102,7 +102,7 @@ sub stop {
 
 sub isManaged {
     my ($self) = @_;
-    return $cluster_enabled;
+    return 1; 
 }
 
 =head1 AUTHOR

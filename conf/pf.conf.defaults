@@ -1031,6 +1031,11 @@ ldap_auth_cache_cleanup_interval=600s
 #
 # Shared KEY for vrrp protocol (Must be the same on all members).
 password=1234
+#
+# active_active.virtual_router_id
+#
+# Shared KEY for vrrp protocol (Must be the same on all members).
+virtual_router_id=50
 
 [monitoring]
 #
