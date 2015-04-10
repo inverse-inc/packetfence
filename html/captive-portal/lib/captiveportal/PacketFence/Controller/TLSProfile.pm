@@ -48,6 +48,8 @@ sub index : Path : Args(0) {
     my $request = $c->request;
     my $mac = $c->portalSession->clientMac;
     my $node_info = node_view($mac);
+    use Data::Dumper;
+    $logger->info(Dumper($username));
     my $pid = $node_info->{'pid'};
     #my $host = "";
     #my $ldapreq = "ldapsearch -h $host -s sub -b $basedn -D $binddn -w $passwd \"(cn=$username)\" | grep mail ";
@@ -55,7 +57,7 @@ sub index : Path : Args(0) {
     #$provisioner->authorize($mac) if (defined($provisioner));
     $c->stash(
         post_uri            => '/tlsprofile/cert_process',
-        certificate_cn      => $request->param_encoded("certificate_cn"),
+        certificate_cn      => $username, #$request->param_encoded("certificate_cn"),
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
         certificate_email   => lc( $request->param_encoded("certificate_email")),
         template            => 'pki.html',
@@ -65,6 +67,17 @@ sub index : Path : Args(0) {
         pid                 => $pid,
         );
 }
+sub add_session : Local {
+    my ($self, $c) = @_;
+    my $sid = $c->get_session_id();
+    my $filename = "/usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe";
+    my $newfile = "/usr/local/pf/html/captive-portal/content/packetfence-$sid.exe";
+    my $magicfile = "/usr/local/pf/html/captive-portal/content/packetfence-\*.exe";
+    rename $magicfile, $filename;
+    rename $filename, $newfile;
+    $c->session( filesid => $newfile );
+}
+
 sub build_cert_p12 : Path : Args(0) {
     my ($self, $c) = @_;
     my $logger = $c->log;
@@ -152,8 +165,6 @@ sub cert_process : Local {
     $c->forward('b64_cert');
     $c->forward('export_fingerprint');
     $c->forward( 'Authenticate' => 'checkIfProvisionIsNeeded' );
-    use Data::Dumper;
-    $logger->info(Dumper($c->stash->{info}).'bob');
     $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}{pid}, %{$c->stash->{info}}]);
     $c->forward( 'CaptivePortal' => 'endPortalSession' );
 }
