@@ -159,9 +159,7 @@ The following provides a list of the minimum server hardware recommendations:
 * Intel or AMD CPU 3 GHz
 * 8 GB of RAM
 * 100 GB of disk space (RAID-1 recommended)
-* 1 Network card
- - +1 for high-availability
- - +1 for intrusion detection
+* 1 Network card (2 recommended)
 
 Operating System Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3062,14 +3060,6 @@ The last block defines the relationship between the tests and the desired action
   redirect_url =
 
 This filter will return an error code (501) if the user agent is Dalvik and the URI doesn't contain _/generate_204.
-
-
-Frequently Asked Questions
---------------------------
-
-PacketFence FAQ is now available online. Please visit:
-
-http://www.packetfence.org/support/faqs.html
 
 Technical introduction to VLAN enforcement 
 -------------------------------------------
