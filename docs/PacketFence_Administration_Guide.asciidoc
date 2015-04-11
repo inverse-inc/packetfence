@@ -3297,9 +3297,4 @@ Again, when executed without any arguments, a help screen is shown.
 sys::[/usr/local/pf/bin/pfcmd_vlan -help]
 ----
 
-Web Admin GUI
-~~~~~~~~~~~~~
-
-The Web Admin GUI, accessible using https on port 1443, shows the same information available using `pfcmd`.
-
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
