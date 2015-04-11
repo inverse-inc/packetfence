@@ -865,23 +865,7 @@ FreeRADIUS Configuration
 
 This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all require a RADIUS server to authenticate the users and the devices, and then to push the proper roles or VLAN attributes to the network equipment.
 
-Option 1: Dynamic switch configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Since PacketFence version 4.1 you are now be able to enable dynamic clients.
-It mean that when you add a new switch configuration in PacketFence's administration interface you don't have to restart the RADIUS service.
-
-To enable this feature make a symlink in `/usr/local/pf/raddb/site-enabled` directory:
-
-  ln -s ../sites-available/dynamic-clients dynamic-clients
-
-and of course restart radiusd:
-
-  /usr/local/pf/bin/pfcmd service radiusd restart
-
-
-
-Option 2: Authentication against Active Directory (AD)
+Option 1: Authentication against Active Directory (AD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Samba / Kerberos / Winbind
@@ -1046,14 +1030,14 @@ For Debian and Ubuntu:
     rad_recv: Access-Accept packet from host 127.0.0.1 port 18120, id=108, length=20
 
 
-Option 3: Local Authentication
+Option 2: Local Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add your user's entries at the end of the `/usr/local/pf/raddb/users` file with the following format:
 
   username Cleartext-Password := "password"
 
-Option 4: EAP authentication against OpenLDAP
+Option 3: EAP authentication against OpenLDAP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To authenticate 802.1x connection against OpenLDAP you need to define the ldap connection in `/usr/local/pf/raddb/modules/ldap` and
@@ -1104,7 +1088,7 @@ authorize {
 
 
 
-Option 5: EAP Guest Authentication on email, sponsor and SMS registration
+Option 4: EAP Guest Authentication on email, sponsor and SMS registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The goal here is to be able to use the credential PacketFence created on guest access and use this one on a secure connection.
@@ -1155,11 +1139,11 @@ authorize {
 #        }
 ----
 
-Option 6: EAP Local user Authentication
+Option 5: EAP Local user Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The goal here is to use the local user you created in the admin GUI for EAP authentication.
-The logic is exactly the same than in option 5, the difference is that we use another SSID and we only use local accounts.
+The logic is exactly the same than in option 4, the difference is that we use another SSID and we only use local accounts.
 
 Edit `/usr/local/pf/raddb/sites-available/packetfence-tunnel`
 
