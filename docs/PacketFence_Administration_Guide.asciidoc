@@ -217,6 +217,7 @@ On a Debian or Ubuntu system, do:
   apt-get update
   apt-get upgrade
 
+Regarding SELinux or AppArmor, even if these features may be wanted by some organizations, PacketFence will not run properly if SELinux or AppArmor are enabled. You will need to explicitly disable SELinux in the `/etc/selinux/config` file and AppArmor with *update-rc.d -f apparmor stop*, *update-rc.d -f apparmor teardown* and *update-rc.d -f apparmor remove*.
 
 RedHat-based systems
 ^^^^^^^^^^^^^^^^^^^^
@@ -374,11 +375,6 @@ For some browsers, it is preferable to redirect the user to a specific URL inste
 * IP under *Configuration -> Captive portal*
 
 This IP is used as the web server who hosts the `common/network-access-detection.gif` which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is black-holed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easier and more accessible solution.
-
-SELinux and AppArmor
-~~~~~~~~~~~~~~~~~~~~
-
-Even if this feature may be wanted by some organizations, PacketFence will not run properly if SELinux or AppArmor is set to enforced. You will need to explicitly disable SELinux in the `/etc/selinux/config` file and AppArmor with *update-rc.d -f apparmor stop*, *update-rc.d -f apparmor teardown* and *update-rc.d -f apparmor remove*.
 
 Roles Management
 ~~~~~~~~~~~~~~~~
