@@ -1,3 +1,5 @@
+<div class="modal modal-large fade hide" id="modalViolation"></div>
+
 [%- MACRO pagination(action, pageNumber, perPage, pageCount)  BLOCK -%]
 [% 
     firstPage = pageNumber - 3;
@@ -69,6 +71,9 @@
             <td>
               [%- IF can_access("FINGERBANK_CREATE") %]
               <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ scope,  item.id ]) %]">[% l('Clone') %]</a>
+              [%- END %]
+              [%- IF can_access("VIOLATIONS_CREATE") %]
+              <a class="btn btn-mini" id="createViolation" href="[% c.uri_for(c.controller('Violation').action_for('create')) %]">[% l('Add violation') %]</a>
               [%- END %]
               [%- IF scope == 'Local' && can_access("FINGERBANK_DELETE") %]
               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ scope, item.id ]) %]">[% l('Delete') %]</a>
