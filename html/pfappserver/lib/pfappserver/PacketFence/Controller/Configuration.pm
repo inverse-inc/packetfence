@@ -60,6 +60,7 @@ our %ALLOWED_SECTIONS = (
     webservices => undef,
     active_active => undef,
     monitoring => undef,
+    omapi => undef,
 );
 
 
