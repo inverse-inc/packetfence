@@ -78,9 +78,9 @@ sub startScan {
     my $rule_tester = new pf::scan::wmi::rules;
     my $result = $rule_tester->test($this);
  
-    my $scan_vid = $pf::scan::POST_SCAN_VID;
-    $scan_vid = $pf::scan::SCAN_VID if ($this->{'_registration'});
-    $scan_vid = $pf::scan::PRE_SCAN_VID if ($this->{'_pre_registration'});
+    my $scan_vid = $pf::constants::scan::POST_SCAN_VID;
+    $scan_vid = $pf::constants::scan::SCAN_VID if ($this->{'_registration'});
+    $scan_vid = $pf::constants::scan::PRE_SCAN_VID if ($this->{'_pre_registration'});
 
     if (!$result) {
         $logger->warn("WMI scan didnt start");
@@ -94,7 +94,7 @@ sub startScan {
     );
     $apiclient->notify('close_violation', %data );
 
-    $this->setStatus($pf::scan::STATUS_CLOSED);
+    $this->setStatus($pf::constants::scan::STATUS_CLOSED);
     $this->statusReportSyncToDb();
     return 0;
 }
