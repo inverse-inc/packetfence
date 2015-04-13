@@ -49,6 +49,10 @@ sub action_view {
 
 sub action_add {
     my ($self) = @_;
+    my $mac = $self->{mac};
+    if (node_exist($mac)) {
+        return 1;
+    }
     node_add($self->{mac},%{$self->{params}});
     return 0;
 }
@@ -66,8 +70,6 @@ sub parse_add {
 
 =head2 action_count
 
-TODO: documention
-
 =cut
 
 sub action_count {
@@ -76,8 +78,6 @@ sub action_count {
 }
 
 =head2 action_edit
-
-TODO: documention
 
 =cut
 
