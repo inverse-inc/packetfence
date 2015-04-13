@@ -267,6 +267,7 @@ server, DHCP server, RADIUS server) using:
 
   yum install --enablerepo=packetfence packetfence
 
+Once installed, the Web-based configuration interface will automatically be started. You can access it from https://@ip_of_packetfence:1443/configurator
 
 Debian and Ubuntu
 ^^^^^^^^^^^^^^^^^
@@ -300,6 +301,8 @@ server, DHCP server, RADIUS server) using:
   sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
   sudo apt-get update
   sudo apt-get install packetfence
+
+Once installed, the Web-based configuration interface will automatically be started. You can access it from https://@ip_of_packetfence:1443/configurator
 
 Configuration
 -------------
@@ -453,23 +456,6 @@ This will trigger all the nodes that connects to the "GuestAccess" SSID to use i
 
 Crap
 ----
-
-First Step
-~~~~~~~~~~
-
-The first step after installing the necessary packages is the configuration step. PacketFence provides an helpful and detailed web-based configurator.
-
-Like mentioned at the end of the packages installation, fire up a web browser and go to https://@ip_of_packetfence:1443/configurator. From there, the configuration process is splited in six (6) distinctive steps, after which you'll have a working PacketFence setup.
-
-[options="compact"]
-* Step 1: Enforcement technique. You'll choose either VLAN enforcement, inline enforcement or both;
-* Step 2: Network configuration. You'll be able to configure the network interfaces of the system as well as assigning the correct interfaces for each of the required types of the chosen enforcement technique(s);
-* Step 3: Database configuration. This step will create the PacketFence database and populate it with the correct structure. A MySQL user will also be created and assigned to the newly created database;
-* Step 4: General configuration. You will need to configure some of the basic PacketFence configuration parameters;
-* Step 5: Administrative user. This step will ask you to create an administrative user that will be able to access the web-based adminsitration interface once the services are functionals;
-* Step 6: Let's do this! See the status of your configuration and start your new NAC!
-
-NOTE: Keep in mind that the resulting PacketFence configuration will be located under `/usr/local/pf/conf/` and the configuration files can always be adjusted by hand afterward or from PacketFence's Web GUI.
 
 Web-based Administration Interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
