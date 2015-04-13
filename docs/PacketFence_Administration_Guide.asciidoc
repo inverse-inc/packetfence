@@ -304,7 +304,155 @@ server, DHCP server, RADIUS server) using:
 Configuration
 -------------
 
+Prior configuring PacketFence, you must chose an appropriate enforcement mode to be used by PacketFence with your networking equipment. The enforcement mode is the technique used to enforce registration and any subsequent access of devices on your network. PacketFence supports the following enforcement modes:
+
+[options="compact"]
+* Inline
+* Out-of-band
+* Hybrid
+
+It is also possible to combine enforcement modes. For example, you could use the out-of-band mode on your wired switches, while using the inline mode on your old WiFi access points.
+
+The following sections will explain these enforcement modes. If you decide to use the inline mode, please refer to the PacketFence Inline Deployment Quick Guide using ZEN for a complete configuration example. If you device to use the out-of-band mode, please refer to the PacketFence Out-of-Band Deployment Quick Guide using ZEN
+
 In this section, you'll learn how to configure PacketFence. PacketFence will use MySQL, Apache, ISC DHCP, iptables and FreeRADIUS. As previously mentioned, we assume that those components run on the same server on which PacketFence is being installed.
+
+Technical introduction to Inline enforcement
+--------------------------------------------
+
+Introduction
+~~~~~~~~~~~~
+
+Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices. So in other words, PacketFence would become the gateway of that inline network, and NAT or route the traffic using IPTables/IPSet to the Internet (or to another section of the network). Let see how it works.
+
+Device configuration
+~~~~~~~~~~~~~~~~~~~~
+No special configuration is needed on the unmanageable device. That's the beauty of it. You only need to ensure that the device is "talking" on the inline VLAN. At this point, all the traffic will be passing through PacketFence since it is the gateway for this VLAN.
+
+Access control
+~~~~~~~~~~~~~~
+
+The access control relies entirely on IPTables/IPSet. When a user is not registered, and connects in the inline VLAN, PacketFence will give him an IP address. At this point, the user will be marked as unregistered in the ipset session, and all the Web traffic will be redirected to the captive portal and other traffic blocked. The user will have to register through the captive portal as in VLAN enforcement. When he registers, PacketFence changes the device´s ipset session to allow the user's mac address to go through it.
+
+Limitations
+~~~~~~~~~~~
+
+Inline enforcement because of it's nature has several limitations that one must be aware of.
+
+[options="compact"]
+* Everyone behind an inline interface is on the same Layer 2 LAN
+* Every packet of authorized users goes through the PacketFence server increasing the servers' load considerably: Plan ahead for capacity
+* Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
+* Ipset can store up to 65536 entries, so it is not possible to have a inline network class upper than B
+
+This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows users to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
+
+Technical introduction to Out-of-band enforcement 
+-------------------------------------------
+
+Introduction
+~~~~~~~~~~~~
+
+VLAN assignment is currently performed using several different techniques. These techniques are compatible one to another but not on the same switch port. This means that you can use the more secure and modern techniques for your latest switches and another technique on the old switches that doesn't support latest techniques. As it's name implies, VLAN assignment means that PacketFence is the server that assigns the VLAN to a device. This VLAN can be one of your VLANs or it can be a special VLAN where PacketFence presents the captive portal for authentication or remediation.
+
+VLAN assignment effectively isolate your hosts at the OSI Layer2 meaning that it is the trickiest method to bypass and is the one which adapts best to your environment since it glues into your current VLAN assignment methodology.
+
+VLAN assignment techniques
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Wired: 802.1X + MAC Authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+802.1X provides port-based authentication, which involves communications between a supplicant, authenticator (known as NAS), and authentication server (known as AAA). The supplicant is often software on a client device, such as a laptop, the authenticator is a wired Ethernet switch or wireless access point, and the authentication server is generally a RADIUS server.
+
+The supplicant (i.e., client device) is not allowed access through the authenticator to the network until the supplicant’s identity is authorized. With 802.1X port-based authentication, the supplicant provides credentials, such as user name / password or digital certificate, to the authenticator, and the authenticator forwards the credentials to the authentication server for verification. If the credentials are valid (in the authentication server database), the supplicant (client device) is allowed to access the network. The protocol for authentication is called Extensible Authentication Protocol (EAP) which have many variants. Both supplicant and authentication servers need to speak the same EAP protocol. Most popular EAP variant is PEAP-MsCHAPv2 (supported by Windows / Mac OSX / Linux for authentication against AD).
+
+In this context, PacketFence runs the authentication server (a FreeRADIUS instance) and will return the appropriate VLAN to the switch. A module that integrates in FreeRADIUS does a remote call to the PacketFence server to obtain that information. More and more devices have 802.1X supplicant which makes this approach more and more popular.
+
+MAC Authentication is a new mechanism introduced by some switch vendor to handle the cases where a 802.1X supplicant does not exist. Different vendors have different names for it. Cisco calls it MAC Authentication Bypass (MAB), Juniper calls it MAC RADIUS, Extreme Networks calls it Netlogin, etc. After a timeout period, the switch will stop trying to perform 802.1X and will fallback to MAC Authentication. It has the advantage of using the same approach as 802.1X except that the MAC address is sent instead of the user name and there is no end-to-end EAP conversation (no strong authentication). Using MAC Authentication, devices like network printer or non-802.1X capable IP Phones can still gain access to the network and the right VLAN.
+
+Wireless: 802.1X + MAC authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wireless 802.1X works like wired 802.1X and MAC authentication is the same as wired MAC Authentication. Where things change is that the 802.1X is used to setup the security keys for encrypted communication (WPA2-Enterprise) while MAC authentication is only used to authorize (allow or disallow) a MAC on the wireless network.
+
+On wireless networks, the usual PacketFence setup dictate that you configure two SSIDs: an open one and a secure one. The open one is used to help users configure the secure one properly and requires authentication over the captive portal (which runs in HTTPS).
+
+Web Auth mode
+~~~~~~~~~~~~~
+
+Web authentication is a method on the switch that forwards http traffic of the device to the captive portal.
+With this mode, your device will never change of VLAN ID but only the ACL associated to your device will change.
+Refer to the Network Devices Configuration Guide to see a sample web auth configuration on a Cisco WLC.
+
+Port-security and SNMP
+^^^^^^^^^^^^^^^^^^^^^^
+
+Relies on the port-security SNMP Traps. A fake static MAC address is assigned to all the ports this way any MAC address will generate a security violation and a trap will be sent to PacketFence. The system will authorize the MAC and set the port in the right VLAN. VoIP support is possible but tricky. It varies a lot depending on the switch vendor. Cisco is well supported but isolation of a PC behind an IP Phone leads to an interesting dilemma: either you shut the port (and the phone at the same time) or you change the data VLAN but the PC doesn't do DHCP (didn't detect link was down) so it cannot reach the captive portal.
+
+Aside from the VoIP isolation dilemma, it is the technique that has proven to be reliable and that has the most switch vendor support.
+
+More on SNMP traps VLAN isolation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use snmptrapd as the SNMP trap receiver. As it receives traps, it reformats and writes them into a flat file: `/usr/local/pf/logs/snmptrapd.log`. The multithreaded `pfsetvlan` daemon reads these traps from the flat file and responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::Switch` class). Depending on your switches capabilities, `pfsetvlan` will act on different types of SNMP traps.
+
+image::docs/images/diagram-trap-interaction.png[scaledwidth="50%",alt="pfsetvlan SNMP interactions diagram"]
+
+You need to create a registration VLAN (with a DHCP server, but no routing to other VLANs) in which PacketFence will put unregistered devices. If you want to isolate computers which have open violations in a separate VLAN, an isolation VLAN needs also to be created.
+
+linkUp/linkDown traps (deprecated)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This is the most basic setup and it needs a third VLAN: the MAC detection VLAN. There should be nothing in this VLAN (no DHCP server) and it should not be routed anywhere; it is just an void VLAN.
+
+When a host connects to a switch port, the switch sends a linkUp trap to PacketFence. Since it takes some time before the switch learns the MAC address of the newly connected device, PacketFence immediately puts the port in the MAC detection VLAN in which the device will send DHCP requests (with no answer) in order for the switch to learn its MAC address. Then pfsetvlan will send periodical SNMP queries to the switch until the switch learns the MAC of the device. When the MAC address is known, pfsetvlan checks its status (existing ? registered ? any violations ?) in the database and puts the port in the appropriate VLAN. When a device is unplugged, the switch sends a 'linkDown' trap to PacketFence which puts the port into the MAC detection VLAN.
+
+When a computer boots, the initialization of the NIC generates several link status changes. And every time the switch sends a linkUp and a linkDown trap to PacketFence. Since PacketFence has to act on each of these traps, this generates unfortunately some unnecessary load on pfsetvlan. In order to optimize the trap treatment, PacketFence stops every thread for a 'linkUp trap' when it receives a 'linkDown' trap on the same port. But using only linkUp/linkDown traps is not the most scalable option. For example in case of power failure, if hundreds of computers boot at the same time, PacketFence would receive a lot of traps almost instantly and this could result in network connection latency…
+
+MAC notification traps
+^^^^^^^^^^^^^^^^^^^^^^
+
+If your switches support MAC notification traps (MAC learnt, MAC removed), we suggest that you activate them in addition to the linkUp/linkDown traps. This way, pfsetvlan does not need, after a linkUp trap, to query the switch continuously until the MAC has finally been learned. When it receives a linkUp trap for a port on which MAC notification traps are also enabled, it only needs to put the port in the MAC detection VLAN and can then free the thread. When the switch learns the MAC address of the device it sends a MAC learnt trap (containing the MAC address) to PacketFence.
+
+Port Security traps
+^^^^^^^^^^^^^^^^^^^
+
+In its most basic form, the Port Security feature remembers the MAC address connected to the switch port and allows only that MAC address to communicate on that port. If any other MAC address tries to communicate through the port, port security will not allow it and send a port-security trap.
+
+If your switches support this feature, *we strongly recommend to use it rather than linkUp/linkDown and/or MAC notifications*. Why? Because as long as a MAC address is authorized on a port and is the only one connected, the switch will send no trap whether the device reboots, plugs in or unplugs. This drastically reduces the SNMP interactions between the switches and PacketFence.
+
+When you enable port security traps you should not enable linkUp/linkDown nor MAC notification traps.
+
+
+Technical introduction to Hybrid enforcement
+--------------------------------------------
+
+Introduction
+~~~~~~~~~~~
+
+Before version 3.6 of PacketFence, it was not possible to have RADIUS enabled for inline enforcement mode. Now with the new hybrid mode, all the devices that supports 802.1X or MAC-authentication can work with this mode. Let's see how it works.
+
+Device configuration
+~~~~~~~~~~~~~~~~~~~~
+
+You need to configure inline enforcement mode in PacketFence and configure your switch(es) / access point(s) to use the VLAN assignement techniques (802.1X or MAC-authentication). You also need to take care of a specific parameter in the switch configuration window, "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to define different sort of trigger:
+
+  ALWAYS::
+  PORT::
+  MAC::
+  SSID::
+
+where ALWAYS means that the device is always in inline mode, PORT specify the ifIndex of the port which will use inline enforcement, MAC a mac address that will be put in inline enforcement technique rather than VLAN enforcement and SSID an ssid name.
+An example:
+
+  SSID::GuestAccess,MAC::00:11:22:33:44:55
+
+This will trigger all the nodes that connects to the "GuestAccess" SSID to use inline enforcement mode (PacketFence will return a void VLAN or the inlineVlan if defined in switch configuration) and the mac address 00:11:22:33:44:55 client if it connects on another SSID.
+
+
+Crap
+----
 
 First Step
 ~~~~~~~~~~
@@ -617,40 +765,6 @@ The default VLAN assignment technique used in PacketFence is a per-switch one. T
 This allows you to do easy per-building VLAN/role segmentation.
 
 If you need more flexibility than what can be defined from the PacketFence's authentication sources (rules/conditions/actions) take a look at the FAQ entry http://www.packetfence.org/support/faqs/article/custom-vlan-assignment-behavior.html[Custom VLAN assignment behavior] available online.
-
-Inline enforcement configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This section applies only for Inline enforcement. Users planning to do VLAN enforcement only can skip this section.
-
-The inline enforcement is a very convenient method of performing access control on older network hardware that is not capable of doing VLAN enforcement or that is not supported by PacketFence. This technique is covered in details in the <<_technical_introduction_to_inline_enforcement,"Technical introduction to Inline enforcement" section>>.
-
-An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by these users should be your actual production DNS server - which shouldn't be in the same broadcast domain as your inline users. The next section shows you how to configure the proper inline interface and it is in this section that you should refer to the proper production DNS. 
-
-Inline enforcement uses `ipset` to mark nodes as registered, unregistered and isolated.
-It is also now possible to use multiple inline interfaces. A node registered on the first inline interface is marked with an IP:MAC tuple (for L2, only ip for L3), so when the node tries to register on an other inline interface, PacketFence detects that the node is already registered on the first VLAN.
-It is also possible to enable `inline.should_reauth_on_vlan_change` to force users to reauthenticate when they change VLAN.
-
-The outgoing interface should be specified by adding in `/usr/local/pf/conf/pf.conf` the option `interfaceSNAT` in inline section. It is a comma-delimited list of network interfaces like eth0,eth0.100. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option `nat=no` under one or more network sections.
-
-Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface IP address, it is mandatory to set it to this IP (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
-
-Hybrid mode
-~~~~~~~~~~
-
-This section applies for hybrid support for the manageable devices that support 802.1X or MAC-authentication.
-
-Hybrid enforcement is a mixed method that offers the use of inline enforcement mode with VLAN enforcement mode on the same device.
-This technique is covered in details in the <<_technical_introduction_to_hybrid_enforcement,"Technical introduction to Hybrid enforcement" section>>
-
-Web Auth mode
-~~~~~~~~~~~~~
-
-This section applies for web authentication support for manageable devices that support web authentication with an external captive portal.
-
-Web authentication is a method on the switch that forwards http traffic of the device to the captive portal.
-With this mode, your device will never change of VLAN ID but only the ACL associated to your device will change.
-Refer to the Network Devices Configuration Guide to see a sample web auth configuration on a Cisco WLC.
 
 DHCP and DNS Server Configuration (networks.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2771,131 +2885,6 @@ The last block defines the relationship between the tests and the desired action
   redirect_url =
 
 This filter will return an error code (501) if the user agent is Dalvik and the URI doesn't contain _/generate_204.
-
-Technical introduction to VLAN enforcement 
--------------------------------------------
-
-Introduction
-~~~~~~~~~~~~
-
-VLAN assignment is currently performed using several different techniques. These techniques are compatible one to another but not on the same switch port. This means that you can use the more secure and modern techniques for your latest switches and another technique on the old switches that doesn't support latest techniques. As it's name implies, VLAN assignment means that PacketFence is the server that assigns the VLAN to a device. This VLAN can be one of your VLANs or it can be a special VLAN where PacketFence presents the captive portal for authentication or remediation.
-
-VLAN assignment effectively isolate your hosts at the OSI Layer2 meaning that it is the trickiest method to bypass and is the one which adapts best to your environment since it glues into your current VLAN assignment methodology.
-
-VLAN assignment techniques
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Port-security and SNMP
-^^^^^^^^^^^^^^^^^^^^^^
-
-Relies on the port-security SNMP Traps. A fake static MAC address is assigned to all the ports this way any MAC address will generate a security violation and a trap will be sent to PacketFence. The system will authorize the MAC and set the port in the right VLAN. VoIP support is possible but tricky. It varies a lot depending on the switch vendor. Cisco is well supported but isolation of a PC behind an IP Phone leads to an interesting dilemma: either you shut the port (and the phone at the same time) or you change the data VLAN but the PC doesn't do DHCP (didn't detect link was down) so it cannot reach the captive portal.
-
-Aside from the VoIP isolation dilemma, it is the technique that has proven to be reliable and that has the most switch vendor support.
-
-Wired: 802.1X + MAC Authentication
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-802.1X provides port-based authentication, which involves communications between a supplicant, authenticator (known as NAS), and authentication server (known as AAA). The supplicant is often software on a client device, such as a laptop, the authenticator is a wired Ethernet switch or wireless access point, and the authentication server is generally a RADIUS server.
-
-The supplicant (i.e., client device) is not allowed access through the authenticator to the network until the supplicant’s identity is authorized. With 802.1X port-based authentication, the supplicant provides credentials, such as user name / password or digital certificate, to the authenticator, and the authenticator forwards the credentials to the authentication server for verification. If the credentials are valid (in the authentication server database), the supplicant (client device) is allowed to access the network. The protocol for authentication is called Extensible Authentication Protocol (EAP) which have many variants. Both supplicant and authentication servers need to speak the same EAP protocol. Most popular EAP variant is PEAP-MsCHAPv2 (supported by Windows / Mac OSX / Linux for authentication against AD).
-
-In this context, PacketFence runs the authentication server (a FreeRADIUS instance) and will return the appropriate VLAN to the switch. A module that integrates in FreeRADIUS does a remote call to the PacketFence server to obtain that information. More and more devices have 802.1X supplicant which makes this approach more and more popular.
-
-MAC Authentication is a new mechanism introduced by some switch vendor to handle the cases where a 802.1X supplicant does not exist. Different vendors have different names for it. Cisco calls it MAC Authentication Bypass (MAB), Juniper calls it MAC RADIUS, Extreme Networks calls it Netlogin, etc. After a timeout period, the switch will stop trying to perform 802.1X and will fallback to MAC Authentication. It has the advantage of using the same approach as 802.1X except that the MAC address is sent instead of the user name and there is no end-to-end EAP conversation (no strong authentication). Using MAC Authentication, devices like network printer or non-802.1X capable IP Phones can still gain access to the network and the right VLAN.
-
-Wireless: 802.1X + MAC authentication
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Wireless 802.1X works like wired 802.1X and MAC authentication is the same as wired MAC Authentication. Where things change is that the 802.1X is used to setup the security keys for encrypted communication (WPA2-Enterprise) while MAC authentication is only used to authorize (allow or disallow) a MAC on the wireless network.
-
-On wireless networks, the usual PacketFence setup dictate that you configure two SSIDs: an open one and a secure one. The open one is used to help users configure the secure one properly and requires authentication over the captive portal (which runs in HTTPS).
-
-More on SNMP traps VLAN isolation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use snmptrapd as the SNMP trap receiver. As it receives traps, it reformats and writes them into a flat file: `/usr/local/pf/logs/snmptrapd.log`. The multithreaded `pfsetvlan` daemon reads these traps from the flat file and responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::Switch` class). Depending on your switches capabilities, `pfsetvlan` will act on different types of SNMP traps.
-
-image::docs/images/diagram-trap-interaction.png[scaledwidth="50%",alt="pfsetvlan SNMP interactions diagram"]
-
-You need to create a registration VLAN (with a DHCP server, but no routing to other VLANs) in which PacketFence will put unregistered devices. If you want to isolate computers which have open violations in a separate VLAN, an isolation VLAN needs also to be created.
-
-linkUp/linkDown traps (deprecated)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This is the most basic setup and it needs a third VLAN: the MAC detection VLAN. There should be nothing in this VLAN (no DHCP server) and it should not be routed anywhere; it is just an void VLAN.
-
-When a host connects to a switch port, the switch sends a linkUp trap to PacketFence. Since it takes some time before the switch learns the MAC address of the newly connected device, PacketFence immediately puts the port in the MAC detection VLAN in which the device will send DHCP requests (with no answer) in order for the switch to learn its MAC address. Then pfsetvlan will send periodical SNMP queries to the switch until the switch learns the MAC of the device. When the MAC address is known, pfsetvlan checks its status (existing ? registered ? any violations ?) in the database and puts the port in the appropriate VLAN. When a device is unplugged, the switch sends a 'linkDown' trap to PacketFence which puts the port into the MAC detection VLAN.
-
-When a computer boots, the initialization of the NIC generates several link status changes. And every time the switch sends a linkUp and a linkDown trap to PacketFence. Since PacketFence has to act on each of these traps, this generates unfortunately some unnecessary load on pfsetvlan. In order to optimize the trap treatment, PacketFence stops every thread for a 'linkUp trap' when it receives a 'linkDown' trap on the same port. But using only linkUp/linkDown traps is not the most scalable option. For example in case of power failure, if hundreds of computers boot at the same time, PacketFence would receive a lot of traps almost instantly and this could result in network connection latency…
-
-MAC notification traps
-^^^^^^^^^^^^^^^^^^^^^^
-
-If your switches support MAC notification traps (MAC learnt, MAC removed), we suggest that you activate them in addition to the linkUp/linkDown traps. This way, pfsetvlan does not need, after a linkUp trap, to query the switch continuously until the MAC has finally been learned. When it receives a linkUp trap for a port on which MAC notification traps are also enabled, it only needs to put the port in the MAC detection VLAN and can then free the thread. When the switch learns the MAC address of the device it sends a MAC learnt trap (containing the MAC address) to PacketFence.
-
-Port Security traps
-^^^^^^^^^^^^^^^^^^^
-
-In its most basic form, the Port Security feature remembers the MAC address connected to the switch port and allows only that MAC address to communicate on that port. If any other MAC address tries to communicate through the port, port security will not allow it and send a port-security trap.
-
-If your switches support this feature, *we strongly recommend to use it rather than linkUp/linkDown and/or MAC notifications*. Why? Because as long as a MAC address is authorized on a port and is the only one connected, the switch will send no trap whether the device reboots, plugs in or unplugs. This drastically reduces the SNMP interactions between the switches and PacketFence.
-
-When you enable port security traps you should not enable linkUp/linkDown nor MAC notification traps.
-
-Technical introduction to Inline enforcement
---------------------------------------------
-
-Introduction
-~~~~~~~~~~~~
-
-Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices. So in other words, PacketFence would become the gateway of that inline network, and NAT or route the traffic using IPTables/IPSet to the Internet (or to another section of the network). Let see how it works.
-
-Device configuration
-~~~~~~~~~~~~~~~~~~~~
-No special configuration is needed on the unmanageable device. That's the beauty of it. You only need to ensure that the device is "talking" on the inline VLAN. At this point, all the traffic will be passing through PacketFence since it is the gateway for this VLAN.
-
-Access control
-~~~~~~~~~~~~~~
-
-The access control relies entirely on IPTables/IPSet. When a user is not registered, and connects in the inline VLAN, PacketFence will give him an IP address. At this point, the user will be marked as unregistered in the ipset session, and all the Web traffic will be redirected to the captive portal and other traffic blocked. The user will have to register through the captive portal as in VLAN enforcement. When he registers, PacketFence changes the device´s ipset session to allow the user's mac address to go through it.
-
-Limitations
-~~~~~~~~~~~
-
-Inline enforcement because of it's nature has several limitations that one must be aware of.
-
-[options="compact"]
-* Everyone behind an inline interface is on the same Layer 2 LAN
-* Every packet of authorized users goes through the PacketFence server increasing the servers' load considerably: Plan ahead for capacity
-* Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
-* Ipset can store up to 65536 entries, so it is not possible to have a inline network class upper than B
-
-This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows users to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
-
-Technical introduction to Hybrid enforcement
---------------------------------------------
-
-Introduction
-~~~~~~~~~~~
-
-Before version 3.6 of PacketFence, it was not possible to have RADIUS enabled for inline enforcement mode. Now with the new hybrid mode, all the devices that supports 802.1X or MAC-authentication can work with this mode. Let's see how it works.
-
-Device configuration
-~~~~~~~~~~~~~~~~~~~~
-
-You need to configure inline enforcement mode in PacketFence and configure your switch(es) / access point(s) to use the VLAN assignement techniques (802.1X or MAC-authentication). You also need to take care of a specific parameter in the switch configuration window, "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to define different sort of trigger:
-
-  ALWAYS::
-  PORT::
-  MAC::
-  SSID::
-
-where ALWAYS means that the device is always in inline mode, PORT specify the ifIndex of the port which will use inline enforcement, MAC a mac address that will be put in inline enforcement technique rather than VLAN enforcement and SSID an ssid name.
-An example:
-
-  SSID::GuestAccess,MAC::00:11:22:33:44:55
-
-This will trigger all the nodes that connects to the "GuestAccess" SSID to use inline enforcement mode (PacketFence will return a void VLAN or the inlineVlan if defined in switch configuration) and the mac address 00:11:22:33:44:55 client if it connects on another SSID.
   
 More on VoIP Integration
 ------------------------
