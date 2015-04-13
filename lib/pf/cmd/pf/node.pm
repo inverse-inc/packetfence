@@ -53,11 +53,13 @@ sub action_add {
     if (node_exist($mac)) {
         return 1;
     }
-    node_add($self->{mac},%{$self->{params}});
+    node_add($mac,%{$self->{params}});
     return 0;
 }
 
 =head2 parse_add
+
+parse and validate the arguments for pfcmd node add
 
 =cut
 
@@ -83,7 +85,23 @@ sub action_count {
 
 sub action_edit {
     my ($self) = @_;
-    return ;
+    my $mac = $self->{mac};
+    unless (node_exist($mac)) {
+        return 1;
+    }
+    my ($result) = node_modify($mac,%{$self->{params}});
+    return $result == 1 ? 0 : 1;
+}
+
+=head2 parse_edit
+
+parse and validate the arguments for pfcmd node edit (The same as parse_add)
+
+=cut
+
+sub parse_edit {
+    my ($self) = @_;
+    return $self->parse_add;
 }
 
 =head2 action_delete
