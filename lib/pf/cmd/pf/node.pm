@@ -34,7 +34,7 @@ use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 
 =head2 action_view
 
-taking the action
+handles 'pfcmd node view' command
 
 =cut
 
@@ -46,7 +46,7 @@ sub action_view {
 
 =head2 action_add
 
-handles command pfcmd node add
+handles 'pfcmd node add' command
 
 =cut
 
@@ -62,7 +62,7 @@ sub action_add {
 
 =head2 parse_add
 
-parse and validate the arguments for pfcmd node add
+parse and validate the arguments for 'pfcmd node add' command
 
 =cut
 
@@ -75,6 +75,8 @@ sub parse_add {
 
 =head2 action_count
 
+handles 'pfcmd node count' command
+
 =cut
 
 sub action_count {
@@ -83,6 +85,8 @@ sub action_count {
 }
 
 =head2 action_edit
+
+handles 'pfcmd node edit' command
 
 =cut
 
@@ -98,7 +102,7 @@ sub action_edit {
 
 =head2 parse_edit
 
-parse and validate the arguments for pfcmd node edit (The same as parse_add)
+parse and validate the arguments for 'pfcmd node edit' command
 
 =cut
 
@@ -108,6 +112,8 @@ sub parse_edit {
 }
 
 =head2 action_delete
+
+handles 'pfcmd node delete' command
 
 =cut
 
@@ -130,6 +136,8 @@ sub action_delete {
 
 =head2 parse_delete
 
+parse and validate the arguments for 'pfcmd node delete' command
+
 =cut
 
 sub parse_delete {
@@ -139,6 +147,8 @@ sub parse_delete {
 }
 
 =head2 _parse_attributes
+
+parse and validate the arguments for 'pfcmd node add|edit' commands
 
 =cut
 
