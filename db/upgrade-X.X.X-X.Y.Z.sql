@@ -99,3 +99,11 @@ UPDATE `node` SET pid = 'default' WHERE status = 'unreg' AND pid = 'admin';
 ALTER TABLE node ADD dhcp_vendor VARCHAR(255) AFTER dhcp_fingerprint,
                  ADD device_type VARCHAR(255) AFTER dhcp_vendor,
                  ADD device_class VARCHAR(255) AFTER device_type;
+
+---
+--- Add a column to store the session id in the locationlog
+---
+
+ALTER TABLE locationlog ADD `session_id` VARCHAR(255) DEFAULT NULL;
+ALTER TABLE locationlog_archive ADD `session_id` VARCHAR(255) DEFAULT NULL;
+
