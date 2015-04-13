@@ -10,6 +10,7 @@ pf::cmd::pf::node add documentation
 manipulate node entries
 
 examples:
+
   pfcmd node view all
   pfcmd node view all order by pid limit 10,20
   pfcmd node view pid="admin" order by pid desc limit 10,20
