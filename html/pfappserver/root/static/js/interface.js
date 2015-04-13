@@ -121,10 +121,6 @@ InterfaceView.prototype.typeChanged = function(e) {
             var high_availability = modal.find('[name="high_availability"]').closest('.control-group');
             var vip = modal.find('[name="vip"]').closest('.control-group');
             var nat = modal.find('[name="nat_enabled"]').closest('.control-group');
-            var active_active_enabled = modal.find('[name="active_active_enabled"]').closest('.control-group');
-            var active_active_ip = modal.find('[name="active_active_ip"]').closest('.control-group');
-            var active_active_members = modal.find('[name="active_active_members"]').closest('.control-group');
-            var active_active_dhcpd_master = modal.find('[name="active_active_dhcpd_master"]').closest('.control-group');
 
             switch ( type.val() ) {
                 case 'inlinel2': 
@@ -138,54 +134,6 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.show('fast');
                     nat.find(':input').removeAttr('disabled');
                     $(".info_inline").show('fast');
-                    if (modal.find('[name="high_availability"]').is(":checked")) {
-                        active_active_enabled.hide('fast');
-                        active_active_ip.hide('fast');
-                        active_active_members.hide('fast');
-                    } else {
-                        active_active_enabled.show('fast');
-                        active_active_ip.show('fast');
-                        active_active_members.show('fast');
-                    }
-                    modal.find('[name="high_availability"]').change(function(){
-                        if (this.checked) {
-                            active_active_enabled.hide('fast');
-                            active_active_ip.hide('fast');
-                            active_active_members.hide('fast');
-                        } else {
-                            active_active_enabled.show('fast');
-                            active_active_ip.show('fast');
-                            active_active_members.show('fast');
-                        }
-                    });
-                    if (modal.find('[name="active_active_enabled"]').is(":checked")) {
-                        high_availability.hide('fast');
-                        vip.hide('fast');
-                        active_active_ip.show('fast');
-                        active_active_members.show('fast');
-                        active_active_dhcpd_master.show('fast');
-                    } else {
-                        high_availability.show('fast');
-                        vip.show('fast');
-                        active_active_ip.hide('fast');
-                        active_active_members.hide('fast');
-                        active_active_dhcpd_master.hide('fast');
-                    }
-                    modal.find('[name="active_active_enabled"]').change(function(){
-                        if (this.checked) {
-                            high_availability.hide('fast');
-                            vip.hide('fast');
-                            active_active_ip.show('fast');
-                            active_active_members.show('fast');
-                            active_active_dhcpd_master.show('fast');
-                        } else {
-                            high_availability.show('fast');
-                            vip.show('fast');
-                            active_active_ip.hide('fast');
-                            active_active_members.hide('fast');
-                            active_active_dhcpd_master.hide('fast');
-                        }
-                    });
                     if (modal.find('[name="nat_enabled"]').is(":checked")) {
                         $(".info_routed").hide('fast');
                     } else {
@@ -211,54 +159,6 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.find(':input').attr('disabled','disabled');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
-                    if (modal.find('[name="high_availability"]').is(":checked")) {
-                        active_active_enabled.hide('fast');
-                        active_active_ip.hide('fast');
-                        active_active_members.hide('fast');
-                    } else {
-                        active_active_enabled.show('fast');
-                        active_active_ip.show('fast');
-                        active_active_members.show('fast');
-                    }
-                    modal.find('[name="high_availability"]').change(function(){
-                        if (this.checked) {
-                            active_active_enabled.hide('fast');
-                            active_active_ip.hide('fast');
-                            active_active_members.hide('fast');
-                        } else {
-                            active_active_enabled.show('fast');
-                            active_active_ip.show('fast');
-                            active_active_members.show('fast');
-                        }
-                    });
-                    if (modal.find('[name="active_active_enabled"]').is(":checked")) {
-                        high_availability.hide('fast');
-                        vip.hide('fast');
-                        active_active_ip.show('fast');
-                        active_active_members.show('fast');
-                        active_active_dhcpd_master.show('fast');
-                    } else {
-                        high_availability.show('fast');
-                        vip.show('fast');
-                        active_active_ip.hide('fast');
-                        active_active_members.hide('fast');
-                        active_active_dhcpd_master.hide('fast');
-                    }
-                    modal.find('[name="active_active_enabled"]').change(function(){
-                        if (this.checked) {
-                            high_availability.hide('fast');
-                            vip.hide('fast');
-                            active_active_ip.show('fast');
-                            active_active_members.show('fast');
-                            active_active_dhcpd_master.show('fast');
-                        } else {
-                            high_availability.show('fast');
-                            vip.show('fast');
-                            active_active_ip.hide('fast');
-                            active_active_members.hide('fast');
-                            active_active_dhcpd_master.hide('fast');
-                        }
-                    });
                     break;
                 case '':
                 case 'none':
@@ -300,24 +200,6 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.find(':input').attr('disabled','disabled');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
-                    if (modal.find('[name="active_active_enabled"]').is(":checked")) {
-                        vip.hide('fast');
-                    } else {
-                        vip.show('fast');
-                    }
-                    modal.find('[name="active_active_enabled"]').change(function(){
-                        if (this.checked) {
-                            active_active_ip.show('fast');
-                            active_active_members.show('fast');
-                            active_active_dhcpd_master.show('fast');
-                            vip.hide('fast');
-                        } else {
-                            vip.show('fast');
-                            active_active_ip.hide('fast');
-                            active_active_members.hide('fast');
-                            active_active_dhcpd_master.hide('fast');
-                        }
-                    });
                     break;
                 default:
                     dhcpd.hide('fast');

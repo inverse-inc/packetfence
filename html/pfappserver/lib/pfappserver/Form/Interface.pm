@@ -42,7 +42,7 @@ has_field 'type' =>
   );
 has_field 'dns' =>
   (
-   type => 'IPAddresses',
+   type => 'IPAddress',
    label => 'DNS',
    wrapper_attr => { 'style' => 'display: none' },
    tags => { after_element => \&help,
@@ -77,32 +77,6 @@ has_field 'nat_enabled' => (
     unchecked_value => 0,
     default => 1,
     label => 'Enable NATting',
-);
-
-has_field 'active_active_enabled' => (
-    type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 0,
-    label => 'Enable Active/Active',
-);
-
-has_field 'active_active_ip' => (
-    type => 'IPAddress',
-    label => 'Active/Active IP Address',
-);
-
-has_field 'active_active_members' => (
-    type => 'IPAddresses',
-    label => 'Active/Active ip members',
-);
-
-has_field 'active_active_dhcpd_master' => (
-    type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 0,
-    label => 'Select as dhcpd master',
 );
 
 =head2 options_type

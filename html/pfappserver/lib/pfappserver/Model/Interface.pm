@@ -244,10 +244,6 @@ sub get {
           $result->{"$interface"}->{'vlan'} = $vlan_id;
         }
         $result->{"$interface"}->{'vip'} = $config->{vip};
-        $result->{"$interface"}->{'active_active_enabled'} = $config->{active_active_enabled};
-        $result->{"$interface"}->{'active_active_ip'} = $config->{active_active_ip};
-        $result->{"$interface"}->{'active_active_members'} = $config->{active_active_members};
-        $result->{"$interface"}->{'active_active_dhcpd_master'} = $config->{active_active_dhcpd_master};
         if (($result->{"$interface"}->{'network'} = $networks_model->getNetworkAddress($interface_ref->{ipaddress}, $interface_ref->{netmask}))) {
             ($status, $return) = $networks_model->getRoutedNetworks($result->{"$interface"}->{'network'}, $interface_ref->{netmask});
             if (is_success($status)) {
@@ -627,15 +623,7 @@ sub _prepare_interface_for_pfconf {
         ip => $int_model->{'ipaddress'},
         mask => $int_model->{'netmask'},
         vip => $int_model->{'vip'},
-        active_active_enabled => $int_model->{'active_active_enabled'},
-        active_active_ip => $int_model->{'active_active_ip'},
-        active_active_members => $int_model->{'active_active_members'},
-        active_active_dhcpd_master => $int_model->{'active_active_dhcpd_master'},
     };
-
-    if (isenabled($int_model->{'active_active_enabled'})) {
-        $int_config_ref->{'vip'} = '';
-    }
 
     # logic to match our awkward relationship between pf.conf's type and
     # enforcement with networks.conf's type
