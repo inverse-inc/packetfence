@@ -379,7 +379,7 @@ Wireless 802.1X works like wired 802.1X and MAC authentication is the same as wi
 On wireless networks, the usual PacketFence setup dictate that you configure two SSIDs: an open one and a secure one. The open one is used to help users configure the secure one properly and requires authentication over the captive portal (which runs in HTTPS).
 
 Web Auth mode
-~~~~~~~~~~~~~
+^^^^^^^^^^^^^
 
 Web authentication is a method on the switch that forwards http traffic of the device to the captive portal.
 With this mode, your device will never change of VLAN ID but only the ACL associated to your device will change.
