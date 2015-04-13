@@ -348,7 +348,7 @@ Inline enforcement because of it's nature has several limitations that one must 
 This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows users to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
 
 Technical introduction to Out-of-band enforcement 
--------------------------------------------
+-------------------------------------------------
 
 Introduction
 ~~~~~~~~~~~~
