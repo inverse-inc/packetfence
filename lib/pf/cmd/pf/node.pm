@@ -29,6 +29,7 @@ use base qw(pf::base::cmd::action_cmd);
 use pf::node;
 use pf::util;
 use pf::log;
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 
 
 =head2 action_view
@@ -53,10 +54,10 @@ sub action_add {
     my ($self) = @_;
     my $mac = $self->{mac};
     if (node_exist($mac)) {
-        return 1;
+        return $EXIT_FAILURE;
     }
     my ($result) = node_add($mac,%{$self->{params}});
-    return $result == 1 ? 0 : 1;
+    return $result == 1 ? $EXIT_SUCCESS : $EXIT_FAILURE;
 }
 
 =head2 parse_add
@@ -89,10 +90,10 @@ sub action_edit {
     my ($self) = @_;
     my $mac = $self->{mac};
     unless (node_exist($mac)) {
-        return 1;
+        return $EXIT_FAILURE;
     }
     my ($result) = node_modify($mac,%{$self->{params}});
-    return $result == 1 ? 0 : 1;
+    return $result == 1 ? $EXIT_SUCCESS : $EXIT_FAILURE;
 }
 
 =head2 parse_edit
@@ -114,7 +115,7 @@ sub action_delete {
     my ($self) = @_;
     my ($mac) = $self->action_args;
     unless (node_exist($mac)) {
-        return 1;
+        return $EXIT_FAILURE;
     }
     my $r = node_delete($mac);
     unless($r) {
@@ -122,9 +123,9 @@ sub action_delete {
                     . "indicating that this node might still be connected and active on the network ";
         print STDERR $error,"\n";
         get_logger->error($error);
-        return 1;
+        return $EXIT_FAILURE;
     }
-    return 0;
+    return $EXIT_SUCCESS;
 }
 
 =head2 parse_delete
