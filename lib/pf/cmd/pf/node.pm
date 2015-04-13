@@ -26,12 +26,38 @@ pf::cmd::pf::node
 
 use strict;
 use warnings;
+use Regexp::Common qw(net);
+
 use base qw(pf::base::cmd::action_cmd);
 use pf::node;
 use pf::util;
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+my $pid_re = qr{(?:
+    ( [a-zA-Z0-9\-\_\.\@\/\:\+\!,]+ )                               # unquoted allowed
+    |                                                               # OR
+    \" ( [&=?\(\)\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#\\]+ ) \" # quoted allowed
+)}xo;
 
+our $VIEW_RE = qr/^ (?: (all) | ( $RE{net}{MAC} ) | (?: ( category | pid  ) \s* [=] \s* $pid_re ))
+     (?:
+       \s+ ( order ) \s+ ( by )
+       \s+ ( [a-zA-Z0-9_]+ )
+       (?: \s+ ( asc | desc ))?
+     )?
+     (?:
+       \s+ ( limit )
+       \s+ ( \d+ )
+       \s* [,] \s*
+       ( \d+ )
+     )?
+$/xms;
+
+our $COUNT_RE = qr/^ (?: (all) | ( $RE{net}{MAC} ) | (?: ( category | pid  ) \s* [=] \s* $pid_re )) \s*/xms;
+
+our @FIELDS = qw(
+  mac computername pid category status bypass_vlan nbopenviolations voip
+  detect_date regdate unregdate last_connection_type last_switch last_port last_vlan last_ssid last_dot1x_username user_agent dhcp_fingerprint last_arp last_dhcp lastskip notes);
 
 =head2 action_view
 
@@ -41,8 +67,50 @@ handles 'pfcmd node view' command
 
 sub action_view {
     my ($self) = @_;
-    my @args = $self->action_args;
-    return ;
+    my $params = $self->{params};
+    my $method = $self->{method};
+    my $id = $self->{id};
+    my @rows = &$method($id,%$params);
+    $self->print_results(\@rows,\@FIELDS);
+    return $EXIT_SUCCESS;
+}
+
+=head2 parse_view
+
+parse and validate the arguments for 'pfcmd node view' command
+
+=cut
+
+sub parse_view {
+    my ($self,@args) = @_;
+    my $cli = join(' ',@args);
+    my %params;
+    unless($cli =~ $VIEW_RE) {
+        return 0;
+    }
+    if($2) {
+        $self->{method} = \&node_view;
+        $self->{id} = $2;
+    } else {
+        $self->{method} = \&node_view_all;
+        $self->{id} = 'all';
+    }
+    if($3) {
+        $params{'where'}{'type'}  = $3;
+        $params{'where'}{'value'} = $4;
+    }
+    if($8) {
+        $params{orderby} = "order by $8";
+        if($9) {
+            $params{orderby} .= " $9";
+        }
+    }
+    if($10) {
+        my $limit = "limit $11,$12";
+        $params{limit} = $limit;
+    }
+    $self->{params} = \%params;
+    return 1;
 }
 
 =head2 action_add
@@ -82,7 +150,39 @@ handles 'pfcmd node count' command
 
 sub action_count {
     my ($self) = @_;
-    return ;
+    my $params = $self->{params};
+    my $method = $self->{method};
+    my $id = $self->{id};
+    my @rows = &$method($id,%$params);
+    $self->print_results(\@rows,[qw(nb)]);
+    return $EXIT_SUCCESS;
+}
+
+=head2 parse_view
+
+parse and validate the arguments for 'pfcmd node count' command
+
+=cut
+
+sub parse_count {
+    my ($self,@args) = @_;
+    my $cli = join(' ',@args);
+    my %params;
+    unless($cli =~ $COUNT_RE) {
+        return 0;
+    }
+    $self->{method} = \&node_count_all;
+    if($2) {
+        $self->{id} = $2;
+    } else {
+        $self->{id} = 'all';
+    }
+    if($3) {
+        $params{'where'}{'type'}  = $3;
+        $params{'where'}{'value'} = $4;
+    }
+    $self->{params} = \%params;
+    return 1;
 }
 
 =head2 action_edit
@@ -166,6 +266,35 @@ sub _parse_attributes {
     }
     $self->{params} = \%params;
     return 1;
+}
+
+=head2 print_results
+
+print the results of a query;
+
+=cut
+
+sub print_results {
+    my ($self,$rows,$headings) = @_;
+    my $delimiter = '|';
+    print join($delimiter,@$headings),"\n";
+    foreach my $row (@$rows) {
+        $self->cleanup_row($row,$headings);
+        print join($delimiter,@{$row}{@$headings}),"\n";
+    }
+}
+
+=head2 cleanup_row
+
+Clean up the row for display
+
+=cut
+
+sub cleanup_row {
+    my ($self,$row,$headings) = @_;
+    foreach my $field (@$headings) {
+        $row->{$field} //= '';
+    }
 }
 
 =head1 AUTHOR
