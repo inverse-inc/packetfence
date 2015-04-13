@@ -28,8 +28,6 @@ has '+name' => (default => sub { 'keepalived' } );
 
 has '+launcher' => (default => sub { "sudo %1\$s -f $generated_conf_dir/keepalived.conf --pid $var_dir/run/keepalived.pid" } );
 
-has dependsOnServices => (is => 'ro', default => sub { [qw(httpd.aaa httpd.webservices httpd.portal pfsetvlan radiusd)] } );
-
 sub executable {
     my ($self) = @_;
     my $service = ( $Config{'services'}{"keepalived_binary"} || "$install_dir/sbin/keepalived" );
