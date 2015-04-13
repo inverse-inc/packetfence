@@ -38,10 +38,7 @@ Getting Started
 Virtual Machine
 ~~~~~~~~~~~~~~
 
-This setup has been tested using VMWare ESXi 4.0 & 5.0, Fusion 3.x and Workstation 7.x with 8192MB RAM dedicated to the virtual machine. It might work using other VMWare products.  You need a CPU that support long mode. *In other words, you need to have a 64-bit capable CPU on your host.*
-
-We build two separate virtual machine, one to run on ESXi 5.0 (OVF format) and one to run on VMWare Fusion/Workstation (VMX/VMDK format).
-
+This setup has been tested using VMWare ESXi 4.0 & 5.0 with 8192MB RAM dedicated to the virtual machine. It might work using other VMWare products.  You need a CPU that support long mode. *In other words, you need to have a 64-bit capable CPU on your host.*
 
 VLAN Enforcement
 ~~~~~~~~~~~~~~~
@@ -49,7 +46,7 @@ VLAN Enforcement
 In order to build a VLAN isolation setup you need :
 
 * a supported switch (please consult the list of supported switch vendors and types in the _Network Devices Configuration Guide_ including information on uplinks
-* a regular, isolation, MAC detection, registration, and a guest VLAN for wireless visitors (VLAN numbers and subnets)
+* a regular, registration and isolation VLAN for wireless visitors (VLAN numbers and subnets)
 * a switch port for the PacketFence (PacketFence) ZEN box which needs to be configured as a dot1q trunk (several VLANs on the port) with VLAN 1 as the native (untagged) VLAN.
 
 Assumptions
@@ -98,15 +95,6 @@ Import to ESX
 ^^^^^^^^^^^^^
 
 Make sure that there is only one virtual network card created, and also make sure that your vEthernet is connected to a virtual switch (vSwitch). You will need to create a “TRUNK” profile to allow all VLAN tags (usually VLAN all (4095)), and assign the profile to the PacketFence ZEN VM vEthernet.
-
-
-Import to VMWare Player/Workstation for Linux
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Newer version of VMWare Player handles the VLAN trunking a lot better.  Having that said, we can use a single interface on the VM.  So, you need to ensure that your VM host is plugged into a physical trunk port with VLAN 1,2 and 3 as the allowed VLAN.
-
-IMPORTANT: We tested most with VMWare Player for Linux. We cannot support VMWare Fusion anymore, there are some issues when we need to do routing through Mac OS X VLAN interfaces.
-
 
 Virtual Machine passwords
 -------------------------
@@ -224,6 +212,33 @@ You'll be able to login to the PacketFence web administration interface with the
 
 Services status will help you monitor if everything goes as expected. If not, you'll see which service is in trouble and the log output will help you determine the problem that occurs.
 
+Configuring the DHCP OMAPI (optional)
++++++++++++++++++++++++++++++++++++++
+
+In order to speed up the IP address lease lookup, you can configure the DHCP OMAPI so that queries for IP and MAC associations are made faster.
+
+First, execute the following commnand in an SSH session.
+
+----
+# dd if=/dev/urandom bs=16 count=1 2>/dev/null | openssl enc -e -base64
+----
+
+This should produce an output similar to this :
+
+----
+m4NMkOKc9IxfWk8cL2fP4g==
+----
+
+Now paste the output in the Administration interface under 'Configuration/OMAPI/OMAPI base64 key' and save.
+
+image::docs/images/omapi-config.png[scaledwidth="100%",alt="Network integration diagram"]
+
+Now restart the dhcpd service using the following command in an SSH session.
+
+----
+# /usr/local/pf/bin/pfcmd service dhcpd restart
+----
+
 
 PacketFence configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -268,12 +283,6 @@ Roles:
    Radius:
    Secret Passphrase: useStrongerSecret
    
-SNMP:
-
-   SNMP Version: 2c
-   SNMP Read Community: ciscoRead
-   SNMP Write Community: ciscoWrite
-
 Click Save to add the switch
 
 The newly added switch should shows up in the list.
