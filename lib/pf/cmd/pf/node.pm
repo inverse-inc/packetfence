@@ -45,6 +45,8 @@ sub action_view {
 
 =head2 action_add
 
+handles command pfcmd node add
+
 =cut
 
 sub action_add {
@@ -53,8 +55,8 @@ sub action_add {
     if (node_exist($mac)) {
         return 1;
     }
-    node_add($mac,%{$self->{params}});
-    return 0;
+    my ($result) = node_add($mac,%{$self->{params}});
+    return $result == 1 ? 0 : 1;
 }
 
 =head2 parse_add
