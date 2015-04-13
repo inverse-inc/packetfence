@@ -1150,7 +1150,7 @@ Add your user's entries at the end of the `/usr/local/pf/raddb/users` file with 
   username Cleartext-Password := "password"
 
 Option 3: EAP authentication against OpenLDAP
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To authenticate 802.1x connection against OpenLDAP you need to define the ldap connection in `/usr/local/pf/raddb/modules/ldap` and
 be sure that the userpassword is define as a NTHASH or as cleartext.
