@@ -22,6 +22,7 @@ use fingerbank::Model::User_Agent;
 use fingerbank::Query;
 
 use pf::api::jsonrpcclient;
+use pf::error qw(is_error);
 use pf::CHI;
 use pf::log;
 use pf::node qw(node_modify);
@@ -117,6 +118,7 @@ sub _trigger_violations {
                 my $trigger_query;
                 $trigger_query->{'mac'} = $mac_oui;
                 my ( $status, $result ) = "fingerbank::Model::$trigger_type"->find([$trigger_query, { columns => ['id'] }]);
+                next if is_error($status);
                 $trigger_data = $result->id;
             }
 
@@ -125,6 +127,7 @@ sub _trigger_violations {
                 my $trigger_query;
                 $trigger_query->{'value'} = $query_args->{lc($trigger_type)};
                 my ( $status, $result ) = "fingerbank::Model::$trigger_type"->find([$trigger_query, { columns => ['id'] }]);
+                next if is_error($status);
                 $trigger_data = $result->id;
             }
         }
