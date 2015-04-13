@@ -41,6 +41,7 @@ use pf::radius::constants;
 use List::Util qw(first);
 use Time::HiRes;
 use pf::util::statsd qw(called);
+use pf::vlan::filter;
 
 our $VERSION = 1.03;
 
@@ -154,8 +155,13 @@ sub authorize {
         $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
     }
 
+    # Vlan Filter
+    my $filter = new pf::vlan::filter;
+    my $node_info = node_attributes($mac);
+    my ($result,$role) = $filter->test('IsPhone',$switch, $port, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     # determine if we need to perform automatic registration
-    my $isPhone = $switch->isPhoneAtIfIndex($mac, $port);
+    # either the switch detects that this is a phone or we take the result from the vlan filters
+    my $isPhone = $switch->isPhoneAtIfIndex($mac, $port) || ($result != 0);
 
     my $vlan_obj = new pf::vlan::custom();
     my $autoreg = 0;

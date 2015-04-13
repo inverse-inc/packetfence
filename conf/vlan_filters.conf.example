@@ -1,6 +1,7 @@
 # Vlan filter configuration
 # 
-# you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegister, InlineVlan, NodeInfoForAutoReg)
+# you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegister, InlineVlan, NodeInfoForAutoReg, IsPhone)
+# CAUTION: The IsPhone scope is only available on RADIUS based switches
 #
 # Make a simple rule like this:
 #
@@ -38,6 +39,18 @@
 # [2:2&3&4]
 # scope = NormalVlan
 # role = nointernet
+#
+# This will autoregister any device beginning by a set of known Avaya MAC address OUI and consider it as phone
+#
+# [avaya_phones]
+# filter = node_info
+# operator = match
+# attribute = mac
+# value = ^(00:04:0d|84:83:71|00:07:3b|00:09:6e|00:0d:18|00:0d:28|00:1b:4f|24:d9:21|2c:f4:c5|34:75:c7|3c:b1:5b|70:38:ee|b4:b0:17).*
+#
+# [autoreg:avaya_phones]
+# scope = IsPhone
+# role = default
 #
 # It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is 
 # the default one and the ssid is OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday,
