@@ -1190,8 +1190,31 @@ Sending Access-Request of id 74 to 127.0.0.1 port 18120
 rad_recv: Access-Accept packet from host 127.0.0.1:18120, id=74, length=20
 ----
 
-Debug
-^^^^^
+Debugging
+---------
+
+Log files
+~~~~~~~~~
+
+Here are the most important PacketFence log files:
+
+[options="compact"]
+* `/usr/local/pf/logs/packetfence.log` — PacketFence Core Log
+* `/usr/local/pf/logs/httpd.portal.access` — Apache – Captive Portal Access Log
+* `/usr/local/pf/logs/httpd.portal.error` — Apache – Captive Portal Error Log
+* `/usr/local/pf/logs/httpd.admin.access` — Apache – Web Admin/Services Access Log
+* `/usr/local/pf/logs/httpd.admin.error` — Apache – Web Admin/Services Error Log
+* `/usr/local/pf/logs/httpd.webservices.access` — Apache – Webservices Access Log
+* `/usr/local/pf/logs/httpd.webservices.error` — Apache – Webservices Error Log
+* `/usr/local/pf/logs/httpd.aaa.access` — Apache – AAA Access Log
+* `/usr/local/pf/logs/httpd.aaa.error` — Apache – AAA Error Log
+
+There are other log files in `/usr/local/pf/logs/` that could be relevant depending on what issue you are experiencing. Make sure you take a look at them.
+
+The logging system's configuration file is `/usr/local/pf/conf/log.conf`. It contains the configuration for the `packetfence.log` file (`Log::Log4Perl`) and you normally don't need to modify it.
+
+RADIUS Debugging
+~~~~~~~~~~~~~~~~
 
 First, check the FreeRADIUS logs. The file is located at `/usr/local/pf/logs/radius.log`.
 
@@ -1213,25 +1236,6 @@ Now you can run `raddebug` easily:
 
 The above will output FreeRADIUS' debug logs for 5 minutes. See `man raddebug` for all the options.
 
-Log files
-~~~~~~~~~
-
-Here are the most important PacketFence log files:
-
-[options="compact"]
-* `/usr/local/pf/logs/packetfence.log` — PacketFence Core Log
-* `/usr/local/pf/logs/httpd.portal.access` — Apache – Captive Portal Access Log
-* `/usr/local/pf/logs/httpd.portal.error` — Apache – Captive Portal Error Log
-* `/usr/local/pf/logs/httpd.admin.access` — Apache – Web Admin/Services Access Log
-* `/usr/local/pf/logs/httpd.admin.error` — Apache – Web Admin/Services Error Log
-* `/usr/local/pf/logs/httpd.webservices.access` — Apache – Webservices Access Log
-* `/usr/local/pf/logs/httpd.webservices.error` — Apache – Webservices Error Log
-* `/usr/local/pf/logs/httpd.aaa.access` — Apache – AAA Access Log
-* `/usr/local/pf/logs/httpd.aaa.error` — Apache – AAA Error Log
-
-There are other log files in `/usr/local/pf/logs/` that could be relevant depending on what issue you are experiencing. Make sure you take a look at them.
-
-The logging system's configuration file is `/usr/local/pf/conf/log.conf`. It contains the configuration for the `packetfence.log` file (`Log::Log4Perl`) and you normally don't need to modify it.
 
 More on VoIP Integration
 ------------------------
@@ -1281,6 +1285,299 @@ In order to make this scenario work with PacketFence, you need to ensure that yo
 
 Advanced topics
 ---------------
+
+Apple and Android Wireless Provisioning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Apple devices such as iPhones, iPads, iPods and Mac OS X (10.7+) support wireless profile importation using a special XML file format (mobileconfig). Android is also able to support this feature by importing the wireless profile with the Android PacketFence Agent. In fact, installing such file on your Apple device will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to ease the configuration steps on the mobile device (because it is often painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator's preference and we pre-populate the file with the user's credentials (without the password). The user simply needs to install its generated file and he will be able to use the new SSID.
+
+Configure the feature
+^^^^^^^^^^^^^^^^^^^^^
+
+First of all, you need to configure the SSID that your devices will use after they go though the authentication process.
+
+In order to do that, in the administration interface, go in 'Configuration/Provisioners'. Then select the 'android' provisioner. Enter the SSID and save.
+
+Now do the same thing for the ios provisioner.
+
+After, you simply need to add the 'android' and 'ios' provisioners to your 'Portal Profile' configuration as shown in this screenshot.
+
+image::docs/images/add-mobileconfig-provisioners.png[scaledwidth="100%",alt="Portal profile, mobile config provisioners"]
+
+For Android, you must allow passthroughs in your configuration like this:
+
+  [trapping]
+  passthrough=enabled
+  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com
+
+Profile generation
+^^^^^^^^^^^^^^^^^^
+
+Upon registration, instead of showing the default release page, the user will be showing another version of the page saying that the wireless profile has been generated with a clickable link on it. To install the profile, Apple user owner simply need to click on that link, and follow the instructions on their device. Android user owner simply click to the link and will be forwarded to Google Play to install PacketFence agent. Simply launch the application and click to configure will create the secure SSID profile. It is that simple.
+
+Billing Engine
+~~~~~~~~~~~~~~
+
+PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personnal information as well as it's credit card information.
+
+At this moment there is only one payment gateway built into PacketFence: Authorize.net.
+
+The configuration to use the feature is fairly simple. The general configuration to enable / disable the billing engine can be done through the Web administration GUI (*Configuration -> Portal Profiles and Pages*) or from the `conf/profiles.conf` file:
+
+  [default]
+  billing_engine = enabled
+  ...
+
+Billing engine parameters are specified in `conf/pf.conf` or from *Configuration -> Billing*:
+
+  [billing]
+  gateway = authorize_net
+  authorizenet_posturl = The payment gateway processing URL
+  authorizenet_login = The merchant's unique API Login ID
+  authorizenet_trankey = The merchant's unique Transaction Key
+
+It is also possible to configure multiple network access with different prices.
+For example, you may want to provide basic Internet access with a decent speed at a specific price and another package with high speed connection at another price.
+
+CAUTION: The use of different billing tiers requires different roles in PacketFence. Make sure to create these roles first otherwise you will run into problems.
+
+To do so, some customizations is needed to the billing module. You'll need to redefined the `getAvailableTiers` method in the `lib/pf/billing/custom.pm` file. An example is already in place in the file.
+
+To assign a role by tiers (example: slow, medium and fast), edit the file `lib/pf/billing/custom.pm`
+
+    my %tiers = (
+            tier1 => {
+                id => "tier1",
+                name => "Tier 1",
+                price => "1.00",
+                timeout => "7D",
+                usage_duration => '1D',
+                category => '',
+                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org" 
+            },
+    );
+
+*id* is used as the item value of the billing table.
+
+*name* is the name of the tier used on billing.html.
+
+*price* is amount charged on the credit card.
+
+*timeout* is used to compute the unregistration date of the node.
+
+*usage_duration* is the amount of non-contignuous access time for the node, set as the time_balance value of the node table.
+
+*category* is the role in which to put the node.
+
+*description will* appear on the billing.html.
+
+*destination_url* is the url that the device will be redirected after a successful authentication.
+
+Devices Registration
+~~~~~~~~~~~~~~~~~~~~
+
+Users have the possibility to register their devices (Microsoft XBOX/XBOX360, Nintendo DS/Wii, Sony PlayStation and so on) right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the device MAC address that will then be matched against a predefined list of authorized MAC OUI. The device will be registered with the user's id and can be assigned into a specific category for easier management.
+
+Here's how to configure the whole thing.
+The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/device-registration
+This URL is accessible from within the network, in any VLAN that can reach the PacketFence server.
+
+The following can be configured by editing the pf.conf file:
+
+   [registration]
+   device_registration = enabled
+   device_registration_role = gaming
+
+Make sure the role exists in PacketFence otherwise you will encounter registration errors. Moreover, make sure the role mapping for your particular equipment is done.
+
+These parameters can also be configured from the *Configuration -> Registration* section.
+
+Eduroam
+~~~~~~~
+
+[quote,eduroam, https://www.eduroam.org/]
+_____________________
+
+eduroam (education roaming) is the secure, world-wide roaming access service developed for the international research and education community.
+
+eduroam allows students, researchers and staff from participating institutions to obtain Internet connectivity across campus and when visiting other participating institutions by simply opening their laptop.
+_____________________
+
+
+PacketFence supports integration with eduroam and allows participating institutions to authenticate both locally visiting users from other institutions as well as allowing other institutions to authenticate local users.
+
+
+In order for PacketFence to allow eduroam authentication, the FreeRADIUS configuration of PacketFence must be modified to allow the eduroam servers to connect to it as clients as well as to proxy RADIUS authentication requests for users from outside institutions. 
+
+
+First, modify the /usr/local/pf/raddb/clients.conf file to allow the eduroam servers to connect to your PacketFence server. Add the eduroam servers as clients and make sure to add the proper RADIUS secret. Set a shortname to refer to these clients as you will later need it to exclude them from some parts of the PacketFence configuration.
+
+clients.conf example:
+----
+client tlrs1.eduroam.us {
+        secret = useStrongerSecret
+        shortname = tlrs1
+}
+
+client tlrs2.eduroam.us {
+        secret = useStrongerSecret
+        shortname = tlrs2
+}
+----
+
+
+
+
+
+Secondly, modify the list of domains and proxy servers in /usr/local/pf/raddb/proxy.conf. You will need to define each of your domains as well as the DEFAULT domain. The DEFAULT realm will apply to any client that attempts to authenticate with a realm that is not otherwise defined in proxy.conf and will be proxied to the eduroam servers.
+
+Define one or more home servers (servers to which eduroam requests should be proxied).
+
+proxy.conf example:
+
+    home_server tlrs1.eduroam.us {
+            type = auth
+            ipaddr = 257.128.1.1
+            port = 1812
+            secret = useStrongerSecret
+            require_message_authenticator = yes
+    }
+
+Define a pool of servers to group your eduroam home servers together.
+
+proxy.conf example:
+
+    home_server_pool eduroam {
+            type = fail-over
+            home_server = tlrs1.eduroam.us
+            home_server = tlrs2.eduroam.us
+    }
+
+Define realms to select which requests should be proxied to the eduroam server pool.
+There should be one realm for each of your domains, and possibly one more per domain if 
+you intend to allow usernames of the DOMAIN\user form. 
+
+The REALM is set based on the domain found by the suffix or ntdomain modules 
+( see raddb/modules/realm ).
+The suffix or ntdomain modules try to find a domain either with an @domain or suffix\username.
+
+* If none is found, the REALM is NULL.
+* If a domain is found, FreeRADIUS tries to match one of the REALMS defined in this file.
+* If the domain is either example.edu or EXAMPLE FreeRADIUS sets the corresponding REALM,
+i.e. example.edu or EXAMPLE. 
+* If the REALM does not match either (and it isn't NULL), that means there was a domain
+other than EXAMPLE or example.edu and we assume it is meant to be proxied to eduroam.
+FreeRADIUS sets the DEFAULT realm (which is proxied to the eduroam authentication pool).
+
+The REALM determines where the request is sent to. If the REALM authenticates locally
+the requests are processed entirely by FreeRADIUS. If the REALM sets a different 
+home server pool, the requests are proxied to the servers defined within that pool. 
+
+proxy.conf example:
+----
+# This realm is for requests which don't have an explicit realm
+# prefix or suffix.  User names like "bob" will match this one.
+# No authentication server is defined, thus the authentication is 
+# done locally.
+realm NULL {
+}
+
+# This realm is for ntdomain users who might use the domain like 
+# this "EXAMPLE\username".
+# No authentication server is defined, thus the authentication is 
+# done locally.
+realm EXAMPLE {
+}
+
+# This realm is for suffix users who use the domain like this: 
+# "username@example.edu".
+# No authentication server is defined, thus the authentication is 
+# done locally.
+realm example.edu {
+}
+
+# This realm is for ALL OTHER requests. Meaning in this context, 
+# eduroam. The auth_pool is set to the eduroam pool and so the 
+# requests will be proxied.
+realm DEFAULT {
+    auth_pool  = eduroam
+    nostrip
+}
+----
+
+Thirdly, you must configure the packetfence FreeRADIUS virtual servers to treat the requests properly.
+
+In /usr/local/pf/raddb/sites-enabled/packetfence, modify the authorize section like this:
+
+raddb/sites-enabled/packetfence example:
+----
+authorize {
+        # pay attention to the order of the modules. It matters.
+        ntdomain
+        suffix
+        preprocess
+        
+        # uncomment this section if you want to block eduroam users from 
+        # you other SSIDs. The attribute name ( Called-Station-Id ) may 
+        # differ based on your controller
+        #if ( Called-Station-Id !~ /eduroam$/i) {
+        #    update control {
+        #        Proxy-To-Realm := local
+        #    }
+        #}
+        
+        eap {
+                ok = return
+        }
+        
+        
+        files
+        expiration
+        logintime
+        packetfence
+}
+----
+
+In /usr/local/pf/raddb/sites-enabled/packetfence-tunnel, modify the post-auth section like this.
+If you omit this change the request will be sent to PacketFence where it will be failed since the
+eduroam servers are not part of your configured switches.
+
+raddb/sites-enabled/packetfence-tunnel example:
+----
+post-auth {
+        exec
+        
+        # we skip packetfence when the request is coming from the eduroam servers
+        if ( "%{client:shortname}" != "tlrs1" && \
+             "%{client:shortname}" != "tlrs2"    ) {
+                packetfence
+        }
+        
+        Post-Auth-Type REJECT {
+                attr_filter.access_reject
+        }
+}
+----
+
+
+Finally, make sure that the realms module is configured this way ( see /usr/local/pf/raddb/modules/realm ): 
+
+raddb/modules/realm example:
+----
+# 'username@realm'
+realm suffix {
+        format = suffix
+        delimiter = "@"
+}
+
+#  'domain\user'
+realm ntdomain {
+        format = prefix
+        delimiter = "\\"
+        ignore_null = yes 
+}
+----
+
 
 Floating Network Devices
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1342,6 +1639,89 @@ pvid::
 taggedVlan::
   Comma separated list of VLANs. If the port is a multi-vlan, these are the Vlans that have to be tagged on the port.
 
+OAuth2 Authentication
+~~~~~~~~~~~~~~~~~~~~~
+
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live or Github account.
+
+For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
+This list is available in each OAuth2 authentication source.
+
+In order to have oauth2 working properly, you need to enable IP forwarding on your servers. To do it permanently, look in the `/etc/sysctl.conf`, and set the following line:
+
+  # Controls IP packet forwarding
+  net.ipv4.ip_forward = 1
+
+Save the file, and issue a `sysctl -p` to update the OS config.
+
+You must also enable the passthrough option in your PacketFence configuration (trapping.passthrough in pf.conf).
+
+Google
+^^^^^^
+In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URI for the "Redirect URI"
+field : https://YOUR_PORTAL_HOSTNAME/oauth2/google.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
+
+Also, add the following Authorized domains : *.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
+
+Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add Google as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+
+Facebook
+^^^^^^^^
+To use Facebook, you also need an API code and a secret key.  To get one, go here: https://developers.facebook.com/apps.  When you create your App, make sure you specify the following as the Website URL:
+https://YOUR_PORTAL_HOSTNAME/oauth2/facebook
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+You can keep the default configuration, modify the App ID & App Secret (Given by FaceBook on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
+
+Also, add the following Authorized domains : *.facebook.com, *.fbcdn.net, *.akamaihd.net (May change)
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add Facebook as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+
+CAUTION: By allowing OAuth through Facebook, you will give Facebook access to the users while they are sitting in the registration VLAN.
+
+GitHub
+^^^^^^
+To use GitHub, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications.  When you create your App, make sure you specify the following as the Callback URL
+https://YOUR_PORTAL_HOSTNAME/oauth2/github
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add GitHub as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+
+LinkedIn
+^^^^^^^^
+To use LinkedIn, you also need an API code and a secret key.  To get one, you need to create an App here: https://developer.linkedin.com/.  When you create your App, make sure you specify the following as the Callback URL
+https://YOUR_PORTAL_HOSTNAME/oauth2/linkedin
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add LinkedIn as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+
+Also, LinkedIn requires a 'state' parameter for the authorization URL. If you modify it, make sure to add it at the end of your URL.
+
+Windows Live
+^^^^^^^^^^^^
+To use Windows live, you also need an API code and a secret key.  To get one, you need to create an App here: https://account.live.com/developers/applications.  When you create your App, make sure you specify the following as the Callback URL
+https://YOUR_PORTAL_HOSTNAME/oauth2/windowslive
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add WindowsLive as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+
+
 Passthrough
 ~~~~~~~~~~~
 
@@ -1358,6 +1738,34 @@ Add a new FQDN (should be a wildcard domain like *.google.com) in the Passthroug
 Add a new FQDN (should be a wildcard domain like *.google.com) in the Proxy Passthroughs section. For this FQDN, PacketFence will answer the IP address of the captive portal and when a device hits the captive portal, PacketFence will detect that this FQDN has a passthrough configuration and will forward the traffic to mod_proxy.
 
 These two methods can be used together but DNS-based passthroughs have higher priority.
+
+Portal Profiles
+~~~~~~~~~~~~~~~
+
+In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, the switch IP/MAC or the URI the client connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
+
+When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to the "default" portal profile).
+
+Here are the different configuration parameters that can be set for each portal profiles. The only mandatory parameter is "filter", otherwise, PacketFence won't be able to correctly apply the portal profile. The parameters must be set in conf/profiles.conf:
+
+  [profilename1]
+  description = the description of your portal profile
+  filter = the name of the SSID for which you'd like to apply the profile, or the VLAN number
+  billing_engine = either enabled or disabled
+  sources = comma-separated list of authentications sources (IDs) to use
+
+Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
+
+* Filters under *Configuration -> Portal Profile -> Portal Name -> Fitlers*
+
+PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI and VLAN.
+
+Example with the most common ones:
+
+* SSID: Guest-SSID
+* VLAN: 100
+
+CAUTION: Node role will take effect only with a 802.1x connection or if you use VLAN filters.
 
 Proxy Interception
 ~~~~~~~~~~~~~~~~~~
@@ -1475,6 +1883,156 @@ If your edge switches support 'vlan-isolation' you can also apply the ACL
 there.  This has the advantage of preventing machines in isolation from
 attempting to attack each other.
 
+Statement of Health (SoH)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Statement of Health (SoH) is product that has been developed by Microsoft. In the Microsoft world, this is named Network Access Protection or NAP. On Windows versions from XP SP2 to Windows 7, there is a NAP service installed that can relay health information (Anti-Virus update status, Windows Update status, etc) to a RADIUS Server or a DHCP server. The section below explains you how to do SoH policies with PacketFence.
+ 
+Installation
+^^^^^^^^^^^^
+
+By default, we turn SoH off. To enable its support, simply uncomment the following lines in `/usr/local/pf/conf/radiusd/eap.conf`.
+
+  soh=yes
+  soh-virtual-server = "soh-server"
+
+Restart the RADIUS service afterward.
+
+On the client side, to enable SoH for EAP, do the following (Windows 7 example):
+
+----
+sc config napagent start=auto
+sc start napagent
+
+:: Wired 802.1X
+sc config dot3svc start=auto depend=napagent
+sc start dot3svc
+
+netsh nap client show config
+
+:: get the "ID" value for the "EAP Quarantine Enforcement Client"
+netsh nap client set enforce id=$ID admin=enable
+----
+
+The last step is to select the "Enforce Network Access Protection" checkbox under the EAP profile settings. Those steps can be easily configured using GPOs.
+
+Configuration of SoH policy
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In order to enforce a SoH policy, we need to create it first. This is done using the *Configuration -> Compliance -> Statement of Health* module.
+
+Policy example
+^^^^^^^^^^^^^^
+
+Let's walk through an example situation. Suppose you want to display a remediation page to clients that do not have an anti-virus enabled.
+
+The three broad steps are: create a violation class for the condition, then create an SoH filter to trigger the violation when "anti-virus is disabled", and finally, reload the violations.
+
+First, create the proper violation either via the Admin UI, or by editing the `conf/violations.conf` files:
+
+  [4000001]
+  desc=No anti-virus enabled
+  url=/remediation.php?template=noantivirus
+  actions=trap,email,log
+  enabled=Y
+
+NOTE: You may also want to set other attributes such as auto_enable, grace, etc.
+
+When done with the violation, visit the Web Administration under *Configuration -> Compliance -> Statement of Health* and (edit the filter named *Default*, or) use the *Add a filter* button to create a filter named *antivirus*. Click on *antivirus* in the filter list, and select *Trigger violation* in the action drop-down. Enter the vid of the violation you created above in the input box that appears.
+
+Next, click on *Add a condition*, and select *Anti-virus*, *is*, and *disabled* in the drop-down boxes that appear. Click on the *Save filters* button. Finally, reload the violations either by restarting PacketFence or using the `pfcmd reload violations` command.
+
+The last step is to create a new remediation template called `noantivirus.php` on the filesystem in the `html/captive-portal/violations` folder. Edit it to include the text you want to display to the users.
+
+VLAN Filter Definition
+~~~~~~~~~~~~~~~~~~~~~~
+
+We added the ability to specify filters directly in the portion of code that re-evaluates the VLAN or do a call to the API. 
+
+These rules are available in different scopes:
+
+  ViolationVlan
+  RegistrationVlan
+  NormalVlan
+  InlineVlan
+  AutoRegister
+  NodeInfoForAutoReg
+
+And can be defined using different criteria like:
+
+  node_info
+  switch
+  ifIndex
+  mac
+  connection_type
+  username
+  ssid
+  time
+  owner
+  radius_request
+
+For example, lets define a rule that prevents a device from connecting when its category is the "default", when the SSID is "SECURE" and when the current time is between 11am and 2pm:
+from Monday to Friday when it try to connect as a registered device :
+
+  [category]
+  filter = node_info
+  attribute = category
+  operator = is
+  value = default
+
+  [ssid]
+  filter = ssid
+  operator = is
+  value = SECURE
+
+  [time]
+  filter = time
+  operator = is
+  value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
+
+  [1:category&ssid&time]
+  scope = NormalVlan
+  role = nointernet
+
+The second example will create a violation if the SSID is OPEN and the owner is igmout
+
+  [igmout]
+  filter = owner
+  operator = is
+  value = igmout
+
+  [open]
+  filter = ssid
+  operator = is
+  value = OPEN
+
+  [2:igmout&ssid]
+  scope = NormalVlan
+  action = trigger_violation
+  action_param = mac = $mac, tid = 1100012, type = INTERNAL
+
+The third example will autoregister the device and assign the role staff to each device where the username is igmout.
+
+  [igmout]
+  filter = username
+  operator = is
+  value = igmout
+
+  [secure]
+  filter = ssid
+  operator = is
+  value = SECURE
+
+  [3:igmout&secure]
+  scope = AutoRegister
+  role = staff
+
+  [4:igmout&secure]
+  scope = NodeInfoForAutoReg
+  role = staff
+
+
+You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
 
 Optional components
 -------------------
@@ -1907,577 +2465,6 @@ Finally, it is advised that you read the whole guest self-registration section s
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
-Statement of Health (SoH)
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The Statement of Health (SoH) is product that has been developed by Microsoft. In the Microsoft world, this is named Network Access Protection or NAP. On Windows versions from XP SP2 to Windows 7, there is a NAP service installed that can relay health information (Anti-Virus update status, Windows Update status, etc) to a RADIUS Server or a DHCP server. The section below explains you how to do SoH policies with PacketFence.
- 
-Installation
-^^^^^^^^^^^^
-
-By default, we turn SoH off. To enable its support, simply uncomment the following lines in `/usr/local/pf/conf/radiusd/eap.conf`.
-
-  soh=yes
-  soh-virtual-server = "soh-server"
-
-Restart the RADIUS service afterward.
-
-On the client side, to enable SoH for EAP, do the following (Windows 7 example):
-
-----
-sc config napagent start=auto
-sc start napagent
-
-:: Wired 802.1X
-sc config dot3svc start=auto depend=napagent
-sc start dot3svc
-
-netsh nap client show config
-
-:: get the "ID" value for the "EAP Quarantine Enforcement Client"
-netsh nap client set enforce id=$ID admin=enable
-----
-
-The last step is to select the "Enforce Network Access Protection" checkbox under the EAP profile settings. Those steps can be easily configured using GPOs.
-
-Configuration of SoH policy
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In order to enforce a SoH policy, we need to create it first. This is done using the *Configuration -> Compliance -> Statement of Health* module.
-
-Policy example
-^^^^^^^^^^^^^^
-
-Let's walk through an example situation. Suppose you want to display a remediation page to clients that do not have an anti-virus enabled.
-
-The three broad steps are: create a violation class for the condition, then create an SoH filter to trigger the violation when "anti-virus is disabled", and finally, reload the violations.
-
-First, create the proper violation either via the Admin UI, or by editing the `conf/violations.conf` files:
-
-  [4000001]
-  desc=No anti-virus enabled
-  url=/remediation.php?template=noantivirus
-  actions=trap,email,log
-  enabled=Y
-
-NOTE: You may also want to set other attributes such as auto_enable, grace, etc.
-
-When done with the violation, visit the Web Administration under *Configuration -> Compliance -> Statement of Health* and (edit the filter named *Default*, or) use the *Add a filter* button to create a filter named *antivirus*. Click on *antivirus* in the filter list, and select *Trigger violation* in the action drop-down. Enter the vid of the violation you created above in the input box that appears.
-
-Next, click on *Add a condition*, and select *Anti-virus*, *is*, and *disabled* in the drop-down boxes that appear. Click on the *Save filters* button. Finally, reload the violations either by restarting PacketFence or using the `pfcmd reload violations` command.
-
-The last step is to create a new remediation template called `noantivirus.php` on the filesystem in the `html/captive-portal/violations` folder. Edit it to include the text you want to display to the users.
-
-Apple and Android Wireless Provisioning
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Apple devices such as iPhones, iPads, iPods and Mac OS X (10.7+) support wireless profile importation using a special XML file format (mobileconfig). Android is also able to support this feature by importing the wireless profile with the Android PacketFence Agent. In fact, installing such file on your Apple device will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to ease the configuration steps on the mobile device (because it is often painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator's preference and we pre-populate the file with the user's credentials (without the password). The user simply needs to install its generated file and he will be able to use the new SSID.
-
-Configure the feature
-^^^^^^^^^^^^^^^^^^^^^
-
-First of all, you need to configure the SSID that your devices will use after they go though the authentication process.
-
-In order to do that, in the administration interface, go in 'Configuration/Provisioners'. Then select the 'android' provisioner. Enter the SSID and save.
-
-Now do the same thing for the ios provisioner.
-
-After, you simply need to add the 'android' and 'ios' provisioners to your 'Portal Profile' configuration as shown in this screenshot.
-
-image::docs/images/add-mobileconfig-provisioners.png[scaledwidth="100%",alt="Portal profile, mobile config provisioners"]
-
-For Android, you must allow passthroughs in your configuration like this:
-
-  [trapping]
-  passthrough=enabled
-  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com
-
-Profile generation
-^^^^^^^^^^^^^^^^^^
-
-Upon registration, instead of showing the default release page, the user will be showing another version of the page saying that the wireless profile has been generated with a clickable link on it. To install the profile, Apple user owner simply need to click on that link, and follow the instructions on their device. Android user owner simply click to the link and will be forwarded to Google Play to install PacketFence agent. Simply launch the application and click to configure will create the secure SSID profile. It is that simple.
-
-SNMP Traps Limit
-~~~~~~~~~~~~~~~~
-
-PacketFence mainly rely on SNMP traps to communicate with equipment. Due to the fact that traps coming in from approved (configured) devices are all processed by the daemon, it is possible for someone who want to generate a certain load on the PacketFence server to force the generation of non-legitimate SNMP traps or a switch can randomly generate a high quantity of traps sent to PacketFence for an unknown reason.
-
-Because of that, it is possible to limit the number of SNMP traps coming in from a single switch port and take action if that limit is reached. For example, if over 100 traps are received by PacketFence from the same switch port in a minute, the switch port will be shut and a notification email will be sent.
-
-Here's the default config for the SNMP traps limit feature. As you can see, by default, PacketFence will log the abnormal activity after 100 traps from the same switch port in a minute. These configurations are in the `conf/pf.conf` file:
-
-  [vlan]
-  trap_limit = enabled
-  trap_limit_threshold = 100
-  trap_limit_action = 
-
-Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the *Configuration -> SNMP* section.
-
-
-Billing Engine
-~~~~~~~~~~~~~~
-
-PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personnal information as well as it's credit card information.
-
-At this moment there is only one payment gateway built into PacketFence: Authorize.net.
-
-The configuration to use the feature is fairly simple. The general configuration to enable / disable the billing engine can be done through the Web administration GUI (*Configuration -> Portal Profiles and Pages*) or from the `conf/profiles.conf` file:
-
-  [default]
-  billing_engine = enabled
-  ...
-
-Billing engine parameters are specified in `conf/pf.conf` or from *Configuration -> Billing*:
-
-  [billing]
-  gateway = authorize_net
-  authorizenet_posturl = The payment gateway processing URL
-  authorizenet_login = The merchant's unique API Login ID
-  authorizenet_trankey = The merchant's unique Transaction Key
-
-It is also possible to configure multiple network access with different prices.
-For example, you may want to provide basic Internet access with a decent speed at a specific price and another package with high speed connection at another price.
-
-CAUTION: The use of different billing tiers requires different roles in PacketFence. Make sure to create these roles first otherwise you will run into problems.
-
-To do so, some customizations is needed to the billing module. You'll need to redefined the `getAvailableTiers` method in the `lib/pf/billing/custom.pm` file. An example is already in place in the file.
-
-To assign a role by tiers (example: slow, medium and fast), edit the file `lib/pf/billing/custom.pm`
-
-    my %tiers = (
-            tier1 => {
-                id => "tier1",
-                name => "Tier 1",
-                price => "1.00",
-                timeout => "7D",
-                usage_duration => '1D',
-                category => '',
-                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org" 
-            },
-    );
-
-*id* is used as the item value of the billing table.
-
-*name* is the name of the tier used on billing.html.
-
-*price* is amount charged on the credit card.
-
-*timeout* is used to compute the unregistration date of the node.
-
-*usage_duration* is the amount of non-contignuous access time for the node, set as the time_balance value of the node table.
-
-*category* is the role in which to put the node.
-
-*description will* appear on the billing.html.
-
-*destination_url* is the url that the device will be redirected after a successful authentication.
-
-Portal Profiles
-~~~~~~~~~~~~~~~
-
-In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, the switch IP/MAC or the URI the client connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
-
-When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to the "default" portal profile).
-
-Here are the different configuration parameters that can be set for each portal profiles. The only mandatory parameter is "filter", otherwise, PacketFence won't be able to correctly apply the portal profile. The parameters must be set in conf/profiles.conf:
-
-  [profilename1]
-  description = the description of your portal profile
-  filter = the name of the SSID for which you'd like to apply the profile, or the VLAN number
-  billing_engine = either enabled or disabled
-  sources = comma-separated list of authentications sources (IDs) to use
-
-Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
-
-* Filters under *Configuration -> Portal Profile -> Portal Name -> Fitlers*
-
-PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI and VLAN.
-
-Example with the most common ones:
-
-* SSID: Guest-SSID
-* VLAN: 100
-
-CAUTION: Node role will take effect only with a 802.1x connection or if you use VLAN filters.
-
-OAuth2 Authentication
-~~~~~~~~~~~~~~~~~~~~~
-
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live or Github account.
-
-For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
-This list is available in each OAuth2 authentication source.
-
-In order to have oauth2 working properly, you need to enable IP forwarding on your servers. To do it permanently, look in the `/etc/sysctl.conf`, and set the following line:
-
-  # Controls IP packet forwarding
-  net.ipv4.ip_forward = 1
-
-Save the file, and issue a `sysctl -p` to update the OS config.
-
-You must also enable the passthrough option in your PacketFence configuration (trapping.passthrough in pf.conf).
-
-Google
-^^^^^^
-In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URI for the "Redirect URI"
-field : https://YOUR_PORTAL_HOSTNAME/oauth2/google.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
-
-You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
-
-Also, add the following Authorized domains : *.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
-
-Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from *Configuration -> Sources*.
-
-Moreover, don't forget to add Google as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
-
-Facebook
-^^^^^^^^
-To use Facebook, you also need an API code and a secret key.  To get one, go here: https://developers.facebook.com/apps.  When you create your App, make sure you specify the following as the Website URL:
-https://YOUR_PORTAL_HOSTNAME/oauth2/facebook
-
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
-
-You can keep the default configuration, modify the App ID & App Secret (Given by FaceBook on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
-
-Also, add the following Authorized domains : *.facebook.com, *.fbcdn.net, *.akamaihd.net (May change)
-
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from *Configuration -> Sources*.
-
-Moreover, don't forget to add Facebook as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
-
-CAUTION: By allowing OAuth through Facebook, you will give Facebook access to the users while they are sitting in the registration VLAN.
-
-GitHub
-^^^^^^
-To use GitHub, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications.  When you create your App, make sure you specify the following as the Callback URL
-https://YOUR_PORTAL_HOSTNAME/oauth2/github
-
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
-
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
-
-Moreover, don't forget to add GitHub as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
-
-LinkedIn
-^^^^^^^^
-To use LinkedIn, you also need an API code and a secret key.  To get one, you need to create an App here: https://developer.linkedin.com/.  When you create your App, make sure you specify the following as the Callback URL
-https://YOUR_PORTAL_HOSTNAME/oauth2/linkedin
-
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
-
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from *Configuration -> Sources*.
-
-Moreover, don't forget to add LinkedIn as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
-
-Also, LinkedIn requires a 'state' parameter for the authorization URL. If you modify it, make sure to add it at the end of your URL.
-
-Windows Live
-^^^^^^^^^^^^
-To use Windows live, you also need an API code and a secret key.  To get one, you need to create an App here: https://account.live.com/developers/applications.  When you create your App, make sure you specify the following as the Callback URL
-https://YOUR_PORTAL_HOSTNAME/oauth2/windowslive
-
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
-
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Sources*.
-
-Moreover, don't forget to add WindowsLive as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
-
-
-Devices Registration
-~~~~~~~~~~~~~~~~~~~~
-
-Users have the possibility to register their devices (Microsoft XBOX/XBOX360, Nintendo DS/Wii, Sony PlayStation and so on) right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the device MAC address that will then be matched against a predefined list of authorized MAC OUI. The device will be registered with the user's id and can be assigned into a specific category for easier management.
-
-Here's how to configure the whole thing.
-The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/device-registration
-This URL is accessible from within the network, in any VLAN that can reach the PacketFence server.
-
-The following can be configured by editing the pf.conf file:
-
-   [registration]
-   device_registration = enabled
-   device_registration_role = gaming
-
-Make sure the role exists in PacketFence otherwise you will encounter registration errors. Moreover, make sure the role mapping for your particular equipment is done.
-
-These parameters can also be configured from the *Configuration -> Registration* section.
-
-Eduroam
-~~~~~~~
-
-[quote,eduroam, https://www.eduroam.org/]
-_____________________
-
-eduroam (education roaming) is the secure, world-wide roaming access service developed for the international research and education community.
-
-eduroam allows students, researchers and staff from participating institutions to obtain Internet connectivity across campus and when visiting other participating institutions by simply opening their laptop.
-_____________________
-
-
-PacketFence supports integration with eduroam and allows participating institutions to authenticate both locally visiting users from other institutions as well as allowing other institutions to authenticate local users.
-
-
-In order for PacketFence to allow eduroam authentication, the FreeRADIUS configuration of PacketFence must be modified to allow the eduroam servers to connect to it as clients as well as to proxy RADIUS authentication requests for users from outside institutions. 
-
-
-First, modify the /usr/local/pf/raddb/clients.conf file to allow the eduroam servers to connect to your PacketFence server. Add the eduroam servers as clients and make sure to add the proper RADIUS secret. Set a shortname to refer to these clients as you will later need it to exclude them from some parts of the PacketFence configuration.
-
-clients.conf example:
-----
-client tlrs1.eduroam.us {
-        secret = useStrongerSecret
-        shortname = tlrs1
-}
-
-client tlrs2.eduroam.us {
-        secret = useStrongerSecret
-        shortname = tlrs2
-}
-----
-
-
-
-
-
-Secondly, modify the list of domains and proxy servers in /usr/local/pf/raddb/proxy.conf. You will need to define each of your domains as well as the DEFAULT domain. The DEFAULT realm will apply to any client that attempts to authenticate with a realm that is not otherwise defined in proxy.conf and will be proxied to the eduroam servers.
-
-Define one or more home servers (servers to which eduroam requests should be proxied).
-
-proxy.conf example:
-
-    home_server tlrs1.eduroam.us {
-            type = auth
-            ipaddr = 257.128.1.1
-            port = 1812
-            secret = useStrongerSecret
-            require_message_authenticator = yes
-    }
-
-Define a pool of servers to group your eduroam home servers together.
-
-proxy.conf example:
-
-    home_server_pool eduroam {
-            type = fail-over
-            home_server = tlrs1.eduroam.us
-            home_server = tlrs2.eduroam.us
-    }
-
-Define realms to select which requests should be proxied to the eduroam server pool.
-There should be one realm for each of your domains, and possibly one more per domain if 
-you intend to allow usernames of the DOMAIN\user form. 
-
-The REALM is set based on the domain found by the suffix or ntdomain modules 
-( see raddb/modules/realm ).
-The suffix or ntdomain modules try to find a domain either with an @domain or suffix\username.
-
-* If none is found, the REALM is NULL.
-* If a domain is found, FreeRADIUS tries to match one of the REALMS defined in this file.
-* If the domain is either example.edu or EXAMPLE FreeRADIUS sets the corresponding REALM,
-i.e. example.edu or EXAMPLE. 
-* If the REALM does not match either (and it isn't NULL), that means there was a domain
-other than EXAMPLE or example.edu and we assume it is meant to be proxied to eduroam.
-FreeRADIUS sets the DEFAULT realm (which is proxied to the eduroam authentication pool).
-
-The REALM determines where the request is sent to. If the REALM authenticates locally
-the requests are processed entirely by FreeRADIUS. If the REALM sets a different 
-home server pool, the requests are proxied to the servers defined within that pool. 
-
-proxy.conf example:
-----
-# This realm is for requests which don't have an explicit realm
-# prefix or suffix.  User names like "bob" will match this one.
-# No authentication server is defined, thus the authentication is 
-# done locally.
-realm NULL {
-}
-
-# This realm is for ntdomain users who might use the domain like 
-# this "EXAMPLE\username".
-# No authentication server is defined, thus the authentication is 
-# done locally.
-realm EXAMPLE {
-}
-
-# This realm is for suffix users who use the domain like this: 
-# "username@example.edu".
-# No authentication server is defined, thus the authentication is 
-# done locally.
-realm example.edu {
-}
-
-# This realm is for ALL OTHER requests. Meaning in this context, 
-# eduroam. The auth_pool is set to the eduroam pool and so the 
-# requests will be proxied.
-realm DEFAULT {
-    auth_pool  = eduroam
-    nostrip
-}
-----
-
-Thirdly, you must configure the packetfence FreeRADIUS virtual servers to treat the requests properly.
-
-In /usr/local/pf/raddb/sites-enabled/packetfence, modify the authorize section like this:
-
-raddb/sites-enabled/packetfence example:
-----
-authorize {
-        # pay attention to the order of the modules. It matters.
-        ntdomain
-        suffix
-        preprocess
-        
-        # uncomment this section if you want to block eduroam users from 
-        # you other SSIDs. The attribute name ( Called-Station-Id ) may 
-        # differ based on your controller
-        #if ( Called-Station-Id !~ /eduroam$/i) {
-        #    update control {
-        #        Proxy-To-Realm := local
-        #    }
-        #}
-        
-        eap {
-                ok = return
-        }
-        
-        
-        files
-        expiration
-        logintime
-        packetfence
-}
-----
-
-In /usr/local/pf/raddb/sites-enabled/packetfence-tunnel, modify the post-auth section like this.
-If you omit this change the request will be sent to PacketFence where it will be failed since the
-eduroam servers are not part of your configured switches.
-
-raddb/sites-enabled/packetfence-tunnel example:
-----
-post-auth {
-        exec
-        
-        # we skip packetfence when the request is coming from the eduroam servers
-        if ( "%{client:shortname}" != "tlrs1" && \
-             "%{client:shortname}" != "tlrs2"    ) {
-                packetfence
-        }
-        
-        Post-Auth-Type REJECT {
-                attr_filter.access_reject
-        }
-}
-----
-
-
-Finally, make sure that the realms module is configured this way ( see /usr/local/pf/raddb/modules/realm ): 
-
-raddb/modules/realm example:
-----
-# 'username@realm'
-realm suffix {
-        format = suffix
-        delimiter = "@"
-}
-
-#  'domain\user'
-realm ntdomain {
-        format = prefix
-        delimiter = "\\"
-        ignore_null = yes 
-}
-----
-
-VLAN Filter Definition
-~~~~~~~~~~~~~~~~~~~~~~
-
-We added the ability to specify filters directly in the portion of code that re-evaluates the VLAN or do a call to the API. 
-
-These rules are available in different scopes:
-
-  ViolationVlan
-  RegistrationVlan
-  NormalVlan
-  InlineVlan
-  AutoRegister
-  NodeInfoForAutoReg
-
-And can be defined using different criteria like:
-
-  node_info
-  switch
-  ifIndex
-  mac
-  connection_type
-  username
-  ssid
-  time
-  owner
-  radius_request
-
-For example, lets define a rule that prevents a device from connecting when its category is the "default", when the SSID is "SECURE" and when the current time is between 11am and 2pm:
-from Monday to Friday when it try to connect as a registered device :
-
-  [category]
-  filter = node_info
-  attribute = category
-  operator = is
-  value = default
-
-  [ssid]
-  filter = ssid
-  operator = is
-  value = SECURE
-
-  [time]
-  filter = time
-  operator = is
-  value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
-
-  [1:category&ssid&time]
-  scope = NormalVlan
-  role = nointernet
-
-The second example will create a violation if the SSID is OPEN and the owner is igmout
-
-  [igmout]
-  filter = owner
-  operator = is
-  value = igmout
-
-  [open]
-  filter = ssid
-  operator = is
-  value = OPEN
-
-  [2:igmout&ssid]
-  scope = NormalVlan
-  action = trigger_violation
-  action_param = mac = $mac, tid = 1100012, type = INTERNAL
-
-The third example will autoregister the device and assign the role staff to each device where the username is igmout.
-
-  [igmout]
-  filter = username
-  operator = is
-  value = igmout
-
-  [secure]
-  filter = ssid
-  operator = is
-  value = SECURE
-
-  [3:igmout&secure]
-  scope = AutoRegister
-  role = staff
-
-  [4:igmout&secure]
-  scope = NodeInfoForAutoReg
-  role = staff
-
-
-You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
-
 ActiveDirectory Integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2764,6 +2751,22 @@ PacketFence can generate a lot of log entries in huge production environments. T
 
 Performance optimization
 ------------------------
+
+SNMP Traps Limit
+~~~~~~~~~~~~~~~~
+
+PacketFence mainly rely on SNMP traps to communicate with equipment. Due to the fact that traps coming in from approved (configured) devices are all processed by the daemon, it is possible for someone who want to generate a certain load on the PacketFence server to force the generation of non-legitimate SNMP traps or a switch can randomly generate a high quantity of traps sent to PacketFence for an unknown reason.
+
+Because of that, it is possible to limit the number of SNMP traps coming in from a single switch port and take action if that limit is reached. For example, if over 100 traps are received by PacketFence from the same switch port in a minute, the switch port will be shut and a notification email will be sent.
+
+Here's the default config for the SNMP traps limit feature. As you can see, by default, PacketFence will log the abnormal activity after 100 traps from the same switch port in a minute. These configurations are in the `conf/pf.conf` file:
+
+  [vlan]
+  trap_limit = enabled
+  trap_limit_threshold = 100
+  trap_limit_action = 
+
+Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the *Configuration -> SNMP* section.
 
 MySQL optimizations
 ~~~~~~~~~~~~~~~~~~~
