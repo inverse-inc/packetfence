@@ -28,22 +28,7 @@ The latest version of this guide is available online at http://www.packetfence.o
 Other sources of information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Network Devices Configuration Guide::
-  Covers switch, controllers and access points configuration.
-Developers Guide::
-  Covers captive portal customization, VLAN management customization and 
-  instructions for supporting new hardware.
-`CREDITS`::
-  This is, at least, a partial file of PacketFence contributors.
-`NEWS.asciidoc`::
-  Covers noteworthy features, improvements and bugfixes by release. 
-`UPGRADE.asciidoc`::
-  Covers compatibility related changes, manual instructions and general notes 
-  about upgrading. 
-`ChangeLog`::
-  Covers all changes to the source code.
-
-These files are included in the package and release tarballs.
+We suggest that you also have a look in the PacketFence Administration Guide, and in the PacketFence Network Devices Configuration Guide. Both are available online at http://www.packetfence.org/documentation/guides.html
 
 Getting Started
 ---------------
