@@ -136,40 +136,19 @@ sub make_builder {
                 },
                 {
                     'table' => 'iplog',
-                    'join' => 'LEFT',
-                    'on' =>
+                    'join'  => 'LEFT',
+                    'on'    =>
                     [
                         [
                             {
-                                'table'  => 'iplog',
-                                'name'   => 'mac',
+                                'table' => 'iplog',
+                                'name'  => 'ip',
                             },
                             '=',
-                            {
-                                'table'  => 'node',
-                                'name'   => 'mac',
-                            }
-                        ],
-                     [ 'AND' ],
-                     [ '(' ],
-                        [
-                            {
-                                'table'  => 'iplog',
-                                'name'   => 'end_time',
-                            },
-                            '=',
-                            '0000-00-00 00:00:00',
-                         ],
-                     [ 'OR' ],
-                        [
-                            {
-                                'table'  => 'iplog',
-                                'name'   => 'end_time',
-                            },
-                            '>',
-                            L_('NOW()'),
-                         ],
-                     [ ')' ],
+                            \"( SELECT `ip` FROM `iplog` WHERE `mac` = `node`.`mac`
+                                AND ( `iplog`.`end_time` = '0000-00-00 00:00:00' OR `iplog`.`end_time` > NOW() )
+                                        ORDER BY `start_time` DESC LIMIT 1 )"
+                        ]
                     ],
                 },
         );
