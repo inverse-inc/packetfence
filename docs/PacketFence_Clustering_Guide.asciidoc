@@ -455,8 +455,11 @@ Make sure at least /usr/local/pf/conf/cluster.conf was replicated to the other s
 
 Now restart packetfence on each cluster server keeping the new node as the last one to be restarted.
 
+Advanced configuration
+----------------------
+
 Removing a server from the cluster
-----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 NOTE: Removing a server from the cluster requires a restart of the PacketFence service on all nodes.
 
@@ -475,8 +478,10 @@ Once you have removed the configuration, you need to reload it and synchronize i
 
 Now restart PacketFence on all the servers so that the removed node is not part of the clustering configuration.
 
-Resynchronizing the configuration
----------------------------------
+Resynchronizing the configuration manually
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you did a manual change in a configuration file, an additionnal step is now needed.
 
 In order to be sure the configuration is properly synched on all nodes, you will need to enter this command on the previously selected master node.
 
@@ -485,9 +490,9 @@ In order to be sure the configuration is properly synched on all nodes, you will
 ----
 
 Adding files to the synchronization
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In the event that you do modifications to non-synchronized files like Switch modules, files in raddb/, etc, you can add those files to be synchronized when using /usr/local/pf/bin/cluster/sync.
+In the event that you do modifications to non-synchronized files like switch modules, files in raddb/, etc, you can add those files to be synchronized when using /usr/local/pf/bin/cluster/sync.
 
 On one of the nodes, create /usr/local/pf/conf/cluster-files.txt
 
@@ -500,6 +505,42 @@ Example :
 /usr/local/pf/raddb/modules/mschap
 ----
 
+haproxy dashboard
+~~~~~~~~~~~~~~~~~
 
+You have the possibility to configure the haproxy dashboard which will give you statistics about the current state of your cluster.
+
+In order to active it uncomment the following lines from /usr/local/pf/conf/haproxy.conf
+
+----
+listen stats %%active_active_ip%%:1025
+  mode http
+  timeout connect 10s
+  timeout client 1m
+  timeout server 1m
+  stats enable
+  stats uri /stats
+  stats realm HAProxy\ Statistics
+  stats auth admin:packetfence
+----
+
+NOTE: We strongly advise you change the username and password to something else than admin/packetfence although access to this dashboard doesn't compromise the server.
+
+Next, uncomment the following line from /usr/local/pf/conf/iptables.conf
+
+CAUTION: If you're upgrading from a version prior to 5.0, the line may not be there. Add it close to the other management rules
+
+----
+-A input-management-if --protocol tcp --match tcp --dport 1025 --jump ACCEPT
+----
+
+Now restart haproxy and iptables in order to complete the configuration
+
+----
+# /usr/local/pf/bin/pfcmd service haproxy restart
+# /usr/local/pf/bin/pfcmd service iptables restart
+----
+
+You should now be able to connect to the dashboard on the following URL : http://pf.local:1025/stats
 
 
