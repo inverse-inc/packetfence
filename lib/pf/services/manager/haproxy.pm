@@ -51,7 +51,6 @@ sub generateConfig {
          $tags{'os_path'} = '/usr/share/haproxy/';
     }
     my @ints = uniq(@listen_ints,@dhcplistener_ints);
-    my $j = 0;
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
@@ -72,6 +71,34 @@ EOT
                 }
             $i++;
             }
+            my $cluster_ip = pf::cluster::cluster_ip($interface);
+            my @backend_ip = values %{pf::cluster::members_ips($interface)};
+            my $backend_ip_config = '';
+            foreach my $back_ip ( @backend_ip ) {
+
+                $backend_ip_config .= <<"EOT";
+        server $back_ip $back_ip:80 check
+EOT
+            }
+
+            $tags{'http'} .= <<"EOT";
+frontend portal-http-mgmt
+        bind $cluster_ip:80
+        reqadd X-Forwarded-Proto:\\ http
+        default_backend portal-mgmt-backend
+
+frontend portal-https-mgmt
+        bind $cluster_ip:443 ssl crt /usr/local/pf/conf/ssl/server.pem
+        reqadd X-Forwarded-Proto:\\ https
+        default_backend portal-mgmt-backend
+
+backend portal-mgmt-backend
+        balance leastconn
+        option httpclose
+        option forwardfor
+$backend_ip_config
+
+EOT
         }
         if ($cfg->{'type'} eq 'internal') {
             my $cluster_ip = pf::cluster::cluster_ip($interface);
@@ -80,23 +107,22 @@ EOT
             foreach my $back_ip ( @backend_ip ) {
 
                 $backend_ip_config .= <<"EOT";
-        server pf$i $back_ip:80 check
+        server $back_ip $back_ip:80 check
 EOT
-                $i++;
             }
  
             $tags{'http'} .= <<"EOT";
-frontend http-$j
+frontend portal-http-$cluster_ip
         bind $cluster_ip:80
         reqadd X-Forwarded-Proto:\\ http
-        default_backend $j-backend
+        default_backend $cluster_ip-backend
 
-frontend https-$j
+frontend portal-https-$cluster_ip
         bind $cluster_ip:443 ssl crt /usr/local/pf/conf/ssl/server.pem
         reqadd X-Forwarded-Proto:\\ https
-        default_backend $j-backend
+        default_backend $cluster_ip-backend
 
-backend $j-backend
+backend $cluster_ip-backend
         balance leastconn
         option httpclose
         option forwardfor
@@ -104,7 +130,6 @@ $backend_ip_config
 
 EOT
 
-            $j++;
         }
     }
 
