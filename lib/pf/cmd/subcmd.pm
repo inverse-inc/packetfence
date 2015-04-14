@@ -55,12 +55,13 @@ sub parseArgs {
                 $self->{help_msg} = "unknown command $action\n$@\n";
             }
             $cmd = $self->unknownActionCmd;
+        } else {
+            $self->{subcmd_args} = \@args;
         }
     } else {
         $cmd = $self->noActionCmd;
     }
     $self->{subcmd} = $cmd;
-    $self->{subcmd_args} = \@args;
     return 1;
 }
 
