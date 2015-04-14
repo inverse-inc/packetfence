@@ -122,7 +122,7 @@ The first and most important step of the configuration process. This is where yo
 
 The choice(s) made on this step will influence the next step where you'll need to configure the different networks.
 
-In this guide we will show you how to configure the VLAN (out-of-band) mode. If you want to configure the INLINE (in-band) mode please refer to the guide PacketFence Inline Deployment Quick Guide using ZEN.
+In this guide we will show you how to configure the VLAN (out-of-band) mode. If you want to configure the INLINE (in-band) mode please refer to include::docs/PacketFence_Inline_Deployment_Quick_Guide_using_ZEN.asciidoc[]
 
 Step 2: Networks
 ++++++++++++++++
@@ -157,7 +157,7 @@ Isolation
     IP Address: 192.168.3.1
     Netmask: 255.255.255.0
 
-NOTE: Ignore the High-Availability options for now. If you are interested in a PacketFence cluster, please refer to the include::includes/PacketFence_Clustering_Guide.asciidoc[]
+NOTE: Ignore the High-Availability options for now. If you are interested in a PacketFence cluster, please refer to the include::docs/PacketFence_Clustering_Guide.asciidoc[]
 
 Don't forget to also edit the physical interface with the correct management network information by clicking on the network interface name (eth0).
 
@@ -421,7 +421,7 @@ PacketFence Web Admin Interface
 PacketFence provides a web admin interface. Go to https://DHCP_RECEIVED_IP:1443
 
 * User: admin
-* Password: password that you created
+* Password: Step 5 of the configurator
 
 include::includes/additional-info.asciidoc[]
 
