@@ -190,6 +190,8 @@ Make sure that those 2 interfaces are in an Enabled state for the persistance to
 
 We also need to set the Default Gateway which will generally be the gateway of the management network.
 
+If you have a routed network that need to be take into account by PacketFence as an Inline subnet, you will need to add this via `Routed Network` and select Inline L3. PacketFence will be the DHCP server for this routed network.
+
 Once everything's set, click Continue to proceed with the next step.
 
 Step 3: Database Configuration
