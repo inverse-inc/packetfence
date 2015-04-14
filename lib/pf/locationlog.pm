@@ -252,7 +252,7 @@ sub locationlog_db_prepare {
         qq [ UPDATE locationlog SET session_id=? WHERE mac=? AND (ISNULL(end_time) or end_time = 0) ]);
 
     $locationlog_statements->{'locationlog_get_session_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, switch, switch_ip, switch_mac, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm, session_id from locationlog WHERE mac=? AND (ISNULL(end_time) or end_time = 0)  order by start_time desc]);
+        qq [ SELECT mac, switch, switch_ip, switch_mac, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm, session_id from locationlog WHERE session_id=? AND (ISNULL(end_time) or end_time = 0)  order by start_time desc]);
 
     $locationlog_db_prepared = 1;
 }
@@ -599,8 +599,8 @@ sub _is_locationlog_accurate {
 }
 
 sub locationlog_get_session {
-    my ( $mac ) = @_;
-    my @entries = db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_get_session_sql', $mac );
+    my ( $session_id ) = @_;
+    my @entries = db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_get_session_sql', $session_id );
     return $entries[0];
 }
 
