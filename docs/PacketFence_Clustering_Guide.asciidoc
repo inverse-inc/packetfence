@@ -335,6 +335,14 @@ Make sure you restart MySQL, packetfence-config and packetfence
   # service packetfence-config restart
   # service packetfence restart
 
+Next, you need to remove the empty users from your MySQL database
+
+----
+# mysql
+mysql> delete from mysql.user where user = '' ;
+mysql> flush privileges;
+----
+
 Step 3 : Create a new cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
