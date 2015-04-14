@@ -1,0 +1,20 @@
+[% title = i18n("Captive-Portal Options") %]
+
+[% INCLUDE header.html %]
+
+<div id="about">
+    <h1>[% title %]</h1>
+
+    <p>It looks like you are trying to access a captive-portal resource but we're quite unsure which one.</p>
+
+    <h2>You are a user ?</h2>
+    <ul>
+        <li>You may want to visit the <a href="/status">status page</a>.</li>
+        <li>You may try to reach the <a href="/device-registration">device registration page</a>.</li>
+    </ul>
+
+    <h2>You are an administrator ?</h2>
+    <p>You are probably trying to reach the <a href="https://[% management_ip %]:1443/admin">administration interface</a> which was not that far!</p>
+</div>
+
+[% INCLUDE footer.html %]

@@ -339,9 +339,19 @@ sub unknownState : Private {
 
     my $server_addr = $c->request->{env}->{SERVER_ADDR};
     my $management_ip = $pf::config::management_network->{'Tvip'} || $pf::config::management_network->{'Tip'};
+
+    # TEMP: 2014.09.17 - dwuelfrath@inverse.ca
+    # Most of the time, this is triggered by a registered user trying to reach the status/device-registration page
+    # but forgot to append /URI
+    # In this case, we redirect the request to a "menu" page for the different options
+    # This is temp since we are not in an unknown state and that should be handled other way
     if( $server_addr eq $management_ip){
-        $logger->error("Hitting unknownState on the management address ($server_addr)");
-        $self->showError($c, "You hit the captive portal on the management interface. The management console is on port 1443.");
+        $logger->info("$mac hitted the captive-portal controller listening on the management interface. Redirecting to menu");
+        $c->stash( 
+            template        => 'menu.html',
+            management_ip   => $management_ip,
+        );
+        $c->detach;
     }
 
     # After 5 requests we won't perform re-eval for 5 minutes
