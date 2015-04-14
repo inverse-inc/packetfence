@@ -74,6 +74,16 @@ sub is_management {
 
 }
 
+=head2 current_server
+
+Returns the cluster config for this server
+
+=cut
+
+sub current_server {
+    return $cluster_servers[cluster_index()];
+}
+
 =head2 cluster_ip
 
 Returns the cluster IP address for an interface

@@ -28,6 +28,7 @@ use pf::api::jsonrpcclient;
 use pf::config::cached;
 use pfconfig::constants;
 use pf::file_paths;
+use pf::cluster;
 
 my ($master_server, $as_master, $api_user, $api_password);
 GetOptions (
@@ -61,7 +62,15 @@ foreach my $store (@tmp_stores){
     push @stores, $store;
 }
 
+my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf");
 
+open(my $fh, '<', '/usr/local/pf/conf/cluster-files.txt') 
+  or print "WARN : Couldn't open the list of additionnal files to sync.";
+while (my $row = <$fh>) {
+    chomp $row;
+    push @files, $row;
+}
+close($fh);
 
 if($as_master){
     print "Synching cluster with this node as the configuration master\n";
@@ -84,14 +93,28 @@ if($as_master){
             print STDERR "Failed to sync store : $store \n";
         }
     }
+
+
+    foreach my $server (@cluster_servers){
+        next if($server->{host} eq $host_id);
+        my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
+        foreach my $file (@files){
+            eval {
+                print "Synching file : $file on $server->{host} \n";
+                my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
+                my ($result) = $apiclient->call( 'distant_download_configfile', %data );
+            };
+            if($@){
+              print STDERR "Failed to sync file : $file . $@\n";
+            }
+        }
+    }
 }
 
 if($master_server){
     print "Synching this server from node $master_server \n";
     
     my $apiclient = pf::api::jsonrpcclient->new(host => $master_server, proto => 'https', username => $api_user, password => $api_password);
-
-    my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf");
 
     foreach my $store (@stores) {
         my $cs = $store->new;

@@ -476,6 +476,22 @@ In order to be sure the configuration is properly synched on all nodes, you will
 # /usr/local/pf/bin/cluster/sync --as-master
 ----
 
+Adding files to the synchronization
+-----------------------------------
+
+In the event that you do modifications to non-synchronized files like Switch modules, files in raddb/, etc, you can add those files to be synchronized when using /usr/local/pf/bin/cluster/sync.
+
+On one of the nodes, create /usr/local/pf/conf/cluster-files.txt
+
+Add the additionnal files one per line in this file. We advise you add this file to the synchronization too.
+
+Example : 
+
+----
+/usr/local/pf/conf/cluster-files.txt
+/usr/local/pf/raddb/modules/mschap
+----
+
 
 
 

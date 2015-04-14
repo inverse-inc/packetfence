@@ -503,6 +503,25 @@ sub download_configfile : Public {
     return $config;
 }
 
+sub distant_download_configfile : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(conf_file from);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    my $file = $postdata{conf_file};
+    my %data = ( conf_file => $file );
+    my $apiclient = pf::api::jsonrpcclient->new(host => $postdata{from}, proto => 'https');
+    my ($result) = $apiclient->call( 'download_configfile', %data );
+    open(my $fh, '>', $file);
+    print $fh $result;
+    close($fh);
+    `chown pf.pf $file`;
+
+    return 1;
+
+}
+
 sub expire_cluster : Public {
     my ($class, %postdata) = @_;
     my @require = qw(namespace conf_file);
