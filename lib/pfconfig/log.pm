@@ -157,7 +157,7 @@ Logs to debug since Log::Fast doesn't have trace
 sub trace {
     my ( $self, $message ) = @_;
     $message .= " (" . whowasi() . ")";
-    $self->{logger}->debug($message);
+    $self->{logger}->trace($message);
 }
 
 sub whowasi { return ( caller(2) )[3] || 'unknown' }
