@@ -50,6 +50,9 @@ doc-clustering-pdf:
 doc-out-of-band-zen:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Out-of-Band_Deployment_Quick_Install_Guide_ZEN.docbook docs/PacketFence_Out-of-Band_Deployment_Quick_Install_Guide_ZEN.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Out-of-Band_Deployment_Quick_Install_Guide_ZEN.docbook  -pdf docs/PacketFence_Out-of-Band_Deployment_Quick_Install_Guide_ZEN.pdf
 
+doc-inline-zen:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Inline_Deployment_Quick_Install_Guide_ZEN.docbook docs/PacketFence_Inline_Deployment_Quick_Install_Guide_ZEN.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Inline_Deployment_Quick_Install_Guide_ZEN.docbook  -pdf docs/PacketFence_Inline_Deployment_Quick_Install_Guide_ZEN.pdf
+
 .PHONY: configurations
 
 configurations:

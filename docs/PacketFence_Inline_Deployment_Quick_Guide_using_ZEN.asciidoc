@@ -1,4 +1,4 @@
-ZEN Administration Guide
+PacketFence Inline Deployement Quick Install Guide ZEN
 ========================
 :encoding: UTF-8
 :lang: en
@@ -41,7 +41,7 @@ This setup has been tested using VMWare ESXi 4.0 & 5.0  with 8GB of RAM dedicate
 Inline
 ~~~~~~
 
-In order to build a Inline setup you need :
+In order to build an Inline setup you need :
 
 * a supported switch (please consult the list of supported switch vendors and types in the _Network Devices Configuration Guide_ including information on uplinks).
 * 2 network interfaces for the VM (1 for the Inline and another one to go out).
@@ -95,7 +95,7 @@ Installation
 Import the virtual machine
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence ZEN 5 comes in a pre-built virtual disk (OVF), or a pre-configured vmx file.  You can import the vmx file in many VMWare desktop products and it will automatically create your VM.  However, if you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).  We are not supporting any Xen-based hypervisors yet.
+PacketFence ZEN {release_version} comes in a pre-built virtual disk (OVF), or a pre-configured vmx file.  You can import the vmx file in many VMWare desktop products and it will automatically create your VM.  However, if you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).  We are not supporting any Xen-based hypervisors yet.
 
 
 Import to ESX
@@ -109,11 +109,11 @@ Your network equipement (switch or access point) will need to be configured in t
 Virtual Machine passwords
 -------------------------
 
-.Management (SSH/Console) and MySQL
+.Management (SSH/Console)
 * Login: root
 * Password: p@ck3tf3nc3
 
-.Captive Portal / 802.1X Registration User
+.Captive Portal Registration User
 * Login: demouser
 * Password: demouser
 
@@ -150,7 +150,7 @@ The choice(s) made on this step will influence the next step where you'll need t
 
 Each enforcement mode has its own required interface types that you'll have to configure on step 2.
 
-In this guide we will show you how to configure the INLINE (in-band) mode. If you want to configure the VLAN (out-of-band) mode please refer to the guide PacketFence Out of Band Deployment Quick Guide using ZEN.
+In this guide we will show you how to configure the INLINE (in-band) mode. If you want to configure the VLAN (out-of-band) mode please refer to the guide includes::docs/PacketFence_Out-of-Band_Deployment_Quick_Install_Guide_ZEN.asciidoc[PacketFence Out of Band Deployment Quick Guide using ZEN].
 
 Step 2: Networks
 ++++++++++++++++
@@ -197,13 +197,15 @@ Step 3: Database Configuration
 ++++++++++++++++++++++++++++++
 This step will configure the MySQL server needed by PacketFence. Database and schema will be created as well as the necessary user for operations. Root account will also be secured if necessary (set a password and disallow remote login).
 
-Since the MySQL installation is pre-built with the username "root" and the password "p@ck3tf3nc3", you can simply enter these in the root account credentials section and click Test.
+Start the MySQLd service if it is not started. Click the MySQL Start button at the top of the web page Warning! MySQL server does not seems to be running. You should start it to avoid any problems. Start MySQL.
 
-Second section will create the database and load the correct schema on it. Simply click 'Create database and tables'.
+Then you will need to create the root password for MySQL database. Click on the Test button and write a complex password (recommended) twice and save. When you are done creating the password, put the new root password and click on Test to validate it. You should see Success! Successfully connected to the database mysql with user root
 
-Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrive it in any case. Once the password entered twice, click Create user.
+Next section will create the database and load the correct schema on it. Simply leave the default database name and click Create databases and tables.
 
-You should have Success beside these three section, click Continue.
+The last section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you’ll be able to retrive it in any case. Once the password entered twice, click Create user.
+
+If you got a Succes! message for this all three sections, click Continue.
 
 Step 4: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
@@ -213,7 +215,7 @@ Almost all of the required information here are self-explanatory. The only one t
 
 Packetfence will use the domain and the hostname to generate the URL to redirect devices on the captive portal. If you have a HTTP certificate use the same hostname and domain n ame to validate the SSL connection on the captive portal.
 
-We also allow you to encrypt password in the database for security reasons. More crypto protocol will be added in the future.
+In the last section, Local Database Passwords, you will have to chose the password encryption for local accounts (guest autmaticaly generated and manualy created account).
 
 Click Continue once all the field are completed.
 
@@ -255,11 +257,13 @@ Exemple with a Cisco switch:
 You might need to create the VLAN 2 first:
 ----
 # enable
-# set vlan 2 name inline_pf
-# show vlan (make sure you have your newly created VLAN)
-----
-----
 # configuration terminal
+# vlan 2
+# name inline
+# end
+----
+You should be in mode '#conf-t' if not execute 'configuration terminal' in your CLI.
+----
 # interface range [port-range]
 # switchport mode access vlan 2
 # no shutdown
@@ -270,12 +274,12 @@ You might need to create the VLAN 2 first:
 # end
 # copy running-configuration startup-configuration
 ----
-Now you can plug PacketFence and all devices that you want to be in the inline network in any of the port you just setup.
+Now you can plug any devices that you want to be in the inline network in any of the port you just setup.
 
 FreeRADIUS
 ~~~~~~~~~~
 
-PacketFence ZEN 5 comes with a pre-configured FreeRADIUS to do Wired and Wireless 802.1X with EAP as well as MAC Authentication.  We created a local user for the 802.1X authentication.
+PacketFence ZEN {release_version} comes with a pre-configured FreeRADIUS to do Wired and Wireless 802.1X with EAP as well as MAC Authentication.  We created a local user for the 802.1X authentication.
 
 Since we do a Inline mode, we will not use radius.
 
