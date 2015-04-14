@@ -483,7 +483,7 @@ The next key steps are important to understand how PacketFence works. In order t
 4. portal profiles - at this point, you are almost ready to test. You will need to set which authentication sources are to be used on the default captive portal, or create an other one to suit your needs
 5. test!
 
-If you plan to use 802.1X - please see the "FreeRADIUS Configuration" section below.
+NOTE: If you plan to use 802.1X - please see the "FreeRADIUS Configuration" section below.
 
 Roles Management
 ~~~~~~~~~~~~~~~~
