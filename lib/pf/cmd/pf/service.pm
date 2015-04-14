@@ -108,39 +108,9 @@ sub _run {
 sub postPfStartService {
     my ($managers) = @_;
     my $count = true {$_->status ne '0'} @$managers;
-    configreload('hard') unless $count;
+    pf::config::configreload(1) unless $count;
 }
 
-sub configreload {
-    require pf::violation_config;
-    require pf::authentication;
-    require pf::admin_roles;
-    require pf::ConfigStore::AdminRoles;
-    require pf::ConfigStore::Authentication;
-    require pf::ConfigStore::FloatingDevice;
-    require pf::ConfigStore::Interface;
-    require pf::ConfigStore::Provisioning;
-    require pf::ConfigStore::Network;
-    require pf::ConfigStore::Pf;
-    require pf::ConfigStore::Profile;
-    require pf::ConfigStore::Switch;
-    require pf::ConfigStore::Violations;
-    require pf::ConfigStore::Wrix;
-    require pf::web::filter;
-    require pf::vlan::filter;
-    pf::config::cached::updateCacheControl();
-    pf::config::cached::ReloadConfigs(1);
-
-    # reload pfconfig's config
-    require pfconfig::manager;
-    my $manager = pfconfig::manager->new;
-    $manager->expire_all;
-
-    # reload violations into DB
-    require pf::violation_config;
-    pf::violation_config::loadViolationsIntoDb();
-
-}
 
 sub startService {
     my ($service,@services) = @_;
