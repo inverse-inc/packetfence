@@ -185,7 +185,7 @@ Next section will create the database and load the correct schema on it. Simply 
 
 The last section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrive it in any case. Once the password entered twice, click Create user.
 
-If you got a 'Succes!' message for this all three sections, click Continue.
+If you got a 'Success!' message for this all three sections, click Continue.
 
 Step 4: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
@@ -195,7 +195,7 @@ Almost all of the required information here are self-explanatory. The only one t
 
 In the last section, Local Database Passwords, you will have to chose the password encryption for local accounts (guest autmaticaly generated and manualy created account) 
 
-Click Continue once all the field are completed.
+Click Continue once all the fields are completed.
 
 Step 5: Administration
 ++++++++++++++++++++++
