@@ -149,7 +149,7 @@ The choice(s) made on this step will influence the next step where you'll need t
 
 Each enforcement mode has its own required interface types that you'll have to configure on step 2.
 
-In this guide we will show you how to configure the INLINE (in-band) mode. If you want to configure the VLAN (out-of-band) mode please refer to the guide includes::docs/PacketFence_Out-of-Band_Deployment_Quick_Install_Guide_ZEN.asciidoc[PacketFence Out of Band Deployment Quick Guide using ZEN].
+In this guide we will show you how to configure the INLINE (in-band) mode. If you want to configure the VLAN (out-of-band) mode please refer to the guide include::docs/PacketFence_Out-of-Band_Deployment_Quick_Install_Guide_ZEN.asciidoc[PacketFence Out of Band Deployment Quick Guide using ZEN].
 
 Step 2: Networks
 ++++++++++++++++
@@ -204,7 +204,7 @@ Next section will create the database and load the correct schema on it. Simply 
 
 The last section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you’ll be able to retrive it in any case. Once the password entered twice, click Create user.
 
-If you got a Succes! message for this all three sections, click Continue.
+If you got a Success! message for this all three sections, click Continue.
 
 Step 4: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
@@ -216,7 +216,7 @@ Packetfence will use the domain and the hostname to generate the URL to redirect
 
 In the last section, Local Database Passwords, you will have to chose the password encryption for local accounts (guest autmaticaly generated and manualy created account).
 
-Click Continue once all the field are completed.
+Click Continue once all the fields are completed.
 
 Step 5: Administration
 ++++++++++++++++++++++
@@ -242,7 +242,7 @@ The main configuration files are :
 * conf/networks.conf : Definition of the registration and isolation networks to build DNS and DHCP configurations.  In our case, we included the registration and isolation networks.
 * conf/switches.conf : Definition of our VLANs and network devices
 
-In standard inline enforcement setup, you should not have to modify anything to make things work. Every modification of the configuration is now done only via the admin interface, we DO NOT advise customers to edit the configuration files.
+In standard inline enforcement setup, you should not have to modify any configuration file to make things work. Every modification of the configuration is now done only via the admin interface, we DO NOT advise customers to edit the configuration files.
 
 Network Devices
 ~~~~~~~~~~~~~~~
