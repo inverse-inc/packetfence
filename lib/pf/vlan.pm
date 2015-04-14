@@ -555,6 +555,7 @@ sub getNodeInfoForAutoReg {
     $options->{'last_vlan'}            = $vlan if (defined($vlan));
     $options->{'last_ssid'}            = $ssid if (defined($ssid));
     $options->{'last_dot1x_username'}  = $user_name if (defined($user_name));
+    $options->{'realm'}                = $realm if (defined($realm));
 
     my $profile = pf::Portal::ProfileFactory->instantiate($mac,$options);
     my $filter = new pf::vlan::filter;

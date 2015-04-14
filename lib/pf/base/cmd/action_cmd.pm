@@ -39,7 +39,7 @@ sub _parseArgs {
 
 sub is_valid_action {
     my ($self,$action) = @_;
-    return $self->can("action_$action");
+    return defined $action ? $self->can("action_$action") : 0;
 }
 
 sub _run {
