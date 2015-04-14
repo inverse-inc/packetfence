@@ -38,7 +38,7 @@ Getting Started
 Virtual Machine
 ~~~~~~~~~~~~~~
 
-This setup has been tested using VMWare ESXi 4.0 & 5.0 with 8192MB RAM dedicated to the virtual machine. It might work using other VMWare products.  You need a CPU that support long mode. *In other words, you need to have a 64-bit capable CPU on your host.*
+This setup has been tested using VMWare ESXi 4.0 & 5.0 with 8GB RAM dedicated to the virtual machine. It might work using other virtualization products.  You need a 64-bit capable CPU on your host.*
 
 VLAN Enforcement
 ~~~~~~~~~~~~~~~
@@ -46,7 +46,7 @@ VLAN Enforcement
 In order to build a VLAN isolation setup you need :
 
 * a supported switch (please consult the list of supported switch vendors and types in the _Network Devices Configuration Guide_ including information on uplinks
-* a regular, registration and isolation VLAN for wireless visitors (VLAN numbers and subnets)
+* a regular, registration and isolation VLAN for visitors (VLAN numbers and subnets)
 * a switch port for the PacketFence (PacketFence) ZEN box which needs to be configured as a dot1q trunk (several VLANs on the port) with VLAN 1 as the native (untagged) VLAN.
 
 Assumptions
@@ -78,9 +78,8 @@ Please refer to the following table for IP and Subnet information :
 DHCP/DNS
 ~~~~~~~ 
 
-* We use a DHCP server on the PacketFence ZEN box which will take care of IP address distribution in VLANs 2 and 3
-* We use a DNS server on the PacketFence ZEN box which will take care of domain resolution in VLANs 2 and 3
-
+* PacketFence provides its own DHCP services. It will take care of IP address distribution in VLANs 2 and 3. PacketFence will not provide DHCP services on VLAN 10 - this is the responsibility of your own infrastructure.
+* PacketFence provides its own DNS service. It will take care of naming resolution in VLANs 2 and 3. PacketFence will not provide DNS services on VLAN 10 - this is the responsibility of your own infrastructure.
 
 Installation
 ------------
@@ -141,8 +140,8 @@ Required interface types for VLAN enforcement:
 
 Note that you can only set ONE (1) management interface.
 
-In our customer scenario, we will create two new vlans on the wired interface (will be eth0 most of the time).
-To do so, click the Add VLAN button besides the wired interface for each of the needed vlan:
+In our example, we will create two new VLANs on the wired interface (will be eth0 most of the time).
+To do so, click the Add VLAN button besides the wired interface for each of the needed VLAN:
 
 Here's a sample configuration for both of them:
 
@@ -158,11 +157,11 @@ Isolation
     IP Address: 192.168.3.1
     Netmask: 255.255.255.0
 
-NOTE: If you don't setup a cluster, don't check High availability field.
+NOTE: Ignore the High-Availability options for now. If you are interested in a PacketFence cluster, please refer to the include::includes/PacketFence_Clustering_Guide.asciidoc[]
 
 Don't forget to also edit the physical interface with the correct management network information by clicking on the network interface name (eth0).
 
-According to our customer scenario, we'll associate the correct type the each interfaces.
+According to our example, we'll associate the correct type the each interfaces.
 
     eth0: Management
     eth0 VLAN 2: Registration
@@ -217,7 +216,7 @@ Configuring the DHCP OMAPI (optional)
 
 In order to speed up the IP address lease lookup, you can configure the DHCP OMAPI so that queries for IP and MAC associations are made faster.
 
-First, execute the following commnand in an SSH session.
+First, execute the following command in an SSH session.
 
 ----
 # dd if=/dev/urandom bs=16 count=1 2>/dev/null | openssl enc -e -base64
@@ -380,8 +379,8 @@ VLAN Access
 * Plug your host's eth0 to the trunk port
 * put one port of the switch in the Registration VLAN
 * put another port in the Isolation VLAN
-* plug a device with a static IP (configured with appropriate subnet) in the Registration VLAN
-* plug a device with a static IP (configured with appropriate subnet) in the Isolation VLAN
+* assign a device with a static IP (configured with appropriate subnet) in the Registration VLAN
+* assign a device with a static IP (configured with appropriate subnet) in the Isolation VLAN
 * make sure the device in VLAN 2 can communicate with PacketFence through (and only through) eth0.2
 * make sure the device in VLAN 2 can not communicate with any device in any other VLAN
 * make sure the device in VLAN 3 can communicate with PacketFence through (and only through) eth0.3
