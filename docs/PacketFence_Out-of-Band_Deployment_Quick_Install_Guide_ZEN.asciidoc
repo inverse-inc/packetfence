@@ -1,5 +1,5 @@
-ZEN Administration Guide
-========================
+PacketFence Out-of-Band Deployment Quick Install Guide ZEN
+==========================================================
 :encoding: UTF-8
 :lang: en
 :doctype: book
