@@ -210,6 +210,8 @@ Configuration changes
 The parameters `trapping.redirecturl` and `trapping.always_use_redirecturl` from `pf.conf` (or `pf.conf.defaults`)
 were moved to the default portal profile in `profiles.conf`.
 
+The parameter `registration.range` has been deprecated. Make sure you remove it from your configuration file.
+
 The action `set_access_level` of authentication sources in `authentication.conf` must now match one of the admin roles
 defined in `adminroles.conf`. The previous level `4294967295` must be replaced by *ALL* and the level `0` by *NONE*.
 
