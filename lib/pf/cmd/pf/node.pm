@@ -137,7 +137,10 @@ parse and validate the arguments for 'pfcmd node add' command
 
 sub parse_add {
     my ($self,$mac,@args) = @_;
-    return unless valid_mac($mac);
+    unless (valid_mac($mac)) {
+        print STDERR "invalid mac $mac";
+        return;
+    }
     $self->{mac} = $mac;
     return $self->_parse_attributes(@args);
 }
@@ -195,6 +198,7 @@ sub action_edit {
     my ($self) = @_;
     my $mac = $self->{mac};
     unless (node_exist($mac)) {
+        print STDERR "node $mac does not exist\n";
         return $EXIT_FAILURE;
     }
     my ($result) = node_modify($mac,%{$self->{params}});
@@ -208,8 +212,8 @@ parse and validate the arguments for 'pfcmd node edit' command
 =cut
 
 sub parse_edit {
-    my ($self) = @_;
-    return $self->parse_add;
+    my ($self,@args) = @_;
+    return $self->parse_add(@args);
 }
 
 =head2 action_delete
