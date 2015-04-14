@@ -14,12 +14,45 @@ PacketFence should now be upgraded.  However, there may be extra steps required 
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Upgrading a version of PacketFence older than 4.1 to v5 will be a complex undertaking.
+While it's entirely possible if done meticulously, we
+suggest you start from scratch and move your customizations and
+nodes information over to your new installation.
+
+Please note that the sections below are cumulative. That is to say, if you are upgrading from version 4.3 to version 5.0 you must apply in order all changes in between the two versions, including database schema changes.
+
+As always, taking a complete backup of your current installation is strongly recommended. 
+A backup should contain a copy of all PacketFence files as well as a copy of the database.
+You can take a backup of the pf directory with the following command:
+  tar -C /usr/local -czf /root/packetfence.tar.gz pf 
+
+A backup of the database can be taken using the procedure described in the next section.
+
+Configuration changes
+^^^^^^^^^^^^^^^^^^^^^
+
+You must manually enter the mysql password of the pf user in the conf/pfconfig.conf file.
+The mysql password is saved in the conf/pf.conf file under the [database] section.
+Copy the following from conf/pf.conf to conf/pfconfig.conf: 
+
+  pass=$YOURPASSWORDHERE
+
 Database schema update
 ^^^^^^^^^^^^^^^^^^^^^^
 
-We added a new 'default' user in local authentication source to prevent modifications to the admin one.
+Before making any changes to your database, ensure that you have a backup.
+A complete database backup can be taken using this command:
+  mysqldump -opt -Bpf -p -u root | gzip > packetfence_db.sql.gz
 
-Make sure you run the following to update your schema:
+If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
+
+
+Multiple changes have been made to the database schema. You will need to update it accordingly.
+Since the 'iplog' table has been significantly modified it is recommended to truncate it prior to updating the schema to prevent a prolonged downtime. To do so, run this command:
+
+  mysql -u root -p -Dpf -e 'truncate table iplog;'
+
+Then make sure you run the following to update your schema:
 
   mysql -u root -p pf -v < db/upgrade-X.X.X-X.Y.Z.sql
 
