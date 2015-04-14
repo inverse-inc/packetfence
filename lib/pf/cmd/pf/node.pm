@@ -15,7 +15,8 @@ examples:
   pfcmd node view all order by pid limit 10,20
   pfcmd node view pid="admin" order by pid desc limit 10,20
   pfcmd node count all
-  pfcmd node add 00:01:02:03:04:05 status="reg",pid="admin"
+  pfcmd node add 00:01:02:03:04:05 status="reg" pid="admin"
+  pfcmd node edit 00:01:02:03:04:05 status="reg"
   pfcmd node delete 00:01:02:03:04:05
 
 =head1 DESCRIPTION
