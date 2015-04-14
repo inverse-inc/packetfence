@@ -164,7 +164,7 @@ The following provides a list of the minimum server hardware recommendations:
 Operating System Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence supports the following operating systems on the i386 or x86_64 architectures: 
+PacketFence supports the following operating systems on the x86_64 architectures: 
 
 [options="compact"]
 * Red Hat Enterprise Linux 6.x Server
@@ -215,12 +215,12 @@ On a Debian or Ubuntu system, do:
   apt-get update
   apt-get upgrade
 
-Regarding SELinux or AppArmor, even if these features may be wanted by some organizations, PacketFence will not run properly if SELinux or AppArmor are enabled. You will need to explicitly disable SELinux in the `/etc/selinux/config` file and AppArmor with *update-rc.d -f apparmor stop*, *update-rc.d -f apparmor teardown* and *update-rc.d -f apparmor remove*.
+Regarding SELinux or AppArmor, even if these features may be wanted by some organizations, PacketFence will not run properly if SELinux or AppArmor are enabled. You will need to explicitly disable SELinux in the `/etc/selinux/config` file and AppArmor with *update-rc.d -f apparmor stop*, *update-rc.d -f apparmor teardown* and *update-rc.d -f apparmor remove*. Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
 
 RedHat-based systems
 ^^^^^^^^^^^^^^^^^^^^
 
-NOTE: Includes CentOS and Scientific Linux. Both i386 and x86_64 architectures supported.
+NOTE: Includes CentOS and Scientific Linux. Only the x86_64 architecture is supported.
 
 RHEL 6.x
 ^^^^^^^^
@@ -551,7 +551,7 @@ Then, we add a rule by clicking on the *Add rule* button and provide the followi
 
 Test the connection and save everything. Using the newly defined source, any username that actually matches in the source (using the sAMAccountName) will have the employee role and an unregistration date set to January 1st, 2020.
 
-Now, since we want to authenticate guests from PacketFence's internal SQL database, accounts must be provisionned manually. You can do so from the *Configuration -> Users -> Create* section. When creating guests, specify "guest" for the *Set role* action, and set an access duration for 1 day.
+Now, since we want to authenticate guests from PacketFence's internal SQL database, accounts must be provisionned manually. You can do so from the *Users -> Create* section. When creating guests, specify "guest" for the *Set role* action, and set an access duration for 1 day.
 
 If you would like to differentiate user authentication and machine authentication using Active Directory, one way to do it is by creating a second authentication sources, for machines:
 
@@ -757,12 +757,12 @@ CAUTION: Node role will take effect only with a 802.1x connection or if you use 
 
 PacketFence relies extensively on Apache for its captive portal, administrative interface and Web services. The PacketFence´s Apache configuration are located in `/usr/local/pf/conf/httpd.conf.d/`.
 
-In this directory you have three important files: `httpd.admin`, `httpd.portal`, `httpd.webservice`, `httpd.aaa`.
+In this directory you have three important files: `httpd.admin`, `httpd.portal`, `httpd.webservices`, `httpd.aaa`.
 
 * `httpd.admin` is used to manage PacketFence admin interface
 * `httpd.portal` is used to manage PacketFence captive portal interface
 * `httpd.webservices` is used to manage PacketFence webservices interface
-* `httpd.aaa` is use to manage incoming radius request
+* `httpd.aaa` is use to manage incoming RADIUS request
 
 These files have been written using the Perl language and are completely dynamic - so they activate services only on the network interfaces provided for this purpose.
 
@@ -1009,7 +1009,7 @@ phone number and the PIN code.
 
 Note that this option doesn't currently work with the 'Reuse dot1x credentials' option of the captive portal.
 
-In `/usr/local/pf/raddb/sites-available/packetfence-tunnel` there is an example on how to configure radius to enable this feature (uncomment to make it work).
+In `/usr/local/pf/raddb/sites-available/packetfence-tunnel` there is an example on how to configure RADIUS to enable this feature (uncomment to make it work).
 
 In this example we activate this feature on a specific SSID name (Secure-Wireless), disabled by default NTLM Auth,
 test email credential (pfguest), test sponsor (pfsponsor) and test sms (pfsms). If all failled then we reactivate NTLM Auth.
@@ -1048,6 +1048,9 @@ authorize {
 #            }
 #        }
 ----
+
+NOTE: For this feature to work, the users' passwords must be stored in cleartext in the database.
+
 
 Option 5: EAP Local user Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2181,28 +2184,6 @@ Using Nessus:
   registration=enabled
   user=nessusUsername
 
-Of course the basic-policy must exist on the nessus server.
-If you want to use a different nessus policy by category, you have to adjust settings like the following:
-
-  [nessus_category_policy]
-  guest=guest_policy
-  wifi=wifi_policy
-
-A node who is register like a guest will be scanned by the guest_policy , etc ...
-
-You can also use a different nessus policy based on the dhcp fingerprint, you have to adjust settings like the following:
-
-  [nessus_scan_by_fingerprint]
-  Android=Android
-  Mac OS X=MACOSX
-  Microsoft Windows=Windows
-  iPhone=IOS
-
-A node with a fingerprint contain Android will be scanned by the Android policy, etc ...
-
-Note if there is no policy based on dhcp fingerprint then PacketFence will try to use policy based on category and if it
-does not exist then PacketFence will use the default policy defined by nessus_clientpolicy.
-
 Using OpenVAS:
 
   [scan]
@@ -2443,8 +2424,8 @@ Get-EventLog -LogName Security -InstanceId 4726 |
    Select ReplacementStrings,"Account name"|
    % {
     $url = "https://@IP_PACKETFENCE:9090/"
-    $username = "admin" # Username for the webservice
-    $password = "admin" # Password for the webservice
+    $username = "admin" # Username for the webservices
+    $password = "admin" # Password for the webservices
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
     $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
 
@@ -2518,8 +2499,8 @@ Get-EventLog -LogName Security -InstanceId 4725 |
    Select ReplacementStrings,"Account name"|
    % {
     $url = "https://@IP_PACKETFENCE:9090/"
-    $username = "admin" # Username for the webservice
-    $password = "admin" # Password for the webservice
+    $username = "admin" # Username for the webservices
+    $password = "admin" # Password for the webservices
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
     $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
 
@@ -2645,9 +2626,6 @@ CentOS 6 and 7 servers
 
 For CentOS 6
 ----
-# for i386
-# wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/i386/RPMS/udp-reflector-1.0-6.1.i686.rpm
-
 # for x86_64
 # wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
