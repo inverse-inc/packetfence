@@ -24,7 +24,6 @@ The instructions are based on version {release_version} of PacketFence.
 
 The latest version of this guide is available online at http://www.packetfence.org/documentation/guides.html
 
-
 Other sources of information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
