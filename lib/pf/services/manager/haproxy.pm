@@ -93,7 +93,7 @@ frontend portal-https-mgmt
         default_backend portal-mgmt-backend
 
 backend portal-mgmt-backend
-        balance leastconn
+        balance source
         option httpclose
         option forwardfor
 $backend_ip_config
@@ -123,7 +123,7 @@ frontend portal-https-$cluster_ip
         default_backend $cluster_ip-backend
 
 backend $cluster_ip-backend
-        balance leastconn
+        balance source
         option httpclose
         option forwardfor
 $backend_ip_config
