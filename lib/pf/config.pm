@@ -861,6 +861,11 @@ sub configreload {
     # reload violations into DB
     require pf::violation_config;
     pf::violation_config::loadViolationsIntoDb();
+
+    require pf::SwitchFactory;
+    require pf::freeradius;
+    pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig); 
+
     return ;
 }
 
