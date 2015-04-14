@@ -88,8 +88,6 @@ sub external_captive_portal {
         my $locationlog = locationlog_get_session($session);
         my $switch = $locationlog->{switch};
         $switch = pf::SwitchFactory->instantiate($switch);
-        use Data::Dumper;
-        get_logger->warn("REMOTE : ".Dumper($r->headers_in));
         my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
         pf::iplog::open($ip,$locationlog->{mac},3600) if defined ($ip);
         return $session;
