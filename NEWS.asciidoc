@@ -23,8 +23,6 @@ New Features
 * Devices can now have a "bypass role" that allows the administrator to manage them completely manually. This allows for exceptions to the authorization rules.
 * Support for ISC DHCP OMAPI queries. This allows PacketFence to dynamically query a dhcpd instance to establish IP to mac mappings.
 
-
-
 Enhancements
 ++++++++++++
 * Completely rewritten pfcmd command. pfcmd is now much easier to extend and will allow us to integrate more features in the near future.
@@ -36,6 +34,7 @@ Enhancements
 * Added a 'default' default user in replacement of the admin one. 
 * Adds support for HP ProCurve 2920 switches.
 * Iptables will now allow access to the captive portal from the production network by default.
+* Major documentation rewrite and improvements.
 
 Bug Fixes
 +++++++++
