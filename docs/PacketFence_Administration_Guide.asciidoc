@@ -25,9 +25,11 @@ The latest version of this guide is available at http://www.packetfence.org/docu
 Other sources of information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Network Devices Configuration Guide::
+The following documents are included in the package and release tarballs.
+
+_Network Devices Configuration Guide_ (pdf)::
   Covers switch, controllers and access points configuration.
-Developers Guide::
+_Developer's Guide_ (pdf)::
   Covers captive portal customization, VLAN management customization and 
   instructions for supporting new hardware.
 `CREDITS`::
@@ -39,8 +41,6 @@ Developers Guide::
   about upgrading. 
 `ChangeLog`::
   Covers all changes to the source code.
-
-These files are included in the package and release tarballs.
 
 Introduction
 ------------
@@ -111,6 +111,8 @@ VLAN enforcement is pictured in the above diagram. Inline enforcement should be 
 Components
 ~~~~~~~~~~
 
+PacketFence requires various components to work such as a Web server, a database server, and a RADIUS server. It interacts with external tools to extend its functionalities.
+
 image::docs/images/diagram-components.png[scaledwidth="100%",alt="System components overview"]
 
 System Requirements
@@ -170,7 +172,7 @@ PacketFence supports the following operating systems on the x86_64 architectures
 * Red Hat Enterprise Linux 6.x Server
 * Community ENTerprise Operating System (CentOS) 6.x
 * Debian 7.0 (Wheezy)
-* Ubuntu 12.04 LTS
+* Ubuntu 12.04 LTS (Precise Pangolin)
 
 Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
 
@@ -220,12 +222,12 @@ Regarding SELinux or AppArmor, even if these features may be wanted by some orga
 RedHat-based systems
 ^^^^^^^^^^^^^^^^^^^^
 
-NOTE: Includes CentOS and Scientific Linux. Only the x86_64 architecture is supported.
+NOTE: Applies to CentOS and Scientific Linux but only the x86_64 architecture is supported.
 
 RHEL 6.x
 ^^^^^^^^
 
-NOTE: These are extra steps are required for RHEL 6 systems only. Derivatives such as CentOS or Scientific Linux don't need to take the extra steps.
+NOTE: These are extra steps are required for RHEL 6 systems only, excluding derivatives such as CentOS or Scientific Linux.
 
 RedHat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from RedHat you need to enable the optional channel by running the following as root:
 
@@ -423,7 +425,7 @@ This is the most basic setup and it needs a third VLAN: the MAC detection VLAN. 
 
 When a host connects to a switch port, the switch sends a linkUp trap to PacketFence. Since it takes some time before the switch learns the MAC address of the newly connected device, PacketFence immediately puts the port in the MAC detection VLAN in which the device will send DHCP requests (with no answer) in order for the switch to learn its MAC address. Then pfsetvlan will send periodical SNMP queries to the switch until the switch learns the MAC of the device. When the MAC address is known, pfsetvlan checks its status (existing ? registered ? any violations ?) in the database and puts the port in the appropriate VLAN. When a device is unplugged, the switch sends a 'linkDown' trap to PacketFence which puts the port into the MAC detection VLAN.
 
-When a computer boots, the initialization of the NIC generates several link status changes. And every time the switch sends a linkUp and a linkDown trap to PacketFence. Since PacketFence has to act on each of these traps, this generates unfortunately some unnecessary load on pfsetvlan. In order to optimize the trap treatment, PacketFence stops every thread for a 'linkUp trap' when it receives a 'linkDown' trap on the same port. But using only linkUp/linkDown traps is not the most scalable option. For example in case of power failure, if hundreds of computers boot at the same time, PacketFence would receive a lot of traps almost instantly and this could result in network connection latency…
+When a computer boots, the initialization of the NIC generates several link status changes. And every time the switch sends a linkUp and a linkDown trap to PacketFence. Since PacketFence has to act on each of these traps, this generates unfortunately some unnecessary load on pfsetvlan. In order to optimize the trap treatment, PacketFence stops every thread for a 'linkUp trap' when it receives a 'linkDown' trap on the same port. But using only linkUp/linkDown traps is not the most scalable option. For example in case of power failure, if hundreds of computers boot at the same time, PacketFence would receive a lot of traps almost instantly and this could result in network connection latency.
 
 MAC notification traps
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -451,7 +453,7 @@ In previous versions of PacketFence, it was not possible to have RADIUS enabled 
 Device configuration
 ~~~~~~~~~~~~~~~~~~~~
 
-You need to configure inline enforcement mode in PacketFence and configure your switch(es) / access point(s) to use the VLAN assignement techniques (802.1X or MAC-authentication). You also need to take care of a specific parameter in the switch configuration window, "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to define different sort of trigger:
+You need to configure inline enforcement mode in PacketFence and configure your switch(es) / access point(s) to use the VLAN assignement techniques (802.1X or MAC-authentication). You also need to take care of a specific parameter in the switch configuration window, "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to define different sort of triggers:
 
   ALWAYS::
   PORT::
@@ -463,7 +465,7 @@ An example:
 
   SSID::GuestAccess,MAC::00:11:22:33:44:55
 
-This will trigger all the nodes that connects to the "GuestAccess" SSID to use inline enforcement mode (PacketFence will return a void VLAN or the inlineVlan if defined in switch configuration) and the mac address 00:11:22:33:44:55 client if it connects on another SSID.
+This will trigger all the nodes that connects to the _GuestAccess_ SSID to use inline enforcement mode (PacketFence will return a void VLAN or the `inlineVlan` if defined in switch configuration) and the MAC address `00:11:22:33:44:55` client if it connects on another SSID.
 
 
 Configuration
@@ -477,13 +479,13 @@ Once PacketFence is started, the administration interface is available at: https
 
 The next key steps are important to understand how PacketFence works. In order to get the solution working, you must first understand and configure the following aspects of the solution in this specific order:
 
-1. roles - a role in PacketFence will be eventually be mapped to a VLAN, an ACL or an external role. You must define the roles to use in your organization for network access
-2. authentication - once roles are defined, you must create an appropraite authentication source in PacketFence. That will allow PacketFence to compute the right role to be used for an endpoint, or the user using it
-3. network devices - once your roles and authentication sources are defined, you must add switches, WiFi controllers or APs to be mananaged by PacketFence. When doing so, you will configure how roles are being mapped to VLAN, ACLs or external roles
-4. portal profiles - at this point, you are almost ready to test. You will need to set which authentication sources are to be used on the default captive portal, or create an other one to suit your needs
+1. *roles* - a role in PacketFence will be eventually be mapped to a VLAN, an ACL or an external role. You must define the roles to use in your organization for network access
+2. *authentication* - once roles are defined, you must create an appropraite authentication source in PacketFence. That will allow PacketFence to compute the right role to be used for an endpoint, or the user using it
+3. *network devices* - once your roles and authentication sources are defined, you must add switches, WiFi controllers or APs to be mananaged by PacketFence. When doing so, you will configure how roles are being mapped to VLAN, ACLs or external roles
+4. *portal profiles* - at this point, you are almost ready to test. You will need to set which authentication sources are to be used on the default captive portal, or create an other one to suit your needs
 5. test!
 
-NOTE: If you plan to use 802.1X - please see the "FreeRADIUS Configuration" section below.
+NOTE: If you plan to use 802.1X - please see the _FreeRADIUS Configuration_ section below.
 
 Roles Management
 ~~~~~~~~~~~~~~~~
@@ -530,22 +532,22 @@ Let's say we have two roles: guest and employee. First, we define them *Configur
 Now, we want to authenticate employees using Active Directory (over LDAP), and guests using PacketFence's internal database - both using PacketFence's captive portal. From the *Configuration -> Users -> Sources*, we select *Add source -> AD*. We provide the following information:
 
 [options="compact"]
-* Name: ad1
-* Description: Active Directory for Employees
-* Host: 192.168.1.2:389 without SSL/TLS
-* Base DN: CN=Users,DC=acme,DC=local
-* Scope: One-level
-* Username Attribute: sAMAccountName
-* Bind DN: CN=Administrator,CN=Users,DC=acme,DC=local
-* Password: acme123
+* *Name:* ad1
+* *Description:* Active Directory for Employees
+* *Host:* 192.168.1.2:389 without SSL/TLS
+* *Base DN:* CN=Users,DC=acme,DC=local
+* *Scope:* One-level
+* *Username Attribute:* sAMAccountName
+* *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
+* *Password:* acme123
 
 Then, we add a rule by clicking on the *Add rule* button and provide the following information:
 
 [options="compact"]
-* Name: employees
-* Description: Rule for all employees
+* *Name:* employees
+* *Description:* Rule for all employees
 * Don't set any condition (as it's a catch-all rule)
-* Set the following actions:
+* Set the following *actions:*
   - Set role employee
   - Set unregistration date January 1st, 2020
 
@@ -556,26 +558,26 @@ Now, since we want to authenticate guests from PacketFence's internal SQL databa
 If you would like to differentiate user authentication and machine authentication using Active Directory, one way to do it is by creating a second authentication sources, for machines:
 
 [options="compact"]
-* Name: ad1
-* Description: Active Directory for Machines
-* Host: 192.168.1.2:389 without SSL/TLS
-* Base DN: CN=Computers,DC=acme,DC=local
-* Scope: One-level
-* Username Attribute: servicePrincipalName
-* Bind DN: CN=Administrator,CN=Users,DC=acme,DC=local
-* Password: acme123
+* *Name:* ad1
+* *Description:* Active Directory for Machines
+* *Host:* 192.168.1.2:389 without SSL/TLS
+* *Base DN:* CN=Computers,DC=acme,DC=local
+* *Scope:* One-level
+* *Username Attribute:* servicePrincipalName
+* *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
+* *Password:* acme123
 
 Then, we add a rule:
 
 [options="compact"]
-* Name: machines
-* Description: Rule for all machines
+* Name:* machines
+* *Description:* Rule for all machines
 * Don't set any condition (as it's a catch-all rule)
-* Set the following actions:
+* Set the following *actions:*
   - Set role machineauth
   - Set unregistration date January 1st, 2020
 
-Note that when a rule is defined as a catch-all, it will always match if the username attribute matches the queried one. This applies for Active Directory, LDAP and Apache htpasswd file sources. Kerberos and RADIUS will act as true catch-all, and accept everything.
+NOTE: When a rule is defined as a catch-all, it will always match if the username attribute matches the queried one. This applies for Active Directory, LDAP and Apache htpasswd file sources. Kerberos and RADIUS will act as true catch-all, and accept everything.
 
 Network Devices Definition (switches.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -618,7 +620,7 @@ RADIUS
 
 To set the RADIUS secret, set it from the Web administrative interface when adding a switch. Alternatively, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
 
-  radiusSecret= secretPassPhrase
+  radiusSecret = secretPassPhrase
 
 Moreover, the RADIUS secret is required to support the RADIUS Dynamic Authentication (Change of authorization or Disconnect) as defined in RFC3576.
 
@@ -750,8 +752,8 @@ PacketFence offers the following filters: Connection Type, Network, Node Role, P
 
 Example with the most common ones:
 
-* SSID: Guest-SSID
-* VLAN: 100
+* *SSID:* Guest-SSID
+* *VLAN:* 100
 
 CAUTION: Node role will take effect only with a 802.1x connection or if you use VLAN filters.
 
@@ -1120,7 +1122,7 @@ Here are the most important PacketFence log files:
 
 There are other log files in `/usr/local/pf/logs/` that could be relevant depending on what issue you are experiencing. Make sure you take a look at them.
 
-The logging system's configuration file is `/usr/local/pf/conf/log.conf`. It contains the configuration for the `packetfence.log` file (`Log::Log4Perl`) and you normally don't need to modify it.
+The main logging configuration file is `/usr/local/pf/conf/log.conf`. It contains the configuration for the `packetfence.log` file (`Log::Log4Perl`) and you normally don't need to modify it. The logging configuration files for every service are located under `/usr/local/pf/conf/log.conf.d/`.
 
 RADIUS Debugging
 ~~~~~~~~~~~~~~~~
@@ -1219,13 +1221,11 @@ First of all, you need to configure the SSID that your devices will use after th
 
 In order to do that, in the administration interface, go in 'Configuration/Provisioners'. Then select the 'android' provisioner. Enter the SSID and save.
 
-Now do the same thing for the ios provisioner.
+Now do the same thing for the iOS provisioner.
 
-After, you simply need to add the 'android' and 'ios' provisioners to your 'Portal Profile' configuration as shown in this screenshot.
+After, you simply need to add the 'Android' and 'iOS' provisioners to your 'Portal Profile' configuration.
 
-image::docs/images/add-mobileconfig-provisioners.png[scaledwidth="100%",alt="Portal profile, mobile config provisioners"]
-
-For Android, you must allow passthroughs in your configuration like this:
+For Android, you must allow passthroughs in your `pf.conf` configuration file:
 
   [trapping]
   passthrough=enabled
@@ -1241,7 +1241,7 @@ Billing Engine
 
 PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personnal information as well as it's credit card information.
 
-At this moment there is only one payment gateway built into PacketFence: Authorize.net.
+PacketFence currently supports two payment gateways: Authorize.net and Mirapay.
 
 The configuration to use the feature is fairly simple. The general configuration to enable / disable the billing engine can be done through the Web administration GUI (*Configuration -> Portal Profiles and Pages*) or from the `conf/profiles.conf` file:
 
@@ -1515,10 +1515,10 @@ When a floating network device is plugged, PacketFence will let/allow all the MA
 
 When an floating network device is unplugged, PacketFence will reconfigure the port like before it was plugged.
 
-Here is how it works:
-^^^^^^^^^^^^^^^^^^^^^
+How it works
+^^^^^^^^^^^^
 
-Configuration
+Configuration:
 
 [options="compact"]
 * floating network devices have to be identified using their MAC address.
@@ -1652,10 +1652,10 @@ In order to use the passthrough feature in PacketFence, you need to enable it fr
 There are two solutions for passthroughs - one using DNS resolution and iptables and the other one using Apache's mod_proxy module.
 When enabled, PacketFence will use `pfdns` if you defined *Passthroughs*, or Apache mod-proxy if you defined *Proxy Passthroughs* to allow trapped devices to reach external websites.
 
-* DNS passthrough:
+* *DNS passthrough:*
 Add a new FQDN (should be a wildcard domain like *.google.com) in the Passthroughs section. When PacketFence receives a DNS request for this domain, it will answer the real IP address and punch a hole in the firewall (using iptables) to allow access. With this method, PacketFence must be the default gateway of your device.
 
-* mod_proxy passthrough:
+* *mod_proxy passthrough:*
 Add a new FQDN (should be a wildcard domain like *.google.com) in the Proxy Passthroughs section. For this FQDN, PacketFence will answer the IP address of the captive portal and when a device hits the captive portal, PacketFence will detect that this FQDN has a passthrough configuration and will forward the traffic to mod_proxy.
 
 These two methods can be used together but DNS-based passthroughs have higher priority.
@@ -2575,46 +2575,42 @@ You will first need to download and install WinPcap available from http://www.wi
 
 Then get the remote sensor from Inverse's download website http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.exe
 
-Create the directory C:\udp-reflector
-
-Place the file in C:\udp-reflector\udp_reflector.exe
+Create the directory `C:\udp-reflector` and move the downloaded file inside.
 
 Now we will create a task so the reflector starts on boot.
 
-Go in Startup/Task Scheduler
+Go in *Startup/Task Scheduler* and create a new Task.
 
-Create a new Task
-
-In General : 
+In General:
 [options="compact"]
-* Name it dhcp-reflector
+* Name it *dhcp-reflector*
 * Select 'Run whether the user is logged on or not'
 * Check 'Run with highest privileges'
 
-In Triggers : 
+In Triggers:
 [options="compact"]
 * Create a new trigger
-* In 'Begin the task : ', select At startup
+* In _Begin the task:_, select _At startup_
 * Leave the other options as default and save.
 
-In Actions : 
+In Actions:
 [options="compact"]
 * Create a new action
 * Set the action to 'Start a program'
-* In 'Program/script' set it to ''C:\udp-reflector\udp_reflector.exe'',
-* In 'Add arguments' put ''-s pcap0:67 -d 192.168.1.5:767 -b 25000''
-  * where pcap0 is the interface where your DHCP is listening (use ''C:\udp-reflector\udp_reflector.exe -l'' to list interfaces)
-  * where 192.168.1.5 is the management IP of PacketFence
+* In 'Program/script' set it to `C:\udp-reflector\udp_reflector.exe`,
+* In 'Add arguments' put `-s pcap0:67 -d 192.168.1.5:767 -b 25000`
+  - where `pcap0` is the interface where your DHCP is listening (use `C:\udp-reflector\udp_reflector.exe -l` to list interfaces)
+  - where `192.168.1.5` is the management IP of PacketFence
 
-In Settings : 
+In Settings:
 [options="compact"]
-* Uncheck 'Stop the task if it runs longer than :'
+* Uncheck _Stop the task if it runs longer than:_
 
-Then press OK and save the task
+Then press _OK_ and save the task.
 
-Now start the task manually by right clicking on it and clicking 'Run'
+Now start the task manually by right clicking on it and choosing 'Run'.
 
-The DHCP traffic should now be reflected on your PacketFence server
+The DHCP traffic should now be reflected on your PacketFence server.
 
 Linux based sensor
 ^^^^^^^^^^^^^^^^^^
@@ -2624,19 +2620,19 @@ First download the RPM on your DHCP server.
 CentOS 6 and 7 servers
 ++++++++++++++++++++++
 
-For CentOS 6
+For CentOS 6:
 ----
 # for x86_64
 # wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
 
-For CentOS 7
+For CentOS 7:
 ----
 # for x86_64
 # wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
 
-Now install the sensor
+Now install the sensor:
 ----
 # rpm -i udp-reflector-*.rpm
 ----
@@ -2644,13 +2640,13 @@ Now install the sensor
 Compiling the sensor from source on a Linux system
 ++++++++++++++++++++++++++++++++++++++++++++++++++
 
-First make sure you have the following packages installed : 
+First make sure you have the following packages installed:
 [options="compact"]
 * libpcap
 * libpcap-devel
 * gcc-c++
 
-Get the source code of the sensor
+Get the source code of the sensor:
 ----
 # mkdir -p ~/udp-reflector && cd ~/udp-reflector
 # wget http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.cpp
@@ -2660,19 +2656,20 @@ Get the source code of the sensor
 Configuring the sensor
 ++++++++++++++++++++++
 
-Place the following line in /etc/rc.local 
-* where pcap0 is the pcap interface where your DHCP server listens on. (List them using 'udp_reflector -l')
-* where 192.168.1.5 is the management IP of your PacketFence server
+Place the following line in `/etc/rc.local`
+[options="compact"]
+* where `pcap0` is the pcap interface where your DHCP server listens on. (List them using `udp_reflector -l`)
+* where `192.168.1.5` is the management IP of your PacketFence server
 ----
 /usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
 ----
 
-Now start the sensor with
+Start the sensor:
 ----
 # /usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
 ----
 
-The DHCP traffic should now be reflected on your PacketFence server
+The DHCP traffic should now be reflected on your PacketFence server.
 
 
 Operating System Best Practices
@@ -2807,9 +2804,9 @@ cciss/c0d0        4.80         0.00        48.00          0        240
 MySQL optimization tool
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-We recommend that you run the MySQL Tuner tool on your database setup after a couple of weeks to help you identify MySQL configuration improvement.
+We recommend that you run the http://mysqltuner.com/[MySQL Tuner] on your database setup after a couple of weeks to help you identify MySQL configuration improvement. The tool is bundled with PacketFence and can be run from the command-line:
 
-http://blog.mysqltuner.com/download/
+  # /usr/local/bin/pftest mysql
 
 Keeping tables small
 ^^^^^^^^^^^^^^^^^^^^
