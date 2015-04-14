@@ -17,9 +17,9 @@ Version X.Y.Z released on xxxx-xx-xx
 New Features
 ++++++++++++
 * New active/active clustering mode. This allows HTTP and RADIUS load balancing and improves availability.
-* Fingerbank integration. 
+* Fingerbank integration for accurate devices fingerprinting. It is now easier than ever to share devices fingerprinting.
 * Built-in support for StatsD. This allows fine grained performance monitoring and can be used to create a dashboard using Graphite.
-* Local database passwords are now encrypted using bcrypt per default on all new installations. The old plaintext mode is still supported for legacy installations and to allow migration to the new mode.
+* Local database passwords are now encrypted using bcrypt by default on all new installations. The old plaintext mode is still supported for legacy installations and to allow migration to the new mode.
 * Devices can now have a "bypass role" that allows the administrator to manage them completely manually. This allows for exceptions to the authorization rules.
 * Support for ISC DHCP OMAPI queries. This allows PacketFence to dynamically query a dhcpd instance to establish IP to mac mappings.
 
