@@ -279,8 +279,16 @@ Roles:
    registration VLAN: 2
    isolation VLAN: 3
    default: 10
-   Radius:
+
+Radius:
+
    Secret Passphrase: useStrongerSecret
+
+Snmp:
+
+    SNMP Version: 2c
+    SNMP Read Community: ciscoRead
+    SNMP Write Community: ciscoWrite
    
 Click Save to add the switch
 
@@ -333,6 +341,13 @@ If you want to test some ports with a VoIP phone (ex: Voice VLAN 100), add the f
 
    switchport voice vlan 100
    authentication host-mode multi-domain
+
+Configure SNMP
+^^^^^^^^^^^^^^
+Finally, for some operations (like VoIP), PacketFence still need to have SNMP access to the switch.  Make sure you configure the two SNMP communities like:
+
+   snmp-server community ciscoRead ro
+   snmp-server community ciscoWrite rw
 
 NOTE: You can refer to the Cisco Catalyst documentation for more options.  The latest documentation is available here: http://www.cisco.com/en/US/docs/switches/lan/catalyst2960/software/release/15.0_1_se/configuration/guide/sw8021x.html
 
@@ -414,14 +429,6 @@ Once a computer has been registered, make sure:
 * PacketFence puts the switch port into the regular VLAN (VLAN 10)
 * The computer has access to the network and the internet.
 
-
-PacketFence Web Admin Interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-PacketFence provides a web admin interface. Go to https://DHCP_RECEIVED_IP:1443
-
-* User: admin
-* Password: Step 5 of the configurator
 
 include::includes/additional-info.asciidoc[]
 
