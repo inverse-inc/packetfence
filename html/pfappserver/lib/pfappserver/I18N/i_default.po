@@ -5762,7 +5762,7 @@ msgstr ""
 # pf::pfcmd::report (SQL)
 # pfappserver::PacketFence::Controller::Graph (osclassbandwidth fields)
 msgid "dhcp_fingerprint"
-msgstr "DHCP Fingerpint"
+msgstr "DHCP Fingerprint"
 
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "dhcp_vendor"
