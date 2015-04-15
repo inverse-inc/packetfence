@@ -1,5 +1,3 @@
-<div class="modal modal-large fade hide" id="modalViolation"></div>
-
 <table id="fingerbankdevices" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
   <thead>
     <tr>
