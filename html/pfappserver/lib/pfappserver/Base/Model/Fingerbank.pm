@@ -24,6 +24,8 @@ has fingerbankModel => (is => 'ro' , required => 1);
 
 has scope => (is => 'ro', required => 1, default => sub { 'Upstream' } );
 
+has search_fields => (is => 'rw', default => sub {[qw(value)]});
+
 =head1 FIELDS
 
 =cut
@@ -239,12 +241,12 @@ sub commit {
 =cut
 
 sub search {
-    my ($self, $query) = @_;
-    my $pageNum  = delete $query->{pageNum} || 1;
-    my $rows     = delete $query->{perPage};
+    my ($self, $query, $options) = @_;
+    my $pageNum  = delete $options->{pageNum} || 1;
+    my $rows     = delete $options->{perPage};
     my $offset   = ($pageNum - 1 ) * $rows;
-    my $order    = delete $query->{direction} || 'asc';
-    my $order_by = delete $query->{by};
+    my $order    = delete $options->{direction} || 'asc';
+    my $order_by = delete $options->{by};
     my $extra    = {offset => $offset, rows => $rows, order_by => { -asc  => 'id'}};
     my %results;
     my ($status, $resultSets_or_errormsg) = $self->fingerbankModel->search([$query,$extra], $self->scope);

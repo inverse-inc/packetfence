@@ -70,10 +70,12 @@ sub search : Chained('scope') : PathPart('search') : Args() {
     $pageNum ||= 1;
     $perPage ||= 25;
     my $model = $self->getModel($c);
+    my $search_fields = $model->search_fields;
     my $value = $c->request->param('value');
+    my $query = [ map { $_ => { -like => "%$value%"} } @$search_fields ];
     my ($status, $result) = $model->search(
-        {   value     => {-like => "%$value%"},
-            pageNum   => $pageNum,
+        $query,
+        {   pageNum   => $pageNum,
             perPage   => $perPage,
             by        => 'value',
             direction => 'asc',
