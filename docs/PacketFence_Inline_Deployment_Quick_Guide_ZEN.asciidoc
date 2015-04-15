@@ -146,7 +146,7 @@ The choice(s) made on this step will influence the next step where you'll need t
 
 Each enforcement mode has its own required interface types that you'll have to configure on step 2.
 
-In this guide we will show you how to configure the INLINE (in-band) mode. If you want to configure the VLAN (out-of-band) mode please refer to the guide include::docs/PacketFence_Out-of-Band_Deployment_Quick_Install_Guide_ZEN.asciidoc[PacketFence Out of Band Deployment Quick Guide using ZEN].
+In this guide we will show you how to configure the INLINE (in-band) mode. If you want to configure the VLAN (out-of-band) mode please refer to the guide link:docs/PacketFence_Out-of-Band_Deployment_Quick_Install_Guide_ZEN.asciidoc[PacketFence Out of Band Deployment Quick Guide ZEN].
 
 Step 2: Networks
 ++++++++++++++++
@@ -165,7 +165,7 @@ Note that you can only set ONE (1) management interface. This one will work for 
 
 In our case, we will use two interfaces, one will be be for the management, the other one will be for the inline.
 
-For the Inline interface, we plug this card in a switch port access VLAN 2.
+For the Inline interface, we plug this card in a switch port in the Inline network.
 
 Here's a sample configuration for both of them:
 
