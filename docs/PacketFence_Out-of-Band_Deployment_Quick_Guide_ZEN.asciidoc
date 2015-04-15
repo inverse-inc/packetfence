@@ -76,7 +76,7 @@ Please refer to the following table for IP and Subnet information :
 
 
 DHCP/DNS
-~~~~~~~ 
+~~~~~~~~ 
 
 * PacketFence provides its own DHCP services. It will take care of IP address distribution in VLANs 2 and 3. PacketFence will not provide DHCP services on VLAN 10 - this is the responsibility of your own infrastructure.
 * PacketFence provides its own DNS service. It will take care of naming resolution in VLANs 2 and 3. PacketFence will not provide DNS services on VLAN 10 - this is the responsibility of your own infrastructure.

@@ -42,9 +42,9 @@ Inline
 
 In order to build an Inline setup you need :
 
-* a supported switch (please consult the list of supported switch vendors and types in the _Network Devices Configuration Guide_ including information on uplinks).
 * 2 network interfaces for the VM (1 for the Inline and another one to go out).
-* a switch port for the PacketFence (PacketFence) ZEN box which needs to be configured in access mode and in the same access VLAN as every switchport on which devices will be plugged.
+* a switch port in the management network for the PacketFence ZEN box (for eth0).
+* a switch port in the inline network for the PacketFence ZEN box (for eth1) which needs to be configured in access mode and in the same access VLAN as every switchport on which devices will be plugged.
 * your server has net.ipv4.ip_forward enable.
 Edit the following file:
 ----
@@ -74,17 +74,17 @@ Network Setup
 Please refer to the following table for IP and subnet information :
 
 [options="header",cols="1,2,2,2,3",grid="rows"]
-|==============================================================================
-|VLAN ID  |VLAN Name     |Subnet           |Gateway        |PacketFence Address
-|1        |Management    |192.168.1.0/24   |192.168.1.254  |192.168.1.5
-|2        |Inline        |192.168.2.0/24   |PacketFence    |192.168.2.1  
-|==============================================================================
+|===================================================================================
+|Network Card  |Name          |Subnet           |Gateway        |PacketFence Address
+|eth0          |Management    |192.168.1.0/24   |192.168.1.1    |192.168.1.5
+|eth1          |Inline        |192.168.2.0/24   |192.168.2.1    |192.168.2.1  
+|===================================================================================
 
 
 DHCP/DNS
 ~~~~~~~~ 
 
-* PacketFence provides its own DHCP service. It will take care of IP address distribution in our Inline network(VLAN 2). PacketFence will not provide DHCP services on VLAN 1 - this is the responsibility of your own infrastructure.
+* PacketFence provides its own DHCP service. It will take care of IP address distribution in our Inline network. PacketFence will not provide DHCP services on the management network - this is the responsibility of your own infrastructure.
 * PacketFence provides its own DNS service. However for the Inline version, we need to provide the DNS of your infrastructure.
 
 
@@ -92,18 +92,15 @@ Installation
 ------------
 
 Import the virtual machine
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence ZEN {release_version} comes in a pre-built virtual disk (OVF), or a pre-configured vmx file.  You can import the vmx file in many VMWare desktop products and it will automatically create your VM.  However, if you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).  We are not supporting any Xen-based hypervisors yet.
+PacketFence ZEN {release_version} comes in a pre-built virtual disk (OVA). If you are using an ESX type hypervisor, you need to import the OVA using vSphere Client (or vCenter).  We are not supporting any Xen-based hypervisors yet.
 
 
 Import to ESX
 ^^^^^^^^^^^^^
 
-Make sure that there is only one virtual network card created, and also make sure that your vEthernet is connected to a virtual switch (vSwitch). You will need to create a “TRUNK” profile to allow all VLAN tags (usually VLAN all (4095)), and assign the profile to the PacketFence ZEN VM vEthernet. 
-
-Your network equipement (switch or access point) will need to be configured in trunk for the port connected to PacketFence, with VLAN 1 and 2 allowed as well.
-
+Make sure that there is two virtual network cards created. Assign the first card (eth0) to you management network (Production) and assign the second one (eth1) to the Inline network.
 
 Virtual Machine passwords
 -------------------------
@@ -123,21 +120,21 @@ Configuration
 Inline enforcement configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The inline enforcement is a very convenient method of performing access control on older network hardware that is not capable of doing VLAN enforcement or that is not supported by PacketFence. This technique is covered in details in the "PacketFence Administration Guide" avialable for download on http://www.packetfence.org/documentation/guides.html.
+The inline enforcement is a very convenient method of performing access control on older network hardware that is not capable of doing VLAN enforcement or that is not supported by PacketFence.
 
 An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by these users should be your actual production DNS server - which shouldn't be in the same broadcast domain as your inline users. The next section shows you how to configure the proper inline interface and it is in this section that you should refer to the proper production DNS.
 
 Inline enforcement uses `ipset` to mark nodes as registered, unregistered and isolated.
-It is also now possible to use multiple inline interfaces. A node registered on the first inline interface is marked with an ip:mac tuple (for L2, only ip for L3), so when the node tries to register on an other inline interface, PacketFence detects that the node is already registered on the first VLAN.
-It is also possible to enable inline.should_reauth_on_vlan_change to force users to reauthenticate when they change VLAN.
+It is also now possible to use multiple inline interfaces. A node registered on the first inline interface is marked with an ip:mac tuple (for L2, only ip for L3), so when the node tries to register on an other inline interface, PacketFence detects that the node is already registered on the first inline network.
+It is also possible to enable inline.should_reauth_on_vlan_change to force users to reauthenticate when they change inline network.
 
-The outgoing interface should be specified by adding in pf.conf the option interfaceSNAT in inline section. It is a comma delimited list of network interfaces like eth0,eth1.2. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network sections.
+By default the inline traffic is forwarded through the management but it should be possible to specify another one by adding in pf.conf the option interfaceSNAT in inline section. It is a comma delimited list of network interfaces like eth0,eth1.2. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network sections (take care of the routing table of the PacketFence server).
 
 Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface IP address, it is mandatory to set it to this IP (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
 
 Configuring your PacketFence environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Before booting your VM, make sure the network cable coming from the TRUNK port for the demonstration PC is correctly plugged in the switch and the PC and that the link is up.
+Before booting your VM, make sure that the PC is correctly plugged in the management network and that the link is up.
 
 Once powered, open a browser and point it to the configuration URL as stated by the VM login prompt (ie. https://PF_IP:1443/configurator). The configuration process is a five steps process at the end of which, the VM will be a persistent working PacketFence environment. If you cannot reach the configurator, but you made sure that the connectivity is fine(ie. ping @PF_IP) and PF httpd.admin is running (ie. 'ps-edf | grep httpd.admin' in your terminal or 'service packetfence status'), then try to disable iptables.
 
@@ -162,13 +159,13 @@ In all time, you'll need to set a Management interface.
 Required interface types for inline enforcement:
 
     Management
-    Inline
+    Inline layer 2
 
 Note that you can only set ONE (1) management interface. This one will work for both in the case you choose both modes.
 
 In our case, we will use two interfaces, one will be be for the management, the other one will be for the inline.
 
-For the Inline interface, we tagg all trafic with the VLAN ID you decide for it, VLAN 2 for our example.
+For the Inline interface, we plug this card in a switch port access VLAN 2.
 
 Here's a sample configuration for both of them:
 
@@ -177,9 +174,7 @@ Here's a sample configuration for both of them:
     Netmask: 255.255.255.0
     Gateway: 192.168.1.254
 
-    eth1: (None)
-
-    eth1.2: Inline
+    eth1: Inline Layer 2
     IP Address: 192.168.2.1
     Netmask: 255.255.255.0
     DNS Servers: 192.168.1.10
@@ -190,7 +185,7 @@ Make sure that those 2 interfaces are in an Enabled state for the persistance to
 
 We also need to set the Default Gateway which will generally be the gateway of the management network.
 
-If you have a routed network that need to be take into account by PacketFence as an Inline subnet, you will need to add this via `Routed Network` and select Inline L3. PacketFence will be the DHCP server for this routed network.
+Note that if you have a routed network that need to be take into account by PacketFence as an Inline subnet, you will need to add this via `Routed Network` and select Inline L3. This configuration is available only in the Administration GUI not in the configurator.
 
 Once everything's set, click Continue to proceed with the next step.
 
@@ -216,7 +211,7 @@ Almost all of the required information here are self-explanatory. The only one t
 
 Packetfence will use the domain and the hostname to generate the URL to redirect devices on the captive portal. If you have a HTTP certificate use the same hostname and domain n ame to validate the SSL connection on the captive portal.
 
-In the last section, Local Database Passwords, you will have to chose the password encryption for local accounts (guest autmaticaly generated and manualy created account).
+In the last section, Local Database Passwords, you will have to chose the password encryption for local accounts (guest automatically generated and manualy created account).
 
 Click Continue once all the fields are completed.
 
@@ -242,39 +237,28 @@ The main configuration files are :
 
 * conf/pf.conf : Configuration for the PacketFence services
 * conf/networks.conf : Definition of the registration and isolation networks to build DNS and DHCP configurations.  In our case, we included the registration and isolation networks.
-* conf/switches.conf : Definition of our VLANs and network devices
 
 In standard inline enforcement setup, you should not have to modify any configuration file to make things work. Every modification of the configuration is now done only via the admin interface, we DO NOT advise customers to edit the configuration files.
 
 Network Devices
 ~~~~~~~~~~~~~~~
 
-Please refer to the http://www.packetfence.org/documentation/[Network Devices Configuration Guide] in order to properly configure your devices.
-
-In an Inline setup the network devices configuration will be to make sure every devices on the Inline subnet can communicate with PacketFence, in other words for a switch you will setup every ports on which devices will be plugged in access mode with all of them in the same VLAN access, in our case VLAN 2. Access point will be plugged as device to be in the Inline subnetwork. 
+In an Inline setup the network devices configuration will be to make sure every devices on the Inline subnet can communicate with PacketFence, in other words for a switch you will setup every ports on which devices will be plugged in access mode with all of them in the same Inline network. Access point will be plugged as device to be in the Inline subnetwork. 
 
 Exemple with a Cisco switch:
 
-You might need to create the VLAN 2 first:
-----
-# enable
-# configuration terminal
-# vlan 2
-# name inline
-# end
-----
 You should be in mode '#conf-t' if not execute 'configuration terminal' in your CLI.
 ----
 # interface range [port-range]
-# switchport mode access vlan 2
+# switchport mode access vlan 1
 # no shutdown
-# interface [packetfence_port]
-# switchport mode trunk
-# switchport trunk allowed vlan 1,2
+# interface [packetfence_eth1]
+# switchport mode access vlan 1
 # no shutdown
 # end
 # copy running-configuration startup-configuration
 ----
+
 Now you can plug any devices that you want to be in the inline network in any of the port you just setup.
 
 FreeRADIUS
@@ -288,8 +272,6 @@ Inline Access
 ~~~~~~~~~~~~
 
 * Make sure that the Inline and management card are properly configured
-* PacketFence can communicate with the switch
-* plug a device with a static IP (configured with appropriate subnet) in the Inline subnetwork
 * plug a device with a DHCP IP in the Inline subnetwork
 * make sure the device are able to communicate with PacketFence on the Inline network card and cannot access the management network
 
@@ -333,7 +315,7 @@ Register a device in inline enforcement
 You can now test the registration process. In order to do so:
 
 * Plug an unregistered device into the switch
-* Make sure PacketFence provides an IP address to the user. Look into the following log file: /usr/local/pf/logs/packetfence.log or verify on the computer you obtain an ip the right subnet range
+* Make sure PacketFence provides an IP address to the device. Look into the following log file: /usr/local/pf/logs/packetfence.log or verify on the computer you obtain an ip the right subnet range
 
 On the computer:
 
@@ -348,18 +330,10 @@ Register the computer using the following informations:
 
 Once a computer has been registered:
 
-* Make sure PacketFence changes the firewall (iptables) rules so that the user is authorized through. Look into PacketFence log file: /usr/local/pf/logs/packetfence.log
+* Make sure PacketFence changes the firewall (ipset -L) rules so that the user is authorized through. Look into PacketFence log file: /usr/local/pf/logs/packetfence.log
 * In the admin interface, go under Nodes and make sure you see the computer as 'Registered'.
 * The computer has access to the network and the internet.
 
-
-PacketFence Web Admin Interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-PacketFence provides a web admin interface. Go to https://MANAGEMENT_CARD_IP:1443
-
-* User: admin
-* Password: Setup in step 4 of the configurator.
 
 include::includes/additional-info.asciidoc[]
 
