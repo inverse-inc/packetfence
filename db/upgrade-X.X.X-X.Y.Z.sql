@@ -38,16 +38,24 @@ CREATE TABLE iplog_history (
 ) ENGINE=InnoDB;
 
 --
--- Table structure for table 'iplog'
+--  Drop Table structure for table 'iplog'
 --
 
-ALTER TABLE iplog MODIFY mac varchar(17) NOT NULL,
-            MODIFY ip varchar(45) NOT NULL,
-            ADD PRIMARY KEY(ip),
-            DROP INDEX ip_view_open,
-            DROP INDEX mac_view_open,
-            DROP INDEX iplog_end_time,
-            DROP FOREIGN KEY 0_63;
+DROP TABLE iplog;
+
+--
+-- Table structure for table `iplog`
+--
+
+CREATE TABLE iplog (
+  mac varchar(17) NOT NULL,
+  ip varchar(45) NOT NULL,
+  start_time datetime NOT NULL,
+  end_time datetime default "0000-00-00 00:00:00",
+  PRIMARY KEY (ip),
+  KEY iplog_mac_end_time (mac,end_time),
+  KEY iplog_end_time (end_time)
+) ENGINE=InnoDB;
 
 --
 -- Trigger to insert old record from 'iplog' in 'iplog_history' before updating the current one

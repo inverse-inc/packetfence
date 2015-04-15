@@ -215,7 +215,9 @@ CREATE TABLE iplog (
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
-  PRIMARY KEY (ip)
+  PRIMARY KEY (ip),
+  KEY iplog_mac_end_time (mac,end_time),
+  KEY iplog_end_time (end_time)
 ) ENGINE=InnoDB;
 
 --
