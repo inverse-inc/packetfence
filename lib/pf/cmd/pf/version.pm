@@ -22,6 +22,7 @@ use warnings;
 
 use pf::file_paths;
 use pf::log;
+use pf::constants::exit_code qw($EXIT_SUCCESS);
 
 use base qw(pf::cmd);
 
@@ -34,6 +35,7 @@ sub _run {
     $release = <$pfrelease_fh>;
     close($pfrelease_fh);
     print $release;
+    return $EXIT_SUCCESS;
 }
 
 =head1 AUTHOR
