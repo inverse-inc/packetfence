@@ -1,5 +1,5 @@
-PacketFence Out-of-Band Deployment Quick Install Guide using ZEN
-================================================================
+PacketFence Out-of-Band Deployment Quick Guide using ZEN
+========================================================
 :encoding: UTF-8
 :lang: en
 :doctype: book
