@@ -185,9 +185,11 @@ form {
                       </tr>
                     </tfoot>
                   </table>
-                  <div id="advancedSearchConditionsEmpty" class="unwell unwell-horizontal hidden">
-                      <span><i class="icon-search" style="font-size:1em"> </i></span>
+                  <div id="advancedSearchConditionsEmpty" class="hidden unwell unwell-horizontal">
+                    <p>
+                      <i class="icon-search" style="line-height: 24px"></i>
                       <a href="#add">[% l('Add a condition.') %]</a>
+                    </p>
                   </div>
                 </div>
               </div>
