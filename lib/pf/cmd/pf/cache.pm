@@ -35,6 +35,7 @@ use strict;
 use warnings;
 use base qw(pf::cmd);
 use pf::CHI;
+use pf::constants::exit_code qw($EXIT_SUCCESS);
 use List::MoreUtils qw(any);
 
 =head1 METHODS
@@ -65,7 +66,7 @@ sub parseArgs {
     }
     $self->{cache} = pf::CHI->new( namespace => $namespace);
     $self->{action_method} = $action_method;
-    $self->{key} = shift @args if $action eq 'remove' || $action eq 'dump' ; 
+    $self->{key} = shift @args if $action eq 'remove' || $action eq 'dump' ;
     return 1;
 }
 
@@ -79,7 +80,7 @@ sub action_list {
     my ($self) = @_;
     my $cache = $self->{cache};
     print join("\n",$cache->get_keys),"\n";
-    
+
 }
 
 =head2 action_clear
