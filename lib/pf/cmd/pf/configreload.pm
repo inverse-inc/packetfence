@@ -22,6 +22,7 @@ pf::cmd::pf::configreload
 
 use strict;
 use warnings;
+use pf::constants::exit_code qw($EXIT_SUCCESS);
 
 use base qw(pf::base::cmd::action_cmd);
 
