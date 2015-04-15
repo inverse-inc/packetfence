@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use pf::configfile;
 use pf::file_paths;
+use pf::constants::exit_code qw($EXIT_SUCCESS);
 use base qw(pf::cmd);
 
 sub run {
@@ -22,6 +23,7 @@ sub run {
     foreach my $config_file (@stored_config_files) {
         configfile_export($config_file);
     }
+    return $EXIT_SUCCESS;
 }
 
 
