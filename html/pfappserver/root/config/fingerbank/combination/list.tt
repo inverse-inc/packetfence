@@ -3,7 +3,7 @@
         <thead>
           <tr>
             <th colspan="5">
-                [% INCLUDE config/fingerbank/search.tt %]
+                [%# INCLUDE config/fingerbank/search.tt %]
             </th>
           </tr>
           <tr>
