@@ -7,14 +7,14 @@
 # Translators:
 # Christian Mack <christian.mack@uni-konstanz.de>, 2014
 # Dennis B. <charlesdarw@gmx.de>, 2013
-# Ettore Atalan <atalanttore@googlemail.com>, 2014
+# Ettore Atalan <atalanttore@googlemail.com>, 2014-2015
 # inverse <info@inverse.ca>, 2013
 # Tino Matysiak <tmatysiak@meetyoo.de>, 2011
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2015-03-05 20:55+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2015-03-08 15:13+0000\n"
+"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/packetfence/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1098,12 +1098,12 @@ msgstr ""
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid "Alternate installer"
-msgstr ""
+msgstr "Alternatives Installationsprogramm"
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 # html/captive-portal/templates/provisioner/sepm.html
 msgid "Click here to download"
-msgstr ""
+msgstr "Klicken Sie hier zum Herunterladen"
 
 # html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/opswat.html
@@ -1126,7 +1126,7 @@ msgstr ""
 
 # html/captive-portal/templates/device-registration.html
 msgid "Device Type"
-msgstr ""
+msgstr "Gerätetyp"
 
 # html/captive-portal/templates/status.html
 msgid "Extend Access"
@@ -1139,7 +1139,7 @@ msgstr ""
 
 # html/captive-portal/templates/gaming-registration.html
 msgid "Gaming Device Type"
-msgstr ""
+msgstr "Spielgerätetyp"
 
 # html/captive-portal/templates/gaming-landing.html
 msgid "Gaming Landing"
@@ -1147,7 +1147,7 @@ msgstr ""
 
 # html/captive-portal/templates/guest/sms_confirmation.html
 msgid "I don't have a PIN"
-msgstr ""
+msgstr "Ich habe keine PIN"
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using an Android phone or tablet,"
@@ -1161,7 +1161,7 @@ msgstr ""
 
 # html/captive-portal/templates/activated.html
 msgid "Local account creation"
-msgstr ""
+msgstr "Lokale Kontoerstellung"
 
 # html/captive-portal/templates/status.html
 msgid "Login to manage registered devices"
@@ -1172,29 +1172,29 @@ msgstr ""
 # html/captive-portal/templates/login.html
 # html/captive-portal/templates/status.html
 msgid "Login with Facebook account"
-msgstr ""
+msgstr "Mit Facebook-Konto anmelden"
 
 # html/captive-portal/templates/device-login.html
 # html/captive-portal/templates/gaming-login.html
 # html/captive-portal/templates/login.html
 # html/captive-portal/templates/status.html
 msgid "Login with GitHub account"
-msgstr ""
+msgstr "Mit GitHub-Konto anmelden"
 
 # html/captive-portal/templates/device-login.html
 # html/captive-portal/templates/gaming-login.html
 # html/captive-portal/templates/login.html
 # html/captive-portal/templates/status.html
 msgid "Login with Google account"
-msgstr ""
+msgstr "Mit Google-Konto anmelden"
 
 # html/captive-portal/templates/login.html
 msgid "Login with LinkedIn account"
-msgstr ""
+msgstr "Mit LinkedIn-Konto anmelden"
 
 # html/captive-portal/templates/login.html
 msgid "Login with Windows Live account"
-msgstr ""
+msgstr "Mit Windows-Live-Konto anmelden"
 
 # html/captive-portal/templates/pending.html
 # html/captive-portal/templates/release.html
@@ -1203,7 +1203,7 @@ msgstr ""
 
 # html/captive-portal/templates/status.html
 msgid "OS Type"
-msgstr ""
+msgstr "BS-Typ"
 
 # html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/opswat.html
@@ -1264,33 +1264,33 @@ msgstr ""
 # html/captive-portal/templates/violations/zotob.fr.html
 # html/captive-portal/templates/violations/zotob.html
 msgid "Quarantine"
-msgstr ""
+msgstr "Quarantäne"
 
 # html/captive-portal/templates/device-registration.html
 # html/captive-portal/templates/gaming-registration.html
 msgid "Register"
-msgstr ""
+msgstr "Registrieren"
 
 # html/captive-portal/templates/device-registration.html
 # html/captive-portal/templates/gaming-registration.html
 msgid "Registration"
-msgstr ""
+msgstr "Registrierung"
 
 # html/captive-portal/templates/status.html
 msgid "Registration Date"
-msgstr ""
+msgstr "Registrierungsdatum"
 
 # html/captive-portal/templates/device-registration.html
 msgid "Select Console"
-msgstr ""
+msgstr "Konsole auswählen"
 
 # html/captive-portal/templates/gaming-registration.html
 msgid "Select Gaming Console"
-msgstr ""
+msgstr "Spielkonsole auswählen"
 
 # html/captive-portal/templates/status.html
 msgid "State - Network Access"
-msgstr ""
+msgstr "Status - Netzwerkzugang"
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "To complete your network activation you need to install MobileIron"
@@ -1334,7 +1334,7 @@ msgstr ""
 
 # html/captive-portal/templates/status.html
 msgid "You have no registered devices."
-msgstr ""
+msgstr "Sie haben keine registrierten Geräte."
 
 # html/captive-portal/templates/provisioner/accept.html
 msgid "You should not seeing this page, something went wrong."
@@ -1342,7 +1342,7 @@ msgstr ""
 
 # html/captive-portal/templates/status.html
 msgid "Your Network Access Status"
-msgstr ""
+msgstr "Ihr Netzwerkzugangsstatus"
 
 # html/captive-portal/templates/status.html
 msgid "Your current device is not registered on our network."
@@ -1362,4 +1362,4 @@ msgstr ""
 
 # html/captive-portal/templates/status.html
 msgid "Your registered devices"
-msgstr ""
+msgstr "Ihr registrierten Geräte"

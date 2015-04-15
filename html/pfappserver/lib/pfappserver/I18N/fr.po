@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-03-06 18:27+0000\n"
-"Last-Translator: oeufdure <fdurand@inverse.ca>\n"
+"PO-Revision-Date: 2015-04-15 17:38+0000\n"
+"Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -106,6 +106,10 @@ msgstr "Chemin de l'autorisation de l'API"
 msgid "API ID"
 msgstr "ID de l'API"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Onboard.pm
+msgid "API Key"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
@@ -131,6 +135,10 @@ msgstr "URL de l'API"
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API URL of logged user"
 msgstr "URL de l'API de l'utilisateur connecté"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.api_key)
+msgid "API key to interact with upstream Fingerbank project"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
@@ -195,6 +203,13 @@ msgstr "Action que PacketFence prendra lorsque vlan.trap_limit_threshold sera at
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 # html/pfappserver/root/config/adminroles/view.tt
+# html/pfappserver/root/config/fingerbank/combination/list.tt
+# html/pfappserver/root/config/fingerbank/device/list.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/user_agent/list.tt
 # html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
@@ -220,13 +235,43 @@ msgstr "Activation"
 msgid "Add"
 msgstr "Ajouter"
 
+# html/pfappserver/root/config/fingerbank/device/children.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/children.tt
+msgid "Add Child"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/combination/list.tt
+msgid "Add Combination"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
+msgid "Add DHCP Fingerprint"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
+msgid "Add DHCP Vendor"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/device/list.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/list.tt
+msgid "Add Device"
+msgstr ""
+
 # html/pfappserver/root/config/firewall_sso/index.tt
 msgid "Add Firewall"
 msgstr "Ajouter un Pare-feux"
 
+# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
+msgid "Add MAC Vendor"
+msgstr ""
+
 # html/pfappserver/root/config/realm/index.tt
 msgid "Add Realm"
 msgstr "Ajouter un domaine (REALM)"
+
+# html/pfappserver/root/config/fingerbank/user_agent/list.tt
+msgid "Add User Agent"
+msgstr ""
 
 # html/pfappserver/root/interface/list.tt
 msgid "Add VLAN"
@@ -429,6 +474,10 @@ msgid "App URL"
 msgstr "Application URL"
 
 # html/pfappserver/root/admin/bulk_actions.inc
+msgid "Apply Bypass Role"
+msgstr ""
+
+# html/pfappserver/root/admin/bulk_actions.inc
 msgid "Apply Role"
 msgstr "Appliquer le rôle"
 
@@ -533,6 +582,10 @@ msgstr "DN de base"
 msgid "Base Object"
 msgstr "Objet de base"
 
+# html/pfappserver/root/configurator/configuration.tt
+msgid "Bcrypt hashing"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 msgid "Billing"
 msgstr "Facturation"
@@ -556,6 +609,11 @@ msgstr "Texte du bouton"
 # conf/documentation.conf (node_import.voip)
 msgid "By default is an imported node a Voice over IP device or not?"
 msgstr "Par défaut est ce un noeud importé de VOIX IP ou pas ?"
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/nodes.tt
+msgid "Bypass Role"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/admin/nodes.tt
@@ -593,6 +651,13 @@ msgstr "Cache match"
 
 # html/pfappserver/root/config/adminroles/index.tt
 # html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/fingerbank/combination/index.tt
+# html/pfappserver/root/config/fingerbank/device/index.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/user_agent/index.tt
 # html/pfappserver/root/config/firewall_sso/index.tt
 # html/pfappserver/root/config/floatingdevice/index.tt
 # html/pfappserver/root/config/profile/files.tt
@@ -679,6 +744,13 @@ msgid "Client Support"
 msgstr "Support client"
 
 # html/pfappserver/root/config/adminroles/list.tt
+# html/pfappserver/root/config/fingerbank/combination/list.tt
+# html/pfappserver/root/config/fingerbank/device/children.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/children.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/user_agent/list.tt
 # html/pfappserver/root/config/firewall_sso/list.tt
 # html/pfappserver/root/config/floatingdevice/list.tt
 # html/pfappserver/root/config/provisioning/list.tt
@@ -692,6 +764,13 @@ msgstr "Cloner"
 # html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/adminroles/view.tt
+# html/pfappserver/root/config/fingerbank/combination/view.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/view.tt
+# html/pfappserver/root/config/fingerbank/device/view.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
+# html/pfappserver/root/config/fingerbank/user_agent/view.tt
 # html/pfappserver/root/config/firewall_sso/view.tt
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
@@ -709,6 +788,10 @@ msgstr "Cloner"
 # html/pfappserver/root/violation/view.tt
 msgid "Close"
 msgstr "Fermer"
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Clustering"
+msgstr ""
 
 # conf/documentation.conf (advanced.pfcmd_error_color)
 msgid "Color of the error text for pfcmd"
@@ -737,6 +820,17 @@ msgstr "Colonnes"
 # html/pfappserver/root/user/create.tt
 msgid "Columns Order"
 msgstr "Ordre des colonnes"
+
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/combination/index.tt
+# html/pfappserver/root/config/fingerbank/combination/view.tt
+msgid "Combination"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
+# html/pfappserver/root/config/fingerbank/combination/list.tt
+msgid "Combination ID"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
@@ -945,6 +1039,10 @@ msgstr "Créer des noeuds"
 msgid "Create Users"
 msgstr "Créer des Utilisateurs"
 
+# html/pfappserver/root/configurator/database.tt
+msgid "Create a PacketFence account"
+msgstr "Créer un compte PacketFence"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
@@ -1007,6 +1105,32 @@ msgstr "Création des Utilisateurs ..."
 # html/pfappserver/root/user/view.tt
 msgid "Custom Fields"
 msgstr "Champs personnalisés"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Fingerprint.pm
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
+msgid "DHCP Fingerprint"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Fingerprint.pm
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
+msgid "DHCP Fingerprint ID"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Vendor.pm
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
+msgid "DHCP Vendor"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Vendor.pm
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
+msgid "DHCP Vendor ID"
+msgstr ""
 
 # conf/documentation.conf (network.dhcp_filter_by_message_types options)
 msgid "DHCPACK"
@@ -1154,6 +1278,20 @@ msgstr "Délai d'attente entre le shut / no-shut sur ​​un port. Certains OS 
 # html/pfappserver/root/config/adminroles/index.tt
 # html/pfappserver/root/config/adminroles/list.tt
 # html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/fingerbank/combination/index.tt
+# html/pfappserver/root/config/fingerbank/combination/list.tt
+# html/pfappserver/root/config/fingerbank/device/children.tt
+# html/pfappserver/root/config/fingerbank/device/index.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/children.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/user_agent/index.tt
+# html/pfappserver/root/config/fingerbank/user_agent/list.tt
 # html/pfappserver/root/config/firewall_sso/index.tt
 # html/pfappserver/root/config/firewall_sso/list.tt
 # html/pfappserver/root/config/floatingdevice/index.tt
@@ -1182,6 +1320,23 @@ msgstr "Supprimer"
 msgid "Delete Admin Role"
 msgstr "Supprimer un rôle Admin"
 
+# html/pfappserver/root/config/fingerbank/combination/index.tt
+msgid "Delete Combination"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
+msgid "Delete DHCP Fingerprint"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
+msgid "Delete DHCP Vendor"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/device/index.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/index.tt
+msgid "Delete Device"
+msgstr ""
+
 # html/pfappserver/root/config/profile/files.tt
 msgid "Delete File"
 msgstr "Supprimer le fichier"
@@ -1197,6 +1352,10 @@ msgstr "Supprimer un pare-feu SSO"
 # html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Delete Floating Device"
 msgstr "Supprimer un Appareil Flottant "
+
+# html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
+msgid "Delete MAC Vendor"
+msgstr ""
 
 # html/pfappserver/root/config/profile/index.tt
 msgid "Delete Profile"
@@ -1221,6 +1380,10 @@ msgstr "Supprimer la Source"
 # html/pfappserver/root/config/switch/index.tt
 msgid "Delete Switch"
 msgstr "Supprimer le commutateur"
+
+# html/pfappserver/root/config/fingerbank/user_agent/index.tt
+msgid "Delete User Agent"
+msgstr ""
 
 # html/pfappserver/root/violation/list.tt
 msgid "Delete Violation"
@@ -1267,6 +1430,12 @@ msgstr "Définit la manière dont PacketFence va contrôler l'accès au réseau.
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/config/adminroles/list.tt
 # html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/fingerbank/device/list.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/user_agent/list.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/node/violations.tt
@@ -1291,6 +1460,29 @@ msgstr "VLAN de destination dans lequel PacketFence mettra l´appareil quand une
 # html/pfappserver/root/admin/nodes.tt
 msgid "Detected Between :"
 msgstr "Détecté entre:"
+
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/combination/list.tt
+# html/pfappserver/root/config/fingerbank/device/index.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/index.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/view.tt
+# html/pfappserver/root/config/fingerbank/device/view.tt
+msgid "Device"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
+# html/pfappserver/root/config/fingerbank/device/list.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/list.tt
+msgid "Device ID"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Device Type"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Device class"
+msgstr ""
 
 # html/pfappserver/root/user/view.tt
 msgid "Devices"
@@ -1480,6 +1672,7 @@ msgid ""
 msgstr "Activer ce paramètre permet aux clients de demander leur accès par avance. Vous devez faire attention d'ouvrir votre pare-feu externe jusqu'à PacketFence et assurez-vous que votre serveur peut envoyer des emails. (La génération d'utilisateur / mot de passe sont envoyés par e-mail)."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+# html/pfappserver/root/configurator/configuration.tt
 msgid "Encryption"
 msgstr "Chiffrement"
 
@@ -1564,6 +1757,26 @@ msgid "External Sources"
 msgstr "Sources externes"
 
 # pf::admin_roles (Actions groups)
+msgid "FINGERBANK"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "FINGERBANK_CREATE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "FINGERBANK_DELETE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "FINGERBANK_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "FINGERBANK_UPDATE"
+msgstr ""
+
+# pf::admin_roles (Actions groups)
 msgid "FINGERPRINTS"
 msgstr "Empreinte "
 
@@ -1642,6 +1855,17 @@ msgid "Filters"
 msgstr "Filtres"
 
 # html/pfappserver/root/admin/configuration.tt
+msgid "Fingerbank"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/settings/onboard.tt
+msgid "Fingerbank Onboarding"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/settings/index.tt
+msgid "Fingerbank Settings"
+msgstr ""
+
 # html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "Fingerprints"
 msgstr "Empreintes"
@@ -1724,6 +1948,10 @@ msgid ""
 "recommend running the scanning engine on a remote server. A passthrough will"
 " be automagically created."
 msgstr "Hôte où est exécuté le moteur d'analyse. Pour des raisons de performance, nous vous recommandons d'exécuter le moteur d'analyse sur un autre serveur. Une règle d'autorisation de pare-feu sera automatiquement créé."
+
+# conf/documentation.conf (monitoring.statsd_host)
+msgid "Host to which StatsD metrics are sent."
+msgstr ""
 
 # conf/documentation.conf (general.hostname)
 msgid ""
@@ -1851,6 +2079,7 @@ msgid ""
 " configuration but it does not make any OS-level changes."
 msgstr "Adresse IP de l'interface - notez que cela doit refléter la configuration au niveau du système d'exploitation, mais ne fait pas de changements au niveau de celle-ci."
 
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Device.pm
 # html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/roles/index.tt
@@ -1859,7 +2088,6 @@ msgstr "Adresse IP de l'interface - notez que cela doit refléter la configurati
 msgid "Id"
 msgstr "Id"
 
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/wrix/view.tt
 msgid "Identification"
 msgstr "identification"
@@ -2069,6 +2297,18 @@ msgstr "Est un mobile"
 msgid "Isolation"
 msgstr "Isolation"
 
+# html/pfappserver/root/config/fingerbank/combination/index.tt
+# html/pfappserver/root/config/fingerbank/device/index.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/user_agent/index.tt
+msgid ""
+"It looks like Fingerbank is not configured. Please proceed to the Fingerbank"
+" Settings section to follow the onboard procedure"
+msgstr ""
+
 # html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/edit.tt
 # html/pfappserver/root/config/profile/view.tt
@@ -2131,6 +2371,10 @@ msgid ""
 "List of roles available to the admin user. If none are provided then all "
 "roles are available"
 msgstr "Liste des rôles disponibles pour l'utilisateur admin. Si aucun n'est fournit, alors tous les rôles sont disponible."
+
+# html/pfappserver/root/configurator/configuration.tt
+msgid "Local Database Passwords"
+msgstr ""
 
 # html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/node/view.tt
@@ -2199,11 +2443,23 @@ msgid ""
 "running the RPMed version."
 msgstr "Emplacement du binaire dhcpd."
 
+# conf/documentation.conf (services.haproxy_binary)
+msgid ""
+"Location of the haproxy binary. Only necessary to change if you arenot "
+"running the RPMed version."
+msgstr ""
+
 # conf/documentation.conf (services.iptables_binary)
 msgid ""
 "Location of the iptables binary. Only necessary to change if you arenot "
 "running the RPMed version."
 msgstr "Emplacement du binaire iptables. Seulement nécessaire de changer si vous n'utilisez pas la version RPM."
+
+# conf/documentation.conf (services.keepalived_binary)
+msgid ""
+"Location of the keepalived binary. Only necessary to change if you arenot "
+"running the RPMed version."
+msgstr ""
 
 # conf/documentation.conf (services.memcached_binary)
 msgid ""
@@ -2268,6 +2524,7 @@ msgid "Longitude/Latitude"
 msgstr "Longitude/Latitude"
 
 # html/pfappserver/lib/pfappserver/Base/Controller.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/config/floatingdevice/list.tt
 # html/pfappserver/root/user/nodes.tt
@@ -2282,14 +2539,21 @@ msgstr "MAC"
 msgid "MAC Address"
 msgstr "Adresse MAC"
 
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/macaddress/simple_search.tt
 msgid "MAC Addresses"
 msgstr "Adresses MAC"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
 msgid "MAC Vendor"
 msgstr "Fabriquant MAC"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
+# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
+msgid "MAC Vendor ID"
+msgstr ""
 
 # pf::admin_roles (Actions)
 msgid "MAC_READ"
@@ -2379,6 +2643,10 @@ msgstr "Mode"
 # html/pfappserver/root/configurator/admin.tt
 msgid "Modify the password"
 msgstr "Modifier le mot de passe"
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Monitoring"
+msgstr ""
 
 # html/pfappserver/root/user/create.tt
 msgid "Multiple"
@@ -2480,6 +2748,23 @@ msgstr "Nouveau"
 msgid "New Admin Role"
 msgstr "Nouveau rôle d'admin"
 
+# html/pfappserver/root/config/fingerbank/combination/view.tt
+msgid "New Combination"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
+msgid "New DHCP Fingerprint"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
+msgid "New DHCP Vendor"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/device/upstream/view.tt
+# html/pfappserver/root/config/fingerbank/device/view.tt
+msgid "New Device"
+msgstr ""
+
 # html/pfappserver/root/config/profile/files.tt
 msgid "New File"
 msgstr "Nouveau fichier"
@@ -2495,6 +2780,10 @@ msgstr "Nouveau pare-feu SSO"
 # html/pfappserver/root/config/floatingdevice/view.tt
 msgid "New Floating Device"
 msgstr "Nouvel appareil itinérant "
+
+# html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
+msgid "New MAC Vendor"
+msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
 msgid "New Network"
@@ -2528,6 +2817,10 @@ msgstr "Nouvelle règle "
 msgid "New Switch"
 msgstr "Nouveau commutateur"
 
+# html/pfappserver/root/config/fingerbank/user_agent/view.tt
+msgid "New User Agent"
+msgstr ""
+
 # html/pfappserver/root/interface/create.tt
 msgid "New VLAN for"
 msgstr "Nouveau VLAN pour"
@@ -2540,9 +2833,34 @@ msgstr "Nouvelle Violation"
 msgid "New WRIX Information"
 msgstr "Nouvelle information WRIX"
 
+# html/pfappserver/root/config/fingerbank/combination/index.tt
+msgid "No Combination defined"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
+msgid "No DHCP Fingerprint defined"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
+msgid "No DHCP Vendor defined"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/device/index.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/index.tt
+msgid "No Device defined"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 msgid "No IP history"
 msgstr "Pas d'historique des IP"
+
+# html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
+msgid "No MAC Vendor defined"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/user_agent/index.tt
+msgid "No User Agent defined"
+msgstr ""
 
 # html/pfappserver/root/user/nodes.tt
 msgid "No device found"
@@ -2690,6 +3008,10 @@ msgstr "Nombre de processus handler que pfsetvlan devrait démarrer"
 # conf/documentation.conf (vlan.nbtrapparserthreads)
 msgid "Number of trap parser threads pfsetvlan should start"
 msgstr "Nombre de processus parser que pfsetvlan devrait démarrer"
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "OMAPI"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/root/node/view.tt
@@ -2908,6 +3230,10 @@ msgstr "Nom de la personne"
 msgid "Phone"
 msgstr "Téléphone"
 
+# html/pfappserver/root/configurator/configuration.tt
+msgid "Plain text (no encryption)"
+msgstr ""
+
 # html/pfappserver/root/configurator/admin.tt
 msgid ""
 "Please note that if you do not change the password, the default one is "
@@ -2951,8 +3277,8 @@ msgid "Please specify an identifier for the violation."
 msgstr "Veuillez spécifier un identifiant pour la violation."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
-msgid "Please specify the DNS server's IP address."
-msgstr "Veuillez spécifier les adresses IP des DNS"
+msgid "Please specify the DNS server's IP address(es)."
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 msgid "Please specify the Description Provisioning entry."
@@ -3057,6 +3383,10 @@ msgstr "Port du service"
 # conf/documentation.conf (ports.soap)
 msgid "Port of the soap webservice."
 msgstr "Port du service web SOAP."
+
+# conf/documentation.conf (monitoring.statsd_port)
+msgid "Port on the StatsD host to which metrics are sent."
+msgstr ""
 
 # conf/documentation.conf (ports.admin)
 msgid "Port the administrative interface listens on."
@@ -3234,9 +3564,30 @@ msgid ""
 "violations will be addressed first if a host has more than one."
 msgstr "Échelle de 1 à 10, avec 1 la plus haute priorité et 10 la plus basse. Une violation de haute priorité sera mise en avant si l´appareil en a plusieurs d´ouverte."
 
+# html/pfappserver/root/config/fingerbank/combination/index.tt
+msgid "Really delete this Combination?"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
+msgid "Really delete this DHCP Fingerprint?"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
+msgid "Really delete this DHCP Vendor?"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/device/index.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/index.tt
+msgid "Really delete this Device?"
+msgstr ""
+
 # html/pfappserver/root/config/firewall_sso/index.tt
 msgid "Really delete this Firewall SSO?"
 msgstr "Supprimer the pare-feu SSO ?"
+
+# html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
+msgid "Really delete this MAC Vendor?"
+msgstr ""
 
 # html/pfappserver/root/config/provisioning/index.tt
 msgid "Really delete this Provisioning entry?"
@@ -3245,6 +3596,10 @@ msgstr "Supprimer cette entrée pour le provisioner"
 # html/pfappserver/root/config/realm/index.tt
 msgid "Really delete this Realm ?"
 msgstr "Êtes vous sur de vouloir supprimer ce Realm?"
+
+# html/pfappserver/root/config/fingerbank/user_agent/index.tt
+msgid "Really delete this User Agent?"
+msgstr ""
 
 # html/pfappserver/root/config/adminroles/index.tt
 msgid "Really delete this admin role?"
@@ -3411,6 +3766,7 @@ msgid "Reports"
 msgstr "Rapports"
 
 # html/pfappserver/root/authentication/source/read.tt
+# html/pfappserver/root/config/fingerbank/settings/index.tt
 # html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/view.tt
 # html/pfappserver/root/configuration/section.tt
@@ -3637,6 +3993,14 @@ msgstr "Commutateurs - Mise à jour"
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/adminroles/view.tt
+# html/pfappserver/root/config/fingerbank/combination/view.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/view.tt
+# html/pfappserver/root/config/fingerbank/device/view.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
+# html/pfappserver/root/config/fingerbank/settings/index.tt
+# html/pfappserver/root/config/fingerbank/user_agent/view.tt
 # html/pfappserver/root/config/firewall_sso/view.tt
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
@@ -3684,6 +4048,13 @@ msgstr "Recherches sauvegardées"
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/adminroles/view.tt
+# html/pfappserver/root/config/fingerbank/combination/view.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/view.tt
+# html/pfappserver/root/config/fingerbank/device/view.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
+# html/pfappserver/root/config/fingerbank/user_agent/view.tt
 # html/pfappserver/root/config/firewall_sso/view.tt
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
@@ -3719,6 +4090,10 @@ msgstr "Scan"
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Scope"
 msgstr "Etendue"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
+msgid "Score"
+msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
@@ -3807,6 +4182,7 @@ msgstr "Réglez le mode inline si l'une des conditions suivantes sont remplies:"
 msgid "Set role"
 msgstr "Assigner un rôle"
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/files.tt
 # html/pfappserver/root/config/profile/view.tt
@@ -3825,9 +4201,18 @@ msgstr "Partager les Fingerprints inconnues"
 msgid "Share Unknown User Agents"
 msgstr "Partager un User Agent "
 
+# conf/documentation.conf (active_active.password)
+msgid "Shared KEY for VRRP protocol (must be the same on all members)."
+msgstr ""
+
 # conf/documentation.conf (services.dhcpd)
 msgid "Should DHCPd be managed by PacketFence?"
 msgstr "Est-ce que DHCPd doit être géré par PacketFence?"
+
+# conf/documentation.conf (services.haproxy)
+msgid ""
+"Should haproxy be started ? Keep enabled unless you know what you're doing."
+msgstr ""
 
 # conf/documentation.conf (inline.should_reauth_on_vlan_change)
 msgid "Should have to reauthenticate the node if vlan change"
@@ -3868,6 +4253,12 @@ msgid ""
 "Should iptables be managed by PacketFence? Keep enabled unless you know what"
 " you're doing."
 msgstr "Est-ce que iptables doit être géré par PacketFence ? Gardez le activé sauf si vous savez ce que vous faites."
+
+# conf/documentation.conf (services.keepalived)
+msgid ""
+"Should keepalived be started ? Keep enabled unless you know what you're "
+"doing."
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid ""
@@ -3942,6 +4333,19 @@ msgstr "Est-ce que Snort doit être géré par PacketFence ?"
 # conf/documentation.conf (services.suricata)
 msgid "Should suricata be managed by PacketFence?"
 msgstr "Est-ce que Suricata doit être géré par PacketFence ?"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate)
+msgid ""
+"Should the local instance of Fingerbank interrogate the upstream Fingerbank "
+"project when unable to fullfil a match"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched)
+msgid ""
+"Should the local instance of Fingerbank record unmatched parameters so that "
+"it will be possible to submit thoses unmatched parameters to the upstream "
+"Fingerbank project for contribution"
+msgstr ""
 
 # conf/documentation.conf (inline.accounting)
 msgid ""
@@ -4101,6 +4505,16 @@ msgid ""
 "with an action of <i>email</i>, or any other PacketFence-related message."
 msgstr "Sujet pour les notifications email des serveurs DHCP non autorisés, les violations avec une action <i>e-mail</i>, ou tout autre message lié PacketFence."
 
+# html/pfappserver/root/config/fingerbank/combination/index.tt
+# html/pfappserver/root/config/fingerbank/device/index.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/user_agent/index.tt
+msgid "Submit Unknown/Unmatched Fingerprints"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Subtree"
 msgstr "Sous-arbre"
@@ -4181,6 +4595,22 @@ msgstr "Port du AAA webservice"
 msgid "The ID of the Switch"
 msgstr "L'identifiant du commutateur"
 
+# conf/documentation.conf (omapi.key_base64)
+msgid "The OMAPI base64 key for signing messages"
+msgstr ""
+
+# conf/documentation.conf (omapi.host)
+msgid "The OMAPI host"
+msgstr ""
+
+# conf/documentation.conf (omapi.key_name)
+msgid "The OMAPI key name for signing messages"
+msgstr ""
+
+# conf/documentation.conf (omapi.port)
+msgid "The OMAPI port number"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid ""
 "The amount of time a user is blocked after reaching the defined limit for "
@@ -4194,6 +4624,12 @@ msgstr "La source d´authentification n´a pu être trouvée."
 # conf/documentation.conf (registration.button_text)
 msgid "The button text will appear on the registration page submit button"
 msgstr "Le texte du bouton apparaîtra sur la page d'enregistrement"
+
+# conf/documentation.conf (advanced.hash_passwords)
+msgid ""
+"The cost factor to apply to the password hashing if applicable.Currently "
+"only applies to bcrypt."
+msgstr ""
 
 # conf/documentation.conf (billing.mirapay_currency)
 msgid "The currency of the mirapay transactions"
@@ -4317,6 +4753,12 @@ msgid ""
 "quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and "
 "<i>guest3</i>. Random passwords will be created."
 msgstr "Les noms d'utilisateurs sont construits à partir du préfixe et du nombre. Par exemple, le réglage du préfixe mit à guest et la quantité de 3, cela créer les noms d'utilisateur suivant  guest1, guest2 et guest3. Les mots de passe sont aléatoirement créés."
+
+# conf/documentation.conf (active_active.virtual_router_id)
+msgid ""
+"The virtual router id for keepalive. Leave untouched unless you have another"
+" keepalive cluster in this network."
+msgstr ""
 
 # html/pfappserver/root/service/status.tt
 msgid ""
@@ -4484,6 +4926,18 @@ msgstr "Types"
 msgid "UID type"
 msgstr "Type de UID"
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.db_url)
+msgid "URL to fetch the upstream Fingerbank project database"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate_url)
+msgid "URL to interrogate the upstream Fingerbank project to fullfil a match"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.submit_url)
+msgid "URL to submit unmatched parameter to upstream Fingerbank project"
+msgstr ""
+
 # conf/documentation.conf (billing.mirapay_currency options)
 msgid "USD"
 msgstr "USD"
@@ -4503,6 +4957,11 @@ msgstr "Utilisateurs"
 # pf::admin_roles (Actions)
 msgid "USERS_CREATE"
 msgstr "Utilisateurs - Créer"
+
+# pf::admin_roles (Actions groups)
+# pf::admin_roles (Actions)
+msgid "USERS_CREATE_MULTIPLE"
+msgstr ""
 
 # pf::admin_roles (Actions)
 msgid "USERS_DELETE"
@@ -4609,6 +5068,16 @@ msgstr "Désenregistrement "
 msgid "Unregistration Date"
 msgstr "Date de désenregistrement"
 
+# html/pfappserver/root/config/fingerbank/combination/index.tt
+# html/pfappserver/root/config/fingerbank/device/index.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/user_agent/index.tt
+msgid "Update Fingerbank DB"
+msgstr ""
+
 # html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "Update Fingerprints"
 msgstr "Mis à jour des Fingerprints"
@@ -4628,6 +5097,14 @@ msgstr "Upload"
 # html/pfappserver/root/config/profile/files.tt
 msgid "Upload failed"
 msgstr "L'upload a échoué "
+
+# conf/documentation.conf (omapi.mac2ip_lookup)
+msgid "Use OMAPI to query DHCPd for the IP address of a given MAC address"
+msgstr ""
+
+# conf/documentation.conf (omapi.ip2mac_lookup)
+msgid "Use OMAPI to query DHCPd for the MAC address of a given IP address"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid ""
@@ -4659,11 +5136,19 @@ msgstr "Utilise le nom d'utilisateur retourné par RADIUS pour essayer les règl
 msgid "User"
 msgstr "Utilisateur"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/User_Agent.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/user_agent/index.tt
 msgid "User Agent"
 msgstr "User Agent"
 
-# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/User_Agent.pm
+# html/pfappserver/root/config/fingerbank/user_agent/list.tt
+msgid "User Agent ID"
+msgstr ""
+
 # html/pfappserver/root/config/useragents/simple_search.tt
 msgid "User Agents"
 msgstr "User Agents"
@@ -4691,6 +5176,10 @@ msgstr "User Agent"
 # html/pfappserver/root/node/view.tt
 msgid "User-Agent Information"
 msgstr "Information du User-Agent"
+
+# html/pfappserver/root/config/fingerbank/user_agent/view.tt
+msgid "User_Agent"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -4765,6 +5254,11 @@ msgstr "Contrôle par VLAN"
 msgid "VLAN in which PacketFence should put the port"
 msgstr "VLAN ID dans lequel PacketFence doit mettre le port."
 
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
+msgid "Vendor"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Version"
 msgstr "Version"
@@ -5090,6 +5584,18 @@ msgstr "Sortie"
 msgid "accttotal"
 msgstr "Total"
 
+# conf/documentation.conf
+msgid "active_active"
+msgstr ""
+
+# conf/documentation.conf
+msgid "active_active.password"
+msgstr ""
+
+# conf/documentation.conf
+msgid "active_active.virtual_router_id"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # pfappserver::Form::Field::Duration (Operators)
 msgid "add"
@@ -5098,6 +5604,10 @@ msgstr "Ajouter"
 # conf/documentation.conf
 msgid "advanced"
 msgstr "Avancé"
+
+# conf/documentation.conf
+msgid "advanced.hash_passwords"
+msgstr ""
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_error_color"
@@ -5200,6 +5710,10 @@ msgstr "mise à jour automatique"
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
 msgstr "Enregistrer le nœud"
+
+# conf/documentation.conf (advanced.hash_passwords options)
+msgid "bcrypt"
+msgstr ""
 
 # conf/documentation.conf
 msgid "billing"
@@ -5439,19 +5953,32 @@ msgstr "Description"
 msgid "detect"
 msgstr "Détecter"
 
+# pf::config (VALID_TRIGGER_TYPES)
+msgid "device"
+msgstr ""
+
 # conf/documentation.conf (interface.type options)
 msgid "dhcp-listener"
 msgstr "écoute-dhcp"
 
+# pf::config (VALID_TRIGGER_TYPES)
 # pf::pfcmd::report (SQL)
 # pfappserver::PacketFence::Controller::Graph (osclassbandwidth fields)
 msgid "dhcp_fingerprint"
-msgstr "Classe de système d'exploitation"
+msgstr ""
+
+# pf::config (VALID_TRIGGER_TYPES)
+msgid "dhcp_vendor"
+msgstr ""
 
 # conf/documentation.conf (interface.type options)
 msgid "dhcplistener"
 msgstr "dhcplistener"
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched
+# options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate
+# options)
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (captive_portal.status_only_on_production options)
@@ -5464,11 +5991,14 @@ msgstr "dhcplistener"
 # conf/documentation.conf (network.dhcpdetector options)
 # conf/documentation.conf (network.dhcpoption82logger options)
 # conf/documentation.conf (network.rogue_dhcp_detection options)
+# conf/documentation.conf (omapi.ip2mac_lookup options)
+# conf/documentation.conf (omapi.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (registration.device_registration options)
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.haproxy options)
 # conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin options)
 # conf/documentation.conf (services.httpd_mod_qos options)
@@ -5478,6 +6008,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf (services.httpd_proxy options)
 # conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.iptables options)
+# conf/documentation.conf (services.keepalived options)
 # conf/documentation.conf (services.memcached options)
 # conf/documentation.conf (services.pfbandwidthd options)
 # conf/documentation.conf (services.pfdhcplistener options)
@@ -5527,6 +6058,10 @@ msgstr "email"
 msgid "email_action"
 msgstr "Envoyer un email"
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched
+# options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate
+# options)
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (captive_portal.status_only_on_production options)
@@ -5539,11 +6074,14 @@ msgstr "Envoyer un email"
 # conf/documentation.conf (network.dhcpdetector options)
 # conf/documentation.conf (network.dhcpoption82logger options)
 # conf/documentation.conf (network.rogue_dhcp_detection options)
+# conf/documentation.conf (omapi.ip2mac_lookup options)
+# conf/documentation.conf (omapi.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (registration.device_registration options)
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.haproxy options)
 # conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin options)
 # conf/documentation.conf (services.httpd_mod_qos options)
@@ -5553,6 +6091,7 @@ msgstr "Envoyer un email"
 # conf/documentation.conf (services.httpd_proxy options)
 # conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.iptables options)
+# conf/documentation.conf (services.keepalived options)
 # conf/documentation.conf (services.memcached options)
 # conf/documentation.conf (services.pfbandwidthd options)
 # conf/documentation.conf (services.pfdhcplistener options)
@@ -5740,6 +6279,10 @@ msgstr "http"
 msgid "httpd listening port for AAA webservice"
 msgstr "Port d'écoute d'httpd pour le webservice AAA"
 
+# conf/documentation.conf (ports.pf_status)
+msgid "httpd listening port for PacketFence Status webservice"
+msgstr ""
+
 # pf::provisioner (Provisioners)
 msgid "ibm"
 msgstr "IBM"
@@ -5873,6 +6416,10 @@ msgstr "inférieur ou égal"
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "mac"
 msgstr "Adresse MAC"
+
+# pf::config (VALID_TRIGGER_TYPES)
+msgid "mac_vendor"
+msgstr ""
 
 # conf/documentation.conf (advanced.pfcmd_error_color options)
 # conf/documentation.conf (advanced.pfcmd_success_color options)
@@ -6047,6 +6594,18 @@ msgstr "Opérateur téléphonique"
 msgid "monitor"
 msgstr "surveillance "
 
+# conf/documentation.conf
+msgid "monitoring"
+msgstr ""
+
+# conf/documentation.conf
+msgid "monitoring.statsd_host"
+msgstr ""
+
+# conf/documentation.conf
+msgid "monitoring.statsd_port"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "months"
 msgstr "mois"
@@ -6134,6 +6693,34 @@ msgstr "Notes"
 msgid "ok"
 msgstr "ok"
 
+# conf/documentation.conf
+msgid "omapi"
+msgstr ""
+
+# conf/documentation.conf
+msgid "omapi.host"
+msgstr ""
+
+# conf/documentation.conf
+msgid "omapi.ip2mac_lookup"
+msgstr ""
+
+# conf/documentation.conf
+msgid "omapi.key_base64"
+msgstr ""
+
+# conf/documentation.conf
+msgid "omapi.key_name"
+msgstr ""
+
+# conf/documentation.conf
+msgid "omapi.mac2ip_lookup"
+msgstr ""
+
+# conf/documentation.conf
+msgid "omapi.port"
+msgstr ""
+
 # conf/documentation.conf (scan.engine options)
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "openvas"
@@ -6147,10 +6734,6 @@ msgstr "OPSWAT"
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "organization"
 msgstr "Organisation"
-
-# pf::config (VALID_TRIGGER_TYPES)
-msgid "os"
-msgstr "OS"
 
 # pf::config (Network types)
 msgid "other"
@@ -6213,6 +6796,10 @@ msgstr "Téléphone"
 msgid "phonenumber"
 msgstr "Numéro de téléphone"
 
+# conf/documentation.conf (advanced.hash_passwords options)
+msgid "plaintext"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
 msgid "port"
@@ -6229,6 +6816,10 @@ msgstr "Port AAA"
 # conf/documentation.conf
 msgid "ports.admin"
 msgstr "Admin"
+
+# conf/documentation.conf
+msgid "ports.pf_status"
+msgstr ""
 
 # conf/documentation.conf
 msgid "ports.soap"
@@ -6270,6 +6861,14 @@ msgstr "SSID"
 # conf/documentation.conf
 msgid "proxies"
 msgstr "Proxies"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "query"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "query.record_unmatched"
+msgstr ""
 
 # conf/documentation.conf (advanced.pfcmd_error_color options)
 # conf/documentation.conf (advanced.pfcmd_success_color options)
@@ -6413,6 +7012,14 @@ msgid "services.dhcpd_binary"
 msgstr "Emplacement de dhcpd"
 
 # conf/documentation.conf
+msgid "services.haproxy"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.haproxy_binary"
+msgstr ""
+
+# conf/documentation.conf
 msgid "services.httpd_aaa"
 msgstr "httpd.aaa"
 
@@ -6451,6 +7058,14 @@ msgstr "iptables"
 # conf/documentation.conf
 msgid "services.iptables_binary"
 msgstr "Emplacement d´iptables"
+
+# conf/documentation.conf
+msgid "services.keepalived"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.keepalived_binary"
+msgstr ""
 
 # conf/documentation.conf
 msgid "services.memcached"
@@ -6696,18 +7311,42 @@ msgstr "Désenregistrer le noeud"
 msgid "up2date"
 msgstr "à jour"
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.api_key"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.db_url"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.interrogate"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.interrogate_url"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.submit_url"
+msgstr ""
+
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
 msgstr "userAccountControl"
+
+# pf::config (VALID_TRIGGER_TYPES)
+msgid "user_agent"
+msgstr ""
 
 # pf::Authentication::Source::EmailSource (available_attributes)
 # pf::Authentication::Source::SponsorEmailSource (available_attributes)
 msgid "user_email"
 msgstr "user_email"
-
-# pf::config (VALID_TRIGGER_TYPES)
-msgid "useragent"
-msgstr "UserAgent"
 
 # html/pfappserver/root/admin/users.tt
 # pf::Authentication::Source::BlackholeSource (available_attributes)
@@ -6724,10 +7363,6 @@ msgstr "UserAgent"
 # pf::Authentication::Source::WindowsLiveSource (available_attributes)
 msgid "username"
 msgstr "nom d'utilisateur"
-
-# pf::config (VALID_TRIGGER_TYPES)
-msgid "vendormac"
-msgstr "Constructeur MAC"
 
 # pf::config (SoH Actions)
 msgid "violation"
