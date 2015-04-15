@@ -14,6 +14,7 @@ pf::base::cmd::config_store
 use strict;
 use warnings;
 use base qw(pf::base::cmd::action_cmd);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 
 sub action_clone {
     my ($self) = @_;
@@ -21,10 +22,10 @@ sub action_clone {
     my ($from,$to,%attributes) = $self->action_args;
     if ( $configStore->copy($from,$to) ) {
         $configStore->update($to,\%attributes);
-        return $configStore->commit ? 0 : 1;
+        return $configStore->commit ? $EXIT_SUCCESS : $EXIT_FAILURE;
     }
     print "unable able to clone $from to $to\n";
-    return 1;
+    return $EXIT_FAILURE;
 }
 
 sub idKey { 'id' }
@@ -49,7 +50,7 @@ sub action_get {
             print join('|',map { $self->format_param($_) } @$item{@display_fields}),"\n";
         }
     }
-    return 0;
+    return $EXIT_SUCCESS;
 }
 
 sub format_param {
@@ -68,11 +69,11 @@ sub action_delete {
     if($configStore->hasId($id) ) {
         $configStore->remove($id);
         my $results =  $configStore->commit;
-        return 0 if $results;
+        return $EXIT_SUCCESS if $results;
     } else {
         print "Unknown item $id!\n";
     }
-    return 1;
+    return $EXIT_FAILURE;
 }
 
 sub parse_clone {
@@ -96,19 +97,19 @@ sub action_add {
     my ($id,%attributes) = $self->action_args;
     if ($configStore->hasId($id)) {
         print "'$id' already exists!\n";
-        return 1;
+        return $EXIT_FAILURE;
     }
     $configStore->create($id,\%attributes);
-    return $configStore->commit ? 0 : 1;
+    return $configStore->commit ? $EXIT_SUCCESS : $EXIT_FAILURE;
 }
 
 sub action_edit {
     my ($self) = @_;
     my $configStore = $self->configStore;
     my ($id,%attributes) = $self->action_args;
-    return 1 unless $configStore->hasId($id);
+    return $EXIT_FAILURE unless $configStore->hasId($id);
     $configStore->update($id,\%attributes);
-    return $configStore->commit ? 0 : 1;
+    return $configStore->commit ? $EXIT_SUCCESS : $EXIT_FAILURE;
 }
 
 sub parse_add {
