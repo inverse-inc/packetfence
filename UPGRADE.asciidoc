@@ -24,6 +24,7 @@ Please note that the sections below are cumulative. That is to say, if you are u
 As always, taking a complete backup of your current installation is strongly recommended. 
 A backup should contain a copy of all PacketFence files as well as a copy of the database.
 You can take a backup of the pf directory with the following command:
+
   tar -C /usr/local -czf /root/packetfence.tar.gz pf 
 
 A backup of the database can be taken using the procedure described in the next section.
@@ -60,7 +61,8 @@ Database schema update
 
 Before making any changes to your database, ensure that you have a backup.
 A complete database backup can be taken using this command:
-  mysqldump -opt -Bpf -p -u root | gzip > packetfence_db.sql.gz
+
+  mysqldump -u root -p pf | gzip > /root/packetfence_db.sql.gz
 
 If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
 
