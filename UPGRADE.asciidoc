@@ -32,8 +32,8 @@ A backup of the database can be taken using the procedure described in the next 
 Configuration changes
 ^^^^^^^^^^^^^^^^^^^^^
 
-You must manually enter the mysql password of the pf user in the conf/pfconfig.conf file.
-The mysql password is saved in the conf/pf.conf file under the [database] section.
+You must manually enter the MySQL password of the pf user in the conf/pfconfig.conf file.
+The MySQL password is saved in the conf/pf.conf file under the [database] section.
 Copy the following from conf/pf.conf to conf/pfconfig.conf: 
 
   pass=$YOURPASSWORDHERE
@@ -52,7 +52,7 @@ Make sure you add the new rules in conf/iptables.conf.example to your existing i
 Using EAP local authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you are using EAP local authentication, meaning your 802.1x connections authenticate against your local database, you will need to make sure you deactivate password encryption in the database.
+If you are using EAP MS-CHAP local authentication, meaning your 802.1x connections authenticate against your local database, you will need to make sure you deactivate password encryption in the database.
 In the administration interface, go in 'Configuration -> Advanced' and set 'Database passwords hashing method' to `plaintext`
 
 
@@ -68,11 +68,9 @@ If your database is more than a few hundred megabytes, you may also want to cons
 
 
 Multiple changes have been made to the database schema. You will need to update it accordingly.
-Since the 'iplog' table has been significantly modified it is recommended to truncate it prior to updating the schema to prevent a prolonged downtime. To do so, run this command:
+Since we will be dropping and recreating the 'iplog' table it is essential that you have a backup if you need the data it contains.
 
-  mysql -u root -p -Dpf -e 'truncate table iplog;'
-
-Then make sure you run the following to update your schema:
+Make sure you run the following to update your schema:
 
   mysql -u root -p pf -v < db/upgrade-X.X.X-X.Y.Z.sql
 
