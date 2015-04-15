@@ -49,7 +49,7 @@ sub index : Path : Args(0) {
     my $mac = $c->portalSession->clientMac;
     my $node_info = node_view($mac);
     use Data::Dumper;
-    $logger->info(Dumper($username));
+    $logger->info('username signed in:'. Dumper($username));
     my $pid = $node_info->{'pid'};
     #my $host = "";
     #my $ldapreq = "ldapsearch -h $host -s sub -b $basedn -D $binddn -w $passwd \"(cn=$username)\" | grep mail ";
@@ -57,7 +57,7 @@ sub index : Path : Args(0) {
     #$provisioner->authorize($mac) if (defined($provisioner));
     $c->stash(
         post_uri            => '/tlsprofile/cert_process',
-        certificate_cn      => $username, #$request->param_encoded("certificate_cn"),
+        certificate_cn      => $request->param_encoded("certificate_cn"),
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
         certificate_email   => lc( $request->param_encoded("certificate_email")),
         template            => 'pki.html',
@@ -124,9 +124,11 @@ sub get_cert : Private {
     my $session = $c->session;
     my $uri = $Config{'pki'}{'uri'};
     my $username = $Config{'pki'}{'username'};
+    use Data::Dumper;
     my $password = $Config{'pki'}{'password'};
     my $email = $stash->{'certificate_email'};
     my $dot1x_username = $stash->{'certificate_cn'};
+    $logger->info('username before request curl:'. Dumper($dot1x_username));
     my $organisation = $Config{'pki'}{'organisation'};
     my $state = $Config{'pki'}{'state'};
     my $profile = $Config{'pki'}{'profile'};
