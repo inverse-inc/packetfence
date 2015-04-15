@@ -48,6 +48,13 @@ Make sure you add the new rules in conf/iptables.conf.example to your existing i
 
   cp /usr/local/pf/conf/iptables.conf.example /usr/local/pf/conf/iptables.conf
 
+Using EAP local authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you are using EAP local authentication, meaning your 802.1x connections authenticate against your local database, you will need to make sure you deactivate password encryption in the database.
+In the administration interface, go in 'Configuration -> Advanced' and set 'Database passwords hashing method' to `plaintext`
+
+
 Database schema update
 ^^^^^^^^^^^^^^^^^^^^^^
 
