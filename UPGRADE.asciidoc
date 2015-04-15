@@ -62,7 +62,7 @@ Database schema update
 Before making any changes to your database, ensure that you have a backup.
 A complete database backup can be taken using this command:
 
-  mysqldump -u root -p pf | gzip > /root/packetfence_db.sql.gz
+  mysqldump --opt -u root -p pf | gzip > /root/packetfence_db.sql.gz
 
 If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
 
