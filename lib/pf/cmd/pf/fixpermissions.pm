@@ -19,6 +19,7 @@ use strict;
 use warnings;
 use base qw(pf::cmd);
 use pf::file_paths;
+use pf::constants::exit_code qw($EXIT_SUCCESS);
 use File::Spec::Functions qw(catfile);
 
 sub parseArgs { 1 }
@@ -31,16 +32,13 @@ sub _run {
     chmod(06755,$pfcmd);
     chmod(0664, @stored_config_files);
     chmod(02775, $conf_dir, $var_dir, $log_dir);
-    print "Done\n";
-    return 0;
+    return $EXIT_SUCCESS;
 }
 
 sub _changeFilesToOwner {
     my ($user,@files) = @_;
     my ($login,$pass,$uid,$gid) = getpwnam($user);
     my ($group, undef, undef, undef)= getgrgid($gid);
-    print "Changing ownership to ${user}:${group}\n";
-    print "$_\n" foreach @files;
     chown $uid,$gid,@files;
 }
 =head1 AUTHOR
