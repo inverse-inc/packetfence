@@ -14,6 +14,7 @@ pf::cmd::pf::configfiles::push
 use strict;
 use warnings;
 use pf::configfile;
+use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::file_paths;
 use base qw(pf::cmd);
 
@@ -22,6 +23,7 @@ sub run {
     foreach my $config_file (@stored_config_files) {
         configfile_import($config_file);
     }
+    return $EXIT_SUCCESS;
 }
 
 
