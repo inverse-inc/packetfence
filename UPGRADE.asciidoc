@@ -37,8 +37,16 @@ Copy the following from conf/pf.conf to conf/pfconfig.conf:
 
   pass=$YOURPASSWORDHERE
 
+iptables changes
+^^^^^^^^^^^^^^^^
+
 The iptables configuration file doesn't use the generated rules '%%input_mgmt_guest_rules%%' anymore. 
 Make sure you remove this line from conf/iptables.conf.
+
+Also a lot of additions were made to the iptables configuration file. 
+Make sure you add the new rules in conf/iptables.conf.example to your existing iptables file or execute the following command to replace the whole file.
+
+  cp /usr/local/pf/conf/iptables.conf.example /usr/local/pf/conf/iptables.conf
 
 Database schema update
 ^^^^^^^^^^^^^^^^^^^^^^
