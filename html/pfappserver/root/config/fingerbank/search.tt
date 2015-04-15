@@ -1,0 +1,8 @@
+<form name="search" class="form-inline" action="[% c.uri_for(c.controller.action_for('search'),[scope],1,25) %]" method="POST">
+  <div class="pull-right">
+    <input name="value" type="text" placeholder="String..." value="[% value | html %]"/>
+    <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i></button>
+    <button type="reset" class="btn btn-primary">&times;</button>
+  </div>
+</form>
+<br/>

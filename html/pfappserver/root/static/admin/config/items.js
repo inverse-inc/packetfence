@@ -70,6 +70,10 @@ var ItemView = function(options) {
     // Save the modifications from the modal
     var search = $.proxy(this.search, this);
     options.parent.on('submit', 'form[name="search"]', search);
+    //
+    // Save the modifications from the modal
+    var resetSearch = $.proxy(this.resetSearch, this);
+    options.parent.on('reset', 'form[name="search"]', resetSearch);
 
     var search_next = $.proxy(this.searchNext, this);
     options.parent.on('click', id + ' [href*="/search/"]', search_next);
@@ -197,11 +201,18 @@ ItemView.prototype.listRefresh = function(list_url) {
 };
 
 
+ItemView.prototype.resetSearch = function(e) {
+    e.preventDefault();
+    this.list();
+    return false;
+};
+
 ItemView.prototype.search = function(e) {
     e.preventDefault();
     var form = $(e.target);
     var url = form.attr('action');
     this.searchRefresh(url,form);
+    return false;
 };
 
 ItemView.prototype.searchNext = function(e) {
@@ -210,6 +221,7 @@ ItemView.prototype.searchNext = function(e) {
     var link = $(e.target);
     var url = link.attr('href');
     this.searchRefresh(url,form);
+    return false;
 };
 
 ItemView.prototype.searchRefresh = function(search_url,form) {
@@ -228,4 +240,5 @@ ItemView.prototype.searchRefresh = function(search_url,form) {
             errorSibling: table
         });
     });
+    return false;
 };

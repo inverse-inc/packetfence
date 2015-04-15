@@ -1,0 +1,1 @@
+[% INCLUDE config/fingerbank/mac_vendor/list.tt %]

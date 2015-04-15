@@ -234,6 +234,42 @@ sub commit {
     return ( $status, $status_msg );
 }
 
+=head2 search
+
+=cut
+
+sub search {
+    my ($self, $query) = @_;
+    my $pageNum  = delete $query->{pageNum} || 1;
+    my $rows     = delete $query->{perPage};
+    my $offset   = ($pageNum - 1 ) * $rows;
+    my $order    = delete $query->{direction} || 'asc';
+    my $order_by = delete $query->{by};
+    my $extra    = {offset => $offset, rows => $rows, order_by => { -asc  => 'id'}};
+    my %results;
+    my ($status, $resultSets_or_errormsg) = $self->fingerbankModel->search([$query,$extra], $self->scope);
+    unless (is_success($status)) {
+        return ($status, $resultSets_or_errormsg);
+    }
+    my @items;
+    foreach my $resultset ( @$resultSets_or_errormsg ) {
+        while ( my $row = $resultset->next ) {
+            push ( @items, $row );
+        }
+    }
+    ($status, $resultSets_or_errormsg) = $self->fingerbankModel->search([$query], $self->scope);
+    unless (is_success($status)) {
+        return ($status, $resultSets_or_errormsg);
+    }
+    my $count = 0;
+    foreach my $resultset ( @$resultSets_or_errormsg ) {
+        $count += $resultset->count;
+    }
+    $results{items} = \@items;
+    $results{pageCount} = int (($count + $rows) / $rows) ;
+    return ($status,\%results);
+}
+
 =head2 ACCEPT_CONTEXT
 
 Create the fingerbank model using the current catalyst context

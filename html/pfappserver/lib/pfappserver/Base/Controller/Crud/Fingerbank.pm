@@ -43,6 +43,7 @@ sub action_defaults {
         clone  => { AdminRole => 'FINGERBANK_CREATE' },
         update => { AdminRole => 'FINGERBANK_UPDATE' },
         remove => { AdminRole => 'FINGERBANK_DELETE' },
+        search => { AdminRole => 'FINGERBANK_READ' },
         index  => { Path => undef, Args => 0 },
     );
 }
@@ -58,6 +59,38 @@ sub scope {
     $c->stash->{scope} = $scope;
 }
 
+=head2 search
+
+Search fingerbank
+
+=cut
+
+sub search : Chained('scope') : PathPart('search') : Args() {
+    my ($self, $c, $pageNum, $perPage) = @_;
+    $pageNum ||= 1;
+    $perPage ||= 25;
+    my $model = $self->getModel($c);
+    my $value = $c->request->param('value');
+    my ($status, $result) = $model->search(
+        {   value     => {-like => "%$value%"},
+            pageNum   => $pageNum,
+            perPage   => $perPage,
+            by        => 'value',
+            direction => 'asc',
+        }
+    );
+    if (is_success($status)) {
+        $c->stash(%$result, pageNum => $pageNum, perPage => $perPage, action => 'search', value => $value);
+    }
+    else {
+        $c->stash(
+            current_view => 'JSON',
+            status_msg   => $result,
+        );
+        $c->response->status($status);
+    }
+}
+
 =head2 index
 
 Setup the scope and forwards
@@ -66,8 +99,11 @@ Setup the scope and forwards
 
 sub index {
     my ($self, $c) = @_;
-    $c->stash->{scope} = 'Upstream';
-    $c->stash->{fingerbank_configured} = fingerbank::Config::is_api_key_configured;
+    $c->stash(
+        scope => 'Upstream',
+        fingerbank_configured => fingerbank::Config::is_api_key_configured,
+        action => 'list',
+    );
     $c->forward('list');
 }
 
