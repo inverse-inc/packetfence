@@ -34,6 +34,7 @@ use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 use constant {
     APP => 'html/pfappserver',
     CONF => 'conf',
+    FINGERBANK_CONF => '/usr/local/fingerbank/conf'
 };
 
 my %strings = ();
@@ -236,7 +237,7 @@ Extract sections, options and descriptions from documentation.conf.
 =cut
 
 sub parse_conf {
-    my $file = CONF.'/documentation.conf';
+    my $files = [CONF.'/documentation.conf', FINGERBANK_CONF.'/fingerbank.conf.doc'];
 
     sub _format_description {
         my $description = join("\n", @{$_[0]});
@@ -254,43 +255,43 @@ sub parse_conf {
         return $description;
     }
 
-    my ($line, $section, @options, @desc);
-    open(FILE, $file);
-    while (defined($line = <FILE>)) {
-        chomp $line;
-        if ($line =~ m/^\[(([^\.]+).*?)\]$/) {
-            if (scalar @desc) {
-                add_string($2, $file);
-                add_string($section, $file);
-                add_string(_format_description(\@desc), "$file ($section)");
+    foreach my $file (@$files) {
+        my ($line, $section, @options, @desc);
+        open(FILE, $file);
+        while (defined($line = <FILE>)) {
+            chomp $line;
+            if ($line =~ m/^\[(([^\.]+).*?)\]$/) {
+                if (scalar @desc) {
+                    add_string($2, $file);
+                    add_string($section, $file);
+                    add_string(_format_description(\@desc), "$file ($section)");
+                }
+                if (scalar @options) {
+                    map { add_string($_, "$file ($section options)") } @options;
+                }
+                @desc = ();
+                @options = ();
+                $section = $1;
+            } elsif ($line =~ m/^options=(.*)$/) {
+                @options = split(/\|/, $1);
+            } elsif ($line =~ m/^description=/) {
+                @desc = ();
+                while (defined($line = <FILE>)) {
+                    chomp $line;
+                    last if ($line =~ m/^EOT$/);
+                    push(@desc, $line);
+                }
             }
-            if (scalar @options) {
-                map { add_string($_, "$file ($section options)") } @options;
-            }
-            @desc = ();
-            @options = ();
-            $section = $1;
         }
-        elsif ($line =~ m/^options=(.*)$/) {
-            @options = split(/\|/, $1);
+        if (scalar @desc) {
+            add_string($section, $file);
+            add_string(_format_description(\@desc), "$file ($section)");
         }
-        elsif ($line =~ m/^description=/) {
-            @desc = ();
-            while (defined($line = <FILE>)) {
-                chomp $line;
-                last if ($line =~ m/^EOT$/);
-                push(@desc, $line);
-            }
+        if (scalar @options) {
+            map { add_string($_, "$file ($section options)") } @options;
         }
+        close(FILE);
     }
-    if (scalar @desc) {
-        add_string($section, $file);
-        add_string(_format_description(\@desc), "$file ($section)");
-    }
-    if (scalar @options) {
-        map { add_string($_, "$file ($section options)") } @options;
-    }
-    close(FILE);
 }
 
 =head2 extract_modules

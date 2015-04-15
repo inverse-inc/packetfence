@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.7.1\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-03-12 14:30-0400\n"
+"PO-Revision-Date: 2015-04-15 13:18-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -117,6 +117,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API URL of logged user"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.api_key)
+msgid "API key to interact with upstream Fingerbank project"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
@@ -755,6 +759,10 @@ msgstr ""
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/view.tt
 msgid "Close"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Clustering"
 msgstr ""
 
 # conf/documentation.conf (advanced.pfcmd_error_color)
@@ -1418,6 +1426,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Device Type"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Device class"
 msgstr ""
 
 # html/pfappserver/root/user/view.tt
@@ -2443,7 +2455,6 @@ msgid "MAC Addresses"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
 msgid "MAC Vendor"
@@ -2894,6 +2905,10 @@ msgstr ""
 
 # conf/documentation.conf (vlan.nbtrapparserthreads)
 msgid "Number of trap parser threads pfsetvlan should start"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "OMAPI"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
@@ -4166,6 +4181,14 @@ msgstr ""
 msgid "Should suricata be managed by PacketFence?"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate)
+msgid "Should the local instance of Fingerbank interrogate the upstream Fingerbank project when unable to fullfil a match"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched)
+msgid "Should the local instance of Fingerbank record unmatched parameters so that it will be possible to submit thoses unmatched parameters to the upstream Fingerbank project for contribution"
+msgstr ""
+
 # conf/documentation.conf (inline.accounting)
 msgid ""
   "Should we handle accouting data for inline clients? "
@@ -4556,6 +4579,10 @@ msgstr ""
 msgid "The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and <i>guest3</i>. Random passwords will be created."
 msgstr ""
 
+# conf/documentation.conf (active_active.virtual_router_id)
+msgid "The virtual router id for keepalive. Leave untouched unless you have another keepalive cluster in this network."
+msgstr ""
+
 # html/pfappserver/root/service/status.tt
 msgid "The web admin interface will no longer be accessible if you stop this service."
 msgstr ""
@@ -4720,6 +4747,18 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "UID type"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.db_url)
+msgid "URL to fetch the upstream Fingerbank project database"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate_url)
+msgid "URL to interrogate the upstream Fingerbank project to fullfil a match"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.submit_url)
+msgid "URL to submit unmatched parameter to upstream Fingerbank project"
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_currency options)
@@ -5350,6 +5389,10 @@ msgstr "Active Active"
 msgid "active_active.password"
 msgstr "Shared KEY"
 
+# conf/documentation.conf
+msgid "active_active.virtual_router_id"
+msgstr "Virtual Router ID"
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # pfappserver::Form::Field::Duration (Operators)
 msgid "add"
@@ -5729,6 +5772,8 @@ msgstr "DHCP Vendor"
 msgid "dhcplistener"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (captive_portal.status_only_on_production options)
@@ -5807,6 +5852,8 @@ msgstr ""
 msgid "email_action"
 msgstr "Send email"
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (captive_portal.status_only_on_production options)
@@ -6606,6 +6653,14 @@ msgstr "SSID"
 msgid "proxies"
 msgstr "Proxies"
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "query"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "query.record_unmatched"
+msgstr "Record Unmatched Parameters"
+
 # conf/documentation.conf (advanced.pfcmd_error_color options)
 # conf/documentation.conf (advanced.pfcmd_success_color options)
 # conf/documentation.conf (advanced.pfcmd_warning_color options)
@@ -7046,6 +7101,30 @@ msgstr "Deregister node"
 # pf::config (SoH Status)
 msgid "up2date"
 msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.api_key"
+msgstr "API Key"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.db_url"
+msgstr "DB URL"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.interrogate"
+msgstr "Interrogate upstream?"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.interrogate_url"
+msgstr "Upstream URL"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.submit_url"
+msgstr "Upstream Submit URL"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
