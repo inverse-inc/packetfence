@@ -44,7 +44,7 @@ In order to build an Inline setup you need :
 
 * 2 network interfaces for the VM (1 for the Inline and another one to go out).
 * a switch port in the management network for the PacketFence ZEN box (for eth0).
-* a switch port in the inline network for the PacketFence ZEN box (for eth1) which needs to be configured in access mode and in the same access VLAN as every switchport on which devices will be plugged.
+* a switch port in the inline network for the PacketFence ZEN box (for eth1) which needs to be configured in access mode and in the same access VLAN as every switchport on which devices will be connected.
 * your server has net.ipv4.ip_forward enable.
 Edit the following file:
 ----
@@ -165,7 +165,7 @@ Note that you can only set ONE (1) management interface. This one will work for 
 
 In our case, we will use two interfaces, one will be be for the management, the other one will be for the inline.
 
-For the Inline interface, we plug this card in a switch port in the Inline network.
+For the Inline interface, we connect this network card in a switch port in the Inline network.
 
 Here's a sample configuration for both of them:
 
@@ -259,7 +259,7 @@ You should be in mode '#conf-t' if not execute 'configuration terminal' in your 
 # copy running-configuration startup-configuration
 ----
 
-Now you can plug any devices that you want to be in the inline network in any of the port you just setup.
+Now you can connect any devices that you want to be in the inline network in any of the port you have just configured.
 
 FreeRADIUS
 ~~~~~~~~~~
@@ -272,7 +272,7 @@ Inline Access
 ~~~~~~~~~~~~
 
 * Make sure that the Inline and management card are properly configured
-* plug a device with a DHCP IP in the Inline subnetwork
+* connect a device with a DHCP IP in the Inline subnetwork
 * make sure the device are able to communicate with PacketFence on the Inline network card and cannot access the management network
 
 OMAPI
@@ -314,14 +314,14 @@ Register a device in inline enforcement
 
 You can now test the registration process. In order to do so:
 
-* Plug an unregistered device into the switch
-* Make sure PacketFence provides an IP address to the device. Look into the following log file: /usr/local/pf/logs/packetfence.log or verify on the computer you obtain an ip the right subnet range
+* connect an unregistered device into the switch
+* make sure PacketFence provides an IP address to the device. Look into the following log file: /usr/local/pf/logs/packetfence.log or verify on the computer you obtain an ip the right subnet range
 
-On the computer:
+From the computer:
 
-* Open a web browser
-* Try to connect to a HTTP site (Not HTTPS, eg. http://www.google.com)
-* Make sure that whatever site you want to connect to, you have only access to the registration page.
+* open a web browser
+* try to connect to a HTTP site (Not HTTPS, eg. http://www.google.com)
+* make sure that whatever site you want to connect to, you have only access to the registration page.
 
 Register the computer using the following informations:
 
@@ -330,9 +330,9 @@ Register the computer using the following informations:
 
 Once a computer has been registered:
 
-* Make sure PacketFence changes the firewall (ipset -L) rules so that the user is authorized through. Look into PacketFence log file: /usr/local/pf/logs/packetfence.log
-* In the admin interface, go under Nodes and make sure you see the computer as 'Registered'.
-* The computer has access to the network and the internet.
+* make sure PacketFence changes the firewall (ipset -L) rules so that the user is authorized through. Look into PacketFence log file: /usr/local/pf/logs/packetfence.log
+* from the web administrative interface, go under Nodes and make sure you see the computer as 'Registered'.
+* the computer has access to the network and the Internet.
 
 
 include::includes/additional-info.asciidoc[]

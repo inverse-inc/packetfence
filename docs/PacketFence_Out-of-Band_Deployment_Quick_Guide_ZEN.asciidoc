@@ -112,7 +112,7 @@ Configuration
 
 Configuring your PacketFence environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Before booting your VM, make sure the network cable coming from the TRUNK port for the demonstration PC is correctly plugged in the switch and the PC and that the link is up.
+Before booting your VM, make sure the network cable coming from the TRUNK port for the demonstration PC is correctly connected in the switch and the PC and that the link is up.
 
 Once powered, open a browser and point it to the configuration URL as stated by the VM login prompt (ie. https://PF_IP:1443/configurator). The configuration process is a five steps process at the end of which, the VM will be a persistent working PacketFence environment.
 
@@ -246,9 +246,9 @@ If you want to customize the configuration files, we suggest that you take a loo
 
 The main configuration files are :
 
-* conf/pf.conf : Configuration for the PacketFence services
-* conf/networks.conf : Definition of the registration and isolation networks to build DNS and DHCP configurations.  In our case, we included the registration and isolation networks.
-* conf/switches.conf : Definition of our VLANs and network devices
+* `conf/pf.conf` : Configuration for the PacketFence services
+* `conf/networks.conf` : Definition of the registration and isolation networks to build DNS and DHCP configurations.  In our case, we included the registration and isolation networks.
+* `conf/switches.conf` : Definition of our VLANs and network devices
 
 
 Network Devices
@@ -377,21 +377,21 @@ PacketFence ZEN {release_version} comes with a pre-configured FreeRADIUS to do W
 
 The main configuration files are :
 
-* /usr/local/pf/conf/radiusd.conf : Template for the configuration for the RADIUS service
-* /usr/local/pf/conf/eap.conf : Template for the configuration for 802.1X using EAP
-* /usr/local/pf/conf/sql.conf : Template for the RADIUS accounting and RADIUS clients configuration in PacketFence.
-* /usr/local/pf/raddb/users: Definition of our local 802.1X user
-* /usr/local/pf/raddb/sites-enabled/packetfence : Definition of the default virtual to configure the modules used in the different phase of the AAA (authenticate-authorization-accounting)
-* /usr/local/pf/raddb/sites-enabled/packetfence-tunnel : Definition of a local virtual host mainly for tunnelled EAP processing.  This is an extension of the default virtual host.
-* /usr/local/pf/raddb/packetfence.pm : PacketFence's FreeRADIUS module. Talks with PacketFence server.
+* `/usr/local/pf/conf/radiusd.conf` : Template for the configuration for the RADIUS service
+* `/usr/local/pf/conf/eap.conf` : Template for the configuration for 802.1X using EAP
+* `/usr/local/pf/conf/sql.conf` : Template for the RADIUS accounting and RADIUS clients configuration in PacketFence.
+* `/usr/local/pf/raddb/users` : Definition of our local 802.1X user
+* `/usr/local/pf/raddb/sites-enabled/packetfence` : Definition of the default virtual to configure the modules used in the different phase of the AAA (authenticate-authorization-accounting)
+* `/usr/local/pf/raddb/sites-enabled/packetfence-tunnel` : Definition of a local virtual host mainly for tunnelled EAP processing.  This is an extension of the default virtual host.
+* `/usr/local/pf/raddb/packetfence.pm` : PacketFence's FreeRADIUS module. Talks with PacketFence server.
 
 
 VLAN Access
 ~~~~~~~~~~
 
-* Make sure to configure the Registration, Isolation, and Normal VLANs on the switch
-* Configure one switch port as a trunk port (dot1q) with access to all four VLANs. The native VLAN should be the management VLAN (1)
-* Plug your host's eth0 to the trunk port
+* make sure to configure the Registration, Isolation, and Normal VLANs on the switch
+* configure one switch port as a trunk port (dot1q) with access to all four VLANs. The native VLAN should be the management VLAN (1)
+* connect your host's eth0 to the trunk port
 * put one port of the switch in the Registration VLAN
 * put another port in the Isolation VLAN
 * assign a device with a static IP (configured with appropriate subnet) in the Registration VLAN
@@ -409,9 +409,9 @@ Register a device in VLAN enforcement
 
 You can now test the registration process. In order to do so:
 
-* Plug an unregistered device into the switch
-* Make sure PacketFence receives the radius authentication request from the switch. Look into the PacketFence log file: /usr/local/pf/logs/packetfence.log
-* Make sure PacketFence handle radius request and sets the switch port into the registration VLAN (VLAN 2). Look again into PacketFence log file: /usr/local/pf/logs/packetfence.log
+* connect an unregistered device into the switch
+* make sure PacketFence receives the radius authentication request from the switch. Look into the PacketFence log file: /usr/local/pf/logs/packetfence.log
+* make sure PacketFence handle radius request and sets the switch port into the registration VLAN (VLAN 2). Look again into PacketFence log file: /usr/local/pf/logs/packetfence.log
 
 On the computer:
 
