@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use base qw(pf::cmd);
 use Role::Tiny::With;
+use pf::constants::exit_code qw($EXIT_SUCCESS);
 with 'pf::cmd::roles::show_parent_help';
 
 sub parseArgs {
@@ -32,6 +33,7 @@ sub _run {
     require pf::import;
     pf::import::nodes($self->{file});
     print "Import process complete\n";
+    return $EXIT_SUCCESS;
 }
 
 =head1 AUTHOR
