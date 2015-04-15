@@ -87,7 +87,7 @@ Installation
 Import the virtual machine
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence ZEN {release_version} comes in a pre-built virtual disk (OVA). If you are using an ESX type hypervisor, you need to import the OVA using vSphere Client (or vCenter).  We are not supporting any Xen-based hypervisors yet.
+PacketFence ZEN {release_version} comes in a pre-built virtual disk (OVA). If you are using an ESX-type hypervisor, you need to import the OVA using vSphere Client (or vCenter).  We are not supporting any Xen-based hypervisors yet.
 
 
 Import to ESX
