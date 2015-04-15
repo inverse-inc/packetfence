@@ -4468,7 +4468,7 @@ msgid ""
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_currency)
-msgid "The currency of the mirapay transactions"
+msgid "The currency of the MiraPay transactions"
 msgstr ""
 
 # html/pfappserver/root/user/list_password.tt
@@ -4480,7 +4480,7 @@ msgid "The following users have been created"
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_hash_password)
-msgid "The hash password for mirapay"
+msgid "The hash password for MiraPay"
 msgstr ""
 
 # conf/documentation.conf (provisioning.ssid)
@@ -4534,7 +4534,7 @@ msgid "The payment gateway processing URL (Provided by Authorize.net)"
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_url)
-msgid "The payment gateway processing URL for mirapay"
+msgid "The payment gateway processing URL for MiraPay"
 msgstr ""
 
 # conf/documentation.conf (billing.gateway)
@@ -4564,11 +4564,11 @@ msgid "The rule was not found."
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_terminal_id)
-msgid "The terminal id for mirapay"
+msgid "The terminal id for MiraPay"
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_terminal_id_group)
-msgid "The terminal id group for mirapay"
+msgid "The terminal id group for MiraPay"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
@@ -5534,23 +5534,23 @@ msgstr "Gateway"
 
 # conf/documentation.conf
 msgid "billing.mirapay_currency"
-msgstr "Mirapay currency"
+msgstr "MiraPay currency"
 
 # conf/documentation.conf
 msgid "billing.mirapay_hash_password"
-msgstr "Mirapay password"
+msgstr "MiraPay password"
 
 # conf/documentation.conf
 msgid "billing.mirapay_terminal_id"
-msgstr "Mirapay terminal id"
+msgstr "MiraPay terminal id"
 
 # conf/documentation.conf
 msgid "billing.mirapay_terminal_id_group"
-msgstr "Mirapay terminal group id"
+msgstr "MiraPay terminal group id"
 
 # conf/documentation.conf
 msgid "billing.mirapay_url"
-msgstr "Mirapay URL"
+msgstr "MiraPay URL"
 
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
@@ -5762,7 +5762,7 @@ msgstr ""
 # pf::pfcmd::report (SQL)
 # pfappserver::PacketFence::Controller::Graph (osclassbandwidth fields)
 msgid "dhcp_fingerprint"
-msgstr "DHCP Fingerpint"
+msgstr "DHCP Fingerprint"
 
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "dhcp_vendor"
@@ -6367,7 +6367,7 @@ msgstr ""
 
 # conf/documentation.conf (billing.gateway options)
 msgid "mirapay"
-msgstr "Mirapay"
+msgstr "MiraPay"
 
 # pf::provisioner (Provisioners)
 msgid "mobileconfig"

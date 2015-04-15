@@ -23,7 +23,7 @@ extends 'pfappserver::Base::Model::Fingerbank';
 
 has '+fingerbankModel' => ( default => 'fingerbank::Model::MAC_Vendor');
 
-has search_fields => ( default => sub { [qw(name mac) ] } );
+has '+search_fields' => ( default => sub { [qw(name mac) ] } );
 
 
 __PACKAGE__->meta->make_immutable;
