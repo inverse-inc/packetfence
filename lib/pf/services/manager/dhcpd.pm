@@ -139,7 +139,6 @@ EOT
 
 EOT
             } else {
-
             $tags{'networks'} .= <<"EOT";
 subnet $network netmask $net{'netmask'} {
   option routers $net{'gateway'};

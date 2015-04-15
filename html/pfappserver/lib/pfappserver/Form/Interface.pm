@@ -64,6 +64,7 @@ has_field 'high_availability' =>
     unchecked_value => 0,
     default => 0,
    );
+
 has_field 'vip' =>
   (
    type => 'IPAddress',

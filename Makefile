@@ -47,6 +47,11 @@ doc-checkpoint-pdf:
 doc-clustering-pdf:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Clustering_Guide.docbook docs/PacketFence_Clustering_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Clustering_Guide.docbook  -pdf docs/PacketFence_Clustering_Guide.pdf
 
+doc-out-of-band-zen:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Out-of-Band_Deployment_Quick_Guide_ZEN.docbook docs/PacketFence_Out-of-Band_Deployment_Quick_Guide_ZEN.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Out-of-Band_Deployment_Quick_Guide_ZEN.docbook  -pdf docs/PacketFence_Out-of-Band_Deployment_Quick_Guide_ZEN.pdf
+
+doc-inline-zen:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Inline_Deployment_Quick_Guide_ZEN.docbook docs/PacketFence_Inline_Deployment_Quick_Guide_ZEN.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Inline_Deployment_Quick_Guide_ZEN.docbook  -pdf docs/PacketFence_Inline_Deployment_Quick_Guide_ZEN.pdf
 
 .PHONY: configurations
 
