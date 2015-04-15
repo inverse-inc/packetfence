@@ -153,7 +153,7 @@ table.sources {
               [% list_entry('Config::Fingerbank::Device', 'index', 'Device') %]
               [% list_entry('Config::Fingerbank::DHCP_Fingerprint', 'index', 'DHCP Fingerprint') %]
               [% list_entry('Config::Fingerbank::DHCP_Vendor', 'index', 'DHCP Vendor') %]
-              [%# list_entry('Config::Fingerbank::MAC_Vendor', 'index', 'MAC Vendor') %]
+              [% list_entry('Config::Fingerbank::MAC_Vendor', 'index', 'MAC Vendor') %]
               [% list_entry('Config::Fingerbank::User_Agent', 'index', 'User Agent') %]
               [%- END %]
             </ul>
