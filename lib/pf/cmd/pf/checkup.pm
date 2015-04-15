@@ -19,6 +19,7 @@ use strict;
 use warnings;
 use pf::services;
 use pf::constants;
+use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::pfcmd::checkup;
 use base qw(pf::cmd);
 sub _run {
