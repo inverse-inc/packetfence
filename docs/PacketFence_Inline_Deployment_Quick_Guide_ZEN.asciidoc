@@ -68,8 +68,8 @@ Throughout this configuration example we use the following assumptions for our n
 Network Setup
 ~~~~~~~~~~~~~
 
-* VLAN 1 is the management VLAN
-* VLAN 2 is the “inline” VLAN
+* eth0 is on management network
+* eth1 is on inline network
 
 Please refer to the following table for IP and subnet information :
 
