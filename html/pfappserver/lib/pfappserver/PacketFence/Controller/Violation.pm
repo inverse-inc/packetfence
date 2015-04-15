@@ -20,6 +20,7 @@ use POSIX;
 
 use pf::config;
 use pf::Switch::constants;
+use pf::factory::triggerParser;
 use pfappserver::Form::Violation;
 
 BEGIN {
@@ -69,7 +70,7 @@ sub begin :Private {
     $triggers = $model->listTriggers();
     $templates = $model->availableTemplates();
     $c->stash(
-        trigger_types => \@pf::config::VALID_TRIGGER_TYPES,
+        trigger_types => \@pf::factory::triggerParser::VALID_TRIGGER_TYPES,
         current_model_instance => $model,
         current_form_instance =>
               $c->form("Violation",

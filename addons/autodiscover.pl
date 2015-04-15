@@ -96,16 +96,15 @@ Log::Log4perl->easy_init(
 );
 my $logger = Log::Log4perl->get_logger('');
 
-my $switchFactory = new pf::SwitchFactory( -configFile => CONF_FILE );
 
-foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
+foreach my $switchDesc ( sort keys %{ pf::SwitchFactory->config } ) {
     if (( $switchDesc ne 'default' )
         && ( $switchDesc ne '127.0.0.1' )
-        && ( $switchFactory->{'_config'}->{$switchDesc}->{'mode'}
+        && ( pf::SwitchFactory->config->{$switchDesc}->{'mode'}
             =~ /^discovery/ )
         )
     {
-        my $switch = $switchFactory->instantiate($switchDesc);
+        my $switch = pf::SwitchFactory->instantiate($switchDesc);
         if (!$switch) {
             print "Can not instantiate switch $switchDesc\n";
             next;
@@ -144,13 +143,13 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                             my $node_info = node_view($mac);
                             if ( ( $node_info->{'last_switch'} ne $switch->{_ip} )
                                 || ( $node_info->{'last_port'} ne $ifIndex )
-                                || ($node_info->{'voip'} ne $isPhone)) 
+                                || ($node_info->{'voip'} ne $isPhone))
                             {
                                 print
                                     "\n       node switch and port not up2date (old info is "
                                     . "switch " . $node_info->{'last_switch'} . " "
                                     . "ifIndex " . $node_info->{'last_port'} . " "
-                                    . "VoIP: " . $node_info->{'voip'} 
+                                    . "VoIP: " . $node_info->{'voip'}
                                     . ")\n";
                                 locationlog_synchronize($switch->{_ip}, $ifIndex, $vlan, $mac, $isPhone, '');
                                 print "switch: " . $switch->{_ip} . "\n";

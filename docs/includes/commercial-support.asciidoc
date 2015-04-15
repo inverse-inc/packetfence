@@ -23,6 +23,6 @@ from another system, performance tuning or aligning with best practices.
 
 Hourly rates or support packages are offered to best suit your needs.
 
-Please visit http://inverse.ca/support.html for details.
+Please visit http://inverse.ca/ for details.
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

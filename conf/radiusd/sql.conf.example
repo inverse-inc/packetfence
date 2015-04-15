@@ -45,7 +45,7 @@ sql pfguest {
         acct_table1 = "radacct"
         acct_table2 = "radacct"
         postauth_table = "radpostauth"
-        authcheck_table = "temporary_password"
+        authcheck_table = "password"
         authreply_table = "radreply"
         groupcheck_table = "radgroupcheck"
         groupreply_table = "radgroupreply"
@@ -63,7 +63,7 @@ sql pfguest {
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"guest\" \
-            AND now() <= temporary_password.unregdate \
+            AND now() <= password.unregdate \
             LIMIT 1 "
 
         authorize_reply_query = ""
@@ -87,7 +87,7 @@ sql pfsponsor {
         acct_table1 = "radacct"
         acct_table2 = "radacct"
         postauth_table = "radpostauth"
-        authcheck_table = "temporary_password"
+        authcheck_table = "password"
         authreply_table = "radreply"
         groupcheck_table = "radgroupcheck"
         groupreply_table = "radgroupreply"
@@ -105,7 +105,7 @@ sql pfsponsor {
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sponsor\" \
-            AND now() <= temporary_password.unregdate \
+            AND now() <= password.unregdate \
             LIMIT 1 "
 
         authorize_reply_query = ""
@@ -129,7 +129,7 @@ sql pfsms {
         acct_table1 = "radacct"
         acct_table2 = "radacct"
         postauth_table = "radpostauth"
-	authcheck_table = "temporary_password"
+	authcheck_table = "password"
 
         authreply_table = "radreply"
         groupcheck_table = "radgroupcheck"
@@ -148,7 +148,7 @@ sql pfsms {
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sms\" \
-            AND now() <= temporary_password.unregdate \
+            AND now() <= password.unregdate \
             LIMIT 1 "
 
 
@@ -174,7 +174,7 @@ sql pflocal {
         acct_table1 = "radacct"
         acct_table2 = "radacct"
         postauth_table = "radpostauth"
-        authcheck_table = "temporary_password"
+        authcheck_table = "password"
         authreply_table = "radreply"
         groupcheck_table = "radgroupcheck"
         groupreply_table = "radgroupreply"

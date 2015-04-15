@@ -22,7 +22,7 @@ use List::MoreUtils qw(all);
 
 =head2 match
 
-Matches all sub filters 
+Matches all sub filters
 
 =cut
 
@@ -58,4 +58,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
 1;

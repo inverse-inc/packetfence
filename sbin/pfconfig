@@ -1,5 +1,21 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+pfconfig - Serves configuration through a socket
+
+=cut
+
+=head1 SYNOPSIS
+
+pfconfig [options]
+
+ Options:
+   -d     Daemonize
+   -h     Help
+
+=cut
+
 use strict;
 use warnings;
 
@@ -17,16 +33,24 @@ use Time::HiRes;
 use pfconfig::timeme;
 use Switch;
 use List::MoreUtils qw(first_index);
+use File::Basename qw(basename);
 use Getopt::Std;
 use POSIX qw(:signal_h);
 use pf::services::util;
-use pfconfig::util;
+use pfconfig::constants;
 use Sereal::Encoder;
+use Errno qw(EINTR);
 $pfconfig::timeme::VERBOSE = 0;
+our $RUNNING = 1;
+
+our $PROGRAM_NAME = $0 = "pfconfig";
 
 
-my $socket_path = pfconfig::util::socket_path();
+my $socket_path = $pfconfig::constants::SOCKET_PATH;
 unlink($socket_path);
+
+#Ensure that the file permissions of the socket is correct 0770
+umask(0007);
 
 my $listner = IO::Socket::UNIX->new(
    Type   => SOCK_STREAM,
@@ -35,54 +59,115 @@ my $listner = IO::Socket::UNIX->new(
 )
    or die("Can't create server socket: $!\n");
 
+umask(0);
+
 my $cache = pfconfig::manager->new;
 $cache->preload_all();
 
 my $encoder = Sereal::Encoder->new;
 
 my %args;
-getopts( 'dhi:', \%args );
+getopts( 'dh', \%args );
+
+my $logger = pfconfig::log::get_logger;
+
+# init signal handlers
+POSIX::sigaction(
+    &POSIX::SIGHUP,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfconfig: could not set SIGHUP handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfconfig: could not set SIGTERM handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfconfig: could not set SIGINT handler: $!");
+
+
+# empty control file directory so subcaches in other processes
+# are expired when pfconfig is starting
+unlink glob "$pfconfig::constants::CONTROL_FILE_DIR/*";
 
 my $daemonize = $args{d};
 
 # standard signals and daemonize
-daemonize("pfconfig") if ($daemonize);
+daemonize($PROGRAM_NAME) if ($daemonize);
 
-my $logger = get_logger;
-while(1) {
-  my $socket;
-  my $line;
-  eval {
-    $socket = $listner->accept()
-     or die("Can't accept connection: $!\n");
-    chomp( $line = <$socket> );
+while($RUNNING) {
+    my $socket;
+    my $line;
+    eval {
+        $socket = $listner->accept();
+        #Check if a signal was caught
+        unless (defined $socket || $! == EINTR) {
+            die("Can't accept connection: $!\n");
+        }
+        if($socket) {
+            chomp( $line = <$socket> );
 
-    if($line eq "exit") {exit}
+            if($line eq "exit") {exit}
 
-    my $query = decode_json($line);
-    #use Data::Dumper;
-    #print Dumper($query);
+            my $query = decode_json($line);
+            #use Data::Dumper;
+            #print Dumper($query);
 
-    # we support hash namespaced queries
-    # where 
-    #  - line = 'config' return the whole config hash
-    #  - line = 'config;value' return the value in the config hash
+            # we support hash namespaced queries
+            # where
+            #  - line = 'config' return the whole config hash
+            #  - line = 'config;value' return the value in the config hash
 
-    switch ($query->{method}) {
-      case 'element' { get_element($query, $socket) }
-      case 'hash_element' { get_hash_element($query, $socket) }
-      case 'keys' { get_keys($query, $socket) }
-      case 'next_key' { get_next_key($query, $socket) }
-      case 'array_element' { get_array_element($query, $socket) }
-      case 'array_size' { get_array_size($query, $socket) }
-      case 'sleep' { sleep(10) }
-      else { print STDERR "Unknown method $query->{method}"; print "undef" }
+            switch ($query->{method}) {
+                case 'expire' { expire($query, $socket) }
+                case 'element' { get_element($query, $socket) }
+                case 'hash_element' { get_hash_element($query, $socket) }
+                case 'keys' { get_keys($query, $socket) }
+                case 'next_key' { get_next_key($query, $socket) }
+                case 'key_exists' { get_key_exists($query, $socket) }
+                case 'array_element' { get_array_element($query, $socket) }
+                case 'array_size' { get_array_size($query, $socket) }
+                case 'array_index_exists' { get_array_index_exists($query, $socket) }
+                case 'sleep' { sleep(10) }
+                else { print STDERR "Unknown method $query->{method}"; print "undef" }
+            }
+        }
+    };
+    if($@){
+        print STDERR "$line : $@";
+        send_output("undef", $socket) if $socket;
     }
-  };
-  if($@){
-      print STDERR "$line : $@";
-      send_output("undef", $socket) if $socket;
-  }
+}
+
+$logger->info("Stop running\n");
+
+END {
+    if ( !$args{h} ) {
+        deletepid($PROGRAM_NAME);
+    }
+}
+
+sub expire {
+    my ($query, $socket) = @_;
+    my $namespace = $query->{namespace};
+    my $logger = pfconfig::log::get_logger;
+    my $light = $query->{light};
+    if($namespace eq "__all__"){
+        $cache->expire_all($light);
+    }
+    else{
+        $logger->info("expiring $namespace");
+        $cache->expire($namespace, $light);
+    }
+    send_output({status => "OK."}, $socket);
 }
 
 sub get_from_cache {
@@ -96,7 +181,7 @@ sub get_from_cache {
 
 sub get_element {
     my ($query, $socket) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
     my $elem = get_from_cache_or_croak($query->{key}, $socket);
     return unless(defined($elem));
     send_output({element => $elem}, $socket);
@@ -104,27 +189,27 @@ sub get_element {
 
 sub get_hash_element {
     my ($query, $socket) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     my @keys = split ';', $query->{key};
-  
+
     my $elem = get_from_cache_or_croak($keys[0], $socket);
     return unless(defined($elem));
 
     # if we want a subnamespace we handle it here
     if($keys[1]){
-      my $sub_elem = $elem->{$keys[1]};
-      if(defined($sub_elem)){
-        $elem = {element => $sub_elem};
-      }
-      else{
-        print STDERR "Unknown key $query->{key}";
-        $logger->error("Unknown key $query->{key}");
-        $elem = "undef";
-      }
+        my $sub_elem = $elem->{$keys[1]};
+        if(defined($sub_elem)){
+            $elem = {element => $sub_elem};
+        }
+        else{
+            print STDERR "Unknown key $query->{key}";
+            $logger->error("Unknown key $query->{key}");
+            $elem = "undef";
+        }
     }
     else{
-      $elem = {element => $elem};
+        $elem = {element => $elem};
     }
     send_output($elem, $socket);
 }
@@ -155,6 +240,24 @@ sub get_keys {
     send_output(\@keys, $socket);
 }
 
+sub get_key_exists {
+    my ($query, $socket) = @_;
+
+    my $elem = get_from_cache_or_croak($query->{key}, $socket);
+    return unless(defined($elem));
+
+    my @keys = keys(%{$elem});
+
+    my $key = $query->{search};
+    if($key ~~ @keys){
+        send_output({result => 1}, $socket);
+    }
+    else {
+        send_output({result => 0}, $socket);
+    }
+
+}
+
 sub get_next_key {
     my ($query, $socket) = @_;
 
@@ -173,7 +276,7 @@ sub get_next_key {
         $last_index = first_index { $_ eq $last_key} @keys ;
 
         if($last_index >= scalar @keys){
-          $next_key = undef;
+            $next_key = undef;
         }
 
         $next_key = $keys[$last_index+1];
@@ -183,34 +286,50 @@ sub get_next_key {
 
 sub get_array_element {
     my ($query, $socket) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
 
     my @keys = split ';', $query->{key};
-  
+
     my $elem = get_from_cache_or_croak($keys[0], $socket) || return;
 
     $logger->info("GOT FROM CACHE : ".Dumper($elem));
 
     # if we want an index we handle it here
     if(defined($keys[1])){
-      my $sub_elem = $$elem[$keys[1]];
-      if(defined($sub_elem)){
-        $elem = {element => $sub_elem};
-      }
-      else{
-        print STDERR "Unknown index in $query->{key}";
-        $logger->error("Unknown index in $query->{key}");
-        $elem = "undef";
-      }
+        my $sub_elem = $$elem[$keys[1]];
+        if(defined($sub_elem)){
+            $elem = {element => $sub_elem};
+        }
+        else{
+            print STDERR "Unknown index in $query->{key}";
+            $logger->error("Unknown index in $query->{key}");
+            $elem = "undef";
+        }
+    }
+    else {
+        $elem = {element => $elem};
     }
 
     send_output($elem, $socket);
-    
+
+}
+
+sub get_array_index_exists {
+    my ($query, $socket) = @_;
+    my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
+
+    if(exists($$elem[$query->{index}])) {
+        send_output({result => 1}, $socket);
+    }
+    else{
+        send_output({result => 0}, $socket);
+    }
+
 }
 
 sub get_array_size {
     my ($query, $socket) = @_;
-    my $logger = get_logger;
+    my $logger = pfconfig::log::get_logger;
     my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
     my $size = @$elem;
     send_output({size => $size}, $socket);
@@ -225,14 +344,54 @@ sub encode_output {
 sub send_output {
     my ($data, $socket) = @_;
     unless($data eq "undef"){
-      my $data = encode_output($data);
-      my $lines = $data =~ tr/\n// || 0;
-      $lines += 1;
-      print $socket $lines."\n";
-      print $socket $data;
+        my $data = encode_output($data);
+        my $lines = $data =~ tr/\n// || 0;
+        $lines += 1;
+        print $socket $lines."\n";
+        print $socket $data;
     }
     else{
-      print $socket "1\n";
-      print $socket "$data";
+        print $socket "1\n";
+        print $socket "$data";
     }
 }
+
+=head2 normal_sighandler
+
+the signal handler to shutdown the service
+
+=cut
+
+sub normal_sighandler {
+    $RUNNING = 0;
+}
+
+=back
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2015 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+

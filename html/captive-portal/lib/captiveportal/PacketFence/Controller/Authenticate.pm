@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::Authenticate;
 
 use Moose;
 use namespace::autoclean;
+use pf::constants;
 use pf::config;
 use pf::web qw(i18n i18n_format);
 use pf::node;
@@ -370,7 +371,7 @@ sub createLocalAccount : Private {
 
     $logger->debug("External source local account creation is enabled for this source. We proceed");
 
-    # We create a "temporary password" (also known as a user account) using the pid
+    # We create a "password" (also known as a user account) using the pid
     # with different parameters coming from the authentication source (ie.: expiration date)
     my $actions = &pf::authentication::match( $c->session->{source_id}, $auth_params );
 
@@ -381,7 +382,7 @@ sub createLocalAccount : Private {
     # dynamic date, ...) will be the first in the actions array.
     unshift (@$actions, $action);
 
-    my $password = pf::temporary_password::generate($auth_params->{username}, $actions, $c->stash->{sms_pin});
+    my $password = pf::password::generate($auth_params->{username}, $actions, $c->stash->{sms_pin});
 
     # We send the guest and email with the info of the local account
     my %info = (
@@ -565,6 +566,7 @@ sub showLogin : Private {
 
 sub _clean_username {
     my ($username) = @_;
+    return $username unless defined $username;
     # Do cleaning that could be related to a human error input ( like a space after the username )
 
     # This removes trailing and leading whitespaces

@@ -49,16 +49,13 @@
                 </span></span></div>
             </div>
 
+            [% form.field('device_type').render %]
+            [% form.field('device_class').render %]
             [% form.field('vendor').render %]
-            [% IF node.dhcp -%]
-            <div class="control-group">
-              <label class="control-label">[% l('OS') %]</label>
-              <div class="controls"><span class="uneditable">[% node.dhcp.os | html %]</span></div>
-            </div>
-            [%- END %]
             [% form.field('computername').render IF node.computername -%]
             [% form.field('voip').render %]
             [% form.field('bypass_vlan').render %]
+            [% form.field('bypass_role_id').render %]
             [% form.field('notes').render %]
 
             [% IF node.last_switch OR node.last_ssid -%]

@@ -14,6 +14,7 @@ pf::services::manager::snmptrapd
 use strict;
 use warnings;
 use Moo;
+use pf::constants;
 use pf::config;
 use pf::SwitchFactory;
 use pf::util;
@@ -23,7 +24,14 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'snmptrapd' } );
 
-has '+launcher' => (default => sub { "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On" } );
+my $management_ip = '';
+
+if (ref($management_network)) {
+    $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    $management_ip .= ':162';
+}
+
+has '+launcher' => (default => sub { "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On $management_ip" } );
 
 =head2 generateConfig
 
@@ -67,15 +75,14 @@ Returns a tuple of two hashref. One with SNMPv3 Trap Users Auth parameters and o
 sub _fetch_trap_users_and_communities {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $switchFactory = pf::SwitchFactory->getInstance();
-    my %switchConfig = %{ $switchFactory->config };
+    my %switchConfig = %{ pf::SwitchFactory->config };
 
     my (%snmpv3_users, %snmp_communities);
     foreach my $key ( sort keys %switchConfig ) {
         next if ( $key =~ /^default$/i );
 
         # TODO we can probably make this more performant if we avoid object instantiation (can we?)
-        my $switch = $switchFactory->instantiate($key);
+        my $switch = pf::SwitchFactory->instantiate($key);
         if (!$switch) {
             $logger->error("Can not instantiate switch $key!");
         } else {

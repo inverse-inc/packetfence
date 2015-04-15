@@ -13,6 +13,13 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+stop_service_if_exists() {
+    SERVICE=$1
+    if [ $(set +e;invoke-rc.d --quiet --query $SERVICE stop; echo "$?") == "104"  ];then
+        invoke-rc.d $SERVICE stop
+    fi
+}
+
 
 case "$1" in
     install)

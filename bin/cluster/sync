@@ -1,0 +1,179 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+Script to synchronize cluster either as the master node or as a slave node
+
+=head1 SYNOPSIS
+
+bin/cluster/sync --as-master to push out the configuration to the other nodes
+bin/cluster/sync --from=<master-ip> --api-user=<master-api-user> --api-password=<master-api-password> to sync the configuration from a master server to this server
+
+=head1 DESCRIPTION
+
+Made for keepalived so the pf services can be adjusted depending of the running node
+
+=cut
+
+use strict;
+use warnings;
+
+use constant INSTALL_DIR => '/usr/local/pf';
+use lib INSTALL_DIR . "/lib";
+
+use pf::log;
+use pf::api::jsonrpcclient;
+use Getopt::Long;
+use pf::api::jsonrpcclient;
+use pf::config::cached;
+use pfconfig::constants;
+use pf::file_paths;
+use pf::cluster;
+
+my ($master_server, $as_master, $api_user, $api_password);
+GetOptions (
+    "from=s"   => \$master_server, 
+    "api-user=s" => \$api_user,
+    "api-password=s" => \$api_password,
+    "as-master" => \$as_master
+); 
+
+unless($master_server || $as_master){
+    print STDERR "You should either set --from or --as-master \n";
+    exit;
+}
+
+my $logger = get_logger;
+
+use Module::Pluggable
+  'search_path' => [qw(pf::ConfigStore)],
+  'sub_name'    => 'stores',
+  'require'     => 1,
+  ;
+
+our @tmp_stores = __PACKAGE__->stores();
+
+my @ignored = qw(pf::ConfigStore::Group pf::ConfigStore::Wrix pf::ConfigStore::Interface pf::ConfigStore::Role::ValidGenericID);
+
+our @stores;
+
+foreach my $store (@tmp_stores){
+    next if ($store ~~ @ignored);
+    push @stores, $store;
+}
+
+my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf");
+
+open(my $fh, '<', '/usr/local/pf/conf/cluster-files.txt') 
+  or print "WARN : Couldn't open the list of additionnal files to sync.";
+while (my $row = <$fh>) {
+    chomp $row;
+    push @files, $row;
+}
+close($fh);
+
+if($as_master){
+    print "Synching cluster with this node as the configuration master\n";
+
+    my $apiclient = pf::api::jsonrpcclient->new();
+
+    foreach my $store (@stores){
+        eval {
+            print "Synching storage : $store\n";
+            my $cs = $store->new;
+            my $pfconfig_namespace = $cs->pfconfigNamespace;
+            my $config_file = $cs->configFile;
+            my %data = (
+                namespace => $pfconfig_namespace,
+                conf_file => $config_file,          
+            );
+            my ($result) = $apiclient->call( 'expire_cluster', %data );
+        };
+        if($@){
+            print STDERR "Failed to sync store : $store \n";
+        }
+    }
+
+
+    foreach my $server (@cluster_servers){
+        next if($server->{host} eq $host_id);
+        my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
+        foreach my $file (@files){
+            eval {
+                print "Synching file : $file on $server->{host} \n";
+                my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
+                my ($result) = $apiclient->call( 'distant_download_configfile', %data );
+            };
+            if($@){
+              print STDERR "Failed to sync file : $file . $@\n";
+            }
+        }
+    }
+}
+
+if($master_server){
+    print "Synching this server from node $master_server \n";
+    
+    my $apiclient = pf::api::jsonrpcclient->new(host => $master_server, proto => 'https', username => $api_user, password => $api_password);
+
+    foreach my $store (@stores) {
+        my $cs = $store->new;
+        my $config_file = $cs->configFile;
+        push @files, $config_file;
+    }
+
+    foreach my $file (@files){
+        eval {
+            print "Synching file : $file\n";
+            my %data = ( conf_file => $file );
+            my ($result) = $apiclient->call( 'download_configfile', %data );
+            open(my $fh, '>', $file);
+            print $fh $result;
+            close($fh);
+            `chown pf.pf $file`;
+        };
+        if($@){
+            print STDERR "Failed to sync file : $file . $@\n";
+        }
+    }
+
+    pf::config::cached::updateCacheControl();
+    pf::config::cached::ReloadConfigs(1);
+
+}
+
+=back
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2015 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+

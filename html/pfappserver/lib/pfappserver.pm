@@ -37,6 +37,7 @@ use Try::Tiny;
 BEGIN {
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
+    use lib qw(/usr/local/fingerbank/lib);
     use pf::log 'service' => 'httpd.admin', reinit => 1;
 }
 use pf::config::cached;
@@ -58,6 +59,7 @@ $VERSION = eval $VERSION;
 
 __PACKAGE__->config(
     name => 'pfappserver',
+    default_view =>  'HTML',
     setup_components => {
         search_extra => [ qw(::Form ::F) ],
     },

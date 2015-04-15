@@ -31,6 +31,7 @@ use Try::Tiny;
 
 use base ('pf::Switch::Cisco::WLC');
 
+use pf::constants;
 use pf::config;
 use pf::Switch::constants;
 use pf::util;
@@ -40,7 +41,8 @@ use pf::accounting qw(node_accounting_current_sessionid);
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::node qw(node_attributes node_view);
 use pf::web::util;
-use pf::violation qw(violation_count_trap);
+use pf::violation;
+use pf::locationlog;
 
 sub description { 'Cisco Wireless Controller (WLC HTTP)' }
 
@@ -142,7 +144,8 @@ sub returnRadiusAccessAccept {
     # Roles are configured and the user should have one
     if (defined($role) && isenabled($this->{_RoleMap})) {
         my $node_info = node_view($mac);
-        if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED) {
+        my $violation = pf::violation::violation_view_top($mac);
+        if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
             $radius_reply_ref = {
                 'User-Name' => $mac,
                 $this->returnRoleAttribute => $role,
@@ -154,6 +157,7 @@ sub returnRadiusAccessAccept {
             $session_id{client_mac} = $mac;
             $session_id{wlan} = $ssid;
             $session_id{switch_id} = $this->{_id};
+            pf::locationlog::locationlog_set_session($mac, $session_id{_session_id});
             $radius_reply_ref = {
                 'User-Name' => $mac,
                 'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}"],
@@ -163,8 +167,9 @@ sub returnRadiusAccessAccept {
     }
 
 
-    # if Roles aren't configured, return VLAN information
-    if (isenabled($this->{_VlanMap}) ) {
+    # if vlan assignement is activated, then we use it for 802.1x connections
+    # we don't return a VLAN for MAC auth since that's why the other WLC modules are there
+    if (isenabled($this->{_VlanMap}) && !($connection_type eq $WIRELESS_MAC_AUTH)) {
 
         $radius_reply_ref = {
             %$radius_reply_ref,

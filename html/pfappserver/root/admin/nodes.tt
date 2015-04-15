@@ -13,6 +13,7 @@
     <option value="switch_ip">[% l('Source switch IP') %]</option>
     <option value="computername">[% l('Computer Name') %]</option>
     <option value="bypass_vlan">[% l('Bypass VLAN') %]</option>
+    <option value="bypass_role">[% l('Bypass Role') %]</option>
   </select>
   <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
     <option value="equal">[% l('is') %]</option>
@@ -184,9 +185,11 @@ form {
                       </tr>
                     </tfoot>
                   </table>
-                  <div id="advancedSearchConditionsEmpty" class="unwell unwell-horizontal hidden">
-                      <span><i class="icon-search" style="font-size:1em"> </i></span>
+                  <div id="advancedSearchConditionsEmpty" class="hidden unwell unwell-horizontal">
+                    <p>
+                      <i class="icon-search" style="line-height: 24px"></i>
                       <a href="#add">[% l('Add a condition.') %]</a>
+                    </p>
                   </div>
                 </div>
               </div>

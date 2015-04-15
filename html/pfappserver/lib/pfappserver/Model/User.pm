@@ -22,14 +22,15 @@ use List::MoreUtils qw(any none);
 
 use pf::config;
 use pf::Authentication::constants;
-use pf::temporary_password;
+use pf::password;
 use pf::error qw(is_error is_success);
 use pf::person;
 use pf::log;
 use pf::node;
 use pf::violation;
 use pf::enforcement qw(reevaluate_access);
-use pf::util qw(get_translatable_time);
+use pf::util;
+use pf::config::util;
 use pf::web::guest;
 
 =head2 field_names
@@ -246,9 +247,9 @@ sub update_actions {
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg) = ($STATUS::OK);
-    my $tp = pf::temporary_password::view($pid);
-    # Only update the actions if the user has an entry in temporary_password
-    unless (!$tp || pf::temporary_password::modify_actions($tp, $actions)) {
+    my $tp = pf::password::view($pid);
+    # Only update the actions if the user has an entry in password
+    unless (!$tp || pf::password::modify_actions($tp, $actions)) {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
         $status_msg = 'An error occurred while updating the user actions.';
     }
@@ -267,10 +268,18 @@ sub mail {
     my ($status, $status_msg) = ($STATUS::OK);
     my @users;
 
+    # we get the created users from the session so we have a copy of the cleartext password
+    my %users_passwords_by_pid = map { $_->{'pid'}, $_ } @{ $c->session->{'users_passwords'} };
     # Fetch user information
     ($status, $status_msg) = $self->read($c, $pids);
     if (is_success($status)) {
         foreach my $user (@$status_msg) {
+            # we overwrite the password found in the database with the one in the session for the same user
+            my $pid = $user->{'pid'};
+            if ( exists $users_passwords_by_pid{$pid} ) {
+                $user->{'password'} = $users_passwords_by_pid{$pid}->{'password'};
+            }
+
             eval {
                 if (length $user->{email} > 0) {
                     $user->{username} = $user->{pid};
@@ -309,7 +318,7 @@ sub delete {
     my ($status, $status_msg) = ($STATUS::OK, 'The user was successfully deleted.');
 
     eval {
-        my $result = person_delete($pid); # entry from temporary_password will be automatically deleted
+        my $result = person_delete($pid); # entry from password will be automatically deleted
         unless ($result) {
             ($status, $status_msg) = ($STATUS::INTERNAL_SERVER_ERROR, "The user still owns nodes and can't be deleted.");
         }
@@ -361,7 +370,7 @@ sub createSingle {
         # Add the registration window to the actions
         push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
         push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-        $result = pf::temporary_password::generate($pid, 
+        $result = pf::password::generate($pid, 
                                                    $data->{actions},
                                                    $data->{password});
         if ($result) {
@@ -442,7 +451,7 @@ sub createMultiple {
             # Add the registration window to the actions
             push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
             push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-            $result = pf::temporary_password::generate($pid, 
+            $result = pf::password::generate($pid, 
                                                        $data->{actions});
             if ($result) {
                 push(@users, { pid => $pid, email => $data->{email}, password => $result });
@@ -535,7 +544,7 @@ sub importCSV {
                 # The registration window is add to the actions
                 push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
                 push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-                $result = pf::temporary_password::generate($pid, 
+                $result = pf::password::generate($pid, 
                                                            $data->{actions},
                                                            $row->[$index{'c_password'}]);
                 push(@users, { pid => $pid, email => $person{email}, password => $result });

@@ -29,6 +29,7 @@ use warnings;
 use base ('pf::Switch::Xirrus');
 use Log::Log4perl;
 
+use pf::constants;
 use pf::config;
 use pf::util;
 use pf::node;
@@ -63,7 +64,9 @@ sub parseUrl {
     $this->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')),
         0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('mac')), $$req->param('ssid')
     );
-    return (clean_mac($$req->param('mac')),$$req->param('ssid'),$connection->remote_ip,$$req->param('userurl'),undef,"200");
+
+    my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $connection->remote_ip;
+    return (clean_mac($$req->param('mac')),$$req->param('ssid'),$ip,$$req->param('userurl'),undef,"200");
 }
 
 sub parseSwitchIdFromRequest {

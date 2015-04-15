@@ -18,8 +18,11 @@ See F<pf::web::custom> for details.
 use strict;
 use warnings;
 
+use pf::constants;
+use pf::constants::config qw($TIME_MODIFIER_RE $DEADLINE_UNIT);
 use pf::config;
 use pf::util;
+use pf::config::util;
 use pf::web;
 use Apache::Session::Generate::MD5;
 use Apache::Session::Flex;
@@ -94,7 +97,7 @@ sub is_creditcardexpiration_valid {
     ) {
         return 1;
     }
-    return 0; 
+    return 0;
 }
 
 =item is_credidcardnumber_valid
@@ -167,7 +170,7 @@ sub is_name_valid {
     my ( $name ) = @_;
     if ( $name =~ /
             \w              # only letters are accepted
-            /x 
+            /x
     ) {
         return 1;
     }

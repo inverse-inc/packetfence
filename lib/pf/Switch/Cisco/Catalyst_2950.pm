@@ -92,6 +92,7 @@ use Net::Appliance::Session;
 use Net::SNMP;
 use Data::Dumper;
 
+use pf::constants;
 use pf::config;
 use pf::locationlog;
 sub description { 'Cisco Catalyst 2950' }
@@ -99,6 +100,7 @@ sub description { 'Cisco Catalyst 2950' }
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
+use pf::config::util;
 use pf::vlan::custom $VLAN_API_LEVEL;
 
 =head1 SUBROUTINES

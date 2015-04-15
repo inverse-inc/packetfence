@@ -1,0 +1,6 @@
+[mysql]
+host=localhost
+user=pf
+pass=packet
+db=pf
+port=3306

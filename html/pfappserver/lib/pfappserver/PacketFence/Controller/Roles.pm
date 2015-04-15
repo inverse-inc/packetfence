@@ -134,7 +134,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_ROL
         else {
             my $data = $form->value;
             ($status, $result) = $c->model('Roles')->update($c->stash->{role},
-                                                            $data->{name},
+                                                            $c->stash->{role}->{name},
                                                             $data->{max_nodes_per_pid},
                                                             $data->{notes});
         }

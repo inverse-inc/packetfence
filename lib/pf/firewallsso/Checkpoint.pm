@@ -20,7 +20,8 @@ use POSIX;
 use base ('pf::firewallsso');
 
 use pf::accounting qw(node_accounting_current_sessionid);
-use pf::config qw($TRUE $FALSE %ConfigFirewallSSO);
+use pf::config qw(%ConfigFirewallSSO);
+use pf::constants qw($TRUE $FALSE);
 use pf::node qw(node_view);
 use pf::util::radius qw(perform_rsso);
 
@@ -40,7 +41,7 @@ sub action {
 
     my $node_info = node_view($mac);
 
-    my @categories = split(/,/, $ConfigFirewallSSO{$firewall_conf}->{categories});
+    my @categories = @{$self->{categories}};
     if (
         defined($node_info) &&
         (ref($node_info) eq 'HASH') &&

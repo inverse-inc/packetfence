@@ -27,49 +27,80 @@ the attribute cfg
 use strict;
 use warnings;
 
-use Data::Dumper;
 use JSON;
+use pfconfig::log;
 
 use base 'pfconfig::namespaces::resource';
 
 sub init {
-  my ($self) = @_;
-  $self->{expandable_params} = [];
-  $self->{child_resources} = [];
+    my ($self) = @_;
+    $self->{expandable_params} = [];
+    $self->{child_resources}   = [];
 }
 
 sub build {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  my %tmp_cfg;
+    my %tmp_cfg;
 
-  tie %tmp_cfg, 'Config::IniFiles', ( -file => $self->{file} );
+    my %added_params = ();
 
-  my $json = encode_json(\%tmp_cfg);
-  my $cfg = decode_json($json);
+    $added_params{-file} = $self->{file};
 
-  $self->unarray_parameters($cfg);
+    tie %tmp_cfg, 'Config::IniFiles', %added_params;
 
-  $self->{cfg} = $cfg;
+    @{ $self->{ordered_sections} } = keys %tmp_cfg;
 
-  my $child_resource = $self->build_child();
-  return $child_resource;
+    my $json = encode_json( \%tmp_cfg );
+    my $cfg  = decode_json($json);
+
+    $self->unarray_parameters($cfg);
+
+    $self->{cfg} = $cfg;
+
+    $self->do_defaults();
+
+    my $child_resource = $self->build_child();
+    $self->{cfg} = $child_resource;
+    return $child_resource;
+}
+
+sub do_defaults {
+    my ($self)  = @_;
+    my $logger  = pfconfig::log::get_logger;
+    my %tmp_cfg = %{ $self->{cfg} };
+    unless ( defined( $self->{default_section} ) ) {
+        $logger->debug("No default section defined when building $self->{file}");
+        return;
+    }
+    foreach my $section_name ( keys %tmp_cfg ) {
+        unless ( $section_name eq $self->{default_section} ) {
+            foreach my $element_name ( keys %{ $tmp_cfg{ $self->{default_section} } } ) {
+                unless ( exists $tmp_cfg{$section_name}{$element_name} ) {
+                    $tmp_cfg{$section_name}{$element_name}
+                        = $tmp_cfg{ $self->{default_section} }{$element_name};
+                }
+            }
+        }
+    }
+    $self->{cfg} = \%tmp_cfg;
 }
 
 sub unarray_parameters {
-    my ($self, $hash) = @_;
-    foreach my $data (values %$hash ) {
-        foreach my $key (keys %$data) {
+    my ( $self, $hash ) = @_;
+    foreach my $data ( values %$hash ) {
+        foreach my $key ( keys %$data ) {
             next unless defined $data->{$key};
-            $data->{$key} = ref($data->{$key}) eq 'ARRAY' ? join("\n", @{$data->{$key}}) : $data->{$key};
+            $data->{$key}
+                = ref( $data->{$key} ) eq 'ARRAY' ? join( "\n", @{ $data->{$key} } ) : $data->{$key};
         }
     }
 }
 
 sub cleanup_whitespaces {
-    my ($self,$hash) = @_;
-    foreach my $data (values %$hash ) {
-        foreach my $key (keys %$data) {
+    my ( $self, $hash ) = @_;
+    foreach my $data ( values %$hash ) {
+        foreach my $key ( keys %$data ) {
             next unless defined $data->{$key};
             $data->{$key} =~ s/\s+$//;
         }
@@ -81,55 +112,25 @@ sub cleanup_whitespaces {
 =cut
 
 sub expand_list {
-    my ( $self,$object,@columns ) = @_;
+    my ( $self, $object, @columns ) = @_;
     foreach my $column (@columns) {
-        if (exists $object->{$column}) {
-            $object->{$column} = [ $self->split_list($object->{$column}) ];
+        if ( exists $object->{$column} ) {
+            $object->{$column} = [ $self->split_list( $object->{$column} ) ];
         }
     }
 }
 
 sub split_list {
-    my ($self,$list) = @_;
-    return split(/\s*,\s*/,$list);
-}
-
-sub normalize_time {
-    my ($self, $date) = @_;
-    my $TIME_MODIFIER_RE = qr/[smhDWMY]/;
-    if ( $date =~ /^\d+$/ ) {
-        return ($date);
-
-    } else {
-        my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)/ or return (0);
-
-        if ( $modifier eq "s" ) { return ($num);
-        } elsif ( $modifier eq "m" ) { return ( $num * 60 );
-        } elsif ( $modifier eq "h" ) { return ( $num * 60 * 60 );
-        } elsif ( $modifier eq "D" ) { return ( $num * 24 * 60 * 60 );
-        } elsif ( $modifier eq "W" ) { return ( $num * 7 * 24 * 60 * 60 );
-        } elsif ( $modifier eq "M" ) { return ( $num * 30 * 24 * 60 * 60 );
-        } elsif ( $modifier eq "Y" ) { return ( $num * 365 * 24 * 60 * 60 );
-        }
-    }
-}
-
-sub isenabled {
-    my ($self, $enabled) = @_;
-    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i ) {
-        return (1);
-    } else {
-        return (0);
-    }
+    my ( $self, $list ) = @_;
+    return split( /\s*,\s*/, $list );
 }
 
 sub GroupMembers {
-    my ($self, $group) = @_;
-    my %cfg = %{$self->{cfg}};
+    my ( $self, $group ) = @_;
     my @members;
-    foreach my $key (keys %cfg){
-        my @values = split (' ', $key);
-        if (@values > 1 && $values[0] eq $group){
+    foreach my $key ( @{ $self->{ordered_sections} } ) {
+        my @values = split( ' ', $key );
+        if ( @values > 1 && $values[0] eq $group ) {
             push @members, $key;
         }
     }

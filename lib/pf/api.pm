@@ -17,6 +17,9 @@ use warnings;
 use base qw(pf::api::attributes);
 use threads::shared;
 use pf::config();
+use pf::config::cached;
+use pf::ConfigStore::Interface();
+use pf::ConfigStore::Pf();
 use pf::iplog();
 use pf::log();
 use pf::radius::custom();
@@ -26,6 +29,17 @@ use pf::util();
 use pf::node();
 use pf::locationlog();
 use pf::ipset();
+use pfconfig::util;
+use pfconfig::manager;
+use pf::api::jsonrpcclient;
+use pf::cluster;
+use JSON;
+use pf::file_paths;
+
+use List::MoreUtils qw(uniq);
+use NetAddr::IP;
+use pf::factory::firewallsso;
+
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -126,17 +140,17 @@ sub update_iplog : Public {
         $logger->info(
             "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing iplog entry"
         );
-        pf::iplog::iplog_close_now($postdata{'ip'});
+        pf::iplog::close($postdata{'ip'});
     } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
         $logger->info(
             "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing iplog entry"
         );
-        pf::iplog::iplog_close_now($postdata{'oldip'});
+        pf::iplog::close($postdata{'oldip'});
     }
 
-    return (pf::iplog::iplog_open($postdata{'mac'}, $postdata{'ip'}, $postdata{'lease_length'}));
+    return (pf::iplog::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'lease_length'}));
 }
- 
+
 sub unreg_node_for_pid : Public {
     my ($class, %postdata) = @_;
     my $logger = pf::log::get_logger();
@@ -172,21 +186,14 @@ sub open_iplog : Public {
     my ( $class, $mac, $ip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::iplog_open($mac, $ip, $lease_length));
+    return (pf::iplog::open($ip, $mac, $lease_length));
 }
 
 sub close_iplog : Public {
     my ( $class, $ip ) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::iplog_close($ip));
-}
-
-sub close_now_iplog : Public {
-    my ( $class, $ip ) = @_;
-    my $logger = pf::log::get_logger();
-
-    return (pf::iplog::iplog_close_now($ip));
+    return (pf::iplog::close($ip));
 }
 
 sub ipset_node_update : Public {
@@ -205,14 +212,7 @@ sub firewallsso : Public {
     my $logger = pf::log::get_logger();
 
     foreach my $firewall_conf ( sort keys %pf::config::ConfigFirewallSSO ) {
-        my $module_name = 'pf::firewallsso::'.$pf::config::ConfigFirewallSSO{$firewall_conf}->{'type'};
-        $module_name = pf::util::untaint_chain($module_name);
-        # load the module to instantiate
-        if ( !(eval "$module_name->require()" ) ) {
-            $logger->error("Can not load perl module: $@");
-            return 0;
-        }
-        my $firewall = $module_name->new();
+        my $firewall = pf::factory::firewallsso->new($firewall_conf);
         $firewall->action($firewall_conf,$postdata{'method'},$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
     }
     return $pf::config::TRUE;
@@ -227,18 +227,18 @@ sub ReAssignVlan : Public {
 
     my $logger = pf::log::get_logger();
 
-    if ( not defined( $postdata{'connection_type'} )) { 
-        $logger->error("Connection type is unknown. Could not reassign VLAN."); 
+    if ( not defined( $postdata{'connection_type'} )) {
+        $logger->error("Connection type is unknown. Could not reassign VLAN.");
         return;
     }
 
-    my $switch = pf::SwitchFactory->getInstance()->instantiate( $postdata{'switch'} );
+    my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'} );
     unless ($switch) {
         $logger->error("switch $postdata{'switch'} not found for ReAssignVlan");
         return;
     }
 
-    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'}; 
+    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
 
     # SNMP traps connections need to be handled specially to account for port-security etc.
     if ( ($postdata{'connection_type'} & $pf::config::WIRED_SNMP_TRAPS) == $pf::config::WIRED_SNMP_TRAPS ) {
@@ -249,8 +249,8 @@ sub ReAssignVlan : Public {
             = $switch->wiredeauthTechniques( $switch->{_deauthMethod}, $postdata{'connection_type'} );
         $switch->$deauthTechniques( $postdata{'ifIndex'}, $postdata{'mac'} );
     }
-    else { 
-        $logger->error("Connection type is not wired. Could not reassign VLAN."); 
+    else {
+        $logger->error("Connection type is not wired. Could not reassign VLAN.");
     }
 }
 
@@ -262,7 +262,7 @@ sub desAssociate : Public {
 
     my $logger = pf::log::get_logger();
 
-    my $switch = pf::SwitchFactory->getInstance()->instantiate($postdata{'switch'});
+    my $switch = pf::SwitchFactory->instantiate($postdata{'switch'});
     unless ($switch) {
         $logger->error("switch $postdata{'switch'} not found for desAssociate");
         return;
@@ -271,7 +271,7 @@ sub desAssociate : Public {
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
 
     # sleep long enough to give the device enough time to fetch the redirection page.
-    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'}; 
+    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
 
     $logger->info("[$postdata{'mac'}] DesAssociating mac on switch (".$switch->{'_id'}.")");
     $switch->$deauthTechniques($postdata{'mac'});
@@ -304,15 +304,15 @@ sub _reassignSNMPConnections {
         return;
     }
 
-    # case PORTSEC : When doing port-security we need to reassign the VLAN before 
-    # bouncing the port. 
+    # case PORTSEC : When doing port-security we need to reassign the VLAN before
+    # bouncing the port.
     if ( $switch->isPortSecurityEnabled($ifIndex) ) {
         $logger->info( "[$mac] security traps are configured on (".$switch->{'_id'}.") ifIndex $ifIndex. Re-assigning VLAN" );
 
         _node_determine_and_set_into_VLAN( $mac, $switch, $ifIndex, $connection_type );
-        
+
         # We treat phones differently. We never bounce their ports except if there is an outstanding
-        # violation. 
+        # violation.
         if ( $switch->hasPhoneAtIfIndex($ifIndex)  ) {
             my @violations = pf::violation::violation_view_open_desc($mac);
             if ( scalar(@violations) == 0 ) {
@@ -322,7 +322,7 @@ sub _reassignSNMPConnections {
         }
 
     } # end case PORTSEC
-    
+
     $logger->info( "[$mac] Flipping admin status on switch (".$switch->{'_id'}.") ifIndex $ifIndex. " );
     $switch->bouncePort($ifIndex);
 }
@@ -451,6 +451,153 @@ sub node_information : Public {
     return $node_info;
 }
 
+sub notify_configfile_changed : Public {
+    my ($class, %postdata) = @_;
+    my $logger = pf::log::get_logger;
+    my @require = qw(server conf_file);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    # we light expire pfconfig cluster configuration on this server so it uses the distributed configuration
+    my $payload = {
+        method => "expire",
+        namespace => 'config::Cluster',
+        light => 1,
+    };
+    pfconfig::util::fetch_decode_socket(encode_json($payload));
+
+    my $master_server = $ConfigCluster{$postdata{server}};
+    die "Master server is not in configuration" unless ($master_server);
+
+    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
+
+    eval {
+        my %data = ( conf_file => $postdata{conf_file} );
+        my ($result) = $apiclient->call( 'download_configfile', %data );
+        open(my $fh, '>', $postdata{conf_file}) or die "Cannot open file $postdata{conf_file} for writing. This is excessively bad. Run '/usr/local/pf/bin/pfcmd fixpermissions'";
+        print $fh $result;
+        close($fh);
+        use pf::config::cached;
+        pf::config::cached::updateCacheControl();
+        pf::config::cached::ReloadConfigs(1);
+
+        $logger->info("Successfully downloaded configuration $postdata{conf_file} from $postdata{server}");
+    };
+    if($@){
+        $logger->error("Couldn't download configuration file $postdata{conf_file} from $postdata{server}. $@");
+    }
+
+    return 1;
+}
+
+sub download_configfile : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(conf_file);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    use File::Slurp;
+    die "Config file $postdata{conf_file} doesn't exist" unless(-e $postdata{conf_file});
+    my $config = read_file($postdata{conf_file});
+
+    return $config;
+}
+
+sub distant_download_configfile : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(conf_file from);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    my $file = $postdata{conf_file};
+    my %data = ( conf_file => $file );
+    my $apiclient = pf::api::jsonrpcclient->new(host => $postdata{from}, proto => 'https');
+    my ($result) = $apiclient->call( 'download_configfile', %data );
+    open(my $fh, '>', $file);
+    print $fh $result;
+    close($fh);
+    `chown pf.pf $file`;
+
+    return 1;
+
+}
+
+sub expire_cluster : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(namespace conf_file);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    my $logger = pf::log::get_logger;
+
+    $postdata{light} = 0;
+    expire($class, %postdata);
+
+    foreach my $server (@cluster_servers){
+        next if($host_id eq $server->{host});
+        my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+        my %data = (
+            namespace => $postdata{namespace},
+            light => 1
+        );
+        eval {
+            $apiclient->call('expire', %data ); 
+        };
+
+        if($@){
+            $logger->error("An error occured while expiring the configuration on $server->{management_ip}. $@")
+        }
+
+        %data = (
+            conf_file => $postdata{conf_file},
+            server => $host_id,
+        );
+
+        eval {
+            $apiclient->call('notify_configfile_changed', %data);
+        };
+
+        if($@){
+            $logger->error("An error occured while notifying the change of configuration on $server->{management_ip}. $@")
+        }
+    }
+    return 1;
+}
+
+sub expire : Public {
+    my ($class, %postdata ) = @_;
+    my $logger = pf::log::get_logger;
+    my @require = qw(namespace light);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require, \@found);
+
+    # this is to detect failures in the light expire which has the most chances of failing since it requires the pfconfig service to be alive
+    my $error = 0;
+    if($postdata{light}){
+        my $payload = {
+          method => "expire",
+          namespace => $postdata{namespace},
+          light => $postdata{light},
+        };
+    
+        my $result = pfconfig::util::fetch_decode_socket(encode_json($payload));
+        unless ( $result->{status} eq "OK." ) {
+            $logger->error("Couldn't light expire namespace $postdata{namespace}");
+            $error = 1;
+        }
+    }
+    else {
+        my $all = $postdata{namespace} eq "__all__" ? 1 : 0;
+        if($all){
+            pfconfig::manager->new->expire_all();
+        }
+        else{
+            pfconfig::manager->new->expire($postdata{namespace});
+        }
+    }
+    return { error => $error };
+}
+
 =head2 validate_argv
 
 Test if the required arguments are provided
@@ -507,4 +654,3 @@ USA.
 =cut
 
 1;
-

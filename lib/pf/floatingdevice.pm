@@ -75,9 +75,11 @@ use warnings;
 use Log::Log4perl;
 use Readonly;
 
+use pf::constants;
 use pf::config;
 use pf::locationlog;
 use pf::util;
+use pf::config::util;
 
 =head1 SUBROUTINES
             

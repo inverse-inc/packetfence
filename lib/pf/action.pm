@@ -73,6 +73,7 @@ BEGIN {
 use pf::config;
 use pf::db;
 use pf::util;
+use pf::config::util;
 use pf::class qw(class_view class_view_actions);
 use pf::violation qw(violation_force_close);
 use pf::Portal::ProfileFactory;
@@ -350,6 +351,8 @@ sub action_autoregister {
                 $logger->error("auto-registration of node $mac failed");
                 return 0;
             }
+            require pf::enforcement;
+            pf::enforcement::reevaluate_access($mac, 'manage_register');
         } else {
             $logger->info("autoreg action defined for violation $vid, but won't do it: custom config said not to");
         }

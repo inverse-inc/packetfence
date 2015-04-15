@@ -19,6 +19,7 @@ use Moose;
 use pfappserver::Form::SavedSearch;
 use pf::admin_roles;
 use List::MoreUtils qw(none);
+use pf::pfcmd::checkup;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -219,6 +220,17 @@ sub users :Chained('object') :PathPart('users') :Args(0) :AdminRole('USERS_READ'
 sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
     my ( $self, $c, $section ) = @_;
 
+}
+
+=head2 checkup
+
+=cut
+
+sub checkup :Chained('object') :PathPart('checkup') :Args(0) {
+    my ( $self, $c ) = @_;
+    my @problems = sanity_check();
+    $c->stash->{items}->{problems} = \@problems;
+    $c->stash->{current_view} = 'JSON';
 }
 
 =head1 COPYRIGHT

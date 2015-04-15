@@ -11,6 +11,38 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 5.0.0 released on 2015-04-15
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+* New active/active clustering mode. This allows HTTP and RADIUS load balancing and improves availability.
+* Fingerbank integration for accurate devices fingerprinting. It is now easier than ever to share devices fingerprinting.
+* Built-in support for StatsD. This allows fine grained performance monitoring and can be used to create a dashboard using Graphite.
+* Local database passwords are now encrypted using bcrypt by default on all new installations. The old plaintext mode is still supported for legacy installations and to allow migration to the new mode.
+* Devices can now have a "bypass role" that allows the administrator to manage them completely manually. This allows for exceptions to the authorization rules.
+* Support for ISC DHCP OMAPI queries. This allows PacketFence to dynamically query a dhcpd instance to establish IP to MAC mappings.
+
+Enhancements
+++++++++++++
+* Completely rewritten pfcmd command. pfcmd is now much easier to extend and will allow us to integrate more features in the near future.
+* Rewritten IP/MAC mapping (iplog). Iplog should now never overflow.
+* New admin role action USERS_CREATE_MULTIPLE for finer grained control of the admin GUI. An administrative account can now be prevented from creating more than one other account. 
+* PacketFence will no longer start MySQL when starting.
+* PacketFence will accept to start even if there are no internal networks.
+* Added a new listening port to pfdhcplistener to listen for replicated traffic.
+* Added a 'default' default user in replacement of the admin one. 
+* Adds support for HP ProCurve 2920 switches.
+* Iptables will now allow access to the captive portal from the production network by default.
+* Major documentation rewrite and improvements.
+
+Bug Fixes
++++++++++
+* Fixed violations applying portal redirection when using web authentication on a Cisco WLC
+* Registration and Isolation VLAN ids can now be any string allowed by the RFCs.
+* Devices can no longer remain in "pending" state indefinitely.
+
+
 Version 4.7.0 released on 2015-03-06
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

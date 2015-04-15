@@ -94,6 +94,7 @@ Check the 'Passthrough' box above the field and add the following domains to the
 
 * gears.opswat.com
 * software.opswat.com
+* opswat-gears-cloud-clients.s3.amazonaws.com
 
 image::docs/images/opswat-passthroughs.png[scaledwidth="100%",alt="OPSWAT passthroughs"]
 

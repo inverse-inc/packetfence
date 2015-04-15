@@ -41,7 +41,7 @@ pod2usage(1) if $options{help};
 
 pod2usage(-msg  => "Expire must be greater than 0", -exitval => 2, -verbose => 0) unless $options{expire};
 
-iplog_cleanup(@options{qw(expire batch timeout)});
+pf::iplog::cleanup(@options{qw(expire batch timeout)});
 
 =head1 AUTHOR
 

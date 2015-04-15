@@ -35,7 +35,6 @@ use pf::config::cached;
 use pf::db;
 use pf::iplog;
 use pf::node;
-use pf::os;
 use pf::person;
 use pf::trigger;
 use pf::util;
@@ -45,7 +44,7 @@ use pf::violation;
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = $0 = basename($0);
+our $PROGRAM_NAME = $0 = "pfdetect";
 
 my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
 
@@ -128,7 +127,7 @@ while (<$snortpipe_fh>) {
         next;
     }
 
-    $srcmac = ip2mac($srcip);
+    $srcmac = pf::iplog::ip2mac($srcip);
 
     if ($srcmac) {
 

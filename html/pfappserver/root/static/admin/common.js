@@ -693,4 +693,24 @@ $(function () { // DOM ready
 
     if (typeof init == 'function') init();
     if (typeof initModals == 'function') initModals();
+
+    $('#checkup_dropdown_toggle').click(function () {
+      if($(this).closest('li').hasClass('open')) {
+        $.get("/admin/checkup", function(data){
+          var dropdown = $('#checkup_dropdown');
+          dropdown.html('');
+          if(data.items.problems.length > 0){
+            for(var i in data.items.problems){
+              var li = $('<li class="disabled"><a href="#">'+data.items.problems[i].severity+' : '+data.items.problems[i].message+'</a></li>');
+              dropdown.append(li);
+            }
+          }
+          else{
+            var li = $('<li class="disabled"><a href="#">No problem detected !</a></li>');
+            dropdown.append(li);
+          }
+        });
+      }
+    });
+
 });

@@ -17,10 +17,13 @@ use warnings;
 
 use Log::Log4perl;
 
+use pf::constants;
+use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER);
 use pf::config;
 use pf::node qw(node_attributes node_exist node_modify);
 use pf::Switch::constants;
 use pf::util;
+use pf::config::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top violation_trigger);
 use pf::floatingdevice::custom;
 
@@ -30,6 +33,8 @@ use pf::Portal::ProfileFactory;
 use pf::vlan::filter;
 use pf::person;
 use pf::lookup::person;
+use Time::HiRes;
+use pf::util::statsd qw(called);
 
 our $VERSION = 1.04;
 
@@ -68,6 +73,7 @@ getRegistrationVlan or getNormalVlan.
 sub fetchVlanForNode {
     my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
+    my $start = Time::HiRes::gettimeofday();
 
     my $node_info = node_attributes($mac);
 
@@ -75,6 +81,7 @@ sub fetchVlanForNode {
         $logger->info("[$mac] Inline trigger match, the node is in inline mode");
         my $inline = $this->getInlineVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
         $logger->info("[$mac] PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ( $inline, 1 );
     }
 
@@ -84,6 +91,7 @@ sub fetchVlanForNode {
         if (exists($ConfigFloatingDevices{$mac})){
             my $floating_config = $ConfigFloatingDevices{$mac};
             $logger->info("Floating device $mac has plugged into $switch->{_ip} port $ifIndex. Returned VLAN : $floating_config->{pvid}");
+            $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
             return $floating_config->{'pvid'};
         }
         my $floating_mac = $floatingDeviceManager->portHasFloatingDevice($switch->{_ip}, $ifIndex);
@@ -92,6 +100,7 @@ sub fetchVlanForNode {
             my $floating_config = $ConfigFloatingDevices{$floating_mac};
             if( ! $floating_config->{'trunkPort'} ){
                 $logger->info("MAC $mac, PID: $node_info->{pid} has just plugged in an access floating device enabled port. Returned VLAN $floating_config->{pvid}");
+                $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
                 return $floating_config->{'pvid'};
             }
         }
@@ -100,7 +109,8 @@ sub fetchVlanForNode {
     my ($violation,$registration,$role);
     # violation handling
     ($violation,$role) = $this->getViolationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
-    if (defined($violation) && $violation != 0) {
+    if (defined($violation) && $violation ne "0" ) {
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ( $violation, 0, $role);
     } elsif (!defined($violation)) {
         $logger->warn("[$mac] There was a problem identifying vlan for violation. Will act as if there was no violation.");
@@ -108,13 +118,14 @@ sub fetchVlanForNode {
 
     # there were no violation, now onto registration handling
     ($registration,$role) = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
-    if (defined($registration) && $registration != 0) {
+    if (defined($registration) && $registration ne "0") {
         if ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
             if (isenabled($node_info->{'autoreg'})) {
                 $logger->info("[$mac] Connection type is WIRELESS_MAC_AUTH and the device was coming from a secure SSID with auto registration");
                 node_modify($mac, ('autoreg' => 'no'));
             }
         }
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ( $registration, 0, $role );
     }
 
@@ -124,7 +135,8 @@ sub fetchVlanForNode {
         $logger->warn("[$mac] Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
         $vlan = $switch->getVlanByName('macDetection');
     }
-    $logger->info("[$mac] PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
+    $logger->info("[$mac] PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. " Returned VLAN: $vlan, Role: " . (defined $user_role ? $user_role : "(undefined)") );
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return ( $vlan, 0, $user_role );
 }
 
@@ -203,9 +215,11 @@ sub getViolationVlan {
     # $ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg) = @_;
     my $logger = Log::Log4perl->get_logger();
+    my $start = Time::HiRes::gettimeofday();
 
     my $open_violation_count = violation_count_trap($mac);
     if ($open_violation_count == 0) {
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return 0;
     }
 
@@ -215,7 +229,10 @@ sub getViolationVlan {
     # Vlan Filter
     my $filter = new pf::vlan::filter;
     my ($result,$role) = $filter->test('ViolationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
-    return ($result,$role) if $result;
+    if ($result) {
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
+        return ($result,$role);
+    }
 
     # By default we assume that we put the user in isolation vlan unless proven otherwise
     my $vlan = "isolation";
@@ -228,6 +245,8 @@ sub getViolationVlan {
 
         $logger->warn("[$mac] Could not find highest priority open violation. ".
                       "Setting target vlan to switches.conf's isolationVlan");
+        $pf::StatsD::statsd->increment(called() . ".error" );
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ($switch->getVlanByName($vlan), $vlan);
     }
 
@@ -242,6 +261,8 @@ sub getViolationVlan {
 
         $logger->warn("[$mac] Could not find class entry for violation $vid. ".
                       "Setting target vlan to switches.conf's isolationVlan");
+        $pf::StatsD::statsd->increment(called() . ".error" );
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ($switch->getVlanByName($vlan),$vlan);
     }
 
@@ -257,6 +278,8 @@ sub getViolationVlan {
     if (defined($vlan_number)) {
         $logger->info("[$mac] highest priority violation is $vid. Target VLAN for violation: $vlan ($vlan_number)");
     }
+
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return ($vlan_number,$vlan);
 }
 
@@ -287,6 +310,7 @@ sub getRegistrationVlan {
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg) = @_;
     my $logger = Log::Log4perl->get_logger();
+    my $start = Time::HiRes::gettimeofday();
     my $filter = new pf::vlan::filter;
 
     # trapping on registration is enabled
@@ -301,10 +325,12 @@ sub getRegistrationVlan {
         my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, undef, $connection_type, $user_name, $ssid, $radius_request);
         if ($result) {
             $logger->info("[$mac] doesn't have a node entry; belongs into $role VLAN");
+            $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
             return ($result,$role);
         }
         $logger->info("[$mac] doesn't have a node entry; belongs into registration VLAN");
         my $vlan = $switch->getVlanByName('registration');
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ($vlan ,'registration');
     }
 
@@ -314,12 +340,15 @@ sub getRegistrationVlan {
         my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
         if ($result) {
             $logger->info("[$mac] is of status $n_status; belongs into $role VLAN");
+            $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
             return ($result,$role);
         }
         $logger->info("[$mac] is of status $n_status; belongs into registration VLAN");
         my $vlan = $switch->getVlanByName('registration');
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ($vlan ,'registration');
     }
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return 0;
 }
 
@@ -353,7 +382,10 @@ sub getNormalVlan {
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $start = Time::HiRes::gettimeofday();
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+
+    my ($vlan, $role, $result);
 
     my $provisioner = $profile->findProvisioner($mac,$node_info);
     if (defined($provisioner) && $provisioner->{enforce}) {
@@ -364,18 +396,21 @@ sub getNormalVlan {
         $logger->info("[$mac] Can't find provisioner");
     }
 
-    # Bypass VLAN is configured in node record so we return accordingly
-    if ( defined($node_info->{'bypass_vlan'}) && $node_info->{'bypass_vlan'} ne '' ) {
-        $logger->info("[$mac] Bypass VLAN '" . $node_info->{'bypass_vlan'} . "' is configured.");
-        return $node_info->{'bypass_vlan'};
+    $vlan = _check_bypass($mac, $node_info, $switch);
+    if( $vlan ) {
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
+        return $vlan;
     }
 
     $logger->debug("[$mac] Trying to determine VLAN from role.");
 
     # Vlan Filter
     my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('NormalVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
-    return ($result,$role) if $result;
+    ($result,$role) = $filter->test('NormalVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    if ( $result ) {
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
+        return ($result,$role);
+    }
 
     # Try MAC_AUTH, then other EAP methods and finally anything else.
     if ( $connection_type && ($connection_type & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) {
@@ -402,7 +437,7 @@ sub getNormalVlan {
     # FIRST HIT MATCH
     elsif ( defined $user_name && $connection_type && ($connection_type & $EAP) == $EAP ) {
         # Attributes has been computed in getNodeInfoForAutoReg
-        if ((isenabled($node_info->{'autoreg'}) && $autoreg) || isdisabled($profile->dot1xRecomputeRoleFromPortal)) {
+        if ((isenabled($node_info->{'autoreg'}) && $autoreg) && isdisabled($profile->dot1xRecomputeRoleFromPortal)) {
             $logger->info("[$mac] Connection type is EAP. Getting role from node_info" );
             $role = $node_info->{'category'};
         } else {
@@ -447,7 +482,8 @@ sub getNormalVlan {
         $role = $node_info->{'category'};
         $logger->info("[$mac] Username was NOT defined or unable to match a role - returning node based role '$role'");
     }
-    my $vlan = $switch->getVlanByName($role);
+    $vlan = $switch->getVlanByName($role);
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return ($vlan, $role);
 }
 
@@ -475,11 +511,16 @@ sub getInlineVlan {
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg) = @_;
     my $logger = Log::Log4perl->get_logger();
+    my $start = Time::HiRes::gettimeofday();
 
     my $filter = new pf::vlan::filter;
     my ($result,$role) = $filter->test('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
-    return $result if $result;
+    if ( $result ) {
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
+        return $result;
+    }
 
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return $switch->getVlanByName('inline');
 }
 
@@ -504,15 +545,17 @@ sub getNodeInfoForAutoReg {
     my ($this, $switch, $switch_port, $mac, $vlan,
         $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name) = @_;
     my $logger = Log::Log4perl->get_logger();
+    my $start = Time::HiRes::gettimeofday();
 
     #define the current connection value to instantiate the correct portal
     my $options;
-    $options->{'last_connection_type'} = $conn_type if (defined($conn_type));
+    $options->{'last_connection_type'} = connection_type_to_str($conn_type) if (defined($conn_type));
     $options->{'last_switch'}          = $switch->{_id} if (defined($switch->{_id}));
     $options->{'last_port'}            = $switch_port if (defined($switch_port));
     $options->{'last_vlan'}            = $vlan if (defined($vlan));
     $options->{'last_ssid'}            = $ssid if (defined($ssid));
     $options->{'last_dot1x_username'}  = $user_name if (defined($user_name));
+    $options->{'realm'}                = $realm if (defined($realm));
 
     my $profile = pf::Portal::ProfileFactory->instantiate($mac,$options);
     my $filter = new pf::vlan::filter;
@@ -534,6 +577,7 @@ sub getNodeInfoForAutoReg {
     # if we are called from a violation with action=autoreg, say so
     if (defined($violation_autoreg) && $violation_autoreg) {
         $node_info{'notes'} = 'AUTO-REGISTERED by violation';
+        $node_info{'autoreg'} = 'no'; # This flag has not to be used for violation autoreg
     }
 
     # this might look circular but if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP
@@ -555,7 +599,7 @@ sub getNodeInfoForAutoReg {
         };
 
         my $source;
-        # Don't override vlan filter role 
+        # Don't override vlan filter role
         if (!defined($role)) {
             $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
         }
@@ -583,6 +627,7 @@ sub getNodeInfoForAutoReg {
         $node_info{'eap_type'} = $eap_type;
     }
 
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return %node_info;
 }
 
@@ -687,6 +732,27 @@ sub isInlineTrigger {
         }
     }
 }
+
+sub _check_bypass {
+    my ( $mac, $node_info, $switch ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref(__PACKAGE__) );
+
+    if ( @_ < 3 ) { return undef; }
+
+    # Bypass VLAN/role is configured in node record so we return accordingly
+    if ( defined( $node_info->{'bypass_vlan'} ) && ( $node_info->{'bypass_vlan'} ne '' ) ) {
+        $logger->info( "[$mac] A bypass VLAN is configured. Returning VLAN: " . $node_info->{'bypass_vlan'} );
+        return $node_info->{'bypass_vlan'};
+    }
+    elsif ( defined( $node_info->{'bypass_role'} ) && ( $node_info->{'bypass_role'} ne '' ) ) {
+        $logger->info( "[$mac] A bypass Role is configured. Returning Role: " . $node_info->{'bypass_role'} );
+        return $switch->getVlanByName( $node_info->{'bypass_role'} );
+    }
+    else {
+        return undef;
+    }
+}
+
 
 =head1 AUTHOR
 

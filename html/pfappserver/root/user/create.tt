@@ -16,8 +16,10 @@
 
   <ul class="nav nav-tabs">
     <li class="active"><a href="#single" data-toggle="tab"><i class="icon-user"></i> [% l('Single') %]</a></li>
-    <li><a href="#multiple" data-toggle="tab"><i class="icon-group"></i> [% l('Multiple') %]</a></li>
-    <li><a href="#import" data-toggle="tab"><i class="icon-upload-alt"></i> [% l('Import') %]</a></li>
+    [% IF can_access('USERS_CREATE_MULTIPLE') %]
+      <li><a href="#multiple" data-toggle="tab"><i class="icon-group"></i> [% l('Multiple') %]</a></li>
+      <li><a href="#import" data-toggle="tab"><i class="icon-upload-alt"></i> [% l('Import') %]</a></li>
+    [% END %]
   </ul>
 
   <div class="tab-content">
@@ -34,39 +36,40 @@
       [% form_single.field('notes').render %]
     </div><!-- tab-pane -->
 
-    <div class="tab-pane fade" id="multiple">
-      <div class="alert alert-info">[% l('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and <i>guest3</i>. Random passwords will be created.') %]</div>
-      [% form_multiple.field('prefix').render %]
-      [% form_multiple.field('quantity').render %]
-      [% form_multiple.field('firstname').render %]
-      [% form_multiple.field('lastname').render %]
-      [% form_multiple.field('company').render %]
-      [% form_multiple.field('notes').render %]
-    </div><!-- tab-pane -->
+    [% IF can_access('USERS_CREATE_MULTIPLE') %]
+      <div class="tab-pane fade" id="multiple">
+        <div class="alert alert-info">[% l('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and <i>guest3</i>. Random passwords will be created.') %]</div>
+        [% form_multiple.field('prefix').render %]
+        [% form_multiple.field('quantity').render %]
+        [% form_multiple.field('firstname').render %]
+        [% form_multiple.field('lastname').render %]
+        [% form_multiple.field('company').render %]
+        [% form_multiple.field('notes').render %]
+      </div><!-- tab-pane -->
 
-    <div class="tab-pane fade" id="import">
-      [% form_import.field('users_file').render %]
-      [% form_import.field('delimiter').render %]
-      <div class="control-group">
-        <label class="control-label">[% l('Columns Order') %]</label>
-        <div class="controls">
-          <table class="columns table table-sortable table-condensed">
-            <tbody>
-              [% FOREACH column IN form_import.field('columns').fields -%]
-              <tr>
-                <td class="sort-handle"><span>[% loop.index + 1 %]</span></td>
-                <td>
-                  [% column.field('name').render_element %]
-                  [% column.field('enabled').render_element %]&nbsp;
-                  [% column.field('label').render_element %]
-                </td>
-              </tr>
-              [% END %]
-            </tbody>
-        </table>
-      </div>
-    </div><!-- tab-pane -->
-
+      <div class="tab-pane fade" id="import">
+        [% form_import.field('users_file').render %]
+        [% form_import.field('delimiter').render %]
+        <div class="control-group">
+          <label class="control-label">[% l('Columns Order') %]</label>
+          <div class="controls">
+            <table class="columns table table-sortable table-condensed">
+              <tbody>
+                [% FOREACH column IN form_import.field('columns').fields -%]
+                <tr>
+                  <td class="sort-handle"><span>[% loop.index + 1 %]</span></td>
+                  <td>
+                    [% column.field('name').render_element %]
+                    [% column.field('enabled').render_element %]&nbsp;
+                    [% column.field('label').render_element %]
+                  </td>
+                </tr>
+                [% END %]
+              </tbody>
+          </table>
+        </div>
+      </div><!-- tab-pane -->
+    [% END %]
   </div><!-- tab-content -->
 
   <hr/>

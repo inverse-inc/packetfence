@@ -1,0 +1,17 @@
+global_defs {
+   notification_email {
+     %%emailaddr%%
+   }
+   notification_email_from %%fromaddr%%
+   smtp_server %%smtpserver%%
+   smtp_connect_timeout 30
+   router_id LVS_DEVEL
+}
+
+vrrp_script haproxy {
+  script "killall -0 haproxy"
+  interval 2
+  weight 2
+}
+
+%%vrrp%%

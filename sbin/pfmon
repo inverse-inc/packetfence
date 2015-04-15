@@ -52,7 +52,7 @@ use pf::factory::provisioner;
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = $0 = basename($0);
+our $PROGRAM_NAME = $0 = "pfmon";
 our @REGISTERED_TASKS;
 our $IS_CHILD = 0;
 our %CHILDREN;
@@ -116,7 +116,7 @@ my $pidfile = "${var_dir}/run/pfmon.pid";
 
 our $HAS_LOCK = 0;
 open(my $fh,">>$pidfile");
-flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfmon is running\n";
+#flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfmon is running\n";
 $HAS_LOCK = 1;
 
 our $running = 1;
@@ -125,9 +125,17 @@ our $running = 1;
 daemonize($PROGRAM_NAME) if ($daemonize);
 our $PARENT_PID = $$;
 
-registertasks();
-runtasks();
-waitforit();
+
+sub start {
+    my $vip_running = pf::cluster::is_management();
+    if($vip_running){
+        registertasks();
+    }
+    runtasks();
+    waitforit();
+}
+
+start();
 cleanup();
 
 END {
@@ -150,12 +158,12 @@ exit(0);
 =cut
 
 sub registertasks  {
-    register_task(
-        'iplog cleanup','iplog_cleanup_interval',sub {
-            iplog_cleanup( $Config{'expire'}{'iplog'} ,$Config{maintenance}{iplog_cleanup_batch},$Config{maintenance}{iplog_cleanup_timeout})
-              if ( $Config{'expire'}{'iplog'} );
-        }
-    );
+#    register_task(
+#        'iplog cleanup','iplog_cleanup_interval',sub {
+#            pf::iplog::cleanup( $Config{'expire'}{'iplog'} ,$Config{maintenance}{iplog_cleanup_batch},$Config{maintenance}{iplog_cleanup_timeout})
+#              if ( $Config{'expire'}{'iplog'} );
+#        }
+#    );
     register_task(
         'locationlog cleanup','locationlog_cleanup_interval',sub {
             locationlog_cleanup( $Config{'expire'}{'locationlog'}, $Config{maintenance}{locationlog_cleanup_batch},$Config{maintenance}{locationlog_cleanup_timeout})
@@ -449,6 +457,7 @@ the handler to cancel any currently running database queries
 sub usr1_sighandler {
    db_cancel_current_query();
 }
+
 
 =head1 AUTHOR
 

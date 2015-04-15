@@ -30,6 +30,7 @@ BEGIN { use_ok('pf::services::manager::httpd') }
 BEGIN { use_ok('pf::services::manager::dhcpd') }
 BEGIN { use_ok('pf::services::manager::snmptrapd') }
 
+use pf::constants;
 use pf::config;
 
 =head1 CONFIGURATION VALIDATION
@@ -59,8 +60,6 @@ ok(250 < $max_clients && $max_clients < 513, "MaxClients for 24Gb RAM");
 
 =cut
 
-# forcing an switchFactory instance with the test config file
-pf::SwitchFactory->getInstance;
 
 # This tests proper config creation and also covers regression test #1354
 my ($snmpv3_users, $snmp_communities) = pf::services::manager::snmptrapd::_fetch_trap_users_and_communities();

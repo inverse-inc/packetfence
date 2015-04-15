@@ -27,6 +27,7 @@ use File::Spec::Functions;
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all);
 use Try::Tiny;
+use pf::file_paths;
 
 our ( %local_mac );
 
@@ -35,33 +36,34 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        valid_date valid_ip reverse_ip clean_ip
-        clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct format_mac_as_cisco
-        ip2interface ip2device ip2int int2ip sort_ip
+        valid_date valid_ip valid_ips reverse_ip clean_ip
+        clean_mac valid_mac mac2nb macoui2nb format_mac_for_acct format_mac_as_cisco
+        ip2int int2ip sort_ip
         isenabled isdisabled isempty
         getlocalmac
-        get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets
-        get_internal_devs get_internal_devs_phy get_internal_macs
-        get_internal_info readpid deletepid
+        readpid
         parse_template mysql_date oui_to_vendor mac2oid oid2mac
-        str_to_connection_type connection_type_to_str
         get_total_system_memory
         parse_mac_from_trap
         get_vlan_from_int
-        get_abbr_time get_translatable_time
+        get_abbr_time
         pretty_bandwidth
         unpretty_bandwidth
-        pf_run pfmailer
+        pf_run
         generate_id load_oui download_oui
         trim_path format_bytes log_of ordinal_suffix
         untaint_chain read_dir_recursive all_defined
         valid_mac_or_ip listify
+        normalize_time
+        search_hash
     );
 }
 
 # TODO pf::util shouldn't rely on pf::config as this prevent pf::config from
 #      being able to use pf::util
-use pf::config;
+use pf::constants;
+use pf::constants::config;
+#use pf::config;
 use pf::log;
 
 =head1 SUBROUTINES
@@ -89,6 +91,7 @@ sub valid_date {
 }
 
 our $VALID_IP_REGEX = qr/^(?:\d{1,3}\.){3}\d{1,3}$/;
+our $VALID_IPS_REGEX = qr/^((?:\d{1,3}\.){3}\d{1,3},*)+?$/;
 our $NON_VALID_IP_REGEX = qr/^(?:0\.){3}0$/;
 
 sub valid_ip {
@@ -98,6 +101,19 @@ sub valid_ip {
         my $caller = ( caller(1) )[3] || basename($0);
         $caller =~ s/^(pf::\w+|main):://;
         $logger->debug("invalid IP: $ip from $caller");
+        return (0);
+    } else {
+        return (1);
+    }
+}
+
+sub valid_ips {
+    my ($ip) = @_;
+    my $logger = get_logger();
+    if ( !$ip || $ip !~ $VALID_IPS_REGEX) {
+        my $caller = ( caller(1) )[3] || basename($0);
+        $caller =~ s/^(pf::\w+|main):://;
+        $logger->debug("invalid IPs: $ip from $caller");
         return (0);
     } else {
         return (1);
@@ -279,59 +295,8 @@ sub mac2nb {
     return $nb;
 }
 
-sub whitelisted_mac {
-    my ($mac) = @_;
-    my $logger = get_logger();
-    return (0) if ( !valid_mac($mac) );
-    $mac = clean_mac($mac);
-    foreach
-        my $whitelist ( split( /\s*,\s*/, $Config{'trapping'}{'whitelist'} ) )
-    {
-        if ( $mac eq clean_mac($whitelist) ) {
-            $logger->info("$mac is whitelisted, skipping");
-            return (1);
-        }
-    }
-    return (0);
-}
 
-sub trappable_mac {
-    my ($mac) = @_;
-    my $logger = get_logger();
-    return (0) if ( !$mac );
-    $mac = clean_mac($mac);
 
-    if ( !valid_mac($mac)
-        || grep( { $_ eq $mac } get_internal_macs() ) )
-    {
-        $logger->info("$mac is not trappable, skipping");
-        return (0);
-    } else {
-        return (1);
-    }
-}
-
-sub ip2interface {
-    my ($ip) = @_;
-    return (0) if ( !valid_ip($ip) );
-    foreach my $interface (@internal_nets) {
-        if ( $interface->match($ip) ) {
-            return ( $interface->tag("ip") );
-        }
-    }
-    return (0);
-}
-
-sub ip2device {
-    my ($ip) = @_;
-    return (0) if ( !valid_ip($ip) );
-    foreach my $interface (@internal_nets) {
-        if ( $interface->match($ip) ) {
-            return ( $interface->tag("int") );
-        }
-    }
-    return (0);
-}
 
 =item  oid2mac - convert a MAC in oid format to a MAC in usual format
 
@@ -369,83 +334,6 @@ sub mac2oid {
         $logger->warn("$mac is not a valid MAC");
         return;
     }
-}
-
-=item pfmailer - send an email
-
-=cut
-
-sub pfmailer {
-    my (%data)     = @_;
-    my $logger     = get_logger();
-    my $smtpserver = untaint_chain($Config{'alerting'}{'smtpserver'});
-    my @to = split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'} );
-    my $from = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
-    my $subject
-        = $Config{'alerting'}{'subjectprefix'} . " " . $data{'subject'};
-    my $date = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-    my $smtp = Net::SMTP->new( $smtpserver, Hello => $fqdn );
-
-    if ( defined $smtp ) {
-        $smtp->mail($from);
-        $smtp->to(@to);
-        $smtp->data();
-        $smtp->datasend("From: $from\n");
-        $smtp->datasend( "To: " . join( ",", @to ) . "\n" );
-        $smtp->datasend("Subject: $subject ($date)\n");
-        $smtp->datasend("\n");
-        $smtp->datasend( $data{'message'} );
-        $smtp->dataend();
-        $smtp->quit;
-        $logger->info(
-            "email regarding '$subject' sent to " . join( ",", @to ) );
-    } else {
-        $logger->error("can not connect to SMTP server $smtpserver!");
-    }
-    return 1;
-}
-
-=item send_email - Send an email using a template
-
-=cut
-
-sub send_email {
-    my ($template, $email, $subject, $data) = @_;
-    my $logger = get_logger();
-
-    my $smtpserver = $Config{'alerting'}{'smtpserver'};
-    $data->{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn unless ($data->{'from'});
-
-    my %options;
-    $options{INCLUDE_PATH} = "$conf_dir/templates/";
-
-    try {
-        require MIME::Lite::TT;
-    } catch {
-        $logger->error("Could not send email because I couldn't load a module. ".
-                       "Are you sure you have MIME::Lite::TT installed?");
-        return $FALSE;
-    };
-    my $msg = MIME::Lite::TT->new(
-        From        =>  $data->{'from'},
-        To          =>  $email,
-        Cc          =>  $data->{'cc'} || '',
-        Subject     =>  $subject,
-        Template    =>  "emails-$template.txt.tt",
-        TmplOptions =>  \%options,
-        TmplParams  =>  $data,
-    );
-
-    my $result = 0;
-    try {
-      $msg->send('smtp', $smtpserver, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to $email ($subject)");
-    } catch {
-      $logger->error("Can't send email to $email: $@");
-    };
-
-    return $result;
 }
 
 =item  isenabled
@@ -531,84 +419,6 @@ sub sort_ip {
         map { [$_,ip2int($_)] } @_;
 }
 
-sub get_all_internal_ips {
-    my @ips;
-    foreach my $interface (@internal_nets) {
-        my @tmpips = $interface->enumerate();
-        pop @tmpips;
-        push @ips, @tmpips;
-    }
-    return (@ips);
-}
-
-sub get_internal_nets {
-    my @nets;
-    foreach my $interface (@internal_nets) {
-        push @nets, $interface->desc();
-    }
-    return (@nets);
-}
-
-sub get_routed_isolation_nets {
-    my @nets;
-    foreach my $interface (@routed_isolation_nets) {
-        push @nets, $interface->desc();
-    }
-    return (@nets);
-}
-
-sub get_routed_registration_nets {
-    my @nets;
-    foreach my $interface (@routed_registration_nets) {
-        push @nets, $interface->desc();
-    }
-    return (@nets);
-}
-
-sub get_inline_nets {
-    my @nets;
-    foreach my $interface (@inline_nets) {
-        push @nets, $interface->desc();
-    }
-    return (@nets);
-}
-
-sub get_internal_devs {
-    my @devs;
-    foreach my $internal (@internal_nets) {
-        push @devs, $internal->tag("int");
-    }
-    return (@devs);
-}
-
-sub get_internal_devs_phy {
-    my @devs;
-    foreach my $internal (@internal_nets) {
-        my $dev = $internal->tag("int");
-        push( @devs, $dev ) if ( $dev !~ /:\d+$/ );
-    }
-    return (@devs);
-}
-
-sub get_internal_macs {
-    my @macs;
-    my %seen;
-    foreach my $internal (@internal_nets) {
-        my $mac = getlocalmac( $internal->tag("int") );
-        push @macs, $mac if ( $mac && !defined( $seen{$mac} ) );
-        $seen{$mac} = 1;
-    }
-    return (@macs);
-}
-
-sub get_internal_info {
-    my ($device) = @_;
-    foreach my $interface (@internal_nets) {
-        return ($interface) if ( $interface->tag("int") eq $device );
-    }
-    return;
-}
-
 sub readpid {
     my ($pname) = @_;
     my $logger = get_logger();
@@ -624,14 +434,6 @@ sub readpid {
         $logger->error("$pname: unable to open $pidfile for reading: $!");
         return (-1);
     }
-}
-
-sub deletepid {
-    my ($pname) = @_;
-    $pname = basename($0) if ( !$pname );
-    my $pidfile = $var_dir . "/run/$pname.pid";
-    unlink($pidfile) || return (-1);
-    return (1);
 }
 
 sub parse_template {
@@ -707,59 +509,6 @@ sub download_oui {
         $msg = "OUI prefixes updated via $oui_url";
     }
     return ($status,$msg);
-}
-
-=item connection_type_to_str
-
-In the database we store the connection type as a string but we use a constant binary value internally.
-This converts from the constant binary value to the string.
-
-return connection_type string (as defined in pf::config) or an empty string if connection type not found
-
-=cut
-
-sub connection_type_to_str {
-    my ($conn_type) = @_;
-    my $logger = get_logger();
-
-    # convert connection_type constant into a string for database
-    if (defined($conn_type) && $conn_type ne '' && defined($connection_type_to_str{$conn_type})) {
-
-        return $connection_type_to_str{$conn_type};
-    } else {
-        my ($package, undef, undef, $routine) = caller(1);
-        $logger->warn("unable to convert connection_type to string. called from $package $routine");
-        return '';
-    }
-}
-
-=item str_to_connection_type
-
-In the database we store the connection type as a string but we use a constant binary value internally.
-This parses the string from the database into the the constant binary value.
-
-return connection_type constant (as defined in pf::config) or undef if connection type not found
-
-=cut
-
-sub str_to_connection_type {
-    my ($conn_type_str) = @_;
-    my $logger = get_logger();
-
-    # convert database string into connection_type constant
-    if (defined($conn_type_str) && $conn_type_str ne '' && defined($connection_type{$conn_type_str})) {
-
-        return $connection_type{$conn_type_str};
-    } elsif (defined($conn_type_str) && $conn_type_str eq '') {
-
-        $logger->debug("got an empty connection_type, this happens if we discovered the node but it never connected");
-        return $UNKNOWN;
-
-    } else {
-        my ($package, undef, undef, $routine) = caller(1);
-        $logger->warn("unable to parse string into a connection_type constant. called from $package $routine");
-        return;
-    }
 }
 
 =item get_total_system_memory
@@ -849,39 +598,6 @@ sub get_abbr_time {
     } else {
         return int($time/31536000) . 'Y';
     }
-}
-
-=item get_translatable_time
-
-Returns a triplet with singular and plural english string representation plus integer of a time string
-as defined in pf.conf.
-
-ex: 7D will return ("day", "days", 7)
-
-Returns undef on failure
-
-=cut
-
-sub get_translatable_time {
-   my ($time) = @_;
-
-   # grab time unit
-   my ($value, $unit) = $time =~ /^(\d+)($TIME_MODIFIER_RE)/;
-
-   unless ($unit) {
-       $time = get_abbr_time($time);
-       ($value, $unit) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
-   }
-
-   if ($unit eq "s") { return ("second", "seconds", $value);
-   } elsif ($unit eq "m") { return ("minute", "minutes", $value);
-   } elsif ($unit eq "h") { return ("hour", "hours", $value);
-   } elsif ($unit eq "D") { return ("day", "days", $value);
-   } elsif ($unit eq "W") { return ("week", "weeks", $value);
-   } elsif ($unit eq "M") { return ("month", "months", $value);
-   } elsif ($unit eq "Y") { return ("year", "years", $value);
-   }
-   return;
 }
 
 =item get_vlan_from_int
@@ -1001,6 +717,7 @@ sub pf_run {
     # Using perl trickery to figure out what the caller expects so I can return him just that
     # this is to perfectly emulate the backtick operator behavior
     my (@result, $result);
+    $command = untaint_chain($command);
     if (not defined wantarray) {
         # void context
         `$command`;
@@ -1191,6 +908,54 @@ Will change a scalar to an array ref if it is not one already
 
 sub listify {
     ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
+}
+
+=item normalize_time - formats date
+
+Returns the number of seconds represented by the time period.
+
+Months and years are approximate. Do not use for anything serious about time.
+
+=cut
+
+sub normalize_time {
+    my ($date) = @_;
+    if ( $date =~ /^\d+$/ ) {
+        return ($date);
+
+    } else {
+        my ( $num, $modifier ) = $date =~ /^(\d+)($pf::constants::config::TIME_MODIFIER_RE)/ or return (0);
+
+        if ( $modifier eq "s" ) { return ($num);
+        } elsif ( $modifier eq "m" ) { return ( $num * 60 );
+        } elsif ( $modifier eq "h" ) { return ( $num * 60 * 60 );
+        } elsif ( $modifier eq "D" ) { return ( $num * 24 * 60 * 60 );
+        } elsif ( $modifier eq "W" ) { return ( $num * 7 * 24 * 60 * 60 );
+        } elsif ( $modifier eq "M" ) { return ( $num * 30 * 24 * 60 * 60 );
+        } elsif ( $modifier eq "Y" ) { return ( $num * 365 * 24 * 60 * 60 );
+        }
+    }
+}
+
+=item search_hash
+
+Used to search for an element in a hash that has a specific value in one of it's field
+
+Ex : 
+my %h = {
+  'test' => {'result' => '2'},
+  'test2' => {'result' => 'success'}
+}
+
+Searching for field result with value 'success' would return the value of test2
+
+{'result' => 'success'} == search_hash(\%h, 'result', 'success');
+
+=cut
+
+sub search_hash {
+    my ($h, $field, $value) = @_;
+    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } values %{$h};
 }
 
 =back

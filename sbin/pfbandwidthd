@@ -38,11 +38,12 @@ use pf::config::cached;
 use pf::util;
 use pf::services::util;
 use pf::inline::accounting;
+use pf::ConfigStore::Interface;
 
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = $0 = basename($0);
+our $PROGRAM_NAME = $0 = "pfbandwidthd";
 
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
 
@@ -108,7 +109,9 @@ my @devs;
 my $net; # not used
 my $mask;
 
-foreach my $interface ( $cached_pf_config->GroupMembers('interface') ) {
+my $cs = pf::ConfigStore::Interface->new;
+foreach my $interface ( @{$cs->readAllIds} ) {
+    $interface = "interface $interface";
     if (defined($Config{$interface}{'enforcement'}) && pf::config::is_type_inline($Config{$interface}{'enforcement'})) {
         if ($interface =~ /interface\s(.*)/) {
             if (Net::Pcap::lookupnet($1, \$net, \$mask, \$err) == -1) {

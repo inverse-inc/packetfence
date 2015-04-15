@@ -1,14 +1,13 @@
 package captiveportal::PacketFence::Model::Portal::Session;
 use Moose;
 
-use pf::iplog qw(ip2mac);
+use pf::iplog;
 use pf::config;
 use constant LOOPBACK_IPV4 => '127.0.0.1';
 use pf::log;
 use pf::util;
 use pf::locationlog qw(locationlog_synchronize);
 use NetAddr::IP;
-use pf::iplog qw(iplog_open);
 use pf::Portal::ProfileFactory;
 use File::Spec::Functions qw(catdir);
 use pf::activation qw(view_by_code);
@@ -111,12 +110,12 @@ sub ACCEPT_CONTEXT {
     my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'} if $management_network;
     my $destination_url = $request->param('destination_url');
 
-    if( defined ( my $last_uri = $r->pnotes('last_uri') )) {
+    if( $r->can('pnotes') && defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
             'last_uri' => $last_uri,
             'in_uri_portal' => 1,
         };
-    } elsif ( $c->controller->isa('captiveportal::Controller::Activate::Email') && $c->action->name eq 'code' ) {
+    } elsif ( $c->action && $c->controller->isa('captiveportal::Controller::Activate::Email') && $c->action->name eq 'code' ) {
         my $code = $c->request->arguments->[0];
         my $data = view_by_code("1:".$code);
         $options = {
@@ -204,11 +203,11 @@ sub _build_clientMac {
                 my $fake_mac = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $ip->addr());
                 my $gateway = $network_config->{'gateway'};
                 locationlog_synchronize($gateway, $gateway, undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
-                iplog_open($fake_mac, $ip->addr());
+                pf::iplog::open($ip->addr(), $fake_mac);
                 return $fake_mac;
             }
         }
-        return ip2mac( $clientIp );
+        return pf::iplog::ip2mac( $clientIp );
     }
     return undef;
 }

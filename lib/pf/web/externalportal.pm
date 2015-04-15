@@ -23,8 +23,8 @@ use Log::Log4perl;
 use UNIVERSAL::require;
 
 use pf::config;
-use pf::iplog qw(iplog_update);
-use pf::locationlog qw(locationlog_view_open_mac);
+use pf::iplog;
+use pf::locationlog qw(locationlog_view_open_mac locationlog_get_session);
 use pf::Portal::Session;
 use pf::util;
 use pf::web::constants;
@@ -59,10 +59,10 @@ sub external_captive_portal {
     my $switch;
     if (defined($switchId)) {
         if (pf::SwitchFactory::hasId($switchId)) {
-            $switch =  pf::SwitchFactory->getInstance()->instantiate($switchId);
+            $switch =  pf::SwitchFactory->instantiate($switchId);
         } else {
             my $locationlog_entry = locationlog_view_open_mac($switchId);
-            $switch = pf::SwitchFactory->getInstance()->instantiate($locationlog_entry->{'switch'});
+            $switch = pf::SwitchFactory->instantiate($locationlog_entry->{'switch'});
         }
 
         if (defined($switch) && $switch ne '0' && $switch->supportsExternalPortal) {
@@ -78,31 +78,19 @@ sub external_captive_portal {
                 $logger->debug("Adding additionnal session parameter for url detected : $key : ".$req->param($key));
                 $portalSession->session->param("ecwp-original-param-$key", $req->param($key));
             }
-            iplog_update($client_mac,$client_ip,3600) if (defined ($client_ip) && defined ($client_mac));
+            pf::iplog::open($client_ip,$client_mac,3600) if (defined ($client_ip) && defined ($client_mac));
             return ($portalSession->session->id(), $redirect_url);
         } else {
             return 0;
         }
     }
     elsif (defined($session)) {
-        my (%session_id);
-        pf::web::util::session(\%session_id,$session);
-        if ($session_id{_session_id} eq $session) {
-            my $switch;
-            if(defined($session_id{switch_id})){
-                $switch = pf::SwitchFactory->getInstance()->instantiate($session_id{switch_id});
-            }
-            else{
-                $switch = $session_id{switch};
-            }
-            my $portalSession = pf::Portal::Session->new(%session_id);
-            $portalSession->setClientMac($session_id{client_mac}) if (defined($session_id{client_mac}));
-            $portalSession->setDestinationUrl($r->headers_in->{'Referer'}) if (defined($r->headers_in->{'Referer'}));
-            iplog_update($session_id{client_mac},$r->connection->remote_ip,3600) if (defined ($r->connection->remote_ip) && defined ($session_id{client_mac}));
-            return $portalSession->session->id();
-        } else {
-            return 0;
-        }
+        my $locationlog = locationlog_get_session($session);
+        my $switch = $locationlog->{switch};
+        $switch = pf::SwitchFactory->instantiate($switch);
+        my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+        pf::iplog::open($ip,$locationlog->{mac},3600) if defined ($ip);
+        return $session;
     }
     else {
         return 0;
@@ -131,7 +119,7 @@ sub handle {
                 . "Either the type is unknown or the perl module has compilation errors. "
                 . "Read the following message for details: $@");
         }
-        my $switchId = $type->parseSwitchIdFromRequest(\$req);  
+        my $switchId = $type->parseSwitchIdFromRequest(\$req);
         $logger->debug("Found switchId : $switchId");
 
         my ($cgi_session_id, $redirect_url) = $self->external_captive_portal($switchId,$req,$r,undef);

@@ -1,0 +1,40 @@
+[%- MACRO pagination(action, pageNumber, perPage, pageCount)  BLOCK -%]
+[% 
+    firstPage = pageNumber - 3;
+    IF firstPage < 1; firstPage = 1; END;
+    lastPage = firstPage + 6;
+    IF lastPage > pageCount;
+        lastPage = pageCount;
+        firstPage = lastPage - 6;
+        IF firstPage < 1; firstPage = 1; END;
+    END;
+%]
+<div>
+    <div class="pagination pagination-right">
+        <ul>
+          [% IF pageNumber == 1 %]
+          <li class="disabled"><span>&larr;</span></li>
+          [% ELSE %]
+          <li><a href="[% c.uri_for(c.controller.action_for(action),[scope],pageNumber - 1,perPage) %]">&larr;</a></li>
+          [% END %]
+          [% currentPage = firstPage %]
+          [% WHILE currentPage <= lastPage %]
+            [%IF currentPage == pageNumber %]
+              <li class="disabled"><span>[%currentPage%]</span></li>
+            [% ELSE  %]
+              <li><a href="[% c.uri_for(c.controller.action_for(action),[scope],currentPage,perPage) %]">[%currentPage%]</a></li>
+            [%END%]
+          [%currentPage = currentPage + 1%]
+          [% END %]
+          [% IF lastPage < pageCount -%]
+            <li class="disabled"><span>&hellip;</span></li>
+            <li><a href="[% c.uri_for(c.controller.action_for(action),[scope],pageCount,perPage)  %]" title="Page [% pageCount %]">[% pageCount %]</a></li>
+          [%- END -%]
+          [% IF pageNumber == lastPage %]
+            <li class="disabled"><a >&rarr;</a></li>
+          [% ELSE %]
+            <li><a href="[% c.uri_for(c.controller.action_for(action),[ scope ],pageNumber + 1,perPage) %]">&rarr;</a></li>
+          [% END %]
+        </ul>
+    </div>
+[%- END -%]

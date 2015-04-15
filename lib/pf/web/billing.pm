@@ -36,6 +36,7 @@ BEGIN {
 
 use pf::billing::constants;
 use pf::billing::custom;
+use pf::constants;
 use pf::config;
 use pf::web qw(i18n ni18n render_template);
 use pf::web::util;

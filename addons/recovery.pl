@@ -127,13 +127,12 @@ Log::Log4perl->easy_init(
 );
 my $logger = Log::Log4perl->get_logger('');
 
-my $switchFactory = new pf::SwitchFactory( -configFile => CONF_FILE );
 
 my @switchDescriptions;
-foreach my $key ( keys %{ $switchFactory->config } ) {
+foreach my $key ( keys %{ pf::SwitchFactory->config } ) {
     if (( $key ne 'default' )
         && ( $key ne '127.0.0.1' )
-        && ( $switchFactory->config->{$key}->{type} ne
+        && ( pf::SwitchFactory->config->{$key}->{type} ne
             'Cisco::Aironet_1242' )
         )
     {
@@ -209,7 +208,7 @@ sub recoverSwitch {
     my $switchDesc = shift();
     my $txt        = '';
     my $format     = "%-2.2s %7.7s %-7.7s %-7.7s %-7.7s %-20.20s %-20.20s\n";
-    my $switch = $switchFactory->instantiate($switchDesc);
+    my $switch = pf::SwitchFactory->instantiate($switchDesc);
     if (!$switch) {
         return "Can not instantiate switch $switchDesc\n";
     }

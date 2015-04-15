@@ -15,7 +15,6 @@ pf::provisioner
 use strict;
 use warnings;
 use Moo;
-use pf::os;
 use pf::config;
 use Readonly;
 use pf::log;

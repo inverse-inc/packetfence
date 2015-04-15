@@ -30,16 +30,19 @@ BEGIN {
     use pf::log(service => 'pfdhcplistener');
 }
 
+use pf::constants;
+use pf::clustermgmt;
 use pf::config;
 use pf::config::cached;
 use pf::db;
+use pf::fingerbank;
 use pf::firewallsso;
 use pf::inline::custom $INLINE_API_LEVEL;
-use pf::iplog qw(ip2mac mac2ip);
+use pf::iplog;
 use pf::lookup::node;
 use pf::node;
-use pf::os;
 use pf::util;
+use pf::config::util;
 use pf::services::util;
 use pf::util::dhcp;
 use List::MoreUtils qw(any);
@@ -49,7 +52,7 @@ use NetAddr::IP;
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = basename($0);
+our $PROGRAM_NAME = "pfdhcplistener";
 
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
 
@@ -57,7 +60,7 @@ my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
 POSIX::sigaction(
     &POSIX::SIGHUP,
     POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+        'reload_config', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
 ) or $logger->logdie("pfdhcplistener: could not set SIGHUP handler: $!");
 
@@ -294,11 +297,18 @@ sub listen_dhcp {
         # see #1216 for details
         my %tmp;
         $tmp{'dhcp_fingerprint'} = defined($dhcp->{'options'}{'55'}) ? $dhcp->{'options'}{'55'} : '';
+        $tmp{'dhcp_vendor'} = defined($dhcp->{'options'}{'60'}) ? $dhcp->{'options'}{'60'} : '';
         $tmp{'last_dhcp'} = mysql_date();
         $tmp{'computername'} = defined($dhcp->{'options'}{'12'}) ? $dhcp->{'options'}{'12'} : '';
         node_modify( $dhcp->{'chaddr'}, %tmp );
 
-        my $fingerprint_data = process_fingerprint($dhcp);
+        # Fingerbank interaction
+        my %fingerbank_query_args = (
+            dhcp_fingerprint    => $tmp{'dhcp_fingerprint'},
+            dhcp_vendor         => $tmp{'dhcp_vendor'},
+            mac                 => $dhcp->{'chaddr'},
+        );
+        my $fingerbank_result = pf::fingerbank::process(\%fingerbank_query_args);
 
         my $modified_node_log_message = '';
         foreach my $node_key ( keys %tmp ) {
@@ -306,11 +316,8 @@ sub listen_dhcp {
         }
         chop($modified_node_log_message);
 
-        $logger->info("$dhcp->{'chaddr'} requested an IP. "
-            . ( defined($fingerprint_data) ? "DHCP Fingerprint: $fingerprint_data. " : "Unknown DHCP fingerprint. " )
-            . "Modified node with $modified_node_log_message"
-        );
-
+        $logger->info("$dhcp->{'chaddr'} requested an IP with the following informations: $modified_node_log_message");
+        $logger->info("$dhcp->{'chaddr'} is of device type $fingerbank_result");
     } else {
         $logger->debug("unrecognized DHCP opcode from $dhcp->{'chaddr'}: $dhcp->{op}");
     }
@@ -469,7 +476,7 @@ sub rogue_dhcp_handling {
     push @{ $rogue_servers{$dhcp_srv_ip} }, $rogue_offer;
 
     # if I have a MAC use it, otherwise look it up
-    $dhcp_srv_mac = ip2mac($dhcp_srv_ip) if (!defined($dhcp_srv_mac));
+    $dhcp_srv_mac = pf::iplog::ip2mac($dhcp_srv_ip) if (!defined($dhcp_srv_mac));
     if ($dhcp_srv_mac) {
         my %data = (
            'mac' => $dhcp_srv_mac,
@@ -531,8 +538,8 @@ sub update_iplog {
         return;
     }
 
-    my $oldip  = mac2ip($srcmac);
-    my $oldmac = ip2mac($srcip);
+    my $oldip  = pf::iplog::mac2ip($srcmac);
+    my $oldmac = pf::iplog::ip2mac($srcip);
     if ( $oldip && $oldip ne $srcip ) {
         my $view_mac = node_view($srcmac);
         my $firewallsso = pf::firewallsso->new;
@@ -549,62 +556,6 @@ sub update_iplog {
         'oldmac' => $oldmac,
     );
     $apiclient->notify('update_iplog', %data );
-}
-
-=item process_fingerprint
-
-=over
-
-=item Calls violation_trigger for every matching DHCP fingerprint type and class.
-
-=item Logs unknown fingerprints
-
-=item Returns a string that identifies OS id and name
-
-=back
-
-=cut
-
-sub process_fingerprint {
-    my ($dhcp) = @_;
-
-    my $dhcp_fingerprint = $dhcp->{'options'}->{'55'};
-    my $chaddr = $dhcp->{'chaddr'};
-    my $fingerprint_data;
-
-    return if (!defined($dhcp_fingerprint) || $dhcp_fingerprint eq "");
-
-    my @fingerprint_info = dhcp_fingerprint_view($dhcp_fingerprint);
-    if ( scalar(@fingerprint_info) && ( ref( $fingerprint_info[0] ) eq 'HASH' ) ) {
-
-        # precise fingerprint
-        $fingerprint_data = "OS::".$fingerprint_info[0]->{'id'}." (".$fingerprint_info[0]->{'os'}.")";
-        $logger->debug("$chaddr sending $fingerprint_data trigger");
-        my %data = (
-           'mac' => $chaddr,
-           'tid' => $fingerprint_info[0]->{'id'},
-           'type' => 'OS',
-        );
-        $apiclient->notify('trigger_violation', %data );
-
-        # class fingerprints
-        foreach my $class_trigger (@fingerprint_info) {
-            my $class_data = "OS::".$class_trigger->{'classid'}." (".$class_trigger->{'class'}.")";
-            $logger->debug("$chaddr sending $class_data trigger");
-            my %data = (
-               'mac' => $chaddr,
-               'tid' => $class_trigger->{'classid'},
-               'type' => 'OS',
-            );
-            $apiclient->notify('trigger_violation', %data );
-        }
-
-    } else {
-        my $dhcp_type = dhcp_message_type_to_string($dhcp->{'options'}{53});
-        $logger->info("Unknown DHCP fingerprint: $dhcp_fingerprint (DHCP Message Type: $dhcp_type)");
-    }
-
-    return $fingerprint_data;
 }
 
 sub normal_sighandler {

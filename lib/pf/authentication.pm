@@ -15,6 +15,7 @@ use warnings;
 
 use Log::Log4perl qw(get_logger);
 
+use pf::constants;
 use pf::config;
 use pf::config::cached;
 
@@ -33,6 +34,8 @@ use Module::Pluggable
 use List::Util qw(first);
 use List::MoreUtils qw(none any);
 use pf::util;
+use pfconfig::cached_array;
+use pfconfig::cached_hash;
 
 # The results...
 #
@@ -45,10 +48,12 @@ use pf::util;
 #         b- rules are ordered, as well as actions and conditions they contain
 #
 #
-our @authentication_sources = ();
+our @authentication_sources;
+tie @authentication_sources, 'pfconfig::cached_array', 'resource::authentication_sources';
 our %authentication_lookup;
-our $cached_authentication_config;
+tie %authentication_lookup, 'pfconfig::cached_hash', 'resource::authentication_lookup';
 our %guest_self_registration;
+tie %guest_self_registration, 'pfconfig::cached_hash', 'resource::guest_self_registration';
 
 BEGIN {
     use Exporter ();
@@ -63,7 +68,6 @@ BEGIN {
             getAuthenticationSource
             getAllAuthenticationSources
             deleteAuthenticationSource
-            writeAuthenticationConfigFile
             %guest_self_registration
        );
     @EXPORT_OK =
@@ -80,9 +84,6 @@ our @SOURCES = __PACKAGE__->sources();
 our %TYPE_TO_SOURCE = map { lc($_->meta->get_attribute('type')->default) => $_ } @SOURCES;
 
 our $logger = get_logger();
-
-
-readAuthenticationConfigFile();
 
 =item availableAuthenticationSourceTypes
 
@@ -125,205 +126,8 @@ sub newAuthenticationSource {
     return $source;
 }
 
-=item readAuthenticationConfigFile
-
-Populate @authentication_sources with object representations of the configuration file
-
-=cut
-
-sub readAuthenticationConfigFile {
-
-    unless ($cached_authentication_config) {
-        $cached_authentication_config = pf::config::cached->new (
-            -file => $authentication_config_file,
-            -onfilereload => [ reload_authentication_config => sub {
-                @authentication_sources = ();
-                %authentication_lookup = ();
-                my ($config,$name) = @_;
-                my %cfg;
-                $config->toHash(\%cfg);
-                foreach my $source_id ( $config->Sections() ) {
-
-                    # We skip groups from our ini files
-                    if ($source_id =~ m/\s/) {
-                      next;
-                    }
-
-                    # Keep aside the source type
-                    my $type = $config->val($source_id, "type");
-                    delete $cfg{$source_id}{type};
-
-                    # Instantiate the source object
-                    my $current_source = newAuthenticationSource($type, $source_id, $cfg{$source_id});
-
-                    # Parse rules
-                    foreach my $rule_id ( $config->GroupMembers($source_id) ) {
-
-                        my ($id) = $rule_id =~ m/$source_id rule (\S+)$/;
-                        my $current_rule = pf::Authentication::Rule->new({match => $Rules::ANY, id => $id});
-
-                        foreach my $parameter ( $config->Parameters($rule_id) ) {
-                            if ($parameter =~ m/condition(\d+)/) {
-                                #print "Condition $1: " . $config->val($rule, $parameter) . "\n";
-                                my ($attribute, $operator, $value) = split(',', $config->val($rule_id, $parameter), 3);
-
-                                $current_rule->add_condition( pf::Authentication::Condition->new({attribute => $attribute,
-                                                                                                  operator => $operator,
-                                                                                                  value => $value}) );
-                            } elsif ($parameter =~ m/action(\d+)/) {
-                                #print "Action: $1" . $config->val($rule_id, $parameter) . "\n";
-                                my ($type, $value) = split('=', $config->val($rule_id, $parameter), 2);
-
-                                if (defined $value) {
-                                    $current_rule->add_action( pf::Authentication::Action->new({type => $type,
-                                                                                                value => $value}) );
-                                } else {
-                                    $current_rule->add_action( pf::Authentication::Action->new({type => $type}) );
-                                }
-
-                            } elsif ($parameter =~ m/match/) {
-                                $current_rule->{'match'} = $config->val($rule_id, $parameter);
-                            } elsif ($parameter =~ m/description/) {
-                                $current_rule->{'description'} = $config->val($rule_id, $parameter);
-                            }
-                        }
-
-                        $current_source->add_rule($current_rule);
-                    }
-                    push(@authentication_sources, $current_source);
-                    $authentication_lookup{$source_id} = $current_source;
-                }
-                $config->cacheForData->set("authentication_sources",\@authentication_sources);
-            }],
-            -oncachereload => [
-                on_cache_authentication_reload => sub {
-                    my ($config, $name) = @_;
-                    my $authentication_sources_ref = $config->fromCacheForDataUntainted("authentication_sources");
-                    if( defined($authentication_sources_ref) ) {
-                        @authentication_sources = @$authentication_sources_ref;
-                        %authentication_lookup = map { $_->id => $_ } grep { defined $_ } @authentication_sources;
-                    } else {
-                        $config->_callFileReloadCallbacks();
-                    }
-                },
-            ],
-            -onpostreload => [
-                on_post_authentication_reload => sub {
-                    update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
-                }
-            ],
-        );
-        $cached_profiles_config->addPostReloadCallbacks(update_profiles_guest_modes => \&update_profiles_guest_modes);
-
-    } else {
-        $cached_authentication_config->ReadConfig();
-    }
-}
 
 
-sub update_profiles_guest_modes {
-    my ($config,$name) = @_;
-    %guest_self_registration = ();
-    while (my ($id,$profile) = each %Profiles_Config) {
-        my $guest_modes = _guest_modes_from_sources($profile->{sources});
-        $profile->{guest_modes} = $guest_modes;
-        _set_guest_self_registration($guest_modes);
-    }
-}
-
-sub _set_guest_self_registration {
-    my ($modes) = @_;
-    for my $mode (
-                  $SELFREG_MODE_EMAIL,
-                  $SELFREG_MODE_SMS,
-                  $SELFREG_MODE_SPONSOR,
-                  $SELFREG_MODE_GOOGLE,
-                  $SELFREG_MODE_FACEBOOK,
-                  $SELFREG_MODE_GITHUB,
-                  $SELFREG_MODE_CHAINED,
-                 ) {
-        $guest_self_registration{$mode} = $TRUE
-          if is_in_list($mode, $modes);
-    }
-}
-
-sub _guest_modes_from_sources {
-    my ($sources) = @_;
-    $sources ||= [];
-    my %is_in = map {$_ => undef } @$sources;
-    return join(',', map { lc($_->type)} grep { exists $is_in{$_->id} && ($_->class eq 'external' || $_->type eq 'Chained')} @authentication_sources);
-}
-
-=item writeAuthenticationConfigFile
-
-Write the configuration file to disk
-
-=cut
-
-sub writeAuthenticationConfigFile {
-    # Remove deleted sections
-    my %new_sources = map { $_->id => undef } @authentication_sources;
-    foreach my $id ( grep { !exists $new_sources{$_} } $cached_authentication_config->Sections) {
-        $cached_authentication_config->DeleteSection($id);
-    }
-    tie(my %cfg,$cached_authentication_config);
-
-    # Update existing sections and create new ones
-    foreach my $source ( @authentication_sources ) {
-        $logger->debug("Writing source " . $source->id . " (" . ref($source)->meta->name . ")");
-        $cfg{$source->{id}} = {};
-        $cfg{$source->{id}}{description} = $source->{'description'};
-
-        for my $attr ( $source->meta->get_all_attributes ) {
-            $attr = $attr->name;
-            # Don't write static attributes (see pfappserver::Model::Authentication::Source::update)
-            next if (grep { $_ eq $attr } qw[id rules unique class]);
-            next unless ($source->{$attr});
-            my $value = $source->{$attr};
-            if (ref($value)) {
-                $value = join(',', @$value);
-            }
-            $cfg{$source->{id}}{$attr} = $value;
-        }
-
-        # We flush rules, including conditions and actions.
-        foreach my $rule ( @{$source->{'rules'}} ) {
-            my $rule_id = $source->{'id'} . " rule " . $rule->{'id'};
-
-            # Since 'description' is defined in the parent section, set the paramater through the object
-            # for proper cfgtialization
-            $cached_authentication_config->newval($rule_id, 'description', $rule->{'description'});
-            $cfg{$rule_id}{match} = $rule->{'match'};
-
-            my $index = 0;
-            foreach my $action ( @{$rule->{'actions'}} ) {
-                my $action_id = 'action' . $index;
-                if (defined $action->{'value'}) {
-                    $cfg{$rule_id}{$action_id} = $action->{'type'} . '=' . $action->{'value'};
-                } else {
-                    $cfg{$rule_id}{$action_id} = $action->{'type'};
-                }
-                $index++;
-            }
-
-            $index = 0;
-            foreach my $condition ( @{$rule->{'conditions'}} ) {
-                my $condition_id = 'condition' . $index;
-                $cfg{$rule_id}{$condition_id} = $condition->{'attribute'} . ',' . $condition->{'operator'} . ',' . $condition->{'value'};
-                $index++;
-            }
-        }
-    }
-    $cached_authentication_config->ReorderByGroup();
-    my $result;
-    eval {
-        $result = $cached_authentication_config->RewriteConfig();
-    };
-    unless($result) {
-        $cached_authentication_config->Rollback();
-        die "Error writing authentication configuration\n";
-    }
-}
 
 =item getAuthenticationSource
 
@@ -368,29 +172,6 @@ sub getExternalAuthenticationSources {
     return \@sources;
 }
 
-=item deleteAuthenticationSource
-
-Delete an authentication source along its rules. Returns the number of source(s)
-deleted.
-
-=cut
-
-sub deleteAuthenticationSource {
-    my $id = shift;
-
-    my $result = 0;
-    if (none { any {$_ eq $id} @{$_->{sources}} } values %Profiles_Config) {
-        for (my $i = 0; $i < scalar(@authentication_sources); $i++) {
-            my $source = $authentication_sources[$i];
-            if ($source->{id} eq $id) {
-                splice(@authentication_sources, $i, 1);
-                $result = 1;
-                last;
-            }
-        }
-    }
-    return $result;
-}
 
 # =head2 source_for_user
 
@@ -433,23 +214,24 @@ sub authenticate {
     unless (@sources) {
         @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
     }
+    my $display_username = (defined $username) ? $username : "(undefined)";
 
-    $logger->debug(sub {"Authenticating '$username' from source(s) ".join(', ', map { $_->id } @sources) });
+    $logger->debug(sub {"Authenticating '$display_username' from source(s) ".join(', ', map { $_->id } @sources) });
 
     foreach my $current_source (@sources) {
         my ($result, $message);
-        $logger->trace("Trying to authenticate '$username' with source '".$current_source->id."'");
+        $logger->trace("Trying to authenticate '$display_username' with source '".$current_source->id."'");
         eval {
             ($result, $message) = $current_source->authenticate($username, $password);
         };
         # First match wins!
         if ($result) {
-            $logger->info("Authentication successful for $username in source ".$current_source->id." (".$current_source->type.")");
+            $logger->info("Authentication successful for $display_username in source ".$current_source->id." (".$current_source->type.")");
             return ($result, $message, $current_source->id);
         }
     }
 
-    $logger->trace("Authentication failed for '$username' for all ".scalar(@sources)." sources");
+    $logger->trace("Authentication failed for '$display_username' for all ".scalar(@sources)." sources");
     return ($FALSE, 'Wrong username or password.');
 }
 

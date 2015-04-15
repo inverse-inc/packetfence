@@ -30,6 +30,7 @@ use Try::Tiny;
 
 use base ('pf::Switch::Cisco::Catalyst_2960');
 
+use pf::constants;
 use pf::config;
 use pf::Switch::constants;
 use pf::util;
@@ -40,6 +41,7 @@ use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::node qw(node_attributes node_view);
 use pf::web::util;
 use pf::violation qw(violation_count_trap);
+use pf::locationlog;
 
 sub description { 'Cisco Catalyst 2960 with Web Auth' }
 
@@ -145,6 +147,7 @@ sub returnRadiusAccessAccept {
                 $session_id{client_mac} = $mac;
                 $session_id{wlan} = $ssid;
                 $session_id{switch_id} = $this->{_id};
+                pf::locationlog::locationlog_set_session($mac, $session_id{_session_id});
                 $radius_reply_ref = {
                     'User-Name' => $mac,
                     'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}"],

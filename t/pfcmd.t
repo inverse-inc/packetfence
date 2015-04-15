@@ -37,7 +37,7 @@ BEGIN {
             push @main_args, $1;
         }
     }
-    $tests = 55 + scalar @main_args;
+    $tests = 51 + scalar @main_args;
 }
 
 
@@ -104,11 +104,6 @@ is_deeply(\%cmd,
 is_deeply(\%cmd,
           { 'command' => [ 'configfiles', 'push' ] },
           'pfcmd configfiles push');
-
-%cmd = pf::pfcmd::parseCommandLine('fingerprint view all');
-is_deeply(\%cmd,
-          { 'command' => [ 'fingerprint', 'view', 'all' ] },
-          'pfcmd fingerprint view all');
 
 %cmd = pf::pfcmd::parseCommandLine('graph toto');
 is_deeply(\%cmd,
@@ -234,11 +229,6 @@ is_deeply(\%cmd,
     { 'command' => [ 'person', 'view', 'user name' ], 'person_options' => [ 'view', 'user name' ] },
     'pfcmd person view pid with space'
 );
-
-%cmd = pf::pfcmd::parseCommandLine('reload fingerprints');
-is_deeply(\%cmd,
-          { 'command' => [ 'reload', 'fingerprints' ] },
-          'pfcmd reload fingerprints');
 
 %cmd = pf::pfcmd::parseCommandLine('report active');
 is_deeply(\%cmd,
@@ -388,14 +378,6 @@ is($CHILD_ERROR, 0, "pfcmd help exit with status 0");
 
 # required to have help placed into the admin guide asciidoc during build
 ok(@pfcmd_help, "pfcmd help outputs on STDOUT");
-
-# pfcmd's exit status
-# see perldoc perlvar on CHILD_ERROR for the reason behind the >> 8 shift
-my $pfcmd_config_unknown_param_stdout = `/usr/local/pf/bin/pfcmd.pl config get invalid.fail`;
-is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM, "exit status: invalid pfcmd set config");
-
-my $pfcmd_config_no_help_stdout = `/usr/local/pf/bin/pfcmd.pl config help invalid.fail`;
-is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_NO_HELP, "exit status: pfcmd config help w/o help");
 
 =back
 

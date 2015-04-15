@@ -30,8 +30,9 @@ use Readonly;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use File::Spec::Functions;
 
+use pf::constants;
 use pf::config;
-use pf::iplog qw(ip2mac);
+use pf::iplog;
 use pf::Portal::ProfileFactory;
 use pf::util;
 use pf::web::constants;
@@ -379,7 +380,7 @@ sub getClientMac {
     elsif (defined($self->cgi->param('mac'))) {
         return encode_entities($self->cgi->param('mac'));
     }
-    return encode_entities(ip2mac($self->getClientIp));
+    return encode_entities(pf::iplog::ip2mac($self->getClientIp));
 }
 
 

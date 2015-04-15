@@ -39,13 +39,14 @@ use pf::util;
 use pf::services::util;
 use pf::pfdns::constants;
 use pf::CHI;
+use pf::ConfigStore::Interface;
 
 # initialization
 # --------------
 # assign process name (see #1464)
 
 # init signal handlers
-our $PROGRAM_NAME = $0 = basename($0);
+our $PROGRAM_NAME = $0 = "pfdns";
 
 my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
 
@@ -85,6 +86,7 @@ our $RUNNING = 1;
 daemonize($PROGRAM_NAME) if ($daemonize);
 
 my @ip_addr;
+my $loadb_ip;
 my @routed_inline_nets_named;
 my @routed_isolation_nets_named;
 my @routed_registration_nets_named;
@@ -97,9 +99,12 @@ Readonly::Scalar our $TTL                => '15';
 Readonly::Scalar our $HTTPS_PORT         => '443';
 Readonly::Scalar our $HTTP_PORT         => '80';
 
-foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
+my $cs = pf::ConfigStore::Interface->new;
+foreach my $interface ( @{$cs->readAllIds} ) {
+    $interface = "interface $interface";
     my $ip = $Config{$interface}{'vip'} || $Config{$interface}{'ip'};
     if ( defined ($Config{$interface}{'enforcement'}) && ( ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) || is_type_inline($Config{$interface}{'enforcement'}) ) ) {
+        $loadb_ip->{$ip} = $Config{$interface}{'active_active_ip'} if (defined($Config{$interface}{'active_active_ip'}) && isenabled($Config{$interface}{'active_active_enabled'}));
         push @ip_addr, $ip;
     }
 }
@@ -196,12 +201,21 @@ sub regzone {
         } else {
             my ($ttl, $rdata) = ($TTL, $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}.".");
             my $rr = new Net::DNS::RR("$qname $ttl IN CNAME $rdata");
-            my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $conn->{sockhost}");
+            my $rdata2 = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
+            my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $rdata2");
             push @ans, $rr;
             push @ans, $rr2;
             $rcode = "NOERROR";
         }
-    }else{
+    } elsif ($qtype eq "NS") {
+        my $rr = new Net::DNS::RR(
+            name    => $Config{'general'}{'domain'},
+            type    => 'NS',
+            nsdname => $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'},
+        );
+        push @ans, $rr;
+        $rcode = "NOERROR";
+    } else{
         $rcode = "NXDOMAIN";
     }
 
@@ -255,11 +269,20 @@ sub isolzone {
 
     $logger->trace("Requested Domain: ".$qname);
     if ($qtype eq "A") {
-        my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
+        my $ttl = $TTL;
+        my $rdata = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
         my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
         push @ans, $rr;
         $rcode = "NOERROR";
-    }else{
+    } elsif ($qtype eq "NS") {
+        my $rr = new Net::DNS::RR(
+            name    => $Config{'general'}{'domain'},
+            type    => 'NS',
+            nsdname => $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'},
+        );
+        push @ans, $rr;
+        $rcode = "NOERROR";
+    } else{
         $rcode = "NXDOMAIN";
     }
 

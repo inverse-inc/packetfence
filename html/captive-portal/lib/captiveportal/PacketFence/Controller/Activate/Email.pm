@@ -7,6 +7,7 @@ BEGIN { extends 'captiveportal::Base::Controller'; }
 use Log::Log4perl;
 use POSIX;
 
+use pf::constants;
 use pf::config;
 use pf::activation qw($GUEST_ACTIVATION $SPONSOR_ACTIVATION);
 use pf::node;
@@ -180,12 +181,12 @@ sub doEmailRegistration : Private {
                   POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime )
             );
 
-            # we create a temporary password using the actions from
+            # we create a password using the actions from
             # the email authentication source;
             my $actions =
               &pf::authentication::match( $source->{id}, $auth_params );
             $info{'password'} =
-              pf::temporary_password::generate( $pid, $actions );
+              pf::password::generate( $pid, $actions );
 
             # send on-site guest credentials by email
             pf::web::guest::send_template_email(
@@ -342,13 +343,13 @@ sub doSponsorRegistration : Private {
             $info{'cc'} =
             $Config{'guests_self_registration'}{'sponsorship_cc'};
 
-            # we create a temporary password using the actions from the sponsor authentication source;
-            # NOTE: When sponsoring a network access, the new user will be created (in the temporary_password table) using
+            # we create a password using the actions from the sponsor authentication source;
+            # NOTE: When sponsoring a network access, the new user will be created (in the password table) using
             # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
             my $actions = &pf::authentication::match( $source->{id},
                 { username => $pid, user_email => $pid } );
             $info{'password'} =
-              pf::temporary_password::generate( $pid, $actions );
+              pf::password::generate( $pid, $actions );
 
             pf::web::guest::send_template_email( $template, $info{'subject'},
                 \%info );

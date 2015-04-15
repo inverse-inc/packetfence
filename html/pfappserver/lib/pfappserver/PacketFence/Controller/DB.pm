@@ -16,6 +16,7 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
+use pf::db;
 
 BEGIN {extends 'Catalyst::Controller'; }
 
@@ -68,6 +69,9 @@ sub assign :Path('assign') :Args(1) {
         ($status, $message) = $db_model->update('database',{'user' => $pf_user, 'pass' => $pf_password});
         if(is_success($status)) {
             $db_model->commit();
+            my $pfconfig = $c->model('Config::Pfconfig');
+            $pfconfig->update_mysql_credentials($pf_user, $pf_password);
+            pf::db::db_disconnect();
         }
     }
     if ( is_error($status) ) {
@@ -119,6 +123,8 @@ sub create :Path('create') :Args(1) {
         ($status, $message) = $db_model->update('database',{'db' => $db});
         if(is_success($status)) {
             $db_model->commit();
+            my $pfconfig = $c->model('Config::Pfconfig');
+            $pfconfig->update_db_name($db);
         }
     }
     if ( is_error($status) ) {

@@ -123,7 +123,7 @@ sub generate_mangle_rules {
     }
 
     # Build lookup table for MAC/IP mapping
-    my @iplog_open = iplog_view_open();
+    my @iplog_open = pf::iplog::list_open();
     my %iplog_lookup = map { $_->{'mac'} => $_->{'ip'} } @iplog_open;
 
     # mark registered nodes that should not be isolated
@@ -134,7 +134,7 @@ sub generate_mangle_rules {
             next if ( !pf::config::is_network_type_inline($network) );
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
             my $mac = $row->{'mac'};
-            my $iplog = mac2ip($mac, \%iplog_lookup);
+            my $iplog = $iplog_lookup{clean_mac($mac)};
             if (defined $iplog) {
                 my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                 if ($net_addr->contains($ip)) {
@@ -157,7 +157,7 @@ sub generate_mangle_rules {
                 next if ( !pf::config::is_network_type_inline($network) );
                 my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
                 my $mac = $row->{'mac'};
-                my $iplog = mac2ip($mac, \%iplog_lookup);
+                my $iplog = $iplog_lookup{clean_mac($mac)};
                 if (defined $iplog) {
                     my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                     if ($net_addr->contains($ip)) {
@@ -200,7 +200,7 @@ sub iptables_mark_node {
         next if ( !pf::config::is_network_type_inline($network) );
 
         my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-        my $iplog = $newip || mac2ip($mac);
+        my $iplog = $newip || pf::iplog::mac2ip($mac);
 
         if (defined $iplog) {
             my $ip = new NetAddr::IP::Lite clean_ip($iplog);
@@ -266,7 +266,7 @@ sub get_mangle_mark_for_mac {
         next if ( !pf::config::is_network_type_inline($network) );
 
         my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-        my $iplog = mac2ip($mac);
+        my $iplog = pf::iplog::mac2ip($mac);
 
         if (defined $iplog) {
             my $ip = new NetAddr::IP::Lite clean_ip($iplog);
@@ -347,7 +347,7 @@ sub get_ip_from_ipset_by_mac {
         my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
         if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-            my $tmp_ip = new NetAddr::IP::Lite clean_ip(mac2ip($mac));
+            my $tmp_ip = new NetAddr::IP::Lite clean_ip(pf::iplog::mac2ip($mac));
             if ($net_addr->contains($tmp_ip)) {
                 $ip = $tmp_ip->addr;
             }

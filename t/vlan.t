@@ -29,6 +29,7 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 BEGIN { use lib qw(/usr/local/pf/t); }
 BEGIN { use PfFilePaths; }
 
+use pf::constants;
 use pf::config;
 use pf::SwitchFactory;
 use pf::Switch::constants;
@@ -62,8 +63,7 @@ can_ok($vlan_obj, qw(
 $Config{'trapping'}{'registration'} = 'enabled';
 
 # setup a fake switch object
-my $switchFactory = new pf::SwitchFactory;
-my $switch = $switchFactory->instantiate('192.168.0.1');
+my $switch = pf::SwitchFactory->instantiate('192.168.0.1');
 
 # redefining violation functions (we stay in pf::vlan's context because methods are imported there from pf::violation)
 my $mock = new Test::MockModule('pf::vlan');
@@ -95,7 +95,7 @@ $mock->mock('node_attributes', sub {
 });
 
 # TODO: complete the test suite with more tests above the other cases
-my $switch_vlan_override = $switchFactory->instantiate('10.0.0.2');
+my $switch_vlan_override = pf::SwitchFactory->instantiate('10.0.0.2');
 ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
 is($vlan, 1, "determine vlan for registered user on custom switch");
 
@@ -126,7 +126,7 @@ is($role, 'registration', "obtain registration role for the device");
 # doWeActOnThisTrap tests
 #
 # mock switch's relevant calls
-$switch = $switchFactory->instantiate('192.168.0.1');
+$switch = pf::SwitchFactory->instantiate('192.168.0.1');
 $switch  = Test::MockObject::Extends->new( $switch );
 $switch->mock('getIfType', sub { return $SNMP::GIGABIT_ETHERNET; });
 $switch->mock('getUpLinks', sub { return; });

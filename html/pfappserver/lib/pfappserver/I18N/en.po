@@ -3820,6 +3820,14 @@ msgid "advanced.reevaluate_access_reasons"
 msgstr "Reevaluate access reasons"
 
 # conf/documentation.conf
+msgid "advanced.hash_passwords"
+msgstr "Database passwords hashing method"
+
+# conf/documentation.conf
+msgid "advanced.hashing_cost"
+msgstr "Database passwords hashing cost factor" 
+
+# conf/documentation.conf
 msgid "alerting"
 msgstr "Alerting"
 
@@ -4035,7 +4043,7 @@ msgstr ""
 
 # pf::pfcmd::report (SQL)
 msgid "dhcp_fingerprint"
-msgstr "Operating System Class"
+msgstr "DHCP Fingerprint"
 
 # conf/documentation.conf (interface.type options)
 msgid "dhcplistener"
@@ -5157,6 +5165,18 @@ msgstr "Protocol"
 # conf/documentation.conf
 msgid "webservices.user"
 msgstr "Username"
+
+# conf/documentation.conf
+msgid "monitoring"
+msgstr "Monitoring"
+
+# conf/documentation.conf
+msgid "monitoring.statsd_host"
+msgstr "StatsD host"
+
+# conf/documentation.conf
+msgid "monitoring.statsd_port"
+msgstr "StatsD port"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "weeks"

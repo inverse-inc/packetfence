@@ -35,6 +35,7 @@ BEGIN {
     @EXPORT_OK = qw(reevaluate_access);
 }
 
+use pf::constants;
 use pf::config;
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iptables;
@@ -42,6 +43,7 @@ use pf::locationlog;
 use pf::node;
 use pf::SwitchFactory;
 use pf::util;
+use pf::config::util;
 use pf::vlan::custom $VLAN_API_LEVEL;
 use pf::client;
 
@@ -180,8 +182,7 @@ sub _should_we_reassign_vlan {
     my $vlan_obj = new pf::vlan::custom();
 
     # TODO avoidable load?
-    my $switch = pf::SwitchFactory->getInstance()
-        ->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip } );
+    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip } );
     if ( !$switch ) {
         $logger->error("Can't instantiate switch (".$switch_ip.")! Check your configuration!");
         return $FALSE;

@@ -14,8 +14,8 @@ of bulk imports
 =head1 DEVELOPER NOTES
 
 Notice that this module doesn't export all its subs like our other modules do.
-This is an attempt to shift our paradigm towards calling with package names 
-and avoid the double naming. 
+This is an attempt to shift our paradigm towards calling with package names
+and avoid the double naming.
 
 For ex: pf::import::nodes() instead of pf::import::import_nodes()
 
@@ -38,6 +38,7 @@ BEGIN {
     @EXPORT_OK = qw();
 }
 
+use pf::constants;
 use pf::config;
 use pf::node;
 use pf::util;
@@ -69,53 +70,55 @@ sub nodes {
     $logger->info("Starting node bulk importation");
     my $line = 0;
     my $row = $csv->getline($io);
-    if (!valid_mac($row->[0])) {
-        close $io;
-        $logger->logdie("Nodes import expects first column of first row to be a MAC address. Not processing file.");
-    }
-
-    # pre-compute info hash
-    my %info = (
-        notes => POSIX::strftime("Imported on %Y-%m-%d %H:%M:%S", localtime(time))
-    );
-
-    # Assign default values from parameters under [node_import] in pf.conf
-    # fancy hash slicing assigns pid to pid, etc.
-    @info{qw/pid category voip/} = @{$Config{'node_import'}}{qw/pid category voip/};
-
-    do {
-        # setup
-        my $mac = $row->[0];
-        $line++;
-
-        # is MAC valid?
-        if (!valid_mac($mac)) {
-            $logger->warn("Problem with entry on line $line MAC $mac: Invalid MAC");
-            printf("%04d: %s NOT REGISTERED! MAC not considered valid.\n", $line, $mac);
-        } else {
-
-            $mac = clean_mac($mac);
-            # TODO time / memory tradeoff by removing already registered node before looping on each MAC
-            # should we register the MAC?
-            my $node = node_view($mac);
-            # if node entry doesn't exist 
-            # or if entry is valid and node is not registered 
-            if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
-                # try to register
-                my $pid = $info{'pid'} || $default_pid;
-                if (node_register($mac, $pid, %info)) {
-                    printf("%04d: %s registered\n", $line, $mac);
-                } else {
-                    $logger->warn("Problem with entry on line $line MAC $mac: node_register returned an error");
-                    printf("%04d: %s NOT REGISTERED! node registration error. Check logs for details.\n", $line, $mac);
-                }
-            } else {
-                $logger->info("Import $line MAC $mac: node was already registered.");
-                printf("%04d: %s already registered, nothing done\n", $line, $mac);
-            }
+    if (defined $row) {
+        if (!valid_mac($row->[0])) {
+            close $io;
+            $logger->logdie("Nodes import expects first column of first row to be a MAC address. Not processing file.");
         }
 
-    } while ($row = $csv->getline($io));
+        # pre-compute info hash
+        my %info = (
+            notes => POSIX::strftime("Imported on %Y-%m-%d %H:%M:%S", localtime(time))
+        );
+
+        # Assign default values from parameters under [node_import] in pf.conf
+        # fancy hash slicing assigns pid to pid, etc.
+        @info{qw/pid category voip/} = @{$Config{'node_import'}}{qw/pid category voip/};
+
+        do {
+            # setup
+            my $mac = $row->[0];
+            $line++;
+
+            # is MAC valid?
+            if (!valid_mac($mac)) {
+                $logger->warn("Problem with entry on line $line MAC $mac: Invalid MAC");
+                printf("%04d: %s NOT REGISTERED! MAC not considered valid.\n", $line, $mac);
+            } else {
+
+                $mac = clean_mac($mac);
+                # TODO time / memory tradeoff by removing already registered node before looping on each MAC
+                # should we register the MAC?
+                my $node = node_view($mac);
+                # if node entry doesn't exist
+                # or if entry is valid and node is not registered
+                if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
+                    # try to register
+                    my $pid = $info{'pid'} || $default_pid;
+                    if (node_register($mac, $pid, %info)) {
+                        printf("%04d: %s registered\n", $line, $mac);
+                    } else {
+                        $logger->warn("Problem with entry on line $line MAC $mac: node_register returned an error");
+                        printf("%04d: %s NOT REGISTERED! node registration error. Check logs for details.\n", $line, $mac);
+                    }
+                } else {
+                    $logger->info("Import $line MAC $mac: node was already registered.");
+                    printf("%04d: %s already registered, nothing done\n", $line, $mac);
+                }
+            }
+
+        } while ($row = $csv->getline($io));
+    }
 
     $logger->info("End of node bulk importation");
     close $io;

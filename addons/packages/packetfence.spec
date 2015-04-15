@@ -28,6 +28,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 %global real_name packetfence
+%global perl_version 5.10.1
 Name: %{real_name}-source
 Version: %{ver}
 Release: %{rev}%{?dist}
@@ -96,7 +97,7 @@ Requires: make
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, mysql-server, perl(DBD::mysql)
-Requires: perl >= 5.8.8
+Requires: perl >= %{perl_version}
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
 Requires(pre): %{real_name}-pfcmd-suid
 Requires: perl(Bit::Vector)
@@ -128,6 +129,8 @@ Requires: perl(Time::HiRes)
 Requires: ipset, sudo
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
+Requires: perl(Net::IP)
+Requires: perl(Digest::HMAC_MD5)
 # TODO: we should depend on perl modules not perl-libwww-perl package
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
 # LWP::Simple is one of them (required by inlined Net::MAC::Vendor and probably other stuff)
@@ -185,6 +188,8 @@ Requires: perl(UNIVERSAL::require)
 Requires: perl(YAML)
 Requires: perl(Try::Tiny)
 Requires: perl(Crypt::GeneratePassword)
+Requires: perl(Bytes::Random::Secure)
+Requires: perl(Crypt::Eksblowfish::Bcrypt)
 Requires: perl(MIME::Lite::TT)
 Requires: perl(Cache::Cache), perl(HTML::Parser)
 Requires: perl(URI::Escape::XS)
@@ -264,7 +269,10 @@ Requires: perl(Test::NoWarnings)
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: mod_qos
-Requires: %{real_name}-config
+Requires: %{real_name}-config = %{ver}
+Requires: %{real_name}-pfcmd-suid = %{ver}
+Requires: haproxy >= 1.5, keepalived >= 1.2
+Requires: fingerbank = 1.0.0
 
 %description -n %{real_name}
 
@@ -281,7 +289,7 @@ as
 
 %package -n %{real_name}-remote-snort-sensor
 Group: System Environment/Daemons
-Requires: perl >= 5.8.0, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https)
+Requires: perl >= %{perl_version}, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https)
 Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
 Conflicts: %{real_name}
 AutoReqProv: 0
@@ -296,7 +304,7 @@ server.
 
 %package -n %{real_name}-remote-arp-sensor
 Group: System Environment/Daemons
-Requires: perl >= 5.8.0, perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
+Requires: perl >= %{perl_version}, perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
 Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
 Conflicts: %{real_name}
 AutoReqProv: 0
@@ -311,7 +319,6 @@ for sending MAC and IP from ARP requests to a PacketFence server.
 %package -n %{real_name}-pfcmd-suid
 Group: System Environment/Daemons
 BuildRequires: gcc
-Requires: %{real_name} >= 3.6.0
 AutoReqProv: 0
 Summary: Replace pfcmd by a C wrapper for suid
 
@@ -488,6 +495,10 @@ ln -s ../sites-available/packetfence-soh packetfence-soh
 ln -s ../sites-available/packetfence-tunnel packetfence-tunnel
 ln -s ../sites-available/dynamic-clients dynamic-clients
 
+# Fingerbank symlinks
+cd $RPM_BUILD_ROOT/usr/local/pf/lib
+ln -s /usr/local/fingerbank/lib/fingerbank fingerbank
+
 cd $curdir
 #end create symlinks
 
@@ -500,6 +511,7 @@ if ! /usr/bin/id pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
 fi
+/usr/sbin/usermod -G fingerbank pf
 
 #if [ ! `tty | cut -c0-8` = "/dev/tty" ];
 #then
@@ -543,7 +555,6 @@ fi
 
 
 %post -n %{real_name}
-echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
 
 #Check if log files exist and create them with the correct owner
@@ -561,6 +572,7 @@ if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
     	-out /usr/local/pf/conf/ssl/server.crt\
     	-keyout /usr/local/pf/conf/ssl/server.key\
     	-nodes -config /usr/local/pf/conf/openssl.cnf
+    cat /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key > /usr/local/pf/conf/ssl/server.pem
 fi
 
 
@@ -592,6 +604,15 @@ if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
   make dh
 else
   echo "DH already exists, won't touch it!"
+fi
+
+#Check if RADIUS have a dh
+if [ ! -f /usr/local/pf/conf/pf.conf ]; then
+  echo "Touch pf.conf because it doesnt exist"
+  touch /usr/local/pf/conf/pf.conf
+  chown pf.pf /usr/local/pf/conf/pf.conf
+else
+  echo "pf.conf already exists, won't touch it!"
 fi
 
 #Add for sudo 
@@ -634,6 +655,7 @@ echo "Adding PacketFence remote ARP Sensor startup script"
 /sbin/chkconfig --add pfarp
 
 %post -n %{real_name}-config
+chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
 /sbin/chkconfig --add packetfence-config
 
@@ -721,6 +743,10 @@ fi
                         /usr/local/pf/addons/logrotate
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
+%dir                    /usr/local/pf/addons/pfconfig
+%dir                    /usr/local/pf/addons/pfconfig/comparator
+%attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.sh
 %dir                    /usr/local/pf/addons/snort
 %attr(0755, pf, pf)     /usr/local/pf/addons/snort/update_rules.pl
                         /usr/local/pf/addons/snort/oinkmaster.conf
@@ -733,8 +759,11 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd-old.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
+%attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
+%attr(0755, pf, pf)     /usr/local/pf/bin/cluster/sync
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
                         /usr/local/pf/conf/*.example
@@ -804,6 +833,10 @@ fi
 %config(noreplace)      /usr/local/pf/conf/provisioning.conf
                         /usr/local/pf/conf/provisioning.conf.example
 %dir			/usr/local/pf/conf/radiusd
+%config(noreplace)      /usr/local/pf/conf/radiusd/clients.conf.inc
+                        /usr/local/pf/conf/radiusd/clients.conf.inc.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster
+                        /usr/local/pf/conf/radiusd/packetfence-cluster.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.inc
                         /usr/local/pf/conf/radiusd/proxy.conf.inc.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
@@ -827,6 +860,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
                         /usr/local/pf/conf/vlan_filters.conf.example
 %config                 /usr/local/pf/conf/dhcpd.conf
+%config(noreplace)      /usr/local/pf/conf/haproxy.conf
+                        /usr/local/pf/conf/haproxy.conf.example
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.aaa
@@ -839,6 +874,10 @@ fi
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
+%config(noreplace)      /usr/local/pf/conf/keepalived.conf
+                        /usr/local/pf/conf/keepalived.conf.example
+%config(noreplace)      /usr/local/pf/conf/cluster.conf
+                        /usr/local/pf/conf/cluster.conf.example
 %config(noreplace)      /usr/local/pf/conf/listener.msg
                         /usr/local/pf/conf/listener.msg.example
 %config(noreplace)      /usr/local/pf/conf/popup.msg
@@ -927,7 +966,6 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/AdminRoles.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
-%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Firewall_SSO.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/FloatingDevice.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/MacAddress.pm
@@ -1068,6 +1106,8 @@ fi
 %files -n %{real_name}-config
 %attr(0755, root, root) %{_initrddir}/packetfence-config
 %dir                    /usr/local/pf
+%dir                    /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/pfconfig.conf
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/pfconfig
                         /usr/local/pf/lib/pfconfig/*
@@ -1078,6 +1118,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Wed Apr 15 2015 Inverse <info@inverse.ca> - 5.0.0-1
+- New release 5.0.0
+
 * Fri Mar 06 2015 Inverse <info@inverse.ca> - 4.7.0-1
 - New release 4.7.0
 

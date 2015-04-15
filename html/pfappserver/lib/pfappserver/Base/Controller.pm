@@ -22,7 +22,6 @@ use URI::Escape::XS;
 use pfappserver::Base::Action::AdminRole;
 use pfappserver::Base::Action::SimpleSearch;
 
-use pf::os;
 use pf::util qw(load_oui download_oui);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
 # imported but it's better than duplicating regex all over the place.
@@ -111,6 +110,19 @@ sub _parse_AdminRole_attr {
     return AdminRole => $value;
 }
 
+=head2 _parse_AdminRoleAny_attr
+
+Customize the parsing of the 'AdminRoleAny' subroutine attribute. Returns a hash with the attribute value.
+
+See https://metacpan.org/module/Catalyst::Controller#parse_-name-_attr
+
+=cut
+
+sub _parse_AdminRoleAny_attr {
+    my ($self, $c, $name, $value) = @_;
+    return AdminRoleAny => $value;
+}
+
 =head2 around create_action
 
 Construction of a new Catalyst::Action.
@@ -129,7 +141,7 @@ around create_action => sub {
         if(@{ $args{attributes}->{SimpleSearch} || [] }) {
             push @roles,'pfappserver::Base::Action::SimpleSearch';
         }
-        if(@{ $args{attributes}->{AdminRole} || [] }) {
+        if(@{ $args{attributes}->{AdminRole} || $args{attributes}->{AdminRoleAny} || [] }) {
             push @roles,'pfappserver::Base::Action::AdminRole';
         }
         apply_all_roles($action,@roles) if @roles;

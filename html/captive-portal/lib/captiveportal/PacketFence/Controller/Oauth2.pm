@@ -132,7 +132,7 @@ sub oauth2Result : Path : Args(1) {
     my $pid;
 
     # Pull username
-    $info{'pid'} = "admin";
+    $info{'pid'} = "default";
 
     # Pull browser user-agent string
     $info{'user_agent'} = $request->user_agent;

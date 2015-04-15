@@ -24,6 +24,7 @@ use TestUtils;
 runtests(
     @TestUtils::compile_tests,
     @TestUtils::unit_tests,
+    TestUtils::get_all_unittests(),
     @TestUtils::cli_tests,
     @TestUtils::quality_tests,
     @TestUtils::config_store_test,

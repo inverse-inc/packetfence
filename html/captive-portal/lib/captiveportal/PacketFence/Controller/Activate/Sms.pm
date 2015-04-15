@@ -5,6 +5,7 @@ use Log::Log4perl;
 use POSIX;
 use URI::Escape::XS qw(uri_escape);
 
+use pf::constants;
 use pf::config;
 use pf::iplog;
 use pf::node;
@@ -56,7 +57,7 @@ sub index : Path : Args(0) {
         my $profile = $c->profile;
         my %info;
         $logger->info("Valid PIN -- Registering user");
-        my $pid = $c->session->{"guest_pid"} || "admin";
+        my $pid = $c->session->{"guest_pid"} || "default";
         my $sms_type = pf::Authentication::Source::SMSSource->getDefaultOfType();
         my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
         my $auth_params = { 'username' => $pid, 'user_email' => $pid };

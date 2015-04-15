@@ -43,7 +43,7 @@ our (
     #oui.txt variables
     $oui_file, $oui_url,
     #profiles.conf variables
-    $profiles_config_file, %Profiles_Config, $cached_profiles_config,
+    $profiles_config_file, %Profiles_Config,
     #Other configuraton files variables
     $switches_config_file, $violations_config_file, $authentication_config_file,
     $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file,
@@ -59,6 +59,8 @@ our (
     $vlan_filters_config_file,
     $pfcmd_binary,
     $realm_config_file,
+    $cluster_config_file,
+    $server_cert, $server_key, $server_pem,
 );
 
 BEGIN {
@@ -80,7 +82,7 @@ BEGIN {
         $floating_devices_config_file
         $dhcp_fingerprints_file $dhcp_fingerprints_url
         $oui_file $oui_url
-        $profiles_config_file %Profiles_Config $cached_profiles_config
+        $profiles_config_file %Profiles_Config 
         $switches_config_file $violations_config_file $authentication_config_file
         $chi_config_file $ui_config_file $floating_devices_file $log_config_file
         @stored_config_files @log_files
@@ -96,6 +98,8 @@ BEGIN {
         $vlan_filters_config_file
         $pfcmd_binary
         $realm_config_file
+        $cluster_config_file
+        $server_cert $server_key $server_pem
     );
 }
 
@@ -143,6 +147,10 @@ $apache_filters_config_file = catfile($conf_dir, "apache_filters.conf");
 $vlan_filters_config_file = catfile($conf_dir, "vlan_filters.conf");
 $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
 $realm_config_file = catfile($conf_dir,"realm.conf");
+$cluster_config_file = catfile($conf_dir,"cluster.conf");
+$server_key = catfile($conf_dir,"ssl/server.key");
+$server_cert = catfile($conf_dir,"ssl/server.crt");
+$server_pem = catfile($conf_dir,"ssl/server.pem");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';

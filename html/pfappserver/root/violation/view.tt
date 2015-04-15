@@ -34,13 +34,13 @@
         [% form.field('trigger').render %]
         <div class="control-group">
           <div class="controls">
-            <select class="input-medium">
+            <select id="trigger_type" class="input-medium">
               [% FOREACH type IN trigger_types -%]
               <option value="[% type | html %]">[% l(type) %]</option>
               [% END -%]
             </select>
-            <input class="input-medium" type="text" placeholder="[% l('Enter the trigger ID') %]" />
-            <a class="btn" href="#addTrigger">[% l('Add') %]</a>
+            <input id='tid' class="input-medium" type="text" placeholder="[% l('Enter the trigger ID') %]" autocomplete="off" data-provide="typeahead"/>
+            <a id="add_trigger" class="btn" href="#addTrigger">[% l('Add') %]</a>
           </div>
         </div>
         <div class="control-group">

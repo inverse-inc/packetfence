@@ -48,11 +48,11 @@ BEGIN {
 }
 
 use pf::authentication;
+use pf::constants;
 use pf::config;
 use pf::enforcement qw(reevaluate_access);
-use pf::iplog qw(ip2mac);
+use pf::iplog;
 use pf::node qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
-use pf::os qw(dhcp_fingerprint_view);
 use pf::person qw(person_nodes);
 use pf::useragent;
 use pf::util;

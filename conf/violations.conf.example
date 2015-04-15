@@ -49,44 +49,41 @@ enabled=Y
 vlan=registration
 
 #
-# Example config to block a whole class of devices based on their MAC address
-# Trigger format: The number is a decimal representation of the OUI (Vendor) portion of the MAC.
-# To generate such a representation you can use perl -e "print hex('001620');"
-# There is a copy of the oui.txt file in conf/ to help you match vendor name and vendor mac.
+# Example config to block a whole class of devices based on their MAC address vendor
+# Trigger format: The number is the ID of the MAC vendor from the 'MAC Vendor' list in Fingerbank (either 'upstream' or 'local' or both)
+#
+# The below example blocks MAC Vendor ID 42 which is 'IMC Networks corp.'
 #
 [1100003]
 desc=MAC Vendor isolation example
 template=banned_devices
-trigger=VENDORMAC::5664
+trigger=MAC_VENDOR::42
 actions=trap,email,log
 enabled=N
 
 #
-# Example config to block an OS based on their dhcp fingerprint
-# Trigger format: an id (defined as os_id in os_type table)
-# Right now the only way to find the os id is to query the database but it should be feasible
-# from the pfcmd tool or the web gui in the future.
-# From a MySQL prompt, a 'select * from os_type;' will give you what you need. Just put in 
-# the os_id next to OS::. In exemple to block Windows 95 you would use: OS::104
+# Example config to block a device based on it's type or class
+# Trigger format: The number is the ID of the device (type or class or both) from the 'Device' list in Fingerbank (either 'upstream' or 'local' or both)
 #
 # The below example blocks Windows 95, 98, 98SE, NT4 and ME.
 #
 [1100004]
 desc=Ancient OS isolation example
 template=banned_os
-trigger=OS::104,OS::103,OS::106,OS::105,OS::102
+trigger=DEVICE::28,DEVICE::29,DEVICE::30,DEVICE::31,DEVICE::32
 actions=trap,email,log
 enabled=N
 
 #
 # Example config to block a specific Browser User Agent
-# This works in the same way as OS does.
-# Trigger format: an id (as in configuration -> user-agent )
+# Trigger format: The number is the ID of the user-agent from the 'User Agent' list in Fingerbank (either 'upstream' or 'local' or both)
+#
+# The below example blocks user-agents IDs 101 and 102.
 #
 [1100005]
 desc=Browser isolation example
 template=banned_devices
-trigger=USERAGENT::101,USERAGENT::102
+trigger=USER_AGENT::101,USER_AGENT::102
 actions=trap,email,log
 enabled=N
 
@@ -100,14 +97,14 @@ enabled=N
 [1100007]
 desc=Auto-register Device example
 priority=1
-trigger=OS::3,OS::6,OS::7,OS::8,OS::10,OS::12,OS::13
+trigger=DEVICE::3,DEVICE::6,DEVICE::7,DEVICE::8,DEVICE::10,DEVICE::12,DEVICE::13
 actions=log,autoreg
 enabled=N
 
 [1100008]
 desc=Disable NATing Routers and APs
 template=nat
-trigger=Detect::1100005,Detect::1100006,Detect::1100007,OS::4
+trigger=Detect::1100005,Detect::1100006,Detect::1100007,DEVICE::4
 actions=trap,email,log
 enabled=N
 
@@ -329,24 +326,23 @@ template=banned_devices
 actions=email,log,trap
 enabled=N
 priority=10
-trigger=USERAGENT::300,OS::11
+trigger=DEVICE::11
 
 [3000002]
-desc=Block iPhone and iPod touch
+desc=Block Apple iPod, iPhone or iPad
 template=banned_devices
 actions=trap,email,log
 enabled=N
 priority=10
-trigger=OS::1102,USERAGENT::101,USERAGENT::102
+trigger=DEVICE::193
 
-# MAC vendors: 00:0f:86, 00:1c:cc, 00:21:06, 00:23:7a, 00:24:9f, 00:25:57
 [3000003]
 desc=Block BlackBerries
 template=banned_devices
 actions=trap,email,log
 enabled=N
 priority=10
-trigger=VENDORMAC::3974,VENDORMAC::7372,VENDORMAC::8454,VENDORMAC::9082,VENDORMAC::9375,VENDORMAC::9559,USERAGENT::103
+trigger=DEVICE::192
 
 [3000004]
 desc=Block PS3 and PSP
@@ -354,13 +350,12 @@ template=banned_devices
 actions=trap,email,log
 enabled=N
 priority=10
-trigger=USERAGENT::111,USERAGENT::112,OS::605
+trigger=DEVICE::274
 
-# MAC vendor: 00:13:b6
 [3000005]
 desc=Block Slingbox
 template=banned_devices
 actions=trap,email,log
 enabled=N
 priority=10
-trigger=VENDORMAC::5046,OS::703
+trigger=DEVICE::143

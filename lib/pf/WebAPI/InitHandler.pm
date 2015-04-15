@@ -16,6 +16,7 @@ use warnings;
 
 use Apache2::RequestRec ();
 use pf::config::cached;
+use pf::StatsD;
 
 use Apache2::Const -compile => 'OK';
 
@@ -35,8 +36,10 @@ sub child_init {
     my ($child_pool, $s) = @_;
     #Avoid child processes having the same random seed
     srand();
+    pf::StatsD->initStatsd;
     return Apache2::Const::OK;
 }
+
 
 =head1 AUTHOR
 

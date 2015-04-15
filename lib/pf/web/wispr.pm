@@ -26,7 +26,7 @@ use Template;
 
 use pf::authentication;
 use pf::config;
-use pf::iplog qw(ip2mac);
+use pf::iplog;
 use pf::node;
 use pf::web;
 use pf::Portal::Session;
@@ -89,7 +89,7 @@ sub handler {
             $mac = $portalSession->getClientMac;
         }
 
-        $info{'pid'} = 'admin';
+        $info{'pid'} = 'default';
         $pid = $req->param("username") if (defined $req->param("username"));
         $r->pnotes->{pid}=$pid;
         $r->pnotes->{mac} = $mac;

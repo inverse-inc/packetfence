@@ -15,6 +15,7 @@ pf::ConfigStore::PF
 use Moo;
 use namespace::autoclean;
 use pf::config;
+use pf::file_paths;
 
 extends 'pf::ConfigStore';
 
@@ -26,7 +27,17 @@ extends 'pf::ConfigStore';
 
 =cut
 
-sub _buildCachedConfig { $cached_pf_config }
+sub configFile {$pf_config_file};
+
+sub pfconfigNamespace {'config::Pf'}
+
+sub _buildCachedConfig {
+    my ($self) = @_;
+    my $cached_pf_default_config = pf::config::cached->new(-file => $default_config_file);
+    my @args = (-file   => $config_file, -allowempty => 1, -import => $cached_pf_default_config);
+    my $file = pf::config::cached->new(@args);
+    return $file;
+}
 
 =item remove
 
@@ -39,7 +50,7 @@ sub remove { return; }
 sub cleanupAfterRead {
     my ( $self,$section, $data ) = @_;
     my $defaults = $Default_Config{$section};
-    foreach my $key ($cached_pf_config->Parameters($section) ) {
+    foreach my $key ( keys %{$Config{$section}} ) {
         my $doc_section = "$section.$key";
         unless (exists $Doc_Config{$doc_section} && exists $data->{$key}  ) {
             next;

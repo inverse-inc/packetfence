@@ -129,6 +129,10 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('USERS_READ') 
     $form->process();
     $form->field('actions')->add_extra unless @{$c->stash->{user}{actions}}; # an action must be chosen
     $c->stash->{form} = $form;
+    my $password = $c->stash->{user}{password};
+    if(defined $password) {
+        $c->stash->{password_hash_type} = pf::password::password_get_hash_type($password);
+    }
 }
 
 =head2 delete
@@ -218,10 +222,11 @@ sub reset :Chained('object') :PathPart('reset') :Args(0) :AdminRole('USERS_UPDAT
 
     my ($status, $message) = (HTTP_BAD_REQUEST, 'Some required parameters are missing.');
 
-    if ($c->request->method eq 'POST') {
+    if ( $c->request->method eq 'POST' ) {
         my $password = $c->request->params->{password};
         if ($password) {
-            ($status, $message) = $c->model('DB')->resetUserPassword($c->stash->{user}->{pid}, $password);
+            ( $status, $message ) = $c->model('DB')->resetUserPassword( $c->stash->{user}->{pid}, $password );
+            $c->session->{'users_passwords'} = [ { pid => $c->stash->{user}->{pid}, password => $password } ];
         }
     }
 
@@ -236,7 +241,7 @@ sub reset :Chained('object') :PathPart('reset') :Args(0) :AdminRole('USERS_UPDAT
 
 =cut
 
-sub create :Local :AdminRole('USERS_CREATE') {
+sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULITPLE') {
     my ($self, $c) = @_;
 
     my (@roles, $form, $form_single, $form_multiple, $form_import, $params);
@@ -265,8 +270,15 @@ sub create :Local :AdminRole('USERS_CREATE') {
     $form_multiple->process(params => $params);
 
     if ($c->request->method eq 'POST') {
-        # Create new user accounts
         $type = $c->request->param('type');
+        #check if they can do multiple actions
+        unless ($type eq 'single' || admin_can([$c->user->roles], 'USERS_CREATE_MULTIPLE')) {
+            $c->response->status(HTTP_UNAUTHORIZED);
+            $c->stash->{status_msg}   = "You don't have the rights to perform this action.";
+            $c->stash->{current_view} = 'JSON';
+            $c->detach();
+        }
+        # Create new user accounts
         if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;
             $message = $form->field_errors;
@@ -280,6 +292,7 @@ sub create :Local :AdminRole('USERS_CREATE') {
                 %data = (%{$form->value}, %{$form_single->value});
                 ($status, $message) = $self->getModel($c)->createSingle(\%data, $c->user);
                 @options = ('mail');
+                $c->session->{'users_passwords'} = $message;
             }
         }
         elsif ($type eq 'multiple') {
@@ -290,6 +303,7 @@ sub create :Local :AdminRole('USERS_CREATE') {
             else {
                 %data = (%{$form->value}, %{$form_multiple->value});
                 ($status, $message) = $self->getModel($c)->createMultiple(\%data, $c->user);
+                $c->session->{'users_passwords'} = $message;
             }
         }
         elsif ($type eq 'import') {
@@ -304,6 +318,7 @@ sub create :Local :AdminRole('USERS_CREATE') {
                 %data = (%{$form->value}, %{$form_import->value});
                 ($status, $message) = $self->getModel($c)->importCSV(\%data, $c->user);
                 @options = ('mail');
+                $c->session->{'users_passwords'} = $message;
             }
         }
         else {
@@ -390,8 +405,19 @@ sub print :Local :AdminRole('USERS_UPDATE') {
 
     my ($status, $result);
     my @pids = split(/,/, $c->request->params->{pids});
+    # we get the created users from the session so we have a copy of the cleartext password
+    my %users_passwords_by_pid = map { $_->{'pid'}, $_ } @{ $c->session->{'users_passwords'} };
 
-    ($status, $result) = $self->getModel($c)->read($c, \@pids);
+    ( $status, $result ) = $self->getModel($c)->read( $c, \@pids );
+
+    # we overwrite the password found in the database with the one in the session for the same user
+    for my $user (@$result) {
+        my $pid = $user->{'pid'};
+        if ( exists $users_passwords_by_pid{$pid} ) {
+            $user->{'password'} = $users_passwords_by_pid{$pid}->{'password'};
+        }
+    }
+
     if (is_success($status)) {
         $c->stash->{users} = $result;
     }
@@ -415,6 +441,7 @@ sub mail :Local :AdminRole('USERS_UPDATE') {
     my @pids = split(/,/, $c->request->params->{pids});
 
     ($status, $result) = $self->getModel($c)->mail($c, \@pids);
+
     if (is_success($status)) {
         $c->stash->{status_msg} = $c->loc('An email was sent to [_1] out of [_2] users.',
                                           scalar @pids, scalar @$result);

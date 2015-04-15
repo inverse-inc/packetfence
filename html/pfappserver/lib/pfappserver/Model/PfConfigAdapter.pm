@@ -6,7 +6,9 @@ extends 'Catalyst::Model';
 
 use Try::Tiny;
 
+use pf::constants;
 use pf::config;
+use pfconfig::manager;
 
 =head1 NAME
 
@@ -64,20 +66,11 @@ sub reloadConfiguration {
 
     $logger->info("reloading PacketFence configuration");
 
-    # reloading packetfence's configuration using fancy Try::Tiny syntax
-    my ($status, $error) = try { pf::config::init_config(); return $TRUE; }
-    catch { return ($FALSE, $_); };
+    my $status = pfconfig::manager->new->expire_all;
 
     $logger->info("done reloading PacketFence configuration");
-    return $TRUE if ($status == $TRUE);
+    return $TRUE;
 
-    chomp($error);
-    $logger->error($error);
-    if ($error =~ /Fatal error preventing configuration to load/) {
-        return ($FALSE, $error);
-    }
-    # otherwise
-    return ($FALSE, 'Unidentified error see server side logs for details.');
 }
 
 =head1 AUTHOR

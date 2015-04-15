@@ -42,23 +42,26 @@ sub parseArgs {
             my $base = ref($self) || $self;
             $module = "${base}::${action}";
         }
+        $module =~ /^(.*)$/;
+        $module = $1;
         eval {
             load $module unless is_loaded($module);
             $cmd = $module;
         };
         if($@) {
             if ($@ =~ /Compilation failed/) {
-                $self->{help_msg} = "module $module cannot be loaded";
+                $self->{help_msg} = "module $module cannot be loaded\n$@\n";
             } else {
-                $self->{help_msg} = "unknown command $action";
+                $self->{help_msg} = "unknown command $action\n$@\n";
             }
             $cmd = $self->unknownActionCmd;
+        } else {
+            $self->{subcmd_args} = \@args;
         }
     } else {
         $cmd = $self->noActionCmd;
     }
     $self->{subcmd} = $cmd;
-    $self->{subcmd_args} = \@args;
     return 1;
 }
 

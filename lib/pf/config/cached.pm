@@ -393,9 +393,13 @@ sub RewriteConfig {
     my ($self) = @_;
     my $logger = get_logger();
     my $file = $self->GetFileName;
-    if( $self->HasChanged(1) ) {
-        die "Config $file was modified from last loading manually verify file and run pfcmd configreload\n";
-    }
+#
+#   This is commented because it is currently causing issues with syncing
+#   So either this will be reworked in v5.1 or completely removed
+#   if( $self->HasChanged(1) ) {
+#       die "Config $file was modified from last loading manually verify file and run pfcmd configreload\n";
+#   }
+
     my $result;
     umask 2;
     my $lock = lockFileForWriting($file);

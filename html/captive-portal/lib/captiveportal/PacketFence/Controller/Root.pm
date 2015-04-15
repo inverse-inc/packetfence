@@ -66,7 +66,7 @@ sub default : Path {
     my ( $self, $c ) = @_;
     my $request  = $c->request;
     my $r = $request->{'env'}->{'psgi.input'};
-    if ($r->pnotes('last_uri') ) {
+    if ($r->can('pnotes') && $r->pnotes('last_uri') ) {
         $c->forward(CaptivePortal => 'index');
     }
     $c->response->body('Page not found');
@@ -113,7 +113,7 @@ sub setupLanguage : Private {
 
     my $locale = shift @$locales;
     $logger->debug("Setting locale to ".$locale);
-    setlocale(POSIX::LC_MESSAGES, "$locale.utf8"); 
+    setlocale(POSIX::LC_MESSAGES, "$locale.utf8");
     my $newlocale = setlocale(POSIX::LC_MESSAGES);
     if ($newlocale !~ m/^$locale/) {
         $logger->error("Error while setting locale to $locale.utf8. Is the locale generated on your system?");
@@ -182,7 +182,7 @@ sub getLanguages :Private {
     # 3. Check the accepted languages of the browser
     my $browser_languages = $c->forward('getRequestLanguages');
     foreach my $browser_language (@$browser_languages) {
-        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
         if (grep(/^$browser_language$/, @authorized_locales)) {
             $lang = $browser_language;
             push(@languages, $lang) unless (grep/^$lang$/, @languages);
@@ -196,7 +196,7 @@ sub getLanguages :Private {
     # 4. Check the closest language that match the browser
     # Browser = fr_FR and portal is en_US and fr_CA then fr_CA will be used
     foreach my $browser_language (@$browser_languages) {
-        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
         my $language = $1;
         if (grep(/^$language$/, @authorized_locales)) {
             $lang = $browser_language;

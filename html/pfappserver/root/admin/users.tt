@@ -50,7 +50,7 @@ form {
                   [%- IF can_access('USERS_READ') -%]
                   <li class="active"><a href="#">[% l('Search') %]</a></li>
                   [%- END -%]
-                  [%- IF can_access('USERS_CREATE') -%]
+                  [%- IF can_access_any('USERS_CREATE','USERS_CREATE_MULTIPLE') -%]
                   <li><a href="#user/create">[% l('Create') %]</a></li>
                   [%- END -%]
                   [%- IF can_access('USERS_READ') -%]

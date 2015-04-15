@@ -18,6 +18,7 @@ extends 'HTML::FormHandler::Field::Compound';
 use namespace::autoclean;
 
 use pf::config;
+use pf::constants::config qw($TIME_MODIFIER_RE $DEADLINE_UNIT);
 
 =head1 ATTRIBUTES
 
