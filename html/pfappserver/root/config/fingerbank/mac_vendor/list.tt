@@ -27,6 +27,7 @@
           </tr>
           <tr>
             <th>[% l('MAC Vendor ID') %]</th>
+            <th>[% l('MAC OUI') %]</th>
             <th>[% l('Description') %]</th>
             <th>[% l('Actions') %]</th>
           </tr>
@@ -35,6 +36,7 @@
           [% FOREACH item IN items %]
           <tr>
             <td><a href="[% c.uri_for(c.controller.action_for('view'), [scope, item.id ]) %]">[% item.id | html %]</a></td>
+            <td>[% item.mac | html%]</td>
             <td>[% item.value | html%]</td>
             <td>
               [%- IF can_access("FINGERBANK_CREATE") %]
