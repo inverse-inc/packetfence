@@ -52,6 +52,7 @@ use pf::file_paths;
 use pf::config;
 use pf::util;
 use pf::constants;
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED);
 use pf::services;
 use List::MoreUtils qw(part any true all);
 use constant {
@@ -132,7 +133,7 @@ sub startService {
             _doStart($manager);
         }
     }
-    return 0;
+    return $EXIT_SUCCESS;
 }
 
 sub checkup {
@@ -260,7 +261,7 @@ sub stopService {
             );
         }
     }
-    return 0;
+    return $EXIT_SUCCESS;
 }
 
 sub isIptablesManaged {
@@ -270,7 +271,7 @@ sub isIptablesManaged {
 sub restartService {
     stopService(@_);
     local $SERVICE_HEADER = '';
-    startService(@_);
+    return startService(@_);
 }
 
 sub watchService {
@@ -297,10 +298,9 @@ sub watchService {
                 $manager->watch;
                 print join('|',$manager->name,"watch"),"\n";
             }
-            return 0;
         }
     }
-    return 1;
+    return $EXIT_SUCCESS;
 }
 
 sub statusOfService {
@@ -324,7 +324,7 @@ sub statusOfService {
         }
         print $manager->name,"|${color}$isManaged|$status${RESET_COLOR}\n";
     }
-    return ( $notStarted ? 3 : 0);
+    return ( $notStarted ? $EXIT_SERVICES_NOT_STARTED : $EXIT_SUCCESS)
 }
 
 =head1 AUTHOR
