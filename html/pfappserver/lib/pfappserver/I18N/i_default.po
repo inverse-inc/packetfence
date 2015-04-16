@@ -546,7 +546,7 @@ msgstr ""
 
 # pf::firewallsso (Firewall SSO)
 msgid "BarracudaNG"
-msgstr ""
+msgstr "Barracuda NG Firewall"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Base DN"
@@ -673,7 +673,7 @@ msgstr ""
 
 # pf::firewallsso (Firewall SSO)
 msgid "Checkpoint"
-msgstr ""
+msgstr "Check Point Firewall"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Children"
@@ -1833,7 +1833,7 @@ msgstr ""
 
 # pf::firewallsso (Firewall SSO)
 msgid "FortiGate"
-msgstr ""
+msgstr "FortiGate Firewall"
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configurator/configuration.tt
@@ -3060,7 +3060,7 @@ msgstr ""
 
 # pf::firewallsso (Firewall SSO)
 msgid "PaloAlto"
-msgstr ""
+msgstr "PaloAlto Networks"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
