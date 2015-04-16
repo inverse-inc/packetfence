@@ -79,7 +79,7 @@ Detection of abnormal network activities::
   Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using local and remote http://www.snort.org/[Snort] or http://suricata-ids.org/[Suricata] sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
 
 Proactive vulnerability scans::
-  Either http://www.nessus.org/nessus/[Nessus] or http://www.openvas.org[OpenVAS] vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the scan engine vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
+  Either http://www.nessus.org/nessus/[Nessus] , http://www.openvas.org[OpenVAS] or WMI vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the scan engine vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
 
 Isolation of problematic devices::
   PacketFence supports several isolation techniques, including VLAN isolation with VoIP support (even in heterogeneous environments) for multiple switch vendors.
@@ -1441,12 +1441,16 @@ realm DEFAULT {
 Thirdly, you must configure the packetfence FreeRADIUS virtual servers to treat the requests properly.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 In /usr/local/pf/raddb/sites-enabled/packetfence, modify the authorize section like this:
 =======
 PacketFence supports either Nessus, OpenVAS and WMI as a scanning engine for compliance checks.
 Since PacketFence v5 you are now able to create multiples scan engines configuration and assign them on specific captive portals.
 It mean per example that you are anow able to active a scan for specific Operating System only on a specific SSID.
 >>>>>>> Updated scanner documentation
+=======
+In /usr/local/pf/raddb/sites-enabled/packetfence, modify the authorize section like this:
+>>>>>>> Updated documentation
 
 raddb/sites-enabled/packetfence example:
 ----
@@ -1550,6 +1554,7 @@ Local entries
 ^^^^^^^^^^^^^
 
 It is possible for an administrator who wants to customize an existing record (or create a new one) to do so using the "Local" entries. An upstream record (DHCP Fingerprint, DHCP Vendor, MAC Vendor, User Agent, Device type, even a Combination) can be cloned and then modified on a local basis if needed. Local records are always matched first since their purpose is to 'override' an existing one. A local combination can be created to match either "Local" or "Upstream" or both entries to allow identification of a device.
+<<<<<<< HEAD
 
 Settings
 ^^^^^^^^
@@ -1697,7 +1702,37 @@ Of course, replace the hostname with the values from `general.hostname` and `gen
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Sources*.
 
 Moreover, don't forget to add WindowsLive as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+=======
 
+Settings
+^^^^^^^^
+
+Fingerbank settings can easily be modified from the "Settings" menu item under the "Fingerbank" section of the PacketFence "Configuration" tab. There's documentation for each an every parameter that allow easier understanding.
+
+Floating Network Devices
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Starting with version 1.9, PacketFence now supports floating network devices. A Floating network device is a device for which PacketFence has a different behaviour compared to a regular device. This functionality was originally added to support mobile Access Points.
+
+CAUTION: Right now PacketFence only supports floating network devices on Cisco and Nortel switches configured with port-security.
+
+For a regular device, PacketFence put it in the VLAN corresponding to its status (Registration, Quarantine or Regular Vlan) and authorizes it on the port (port-security).
+
+A floating network device is a device that PacketFence does not manage as a regular device.
+
+When a floating network device is plugged, PacketFence will let/allow all the MAC addresses that will be connected to this device (or appear on the port) and if necessary, configure the port as multi-vlan (trunk) and set PVID and tagged VLANs on the port.
+
+When an floating network device is unplugged, PacketFence will reconfigure the port like before it was plugged.
+
+How it works
+^^^^^^^^^^^^
+
+Configuration:
+>>>>>>> Updated documentation
+
+[options="compact"]
+* floating network devices have to be identified using their MAC address.
+* linkup/linkdown traps are not enabled on the switches, only port-security traps are.
 
 Passthrough
 ~~~~~~~~~~~
@@ -2377,10 +2412,561 @@ The admin GUI allow PacketFence administrators or guests managers to create sing
 
 Usage
 ^^^^^
+=======
+
+  ViolationVlan
+  RegistrationVlan
+  NormalVlan
+  InlineVlan
+  AutoRegister
+  NodeInfoForAutoReg
+
+And can be defined using different criteria like:
+
+  node_info
+  switch
+  ifIndex
+  mac
+  connection_type
+  username
+  ssid
+  time
+  owner
+  radius_request
+
+For example, lets define a rule that prevents a device from connecting when its category is the "default", when the SSID is "SECURE" and when the current time is between 11am and 2pm:
+from Monday to Friday when it try to connect as a registered device :
+
+  [category]
+  filter = node_info
+  attribute = category
+  operator = is
+  value = default
+
+  [ssid]
+  filter = ssid
+  operator = is
+  value = SECURE
+
+  [time]
+  filter = time
+  operator = is
+  value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
+
+  [1:category&ssid&time]
+  scope = NormalVlan
+  role = nointernet
+
+The second example will create a violation if the SSID is OPEN and the owner is igmout
+
+  [igmout]
+  filter = owner
+  operator = is
+  value = igmout
+
+  [open]
+  filter = ssid
+  operator = is
+  value = OPEN
+
+  [2:igmout&ssid]
+  scope = NormalVlan
+  action = trigger_violation
+  action_param = mac = $mac, tid = 1100012, type = INTERNAL
+
+The third example will autoregister the device and assign the role staff to each device where the username is igmout.
+
+  [igmout]
+  filter = username
+  operator = is
+  value = igmout
+
+  [secure]
+  filter = ssid
+  operator = is
+  value = SECURE
+
+  [3:igmout&secure]
+  scope = AutoRegister
+  role = staff
+
+  [4:igmout&secure]
+  scope = NodeInfoForAutoReg
+  role = staff
+
+
+You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
+
+Optional components
+-------------------
+
+Blocking malicious activities with violations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Policy violations allow you to restrict client system access based on violations of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a violation for a given client, PacketFence will give that client a "blocked" page which can be customized to your wishes.
+
+In order to be able to block malicious activities, you need to install and configure the SNORT or Suricata IDS to talk with PacketFence.
+
+Snort
+^^^^^
+
+Installation
+++++++++++++
+
+The installation procedure is quite simple for SNORT. We maintain a working version on the PacketFence repository. To install it, simply run the following command:
+
+  yum install snort
+
+Configuration
++++++++++++++
+
+PacketFence provides a basic `snort.conf` template that you may need to edit depending of the Snort version. The file is located in `/usr/local/pf/conf`. It is rarely necessary to change anything in that file to make Snort work and trap alerts. DO NOT edit the `snort.conf` located in `/usr/local/pf/var/conf`, all the modification will be destroyed on each PacketFence restart.
+
+Suricata
+^^^^^^^^
+
+Installation
+++++++++++++
+
+Since the suricata IDS is not packaged with the distros (except maybe Fedora, which we do not officially support), you need to build it the "old" way.
+
+The OISF provides a really well written how-to for that.  It's available here: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/CentOS5
+
+Configuration
++++++++++++++
+
+PacketFence will provide you with a basic `suricata.yaml` that you can modify to suit you own needs.  The file is located in `/usr/local/pf/conf`.
+
+Violations
+^^^^^^^^^^
+
+In order to make PacketFence react to the Snort alerts, you need to explicitly tell the software to do so. Otherwise, the alerts will be discarded. This is quite simple to accomplish. In fact, you need to create a violation and add the Snort alert SID in the trigger section of a Violation. 
+
+PacketFence policy violations are controlled using the `/usr/local/pf/conf/violations.conf` configuration file. The violation format is as follows:
+
+  [1234]
+  desc=Your Violation Description
+  priority=8
+  template=<template>
+  enable=Y
+  trigger=Detect::2200032,Nessus::11808
+  actions=email,log,trap
+  vlan=isolationVlan
+  whitelisted_categories=
+
+[horizontal]
+`[1234]`:: The violation ID. Any integer except 1200000-120099 which is reserved for required administration violations.
+`desc`:: single line description of violation
+`priority`:: Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.
+`template`:: Template name to use while in violation. It must match a HTML file name (without the extension) of the `violations` templates directory. 
+`enable`:: If enable is set to 'N', this violation is disabled and no additional violations of this type will be added.
+`trigger`:: Method to reference external detection methods. Trigger is formatted as follows `type::ID`. The type can be `Detect` (Snort), `Nessus`, `OpenVAS`, `OS` (DHCP Fingerprint Detection), `UserAgent` (Browser signature), `VendorMAC` (MAC address class), `SoH` (Statement of Health filter), `Accounting`, etc. In the above example, 2000032 is the Snort ID and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
+`actions`:: This is the list of actions that will be executed on a violation addition. The actions can be:
+`log`::: Log a message to the file specified in `[alerting].log`
+`email`::: Email the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be sperated by comma.
+`trap`::: Isolate the host and place them in violation. It opens a violation and leaves it open. If trap is not there, a violation is opened and then automatically closed.
+`winpopup`::: send a windows popup message. You need to configure `[alerting].winserver`, `[alerting].netbiosname` in `pf.conf` when using this option.
+`external`::: execute an external command, specified in `[paths].externalapi`.
+`close`::: close the violation ID specified in the vclose field.
+`role`::: change the node's role to the one specified in the target_category field.
+`autoreg`::: register the node.
+`unreg`::: deregister the node.
+`vlan`:: Destination VLAN where PacketFence should put the client when a violation of this type is open. The VLAN value can be:
+`isolationVlan`::: Isolation VLAN as specified in `switches.conf`. This is the recommended value for most violation types.
+`registrationVlan`::: Registration VLAN as specified in `switches.conf`.
+`normalVlan`::: Normal VLAN as specified in `switches.conf`. Note: It is preferable not to trap than to trap and put in normal VLAN. Make sure you understand what you are doing.
+`whitelisted_categories`::: Nodes in a category listed in `whitelisted_categories` won't be affected by a violation of this type. Format is a comma separated list of category names.
+
+Also included in `violations.conf` is the defaults section. The defaults section will set a default value for every violation in the configuration. If a configuration value is not specified in the specific ID, the default will be used:
+
+  [defaults]
+  priority=4
+  max_enable=3
+  actions=email,log
+  auto_enable=Y
+  enable=N
+  grace=120m
+  delay_by=0
+  window=0
+  vclose=
+  target_category=
+  button_text=Enable Network
+  snort_rules=local.rules,bleeding-attack_response.rules,bleeding-exploit.rules,bleeding-p2p.rules,bleeding-scan.rules,bleeding-virus.rules
+  vlan=isolationVlan
+  whitelisted_categories=
+
+`max_enable`::
+Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just 'click through' violation pages.
+`auto_enable`::
+Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk.
+`grace`::
+Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
+`delay_by`::
+Amount of time before the violation action will run.
+`window`::
+Amount of time before a violation will be closed automatically.  Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.  You can use the allowed time modifiers or the dynamic keyword.  Note that the dynamic keyword only works for accounting violations.  Dynamic will open the violation according to the time you set in the
+accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month.)
+`vclose`::
+When selecting the "close" action, triggering the violation will close the one you select in the vclose field. This is an experimentalworkflow for Mobile Device Management (MDM).
+`target_category`::
+When selecting the "role" action, triggering the violation will change the node's role to the one you select in the target_category field.
+`button_text`::
+Text displayed on the violation form to hosts.
+`snort_rules`::
+The Snort rules file is the administrators responsibility. Please change this to point to your violation rules file(s). If you do not specify a full path, the default is `/usr/local/pf/conf/snort`. If you need to include more than one file, just separate each filename with a comma.
+
+NOTE: `violations.conf` is loaded at startup. A restart is required when 
+changes are made to this file.
+
+Example violation
+^^^^^^^^^^^^^^^^^
+
+In our example we want to isolate people using Limewire. Here we assume Snort is installed and configured to send alerts to PacketFence. Now we need to configure PacketFence isolation.
+
+Enable Limewire violation in `/usr/local/pf/conf/violations.conf` and configure it to trap.
+
+  [2001808]
+  desc=P2P (Limewire)
+  priority=8
+  template=p2p
+  actions=log,trap
+  enable=Y
+  max_enable=1
+  trigger=Detect::2001808
+
+Compliance Checks
+~~~~~~~~~~~~~~~~~
+
+PacketFence supports either Nessus, OpenVAS and WMI as a scanning engine for compliance checks.
+Since PacketFence v5.1 you are now able to create multiples scan engines configuration and assign them on specific captive portals.
+It mean per example that you are now able to active a scan for specific Operating System only on a specific SSID.
+
+Installation
+^^^^^^^^^^^^
+
+Nessus
+++++++
+
+Please visit http://www.nessus.org/download/ to download Nessus v5 and install the Nessus package for your operating system. You will also need to register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
+
+After you installed Nessus, follow the Nessus documentation for the configuration of the Nessus Server, and to create a user for PacketFence.
+
+NOTE: You may run into some issue while using Nessus with the Net::Nessus::XMLRPC module (which is the default behavior in PacketFence). Please refer to the http://packetfence.org/bugs/view.php?id=1841[bug tracking system] for more information.
+
+OpenVAS
++++++++
+
+Please visit http://www.openvas.org/install-packages.html#openvas4_centos_atomic to configure the correct repository to be able to install the latest OpenVAS scanning engine.
+
+Once installed, please make sure to follow the instructions to correctly configure the scanning engine and create a scan configuration that will fit your needs. You'll also need to create a user for PacketFence to be able to communicate with the server.
+
+It is important to get the correct scan config ID and NBE report format ID to populate the parameters in the PacketFence configuration file. The easiest way to get these IDs is by downloading both of the scan configuration and report format from the OpenVAS web gui and retrieve the IDs in the filenames.
+
+For example `report-format-f5c2a364-47d2-4700-b21d-0a7693daddab.xml` gives report format ID `f5c2a364-47d2-4700-b21d-0a7693daddab`.
+
+WMI
++++
+
+You just have to enable wmi on each windows devices with a GPO from Active Directory.
+
+Configuration
+^^^^^^^^^^^^^
+
+In order for the compliance checks to correctly work with PacketFence (communication and generate violations inside PacketFence), you need to configure these sections:
+
+Scanner Definition
+++++++++++++++++++
+
+First go in Configuration and Scanner Definition:
+image::docs/images/scan_definition.png[alt="Scanner definition"]
+
+Then add a scan:
+image::docs/images/scan_type.png[alt="Scanner add"]
+
+There are common parameters for each scan engines:
+
+  Name: the name of your scan engine
+  Roles: Only devices with these role(s) will be affected (Optional)
+  OS: Only devices with this Operating System will be affected (Optional)
+  Duration: Approximate duration of scan (Progress bar on the captive portal)
+  Scan before registration: Trigger the scan when the device appear on the registration vlan
+  Scan after registration: Trigger the scan just after registration on the captive portal
+  Scan after registration: Trigger the scan on the production network (pfdhcplistener must receive production dhcp traffic)
+  802.1x: Even if the auto-registration has been enabled, the scan will be trigger on a EAP connection
+  802.1x types: comma delimited EAP type that will trigger the scan if 802.1x above has been enabled
+
+Specific to Nessus:
+
+  Hostname or IP Address: Hostname or IP Address where Nessus is running
+  Username: Username to connect to Nessus scan
+  Password: Password to connect to Nessus scan
+  Port of the service: port to connect (default 8834)
+  Nessus client policy: the name of the policy to use for the scan (Must be define on the Nessus server)
+
+Specific to OpenVAS:
+
+  Hostname or IP Address: Hostname or IP Address where OpenVAS is running
+  Username: Username to connect to OpenVAS scan
+  Password: Password to connect to OpenVAS scan
+  Port of the service: port to connect (default 9390)
+  OpenVAS config ID: the ID of scanning configuration on the OpenVAS server
+
+Specific to WMI:
+
+  Username: A username from Active Directory that is allowed to connect to wmi
+  Domain: Domain of the Active Directory
+  Password: Password of the account
+  WMI Rules: Ordered list of WMI rules you defined in Configuration -> WMI Rules Definition
+
+WMI Rules Definition
+++++++++++++++++++++
+
+If you have configured a WMI scan engine then you need to define WMI Rules.
+WMI is a sort of database on each windows devices, to retreive information on the device you need to know the sql request.
+In order to help you to find and make a rule you can use a third party tool like WMI Explorer.
+
+Go in configuration -> WMI Rules Definition:
+
+There are already 3 rules defined:
+
+  Software_Installed
+  logged_user
+  Process_Running
+
+Let's take the Software_Installed rule:
+
+  request: select * from Win32_Product
+
+  Rules Actions:
+
+  [Google]
+  attribute = Caption
+  operator = match
+  value =Google
+
+  [1:Google]
+  action=trigger_violation
+  action_param = mac = $mac, tid = 888888, type = INTERNAL
+
+This rule will do the following:
+
+  retreive all the installed software on the device and test if the attribute Caption contain Google.
+  if it matched then we will trigger a violation (with the trigger internal::888888) for the mac address of the device.
+
+
+The second one, logged_user:
+
+  request: select UserName from Win32_ComputerSystem
+
+  Rules Actions:
+
+  [UserName]
+  attribute = UserName
+  operator = match
+  value = (.*)
+
+  [1:UserName]
+  action = dynamic_register_node
+  action_param = mac = $mac, username = $result->{'UserName'}
+
+This rule will do the following:
+
+  retreive the current logged user on the device and register the device based on the user account.
+
+The last one, Process_Running:
+
+  request: select Name from Win32_Process
+
+  Rules Actions:
+
+  [explorer]
+  attribute = Name
+  operator = match
+  value = explorer.exe
+
+ [1:explorer]
+ action = allow
+
+This rule will do the following:
+
+  retreive all the running process on the device and if one match explorer.exe then we bypass the scan.
+
+* Rules syntax
+
+  the syntax of the rules are simple to understand:
+
+  the request is the sql request you will launch on the remote device, you must know what the request will return
+  to write the test.
+
+  Inside the Rules Actions we define 2 sorts of blocs:
+  The test bloc (ie [explorer]) and the action bloc (ie [1:explorer])
+
+  The test bloc is a simple test based on the result of the request:
+  - attribute is the attribute you want to test
+  - operator can be:
+    is
+    is_not
+    match
+    match_not
+  - value is the value you want to compare
+  
+  Feel free to define multiples test blocs
+
+  The action bloc is where you will define your logic, per example let's take this one [1:google&explorer], this mean that if the google test is
+  true and explorer is true then we execute the action.
+  The logic can be more complex and can be something like that [1:!google|(explorer&memory)] that mean if not google or (explorer and memory)
+
+Violations definition
++++++++++++++++++++++
+
+You need to create a new violation section and have to specify:
+
+Using Nessus:
+
+  trigger=Nessus::<violationId>
+
+Using OpenVAS:
+
+  trigger=OpenVAS::<violationId>
+
+Where `violationId` is either the ID of the Nessus plugin or the OID of the OpenVAS plugin to check for. Once you have finished the configuration, you need to reload the violation related database contents using:
+
+  $ pfcmd reload violations
+
+NOTE: Violations will trigger if the plugin is higher than a low severity vulnerability.
+
+Assign Scan definition to portal profiles
++++++++++++++++++++++++++++++++++++++++++
+
+The last step is to assign one or more scanner you configured to one or more portal profiles.
+Go in Configuration -> Portal Profiles -> Edit a Portal -> Add Scan
+
+Hosting Nessus / OpenVAS remotely
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Because of the CPU intensive nature of an automated vulnerability assessment, we recommend that it is hosted on a separate server for large environments. To do so, a couple of things are required: 
+
+[options="compact"]
+* PacketFence needs to be able to communicate to the server on the port specified by the vulnerability engine used
+* The scanning server need to be able to access the targets. In other words, registration VLAN access is required if scan on registration is enabled.
+
+If you are using the OpenVAS scanning engine:
+
+[options="compact"]
+* The scanning server need to be able to reach PacketFence's Admin interface (on port 1443 by default) by its DNS entry. Otherwise PacketFence won't be notified of completed scans.
+* You must have a valid SSL certificate on your PacketFence server
+
+If you are using the Nessus scanning engine:
+
+[options="compact"]
+* You just have to change the host value by the Nessus server IP.
+ 
+RADIUS Accounting
+~~~~~~~~~~~~~~~~~
+
+RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we are able to use this information to determine if the node is still connected, how much time it has been connected, and how much bandwitdh the user consumed.
+
+Violations
+^^^^^^^^^^
+
+Using PacketFence, it is possible to add violations to limit bandwidth abuse.  The format of the trigger is very simple:
+
+   Accounting::[DIRECTION][LIMIT][INTERVAL(optional)]
+
+Let's explain each chunk properly:
+
+[options="compact"]
+* `DIRECTION`: You can either set a limit to inbound(IN), outbound(OUT), or total(TOT) bandwidth
+* `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megabytes(MB), gigabytes(GB), or petabytes(PB)
+* `INTERVAL`: This is actually the time window we will look for potential abuse.  You can set a number of days(D), weeks(W), months(M), or years(Y).
+
+Example triggers
+++++++++++++++++
+
+* Look for Incoming (Download) traffic with a 50GB/month
+
+   Accounting::IN50GB1M
+
+* Look for Outgoing (Upload) traffic with a 500MB/day
+
+   Accounting::OUT500MB1D
+
+* Look for Total (Download + Upload) traffic with a 200GB limit in the last week
+
+   Accounting::TOT200GB1W
+
+Grace period
+++++++++++++
+
+When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is tranmitted!) or too high.  We recommend that you set the grace period to one interval window.
+
+Oinkmaster
+~~~~~~~~~~
+
+Oinkmaster is a perl script that enables the possibility to update the different snort rules very easily. It is simple to use, and install. This section will show you how to implement Oinkmaster to work with PacketFence and Snort.
+
+Please visit http://oinkmaster.sourceforge.net/download.shtml to download oinkmaster. A sample oinkmaster configuration file is provided at `/usr/local/pf/addons/snort/oinkmaster.conf`.
+
+Configuration
+^^^^^^^^^^^^^
+
+Here are the steps to make Oinkmaster work. We will assume that you already downloaded the newest oinkmaster archive:
+
+. Untar the freshly downloaded Oinkmaster
+. Copy the required perl scripts into `/usr/local/pf/oinkmaster`. You need to copy over `contrib` and `oinkmaster.pl`
+. Copy the `oinkmaster.conf` provided by PacketFence (see the section above) in `/usr/local/pf/conf`
+. Modify the configuration to suit your own needs. Currently, the configuration file is set to fetch the bleeding rules.
+
+Rules update
+^^^^^^^^^^^^
+
+In order to get periodic updates for PacketFence Snort rules, we simply need to create a `crontab` entry with the right information. The example below shows a `crontab` entry to fetch the updates daily at 23:00 PM:
+
+  0 23 * * * (cd /usr/local/pf; perl oinkmaster/oinkmaster.pl -C conf/oinkmaster.conf -o conf/snort/)
+
+Guests Management
+~~~~~~~~~~~~~~~~~
+
+PacketFence supports the ability to manage guests by establishing expire dates and assign different roles which will permit different accesses to the network resources.
+
+Guests can self-register themselves using an activation code sent to their mobile phone or they can use their email address and receive and activation link to activate their network access.
+
+PacketFence has the option to have guests sponsored their access by local staff. Once a guest requests a sponsored access an email is sent to the sponsor and the sponsor must click on a link and authenticate in order to enable his access.
+
+Moreover, PacketFence also has the option for guests to request their access in advance. Confirmation by email and by a sponsor are the two pre-registration techniques supported at this point.
+
+The admin GUI allow PacketFence administrators or guests managers to create single accounts, multiple accounts using a prefix (ie.: guest1, guest2, guest3...) or import data from a CSV to create accounts. Access duration and expected arrival date are also customizable.
+
+Usage
+^^^^^
 
 Guest self-registration
 +++++++++++++++++++++++
 
+Self-registration is enabled by default. It is part of the captive portal profile and can be accessed on the registration page by clicking the *Sign up* link.
+
+image::docs/images/screenshot-captive-portal.png[alt="Captive portal screenshot"]
+
+Managed guests
+++++++++++++++
+
+Part of the web administration interface, the guests management interface is enabled by default. It is accessible through the *Users -> Create* menu.
+
+Guest pre-registration
+++++++++++++++++++++++
+
+Pre-registration is disabled by default. Once enabled, PacketFence's firewall and Apache ACLs allow access to the `/signup` page on the portal even from a remote location. All that should be required from the administrators is to open up their perimeter firewall to allow access to PacketFence's management interface IP on port 443 and make sure a domain name to reach said IP is configured (and that the SSL cert matches it). Then you can promote the pre-registration link from your extranet web site: https://<hostname>/signup.
+
+CAUTION: Pre-registration increases the attack surface of the PacketFence system since a subset of it's functionnality is exposed on the Internet. Make sure you understand the risks, apply the critical operating system updates and apply PacketFence's security fixes.
+
+Configuration
+^^^^^^^^^^^^^
+>>>>>>> Updated documentation
+
+Guest self-registration
++++++++++++++++++++++++
+
+<<<<<<< HEAD
 Self-registration is enabled by default. It is part of the captive portal profile and can be accessed on the registration page by clicking the *Sign up* link.
 
 image::docs/images/screenshot-captive-portal.png[alt="Captive portal screenshot"]
