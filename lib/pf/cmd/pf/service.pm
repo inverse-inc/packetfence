@@ -5,13 +5,14 @@ pf::cmd::pf::service add documentation
 
 =head1 SYNOPSIS
 
- pfcmd service <service> [start|stop|restart|status|watch]
+pfcmd service <service> [start|stop|restart|status|watch]
 
-stop/stop/restart specified service
-status returns PID of specified PF daemon or 0 if not running
-watch acts as a service watcher which can send email/restart the services
+  stop/stop/restart specified service
+  status returns PID of specified PF daemon or 0 if not running
+  watch acts as a service watcher which can send email/restart the services
 
 Services managed by PacketFence:
+
   dhcpd            | dhcpd daemon
   httpd.webservices| Apache Webservices
   httpd.admin      | Apache Web admin
@@ -29,10 +30,11 @@ Services managed by PacketFence:
   suricata         | Suricata IDS
 
 watch
-Watch performs services checks to make sure that everything is fine. It's
-behavior is controlled by servicewatch configuration parameters. watch is
-typically best called from cron with something like:
-*/5 * * * * /usr/local/pf/bin/pfcmd service pf watch
+
+ Watch performs services checks to make sure that everything is fine. It's
+ behavior is controlled by servicewatch configuration parameters. watch is
+ typically best called from cron with something like:
+ */5 * * * * /usr/local/pf/bin/pfcmd service pf watch
 
 =head1 DESCRIPTION
 
