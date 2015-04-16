@@ -1,13 +1,14 @@
-package pf::pki_provider;
+package pf::pki_provider::inverse;
+
 =head1 NAME
 
-pf::pki_provider
+pf::pki_provider::inverse
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pki_provider
+pf::pki_provider::inverse
 
 =cut
 
