@@ -26,7 +26,6 @@ The process is meant to be very short lived an never reused. */
 #define _GNU_SOURCE
 #define COMMAND "/usr/bin/ntlm_auth"
 #define MAX_STR_LENGTH 1023
-#define STATSD_BUFLEN 128
 #include <syslog.h>
 #include <string.h>
 #include <unistd.h>
@@ -38,6 +37,7 @@ The process is meant to be very short lived an never reused. */
 #include <errno.h>
 #include <netdb.h>
 #include <sys/socket.h>
+#include "/root/apue.3e/include/apue.h"
 
 int
 main (argc, argv, envp)
@@ -130,12 +130,20 @@ main (argc, argv, envp)
   else
     {
       char *buf;
-      char hostname[255];
+      char hostname[MAX_STR_LENGTH];
       gethostname (hostname, sizeof (hostname));
+      connect (sockfd, ailist->ai_addr, ailist->ai_addrlen);
+
       asprintf (&buf, "%s.ntlm_auth.time:%g|ms\n", hostname, elapsed);
 
-      if (sendto (sockfd, buf, strlen (buf), 0, ailist->ai_addr, ailist->ai_addrlen) < 0)
-	    fprintf (stderr, "sendto error");
+      send (sockfd, buf, strlen (buf), 0);
+
+      // increment counter if auth failed
+      if ( status > 0 ) { 
+        asprintf (&buf, "%s.ntlm_auth.failures:1|c\n", hostname);
+        send (sockfd, buf, strlen (buf), 0);
+      }
+
     }
 
   exit (WEXITSTATUS (status));
