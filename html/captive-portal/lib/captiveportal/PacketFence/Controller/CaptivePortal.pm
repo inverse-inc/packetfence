@@ -361,7 +361,7 @@ sub unknownState : Private {
             $switch = pf::SwitchFactory->instantiate($last_switch_id);
         }
 
-        if(defined($switch) && $switch->supportsWebFormRegistration){
+        if(defined($switch) && $switch && $switch->supportsWebFormRegistration){
             $logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate [$mac]");
             $c->stash(
                 template => 'webFormRelease.html',
@@ -469,7 +469,7 @@ sub webNodeRegister : Private {
             $switch = pf::SwitchFactory->instantiate($last_switch_id);
         }
 
-        if(defined($switch) && $switch->supportsWebFormRegistration){
+        if(defined($switch) && $switch && $switch->supportsWebFormRegistration){
             $logger->info("Switch supports web form release.");
             $c->stash(
                 template => 'webFormRelease.html',
