@@ -36,7 +36,6 @@ The process is meant to be very short lived an never reused. */
 #include <errno.h>
 #include <netdb.h>
 #include <sys/socket.h>
-#include "/root/apue.3e/include/apue.h"
 #include <argp.h>
 
 const char *argp_program_version = "ntlm_auth_wrapper 1.0";
@@ -101,15 +100,61 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 		arguments->port = arg;
 		break;
 	case 'f':
-		arguments->facility = arg;
+		printf("case F, arg is : %s\n", arg);
+		if (strcasecmp(arg, "auth") == 0) {
+			arguments->facility = LOG_AUTHPRIV;
+		} else if (strcasecmp(arg, "authpriv") == 0) {
+			arguments->facility = LOG_AUTHPRIV;
+		} else if (strcasecmp(arg, "daemon") == 0) {
+			arguments->facility = LOG_DAEMON;
+		} else if (strcasecmp(arg, "user") == 0) {
+			arguments->facility = LOG_USER;
+		} else if (strcasecmp(arg, "local0") == 0) {
+			arguments->facility = LOG_LOCAL0;
+		} else if (strcasecmp(arg, "local1") == 0) {
+			arguments->facility = LOG_LOCAL1;
+		} else if (strcasecmp(arg, "local2") == 0) {
+			arguments->facility = LOG_LOCAL2;
+		} else if (strcasecmp(arg, "local3") == 0) {
+			arguments->facility = LOG_LOCAL3;
+		} else if (strcasecmp(arg, "local4") == 0) {
+			arguments->facility = LOG_LOCAL4;
+		} else if (strcasecmp(arg, "local5") == 0) {
+			arguments->facility = LOG_LOCAL5;
+		} else if (strcasecmp(arg, "local6") == 0) {
+			arguments->facility = LOG_LOCAL6;
+		} else if (strcasecmp(arg, "local7") == 0) {
+			arguments->facility = LOG_LOCAL7;
+		} else {
+			return ARGP_ERR_UNKNOWN;
+		}
 		break;
+
 	case 'd':
-		arguments->level = arg;
+		if (strcasecmp(arg, "debug") == 0) {
+			arguments->level = LOG_DEBUG;
+		} else if (strcasecmp(arg, "notice") == 0) {
+			arguments->level = LOG_NOTICE;
+		} else if (strcasecmp(arg, "info") == 0) {
+			arguments->level = LOG_INFO;
+		} else if (strcasecmp(arg, "warning") == 0) {
+			arguments->level = LOG_WARNING;
+		} else if (strcasecmp(arg, "error") == 0) {
+			arguments->level = LOG_ERR;
+		} else if (strcasecmp(arg, "critical") == 0) {
+			arguments->level = LOG_CRIT;
+		} else if (strcasecmp(arg, "alert") == 0) {
+			arguments->level = LOG_ALERT;
+		} else if (strcasecmp(arg, "emerg") == 0) {
+			arguments->level = LOG_ALERT;
+		} else {
+			return ARGP_ERR_UNKNOWN;
+		}
 		break;
 
 	case ARGP_KEY_ARG:
-		if (state->arg_num >= 8)
-			/* Too many arguments. */
+		if (state->arg_num >= 32)
+			/* Way too many arguments. */
 			argp_usage(state);
 
 		arguments->args[state->arg_num] = arg;
@@ -130,6 +175,70 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 
 /* Our argp parser. */
 static struct argp argp = { options, parse_opt, args_doc, doc };
+
+// send results to syslog
+void log_result(int argc, char **argv, const struct arguments args, int status, double elapsed,
+		int ppid)
+{
+	openlog("radius-debug", LOG_PID, args.facility);
+	// build the log message
+	char *log_msg;
+	asprintf(&log_msg, "%s", args.binary);
+
+	// concatenate the command with all argv args separated by sep
+	for (int i = 1; i < argc; i++) {
+		// split the argument on = and check the first part to reject excluded args.
+		if (!args.insecure)
+			if ((strncmp(argv[i], "--password", strlen("--password")) == 0) ||
+			    (strncmp(argv[i], "--challenge", strlen("--challenge")) == 0))
+				continue;
+
+		char *tmpstr = log_msg;
+		log_msg = NULL;
+		asprintf(&log_msg, "%s %s ", tmpstr, argv[i]);
+	}
+	syslog(args.level, "%s time: %g ms, status: %i, exiting pid: %i", log_msg,
+	       elapsed, WEXITSTATUS(status), ppid);
+	closelog();
+}
+
+// send to statsd 
+void send_statsd(const struct arguments args, int status, double elapsed)
+{
+	struct addrinfo *ailist;
+	struct addrinfo hint;
+	int sockfd, err;
+	memset(&hint, 0, sizeof(hint));
+	hint.ai_socktype = SOCK_DGRAM;
+	hint.ai_family = AF_INET;
+	if (args.noresolv)
+		hint.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
+	hint.ai_canonname = NULL;
+	hint.ai_addr = NULL;
+	hint.ai_next = NULL;
+	if ((err = getaddrinfo(args.host, args.port, &hint, &ailist)) != 0)
+		sprintf("getaddrinfo error: %s", gai_strerror(err));
+
+	if ((sockfd = socket(ailist->ai_family, SOCK_DGRAM, 0)) < 0) {
+		err = errno;
+		fprintf(stderr, "cannot contact %s:%s: %s\n", args.host, args.port, strerror(err));
+	} else {
+		char *buf;
+		char hostname[MAX_STR_LENGTH];
+		gethostname(hostname, sizeof(hostname));
+		connect(sockfd, ailist->ai_addr, ailist->ai_addrlen);
+
+		asprintf(&buf, "%s.ntlm_auth.time:%g|ms\n", hostname, elapsed);
+
+		send(sockfd, buf, strlen(buf), 0);
+
+		// increment counter if auth failed
+		if (status > 0) {
+			asprintf(&buf, "%s.ntlm_auth.failures:1|c\n", hostname);
+			send(sockfd, buf, strlen(buf), 0);
+		}
+	}
+}
 
 int main(argc, argv, envp)
 int argc;
@@ -190,72 +299,11 @@ char **argv, **envp;
 	elapsed = (t2.tv_sec - t1.tv_sec) * 1000.0;	// sec to ms
 	elapsed += (t2.tv_usec - t1.tv_usec) / 1000.0;	// us to ms
 
-	if (arguments.log) {
-		openlog("radius-debug", LOG_PID, arguments.facility);
-		// build the log message
-		char *log_msg = arguments.binary;
-		char *sep = " ";
-
-		// concatenate the command with all argv args separated by sep
-		for (int i = 1; i < argc; i++) {
-
-			// truncate any string longer than MAX_STR_LENGTH + sep + \0
-			int space_left =
-			    (MAX_STR_LENGTH - (strlen(arguments.binary) + strlen(sep)));
-			strncat(arguments.binary, sep, 1);
-			strncat(arguments.binary, argv[i], space_left - 1);
-
-			// split the argument on = and check the first part to reject excluded args.
-			// skip the excluded args
-			if ((strncmp(argv[i], "--password", strlen("--password")) == 0) ||
-			    (strncmp(argv[i], "--challenge", strlen("--challenge")) == 0))
-				continue;
-
-			space_left = (MAX_STR_LENGTH - (strlen(log_msg) + strlen(sep)));
-			strncat(log_msg, sep, 1);
-			strncat(log_msg, argv[i], space_left - 1);
-
-		}
-		syslog(arguments.level, "%s time: %g ms, status: %i, exiting pid: %i", log_msg,
-		       elapsed, WEXITSTATUS(status), ppid);
-		closelog();
-	}
+	if (arguments.log)
+		log_result(argc, argv, arguments, status, elapsed, ppid);
 	// open socket to StatsD server and send message
-	struct addrinfo *ailist;
-	struct addrinfo hint;
-	int sockfd, err;
-	memset(&hint, 0, sizeof(hint));
-	hint.ai_socktype = SOCK_DGRAM;
-	hint.ai_family = AF_INET;
-	if (arguments.noresolv)
-		hint.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
-	//hint.ai_flags = NULL;
-	hint.ai_canonname = NULL;
-	hint.ai_addr = NULL;
-	hint.ai_next = NULL;
-	if ((err = getaddrinfo(arguments.host, arguments.port, &hint, &ailist)) != 0)
-		sprintf("getaddrinfo error: %s", gai_strerror(err));
-
-	if ((sockfd = socket(ailist->ai_family, SOCK_DGRAM, 0)) < 0) {
-		err = errno;
-		fprintf(stderr, "cannot contact %s: %s\n", "127.0.0.1:8125", strerror(err));
-	} else {
-		char *buf;
-		char hostname[MAX_STR_LENGTH];
-		gethostname(hostname, sizeof(hostname));
-		connect(sockfd, ailist->ai_addr, ailist->ai_addrlen);
-
-		asprintf(&buf, "%s.ntlm_auth.time:%g|ms\n", hostname, elapsed);
-
-		send(sockfd, buf, strlen(buf), 0);
-
-		// increment counter if auth failed
-		if (status > 0) {
-			asprintf(&buf, "%s.ntlm_auth.failures:1|c\n", hostname);
-			send(sockfd, buf, strlen(buf), 0);
-		}
-
-	}
+	if (!arguments.nostatsd)
+		send_statsd(arguments, status, elapsed);
 
 	exit(WEXITSTATUS(status));
 }
