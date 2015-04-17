@@ -175,6 +175,8 @@ sub doEmailSelfRegistration : Private {
     $session->{source_id} = $source->{id};
     $c->forward(Authenticate => 'setRole');
 
+    $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
+
     # form valid, adding person (using modify in case person already exists)
     person_modify(
         $pid,
