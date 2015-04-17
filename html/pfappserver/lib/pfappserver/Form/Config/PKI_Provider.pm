@@ -12,35 +12,108 @@ Form definition to create or update an admin role
 
 use strict;
 use warnings;
+use HTTP::Status qw(:constants is_error is_success);
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::log;
 
+has roles => (is => 'rw', default => sub { [] } );
+
+use pf::factory::pki_provider;
+
 ## Definition
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'PKI_Provider Name',
+   label => 'PKI Provider Name',
    required => 1,
-   messages => { required => 'Please specify the name of the pki_provider entry' },
+   messages => { required => 'Please specify the name of the PKI provider' },
   );
-has_field 'param1' =>
+
+has_field 'type' =>
   (
-   type => 'Text',
+   type => 'Select',
    required => 1,
    messages => { required => 'Parameter 1 is required.' },
+   options => [map { { label => $_, value => $_ } } qw(inverse) ],
   );
-has_field 'param2' =>
+
+has_field 'uri' =>
   (
    type => 'Text',
   );
 
-has_block  definition =>
+has_field 'username' =>
   (
-    render_list => [qw(param1 param2)],
+   type => 'Text',
   );
+
+has_field 'password' =>
+  (
+   type => 'Text',
+  );
+
+has_field 'profile' =>
+  (
+   type => 'Text',
+  );
+
+has_field 'country' =>
+  (
+   type => 'Text',
+  );
+
+has_field 'state' =>
+  (
+   type => 'Text',
+  );
+
+has_field 'organisation' =>
+  (
+   type => 'Text',
+  );
+
+has_field 'roles' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Roles',
+   options_method => \&options_roles,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a role'},
+   tags => { after_element => \&help,
+             help => 'Nodes with the selected roles will be affected' },
+  );
+
+has_block definition=>
+  (
+    render_list => [qw(type uri username password profile country state organisation roles)],
+  );
+
+=head2 options_roles
+
+=cut
+
+sub options_roles {
+    my $self = shift;
+    my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
+    return @roles;
+}
+
+
+=head2 ACCEPT_CONTEXT
+
+To automatically add the context to the Form
+
+=cut
+
+sub ACCEPT_CONTEXT {
+    my ($self, $c, @args) = @_;
+    my ($status, $roles) = $c->model('Roles')->list();
+    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles);
+}
 
 =head1 COPYRIGHT
 
