@@ -110,6 +110,8 @@ our (
     %ConfigRealm,
 #provisioning.conf
     %ConfigProvisioning,
+#billing.conf
+    %ConfigBilling,
 );
 
 BEGIN {
@@ -154,6 +156,7 @@ BEGIN {
         %Doc_Config
         %ConfigRealm
         %ConfigProvisioning
+        %ConfigBilling
     );
 }
 
@@ -205,6 +208,8 @@ tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
+
+tie %ConfigBilling, 'pfconfig::cached_hash', 'config::Billing';
 
 sub import {
     pf::config->export_to_level(1,@_);

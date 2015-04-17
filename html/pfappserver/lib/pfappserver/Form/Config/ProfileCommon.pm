@@ -18,6 +18,7 @@ use warnings;
 use HTML::FormHandler::Moose::Role;
 use List::MoreUtils qw(uniq);
 
+use pf::ConfigStore::Billing;
 use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::web::constants;
@@ -365,6 +366,42 @@ sub options_mandatory_fields {
       work_phone title building_number apartment_number room_number
       custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5
       custom_field_6 custom_field_7 custom_field_8 custom_field_9);
+}
+
+=head2 billing
+
+Collection Billing configuration for the profile
+
+=cut
+
+has_field 'billing' =>
+  (
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+  );
+
+=head2 billing.contains
+
+The definition for Billing field
+
+=cut
+
+has_field 'billing.contains' =>
+  (
+    type => 'Select',
+    options_method => \&options_billing,
+    widget_wrapper => 'DynamicTableRow',
+  );
+
+=head2 options_billing
+
+Returns the list of billing to be displayed
+
+=cut
+
+sub options_billing {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Billing->new->readAllIds};
 }
 
 =head2 validate
