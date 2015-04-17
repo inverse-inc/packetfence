@@ -87,7 +87,7 @@ has_field 'ca_path' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode ca_path) ],
+   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode ca_path pki_provider) ],
   );
 
 sub options_eap_type {
