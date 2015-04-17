@@ -12,6 +12,8 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
+use pf::config;
+
 has roles => ( is => 'rw' );
 has oses => ( is => 'rw' );
 has violations => ( is => 'rw');
@@ -74,11 +76,27 @@ has_field 'non_compliance_violation' =>
              help => 'Which violation should be raised when non compliance is detected' },
   );
 
-has_block definition =>
+has_field 'pki_provider' =>
   (
-   render_list => [ qw(id type description category oses) ],
+   type => 'Select',
+   label => 'PKI Provider',
+   options_method => \&options_pki_provider,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'None'},
   );
 
+has_block definition =>
+  (
+   render_list => [ qw(id type description category pki_provider oses) ],
+  );
+
+=head2 options_pki_provider
+
+=cut
+
+sub options_pki_provider {
+    return { value => '', label => '' }, map { { value => $_, label => $_ } } sort keys %ConfigPKI_Provider;
+}
 =head2 options_oses
 
 =cut
@@ -119,7 +137,7 @@ sub ACCEPT_CONTEXT {
     my ($status, $roles) = $c->model('Roles')->list();
     my @oses = ["Windows" => "Windows",
                 "Macintosh" => "Mac OS X",
-                "Generic Android" => "Android", 
+                "Generic Android" => "Android",
                 "Apple iPod, iPhone or iPad" => "Apple iOS device"
                ];
     my (undef, $violations) = $c->model('Config::Violations')->readAll();
