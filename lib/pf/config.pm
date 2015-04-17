@@ -111,11 +111,13 @@ our (
 #provisioning.conf
     %ConfigProvisioning,
 #domain.conf
-    %ConfigDomain, 
+    %ConfigDomain,
 #scan.conf
     %ConfigScan,
 #wmi.conf
     %ConfigWmi,
+
+    %ConfigPKI_Provider,
 );
 
 BEGIN {
@@ -160,10 +162,11 @@ BEGIN {
         %Doc_Config
         %ConfigRealm
         %ConfigProvisioning
-        %ConfigDomain 
+        %ConfigDomain
         $TRUE $FALSE $default_pid
         %ConfigScan
         %ConfigWmi
+        %ConfigPKI_Provider
     );
 }
 
@@ -221,6 +224,8 @@ tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 tie %ConfigScan, 'pfconfig::cached_hash', 'config::Scan';
 
 tie %ConfigWmi, 'pfconfig::cached_hash', 'config::Wmi';
+
+tie %ConfigPKI_Provider, 'pfconfig::cached_hash', 'config::PKI_Provider';
 
 sub import {
     pf::config->export_to_level(1,@_);
@@ -859,7 +864,7 @@ sub configreload {
 
     require pf::SwitchFactory;
     require pf::freeradius;
-    pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig); 
+    pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig);
 
     return ;
 }

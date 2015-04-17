@@ -1,0 +1,24 @@
+      <table id="items" class="table items[% ' hidden' UNLESS items.size %]" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
+        <thead>
+          <tr>
+            <th>[% l('PKI_Provider Name') %]</th>
+            <th>[% l('Description') %]</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH item IN items %]
+          <tr>
+            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td>[% item.description | html%]</td>
+            <td>
+              [% IF can_access("PKI_PROVIDER_CREATE") %]<a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>[% END %]
+              [% IF can_access("PKI_PROVIDER_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>[% END %]
+            </td>
+          </tr>
+          [% END -%]
+          <div id="noItems" class="unwell[% ' hidden' IF items.size %]">
+            <i class="icon-unlock icon-large"></i><p>[% l('No pki_provider defined') %]</p>
+          </div>
+        </tbody>
+      </table>

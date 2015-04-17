@@ -64,6 +64,7 @@ our (
     $domain_config_file,
     $scan_config_file,
     $wmi_config_file,
+    $pki_provider_config_file
 );
 
 BEGIN {
@@ -106,6 +107,7 @@ BEGIN {
         $domain_config_file
         $scan_config_file
         $wmi_config_file
+        $pki_provider_config_file
     );
 }
 
@@ -136,6 +138,7 @@ $pf_default_file = catfile($conf_dir, "pf.conf.defaults"); # TODO: Adjust. See $
 $chi_config_file = catfile($conf_dir, "chi.conf");
 $log_config_file = catfile($conf_dir, "log.conf");
 $provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
+$pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");
@@ -190,6 +193,7 @@ $cert_dir = catdir( $html_dir, "captive-portal/certs");
     $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file,
     $vlan_filters_config_file,$firewall_sso_config_file,$scan_config_file,
     $wmi_config_file,
+    $pki_provider_config_file,
 );
 
 

@@ -1,0 +1,28 @@
+      <div class="modal modal-large fade hide" id="modalItem">
+      </div>
+
+      <div class="modal fade hide" id="deleteItem">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>[% l('Delete PKI_Provider entry') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this pki_provider entry?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <h2>[% l('PKI_Provider Entries') %]</h2>
+
+      <p>[% l('PKI_Provider of how to add configuration file in httpd.admin.') %]</p>
+
+      [% INCLUDE config/pki_provider/list.tt %]
+
+      [%- IF can_access("PKI_PROVIDER_CREATE") %]
+      <div class="form-actions">
+        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add pki_provider entry') %]</a>
+      </div>
+      [%- END %]
