@@ -240,6 +240,7 @@ sub parse_conf {
     my $files = [CONF.'/documentation.conf', FINGERBANK_CONF.'/fingerbank.conf.doc'];
 
     sub _format_description {
+        # See pfconfig::namespaces::config::Documentation->build_child()
         my $description = join("\n", @{$_[0]});
         $description =~ s/</&lt;/g;     # convert < to HTML entity
         $description =~ s/>/&gt;/g;     # convert > to HTML entity
