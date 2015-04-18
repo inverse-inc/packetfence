@@ -100,7 +100,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 		arguments->port = arg;
 		break;
 	case 'f':
-		printf("case F, arg is : %s\n", arg);
 		if (strcasecmp(arg, "auth") == 0) {
 			arguments->facility = LOG_AUTHPRIV;
 		} else if (strcasecmp(arg, "authpriv") == 0) {

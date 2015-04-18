@@ -83,7 +83,7 @@ bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
 
 bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
-	cc  -std=c99  -Wall  src/ntlm_auth_wrap.c -o bin/ntlm_auth_wrapper
+	cc -g -std=c99  -Wall  src/ntlm_auth_wrap.c -o bin/ntlm_auth_wrapper
 
 .PHONY:permissions
 
