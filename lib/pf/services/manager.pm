@@ -127,6 +127,13 @@ If set then the service is forced to be considered managed
 
 has forceManaged => ( is => 'rw', default => sub { 0 } );
 
+=head2 optional
+
+If set then the service will not cause an error if it fails to start
+
+=cut
+
+has optional => ( is => 'rw', default => sub { 0 } );
 
 =head1 Methods
 

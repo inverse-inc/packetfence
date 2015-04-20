@@ -315,7 +315,7 @@ sub statusOfService {
         my $isManaged = $manager->isManaged;
         my $status = $manager->status;
         if($status eq '0' ) {
-            if ($isManaged) {
+            if ($isManaged && !$manager->optional) {
                 $color =  $ERROR_COLOR;
                 $notStarted++;
             } else {
