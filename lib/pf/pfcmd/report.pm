@@ -95,63 +95,57 @@ sub report_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::pfcmd::report');
 
     $report_statements->{'report_inactive_all_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os from node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.mac not in (select i.mac from iplog i where i.end_time=0 or i.end_time > now()) ]);
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os from node n where n.mac not in (select i.mac from iplog i where i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_active_all_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,ip,start_time,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os from (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+        qq [ select n.mac,ip,start_time,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os from (node n,iplog i) where i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_unregistered_all_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='unreg' ]);
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM node n where n.status='unreg' ]);
 
     $report_statements->{'report_unregistered_active_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='unreg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM (node n,iplog i) where n.status='unreg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_registered_all_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='reg' ]);
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM node n where n.status='reg' ]);
 
     $report_statements->{'report_registered_active_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='reg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM (node n,iplog i) where n.status='reg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_os_sql'} = get_db_handle()->prepare(qq[
-        SELECT o.description, n.dhcp_fingerprint, COUNT(DISTINCT n.mac) AS count, ROUND(COUNT(DISTINCT n.mac)/(SELECT COUNT(*) FROM node)*100,1) AS percent
+        SELECT device_type as description, n.dhcp_fingerprint, COUNT(DISTINCT n.mac) AS count, ROUND(COUNT(DISTINCT n.mac)/(SELECT COUNT(*) FROM node)*100,1) AS percent
         FROM (node n, iplog i)
-        LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint = d.fingerprint
-        LEFT JOIN os_type o ON o.os_id = d.os_id
         WHERE n.mac = i.mac AND i.start_time BETWEEN ? AND ?
-        GROUP BY o.description
+        GROUP BY device_type
         ORDER BY percent desc
     ]);
 
     $report_statements->{'report_os_active_sql'} = get_db_handle()->prepare(qq[
-        SELECT o.description, n.dhcp_fingerprint, count(*) as count, ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) AS percent
+        SELECT device_type as description, n.dhcp_fingerprint, count(*) as count, ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) AS percent
         FROM (node n, iplog i)
-        LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint = d.fingerprint
-        LEFT JOIN os_type o ON o.os_id=d.os_id
         WHERE n.mac = i.mac AND (i.end_time = 0 or i.end_time > now())
-        GROUP BY o.description
+        GROUP BY device_type
         ORDER BY percent desc
     ]);
 
     $report_statements->{'report_os_all_sql'} = get_db_handle()->prepare(qq[
-        SELECT o.description, n.dhcp_fingerprint, count(*) AS count, ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) AS percent
+        SELECT device_type as description, n.dhcp_fingerprint, count(*) AS count, ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) AS percent
         FROM node n
-        LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint
-        LEFT JOIN os_type o ON o.os_id = d.os_id
-        GROUP BY o.description
+        GROUP BY device_type
         ORDER BY percent desc
     ]);
 
     $report_statements->{'report_osclass_all_sql'} = get_db_handle()->prepare(
-        qq [ select c.description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) as percent from node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint left join os_mapping m on m.os_type=d.os_id left join os_class c on m.os_class=c.class_id group by c.description order by percent desc ]);
+        qq [ select device_class as description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) as percent from node n group by device_class order by percent desc ]);
 
     $report_statements->{'report_osclass_active_sql'} = get_db_handle()->prepare(
-        qq [ select c.description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node,iplog where node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()))*100,1) as percent from (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint left join os_mapping m on m.os_type=d.os_id left join os_class c on m.os_class=c.class_id where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) group by c.description order by percent desc ]);
+        qq [ select device_class as description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node,iplog where node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()))*100,1) as percent from (node n,iplog i) where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) group by device_class order by percent desc ]);
 
     $report_statements->{'report_unknownprints_all_sql'} = get_db_handle()->prepare(
-        qq [SELECT mac,dhcp_fingerprint,computername,user_agent FROM node WHERE dhcp_fingerprint NOT IN (SELECT fingerprint FROM dhcp_fingerprint) and dhcp_fingerprint!=0 ORDER BY dhcp_fingerprint, mac ]);
+        qq [SELECT mac,dhcp_fingerprint,computername,user_agent FROM node WHERE device_type IS NULL and dhcp_fingerprint!=0 ORDER BY dhcp_fingerprint, mac ]);
 
     $report_statements->{'report_unknownprints_active_sql'} = get_db_handle()->prepare(
-        qq [SELECT node.mac,dhcp_fingerprint,computername,user_agent FROM node,iplog WHERE dhcp_fingerprint NOT IN (SELECT fingerprint FROM dhcp_fingerprint) and dhcp_fingerprint!=0 and node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()) ORDER BY dhcp_fingerprint, mac]);
+        qq [SELECT node.mac,dhcp_fingerprint,computername,user_agent FROM node,iplog WHERE device_type IS NULL and dhcp_fingerprint!=0 and node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()) ORDER BY dhcp_fingerprint, mac]);
 
     $report_statements->{'report_statics_sql'} = get_db_handle()->prepare(qq[
         SELECT *
@@ -172,20 +166,16 @@ sub report_db_prepare {
         qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, iplog i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
 
     $report_statements->{'report_unknownuseragents_all_sql'} = get_db_handle()->prepare(qq[
-        SELECT n.user_agent, nu.browser, nu.os, n.computername, o.description, n.dhcp_fingerprint
+        SELECT n.user_agent, nu.browser, nu.os, n.computername, device_type as description, n.dhcp_fingerprint
         FROM node as n
             JOIN node_useragent AS nu USING (mac) 
-            LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint 
-            LEFT JOIN os_type o ON o.os_id=d.os_id
         WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != ''
     ]);
 
     $report_statements->{'report_unknownuseragents_active_sql'} = get_db_handle()->prepare(qq[
-        SELECT n.user_agent, nu.browser, nu.os, n.computername, o.description, n.dhcp_fingerprint
+        SELECT n.user_agent, nu.browser, nu.os, n.computername, device_type as description, n.dhcp_fingerprint
         FROM node as n
             JOIN node_useragent AS nu USING (mac) 
-            LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint 
-            LEFT JOIN os_type o ON o.os_id=d.os_id
             LEFT JOIN iplog USING (mac)
         WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != '' 
             AND (iplog.end_time=0 OR iplog.end_time > now())
@@ -303,7 +293,7 @@ sub report_db_prepare {
     ]);
 
     $report_statements->{'report_osclassbandwidth_sql'} = get_db_handle()->prepare(qq[
-        SELECT IFNULL(c.description, 'Unknown Fingerprint') AS dhcp_fingerprint,
+        SELECT IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
             SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
@@ -329,16 +319,13 @@ sub report_db_prepare {
                 SUBSTRING(radacct.callingstationid,9,2),':',
                 SUBSTRING(radacct.callingstationid,11,2))
             )
-            LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint
-            LEFT JOIN os_mapping m ON m.os_type=d.os_id
-            LEFT JOIN os_class c ON m.os_class=c.class_id
         WHERE timestamp BETWEEN ? AND ?
-        GROUP BY c.description
+        GROUP BY device_class
         ORDER BY percent DESC;
     ]);
 
     $report_statements->{'report_osclassbandwidth_all_sql'} = get_db_handle()->prepare(qq [
-        SELECT IFNULL(c.description, 'Unknown Fingerprint') as dhcp_fingerprint,
+        SELECT IFNULL(device_class, 'Unknown Fingerprint') as dhcp_fingerprint,
             SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
@@ -363,15 +350,12 @@ sub report_db_prepare {
                 SUBSTRING(radacct.callingstationid,9,2),':',
                 SUBSTRING(radacct.callingstationid,11,2))
             )
-            LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint
-            LEFT JOIN os_mapping m ON m.os_type=d.os_id
-            LEFT JOIN os_class c ON m.os_class=c.class_id
-        GROUP BY c.description
+        GROUP BY device_class
         ORDER BY percent DESC;
     ]);
 
     $report_statements->{'report_osclassbandwidth_with_range_sql'} = get_db_handle()->prepare(qq[
-        SELECT IFNULL(c.description, 'Unknown Fingerprint') as dhcp_fingerprint,
+        SELECT IFNULL(device_class, 'Unknown Fingerprint') as dhcp_fingerprint,
             SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
@@ -397,11 +381,8 @@ sub report_db_prepare {
                 SUBSTRING(radacct.callingstationid,9,2),':',
                 SUBSTRING(radacct.callingstationid,11,2))
             )
-            LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint
-            LEFT JOIN os_mapping m ON m.os_type=d.os_id
-            LEFT JOIN os_class c ON m.os_class=c.class_id
         WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-        GROUP BY c.description
+        GROUP BY device_class
         ORDER BY percent DESC;
     ]);
 
