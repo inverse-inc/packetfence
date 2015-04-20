@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Moo;
 use WWW::Curl::Easy;
+use URI::Escape::XS qw(uri_escape uri_unescape);
 
 use pf::log;
 
@@ -85,7 +86,16 @@ sub get_cert {
     my $country = $self->country;
     my $certpwd = $args->{'certificate_pwd'};
     my $curl = WWW::Curl::Easy->new;
-    my $request = "username=$username&password=$password&cn=$dot1x_username&mail=$email&organisation=$organisation&st=$state&country=$country&profile=$profile&pwd=$certpwd";
+    my $request =
+        "username=" . uri_escape($username)
+      . "&password=" . uri_escape($password)
+      . "&cn=" . uri_escape($dot1x_username)
+      . "&mail=" . uri_escape($email)
+      . "&organisation=" . uri_escape($organisation)
+      . "&st=" . uri_escape($state)
+      . "&country=" . uri_escape($country)
+      . "&profile=" . uri_escape($profile)
+      . "&pwd=" . uri_escape($certpwd);
     my $response_body = '';
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
     $curl->setopt(CURLOPT_POSTFIELDS, $request);
