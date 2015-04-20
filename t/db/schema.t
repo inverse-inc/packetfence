@@ -6,7 +6,12 @@ schema
 
 =head1 DESCRIPTION
 
-schema
+test the latest schema of PacketFence
+Requires the root db password to be set in the environmentally variable PF_TEST_DB_PASS
+
+Example:
+
+  PF_TEST_DB_PASS=passwd perl t/db/schema.t
 
 =cut
 
@@ -14,8 +19,6 @@ use strict;
 use warnings;
 use lib '/usr/local/pf/lib';
 use DBI;
-use DBIx::MultiStatementDo;
-use SQL::SplitStatement;
 use FindBin qw($Bin);
 use File::Slurp qw(read_file);
 
