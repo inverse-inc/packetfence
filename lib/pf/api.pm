@@ -635,6 +635,9 @@ Add a new person
 
 sub add_person : Public {
     my ($class, %params) = @_;
+    my @require = qw(pid);
+    my @found = grep {exists $params{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
     my $logger = pf::log::get_logger();
     my $pid    = delete $params{pid};
     my $sendmail = delete $params{sendmail};
@@ -719,6 +722,9 @@ Modify an existing person
 
 sub modify_person : Public {
     my ($class, %params) = @_;
+    my @require = qw(pid);
+    my @found = grep {exists $params{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
     my $pid = delete $params{pid};
     my $logger = pf::log::get_logger();
     unless(pf::person::person_exist($pid)) {
