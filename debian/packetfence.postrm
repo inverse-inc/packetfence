@@ -20,13 +20,7 @@ set -e
 
 
 case "$1" in
-    abort-install|abort-upgrade)
-        if dpkg-maintscript-helper supports rm_conffile 2>/dev/null; then
-            dpkg-maintscript-helper rm_conffile /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm 5.0.1 -- "$@"
-        fi
-    ;;
-
-    upgrade|failed-upgrade|disappear)
+    upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
 
     remove)

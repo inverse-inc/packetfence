@@ -33,9 +33,6 @@ case "$1" in
         if [ -e /etc/lsb-release ]; then
             usermod -a -G pf dhcpd
         fi
-        if dpkg-maintscript-helper supports rm_conffile 2>/dev/null; then
-            dpkg-maintscript-helper rm_conffile /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm 5.0.1 -- "$@"
-        fi
         exit 0
     ;;
     
@@ -48,8 +45,8 @@ case "$1" in
         if [ -d "/usr/local/pf/var/cache" ] ; then
                 rm -fr /usr/local/pf/var/cache/
         fi
-        if dpkg-maintscript-helper supports rm_conffile 2>/dev/null; then
-            dpkg-maintscript-helper rm_conffile /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm 5.0.1 -- "$@"
+        if [ -a "/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm" ] ; then
+                rm -fr /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
         fi
         exit 0
     ;;

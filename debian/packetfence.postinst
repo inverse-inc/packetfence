@@ -121,12 +121,6 @@ case "$1" in
         echo "* Please stop your iptables service if you don't have access to configurator."
     ;;
 
-    install|upgrade)
-        if dpkg-maintscript-helper supports rm_conffile 2>/dev/null; then
-            dpkg-maintscript-helper rm_conffile /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm 5.0.1 -- "$@"
-        fi
-    ;;
-
     abort-upgrade|abort-remove|abort-deconfigure)
     ;;
 
