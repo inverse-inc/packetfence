@@ -77,12 +77,12 @@ has_field 'reversedns' =>
              help => 'Example : if your dns name is www.packetfence.org it become org.packetfence.www'},
   );
 
-has_field 'ca_path' =>
+has_field 'ca_cert' =>
   (
-   type => 'Text',
-   label => 'Certificate of Authority path',
+   type => 'TextArea',
+   label => 'The base64 Certificate of Authority',
    tags => { after_element => \&help,
-             help => 'Write the absolute path of your CA'},
+             help => 'The contents of the Certificate of Authority in base64'},
   );
 
 has_block definition =>
