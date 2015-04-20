@@ -47,6 +47,9 @@ use pf::util::dhcp;
 use List::MoreUtils qw(any);
 use pf::api::jsonrpcclient;
 use NetAddr::IP;
+use pf::SwitchFactory;
+
+pf::SwitchFactory::preLoadModules();
 
 # initialization
 # --------------
