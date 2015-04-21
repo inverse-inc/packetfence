@@ -57,11 +57,11 @@ sub index : Path : Args(0) {
     #$provisioner->authorize($mac) if (defined($provisioner));
     $c->stash(
         post_uri            => '/tlsprofile/cert_process',
-        certificate_cn      => $request->param_encoded("certificate_cn"),
+        certificate_cn      => $mac,
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
         certificate_email   => lc( $request->param_encoded("certificate_email")),
         template            => 'pki.html',
-        provisioner         => $provisioner, 
+        provisioner         => $provisioner,
         username            => $username,
         mac                 => $mac,
         pid                 => $pid,
@@ -92,8 +92,8 @@ sub build_cert_p12 : Path : Args(0) {
     my $pid           = $node_info->{'pid'};
     my $fh;
     open ($fh, '>', $certname);
-    if (-e $certname) { 
-        $logger->info("Certificate for user \"$pid\" successfully created."); 
+    if (-e $certname) {
+        $logger->info("Certificate for user \"$pid\" successfully created.");
     }
     else {
         $logger->info("The certificate file could not be saved for username \"$pid\"");
@@ -134,7 +134,7 @@ sub get_cert : Private {
     my $profile = $Config{'pki'}{'profile'};
     my $country = $Config{'pki'}{'country'};
     my $certpwd = $stash->{'certificate_pwd'};
-    my $curl = WWW::Curl::Easy->new; 
+    my $curl = WWW::Curl::Easy->new;
     my $request = "username=$username&password=$password&cn=$dot1x_username&mail=$email&organisation=$organisation&st=$state&country=$country&profile=$profile&pwd=$certpwd";
     my $response_body = '';
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
@@ -144,7 +144,7 @@ sub get_cert : Private {
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $uri);
-  
+
     # Starts the actual request
     my $curl_return_code = $curl->perform;
 
@@ -156,7 +156,7 @@ sub get_cert : Private {
         $self->showError($c, "There was an issue with the generation of your certificate please contact your IT support.");
     }
 }
- 
+
 sub cert_process : Local {
     my ($self,$c) = @_;
     my $logger = $c->log;
@@ -172,21 +172,23 @@ sub cert_process : Local {
 }
 
 sub validateform : Private {
-    my ($self,$c) = @_;
+    my ($self, $c) = @_;
     my $logger = $c->log;
-    my $pid = "";
-    unless ( $c->has_errors ){
-        my $portalSession = $c->portalSession;
+    my $pid    = "";
+    my $portalSession = $c->portalSession;
+    my $mac    = $portalSession->clientMac;
+    unless ($c->has_errors) {
         my $mac           = $portalSession->clientMac;
         my $node_info     = node_view($mac);
         my $pid           = $node_info->{'pid'};
     }
     $c->stash(
-        service => $c->request->param('service'),
-        my $usern = certificate_cn => $c->request->param('certificate_cn'),
-        my $email_addr = certificate_email => $c->request->param('certificate_email'),
-        my $userpwd = certificate_pwd => $c->request->param('certificate_pwd'),
+        service           => $c->request->param('service'),
+        certificate_cn    => $mac,
+        certificate_email => $c->request->param('certificate_email'),
+        certificate_pwd   => $c->request->param('certificate_pwd'),
     );
+
     #unless (Email::Valid->address($email_addr)){
     #    $logger->debug("Email enter is invalid for username \"$pid\"");
     #    $self->showError($c,"Please enter a vaild email address");
@@ -215,8 +217,8 @@ sub export_fingerprint : Local {
     #$logger->info('CA_PATH'.Dumper($provisioner));
     #my $cacert = $provisioner->{'ca_path'};
     #$logger->info('CA_PATH'.Dumper($cacert));
-    my $capath = "/usr/local/pf/raddb/certs/TestEAP.pem"; 
-    my $svrpath = "/usr/local/pf/raddb/certs/svr.pem"; 
+    my $capath = "/usr/local/pf/raddb/certs/TestEAP.pem";
+    my $svrpath = "/usr/local/pf/raddb/certs/svr.pem";
     my $data = pf_run("openssl x509 -in $capath -fingerprint");
     my $cadata = pf_run("openssl x509 -in $capath -text");
     my $svrdata = pf_run("openssl x509 -in $svrpath -text");
@@ -225,10 +227,10 @@ sub export_fingerprint : Local {
     $c->session( cacn => $cafile );
     $c->session( svrcn => $svrfile );
     $cadata =~ s/-----END CERTIFICATE-----\n.*//smg;
-    $cadata =~ s/.*-----BEGIN CERTIFICATE-----\n//smg; 
+    $cadata =~ s/.*-----BEGIN CERTIFICATE-----\n//smg;
     $c->session( cadata => $cadata );
     $svrdata =~ s/-----END CERTIFICATE-----\n.*//smg;
-    $svrdata =~ s/.*-----BEGIN CERTIFICATE-----\n//smg; 
+    $svrdata =~ s/.*-----BEGIN CERTIFICATE-----\n//smg;
     $c->session( svrdata => $svrdata );
     $data =~ s/-----BEGIN CERTIFICATE-----\n.*//smg;
     $data =~ s/\:/\ /smg;
