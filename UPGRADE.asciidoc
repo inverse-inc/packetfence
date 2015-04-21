@@ -43,6 +43,21 @@ The MySQL password is saved in the conf/pf.conf file under the [database] sectio
 Copy the following from conf/pf.conf to conf/pfconfig.conf: 
 
   pass=$YOURPASSWORDHERE
+  
+
+Violations configuration
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The violation triggers have been reworked for the new Fingerbank integration.
+We highly suggest you copy `conf/violations.conf.example` over `conf/violations.conf` and then reconfigure any violations you had before.
+
+Also, make sure you adjust the following triggers to their new ID (Can be found under 'Configuration->Fingerbank'):
+
+* `USERAGENT` becomes `user_agent`
+* `MACVENDOR` becomes `mac_vendor`
+
+The `OS` trigger has been deprecated over the new `dhcp_fingerprint` trigger. 
+You will need to adjust these triggers to the new ids as well as renaming them.
 
 iptables changes
 ^^^^^^^^^^^^^^^^
