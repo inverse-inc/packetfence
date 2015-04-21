@@ -81,13 +81,6 @@ Organisation reversedns
 
 has reversedns => (is => 'rw');
 
-=head2 pki
-
-The pki informations
-
-=cut
-
-has pki => (is => 'rw');
 
 =head2 ca_cert
 
