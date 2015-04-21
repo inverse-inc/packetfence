@@ -103,12 +103,6 @@ sub build_cert_p12 : Path : Args(0) {
     close $fh;
 }
 
-sub cert_clean : Local {
-    my ($self,$c) = @_;
-    #remove certificates older than 1 days store on pf
-    pf_run("find $cert_dir -mtime +1 -exec rm {} \;");
-}
-
 sub get_cert : Private {
     use bytes;
     my ($self,$c) = @_;
