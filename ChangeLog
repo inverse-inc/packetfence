@@ -1,3 +1,223 @@
+commit 90ac4a211db9ae39341d0f3a1792af16f5149e19
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Apr 21 13:29:03 2015 -0400
+
+    Updated changelog in the spec file and debian changelog.
+
+M	addons/packages/packetfence.spec
+M	debian/changelog
+
+commit 9f15e3955dcd6597f0b161eb6ce883ecc256ecc7
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Apr 21 13:23:25 2015 -0400
+
+    Prepared for 5.0.1.
+
+M	NEWS.asciidoc
+
+commit 152cc8491ab69fa059dfdd44733b13dbfe130d85
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Apr 20 21:18:04 2015 -0400
+
+    Preload CHI drivers
+
+M	lib/pf/CHI.pm
+
+commit ea9ead828b0b829c4d7e0fcacf18c8a16407166c
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Apr 20 16:00:15 2015 -0400
+
+    Splited debian and ubuntu in Sofware installation documentation
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 22d9bed7179f64b8224550d6abd6e5dc15e415fe
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Apr 20 14:44:37 2015 -0400
+
+    Removed /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm from upgrade
+
+M	debian/packetfence.postinst
+M	debian/packetfence.postrm
+M	debian/packetfence.preinst
+
+commit 20f361dc3e0e441911444dc3c18a786cb3e338a4
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Apr 20 14:15:40 2015 -0400
+
+    Updated stop_service_if_exists function in debian packaging
+
+M	debian/packetfence-config.preinst
+M	debian/packetfence.preinst
+
+commit 1096065eb0b6921f83192323b5b4b3c2500f7663
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Apr 20 10:45:51 2015 -0400
+
+    make pfmon register his tasks when running single node
+
+M	sbin/pfmon
+
+commit 49b808b336111c438c5851dc9ba75bcee3679e1d
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Apr 20 09:54:51 2015 -0400
+
+    Fixes reports with Fingerbank integration
+
+M	lib/pf/pfcmd/report.pm
+
+commit 5fef86d247eb6066b6820ebf8f1108823e1d3f49
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Apr 17 22:37:08 2015 -0400
+
+    Localization
+
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+
+commit d6d02982c5a96fe8b4aa6abd68d3aeb4fb40ead3
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Apr 17 22:36:00 2015 -0400
+
+    Improve documentation.conf
+
+M	conf/documentation.conf
+
+commit 2ae5fbc4511dfcb041651b6e765838c2a27e644b
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Apr 17 22:35:46 2015 -0400
+
+    Localization
+
+M	addons/extract_i18n_strings.pl
+
+commit e7131ee2c06b3431a759529326af4e029f0c05ba
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Apr 17 14:41:49 2015 -0400
+
+    Use the debian way to remove a file
+
+M	debian/packetfence.postinst
+M	debian/packetfence.postrm
+M	debian/packetfence.preinst
+
+commit 06cdcf1403a0514252dcaaa653c4ba2f88c0bf29
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Apr 17 14:05:58 2015 -0400
+
+    Missing package for packetfence-remote-snort-sensor
+
+M	addons/packages/packetfence.spec
+
+commit da68098c12acc46d2495ca055e235e2a8dfd4bd3
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Apr 17 13:46:13 2015 -0400
+
+    Verify if switch is true before trying webFormRegistration
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/CaptivePortal.pm
+
+commit 786cb384af4563680b2e566e7a764cdf00701038
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Apr 16 14:09:44 2015 -0400
+
+    Localization
+
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+
+commit 7cca210d0e59d8817bc7ab701375f90cbb521fc5
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Apr 16 12:55:59 2015 -0400
+
+    Removed packetfence-config restart in packetfence.postinst (already handle by packetfence-config package)
+
+M	debian/packetfence.postinst
+
+commit 283549130bdf28ad663c982d51cde8a78890158c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Apr 16 12:41:56 2015 -0400
+
+    Fix pfcmd help service formatting
+
+M	lib/pf/cmd/pf/service.pm
+
+commit 0f56cecef0b3e7969edaceaa341005b755b62cb9
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Apr 16 11:40:56 2015 -0400
+
+    POST-Release steps
+
+M	NEWS.asciidoc
+M	UPGRADE.asciidoc
+M	conf/pf-release
+A	db/pf-schema-X.Y.Z.sql
+A	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit cb63667ace57507bd8a188a740ec30b6cf1c96d9
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Apr 16 08:37:41 2015 -0400
+
+    Updated date in doc
+
+M	docs/docinfo.xml
+
+commit 652da8d34f1f187a73a53de93d54435686ddc328
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Apr 16 08:23:11 2015 -0400
+
+    Changed pfcmd to pfcmd.pl for the documentation
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 1e3697fab5ec70275c2450813e91641b4fa02088
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Apr 16 08:21:55 2015 -0400
+
+    Updated documentation version
+
+M	docs/docinfo.xml
+
+commit 154fbf9386129180b93801252ab580232f6454e8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Apr 15 16:28:15 2015 -0400
+
+    Fix field inheritence
+
+M	html/pfappserver/lib/pfappserver/Model/Config/Fingerbank/MAC_Vendor.pm
+
+commit d022badcc182bd601445ed3331b7aedf250a75a6
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Apr 15 16:25:39 2015 -0400
+
+    Localization
+
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+
+commit fa1024d8c130eee8ff02b2d0a28fd5255279e692
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Apr 15 16:01:34 2015 -0400
+
+    Localization
+
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+
+commit d62044515fae6866f33db500b496dfea06b82955
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Apr 15 15:10:50 2015 -0400
+
+    Updated transifex files
+
+M	conf/locale/de/LC_MESSAGES/packetfence.po
+M	conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+M	html/pfappserver/lib/pfappserver/I18N/fr.po
+
+commit 03c18684c3e9067733c313114b2264ef62d28b1d
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Apr 15 15:07:50 2015 -0400
+
+    Updated Changelog for v5.
+
+M	ChangeLog
+
 commit de58b23809dca943666748c4224318a30a4d91d9
 Author: Louis Munro <lmunro@inverse.ca>
 Date:   Wed Apr 15 14:20:34 2015 -0400
