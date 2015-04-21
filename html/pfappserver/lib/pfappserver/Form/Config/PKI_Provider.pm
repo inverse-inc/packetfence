@@ -2,11 +2,9 @@ package pfappserver::Form::Config::PKI_Provider;
 
 =head1 NAME
 
-pfappserver::Form::Config::PKI_Provider - Web form for an admin role
+pfappserver::Form::Config::PKI_Provider
 
 =head1 DESCRIPTION
-
-Form definition to create or update an admin role
 
 =cut
 
@@ -18,8 +16,6 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::log;
-
-has roles => (is => 'rw', default => sub { [] } );
 
 use pf::factory::pki_provider;
 
@@ -75,45 +71,10 @@ has_field 'organisation' =>
    type => 'Text',
   );
 
-has_field 'roles' =>
-  (
-   type => 'Select',
-   multiple => 1,
-   label => 'Roles',
-   options_method => \&options_roles,
-   element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Click to add a role'},
-   tags => { after_element => \&help,
-             help => 'Nodes with the selected roles will be affected' },
-  );
-
 has_block definition=>
   (
-    render_list => [qw(type uri username password profile country state organisation roles)],
+    render_list => [qw(type uri username password profile country state organisation)],
   );
-
-=head2 options_roles
-
-=cut
-
-sub options_roles {
-    my $self = shift;
-    my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
-    return @roles;
-}
-
-
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Roles')->list();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles);
-}
 
 =head1 COPYRIGHT
 

@@ -62,12 +62,6 @@ has state => ( is => 'rw' );
 
 has organisation => ( is => 'rw' );
 
-=head2 role
-
-=cut
-
-has role => ( is => 'rw' );
-
 =head2 get_cert
 
 =cut
