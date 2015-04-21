@@ -233,29 +233,25 @@ sub postAuthentication : Private {
     $c->forward('setUnRegDate');
     $info->{source} = $source_id;
     $info->{portal} = $profile->getName;
-    $c->forward('checkIfTlsEnrolment');
+    $c->forward('checkIfTlsEnrollment');
     $c->forward('checkIfProvisionIsNeeded');
 }
 
-=head2 checkIfTlsEnrolment
+=head2 checkIfTlsEnrollment
 
-Checked to see if the role redirect you to TLS enrolement
+Checked to see if the provisioner should redirect you to TLS enrollment
 
 =cut
 
-sub checkIfTlsEnrolment : Private {
+sub checkIfTlsEnrollment : Private {
     my ($self, $c) = @_;
-    my $source_id = $c->session->{source_id};
     my $portalSession = $c->portalSession;
-    my $source = getAuthenticationSource($source_id);
     my $mac = $portalSession->clientMac;
-    my $info = $c->stash->{info};
-    my $role = $info->{category};
-    #if role is tls-enrolement then process to define controller
-    if ($role eq $Config{'pki'}{'role'}){
-        node_modify($mac, %$info);
-        $c->session->{info} = $c->stash->{info};
-        $c->detach(tlsprofile => 'index');
+    my $profile = $c->profile;
+    if (defined( my $provisioner = $profile->findProvisioner($mac))) {
+        if($provisioner->getPkiProvider) {
+            $c->detach(tlsprofile => 'index');
+        }
     }
 }
 
@@ -445,10 +441,10 @@ sub createLocalAccount : Private {
 sub checkIfProvisionIsNeeded : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
-    my $info = $c->stash->{info};
     my $mac = $portalSession->clientMac;
     my $profile = $c->profile;
     if (defined( my $provisioner = $profile->findProvisioner($mac))) {
+        my $info = $c->stash->{info};
         if ($provisioner->authorize($mac) == 0) {
             $info->{status} = $pf::node::STATUS_PENDING;
             node_modify($mac, %$info);
