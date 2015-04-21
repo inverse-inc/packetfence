@@ -35,19 +35,19 @@ The ssid boarcast name
 
 has ssid => (is => 'rw');
 
-=head2
+=head2 passcode
 
 Passphrase if activated
 
-=cut 
+=cut
 
 has passcode => (is => 'rw');
 
-=head2
+=head2 security_type
 
 Security encryption used
 
-=cut 
+=cut
 
 has security_type => (is => 'rw');
 
@@ -65,23 +65,23 @@ has skipDeAuth => (is => 'rw', default => sub{ 1 });
 
 has for_username => (is => 'rw');
 
-=head2
+=head2 company
 
 Organisation information
 
-=cut 
+=cut
 
 has company => (is => 'rw');
 
-=head2
+=head2 reversedns
 
 Organisation reversedns
 
-=cut 
+=cut
 
 has reversedns => (is => 'rw');
 
-=head2
+=head2 pki
 
 The pki informations
 
@@ -89,13 +89,13 @@ The pki informations
 
 has pki => (is => 'rw');
 
-=head2
+=head2 ca_cert
 
 The CA path
 
 =cut
 
-has ca_path => (is => 'rw');
+has ca_cert => (is => 'rw');
 
 =head1 METHODS
 
@@ -111,33 +111,6 @@ sub authorize {
     $self->for_username($info->{pid});
     return 1;
 }
-
-=head2 export_cert
-
-extract cert data
-
-=cut
-
-#sub extract_cert {
-#    my ($self) = @_;
-#    if (defined ($self->{ca_cert_path}) && !($self->{ca_cert_path} eq "")){
-#        my $path = $self->{ca_cert_path};
-#        $path =~ /.*\/([a-zA-Z0-9.]+)$/;
-#        my $file = $1;
-#        open FILE, "< $path" or die $!;
-#        my $data = "";
-#
-#        while (<FILE>) {
-#            $data .= $_;
-#        }
-#        
-#        $data =~ s/.*-----BEGIN CERTIFICATE-----\n//smg; 
-#        $data =~ s/-----END CERTIFICATE-----\n.*//smg;
-#        
-#        $self->{cert_content} = $data; 
-#        $self->{cert_file} = $file; 
-#    }
-#}
 
 =head1 AUTHOR
 
