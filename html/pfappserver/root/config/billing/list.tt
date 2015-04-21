@@ -2,7 +2,7 @@
         <thead>
           <tr>
             <th>[% l('Billing Name') %]</th>
-            <th>[% l('Description') %]</th>
+            <th>[% l('Type') %]</th>
             <th></th>
           </tr>
         </thead>

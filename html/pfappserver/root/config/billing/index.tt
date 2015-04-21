@@ -15,9 +15,7 @@
         </div>
       </div>
 
-      <h2>[% l('Billing Entries') %]</h2>
-
-      <p>[% l('Billing of how to add configuration file in httpd.admin.') %]</p>
+      <h2>[% l('Billing') %]</h2>
 
       [% INCLUDE config/billing/list.tt %]
 

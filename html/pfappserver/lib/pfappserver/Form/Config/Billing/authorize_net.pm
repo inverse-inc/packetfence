@@ -40,10 +40,14 @@ has_field 'authorizenet_trankey' =>
    messages => { required => 'The merchant\'s unique Transaction Key (Provided by Authorize.net)' },
   );
 
+has_field 'type' =>
+  (
+   type => 'Hidden',
+  );
 
 has_block definition =>
   (
-   render_list => [ qw(id authorizenet_posturl authorizenet_login authorizenet_trankey) ],
+   render_list => [ qw(type authorizenet_posturl authorizenet_login authorizenet_trankey) ],
   );
 
 =over

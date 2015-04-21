@@ -15,6 +15,23 @@ use pf::ConfigStore::Billing;
 
 extends 'pfappserver::Base::Model::Config';
 
+=head2 Methods
+
+=over
+
+=item search
+
+=cut
+
+sub search {
+    my ($self, $field, $value) = @_;
+    my @results = $self->configStore->search($field, $value);
+    if (@results) {
+        return ($STATUS::OK, \@results);
+    } else {
+        return ($STATUS::NOT_FOUND,["[_1] matching [_2] not found"],$field,$value);
+    }
+}
 
 sub _buildConfigStore { pf::ConfigStore::Billing->new }
 

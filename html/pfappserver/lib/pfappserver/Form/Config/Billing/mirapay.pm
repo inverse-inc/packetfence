@@ -59,20 +59,25 @@ has_field 'mirapay_currency' =>
    messages => { required => 'The currency of the mirapay transactions' },
   );
 
-has_block definition =>
+has_field 'type' =>
   (
-   render_list => [ qw(id mirapay_url mirapay_terminal_id mirapay_terminal_id_group mirapay_hash_password) ],
+   type => 'Hidden',
   );
 
-=head2 options_categories
+has_block definition =>
+  (
+   render_list => [ qw(type mirapay_url mirapay_terminal_id mirapay_terminal_id_group mirapay_hash_password mirapay_currency) ],
+  );
+
+=head2 currency
 
 =cut
 
 sub currency {
     my $self = shift;
 
-    my @roles = ('USD => USD','CAD => CAD');
-    return ('' => '', @roles);
+    my @currency = ('USD''USD','CAD','CAD');
+    return ('' => '', @currency);
 }
 
 =over

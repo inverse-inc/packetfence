@@ -11,6 +11,7 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
 use pf::config::cached;
+use pf::factory::billing;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -37,13 +38,40 @@ __PACKAGE__->config(
 );
 
 =head1 METHODS
+
+=head2 after create clone
+
+Show the 'view' template when creating or cloning a scan engine.
+
+=cut
+
+before [qw(clone view _processCreatePost update)] => sub {
+    my ($self, $c, @args) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    my $item = $c->stash->{$itemKey};
+    my $type = $item->{type};
+    my $form = $c->action->{form};
+    $c->stash->{current_form} = "${form}::${type}";
+};
+
+sub create_type : Path('create') : Args(1) {
+    my ($self, $c, $type) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    $c->stash->{$itemKey}{type} = $type;
+    $c->forward('create');
+}
+
 =head2 index
-Usage: /config/billing
+
+Usage: /config/billing/
+
 =cut
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-
+    $c->stash->{types} = [ sort grep {$_} map { /^pf::billing::gateway::(.*)/;$1  } @pf::factory::billing::MODULES];
     $c->forward('list');
 }
 

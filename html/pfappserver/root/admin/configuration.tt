@@ -81,7 +81,7 @@ table.sources {
               [% pf_section_entry( 'registration', 'Registration') %]
               [% pf_section_entry( 'guests_self_registration', 'Self Registration') %]
               [%- IF can_access("BILLING_READ") %]
-              [% list_entry('Config::Billing', 'index', 'Billing Entries') %]
+              [% list_entry('Config::Billing', 'index', 'Billing') %]
               [%- END %]
               [% pf_section_entry( 'alerting', 'Alerting') %]
               [% pf_section_entry( 'scan', 'Scan') %]
