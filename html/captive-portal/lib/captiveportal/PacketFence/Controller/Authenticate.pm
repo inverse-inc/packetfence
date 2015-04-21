@@ -227,7 +227,7 @@ sub postAuthentication : Private {
     $pid = $default_pid if !defined $pid && $c->profile->noUsernameNeeded;
     $info->{pid} = $pid;
     $c->stash->{info} = $info;
-    
+
     $c->forward('setupMatchParams');
     $c->forward('setRole');
     $c->forward('setUnRegDate');
@@ -352,9 +352,6 @@ sub setRole : Private {
     if ( defined $value ) {
         $logger->debug("Got role '$value' for username \"$pid\"");
         $info->{category} = $value;
-        #if ( $value == 'tls-enrolement') {
-        #    $c->detach(TLSProfile => 'index');
-        #}
     } else {
         $logger->info("Got no role for username \"$pid\"");
         $self->showError($c, "You do not have the permission to register a device with this username.");
