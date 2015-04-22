@@ -20,7 +20,7 @@ Enhancements
 ++++++++++++
 * A number of strings have seen their translations improved.
 * The Debian and Ubuntu documentation has been split and made clearer.
-
+* Detailed which features may not work in active/active cluster mode in the documentation.
 
 Bug Fixes
 +++++++++
@@ -30,6 +30,8 @@ Bug Fixes
 * Fixed broken OS reporting. 
 * Added missing dependency on perl-SOAP-Lite for packetfence-remote-snort-sensor.
 * Updating iplog without a lease time now reset end_time to default (0000-00-00 00:00:00) to avoid "closing" a valid entry
+* fixed pfcmd watch emailing functionality.
+* dhcpd will now properly obey the "disabled" configuration.
 
 Version 5.0.0 released on 2015-04-15
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
