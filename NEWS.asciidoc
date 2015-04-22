@@ -1,0 +1,791 @@
+PacketFence NEWS
+================
+
+Project homepage: https://www.packetfence.org/
+
+Please report bugs to: http://www.packetfence.org/bugs/
+
+Interested in contributing to the project? http://www.packetfence.org/support/community.html
+
+This is a list of noteworthy changes across releases.
+For more details and developer visible changes see the ChangeLog file.
+For a list of compatibility related changes see the UPGRADE.asciidoc file.
+
+Version 5.0.0 released on 2015-04-15
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+* New active/active clustering mode. This allows HTTP and RADIUS load balancing and improves availability.
+* Fingerbank integration for accurate devices fingerprinting. It is now easier than ever to share devices fingerprinting.
+* Built-in support for StatsD. This allows fine grained performance monitoring and can be used to create a dashboard using Graphite.
+* Local database passwords are now encrypted using bcrypt by default on all new installations. The old plaintext mode is still supported for legacy installations and to allow migration to the new mode.
+* Devices can now have a "bypass role" that allows the administrator to manage them completely manually. This allows for exceptions to the authorization rules.
+* Support for ISC DHCP OMAPI queries. This allows PacketFence to dynamically query a dhcpd instance to establish IP to MAC mappings.
+
+Enhancements
+++++++++++++
+* Completely rewritten pfcmd command. pfcmd is now much easier to extend and will allow us to integrate more features in the near future.
+* Rewritten IP/MAC mapping (iplog). Iplog should now never overflow.
+* New admin role action USERS_CREATE_MULTIPLE for finer grained control of the admin GUI. An administrative account can now be prevented from creating more than one other account. 
+* PacketFence will no longer start MySQL when starting.
+* PacketFence will accept to start even if there are no internal networks.
+* Added a new listening port to pfdhcplistener to listen for replicated traffic.
+* Added a 'default' default user in replacement of the admin one. 
+* Adds support for HP ProCurve 2920 switches.
+* Iptables will now allow access to the captive portal from the production network by default.
+* Major documentation rewrite and improvements.
+
+Bug Fixes
++++++++++
+* Fixed violations applying portal redirection when using web authentication on a Cisco WLC
+* Registration and Isolation VLAN ids can now be any string allowed by the RFCs.
+* Devices can no longer remain in "pending" state indefinitely.
+
+
+Version 4.7.0 released on 2015-03-06
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* The admin GUI is now customizable.
+* New category filter on portal profile allows to select a portal based on existing role of a device.
+* New PacketFence-config service allows effortless scaling to thousands of switches and reduces memory use.
+
+Enhancements
+++++++++++++
+
+* Nodes are now searchable by status
+* Removed SSLv3 and legacy ciper suites support from default httpd configuration to prevent POODLE exploit and FREAK attack.
+* Added an option to display Bypass VLAN of a node in the Admin GUI.
+* Added nested groups support for Active Directory.
+* It is now possible to check if a device has already authenticated as member of an Active-Directory domain prior to user authentication.
+* Improved portal language detection.
+* Devices will now avoid autocorrect / uppercasing the login field in the captive portal.
+* Now supports roaming without SNMP on Aerohive APs.
+
+Bug Fixes
++++++++++
+
+* Fixed broken default behaviour when receiving an SNMP trap.
+* Fixed email confirmation template for sponsor.
+* Fixed email subject encoding.
+* Fixes allowing a non-sponsored user to verify a sponsored email address.
+* Fixed invalid floating device creation where the MAC address was not normalized.
+* Fixed the date range search in node advanced search.
+
+Version 4.6.1 released on 2015-02-19
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+Enhancements
+++++++++++++
+
+Bug Fixes
++++++++++
+
+* Fix dynamic unregdate breaking when handling the infinite unregdate '0000-00-00'
+* Fixed issue where the same password can be generated multiple times
+* Assigned LC_CTYPE to C during postinstall script on debian to prevent i18n issues during installation.
+* Fixed dynamic_unreg_dated called from the wrong place
+* Fix searching for switches in the admin gui
+* Fixed broken default behavior when receiving an SNMP trap.
+
+Version 4.6.0 released on 2015-02-04
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Added support for MAC authentication on the AeroHIVE Branch Router 100
+* Added support for MAC authentication floating devices on Juniper EX series, and on the Cisco Catalyst series
+* Added a hybrid 802.1x + web authentication mode for Cisco Catalyst 2960
+* Added a web notification when network access is granted
+* Added the ability to tag functions that are allowed to be exposed through the web API
+* Added WiFi autoconfiguration for Windows through packetfence-windows-agent
+* Added a "Chained" authentication source where a user must first login in order to register by SMS, Email or SponsorEmail
+* Added call to the web API from the VLAN filters
+* Added a way to retrieve user information after the first registration
+* Added the ability to filter profiles by connection type
+* Profiles can be matched by all or any of its filters
+* Can optionally cache the results of LDAP rule matching for a user
+* New portal profile parameter to set a retry limit for SMS-based activation
+* The information available from an OAuth source (first name, last name, ...) are now added to the person when registering
+* Allow limiting the user login attempts
+* Added Check Point firewall integration for Single Sign-On
+
+Enhancements
+++++++++++++
+
+* Added httpd.aaa service as a new API service for the exclusive use of RADIUS
+* More precisely define which DHCP message types we are listening for
+* Removed dead code referring to 'external' interface type which was no longer supported
+* Added VLAN filter in getNodeInfoForAutoReg and update/create person even if the device has been autoreg
+* Refactored the VLAN filter code to reduce code duplication
+* Added IMG path configuration parameter in admin
+* Added the ability to restrict the roles, access levels and access durations for admin users based on their role/access level
+* Reduced deadlocks caused by the cleaning of the iplog table
+* Reduced deadlocks caused by the cleaning of the locationlog table
+* Reorganized the portal profile configuration page
+* Added checkup on Apache filters and VLAN filters
+* Created a single LDAP connection when matching against multiple rules
+* Reduced the numbers of entries in iplog table (update end_time instead of closing and inserting a new line)
+* Now matching on language and not only language/country combination for violation templates (See UPGRADE guide)
+* PacketFence FreeRADIUS will return reject on "NAS-Prompt-User" Service-Type requests (Console login using RADIUS as backend)
+* PacketFence now allows limiting the number of times a user can request an sms message
+
+Bug Fixes
++++++++++
+
+* Fixed old MAC addresses being left on port-security enabled ports in a RADIUS + port-security environment
+* Fixed firewall rule that allows httpd.portal to be reached on management IP when pre-registration enabled
+* Fixed creating a new file from the Portal Profile GUI in a subdirectory
+* Improved log rotation handling
+* Fixed previewing templates in the admin GUI
+* Fixed bulk applying of roles and violations in the admin GUI
+* Fixed importing of nodes when no pid is given
+* Added a cleanup of trailing and leading spaces of the posted username during the login
+* Fixed wrong regex to detect ifindex in Cisco switches
+* Honor order of profiles when matching profile filters
+* Fixed URI based portal profiles
+* Fixed XSS vulnerabilities in the portal
+* Refresh node page after updating a node
+* Fixed multiple pfdhcplistener spawning
+* Fixed double display of the user page
+* Fixed displaying of rules description after updating source
+* Removed executable bit on some files which do not require it
+
+Version 4.5.1 released on 2014-11-10
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+* Added compliance enforcement to OPSWAT GEARS provisioner.
+
+Enhancements
+++++++++++++
+* Make Cisco web authentication sessions use less memory.
+* Internationalized the provisioners templates.
+
+Bug Fixes
++++++++++
+* Fix node pagination when sorting.
+* Fix provisioners that were not enforced on external authentication sources. 
+* Fix IBM and Symantec provisioners configuration form.
+
+* Added compliance enforcement to OPSWAT GEARS provisioner
+
+Enhancements
+++++++++++++
+
+* Make Cisco web authentication sessions use less memory
+* Internationalized the provisioners templates
+
+Bug Fixes
++++++++++
+
+* Fix node pagination when sorting
+* Fix provisioners that were not enforced on external authentication sources
+* Fix IBM and Symantec provisioners configuration form
+>>>>>>> devel
+
+Version 4.5.0 released on 2014-10-22
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Added provisioning support for Symantec SEPM, MobileIron and OPSWAT
+* Barracuda Networks firewall integration for Single Sign-On
+* pfmon can now run tasks on different intervals
+* Added a way to reevaluate the access of a node from the admin interface
+* Added a "Blackhole" authentication source 
+* Added a new violation to enforce provisioning of agents
+* Violation can now be delayed
+* Added portal profile filter based on switch-port couple
+
+Enhancements
+++++++++++++
+
+* Cache the ipset rule update to avoid unnecessary calls to ipset
+* Dynamically load violations and nodes for a user for display in admin gui
+* Dynamically load violations for a node for display in admin gui
+* Ensure only one pfmon is running at a time
+
+Bug Fixes
++++++++++
+
+* Fix issue with userMiscellaneous and userCustomFields not showing if user does not have NODES_READ privilege
+* Fix MAC detection from IP on the Catalyst portal when using web authentication on the WLC controller
+* Fix timestamp resolution not catching sub second changes in file in cache layer
+* Fixed handling of expiration time on the captive portal's status page
+* Fixed viewing node pagination sorted
+
+Version 4.4.0 released on 2014-09-10
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Added the possibility to search by computer name on the nodes page
+* Added support for the Anyfi Gateway (a Wi-Fi over IP tunnel aggregator)
+* Show portal profiles directly on the admin GUI
+* Added local account authentication for EAP
+* Added support for unreg date with dynamic year
+* Added support for NetGear FSM7328S switches
+* Added new network profile filter
+* Added external captive portal support for AeroHIVE 
+* Added external captive portal support for Xirrus 
+* Added support for Dynamic Access lists on the Cisco Catalyst 2960
+* Added the ability to search switches
+* Added support for Dlink DES3028 switches
+* Added reuse 802.1x credential on the portal profile
+* Added support for Mikrotik access point
+* Added ability to create local accounts when registering with external authentication sources
+
+Enhancements
+++++++++++++
+
+* Added support to configure either NATting or routed mode for inline layer 2 interfaces from the GUI
+* Added informational messages in the GUI for inline interfaces
+* Improvement of Inline Layer 3 (Inline L3 can only be defined behind Inline Layer 2 network)
+* pfbandwidthd is now able to capture on all inline interfaces
+* Added an option to set the timeout value for LDAP connections in authentication sources
+* FreeRADIUS default configuration should now be more scalable and resilient to misbehaving devices
+* Added the possibility to create rules using the username in OAuth authentication sources
+* Added the RADIUS request to the VLAN filter
+* Moved from using Storable to Sereal to serialize cached data
+* Refactored portal profile filters to make it easier to extend
+* Improved support for Dlink DES 3526 switches
+* Rewrited log format [] for device MAC () for switch "" for userID
+* Improve error handling of web API
+* Raised ServerLimit on Apache httpd.portal, lowered httpd.portal Timeout and KeepAliveTimeout to improve responsiveness under load
+* Do not overlay the controllerIp if one is already defined when creating a switch
+* Verify the user roles level before creating a user via the admin GUI
+* Added test iplogs not closed in pftest
+* Remove direct usage of Apache2 modules in captive portal
+
+Bug Fixes
++++++++++
+
+* Fix issue when adding multiple portal profile filters causing the wrong type to be picked
+* Fix issue when a trap is received for a switch that does not implement parseTrap()
+* Fix issue when a role is changed in the administration interface and the node's access is not reevaluated
+* Fix issue when a passthrough is not able to be resolved and would generate an invalid DNS response
+* Fix missing files in logrotate file
+* Fix issue when setting a port in trunk on a Cisco Catalyst 3560, 3750 and 3750G would fail
+* Fix admin roles for bulk actions for nodes/users
+* Fix issue where person was not updated in the database because of a case (non) match
+* Fix send user password by email from the GUI
+* Fix backward compatibility issue for gaming-registration that should redirect to device-registration
+* Fix device-registration and status pages that were not accessible in inline mode when doing high-availability
+* Fix filetype of wireless-profile.mobileconfig not being set properly
+* Fix issue of iplog entries not being closed
+
+Version 4.3.0 released on 2014-06-26
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Added MAC authentication support for Edge-corE 4510
+* Added support for Ruckus External Captive Portal
+* Support for Huawei S2700, S3700, S5700, S6700, S7700, S9700 switches
+* Added support for LinkedIn and Windows Live as authentication sources
+* Support for 802.1X on Juniper EX2200 and EX4200 switches
+* Added support for the Netgear M series switches
+* Added support to define SNAT interface to use for passthrough
+* Added Nessus scan policy based on a DHCP fingerprint
+* Added support to unregister a node if the username is locked or deleted in Active Directory
+* Fortinet FortiGate and PaloAlto firewalls integration
+* New configuration parameters in switches.conf to use mapping by VLAN and/or mapping by role
+
+Enhancements
+++++++++++++
+
+* When validating an email confirmation code, use the same portal profile initially used by to register the device
+* Removed old iptables code (ipset is now always used for inline enforcement)
+* MariaDB support
+* Updated WebAPI method
+* Use Webservices parameters from PacketFence configuration
+* Use WebAPI notify from pfdhcplistener (faster)
+* Improved Apache SSL configuration forbids SSLv2 use and prioritzes better ciphers
+* Removed CGI-based captive portal files
+* For device registration use the source used to authenticate for calculating the role and unregdate (bugid:1805)
+* For device registration, we set the "NOTES" field of the node with the selected type of device (if defined)
+* On status page check the portal associated to the user and authenticate on the sources included in the portal profile
+* Merge pf::email_activation and pf::sms_activation to pf::activation
+* Removed unused table switchlocation
+* Deauthentication and firewall enforcement can now be done throught the web API
+* Added support to configure high-availability from within the configurator/webadmin
+* Changed the way we're handling DNS blackholing when unregistered in inline enforcement mode (using DNAT rather than REDIRECT)
+* Now handling rogue DHCP servers based both on the server IP and server MAC address
+* We can now match exclusive authentication sources from vlan.pm. This allows using e.g. "NULL" auth and still have complex auhtorization rules. The primary use case is eduroam.
+
+Bug Fixes
++++++++++
+
+* Fixed pfdetectd not starting because of stale pid file
+* Fixed SQL join with iplog in advanced search of nodes
+* Fixed unreg date calculation in Catalyst captive portal
+* Fixed allowed_device_types array in device registration page (bugid:1809)
+* Fixed VLAN format to comply with RFC 2868
+* Fixed possible double submission of the form on the billing page
+* Fixed db upgrade script to avoid duplicate changes to locationlog table
+
+Version 4.2.2 released on 2014-05-29
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
+++++++++++++
+
+* Rework logging to make it easier to follow the flow of registration
+* Allow users to login to see node in status page
+* pf-maint script uses new branch structure
+
+Bug Fixes
++++++++++
+
+* Remove double saving of iptables
+* Do a configreload hard only during a pf restart not everytime you restart
+* Fixed undefined function and HP Controller module
+* Fixed a test in pfsetvlan
+* Allow old gaming-registration URL to work
+* If node is not found in the database then use the default profile
+* Fixed logging in dispatcher
+* Fixed deletion of a user failing
+* Compute unregdate and save the role for autoreg 802.1x
+* Fixed portal profile URI filter in new Catalyst-based captive-portal
+* RADIUS accounting fixed to call the correct method to parse the RADIUS request
+
+Version 4.2.1 released on 2014-05-15
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
+++++++++++++
+
+* No longer need to repopulate password when updating a LDAP authentication source
+* Added check for profile directory existance
+* Added the ability to login from the status page
+* New pf::MAC class to manage MAC adresses.
+
+Bug Fixes
++++++++++
+
+* Added missing node manager URL from dispatcher
+* Fixed URL redirection on captive portal
+* Fixed wrong templates for device registration
+* Removed a breaking dependency (#1793)
+* Fixed exception on device registration page (#1794)
+* Fixed syntax error in SQL upgrade script (#1795)
+* deauthenticateMac was not respecting inheritance
+* STDERR & STDOUT from external command now redirected to /dev/null
+
+Version 4.2.0 released on 2014-05-06
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* New 'Apply violation' bulk action
+* The same bulk actions for nodes are now available for users
+* New WRIX data management
+* Added PacketFence provisioning agent for Android
+* Support Hotspot for Cisco WLC and Aruba IAP
+* Support for Huawei AC6605 wireless controller
+* Support for Enterasys V2110 wireless controller
+* Support for Juniper EX2200 and EX4200 switches
+* Inline layer 3 support
+* New pfbandwidthd daemon for inline layer 3 accounting
+* New violation type based on time usage from RADIUS accounting information
+* New violation type based on bandwidth usage from pfbandwidthd information
+* New Mirapay online payment as a billing option
+* Billing tiers can now be defined with a real usage duration (instead of simply a timeout)
+* Billing: A confirmation email is sent when purchasing a tier
+* New status page with options to extend the network access (when billing is enabled with access duration)
+  and to unregister any node associated to the current user
+* Integration of mod_qos in the Apache configuration of the captive portal
+* New pfcmd "cache" command
+* New pfcmd "configreload" command
+* Filters for HTTP requests on the portal
+
+Enhancements
+++++++++++++
+
+* Mandatory fields during registration are now configured per portal profile
+* Expanded fields for person field
+* Allow pfcmd error/warning/success messages colors to be configurable
+* Allow rules on username for null authentication sources
+* Landing page of Web admin interface now depends on the user's access rights
+* Reevaluate access when changing the role of multiple nodes (#1757)
+* Each portal profile can now use its own set of locales
+* Added a new URI filter for portal profiles
+* Switches configuration page is now paginated
+* LLDP support for 3Com 4000 Series
+* Multiple DNS server in the network configuration
+* Allow alias interface as captive portal
+* MAC Authentication support for Enterasys D2 switch
+* Added support for JSON-RPC and msgpack RPC over HTTP for webservices
+* Made msgpack the default RPC for RADIUS
+* Improved performance of webservices by preloading Perl modules
+* Regexp filter for LDAP source is now case-insensitive
+* Improved maintenance database script
+* Preserve and restore the URL fragment when the web session expires in Web admin (#1780)
+* Logging is now separated and configurable for each service
+* Added missing 'redirect_url' paramater when editing a violation in the Web admin
+* Complete rewrite of captive portal as a Catalyst application
+* Added a section documenting eduroam support to the Admin guide
+* Controller IP address can be determined dynamically
+* Added a file backing for the cache to decrease cache misses
+* Allow advanced search of nodes by OS type (#1790)
+* The PF RPC client can be configured in the conf/radiusd/radiusd.conf
+* Added PacketFence RADIUS dictionary
+
+Bug Fixes
++++++++++
+
+* Fixed retrieval of ifIndex in Cisco Catalyst 2950 module
+* Fixed Snort and Suricata services management
+* Fixed issue when saving a users search in Web admin
+* Fixed JavaScript error with IE8 on Web admin users page
+* Fixed Web admin access restrictions for users and nodes creation
+* Fixed SQL query of connection types report in Web admin
+* Fixed blank page with WISPr on OS X
+* Fixed nodes simple search by IP address
+* Fixed access reevaluation when changing the status of a pending node
+* Fixed network access for users with no "set role" action (#1778)
+* Fixed conversion of wildcards to regular expressions in domains passthroughs
+* Fixed display of last IP address of nodes when end_time is in the future
+* Fixed XSS issues in Web admin
+* Fixed extractSsid for Cisco Aironet and Cisco Aironet WDS
+
+Version 4.1.0 released on 2013-12-11
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Portal profiles can now be filtered by switches
+* Proxy interception support
+* New pfcmd "fixpermissions" command
+* Added a "Null" authentication source for simple "Click to connect" portals
+* Displayed columns of nodes are now customizable
+* Create a single node or import multiple nodes from a CSV file from the Web admin interface
+* LDAP authentication sources can now filter by group membership using a second LDAP query
+* Extended definition of access durations
+* FreeRADIUS no longer needs to be restarted after adding a switch
+* New customizable ACLs for the Web admin interface
+* Force10 switches support
+
+Enhancements
+++++++++++++
+
+* Improved error messages in RADIUS modules
+* Simple search for nodes now includes IP address
+* Search by MAC address for nodes and users now accepts any MAC format
+* Improved starting delay when using inline mode
+* Added memcached as a managed service
+* Added CoA support for Xirrus access point
+* Improved validation of VLAN management
+* Updated FontAwesome to version 3.2.1
+* Each portal profile can now have a different redirection URL
+* Initial destination URL is now respected with Firefox
+* An Htpasswd source can now define sponsors
+* Improved display of pie charts (limit of legend labels and highlight of table rows)
+* Creation of users is now performed from the users page (was on the configuration page)
+* Validate file path when saving an Htpasswd authentication source
+* Improved validation of a sponsor's email address
+* Allow actions depending on authentication source type
+* Modified logrotate so it uses copytruncate instead of restarting the services.
+* Now comes with a corosync compatible barnyard2 init script in addons.
+* Unreg the node when you come from a secure connection to an open connection
+* Allow a self-registered node by SMS to go back to the registration page
+* Sponsor email authentication source can refuse email addresses of the local domain (as the email source)
+* Updated German (de) translation
+
+Bug Fixes
++++++++++
+
+* RADIUS configuration files are no longer replaced when updating packages
+* Fixed match of Htpasswd authentication source (#1714)
+* Fixed creation of users without a role (#1721)
+* Fixed expiration date of registration to the end of the day (#1722)
+* Fixed caching issue when editing authentication sources (#1729)
+* Allow rules with dashes (#1730)
+* Fixed vconfig setting the wrong name_type
+* Fixed help text in Web admin (#1724)
+* Removed references to unavailable snort rules (#1715)
+* Fixed LDAP regexp condition not considering all attribute values (#1737)
+* Fixed sort by phone number and nodes count when performing an advanced search on users (#1738)
+* Fixed users searches not being saved in the proper namespace
+* Fixed handling of form submit when saving a user search
+* Fixed self-registration of multiple unverified devices
+* Fixed duplicate entries in advanced search of nodes
+* Fixed advanced search by node category
+* Fixed reordering of conf sections and groups (#1749)
+* Fixed pid of SMS-registered devices (was "admin" in certain circumstances)
+* Fixed saving of 'allow local domain' option when disabled in an email authentication source
+* The 'allow local domain' option of the email source will now only affect the user who registers by email
+* Fixed ifoctetshistoryuser command to use the correct query when just a user is given
+* Fixed network-detection for IE 8
+* Fixed SQL query of SSID report in Web admin
+
+Version 4.0.6-2 released on 2013-09-13
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+* Fixed dependancy in debian/ubuntu package (#1705)
+* Fixed 802.1X error in RADIUS authorize (#1709)
+* Fixed pfcmd not stopping services (#1710)
+* Fixed caching issue on Web admin interface (#1711)
+
+Version 4.0.6 released on 2013-09-05
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* New Polish (pl_PL) translation (thanks to Maciej Uhlig <maciej.uhlig@us.edu.pl>)
+
+Enhancements
+++++++++++++
+
+* Improved display of filters and sources (DynamicTable) in portal profile editor
+* Ensure the VLAN naming scheme is set on start up
+* When no authentication source is associated to the default portal profile, all available sources are used
+* Phone number is now editable from the user editor
+* Updated fingerprints of gaming devices (Xbox)
+* Moved pfmon to a single process daemon and added the ability to restart itself upon error
+* Added new test tool bin/pftest
+* Improved SQL query in pf::node when matching a valid MAC
+* Allow change of owner in node editor (with auto-completion)
+* iptables management by packetfence is now optional
+* Allow advanced search of users and nodes by notes (#1701)
+* Added better error/warning messages when adding a violation with pfcmd
+* Output the violation id for pfcmd violation add command when the json option is supplied
+
+Bug Fixes
++++++++++
+
+* Fixed XML encoding of RADIUS attributes in SOAP request
+* Fixed retrieval of user role for gaming devices
+* Fixed SQL query of connection types report in Web admin
+* Fixed issue with anonymous LDAP bind failing with searches
+* Fixed email subject when self-registering by email
+* Fixed empty variables of preregistration email template
+* Fixed detection of guest-only authentication sources when no source is associated to the portal
+* Fixed stylesheet for Firefox and IE when printing user access credentials
+* Fixed display of IP address in advanced search of nodes
+* Fixed advanced search of nodes by violation
+* Fixed advanced search of users by sponsor
+* Fixed various caching issues
+* Fixed various logged warnings
+* Fixed various authentication issues (#1693, #1695)
+
+Version 4.0.5-2 released on 2013-08-12
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+* Fixed authentication with multiple sources
+* Fixed oauth2
+* Authentication source is now respected when using WISPr
+
+Version 4.0.5 released on 2013-08-09
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Passthrough with Apache's mod_proxy module
+
+Enhancements
+++++++++++++
+
+* Improved validation of sponsor's email
+* Self-registration by sponsor now works without having to define an email authentication source
+* Fetching VLAN for dot1x connections is now limited to internal authentication sources
+* Splitted internal and external classes in dropdown menu of authentication types
+* Show error message when trying to delete a source used by the portal profiles
+* Documentation of the vip parameter for management interface
+
+Bug Fixes
++++++++++
+
+* Authentication is now limited to internal sources
+* DynamicTable widget now allows to drag'n'drop under last row
+* Connections on port 443 are now accepted for self-registration (#1679)
+* Use virtual ip when available for SNAT
+* Remote conformity scan engines (Nessus/OpenVAS) can now scan devices in unregistrated state on inline networks
+* Returned per-switch role (if configured) for "Role mapping by switch role" rather than sending the user role
+
+Version 4.0.4 released on 2013-08-05
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Portal profiles can now have multiple filters
+
+Enhancements
+++++++++++++
+
+* Added new regexp operator for strings in authentication rules
+* Automatic landing on the sign-in page if no internal/oauth authentication source is used by the portal profile
+* Self-registration is now enabled when a profile has at least one external authentication source
+* Authentication sources of portal profiles are now displayed in a sortable table
+* Sort actions of a violation in reverse order to set the role before auto registration
+* Added hostapd configuration in the Network Devices Configuration Guide
+* Version number is now sent when submiting dhcp and useragents fingerprints
+
+Bug Fixes
++++++++++
+
+* External authentication sources of portal profiles are not respected
+* A portal profile can have multiple external authentication sources of the same type
+* Port 443 on the management interface is not open when gaming registration is enable
+* Crash of FreeRADIUS with SOAP::Lite prior to version 1.0
+* Wrong permissions on the logs files causes an error with the log action of violations
+* Error with violations with tainted chain in pfmailer and action_log subroutines
+* Triggering a violation with a trap action doesn't reevaluate access
+* authentication.conf and profiles.conf are overwritten when updating PacketFence
+* First element of button groups is not properly displayed
+* Sponsors are not extracted from LDAP sources
+
+Version 4.0.3 released on 2013-07-22
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
++++++++++++
+
+* Support for 'hostapd' access points
+
+Enhancements
+++++++++++++
+
+* New buttons to clone a switch, a floating device, and a violation
+* New version number in the top navigation bar
+
+Bug Fixes
++++++++++
+
+* Form toggle fields don't support all variations
+* Counters and graphs for today are empty
+* Maintenance interval is not respected in pfmon
+* Optgroup labels in select menus are hidden when build multiple times
+* Callbacks are performed on every ReadConfig
+* Guest modes don't show up on captive portal
+* Authentication source is not respected when matching actions in register.cgi
+
+Version 4.0.2 released on 2013-07-12
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
+++++++++++++
+
+* Replaced bind with pfdns - PacketFence's own DNS server
+* Rewrote Oauth2 support (based on ipset sessions)
+* New counters bellow line graphs of reports
+* Support for anonymous bind in LDAP authentication sources
+* Added support for date and time conditions in authentication sources
+* Added "is not" condition on connection type
+* Extend simple search of nodes to match MAC, owner and computer name
+* Added search and display of the a user's telephone number
+* Can now have multiple external authentication sources
+* Increased speed of loading configuration from the cache
+* Each portal profile can now use a list of authentication sources
+* A switch definition can now be easily cloned
+* Switches are now ordered by IP address
+* LDAP SSL and STARTTLS now works as expected.
+
+Bug Fixes
++++++++++
+
+* Re-evaluate network access when changing a node status
+* Re-evaluate network access when closing a violation
+* Missing unit when interval is zero
+* Switch with empty inlineTrigger rises an exception
+* Web admin sets 'triggerInline' while libs expect 'inlineTrigger'
+* Condition on user email doesn't work for email sources
+* Sponsors can't be validated
+* Node search by person name is broken (#1652)
+* Can't enable VoIP from switch configuration form (#1663)
+* Maximum number of nodes per user is not respected by role
+* Routed networks are not properly sorted (#1666)
+* Can't edit notes of a node (#1667)
+* pfdetect_remote and pfarp_remote fix
+
+Version 4.0.1 released on 2013-05-17
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
++++++++++++
+
+* Support for all CDP-compatible VoIP phones on Cisco switches
+
+Enhancements
+++++++++++++
+
+* Line graphs now automatically switch to a month-based view when the period covers more than 90 days
+* Debian 7.0 (Wheezy) packages
+
+Bug Fixes
++++++++++
+
+* Default values override defined values in violations.conf
+* Wrong version of pf::vlan::custom
+* Groups in configuration files are not ordered under their respective section
+* mysqld is not enabled at startup
+* memcached is not enabled at startup
+* Access duration action doesn't honor default values in web admin
+* Types in networks.conf are missing the "vlan-" prefix
+* Default pid in node table and config module must be "admin", not "1"
+* No warning when stopping httpd.admin
+* Match not performed by type in mobile-confirmation.cgi
+* Authentication rule condition on connection type doesn't work
+* Authentication rule condition on SSID doesn't work
+* Access level is lost when editing a user
+* Catchall rules won't work in a htpasswd source
+* Minor visual improvements to the web admin interface
+* Statics routes not added on PacketFence restart
+
+Version 4.0.0 released on 2013-05-08
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Brand new Perl-based Web administrative interface using the Catalyst framework
+* New violation actions to set the node's role and deregister it
+* Support for scanning dot1x connections for auto-registration by EAP-Type
+* Support for auto registering dot1x node based of the EAP-Type
+* New searchable MAC Addresses module to query all existing OUI prefixes
+* New advanced search capabilities for nodes and users
+* New memory object caching subsystem for configuration files
+* Ubuntu packages (12.04)
+
+Enhancements
+++++++++++++
+
+* Authentication sources can now be managed directly from the GUI
+* Roles (previously called categories) are now computed dynamically using authentication sources
+* Portal profiles and portal pages are now managed from the GUI
+* Fingerprints and User Agents modules are now searchable
+
+Bug Fixes
++++++++++
+
+* Modified the SQL upgrade script from 3.5.0 to 3.6.1 (#1624)
+
+Translations
+++++++++++++
+
+* Translated all remediation pages to French
+* Updated Brazilian Portuguese (pt_BR) translation
+* Updated Spanish (es) translation
