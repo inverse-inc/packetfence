@@ -1,3 +1,81 @@
+commit f4f1431deb2f30300ea5627bc2794b1c0d5599bd
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Apr 22 14:08:52 2015 -0400
+
+    Updated NEWS and changelogs for 5.0.1.
+
+M	NEWS.asciidoc
+M	addons/packages/packetfence.spec
+M	debian/changelog
+
+commit 26cfb10c77d7113d9b8138c4325fb9e090b578ec
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Apr 22 13:32:45 2015 -0400
+
+    add unsupported features to clustering guide
+
+M	docs/PacketFence_Clustering_Guide.asciidoc
+
+commit 406fd56ef3912f41cd2b4a74ee9e9168a0b2e8d3
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Apr 22 12:36:09 2015 -0400
+
+    Include pf::config::util for pfmailer
+
+M	lib/pf/cmd/pf/service.pm
+
+commit 345dab342206a0e835db44f92a4727a81b28f6d8
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Apr 22 10:08:17 2015 -0400
+
+    Updating end_time in iplog when no lease time if provided
+
+M	NEWS.asciidoc
+M	lib/pf/iplog.pm
+
+commit 0d600159f037567ada5e5ba979109fdd5b89350b
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Apr 22 09:39:11 2015 -0400
+
+    Prevent DHCPD from starting if it's not managed
+    
+    fixes #496
+
+M	lib/pf/services/manager/dhcpd.pm
+
+commit 4ba989bf6d1102209702de3ef88a303e93741671
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Apr 21 15:51:52 2015 -0400
+
+    Add upgrade instructions for the new triggers in violation.conf
+
+M	UPGRADE.asciidoc
+
+commit be04b7ca372497e1e3e5d9f829e10b6e63cb8346
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 21 14:43:57 2015 -0400
+
+    Allow bypass_role_id to be null
+
+M	lib/pf/node.pm
+
+commit 61a3c7b4b808dc9ed2f6c03878e38b0a9f1fdf8d
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Apr 21 13:40:18 2015 -0400
+
+    Updated docs release version number to 5.0.1.
+
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit f4ea1ae59015ece9870465df3032b9e8b483363e
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Apr 21 13:31:03 2015 -0400
+
+    Updated Changelog.
+
+M	ChangeLog
+
 commit 90ac4a211db9ae39341d0f3a1792af16f5149e19
 Author: Louis Munro <lmunro@inverse.ca>
 Date:   Tue Apr 21 13:29:03 2015 -0400
