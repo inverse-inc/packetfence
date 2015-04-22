@@ -234,18 +234,17 @@ sub checkIfNeedsToRegister : Private {
     if ($unreg && isenabled($Config{'trapping'}{'registration'})) {
 
         # Redirect to the billing engine if enabled
-        if (defined($portalSession->profile->getBillingEngine) && ($portalSession->profile->getBillingEngine ne '')) {
-            $logger->info("[$mac] redirected to billing page on ".$profile->name." portal");
-            $c->detach('Pay' => 'index');
-        } elsif ( $profile->nbregpages > 0 ) {
+        if ( $profile->nbregpages > 0 ) {
             $logger->info(
                 "[$mac] redirected to multi-page registration process on ".$profile->name." portal");
             $c->detach('Authenticate', 'next_page');
         } elsif ($portalSession->profile->guestRegistrationOnly) {
-
             # Redirect to the guests self registration page if configured to do so
             $logger->info("[$mac] redirected to guests self registration page on ".$profile->name." portal");
             $c->detach('Signup' => 'index');
+        } elsif ($portalSession->profile->getBillingOnly) {
+            $logger->info("[$mac] redirected to billing page on ".$profile->name." portal");
+            $c->detach('Pay' => 'index');
         } else {
             $logger->info("[$mac] redirected to authentication page on ".$profile->name." portal");
             $c->detach('Authenticate', 'index');

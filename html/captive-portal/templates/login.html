@@ -108,6 +108,12 @@ document.observe("dom:loaded", function() {
               <a href="[% URL_SIGNUP %]?destination_url=[% destination_url %]">[% i18n("Sign up") %]</a>
           </div>
             [% END -%]
+            [% IF billing  && !null_source -%]
+          <div class="input">
+            <div class="separator"><div class="or_separator">or</div></div>
+              <a href="[% URL_BILLING %]?destination_url=[% destination_url %]">[% i18n("pay") %]</a>
+          </div>
+            [% END -%]
         </form>
 
 [% INCLUDE footer.html %]
