@@ -50,6 +50,7 @@ our ($RESET_COLOR, $WARNING_COLOR, $ERROR_COLOR, $SUCCESS_COLOR);
 use pf::log;
 use pf::file_paths;
 use pf::config;
+use pf::config::util;
 use pf::util;
 use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED);
