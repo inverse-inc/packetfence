@@ -30,6 +30,25 @@ __PACKAGE__->config(
     },
 );
 
+=head1 index
+
+Setup the scope and forwards
+
+Overwrite L<pfappserver::Base::Controller::Crud::Fingerbank::index> because we don't want "upstream" scope with Combinations
+
+=cut
+
+sub index {
+    my ( $self, $c ) = @_;
+
+    $c->stash(
+        scope                   => 'Local',
+        fingerbank_configured   => fingerbank::Config::is_api_key_configured,
+        action                  => 'list',
+    );
+    $c->forward('list');
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2015 Inverse inc.
