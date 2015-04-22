@@ -29,6 +29,7 @@ Bug Fixes
 * Fixed pfmon not starting when running a standalone PF server.
 * Fixed broken OS reporting. 
 * Added missing dependency on perl-SOAP-Lite for packetfence-remote-snort-sensor.
+* Updating iplog without a lease time now reset end_time to default (0000-00-00 00:00:00) to avoid "closing" a valid entry
 
 Version 5.0.0 released on 2015-04-15
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
