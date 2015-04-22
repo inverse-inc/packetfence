@@ -143,20 +143,17 @@ TODO: Put theses configuration in database and be able to modify them using the 
 =cut
 
 sub getAvailableTiers {
-    my ($self) = @_;
+    my ($self,$profile) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my %tiers = (
-            tier1 => {
-                id => "tier1",  # used as the item value of the billing table
-                name => "Tier 1",  # used on billing.html
-                price => "1.00",  # amount charged on the credit card
-                timeout => "7D",  # used to compute the unregistration date of the node
-                usage_duration => '1D',  # the amount of non-contignuous access time for the node, set as the time_balance value of the node table
-                category => '',  # the role in which to put the node
-                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org"  # used on billing.html
-            },
-    );
+    my $billing = $pf::config::ConfigBilling{$profile->getBillingEngine};
+    my %tiers;
+    my @tiers = split("\n",$billing->{'tiers'});
+    foreach my $tier  ( @tiers ) {
+        %tiers =  (%tiers ,( $tier => $pf::config::ConfigTiers{$tier}));
+        $tiers{$tier}{'name'} = $tier;
+        $tiers{$tier}{'id'} = $tier;
+    }
 
     return %tiers;
 }

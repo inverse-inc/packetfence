@@ -127,7 +127,7 @@ Returns either enabled or disabled according to the billing engine state for the
 
 sub getBillingEngine {
     my ($self) = @_;
-    return $self->{'_billing_engine'};
+    return $self->{'_billing'};
 }
 
 *billing_engine = \&getBillingEngine;

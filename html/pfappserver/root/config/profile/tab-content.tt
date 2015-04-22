@@ -47,20 +47,3 @@
               </div>
             </div>
           </div>
-          <div class="control-group">
-            <label class="control-label" for="billing">[% l('Billing') %]</label>
-            <div class="controls">
-              [% form.field('billing').render %]
-              <div id="billingEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('billing').index > 1 %]">
-                <p>
-                  <i class="icon-cog icon-large"></i>
-                  [%- IF form.isa('pfappserver::Form::Portal::Profile::Default') -%]
-                  [% l('No scan specified.') %]
-                  [%- ELSE -%]
-                  [% l('With no billing specified, the billing will not be used.') %]
-                  [%- END -%]<br/>
-                  <a href="#add">[% l('Add a Billing.') %]</a>
-                </p>
-              </div>
-            </div>
-          </div>
