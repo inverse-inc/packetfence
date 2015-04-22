@@ -162,7 +162,7 @@ sub iplog_db_prepare {
     );
 
     $iplog_statements->{'iplog_update_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE iplog SET mac = ?, start_time = NOW() WHERE ip = ? ]
+        qq [ UPDATE iplog SET mac = ?, start_time = NOW(), end_time = "0000-00-00 00:00:00" WHERE ip = ? ]
     );
 
     $iplog_statements->{'iplog_update_with_lease_length_sql'} = get_db_handle()->prepare(
