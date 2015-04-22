@@ -17,6 +17,7 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config;
 use pf::util;
 use File::Find qw(find);
+iuse pf::ConfigStore::Tiers;
 
 ## Definition
 
@@ -34,6 +35,20 @@ has_field 'type' =>
    label => 'Billing Type',
    options_method => \&options_type,
   );
+
+has_field 'tiers' =>
+(
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+);
+
+has_field 'tiers.contains' =>
+(
+    type => 'Select',
+    options_method => \&options_tiers,
+    widget_wrapper => 'DynamicTableRow',
+);
 
 =head2 options_type
 

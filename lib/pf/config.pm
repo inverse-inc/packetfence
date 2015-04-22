@@ -112,6 +112,8 @@ our (
     %ConfigProvisioning,
 #billing.conf
     %ConfigBilling,
+#tiers.conf
+    %ConfigTiers,
 );
 
 BEGIN {
@@ -157,6 +159,7 @@ BEGIN {
         %ConfigRealm
         %ConfigProvisioning
         %ConfigBilling
+        %ConfigTiers
     );
 }
 
@@ -210,6 +213,8 @@ tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 
 tie %ConfigBilling, 'pfconfig::cached_hash', 'config::Billing';
+
+tie %ConfigTiers, 'pfconfig::cached_hash', 'config::Tiers';
 
 sub import {
     pf::config->export_to_level(1,@_);

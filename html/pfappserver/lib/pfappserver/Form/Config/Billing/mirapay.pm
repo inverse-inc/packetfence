@@ -76,7 +76,7 @@ has_block definition =>
 sub currency {
     my $self = shift;
 
-    my @currency = ('USD''USD','CAD','CAD');
+    my @currency = ('USD','USD','CAD','CAD');
     return ('' => '', @currency);
 }
 

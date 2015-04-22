@@ -62,6 +62,7 @@ our (
     $cluster_config_file,
     $server_cert, $server_key, $server_pem,
     $billing_config_file,
+    $tiers_config_file,
 );
 
 BEGIN {
@@ -102,6 +103,7 @@ BEGIN {
         $cluster_config_file
         $server_cert $server_key $server_pem
         $billing_config_file
+        $tiers_config_file
     );
 }
 
@@ -154,6 +156,7 @@ $server_key = catfile($conf_dir,"ssl/server.key");
 $server_cert = catfile($conf_dir,"ssl/server.crt");
 $server_pem = catfile($conf_dir,"ssl/server.pem");
 $billing_config_file = catfile($conf_dir,"billing.conf");
+$tiers_config_file = catfile($conf_dir,"tiers.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -179,7 +182,7 @@ $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
     $ui_config_file,$provisioning_config_file,$oauth_ip_file,$log_config_file,
     $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file,
     $vlan_filters_config_file,$firewall_sso_config_file,
-    $billing_config_file,
+    $billing_config_file,$tiers_config_file,
 );
 
 
