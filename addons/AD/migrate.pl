@@ -69,9 +69,10 @@ chomp($confirm);
 if($confirm eq 'y'){
   pf::domain::regenerate_configuration();
   my $output = pf::domain::join_domain($WORKGROUP);
+  print "Done. If there were any issues joining the domain, you can now use the web interface to fix the issues (Configuration->Domains) \n"
 }
 else{
-  print "Please re-run the script again or configure the domain directly through the admin UI in 'Configuration->Domain'\n";
+  print "Please re-run the script again or configure the domain directly through the admin UI in 'Configuration->Domain' \n";
 }
 
 =head1 AUTHOR
