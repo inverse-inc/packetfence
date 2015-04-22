@@ -250,12 +250,13 @@ sub manageStaticRoute {
 }
 
 sub isManaged {
+    my ($self) = @_;
     my $logger = get_logger;
     if($cluster_enabled && !pf::cluster::should_offer_dhcp()){
         $logger->info("This server cannot offer dhcp according to pf::cluster");
         return 0;
     }
-    return 1;
+    return $self->SUPER::isManaged();
 }
 
 =head1 AUTHOR
