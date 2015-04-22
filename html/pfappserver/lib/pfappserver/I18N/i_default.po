@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 4.7.1\n"
+"Project-Id-Version: 5.0.1\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-04-15 13:18-0400\n"
+"PO-Revision-Date: 2015-04-17 22:33-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -546,7 +546,7 @@ msgstr ""
 
 # pf::firewallsso (Firewall SSO)
 msgid "BarracudaNG"
-msgstr ""
+msgstr "Barracuda NG Firewall"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Base DN"
@@ -673,7 +673,7 @@ msgstr ""
 
 # pf::firewallsso (Firewall SSO)
 msgid "Checkpoint"
-msgstr ""
+msgstr "Check Point Firewall"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Children"
@@ -1355,24 +1355,22 @@ msgstr ""
 msgid "Deregister"
 msgstr ""
 
-# conf/documentation.conf (interface.type)
-msgid ""
-  "Describes <i>type</i> of named interface.  internal describes interfaces "
-  "where PacketFence will enforce network access. management (or managed) "
-  "interfaces have the administrative GUI running on them, host SNMP trap "
-  "receiver and RADIUS server. monitor is the interface that snort listens "
-  "on. dhcp-listener is an interface where the DHCP traffic is coming in "
-  "either via a network SPAN or IP-Helpers configuration. high-availability "
-  "is for an interface between two PacketFence servers dedicated to "
-  "high-availability (drbd, corosync)."
-msgstr ""
-
 # conf/documentation.conf (interface.enforcement)
 msgid ""
   "Describes the technique PacketFence will use to enforce network access."
   "VLAN is the out-of-band VLAN-based device isolation requiring integration "
   "in your network environment and inline is a DHCP-based mode where "
   "PacketFence acts as a filtering gateway."
+msgstr ""
+
+# conf/documentation.conf (interface.type)
+msgid ""
+  "Describes type of the named interface."
+  "<ul><li><i>internal</i> describes interfaces where PacketFence will enforce network access.</li>"
+  "<li><i>management</i> (or managed) interfaces have the administrative GUI running on them, host SNMP trap receiver and RADIUS server.</li>"
+  "<li><i>monitor</i> is the interface that snort listens on.</li>"
+  "<li><i>dhcp-listener</i> is an interface where the DHCP traffic is coming in either via a network SPAN or IP-Helpers configuration.</li>"
+  "<li><i>high-availability</i> is for an interface between two PacketFence servers dedicated to high-availability (drbd, corosync).</li></ul>"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
@@ -1833,7 +1831,7 @@ msgstr ""
 
 # pf::firewallsso (Firewall SSO)
 msgid "FortiGate"
-msgstr ""
+msgstr "FortiGate Firewall"
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configurator/configuration.tt
@@ -1993,14 +1991,14 @@ msgstr ""
 msgid "IP address"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
-msgid "IP address of the router to reach this network"
-msgstr ""
-
 # conf/documentation.conf (interface.ip)
 msgid ""
-  "IP adress of the named interface - note that this should mirror the "
+  "IP address of the named interface - note that this should mirror the "
   "OS-level configuration but it does not make any OS-level changes."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "IP address of the router to reach this network"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Device.pm
@@ -2454,7 +2452,12 @@ msgstr ""
 msgid "MAC Addresses"
 msgstr ""
 
+# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
+msgid "MAC OUI"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
 msgid "MAC Vendor"
@@ -3060,7 +3063,7 @@ msgstr ""
 
 # pf::firewallsso (Firewall SSO)
 msgid "PaloAlto"
-msgstr ""
+msgstr "PaloAlto Networks"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
@@ -4468,7 +4471,7 @@ msgid ""
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_currency)
-msgid "The currency of the MiraPay transactions"
+msgid "The currency of the mirapay transactions"
 msgstr ""
 
 # html/pfappserver/root/user/list_password.tt
@@ -4480,7 +4483,7 @@ msgid "The following users have been created"
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_hash_password)
-msgid "The hash password for MiraPay"
+msgid "The hash password for mirapay"
 msgstr ""
 
 # conf/documentation.conf (provisioning.ssid)
@@ -4534,7 +4537,7 @@ msgid "The payment gateway processing URL (Provided by Authorize.net)"
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_url)
-msgid "The payment gateway processing URL for MiraPay"
+msgid "The payment gateway processing URL for mirapay"
 msgstr ""
 
 # conf/documentation.conf (billing.gateway)
@@ -4564,11 +4567,11 @@ msgid "The rule was not found."
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_terminal_id)
-msgid "The terminal id for MiraPay"
+msgid "The terminal id for mirapay"
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_terminal_id_group)
-msgid "The terminal id group for MiraPay"
+msgid "The terminal id group for mirapay"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm

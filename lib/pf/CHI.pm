@@ -17,6 +17,7 @@ use warnings;
 use base qw(CHI);
 use CHI::Driver::Memcached;
 use CHI::Driver::RawMemory;
+use CHI::Driver::File;
 use Cache::Memcached;
 use Clone();
 use pf::file_paths;

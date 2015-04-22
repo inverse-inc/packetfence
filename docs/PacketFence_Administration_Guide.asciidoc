@@ -271,10 +271,10 @@ server, DHCP server, RADIUS server) using:
 
 Once installed, the Web-based configuration interface will automatically be started. You can access it from https://@ip_of_packetfence:1443/configurator
 
-Debian and Ubuntu
-^^^^^^^^^^^^^^^^^
+Debian
+^^^^^^
 
-First for debian, you must enable non-free and backports repository:
+You must enable non-free and backports repository:
 
 For non-free, edit the file `/etc/apt/source.list` and add non-free like that:
 
@@ -284,17 +284,9 @@ For backports:
 
    echo 'deb http://http.debian.net/debian wheezy-backports main' > /etc/apt/sources.list.d/wheezy-backports.list
 
-For Ubuntu you need to enable another repository:
+In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
 
-   add-apt-repository ppa:vbernat/haproxy-1.5
-
-In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list` with the following content when using Debian 7.0 (Wheezy):
-
-  deb http://inverse.ca/downloads/PacketFence/debian wheezy wheezy
-
-Or when using Ubuntu 12.04 LTS:
-
-  deb http://inverse.ca/downloads/PacketFence/ubuntu precise precise
+   echo 'deb http://inverse.ca/downloads/PacketFence/debian wheezy wheezy' > /etc/apt/sources.list.d/packetfence.list
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database
@@ -303,6 +295,26 @@ server, DHCP server, RADIUS server) using:
   sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
   sudo apt-get update
   sudo apt-get install packetfence
+
+Ubuntu
+^^^^^^
+
+You need to enable another repository for haproxy:
+
+   add-apt-repository ppa:vbernat/haproxy-1.5
+
+In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
+
+  ech 'deb http://inverse.ca/downloads/PacketFence/ubuntu precise precise' > /etc/apt/sources.list.d/packetfence.list
+
+Once the repository is defined, you can install PacketFence with all its
+dependencies, and the required external services (Database
+server, DHCP server, RADIUS server) using:
+
+  sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
+  sudo apt-get update
+  sudo apt-get install packetfence
+
 
 Once installed, the Web-based configuration interface will automatically be started. You can access it from https://@ip_of_packetfence:1443/configurator
 
@@ -2921,7 +2933,7 @@ pfcmd
 When executed without any arguments `pfcmd` returns a basic help message with all main options:
 
 ----
-sys::[/usr/local/pf/bin/pfcmd help]
+sys::[/usr/local/pf/bin/pfcmd.pl help]
 ----
 
 The node view option shows all information contained in the node database table for a specified MAC address

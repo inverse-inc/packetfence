@@ -11,6 +11,28 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 5.0.1 released on 2015-04-21
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This release is a bug fix only. No new features were introduced.
+
+Enhancements
+++++++++++++
+* A number of strings have seen their translations improved.
+* The Debian and Ubuntu documentation has been split and made clearer.
+* Detailed which features may not work in active/active cluster mode in the documentation.
+
+Bug Fixes
++++++++++
+* Added missing CHI File driver.
+* Delete left over Config::Fingerprint module in Debian and Ubuntu.
+* Fixed pfmon not starting when running a standalone PF server.
+* Fixed broken OS reporting. 
+* Added missing dependency on perl-SOAP-Lite for packetfence-remote-snort-sensor.
+* Updating iplog without a lease time now reset end_time to default (0000-00-00 00:00:00) to avoid "closing" a valid entry
+* fixed pfcmd watch emailing functionality.
+* dhcpd will now properly obey the "disabled" configuration.
+
 Version 5.0.0 released on 2015-04-15
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -127,10 +127,7 @@ our $PARENT_PID = $$;
 
 
 sub start {
-    my $vip_running = pf::cluster::is_management();
-    if($vip_running){
-        registertasks();
-    }
+    registertasks();
     runtasks();
     waitforit();
 }

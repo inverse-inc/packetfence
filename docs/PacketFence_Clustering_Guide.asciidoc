@@ -543,4 +543,11 @@ Now restart haproxy and iptables in order to complete the configuration
 
 You should now be able to connect to the dashboard on the following URL : http://pf.local:1025/stats
 
+Unsupported features in active/active
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following features are not supported when using active/active clustering.
+
+* Switches using SNMP based enforcement (port-security, link up/down, ...)
+* SNMP roaming with the Aerohive controller. (4.7+ includes support for accounting roaming)
 

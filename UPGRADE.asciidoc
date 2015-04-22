@@ -11,6 +11,12 @@ For RedHat-based systems, run the following command:
   
 PacketFence should now be upgraded.  However, there may be extra steps required depending on the version you are upgrading from.  Please review the following notes about upgrading from an older release.
 
+Upgrading from a version prior to X.Y.Z
+---------------------------------------
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+
+
 Upgrading from a version prior to 5.0.0
 ---------------------------------------
 
@@ -37,6 +43,21 @@ The MySQL password is saved in the conf/pf.conf file under the [database] sectio
 Copy the following from conf/pf.conf to conf/pfconfig.conf: 
 
   pass=$YOURPASSWORDHERE
+  
+
+Violations configuration
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The violation triggers have been reworked for the new Fingerbank integration.
+We highly suggest you copy `conf/violations.conf.example` over `conf/violations.conf` and then reconfigure any violations you had before.
+
+Also, make sure you adjust the following triggers to their new ID (Can be found under 'Configuration->Fingerbank'):
+
+* `USERAGENT` becomes `user_agent`
+* `MACVENDOR` becomes `mac_vendor`
+
+The `OS` trigger has been deprecated over the new `dhcp_fingerprint` trigger. 
+You will need to adjust these triggers to the new ids as well as renaming them.
 
 iptables changes
 ^^^^^^^^^^^^^^^^
