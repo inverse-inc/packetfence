@@ -61,7 +61,7 @@
           [%- NEXT IF field == "mobileprovider" && sms_guest_allowed -%]
           [%- NEXT IF field == "sponsor_email" && sponsored_guest_allowed  -%]
           <div class="input">
-            <span>[% i18n(field_names.$field) %]</span>
+            <span>[% i18n("$field") %]</span>
             <input class="field" name="[%field%]" type="text" value="" /><br/>
           </div>
           [% END %]
