@@ -194,7 +194,7 @@ sub _parse_parents {
 
 =head2 is_a 
 
-Testing which "kind" of device a specific device_type is.
+Testing which "kind" of device a specific type is.
 
 Currently handled "kind" of device (based on Fingerbank device classes):
 - Windows
