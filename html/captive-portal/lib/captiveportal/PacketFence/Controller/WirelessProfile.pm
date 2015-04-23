@@ -61,11 +61,49 @@ sub index : Path : Args(0) {
     #}
 }
 
+sub download :Path('mail.mobileconfig') {
+    my ( $self, $c ) = @_;
+
+    my $template = $c->stash->{template};
+
+    my $filename = $c->forward('get_temp_filename');
+    my $filename_signed = "$filename-signed";
+
+    $template->process($c->config->{install_dir}."html/captive-portal/profile-templates/eaptls/wireless-profile.mobileconfig", 
+                        $c->stash(), $filename);
+
+    my $cmd = "bash ".$c->config->{install_dir}."addons/sign.sh $filename $filename_signed";
+    my $result = `$cmd`;
+    
+    my $signed_profile = read_file( "$filename_signed" ) ;
+
+    $c->response->body($signed_profile);
+
+    $result = `rm -f $filename`;
+    $result = `rm -f $filename_signed`;
+
+    my $headers = $c->response->headers;
+    $headers->content_type('application/x-apple-aspen-config; chatset=utf-8');
+    $headers->header( 'Content-Disposition',
+        'attachment; filename="wireless-profile.mobileconfig"' );
+
+}
+
 sub profile_xml : Path('/profile.xml') : Args(0) {
     my ( $self, $c ) = @_;
     $c->stash->{filename} = 'profile.xml';
     $c->forward('index');
 }  
+
+sub get_temp_filename :Private {
+    my $fh = File::Temp->new(
+        TEMPLATE => 'tempXXXXX',
+        DIR      => '/tmp',
+        SUFFIX   => '.dat',
+    );
+
+    return $fh->filename;
+}
 
 =head1 AUTHOR
 

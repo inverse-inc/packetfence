@@ -67,16 +67,6 @@ sub index : Path : Args(0) {
         pid                 => $pid,
         );
 }
-sub add_session : Local {
-    my ($self, $c) = @_;
-    my $sid = $c->get_session_id();
-    my $filename = "/usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe";
-    my $newfile = "/usr/local/pf/html/captive-portal/content/packetfence-$sid.exe";
-    my $magicfile = "/usr/local/pf/html/captive-portal/content/packetfence-\*.exe";
-    rename $magicfile, $filename;
-    rename $filename, $newfile;
-    $c->session( filesid => $newfile );
-}
 
 sub build_cert_p12 : Path : Args(0) {
     my ($self, $c) = @_;
