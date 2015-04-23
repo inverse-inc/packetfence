@@ -283,7 +283,6 @@ sub checkIfPending : Private {
             }
         }
         if ( pf::activation::activation_has_entry($mac,'sms') ) {
-            node_deregister($mac);
             $c->stash(
                 template => 'guest/sms_confirmation.html',
                 post_uri => '/activate/sms'
