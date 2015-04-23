@@ -20,7 +20,7 @@ New Features
 
 Enhancements
 ++++++++++++
-
+* Added availables options (submit unknowns and update database) to the Fingerbank Settings page
 
 Bug Fixes
 +++++++++
