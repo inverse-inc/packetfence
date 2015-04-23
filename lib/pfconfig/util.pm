@@ -34,8 +34,9 @@ our @EXPORT_OK = qw(
 Readonly our $undef_element => pfconfig::undef_element->new;
 
 sub fetch_socket {
+    use bytes;
     my ($socket, $payload) = @_;
-    
+
     # The line below will log any request to pfconfig for debugging purposes
     # As the logging cost even in trace is high, it's commented out
     #pfconfig::log::get_logger->info("Doing request to pfconfig with payload : '$payload'");
@@ -43,46 +44,26 @@ sub fetch_socket {
     # we ask the cachemaster for our namespaced key
     print $socket "$payload\n";
 
-    # this will give us the line length to read
-
-    chomp( my $count = <$socket> ); 
-
-    # under some conditions we are receiving multiple lines.
-    # this under here should now fix it
-    use bytes;
-    my $line;
-    my $line_read = 0;
-    my $response  = '';
-    if($count =~ /\n/){
-        my @data = split(/\n/, $count);
-        my $length = scalar @data;
-        pfconfig::log::get_logger->warn("pfconfig has sent multiple lines with the count ($length)");
-        my $i = 0;
-        while($i < $length){
-            if($i == 0){
-                 $count = $data[0];
-            }
-            else{
-                # we chomp whatever we have to re-add it after so we hit all cases
-                $line = $data[$i];
-                $response .= $line . "\n";
-                $line_read += 1;
-            }
-            $i++;
-        }
+    #Get the first for bytes to find out the length of the sereal buffer
+    my $bytes_to_read = 4;
+    my $buffer = '';
+    my $offset = 0;
+    while($bytes_to_read) {
+        my $bytes_read = $socket->sysread($buffer,$bytes_to_read,$offset);
+        $bytes_to_read -= $bytes_read;
+        $offset += $bytes_read;
     }
-
-    # This is evil but we're getting lines with no content in them.
-    # This throws a warning that $line is undefined. 
-    # We workaround this by deactivating warnings when we read though the socket
-    no warnings;
-    while ( $line_read < $count ) {
-        chomp( $line = <$socket> );
-        $response .= $line . "\n";
-        $line_read += 1;
+    #Unpack it into an integer
+    $bytes_to_read = unpack("V",$buffer);
+    $offset = 0;
+    $buffer = '';
+    #Get the rest of the sereal buffer
+    while($bytes_to_read) {
+        my $bytes_read = $socket->sysread($buffer,$bytes_to_read,$offset);
+        $bytes_to_read -= $bytes_read;
+        $offset += $bytes_read;
     }
-    use warnings;
-    return $response;
+    return $buffer;
 }
 
 sub fetch_decode_socket {
@@ -107,7 +88,7 @@ sub parse_namespace {
     my @args_list = ();
     if($namespace =~ /([(]{1}.*[)]{1})$/){
         $args = $1;
-    
+
         my $quoted_args = quotemeta($args);
         $namespace =~ s/$quoted_args$//;
 

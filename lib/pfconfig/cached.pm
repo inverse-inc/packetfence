@@ -39,6 +39,7 @@ use pfconfig::constants;
 use Sereal::Encoder;
 use Sereal::Decoder;
 use Time::HiRes qw(stat time);
+use bytes;
 
 =head2 ENCODER
 
@@ -282,7 +283,6 @@ sub CLONE {
     $ENCODER = Sereal::Encoder->new;
     $DECODER = Sereal::Decoder->new;
 }
-
 
 =head1 AUTHOR
 
