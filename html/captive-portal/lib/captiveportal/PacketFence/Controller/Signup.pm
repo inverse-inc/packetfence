@@ -650,6 +650,7 @@ sub showSelfRegistrationPage : Private {
         sms_carriers        => sms_carrier_view_all($source),
         is_preregistration  => $c->session->{'preregistration'},
         $self->allowedGuestModes($c),
+        mandatory_fields    => $profile->getMandatoryFields,
     );
 
     $c->stash( template => 'guest.html' );
