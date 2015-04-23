@@ -59,7 +59,7 @@ sub index : Path : Args(0) {
         post_uri            => '/tlsprofile/cert_process',
         certificate_cn      => $mac,
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
-        certificate_email   => lc( $request->param_encoded("certificate_email")),
+        certificate_email   => lc( $request->param_encoded("certificate_email") || $request->param_encoded("email")),
         template            => 'pki.html',
         provisioner         => $provisioner,
         username            => $username,
