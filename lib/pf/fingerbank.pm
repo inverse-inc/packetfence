@@ -192,6 +192,38 @@ sub _parse_parents {
     return ( $class, \@parents );
 }
 
+=head2 is_a 
+
+Testing which "kind" of device a specific device_type is.
+
+Currently handled "kind" of device (based on Fingerbank device classes):
+- Windows
+- Macintosh
+- Generic Android
+- Apple iPod, iPhone or iPad
+
+=cut
+
+sub is_a {
+    my ( $device_type ) = @_;
+    my $logger = pf::log::get_logger;
+
+    $logger->debug("Trying to determine the kind of device for '$device_type' device type");
+
+    my $fingerbank = fingerbank::Query->new;
+
+    return "Windows" if ( $fingerbank->isWindows($device_type) );
+    # Macintosh / Mac OS
+    return "Macintosh" if ( $fingerbank->isMacOS($device_type) );
+    # Android
+    return "Generic Android" if ( $fingerbank->isAndroid($device_type) );
+    # Apple IOS
+    return "Apple iPod, iPhone or iPad" if ( $fingerbank->isIOS($device_type) );
+
+    # Unknown (we were not able to match)
+    return "unknown";
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
