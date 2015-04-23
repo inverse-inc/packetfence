@@ -13,24 +13,18 @@
                                 <array>
                                         <integer>[% provisioner.eap_type %]</integer>
                                 </array>
-                                <key>EAPFASTProvisionPAC</key>
-                                <false/>
-                                <key>EAPFASTProvisionPACAnonymously</key>
-                                <false/>
-                                <key>EAPFASTUsePAC</key>
-                                <false/>
                                 <key>TLSAllowTrustExceptions</key>
                                 <false/>
+                                <key>PayloadCertificateAnchorUUID</key>
+                                <array>
+                                        <string>96148a46-d87a-11e4-b9d6-1681e6b88ec1</string>
+                                        <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
+                                </array>
+
                                 <key>TLSTrustedServerNames</key>
                                 <array>
-                                    <string>svr</string>
-                                    <string>*pf-aa.antoine*</string>
-                                    <string>TestEAP</string>
+                                    <string>[% svrcn %]</string>
                                 </array>
-                                <key>UserName</key>
-                                <string>[% username %]</string>
-                                <key>UserPassword</key>
-                                <string></string>
                         </dict>
                         [% END %]
                         <key>EncryptionType</key>
@@ -53,23 +47,26 @@
                         <integer>1</integer>
                         <key>SSID_STR</key>
                         <string>[% provisioner.ssid %]</string>
-                        <key>Password</key>
-                        <string>[% provisioner.passcode %]</string>
+                        <key>PayloadCertificateUUID</key>
+                        <string>506CD34F-0AD1-4421-9F98-BA19DC4E0253</string>
                 </dict>
                 [% IF provisioner.eap_type.defined and provisioner.eap_type == "13" %]
                 <dict>
-                        <key>PayloadCertificateFileName</key>
-                        <string>[% certcn %]</string>
                         <key>PayloadContent</key>
                         [% IF for_windows %]
                         <string>[% certdata %]</string>
                         [% ELSE %]
                         <data>[% certdata %]</data>
                         [% END %]
+                        [% IF for_windows %]
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).[% fingerprint %]</string>
+                        [% ELSE %]
+                        <key>PayloadDescription</key>
+                        <string>Provides device authentication (certificate or identity).</string>
+                        [% END %]
                         <key>PayloadDisplayName</key>
-                        <string>[% provisioner.id %]</string>
+                        <string>[% certcn %]</string>
                         <key>PayloadIdentifier</key>
                         <string>[% provisioner.reversedns %]</string>
                         <key>PayloadOrganization</key>
@@ -84,20 +81,18 @@
                 [% END %]
                 [% IF for_ios and provisioner.eap_type == "13" %]
                 <dict>
-                        <key>PayloadCertificateFileName</key>
-                        <string>[% cacn %]</string>
                         <key>PayloadContent</key>
                         <data>[% cadata %]</data>
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
-                        <string>[% provisioner.id %]</string>
+                        <string>[% cacn %]</string>
                         <key>PayloadIdentifier</key>
                         <string>[% provisioner.reversedns %]</string>
                         <key>PayloadOrganization</key>
                         <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
-                        <string>com.apple.security.pem</string>
+                        <string>com.apple.security.root</string>
                         <key>PayloadUUID</key>
                         <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
                         <key>PayloadVersion</key>
@@ -106,20 +101,18 @@
                 [% END %]
                 [% IF for_ios and provisioner.eap_type == "13" %]
                 <dict>
-                        <key>PayloadCertificateFileName</key>
-                        <string>[% svrcn %]</string>
                         <key>PayloadContent</key>
                         <data>[% svrdata %]</data>
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
-                        <string>[% provisioner.id %]</string>
+                        <string>[% svrcn %]</string>
                         <key>PayloadIdentifier</key>
                         <string>[% provisioner.reversedns %]</string>
                         <key>PayloadOrganization</key>
                         <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
-                        <string>com.apple.security.pem</string>
+                        <string>com.apple.security.pkcs1</string>
                         <key>PayloadUUID</key>
                         <string>96148a46-d87a-11e4-b9d6-1681e6b88ec1</string>
                         <key>PayloadVersion</key>

@@ -47,8 +47,8 @@ sub index : Path : Args(0) {
         svrcn        => $c->session->{svrcn},
         svrdata      => $c->session->{svrdata},
         cadata       => $c->session->{cadata},
-        #filesid      => $c->session->{filesid},
     );
+    $c->forward('download');
     #if ($provisioner->{type} eq 'windows'){
     #    my ($self,$c) = @_;
     #    my $sid = $c->session->{sid};
@@ -61,15 +61,16 @@ sub index : Path : Args(0) {
     #}
 }
 
-sub download :Path('mail.mobileconfig') {
+sub download : Private {
     my ( $self, $c ) = @_;
 
-    my $template = $c->stash->{template};
+    my $TT_OPTIONS = {ABSOLUTE => 1};
+    my $template = Template->new($TT_OPTIONS);
 
     my $filename = $c->forward('get_temp_filename');
     my $filename_signed = "$filename-signed";
 
-    $template->process($c->config->{install_dir}."html/captive-portal/profile-templates/eaptls/wireless-profile.mobileconfig", 
+    $template->process($c->config->{install_dir}."html/captive-portal/profile-templates/eaptls/wireless-profile.xml", 
                         $c->stash(), $filename);
 
     my $cmd = "bash ".$c->config->{install_dir}."addons/sign.sh $filename $filename_signed";
@@ -95,7 +96,7 @@ sub profile_xml : Path('/profile.xml') : Args(0) {
     $c->forward('index');
 }  
 
-sub get_temp_filename :Private {
+sub get_temp_filename : Private {
     my $fh = File::Temp->new(
         TEMPLATE => 'tempXXXXX',
         DIR      => '/tmp',

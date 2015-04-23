@@ -89,6 +89,8 @@ sub build_cert_p12 : Path : Args(0) {
         $logger->info("The certificate file could not be saved for username \"$pid\"");
         $self->showError($c,"An error has occured while trying to save your certificate, please contact your IT support");
     }
+    use Data::Dumper;
+    $logger->info(Dumper($cert_data));
     print $fh "$cert_data\n";
     close $fh;
 }
