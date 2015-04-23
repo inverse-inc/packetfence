@@ -54,7 +54,7 @@ has_field 'allowed_roles' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Allowed roles',
+   label => 'Allowed user roles',
    options_method => \&options_roles,
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a role' },
@@ -66,7 +66,7 @@ has_field 'allowed_access_levels' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Allowed access levels',
+   label => 'Allowed user access levels',
    options_method => \&options_allowed_access_levels,
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a admin roles' },
@@ -78,7 +78,7 @@ has_field 'allowed_access_durations' =>
   (
    type => 'Text',
    multiple => 1,
-   label => 'Allowed access durations',
+   label => 'Allowed user access durations',
    element_attr => {'data-placeholder' => 'Click to add a admin roles' },
    tags => { after_element => \&help,
              help => 'A comma seperated list of access durations available to the admin user. If none are provided then the configured values are used'},
