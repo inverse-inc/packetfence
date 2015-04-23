@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Moo;
 use pf::config;
+use pf::fingerbank;
 use Readonly;
 use pf::log;
 use List::MoreUtils qw(any);
@@ -157,8 +158,12 @@ sub matchCategory {
 =cut
 
 sub matchOS {
-    my ($self, $os) = @_;
+    my ($self, $device_type) = @_;
     my @oses = @{$self->oses || []};
+
+    # Get device type kind of device by querying Fingerbank
+    my $os = pf::fingerbank::is_a($device_type);
+
     #if if no oses are defined then it will match all the oses
     local $_;
     return @oses == 0 || any { $os =~ $_ } @oses;
