@@ -104,51 +104,14 @@ sub build_cert_p12 : Path : Args(0) {
 }
 
 sub get_cert : Private {
-    use bytes;
-    my ($self,$c) = @_;
-    my $logger = $c->log;
-    my $pid = "";
-    unless ( $c->has_errors ){
-        my $portalSession = $c->portalSession;
-        my $mac           = $portalSession->clientMac;
-        my $node_info     = node_view($mac);
-        my $pid           = $node_info->{'pid'};
-    }
-    my $stash = $c->stash;
-    my $session = $c->session;
-    my $uri = $Config{'pki'}{'uri'};
-    my $username = $Config{'pki'}{'username'};
-    use Data::Dumper;
-    my $password = $Config{'pki'}{'password'};
-    my $email = $stash->{'certificate_email'};
-    my $dot1x_username = $stash->{'certificate_cn'};
-    $logger->info('username before request curl:'. Dumper($dot1x_username));
-    my $organisation = $Config{'pki'}{'organisation'};
-    my $state = $Config{'pki'}{'state'};
-    my $profile = $Config{'pki'}{'profile'};
-    my $country = $Config{'pki'}{'country'};
-    my $certpwd = $stash->{'certificate_pwd'};
-    my $curl = WWW::Curl::Easy->new;
-    my $request = "username=$username&password=$password&cn=$dot1x_username&mail=$email&organisation=$organisation&st=$state&country=$country&profile=$profile&pwd=$certpwd";
-    my $response_body = '';
-    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
-    $curl->setopt(CURLOPT_POSTFIELDS, $request);
-    $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
-    $curl->setopt(CURLOPT_HEADER, 0);
-    $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
-    $curl->setopt(CURLOPT_NOSIGNAL, 1);
-    $curl->setopt(CURLOPT_URL, $uri);
-
-    # Starts the actual request
-    my $curl_return_code = $curl->perform;
-
-    if ($curl_return_code == 0) {
-        $c->stash( cert_content    => $response_body );
-    }
-    elsif ($curl_return_code == -1) {
-        $logger->info("Username \"$pid\" certificate could not be acquire, check out logs on the pki");
-        $self->showError($c, "There was an issue with the generation of your certificate please contact your IT support.");
-    }
+    my ($self, $c) = @_;
+    my $portalSession = $c->portalSession;
+    my $mac           = $portalSession->clientMac;
+    my $provisioner   = $c->profile->findProvisioner($mac);
+    return unless $provisioner;
+    my $pki_provider = $provisioner->getPkiProvider();
+    my $cert_content = $pki_provider->get_cert;
+    $c->stash(cert_content => $cert_content);
 }
 
 sub cert_process : Local {

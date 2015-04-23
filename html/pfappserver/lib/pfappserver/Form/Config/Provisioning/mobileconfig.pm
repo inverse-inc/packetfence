@@ -16,7 +16,6 @@ with 'pfappserver::Base::Form::Role::Help';
 has_field 'company' =>
   (
    type => 'Text',
-   value => $Config{'pki'}{'organisation'},
   );
 
 #has_field 'fingerprint' =>
