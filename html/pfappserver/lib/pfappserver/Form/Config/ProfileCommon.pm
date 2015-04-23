@@ -366,7 +366,7 @@ has_field 'billing' =>
    element_class => ['chzn-deselect', 'input'],
    element_attr => {'data-placeholder' => 'Select a billing'},
    tags => { after_element => \&help,
-             help => 'Billing engine on the portal' },
+             help => 'Billing engine enabled on the portal' },
   );
 
 =head2 options_billing

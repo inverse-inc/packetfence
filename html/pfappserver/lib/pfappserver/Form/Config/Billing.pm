@@ -26,7 +26,7 @@ has_field 'id' =>
    type => 'Text',
    label => 'Name',
    required => 1,
-   messages => { required => 'Please specify a name for the billing configuration' },
+   messages => { required => 'Please specify a name for the billing' },
   );
 
 has_field 'type' =>

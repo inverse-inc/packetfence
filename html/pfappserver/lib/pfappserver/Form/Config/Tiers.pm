@@ -32,7 +32,7 @@ has_field 'price' =>
   (
    type => 'Text',
    required => 1,
-   messages => { required => 'The price for this tier.' },
+   messages => { required => 'Please specify The price for this tier.' },
   );
 
 
@@ -64,14 +64,14 @@ has_field 'category' =>
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add a role'},
    tags => { after_element => \&help,
-             help => 'Nodes with the selected roles will be affected' },
+             help => 'Target Role of the device' },
   );
 
 has_field 'description' =>
   (
    type => 'Text',
    required => 1,
-   messages => { required => 'The price for this tier.' },
+   messages => { required => 'Please specify a description.' },
   );
 
 has_block  definition =>
