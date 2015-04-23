@@ -42,12 +42,17 @@ sub fetch_socket {
     #pfconfig::log::get_logger->info("Doing request to pfconfig with payload : '$payload'");
 
     # we ask the cachemaster for our namespaced key
-    print $socket "$payload\n";
-
+    my $bytes_to_send = length $payload;
+    my $offset = 0;
+    while($bytes_to_send > 0) {
+        my $bytes_sent = $socket->syswrite($payload,$bytes_to_send,$offset);
+        $offset += $bytes_sent;
+        $bytes_to_send -= $bytes_sent;
+    }
     #Get the first for bytes to find out the length of the sereal buffer
     my $bytes_to_read = 4;
     my $buffer = '';
-    my $offset = 0;
+    $offset = 0;
     while($bytes_to_read) {
         my $bytes_read = $socket->sysread($buffer,$bytes_to_read,$offset);
         $bytes_to_read -= $bytes_read;
