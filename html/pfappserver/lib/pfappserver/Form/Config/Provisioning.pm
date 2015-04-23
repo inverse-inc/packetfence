@@ -118,9 +118,9 @@ sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
     my ($status, $roles) = $c->model('Roles')->list();
     my @oses = ["Windows" => "Windows",
-                "Mac OS" => "Mac OS",
-                "Android" => "Android", 
-                "Apple" => "Apple IOS device"
+                "Macintosh" => "Mac OS",
+                "Generic Android" => "Android", 
+                "Apple iPod, iPhone or iPad" => "Apple IOS device"
                ];
     my (undef, $violations) = $c->model('Config::Violations')->readAll();
     return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, oses => @oses, violations => $violations, @args);
