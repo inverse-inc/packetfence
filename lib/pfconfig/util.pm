@@ -42,7 +42,7 @@ sub fetch_socket {
     use bytes;
     # if the fix above doesn't fix it, then multi-line handling is done
     # through the following lines
-    pfconfig::log::get_logger->info("pfconfig has $count lines for us");
+    pfconfig::log::get_logger->trace("pfconfig has $count lines for us");
     my $line;
     my $line_read = 0;
     my $response  = '';
