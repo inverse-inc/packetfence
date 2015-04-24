@@ -29,7 +29,3 @@
       </div>
 
       [% INCLUDE config/fingerbank/mac_vendor/list.tt %]
-
-      <div id="noRole" class="unwell[% ' hidden' IF items.size %]">
-        <i class="icon-unlock icon-large"></i><p>[% l('No MAC Vendor defined') %]</p>
-      </div>

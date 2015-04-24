@@ -29,7 +29,3 @@
       </div>
 
       [% INCLUDE config/fingerbank/combination/list.tt %]
-
-      <div id="noRole" class="unwell[% ' hidden' IF items.size %]">
-        <i class="icon-unlock icon-large"></i><p>[% l('No Combination defined') %]</p>
-      </div>
