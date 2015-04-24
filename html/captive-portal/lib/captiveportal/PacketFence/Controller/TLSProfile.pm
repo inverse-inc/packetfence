@@ -99,11 +99,13 @@ sub build_cert_p12 : Path : Args(0) {
 sub get_cert : Private {
     my ($self, $c) = @_;
     my $portalSession = $c->portalSession;
+    my $stash = $c->stash;
     my $mac           = $portalSession->clientMac;
     my $provisioner   = $c->profile->findProvisioner($mac);
     return unless $provisioner;
     my $pki_provider = $provisioner->getPkiProvider();
-    my $cert_content = $pki_provider->get_cert;
+    my $cert_content = $pki_provider->get_cert({ certificate_email => $stash->{certificate_email}, certificate_cn => $stash->{certificate_cn}, certificate_pwd => $stash->{certificate_pwd} });
+    $c->log->debug("cert_content from pki service $cert_content");
     $c->stash(cert_content => $cert_content);
 }
 
