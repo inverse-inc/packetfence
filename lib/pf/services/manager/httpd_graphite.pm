@@ -1,4 +1,5 @@
 package pf::services::manager::httpd_graphite;
+
 =head1 NAME
 
 pf::services::manager::httpd_graphite
@@ -14,10 +15,45 @@ pf::services::manager::httpd_graphite
 use strict;
 use warnings;
 use Moo;
+use pf::file_paths;
+use pf::config;
+use pf::util;
 
 extends 'pf::services::manager::httpd';
 
-has '+name' => (default => sub { 'httpd.graphite' } );
+has '+name' => ( default => sub {'httpd.graphite'} );
+
+sub generateConfig {
+    generate_local_settings();
+    generate_dashboard_settings();
+}
+
+sub generate_local_settings {
+    my %tags;
+    $tags{'template'} = "$conf_dir/monitoring/local_settings.py";
+    $tags{'conf_dir'} = "$install_dir/var/conf";
+    $tags{'log_dir'}  = "$install_dir/logs";
+    $tags{'management_ip'}
+        = defined( $management_network->tag('vip') )
+        ? $management_network->tag('vip')
+        : $management_network->tag('ip');
+    $tags{'graphite_host'}        = "$Config{'monitoring'}{'graphite_host'}";
+    $tags{'graphite_port'}        = "$Config{'monitoring'}{'graphite_port'}";
+    $tags{'db_graphite_database'} = $Config{'monitoring'}{'db'};
+    $tags{'db_host'}              = $Config{'monitoring'}{'db_host'};
+    $tags{'db_port'}              = $Config{'monitoring'}{'db_port'};
+    $tags{'db_user'}              = $Config{'monitoring'}{'db_user'};
+    $tags{'db_password'}          = $Config{'monitoring'}{'db_pass'};
+
+    parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/local_settings.py" );
+}
+
+sub generate_dashboard_settings {
+    my %tags;
+    $tags{'template'} = "$conf_dir/monitoring/dashboard.conf";
+
+    parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/dashboard.conf" );
+}
 
 =head1 AUTHOR
 

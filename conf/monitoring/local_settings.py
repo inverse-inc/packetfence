@@ -1,3 +1,6 @@
+# This file is generated from a template at /usr/local/pf/conf/monitoring/local_settings.py
+# Any changes made to this file will be lost on restart
+
 ## Graphite local_settings.py
 # Edit this file to customize the default Graphite webapp settings
 #
@@ -10,7 +13,7 @@
 # install. This key is used for salting of hashes used in auth tokens,
 # CRSF middleware, cookie storage, etc. This should be set identically among
 # instances if used behind a load balancer.
-#SECRET_KEY = 'UNSAFE_DEFAULT'
+SECRET_KEY = 'ef19e01b0786a44fa1acf0ddaac0df1f'
 
 # In Django 1.5+ set this to the list of hosts your graphite instances is
 # accessible as. See:
@@ -156,6 +159,7 @@ INDEX_FILE = '/var/lib/graphite-web/index'  # Search index file
 # The default is 'django.db.backends.sqlite3' with file 'graphite.db'
 # located in STORAGE_DIR
 #
+
 DATABASES = {
     'default': {
         'NAME': '%%db_graphite_database%%',
@@ -178,7 +182,7 @@ DATABASES = {
 # remote server in the cluster. These servers must each have local access to
 # metric data. Note that the first server to return a match for a query will be
 # used.
-CLUSTER_SERVERS = ["%%graphite_host%%:%%graphite_port%%",]
+#CLUSTER_SERVERS = ["%%graphite_host%%:%%graphite_port%%",]
 
 ## These are timeout values (in seconds) for requests to remote webapps
 #REMOTE_STORE_FETCH_TIMEOUT = 6   # Timeout to fetch series data

@@ -27,9 +27,9 @@ has '+name' => ( default => sub {'carbon_relay'} );
 has '+launcher' =>
     ( default => sub {"sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon_relay.pid --logdir=$install_dir/logs start"} );
 
-sub generateConfig {
-    generate_carbon_config();
-}
+#sub generateConfig {
+#    generate_carbon_config();
+#}
 
 sub generate_carbon_config { 
     my %tags;

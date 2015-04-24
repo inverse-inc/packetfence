@@ -55,7 +55,7 @@ ServerTokens OS
 #
 # Do NOT add a slash at the end of the directory path.
 #
-ServerRoot "/usr/local/pf"
+ServerRoot "/etc/httpd"
 
 #
 # PidFile: The file in which the server should record its process
@@ -145,11 +145,10 @@ LoadModule authz_owner_module modules/mod_authz_owner.so
 LoadModule authz_groupfile_module modules/mod_authz_groupfile.so
 LoadModule authz_dbm_module modules/mod_authz_dbm.so
 LoadModule authz_default_module modules/mod_authz_default.so
-LoadModule ldap_module modules/mod_ldap.so
-LoadModule authnz_ldap_module modules/mod_authnz_ldap.so
-LoadModule include_module modules/mod_include.so
+LoadModule autoindex_module modules/mod_autoindex.so
+LoadModule dir_module modules/mod_dir.so
 LoadModule log_config_module modules/mod_log_config.so
-LoadModule logio_module modules/mod_logio.so
+#LoadModule logio_module modules/mod_logio.so
 LoadModule env_module modules/mod_env.so
 LoadModule ext_filter_module modules/mod_ext_filter.so
 LoadModule mime_magic_module modules/mod_mime_magic.so
@@ -159,38 +158,18 @@ LoadModule headers_module modules/mod_headers.so
 LoadModule usertrack_module modules/mod_usertrack.so
 LoadModule setenvif_module modules/mod_setenvif.so
 LoadModule mime_module modules/mod_mime.so
-LoadModule dav_module modules/mod_dav.so
 LoadModule status_module modules/mod_status.so
-LoadModule autoindex_module modules/mod_autoindex.so
 LoadModule info_module modules/mod_info.so
-LoadModule dav_fs_module modules/mod_dav_fs.so
 LoadModule vhost_alias_module modules/mod_vhost_alias.so
-LoadModule negotiation_module modules/mod_negotiation.so
-LoadModule dir_module modules/mod_dir.so
-LoadModule actions_module modules/mod_actions.so
-LoadModule speling_module modules/mod_speling.so
-LoadModule userdir_module modules/mod_userdir.so
 LoadModule alias_module modules/mod_alias.so
 LoadModule substitute_module modules/mod_substitute.so
-LoadModule rewrite_module modules/mod_rewrite.so
-LoadModule proxy_module modules/mod_proxy.so
-LoadModule proxy_balancer_module modules/mod_proxy_balancer.so
-LoadModule proxy_ftp_module modules/mod_proxy_ftp.so
-LoadModule proxy_http_module modules/mod_proxy_http.so
-LoadModule proxy_ajp_module modules/mod_proxy_ajp.so
-LoadModule proxy_connect_module modules/mod_proxy_connect.so
-LoadModule cache_module modules/mod_cache.so
-LoadModule suexec_module modules/mod_suexec.so
-LoadModule disk_cache_module modules/mod_disk_cache.so
-LoadModule cgi_module modules/mod_cgi.so
-LoadModule version_module modules/mod_version.so
 
 #
 # ExtendedStatus controls whether Apache will generate "full" status
 # information (ExtendedStatus On) or just basic information (ExtendedStatus
 # Off) when the "server-status" handler is called. The default is Off.
 #
-#ExtendedStatus On
+ExtendedStatus On
 
 #
 # If you wish httpd to run as a different user or group, you must run
@@ -254,7 +233,7 @@ UseCanonicalName Off
 # documents. By default, all requests are taken from this directory, but
 # symbolic links and aliases may be used to point to other locations.
 #
-DocumentRoot "/var/www/html"
+DocumentRoot "/usr/share/graphite/webapp"
 
 #
 # Each directory to which Apache has access can be configured with respect
@@ -279,7 +258,7 @@ DocumentRoot "/var/www/html"
 #
 # This should be changed to whatever you set DocumentRoot to.
 #
-<Directory "/var/www/html">
+<Directory "/usr/share/graphite/webapp">
 
 #
 # Possible values for the Options directive are "None", "All",
@@ -310,51 +289,6 @@ DocumentRoot "/var/www/html"
 
 </Directory>
 
-#
-# UserDir: The name of the directory that is appended onto a user's home
-# directory if a ~user request is received.
-#
-# The path to the end user account 'public_html' directory must be
-# accessible to the webserver userid.  This usually means that ~userid
-# must have permissions of 711, ~userid/public_html must have permissions
-# of 755, and documents contained therein must be world-readable.
-# Otherwise, the client will only receive a "403 Forbidden" message.
-#
-# See also: http://httpd.apache.org/docs/misc/FAQ.html#forbidden
-#
-<IfModule mod_userdir.c>
-    #
-    # UserDir is disabled by default since it can confirm the presence
-    # of a username on the system (depending on home directory
-    # permissions).
-    #
-    UserDir disabled
-
-    #
-    # To enable requests to /~user/ to serve the user's public_html
-    # directory, remove the "UserDir disabled" line above, and uncomment
-    # the following line instead:
-    # 
-    #UserDir public_html
-
-</IfModule>
-
-#
-# Control access to UserDir directories.  The following is an example
-# for a site where these directories are restricted to read-only.
-#
-#<Directory /home/*/public_html>
-#    AllowOverride FileInfo AuthConfig Limit
-#    Options MultiViews Indexes SymLinksIfOwnerMatch IncludesNoExec
-#    <Limit GET POST OPTIONS>
-#        Order allow,deny
-#        Allow from all
-#    </Limit>
-#    <LimitExcept GET POST OPTIONS>
-#        Order deny,allow
-#        Deny from all
-#    </LimitExcept>
-#</Directory>
 
 #
 # DirectoryIndex: sets the file that Apache will serve if a directory
@@ -364,7 +298,7 @@ DocumentRoot "/var/www/html"
 # negotiated documents.  The MultiViews Option can be used for the 
 # same purpose, but it is much slower.
 #
-DirectoryIndex index.html index.html.var
+DirectoryIndex index.html 
 
 #
 # AccessFileName: The name of the file to look for in each directory
@@ -446,7 +380,7 @@ HostnameLookups Off
 # logged here.  If you *do* define an error logfile for a <VirtualHost>
 # container, that host's errors will be logged there and not here.
 #
-ErrorLog logs/error_log
+ErrorLog /usr/local/pf/logs/httpd.graphite_error
 
 #
 # LogLevel: Control the number of messages logged to the error_log.
@@ -488,7 +422,7 @@ LogFormat "%{User-agent}i" agent
 # For a single logfile with access, agent, and referer information
 # (Combined Logfile Format), use the following directive:
 #
-CustomLog logs/access_log combined
+CustomLog /usr/local/pf/logs/httpd.graphite_access combined
 
 #
 # Optionally add a line containing the server version and virtual host
@@ -501,188 +435,13 @@ CustomLog logs/access_log combined
 ServerSignature On
 
 #
-# Aliases: Add here as many aliases as you need (with no limit). The format is 
-# Alias fakename realname
-#
-# Note that if you include a trailing / on fakename then the server will
-# require it to be present in the URL.  So "/icons" isn't aliased in this
-# example, only "/icons/".  If the fakename is slash-terminated, then the 
-# realname must also be slash terminated, and if the fakename omits the 
-# trailing slash, the realname must also omit it.
-#
-# We include the /icons/ alias for FancyIndexed directory listings.  If you
-# do not use FancyIndexing, you may comment this out.
-#
-Alias /icons/ "/var/www/icons/"
-
-<Directory "/var/www/icons">
-    Options Indexes MultiViews FollowSymLinks
-    AllowOverride None
-    Order allow,deny
-    Allow from all
-</Directory>
-#
 # Redirect allows you to tell clients about documents which used to exist in
 # your server's namespace, but do not anymore. This allows you to tell the
 # clients where to look for the relocated document.
 # Example:
 # Redirect permanent /foo http://www.example.com/bar
 
-#
-# Directives controlling the display of server-generated directory listings.
-#
 
-#
-# IndexOptions: Controls the appearance of server-generated directory
-# listings.
-#
-IndexOptions FancyIndexing VersionSort NameWidth=* HTMLTable Charset=UTF-8
-
-#
-# AddIcon* directives tell the server which icon to show for different
-# files or filename extensions.  These are only displayed for
-# FancyIndexed directories.
-#
-AddIconByEncoding (CMP,/icons/compressed.gif) x-compress x-gzip
-
-AddIconByType (TXT,/icons/text.gif) text/*
-AddIconByType (IMG,/icons/image2.gif) image/*
-AddIconByType (SND,/icons/sound2.gif) audio/*
-AddIconByType (VID,/icons/movie.gif) video/*
-
-AddIcon /icons/binary.gif .bin .exe
-AddIcon /icons/binhex.gif .hqx
-AddIcon /icons/tar.gif .tar
-AddIcon /icons/world2.gif .wrl .wrl.gz .vrml .vrm .iv
-AddIcon /icons/compressed.gif .Z .z .tgz .gz .zip
-AddIcon /icons/a.gif .ps .ai .eps
-AddIcon /icons/layout.gif .html .shtml .htm .pdf
-AddIcon /icons/text.gif .txt
-AddIcon /icons/c.gif .c
-AddIcon /icons/p.gif .pl .py
-AddIcon /icons/f.gif .for
-AddIcon /icons/dvi.gif .dvi
-AddIcon /icons/uuencoded.gif .uu
-AddIcon /icons/script.gif .conf .sh .shar .csh .ksh .tcl
-AddIcon /icons/tex.gif .tex
-AddIcon /icons/bomb.gif core
-
-AddIcon /icons/back.gif ..
-AddIcon /icons/hand.right.gif README
-AddIcon /icons/folder.gif ^^DIRECTORY^^
-AddIcon /icons/blank.gif ^^BLANKICON^^
-
-#
-# DefaultIcon is which icon to show for files which do not have an icon
-# explicitly set.
-#
-DefaultIcon /icons/unknown.gif
-
-#
-# AddDescription allows you to place a short description after a file in
-# server-generated indexes.  These are only displayed for FancyIndexed
-# directories.
-# Format: AddDescription "description" filename
-#
-#AddDescription "GZIP compressed document" .gz
-#AddDescription "tar archive" .tar
-#AddDescription "GZIP compressed tar archive" .tgz
-
-#
-# ReadmeName is the name of the README file the server will look for by
-# default, and append to directory listings.
-#
-# HeaderName is the name of a file which should be prepended to
-# directory indexes. 
-ReadmeName README.html
-HeaderName HEADER.html
-
-#
-# IndexIgnore is a set of filenames which directory indexing should ignore
-# and not include in the listing.  Shell-style wildcarding is permitted.
-#
-IndexIgnore .??* *~ *# HEADER* README* RCS CVS *,v *,t
-
-#
-# DefaultLanguage and AddLanguage allows you to specify the language of 
-# a document. You can then use content negotiation to give a browser a 
-# file in a language the user can understand.
-#
-# Specify a default language. This means that all data
-# going out without a specific language tag (see below) will 
-# be marked with this one. You probably do NOT want to set
-# this unless you are sure it is correct for all cases.
-#
-# * It is generally better to not mark a page as 
-# * being a certain language than marking it with the wrong
-# * language!
-#
-# DefaultLanguage nl
-#
-# Note 1: The suffix does not have to be the same as the language
-# keyword --- those with documents in Polish (whose net-standard
-# language code is pl) may wish to use "AddLanguage pl .po" to
-# avoid the ambiguity with the common suffix for perl scripts.
-#
-# Note 2: The example entries below illustrate that in some cases 
-# the two character 'Language' abbreviation is not identical to 
-# the two character 'Country' code for its country,
-# E.g. 'Danmark/dk' versus 'Danish/da'.
-#
-# Note 3: In the case of 'ltz' we violate the RFC by using a three char
-# specifier. There is 'work in progress' to fix this and get
-# the reference data for rfc1766 cleaned up.
-#
-# Catalan (ca) - Croatian (hr) - Czech (cs) - Danish (da) - Dutch (nl)
-# English (en) - Esperanto (eo) - Estonian (et) - French (fr) - German (de)
-# Greek-Modern (el) - Hebrew (he) - Italian (it) - Japanese (ja)
-# Korean (ko) - Luxembourgeois* (ltz) - Norwegian Nynorsk (nn)
-# Norwegian (no) - Polish (pl) - Portugese (pt)
-# Brazilian Portuguese (pt-BR) - Russian (ru) - Swedish (sv)
-# Simplified Chinese (zh-CN) - Spanish (es) - Traditional Chinese (zh-TW)
-#
-AddLanguage ca .ca
-AddLanguage cs .cz .cs
-AddLanguage da .dk
-AddLanguage de .de
-AddLanguage el .el
-AddLanguage en .en
-AddLanguage eo .eo
-AddLanguage es .es
-AddLanguage et .et
-AddLanguage fr .fr
-AddLanguage he .he
-AddLanguage hr .hr
-AddLanguage it .it
-AddLanguage ja .ja
-AddLanguage ko .ko
-AddLanguage ltz .ltz
-AddLanguage nl .nl
-AddLanguage nn .nn
-AddLanguage no .no
-AddLanguage pl .po
-AddLanguage pt .pt
-AddLanguage pt-BR .pt-br
-AddLanguage ru .ru
-AddLanguage sv .sv
-AddLanguage zh-CN .zh-cn
-AddLanguage zh-TW .zh-tw
-
-#
-# LanguagePriority allows you to give precedence to some languages
-# in case of a tie during content negotiation.
-#
-# Just list the languages in decreasing order of preference. We have
-# more or less alphabetized them here. You probably want to change this.
-#
-LanguagePriority en ca cs da de el eo es et fr he hr it ja ko ltz nl nn no pl pt pt-BR ru sv zh-CN zh-TW
-
-#
-# ForceLanguagePriority allows you to serve a result page rather than
-# MULTIPLE CHOICES (Prefer) [in case of a tie] or NOT ACCEPTABLE (Fallback)
-# [in case no accepted languages matched the available variants]
-#
-ForceLanguagePriority Prefer Fallback
 
 #
 # Specify a default charset for all content served; this enables
@@ -735,42 +494,6 @@ AddHandler type-map var
 AddType text/html .shtml
 AddOutputFilter INCLUDES .shtml
 
-Alias /error/ "/var/www/error/"
-
-<IfModule mod_negotiation.c>
-<IfModule mod_include.c>
-    <Directory "/var/www/error">
-        AllowOverride None
-        Options IncludesNoExec
-        AddOutputFilter Includes html
-        AddHandler type-map var
-        Order allow,deny
-        Allow from all
-        LanguagePriority en es de fr
-        ForceLanguagePriority Prefer Fallback
-    </Directory>
-
-#    ErrorDocument 400 /error/HTTP_BAD_REQUEST.html.var
-#    ErrorDocument 401 /error/HTTP_UNAUTHORIZED.html.var
-#    ErrorDocument 403 /error/HTTP_FORBIDDEN.html.var
-#    ErrorDocument 404 /error/HTTP_NOT_FOUND.html.var
-#    ErrorDocument 405 /error/HTTP_METHOD_NOT_ALLOWED.html.var
-#    ErrorDocument 408 /error/HTTP_REQUEST_TIME_OUT.html.var
-#    ErrorDocument 410 /error/HTTP_GONE.html.var
-#    ErrorDocument 411 /error/HTTP_LENGTH_REQUIRED.html.var
-#    ErrorDocument 412 /error/HTTP_PRECONDITION_FAILED.html.var
-#    ErrorDocument 413 /error/HTTP_REQUEST_ENTITY_TOO_LARGE.html.var
-#    ErrorDocument 414 /error/HTTP_REQUEST_URI_TOO_LARGE.html.var
-#    ErrorDocument 415 /error/HTTP_UNSUPPORTED_MEDIA_TYPE.html.var
-#    ErrorDocument 500 /error/HTTP_INTERNAL_SERVER_ERROR.html.var
-#    ErrorDocument 501 /error/HTTP_NOT_IMPLEMENTED.html.var
-#    ErrorDocument 502 /error/HTTP_BAD_GATEWAY.html.var
-#    ErrorDocument 503 /error/HTTP_SERVICE_UNAVAILABLE.html.var
-#    ErrorDocument 506 /error/HTTP_VARIANT_ALSO_VARIES.html.var
-
-</IfModule>
-</IfModule>
-
 #
 # The following directives modify normal HTTP response behavior to
 # handle known problems with browser implementations.
@@ -796,6 +519,8 @@ BrowserMatch "^gnome-vfs/1.0" redirect-carefully
 BrowserMatch "^XML Spy" redirect-carefully
 BrowserMatch "^Dreamweaver-WebDAV-SCM1" redirect-carefully
 
+
+# LOAD THE PYTHON WSGI MODULE FOR GRAPHITE-WEB
 LoadModule wsgi_module modules/mod_wsgi.so
 
 <VirtualHost *:9000>
@@ -806,8 +531,8 @@ LoadModule wsgi_module modules/mod_wsgi.so
     CustomLog /usr/local/pf/logs/httpd.graphite.log common
     Alias /media/ "/usr/lib/python2.6/site-packages/django/contrib/admin/media/"
 
-    WSGIScriptAlias / /usr/share/graphite/graphite-web.wsgi
-    WSGIImportScript /usr/share/graphite/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
+    WSGIScriptAlias / /usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi
+    WSGIImportScript /usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
 
     <Location "/content/">
         SetHandler None

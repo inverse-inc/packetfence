@@ -1146,12 +1146,24 @@ graphite_host=localhost
 graphite_port=2013
 
 #
-# monitoring.graphite_host
+# monitoring.db
 #
-graphite_host=localhost
+db=pf_graphite
+#
+# monitoring.db_user
+#
+db_user=pf
 
 #
-# monitoring.graphite_port
+# monitoring.db_pass
 #
-graphite_port=2013
+db_pass=pf
+#
+# monitoring.db_port
+#
+db_port=3306
 
+#
+# monitoring.db_host
+#
+db_host=localhost

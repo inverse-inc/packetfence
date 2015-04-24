@@ -22,12 +22,12 @@ use Moo;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub { 'collectd' } );
+has '+name' => ( default => sub {'collectd'} );
 has dependsOnServices => ( is => 'ro', default => sub { [qw(carbon_relay)] } );
 
 has '+launcher' => (
     default => sub {
-"sudo %1\$s -P $install_dir/var/run/collectd.pid -C $install_dir/var/conf/collectd.conf";
+        "sudo %1\$s -P $install_dir/var/run/collectd.pid -C $install_dir/var/conf/collectd.conf";
     }
 );
 
@@ -40,16 +40,22 @@ sub generateCollectd {
     my %tags;
     $tags{'template'}      = "$conf_dir/monitoring/collectd.conf";
     $tags{'install_dir'}   = "$install_dir";
+    $tags{'log_dir'}       = "$log_dir";
     $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
     $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
+    $tags{'hostname'}      = "$Config{'general'}{'hostname'}" . "." . "$Config{'general'}{'domain'}";
+    $tags{'db_host'}       = "$Config{'database'}{'host'}";
+    $tags{'db_username'}   = "$Config{'database'}{'user'}";
+    $tags{'db_password'}   = "$Config{'database'}{'pass'}";
+    $tags{'db_database'}   = "$Config{'database'}{'db'}";
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/collectd.conf" );
 }
 
-sub generateTypes { 
+sub generateTypes {
     my %tags;
-    $tags{'template'}      = "$conf_dir/monitoring/types.db";
-    $tags{'install_dir'}   = "$install_dir";
+    $tags{'template'}    = "$conf_dir/monitoring/types.db";
+    $tags{'install_dir'} = "$install_dir";
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/types.db" );
 }
