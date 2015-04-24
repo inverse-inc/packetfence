@@ -18,7 +18,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use pf::constants::config qw(%NET_INLINE_TYPES);
-use pf::util::networking qw(syswrite_all sysread_all);
+use pf::util::networking qw(syswrite_all sysread_all read_data_with_length);
 use pfconfig::constants;
 use pfconfig::undef_element;
 use pfconfig::log;
@@ -45,11 +45,7 @@ sub fetch_socket {
     # we ask the cachemaster for our namespaced key
     $payload .= "\n";
     my $bytes_sent = syswrite_all($socket,$payload);
-
-    #Get the first four bytes to find out the length of the sereal buffer
-    sysread_all($socket,my $sereal_buff_size,4);
-    my $bytes_to_read = unpack("V",$sereal_buff_size);
-    sysread_all($socket, my $sereal_buffer,$bytes_to_read);
+    read_data_with_length($socket,my $sereal_buffer);
     return $sereal_buffer;
 }
 

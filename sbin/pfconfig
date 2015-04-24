@@ -45,7 +45,7 @@ use pfconfig::constants;
 use Sereal::Encoder;
 use Errno qw(EINTR EAGAIN);
 use bytes;
-use pf::util::networking qw(syswrite_all sysread_all);
+use pf::util::networking qw(send_data_with_length);
 $pfconfig::timeme::VERBOSE = 0;
 our $RUNNING = 1;
 
@@ -362,10 +362,8 @@ sub encode_output {
 sub send_output {
     my ($data, $socket) = @_;
     my $encoded_data = encode_output($data);
-    #appending a little endian integer in front of the data
-    my $packed_data = pack("V/a*",$encoded_data);
-    my $bytes_to_send = length $packed_data;
-    my $bytes_sent = syswrite_all($socket, $packed_data);
+    my $bytes_to_send = length($encoded_data);
+    my $bytes_sent  = send_data_with_length($socket,$encoded_data);
     if($bytes_to_send != $bytes_sent) {
         $logger->error("Could not send all bytes the client. $bytes_sent of $bytes_to_send sent");
     }
