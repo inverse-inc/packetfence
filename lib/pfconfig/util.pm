@@ -18,6 +18,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use pf::constants::config qw(%NET_INLINE_TYPES);
+use pf::util::networking qw(syswrite_all sysread_all);
 use pfconfig::constants;
 use pfconfig::undef_element;
 use pfconfig::log;
@@ -42,33 +43,14 @@ sub fetch_socket {
     #pfconfig::log::get_logger->info("Doing request to pfconfig with payload : '$payload'");
 
     # we ask the cachemaster for our namespaced key
-    my $bytes_to_send = length $payload;
-    my $offset = 0;
-    while($bytes_to_send > 0) {
-        my $bytes_sent = $socket->syswrite($payload,$bytes_to_send,$offset);
-        $offset += $bytes_sent;
-        $bytes_to_send -= $bytes_sent;
-    }
-    #Get the first for bytes to find out the length of the sereal buffer
-    my $bytes_to_read = 4;
-    my $buffer = '';
-    $offset = 0;
-    while($bytes_to_read) {
-        my $bytes_read = $socket->sysread($buffer,$bytes_to_read,$offset);
-        $bytes_to_read -= $bytes_read;
-        $offset += $bytes_read;
-    }
-    #Unpack it into an integer
-    $bytes_to_read = unpack("V",$buffer);
-    $offset = 0;
-    $buffer = '';
-    #Get the rest of the sereal buffer
-    while($bytes_to_read) {
-        my $bytes_read = $socket->sysread($buffer,$bytes_to_read,$offset);
-        $bytes_to_read -= $bytes_read;
-        $offset += $bytes_read;
-    }
-    return $buffer;
+    $payload .= "\n";
+    my $bytes_sent = syswrite_all($socket,$payload);
+
+    #Get the first four bytes to find out the length of the sereal buffer
+    sysread_all($socket,my $sereal_buff_size,4);
+    my $bytes_to_read = unpack("V",$sereal_buff_size);
+    sysread_all($socket, my $sereal_buffer,$bytes_to_read);
+    return $sereal_buffer;
 }
 
 sub fetch_decode_socket {
