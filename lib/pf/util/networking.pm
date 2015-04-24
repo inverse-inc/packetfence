@@ -17,7 +17,7 @@ use Errno qw(EINTR EAGAIN);
 
 use base qw(Exporter);
 
-our @EXPORT_OK = qw(syswrite_all sysread_all);
+our @EXPORT_OK = qw(syswrite_all sysread_all send_data_with_length read_data_with_length);
 
 =head2 syswrite_all
 
@@ -68,6 +68,34 @@ sub sysread_all {
         $offset += $bytes_read;
     }
     return $offset;
+}
+
+=head2 send_data_with_length
+
+=cut
+
+sub send_data_with_length {
+    my ($socket,$data) = @_;
+    #Packing data with 32 bit little endian int as it length
+    my $packed_data = pack("V/a*",$data);
+    my $bytes_to_send = length $packed_data;
+    my $bytes_sent = syswrite_all($socket, $packed_data);
+    if(defined $bytes_sent && $bytes_sent > 4) {
+        #substracting the four bytes appened to the begining
+        $bytes_sent -= 4;
+    }
+    return $bytes_sent;
+}
+
+=head2 read_data_with_length
+
+=cut
+
+sub read_data_with_length {
+    my $socket = $_[0];
+    sysread_all($socket,my $length_buf, 4);
+    my $length = unpack("V",$length_buf);
+    return sysread_all($socket, $_[1], $length);
 }
 
 =head1 AUTHOR

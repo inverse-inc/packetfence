@@ -22,7 +22,7 @@ BEGIN {
     use PfFilePaths;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 10;
 #This test will running last
 use Test::NoWarnings;
 use Socket;
@@ -38,6 +38,21 @@ my $data = "1" x (1024*64);
     is(pf::util::networking::syswrite_all($client,$data),length($data),"Writing all the bytes to a socket");
 
     is(pf::util::networking::sysread_all($server,my $read_buf, length($data)),length($data),"Reading all the bytes from a socket");
+
+    is($read_buf,$data,"Bytes written to socket is equal to the bytes read from a socket");
+
+    shutdown($client,2);
+    shutdown($server,2);
+    close($client);
+    close($server);
+}
+
+{
+    socketpair(my $client, my $server, AF_UNIX, SOCK_STREAM, PF_UNSPEC) or BAILOUT("Cannot create socketpair $!");
+
+    is(pf::util::networking::send_data_with_length($client,$data),length($data),"Writing data with embedded length to a socket");
+
+    is(pf::util::networking::read_data_with_length($server,my $read_buf),length($data),"Reading data with embedded length to a socket");
 
     is($read_buf,$data,"Bytes written to socket is equal to the bytes read from a socket");
 
