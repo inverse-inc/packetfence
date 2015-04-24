@@ -536,15 +536,15 @@ keepalived=enabled
 #
 # Should winbindd be started?
 winbindd=enabled
-# services.carbon_cache
+# services.carbon-cache
 #
-# Should carbon_cache be started?
-carbon_cache=enabled
+# Should carbon-cache be started?
+carbon-cache=enabled
 #
-# services.carbon_relay
+# services.carbon-relay
 #
-# Should carbon_relay be started?
-carbon_relay=enabled
+# Should carbon-relay be started?
+carbon-relay=enabled
 #
 # services.collectd
 #
@@ -601,40 +601,15 @@ radiusd_binary=/usr/sbin/radiusd
 # location of the arp binary. only necessary to change if you are not running the rpmed version.
 arp_binary=/sbin/arp
 # 
-# services.carbon_cache_binary
+# services.carbon-cache_binary
 # 
 # Location of the carbon cache binary. Only necessary to change if you are not running the pre-packaged version.
-carbon_cache_binary=/usr/bin/carbon_cache
+carbon-cache_binary=/usr/bin/carbon-cache
 # 
-# services.carbon_relay_binary
-# 
-# Location of the carbon relay binary. Only necessary to change if you are not running the pre-packaged version.
-carbon_relay_binary=/usr/bin/carbon_relay
-# 
-# services.statsd_binary
-# 
-# Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
-statsd_binary=/usr/bin/node
-# 
-# services.collectd_binary
-# 
-# Location of the collectd binary. Only necessary to change if you are not running the pre-packaged version.
-collectd_binary=/usr/sbin/collectd
-# 
-# services.radsniff_binary
-# 
-# Location of the radsniff3 binary. Only necessary to change if you are not running the pre-packaged version.
-radsniff_binary=/usr/local/pf/bin/radsniff
-# 
-# services.carbon_cache_binary
-# 
-# Location of the carbon cache binary. Only necessary to change if you are not running the pre-packaged version.
-carbon_cache_binary=/usr/bin/carbon-cache
-# 
-# services.carbon_relay_binary
+# services.carbon-relay_binary
 # 
 # Location of the carbon relay binary. Only necessary to change if you are not running the pre-packaged version.
-carbon_relay_binary=/usr/bin/carbon-relay
+carbon-relay_binary=/usr/bin/carbon-relay
 # 
 # services.statsd_binary
 # 
