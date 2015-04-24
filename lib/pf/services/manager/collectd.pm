@@ -23,7 +23,7 @@ use Moo;
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub {'collectd'} );
-has dependsOnServices => ( is => 'ro', default => sub { [qw(carbon_relay)] } );
+has dependsOnServices => ( is => 'ro', default => sub { [qw(carbon-relay)] } );
 
 has '+launcher' => (
     default => sub {

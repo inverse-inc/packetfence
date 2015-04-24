@@ -2,13 +2,13 @@ package pf::services::manager::carbon_relay;
 
 =head1 NAME
 
-pf::services::manager::carbon-relay
+pf::services::manager::carbon_relay
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::carbon-relay
+pf::services::manager::carbon_relay
 carbon-relay daemon manager module for PacketFence.
 
 =cut
@@ -22,10 +22,10 @@ use Moo;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub {'carbon_relay'} );
+has '+name' => ( default => sub {'carbon-relay'} );
 
 has '+launcher' =>
-    ( default => sub {"sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon_relay.pid --logdir=$install_dir/logs start"} );
+    ( default => sub {"sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon-relay.pid --logdir=$install_dir/logs start"} );
 
 #sub generateConfig {
 #    generate_carbon_config();
@@ -40,6 +40,6 @@ sub generate_carbon_config {
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/carbon.conf" );
 }
 
-has dependsOnServices => (is => 'ro', default => sub { [qw(carbon_cache)] } );
+has dependsOnServices => (is => 'ro', default => sub { [qw(carbon-cache)] } );
 
 1;
