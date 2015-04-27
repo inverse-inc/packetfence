@@ -22,11 +22,11 @@ use Moo;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub {'carbon_cache'} );
+has '+name' => ( default => sub {'carbon-cache'} );
 
 has '+launcher' => (
     default => sub {
-        "sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon_cache.pid --logdir=$install_dir/logs start";
+        "sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon-cache.pid --logdir=$install_dir/logs start";
     }
 );
 
