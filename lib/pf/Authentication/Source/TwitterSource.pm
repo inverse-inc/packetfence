@@ -26,17 +26,6 @@ has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://a
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.twitter.com,twitter.com,*.twimg.com,twimg.com');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
-=head2 lookup_from_provider_info
-
-Lookup the person information from the authentication hash received during the OAuth process
-
-=cut
-
-sub lookup_from_provider_info {
-    my ( $self, $pid, $info ) = @_;
-    person_modify( $pid, firstname => $info->{given_name}, lastname => $info->{family_name} );
-}
-
 sub authorize {
     my ($self) = @_;
     my $oauth_token = $self->generate_oauth_request_token();
