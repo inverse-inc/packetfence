@@ -23,6 +23,8 @@ extends 'pfappserver::Base::Model::Fingerbank';
 
 has '+fingerbankModel' => ( default => 'fingerbank::Model::Device');
 
+has '+search_fields' => ( default => sub { [qw(name)] } );
+
 =head2 getSubDevices
 
 Returns the sub device for a parent id
