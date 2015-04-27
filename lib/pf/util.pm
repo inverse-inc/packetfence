@@ -28,6 +28,7 @@ use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all);
 use Try::Tiny;
 use pf::file_paths;
+use NetAddr::IP;
 
 our ( %local_mac );
 
@@ -57,6 +58,7 @@ BEGIN {
         normalize_time
         search_hash
         is_prod_interface
+        valid_ip_range
     );
 }
 
@@ -876,10 +878,20 @@ sub valid_mac_or_ip {
         my ($mac) = clean_mac($mac_or_ip);
         return 1 if($mac && $mac !~ $NON_VALID_MAC_REGEX && $mac =~ $VALID_PF_MAC_REGEX);
     }
-    get_logger()->error("invalid MAC or IP: $mac_or_ip");
+    get_logger()->warn("invalid MAC or IP: $mac_or_ip");
     return 0;
 }
 
+=item valid_ip_range
+
+Test if it's an ip and it's range of ip address
+
+=cut
+
+sub valid_ip_range {
+    my ($ip) =@_;
+    return 1 if (defined(NetAddr::IP->new($ip)));
+}
 
 =item read_dir_recursive
 

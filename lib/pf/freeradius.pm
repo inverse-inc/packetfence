@@ -27,6 +27,7 @@ use Log::Log4perl;
 use Readonly;
 use List::MoreUtils qw(natatime);
 use Time::HiRes qw(time);
+use NetAddr::IP;
 
 use constant FREERADIUS => 'freeradius';
 use constant SWITCHES_CONF => '/switches.conf';
@@ -178,7 +179,7 @@ sub freeradius_populate_nas_config {
     while (my @ids = $it->() ) {
         my @rows = map {
             my $data = $switch_config->{$_};
-            [ $_, $_, $data->{radiusSecret}, $_ . " (" . $data->{'type'} .")", $timestamp ]
+            [ NetAddr::IP->new($_)->cidr, $_, $data->{radiusSecret}, $_ . " (" . $data->{'type'} .")", $timestamp ]
         } @ids;
         # insert NAS
         _insert_nas_bulk( @rows );

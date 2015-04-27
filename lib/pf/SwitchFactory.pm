@@ -27,6 +27,7 @@ use Benchmark qw(:all);
 use List::Util qw(first);
 use pf::CHI;
 use pfconfig::cached_hash;
+use NetAddr::IP;
 
 our %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
@@ -79,11 +80,28 @@ sub instantiate {
     });
 
     my $switch_data;
+    my $i = 1;
     foreach my $search (@requestedSwitches){
         if($SwitchConfig{$search}){
             $requestedSwitch = $search;
             $switch_data = $SwitchConfig{$search};
+            $i = 0;
             last;
+        }
+    }
+    if ($i) {
+        foreach my $search (@requestedSwitches){
+            next if (valid_mac($search));
+            foreach my $switch ( keys (%SwitchConfig) ) {
+                my $network = NetAddr::IP->new($switch);
+                next if (!defined($network) || ($network->num eq 1));
+                my $ip = new NetAddr::IP::Lite clean_ip($search);
+                if ($network->contains($ip)) {
+                    $requestedSwitch = $search;
+                    $switch_data = $SwitchConfig{$switch};
+                    last;
+                }
+            }
         }
     }
     unless (defined($requestedSwitch)) {
