@@ -165,12 +165,16 @@ EOT
     $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
     my $ip = NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
     my $net = $ip->network();
-    $tags{'config'} .= <<"EOT";
+    if ($pf::cluster::cluster_enabled) {
+        $tags{'config'} .= <<"EOT";
 client $net {
         secret = testing1234
         shortname = pf
 }
 EOT
+    } else {
+        $tags{'config'} = '';
+    }
     parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
 }
 
