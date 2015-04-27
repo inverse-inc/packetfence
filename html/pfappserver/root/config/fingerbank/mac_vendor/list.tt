@@ -3,11 +3,6 @@
         <thead>
           <tr>
             <th colspan="5">
-                [% INCLUDE config/fingerbank/search.tt %]
-            </th>
-          </tr>
-          <tr>
-            <th colspan="5">
               <div class="tab-content">
                 <ul class="nav nav-pills">
                   <li [% IF scope == 'Upstream' %]class="active" [% END %]>
@@ -22,6 +17,7 @@
           </tr>
           <tr>
             <th colspan="5">
+              [% INCLUDE config/fingerbank/search.tt %]
               [% pagination(action || 'list', pageNum, perPage, pageCount) %]
             </th>
           </tr>
