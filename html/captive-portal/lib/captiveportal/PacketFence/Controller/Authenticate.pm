@@ -560,6 +560,7 @@ sub showLogin : Private {
         oauth2_facebook => is_in_list( $SELFREG_MODE_FACEBOOK, $guestModes ),
         oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
+        oauth2_twitter  => is_in_list( $SELFREG_MODE_TWITTER, $guestModes ),
         guest_allowed   => $guest_allowed,
     );
 }
