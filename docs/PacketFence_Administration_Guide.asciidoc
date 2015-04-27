@@ -305,7 +305,7 @@ You need to enable another repository for haproxy:
 
 In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
 
-  ech 'deb http://inverse.ca/downloads/PacketFence/ubuntu precise precise' > /etc/apt/sources.list.d/packetfence.list
+  echo 'deb http://inverse.ca/downloads/PacketFence/ubuntu precise precise' > /etc/apt/sources.list.d/packetfence.list
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database
