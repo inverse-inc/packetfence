@@ -559,7 +559,7 @@ statsd=enabled
 # services.radsniff
 #
 # Should radsniff be started?
-radsniff=enabled
+radsniff3=enabled
 #
 # services.snort_binary
 #
@@ -624,7 +624,7 @@ collectd_binary=/usr/sbin/collectd
 # services.radsniff_binary
 # 
 # Location of the radsniff3 binary. Only necessary to change if you are not running the pre-packaged version.
-radsniff_binary=/usr/local/pf/bin/radsniff
+radsniff3_binary=/usr/bin/radsniff3
 # 
 # services.iptables_binary
 # 
