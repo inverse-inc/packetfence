@@ -179,7 +179,7 @@ sub freeradius_populate_nas_config {
     while (my @ids = $it->() ) {
         my @rows = map {
             my $data = $switch_config->{$_};
-            [ NetAddr::IP->new($_)->cidr, $_, $data->{radiusSecret}, $_ . " (" . $data->{'type'} .")", $timestamp ]
+            [ $_, $_, $data->{radiusSecret}, $_ . " (" . $data->{'type'} .")", $timestamp ]
         } @ids;
         # insert NAS
         _insert_nas_bulk( @rows );
