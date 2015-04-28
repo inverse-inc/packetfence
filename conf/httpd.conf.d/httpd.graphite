@@ -529,18 +529,10 @@ LoadModule wsgi_module modules/mod_wsgi.so
     DocumentRoot "/usr/share/graphite/webapp"
     ErrorLog /usr/local/pf/logs/httpd.graphite.log
     CustomLog /usr/local/pf/logs/httpd.graphite.log common
-    Alias /media/ "/usr/lib/python2.6/site-packages/django/contrib/admin/media/"
+    Alias /content/ "/usr/share/graphite/webapp/content/"
 
     WSGIScriptAlias / /usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi
     WSGIImportScript /usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
-
-    <Location "/content/">
-        SetHandler None
-    </Location>
-
-    <Location "/media/">
-        SetHandler None
-    </Location>
 
 </VirtualHost>
 

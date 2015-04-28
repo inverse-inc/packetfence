@@ -213,5 +213,6 @@ DATABASES = {
 #####################################
 # Uncomment the following line for direct access to Django settings such as
 # MIDDLEWARE_CLASSES or APPS
-#from graphite.app_settings import *
+from graphite.app_settings import *
+STATIC_URL  = '/content/'
 
