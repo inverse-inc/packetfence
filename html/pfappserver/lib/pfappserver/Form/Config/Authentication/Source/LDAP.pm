@@ -122,7 +122,7 @@ has_field 'use_mandatory_fields' => (
     default => pf::Authentication::Source::LDAPSource->meta->get_attribute('use_mandatory_fields')->default,
     tags => {
         after_element => \&help,
-        help => 'If enabed then the mandatory fields defined on the portal profile will be mandatory.',
+        help => 'If enabled then the mandatory fields defined on the portal profile will be mandatory.',
     },
 );
 
