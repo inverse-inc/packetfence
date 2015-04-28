@@ -48,7 +48,8 @@ has_field 'username' =>
 
 has_field 'password' =>
   (
-   type => 'Text',
+   type => 'Password',
+   password => 0,
   );
 
 has_field 'profile' =>
