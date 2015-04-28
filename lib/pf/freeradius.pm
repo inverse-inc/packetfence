@@ -27,7 +27,6 @@ use Log::Log4perl;
 use Readonly;
 use List::MoreUtils qw(natatime);
 use Time::HiRes qw(time);
-use NetAddr::IP;
 
 use constant FREERADIUS => 'freeradius';
 use constant SWITCHES_CONF => '/switches.conf';
