@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Authentication::Source::Twitter;
 
 =head1 NAME
 
-pfappserver::Form::Config::Authentication::Source::Twitter - Web form for a Google user source
+pfappserver::Form::Config::Authentication::Source::Twitter - Web form for a Twitter user source
 
 =head1 DESCRIPTION
 
-Form definition to create or update a Google user source.
+Form definition to create or update a Twitter user source.
 
 =cut
 
