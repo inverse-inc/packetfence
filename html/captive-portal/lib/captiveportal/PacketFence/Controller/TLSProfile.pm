@@ -59,6 +59,7 @@ sub index : Path : Args(0) {
         post_uri            => '/tlsprofile/cert_process',
         certificate_cn      => $mac,
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
+        certificate_pwd_check     => $request->param_encoded("certificate_pwd_check"),
         certificate_email   => lc( $request->param_encoded("certificate_email") || $request->param_encoded("email")),
         template            => 'pki.html',
         provisioner         => $provisioner,
@@ -131,12 +132,18 @@ sub validateform : Private {
         my $node_info     = node_view($mac);
         my $pid           = $node_info->{'pid'};
     }
+    my $passwd1 = $c->request->param('certificate_pwd');
+    my $passwd2 = $c->request->param('certificate_pwd_check');
     $c->stash(
         service           => $c->request->param('service'),
         certificate_cn    => $mac,
         certificate_email => $c->request->param('certificate_email'),
         certificate_pwd   => $c->request->param('certificate_pwd'),
     );
+    if($passwd1 ne $passwd2) {
+        $c->stash(txt_validation_error => 'Passwords do not match');
+        $c->detach('index');
+    }
 
     #unless (Email::Valid->address($email_addr)){
     #    $logger->debug("Email enter is invalid for username \"$pid\"");
