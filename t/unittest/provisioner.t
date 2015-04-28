@@ -44,9 +44,9 @@ my $provisioner = new_ok(
 
 ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match both os and category");
 
-ok(!$provisioner->match('Android',$TEST_NODE_ATTRIBUTE),"Don't Match os but Matching category");
+ok(!$provisioner->match('Generic Android',$TEST_NODE_ATTRIBUTE),"Don't Match os but Matching category");
 
-ok(!$provisioner->match('Android','not_matching'),"Don't Match os and category");
+ok(!$provisioner->match('Generic Android','not_matching'),"Don't Match os and category");
 
 $provisioner->category(['not_matching']);
 
@@ -56,7 +56,7 @@ $provisioner->category([]);
 
 ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match os with the any category");
 
-ok(!$provisioner->match('Android',$TEST_NODE_ATTRIBUTE),"Don't match os with the any category");
+ok(!$provisioner->match('Generic Android',$TEST_NODE_ATTRIBUTE),"Don't match os with the any category");
 
 
 1;
