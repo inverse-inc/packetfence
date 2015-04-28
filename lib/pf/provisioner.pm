@@ -166,7 +166,7 @@ sub matchOS {
 
     #if if no oses are defined then it will match all the oses
     local $_;
-    return @oses == 0 || any { $os =~ $_ } @oses;
+    return @oses == 0 || any { $os eq $_ } @oses;
 }
 
 =head2 match
