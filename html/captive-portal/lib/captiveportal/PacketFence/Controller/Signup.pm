@@ -22,7 +22,7 @@ use POSIX;
 use URI::Escape::XS qw(uri_escape);
 use pf::iplog;
 use pf::node;
-use pf::person qw(person_modify);
+use pf::person qw(person_modify @FIELDS);
 use pf::violation;
 use pf::web;
 
@@ -30,6 +30,8 @@ use pf::web;
 use pf::web::custom;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
+
+our @PERSON_FIELDS = grep { $_ ne 'pid' && $_ ne 'notes'  } @pf::person::FIELDS;
 
 =head1 NAME
 
@@ -178,19 +180,8 @@ sub doEmailSelfRegistration : Private {
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
 
     # form valid, adding person (using modify in case person already exists)
-    person_modify(
-        $pid,
-        (   'firstname' => $session->{firstname},
-            'lastname'  => $session->{lastname},
-            'company'   => $session->{company},
-            'email'     => $email,
-            'telephone' => $session->{phone},
-            'notes'     => 'email activation. Date of arrival: '
-              . time2str( "%Y-%m-%d %H:%M:%S", time ),
-            'portal'    => $profile->getName,
-            'source'    => $source->{id},
-        )
-    );
+    my $note = 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
+    _update_person($pid,$session,$note,$profile);
 
     # if we are on-site: register the node
     if ( !$session->{preregistration} ) {
@@ -291,20 +282,9 @@ sub doSponsorSelfRegistration : Private {
     $c->stash->{matchParams} = $auth_params;
 
     # form valid, adding person (using modify in case person already exists)
-    person_modify(
-        $pid,
-        (   'firstname' => $c->session->{"firstname"},
-            'lastname'  => $c->session->{"lastname"},
-            'company'   => $c->session->{'company'},
-            'email'     => $email,
-            'telephone' => $c->session->{"phone"},
-            'sponsor'   => $c->session->{"sponsor"},
-            'notes'     => 'sponsored guest. Date of arrival: '
-              . time2str( "%Y-%m-%d %H:%M:%S", time ),
-            'portal'    => $profile->getName,
-            'source'    => $source->{id},
-        )
-    );
+    my $note = 'sponsored confirmation Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
+    _update_person($pid,$session,$note,$profile);
+
     $logger->info( "Adding guest person " . $c->session->{'guest_pid'} );
 
     # fetch role for this user
@@ -419,18 +399,8 @@ sub doSmsSelfRegistration : Private {
 
     # form valid, adding person (using modify in case person already exists)
     $logger->info("Adding guest person $pid ($phone)");
-    person_modify(
-        $pid,
-        (   map { $_ => $c->session->{$_} }
-              qw(firstname lastname company  email)
-        ),
-        (   'telephone' => $phone,
-            'notes'     => 'sms confirmation. Date of arrival: '
-              . time2str( "%Y-%m-%d %H:%M:%S", time ),
-            'portal'    => $profile->getName,
-            'source'    => $source->{id},
-        )
-    );
+    my $note = 'sms confirmation Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
+    _update_person($pid,$session,$note,$profile);
 
     # fetch role for this user
     $c->stash->{pid} = $pid;
@@ -485,23 +455,24 @@ TODO: documention
 
 =cut
 
+
 sub setupSelfRegistrationSession : Private {
     my ( $self, $c ) = @_;
     my $request = $c->request;
+    foreach my $field (@PERSON_FIELDS) {
+        $c->session->{$field} = $request->param($field);
+    }
     my $phone = $request->param("phone");
-    $c->session->{firstname} = $request->param("firstname");
-    $c->session->{lastname}  = $request->param("lastname");
     $c->session->{company}   = $request->param("organization");
     $c->session->{telephone} =
       pf::web::util::validate_phone_number( $phone );
     $c->session->{phone} =
       pf::web::util::validate_phone_number( $phone );
-    $c->session->{email}   = lc( $request->param("email") );
     $c->session->{sponsor} = lc( $request->param("sponsor_email") );
 
     # guest pid is configurable (defaults to email)
     $c->session->{guest_pid} =
-      $c->session->{ $Config{'guests_self_registration'}{'guest_pid'} };
+        $c->session->{ $Config{'guests_self_registration'}{'guest_pid'} };
 }
 
 
@@ -677,6 +648,18 @@ sub allowedGuestModes {
     }
     return %$modes;
 }
+
+sub _update_person {
+  my ($pid,$session,$note,$profile) = @_;
+  my @info = (
+      (map { my $v = $session->{$_}; defined $v ? ($_ => $session->{$_}) :() } @PERSON_FIELDS),
+      'notes'       => $note,
+      'portal'    => $profile->getName,
+      'source'    => $session->{source_id},
+  );
+  person_modify($pid, @info);
+}
+
 
 =head1 AUTHOR
 

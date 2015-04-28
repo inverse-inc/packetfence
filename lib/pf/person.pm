@@ -38,7 +38,7 @@ BEGIN {
         person_violations
         person_custom_search
     );
-    @EXPORT_OK = qw( $PID_RE );
+    @EXPORT_OK = qw( $PID_RE @FIELDS );
 }
 
 use pf::db;

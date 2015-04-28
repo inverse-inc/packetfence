@@ -12,7 +12,9 @@ use pf::authentication;
 use HTML::Entities;
 use List::MoreUtils qw(any);
 use pf::config;
+use pf::person qw(person_modify @FIELDS);
 
+our @PERSON_FIELDS = grep { $_ ne 'pid' && $_ ne 'notes'  } @pf::person::FIELDS;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -170,6 +172,7 @@ sub login : Local : Args(0) {
         $c->forward('validateLogin');
         $c->forward('enforceLoginRetryLimit');
         $c->forward('authenticationLogin');
+        $c->forward('validateMandatoryFields');
         $c->forward('postAuthentication');
         $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
         $c->forward( 'CaptivePortal' => 'endPortalSession' );
@@ -508,7 +511,6 @@ sub authenticationLogin : Private {
             $c->error($message);
         }
     }
-
 }
 
 =head2 getSources
@@ -574,6 +576,71 @@ sub _clean_username {
     $username =~ s/^\s+|\s+$//g ;
 
     return $username;
+}
+
+sub validationError {
+    my ( $self, $c, $error_code, @error_args ) = @_;
+    $c->stash->{'txt_validation_error'} =
+      i18n_format( $GUEST::ERRORS{$error_code}, @error_args );
+    utf8::decode($c->stash->{'txt_validation_error'});
+    $c->detach('showLogin');
+}
+
+sub validateMandatoryFields : Private {
+    my ( $self, $c ) = @_;
+    my $request = $c->request;
+    my $session = $c->session;
+    my $profile    = $c->profile;
+    my ( $error_code, @error_args );
+    my $source = pf::authentication::getAuthenticationSource($c->session->{source_id});
+    if ( isenabled($source->{use_mandatory_fields}) ) {
+        my @mandatory_fields = @{$c->profile->getMandatoryFields};
+        my %mandatory_fields = map { $_ => undef } @mandatory_fields;
+        my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
+
+        if (@missing_fields) {
+            $error_code = $GUEST::ERROR_MISSING_MANDATORY_FIELDS;
+            @error_args = ( join( ", ", map { i18n($_) } @missing_fields ) );
+        } elsif ( exists $mandatory_fields{email}
+                  && !pf::web::util::is_email_valid( $request->param('email') ) ) {
+            $error_code = $GUEST::ERROR_ILLEGAL_EMAIL;
+        } elsif ( exists $mandatory_fields{phone}
+                  && !pf::web::util::validate_phone_number( $request->param('phone') ) ) {
+            $error_code = $GUEST::ERROR_ILLEGAL_PHONE;
+        } elsif ( !length( $request->param("aup_signed") ) ) {
+            $error_code = $GUEST::ERROR_AUP_NOT_ACCEPTED;
+        }
+
+        if ( defined $error_code && $error_code != 0 ) {
+            $self->validationError( $c, $error_code, @error_args );
+        } else {
+            $c->forward('setupSession');
+            _update_person($session,$profile);
+        }
+    }
+}
+
+sub setupSession : Private {
+    my ( $self, $c ) = @_;
+    my $request = $c->request;
+    foreach my $field (@PERSON_FIELDS) {
+        $c->session->{$field} = $request->param($field);
+    }
+    my $phone = $request->param("phone");
+    $c->session->{telephone} =
+      pf::web::util::validate_phone_number( $phone );
+    $c->session->{phone} =
+      pf::web::util::validate_phone_number( $phone );
+}
+
+sub _update_person {
+  my ($session,$profile) = @_;
+  my @info = (
+      (map { my $v = $session->{$_}; defined $v ? ($_ => $session->{$_}) :() } @PERSON_FIELDS),
+      'portal'    => $profile->getName,
+      'source'    => $session->{source_id},
+  );
+  person_modify($session->{username}, @info);
 }
 
 =head1 AUTHOR

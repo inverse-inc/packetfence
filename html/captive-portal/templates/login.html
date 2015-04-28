@@ -44,6 +44,9 @@ document.observe("dom:loaded", function() {
 
         [%# Error %]
         [% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
+        [% IF txt_validation_error.defined %]
+        <div class="error"><p>[% txt_validation_error %]</p></div>
+        [% END %]
 
         <form name="login" method="post" action="/authenticate">
           <input type="hidden" name="destination_url" value="[% destination_url %]" />
@@ -75,7 +78,7 @@ document.observe("dom:loaded", function() {
           [% FOREACH field IN mandatory_fields %]
           <div class="input">
             <span>[% i18n("$field") %]</span>
-            <input class="field" name="[%field%]" type="text" value="" /><br/>
+            <input class="field" name=[% i18n("$field") FILTER lower %] type="text" value="" /><br/>
           </div>
           [% END %]
 

@@ -18,6 +18,7 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+type' => ( default => 'SQL' );
+has 'use_mandatory_fields' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head1 METHODS
 
