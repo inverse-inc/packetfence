@@ -47,6 +47,7 @@ Bug Fixes
 * Updating iplog without a lease time now reset end_time to default (0000-00-00 00:00:00) to avoid "closing" a valid entry
 * fixed pfcmd watch emailing functionality.
 * dhcpd will now properly obey the "disabled" configuration.
+* Fixed bulk apply of bypass roles for node in the admin GUI
 
 Version 5.0.0 released on 2015-04-15
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
