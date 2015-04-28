@@ -18,6 +18,7 @@ after process => sub {
     my $filename = $c->stash->{filename} || 'wireless-profile.mobileconfig';
     $headers->content_type('application/x-apple-aspen-config; chatset=utf-8');
     $headers->header( 'Content-Disposition', "attachment; filename=\"$filename\"" );
+    $c->log->trace(sub { $c->response->body });
 };
 
 =head1 NAME
