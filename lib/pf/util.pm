@@ -878,7 +878,7 @@ sub valid_mac_or_ip {
         my ($mac) = clean_mac($mac_or_ip);
         return 1 if($mac && $mac !~ $NON_VALID_MAC_REGEX && $mac =~ $VALID_PF_MAC_REGEX);
     }
-    get_logger()->warn("invalid MAC or IP: $mac_or_ip");
+    get_logger()->debug("invalid MAC or IP: $mac_or_ip");
     return 0;
 }
 

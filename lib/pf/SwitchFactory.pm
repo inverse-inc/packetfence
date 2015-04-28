@@ -80,16 +80,14 @@ sub instantiate {
     });
 
     my $switch_data;
-    my $i = 1;
     foreach my $search (@requestedSwitches){
         if($SwitchConfig{$search}){
             $requestedSwitch = $search;
             $switch_data = $SwitchConfig{$search};
-            $i = 0;
             last;
         }
     }
-    if ($i) {
+    if ($requestedSwitch) {
         foreach my $search (@requestedSwitches){
             next if (valid_mac($search));
             foreach my $switch ( keys (%SwitchConfig) ) {
