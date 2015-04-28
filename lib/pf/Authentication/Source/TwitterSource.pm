@@ -6,6 +6,9 @@ pf::Authentication::Source::TwitterSource
 
 =head1 DESCRIPTION
 
+This module implements methods for the Twitter source and the methods necessary
+to perform the OAuth flow since Net::OAuth2 lacks support for Twitter OAuth.
+
 =cut
 
 use Moose;
@@ -16,8 +19,8 @@ extends 'pf::Authentication::Source::OAuthSource';
 has '+type' => (default => 'Twitter');
 has '+class' => (default => 'external');
 has '+unique' => (default => 1);
-has 'client_id' => (isa => 'Str', is => 'rw', required => 1, default => 'CONSUMER KEY');
-has 'client_secret' => (isa => 'Str', is => 'rw', required => 1), default => 'CONSUMER SECRET';
+has 'client_id' => (isa => 'Str', is => 'rw', required => 1, default => '<CONSUMER KEY>');
+has 'client_secret' => (isa => 'Str', is => 'rw', required => 1), default => '<CONSUMER SECRET>';
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://api.twitter.com');
 has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/oauth/authenticate');
 has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth/request_token');
@@ -26,11 +29,25 @@ has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://a
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.twitter.com,twitter.com,*.twimg.com,twimg.com');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
+
+=head2 authorize
+
+Get the URL for authorization with Twitter
+
+=cut
+
 sub authorize {
     my ($self) = @_;
     my $oauth_token = $self->generate_oauth_request_token();
     return $self->{site}.$self->{authorize_path}."?oauth_token=$oauth_token";
 }
+
+=head2 generate_oauth_request_token
+
+Generates the OAuth request token for use in future 
+requests through a call to the Twitter API
+
+=cut
 
 sub generate_oauth_request_token {
     my ($self) = @_;
@@ -70,6 +87,15 @@ sub generate_oauth_request_token {
     return $oauth_token;
 }
 
+=head2 get_access_token
+
+Get the access token through the Twitter API using the
+oauth_token + oauth_verifier
+
+This will also return the username of the user.
+
+=cut
+
 sub get_access_token {
     my ($self, $oauth_token, $oauth_verifier) = @_;
     my $access_token_url = $self->{protected_resource_url};
@@ -103,6 +129,13 @@ sub get_access_token {
     return {access_token => $params{'access_token'}, username => $params{'screen_name'}};
 }
 
+=head2 build_sorted_query
+
+Will sort the parameters in a hash and put them in a
+string reprensenting the parameters (param1=value1&param2=value2&)
+
+=cut
+
 sub build_sorted_query {
   my ($self, $input) = @_;
   my $qs;
@@ -111,6 +144,13 @@ sub build_sorted_query {
   }
   return substr ($qs, 0, -1);
 }
+
+=head2 simple_sign
+
+Will sign a query so it can be sent to the Twitter API
+See : https://dev.twitter.com/oauth/overview/creating-signatures
+
+=cut
 
 sub simple_sign {
   my ($self, $url, $params) = @_;
