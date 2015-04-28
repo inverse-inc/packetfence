@@ -22,6 +22,7 @@ use pf::util;
 extends 'pf::services::manager::httpd';
 
 has '+name' => ( default => sub {'httpd.graphite'} );
+has '+optional' => ( default => sub {1} );
 
 sub generateConfig {
     generate_local_settings();

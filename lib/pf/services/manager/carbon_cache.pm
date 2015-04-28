@@ -23,6 +23,7 @@ use Moo;
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub {'carbon-cache'} );
+has '+optional' => ( default => sub {1} );
 
 has '+launcher' => (
     default => sub {

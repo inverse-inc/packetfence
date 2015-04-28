@@ -22,6 +22,7 @@ use Moo;
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub {'radsniff3'} );
+has '+optional' => ( default => sub {1} );
 
 has '+launcher' => (
     default => sub {
