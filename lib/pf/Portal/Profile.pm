@@ -194,6 +194,18 @@ Returns the mandatory fields for the profile
 
 sub getMandatoryFields {
     my ($self) = @_;
+    my $mandatory_fields = $self->{'_mandatory_fields'};
+    if ($self->getSourceByType('email')) {
+        unshift (@$mandatory_fields, "email") if !('email' ~~ @$mandatory_fields);
+    }
+    if ($self->getSourceByType('sms')) {
+        unshift (@$mandatory_fields, "phone") if !('phone' ~~ @$mandatory_fields);
+        unshift (@$mandatory_fields, "mobileprovider") if !('mobileprovider' ~~ @$mandatory_fields);
+    }
+    if ($self->getSourceByType('sponsoremail')) {
+        unshift (@$mandatory_fields, "email") if !('email' ~~ @$mandatory_fields);
+        unshift (@$mandatory_fields, "sponsor_email") if !('sponsor_email' ~~ @$mandatory_fields);
+    }
     return $self->{'_mandatory_fields'};
 }
 
