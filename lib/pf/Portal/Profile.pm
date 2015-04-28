@@ -199,6 +199,7 @@ sub getMandatoryFields {
         unshift (@$mandatory_fields, "email") if !('email' ~~ @$mandatory_fields);
     }
     if ($self->getSourceByType('sms')) {
+        unshift (@$mandatory_fields, "email") if !('email' ~~ @$mandatory_fields);
         unshift (@$mandatory_fields, "phone") if !('phone' ~~ @$mandatory_fields);
         unshift (@$mandatory_fields, "mobileprovider") if !('mobileprovider' ~~ @$mandatory_fields);
     }

@@ -23,7 +23,9 @@
             <input class="field" name="lastname" type="text" value="[% lastname | html %]" />
           </div>
 
+        [% skipFields = {firstname => undef, lastname => undef} %]
         [% FOREACH field IN mandatory_fields %]
+        [%- NEXT IF skipFields.exists(field) -%]
           <div class="input">
             [% IF (field == 'mobileprovider') %]
               <span>[% i18n("Phone Provider") %]</span>
@@ -32,14 +34,26 @@
                     [% FOREACH carrier IN sms_carriers %]<option value="[% carrier.id %]"[% IF mobileprovider == carrier.id %] selected[% END %]>[% carrier.name %]</option>
                     [% END %]
               </select>
-              [% IF email_guest_allowed || sponsored_guest_allowed %]
+              [% IF sms_guest_allowed %]
                 <em>Required to receive your access code by SMS</em>
               [% END %]
             [% ELSIF (field == 'sponsor_email') %]
               <span>[% i18n("Sponsor's email") %]</span>
               <input class="field" name=[% "$field" %] type="text" value="[% sponsor_email | html %]" /><br/>
-              [% IF email_guest_allowed || sms_guest_allowed %]
-                <em>Required for sponsored network access only</em>
+              [% IF sponsored_guest_allowed %]
+                <em>Required for sponsored network access</em>
+              [% END %]
+            [% ELSIF (field == 'email') %]
+              <span>[% i18n("$field") %]</span>
+              <input class="field" name=[% $field %] type="text" value="[% $field | html %]" /><br/>
+              [% IF email_guest_allowed %]
+                <em>Required for email network access</em>
+              [% END %]
+            [% ELSIF ( field == 'phone') %]
+              <span>[% i18n("$field") %]</span>
+              <input class="field" name=[% $field %] type="text" value="[% $field | html %]" /><br/>
+              [% IF sms_guest_allowed %]
+                <em>Required for SMS network access</em>
               [% END %]
             [% ELSE %]
               <span>[% i18n("$field") %]</span>
