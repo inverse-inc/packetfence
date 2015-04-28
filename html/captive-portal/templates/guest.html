@@ -37,7 +37,7 @@
               [% END %]
             [% ELSIF (field == 'sponsor_email') %]
               <span>[% i18n("Sponsor's email") %]</span>
-              <input class="field" name=[% i18n("$field") FILTER lower %] type="text" value="[% sponsor_email | html %]" /><br/>
+              <input class="field" name=[% "$field" %] type="text" value="[% sponsor_email | html %]" /><br/>
               [% IF email_guest_allowed || sms_guest_allowed %]
                 <em>Required for sponsored network access only</em>
               [% END %]
