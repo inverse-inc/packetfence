@@ -18,6 +18,7 @@ use Moo;
 use pf::file_paths;
 use pf::config;
 use pf::util;
+use pf::cluster;
 
 extends 'pf::services::manager::httpd';
 
@@ -45,6 +46,8 @@ sub generate_local_settings {
     $tags{'db_port'}              = $Config{'monitoring'}{'db_port'};
     $tags{'db_user'}              = $Config{'monitoring'}{'db_user'};
     $tags{'db_password'}          = $Config{'monitoring'}{'db_pass'};
+    $tags{'carbon_hosts'} =
+      get_cluster_destinations() // $tags{'graphite_host'} . ":9000, ";
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/local_settings.py" );
 }
@@ -54,6 +57,12 @@ sub generate_dashboard_settings {
     $tags{'template'} = "$conf_dir/monitoring/dashboard.conf";
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/dashboard.conf" );
+}
+
+sub get_cluster_destinations {
+    defined @cluster_hosts
+      ? join( ', ', map { $_ . ":9000" } @cluster_hosts )
+      : undef;
 }
 
 =head1 AUTHOR
