@@ -28,6 +28,8 @@ our $VERSION = 1.00;
 
 Readonly our $DELIMITER => ',';
 
+sub description { 'Authorize.net' }
+
 =head1 SUBROUTINES
 
 =over

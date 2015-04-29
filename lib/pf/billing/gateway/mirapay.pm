@@ -29,6 +29,8 @@ our $VERSION = 1.00;
 
 Readonly our $DELIMITER => ',';
 
+sub description { 'Mirapay' }
+
 =head1 SUBROUTINES
 
 =over

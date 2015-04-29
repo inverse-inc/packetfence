@@ -20,6 +20,7 @@ use List::MoreUtils qw(uniq);
 
 use pf::authentication;
 use pf::ConfigStore::Provisioning;
+use pf::ConfigStore::Billing;
 use pf::web::constants;
 use pf::constants::Portal::Profile;
 use pfappserver::Form::Field::Duration;
@@ -35,7 +36,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description reuse_dot1x_credentials dot1x_recompute_role_from_portal billing_engine)],
+    render_list => [qw(id description reuse_dot1x_credentials dot1x_recompute_role_from_portal billing)],
   );
 
 =head2 captive_portal
@@ -137,22 +138,6 @@ has_field 'always_use_redirecturl' =>
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.' },
-  );
-
-=head2 billing_engine
-
-Controls whether or not the billing engine is enabled
-
-=cut
-
-has_field 'billing_engine' =>
-  (
-   type => 'Toggle',
-   label => 'Enable Billing Engine',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   tags => { after_element => \&help,
-             help => 'When enabling the billing engine, all authentication sources bellow are ignored.' },
   );
 
 =head2 sources
@@ -367,6 +352,36 @@ sub options_mandatory_fields {
       custom_field_6 custom_field_7 custom_field_8 custom_field_9);
 }
 
+=head2 billing
+
+Collection Billing configuration for the profile
+
+=cut
+has_field 'billing' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'Billing',
+   options_method => \&options_billing,
+   element_class => ['chzn-deselect', 'input'],
+   element_attr => {'data-placeholder' => 'Select a billing'},
+   tags => { after_element => \&help,
+             help => 'Billing engine enabled on the portal' },
+  );
+
+=head2 options_billing
+
+Returns the list of billing to be displayed
+
+=cut
+
+sub options_billing {
+    my @billing = map { { value => $_, label => $_ } } @{pf::ConfigStore::Billing->new->readAllIds};
+    my $null = { value => '', label => ''};
+    unshift(@billing, $null);
+    return @billing;
+}
+
 =head2 validate
 
 Remove duplicates and make sure only one external authentication source is selected for each type.
@@ -423,4 +438,3 @@ USA.
 =cut
 
 1;
-

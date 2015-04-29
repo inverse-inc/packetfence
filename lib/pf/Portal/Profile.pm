@@ -24,6 +24,7 @@ use pf::util;
 use pf::log;
 use pf::node;
 use pf::factory::provisioner;
+use pf::authentication;
 
 =head1 METHODS
 
@@ -127,7 +128,7 @@ Returns either enabled or disabled according to the billing engine state for the
 
 sub getBillingEngine {
     my ($self) = @_;
-    return $self->{'_billing_engine'};
+    return $self->{'_billing'};
 }
 
 *billing_engine = \&getBillingEngine;
@@ -317,6 +318,26 @@ sub guestRegistrationOnly {
     my $result = all { exists $registration_types{$_->{'type'}} } @sources;
 
     return $result;
+}
+
+=item getBillingOnly
+
+Returns true if the profile only uses Billing engine.
+
+=cut
+
+sub getBillingOnly {
+    my ($self) = @_;
+    my @sources = $self->getSources();
+    my $billing = $self->getBillingEngine();
+    my @allsources = [
+            map    { $_->id }
+              grep { $_->class ne 'exclusive' }
+              @{ pf::authentication::getAllAuthenticationSources() }
+        ];
+    return $TRUE if (($billing ne '') && (@sources ~~ @allsources));
+    return $FALSE;
+
 }
 
 =item guestModeAllowed

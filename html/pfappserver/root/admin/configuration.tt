@@ -21,6 +21,7 @@
         'admin/config/violations',
         'admin/config/soh',
         'admin/config/roles',
+        'admin/config/tiers',
         'js/interface',
         'js/bootstrapSwitch',
         ]
@@ -80,7 +81,6 @@ table.sources {
               [% pf_section_entry( 'trapping', 'Trapping') %]
               [% pf_section_entry( 'registration', 'Registration') %]
               [% pf_section_entry( 'guests_self_registration', 'Self Registration') %]
-              [% pf_section_entry( 'billing', 'Billing') %]
               [% pf_section_entry( 'alerting', 'Alerting') %]
               [% pf_section_entry( 'scan', 'Scan') %]
               [% pf_section_entry( 'maintenance', 'Maintenance') %]
@@ -133,6 +133,15 @@ table.sources {
               [% list_entry('Config::Provisioning', 'index', 'Provisioners') %]
               [%- END %]
               [%- END %]
+              [%- IF can_access_any("BILLING_READ","TIERS_READ") %]
+              <li class="nav-header">[% l('Billing') %]<li>
+              [%- IF can_access("BILLING_READ") %]
+              [% list_entry('Config::Billing', 'index', 'Billing') %]
+              [%- END %]
+              [%- IF can_access("TIERS_READ") %]
+              [% list_entry('Config::Tiers', 'index', 'Tiers') %]
+              [%- END %]
+              [%- END %]
               [%- IF can_access("REALM_READ") %]
               <li class="nav-header">[% l('Radius') %]</li>
               [% list_entry( 'Config::Realm', 'index', 'Realms') %]
@@ -164,4 +173,3 @@ table.sources {
         </div><!--/span-->
       </div><!--/row-->
     </div><!--/.fluid-container-->
-

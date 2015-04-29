@@ -1,0 +1,12 @@
+  <div class="control-group">
+    <label class="control-label" for="rules">[% l('Tiers') %]</label>
+    <div class="controls">
+      [% form.field('tiers').render %]
+      <div id="tiersEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('tiers').index > 1 %]">
+        <p>
+          <i class="icon-cog icon-large"></i>
+          <a href="#add">[% l('Add a Tier.') %]</a>
+        </p>
+      </div>
+    </div>
+  </div>

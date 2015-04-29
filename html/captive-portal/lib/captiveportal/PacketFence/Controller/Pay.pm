@@ -37,7 +37,7 @@ Catalyst Controller.
 
 sub begin : Private {
     my ( $self, $c ) = @_;
-    if( isdisabled($c->profile->getBillingEngine) ) {
+    if( defined($c->profile->getBillingEngine) && ($c->profile->getBillingEngine eq '') ) {
         $c->response->redirect("/captive-portal?destination_url=".uri_escape($c->portalSession->profile->getRedirectURL));
         $c->detach;
     }
@@ -70,13 +70,14 @@ sub validateBilling : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
     my $logger = $c->log;
+    my $profile = $c->profile;
 
     # First blast for portalSession object consumption
     my $request = $c->request();
 
     # Fetch available tiers hash to check if the tier in param is ok
     my $billingObj = new pf::billing::custom();
-    my %available_tiers = $billingObj->getAvailableTiers();
+    my %available_tiers = $billingObj->getAvailableTiers($profile);
 
     # Check if every field are correctly filled
     if ( $request->param("firstname") && $request->param("lastname") && $request->param("email") &&
@@ -128,8 +129,8 @@ sub processTransaction : Private {
     my $mac = $portalSession->clientMac;
 
     # Transactions informations
-    my $tier                  = $request->param('tier');
-    my %tiers_infos           = $billingObj->getAvailableTiers();
+    my $tier = $request->param('tier');
+    my %tiers_infos = $billingObj->getAvailableTiers($profile);
     my $transaction_infos_ref = {
         ip             => $portalSession->clientIp(),
         mac            => $mac,
@@ -235,12 +236,12 @@ sub processTransaction : Private {
 
 sub showBilling : Private {
     my ( $self, $c) = @_;
-    my ( $portalSession, $error_code ) = @_;
     my $logger = $c->log;
     my $request = $c->request;
+    my $profile       = $c->profile;
 
     my $billingObj  = new pf::billing::custom();
-    my %tiers       = $billingObj->getAvailableTiers();
+    my %tiers       = $billingObj->getAvailableTiers($profile);
 
     $c->stash({
         'tiers' => \%tiers,
