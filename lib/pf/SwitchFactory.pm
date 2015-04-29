@@ -31,6 +31,8 @@ use NetAddr::IP;
 
 our %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
+my %SwitchRanges;
+tie %SwitchRanges, 'pfconfig::cached_hash', 'resource::switches_ranges';
 
 =head1 METHODS
 
@@ -90,9 +92,8 @@ sub instantiate {
     if (!$requestedSwitch) {
         foreach my $search (@requestedSwitches){
             next if (valid_mac($search));
-            foreach my $switch ( keys (%SwitchConfig) ) {
-                my $network = NetAddr::IP->new($switch);
-                next if (!defined($network) || ($network->num eq 1));
+            foreach my $switch ( keys (%SwitchRanges) ) {
+                my $network = NetAddr::IP->new($switch); 
                 my $ip = new NetAddr::IP::Lite clean_ip($search);
                 if ($network->contains($ip)) {
                     $requestedSwitch = $search;
