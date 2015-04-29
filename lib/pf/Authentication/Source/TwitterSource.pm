@@ -15,6 +15,7 @@ use Moose;
 use LWP;
 use pf::log;
 use Digest::HMAC_SHA1;
+use MIME::Base64;
 
 extends 'pf::Authentication::Source::OAuthSource';
 
@@ -72,7 +73,7 @@ sub generate_oauth_request_token {
     my $response = $ua->request($req);
 
     unless ($response->is_success) {
-      get_logger->("Couldn't execute request properly. Response is : ".$response->content);
+      get_logger->error("Couldn't execute request properly. Response is : ".$response->content);
       return undef;
     }
 
@@ -165,7 +166,7 @@ sub simple_sign {
   my $hmac = Digest::HMAC_SHA1->new($signing_key);
   $hmac->add($signature_base);
 
-  $params->{oauth_signature} = $IN->escape($hmac->b64digest);
+  $params->{oauth_signature} = $IN->escape(encode_base64($hmac->digest));
 
   $qs = $self->build_sorted_query($params);
 
