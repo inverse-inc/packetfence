@@ -1,6 +1,7 @@
 package captiveportal::PacketFence::Controller::WirelessProfile;
 use Moose;
 use namespace::autoclean;
+use File::Slurp qw(read_file);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 use pf::config;
@@ -27,9 +28,12 @@ sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $username = $c->session->{username} || '';
     my $mac = $c->portalSession->clientMac;
-    my $session = $c->session;
+    my $user_cache = $c->user_cache;
+    my $pki_session = $user_cache->get("pki_session");
+    unless ($pki_session) {
+        $pki_session = $c->session;
+    }
     my $stash = $c->stash;
-    use Data::Dumper;
     my $logger = $c->log;
     my $provisioner = $c->profile->findProvisioner($mac);
     $provisioner->authorize($mac) if (defined($provisioner));
@@ -38,17 +42,18 @@ sub index : Path : Args(0) {
         current_view => 'MobileConfig',
         provisioner  => $provisioner,
         username     => $username,
-        certdata     => $c->session->{b64_cert},#$c->session->{cert_data},
-        certcn       => $c->session->{certificate_cn},
-        fingerprint  => $c->session->{fingerprint},
+        certdata     => $pki_session->{b64_cert},
+        certcn       => $pki_session->{certificate_cn},
+        fingerprint  => $pki_session->{fingerprint},
         for_windows  => ($provisioner->{type} eq 'windows'),
         for_ios      => ($provisioner->{type} eq 'mobileconfig'),
-        cacn         => $c->session->{cacn},
-        svrcn        => $c->session->{svrcn},
-        svrdata      => $c->session->{svrdata},
-        cadata       => $c->session->{cadata},
+        cacn         => $pki_session->{cacn},
+        svrcn        => $pki_session->{svrcn},
+        svrdata      => $pki_session->{svrdata},
+        cadata       => $pki_session->{cadata},
+        passwcode    => $provisioner->{passcode},
     );
-    $c->forward('download');
+    #$c->forward('download');
     #if ($provisioner->{type} eq 'windows'){
     #    my ($self,$c) = @_;
     #    my $sid = $c->session->{sid};
@@ -69,14 +74,15 @@ sub download : Private {
 
     my $filename = $c->forward('get_temp_filename');
     my $filename_signed = "$filename-signed";
+    my $logger = $c->log;
 
     $template->process($c->config->{install_dir}."html/captive-portal/profile-templates/eaptls/wireless-profile.xml", 
-                        $c->stash(), $filename);
+                        $c->stash(), $filename) || $logger->error("Can't generate eaptls configuration : ".$template->error);
 
     my $cmd = "bash ".$c->config->{install_dir}."addons/sign.sh $filename $filename_signed";
     my $result = `$cmd`;
     
-    my $signed_profile = read_file( "$filename_signed" ) ;
+    my $signed_profile = read_file( "$filename_signed" );
 
     $c->response->body($signed_profile);
 

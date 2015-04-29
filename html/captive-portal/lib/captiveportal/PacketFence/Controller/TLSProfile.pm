@@ -48,16 +48,14 @@ sub index : Path : Args(0) {
     my $request = $c->request;
     my $mac = $c->portalSession->clientMac;
     my $node_info = node_view($mac);
-    use Data::Dumper;
-    $logger->info('username signed in:'. Dumper($username));
     my $pid = $node_info->{'pid'};
-    #my $host = "";
-    #my $ldapreq = "ldapsearch -h $host -s sub -b $basedn -D $binddn -w $passwd \"(cn=$username)\" | grep mail ";
     my $provisioner = $c->profile->findProvisioner($mac);
     #$provisioner->authorize($mac) if (defined($provisioner));
+    my $certificate_cn = $mac;
+    $certificate_cn =~ s/:/-/g;
     $c->stash(
         post_uri            => '/tlsprofile/cert_process',
-        certificate_cn      => $mac,
+        certificate_cn      => $certificate_cn,
         certificate_pwd     => $request->param_encoded("certificate_pwd"),
         certificate_pwd_check     => $request->param_encoded("certificate_pwd_check"),
         certificate_email   => lc( $request->param_encoded("certificate_email") || $request->param_encoded("email")),
@@ -66,7 +64,7 @@ sub index : Path : Args(0) {
         username            => $username,
         mac                 => $mac,
         pid                 => $pid,
-        );
+    );
 }
 
 sub build_cert_p12 : Path : Args(0) {
@@ -90,8 +88,6 @@ sub build_cert_p12 : Path : Args(0) {
         $logger->info("The certificate file could not be saved for username \"$pid\"");
         $self->showError($c,"An error has occured while trying to save your certificate, please contact your IT support");
     }
-    use Data::Dumper;
-    $logger->info(Dumper($cert_data));
     print $fh "$cert_data\n";
     close $fh;
 }
@@ -136,16 +132,21 @@ sub validateform : Private {
     }
     my $passwd1 = $c->request->param('certificate_pwd');
     my $passwd2 = $c->request->param('certificate_pwd_check');
-    $c->stash(
-        service           => $c->request->param('service'),
-        certificate_cn    => $mac,
-        certificate_email => $c->request->param('certificate_email'),
-        certificate_pwd   => $c->request->param('certificate_pwd'),
-    );
     if($passwd1 ne $passwd2) {
         $c->stash(txt_validation_error => 'Passwords do not match');
         $c->detach('index');
     }
+    my $certificate_cn = $mac;
+    $certificate_cn =~ s/:/-/g;
+    my $user_cache = $c->user_cache;
+    my $pki_session = {
+        service           => $c->request->param('service'),
+        certificate_cn    => $certificate_cn,
+        certificate_email => $c->request->param('certificate_email'),
+        certificate_pwd   => $c->request->param('certificate_pwd'),
+    };
+    $user_cache->set("pki_session" => $pki_session);
+    $c->stash($pki_session);
 
     #unless (Email::Valid->address($email_addr)){
     #    $logger->debug("Email enter is invalid for username \"$pid\"");
@@ -162,6 +163,10 @@ sub b64_cert : Local {
     my $certfile = $stash->{'certificate_cn'};
     my $certp12 = "$cwd/$certfile.p12";
     my $b64 = pf_run("base64 $certp12");
+    my $user_cache = $c->user_cache;
+    my $pki_session = $user_cache->compute("pki_session", sub {});
+    $pki_session->{b64_cert} = $b64;
+    $user_cache->set("pki_session" => $pki_session);
     $c->session(
         b64_cert => $b64,
     );
@@ -171,6 +176,8 @@ sub export_fingerprint : Local {
     my $logger = $c->log;
     my $session = $c->session;
     my $stash = $c->stash;
+    my $user_cache = $c->user_cache;
+    my $pki_session = $user_cache->compute("pki_session", sub {});
     #my $provisioner = $stash->{'provisioner'};
     #$logger->info('CA_PATH'.Dumper($provisioner));
     #my $cacert = $provisioner->{'ca_path'};
@@ -193,6 +200,14 @@ sub export_fingerprint : Local {
     $data =~ s/-----BEGIN CERTIFICATE-----\n.*//smg;
     $data =~ s/\:/\ /smg;
     $c->session( fingerprint => $data );
+    @$pki_session{qw(cacn svrcn cadata svrdata fingerprint)} = (
+        $cafile,
+        $svrfile,
+        $cadata,
+        $svrdata,
+        $data,
+    );
+    $user_cache->set("pki_session" => $pki_session);
 }
 
 =head1 AUTHOR
