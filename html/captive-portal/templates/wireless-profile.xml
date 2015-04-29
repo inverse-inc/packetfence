@@ -7,24 +7,27 @@
         <array>
                 <dict>
                         [% IF provisioner.eap_type != "" and provisioner.security_type != "none" %]
+                        <key>AutoJoin</key>
+                        <true/>
                         <key>EAPClientConfiguration</key>
                         <dict>
                                 <key>AcceptEAPTypes</key>
                                 <array>
                                         <integer>[% provisioner.eap_type %]</integer>
                                 </array>
-                                <key>TLSAllowTrustExceptions</key>
-                                <false/>
                                 <key>PayloadCertificateAnchorUUID</key>
                                 <array>
                                         <string>96148a46-d87a-11e4-b9d6-1681e6b88ec1</string>
                                         <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
                                 </array>
-
                                 <key>TLSTrustedServerNames</key>
                                 <array>
-                                    <string>[% svrcn %]</string>
+                                    <string>svr</string>
                                 </array>
+                                [% IF for_windows %]
+                                <key>UserName</key>
+                                <string>[% username %]</string>
+                                [% END %]
                         </dict>
                         [% END %]
                         <key>EncryptionType</key>
@@ -45,13 +48,19 @@
                         <string>247F8812-0419-4548-9389-EA76325DEFC8</string>
                         <key>PayloadVersion</key>
                         <integer>1</integer>
-                        <key>SSID_STR</key>
-                        <string>[% provisioner.ssid %]</string>
                         <key>PayloadCertificateUUID</key>
                         <string>506CD34F-0AD1-4421-9F98-BA19DC4E0253</string>
+                        <key>SSID_STR</key>
+                        <string>[% provisioner.ssid %]</string>
+                        [% IF provisioner.eap_type.undefined %]
+                        <key>Password</key>
+                        <string>[% passcode %]</string>
+                        [% END %]
                 </dict>
                 [% IF provisioner.eap_type.defined and provisioner.eap_type == "13" %]
                 <dict>
+                        <key>PayloadCertificateFileName</key>
+                        <string>[% certcn %]</string>
                         <key>PayloadContent</key>
                         [% IF for_windows %]
                         <string>[% certdata %]</string>
@@ -79,10 +88,16 @@
                         <integer>1</integer>
                 </dict>
                 [% END %]
-                [% IF for_ios and provisioner.eap_type == "13" %]
+                [% IF provisioner.eap_type.defined and provisioner.eap_type == "13" %]
                 <dict>
+                        <key>PayloadCertificateFileName</key>
+                        <string>[% cacn %]</string>
                         <key>PayloadContent</key>
+                        [% IF for_windows %]
+                        <string>[% cadata %]</string>
+                        [% ELSE %]
                         <data>[% cadata %]</data>
+                        [% END %]
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
@@ -101,6 +116,8 @@
                 [% END %]
                 [% IF for_ios and provisioner.eap_type == "13" %]
                 <dict>
+                        <key>PayloadCertificateFileName</key>
+                        <string>[% svrcn %]</string>
                         <key>PayloadContent</key>
                         <data>[% svrdata %]</data>
                         <key>PayloadDescription</key>
