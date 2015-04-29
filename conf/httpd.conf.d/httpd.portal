@@ -112,7 +112,6 @@ PerlSwitches -I/usr/local/pf/html/captive-portal/lib
 PerlPostConfigRequire /usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl
 PerlLoadModule captiveportal
 PerlLoadModule pf::web::dispatcher
-PerlLoadModule pf::web::release
 # The TransHandler handles the 'captive-portal' core piece redirecting to the
 # portal if the URL is not otherwised allowed by passthrough or part of the
 # portal itself.
@@ -306,14 +305,6 @@ foreach my $interface (@internal_nets) {
                  "Allow" => "from all",
                  SetHandler => 'default-handler',
              },
-             "/release" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler =>  'modperl',
-                 PerlResponseHandler =>  'pf::web::release',
-                 PerlOptions => '+GlobalRequest +ParseHeaders'
-             },
              "/content" => {
                 "Allow" => "from all",
              },
@@ -349,14 +340,6 @@ foreach my $interface (@internal_nets) {
              "/common" => {
                  "Allow" => "from all",
                  SetHandler => 'default-handler',
-             },
-             "/release" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler =>  'modperl',
-                 PerlResponseHandler =>  'pf::web::release',
-                 PerlOptions => '+GlobalRequest +ParseHeaders'
              },
              "/content" => {
                 "Allow" => "from all",
@@ -411,14 +394,6 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
                  "Allow" => "from all",
                  SetHandler => 'default-handler',
              },
-             "/release" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler =>  'modperl',
-                 PerlResponseHandler =>  'pf::web::release',
-                 PerlOptions => '+GlobalRequest +ParseHeaders'
-             },
              "/content" => {
                 "Allow" => "from all",
              },
@@ -461,14 +436,6 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
              "/common" => {
                  "Allow" => "from all",
                  SetHandler => 'default-handler',
-             },
-             "/release" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler =>  'modperl',
-                 PerlResponseHandler =>  'pf::web::release',
-                 PerlOptions => '+GlobalRequest +ParseHeaders'
              },
              "/content" => {
                 "Allow" => "from all",

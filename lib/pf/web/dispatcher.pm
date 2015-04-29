@@ -88,6 +88,12 @@ sub handler {
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES/o) {
         my $s = $r->server();
         my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+        if ($r->uri =~ /$WEB::URL_RELEASE/o) {
+            $r->handler('modperl');
+            $r->set_handlers( PerlResponseHandler => ['pf::web::release'] );
+            return Apache2::Const::OK;
+        }
+
         #Because of chrome captiv portal detection we have to test if the request come from http request
         if (defined($r->headers_in->{'Referer'})) {
             my $parsed = APR::URI->parse($r->pool,$r->headers_in->{'Referer'});
