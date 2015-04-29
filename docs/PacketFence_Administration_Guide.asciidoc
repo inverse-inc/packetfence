@@ -1684,7 +1684,7 @@ Also, LinkedIn requires a 'state' parameter for the authorization URL. If you mo
 
 Twitter
 ^^^^^^^
-To use Twitter, you also need an API code and a secret key which Twitter calls consumer key and consumer secret.  To get these, you need to create an App here: https://apps.twitter.com/.  When you create your App, make sure you specify the following as the Callback URL
+To use Twitter, you also need an API code and a secret key which Twitter calls _consumer key_ and _consumer secret_. Obtain this information by creating an new application from your https://apps.twitter.com/[Twitter Apps Management page].  When you create your App, make sure you specify the following as the _Callback URL_
 https://YOUR_PORTAL_HOSTNAME/oauth2/twitter
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
