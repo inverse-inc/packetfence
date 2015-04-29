@@ -94,11 +94,13 @@ sub setupCommonStash : Private {
       if ( defined( $portalSession->clientMac ) );
     if (defined( $portalSession->clientMac ) ) {
         my $node_info = node_view($portalSession->clientMac);
-        $c->stash(
-            map { $_ => $node_info->{$_} }
-              qw(dhcp_fingerprint last_switch last_port
-              last_vlan last_connection_type last_ssid username)
-        );
+        if ( defined( $node_info ) ) {
+            $c->stash(
+                map { $_ => $node_info->{$_} }
+                  qw(dhcp_fingerprint last_switch last_port
+                  last_vlan last_connection_type last_ssid username)
+            );
+        }
     }
     $c->stash(
         pf::web::constants::to_hash(),
