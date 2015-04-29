@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 46;
+use Test::More tests => 48;
 use lib '/usr/local/pf/lib';
 
 BEGIN {
@@ -100,9 +100,13 @@ isa_ok( $switch, 'pf::Switch::Cisco::Catalyst_2900XL' );
 is($switch->{_id}, '192.168.0.1', "Proper id is set");
 
 #Test using ip address in a range
-$switch = pf::SwitchFactory->instantiate('193.168.3.1');
+$switch = pf::SwitchFactory->instantiate('192.168.3.1');
 isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
-is($switch->{_id}, '192.168.3.0/24', "Proper id is set");
+is($switch->{_id}, '192.168.3.1', "Proper id is set 192.168.3.1");
+
+$switch = pf::SwitchFactory->instantiate('192.168.3.2');
+isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960G');
+is($switch->{_id}, '192.168.3.2', "Proper id is set for 192.168.3.2");
 
 
 =head1 AUTHOR
