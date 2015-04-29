@@ -30,10 +30,10 @@ has 'placeholders' => ( is => 'ro' );
 has_field 'id' =>
   (
    type => 'SwitchID',
-   label => 'IP Address/MAC Address',
+   label => 'IP Address/MAC Address/Range (CIDR)',
    accept => ['default'],
    required => 1,
-   messages => { required => 'Please specify the IP address/MAC address of the switch.' },
+   messages => { required => 'Please specify the IP address/MAC address/Range (CIDR) of the switch.' },
   );
 has_field 'description' =>
   (
