@@ -217,8 +217,7 @@ sub oauth2Result : Path : Args(1) {
                     $pid =~ s/"//g;
                 }
                 else{
-                    # Grab JSON co:w
-ntent
+                    # Grab JSON content
                     my $json      = new JSON;
                     my $json_text = $json->decode($response->content());
                     if ($provider eq 'google' || $provider eq 'facebook') {
