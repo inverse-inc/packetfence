@@ -98,7 +98,7 @@ sub oauth2_client {
         if ($source) {
             # Twitter source is special, we need our homemade lib
             # that's included in the source
-            if($type eq "Twitter"){
+            if($type eq 'Twitter'){
                 return $source;
             }
 
@@ -154,7 +154,7 @@ sub oauth2Result : Path : Args(1) {
     my $token;
 
     eval {
-        if($provider eq "twitter"){
+        if ($provider eq 'twitter') {
             my $oauth_token = $request->query_params->{oauth_token};
             my $oauth_verifier = $request->query_params->{oauth_verifier}; 
             $logger->info("Got token $oauth_token and verifier $oauth_verifier to finish authorization with Twitter");
@@ -176,24 +176,25 @@ sub oauth2Result : Path : Args(1) {
 
     my $type;
 
+    $provider = lc($provider);
     # Validate the token
-    if (lc($provider) eq 'facebook') {
+    if ($provider eq 'facebook') {
         $type =
           pf::Authentication::Source::FacebookSource->meta->get_attribute(
             'type')->default;
-    } elsif (lc($provider) eq 'github') {
+    } elsif ($provider eq 'github') {
         $type = pf::Authentication::Source::GithubSource->meta->get_attribute(
             'type')->default;
-    } elsif (lc($provider) eq 'google') {
+    } elsif ($provider eq 'google') {
         $type = pf::Authentication::Source::GoogleSource->meta->get_attribute(
             'type')->default;
-    } elsif (lc($provider) eq 'linkedin') {
+    } elsif ($provider eq 'linkedin') {
         $type = pf::Authentication::Source::LinkedInSource->meta->get_attribute(
             'type')->default;
-    } elsif (lc($provider) eq 'windowslive') {
+    } elsif ($provider eq 'windowslive') {
         $type = pf::Authentication::Source::WindowsLiveSource->meta->get_attribute(
             'type')->default;
-    } elsif (lc($provider) eq 'twitter') {
+    } elsif ($provider eq 'twitter') {
         $type = pf::Authentication::Source::TwitterSource->meta->get_attribute(
             'type')->default;
     }
@@ -201,7 +202,7 @@ sub oauth2Result : Path : Args(1) {
     my $source = $profile->getSourceByType($type);
     if ($source) { 
         # in twitter, the username comes with the access token through our homemade lib
-        if($provider eq "twitter"){
+        if ($provider eq 'twitter') {
             $pid = $token->{username}.'@twitter';
         }
         else {
@@ -216,7 +217,8 @@ sub oauth2Result : Path : Args(1) {
                     $pid =~ s/"//g;
                 }
                 else{
-                    # Grab JSON content
+                    # Grab JSON co:w
+ntent
                     my $json      = new JSON;
                     my $json_text = $json->decode($response->content());
                     if ($provider eq 'google' || $provider eq 'facebook') {

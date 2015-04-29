@@ -14,6 +14,8 @@ to perform the OAuth flow since Net::OAuth2 lacks support for Twitter OAuth.
 use Moose;
 use LWP;
 use pf::log;
+use Digest::HMAC_SHA1;
+
 extends 'pf::Authentication::Source::OAuthSource';
 
 has '+type' => (default => 'Twitter');
@@ -148,7 +150,7 @@ sub build_sorted_query {
 =head2 simple_sign
 
 Will sign a query so it can be sent to the Twitter API
-See : https://dev.twitter.com/oauth/overview/creating-signatures
+See : L<https://dev.twitter.com/oauth/overview/creating-signatures>
 
 =cut
 
@@ -160,13 +162,10 @@ sub simple_sign {
   my $signing_key = $IN->escape($self->{client_secret})."&";
   my $signature_base = "POST&".$IN->escape($url)."&".$IN->escape($qs);
 
-  use Digest::HMAC_SHA1;
-  use MIME::Base64;
-
   my $hmac = Digest::HMAC_SHA1->new($signing_key);
   $hmac->add($signature_base);
 
-  $params->{oauth_signature} = $IN->escape(encode_base64($hmac->digest));
+  $params->{oauth_signature} = $IN->escape($hmac->b64digest);
 
   $qs = $self->build_sorted_query($params);
 
