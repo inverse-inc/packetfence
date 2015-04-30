@@ -1,4 +1,5 @@
-N_FILE=$1
+#!/bin/bash
+IN_FILE=$1
 OUT_FILE=$2
 
 openssl smime \

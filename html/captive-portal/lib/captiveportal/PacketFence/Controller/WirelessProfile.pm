@@ -53,20 +53,12 @@ sub index : Path : Args(0) {
         cadata       => $pki_session->{cadata},
         passwcode    => $provisioner->{passcode},
     );
-    #$c->forward('download');
-    #if ($provisioner->{type} eq 'windows'){
-    #    my ($self,$c) = @_;
-    #    my $sid = $c->session->{sid};
-    #    my $filename = "/usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe";
-    #    my $newfile = "/usr/local/pf/html/captive-portal/content/packetfence-$sid.exe";
-    #    my $magicfile = "/usr/local/pf/html/captive-portal/content/packetfence-\*.exe";
-    #    rename $magicfile, $filename;
-    #    rename $filename, $newfile;
-    #    $c->stash( filesid => $newfile );
-    #}
+    if ($provisioner->{type} eq 'mobileconfig'){
+        $c->forward('sign_profile');
+    }
 }
 
-sub download : Private {
+sub sign_profile : Private {
     my ( $self, $c ) = @_;
 
     my $TT_OPTIONS = {ABSOLUTE => 1};
@@ -86,8 +78,8 @@ sub download : Private {
 
     $c->response->body($signed_profile);
 
-    $result = `rm -f $filename`;
-    $result = `rm -f $filename_signed`;
+    #$result = `rm -f $filename`;
+    #$result = `rm -f $filename_signed`;
 
     my $headers = $c->response->headers;
     $headers->content_type('application/x-apple-aspen-config; chatset=utf-8');
