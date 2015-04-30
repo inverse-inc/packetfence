@@ -565,7 +565,7 @@ sub showLogin : Private {
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
         guest_allowed   => $guest_allowed,
     );
-    $c->stash( mandatory_fields => $profile->getMandatoryFields) if (defined(@sources) && grep { $_->{use_mandatory_fields} eq 'yes' } @sources);
+    $c->stash( mandatory_fields => $profile->getMandatoryFields) if (@sources && grep { $_->{use_mandatory_fields} eq 'yes' } @sources);
 }
 
 sub _clean_username {
