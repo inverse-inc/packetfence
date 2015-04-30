@@ -45,19 +45,6 @@
 ServerTokens OS
 
 #
-# ServerRoot: The top of the directory tree under which the server's
-# configuration, error, and log files are kept.
-#
-# NOTE!  If you intend to place this on an NFS (or otherwise network)
-# mounted filesystem then please read the LockFile documentation
-# (available at <URL:http://httpd.apache.org/docs/2.2/mod/mpm_common.html#lockfile>);
-# you will save yourself a lot of trouble.
-#
-# Do NOT add a slash at the end of the directory path.
-#
-ServerRoot "/etc/httpd"
-
-#
 # PidFile: The file in which the server should record its process
 # identification number when it starts.  Note the PIDFILE variable in
 # /etc/sysconfig/httpd must be set appropriately if this location is
@@ -132,44 +119,95 @@ Listen 9000
 # Example:
 # LoadModule foo_module modules/mod_foo.so
 #
-LoadModule auth_basic_module modules/mod_auth_basic.so
-LoadModule auth_digest_module modules/mod_auth_digest.so
-LoadModule authn_file_module modules/mod_authn_file.so
-LoadModule authn_alias_module modules/mod_authn_alias.so
-LoadModule authn_anon_module modules/mod_authn_anon.so
-LoadModule authn_dbm_module modules/mod_authn_dbm.so
-LoadModule authn_default_module modules/mod_authn_default.so
-LoadModule authz_host_module modules/mod_authz_host.so
-LoadModule authz_user_module modules/mod_authz_user.so
-LoadModule authz_owner_module modules/mod_authz_owner.so
-LoadModule authz_groupfile_module modules/mod_authz_groupfile.so
-LoadModule authz_dbm_module modules/mod_authz_dbm.so
-LoadModule authz_default_module modules/mod_authz_default.so
-LoadModule autoindex_module modules/mod_autoindex.so
-LoadModule dir_module modules/mod_dir.so
-LoadModule log_config_module modules/mod_log_config.so
-#LoadModule logio_module modules/mod_logio.so
-LoadModule env_module modules/mod_env.so
-LoadModule ext_filter_module modules/mod_ext_filter.so
-LoadModule mime_magic_module modules/mod_mime_magic.so
-LoadModule expires_module modules/mod_expires.so
-LoadModule deflate_module modules/mod_deflate.so
-LoadModule headers_module modules/mod_headers.so
-LoadModule usertrack_module modules/mod_usertrack.so
-LoadModule setenvif_module modules/mod_setenvif.so
-LoadModule mime_module modules/mod_mime.so
-LoadModule status_module modules/mod_status.so
-LoadModule info_module modules/mod_info.so
-LoadModule vhost_alias_module modules/mod_vhost_alias.so
-LoadModule alias_module modules/mod_alias.so
-LoadModule substitute_module modules/mod_substitute.so
+#
+#Debian specific
+<IfDefine debian>
+    LoadModule wsgi_module modules/mod_wsgi.so
+  <IfModule !mod_log_config.c>
+    LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_ssl.c>
+    LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so                                                         
+  </IfModule>
+  <IfModule !mod_headers.c>
+    LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
+  </IfModule>
+  <IfModule !mod_proxy.c>
+    LoadModule proxy_module /usr/lib/apache2/modules/mod_proxy.so
+  </IfModule>
+  <IfModule !mod_authz_host.c>
+    LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
+  </IfModule>
+  <IfModule !mod_setenvif.c>
+    LoadModule setenvif_module /usr/lib/apache2/modules/mod_setenvif.so
+  </IfModule>
+  <IfModule !mod_rewrite.c>
+    LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
+  </IfModule>
+  <IfModule !mod_alias.c>
+    LoadModule alias_module /usr/lib/apache2/modules/mod_alias.so
+  </IfModule>
+  <IfModule !mod_mime.c>
+    LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
+  </IfModule>
+  <IfModule !mod_apreq2.c>
+    LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
+  </IfModule>
+  <IfModule !proxy_http.c>
+    LoadModule proxy_http_module /usr/lib/apache2/modules/mod_proxy_http.so
+  </IfModule>
+  <IfModule !mod_proxy_connect.c>
+   LoadModule proxy_connect_module /usr/lib/apache2/modules/mod_proxy_connect.so
+  </IfModule>
+</IfDefine>
+
+#RHEL specific
+<IfDefine rhel>
+    LoadModule wsgi_module modules/mod_wsgi.so
+  <IfModule !mod_log_config.c>
+    LoadModule log_config_module modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_ssl.c>
+    LoadModule ssl_module modules/mod_ssl.so
+  </IfModule>
+  <IfModule !mod_headers.c>
+    LoadModule headers_module modules/mod_headers.so
+  </IfModule>
+  <IfModule !mod_proxy.c>
+    LoadModule proxy_module modules/mod_proxy.so
+  </IfModule>
+  <IfModule !mod_authz_host.c>
+    LoadModule authz_host_module modules/mod_authz_host.so                                                            
+  </IfModule>
+  <IfModule !mod_setenvif.c>
+    LoadModule setenvif_module modules/mod_setenvif.so
+  </IfModule>
+  <IfModule !mod_rewrite.c>
+    LoadModule rewrite_module modules/mod_rewrite.so
+  </IfModule>
+  <IfModule !mod_alias.c>
+    LoadModule alias_module modules/mod_alias.so
+  </IfModule>
+  <IfModule !mod_mime.c>
+    LoadModule mime_module modules/mod_mime.so
+  </IfModule>
+  <IfModule !mod_apreq2.c>
+    LoadModule apreq_module modules/mod_apreq2.so
+  </IfModule>
+  <IfModule !proxy_http.c>
+    LoadModule proxy_http_module modules/mod_proxy_http.so
+  </IfModule>
+  <IfModule !mod_proxy_connect.c>
+   LoadModule proxy_connect_module modules/mod_proxy_connect.so
+  </IfModule>
+</IfDefine>
 
 #
 # ExtendedStatus controls whether Apache will generate "full" status
 # information (ExtendedStatus On) or just basic information (ExtendedStatus
 # Off) when the "server-status" handler is called. The default is Off.
 #
-ExtendedStatus On
+#ExtendedStatus On
 
 #
 # If you wish httpd to run as a different user or group, you must run
@@ -233,7 +271,7 @@ UseCanonicalName Off
 # documents. By default, all requests are taken from this directory, but
 # symbolic links and aliases may be used to point to other locations.
 #
-DocumentRoot "/usr/share/graphite/webapp"
+DocumentRoot "/var/www/html"
 
 #
 # Each directory to which Apache has access can be configured with respect
@@ -258,7 +296,7 @@ DocumentRoot "/usr/share/graphite/webapp"
 #
 # This should be changed to whatever you set DocumentRoot to.
 #
-<Directory "/usr/share/graphite/webapp">
+<Directory "/var/www/html">
 
 #
 # Possible values for the Options directive are "None", "All",
@@ -289,16 +327,51 @@ DocumentRoot "/usr/share/graphite/webapp"
 
 </Directory>
 
+#
+# UserDir: The name of the directory that is appended onto a user's home
+# directory if a ~user request is received.
+#
+# The path to the end user account 'public_html' directory must be
+# accessible to the webserver userid.  This usually means that ~userid
+# must have permissions of 711, ~userid/public_html must have permissions
+# of 755, and documents contained therein must be world-readable.
+# Otherwise, the client will only receive a "403 Forbidden" message.
+#
+# See also: http://httpd.apache.org/docs/misc/FAQ.html#forbidden
+#
+<IfModule mod_userdir.c>
+    #
+    # UserDir is disabled by default since it can confirm the presence
+    # of a username on the system (depending on home directory
+    # permissions).
+    #
+    UserDir disabled
+
+    #
+    # To enable requests to /~user/ to serve the user's public_html
+    # directory, remove the "UserDir disabled" line above, and uncomment
+    # the following line instead:
+    # 
+    #UserDir public_html
+
+</IfModule>
 
 #
-# DirectoryIndex: sets the file that Apache will serve if a directory
-# is requested.
+# Control access to UserDir directories.  The following is an example
+# for a site where these directories are restricted to read-only.
 #
-# The index.html.var file (a type-map) is used to deliver content-
-# negotiated documents.  The MultiViews Option can be used for the 
-# same purpose, but it is much slower.
-#
-DirectoryIndex index.html 
+#<Directory /home/*/public_html>
+#    AllowOverride FileInfo AuthConfig Limit
+#    Options MultiViews Indexes SymLinksIfOwnerMatch IncludesNoExec
+#    <Limit GET POST OPTIONS>
+#        Order allow,deny
+#        Allow from all
+#    </Limit>
+#    <LimitExcept GET POST OPTIONS>
+#        Order deny,allow
+#        Deny from all
+#    </LimitExcept>
+#</Directory>
 
 #
 # AccessFileName: The name of the file to look for in each directory
@@ -380,7 +453,7 @@ HostnameLookups Off
 # logged here.  If you *do* define an error logfile for a <VirtualHost>
 # container, that host's errors will be logged there and not here.
 #
-ErrorLog /usr/local/pf/logs/httpd.graphite_error
+ErrorLog logs/error_log
 
 #
 # LogLevel: Control the number of messages logged to the error_log.
@@ -422,7 +495,7 @@ LogFormat "%{User-agent}i" agent
 # For a single logfile with access, agent, and referer information
 # (Combined Logfile Format), use the following directive:
 #
-CustomLog /usr/local/pf/logs/httpd.graphite_access combined
+CustomLog logs/access_log combined
 
 #
 # Optionally add a line containing the server version and virtual host
@@ -433,15 +506,6 @@ CustomLog /usr/local/pf/logs/httpd.graphite_access combined
 # Set to one of:  On | Off | EMail
 #
 ServerSignature On
-
-#
-# Redirect allows you to tell clients about documents which used to exist in
-# your server's namespace, but do not anymore. This allows you to tell the
-# clients where to look for the relocated document.
-# Example:
-# Redirect permanent /foo http://www.example.com/bar
-
-
 
 #
 # Specify a default charset for all content served; this enables
@@ -486,15 +550,6 @@ AddType application/x-pkcs7-crl    .crl
 AddHandler type-map var
 
 #
-# Filters allow you to process content before it is sent to the client.
-#
-# To parse .shtml files for server-side includes (SSI):
-# (You will also need to add "Includes" to the "Options" directive.)
-#
-AddType text/html .shtml
-AddOutputFilter INCLUDES .shtml
-
-#
 # The following directives modify normal HTTP response behavior to
 # handle known problems with browser implementations.
 #
@@ -520,19 +575,24 @@ BrowserMatch "^XML Spy" redirect-carefully
 BrowserMatch "^Dreamweaver-WebDAV-SCM1" redirect-carefully
 
 
-# LOAD THE PYTHON WSGI MODULE FOR GRAPHITE-WEB
-LoadModule wsgi_module modules/mod_wsgi.so
-
 <VirtualHost *:9000>
 
     ServerName graphite-web
     DocumentRoot "/usr/share/graphite/webapp"
     ErrorLog /usr/local/pf/logs/httpd.graphite.log
     CustomLog /usr/local/pf/logs/httpd.graphite.log common
-    Alias /content/ "/usr/share/graphite/webapp/content/"
+    Alias /media/ "/usr/lib/python2.6/site-packages/django/contrib/admin/media/"
 
-    WSGIScriptAlias / /usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi
-    WSGIImportScript /usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
+    WSGIScriptAlias / /usr/share/graphite/graphite-web.wsgi
+    WSGIImportScript /usr/share/graphite/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
+
+    <Location "/content/">
+        SetHandler None
+    </Location>
+
+    <Location "/media/">
+        SetHandler None
+    </Location>
 
 </VirtualHost>
 
