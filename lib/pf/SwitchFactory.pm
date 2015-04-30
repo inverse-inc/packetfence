@@ -90,10 +90,11 @@ sub instantiate {
         }
     }
     if (!$requestedSwitch) {
+        my @SwitchConfigOrder = sort { NetAddr::IP->new($b)->masklen <=> NetAddr::IP->new($a)->masklen } keys %SwitchRanges;
         foreach my $search (@requestedSwitches){
             next if (valid_mac($search));
-            foreach my $switch ( keys (%SwitchRanges) ) {
-                my $network = NetAddr::IP->new($switch); 
+            foreach my $switch ( @SwitchConfigOrder ) {
+                my $network = NetAddr::IP->new($switch);
                 my $ip = new NetAddr::IP::Lite clean_ip($search);
                 if ($network->contains($ip)) {
                     $requestedSwitch = $search;
