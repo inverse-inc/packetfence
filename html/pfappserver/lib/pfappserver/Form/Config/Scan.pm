@@ -197,9 +197,9 @@ To automatically add the context to the Form
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
     my @oses = ["Windows" => "Windows",
-                "Mac OS" => "Mac OS",
-                "Android" => "Android",
-                "Apple" => "Apple IOS device"
+                "Macintosh" => "Mac OS X",
+                "Generic Android" => "Android",
+                "Apple iPod, iPhone or iPad" => "Apple iOS device"
                ];
     return $self->SUPER::ACCEPT_CONTEXT($c, oses => @oses, @args);
 }
