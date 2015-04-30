@@ -1,27 +1,38 @@
-#!/usr/bin/perl -T
+package pf::cmd::pf::generatedomainconfig;
 =head1 NAME
 
-pfcmd
+pf::cmd::pf::generatedomainconfig
 
-=cut
+=head1 SYNOPSIS
+
+ pfcmd generatedomainconfig
+
+generates the OS configuration for the domain binding
 
 =head1 DESCRIPTION
 
-driver script for pfcmd
+pf::cmd::pf::generatedomainconfig
 
 =cut
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
 
-# force UID/EUID to root to allow socket binds, etc
-# required for non-root (and GUI) service restarts to work
-$> = 0;
-$< = 0;
+use base qw(pf::cmd);
 
-use pf::cmd::pf;
-exit pf::cmd::pf->new({args => \@ARGV})->run();
+use pf::domain;
+use pf::util;
+use pf::constants::exit_code qw($EXIT_SUCCESS);
+
+sub _run {
+    my ($self) = @_;
+    pf::domain::generate_krb5_conf();
+    pf::domain::generate_smb_conf();
+    pf::domain::generate_resolv_conf();
+    pf_run("sudo /usr/local/pf/bin/pfcmd service iptables restart");
+    pf::domain::restart_winbinds();
+    return $EXIT_SUCCESS; 
+}
 
 =head1 AUTHOR
 
@@ -35,7 +46,7 @@ Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -51,4 +62,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 

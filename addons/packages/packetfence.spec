@@ -83,7 +83,7 @@ BuildArch: noarch
 # TODO we might consider re-enabling this to simplify our SPEC
 AutoReqProv: 0
 
-Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext, conntrack-tools, patch
+Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch
 # for process management
 Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
@@ -254,8 +254,9 @@ Requires: perl(Hash::Merge)
 Requires: perl(IO::Socket::INET6)
 Requires: perl(IO::Interface)
 Requires: perl(Time::Period)
+Requires: iproute >= 3.0.0, samba, krb5-workstation
 # configuration-wizard
-Requires: iproute, vconfig
+Requires: vconfig
 
 Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
@@ -623,8 +624,8 @@ if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /de
   # Comment out entry from a previous version of PF (< 4.0)
   sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers
 fi
-if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/sbin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/radiusd.*/usr/sbin/snort.*/usr/sbin/suricata.*/usr/sbin/conntrack" /etc/sudoers > /dev/null  ) ; then
-  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd, /usr/sbin/snort, /usr/bin/suricata, /usr/sbin/conntrack" >> /etc/sudoers
+if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/sbin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/radiusd.*/usr/sbin/snort.*/usr/sbin/suricata.*/usr/sbin/chroot.*/usr/local/pf/bin/pfcmd" /etc/sudoers > /dev/null  ) ; then
+  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd, /usr/sbin/snort, /usr/bin/suricata, /usr/sbin/chroot, /usr/local/pf/bin/pfcmd" >> /etc/sudoers
 fi
 if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
   echo 'Defaults:pf !requiretty' >> /etc/sudoers
@@ -847,6 +848,8 @@ fi
                         /usr/local/pf/conf/radiusd/sql.conf.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
+%config(noreplace)      /usr/local/pf/conf/domain.conf
+                        /usr/local/pf/conf/domain.conf.example
 %dir                    /usr/local/pf/conf/snort
 %config(noreplace)      /usr/local/pf/conf/snort/classification.config
                         /usr/local/pf/conf/snort/classification.config.example

@@ -42,6 +42,8 @@ use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::authentication;
 use pf::cluster;
+use pf::ConfigStore::Provisioning;
+use pf::ConfigStore::Domain;
 
 # This is the content that needs to match in the iptable rules for the service
 # to be considered as running
@@ -88,12 +90,13 @@ sub iptables_generate {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my %tags = (
         'filter_if_src_to_chain' => '', 'filter_forward_inline' => '',
-        'filter_forward_vlan' => '',
+        'filter_forward_vlan' => '', 'filter_forward_domain' => '',
         'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '',
         'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '',
         'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
         'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '',
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
+        'domain_postrouting' => '',
     );
 
     # global substitution variables
@@ -136,7 +139,9 @@ sub iptables_generate {
         $tags{'filter_if_src_to_chain'}, $tags{'filter_forward_inline'},
         $tags{'mangle_if_src_to_chain'}, $tags{'mangle_prerouting_inline'},
         $tags{'nat_if_src_to_chain'}, $tags{'nat_prerouting_inline'},
-    );
+  );
+
+    generate_domain_rules(\$tags{'filter_forward_domain'}, \$tags{'domain_postrouting'});
 
     parse_template( \%tags, "$conf_dir/iptables.conf", "$generated_conf_dir/iptables.conf" );
     $self->iptables_restore("$generated_conf_dir/iptables.conf");
@@ -662,6 +667,22 @@ sub generate_provisioning_passthroughs {
     }
 
 
+}
+
+sub generate_domain_rules {
+    my ( $filter_forward_domain, $domain_postrouting ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    foreach my $name (@{pf::ConfigStore::Domain->new->readAllIds}){
+        $$filter_forward_domain .= "-A FORWARD -o $name-b -j ACCEPT\n";
+        $$filter_forward_domain .= "-A FORWARD -i $name-b -j ACCEPT\n";
+    }
+
+    # MOVE ME TO SOMEWHERE - BUT WHERE ????? - ANYWHERE IS BETTER THAN THIS !
+    my $domain_network = "169.254.0.0/16";
+
+    my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
+    my $mgmt_int = $management_network->tag('int');
+    $$domain_postrouting .= "-A POSTROUTING -s $domain_network -o $mgmt_int -j SNAT --to-source $mgmt_ip \n"
 }
 
 =back

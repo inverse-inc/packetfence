@@ -45,6 +45,7 @@ Items.prototype.post = function(options) {
  * The ItemView class defines the DOM operations from the Web interface.
  */
 var ItemView = function(options) {
+    var that = this;
     this.parent = options.parent;
     var items = options.items
     this.items = items;

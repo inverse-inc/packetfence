@@ -1,37 +1,36 @@
-#!/usr/bin/perl -T
+package pf::ConfigStore::Domain;
 =head1 NAME
 
-pfcmd
+pf::ConfigStore::Domain
+Store Domain configuration
 
 =cut
 
 =head1 DESCRIPTION
 
-driver script for pfcmd
+pf::ConfigStore::Domain
 
 =cut
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use Moo;
+use pf::file_paths;
+extends 'pf::ConfigStore';
 
-# force UID/EUID to root to allow socket binds, etc
-# required for non-root (and GUI) service restarts to work
-$> = 0;
-$< = 0;
+sub configFile { $pf::file_paths::domain_config_file };
 
-use pf::cmd::pf;
-exit pf::cmd::pf->new({args => \@ARGV})->run();
+sub pfconfigNamespace {'config::Domain'}
+
+__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
-Minor parts of this file may have been contributed. See CREDITS.
-
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2014 Inverse inc.
 
 =head1 LICENSE
 
@@ -51,4 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 
