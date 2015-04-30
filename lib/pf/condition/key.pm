@@ -14,7 +14,7 @@ pf::condition::key
 use strict;
 use warnings;
 use Moose;
-extends qw('pf::condition');
+extends qw(pf::condition);
 
 has key => (
     is => 'ro',
