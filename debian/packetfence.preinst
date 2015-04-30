@@ -48,6 +48,7 @@ case "$1" in
         if [ -a "/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm" ] ; then
                 rm -fr /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
         fi
+        usermod -G fingerbank pf
         exit 0
     ;;
     abort-upgrade)
