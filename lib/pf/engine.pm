@@ -52,7 +52,7 @@ sub match_first {
     my $arg = $self->build_match_arg(@args);
     my $filter = first { $_->match($arg) } $self->all_filters;
     return undef unless $filter;
-    return $filter->answer;
+    return $filter->get_answer($arg);
 }
 
 =head2 match_all
@@ -66,7 +66,7 @@ sub match_all {
     my $arg = $self->build_match_arg(@args);
     my @filters = grep {$_->match($arg)} $self->all_filters;
     return unless @filters;
-    return map {$_->answer} @filters;
+    return map {$_->get_answer($arg)} @filters;
 }
 
 

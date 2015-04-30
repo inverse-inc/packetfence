@@ -53,6 +53,10 @@ sub match {
     return $self->condition->match($arg);
 }
 
+sub get_answer {
+    return $_[0]->answer;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
