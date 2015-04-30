@@ -631,6 +631,11 @@ if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
   echo 'Defaults:pf !requiretty' >> /etc/sudoers
 fi
 
+# dashboard symlinks and permissions
+ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.6/site-packages/graphite/local_settings.py
+chmod g+w /var/lib/carbon
+chmod g+w /var/lib/graphite-web
+
 #Getting rid of SELinux
 echo "Disabling SELinux..."
 setenforce 0
