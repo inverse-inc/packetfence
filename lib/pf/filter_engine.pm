@@ -1,14 +1,14 @@
-package pf::engine;
+package pf::filter_engine;
 
 =head1 NAME
 
-pf::engine The pf filtering engine
+pf::filter_engine The pf filtering engine
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::engine
+pf::filter_engine
 
 =cut
 

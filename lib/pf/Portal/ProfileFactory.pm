@@ -23,7 +23,7 @@ use pf::config;
 use pf::node;
 use pf::authentication;
 use pf::Portal::Profile;
-use pf::engine::profile;
+use pf::filter_engine::profile;
 use pfconfig::cached_scalar;
 use List::Util qw(first);
 
