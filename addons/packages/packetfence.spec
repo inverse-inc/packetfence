@@ -1118,6 +1118,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Fri May 01 2015 Inverse <info@inverse.ca> - 5.0.2-1
+- New release 5.0.2
+
 * Wed Apr 22 2015 Inverse <info@inverse.ca> - 5.0.1-1
 - New release 5.0.1
 
