@@ -58,6 +58,12 @@ sub index : Path : Args(0) {
     }
 }
 
+=head2 sign_profile
+
+Signe the profile to be trusted on IOS / MacOSX
+
+=cut
+
 sub sign_profile : Private {
     my ( $self, $c ) = @_;
 
@@ -93,6 +99,12 @@ sub profile_xml : Path('/profile.xml') : Args(0) {
     $c->stash->{filename} = 'profile.xml';
     $c->forward('index');
 }  
+
+=head2 get_tmp_filename
+
+Create a temporary template for the signing
+
+=cut
 
 sub get_temp_filename : Private {
     my $fh = File::Temp->new(
