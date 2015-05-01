@@ -7,17 +7,12 @@ use pf::log;
 use pf::config;
 use pf::util;
 use pf::node;
-#use pf::web qw(i18n ni18n i18n_format render_template);
 use pf::web::constants;
 use List::MoreUtils qw(uniq any);
-#use Readonly;
-#use POSIX;
 use pf::authentication;
 use HTML::Entities;
-#use URI::Escape::XS qw(uri_escape);
 use pf::web;
 use File::Basename;
-use Email::Valid;
 
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -37,6 +32,8 @@ Controller for EAPTLS connections.
 =cut
 
 =head2 index
+
+Collect information about the user and the certificate to generate
 
 =cut
 
@@ -67,6 +64,12 @@ sub index : Path : Args(0) {
     );
 }
 
+=head2 build_cert_p12
+
+Build a certificate file in p12 with the answer of the pki
+
+=cut
+
 sub build_cert_p12 : Path : Args(0) {
     my ($self, $c) = @_;
     my $logger = $c->log;
@@ -74,7 +77,7 @@ sub build_cert_p12 : Path : Args(0) {
     my $cert_data = $c->stash->{'cert_content'};
     my $cert = $c->stash->{'certificate_cn'} . ".p12";
     my $certname = "$cert_dir/$cert";
-    $c->session( certificate_cn => "$cert" );
+    $c->session( certificate_cn => $cert );
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
     my $node_info     = node_view($mac);
@@ -86,11 +89,17 @@ sub build_cert_p12 : Path : Args(0) {
     }
     else {
         $logger->info("The certificate file could not be saved for username \"$pid\"");
-        $self->showError($c,"An error has occured while trying to save your certificate, please contact your IT support");
+        $self->showError($c,"An error has occured while trying to save your certificate, please contact your local support staff");
     }
     print $fh "$cert_data\n";
     close $fh;
 }
+
+=head2 get_cert
+
+Use PkiProvider{get_cert} method to send the request in order to generate the certificate
+
+=cut
 
 sub get_cert : Private {
     my ($self, $c) = @_;
@@ -105,11 +114,17 @@ sub get_cert : Private {
     $c->stash(cert_content => $cert_content);
 }
 
+=head2 cert_process
+
+Process order of the TLSProfile controller
+
+=cut
+
 sub cert_process : Local {
     my ($self,$c) = @_;
     my $logger = $c->log;
     $c->stash(info => $c->session->{info});
-    $c->forward('validateform');
+    $c->forward('validate_form');
     $c->forward('get_cert');
     $c->forward('build_cert_p12');
     $c->forward('b64_cert');
@@ -119,7 +134,13 @@ sub cert_process : Local {
     $c->forward( 'CaptivePortal' => 'endPortalSession' );
 }
 
-sub validateform : Private {
+=head2 validate_form
+
+Validate informations input by the user
+
+=cut
+
+sub validate_form : Private {
     my ($self, $c) = @_;
     my $logger = $c->log;
     my $pid    = "";
@@ -147,12 +168,13 @@ sub validateform : Private {
     };
     $user_cache->set("pki_session" => $pki_session);
     $c->stash($pki_session);
-
-    #unless (Email::Valid->address($email_addr)){
-    #    $logger->debug("Email enter is invalid for username \"$pid\"");
-    #    $self->showError($c,"Please enter a vaild email address");
-    #}
 }
+
+=head2 b64_cert
+
+Encode user certificate in b64
+
+=cut
 
 sub b64_cert : Local {
     my ($self,$c) = @_;
@@ -171,6 +193,13 @@ sub b64_cert : Local {
         b64_cert => $b64,
     );
 }
+
+=head2 export_fingerprint
+
+Get the fingerprint of the CA, to allow the trust under windows
+
+=cut
+
 sub export_fingerprint : Local {
     my ($self, $c) = @_;
     my $logger = $c->log;
@@ -178,10 +207,6 @@ sub export_fingerprint : Local {
     my $stash = $c->stash;
     my $user_cache = $c->user_cache;
     my $pki_session = $user_cache->compute("pki_session", sub {});
-    #my $provisioner = $stash->{'provisioner'};
-    #$logger->info('CA_PATH'.Dumper($provisioner));
-    #my $cacert = $provisioner->{'ca_path'};
-    #$logger->info('CA_PATH'.Dumper($cacert));
     my $capath = "/usr/local/pf/raddb/certs/TestEAP.pem";
     my $svrpath = "/usr/local/pf/raddb/certs/svr.pem";
     my $data = pf_run("openssl x509 -in $capath -fingerprint");
