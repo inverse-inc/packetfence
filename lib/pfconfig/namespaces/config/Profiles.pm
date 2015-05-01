@@ -22,7 +22,7 @@ use pf::file_paths;
 use pf::util;
 use pfconfig::namespaces::resource::guest_self_registration;
 use pf::constants::Portal::Profile;
-use pf::engine::profile;
+use pf::filter_engine::profile;
 
 use base 'pfconfig::namespaces::config';
 
@@ -63,7 +63,7 @@ sub build_child {
                 || $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE );
     }
 
-    $self->{engine_profile} = pf::engine::profile->new({ ordered_ids => \@profiles, config => \%Profiles_Config });
+    $self->{engine_profile} = pf::filter_engine::profile->new({ ordered_ids => \@profiles, config => \%Profiles_Config });
 
     return \%Profiles_Config;
 

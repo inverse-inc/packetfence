@@ -34,6 +34,7 @@ has value => (
     is       => 'ro',
     required => 1,
     isa      => 'Str',
+    trigger => \&_trigger_value,
 );
 
 =head2 value1/value2

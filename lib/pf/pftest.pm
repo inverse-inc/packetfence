@@ -11,6 +11,7 @@ pftest <cmd> [options]
  Commands
   authentication              | checks authentication sources
   mysql                       | runs the mysql tuner
+  iplogs_not_closed           | checks if there are multiple iplog entries opened
 
 Please view "pftest.pl help <command>" for details on each option
 

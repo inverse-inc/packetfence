@@ -17,7 +17,7 @@ use lib '/usr/local/pf/lib';
 use Test::More tests => 4;
 
 BEGIN {
-    use_ok("pf::engine");
+    use_ok("pf::filter_engine");
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
@@ -34,7 +34,7 @@ use pf::condition::true;
 
 {
 
-    my $engine = pf::engine->new(
+    my $engine = pf::filter_engine->new(
         {   filters => [
                 pf::filter->new(
                     {   answer    => 'no match',

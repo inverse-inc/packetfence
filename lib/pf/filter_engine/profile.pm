@@ -1,21 +1,21 @@
-package pf::engine::profile;
+package pf::filter_engine::profile;
 
 =head1 NAME
 
-pf::engine::profile add documentation
+pf::filter_engine::profile add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::engine::profile
+pf::filter_engine::profile
 
 =cut
 
 use strict;
 use warnings;
 use Moose;
-extends qw(pf::engine);
+extends qw(pf::filter_engine);
 use pf::node;
 use pf::filter;
 use pf::factory::condition::profile;
