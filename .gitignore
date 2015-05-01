@@ -12,6 +12,7 @@ conf/named.conf
 conf/pf.conf
 conf/*.lock
 conf/*.lockonce
+conf/git_commit_id
 conf/log.conf.d/*.conf
 conf/nessus/
 conf/currently-at

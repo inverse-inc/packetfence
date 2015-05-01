@@ -1,5 +1,14 @@
 <h2>[% l('Fingerbank Settings') %]</h2>
 
+<div class="options">
+  <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Config::Fingerbank::DB').action_for('submit') )%]" ><i class="icon-share"></i> [% l('Submit Unknown/Unmatched Fingerprints') %]</a>
+  [% IF can_access("FINGERPRINTS_UPDATE") %]
+    | <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Config::Fingerbank::DB').action_for('update') )%]" ><i class="icon-refresh"></i> [% l('Update Fingerbank DB') %]</a>
+  [% END %]
+</div>
+
+<br/>
+
 <form name="section" class="form-horizontal" action="[%c.uri_for(c.controller.action_for('index'))%]" method="post">
   [% FOREACH field IN form.fields %]
     [% form.field(field.name).render %]

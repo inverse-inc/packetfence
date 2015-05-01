@@ -272,7 +272,7 @@ Requires: mod_qos
 Requires: %{real_name}-config = %{ver}
 Requires: %{real_name}-pfcmd-suid = %{ver}
 Requires: haproxy >= 1.5, keepalived >= 1.2
-Requires: fingerbank = 1.0.0
+Requires: fingerbank >= 1.0.1
 
 %description -n %{real_name}
 
@@ -1118,6 +1118,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Fri May 01 2015 Inverse <info@inverse.ca> - 5.0.2-1
+- New release 5.0.2
+
 * Wed Apr 22 2015 Inverse <info@inverse.ca> - 5.0.1-1
 - New release 5.0.1
 

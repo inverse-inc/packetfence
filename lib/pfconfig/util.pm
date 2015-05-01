@@ -34,11 +34,37 @@ sub fetch_socket {
     print $socket "$payload\n";
 
     # this will give us the line length to read
-    chomp( my $count = <$socket> );
 
+    chomp( my $count = <$socket> ); 
+
+    # under some conditions we are receiving multiple lines.
+    # this under here should now fix it
+    use bytes;
+    # if the fix above doesn't fix it, then multi-line handling is done
+    # through the following lines
+    pfconfig::log::get_logger->trace("pfconfig has $count lines for us");
     my $line;
     my $line_read = 0;
     my $response  = '';
+    if($count =~ /\n/){
+        my @data = split(/\n/, $count);
+        my $length = scalar @data;
+        pfconfig::log::get_logger->warn("pfconfig has sent multiple lines with the count ($length)");
+        my $i = 0;
+        while($i < $length){
+            if($i == 0){
+                 $count = $data[0];
+            }
+            else{
+                # we chomp whatever we have to re-add it after so we hit all cases
+                $line = $data[$i];
+                $response .= $line . "\n";
+                $line_read += 1;
+            }
+            $i++;
+        }
+    }
+
     # This is evil but we're getting lines with no content in them.
     # This throws a warning that $line is undefined. 
     # We workaround this by deactivating warnings when we read though the socket

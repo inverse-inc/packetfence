@@ -92,6 +92,16 @@ sub setupCommonStash : Private {
     push @list_help_info,
       { name => i18n('MAC'), value => $portalSession->clientMac }
       if ( defined( $portalSession->clientMac ) );
+    if (defined( $portalSession->clientMac ) ) {
+        my $node_info = node_view($portalSession->clientMac);
+        if ( defined( $node_info ) ) {
+            $c->stash(
+                map { $_ => $node_info->{$_} }
+                  qw(dhcp_fingerprint last_switch last_port
+                  last_vlan last_connection_type last_ssid username)
+            );
+        }
+    }
     $c->stash(
         pf::web::constants::to_hash(),
         destination_url => encode_entities($destination_url),

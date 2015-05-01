@@ -19,52 +19,32 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use PfFilePaths;
 }
-use Test::More tests => 9;
+use Test::More tests => 5;
 
 use Test::NoWarnings;
 use Test::Exception;
 
 our $TEST_CATEGORY = "test";
 
-our $TEST_OS = 'Apple iPod, iPhone or iPad',
-
+our $ANDROID_DEVICE = 'Generic Android';
+our $APPLE_DEVICE   = 'Apple iPod, iPhone or iPad',
 our $TEST_NODE_ATTRIBUTE = { category => $TEST_CATEGORY };
 
-use_ok("pf::provisioner");
+use_ok("pf::provisioner::mobileconfig");
 
 my $provisioner = new_ok(
-    "pf::provisioner",
+    "pf::provisioner::mobileconfig",
     [{
-        type     => 'autoconfig',
         category => [$TEST_CATEGORY],
-        template => 'dummy',
-        oses     => [$TEST_OS],
     }]
 );
 
-ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match both os and category");
+ok(!$provisioner->match($ANDROID_DEVICE,$TEST_NODE_ATTRIBUTE),"Does not match android device");
 
-ok(!$provisioner->match('Generic Android',$TEST_NODE_ATTRIBUTE),"Don't Match os but Matching category");
-
-ok(!$provisioner->match('Generic Android','not_matching'),"Don't Match os and category");
-
-$provisioner->category(['not_matching']);
-
-ok(!$provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match os but not category");
-
-$provisioner->category([]);
-
-ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match os with the any category");
-
-ok(!$provisioner->match('Generic Android',$TEST_NODE_ATTRIBUTE),"Don't match os with the any category");
-
+ok($provisioner->match($APPLE_DEVICE,$TEST_NODE_ATTRIBUTE),"Matches apple device");
 
 1;
 
-
-
-
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

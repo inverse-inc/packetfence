@@ -11,6 +11,24 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 5.0.2 released on 2015-05-01
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This release is a bug fix only. No new features were introduced.
+
+Enhancements
+++++++++++++
+* Added availables options (submit unknowns and update database) to the Fingerbank Settings page.
+* PacketFence will now leave clients.conf.inc empty if cluster mode is disabled.
+
+Bug Fixes
++++++++++
+* PacketFence will longer unregister a device in pending state if the device is hitting the portal more than once while in "pending" state.
+* Fixed broken violation release process.
+* Fixed multiple lines returning from pfconfig.
+* Fixed undefined variables in portal template files.
+* Fixed provisioners OS detection with Fingerbank.
+
 Version 5.0.1 released on 2015-04-21
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -32,6 +50,7 @@ Bug Fixes
 * Updating iplog without a lease time now reset end_time to default (0000-00-00 00:00:00) to avoid "closing" a valid entry
 * fixed pfcmd watch emailing functionality.
 * dhcpd will now properly obey the "disabled" configuration.
+* Fixed bulk apply of bypass roles for node in the admin GUI
 
 Version 5.0.0 released on 2015-04-15
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

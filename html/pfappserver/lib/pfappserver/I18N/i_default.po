@@ -410,15 +410,15 @@ msgid "Allow Local Domain"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
-msgid "Allowed access durations"
+msgid "Allowed user access durations"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
-msgid "Allowed access levels"
+msgid "Allowed user access levels"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
-msgid "Allowed roles"
+msgid "Allowed user roles"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm

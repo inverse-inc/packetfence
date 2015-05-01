@@ -29,6 +29,7 @@ use pf::util;
 use pf::violation;
 use pf::web;
 use pf::log;
+use pf::enforcement;
 # called last to allow redefinitions
 use pf::web::custom;
 
@@ -52,6 +53,8 @@ sub handler
     pf::web::generate_error_page($portalSession, i18n("error: not found in the database"), $r);
     return Apache2::Const::OK;
   }
+
+  $logger->info("We're in the release module");
 
   if (defined($cgi->param('mode'))) {
     if ($cgi->param('mode') eq 'release') {
@@ -109,34 +112,26 @@ sub handler
     return Apache2::Const::OK;
   }
   
-  my $cmd = $bin_dir."/pfcmd manage vclose $mac $vid";
-  $logger->info("calling $bin_dir/pfcmd manage vclose $mac $vid");
-  my $grace = qx/$cmd/;
-  $grace =~ s/^.+\n\n//;
-  #my $grace = violation_close($mac,$vid);
-  $logger->info("pfcmd manage vclose $mac $vid returned $grace");
+  $logger->info("Will try to close violation $vid for $mac");
+  my $grace = violation_close($mac,$vid);
+  $logger->info("Closing of violation $vid for $mac returned $grace");
   
   if ($grace != -1) {
     my $count = violation_count($mac); 
   
     $logger->info("$mac enabled for $grace minutes");
     if ($count == 0) {
+      # we reevaluate the access so the user is release from isolation if needed
+      pf::enforcement::reevaluate_access( $mac, "manage_vclose" );
   
       if ($class_redirect_url) {
         $destination_url = $class_redirect_url;
       }
-      # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
-      if ($cgi->https()) {
-        print $cgi->redirect(
-          "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-          .'/access?destination_url=' . uri_escape($destination_url)
-        );
-        return Apache2::Const::REDIRECT;
-      }
-      else {
-        pf::web::generate_release_page($portalSession, $r);
-        return Apache2::Const::OK;
-      }
+      print $cgi->redirect(
+        "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+        .'/access?destination_url=' . uri_escape($destination_url)
+      );
+      return Apache2::Const::REDIRECT;
     }
     else {
       if ($class_redirect_url) {

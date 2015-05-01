@@ -789,10 +789,10 @@ sub bulkApplyBypassRole {
     my $count = 0;
     foreach my $mac (@macs) {
         my $node = node_view($mac);
-        my $old_bypass_role = $node->{bypass_role};
-        if (!defined($old_bypass_role) || $old_bypass_role != $role) {
+        my $old_bypass_role_id = $node->{bypass_role_id};
+        if (!defined($old_bypass_role_id) || $old_bypass_role_id != $role) {
             # Role has changed
-            $node->{bypass_role} = $role;
+            $node->{bypass_role_id} = $role;
             if (node_modify($mac, %{$node})) {
                 $count++;
                 if (!defined($node->{last_dot1x_username}) || length($node->{last_dot1x_username}) == 0) {
