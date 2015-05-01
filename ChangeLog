@@ -1,3 +1,311 @@
+commit 07144ade67603b74b016311547d4770f92c3cc41
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri May 1 14:02:56 2015 -0400
+
+    Updated dates in documentation.
+
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit 9d95d25540ee7b22833f8cfdb79656995e231608
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri May 1 13:58:13 2015 -0400
+
+    Updated NEWS with latest bugfixes.
+
+M	NEWS.asciidoc
+
+commit 1a5167ca3db545d7e38507d4716b96a6922f6e03
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri May 1 13:51:12 2015 -0400
+
+    Updated NEWS.asciidoc file
+
+M	NEWS.asciidoc
+
+commit cbced3e4fccbd6efb3952b8900f3e3f21077cd79
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri May 1 13:44:54 2015 -0400
+
+    Update NEWS.asciidoc
+
+M	NEWS.asciidoc
+
+commit 7c021df81c35034fd17440cf9303f7403fb8ec12
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri May 1 13:35:01 2015 -0400
+
+    Updated release numbers prior to 5.0.2.
+
+M	NEWS.asciidoc
+M	addons/packages/packetfence.spec
+M	conf/pf-release
+M	debian/changelog
+
+commit e63cccb843ff34f643d0ab41dcb3ceb509238ba4
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Apr 30 16:41:37 2015 -0400
+
+    Branding
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+
+commit 6011bcd741e947b069af878915f9b8106fc6db5a
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Apr 30 15:28:32 2015 -0400
+
+    Debian support
+
+M	debian/control
+M	debian/packetfence.preinst
+
+commit b687fc82ff25d477cdc47e8699273b34fb85e4f0
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Apr 30 12:22:28 2015 -0400
+
+    Updated required version of Fingerbank
+
+M	addons/packages/packetfence.spec
+
+commit 02cf443f0a8d58df28ce54179f8282aa796c9320
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Apr 29 12:38:35 2015 -0400
+
+    redirect to access after release process
+
+M	lib/pf/web/release.pm
+
+commit f997ce3c52eb61f19eec77516bdae4c9e4f0e78a
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Apr 29 12:00:42 2015 -0400
+
+    Rework broken violation release process
+    
+    Fixes #515
+
+M	conf/httpd.conf.d/httpd.portal
+M	lib/pf/web/dispatcher.pm
+M	lib/pf/web/release.pm
+
+commit 7ac4f70f31b7897e99e46eddb6ade034524b858d
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Apr 29 09:54:59 2015 -0400
+
+    Added one more test to instantiate the stash
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Root.pm
+
+commit 11b9ab14031b00d94fdbd95f743b413bb9db0691
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Apr 29 09:32:02 2015 -0400
+
+    Populate portal stash to be able to use variables in html template
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Root.pm
+
+commit 0fefa77b910678b7f9f9080817bbf4ba4159b5ce
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 28 13:20:06 2015 -0400
+
+    Updated NEWS file
+
+M	NEWS.asciidoc
+
+commit 403c3e62939268c3da4726bb3db1f1fd0746b3a6
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 28 13:14:02 2015 -0400
+
+    Fix bulk application of bypass_role for nodes
+
+M	html/pfappserver/lib/pfappserver/Model/Node.pm
+
+commit 34ceaa6911f93b936371940195815c8b563e40e3
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Apr 28 13:06:45 2015 -0400
+
+    Accurate data for test
+
+M	t/unittest/provisioner.t
+
+commit fe20cb596116f14d43e6c5afdd5c8f4aa3405d11
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Apr 28 13:03:37 2015 -0400
+
+    Added tests
+
+M	t/unittest/provisioner/android.t
+M	t/unittest/provisioner/mobileconfig.t
+
+commit 5121cba0ad43627d1518bab504d302cb47cb4b59
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Apr 28 13:02:13 2015 -0400
+
+    ARRAY
+
+M	lib/pf/provisioner/android.pm
+
+commit dc083544970eb99f7c6cb6df54a0e5f243e26f0e
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Apr 28 11:14:48 2015 -0400
+
+    Missing string modification to android provisioner
+
+M	lib/pf/provisioner/android.pm
+
+commit 405a302dd05be321d51c6aa409a2437e05cfc37c
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Apr 28 10:56:21 2015 -0400
+
+    No more need for a regex
+
+M	lib/pf/provisioner.pm
+
+commit 390240f9bcf8eb48b085a9cd93015700cfa58a88
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Apr 23 19:04:52 2015 -0400
+
+    Typo
+
+M	lib/pf/fingerbank.pm
+
+commit 84b8c98114e2f7b36c1ff90d86b352112da518aa
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Apr 23 15:28:17 2015 -0400
+
+    Use Fingerbank for provisioners
+
+M	lib/pf/provisioner.pm
+
+commit b839c612d5e795af7c971939dad081d0add8dd8c
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Apr 23 15:27:16 2015 -0400
+
+    Querying Fingerbank to get the device kind
+
+M	lib/pf/fingerbank.pm
+
+commit ef41641779d0240e986fa2a3ddaccd73994df136
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Apr 23 13:35:46 2015 -0400
+
+    Using device type instead of its class for future matching
+
+M	lib/pf/Portal/Profile.pm
+
+commit 5ecb5bfc5f01f3ac3c121c1e632dc62f0fa82397
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Apr 23 13:28:52 2015 -0400
+
+    Using Fingerbank "device class parents" names
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+
+commit db1cf1b3162777ca405d7adba3062f1a32a81924
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 28 11:24:14 2015 -0400
+
+    new tests for pf::provisioner android and mobileconfig
+
+A	t/unittest/provisioner/android.t
+A	t/unittest/provisioner/mobileconfig.t
+
+commit 1a7110cf9aba3d7f1bcf1d410b3958f9bb586963
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Apr 27 17:10:17 2015 -0400
+
+    Leave clients.conf.inc empty if there is cluster mode is not enabled
+
+M	lib/pf/services/manager/radiusd.pm
+
+commit d5eb60226dda9c1bd898e1a21f379c89ea744143
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Apr 27 17:00:54 2015 -0400
+
+    Typo
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit edc3a1e6a07387efbcdcd1ee69deffc1d881ddda
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Apr 27 14:23:33 2015 -0400
+
+    Updated .gitignore
+
+M	.gitignore
+
+commit 2f224e3b7090c833a972e00e79a538ff5b8c4acb
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Apr 24 14:51:19 2015 -0400
+
+    Remove useless verbose
+
+M	lib/pfconfig/util.pm
+
+commit 423ac2a45d85dc6d5b8c2fc0bbc7dcb96c328eeb
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Apr 23 17:20:50 2015 -0400
+
+    add fixes for multiple lines at a time returning from pfconfig
+
+M	lib/pfconfig/util.pm
+
+commit e8eaec565981de10d72679337dc3f8b36993fb2c
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Apr 23 16:57:13 2015 -0400
+
+    Missing NEWS file entry for previous commit
+
+M	NEWS.asciidoc
+
+commit 58a93fcc6770d18a6220657b839acc6a99f74ad9
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Apr 23 16:55:57 2015 -0400
+
+    Added options to Fingerbank settings page
+
+M	html/pfappserver/root/config/fingerbank/settings/index.tt
+
+commit c99f0cd549b2a5cb8f91b8701a02d2f85aac0982
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Apr 23 13:30:24 2015 -0400
+
+    Improve labels for allowed items for admin roles
+
+M	html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+
+commit 9fcb40e9a06029c241ab9831aba9f6b568791eeb
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Apr 23 13:24:02 2015 -0400
+
+    Update NEWS.asciidoc
+
+M	NEWS.asciidoc
+
+commit 6162a06f928af0f2a57e60299e6fea096de06dd0
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Apr 22 16:08:06 2015 -0400
+
+    That has no reason to be there...
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/CaptivePortal.pm
+
+commit 32d7f88c5a19a4f3f30c978346b97f9d466828a2
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Apr 22 15:48:16 2015 -0400
+
+    Add news for post 5.0.1
+
+M	NEWS.asciidoc
+
+commit 028d8698c271ef05dafd7e717401c83ad07c9f6e
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Apr 22 14:09:39 2015 -0400
+
+    Updated Changelog for 5.0.1.
+
+M	ChangeLog
+
 commit f4f1431deb2f30300ea5627bc2794b1c0d5599bd
 Author: Louis Munro <lmunro@inverse.ca>
 Date:   Wed Apr 22 14:08:52 2015 -0400
