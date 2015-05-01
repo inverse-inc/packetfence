@@ -24,8 +24,8 @@ The set the default OS Andriod
 
 =cut
 
-# Will always ignore the oses parameter provided and use [Android]
-has 'oses' => (is => 'ro', default => sub { [qw(Android)] }, coerce => sub { [qw(Android)] });
+# Will always ignore the oses parameter provided and use [Generic Android]
+has 'oses' => (is => 'ro', default => sub { ['Generic Android'] }, coerce => sub { ['Generic Android'] });
 
 =head1 AUTHOR
 

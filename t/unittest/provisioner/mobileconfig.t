@@ -26,7 +26,7 @@ use Test::Exception;
 
 our $TEST_CATEGORY = "test";
 
-our $ANDROID_DEVICE = 'Android';
+our $ANDROID_DEVICE = 'Generic Android';
 our $APPLE_DEVICE   = 'Apple iPod, iPhone or iPad',
 our $TEST_NODE_ATTRIBUTE = { category => $TEST_CATEGORY };
 
