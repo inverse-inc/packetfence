@@ -19,12 +19,14 @@ This release is a bug fix only. No new features were introduced.
 Enhancements
 ++++++++++++
 * Added availables options (submit unknowns and update database) to the Fingerbank Settings page
+* Leave clients.conf.inc empty if cluster mode is disabled
 
 Bug Fixes
 +++++++++
 * No longer unregister a device in pending state if the device is hitting more than one time the portal while being in pending state.
 * Fix broken violation release process
 * Fix for when multiple lines at a time returning from pfconfig
+* Fix undefined variables in portal template files.
 
 Version 5.0.1 released on 2015-04-21
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
