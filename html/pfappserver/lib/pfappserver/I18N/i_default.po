@@ -6542,6 +6542,10 @@ msgid "pf::profile::filter::connection_type"
 msgstr "Connection Type"
 
 # pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::day_of_week"
+msgstr "Day of week"
+
+# pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::network"
 msgstr "Network"
 
@@ -6568,6 +6572,10 @@ msgstr "Switch"
 # pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::switch_port"
 msgstr "Switch Port"
+
+# pf::filter (Portal Profile Filters)
+msgid "pf::profile::filter::time_of_day"
+msgstr "Time of day"
 
 # pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::uri"

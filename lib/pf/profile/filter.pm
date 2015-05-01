@@ -43,7 +43,7 @@ $filter->match({ k1 => 'v1', k2 => 'v2' });
     =head2 match
 
         Matches the time of day against the value
-        The value is expected to be in the following format 
+        The value is expected to be in the following format
         Start-End
         From midnight to 6am
         00:00-06:00
@@ -64,7 +64,7 @@ $filter->match({ k1 => 'v1', k2 => 'v2' });
     You can also see pf::profile::filter::network as another example
 
 =head2 Configuring in admin gui
-    
+
     The new type is automatically picked up by the admin gui as long is it under the namespace pf::profile::filter.
     If any special formating is need the gui refer to the form field pfappserver::Form::Field::ProfileFilter
 
