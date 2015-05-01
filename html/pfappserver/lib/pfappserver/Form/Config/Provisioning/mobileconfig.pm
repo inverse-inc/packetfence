@@ -18,12 +18,6 @@ has_field 'company' =>
    type => 'Text',
   );
 
-#has_field 'fingerprint' =>
-#  (
-#   type => 'hidden',
-#   value => $data,
-#  )
-
 has_field 'ssid' =>
   (
    type => 'Text',
@@ -73,7 +67,7 @@ has_field 'reversedns' =>
    type => 'Text',
    label => 'ReverseDNS identifier',
    tags => { after_element => \&help,
-             help => 'Example : if your dns name is www.packetfence.org it become org.packetfence.www'},
+             help => 'Example : if your dns name is www.packetfence.org it becomes org.packetfence.www'},
   );
 
 has_field 'ca_cert' =>
