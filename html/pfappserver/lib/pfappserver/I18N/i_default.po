@@ -6996,44 +6996,44 @@ msgstr "pending"
 msgid "pf::pki_provider::packetfence_pki"
 msgstr "PacketFence PKI"
 
-# pf::filter (Portal Profile Filters)
-msgid "pf::profile::filter::connection_type"
+# pf::condition::profile (Portal Profile Filters)
+msgid "pf::condition::profile::connection_type"
 msgstr "Connection Type"
 
-# pf::filter (Portal Profile Filters)
-msgid "pf::profile::filter::network"
+# pf::condition::profile (Portal Profile Filters)
+msgid "pf::condition::profile::network"
 msgstr "Network"
 
-# pf::filter (Portal Profile Filters)
-msgid "pf::profile::filter::node_role"
+# pf::condition::profile (Portal Profile Filters)
+msgid "pf::condition::profile::node_role"
 msgstr "Node role"
 
-# pf::filter (Portal Profile Filters)
-msgid "pf::profile::filter::port"
+# pf::condition::profile (Portal Profile Filters)
+msgid "pf::condition::profile::port"
 msgstr "Port"
 
-# pf::filter (Portal Profile Filters)
-msgid "pf::profile::filter::realm"
+# pf::condition::profile (Portal Profile Filters)
+msgid "pf::condition::profile::realm"
 msgstr "Realm"
 
-# pf::filter (Portal Profile Filters)
-msgid "pf::profile::filter::ssid"
+# pf::condition::profile (Portal Profile Filters)
+msgid "pf::condition::profile::ssid"
 msgstr "SSID"
 
-# pf::filter (Portal Profile Filters)
-msgid "pf::profile::filter::switch"
+# pf::condition::profile (Portal Profile Filters)
+msgid "pf::condition::profile::switch"
 msgstr "Switch"
 
-# pf::filter (Portal Profile Filters)
-msgid "pf::profile::filter::switch_port"
+# pf::condition::profile (Portal Profile Filters)
+msgid "pf::condition::profile::switch_port"
 msgstr "Switch Port"
 
-# pf::filter (Portal Profile Filters)
-msgid "pf::profile::filter::uri"
+# pf::condition::profile (Portal Profile Filters)
+msgid "pf::condition::profile::uri"
 msgstr "URI"
 
-# pf::filter (Portal Profile Filters)
-msgid "pf::profile::filter::vlan"
+# pf::condition::profile (Portal Profile Filters)
+msgid "pf::condition::profile::vlan"
 msgstr "VLAN"
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)

@@ -21,7 +21,7 @@ use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::factory::provisioner;
 use pf::factory::firewallsso;
-use pf::factory::profile::filter;
+use pf::factory::condition::profile;
 use pf::factory::triggerParser;
 use pf::factory::pki_provider;
 use pf::Switch::constants;
@@ -373,8 +373,8 @@ sub extract_modules {
     @values = sort grep {$_} map { /^pf::provisioner::(.*)/; $1 } @pf::factory::provisioner::MODULES;
     const('pf::provisioner', 'Provisioners', \@values);
 
-    @values = sort @pf::factory::profile::filter::MODULES;
-    const('pf::filter', 'Portal Profile Filters', \@values);
+    @values = sort pf::factory::condition::profile->modules;
+    const('pf::condition::profile', 'Portal Profile Filters', \@values);
 
     @values = sort @pf::factory::pki_provider::MODULES;
     const('pf::pki_provider', 'PKI Providers', \@values);
