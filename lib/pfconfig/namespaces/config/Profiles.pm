@@ -21,7 +21,6 @@ use pfconfig::namespaces::config;
 use pf::file_paths;
 use pf::util;
 use pfconfig::namespaces::resource::guest_self_registration;
-use pf::factory::profile::filter;
 use pf::constants::Portal::Profile;
 use pf::engine::profile;
 
@@ -31,7 +30,7 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $profiles_config_file;
     $self->{default_section} = "default";
-    $self->{child_resources} = [ 'resource::Profile_Filters', 'resource::ProfileFilterEngine' ];
+    $self->{child_resources} = [ 'resource::ProfileFilterEngine' ];
 }
 
 sub build_child {
@@ -55,7 +54,6 @@ sub build_child {
     }
 
     #Clearing the Profile filters
-    my @Profile_Filters     = ();
     my $default_description = $Profiles_Config{'default'}{'description'};
     foreach my $profile_id (@profiles) {
         my $profile = $Profiles_Config{$profile_id};
@@ -63,26 +61,8 @@ sub build_child {
             if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
         $profile->{block_interval} = normalize_time( $profile->{block_interval}
                 || $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE );
-        my $filters = $profile->{'filter'};
-        if ( $profile_id ne 'default' && @$filters ) {
-            my @filterObjects;
-            foreach my $filter ( @{ $profile->{'filter'} } ) {
-                push @filterObjects, pf::factory::profile::filter->instantiate( $profile_id, $filter );
-            }
-            if ( defined( $profile->{filter_match_style} ) && $profile->{filter_match_style} eq 'all' ) {
-                push @Profile_Filters,
-                    pf::profile::filter::all->new( profile => $profile_id, value => \@filterObjects );
-            }
-            else {
-                push @Profile_Filters, @filterObjects;
-            }
-        }
     }
 
-    #Add the default filter so it always matches if no other filter matches
-    push @Profile_Filters, pf::profile::filter->new( { profile => 'default', value => 1 } );
-
-    $self->{profile_filters} = \@Profile_Filters;
     $self->{engine_profile} = pf::engine::profile->new({ ordered_ids => \@profiles, config => \%Profiles_Config });
 
     return \%Profiles_Config;
