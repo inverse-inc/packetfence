@@ -23,6 +23,7 @@ use pf::util;
 use pfconfig::namespaces::resource::guest_self_registration;
 use pf::factory::profile::filter;
 use pf::constants::Portal::Profile;
+use pf::engine::profile;
 
 use base 'pfconfig::namespaces::config';
 
@@ -30,7 +31,7 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $profiles_config_file;
     $self->{default_section} = "default";
-    $self->{child_resources} = [ 'resource::Profile_Filters', ];
+    $self->{child_resources} = [ 'resource::Profile_Filters', 'resource::ProfileFilterEngine' ];
 }
 
 sub build_child {
@@ -82,6 +83,7 @@ sub build_child {
     push @Profile_Filters, pf::profile::filter->new( { profile => 'default', value => 1 } );
 
     $self->{profile_filters} = \@Profile_Filters;
+    $self->{engine_profile} = pf::engine::profile->new({ ordered_ids => \@profiles, config => \%Profiles_Config });
 
     return \%Profiles_Config;
 
