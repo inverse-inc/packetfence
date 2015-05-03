@@ -198,9 +198,9 @@ sub match {
 
 sub getPkiProvider {
     my ($self) = @_;
-    my $provider_id = $self->pki_provider;
-    return unless $provider_id;
-    return pf::factory::pki_provider->new($provider_id);
+    my $pki_provider_id = $self->pki_provider;
+    return undef unless $pki_provider_id;
+    return pf::factory::pki_provider->new($pki_provider_id);
 }
 
 =head1 AUTHOR
