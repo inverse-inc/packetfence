@@ -193,8 +193,12 @@ Returns the mandatory fields for the profile
 =cut
 
 sub getMandatoryFields {
-    my ($self) = @_;
+    my ($self, $use_mandatory_fields) = @_;
+
     my $mandatory_fields = $self->{'_mandatory_fields'};
+    if (defined($use_mandatory_fields) && isdisabled($use_mandatory_fields)) {
+        $mandatory_fields = [];
+    }
     if ($self->getSourceByType('email')) {
         unshift (@$mandatory_fields, "email") if !('email' ~~ @$mandatory_fields);
     }
@@ -207,7 +211,7 @@ sub getMandatoryFields {
         unshift (@$mandatory_fields, "email") if !('email' ~~ @$mandatory_fields);
         unshift (@$mandatory_fields, "sponsor_email") if !('sponsor_email' ~~ @$mandatory_fields);
     }
-    return $self->{'_mandatory_fields'};
+    return $mandatory_fields;
 }
 
 *mandatoryFields = \&getMandatoryFields;

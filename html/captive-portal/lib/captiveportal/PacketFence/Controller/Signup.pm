@@ -22,7 +22,7 @@ use POSIX;
 use URI::Escape::XS qw(uri_escape);
 use pf::iplog;
 use pf::node;
-use pf::person qw(person_modify @FIELDS);
+use pf::person qw(person_modify);
 use pf::violation;
 use pf::web;
 
@@ -557,14 +557,22 @@ TODO: documention
 sub validateMandatoryFields : Private {
     my ( $self, $c ) = @_;
     my $request = $c->request;
-    my ( $error_code, @error_args );
-    my @mandatory_fields = @{$c->profile->getMandatoryFields};
-    my $by_email   = $request->param('by_email');
-    my $by_sms     = $request->param('by_sms');
-    my $by_sponsor = $request->param('by_sponsor');
-    push @mandatory_fields, qw(email)                if ( defined $by_email );
-    push @mandatory_fields, qw(sponsor_email)        if ( defined $by_sponsor );
-    push @mandatory_fields, qw(phone mobileprovider) if ( defined $by_sms );
+    my $logger         = get_logger;
+    my ( $error_code, @error_args, $source, @mandatory_fields );
+    my $profile = $c->profile;
+
+    if ( $request->param('by_email') ) {
+        $source = $profile->getSourceByType('email');
+    } elsif ($request->param('by_sms')) {
+         $source = $profile->getSourceByType('sms');
+    } elsif ($request->param('by_sponsor')) {
+        $source = $profile->getSourceByType('sponsoremail');
+    }
+    if (isenabled($source->{use_mandatory_fields}) ) {
+        @mandatory_fields = @{$c->profile->getMandatoryFields};
+    } else {
+        @mandatory_fields = @{$c->profile->getMandatoryFields($FALSE)};
+    }
     @mandatory_fields = uniq @mandatory_fields;
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
@@ -603,6 +611,7 @@ sub showSelfRegistrationPage : Private {
     my $logger  = get_logger;
     my $profile = $c->profile;
     my $request = $c->request;
+    my @sources = $profile->getExternalSources;
 
     my $sms_type =
       pf::Authentication::Source::SMSSource->meta->get_attribute('type')
@@ -621,9 +630,12 @@ sub showSelfRegistrationPage : Private {
         sms_carriers        => sms_carrier_view_all($source),
         is_preregistration  => $c->session->{'preregistration'},
         $self->allowedGuestModes($c),
-        mandatory_fields    => $profile->getMandatoryFields,
     );
-
+    if (@sources && grep { $_->{use_mandatory_fields} eq 'yes' } @sources) {
+        $c->stash( mandatory_fields => $profile->getMandatoryFields);
+    } else {
+        $c->stash( mandatory_fields => $profile->getMandatoryFields($FALSE));
+    }
     $c->stash( template => 'guest.html' );
 }
 

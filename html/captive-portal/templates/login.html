@@ -78,7 +78,7 @@ document.observe("dom:loaded", function() {
           [% FOREACH field IN mandatory_fields %]
           <div class="input">
             <span>[% i18n("$field") %]</span>
-            <input class="field" name=[% "$field" %] type="text" value="" /><br/>
+            <input class="field" name="[% field %]" type="text" value="" /><br/>
           </div>
           [% END %]
 

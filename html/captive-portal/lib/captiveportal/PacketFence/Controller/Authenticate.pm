@@ -12,7 +12,7 @@ use pf::authentication;
 use HTML::Entities;
 use List::MoreUtils qw(any);
 use pf::config;
-use pf::person qw(person_modify @FIELDS);
+use pf::person qw(person_modify);
 
 our @PERSON_FIELDS = grep { $_ ne 'pid' && $_ ne 'notes'  } @pf::person::FIELDS;
 

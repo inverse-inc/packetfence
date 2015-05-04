@@ -42,6 +42,18 @@ has_field 'create_local_account' => (
     },
 );
 
+has_field 'use_mandatory_fields' => (
+    type => 'Toggle',
+    checkbox_value => 'yes',
+    unchecked_value => 'no',
+    label => 'Use mandatory fields',
+    default => pf::Authentication::Source::SMSSource->meta->get_attribute('use_mandatory_fields')->default,
+    tags => {
+        after_element => \&help,
+        help => 'If enabled then the mandatory fields defined on the portal profile will be mandatory.',
+    },
+);
+
 =head1 METHODS
 
 =head2 options_sms_carriers

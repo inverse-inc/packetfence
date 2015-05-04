@@ -1,2 +1,3 @@
 [% form.field('sms_carriers').render %]
 [% form.field('create_local_account').render %]
+[% form.field('use_mandatory_fields').render %]
