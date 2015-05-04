@@ -74,8 +74,11 @@ sub sign_profile : Private {
     my $filename_signed = "$filename-signed";
     my $logger = $c->log;
 
-    $template->process($c->config->{install_dir}."html/captive-portal/profile-templates/eaptls/wireless-profile.xml", 
-                        $c->stash(), $filename) || $logger->error("Can't generate eaptls configuration : ".$template->error);
+    my $original_template = "/usr/local/pf/html/captive-portal/profile-templates/eaptls/wireless-profile.xml";
+    use Data::Dumper;
+    $logger->info("OMG MY FILE". Dumper($original_template));
+    $template->process($original_template, #$c->config->{install_dir}."html/captive-portal/profile-templates/eaptls/wireless-profile.xml", 
+                       $c->stash(), $filename) || $logger->error("Can't generate eaptls configuration : ".$template->error);
 
     my $cmd = "bash ".$c->config->{install_dir}."addons/sign.sh $filename $filename_signed";
     my $result = `$cmd`;

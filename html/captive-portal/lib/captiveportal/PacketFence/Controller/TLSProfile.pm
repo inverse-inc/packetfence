@@ -2,7 +2,6 @@ package captiveportal::PacketFence::Controller::TLSProfile;
 use Moose;
 use namespace::autoclean;
 use WWW::Curl::Easy;
-use Crypt::OpenSSL::PKCS12;
 use pf::log;
 use pf::config;
 use pf::util;
@@ -12,7 +11,6 @@ use List::MoreUtils qw(uniq any);
 use pf::authentication;
 use HTML::Entities;
 use pf::web;
-use File::Basename;
 
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -142,14 +140,14 @@ Validate informations input by the user
 sub validate_form : Private {
     my ($self, $c) = @_;
     my $logger = $c->log;
-    #my $pid    = undef;
-    #my $portalSession = $c->portalSession;
-    #my $mac    = $portalSession->clientMac;
-    unless ($c->has_errors) {
-        my $mac           = $c->portalSession->clientMac;
-        my $node_info     = node_view($mac);
-        my $pid           = $node_info->{'pid'};
-    }
+    my $pid    = undef;
+    my $portalSession = $c->portalSession;
+    my $mac    = $portalSession->clientMac;
+    #unless ($c->has_errors) {
+    #    my $mac           = $c->portalSession->clientMac;
+    #    my $node_info     = node_view($mac);
+    #    my $pid           = $node_info->{'pid'};
+    #}
     my $passwd1 = $c->request->param('certificate_pwd');
     my $passwd2 = $c->request->param('certificate_pwd_check');
     if($passwd1 ne $passwd2) {
