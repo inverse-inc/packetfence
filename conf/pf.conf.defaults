@@ -506,12 +506,12 @@ httpd_proxy=enabled
 # services.pfsetvlan
 #
 # Should pfsetvlan be managed by PacketFence?
-pfsetvlan=enabled
+pfsetvlan=disabled
 #
 # services.snmptrapd
 #
 # Should snmptrapd be managed by PacketFence?
-snmptrapd=enabled
+snmptrapd=disabled
 #
 # services.pfmon
 #

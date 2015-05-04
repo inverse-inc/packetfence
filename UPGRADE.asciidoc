@@ -16,6 +16,12 @@ Upgrading from a version prior to X.Y.Z
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
+pfsetvlan and snmptrapd
+^^^^^^^^^^^^^^^^^^^^^^^
+
+These two services have been disabled by default. 
+If you are using SNMP traps enforcement on your switches (like port-security), make sure you re-enable them in 'Configuration->Services'.
+
 
 Upgrading from a version prior to 5.0.0
 ---------------------------------------
