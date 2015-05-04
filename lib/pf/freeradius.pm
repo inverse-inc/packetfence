@@ -27,6 +27,7 @@ use Log::Log4perl;
 use Readonly;
 use List::MoreUtils qw(natatime);
 use Time::HiRes qw(time);
+use NetAddr::IP;
 
 use constant FREERADIUS => 'freeradius';
 use constant SWITCHES_CONF => '/switches.conf';
@@ -46,6 +47,7 @@ BEGIN {
 use pf::config;
 use pf::config::cached;
 use pf::db;
+use pf::util qw(valid_mac);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $freeradius_db_prepared = 0;
@@ -164,17 +166,27 @@ sub freeradius_populate_nas_config {
     my ($switch_config,$timestamp) = @_;
     my %skip = (default => undef, '127.0.0.1' => undef );
     my $radiusSecret;
+
     my @switches = grep {
             !exists $skip{$_}
+          && !valid_mac($_)
           && defined( $radiusSecret = $switch_config->{$_}{radiusSecret} )
           && $radiusSecret =~ /\S/
     } keys %$switch_config;
-    return unless @switches;
+
+    my @switchesMac = grep {
+            !exists $skip{$_}
+          && valid_mac($_)
+          && defined( $radiusSecret = $switch_config->{$_}{radiusSecret} )
+          && $radiusSecret =~ /\S/
+    } keys %$switch_config;
+    return unless (@switches || @switchesMac);
     unless (defined $timestamp ) {
         $timestamp = int (time * 1000000);
     }
-
     my @SwitchOrder = sort { NetAddr::IP->new($b)->masklen <=> NetAddr::IP->new($a)->masklen } @switches;
+    @SwitchOrder = (@SwitchOrder,@switchesMac);
+
     my $it = natatime 100,@SwitchOrder;
     my $i = 0;
     while (my @ids = $it->() ) {
