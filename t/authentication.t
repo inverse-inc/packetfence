@@ -14,7 +14,7 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 6;                      # last test to print
+use Test::More tests => 8;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -40,6 +40,10 @@ is_deeply(
         pf::Authentication::Action->new({
             'value' => '1D',
             'type' => 'set_access_duration'
+        }),
+        pf::Authentication::Action->new({
+            'value' => '1',
+            'type' => 'mark_as_sponsor'
         })
     ],
     "match all email actions"
@@ -59,7 +63,23 @@ is_deeply(
 
 is($source_id_ref, "htpasswd1", "Source id ref is found");
 
-is(pf::authentication::username_from_email('user@domain.com'), 'htpasswd1', "Found username associated to an email");
+is( pf::authentication::match(
+        [getAuthenticationSource("htpasswd1"), getAuthenticationSource("email")],
+        {username => 'user@domain.com'},
+        'mark_as_sponsor'
+    ),
+    1,
+    "Return action in second matching source"
+);
+
+is( pf::authentication::match(
+        [getAuthenticationSource("htpasswd1"), getAuthenticationSource("email")],
+        {username => 'user@domain.com'},
+        'set_access_level'
+    ),
+    'Violation Manager',
+    "Return action in first matching source"
+);
 
 =head1 AUTHOR
 

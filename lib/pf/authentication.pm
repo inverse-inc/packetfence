@@ -259,29 +259,26 @@ sub match {
             @sources = ($source);
         }
     }
-    my $source = first { defined ($actions = $_->match($params)) } @sources;
-    if($source) {
-        #Store the source id
-        $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
-
+    foreach my $source (@sources) {
+        $actions = $source->match($params);
+        next unless defined $actions;
         if (defined $action ) {
+            # Return the value only if the action matches
             my $found_action = first { $_->type eq $action } @{$actions};
             if (defined $found_action) {
                 $logger->debug("[".$source->id."] Returning '".$found_action->value."' for action $action for username ".$params->{'username'});
+                $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
                 return $found_action->value
             }
+            #Setting action to undef to avoid the wrong actions to be returned
+            $actions = undef;
             $logger->debug("[".$source->id."] Params don't match rules for action $action for parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
-            return;
+            next;
         }
-
-        if (defined $action) {
-            $logger->debug("No source matches action $action");
-        } elsif (defined $source) {
-            $actions ||= [];
-            $logger->debug("[".$source->id."] Returning actions ".join(', ', map { $_->type." = ".$_->value } @$actions ));
-        }
+        #Store the source id
+        $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
+        last;
     }
-
     return $actions;
 }
 
