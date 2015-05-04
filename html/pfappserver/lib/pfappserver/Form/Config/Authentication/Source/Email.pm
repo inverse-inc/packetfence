@@ -50,6 +50,17 @@ has_field 'create_local_account' => (
     },
 );
 
+has_field 'activation_domain' =>
+  (
+   type => 'Text',
+   label => 'Host in activation link',
+   required => 0,
+    tags => {
+        after_element => \&help,
+        help => 'Set this value if you want to change the hostname in the validation link.',
+    },
+  );
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2015 Inverse inc.
