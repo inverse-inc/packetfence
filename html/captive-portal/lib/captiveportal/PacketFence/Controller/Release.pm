@@ -27,9 +27,10 @@ sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $request = $c->request;
     if ( $request->secure ) {
-        $c->response->redirect( "http://"
-              . $Config{'general'}{'hostname'} . "."
-              . $Config{'general'}{'domain'}
+        my $host = ( defined($request->{'headers'}{'host'}) ? $request->{'headers'}{'host'} :
+              $Config{'general'}{'hostname'} . "."
+              . $Config{'general'}{'domain'} );
+        $c->response->redirect( "http://$host"
               . '/access?destination_url='
               . uri_escape( $c->stash->{destination_url} ) );
     } else {
