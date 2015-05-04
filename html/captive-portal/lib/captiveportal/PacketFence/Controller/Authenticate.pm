@@ -251,7 +251,7 @@ sub checkIfTlsEnrollment : Private {
     if (defined( my $provisioner = $profile->findProvisioner($mac))) {
         if($provisioner->getPkiProvider) {
             $c->session->{info} = $c->stash->{info};
-            $c->detach(tlsprofile => 'index');
+            $c->detach(TLSProfile => 'index');
         }
     }
 }
