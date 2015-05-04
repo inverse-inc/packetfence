@@ -1,33 +1,22 @@
-#!/usr/bin/perl -T
+package pfappserver::Controller::Config::Domain;
+
 =head1 NAME
 
-pfcmd
-
-=cut
+pfappserver::Controller::Config::Domain
 
 =head1 DESCRIPTION
 
-driver script for pfcmd
+Place all customization for Controller::Config::Domain here
 
 =cut
 
-use strict;
-use warnings;
-use lib qw(/usr/local/pf/lib);
+use Moose;
 
-# force UID/EUID to root to allow socket binds, etc
-# required for non-root (and GUI) service restarts to work
-$> = 0;
-$< = 0;
-
-use pf::cmd::pf;
-exit pf::cmd::pf->new({args => \@ARGV})->run();
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Domain'; }
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
-
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
@@ -52,3 +41,7 @@ USA.
 
 =cut
 
+
+__PACKAGE__->meta->make_immutable;
+
+1;

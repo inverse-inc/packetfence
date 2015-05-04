@@ -110,6 +110,8 @@ our (
     %ConfigRealm,
 #provisioning.conf
     %ConfigProvisioning,
+#domain.conf
+    %ConfigDomain, 
 );
 
 BEGIN {
@@ -154,6 +156,7 @@ BEGIN {
         %Doc_Config
         %ConfigRealm
         %ConfigProvisioning
+        %ConfigDomain 
     );
 }
 
@@ -203,6 +206,8 @@ tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
 tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 
 tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
+
+tie %ConfigDomain, 'pfconfig::cached_hash', 'config::Domain';
 
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 
@@ -437,7 +442,6 @@ sub os_detection {
         return "rhel";
     }
 }
-
 
 =item access_duration
 

@@ -16,6 +16,7 @@
         'admin/config/floatingdevices',
         'admin/config/fingerbank-devices',
         'admin/config/fingerbank-settings',
+        'admin/config/domains',
         'admin/config/authentication',
         'admin/config/portal_profile',
         'admin/config/violations',
@@ -133,9 +134,14 @@ table.sources {
               [% list_entry('Config::Provisioning', 'index', 'Provisioners') %]
               [%- END %]
               [%- END %]
-              [%- IF can_access("REALM_READ") %]
+              [%- IF can_access_any("REALM_READ", "DOMAIN_READ") %]
               <li class="nav-header">[% l('Radius') %]</li>
+              [%- IF can_access("REALM_READ") %]
               [% list_entry( 'Config::Realm', 'index', 'Realms') %]
+              [%- END %]
+              [%- IF can_access("DOMAIN_READ") %]
+              [% list_entry( 'Config::Domain', 'index', 'Domains') %]
+              [%- END %]
               [%- END %]
               [%- IF can_access_any("VIOLATIONS_READ","SOH_READ") %]
               <li class="nav-header">[% l('Compliance') %]</li>

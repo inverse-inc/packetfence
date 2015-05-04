@@ -527,6 +527,10 @@ pfdhcplistener=enabled
 #
 # Should keepalived be started?
 keepalived=enabled
+# services.winbindd
+#
+# Should winbindd be started?
+winbindd=enabled
 #
 # services.snort_binary
 #
@@ -572,6 +576,11 @@ arp_binary=/sbin/arp
 # 
 # location of the iptables binary. only necessary to change if you are not running the rpmed version.
 iptables_binary=/sbin/iptables
+# 
+# services.winbindd_binary
+# 
+# location of the iptables binary. only necessary to change if you are not running the rpmed version.
+winbindd_binary=/usr/sbin/winbindd
 # 
 # services.memcached_binary
 # 

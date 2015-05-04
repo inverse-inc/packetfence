@@ -1,33 +1,52 @@
-#!/usr/bin/perl -T
+package pfconfig::namespaces::config::Domain;
+
 =head1 NAME
 
-pfcmd
+pfconfig::namespaces::config::Domain
 
 =cut
 
 =head1 DESCRIPTION
 
-driver script for pfcmd
+pfconfig::namespaces::config::Domain
+
+This module creates the configuration hash associated to domain.conf
 
 =cut
 
+
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
 
-# force UID/EUID to root to allow socket binds, etc
-# required for non-root (and GUI) service restarts to work
-$> = 0;
-$< = 0;
+use pfconfig::namespaces::config;
+use Data::Dumper;
+use pfconfig::log;
+use pf::file_paths;
 
-use pf::cmd::pf;
-exit pf::cmd::pf->new({args => \@ARGV})->run();
+use base 'pfconfig::namespaces::config';
+
+sub init {
+  my ($self) = @_;
+  $self->{file} = $domain_config_file;
+}
+
+sub build_child {
+  my ($self) = @_;
+
+  my %tmp_cfg = %{$self->{cfg}}; 
+
+  $self->{cfg} = \%tmp_cfg;
+
+  return \%tmp_cfg;
+
+}
+
+
+=back
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
-
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
@@ -51,4 +70,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
 
