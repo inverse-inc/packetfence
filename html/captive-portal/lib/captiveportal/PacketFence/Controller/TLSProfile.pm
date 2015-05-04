@@ -47,7 +47,6 @@ sub index : Path : Args(0) {
     my $node_info = node_view($mac);
     my $pid = $node_info->{'pid'};
     my $provisioner = $c->profile->findProvisioner($mac);
-    #$provisioner->authorize($mac) if (defined($provisioner));
     my $certificate_cn = $mac;
     $certificate_cn =~ s/:/-/g;
     $c->stash(
@@ -143,11 +142,11 @@ Validate informations input by the user
 sub validate_form : Private {
     my ($self, $c) = @_;
     my $logger = $c->log;
-    my $pid    = "";
-    my $portalSession = $c->portalSession;
-    my $mac    = $portalSession->clientMac;
+    #my $pid    = undef;
+    #my $portalSession = $c->portalSession;
+    #my $mac    = $portalSession->clientMac;
     unless ($c->has_errors) {
-        my $mac           = $portalSession->clientMac;
+        my $mac           = $c->portalSession->clientMac;
         my $node_info     = node_view($mac);
         my $pid           = $node_info->{'pid'};
     }

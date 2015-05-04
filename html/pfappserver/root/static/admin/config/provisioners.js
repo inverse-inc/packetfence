@@ -63,7 +63,7 @@ ProvisionerView.prototype.toggleSecurityType = function(e) {
         eap_type.val("");
         cert.hide();
         certpath.hide();
-        }
+    }
     else if ($('#security_type option:selected').text() == "WEP"){
         passcode_input.val("");
         passcode.show();
@@ -71,14 +71,13 @@ ProvisionerView.prototype.toggleSecurityType = function(e) {
         eap_type.val("");
         cert.hide();
         certpath.hide();
-        }
-    
+    }
     else{
         passcode.show();
         eap.show();
         cert.show();
         certpath.show();
-        }
+    }
 };
 
 ProvisionerView.prototype.toggleEapType = function(e) {
@@ -93,21 +92,21 @@ ProvisionerView.prototype.toggleEapType = function(e) {
         certpath.hide();
         cert.hide();
         passcode.hide();
-        }
+    }
     else if ($('#eap_type option:selected').text() == "No EAP"){
         certpath_input.val("");
         certpath.hide();
         cert.hide();
         passcode.show();
-        }
+    }
     else if ($('#eap_type option:selected').text() == "EAP-TLS"){
         certpath.show();
         cert.show();
         passcode.hide();
-        }
+    }
     else{
         cert.show();
         certpath.show();
         passcode.hide();
-        }
+    }
 };
