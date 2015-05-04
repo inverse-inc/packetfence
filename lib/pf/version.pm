@@ -9,6 +9,7 @@ pf::version
 
 pf::version
 
+
 =cut
 
 use strict;
@@ -37,35 +38,54 @@ Initialize database prepared statements
 
 sub version_db_prepare {
 
-    $version_statements->{'version_check_sql'} = get_db_handle()->prepare(qq[
+    $version_statements->{'version_check_db_sql'} = get_db_handle()->prepare(qq[
             SELECT version FROM pf_version WHERE version = ?;
+    ]);
+
+    $version_statements->{'version_get_last_db_version_sql'} = get_db_handle()->prepare(qq[
+            SELECT version FROM pf_version ORDER BY id DESC limit 1;
     ]);
     $version_db_prepared = 1;
     return 1;
 }
 
-=head2 version_check
+=head2 version_check_db
 
 Checks the version of db
 
 =cut
 
-sub version_check {
-   my $sth = db_query_execute(PF_VERSION, $version_statements, 'version_check_sql', version_current());
-   return unless $sth;
+sub version_check_db {
+   my $sth = db_query_execute(PF_VERSION, $version_statements, 'version_check_db_sql', version_get_current());
+   return undef unless $sth;
    my $row = $sth->fetch;
    $sth->finish;
-   return unless $row;
+   return undef unless $row;
    return $row->[0];
 }
 
-=head2 version_release
+=head2 version_get_last_db_version_sql
+
+Get the last version in the datbase
+
+=cut
+
+sub version_get_last_db_version {
+   my $sth = db_query_execute(PF_VERSION, $version_statements, 'version_get_last_db_version_sql');
+   return undef unless $sth;
+   my $row = $sth->fetch;
+   $sth->finish;
+   return undef unless $row;
+   return $row->[0];
+}
+
+=head2 version_get_release
 
 Get the current release of packetence
 
 =cut
 
-sub version_release {
+sub version_get_release {
     my ( $pfrelease_fh, $release );
     open( $pfrelease_fh, '<', "$conf_dir/pf-release" )
         || get_logger->logdie("Unable to open $conf_dir/pf-release: $!");
@@ -75,14 +95,14 @@ sub version_release {
     return $release ;
 }
 
-=head2 version_current
+=head2 version_get_current
 
 Get the current version of packetence
 
 =cut
 
-sub version_current {
-    my $release = version_release();
+sub version_get_current {
+    my $release = version_get_release();
     return undef unless $release;
     my $version = $release;
     $version =~ s/^PacketFence //;
