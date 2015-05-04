@@ -19,13 +19,14 @@ use pf::file_paths;
 use pf::config;
 use pf::util;
 use pf::cluster;
+use pf::log;
 use Bytes::Random::Secure qw( random_bytes_base64 );
 
 extends 'pf::services::manager::httpd';
 
 has '+name' => ( default => sub {'httpd.graphite'} );
 has '+optional' => ( default => sub {1} );
-has 'secret_file' => ( is => 'ro', default => sub {'/usr/local/pf/conf/monitoring/graphite_secret'} );
+my $SECRET_FILE = '/usr/local/pf/conf/monitoring/graphite_secret';
 
 sub generateConfig {
     generate_local_settings();
@@ -76,17 +77,17 @@ sub generate_secret {
     my $logger = get_logger();
     use File::Slurp;
     my $secret;
-    if ( -e $self->{'secret_file'} ) {
-        $secret = read_file( $self->{'secret_file'} );
+    if ( -e $SECRET_FILE ) {
+        $secret = read_file( $SECRET_FILE );
         unless ( defined $secret ) {
-            $logger->error( "unable to read graphite secret file " . $self->{'secret_file'} );
+            $logger->error( "unable to read graphite secret file " . $SECRET_FILE );
         }
         chomp $secret;
     }
     else {
         $secret = random_bytes_base64(26);
         chomp $secret;
-        open( my $fh, ">", $self->{'secret_file'} );
+        open( my $fh, ">", $SECRET_FILE );
         print $fh $secret;
     }
 
