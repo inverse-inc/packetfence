@@ -7,7 +7,7 @@ pf::version
 
 =head1 DESCRIPTION
 
-pf::version
+pf::version handles versioning checking routines
 
 
 =cut
