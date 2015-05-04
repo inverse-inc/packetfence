@@ -126,7 +126,7 @@ sub _insert_nas_bulk {
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
     return 0 unless @rows;
     my $row_count = @rows;
-    my $sql = "REPLACE INTO radius_nas ( nasname, shortname, secret, description, config_timestamp) VALUES ( ?, ?, ?, ?, ?)" . ",( ?, ?, ?, ?, ?)" x ($row_count -1)    ;
+    my $sql = "REPLACE INTO radius_nas ( position, nasname, shortname, secret, description, config_timestamp) VALUES ( ?, ?, ?, ?, ?, ?)" . ",( ?, ?, ?, ?, ?, ?)" x ($row_count -1)    ;
     $freeradius_statements->{'freeradius_insert_nas_bulk'} = $sql;
 
     db_query_execute(
@@ -174,11 +174,13 @@ sub freeradius_populate_nas_config {
         $timestamp = int (time * 1000000);
     }
 
-    my $it = natatime 100,@switches;
+    my @SwitchOrder = sort { NetAddr::IP->new($b)->masklen <=> NetAddr::IP->new($a)->masklen } @switches;
+    my $it = natatime 100,@SwitchOrder;
+    my $i = 0;
     while (my @ids = $it->() ) {
         my @rows = map {
             my $data = $switch_config->{$_};
-            [ $_, $_, $data->{radiusSecret}, $_ . " (" . $data->{'type'} .")", $timestamp ]
+            [ $i++, $_, $_, $data->{radiusSecret}, $_ . " (" . $data->{'type'} .")", $timestamp ]
         } @ids;
         # insert NAS
         _insert_nas_bulk( @rows );

@@ -496,6 +496,7 @@ VALUES
 -- Adding RADIUS nas client table
 
 CREATE TABLE radius_nas (
+  position int(5),
   nasname varchar(128) NOT NULL,
   shortname varchar(32),
   type varchar(30) default 'other',

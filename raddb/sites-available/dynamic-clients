@@ -146,12 +146,10 @@ server dynamic_client_server {
                         ok
 
                     }
-                }
-                else {
                     update control {
-                        Tmp-String-8 = "%{sql: SELECT nasname FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
+                        Tmp-String-7 = "%{sql: SELECT nasname FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
                     }
-                    if ("%{control:Tmp-String-8}") {
+                    if ("%{control:Tmp-String-7}") {
                         update control {
                             #
                             # Echo the IP.
@@ -160,17 +158,37 @@ server dynamic_client_server {
                             #
                             # Do multiple SELECT statements to grab
                             # the various definitions.
-                            FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
+                            FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:Tmp-String-7}'}"
 
-                            FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
+                            FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE nasname = '%{control:Tmp-String-7}'}"
 
-                            FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
+                            FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:Tmp-String-7}'}"
+
+                        }
+                    ok
+                    }
+                    update control {
+                        Tmp-String-6 = "%{sql: SELECT nasname FROM radius_nas WHERE (inet_aton('%{Packet-Src-IP-Address}') & ((power(2, 32) - power(2, (32 - (SUBSTRING_INDEX(nasname, '/', -1)))))) = inet_aton(SUBSTRING_INDEX(nasname, '/', 1))) ORDER BY position LIMIT 1}"
+                    }
+                    if ("%{control:Tmp-String-6}") {
+                        update control {
+                            #
+                            # Echo the IP.
+                            FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
+
+                            #
+                            # Do multiple SELECT statements to grab
+                            # the various definitions.
+                            FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:Tmp-String-6}'}"
+
+                            FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE nasname = '%{control:Tmp-String-6}'}"
+
+                            FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:Tmp-String-6}'}"
 
                         }
                     ok
                     }
                 }
-
 		# Do an LDAP lookup in the elements OU, check to see if
 		# the Packet-Src-IP-Address object has a "ou"
 		# attribute, if it does continue.  Change "ACME.COM" to
