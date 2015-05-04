@@ -1,0 +1,40 @@
+# Detect installed software and trigger a violation
+[Software_Installed]
+request=select * from Win32_Product
+action= <<EOT
+[Google]
+attribute = Caption
+operator = match
+value = Google
+
+[1:Google]
+action=trigger_violation
+action_param = mac = $mac, tid = 888888, type = INTERNAL
+EOT
+
+# Detect the current user logged in and register the device
+[logged_user]
+request=select UserName from Win32_ComputerSystem
+action= <<EOT
+[UserName]
+attribute = UserName
+operator = match
+value = (.*)
+
+[1:UserName]
+action = dynamic_register_node
+action_param = mac = $mac, username = $result->{'UserName'}
+EOT
+
+# Detect the running process and if it exist then bybass the scan
+[Process_Running]
+request=select Name from Win32_Process
+action= <<EOT
+[explorer]
+attribute = Name
+operator = match
+value = explorer.exe
+
+[1:explorer]
+action = allow
+EOT

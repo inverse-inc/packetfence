@@ -26,26 +26,22 @@ BEGIN {
     use Exporter ();
     our (@ISA, @EXPORT, @EXPORT_OK);
     @ISA = qw(Exporter);
-    @EXPORT = qw(run_scan $SCAN_VID $scan_db_prepared scan_db_prepare);
+    @EXPORT = qw(run_scan $scan_db_prepared scan_db_prepare);
     @EXPORT_OK = qw(scan_insert_sql scan_select_sql scan_update_status_sql);
 }
 
 use pf::constants;
+use pf::constants::scan qw($SEVERITY_HOLE $SEVERITY_WARNING $SEVERITY_INFO $STATUS_CLOSED $STATUS_NEW $STATUS_STARTED);
 use pf::config;
 use pf::db;
 use pf::iplog;
 use pf::scan::nessus;
 use pf::scan::openvas;
+use pf::scan::wmi;
 use pf::util;
 use pf::violation qw(violation_close violation_exist_open violation_trigger violation_modify);
-
-Readonly our $SCAN_VID          => 1200001;
-Readonly our $SEVERITY_HOLE     => 1;
-Readonly our $SEVERITY_WARNING  => 2;
-Readonly our $SEVERITY_INFO     => 3;
-Readonly our $STATUS_NEW => 'new';
-Readonly our $STATUS_STARTED => 'started';
-Readonly our $STATUS_CLOSED => 'closed';
+use pf::Portal::ProfileFactory;
+use pf::api::jsonrpcclient;
 
 # DATABASE HANDLING
 use constant SCAN       => 'scan';
@@ -119,7 +115,7 @@ Parse a scan report from the scan object and trigger violations if needed
 =cut
 
 sub parse_scan_report {
-    my ( $scan ) = @_;
+    my ( $scan, $scan_vid ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $logger->debug("Scan report to analyze. Scan id: $scan"); 
@@ -157,17 +153,17 @@ sub parse_scan_report {
     #   Do nothing
 
     # The way we accomplish the above workflow is to differentiate by checking if special violation exists or not
-    if ( my $violation_id = violation_exist_open($mac, $SCAN_VID) ) {
+    if ( my $violation_id = violation_exist_open($mac, $scan_vid) ) {
         $logger->trace("Scan is completed and there is an open scan violation. We have something to do!");
 
         # We passed the scan so we can close the scan violation
         if ( !$failed_scan ) {
-            my $grace = violation_close($mac, $SCAN_VID);
-            if ( $grace == -1 ) {
-                $logger->warn("Problem trying to close scan violation");
-                return;
-            }
-
+            my $apiclient = pf::api::jsonrpcclient->new;
+            my %data = (
+               'vid' => $scan_vid,
+               'mac' => $mac,
+            );
+            $apiclient->notify('close_violation', %data );
         # Scan completed but a violation has been found
         # HACK: we empty the violation's ticket_ref field which we use to track if scan is in progress or not
         } else {
@@ -214,29 +210,36 @@ Prepare the scan attributes, call the engine instantiation and start the scan
 =cut
 
 sub run_scan {
-    my ( $host_ip ) = @_;
+    my ( $host_ip, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
 
     $host_ip =~ s/\//\\/g;          # escape slashes
     $host_ip = clean_ip($host_ip);  # untainting ip
 
     # Resolve mac address
-    my $host_mac = pf::iplog::ip2mac($host_ip);
+    my $host_mac = $mac || pf::iplog::ip2mac($host_ip);
     if ( !$host_mac ) {
         $logger->warn("Unable to find MAC address for the scanned host $host_ip. Scan aborted.");
         return;
     }
 
+    my $profile = pf::Portal::ProfileFactory->instantiate($host_mac);
+    my $scanner = $profile->findScan($host_mac);
+    # If no scan detected then we abort
+    if (!$scanner) {
+        return $FALSE;
+    }
     # Preparing the scan attributes
     my $epoch   = time;
     my $date    = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($epoch));
     my $id      = generate_id($epoch, $host_mac);
-    my $type    = lc($Config{'scan'}{'engine'});
+    my $type    = lc($scanner->{'type'});
 
     # Check the scan engine
     # If set to "none" we abort the scan
     if ( $type eq "none" ) {
-        return;
+        return $FALSE;
     }
 
     my %scan_attributes = (
@@ -244,6 +247,7 @@ sub run_scan {
             scanIp     => $host_ip,
             scanMac    => $host_mac,
             type       => $type,
+            %$scanner,
     );
 
     db_query_execute(SCAN, $scan_statements, 'scan_insert_sql',
@@ -253,18 +257,18 @@ sub run_scan {
     # Instantiate the new scan object
     my $scan = instantiate_scan_engine($type, %scan_attributes);
 
-    # Start the scan
+    # Start the scan (it return the scan_id if it failed)
     my $failed_scan = $scan->startScan();
     
     # Hum ... somethings wrong in the scan ?
     if ( $failed_scan ) {
-        my $cmd = $bin_dir . "/pfcmd manage vclose $host_mac $SCAN_VID";
-        $logger->info("Calling $cmd");
-        my $grace = pf_run("$cmd");
-        # FIXME shouldn't we focus on return code instead of output? pretty sure this is broken
-        if ( $grace == -1 ) {
-            $logger->warn("Problem trying to close scan violation");
-        }
+
+        my $apiclient = pf::api::jsonrpcclient->new;
+        my %data = (
+           'vid' => $failed_scan,
+           'mac' => $host_mac,
+        );
+        $apiclient->notify('close_violation', %data );
     }
 }
 

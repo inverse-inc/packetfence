@@ -79,7 +79,7 @@ Detection of abnormal network activities::
   Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using local and remote http://www.snort.org/[Snort] or http://suricata-ids.org/[Suricata] sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
 
 Proactive vulnerability scans::
-  Either http://www.nessus.org/nessus/[Nessus] or http://www.openvas.org[OpenVAS] vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the scan engine vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
+  Either http://www.nessus.org/nessus/[Nessus] , http://www.openvas.org[OpenVAS] or WMI vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the scan engine vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
 
 Isolation of problematic devices::
   PacketFence supports several isolation techniques, including VLAN isolation with VoIP support (even in heterogeneous environments) for multiple switch vendors.
@@ -2188,7 +2188,9 @@ Enable Limewire violation in `/usr/local/pf/conf/violations.conf` and configure 
 Compliance Checks
 ~~~~~~~~~~~~~~~~~
 
-PacketFence supports either Nessus or OpenVAS as a scanning engine for compliance checks.
+PacketFence supports either Nessus, OpenVAS and WMI as a scanning engine for compliance checks.
+Since PacketFence v5.1 you are now able to create multiples scan engines configuration and assign them on specific captive portals.
+It mean per example that you are now able to active a scan for specific Operating System only on a specific SSID.
 
 Installation
 ^^^^^^^^^^^^
@@ -2213,40 +2215,160 @@ It is important to get the correct scan config ID and NBE report format ID to po
 
 For example `report-format-f5c2a364-47d2-4700-b21d-0a7693daddab.xml` gives report format ID `f5c2a364-47d2-4700-b21d-0a7693daddab`.
 
+WMI
++++
+
+You just have to enable wmi on each windows devices with a GPO from Active Directory.
+
 Configuration
 ^^^^^^^^^^^^^
 
-In order for the compliance checks to correctly work with PacketFence (communication and generate violations inside PacketFence), you must configure two sections:
+In order for the compliance checks to correctly work with PacketFence (communication and generate violations inside PacketFence), you need to configure these sections:
 
-pf.conf
-+++++++
+Scanner Definition
+++++++++++++++++++
 
-Adjust the settings in the scan section like the following:
-Don't hesitate to refer to the `documentation.conf` file for any help on these paramaters and which of them to configure.
+First go in Configuration and Scanner Definition:
+image::docs/images/scan_definition.png[alt="Scanner definition"]
 
-Using Nessus:
+Then add a scan:
+image::docs/images/scan_type.png[alt="Scanner add"]
 
-  [scan]
-  engine=nessus
-  host=127.0.0.1
-  nessus_clientpolicy=basic-policy
-  pass=nessusUserPassword
-  registration=enabled
-  user=nessusUsername
+There are common parameters for each scan engines:
 
-Using OpenVAS:
+  Name: the name of your scan engine
+  Roles: Only devices with these role(s) will be affected (Optional)
+  OS: Only devices with this Operating System will be affected (Optional)
+  Duration: Approximate duration of scan (Progress bar on the captive portal)
+  Scan before registration: Trigger the scan when the device appear on the registration vlan
+  Scan after registration: Trigger the scan just after registration on the captive portal
+  Scan after registration: Trigger the scan on the production network (pfdhcplistener must receive production dhcp traffic)
+  802.1x: Even if the auto-registration has been enabled, the scan will be trigger on a EAP connection
+  802.1x types: comma delimited EAP type that will trigger the scan if 802.1x above has been enabled
 
-  [scan]
-  engine=openvas
-  host=127.0.0.1
-  openvas_configid=openvasScanConfigId
-  openvas_reportformatid=openvasNBEReportFormatId
-  pass=openvasUserPassword
-  registration=enabled
-  user=openvasUsername
+Specific to Nessus:
 
-violations.conf
-+++++++++++++++
+  Hostname or IP Address: Hostname or IP Address where Nessus is running
+  Username: Username to connect to Nessus scan
+  Password: Password to connect to Nessus scan
+  Port of the service: port to connect (default 8834)
+  Nessus client policy: the name of the policy to use for the scan (Must be define on the Nessus server)
+
+Specific to OpenVAS:
+
+  Hostname or IP Address: Hostname or IP Address where OpenVAS is running
+  Username: Username to connect to OpenVAS scan
+  Password: Password to connect to OpenVAS scan
+  Port of the service: port to connect (default 9390)
+  OpenVAS config ID: the ID of scanning configuration on the OpenVAS server
+
+Specific to WMI:
+
+  Username: A username from Active Directory that is allowed to connect to wmi
+  Domain: Domain of the Active Directory
+  Password: Password of the account
+  WMI Rules: Ordered list of WMI rules you defined in Configuration -> WMI Rules Definition
+
+WMI Rules Definition
+++++++++++++++++++++
+
+If you have configured a WMI scan engine then you need to define WMI Rules.
+WMI is a sort of database on each windows devices, to retreive information on the device you need to know the sql request.
+In order to help you to find and make a rule you can use a third party tool like WMI Explorer.
+
+Go in configuration -> WMI Rules Definition:
+
+There are already 3 rules defined:
+
+  Software_Installed
+  logged_user
+  Process_Running
+
+Let's take the Software_Installed rule:
+
+  request: select * from Win32_Product
+
+  Rules Actions:
+
+  [Google]
+  attribute = Caption
+  operator = match
+  value =Google
+
+  [1:Google]
+  action=trigger_violation
+  action_param = mac = $mac, tid = 888888, type = INTERNAL
+
+This rule will do the following:
+
+  retreive all the installed software on the device and test if the attribute Caption contain Google.
+  if it matched then we will trigger a violation (with the trigger internal::888888) for the mac address of the device.
+
+
+The second one, logged_user:
+
+  request: select UserName from Win32_ComputerSystem
+
+  Rules Actions:
+
+  [UserName]
+  attribute = UserName
+  operator = match
+  value = (.*)
+
+  [1:UserName]
+  action = dynamic_register_node
+  action_param = mac = $mac, username = $result->{'UserName'}
+
+This rule will do the following:
+
+  retreive the current logged user on the device and register the device based on the user account.
+
+The last one, Process_Running:
+
+  request: select Name from Win32_Process
+
+  Rules Actions:
+
+  [explorer]
+  attribute = Name
+  operator = match
+  value = explorer.exe
+
+ [1:explorer]
+ action = allow
+
+This rule will do the following:
+
+  retreive all the running process on the device and if one match explorer.exe then we bypass the scan.
+
+* Rules syntax
+
+  the syntax of the rules are simple to understand:
+
+  the request is the sql request you will launch on the remote device, you must know what the request will return
+  to write the test.
+
+  Inside the Rules Actions we define 2 sorts of blocs:
+  The test bloc (ie [explorer]) and the action bloc (ie [1:explorer])
+
+  The test bloc is a simple test based on the result of the request:
+  - attribute is the attribute you want to test
+  - operator can be:
+    is
+    is_not
+    match
+    match_not
+  - value is the value you want to compare
+  
+  Feel free to define multiples test blocs
+
+  The action bloc is where you will define your logic, per example let's take this one [1:google&explorer], this mean that if the google test is
+  true and explorer is true then we execute the action.
+  The logic can be more complex and can be something like that [1:!google|(explorer&memory)] that mean if not google or (explorer and memory)
+
+Violations definition
++++++++++++++++++++++
 
 You need to create a new violation section and have to specify:
 
@@ -2264,14 +2386,11 @@ Where `violationId` is either the ID of the Nessus plugin or the OID of the Open
 
 NOTE: Violations will trigger if the plugin is higher than a low severity vulnerability.
 
-Scan on registration
-^^^^^^^^^^^^^^^^^^^^
+Assign Scan definition to portal profiles
++++++++++++++++++++++++++++++++++++++++++
 
-To perform a system scan before giving access to a host on the network you need to enable the `scan.registration` parameter in `pf.conf`.
-If you want to scan a device that have been auto-registered as a 802.1X connection, you need to enable `scan.dot1x` parameter in `pf.conf`. 
-The default EAP-Type that will be scanned is MS-CHAP-V2 but you can configure other EAP-Type (such as MD5-Challenge) by adding them to `scan.dot1x_type` as a comma-separated list of values (look at `dictionary.freeradius.internal` file bundled with FreeRADIUS for the list of EAP-Type).
-
-It is also recommended to adjust `scan.duration` to reflect how long the scan takes. A progress bar of this duration will be shown to the user while he is waiting. By default, we set this variable to 60s.
+The last step is to assign one or more scanner you configured to one or more portal profiles.
+Go in Configuration -> Portal Profiles -> Edit a Portal -> Add Scan
 
 Hosting Nessus / OpenVAS remotely
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2933,7 +3052,7 @@ pfcmd
 When executed without any arguments `pfcmd` returns a basic help message with all main options:
 
 ----
-sys::[/usr/local/pf/bin/pfcmd.pl help]
+sys::[/usr/local/pf/bin/pfcmd help]
 ----
 
 The node view option shows all information contained in the node database table for a specified MAC address

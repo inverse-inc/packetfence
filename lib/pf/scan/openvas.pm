@@ -22,8 +22,11 @@ use Readonly;
 use base ('pf::scan');
 
 use pf::constants;
+use pf::constants::scan qw($SCAN_VID $PRE_SCAN_VID $POST_SCAN_VID $STATUS_STARTED);
 use pf::config;
 use pf::util;
+
+sub description { 'Openvas Scanner' }
 
 Readonly our $RESPONSE_OK                   => 200;
 Readonly our $RESPONSE_RESOURCE_CREATED     => 201;
@@ -49,7 +52,7 @@ sub createEscalator {
 
     $logger->info("Creating a new scan escalator named $name");
 
-    my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
+    my $cmd = "omp -h $this->{_ip} -p $this->{_port} -u $this->{_username} -w $this->{_password} -X '$command'";
     $logger->trace("Scan escalator creation command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
@@ -88,7 +91,7 @@ sub createTarget {
 
     $logger->info("Creating a new scan target named $name for host $target_host");
 
-    my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
+    my $cmd = "omp -h $this->{_ip} -p $this->{_port} -u $this->{_username} -w $this->{_password} -X '$command'";
     $logger->trace("Scan target creation command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
@@ -126,9 +129,9 @@ sub createTask {
     $logger->info("Creating a new scan task named $name");
 
     my $command = _get_task_string(
-        $name, $Config{'scan'}{'openvas_configid'}, $this->{_targetId}, $this->{_escalatorId}
+        $name, $this->{_openvas_configid}, $this->{_targetId}, $this->{_escalatorId}
     );
-    my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
+    my $cmd = "omp -h $this->{_ip} -p $this->{_port} -u $this->{_username} -w $this->{_password} -X '$command'";
     $logger->trace("Scan task creation command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
@@ -166,12 +169,12 @@ sub processReport {
 
     my $name                = $this->{_id};
     my $report_id           = $this->{_reportId};
-    my $report_format_id    = $Config{'scan'}{'openvas_reportformatid'}; 
+    my $report_format_id    = $this->{'_openvas_reportformatid'}; 
     my $command             = "<get_reports report_id=\"$report_id\" format_id=\"$report_format_id\"/>";
 
     $logger->info("Getting the scan report for the finished scan task named $name");
 
-    my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
+    my $cmd = "omp -h $this->{_ip} -p $this->{_port} -u $this->{_username} -w $this->{_password} -X '$command'";
     $logger->trace("Report fetching command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
@@ -192,7 +195,10 @@ sub processReport {
         # We need to manipulate the scan report.
         # Each line of the scan report is pushed into an arrayref
         $this->{'_report'} = [ split("\n", $this->{'_report'}) ];
-        pf::scan::parse_scan_report($this);
+        my $scan_vid = $POST_SCAN_VID;
+        $scan_vid = $SCAN_VID if ($this->{'_registration'});
+        $scan_vid = $PRE_SCAN_VID if ($this->{'_pre_registration'});
+        pf::scan::parse_scan_report($this,$scan_vid);
 
         return $TRUE;
     }
@@ -215,15 +221,15 @@ sub new {
 
     my $this = bless {
             '_id'               => undef,
-            '_host'             => $Config{'scan'}{'host'},
+            '_ip'               => undef,
             '_port'             => undef,
-            '_user'             => $Config{'scan'}{'user'},
-            '_pass'             => $Config{'scan'}{'pass'},
+            '_username'         => undef,
+            '_password'         => undef,
             '_scanIp'           => undef,
             '_scanMac'          => undef,
             '_report'           => undef,
-            '_configId'         => undef,
-            '_reportFormatId'   => undef,
+            '_openvas_configId'         => undef,
+            '_openvas_reportFormatId'   => undef,
             '_targetId'         => undef,
             '_escalatorId'      => undef,
             '_taskId'           => undef,
@@ -235,11 +241,6 @@ sub new {
     foreach my $value ( keys %data ) {
         $this->{'_' . $value} = $data{$value};
     }
-
-    # OpenVAS specific attributes
-    $this->{_port} = $Config{'scan'}{'openvas_port'};
-    $this->{_configId} = $Config{'scan'}{'openvas_configid'};
-    $this->{_reportFormatId} = $Config{'scan'}{'openvas_reportformatid'};
 
     return $this;
 }
@@ -276,7 +277,7 @@ sub startTask {
 
     $logger->info("Starting scan task named $name");
 
-    my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
+    my $cmd = "omp -h $this->{_ip} -p $this->{_port} -u $this->{_username} -w $this->{_password} -X '$command'";
     $logger->trace("Scan task starting command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
@@ -292,7 +293,7 @@ sub startTask {
     if ( defined($response) && $response eq $RESPONSE_REQUEST_SUBMITTED ) {
         $logger->info("Scan task named $name successfully started");
         $this->{_reportId} = $report_id;
-        $this->{'_status'} = $pf::scan::STATUS_STARTED;
+        $this->{'_status'} = $STATUS_STARTED;
         $this->statusReportSyncToDb();
         return $TRUE;
     }
@@ -317,7 +318,7 @@ sub _generateCallback {
 
     my $name = $this->{'_id'};
     my $callback = "<method>HTTP Get<data>";
-    if ($this->{'_host'} eq '127.0.0.1') {
+    if ($this->{'_ip'} eq '127.0.0.1') {
         $callback .= "http://127.0.0.1/scan/report/$name";
     }
     else {

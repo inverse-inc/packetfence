@@ -23,6 +23,7 @@ use warnings;
 use Log::Log4perl;
 use Readonly;
 use pf::node;
+use pf::util;
 
 use constant ACTION => 'action';
 
@@ -46,9 +47,7 @@ Readonly::Array our @VIOLATION_ACTIONS =>
    $EMAIL,
    $TRAP,
    $LOG,
-   # remove the external action from the selection since it's bug in the admin gui
-   # it needs to be created with a suffix id and create a path in pf.conf [path.external<id>]
-   #$EXTERNAL,
+   $EXTERNAL,
    $WINPOPUP,
    $CLOSE,
    $ROLE,
@@ -78,6 +77,7 @@ use pf::class qw(class_view class_view_actions);
 use pf::violation qw(violation_force_close);
 use pf::Portal::ProfileFactory;
 use pf::log;
+use pf::constants::scan qw($POST_SCAN_VID $PRE_SCAN_VID);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $action_db_prepared = 0;
@@ -166,14 +166,25 @@ sub action_delete_all {
 
 # TODO what is that? Isn't it dangerous?
 sub action_api {
-    my ($mac, $vid, $external_id) = @_;
+    my ($mac, $vid) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::action');
     my $class_info = class_view($vid);
-    my @args =
-      (
-       $Config{'paths'}{ 'external' . $external_id },
-       $mac, $class_info->{'description'}
-    );
-    system(@args);
+    my @params = split(' ', $class_info->{'external_command'});
+    my $return;
+    my $node_info = node_view($mac);
+    my $ip = pf::iplog::mac2ip($mac) || 0;
+    $node_info = {%$node_info, 'last_ip' => $ip};
+    # Replace parameters in the cli by the real one (for example: $last_ip will be changed to the value of $node_info->{last_ip})
+    foreach my $param (@params) {
+        $param =~ s/\$(.*)/$node_info->{$1}/ge;
+        $return .= $param." ";
+    }
+    $logger->warn($return);
+
+    my $cmd = "LANG=C sudo $return 2>&1";
+
+    my @lines  = pf_run($cmd);
+    return;
 }
 
 sub action_execute {
@@ -193,8 +204,8 @@ sub action_execute {
             action_email( $mac, $vid, $notes );
         } elsif ( $action eq $LOG ) {
             action_log( $mac, $vid );
-        } elsif ( $action =~ /^$EXTERNAL(\d+)$/ ) {
-            action_api( $mac, $vid, $1 );
+        } elsif ( $action eq $EXTERNAL ) {
+            action_api( $mac, $vid );
         } elsif ( $action eq $WINPOPUP ) {
             action_winpopup( $mac, $vid );
         } elsif ( $action eq $AUTOREG ) {
@@ -211,7 +222,7 @@ sub action_execute {
             $logger->error( "unknown action '$action' for class $vid", 1 );
         }
     }
-    if ( !$leave_open ) {
+    if ( !$leave_open && !( ($vid eq $POST_SCAN_VID) || ($vid eq $PRE_SCAN_VID) ) ) {
         $logger->info("this is a non-trap violation, closing violation entry now");
         require pf::violation;
         pf::violation::violation_force_close( $mac, $vid );

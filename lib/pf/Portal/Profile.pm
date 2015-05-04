@@ -24,6 +24,7 @@ use pf::util;
 use pf::log;
 use pf::node;
 use pf::factory::provisioner;
+use pf::ConfigStore::Scan;
 
 =head1 METHODS
 
@@ -406,6 +407,64 @@ Reuse dot1x credentials when authenticating
 sub dot1xRecomputeRoleFromPortal {
     my ($self) = @_;
     return $self->{'_dot1x_recompute_role_from_portal'};
+}
+
+=item getScans
+
+Returns the Scans IDs for the profile
+
+=cut
+
+sub getScans {
+    my ($self) = @_;
+    return $self->{'_scans'};
+}
+
+=item scanObjects
+
+The scanObjects
+
+=cut
+
+sub scanObjects {
+    my ($self) = @_;
+    return grep { defined $_ } map { pf::factory::scan->new($_) } @{ $self->getScans || [] };
+}
+
+=item findScan
+
+return the first scan that match the device
+
+=cut
+
+sub findScan {
+    my ($self, $mac, $node_attributes) = @_;
+    my $logger = get_logger();
+    $node_attributes ||= node_attributes($mac);
+    my ($fingerprint) = $node_attributes->{'device_type'};
+    if (defined($self->getScans)) {
+        foreach my $scan (split(',',$self->getScans)) {
+            my $scan_config = $pf::config::ConfigScan{$scan};
+            my @categories = split(',',$scan_config->{'categories'});
+            # if there are no oses and no categories defined for the scan then select it
+            if ( !scalar(@{ $scan_config->{'oses'} }) && !scalar(@categories) ) {
+                return $scan_config;
+            # if there are an os and a category defined
+            } elsif ( scalar(@{ $scan_config->{'oses'} }) && scalar(@categories) ) {
+                if ( (grep { $fingerprint =~ $_ } @{ $scan_config->{'oses'} }) && (grep { $_ eq $node_attributes->{'category'} } @categories ) ) {
+                    return $scan_config;
+                }
+            # if there are an os or a category
+            } elsif (scalar(@{ $scan_config->{'oses'} }) xor scalar(@categories) ) {
+                if (scalar(@{ $scan_config->{'oses'} }) && (grep { $fingerprint =~ $_ } @{ $scan_config->{'oses'} }) ) {
+                    return $scan_config;
+                } elsif (scalar(@categories) && (grep { $_ eq $node_attributes->{'category'} } @categories ) ) {
+                    return $scan_config;
+                }
+            }
+        }
+    }
+    return 0;
 }
 
 =back

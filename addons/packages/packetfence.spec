@@ -256,7 +256,9 @@ Requires: perl(IO::Interface)
 Requires: perl(Time::Period)
 Requires: iproute >= 3.0.0, samba, krb5-workstation
 # configuration-wizard
-Requires: vconfig
+Requires: iproute, vconfig
+# wmi
+Requires: wmi, perl(Net::WMIClient)
 
 Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
@@ -850,6 +852,8 @@ fi
                         /usr/local/pf/conf/realm.conf.example
 %config(noreplace)      /usr/local/pf/conf/domain.conf
                         /usr/local/pf/conf/domain.conf.example
+%config(noreplace)      /usr/local/pf/conf/scan.conf
+                        /usr/local/pf/conf/scan.conf.example
 %dir                    /usr/local/pf/conf/snort
 %config(noreplace)      /usr/local/pf/conf/snort/classification.config
                         /usr/local/pf/conf/snort/classification.config.example
@@ -899,6 +903,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
+%config(noreplace)      /usr/local/pf/conf/wmi.conf
+                        /usr/local/pf/conf/wmi.conf.example
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*

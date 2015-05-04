@@ -109,4 +109,3 @@ ALTER TABLE node ADD `bypass_role_id` INT DEFAULT NULL,
 
 ALTER TABLE locationlog ADD `session_id` VARCHAR(255) DEFAULT NULL;
 ALTER TABLE locationlog_archive ADD `session_id` VARCHAR(255) DEFAULT NULL;
-

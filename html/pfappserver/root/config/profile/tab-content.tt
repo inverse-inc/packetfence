@@ -47,3 +47,20 @@
               </div>
             </div>
           </div>
+          <div class="control-group">
+            <label class="control-label" for="scans">[% l('Scanners') %]</label>
+            <div class="controls">
+              [% form.field('scans').render %]
+              <div id="scansEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('scans').index > 1 %]">
+                <p>
+                  <i class="icon-cog icon-large"></i>
+                  [%- IF form.isa('pfappserver::Form::Portal::Profile::Default') -%]
+                  [% l('No scan specified.') %]
+                  [%- ELSE -%]
+                  [% l('With no scan specified, the scan engine will not be triggered.') %]
+                  [%- END -%]<br/>
+                  <a href="#add">[% l('Add a Scan.') %]</a>
+                </p>
+              </div>
+            </div>
+          </div>

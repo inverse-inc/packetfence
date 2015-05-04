@@ -23,7 +23,7 @@ use pf::config;
 use pf::iplog;
 use pf::node;
 use pf::Portal::Session;
-use pf::scan qw($SCAN_VID);
+use pf::constants::scan qw($SCAN_VID);
 use pf::trigger;
 use pf::util;
 use pf::violation;

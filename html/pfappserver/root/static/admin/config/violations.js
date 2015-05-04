@@ -153,6 +153,13 @@ $(function() { // DOM ready
             role_group.fadeOut('fast');
         else
             role_group.fadeIn('fast');
+
+        // Show/hide the external_command field if 'external' is add/remove
+        var command_group = $('#external_command').closest('.control-group');
+        if ($.inArray('external', actions) < 0)
+            command_group.fadeOut('fast');
+        else
+            command_group.fadeIn('fast');
     });
 
     /* Modal Editor: add a trigger */

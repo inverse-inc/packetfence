@@ -112,6 +112,10 @@ our (
     %ConfigProvisioning,
 #domain.conf
     %ConfigDomain, 
+#scan.conf
+    %ConfigScan,
+#wmi.conf
+    %ConfigWmi,
 );
 
 BEGIN {
@@ -157,6 +161,9 @@ BEGIN {
         %ConfigRealm
         %ConfigProvisioning
         %ConfigDomain 
+        $TRUE $FALSE $default_pid
+        %ConfigScan
+        %ConfigWmi
     );
 }
 
@@ -210,6 +217,10 @@ tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 tie %ConfigDomain, 'pfconfig::cached_hash', 'config::Domain';
 
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
+
+tie %ConfigScan, 'pfconfig::cached_hash', 'config::Scan';
+
+tie %ConfigWmi, 'pfconfig::cached_hash', 'config::Wmi';
 
 sub import {
     pf::config->export_to_level(1,@_);

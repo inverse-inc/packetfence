@@ -62,6 +62,8 @@ our (
     $cluster_config_file,
     $server_cert, $server_key, $server_pem,
     $domain_config_file,
+    $scan_config_file,
+    $wmi_config_file,
 );
 
 BEGIN {
@@ -102,6 +104,8 @@ BEGIN {
         $cluster_config_file
         $server_cert $server_key $server_pem
         $domain_config_file
+        $scan_config_file
+        $wmi_config_file
     );
 }
 
@@ -155,6 +159,8 @@ $server_key = catfile($conf_dir,"ssl/server.key");
 $server_cert = catfile($conf_dir,"ssl/server.crt");
 $server_pem = catfile($conf_dir,"ssl/server.pem");
 $domain_config_file = catfile($conf_dir,"domain.conf");
+$scan_config_file = catfile($conf_dir,"scan.conf");
+$wmi_config_file = catfile($conf_dir,"wmi.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -179,7 +185,8 @@ $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
     $chi_config_file,$allowed_device_oui_file,$allowed_device_types_file,
     $ui_config_file,$provisioning_config_file,$oauth_ip_file,$log_config_file,
     $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file,
-    $vlan_filters_config_file,$firewall_sso_config_file,
+    $vlan_filters_config_file,$firewall_sso_config_file,$scan_config_file,
+    $wmi_config_file,
 );
 
 

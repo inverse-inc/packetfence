@@ -20,6 +20,7 @@ use pf::activation;
 use List::MoreUtils qw(any);
 use List::Util qw(first);
 use pf::factory::provisioner;
+use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -158,10 +159,11 @@ sub checkForViolation : Private {
         # There is a violation, redirect the user
         # FIXME: there is not enough validation below
         my $vid      = $violation->{'vid'};
-        my $SCAN_VID = 1200001;
+
+        return if ($vid == $POST_SCAN_VID);
 
         # detect if a system scan is in progress, if so redirect to scan in progress page
-        if (   $vid == $SCAN_VID
+        if (   ( $vid == $SCAN_VID || $vid == $PRE_SCAN_VID)
             && $violation->{'ticket_ref'}
             =~ /^Scan in progress, started at: (.*)$/ ) {
             $logger->info(

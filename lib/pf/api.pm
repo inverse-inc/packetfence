@@ -16,12 +16,14 @@ use warnings;
 
 use base qw(pf::api::attributes);
 use threads::shared;
+use pf::authentication();
 use pf::config();
 use pf::config::cached;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::iplog();
 use pf::log();
+use pf::Portal::ProfileFactory();
 use pf::radius::custom();
 use pf::violation();
 use pf::soh::custom();
@@ -40,6 +42,10 @@ use List::MoreUtils qw(uniq);
 use NetAddr::IP;
 use pf::factory::firewallsso;
 
+use pf::scan();
+use pf::person();
+use pf::lookup::person();
+use pf::enforcement();
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -625,6 +631,120 @@ Return the parent function name
 =cut
 
 sub whowasi { ( caller(2) )[3] }
+
+=head2 trigger_scan
+
+Check if we have to launch a scan for the device
+
+=cut
+
+sub trigger_scan : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(ip mac net_type);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
+
+    my $logger = pf::log::get_logger();
+    # post_registration (production vlan)
+    if (pf::util::is_prod_interface($postdata{'net_type'})) {
+        my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
+        # get violation id
+        my $vid = $top_violation->{'vid'};
+        sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::POST_SCAN_VID);
+    }
+    # pre_registration
+    else {
+        my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
+        my $scanner = $profile->findScan($postdata{'mac'});
+        if ($scanner && pf::util::isenabled($scanner->{'pre_registration'})) {
+            pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_VID );
+            my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
+            my $vid = $top_violation->{'vid'};
+            sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
+            pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::PRE_SCAN_VID);
+        }
+    }
+    return;
+}
+
+=head2 close_violation
+
+Close a violation
+
+=cut
+
+sub close_violation : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac vid);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
+    my $logger = pf::log::get_logger();
+
+    my $grace = pf::violation::violation_close($postdata{'mac'}, $postdata{'vid'});
+    if ( $grace == -1 ) {
+        $logger->warn("Problem trying to close scan violation");
+    }
+    return;
+}
+
+=head2 dynamic_register_node
+
+Register a node based on mac username
+Per example fetch the current user connected on a device through a WMI scan and register it.
+
+=cut
+
+sub dynamic_register_node : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac username);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+
+    my $logger = pf::log::get_logger();
+    my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
+    my $node_info = pf::node::node_view($postdata{'mac'});
+    my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
+    my $stripped_user = '';
+
+    my $params = {
+        username => $postdata{'username'},
+        connection_type => $node_info->{'last_connection_type'},
+        SSID => $node_info->{'last_ssid'},
+        stripped_user_name => $stripped_user,
+    };
+
+    my $source;
+    my $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
+    #Compute autoreg if we use autoreg
+    my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
+    if (defined $value) {
+        $logger->trace("No unregdate found - computing it from access duration");
+        $value = pf::config::access_duration($value);
+    }
+    else {
+        $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+        $value = pf::config::dynamic_unreg_date($value);
+    }
+    if (defined $value) {
+        my %info = (
+            'unregdate' => $value,
+            'category' => $role,
+            'autoreg' => 'no',
+            'pid' => $postdata{'username'},
+            'source'  => \$source,
+            'portal'  => $profile->getName,
+            'status' => 'reg',
+        );
+        if (defined $role) {
+            %info = (%info, (category => $role));
+        }
+        pf::node::node_register($postdata{'mac'}, $postdata{'username'}, %info);
+        pf::enforcement::reevaluate_access( $postdata{'mac'}, 'manage_register' );
+    }
+}
 
 =head1 AUTHOR
 

@@ -24,6 +24,7 @@
 /usr/local/pf/conf/provisioning.conf
 /usr/local/pf/conf/realm.conf
 /usr/local/pf/conf/domain.conf
+/usr/local/pf/conf/scan.conf
 /usr/local/pf/conf/snort/classification.config
 /usr/local/pf/conf/snort/local.rules
 /usr/local/pf/conf/snort/reference.config
@@ -59,6 +60,7 @@
 /usr/local/pf/conf/ui.conf.es_ES
 /usr/local/pf/conf/ui-global.conf
 /usr/local/pf/conf/violations.conf
+/usr/local/pf/conf/wmi.conf
 /usr/local/pf/html/captive-portal/content/responsive.css
 /usr/local/pf/html/captive-portal/content/styles.css
 /usr/local/pf/html/captive-portal/content/print.css
@@ -116,6 +118,7 @@
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/AdminRoles.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
+/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Firewall_SSO.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/FloatingDevice.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/MacAddress.pm
