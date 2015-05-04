@@ -13,7 +13,7 @@
 # install. This key is used for salting of hashes used in auth tokens,
 # CRSF middleware, cookie storage, etc. This should be set identically among
 # instances if used behind a load balancer.
-SECRET_KEY = 'ef19e01b0786a44fa1acf0ddaac0df1f'
+SECRET_KEY = '%%secret%%'
 
 # In Django 1.5+ set this to the list of hosts your graphite instances is
 # accessible as. See:

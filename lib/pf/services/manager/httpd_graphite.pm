@@ -19,11 +19,13 @@ use pf::file_paths;
 use pf::config;
 use pf::util;
 use pf::cluster;
+use Bytes::Random::Secure qw( random_bytes_base64 );
 
 extends 'pf::services::manager::httpd';
 
 has '+name' => ( default => sub {'httpd.graphite'} );
 has '+optional' => ( default => sub {1} );
+has 'secret_file' => ( is => 'ro', default => sub {'/usr/local/pf/conf/monitoring/graphite_secret'} );
 
 sub generateConfig {
     generate_local_settings();
@@ -39,6 +41,8 @@ sub generate_local_settings {
         = defined( $management_network->tag('vip') )
         ? $management_network->tag('vip')
         : $management_network->tag('ip');
+
+    $tags{'secret'}               = generate_secret();
     $tags{'graphite_host'}        = "$Config{'monitoring'}{'graphite_host'}";
     $tags{'graphite_port'}        = "$Config{'monitoring'}{'graphite_port'}";
     $tags{'db_graphite_database'} = $Config{'monitoring'}{'db'};
@@ -46,8 +50,8 @@ sub generate_local_settings {
     $tags{'db_port'}              = $Config{'monitoring'}{'db_port'};
     $tags{'db_user'}              = $Config{'monitoring'}{'db_user'};
     $tags{'db_password'}          = $Config{'monitoring'}{'db_pass'};
-    $tags{'carbon_hosts'} =
-      get_cluster_destinations() // $tags{'graphite_host'} . ":9000, ";
+    $tags{'carbon_hosts'}         = get_cluster_destinations()
+        // $tags{'graphite_host'} . ":9000, ";
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/local_settings.py" );
 }
@@ -65,6 +69,29 @@ sub get_cluster_destinations {
       : undef;
 }
 
+
+sub generate_secret {
+    my ( $self, ) = @_;
+
+    my $logger = get_logger();
+    use File::Slurp;
+    my $secret;
+    if ( -e $self->{'secret_file'} ) {
+        $secret = read_file( $self->{'secret_file'} );
+        unless ( defined $secret ) {
+            $logger->error( "unable to read graphite secret file " . $self->{'secret_file'} );
+        }
+        chomp $secret;
+    }
+    else {
+        $secret = random_bytes_base64(26);
+        chomp $secret;
+        open( my $fh, ">", $self->{'secret_file'} );
+        print $fh $secret;
+    }
+
+    return $secret;
+}
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
