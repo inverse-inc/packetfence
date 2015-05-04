@@ -32,7 +32,7 @@ has_field 'type' =>
   (
    type => 'Select',
    required => 1,
-   messages => { required => 'Parameter 1 is required.' },
+   messages => { required => 'PKI provider type is required.' },
    options => [map { { label => $_, value => $_ } } qw(inverse) ],
   );
 
