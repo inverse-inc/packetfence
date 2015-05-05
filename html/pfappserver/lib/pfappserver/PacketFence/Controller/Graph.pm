@@ -322,6 +322,7 @@ sub _buildGraphiteURL :Private {
     $params->{from} = $start;
     $params->{format} = 'png';
     $params->{tz} = 'Etc/UTC';
+    $params->{tz} = $Config{'general'}{'timezone'}; 
     $params->{height} = '320';
     $params->{bgcolor} = 'ff000000';
     $params->{fgcolor} = '#000000'; #'#B8B8B8';
