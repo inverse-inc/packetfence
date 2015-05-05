@@ -476,8 +476,8 @@ sub send_email {
         To          =>  $info{'contact_info'},
         Cc          =>  $info{'cc'},
         Subject     =>  encode("MIME-Header", $info{'subject'}),
-        Template    =>  "emails-$template.txt.tt",
-        'Content-Type' => 'text/plain; charset="utf-8"',
+        Template    =>  "emails-$template.html",
+        'Content-Type' => 'text/html; charset="utf-8"',
         TmplOptions =>  \%options,
         TmplParams  =>  \%info,
     );

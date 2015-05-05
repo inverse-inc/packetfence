@@ -1,0 +1,44 @@
+<link rel="stylesheet" type="text/css" href="/usr/local/pf/html/pfappserver/root/static/css/email.css">
+<span class="preheader">Register by sponsor informaziones</span>
+<table class="main">
+        <tr>
+                <td class="wrapper">
+                        <table>
+                                <tr>
+                                        <td>
+                                                <h1 class="align-center">Responsive Sponsor Email</h1>
+                                                <p>Hi,</p>
+                                                <p>[% firstname %] [% lastname %] requested guest access to your network.</p>
+                                                <p>Do NOT authorize access if you were not expecting this guest.</p>
+                                                <p>Here is the information the guest provided with registration form:</p>          
+                                                <p>Firstname: [% firstname %]</br>
+                                                Lastname: [% lastname %]</br>
+                                                Phone number: [% telephone %]</br>
+                                                Email: [% pid %]</p>
+
+                                                <a href="[% activation_uri %]" class="btn-primary">Activate the sponsor access for guest [% firstname %]</a>
+                                                 
+                                                [% IF is_preregistration -%]
+                                                <p>Once you click on the activation link the guest will be sent a username and password by email which will allow him to register as a guest in the network once on-site.</p>
+                                                [% ELSE %]
+                                                <p>Until you click on the activation link this guest will have NO Internet access.</p>
+                                                [%- END %]
+
+                                                <p>Thank you for your cooperation.</p>
+                                        </td>
+                                </tr>
+                        </table>
+                </td>
+        </tr>
+</table>
+
+<div class="footer">
+        <table>
+                <tr>
+                        <td class="align-center">
+                                <p>-----</br></p>
+                                <p>This is a post only E-mail, please do not reply.</p>
+                        </td>
+                </tr>
+        </table>
+</div>

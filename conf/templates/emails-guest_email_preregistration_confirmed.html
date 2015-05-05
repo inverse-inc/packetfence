@@ -1,0 +1,40 @@
+<html>
+<head>
+    <style type="text/css">
+        [% INCLUDE emails.css %]
+    </style>
+    <span class="preheader">PreRegister Confirmation informaziones</span>
+</head>
+<body>
+<table class="main">
+        <tr>
+                <td class="wrapper">
+                        <table>
+                                <tr>
+                                        <td>
+                                                <h1 class="align-center">PreRegister Confirmation Email</h1>
+                                                <p>Hi,</p>
+                                                <p>Your guest access to the network was confirmed.</p>
+                                                <p>Once on site, select guest access on the captive portal and use the following username and password to authenticate:</p>
+                                                <p>Username: [% pid %]</br>
+                                                Password: [% password %]</p>
+                                                <p>If you have any questions regarding the registration process please contact support.</p>
+                                        </td>
+                                </tr>
+                        </table>
+                </td>
+        </tr>
+</table>
+
+<div class="footer">
+        <table>
+                <tr>
+                        <td class="align-center">
+                                <p>-----</br></p>
+                                <p>This is a post only E-mail, please do not reply.</p>
+                        </td>
+                </tr>
+        </table>
+</div>
+</body>
+</html>

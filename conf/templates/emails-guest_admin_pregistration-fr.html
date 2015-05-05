@@ -1,0 +1,40 @@
+<html>
+<head>
+    <style type="text/css">
+        [% INCLUDE emails.css %]
+    </style>
+    <span class="preheader">Informations de pre-enregistrement par administrateur</span>
+</head>
+<body>
+<table class="main">
+        <tr>
+                <td class="wrapper">
+                        <table>
+                                <tr>
+                                        <td>
+                                                <h1 class="align-center">Pre-enregistrement par administrateur: informations de connexion</h1>
+                                                <p>Bonjour [% firstname %] [% lastname %],</p>
+                                                <p>Un compte a été crée pour vous permettre l'accès à notre réseau.</p>
+                                                <p>Lorsque vous serez sur place, utilisez les informations suivantes pour vous authentifier sur le portail captif:</p>
+                                                <p>Nom d'utilisateur: [% username %]</br>
+                                                Mot de passe: [% password %]</p>
+                                                <p>Ces identifiants seront valides depuis [% valid_from %]. [% txt_expiration %] [% txt_duration %]</p>
+                                                <p>Si vous n'êtes pas l'émetteur de cette demande, merci d'ignorer ce message.</p>
+                                        </td>
+                                </tr>
+                        </table>
+                </td>
+        </tr>
+</table>
+<div class="footer">
+        <table>
+                <tr>
+                        <td class="align-center">
+                                <p>-----</br></p>
+                                <p>Ceci est un message automatique, merci de ne pas répondre.</p>
+                        </td>
+                </tr>
+        </table>
+</div> 
+</body>
+</html>

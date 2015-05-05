@@ -1,0 +1,31 @@
+<link rel="stylesheet" type="text/css" href="/usr/local/pf/html/pfappserver/root/static/css/email.css">
+<span class="preheader">Informations de payement pour l'enregistrement.</span>
+<table class="main">
+        <tr>
+                <td class="wrapper">
+                        <table>
+                                <tr>
+                                        <td>
+                                                <h1 class="align-center">Responsive iBilling Email</h1>
+                                                <p>Bonjour, [% firstname %] [% lastname %],</p>
+                                                <p>Merci de votre achat.</br>
+                                                [% tier_name %]: [% tier_description %]</br>
+                                                Prix: $[% tier_price %]</br>
+                                                Transaction ID: [% transaction_id %]</p>
+                                        </td>
+                                </tr>
+                        </table>
+                </td>
+        </tr>
+</table>
+<div class="footer">
+        <table>
+                <tr>
+                        <td class="align-center">
+                                <p>-----</br></p>
+                                <p>Si vous souhaitez prolonger votre accès sur le réseau, consultez la page suivante https://[% hostname %].[% domain %][% URL_BILLING %]</p>
+                                <p>Pour des informations sur votre état actuel To view your current network status, please visit https://[% hostname %].[% domain %][% URL_STATUS %]</p>
+                        </td>
+                </tr>
+        </table>
+</div>
