@@ -24,6 +24,7 @@ Enhancements
 * Ability to search in Fingerbank "Local" "Devices" listing
 * Allow rules to be match on both source and action
 * pfsetvlan and snmptrapd are now stopped by default
+* Adapt the end process redirection on the portal
 
 Bug Fixes
 +++++++++
