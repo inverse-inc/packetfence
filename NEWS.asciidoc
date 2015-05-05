@@ -20,10 +20,12 @@ New Features
 
 Enhancements
 ++++++++++++
-
+* Removed the unnecessary "Upstream" listing from the "Combination" menu item of Fingerbank section.
+* Ability to search in Fingerbank "Local" "Devices" listing
 
 Bug Fixes
 +++++++++
+* Fixes tables displaying bugs in Fingerbank menu items.
 
 Version 5.0.2 released on 2015-05-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
