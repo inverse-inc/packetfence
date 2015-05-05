@@ -281,9 +281,14 @@ Build the image source URL to retrieve a graph from the Graphite server.
 sub _buildGraphiteURL :Private {
     my ($self, $c, $start, $width, $params) = @_;
 
+    my $management_ip =
+      defined( $management_network->tag('vip') )
+      ? $management_network->tag('vip')
+      : $management_network->tag('ip');
+
     my $options =
       {
-       graphite_host => '172.20.20.246',
+       graphite_host => $management_ip,
        graphite_port => '9000'
       };
 
