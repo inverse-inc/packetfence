@@ -23,6 +23,7 @@ Enhancements
 * Removed the unnecessary "Upstream" listing from the "Combination" menu item of Fingerbank section.
 * Ability to search in Fingerbank "Local" "Devices" listing
 * Allow rules to be match on both source and action
+* pfsetvlan and snmptrapd are now stopped by default
 
 Bug Fixes
 +++++++++
