@@ -453,7 +453,7 @@ HostnameLookups Off
 # logged here.  If you *do* define an error logfile for a <VirtualHost>
 # container, that host's errors will be logged there and not here.
 #
-ErrorLog logs/error_log
+ErrorLog /usr/local/pf/logs/httpd.graphite.error
 
 #
 # LogLevel: Control the number of messages logged to the error_log.
@@ -495,7 +495,7 @@ LogFormat "%{User-agent}i" agent
 # For a single logfile with access, agent, and referer information
 # (Combined Logfile Format), use the following directive:
 #
-CustomLog logs/access_log combined
+CustomLog /usr/local/pf/logs/httpd.graphite.log common
 
 #
 # Optionally add a line containing the server version and virtual host
@@ -579,9 +579,10 @@ BrowserMatch "^Dreamweaver-WebDAV-SCM1" redirect-carefully
 
     ServerName graphite-web
     DocumentRoot "/usr/share/graphite/webapp"
-    ErrorLog /usr/local/pf/logs/httpd.graphite.log
+    ErrorLog /usr/local/pf/logs/httpd.graphite.error
     CustomLog /usr/local/pf/logs/httpd.graphite.log common
     Alias /media/ "/usr/lib/python2.6/site-packages/django/contrib/admin/media/"
+    Alias /content/ "/usr/share/graphite/webapp/content/" 
 
     WSGIScriptAlias / /usr/share/graphite/graphite-web.wsgi
     WSGIImportScript /usr/share/graphite/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}

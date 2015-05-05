@@ -42,6 +42,10 @@ sub generateCollectd {
     $tags{'template'}      = "$conf_dir/monitoring/collectd.conf";
     $tags{'install_dir'}   = "$install_dir";
     $tags{'log_dir'}       = "$log_dir";
+    $tags{'management_ip'} =
+      defined( $management_network->tag('vip') )
+      ? $management_network->tag('vip')
+      : $management_network->tag('ip');
     $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
     $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
     $tags{'hostname'}      = "$Config{'general'}{'hostname'}" . "." . "$Config{'general'}{'domain'}";
