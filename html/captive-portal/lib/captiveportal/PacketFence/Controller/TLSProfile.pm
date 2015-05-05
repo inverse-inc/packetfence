@@ -13,6 +13,7 @@ use HTML::Entities;
 use MIME::Base64;
 use File::Slurp;
 use pf::web;
+use Crypt::OpenSSL::X509;
 
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -208,22 +209,22 @@ sub export_fingerprint : Local {
     my $pki_session = $user_cache->compute("pki_session", sub {});
     my $capath = "/usr/local/pf/raddb/certs/TestEAP.pem";
     my $svrpath = "/usr/local/pf/raddb/certs/svr.pem";
-    my $data = pf_run("openssl x509 -in $capath -fingerprint");
-    my $cadata = pf_run("openssl x509 -in $capath -text");
-    my $svrdata = pf_run("openssl x509 -in $svrpath -text");
+    my $cacert = Crypt::OpenSSL::X509->new_from_file($capath);
+    my $castr = $cacert->as_string();
+    my $cafinger = $cacert->fingerprint_sha1();
+    $c->session( fingerprint => $cafinger );
+    my $svrcert = Crypt::OpenSSL::X509->new_from_file($svrpath);
+    my $svrstr = $cacert->as_string();
     my $cafile = basename($capath);
     my $svrfile = basename($svrpath);
     $c->session( cacn => $cafile );
     $c->session( svrcn => $svrfile );
-    $cadata =~ s/-----END CERTIFICATE-----\n.*//smg;
-    $cadata =~ s/.*-----BEGIN CERTIFICATE-----\n//smg;
-    $c->session( cadata => $cadata );
-    $svrdata =~ s/-----END CERTIFICATE-----\n.*//smg;
-    $svrdata =~ s/.*-----BEGIN CERTIFICATE-----\n//smg;
-    $c->session( svrdata => $svrdata );
-    $data =~ s/-----BEGIN CERTIFICATE-----\n.*//smg;
-    $data =~ s/\:/\ /smg;
-    $c->session( fingerprint => $data );
+    $castr =~ s/-----END CERTIFICATE-----\n.*//smg;
+    $castr=~ s/.*-----BEGIN CERTIFICATE-----\n//smg;
+    $c->session( cadata => $castr );
+    $svrstr =~ s/-----END CERTIFICATE-----\n.*//smg;
+    $svrstr =~ s/.*-----BEGIN CERTIFICATE-----\n//smg;
+    $c->session( svrdata => $svrstr );
     @$pki_session{qw(cacn svrcn cadata svrdata fingerprint)} = (
         $cafile,
         $svrfile,
