@@ -1,39 +1,46 @@
 <html>
 <head>
-    <style type="text/css">
-        [% INCLUDE emails.css %]
-    </style>
-    <span class="preheader">New account informations</span>
+  <style type="text/css">
+    [% INCLUDE emails.css %]
+  </style>
 </head>
 <body>
-<table class="main">
-        <tr>
-                <td class="wrapper">
-                        <table>
-                                <tr>
-                                        <td>
-                                                <h1 class="align-center">Local Account Creation</h1>
-                                                <p>Hi,</p>
-                                                <p>Just to let you know that we created a user account while registering your device. You may now want to use it for different features (devices registration, status page).</p>
-                                                <p>Here are the info.</p>
-                                                <p>Username: [% pid %]</br> Password: [% password %]</p>
-
-                                                <p>If you have any questions regarding the registration process please contact support.</p>
-                                        </td>
-                                </tr>
-                        </table>
-                </td>
-        </tr>
+<table class="body-wrap">
+  <tr>
+    <td></td>
+    <td class="container" width="600">
+      <div class="content">
+        <table class="main" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td class="content-wrap">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td class="content-block">
+                    <h1 class="aligncenter">Local Account Creation</h1>
+                     <p>Hi,</p>
+                     <p>Just to let you know that we created a user account while registering your device. You may now want to use it for different features (devices registration, status page).</p>
+                     <p>Here are the info.</p>
+                     <p>Username: [% pid %]</br> Password: [% password %]</p>
+                     <p>If you have any questions regarding the registration process please contact support.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
 </table>
 <div class="footer">
-        <table>
-                <tr>
-                        <td class="align-center">
-                                <p>-----</br></p>
-                                <p>This is a post only E-mail, please do not reply.</p>
-                        </td>
-                </tr>
-        </table>
+  <table width="100%">
+    <tr>
+      <td class="aligncenter content-block">
+        <p>-----</br></p>
+        <p>This is a post only E-mail, please do not reply.</p>
+      </td>
+    </tr>
+  </table>
 </div>
 </body>
 </html>

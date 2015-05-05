@@ -1,39 +1,47 @@
 <html>
 <head>
-    <style type="text/css">
-        [% INCLUDE emails.css %]
-    </style>
-    <span class="preheader">Informations de payement pour l'enregistrement.</span>
+  <style type="text/css">
+    [% INCLUDE emails.css %]
+  </style>
 </head>
 <body>
-<table class="main">
-        <tr>
-                <td class="wrapper">
-                        <table>
-                                <tr>
-                                        <td>
-                                                <h1 class="align-center">Email de confirmation de payement</h1>
-                                                <p>Bonjour, [% firstname %] [% lastname %],</p>
-                                                <p>Merci de votre achat.</br>
-                                                [% tier_name %]: [% tier_description %]</br>
-                                                Prix: $[% tier_price %]</br>
-                                                Transaction ID: [% transaction_id %]</p>
-                                        </td>
-                                </tr>
-                        </table>
-                </td>
-        </tr>
+<table class="body-wrap">
+  <tr>
+    <td></td>
+    <td class="container" width="600">
+      <div class="content">
+        <table class="main" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td class="content-wrap">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td class="content-block">
+                    <h1 class="aligncenter">Email de confirmation de paiement</h1>
+                    <p>Bonjour, [% firstname %] [% lastname %],</p>
+                    <p>Merci de votre achat.</br>
+                    [% tier_name %]: [% tier_description %]</br>
+                    Prix: $[% tier_price %]</br>
+                    Transaction ID: [% transaction_id %]</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
 </table>
 <div class="footer">
-        <table>
-                <tr>
-                        <td class="align-center">
-                                <p>-----</br></p>
-                                <p>Si vous souhaitez prolonger votre accès sur le réseau, consultez la page suivante https://[% hostname %].[% domain %][% URL_BILLING %]</p>
-                                <p>Pour des informations sur votre état actuel consultez la page suivante https://[% hostname %].[% domain %][% URL_STATUS %]</p>
-                        </td>
-                </tr>
-        </table>
+  <table width="100%">
+    <tr>
+      <td class="aligncenter content-block">
+        <p>-----</br></p>
+        <p>Si vous souhaitez prolonger votre accès sur le réseau, consultez la page suivante <a href="https://[% hostname %].[% domain %][% URL_BILLING %]" class="btn-secondary">Prolonger l'accès</a></p>
+        <p>Pour des informations sur votre état actuel consultez la page suivante <a href="https://[% hostname %].[% domain %][% URL_STATUS %]" class="btn-secondary">Status</a></p>
+      </td>
+    </tr>
+  </table>
 </div>
 </body>
 </html>
