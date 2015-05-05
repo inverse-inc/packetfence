@@ -21,7 +21,7 @@ extends 'pf::Authentication::Source';
 has '+type' => (default => 'Htpasswd');
 has 'path' => (isa => 'Str', is => 'rw', required => 1);
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
-has 'use_mandatory_fields' => (isa => 'Str', is => 'rw', default => 'no');
+has 'use_mandatory_fields' => (isa => 'Bool', is => 'rw', default => 0);
 
 =head1 METHODS
 

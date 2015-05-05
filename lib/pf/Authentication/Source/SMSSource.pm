@@ -20,7 +20,7 @@ has '+type' => (default => 'SMS');
 has '+unique' => (default => 1);
 has 'sms_carriers' => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
-has 'use_mandatory_fields' => (isa => 'Str', is => 'rw', default => 'no');
+has 'use_mandatory_fields' => (isa => 'Bool', is => 'rw', default => 0);
 
 =head1 METHODS
 

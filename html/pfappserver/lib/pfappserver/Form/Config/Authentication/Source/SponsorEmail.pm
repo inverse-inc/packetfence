@@ -23,7 +23,7 @@ has_field 'allow_localdomain' =>
    checkbox_value => 'yes',
    unchecked_value => 'no',
    label => 'Allow Local Domain',
-   default => pf::Authentication::Source::EmailSource->meta->get_attribute('allow_localdomain')->default,
+   default => pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('allow_localdomain')->default,
    tags => { after_element => \&help,
              help => 'Accept self-registration with email address from the local domain' },
   );
@@ -33,7 +33,7 @@ has_field 'create_local_account' => (
     checkbox_value => 'yes',
     unchecked_value => 'no',
     label => 'Create Local Account',
-    default => pf::Authentication::Source::EmailSource->meta->get_attribute('create_local_account')->default,
+    default => pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('create_local_account')->default,
     tags => { 
         after_element => \&help,
         help => 'Create a local account on the PacketFence system based on the email address provided.',
@@ -53,10 +53,10 @@ has_field 'activation_domain' =>
 
 has_field 'use_mandatory_fields' => (
     type => 'Toggle',
-    checkbox_value => 'yes',
-    unchecked_value => 'no',
+    checkbox_value => 1,
+    unchecked_value => 0,
     label => 'Use mandatory fields',
-    default => pf::Authentication::Source::EmailSource->meta->get_attribute('use_mandatory_fields')->default,
+    default => pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('use_mandatory_fields')->default,
     tags => {
         after_element => \&help,
         help => 'If enabled then the mandatory fields defined on the portal profile will be mandatory.',

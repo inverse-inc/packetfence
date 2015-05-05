@@ -44,8 +44,8 @@ has_field 'create_local_account' => (
 
 has_field 'use_mandatory_fields' => (
     type => 'Toggle',
-    checkbox_value => 'yes',
-    unchecked_value => 'no',
+    checkbox_value => 1,
+    unchecked_value => 0,
     label => 'Use mandatory fields',
     default => pf::Authentication::Source::SMSSource->meta->get_attribute('use_mandatory_fields')->default,
     tags => {

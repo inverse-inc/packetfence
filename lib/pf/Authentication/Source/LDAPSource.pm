@@ -41,8 +41,8 @@ has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 has '_cached_connection' => (is => 'rw');
-has 'cache_match' => ( isa => 'Bool',       is => 'rw', default => 0 );
-has 'use_mandatory_fields' => (isa => 'Str', is => 'rw', default => 'no');
+has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
+has 'use_mandatory_fields' => (isa => 'Bool', is => 'rw', default => 0);
 
 =head1 METHODS
 
