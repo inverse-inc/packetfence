@@ -146,11 +146,10 @@ sub validate_form : Private {
     my $pid    = undef;
     my $portalSession = $c->portalSession;
     my $mac    = $portalSession->clientMac;
-    #unless ($c->has_errors) {
-    #    my $mac           = $c->portalSession->clientMac;
-    #    my $node_info     = node_view($mac);
-    #    my $pid           = $node_info->{'pid'};
-    #}
+    unless ($c->has_errors) {
+        my $node_info     = node_view($mac);
+        my $pid           = $node_info->{'pid'};
+    }
     my $passwd1 = $c->request->param('certificate_pwd');
     my $passwd2 = $c->request->param('certificate_pwd_check');
     if($passwd1 ne $passwd2) {
