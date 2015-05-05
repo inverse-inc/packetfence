@@ -428,7 +428,7 @@ function drawGraphs(id) {
 $(function() {
     $(window).on('resize', function(event) {
         // When resizing the window, rebuild the graphs after a delay of 100 miliseconds
-        if (graphs.resize_timeout) window.clearTimeout(graphs.resize_timeout);
-        graphs.resize_timeout = window.setTimeout(function() { drawGraphs() }, 100);
+      if (graphs.resize_timeout) window.clearTimeout(graphs.resize_timeout);
+        graphs.resize_timeout = window.setTimeout(drawGraphs, 1000);
     });
 });
