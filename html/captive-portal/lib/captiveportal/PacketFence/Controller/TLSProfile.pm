@@ -10,6 +10,8 @@ use pf::web::constants;
 use List::MoreUtils qw(uniq any);
 use pf::authentication;
 use HTML::Entities;
+use MIME::Base64;
+use File::Slurp;
 use pf::web;
 
 
@@ -175,13 +177,13 @@ Encode user certificate in b64
 
 sub b64_cert : Local {
     my ($self,$c) = @_;
-    my $logger = $c->log;
     my $session = $c->session;
     my $stash = $c->stash;
     my $cwd = $cert_dir;
     my $certfile = $stash->{'certificate_cn'};
     my $certp12 = "$cwd/$certfile.p12";
-    my $b64 = pf_run("base64 $certp12");
+    my $certstr = read_file($certp12);
+    my $b64 = encode_base64($certstr);
     my $user_cache = $c->user_cache;
     my $pki_session = $user_cache->compute("pki_session", sub {});
     $pki_session->{b64_cert} = $b64;
