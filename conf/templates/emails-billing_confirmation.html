@@ -1,12 +1,18 @@
-<link rel="stylesheet" type="text/css" href="/usr/local/pf/html/pfappserver/root/static/css/email.css">
-<span class="preheader">Register Billing informaziones</span>
+<html>
+<head>
+    <style type="text/css">
+        [% INCLUDE emails.css %]
+    </style>
+    <span class="preheader">Register Billing Report</span>
+</head>
+<body>
 <table class="main">
         <tr>
                 <td class="wrapper">
                         <table>
                                 <tr>
                                         <td>
-                                                <h1 class="align-center">Responsive iBilling Email</h1>
+                                                <h1 class="align-center">Billing register infortmations</h1>
                                                 <p>Hello [% firstname %] [% lastname %],</p>
                                                 <p>Thank you for your purchase.</br>
                                                 [% tier_name %]: [% tier_description %]</br>
@@ -29,3 +35,5 @@
                 </tr>
         </table>
 </div>
+</body>
+</html>
