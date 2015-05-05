@@ -16,13 +16,13 @@ use warnings;
 
 use base qw(pf::api::attributes);
 use threads::shared;
+use pf::log();
 use pf::authentication();
 use pf::config();
 use pf::config::cached;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::iplog();
-use pf::log();
 use pf::Portal::ProfileFactory();
 use pf::radius::custom();
 use pf::violation();
@@ -46,6 +46,8 @@ use pf::scan();
 use pf::person();
 use pf::lookup::person();
 use pf::enforcement();
+use pf::password();
+use pf::web::guest();
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -547,7 +549,7 @@ sub expire_cluster : Public {
             light => 1
         );
         eval {
-            $apiclient->call('expire', %data ); 
+            $apiclient->call('expire', %data );
         };
 
         if($@){
@@ -585,7 +587,7 @@ sub expire : Public {
           namespace => $postdata{namespace},
           light => $postdata{light},
         };
-    
+
         my $result = pfconfig::util::fetch_decode_socket(encode_json($payload));
         unless ( $result->{status} eq "OK." ) {
             $logger->error("Couldn't light expire namespace $postdata{namespace}");
@@ -623,6 +625,133 @@ sub validate_argv {
     }
     return 1;
 }
+
+
+=head2 add_person
+
+Add a new person
+
+=cut
+
+sub add_person : Public {
+    my ($class, %params) = @_;
+    my @require = qw(pid);
+    my @found = grep {exists $params{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+    my $logger = pf::log::get_logger();
+    my $pid    = delete $params{pid};
+    my $sendmail = delete $params{sendmail};
+    if(pf::person::person_exist($pid)) {
+        my $msg = "person $pid already exists\n";
+        $logger->error($msg);
+        die $msg;
+    }
+    my $result = pf::person::person_modify($pid, %params);
+    unless ($result) {
+        my $msg = "Unable to create user $pid\n";
+        $logger->error($msg);
+        die $msg;
+    }
+    $logger->info("Created user account $pid.");
+    # Add the registration window to the actions
+    _update_person_actions(\%params);
+    my $password = pf::password::generate($pid, $params{actions}, $params{password});
+    unless ($password) {
+        my $msg = "Unable to generate password\n";
+        $logger->error($msg);
+        die $msg;
+    }
+
+    return 1;
+}
+
+sub _update_person_actions {
+    my ($params) = @_;
+    $params->{actions} ||= [];
+    if(exists $params->{valid_from}) {
+        push(@{$params->{actions}}, {type => 'valid_from', value => delete $params->{valid_from}});
+    }
+    if(exists $params->{expiration} ) {
+        push(@{$params->{actions}}, {type => 'expiration', value => delete $params->{expiration}});
+    }
+    if(exists $params->{access_level} ) {
+        push(@{$params->{actions}}, {type => 'set_access_level', value => delete $params->{access_level}});
+    }
+    if(exists $params->{sponsor} ) {
+        push(@{$params->{actions}}, {type => 'mark_as_sponsor', value => delete $params->{sponsor}});
+    }
+    if(exists $params->{role} ) {
+        push(@{$params->{actions}}, {type => 'set_role', value => delete $params->{role}});
+    }
+    if(exists $params->{access_duration} ) {
+        push(@{$params->{actions}}, {type => 'set_access_duration', value => delete $params->{access_duration}});
+    }
+    if(exists $params->{unreg_date} ) {
+        push(@{$params->{actions}}, {type => 'set_unreg_date', value => delete $params->{unreg_date}});
+    }
+}
+
+=head2 view_person
+
+View a person entry
+
+=cut
+
+sub view_person : Public {
+    my ($class,$pid) = @_;
+    my $logger = pf::log::get_logger();
+    unless(pf::person::person_exist($pid)) {
+        my $msg = "person $pid does not exist\n";
+        $logger->error($msg);
+        die $msg;
+    }
+    my $person = pf::person::person_view($pid);
+    unless ($person) {
+        my $msg = "Error retrieving $pid\n";
+        $logger->error($msg);
+        die $msg;
+    }
+    return $person;
+}
+
+=head2 modify_person
+
+Modify an existing person
+
+=cut
+
+sub modify_person : Public {
+    my ($class, %params) = @_;
+    my @require = qw(pid);
+    my @found = grep {exists $params{$_}} @require;
+    return unless validate_argv(\@require,  \@found);
+    my $pid = delete $params{pid};
+    my $logger = pf::log::get_logger();
+    unless(pf::person::person_exist($pid)) {
+        my $msg = "person $pid does not exist\n";
+        $logger->error($msg);
+        die $msg;
+    }
+    my $person = pf::person::person_view($pid);
+    %params = (%$person,%params);
+    _update_person_actions(\%params);
+    pf::password::modify_actions( { pid => $pid},$params{actions});
+    my $result = pf::person::person_modify($pid, %params);
+    return $result;
+}
+
+=head2 delete_person
+
+Delete a person
+
+=cut
+
+sub delete_person {
+    my ($class,$pid) = @_;
+    my $result = pf::person::person_delete($pid);
+    return $result;
+}
+
 
 =head2 whowasi
 
