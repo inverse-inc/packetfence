@@ -42,7 +42,10 @@ List the top level devices
 sub list : Local :Args(0) {
     my ($self, $c) = @_;
     #setting the id of the parent to undef
-    $c->stash(item => { id => undef });
+    $c->stash(
+        item => { id => undef },
+        scope => 'Upstream',
+    );
     $c->forward('children');
 }
 
