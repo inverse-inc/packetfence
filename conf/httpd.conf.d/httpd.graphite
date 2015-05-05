@@ -586,6 +586,7 @@ BrowserMatch "^Dreamweaver-WebDAV-SCM1" redirect-carefully
     WSGIScriptAlias / /usr/share/graphite/graphite-web.wsgi
     WSGIImportScript /usr/share/graphite/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
 
+    Header set Access-Control-Allow-Origin "*" 
     <Location "/content/">
         SetHandler None
     </Location>

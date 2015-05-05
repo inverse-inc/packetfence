@@ -20,6 +20,9 @@ use Moose;
 use Readonly;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use namespace::autoclean;
+use pf::config;
+use pf::cluster;
+use Sys::Hostname;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -280,8 +283,8 @@ sub _buildGraphiteURL :Private {
 
     my $options =
       {
-       graphite_host => '127.0.0.1',
-       graphite_port => '8080'
+       graphite_host => '172.20.20.246',
+       graphite_port => '9000'
       };
 
     if (!$width) {
@@ -346,103 +349,79 @@ sub dashboard :Local :AdminRole('REPORTS') {
                {
                 'description' => 'Total Access-Requests/s',
                 'vtitle' => 'requests',
-                'target' =>'alias(sum(pf-auth*-*c_hostname.radsniff-exchanged.radius_count-access_request.received),"Access-Requests")',
+                'target' =>'alias(sum(*.radsniff-exchanged.radius_count-access_request.received),"Access-Requests")',
                 'columns' => 1
                },
                {
                 'description' => 'Access-Requests/s per server',
                 'vtitle' => 'requests',
-                'target' => 'aliasByNode(pf-auth*-*c_hostname.radsniff-exchanged.radius_count-access_request.received,0)',
+                'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_request.received,0)',
                 'columns' => 1
                },
                {
                 'description' => 'Access-Accepts/s per server',
                 'vtitle' => 'replies',
-                'target' => 'aliasByNode(pf-auth*-*c_hostname.radsniff-exchanged.radius_count-access_accept.received,0)',
+                'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_accept.received,0)',
                 'columns' => 2
                },
                {
                 'description' => 'Access-Rejects/s per server',
                 'vtitle' => 'replies',
-                'target' => 'aliasByNode(pf-auth*-*c_hostname.radsniff-exchanged.radius_count-access_reject.received,0)',
+                'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_reject.received,0)',
                 'columns' => 2
                },
                {
                 'description' => 'Reject/Accept ratio per server',
                 'vtitle' => 'percent',
-                'target' => 'aliasByNode(group( scale(divideSeries(pf-auth1-ddc_hostname.radsniff-exchanged.radius_count-access_reject.linked,pf-auth1-ddc_hostname.radsniff-exchanged.radius_count-access_accept.linked),100), scale(divideSeries(pf-auth2-ddc_hostname.radsniff-exchanged.radius_count-access_reject.linked,pf-auth2-ddc_hostname.radsniff-exchanged.radius_count-access_accept.linked),100), scale(divideSeries(pf-auth3-ddc_hostname.radsniff-exchanged.radius_count-access_reject.linked,pf-auth3-ddc_hostname.radsniff-exchanged.radius_count-access_accept.linked),100), scale(divideSeries(pf-auth4-ddc_hostname.radsniff-exchanged.radius_count-access_reject.linked,pf-auth4-ddc_hostname.radsniff-exchanged.radius_count-access_accept.linked),100), scale(divideSeries(pf-auth5-ddc_hostname.radsniff-exchanged.radius_count-access_reject.linked,pf-auth5-ddc_hostname.radsniff-exchanged.radius_count-access_accept.linked),100), scale(divideSeries(pf-auth1-ebc_hostname.radsniff-exchanged.radius_count-access_reject.linked,pf-auth1-ebc_hostname.radsniff-exchanged.radius_count-access_accept.linked),100), scale(divideSeries(pf-auth2-ebc_hostname.radsniff-exchanged.radius_count-access_reject.linked,pf-auth2-ebc_hostname.radsniff-exchanged.radius_count-access_accept.linked),100), scale(divideSeries(pf-auth3-ebc_hostname.radsniff-exchanged.radius_count-access_reject.linked,pf-auth3-ebc_hostname.radsniff-exchanged.radius_count-access_accept.linked),100), scale(divideSeries(pf-auth4-ebc_hostname.radsniff-exchanged.radius_count-access_reject.linked,pf-auth4-ebc_hostname.radsniff-exchanged.radius_count-access_accept.linked),100), scale(divideSeries(pf-auth5-ebc_hostname.radsniff-exchanged.radius_count-access_reject.linked,pf-auth5-ebc_hostname.radsniff-exchanged.radius_count-access_accept.linked),100)), 0)',
+                'target' => _generate_ratio_group(),
                 'columns' => 2
                },
                {
                 'description' => 'Authorize calls/s',
                 'vtitle' => 'requests',
-                'target' => 'aliasByNode(scaleToSeconds(stats.counters.pf.pf-auth*-*c.radius.authorize.count,1),3)',
+                'target' => 'aliasByNode(scaleToSeconds(stats.timers.*.freeradius_main_authorize.timing.count,1),2)',
                 'columns' => 1
                },
                {
                 'description' => 'Webservices calls/s',
                 'vtitle' => 'requests',
-                'target' => 'aliasByNode(scaleToSeconds(stats.counters.pf.pf-auth*-*c.radius.post_auth.count,1),3)',
+                'target' => 'aliasByNode(scaleToSeconds(stats.timers.*.freeradius_main_post_auth.timing.count,1),2)',
                 'columns' => 1
                },
                {
                 'description' => 'Webservices call timing',
                 'vtitle' => 'ms',
-                'target' => 'aliasByNode(stats.timers.pf.pf-auth*-*c.radius.webservices.timing.mean_90,3)',
+                'target' => 'aliasByNode(stats.timers.*.freeradius_main_post_auth.timing.mean_90,2)',
                 'columns' => 1
                },
                {
-                'description' => 'Apache Open Connections per server',
+                'description' => 'Apache Portal Open Connections per server',
                 'vtitle' => 'connections',
-                'target' => 'aliasByNode(pf-auth*-*c_hostname.apache-webservice.apache_connections,0)',
+                'target' => 'aliasByNode(*.apache-portal.apache_connections,0)',
                 'columns' => 1
                },
                {
                 'description' => 'Average Access-Request Latency',
                 'vtitle' => 'ms',
-                'target' => 'aliasByNode(pf-auth*-*c_hostname.radsniff-exchanged.radius_latency-access_request.smoothed,0)',
-                'columns' => 1
-               },
-               {
-                'description' => 'Packets received/s',
-                'vtitle' => 'packets',
-                'target' => 'aliasByNode(pf-auth*-*c_hostname.interface-eth0.if_packets.rx,0)',
-                'columns' => 1
-               },
-               {
-                'description' => 'Radius Load Balancer requests',
-                'vtitle' => 'requests',
-                'target' => 'aliasByNode(scale(pf-lb1-*c_hostname.radsniff-exchanged.radius_count-access_request.received,0.5),0)',
-                'columns' => 1
-               },
-               {
-                'description' => 'Radius Load Balancer Average Latency',
-                'vtitle' => 'ms',
-                'target' => 'aliasByNode(pf-lb1-*c_hostname.radsniff-exchanged.radius_latency-access_request.smoothed,0)',
-                'columns' => 1
-               },
-               {
-                'description' => 'Load Balancers Packets received/s',
-                'vtitle' => 'packets',
-                'target' => 'aliasByNode(pf-lb1-*c_hostname.interface-eth0.if_octets.rx,0)',
+                'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-access_request.smoothed,0)',
                 'columns' => 1
                },
                {
                 'description' => 'PF Database Threads',
                 'vtitle' => 'threads',
-                'target' => 'aliasByNode(127_0_0_1.mysql-pf.threads-*,2)',
+                'target' => 'aliasByNode(*.mysql-pf.threads-*,2)',
                 'columns' => 1
                },
                {
                 'description' => 'Accounting requests received/s',
                 'vtitle' => 'requests',
-                'target' => 'aliasByNode(pf-acct1-*c_hostname.radsniff-exchanged.radius_count-accounting_request.received,0)',
+                'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-accounting_request.received,0)',
                 'columns' => 1
                },
                {
                 'description' => 'Radius Accounting Latency',
                 'vtitle' => 'ms',
-                'target' => 'aliasByNode(pf-acct1-*c_hostname.radsniff-exchanged.radius_latency-accounting_request.smoothed,0)',
+                'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-accounting_request.smoothed,0)',
                 'columns' => 1
                },
               ];
@@ -745,7 +724,7 @@ Defined as a report.
 sub osclassbandwidth :Local :AdminRole('REPORTS') {
     my ( $self, $c, $start, $end ) = @_;
 
-    my $option = 'accttotal'; # we only sypport this field, see pf::pfcmd::report
+    my $option = 'accttotal'; # we only support this field
 
     $self->_saveRange($c, $REPORTS, $start, $end);
     $self->_graphPie($c, $c->loc('Bandwidth per Operating System Class'), $REPORTS,
@@ -754,6 +733,33 @@ sub osclassbandwidth :Local :AdminRole('REPORTS') {
                                    value => $option },
                      });
 }
+
+sub _generate_hosts {
+    my @hosts;
+    if (@cluster_hosts) {
+        @hosts = @cluster_hosts;
+    }
+    elsif ($Config{'monitoring'}{'graphite_hosts'}) {
+    
+    }
+    else {
+        my $host = hostname;
+        push @hosts, $host;
+    }
+    map {  s/\./_/g } @hosts;
+    return @hosts;
+}
+
+sub _generate_ratio_group {
+    my @group_members;
+    for my $host (_generate_hosts()) {
+        push @group_members,
+"scale(divideSeries($host.radsniff-exchanged.radius_count-access_reject.linked,$host.radsniff-exchanged.radius_count-access_accept.linked),100)";
+    }
+
+    return 'aliasByNode( group(' . join( ', ', @group_members ) . ') ,0)';
+}
+
 
 =head1 COPYRIGHT
 

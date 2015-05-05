@@ -26,7 +26,7 @@ extends 'pf::services::manager::httpd';
 
 has '+name' => ( default => sub {'httpd.graphite'} );
 has '+optional' => ( default => sub {1} );
-my $SECRET_FILE = '/usr/local/pf/conf/monitoring/graphite_secret';
+my $SECRET_FILE = $conf_dir . '/monitoring/graphite_secret';
 
 sub generateConfig {
     generate_local_settings();
@@ -72,8 +72,6 @@ sub get_cluster_destinations {
 
 
 sub generate_secret {
-    my ( $self, ) = @_;
-
     my $logger = get_logger();
     use File::Slurp;
     my $secret;
