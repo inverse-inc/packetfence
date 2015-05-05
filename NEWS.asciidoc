@@ -16,7 +16,7 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-
+* New activation_domain feature to allow to expose a different domain than packetfence's name in email templates
 
 Enhancements
 ++++++++++++
