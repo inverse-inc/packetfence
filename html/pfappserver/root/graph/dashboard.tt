@@ -13,49 +13,22 @@
         </div>
 
         <ul class="nav pull-right">
-          <li><a href="#graph/dashboard/[% last0day %]">[% l('Today') %]</a></li>
-          <li><a href="#graph/dashboard/[% last7days %]">[% l('7 days') %]</a></li>
-          <li><a href="#graph/dashboard/[% last30days %]">[% l('30 days') %]</a></li>
-          <li><a href="#graph/dashboard/[% last60days %]">[% l('60 days') %]</a></li>
+          <li><a href="#graph/dashboard/-1h">[% l('Past Hour') %]</a></li>
+          <li><a href="#graph/dashboard/-3h">[% l('Past 3 Hours') %]</a></li>
+          <li><a href="#graph/dashboard/-12h">[% l('Past 12 Hours') %]</a></li>
+          <li><a href="#graph/dashboard/-1d">[% l('Past Day') %]</a></li>
+          <li><a href="#graph/dashboard/-1w">[% l('Past Week') %]</a></li>
+          <li><a href="#graph/dashboard/-2w">[% l('Past 2 Weeks') %]</a></li>
         </ul>
       </div>
     </div>
   </div>
 
-  <ul class="nav nav-tabs">
-    <li class="[% 'active ' IF c.session.dashboard_activegraph == 'registered' %]span2">
-      <a href="#nodes_reg" data-toggle="tab">[% counters.nodes_reg %]</a></li>
-    <li class="[% 'active ' IF c.session.dashboard_activegraph == 'unregistered' %]span2">
-      <a href="#nodes_unreg" data-toggle="tab">[% counters.nodes_unreg %]</a></li>
-    <li class="[% 'active ' IF c.session.dashboard_activegraph == 'detected' %]span2">
-      <a href="#nodes_new" data-toggle="tab">[% counters.nodes_new %]</a></li>
-    <li class="[% 'active ' IF c.session.dashboard_activegraph == 'violations_all' %]span2">
-      <a href="#violations_all" data-toggle="tab">[% counters.violations %]</a></li>
-    <li class="[% 'active ' IF c.session.dashboard_activegraph == 'wired' %]span2">
-      <a href="#wired" data-toggle="tab">[% counters.wired %]</a></li>
-    <li class="[% 'active ' IF c.session.dashboard_activegraph == 'wireless' %]span2">
-      <a href="#wireless" data-toggle="tab">[% counters.wireless %]</a></li>
-  </ul>
-
-  <div class="tab-content">
-    <div class="[% 'active ' IF c.session.dashboard_activegraph == 'registered' %]tab-pane" id="nodes_reg">
-      <div class="graph" data-uri="/graph/nodes/registered"></div>
-    </div>
-    <div class="[% 'active ' IF c.session.dashboard_activegraph == 'unregistered' %]tab-pane" id="nodes_unreg">
-      <div class="graph" data-uri="/graph/nodes/unregistered"></div>
-    </div>
-    <div class="[% 'active ' IF c.session.dashboard_activegraph == 'detected' %]tab-pane" id="nodes_new">
-      <div class="graph" data-uri="/graph/nodes/detected"></div>
-    </div>
-    <div class="[% 'active ' IF c.session.dashboard_activegraph == 'violations_all' %]tab-pane" id="violations_all">
-      <div class="graph" data-uri="/graph/violations_all"></div>
-    </div>
-    <div class="[% 'active ' IF c.session.dashboard_activegraph == 'wired' %]tab-pane" id="wired">
-      <div class="graph" data-uri="/graph/wired"></div>
-    </div>
-    <div class="[% 'active ' IF c.session.dashboard_activegraph == 'wireless' %]tab-pane" id="wireless">
-      <div class="graph" data-uri="/graph/wireless"></div>
-    </div>
-  </div>
+  [% FOREACH graph IN graphs %]
+  <span style="float: left;">
+    <h4>[% graph.description %]</h4>
+    <img src="[% graph.url %]" style="height: [% graph.height %]px; width: [% graph.width %]px;">
+  </span>
+  [%- END %]
   
 </div>
