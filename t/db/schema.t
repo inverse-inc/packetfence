@@ -41,6 +41,7 @@ my $upgrade_schema = "$install_dir/db/upgrade-X.X.X-X.Y.Z.sql";
 
 SKIP: {
     skip ('No db pass set',1) unless exists $ENV{PF_TEST_DB_PASS};
+    skip ('There is no pf-schema',1) unless -e $test_schema;
     my $dbpass = $ENV{PF_TEST_DB_PASS};
     my $dbh = DBI->connect("DBI:mysql:", 'root', $dbpass) or BAIL_OUT("cannot connect to the local test database");
     $dbh->do("DROP DATABASE IF EXISTS $DB_NAME;") or BAIL_OUT("cannot drop the database $DB_NAME");
