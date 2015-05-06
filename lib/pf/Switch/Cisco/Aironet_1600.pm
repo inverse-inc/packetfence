@@ -2,12 +2,12 @@ package pf::Switch::Cisco::Aironet_1600;
 
 =head1 NAME
 
-pf::Switch::Cisco::Aironet_1250 - Object oriented module to access SNMP enabled Cisco Aironet 1250 APs
+pf::Switch::Cisco::Aironet_1600 - Object oriented module to access SNMP enabled Cisco Aironet 1600 APs
 
 =head1 SYNOPSIS
 
-The pf::Switch::Cisco::Aironet_1250 module implements an object oriented interface
-to access SNMP enabled Cisco Aironet_1250 APs.
+The pf::Switch::Cisco::Aironet_1600 module implements an object oriented interface
+to access SNMP enabled Cisco Aironet_1600 APs.
 
 This modules extends pf::Switch::Cisco::Aironet
 
