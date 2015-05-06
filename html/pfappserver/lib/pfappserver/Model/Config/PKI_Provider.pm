@@ -2,13 +2,13 @@ package pfappserver::Model::Config::PKI_Provider;
 
 =head1 NAME
 
-pfappserver::Model::Config::PKI_Provider add documentation
-
-=cut
+pfappserver::Model::Config::PKI_Provider
 
 =head1 DESCRIPTION
 
 pfappserver::Model::Config::PKI_Provider
+
+The Config Model for PKI_Provider
 
 =cut
 
