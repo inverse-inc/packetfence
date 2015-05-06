@@ -24,12 +24,14 @@ use base "Etsy::StatsD";
 use Sys::Hostname;
 use pf::config;
 use POSIX;
+use Readonly;
 
 our $VERSION = 1.000000;
-
 our @EXPORT = qw($statsd);
-
 our $statsd;
+
+Readonly my $GRAPHITE_DELIMITER => ".";
+Readonly my $STATSD_DELIMITER   => ":";
 
 initStatsd();
 
@@ -39,7 +41,7 @@ sub new {
     $host = 'localhost' unless defined $host;
     $port = 8125        unless defined $port;
     my $hostname = hostname; 
-    $hostname =~ s/\./_/g; # replace dots with underscores 
+    $hostname =~ s/\Q$GRAPHITE_DELIMITER\E/_/g; # replace dots with underscores 
 
     my $sock = new IO::Socket::INET(
         PeerAddr => $host,
@@ -91,11 +93,11 @@ Log timing information
 =cut
 
 sub timing {
-    my ( $self, $stat, $time, $sample_rate ) = @_;
-    $stat = $self->{hostname} . ".$stat";
+    my ( $self, $stats, $time, $sample_rate ) = @_;
+    $stats = $self->{hostname} . ".$stats";
     $time = ceil $time; # make sure it is at lease == 1
-    $stat =~ s/::/_/g;
-    $self->send( { $stat => "$time|ms" }, $sample_rate );
+    $stats =~ s/\Q$STATSD_DELIMITER\E/_/g;
+    $self->send( { $stats => "$time|ms" }, $sample_rate );
 }
 
 =item increment(STATS, SAMPLE_RATE)
@@ -106,7 +108,7 @@ Increment one of more stats counters.
 
 sub increment {
     my ( $self, $stats, $sample_rate ) = @_;
-    $stats =~ s/::/_/g;
+    $stats =~ s/\Q$STATSD_DELIMITER\E/_/g;
     $self->update( $stats, 1, $sample_rate );
 }
 
@@ -118,7 +120,7 @@ Decrement one of more stats counters.
 
 sub decrement {
     my ( $self, $stats, $sample_rate ) = @_;
-    $stats =~ s/::/_/g;
+    $stats =~ s/\Q$STATSD_DELIMITER\E/_/g;
     $self->update( $stats, -1, $sample_rate );
 }
 
