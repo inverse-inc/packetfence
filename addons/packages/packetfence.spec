@@ -882,6 +882,8 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
+%config                 /usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.graphite
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
                         /usr/local/pf/conf/keepalived.conf.example
@@ -889,6 +891,23 @@ fi
                         /usr/local/pf/conf/cluster.conf.example
 %config(noreplace)      /usr/local/pf/conf/listener.msg
                         /usr/local/pf/conf/listener.msg.example
+%dir                    /usr/local/pf/conf/monitoring
+%config(noreplace)      /usr/local/pf/conf/monitoring/carbon.conf
+                        /usr/local/pf/conf/monitoring/carbon.conf.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/collectd.conf
+                        /usr/local/pf/conf/monitoring/collectd.conf.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/dashboard.conf
+                        /usr/local/pf/conf/monitoring/dashboard.conf.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/local_settings.py
+                        /usr/local/pf/conf/monitoring/local_settings.py.example
+%exclude                /usr/local/pf/conf/monitoring/local_settings.pyc
+%exclude                /usr/local/pf/conf/monitoring/local_settings.pyo
+%config(noreplace)      /usr/local/pf/conf/monitoring/statsd_config.js
+                        /usr/local/pf/conf/monitoring/statsd_config.js.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/storage-schemas.conf
+                        /usr/local/pf/conf/monitoring/storage-schemas.conf.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/types.db
+                        /usr/local/pf/conf/monitoring/types.db.example
 %config(noreplace)      /usr/local/pf/conf/popup.msg
                         /usr/local/pf/conf/popup.msg.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
