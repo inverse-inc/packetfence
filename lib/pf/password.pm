@@ -29,8 +29,6 @@ in your apache config.
 
 =cut
 
-#TODO rename to temporary_credentials to better reflect what this is about
-#TODO properly hash passwords (1000 SHA1 iterations of salt + password)
 use strict;
 use warnings;
 

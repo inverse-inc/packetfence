@@ -18,7 +18,11 @@ use DateTime::Locale;
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use Readonly;
+use URI::Escape::XS qw(uri_escape uri_unescape);
 use namespace::autoclean;
+use pf::config;
+use pf::cluster;
+use Sys::Hostname;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -63,7 +67,8 @@ Save the period range for a specific section.
 sub _saveRange :Private {
     my ($self, $c, $section, $start, $end) = @_;
 
-    if ($start && $end) {
+    if ( ( defined $start and defined $end ) 
+            and length $start && length $end ) {
         if (my ($syear, $smonth, $sday) = $start =~ m/(\d{4})-?(\d{1,2})-?(\d{1,2})/) {
             if (my ($eyear, $emonth, $eday) = $end =~ m/(\d{4})-?(\d{1,2})-?(\d{1,2})/) {
                 $c->session->{$section}->{start} = sprintf("%i-%02i-%02i", $syear, $smonth, $sday);
@@ -71,11 +76,26 @@ sub _saveRange :Private {
             }
         }
     }
-    unless ($c->session->{$section}->{start} && $c->session->{$section}->{end}) {
-        # Default to the last 7 days for the dashboard, 30 for the reports
-        my $days = ($section eq $DASHBOARD)? 7 : 30;
-        $c->session->{$section}->{start} = POSIX::strftime( "%Y-%m-%d", localtime(time() - $days*24*60*60 ) );
+    elsif ($section eq $DASHBOARD) {
+        my ($count, $unit, $base) = (0, undef, 0);
+        if ($start && $start =~ m/^\-(\d+)([hdwm])$/) {
+            # Format session start/end dates according to a relative date
+            ($count, $unit) = ($1, $2);
+            if    ($unit eq 'h') { $base = 0; }
+            elsif ($unit eq 'd') { $base = 1; }
+            elsif ($unit eq 'w') { $base = 7; }
+            elsif ($unit eq 'm') { $base = 31; }
+        }
+        $c->session->{$section}->{start} = POSIX::strftime( "%Y-%m-%d", localtime(time() - $base*$count*24*60*60 ) );
         $c->session->{$section}->{end} = POSIX::strftime( "%Y-%m-%d", localtime() );
+    }
+    else {
+        unless ($c->session->{$section}->{start} && $c->session->{$section}->{end}) {
+            # Default to the last 7 days for the dashboard, 30 for the reports
+            my $days = 30;
+            $c->session->{$section}->{start} = POSIX::strftime( "%Y-%m-%d", localtime(time() - $days*24*60*60 ) );
+            $c->session->{$section}->{end} = POSIX::strftime( "%Y-%m-%d", localtime() );
+        }
     }
 }
 
@@ -253,29 +273,175 @@ sub index :Path : Args(0) {
     $c->detach();
 }
 
+=head2 _buildGraphiteURL
+
+Build the image source URL to retrieve a graph from the Graphite server.
+
+=cut
+
+sub _buildGraphiteURL :Private {
+    my ($self, $c, $start, $width, $params) = @_;
+
+    my $management_ip =
+      defined( $management_network->tag('vip') )
+      ? $management_network->tag('vip')
+      : $management_network->tag('ip');
+
+    my $options =
+      {
+       graphite_host => $management_ip,
+       graphite_port => '9000'
+      };
+
+    if (!$width) {
+        $width = 1170;
+    }
+
+    if ($params->{columns} == 1) {
+        $params->{width} = int($width/2 + 0.5) - 8;
+    } elsif ($params->{columns} == 2) {
+        $params->{width} = $width;
+    }
+
+    unless ($start =~ m/^\-/) {
+        if ($c->session->{$DASHBOARD}->{start} eq $c->session->{$DASHBOARD}->{end}) {
+            # Default to the last 24 hours when the start and end date are the same
+            $start = '-1d';
+        }
+        else {
+            # When dealing with an absolute range, format the dates as expected by Graphite
+            my ($sec,$min,$hour,$day,$mon,$year) = localtime(time);
+            # Format start (from)
+            ($year, $mon, $day) = split( /\-/, $c->session->{$DASHBOARD}->{start});
+            $start = sprintf('%02d:%02d_%04d%02d%02d', $hour, $min, $year, $mon, $day);
+            # Format end (until)
+            ($year, $mon, $day) = split( /\-/, $c->session->{$DASHBOARD}->{end});
+            $params->{until} = sprintf('%02d:%02d_%04d%02d%02d', $hour, $min, $year, $mon, $day);
+        }
+    }
+
+    $params->{from} = $start;
+    $params->{format} = 'png';
+    $params->{tz} = 'Etc/UTC';
+    $params->{tz} = $Config{'general'}{'timezone'}; 
+    $params->{height} = '320';
+    $params->{bgcolor} = 'ff000000';
+    $params->{fgcolor} = '#000000'; #'#B8B8B8';
+    $params->{majorGridLineColor} = '#505050';
+    $params->{minorGridLineColor} = '#454545';
+    $params->{hideLegend} = 'false';
+    $params->{hideAxes} = 'false';
+    $params->{colorList} = '#1f77b4,#ff7f0e,#2ca02c,#d62728,#9467bd,#8c564b,#e377c2,#7f7f7f,#bcbd22,#17becf';
+
+    my $url = sprintf('http://%s:%s/render?%s',
+                      $options->{graphite_host},
+                      $options->{graphite_port},
+                      join('&', map { $_ . '=' . uri_escape($params->{$_}) } keys(%$params)));
+
+    return $url;
+}
+
 =head2 dashboard
 
 =cut
 
 sub dashboard :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
+    my $graphs = [];
+    my $width = $c->request->param('width');
 
     $self->_saveRange($c, $DASHBOARD, $start, $end);
 
-    $c->stash->{counters} = $self->_dashboardCounters($c);
-    unless ($c->session->{dashboard_activegraph}) {
-        $c->session->{dashboard_activegraph} = $self->action_for('registered')->name;
+    $graphs = [
+               {
+                'description' => 'Core Metrics',
+                'target' => 'group(alias(scaleToSeconds(stats.counters.*.pf_node_node_register.called.count,1),"End-Points registered"),
+                                   alias(scaleToSeconds(stats.counters.*.pf_node_node_deregister.called.count,1),"End-Points unregistered"))',
+                'columns' => 2
+               },
+               {
+                'description' => 'Server Load',
+                'target' => 'aliasByNode(*.load.load.midterm,0)',
+                'columns' => 2
+               },
+               {
+                'description' => 'Total Access-Requests/s',
+                'vtitle' => 'requests',
+                'target' =>'alias(sum(*.radsniff-exchanged.radius_count-access_request.received),"Access-Requests")',
+                'columns' => 1
+               },
+               {
+                'description' => 'Access-Requests/s per server',
+                'vtitle' => 'requests',
+                'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_request.received,0)',
+                'columns' => 1
+               },
+               {
+                'description' => 'Access-Accepts/s per server',
+                'vtitle' => 'replies',
+                'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_accept.received,0)',
+                'columns' => 2
+               },
+               {
+                'description' => 'Access-Rejects/s per server',
+                'vtitle' => 'replies',
+                'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_reject.received,0)',
+                'columns' => 2
+               },
+               {
+                'description' => 'Authorize calls/s',
+                'vtitle' => 'requests',
+                'target' => 'aliasByNode(scaleToSeconds(stats.timers.*.freeradius_main_authorize.timing.count,1),2)',
+                'columns' => 1
+               },
+               {
+                'description' => 'Webservices calls/s',
+                'vtitle' => 'requests',
+                'target' => 'aliasByNode(scaleToSeconds(stats.timers.*.freeradius_main_post_auth.timing.count,1),2)',
+                'columns' => 1
+               },
+               {
+                'description' => 'Webservices call timing',
+                'vtitle' => 'ms',
+                'target' => 'aliasByNode(stats.timers.*.freeradius_main_post_auth.timing.mean_90,2)',
+                'columns' => 1
+               },
+               {
+                'description' => 'Apache Portal Open Connections per server',
+                'vtitle' => 'connections',
+                'target' => 'aliasByNode(*.apache-portal.apache_connections,0)',
+                'columns' => 1
+               },
+               {
+                'description' => 'Average Access-Request Latency',
+                'vtitle' => 'ms',
+                'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-access_request.smoothed,0)',
+                'columns' => 1
+               },
+               {
+                'description' => 'PF Database Threads',
+                'vtitle' => 'threads',
+                'target' => 'aliasByNode(*.mysql-pf.threads-*,2)',
+                'columns' => 1
+               },
+               {
+                'description' => 'Accounting requests received/s',
+                'vtitle' => 'requests',
+                'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-accounting_request.received,0)',
+                'columns' => 1
+               },
+               {
+                'description' => 'Radius Accounting Latency',
+                'vtitle' => 'ms',
+                'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-accounting_request.smoothed,0)',
+                'columns' => 1
+               },
+              ];
+
+    foreach my $graph (@$graphs) {
+        $graph->{url} = $self->_buildGraphiteURL($c, $start, $width, $graph);
     }
-
-    my $now = time();
-    my $today = POSIX::strftime("%Y-%m-%d", localtime($now));
-    $c->stash({
-               'last0day' => sprintf('%s/%s', $today, $today),
-               'last7days' => sprintf('%s/%s', POSIX::strftime("%Y-%m-%d", localtime($now - 7*24*60*60)), $today),
-               'last30days' => sprintf('%s/%s', POSIX::strftime("%Y-%m-%d", localtime($now - 30*24*60*60)), $today),
-               'last60days' => sprintf('%s/%s', POSIX::strftime("%Y-%m-%d", localtime($now - 60*24*60*60)), $today),
-              });
-
+    $c->stash->{graphs} = $graphs;
     $c->stash->{current_view} = 'HTML';
 }
 
@@ -570,7 +736,7 @@ Defined as a report.
 sub osclassbandwidth :Local :AdminRole('REPORTS') {
     my ( $self, $c, $start, $end ) = @_;
 
-    my $option = 'accttotal'; # we only sypport this field, see pf::pfcmd::report
+    my $option = 'accttotal'; # we only support this field
 
     $self->_saveRange($c, $REPORTS, $start, $end);
     $self->_graphPie($c, $c->loc('Bandwidth per Operating System Class'), $REPORTS,
@@ -579,6 +745,33 @@ sub osclassbandwidth :Local :AdminRole('REPORTS') {
                                    value => $option },
                      });
 }
+
+sub _generate_hosts {
+    my @hosts;
+    if (@cluster_hosts) {
+        @hosts = @cluster_hosts;
+    }
+    elsif ($Config{'monitoring'}{'graphite_hosts'}) {
+    
+    }
+    else {
+        my $host = hostname;
+        push @hosts, $host;
+    }
+    map {  s/\./_/g } @hosts;
+    return @hosts;
+}
+
+sub _generate_ratio_group {
+    my @group_members;
+    for my $host (_generate_hosts()) {
+        push @group_members,
+"scale(divideSeries($host.radsniff-exchanged.radius_count-access_accept.linked,$host.radsniff-exchanged.radius_count-access_reject.linked),100)";
+    }
+
+    return 'aliasByNode( group(' . join( ', ', @group_members ) . ') ,0)';
+}
+
 
 =head1 COPYRIGHT
 

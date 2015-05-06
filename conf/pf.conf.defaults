@@ -503,6 +503,11 @@ httpd_aaa=enabled
 # Should httpd.proxy be started?
 httpd_proxy=enabled
 #
+# services.httpd_graphite
+#
+# Should httpd.graphite be started?
+httpd_graphite=enabled
+#
 # services.pfsetvlan
 #
 # Should pfsetvlan be managed by PacketFence?
@@ -531,6 +536,30 @@ keepalived=enabled
 #
 # Should winbindd be started?
 winbindd=enabled
+# services.carbon-cache
+#
+# Should carbon-cache be started?
+carbon-cache=enabled
+#
+# services.carbon-relay
+#
+# Should carbon-relay be started?
+carbon-relay=enabled
+#
+# services.collectd
+#
+# Should collectd be started?
+collectd=enabled
+#
+# services.statsd
+#
+# Should statsd be started?
+statsd=enabled
+#
+# services.radsniff
+#
+# Should radsniff be started?
+radsniff3=enabled
 #
 # services.snort_binary
 #
@@ -571,6 +600,31 @@ radiusd_binary=/usr/sbin/radiusd
 # 
 # location of the arp binary. only necessary to change if you are not running the rpmed version.
 arp_binary=/sbin/arp
+# 
+# services.carbon-cache_binary
+# 
+# Location of the carbon cache binary. Only necessary to change if you are not running the pre-packaged version.
+carbon-cache_binary=/usr/bin/carbon-cache
+# 
+# services.carbon-relay_binary
+# 
+# Location of the carbon relay binary. Only necessary to change if you are not running the pre-packaged version.
+carbon-relay_binary=/usr/bin/carbon-relay
+# 
+# services.statsd_binary
+# 
+# Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
+statsd_binary=/usr/bin/node
+# 
+# services.collectd_binary
+# 
+# Location of the collectd binary. Only necessary to change if you are not running the pre-packaged version.
+collectd_binary=/usr/sbin/collectd
+# 
+# services.radsniff_binary
+# 
+# Location of the radsniff3 binary. Only necessary to change if you are not running the pre-packaged version.
+radsniff3_binary=/usr/bin/radsniff3
 # 
 # services.iptables_binary
 # 
@@ -1056,3 +1110,35 @@ statsd_host=localhost
 #
 statsd_port=8125
 
+#
+# monitoring.graphite_host
+#
+graphite_host=localhost
+
+#
+# monitoring.graphite_port
+#
+graphite_port=2013
+
+#
+# monitoring.db
+#
+db=pf_graphite
+#
+# monitoring.db_user
+#
+db_user=pf
+
+#
+# monitoring.db_pass
+#
+db_pass=pf
+#
+# monitoring.db_port
+#
+db_port=3306
+
+#
+# monitoring.db_host
+#
+db_host=localhost

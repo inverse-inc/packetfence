@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 5.0.1\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-04-17 22:33-0400\n"
+"PO-Revision-Date: 2015-04-30 14:55-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -1992,7 +1992,11 @@ msgstr ""
 
 # conf/documentation.conf (monitoring.statsd_host)
 msgid "Host to which StatsD metrics are sent."
-msgstr ""
+msgstr "Host to which StatsD metrics are sent."
+
+# conf/documentation.conf (monitoring.graphite_host)
+msgid "Host to which graphite metrics are sent."
+msgstr "Host to which graphite metrics are sent."
 
 # conf/documentation.conf (general.hostname)
 msgid ""
@@ -2484,6 +2488,18 @@ msgid ""
   "running the RPMed version."
 msgstr ""
 
+# conf/documentation.conf (services.carbon-cache_binary)
+msgid "Location of the carbon-cache binary."
+msgstr "Path of the carbon-cache binary."
+
+# conf/documentation.conf (services.carbon-relay_binary)
+msgid "Location of the carbon-relay binary."
+msgstr "Path of the carbon-relay binary."
+
+# conf/documentation.conf (services.collectd_binary)
+msgid "Location of the collectd binary."
+msgstr "Path of the collectd binary."
+
 # conf/documentation.conf (services.dhcpd_binary)
 msgid ""
   "Location of the dhcpd binary. Only necessary to change if you are not "
@@ -2514,6 +2530,10 @@ msgid ""
   "running the pre-packaged version."
 msgstr ""
 
+# conf/documentation.conf (services.radsniff3_binary)
+msgid "Location of the radsniff binary."
+msgstr "Path of the radsniff binary."
+
 # conf/documentation.conf (services.snmptrapd_binary)
 msgid ""
   "Location of the snmptrapd binary. Only necessary to change if you are "
@@ -2525,6 +2545,10 @@ msgid ""
   "Location of the snort binary. Only necessary to change if you are not "
   "running the RPMed version."
 msgstr ""
+
+# conf/documentation.conf (services.statsd_binary)
+msgid "Location of the statsd (node) binary."
+msgstr "Path of the node.js binary running statsd"
 
 # conf/documentation.conf (services.suricata_binary)
 msgid "Location of the suricata binary."
@@ -3493,6 +3517,10 @@ msgstr ""
 msgid "Port on the StatsD host to which metrics are sent."
 msgstr ""
 
+# conf/documentation.conf (monitoring.graphite_port)
+msgid "Port on the graphite host to which metrics are sent."
+msgstr "Port on the graphite host to which metrics are sent."
+
 # conf/documentation.conf (ports.admin)
 msgid "Port the administrative interface listens on."
 msgstr ""
@@ -4392,6 +4420,18 @@ msgstr ""
 msgid "Should DHCPd be managed by PacketFence?"
 msgstr ""
 
+# conf/documentation.conf (services.carbon-cache)
+msgid "Should carbon-cache be managed by PacketFence?"
+msgstr "Should carbon-cache be managed by PacketFence?"
+
+# conf/documentation.conf (services.carbon-relay)
+msgid "Should carbon-relay be managed by PacketFence?"
+msgstr "Should carbon-relay be managed by PacketFence?"
+
+# conf/documentation.conf (services.collectd)
+msgid "Should collectd be managed by PacketFence?"
+msgstr "Should collectd be managed by PacketFence?"
+
 # conf/documentation.conf (services.haproxy)
 msgid "Should haproxy be started ? Keep enabled unless you know what you're doing."
 msgstr ""
@@ -4407,6 +4447,10 @@ msgstr ""
 # conf/documentation.conf (services.httpd_admin)
 msgid "Should httpd.admin be started ? Keep enabled unless you know what you're doing."
 msgstr ""
+
+# conf/documentation.conf (services.httpd_graphite)
+msgid "Should httpd.graphite be started ? This is required for some of the dashboard functionality."
+msgstr "Should the graphite web service be started ? This is required for some of the dashboard functionality."
 
 # conf/documentation.conf (services.httpd_portal)
 msgid "Should httpd.portal be started ? Keep enabled unless you know what you're doing."
@@ -4482,6 +4526,10 @@ msgstr ""
 msgid "Should radiusd be managed by PacketFence?"
 msgstr ""
 
+# conf/documentation.conf (services.radsniff3)
+msgid "Should radsniff be managed by PacketFence?"
+msgstr "Should radsniff be managed by PacketFence?"
+
 # conf/documentation.conf (services.snmptrapd)
 msgid "Should snmptrapd be started ? Keep enabled unless you know what you're doing."
 msgstr ""
@@ -4489,6 +4537,10 @@ msgstr ""
 # conf/documentation.conf (services.snort)
 msgid "Should snort be managed by PacketFence?"
 msgstr ""
+
+# conf/documentation.conf (services.statsd)
+msgid "Should statsd be managed by PacketFence?"
+msgstr "Should statsd be managed by PacketFence?"
 
 # conf/documentation.conf (services.suricata)
 msgid "Should suricata be managed by PacketFence?"
@@ -4817,6 +4869,10 @@ msgstr ""
 msgid "The hostname must be the one of your captive portal."
 msgstr ""
 
+# conf/documentation.conf (monitoring.db_host)
+msgid "The hostname of the the database storing the Graphite dashboard settings."
+msgstr ""
+
 # html/pfappserver/root/configurator/services.tt
 msgid "The last step of this configuration wizard is to start the PacketFence daemons."
 msgstr ""
@@ -4847,8 +4903,20 @@ msgstr ""
 msgid "The merchant's unique Transaction Key (Provided by Authorize.net)"
 msgstr ""
 
+# conf/documentation.conf (monitoring.db)
+msgid "The name of the database storing the Graphite dashboard settings."
+msgstr ""
+
+# conf/documentation.conf (monitoring.db_user)
+msgid "The name of the user to connect to the database storing the Graphite dashboard settings."
+msgstr ""
+
 # html/pfappserver/root/node/create.tt
 msgid "The node will be automatically registered. If the MAC matches an existing node, it will also be modified and registered."
+msgstr ""
+
+# conf/documentation.conf (monitoring.db_pass)
+msgid "The password of the user to connect to the database storing the Graphite dashboard settings."
 msgstr ""
 
 # conf/documentation.conf (billing.authorizenet_posturl)
@@ -4871,6 +4939,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 msgid "The port must be configured as a muti-vlan port"
+msgstr ""
+
+# conf/documentation.conf (monitoring.db_port)
+msgid "The port to connect to the database storing the Graphite dashboard settings."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
@@ -6167,10 +6239,14 @@ msgstr ""
 # conf/documentation.conf (registration.device_registration options)
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
+# conf/documentation.conf (services.carbon-cache options)
+# conf/documentation.conf (services.carbon-relay options)
+# conf/documentation.conf (services.collectd options)
 # conf/documentation.conf (services.dhcpd options)
 # conf/documentation.conf (services.haproxy options)
 # conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin options)
+# conf/documentation.conf (services.httpd_graphite options)
 # conf/documentation.conf (services.httpd_mod_qos options)
 # conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device options)
 # conf/documentation.conf (services.httpd_portal options)
@@ -6185,8 +6261,10 @@ msgstr ""
 # conf/documentation.conf (services.pfmon options)
 # conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.radiusd options)
+# conf/documentation.conf (services.radsniff3 options)
 # conf/documentation.conf (services.snmptrapd options)
 # conf/documentation.conf (services.snort options)
+# conf/documentation.conf (services.statsd options)
 # conf/documentation.conf (services.suricata options)
 # conf/documentation.conf (services.winbindd options)
 # conf/documentation.conf (servicewatch.email options)
@@ -6248,10 +6326,14 @@ msgstr "Send email"
 # conf/documentation.conf (registration.device_registration options)
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
+# conf/documentation.conf (services.carbon-cache options)
+# conf/documentation.conf (services.carbon-relay options)
+# conf/documentation.conf (services.collectd options)
 # conf/documentation.conf (services.dhcpd options)
 # conf/documentation.conf (services.haproxy options)
 # conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin options)
+# conf/documentation.conf (services.httpd_graphite options)
 # conf/documentation.conf (services.httpd_mod_qos options)
 # conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device options)
 # conf/documentation.conf (services.httpd_portal options)
@@ -6266,8 +6348,10 @@ msgstr "Send email"
 # conf/documentation.conf (services.pfmon options)
 # conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.radiusd options)
+# conf/documentation.conf (services.radsniff3 options)
 # conf/documentation.conf (services.snmptrapd options)
 # conf/documentation.conf (services.snort options)
+# conf/documentation.conf (services.statsd options)
 # conf/documentation.conf (services.suricata options)
 # conf/documentation.conf (services.winbindd options)
 # conf/documentation.conf (servicewatch.email options)
@@ -6771,6 +6855,34 @@ msgid "monitoring"
 msgstr ""
 
 # conf/documentation.conf
+msgid "monitoring.db"
+msgstr ""
+
+# conf/documentation.conf
+msgid "monitoring.db_host"
+msgstr ""
+
+# conf/documentation.conf
+msgid "monitoring.db_pass"
+msgstr ""
+
+# conf/documentation.conf
+msgid "monitoring.db_port"
+msgstr ""
+
+# conf/documentation.conf
+msgid "monitoring.db_user"
+msgstr ""
+
+# conf/documentation.conf
+msgid "monitoring.graphite_host"
+msgstr ""
+
+# conf/documentation.conf
+msgid "monitoring.graphite_port"
+msgstr ""
+
+# conf/documentation.conf
 msgid "monitoring.statsd_host"
 msgstr ""
 
@@ -7176,6 +7288,30 @@ msgid "services.arp_binary"
 msgstr "arp path"
 
 # conf/documentation.conf
+msgid "services.carbon-cache"
+msgstr "carbon-cache"
+
+# conf/documentation.conf
+msgid "services.carbon-cache_binary"
+msgstr "carbon-cache path"
+
+# conf/documentation.conf
+msgid "services.carbon-relay"
+msgstr "carbon-relay"
+
+# conf/documentation.conf
+msgid "services.carbon-relay_binary"
+msgstr "carbon-relay path"
+
+# conf/documentation.conf
+msgid "services.collectd"
+msgstr "collectd"
+
+# conf/documentation.conf
+msgid "services.collectd_binary"
+msgstr "collectd path"
+
+# conf/documentation.conf
 msgid "services.dhcpd"
 msgstr "dhcpd"
 
@@ -7202,6 +7338,10 @@ msgstr "httpd.admin"
 # conf/documentation.conf
 msgid "services.httpd_binary"
 msgstr "httpd path"
+
+# conf/documentation.conf
+msgid "services.httpd_graphite"
+msgstr "httpd.graphite"
 
 # conf/documentation.conf
 msgid "services.httpd_mod_qos"
@@ -7284,6 +7424,14 @@ msgid "services.radiusd_binary"
 msgstr "radiusd path"
 
 # conf/documentation.conf
+msgid "services.radsniff3"
+msgstr "radsniff3"
+
+# conf/documentation.conf
+msgid "services.radsniff3_binary"
+msgstr "radsniff3 path"
+
+# conf/documentation.conf
 msgid "services.snmptrapd"
 msgstr "snmptrapd"
 
@@ -7298,6 +7446,14 @@ msgstr "snort"
 # conf/documentation.conf
 msgid "services.snort_binary"
 msgstr "snort path"
+
+# conf/documentation.conf
+msgid "services.statsd"
+msgstr "statsd"
+
+# conf/documentation.conf
+msgid "services.statsd_binary"
+msgstr "nodejs path"
 
 # conf/documentation.conf
 msgid "services.suricata"

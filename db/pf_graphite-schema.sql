@@ -1,25 +1,3 @@
---
--- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
---
-
---
--- Alter Class for external_command
---
-
-ALTER TABLE class
-    ADD `external_command` varchar(255) DEFAULT NULL;
-
-
-
-
-
--- IMPORTANT: KEEP THIS AT THE BOTTOM OF THIS FILE.
--- TO BE EXECUTED AFTER EVERYTHING ELSE.
-CREATE DATABASE pf_graphite;
-use pf_graphite;
-GRANT ALL PRIVILEGES ON `pf_graphite`.* TO 'pf'@'%';      
-
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;

@@ -260,6 +260,17 @@ Requires: iproute, vconfig
 # wmi
 Requires: wmi, perl(Net::WMIClient)
 
+# for dashboard
+Requires: Django14, python-django-tagging
+Requires: MySQL-python
+Requires: python-carbon
+Requires: graphite-web
+Requires: collectd, collectd-mysql, libcollectdclient, collectd-apache
+Requires: radsniff
+Requires: node
+
+
+
 Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
 # TESTING related
@@ -513,26 +524,13 @@ if ! /usr/bin/id pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
 fi
-/usr/sbin/usermod -G fingerbank pf
-
-#if [ ! `tty | cut -c0-8` = "/dev/tty" ];
-#then
-#  echo You must be on a directly connected console to install this package!
-#  exit
-#fi
+/usr/sbin/usermod -aG fingerbank,apache,carbon pf
 
 if [ ! `id -u` = "0" ];
 then
   echo You must install this package as root!
   exit
 fi
-
-#if [ ! `cat /proc/modules | grep ^ip_tables|cut -f1 -d" "` = "ip_tables" ];
-#then
-#  echo Required module "ip_tables" does not appear to be loaded - now loading
-#  /sbin/modprobe ip_tables
-#fi
-
 
 %pre -n %{real_name}-remote-snort-sensor
 
@@ -631,6 +629,11 @@ fi
 if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
   echo 'Defaults:pf !requiretty' >> /etc/sudoers
 fi
+
+# dashboard symlinks and permissions
+ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.6/site-packages/graphite/local_settings.py
+chmod g+w /var/lib/carbon
+chmod g+w /var/lib/graphite-web
 
 #Getting rid of SELinux
 echo "Disabling SELinux..."
