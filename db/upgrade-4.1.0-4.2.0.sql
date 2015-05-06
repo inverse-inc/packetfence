@@ -129,3 +129,5 @@ UPDATE locationlog SET switch_ip = switch;
 --
 ALTER TABLE locationlog_history ADD `switch_ip` varchar(17) default NULL;
 ALTER TABLE locationlog_history ADD `switch_mac` varchar(17) default NULL;
+
+UPDATE locationlog_history SET switch_ip = switch;

@@ -164,6 +164,15 @@ delay_by=0s
 Upgrading from a version prior to 4.4.0
 ---------------------------------------
 
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+Introduced the 'iplog_history' table for easier cleanup of the existing 'iplog' table.
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.3.0-4.4.0.sql
+
 Cache serialization
 ^^^^^^^^^^^^^^^^^^^
 
