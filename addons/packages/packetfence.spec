@@ -391,7 +391,6 @@ done
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/users
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
 %{__install} -d -m2775 $RPM_BUILD_ROOT%logdir
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
@@ -901,7 +900,6 @@ fi
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
-%dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
 %config(noreplace)      /usr/local/pf/conf/wmi.conf
                         /usr/local/pf/conf/wmi.conf.example
