@@ -55,9 +55,6 @@ package WEB;
 
 =head2 URLs
 
-See conf/httpd.conf.d/captive-portal-cleanurls.conf to see to which
-CGI they map.
-
 =cut
 
 # normal flow
@@ -82,19 +79,12 @@ Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
 
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';
-Readonly::Scalar our $CGI_SIGNUP                => '/cgi-perl/guest-selfregistration.cgi';
 Readonly::Scalar our $URL_EMAIL_ACTIVATION      => '/activate/email(.*)';
 Readonly::Scalar our $URL_EMAIL_ACTIVATION_LINK => '/activate/email';
-Readonly::Scalar our $CGI_EMAIL_ACTIVATION      => '/cgi-perl/email_activation.cgi';
 Readonly::Scalar our $URL_SMS_ACTIVATION        => '/activate/sms';
 Readonly::Scalar our $URL_PREREGISTER           => '/preregister';
 Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
 
-# TODO: Temp... migration process. Should be kept since it breaks the portal on removal
-# dwuelfrath@inverse.ca - 2012.11.12
-Readonly::Scalar our $URL_SIGNUP_UGLY           => '/guest-selfregistration.cgi';
-Readonly::Scalar our $ACL_EMAIL_ACTIVATION_CGI  => '/cgi-perl/email_activation.cgi';
-Readonly::Scalar our $ACL_SIGNUP_CGI            => '/cgi-perl/guest-selfregistration.cgi';
 Readonly::Scalar our $MOD_PERL_WISPR            => '/wispr';
 Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
 Readonly::Scalar our $URL_DEVICE_REGISTRATION   => '/device-registration';

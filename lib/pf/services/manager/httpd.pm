@@ -99,14 +99,14 @@ sub generateConfig {
     my $guest_regist_allowed = scalar keys %guest_self_registration;
     if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
         # | is for a regexp "or" as this is pulled from a 'Location ~' statement
-        $allowed_from_all_urls .= "|$WEB::URL_SIGNUP|$WEB::CGI_SIGNUP|$WEB::URL_PREREGISTER";
+        $allowed_from_all_urls .= "|$WEB::URL_SIGNUP|$WEB::URL_PREREGISTER";
     }
     # /activate/email allowed if sponsor or email mode enabled
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
     if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
         # | is for a regexp "or" as this is pulled from a 'Location ~' statement
-        $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION|$WEB::CGI_EMAIL_ACTIVATION";
+        $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION";
     }
     $tags{'allowed_from_all_urls'} = $allowed_from_all_urls;
 
