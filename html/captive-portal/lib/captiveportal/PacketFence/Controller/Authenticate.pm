@@ -221,7 +221,6 @@ sub postAuthentication : Private {
     my $session = $c->session;
     my $profile = $c->profile;
     my $source_id = $session->{source_id};
-    my $source = getAuthenticationSource($source_id);
     my $info = $c->stash->{info} ||= {};
     my $pid = $session->{"username"};
     $pid = $default_pid if !defined $pid && $c->profile->noUsernameNeeded;
