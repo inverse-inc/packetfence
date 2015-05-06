@@ -145,17 +145,22 @@ Validate informations input by the user
 sub validate_form : Private {
     my ($self, $c) = @_;
     my $logger = $c->log;
-    my $pid    = undef;
     my $portalSession = $c->portalSession;
     my $mac    = $portalSession->clientMac;
-    unless ($c->has_errors) {
-        my $node_info     = node_view($mac);
-        my $pid           = $node_info->{'pid'};
-    }
     my $passwd1 = $c->request->param('certificate_pwd');
     my $passwd2 = $c->request->param('certificate_pwd_check');
+    if(!defined $passwd1 || $passwd1 eq '' || !defined $passwd2 || $passwd2 eq '') {
+        $c->stash(txt_validation_error => 'No Password given');
+        $c->detach('index');
+    }
     if($passwd1 ne $passwd2) {
         $c->stash(txt_validation_error => 'Passwords do not match');
+        $c->detach('index');
+    }
+    my $certificate_email = $c->request->param('certificate_email');
+    my $certificate_pwd = $c->request->param('certificate_pwd');
+    if(!defined $certificate_email || $certificate_email eq '') {
+        $c->stash(txt_validation_error => 'No email provided');
         $c->detach('index');
     }
     my $certificate_cn = $mac;
@@ -164,8 +169,8 @@ sub validate_form : Private {
     my $pki_session = {
         service           => $c->request->param('service'),
         certificate_cn    => $certificate_cn,
-        certificate_email => $c->request->param('certificate_email'),
-        certificate_pwd   => $c->request->param('certificate_pwd'),
+        certificate_email => $certificate_email,
+        certificate_pwd   => $passwd1,
     };
     $user_cache->set("pki_session" => $pki_session);
     $c->stash($pki_session);
