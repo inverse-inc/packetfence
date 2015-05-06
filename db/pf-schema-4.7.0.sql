@@ -457,10 +457,7 @@ VALUES
     (100115, 'E-Plus', '%s@smsmail.eplus.de', now()),
     (100116, 'Cellular South', '%s@csouth1.com', now()),
     (100117, 'ChinaMobile (139)', '%s@139.com', now()),
-    (100118, 'Dialog Axiata', '%s@dialog.lk', now()),
-    (100119, 'Swisscom', '%s@sms.bluewin.ch', now()),
-    (100120, 'Orange (CH)', '%s@orange.net', now()),
-    (100121, 'Sunrise', '%s@gsm.sunrise.ch', now());
+    (100118, 'Dialog Axiata', '%s@dialog.lk', now());
 
 -- Adding RADIUS nas client table
 

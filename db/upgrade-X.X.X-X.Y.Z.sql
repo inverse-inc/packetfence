@@ -9,8 +9,16 @@
 ALTER TABLE class
     ADD `external_command` varchar(255) DEFAULT NULL;
 
+--
+-- Insert new sms carrier
+--
 
-
+INSERT INTO sms_carrier
+    (id, name, email_pattern, created)
+VALUES
+    (100119, 'Swisscom', '%s@sms.bluewin.ch', now()),
+    (100120, 'Orange (CH)', '%s@orange.net', now()),
+    (100121, 'Sunrise', '%s@gsm.sunrise.ch', now());
 
 
 -- IMPORTANT: KEEP THIS AT THE BOTTOM OF THIS FILE.
