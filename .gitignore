@@ -44,6 +44,8 @@ conf/radiusd/clients.conf.inc
 conf/radiusd/packetfence-cluster
 conf/realm.conf
 conf/domain.conf
+conf/scan.conf
+conf/wmi.conf
 conf/snort/classification.config
 conf/snort/local.rules
 conf/snort/reference.config
