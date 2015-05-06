@@ -106,7 +106,7 @@ has non_compliance_violation => (is => 'rw' );
 
 =head2 pki_provider
 
-The pki informations
+The id of the pki provider
 
 =cut
 
