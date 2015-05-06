@@ -158,6 +158,7 @@ sub matchCategory {
     my $category = $self->category || [];
     my $node_cat = $node_attributes->{'category'};
 
+    get_logger->trace( sub { "Tring to match the role '$node_cat' against " . join(",", @$category) });
     # validating that the node is under the proper category for provisioner
     return @$category == 0 || any { $_ eq $node_cat } @$category;
 }
@@ -173,7 +174,7 @@ sub matchOS {
     # Get device type kind of device by querying Fingerbank
     my $os = pf::fingerbank::is_a($device_type);
 
-    get_logger->trace( sub { "Tring to match $os against " . join(",", @oses) });
+    get_logger->trace( sub { "Tring to match the OS '$os' against " . join(",", @oses) });
     #if no oses are defined then it will match all the oses
     return 1 if @oses == 0;
     #if os is undef then fail
