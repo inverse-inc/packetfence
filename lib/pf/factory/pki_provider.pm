@@ -2,13 +2,14 @@ package pf::factory::pki_provider;
 
 =head1 NAME
 
-pf::factory::pki_provider add documentation
+pf::factory::pki_provider
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::factory::pki_provider
+The factory for pki providers
 
 =cut
 
