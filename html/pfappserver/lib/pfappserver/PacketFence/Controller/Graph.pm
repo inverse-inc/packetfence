@@ -353,6 +353,17 @@ sub dashboard :Local :AdminRole('REPORTS') {
 
     $graphs = [
                {
+                'description' => 'Core Metrics',
+                'target' => 'group(alias(scaleToSeconds(stats.counters.*.pf_node_node_register.called.count,1),"End-Points registered"),
+                                   alias(scaleToSeconds(stats.counters.*.pf_node_node_deregister.called.count,1),"End-Points unregistered"))',
+                'columns' => 2
+               },
+               {
+                'description' => 'Server Load',
+                'target' => 'aliasByNode(*.load.load.midterm,0)',
+                'columns' => 2
+               },
+               {
                 'description' => 'Total Access-Requests/s',
                 'vtitle' => 'requests',
                 'target' =>'alias(sum(*.radsniff-exchanged.radius_count-access_request.received),"Access-Requests")',
@@ -374,12 +385,6 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'description' => 'Access-Rejects/s per server',
                 'vtitle' => 'replies',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_reject.received,0)',
-                'columns' => 2
-               },
-               {
-                'description' => 'Reject/Accept ratio per server',
-                'vtitle' => 'percent',
-                'target' => _generate_ratio_group(),
                 'columns' => 2
                },
                {
@@ -760,7 +765,7 @@ sub _generate_ratio_group {
     my @group_members;
     for my $host (_generate_hosts()) {
         push @group_members,
-"scale(divideSeries($host.radsniff-exchanged.radius_count-access_reject.linked,$host.radsniff-exchanged.radius_count-access_accept.linked),100)";
+"scale(divideSeries($host.radsniff-exchanged.radius_count-access_accept.linked,$host.radsniff-exchanged.radius_count-access_reject.linked),100)";
     }
 
     return 'aliasByNode( group(' . join( ', ', @group_members ) . ') ,0)';

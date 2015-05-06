@@ -106,7 +106,6 @@ Increment one of more stats counters.
 
 sub increment {
     my ( $self, $stats, $sample_rate ) = @_;
-    $stats = $self->{hostname} . ".$stats";
     $stats =~ s/::/_/g;
     $self->update( $stats, 1, $sample_rate );
 }
@@ -119,7 +118,6 @@ Decrement one of more stats counters.
 
 sub decrement {
     my ( $self, $stats, $sample_rate ) = @_;
-    $stats = $self->{hostname} . ".$stats";
     $stats =~ s/::/_/g;
     $self->update( $stats, -1, $sample_rate );
 }
