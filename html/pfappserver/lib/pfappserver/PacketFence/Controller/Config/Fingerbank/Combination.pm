@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
-    with 'pfappserver::Base::Controller::Crud::Fingerbank';
+    with 'pfappserver::Base::Controller::Crud::Fingerbank' => { -excludes => 'index' };
 }
 
 __PACKAGE__->config(
