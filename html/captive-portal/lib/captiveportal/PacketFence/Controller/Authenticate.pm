@@ -312,7 +312,6 @@ sub setRole : Private {
     my $source_match = $session->{source_match} || $session->{source_id};
 
     # obtain node information provided by authentication module. We need to get the role (category here)
-    # as web_node_register() might not work if we've reached the limit
     my $value =
       &pf::authentication::match( $source_match, $params, $Actions::SET_ROLE );
 
