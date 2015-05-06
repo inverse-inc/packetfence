@@ -21,6 +21,9 @@ New Features
 * Multiples scan engine definition based on the OS type, category.
 * Scan definition per portal profiles
 * New external command action in violation
+* New api method for adding a person
+* New api method for viewing a person
+* New api method for modifying a person
 
 Enhancements
 ++++++++++++
