@@ -67,7 +67,8 @@ Save the period range for a specific section.
 sub _saveRange :Private {
     my ($self, $c, $section, $start, $end) = @_;
 
-    if (length $start && length $end) {
+    if ( ( defined $start and defined $end ) 
+            and length $start && length $end ) {
         if (my ($syear, $smonth, $sday) = $start =~ m/(\d{4})-?(\d{1,2})-?(\d{1,2})/) {
             if (my ($eyear, $emonth, $eday) = $end =~ m/(\d{4})-?(\d{1,2})-?(\d{1,2})/) {
                 $c->session->{$section}->{start} = sprintf("%i-%02i-%02i", $syear, $smonth, $sday);
