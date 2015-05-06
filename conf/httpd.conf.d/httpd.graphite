@@ -126,14 +126,8 @@ Listen 9000
   <IfModule !mod_log_config.c>
     LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
   </IfModule>
-  <IfModule !mod_ssl.c>
-    LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so                                                         
-  </IfModule>
   <IfModule !mod_headers.c>
     LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
-  </IfModule>
-  <IfModule !mod_proxy.c>
-    LoadModule proxy_module /usr/lib/apache2/modules/mod_proxy.so
   </IfModule>
   <IfModule !mod_authz_host.c>
     LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
@@ -150,15 +144,6 @@ Listen 9000
   <IfModule !mod_mime.c>
     LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
   </IfModule>
-  <IfModule !mod_apreq2.c>
-    LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
-  </IfModule>
-  <IfModule !proxy_http.c>
-    LoadModule proxy_http_module /usr/lib/apache2/modules/mod_proxy_http.so
-  </IfModule>
-  <IfModule !mod_proxy_connect.c>
-   LoadModule proxy_connect_module /usr/lib/apache2/modules/mod_proxy_connect.so
-  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -167,14 +152,8 @@ Listen 9000
   <IfModule !mod_log_config.c>
     LoadModule log_config_module modules/mod_log_config.so
   </IfModule>
-  <IfModule !mod_ssl.c>
-    LoadModule ssl_module modules/mod_ssl.so
-  </IfModule>
   <IfModule !mod_headers.c>
     LoadModule headers_module modules/mod_headers.so
-  </IfModule>
-  <IfModule !mod_proxy.c>
-    LoadModule proxy_module modules/mod_proxy.so
   </IfModule>
   <IfModule !mod_authz_host.c>
     LoadModule authz_host_module modules/mod_authz_host.so                                                            
@@ -190,15 +169,6 @@ Listen 9000
   </IfModule>
   <IfModule !mod_mime.c>
     LoadModule mime_module modules/mod_mime.so
-  </IfModule>
-  <IfModule !mod_apreq2.c>
-    LoadModule apreq_module modules/mod_apreq2.so
-  </IfModule>
-  <IfModule !proxy_http.c>
-    LoadModule proxy_http_module modules/mod_proxy_http.so
-  </IfModule>
-  <IfModule !mod_proxy_connect.c>
-   LoadModule proxy_connect_module modules/mod_proxy_connect.so
   </IfModule>
 </IfDefine>
 

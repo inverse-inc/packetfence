@@ -525,7 +525,7 @@ if ! /usr/bin/id pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
 fi
-/usr/sbin/usermod -aG fingerbank,apache,wbpriv,carbon pf
+/usr/sbin/usermod -aG fingerbank,apache,carbon pf
 
 if [ ! `id -u` = "0" ];
 then
