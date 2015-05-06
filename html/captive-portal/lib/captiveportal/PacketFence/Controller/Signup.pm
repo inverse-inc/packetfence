@@ -31,7 +31,12 @@ use pf::web::custom;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
-our @PERSON_FIELDS = grep { $_ ne 'pid' && $_ ne 'notes'  } @pf::person::FIELDS;
+our @PERSON_FIELDS = grep { 
+    $_ ne 'pid' 
+    && $_ ne 'notes'
+    && $_ ne 'portal'
+    && $_ ne 'source'
+} @pf::person::FIELDS;
 
 =head1 NAME
 

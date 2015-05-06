@@ -14,7 +14,12 @@ use List::MoreUtils qw(any);
 use pf::config;
 use pf::person qw(person_modify);
 
-our @PERSON_FIELDS = grep { $_ ne 'pid' && $_ ne 'notes'  } @pf::person::FIELDS;
+our @PERSON_FIELDS = grep {
+    $_ ne 'pid'
+    && $_ ne 'notes'
+    && $_ ne 'portal'
+    && $_ ne 'source'
+} @pf::person::FIELDS;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
