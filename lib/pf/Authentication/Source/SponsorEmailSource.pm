@@ -19,7 +19,7 @@ has '+unique' => (default => 1);
 has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
-has 'use_mandatory_fields' => (isa => 'Bool', is => 'rw', default => 0);
+has 'use_mandatory_fields' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head2 available_attributes
 

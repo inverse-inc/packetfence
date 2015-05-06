@@ -25,7 +25,7 @@ has '+class' => (default => 'exclusive');
 has '+type' => (default => 'Null');
 has '+unique' => (default => 1);
 has 'email_required' => (isa => 'Str', is => 'rw', default => 'no');
-has 'use_mandatory_fields' => (isa => 'Bool', is => 'rw', default => 0);
+has 'use_mandatory_fields' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head2 available_attributes
 

@@ -116,8 +116,8 @@ has_field 'cache_match',
 
 has_field 'use_mandatory_fields' => (
     type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
+    checkbox_value => 'yes',
+    unchecked_value => 'no',
     label => 'Use mandatory fields',
     default => pf::Authentication::Source::LDAPSource->meta->get_attribute('use_mandatory_fields')->default,
     tags => {
