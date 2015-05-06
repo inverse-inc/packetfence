@@ -40,6 +40,14 @@ msgstr ""
 msgid "802.1X Username"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "802.1x"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "802.1x types"
+msgstr ""
+
 # html/pfappserver/root/admin/reports.tt
 msgid "90 days"
 msgstr ""
@@ -213,6 +221,10 @@ msgstr ""
 msgid "Activation"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Active Directory server"
+msgstr ""
+
 # html/pfappserver/root/violation/view.tt
 msgid "Add"
 msgstr ""
@@ -239,6 +251,10 @@ msgstr ""
 msgid "Add Device"
 msgstr ""
 
+# html/pfappserver/root/config/domain/index.tt
+msgid "Add Domain"
+msgstr ""
+
 # html/pfappserver/root/config/firewall_sso/index.tt
 msgid "Add Firewall"
 msgstr ""
@@ -251,6 +267,14 @@ msgstr ""
 msgid "Add Realm"
 msgstr ""
 
+# html/pfappserver/root/config/wmi/index.tt
+msgid "Add Rule"
+msgstr ""
+
+# html/pfappserver/root/config/scan/index.tt
+msgid "Add Scan"
+msgstr ""
+
 # html/pfappserver/root/config/fingerbank/user_agent/list.tt
 msgid "Add User Agent"
 msgstr ""
@@ -261,6 +285,14 @@ msgstr ""
 
 # html/pfappserver/root/config/wrix/index.tt
 msgid "Add Wrix Entry"
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Add a Scan."
+msgstr ""
+
+# html/pfappserver/root/config/scan/type/wmi.tt
+msgid "Add a WMI rule."
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -287,6 +319,10 @@ msgstr ""
 
 # html/pfappserver/root/config/adminroles/index.tt
 msgid "Add admin role"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "Add an action based on the result of the request"
 msgstr ""
 
 # html/pfappserver/root/soh/index.tt
@@ -470,6 +506,10 @@ msgid ""
   "complete."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "Approximate duration of a scan. User being scanned on registration are presented a progress bar for this duration, afterwards the browser refreshes until scan is complete."
+msgstr ""
+
 # html/pfappserver/root/config/profile/edit.tt
 msgid "Are you sure want to rename file?"
 msgstr ""
@@ -625,6 +665,7 @@ msgstr ""
 
 # html/pfappserver/root/config/adminroles/index.tt
 # html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/domain/index.tt
 # html/pfappserver/root/config/fingerbank/combination/index.tt
 # html/pfappserver/root/config/fingerbank/device/index.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/index.tt
@@ -638,7 +679,9 @@ msgstr ""
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/provisioning/index.tt
 # html/pfappserver/root/config/realm/index.tt
+# html/pfappserver/root/config/scan/index.tt
 # html/pfappserver/root/config/switch/index.tt
+# html/pfappserver/root/config/wmi/index.tt
 # html/pfappserver/root/config/wrix/index.tt
 # html/pfappserver/root/interface/create.tt
 # html/pfappserver/root/roles/index.tt
@@ -716,6 +759,7 @@ msgid "Client Support"
 msgstr ""
 
 # html/pfappserver/root/config/adminroles/list.tt
+# html/pfappserver/root/config/domain/list.tt
 # html/pfappserver/root/config/fingerbank/combination/list.tt
 # html/pfappserver/root/config/fingerbank/device/children.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/children.tt
@@ -727,7 +771,9 @@ msgstr ""
 # html/pfappserver/root/config/floatingdevice/list.tt
 # html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/realm/list.tt
+# html/pfappserver/root/config/scan/list.tt
 # html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/wmi/list.tt
 # html/pfappserver/root/config/wrix/list.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Clone"
@@ -736,6 +782,8 @@ msgstr ""
 # html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/adminroles/view.tt
+# html/pfappserver/root/config/domain/index.tt
+# html/pfappserver/root/config/domain/view.tt
 # html/pfappserver/root/config/fingerbank/combination/view.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/view.tt
 # html/pfappserver/root/config/fingerbank/device/view.tt
@@ -748,7 +796,9 @@ msgstr ""
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/config/realm/view.tt
+# html/pfappserver/root/config/scan/view.tt
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/config/wmi/view.tt
 # html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
@@ -834,6 +884,7 @@ msgid "Comma-delimited list of DNS servers."
 msgstr ""
 
 # conf/documentation.conf (scan.dot1x_type)
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Comma-delimited list of EAP-Type attributes that will pass to the scan engine."
 msgstr ""
 
@@ -1133,6 +1184,34 @@ msgstr ""
 msgid "DNS Server"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "DNS name of the domain"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "DNS server"
+msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "DOMAIN"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "DOMAIN_CREATE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "DOMAIN_DELETE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "DOMAIN_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "DOMAIN_UPDATE"
+msgstr ""
+
 # html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/service/status.tt
 msgid "Daemon"
@@ -1230,6 +1309,8 @@ msgstr ""
 # html/pfappserver/root/config/adminroles/index.tt
 # html/pfappserver/root/config/adminroles/list.tt
 # html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/domain/index.tt
+# html/pfappserver/root/config/domain/list.tt
 # html/pfappserver/root/config/fingerbank/combination/index.tt
 # html/pfappserver/root/config/fingerbank/combination/list.tt
 # html/pfappserver/root/config/fingerbank/device/children.tt
@@ -1255,8 +1336,12 @@ msgstr ""
 # html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/realm/index.tt
 # html/pfappserver/root/config/realm/list.tt
+# html/pfappserver/root/config/scan/index.tt
+# html/pfappserver/root/config/scan/list.tt
 # html/pfappserver/root/config/switch/index.tt
 # html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/wmi/index.tt
+# html/pfappserver/root/config/wmi/list.tt
 # html/pfappserver/root/config/wrix/index.tt
 # html/pfappserver/root/config/wrix/list.tt
 # html/pfappserver/root/interface/list.tt
@@ -1287,6 +1372,10 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/device/index.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/index.tt
 msgid "Delete Device"
+msgstr ""
+
+# html/pfappserver/root/config/domain/index.tt
+msgid "Delete Domain"
 msgstr ""
 
 # html/pfappserver/root/config/profile/files.tt
@@ -1323,6 +1412,14 @@ msgstr ""
 
 # html/pfappserver/root/roles/index.tt
 msgid "Delete Role"
+msgstr ""
+
+# html/pfappserver/root/config/wmi/index.tt
+msgid "Delete Rule"
+msgstr ""
+
+# html/pfappserver/root/config/scan/index.tt
+msgid "Delete Scan Engine"
 msgstr ""
 
 # html/pfappserver/root/config/authentication.tt
@@ -1442,6 +1539,11 @@ msgstr ""
 msgid "Dismiss Changes for "
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
+# html/pfappserver/root/config/domain/list.tt
+# html/pfappserver/root/config/domain/view.tt
 # html/pfappserver/root/configurator/configuration.tt
 msgid "Domain"
 msgstr ""
@@ -1454,6 +1556,10 @@ msgstr ""
 msgid "Domain name of the PacketFence server."
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "Domains"
+msgstr ""
+
 # html/pfappserver/root/configurator/enforcement.tt
 # html/pfappserver/root/configurator/networks.tt
 msgid "Don't worry, you can always come back to this step if you change your mind."
@@ -1464,6 +1570,7 @@ msgid "Drop"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Duration"
 msgstr ""
 
@@ -1681,6 +1788,10 @@ msgstr ""
 msgid "External"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "External Command"
+msgstr ""
+
 # html/pfappserver/root/config/authentication.tt
 msgid "External Sources"
 msgstr ""
@@ -1867,6 +1978,11 @@ msgstr ""
 msgid "Host"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
+msgid "Host in activation link"
+msgstr ""
+
 # conf/documentation.conf (scan.host)
 msgid ""
   "Host the scanning engine is running on.  For performance reasons, we "
@@ -1897,6 +2013,8 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "Hostname or IP Address"
 msgstr ""
 
@@ -1943,10 +2061,12 @@ msgid "How many violations does pfmon batches"
 msgstr ""
 
 # conf/documentation.conf (scan.openvas_reportformatid)
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "ID of the .NBE report format on the OpenVAS server"
 msgstr ""
 
 # conf/documentation.conf (scan.openvas_configid)
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "ID of the scanning configuration on the OpenVAS server"
 msgstr ""
 
@@ -2079,10 +2199,26 @@ msgid ""
   "auto-registration connections."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "If this option is enabled, PacketFence will scan all the 802.1x auto-registration connections."
+msgstr ""
+
 # conf/documentation.conf (scan.registration)
 msgid ""
   "If this option is enabled, the PF system will scan each host after "
   "registration is complete."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "If this option is enabled, the PF system will scan each host after registration is complete."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "If this option is enabled, the PF system will scan host after on the production vlan."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "If this option is enabled, the PF system will scan host before the registration."
 msgstr ""
 
 # html/pfappserver/root/configurator/database.tt
@@ -2094,6 +2230,8 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "If you use an alternative port, please specify"
 msgstr ""
 
@@ -2392,6 +2530,12 @@ msgstr ""
 msgid "Location of the suricata binary."
 msgstr ""
 
+# conf/documentation.conf (services.winbindd_binary)
+msgid ""
+  "Location of the winbindd binary. Only necessary to change if you are"
+  "not running the RPMed version."
+msgstr ""
+
 # conf/documentation.conf (alerting.log)
 msgid "Log file where <i>log</i> actions are sent."
 msgstr ""
@@ -2585,6 +2729,8 @@ msgstr "Nodes - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 # html/pfappserver/lib/pfappserver/Form/SavedSearch.pm
@@ -2592,6 +2738,7 @@ msgstr "Nodes - Update"
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/config/authentication.tt
 # html/pfappserver/root/config/profile/index.tt
+# html/pfappserver/root/config/scan/list.tt
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/soh/index.tt
@@ -2607,9 +2754,21 @@ msgstr ""
 msgid "Name of the policy inside the NessusClient file"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
+msgid "Name of the policy to use"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
+msgid "Name of the policy to use on the nessus server"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 # html/pfappserver/root/config/floatingdevice/list.tt
 msgid "Native VLAN"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
+msgid "Nessus client policy"
 msgstr ""
 
 # conf/documentation.conf (alerting.admin_netbiosname)
@@ -2670,6 +2829,10 @@ msgstr ""
 msgid "New Device"
 msgstr ""
 
+# html/pfappserver/root/config/domain/view.tt
+msgid "New Domain"
+msgstr ""
+
 # html/pfappserver/root/config/profile/files.tt
 msgid "New File"
 msgstr ""
@@ -2715,7 +2878,12 @@ msgid "New Role"
 msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
+# html/pfappserver/root/config/wmi/view.tt
 msgid "New Rule"
+msgstr ""
+
+# html/pfappserver/root/config/scan/view.tt
+msgid "New Scan Engine"
 msgstr ""
 
 # html/pfappserver/root/config/switch/view.tt
@@ -2738,33 +2906,12 @@ msgstr ""
 msgid "New WRIX Information"
 msgstr ""
 
-# html/pfappserver/root/config/fingerbank/combination/index.tt
-msgid "No Combination defined"
-msgstr ""
-
-# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
-msgid "No DHCP Fingerprint defined"
-msgstr ""
-
-# html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
-msgid "No DHCP Vendor defined"
-msgstr ""
-
-# html/pfappserver/root/config/fingerbank/device/index.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/index.tt
 msgid "No Device defined"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
 msgid "No IP history"
-msgstr ""
-
-# html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
-msgid "No MAC Vendor defined"
-msgstr ""
-
-# html/pfappserver/root/config/fingerbank/user_agent/index.tt
-msgid "No User Agent defined"
 msgstr ""
 
 # html/pfappserver/root/user/nodes.tt
@@ -2808,6 +2955,10 @@ msgstr ""
 
 # html/pfappserver/root/authentication/source/rules_read.tt
 msgid "No rule defined"
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "No scan specified."
 msgstr ""
 
 # html/pfappserver/root/config/authentication.tt
@@ -2856,6 +3007,7 @@ msgid "Nodes States"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Nodes with the selected OS will be affected"
 msgstr ""
 
@@ -2865,6 +3017,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Nodes with the selected roles will be affected"
 msgstr ""
 
@@ -2915,6 +3068,7 @@ msgid "OMAPI"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/root/node/view.tt
 msgid "OS"
 msgstr ""
@@ -2950,6 +3104,14 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Only works for accounting violations.  The violation will be opened according to the time you set in the accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month)."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "OpenVAS config ID"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "OpenVAS report format"
 msgstr ""
 
 # html/pfappserver/root/config/wrix/search_form.tt
@@ -3066,7 +3228,9 @@ msgid "PaloAlto"
 msgstr "PaloAlto Networks"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
@@ -3141,8 +3305,17 @@ msgstr ""
 msgid "Please specify a brief description of the violation."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Please specify a domain"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 msgid "Please specify a name for the category."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "Please specify a name for the scan engine"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
@@ -3156,6 +3329,18 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Please specify an identifier for the violation."
 msgstr "Please specify an identifier for the violation."
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Please specify the Active Directory server"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Please specify the DNS name of the domain"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Please specify the DNS server"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the DNS server's IP address(es)."
@@ -3175,6 +3360,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 msgid "Please specify the MAC address of the floating device."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Please specify the command you want to execute."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -3215,6 +3404,11 @@ msgstr ""
 msgid "Please specify the hostname or IP of the firewall"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Please specify the hostname or IP of the scan engine"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the maximum DHCP lease time."
 msgstr ""
@@ -3231,8 +3425,20 @@ msgstr ""
 msgid "Please specify the network."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Please specify the password to bind to the Active Directory"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Please specify the router IP address."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Please specify the server\s name"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "Please specify the sql request like "select * from Win32_Product""
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -3243,8 +3449,24 @@ msgstr ""
 msgid "Please specify the starting IP address of the DHCP scope."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Please specify the user to bind to the Active Directory server"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 msgid "Please specify the username for the Barracuda"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "Please specify the username for the Scan Engine"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
+msgid "Please specify the windows domain"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Please specify the workgroup"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
@@ -3258,6 +3480,8 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "Port of the service"
 msgstr ""
 
@@ -3456,6 +3680,10 @@ msgstr ""
 msgid "Really delete this Device?"
 msgstr ""
 
+# html/pfappserver/root/config/domain/index.tt
+msgid "Really delete this Domain ?"
+msgstr ""
+
 # html/pfappserver/root/config/firewall_sso/index.tt
 msgid "Really delete this Firewall SSO?"
 msgstr ""
@@ -3470,6 +3698,10 @@ msgstr ""
 
 # html/pfappserver/root/config/realm/index.tt
 msgid "Really delete this Realm ?"
+msgstr ""
+
+# html/pfappserver/root/config/scan/index.tt
+msgid "Really delete this Scan Engine ?"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/user_agent/index.tt
@@ -3494,6 +3726,10 @@ msgstr ""
 
 # html/pfappserver/root/roles/index.tt
 msgid "Really delete this role?"
+msgstr ""
+
+# html/pfappserver/root/config/wmi/index.tt
+msgid "Really delete this rule ?"
 msgstr ""
 
 # html/pfappserver/root/soh/index.tt
@@ -3561,6 +3797,10 @@ msgstr ""
 msgid "Reevaluate access"
 msgstr ""
 
+# html/pfappserver/root/config/domain/index.tt
+msgid "Refresh domain configuration"
+msgstr ""
+
 # html/pfappserver/root/admin/bulk_actions.inc
 msgid "Register"
 msgstr ""
@@ -3578,6 +3818,10 @@ msgstr ""
 # html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
 msgid "Registration Window"
+msgstr ""
+
+# html/pfappserver/root/config/domain/list.tt
+msgid "Rejoin"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
@@ -3636,6 +3880,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Reports"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "Request"
 msgstr ""
 
 # html/pfappserver/root/authentication/source/read.tt
@@ -3740,6 +3988,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "Roles"
@@ -3758,6 +4007,7 @@ msgid "Routing"
 msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
+# html/pfappserver/root/config/wmi/view.tt
 msgid "Rule"
 msgstr ""
 
@@ -3765,8 +4015,32 @@ msgstr ""
 msgid "Rules"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "Rules Actions"
+msgstr ""
+
 # html/pfappserver/root/node/violations.tt
 msgid "Run Now"
+msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "SCAN"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "SCAN_CREATE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "SCAN_DELETE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "SCAN_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "SCAN_UPDATE"
 msgstr ""
 
 # pf::admin_roles (Actions groups)
@@ -3866,6 +4140,7 @@ msgstr "Switches - Update"
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/adminroles/view.tt
+# html/pfappserver/root/config/domain/view.tt
 # html/pfappserver/root/config/fingerbank/combination/view.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/view.tt
 # html/pfappserver/root/config/fingerbank/device/view.tt
@@ -3882,7 +4157,9 @@ msgstr "Switches - Update"
 # html/pfappserver/root/config/profile/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/config/realm/view.tt
+# html/pfappserver/root/config/scan/view.tt
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/config/wmi/view.tt
 # html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/configuration/section.tt
 # html/pfappserver/root/configurator/database.tt
@@ -3921,6 +4198,7 @@ msgstr ""
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/adminroles/view.tt
+# html/pfappserver/root/config/domain/view.tt
 # html/pfappserver/root/config/fingerbank/combination/view.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/view.tt
 # html/pfappserver/root/config/fingerbank/device/view.tt
@@ -3933,7 +4211,9 @@ msgstr ""
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/config/realm/view.tt
+# html/pfappserver/root/config/scan/view.tt
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/config/wmi/view.tt
 # html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
@@ -3953,8 +4233,33 @@ msgstr ""
 msgid "Saving profile "
 msgstr ""
 
+# html/pfappserver/root/config/scan/list.tt
+# html/pfappserver/root/config/scan/view.tt
+msgid "Scan Engine"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "Scan Type"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "Scan after registration"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "Scan before registration"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "Scan on registration"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
-msgid "Scan"
+msgid "Scanner Definition"
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Scanners"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
@@ -4053,6 +4358,11 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Set role"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
+msgid "Set this value if you want to change the hostname in the validation link."
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -4196,6 +4506,10 @@ msgstr ""
 msgid ""
   "Should we handle accouting data for inline clients? "
   "This controls inline accouting tasks in pfmon."
+msgstr ""
+
+# conf/documentation.conf (services.winbindd)
+msgid "Should winbindd be started ? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # html/pfappserver/root/config/profile/edit.tt
@@ -4352,6 +4666,7 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/settings/index.tt
 # html/pfappserver/root/config/fingerbank/user_agent/index.tt
 msgid "Submit Unknown/Unmatched Fingerprints"
 msgstr ""
@@ -4472,6 +4787,10 @@ msgstr ""
 
 # conf/documentation.conf (billing.mirapay_currency)
 msgid "The currency of the mirapay transactions"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+msgid "The domain to use for the authentication in that realm"
 msgstr ""
 
 # html/pfappserver/root/user/list_password.tt
@@ -4649,6 +4968,10 @@ msgid ""
   "tools/stinger.exe=<a href=\"http://download.nai.com/products/mcafee-avert/stinger.exe\">http://download.nai.com/products/mcafee-avert/stinger.exe</a> "
   "The Stinger utility could then be accessed at "
   "<a href=\"https://pfhostname/proxies/tools/stinger.exe.\">https://pfhostname/proxies/tools/stinger.exe.</a>"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "This server's name"
 msgstr ""
 
 # html/pfappserver/root/configurator/configuration.tt
@@ -4897,6 +5220,7 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
+# html/pfappserver/root/config/fingerbank/settings/index.tt
 # html/pfappserver/root/config/fingerbank/user_agent/index.tt
 msgid "Update Fingerbank DB"
 msgstr ""
@@ -5000,7 +5324,9 @@ msgstr ""
 msgid "User_Agent"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
@@ -5150,6 +5476,39 @@ msgid ""
   "IP address."
 msgstr ""
 
+# pf::admin_roles (Actions groups)
+msgid "WMI"
+msgstr ""
+
+# html/pfappserver/root/config/scan/type/wmi.tt
+# html/pfappserver/root/config/wmi/list.tt
+msgid "WMI Rules"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "WMI Rules Definition"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
+msgid "WMI client policy"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "WMI_CREATE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "WMI_DELETE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "WMI_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "WMI_UPDATE"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "WPA Enterprise"
 msgstr ""
@@ -5269,6 +5628,10 @@ msgstr ""
 msgid "Wireless SSID"
 msgstr ""
 
+# html/pfappserver/root/config/scan/type/wmi.tt
+msgid "With no WMI rules specified, the scan engine will not be triggered."
+msgstr ""
+
 # html/pfappserver/root/config/switch/view.tt
 msgid "With no condition, the inline mode will never be activated."
 msgstr ""
@@ -5286,6 +5649,10 @@ msgid "With no provisioners specified, the provisioners of the default profile w
 msgstr ""
 
 # html/pfappserver/root/config/profile/tab-content.tt
+msgid "With no scan specified, the scan engine will not be triggered."
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
 msgid "With no source specified, all internal and external sources will be used."
 msgstr ""
 
@@ -5295,6 +5662,10 @@ msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
 msgid "Without condition, this rule will act as a catch-all."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Workgroup"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
@@ -5330,6 +5701,7 @@ msgid "You must specifiy a gateway address."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "You must specify the password"
 msgstr ""
 
@@ -5816,6 +6188,7 @@ msgstr ""
 # conf/documentation.conf (services.snmptrapd options)
 # conf/documentation.conf (services.snort options)
 # conf/documentation.conf (services.suricata options)
+# conf/documentation.conf (services.winbindd options)
 # conf/documentation.conf (servicewatch.email options)
 # conf/documentation.conf (servicewatch.restart options)
 # conf/documentation.conf (trapping.detection options)
@@ -5896,6 +6269,7 @@ msgstr "Send email"
 # conf/documentation.conf (services.snmptrapd options)
 # conf/documentation.conf (services.snort options)
 # conf/documentation.conf (services.suricata options)
+# conf/documentation.conf (services.winbindd options)
 # conf/documentation.conf (servicewatch.email options)
 # conf/documentation.conf (servicewatch.restart options)
 # conf/documentation.conf (trapping.detection options)
@@ -5959,6 +6333,10 @@ msgstr "Node"
 # conf/documentation.conf
 msgid "expire.traplog"
 msgstr "Trap logs"
+
+# pf::action (VIOLATION_ACTIONS)
+msgid "external_action"
+msgstr ""
 
 # pf::config (SoH Classes)
 msgid "firewall"
@@ -6928,6 +7306,14 @@ msgstr "suricata"
 # conf/documentation.conf
 msgid "services.suricata_binary"
 msgstr "suricata path"
+
+# conf/documentation.conf
+msgid "services.winbindd"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.winbindd_binary"
+msgstr ""
 
 # conf/documentation.conf
 msgid "servicewatch"
