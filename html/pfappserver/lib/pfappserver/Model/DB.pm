@@ -231,8 +231,8 @@ sub schema {
 
     # add graphite schema
     $db = quotemeta ("${db}_graphite");
-    my $mysql_cmd = "/usr/bin/mysql -u $root_user -p$root_password $db";
-    my $cmd = "$mysql_cmd < $install_dir/db/pf_graphite-schema.sql";
+    $mysql_cmd = "/usr/bin/mysql -u $root_user -p$root_password $db";
+    $cmd = "$mysql_cmd < $install_dir/db/pf_graphite-schema.sql";
     eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ])) };
     if ( $@ || !defined($result) ) {
         $status_msg = ["Error applying the schema to the database [_1]",$db ];
