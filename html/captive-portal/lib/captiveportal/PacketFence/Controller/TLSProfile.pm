@@ -83,16 +83,15 @@ sub build_cert_p12 : Path : Args(0) {
     my $node_info     = node_view($mac);
     my $pid           = $node_info->{'pid'};
     my $fh;
-    open ($fh, '>', $certname);
-    if (-e $certname) {
-        $logger->info("Certificate for user \"$pid\" successfully created.");
+    if ( open ($fh, '>', $certname) ) {
+        $logger->debug("Certificate for user \"$pid\" successfully created.");
+        print $fh "$cert_data\n";
+        close $fh;
     }
     else {
-        $logger->info("The certificate file could not be saved for username \"$pid\"");
+        $logger->error("The certificate file could not be saved for username \"$pid\"");
         $self->showError($c,"An error has occured while trying to save your certificate, please contact your local support staff");
     }
-    print $fh "$cert_data\n";
-    close $fh;
 }
 
 =head2 get_cert
@@ -103,14 +102,17 @@ Use PkiProvider{get_cert} method to send the request in order to generate the ce
 
 sub get_cert : Private {
     my ($self, $c) = @_;
+    my ($provisioner,$pki_provider);
     my $portalSession = $c->portalSession;
     my $stash = $c->stash;
     my $mac           = $portalSession->clientMac;
-    my $provisioner   = $c->profile->findProvisioner($mac);
-    return unless $provisioner;
-    my $pki_provider = $provisioner->getPkiProvider();
+    $provisioner   = $c->profile->findProvisioner($mac);
+    unless ($provisioner && ($pki_provider = $provisioner->getPkiProvider())) {
+        $c->log->error("No provisioner or pki_provider was found!");
+        $self->showError($c,"An error has occured while trying to save your certificate, please contact your local support staff");
+    }
     my $cert_content = $pki_provider->get_cert({ certificate_email => $stash->{certificate_email}, certificate_cn => $stash->{certificate_cn}, certificate_pwd => $stash->{certificate_pwd} });
-    $c->log->debug("cert_content from pki service $cert_content");
+    $c->log->debug(sub { "cert_content from pki service $cert_content" });
     $c->stash(cert_content => $cert_content);
 }
 
@@ -227,9 +229,9 @@ sub export_fingerprint : Local {
     @$pki_session{qw(cacn svrcn cadata svrdata fingerprint)} = (
         $cafile,
         $svrfile,
-        $cadata,
-        $svrdata,
-        $data,
+        $castr,
+        $svrstr,
+        $cafinger,
     );
     $user_cache->set("pki_session" => $pki_session);
 }
