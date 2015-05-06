@@ -19579,6 +19579,14 @@ Date:   Wed Oct 22 21:17:24 2014 -0400
 
 M	UPGRADE.asciidoc
 
+commit bd6ce442f957968f3d6af1de67a1259c48ba73d0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 22 21:17:24 2014 -0400
+
+    Updated upgrade instructions
+
+M	UPGRADE.asciidoc
+
 commit 154cc8b6205329dc7c3a2f090c547e3933aae372
 Author: Julien Semaan <jul.semaan@gmail.com>
 Date:   Wed Oct 22 17:17:36 2014 -0400
@@ -23412,6 +23420,34 @@ Date:   Wed Sep 10 16:32:07 2014 -0400
 M	ChangeLog
 
 commit de2f9678434a6f922fc7ce66e9fd3191606ed80f
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Sep 10 16:29:43 2014 -0400
+
+    Prepare for release
+
+M	NEWS.asciidoc
+M	addons/packages/packetfence.spec
+M	conf/dhcp_fingerprints.conf
+M	conf/pf-release
+M	db/pf-schema-4.4.0.sql
+D	db/pf-schema-4.x.x.sql
+A	db/upgrade-4.3.0-4.4.0.sql
+D	db/upgrade-4.x.x.sql
+M	debian/changelog
+M	docs/PacketFence_Administration_Guide-docinfo.xml
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit 73760a983f93ea3cabc4daeaf4b42733aaed6449
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Sep 10 16:32:07 2014 -0400
+
+    Updated ChangeLog file
+
+M	ChangeLog
+
+commit 9d1497ec50870c45ac0d7c77ea88c6bb0d1633cd
 Author: Durand Fabrice <fdurand@inverse.ca>
 Date:   Wed Sep 10 16:29:43 2014 -0400
 
@@ -27320,6 +27356,14 @@ Date:   Fri Jun 27 07:59:21 2014 -0400
     Added missing fields when creating an interface
 
 M	html/pfappserver/root/interface/create.tt
+
+commit 08cc155416415f348c9ce96ec5b3005c31bd43b7
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jun 26 14:47:46 2014 -0400
+
+    Fixed PacketFence_Network xml file
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
 
 commit 86c2ce3c95ad850a0f8f97a99b921ac373959ac3
 Author: Durand Fabrice <fdurand@inverse.ca>
@@ -38450,6 +38494,14 @@ Date:   Wed Feb 5 15:37:03 2014 -0500
 
 M	lib/pf/SNMP/Nortel.pm
 
+commit 3dd502d1c3ffe88f25c3a312c16cb184662b630c
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Feb 5 14:53:12 2014 -0500
+
+    Typo in UPGRADE document
+
+M	UPGRADE.asciidoc
+
 commit 2610b6d3bcac59f16777475477d1a8c9b1207034
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Thu Dec 12 11:46:35 2013 -0500
@@ -39631,6 +39683,21 @@ M	html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
 M	html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
 M	html/pfappserver/root/portal/profile/view.tt
 M	html/pfappserver/root/static/admin/configuration/portal_profile.js
+
+commit 77c6893701ba5f8ca3589e9f3fd6fd988f086d92
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Jan 17 10:38:42 2014 -0500
+
+    Fix pfdetectd not starting because of pid file
+    
+    Fixes the case where either pfdetect crashes or the server crashes and
+    the pid file is left in the file system. On reboot or on service restart
+    the service won't start because it thinks it's running.
+    
+    Now if the PID file is there it will also check that the pid it contains
+    is running
+
+M	addons/pfdetect_remote/initrd/pfdetectd
 
 commit f1e234847617a17665e70670e3c7b215ad983e8c
 Author: Francis Lachapelle <flachapelle@inverse.ca>
