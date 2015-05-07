@@ -26,6 +26,7 @@ New Features
 * New api method for modifying a person
 * New performance dashboard based on Graphite allows tracking of core performance metrics such as number and latency of radius requests, number of httpd.aaa processes and authorization latency.
 * Added new sms carrier for Switzerland
+* Verify if the database schema matches the current version of packetfence
 
 Enhancements
 ++++++++++++
