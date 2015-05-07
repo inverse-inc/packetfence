@@ -34,6 +34,8 @@ conf/floating_network_device.conf
 conf/guest-managers.conf
 conf/log.conf
 conf/chi.conf
+conf/monitoring/*
+!conf/monitoring/*.example
 conf/nessus/remotescan.nessus
 conf/networks.conf
 conf/radiusd/eap.conf
