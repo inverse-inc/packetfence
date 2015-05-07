@@ -27,7 +27,7 @@ Depends: ${misc:Depends}, vlan, make,
  make,
  samba,
  winbind,
- krb5-user
+ krb5-user,
  iproute,
  ipset,
  sudo,
