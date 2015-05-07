@@ -20,6 +20,8 @@ use strict;
 use warnings;
 
 BEGIN {
+    #Ensure that the file permissions of the log file is correct 0660
+    umask (0);
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
     use pfconfig::log;
