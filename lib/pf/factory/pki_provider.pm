@@ -23,6 +23,13 @@ our @MODULES = __PACKAGE__->modules;
 
 sub factory_for { 'pf::pki_provider' }
 
+=head2 new
+
+Will create a new pf::pki_provider sub class  based off the name of the provider
+If no provider is found the return undef
+
+=cut
+
 sub new {
     my ($class,$name) = @_;
     my $object;
@@ -34,6 +41,13 @@ sub new {
     }
     return $object;
 }
+
+
+=head2 getModuleName
+
+Get the sub module pf::pki_provider base off it's configuration
+
+=cut
 
 sub getModuleName {
     my ($class,$name,$data) = @_;
