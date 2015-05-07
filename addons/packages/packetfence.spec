@@ -263,9 +263,9 @@ Requires: wmi, perl(Net::WMIClient)
 # for dashboard
 Requires: Django14, python-django-tagging
 Requires: MySQL-python
-Requires: python-carbon
+Requires: python-carbon, python-whisper
 Requires: graphite-web
-Requires: collectd, collectd-mysql, libcollectdclient, collectd-apache
+Requires: collectd >= 5.0, collectd-mysql, libcollectdclient, collectd-apache
 Requires: radsniff
 Requires: node
 
