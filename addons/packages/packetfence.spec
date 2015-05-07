@@ -261,7 +261,7 @@ Requires: iproute, vconfig
 Requires: wmi, perl(Net::WMIClient)
 
 # for dashboard
-Requires: Django14, python-django-tagging
+Requires: Django14, python-django-tagging, pyparsing
 Requires: MySQL-python
 Requires: python-carbon, python-whisper
 Requires: graphite-web
