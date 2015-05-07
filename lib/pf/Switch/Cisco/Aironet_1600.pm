@@ -20,7 +20,6 @@ use Net::SNMP;
 
 use pf::config;
 use pf::Switch::constants;
-use pf::util;
 use pf::util qw(format_mac_as_cisco);
 use pf::util::radius qw(perform_coa perform_disconnect);
 
@@ -73,7 +72,6 @@ sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    $logger->warn($mac);
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
