@@ -22,11 +22,15 @@ use pf::log;
 
 =head2 uri
 
+The uri of the inverse pki service
+
 =cut
 
 has uri => ( is => 'rw' );
 
 =head2 username
+
+The username to connect to the inverse pki service
 
 =cut
 
@@ -34,11 +38,15 @@ has username => ( is => 'rw' );
 
 =head2 password
 
+The password to connect to the inverse pki service
+
 =cut
 
 has password => ( is => 'rw' );
 
 =head2 profile
+
+The profile to use for the inverse pki service
 
 =cut
 
@@ -46,11 +54,15 @@ has profile => ( is => 'rw' );
 
 =head2 country
 
+What country to use for the certificate
+
 =cut
 
 has country => ( is => 'rw' );
 
 =head2 state
+
+What state to use for the certificate
 
 =cut
 
@@ -58,11 +70,15 @@ has state => ( is => 'rw' );
 
 =head2 organisation
 
+What organisation to use for the certificate
+
 =cut
 
 has organisation => ( is => 'rw' );
 
 =head2 get_cert
+
+Get the certificate from the inverse pki service
 
 =cut
 
