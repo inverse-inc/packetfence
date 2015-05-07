@@ -230,7 +230,8 @@ sub schema {
 
 
     # add graphite schema
-    $db = quotemeta ("${db}_graphite");
+    $db = "${db}_graphite";
+    $db = quotemeta ($db);
     $mysql_cmd = "/usr/bin/mysql -u $root_user -p$root_password $db";
     $cmd = "$mysql_cmd < $install_dir/db/pf_graphite-schema.sql";
     eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ])) };
