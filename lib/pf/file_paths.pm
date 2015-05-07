@@ -85,7 +85,7 @@ BEGIN {
         $floating_devices_config_file
         $dhcp_fingerprints_file $dhcp_fingerprints_url
         $oui_file $oui_url
-        $profiles_config_file %Profiles_Config 
+        $profiles_config_file %Profiles_Config
         $switches_config_file $violations_config_file $authentication_config_file
         $chi_config_file $ui_config_file $floating_devices_file $log_config_file
         @stored_config_files @log_files
@@ -173,7 +173,7 @@ $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
   httpd.proxy.reverse.access httpd.proxy.reverse.error
   httpd.webservices.access httpd.webservices.error
   packetfence.log pfbandwidthd.log pfdetect.log
-  pfdhcplistener.log pfdns.log pfmon.log 
+  pfdhcplistener.log pfdns.log pfmon.log pfconfig.log
 );
 
 @stored_config_files = (
