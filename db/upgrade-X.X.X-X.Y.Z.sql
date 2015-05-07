@@ -3,7 +3,7 @@
 --
 
 --
--- Setting the major/minor/patch version of the DB
+-- Setting the major/minor/sub-minor version of the DB
 --
 
 SET @MAJOR_VERSION = 5;

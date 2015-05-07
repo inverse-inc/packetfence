@@ -1086,7 +1086,7 @@ sub apache_filter_rules {
 
 =item db_check_version
 
-Make sure the database matches the current version of packetfence
+Make sure the database schema matches the current version of PacketFence
 
 =cut
 
@@ -1094,7 +1094,7 @@ sub db_check_version {
     unless(pf::version::version_check_db()) {
         my $version = pf::version::version_get_current;
         my $db_version = pf::version::version_get_last_db_version;
-        add_problem ( $FATAL, "The PacketFence database version '$db_version' does not match the current installed version '$version'\nPlease refer to the UPGRADE guide on how to complete an upgrade of PacketFence\n" );
+        add_problem ( $FATAL, "The PacketFence database schema version '$db_version' does not match the current installed version '$version'\nPlease refer to the UPGRADE guide on how to complete an upgrade of PacketFence\n" );
     }
 }
 
