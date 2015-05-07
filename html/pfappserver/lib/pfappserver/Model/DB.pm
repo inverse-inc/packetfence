@@ -68,7 +68,8 @@ sub assign {
     $status_msg = ["Successfully created the user [_1] on database [_2]",$user,$db];
 
     # Create pf_graphite database
-    $db = $dbHandler->quote_identifier("${db}_graphite");
+    $db = "${db}_graphite";
+    $db = $dbHandler->quote_identifier($db);
     foreach my $host ("'%'","localhost") {
         my $sql_query = "GRANT ALL PRIVILEGES ON $db.* TO ?\@${host} IDENTIFIED BY ?";
         $dbHandler->do($sql_query, undef, $user, $password);
