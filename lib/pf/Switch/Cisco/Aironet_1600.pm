@@ -30,6 +30,12 @@ use base ('pf::Switch::Cisco::Catalyst_2960');
 
 sub description { 'Cisco Aironet 1600' }
 
+=head2 deauthTechniques
+
+Specifices the type of deauth
+
+=cut
+
 sub deauthTechniques {
     my ($this, $method) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
