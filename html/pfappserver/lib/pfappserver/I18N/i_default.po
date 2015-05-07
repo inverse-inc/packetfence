@@ -321,6 +321,10 @@ msgstr ""
 msgid "Add floating device"
 msgstr ""
 
+# html/pfappserver/root/config/pki_provider/index.tt
+msgid "Add pki_provider entry"
+msgstr ""
+
 # html/pfappserver/root/config/profile/index.tt
 msgid "Add profile"
 msgstr ""
@@ -652,6 +656,7 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/user_agent/index.tt
 # html/pfappserver/root/config/firewall_sso/index.tt
 # html/pfappserver/root/config/floatingdevice/index.tt
+# html/pfappserver/root/config/pki_provider/index.tt
 # html/pfappserver/root/config/profile/files.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/provisioning/index.tt
@@ -685,10 +690,6 @@ msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Captive portal"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
-msgid "Certificate of Authority path"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
@@ -750,6 +751,7 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/user_agent/list.tt
 # html/pfappserver/root/config/firewall_sso/list.tt
 # html/pfappserver/root/config/floatingdevice/list.tt
+# html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/realm/list.tt
 # html/pfappserver/root/config/scan/list.tt
@@ -775,6 +777,7 @@ msgstr ""
 # html/pfappserver/root/config/firewall_sso/view.tt
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/config/realm/view.tt
 # html/pfappserver/root/config/scan/view.tt
@@ -987,10 +990,6 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Copy File"
-msgstr ""
-
-# conf/documentation.conf (pki.country)
-msgid "Country that will appear in the certificate (2letters code)"
 msgstr ""
 
 # html/pfappserver/root/config/wrix/search_form.tt
@@ -1301,6 +1300,8 @@ msgstr ""
 # html/pfappserver/root/config/floatingdevice/index.tt
 # html/pfappserver/root/config/floatingdevice/list.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/config/pki_provider/index.tt
+# html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/profile/files.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/provisioning/index.tt
@@ -1367,6 +1368,10 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
 msgid "Delete MAC Vendor"
+msgstr ""
+
+# html/pfappserver/root/config/pki_provider/index.tt
+msgid "Delete PKI_Provider entry"
 msgstr ""
 
 # html/pfappserver/root/config/profile/index.tt
@@ -1444,6 +1449,7 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
 # html/pfappserver/root/config/fingerbank/user_agent/list.tt
+# html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/node/violations.tt
@@ -1719,7 +1725,7 @@ msgid "Example"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
-msgid "Example : if your dns name is www.packetfence.org it become org.packetfence.www"
+msgid "Example : if your dns name is www.packetfence.org it becomes org.packetfence.www"
 msgstr ""
 
 # html/pfappserver/root/config/authentication.tt
@@ -2651,10 +2657,6 @@ msgstr ""
 msgid "Name of the mysql database used by PacketFence."
 msgstr ""
 
-# conf/documentation.conf (pki.organisation)
-msgid "Name of the organisation that will appear on the certificate"
-msgstr ""
-
 # conf/documentation.conf (scan.nessus_clientpolicy)
 msgid "Name of the policy inside the NessusClient file"
 msgstr ""
@@ -2764,6 +2766,10 @@ msgstr ""
 msgid "New Nodes"
 msgstr ""
 
+# html/pfappserver/root/config/pki_provider/view.tt
+msgid "New PKI_Provider Entry"
+msgstr ""
+
 # html/pfappserver/root/configurator/database.tt
 msgid "New Password"
 msgstr ""
@@ -2845,6 +2851,10 @@ msgstr ""
 # html/pfappserver/root/node/search.tt
 # html/pfappserver/root/node/simple_search.tt
 msgid "No node found"
+msgstr ""
+
+# html/pfappserver/root/config/pki_provider/list.tt
+msgid "No pki_provider defined"
 msgstr ""
 
 # html/pfappserver/root/config/profile/tab-content.tt
@@ -3074,8 +3084,53 @@ msgstr ""
 msgid "PID"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+msgid "PKI Provider"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "PKI Provider Name"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "PKI provider type is required."
+msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "PKI_PROVIDER"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "PKI_PROVIDER_CREATE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "PKI_PROVIDER_DELETE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "PKI_PROVIDER_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "PKI_PROVIDER_UPDATE"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
-msgid "PKI"
+# html/pfappserver/root/config/pki_provider/index.tt
+msgid "PKI_Provider Entries"
+msgstr ""
+
+# html/pfappserver/root/config/pki_provider/view.tt
+msgid "PKI_Provider Entry"
+msgstr ""
+
+# html/pfappserver/root/config/pki_provider/list.tt
+msgid "PKI_Provider Name"
+msgstr ""
+
+# html/pfappserver/root/config/pki_provider/index.tt
+msgid "PKI_Provider of how to add configuration file in httpd.admin."
 msgstr ""
 
 # pf::admin_roles (Actions groups)
@@ -3158,10 +3213,6 @@ msgstr ""
 
 # conf/documentation.conf (database.pass)
 msgid "Password for the mysql database used by PacketFence."
-msgstr ""
-
-# conf/documentation.conf (pki.password)
-msgid "Password to connect to the pki api"
 msgstr ""
 
 # conf/documentation.conf (scan.pass)
@@ -3348,6 +3399,10 @@ msgstr ""
 msgid "Please specify the maximum DHCP lease time."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "Please specify the name of the PKI provider"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "Please specify the name of the admin role."
 msgstr ""
@@ -3530,10 +3585,6 @@ msgstr ""
 msgid "Profile Name"
 msgstr ""
 
-# conf/documentation.conf (pki.profile)
-msgid "Profile from the pki for eap-tls clients"
-msgstr ""
-
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Provisioners"
@@ -3655,6 +3706,10 @@ msgstr ""
 
 # html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Really delete this floating device?"
+msgstr ""
+
+# html/pfappserver/root/config/pki_provider/index.tt
+msgid "Really delete this pki_provider entry?"
 msgstr ""
 
 # html/pfappserver/root/config/profile/index.tt
@@ -3919,10 +3974,6 @@ msgstr ""
 msgid "Role mapping by switch role"
 msgstr ""
 
-# conf/documentation.conf (pki.role)
-msgid "Role on which we should provide the tls-enrolment"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
@@ -4093,6 +4144,7 @@ msgstr "Switches - Update"
 # html/pfappserver/root/config/firewall_sso/view.tt
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/edit.tt
 # html/pfappserver/root/config/profile/view.tt
@@ -4150,6 +4202,7 @@ msgstr ""
 # html/pfappserver/root/config/firewall_sso/view.tt
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/config/realm/view.tt
 # html/pfappserver/root/config/scan/view.tt
@@ -4569,10 +4622,6 @@ msgstr ""
 msgid "Starting IP Address"
 msgstr ""
 
-# conf/documentation.conf (pki.state)
-msgid "State that will appear in the certificate (2letters code)"
-msgstr ""
-
 # html/pfappserver/root/admin/configuration.tt
 msgid "Statement of Health"
 msgstr ""
@@ -4734,8 +4783,16 @@ msgstr ""
 msgid "The authentication source was not found."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "The base64 Certificate of Authority"
+msgstr ""
+
 # conf/documentation.conf (registration.button_text)
 msgid "The button text will appear on the registration page submit button"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "The contents of the Certificate of Authority in base64"
 msgstr ""
 
 # conf/documentation.conf (advanced.hash_passwords)
@@ -5276,10 +5333,6 @@ msgstr ""
 msgid "Username of the account with access to the mysql database used by PacketFence."
 msgstr ""
 
-# conf/documentation.conf (pki.username)
-msgid "Username to connect to the pki api"
-msgstr ""
-
 # conf/documentation.conf (scan.user)
 msgid "Username to log into scanning engine with."
 msgstr ""
@@ -5589,10 +5642,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Workgroup"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
-msgid "Write the absolute path of your CA"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
@@ -6927,42 +6976,6 @@ msgstr ""
 msgid "plaintext"
 msgstr ""
 
-# conf/documentation.conf
-msgid "pki"
-msgstr "PKI"
-
-# conf/documentation.conf
-msgid "pki.country"
-msgstr "Country"
-
-# conf/documentation.conf
-msgid "pki.organisation"
-msgstr "Organisation"
-
-# conf/documentation.conf
-msgid "pki.password"
-msgstr "Password"
-
-# conf/documentation.conf
-msgid "pki.profile"
-msgstr "Profile"
-
-# conf/documentation.conf
-msgid "pki.role"
-msgstr "Role"
-
-# conf/documentation.conf
-msgid "pki.state"
-msgstr "State"
-
-# conf/documentation.conf
-msgid "pki.uri"
-msgstr "URI"
-
-# conf/documentation.conf
-msgid "pki.username"
-msgstr "Username"
-
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
 msgid "port"
@@ -7549,10 +7562,6 @@ msgstr "Upstream URL"
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.submit_url"
 msgstr "Upstream Submit URL"
-
-# conf/documentation.conf (pki.uri)
-msgid "uri to contact the pki"
-msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
