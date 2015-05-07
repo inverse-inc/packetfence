@@ -21,9 +21,7 @@ use Net::SNMP;
 use pf::config;
 use pf::Switch::constants;
 use pf::util;
-use pf::accounting qw(node_accounting_current_sessionid);
 use pf::util qw(format_mac_as_cisco);
-use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
 
 use base ('pf::Switch::Cisco::Aironet');
@@ -62,7 +60,6 @@ sub deauthenticateMacRadius {
     $mac = format_mac_as_cisco($mac);
 
     # perform CoA
-    my $acctsessionid = node_accounting_current_sessionid($mac);
     $this->radiusDisconnect($mac);
 }
 
@@ -112,11 +109,6 @@ sub radiusDisconnect {
         $logger->debug("[$mac] network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
-
-        my $node_info = node_attributes($mac);
-        # transforming MAC to the expected format 00-11-22-33-CA-FE
-        $mac = uc($mac);
-        $mac =~ s/:/-/g;
 
         # Standard Attributes
         my $attributes_ref = {
