@@ -26,7 +26,7 @@ use pf::util qw(format_mac_as_cisco);
 use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
 
-use base ('pf::Switch::Cisco');
+use base ('pf::Switch::Cisco::Catalyst_2960');
 
 sub description { 'Cisco Aironet 1600' }
 
@@ -60,85 +60,7 @@ sub deauthenticateMacRadius {
     $this->radiusDisconnect($mac);
 }
 
-=head2 radiusDisconnect
 
-Send a CoA to disconnect a mac
-
-=cut
-
-sub radiusDisconnect {
-    my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
-
-    $logger->warn($mac);
-    # initialize
-    $add_attributes_ref = {} if (!defined($add_attributes_ref));
-
-    if (!defined($self->{'_radiusSecret'})) {
-        $logger->warn(
-            "[$mac] Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
-        );
-        return;
-    }
-
-    $logger->info("[$mac] deauthenticating");
-
-    # Where should we send the RADIUS CoA-Request?
-    # to network device by default
-    my $send_disconnect_to = $self->{'_ip'};
-    # but if controllerIp is set, we send there
-    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
-        $logger->info("[$mac] controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
-        $send_disconnect_to = $self->{'_controllerIp'};
-    }
-    # allowing client code to override where we connect with NAS-IP-Address
-    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
-        if (defined($add_attributes_ref->{'NAS-IP-Address'}));
-
-    my $response;
-    try {
-        my $connection_info = {
-            nas_ip => $send_disconnect_to,
-            secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
-        };
-
-        $logger->debug("[$mac] network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
-        my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $self);
-
-        my $node_info = node_attributes($mac);
-        # transforming MAC to the expected format 00-11-22-33-CA-FE
-        $mac = uc($mac);
-        $mac =~ s/:/-/g;
-
-        # Standard Attributes
-        my $attributes_ref = {
-            'Calling-Station-Id' => $mac,
-            'NAS-IP-Address' => $send_disconnect_to,
-        };
-
-        # merging additional attributes provided by caller to the standard attributes
-        $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
-
-        $response = perform_coa($connection_info, $attributes_ref, [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=reauthenticate' }]);
-
-    } #catch {
-      #  chomp;
-      #  $logger->warn("[$mac] Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
-      #  $logger->error("[$mac] Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")...") if ($_ =~ /^Timeout/);
-    #};
-    return if (!defined($response));
-
-    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
-
-    $logger->warn(
-        "Unable to perform RADIUS Disconnect-Request on (".$self->{'_id'}.")."
-        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
-        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
-    );
-    return;
-}
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
