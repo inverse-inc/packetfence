@@ -239,8 +239,8 @@ sub returnRadiusAccessAccept {
     try {
 
         $logger->debug("[$mac] network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
-        my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $self);
+        my $role = $self->getRoleByName($user_role);
+
 
         # Roles are configured and the user should have one
         if (defined($role)) {
