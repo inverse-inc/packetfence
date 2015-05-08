@@ -13,13 +13,18 @@ __PACKAGE__->config(
 );
 
 after process => sub {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
     my $headers = $c->response->headers;
     my $filename = $c->stash->{filename} || 'wireless-profile.mobileconfig';
     $headers->content_type('application/x-apple-aspen-config; chatset=utf-8');
-    $headers->header( 'Content-Disposition', "attachment; filename=\"$filename\"" );
+    $headers->header('Content-Disposition', "attachment; filename=\"$filename\"");
+    $provisioner = $c->stash->{provisioner};
+    if ($provisioner->can_sign_profile) {
+        $c->response->body($provisioner->sign_profile($c->response->body));
+    }
+
     #Logging the content body
-    $c->log->trace(sub { $c->response->body });
+    $c->log->trace(sub {$c->response->body});
 };
 
 =head1 NAME
