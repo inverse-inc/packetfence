@@ -73,14 +73,33 @@ has_field 'reversedns' =>
 has_field 'ca_cert' =>
   (
    type => 'TextArea',
+   element_class => ['input-xxlarge'],
    label => 'The base64 Certificate of Authority',
    tags => { after_element => \&help,
              help => 'The contents of the Certificate of Authority in base64'},
   );
 
+has_field 'certificate' =>
+  (
+   type => 'TextArea',
+   label => 'The certificate for signing profiles',
+   element_class => ['input-xxlarge'],
+   tags => { after_element => \&help,
+             help => 'The contents of the certificate for signing in base64'},
+  );
+
+has_field 'private_key' =>
+  (
+   type => 'TextArea',
+   element_class => ['input-xxlarge'],
+   label => 'The private key for signing profiles',
+   tags => { after_element => \&help,
+             help => 'The contents of the private key for signing in base64'},
+  );
+
 has_block definition =>
   (
-   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode ca_cert pki_provider) ],
+   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode private_key ca_cert pki_provider certificate ) ],
   );
 
 sub options_eap_type {
