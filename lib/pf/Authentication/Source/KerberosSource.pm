@@ -21,7 +21,6 @@ has '+type' => ( default => 'Kerberos' );
 has 'host' => (isa => 'Str', is => 'rw', required => 1);
 has 'realm' => (isa => 'Str', is => 'rw', required => 1);
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
-has 'use_mandatory_fields' => (isa => 'Str', is => 'rw', default => 'no');
 
 sub available_attributes {
   my $self = shift;

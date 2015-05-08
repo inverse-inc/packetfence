@@ -1,2 +1,1 @@
 [% form.field('email_required').render %]
-[% form.field('use_mandatory_fields').render %]

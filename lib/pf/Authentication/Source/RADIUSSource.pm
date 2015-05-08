@@ -21,7 +21,6 @@ has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
-has 'use_mandatory_fields' => (isa => 'Str', is => 'rw', default => 'no');
 
 sub available_attributes {
   my $self = shift;

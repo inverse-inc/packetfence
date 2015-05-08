@@ -114,18 +114,6 @@ has_field 'cache_match',
              help => 'Will cache results of matching a rule' },
   );
 
-has_field 'use_mandatory_fields' => (
-    type => 'Toggle',
-    checkbox_value => 'yes',
-    unchecked_value => 'no',
-    label => 'Use mandatory fields',
-    default => pf::Authentication::Source::LDAPSource->meta->get_attribute('use_mandatory_fields')->default,
-    tags => {
-        after_element => \&help,
-        help => 'If enabled then the mandatory fields defined on the portal profile will be mandatory.',
-    },
-);
-
 =head2 validate
 
 Make sure a password is specified when a bind DN is specified.
