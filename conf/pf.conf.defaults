@@ -1121,10 +1121,6 @@ graphite_host=localhost
 graphite_port=2013
 
 #
-# monitoring.db_pass
-#
-db_pass=pf
-#
 # monitoring.db_port
 #
 db_port=3306
