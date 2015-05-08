@@ -230,56 +230,37 @@ assigning VLANs and Roles at the same time.
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
 
     my $radius_reply_ref = {};
 
-    # TODO this is experimental
-    try {
+    $logger->debug("[$mac] Network device (".$this->{'_id'}.") supports roles. Evaluating role to be returned.");
+    my $role = $this->getRoleByName($user_role);
 
-        $logger->debug("[$mac] network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
-        my $role = $self->getRoleByName($user_role);
+    # Roles are configured and the user should have one
+    if (defined($role)  && isenabled($this->{_RoleMap})) {
+        $radius_reply_ref = {
+            'Tunnel-Medium-Type' => $RADIUS::IP,
+            'Tunnel-Type' => $RADIUS::GRE,
+            'Tunnel-Private-Group-ID' => $role,
+        };
 
-
-        # Roles are configured and the user should have one
-        if (defined($role)) {
-
-            $radius_reply_ref = {
-                'Tunnel-Medium-Type' => $RADIUS::IP,
-                'Tunnel-Type' => $RADIUS::GRE,
-                'Tunnel-Private-Group-ID' => $role,
-            };
-
-            $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with Role: $role");
-        }
-
-        # if Roles aren't configured, return VLAN information
-        else {
-
-            $radius_reply_ref = {
-                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-                'Tunnel-Type' => $RADIUS::VLAN,
-                'Tunnel-Private-Group-ID' => $vlan,
-            };
-
-            $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN: $vlan");
-        }
+        $logger->info("[$mac] (".$this->{'_id'}.") Returning ACCEPT with Role: $role");
 
     }
-    catch {
-        chomp($_);
-        $logger->debug(
-            "Exception when trying to resolve a Role for the node. Returning VLAN attributes in RADIUS Access-Accept. "
-            . "Exception: $_"
-        );
 
+    # if Roles aren't configured, return VLAN information
+    if (isenabled($this->{_VlanMap})) {
         $radius_reply_ref = {
+             %$radius_reply_ref,
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,
             'Tunnel-Private-Group-ID' => $vlan,
         };
-    };
+
+        $logger->info("[$mac] Returning ACCEPT with VLAN: $vlan");
+    }
 
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
