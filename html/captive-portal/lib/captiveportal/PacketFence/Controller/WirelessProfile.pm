@@ -37,8 +37,9 @@ sub index : Path : Args(0) {
     my $logger = $c->log;
     my $provisioner = $c->profile->findProvisioner($mac);
     $provisioner->authorize($mac) if (defined($provisioner));
+    my $profile_template = $c->stash->{profile_template} // 'wireless-profile.xml';
     $c->stash(
-        template     => 'wireless-profile.xml',
+        template     => $profile_template,
         current_view => 'MobileConfig',
         provisioner  => $provisioner,
         username     => $username,
@@ -53,55 +54,13 @@ sub index : Path : Args(0) {
         cadata       => $pki_session->{cadata},
         passwcode    => $provisioner->{passcode},
     );
-    if ($provisioner->{type} eq 'mobileconfig'){
-        $c->forward('sign_profile');
-    }
-}
-
-=head2 sign_profile
-
-Signe the profile to be trusted on IOS / MacOSX
-
-=cut
-
-sub sign_profile : Private {
-    my ( $self, $c ) = @_;
-
-    my $TT_OPTIONS = {ABSOLUTE => 1};
-    my $template = Template->new($TT_OPTIONS);
-
-    my $filename = $c->forward('get_temp_filename');
-    my $filename_signed = "$filename-signed";
-    my $logger = $c->log;
-
-    my $original_template = "/usr/local/pf/html/captive-portal/profile-templates/eaptls/wireless-profile.xml";
-    use Data::Dumper;
-    $logger->info("OMG MY FILE". Dumper($original_template));
-    $template->process($original_template, #$c->config->{install_dir}."html/captive-portal/profile-templates/eaptls/wireless-profile.xml", 
-                       $c->stash(), $filename) || $logger->error("Can't generate eaptls configuration : ".$template->error);
-
-    my $cmd = "bash ".$c->config->{install_dir}."addons/sign.sh $filename $filename_signed";
-    my $result = `$cmd`;
-    
-    my $signed_profile = read_file( "$filename_signed" );
-
-    $c->response->body($signed_profile);
-
-    #$result = `rm -f $filename`;
-    #$result = `rm -f $filename_signed`;
-
-    my $headers = $c->response->headers;
-    $headers->content_type('application/x-apple-aspen-config; chatset=utf-8');
-    $headers->header( 'Content-Disposition',
-        'attachment; filename="wireless-profile.mobileconfig"' );
-
 }
 
 sub profile_xml : Path('/profile.xml') : Args(0) {
     my ( $self, $c ) = @_;
     $c->stash->{filename} = 'profile.xml';
     $c->forward('index');
-}  
+}
 
 =head2 get_tmp_filename
 
