@@ -579,7 +579,7 @@ haproxy_binary=/usr/sbin/haproxy
 # services.httpd_binary
 #
 # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
-httpd_binary=/usr/sbin/httpd
+httpd_binary=/usr/sbin/apache2
 #
 # services.dhcpd_binary
 #
@@ -594,12 +594,12 @@ snmptrapd_binary=/usr/sbin/snmptrapd
 # services.radiusd_binary
 # 
 # Location of the named binary. Only necessary to change if you are not running the RPMed version.
-radiusd_binary=/usr/sbin/radiusd
+radiusd_binary=/usr/sbin/freeradius
 # 
 # services.arp_binary
 # 
 # location of the arp binary. only necessary to change if you are not running the rpmed version.
-arp_binary=/sbin/arp
+arp_binary=/usr/sbin/arp
 # 
 # services.carbon-cache_binary
 # 
@@ -614,7 +614,7 @@ carbon-relay_binary=/usr/bin/carbon-relay
 # services.statsd_binary
 # 
 # Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
-statsd_binary=/usr/bin/node
+statsd_binary=/usr/bin/nodejs
 # 
 # services.collectd_binary
 # 
