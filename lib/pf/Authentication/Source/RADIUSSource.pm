@@ -64,11 +64,22 @@ sub authenticate {
    return ($FALSE, 'Unable to authenticate successfully using RADIUS.');
  }
 
+=head2 match_in_subclass
+
+=cut
+
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-
     $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
-    return $params->{'username'};
+    my $username =  $params->{'username'};
+    foreach my $condition (@{ $own_conditions }) {
+        if ($condition->{'attribute'} eq "username") {
+            if ( $condition->matches("username", $username) ) {
+                push(@{ $matching_conditions }, $condition);
+            }
+        }
+    }
+    return $username;
 }
 
 =head1 AUTHOR
