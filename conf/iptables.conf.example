@@ -30,7 +30,8 @@
 # GRAPHITE-WEB
 -A input-management-if --protocol tcp --match tcp --dport 9000 --jump ACCEPT
 # CARBON_CACHE
--A input-management-if --protocol tcp --match tcp --dport 2003 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 2004 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 7002 --jump ACCEPT
 
 # RADIUS
 -A input-management-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
