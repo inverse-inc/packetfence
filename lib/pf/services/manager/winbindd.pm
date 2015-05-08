@@ -150,6 +150,12 @@ sub managers {
     return @{$self->winbinddManagers};
 }
 
+sub isManaged {
+    my ($self) = @_;
+    return $TRUE if (keys %ConfigDomain);
+    return $FALSE;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
