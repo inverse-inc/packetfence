@@ -846,7 +846,6 @@ sub node_modify {
 sub node_register {
     my ( $mac, $pid, %info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $pf::StatsD::statsd->increment( called() . ".called" );
     $mac = lc($mac);
     my $auto_registered = 0;
 
@@ -902,6 +901,7 @@ sub node_register {
         $logger->error("modify of node $mac failed");
         return (0);
     }
+    $pf::StatsD::statsd->increment( called() . ".called" );
 
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
     my $scan = $profile->findScan($mac,\%info);
