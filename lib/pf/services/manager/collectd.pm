@@ -19,10 +19,11 @@ use pf::file_paths;
 use pf::util;
 use pf::config;
 use Moo;
+use Sys::Hostname;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub {'collectd'} );
+has '+name'     => ( default => sub {'collectd'} );
 has '+optional' => ( default => sub {1} );
 has dependsOnServices => ( is => 'ro', default => sub { [qw(carbon-relay)] } );
 
@@ -39,16 +40,16 @@ sub generateConfig {
 
 sub generateCollectd {
     my %tags;
-    $tags{'template'}      = "$conf_dir/monitoring/collectd.conf";
-    $tags{'install_dir'}   = "$install_dir";
-    $tags{'log_dir'}       = "$log_dir";
-    $tags{'management_ip'} =
-      defined( $management_network->tag('vip') )
-      ? $management_network->tag('vip')
-      : $management_network->tag('ip');
+    $tags{'template'}    = "$conf_dir/monitoring/collectd.conf";
+    $tags{'install_dir'} = "$install_dir";
+    $tags{'log_dir'}     = "$log_dir";
+    $tags{'management_ip'}
+        = defined( $management_network->tag('vip') )
+        ? $management_network->tag('vip')
+        : $management_network->tag('ip');
     $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
     $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
-    $tags{'hostname'}      = "$Config{'general'}{'hostname'}" . "." . "$Config{'general'}{'domain'}";
+    $tags{'hostname'}      = hostname;
     $tags{'db_host'}       = "$Config{'database'}{'host'}";
     $tags{'db_username'}   = "$Config{'database'}{'user'}";
     $tags{'db_password'}   = "$Config{'database'}{'pass'}";

@@ -355,8 +355,8 @@ sub dashboard :Local :AdminRole('REPORTS') {
     $graphs = [
                {
                 'description' => 'Core Metrics',
-                'target' => 'group(alias(scaleToSeconds(stats.counters.*.pf_node_node_register.called.count,1),"End-Points registered"),
-                                   alias(scaleToSeconds(stats.counters.*.pf_node_node_deregister.called.count,1),"End-Points unregistered"))',
+                'target' => 'group(alias(scaleToSeconds(stats.counters.*.pf__node__node_register.called.count,1),"End-Points registered"),
+                                   alias(scaleToSeconds(stats.counters.*.pf__node__node_deregister.called.count,1),"End-Points unregistered"))',
                 'columns' => 2
                },
                {
@@ -391,19 +391,19 @@ sub dashboard :Local :AdminRole('REPORTS') {
                {
                 'description' => 'Authorize calls/s',
                 'vtitle' => 'requests',
-                'target' => 'aliasByNode(scaleToSeconds(stats.timers.*.freeradius_main_authorize.timing.count,1),2)',
+                'target' => 'aliasByNode(scaleToSeconds(stats.timers.*.freeradius__main__authorize.timing.count,1),2)',
                 'columns' => 1
                },
                {
                 'description' => 'Webservices calls/s',
                 'vtitle' => 'requests',
-                'target' => 'aliasByNode(scaleToSeconds(stats.timers.*.freeradius_main_post_auth.timing.count,1),2)',
+                'target' => 'aliasByNode(scaleToSeconds(stats.timers.*.freeradius__main__post_auth.timing.count,1),2)',
                 'columns' => 1
                },
                {
                 'description' => 'Webservices call timing',
                 'vtitle' => 'ms',
-                'target' => 'aliasByNode(stats.timers.*.freeradius_main_post_auth.timing.mean_90,2)',
+                'target' => 'aliasByNode(stats.timers.*.freeradius__main__post_auth.timing.mean_90,2)',
                 'columns' => 1
                },
                {
