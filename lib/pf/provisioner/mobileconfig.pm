@@ -13,6 +13,9 @@ pf::provisioner::mobileconfig
 
 use strict;
 use warnings;
+
+use Crypt::SMIME;
+
 use Moo;
 extends 'pf::provisioner';
 
@@ -84,11 +87,35 @@ has reversedns => (is => 'rw');
 
 =head2 ca_cert
 
-The CA path
+The CA certificate in PEM format
 
 =cut
 
 has ca_cert => (is => 'rw');
+
+=head2 certificate
+
+The certificate for signing in PEM format
+
+=cut
+
+has certificate => (is => 'rw');
+
+=head2 private_key
+
+The private key for signing in PEM format
+
+=cut
+
+has private_key => (is => 'rw');
+
+=head2 can_sign_profile
+
+Enabled or disables the signing of the profile
+
+=cut
+
+has can_sign_profile => (is => 'rw', default => sub { 0 } );
 
 =head1 METHODS
 
@@ -103,6 +130,20 @@ sub authorize {
     my $info = pf::node::node_view($mac);
     $self->for_username($info->{pid});
     return 1;
+}
+
+
+=head2 sign_profile
+
+Sign the profile with private key and cert
+
+=cut
+
+sub sign_profile {
+    my ($self, $content) = @_;
+    my $smime = Crypt::SMIME->new();
+    $smime->setPrivateKey($self->private_key, $self->certificate);
+    return $smime->signonly_attached($content);
 }
 
 =head1 AUTHOR
