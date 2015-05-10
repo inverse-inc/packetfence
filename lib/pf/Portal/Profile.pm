@@ -188,33 +188,54 @@ sub getSources {
 
 =item getMandatoryFields
 
-Returns the mandatory fields for the profile
+Returns the mandatory fields for the profile depending on the authentication sources configured
 
 =cut
 
 sub getMandatoryFields {
-    my ($self, $use_mandatory_fields) = @_;
+    my ( $self ) = @_;
 
-    my $mandatory_fields = $self->{'_mandatory_fields'};
-    if (defined($use_mandatory_fields) && isdisabled($use_mandatory_fields)) {
-        $mandatory_fields = [];
-    }
-    if ($self->getSourceByType('email')) {
-        unshift (@$mandatory_fields, "email") if !('email' ~~ @$mandatory_fields);
-    }
-    if ($self->getSourceByType('sms')) {
-        unshift (@$mandatory_fields, "email") if !('email' ~~ @$mandatory_fields);
-        unshift (@$mandatory_fields, "phone") if !('phone' ~~ @$mandatory_fields);
-        unshift (@$mandatory_fields, "mobileprovider") if !('mobileprovider' ~~ @$mandatory_fields);
-    }
-    if ($self->getSourceByType('sponsoremail')) {
-        unshift (@$mandatory_fields, "email") if !('email' ~~ @$mandatory_fields);
-        unshift (@$mandatory_fields, "sponsor_email") if !('sponsor_email' ~~ @$mandatory_fields);
-    }
-    return $mandatory_fields;
+    my %mandatory_fields = ();
+
+    # Email self-registration requires some mandatory fields
+    $mandatory_fields{'email'} = [ 'email' ] if $self->getSourceByType('email');
+
+    # SMS self-registration requires some mandatory fields
+    $mandatory_fields{'sms'} = [ 'email', 'phone', 'mobileprovider' ] if $self->getSourceByType('sms');
+
+    # Sponsor email self-registration requires some mandatory fields
+    $mandatory_fields{'sponsoremail'} = [ 'email', 'sponsor_email' ] if $self->getSourceByType('sponsoremail');
+
+    return \%mandatory_fields;
 }
 
 *mandatoryFields = \&getMandatoryFields;
+
+=item getCustomFields
+
+Returns the custom fields configured on the portal profile
+
+=cut
+
+sub getCustomFields {
+    my ( $self ) = @_;
+    return $self->{'_mandatory_fields'};
+}
+
+*customFields = \&getCustomFields;
+
+=item getCustomFieldsSources
+
+Returns which authentication sources are configured to use custom fields.
+
+=cut
+
+sub getCustomFieldsSources {
+    my ( $self ) = @_;
+    return $self->{'_custom_fields_authentication_sources'};
+}
+
+*customFieldsSources = \&getCustomFieldsSources;
 
 sub getProvisioners {
     my ($self) = @_;
