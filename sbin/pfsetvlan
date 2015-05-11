@@ -1698,7 +1698,7 @@ sub handleTrap {
 
         # }}}2
     } elsif ( $trapType eq 'roaming' ) {
-        locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $trapIfIndex, $trapVlan, $trapMac, $NO_VOIP, $trapConnectionType, $trapClientUserName, $trapSSID );
+        locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $trapIfIndex, $trapVlan, $trapMac, $NO_VOIP, $trapConnectionType, undef, $trapClientUserName, $trapSSID );
     }
 
     # cleanupAfterThread {{{2

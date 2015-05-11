@@ -99,6 +99,7 @@ sub authorize {
     my $connection = pf::Connection->new;
     $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
     my $connection_type = $connection->attributesToBackwardCompatible;
+    my $connection_sub_type = $connection->subType;
 
     $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
 
@@ -178,12 +179,12 @@ sub authorize {
             $logger->error("[$mac] auto-registration of node failed");
         }
         $switch->synchronize_locationlog($port, undef, $mac, $isPhone ? $VOIP : $NO_VOIP,
-            $connection_type, $user_name, $ssid, $stripped_user_name, $realm);
+            $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm);
     }
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
     if ($isPhone) {
-        return $this->_authorizeVoip($connection_type, $switch, $mac, $port, $user_name, $ssid);
+        return $this->_authorizeVoip($connection_type, $connection_sub_type, $switch, $mac, $port, $user_name, $ssid);
     }
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
@@ -212,7 +213,7 @@ sub authorize {
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
     $switch->synchronize_locationlog($port, $vlan, $mac,
-        $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid, $stripped_user_name, $realm
+        $isPhone ? $VOIP : $NO_VOIP, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm
     ) if (!$wasInline);
 
     # does the switch support Dynamic VLAN Assignment, bypass if using Inline
@@ -343,6 +344,7 @@ sub update_locationlog_accounting {
         my $connection = pf::Connection->new;
         $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
         my $connection_type = $connection->attributesToBackwardCompatible;
+        my $connection_sub_type = $connection->subType;
         my $ssid;
         if (($connection_type & $WIRELESS) == $WIRELESS) {
             $ssid = $switch->extractSsid($radius_request);
@@ -350,7 +352,7 @@ sub update_locationlog_accounting {
         }
         my $vlan;
         $vlan = $radius_request->{'Tunnel-Private-Group-ID'} if ( (defined( $radius_request->{'Tunnel-Type'}) && $radius_request->{'Tunnel-Type'} eq '13') && (defined($radius_request->{'Tunnel-Medium-Type'}) && $radius_request->{'Tunnel-Medium-Type'} eq '6') );
-        $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $user_name, $ssid, $stripped_user_name, $realm);
+        $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm);
     }
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Update locationlog from accounting ok") ];
@@ -483,7 +485,7 @@ Returns the same structure as authorize(), see it's POD doc for details.
 =cut
 
 sub _authorizeVoip {
-    my ($this, $connection_type, $switch, $mac, $port, $user_name, $ssid) = @_;
+    my ($this, $connection_type, $connection_sub_type, $switch, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     my $start = Time::HiRes::gettimeofday();
 
@@ -498,7 +500,7 @@ sub _authorizeVoip {
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
         ];
     }
-    $switch->synchronize_locationlog($port, $switch->getVlanByName('voice'), $mac, $VOIP, $connection_type, $user_name, $ssid);
+    $switch->synchronize_locationlog($port, $switch->getVlanByName('voice'), $mac, $VOIP, $connection_type, $connection_sub_type, $user_name, $ssid);
 
     my %RAD_REPLY = $switch->getVoipVsa();
     $switch->disconnectRead();
