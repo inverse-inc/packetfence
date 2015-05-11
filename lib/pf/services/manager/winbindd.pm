@@ -68,16 +68,17 @@ sub build_namespaces(){
     my ($self) = @_;
 
     my $out = pf_run("sudo /sbin/ip netns list");
-    foreach my $net (split /\n/, $out) {
-        # untaint the variable
-        $net =~ m|([\w\-\/]*)|;
-        $net = $1;
-        my @args = ("sudo", "ip", "link", "delete", "$net-b");
-        system(@args);
-        @args = ("sudo", "ip", "netns", "delete", $net);
-        system(@args);
-
-    } 
+    if (defined $out) {
+        foreach my $net (split /\n/, $out) {
+            # untaint the variable
+            $net =~ m|([\w\-\/]*)|;
+            $net = $1;
+            my @args = ("sudo", "ip", "link", "delete", "$net-b");
+            system(@args);
+            @args = ("sudo", "ip", "netns", "delete", $net);
+            system(@args);
+        }
+    }
 
     my $i = 1;
 
