@@ -631,7 +631,8 @@ if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
 fi
 
 # dashboard symlinks and permissions
-ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.6/site-packages/graphite/local_settings.py
+# Probably useless
+#ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.6/site-packages/graphite/local_settings.py
 chmod g+w /var/lib/carbon
 chmod g+w /var/lib/graphite-web
 
@@ -898,10 +899,10 @@ fi
                         /usr/local/pf/conf/monitoring/collectd.conf.example
 %config(noreplace)      /usr/local/pf/conf/monitoring/dashboard.conf
                         /usr/local/pf/conf/monitoring/dashboard.conf.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/local_settings.py
-                        /usr/local/pf/conf/monitoring/local_settings.py.example
-%exclude                /usr/local/pf/conf/monitoring/local_settings.pyc
-%exclude                /usr/local/pf/conf/monitoring/local_settings.pyo
+%config(noreplace)      /usr/local/pf/conf/monitoring/local_settings.py.rhel
+                        /usr/local/pf/conf/monitoring/local_settings.py.rhel.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/local_settings.py.debian
+                        /usr/local/pf/conf/monitoring/local_settings.py.debian.example
 %config(noreplace)      /usr/local/pf/conf/monitoring/statsd_config.js
                         /usr/local/pf/conf/monitoring/statsd_config.js.example
 %config(noreplace)      /usr/local/pf/conf/monitoring/storage-schemas.conf
