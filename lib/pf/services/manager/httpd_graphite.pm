@@ -35,7 +35,7 @@ sub generateConfig {
 
 sub generate_local_settings {
     my %tags;
-    $tags{'template'} = "$conf_dir/monitoring/local_settings.py";
+    $tags{'template'} = "$conf_dir/monitoring/local_settings.py.$OS";
     $tags{'conf_dir'} = "$install_dir/var/conf";
     $tags{'log_dir'}  = "$install_dir/logs";
     $tags{'management_ip'}
