@@ -97,9 +97,20 @@ has_field 'private_key' =>
              help => 'The contents of the private key for signing in base64'},
   );
 
+has_field 'can_sign_profile' =>
+  (
+   type => 'Checkbox',
+   label => 'Sign Profile',
+   value => 1,
+   checkbox_value => 0,
+   tags => { after_element => \&help,
+             help => 'Check this box if you want the profiles signed' },
+  );
+
+
 has_block definition =>
   (
-   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode private_key ca_cert pki_provider certificate ) ],
+   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode pki_provider can_sign_profile private_key ca_cert certificate ) ],
   );
 
 sub options_eap_type {
