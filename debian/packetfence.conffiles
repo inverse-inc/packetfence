@@ -66,7 +66,8 @@
 /usr/local/pf/conf/monitoring/carbon.conf
 /usr/local/pf/conf/monitoring/collectd.conf
 /usr/local/pf/conf/monitoring/dashboard.conf
-/usr/local/pf/conf/monitoring/local_settings.py
+/usr/local/pf/conf/monitoring/local_settings.py.rhel
+/usr/local/pf/conf/monitoring/local_settings.py.debian
 /usr/local/pf/conf/monitoring/statsd_config.js
 /usr/local/pf/conf/monitoring/storage-schemas.conf
 /usr/local/pf/conf/monitoring/types.db
