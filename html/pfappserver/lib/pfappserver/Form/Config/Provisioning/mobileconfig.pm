@@ -74,6 +74,8 @@ has_field 'ca_cert' =>
   (
    type => 'TextArea',
    element_class => ['input-xxlarge'],
+   inflate_default_method => \&filter_inflate ,
+   deflate_default_method => \&filter_deflate ,
    label => 'The base64 Certificate of Authority',
    tags => { after_element => \&help,
              help => 'The contents of the Certificate of Authority in base64'},
@@ -83,6 +85,8 @@ has_field 'certificate' =>
   (
    type => 'TextArea',
    label => 'The certificate for signing profiles',
+   inflate_default_method => \&filter_inflate ,
+   deflate_default_method => \&filter_deflate ,
    element_class => ['input-xxlarge'],
    tags => { after_element => \&help,
              help => 'The contents of the certificate for signing in base64'},
@@ -92,6 +96,8 @@ has_field 'private_key' =>
   (
    type => 'TextArea',
    element_class => ['input-xxlarge'],
+   inflate_default_method => \&filter_inflate ,
+   deflate_default_method => \&filter_deflate ,
    label => 'The private key for signing profiles',
    tags => { after_element => \&help,
              help => 'The contents of the private key for signing in base64'},
@@ -106,6 +112,20 @@ has_field 'can_sign_profile' =>
    tags => { after_element => \&help,
              help => 'Check this box if you want the profiles signed' },
   );
+
+sub filter_inflate {
+    my ($self, $value) = @_;
+    if(ref($value) eq 'ARRAY' ) {
+         return (join("\n",@{$value}));
+    }
+    return $value;
+}
+
+sub filter_deflate {
+    my ($self, $value) = @_;
+    return [split /\n/,$value];
+}
+
 
 
 has_block definition =>
