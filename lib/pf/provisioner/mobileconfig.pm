@@ -15,6 +15,7 @@ use strict;
 use warnings;
 
 use Crypt::SMIME;
+use MIME::Base64 qw(decode_base64);
 
 use Moo;
 extends 'pf::provisioner';
@@ -143,7 +144,7 @@ sub sign_profile {
     my ($self, $content) = @_;
     my $smime = Crypt::SMIME->new();
     $smime->setPrivateKey($self->private_key, $self->certificate);
-    return $smime->signonly_attached($content);
+    return decode_base64($smime->signonly_attached($content));
 }
 
 =head1 AUTHOR
