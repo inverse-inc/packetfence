@@ -101,8 +101,8 @@ has_field 'can_sign_profile' =>
   (
    type => 'Checkbox',
    label => 'Sign Profile',
-   value => 1,
-   checkbox_value => 0,
+   value => 0,
+   checkbox_value => 1,
    tags => { after_element => \&help,
              help => 'Check this box if you want the profiles signed' },
   );
