@@ -122,7 +122,9 @@ Listen 9000
 #
 #Debian specific
 <IfDefine debian>
-    LoadModule wsgi_module modules/mod_wsgi.so
+  <IfModule !mod_wsgi.c>
+    LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so
+  </IfModule>
   <IfModule !mod_log_config.c>
     LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
   </IfModule>
@@ -148,7 +150,9 @@ Listen 9000
 
 #RHEL specific
 <IfDefine rhel>
+  <IfModule !mod_wsgi.c>
     LoadModule wsgi_module modules/mod_wsgi.so
+  </IfModule>
   <IfModule !mod_log_config.c>
     LoadModule log_config_module modules/mod_log_config.so
   </IfModule>
@@ -156,7 +160,7 @@ Listen 9000
     LoadModule headers_module modules/mod_headers.so
   </IfModule>
   <IfModule !mod_authz_host.c>
-    LoadModule authz_host_module modules/mod_authz_host.so                                                            
+    LoadModule authz_host_module modules/mod_authz_host.so
   </IfModule>
   <IfModule !mod_setenvif.c>
     LoadModule setenvif_module modules/mod_setenvif.so
