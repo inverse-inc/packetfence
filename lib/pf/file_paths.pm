@@ -64,7 +64,8 @@ our (
     $domain_config_file,
     $scan_config_file,
     $wmi_config_file,
-    $pki_provider_config_file
+    $pki_provider_config_file,
+    $radius_svr_cert,
 );
 
 BEGIN {
@@ -108,6 +109,7 @@ BEGIN {
         $scan_config_file
         $wmi_config_file
         $pki_provider_config_file
+        $radius_svr_cert
     );
 }
 
@@ -147,6 +149,7 @@ $floating_devices_file  = catfile($conf_dir, "floating_network_device.conf");  #
 $violations_config_file = catfile($conf_dir, "violations.conf");
 $dhcp_fingerprints_file = catfile($conf_dir, "dhcp_fingerprints.conf");
 $admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
+$radius_svr_cert = catfile($install_dir,"raddb/certs/svr.pem");
 
 $violations_config_file       = catfile($conf_dir, "violations.conf");
 $authentication_config_file   = catfile($conf_dir, "authentication.conf");
