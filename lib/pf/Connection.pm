@@ -7,6 +7,7 @@ use pf::config;
 use pf::log;
 
 has 'type'          => (is => 'rw', isa => 'Str');                  # Printable string to display the type of a connection
+has 'subType'       => (is => 'rw', isa => 'Str');                  # Printable string to display the sub type of a connection
 has 'transport'     => (is => 'rw', isa => 'Str');                  # Wired or wireless
 has 'isEAP'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoEAP / 1: EAP
 has 'isSNMP'        => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoSNMP | 1: SNMP
@@ -21,7 +22,7 @@ our $logger = get_logger();
 
 =head2 _attributesToString
 
-We create a printable string based on the connection attributes which will be used for display purposes and 
+We create a printable string based on the connection attributes which will be used for display purposes and
 database storage purpose.
 
 =cut
@@ -110,7 +111,13 @@ sub identifyType {
     ( (defined($nas_port_type)) && (lc($nas_port_type) =~ /^wireless/) ) ? $this->transport("Wireless") : $this->transport("Wired");
 
     # Handling EAP connection
-    ( defined($eap_type) && ($eap_type ne 0) ) ? $this->isEAP($TRUE) : $this->isEAP($FALSE);
+    if(defined($eap_type) && ($eap_type ne 0)) {
+        $this->isEAP($TRUE);
+        $this->subType($eap_type);
+    }
+    else {
+        $this->isEAP($FALSE);
+    }
 
     # Handling mac authentication versus 802.1X connection
     # In most cases, when EAP is used we can assume we are dealing with 802.1X connection. Unfortunately, some vendors are doing
@@ -122,7 +129,7 @@ sub identifyType {
         $mac =~ s/[^[:xdigit:]]//g;
         ( lc($mac) eq lc($user_name) ) ? $this->isMacAuth($TRUE) : $this->is8021X($TRUE);
     }
-    # We can safely assume that every NoEAP connection in a RADIUS context is a mac authentication connection 
+    # We can safely assume that every NoEAP connection in a RADIUS context is a mac authentication connection
     else {
         $this->isMacAuth($TRUE);
     }
