@@ -78,7 +78,7 @@ has_field 'ca_cert' =>
    deflate_default_method => \&filter_deflate ,
    label => 'The base64 Certificate of Authority',
    tags => { after_element => \&help,
-             help => 'The contents of the Certificate of Authority in base64'},
+             help => 'The Certificate of Authority in pem format'},
   );
 
 has_field 'certificate' =>
@@ -89,7 +89,7 @@ has_field 'certificate' =>
    deflate_default_method => \&filter_deflate ,
    element_class => ['input-xxlarge'],
    tags => { after_element => \&help,
-             help => 'The contents of the certificate for signing in base64'},
+             help => 'The Certificate for signing in pem format'},
   );
 
 has_field 'private_key' =>
@@ -100,7 +100,7 @@ has_field 'private_key' =>
    deflate_default_method => \&filter_deflate ,
    label => 'The private key for signing profiles',
    tags => { after_element => \&help,
-             help => 'The contents of the private key for signing in base64'},
+             help => 'The Private Key for signing in pem format'},
   );
 
 has_field 'can_sign_profile' =>
