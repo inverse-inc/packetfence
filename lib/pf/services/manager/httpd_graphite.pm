@@ -38,6 +38,7 @@ sub generate_local_settings {
     $tags{'template'} = "$conf_dir/monitoring/local_settings.py.$OS";
     $tags{'conf_dir'} = "$install_dir/var/conf";
     $tags{'log_dir'}  = "$install_dir/logs";
+    $tags{'install_dir'}   = "$install_dir";
     $tags{'management_ip'}
         = defined( $management_network->tag('vip') )
         ? $management_network->tag('vip')
