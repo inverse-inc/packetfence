@@ -655,9 +655,7 @@ sub showSelfRegistrationPage : Private {
     my @mandatory_fields;
     # TODO: Handle this differently on rework; for the moment, making sure everything is displayed...
     # 2015.05.11 - dwuelfrath@inverse.ca
-    push ( @mandatory_fields, @{$c->profile->getMandatoryFields->{'email'}} );
-    push ( @mandatory_fields, @{$c->profile->getMandatoryFields->{'sms'}} );
-    push ( @mandatory_fields, @{$c->profile->getMandatoryFields->{'sponsoremail'}} );
+    push ( @mandatory_fields, @{$c->profile->getMandatoryFields->{'temp_current_portal'}} );
     # Portal profile based custom fields
     my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
     foreach ( @sources ) {

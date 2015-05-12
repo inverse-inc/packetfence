@@ -206,6 +206,11 @@ sub getMandatoryFields {
     # Sponsor email self-registration requires some mandatory fields
     $mandatory_fields{'sponsoremail'} = [ 'email', 'sponsor_email' ] if $self->getSourceByType('sponsoremail');
 
+    # Temp array of mandatory fields to match current workflow
+    # TODO: Remove this with self-registration flow rework
+    # 2015.05.12 - dwuelfrath@inverse.ca
+    $mandatory_fields{'temp_current_portal'} = [ 'email', 'phone', 'mobileprovider', 'sponsor_email' ];
+
     return \%mandatory_fields;
 }
 
