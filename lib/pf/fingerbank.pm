@@ -55,7 +55,7 @@ sub process {
     my ( $class, $parents ) = _parse_parents($query_result);
 
     # Updating the node device type based on the result
-    node_modify( $mac, ( 
+    node_modify( $mac, (
         'device_type'   => $query_result->{'device'}{'name'},
         'device_class'  => $class,
     ) );
@@ -192,7 +192,7 @@ sub _parse_parents {
     return ( $class, \@parents );
 }
 
-=head2 is_a 
+=head2 is_a
 
 Testing which "kind" of device a specific type is.
 
@@ -207,7 +207,10 @@ Currently handled "kind" of device (based on Fingerbank device classes):
 sub is_a {
     my ( $device_type ) = @_;
     my $logger = pf::log::get_logger;
-
+    unless ( defined $device_type ) {
+        $logger->warn("An undefined device type passed");
+        return "unknown";
+    }
     $logger->debug("Trying to determine the kind of device for '$device_type' device type");
 
     my $fingerbank = fingerbank::Query->new;
