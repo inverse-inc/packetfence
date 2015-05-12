@@ -916,7 +916,7 @@ For Debian and Ubuntu:
 
 Issue a `kinit` and `klist` in order to get and verify the Kerberos token:
 
-  # kinit administrator
+  # kinit administrator@DOMAIN.NET
   # klist
 
 After that, you need to start samba, and join the machine to the domain:
