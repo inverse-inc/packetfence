@@ -28,7 +28,7 @@ use List::Util qw(first);
 use pf::CHI;
 use pfconfig::cached_hash;
 
-my %SwitchConfig;
+our %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
 
 =head1 METHODS
