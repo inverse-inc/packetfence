@@ -570,7 +570,19 @@ sub showLogin : Private {
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
         guest_allowed   => $guest_allowed,
     );
-    $c->stash( mandatory_fields => $profile->getMandatoryFields) if (@sources && grep { $_->{use_mandatory_fields} eq 'yes' } @sources);
+
+    # TODO: Handle this differently on rework; for the moment, making sure everything is displayed...
+    # 2015.05.11 - dwuelfrath@inverse.ca
+    # Portal profile based custom fields
+    my @mandatory_fields;
+    my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
+    foreach ( @sources ) {
+        push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$_->{'id'}});
+    }
+    # Make sure mandatory fields are unique
+    @mandatory_fields = uniq @mandatory_fields;
+
+    $c->stash( mandatory_fields => @mandatory_fields;
 }
 
 sub _clean_username {
@@ -598,31 +610,34 @@ sub validateMandatoryFields : Private {
     my $session = $c->session;
     my $profile    = $c->profile;
     my ( $error_code, @error_args );
-    my $source = pf::authentication::getAuthenticationSource($c->session->{source_id});
-    if ( isenabled($source->{use_mandatory_fields}) ) {
-        my @mandatory_fields = @{$c->profile->getMandatoryFields};
-        my %mandatory_fields = map { $_ => undef } @mandatory_fields;
-        my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
 
-        if (@missing_fields) {
-            $error_code = $GUEST::ERROR_MISSING_MANDATORY_FIELDS;
-            @error_args = ( join( ", ", map { i18n($_) } @missing_fields ) );
-        } elsif ( exists $mandatory_fields{email}
-                  && !pf::web::util::is_email_valid( $request->param('email') ) ) {
-            $error_code = $GUEST::ERROR_ILLEGAL_EMAIL;
-        } elsif ( exists $mandatory_fields{phone}
-                  && !pf::web::util::validate_phone_number( $request->param('phone') ) ) {
-            $error_code = $GUEST::ERROR_ILLEGAL_PHONE;
-        } elsif ( !length( $request->param("aup_signed") ) ) {
-            $error_code = $GUEST::ERROR_AUP_NOT_ACCEPTED;
-        }
+    # Portal profile based custom fields
+    my @mandatory_fields;
+    my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
+    push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$c->session->{source_id}});
+    # Make sure mandatory fields are unique
+    @mandatory_fields = uniq @mandatory_fields;
 
-        if ( defined $error_code && $error_code != 0 ) {
-            $self->validationError( $c, $error_code, @error_args );
-        } else {
-            $c->forward('setupSession');
-            _update_person($session,$profile);
-        }
+    my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
+
+    if (@missing_fields) {
+        $error_code = $GUEST::ERROR_MISSING_MANDATORY_FIELDS;
+        @error_args = ( join( ", ", map { i18n($_) } @missing_fields ) );
+    } elsif ( exists $mandatory_fields{email}
+              && !pf::web::util::is_email_valid( $request->param('email') ) ) {
+        $error_code = $GUEST::ERROR_ILLEGAL_EMAIL;
+    } elsif ( exists $mandatory_fields{phone}
+              && !pf::web::util::validate_phone_number( $request->param('phone') ) ) {
+        $error_code = $GUEST::ERROR_ILLEGAL_PHONE;
+    } elsif ( !length( $request->param("aup_signed") ) ) {
+        $error_code = $GUEST::ERROR_AUP_NOT_ACCEPTED;
+    }
+
+    if ( defined $error_code && $error_code != 0 ) {
+        $self->validationError( $c, $error_code, @error_args );
+    } else {
+        $c->forward('setupSession');
+        _update_person($session,$profile);
     }
 }
 

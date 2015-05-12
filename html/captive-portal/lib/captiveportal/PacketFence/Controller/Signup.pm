@@ -561,25 +561,38 @@ TODO: documention
 
 sub validateMandatoryFields : Private {
     my ( $self, $c ) = @_;
+    my $logger = get_logger;
+
+    my ( $error_code, @error_args );
+
     my $request = $c->request;
-    my $logger         = get_logger;
-    my ( $error_code, @error_args, $source, @mandatory_fields );
     my $profile = $c->profile;
 
-    if ( $request->param('by_email') ) {
-        $source = $profile->getSourceByType('email');
-    } elsif ($request->param('by_sms')) {
-         $source = $profile->getSourceByType('sms');
-    } elsif ($request->param('by_sponsor')) {
-        $source = $profile->getSourceByType('sponsoremail');
-    }
-    if (isenabled($source->{use_mandatory_fields}) ) {
-        @mandatory_fields = @{$c->profile->getMandatoryFields};
-    } else {
-        @mandatory_fields = @{$c->profile->getMandatoryFields($FALSE)};
-    }
+    # Which source is being used
+    # TODO: Move to a switch case with portal rework
+    # 2015.05.08 - dwuelfrath@inverse.ca
+    my $source_type;
+    $source_type = 'email' if $request->param('by_email');
+    $source_type = 'sms' if $request->param('by_sms');
+    $source_type = 'sponsoremail' if $request->param('by_sponsor');
+
+    $logger->debug("Validating mandatory and custom fields for '$source_type' based self-registration");
+
+    # Getting the source object
+    my $source = $profile->getSourceByType($source_type);
+    my $source_id = $source->{'id'};
+
+    # Source based mandatory fields
+    my @mandatory_fields;
+    push ( @mandatory_fields, @{$c->profile->getMandatoryFields->{$source_type}} );
+
+    # Portal profile based custom fields
+    my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
+    push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$source_id});
+
+    # Make sure mandatory fields are unique
     @mandatory_fields = uniq @mandatory_fields;
-    my %mandatory_fields = map { $_ => undef } @mandatory_fields;
+
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
 
     if (@missing_fields) {
@@ -636,11 +649,24 @@ sub showSelfRegistrationPage : Private {
         is_preregistration  => $c->session->{'preregistration'},
         $self->allowedGuestModes($c),
     );
-    if (@sources && grep { $_->{use_mandatory_fields} eq 'yes' } @sources) {
-        $c->stash( mandatory_fields => $profile->getMandatoryFields);
-    } else {
-        $c->stash( mandatory_fields => $profile->getMandatoryFields($FALSE));
+
+    # Source based mandatory fields
+    my @mandatory_fields;
+    # TODO: Handle this differently on rework; for the moment, making sure everything is displayed...
+    # 2015.05.11 - dwuelfrath@inverse.ca
+    push ( @mandatory_fields, @{$c->profile->getMandatoryFields->{'email'}} );
+    push ( @mandatory_fields, @{$c->profile->getMandatoryFields->{'sms'}} );
+    push ( @mandatory_fields, @{$c->profile->getMandatoryFields->{'sponsoremail'}} );
+    # Portal profile based custom fields
+    my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
+    foreach ( @sources ) {
+        push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$_->{'id'}});
     }
+    # Make sure mandatory fields are unique
+    @mandatory_fields = uniq @mandatory_fields;
+
+    $c->stash( mandatory_fields => @mandatory_fields;
+
     $c->stash( template => 'guest.html' );
 }
 
