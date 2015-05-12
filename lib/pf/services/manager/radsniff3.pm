@@ -26,7 +26,7 @@ has '+optional' => ( default => sub {1} );
 
 has '+launcher' => (
     default => sub {
-        "sudo %1\$s -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff3.pid -W10 -O $install_dir/var/run/collectd-unixsock";
+        "sudo %1\$s -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff3.pid -W10 -O $install_dir/var/run/collectd-unixsock -i $management_network->{Tint}";
     }
 );
 
