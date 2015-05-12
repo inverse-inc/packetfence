@@ -50,7 +50,7 @@ VALUES
 -- Add a column to radius_nas to order the nas list
 --
 
-ALTER TABLE radius_nas ADD `position` INT FIRST, ADD start_ip INT DEFAULT 0, ADD end_ip INT DEFAULT 0;
+ALTER TABLE radius_nas ADD start_ip INT UNSIGNED DEFAULT 0, ADD end_ip INT UNSIGNED DEFAULT 0, ADD range_length INT DEFAULT 0;
 
 
 -- IMPORTANT: KEEP THIS AT THE BOTTOM OF THIS FILE.

@@ -496,7 +496,6 @@ VALUES
 -- Adding RADIUS nas client table
 
 CREATE TABLE radius_nas (
-  position int(5),
   nasname varchar(128) NOT NULL,
   shortname varchar(32),
   type varchar(30) default 'other',
@@ -505,8 +504,9 @@ CREATE TABLE radius_nas (
   community varchar(50),
   description varchar(200) default 'RADIUS Client',
   config_timestamp BIGINT,
-  start_ip INT DEFAULT 0,
-  end_ip INT DEFAULT 0,
+  start_ip INT UNSIGNED DEFAULT 0,
+  end_ip INT UNSIGNED DEFAULT 0,
+  range_length INT DEFAULT 0,
   PRIMARY KEY nasname (nasname)
 ) ENGINE=InnoDB;
 
