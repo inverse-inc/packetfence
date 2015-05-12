@@ -1,5 +1,7 @@
 import os, sys
 import django
+sys.path.append('/usr/local/pf/var/conf')
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'graphite.settings'
 if django.get_version() >= "1.7":
 	django.setup()
