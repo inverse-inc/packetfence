@@ -40,6 +40,17 @@ VALUES
 
 ALTER TABLE radius_nas ADD start_ip INT UNSIGNED DEFAULT 0, ADD end_ip INT UNSIGNED DEFAULT 0, ADD range_length INT DEFAULT 0;
 
+--
+-- Table structure for table 'pf_version'
+--
+
+CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY);
+
+--
+-- Updating to current version
+--
+
+INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERION));
 
 -- IMPORTANT: KEEP THIS AT THE BOTTOM OF THIS FILE.
 -- TO BE EXECUTED AFTER EVERYTHING ELSE.
@@ -406,15 +417,3 @@ CREATE TABLE `tagging_taggeditem` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
---
--- Table structure for table 'pf_version'
---
-
-CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY);
-
---
--- Updating to current version
---
-
-INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERION));
