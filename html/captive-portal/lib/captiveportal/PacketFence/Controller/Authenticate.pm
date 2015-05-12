@@ -10,7 +10,7 @@ use pf::util;
 use pf::locationlog;
 use pf::authentication;
 use HTML::Entities;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use pf::config;
 use pf::person qw(person_modify);
 
@@ -582,7 +582,7 @@ sub showLogin : Private {
     # Make sure mandatory fields are unique
     @mandatory_fields = uniq @mandatory_fields;
 
-    $c->stash( mandatory_fields => @mandatory_fields;
+    $c->stash( mandatory_fields => \@mandatory_fields );
 }
 
 sub _clean_username {
@@ -618,6 +618,7 @@ sub validateMandatoryFields : Private {
     # Make sure mandatory fields are unique
     @mandatory_fields = uniq @mandatory_fields;
 
+    my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
 
     if (@missing_fields) {

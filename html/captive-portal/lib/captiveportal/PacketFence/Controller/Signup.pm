@@ -593,6 +593,7 @@ sub validateMandatoryFields : Private {
     # Make sure mandatory fields are unique
     @mandatory_fields = uniq @mandatory_fields;
 
+    my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
 
     if (@missing_fields) {
@@ -665,7 +666,7 @@ sub showSelfRegistrationPage : Private {
     # Make sure mandatory fields are unique
     @mandatory_fields = uniq @mandatory_fields;
 
-    $c->stash( mandatory_fields => @mandatory_fields;
+    $c->stash( mandatory_fields => \@mandatory_fields );
 
     $c->stash( template => 'guest.html' );
 }
