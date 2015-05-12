@@ -505,6 +505,8 @@ CREATE TABLE radius_nas (
   community varchar(50),
   description varchar(200) default 'RADIUS Client',
   config_timestamp BIGINT,
+  start_ip INT DEFAULT 0,
+  end_ip INT DEFAULT 0,
   PRIMARY KEY nasname (nasname)
 ) ENGINE=InnoDB;
 
