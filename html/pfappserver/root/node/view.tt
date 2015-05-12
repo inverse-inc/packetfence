@@ -150,6 +150,7 @@
                   <tr>
                     <th>[% l('Switch/AP') %]</th>
                     <th>[% l('Connection Type') %]</th>
+                    <th>[% l('Connection Sub Type') %]</th>
                     <th>[% l('Start') %]</th>
                     <th>[% l('End') %]</th>
                   </tr>
@@ -159,6 +160,7 @@
                   <tr[% IF item.end_time %] class="muted"[% END %]>
                     <td>[% IF switches.${item.switch} %]<a href="" data-toggle="tooltip" title="[% switches.${item.switch}.type | html %] ([% switches.${item.switch}.mode | html %])">[% item.switch %]</a>[% ELSE %][% item.switch | html %][% END %]<br/>[% IF item.ssid %] <span class="badge badge-info"><i class="icon-signal"></i> [% item.ssid | html %]</span>[% ELSE %][% IF item.port.length %]<span class="badge badge-info">[% l('port') %] [% item.port | html %]</span> [% END %][% IF item.vlan.length %]<span class="badge badge-info">vlan [% item.vlan | html %]</span>[% END %][% END %]</td>
                     <td>[% l(item.connection_type) %]</td>
+                    <td>[% l(item.connection_sub_type) %]</td>
                     <td>[% item.start_time | html %]</td>
                     <td>[% item.end_time | html %]</td>
                   </tr>
