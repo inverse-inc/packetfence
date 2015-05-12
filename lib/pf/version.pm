@@ -61,7 +61,7 @@ sub version_check_db {
     my $logger = get_logger;
 
     my $current_pf_minor_version = version_get_current();
-    $current_pf_minor_version =~ s/\.[^.]+$//;  # Stripping the sub-minor part (i.e: X.Y.Z -> X.Y)
+    $current_pf_minor_version =~ s/(\.\d+).*$/$1/; # Keeping only the major/minor part (i.e: X.Y.Z -> X.Y)
 
     my $sth = db_query_execute(PF_VERSION, $version_statements, 'version_check_db_sql', $current_pf_minor_version);
     unless ( $sth ) {
