@@ -64,7 +64,8 @@
 /usr/local/pf/conf/violations.conf
 /usr/local/pf/conf/wmi.conf
 /usr/local/pf/conf/monitoring/carbon.conf
-/usr/local/pf/conf/monitoring/collectd.conf
+/usr/local/pf/conf/monitoring/collectd.conf.rhel
+/usr/local/pf/conf/monitoring/collectd.conf.debian
 /usr/local/pf/conf/monitoring/dashboard.conf
 /usr/local/pf/conf/monitoring/local_settings.py.rhel
 /usr/local/pf/conf/monitoring/local_settings.py.debian

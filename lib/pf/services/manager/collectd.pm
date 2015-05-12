@@ -40,7 +40,7 @@ sub generateConfig {
 
 sub generateCollectd {
     my %tags;
-    $tags{'template'}    = "$conf_dir/monitoring/collectd.conf";
+    $tags{'template'}    = "$conf_dir/monitoring/collectd.conf.$OS";
     $tags{'install_dir'} = "$install_dir";
     $tags{'log_dir'}     = "$log_dir";
     $tags{'management_ip'}

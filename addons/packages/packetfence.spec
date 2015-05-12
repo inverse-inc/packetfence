@@ -899,8 +899,10 @@ fi
 %dir                    /usr/local/pf/conf/monitoring
 %config(noreplace)      /usr/local/pf/conf/monitoring/carbon.conf
                         /usr/local/pf/conf/monitoring/carbon.conf.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/collectd.conf
-                        /usr/local/pf/conf/monitoring/collectd.conf.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/collectd.conf.rhel
+                        /usr/local/pf/conf/monitoring/collectd.conf.rhel.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/collectd.conf.debian
+                        /usr/local/pf/conf/monitoring/collectd.conf.debian.example
 %config(noreplace)      /usr/local/pf/conf/monitoring/dashboard.conf
                         /usr/local/pf/conf/monitoring/dashboard.conf.example
 %config(noreplace)      /usr/local/pf/conf/monitoring/local_settings.py.rhel
