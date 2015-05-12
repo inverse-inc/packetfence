@@ -400,6 +400,7 @@ done
 %{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
 # creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
@@ -427,6 +428,7 @@ cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/soh/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/AD/*.tt $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -738,6 +740,8 @@ fi
 %dir                    /usr/local/pf/addons
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.sh
+%dir                    /usr/local/pf/addons/AD/
+                        /usr/local/pf/addons/AD/*
 %dir                    /usr/local/pf/addons/captive-portal/
                         /usr/local/pf/addons/captive-portal/*
 %dir                    /usr/local/pf/addons/dev-helpers/

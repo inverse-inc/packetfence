@@ -13,7 +13,7 @@ Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
 Pre-Depends:  ca-certificates, freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server, ca-certificates, packetfence-pfcmd-suid (>= ${Source-Version}), packetfence-config (>= ${Source-Version}),
- fingerbank (>= 1.0.1),
+ fingerbank (>= 1.0.1), graphite-web, windbind
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra,
@@ -26,7 +26,6 @@ Depends: ${misc:Depends}, vlan, make,
  libapache-session-memcached-perl, libapache-ssllookup-perl, libapache2-mod-qos,
  make,
  samba,
- winbind,
  krb5-user,
  iproute,
  ipset,
@@ -111,7 +110,7 @@ Depends: ${misc:Depends}, vlan, make,
 # monitoring
  collectd, collectd-core, libcollectdclient0 | libcollectdclient1, python-django (>=1.7),
  python-django-tagging, python-pyparsing, python-mysqldb, graphite-carbon, python-whisper,
- graphite-web, nodejs, freeradius-radsniff (>=3.0), libapache2-mod-wsgi,
+ nodejs, freeradius-radsniff (>=3.0), libfreeradius3, libapache2-mod-wsgi,
  python-twisted-bin (<=13.0), python-twisted-core (<=13.0)
 Recommends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql, freeradius-mysql, freeradius-krb5, isc-dhcp-server | dhcp3-server
 Description: PacketFence network registration / worm mitigation system
