@@ -40,7 +40,7 @@ Initialize database prepared statements
 sub version_db_prepare {
 
     $version_statements->{'version_check_db_sql'} = get_db_handle()->prepare(qq[
-        SELECT version FROM pf_version WHERE version = ?;
+        SELECT version FROM pf_version WHERE version LIKE ?'%';
     ]);
 
     $version_statements->{'version_get_last_db_version_sql'} = get_db_handle()->prepare(qq[
@@ -60,7 +60,10 @@ Checks the version of database schema
 sub version_check_db {
     my $logger = get_logger;
 
-    my $sth = db_query_execute(PF_VERSION, $version_statements, 'version_check_db_sql', version_get_current());
+    my $current_pf_minor_version = version_get_current();
+    $current_pf_minor_version =~ s/\.[^.]+$//;  # Stripping the sub-minor part (i.e: X.Y.Z -> X.Y)
+
+    my $sth = db_query_execute(PF_VERSION, $version_statements, 'version_check_db_sql', $current_pf_minor_version);
     unless ( $sth ) {
         $logger->error("Can't get DB handle while trying to check for database schema version");
         return undef;
