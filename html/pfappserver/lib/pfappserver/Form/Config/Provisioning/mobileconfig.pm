@@ -75,7 +75,7 @@ has_field 'ca_cert' =>
    type => 'TextArea',
    element_class => ['input-xxlarge'],
    inflate_default_method => \&filter_inflate ,
-   deflate_default_method => \&filter_deflate ,
+   deflate_value_method => \&filter_deflate ,
    label => 'The base64 Certificate of Authority',
    tags => { after_element => \&help,
              help => 'The Certificate of Authority in pem format'},
@@ -86,7 +86,7 @@ has_field 'certificate' =>
    type => 'TextArea',
    label => 'The certificate for signing profiles',
    inflate_default_method => \&filter_inflate ,
-   deflate_default_method => \&filter_deflate ,
+   deflate_value_method => \&filter_deflate ,
    element_class => ['input-xxlarge'],
    tags => { after_element => \&help,
              help => 'The Certificate for signing in pem format'},
@@ -97,7 +97,7 @@ has_field 'private_key' =>
    type => 'TextArea',
    element_class => ['input-xxlarge'],
    inflate_default_method => \&filter_inflate ,
-   deflate_default_method => \&filter_deflate ,
+   deflate_value_method => \&filter_deflate ,
    label => 'The private key for signing profiles',
    tags => { after_element => \&help,
              help => 'The Private Key for signing in pem format'},
@@ -123,7 +123,7 @@ sub filter_inflate {
 
 sub filter_deflate {
     my ($self, $value) = @_;
-    return [split /\n/,$value];
+    return [split /\r?\n/,$value];
 }
 
 
