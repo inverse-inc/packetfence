@@ -1093,7 +1093,7 @@ Make sure the database schema matches the current version of PacketFence
 sub db_check_version {
     unless(pf::version::version_check_db()) {
         my $version = pf::version::version_get_current;
-        my $db_version = pf::version::version_get_last_db_version;
+        my $db_version = pf::version::version_get_last_db_version || 'unknown';
         add_problem ( $FATAL, "The PacketFence database schema version '$db_version' does not match the current installed version '$version'\nPlease refer to the UPGRADE guide on how to complete an upgrade of PacketFence\n" );
     }
 }
