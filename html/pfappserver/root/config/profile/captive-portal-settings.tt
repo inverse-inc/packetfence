@@ -27,5 +27,10 @@
                   <a href="#add">[% l('Add a mandatory field.') %]</a>
                 </p>
               </div>
+              <div class="[% ' hidden' IF form.field('mandatory_fields').index == 1 %]">
+                <p>&nbsp;</p>
+                <p>[% l('Defined Mandatory Fields will be used with the following Portal Profile based Authentication Sources') %]</p>
+                [% form.field('custom_fields_authentication_sources').render %]
+              </div>
             </div>
           </div>

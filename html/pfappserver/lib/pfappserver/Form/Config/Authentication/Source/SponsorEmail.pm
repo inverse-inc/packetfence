@@ -23,7 +23,7 @@ has_field 'allow_localdomain' =>
    checkbox_value => 'yes',
    unchecked_value => 'no',
    label => 'Allow Local Domain',
-   default => pf::Authentication::Source::EmailSource->meta->get_attribute('allow_localdomain')->default,
+   default => pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('allow_localdomain')->default,
    tags => { after_element => \&help,
              help => 'Accept self-registration with email address from the local domain' },
   );
@@ -33,7 +33,7 @@ has_field 'create_local_account' => (
     checkbox_value => 'yes',
     unchecked_value => 'no',
     label => 'Create Local Account',
-    default => pf::Authentication::Source::EmailSource->meta->get_attribute('create_local_account')->default,
+    default => pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('create_local_account')->default,
     tags => { 
         after_element => \&help,
         help => 'Create a local account on the PacketFence system based on the email address provided.',

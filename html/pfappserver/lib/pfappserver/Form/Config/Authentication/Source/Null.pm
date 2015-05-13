@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source';
+with 'pfappserver::Base::Form::Role::Help';
 
 # Form fields
 has_field 'email_required' =>

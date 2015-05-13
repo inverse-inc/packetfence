@@ -31,6 +31,13 @@ use pf::web::custom;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
+our @PERSON_FIELDS = grep { 
+    $_ ne 'pid' 
+    && $_ ne 'notes'
+    && $_ ne 'portal'
+    && $_ ne 'source'
+} @pf::person::FIELDS;
+
 =head1 NAME
 
 captiveportal::PacketFence::Controller::Signup - Catalyst Controller
@@ -178,19 +185,8 @@ sub doEmailSelfRegistration : Private {
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
 
     # form valid, adding person (using modify in case person already exists)
-    person_modify(
-        $pid,
-        (   'firstname' => $session->{firstname},
-            'lastname'  => $session->{lastname},
-            'company'   => $session->{company},
-            'email'     => $email,
-            'telephone' => $session->{phone},
-            'notes'     => 'email activation. Date of arrival: '
-              . time2str( "%Y-%m-%d %H:%M:%S", time ),
-            'portal'    => $profile->getName,
-            'source'    => $source->{id},
-        )
-    );
+    my $note = 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
+    _update_person($pid,$session,$note,$profile);
 
     # if we are on-site: register the node
     if ( !$session->{preregistration} ) {
@@ -291,20 +287,9 @@ sub doSponsorSelfRegistration : Private {
     $c->stash->{matchParams} = $auth_params;
 
     # form valid, adding person (using modify in case person already exists)
-    person_modify(
-        $pid,
-        (   'firstname' => $c->session->{"firstname"},
-            'lastname'  => $c->session->{"lastname"},
-            'company'   => $c->session->{'company'},
-            'email'     => $email,
-            'telephone' => $c->session->{"phone"},
-            'sponsor'   => $c->session->{"sponsor"},
-            'notes'     => 'sponsored guest. Date of arrival: '
-              . time2str( "%Y-%m-%d %H:%M:%S", time ),
-            'portal'    => $profile->getName,
-            'source'    => $source->{id},
-        )
-    );
+    my $note = 'sponsored confirmation Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
+    _update_person($pid,$session,$note,$profile);
+
     $logger->info( "Adding guest person " . $c->session->{'guest_pid'} );
 
     # fetch role for this user
@@ -419,18 +404,8 @@ sub doSmsSelfRegistration : Private {
 
     # form valid, adding person (using modify in case person already exists)
     $logger->info("Adding guest person $pid ($phone)");
-    person_modify(
-        $pid,
-        (   map { $_ => $c->session->{$_} }
-              qw(firstname lastname company  email)
-        ),
-        (   'telephone' => $phone,
-            'notes'     => 'sms confirmation. Date of arrival: '
-              . time2str( "%Y-%m-%d %H:%M:%S", time ),
-            'portal'    => $profile->getName,
-            'source'    => $source->{id},
-        )
-    );
+    my $note = 'sms confirmation Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
+    _update_person($pid,$session,$note,$profile);
 
     # fetch role for this user
     $c->stash->{pid} = $pid;
@@ -485,23 +460,24 @@ TODO: documention
 
 =cut
 
+
 sub setupSelfRegistrationSession : Private {
     my ( $self, $c ) = @_;
     my $request = $c->request;
+    foreach my $field (@PERSON_FIELDS) {
+        $c->session->{$field} = $request->param($field);
+    }
     my $phone = $request->param("phone");
-    $c->session->{firstname} = $request->param("firstname");
-    $c->session->{lastname}  = $request->param("lastname");
     $c->session->{company}   = $request->param("organization");
     $c->session->{telephone} =
       pf::web::util::validate_phone_number( $phone );
     $c->session->{phone} =
       pf::web::util::validate_phone_number( $phone );
-    $c->session->{email}   = lc( $request->param("email") );
     $c->session->{sponsor} = lc( $request->param("sponsor_email") );
 
     # guest pid is configurable (defaults to email)
     $c->session->{guest_pid} =
-      $c->session->{ $Config{'guests_self_registration'}{'guest_pid'} };
+        $c->session->{ $Config{'guests_self_registration'}{'guest_pid'} };
 }
 
 
@@ -585,16 +561,38 @@ TODO: documention
 
 sub validateMandatoryFields : Private {
     my ( $self, $c ) = @_;
-    my $request = $c->request;
+    my $logger = get_logger;
+
     my ( $error_code, @error_args );
-    my @mandatory_fields = @{$c->profile->getMandatoryFields};
-    my $by_email   = $request->param('by_email');
-    my $by_sms     = $request->param('by_sms');
-    my $by_sponsor = $request->param('by_sponsor');
-    push @mandatory_fields, qw(email)                if ( defined $by_email );
-    push @mandatory_fields, qw(sponsor_email)        if ( defined $by_sponsor );
-    push @mandatory_fields, qw(phone mobileprovider) if ( defined $by_sms );
+
+    my $request = $c->request;
+    my $profile = $c->profile;
+
+    # Which source is being used
+    # TODO: Move to a switch case with portal rework
+    # 2015.05.08 - dwuelfrath@inverse.ca
+    my $source_type;
+    $source_type = 'email' if $request->param('by_email');
+    $source_type = 'sms' if $request->param('by_sms');
+    $source_type = 'sponsoremail' if $request->param('by_sponsor');
+
+    $logger->debug("Validating mandatory and custom fields for '$source_type' based self-registration");
+
+    # Getting the source object
+    my $source = $profile->getSourceByType($source_type);
+    my $source_id = $source->{'id'};
+
+    # Source based mandatory fields
+    my @mandatory_fields;
+    push ( @mandatory_fields, @{$c->profile->getMandatoryFields->{$source_type}} );
+
+    # Portal profile based custom fields
+    my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
+    push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$source_id});
+
+    # Make sure mandatory fields are unique
     @mandatory_fields = uniq @mandatory_fields;
+
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
 
@@ -632,6 +630,7 @@ sub showSelfRegistrationPage : Private {
     my $logger  = get_logger;
     my $profile = $c->profile;
     my $request = $c->request;
+    my @sources = $profile->getExternalSources;
 
     my $sms_type =
       pf::Authentication::Source::SMSSource->meta->get_attribute('type')
@@ -651,6 +650,21 @@ sub showSelfRegistrationPage : Private {
         is_preregistration  => $c->session->{'preregistration'},
         $self->allowedGuestModes($c),
     );
+
+    # Source based mandatory fields
+    my @mandatory_fields;
+    # TODO: Handle this differently on rework; for the moment, making sure everything is displayed...
+    # 2015.05.11 - dwuelfrath@inverse.ca
+    push ( @mandatory_fields, @{$c->profile->getMandatoryFields->{'temp_current_portal'}} );
+    # Portal profile based custom fields
+    my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
+    foreach ( @sources ) {
+        push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$_->{'id'}});
+    }
+    # Make sure mandatory fields are unique
+    @mandatory_fields = uniq @mandatory_fields;
+
+    $c->stash( mandatory_fields => \@mandatory_fields );
 
     $c->stash( template => 'guest.html' );
 }
@@ -676,6 +690,18 @@ sub allowedGuestModes {
     }
     return %$modes;
 }
+
+sub _update_person {
+  my ($pid,$session,$note,$profile) = @_;
+  my @info = (
+      (map { my $v = $session->{$_}; defined $v ? ($_ => $session->{$_}) :() } @PERSON_FIELDS),
+      'notes'       => $note,
+      'portal'    => $profile->getName,
+      'source'    => $session->{source_id},
+  );
+  person_modify($pid, @info);
+}
+
 
 =head1 AUTHOR
 
