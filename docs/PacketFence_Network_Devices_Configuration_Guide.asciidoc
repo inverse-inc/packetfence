@@ -3289,12 +3289,12 @@ dot11 ssid PacketFence-Public
 Configure the RADIUS server (we assume here that the FreeRADIUS server and the PacketFence server are located on the same box):
 
 ----
-radius-server host 192.168.0.10 auth-port 1812 acct-port 1813 key useStrongerSecret
+radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 key useStrongerSecret
 aaa group server radius rad_eap
-  server 192.168.0.10 auth-port 1812 acct-port 1813
+  server 192.168.1.5 auth-port 1812 acct-port 1813
 aaa authentication login eap_methods group rad_eap
 aaa group server radius rad_mac
-  server 192.168.0.10 auth-port 1812 acct-port 1813
+  server 192.168.1.5 auth-port 1812 acct-port 1813
 aaa authentication login mac_methods group rad_mac
 ----
 
@@ -3306,7 +3306,7 @@ CoA and radius:
 radius-server attribute 32 include-in-access-req format %h
 radius-server vsa send accounting
 aaa server radius dynamic-author
- client 192.168.0.10
+ client 192.168.1.5
  server-key 7 useStrongerSecret
  port 3799
  auth-type all
