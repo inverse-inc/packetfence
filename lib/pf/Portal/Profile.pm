@@ -198,13 +198,13 @@ sub getMandatoryFields {
     my %mandatory_fields = ();
 
     # Email self-registration requires some mandatory fields
-    $mandatory_fields{'email'} = [ 'email' ] if $self->getSourceByType('email');
+    $mandatory_fields{'email'} = [ 'email' ] if $self->getSourceByType('email') || $self->getSourceByTypeForChained('email');
 
     # SMS self-registration requires some mandatory fields
-    $mandatory_fields{'sms'} = [ 'email', 'phone', 'mobileprovider' ] if $self->getSourceByType('sms');
+    $mandatory_fields{'sms'} = [ 'email', 'phone', 'mobileprovider' ] if $self->getSourceByType('sms') || $self->getSourceByTypeForChained('sms');
 
     # Sponsor email self-registration requires some mandatory fields
-    $mandatory_fields{'sponsoremail'} = [ 'email', 'sponsor_email' ] if $self->getSourceByType('sponsoremail');
+    $mandatory_fields{'sponsoremail'} = [ 'email', 'sponsor_email' ] if $self->getSourceByType('sponsoremail') || $self->getSourceByTypeForChained('sponsoremail');
 
     # Temp array of mandatory fields to match current workflow
     # TODO: Remove this with self-registration flow rework
