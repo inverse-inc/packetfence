@@ -39,6 +39,7 @@ apply
         check => sub {
             my ( $value, $field ) = @_;
             return 1 if ($field->accept && grep { $_ eq $value } @{$field->accept});
+            return 1 if valid_ip_range( $value );
             return valid_mac_or_ip( $value );
         }
     },

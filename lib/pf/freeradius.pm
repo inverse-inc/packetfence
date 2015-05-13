@@ -27,6 +27,7 @@ use Log::Log4perl;
 use Readonly;
 use List::MoreUtils qw(natatime);
 use Time::HiRes qw(time);
+use NetAddr::IP;
 
 use constant FREERADIUS => 'freeradius';
 use constant SWITCHES_CONF => '/switches.conf';
@@ -46,6 +47,7 @@ BEGIN {
 use pf::config;
 use pf::config::cached;
 use pf::db;
+use pf::util qw(valid_mac);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $freeradius_db_prepared = 0;
@@ -126,7 +128,7 @@ sub _insert_nas_bulk {
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
     return 0 unless @rows;
     my $row_count = @rows;
-    my $sql = "REPLACE INTO radius_nas ( nasname, shortname, secret, description, config_timestamp) VALUES ( ?, ?, ?, ?, ?)" . ",( ?, ?, ?, ?, ?)" x ($row_count -1)    ;
+    my $sql = "REPLACE INTO radius_nas ( nasname, shortname, secret, description, config_timestamp, start_ip, end_ip, range_length) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)" . ",( ?, ?, ?, ?, ?, ?, ?, ?)" x ($row_count -1)    ;
     $freeradius_statements->{'freeradius_insert_nas_bulk'} = $sql;
 
     db_query_execute(
@@ -164,26 +166,47 @@ sub freeradius_populate_nas_config {
     my ($switch_config,$timestamp) = @_;
     my %skip = (default => undef, '127.0.0.1' => undef );
     my $radiusSecret;
+
+    #Only switches with a secert except default and 127.0.0.1
     my @switches = grep {
             !exists $skip{$_}
           && defined( $radiusSecret = $switch_config->{$_}{radiusSecret} )
           && $radiusSecret =~ /\S/
     } keys %$switch_config;
     return unless @switches;
+    #Should be handled in code above this
     unless (defined $timestamp ) {
         $timestamp = int (time * 1000000);
     }
-
+    #Looping through all the switches 100 at a time
     my $it = natatime 100,@switches;
     while (my @ids = $it->() ) {
         my @rows = map {
-            my $data = $switch_config->{$_};
-            [ $_, $_, $data->{radiusSecret}, $_ . " (" . $data->{'type'} .")", $timestamp ]
+            _build_radius_nas_row($_,$switch_config->{$_},$timestamp)
         } @ids;
         # insert NAS
         _insert_nas_bulk( @rows );
     }
     _delete_expired($timestamp);
+}
+
+=item _build_radius_nas_row
+
+=cut
+
+sub _build_radius_nas_row {
+    my ($id,$data,$timestamp) = @_;
+    my $start_ip = 0;
+    my $end_ip = 0;
+    my $range_length = 0;
+    unless (valid_mac($id)) {
+        if(my $netaddr = NetAddr::IP->new($id)) {
+            $start_ip = $netaddr->first->numeric;
+            $end_ip = $netaddr->last->numeric;
+            $range_length = $end_ip - $start_ip + 1;
+        }
+    }
+    [ $id, $id, $data->{radiusSecret}, $id . " (" . $data->{'type'} .")", $timestamp, $start_ip ,$end_ip, $range_length ]
 }
 
 =back

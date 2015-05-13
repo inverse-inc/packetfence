@@ -25,11 +25,16 @@ use pf::file_paths;
 use Time::HiRes qw(gettimeofday);
 use Benchmark qw(:all);
 use List::Util qw(first);
+use List::MoreUtils qw(any);
 use pf::CHI;
 use pfconfig::cached_hash;
+use pfconfig::cached_array;
+use NetAddr::IP;
 
 our %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
+my @SwitchRanges;
+tie @SwitchRanges, 'pfconfig::cached_array', 'resource::switches_ranges';
 
 =head1 METHODS
 
@@ -84,6 +89,21 @@ sub instantiate {
             $requestedSwitch = $search;
             $switch_data = $SwitchConfig{$search};
             last;
+        }
+    }
+    if (!$requestedSwitch) {
+        #Switch ranges is an order array of [NetAddr::IP object of switch,switch_id]
+        if(@SwitchRanges) {
+            foreach my $search (@requestedSwitches) {
+                next if (valid_mac($search));
+                my $ip = NetAddr::IP->new($search);
+                #Find the first switch that matches it's network range
+                if (my $rangeConfig = first { $ip->within($_->[0]) } @SwitchRanges) {
+                    $requestedSwitch = $search;
+                    $switch_data     = $SwitchConfig{$rangeConfig->[1]};
+                    last;
+                }
+            }
         }
     }
     unless (defined($requestedSwitch)) {

@@ -104,3 +104,8 @@ uplink = 23,24
 #SNMPPrivProtocolTrap = DES
 #SNMPPrivPasswordTrap = privpwdread
 
+[192.168.1.0/24]
+description=Test Range Switch
+type = Cisco::Catalyst_2900XL
+mode = production
+uplink = 23,24

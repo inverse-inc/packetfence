@@ -4,14 +4,16 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 44;
 use lib '/usr/local/pf/lib';
+use Test::More tests => 54;
+use Test::NoWarnings;
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use PfFilePaths;
     use_ok('pf::SwitchFactory');
 }
+
 
 
 my $switch = pf::SwitchFactory->instantiate('192.168.0.1');
@@ -97,7 +99,23 @@ is($switch->{_controllerIp}, '1.2.3.4', "Do not override  controllerIp address i
 
 $switch = pf::SwitchFactory->instantiate({ switch_mac => "ff:01:01:01:01:04", switch_ip => "192.168.0.1", controllerIp => "1.1.1.1"});
 isa_ok( $switch, 'pf::Switch::Cisco::Catalyst_2900XL' );
-is($switch->{_id}, '192.168.0.1', "Proper id is set");
+is($switch->{_id}, '192.168.0.1', "Proper id is set for 192.168.0.1");
+
+#Test using ip address in a range
+$switch = pf::SwitchFactory->instantiate('172.16.3.1');
+isa_ok($switch, 'pf::Switch::Cisco::Catalyst_3750G');
+is("pf::Switch::Cisco::Catalyst_3750G",ref $switch, "Got the correct switch type");
+is($switch->{_id}, '172.16.3.1', "Proper id is set for 172.16.3.1");
+
+$switch = pf::SwitchFactory->instantiate('172.16.3.2');
+isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960G');
+is('pf::Switch::Cisco::Catalyst_2960G', ref $switch,"Got the proper switch type for 172.16.3.2");
+is($switch->{_id}, '172.16.3.2', "Proper id is set for 172.16.3.2");
+
+$switch = pf::SwitchFactory->instantiate('172.16.0.1');
+isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
+is("pf::Switch::Cisco::Catalyst_2960",ref $switch, "Got the correct switch type for 172.16.0.1");
+is($switch->{_id}, '172.16.0.1', "Proper id is set for 172.16.0.1");
 
 
 =head1 AUTHOR

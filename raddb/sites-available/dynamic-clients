@@ -118,59 +118,48 @@ server dynamic_client_server {
 		#  Example 3: Look the clients up in SQL.
 		#
 		#  This requires the SQL module to be configured, of course.
+        #
+        #  The order of matching 
+        #  * The mac set in the Called-Station-Id
+        #  * The ip address of the client
+        #  * The ip range of the client
+        #
                 if("%{raw:Called-Station-Id}" =~ /^%{config:policy.mac-addr}(:(.+))?$/i) {
                     update control {
-                        Tmp-String-9 = "%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}"
-                    }
-                    if("%{control:Tmp-String-9}") {
-                        update control {
-                            Tmp-String-8 = "%{sql: SELECT nasname FROM radius_nas WHERE nasname in ('%{control:Tmp-String-9}','%{Packet-Src-IP-Address}')}"
-                        }
-                    }
-                    if ("%{control:Tmp-String-8}") {
-                        update control {
-                            #
-                            # Echo the IP.
-                            FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
-
-                            #
-                            # Do multiple SELECT statements to grab
-                            # the various definitions.
-                            FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
-
-                            FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
-
-                            FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
-
-                        }
-                        ok
-
+                        Tmp-String-8 = "%{sql: SELECT nasname FROM radius_nas WHERE nasname = '%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}'}"
                     }
                 }
-                else {
+
+                if (!"%{control:Tmp-String-8}") {
                     update control {
                         Tmp-String-8 = "%{sql: SELECT nasname FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
                     }
-                    if ("%{control:Tmp-String-8}") {
-                        update control {
-                            #
-                            # Echo the IP.
-                            FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
 
-                            #
-                            # Do multiple SELECT statements to grab
-                            # the various definitions.
-                            FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
-
-                            FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
-
-                            FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
-
-                        }
-                    ok
-                    }
                 }
+                if (!"%{control:Tmp-String-8}") {
+                    update control {
+                        Tmp-String-8 = "%{sql: SELECT nasname from radius_nas WHERE start_ip <= INET_ATON('%{Packet-Src-IP-Address}') and INET_ATON('%{Packet-Src-IP-Address}') <= end_ip order by range_length limit 1}";
+                    }
+                        #
+                }
+                if ("%{control:Tmp-String-8}") {
+                    update control {
+                        #
+                        # Echo the IP.
+                        FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
 
+                        #
+                        # Do multiple SELECT statements to grab
+                        # the various definitions.
+                        FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
+
+                        FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
+
+                        FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
+
+                    }
+                    ok
+                }
 		# Do an LDAP lookup in the elements OU, check to see if
 		# the Packet-Src-IP-Address object has a "ou"
 		# attribute, if it does continue.  Change "ACME.COM" to

@@ -46,6 +46,12 @@ VALUES
     (100120, 'Orange (CH)', '%s@orange.net', now()),
     (100121, 'Sunrise', '%s@gsm.sunrise.ch', now());
 
+--
+-- Add a column to radius_nas to order the nas list
+--
+
+ALTER TABLE radius_nas ADD start_ip INT UNSIGNED DEFAULT 0, ADD end_ip INT UNSIGNED DEFAULT 0, ADD range_length INT DEFAULT 0;
+
 
 -- IMPORTANT: KEEP THIS AT THE BOTTOM OF THIS FILE.
 -- TO BE EXECUTED AFTER EVERYTHING ELSE.

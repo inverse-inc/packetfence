@@ -607,7 +607,7 @@ The `/usr/local/pf/conf/switches.conf` configuration file contains a default sec
 and a switch section for each switch (managed by PacketFence) including:
 
 [options="compact"]
-* Switch IP
+* Switch IP/Mac/Range
 * Switch vendor/type
 * Switch uplink ports (trunks and non-managed IfIndex)
 * per-switch re-definition of the VLANs (if required)
