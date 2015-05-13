@@ -29,7 +29,7 @@ case "$1" in
         else
                 echo "pf user already exist"
         fi
-        usermod pf -a -G fingerbank,_graphite,winbindd_priv
+        usermod pf -a -G fingerbank,winbindd_priv
         if [ -e /etc/lsb-release ]; then
             usermod pf -a -G dhcpd
         fi
@@ -48,7 +48,7 @@ case "$1" in
         if [ -a "/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm" ] ; then
                 rm -fr /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
         fi
-        usermod pf -a -G fingerbank,_graphite,winbindd_priv
+        usermod pf -a -G fingerbank,winbindd_priv
         exit 0
     ;;
     abort-upgrade)
