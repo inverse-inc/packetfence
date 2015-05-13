@@ -110,10 +110,8 @@ LoadPlugin write_graphite
 
 <Plugin write_graphite>
   <Carbon>
-    Host "localhost"
+    Host "127.0.0.1"
     Port "2013"
-    #Protocol "tcp"
-    #LogSendErrors true
     StoreRates true
     AlwaysAppendDS false
     EscapeCharacter "_"
