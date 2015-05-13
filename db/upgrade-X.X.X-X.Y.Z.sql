@@ -8,25 +8,13 @@
 
 SET @MAJOR_VERSION = 5;
 SET @MINOR_VERSION = 1;
-SET @PATCH_LEVEL = 0;
+SET @SUBMINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
 --
 
-SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @PATCH_LEVEL;
-
---
--- Table structure for table 'pf_version'
---
-
-CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY);
-
---
--- Updating to current version
---
-
-INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @PATCH_LEVEL));
+SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
 
 --
 -- Alter Class for external_command
@@ -52,6 +40,17 @@ VALUES
 
 ALTER TABLE radius_nas ADD start_ip INT UNSIGNED DEFAULT 0, ADD end_ip INT UNSIGNED DEFAULT 0, ADD range_length INT DEFAULT 0;
 
+--
+-- Table structure for table 'pf_version'
+--
+
+CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY);
+
+--
+-- Updating to current version
+--
+
+INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERION));
 
 -- IMPORTANT: KEEP THIS AT THE BOTTOM OF THIS FILE.
 -- TO BE EXECUTED AFTER EVERYTHING ELSE.
