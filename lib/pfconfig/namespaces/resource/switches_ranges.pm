@@ -23,25 +23,21 @@ use NetAddr::IP;
 
 sub init {
     my ($self) = @_;
-
     # we depend on the switch configuration object (russian doll style)
     $self->{switches} = $self->{cache}->get_cache('config::Switch');
 }
 
 sub build {
     my ($self) = @_;
-    my %ranges;
-    my %SwitchConfig = %{$self->{switches}};
-
-    foreach my $switch ( keys (%SwitchConfig) ) {
+    my @ranges;
+    foreach my $switch ( keys %{$self->{switches}} ) {
         my $network = NetAddr::IP->new($switch);
         next if (!defined($network) || ($network->num eq 1) || $switch eq "default");
-        $ranges{$switch} = $SwitchConfig{$switch};
+        push @ranges,[$network,$switch];
     }
-    return \%ranges;
+    my @ordered_ranges = sort { $b->[0]->masklen <=> $a->[0]->masklen } @ranges ;
+    return \@ordered_ranges;
 }
-
-=back
 
 =head1 AUTHOR
 
