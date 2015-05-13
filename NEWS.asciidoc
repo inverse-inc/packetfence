@@ -35,6 +35,7 @@ Enhancements
 * Allow rules to be match on both source and action
 * pfsetvlan and snmptrapd are now stopped by default
 * Adapt the end process redirection on the portal
+* Refactor mandatory fields to be dynamic and update the person table with them
 
 Bug Fixes
 +++++++++
