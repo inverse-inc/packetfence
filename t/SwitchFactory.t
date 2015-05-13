@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 53;
+use Test::More tests => 54;
 use Test::NoWarnings;
 
 BEGIN {
