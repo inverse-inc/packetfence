@@ -28,6 +28,7 @@ New Features
 * Added new sms carrier for Switzerland
 * Verify if the database schema matches the current version of packetfence
 * Define range of network switches (CIDR) in switch configuration
+* Module for Cisco Aironet 1600
 
 Enhancements
 ++++++++++++
