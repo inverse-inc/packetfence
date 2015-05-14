@@ -252,6 +252,7 @@ sub parse_conf {
         $description =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
         $description =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
         $description =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
+        $description =~ s/\n//g;
 
         return $description;
     }
@@ -280,7 +281,7 @@ sub parse_conf {
                 while (defined($line = <FILE>)) {
                     chomp $line;
                     last if ($line =~ m/^EOT$/);
-                    push(@desc, $line);
+                    push(@desc, $line) if (length $line);
                 }
             }
         }
