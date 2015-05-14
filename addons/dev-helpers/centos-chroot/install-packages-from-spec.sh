@@ -11,7 +11,7 @@ YUM="yum --disablerepo='*' --enablerepo=packetfence-devel -y"
 $YUM makecache
 echo installing the packetfence dependecies
 
-REPOQUERY="repoquery --queryformat=%{NAME} --disablerepo='*' --enablerepo=packetfence-devel -c /etc/yum.conf -C --pkgnarrow=all"
+REPOQUERY="repoquery --queryformat=%{NAME} --disablerepo=* --enablerepo=packetfence-devel -c /etc/yum.conf -C --pkgnarrow=all"
 
 rpm -q --requires --specfile $SPEC | grep -v packetfence \
     | perl -pi -e's/ +$//' | sort -u \
