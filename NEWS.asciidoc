@@ -42,6 +42,7 @@ Enhancements
 Bug Fixes
 +++++++++
 * Fixes tables displaying bugs in Fingerbank menu items
+* Fixed search values not being preserved in some cases
 
 Version 5.0.2 released on 2015-05-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
