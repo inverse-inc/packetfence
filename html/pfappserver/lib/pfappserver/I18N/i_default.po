@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 5.0.1\n"
+"Project-Id-Version: 5.1.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-04-30 14:55-0400\n"
+"PO-Revision-Date: 2015-05-14 08:37-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -17,21 +17,18 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/reports.tt
-# html/pfappserver/root/graph/dashboard.tt
 # html/pfappserver/root/graph/report.tt
 msgid "30 days"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/reports.tt
-# html/pfappserver/root/graph/dashboard.tt
 # html/pfappserver/root/graph/report.tt
 msgid "60 days"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/reports.tt
-# html/pfappserver/root/graph/dashboard.tt
 # html/pfappserver/root/graph/report.tt
 msgid "7 days"
 msgstr ""
@@ -1286,6 +1283,10 @@ msgstr ""
 msgid "Define the roles which will apply to all devices on your network."
 msgstr ""
 
+# html/pfappserver/root/config/profile/captive-portal-settings.tt
+msgid "Defined Mandatory Fields will be used with the following Portal Profile based Authentication Sources"
+msgstr ""
+
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/violation/view.tt
 msgid "Definition"
@@ -2108,7 +2109,7 @@ msgid "IP Address"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "IP Address/MAC Address"
+msgid "IP Address/MAC Address/Range (CIDR)"
 msgstr ""
 
 # html/pfappserver/root/configurator/networks.tt
@@ -3281,6 +3282,30 @@ msgstr ""
 msgid "Password to log into scanning engine with."
 msgstr ""
 
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Past 12 Hours"
+msgstr ""
+
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Past 2 Weeks"
+msgstr ""
+
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Past 3 Hours"
+msgstr ""
+
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Past Day"
+msgstr ""
+
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Past Hour"
+msgstr ""
+
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Past Week"
+msgstr ""
+
 # conf/documentation.conf (provisioning.certificate)
 msgid "Path of the ca certificate"
 msgstr ""
@@ -3379,7 +3404,7 @@ msgid "Please specify the ID of the Provisioning entry."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "Please specify the IP address/MAC address of the switch."
+msgid "Please specify the IP address/MAC address/Range (CIDR) of the switch."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
@@ -3458,11 +3483,11 @@ msgid "Please specify the router IP address."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
-msgid "Please specify the server\s name"
+msgid "Please specify the server's name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
-msgid "Please specify the sql request like "select * from Win32_Product""
+msgid "Please specify the sql request like \"select * from Win32_Product\""
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -4903,20 +4928,8 @@ msgstr ""
 msgid "The merchant's unique Transaction Key (Provided by Authorize.net)"
 msgstr ""
 
-# conf/documentation.conf (monitoring.db)
-msgid "The name of the database storing the Graphite dashboard settings."
-msgstr ""
-
-# conf/documentation.conf (monitoring.db_user)
-msgid "The name of the user to connect to the database storing the Graphite dashboard settings."
-msgstr ""
-
 # html/pfappserver/root/node/create.tt
 msgid "The node will be automatically registered. If the MAC matches an existing node, it will also be modified and registered."
-msgstr ""
-
-# conf/documentation.conf (monitoring.db_pass)
-msgid "The password of the user to connect to the database storing the Graphite dashboard settings."
 msgstr ""
 
 # conf/documentation.conf (billing.authorizenet_posturl)
@@ -5085,7 +5098,6 @@ msgid ""
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/graph/dashboard.tt
 # html/pfappserver/root/graph/report.tt
 msgid "Today"
 msgstr ""
@@ -5730,6 +5742,10 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "With no source specified, the sources of the default profile will be used."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Without any sources, configured Mandatory Fields won't be displayed"
 msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
@@ -6855,23 +6871,11 @@ msgid "monitoring"
 msgstr ""
 
 # conf/documentation.conf
-msgid "monitoring.db"
-msgstr ""
-
-# conf/documentation.conf
 msgid "monitoring.db_host"
 msgstr ""
 
 # conf/documentation.conf
-msgid "monitoring.db_pass"
-msgstr ""
-
-# conf/documentation.conf
 msgid "monitoring.db_port"
-msgstr ""
-
-# conf/documentation.conf
-msgid "monitoring.db_user"
 msgstr ""
 
 # conf/documentation.conf
