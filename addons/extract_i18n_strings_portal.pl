@@ -35,6 +35,7 @@ Add a localizable sring to the list.
 sub add_string {
     my ($string, $source) = @_;
 
+    $string =~ s/(?<!\\)\"/\\\"/g; # escape double-quotes
     unless ($strings{$string}) {
         $strings{$string} = [];
     }

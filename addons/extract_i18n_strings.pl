@@ -51,6 +51,7 @@ Add a localizable sring to the list.
 sub add_string {
     my ($string, $source) = @_;
 
+    $string =~ s/(?<!\\)\"/\\\"/g; # escape double-quotes
     unless ($strings{$string}) {
         $strings{$string} = [];
     }
@@ -251,7 +252,6 @@ sub parse_conf {
         $description =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
         $description =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
         $description =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
-        $description =~ s/\"/\\\"/g;
 
         return $description;
     }

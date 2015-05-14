@@ -74,7 +74,7 @@ has_field 'server_name' =>
    label => 'This server\'s name',
    required => 1,
    maxlength => 14,
-   messages => { required => 'Please specify the server\s name' },
+   messages => { required => 'Please specify the server\'s name' },
   );
 
 has_field 'dns_name' =>
