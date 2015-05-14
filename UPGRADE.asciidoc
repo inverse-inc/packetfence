@@ -22,6 +22,15 @@ pfsetvlan and snmptrapd
 These two services have been disabled by default. 
 If you are using SNMP traps enforcement on your switches (like port-security), make sure you re-enable them in 'Configuration->Services'.
 
+Active Directory domain join
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Active Directory domain join configuration is now part of PacketFence. 
+A migration script has been made so you can migrate an existing join into this configuration.
+Note that this step is not mandatory, as the old join method is still supported.
+
+Simply execute the following script and follow it's instructions `/usr/local/pf/addons/AD/migrate.pl`
+
 
 Upgrading from a version prior to 5.0.0
 ---------------------------------------
