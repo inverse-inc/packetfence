@@ -25,7 +25,8 @@ Nodes.prototype.post = function(options) {
         {
             url: options.url,
             type: 'POST',
-            data: options.data
+            data: options.data,
+            timeout: 300000,
         },
         options
     );
@@ -517,6 +518,7 @@ NodeView.prototype.toggleAllItems = function(e) {
 };
 
 NodeView.prototype.submitItems = function(e) {
+    var that = this;
     var target = $(e.currentTarget);
     var status_container = $("#section").find('h2').first();
     var items = $("#items").serialize();
@@ -528,7 +530,7 @@ NodeView.prototype.submitItems = function(e) {
                 $("#section").one('section.loaded', function() {
                     showSuccess($("#section").find('h2').first(), data.status_msg);
                 });
-                $(window).hashchange();
+                that.refreshPage();
             },
             errorSibling: status_container
         });
