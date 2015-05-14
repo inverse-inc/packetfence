@@ -27,6 +27,8 @@ New Features
 * Verify if the database schema matches the current version of PacketFence
 * Define range of network switches (CIDR) in switch configuration
 * Module for Cisco Aironet 1600
+* Added ability to join an Active Directory domain directly from the administration interface
+* Added the ability to join multiple Active Directory domains for EAP-PEAP authentication
 
 Enhancements
 ++++++++++++
