@@ -637,6 +637,12 @@ ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.6/site-packages
 chmod g+w /var/lib/carbon
 chmod g+w /var/lib/graphite-web
 
+# radsniff3 absolutely needs to resolve the hostname
+# if this server cannot resolve it's own name, we add a host entry pointing to the local interface
+if ! ping -c 1 $HOSTNAME > /dev/null 2>&1; then
+  echo "127.0.0.1 $(hostname)" >> /etc/hosts
+fi
+
 #Getting rid of SELinux
 echo "Disabling SELinux..."
 setenforce 0
