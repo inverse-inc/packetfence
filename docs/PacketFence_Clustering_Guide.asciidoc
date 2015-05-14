@@ -262,7 +262,8 @@ Here we assume that the connection for the Heartbeat between the 2 servers is on
 
 Create `/etc/ha.d/haresources` with the following content:
 
-  pf1.example.com drbddisk::mysql Filesystem::/dev/drbd0::/var/lib/mysql::ext4 mysqld
+  pf1.example.com drbddisk::mysql Filesystem::/dev/drbd0::/var/lib/mysql::ext4 \ 
+  mysqld
 
 Create `/etc/ha.d/authkeys` with the following content:
 
