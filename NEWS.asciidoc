@@ -16,32 +16,30 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* New activation_domain feature to allow to expose a different domain than packetfence's name in email templates
-* Added WMI as a scan engine.
-* Multiples scan engine definition based on the OS type, category.
-* Scan definition per portal profiles
+* New activation_domain feature allowing to expose a different domain than PacketFence's name in email templates
+* Added Windows Management Instrumentation (WMI) as a scan engine
+* Multiple scan engine definitions based on the OS type and role
+* Scan definition based on portal profiles
 * New external command action in violation
-* New api method for adding a person
-* New api method for viewing a person
-* New api method for modifying a person
-* New performance dashboard based on Graphite allows tracking of core performance metrics such as number and latency of radius requests, number of httpd.aaa processes and authorization latency.
-* Added new sms carrier for Switzerland
-* Verify if the database schema matches the current version of packetfence
+* New API methods for adding, viewing or modifying a person
+* New performance dashboard based on Graphite allows tracking of core performance metrics such as number and latency of RADIUS requests, number of httpd.aaa processes and authorization latency
+* Added new SMS carrier for Switzerland
+* Verify if the database schema matches the current version of PacketFence
 * Define range of network switches (CIDR) in switch configuration
 * Module for Cisco Aironet 1600
 
 Enhancements
 ++++++++++++
-* Removed the unnecessary "Upstream" listing from the "Combination" menu item of Fingerbank section.
+* Removed the unnecessary "Upstream" listing from the "Combination" menu item of Fingerbank section
 * Ability to search in Fingerbank "Local" "Devices" listing
 * Allow rules to be match on both source and action
 * pfsetvlan and snmptrapd are now stopped by default
-* Adapt the end process redirection on the portal
+* Improve the end process redirection on the captive portal
 * Refactor mandatory fields to be dynamic and update the person table with them
 
 Bug Fixes
 +++++++++
-* Fixes tables displaying bugs in Fingerbank menu items.
+* Fixes tables displaying bugs in Fingerbank menu items
 
 Version 5.0.2 released on 2015-05-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
