@@ -94,13 +94,29 @@ The CA certificate in PEM format
 
 has ca_cert => (is => 'rw');
 
-=head2 certificate
+=head2 svr_cert
+
+The radius server certificate authentication path
+
+=cut
+
+#has svr_cert => (is => 'rw');
+
+=head2 cert_chain
+
+The certificate chain for signing in PEM format
+
+=cut
+
+has cert_chain => (is => 'rw');
+
+=head2 cert_chain
 
 The certificate for signing in PEM format
 
 =cut
 
-has certificate => (is => 'rw');
+has certificate  => (is => 'rw');
 
 =head2 private_key
 
@@ -144,8 +160,8 @@ sub sign_profile {
     my ($self, $content) = @_;
     my $smime = Crypt::SMIME->new();
     $smime->setPrivateKey($self->private_key, $self->certificate);
-    if($self->additional_certs) {
-        $smime->setPublicKey($self->additional_certs);
+    if($self->cert_chain) {
+        $smime->setPublicKey($self->cert_chain);
     }
     return decode_base64($smime->signonly_attached($content));
 }

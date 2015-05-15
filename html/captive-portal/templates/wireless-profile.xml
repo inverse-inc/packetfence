@@ -17,12 +17,11 @@
                                 </array>
                                 <key>PayloadCertificateAnchorUUID</key>
                                 <array>
-                                        <string>96148a46-d87a-11e4-b9d6-1681e6b88ec1</string>
                                         <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
                                 </array>
                                 <key>TLSTrustedServerNames</key>
                                 <array>
-                                    <string>svr</string>
+                                    <string>[% svrcn %]</string>
                                 </array>
                                 [% IF for_windows %]
                                 <key>UserName</key>
@@ -110,28 +109,6 @@
                         <string>com.apple.security.root</string>
                         <key>PayloadUUID</key>
                         <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
-                        <key>PayloadVersion</key>
-                        <integer>1</integer>
-                </dict>
-                [% END %]
-                [% IF for_ios and provisioner.eap_type == "13" %]
-                <dict>
-                        <key>PayloadCertificateFileName</key>
-                        <string>[% svrcn %]</string>
-                        <key>PayloadContent</key>
-                        <data>[% svrdata %]</data>
-                        <key>PayloadDescription</key>
-                        <string>Provides device authentication (certificate or identity).</string>
-                        <key>PayloadDisplayName</key>
-                        <string>[% svrcn %]</string>
-                        <key>PayloadIdentifier</key>
-                        <string>[% provisioner.reversedns %]</string>
-                        <key>PayloadOrganization</key>
-                        <string>[% provisioner.company %]</string>
-                        <key>PayloadType</key>
-                        <string>com.apple.security.pkcs1</string>
-                        <key>PayloadUUID</key>
-                        <string>96148a46-d87a-11e4-b9d6-1681e6b88ec1</string>
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                 </dict>

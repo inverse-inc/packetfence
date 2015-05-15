@@ -50,7 +50,6 @@ sub index : Path : Args(0) {
         for_ios      => ($provisioner->{type} eq 'mobileconfig'),
         cacn         => $pki_session->{cacn},
         svrcn        => $pki_session->{svrcn},
-        svrdata      => $pki_session->{svrdata},
         cadata       => $pki_session->{cadata},
         passwcode    => $provisioner->{passcode},
     );

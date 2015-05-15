@@ -70,6 +70,28 @@ has_field 'reversedns' =>
              help => 'Example : if your dns name is www.packetfence.org it becomes org.packetfence.www'},
   );
 
+has_field 'cert_chain' =>
+  (
+   type => 'TextArea',
+   element_class => ['input-xxlarge'],
+   inflate_default_method => \&filter_inflate ,
+   deflate_value_method => \&filter_deflate ,
+   label => 'The certificate chain for the signer certificate',
+   tags => { after_element => \&help,
+             help => 'The certificate chain of the signer certificate in pem format'},
+  );
+
+has_field 'ca_cert' =>
+  (
+   type => 'TextArea',
+   element_class => ['input-xxlarge'],
+   inflate_default_method => \&filter_inflate ,
+   deflate_value_method => \&filter_deflate ,
+   label => 'The base64 Certificate of Authority',
+   tags => { after_element => \&help,
+             help => 'The Certificate of Authority in pem format'},
+  );
+
 has_field 'certificate' =>
   (
    type => 'TextArea',
@@ -90,17 +112,6 @@ has_field 'private_key' =>
    label => 'The private key for signing profiles',
    tags => { after_element => \&help,
              help => 'The Private Key for signing in pem format'},
-  );
-
-has_field 'additional_certs' =>
-  (
-   type => 'TextArea',
-   element_class => ['input-xxlarge'],
-   inflate_default_method => \&filter_inflate ,
-   deflate_value_method => \&filter_deflate ,
-   label => 'Additional Certificate',
-   tags => { after_element => \&help,
-             help => 'Additional certificates for verification'},
   );
 
 has_field 'can_sign_profile' =>
@@ -130,7 +141,7 @@ sub filter_deflate {
 
 has_block definition =>
   (
-   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode pki_provider can_sign_profile private_key certificate additional_certs ) ],
+   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode pki_provider can_sign_profile certificate private_key cert_chain ca_cert) ],
   );
 
 sub options_eap_type {
