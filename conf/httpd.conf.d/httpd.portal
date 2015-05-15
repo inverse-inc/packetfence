@@ -193,8 +193,8 @@ $Timeout = "5";
 $KeepAliveTimeout = "3";
 
 $MaxClients = pf::services::manager::httpd::calculate_max_clients(pf::services::manager::httpd::get_total_system_memory());
-$StartServers =  pf::services::manager::httpd::calculate_start_servers($MaxClients);
-$MinSpareServers = pf::services::manager::httpd::calculate_min_spare_servers($MaxClients);
+$StartServers = "4";
+$MinSpareServers = "2";
 
 if( pf::config::isenabled ($PfConfig->{services}{httpd_mod_qos})) {
     my $qos = $MaxClients * .7;
