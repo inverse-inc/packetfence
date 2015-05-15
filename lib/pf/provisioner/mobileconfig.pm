@@ -144,8 +144,8 @@ sub sign_profile {
     my ($self, $content) = @_;
     my $smime = Crypt::SMIME->new();
     $smime->setPrivateKey($self->private_key, $self->certificate);
-    if($self->ca_cert) {
-        $smime->setPublicKey($self->ca_cert);
+    if($self->additional_certs) {
+        $smime->setPublicKey($self->additional_certs);
     }
     return decode_base64($smime->signonly_attached($content));
 }
