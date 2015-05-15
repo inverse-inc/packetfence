@@ -1,7 +1,6 @@
 package captiveportal::PacketFence::Controller::TLSProfile;
 use Moose;
 use namespace::autoclean;
-use WWW::Curl::Easy;
 use pf::log;
 use pf::config;
 use pf::util;
@@ -12,7 +11,6 @@ use pf::authentication;
 use HTML::Entities;
 use MIME::Base64;
 use File::Slurp;
-use File::Basename;
 use pf::web;
 use Crypt::OpenSSL::X509;
 
