@@ -254,7 +254,7 @@ Requires: perl(Hash::Merge)
 Requires: perl(IO::Socket::INET6)
 Requires: perl(IO::Interface)
 Requires: perl(Time::Period)
-Requires: iproute >= 3.0.0, samba, krb5-workstation
+Requires: iproute >= 3.0.0, samba < 4, krb5-workstation
 # configuration-wizard
 Requires: iproute, vconfig
 # wmi
