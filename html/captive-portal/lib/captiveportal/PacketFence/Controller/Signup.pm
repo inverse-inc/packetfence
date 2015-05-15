@@ -180,6 +180,7 @@ sub doEmailSelfRegistration : Private {
     $c->stash->{pid} = $pid;
     $c->stash->{info} = \%info;
     $session->{source_id} = $source->{id};
+    $session->{source_match} = undef;
     $c->forward(Authenticate => 'setRole');
 
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
@@ -296,6 +297,7 @@ sub doSponsorSelfRegistration : Private {
     $c->stash->{pid} = $pid;
     $c->stash->{info} = \%info;
     $session->{source_id} = $source->{id};
+    $session->{source_match} = undef;
     $c->forward('Authenticate' => 'setRole');
 
     # Setting access timeout and role (category) dynamically
@@ -411,6 +413,7 @@ sub doSmsSelfRegistration : Private {
     $c->stash->{pid} = $pid;
     $c->stash->{info} = \%info;
     $session->{source_id} = $source->{id};
+    $session->{source_match} = undef;
     $c->forward(Authenticate => 'setRole');
 
     my ( $auth_return, $err, $errargs_ref ) =

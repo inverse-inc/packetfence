@@ -215,6 +215,7 @@ sub oauth2Result : Path : Args(1) {
 
         $c->session->{"username"} = $pid;
         $c->session->{source_id} = $source->{id};
+        $c->session->{source_match} = undef;
         $c->stash->{info}=\%info; 
         my $auth_params = { 'username' => $pid, 'user_email' => $pid };
         $c->forward('Authenticate' => 'postAuthentication');
