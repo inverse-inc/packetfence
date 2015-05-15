@@ -75,7 +75,8 @@ our %ACTION_MAP = (
 sub parseArgs {
     my ($self) = @_;
     my ($service, $action) = $self->args;
-    return 0 unless defined $service && defined $action && exists $ACTION_MAP{$action};
+    return 0 unless defined $service && defined $action && exists $ACTION_MAP{$action} && any { $_ eq $service} @pf::services::ALL_SERVICES;
+
     my @services;
     if ($service eq 'pf') {
         @services = @pf::services::ALL_SERVICES;
