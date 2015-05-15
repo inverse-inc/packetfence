@@ -25,11 +25,12 @@ If you are using SNMP traps enforcement on your switches (like port-security), m
 Active Directory domain join
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The Active Directory domain join configuration is now part of PacketFence. 
-A migration script has been made so you can migrate an existing join into this configuration.
-Note that this step is not mandatory, as the old join method is still supported.
+The Microsoft Active Directory domain join configuration is now part of PacketFence. 
+A migration script has been made so you can migrate an existing domain join into this configuration.
+Note that this step is not mandatory, as the old join method is still supported. But if you do
+not perform this step, you will not see its configuration from the PacketFence web administrative interface.
 
-Simply execute the following script and follow it's instructions `/usr/local/pf/addons/AD/migrate.pl`
+Simply execute the following script and follow its instructions `/usr/local/pf/addons/AD/migrate.pl`
 
 
 Upgrading from a version prior to 5.0.0
