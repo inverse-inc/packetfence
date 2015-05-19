@@ -43,6 +43,7 @@ Bug Fixes
 +++++++++
 * Fixes tables displaying bugs in Fingerbank menu items
 * Fixed search values not being preserved in some cases
+* Fixed switch access list field turning into an object reference
 
 Version 5.0.2 released on 2015-05-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
