@@ -2774,6 +2774,10 @@ sub radiusDisconnect {
             LocalAddr => $management_network->tag('vip'),
         };
 
+        if (defined($self->{'_controllerPort'}) && $self->{'_controllerPort'} ne '') {
+            $connection_info->{'nas_port'} = $self->{'_controllerPort'};
+        }
+
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
