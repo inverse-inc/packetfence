@@ -177,8 +177,8 @@ msgstr "Inscription"
 msgid "guest network disclaimer"
 msgstr "Ce réseau public est fournis exclusivement pour la convenence des invités et des visiteurs.  L'accès n'implique aucune garantie de fiabilité, de vitesse ou de confidentialité.  Ce réseau est strictement fournis pour donner un accés a Internet.  Son utilisation implique l'acceptation de tous les termes et conditions contenus dans notre <b>Politique d'accès réseau</b>."
 
-msgid "tls enrolment network"
-msgstr "Réseau destiné à la génération d'un certificat eap-tls. Veuillez remplir les informations suivantes pour etre fourni par votre certificat et votre profile vous permettant de vous connecter au réseau secure."
+msgid "tls enrollment network"
+msgstr "Pour compléter le processus d'enregistrement, vous devez maintenant générer votre certificat TLS. Ceci vous permettra d'établir une connexion sécurisée de type EAP-TLS. Veuillez fournir les informations requises, ci-dessous."
 
 msgid ""
 "In the fields below please enter your name, phone number and a valid email "
