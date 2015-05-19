@@ -66,13 +66,8 @@
                         [% ELSE %]
                         <data>[% certdata %]</data>
                         [% END %]
-                        [% IF for_windows %]
-                        <key>PayloadDescription</key>
-                        <string>Provides device authentication (certificate or identity).[% fingerprint %]</string>
-                        [% ELSE %]
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
-                        [% END %]
                         <key>PayloadDisplayName</key>
                         <string>[% certcn %]</string>
                         <key>PayloadIdentifier</key>
@@ -122,6 +117,10 @@
         <string>[% provisioner.reversedns %]</string>
         <key>PayloadOrganization</key>
         <string>[% provisioner.company %]</string>
+        [% IF for_windows %]
+        <key>cafingerprint</key>
+        <string>[% fingerprint %]</string>
+        [% END %]
         <key>PayloadRemovalDisallowed</key>
         <false/>
         <key>PayloadType</key>
