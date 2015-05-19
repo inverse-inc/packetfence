@@ -123,6 +123,7 @@ requires: perl(Proc::ProcessTable)
 requires: perl(Apache::SSLLookup)
 requires: perl(Crypt::OpenSSL::X509)
 requires: perl(Const::Fast)
+requires: perl(LMDB::Core)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode.
@@ -134,7 +135,7 @@ Requires: perl(Digest::HMAC_MD5)
 # TODO: we should depend on perl modules not perl-libwww-perl package
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
 # LWP::Simple is one of them (required by inlined Net::MAC::Vendor and probably other stuff)
-Requires: perl-libwww-perl, perl(LWP::Simple), perl(LWP::Protocol::https)
+Requires: perl-libwww-perl > 6.02, perl(LWP::Simple), perl(LWP::Protocol::https)
 Requires: perl(List::MoreUtils)
 Requires: perl(Locale::gettext)
 Requires: perl(Log::Log4perl) >= 1.43
