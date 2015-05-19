@@ -6,12 +6,14 @@ use pf::config;
 use constant LOOPBACK_IPV4 => '127.0.0.1';
 use pf::log;
 use pf::util;
+use pf::config::util;
 use pf::locationlog qw(locationlog_synchronize);
 use NetAddr::IP;
 use pf::Portal::ProfileFactory;
 use File::Spec::Functions qw(catdir);
 use pf::activation qw(view_by_code);
 use pf::web::constants;
+use URI::URL;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 
@@ -141,8 +143,19 @@ sub ACCEPT_CONTEXT {
 sub _build_destinationUrl {
     my ($self) = @_;
     my $url = $self->_destination_url;
+
+    my $host = URI::URL->new($url)->host();
+
+    get_logger->info("User requested URL $url on host $host");
     # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
-    if (!defined($url) || isenabled($self->profile->forceRedirectURL)) {
+    if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
+        return $self->profile->getRedirectURL;
+    }
+
+    my @portal_hosts = portal_hosts();
+    # if the destination URL points to the portal, we put the default URL of the portal profile
+    if (URI::URL->new($url)->host() ~~ @portal_hosts) {
+        get_logger->info("Replacing destination URL since it points to the captive portal");
         return $self->profile->getRedirectURL;
     }
 
