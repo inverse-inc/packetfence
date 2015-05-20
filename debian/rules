@@ -147,9 +147,7 @@ binary-arch: build install
 	dh_link /usr/local/pf/raddb/sites-available/control-socket /usr/local/pf/raddb/sites-enabled/control-socket \
 			/usr/local/pf/raddb/sites-available/default /usr/local/pf/raddb/sites-enabled/default \
 			/usr/local/pf/raddb/sites-available/inner-tunnel /usr/local/pf/raddb/sites-enabled/inner-tunnel \
-			/usr/local/pf/raddb/sites-available/packetfence /usr/local/pf/raddb/sites-enabled/packetfence \
 			/usr/local/pf/raddb/sites-available/packetfence-soh /usr/local/pf/raddb/sites-enabled/packetfence-soh \
-			/usr/local/pf/raddb/sites-available/packetfence-tunnel /usr/local/pf/raddb/sites-enabled/packetfence-tunnel \
 			/usr/local/pf/raddb/sites-available/dynamic-clients /usr/local/pf/raddb/sites-enabled/dynamic-clients \
 			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
 	dh_strip

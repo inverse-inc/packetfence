@@ -506,9 +506,7 @@ cd $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 ln -s ../sites-available/control-socket control-socket
 ln -s ../sites-available/default default
 ln -s ../sites-available/inner-tunnel inner-tunnel
-ln -s ../sites-available/packetfence packetfence
 ln -s ../sites-available/packetfence-soh packetfence-soh
-ln -s ../sites-available/packetfence-tunnel packetfence-tunnel
 ln -s ../sites-available/dynamic-clients dynamic-clients
 
 # Fingerbank symlinks
