@@ -38,6 +38,7 @@ Enhancements
 * pfsetvlan and snmptrapd are now stopped by default
 * Improve the end process redirection on the captive portal
 * Refactor mandatory fields to be dynamic and update the person table with them
+* Moved raddb/sites-enabled/packetfence and raddb/sites-enabled/packetfence-tunnel in conf/radiusd
 
 Bug Fixes
 +++++++++
