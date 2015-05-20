@@ -861,6 +861,10 @@ fi
                         /usr/local/pf/conf/radiusd/radiusd.conf.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/sql.conf
                         /usr/local/pf/conf/radiusd/sql.conf.example
+%config(noreplace)	/usr/local/pf/conf/radiusd/packetfence
+                        /usr/local/pf/conf/radiusd/packetfence.example
+%config(noreplace)	/usr/local/pf/conf/radiusd/packetfence-tunnel
+                        /usr/local/pf/conf/radiusd/packetfence-tunnel.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
 %config(noreplace)      /usr/local/pf/conf/domain.conf

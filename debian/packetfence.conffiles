@@ -48,6 +48,8 @@
 /usr/local/pf/conf/radiusd/radiusd.conf
 /usr/local/pf/conf/radiusd/sql.conf
 /usr/local/pf/conf/radiusd/proxy.conf.inc
+/usr/local/pf/conf/radiusd/packetfence
+/usr/local/pf/conf/radiusd/packetfence-tunnel
 /usr/local/pf/conf/snmptrapd.conf
 /usr/local/pf/conf/snort.conf
 /usr/local/pf/conf/snort.conf.pre_snort-2.8

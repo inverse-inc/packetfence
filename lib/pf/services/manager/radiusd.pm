@@ -31,9 +31,29 @@ sub generateConfig {
     generate_radiusd_mainconf();
     generate_radiusd_eapconf();
     generate_radiusd_sqlconf();
+    generate_radiusd_sitesconf();
     generate_radiusd_proxy();
     generate_radiusd_cluster();
 }
+
+=head2 generate_radiusd_sitesconf
+
+Generates the packetfence and packetfence-tunnel configuration file
+
+=cut
+
+sub generate_radiusd_sitesconf {
+    my %tags;
+
+    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence";
+    parse_template( \%tags, "$conf_dir/radiusd/packetfence", "$install_dir/raddb/sites-enabled/packetfence" );
+
+
+    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
+    parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
+
+}
+
 
 =head2 generate_radiusd_mainconf
 
