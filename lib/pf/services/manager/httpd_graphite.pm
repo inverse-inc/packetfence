@@ -48,12 +48,13 @@ sub generate_local_settings {
     $tags{'graphite_host'}        = "$Config{'monitoring'}{'graphite_host'}";
     $tags{'graphite_port'}        = "$Config{'monitoring'}{'graphite_port'}";
     $tags{'db_graphite_database'} = $Config{'database'}{'db'} . "_graphite";
-    $tags{'db_host'}              = $Config{'monitoring'}{'db_host'};
+    # in cluster mode we need to connect to haproxy on 127.0.0.1
+    $tags{'db_host'}              = get_cluster_destinations() ?
+                                    '127.0.0.1' : $Config{'monitoring'}{'db_host'};
     $tags{'db_port'}              = $Config{'monitoring'}{'db_port'};
     $tags{'db_user'}              = $Config{'database'}{'user'};
     $tags{'db_password'}          = $Config{'database'}{'pass'};
-    $tags{'carbon_hosts'}         = get_cluster_destinations()
-        // $tags{'graphite_host'} . ":9000, ";
+    $tags{'carbon_hosts'}         = get_cluster_destinations() // $tags{'graphite_host'} . ":9000, ";
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/local_settings.py" );
 }
