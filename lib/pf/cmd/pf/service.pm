@@ -13,21 +13,33 @@ pfcmd service <service> [start|stop|restart|status|watch]
 
 Services managed by PacketFence:
 
+  carbon-cache     | carbon-cache daemon
+  carbon-relay     | carbon-relay daemon
+  collectd         | collectd daemon
   dhcpd            | dhcpd daemon
-  httpd.webservices| Apache Webservices
+  haproxy          | haproxy daemon
+  httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin
   httpd.portal     | Apache Captive Portal
   httpd.proxy      | Apache Proxy Interception
+  httpd.webservices| Apache Webservices
+  iptables         | PacketFence firewall rules
+  keepalived       | Virtual IP management
+  memcached        | memcached daemon
   pf               | all services that should be running based on your config
+  pfbandwidthd     | A pf service to monitor bandwidth usages
   pfdetect         | PF snort alert parser
   pfdhcplistener   | PF DHCP monitoring daemon
   pfdns            | DNS daemon
   pfmon            | PF ARP monitoring daemon
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
+  radsniff3        | radsniff3 daemo
   snmptrapd        | SNMP trap receiver daemon
   snort            | Sourcefire Snort IDS
+  statsd           | statsd service
   suricata         | Suricata IDS
+  winbindd         | Winbind daemon
 
 watch
 
