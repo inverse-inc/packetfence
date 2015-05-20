@@ -46,9 +46,9 @@ sub process {
     # Querying for a resultset
     my $query_result = _query($query_args);
 
-    if ( ref($query_result) ne "HASH" ) {
+    if ( is_error($query_result) ) {
         $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
-        return "";
+        return "unknown";
     }
 
     # Processing the device class based on it's parents
