@@ -109,8 +109,8 @@ $Timeout = "50";
 $KeepAliveTimeout = "10";
 
 $MaxClients = "256";
-$StartServers = "10";
-$MinSpareServers = "3";
+$StartServers = "4";
+$MinSpareServers = "2";
 $MaxSpareServers = "10";
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
