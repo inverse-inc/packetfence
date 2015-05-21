@@ -17,4 +17,5 @@ log4perl.appender.HTTPD_WEBSERVICES.layout.ConversionPattern     = %d{MMM dd HH:
 log4perl.appender.HTTPD_WEBSERVICES.umask                        = 0002
 log4perl.appender.HTTPD_WEBSERVICES.user                         = pf
 log4perl.appender.HTTPD_WEBSERVICES.group                        = pf
+log4perl.appender.HTTPD_WEBSERVICES.binmode                      = utf8
 

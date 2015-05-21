@@ -30,6 +30,7 @@ log4perl.appender.HTTPD_PORTAL.layout.ConversionPattern     = %d{MMM dd HH:mm:ss
 log4perl.appender.HTTPD_PORTAL.umask                        = 0002
 log4perl.appender.HTTPD_PORTAL.user                         = pf
 log4perl.appender.HTTPD_PORTAL.group                        = pf
+log4perl.appender.HTTPD_PORTAL.binmode                      = utf8
 
 
 ### General Catalyst (pfappserver) log facility configuration ###
@@ -41,6 +42,7 @@ log4perl.appender.CATALYST.layout.ConversionPattern        = %d{MMM dd HH:mm:ss}
 log4perl.appender.CATALYST.umask                           = 0002
 log4perl.appender.CATALYST.user                            = pf
 log4perl.appender.CATALYST.group                           = pf
+log4perl.appender.CATALYST.binmode                         = utf8
 
 ### General Fingerbank log facility configuration ###
 log4perl.appender.FINGERBANK                               = Log::Log4perl::Appender::File
@@ -51,3 +53,4 @@ log4perl.appender.FINGERBANK.layout.ConversionPattern      = %d{MMM dd HH:mm:ss}
 log4perl.appender.FINGERBANK.umask                         = 0002
 log4perl.appender.FINGERBANK.user                          = pf
 log4perl.appender.FINGERBANK.group                         = pf
+log4perl.appender.FINGERBANK.binmode                       = utf8
