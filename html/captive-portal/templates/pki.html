@@ -1,4 +1,4 @@
-[% title = i18n("PacketFence Certificate Initialization System") %]
+[% title = i18n("PacketFence Certificate Initialisation System") %]
 [% INCLUDE header.html
     body_attributes = 'onload="$(\'firstfield\').focus();"';
 %]
@@ -18,12 +18,27 @@
           <div class="input">
             
             <span>[% i18n("Password") %]</span>
-            <input class="field" name="certificate_pwd" type="password" value="" />
-            <input class="field" name="certificate_pwd_check" type="password" value="" />
-
+            <input class="field" name="certificate_pwd" type="password" value="[% certificate_pwd | html %]" />
+            <input class="field" name="certificate_pwd_check" type="password" value="[% certificate_pwd_check | html %]" />
+          </div>
+          <div class="input">
             <span>[% i18n("Email") %]</span>
             <input class="field" name="certificate_email" type="text" value="[% certificate_email | html %]" />
 
+          </div>
+
+          [%# AUP %]
+          <div class="input">
+            <div>[% i18n("Acceptable Use Policy") %]</div>
+            <div id="aup">
+              <div class="notmobile">
+                [% INCLUDE aup_text.html %]
+              </div>
+              <div class="mobile">
+                <input name="aup_signed" type="checkbox" value="on" /> [% i18n("I have read and accept the terms") %]
+              </div>
+            </div>
+            <div class="notmobile"><label><input name="aup_signed" type="checkbox" value="on" /> [% i18n("I accept the terms") %]</label></div>
           </div>
 
           [% submit %]
