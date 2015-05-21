@@ -233,9 +233,7 @@
 /usr/local/pf/raddb/sites-available/example
 /usr/local/pf/raddb/sites-available/inner-tunnel
 /usr/local/pf/raddb/sites-available/originate-coa
-/usr/local/pf/raddb/sites-available/packetfence
 /usr/local/pf/raddb/sites-available/packetfence-soh
-/usr/local/pf/raddb/sites-available/packetfence-tunnel
 /usr/local/pf/raddb/sites-available/proxy-inner-tunnel
 /usr/local/pf/raddb/sites-available/robust-proxy-accounting
 /usr/local/pf/raddb/sites-available/soh
