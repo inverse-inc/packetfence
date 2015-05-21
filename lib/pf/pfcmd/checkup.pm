@@ -35,7 +35,6 @@ use pf::version;
 use File::Slurp;
 use Crypt::OpenSSL::X509;
 use pf::file_paths;
-use Date::Parse;
 
 use lib $conf_dir;
 
@@ -1130,20 +1129,11 @@ sub valid_certs {
         add_problem($FATAL, "Cannot find the FreeRADIUS certificate in your configuration.");
     }
 
-
-    my ($expiration, $cert);
-
-    $cert = Crypt::OpenSSL::X509->new_from_file($httpd_crt);
-
-    $expiration = str2time($cert->notAfter);
-    if(time > $expiration){
+    if(cert_has_expired($httpd_crt)){
         add_problem($FATAL, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
     }
 
-    $cert = Crypt::OpenSSL::X509->new_from_file($radius_crt);
-
-    $expiration = str2time($cert->notAfter);
-    if(time > $expiration){
+    if(cert_has_expired($radius_crt)){
         add_problem($FATAL, "The certificate used by FreeRADIUS ($radius_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
     }
 
