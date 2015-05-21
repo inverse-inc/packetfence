@@ -33,7 +33,6 @@ use pfconfig::manager;
 use pfconfig::namespaces::config::Pf;
 use pf::version;
 use File::Slurp;
-use Crypt::OpenSSL::X509;
 use pf::file_paths;
 
 use lib $conf_dir;

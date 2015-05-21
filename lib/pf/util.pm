@@ -30,6 +30,7 @@ use Try::Tiny;
 use pf::file_paths;
 use NetAddr::IP;
 use Date::Parse;
+use Crypt::OpenSSL::X509;
 
 our ( %local_mac );
 
