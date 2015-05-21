@@ -25,7 +25,7 @@ extends 'pf::services::manager';
 
 has '+name'     => ( default => sub {'collectd'} );
 has '+optional' => ( default => sub {1} );
-has dependsOnServices => ( is => 'ro', default => sub { [qw(carbon-relay)] } );
+has dependsOnServices => ( is => 'ro', default => sub { [qw(carbon-cache carbon-relay)] } );
 
 has '+launcher' => (
     default => sub {
