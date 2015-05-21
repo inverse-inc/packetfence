@@ -17,6 +17,7 @@ use namespace::autoclean;
 use pf::config::cached;
 use pf::util;
 use pf::domain;
+use pf::config;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -71,6 +72,14 @@ after [qw(create update)] => sub {
 before [qw(remove)] => sub{
     my ($self, $c) = @_;
     pf::domain::unjoin_domain($c->stash->{'id'});
+};
+
+after list => sub {
+    my ($self, $c) = @_;
+    $c->log->debug("Checking if user can edit the domain config");
+    # we block the editing if the user has an OS configuration and no configured domains
+    # this means he hasn't gone through the migration script
+    $c->stash->{block_edit} = ( pf::domain::has_os_configuration() && !keys(%ConfigDomain) ); 
 };
 
 =head2 after view

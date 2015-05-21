@@ -16,16 +16,25 @@
         </div>
       </div>
 
-      <h2>[% l('Domain')  %]</h2>
+      [% IF block_edit %]
+        <div class="alert alert-danger">
+          <h3>External configuration detected.</h3>
+          <p>Domain configuration external to PacketFence was detected. In order to manage your domain(s) using PacketFence, please run the migration script : /usr/local/pf/addons/AD/migrate.pl
+          <p>Once this step is completed, you will be able to access this page.</p>
+        </div>
+      [% ELSE %]
+        <h2>[% l('Domain')  %]</h2>
 
-      [% INCLUDE config/domain/list.tt %]
+        [% INCLUDE config/domain/list.tt %]
 
-      <div class="form-actions">
-      [%- IF can_access("DOMAIN_CREATE") %]
-        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Domain') %]</a>
-      [%- END %]
-        <a class="btn btn-default" id="refresh_domains" href="[% c.uri_for(c.controller.action_for('refresh_domains')) %]">[% l('Refresh domain configuration') %]</a>
-      </div>
+        <div class="form-actions">
+        [%- IF can_access("DOMAIN_CREATE") %]
+          <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Domain') %]</a>
+        [%- END %]
+          <a class="btn btn-default" id="refresh_domains" href="[% c.uri_for(c.controller.action_for('refresh_domains')) %]">[% l('Refresh domain configuration') %]</a>
+        </div>
+
+      [% END %]
 
 <div class="modal modal-large fade hide" id="modalDomainWait" data-backdrop="static" data-keyboard="false">
   <div class="modal-body">

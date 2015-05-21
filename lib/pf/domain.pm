@@ -19,6 +19,8 @@ use pf::util;
 use pf::config;
 use pf::log;
 use pf::file_paths;
+use pf::constants::domain qw($SAMBA_CONF_PATH);
+use File::Slurp;
 
 # This is to create the templates for the domain info
 our $TT_OPTIONS = {ABSOLUTE => 1};
@@ -223,6 +225,20 @@ sub regenerate_configuration {
     pf_run("/usr/bin/sudo /usr/local/pf/bin/pfcmd generatedomainconfig");
 }
 
+=item has_os_configuration 
+
+Detects whether or not this server had a non-PF configuration before
+Uses the samba configuration
+
+=cut
+
+sub has_os_configuration {
+    my $samba_conf = read_file($SAMBA_CONF_PATH);
+    if ( $samba_conf =~ /(\t){0,1}workgroup = (WORKGROUP|MYGROUP).*/ ) {
+        return $FALSE;
+    }
+    return $TRUE;
+}
 
 
 =head1 AUTHOR
