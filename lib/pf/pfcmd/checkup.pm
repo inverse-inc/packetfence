@@ -1114,7 +1114,7 @@ sub valid_certs {
 
     my ($httpd_crt, $radius_crt);
 
-    if($httpd_conf =~ /SSLCertificateFile\s*(.*)/){
+    if($httpd_conf =~ /SSLCertificateFile\s*(.*)\s*/){
         $httpd_crt = $1;
     }
     else{
@@ -1123,7 +1123,7 @@ sub valid_certs {
 
     my $radius_conf = read_file("$install_dir/raddb/eap.conf");
 
-    if($radius_conf =~ /certificate_file =\s*(.*)/){
+    if($radius_conf =~ /certificate_file =\s*(.*)\s*/){
         $radius_crt = $1;
     }
     else{
