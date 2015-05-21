@@ -365,6 +365,11 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 2
                },
                {
+                'description' => 'Available Memory',
+                'target' => 'groupByNode(*.memory.memory-{free,cached,buffered}, 0, "sumSeries") ',                   
+                'columns' => 2
+               },
+               {
                 'description' => 'Radius Total Access-Requests/s',
                 'vtitle' => 'requests',
                 'target' =>'alias(sum(*.radsniff-exchanged.radius_count-access_request.received),"Access-Requests")',
@@ -389,7 +394,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 2
                },
                {
-                'description' => 'httpd.aaa call timing',
+                'description' => 'Apache AAA call timing',
                 'vtitle' => 'ms',
                 'target' => 'aliasByNode(stats.timers.*.freeradius__main__post_auth.timing.mean_90,2)',
                 'columns' => 1
@@ -401,13 +406,19 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 1
                },
                {
-                'description' => 'Apache Portal Open Connections per server',
+                'description' => 'Portal Open Connections per server',
                 'vtitle' => 'connections',
                 'target' => 'aliasByNode(*.apache-portal.apache_connections,0)',
                 'columns' => 1
                },
+               {                                                                                                      
+                'description' => 'Apache Webservices Open Connections per server',
+                'vtitle' => 'connections',
+                'target' => 'aliasByNode(*.apache-webservices.apache_connections,0)',
+                'columns' => 1
+               },
                {
-                'description' => 'Average Access-Request Latency',
+                'description' => 'Radius Average Access-Request Latency',
                 'vtitle' => 'ms',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-access_request.smoothed,0)',
                 'columns' => 1
@@ -419,7 +430,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 1
                },
                {
-                'description' => 'Accounting requests received/s',
+                'description' => 'Radius Accounting requests received/s',
                 'vtitle' => 'requests',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-accounting_request.received,0)',
                 'columns' => 1
