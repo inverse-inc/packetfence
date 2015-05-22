@@ -163,12 +163,10 @@ sub gen_conf {
 } 
 
 my $PfConfig = \%pf::config::Config;
-my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 my @internal_nets = @pf::config::internal_nets;
 my @portal_ints = @pf::config::portal_ints;
-my $host;
 my $vhost;
 
 $PidFile = $install_dir.'/var/run/httpd.portal.pid';
@@ -354,106 +352,5 @@ foreach my $interface ( uniq @internal_nets, @portal_ints ) {
          Include           => "${var_dir}/conf/ssl-certificates.conf",
     ));
 }
-
-if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
-    if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
-        $host = $management_network->{'Tvip'};
-    } else {
-        $host = $management_network->{'Tip'};
-    }
-
-    push (@Listen,$host.":80");
-    push (@Listen,$host.":443");
-    push (@NameVirtualHost,$host.":80");
-    push (@NameVirtualHost,$host.":443");
-
-    push @{ $VirtualHost{$host.":80"} }, gen_conf(
-         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
-         Include => "${var_dir}/conf/captive-portal-common.conf",
-         AllowEncodedSlashes => "on",
-         Alias        => "/static ${install_dir}/html/captiveportal/root/static",
-         Alias        => "/common ${install_dir}/html/common",
-         PerlModule   => 'captiveportal',
-         PerlTransHandler => 'pf::web::dispatcher::custom',
-         Location     => gen_conf(
-             "/" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-             "/static" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'default-handler',
-             },
-             "/common" => {
-                 "Allow" => "from all",
-                 SetHandler => 'default-handler',
-             },
-             "/content" => {
-                "Allow" => "from all",
-             },
-             '~ "/|/status"' => {
-                "Allow"             => "from all",
-                SetHandler          => 'modperl',
-                PerlResponseHandler => 'captiveportal',
-             },
-             @allowed_from_all_options,
-             "/apache_status/" => {
-                 SetHandler => 'server-status',
-             },
-         ),
-    );
-    push @{ $VirtualHost{$host.":443"} }, gen_conf(
-         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
-         Include => "${var_dir}/conf/captive-portal-common.conf",
-         AllowEncodedSlashes => "on",
-         Alias        => "/static ${install_dir}/html/captiveportal/root/static",
-         Alias        => "/common ${install_dir}/html/common",
-         PerlModule   => 'captiveportal',
-         PerlTransHandler => 'pf::web::dispatcher::custom',
-         Location     => gen_conf(
-             "/" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-             "/static" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'default-handler',
-             },
-             "/common" => {
-                 "Allow" => "from all",
-                 SetHandler => 'default-handler',
-             },
-             "/content" => {
-                "Allow" => "from all",
-             },
-             '~ "/|/status"' => {
-                "Allow"             => "from all",
-                SetHandler          => 'modperl',
-                PerlResponseHandler => 'captiveportal',
-             },
-             @allowed_from_all_options,
-         ),
-         SSLEngine         => 'on',
-         SSLProxyEngine    => 'on',
-         Include           => "${var_dir}/conf/ssl-certificates.conf",
-    );
-
-} 
 
 </Perl>
