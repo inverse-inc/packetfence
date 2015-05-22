@@ -66,6 +66,7 @@ after [qw(create update)] => sub {
         pf::domain::regenerate_configuration();
         my $output = pf::domain::join_domain($c->req->param('id'));
         $c->stash->{items}->{join_output} = $output;
+        $c->forward('reset_password',[$c->req->param('id')]);
     }
 };
 
@@ -104,8 +105,7 @@ after list => sub {
     # now we add additionnal information in the hash
 
     foreach my $item (@{$c->stash->{items}}) {
-      ( $item->{ntlm_auth_status}, $item->{ntlm_auth_output},
-        $item->{join_status}, $item->{join_output},
+      ( $item->{join_status}, $item->{join_output},
       ) = $c->model('Config::Domain')->status($item->{id});
     }
 
@@ -146,9 +146,48 @@ Usage: /config/domain/rejoin/:domainId
 sub rejoin :Local :Args(1) {
     my ($self, $c, $domain) = @_;
     my $info = pf::domain::rejoin_domain($domain);
+    $c->forward('reset_password',[ $domain ]);
     $c->stash->{status_msg} = "Rejoined the domain";
     $c->stash->{items} = $info;
     $c->stash->{current_view} = 'JSON';
+}
+
+=head2 set_password
+
+Usage: /config/domain/set_password/:domainId
+
+=cut
+
+sub set_password :Local :Args(1) {
+    my ($self, $c, $domain) = @_;
+    my $password = $c->request->param('password');
+    my $model = $self->getModel($c);
+    my ($status,$result) = $model->update($domain, { bind_pass => $password } );
+    ($status,$result) = $model->commit();
+    $c->stash(
+        status_msg   => $result,
+        current_view => 'JSON',
+    );
+    $c->response->status($status);
+
+}
+
+=head2 reset_password
+
+Resets the password of the specified domain
+
+=cut
+
+sub reset_password :Private {
+    my ($self, $c, $domain) = @_;
+    my $model = $self->getModel($c);
+    my ($status,$result) = $model->update($domain, { bind_pass => '' } );
+    ($status,$result) = $model->commit();
+    $c->stash(
+        status_msg   => $result,
+        current_view => 'JSON',
+    );
+    $c->response->status($status);
 }
 
 =head1 COPYRIGHT

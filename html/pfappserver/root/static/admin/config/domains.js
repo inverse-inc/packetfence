@@ -153,39 +153,67 @@ DomainView.prototype.listRefresh = function(list_url) {
     });
 };
 
-
-$(document).ready(function(){
-  $('#section').on('click', '.rejoin_domain', function(event){
-    event.preventDefault()
-    var jbtn = $(this);
-    var initial_content = jbtn.html();
-    jbtn.attr('disabled', 'disabled');
-    // needs to be i18ned 
-    jbtn.html("Rejoining domain");
-    domainView.showWait("The server is rejoining the domain.");
+DomainView.prototype.setPassword = function(domain,callback) {
+  var that = this;
+  var modal = $('#modalDomainSetPassword-'+domain);
+  var form = $('#modalDomainSetPassword-'+domain+' form');
+  form.submit(function(){
+    event.preventDefault();
+    console.log('great_success');
     $.ajax({
-        'url'   : jbtn.attr('href'),
-        'type'  : "GET",
+        'url'   : form.attr('action'),
+        'type'  : "POST",
+        'data'  : form.serialize(),
         })
         .success(function(data) {
-            $("body,html").animate({scrollTop:0}, 'fast');
-            var content = $('<div></div>');
-            content.append('<h3>Result of the domain leave</h3>'); 
-            content.append($('<pre>'+data.items['leave_output']+'</pre>')); 
-            content.append('<h3>Result of the domain join</h3>'); 
-            content.append($('<pre>'+data.items['join_output']+'</pre>')); 
-            $('#modalDomainWait').modal('hide');
-            domainView.showResultModal(content); 
-            jbtn.html(initial_content);
-            jbtn.removeAttr('disabled');
+            modal.modal('hide');     
+            callback();
         })
         .fail(function(jqXHR) {
             $("body,html").animate({scrollTop:0}, 'fast');
             var status_msg = getStatusMsg(jqXHR);
             showError($('#section h2'), status_msg);
-            jbtn.html(initial_content);
-            jbtn.removeAttr('disabled');
         });
+  });
+  modal.modal('show');
+}
+
+$(document).ready(function(){
+  $('#section').on('click', '.rejoin_domain', function(event){
+    var that = this;
+    event.preventDefault()
+    var domain_name = $(event.target).parent().parent().children().children().html()
+    domainView.setPassword(domain_name, function(){
+      var jbtn = $(that);
+      var initial_content = jbtn.html();
+      jbtn.attr('disabled', 'disabled');
+      // needs to be i18ned 
+      jbtn.html("Rejoining domain");
+      domainView.showWait("The server is rejoining the domain.");
+      $.ajax({
+          'url'   : jbtn.attr('href'),
+          'type'  : "GET",
+          })
+          .success(function(data) {
+              $("body,html").animate({scrollTop:0}, 'fast');
+              var content = $('<div></div>');
+              content.append('<h3>Result of the domain leave</h3>'); 
+              content.append($('<pre>'+data.items['leave_output']+'</pre>')); 
+              content.append('<h3>Result of the domain join</h3>'); 
+              content.append($('<pre>'+data.items['join_output']+'</pre>')); 
+              $('#modalDomainWait').modal('hide');
+              domainView.showResultModal(content); 
+              jbtn.html(initial_content);
+              jbtn.removeAttr('disabled');
+          })
+          .fail(function(jqXHR) {
+              $("body,html").animate({scrollTop:0}, 'fast');
+              var status_msg = getStatusMsg(jqXHR);
+              showError($('#section h2'), status_msg);
+              jbtn.html(initial_content);
+              jbtn.removeAttr('disabled');
+          });
+    });
     return false;
   });
 
