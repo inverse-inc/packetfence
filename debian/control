@@ -110,7 +110,7 @@ Depends: ${misc:Depends}, vlan, make,
 # monitoring
  collectd, collectd-core,collectd-utils, libcollectdclient0 | libcollectdclient1, python-django (>=1.7),
  python-django-tagging, python-pyparsing, python-mysqldb, graphite-carbon, python-whisper,
- nodejs, freeradius-radsniff (>=3.0), libapache2-mod-wsgi-py,
+ nodejs, freeradius-radsniff (>=3.0), libapache2-mod-wsgi,
  python-twisted-bin (<=13.0), python-twisted-core (<=13.0)
 Recommends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql, freeradius-mysql, freeradius-krb5, isc-dhcp-server | dhcp3-server
 Description: PacketFence network registration / worm mitigation system
