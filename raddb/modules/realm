@@ -28,6 +28,7 @@ realm IPASS {
 realm suffix {
 	format = suffix
 	delimiter = "@"
+  ignore_null = yes
 }
 
 #  'username%realm'
