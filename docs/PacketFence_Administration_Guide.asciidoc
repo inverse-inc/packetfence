@@ -812,7 +812,14 @@ Where :
 * *Username* is the username that will be used for binding to the server. This account must be a domain administrator. 
 * *Password* is the password for the username defined above.
 
-NOTE: In order to troubleshoot unsuccessful binds, please refer to the following file : `/chroots/<mydomain>/var/log/samba<mydomain>/log.winbindd`. Replace `<mydomain>` with the identifier you set in the domain configuration.
+Troubleshooting
++++++++++++++++
+
+* In order to troubleshoot unsuccessful binds, please refer to the following file : `/chroots/<mydomain>/var/log/samba<mydomain>/log.winbindd`. Replace `<mydomain>` with the identifier you set in the domain configuration.
+
+* You can test the authentication process using the following command `chroot /chroots/<mydomain> ntlm_auth --username=administrator`
+
+NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additionnal troubleshooting
 
 Multiple domains authentication
 +++++++++++++++++++++++++++++++
