@@ -152,6 +152,7 @@ use pf::web::constants();
 use Tie::DxHash;
 use pf::services::manager::httpd();
 use Apache::SSLLookup;
+use List::MoreUtils qw(uniq);
 
 sub gen_conf {
     my %conf;
@@ -264,7 +265,7 @@ if ($allowed_from_all_urls) {
     );
 }
 
-foreach my $interface (@internal_nets) {
+foreach my $interface ( uniq @internal_nets, @portal_ints ) {
     if (defined($interface->{'Tip'}) && $interface->{'Tip'} ne '') {
         if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
             $vhost = $interface->{'Tvip'};

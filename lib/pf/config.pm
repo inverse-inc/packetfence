@@ -82,7 +82,7 @@ use pf::util;
 # Categorized by feature, pay attention when modifying
 our (
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
-    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets,
+    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @portal_ints,
     @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
 #pf.conf.default variables
     %Default_Config,
@@ -125,7 +125,7 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int
-        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network
+        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @portal_ints
         @inline_enforcement_nets @vlan_enforcement_nets
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         $IPSET_VERSION %mark_type_to_str %mark_type
@@ -177,6 +177,7 @@ if($cluster_enabled) {
     tie @listen_ints, 'pfconfig::cached_array', "interfaces::listen_ints($host_id)";
     tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets($host_id)";
     tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets($host_id)";
+    tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints($host_id)";
     tie @vlan_enforcement_nets, 'pfconfig::cached_array', "interfaces::vlan_enforcement_nets($host_id)";
     tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_network($host_id)";
     tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int($host_id)";
@@ -191,6 +192,7 @@ else {
     tie @listen_ints, 'pfconfig::cached_array', "interfaces::listen_ints";
     tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets";
     tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets";
+    tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints";
     tie @vlan_enforcement_nets, 'pfconfig::cached_array', "interfaces::vlan_enforcement_nets";
     tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_network";
     tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int";
