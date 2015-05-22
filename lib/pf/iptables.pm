@@ -47,7 +47,8 @@ use pf::ConfigStore::Domain;
 
 # This is the content that needs to match in the iptable rules for the service
 # to be considered as running
-Readonly our $FW_FILTER_INPUT_MGMT => 'input-management-if';
+Readonly our $FW_FILTER_INPUT_MGMT      => 'input-management-if';
+Readonly our $FW_FILTER_INPUT_PORTAL    => 'input-portal-if';
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -200,6 +201,12 @@ sub generate_filter_if_src_to_chain {
         } else {
             $logger->warn("Didn't assign any firewall rules to interface $dev.");
         }
+    }
+
+    # 'portal' interfaces handling
+    foreach my $portal_interface ( @portal_ints ) {
+        my $dev = $portal_interface->tag("int");
+        $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_PORTAL\n";
     }
 
     # management interface handling

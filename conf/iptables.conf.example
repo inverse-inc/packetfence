@@ -53,6 +53,10 @@
 # Mysql
 -A input-management-if --protocol tcp --match tcp --dport 3306 --jump ACCEPT
 
+:input-portal-if - [0:0]
+-A input-portal-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
+-A input-portal-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
+
 :input-internal-vlan-if - [0:0]
 # DNS
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
