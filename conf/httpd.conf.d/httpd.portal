@@ -167,6 +167,7 @@ my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 my @internal_nets = @pf::config::internal_nets;
+my @portal_ints = @pf::config::portal_ints;
 my $host;
 my $vhost;
 
