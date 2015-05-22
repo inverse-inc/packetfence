@@ -7,7 +7,7 @@ if [ -z "$NS" ] || [ -z "$BASE" ]; then
     exit 1;
 fi
 
-DIRS=(proc var etc lib lib64 usr sbin bin var/cache sys var/lib/samba dev)
+DIRS=(proc var etc lib lib64 usr sbin bin var/cache sys var/lib/samba dev tmp)
 
 for dir in "${DIRS[@]}"; do
   [ -d $BASE/$NS/$dir ]                || mkdir -p $BASE/$NS/$dir
