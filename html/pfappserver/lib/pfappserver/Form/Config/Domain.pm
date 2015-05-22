@@ -21,10 +21,12 @@ use pf::util;
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Domain',
+   label => 'Identifier',
    required => 1,
    maxlength => 10,
-   messages => { required => 'Please specify a domain' },
+   messages => { required => 'Please specify an identifier' },
+   tags => { after_element => \&help,
+             help => 'Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain' },
   );
 
 has_field 'workgroup' =>
@@ -41,6 +43,8 @@ has_field 'ad_server' =>
    label => 'Active Directory server',
    required => 1,
    messages => { required => 'Please specify the Active Directory server' },
+   tags => { after_element => \&help,
+             help => 'The IP address or DNS name of your Active Directory server' },
   );
 
 has_field 'bind_pass' =>
@@ -58,6 +62,7 @@ has_field 'bind_dn' =>
    label => 'Username',
    required => 1,
    messages => { required => 'Please specify the user to bind to the Active Directory server' },
+
   );
 
 has_field 'dns_server' =>
@@ -66,6 +71,8 @@ has_field 'dns_server' =>
    label => 'DNS server',
    required => 1,
    messages => { required => 'Please specify the DNS server' },
+   tags => { after_element => \&help,
+             help => 'The IP address of the DNS server for this domain.' },
   );
 
 has_field 'server_name' =>
@@ -75,6 +82,8 @@ has_field 'server_name' =>
    required => 1,
    maxlength => 14,
    messages => { required => 'Please specify the server\'s name' },
+   tags => { after_element => \&help,
+             help => 'This server\'s name (account name) in your Active Directory.' },
   );
 
 has_field 'dns_name' =>
@@ -83,6 +92,8 @@ has_field 'dns_name' =>
    label => 'DNS name of the domain',
    required => 1,
    messages => { required => 'Please specify the DNS name of the domain' },
+   tags => { after_element => \&help,
+             help => 'The DNS name (FQDN) of the domain.' },
   );
 
 =over
