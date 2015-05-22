@@ -1108,6 +1108,16 @@ Make sure the certificates used by Apache and RADIUS are valid
 =cut
 
 sub valid_certs {
+    unless(-e "$generated_conf_dir/ssl-certificates.conf"){
+        add_problem($WARN, "Cannot detect Apache SSL configuration. Not validating the certificates.");
+        return;
+    }
+    unless(-e "$install_dir/raddb/eap.conf"){
+        add_problem($WARN, "Cannot detect RADIUS SSL configuration. Not validating the certificates.");
+        return;
+    }   
+
+
     my $httpd_conf = read_file("$generated_conf_dir/ssl-certificates.conf");
 
     my ($httpd_crt, $radius_crt);
@@ -1116,7 +1126,7 @@ sub valid_certs {
         $httpd_crt = $1;
     }
     else{
-        add_problem($FATAL, "Cannot find the Apache certificate in your configuration.");
+        add_problem($WARN, "Cannot find the Apache certificate in your configuration.");
     }
 
     my $radius_conf = read_file("$install_dir/raddb/eap.conf");
@@ -1125,7 +1135,7 @@ sub valid_certs {
         $radius_crt = $1;
     }
     else{
-        add_problem($FATAL, "Cannot find the FreeRADIUS certificate in your configuration.");
+        add_problem($WARN, "Cannot find the FreeRADIUS certificate in your configuration.");
     }
 
     if(cert_has_expired($httpd_crt)){
