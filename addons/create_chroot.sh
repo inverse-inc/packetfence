@@ -1,3 +1,4 @@
+#!/bin/bash
 NS=$1
 BASE=$2
 
