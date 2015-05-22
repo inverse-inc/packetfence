@@ -108,9 +108,9 @@ Depends: ${misc:Depends}, vlan, make,
 # wmi
  libnet-wmiclient-perl, libwmiclient1, wmi-client,
 # monitoring
- collectd, collectd-core,collectd-utils, libcollectdclient0 | libcollectdclient1, python3-django (>=1.7),
+ collectd, collectd-core,collectd-utils, libcollectdclient0 | libcollectdclient1, python-django (>=1.7),
  python-django-tagging, python-pyparsing, python-mysqldb, graphite-carbon, python-whisper,
- nodejs, freeradius-radsniff (>=3.0), libapache2-mod-wsgi-py3,
+ nodejs, freeradius-radsniff (>=3.0), libapache2-mod-wsgi-py,
  python-twisted-bin (<=13.0), python-twisted-core (<=13.0)
 Recommends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql, freeradius-mysql, freeradius-krb5, isc-dhcp-server | dhcp3-server
 Description: PacketFence network registration / worm mitigation system
