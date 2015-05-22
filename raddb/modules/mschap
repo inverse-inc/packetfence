@@ -140,7 +140,7 @@ mschap chrooted_mschap {
 	# the "best" user name for the request.
 	#
 	
-    ntlm_auth = "/usr/bin/sudo /usr/sbin/chroot /usr/local/pf/var/chroots/%{PacketFence-Domain} /usr/bin/ntlm_auth --request-nt-key --username=%{%{Stripped-User-Name}:-%{%{User-Name}:-None}} --challenge=%{%{mschap:Challenge}:-00} --nt-response=%{%{mschap:NT-Response}:-00}"
+    ntlm_auth = "/usr/bin/sudo /usr/sbin/chroot /chroots/%{PacketFence-Domain} /usr/bin/ntlm_auth --request-nt-key --username=%{%{Stripped-User-Name}:-%{%{User-Name}:-None}} --challenge=%{%{mschap:Challenge}:-00} --nt-response=%{%{mschap:NT-Response}:-00}"
 
 
     # ntlm_auth should take less than three seconds.
