@@ -32,6 +32,8 @@ use pf::web::filter;
 use pfconfig::manager;
 use pfconfig::namespaces::config::Pf;
 use pf::version;
+use File::Slurp;
+use pf::file_paths;
 
 use lib $conf_dir;
 
@@ -139,6 +141,7 @@ sub sanity_check {
     vlan_filter_rules();
     apache_filter_rules();
     db_check_version();
+    valid_certs();
 
     return @problems;
 }
@@ -1096,6 +1099,43 @@ sub db_check_version {
         my $db_version = pf::version::version_get_last_db_version || 'unknown';
         add_problem ( $FATAL, "The PacketFence database schema version '$db_version' does not match the current installed version '$version'\nPlease refer to the UPGRADE guide on how to complete an upgrade of PacketFence\n" );
     }
+}
+
+=item valid_certs
+
+Make sure the certificates used by Apache and RADIUS are valid
+
+=cut
+
+sub valid_certs {
+    my $httpd_conf = read_file("$generated_conf_dir/ssl-certificates.conf");
+
+    my ($httpd_crt, $radius_crt);
+
+    if($httpd_conf =~ /SSLCertificateFile\s*(.*)\s*/){
+        $httpd_crt = $1;
+    }
+    else{
+        add_problem($FATAL, "Cannot find the Apache certificate in your configuration.");
+    }
+
+    my $radius_conf = read_file("$install_dir/raddb/eap.conf");
+
+    if($radius_conf =~ /certificate_file =\s*(.*)\s*/){
+        $radius_crt = $1;
+    }
+    else{
+        add_problem($FATAL, "Cannot find the FreeRADIUS certificate in your configuration.");
+    }
+
+    if(cert_has_expired($httpd_crt)){
+        add_problem($FATAL, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+    }
+
+    if(cert_has_expired($radius_crt)){
+        add_problem($FATAL, "The certificate used by FreeRADIUS ($radius_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+    }
+
 }
 
 =back

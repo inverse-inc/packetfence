@@ -29,6 +29,8 @@ use List::MoreUtils qw(all);
 use Try::Tiny;
 use pf::file_paths;
 use NetAddr::IP;
+use Date::Parse;
+use Crypt::OpenSSL::X509;
 
 our ( %local_mac );
 
@@ -59,6 +61,7 @@ BEGIN {
         search_hash
         is_prod_interface
         valid_ip_range
+        cert_has_expired
     );
 }
 
@@ -989,6 +992,19 @@ sub is_prod_interface {
     } else {
         return $FALSE;
     }
+}
+
+=item cert_has_expired
+
+Will validate that a certificate has not expired
+
+=cut
+
+sub cert_has_expired {
+    my ($path) = @_;
+    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
+    my $expiration = str2time($cert->notAfter);
+    return time > $expiration;
 }
 
 =back
