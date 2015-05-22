@@ -810,7 +810,7 @@ Where :
 * *This server's name* is the name that the server's account will have in your Active Directory.
 * *DNS server* is the IP address of the DNS server of this domain. Make sure that the server you put there has the proper DNS entries for this domain.
 * *Username* is the username that will be used for binding to the server. This account must be a domain administrator. 
-* *Password* is the password for the username defined above. Note that this password will be in *clear text* in the PacketFence configuration. We suggest you create an additionnal account specificly for this task.
+* *Password* is the password for the username defined above.
 
 NOTE: In order to troubleshoot unsuccessful binds, please refer to the following file : `/chroots/<mydomain>/var/log/samba<mydomain>/log.winbindd`. Replace `<mydomain>` with the identifier you set in the domain configuration.
 
