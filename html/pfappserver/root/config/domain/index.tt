@@ -24,6 +24,7 @@
         </div>
       [% ELSE %]
         <h2>[% l('Domain')  %]</h2>
+        <h4 class="alert alert-warning">Make sure you configure IPv4 forwarding on your server before continuing. Refer to the PacketFence administration guide for details.</h4>
 
         [% INCLUDE config/domain/list.tt %]
 
