@@ -21,6 +21,8 @@ use pf::config;
 
 our @MODULES = __PACKAGE__->modules;
 
+our @TYPES = map { /^pf::pki_provider::(.*)$/ ; $1 } @MODULES;
+
 sub factory_for { 'pf::pki_provider' }
 
 =head2 new

@@ -33,7 +33,7 @@ has_field 'type' =>
    type => 'Select',
    required => 1,
    messages => { required => 'PKI provider type is required.' },
-   options => [map { { label => $_, value => $_ } } qw(inverse) ],
+   options => [map { { label => $_, value => $_ } } @pf::factory::pki_provider::TYPES ],
   );
 
 has_field 'uri' =>
