@@ -16,7 +16,8 @@ Assumptions
 * Both servers are identical copies for the network interfaces
 * Both servers are running CentOS 6
 * Both servers have access to the same layer 2 network on all their network interfaces
-* Both servers have an empty, unformatted partition for the database.
+* Both servers have an empty, unformatted partition for the database
+* Both servers hostname must be resolvable via a DNS resolution
 
 Installation
 ------------
