@@ -144,13 +144,12 @@ sub _build_destinationUrl {
     my ($self) = @_;
     my $url = $self->_destination_url;
 
-    my $host = URI::URL->new($url)->host();
-
-    get_logger->debug("User requested URL $url on host $host");
     # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
     if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
         return $self->profile->getRedirectURL;
     }
+
+    my $host = URI::URL->new($url)->host();
 
     my @portal_hosts = portal_hosts();
     # if the destination URL points to the portal, we put the default URL of the portal profile
