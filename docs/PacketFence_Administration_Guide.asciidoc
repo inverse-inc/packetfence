@@ -791,168 +791,55 @@ This section presents the FreeRADIUS configuration steps. In some occasions, a R
 
 Option 1: Authentication against Active Directory (AD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In the Administration interface under *Configuration -> Domains*.
 
-Samba / Kerberos / Winbind
-++++++++++++++++++++++++++
+NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
 
-Install Samba. You can either use the sources or use the package for your OS. For RHEL/CentOS, do:
+Click *Add Domain* and fill in the informations about your domain.
 
-----
-yum install samba krb5-workstation
-----
+image::docs/images/domain-add.png[scaledwidth="100%",alt="Adding a new domain"]
 
-For Debian and Ubuntu, do:
+Where :
 
-----
-apt-get install samba winbind krb5-user
-----
+* *Identifier* is a unique identifier for your domain. It's purpose is only visual.
+* *Workgroup* is the workgroup of your domain.
+* *DNS name of the domain* is the FQDN of your domain. The one that suffixes your account names.
+* *This server's name* is the name that the server's account will have in your Active Directory.
+* *DNS server* is the IP address of the DNS server of this domain. Make sure that the server you put there has the proper DNS entries for this domain.
+* *Username* is the username that will be used for binding to the server. This account requires administrative privileges.
+* *Password* is the password for the username defined above. Note that this password will be in *clear text* in the PacketFence configuration. We suggest you create an additionnal account specificly for this task.
 
-NOTE: If you have Windows 7 PCs in your network, you need to use Samba version 3.5.0 (or greater).
- 
-When done with the Samba install, modify your `/etc/hosts` in order to add the FQDN of your Active Directory servers. Then, you need to modify `/etc/krb5.conf`. Here is an example for the `DOMAIN.NET` domain for Centos/RHEL:
+NOTE: In order to troubleshoot unsuccessful binds, please refer to the following file : `/chroots/<mydomain>/var/log/samba<mydomain>/log.winbindd`. Replace `<mydomain>` with the identifier you set in the domain configuration.
 
-----
-[logging]
- default = FILE:/var/log/krb5libs.log
- kdc = FILE:/var/log/krb5kdc.log
- admin_server = FILE:/var/log/kadmind.log
+Multiple domains authentication
++++++++++++++++++++++++++++++++
 
-[libdefaults]
- default_realm = DOMAIN.NET
- dns_lookup_realm = false
- dns_lookup_kdc = false
- ticket_lifetime = 24h
- forwardable = yes
+First configure your domains in *Configuration -> Domains*.
 
-[realms]
- DOMAIN.NET = {
-  kdc = adserver.domain.net:88
-  admin_server = adserver.domain.net:749
-  default_domain = domain.net
- }
-[domain_realm]
- .domain.net = DOMAIN.NET
- domain.net = DOMAIN.NET
+Once they are configured, go in *Configuration -> Realms*.
 
-[appdefaults]
- pam = {
-   debug = false
-   ticket_lifetime = 36000
-   renew_lifetime = 36000
-   forwardable = true
-   krb4_convert = false
- }
-----
+Create a new realm that matches the DNS name of your domain *AND* one that matches your workgroup. In the case of this example, it will be DOMAIN.NET and DOMAIN.
 
-For Debian and Ubuntu:
+image::docs/images/domain-add-realm.png[scaledwidth="100%",alt="Adding a new realm"]
 
-----
-  [logging]
-  default = FILE:/var/log/krb5libs.log
-  kdc = FILE:/var/log/krb5kdc.log
-  admin_server = FILE:/var/log/kadmind.log
-  [libdefaults]
-  default_realm = DOMAIN.NET
-  ticket_lifetime = 24h
-  forwardable = yes
-  [appdefaults]
-  pam = {
-  debug = false
-  ticket_lifetime = 36000
-  renew_lifetime = 36000
-  forwardable = true
-  krb4_convert = false
-  }
-----
+Where : 
 
-Next, edit `/etc/samba/smb.conf`. Again, here is an example for our `DOMAIN.NET` for Centos/RHEL:
+* *Realm* is either the DNS name (FQDN) of your domain or the workgroup
+* *Realm options* are any realm options that you want to add to the FreeRADIUS configuration
+* *Domain* is the domain which is associated to this realm
 
-----
-  [global]
-  workgroup = DOMAIN
-  server string = %h
-  security = ads
-  passdb backend = tdbsam
-  realm = DOMAIN.NET
-  encrypt passwords = yes
-  winbind use default domain = yes
-  client NTLMv2 auth = yes
-  preferred master = no
-  domain master = no
-  local master = no
-  load printers = no
-  log level = 1 winbind:5 auth:3
-  winbind max clients = 750
-  winbind max domain connections = 15
-----
+*Now create the two other realms associated to your other domains.*
 
-For Debian and Ubuntu:
+Default domain configuration
+++++++++++++++++++++++++++++
 
-----
- [global]
-  workgroup = DOMAIN
-  server string = Samba Server Version %v
-  security = ads
-  realm = DOMAIN.NET
-  password server = 192.168.1.1
-  domain master = no
-  local master = no
-  preferred master = no
-  winbind separator = +
-  winbind enum users = yes
-  winbind enum groups = yes
-  winbind use default domain = yes
-  winbind nested groups = yes
-  winbind refresh tickets = yes
-  template homedir = /home/%D/%U
-  template shell = /bin/bash
-  client use spnego = yes
-  client ntlmv2 auth = yes
-  encrypt passwords = yes
-  restrict anonymous = 2
-  log file = /var/log/samba/log.%m
-  max log size = 50
-----
+If you are using multiple domains for authentication, you can define which one you want to use as the default one by creating the following realm
 
-Issue a `kinit` and `klist` in order to get and verify the Kerberos token:
+image::docs/images/domain-default-realm.png[scaledwidth="100%",alt="Adding the default realm"]
 
-  # kinit administrator
-  # klist
+You should now have the following realm configuration
 
-After that, you need to start samba, and join the machine to the domain:
-
-  # service smb start
-  # chkconfig --level 345 smb on
-  # net ads join -U administrator
-
-Note that for Debian and Ubuntu you will probably have this error:
-
-  # kinit succeeded but ads_sasl_spnego_krb5_bind failed: Invalid credentials
-  # Join to domain is not valid: Invalid credentials
-
-For Centos/RHEL:
-
-  # usermod -a -G wbpriv pf
-
-Finally, start `winbind`, and test the setup using `ntlm_auth` and `radtest`:
-
-  # service winbind start
-  # chkconfig --level 345 winbind on
-
-For Debian and Ubuntu:
-
-  # usermod -a -G winbindd_priv pf
-  # ntlm_auth --username myDomainUser
-  # radtest -t mschap -x myDomainUser myDomainPassword localhost:18120 12 testing123
-    Sending Access-Request of id 108 to 127.0.0.1 port 18120
-        User-Name = "myDomainUser"
-        NAS-IP-Address = 10.0.0.1
-        NAS-Port = 12
-        Message-Authenticator = 0x00000000000000000000000000000000
-        MS-CHAP-Challenge = 0x79d62c9da4e55104
-        MS-CHAP-Response = 0x000100000000000000000000000000000000000000000000000091c843b420f0dec4228ed2f26bff07d5e49ad9a2974229e5
-    rad_recv: Access-Accept packet from host 127.0.0.1 port 18120, id=108, length=20
-
+image::docs/images/domain-realms-index.png[scaledwidth="100%",alt="Realms"]
 
 Option 2: Local Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
