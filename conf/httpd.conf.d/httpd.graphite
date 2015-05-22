@@ -120,7 +120,7 @@ $WSGIPythonPath      => $install_dir.'/var/conf';
 push @{ $VirtualHost{"*:9000"} },
     {
         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-        DocumentRoot        => '/usr/share/graphite-web',
+        DocumentRoot        => $OS eq 'debian' ?  '/usr/share/graphite-web' : '/usr/share/graphite/webapp',
         ErrorLog            => $install_dir.'/logs/httpd.graphite.error',
         CustomLog           => $install_dir.'/logs/httpd.graphite.access combined',
         WSGIScriptAlias     => '/ '.$install_dir.'/conf/httpd.conf.d/graphite-web.wsgi',
