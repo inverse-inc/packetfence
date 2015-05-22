@@ -264,18 +264,23 @@ if ($allowed_from_all_urls) {
     );
 }
 
+# Generate vhosts for each interfaces configured accordingly (portal_ints)
+# internal_nets is kept for backward compatibility
 foreach my $interface ( uniq @internal_nets, @portal_ints ) {
-    if (defined($interface->{'Tip'}) && $interface->{'Tip'} ne '') {
-        if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
-            $vhost = $interface->{'Tvip'};
-        } else {
-            $vhost = $interface->{'Tip'};
-       }
+
+    # Handling virtual IP
+    if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
+        $vhost = $interface->{'Tvip'};
+    } else {
+        $vhost = $interface->{'Tip'};
     }
+
     push (@Listen,$vhost.":80");
     push (@Listen,$vhost.":443");
     push (@NameVirtualHost,$vhost.":80");
     push (@NameVirtualHost,$vhost.":443");
+
+    # Unsecure captive-portal (http)
     push (@{ $VirtualHost{$vhost.":80"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
@@ -312,6 +317,8 @@ foreach my $interface ( uniq @internal_nets, @portal_ints ) {
              @allowed_from_all_options,
          ),
     ));
+
+    # Secure captive-portal (https)
     push (@{ $VirtualHost{$vhost.":443"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
