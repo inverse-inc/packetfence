@@ -65,9 +65,9 @@ sub iptables_generate {
         
         foreach my $role ( @roles ) {
             if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
-                $cmd = "LANG=C sudo ipset --create PF_$category->{'name'}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "LANG=C sudo ipset --create PF-iL3_$role->{'name'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
             } else {
-                $cmd = "LANG=C sudo ipset --create PF_$category->{'name'}_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "LANG=C sudo ipset --create PF-iL2_$role->{'name'}_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
             }
             my @lines  = pf_run($cmd);
         }
