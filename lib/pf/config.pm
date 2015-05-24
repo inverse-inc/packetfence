@@ -128,7 +128,7 @@ BEGIN {
         @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network
         @inline_enforcement_nets @vlan_enforcement_nets
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
-        $IPSET_VERSION %mark_type_to_str %mark_type
+        %mark_type_to_str %mark_type
         $MAC $PORT $SSID $ALWAYS
         %Default_Config
         %Config
@@ -337,7 +337,6 @@ $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
 Readonly::Scalar our $IPTABLES_MARK_REG => "1";
 Readonly::Scalar our $IPTABLES_MARK_ISOLATION => "2";
 Readonly::Scalar our $IPTABLES_MARK_UNREG => "3";
-Readonly::Scalar our $IPSET_VERSION => ipset_version();
 
 %mark_type = (
     'Reg'   => $IPTABLES_MARK_REG,
@@ -421,25 +420,6 @@ our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 =head1 SUBROUTINES
 
 =over
-
-=item ipset_version -  check the ipset version on the system
-
-=cut
-
-sub ipset_version {
-    my $logger = Log::Log4perl::get_logger('pf::config');
-    my $exe_path = which('ipset');
-    if (defined($exe_path)) {
-        # TODO: once we can import pf::util in here, we should run this through pf_run instead of backticks
-        my $cmd = "sudo ".$exe_path." --version";
-        my $out = `$cmd`;
-        my ($ipset_version) = $out =~ m/^ipset\s+v?([\d+])/ims;
-        return $ipset_version;
-    }
-    else {
-        return 0;
-    }
-}
 
 =item os_detection -  check the os system
 

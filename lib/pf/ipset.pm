@@ -61,17 +61,12 @@ sub iptables_generate {
         next if ( !pf::config::is_network_type_inline($network) );
         my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
         foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-            if ($IPSET_VERSION > 4) {
-                if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
-                } else {
-                    $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
-                }
-                my @lines  = pf_run($cmd);
+            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
             } else {
-                $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network macipmap --network $network/$inline_obj->{BITS} 2>&1";
-                my @lines  = pf_run($cmd);
+                $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
             }
+            my @lines  = pf_run($cmd);
         }
     }
     # OAuth and passthrough
@@ -81,12 +76,8 @@ sub iptables_generate {
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
     if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
-        if ($IPSET_VERSION > 4) {
-            $cmd = "LANG=C sudo ipset --create pfsession_passthrough hash:ip,port 2>&1";
-            my @lines  = pf_run($cmd);
-        } else {
-            $logger->warn("We do not support ipset lower than version 4");
-        }
+        $cmd = "LANG=C sudo ipset --create pfsession_passthrough hash:ip,port 2>&1";
+        my @lines  = pf_run($cmd);
     }
     $self->SUPER::iptables_generate();
 }
@@ -304,13 +295,8 @@ sub ipset_remove_ip {
     my ( $self, $ip, $mark, $network) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($cmd, $out);
-    if ($IPSET_VERSION > 4) {
-        $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
-        $out  = pf_run($cmd);
-    } else {
-        $cmd = "LANG=C sudo ipset -n --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
-        $out  = pf_run($cmd);
-    }
+    $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
+    $out  = pf_run($cmd);
     my @lines = split "\n+", $out;
 
     foreach my $line (@lines) {
@@ -352,13 +338,8 @@ sub get_ip_from_ipset_by_mac {
                 $ip = $tmp_ip->addr;
             }
         } else {
-            if ($IPSET_VERSION > 4) {
-                $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
-                $out = pf_run($cmd);
-            } else {
-                $cmd = "LANG=C sudo ipset -n --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
-                $out =  pf_run($cmd);
-            }
+            $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
+            $out = pf_run($cmd);
             my @lines = split "\n+", $out;
 
             # ipv4 address in quad decimal
