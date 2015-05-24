@@ -24,6 +24,7 @@ use NetAddr::IP;
 use pf::class qw(class_view_all class_trappable);
 use pf::config;
 use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS_REGISTERED);
+use pf::nodecategory;
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::iplog;
@@ -57,9 +58,20 @@ sub iptables_generate {
     $self->iptables_flush_mangle;
     my $cmd = "LANG=C sudo ipset --destroy";
     my @lines = pf_run($cmd);
+    my @roles = pf::nodecategory::nodecategory_view_all;
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
         my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+        
+        foreach my $role ( @roles ) {
+            if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
+                $cmd = "LANG=C sudo ipset --create PF_$category->{'name'}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+            } else {
+                $cmd = "LANG=C sudo ipset --create PF_$category->{'name'}_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
+            }
+            my @lines  = pf_run($cmd);
+        }
+
         foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
                 $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
@@ -68,6 +80,7 @@ sub iptables_generate {
             }
             my @lines  = pf_run($cmd);
         }
+
     }
     # OAuth and passthrough
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
