@@ -399,6 +399,15 @@ sub getNormalVlan {
         $logger->info("[$mac] Can't find provisioner");
     }
 
+    my $scan = $profile->findScan($mac,$node_info);
+    if (defined($scan) && isenabled($scan->{'post_registration'})) {
+        $logger->info("[$mac] Triggering scan check");
+        violation_add( $mac, $POST_SCAN_VID );
+    }
+    else{
+        $logger->info("[$mac] Can't find scan engine");
+    }
+
     $vlan = _check_bypass($mac, $node_info, $switch);
     if( $vlan ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
