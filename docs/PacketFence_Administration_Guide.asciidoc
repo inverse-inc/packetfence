@@ -812,7 +812,7 @@ image::docs/images/domain-add.png[scaledwidth="100%",alt="Adding a new domain"]
 Where :
 
 * *Identifier* is a unique identifier for your domain. It's purpose is only visual.
-* *Workgroup* is the workgroup of your domain.
+* *Workgroup* is the workgroup of your domain in the old syntax (like NT4).
 * *DNS name of the domain* is the FQDN of your domain. The one that suffixes your account names.
 * *This server's name* is the name that the server's account will have in your Active Directory.
 * *DNS server* is the IP address of the DNS server of this domain. Make sure that the server you put there has the proper DNS entries for this domain.
