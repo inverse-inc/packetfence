@@ -146,8 +146,10 @@ sub generate_mangle_rules {
                 if ($net_addr->contains($ip)) {
                     if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
                         push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog");
+                        push(@ops, "add PF-iL3_ID$row->{'category_id'}_$network $iplog");
                     } else {
                         push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac");
+                        push(@ops, "add PF-iL2_ID$row->{'category_id'}_$network $iplog,$mac");
                     }
                 }
             }
@@ -253,6 +255,18 @@ sub iptables_mark_node {
                 }
 
                 my @lines  = pf_run($cmd);
+
+                if ( $mark_type_to_str{$mark} eq "Reg" ) {
+                    my $node_info = pf::node::node_view($mac);
+                    my $role_id = $node_info->{'category_id'};
+                    if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                        $cmd = "LANG=C sudo ipset --add PF-iL3_ID$role_id\_$network $iplog 2>&1";
+                    } else {
+                        $cmd = "LANG=C sudo ipset --add PF-iL2_ID$role_id\_$network $iplog,$mac 2>&1";
+                    }
+                }
+
+                pf_run($cmd);
             }
         } else {
             $logger->error("Unable to mark mac $mac");
@@ -268,11 +282,22 @@ sub iptables_unmark_node {
 
     my $ipset = $self->get_ip_from_ipset_by_mac($mac, $mark);
 
+    my $node_info = pf::node::node_view($mac);
+    my $role_id = $node_info->{'category_id'};
+
     while ( my ($network, $iplist) = each(%$ipset) ) {
         if (defined($iplist)) {
             foreach my $IP ( split( ',', $iplist ) ) {
                 my $cmd = "LANG=C sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $IP 2>&1";
                 my @lines  = pf_run($cmd);
+
+                if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                    $cmd = "LANG=C sudo ipset del PF-iL3_ID$role_id\_$network $IP 2>&1";
+                } else {
+                    $cmd = "LANG=C sudo ipset del PF-iL2_ID$role_id\_$network $IP 2>&1";
+                }
+                pf_run($cmd);
+
                 $cmd = "LANG=C sudo /usr/sbin/conntrack -D -s $IP 2>&1";
                 pf_run($cmd);
                 $logger->info("Flushed connections for $IP.");
@@ -345,6 +370,10 @@ sub ipset_remove_ip {
     $out  = pf_run($cmd);
     my @lines = split "\n+", $out;
 
+    my $mac = pf::iplog::ip2mac($ip);
+    my $node_info = pf::node::node_view($mac);
+    my $role_id = $node_info->{'category_id'};
+
     foreach my $line (@lines) {
 
         # skip emtpy lines from ipset list
@@ -355,6 +384,14 @@ sub ipset_remove_ip {
         if ($line =~ m/^\s* $ip , .* \s* $/ix) {
             $cmd = "LANG=C sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $ip 2>&1";
             $out = pf_run($cmd);
+
+            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                $cmd = "LANG=C sudo ipset --del PF-iL3_ID$role_id\_$network $ip 2>&1";
+            } else {
+                $cmd = "LANG=C sudo ipset --del PF-iL2_ID$role_id\_$network $ip 2>&1";
+            }
+            pf_run($cmd);
+
             $cmd = "LANG=C sudo /usr/sbin/conntrack -D -s $ip 2>&1";
             pf_run($cmd);
             $logger->info("Flushed connections for $ip.");
