@@ -109,6 +109,8 @@ sub build_child {
             $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
         }
     }
+    
+    $self->expand_list( $Config{advanced}, qw(custom_ldap_attributes) );
 
     $Config{trapping}{passthroughs} = [ split( /\s*,\s*/, $Config{trapping}{passthroughs} || '' ) ];
 
