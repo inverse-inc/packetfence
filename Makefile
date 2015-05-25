@@ -78,6 +78,13 @@ bin/pfcmd: src/pfcmd.c
 
 .PHONY:permissions
 
+/etc/sudoers.d/packetfence.sudoers: packetfence.sudoers
+	cp packetfence.sudoers /etc/sudoers.d/packetfence.sudoers
+
+.PHONY:sudo
+
+sudo:/etc/sudoers.d/packetfence.sudoers
+
 permissions:
 	./bin/pfcmd fixpermissions
 
