@@ -13,7 +13,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2015-03-08 15:13+0000\n"
+"PO-Revision-Date: 2015-04-17 22:28+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/packetfence/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -1109,16 +1109,16 @@ msgstr "Klicken Sie hier zum Herunterladen"
 # html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/symantec.html
 msgid "Click here to go to the download website"
-msgstr ""
+msgstr "Klicken Sie hier, um zur Herunterladeseite zu gehen"
 
 # html/captive-portal/templates/provisioner/windows.html
 msgid "Click to download the agent."
-msgstr ""
+msgstr "Klicken Sie, um den Agenten herunterzuladen."
 
 # html/captive-portal/templates/device-registration.html
 # html/captive-portal/templates/gaming-registration.html
 msgid "Device MAC address"
-msgstr ""
+msgstr "Geräte-MAC-Adresse"
 
 # html/captive-portal/templates/device-landing.html
 msgid "Device Registration Landing"
@@ -1130,12 +1130,12 @@ msgstr "Gerätetyp"
 
 # html/captive-portal/templates/status.html
 msgid "Extend Access"
-msgstr ""
+msgstr "Zugriff erweitern"
 
 # html/captive-portal/templates/violations/bandwidth_expiration.html
 # html/captive-portal/templates/violations/time_expiration.html
 msgid "Expiration"
-msgstr ""
+msgstr "Ablauf"
 
 # html/captive-portal/templates/gaming-registration.html
 msgid "Gaming Device Type"
@@ -1199,7 +1199,7 @@ msgstr "Mit Windows-Live-Konto anmelden"
 # html/captive-portal/templates/pending.html
 # html/captive-portal/templates/release.html
 msgid "Network access has been granted"
-msgstr ""
+msgstr "Netzwerkzugriff wurde gewährt"
 
 # html/captive-portal/templates/status.html
 msgid "OS Type"
@@ -1222,7 +1222,7 @@ msgstr ""
 
 # html/captive-portal/templates/status.html
 msgid "Open in new popup window"
-msgstr ""
+msgstr "In neuem Dialogfenster öffnen"
 
 # html/captive-portal/templates/violations/bandwidth_expiration.html
 # html/captive-portal/templates/violations/bandwidth_limit.fr.html
@@ -1350,15 +1350,15 @@ msgstr ""
 
 # html/captive-portal/templates/status.html
 msgid "Your network access ends in <strong id=\"expiration\"></strong>"
-msgstr ""
+msgstr "Ihr Netzwerkzugriff endet in <strong id=\"expiration\"></strong>"
 
 # html/captive-portal/templates/status.html
 msgid "Your network access has expired."
-msgstr ""
+msgstr "Ihr Netzwerkzugriff ist abgelaufen."
 
 # html/captive-portal/templates/status.html
 msgid "Your network access is <strong>paused</strong>"
-msgstr ""
+msgstr "Ihr Netzwerkzugriff ist <strong>pausiert</strong>"
 
 # html/captive-portal/templates/status.html
 msgid "Your registered devices"
