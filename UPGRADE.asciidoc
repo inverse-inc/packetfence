@@ -11,6 +11,11 @@ For RedHat-based systems, run the following command:
   
 PacketFence should now be upgraded.  However, there may be extra steps required depending on the version you are upgrading from.  Please review the following notes about upgrading from an older release.
 
+Once the additionnal steps are completed, make sure you restart packetfence-config and packetfence
+
+  service packetfence-config restart
+  service packetfence restart
+
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
