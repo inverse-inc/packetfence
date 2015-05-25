@@ -1,5 +1,5 @@
 --
--- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
+-- PacketFence SQL schema upgrade from 5.0.0 to 5.1.0
 --
 
 --
@@ -57,6 +57,7 @@ INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR
 CREATE DATABASE pf_graphite;
 use pf_graphite;
 GRANT ALL PRIVILEGES ON `pf_graphite`.* TO 'pf'@'%';      
+GRANT ALL PRIVILEGES ON `pf_graphite`.* TO 'pf'@'localhost';
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
