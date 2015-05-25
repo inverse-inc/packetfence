@@ -22,9 +22,7 @@ New Features
 * Scan definition based on portal profiles
 * New external command action in violation
 * New API methods for adding, viewing or modifying a person
-* New performance dashboard based on Graphite allows tracking of core performance metrics such as number and latency of RADIUS requests, number of httpd.aaa processes and authorization latency
-* Added new SMS carrier for Switzerland
-* Verify if the database schema matches the current version of PacketFence
+* New performance dashboard based on Graphite allows tracking of core performance metrics such as number and latency of RADIUS requests, number of httpd processes and authorization latency
 * Define range of network switches (CIDR) in switch configuration
 * Module for Cisco Aironet 1600
 * Added ability to join an Active Directory domain directly from the administration interface
@@ -32,19 +30,25 @@ New Features
 
 Enhancements
 ++++++++++++
+* Verify if the database schema matches the current version of PacketFence
 * Removed the unnecessary "Upstream" listing from the "Combination" menu item of Fingerbank section
 * Ability to search in Fingerbank "Local" "Devices" listing
-* Allow rules to be match on both source and action
-* pfsetvlan and snmptrapd are now stopped by default
+* Allow rules to match on both source and action
+* pfsetvlan and snmptrapd are now stopped by default as most users no longer require them
 * Improve the end process redirection on the captive portal
 * Refactor mandatory fields to be dynamic and update the person table with them
 * Moved raddb/sites-enabled/packetfence and raddb/sites-enabled/packetfence-tunnel in conf/radiusd
+* pfcmd can now validate that certificates used by Apache and FreeRADIUS are still valid
+* Added new SMS carrier for Switzerland
+* Ability to fix Fingerbank files permissions from pfcmd fixpermissions
 
 Bug Fixes
 +++++++++
 * Fixes tables displaying bugs in Fingerbank menu items
 * Fixed search values not being preserved in some cases
 * Fixed switch access list field turning into an object reference
+* Fixed bad redirection to the portal at the end of the registration process
+* Better handling of Fingerbank errors
 
 Version 5.0.2 released on 2015-05-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
