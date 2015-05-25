@@ -576,7 +576,7 @@ if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
 fi
 
 
-for service in snortd httpd snmptrapd memcached
+for service in snortd httpd snmptrapd memcached portreserve
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
