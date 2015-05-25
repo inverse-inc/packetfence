@@ -67,22 +67,6 @@ has_field 'categories' =>
              help => 'Nodes with the selected roles will be affected' },
   );
 
-has_field 'dot1x' =>
-  (
-   type => 'Checkbox',
-   label => '802.1x',
-   tags => { after_element => \&help,
-             help => 'If this option is enabled, PacketFence will scan all the 802.1x auto-registration connections.' },
-  );
-
-has_field 'dot1x_type' =>
-  (
-   type => 'Text',
-   label => '802.1x types',
-   tags => { after_element => \&help,
-             help => 'Comma-delimited list of EAP-Type attributes that will pass to the scan engine.' },
-  );
-
 has_field 'duration' =>
   (
    type => 'Duration',

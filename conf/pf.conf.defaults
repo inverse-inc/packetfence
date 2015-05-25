@@ -293,17 +293,6 @@ engine=none
 # registration is complete.
 registration=disabled
 #
-# scan.dot1x
-#
-# If this option is enabled, the PF system will scan all the machines after a 802.1x
-# autoregister connection
-dot1x=disabled
-#
-#scan.dot1x_type
-#
-# List of the EAP-Type that pass into the scan engine
-dot1x_type=MS-CHAP-V2
-#
 # scan.duration
 #
 # Approximate duration of a scan. User being scanned on registration are presented a progress bar 

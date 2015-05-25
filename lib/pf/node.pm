@@ -906,31 +906,15 @@ sub node_register {
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
     my $scan = $profile->findScan($mac);
     if ($scan) {
-        if ( !$auto_registered ) {
-            # triggering a violation used to communicate the scan to the user
-            if ( isenabled($scan->{'registration'})) {
-                violation_add( $mac, $SCAN_VID );
-            } elsif (isenabled($scan->{'post_registration'})) {
+        # triggering a violation used to communicate the scan to the user
+        if ( isenabled($scan->{'registration'})) {
+            violation_add( $mac, $SCAN_VID );
+        }
+       if (isenabled($scan->{'post_registration'})) {
                 violation_add( $mac, $POST_SCAN_VID );
             }
-        }
-
-        # if autoregister and it´s a EAP connection and scan dot1x is activated then we scan the node
-        if ( $auto_registered && defined($scan->{'dot1x'}) ) {
-            my @dot1x_type = split(',',$scan->{'dot1x_type'});
-            my %params = map { $_ => 1 } @dot1x_type;
-            if (defined($info{'eap_type'})) {
-                if (exists($params{$info{'eap_type'}})) {
-                    # triggering a violation used to communicate the scan to the user
-                    if ( isenabled($scan->{'registration'})) {
-                        violation_add( $mac, $SCAN_VID );
-                    } else {
-                        violation_add( $mac, $POST_SCAN_VID );
-                    }
-                }
-            }
-        }
     }
+
     return (1);
 }
 
