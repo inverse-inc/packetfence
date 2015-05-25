@@ -799,7 +799,9 @@ In order to have domain authentication working properly, you need to enable IP f
   # Controls IP packet forwarding
   net.ipv4.ip_forward = 1
 
-In the Administration interface under *Configuration -> Domains*.
+Now execute `sysctl -p` to apply the configuration
+
+Next, go in the Administration interface under *Configuration -> Domains*.
 
 NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
 
