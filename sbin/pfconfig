@@ -15,6 +15,7 @@ pfconfig [options]
    -h                 Help
    -s SOCK_PATH       The path to the unix socket path - default $PFDIR/var/pfconfig.sock
    -n NAME            The name of process as reported in ps - default pfconfig
+   -p NAME            The prefix of pidfile - defaults to the name
 
 =cut
 
@@ -49,10 +50,13 @@ our $RUNNING = 1;
 
 my %args = (
     s => $pfconfig::constants::SOCKET_PATH,
+    #Name of the process
     n => "pfconfig",
 );
 
-getopts( 'dhs:n:', \%args );
+getopts( 'dhs:n:p:', \%args );
+
+$args{p} //= $args{n};
 
 our $PROGRAM_NAME = $0 = $args{n};
 
