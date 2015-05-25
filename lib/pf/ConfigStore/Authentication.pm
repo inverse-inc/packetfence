@@ -181,6 +181,9 @@ sub writeAuthenticationConfigFile {
 
     # we signal pfconfig that we changed
     $self->commitPfconfig;
+
+    # we refresh the auth sources references of this modules
+    setModuleSources();
 }
 
 __PACKAGE__->meta->make_immutable;
