@@ -792,6 +792,79 @@ This section presents the FreeRADIUS configuration steps. In some occasions, a R
 Option 1: Authentication against Active Directory (AD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+CAUTION: If you are using an Active/Active or Active/Passive cluster, please follow the instructions under 'Option 1b' since the instructions below do not currently work in a cluster.
+
+In order to have domain authentication working properly, you need to enable IP forwarding on your server. To do it permanently, look in the `/etc/sysctl.conf`, and set the following line:
+
+  # Controls IP packet forwarding
+  net.ipv4.ip_forward = 1
+
+Now execute `sysctl -p` to apply the configuration
+
+Next, go in the Administration interface under *Configuration -> Domains*.
+
+NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
+
+Click *Add Domain* and fill in the informations about your domain.
+
+image::docs/images/domain-add.png[scaledwidth="100%",alt="Adding a new domain"]
+
+Where :
+
+* *Identifier* is a unique identifier for your domain. It's purpose is only visual.
+* *Workgroup* is the workgroup of your domain in the old syntax (like NT4).
+* *DNS name of the domain* is the FQDN of your domain. The one that suffixes your account names.
+* *This server's name* is the name that the server's account will have in your Active Directory.
+* *DNS server* is the IP address of the DNS server of this domain. Make sure that the server you put there has the proper DNS entries for this domain.
+* *Username* is the username that will be used for binding to the server. This account must be a domain administrator. 
+* *Password* is the password for the username defined above.
+
+Troubleshooting
++++++++++++++++
+
+* In order to troubleshoot unsuccessful binds, please refer to the following file : `/chroots/<mydomain>/var/log/samba<mydomain>/log.winbindd`. Replace `<mydomain>` with the identifier you set in the domain configuration.
+
+* You can validate the domain bind using the following command : `chroot /chroots/<mydomain> wbinfo -u`
+
+* You can test the authentication process using the following command `chroot /chroots/<mydomain> ntlm_auth --username=administrator`
+
+NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additionnal troubleshooting
+
+Default domain configuration
+++++++++++++++++++++++++++++
+
+You should now define the domain you want to use as the default one by creating the following realm in *Configuration -> Realms*
+
+image::docs/images/domain-default-realm.png[scaledwidth="100%",alt="Adding the default realm"]
+
+Next, restart Packetfence in *Status -> Services*
+
+Multiple domains authentication
++++++++++++++++++++++++++++++++
+
+First configure your domains in *Configuration -> Domains*.
+
+Once they are configured, go in *Configuration -> Realms*.
+
+Create a new realm that matches the DNS name of your domain *AND* one that matches your workgroup. In the case of this example, it will be DOMAIN.NET and DOMAIN.
+
+image::docs/images/domain-add-realm.png[scaledwidth="100%",alt="Adding a new realm"]
+
+Where : 
+
+* *Realm* is either the DNS name (FQDN) of your domain or the workgroup
+* *Realm options* are any realm options that you want to add to the FreeRADIUS configuration
+* *Domain* is the domain which is associated to this realm
+
+*Now create the two other realms associated to your other domains.*
+
+You should now have the following realm configuration
+
+image::docs/images/domain-realms-index.png[scaledwidth="100%",alt="Realms"]
+
+Option 1b: Authentication against Active Directory (AD) in a cluster
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Samba / Kerberos / Winbind
 ++++++++++++++++++++++++++
 
