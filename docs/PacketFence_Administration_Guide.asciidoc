@@ -824,6 +824,8 @@ Troubleshooting
 
 * In order to troubleshoot unsuccessful binds, please refer to the following file : `/chroots/<mydomain>/var/log/samba<mydomain>/log.winbindd`. Replace `<mydomain>` with the identifier you set in the domain configuration.
 
+* You can validate the domain bind using the following command : `chroot /chroots/<mydomain> wbinfo -u`
+
 * You can test the authentication process using the following command `chroot /chroots/<mydomain> ntlm_auth --username=administrator`
 
 NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additionnal troubleshooting
