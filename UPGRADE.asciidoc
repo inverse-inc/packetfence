@@ -16,10 +16,26 @@ Once the additionnal steps are completed, make sure you restart packetfence-conf
   service packetfence-config restart
   service packetfence restart
 
-Upgrading from a version prior to X.Y.Z
+Upgrading from a version prior to 5.1.0
 ---------------------------------------
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+Before making any changes to your database, ensure that you have a backup.
+A complete database backup can be taken using this command:
+
+  mysqldump --opt -u root -p pf | gzip > /root/packetfence_db.sql.gz
+
+If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
+
+Multiple changes have been made to the database schema. You will need to update it accordingly.
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < db/upgrade-5.0.0-5.1.0.sql
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.1.0).
 
 pfsetvlan and snmptrapd
 ^^^^^^^^^^^^^^^^^^^^^^^
