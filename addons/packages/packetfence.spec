@@ -418,6 +418,7 @@ done
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/control
+%{__install} -d $RPM_BUILD_ROOT/etc/sudoers.d
 touch $RPM_BUILD_ROOT/usr/local/pf/var/cache_control
 cp Makefile $RPM_BUILD_ROOT/usr/local/pf/
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
@@ -443,6 +444,7 @@ cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
 mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
 mv addons/pfdetect_remote/sbin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
 mv addons/pfdetect_remote/conf/pfdetect_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
+mv packetfence.sudoers $RPM_BUILD_ROOT/etc/sudoers.d/
 rmdir addons/pfdetect_remote/sbin
 rmdir addons/pfdetect_remote/initrd
 rmdir addons/pfdetect_remote/conf
@@ -623,21 +625,6 @@ else
   echo "pf.conf already exists, won't touch it!"
 fi
 
-#Add for sudo 
-if (grep "^Defaults.*requiretty" /etc/sudoers > /dev/null  ) ; then
-  sed -i 's/^Defaults.*requiretty/#Defaults requiretty/g' /etc/sudoers
-fi
-if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
-  # Comment out entry from a previous version of PF (< 4.0)
-  sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers
-fi
-if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/sbin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/radiusd.*/usr/sbin/snort.*/usr/sbin/suricata.*/usr/sbin/chroot.*/usr/local/pf/bin/pfcmd.*/usr/sbin/conntrack" /etc/sudoers > /dev/null  ) ; then
-  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd, /usr/sbin/snort, /usr/bin/suricata, /usr/sbin/chroot, /usr/local/pf/bin/pfcmd, /usr/sbin/conntrack" >> /etc/sudoers
-fi
-if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
-  echo 'Defaults:pf !requiretty' >> /etc/sudoers
-fi
-
 # dashboard symlinks and permissions
 ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.6/site-packages/graphite/local_settings.py
 chmod g+w /var/lib/carbon
@@ -740,6 +727,8 @@ fi
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
 %dir                    %{_sysconfdir}/logrotate.d
+%dir                    %{_sysconfdir}/sudoers.d
+%config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence.sudoers
 %config                 %{_sysconfdir}/logrotate.d/packetfence
 
 %dir                    /usr/local/pf
