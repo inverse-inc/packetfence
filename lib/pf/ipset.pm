@@ -196,6 +196,37 @@ sub generate_mangle_rules {
     return $mangle_rules;
 }
 
+=item generate_mangle_postrouting_rules
+
+Generate iptables rules for the postrouting chain of the mangle table.
+
+Related to inline traffic shaping (classify)
+
+TODO: This should goes in the 'generate_mangle_rules' method but that last one should be redesigned... 2015.05.25 - dwuelfrath@inverse.ca
+
+=cut
+
+sub generate_mangle_postrouting_rules {
+    my ( $self ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $rules = '';
+
+    my @roles = pf::nodecategory::nodecategory_view_all;
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        next if ( !pf::config::is_network_type_inline($network) );
+        foreach my $role ( @roles ) {
+            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+            } else {
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network src,src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+            }
+        }
+    }
+
+    return $rules;
+}
 
 sub iptables_mark_node {
     my ( $self, $mac, $mark, $newip ) = @_;
