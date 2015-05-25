@@ -13,23 +13,34 @@ pf::factory::condition::profile
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::condition::profile', sub_name => '_modules' , require => 1;
+use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules' , require => 1;
 our $DEFAULT_TYPE = 'ssid';
 our $PROFILE_FILTER_REGEX = qr/^(([^:]|::)+?):(.*)$/;
 use List::MoreUtils qw(any);
 
-
 our @MODULES;
-sub factory_for {'pf::condition::profile'};
 
-my $DEFAULT_CONNECTION_TYPE = 'ssid';
-my %PROFILE_FILTER_TYPE_TO_CONNECTION_TYPE = (
+sub factory_for {'pf::condition'};
 
+my $DEFAULT_CONDITION = 'key';
+
+our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
+    'network'         => {type => 'network',    key  => 'last_ip'},
+    'node_role'       => {type => 'key',        key  => 'category'},
+    'connection_type' => {type => 'key',        key  => 'last_connection_type'},
+    'port'            => {type => 'key',        key  => 'last_port'},
+    'realm'           => {type => 'key',        key  => 'realm'},
+    'ssid'            => {type => 'key',        key  => 'last_ssid'},
+    'switch'          => {type => 'key',        key  => 'last_switch'},
+    'switch_port'     => {type => 'key_couple', key1 => 'last_switch', key2 => 'last_port'},
+    'uri'             => {type => 'key',        key  => 'last_uri'},
+    'vlan'            => {type => 'key',        key  => 'last_vlan'},
 );
 
 sub modules {
+    my ($class) = @_;
     unless(@MODULES) {
-        @MODULES = __PACKAGE__->_modules;
+        @MODULES = $class->_modules;
     }
     return @MODULES;
 }
@@ -50,7 +61,7 @@ sub getModuleName {
     my $mainClass = $class->factory_for;
     die "type is not defined" unless defined $type;
     my $subclass = "${mainClass}::${type}";
-    die "$type is not a valid type" unless any {$_ eq $subclass} __PACKAGE__->modules;
+    die "$type is not a valid type of $mainClass" unless any {$_ eq $subclass} $class->modules;
     $subclass;
 }
 
@@ -66,7 +77,12 @@ sub getData {
         $type  = $DEFAULT_TYPE;
         $value = $filter;
     }
-    return $type, { value => $value};
+    #make a copy to avoid modifing the orginal data
+    die "Profile filter type '$type' is not supported" unless exists $PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$type};
+    my %args = %{$PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$type}};
+    my $condition_type = delete $args{type};
+    $args{value} = $value;
+    return $condition_type, \%args;
 }
 
 =head1 AUTHOR
