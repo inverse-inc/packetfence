@@ -484,7 +484,8 @@ sub findScan {
     my ($self, $mac, $node_attributes) = @_;
     my $logger = get_logger();
     $node_attributes ||= node_attributes($mac);
-    my ($fingerprint) = $node_attributes->{'device_type'};
+    my $device_type = $node_attributes->{'device_type'};
+    my $fingerprint = pf::fingerbank::is_a($device_type);
     if (defined($self->getScans)) {
         foreach my $scan (split(',',$self->getScans)) {
             my $scan_config = $pf::config::ConfigScan{$scan};

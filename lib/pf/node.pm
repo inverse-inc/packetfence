@@ -904,7 +904,7 @@ sub node_register {
     $pf::StatsD::statsd->increment( called() . ".called" );
 
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
-    my $scan = $profile->findScan($mac,\%info);
+    my $scan = $profile->findScan($mac);
     if ($scan) {
         if ( !$auto_registered ) {
             # triggering a violation used to communicate the scan to the user
