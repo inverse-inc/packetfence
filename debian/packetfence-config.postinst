@@ -21,6 +21,7 @@ set -e
 case "$1" in
     configure)
 	chown pf.pf /usr/local/pf/conf/pfconfig.conf
+	/sbin/ldconfig
 	update-rc.d packetfence-config defaults 60 || exit 0
     ;;
 

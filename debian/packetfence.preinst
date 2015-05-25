@@ -45,7 +45,7 @@ case "$1" in
         if [ -d "/usr/local/pf/var/cache" ] ; then
                 rm -fr /usr/local/pf/var/cache/
         fi
-        if [ -a "/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm" ] ; then
+        if [ -e "/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm" ] ; then
                 rm -fr /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
         fi
         usermod pf -a -G fingerbank,winbindd_priv
