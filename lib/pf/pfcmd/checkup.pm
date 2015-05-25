@@ -1138,12 +1138,22 @@ sub valid_certs {
         add_problem($WARN, "Cannot find the FreeRADIUS certificate in your configuration.");
     }
 
-    if(cert_has_expired($httpd_crt)){
-        add_problem($FATAL, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+    eval {
+        if(cert_has_expired($httpd_crt)){
+            add_problem($FATAL, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+        }
+    };
+    if($@){
+        add_problem($WARN, "Cannot open the following certificate $httpd_crt")
     }
 
-    if(cert_has_expired($radius_crt)){
-        add_problem($FATAL, "The certificate used by FreeRADIUS ($radius_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+    eval {
+        if(cert_has_expired($radius_crt)){
+            add_problem($FATAL, "The certificate used by FreeRADIUS ($radius_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+        }
+    };
+    if($@){
+        add_problem($WARN, "Cannot open the following certificate $radius_crt")
     }
 
 }
