@@ -20,6 +20,8 @@ extends 'pf::ConfigStore';
 
 sub configFile { $pf::file_paths::wmi_config_file };
 
+sub pfconfigNamespace {'config::Wmi'}
+
 =head2 cleanupAfterRead
 
 Clean up realm data
