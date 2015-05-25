@@ -786,18 +786,28 @@ sub node_modify {
     # special handling for category to category_id conversion
     $existing->{'category_id'} = nodecategory_lookup($existing->{'category'});
     $existing->{'bypass_role_id'} = nodecategory_lookup($existing->{'bypass_role'});
+    my $old_role_id = $existing->{'category_id'};
     foreach my $item ( keys(%data) ) {
         $existing->{$item} = $data{$item};
     }
 
     # category handling
     # if category was updated, resolve it correctly
+    my $new_role_id;
     if (defined($data{'category'}) || defined($data{'category_id'})) {
        $existing->{'category_id'} = _node_category_handling(%data);
        if (defined($existing->{'category_id'}) && $existing->{'category_id'} == 0) {
            $logger->error("Unable to modify node because specified category doesn't exist");
            return (0);
        }
+        if ( defined($data{'category'}) && $data{'category'} ne '' ) {
+            $new_role_id = nodecategory_lookup($data{'category'});
+        } else {
+            $new_role_id = $data{'category_id'};
+        }
+        my $node_info = node_view($mac);
+        pf::ipset::iptables_update_set($mac, $old_role_id, $new_role_id) if ($node_info->{'last_connection_type'} eq $connection_type_to_str{$INLINE});
+       
        # once the category conversion is complete, I delete the category entry to avoid complicating things
        delete $existing->{'category'} if defined($existing->{'category'});
     }

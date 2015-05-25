@@ -510,6 +510,32 @@ sub iptables_flush_mangle {
     pf_run("/sbin/iptables -t mangle -F");
 }
 
+=item ipdates_update_set
+
+Update the set
+
+=cut
+
+sub iptables_update_set {
+    my ( $mac, $old, $new ) = @_;
+
+    my $ip = pf::iplog::mac2ip($mac);
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        next if ( !pf::config::is_network_type_inline($network) );
+
+        if ( defined($ip) ) {
+            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                pf_run("LANG=C sudo ipset del PF-iL3_ID$old\_$network $ip 2>&1");
+                pf_run("LANG=C sudo ipset add PF-iL3_ID$new\_$network $ip 2>&1");
+            } else {
+                pf_run("LANG=C sudo ipset del PF-iL2_ID$old\_$network $ip 2>&1");
+                pf_run("LANG=C sudo ipset add PF-iL2_ID$new\_$network $ip,$mac 2>&1");
+            }
+        }
+    }
+}
+
 
 =back
 
