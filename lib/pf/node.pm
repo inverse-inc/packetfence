@@ -340,7 +340,7 @@ sub node_db_prepare {
     );
 
     $node_statements->{'nodes_registered_not_violators_sql'} = get_db_handle()->prepare(qq[
-        SELECT node.mac FROM node
+        SELECT node.mac, node.category_id FROM node
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status='open'
         WHERE node.status='reg' GROUP BY node.mac HAVING count(violation.mac)=0
     ]);
