@@ -482,10 +482,15 @@ done
 curdir=`pwd`
 
 #pf-schema.sql symlinks to current schema
-if [ ! -e "$RPM_BUILD_ROOT/usr/local/pf/db/pf-schema.sql" ]; then
+if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf-schema.sql" ]; then
     cd $RPM_BUILD_ROOT/usr/local/pf/db
     VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
     ln -s $VERSIONSQL ./pf-schema.sql
+fi
+if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf_graphite-schema.sql" ]; then
+    cd $RPM_BUILD_ROOT/usr/local/pf/db
+    VERSIONSQL=$(ls pf_graphite-schema-* |sort -r | head -1)
+    ln -s $VERSIONSQL ./pf_graphite-schema.sql
 fi
 
 #httpd.conf symlink
