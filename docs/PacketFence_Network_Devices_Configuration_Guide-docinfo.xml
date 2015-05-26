@@ -5,6 +5,13 @@
 
 <revhistory>
   <revision>
+    <revnumber>3.0</revnumber>
+    <date>2015-05-26</date>
+    <revremark>
+    - Adding Aironet 1600 CoA documentation
+    </revremark>
+  </revision>
+  <revision>
     <revnumber>2.9</revnumber>
     <date>2015-02-04</date>
     <revremark>
