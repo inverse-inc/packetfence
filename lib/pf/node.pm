@@ -905,7 +905,7 @@ sub node_register {
 
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
     my $scan = $profile->findScan($mac);
-    if (defined($scan) && $scan ne 0) {
+    if (defined($scan)) {
         # triggering a violation used to communicate the scan to the user
         if ( isenabled($scan->{'registration'})) {
             violation_add( $mac, $SCAN_VID );

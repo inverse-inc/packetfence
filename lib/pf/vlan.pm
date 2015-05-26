@@ -400,7 +400,7 @@ sub getNormalVlan {
     }
 
     my $scan = $profile->findScan($mac,$node_info);
-    if (defined($scan) && $scan ne 0 && isenabled($scan->{'post_registration'})) {
+    if (defined($scan) && isenabled($scan->{'post_registration'})) {
         $logger->info("[$mac] Triggering scan check");
         violation_add( $mac, $POST_SCAN_VID );
     }

@@ -508,7 +508,7 @@ sub findScan {
             }
         }
     }
-    return 0;
+    return undef;
 }
 
 =back
