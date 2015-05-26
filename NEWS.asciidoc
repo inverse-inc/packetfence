@@ -49,6 +49,7 @@ Bug Fixes
 * Fixed switch access list field turning into an object reference
 * Fixed bad redirection to the portal at the end of the registration process
 * Better handling of Fingerbank errors
+* PacketFence will no longer automatically start after an upgrade. This prevents problems in an active/active configuration.
 
 Version 5.0.2 released on 2015-05-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
