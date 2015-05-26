@@ -787,7 +787,7 @@ sub trigger_scan : Public {
     else {
         my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
-        if ($scanner && pf::util::isenabled($scanner->{'pre_registration'})) {
+        if (defined($scanner) && $scanner ne 0 && pf::util::isenabled($scanner->{'pre_registration'})) {
             pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_VID );
             my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
             my $vid = $top_violation->{'vid'};
