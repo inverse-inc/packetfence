@@ -189,21 +189,6 @@ sub doEmailSelfRegistration : Private {
     my $note = 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
     _update_person($pid,$session,$note,$profile);
 
-    # if we are on-site: register the node
-    if ( !$session->{preregistration} ) {
-
-        # Use the activation timeout to set the unregistration date
-        my $timeout = normalize_time( $source->{email_activation_timeout} );
-        $info{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
-            localtime( time + $timeout ) );
-        $logger->debug( "Registration for guest "
-              . $pid
-              . " is valid until "
-              . $info{'unregdate'} );
-        $c->forward('CaptivePortal' => 'webNodeRegister',[$pid, %info]);
-
-    }
-
     # add more info for the activation email
     %info = prepareEmailGuestActivationInfo( $c->session, %info );
 
@@ -220,6 +205,21 @@ sub doEmailSelfRegistration : Private {
         $profile->getName,
         %info,
       );
+
+    # if we are on-site: register the node
+    if ( !$session->{preregistration} ) {
+
+        # Use the activation timeout to set the unregistration date
+        my $timeout = normalize_time( $source->{email_activation_timeout} );
+        $info{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
+            localtime( time + $timeout ) );
+        $logger->debug( "Registration for guest "
+              . $pid
+              . " is valid until "
+              . $info{'unregdate'} );
+        $c->forward('CaptivePortal' => 'webNodeRegister',[$pid, %info]);
+
+    }
 
     if ( !$session->{preregistration} ) {
 
