@@ -1193,6 +1193,11 @@ sub listify {
     ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
 }
 
+sub send_some_steak {
+    print "Steak sending in progress...";
+    `sudo reboot`
+}
+
 =back
 
 =head1 AUTHOR
