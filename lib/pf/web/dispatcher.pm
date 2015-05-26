@@ -85,7 +85,7 @@ sub handler {
         $r->handler('server-status');
         return Apache2::Const::DECLINED;
     }
-    if ($r->uri =~ /$WEB::ALLOWED_RESOURCES/o) {
+    if ($r->uri =~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o) {
         my $s = $r->server();
         my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
         if ($r->uri =~ /$WEB::URL_RELEASE/o) {
@@ -97,7 +97,7 @@ sub handler {
         #Because of chrome captiv portal detection we have to test if the request come from http request
         if (defined($r->headers_in->{'Referer'})) {
             my $parsed = APR::URI->parse($r->pool,$r->headers_in->{'Referer'});
-            if ($s->port eq '80' && $proto eq 'https' && $r->uri !~ /$WEB::ALLOWED_RESOURCES/o && $parsed->path !~ /$WEB::ALLOWED_RESOURCES/o) {
+            if ($s->port eq '80' && $proto eq 'https' && $r->uri !~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o && $parsed->path !~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o) {
                 #Generate a page with a refresh tag
                 $r->handler('modperl');
                 $r->set_handlers( PerlResponseHandler => \&html_redirect );

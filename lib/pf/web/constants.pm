@@ -127,7 +127,7 @@ Readonly::Hash our %STATIC_CONTENT_ALIASES => (
     '/favicon.ico' => '/html/common/favicon.ico',
 );
 
-=item ALLOWED_RESOURCES
+=item CAPTIVE_PORTAL_RESOURCES
 
 Build a regex that will decide what is considered a local ressource
 (allowed to Apache's further processing).
@@ -139,11 +139,11 @@ Anything else should be redirected. This happens in L<pf::web::dispatcher>.
 
 =cut
 
-my @components = ( keys %STATIC_CONTENT_ALIASES, _clean_urls_match() );
+my @components = ( keys %STATIC_CONTENT_ALIASES, _captive_portal_resources_parser() );
 # add $ to non-slash ending URLs
 foreach (@components) { s{([^/])$}{$1\$} };
 my $allow = join('|', @components);
-Readonly::Scalar our $ALLOWED_RESOURCES => qr/ ^(?: $allow ) /xo; # eXtended pattern, compile Once
+Readonly::Scalar our $CAPTIVE_PORTAL_RESOURCES => qr/ ^(?: $allow ) /xo; # eXtended pattern, compile Once
 
 =item ALLOWED_RESOURCES_MOD_PERL
 
@@ -219,13 +219,13 @@ foreach (@components_url) { s{([^/])$}{$1\$} };
 my $allow_url = join('|', @components_url);
 Readonly::Scalar our $EXTERNAL_PORTAL_URL => qr/ ^(?: $allow_url ) /xo; # eXtended pattern, compile Once
 
-=item _clean_urls_match
+=item _captive_portal_resources_parser
 
 Return a regex that would match all the captive portal allowed clean URLs
 
 =cut
 
-sub _clean_urls_match {
+sub _captive_portal_resources_parser {
     my %consts = pf::web::constants::to_hash();
     my @urls;
     foreach (keys %consts) {

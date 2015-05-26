@@ -74,7 +74,7 @@ sub generateConfig {
     my %proxy_configs = %{ $Config{'proxies'} };
     foreach my $proxy ( keys %proxy_configs ) {
         if ( $proxy =~ /^\// ) {
-            if ( $proxy !~ /$WEB::ALLOWED_RESOURCES/ ) {
+            if ( $proxy !~ /$WEB::CAPTIVE_PORTAL_RESOURCES/ ) {
                 push @proxies, "ProxyPassReverse $proxy $proxy_configs{$proxy}";
                 push @proxies, "ProxyPass $proxy $proxy_configs{$proxy}";
                 $logger->warn( "proxy $proxy is not relative - add path to apache rewrite exclude list!");
