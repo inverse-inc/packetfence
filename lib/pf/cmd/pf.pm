@@ -28,6 +28,7 @@ pfcmd <command> [options]
   portalprofileconfig         | query/modify portal profile configuration parameters
   reload                      | rebuild fingerprint or violations tables without restart
   service                     | start/stop/restart and get PF daemon status
+  schedule                    | Nessus scan scheduling
   switchconfig                | query/modify switches.conf configuration parameters
   version                     | output version information
   violationconfig             | query/modify violations.conf configuration parameters
