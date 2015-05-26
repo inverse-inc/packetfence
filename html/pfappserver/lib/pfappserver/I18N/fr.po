@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-05-25 14:05+0000\n"
+"PO-Revision-Date: 2015-05-26 19:26+0000\n"
 "Last-Translator: Louis Munro <git@louismunro.com>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -248,24 +248,24 @@ msgstr "Ajouter"
 # html/pfappserver/root/config/fingerbank/device/children.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/children.tt
 msgid "Add Child"
-msgstr "Rajouter un enfant"
+msgstr "Ajouter un enfant"
 
 # html/pfappserver/root/config/fingerbank/combination/list.tt
 msgid "Add Combination"
-msgstr "Rajouter une combinaison"
+msgstr "Ajouter une combinaison"
 
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
 msgid "Add DHCP Fingerprint"
-msgstr "Rajouter une empreinte DHCP"
+msgstr "Ajouter une empreinte DHCP"
 
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 msgid "Add DHCP Vendor"
-msgstr "Rajouter un vendeur DHCP"
+msgstr "Ajouter un vendeur DHCP"
 
 # html/pfappserver/root/config/fingerbank/device/list.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/list.tt
 msgid "Add Device"
-msgstr "Rajouter un appareil"
+msgstr "Ajouter un appareil"
 
 # html/pfappserver/root/config/domain/index.tt
 msgid "Add Domain"
@@ -277,7 +277,7 @@ msgstr "Ajouter un Pare-feux"
 
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
 msgid "Add MAC Vendor"
-msgstr "Rajouter une vendeur MAC"
+msgstr "Ajouter une vendeur MAC"
 
 # html/pfappserver/root/config/realm/index.tt
 msgid "Add Realm"
@@ -4428,7 +4428,7 @@ msgstr "Type"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Scan after registration"
-msgstr "Scanner après enregistrement"
+msgstr "Scanner après l'enregistrement"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Scan before registration"
@@ -4671,7 +4671,7 @@ msgid ""
 "Should pfcmd service pf watch restart PF when services are not running? You "
 "must make sure to call the watch command. Installing it in the cron is the "
 "recommended approach: */5 * * * * /usr/local/pf/bin/pfcmd service pf watch"
-msgstr "Est-ce que le <i>service pfcmd pf watch</i> doit redémarrer PacketFence lorsque les services ne sont pas en cours d'exécution ? Vous devez vous assurer d'appeler la commande watch. Rajouter cette ligne dans le crontab est l´approche recommandée: */5 * * * * /usr/local/pf/bin/pfcmd service pf watch"
+msgstr "<i>service pfcmd pf watch</i> devrait-il redémarrer PacketFence lorsque les services ne sont pas en cours d'exécution ? Vous devez vous assurer d'appeler la commande watch. Ajouter cette ligne dans le crontab est l´approche recommandée: */5 * * * * /usr/local/pf/bin/pfcmd service pf watch"
 
 # conf/documentation.conf (servicewatch.email)
 msgid ""
@@ -4679,7 +4679,7 @@ msgid ""
 "You must make sure to call the watch command. Installing it in the cron is "
 "the recommended approach: */5 * * * * /usr/local/pf/bin/pfcmd service pf "
 "watch"
-msgstr "Est-ce que le <i>service pf watch</i> envois un email lorsque les services ne sont pas en cours d'exécution ? Vous devez vous assurer d'appeler la commande watch. Rajouter cette ligne dans le crontab est l´approche  recommandée: */5 * * * * /usr/local/pf/bin/pfcmd service pf watch"
+msgstr "<i>service pf watch</i> doit-il envoyer un email lorsque les services ne sont pas en cours d'exécution ? Vous devez vous assurer d'appeler la commande watch. Ajouter cette ligne dans le crontab est l´approche  recommandée: */5 * * * * /usr/local/pf/bin/pfcmd service pf watch"
 
 # conf/documentation.conf (services.pfdhcplistener)
 msgid ""
