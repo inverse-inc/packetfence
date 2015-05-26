@@ -48,7 +48,10 @@ case "$1" in
         fi
 
         # link to latest SQL schema
-        if [ ! -e "$PACKETFENCE/db/pf-schema.sql" ]; then
+        if [ -h "$PACKETFENCE/db/pf-schema.sql" ]; then
+            rm $PACKETFENCE/db/pf-schema.sql
+        fi
+        if [ ! -h "$PACKETFENCE/db/pf-schema.sql" ]; then
             cd $PACKETFENCE/db
             VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
             ln -s $VERSIONSQL ./pf-schema.sql
