@@ -274,15 +274,11 @@ Once installed, the Web-based configuration interface will automatically be star
 Debian
 ^^^^^^
 
-You must enable non-free and backports repository:
+You must enable non-free repository:
 
 For non-free, edit the file `/etc/apt/source.list` and add non-free like that:
 
    deb http://debian.mirror.iweb.ca/debian/ wheezy main non-free
-
-For backports:
-
-   echo 'deb http://http.debian.net/debian wheezy-backports main' > /etc/apt/sources.list.d/wheezy-backports.list
 
 In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
 
@@ -298,10 +294,6 @@ server, DHCP server, RADIUS server) using:
 
 Ubuntu
 ^^^^^^
-
-You need to enable another repository for haproxy:
-
-   add-apt-repository ppa:vbernat/haproxy-1.5
 
 In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
 

@@ -112,6 +112,8 @@ case "$1" in
 
         update-rc.d mysql defaults
 
+        /sbin/ldconfig
+
         # add sudo entry
         if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
             # Comment out entry from a previous version of PF (< 4.0)
