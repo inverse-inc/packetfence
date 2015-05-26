@@ -363,6 +363,18 @@ sub guestRegistrationOnly {
     return $result;
 }
 
+=head2 billingOnly
+
+Check if the profile only has billing sources
+
+=cut
+
+sub billingOnly {
+    my @sources = $self->getSourcesAsObjects();
+    return $FALSE if (@sources == 0);
+    return all { exists $_->class eq 'billing' } @sources;
+}
+
 =item guestModeAllowed
 
 Verify if the guest mode is allowed for the profile
