@@ -138,7 +138,7 @@ server dynamic_client_server {
                 }
                 if (!"%{control:Tmp-String-8}") {
                     update control {
-                        Tmp-String-8 := "%{sql: SELECT nasname from radius_nas WHERE start_ip <= INET_ATON('%{Packet-Src-IP-Address}') and INET_ATON('%{Packet-Src-IP-Address}') <= end_ip order by range_length limit 1}";
+                        Tmp-String-8 := "%{sql: SELECT nasname from radius_nas WHERE start_ip <= INET_ATON('%{Packet-Src-IP-Address}') and INET_ATON('%{Packet-Src-IP-Address}') <= end_ip order by range_length limit 1}"
                     }
                         #
                 }
