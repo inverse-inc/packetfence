@@ -1,0 +1,1 @@
+[% form.field('always_allow').render %]
