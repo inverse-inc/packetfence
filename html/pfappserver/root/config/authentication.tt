@@ -148,6 +148,14 @@
           [% END -%]
         </ul>
       </li>
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l('Billing') %]</a>
+        <ul class="dropdown-menu" id="billing_types">
+          [% FOREACH type IN billing_types.sort -%]
+            <li><a href="[% c.pf_hash_for(c.controller('Config::Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
+          [% END -%]
+        </ul>
+      </li>
     </ul>
   </div>
 </div>
