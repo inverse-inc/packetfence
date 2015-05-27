@@ -3531,13 +3531,13 @@ In this section, we will cover the configuration of the Meraki controller to use
 
 CAUTION: There is currently no way to reevaluate the access of the device using PacketFence. This means that there is no real-time action when trying to isolate a device. The RADIUS reauthentication delay will determine the maximum response time of the access reevaluation.
 
-First create a new SSID and then edit it's settings.
+First create a new SSID and then edit its settings.
 
 Configure it as seen in the screenshot below.
 
 image::docs/images/meraki-radius-config.png[scaledwidth="100%",alt="RADIUS configuration"]
 
-NOTE: Make sure to configure your RADIUS server so it's accessible externally under a domain name or a public IP address. Replace `pf.domain.net` by what you will configure. Refer to the Meraki documentation for more details.
+NOTE: Make sure to configure your RADIUS server so it's accessible externally under a domain name or a public IP address. Replace `pf.domain.net` by what you will configure. The only port needed is 1812 in UDP. Refer to the Meraki documentation for more details.
 
 Next, just below, configure the options for the users access as shown in the screenshot below.
 

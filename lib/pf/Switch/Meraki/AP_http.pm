@@ -11,7 +11,7 @@ manage the external captive portal on Meraki access points
 
 =head1 STATUS
 
-Developed and tested on an MR12 access point
+Developed and tested on a MR12 access point
 
 =head1 BUGS AND LIMITATIONS
 
