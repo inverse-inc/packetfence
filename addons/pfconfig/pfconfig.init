@@ -13,7 +13,7 @@
 . /etc/rc.d/init.d/functions
 
 control_files_dir="/usr/local/pf/var/control"
-socket_path="/dev/shm/pfconfig.sock"
+socket_path="/usr/local/pf/var/run/pfconfig.sock"
 
 prog="/usr/local/pf/sbin/pfconfig"
 prog_base="$(basename ${prog})"
