@@ -69,7 +69,7 @@ sub iptables_generate {
             if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
                 $cmd = "LANG=C sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
             } else {
-                $cmd = "LANG=C sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "LANG=C sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
             }
             my @lines  = pf_run($cmd);
         }
@@ -149,7 +149,7 @@ sub generate_mangle_rules {
                         push(@ops, "add PF-iL3_ID$row->{'category_id'}_$network $iplog");
                     } else {
                         push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac");
-                        push(@ops, "add PF-iL2_ID$row->{'category_id'}_$network $iplog,$mac");
+                        push(@ops, "add PF-iL2_ID$row->{'category_id'}_$network $iplog");
                     }
                 }
             }
@@ -222,7 +222,7 @@ sub generate_mangle_postrouting_rules {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
                 $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
             } else {
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network src,src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
             }
         }
     }
@@ -262,7 +262,7 @@ sub iptables_mark_node {
                     if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
                         $cmd = "LANG=C sudo ipset --add PF-iL3_ID$role_id\_$network $iplog 2>&1";
                     } else {
-                        $cmd = "LANG=C sudo ipset --add PF-iL2_ID$role_id\_$network $iplog,$mac 2>&1";
+                        $cmd = "LANG=C sudo ipset --add PF-iL2_ID$role_id\_$network $iplog 2>&1";
                     }
                 }
 
@@ -530,7 +530,7 @@ sub iptables_update_set {
                 pf_run("LANG=C sudo ipset add PF-iL3_ID$new\_$network $ip 2>&1");
             } else {
                 pf_run("LANG=C sudo ipset del PF-iL2_ID$old\_$network $ip 2>&1");
-                pf_run("LANG=C sudo ipset add PF-iL2_ID$new\_$network $ip,$mac 2>&1");
+                pf_run("LANG=C sudo ipset add PF-iL2_ID$new\_$network $ip 2>&1");
             }
         }
     }
