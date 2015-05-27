@@ -26,7 +26,7 @@ extends 'pf::Authentication::Source';
 
 =cut
 
-has '+class' => (default => 'internal');
+has '+class' => (default => 'billing');
 
 has '+type' => (default => 'Paypal');
 
@@ -97,7 +97,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
