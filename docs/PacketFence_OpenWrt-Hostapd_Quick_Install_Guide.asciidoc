@@ -1,0 +1,152 @@
+OpenWrt BarrierBreaker 14.07 with hostapd Quick Integration Guide
+=================================================================
+:encoding: UTF-8
+:lang: en
+:doctype: book
+
+include::includes/global-attributes.asciidoc[]
+
+About this Guide
+----------------
+This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using OpenWrt BarrierBreaker 14.07 with Hostapd.
+
+Introduction
+------------
+This guide will provide an example for the configuration of an Open SSID (not crypted) and a Secure SSID (802.1x). You will to install wpad and hostapd. This two SSIDs will do radius authentication against PacketFence.
+
+Assumptions
+-----------
+* You have a configured PacketFence environment with working test equipment
+* Where the management IP of PacketFence will be 192.168.1.10 and has s3cr3t as his radius shared secret
+* You have an acces point with OpenWrt BarrierBreaker 14.07 installed
+
+
+Quick installation
+------------------
+Step 1: Packages installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can install the packages from the web interface of OpenWrt.
+
+Go to *System -> Software*
+
+First update the repos by clicking the button Update lists.
+
+Then you will have to install the packages of Hostapd and wpad.
+
+Go to the tab 'Available packages' and then search for the package hostapd into the 'Filter:' field.
+
+Click Install the hostapd package, the actual version is 2014-06-03.1-1.
+
+Do the same process for the wpad package version 2014-06-03.1-1.
+
+Step 2: Dynamic VLAN Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create the file : /etc/config/hostapd.vlan
+----
+*           wlan0.#
+----
+
+Step 3: Hostapd configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You will need to modify the hostapd script that come with the package that we previously installed.
+
+Connect with SSH to the AP and run these command:
+----
+cd /lib/netifd/
+mv hostapd.sh hostapd.sh.old
+wget https://github.com/inverse-inc/packetfence/tree/devel/addons/hostapd/hostapd-14.07.sh
+mv hotsapd-14.07.sh hostapd.sh
+wifi
+----
+
+Step 4: Configure the SSIDs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To configure the PF-Open SSID, we will use UCI:
+
+----
+uci add_list wireless.@wifi-iface[0]="wifi-iface"
+uci add_list wireless.@wifi-iface[0].device="radio0"
+uci add_list wireless.@wifi-iface[0].mode="ap"
+uci add_list wireless.@wifi-iface[0].ssid="PF-Open"
+uci add_list wireless.@wifi-iface[0].network="lan"
+uci add_list wireless.@wifi-iface[0].encryption="none"
+uci add_list wireless.@wifi-iface[0].auth_server="192.168.1.10"
+uci add_list wireless.@wifi-iface[0].auth_port="1812"
+uci add_list wireless.@wifi-iface[0].auth_secret="s3cr3t"
+uci add_list wireless.@wifi-iface[0].acct_server="192.168.1.10"
+uci add_list wireless.@wifi-iface[0].acct_port="1813"
+uci add_list wireless.@wifi-iface[0].acct_secret="s3cr3t"
+uci add_list wireless.@wifi-iface[0].dynamic_vlan="2"
+uci add_list wireless.@wifi-iface[0].vlan_file="/etc/config/hostapd.vlan"
+uci add_list wireless.@wifi-iface[0].vlan_tagged_interface="eth0"
+uci add_list wireless.@wifi-iface[0].dae_secret="s3cr3t"
+uci add_list wireless.@wifi-iface[0].dae_client="192.168.1.10"
+uci add_list wireless.@wifi-iface[0].dae_port="3799"
+uci add_list wireless.@wifi-iface[0].macfilter="2"
+uci add_list wireless.@wifi-iface[0].nasid="ubiquiti"
+uci commit
+----
+
+Configure the PF-Secure SSID:
+
+----
+uci add_list wireless.@wifi-iface[0]="wifi-iface"
+uci add_list wireless.@wifi-iface[0].device="radio0"
+uci add_list wireless.@wifi-iface[0].mode="ap"
+uci add_list wireless.@wifi-iface[0].ssid="PF-Secure"
+uci add_list wireless.@wifi-iface[0].network="lan"
+uci add_list wireless.@wifi-iface[0].encryption="wpa2"
+uci add_list wireless.@wifi-iface[0].auth_server="192.168.1.10"
+uci add_list wireless.@wifi-iface[0].auth_port="1812"
+uci add_list wireless.@wifi-iface[0].auth_secret="s3cr3t"
+uci add_list wireless.@wifi-iface[0].acct_server="192.168.1.10"
+uci add_list wireless.@wifi-iface[0].acct_port="1813"
+uci add_list wireless.@wifi-iface[0].acct_secret="s3cr3t"
+uci add_list wireless.@wifi-iface[0].dynamic_vlan="2"
+uci add_list wireless.@wifi-iface[0].vlan_file="/etc/config/hostapd.vlan"
+uci add_list wireless.@wifi-iface[0].vlan_tagged_interface="eth0"
+uci add_list wireless.@wifi-iface[0].dae_secret="s3cr3t"
+uci add_list wireless.@wifi-iface[0].dae_client="192.168.1.10"
+uci add_list wireless.@wifi-iface[0].dae_port="3799"
+uci add_list wireless.@wifi-iface[0].macfilter="2"
+uci add_list wireless.@wifi-iface[0].nasid="ubiquiti"
+uci commit
+----
+
+In order to apply this configuration, when you are connect over ssh on the AP, run the command 'wifi'. It will reload the configuration and broadcast the SSID.
+
+NOTE:  It's known that you can't put 2 SSIDs with the same dae server at the same time. The deauthentication will not work on the 2nd SSID.
+
+Step 5: PacketFence configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Log in to the PacketFence administration web page and go under *Configuration -> Switches -> Add switch*.
+
+Defenition:
+[options="compact"]
+* *IP Address/MAC Address/Range (CIDR)*: IP of your acces point
+* *Type*: Hostapd
+* *Mode*: production
+* *Deauthentication Method*: RADIUS
+* *Dynamic Uplinks*: Checked
+
+Roles:
+[options="compact"]
+* *Role by VLAN ID*: Checked
+* *Registration*: Your registration VLAN ID
+* *Isolation*: Your isolation VLAN ID
+
+RADIUS:
+[options="compact"]
+* *Secret Passphrase*: s3cr3t
+
+Save this configuration by clicking the 'Save' button.
+
+Step 6: Troubleshot
+~~~~~~~~~~~~~~~~~~~
+
+Here few things you can do/check to see if you configuration is consistant.
+
+To check the wireless configuration: uci show wireless or cat /etc/config/wireless
+
+To check if your configuration is correctly set into the Hostapd configuration file: cat /var/run/his
+
