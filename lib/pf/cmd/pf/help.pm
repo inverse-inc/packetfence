@@ -5,13 +5,12 @@ pfcmd - PacketFence command line interface
 
 =head1 SYNOPSIS
 
-pfcmd <command> [options]
+pfcmd help [command]
 
  Commands
   cache                       | manage the cache subsystem
   checkup                     | perform a sanity checkup and report any problems
   class                       | view violation classes
-  config                      | query, set, or get help on pf.conf configuration paramaters
   configfiles                 | push or pull configfiles into/from database
   fingerprint                 | view DHCP Fingerprints
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
