@@ -72,6 +72,7 @@ print "Are these settings fine ? This is your last chance before the domain bind
 my $confirm = <STDIN>;
 chomp($confirm);
 if($confirm eq 'y'){
+  pf_run('cp /etc/krb5.conf /etc/krb5.conf.pf_backup');
   pf::domain::regenerate_configuration();
   my $output = pf::domain::join_domain($WORKGROUP);
   # we remove the password after the configuration

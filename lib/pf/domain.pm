@@ -151,7 +151,9 @@ Generates the OS krb5.conf with all the domains configured in domain.conf
 
 sub generate_krb5_conf {
     my $logger = get_logger();
-    my $vars = {domains => \%ConfigDomain};
+    my @domains = keys %ConfigDomain; 
+    my $default_domain = $ConfigDomain{$domains[0]}->{dns_name};
+    my $vars = {domains => \%ConfigDomain, default_domain => $default_domain};
 
     pf_run("/usr/bin/sudo touch /etc/krb5.conf");
     pf_run("/usr/bin/sudo /bin/chown pf.pf /etc/krb5.conf");
