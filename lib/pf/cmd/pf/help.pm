@@ -7,29 +7,7 @@ pfcmd - PacketFence command line interface
 
 pfcmd help [command]
 
- Commands
-  cache                       | manage the cache subsystem
-  checkup                     | perform a sanity checkup and report any problems
-  class                       | view violation classes
-  configfiles                 | push or pull configfiles into/from database
-  floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
-  help                        | show help for pfcmd commands
-  ifoctetshistorymac          | accounting history
-  ifoctetshistoryswitch       | accounting history
-  ifoctetshistoryuser         | accounting history
-  import                      | bulk import of information into the database
-  ipmachistory                | IP/MAC history
-  locationhistorymac          | Switch/Port history
-  locationhistoryswitch       | Switch/Port history
-  networkconfig               | query/modify network configuration parameters
-  portalprofileconfig         | query/modify portal profile configuration parameters
-  reload                      | rebuild fingerprint or violations tables without restart
-  service                     | start/stop/restart and get PF daemon status
-  switchconfig                | query/modify switches.conf configuration parameters
-  version                     | output version information
-  violationconfig             | query/modify violations.conf configuration parameters
-
-Please view "pfcmd help <command>" for details on each option
+Please view "pfcmd help" for all command
 
 =cut
 
@@ -47,7 +25,7 @@ use base qw(pf::cmd::help);
 sub run {
     my ($self) = @_;
     my ($cmd) = $self->args;
-    if(!defined $cmd || $cmd eq 'help') {
+    if(!defined $cmd) {
         return $self->SUPER::run;
     }
     return $self->showHelp("pf::cmd::pf::${cmd}");
