@@ -37,6 +37,7 @@ The process is meant to be very short lived an never reused. */
 #include <netdb.h>
 #include <sys/socket.h>
 #include <argp.h>
+#include <signal.h>
 
 const char *argp_program_version = "ntlm_auth_wrapper 1.0";
 const char *argp_program_bug_address = "<info@inverse.ca>";
@@ -69,6 +70,9 @@ struct arguments {
 	char *port;
 	char *args[];		// Arguments to ntlm_auth itself
 };
+
+// TERM signal handler flag
+volatile sig_atomic_t termflag = 0;
 
 /* Parse a single option. */
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
@@ -232,12 +236,52 @@ void send_statsd(const struct arguments args, int status, double elapsed)
 		send(sockfd, buf, strlen(buf), 0);
 
 		// increment counter if auth failed
-		if (status > 0) {
+		if (status == ETIMEDOUT) {
+			asprintf(&buf, "%s.ntlm_auth.timeout:1|c\n", hostname);
+			send(sockfd, buf, strlen(buf), 0);
+		}
+        else if (status > 0) {
 			asprintf(&buf, "%s.ntlm_auth.failures:1|c\n", hostname);
 			send(sockfd, buf, strlen(buf), 0);
 		}
 	}
 }
+
+double howlong(struct timeval t1)
+{
+	struct timeval end;
+	double elapsed;
+	gettimeofday(&end, NULL);
+	elapsed = (end.tv_sec - t1.tv_sec) * 1000.0;	// sec to ms
+	elapsed += (end.tv_usec - t1.tv_usec) / 1000.0;	// us to ms
+
+    return elapsed;
+}
+
+void log_timeouts(int argc, char **argv, const struct arguments args, struct timeval start) 
+{ 
+    if (termflag) { 
+        double elapsed; 
+        elapsed = howlong(start);
+	    if (args.log)
+		    log_result(argc, argv, args, ETIMEDOUT, elapsed, getpid());
+	   
+	    if (!args.nostatsd)
+		    send_statsd(args, ETIMEDOUT, elapsed);
+    }
+}
+
+// We set a handler for the TERM signal.
+// If we receive one, we set the termflag and send ourselves a SIGKILL.
+// This will in turn call atexit which will call timeout()
+static void termhandler(int sig) 
+{
+    if (sig == SIGTERM) {
+        termflag = 1;
+        kill(getpid(), SIGKILL);
+    }
+}
+
 
 int main(argc, argv, envp)
 int argc;
@@ -259,9 +303,30 @@ char **argv, **envp;
 	   be reflected in arguments. */
 	argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
-	struct timeval t1, t2;
+	struct timeval t1;
 	double elapsed;
 	gettimeofday(&t1, NULL);
+
+    // wrapping function around log_timeouts to get around atexit's limitations, i.e. no arguments allowed.
+    void timeout() { 
+        log_timeouts(argc, argv, arguments, t1);
+    }
+    // set function to handle TERM due to child timing out
+    int ret;
+    if ((ret = atexit(timeout)) != 0) {
+        fprintf(stderr, "Error: could not register atexit function. Exiting."); 
+        exit(ret);
+    }
+
+    // set TERM signal handler
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sa.sa_handler = termhandler;
+    if (sigaction(SIGTERM, &sa, NULL) == -1) { 
+        fprintf(stderr, "Error: could not register TERM signal handler. Exiting."); 
+        exit(1);
+    }
 
 	// Fork a process, exec it and then wait for the exit.
 	pid_t pid, ppid;
@@ -287,16 +352,14 @@ char **argv, **envp;
 		argv[0] = arguments.binary;
 		execve(arguments.binary, argv, envp);
 		perror(argv[0]);
-		exit(1);
+		exit(127);
 	}
 	if (waitpid(pid, &status, 0) != pid) {	// wait for child
 		perror(argv[0]);
 		exit(1);
 	}
 
-	gettimeofday(&t2, NULL);
-	elapsed = (t2.tv_sec - t1.tv_sec) * 1000.0;	// sec to ms
-	elapsed += (t2.tv_usec - t1.tv_usec) / 1000.0;	// us to ms
+	elapsed = howlong(t1);
 
 	if (arguments.log)
 		log_result(argc, argv, arguments, status, elapsed, ppid);
