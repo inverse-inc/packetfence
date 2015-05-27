@@ -12,7 +12,6 @@ pfcmd help [command]
   checkup                     | perform a sanity checkup and report any problems
   class                       | view violation classes
   configfiles                 | push or pull configfiles into/from database
-  fingerprint                 | view DHCP Fingerprints
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
   help                        | show help for pfcmd commands
   ifoctetshistorymac          | accounting history
