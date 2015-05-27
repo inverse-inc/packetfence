@@ -43,6 +43,7 @@ sub index :Path :Args(0) :AdminRole('USERS_SOURCES_READ') {
     my $internal_types = availableAuthenticationSourceTypes('internal');
     my $external_types = availableAuthenticationSourceTypes('external');
     my $exclusive_types = availableAuthenticationSourceTypes('exclusive');
+    my $billing_types = availableAuthenticationSourceTypes('billing');
     my $form = pfappserver::Form::Config::Authentication->new(ctx => $c,
                                                    init_object => {sources => $sources});
     $form->process();
@@ -51,8 +52,9 @@ sub index :Path :Args(0) :AdminRole('USERS_SOURCES_READ') {
         internal_types  => $internal_types,
         external_types  => $external_types,
         exclusive_types => $exclusive_types,
-        form => $form,
-        template => 'config/authentication.tt'
+        billing_types   => $billing_types,
+        form            => $form,
+        template        => 'config/authentication.tt'
     );
 }
 
