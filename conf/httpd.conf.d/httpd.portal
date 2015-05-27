@@ -163,6 +163,7 @@ sub gen_conf {
 } 
 
 my $PfConfig = \%pf::config::Config;
+my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 my @internal_nets = @pf::config::internal_nets;
@@ -357,6 +358,35 @@ foreach my $interface ( uniq @internal_nets, @portal_ints ) {
          SSLEngine         => 'on',
          SSLProxyEngine    => 'on',
          Include           => "${var_dir}/conf/ssl-certificates.conf",
+    ));
+}
+
+# VHOST for diagnostic purposes (mod_status)
+if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+    # Handling virtual IP
+    if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+        $vhost = $management_network->{'Tvip'};
+    } else {
+        $vhost = $management_network->{'Tip'};
+    }
+
+    push (@Listen,$vhost.":".$PfConfig->{'ports'}{'httpd_portal_modstatus'});
+    push (@NameVirtualHost,$vhost.":".$PfConfig->{'ports'}{'httpd_portal_modstatus'});
+
+    push (@{ $VirtualHost{$vhost.":".$PfConfig->{'ports'}{'httpd_portal_modstatus'}} }, gen_conf(
+        ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+        DocumentRoot => "${install_dir}/html/captive-portal/lib",
+        ErrorLog     => "${install_dir}/logs/httpd.portal.error",
+        CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+        Location     => {
+            "/modstatus" => {
+                SetHandler => 'server-status',
+            },
+        },
+
+        SSLEngine => 'on',
+        SSLProxyEngine    => 'on',
+        Include      => "${var_dir}/conf/ssl-certificates.conf",
     ));
 }
 
