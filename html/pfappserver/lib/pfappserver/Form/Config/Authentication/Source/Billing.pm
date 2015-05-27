@@ -1,8 +1,8 @@
-package pfappserver::Form::Authentication::Source::Billing;
+package pfappserver::Form::Config::Authentication::Source::Billing;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source::Billing add documentation
+pfappserver::Form::Config::Authentication::Source::Billing;
 
 =cut
 
@@ -53,4 +53,3 @@ USA.
 =cut
 
 1;
-
