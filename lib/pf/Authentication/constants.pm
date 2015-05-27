@@ -16,6 +16,8 @@ use warnings;
 
 use Readonly;
 
+our @LDAP_ATTRIBUTES = ("uid", "cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail", "postOfficeBox", "description", "groupMembership");
+
 =head1 Rules
 
 General constants related to rules.
