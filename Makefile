@@ -67,8 +67,8 @@ conf/ssl/server.crt:
 	-keyout /usr/local/pf/conf/ssl/server.key \
 	-nodes -config /usr/local/pf/conf/openssl.cnf
 
-bin/pfcmd: src/pfcmd
-	cp src/pfcmd bin/pfcmd
+bin/pfcmd: src/pfcmd.c
+	$(CC) -O2 -g -std=c99  -Wall $< -o $@
 
 .PHONY:sudo
 
