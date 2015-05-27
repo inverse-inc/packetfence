@@ -2719,6 +2719,82 @@ At the bottom, select in the list "Run a new instance in parallel" in order to u
 
 Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
 
+Disabled Account
+^^^^^^^^^^^^^^
+
+Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Web Services*.
+
+----
+##########################################################################################
+#Powershell script to unregister disabled Active Directory account based on the UserName.#
+##########################################################################################
+
+Get-EventLog -LogName Security -InstanceId 4725 |
+   Select ReplacementStrings,"Account name"|
+   % {
+    $url = "https://@IP_PACKETFENCE:9090/"
+    $username = "admin" # Username for the webservices
+    $password = "admin" # Password for the webservices
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
+    $web = [System.Net.WebRequest]::Create($url)
+    $web.Method = "POST"
+    $web.ContentLength = $bytes.Length
+    $web.ContentType = "application/json-rpc"
+    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $stream = $web.GetRequestStream()
+    $stream.Write($bytes,0,$bytes.Length)
+    $stream.close()
+
+    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader.ReadToEnd()
+    $reader.Close()
+ 
+   }
+----
+
+Create the scheduled task based on an event ID
+++++++++++++++++++++++++++++++++++++++++++++++
+
+*Start -> Run -> Taskschd.msc*
+
+*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
+
+General
+
+----
+Name: PacketFence-Unreg_node-for-disabled-account
+Check: Run whether user is logged on or not
+Check: Run with highest privileges
+----
+
+Triggers -> New
+
+----
+Begin on the task: On an event
+Log: Security
+Source: Microsoft Windows security auditing.
+Event ID: 4725
+----
+
+Actions -> New
+
+----
+Action: Start a program
+Program/script: powershell.exe
+Add arguments (optional): C:\scripts\unreg_node_disabled_account.ps1
+----
+
+Settings:
+
+----
+At the bottom, select in the list "Run a new instance in parallel"
+----
+
+Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
+
 Locked Account
 ^^^^^^^^^^^^^^
 
@@ -2729,7 +2805,7 @@ Create the script `unreg_node_locked_account.ps1` on the Windows Server with the
 #Powershell script to unregister locked Active Directory account based on the UserName.#
 #########################################################################################
 
-Get-EventLog -LogName Security -InstanceId 4725 |
+Get-EventLog -LogName Security -InstanceId 4740 |
    Select ReplacementStrings,"Account name"|
    % {
     $url = "https://@IP_PACKETFENCE:9090/"
@@ -2776,7 +2852,7 @@ Triggers -> New
 Begin on the task: On an event
 Log: Security
 Source: Microsoft Windows security auditing.
-Event ID: 4726
+Event ID: 4740
 ----
 
 Actions -> New

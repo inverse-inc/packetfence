@@ -2,7 +2,7 @@
 #Powershell script to unregister locked Active Directory account based on the UserName.#
 ########################################################################################
 
-Get-EventLog -LogName Security -InstanceId 4726 |
+Get-EventLog -LogName Security -InstanceId 4725 |
    Select ReplacementStrings,"Account name"|
    % {
     $url = "https://@IP_PACKETFENCE:9090/"
