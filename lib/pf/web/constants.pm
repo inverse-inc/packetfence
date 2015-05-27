@@ -52,6 +52,7 @@ sub to_hash {
 
 package WEB;
 
+use pf::config;
 
 =head2 URLs
 
@@ -218,6 +219,19 @@ my @components_url =  _clean_urls_match_ext_url();
 foreach (@components_url) { s{([^/])$}{$1\$} };
 my $allow_url = join('|', @components_url);
 Readonly::Scalar our $EXTERNAL_PORTAL_URL => qr/ ^(?: $allow_url ) /xo; # eXtended pattern, compile Once
+
+=item CAPTIVE_PORTAL_DETECTION_URLS
+
+=cut
+
+my @captive_portal_detection_urls = split(/\s*,\s*/,$Config{'captive_portal'}{'detection_urls'});
+foreach ( @captive_portal_detection_urls ) { s{(\*)(.*)}{\(\.\*\)\Q$2\E} };
+my $captive_portal_detection_urls = join( '|', @captive_portal_detection_urls ) if ( @captive_portal_detection_urls ne '0' );
+if ( defined($captive_portal_detection_urls) ) {
+    Readonly::Scalar our $CAPTIVE_PORTAL_DETECTION_URLS => qr/ ^(?: $captive_portal_detection_urls ) /xo; # eXtended pattern, compile Once
+} else {
+    Readonly::Scalar our $CAPTIVE_PORTAL_DETECTION_URLS => '';
+}
 
 =item _captive_portal_resources_parser
 
