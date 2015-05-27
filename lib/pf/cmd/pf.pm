@@ -11,7 +11,6 @@ pfcmd <command> [options]
   cache                       | manage the cache subsystem
   checkup                     | perform a sanity checkup and report any problems
   class                       | view violation classes
-  config                      | query, set, or get help on pf.conf configuration paramaters
   configfiles                 | push or pull configfiles into/from database
   configreload                | reload the configution
   fingerprint                 | view DHCP Fingerprints
