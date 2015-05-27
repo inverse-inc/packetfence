@@ -342,9 +342,10 @@ Check if the profile only has billing sources
 =cut
 
 sub billingOnly {
+    my ($self) = @_;
     my @sources = $self->getSourcesAsObjects();
     return $FALSE if (@sources == 0);
-    return all { exists $_->class eq 'billing' } @sources;
+    return all { $_->class eq 'billing' } @sources;
 }
 
 =item guestModeAllowed
