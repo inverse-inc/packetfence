@@ -302,6 +302,8 @@ New Features
 Enhancements
 ++++++++++++
 
+* New ntlm_auth wrapper will log authentication latency to StatsD automatically.
+
 Bug Fixes
 +++++++++
 

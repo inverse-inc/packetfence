@@ -347,6 +347,15 @@ Summary: Replace pfcmd by a C wrapper for suid
 The %{real_name}-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
 See https://bugzilla.redhat.com/show_bug.cgi?id=611009
 
+%package -n %{real_name}-ntlm_auth_wrapper
+Group: System Environment/Daemons
+BuildRequires: gcc
+AutoReqProv: 0
+Summary: a C wrapper around ntlm_auth which allows logging or sending to StatsD authentication latency.
+
+%description -n %{real_name}-ntlm_auth_wrapper
+The %{real_name}-ntlm_auth_wrapper is a C wrapper around ntlm_auth that allows logging and/or sending to StatsD the authentication latency.
+
 %package -n %{real_name}-config
 Group: System Environment/Daemons
 Requires: perl(Cache::BDB)
@@ -393,6 +402,8 @@ done
 %endif
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
+# build ntlm_auth_wrapper
+make bin/ntlm_auth_wrapper
 # Define git_commit_id
 echo %{git_commit} > conf/git_commit_id
 
@@ -1146,6 +1157,9 @@ fi
 
 %files -n %{real_name}-pfcmd-suid
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
+
+%files -n %{real_name}-ntlm_auth_wrapper 
+%attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
 
 %files -n %{real_name}-config
 %defattr(-, pf, pf)
