@@ -1,4 +1,4 @@
-package pfappserver::Form::Config:::Authentication::Source::Paypal;
+package pfappserver::Form::Config::Authentication::Source::Paypal;
 
 =head1 NAME
 
@@ -15,7 +15,7 @@ pfappserver::Form::Config:::Authentication::Source::Paypal
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config:::Authentication::Source::Billing';
+extends 'pfappserver::Form::Config::Authentication::Source::Billing';
 
 =head1 AUTHOR
 
