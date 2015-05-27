@@ -19,6 +19,7 @@ use Net::LDAPS;
 use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
 use pf::config;
+use List::MoreUtils qw(uniq);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -56,6 +57,7 @@ sub available_attributes {
   my $super_attributes = $self->SUPER::available_attributes;
   my @custom_attributes = @{$Config{advanced}->{custom_ldap_attributes}};
   my @attributes = (("uid", "cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail", "postOfficeBox", "description", "groupMembership"), @custom_attributes);
+  @attributes = uniq @attributes;
   my @ldap_attributes = map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @attributes;
 
   # We check if our username attribute is present, if not we add it.
