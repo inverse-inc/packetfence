@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 use pf::config qw($FALSE $TRUE $default_pid);
 use pf::Authentication::constants;
+use pf::Authentication::BillingTier;
 use pf::util;
 
 extends 'pf::Authentication::Source';
@@ -31,6 +32,26 @@ has '+class' => (default => 'abstact');
 has '+type' => (default => 'Billing');
 
 has 'always_allow' => ( is => 'rw',default => 'no');
+
+has 'tiers' => ( isa => 'ArrayRef', is => 'rw', default => sub { [] } );
+
+=head2 _handle_additional_args
+
+Handle the tiers arguments
+
+=cut
+
+sub _handle_additional_args {
+    my ($self, $args_hash) = @_;
+    my $group_args = $args_hash->{group_args};
+    my $tiers_data = $group_args->{tier};
+    return unless ref($tiers_data) eq 'ARRAY';
+    my @tiers;
+    foreach my $tier_data (@$tiers_data) {
+        push @tiers,pf::Authentication::BillingTier->new($tier_data);
+    }
+    $args_hash->{tiers} = \@tiers if @tiers;
+}
 
 =head2 available_attributes
 
