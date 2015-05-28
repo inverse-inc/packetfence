@@ -31,23 +31,25 @@ sub action_clone {
 sub idKey { 'id' }
 
 sub action_get {
-    my ($self) = @_;
-    my ($id) = $self->action_args;
+    my ($self)      = @_;
+    my ($id)        = $self->action_args;
     my $configStore = $self->configStore;
     my $items;
     my $idKey = $self->idKey;
-    if($id eq 'all') {
-        $items = $configStore->readAll( $idKey );
-    } else {
-        if($configStore->hasId($id) ) {
-            $items = [$configStore->read($id, $idKey )];
+    if ($id eq 'all') {
+        $items = $configStore->readAll($idKey);
+    }
+    else {
+        if ($configStore->hasId($id)) {
+            my $item = $configStore->read($id, $idKey);
+            $items = [$item] if $item;
         }
     }
     if ($items) {
         my @display_fields = $self->display_fields;
-        print join('|',@display_fields),"\n";
+        print join('|', @display_fields), "\n";
         foreach my $item (@$items) {
-            print join('|',map { $self->format_param($_) } @$item{@display_fields}),"\n";
+            print join('|', map {$self->format_param($_)} @$item{@display_fields}), "\n";
         }
     }
     return $EXIT_SUCCESS;
@@ -106,9 +108,9 @@ sub action_add {
 sub action_edit {
     my ($self) = @_;
     my $configStore = $self->configStore;
-    my ($id,%attributes) = $self->action_args;
+    my ($id, %attributes) = $self->action_args;
     return $EXIT_FAILURE unless $configStore->hasId($id);
-    $configStore->update($id,\%attributes);
+    $configStore->update($id, \%attributes);
     return $configStore->commit ? $EXIT_SUCCESS : $EXIT_FAILURE;
 }
 
