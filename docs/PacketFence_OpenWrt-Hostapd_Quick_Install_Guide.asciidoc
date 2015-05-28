@@ -12,12 +12,12 @@ This guide has been created in order to help sales engineers, product managers, 
 
 Introduction
 ------------
-This guide will provide an example for the configuration of an Open SSID (not crypted) and a Secure SSID (802.1x). You will to install wpad and hostapd. This two SSIDs will do radius authentication against PacketFence.
+This guide will provide an example for the configuration of an open SSID (not encrypted) and a secured SSID (802.1x). You will to install wpad and hostapd. These two SSIDs will do RADIUS authentication against PacketFence.
 
 Assumptions
 -----------
 * You have a configured PacketFence environment with working test equipment
-* Where the management IP of PacketFence will be 192.168.1.10 and has s3cr3t as his radius shared secret
+* The management IP of PacketFence will be 192.168.1.10 and has s3cr3t as its RADIUS shared secret
 * You have an acces point with OpenWrt BarrierBreaker 14.07 installed
 
 
@@ -48,9 +48,9 @@ Create the file : /etc/config/hostapd.vlan
 
 Step 3: Hostapd configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You will need to modify the hostapd script that come with the package that we previously installed.
+You will need to modify the hostapd script that comes with the package that we previously installed.
 
-Connect with SSH to the AP and run these command:
+Connect using SSH to the AP and run these commands:
 ----
 cd /lib/netifd/
 mv hostapd.sh hostapd.sh.old
@@ -113,9 +113,9 @@ uci add_list wireless.@wifi-iface[0].nasid="ubiquiti"
 uci commit
 ----
 
-In order to apply this configuration, when you are connect over ssh on the AP, run the command 'wifi'. It will reload the configuration and broadcast the SSID.
+In order to apply this configuration, when you are connected using SSH on the AP, run the command 'wifi'. It will reload the configuration and broadcast the SSID.
 
-NOTE:  It's known that you can't put 2 SSIDs with the same dae server at the same time. The deauthentication will not work on the 2nd SSID.
+NOTE:  It's known that you can't put 2 SSIDs with the same dae server at the same time. The deauthentication will not work on the second SSID.
 
 Step 5: PacketFence configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -141,10 +141,10 @@ RADIUS:
 
 Save this configuration by clicking the 'Save' button.
 
-Step 6: Troubleshot
-~~~~~~~~~~~~~~~~~~~
+Step 6: Troubleshoot
+~~~~~~~~~~~~~~~~~~~~
 
-Here few things you can do/check to see if you configuration is consistant.
+Here few things you can do/check to see if you configuration is working.
 
 To check the wireless configuration: uci show wireless or cat /etc/config/wireless
 
