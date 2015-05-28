@@ -389,6 +389,22 @@ sub generate_inline_if_src_to_chain {
         }
     }
 
+    # POSTROUTING
+    if ( $table ne $FW_TABLE_NAT ) {
+        my @values = split(',', get_inline_snat_interface());
+        foreach my $val (@values) {
+           $rules .= "-A POSTROUTING --out-interface $val ";
+           $rules .= "--jump $FW_POSTROUTING_INT_INLINE";
+           $rules .= "\n";
+        }
+
+        foreach my $interface (@internal_nets) {
+            my $dev = $interface->tag("int");
+            my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
+            $rules .= "-A POSTROUTING --out-interface $dev --jump $FW_POSTROUTING_INT_INLINE\n" if (is_type_inline($enforcement_type));
+        }
+    }
+
     # NAT POSTROUTING
     if ($table eq $FW_TABLE_NAT) {
         my $mgmt_int = $management_network->tag("int");
