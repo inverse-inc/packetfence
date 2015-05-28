@@ -3,7 +3,19 @@ package pf::cmd::pf::switchconfig;
 
 pf::cmd::pf::switchconfig add documentation
 
-=cut
+=head1 SYNOPSIS
+
+pfcmd switchconfig get <all|default|ID>
+
+pfcmd switchconfig add <ID> [assignments]
+
+pfcmd switchconfig edit <ID> [assignments]
+
+pfcmd switchconfig delete <ID>
+
+pfcmd switchconfig clone <TO_ID> <FROM_ID> [assignments]
+
+query/modify switches configuration file
 
 =head1 DESCRIPTION
 
@@ -19,9 +31,15 @@ use base qw(pf::base::cmd::config_store);
 
 sub configStoreName { "pf::ConfigStore::Switch" }
 
-sub display_fields { qw(ip type mode inlineTrigger VoIPEnabled vlans normalVlan registrationVlan isolationVlan macDetectionVlan guestVlan voiceVlan inlineVlan customVlan1 customVlan2 customVlan3 customVlan4 customVlan5 uplink deauthMethod cliTransport cliUser cliPwd cliEnablePwd wsTransport wsUser wsPwd SNMPVersionTrap SNMPCommunityTrap SNMPUserNameTrap SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPEngineID SNMPUserNameRead SNMPAuthProtocolRead SNMPAuthPasswordRead SNMPPrivProtocolRead SNMPPrivPasswordRead SNMPUserNameWrite SNMPAuthProtocolWrite SNMPAuthPasswordWrite SNMPPrivProtocolWrite SNMPPrivPasswordWrite radiusSecret controllerIp roles macSearchesMaxNb macSearchesSleepInterval) }
-
-sub idKey { 'ip' }
+sub display_fields {
+    qw(id ip type mode inlineTrigger VoIPEnabled vlans normalVlan
+      registrationVlan isolationVlan macDetectionVlan guestVlan voiceVlan inlineVlan customVlan1 customVlan2 customVlan3 customVlan4 customVlan5
+      uplink deauthMethod cliTransport cliUser cliPwd cliEnablePwd wsTransport wsUser wsPwd SNMPVersionTrap SNMPCommunityTrap
+      SNMPUserNameTrap SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap SNMPVersion
+      SNMPCommunityRead SNMPCommunityWrite SNMPEngineID SNMPUserNameRead SNMPAuthProtocolRead SNMPAuthPasswordRead
+      SNMPPrivProtocolRead SNMPPrivPasswordRead SNMPUserNameWrite SNMPAuthProtocolWrite SNMPAuthPasswordWrite
+      SNMPPrivProtocolWrite SNMPPrivPasswordWrite radiusSecret controllerIp roles macSearchesMaxNb macSearchesSleepInterval)
+}
 
 =head1 AUTHOR
 
