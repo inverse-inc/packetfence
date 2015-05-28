@@ -550,6 +550,11 @@ statsd=enabled
 # Should radsniff be started?
 radsniff3=enabled
 #
+# services.pmacctd
+#
+# Should pmacctd be started?
+pmacctd=enabled
+#
 # services.snort_binary
 #
 # Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
@@ -634,6 +639,11 @@ memcached_binary=/usr/bin/memcached
 #
 # Location of the keepalived binary. Only necessary to change if you are not running the RPMed version.
 keepalived_binary=/usr/sbin/keepalived
+#
+# services.pmacctd_binary
+#
+# Location of the pmacctd binary. Only necessary to change if you are not running the RPMed version.
+pmacctd_binary=/usr/sbin/pmacctd
 # 
 # services.memcached_memory_usage
 # 
