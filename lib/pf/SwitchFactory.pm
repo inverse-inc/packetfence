@@ -95,7 +95,7 @@ sub instantiate {
         #Switch ranges is an order array of [NetAddr::IP object of switch,switch_id]
         if(@SwitchRanges) {
             foreach my $search (@requestedSwitches) {
-                next if (valid_mac($search));
+                next unless (valid_ip($search));
                 my $ip = NetAddr::IP->new($search);
                 #Find the first switch that matches it's network range
                 if (my $rangeConfig = first { $ip->within($_->[0]) } @SwitchRanges) {
