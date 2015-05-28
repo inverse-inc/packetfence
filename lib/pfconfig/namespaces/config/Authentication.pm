@@ -46,78 +46,30 @@ sub build_child {
 
     my @authentication_sources = ();
     my %authentication_lookup  = ();
-    foreach my $source_id ( @{ $self->{ordered_sections} } ) {
-
+    foreach my $source_id (@{$self->{ordered_sections}}) {
         # We skip groups from our ini files
-        if ( $source_id =~ m/\s/ ) {
+        if ($source_id =~ m/\s/) {
             next;
         }
+        my %args = %{$cfg{$source_id}};
 
         # Keep aside the source type
-        my $type = $cfg{$source_id}{"type"};
+        my $type = delete $args{type};
         delete $cfg{$source_id}{type};
 
-        # Instantiate the source object
-        my $current_source = $self->newAuthenticationSource( $type, $source_id, $cfg{$source_id} );
+        my %group_args;
 
         # Parse rules
-        foreach my $rule_id ( $self->GroupMembers($source_id) ) {
+        foreach my $group_id ($self->GroupMembers($source_id)) {
+            my ($group, $id) = $group_id =~ m/\Q$source_id\E +(\S+) +(\S+)$/;
+            push @{$group_args{$group}}, {id => $id, %{$cfg{$group_id}}};
 
-            my ($id) = $rule_id =~ m/$source_id rule (\S+)$/;
-            my $current_rule = pf::Authentication::Rule->new( { match => $Rules::ANY, id => $id } );
-
-            foreach my $parameter ( sort( keys( %{ $cfg{$rule_id} } ) ) ) {
-                if ( $parameter =~ m/condition(\d+)/ ) {
-                    my ( $attribute, $operator, $value ) = split( ',', $cfg{$rule_id}{$parameter}, 3 );
-
-                    $current_rule->add_condition(
-                        pf::Authentication::Condition->new(
-                            {   attribute => $attribute,
-                                operator  => $operator,
-                                value     => $value
-                            }
-                        )
-                    );
-                }
-                elsif ( $parameter =~ m/action(\d+)/ ) {
-                    my ( $type, $value ) = split( '=', $cfg{$rule_id}{$parameter}, 2 );
-
-                    if ( defined $value ) {
-                        $current_rule->add_action(
-                            pf::Authentication::Action->new(
-                                {   type  => $type,
-                                    value => $value,
-                                    class => pf::Authentication::Action->getRuleClassForAction($type),
-                                }
-                            )
-                        );
-                    }
-                    else {
-                        $current_rule->add_action(
-                            pf::Authentication::Action->new(
-                                { 
-                                    type    => $type,
-                                    class   => pf::Authentication::Action->getRuleClassForAction($type),
-                                }
-                            )
-                        );
-                    }
-
-                }
-                elsif ( $parameter =~ m/match/ ) {
-                    $current_rule->{'match'} = $cfg{$rule_id}{$parameter};
-                }
-                elsif ( $parameter =~ m/description/ ) {
-                    $current_rule->{'description'} = $cfg{$rule_id}{$parameter};
-                }
-                elsif ( $parameter =~ m/class/ ) {
-                    $current_rule->{'class'} = $cfg{$rule_id}{$parameter};
-                }
-            }
-
-            $current_source->add_rule($current_rule);
         }
-        push( @authentication_sources, $current_source );
+        $args{group_args} = \%group_args if keys %group_args;
+        my $current_source =
+          $self->newAuthenticationSource($type, $source_id, \%args);
+
+        push(@authentication_sources, $current_source);
         $authentication_lookup{$source_id} = $current_source;
     }
 
