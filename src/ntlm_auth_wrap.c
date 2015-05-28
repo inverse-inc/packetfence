@@ -43,21 +43,25 @@ const char *argp_program_version = "ntlm_auth_wrapper 1.0";
 const char *argp_program_bug_address = "<info@inverse.ca>";
 
 /* Program documentation. */
-static char doc[] = "ntm_auth_wrapper: \tA performance logging wrapper for ntlm_auth";
+static char doc[] =
+    "ntm_auth_wrapper: \tA performance logging wrapper for ntlm_auth";
 
 /* A description of the arguments we accept. */
 static char args_doc[] = "[arguments passed to ntlm_auth]";
 
 /* The options we understand. */
 static struct argp_option options[] = {
-	{"binary", 'b', "path", 0, "ntlm_auth binary path. Defaults to /usr/bin/ntlm_auth."},
-	{"host", 'h', "hostname or ip", 0, "StatsD host. Default is localhost."},
+	{"binary", 'b', "path", 0,
+	 "ntlm_auth binary path. Defaults to /usr/bin/ntlm_auth."},
+	{"host", 'h', "hostname or ip", 0,
+	 "StatsD host. Default is localhost."},
 	{"port", 'p', "port", 0, "StatsD port. Default is 8125."},
 	{"insecure", 'i', 0, 0, "Log insecure arguments such as the password."},
 	{"nostatsd", 's', 0, 0, "Don't send performance counters to statsd."},
 	{"noresolv", 'n', 0, 0, "Do not resolve value for host and port."},
 	{"log", 'l', 0, 0, "Send results to syslog."},
-	{"logfacility", 'f', "facility", 0, "Syslog facility. Default is local5."},
+	{"logfacility", 'f', "facility", 0,
+	 "Syslog facility. Default is local5."},
 	{"loglevel", 'd', "level", 0, "Syslog level. Default is info."},
 	{0}
 };
@@ -180,8 +184,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 static struct argp argp = { options, parse_opt, args_doc, doc };
 
 // send results to syslog
-void log_result(int argc, char **argv, const struct arguments args, int status, double elapsed,
-		int ppid)
+void
+log_result(int argc, char **argv, const struct arguments args, int status,
+	   double elapsed, int ppid)
 {
 	openlog("radius-debug", LOG_PID, args.facility);
 	// build the log message
@@ -192,16 +197,20 @@ void log_result(int argc, char **argv, const struct arguments args, int status, 
 	for (int i = 1; i < argc; i++) {
 		// split the argument on = and check the first part to reject excluded args.
 		if (!args.insecure)
-			if ((strncmp(argv[i], "--password", strlen("--password")) == 0) ||
-			    (strncmp(argv[i], "--challenge", strlen("--challenge")) == 0))
+			if ((strncmp
+			     (argv[i], "--password", strlen("--password")) == 0)
+			    ||
+			    (strncmp
+			     (argv[i], "--challenge",
+			      strlen("--challenge")) == 0))
 				continue;
 
 		char *tmpstr = log_msg;
 		log_msg = NULL;
 		asprintf(&log_msg, "%s %s ", tmpstr, argv[i]);
 	}
-	syslog(args.level, "%s time: %g ms, status: %i, exiting pid: %i", log_msg,
-	       elapsed, WEXITSTATUS(status), ppid);
+	syslog(args.level, "%s time: %g ms, status: %i, exiting pid: %i",
+	       log_msg, elapsed, WEXITSTATUS(status), ppid);
 	closelog();
 }
 
@@ -224,7 +233,8 @@ void send_statsd(const struct arguments args, int status, double elapsed)
 
 	if ((sockfd = socket(ailist->ai_family, SOCK_DGRAM, 0)) < 0) {
 		err = errno;
-		fprintf(stderr, "cannot contact %s:%s: %s\n", args.host, args.port, strerror(err));
+		fprintf(stderr, "cannot contact %s:%s: %s\n", args.host,
+			args.port, strerror(err));
 	} else {
 		char *buf;
 		char hostname[MAX_STR_LENGTH];
@@ -239,8 +249,7 @@ void send_statsd(const struct arguments args, int status, double elapsed)
 		if (status == ETIMEDOUT) {
 			asprintf(&buf, "%s.ntlm_auth.timeout:1|c\n", hostname);
 			send(sockfd, buf, strlen(buf), 0);
-		}
-        else if (status > 0) {
+		} else if (status > 0) {
 			asprintf(&buf, "%s.ntlm_auth.failures:1|c\n", hostname);
 			send(sockfd, buf, strlen(buf), 0);
 		}
@@ -255,33 +264,35 @@ double howlong(struct timeval t1)
 	elapsed = (end.tv_sec - t1.tv_sec) * 1000.0;	// sec to ms
 	elapsed += (end.tv_usec - t1.tv_usec) / 1000.0;	// us to ms
 
-    return elapsed;
+	return elapsed;
 }
 
-void log_timeouts(int argc, char **argv, const struct arguments args, struct timeval start) 
-{ 
-    if (termflag) { 
-        double elapsed; 
-        elapsed = howlong(start);
-	    if (args.log)
-		    log_result(argc, argv, args, ETIMEDOUT, elapsed, getpid());
-	   
-	    if (!args.nostatsd)
-		    send_statsd(args, ETIMEDOUT, elapsed);
-    }
+void
+log_timeouts(int argc, char **argv, const struct arguments args,
+	     struct timeval start)
+{
+	if (termflag) {
+		double elapsed;
+		elapsed = howlong(start);
+		if (args.log)
+			log_result(argc, argv, args, ETIMEDOUT, elapsed,
+				   getpid());
+
+		if (!args.nostatsd)
+			send_statsd(args, ETIMEDOUT, elapsed);
+	}
 }
 
 // We set a handler for the TERM signal.
 // If we receive one, we set the termflag and send ourselves a SIGKILL.
 // This will in turn call atexit which will call timeout()
-static void termhandler(int sig) 
+static void termhandler(int sig)
 {
-    if (sig == SIGTERM) {
-        termflag = 1;
-        kill(getpid(), SIGKILL);
-    }
+	if (sig == SIGTERM) {
+		termflag = 1;
+		kill(getpid(), SIGKILL);
+	}
 }
-
 
 int main(argc, argv, envp)
 int argc;
@@ -307,27 +318,27 @@ char **argv, **envp;
 	double elapsed;
 	gettimeofday(&t1, NULL);
 
-    // wrapping function around log_timeouts to get around atexit's limitations, i.e. no arguments allowed.
-    void timeout() { 
-        log_timeouts(argc, argv, arguments, t1);
-    }
-    // set function to handle TERM due to child timing out
-    int ret;
-    if ((ret = atexit(timeout)) != 0) {
-        fprintf(stderr, "Error: could not register atexit function. Exiting."); 
-        exit(ret);
-    }
-
-    // set TERM signal handler
-    struct sigaction sa;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sa.sa_handler = termhandler;
-    if (sigaction(SIGTERM, &sa, NULL) == -1) { 
-        fprintf(stderr, "Error: could not register TERM signal handler. Exiting."); 
-        exit(1);
-    }
-
+	// wrapping function around log_timeouts to get around atexit's limitations, i.e. no arguments allowed.
+	void timeout() {
+		log_timeouts(argc, argv, arguments, t1);
+	}
+	// set function to handle TERM due to child timing out
+	int ret;
+	if ((ret = atexit(timeout)) != 0) {
+		fprintf(stderr,
+			"Error: could not register atexit function. Exiting.");
+		exit(ret);
+	}
+	// set TERM signal handler
+	struct sigaction sa;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sa.sa_handler = termhandler;
+	if (sigaction(SIGTERM, &sa, NULL) == -1) {
+		fprintf(stderr,
+			"Error: could not register TERM signal handler. Exiting.");
+		exit(1);
+	}
 	// Fork a process, exec it and then wait for the exit.
 	pid_t pid, ppid;
 	ppid = getpid();
@@ -354,7 +365,9 @@ char **argv, **envp;
 		perror(argv[0]);
 		exit(127);
 	}
+    again:
 	if (waitpid(pid, &status, 0) != pid) {	// wait for child
+        if (errno == EINTR) goto again; /* just an interrupted system call */
 		perror(argv[0]);
 		exit(1);
 	}
