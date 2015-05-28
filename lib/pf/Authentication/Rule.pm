@@ -11,6 +11,9 @@ pf::Authentication::Rule
 use Moose;
 
 use pf::Authentication::constants;
+use pf::Authentication::Action;
+use pf::Authentication::Condition;
+use Sort::Naturally;
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
 has 'class' => (isa => 'Str', is => 'rw', default => $Rules::AUTH);
@@ -18,6 +21,36 @@ has 'description' => (isa => 'Str', is => 'rw', required => 0);
 has 'match' => (isa => 'Maybe[Str]', is => 'rw', default => $Rules::ANY);
 has 'actions' => (isa => 'ArrayRef', is => 'rw', required => 0);
 has 'conditions' => (isa => 'ArrayRef', is => 'rw', required => 0);
+
+=head2 BUILDARGS
+
+=cut
+
+sub BUILDARGS {
+    my ($class, @args) = @_;
+    my $args_hash = $class->SUPER::BUILDARGS(@args);
+    my @keys = keys %$args_hash;
+    #Using nsort instead of the regular to sort properly actions/conditions that have double digit suffixes
+    my @action_keys = nsort grep { /^action\d+/ } @keys;
+    my @condition_keys = nsort grep { /^condition\d+/ } @keys;
+    if(@action_keys && !defined $args_hash->{actions}) {
+        my @actions;
+        for my $key (@action_keys) {
+            my ($type,$value) = split /\s*=\s*/, $args_hash->{$key};
+            push @actions,pf::Authentication::Action->new({type => $type, value => $value });
+        }
+        $args_hash->{actions} = \@actions;
+    }
+    if(@condition_keys && !defined $args_hash->{conditions}) {
+        my @conditions;
+        for my $key (@condition_keys) {
+            my ($attribute,$operator,$value) = split /\s*,\s*/, $args_hash->{$key};
+            push @conditions,pf::Authentication::Condition->new({attribute => $attribute, operator => $operator, value => $value });
+        }
+        $args_hash->{conditions} = \@conditions;
+    }
+    return $args_hash;
+}
 
 sub add_action {
   my ($self, $action) = @_;
