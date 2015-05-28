@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 54;
+use Test::More tests => 57;
 use Test::NoWarnings;
 
 BEGIN {
@@ -117,6 +117,10 @@ isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
 is("pf::Switch::Cisco::Catalyst_2960",ref $switch, "Got the correct switch type for 172.16.0.1");
 is($switch->{_id}, '172.16.0.1', "Proper id is set for 172.16.0.1");
 
+$switch = pf::SwitchFactory->instantiate({ switch_mac => "ff:01:01:01:01:04", switch_ip => "172.16.0.1"});
+isa_ok($switch, 'pf::Switch::Cisco::Catalyst_2960');
+is("pf::Switch::Cisco::Catalyst_2960",ref $switch, "Got the correct switch type for 172.16.0.1");
+is($switch->{_id}, '172.16.0.1', "Proper id is set for 172.16.0.1");
 
 =head1 AUTHOR
 
