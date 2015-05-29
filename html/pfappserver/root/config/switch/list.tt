@@ -20,7 +20,7 @@
           [% currentPage = firstPage %]
           [% WHILE currentPage <= lastPage %]
             [%IF currentPage == pageNumber %]
-              <li class="disabled"><a>[%currentPage%]</a></li>
+              <li class="disabled"><a href="[% c.uri_for(c.controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
             [% ELSE  %]
               <li><a href="[% c.uri_for(c.controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
             [%END%]
