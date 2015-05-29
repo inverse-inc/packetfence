@@ -220,7 +220,7 @@ SwitchView.prototype.updateSwitch = function(e) {
             success: function(data) {
                 modal.modal('toggle');
                 showSuccess(that.parent.find('.table.items').first(), data.status_msg);
-                that.list();
+                that.refreshPage();
             },
             errorSibling: modal_body.children().first()
         });
@@ -258,6 +258,43 @@ SwitchView.prototype.pagination = function(e) {
             table.html(data);
         },
         errorSibling: $('#switches')
+    });
+    return false;
+};
+
+SwitchView.prototype.refreshPage = function() {
+    var that = this;
+    console.log(this);
+    var pagination = $('.pagination').first();
+    console.log(pagination);
+    var formId = pagination.attr('data-from-from') || '#search';
+    var form = $(formId);
+    var link = pagination.find('li.disabled a[href]').first();
+    if(form.length == 0) {
+        form = $('#search');
+    }
+    console.log(link);
+    console.log(form);
+    var columns = $('#columns');
+    var href = link.attr("href");
+    var section = $('#section');
+    var status_container = $("#section").find('h2').first();
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5);
+    section.fadeTo('fast', 0.5, function() {
+        that.switches.post({
+            url: href,
+            data: form.serialize() + "&" + columns.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                section.html(data);
+            },
+            errorSibling: status_container
+        });
     });
     return false;
 };

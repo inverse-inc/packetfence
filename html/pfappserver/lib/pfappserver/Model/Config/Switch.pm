@@ -89,26 +89,27 @@ Search the config from query
 sub search {
     my ($self, $query, $pageNum, $perPage) = @_;
     my ($status, $ids) = $self->readAllIds;
-    my $searchEntry = $query->{searches}->[0];
+    my $searchEntry  = $query->{searches}->[0];
     my $searchMethod = $QUERY_METHOD_LOOKUP{$searchEntry->{op}};
-    my (@items,$item);
+    my (@items, $item);
     foreach my $id (@$ids) {
-        next unless defined ($item = $self->configStore->read($id,$self->idKey));
-        push @items,$item if $self->$searchMethod($searchEntry,$item);
+        next unless defined($item = $self->configStore->read($id, $self->idKey));
+        push @items, $item if $self->$searchMethod($searchEntry, $item);
     }
-    my $pageCount = int( scalar @items / $perPage) + 1;
-    if(defined $pageNum || defined $perPage) {
+    my $pageCount = int(scalar @items / $perPage) + 1;
+    if (defined $pageNum || defined $perPage) {
         my $count = @items;
-        $pageNum = 1 unless defined $pageNum;
+        $pageNum = 1  unless defined $pageNum;
         $perPage = 25 unless defined $perPage;
         my $start = ($pageNum - 1) * 25;
-        my $end = $start + $perPage - 1;
+        my $end   = $start + $perPage - 1;
         $end = $count - 1 if $end >= $count;
-        @items = @items[$start..$end];
+        @items = @items[$start .. $end];
     }
     return (HTTP_OK,
+
         {   $self->itemsKey => \@items,
-            pageNumber      => $pageNum,
+            pageNum         => $pageNum,
             perPage         => $perPage,
             pageCount       => $pageCount,
             itemsKey        => $self->itemsKey
