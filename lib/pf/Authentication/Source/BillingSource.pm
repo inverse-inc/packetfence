@@ -31,8 +31,6 @@ has '+class' => (default => 'abstact');
 
 has '+type' => (default => 'Billing');
 
-has 'always_allow' => ( is => 'rw',default => 'no');
-
 has 'tiers' => ( isa => 'ArrayRef', is => 'rw', default => sub { [] } );
 
 =head2 _handle_additional_args
