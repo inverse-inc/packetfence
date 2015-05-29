@@ -93,18 +93,6 @@ sub match_in_subclass {
     return $username;
 }
 
-=head2 authenticate
-
-=cut
-
-sub authenticate {
-    my ($self, $username, $password) = @_;
-    if (isenabled($self->always_allow)) {
-        return ($TRUE, 'Successful authentication using billing source.');
-    }
-    return ($FALSE, 'Not allowed');
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

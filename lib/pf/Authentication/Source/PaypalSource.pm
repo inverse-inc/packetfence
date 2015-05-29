@@ -30,8 +30,6 @@ has '+class' => (default => 'billing');
 
 has '+type' => (default => 'Paypal');
 
-has 'always_allow' => ( is => 'rw',default => 'no');
-
 =head2 available_attributes
 
 Allow to make a condition on the user's email address.
@@ -77,18 +75,6 @@ sub match_in_subclass {
         }
     }
     return $username;
-}
-
-=head2 authenticate
-
-=cut
-
-sub authenticate {
-    my ($self, $username, $password) = @_;
-    if (isenabled($self->always_allow)) {
-        return ($TRUE, 'Successful authentication using paypal source.');
-    }
-    return ($FALSE, 'Not allowed');
 }
 
 =head1 AUTHOR
