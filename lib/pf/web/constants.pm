@@ -65,6 +65,7 @@ Readonly::Scalar our $URL_AUP                   => '/aup';
 Readonly::Scalar our $URL_BILLING               => '/pay';
 Readonly::Scalar our $URL_CAPTIVE_PORTAL        => '/captive-portal';
 Readonly::Scalar our $URL_ENABLER               => '/enabler';
+Readonly::Scalar our $URL_WISPR                 => '/wispr';
 Readonly::Scalar our $URL_OAUTH2                => '/oauth2/auth';
 Readonly::Scalar our $URL_OAUTH2_FACEBOOK       => '/oauth2/facebook';
 Readonly::Scalar our $URL_OAUTH2_GITHUB         => '/oauth2/github';
@@ -87,7 +88,6 @@ Readonly::Scalar our $URL_SMS_ACTIVATION        => '/activate/sms';
 Readonly::Scalar our $URL_PREREGISTER           => '/preregister';
 Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
 
-Readonly::Scalar our $MOD_PERL_WISPR            => '/wispr';
 Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
 Readonly::Scalar our $URL_DEVICE_REGISTRATION   => '/device-registration';
 
@@ -145,23 +145,6 @@ my @components = ( keys %STATIC_CONTENT_ALIASES, _captive_portal_resources_parse
 foreach (@components) { s{([^/])$}{$1\$} };
 my $allow = join('|', @components);
 Readonly::Scalar our $CAPTIVE_PORTAL_RESOURCES => qr/ ^(?: $allow ) /xo; # eXtended pattern, compile Once
-
-=item ALLOWED_RESOURCES_MOD_PERL
-
-Build a regex that will decide what is considered as a mod_perl ressource
-(allowed to Apache's further processing).
-
-URL ending with / will only be anchored at the beginning (^/path/) otherwise
-an ending anchor is also installed (^/file$).
-
-Anything else should be redirected. This happens in L<pf::web::dispatcher>.
-
-=cut
-
-my @components_mod_perl =  _clean_urls_match_mod_perl();
-foreach (@components_mod_perl) { s{([^/])$}{$1\$} };
-my $allow_mod_perl = join('|', @components_mod_perl);
-Readonly::Scalar our $ALLOWED_RESOURCES_MOD_PERL => qr/ ^(?: $allow_mod_perl ) /xo; # eXtended pattern, compile Once
 
 =item LOCALES
 
@@ -245,22 +228,6 @@ sub _captive_portal_resources_parser {
     foreach (keys %consts) {
         # keep only constants matching ^URL
         push @urls, $consts{$_} if (/^URL/);
-    }
-    return (@urls);
-}
-
-=item _clean_urls_match_mod_perl
-
-Return a regex that would match all the captive portal allowed clean URLs
-
-=cut
-
-sub _clean_urls_match_mod_perl {
-    my %consts = pf::web::constants::to_hash();
-    my @urls;
-    foreach (keys %consts) {
-        # keep only constants matching ^URL
-        push @urls, $consts{$_} if (/^MOD_PERL/);
     }
     return (@urls);
 }
