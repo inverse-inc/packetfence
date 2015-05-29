@@ -266,18 +266,16 @@ SwitchView.prototype.refreshPage = function() {
     var that = this;
     console.log(this);
     var pagination = $('.pagination').first();
-    console.log(pagination);
     var formId = pagination.attr('data-from-from') || '#search';
     var form = $(formId);
     var link = pagination.find('li.disabled a[href]').first();
     if(form.length == 0) {
         form = $('#search');
     }
-    console.log(link);
-    console.log(form);
     var columns = $('#columns');
     var href = link.attr("href");
     var section = $('#section');
+    var table = $('#switches');
     var status_container = $("#section").find('h2').first();
     var loader = section.prev('.loader');
     loader.show();
@@ -291,7 +289,7 @@ SwitchView.prototype.refreshPage = function() {
                 section.fadeTo('fast', 1.0);
             },
             success: function(data) {
-                section.html(data);
+                table.html(data);
             },
             errorSibling: status_container
         });
