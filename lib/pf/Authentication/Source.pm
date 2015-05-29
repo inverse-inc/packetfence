@@ -16,6 +16,7 @@ use Moose;
 use pf::util;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
+use pf::Authentication::Rule;
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
 has 'unique' => (isa => 'Bool', is => 'ro', default => 0);
@@ -31,6 +32,58 @@ Whether or not the source should have authentication rules
 =cut
 
 sub has_authentication_rules { $TRUE }
+
+=head2 BUILDARGS
+
+=cut
+
+sub BUILDARGS {
+    my ($class, @args) = @_;
+    my $argshash = $class->SUPER::BUILDARGS(@args);
+    if (exists $argshash->{group_args} && defined $argshash->{group_args} && ref($argshash->{group_args}) eq 'HASH') {
+        $class->handle_group_args($argshash);
+    }
+    return $argshash;
+}
+
+=head2 handle_group_args
+
+Take care of the group arguments
+
+=cut
+
+sub handle_group_args {
+    my ($class, $argshash) = @_;
+    $class->_handle_rule_args($argshash);
+    $class->_handle_additional_args($argshash);
+}
+
+
+=head2 _handle_rule_args
+
+Handle the args for rules
+
+=cut
+
+sub _handle_rule_args {
+    my ($self, $args_hash) = @_;
+    my $group_args = $args_hash->{group_args};
+    my $rules_data = $group_args->{rule};
+    return unless ref($rules_data) eq 'ARRAY';
+    my @rules;
+    foreach my $rule_data (@$rules_data) {
+        push @rules, pf::Authentication::Rule->new($rule_data);
+    }
+    $args_hash->{rules} = \@rules if @rules;
+}
+
+=head2 _handle_additional_args
+
+The function for a child class to overrdide to add additional group
+
+=cut
+
+sub _handle_additional_args { }
 
 =head2 add_rule
 
