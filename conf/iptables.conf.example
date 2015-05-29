@@ -123,6 +123,8 @@ COMMIT
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
+:postrouting-int-inline-if - [0:0]
+%%mangle_postrouting_inline%%
 # These will redirect to the proper chains based on conf/pf.conf's configuration
 %%mangle_if_src_to_chain%%
 COMMIT

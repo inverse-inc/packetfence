@@ -116,7 +116,8 @@ sub iptables_generate {
 
         # MANGLE
         $tags{'mangle_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_MANGLE);
-        $tags{'mangle_prerouting_inline'} .= $self->generate_mangle_rules();
+        $tags{'mangle_prerouting_inline'} .= $self->generate_mangle_rules();                # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
+        $tags{'mangle_postrouting_inline'} .= $self->generate_mangle_postrouting_rules();   # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
 
         # NAT chain targets and redirections (other rules injected by generate_inline_rules)
         $tags{'nat_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_NAT);
@@ -385,6 +386,17 @@ sub generate_inline_if_src_to_chain {
         if (is_type_inline($enforcement_type)) {
             # send everything from inline interfaces to the inline chain
             $rules .= "-A PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_INLINE\n";
+            $rules .= "-A POSTROUTING --out-interface $dev --jump $FW_POSTROUTING_INT_INLINE\n";
+        }
+    }
+
+    # POSTROUTING
+    if ( $table ne $FW_TABLE_NAT ) {
+        my @values = split(',', get_inline_snat_interface());
+        foreach my $val (@values) {
+           $rules .= "-A POSTROUTING --out-interface $val ";
+           $rules .= "--jump $FW_POSTROUTING_INT_INLINE";
+           $rules .= "\n";
         }
     }
 
