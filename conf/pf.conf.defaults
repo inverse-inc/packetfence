@@ -935,6 +935,26 @@ mirapay_terminal_id =
 mirapay_terminal_id_group =
 
 mirapay_hash_password =
+#
+# billing.mirapay_iframe_url
+#
+# The url to send all request
+mirapay_iframe_url = https://staging.eigendev.com/MiraSecure/GetToken.php
+#
+# billing.mirapay_iframe_shared_secret
+#
+# The shared secret for mirapay
+mirapay_iframe_shared_secret =
+#
+# billing.mirapay_iframe_merchant_id
+#
+# The mirapay merchant id
+mirapay_iframe_merchant_id =
+#
+# billing.mirapay_language
+#
+# The what language to display by default
+mirapay_language =
 
 [node_import]
 #

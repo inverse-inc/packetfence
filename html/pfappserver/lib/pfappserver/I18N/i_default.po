@@ -1551,6 +1551,10 @@ msgstr ""
 msgid "EAP TTLS"
 msgstr ""
 
+# conf/documentation.conf (billing.mirapay_language options)
+msgid "EN"
+msgstr "English"
+
 # html/pfappserver/root/user/print.tt
 msgid "Each account will be printed on a single page with the acceptable user policy."
 msgstr ""
@@ -1802,6 +1806,10 @@ msgstr "Floating Devices - Read"
 # pf::admin_roles (Actions)
 msgid "FLOATING_DEVICES_UPDATE"
 msgstr "Floating Devices - Update"
+
+# conf/documentation.conf (billing.mirapay_language options)
+msgid "FR"
+msgstr "French"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Fake MAC Address"
@@ -4650,6 +4658,10 @@ msgstr ""
 msgid "The ID of the Switch"
 msgstr ""
 
+# conf/documentation.conf (billing.mirapay_iframe_merchant_id)
+msgid "The Mirapay merchant id"
+msgstr ""
+
 # conf/documentation.conf (omapi.key_base64)
 msgid "The OMAPI base64 key for signing messages"
 msgstr ""
@@ -4664,6 +4676,12 @@ msgstr ""
 
 # conf/documentation.conf (omapi.port)
 msgid "The OMAPI port number"
+msgstr ""
+
+# conf/documentation.conf (billing.mirapay_iframe_url)
+msgid ""
+  "The URL to submit the request. By default it is set to the staging URL."
+  "In production it should be set to a production url"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -4788,6 +4806,10 @@ msgstr ""
 msgid "The rule was not found."
 msgstr ""
 
+# conf/documentation.conf (billing.mirapay_iframe_shared_secret)
+msgid "The shared secret for Mirapay"
+msgstr ""
+
 # conf/documentation.conf (billing.mirapay_terminal_id)
 msgid "The terminal id for mirapay"
 msgstr ""
@@ -4830,6 +4852,10 @@ msgstr ""
 
 # conf/documentation.conf (webservices.user)
 msgid "The webservices user name"
+msgstr ""
+
+# conf/documentation.conf (billing.mirapay_language)
+msgid "The what language to display. By default it is set to english."
 msgstr ""
 
 # html/pfappserver/root/graph/line.tt
@@ -5771,6 +5797,22 @@ msgid "billing.mirapay_hash_password"
 msgstr "MiraPay password"
 
 # conf/documentation.conf
+msgid "billing.mirapay_iframe_merchant_id"
+msgstr "Mirapay Merchant Id"
+
+# conf/documentation.conf
+msgid "billing.mirapay_iframe_shared_secret"
+msgstr "Mirapay Shared Secert"
+
+# conf/documentation.conf
+msgid "billing.mirapay_iframe_url"
+msgstr "Mirapay Url"
+
+# conf/documentation.conf
+msgid "billing.mirapay_language"
+msgstr "Mirapay Default Language"
+
+# conf/documentation.conf
 msgid "billing.mirapay_terminal_id"
 msgstr "MiraPay terminal id"
 
@@ -6322,6 +6364,18 @@ msgstr ""
 msgid "httpd listening port for PacketFence Status webservice"
 msgstr ""
 
+# conf/documentation.conf (billing.mirapay_iframe_url options)
+msgid "https://ms1.eigendev.com/MiraSecure/GetToken.php"
+msgstr "prod1"
+
+# conf/documentation.conf (billing.mirapay_iframe_url options)
+msgid "https://ms2.eigendev.com/MiraSecure/GetToken.php"
+msgstr "prod2"
+
+# conf/documentation.conf (billing.mirapay_iframe_url options)
+msgid "https://staging.eigendev.com/MiraSecure/GetToken.php"
+msgstr "staging"
+
 # pf::provisioner (Provisioners)
 msgid "ibm"
 msgstr "IBM"
@@ -6616,6 +6670,10 @@ msgstr ""
 # conf/documentation.conf (billing.gateway options)
 msgid "mirapay"
 msgstr "MiraPay"
+
+# conf/documentation.conf (billing.gateway options)
+msgid "mirapay_iframe"
+msgstr "Mirapay Iframe"
 
 # pf::provisioner (Provisioners)
 msgid "mobileconfig"

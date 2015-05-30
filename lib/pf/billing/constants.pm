@@ -12,6 +12,16 @@ This file is splitted by package and refering to the constants requires you to s
 
 =cut
 
+use Readonly;
+use base qw(Exporter);
+our @EXPORT_OK = qw(
+    $MIRAPAY_ACTION_CODE_APPROVED
+    $MIRAPAY_ACTION_CODE_DECLINED
+);
+
+Readonly::Scalar our $MIRAPAY_ACTION_CODE_APPROVED => 'A';
+Readonly::Scalar our $MIRAPAY_ACTION_CODE_DECLINED => 'D';
+
 use strict;
 use warnings;
 
@@ -46,7 +56,7 @@ Status string as put in the database.
 Readonly::Scalar our $STATUS_PROCESSED_ERROR => 'processed - error';
 Readonly::Scalar our $STATUS_PROCESSED_SUCCESS => 'processed - success';
 
-=item error_code 
+=item error_code
 
 PacketFence error codes regarding billing.
 
@@ -56,7 +66,7 @@ Readonly::Scalar our $ERROR_INVALID_FORM => 1;
 Readonly::Scalar our $ERROR_CC_VALIDATION => 2;
 Readonly::Scalar our $ERROR_PAYMENT_GATEWAY_FAILURE => 3;
 
-=item errors 
+=item errors
 
 An hash mapping error codes to error messages.
 
