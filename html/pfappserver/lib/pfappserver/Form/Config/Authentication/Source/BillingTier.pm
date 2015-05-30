@@ -1,4 +1,4 @@
-package pfappserver::Form::Config::Authentication::BillingTier;
+package pfappserver::Form::Config::Authentication::Source::BillingTier;
 
 =head1 NAME
 
