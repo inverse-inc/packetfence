@@ -48,9 +48,9 @@ sub index : Path : Args(0) {
         fingerprint  => $pki_session->{fingerprint},
         for_windows  => ($provisioner->{type} eq 'windows'),
         for_ios      => ($provisioner->{type} eq 'mobileconfig'),
-        cacn         => $pki_session->{cacn},
-        svrcn        => $pki_session->{svrcn},
-        cadata       => $pki_session->{cadata},
+        cacn         => $pki_session->{ca_cn},
+        server_cn    => $pki_session->{server_cn},
+        ca_content   => $pki_session->{ca_content},
         passwcode    => $provisioner->{passcode},
     );
 }

@@ -21,7 +21,7 @@
                                 </array>
                                 <key>TLSTrustedServerNames</key>
                                 <array>
-                                    <string>[% svrcn %]</string>
+                                    <string>[% server_cn %]</string>
                                 </array>
                                 [% IF for_windows %]
                                 <key>UserName</key>
@@ -85,17 +85,17 @@
                 [% IF provisioner.eap_type.defined and provisioner.eap_type == "13" %]
                 <dict>
                         <key>PayloadCertificateFileName</key>
-                        <string>[% cacn %]</string>
+                        <string>[% ca_cn %]</string>
                         <key>PayloadContent</key>
                         [% IF for_windows %]
-                        <string>[% cadata %]</string>
+                        <string>[% ca_data %]</string>
                         [% ELSE %]
-                        <data>[% cadata %]</data>
+                        <data>[% ca_data %]</data>
                         [% END %]
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
-                        <string>[% cacn %]</string>
+                        <string>[% ca_cn %]</string>
                         <key>PayloadIdentifier</key>
                         <string>[% provisioner.reversedns %]</string>
                         <key>PayloadOrganization</key>
