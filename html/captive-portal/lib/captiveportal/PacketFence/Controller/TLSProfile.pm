@@ -215,25 +215,26 @@ sub export_fingerprint : Local {
     my $stash = $c->stash;
     my $user_cache = $c->user_cache;
     my $pki_session = $user_cache->compute("pki_session", sub {});
-    
-    my $svrcn = $radius_svr_cert;
+    my $pki_provider = $provisioner->pki_provider;
+
+    my $svrcn = $pki_provider->server_cert_path;
     $svrcn =~ s{.*/}{};
     $svrcn =~ s{\.[^.]+$}{};
-    my $cacert = Crypt::OpenSSL::X509->new_from_string($provisioner->ca_cert);
-    my $castr = $cacert->as_string();
-    my $cafinger = $cacert->fingerprint_sha1();
-    $c->session( fingerprint => $cafinger );
-    my $cafile = $cacert->subject;
-    $c->session( cacn => $cafile );
-    $c->session( svrcn => $svrcn );
-    $castr =~ s/-----END CERTIFICATE-----\n.*//smg;
-    $castr =~ s/.*-----BEGIN CERTIFICATE-----\n//smg;
-    $c->session( cadata => $castr );
+    my $ca_str = $pki_provider->raw_ca_cert_string();
+    my $ca_cert = $pki_provider->ca_cert;
+    my $ca_fingerprint = $ca_cert->fingerprint_sha1();
+    my $ca_file = $ca_cert->subject;
+    $c->session(
+        fingerprint => $ca_fingerprint,
+        cacn   => $ca_file,
+        svrcn  => $svrcn,
+        cadata => $ca_str
+    );
     @$pki_session{qw(cacn svrcn cadata fingerprint)} = (
-        $cafile,
+        $ca_file,
         $svrcn,
-        $castr,
-        $cafinger,
+        $ca_str,
+        $ca_fingerprint,
     );
     $user_cache->set("pki_session" => $pki_session);
 }

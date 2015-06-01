@@ -19,6 +19,69 @@ has ca_cert_path => (is => 'rw');
 
 has server_cert_path => (is => 'rw');
 
+has ca_cert => (is => 'ro' , builder => 1);
+
+has server_cert => (is => 'ro' , builder => 1);
+
+=head2 _build_ca_cert
+
+Builds an X509 object the ca_cert_path
+
+=cut
+
+sub _build_ca_cert {
+    my ($self) = @_;
+    return Crypt::OpenSSL::X509->new_from_file($self->ca_cert_path);
+}
+
+=head2 _build_ca_cert
+
+Builds an X509 object the server_cert_path
+
+=cut
+
+sub _build_server_cert {
+    my ($self) = @_;
+    return Crypt::OpenSSL::X509->new_from_file($self->server_cert_path);
+}
+
+
+=head2 _raw_cert_string
+
+Extracts the certificate content minus the ascii armor
+
+=cut
+
+sub _raw_cert_string {
+    my ($self, $cert) = @_;
+    my $cert_pem = $cert->as_string();
+    $cert_pem =~ s/-----END CERTIFICATE-----\n.*//smg;
+    $cert_pem =~ s/.*-----BEGIN CERTIFICATE-----\n//smg;
+    return $cert_pem;
+}
+
+=head2 raw_ca_cert_string
+
+Get the ca certificate content minus the ascii armor
+
+=cut
+
+sub raw_ca_cert_string {
+    my ($self) = @_;
+    return $self->_raw_cert_string($self->ca_cert);
+}
+
+=head2 raw_ca_cert_string
+
+Get the server certificate content minus the ascii armor
+
+=cut
+
+sub raw_server_cert {
+    my ($self) = @_;
+    return $self->_raw_cert_string($self->server_cert);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
