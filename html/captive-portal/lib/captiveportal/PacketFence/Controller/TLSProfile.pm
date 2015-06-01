@@ -140,13 +140,13 @@ sub validate_form : Private {
     my $logger = $c->log;
     my $portalSession = $c->portalSession;
     my $mac    = $portalSession->clientMac;
-    my $passwd1 = $c->request->param('certificate_pwd');
-    my $passwd2 = $c->request->param('certificate_pwd_check');
-    if(!defined $passwd1 || $passwd1 eq '' || !defined $passwd2 || $passwd2 eq '') {
+    my $passwd = $c->request->param('certificate_pwd');
+    my $passwd_confirm = $c->request->param('certificate_pwd_check');
+    if(!defined $passwd || $passwd eq '' || !defined $passwd_confirm || $passwd_confirm eq '') {
         $c->stash(txt_validation_error => 'No Password given');
         $c->detach('index');
     }
-    if($passwd1 ne $passwd2) {
+    if($passwd ne $passwd_confirm) {
         $c->stash(txt_validation_error => 'Passwords do not match');
         $c->detach('index');
     }
@@ -163,7 +163,7 @@ sub validate_form : Private {
         service           => $c->request->param('service'),
         certificate_cn    => $certificate_cn,
         certificate_email => $certificate_email,
-        certificate_pwd   => $passwd1,
+        certificate_pwd   => $passwd,
     };
     $user_cache->set("pki_session" => $pki_session);
     $c->stash($pki_session);
