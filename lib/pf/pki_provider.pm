@@ -60,6 +60,18 @@ sub _raw_cert_string {
     return $cert_pem;
 }
 
+sub _cert_cn {
+    my ($self, $cert) = @_;
+    if($cert->subject =~ /CN=(.*?),/g){
+        return $1;
+    }
+    else {
+        get_logger->error("Cannot find CN of server certificate at ".$self->ca_cert_path);
+        return undef;
+    }   
+
+}
+
 =head2 raw_ca_cert_string
 
 Get the ca certificate content minus the ascii armor
@@ -80,6 +92,28 @@ Get the server certificate content minus the ascii armor
 sub raw_server_cert {
     my ($self) = @_;
     return $self->_raw_cert_string($self->server_cert);
+}
+
+sub server_cn {
+    my ($self) = @_;
+    my $cn = $self->_cert_cn($self->server_cert);
+    if(defined($cn)){
+        return $cn;
+    }
+    else {
+        get_logger->error("cannot find cn of ca certificate at ".$self->server_cert_path);
+    }   
+}
+
+sub ca_cn {
+    my ($self) = @_;
+    my $cn = $self->_cert_cn($self->ca_cert);
+    if(defined($cn)){
+        return $cn;
+    }
+    else {
+        get_logger->error("cannot find cn of ca certificate at ".$self->ca_cert_path);
+    }   
 }
 
 =head1 AUTHOR

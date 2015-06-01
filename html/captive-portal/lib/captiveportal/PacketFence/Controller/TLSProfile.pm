@@ -190,37 +190,6 @@ sub b64_cert : Local {
 }
 
 
-# MOVE ME TO PKI PROVIDER
-sub getServerCn() {
-    my ($self, $c) = @_;
-    # CHANGE ME - I'M UGLY:(
-    my $server_cert_path = '/usr/local/pf/conf/ssl/server.crt';
-    my $server_cert = Crypt::OpenSSL::X509->new_from_file($server_cert_path);
-    if($server_cert->subject =~ /CN=(.*?),/){
-        return $1;
-    }
-    else {
-        $c->log->error("Cannot find CN of server certificate at $server_cert_path");
-    }
-}
-
-
-# MOVE ME TO PKI PROVIDER
-sub getCaCn() {
-    my ($self, $c) = @_;
-    # CHANGE ME - I'M UGLY:(
-    my $ca_cert_path = '/usr/local/pf/conf/ssl/ca.crt';
-    my $ca_cert = Crypt::OpenSSL::X509->new_from_file($ca_cert_path);
-    print $ca_cert->subject."\n";
-    if($ca_cert->subject =~ /CN=(.*?),/g){
-        return $1;
-    }
-    else {
-        $c->log->error("Cannot find CN of server certificate at $ca_cert_path");
-    }
-   
-}
-
 =head2 prepare_profile
 
 Prepares all the data necessary for the profile rendering
@@ -239,9 +208,6 @@ sub prepare_profile : Local {
     my $pki_session = $user_cache->compute("pki_session", sub {});
     
     my $ca_content = $provisioner->raw_ca_cert_string();
-    $ca_content =~ s/-----END CERTIFICATE-----\n.*//smg;
-    $ca_content =~ s/.*-----BEGIN CERTIFICATE-----\n//smg;
-
     my $server_cn = $provisioner->getPkiProvider()->get_server_cn();
     my $ca_cn = $provisioner->getPkiProvider()->get_server_cn();
     @$pki_session{qw(ca_cn server_cn ca_content)} = (
