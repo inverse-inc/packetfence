@@ -19,9 +19,9 @@ has ca_cert_path => (is => 'rw');
 
 has server_cert_path => (is => 'rw');
 
-has ca_cert => (is => 'ro' , builder => 1);
+has ca_cert => (is => 'ro' , builder => 1, lazy => 1);
 
-has server_cert => (is => 'ro' , builder => 1);
+has server_cert => (is => 'ro' , builder => 1, lazy => 1);
 
 =head2 _build_ca_cert
 
