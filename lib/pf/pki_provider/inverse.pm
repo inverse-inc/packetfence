@@ -120,7 +120,9 @@ sub get_cert {
     # Starts the actual request
     my $curl_return_code = $curl->perform;
 
-    if ($curl_return_code == 0) {
+    my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
+
+    if ($curl_return_code == 0 && $response_code == 200) {
         return $response_body;
     }
     else {

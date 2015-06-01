@@ -59,17 +59,19 @@
                 [% IF provisioner.eap_type.defined and provisioner.eap_type == "13" %]
                 <dict>
                         <key>PayloadCertificateFileName</key>
-                        <string>[% certcn %]</string>
+                        <string>[% cert_cn %]</string>
                         <key>PayloadContent</key>
                         [% IF for_windows %]
-                        <string>[% certdata %]</string>
+                        <string>[% cert_content %]</string>
                         [% ELSE %]
-                        <data>[% certdata %]</data>
+                        <data>
+                        [% cert_content %]
+                        </data>
                         [% END %]
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
-                        <string>[% certcn %]</string>
+                        <string>[% cert_cn %]</string>
                         <key>PayloadIdentifier</key>
                         <string>[% provisioner.reversedns %]</string>
                         <key>PayloadOrganization</key>
@@ -117,10 +119,6 @@
         <string>[% provisioner.reversedns %]</string>
         <key>PayloadOrganization</key>
         <string>[% provisioner.company %]</string>
-        [% IF for_windows %]
-        <key>cafingerprint</key>
-        <string>[% fingerprint %]</string>
-        [% END %]
         <key>PayloadRemovalDisallowed</key>
         <false/>
         <key>PayloadType</key>

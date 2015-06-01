@@ -207,9 +207,9 @@ sub prepare_profile : Local {
     my $user_cache = $c->user_cache;
     my $pki_session = $user_cache->compute("pki_session", sub {});
     
-    my $ca_content = $provisioner->raw_ca_cert_string();
-    my $server_cn = $provisioner->getPkiProvider()->get_server_cn();
-    my $ca_cn = $provisioner->getPkiProvider()->get_server_cn();
+    my $ca_content = $provisioner->getPkiProvider()->raw_ca_cert_string();
+    my $server_cn = $provisioner->getPkiProvider()->server_cn();
+    my $ca_cn = $provisioner->getPkiProvider()->ca_cn();
     @$pki_session{qw(ca_cn server_cn ca_content)} = (
         $ca_cn,
         $server_cn,
