@@ -122,29 +122,29 @@ Apache config.
 
 =cut
 
-Readonly::Hash our %STATIC_CONTENT_ALIASES => (
-    '/common/' => '/html/common/',
-    '/content/' => '/html/captive-portal/content/',
-    '/favicon.ico' => '/html/common/favicon.ico',
+Readonly::Hash our %CAPTIVE_PORTAL_STATIC_ALIASES => (
+    '/common/'      => '/html/common/',
+    '/content/'     => '/html/captive-portal/content/',
+    '/favicon.ico'  => '/html/common/favicon.ico',
 );
 
 =item CAPTIVE_PORTAL_RESOURCES
 
-Build a regex that will decide what is considered a local ressource
-(allowed to Apache's further processing).
+=cut
 
-URL ending with / will only be anchored at the beginning (^/path/) otherwise
-an ending anchor is also installed (^/file$).
+my @captive_portal_resources = _captive_portal_resources_parser();
+foreach ( @captive_portal_resources ) { s{([^/])$}{$1\$} }; # add $ to non-slash ending URLs
+my $captive_portal_resources = join('|', @captive_portal_resources);
+Readonly::Scalar our $CAPTIVE_PORTAL_RESOURCES => qr/ ^(?: $captive_portal_resources ) /xo; # eXtended pattern, compile Once
 
-Anything else should be redirected. This happens in L<pf::web::dispatcher>.
+=item CAPTIVE_PORTAL_STATIC_RESOURCES
 
 =cut
 
-my @components = ( keys %STATIC_CONTENT_ALIASES, _captive_portal_resources_parser() );
-# add $ to non-slash ending URLs
-foreach (@components) { s{([^/])$}{$1\$} };
-my $allow = join('|', @components);
-Readonly::Scalar our $CAPTIVE_PORTAL_RESOURCES => qr/ ^(?: $allow ) /xo; # eXtended pattern, compile Once
+my @captive_portal_static_ressources = keys %CAPTIVE_PORTAL_STATIC_ALIASES;
+foreach ( @captive_portal_static_ressources ) { s{([^/])$}{$1\$} }; # add $ to non-slash ending URLs
+my $captive_portal_static_resources = join('|', @captive_portal_static_ressources);
+Readonly::Scalar our $CAPTIVE_PORTAL_STATIC_RESOURCES => qr/ ^(?: $captive_portal_static_resources ) /xo; # eXtended pattern, compile Once
 
 =item LOCALES
 
