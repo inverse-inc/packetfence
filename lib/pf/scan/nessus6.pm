@@ -103,7 +103,7 @@ sub startScan {
     
     my $scannerid = $n->get_scanner_id(name => $scanner_name);
     if ($scannerid eq ""){
-    	$logger->warn("Nessus scanner name doesn't exist".$scannerid);
+    	$logger->warn("Nessus scanner name doesn't exist ".$scannerid);
     	return 1;
     }  
     
@@ -111,7 +111,7 @@ sub startScan {
     # is in this function.
     my $policy_uuid = $n->get_template_id( name => 'custom', type => 'scan');
     if ($policy_uuid eq ""){
-    	$logger->warn("Failled to obtain the uuid for the policy".$nessus_clientpolicy);
+    	$logger->warn("Failled to obtain the uuid for the policy ".$policy_uuid);
     	return 1;
     }
     
@@ -152,13 +152,14 @@ sub startScan {
     }
     
     # Get the report
-    #$this->{'_report'} = $n->report_filenbe_download($scanid);
-    $this->{'_report'} = $n->export_scan(scan_id => $scanid->{id}, format => $format);
+    my $file_id = $n->export_scan(scan_id => $scanid->{id}, format => $format);
+    while ($n->get_scan_export_status(scan_id => $scanid->{id},file_id => $file_id) ne 'ready') {
+        sleep 2;
+    }
+    $this->{'_report'} = $n->download_scan(scan_id => $scanid->{id}, file_id => $file_id);
     # Remove report on the server and logout from nessus
     $n->delete_scan(scan_id => $scanid->{id});
     $n->DESTROY;
-    # Clean the report
-    $this->{'_report'} = [ split("\n", $this->{'_report'}) ];
 
     pf::scan::parse_scan_report($this);
 }

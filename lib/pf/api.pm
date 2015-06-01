@@ -954,6 +954,23 @@ sub detect_computername_change : Public {
     return 0;
 }
 
+=head2 reevaluate_access
+
+Reevaluate the access of the mac address.
+
+=cut
+
+sub reevaluate_access : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac reason);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,\@found);
+
+    my $logger = pf::log::get_logger();
+
+     pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
