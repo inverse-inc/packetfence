@@ -47,13 +47,8 @@ sub index : Path : Args(0) {
     my $node_info = node_view($mac);
     my $pid = $node_info->{'pid'};
     my $provisioner = $c->profile->findProvisioner($mac);
-    my $certificate_cn = $mac;
-    $certificate_cn =~ s/:/-/g;
     $c->stash(
         post_uri            => '/tlsprofile/cert_process',
-        certificate_cn      => $certificate_cn,
-        certificate_pwd     => $request->param_encoded("certificate_pwd"),
-        certificate_pwd_check     => $request->param_encoded("certificate_pwd_check"),
         certificate_email   => lc( $request->param_encoded("certificate_email") || $request->param_encoded("email")),
         template            => 'pki.html',
         provisioner         => $provisioner,
@@ -73,19 +68,18 @@ sub build_cert_p12 : Path : Args(0) {
     my ($self, $c) = @_;
     my $logger = $c->log;
     my $session = $c->session;
-    my $cert_data = $c->stash->{'cert_content'};
-    my $cert = $c->stash->{'certificate_cn'} . ".p12";
-    my $certname = "$cert_dir/$cert";
-    $c->session( certificate_cn => $cert );
+    my $cert_content  = $c->stash->{'cert_content'};
+    my $cn            = $c->stash->{'certificate_cn'};
+    my $cert_path     = "$users_cert_dir/$cn.p12";
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
     my $node_info     = node_view($mac);
     my $pid           = $node_info->{'pid'};
     my $fh;
-    if ( open ($fh, '>', $certname) ) {
-        $logger->debug("Certificate for user \"$pid\" successfully created.");
-        print $fh "$cert_data\n";
+    if ( open ($fh, '>', $cert_path) ) {
+        print $fh $cert_content;
         close $fh;
+        $logger->info("Certificate for user \"$pid\" successfully created under path $cert_path.");
     }
     else {
         $logger->error("The certificate file could not be saved for username \"$pid\"");
@@ -185,18 +179,14 @@ sub b64_cert : Local {
     my ($self,$c) = @_;
     my $session = $c->session;
     my $stash = $c->stash;
-    my $cwd = $cert_dir;
-    my $certfile = $stash->{'certificate_cn'};
-    my $certp12 = "$cwd/$certfile.p12";
-    my $certstr = read_file($certp12);
-    my $b64 = encode_base64($certstr);
+    my $cn = $stash->{'certificate_cn'};
+    my $cert_path = "$users_cert_dir/$cn.p12";
+    my $cert_content = read_file($cert_path);
+    my $b64_cert = encode_base64($cert_content);
     my $user_cache = $c->user_cache;
     my $pki_session = $user_cache->compute("pki_session", sub {});
-    $pki_session->{b64_cert} = $b64;
+    $pki_session->{b64_cert} = $b64_cert;
     $user_cache->set("pki_session" => $pki_session);
-    $c->session(
-        b64_cert => $b64,
-    );
 }
 
 =head2 export_fingerprint
