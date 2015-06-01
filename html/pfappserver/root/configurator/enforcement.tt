@@ -36,7 +36,7 @@
                       <input type="checkbox" name="enforcement" value="vlan"[% IF c.session.enforcements.vlan %] checked=""[% END %]> [% l('VLAN enforcement') %]
                     </th>
                     <th>
-                      <input type="checkbox" name="enforcement" value="hotspot"[% IF c.session.enforcements.hotspot %] checked=""[% END %]> [% l('WebAuth enforcement') %]
+                      <input type="checkbox" name="enforcement" value="webauth"[% IF c.session.enforcements.hotspot %] checked=""[% END %]> [% l('WebAuth enforcement') %]
                     </th>
                   </tr>
                 </thead>
