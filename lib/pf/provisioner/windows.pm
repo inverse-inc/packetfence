@@ -27,6 +27,14 @@ The set the default Windows OS
 # Will always ignore the oses parameter provided and use [Windows]
 has 'oses' => (is => 'ro', default => sub { [qw(Windows)] }, coerce => sub { [qw(Windows)] });
 
+=head2 profile_template
+
+The template to use for profile
+
+=cut
+
+has profile_template => (is => 'rw', default => sub { "windows-profile.xml" });
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

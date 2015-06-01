@@ -37,7 +37,7 @@ sub index : Path : Args(0) {
     my $logger = $c->log;
     my $provisioner = $c->profile->findProvisioner($mac);
     $provisioner->authorize($mac) if (defined($provisioner));
-    my $profile_template = $c->stash->{profile_template} // 'wireless-profile.xml';
+    my $profile_template = $provisioner->profile_template;
     $c->stash(
         template     => $profile_template,
         current_view => 'MobileConfig',

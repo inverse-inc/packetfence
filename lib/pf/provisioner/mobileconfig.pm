@@ -110,6 +110,14 @@ The private key for signing in PEM format
 
 has private_key => (is => 'rw');
 
+=head2 profile_template
+
+The template to use for profile
+
+=cut
+
+has profile_template => (is => 'rw', default => sub { "wireless-profile.xml" });
+
 =head2 can_sign_profile
 
 Enabled or disables the signing of the profile
