@@ -27,16 +27,13 @@ var ProvisionerView = function(options) {
     var that = this;
     this.parent = options.parent;
     this.items = options.items;
-
+    var toggleInputs = $.proxy(this.toggleInputs,this);
     // Hide the sectype, eap_type fields when 'Open' is selected
-    options.parent.on('change', 'form[name="modalProvisioner"] select[name="security_type"]', this.toggleSecurityType);
+    options.parent.on('change', 'form[name="modalProvisioner"] select[name="security_type"]', toggleInputs);
     // Hide the ca_cert_path, cert_type, reversedns and company fields when 'PEAP' is selected
-    options.parent.on('change', 'form[name="modalProvisioner"] select[name="eap_type"]', this.toggleEapType);
+    options.parent.on('change', 'form[name="modalProvisioner"] select[name="eap_type"]', toggleInputs);
     // Hide fileds on opening the provisioner
-    options.parent.on('show', '#modalProvisioner', function(e) {
-      that.toggleEapType(e);
-      that.toggleSecurityType(e);
-    }); 
+    options.parent.on('show', '#modalProvisioner', toggleInputs);
 };
 
 ProvisionerView.prototype = (function(){
@@ -47,66 +44,43 @@ ProvisionerView.prototype = (function(){
 
 ProvisionerView.prototype.constructor = ProvisionerView;
 
-ProvisionerView.prototype.toggleSecurityType = function(e) {
-    var select = $('form[name="modalProvisioner"] select[name="security_type"]').first();
-    var passcode_input = select.closest('form').find('input[name="passcode"]');
-    var passcode = passcode_input.closest('.control-group');
-    var eap = select.closest('form').find('select[name="eap_type"]').closest('.control-group');
-    var eap_type = $('form[name="modalProvisioner"] select[name="eap_type"]').first();
-    var cert = eap_type.closest('form').find('select[name="cert_type"]').closest('.control-group');
-    var certpath = eap_type.closest('form').find('input[name="ca_cert_path"]').closest('.control-group');
+ProvisionerView.prototype.toggleInputs = function(e) {
+    this.togglePkiProvider(e);
+    this.toggleWifiKey(e);
+    this.toggleEapType(e);
+};
 
-    if ($('#security_type option:selected').text() == "Open"){
-        passcode_input.val("");
-        passcode.hide();
-        eap.hide();
-        eap_type.val("");
-        cert.hide();
-        certpath.hide();
+ProvisionerView.prototype.toggleWifiKey = function(e) {
+    var security_type = $('#security_type option:selected').text();
+    var eap_type = $('#eap_type option:selected').text();
+    var passcode_input = $('#passcode').closest('.control-group');
+    if (security_type != "Open" && eap_type == "No EAP") {
+        passcode_input.show();
     }
-    else if ($('#security_type option:selected').text() == "WEP"){
-        passcode_input.val("");
-        passcode.show();
-        eap.hide();
-        eap_type.val("");
-        cert.hide();
-        certpath.hide();
-    }
-    else{
-        passcode.show();
-        eap.show();
-        cert.show();
-        certpath.show();
+    else {
+        passcode_input.hide();
     }
 };
 
 ProvisionerView.prototype.toggleEapType = function(e) {
-    var select = $('form[name="modalProvisioner"] select[name="eap_type"]').first();
-    var cert = select.closest('form').find('select[name="cert_type"]').closest('.control-group');
-    var certpath_input = select.closest('form').find('input[name="ca_cert_path"]');
-    var certpath = certpath_input.closest('.control-group');
-    var passcode = select.closest('form').find('input[name="passcode"]').closest('.control-group');
+    var security_type = $('#security_type option:selected').text();
+    var eap_input = $('#eap_type').closest('.control-group');
+    if ( security_type == 'WPA2') {
+        eap_input.show();
+    }
+    else {
+        eap_input.hide();
+    }
+};
 
-    if ($('#eap_type option:selected').text() == "PEAP"){
-        certpath_input.val("");
-        certpath.hide();
-        cert.hide();
-        passcode.hide();
+ProvisionerView.prototype.togglePkiProvider = function(e) {
+    var security_type = $('#security_type option:selected').text();
+    var eap_type = $('#eap_type option:selected').text();
+    var pki_input = $('#pki_provider').closest('.control-group');
+    if (security_type == "WPA2" && (eap_type == "EAP-TLS" || eap_type == "EAP-TTLS") ) {
+        pki_input.show();
     }
-    else if ($('#eap_type option:selected').text() == "No EAP"){
-        certpath_input.val("");
-        certpath.hide();
-        cert.hide();
-        passcode.show();
-    }
-    else if ($('#eap_type option:selected').text() == "EAP-TLS"){
-        certpath.show();
-        cert.show();
-        passcode.hide();
-    }
-    else{
-        cert.show();
-        certpath.show();
-        passcode.hide();
+    else {
+        pki_input.hide();
     }
 };
