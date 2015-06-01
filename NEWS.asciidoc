@@ -17,8 +17,13 @@ Version X.Y.Z released on XXXX-YY-ZZ
 New Features
 ++++++++++++
 
+* Introduced new 'portal' interface type to spawn a captive-portal instance on selected interface
+* Introduced new 'ports.httpd_portal_modstatus' configuration parameter
+
 Enhancements
 ++++++++++++
+
+* Specific vhost for httpd.portal diagnostics
 
 Bug Fixes
 +++++++++
