@@ -61,22 +61,6 @@ sub profile_xml : Path('/profile.xml') : Args(0) {
     $c->forward('index');
 }
 
-=head2 get_tmp_filename
-
-Create a temporary template for the signing
-
-=cut
-
-sub get_temp_filename : Private {
-    my $fh = File::Temp->new(
-        TEMPLATE => 'tempXXXXX',
-        DIR      => '/tmp',
-        SUFFIX   => '.dat',
-    );
-
-    return $fh->filename;
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
