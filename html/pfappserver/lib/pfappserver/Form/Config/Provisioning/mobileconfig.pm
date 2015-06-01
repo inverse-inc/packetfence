@@ -138,10 +138,14 @@ sub filter_deflate {
 }
 
 
-
 has_block definition =>
   (
-   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode pki_provider can_sign_profile certificate private_key cert_chain ca_cert) ],
+   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode pki_provider ca_cert) ],
+  );
+
+has_block signing =>
+  (
+   render_list => [ qw(can_sign_profile certificate private_key cert_chain) ],
   );
 
 sub options_eap_type {
