@@ -150,12 +150,11 @@ sub validate_form : Private {
         $c->stash(txt_validation_error => 'Passwords do not match');
         $c->detach('index');
     }
-    my $certificate_email = $c->request->param('certificate_email');
-    my $certificate_pwd = $c->request->param('certificate_pwd');
-    if(!defined $certificate_email || $certificate_email eq '') {
-        $c->stash(txt_validation_error => 'No email provided');
-        $c->detach('index');
-    }
+
+    my $source_id = $c->session->{source_id};
+    my $source = getAuthenticationSource($source_id);
+    my $certificate_email = $source->search_attributes($c->session->{username})->get_value('mail');
+
     my $certificate_cn = $mac;
     $certificate_cn =~ s/:/-/g;
     my $user_cache = $c->user_cache;
