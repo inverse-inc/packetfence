@@ -279,6 +279,11 @@ aaa=7070
 #
 # Port of the packetfence status http interface listends on.
 pf_status=9191
+#
+# ports.httpd_portal_modstatus
+#
+# Port the mod_status for httpd.portal listens on.
+httpd_portal_modstatus=1444
 
 [scan]
 #

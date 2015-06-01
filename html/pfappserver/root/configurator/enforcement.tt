@@ -29,11 +29,14 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th width="50%">
+                    <th>
                       <input type="checkbox" name="enforcement" value="inline"[% IF c.session.enforcements.inline %] checked=""[% END %]> [% l('Inline enforcement') %]
                     </th>
                     <th>
                       <input type="checkbox" name="enforcement" value="vlan"[% IF c.session.enforcements.vlan %] checked=""[% END %]> [% l('VLAN enforcement') %]
+                    </th>
+                    <th>
+                      <input type="checkbox" name="enforcement" value="webauth"[% IF c.session.enforcements.hotspot %] checked=""[% END %]> [% l('WebAuth enforcement') %]
                     </th>
                   </tr>
                 </thead>
@@ -45,12 +48,18 @@
                     <td>
                       [% l('PacketFence is the server that assigns the VLAN (or roles) to the devices. This is the prefered enforcement mechanism for manageable equipment.') %]
                     </td>
+                    <td>
+                      [% l('PacketFence is the server that assigns the Role (or ACL) to the devices. This mode is for web authentication.') %]
+                    </td>
                   </tr>
                   <tr>
                     <td class="graph">
                       <img src="[% c.uri_for('/static/configurator/enforcement-inline.png') %]">
                     </td>
                     <td class="graph">
+                      <img src="[% c.uri_for('/static/configurator/enforcement-vlan.png') %]">
+                    </td>
+                   <td class="graph">
                       <img src="[% c.uri_for('/static/configurator/enforcement-vlan.png') %]">
                     </td>
                   </tr>

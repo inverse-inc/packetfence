@@ -54,6 +54,7 @@ sub generateCollectd {
     $tags{'db_username'}   = "$Config{'database'}{'user'}";
     $tags{'db_password'}   = "$Config{'database'}{'pass'}";
     $tags{'db_database'}   = "$Config{'database'}{'db'}";
+    $tags{'httpd_portal_modstatus_port'} = "$Config{'ports'}{'httpd_portal_modstatus'}";
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/collectd.conf" );
 }
