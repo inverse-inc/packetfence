@@ -18,6 +18,8 @@ use Moo;
 use WWW::Curl::Easy;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 
+extends 'pf::pki_provider';
+
 use pf::log;
 
 =head2 uri

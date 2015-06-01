@@ -81,17 +81,6 @@ has_field 'cert_chain' =>
              help => 'The certificate chain of the signer certificate in pem format'},
   );
 
-has_field 'ca_cert' =>
-  (
-   type => 'TextArea',
-   element_class => ['input-xxlarge'],
-   inflate_default_method => \&filter_inflate ,
-   deflate_value_method => \&filter_deflate ,
-   label => 'The base64 Certificate of Authority',
-   tags => { after_element => \&help,
-             help => 'The Certificate of Authority in pem format'},
-  );
-
 has_field 'certificate' =>
   (
    type => 'TextArea',
@@ -140,7 +129,7 @@ sub filter_deflate {
 
 has_block definition =>
   (
-   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode pki_provider ca_cert) ],
+   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode pki_provider) ],
   );
 
 has_block signing =>

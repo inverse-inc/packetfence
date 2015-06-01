@@ -72,9 +72,19 @@ has_field 'organisation' =>
    type => 'Text',
   );
 
+has_field 'ca_cert_path' =>
+  (
+   type => 'Text',
+  );
+
+has_field 'server_cert_path' =>
+  (
+   type => 'Text',
+  );
+
 has_block definition=>
   (
-    render_list => [qw(type uri username password profile country state organisation)],
+    render_list => [qw(type uri username password profile country state organisation ca_cert_path server_cert_path)],
   );
 
 =head1 COPYRIGHT
