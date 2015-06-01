@@ -39,7 +39,11 @@ form[name="enforcement"] .table td {
 form[name="enforcement"] .table tr th:first-child,
 form[name="enforcement"] .table tr td:first-child {
     border-right: 1px solid #ddd;
-    width: 50%;
+    width: 33%;
+}
+form[name="enforcement"] .table tr td:last-child {
+    border-left: 1px solid #ddd;
+    width: 33%;
 }
 form[name="enforcement"] .table .graph {
     text-align: center;
