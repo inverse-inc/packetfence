@@ -86,22 +86,6 @@ Organisation reversedns
 has reversedns => (is => 'rw');
 
 
-=head2 ca_cert
-
-The CA certificate in PEM format
-
-=cut
-
-has ca_cert => (is => 'rw');
-
-=head2 svr_cert
-
-The radius server certificate authentication path
-
-=cut
-
-#has svr_cert => (is => 'rw');
-
 =head2 cert_chain
 
 The certificate chain for signing in PEM format
