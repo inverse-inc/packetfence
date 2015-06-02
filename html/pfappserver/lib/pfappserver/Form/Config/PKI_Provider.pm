@@ -33,7 +33,7 @@ has_field 'type' =>
    type => 'Select',
    required => 1,
    messages => { required => 'PKI provider type is required.' },
-   options => [map { { label => $_, value => $_ } } @pf::factory::pki_provider::TYPES ],
+   options_method => \&options_type,
   );
 
 has_field 'uri' =>
@@ -75,14 +75,14 @@ has_field 'country' =>
 has_field 'state' =>
   (
    type => 'Text',
-   tags => { after_element => \&help, 
+   tags => { after_element => \&help,
              help => 'State for the certificate'},
   );
 
 has_field 'organisation' =>
   (
    type => 'Text',
-   tags => { after_element => \&help, 
+   tags => { after_element => \&help,
              help => 'Organisation for the certificate'},
   );
 
@@ -105,7 +105,7 @@ has_field 'cn_attribute' =>
 has_field 'server_cert_path' =>
   (
    type => 'Text',
-   tags => { after_element => \&help, 
+   tags => { after_element => \&help,
              help => 'Path of the Radius Server Authentication certificate' },
   );
 
@@ -113,6 +113,17 @@ has_block definition=>
   (
     render_list => [qw(type uri username password profile country state organisation cn_attribute ca_cert_path server_cert_path)],
   );
+
+=head2 options_type
+
+Options for types
+
+=cut
+
+sub options_type {
+    return map {
+        { 'label' => "pf::pki_provider::${_}", value => $_}} @pf::factory::pki_provider::TYPES;
+}
 
 =head1 COPYRIGHT
 

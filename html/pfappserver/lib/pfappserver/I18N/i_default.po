@@ -693,6 +693,10 @@ msgid "Captive portal"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "Check this box if you want the profiles signed"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "Check this box if your network is using a hidden SSID"
 msgstr ""
 
@@ -945,6 +949,10 @@ msgid "Congratulations!"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
+msgid "Connection Sub Type"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
 msgid "Connection Type"
 msgstr ""
 
@@ -990,6 +998,10 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Copy File"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "Country for the certificate"
 msgstr ""
 
 # html/pfappserver/root/config/wrix/search_form.tt
@@ -1257,6 +1269,10 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Defined Mandatory Fields will be used with the following Portal Profile based Authentication Sources"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "Defines what attribute of the node to use as the common name during the certificate generation."
 msgstr ""
 
 # html/pfappserver/root/config/switch/view.tt
@@ -2522,6 +2538,10 @@ msgstr ""
 msgid "MAC Vendor ID"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "MAC address"
+msgstr ""
+
 # pf::admin_roles (Actions)
 msgid "MAC_READ"
 msgstr "MAC Addresses - Read"
@@ -3067,6 +3087,10 @@ msgstr "Open Wednesday"
 msgid "Operating Systems"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "Organisation for the certificate"
+msgstr ""
+
 # html/pfappserver/root/admin/status.tt
 msgid "Overview"
 msgstr ""
@@ -3215,6 +3239,10 @@ msgstr ""
 msgid "Password for the mysql database used by PacketFence."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "Password for the username filled in above"
+msgstr ""
+
 # conf/documentation.conf (scan.pass)
 msgid "Password to log into scanning engine with."
 msgstr ""
@@ -3241,6 +3269,14 @@ msgstr ""
 
 # html/pfappserver/root/graph/dashboard.tt
 msgid "Past Week"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "Path of the CA that will generate your certificates"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "Path of the Radius Server Authentication certificate"
 msgstr ""
 
 # conf/documentation.conf (provisioning.certificate)
@@ -3583,6 +3619,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Profile Name"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "Profile used for the generation of certificate"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -4531,6 +4571,10 @@ msgstr ""
 msgid "Show line numbers"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "Sign Profile"
+msgstr ""
+
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 msgid "Simple"
@@ -4620,6 +4664,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Starting IP Address"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "State for the certificate"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -4755,6 +4803,10 @@ msgstr ""
 msgid "The AAA webservice port"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "The Certificate for signing in pem format"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "The ID of the Switch"
 msgstr ""
@@ -4775,6 +4827,10 @@ msgstr ""
 msgid "The OMAPI port number"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "The Private Key for signing in pem format"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry."
 msgstr ""
@@ -4783,16 +4839,20 @@ msgstr ""
 msgid "The authentication source was not found."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
-msgid "The base64 Certificate of Authority"
-msgstr ""
-
 # conf/documentation.conf (registration.button_text)
 msgid "The button text will appear on the registration page submit button"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
-msgid "The contents of the Certificate of Authority in base64"
+msgid "The certificate chain for the signer certificate"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "The certificate chain of the signer certificate in pem format"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "The certificate for signing profiles"
 msgstr ""
 
 # conf/documentation.conf (advanced.hash_passwords)
@@ -4895,6 +4955,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "The primary DNS server of your network."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "The private key for signing profiles"
 msgstr ""
 
 # conf/documentation.conf (registration.device_registration_role)
@@ -5227,6 +5291,10 @@ msgstr ""
 msgid "Upload failed"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "Uri on which we should contact the PKI"
+msgstr ""
+
 # conf/documentation.conf (omapi.mac2ip_lookup)
 msgid "Use OMAPI to query DHCPd for the IP address of a given MAC address"
 msgstr ""
@@ -5331,6 +5399,10 @@ msgstr ""
 
 # conf/documentation.conf (database.user)
 msgid "Username of the account with access to the mysql database used by PacketFence."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+msgid "Username to connect to the PKI"
 msgstr ""
 
 # conf/documentation.conf (scan.user)
@@ -6918,6 +6990,10 @@ msgstr "Other"
 # pfappserver::Model::Node (availableStatus)
 msgid "pending"
 msgstr "pending"
+
+# pf::pki_provider (PKI Providers)
+msgid "pf::pki_provider::packetfence_pki"
+msgstr "PacketFence PKI"
 
 # pf::filter (Portal Profile Filters)
 msgid "pf::profile::filter::connection_type"

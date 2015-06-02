@@ -1,14 +1,14 @@
-package pf::pki_provider::inverse;
+package pf::pki_provider::packetfence_pki;
 
 =head1 NAME
 
-pf::pki_provider::inverse
+pf::pki_provider::packetfence_pki
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pki_provider::inverse
+pf::pki_provider::packetfence_pki
 
 =cut
 
@@ -24,7 +24,7 @@ use pf::log;
 
 =head2 uri
 
-The uri of the inverse pki service
+The uri of the packetfence_pki pki service
 
 =cut
 
@@ -32,7 +32,7 @@ has uri => ( is => 'rw' );
 
 =head2 username
 
-The username to connect to the inverse pki service
+The username to connect to the packetfence_pki pki service
 
 =cut
 
@@ -40,7 +40,7 @@ has username => ( is => 'rw' );
 
 =head2 password
 
-The password to connect to the inverse pki service
+The password to connect to the packetfence_pki pki service
 
 =cut
 
@@ -48,7 +48,7 @@ has password => ( is => 'rw' );
 
 =head2 profile
 
-The profile to use for the inverse pki service
+The profile to use for the packetfence_pki pki service
 
 =cut
 
@@ -80,7 +80,7 @@ has organisation => ( is => 'rw' );
 
 =head2 get_cert
 
-Get the certificate from the inverse pki service
+Get the certificate from the packetfence_pki pki service
 
 =cut
 
