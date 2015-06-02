@@ -230,29 +230,11 @@ sub postAuthentication : Private {
     $c->forward('setupMatchParams');
     $c->forward('setRole');
     $c->forward('setUnRegDate');
+    $c->log->info("Just finished seting the node up");
     $info->{source} = $source_id;
     $info->{portal} = $profile->getName;
-    $c->forward('checkIfTlsEnrollment');
     $c->forward('checkIfProvisionIsNeeded');
-}
-
-=head2 checkIfTlsEnrollment
-
-Checked to see if the provisioner should redirect you to TLS enrollment
-
-=cut
-
-sub checkIfTlsEnrollment : Private {
-    my ($self, $c) = @_;
-    my $portalSession = $c->portalSession;
-    my $mac = $portalSession->clientMac;
-    my $profile = $c->profile;
-    if (defined( my $provisioner = $profile->findProvisioner($mac))) {
-        if($provisioner->getPkiProvider) {
-            $c->session->{info} = $c->stash->{info};
-            $c->detach(TLSProfile => 'index');
-        }
-    }
+    $c->log->info("Passed by the provisioning");
 }
 
 =head2 checkIfChainedAuth
@@ -337,6 +319,7 @@ sub setRole : Private {
     my $params = $c->stash->{matchParams};
     my $info = $c->stash->{info};
     my $pid = $info->{pid};
+    my $mac = $c->portalSession->clientMac;
     my $source_match = $session->{source_match} || $session->{source_id};
 
     # obtain node information provided by authentication module. We need to get the role (category here)
@@ -355,6 +338,7 @@ sub setRole : Private {
     $c->stash(
         role => $value,
     );
+    node_modify($mac, (category => $value));
 }
 
 sub setUnRegDate : Private {
@@ -364,6 +348,7 @@ sub setUnRegDate : Private {
     my $params = $c->stash->{matchParams};
     my $info = $c->stash->{info};
     my $pid = $info->{pid};
+    my $mac = $c->portalSession->clientMac;
     my $source_match = $session->{source_match} || $session->{source_id};
     # If an access duration is defined, use it to compute the unregistration date;
     # otherwise, use the unregdate when defined.
@@ -393,6 +378,7 @@ sub setUnRegDate : Private {
 
     # We put the unregistration date in session since we may want to use it later in the flow
     $c->session->{unregdate} = $info->{unregdate};
+    node_modify($mac, (unregdate => $info->{unregdate}));
 }
 
 sub createLocalAccount : Private {
@@ -444,8 +430,14 @@ sub checkIfProvisionIsNeeded : Private {
     my $mac = $portalSession->clientMac;
     my $profile = $c->profile;
     if (defined( my $provisioner = $profile->findProvisioner($mac))) {
+        $c->log->info("Found provisioner $provisioner->id for $mac");
         my $info = $c->stash->{info};
-        if ($provisioner->authorize($mac) == 0) {
+        if($provisioner->getPkiProvider) {
+            $c->log->info("Detected PKI provider for $mac.");
+            $c->session->{info} = $c->stash->{info};
+            $c->detach(TLSProfile => 'index');
+        }
+        elsif ($provisioner->authorize($mac) == 0) {
             $info->{status} = $pf::node::STATUS_PENDING;
             node_modify($mac, %$info);
             $c->stash(
