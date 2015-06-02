@@ -121,6 +121,12 @@ sub handler {
         return proxy_redirect($r);
     }
 
+    # Captive-portal detection mecanism bypass
+    if ( ($url =~ /$WEB::CAPTIVE_PORTAL_DETECTION_MECANISM_URLS/o || $user_agent =~ /CaptiveNetworkSupport/s) && isenabled($Config{'captive_portal'}{'detection_mecanism_bypass'}) ) {
+        $logger->debug("Dealing with a endpoint / browser with captive-portal detection capabilities while having captive-portal detection mecanism bypass enabled. Proxying");
+        return proxy_redirect($r);
+    }
+
     # Redirect everything else to the captive-portal URL
     $r->handler('modperl');
     $r->set_handlers( PerlResponseHandler => \&html_redirect );
@@ -153,12 +159,6 @@ sub html_redirect {
         $destination_url = Apache2::Util::escape_path($url,$r->pool);
         $logger->debug("We set the destination URL to $destination_url for further usage");
         $r->pnotes(destination_url => $destination_url);
-    }
-
-    # Captive-portal detection mecanism bypass
-    if ( ($url =~ /$WEB::CAPTIVE_PORTAL_DETECTION_MECANISM_URLS/o || $user_agent !~ /CaptiveNetworkSupport|iPhone|iPad/s) && isenabled($Config{'captive_portal'}{'detection_mecanism_bypass'}) ) {
-        $logger->debug("Dealing with a endpoint / browser with captive-portal detection capabilities while having captive-portal detection mecanism bypass enabled. Proxying");
-        return proxy_redirect($r);
     }
         
     # Enforcing HTTP (not HTTPS) when dealing with captive-portal detection mecanism
