@@ -38,13 +38,12 @@ use pf::web::externalportal;
 
 =over
 
-=item translate
+=item handler
 
 Implementation of PerlTransHandler. Rewrite all URLs except those explicitly
 allowed by the Captive portal.
 
-For simplicity and performance this doesn't consume and leverage
-L<pf::Portal::Session>.
+This is the first entry point for every httpd.portal request.
 
 Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHandler
 
@@ -53,27 +52,56 @@ Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHand
 sub handler {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-    $logger->trace("hitting translator with URL: " . $r->uri);
-    # Test if the hostname is include in the proxy_passthroughs configuration
-    # In this case forward to mad_proxy
-    if ( ( ($r->hostname.$r->uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') || ($r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') ) {
-        my $parsed_request = APR::URI->parse($r->pool, $r->uri);
-        $parsed_request->hostname($r->hostname);
-        $parsed_request->scheme('http');
-        $parsed_request->scheme('https') if $r->is_https;
-        $parsed_request->path($r->uri);
-        return proxy_redirect($r, $parsed_request->unparse);
-    }
 
-    #Apache Filtering
+    $logger->debug("hitting handler with URI '" . $r->uri . "' (URL: " . $r->construct_url . ")");
+
+    # Apache filtering
+    # Filters out requests based on different filters to avoid further/unnecessary processing
+    # ie.: Only process valid browsers user agent requests
     my $filter = new pf::web::filter;
     my $result = $filter->test($r);
     return $result if $result;
 
-    # be careful w/ performance here
-    # Warning: we might want to revisit the /o (compile Once) if we ever want
-    #          to reload Apache dynamically. pf::web::constants will need some
-    #          rework also
+    # Captive-portal static resources
+    # We don't want to continue in dispatcher in this case and we simply serve it
+    # - Images
+    # - Javascript scripts
+    # - ...
+    # See L<pf::web::constants::CAPTIVE_PORTAL_STATIC_RESOURCES>
+    if ( $r->uri =~ /$WEB::CAPTIVE_PORTAL_STATIC_RESOURCES/o ) {
+        $logger->debug("URI '" . $r->uri . "' (URL: " . $r->construct_url . ") is a captive-portal static resource");
+        return Apache2::Const::DECLINED;
+    }
+
+    # Captive-portal resource | RELEASE
+    if ( $r->uri =~ /$WEB::URL_RELEASE/o ) {
+        $logger->debug("URI '" . $r->uri . "' (URL: " . $r->construct_url . ") is a RELEASE request");
+        $r->handler('modperl');
+        $r->set_handlers( PerlResponseHandler => ['pf::web::release'] );
+        return Apache2::Const::OK;
+    }
+
+    # Captive-portal resource | WISPr
+    if ( $r->uri =~ /$WEB::URL_WISPR/o ) {
+        $logger->debug("URI '" . $r->uri . "' (URL: " . $r->construct_url . ") is a WISPr request");
+        $r->handler('modperl');
+        $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
+        return Apache2::Const::OK;
+    }
+
+    # Captive-portal resources
+    # We don't want to continue in the dispatcher if the requested URI is supposed to reach the captive-portal (Catalyst)
+    # - Captive-portal itself
+    # - Violation pages
+    # - Portal profile filters are handled by Catalyst
+    # See L<pf::web::constants::CAPTIVE_PORTAL_RESOURCES>
+    if ( $r->uri =~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o ) {
+        $logger->debug("URI '" . $r->uri . "' (URL: " . $r->construct_url . ") is properly handled and should now continue to the captive-portal / Catalyst");
+        return Apache2::Const::DECLINED;
+    }
+
+    # Portal-profile filters
+    # TODO: Migrate to Catalyst
     if ( defined($WEB::ALLOWED_RESOURCES_PROFILE_FILTER) && $r->uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o ) {
         my $last_uri = $r->uri();
         $logger->debug("Matched profile uri filter for $last_uri");
@@ -81,177 +109,116 @@ sub handler {
         $r->pnotes(last_uri => $last_uri);
         return Apache2::Const::DECLINED;
     }
-    if ($r->uri =~ /\/apache_status/) {
-        $r->handler('server-status');
-        return Apache2::Const::DECLINED;
-    }
-    if ($r->uri =~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o) {
-        my $s = $r->server();
-        my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
-        if ($r->uri =~ /$WEB::URL_RELEASE/o) {
-            $r->handler('modperl');
-            $r->set_handlers( PerlResponseHandler => ['pf::web::release'] );
-            return Apache2::Const::OK;
-        }
 
-        #Because of chrome captiv portal detection we have to test if the request come from http request
-        if (defined($r->headers_in->{'Referer'})) {
-            my $parsed = APR::URI->parse($r->pool,$r->headers_in->{'Referer'});
-            if ($s->port eq '80' && $proto eq 'https' && $r->uri !~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o && $parsed->path !~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o) {
-                #Generate a page with a refresh tag
-                $r->handler('modperl');
-                $r->set_handlers( PerlResponseHandler => \&html_redirect );
-                return Apache2::Const::OK;
-            } else {
-                # DECLINED tells Apache to continue further mod_rewrite / alias processing
-                return Apache2::Const::DECLINED;
-            }
-        }
-        else {
-            # DECLINED tells Apache to continue further mod_rewrite / alias processing
-            return Apache2::Const::DECLINED;
-        }
-    }
-    if ($r->uri =~ /$WEB::ALLOWED_RESOURCES_MOD_PERL/o) {
-        $r->handler('modperl');
-        if ($r->uri =~ /$WEB::MOD_PERL_WISPR/o) {
-            $r->pnotes->{session_id} = $1;
-            $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
-        }
-        return Apache2::Const::OK;
+    # Proxy passthrough
+    if ( (($r->hostname.$r->uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '')
+      || ($r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '')    ) {
+        $logger->debug("URI '" . $r->uri . "' (URL: " . $r->construct_url . ") match proxy passthrough configuration.");
+        return proxy_redirect($r);
     }
 
-    # fallback to a redirection: inject local redirection handler
+    # Redirect everything else to the captive-portal URL
     $r->handler('modperl');
-    $r->set_handlers( PerlResponseHandler => \&redirect );
-    # OK tells Apache to stop further mod_rewrite / alias processing
+    $r->set_handlers( PerlResponseHandler => \&html_redirect );
     return Apache2::Const::OK;
 }
 
-=item redirect
-
-For simplicity and performance this doesn't consume and leverage
-L<pf::Portal::Session>.
-
-=cut
-
-sub redirect {
-   my ($r) = @_;
-   my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-   $logger->trace('hitting redirector');
-   my $captivePortalDomain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
-   my $destination_url = '';
-   my $url = $r->construct_url;
-   if ($url !~ m#://\Q$captivePortalDomain\E/#) {
-       $destination_url = Apache2::Util::escape_path($url,$r->pool);
-   }
-   my $orginal_url = Apache2::Util::escape_path($url,$r->pool);
-
-   # External Captive Portal Detection
-   my $external_portal = pf::web::externalportal->new();
-
-   my ($cgi_session_id, $external_portal_destinationUrl) = $external_portal->handle($r);
-   
-   my $is_external_portal;
-   if ($cgi_session_id) {
-      $r->err_headers_out->add('Set-Cookie' => "CGISESSION_PF=".  $cgi_session_id . "; path=/");
-      $destination_url = $external_portal_destinationUrl if(defined($external_portal_destinationUrl)); 
-      $is_external_portal = 1;
-   }
-
-   my $proto;
-   # Google chrome hack redirect in http
-    if ($r->uri =~ /\/generate_204/ || $r->uri =~ /\/library\/test\/success.html/ || $r->hostname =~ /www.apple.com/) {
-       $proto = $HTTP;
-   } else {
-       $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
-   }
-
-   my $captiv_url;
-   my $wispr_url;
-   if ( $is_external_portal ) {
-      $captiv_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/captive-portal");
-      $captiv_url->query("destination_url=$destination_url&".$r->args);
-      $wispr_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/wispr");
-      $wispr_url->query($r->args);
-   }
-   else {
-      $captiv_url = APR::URI->parse($r->pool,"$proto://".${captivePortalDomain}."/captive-portal");
-      $captiv_url->query("destination_url=$destination_url&".$r->args);
-      $wispr_url = APR::URI->parse($r->pool,"$proto://".${captivePortalDomain}."/wispr");
-      $wispr_url->query($r->args);
-   }
-    my $stash = {
-        'login_url' => $captiv_url->unparse(),
-        'login_url_wispr' => $wispr_url->unparse(),
-    };
-
-   # prepare custom REDIRECT response
-   my $response;
-   my $template = Template->new({
-       INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
-   });
-   $template->process( "redirection.tt", $stash, \$response ) || $logger->error($template->error());;
-
-   # send out the redirection in a custom response
-   # a custom response is required otherwise Apache take over the rendering
-   # of redirects and we are unable to inject the WISPR XML
-   $r->headers_out->set('Location' => $stash->{'login_url'});
-   $r->content_type('text/html');
-   $r->no_cache(1);
-   $r->custom_response(Apache2::Const::HTTP_MOVED_TEMPORARILY, $response);
-   return Apache2::Const::HTTP_MOVED_TEMPORARILY;
-}
-
 =item html_redirect
-
-html redirection to captive portal
 
 =cut
 
 sub html_redirect {
     my ($r) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-    $logger->trace('hitting html redirector');
+
+    $logger->debug("hitting html_redirect with URI '" . $r->uri . "' (URL: " . $r->construct_url . ")");
 
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+    my $captive_portal_domain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
+    my $user_agent = $r->headers_in->{'User-Agent'};
 
-     my $captiv_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/captive-portal");
-    $captiv_url->query($r->args);
+    # Destination URL handling
+    # We first must detect the destination URL for different use cases:
+    # - We want to keep it so we can redirect the user to the originally requested URL once the registration completed
+    # - We want to be able to detect a potential captive-portal detection mecanism
+    my $destination_url = "";
+    my $url = $r->construct_url;
+    # Keeping destination URL unless it is the captive-portal itself or some sort of captive-portal detection URLs
+    if ( ($url !~ m#://\Q$captive_portal_domain\E/#) && ($url !~ /$WEB::CAPTIVE_PORTAL_DETECTION_URLS/o) && ($user_agent !~ /CaptiveNetworkSupport|iPhone|iPad/s) ) {
+        $destination_url = Apache2::Util::escape_path($url,$r->pool);
+        $logger->debug("We set the destination URL to $destination_url for further usage");
+        $r->pnotes(destination_url => $destination_url);
+    }
+    
+# TODO: Test if there's issue with Chrome an iOS with HTTPS... if yes, reenable that stuff
+#    if ( ($url =~ /$WEB::CAPTIVE_PORTAL_DETECTION_URLS/o) || ($user_agent =~ /CaptiveNetworkSupport|iPhone|iPad/s) ) {
+#        $proto = $HTTP;
+#        $logger->info("We are dealing with a device with captive portal detection capabilities. " .
+#            "We are using HTTP rather than HTTPS to avoid SSL certificate related errors");
+#    }
+
+    # Configuring redirect URLs for both the portal and the WISPr(need to be part of the header in case of a WISPr client)
+    my $portal_url = APR::URI->parse($r->pool,"$proto://".${captive_portal_domain}."/captive-portal");
+    $portal_url->query("destination_url=$destination_url&".$r->args);
+    my $wispr_url = APR::URI->parse($r->pool,"$proto://".${captive_portal_domain}."/wispr");
+    $wispr_url->query($r->args);
+
+    # External captive-portal / Webauth handling
+    # In the case of an external captive-portal, we want to use a different URL (the hostname to which the network equipment send the request, which is PacketFence but maybe not the configured hostname in pf.conf)
+    # We also need to keep track of the CGI session by setting a cookie
+    my $external_portal = pf::web::externalportal->new;
+    my ( $cgi_session_id, $external_portal_destination_url ) = $external_portal->handle($r);
+    if ( $cgi_session_id ) {
+        $logger->debug("We are dealing with an external captive-portal / webauth request. Adjusting the redirect URL accordingly");
+        $r->err_headers_out->add('Set-Cookie' => "CGISESSION_PF=".  $cgi_session_id . "; path=/");
+        $destination_url = $external_portal_destination_url if ( defined($external_portal_destination_url) );
+
+        # Re-Configuring redirect URLs for both the portal and the WISPr(need to be part of the header in case of a WISPr client)
+        $portal_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/captive-portal");
+        $portal_url->query("destination_url=$destination_url&".$r->args);
+        $wispr_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/wispr");
+        $wispr_url->query($r->args);
+    }
 
     my $stash = {
-        'login_url' => $captiv_url->unparse(),
+        'portal_url' => $portal_url->unparse(),,
+        'wispr_url' => $wispr_url->unparse(),,
     };
 
-
-
-
-    # prepare custom REDIRECT response
     my $response = '';
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
     });
-    $template->process( "redirection.html", $stash, \$response ) || $logger->error($template->error());;
+    $template->process("redirect.tt", $stash, \$response) || $logger->error($template->error());
+
+    $r->headers_out->set('Location' => $stash->{portal_url});
     $r->content_type('text/html');
     $r->no_cache(1);
-    $r->print($response);
-    return Apache2::Const::OK;
+    $r->custom_response(Apache2::Const::HTTP_MOVED_TEMPORARILY, $response);
+
+    return Apache2::Const::HTTP_MOVED_TEMPORARILY;
 }
 
 =item proxy_redirect
 
-Mod_proxy redirect
-
 =cut
 
 sub proxy_redirect {
-        my ($r, $url) = @_;
-        my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-        $r->set_handlers(PerlResponseHandler => []);
-        $r->filename("proxy:".$url);
-        $r->proxyreq(2);
-        $r->handler('proxy-server');
-        return Apache2::Const::OK;
+    my ($r) = @_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+
+    $logger->debug("hitting proxy_redirect with URI '" . $r->uri . "' (URL: " . $r->construct_url . ")");
+
+    my $parsed_request = APR::URI->parse($r->pool, $r->uri);
+    $parsed_request->hostname($r->hostname);
+    ( $r->is_https ) ? $parsed_request->scheme('https') : $parsed_request->scheme('http');
+    $parsed_request->path($r->uri);
+    $r->set_handlers(PerlResponseHandler => []);
+    $r->filename("proxy:" . $parsed_request->unparse);
+    $r->proxyreq(2);
+    $r->handler('proxy-server');
+
+    return Apache2::Const::OK;
 }
 
 =back
@@ -284,4 +251,3 @@ USA.
 =cut
 
 1;
-
