@@ -105,7 +105,7 @@
 /usr/local/pf/html/captive-portal/templates/enabler.html
 /usr/local/pf/html/captive-portal/templates/register_1.html
 /usr/local/pf/html/captive-portal/templates/redirect.html
-/usr/local/pf/html/captive-portal/templates/redirection.tt
+/usr/local/pf/html/captive-portal/templates/redirect.tt
 /usr/local/pf/html/captive-portal/templates/activated.html
 /usr/local/pf/html/captive-portal/templates/release.html
 /usr/local/pf/html/captive-portal/templates/footer.html

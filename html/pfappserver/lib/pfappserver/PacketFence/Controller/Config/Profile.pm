@@ -28,7 +28,7 @@ use Readonly;
 
 Readonly our %FILTER_FILES =>
   (
-   'redirection.tt' => 1,
+   'redirect.tt' => 1,
    'response_wispr.tt' => 1,
    'wireless-profile.xml' => 1,
   );
