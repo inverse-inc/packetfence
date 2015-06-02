@@ -62,14 +62,6 @@ has_field 'passcode' =>
    label => 'Wifi Key',
   );
 
-has_field 'reversedns' =>
-  (
-   type => 'Text',
-   label => 'ReverseDNS identifier',
-   tags => { after_element => \&help,
-             help => 'Example : if your dns name is www.packetfence.org it becomes org.packetfence.www'},
-  );
-
 has_field 'cert_chain' =>
   (
    type => 'TextArea',
@@ -129,7 +121,7 @@ sub filter_deflate {
 
 has_block definition =>
   (
-   render_list => [ qw(id description reversedns type category ssid broadcast eap_type security_type passcode pki_provider) ],
+   render_list => [ qw(id description type category ssid broadcast eap_type security_type passcode pki_provider) ],
   );
 
 has_block signing =>

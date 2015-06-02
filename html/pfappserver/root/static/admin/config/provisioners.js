@@ -30,7 +30,7 @@ var ProvisionerView = function(options) {
     var toggleInputs = $.proxy(this.toggleInputs,this);
     // Hide the sectype, eap_type fields when 'Open' is selected
     options.parent.on('change', 'form[name="modalProvisioner"] select[name="security_type"]', toggleInputs);
-    // Hide the ca_cert_path, cert_type, reversedns and company fields when 'PEAP' is selected
+    // Hide the ca_cert_path, cert_type and company fields when 'PEAP' is selected
     options.parent.on('change', 'form[name="modalProvisioner"] select[name="eap_type"]', toggleInputs);
     // Hide fileds on opening the provisioner
     options.parent.on('show', '#modalProvisioner', toggleInputs);

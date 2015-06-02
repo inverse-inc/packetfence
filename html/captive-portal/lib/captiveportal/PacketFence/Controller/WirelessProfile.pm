@@ -50,6 +50,7 @@ sub index : Path : Args(0) {
         server_cn    => $pki_session->{server_cn},
         ca_content   => $pki_session->{ca_content},
         passwcode    => $provisioner->{passcode},
+        reverse_fqdn => $reverse_fqdn,
     );
 }
 

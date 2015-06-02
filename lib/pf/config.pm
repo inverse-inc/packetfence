@@ -104,7 +104,7 @@ our (
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
-    $thread, $fqdn,
+    $thread, $fqdn, $reverse_fqdn,
     %CAPTIVE_PORTAL,
 #realm.conf
     %ConfigRealm,
@@ -137,7 +137,7 @@ BEGIN {
         %ConfigNetworks %ConfigOAuth
         %ConfigFloatingDevices
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
-        $WIPS_VID $thread $fqdn
+        $WIPS_VID $thread $fqdn $reverse_fqdn
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
         $NET_TYPE_INLINE $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3
@@ -206,6 +206,7 @@ tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
 
 tie %CAPTIVE_PORTAL, 'pfconfig::cached_hash', 'resource::CaptivePortal';
 tie $fqdn, 'pfconfig::cached_scalar', 'resource::fqdn';
+tie $reverse_fqdn, 'pfconfig::cached_scalar', 'resource::reverse_fqdn';
 
 tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
 tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';

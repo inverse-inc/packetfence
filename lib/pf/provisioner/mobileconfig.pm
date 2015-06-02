@@ -77,15 +77,6 @@ Organisation information
 
 has company => (is => 'rw');
 
-=head2 reversedns
-
-Organisation reversedns
-
-=cut
-
-has reversedns => (is => 'rw');
-
-
 =head2 cert_chain
 
 The certificate chain for signing in PEM format

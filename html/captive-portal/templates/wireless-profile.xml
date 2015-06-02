@@ -34,7 +34,7 @@
                         <key>PayloadDisplayName</key>
                         <string>Wi-Fi ([% provisioner.ssid %])</string>
                         <key>PayloadIdentifier</key>
-                        <string>[% provisioner.reversedns %]</string>
+                        <string>[% reverse_fqdn %]</string>
                         <key>PayloadOrganization</key>
                         <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
@@ -65,7 +65,7 @@
                         <key>PayloadDisplayName</key>
                         <string>[% cert_cn %]</string>
                         <key>PayloadIdentifier</key>
-                        <string>[% provisioner.reversedns %]</string>
+                        <string>[% reverse_fqdn %]</string>
                         <key>PayloadOrganization</key>
                         <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
@@ -87,7 +87,7 @@
                         <key>PayloadDisplayName</key>
                         <string>[% ca_cn %]</string>
                         <key>PayloadIdentifier</key>
-                        <string>[% provisioner.reversedns %]</string>
+                        <string>[% reverse_fqdn %]</string>
                         <key>PayloadOrganization</key>
                         <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
@@ -104,7 +104,7 @@
         <key>PayloadDisplayName</key>
         <string>[% provisioner.id %]</string>
         <key>PayloadIdentifier</key>
-        <string>[% provisioner.reversedns %]</string>
+        <string>[% reverse_fqdn %]</string>
         <key>PayloadOrganization</key>
         <string>[% provisioner.company %]</string>
         <key>PayloadRemovalDisallowed</key>
