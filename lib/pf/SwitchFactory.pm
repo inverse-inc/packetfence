@@ -17,11 +17,11 @@ use strict;
 use warnings;
 
 use Carp;
-use UNIVERSAL::require;
 use pf::log;
 use pf::util;
 use pf::freeradius;
 use pf::file_paths;
+use Module::Load;
 use Time::HiRes qw(gettimeofday);
 use Benchmark qw(:all);
 use List::Util qw(first);
@@ -162,7 +162,7 @@ sub instantiate {
     my $result;
     pfconfig::timeme::timeme('creating', sub {
     $logger->debug("creating new $module object");
-    return $module->new(
+    $result = $module->new(
          id => $requestedSwitch,
          ip => $switch_ip,
          switchIp => $switch_ip,
@@ -187,7 +187,18 @@ Get the module from the type
 
 sub getModule {
     my ($type) = @_;
-    return (exists $TYPE_TO_MODULE{$type} ) ? $TYPE_TO_MODULE{$type} : undef;
+    unless(exists $TYPE_TO_MODULE{$type}) {
+        my $module = "pf::Switch::$type";
+        eval {
+            load($module);
+        };
+        if($@) {
+            get_logger->error("Failed to load module $module: @_");
+            return undef;
+        }
+        $TYPE_TO_MODULE{$type} = $module;
+    }
+    return $TYPE_TO_MODULE{$type};
 }
 
 =item buildVendorsList
