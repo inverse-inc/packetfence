@@ -53,7 +53,12 @@ sub handler {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
 
-    $logger->debug("hitting handler with URI '" . $r->uri . "' (URL: " . $r->construct_url . ")");
+    my $hostname = $r->hostname;
+    my $uri = $r->uri;
+    my $url = $r->construct_url;
+    my $user_agent = $r->headers_in->{'User-Agent'};
+
+    $logger->debug("hitting handler with URI '$uri' (URL: $url)");
 
     # Apache filtering
     # Filters out requests based on different filters to avoid further/unnecessary processing
@@ -68,22 +73,22 @@ sub handler {
     # - Javascript scripts
     # - ...
     # See L<pf::web::constants::CAPTIVE_PORTAL_STATIC_RESOURCES>
-    if ( $r->uri =~ /$WEB::CAPTIVE_PORTAL_STATIC_RESOURCES/o ) {
-        $logger->debug("URI '" . $r->uri . "' (URL: " . $r->construct_url . ") is a captive-portal static resource");
+    if ( $uri =~ /$WEB::CAPTIVE_PORTAL_STATIC_RESOURCES/o ) {
+        $logger->debug("URI '$uri' (URL: $url) is a captive-portal static resource");
         return Apache2::Const::DECLINED;
     }
 
     # Captive-portal resource | RELEASE
-    if ( $r->uri =~ /$WEB::URL_RELEASE/o ) {
-        $logger->debug("URI '" . $r->uri . "' (URL: " . $r->construct_url . ") is a RELEASE request");
+    if ( $uri =~ /$WEB::URL_RELEASE/o ) {
+        $logger->debug("URI '$uri' (URL: $url) is a RELEASE request");
         $r->handler('modperl');
         $r->set_handlers( PerlResponseHandler => ['pf::web::release'] );
         return Apache2::Const::OK;
     }
 
     # Captive-portal resource | WISPr
-    if ( $r->uri =~ /$WEB::URL_WISPR/o ) {
-        $logger->debug("URI '" . $r->uri . "' (URL: " . $r->construct_url . ") is a WISPr request");
+    if ( $uri =~ /$WEB::URL_WISPR/o ) {
+        $logger->debug("URI '$uri' (URL: $url) is a WISPr request");
         $r->handler('modperl');
         $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
         return Apache2::Const::OK;
@@ -95,25 +100,24 @@ sub handler {
     # - Violation pages
     # - Portal profile filters are handled by Catalyst
     # See L<pf::web::constants::CAPTIVE_PORTAL_RESOURCES>
-    if ( $r->uri =~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o ) {
-        $logger->debug("URI '" . $r->uri . "' (URL: " . $r->construct_url . ") is properly handled and should now continue to the captive-portal / Catalyst");
+    if ( $uri =~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o ) {
+        $logger->debug("URI '$uri' (URL: $url) is properly handled and should now continue to the captive-portal / Catalyst");
         return Apache2::Const::DECLINED;
     }
 
     # Portal-profile filters
     # TODO: Migrate to Catalyst
-    if ( defined($WEB::ALLOWED_RESOURCES_PROFILE_FILTER) && $r->uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o ) {
-        my $last_uri = $r->uri();
-        $logger->debug("Matched profile uri filter for $last_uri");
+    if ( defined($WEB::ALLOWED_RESOURCES_PROFILE_FILTER) && $uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o ) {
+        $logger->debug("Matched profile uri filter for $uri");
         #Send the current URI to catalyst with the pnotes
-        $r->pnotes(last_uri => $last_uri);
+        $r->pnotes(last_uri => $uri);
         return Apache2::Const::DECLINED;
     }
 
     # Proxy passthrough
-    if ( (($r->hostname.$r->uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '')
-      || ($r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '')    ) {
-        $logger->debug("URI '" . $r->uri . "' (URL: " . $r->construct_url . ") match proxy passthrough configuration.");
+    if ( (($hostname.$uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '')
+      || ($hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') ) {
+        $logger->debug("URI '$uri' (URL: $url) match proxy passthrough configuration.");
         return proxy_redirect($r);
     }
 
