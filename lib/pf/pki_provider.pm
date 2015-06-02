@@ -16,6 +16,7 @@ use warnings;
 use Moo;
 use pf::node;
 use pf::log;
+use pf::constants;
 
 has ca_cert_path => (is => 'rw');
 
@@ -26,6 +27,17 @@ has ca_cert => (is => 'ro' , builder => 1, lazy => 1);
 has server_cert => (is => 'ro' , builder => 1, lazy => 1);
 
 has cn_attribute => (is => 'rw');
+
+=head2 get_cert
+
+Get the certificate from the pki
+
+=cut
+
+sub get_cert {
+    get_logger->error("get_cert is not implemented for this PKI provider. Certificate generation will fail.");
+    return $FALSE;
+}
 
 =head2 _build_ca_cert
 
