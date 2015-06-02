@@ -77,6 +77,15 @@ has_field 'ca_cert_path' =>
    type => 'Text',
   );
 
+has_field 'cn_attribute' =>
+  (
+   type => 'Select',
+   options => [{ label => 'MAC address', value => 'mac' }, { label => 'Username' , value => 'pid' }],
+   default => 'pid',
+   tags => { after_element => \&help,
+             help => 'Defines what attribute of the node to use as the common name during the certificate generation.' },
+  );
+
 has_field 'server_cert_path' =>
   (
    type => 'Text',
@@ -84,7 +93,7 @@ has_field 'server_cert_path' =>
 
 has_block definition=>
   (
-    render_list => [qw(type uri username password profile country state organisation ca_cert_path server_cert_path)],
+    render_list => [qw(type uri username password profile country state organisation cn_attribute ca_cert_path server_cert_path)],
   );
 
 =head1 COPYRIGHT

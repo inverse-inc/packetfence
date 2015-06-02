@@ -155,8 +155,10 @@ sub validate_form : Private {
     my $source = getAuthenticationSource($source_id);
     my $certificate_email = $source->search_attributes($c->session->{username})->get_value('mail');
 
-    my $certificate_cn = $mac;
-    $certificate_cn =~ s/:/-/g;
+    my $provisioner   = $c->profile->findProvisioner($mac);
+    my $pki_provider = $provisioner->getPkiProvider();
+
+    my $certificate_cn = $pki_provider->user_cn($mac);
     my $user_cache = $c->user_cache;
     my $pki_session = {
         service           => $c->request->param('service'),

@@ -14,6 +14,8 @@ pf::pki_provider
 use strict;
 use warnings;
 use Moo;
+use pf::node;
+use pf::log;
 
 has ca_cert_path => (is => 'rw');
 
@@ -22,6 +24,8 @@ has server_cert_path => (is => 'rw');
 has ca_cert => (is => 'ro' , builder => 1, lazy => 1);
 
 has server_cert => (is => 'ro' , builder => 1, lazy => 1);
+
+has cn_attribute => (is => 'rw');
 
 =head2 _build_ca_cert
 
@@ -114,6 +118,22 @@ sub ca_cn {
     else {
         get_logger->error("cannot find cn of ca certificate at ".$self->ca_cert_path);
     }   
+}
+
+sub user_cn {
+    my ($self, $mac) = @_;
+    my $node_info = node_view($mac);
+    my $cn = $node_info->{$self->cn_attribute};
+    if( defined($cn) ) {
+        get_logger->debug("Found CN $cn for mac $mac.");
+        if($self->cn_attribute eq "mac"){
+            $cn =~ s/:/-/g;
+        }
+        return $cn;
+    }
+    else {
+        get_logger->info("Can't find attribute based CN for mac $mac. Searching for attribute $self->cn_attribute.");
+    }
 }
 
 =head1 AUTHOR
