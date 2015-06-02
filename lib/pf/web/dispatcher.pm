@@ -74,13 +74,13 @@ sub handler {
     # - ...
     # See L<pf::web::constants::CAPTIVE_PORTAL_STATIC_RESOURCES>
     if ( $uri =~ /$WEB::CAPTIVE_PORTAL_STATIC_RESOURCES/o ) {
-        $logger->debug("URI '$uri' (URL: $url) is a captive-portal static resource");
+        $logger->info("URI '$uri' (URL: $url) is a captive-portal static resource");
         return Apache2::Const::DECLINED;
     }
 
     # Captive-portal resource | RELEASE
     if ( $uri =~ /$WEB::URL_RELEASE/o ) {
-        $logger->debug("URI '$uri' (URL: $url) is a RELEASE request");
+        $logger->info("URI '$uri' (URL: $url) is a RELEASE request");
         $r->handler('modperl');
         $r->set_handlers( PerlResponseHandler => ['pf::web::release'] );
         return Apache2::Const::OK;
@@ -88,7 +88,7 @@ sub handler {
 
     # Captive-portal resource | WISPr
     if ( $uri =~ /$WEB::URL_WISPR/o ) {
-        $logger->debug("URI '$uri' (URL: $url) is a WISPr request");
+        $logger->info("URI '$uri' (URL: $url) is a WISPr request");
         $r->handler('modperl');
         $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
         return Apache2::Const::OK;
@@ -101,14 +101,14 @@ sub handler {
     # - Portal profile filters are handled by Catalyst
     # See L<pf::web::constants::CAPTIVE_PORTAL_RESOURCES>
     if ( $uri =~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o ) {
-        $logger->debug("URI '$uri' (URL: $url) is properly handled and should now continue to the captive-portal / Catalyst");
+        $logger->info("URI '$uri' (URL: $url) is properly handled and should now continue to the captive-portal / Catalyst");
         return Apache2::Const::DECLINED;
     }
 
     # Portal-profile filters
     # TODO: Migrate to Catalyst
     if ( defined($WEB::ALLOWED_RESOURCES_PROFILE_FILTER) && $uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o ) {
-        $logger->debug("Matched profile uri filter for $uri");
+        $logger->info("Matched profile uri filter for $uri");
         #Send the current URI to catalyst with the pnotes
         $r->pnotes(last_uri => $uri);
         return Apache2::Const::DECLINED;
@@ -117,13 +117,13 @@ sub handler {
     # Proxy passthrough
     if ( (($hostname.$uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '')
       || ($hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') ) {
-        $logger->debug("URI '$uri' (URL: $url) match proxy passthrough configuration.");
+        $logger->info("URI '$uri' (URL: $url) match proxy passthrough configuration.");
         return proxy_redirect($r);
     }
 
     # Captive-portal detection mecanism bypass
     if ( ($url =~ /$WEB::CAPTIVE_PORTAL_DETECTION_MECANISM_URLS/o || $user_agent =~ /CaptiveNetworkSupport/s) && isenabled($Config{'captive_portal'}{'detection_mecanism_bypass'}) ) {
-        $logger->debug("Dealing with a endpoint / browser with captive-portal detection capabilities while having captive-portal detection mecanism bypass enabled. Proxying");
+        $logger->info("Dealing with a endpoint / browser with captive-portal detection capabilities while having captive-portal detection mecanism bypass enabled. Proxying");
         return proxy_redirect($r);
     }
 
