@@ -12,7 +12,7 @@ This guide has been created in order to help sales engineers, product managers, 
 
 Introduction
 ------------
-This guide will provide an example for the configuration of an open SSID (not encrypted) and a secured SSID (802.1x). You will to install wpad and hostapd. These two SSIDs will do RADIUS authentication against PacketFence.
+This guide will provide an example for the configuration of an open SSID (not encrypted) and a secured SSID (802.1x). You will need to install wpad and hostapd. These two SSIDs will do RADIUS authentication against PacketFence.
 
 Assumptions
 -----------
@@ -29,7 +29,7 @@ You can install the packages from the web interface of OpenWrt.
 
 Go to *System -> Software*
 
-First update the repos by clicking the button Update lists.
+First update the repos by clicking the button Update lists if it's not up to date.
 
 Then you will have to install the packages of Hostapd and wpad.
 
@@ -39,9 +39,11 @@ Click Install the hostapd package, the actual version is 2014-06-03.1-1.
 
 Do the same process for the wpad package version 2014-06-03.1-1.
 
+NOTE: You will need the packages hostapd-commun and wpad-mini if they are not installed by default.
+
 Step 2: Dynamic VLAN Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Create the file : /etc/config/hostapd.vlan
+Connect using SSH to the AP and create the file : /etc/config/hostapd.vlan
 ----
 *           wlan0.#
 ----
@@ -54,8 +56,8 @@ Connect using SSH to the AP and run these commands:
 ----
 cd /lib/netifd/
 mv hostapd.sh hostapd.sh.old
-wget https://github.com/inverse-inc/packetfence/tree/devel/addons/hostapd/hostapd-14.07.sh
-mv hotsapd-14.07.sh hostapd.sh
+opkg install curl
+curl --insecure  https://github.com/inverse-inc/packetfence/tree/devel/addons/hostapd/hostapd-14.07.sh >  hostapd.sh
 wifi
 ----
 
