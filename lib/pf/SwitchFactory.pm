@@ -42,7 +42,6 @@ use Module::Pluggable
   'require' => 1,
   sub_name    => 'modules';
 
-our ($singleton);
 our @MODULES;
 our %TYPE_TO_MODULE;
 our %VENDORS;
@@ -211,7 +210,7 @@ sub buildVendorsList {
     }
 }
 
-=head2 preLoadModules
+=item preLoadModules
 
 pre load modules
 
