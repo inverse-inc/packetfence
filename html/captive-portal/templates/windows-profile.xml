@@ -32,7 +32,11 @@
                         <key>EncryptionType</key>
                         <string>[% provisioner.security_type %]</string>
                         <key>HIDDEN_NETWORK</key>
+                        [% IF provisioner.broadcast %]
                         <false/>
+                        [% ELSE %]
+                        <true/>
+                        [% END %]
                         <key>PayloadDescription</key>
                         <string>Configures wireless connectivity settings.</string>
                         <key>PayloadDisplayName</key>
