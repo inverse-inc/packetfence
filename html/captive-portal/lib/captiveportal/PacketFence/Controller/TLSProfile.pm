@@ -65,35 +65,6 @@ sub index : Path : Args(0) {
     $c->detach();
 }
 
-=head2 build_cert_p12
-
-Build a certificate file in p12 with the answer of the pki
-
-=cut
-
-sub build_cert_p12 : Private {
-    my ($self, $c) = @_;
-    my $logger = $c->log;
-    my $session = $c->session;
-    my $cert_content  = $c->stash->{'cert_content'};
-    my $cn            = $c->stash->{'certificate_cn'};
-    my $cert_path     = "$users_cert_dir/$cn.p12";
-    my $portalSession = $c->portalSession;
-    my $mac           = $portalSession->clientMac;
-    my $node_info     = node_view($mac);
-    my $pid           = $node_info->{'pid'};
-    my $fh;
-    if ( open ($fh, '>', $cert_path) ) {
-        print $fh $cert_content;
-        close $fh;
-        $logger->info("Certificate for user \"$pid\" successfully created under path $cert_path.");
-    }
-    else {
-        $logger->error("The certificate file could not be saved for username \"$pid\"");
-        $self->showError($c,"An error has occured while trying to save your certificate, please contact your local support staff");
-    }
-}
-
 =head2 get_cert
 
 Use PkiProvider{get_cert} method to send the request in order to generate the certificate
@@ -126,10 +97,7 @@ sub cert_process : Private {
     my ($self,$c) = @_;
     my $logger = $c->log;
     $c->stash(info => $c->session->{info});
-    $c->forward('validate_form');
-    $c->forward('get_cert');
-    $c->forward('build_cert_p12');
-    $c->forward('b64_cert');
+    $c->forward('process_form');
     $c->forward('prepare_profile');
     $c->log->info("Finished preparing the TLS profile. Registering the node.");
     $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}{pid}, %{$c->stash->{info}}]);
@@ -142,7 +110,7 @@ Validate informations input by the user
 
 =cut
 
-sub validate_form : Private {
+sub process_form : Private {
     my ($self, $c) = @_;
     my $logger = $c->log;
     my $portalSession = $c->portalSession;
@@ -177,27 +145,6 @@ sub validate_form : Private {
     $c->stash($pki_session);
 }
 
-=head2 b64_cert
-
-Encode user certificate in b64
-
-=cut
-
-sub b64_cert : Private {
-    my ($self,$c) = @_;
-    my $session = $c->session;
-    my $stash = $c->stash;
-    my $cn = $stash->{'certificate_cn'};
-    my $cert_path = "$users_cert_dir/$cn.p12";
-    my $cert_content = read_file($cert_path);
-    my $b64_cert = encode_base64($cert_content);
-    my $user_cache = $c->user_cache;
-    my $pki_session = $user_cache->compute("pki_session", sub {});
-    $pki_session->{b64_cert} = $b64_cert;
-    $user_cache->set("pki_session" => $pki_session);
-}
-
-
 =head2 prepare_profile
 
 Prepares all the data necessary for the profile rendering
@@ -218,10 +165,15 @@ sub prepare_profile : Private {
     my $ca_content = $provisioner->getPkiProvider()->raw_ca_cert_string();
     my $server_cn = $provisioner->getPkiProvider()->server_cn();
     my $ca_cn = $provisioner->getPkiProvider()->ca_cn();
-    @$pki_session{qw(ca_cn server_cn ca_content)} = (
+
+    $c->forward('get_cert');
+    my $b64_cert = encode_base64($stash->{cert_content});
+
+    @$pki_session{qw(ca_cn server_cn ca_content b64_cert)} = (
         $ca_cn,
         $server_cn,
         $ca_content,
+        $b64_cert,
     );
     $user_cache->set("pki_session" => $pki_session);
 }
