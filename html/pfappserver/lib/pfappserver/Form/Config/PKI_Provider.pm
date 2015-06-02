@@ -39,42 +39,58 @@ has_field 'type' =>
 has_field 'uri' =>
   (
    type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Uri on which we should contact the PKI'},
   );
 
 has_field 'username' =>
   (
    type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Username to connect to the PKI'},
   );
 
 has_field 'password' =>
   (
    type => 'Password',
    password => 0,
+   tags => { after_element => \&help,
+             help => 'Password for the username filled in above'},
   );
 
 has_field 'profile' =>
   (
    type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Profile used for the generation of certificate'},
   );
 
 has_field 'country' =>
   (
    type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Country for the certificate'},
   );
 
 has_field 'state' =>
   (
    type => 'Text',
+   tags => { after_element => \&help, 
+             help => 'State for the certificate'},
   );
 
 has_field 'organisation' =>
   (
    type => 'Text',
+   tags => { after_element => \&help, 
+             help => 'Organisation for the certificate'},
   );
 
 has_field 'ca_cert_path' =>
   (
    type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Path of the CA that will generate your certificates'},
   );
 
 has_field 'cn_attribute' =>
@@ -89,6 +105,8 @@ has_field 'cn_attribute' =>
 has_field 'server_cert_path' =>
   (
    type => 'Text',
+   tags => { after_element => \&help, 
+             help => 'Path of the Radius Server Authentication certificate' },
   );
 
 has_block definition=>
