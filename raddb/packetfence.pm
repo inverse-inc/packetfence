@@ -318,6 +318,10 @@ sub accounting {
         my $config = _get_rpc_config();
         my $data;
         $data = send_rpc_request($config, "radius_accounting", \%RAD_REQUEST) if ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop' || $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update');
+
+	#
+	# Updating location log in on initial ('Start') accounting run.
+	#
         $data = send_rpc_request($config, "radius_update_locationlog", \%RAD_REQUEST) if ($RAD_REQUEST{'Acct-Status-Type'} eq 'Start');
         if ($data) {
             my $elements = $data->[0];
