@@ -46,9 +46,15 @@ sub index : Path : Args(0) {
     my $mac = $c->portalSession->clientMac;
     my $node_info = node_view($mac);
     my $pid = $node_info->{'pid'};
+
+    if ( $c->request->method eq 'POST' ) {
+        $c->log->info("Processing TLSProfile post");
+        $c->detach('cert_process');
+    }
+
     my $provisioner = $c->profile->findProvisioner($mac);
     $c->stash(
-        post_uri            => '/tlsprofile/cert_process',
+        post_uri            => '/tlsprofile',
         certificate_email   => lc( $request->param_encoded("certificate_email") || $request->param_encoded("email")),
         template            => 'pki.html',
         provisioner         => $provisioner,
@@ -56,6 +62,7 @@ sub index : Path : Args(0) {
         mac                 => $mac,
         pid                 => $pid,
     );
+    $c->detach();
 }
 
 =head2 build_cert_p12
@@ -64,7 +71,7 @@ Build a certificate file in p12 with the answer of the pki
 
 =cut
 
-sub build_cert_p12 : Path : Args(0) {
+sub build_cert_p12 : Private {
     my ($self, $c) = @_;
     my $logger = $c->log;
     my $session = $c->session;
@@ -115,7 +122,7 @@ Process order of the TLSProfile controller
 
 =cut
 
-sub cert_process : Local {
+sub cert_process : Private {
     my ($self,$c) = @_;
     my $logger = $c->log;
     $c->stash(info => $c->session->{info});
@@ -124,7 +131,7 @@ sub cert_process : Local {
     $c->forward('build_cert_p12');
     $c->forward('b64_cert');
     $c->forward('prepare_profile');
-    $c->forward( 'Authenticate' => 'checkIfProvisionIsNeeded' );
+    $c->log->info("Finished preparing the TLS profile. Registering the node.");
     $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}{pid}, %{$c->stash->{info}}]);
     $c->forward( 'CaptivePortal' => 'endPortalSession' );
 }
@@ -176,7 +183,7 @@ Encode user certificate in b64
 
 =cut
 
-sub b64_cert : Local {
+sub b64_cert : Private {
     my ($self,$c) = @_;
     my $session = $c->session;
     my $stash = $c->stash;
@@ -197,7 +204,7 @@ Prepares all the data necessary for the profile rendering
 
 =cut
 
-sub prepare_profile : Local {
+sub prepare_profile : Private {
     my ($self, $c) = @_;
     my $logger = $c->log;
     my $session = $c->session;

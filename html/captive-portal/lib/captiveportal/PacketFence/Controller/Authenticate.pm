@@ -435,7 +435,8 @@ sub checkIfProvisionIsNeeded : Private {
         if($provisioner->getPkiProvider) {
             $c->log->info("Detected PKI provider for $mac.");
             $c->session->{info} = $c->stash->{info};
-            $c->detach(TLSProfile => 'index');
+            $c->response->redirect('/tlsprofile');
+            $c->detach();
         }
         elsif ($provisioner->authorize($mac) == 0) {
             $info->{status} = $pf::node::STATUS_PENDING;
