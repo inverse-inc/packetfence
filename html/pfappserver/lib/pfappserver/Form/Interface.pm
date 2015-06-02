@@ -42,7 +42,7 @@ has_field 'type' =>
   );
 has_field 'dns' =>
   (
-   type => 'IPAddress',
+   type => 'IPAddresses',
    label => 'DNS',
    wrapper_attr => { 'style' => 'display: none' },
    tags => { after_element => \&help,
