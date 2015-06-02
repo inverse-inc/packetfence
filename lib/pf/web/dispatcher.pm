@@ -144,14 +144,14 @@ sub html_redirect {
     my $destination_url = "";
     my $url = $r->construct_url;
     # Keeping destination URL unless it is the captive-portal itself or some sort of captive-portal detection URLs
-    if ( ($url !~ m#://\Q$captive_portal_domain\E/#) && ($url !~ /$WEB::CAPTIVE_PORTAL_DETECTION_URLS/o) && ($user_agent !~ /CaptiveNetworkSupport|iPhone|iPad/s) ) {
+    if ( ($url !~ m#://\Q$captive_portal_domain\E/#) && ($url !~ /$WEB::CAPTIVE_PORTAL_DETECTION_MECANISM_URLS/o) && ($user_agent !~ /CaptiveNetworkSupport|iPhone|iPad/s) ) {
         $destination_url = Apache2::Util::escape_path($url,$r->pool);
         $logger->debug("We set the destination URL to $destination_url for further usage");
         $r->pnotes(destination_url => $destination_url);
     }
     
 # TODO: Test if there's issue with Chrome an iOS with HTTPS... if yes, reenable that stuff
-#    if ( ($url =~ /$WEB::CAPTIVE_PORTAL_DETECTION_URLS/o) || ($user_agent =~ /CaptiveNetworkSupport|iPhone|iPad/s) ) {
+#    if ( ($url =~ /$WEB::CAPTIVE_PORTAL_DETECTION_MECANISM_URLS/o) || ($user_agent =~ /CaptiveNetworkSupport|iPhone|iPad/s) ) {
 #        $proto = $HTTP;
 #        $logger->info("We are dealing with a device with captive portal detection capabilities. " .
 #            "We are using HTTP rather than HTTPS to avoid SSL certificate related errors");

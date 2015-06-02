@@ -818,11 +818,11 @@ secure_redirect=enabled
 # production network. This is disabled by default
 status_only_on_production=disabled
 #
-# captive_portal.detection_urls
+# captive_portal.detection_mecanism_urls
 #
 # Comma-delimited list of URLs known to be used by devices to detect the presence 
 # of a captive portal and trigger their captive portal mecanism.
-detection_urls = http://www.gstatic.com/generate_204,http://clients3.google.com/generate_204,http://www.apple.com/library/test/success
+detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.google.com/generate_204,http://www.apple.com/library/test/success
 
 [advanced]
 #
