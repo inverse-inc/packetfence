@@ -7,7 +7,7 @@
   [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF item %]<i>[% l('PKI_Provider Entry') %]</i> [% item.id | html %][% ELSE %][% l('New PKI_Provider Entry') %][% END %]</h3>
+    <h3>[% IF item %]<i>[% l('PKI Provider') %]</i> [% item.id | html %][% ELSE %][% l('New PKI Provider') %][% END %]</h3>
   </div>
 
   <div class="modal-body">

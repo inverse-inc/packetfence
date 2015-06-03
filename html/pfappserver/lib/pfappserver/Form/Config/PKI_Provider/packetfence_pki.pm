@@ -1,4 +1,4 @@
-package pfappserver::Form::Config::PKI_Provider;
+package pfappserver::Form::Config::PKI_Provider::packetfence_pki;
 
 =head1 NAME
 
@@ -26,14 +26,8 @@ has_field 'id' =>
    label => 'PKI Provider Name',
    required => 1,
    messages => { required => 'Please specify the name of the PKI provider' },
-  );
-
-has_field 'type' =>
-  (
-   type => 'Select',
-   required => 1,
-   messages => { required => 'PKI provider type is required.' },
-   options_method => \&options_type,
+   tags => { after_element => \&help,
+             help => 'The unique id of the PKI provider'},
   );
 
 has_field 'host' =>
@@ -114,6 +108,7 @@ has_field 'ca_cert_path' =>
 has_field 'cn_attribute' =>
   (
    type => 'Select',
+   label => 'Common name Attribute',
    options => [{ label => 'MAC address', value => 'mac' }, { label => 'Username' , value => 'pid' }],
    default => 'pid',
    tags => { after_element => \&help,
@@ -129,19 +124,8 @@ has_field 'server_cert_path' =>
 
 has_block definition=>
   (
-    render_list => [qw(type proto host port username password profile country state organisation cn_attribute ca_cert_path server_cert_path)],
+    render_list => [qw( proto host port username password profile country state organisation cn_attribute ca_cert_path server_cert_path)],
   );
-
-=head2 options_type
-
-Options for types
-
-=cut
-
-sub options_type {
-    return map {
-        { 'label' => "pf::pki_provider::${_}", value => $_}} @pf::factory::pki_provider::TYPES;
-}
 
 =head1 COPYRIGHT
 

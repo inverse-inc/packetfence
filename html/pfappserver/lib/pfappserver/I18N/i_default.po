@@ -251,6 +251,10 @@ msgstr ""
 msgid "Add MAC Vendor"
 msgstr ""
 
+# html/pfappserver/root/config/pki_provider/index.tt
+msgid "Add PKI Provider"
+msgstr ""
+
 # html/pfappserver/root/config/realm/index.tt
 msgid "Add Realm"
 msgstr ""
@@ -319,10 +323,6 @@ msgstr ""
 
 # html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Add floating device"
-msgstr ""
-
-# html/pfappserver/root/config/pki_provider/index.tt
-msgid "Add pki_provider entry"
 msgstr ""
 
 # html/pfappserver/root/config/profile/index.tt
@@ -904,6 +904,10 @@ msgstr ""
 msgid "Comma-separated list of the switch uplinks"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "Common name Attribute"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Community Read"
 msgstr ""
@@ -1000,7 +1004,7 @@ msgstr ""
 msgid "Copy File"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Country for the certificate"
 msgstr ""
 
@@ -1271,7 +1275,7 @@ msgstr ""
 msgid "Defined Mandatory Fields will be used with the following Portal Profile based Authentication Sources"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Defines what attribute of the node to use as the common name during the certificate generation."
 msgstr ""
 
@@ -1387,7 +1391,7 @@ msgid "Delete MAC Vendor"
 msgstr ""
 
 # html/pfappserver/root/config/pki_provider/index.tt
-msgid "Delete PKI_Provider entry"
+msgid "Delete PKI Provider"
 msgstr ""
 
 # html/pfappserver/root/config/profile/index.tt
@@ -1740,10 +1744,6 @@ msgstr ""
 msgid "Example"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
-msgid "Example : if your dns name is www.packetfence.org it becomes org.packetfence.www"
-msgstr ""
-
 # html/pfappserver/root/config/authentication.tt
 msgid "Exclusive"
 msgstr ""
@@ -1971,6 +1971,10 @@ msgstr "Host to which StatsD metrics are sent."
 # conf/documentation.conf (monitoring.graphite_host)
 msgid "Host to which graphite metrics are sent."
 msgstr "Host to which graphite metrics are sent."
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "Host which hosts the PacketFence PKI"
+msgstr ""
 
 # conf/documentation.conf (general.hostname)
 msgid "Hostname of PacketFence system. This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients."
@@ -2538,7 +2542,7 @@ msgstr ""
 msgid "MAC Vendor ID"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "MAC address"
 msgstr ""
 
@@ -2787,7 +2791,7 @@ msgid "New Nodes"
 msgstr ""
 
 # html/pfappserver/root/config/pki_provider/view.tt
-msgid "New PKI_Provider Entry"
+msgid "New PKI Provider"
 msgstr ""
 
 # html/pfappserver/root/configurator/database.tt
@@ -3087,7 +3091,7 @@ msgstr "Open Wednesday"
 msgid "Operating Systems"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Organisation for the certificate"
 msgstr ""
 
@@ -3109,15 +3113,16 @@ msgid "PID"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+# html/pfappserver/root/config/pki_provider/view.tt
 msgid "PKI Provider"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "PKI Provider Name"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
-msgid "PKI provider type is required."
+# html/pfappserver/root/config/pki_provider/index.tt
+msgid "PKI Providers"
 msgstr ""
 
 # pf::admin_roles (Actions groups)
@@ -3141,20 +3146,11 @@ msgid "PKI_PROVIDER_UPDATE"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/config/pki_provider/index.tt
 msgid "PKI_Provider Entries"
-msgstr ""
-
-# html/pfappserver/root/config/pki_provider/view.tt
-msgid "PKI_Provider Entry"
 msgstr ""
 
 # html/pfappserver/root/config/pki_provider/list.tt
 msgid "PKI_Provider Name"
-msgstr ""
-
-# html/pfappserver/root/config/pki_provider/index.tt
-msgid "PKI_Provider of how to add configuration file in httpd.admin."
 msgstr ""
 
 # pf::admin_roles (Actions groups)
@@ -3239,7 +3235,7 @@ msgstr ""
 msgid "Password for the mysql database used by PacketFence."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Password for the username filled in above"
 msgstr ""
 
@@ -3271,11 +3267,11 @@ msgstr ""
 msgid "Past Week"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Path of the CA that will generate your certificates"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Path of the Radius Server Authentication certificate"
 msgstr ""
 
@@ -3435,7 +3431,7 @@ msgstr ""
 msgid "Please specify the maximum DHCP lease time."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Please specify the name of the PKI provider"
 msgstr ""
 
@@ -3522,6 +3518,10 @@ msgstr ""
 # conf/documentation.conf (monitoring.graphite_port)
 msgid "Port on the graphite host to which metrics are sent."
 msgstr "Port on the graphite host to which metrics are sent."
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "Port on which to contact the PacketFence PKI API"
+msgstr ""
 
 # conf/documentation.conf (ports.admin)
 msgid "Port the administrative interface listens on."
@@ -3621,8 +3621,12 @@ msgstr ""
 msgid "Profile Name"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Profile used for the generation of certificate"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "Protocol to use to contact the PacketFence PKI API"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -3720,6 +3724,10 @@ msgstr ""
 msgid "Really delete this MAC Vendor?"
 msgstr ""
 
+# html/pfappserver/root/config/pki_provider/index.tt
+msgid "Really delete this PKI Provider?"
+msgstr ""
+
 # html/pfappserver/root/config/provisioning/index.tt
 msgid "Really delete this Provisioning entry?"
 msgstr ""
@@ -3746,10 +3754,6 @@ msgstr ""
 
 # html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Really delete this floating device?"
-msgstr ""
-
-# html/pfappserver/root/config/pki_provider/index.tt
-msgid "Really delete this pki_provider entry?"
 msgstr ""
 
 # html/pfappserver/root/config/profile/index.tt
@@ -3957,10 +3961,6 @@ msgstr ""
 
 # html/pfappserver/root/configurator/database.tt
 msgid "Retype your password"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
-msgid "ReverseDNS identifier"
 msgstr ""
 
 # html/pfappserver/root/config/profile/files.tt
@@ -4666,7 +4666,7 @@ msgstr ""
 msgid "Starting IP Address"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "State for the certificate"
 msgstr ""
 
@@ -4975,6 +4975,10 @@ msgstr ""
 
 # conf/documentation.conf (billing.mirapay_terminal_id_group)
 msgid "The terminal id group for mirapay"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "The unique id of the PKI provider"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
@@ -5291,10 +5295,6 @@ msgstr ""
 msgid "Upload failed"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
-msgid "Uri on which we should contact the PKI"
-msgstr ""
-
 # conf/documentation.conf (omapi.mac2ip_lookup)
 msgid "Use OMAPI to query DHCPd for the IP address of a given MAC address"
 msgstr ""
@@ -5401,7 +5401,7 @@ msgstr ""
 msgid "Username of the account with access to the mysql database used by PacketFence."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Username to connect to the PKI"
 msgstr ""
 
@@ -6513,6 +6513,10 @@ msgstr ""
 
 # conf/documentation.conf (ports.pf_status)
 msgid "httpd listening port for PacketFence Status webservice"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "https"
 msgstr ""
 
 # pf::provisioner (Provisioners)

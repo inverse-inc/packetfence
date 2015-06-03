@@ -14,8 +14,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
-use pfappserver::Form::Config::Switch;
-use pf::config::cached;
+use pf::factory::pki_provider;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -51,8 +50,26 @@ Usage: /config/pki_provider
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-
+    $c->stash->{types} = [ sort @pf::factory::pki_provider::TYPES];
     $c->forward('list');
+}
+
+before [qw(clone view _processCreatePost update)] => sub {
+    my ($self, $c, @args) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    my $item = $c->stash->{$itemKey};
+    my $type = $item->{type};
+    my $form = $c->action->{form};
+    $c->stash->{current_form} = "${form}::${type}";
+};
+
+sub create_type : Path('create') : Args(1) {
+    my ($self, $c, $type) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    $c->stash->{$itemKey}{type} = $type;
+    $c->forward('create');
 }
 
 =head1 COPYRIGHT

@@ -4,10 +4,10 @@
       <div class="modal fade hide" id="deleteItem">
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
-          <h3><i>[% l('Delete PKI_Provider entry') %]</i> <span></span></h3>
+          <h3><i>[% l('Delete PKI Provider') %]</i> <span></span></h3>
         </div>
         <div class="modal-body">
-          <p>[% l('Really delete this pki_provider entry?') %]</p>
+          <p>[% l('Really delete this PKI Provider?') %]</p>
         </div>
         <div class="modal-footer">
           <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
@@ -15,14 +15,19 @@
         </div>
       </div>
 
-      <h2>[% l('PKI_Provider Entries') %]</h2>
-
-      <p>[% l('PKI_Provider of how to add configuration file in httpd.admin.') %]</p>
+      <h2>[% l('PKI Providers') %]</h2>
 
       [% INCLUDE config/pki_provider/list.tt %]
 
       [%- IF can_access("PKI_PROVIDER_CREATE") %]
-      <div class="form-actions">
-        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add pki_provider entry') %]</a>
-      </div>
+        <div class="form-actions">
+          <div class="btn-group">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add PKI Provider') %] <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              [% FOREACH type IN types -%]
+                <li><a class="createItem" href="[% c.uri_for(c.controller.action_for('create_type'), type) %]">[% l("pf::pki_provider::${type}") %]</a></li>
+              [% END -%]
+            </ul>
+          </div>
+        </div>
       [%- END %]
