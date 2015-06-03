@@ -55,12 +55,7 @@ sub index : Path : Args(0) {
     my $provisioner = $c->profile->findProvisioner($mac);
     $c->stash(
         post_uri            => '/tlsprofile',
-        certificate_email   => lc( $request->param_encoded("certificate_email") || $request->param_encoded("email")),
         template            => 'pki.html',
-        provisioner         => $provisioner,
-        username            => $username,
-        mac                 => $mac,
-        pid                 => $pid,
     );
     $c->detach();
 }
