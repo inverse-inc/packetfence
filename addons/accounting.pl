@@ -23,6 +23,7 @@ use Net::SNMP;
 use constant INSTALL_DIR => '/usr/local/pf';
 
 use lib INSTALL_DIR . "/lib";
+use pf::CHI;
 use pf::SwitchFactory;
 use pf::db;
 use pf::person;

@@ -53,6 +53,7 @@ use constant {
 
 use lib INSTALL_DIR . '/lib';
 
+use pf::CHI;
 use pf::constants;
 use pf::config;
 use pf::floatingdevice::custom;
