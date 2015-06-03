@@ -86,6 +86,12 @@ sub get_cert : Private {
     }
     my $cert_content = $pki_provider->get_cert({ certificate_email => $stash->{certificate_email}, certificate_cn => $stash->{certificate_cn}, certificate_pwd => $stash->{certificate_pwd} });
     $c->log->debug(sub { "cert_content from pki service $cert_content" });
+
+    unless(defined($cert_content)){
+        $self->showError($c, "Your certificate could not be aquired from the certificate server. Try again later or contact your network administrator.");
+        $c->detach();
+    }
+
     $c->stash(cert_content => $cert_content);
 }
 
