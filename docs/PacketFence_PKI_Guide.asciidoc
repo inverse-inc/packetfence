@@ -1,5 +1,5 @@
 PKI Quick Installation Guide
-===================================
+============================
 :encoding: UTF-8
 :lang: en
 :doctype: book
@@ -47,11 +47,11 @@ Inverse-PKI Configuration
 
 Now that your PKI is installed, you need to configure it. A wizard is avialable @packetfence_management_ip:9191/pki
 
-Packetfence Side:
-^^^^^^^^^^^^^^^^^
+Packetfence Side
+^^^^^^^^^^^^^^^^
 
-PKI Side:
-^^^^^^^^^
+PKI Side
+^^^^^^^^
 
 You will first need to log into the PKI:
 * Address: https://@server_ip:9191
@@ -96,8 +96,8 @@ Client auth cert
 
 Generate a certificate from the profile you defined as the client authentication Profile, if you generate this certificate manually you will need to use the 'download cert' or 'send cert' button. When the certificate is generate via Packetfence, the certificate is automaticly integrate into the profile to setup the WiFi network.
 
-Packetfence Side:
-^^^^^^^^^^^^^^^^^
+Packetfence Side
+^^^^^^^^^^^^^^^^
 
 packetfence-pki stuff
 
