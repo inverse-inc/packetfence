@@ -118,8 +118,8 @@ has_field 'cn_attribute' =>
 has_field 'server_cert_path' =>
   (
    type => 'Text',
-   tags => { after_element => \&help,
-             help => 'Path of the Radius Server Authentication certificate' },
+   tags => { after_element => \&help, 
+             help => 'Path of the RADIUS server authentication certificate' },
   );
 
 has_block definition=>
