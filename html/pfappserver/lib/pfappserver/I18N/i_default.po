@@ -3113,7 +3113,6 @@ msgid "PID"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/pki_provider/view.tt
 msgid "PKI Provider"
 msgstr ""
@@ -3122,6 +3121,7 @@ msgstr ""
 msgid "PKI Provider Name"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/pki_provider/index.tt
 msgid "PKI Providers"
 msgstr ""
