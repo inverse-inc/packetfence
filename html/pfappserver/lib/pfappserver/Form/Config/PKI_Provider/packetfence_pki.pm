@@ -122,9 +122,20 @@ has_field 'server_cert_path' =>
              help => 'Path of the RADIUS server authentication certificate' },
   );
 
+has_field 'revoke_on_unregistration' =>
+  (
+   type => 'Checkbox',
+   label => 'Revoke on unregistration',
+   checkbox_value => 'Y',
+   tags => { after_element => \&help,
+             help => 'Check this box to have the certificate revoke when the node using it is unregistered.<br/>Do not use if multiple devices share the same certificate.' },
+  );
+
+
+
 has_block definition=>
   (
-    render_list => [qw( proto host port username password profile country state organisation cn_attribute ca_cert_path server_cert_path)],
+    render_list => [qw( proto host port username password profile country state organisation cn_attribute revoke_on_unregistration ca_cert_path server_cert_path)],
   );
 
 =head1 COPYRIGHT

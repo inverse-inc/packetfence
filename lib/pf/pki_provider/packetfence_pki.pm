@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Moo;
 use WWW::Curl::Easy;
+use pf::constants;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 
 extends 'pf::pki_provider';
@@ -94,36 +95,20 @@ What organisation to use for the certificate
 
 has organisation => ( is => 'rw' );
 
-=head2 get_cert
+sub _post_curl {
+    my ($self, $uri, $post_fields) = @_;
+    my $logger = get_logger;
 
-Get the certificate from the packetfence_pki pki service
+    $uri = $self->proto."://".$self->host.":".$self->port.$uri;
 
-=cut
-
-sub get_cert {
-    my ($self,$args) = @_;
-    my $logger = get_logger();
-    my $uri = $self->proto."://".$self->host.":".$self->port."/pki/cert/eaptls/certificate/";
     my $username = $self->username;
     my $password = $self->password;
-    my $email = $args->{'certificate_email'};
-    my $dot1x_username = $args->{'certificate_cn'};
-    my $organisation = $self->organisation;
-    my $state = $self->state;
-    my $profile = $self->profile;
-    my $country = $self->country;
-    my $certpwd = $args->{'certificate_pwd'};
     my $curl = WWW::Curl::Easy->new;
     my $request =
         "username=" . uri_escape($username)
       . "&password=" . uri_escape($password)
-      . "&cn=" . uri_escape($dot1x_username)
-      . "&mail=" . uri_escape($email)
-      . "&organisation=" . uri_escape($organisation)
-      . "&st=" . uri_escape($state)
-      . "&country=" . uri_escape($country)
-      . "&profile=" . uri_escape($profile)
-      . "&pwd=" . uri_escape($certpwd);
+      . "&" . $post_fields;
+
     my $response_body = '';
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
     $curl->setopt(CURLOPT_POSTFIELDS, $request);
@@ -141,15 +126,77 @@ sub get_cert {
     my $curl_return_code = $curl->perform;
 
     my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
+    return ($curl_return_code, $response_code, $response_body, $curl);
 
+
+}
+
+=head2 get_cert
+
+Get the certificate from the packetfence_pki pki service
+
+=cut
+
+sub get_cert {
+    my ($self,$args) = @_;
+    my $logger = get_logger();
+    my $uri = "/pki/cert/eaptls/certificate/";
+
+    my $email = $args->{'certificate_email'};
+    my $cn = $args->{'certificate_cn'};
+    my $organisation = $self->organisation;
+    my $state = $self->state;
+    my $profile = $self->profile;
+    my $country = $self->country;
+    my $certpwd = $args->{'certificate_pwd'};
+
+    my $post_fields =
+      "cn=" . uri_escape($cn)
+      . "&mail=" . uri_escape($email)
+      . "&organisation=" . uri_escape($organisation)
+      . "&st=" . uri_escape($state)
+      . "&country=" . uri_escape($country)
+      . "&profile=" . uri_escape($profile)
+      . "&pwd=" . uri_escape($certpwd);
+
+    my ($curl_return_code, $response_code, $response_body, $curl) = $self->_post_curl($uri, $post_fields);
     if ($curl_return_code == 0 && $response_code == 200) {
         return $response_body;
     }
     else {
         my $curl_error = $curl->errbuf;
         $logger->error("certificate could not be acquire, check out logs on the pki. Server replied with $response_body. Curl error : $curl_error");
+        return undef;
     }
-    return;
+
+
+}
+
+=head2 revoke
+
+Revoke the certificate for a user
+
+=cut
+
+sub revoke {
+    my ($self, $cn) = @_;
+    my $logger = get_logger;
+    my $uri = "/pki/cert/eaptls/revoke/";
+    my $post_fields = 
+      "cn=". uri_escape($cn)
+      . "&CRLReason=" . uri_escape("superseded");
+
+    my ($curl_return_code, $response_code, $response_body, $curl) = $self->_post_curl($uri, $post_fields);
+    if ($curl_return_code == 0 && $response_code == 200) {
+        return $TRUE;
+    }
+    else {
+        my $curl_error = $curl->errbuf;
+        $logger->error("Certificate for CN $cn could not be revoked. Server replied with $response_body. Curl error : $curl_error");
+        return $FALSE;
+    }
+
+
 }
 
 =head1 AUTHOR

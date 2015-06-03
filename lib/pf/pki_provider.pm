@@ -28,6 +28,8 @@ has server_cert => (is => 'ro' , builder => 1, lazy => 1);
 
 has cn_attribute => (is => 'rw');
 
+has revoke_on_unregistration => (is => 'rw', default => 'N');
+
 =head2 get_cert
 
 Get the certificate from the pki
@@ -36,6 +38,17 @@ Get the certificate from the pki
 
 sub get_cert {
     get_logger->error("get_cert is not implemented for this PKI provider. Certificate generation will fail.");
+    return $FALSE;
+}
+
+=head2 revoke
+
+Revoke the certificate for a user
+
+=cut
+
+sub revoke {
+    get_logger->error("revoke is not implemented for this PKI provider. Certificate generation will fail.");
     return $FALSE;
 }
 
