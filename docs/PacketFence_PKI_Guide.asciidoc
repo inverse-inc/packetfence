@@ -8,16 +8,19 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
+
 This guide has been created to give a quick start to install the Inverse PKI in PacketFence 5+. This guide does not include advanced troubleshooting of EAP-TLS connection. Refer to the documentation of EAP-TLS, RADIUS and OpenSSL for advanced features.
 
 Assumptions
 -----------
+
 * You have at least one server with a fresh install of PacketFence 5+
 * The server already have a switch with an 802.1X connection working
 * RADIUS is fonctionnal for PEAP, EAP-TLS with your own certificate
 
 Installation
 ------------
+
 Step 1: Install the PKI
 ~~~~~~~~~~~~~~~~~~~~~~~
 
