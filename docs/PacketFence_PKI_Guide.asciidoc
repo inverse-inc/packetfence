@@ -54,11 +54,13 @@ PKI Side
 ^^^^^^^^
 
 You will first need to log into the PKI:
+
 * Address: https://@server_ip:9191
 * Login: admin
 * Password: packetfence
 
 After you logged in there is few steps to follow to have the PKI working for an EAP-TLS configuration with Packetfence. You will need to create the following items:
+
 * Certificate of Authority
 * Profiles(for each purpose, ie Server/Client auth are 2 different profiles)
 * Manual certificate generation
@@ -77,6 +79,7 @@ Profile
 -------
 
 Creation of a profile:
+
 * Login: admin
 * Password: packetfence
 * Crl path: Certification revokation list path, a file will be created when you fill this.
