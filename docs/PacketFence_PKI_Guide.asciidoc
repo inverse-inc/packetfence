@@ -60,41 +60,48 @@ After you logged in there is few steps to follow to have the PKI working for an 
 * Profiles(for each purpose, ie Server/Client auth are 2 different profiles)
 * Manual certificate generation
 
+To help you out trhough the configuration you just have to follow the wizard step to add a new CA.
 
-CA blahblah
+Certificate of Authority
+------------------------
+ 
 * Key type, size and digest: we advise to use the following RSA, 2048, sha1
 * Basic Constraints: CA:TRUE
 * Key Usage and Extended Key Usage can be filled if necessary, more informations about Key Usage and Extended Key Usage here: rfc5280 part 4.2.1.3 and 4.2.1.12
 * Days: Number of validity days, ie 3y = 1068
 
-Profile blah blah
+Profile
+-------
 
 Creation of a profile:
 * Login: admin
 * Password: packetfence
-* Crl path: Certification revokation list path.
+* Crl path: Certification revokation list path, a file will be created when you fill this.
 * Validity: Number of validity days, ie 3y = 1068
 * Key type, size and digest: we advise to use the following RSA, 2048, sha1
 * Key Usage: 
 * Extended Key Usage: Server Certificate Authentication: TLS Web Server Authentication, Client Authentication: TLS Web Client Authentication, more informations about Key Usage and Extended Key Usage here: rfc5280 part 4.2.1.3 and 4.2.1.12
 * The P12 mail setup is not mandatory but advise if you need to manually send cert by email.
 
-RADIUS server auth cert blahblah
+RADIUS server auth cert
+-----------------------
 
 Generate a certificate from the profile you defined as the server authentication Profile.
 
-Client auth cert blah blah
+Client auth cert
+----------------
 
 Generate a certificate from the profile you defined as the client authentication Profile, if you generate this certificate manually you will need to use the 'download cert' or 'send cert' button. When the certificate is generate via Packetfence, the certificate is automaticly integrate into the profile to setup the WiFi network.
 
 Packetfence Side:
 ^^^^^^^^^^^^^^^^^
 
-PKI_Provider stuff
+packetfence-pki stuff
 
-To work with our PKI in packetfence you will need to addthe PKI in the PKI_Provider section.
+To work with our PKI in packetfence you will need to addthe PKI in the packetfence-pki section.
 
-Screenshot PKI_Provider
+image::docs/images/Screenshot packetfence-pki 1/2[scaledwidth="100%",alt="SSID creation"]
+image::docs/images/Screenshot packetfence-pki 2/2[scaledwidth="100%",alt="SSID creation"]
 
 Additionnal informations
 ------------------------
