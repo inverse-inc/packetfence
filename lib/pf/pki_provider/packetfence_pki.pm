@@ -22,13 +22,29 @@ extends 'pf::pki_provider';
 
 use pf::log;
 
-=head2 uri
+=head2 host
 
-The uri of the packetfence_pki pki service
+The host of the packetfence_pki pki service
 
 =cut
 
-has uri => ( is => 'rw' );
+has host => ( is => 'rw', default => "127.0.0.1" );
+
+=head2 port
+
+The port of the packetfence_pki pki service
+
+=cut
+
+has port => ( is => 'rw', default => 9292 );
+
+=head2 proto
+
+The proto of the packetfence_pki pki service
+
+=cut
+
+has proto => ( is => 'rw', default => "https" );
 
 =head2 username
 
@@ -87,7 +103,7 @@ Get the certificate from the packetfence_pki pki service
 sub get_cert {
     my ($self,$args) = @_;
     my $logger = get_logger();
-    my $uri = $self->uri;
+    my $uri = $self->proto."://".$self->host.":".$self->port."/pki/cert/eaptls/certificate/";
     my $username = $self->username;
     my $password = $self->password;
     my $email = $args->{'certificate_email'};
@@ -116,6 +132,10 @@ sub get_cert {
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $uri);
+    $curl->setopt(CURLOPT_SSL_VERIFYHOST, 0);
+    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
+
+    $logger->debug("Calling PacketFence PKI service using URI : $uri");
 
     # Starts the actual request
     my $curl_return_code = $curl->perform;
@@ -126,7 +146,8 @@ sub get_cert {
         return $response_body;
     }
     else {
-        $logger->error("certificate could not be acquire, check out logs on the pki");
+        my $curl_error = $curl->errbuf;
+        $logger->error("certificate could not be acquire, check out logs on the pki. Server replied with $response_body. Curl error : $curl_error");
     }
     return;
 }

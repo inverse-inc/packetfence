@@ -36,11 +36,29 @@ has_field 'type' =>
    options_method => \&options_type,
   );
 
-has_field 'uri' =>
+has_field 'host' =>
   (
    type => 'Text',
+   default => "127.0.0.1",
    tags => { after_element => \&help,
-             help => 'Uri on which we should contact the PKI'},
+             help => 'Host which hosts the PacketFence PKI'},
+  );
+
+has_field 'port' =>
+  (
+   type => 'Text',
+   default => '9191',
+   tags => { after_element => \&help,
+             help => 'Port on which to contact the PacketFence PKI API'},
+  );
+
+has_field 'proto' =>
+  (
+   type => 'Select',
+   default => 'https',
+   options => [{ label => 'https', value => 'https' }, { label => 'http' , value => 'http' }],
+   tags => { after_element => \&help,
+             help => 'Protocol to use to contact the PacketFence PKI API'},
   );
 
 has_field 'username' =>
@@ -111,7 +129,7 @@ has_field 'server_cert_path' =>
 
 has_block definition=>
   (
-    render_list => [qw(type uri username password profile country state organisation cn_attribute ca_cert_path server_cert_path)],
+    render_list => [qw(type proto host port username password profile country state organisation cn_attribute ca_cert_path server_cert_path)],
   );
 
 =head2 options_type
