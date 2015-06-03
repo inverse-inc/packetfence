@@ -13,6 +13,8 @@ use MIME::Base64;
 use File::Slurp;
 use pf::web;
 use Crypt::OpenSSL::X509;
+use pf::password;
+use Crypt::GeneratePassword qw(word);
 
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -44,8 +46,11 @@ sub index : Path : Args(0) {
     my $profile = $c->profile;
     my $request = $c->request;
     my $mac = $c->portalSession->clientMac;
-    my $node_info = node_view($mac);
-    my $pid = $node_info->{'pid'};
+
+    unless(defined($c->session->{username})){
+        $c->log->warn("$mac tried to access the TLS profile page without being authenticated.");
+        $c->response->redirect('/authenticate');
+    }
 
     if ( $c->request->method eq 'POST' ) {
         $c->log->info("Processing TLSProfile post");
@@ -54,6 +59,7 @@ sub index : Path : Args(0) {
 
     my $provisioner = $c->profile->findProvisioner($mac);
     $c->stash(
+        certificate_pwd     => word(4,6),
         post_uri            => '/tlsprofile',
         template            => 'pki.html',
     );
@@ -111,13 +117,8 @@ sub process_form : Private {
     my $portalSession = $c->portalSession;
     my $mac    = $portalSession->clientMac;
     my $passwd = $c->request->param('certificate_pwd');
-    my $passwd_confirm = $c->request->param('certificate_pwd_check');
-    if(!defined $passwd || $passwd eq '' || !defined $passwd_confirm || $passwd_confirm eq '') {
+    if(!defined $passwd || $passwd eq '') {
         $c->stash(txt_validation_error => 'No Password given');
-        $c->detach('index');
-    }
-    if($passwd ne $passwd_confirm) {
-        $c->stash(txt_validation_error => 'Passwords do not match');
         $c->detach('index');
     }
 
