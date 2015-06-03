@@ -7759,7 +7759,7 @@ msgstr ""
 
 # pf::provisioner (Provisioners)
 msgid "windows"
-msgstr ""
+msgstr "Windows"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "winpopup_action"

@@ -21,17 +21,19 @@ Installation
 Step 1: Install the PKI
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: The packaging of the the PKI is only avialable for Debian at the moment, a CentOS version should come out soon.
+NOTE: Packetfence-PKI is avialable on the Packetfence repo as the package packetfence-pki. This is avialable for CentOS6 or Debian7.
 
 Installing 
 ^^^^^^^^^^
 
-Update the repo list and install the package
+First off you will need to install the package
 
-Debian:
+Use the following command matching your OS.
+
+Debian/Ubuntu:
  # sudo apt-get install packetfence-pki
 
-CentOS:
+CentOS/REHL:
  # yum install packetfence-pki
 
 Step2: Configuring the PKI
@@ -40,15 +42,13 @@ Step2: Configuring the PKI
 Inverse-PKI Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Config Stuff
+Now that your PKI is installed, you need to configure it. A wizard is avialable @packetfence_management_ip:9191/pki
 
 Packetfence Side:
 ^^^^^^^^^^^^^^^^^
 
 PKI Side:
 ^^^^^^^^^
-
-NOTE: The PKI is only listening on 127.0.0.1 which mean you need to have access to the machine
 
 You will first need to log into the PKI:
 * Address: https://@server_ip:9191
@@ -86,6 +86,15 @@ Generate a certificate from the profile you defined as the server authentication
 Client auth cert blah blah
 
 Generate a certificate from the profile you defined as the client authentication Profile, if you generate this certificate manually you will need to use the 'download cert' or 'send cert' button. When the certificate is generate via Packetfence, the certificate is automaticly integrate into the profile to setup the WiFi network.
+
+Packetfence Side:
+^^^^^^^^^^^^^^^^^
+
+PKI_Provider stuff
+
+To work with our PKI in packetfence you will need to addthe PKI in the PKI_Provider section.
+
+Screenshot PKI_Provider
 
 Additionnal informations
 ------------------------
