@@ -50,6 +50,7 @@ sub index : Path : Args(0) {
     unless(defined($c->session->{username})){
         $c->log->warn("$mac tried to access the TLS profile page without being authenticated.");
         $c->response->redirect('/authenticate');
+        $c->detach();
     }
 
     if ( $c->request->method eq 'POST' ) {
