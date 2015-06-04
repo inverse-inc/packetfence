@@ -18,12 +18,6 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source';
 
 # Form fields
-has_field 'always_allow' =>
-  (
-   type => 'Toggle',
-   checkbox_value => 'yes',
-   unchecked_value => 'no',
-  );
 
 =head1 AUTHOR
 
