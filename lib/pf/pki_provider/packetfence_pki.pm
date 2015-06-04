@@ -188,6 +188,7 @@ sub revoke {
 
     my ($curl_return_code, $response_code, $response_body, $curl) = $self->_post_curl($uri, $post_fields);
     if ($curl_return_code == 0 && $response_code == 200) {
+        $logger->info("Revoked certificate for CN $cn");
         return $TRUE;
     }
     else {

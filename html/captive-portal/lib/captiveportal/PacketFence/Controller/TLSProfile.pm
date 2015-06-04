@@ -15,6 +15,7 @@ use pf::web;
 use Crypt::OpenSSL::X509;
 use pf::password;
 use Crypt::GeneratePassword qw(word);
+use pf::constants;
 
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -58,10 +59,18 @@ sub index : Path : Args(0) {
         $c->detach('cert_process');
     }
 
-    my $provisioner = $c->profile->findProvisioner($mac);
+    my $source_id = $c->session->{source_id};
+    my $source = getAuthenticationSource($source_id);
+    my $attributes = $source->search_attributes($c->session->{username});
+    my $certificate_email = $attributes ? $attributes->get_value('mail') : $FALSE;
+
+    if( $certificate_email ) {
+        $c->session->{certificate_email} = $certificate_email;
+        $c->stash->{certificate_email} = $certificate_email;
+    }
+
     $c->stash(
         certificate_pwd     => word(4,6),
-        post_uri            => '/tlsprofile',
         template            => 'pki.html',
     );
     $c->detach();
@@ -126,12 +135,28 @@ sub process_form : Private {
     my $passwd = $c->request->param('certificate_pwd');
     if(!defined $passwd || $passwd eq '') {
         $c->stash(txt_validation_error => 'No Password given');
-        $c->detach('index');
+        $c->stash(
+            certificate_pwd     => $passwd,
+            template            => 'pki.html',
+        );
+        $c->detach();
     }
 
-    my $source_id = $c->session->{source_id};
-    my $source = getAuthenticationSource($source_id);
-    my $certificate_email = $source->search_attributes($c->session->{username})->get_value('mail');
+    my $certificate_email;
+    if ( $c->session->{certificate_email} ){
+        $certificate_email = $c->session->{certificate_email};
+    }
+    elsif ( defined($c->request->param('certificate_email')) && $c->request->param('certificate_email') ne '' ){
+        $certificate_email = $c->request->param('certificate_email');
+    }
+    else {
+        $c->stash(txt_validation_error => 'No e-mail given');
+        $c->stash(
+            certificate_pwd     => $passwd,
+            template            => 'pki.html',
+        );
+        $c->detach();
+    }
 
     my $provisioner   = $c->profile->findProvisioner($mac);
     my $pki_provider = $provisioner->getPkiProvider();

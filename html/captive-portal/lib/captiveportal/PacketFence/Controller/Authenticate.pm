@@ -226,6 +226,7 @@ sub postAuthentication : Private {
     $pid = $default_pid if !defined $pid && $c->profile->noUsernameNeeded;
     $info->{pid} = $pid;
     $c->stash->{info} = $info;
+    node_modify($portalSession->clientMac, (pid => $pid));
 
     $c->forward('setupMatchParams');
     $c->forward('setRole');
