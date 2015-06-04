@@ -20,7 +20,6 @@ extends 'pfappserver::Base::Model::Config';
 
 has '+itemKey' => ( default => 'billing_tier' );
 has '+itemsKey' => ( default => 'billing_tiers' );
-has '+idKey' => ( default => 'billing_tier_id' );
 
 =head2 Methods
 
