@@ -69,7 +69,7 @@ sub cleanupAfterRead {
             my $value = $data->{$key};
             my @values = split( /\s*,\s*/, $value ) if $value;
             $data->{$key} = \@values;
-        } elsif ($type eq 'list') {
+        } elsif ($type eq 'list' || $type eq 'merged_list') {
             my $value = $data->{$key};
             if ($value) {
                 $data->{$key} = join("\n", split( /\s*,\s*/, $value));
@@ -99,7 +99,7 @@ sub cleanupBeforeCommit {
         if (exists $Doc_Config{$doc_section} ) {
             my $doc = $Doc_Config{$doc_section};
             my $type = $doc->{type} || "text";
-            if($type eq 'list') {
+            if($type eq 'list' || $type eq 'merged_list' ) {
                 my $value = $assignment->{$key};
                 $assignment->{$key} = join(",",split( /\v+/, $value )) if $value;
             }

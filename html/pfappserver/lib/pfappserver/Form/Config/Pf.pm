@@ -13,6 +13,7 @@ Form definition to create or update a section of pf.conf.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Defaults';
 use pf::config;
 use pf::IniFiles;
 use pf::file_paths;
@@ -74,6 +75,14 @@ sub field_list {
                 # the value to the default value when no value is defined (see pf::ConfigStore::Pf::cleanupAfterRead)
                 # $field->{element_attr}->{placeholder} = join("\n",split( /\s*,\s*/, $field->{element_attr}->{placeholder} ))
                 #   if $field->{element_attr}->{placeholder};
+                last;
+            };
+            $type eq 'merged_list' && do {
+                $field->{tags}  = { before_element => \&defaults_list,
+              defaults => $defaults->{$name} },
+
+                $field->{type} = 'TextArea';
+                $field->{element_class} = ['input-xxlarge'];
                 last;
             };
             $type eq 'numeric' && do {

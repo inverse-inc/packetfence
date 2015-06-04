@@ -139,3 +139,7 @@ li.drop-row,
   -o-transition: all 0.5s ease;
   transition: all 0.5s ease;
 }
+
+.list-defaults {
+  margin-left:170px
+}
