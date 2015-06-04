@@ -34,11 +34,7 @@ has_field 'class' =>
   type => 'Select',
   label => 'Class',
   localize_labels => 1,
-  options =>
-  [
-    { value => $Rules::AUTH, label => 'auth' },
-    { value => $Rules::ADMIN, label => 'admin' },
-  ],
+  options_method => \&options_rule_classes,
   default => 'auth',
   );
 has_field 'description' =>
@@ -280,6 +276,27 @@ sub options_connection {
         options => \@groups,
        },
       ];
+}
+
+=head2 options_rule_classes
+
+Populate the 'class' field of a rule based on the available rule classes for a specific authentication source.
+
+=cut
+
+sub options_rule_classes {
+    my $self = shift;
+
+    my $classname = 'pf::Authentication::Source::' . $self->form->source_type . 'Source';
+    eval "require $classname";
+    $self->form->ctx->log->error($@) if $@;
+
+    my @options;
+    foreach ( @{$classname->available_rule_classes} ) {
+        push( @options, { value => $_, label => $_ } );
+    }
+
+    return \@options;
 }
 
 =head2 operators
