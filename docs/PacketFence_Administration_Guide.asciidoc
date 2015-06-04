@@ -516,6 +516,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * RADIUS
 * SMS
 * Sponsored Email
+* Twitter (OAuth 2)
 * Windows Live (OAuth 2)
 
 Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Users -> Sources* section. Alternatively (but not recommended), authentication sources, rules, conditions and actions can be configured from `conf/authentication.conf`.
@@ -1678,7 +1679,7 @@ taggedVlan::
 OAuth2 Authentication
 ~~~~~~~~~~~~~~~~~~~~~
 
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live or Github account.
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter or Github account.
 
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
@@ -1745,6 +1746,17 @@ Once you have your information, you need to configure the OAuth2 provider. This 
 Moreover, don't forget to add LinkedIn as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 Also, LinkedIn requires a 'state' parameter for the authorization URL. If you modify it, make sure to add it at the end of your URL.
+
+Twitter
+^^^^^^^
+To use Twitter, you also need an API code and a secret key which Twitter calls _consumer key_ and _consumer secret_. Obtain this information by creating an new application from your https://apps.twitter.com/[Twitter Apps Management page].  When you create your App, make sure you specify the following as the _Callback URL_
+https://YOUR_PORTAL_HOSTNAME/oauth2/twitter
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add Twitter as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 Windows Live
 ^^^^^^^^^^^^
