@@ -42,7 +42,7 @@ CentOS/RHEL:
 Step2: Configuring the PKI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Inverse-PKI Configuration
+PacketFence-PKI Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 NOTE: This following configuration will allow you to generate certificate for an EAP-TLS configuration, if you want to use the PKI for another purpose you will have to find the Key Usage/Extended Key Usage necessary.
