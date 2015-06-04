@@ -1,9 +1,1 @@
-<ul class="nav nav-tabs">
-    <li class="active" ><a href="#settings" data-toggle="tab">Settings</a></li>
-    <li><a href="#signing" data-toggle="tab">Signing</a></li>
-</ul>
-
-<div class="tab-content">
-    <div id="settings" class="tab-pane fade in active">[% form.block('definition').render %]</div>
-    <div id="signing" class="tab-pane fade">[% form.block('signing').render %]</div>
-</div>
+[% form.block('definition').render %]
