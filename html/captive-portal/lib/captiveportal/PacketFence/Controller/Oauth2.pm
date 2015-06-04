@@ -98,7 +98,7 @@ sub oauth2_client {
         if ($source) {
             # Twitter source is special, we need our homemade lib
             # that's included in the source
-            if($type eq 'Twitter'){
+            if ($type eq 'Twitter'){
                 return $source;
             }
 
