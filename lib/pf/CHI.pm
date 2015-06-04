@@ -18,7 +18,7 @@ use base qw(CHI);
 use CHI::Driver::Memcached;
 use CHI::Driver::RawMemory;
 use CHI::Driver::File;
-use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver.*::Test::|FastMmap)/;
+use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver::.*Test|FastMmap)/;
 use Cache::Memcached;
 use Clone();
 use pf::file_paths;
