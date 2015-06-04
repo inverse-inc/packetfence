@@ -33,7 +33,7 @@ The template to use for profile
 
 =cut
 
-has profile_template => (is => 'rw', default => sub { "profile.xml" });
+has profile_template => (is => 'rw', default => sub { "windows-profile.xml" });
 
 =head1 AUTHOR
 

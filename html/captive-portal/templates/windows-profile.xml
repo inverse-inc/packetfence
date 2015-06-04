@@ -23,10 +23,8 @@
                                 <array>
                                     <string>[% server_cn %]</string>
                                 </array>
-                                [% IF for_windows %]
                                 <key>UserName</key>
                                 <string>[% username %]</string>
-                                [% END %]
                         </dict>
                         [% END %]
                         <key>EncryptionType</key>
@@ -65,13 +63,7 @@
                         <key>PayloadCertificateFileName</key>
                         <string>[% cert_cn %]</string>
                         <key>PayloadContent</key>
-                        [% IF for_windows %]
                         <string>[% cert_content %]</string>
-                        [% ELSE %]
-                        <data>
-                        [% cert_content %]
-                        </data>
-                        [% END %]
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
@@ -93,11 +85,7 @@
                         <key>PayloadCertificateFileName</key>
                         <string>[% ca_cn %]</string>
                         <key>PayloadContent</key>
-                        [% IF for_windows %]
                         <string>[% ca_content %]</string>
-                        [% ELSE %]
-                        <data>[% ca_content %]</data>
-                        [% END %]
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
