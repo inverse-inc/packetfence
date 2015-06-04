@@ -30,6 +30,14 @@ has_field 'id' =>
              help => 'The unique id of the PKI provider'},
   );
 
+has_field 'type' =>
+  (
+   type => 'Hidden',
+   label => 'PKI Provider type',
+   required => 1,
+  );
+
+
 has_field 'host' =>
   (
    type => 'Text',
@@ -118,7 +126,7 @@ has_field 'cn_attribute' =>
 has_field 'server_cert_path' =>
   (
    type => 'Text',
-   tags => { after_element => \&help, 
+   tags => { after_element => \&help,
              help => 'Path of the RADIUS server authentication certificate' },
   );
 
@@ -135,7 +143,7 @@ has_field 'revoke_on_unregistration' =>
 
 has_block definition=>
   (
-    render_list => [qw( proto host port username password profile country state organisation cn_attribute revoke_on_unregistration ca_cert_path server_cert_path)],
+    render_list => [qw(type proto host port username password profile country state organisation cn_attribute revoke_on_unregistration ca_cert_path server_cert_path)],
   );
 
 =head1 COPYRIGHT
