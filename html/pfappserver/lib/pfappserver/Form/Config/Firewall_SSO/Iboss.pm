@@ -42,7 +42,7 @@ has_field 'port' =>
    label => 'Port of the service',
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },
-    default => 443,
+    default => 8015,
   );
 has_field 'type' =>
   (
