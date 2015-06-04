@@ -353,6 +353,7 @@ sub list_namespaces {
         {   wanted => sub {
                 my $module = $_;
                 return if $module eq $namespace_dir;
+                return unless $module =~ /\.pm$/;
                 $module =~ s/$namespace_dir\///g;
                 $module =~ s/\.pm$//g;
                 $module =~ s/\//::/g;
