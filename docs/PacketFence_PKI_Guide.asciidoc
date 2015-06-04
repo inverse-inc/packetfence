@@ -14,17 +14,19 @@ This guide has been created to give a quick start to install the Inverse PKI in 
 Assumptions
 -----------
 
-* You have at least one server with a fresh install of PacketFence 5+
+* You have at least one server with PacketFence 5+
 * The server already have a switch with an 802.1X connection working
-* RADIUS is fonctionnal for PEAP, EAP-TLS with your own certificate
+* Packetfence RADIUS server is working in your environnement
 
 Installation
 ------------
 
+NOTE: For this guide, PF management IP is 192.168.1.5.
+
 Step 1: Install the PKI
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: Packetfence-PKI is avialable on the Packetfence repo as the package packetfence-pki. This is avialable for CentOS6 or Debian7.
+NOTE: Packetfence-PKI is available on the Packetfence repo as the package packetfence-pki. This is available for CentOS6/7 or Debian7/8.
 
 Installing 
 ^^^^^^^^^^
@@ -36,8 +38,8 @@ Use the following command matching your OS.
 Debian/Ubuntu:
  # sudo apt-get install packetfence-pki
 
-CentOS/REHL:
- # yum install packetfence-pki
+CentOS/RHEL:
+ # yum install packetfence-pki --enablerepo=packetfence
 
 Step2: Configuring the PKI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -47,35 +49,36 @@ Inverse-PKI Configuration
 
 NOTE: This following configuration will allow you to generate certificate for an EAP-TLS configuration, if you want to use the PKI for another purpose you will have to find the Key Usage/Extended Key Usage necessary.
 
-Now that your PKI is installed, you need to configure it. A wizard is avialable @packetfence_management_ip:9191/pki
+Now that your PKI is installed, you need to configure it.
 
 PKI Side
 ^^^^^^^^
 
 You will first need to log into the PKI:
 
-* Address: https://@server_ip:9191
+* Address: https://192.168.1.5:9191
 * Login: admin
 * Password: packetfence
 
-After you logged in there is few steps to follow to have the PKI working for an EAP-TLS configuration with Packetfence. You will need to create the following items:
+After you logged in there is few steps to follow to have the PKI working for an EAP-TLS configuration with Packetfence. You will need to create the following items: 
 
 * Certificate of Authority
 * Profiles(for each purpose, ie Server/Client auth are 2 different profiles)
 * Manual certificate generation
 
-To help you out trhough the configuration you just have to follow the wizard step to add a new CA.
+To help you out through the configuration, the first login will ask you to create a CA.
 
 Certificate of Authority
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
  
 * Key type, size and digest: we advise to use the following RSA, 2048, sha1
-* Basic Constraints: CA:TRUE
 * Key Usage and Extended Key Usage can be filled if necessary, more informations about Key Usage and Extended Key Usage here: rfc5280 part 4.2.1.3 and 4.2.1.12
 * Days: Number of validity days, ie 3y = 1068
 
+IMPORTANT: Remember to not but a too early validity on your CA, since if it is expire all of the certificate generate by this CA won't be valid anymore.
+
 Profile
--------
+^^^^^^^
 
 Creation of a profile:
 
@@ -89,20 +92,27 @@ Creation of a profile:
 * The P12 mail setup is not mandatory but advise if you need to manually send certificate by email. This will format the mail send with your certificate. 
 
 RADIUS server auth cert
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Generate a certificate from the profile you defined as the server authentication Profile. This certificate will need to be installed and setup as the certificate for authenticate RADIUS. Also it will be necessary to install and trust the CA on Packetfence.
 
 Client auth cert
-----------------
+^^^^^^^^^^^^^^^^
 
 Generate a certificate from the profile you defined as the client authentication Profile, if you generate this certificate manually you will need to use the 'download certificate' or 'send certificate' button. When the certificate is generate via Packetfence, the certificate is automatically integrate into the profile to setup the WiFi network.
+
+Revokation process
+^^^^^^^^^^^^^^^^^^
+
+We have two way to check if a certificate is revoke, you can either use OCSP to interegote the PKI if the certificate is still valid, or use the revokation lists(CRL). However since the OCSP is implemented we advise you to use this method.
+OSCP is scalable, his cons would be that we have to send 1 request by certificate to verify that this certificate is still valid.
+With the CRL everytime the CRL is update the router/server has to download again the CRL. 
 
 Packetfence Side
 ^^^^^^^^^^^^^^^^
 
 packetfence-pki
----------------
+^^^^^^^^^^^^^^^
 
 To work with our PKI in packetfence you will need to addi the PKI in the PKI_Provider section.
 
