@@ -23,6 +23,7 @@ use pfconfig::namespaces::config;
 use pf::file_paths;
 use pf::constants::authentication;
 use pf::Authentication::constants;
+use pf::Authentication::Action;
 use pf::Authentication::Condition;
 use pf::Authentication::Rule;
 use pf::constants::authentication;
@@ -85,13 +86,21 @@ sub build_child {
                         $current_rule->add_action(
                             pf::Authentication::Action->new(
                                 {   type  => $type,
-                                    value => $value
+                                    value => $value,
+                                    class => pf::Authentication::Action->getRuleClassForAction($type),
                                 }
                             )
                         );
                     }
                     else {
-                        $current_rule->add_action( pf::Authentication::Action->new( { type => $type } ) );
+                        $current_rule->add_action(
+                            pf::Authentication::Action->new(
+                                { 
+                                    type    => $type,
+                                    class   => pf::Authentication::Action->getRuleClassForAction($type),
+                                }
+                            )
+                        );
                     }
 
                 }

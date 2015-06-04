@@ -81,36 +81,51 @@ sub match {
 
         my $access_duration = $result->{'access_duration'};
         if (defined $access_duration) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_ACCESS_DURATION,
-                                                        value => $access_duration});
+            $action = pf::Authentication::Action->new({
+                type    => $Actions::SET_ACCESS_DURATION,
+                value   => $access_duration,
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ACCESS_DURATION),
+            });
             push(@actions, $action);
         }
 
         my $access_level = $result->{'access_level'};
         if (defined $access_level ) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_ACCESS_LEVEL,
-                                                        value => $access_level});
+            $action = pf::Authentication::Action->new({
+                type    => $Actions::SET_ACCESS_LEVEL,
+                value   => $access_level,
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ACCESS_LEVEL),
+            });
             push(@actions, $action);
         }
 
         my $sponsor = $result->{'sponsor'};
         if ($sponsor == 1) {
-            $action =  pf::Authentication::Action->new({type => $Actions::MARK_AS_SPONSOR,
-                                                        value => 1});
+            $action = pf::Authentication::Action->new({
+                type    => $Actions::MARK_AS_SPONSOR,
+                value   => 1,
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::MARK_AS_SPONSOR),
+            });
             push(@actions, $action);
         }
 
         my $unregdate = $result->{'unregdate'};
         if (defined $unregdate) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE,
-                                                        value => $unregdate});
+            $action = pf::Authentication::Action->new({
+                type    => $Actions::SET_UNREG_DATE,
+                value   => $unregdate,
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_UNREG_DATE),
+            });
             push(@actions, $action);
         }
 
         my $category = $result->{'category'};
         if (defined $category) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_ROLE,
-                                                        value => $category});
+            $action = pf::Authentication::Action->new({
+                type    => $Actions::SET_ROLE,
+                value   => $category,
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ROLE),
+            });
             push(@actions, $action);
         }
 

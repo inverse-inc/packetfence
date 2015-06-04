@@ -35,15 +35,18 @@ is_deeply(
     [
         pf::Authentication::Action->new({
             'value' => 'guest',
-            'type' => 'set_role'
+            'type'  => 'set_role',
+            'class' => pf::Authentication::Action->getRuleClassForAction('set_role'),
         }),
         pf::Authentication::Action->new({
             'value' => '1D',
-            'type' => 'set_access_duration'
+            'type'  => 'set_access_duration',
+            'class' => pf::Authentication::Action->getRuleClassForAction('set_access_duration'),
         }),
         pf::Authentication::Action->new({
             'value' => '1',
-            'type' => 'mark_as_sponsor'
+            'type'  => 'mark_as_sponsor',
+            'class' => pf::Authentication::Action->getRuleClassForAction('mark_as_sponsor'),
         })
     ],
     "match all email actions"
@@ -55,7 +58,8 @@ is_deeply(
     [
         pf::Authentication::Action->new({
             'value' => 'User Manager',
-            'type' => 'set_access_level'
+            'type'  => 'set_access_level',
+            'class' => pf::Authentication::Action->getRuleClassForAction('set_access_level'),
         })
     ],
     "match htpasswd1 by username"
