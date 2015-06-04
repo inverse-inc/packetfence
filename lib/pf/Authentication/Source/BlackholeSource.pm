@@ -46,6 +46,16 @@ sub available_attributes {
   return [@$super_attributes, @$own_attributes];
 }
 
+=head2 available_rule_classes
+
+Blackhole sources only allow 'authentication' rules
+
+=cut
+
+sub available_rule_classes {
+    return [ grep { $_ ne $Rules::ADMIN } @Rules::CLASSES ];
+}
+
 =head2 available_actions
 
 For a Blackhole source, only the authentication actions should be available

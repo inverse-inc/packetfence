@@ -18,6 +18,16 @@ has '+class' => (default => 'abstact');
 has '+type' => (default => 'OAuth');
 has '+unique' => (default => 1);
 
+=head2 available_rule_classes
+
+OAuth sources only allow 'authentication' rules
+
+=cut
+
+sub available_rule_classes {
+    return [ grep { $_ ne $Rules::ADMIN } @Rules::CLASSES ];
+}
+
 =head2 available_actions
 
 For an OAuth source, only the authentication actions should be available

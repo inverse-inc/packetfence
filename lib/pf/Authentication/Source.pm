@@ -41,6 +41,16 @@ sub available_attributes {
   return $self->common_attributes();
 }
 
+=head2 available_rule_classes
+
+Return all possible rule classes for a source. This method can be overloaded in a subclass to limit the available rule classes.
+
+=cut
+
+sub available_rule_classes {
+    return \@Rules::CLASSES;
+}
+
 =head2 available_actions
 
 Return all possible actions for a source. This method can be overloaded in a subclass to limit the available actions.
