@@ -17,7 +17,10 @@ use pf::Authentication::constants;
 
 # Form select options
 
-# Form fields
+=head2 id
+
+=cut
+
 has_field 'id' => (
     type     => 'Text',
     label    => 'Name',
@@ -26,47 +29,59 @@ has_field 'id' => (
     apply    => [{check => qr/^\S+$/, message => 'The name must not contain spaces.'}],
 );
 
+=head2 description
+
+=cut
+
 has_field 'description' => (
     type     => 'Text',
     label    => 'Description',
     required => 0,
 );
 
-=head2 name
-
-=cut
-
-has_field 'name' => (type => 'Text',);
-
 =head2 price
 
 =cut
 
-has_field 'price' => (type => 'Text',);
+has_field 'price' => (
+    type => 'Text',
+    required => 1,
+);
 
 =head2 timeout
 
 =cut
 
-has_field 'timeout' => (type => 'Text');
+has_field 'timeout' => (
+    type => 'Text',
+    required => 1,
+);
 
 =head2 category
 
 =cut
 
-has_field 'category' => (type => 'Text',);
-
-=head2 description
-
-=cut
-
-has_field 'description' => (type => 'Text',);
+has_field 'category' => (
+    type => 'Text',
+    required => 1,
+);
 
 =head2 destination_url
 
 =cut
 
-has_field 'destination_url' => (type => 'Text',);
+has_field 'destination_url' => (
+    type => 'Text',
+    required => 1,
+);
+
+=head2 definition
+
+=cut
+
+has_block 'definition' => (
+    render_list => [qw(id description price timeout category destination_url)]
+);
 
 =head1 COPYRIGHT
 
