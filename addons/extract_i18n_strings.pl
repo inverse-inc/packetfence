@@ -365,7 +365,8 @@ sub extract_modules {
         const($type, 'available_attributes', \@values) if (@values);
     }
 
-    const('pf::Authentication::constants', 'Actions', \@Actions::ACTIONS);
+    @values = map( { @$_ } values %Actions::ACTIONS);
+    const('pf::Authentication::constants', 'Actions', \@values);
 
     @values = map { @$_ } values %Conditions::OPERATORS;
     const('pf::Authentication::constants', 'Conditions', \@values);

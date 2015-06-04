@@ -50,7 +50,8 @@ Defined in pf::Authentication::constants.
 =cut
 
 sub available_actions {
-    return \@Actions::ACTIONS;
+    my @actions = map( { @$_ } values %Actions::ACTIONS);
+    return \@actions;
 }
 
 =head2 common_attributes

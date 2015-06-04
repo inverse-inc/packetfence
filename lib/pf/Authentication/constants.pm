@@ -27,16 +27,27 @@ package Rules;
 Readonly::Scalar our $ANY => 'any';
 Readonly::Scalar our $ALL => 'all';
 
-=item Class
+=item AUTH, ADMIN
 
-The class of a rule in an authentication source.
-
-Also used as class for actions in a rule.
+Available classes for a rule
 
 =cut
 
-Readonly::Scalar our $AUTH => 'auth';
-Readonly::Scalar our $ADMIN => 'admin';
+Readonly::Scalar our $AUTH => 'authentication';
+Readonly::Scalar our $ADMIN => 'administration';
+
+=item CLASSES
+
+List of available classes
+
+=cut
+
+Readonly::Array our @CLASSES => (
+    $AUTH,
+    $ADMIN,
+);
+
+=back
 
 =head1 Conditions
 
@@ -122,14 +133,10 @@ List of available actions
 
 =cut
 
-Readonly::Array our @ACTIONS =>
-  (
-   $SET_ROLE,
-   $SET_ACCESS_DURATION,
-   $SET_UNREG_DATE,
-   $SET_ACCESS_LEVEL,
-   $MARK_AS_SPONSOR,
-  );
+Readonly::Hash our %ACTIONS => (
+    $Rules::AUTH    => [ $SET_ROLE, $SET_ACCESS_DURATION, $SET_UNREG_DATE ],
+    $Rules::ADMIN   => [ $SET_ACCESS_LEVEL, $MARK_AS_SPONSOR ],
+);
 
 Readonly::Hash our %ALLOWED_ACTIONS => (
     $MARK_AS_SPONSOR  => {$MARK_AS_SPONSOR  => 1},
