@@ -27,6 +27,7 @@ Enhancements
 
 Bug Fixes
 +++++++++
+* Allow the usage of an external monitoring database when using an Active/Active cluster
 
 Version 5.1.0 released on 2015-05-25
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

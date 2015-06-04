@@ -19,6 +19,18 @@ Once the additionnal steps are completed, make sure you restart packetfence-conf
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Database monitoring host
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you are using an Active/Active cluster, you will need to adjust the monitoring database host to point to your database as it is not forced anymore.
+
+In `conf/pf.conf` :
+
+----
+[monitoring]
+db_host=127.0.0.1
+----
+
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
 

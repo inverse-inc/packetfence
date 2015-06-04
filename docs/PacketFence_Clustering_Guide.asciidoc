@@ -320,6 +320,9 @@ In `conf/pf.conf` :
 ----
 [database]
 host=127.0.0.1
+
+[monitoring]
+db_host=127.0.0.1
 ....
 ----
 
