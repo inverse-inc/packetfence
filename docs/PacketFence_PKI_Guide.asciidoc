@@ -15,7 +15,7 @@ Assumptions
 -----------
 
 * You have at least one server with PacketFence 5.2+
-* The server already have a properly configured switch with with 802.1X support
+* The server already have a properly configured switch with 802.1X support
 * PacketFence RADIUS server is working in your environnement
 
 Installation
