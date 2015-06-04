@@ -57,7 +57,7 @@ sub available_attributes {
 
 =head2 available_actions
 
-For a SMS source, we don't allow the B<mark as sponsor> action.
+For a SMS source, only the authentication actions should be available
 
 =cut
 

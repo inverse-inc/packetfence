@@ -38,7 +38,7 @@ sub available_attributes {
 
 =head2 available_actions
 
-For an Email source, we don't allow the B<mark as sponsor> action.
+For an Email source, only the authentication actions should be available
 
 =cut
 
