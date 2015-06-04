@@ -101,6 +101,9 @@ sub build_child {
                 elsif ( $parameter =~ m/description/ ) {
                     $current_rule->{'description'} = $cfg{$rule_id}{$parameter};
                 }
+                elsif ( $parameter =~ m/class/ ) {
+                    $current_rule->{'class'} = $cfg{$rule_id}{$parameter};
+                }
             }
 
             $current_source->add_rule($current_rule);

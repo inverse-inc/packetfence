@@ -145,6 +145,7 @@ sub writeAuthenticationConfigFile {
             # Since 'description' is defined in the parent section, set the paramater through the object
             # for proper cfgtialization
             $cached_authentication_config->newval($rule_id, 'description', $rule->{'description'});
+            $cached_authentication_config->newval($rule_id, 'class', $rule->{'class'});
             $cfg{$rule_id}{match} = $rule->{'match'};
 
             my $index = 0;
