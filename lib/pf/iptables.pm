@@ -97,7 +97,7 @@ sub iptables_generate {
         'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
         'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '',
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
-        'domain_postrouting' => '',
+        'domain_postrouting' => '','mangle_postrouting_inline' => '',
     );
 
     # global substitution variables
