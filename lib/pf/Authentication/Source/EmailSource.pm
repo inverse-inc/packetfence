@@ -43,8 +43,8 @@ For an Email source, we don't allow the B<mark as sponsor> action.
 =cut
 
 sub available_actions {
-    my @actions = map( { @$_ } values %Actions::ACTIONS);
-    return [ grep { $_ ne $Actions::MARK_AS_SPONSOR } @actions ];
+    my @actions = map( { @$_ } $Actions::ACTIONS{$Rules::AUTH});
+    return \@actions;
 }
 
 =head2 match_in_subclass
