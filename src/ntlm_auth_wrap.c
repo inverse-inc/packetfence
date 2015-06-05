@@ -163,9 +163,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 		if (state->arg_num >= 32)
 			/* Way too many arguments. */
 			argp_usage(state);
-
-		arguments->args[state->arg_num] = arg;
-
 		break;
 
 	case ARGP_KEY_END:
@@ -194,20 +191,24 @@ log_result(int argc, char **argv, const struct arguments args, int status,
 	asprintf(&log_msg, "%s", args.binary);
 
 	// concatenate the command with all argv args separated by sep
-	for (int i = 1; i < argc; i++) {
+    int i = 1; 
+    while (i < argc ) {
 		// split the argument on = and check the first part to reject excluded args.
 		if (!args.insecure)
 			if ((strncmp
 			     (argv[i], "--password", strlen("--password")) == 0)
 			    ||
 			    (strncmp
-			     (argv[i], "--challenge",
-			      strlen("--challenge")) == 0))
-				continue;
+			     (argv[i], "--challenge", strlen("--challenge")) == 0)) 
+            { 
+			    i=i+2; // will skip the next argument
+                continue;
+            }
 
 		char *tmpstr = log_msg;
 		log_msg = NULL;
 		asprintf(&log_msg, "%s %s ", tmpstr, argv[i]);
+        i++;
 	}
 	syslog(args.level, "%s time: %g ms, status: %i, exiting pid: %i",
 	       log_msg, elapsed, WEXITSTATUS(status), ppid);
@@ -289,8 +290,9 @@ log_timeouts(int argc, char **argv, const struct arguments args,
 static void termhandler(int sig)
 {
 	if (sig == SIGTERM) {
+        fprintf(stderr, "termhandler called!\n");
 		termflag = 1;
-		kill(getpid(), SIGKILL);
+		exit(1);
 	}
 }
 
@@ -319,12 +321,13 @@ char **argv, **envp;
 	gettimeofday(&t1, NULL);
 
 	// wrapping function around log_timeouts to get around atexit's limitations, i.e. no arguments allowed.
-	void timeout() {
+	void timedout() {
+        fprintf(stderr, "timeout called!\n");
 		log_timeouts(argc, argv, arguments, t1);
 	}
 	// set function to handle TERM due to child timing out
 	int ret;
-	if ((ret = atexit(timeout)) != 0) {
+	if ((ret = atexit(timedout)) != 0) {
 		fprintf(stderr,
 			"Error: could not register atexit function. Exiting.");
 		exit(ret);
@@ -339,28 +342,33 @@ char **argv, **envp;
 			"Error: could not register TERM signal handler. Exiting.");
 		exit(1);
 	}
+
+    // Find the -- separator if any and reset the argv accordingly
+    // so it does not get passed to the execed program.
+    int opt_end = 0;
+    for (int i = 1; i < argc; i++) {
+        if ((strncmp(argv[i], "--", strlen("--"))) == 0) {
+            opt_end = i;
+            break;
+        }
+    }
+    if (opt_end) { 
+        // Here we move the pointer so that argv starts at opt_end 
+        // We also need to change argc to reflect discarding the wrapper arguments.
+        // This can have consequences so pay attention.
+        argv += opt_end;
+        argv[0] = arguments.binary;
+        argc = argc - opt_end;
+    }
+
 	// Fork a process, exec it and then wait for the exit.
 	pid_t pid, ppid;
 	ppid = getpid();
-
 	int status;
 	if ((pid = fork()) < 0) {
 		perror(argv[0]);
 		exit(1);
 	} else if (pid == 0) {	// child
-		// Find the -- separator if any and reset the argv accordingly
-		// so it does not get passed to the execed program.
-		int opt_end = 0;
-		for (int i = 1; i < argc; i++) {
-			if ((strncmp(argv[i], "--", strlen("--"))) == 0) {
-				opt_end = i;
-				break;
-			}
-		}
-		if (opt_end)
-			argv += opt_end;
-
-		argv[0] = arguments.binary;
 		execve(arguments.binary, argv, envp);
 		perror(argv[0]);
 		exit(127);
