@@ -3551,6 +3551,8 @@ Next go in *Wireless->Configure->Splash page*. Select the *Custom splash URL* an
 
 image::docs/images/meraki-splash-config.png[scaledwidth="100%",alt="Splash page configuration"]
 
+NOTE: Even if you enabled the bridge mode on the access point, it will still send a NATed IP address during the initial HTTP request. To workaround this you will need to forward the DHCP traffic of the network your nodes are connected to so PacketFence has the proper IP information of the devices.
+
 Mikrotik
 ~~~~~~~~
 

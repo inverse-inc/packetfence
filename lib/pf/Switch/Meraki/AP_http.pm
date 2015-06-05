@@ -20,6 +20,11 @@ Developed and tested on a MR12 access point
 There is currently no way to reevaluate the access of the device.
 There is neither an API access or a RADIUS disconnect that can be sent either to the AP or to the controller.
 
+=head2 client IP cannot be computed from parseUrl
+
+The Meraki sends a NATed IP address in the URL even though the client is bridged.
+The only workaround is to have the DHCP traffic forwarded to PacketFence.
+
 =cut
 
 use strict;
