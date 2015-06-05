@@ -291,6 +291,17 @@ sub getExclusiveSources {
     return $self->getSourcesByClass( 'exclusive' );
 }
 
+=head2 getBillingSources
+
+Return the billing authentication sources objects for the profile
+
+=cut
+
+sub getBillingSources {
+    my ($self) = @_;
+    return $self->getSourcesByClass( 'billing' );
+}
+
 =item getSourcesByClass
 
 Returns the sources for that match the class
