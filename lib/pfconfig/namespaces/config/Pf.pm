@@ -117,7 +117,8 @@ sub build_child {
     while( my( $key, $value ) = each %Doc_Config ){
         if(defined($value->{type}) && $value->{type} eq "merged_list"){
             my ($category, $attribute) = split /\./, $key;
-            $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute}), split( /\s*,\s*/, $Config{$category}{$attribute}) ];
+            my $additionnal = $Config{$category}{$attribute} || '';
+            $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute}), split( /\s*,\s*/, $additionnal ) ];
             $Config{$category}{$attribute} = [ uniq @{$Config{$category}{$attribute}} ];
         }
     }

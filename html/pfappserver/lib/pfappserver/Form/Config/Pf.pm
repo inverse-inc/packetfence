@@ -78,6 +78,7 @@ sub field_list {
                 last;
             };
             $type eq 'merged_list' && do {
+                delete $field->{element_attr}->{placeholder};
                 $field->{tags}  = { before_element => \&defaults_list,
               defaults => $defaults->{$name} },
 
