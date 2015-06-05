@@ -37,9 +37,6 @@ Perform a xml api request based on the registered status of the node and his rol
 
 =cut
 
-my $port = '8015';
-my $dc = 'Packetfence';
-my $key = 'XS832CF2A';
 my $ua = LWP::UserAgent->new;
 
 sub action {
@@ -60,20 +57,20 @@ sub action {
             (grep $_ eq $node_info->{'category'}, @categories)
         ){
             # Create a request
-            my $req = HTTP::Request->new(GET => "http://$firewall_conf:$port/nacAgent?action=logon&user=$username&dc=$dc&key=$ConfigFirewallSSO{$firewall_conf}->{'password'}&ip=$ip&cn=$username&g=$node_info->{'category'}");
+            my $req = HTTP::Request->new(GET => "http://$firewall_conf:$ConfigFirewallSSO{$firewall_conf}->{'port'}/nacAgent?action=login&user=$username&dc=$ConfigFirewallSSO{$firewall_conf}->{'nac_name'}&key=$ConfigFirewallSSO{$firewall_conf}->{'password'}&ip=$ip&cn=$username&g=$node_info->{'category'}");
             #print $req;
             $req->content_type('application/x-www-form-urlencoded');
             $req->content('query=libwww-perl&mode=dist');
             
             # Pass request to the user agent and get a response back
             my $res = $ua->request($req);
-            
+
             # Check the outcome of the response
             if ($res->is_success) {
                 $logger->info("Username $username with node $mac is registered and authorized in the Iboss");
             }
             else {
-                $logger->warn("Username $username with node $mac failed to register and authorized in the Iboss");
+                $logger->warn("Username $username with node $mac failed to register and not authorized in the Iboss");
             }
     } 
     elsif ($method eq 'Stop') {
@@ -90,7 +87,7 @@ sub action {
             (grep $_ eq $node_info->{'category'}, @categories)
         ){
             # Create a request
-            my $req = HTTP::Request->new(GET => "http://$firewall_conf:$port/nacAgent?action=logout&user=$username&dc=$dc&key=$ConfigFirewallSSO{$firewall_conf}->{'password'}&ip=$ip&cn=$username&g=$node_info->{'category'}");
+            my $req = HTTP::Request->new(GET => "http://$firewall_conf:$ConfigFirewallSSO{$firewall_conf}->{'port'}/nacAgent?action=logout&user=$username&dc=$ConfigFirewallSSO{$firewall_conf}->{'nac_name'}&key=$ConfigFirewallSSO{$firewall_conf}->{'password'}&ip=$ip&cn=$username&g=$node_info->{'category'}");
             #print $req;
             $req->content_type('application/x-www-form-urlencoded');
             $req->content('query=libwww-perl&mode=dist');
@@ -103,6 +100,7 @@ sub action {
                 $logger->info("Username $username with node $mac is unregistered and logout from the Iboss");
             }
             else {
+            Dumper('Logon: $req');
                 $logger->warn("Username $username with node $mac failed to logout from the Iboss");
             }
          }

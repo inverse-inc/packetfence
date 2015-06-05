@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Firewall_SSO::Iboss;
 
 =head1 NAME
 
-pfappserver::Form::Config::Firewall_SSO::Iboss - Web form for a floating device
+pfappserver::Form::Config::Firewall_SSO::Iboss - Web form for a Iboss device
 
 =head1 DESCRIPTION
 
-Form definition to create or update an Iboss.
+Form definition to create or update an Iboss device.
 
 =cut
 
@@ -32,8 +32,9 @@ has_field 'password' =>
   (
    type => 'Password',
    label => 'Secret or Key',
-   default => 'XS832CF2A',
    required => 1,
+   default => 'XS832CF2A',
+   password => 0,
    messages => { required => 'Change the default key is you have it' },
   );
 has_field 'port' =>
@@ -43,6 +44,14 @@ has_field 'port' =>
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },
     default => 8015,
+  );
+has_field 'nac_name' =>
+  (
+   type => 'Text',
+   label => 'NAC Name',
+   tags => { after_element => \&help,
+             help => 'Should match the NAC name from the Iboss configuration' },
+    default => 'Packetfence',
   );
 has_field 'type' =>
   (
@@ -69,7 +78,7 @@ has_field 'uid' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port categories) ],
+   render_list => [ qw(id type password port nac_name categories) ],
   );
 
 has_field 'uid' =>
