@@ -1,5 +1,5 @@
 ########################################################################################
-#Powershell script to unregister locked Active Directory account based on the UserName.#
+#Powershell script to unregister disabled Active Directory account based on the UserName.#
 ########################################################################################
 
 Get-EventLog -LogName Security -InstanceId 4726 |
