@@ -96,7 +96,12 @@ Information about Key Usage and Extended Key Usage are available from RFC5280, p
 *** P12 smtp server: 127.0.0.1
 *** Tick P12 mail password
 
-For the header, from, subject and footer you can configure that as you please, to make the mail look like as you want it.
+For the header, from, subject and footer this part is the customization of the mail, it is configurable as you want it for your company. An example of value would be:
+
+* Form: pki@packetfence.pki
+* Subject: Certificate for EAP-TLS connection
+* Header: Below you will find your certificate and it's password to install it.
+* Footer: This email has been generate automatically, please do not reply.
 
 RADIUS server authentication certificate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
