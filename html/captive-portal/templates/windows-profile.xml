@@ -15,14 +15,6 @@
                                 <array>
                                         <integer>[% provisioner.eap_type %]</integer>
                                 </array>
-                                <key>PayloadCertificateAnchorUUID</key>
-                                <array>
-                                        <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
-                                </array>
-                                <key>TLSTrustedServerNames</key>
-                                <array>
-                                    <string>[% server_cn %]</string>
-                                </array>
                                 <key>UserName</key>
                                 <string>[% username %]</string>
                         </dict>
@@ -35,22 +27,6 @@
                         [% ELSE %]
                         <true/>
                         [% END %]
-                        <key>PayloadDescription</key>
-                        <string>Configures wireless connectivity settings.</string>
-                        <key>PayloadDisplayName</key>
-                        <string>Wi-Fi ([% provisioner.ssid %])</string>
-                        <key>PayloadIdentifier</key>
-                        <string>[% reverse_fqdn %]</string>
-                        <key>PayloadOrganization</key>
-                        <string>[% provisioner.company %]</string>
-                        <key>PayloadType</key>
-                        <string>com.apple.wifi.managed</string>
-                        <key>PayloadUUID</key>
-                        <string>247F8812-0419-4548-9389-EA76325DEFC8</string>
-                        <key>PayloadVersion</key>
-                        <integer>1</integer>
-                        <key>PayloadCertificateUUID</key>
-                        <string>506CD34F-0AD1-4421-9F98-BA19DC4E0253</string>
                         <key>SSID_STR</key>
                         <string>[% provisioner.ssid %]</string>
                         [% IF provisioner.eap_type.undefined %]
@@ -64,20 +40,12 @@
                         <string>[% cert_cn %]</string>
                         <key>PayloadContent</key>
                         <string>[% cert_content %]</string>
-                        <key>PayloadDescription</key>
-                        <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
                         <string>[% cert_cn %]</string>
                         <key>PayloadIdentifier</key>
                         <string>[% reverse_fqdn %]</string>
-                        <key>PayloadOrganization</key>
-                        <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
                         <string>com.apple.security.pkcs12</string>
-                        <key>PayloadUUID</key>
-                        <string>506CD34F-0AD1-4421-9F98-BA19DC4E0253</string>
-                        <key>PayloadVersion</key>
-                        <integer>1</integer>
                 </dict>
                 [% END %]
                 [% IF provisioner.eap_type.defined and provisioner.eap_type == "13" %]
@@ -86,38 +54,14 @@
                         <string>[% ca_cn %]</string>
                         <key>PayloadContent</key>
                         <string>[% ca_content %]</string>
-                        <key>PayloadDescription</key>
-                        <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
                         <string>[% ca_cn %]</string>
                         <key>PayloadIdentifier</key>
                         <string>[% reverse_fqdn %]</string>
-                        <key>PayloadOrganization</key>
-                        <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
                         <string>com.apple.security.root</string>
-                        <key>PayloadUUID</key>
-                        <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
-                        <key>PayloadVersion</key>
-                        <integer>1</integer>
                 </dict>
                 [% END %]
         </array>
-        <key>PayloadDescription</key>
-        <string>Profile description.</string>
-        <key>PayloadDisplayName</key>
-        <string>[% provisioner.id %]</string>
-        <key>PayloadIdentifier</key>
-        <string>[% reverse_fqdn %]</string>
-        <key>PayloadOrganization</key>
-        <string>[% provisioner.company %]</string>
-        <key>PayloadRemovalDisallowed</key>
-        <false/>
-        <key>PayloadType</key>
-        <string>Configuration</string>
-        <key>PayloadUUID</key>
-        <string>5F3EC12F-570E-48EE-A433-E8DC8E9EC4FE</string>
-        <key>PayloadVersion</key>
-        <integer>1</integer>
 </dict>
 </plist>
