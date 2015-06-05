@@ -116,6 +116,16 @@ document.observe("dom:loaded", function() {
           </div>
           [% END %]
 
+          [% IF billing_sources.size %]
+          <div class="input">
+            [% FOREACH billing IN billing_sources %]
+            [% type = billing.type %]
+            <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
+            <a class="btn disabled" href="/billing/[% billing.id %]">[% i18n("Pay with ${type}") %] <img src="/content/images/[% type %].icon.png"></a>
+            [% END %]
+          </div>
+          [% END %]
+
             [% IF guest_allowed && !null_source -%]
           <div class="input">
             <div class="separator"><div class="or_separator">or</div></div>
