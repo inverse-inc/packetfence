@@ -110,8 +110,8 @@ We have two ways to check if a certificate is valid, you can either use OCSP to 
 OSCP is scalable, his con would be that one request by certificate is send to the PKI to verify if this certificate is still valid.
 With the CRL everytime the CRL is update every equipement capable of having this CRL has to download it again. For security reason we advise to have a small delay on CRL expiration(to avoid using revoked certificate on the network), but this can generate a lot of network traffic. 
 
-PacketFence Side
-^^^^^^^^^^^^^^^^
+Step3: Configuring PacketFence
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PacketFence PKI
 ^^^^^^^^^^^^^^^
@@ -127,7 +127,7 @@ image::docs/images/packetfence-pki-provider2.png [scaledwidth="100%",alt="Packet
 
 Certificate storage on PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+ 
 With the incomming certificate manager in future version of PacketFence, you should do the following before the installation of certificates.
 
  # mkdir /usr/local/pf/conf/ssl/tlscert/
@@ -140,6 +140,18 @@ Place yourself in the folder where CA are created.
 
 Download or send the RADIUS server certificate using the button on the PKI, and copy it into the same folder.
 
+Provisioners configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once your pki provider is configured we will now adapt the provisioner configuration.
+
+Here is an example if how to setup and EAP-TLS connection for Windows/Android/MacOS/iOS
+
+image::docs/images/eaptls-example.png [scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
+
+For MacOS/iOS you have a tab signing available, this tab will make your profile *Trusted* when trying to install on Apple device.
+
+image::docs/images/eaptls-sign-example.png [scaledwidth="100%",alt="Signing provisioner"]
 
 Additionnal information
 -----------------------
