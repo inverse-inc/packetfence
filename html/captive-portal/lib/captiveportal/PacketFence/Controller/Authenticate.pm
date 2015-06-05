@@ -570,6 +570,7 @@ sub showLogin : Private {
       any { is_in_list( $_, $guestModes ) } $SELFREG_MODE_EMAIL,
       $SELFREG_MODE_SMS, $SELFREG_MODE_SPONSOR;
     my @sources = $profile->getInternalSources;
+    my @billing = $profile->getBillingSources;
     my $request = $c->request;
     if ( $c->has_errors ) {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
@@ -588,6 +589,7 @@ sub showLogin : Private {
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
         oauth2_twitter  => is_in_list( $SELFREG_MODE_TWITTER, $guestModes ),
         guest_allowed   => $guest_allowed,
+        billing_sources => \@billing,
     );
 
     # TODO: Handle this differently on rework; for the moment, making sure everything is displayed...
