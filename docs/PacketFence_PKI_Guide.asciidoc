@@ -122,8 +122,24 @@ Click on add a new PKI and select PacketFence PKI.
 
 Follow the instructions below to fill the PacketFence PKI configuration.
 
-image::docs/images/Screenshot PacketFence-PKI 1/2[scaledwidth="100%",alt="SSID creation"]
-image::docs/images/Screenshot PacketFence-PKI 2/2[scaledwidth="100%",alt="SSID creation"]
+image::docs/images/packetfence-pki-provider.png [scaledwidth="100%",alt="PacketFence PKI configuration"]
+image::docs/images/packetfence-pki-provider2.png [scaledwidth="100%",alt="PacketFence PKI configuration"]
+
+Certificate storage on PacketFence
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+With the incomming certificate manager in future version of PacketFence, you should do the following before the installation of certificates.
+
+ # mkdir /usr/local/pf/conf/ssl/tlscert/
+
+Place yourself in the folder where CA are created.
+
+ # cd /usr/local/packetfence-pki/ca/
+ # mv YourCA.pem /usr/local/pf/conf/ssl/tlscert/
+ # mv YourCA.key /usr/local/pf/conf/ssl/tlscert/
+
+Download or send the RADIUS server certificate using the button on the PKI, and copy it into the same folder.
+
 
 Additionnal information
 -----------------------
