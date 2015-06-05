@@ -23,6 +23,7 @@ use pfconfig::log;
 use pf::file_paths;
 use pf::util;
 use JSON;
+use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::config';
 
@@ -111,17 +112,20 @@ sub build_child {
 
     $Config{trapping}{passthroughs} = [ split( /\s*,\s*/, $Config{trapping}{passthroughs} || '' ) ];
 
+    # We're looking for the merged_list configurations and we merge the default value with
+    # the user defined value
     while( my( $key, $value ) = each %Doc_Config ){
         if(defined($value->{type}) && $value->{type} eq "merged_list"){
             my ($category, $attribute) = split /\./, $key;
             $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute}), split( /\s*,\s*/, $Config{$category}{$attribute}) ];
+            $Config{$category}{$attribute} = [ uniq @{$Config{$category}{$attribute}} ];
         }
     }
 
     $Config{network}{dhcp_filter_by_message_types}
         = [ split( /\s*,\s*/, $Config{network}{dhcp_filter_by_message_types} || '' ) ],
 
-        return \%Config;
+    return \%Config;
 
 }
 
