@@ -55,9 +55,7 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my @custom_attributes = @{$Config{advanced}->{custom_ldap_attributes}};
-  my @attributes = (@pf::Authentication::constants::LDAP_ATTRIBUTES, @custom_attributes);
-  @attributes = uniq @attributes;
+  my @attributes = @{$Config{advanced}->{ldap_attributes}};
   my @ldap_attributes = map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @attributes;
 
   # We check if our username attribute is present, if not we add it.

@@ -110,8 +110,6 @@ sub build_child {
         }
     }
     
-    $self->expand_list( $Config{advanced}, qw(custom_ldap_attributes) );
-
     $Config{trapping}{passthroughs} = [ split( /\s*,\s*/, $Config{trapping}{passthroughs} || '' ) ];
 
     # We're looking for the merged_list configurations and we merge the default value with
