@@ -53,13 +53,13 @@ case "$1" in
         fi
         cd $PACKETFENCE/db
         VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
-        ln -s $VERSIONSQL ./pf-schema.sql
+        ln -f -s $VERSIONSQL ./pf-schema.sql
 
         if [ -h "$PACKETFENCE/db/pf_graphite-schema.sql" ]; then
             rm $PACKETFENCE/db/pf_graphite-schema.sql
         fi
         VERSIONSQL=$(ls pf_graphite-schema-* |sort -r | head -1)
-        ln -s $VERSIONSQL ./pf_graphite-schema.sql
+        ln -f -s $VERSIONSQL ./pf_graphite-schema.sql
     
         #Check if log files exist and create them with the correct owner
         for fic_log in packetfence.log catalyst.log access_log error_log admin_access_log admin_error_log
