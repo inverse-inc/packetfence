@@ -52,8 +52,6 @@ use pfconfig::cached_hash;
 #
 our @authentication_sources;
 tie @authentication_sources, 'pfconfig::cached_array', 'resource::authentication_sources';
-our @admin_authentication_sources = ();
-our @auth_authentication_sources = ();
 our %authentication_lookup;
 tie %authentication_lookup, 'pfconfig::cached_hash', 'resource::authentication_lookup';
 our %guest_self_registration;
@@ -67,8 +65,6 @@ BEGIN {
     @EXPORT =
       qw(
             @authentication_sources
-            @admin_authentication_sources
-            @auth_authentication_sources
             availableAuthenticationSourceTypes
             newAuthenticationSource
             getAuthenticationSource
@@ -182,7 +178,7 @@ Returns cached instances of pf::Authentication::Source for authentication source
 =cut
 
 sub getAdminAuthenticationSources {
-    return \@admin_authentication_sources;
+    return buildRuleClassSpecificAuthenticationSourcesArray($Rules::ADMIN);
 }
 
 =item getAuthAuthenticationSources
@@ -192,53 +188,17 @@ Returns cached instances of pf::Authentication::Source for authentication source
 =cut
 
 sub getAuthAuthenticationSources {
-    return \@auth_authentication_sources;
+    return buildRuleClassSpecificAuthenticationSourcesArray($Rules::AUTH);
 }
 
-=item buildAdminAuthenticationSources
+=item buildRuleClassSpecificAuthenticationSourcesArray
 
-Builds an array of pf::Authentication::Source instances based on internal authentication sources containing only 'admin' class rules.
+Builds an array of pf::Authentication::Source instances based on configured sources containing only rule class $class rules.
 
 =cut
 
-sub buildAdminAuthenticationSources {
-    my @sources = ();
-
-    # Iterate through all configured internal authentication sources
-    foreach my $originalSource ( @{ getInternalAuthenticationSources() } ) {
-        # Since the source (originalSource) is actually a reference, we want to clone and work on that cloned copy
-        my $clonedSource = clone($originalSource);
-
-        # We want to make sure the local SQL source is always available
-        push (@sources, $clonedSource) if $clonedSource->{'id'} eq 'local';
-
-        my @rules = ();
-        # Iterate through all configured rules of the authentication source
-        foreach my $rule ( @{ $clonedSource->{'rules'} } ) {
-            # If the rule class is 'admin', we keep it
-            push (@rules, $rule) if $rule->{'class'} eq $Rules::ADMIN; 
-        }
-
-        # If we have @rules defined and not empty, we consider this source as an 'admin' authentication source and we 
-        # recreate it with only specific rules
-        if ( @rules ) {
-            @{$clonedSource->{'rules'}} = ();
-            push (@{$clonedSource->{'rules'}}, @rules);
-            push (@sources, $clonedSource);
-        }
-
-    }
-
-    return \@sources
-}
-
-=item buildAuthAuthenticationSources
-
-Builds an array of pf::Authentication::Source instances based on external authentication sources and internal authentication sources containing only 'auth' class rules.
-
-=cut
-
-sub buildAuthAuthenticationSources {
+sub buildRuleClassSpecificAuthenticationSourcesArray {
+    my ( $class ) = @_;
     my @sources = ();
 
     # Iterate through all the configured internal authencation sources
@@ -252,12 +212,11 @@ sub buildAuthAuthenticationSources {
         my @rules = ();
         # Iterate through all configured rules of the authentication source
         foreach my $rule ( @{ $clonedSource->{'rules'} } ) {
-            # If the rle calss is 'auth', we keep it
-            push (@rules, $rule) if $rule->{'class'} eq $Rules::AUTH;
+            # If the rule class is of $class type, we keep it
+            push (@rules, $rule) if $rule->{'class'} eq $class;
         }
 
-        # If we have @rules defined and not empty, we consider this source as an 'auth' authentication source and we 
-        # recreate it with only specific rules
+        # If we have @rules defined and not empty, we consider this source as a rule class $class authentication source and we recreate it with only specific rules
         if ( @rules ) {
             @{$clonedSource->{'rules'}} = ();
             push (@{$clonedSource->{'rules'}}, @rules);
@@ -265,10 +224,12 @@ sub buildAuthAuthenticationSources {
         }
     }
 
-    # Iterate through all the configured external authentication sources
-    # We doesn't modify anything in them, simply cloning them
-    foreach my $originalSource ( @{ getExternalAuthenticationSources() } ) {
-        push (@sources, clone($originalSource));
+    if ( $class eq $Rules::AUTH ) {
+        # Iterate through all the configured external authentication sources
+        # We doesn't modify anything in them, simply cloning them
+        foreach my $originalSource ( @{ getExternalAuthenticationSources() } ) {
+            push (@sources, clone($originalSource));
+        }
     }
 
     return \@sources;
