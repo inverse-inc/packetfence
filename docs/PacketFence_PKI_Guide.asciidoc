@@ -90,6 +90,7 @@ Creation of a profile:
 ** Client certificate authentication profile: TLS Web Client Authentication, 
 
 Information about Key Usage and Extended Key Usage are available from RFC5280, parts 4.2.1.3 and 4.2.1.12.
+
 * The P12 mail setup is mandatory at least for the server authentication profile. This will format the mail send with your certificate if you use *send certificate* button, to send it manually. 
 ** If your mail alert are working with PacketFence you should use the following:
 *** P12 smtp server: 127.0.0.1
