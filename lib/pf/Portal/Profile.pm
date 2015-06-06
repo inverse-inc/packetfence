@@ -543,6 +543,13 @@ sub getFieldsForSources {
     return uniq @fields;
 }
 
+=item tiers attribute
+
+=cut
+
+sub tiers {
+    $_[0]->{_tiers}
+}
 
 =back
 
