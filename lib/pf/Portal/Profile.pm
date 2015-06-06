@@ -535,6 +535,10 @@ sub findScan {
     return undef;
 }
 
+sub tiers {
+    $_[0]->{_tiers}
+}
+
 =back
 
 =head1 AUTHOR
