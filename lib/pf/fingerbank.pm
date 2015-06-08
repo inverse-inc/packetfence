@@ -176,7 +176,7 @@ sub _parse_parents {
     my @parents = ();
 
     # It is possible that a device doesn't have any parent. We need to handle that case first
-    if ( !@{ $args->{'device'}{'parents'} } ) {
+    if ( !defined($args->{'device'}{'parents'}) || !@{ $args->{'device'}{'parents'} } ) {
         $class = $args->{'device'}{'name'};
         $logger->debug("Device doesn't have any parent. We use the device name '$class' as class.");
         return ( $class, \@parents );
