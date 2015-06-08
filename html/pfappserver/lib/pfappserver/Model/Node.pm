@@ -727,10 +727,8 @@ sub bulkRegister {
     foreach my $mac (@macs) {
         my $node = node_attributes($mac);
         if ($node->{status} ne $pf::node::STATUS_REGISTERED) {
-            if (node_register($mac, $node->{pid}, %{$node})) {
-                reevaluate_access($mac, "node_modify");
-                $count++;
-            }
+            $self->update($mac,$node);
+            $count++;
         }
     }
     return ($STATUS::OK, ["[_1] node(s) were registered.",$count]);
@@ -746,10 +744,8 @@ sub bulkDeregister {
     foreach my $mac (@macs) {
         my $node = node_attributes($mac);
         if ($node->{status} ne $pf::node::STATUS_UNREGISTERED) {
-            if (node_deregister($mac, %{$node})) {
-                reevaluate_access($mac, "node_modify");
-                $count++;
-            }
+            $self->update($mac,$node);
+            $count++;
         }
     }
     return ($STATUS::OK, ["[_1] node(s) were deregistered.", $count]);
@@ -768,13 +764,8 @@ sub bulkApplyRole {
         if (!defined($old_category_id) || $old_category_id != $role) {
             # Role has changed
             $node->{category_id} = $role;
-            if (node_modify($mac, %{$node})) {
-                $count++;
-                if (!defined($node->{last_dot1x_username}) || length($node->{last_dot1x_username}) == 0) {
-                    # The role has changed and is not currently using 802.1X
-                    reevaluate_access($mac, "node_modify");
-                }
-            }
+            $self->update($mac,$node);
+            $count++;
         }
     }
     return ($STATUS::OK, ["Role was changed for [_1] node(s)", $count]);
@@ -793,13 +784,8 @@ sub bulkApplyBypassRole {
         if (!defined($old_bypass_role_id) || $old_bypass_role_id != $role) {
             # Role has changed
             $node->{bypass_role_id} = $role;
-            if (node_modify($mac, %{$node})) {
-                $count++;
-                if (!defined($node->{last_dot1x_username}) || length($node->{last_dot1x_username}) == 0) {
-                    # The role has changed and is not currently using 802.1X
-                    reevaluate_access($mac, "node_modify");
-                }
-            }
+            $self->update($mac,$node);
+            $count++;
         }
     }
     return ($STATUS::OK, ["Bypass Role was changed for [_1] node(s)", $count]);
