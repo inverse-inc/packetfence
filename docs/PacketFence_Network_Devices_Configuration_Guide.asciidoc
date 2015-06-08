@@ -3996,6 +3996,45 @@ Next, you need to configure the Alarm Settings.  Under *Configure > Alarm Settin
 
 Finally, enable the WIPS feature on the controller.  Under *Configure > WIPS > Intrusion Detection and Prevention*, make sure both box are selected, click Apply. 
 
+Web authentication
+^^^^^^^^^^^^^^^^^^
+
+In order to use PacketFence as an external captive portal for web authentication, you will to configure first your radius authentication and accounting server (see steps above).
+
+[float]
+Hotspot configuration
++++++++++++++++++++++
+
+Then you will need to configure the Hotspot service profile to redirect devices to your PacketFence portal. Go on the ZoneDirector administration web page to the section *Configure->Hotspot Services->Create New*
+
+image::docs/images/ruckus_hotspot_service.png[scaledwidth="100%",alt="Hotsport Service"]
+
+ 1 - Name of your Hotspot service
+ 2 - Login Page: Url of Packetfence management interface (http://192.168.1.5)
+ 3 - Start Page: redirect to the follwing URL: http://192.168.1.5
+ 4 - Authentication Server: Select the Packetfence authentication radius server (default port 1812)
+ 5 - Accounting Server: Select the Packetfence accounting radius server (default 1813)
+ 6 - Click on the Walled Garden and authorize the IP of packetfence management interface
+
+Save your configuration.
+
+[float]
+WLAN configuration
+++++++++++++++++++
+
+Go to *Configure->WLANs->WLANs->Create New*
+
+image::docs/images/ruckus_create_ssid.png[scaledwidth="100%",alt="Hotsport Service"]
+
+ 1 - Name of your SSID
+ 2 - Type: Hotspot Service (WISPr)
+ 3 - Authentication Method: Open
+ 4 - Encryption Method: None
+ 5 - Hotspot Services: Your hotspot service name that you configured
+ 6 - Access VLAN: The VLAN ID where the devices should be after authentication
+
+Save your configuration.
+
 Trapeze
 ~~~~~~~
 
