@@ -149,11 +149,11 @@ image::docs/images/packetfence-pki-provider2.png [scaledwidth="100%",alt="Packet
 Certificate storage on PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  
-First we advise to create a directory in a way to split EAP-TLS certificate and others.
+With the incomming certificate manager in future version of PacketFence, you should do the following before the installation of certificates.
 
  # mkdir /usr/local/pf/conf/ssl/tls_certs/
 
-Place yourself in the folder where CA was created.
+Place yourself in the folder where CA are created.
 
  # cd /usr/local/packetfence-pki/ca/
  # cp YourCA.pem /usr/local/pf/conf/ssl/tls_certs/
