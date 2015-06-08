@@ -167,7 +167,7 @@ If you use Linux or MacOS system apply the folowwing command:
 
  # scp /path/to/your/downloads/YourCert.* root@192.168.1.5:/usr/local/pf/conf/ssl/tls_certs/
 
-If you use a windows system you will need to use WinSCP to transfer over the certificate files.
+If you use a Windows system you will need to use WinSCP to transfer over the certificate files.
 
 When you will download or send the certificate the password will arrive by mail, if you don't receive anything you can look around to see if postfix is properly configured and you filled the information for *Mail P12* as intended.
 
