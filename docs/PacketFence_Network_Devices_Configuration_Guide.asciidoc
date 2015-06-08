@@ -4035,6 +4035,26 @@ image::docs/images/ruckus_create_ssid.png[scaledwidth="100%",alt="Hotsport Servi
 
 Save your configuration.
 
+[float]
+PacketFence configuration
++++++++++++++++++++++++++
+
+On the ZoneDirector configuration in PacketFence, you will need to speficy -1 as the registration vlan in order to display the captive portal to the end device. 
+
+You will need to desactivate the force secure redirect on the captive portal under *Configuration->Captive Portal->Secure redirect->Unchecked*
+
+The captive portal needs to listen on the management interface, so you will need to add 'portal' to the interface type of the management interface in /usr/local/pf/conf/pf.conf
+
+
+Example:
+
+ [interface eth0]
+ ip=192.168.1.5
+ type=management,portal
+ mask=255.255.255.0
+
+To apply the configuration, restart packetfence with the command: service packetfence restart
+
 Trapeze
 ~~~~~~~
 
