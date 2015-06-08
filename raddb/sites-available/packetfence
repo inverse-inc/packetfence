@@ -1,0 +1,88 @@
+# This file is generated from a template at /usr/local/pf/conf/radiusd/packetfence
+# Any changes made to this file will be lost on restart
+
+server packetfence {
+
+    authorize {
+        suffix
+        ntdomain
+        preprocess
+        packetfence-multi-domain
+        eap {
+            ok = return
+        }
+        files
+        expiration
+        logintime
+        update request {
+            FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+        }
+        update control {
+            PacketFence-RPC-Server = ${rpc_host}
+            PacketFence-RPC-Port = ${rpc_port}
+            PacketFence-RPC-User = ${rpc_user}
+            PacketFence-RPC-Pass = ${rpc_pass}
+            PacketFence-RPC-Proto = ${rpc_proto}
+        }
+        packetfence
+    }
+
+    authenticate {
+        Auth-Type MS-CHAP {
+            mschap
+        }
+        eap
+    }
+
+    preacct {
+        preprocess
+        acct_unique
+        suffix
+        files
+    }
+
+    accounting {
+        sql
+        attr_filter.accounting_response
+        update request {
+            FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+        }
+        update control {
+            PacketFence-RPC-Server = ${rpc_host}
+            PacketFence-RPC-Port = ${rpc_port}
+            PacketFence-RPC-User = ${rpc_user}
+            PacketFence-RPC-Pass = ${rpc_pass}
+            PacketFence-RPC-Proto = ${rpc_proto}
+        }
+        packetfence
+    }
+
+    session {
+    }
+
+    post-auth {
+        exec
+        # skip packetfence if we have already treated it in the inner-tunnel
+        if (!EAP-Type || (EAP-Type != EAP-TTLS  && EAP-Type != PEAP)) {
+            update control {
+                PacketFence-RPC-Server = ${rpc_host}
+                PacketFence-RPC-Port = ${rpc_port}
+                PacketFence-RPC-User = ${rpc_user}
+                PacketFence-RPC-Pass = ${rpc_pass}
+                PacketFence-RPC-Proto = ${rpc_proto}
+            }
+            packetfence
+        }
+        Post-Auth-Type REJECT {
+            attr_filter.access_reject
+        }
+    }
+
+    pre-proxy {
+    }
+
+    post-proxy {
+        eap
+    }
+
+}
