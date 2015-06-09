@@ -43,7 +43,7 @@ sub check_password {
   my ($self, $password) = @_;
 
   my $internal_sources = pf::authentication::getAdminAuthenticationSources();
-  my ($result, $message, $source_id) = &pf::authentication::authenticate($self->_user, $password, @{$internal_sources});
+  my ($result, $message, $source_id) = &pf::authentication::authenticate( { 'username' => $self->_user, 'password' => $password }, @{$internal_sources});
 
   if ($result) {
       my $value = &pf::authentication::match($source_id, { username => $self->_user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL);

@@ -515,7 +515,7 @@ sub authenticationLogin : Private {
     } else {
         # validate login and password
         ( $return, $message, $source_id ) =
-          pf::authentication::authenticate( $username, $password, @sources );
+          pf::authentication::authenticate( { 'username' => $username, 'password' => $password }, @sources );
         if ( defined($return) && $return == 1 ) {
             # save login into session
             $c->session(
