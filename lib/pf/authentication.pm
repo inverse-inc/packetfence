@@ -32,6 +32,7 @@ use Module::Pluggable
   'require'     => 1,
   ;
 
+use Clone qw(clone);
 use List::Util qw(first);
 use List::MoreUtils qw(none any);
 use pf::util;
@@ -222,9 +223,11 @@ sub authenticate {
         @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
     }
 
+    my $cloned_sources = clone(\@sources);
+
     # If a rule class is defined, we filter out authentication sources rules that doesn't match it
     if ( defined($params->{'rule_class'}) ) {
-        foreach my $source ( @sources ) {
+        foreach my $source ( @$cloned_sources ) {
             my @rules = ();
             foreach my $rule ( @{ $source->{'rules'} } ) {
                 push (@rules, $rule) if $rule->{'class'} eq $params->{'rule_class'};
