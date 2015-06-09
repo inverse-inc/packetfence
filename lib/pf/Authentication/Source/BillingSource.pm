@@ -31,25 +31,7 @@ has '+class' => (default => 'abstact');
 
 has '+type' => (default => 'Billing');
 
-has 'tiers' => ( isa => 'ArrayRef', is => 'rw', default => sub { [] } );
-
-=head2 _handle_additional_args
-
-Handle the tiers arguments
-
-=cut
-
-sub _handle_additional_args {
-    my ($self, $args_hash) = @_;
-    my $group_args = $args_hash->{group_args};
-    my $tiers_data = $group_args->{tier};
-    return unless ref($tiers_data) eq 'ARRAY';
-    my @tiers;
-    foreach my $tier_data (@$tiers_data) {
-        push @tiers,pf::Authentication::BillingTier->new($tier_data);
-    }
-    $args_hash->{tiers} = \@tiers if @tiers;
-}
+has '+unique' => (default => 1);
 
 =head2 available_attributes
 
@@ -92,6 +74,7 @@ sub match_in_subclass {
     }
     return $username;
 }
+
 
 =head1 AUTHOR
 
