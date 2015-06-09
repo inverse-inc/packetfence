@@ -29,6 +29,7 @@ use pf::Portal::Session;
 use pf::util;
 use pf::web::constants;
 use pf::web::util;
+use pf::constants;
 
 =head1 SUBROUTINES
 
@@ -67,17 +68,7 @@ sub external_captive_portal {
 
         if (defined($switch) && $switch ne '0' && $switch->supportsExternalPortal) {
             my ($client_mac,$client_ssid,$client_ip,$redirect_url,$grant_url,$status_code) = $switch->parseUrl(\$req, $r);
-            my %info = (
-                'client_mac' => $client_mac,
-            );
-            my $portalSession = pf::Portal::Session->new(%info);
-            $portalSession->setClientIp($client_ip) if (defined($client_ip));
-            $portalSession->setDestinationUrl($redirect_url) if (defined($redirect_url));
-            $portalSession->setGrantUrl($grant_url) if (defined($grant_url));
-            foreach my $key (keys %{$req->param}) {
-                $logger->debug("Adding additionnal session parameter for url detected : $key : ".$req->param($key));
-                $portalSession->session->param("ecwp-original-param-$key", $req->param($key));
-            }
+            my $portalSession = _setup_session($req, $client_mac, $client_ip, $redirect_url, $grant_url);
             pf::iplog::open($client_ip,$client_mac,3600) if (defined ($client_ip) && defined ($client_mac));
             return ($portalSession->session->id(), $redirect_url);
         } else {
@@ -88,13 +79,36 @@ sub external_captive_portal {
         my $locationlog = locationlog_get_session($session);
         my $switch = $locationlog->{switch};
         $switch = pf::SwitchFactory->instantiate($switch);
+        my $mac = $locationlog->{mac};
         my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
-        pf::iplog::open($ip,$locationlog->{mac},3600) if defined ($ip);
-        return $session;
+        my $portalSession = _setup_session($req, $mac, $ip, undef, undef);
+        pf::iplog::open($ip,$mac,3600) if defined ($ip);
+        return ($portalSession->session->id());
     }
     else {
         return 0;
     }
+}
+
+sub _setup_session {
+    my ($req, $client_mac, $client_ip, $redirect_url, $grant_url) = @_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my %info = (
+        'client_mac' => $client_mac,
+    );
+    my $portalSession = pf::Portal::Session->new(%info);
+    $portalSession->setClientIp($client_ip) if (defined($client_ip));
+    $portalSession->setDestinationUrl($redirect_url) if (defined($redirect_url));
+    $portalSession->setGrantUrl($grant_url) if (defined($grant_url));
+    $portalSession->session->param('is_external_portal', $TRUE);
+    if(defined($req)){
+        foreach my $key (keys %{$req->param}) {
+            $logger->debug("Adding additionnal session parameter for url detected : $key : ".$req->param($key));
+            $portalSession->session->param("ecwp-original-param-$key", $req->param($key));
+        }
+    }
+    return $portalSession;
+
 }
 
 =item handle

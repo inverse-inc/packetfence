@@ -340,7 +340,7 @@ sub unknownState : Private {
 
     my $server_addr = $c->request->{env}->{SERVER_ADDR};
     my $management_ip = $pf::config::management_network->{'Tvip'} || $pf::config::management_network->{'Tip'};
-    if( $server_addr eq $management_ip){
+    if( $server_addr eq $management_ip && !$c->portalSession->dispatcherSession->{is_external_portal} ){
         $logger->error("Hitting unknownState on the management address ($server_addr)");
         $self->showError($c, "You hit the captive portal on the management interface. The management console is on port 1443.");
     }

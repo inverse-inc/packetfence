@@ -94,6 +94,12 @@ has destinationUrl => (
     lazy => 1,
 );
 
+has dispatcherSession => (
+    is      => 'rw',
+    builder => '_build_dispatcherSession',
+    lazy => 1,
+);
+
 has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
 
 sub ACCEPT_CONTEXT {
@@ -229,6 +235,20 @@ sub _build_profile {
     my $options =  $self->options;
     $options->{'last_ip'} = $self->clientIp;
     return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $options );
+}
+
+sub _build_dispatcherSession {
+    my ($self) = @_;
+    my $session = new pf::Portal::Session()->session;
+    my %session_data;
+    foreach my $key ($session->param) {
+        get_logger->debug("Adding session parameter from dispatcher session to Catalyst session : $key : ".$session->param($key));
+        $session_data{$key} = $session->param($key);
+    }
+    get_logger->info("External captive portal detected !") if($session_data{is_external_portal});
+
+    return \%session_data;
+    return 1;
 }
 
 sub templateIncludePath {
