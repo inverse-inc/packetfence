@@ -48,6 +48,7 @@ BEGIN {
 }
 
 use pf::authentication;
+use pf::Authentication::constants;
 use pf::constants;
 use pf::config;
 use pf::enforcement qw(reevaluate_access);
@@ -240,7 +241,7 @@ sub web_user_authenticate {
     }
 
     # validate login and password
-    my ($return, $message, $source_id) = pf::authentication::authenticate( { 'username' => $username, 'password' => $password }, @sources);
+    my ($return, $message, $source_id) = pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources);
 
     if (defined($return) && $return == 1) {
         # save login into session
