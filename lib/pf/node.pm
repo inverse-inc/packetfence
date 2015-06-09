@@ -938,6 +938,16 @@ sub node_deregister {
     $info{'unregdate'} = 0;
     $info{'lastskip'}  = 0;
 
+    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    if(my $provisioner = $profile->findProvisioner($mac)){
+        if(my $pki_provider = $provisioner->getPkiProvider() ){
+            if(isenabled($pki_provider->revoke_on_unregistration)){
+                my $cn = $pki_provider->user_cn($mac);
+                $pki_provider->revoke($cn);
+            }
+        }
+    }
+
     if ( !node_modify( $mac, %info ) ) {
         $logger->error("unable to de-register node $mac");
         return (0);

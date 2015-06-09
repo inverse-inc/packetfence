@@ -116,6 +116,7 @@ Readonly::Scalar our $EXT_URL_MERAKI            => '^/Meraki::AP_http';
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
 Readonly::Scalar our $URL_ANDROID_PROFILE  => '/profile.xml';
+Readonly::Scalar our $URL_TLS_GENERATION   => '/tlsprofile';
 
 =head2 Apache Config related
 

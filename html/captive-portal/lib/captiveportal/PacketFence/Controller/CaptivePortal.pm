@@ -345,6 +345,14 @@ sub unknownState : Private {
         $self->showError($c, "You hit the captive portal on the management interface. The management console is on port 1443.");
     }
 
+    my $provisioner = $c->profile->findProvisioner($mac);
+    if(defined($provisioner) && $provisioner->authorize($mac) && $provisioner->skipDeAuth) {
+        # handle autoconfig provisioning
+        $c->log->warn("Hitting unknownState but an autoconfig provisioner is enabled. Will not deauth....");
+        $c->stash( template => $provisioner->template );
+        $c->detach();
+    }
+
     # After 5 requests we won't perform re-eval for 5 minutes
     if ( !defined($cached_lost_device) || $cached_lost_device <= 5 ) {
 

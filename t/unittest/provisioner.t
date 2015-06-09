@@ -19,7 +19,7 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use PfFilePaths;
 }
-use Test::More tests => 9;
+use Test::More tests => 11;
 
 use Test::NoWarnings;
 use Test::Exception;
@@ -46,6 +46,8 @@ ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match both os and categor
 
 ok(!$provisioner->match('Generic Android',$TEST_NODE_ATTRIBUTE),"Don't Match os but Matching category");
 
+ok(!$provisioner->match(undef,$TEST_NODE_ATTRIBUTE),"Don't match undef os");
+
 ok(!$provisioner->match('Generic Android','not_matching'),"Don't Match os and category");
 
 $provisioner->category(['not_matching']);
@@ -58,13 +60,18 @@ ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match os with the any cat
 
 ok(!$provisioner->match('Generic Android',$TEST_NODE_ATTRIBUTE),"Don't match os with the any category");
 
+$provisioner->category([$TEST_CATEGORY]);
+$provisioner->oses([]);
+
+ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match both os and category");
+
 
 1;
 
 
 
 
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -27,6 +27,14 @@ The set the default OS Andriod
 # Will always ignore the oses parameter provided and use [Generic Android]
 has 'oses' => (is => 'ro', default => sub { ['Generic Android'] }, coerce => sub { ['Generic Android'] });
 
+=head2 profile_template
+
+The template to use for profile
+
+=cut
+
+has profile_template => (is => 'rw', default => sub { "pf-profile.xml" });
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
