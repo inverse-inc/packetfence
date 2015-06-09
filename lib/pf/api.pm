@@ -18,6 +18,7 @@ use base qw(pf::api::attributes);
 use threads::shared;
 use pf::log();
 use pf::authentication();
+use pf::Authentication::constants;
 use pf::config();
 use pf::config::cached;
 use pf::ConfigStore::Interface();
@@ -844,6 +845,7 @@ sub dynamic_register_node : Public {
         connection_type => $node_info->{'last_connection_type'},
         SSID => $node_info->{'last_ssid'},
         stripped_user_name => $stripped_user,
+        rule_class => $Rules::AUTH,
     };
 
     my $source;

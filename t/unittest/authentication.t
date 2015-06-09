@@ -54,7 +54,7 @@ is_deeply(
 
 my $source_id_ref;
 is_deeply(
-    pf::authentication::match("htpasswd1", { username => 'user_manager' }, undef, \$source_id_ref),
+    pf::authentication::match("htpasswd1", { username => 'user_manager', rule_class => 'administration' }, undef, \$source_id_ref),
     [
         pf::Authentication::Action->new({
             'value' => 'User Manager',
@@ -69,7 +69,7 @@ is($source_id_ref, "htpasswd1", "Source id ref is found");
 
 is( pf::authentication::match(
         [getAuthenticationSource("htpasswd1"), getAuthenticationSource("email")],
-        {username => 'user@domain.com'},
+        {username => 'user@domain.com', rule_class => 'administration'},
         'mark_as_sponsor'
     ),
     1,
@@ -78,7 +78,7 @@ is( pf::authentication::match(
 
 is( pf::authentication::match(
         [getAuthenticationSource("htpasswd1"), getAuthenticationSource("email")],
-        {username => 'user@domain.com'},
+        {username => 'user@domain.com', rule_class => 'administration'},
         'set_access_level'
     ),
     'Violation Manager',

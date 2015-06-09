@@ -9,6 +9,7 @@ use pf::node;
 use pf::util;
 use pf::locationlog;
 use pf::authentication;
+use pf::Authentication::constants;
 use HTML::Entities;
 use List::MoreUtils qw(any uniq);
 use pf::config;
@@ -329,8 +330,8 @@ sub setRole : Private {
     my $source_match = $session->{source_match} || $session->{source_id};
 
     # obtain node information provided by authentication module. We need to get the role (category here)
-    my $value =
-      &pf::authentication::match( $source_match, $params, $Actions::SET_ROLE );
+    # as web_node_register() might not work if we've reached the limit
+    my $value = &pf::authentication::match( $source_match, { $params, 'rule_class' => $Rules::AUTH }, $Actions::SET_ROLE );
 
     # This appends the hashes to one another. values returned by authenticator wins on key collision
     if ( defined $value ) {
@@ -357,7 +358,7 @@ sub setUnRegDate : Private {
     my $source_match = $session->{source_match} || $session->{source_id};
     # If an access duration is defined, use it to compute the unregistration date;
     # otherwise, use the unregdate when defined.
-    my $value = &pf::authentication::match( $source_match, $params, $Actions::SET_UNREG_DATE );
+    my $value = &pf::authentication::match( $source_match, { $params, 'rule_class' => $Rules::AUTH }, $Actions::SET_UNREG_DATE );
     if ( defined $value ) {
         $logger->debug("Got unregdate $value for username \"$pid\"");
         $info->{unregdate} = $value;
@@ -380,7 +381,7 @@ sub createLocalAccount : Private {
 
     # We create a "password" (also known as a user account) using the pid
     # with different parameters coming from the authentication source (ie.: expiration date)
-    my $actions = &pf::authentication::match( $c->session->{source_id}, $auth_params );
+    my $actions = &pf::authentication::match( $c->session->{source_id}, { $auth_params, 'rule_class' => $Rules::AUTH } );
 
     # We push an unregistration date that was previously calculated (setUnRegDate) that handle dynamic unregistration date and access duration
     my $action = pf::Authentication::Action->new({

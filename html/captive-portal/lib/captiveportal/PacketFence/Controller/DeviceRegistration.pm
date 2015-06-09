@@ -1,6 +1,7 @@
 package captiveportal::PacketFence::Controller::DeviceRegistration;;
 use Moose;
 use namespace::autoclean;
+use pf::Authentication::constants;
 use pf::config;
 use pf::log;
 use pf::node;
@@ -138,7 +139,7 @@ sub registerNode : Private {
             my $session = $c->session;
             my $source_id = $session->{source_id};
             my %info;
-            my $params = { username => $pid };
+            my $params = { username => $pid, rule_class => $Rules::AUTH };
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
             my $role =

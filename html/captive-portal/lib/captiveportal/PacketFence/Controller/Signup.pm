@@ -301,7 +301,7 @@ sub doSponsorSelfRegistration : Private {
     $c->forward('Authenticate' => 'setRole');
 
     # Setting access timeout and role (category) dynamically
-    $info{'unregdate'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
+    $info{'unregdate'} = &pf::authentication::match( $source->{id}, { $auth_params, 'rule_class' => $Rules::AUTH }, $Actions::SET_UNREG_DATE);
 
     # set node in pending mode
     $info{'status'} = $pf::node::STATUS_PENDING;
@@ -501,9 +501,7 @@ sub validateBySponsorSource : Private {
     my $request = $c->request;
     if ( $request->param('by_sponsor') ) {
         my $sponsor_email = lc( $request->param('sponsor_email') );
-        my $value = &pf::authentication::match( &pf::authentication::getInternalAuthenticationSources(),
-                                                { email => $sponsor_email },
-                                                $Actions::MARK_AS_SPONSOR );
+        my $value = &pf::authentication::match( &pf::authentication::getInternalAuthenticationSources(), { email => $sponsor_email, 'rule_class' => $Rules::ADMIN }, $Actions::MARK_AS_SPONSOR );
 
         if (!defined $value) {
             # sponsor check did not pass
