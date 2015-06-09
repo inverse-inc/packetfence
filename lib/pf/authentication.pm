@@ -32,7 +32,6 @@ use Module::Pluggable
   'require'     => 1,
   ;
 
-use Clone qw(clone);
 use List::Util qw(first);
 use List::MoreUtils qw(none any);
 use pf::util;
