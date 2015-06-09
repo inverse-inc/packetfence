@@ -42,7 +42,7 @@ sub supported_features {
 sub check_password {
   my ($self, $password) = @_;
 
-  my $internal_sources = pf::authentication::getAdminAuthenticationSources();
+  my $internal_sources = pf::authentication::getInternalAuthenticationSources();
   my ($result, $message, $source_id) = &pf::authentication::authenticate( { 'username' => $self->_user, 'password' => $password, 'rule_class' => $Rules::ADMIN }, @{$internal_sources});
 
   if ($result) {
