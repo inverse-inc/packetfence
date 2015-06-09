@@ -123,6 +123,11 @@ sub parse_scan_report {
 
     my $scan_report = $scan->getReport();
 
+    my ($mac, $ip, $type) = @{$scan}{qw(_scanMac _scanIp _type)};
+
+    # Trigger a violation for each vulnerability
+    my $failed_scan = 0;
+
     my $csv = Text::CSV_XS->new ({ binary => 1, sep_char => ',' });
     open my $io, "<", \$scan_report;
     my $row = $csv->getline($io);
@@ -154,25 +159,6 @@ sub parse_scan_report {
             if ( $violation_added ) {
                 $failed_scan = 1;
             }
-        }
-    }
-
-    # FIXME we shouldn't poke directly into the scan object, we should rely on accessors
-    # we are slicing out the parameters out of the $scan objectified hashref
-    my ($mac, $ip, $type) = @{$scan}{qw(_scanMac _scanIp _type)};
-
-    # Trigger a violation for each vulnerability
-    my $failed_scan = 0;    
-    foreach my $current_vuln (@count_vulns) {
-        # Parse nstatvulns format
-        my ( $trigger_id, $number ) = split(/\|/, $current_vuln);
-
-        $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: $trigger_id");
-        my $violation_added = violation_trigger($mac, $trigger_id, $type);
-
-        # If a violation has been added, consider the scan failed
-        if ( $violation_added ) {
-            $failed_scan = 1;
         }
     }
 
