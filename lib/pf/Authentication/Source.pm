@@ -155,6 +155,7 @@ sub match {
     $self->preMatchProcessing;
 
     foreach my $rule ( @{$self->{'rules'}} ) {
+        next if ( (defined($params->{'rule_class'})) && ($params->{'rule_class'} ne $rule->{'class'}) );
         my @matching_conditions = ();
         my @own_conditions = ();
 
