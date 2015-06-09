@@ -37,7 +37,7 @@ The port of the packetfence_pki pki service
 
 =cut
 
-has port => ( is => 'rw', default => 9292 );
+has port => ( is => 'rw', default => 9393 );
 
 =head2 proto
 
