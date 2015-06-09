@@ -368,6 +368,13 @@ sub validate {
         # See pf::Authentication::Source->match
         $self->field('match')->value($Rules::ALL);
     }
+
+    foreach my $action ( @{$self->value->{actions}} ) {
+        my $rule_class_for_action = pf::Authentication::Action->getRuleClassForAction($action->{type});
+        if ( $rule_class_for_action ne $self->value->{class} ) {
+            $self->field('actions')->add_error('Incompatible actions \'' . $action->{type} . '\' for specified rule class \'' . $self->value->{class} . '\' which should be \'' . $rule_class_for_action . '\'');
+        }
+    }
 }
 
 =head1 COPYRIGHT
