@@ -271,7 +271,10 @@ authentication sources are used.
 =cut
 
 sub authenticate {
-    my ($username, $password, @sources) = @_;
+    my ( $params, @sources ) = @_;
+
+    my $username = $params->{'username'};
+    my $password = $params->{'password'};
 
     unless (@sources) {
         @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
