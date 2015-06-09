@@ -49,7 +49,7 @@ has_field 'host' =>
 has_field 'port' =>
   (
    type => 'Text',
-   default => '9191',
+   default => '9393',
    tags => { after_element => \&help,
              help => 'Port on which to contact the PacketFence PKI API'},
   );
