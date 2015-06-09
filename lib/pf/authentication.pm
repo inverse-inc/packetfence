@@ -287,6 +287,21 @@ sub authenticate {
         @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
     }
 
+    # If a rule class is defined, we filter out authentication sources rules that doesn't match it
+    if ( defined($params->{'rule_class'}) ) {
+        foreach my $source ( @sources ) {
+            my @rules = ();
+            foreach my $rule ( @{ $source->{'rules'} } ) {
+                push (@rules, $rule) if $rule->{'class'} eq $params->{'rule_class'};
+            }
+            if ( @rules ) {
+                @{$source->{'rules'}} = ();
+                push (@{$source->{'rules'}}, @rules);
+                push (@sources, $source);
+            }
+        }
+    }
+
     $logger->debug(sub {"Authenticating '$username' from source(s) " . join( ', ', map { $_->id } @sources ) });
 
     foreach my $current_source (@sources) {
