@@ -27,6 +27,7 @@ use pf::constants;
 use pf::config;
 use pf::error qw(is_error is_success);
 use pf::node;
+use pf::nodecategory;
 use pf::iplog;
 use pf::locationlog;
 use Log::Log4perl qw(get_logger);
@@ -756,15 +757,18 @@ sub bulkDeregister {
 =cut
 
 sub bulkApplyRole {
-    my ($self, $role, @macs) = @_;
+    my ($self, $category_id, @macs) = @_;
     my $count = 0;
+    my $category = nodecategory_view($category_id);
+    my $name = $category->{name};
     foreach my $mac (@macs) {
         my $node = node_view($mac);
         my $old_category_id = $node->{category_id};
-        if (!defined($old_category_id) || $old_category_id != $role) {
+        if (!defined($old_category_id) || $old_category_id != $category_id) {
+            $node->{category_id} = $category_id;
+            $node->{category} = $name;
             # Role has changed
-            $node->{category_id} = $role;
-            $self->update($mac,$node);
+            $self->update($mac, $node);
             $count++;
         }
     }
