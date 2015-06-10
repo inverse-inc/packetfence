@@ -210,7 +210,7 @@ sub schema {
     $db = quotemeta ($db);
     my $mysql_cmd = "/usr/bin/mysql -u $root_user -p$root_password $db";
     my $cmd = "$mysql_cmd < $install_dir/db/pf-schema.sql";
-    eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ])) };
+    eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ]), log_strip => "-p$root_password") };
     if ( $@ || !defined($result) ) {
         $status_msg = ["Error applying the schema to the database [_1]",$db ];
         $logger->warn("$@: $result");
@@ -220,7 +220,7 @@ sub schema {
     @custom_schemas = sort @custom_schemas;
     foreach my $custom_schema (@custom_schemas) {
         my $cmd = "$mysql_cmd < $custom_schema";
-        eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ])) };
+        eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ], log_strip => "-p$root_password")) };
         if ( $@ || !defined($result) ) {
             $status_msg = ["Error applying the custom schema $custom_schema to the database [_1]",$db ];
             $logger->warn("$@: $result");
@@ -235,7 +235,7 @@ sub schema {
     $db = quotemeta ($db);
     $mysql_cmd = "/usr/bin/mysql -u $root_user -p$root_password $db";
     $cmd = "$mysql_cmd < $install_dir/db/pf_graphite-schema.sql";
-    eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ])) };
+    eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ], log_strip => "-p$root_password")) };
     if ( $@ || !defined($result) ) {
         $status_msg = ["Error applying the schema to the database [_1]",$db ];
         $logger->warn("$@: $result");
