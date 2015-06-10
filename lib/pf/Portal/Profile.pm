@@ -551,6 +551,11 @@ sub tiers {
     $_[0]->{_tiers}
 }
 
+sub findTier {
+    my ($self, $tier_id) = @_;
+    return first { $_->{id} eq $tier_id} @{$self->tiers};
+}
+
 =back
 
 =head1 AUTHOR
