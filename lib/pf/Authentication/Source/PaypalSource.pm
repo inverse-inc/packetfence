@@ -15,7 +15,7 @@ pf::Authentication::Source::PaypalSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($FALSE $TRUE $default_pid);
+use pf::config qw($FALSE $TRUE $default_pid $fqdn);
 use pf::Authentication::constants;
 use pf::util;
 use pf::log;
@@ -42,9 +42,9 @@ has 'proto' => (is => 'rw', default => 'https');
 
 has 'port' => (is => 'rw', default => 443);
 
-has 'client_id' => (is => 'rw');
+has 'client_id' => (is => 'rw', required => 1);
 
-has 'client_secret' => (is => 'rw');
+has 'client_secret' => (is => 'rw', required => 1);
 
 has 'currency' => (is => 'rw', default => 'USD');
 
@@ -186,16 +186,35 @@ Prepare the payment from paypal
 
 sub prepare_payment {
     my ($self, $session, $tier, $params, $path) = @_;
-    my $logger  = get_logger();
-    my $total   = sprintf("%.2f", $tier->{price});
-    my %payment = (
+    my $logger = get_logger();
+    my $id     = $self->id;
+    my $total  = sprintf("%.2f", $tier->{price});
+
+    #    my $base_path = "http://$fqdn/billing/$id";
+    my $base_path = "http://192.168.56.101:8080/billing/$id";
+    my %payment   = (
         intent        => 'sale',
         redirect_urls => {
-            "return_url" => "http://192.168.56.101:8080/billing/paypal/verify",
-            "cancel_url" => "http://192.168.56.101:8080/billing/paypal/cancel"
+            "return_url" => "${base_path}/verify",
+            "cancel_url" => "${base_path}/cancel"
         },
-        "payer" => {"payment_method" => $self->payment_method},
-        "transactions" => [{"amount" => {"total" => $total, "currency" => $self->currency}}]
+        "payer"        => {"payment_method" => $self->payment_method, payer_info => {}},
+        "transactions" => [
+            {   "amount"    => {"total" => $total, "currency" => $self->currency},
+                description => $tier->{description},
+                item_list   => {
+                    items => [
+                        {   quantity    => 1,
+                            name        => $tier->{name},
+                            description => $tier->{description},
+                            price       => $tier->{price},
+                            currency    => $self->currency,
+                            sku         => $tier->{id}
+                        }
+                    ]
+                }
+            }
+        ]
     );
     my $token = $self->get_token;
     $logger->debug(sub {"Token for getting new payment $token"});
@@ -207,7 +226,7 @@ sub prepare_payment {
         return \%data;
     }
     else {
-        $self->handle_error($response);
+        $self->handle_error($status, $response);
         die "Error communicating with Paypal";
     }
 }
@@ -223,6 +242,9 @@ sub verify {
     my $paymentId    = $parameters->{paymentId};
     my $payerID      = $parameters->{PayerID};
     my $access_token = $session->{access_token};
+    unless (defined $access_token && defined $paymentId && defined $payerID) {
+        die "Invalid parameters provided";
+    }
     my ($status, $response) = $self->execute_payment($access_token, $paymentId, $payerID);
     if (is_success($status)) {
         my %data = (response => $response);
@@ -258,10 +280,10 @@ sub handle_error {
     my $logger = get_logger();
     my $msg =
         "Error communicating with Paypal $status\n"
-      . $error->{name} ? "Error Name:  $error->{name}\n" : ""
-      . $error->{message} ? "Error Message: $error->{message}\n" : ""
-      . $$error->{information_link} ? "Error Information Link: $error->{information_link}\n" : ""
-      . $error->{details} ? "Error Details: $error->{details}\n" : "";
+      . ($error->{name} ? "Error Name:  $error->{name}\n" : "")
+      . ($error->{message} ? "Error Message: $error->{message}\n" : "")
+      . ($error->{information_link} ? "Error Information Link: $error->{information_link}\n" : "")
+      . ($error->{details} ? "Error Details: $error->{details}\n" : "");
     $logger->error($msg);
 }
 
@@ -273,6 +295,7 @@ Not implemented
 
 sub cancel {
     my ($self, $session, $parameters, $path) = @_;
+    return {};
 }
 
 =head1 AUTHOR
