@@ -541,7 +541,13 @@ sub tiers {
 
 sub findTier {
     my ($self, $tier_id) = @_;
-    return first { $_->{id} eq $tier_id} @{$self->tiers};
+    return first { $_->{id} eq $tier_id } @{$self->tiers};
+}
+
+sub isBillingEnabled {
+    my ($self) = @_;
+    return 0 unless defined $self->{_tiers} && @{$self->{_tiers}} && scalar $self->getBillingSources;
+    return 1;
 }
 
 =back
