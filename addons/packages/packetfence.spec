@@ -845,6 +845,8 @@ fi
 %config                 /usr/local/pf/conf/oui.txt
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
+%config(noreplace)      /usr/local/pf/conf/pki_provider.conf
+                        /usr/local/pf/conf/pki_provider.conf.example
 %config(noreplace)      /usr/local/pf/conf/provisioning.conf
                         /usr/local/pf/conf/provisioning.conf.example
 %dir			/usr/local/pf/conf/radiusd
