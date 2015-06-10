@@ -132,6 +132,48 @@ sub createNewTransaction {
     return $transaction;
 }
 
+
+=head2 billing_insert
+
+
+=cut
+
+sub billing_insert {
+    my ($billing) = @_;
+    my ($ip, $mac, $item, $price, $email, $type) = @{$billing}{qw(ip mac item price email type)};
+
+    my $epoch   = time;
+    my $date    = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($epoch));
+    my $id      = generate_id($epoch, $mac);
+
+    # Update transaction informations
+    $billing->{'id'} = $id;
+
+    # Adding an entry in the database to keep track of the transactions
+    db_query_execute(BILLING, $billing_statements, 'billing_insert_sql',
+            $id, $ip, $mac, $type, $date, '0000-00-00 00:00:00', 'new', $item, $price, $email
+    ) || return;
+    return $id;
+}
+
+
+=head2 billing_update_status
+
+=cut
+
+sub billing_update_status {
+    my ( $id, $status ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $logger->debug("Updating the transaction: $id with status: $status");
+
+    db_query_execute(BILLING, $billing_statements, 'billing_update_sql', $status, $id )
+        || return;
+    return ;
+}
+
+
+
 =item getAvailableTiers
 
 Provide available tiers informations for different Internet access.
@@ -221,7 +263,7 @@ sub updateTransactionStatus {
 
     $logger->debug("Updating the transaction: $id with status: $status");
 
-    db_query_execute(BILLING, $billing_statements, 'billing_update_sql', $status, $id ) 
+    db_query_execute(BILLING, $billing_statements, 'billing_update_sql', $status, $id )
         || return;
 }
 
