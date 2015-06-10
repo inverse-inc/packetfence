@@ -21,6 +21,7 @@
 /usr/local/pf/conf/networks.conf
 /usr/local/pf/conf/oui.txt
 /usr/local/pf/conf/pf.conf.defaults
+/usr/local/pf/conf/pki_provider.conf
 /usr/local/pf/conf/provisioning.conf
 /usr/local/pf/conf/realm.conf
 /usr/local/pf/conf/domain.conf
