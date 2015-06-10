@@ -1,0 +1,104 @@
+[% title = i18n("PacketFence Registration System") %]
+[% INCLUDE header.html 
+#    body_attributes = 'onload="$(\'firstfield\').focus();"';
+%]
+<script type="text/javascript">
+document.observe("dom:loaded", function() {
+
+        // Don't propagate mouse clicks on disabled buttons and links
+        $$(".btn").each(function(e) {
+                e.on("click", function(event) {
+                        if (Event.element(event).hasClassName('disabled')) {
+                                Event.stop(event);
+                                return false;
+                        }
+                        return true;
+                });
+        });
+
+        // Toggle the disable state of the buttons and links when the user
+        // accepts or refuses the AUP
+        $$("input[name='aup_signed']").each(function(e) {
+                e.on("change", function(event) {
+                        var accepted = e.checked;
+                        $$(".btn").each(function(btn) {
+                                if (accepted)
+                                        btn.removeClassName('disabled');
+                                else
+                                        btn.addClassName('disabled');
+                        });
+                });
+        });
+
+});
+</script>
+
+<!-- Remove submit button after the form submitted
+     so we avoid double submitting -->
+<script type="text/javascript">
+document.observe("dom:loaded", function() {
+  $('billing_form').observe('submit', function(e) { 
+    $('billing_footer').update("[% i18n("Please wait. Processing payment...") %]");
+  });
+});
+</script>
+
+[%# WELCOME TEXT %]
+<div id="about">
+    <img src="/content/images/registration.png" alt="Registration" />
+    <h1>[% i18n("Guest Registration") %]</h1>
+    <p>[% i18n("guest network disclaimer") %]</p>
+    <hr/>
+</div>
+    [%# ERROR %]
+    [% IF txt_validation_error.defined %]<div class="error"><p>[% i18n(txt_validation_error) %]</p></div>[% END %]
+
+<form id="billing_form" name="billing" method="post" action="/billing/confirm">
+  <input type="hidden" name="destination_url" value="[% destination_url %]" />
+  [% IF profile.tiers.size %]
+  [%# TIERS CHOICE %]
+  <div class="input">
+    <span>[% i18n("Internet Access Package") %]</span>
+    [% FOREACH tier IN profile.tiers %]
+    <input name="tier" type="radio" [% IF selected_tier == tier.id %] checked="checked"[% END %]
+              value="[% i18n(tier.id) | html %]"/>
+    <b>[% i18n(tier.name) | html %] - $[% i18n(tier.price) | html %]</b><br/>
+    <em>[% i18n(tier.description) | html %]</em><br/>
+    [% END %]
+  </div>
+  [% END %]
+  <div class="input">
+      <span>[% i18n("Firstname") %]</span>
+      <input class="field" name="firstname" id="firstfield" type="text" value="[% firstname | html %]" />
+      <span>[% i18n("Lastname") %]</span>
+      <input class="field" name="lastname" type="text" value="[% lastname | html %]" />
+      <span>[% i18n("Email") %]</span>
+      <input class="field" name="email" type="text" value="[% email | html %]" />
+  </div>
+  [%# AUP %]
+  <div class="input" style="margin-top: 0px">
+    <div>[% i18n("Acceptable Use Policy") %]</div>
+    <div id="aup" class="notmobile">
+        [% INCLUDE aup_text.html %]
+    </div>
+    <div class="notmobile">
+        <input name="aup_signed" type="checkbox" value="on" /> [% i18n("I accept the terms") %]
+    </div>
+    <div class="mobile">
+        <input name="aup_signed" type="checkbox" value="on" /> [% i18n("I have read and accept the terms") %]
+    </div>
+  </div>
+
+  [% SET billing_sources = profile.getBillingSources %] 
+  [% IF billing_sources.size %]
+  <div class="input">
+    [% FOREACH billing IN billing_sources %]
+    [% type = billing.type %]
+    <button id="billing_source_[% billing.id | html %]" name="source" type="submit" value="[% billing.id | html %]" class="btn disabled">[% i18n("Pay with ${type}") %] <img src="/content/images/[% type %].icon.png"></button>
+    [% END %]
+  </div>
+  [% END %]
+
+</form>
+
+[% INCLUDE footer.html %]
