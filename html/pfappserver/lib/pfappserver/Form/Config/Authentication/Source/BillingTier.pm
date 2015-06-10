@@ -53,8 +53,8 @@ has_field 'price' => (
 =cut
 
 has_field 'timeout' => (
-    type => 'Text',
-    required => 1,
+   type => 'Duration',
+   required => 1,
 );
 
 =head2 category
