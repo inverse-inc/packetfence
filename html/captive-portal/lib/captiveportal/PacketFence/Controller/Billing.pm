@@ -5,6 +5,7 @@ use pf::config;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use pf::billing::constants;
 use pf::billing::custom;
+use pf::billing;
 use pf::config;
 use pf::iplog;
 use pf::node;
@@ -77,7 +78,7 @@ sub verify : Chained('source') : Args(0) {
         $c->log->error($@);
     }
     else {
-        $c->stash($data);
+        $c->forward('processTransaction');
     }
 }
 
@@ -182,118 +183,112 @@ sub index : Path : Args(0) {
 
 sub processTransaction : Private {
     my ($self, $c) = @_;
-    my $billingObj = new pf::billing::custom();
-    my $request = $c->request;
-    my $logger = $c->log;
     my $portalSession = $c->portalSession;
     my $profile       = $c->profile;
-    my $mac = $portalSession->clientMac;
+    my $session       = $c->session;
+    my $request       = $c->request;
+    my $logger        = $c->log;
+    my $mac           = $portalSession->clientMac;
 
     # Transactions informations
-    my $tier                  = $request->param('tier');
-    my %tiers_infos           = $billingObj->getAvailableTiers();
-    my $transaction_infos_ref = {
-        ip             => $portalSession->clientIp(),
-        mac            => $mac,
-        firstname      => $request->param('firstname'),
-        lastname       => $request->param('lastname'),
-        email          => lc($request->param('email')),
-        ccnumber       => $request->param('ccnumber'),
-        ccexpiration   => $request->param('ccexpiration'),
-        ccverification => $request->param('ccverification'),
-        item           => $tier,
-        price          => $tiers_infos{$tier}{'price'},
-        description    => $tiers_infos{$tier}{'description'},
-    };
+    my $tier = $session->{'tier'};
+    my $pid  = $c->session->{'login'};
 
-    # Process the transaction
-    my $paymentStatus =
-      $billingObj->processTransaction($transaction_infos_ref);
-    my $pid = $c->session->{'login'};
+    # Adding person (using modify in case person already exists)
+    person_modify(
+        $pid,
+        (   'firstname' => $session->{'firstname'},
+            'lastname'  => $session->{'lastname'},
+            'email'     => lc($session->{'email'}),
+            'notes'     => 'billing engine activation - ' . $tier->{id},
+            'portal'    => $profile->getName,
+            'source'    => 'billing',
+        )
+    );
 
-    if ($paymentStatus eq $BILLING::SUCCESS) {
+    # Grab additional infos about the node
+    my %info;
+    my $timeout = normalize_time($tier->{'timeout'});
+    $info{'pid'}      = $pid;
+    $info{'category'} = $tier->{'category'};
+    $info{'unregdate'} =
+      POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $timeout));
 
-        # Adding person (using modify in case person already exists)
-        person_modify(
-            $pid,
-            (   'firstname' => $request->param('firstname'),
-                'lastname'  => $request->param('lastname'),
-                'email'     => lc($request->param('email')),
-                'notes'     => 'billing engine activation - ' . $tier,
-                'portal'    => $profile->getName,
-                'source'    => 'billing',
-            )
-        );
+    if ($tier->{'usage_duration'}) {
+        $info{'time_balance'} =
+          normalize_time($tier->{'usage_duration'});
 
-        # Grab additional infos about the node
-        my %info;
-        my $timeout = normalize_time($tiers_infos{$tier}{'timeout'});
-        $info{'pid'}      = $pid;
-        $info{'category'} = $tiers_infos{$tier}{'category'};
-        $info{'unregdate'} =
-          POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $timeout));
+        # Check if node has some access time left; if so, add it to the new duration
+        my $node = node_view($mac);
+        if ($node && $node->{'time_balance'} > 0) {
+            if ($node->{'last_start_timestamp'} > 0) {
 
-        if ($tiers_infos{$tier}{'usage_duration'}) {
-            $info{'time_balance'} =
-              normalize_time($tiers_infos{$tier}{'usage_duration'});
-
-            # Check if node has some access time left; if so, add it to the new duration
-            my $node = node_view($mac);
-            if ($node && $node->{'time_balance'} > 0) {
-                if ($node->{'last_start_timestamp'} > 0) {
-
-                    # Node is active; compute the actual access time left
-                    my $expiration = $node->{'last_start_timestamp'}
-                      + $node->{'time_balance'};
-                    my $now = time;
-                    if ($expiration > $now) {
-                        $info{'time_balance'} += ($expiration - $now);
-                    }
-                } else {
-
-                    # Node is inactive; add the remaining access time to the purchased access time
-                    $info{'time_balance'} += $node->{'time_balance'};
+                # Node is active; compute the actual access time left
+                my $expiration = $node->{'last_start_timestamp'} + $node->{'time_balance'};
+                my $now        = time;
+                if ($expiration > $now) {
+                    $info{'time_balance'} += ($expiration - $now);
                 }
             }
-            $logger->info(
-                "Usage duration for $mac is now " . $info{'time_balance'});
+            else {
+
+                # Node is inactive; add the remaining access time to the purchased access time
+                $info{'time_balance'} += $node->{'time_balance'};
+            }
         }
-
-        # Close violations that use the 'Accounting::BandwidthExpired' trigger
-        my @tid = trigger_view_tid($ACCOUNTING_POLICY_TIME);
-        foreach my $violation (@tid) {
-
-            # Close any existing violation
-            violation_force_close($mac, $violation->{'vid'});
-        }
-
-        # Register the node
-        $c->forward( 'CaptivePortal' => 'webNodeRegister', [$info{pid}, %info] );
-
-        my $confirmationInfo = {
-            tier => $request->param('tier'),
-            firstname => $request->param('firstname'),
-            lastname => $request->param('lastname'),
-            email => $request->param('email'),
-        };
-        # Send confirmation email
-        my %data =
-          $billingObj->prepareConfirmationInfo($transaction_infos_ref, $confirmationInfo);
-        pf::util::send_email('billing_confirmation', $data{'email'},
-            $data{'subject'}, \%data);
-
-        # Generate the release page
-        # XXX Should be part of the portal profile
-
-        $c->forward( 'CaptivePortal' => 'endPortalSession' );
-    } else { # There was an error with the payment processing
-        $logger->warn(
-            "There was an error with the payment processing for email $transaction_infos_ref->{email} "
-              . "(MAC: $transaction_infos_ref->{mac})");
-        $c->stash->{'txt_validation_error'} = $BILLING::ERRORS{$BILLING::ERROR_PAYMENT_GATEWAY_FAILURE};
-        $c->detach('showBilling');
+        $logger->info("Usage duration for $mac is now " . $info{'time_balance'});
     }
+
+    # Close violations that use the 'Accounting::BandwidthExpired' trigger
+    my @tid = trigger_view_tid($ACCOUNTING_POLICY_TIME);
+    foreach my $violation (@tid) {
+
+        # Close any existing violation
+        violation_force_close($mac, $violation->{'vid'});
+    }
+
+    # Register the node
+    $c->forward('CaptivePortal' => 'webNodeRegister', [$info{pid}, %info]);
+
+    my %data = $self->prepareConfirmationInfo($c);
+    # Send confirmation email
+    pf::config::util::send_email('billing_confirmation', $data{'email'}, $data{'subject'}, \%data);
+
+    # Generate the release page
+    # XXX Should be part of the portal profile
+
+    $c->forward('CaptivePortal' => 'endPortalSession');
 }
+
+
+=head2 prepareConfirmationInfo
+
+=cut
+
+sub prepareConfirmationInfo {
+    my ( $self, $c) = @_;
+    my $logger = $c->log;
+    my $session = $c->session;
+    my $tier = $session->{tier};
+
+    my %info = ( pf::web::constants::to_hash() );
+
+    $info{'firstname'} = $session->{firstname};
+    $info{'lastname'} = $session->{lastname};
+    $info{'email'} = $session->{email};
+    $info{'tier_name'} = $tier->{'name'};
+    $info{'tier_description'} = $tier->{'description'};
+    $info{'tier_price'} = $tier->{'price'};
+    $info{'hostname'} = $Config{'general'}{'hostname'} || $Default_Config{'general'}{'hostname'};
+    $info{'domain'} = $Config{'general'}{'domain'} || $Default_Config{'general'}{'domain'};
+    $info{'subject'} = i18n_format("%s: Network Access Order Confirmation", $Config{'general'}{'domain'});
+
+    #Hove to decide about the transacion id
+#    $info{'transaction_id'} = $transaction_infos_ref->{'id'};
+
+    return %info;
+}
+
 
 =head1 AUTHOR
 
