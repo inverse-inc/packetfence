@@ -74,6 +74,7 @@ Certificate of Authority
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 image::docs/images/myca.png[scaledwidth="100%",alt="Certificate of Authority"]
+
 image::docs/images/myca2.png[scaledwidth="100%",alt="Certificate of Authority"]
 
 * Cn: subject of the certificate of authority
@@ -131,6 +132,7 @@ RADIUS server authentication certificate
 Generate a certificate from the profile you defined as the server authentication profile. This certificate will need to be installed and configured as the certificate for authenticate RADIUS.
 
 image::docs/images/radius-profile.png[scaledwidth="100%",alt="RADIUS server certificate"]
+
 image::docs/images/radius-profile2.png[scaledwidth="100%",alt="RADIUS server certificate"]
 
 To fill this profile, follow the screenshots, if you are unsure of what to fill in some fields, you can verify above in the section Profile. Make sure to have TLS Web Server Authentication or serverAuth as your Extended Key Usage.
@@ -167,6 +169,7 @@ Click on add a new PKI and select PacketFence PKI.
 Follow the instructions below to fill the PacketFence PKI configuration.
 
 image::docs/images/packetfence-pki-provider.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
+
 image::docs/images/packetfence-pki-provider2.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
 
 Every fileds are explained in attached screenshot.
