@@ -269,6 +269,8 @@ Requires: collectd >= 5.0, collectd-mysql, libcollectdclient, collectd-apache
 Requires: freeradius-radsniff >= 3.0.0
 Requires: node
 
+# pki
+Requires: Crypt::SMIME
 
 
 Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
