@@ -62,13 +62,15 @@ After you login there are few steps to follow to have the PKI working for an EAP
 * Certificate of Authority.
 * Profiles(for each purpose, i.e. Server/Client auth are 2 different profiles).
 * Manual certificate generation.(for the RADIUS server)
+* Rest API
 
-Follow the wizard after the first login to create your Certificate of Authority.
+The wizard is a three step configuration process that will aloow you to have a Certificate of Authority, a Client profile and the Rest API configured.
 
 Certificate of Authority
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-image::docs/images/create-ca.png [scaledwidth="100%",alt="Certificate of Authority"]
+image::docs/images/create-ca.png[scaledwidth="100%",alt="Certificate of Authority"]
+image::docs/images/create-ca2.png[scaledwidth="100%",alt="Certificate of Authority"]
  
 + explanation of screenshot
 
@@ -107,15 +109,24 @@ For the header, from, subject and footer this part is the customization of the m
 * Header: Below you will find your certificate and it's password to install it.
 * Footer: This email has been generated automatically, please do not reply.
 
+Rest API
+^^^^^^^^
+
+This part will allow PacketFence to query the PKI for generate or fetch a certificate.
+
+The configuration here is quite simple, As you can see in the image below, you need to define a user with his rights, a URI and a name.
+
+image::docs/images/rest-api.png[scaledwidth="100%",alt="Rest API configuration"]
+
 RADIUS server authentication certificate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Generate a certificate from the profile you defined as the server authentication profile. This certificate will need to be installed and configured as the certificate for authenticate RADIUS.
 
-image::docs/images/radius-profile.png [scaledwidth="100%",alt="RADIUS server certificate"]
-image::docs/images/radius-profile2.png [scaledwidth="100%",alt="RADIUS server certificate"]
+image::docs/images/radius-profile.png[scaledwidth="100%",alt="RADIUS server certificate"]
+image::docs/images/radius-profile2.png[scaledwidth="100%",alt="RADIUS server certificate"]
 
-+ explanation of screenshot
+
 
 CAUTION: We advise to use a long validity for your RADIUS server certificate to avoid renew it often(i.e. 10y).
 
@@ -138,11 +149,11 @@ Click on add a new PKI and select PacketFence PKI.
 
 Follow the instructions below to fill the PacketFence PKI configuration.
 
-image::docs/images/packetfence-pki-provider.png [scaledwidth="100%",alt="PacketFence PKI configuration"]
+image::docs/images/packetfence-pki-provider.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
 
 + explanation of screenshot
 
-image::docs/images/packetfence-pki-provider2.png [scaledwidth="100%",alt="PacketFence PKI configuration"]
+image::docs/images/packetfence-pki-provider2.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
 
 + explanation of screenshot
 
@@ -207,13 +218,13 @@ Once your pki provider is configured we will create the provisioner configuratio
 
 Here is an example on how to configure an EAP-TLS connection for Windows/Android/MacOS/iOS
 
-image::docs/images/eaptls-example.png [scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
+image::docs/images/eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
 
 + explanation of screenshot
 
 For MacOS/iOS you have a tab 'Signing' available, this tab will make your profile *Trusted* when trying to install on Apple device.
 
-image::docs/images/eaptls-sign-example.png [scaledwidth="100%",alt="Signing provisioner"]
+image::docs/images/eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
 
 + explanation of screenshot
 
