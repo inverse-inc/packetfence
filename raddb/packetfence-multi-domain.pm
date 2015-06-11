@@ -30,6 +30,8 @@ use pf::radius::soapclient;
 use pf::radius::rpc;
 use pf::util::freeradius qw(clean_mac);
 use pfconfig::cached_hash;
+use pf::util::statsd qw(called);
+use pf::StatsD;
 our %ConfigRealm;
 tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 
@@ -52,6 +54,7 @@ sub authorize {
     # For debugging purposes only
     #&log_request_attributes;
 
+    my $start = Time::HiRes::gettimeofday();
     # We try to find the realm that's configured in PacketFence
     my $realm = $ConfigRealm{$RAD_REQUEST{"Realm"}};
 
@@ -68,6 +71,8 @@ sub authorize {
         $RAD_REQUEST{"PacketFence-Domain"} = $ConfigRealm{"default"}->{domain};
     }
     # If it doesn't go into any of the conditions above, then the behavior will be the same as before (non chrooted ntlm_auth)    
+        
+    $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
     
     return $RADIUS::RLM_MODULE_UPDATED;
         
