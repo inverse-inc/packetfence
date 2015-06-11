@@ -118,11 +118,8 @@ document.observe("dom:loaded", function() {
 
           [% IF billing_sources.size %]
           <div class="input">
-            [% FOREACH billing IN billing_sources %]
-            [% type = billing.type %]
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
-            <a class="btn disabled" href="/billing/[% billing.id %]">[% i18n("Pay with ${type}") %] <img src="/content/images/[% type %].icon.png"></a>
-            [% END %]
+            <a class="btn disabled" href="/billing/">[% i18n("Pay for Access") %] </a>
           </div>
           [% END %]
 
