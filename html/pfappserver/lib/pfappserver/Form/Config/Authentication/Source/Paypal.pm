@@ -17,6 +17,38 @@ use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source::Billing';
 
+has_field host => (
+    type => 'Select',
+    options => [{label => 'api.paypal.com', value => 'api.paypal.com'}, {label => 'api.sandbox.paypal.com', value => 'api.sandbox.paypal.com',}],
+    default => 'api.sandbox.paypal.com',
+);
+
+has_field proto => (
+    type => 'Select',
+    options => [{label => 'http', value => 'https'}, {label => 'https', value => 'https',}],
+    default => 'https',
+);
+
+has_field port => (
+    type => 'Integer',
+    default => 443,
+);
+
+has_field client_id => (
+    type => 'Text',
+    required => 1,
+);
+
+has_field client_secret => (
+    type => 'Text',
+    required => 1,
+);
+
+has_field currency => (
+    type => 'Text',
+    default => 'USD',
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
