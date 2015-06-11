@@ -9,6 +9,7 @@
     [% form.field('ipaddress').render %]
     [% form.field('netmask').render %]
     [% form.field('type').render %]
+    [% form.field('additional_listening_daemons').render %]
     [% form.field('high_availability').render UNLESS high_availability %]
     [% form.field('dns').render %]
     [% form.field('vip').render %]

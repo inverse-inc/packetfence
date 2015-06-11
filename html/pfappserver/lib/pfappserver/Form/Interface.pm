@@ -11,6 +11,7 @@ Form definition to create or update a network interface.
 =cut
 
 use HTML::FormHandler::Moose;
+use List::MoreUtils qw(firstidx);
 
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
@@ -40,6 +41,16 @@ has_field 'type' =>
    element_class => ['chzn-deselect'],
    element_attr => { 'data-placeholder' => 'None' },
   );
+has_field 'additional_listening_daemons' => (
+    type            => 'Select',
+    multiple        => 1,
+    label           => 'Additionnal listening daemon(s)',
+    options_method  => \&options_additional_listening_daemons,
+    element_class   => [ 'chzn-select' ],
+    element_attr    => {
+        'data-placeholder' => 'Click to add a daemon',
+    },
+);
 has_field 'dns' =>
   (
    type => 'IPAddresses',
@@ -100,6 +111,17 @@ sub options_type {
     return ('none' => 'None', @types);
 }
 
+=head2 options_additional_listening_daemons
+
+=cut
+
+sub options_additional_listening_daemons {
+    my $self = shift;
+
+    return map { { value => $_, label => $_ } }
+        qw(portal);
+}
+
 =head2 validate
 
 Force DNS to be defined when the 'inline' type is selected
@@ -115,6 +137,16 @@ sub validate {
         ) {
         unless ($self->value->{dns}) {
             $self->field('dns')->add_error('Please specify your DNS server.');
+        }
+    }
+
+    # Remove 'portal' additional listening daemon on already enabled httpd.portal interfaces
+    # TODO: Make a list of interface type rather than this ugly "or" - dwuelfrath@inverse.ca 2015.06.11
+    if ( defined $self->value->{type} && ( $self->value->{type} eq 'vlan-registration' or $self->value->{type} eq 'vlan-isolation' or $self->value->{type} eq 'inline' or $self->value->{type} eq 'inlinel2' or $self->value->{type} eq 'portal' ) ) {
+        my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
+        if ( exists($daemons{'portal'}) ) {
+            my $index = firstidx { $_ eq 'portal' } @{$self->value->{additional_listening_daemons}};
+            splice @{$self->value->{additional_listening_daemons}}, $index, 1;
         }
     }
 }
