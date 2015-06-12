@@ -264,7 +264,7 @@ Requires: wmi, perl(Net::WMIClient)
 Requires: python-django, python-django-tagging, pyparsing
 Requires: MySQL-python
 Requires: python-carbon, python-whisper
-Requires: graphite-web
+Requires: graphite-web >= 0.9.12-25
 Requires: collectd >= 5.0, collectd-mysql, libcollectdclient, collectd-apache
 Requires: freeradius-radsniff >= 3.0.0
 Requires: node
