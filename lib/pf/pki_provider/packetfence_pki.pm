@@ -104,10 +104,7 @@ sub _post_curl {
     my $username = $self->username;
     my $password = $self->password;
     my $curl = WWW::Curl::Easy->new;
-    my $request =
-        "username=" . uri_escape($username)
-      . "&password=" . uri_escape($password)
-      . "&" . $post_fields;
+    my $request = $post_fields;
 
     my $response_body = '';
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
@@ -119,6 +116,8 @@ sub _post_curl {
     $curl->setopt(CURLOPT_URL, $uri);
     $curl->setopt(CURLOPT_SSL_VERIFYHOST, 0);
     $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
+    $curl->setopt(CURLOPT_USERNAME, $username);
+    $curl->setopt(CURLOPT_PASSWORD, $password);
 
     $logger->debug("Calling PacketFence PKI service using URI : $uri");
 
@@ -140,7 +139,6 @@ Get the certificate from the packetfence_pki pki service
 sub get_cert {
     my ($self,$args) = @_;
     my $logger = get_logger();
-    my $uri = "/pki/cert/eaptls/certificate/";
 
     my $email = $args->{'certificate_email'};
     my $cn = $args->{'certificate_cn'};
@@ -150,9 +148,10 @@ sub get_cert {
     my $country = $self->country;
     my $certpwd = $args->{'certificate_pwd'};
 
+    my $uri = "/pki/cert/rest/get/".uri_escape($cn)."/";
+
     my $post_fields =
-      "cn=" . uri_escape($cn)
-      . "&mail=" . uri_escape($email)
+      "mail=" . uri_escape($email)
       . "&organisation=" . uri_escape($organisation)
       . "&st=" . uri_escape($state)
       . "&country=" . uri_escape($country)
@@ -181,10 +180,9 @@ Revoke the certificate for a user
 sub revoke {
     my ($self, $cn) = @_;
     my $logger = get_logger;
-    my $uri = "/pki/cert/eaptls/revoke/";
+    my $uri = "/pki/cert/rest/revoke/".$cn."/";
     my $post_fields = 
-      "cn=". uri_escape($cn)
-      . "&CRLReason=" . uri_escape("superseded");
+      "CRLReason=" . uri_escape("superseded");
 
     my ($curl_return_code, $response_code, $response_body, $curl) = $self->_post_curl($uri, $post_fields);
     if ($curl_return_code == 0 && $response_code == 200) {
