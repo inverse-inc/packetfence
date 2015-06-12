@@ -752,7 +752,9 @@ sub pf_run {
     $caller =~ s/^(pf::\w+|main):://;
 
     my $loggable_command = $command;
-    $loggable_command =~ s/$options{log_strip}/*obfuscated-information*/g; 
+    if(defined($options{log_strip})){
+        $loggable_command =~ s/$options{log_strip}/*obfuscated-information*/g; 
+    }
     # died with an OS problem
     if ($CHILD_ERROR == -1) {
         $logger->warn("Problem trying to run command: $loggable_command called from $caller. OS Error: $exception");
