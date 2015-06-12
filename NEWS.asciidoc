@@ -24,11 +24,13 @@ Enhancements
 ++++++++++++
 
 * Specific vhost for httpd.portal diagnostics
+* Added way to not log sensible information when failing to execute a command through pf_run
 
 Bug Fixes
 +++++++++
 * Allow the usage of an external monitoring database when using an Active/Active cluster
 * Validate that a provisioner is not used before deleting it through the administration interface
+* Stopped logging database password on schema import failure
 
 Version 5.1.0 released on 2015-05-25
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
