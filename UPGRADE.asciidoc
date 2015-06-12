@@ -31,6 +31,18 @@ In `conf/pf.conf` :
 db_host=127.0.0.1
 ----
 
+New 'portal' interface type
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you are using web-auth enforcement (external captive-portal), you might want (actually, you need otherwise it will no longer works!) to add the 'portal' type to the existing 'management' interface.
+
+In `conf/pf.conf` :
+
+----
+[interface eth42]
+type=management,portal
+----
+
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
 
