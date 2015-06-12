@@ -220,7 +220,7 @@ SwitchView.prototype.updateSwitch = function(e) {
             success: function(data) {
                 modal.modal('toggle');
                 showSuccess(that.parent.find('.table.items').first(), data.status_msg);
-                that.refreshPage();
+                that.refreshTable();
             },
             errorSibling: modal_body.children().first()
         });
@@ -265,6 +265,39 @@ SwitchView.prototype.refreshPage = function() {
             },
             success: function(data) {
                 section.html(data);
+            },
+            errorSibling: status_container
+        });
+    });
+    return false;
+};
+
+SwitchView.prototype.refreshTable = function() {
+    var that = this;
+    var pagination = $('.pagination').first();
+    var formId = pagination.attr('data-from-from') || '#search';
+    var form = $(formId);
+    var link = pagination.find('li.disabled a[href]').first();
+    if(form.length == 0) {
+        form = $('#search');
+    }
+    var columns = $('#columns');
+    var href = link.attr("href");
+    var section = $('#section');
+    var status_container = $("#section").find('h2').first();
+    var table = $('#switches');
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5, function() {
+        that.switches.post({
+            url: href,
+            data: form.serialize() + "&" + columns.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                table.html(data);
             },
             errorSibling: status_container
         });
