@@ -87,7 +87,7 @@ has_field 'profile' =>
 
 has_field 'country' =>
   (
-   type => 'Text',
+   type => 'Country',
    tags => { after_element => \&help,
              help => 'Country for the certificate'},
   );
