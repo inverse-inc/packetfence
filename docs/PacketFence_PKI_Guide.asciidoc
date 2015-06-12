@@ -106,9 +106,9 @@ CAUTION: Remember that after the expiration date of your Certificate of Authorit
 Profile
 ^^^^^^^
 
-image::docs/images/client-profile.png[scaledwidth="100%",alt="Rest API configuration"]
+image::docs/images/client-profile.png[scaledwidth="100%",alt="Client Profile configuration"]
 
-image::docs/images/client-profile2.png[scaledwidth="100%",alt="Rest API configuration"]
+image::docs/images/client-profile2.png[scaledwidth="100%",alt="Client Profile configuration"]
 
 Creation of a profile:
 
