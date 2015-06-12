@@ -30,7 +30,7 @@ NOTE: PacketFence PKI is available on the PacketFence repository as the package 
 Installing 
 ^^^^^^^^^^
 
-You have the choice to install the packetfence-pki on a stand alone machine or on the PacketFence machine.
+First of all you have the choice to install the packetfence-pki on a stand alone machine or on the PacketFence machine.
 
 For the stand alone you need to open the port 9393 in tcp to be able to reach the pki.
 
@@ -44,7 +44,7 @@ Uncomment this line and restart the service iptables:
  # -A input-management-if --protocol tcp --match tcp --dport 9393 --jump ACCEPT
  # bin/pfcmd service iptables restart
  
-First of all, you will need to install the package, use the following command matching your OS.
+You now need to install the package, use the following command matching your OS.
 
 Debian/Ubuntu:
 
