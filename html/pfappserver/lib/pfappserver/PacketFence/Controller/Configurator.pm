@@ -201,7 +201,9 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
         # Make sure all types for each enforcement is assigned to an interface
         # TODO: Shall we ignore disabled interfaces?
         my $interfaces = $c->model('Interface')->get('all');
-        my %selected_types = map { $interfaces->{$_}->{type} => 1 } keys %$interfaces;
+        my @selected_types;
+        foreach ( keys %$interfaces ) { push @selected_types, split(',', $interfaces->{$_}->{type}); }
+        my %selected_types = map { $_ => 1 } @selected_types;
         my @missing = ();
 
         foreach my $enforcement (keys %{$c->session->{enforcements}}) {
