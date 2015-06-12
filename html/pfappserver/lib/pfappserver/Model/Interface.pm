@@ -403,6 +403,7 @@ sub getType {
         else {
             $type = $interface->{type};
             $type = ($type =~ /management|managed/i) ? 'management' : 'other';
+            $type .= ($interface->{type} =~ /portal/i) ? ',portal' : '';
         }
     }
     
