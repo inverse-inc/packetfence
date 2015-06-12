@@ -444,7 +444,7 @@ sub setType {
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
         # Update networks.conf
-        if ( $type =~ /^management$|^portal$/ ) {
+        if ( $type =~ /management|portal/ ) {
             # management interfaces must not appear in networks.conf
             $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
         }
