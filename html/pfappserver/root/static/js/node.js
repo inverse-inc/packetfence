@@ -398,6 +398,7 @@ NodeView.prototype.reorderSearch = function(e) {
             },
             success: function(data) {
                 section.html(data);
+                section.trigger('section.loaded');
             },
             errorSibling: status_container
         });
@@ -433,6 +434,7 @@ NodeView.prototype.searchPagination = function(e) {
             },
             success: function(data) {
                 section.html(data);
+                section.trigger('section.loaded');
             },
             errorSibling: status_container
         });
@@ -466,6 +468,7 @@ NodeView.prototype.refreshPage = function() {
             },
             success: function(data) {
                 section.html(data);
+                section.trigger('section.loaded');
             },
             errorSibling: status_container
         });
@@ -494,6 +497,7 @@ NodeView.prototype.submitSearch = function(e) {
             },
             success: function(data) {
                 section.html(data);
+                section.trigger('section.loaded');
             },
             errorSibling: status_container
         });
