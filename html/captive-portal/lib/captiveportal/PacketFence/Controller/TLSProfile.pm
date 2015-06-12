@@ -160,8 +160,8 @@ sub process_form : Private {
 
     my $provisioner   = $c->profile->findProvisioner($mac);
     my $pki_provider = $provisioner->getPkiProvider();
-
-    my $certificate_cn = $pki_provider->user_cn($mac);
+    my $node_info = node_view($mac);
+    my $certificate_cn = $pki_provider->user_cn($node_info);
     my $user_cache = $c->user_cache;
     my $pki_session = {
         service           => $c->request->param('service'),
@@ -189,7 +189,7 @@ sub prepare_profile : Private {
     my $stash = $c->stash;
     my $user_cache = $c->user_cache;
     my $pki_session = $user_cache->compute("pki_session", sub {});
-    
+
     my $ca_content = $provisioner->getPkiProvider()->raw_ca_cert_string();
     my $server_cn = $provisioner->getPkiProvider()->server_cn();
     my $ca_cn = $provisioner->getPkiProvider()->ca_cn();

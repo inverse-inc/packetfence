@@ -14,7 +14,6 @@ pf::pki_provider
 use strict;
 use warnings;
 use Moo;
-use pf::node;
 use pf::log;
 use pf::constants;
 
@@ -97,7 +96,7 @@ sub _cert_cn {
     else {
         get_logger->error("Cannot find CN of server certificate at ".$self->ca_cert_path);
         return undef;
-    }   
+    }
 
 }
 
@@ -131,7 +130,7 @@ sub server_cn {
     }
     else {
         get_logger->error("cannot find cn of ca certificate at ".$self->server_cert_path);
-    }   
+    }
 }
 
 sub ca_cn {
@@ -142,22 +141,21 @@ sub ca_cn {
     }
     else {
         get_logger->error("cannot find cn of ca certificate at ".$self->ca_cert_path);
-    }   
+    }
 }
 
 sub user_cn {
-    my ($self, $mac) = @_;
-    my $node_info = node_view($mac);
+    my ($self, $node_info) = @_;
     my $cn = $node_info->{$self->cn_attribute};
     if( defined($cn) ) {
-        get_logger->debug("Found CN $cn for mac $mac.");
+        get_logger->debug("Found CN $cn for mac $node_info->{mac}");
         if($self->cn_attribute eq "mac"){
             $cn =~ s/:/-/g;
         }
         return $cn;
     }
     else {
-        get_logger->info("Can't find attribute based CN for mac $mac. Searching for attribute $self->cn_attribute.");
+        get_logger->info("Can't find attribute based CN for mac $node_info->{mac} Searching for attribute $self->cn_attribute.");
     }
 }
 
