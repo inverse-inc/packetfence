@@ -49,6 +49,17 @@ sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
 
+=item getVersion - obtain image version information from switch
+
+=cut
+
+sub getVersion {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->info("we don't know how to determine the version through SNMP !");
+    return '1';
+}
+
 =head2 parseUrl
 
 This is called when we receive a http request from the device and return specific attributes:
