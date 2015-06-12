@@ -35,7 +35,6 @@ use pf::clustermgmt;
 use pf::config;
 use pf::config::cached;
 use pf::db;
-use pf::fingerbank;
 use pf::firewallsso;
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iplog;
@@ -309,7 +308,7 @@ sub listen_dhcp {
             dhcp_vendor         => $tmp{'dhcp_vendor'},
             mac                 => $dhcp->{'chaddr'},
         );
-        my $fingerbank_result = pf::fingerbank::process(\%fingerbank_query_args);
+        $apiclient->notify('fingerbank_process', \%fingerbank_query_args );
 
         my $modified_node_log_message = '';
         foreach my $node_key ( keys %tmp ) {
@@ -318,7 +317,6 @@ sub listen_dhcp {
         chop($modified_node_log_message);
 
         $logger->info("$dhcp->{'chaddr'} requested an IP with the following informations: $modified_node_log_message");
-        $logger->info("$dhcp->{'chaddr'} is of device type $fingerbank_result");
     } else {
         $logger->debug("unrecognized DHCP opcode from $dhcp->{'chaddr'}: $dhcp->{op}");
     }
