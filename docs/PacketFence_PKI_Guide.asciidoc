@@ -114,7 +114,7 @@ Creation of a profile:
 
 * Name: MyClientProfile
 * CA: The certificate of authority you created earlier
-* Validity: Number of validity days, i.e. 3y = 1068
+* Validity: Number of validity days, i.e. 2y = 730
 * Key type, size and digest: we advise to use the following RSA, 2048, sha1
 * Key Usage: Empty 
 * Extended Key Usage: 
@@ -131,7 +131,7 @@ Information about Key Usage and Extended Key Usage are available from RFC5280, p
 For the header, from, subject and footer this part is the customization of the mail, it is configurable as you want it for your company. An example of value would be:
 
 * From: pki@packetfence.pki
-* Subject: Certificate for EAP-TLS connection
+* Subject: Certificate for client
 * Header: Below you will find your certificate and it's password to install it
 * Footer: This email has been generated automatically, please do not reply
 
@@ -152,18 +152,20 @@ image::docs/images/radius-profile.png[scaledwidth="100%",alt="RADIUS server cert
 
 image::docs/images/radius-profile2.png[scaledwidth="100%",alt="RADIUS server certificate"]
 
-To fill this profile, follow the screenshots, if you are unsure of what to fill in some fields, you can verify above in the section Profile. Make sure to have TLS Web Server Authentication or serverAuth as your Extended Key Usage.
+To fill this profile, follow the screenshots. Make sure to have TLS Web Server Authentication or serverAuth as your Extended Key Usage.
 
 CAUTION: We advise to use a long validity for your RADIUS server certificate to avoid renew it often(i.e. 3650d at least).
 
 Revokation process
 ^^^^^^^^^^^^^^^^^^
 
-We have two ways to check if a certificate is valid, you can either use OCSP to interogate the PKI if the certificate is still valid, or use the revokation lists(CRL). However since the OCSP its implemented we advise you to use this method.
+We have two ways to check if a certificate is valid, you can either use OCSP to interogate the PKI if the certificate is still valid, or use the revokation lists(CRL). 
 
 OSCP is scalable, its main downside would be that one request per certificate authentication is sent to the PKI to verify if the certificate is still valid.
 
 With the CRL, everytime the CRL is updated, every equipement that uses this CRL has to download it again. For security reason we advise to have a small delay on CRL expiration(to avoid using revoked certificate on the network).
+
+By default a CRL list will be created when you revoke a certificate. The file will be under /usr/local/packetfence-pki/ca/YourProfileName.crl. Note that one CRL by profile will be created.
 
 User creation
 ^^^^^^^^^^^^^
