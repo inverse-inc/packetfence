@@ -728,6 +728,7 @@ sub bulkRegister {
     foreach my $mac (@macs) {
         my $node = node_attributes($mac);
         if ($node->{status} ne $pf::node::STATUS_REGISTERED) {
+            $node->{status} = $pf::node::STATUS_REGISTERED;
             $self->update($mac,$node);
             $count++;
         }
@@ -745,6 +746,7 @@ sub bulkDeregister {
     foreach my $mac (@macs) {
         my $node = node_attributes($mac);
         if ($node->{status} ne $pf::node::STATUS_UNREGISTERED) {
+            $node->{status} = $pf::node::STATUS_UNREGISTERED;
             $self->update($mac,$node);
             $count++;
         }
