@@ -33,6 +33,8 @@ has '+type' => (default => 'Billing');
 
 has '+unique' => (default => 1);
 
+has 'currency' => (is => 'rw', default => 'USD');
+
 =head2 available_attributes
 
 Allow to make a condition on the user's email address.

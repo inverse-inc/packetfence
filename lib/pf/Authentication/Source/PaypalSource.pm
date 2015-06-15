@@ -46,8 +46,6 @@ has 'client_id' => (is => 'rw', required => 1);
 
 has 'client_secret' => (is => 'rw', required => 1);
 
-has 'currency' => (is => 'rw', default => 'USD');
-
 has 'payment_method' => (is => 'rw', default => 'paypal');
 
 =head2 curl
