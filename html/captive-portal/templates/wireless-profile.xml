@@ -106,7 +106,7 @@
         <key>PayloadDescription</key>
         <string>Profile description.</string>
         <key>PayloadDisplayName</key>
-        <string>[% provisioner.id %]</string>
+        <string>[% provisioner.description %]</string>
         <key>PayloadIdentifier</key>
         <string>[% reverse_fqdn %]</string>
         <key>PayloadOrganization</key>
