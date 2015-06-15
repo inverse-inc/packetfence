@@ -199,27 +199,6 @@ You can now edit the REST API and allow your newly created user to make request 
 Step3: Configuring PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence PKI
-^^^^^^^^^^^^^^^
-
-To work with our PKI in PacketFence you will need to configure the PKI in the PKI Provider section.
-
-Click on add a new PKI and select PacketFence PKI.
-
-Follow the instructions below to fill the PacketFence PKI configuration.
-
-image::docs/images/packetfence-pki-provider.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
-
-image::docs/images/packetfence-pki-provider2.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
-
-Path need to be absolute (i.e. /usr/local/pf/conf/ssl/tls_certs/MyCA.pem is an absolute path)
-
-For the 'Common name Attribute', if you select 'Username', a certificate will be generated for the user that authenticated. If you select 'MAC address', a certificate will be generated for the device itself using the MAC address as the identifier.
-
-This means that revoking the certificate for a username based certificate will block all the devices that this user registered. If you generate the certificates using the MAC address, revoking a certificate will block only this device.
-
-If you want user based authentication then select 'Username'. If you prefer computer/device based authentication, select 'MAC address'
-
 Certificate storage on PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  
@@ -249,7 +228,7 @@ The next step is to convert the p12 to right format, for this use the following 
  # openssl pkcs12 -in YourCert.p12 -nokey -out YourCert.pem
  
 RADIUS EAP-TLS and packetfence-pki
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Verify that all the files needed are here in the right folder, do the following command:
 
@@ -276,10 +255,31 @@ When this is done you need to restart RADIUS using the following
 
  # /usr/local/pf/bin/pfcmd service radiusd restart
 
-Provisioners configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+PacketFence PKI
+^^^^^^^^^^^^^^^
 
-Once your pki provider is configured we will create the provisioner configuration.
+To work with our PKI in PacketFence you will need to configure the PKI in the PKI provider section.
+
+Click on add a new PKI and select PacketFence PKI.
+
+Follow the instructions below to fill the PacketFence PKI configuration.
+
+image::docs/images/packetfence-pki-provider.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
+
+image::docs/images/packetfence-pki-provider2.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
+
+Path need to be absolute (i.e. /usr/local/pf/conf/ssl/tls_certs/MyCA.pem is an absolute path)
+
+For the 'Common name Attribute', if you select 'Username', a certificate will be generated for the user that authenticated. If you select 'MAC address', a certificate will be generated for the device itself using the MAC address as the identifier.
+
+This means that revoking the certificate for a username based certificate will block all the devices that this user registered. If you generate the certificates using the MAC address, revoking a certificate will block only this device.
+
+If you want user based authentication then select 'Username'. If you prefer computer/device based authentication, select 'MAC address'
+
+Provisioners configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Once your PKI provider is configured we will create the provisioner configuration.
 
 Here is an example on how to configure an EAP-TLS connection for Windows/Android/MacOS/iOS
 
