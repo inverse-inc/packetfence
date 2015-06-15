@@ -29,9 +29,10 @@ has_field 'broadcast' =>
    type => 'Checkbox',
    label => 'Broadcast network',
    value => 'true',
-   checkbox_value => 'false',
+   default => 'yes',
+   checkbox_value => 'Y',
    tags => { after_element => \&help,
-             help => 'Check this box if your network is using a hidden SSID' },
+             help => 'Uncheck this box if you are using a hidden SSID' },
   );
 
 has_field 'security_type' =>
