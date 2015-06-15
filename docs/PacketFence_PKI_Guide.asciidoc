@@ -35,7 +35,7 @@ First of all, you have the choice to install the PacketFence PKI on a standalone
 
 For the standalone you need to open the port 9393 in tcp to be able to reach the PKI. This has to be done in the firewall OS(iptables).
 
-You will also need to add the packetfence-extra repo if you want to install this on a standalone server, for this do the following in your server cli.
+You will also need to add the packetfence-extra repo if you want to install this on a standalone server, for this do the following in your server CLI.
 
  # vim /etc/yum.repos.d/PacketFence.repo
 
@@ -212,7 +212,7 @@ image::docs/images/packetfence-pki-provider.png[scaledwidth="100%",alt="PacketFe
 
 image::docs/images/packetfence-pki-provider2.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
 
-Path need to be absolute (i.e. /usr/local/pf/conf/ssl/tls-certs/MyCA.pem is an absolute path)
+Path need to be absolute (i.e. /usr/local/pf/conf/ssl/tls_certs/MyCA.pem is an absolute path)
 
 For the 'Common name Attribute', if you select 'Username', a certificate will be generated for the user that authenticated. If you select 'MAC address', a certificate will be generated for the device itself using the MAC address as the identifier.
 
@@ -245,14 +245,15 @@ Copy the p12 file in your home directory:
 
 The next step is to convert the p12 to right format, for this use the following command:
 
- # openssl pkcs12 -infile YourCert.p12 -outfile YourCert.pem -passin
-
+ # openssl pkcs12 -in YourCert.p12 -nodes -nocerts -out YourCert.key
+ # openssl pkcs12 -in YourCert.p12 -nokey -out YourCert.pem
+ 
 RADIUS EAP-TLS and packetfence-pki
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Verify that all the files needed are here in the right folder, do the following command:
 
- # ls -l /usr/local/pf/conf/ssl/
+ # ls -l /usr/local/pf/conf/ssl/tls_certs/
 
 You need to have YourCA.pem, YourCert.pem and YourCert.key.
 
