@@ -374,10 +374,10 @@ Configuration validation of the network portion of the config
 
 sub network {
 
-    # make sure that networks.conf is not empty when services.dhcpd
+    # check that networks.conf is not empty when services.dhcpd
     # is enabled
     if (isenabled($Config{'services'}{'dhcpd'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
-        add_problem( $FATAL, "networks.conf cannot be empty when services.dhcpd is enabled" );
+        add_problem( $WARN, "networks.conf is empty but services.dhcpd is enabled. Disable it to remove this warning." );
     }
 
     # make sure that networks.conf is not empty when services.named
