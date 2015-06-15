@@ -148,10 +148,6 @@ sub user_cn {
     my ($self, $node_info) = @_;
     my $cn = $node_info->{$self->cn_attribute};
     if( defined($cn) ) {
-        get_logger->debug("Found CN $cn for mac $node_info->{mac}");
-        if($self->cn_attribute eq "mac"){
-            $cn =~ s/:/-/g;
-        }
         return $cn;
     }
     else {
