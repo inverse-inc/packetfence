@@ -44,9 +44,8 @@ has_field client_secret => (
     required => 1,
 );
 
-has_field currency => (
-    type => 'Text',
-    default => 'USD',
+has_block definition => (
+    render_list => [qw(host proto port client_id client_secret currency)]
 );
 
 =head1 AUTHOR
