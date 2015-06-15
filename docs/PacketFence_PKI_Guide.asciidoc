@@ -28,12 +28,24 @@ Step 1: Install the PKI
 
 NOTE: PacketFence PKI is available on the PacketFence repository as the package "packetfence-pki". This is available for CentOS6/7 and Debian7/8.
 
-Installing 
-^^^^^^^^^^
-
 First of all, you have the choice to install the PacketFence PKI on a standalone machine or on the PacketFence machine.
 
-For the standalone you need to open the port 9393 in tcp to be able to reach the PKI. This has to be done in the firewall OS(iptables).
+Installing in standalone
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+You will need to open the port 9393 in tcp to be able to reach the PKI. This has to be done in the firewall OS(iptables).
+
+You will also need to disable SELinux:
+
+ # vim /etc/selinux/config
+
+Change the line:
+
+ SELINUX=enforcing
+
+into:
+
+ SELINUX=disabled
 
 You will also need to add the PacketFenceExtra repository if you want to install this on a standalone server, for this do the following in your server CLI.
 
@@ -52,6 +64,9 @@ Copy this inside the file, then save it.
  gpgcheck=0
  enabled=0
 
+Installing with PacketFence 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 If you install the PKI on a PacketFence server, you need to do the following:
 
  # vim /usr/local/pf/conf/iptables.conf
@@ -61,6 +76,9 @@ Uncomment this line and restart the iptables service:
  # -A input-management-if --protocol tcp --match tcp --dport 9393 --jump ACCEPT
  # bin/pfcmd service iptables restart
  
+Installing
+^^^^^^^^^^
+
 You now need to install the package, use the following command matching your OS.
 
 Debian/Ubuntu:
@@ -224,7 +242,7 @@ Copy the p12 file in your home directory:
 
 The next step is to convert the p12 to right format, for this use the following command:
 
- # openssl pkcs12 -in YourCert.p12 -nodes -nocerts -out YourCert.key
+ # openssl pkcs12 -in YourCert.p12 -nocerts -out YourCert.key -nodes
  # openssl pkcs12 -in YourCert.p12 -nokey -out YourCert.pem
  
 RADIUS EAP-TLS and packetfence-pki
