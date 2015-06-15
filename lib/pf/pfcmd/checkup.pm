@@ -380,12 +380,6 @@ sub network {
         add_problem( $WARN, "networks.conf is empty but services.dhcpd is enabled. Disable it to remove this warning." );
     }
 
-    # make sure that networks.conf is not empty when services.named
-    # is enabled
-    if (isenabled($Config{'services'}{'named'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
-        add_problem( $FATAL, "networks.conf cannot be empty when services.named is enabled" );
-    }
-
     foreach my $network (keys %ConfigNetworks) {
         # shorter, more convenient accessor
         my %net = %{$ConfigNetworks{$network}};
