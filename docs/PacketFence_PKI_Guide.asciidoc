@@ -17,7 +17,7 @@ Assumptions
 * You have at least one server with PacketFence 5.2+
 * The server already has a properly configured switch with 802.1X support
 * PacketFence RADIUS server is working in your environnement
-* Postfix is properly configured on PAcketFence server
+* Postfix is properly configured on PacketFence server
 * PacketFence management IP will be 192.168.1.5 and has useStrongerSecret as it's RADIUS shared secret
 
 Installation
@@ -35,7 +35,7 @@ First of all, you have the choice to install the PacketFence PKI on a standalone
 
 For the standalone you need to open the port 9393 in tcp to be able to reach the PKI. This has to be done in the firewall OS(iptables).
 
-You will also need to add the packetfence-extra repo if you want to install this on a standalone server, for this do the following in your server CLI.
+You will also need to add the PacketFenceExtra repository if you want to install this on a standalone server, for this do the following in your server CLI.
 
  # vim /etc/yum.repos.d/PacketFence.repo
 
