@@ -41,16 +41,16 @@ You will also need to add the packetfence-extra repo if you want to install this
 
 Copy this inside the file, then save it.
 
- # [PacketFence]
- # name=PacketFence Repository
- # baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/$basearch
- # gpgcheck=0
- # enabled=0
- # [PacketFenceExtra]
- # name=PacketFence Extra Repository
- # baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/extra/$basearch
- # gpgcheck=0
- # enabled=0
+ [PacketFence]
+ name=PacketFence Repository
+ baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/$basearch
+ gpgcheck=0
+ enabled=0
+ [PacketFenceExtra]
+ name=PacketFence Extra Repository
+ baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/extra/$basearch
+ gpgcheck=0
+ enabled=0
 
 If you install the PKI on a PacketFence server, you need to do the following:
 
