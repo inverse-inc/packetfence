@@ -2817,7 +2817,11 @@ These sensors work by capturing the packets at the lowest level possible on your
 Microsoft DHCP sensor
 ^^^^^^^^^^^^^^^^^^^^^
 
-You will first need to download and install WinPcap available from http://www.winpcap.org/install/
+You will first need to download and install 'WinPcap' available from http://www.winpcap.org/install/
+
+You will also need to download and install 'Microsoft Visual C++ 2010 Redistributable' available from http://www.microsoft.com/download/details.aspx?id=5555
+
+NOTE: You absolutely need to install the 32-bit version of 'Microsoft Visual C++ 2010 Redistributable' even if you are using a 64-bit operating system.
 
 Then get the remote sensor from Inverse's download website http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.exe
 
