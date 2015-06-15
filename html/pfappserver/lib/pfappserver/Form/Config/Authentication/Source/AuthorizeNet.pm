@@ -1,28 +1,35 @@
-package pfappserver::Form::Config::Authentication::Source::Billing;
+package pfappserver::Form::Config::Authentication::Source::Paypal;
 
 =head1 NAME
 
-pfappserver::Form::Config::Authentication::Source::Billing;
+pfappserver::Form::Config:::Authentication::Source::Paypal add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Authentication::Source::Billing
+pfappserver::Form::Config:::Authentication::Source::Paypal
 
 =cut
 
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::Authentication::Source';
+extends 'pfappserver::Form::Config::Authentication::Source::Billing';
 
-has_field currency => (
+has_field api_login_id => (
     type => 'Text',
-    default => 'USD',
+    required => 1,
 );
 
-# Form fields
+has_field transaction_key => (
+    type => 'Text',
+    required => 1,
+);
+
+has_block definition => (
+    render_list => [qw(api_login_id transaction_key currency)]
+);
 
 =head1 AUTHOR
 
@@ -52,3 +59,4 @@ USA.
 =cut
 
 1;
+
