@@ -35,6 +35,18 @@ First of all, you have the choice to install the PacketFence PKI on a standalone
 
 For the standalone you need to open the port 9393 in tcp to be able to reach the PKI. This has to be done in the firewall OS(iptables).
 
+You will also need to add the packetfence-extra repo if you want to install this on a standalone server, for this do the following in your server cli.
+
+ # vim /etc/yum.repos.d/PacketFence.repo
+
+Add this inside the file, then save it.
+
+ # [PacketFenceExtra]
+ # name=PacketFence Extra Repository
+ # baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/extra/$basearch
+ # gpgcheck=0
+ # enabled=0
+
 If you install the PKI on a PacketFence server, you need to do the following:
 
  # vim /usr/local/pf/conf/iptables.conf
@@ -62,7 +74,9 @@ PacketFence-PKI Configuration
 
 NOTE: The following configuration will allow you to generate certificates for an EAP-TLS configuration, if you want to use the PKI for another purpose you will have to adjust the Key Usage/Extended Key Usage.
 
-Now that your PKI is installed, you need to configure it.
+Now that your PKI is installed, you need to configure, but first you need to start it.
+
+ # service packetfence-pki start
 
 PKI configuration
 ^^^^^^^^^^^^^^^^^
@@ -225,8 +239,6 @@ The next step is to convert the p12 to right format, for this use the following 
 
  # openssl pkcs12 -infile YourCert.p12 -outfile YourCert.pem -passin
 
-When you will download or send the certificate the password will arrive by mail, if you don't receive anything you can look around to see if postfix is properly configured and you filled the information for *Mail P12* as intended.
-
 RADIUS EAP-TLS and packetfence-pki
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -264,7 +276,8 @@ Here is an example on how to configure an EAP-TLS connection for Windows/Android
 
 image::docs/images/eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
 
-* Provisioning ID: Name of your provisioner in PacketFence and of the profile on MacOS/iOS when installed
+* Provisioning ID: Name of your provisioner in PacketFence
+* Desciption: Name that will appear on iOS/MacOS device profile
 * Roles: roles that will be affected by this provisioner
 * SSID: SSID to connect at after provisioning
 * Security type: You need to select the security type as *WPA2* to unlock access to *EAP type*, when you will chose *EAP-TLS* as an eap type, the PKI Provider will unlock
