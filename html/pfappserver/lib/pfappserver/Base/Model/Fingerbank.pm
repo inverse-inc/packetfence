@@ -50,7 +50,7 @@ sub readAll {
 
 sub countAll {
     my ( $self ) = @_;
-    return (HTTP_OK,$self->fingerbankModel->count($self->scope));
+    return $self->fingerbankModel->count($self->scope);
 }
 
 =head2 hasId
