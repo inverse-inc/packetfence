@@ -648,18 +648,16 @@ setenforce 0
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
 # skip if this is an update
-if [ ! -e /usr/local/pf/conf/currently-at ]; then 
-    #Starting Packetfence.
-    echo "Starting Packetfence..."
-    #removing old cache
-    rm -rf /usr/local/pf/var/cache/ 
-    /usr/local/pf/bin/pfcmd configreload
-    /sbin/service packetfence start
+#Starting Packetfence.
+echo "Starting Packetfence Administration GUI..."
+#removing old cache
+rm -rf /usr/local/pf/var/cache/ 
+/usr/local/pf/bin/pfcmd configreload
+/usr/local/pf/bin/pfcmd service httpd.admin start
 
-    echo Installation complete
-    echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
-    echo "  * Please stop your iptables service if you don't have access to configurator."
-fi
+echo Installation complete
+echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
+echo "  * Please stop your iptables service if you don't have access to configurator."
 
 %post -n %{real_name}-remote-snort-sensor
 echo "Adding PacketFence remote Snort Sensor startup script"
