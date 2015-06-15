@@ -39,8 +39,13 @@ You will also need to add the packetfence-extra repo if you want to install this
 
  # vim /etc/yum.repos.d/PacketFence.repo
 
-Add this inside the file, then save it.
+Copy this inside the file, then save it.
 
+ # [PacketFence]
+ # name=PacketFence Repository
+ # baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/$basearch
+ # gpgcheck=0
+ # enabled=0
  # [PacketFenceExtra]
  # name=PacketFence Extra Repository
  # baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/extra/$basearch
@@ -64,7 +69,7 @@ Debian/Ubuntu:
 
 CentOS/RHEL:
 
- # yum install packetfence-pki --enablerepo="packetfence-extra, packetfence-devel"
+ # yum install packetfence-pki --enablerepo="PacketFenceExtra, PacketFence"
 
 Step2: Configuring the PKI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,12 +106,13 @@ Follow the three step wizard to create your certificate of authority, your clien
 Certificate of authority
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-image::docs/images/myca.png[scaledwidth="100%",alt="Certificate of authority"]
+image::docs/images/packetfence-pki-myca.png[scaledwidth="100%",alt="Certificate of authority"]
 
-image::docs/images/myca2.png[scaledwidth="100%",alt="Certificate of authority"]
+image::docs/images/packetfence-pki-myca2.png[scaledwidth="100%",alt="Certificate of authority"]
 
 * CN: Subject of the certificate of authority
 * Mail: Email address of the admin or any other mail that suit your situation
+* OU: Organisation Unit
 * Organisation: Name of your company
 * Country: Country (select in the list)
 * State: state code (i.e. NY, CA, QC, etc...)
@@ -120,9 +126,9 @@ CAUTION: Remember that after the expiration date of your certificate of authorit
 Profile
 ^^^^^^^
 
-image::docs/images/client-profile.png[scaledwidth="100%",alt="Client Profile configuration"]
+image::docs/images/packetfence-pki-client-profile.png[scaledwidth="100%",alt="Client Profile configuration"]
 
-image::docs/images/client-profile2.png[scaledwidth="100%",alt="Client Profile configuration"]
+image::docs/images/packetfence-pki-client-profile2.png[scaledwidth="100%",alt="Client Profile configuration"]
 
 Creation of a profile:
 
@@ -151,7 +157,7 @@ For the header, from, subject and footer this part is the customization of the m
 REST API
 ^^^^^^^^
 
-image::docs/images/rest-api.png[scaledwidth="100%",alt="REST API configuration"]
+image::docs/images/packetfence-pki-rest-api.png[scaledwidth="100%",alt="REST API configuration"]
 
 Follow the configuration as the image above, you need to define which user will have access to make requests on the API.
 You can setup admin for now and assign other users afterwards.
@@ -163,9 +169,11 @@ Now that the wizard is done, you will need to create a RADIUS server authenticat
 
 To fill this profile, follow the screenshots. Make sure to have TLS Web Server Authentication or serverAuth as your Extended Key Usage.
 
-image::docs/images/radius-profile.png[scaledwidth="100%",alt="RADIUS server certificate"]
+image::docs/images/packetfence-pki-radius-profile.png[scaledwidth="100%",alt="RADIUS server certificate"]
 
-image::docs/images/radius-profile2.png[scaledwidth="100%",alt="RADIUS server certificate"]
+image::docs/images/packetfence-pki-radius-profile2.png[scaledwidth="100%",alt="RADIUS server certificate"]
+
+After the creation of your certificate you need to sign it, press the button 'Sign' in the list of certificate.
 
 CAUTION: We advise to use a long validity for your RADIUS server certificate to avoid renew it often(i.e. 3650d at least).
 
@@ -204,7 +212,7 @@ image::docs/images/packetfence-pki-provider.png[scaledwidth="100%",alt="PacketFe
 
 image::docs/images/packetfence-pki-provider2.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
 
-Path need to be absolute (i.e. /usr/local/pf/conf/ssl/tls-cert/MyCA.pem is an absolute path)
+Path need to be absolute (i.e. /usr/local/pf/conf/ssl/tls-certs/MyCA.pem is an absolute path)
 
 For the 'Common name Attribute', if you select 'Username', a certificate will be generated for the user that authenticated. If you select 'MAC address', a certificate will be generated for the device itself using the MAC address as the identifier.
 
@@ -274,7 +282,7 @@ Once your pki provider is configured we will create the provisioner configuratio
 
 Here is an example on how to configure an EAP-TLS connection for Windows/Android/MacOS/iOS
 
-image::docs/images/eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
+image::docs/images/packetfence-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
 
 * Provisioning ID: Name of your provisioner in PacketFence
 * Desciption: Name that will appear on iOS/MacOS device profile
@@ -285,15 +293,17 @@ image::docs/images/eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TL
 
 For MacOS/iOS you have a tab 'Signing' available, this tab will make your profile *Trusted* when trying to install on Apple device.
 
-image::docs/images/eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
+image::docs/images/packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
 
 To initiate the signing, you will need a certificate deliver by a trusted certificate of authority(i.e. VeriSign, GoDaddy, etc...). You will also need the intermediate certificate if any.
 
 Copy the file content that is between the begin and end tag in the corresponding field for example if the file content is:
 
------ BEGIN CERT -----
-cert content
------ END CERT -----
+ # ----- BEGIN CERT -----
+ # 
+ # cert content
+ # 
+ # ----- END CERT -----
 
 You have to put cert content in the field
 
