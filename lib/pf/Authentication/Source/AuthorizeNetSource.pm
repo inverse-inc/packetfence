@@ -42,8 +42,6 @@ has 'api_login_id' => (is => 'rw', required => 1);
 
 has 'transaction_key' => (is => 'rw', required => 1);
 
-has 'currency' => (is => 'rw', default => 'USD');
-
 =head2 prepare_payment
 
 Prepare the payment from authorize.net
