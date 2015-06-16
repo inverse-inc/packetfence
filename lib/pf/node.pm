@@ -807,7 +807,7 @@ sub node_modify {
         }
         my $node_info = node_view($mac);
         pf::ipset::iptables_update_set($mac, $old_role_id, $new_role_id) if ($node_info->{'last_connection_type'} eq $connection_type_to_str{$INLINE});
-       
+
        # once the category conversion is complete, I delete the category entry to avoid complicating things
        delete $existing->{'category'} if defined($existing->{'category'});
     }
@@ -942,7 +942,8 @@ sub node_deregister {
     if(my $provisioner = $profile->findProvisioner($mac)){
         if(my $pki_provider = $provisioner->getPkiProvider() ){
             if(isenabled($pki_provider->revoke_on_unregistration)){
-                my $cn = $pki_provider->user_cn($mac);
+                my $node_info = node_view($mac);
+                my $cn = $pki_provider->user_cn($node_info);
                 $pki_provider->revoke($cn);
             }
         }
