@@ -185,16 +185,12 @@ Prepare the payment from paypal
 sub prepare_payment {
     my ($self, $session, $tier, $params, $path) = @_;
     my $logger = get_logger();
-    my $id     = $self->id;
     my $total  = sprintf("%.2f", $tier->{price});
-
-    #    my $base_path = "http://$fqdn/billing/$id";
-    my $base_path = "http://192.168.56.101:8080/billing/$id";
     my %payment   = (
         intent        => 'sale',
         redirect_urls => {
-            "return_url" => "${base_path}/verify",
-            "cancel_url" => "${base_path}/cancel"
+            "return_url" => $self->verify_url,
+            "cancel_url" => $self->cancel_url,
         },
         "payer"        => {"payment_method" => $self->payment_method, payer_info => {}},
         "transactions" => [
