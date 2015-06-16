@@ -77,6 +77,26 @@ sub match_in_subclass {
     return $username;
 }
 
+sub verify_url {
+    my ($self) = @_;
+    my $base_path = $self->_build_base_path;
+    return "$base_path/verify";
+}
+
+sub cancel_url {
+    my ($self) = @_;
+    my $base_path = $self->_build_base_path;
+    return "$base_path/cancel";
+}
+
+sub _build_base_path {
+    my ($self) = @_;
+    my $id     = $self->id;
+    #    my $base_path = "http://$fqdn/billing/$id";
+    my $base_path = "http://192.168.56.101:8080/billing/$id";
+    return $base_path;
+}
+
 
 =head1 AUTHOR
 
