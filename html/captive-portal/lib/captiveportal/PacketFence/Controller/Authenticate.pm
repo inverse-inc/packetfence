@@ -227,7 +227,7 @@ sub postAuthentication : Private {
     $info->{pid} = $pid;
     $c->stash->{info} = $info;
     # We make sure the person exists and assign it to the device
-    person_add($pid);        
+    person_add($pid);
     node_modify($portalSession->clientMac, (pid => $pid));
 
     $c->forward('setupMatchParams');
@@ -433,7 +433,7 @@ sub checkIfProvisionIsNeeded : Private {
     my $mac = $portalSession->clientMac;
     my $profile = $c->profile;
     if (defined( my $provisioner = $profile->findProvisioner($mac))) {
-        $c->log->info("Found provisioner $provisioner->id for $mac");
+        $c->log->info("Found provisioner " . $provisioner->id . " for $mac");
         my $info = $c->stash->{info};
         if($provisioner->getPkiProvider) {
             $c->log->info("Detected PKI provider for $mac.");
