@@ -77,7 +77,6 @@
 /usr/local/pf/conf/monitoring/types.db
 /usr/local/pf/html/captive-portal/captive_portal.conf
 /usr/local/pf/html/captive-portal/content/responsive.css
-/usr/local/pf/html/captive-portal/content/responsive.css
 /usr/local/pf/html/captive-portal/content/styles.css
 /usr/local/pf/html/captive-portal/content/print.css
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Access.pm
