@@ -47,22 +47,9 @@ into:
 
  SELINUX=disabled
 
-You will also need to add the PacketFenceExtra repository if you want to install this on a standalone server, for this do the following in your server CLI.
+You will also need to add the packetfence-extra repository if you want to install this on a standalone server, for this do the following in your server CLI.
 
- # vim /etc/yum.repos.d/PacketFence.repo
-
-Copy this inside the file, then save it.
-
- [PacketFence]
- name=PacketFence Repository
- baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/$basearch
- gpgcheck=0
- enabled=0
- [PacketFenceExtra]
- name=PacketFence Extra Repository
- baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/extra/$basearch
- gpgcheck=0
- enabled=0
+ # rpm -ivh http://inverse.ca/downloads/PacketFence/CentOS6/x86_64/RPMS/packetfence-release-1-2.centos6.noarch.rpm
 
 Installing with PacketFence 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -74,6 +61,7 @@ If you install the PKI on a PacketFence server, you need to do the following:
 Uncomment this line and restart the iptables service:
 
  # -A input-management-if --protocol tcp --match tcp --dport 9393 --jump ACCEPT
+ # -A input-management-if --protocol tcp --match tcp --dport 9191 --jump ACCEPT
  # bin/pfcmd service iptables restart
  
 Installing
@@ -87,7 +75,7 @@ Debian/Ubuntu:
 
 CentOS/RHEL:
 
- # yum install packetfence-pki --enablerepo="PacketFenceExtra, PacketFence"
+ # yum install packetfence-pki --enablerepo=packetfence-extra, packetfence
 
 Step2: Configuring the PKI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -243,7 +231,7 @@ Copy the p12 file in your home directory:
 The next step is to convert the p12 to right format, for this use the following command:
 
  # openssl pkcs12 -in YourCert.p12 -nocerts -out YourCert.key -nodes
- # openssl pkcs12 -in YourCert.p12 -nokey -out YourCert.pem
+ # openssl pkcs12 -in YourCert.p12 -out YourCert.pem -clcerts -nokeys
  
 RADIUS EAP-TLS and packetfence-pki
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
