@@ -960,8 +960,8 @@ fi
                         /usr/local/pf/html/captive-portal/Changes
                         /usr/local/pf/html/captive-portal/Makefile.PL
                         /usr/local/pf/html/captive-portal/README
-%config(noreplace)      /usr/local/pf/html/captive-portal/captive_portal.conf
-                        /usr/local/pf/html/captive-portal/captive_portal.conf.example
+%config(noreplace)      /usr/local/pf/html/captive-portal/captiveportal.conf
+                        /usr/local/pf/html/captive-portal/captiveportal.conf.example
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/responsive.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css

@@ -58,7 +58,7 @@ our $VERSION = '0.01';
 
 # Configure the application.
 #
-# Note that settings in captive_portal.conf (or other external
+# Note that settings in captiveportal.conf (or other external
 # configuration file that you set up manually) take precedence
 # over this when using ConfigLoader. Thus configuration
 # details given here can function as a default configuration,
