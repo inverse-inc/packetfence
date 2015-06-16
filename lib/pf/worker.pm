@@ -18,7 +18,7 @@ use warnings;
 
 =head2 new
 
-TODO: documention
+The worker is a blessed array ref to speed up serlization speed and data access
 
 =cut
 
