@@ -207,10 +207,12 @@ Currently handled "kind" of device (based on Fingerbank device classes):
 sub is_a {
     my ( $device_type ) = @_;
     my $logger = pf::log::get_logger;
-    unless ( defined $device_type ) {
-        $logger->warn("An undefined device type passed");
+
+    if ( !defined($device_type) || $device_type eq '' ) {
+        $logger->warn("Undefined / invalid device type passed");
         return "unknown";
     }
+
     $logger->debug("Trying to determine the kind of device for '$device_type' device type");
 
     my $fingerbank = fingerbank::Query->new;
