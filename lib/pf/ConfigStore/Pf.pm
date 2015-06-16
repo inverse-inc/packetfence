@@ -41,7 +41,7 @@ sub _buildCachedConfig {
         -onpostreload => [
             'reload_pf_config' => sub {
                 my ($config) = @_;
-                $config->{imported}->ReloadConfig();
+                $config->{imported}->ReadConfig;
               }
         ],
 
