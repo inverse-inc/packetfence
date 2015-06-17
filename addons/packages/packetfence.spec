@@ -651,9 +651,9 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 #Starting Packetfence.
 echo "Starting Packetfence Administration GUI..."
 #removing old cache
-rm -rf /usr/local/pf/var/cache/ 
+rm -rf /usr/local/pf/var/cache/
+/sbin/service packetfence-config restart 
 /usr/local/pf/bin/pfcmd configreload
-/sbin/service packetfence-config restart
 /usr/local/pf/bin/pfcmd service httpd.admin start
 
 echo Installation complete
