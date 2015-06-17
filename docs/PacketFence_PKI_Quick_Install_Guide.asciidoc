@@ -84,7 +84,7 @@ Installing on CentOS/RHEL:
  # yum install packetfence-pki --enablerepo=packetfence-extra, packetfence
 
 
-Configuring the PKI
+Step 2: Configuring the PKI
 ~~~~~~~~~~~~~~~~~~~
 
 PacketFence-PKI Configuration
@@ -115,7 +115,7 @@ You will need to configure the following items:
 * A PKI Provider (optional)
 * A Provisioner (optional)
 
-Follow the three step wizard to create your certification authority, your client profile and your REST API configuration.
+Follow the three step wizard to create your certification authority, your client and server profile and your REST API configuration.
 
 Certification Authority
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -141,43 +141,6 @@ CAUTION: Remember that after the expiration date of your certification authority
 
 Profile
 ^^^^^^^
-
-image::docs/images/packetfence-pki-client-profile.png[scaledwidth="100%",alt="Client Profile configuration"]
-
-image::docs/images/packetfence-pki-client-profile2.png[scaledwidth="100%",alt="Client Profile configuration"]
-
-Creating a profile:
-Fill out the following fields that will be used to generate the certificate profile to use for generating user certificates.
-
-* Name: A name by which to identify this profile
-* CA: The certification authority you created earlier
-* Validity: Number of validity days, i.e. 2y = 730
-* Key type, size and digest: we recommend using the following: RSA, 2048, sha1
-* Key Usage: Optional 
-* Extended Key Usage: "clienthAuth"
-
-Information about Key Usage and Extended Key Usage is available from RFC5280, parts 4.2.1.3 and 4.2.1.12.
-
-* The P12 mail setup is mandatory for the server authentication profile. This is required to send the certificate and password by email using the *send certificate* button. 
-** If your mail alerts are already working with PacketFence you should use the following:
-*** P12 smtp server: 127.0.0.1
-*** Tick P12 mail password
-
-The following fields should be configured according to your preferences and will fill out the email sent to the user for which the certificate has been created:
-
-* From: The email address of the CA manager
-* Subject:  A descriptive line indicating that this is the certificate required to authenticate
-* Header: Text that will appear in all emails sent with the certificates
-* Footer: Optional, e.g. "This email has been generated automatically, please do not reply."
-
-REST API Configuration
-^^^^^^^^^^^^^^^^^^^^^^
-
-image::docs/images/packetfence-pki-rest-api.png[scaledwidth="100%",alt="REST API configuration"]
-
-The fields shown above are required to allow use of the REST API over which PacketFence and the PKI exchange authentication information.
-A username and password are mandatory.
-
 
 RADIUS server authentication Profile
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -215,16 +178,47 @@ After the creation of your certificate you need to sign it, press the button 'Si
 
 CAUTION: We recommend using a long validity for your RADIUS server certificate to avoid it expiring too frequently (i.e. two to five years).
 
-Revocation process
-^^^^^^^^^^^^^^^^^^
+Client authentication Profile
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Certificates can be checked for revocation at authentication time using either OCSP to interrogate the PKI for every RADIUS authentication or using the certificate revocation lists (CRL). 
+This profile will be used to generate the RADIUS client certificate and key.
+The client certificate is used by the 802.1x supplicant to authenticate its end of the connection to the server.
 
-OSCP is scalable, its main downside would be that one request per certificate authentication is sent to the PKI to verify if the certificate is still valid and that adds additional latency to authentication. Additionally, RADIUS authentication then becomes dependent on an external service which could be unreachable although that can be mitigated in the FreeRADIUS configuration.
+image::docs/images/packetfence-pki-client-profile.png[scaledwidth="100%",alt="Client Profile configuration"]
 
-Using a CRL implies that each time the CRL is updated, every services that uses this CRL has to download it again. For security reason we recommend a short delay on CRL expiration (to avoid using revoked certificate on the network).
+image::docs/images/packetfence-pki-client-profile2.png[scaledwidth="100%",alt="Client Profile configuration"]
 
-By default a CRL list will be created when you revoke a certificate. The file will be under /usr/local/packetfence-pki/ca/YourProfileName.crl. Note that one CRL by profile will be created.
+Creating a profile:
+Fill out the following fields that will be used to generate the certificate profile to use for generating user certificates.
+
+* Name: A name by which to identify this profile
+* CA: The certification authority you created earlier
+* Validity: Number of validity days, i.e. 2y = 730
+* Key type, size and digest: we recommend using the following: RSA, 2048, sha1
+* Key Usage: Optional 
+* Extended Key Usage: "clienthAuth"
+
+Information about Key Usage and Extended Key Usage is available from RFC5280, parts 4.2.1.3 and 4.2.1.12.
+
+* The P12 mail setup is mandatory for the server authentication profile. This is required to send the certificate and password by email using the *send certificate* button. 
+** If your mail alerts are already working with PacketFence you should use the following:
+*** P12 smtp server: 127.0.0.1
+*** Tick P12 mail password
+
+The following fields should be configured according to your preferences and will fill out the email sent to the user for which the certificate has been created:
+
+* From: The email address of the CA manager
+* Subject:  A descriptive line indicating that this is the certificate required to authenticate
+* Header: Text that will appear in all emails sent with the certificates
+* Footer: Optional, e.g. "This email has been generated automatically, please do not reply."
+
+REST API Configuration
+^^^^^^^^^^^^^^^^^^^^^^
+
+image::docs/images/packetfence-pki-rest-api.png[scaledwidth="100%",alt="REST API configuration"]
+
+The fields shown above are required to allow use of the REST API over which PacketFence and the PKI exchange authentication information.
+A username and password are mandatory.
 
 User creation
 ^^^^^^^^^^^^^
@@ -234,7 +228,7 @@ All fields are mandatory.
 
 Users can be associated with the REST API configuration.
 
-Configuring PacketFence
+Step 3: Configuring PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Certificate storage on PacketFence
@@ -318,10 +312,9 @@ Restart radiusd to regenerate the new configuration files and enable EAP-TLS usi
 PacketFence provider configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To work with our PKI in PacketFence you will need to configure the PKI in the PKI provider section.
+Using the PKI requires configuring the PKI providers section in the PacketFence GUI under Configuration > Users.
 The provider configuration defines how PacketFence connects to the PKI REST API and which profile will be used.
 
-Using the PKI requires configuring the PKI providers section in the PacketFence GUI under Configuration > Users.
 
 Add a new PKI provider and select PacketFence PKI.
 
@@ -397,7 +390,6 @@ NOTE: If you use two different portal profiles for the open and secure networks,
 Passthroughs required for Android
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
 Android devices require passthroughs to be created to allow them to fetch the configuration application from the Play Store.
 
 Add the following to the "Trapping" section of the Configuration tab in the PacketFence GUI.
@@ -407,3 +399,15 @@ Add the following to the "Trapping" section of the Configuration tab in the Pack
   passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,
     *.googleapis.com,*.android.clients.google.com
   ----
+
+Revocation process
+^^^^^^^^^^^^^^^^^^
+
+Certificates can be checked for revocation at authentication time using either OCSP to interrogate the PKI for every RADIUS authentication or using the certificate revocation lists (CRL). 
+
+OSCP is scalable, its main downside would be that one request per certificate authentication is sent to the PKI to verify if the certificate is still valid and that adds additional latency to authentication. Additionally, RADIUS authentication then becomes dependent on an external service which could be unreachable although that can be mitigated in the FreeRADIUS configuration.
+
+Using a CRL implies that each time the CRL is updated, every services that uses this CRL has to download it again. For security reason we recommend a short delay on CRL expiration (to avoid using revoked certificate on the network).
+
+By default a CRL list will be created when you revoke a certificate. The file will be under /usr/local/packetfence-pki/ca/YourProfileName.crl. Note that one CRL by profile will be created.
+
