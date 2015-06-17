@@ -1307,7 +1307,7 @@ For Android, you must allow passthroughs in your `pf.conf` configuration file:
 
   [trapping]
   passthrough=enabled
-  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com
+  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com
 
 Profile generation
 ^^^^^^^^^^^^^^^^^^

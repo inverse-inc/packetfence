@@ -397,7 +397,7 @@ Add the following to the "Trapping" section of the Configuration tab in the Pack
   ----
   passthrough=enabled
   passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,
-    *.googleapis.com,*.android.clients.google.com
+    *.googleapis.com,*.android.clients.google.com,*.gvt1.com
   ----
 
 Revocation process
