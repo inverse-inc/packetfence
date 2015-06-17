@@ -1698,7 +1698,7 @@ Google
 In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URI for the "Redirect URI"
 field : https://YOUR_PORTAL_HOSTNAME/oauth2/google.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
+You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/google).
 
 Also, add the following Authorized domains : *.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
 
