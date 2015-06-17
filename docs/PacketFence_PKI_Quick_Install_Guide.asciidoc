@@ -75,12 +75,6 @@ Installation
 Debian
 ^^^^^^
 
-You must enable non-free repository:
-
-For non-free, edit the file `/etc/apt/source.list` and add non-free like that:
-
- deb http://debian.mirror.iweb.ca/debian/ wheezy main non-free
-
 In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
 
  echo 'deb http://inverse.ca/downloads/PacketFence/debian wheezy wheezy' > /etc/apt/sources.list.d/packetfence.list
