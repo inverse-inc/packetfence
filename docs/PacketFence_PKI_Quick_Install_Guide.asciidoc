@@ -372,11 +372,12 @@ Fill out the fields with the contents of the Base64 encoded certificates.
 To extract this information from a pem formatted certificate, copy the file content included between the begin and end tag, not including the delimiters themselves.
 For instance if the file content is:
 
-  ----- BEGIN CERT -----
-  
-  cert content
-  
-  ----- END CERT -----
+----
+----- BEGIN CERT -----
+1234567890asdfghjkl
+zxcvbnmqwertyuiop78
+----- END CERT -----
+----
 
 Copy everything between the BEGIN and END lines, but not the lines themselves.
 Repeat this operation for the certificate key and intermediate certificate if any.
