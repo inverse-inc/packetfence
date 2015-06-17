@@ -386,11 +386,11 @@ Android devices require passthroughs to be created to allow them to fetch the co
 
 Add the following to the "Trapping" section of the Configuration tab in the PacketFence GUI.
 
-  ----
-  passthrough=enabled
-  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,
-    *.googleapis.com,*.android.clients.google.com,*.gvt1.com
-  ----
+----
+passthrough=enabled
+passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,
+  *.googleapis.com,*.android.clients.google.com,*.gvt1.com
+----
 
 Revocation process
 ^^^^^^^^^^^^^^^^^^
