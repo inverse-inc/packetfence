@@ -56,6 +56,9 @@ doc-inline-zen:
 doc-openwrt-hostapd:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_OpenWrt-Hostapd_Quick_Install_Guide.docbook docs/PacketFence_OpenWrt-Hostapd_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_OpenWrt-Hostapd_Quick_Install_Guide.docbook  -pdf docs/PacketFence_OpenWrt-Hostapd_Quick_Install_Guide.pdf
 
+doc-pki:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_PKI_Quick_Install_Guide.docbook docs/PacketFence_PKI_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_PKI_Quick_Install_Guide.docbook  -pdf docs/PacketFence_PKI_Quick_Install_Guide.pdf
+
 .PHONY: configurations
 
 configurations:
