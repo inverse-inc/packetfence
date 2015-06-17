@@ -27,7 +27,7 @@ Installation
 Step 1: Install the PKI
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: The PacketFence PKI application is available on the PacketFence repository as the package "packetfence-pki". This is available for CentOS6 and Debian7/8.
+NOTE: The PacketFence PKI application is available on the PacketFence repository as the package "packetfence-pki". This is available for CentOS6, Debian7 and Ubuntu 12.04.
 
 PacketFence PKI can be installed on a standalone machine or on the PacketFence server itself.
 Communication between the PKI and PacketFence proper will take place over a REST API over port 9393.
@@ -35,9 +35,9 @@ Communication between the PKI and PacketFence proper will take place over a REST
 Preparing to install in standalone mode
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1. Open the ports 9393 and 9292 over TCP to be able to reach the PKI. This has to be done in the firewall (iptables).
+** Open the ports 9393 and 9292 over TCP to be able to reach the PKI. This has to be done in the firewall (iptables).
 
-2. Disable SELinux:
+** Disable SELinux:
 
  # vim /etc/selinux/config
 
@@ -51,9 +51,6 @@ to:
 
 Reboot for the change to take effect.
 
-3. Add the packetfence-extra repository: 
-
- # yum localinstall http://inverse.ca/downloads/PacketFence/CentOS6/x86_64/RPMS/packetfence-release-1-2.centos6.noarch.rpm
 
 Preparing to install with PacketFence 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -75,12 +72,46 @@ Installation
 ^^^^^^^^^^^^
 
 
-Installing on Debian/Ubuntu:
+Debian
+^^^^^^
 
+You must enable non-free repository:
+
+For non-free, edit the file `/etc/apt/source.list` and add non-free like that:
+
+ deb http://debian.mirror.iweb.ca/debian/ wheezy main non-free
+
+In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
+
+ echo 'deb http://inverse.ca/downloads/PacketFence/debian wheezy wheezy' > /etc/apt/sources.list.d/packetfence.list
+
+Once the repository is defined, you can install packetfence-pki using:
+
+ # sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
+ # sudo apt-get update
  # sudo apt-get install packetfence-pki
 
-Installing on CentOS/RHEL:
+Ubuntu
+^^^^^^
 
+In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
+
+ echo 'deb http://inverse.ca/downloads/PacketFence/ubuntu precise precise' > /etc/apt/sources.list.d/packetfence.list
+
+Once the repository is defined, you can install packetfence-pki using:
+
+ # sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
+ # sudo apt-get update
+ # sudo apt-get install packetfence-pki
+
+
+CentOS/RHEL
+^^^^^^^^^^^
+
+Installing on RHEL or CentOS requires the packetfence and packetfence-extra repositories.
+Install them first and then install the packetfence-pki package itself.
+
+ # yum localinstall http://inverse.ca/downloads/PacketFence/CentOS6/x86_64/RPMS/packetfence-release-1-2.centos6.noarch.rpm
  # yum install packetfence-pki --enablerepo=packetfence-extra, packetfence
 
 
