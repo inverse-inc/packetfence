@@ -108,7 +108,8 @@ has_field 'organisation' =>
 
 has_field 'ca_cert_path' =>
   (
-   type => 'Text',
+   type => 'Path',
+   required => 1,
    tags => { after_element => \&help,
              help => 'Path of the CA that will generate your certificates'},
   );
@@ -125,7 +126,8 @@ has_field 'cn_attribute' =>
 
 has_field 'server_cert_path' =>
   (
-   type => 'Text',
+   type => 'Path',
+   required => 1,
    tags => { after_element => \&help,
              help => 'Path of the RADIUS server authentication certificate' },
   );
@@ -141,7 +143,7 @@ has_field 'revoke_on_unregistration' =>
 
 
 
-has_block definition=>
+has_block definition =>
   (
     render_list => [qw(type proto host port username password profile country state organisation cn_attribute revoke_on_unregistration ca_cert_path server_cert_path)],
   );
