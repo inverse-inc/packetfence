@@ -653,6 +653,7 @@ echo "Starting Packetfence Administration GUI..."
 #removing old cache
 rm -rf /usr/local/pf/var/cache/ 
 /usr/local/pf/bin/pfcmd configreload
+/sbin/service packetfence-config restart
 /usr/local/pf/bin/pfcmd service httpd.admin start
 
 echo Installation complete
