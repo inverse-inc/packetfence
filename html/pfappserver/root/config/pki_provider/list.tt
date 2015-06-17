@@ -18,13 +18,15 @@
           </tr>
           [% END -%]
         </tbody>
+        [%IF items.size == 0 %]
         <tfoot>
           <tr>
-            <th>
-              <div id="noItems" class="unwell[% ' hidden' IF items.size %]">
+            <th colspan=3>
+              <div id="noItems" class="unwell">
                 <i class="icon-unlock icon-large"></i><p>[% l('No PKI Provider defined') %]</p>
               </div>
             </th>
           </tr>
         </tfoot>
+        [% END %]
       </table>
