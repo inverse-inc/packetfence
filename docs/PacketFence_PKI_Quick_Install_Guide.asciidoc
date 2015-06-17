@@ -85,7 +85,7 @@ Installing on CentOS/RHEL:
 
 
 Step 2: Configuring the PKI
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PacketFence-PKI Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
