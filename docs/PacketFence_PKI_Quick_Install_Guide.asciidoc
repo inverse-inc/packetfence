@@ -291,6 +291,26 @@ E.g.
  certificate_file = %%install_dir%%/conf/ssl/tls_certs/YourCert.pem
  CA_file = %%install_dir%%/conf/ssl/tls_certs/YourCA.pem
 
+
+Certificate revocation checks also have to be configured using OCSP.
+
+In the /usr/local/pf/conf/radiusd/eap.conf file, configure OCSP in the tls {} block.
+
+For example: 
+
+    ocsp {
+        enable = yes
+        override_cert_url = yes
+        url = "http://192.168.1.5:9292/pki/ocsp/"
+        softfail = yes
+    }
+
+
+The softfail option indicates what should happen if the OCSP check cannot be made for any reason.
+If softfail is set to no, all authentications will fail. 
+If softfail is set to yes, all authentications will succeed.
+
+
 Restart radiusd to regenerate the new configuration files and enable EAP-TLS using your CA signed certificates:
 
  # /usr/local/pf/bin/pfcmd service radiusd restart
