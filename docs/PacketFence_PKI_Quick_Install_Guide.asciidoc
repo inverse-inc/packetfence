@@ -35,7 +35,7 @@ Communication between the PKI and PacketFence proper will take place over a REST
 Preparing to install in standalone mode
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1. Open the port 9393 over TCP to be able to reach the PKI. This has to be done in the firewall (iptables).
+1. Open the ports 9393 and 9292 over TCP to be able to reach the PKI. This has to be done in the firewall (iptables).
 
 2. Disable SELinux:
 
@@ -399,6 +399,8 @@ Android devices require passthroughs to be created to allow them to fetch the co
 
 Add the following to the "Trapping" section of the Configuration tab in the PacketFence GUI.
 
-  [trapping]
+  ----
   passthrough=enabled
-  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com
+  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,
+    *.googleapis.com,*.android.clients.google.com
+  ----
