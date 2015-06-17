@@ -391,6 +391,8 @@ Provisioners have to be enabled on the Portal Profiles configuration in the Pack
 Under Configuration > Main > Portal Profiles, select each of the provisioners created above which should be active for the profile.
 If no portal profile is defined, configure the "default" profile to use the provisioners created.
 
+NOTE: If you use two different portal profiles for the open and secure networks, make sure you configure the provisioners on both profiles.
+
 
 Passthroughs required for Android
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
