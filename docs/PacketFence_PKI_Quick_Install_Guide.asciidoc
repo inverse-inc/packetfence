@@ -169,10 +169,7 @@ The following fields should be configured according to your preferences and will
 * Header: Text that will appear in all emails sent with the certificate
 * Footer: Optional, e.g. "This email has been generated automatically, please do not reply."
 
-
-image::docs/images/packetfence-pki-radius-profile.png[scaledwidth="100%",alt="RADIUS server certificate"]
-
-image::docs/images/packetfence-pki-radius-profile2.png[scaledwidth="100%",alt="RADIUS server certificate"]
+image::docs/images/packetfence-pki-server-profile.png[scaledwidth="100%",alt="RADIUS server certificate"]
 
 After the creation of your certificate you need to sign it, press the button 'Sign' in the list of certificate.
 
@@ -185,8 +182,6 @@ This profile will be used to generate the RADIUS client certificate and key.
 The client certificate is used by the 802.1x supplicant to authenticate its end of the connection to the server.
 
 image::docs/images/packetfence-pki-client-profile.png[scaledwidth="100%",alt="Client Profile configuration"]
-
-image::docs/images/packetfence-pki-client-profile2.png[scaledwidth="100%",alt="Client Profile configuration"]
 
 Creating a profile:
 Fill out the following fields that will be used to generate the certificate profile to use for generating user certificates.
