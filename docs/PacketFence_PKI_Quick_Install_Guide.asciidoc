@@ -16,7 +16,7 @@ Assumptions
 
 * You have at least one server with PacketFence 5.2 or later.
 * The server already has a properly configured switch with 802.1X support.
-* The PacketFence RADIUS server is working in your environnement.
+* The PacketFence RADIUS server is working in your environment.
 * A Mail Transport Agent is properly configured on the PacketFence server.
 * The PacketFence management IP will be 192.168.1.5.
 * The RADIUS shared secret is "useStrongerSecret".
@@ -45,7 +45,7 @@ Change the line:
 
  SELINUX=enforcing
 
-into:
+to:
 
  SELINUX=disabled
 
@@ -130,7 +130,7 @@ Fill out the following fields that will be used to generate the certification au
 * Country: Country (select in the list)
 * State: state code (i.e. NY, CA, QC, etc...)
 * Locality: City where is the organisation 
-* Key type, size and digest: we advise to use the following RSA, 2048, sha1
+* Key type, size and digest: we recommend to use the following RSA, 2048, sha1
 * Key Usage and Extended Key Usage are not necessary for the certification authority
 * Days: Number of validity days, i.e. 10y = 3560
 
@@ -192,14 +192,14 @@ After the creation of your certificate you need to sign it, press the button 'Si
 
 CAUTION: We advise to use a long validity for your RADIUS server certificate to avoid renew it often(i.e. 3650d at least).
 
-Revokation process
+Revocation process
 ^^^^^^^^^^^^^^^^^^
 
-Certificates can be checked for revokation at authentication time using either OCSP to interrogate the PKI for every RADIUS authentication or using the certificate revokation lists (CRL). 
+Certificates can be checked for revocation at authentication time using either OCSP to interrogate the PKI for every RADIUS authentication or using the certificate revocation lists (CRL). 
 
 OSCP is scalable, its main downside would be that one request per certificate authentication is sent to the PKI to verify if the certificate is still valid and that adds additional latency to authentication. Additionally, RADIUS authentication then becomes dependent on an external service which could be unreachable although that can be mitigated in the FreeRADIUS configuration.
 
-Using a CRL implies that everytime the CRL is updated, every services that uses this CRL has to download it again. For security reason we recommend a short delay on CRL expiration (to avoid using revoked certificate on the network).
+Using a CRL implies that each time the CRL is updated, every services that uses this CRL has to download it again. For security reason we recommend a short delay on CRL expiration (to avoid using revoked certificate on the network).
 
 By default a CRL list will be created when you revoke a certificate. The file will be under /usr/local/packetfence-pki/ca/YourProfileName.crl. Note that one CRL by profile will be created.
 
@@ -272,8 +272,8 @@ Restart radiusd to regenerate the new configuration files and enable EAP-TLS usi
 
  # /usr/local/pf/bin/pfcmd service radiusd restart
 
-PacketFence provider configuraton
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PacketFence provider configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To work with our PKI in PacketFence you will need to configure the PKI in the PKI provider section.
 The provider configuration defines how PacketFence connects to the PKI REST API and which profile will be used.
@@ -283,7 +283,7 @@ Using the PKI requires configuring the PKI providers section in the PacketFence 
 Add a new PKI provider and select PacketFence PKI.
 
 Fill out the form for a PKI provider according to the PKI configuration profile you created earlier.
-Pay attention to the username and password which have to match an authorised user in the PKI configuration.
+Pay attention to the username and password which have to match an authorized user in the PKI configuration.
 
 image::docs/images/packetfence-pki-provider.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
 
@@ -308,11 +308,11 @@ Provisioners are configured in the PacketFence administration GUI under Configur
 Add a new provisioner for each of the classes of devices to be supported amongst Android, Apple Devices and Windows.
 Fill out the form, choosing a different Provisioning Id per provisioner.
 
-The fields affect the provisoning behavior in the following fashion:
+The fields affect the provisioning behavior in the following fashion:
 
 * Roles: The "Roles" field defines which devices will be affected by the provisioning item. If empty all devices for this class will be affected.
 * SSID: The "SSID" field defines which SSID will be configured on the device using the authentication profile.
-* EAP-Type: The EAP type defines the authentication method supported and should be set to EAP-TLS to integrate with the PackeFence PKI.
+* EAP-Type: The EAP type defines the authentication method supported and should be set to EAP-TLS to integrate with the PacketFence PKI.
 * Security type: The security type should be set to WPA2 to integrate with the PacketFence PKI.
 * PKI Provider: This should match the provider you configured earlier in the section on providers.
 
