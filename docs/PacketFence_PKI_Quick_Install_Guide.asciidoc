@@ -140,7 +140,7 @@ You will need to configure the following items:
 * A PKI Provider (optional)
 * A Provisioner (optional)
 
-Follow the three step wizard to create your certification authority, your client and server profile and your REST API configuration.
+Follow the four step wizard to create your certification authority, your client and server profile and your REST API configuration.
 
 Certification Authority
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -200,7 +200,7 @@ After the creation of your certificate you need to sign it, press the button 'Si
 
 CAUTION: We recommend using a long validity for your RADIUS server certificate to avoid it expiring too frequently (i.e. two to five years).
 
-Client authentication Profile
+Client Authentication Profile
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This profile will be used to generate the RADIUS client certificate and key.
@@ -208,7 +208,8 @@ The client certificate is used by the 802.1x supplicant to authenticate its end 
 
 image::docs/images/packetfence-pki-client-profile.png[scaledwidth="100%",alt="Client Profile configuration"]
 
-Creating a profile:
+### Creating a profile:
+
 Fill out the following fields that will be used to generate the certificate profile to use for generating user certificates.
 
 * Name: A name by which to identify this profile
@@ -223,7 +224,7 @@ Information about Key Usage and Extended Key Usage is available from RFC5280, pa
 * The P12 mail setup is mandatory for the server authentication profile. This is required to send the certificate and password by email using the *send certificate* button. 
 ** If your mail alerts are already working with PacketFence you should use the following:
 *** P12 smtp server: 127.0.0.1
-*** Tick P12 mail password
+*** Check "P12 mail password"
 
 The following fields should be configured according to your preferences and will fill out the email sent to the user for which the certificate has been created:
 
@@ -243,7 +244,8 @@ A username and password are mandatory.
 User creation
 ^^^^^^^^^^^^^
 
-Additional users for specific tasks may be created under Configuration -> Users -> Create
+Additional users for specific tasks may be created under Configuration -> Users -> Create .
+
 All fields are mandatory.
 
 Users can be associated with the REST API configuration.
@@ -251,7 +253,7 @@ Users can be associated with the REST API configuration.
 Password change
 ^^^^^^^^^^^^^^^
 
-Note: Please be sure to change the default password to the PKI.
+Caution: Please be sure to change the default password to the PKI.
 
 Passwords can be changed in the "Users" tab by editing the user.
 
@@ -295,6 +297,7 @@ Then, convert the p12 file to the pem format using the openssl tool:
  # openssl pkcs12 -in YourCert.p12 -out /usr/local/pf/conf/ssl/tls_certs/YourCert.pem -clcerts -nokeys
 
 Ensure that the files are readable by "pf": 
+
  # chown pf:pf /usr/local/pf/conf/ssl/tls_certs/*
  
 RADIUS EAP-TLS and packetfence-pki
