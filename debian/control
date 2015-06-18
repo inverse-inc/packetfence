@@ -13,7 +13,7 @@ Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
 Pre-Depends:  ca-certificates, freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server, ca-certificates, packetfence-pfcmd-suid (>= ${Source-Version}), packetfence-config (>= ${Source-Version}),
- fingerbank (>= 1.0.2), graphite-web, winbind
+ fingerbank (>= 1.0.3), graphite-web, winbind
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra,
