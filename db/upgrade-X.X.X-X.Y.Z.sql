@@ -36,3 +36,17 @@ SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSIO
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
 
+--
+-- Trigger to delete the temp password from 'password' when deleting the pid associated with
+-- This is required because dropping the temporary_password_delete_trigger was forgotten in the upgrade to 5.0
+--
+
+DROP TRIGGER IF EXISTS temporary_password_delete_trigger;
+DROP TRIGGER IF EXISTS password_delete_trigger;
+DELIMITER /
+CREATE TRIGGER password_delete_trigger AFTER DELETE ON person
+FOR EACH ROW
+BEGIN
+  DELETE FROM `password` WHERE pid = OLD.pid;
+END /
+DELIMITER ;
