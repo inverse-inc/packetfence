@@ -13,7 +13,7 @@ eap {
         cadir = ${confdir}/certs
         private_key_file = %%install_dir%%/conf/ssl/server.key
         certificate_file = %%install_dir%%/conf/ssl/server.crt
-        #CA_file = ${cadir}/ca.pem
+        #CA_file = $nstall_dir%%/conf/ssl/ca.pem
         dh_file = ${certdir}/dh
         random_file = /dev/urandom
         cipher_list = "DEFAULT"
@@ -28,7 +28,7 @@ eap {
             ocsp {
                 enable = no
                 override_cert_url = yes
-                url = "http://127.0.0.1/ocsp/"
+                url = "http://127.0.0.1:9292/pki/ocsp/"
             }
 
         }
