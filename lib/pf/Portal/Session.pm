@@ -39,7 +39,7 @@ use pf::web::constants;
 use pf::web::util;
 use pf::web::constants;
 use pf::log;
-use pf::activation;
+use pf::activation qw(view_by_code);
 
 =head1 CONSTANTS
 
