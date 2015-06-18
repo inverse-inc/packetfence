@@ -20,7 +20,7 @@ New Features
 * Introducing support for the PacketFence PKI application to manage certificates and authenticate RADIUS using EAP-TLS. 
 * Twitter OAuth is now supported as an authentication source.
 * New 'portal' interface type to spawn a captive-portal instance on selected interface.
-* Inline mode now provides an ipset per devices role allowing for better granularity in managing them.
+* Traffic shaping support for Inline mode managed by an ipset session per devices role.
 * Support for OpenWrt 14.07 with hostapd.
 
 Enhancements
