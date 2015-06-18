@@ -248,6 +248,14 @@ All fields are mandatory.
 
 Users can be associated with the REST API configuration.
 
+Password change
+^^^^^^^^^^^^^^^
+
+Note: Please be sure to change the default password to the PKI.
+
+Passwords can be changed in the "Users" tab by editing the user.
+
+
 Step 3: Configuring PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
