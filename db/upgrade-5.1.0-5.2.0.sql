@@ -1,5 +1,5 @@
 --
--- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
+-- PacketFence SQL schema upgrade from 5.1.0 to 5.2.0
 --
 
 --
