@@ -17,27 +17,27 @@ Version 5.2.0 released on 2015-06-18
 New Features
 ++++++++++++
 
-* Introduced new 'portal' interface type to spawn a captive-portal instance on selected interface
-* Introduced new 'ports.httpd_portal_modstatus' configuration parameter
+* Introducing support for the PacketFence PKI application to manage certificates and authenticate RADIUS using EAP-TLS. 
 * Twitter OAuth is now supported as an authentication source.
-* Support for the PacketFence PKI application to manage certificates and authenticate RADIUS using EAP-TLS. 
+* New 'portal' interface type to spawn a captive-portal instance on selected interface.
 * Inline mode now provides an ipset per devices role allowing for better granularity in managing them.
-* Support for OpenWrt 14.07 with hostapd
+* Support for OpenWrt 14.07 with hostapd.
 
 Enhancements
 ++++++++++++
 
-* Specific vhost for httpd.portal diagnostics
-* Added option to disable logging of sensitive information when failing to execute a command through pf_run
-* Support for Meraki APs using web authentication on the cloud controller
-* Passwords are now obfuscated in the Switch configuration
+* Specific vhost for httpd.portal diagnostics.
+* Added option to disable logging of sensitive information when failing to execute a command through pf_run.
+* Support for Meraki APs using web authentication on the cloud controller.
+* Passwords are now obfuscated in the Switch configuration.
+* Introduced new 'ports.httpd_portal_modstatus' configuration parameter to limit modstatus to a single virtual host.
 
 Bug Fixes
 +++++++++
-* Allow the usage of an external monitoring database when using an Active/Active cluster
-* Validate that a provisioner is not used before deleting it through the administration interface
-* Stopped logging database password on schema import failure
-* Fixed incorrect error message when an external portal authenticated device hits the unknown state
+* Allow the usage of an external monitoring database when using an Active/Active cluster.
+* Validate that a provisioner is not used before deleting it through the administration interface.
+* Stopped logging database password on schema import failure.
+* Fixed incorrect error message when an external portal authenticated device hits the unknown state.
 
 Version 5.1.0 released on 2015-05-25
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
