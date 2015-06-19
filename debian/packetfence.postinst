@@ -132,7 +132,7 @@ case "$1" in
         rm -rf /usr/local/pf/var/cache/
         service packetfence-config restart
         /usr/local/pf/bin/pfcmd configreload
-        /usr/local/pf/bin/pfcmd service httpd.admin start
+        service packetfence start httpd.admin
 
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."

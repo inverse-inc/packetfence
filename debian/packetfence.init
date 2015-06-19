@@ -48,17 +48,25 @@ do_start()
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
-	pfconfig
-	if [ `find /lib/modules/$UNAME/ -name ip_set.ko` ]
-	then
-		modprobe ip_set
+	if [ -z ${1+x} ]; then
+		log_daemon_msg "Starting $NAME"
+		pfconfig
+		if [ `find /lib/modules/$UNAME/ -name ip_set.ko` ]
+		then
+			modprobe ip_set
+		fi
+		$DAEMON service pf start
+		RETVAL=$?
+		#	|| return 0
+		# Add code here, if necessary, that waits for the process to be ready
+		# to handle requests from services started subsequently which depend
+		# on this one.  As a last resort, sleep for some time.
+	else
+		log_daemon_msg "Starting $1"
+		$DAEMON service $1 start;
+		RETVAL=$?
 	fi
-	$DAEMON service pf start
-	#	|| return 0
-	# Add code here, if necessary, that waits for the process to be ready
-	# to handle requests from services started subsequently which depend
-	# on this one.  As a last resort, sleep for some time.
-	return 0
+	return $RETVAL
 }
 
 #
@@ -71,17 +79,25 @@ do_stop()
 	#   1 if daemon was already stopped
 	#   2 if daemon could not be stopped
 	#   other if a failure occurred
-	pfconfig
-	$DAEMON service pf stop
-	# Wait for children to finish too if this is a daemon that forks
-	# and if the daemon is only ever run from this initscript.
-	# If the above conditions are not satisfied then add some other code
-	# that waits for the process to drop all resources that could be
-	# needed by services started subsequently.  A last resort is to
-	# sleep for some time.
-	# Many daemons don't delete their pidfiles when they exit.
-	rm -f $PIDFILE
-	return 0
+	if [ -z ${1+x} ]; then
+		log_daemon_msg "Stoping $NAME"
+		pfconfig
+		$DAEMON service pf stop
+		RETVAL=$?
+		# Wait for children to finish too if this is a daemon that forks
+		# and if the daemon is only ever run from this initscript.
+		# If the above conditions are not satisfied then add some other code
+		# that waits for the process to drop all resources that could be
+		# needed by services started subsequently.  A last resort is to
+		# sleep for some time.
+		# Many daemons don't delete their pidfiles when they exit.
+		rm -f $PIDFILE
+	else
+		log_daemon_msg "Stoping $1"
+		$DAEMON service $1 stop;
+		RETVAL=$?
+	fi
+	return $RETVAL
 }
 
 #
@@ -93,9 +109,15 @@ do_reload() {
 	# restarting (for example, when it is sent a SIGHUP),
 	# then implement that here.
 	#
-	pfconfig
-	$DAEMON service pf restart > /dev/null
-	return 0
+	if [ -z ${1+x} ]; then
+		pfconfig
+		$DAEMON service pf restart > /dev/null
+		RETVAL=$?
+	else
+		$DAEMON service $1 restart;
+		RETVAL=$?
+	fi
+	return $RETVAL
 }
 
 pfconfig() {
@@ -110,7 +132,7 @@ pfconfig() {
 case "$1" in
   start)
     [ "$VERBOSE" != no ] && log_daemon_msg "Starting $NAME"
-    do_start
+    do_start $2
     case "$?" in
 		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
 		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
@@ -118,20 +140,20 @@ case "$1" in
   ;;
   stop)
 	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $NAME"
-	do_stop
+	do_stop $2
 	case "$?" in
 		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
 		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
 	esac
 	;;
- status)
+  status)
         pfconfig
         /usr/local/pf/bin/pfcmd service pf status
         if [ ! -f /usr/local/pf/var/run/pfmon.pid ]; then
           exit 3
         fi
         ;;
- condrestart)
+  condrestart)
         if [ -f /usr/local/pf/var/run/pfmon.pid ]; then
             do_reload
         else
@@ -140,25 +162,15 @@ case "$1" in
             fi
         fi
         ;;
-  #reload|force-reload)
-	#
-	# If do_reload() is not implemented then leave this commented out
-	# and leave 'force-reload' as an alias for 'restart'.
-	#
-	#log_daemon_msg "Reloading $NAME"
-	#do_reload
-	#log_end_msg $?
-	#;;
   restart|force-reload)
 	#
 	# If the "reload" option is implemented then remove the
 	# 'force-reload' alias
 	#
-	log_daemon_msg "Restarting $NAME"
-	do_stop
+	do_stop $2
 	case "$?" in
 	  0|1)
-		do_start
+		do_start $2
 		case "$?" in
 			0) log_end_msg 0 ;;
 			1) log_end_msg 1 ;; # Old process is still running

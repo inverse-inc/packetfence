@@ -654,7 +654,7 @@ echo "Starting Packetfence Administration GUI..."
 rm -rf /usr/local/pf/var/cache/
 /sbin/service packetfence-config restart 
 /usr/local/pf/bin/pfcmd configreload
-/usr/local/pf/bin/pfcmd service httpd.admin start
+/sbin/service packetfence start httpd.admin
 
 echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
