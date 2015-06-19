@@ -17,9 +17,11 @@ use strict;
 use warnings;
 use pfconfig::manager;
 use pfconfig::util;
+use pfconfig::cached;
+use Data::Dumper;
 use base qw(pf::base::cmd::action_cmd);
 
-=head2 new
+=head2 action_expire 
 
 expire pfconfig's namespace
 
@@ -33,12 +35,18 @@ sub action_expire {
     return 0;
 }
 
+=head2 parse_expire
+
+verify args passed to expire
+
+=cut
+
 sub parse_expire {
     my ($self,@args) = @_;
     return @args == 1;
 }
 
-=head2 new
+=head2 action_reload
 
 reload pfconfig
 
@@ -51,7 +59,7 @@ sub action_reload {
     return 0;
 }
 
-=head2 new
+=head2 action_show
 
 show from cache pfconfig's namespace
 
@@ -65,14 +73,24 @@ sub action_show {
     if(defined($namespace)){
         my @namespaces = $manager->list_namespaces();
         if ( grep {$_ eq $namespace} @namespaces){
-            use Data::Dumper;
             print Dumper($manager->get_cache($full_namespace));
         }
     }
     return 0; 
 }
 
-=head2 new
+=head2 parse_show
+
+verify args passed to show
+
+=cut
+
+sub parse_show {
+    my ($self,@args) = @_;
+    return @args == 1;
+}
+
+=head2 action_list
 
 list all pfconfig's namespaces
 
@@ -88,7 +106,7 @@ sub action_list {
     return 0;
 }
 
-=head2 new
+=head2 action_get
 
 get from socket pfconfig's namespace
 
@@ -98,8 +116,6 @@ sub action_get {
     my ($self) = @_;
     my ($namespace) = $self->action_args;
     if(defined($namespace)){
-        use pfconfig::cached;
-        use Data::Dumper;
         my $obj = pfconfig::cached->new;
         my $response = $obj->_get_from_socket($namespace, "element");
         print Dumper($response);
@@ -107,7 +123,18 @@ sub action_get {
     return 0;
 }
 
-=head2 new
+=head2 parse_get
+
+verify args passed to get
+
+=cut
+
+sub parse_get {
+    my ($self,@args) = @_;
+    return @args == 1;
+}
+
+=head2 action_clear_overlay
 
 clear_overlay of pfconfig
 
