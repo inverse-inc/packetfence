@@ -19,20 +19,20 @@
 
     <div class="tab-pane fade in active" id="single">
       <div class="alert alert-info">[% l('The node will be automatically registered. If the MAC matches an existing node, it will also be modified and registered.') %]</div>
-      [% form_single.field('mac').render %]
-      [% form_single.field('pid').render %]
-      [% form_single.field('category_id').render %]
-      [% form_single.field('unregdate').render %]
-      [% form_single.field('notes').render %]
+      [% form_single.field('mac').render | none %]
+      [% form_single.field('pid').render | none %]
+      [% form_single.field('category_id').render | none %]
+      [% form_single.field('unregdate').render | none %]
+      [% form_single.field('notes').render | none %]
     </div><!-- tab-pane -->
 
     <div class="tab-pane fade" id="import">
       <div class="alert alert-info">[% l('All imported nodes will be registered. If a MAC matches an existing node, it will also be registered.') %]</div>
-      [% form_import.field('nodes_file').render %]
-      [% form_import.field('delimiter').render %]
-      [% form_import.field('default_pid').render %]
-      [% form_import.field('default_category_id').render %]
-      [% form_import.field('default_voip').render %]
+      [% form_import.field('nodes_file').render | none %]
+      [% form_import.field('delimiter').render | none %]
+      [% form_import.field('default_pid').render | none %]
+      [% form_import.field('default_category_id').render | none %]
+      [% form_import.field('default_voip').render | none %]
       <div class="control-group">
         <label class="control-label">[% l('Columns Order') %]</label>
         <div class="controls">
@@ -42,9 +42,9 @@
               <tr>
                 <td class="sort-handle"><span>[% loop.index + 1 %]</span></td>
                 <td>
-                  [% column.field('name').render_element %]
-                  [% column.field('enabled').render_element %]&nbsp;
-                  [% column.field('label').render_element %]
+                  [% column.field('name').render_element | none %]
+                  [% column.field('enabled').render_element | none %]&nbsp;
+                  [% column.field('label').render_element | none %]
                 </td>
               </tr>
               [% END %]

@@ -12,9 +12,9 @@
 [% pagination = BLOCK %]
 [% INCLUDE pagination.inc section = 'user/simple_search' IF items.size > 0 %]
 [% END %]
-      [% pagination %]
+      [% pagination | none %]
       [% INCLUDE user/list.tt %]
-      [% pagination %]
+      [% pagination | none %]
       <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-search icon-large"></i><p>[% l('No user found') %]</p>
       </div>

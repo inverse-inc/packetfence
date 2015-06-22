@@ -140,7 +140,7 @@ form {
                         <option value="any">[% l('any') %]</option>
                       </select>
                     [% END %]
-                    [% l('Match [_1] of the following conditions:', [match_options]) %]
+                    [% l('Match [_1] of the following conditions:', [match_options]) | none %]
                   </div>
                   <br/>
                   <div class="input-daterange datepicker">

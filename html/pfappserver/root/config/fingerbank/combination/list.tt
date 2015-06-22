@@ -8,7 +8,7 @@
           </tr>
           <tr>
             <th colspan="5">
-              [% pagination(action || 'list', pageNum, perPage, pageCount) %]
+              [% pagination(action || 'list', pageNum, perPage, pageCount) | none %]
             </th>
           </tr>
           <tr>
@@ -36,7 +36,7 @@
         <tfoot>
           <tr>
             <th colspan="5">
-              [% pagination(action || 'list', pageNum, perPage, pageCount) %]
+              [% pagination(action || 'list', pageNum, perPage, pageCount) | none %]
             </th>
           </tr>
          [%- IF scope == 'Local' && can_access("FINGERBANK_CREATE") %]

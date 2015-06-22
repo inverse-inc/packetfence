@@ -11,8 +11,8 @@
   </div>
 
   <div class="modal-body">
-        [% form.field('id').render UNLESS item && item.id.defined %]
-        [% form.block('definition').render %]
+        [% form.field('id').render | none UNLESS item && item.id.defined %]
+        [% form.block('definition').render | none %]
   </div><!--modal-body-->
 
   <div class="modal-footer">

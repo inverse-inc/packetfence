@@ -1,14 +1,14 @@
           [% IF item && item.id.defined %]
             [%  CALL form.field('id').set_element_attr('readonly','readonly') %]
           [% END %]
-          [% form.block('definition').render %]
+          [% form.block('definition').render | none %]
           [% IF form.field('filter') %]
             <div class="control-group">
               <label class="control-label" for="sources">[% l('Filters') %] <i class="icon-exclamation-sign"></i> </label>
               <div class="controls">
                 <dl>
-                  <dt>[% l('If [_1] of the following conditions are met:', [ form.field('filter_match_style').render_element ]) %]</dt>
-                  <dd><br/> [% form.field('filter').render %] </dd>
+                  <dt>[% l('If [_1] of the following conditions are met:', [ form.field('filter_match_style').render_element ]) | none %]</dt>
+                  <dd><br/> [% form.field('filter').render | none %] </dd>
                 </dl>
               </div>
             </div>
@@ -16,7 +16,7 @@
           <div class="control-group">
             <label class="control-label" for="sources">[% l('Sources') %]</label>
             <div class="controls">
-              [% form.field('sources').render %]
+              [% form.field('sources').render | none %]
               <div id="sourcesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('sources').index > 1 %]">
                 <p>
                   <i class="icon-group icon-large"></i>
@@ -33,7 +33,7 @@
           <div class="control-group">
             <label class="control-label" for="provisioners">[% l('Provisioners') %]</label>
             <div class="controls">
-              [% form.field('provisioners').render %]
+              [% form.field('provisioners').render | none %]
               <div id="provisionersEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('provisioners').index > 1 %]">
                 <p>
                   <i class="icon-cog icon-large"></i>
@@ -50,7 +50,7 @@
           <div class="control-group">
             <label class="control-label" for="scans">[% l('Scanners') %]</label>
             <div class="controls">
-              [% form.field('scans').render %]
+              [% form.field('scans').render | none %]
               <div id="scansEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('scans').index > 1 %]">
                 <p>
                   <i class="icon-cog icon-large"></i>

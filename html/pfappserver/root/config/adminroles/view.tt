@@ -11,17 +11,17 @@
   </div>
 
   <div class="modal-body">
-        [% form.field('id').render UNLESS item && item.id.defined %]
-        [% form.field('description').render %]
+        [% form.field('id').render | none UNLESS item && item.id.defined %]
+        [% form.field('description').render | none %]
         <div class="control-group">
           <label class="control-label" for="actions">[% l('Actions') %]</label>
           <div class="controls">
-            [% form.field('actions').render %]
+            [% form.field('actions').render | none %]
           </div>
         </div>
-        [% form.field('allowed_access_levels').render %]
-        [% form.field('allowed_roles').render %]
-        [% form.field('allowed_access_durations').render %]
+        [% form.field('allowed_access_levels').render | none %]
+        [% form.field('allowed_roles').render | none %]
+        [% form.field('allowed_access_durations').render | none %]
   </div><!--modal-body-->
 
   <div class="modal-footer">

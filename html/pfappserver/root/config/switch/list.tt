@@ -60,7 +60,7 @@
                 </div>
               </form>
               <br/>
-              [% pagination(action, pageNum, perPage, pageCount) %]</th>
+              [% pagination(action, pageNum, perPage, pageCount) | none %]</th>
           </tr>
           <tr>
             <th>[% l('IP Address') %]</th>
@@ -89,7 +89,7 @@
         </tbody>
         <tfoot>
           <tr>
-            <th colspan="5">[% pagination(action, pageNum, perPage, pageCount) %]</th>
+            <th colspan="5">[% pagination(action, pageNum, perPage, pageCount) | none %]</th>
           </tr>
         </tfoot>
       </table>

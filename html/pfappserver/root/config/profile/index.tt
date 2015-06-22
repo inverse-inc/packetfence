@@ -51,7 +51,7 @@
       <tr>
         <td class="sort-handle hidden-phone">[% loop.index + 1 %]</td>
         <td>
-           [% id_field.render_element %] 
+           [% id_field.render_element | none %] 
             <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('view'), [ profile_id ]) %]">[% profile_id | html %]</a>
         </td>
         <td>[% profile.field('description').value %]</td>

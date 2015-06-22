@@ -47,7 +47,7 @@
         <thead>
           <tr>
             <td colspan="2">
-              [% pagination %]
+              [% pagination | none %]
             </td>
           </tr>
           <tr>
@@ -69,7 +69,7 @@
         <tfoot>
           <tr>
             <td colspan="2">
-              [% pagination %]
+              [% pagination | none %]
             </td>
           </tr>
         </tfoot>

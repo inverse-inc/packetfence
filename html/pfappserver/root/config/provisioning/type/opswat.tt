@@ -4,6 +4,6 @@
 </ul>
 
 <div class="tab-content">
-    <div id="settings" class="tab-pane fade in active">[% form.block('definition').render %]</div>
-    <div id="compliance" class="tab-pane fade">[% form.block('compliance').render %]</div>
+    <div id="settings" class="tab-pane fade in active">[% form.block('definition').render | none %]</div>
+    <div id="compliance" class="tab-pane fade">[% form.block('compliance').render | none %]</div>
 </div>

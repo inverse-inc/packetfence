@@ -1,4 +1,4 @@
-[% form.block('triggers').render %]
+[% form.block('triggers').render | none %]
 
 <form name="modalSwitch" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
   [%- IF item.id.defined %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
@@ -22,8 +22,8 @@
     <div class="tab-content">
 
       <div class="tab-pane fade in active" id="switchDefinition">
-        [% form.field('id').render UNLESS item && item.id.defined %]
-        [% form.block('definition').render %]
+        [% form.field('id').render | none UNLESS item && item.id.defined %]
+        [% form.block('definition').render | none %]
       </div><!-- tab-pane -->
 
       <div class="tab-pane fade" id="switchRoles">
@@ -32,22 +32,22 @@
             <h6>[% l('Role mapping by VLAN ID') %]</h6>
           </div>
         </div>
-        [% form.field('VlanMap').render %]
-        [% form.block('vlans').render %]
+        [% form.field('VlanMap').render | none %]
+        [% form.block('vlans').render | none %]
         <div class="control-group">
           <div class="controls">
             <h6>[% l('Role mapping by switch role') %]</h6>
           </div>
         </div>
-        [% form.field('RoleMap').render %]
-        [% form.block('roles').render %]
+        [% form.field('RoleMap').render | none %]
+        [% form.block('roles').render | none %]
         <div class="control-group">
           <div class="controls">
             <h6>[% l('Role mapping by access list') %]</h6>
           </div>
         </div>
-        [% form.field('AccessListMap').render %]
-        [% form.block('access_lists').render %]
+        [% form.field('AccessListMap').render | none %]
+        [% form.block('access_lists').render | none %]
 
       </div><!--tab-pane-->
 
@@ -60,8 +60,8 @@
                 [% FOREACH trigger IN form.field('inlineTrigger').fields -%]
                 <tr[% ' class="hidden"' IF loop.last %]>
                   <td>
-                    [% trigger.field('type').render_element %]
-                    [% trigger.field('value').render_element %]
+                    [% trigger.field('type').render_element | none %]
+                    [% trigger.field('value').render_element | none %]
                   </td>
                   <td class="action">
                     <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
@@ -80,19 +80,19 @@
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="switchRADIUS">
-        [% form.block('radius').render %]
+        [% form.block('radius').render | none %]
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="switchSNMP">
-        [% form.block('snmp').render %]
+        [% form.block('snmp').render | none %]
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="switchCLI">
-        [% form.block('cli').render %]
+        [% form.block('cli').render | none %]
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="switchWS">
-        [% form.block('ws').render %]
+        [% form.block('ws').render | none %]
       </div><!--tab-pane-->
 
     </div><!--tab-content-->
