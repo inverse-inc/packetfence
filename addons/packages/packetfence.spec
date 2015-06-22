@@ -179,6 +179,7 @@ Requires: perl(Data::MessagePack::Stream)
 Requires: perl(POSIX::2008)
 # Template::Toolkit - captive portal template system
 Requires: perl(Template)
+Requires: perl(Template::AutoFilter)
 # Used by installer / configurator scripts
 Requires: perl(Term::ReadKey)
 Requires: perl(Thread::Pool)
