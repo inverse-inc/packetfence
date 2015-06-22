@@ -5,7 +5,15 @@ pf::cmd::pf::pfconfig add documentation
 
 =head1 SYNOPSIS
 
-pfcmd pfonfig expire|reload|list|show|get|clear_overlay
+pfcmd pfonfig <command> <namespace>
+
+Commands:
+expire <namespace>  | expire a pfconfig namespace 
+reload              | reload all pfconfig namespaces
+list                | list all pfconfig namespaces
+show <namespace>    | rebuild and display a pfconfig namespace
+get <namespace>     | display a pfconfig namespace from pfconfig process
+clear_overlay       | clear all overlayed namespaces of pfconfig
 
 =head1 DESCRIPTION
 
@@ -19,11 +27,12 @@ use pfconfig::manager;
 use pfconfig::util;
 use pfconfig::cached;
 use Data::Dumper;
+use pf::constants::exit_code qw($EXIT_SUCCESS);
 use base qw(pf::base::cmd::action_cmd);
 
 =head2 action_expire 
 
-expire pfconfig's namespace
+Expire a pfconfig namespace
 
 =cut
 
@@ -32,12 +41,12 @@ sub action_expire {
     my ($namespace) = $self->action_args;
     my $manager = pfconfig::manager->new;
     $manager->expire($namespace);
-    return 0;
+    return $EXIT_SUCCESS;
 }
 
 =head2 parse_expire
 
-verify args passed to expire
+Verify arguments passed to expire
 
 =cut
 
@@ -48,7 +57,7 @@ sub parse_expire {
 
 =head2 action_reload
 
-reload pfconfig
+Reload all pfconfig namespaces
 
 =cut
 
@@ -56,12 +65,12 @@ sub action_reload {
     my ($self) = @_;
     my $manager = pfconfig::manager->new;
     $manager->expire_all();
-    return 0;
+    return $EXIT_SUCCESS;
 }
 
 =head2 action_show
 
-show from cache pfconfig's namespace
+Rebuild and display a pfconfig namespace
 
 =cut
 
@@ -76,12 +85,12 @@ sub action_show {
             print Dumper($manager->get_cache($full_namespace));
         }
     }
-    return 0; 
+    return $EXIT_SUCCESS; 
 }
 
 =head2 parse_show
 
-verify args passed to show
+Check arguments passed to show
 
 =cut
 
@@ -92,7 +101,7 @@ sub parse_show {
 
 =head2 action_list
 
-list all pfconfig's namespaces
+List all pfconfig namespaces
 
 =cut
 
@@ -103,12 +112,12 @@ sub action_list {
     foreach my $namespace (@namespaces){
         print "$namespace\n";
     }
-    return 0;
+    return $EXIT_SUCCESS;
 }
 
 =head2 action_get
 
-get from socket pfconfig's namespace
+Display a pfconfig namespace from pfconfig process
 
 =cut
 
@@ -120,12 +129,12 @@ sub action_get {
         my $response = $obj->_get_from_socket($namespace, "element");
         print Dumper($response);
     }
-    return 0;
+    return $EXIT_SUCCESS;
 }
 
 =head2 parse_get
 
-verify args passed to get
+Verify arguments passed to get
 
 =cut
 
@@ -136,7 +145,7 @@ sub parse_get {
 
 =head2 action_clear_overlay
 
-clear_overlay of pfconfig
+Clear all overlayed namespaces of pfconfig
 
 =cut
 
@@ -144,7 +153,7 @@ sub action_clear_overlay {
     my ($self) = @_;
     my $manager = pfconfig::manager->new;
     $manager->clear_overlayed_namespaces(); 
-    return 0;
+    return $EXIT_SUCCESS;
 }
 
 =head1 AUTHOR
