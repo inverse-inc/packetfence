@@ -1,14 +1,14 @@
-package pfappserver::Form::Config::Authentication::Source::Paypal;
+package pfappserver::Form::Config::Authentication::Source::AuthorizeNet;
 
 =head1 NAME
 
-pfappserver::Form::Config:::Authentication::Source::Paypal add documentation
+pfappserver::Form::Config:::Authentication::Source::AuthorizeNet add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config:::Authentication::Source::Paypal
+pfappserver::Form::Config:::Authentication::Source::AuthorizeNet
 
 =cut
 
