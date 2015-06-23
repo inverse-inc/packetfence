@@ -59,6 +59,7 @@ sub description { 'Ruckus Wireless Controllers' }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $FALSE; }
 sub supportsExternalPortal { return $TRUE; }
+sub supportsWebFormRegistration { return $TRUE }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
@@ -174,6 +175,37 @@ sub parseUrl {
     my($this, $req) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     return (clean_mac($$req->param('client_mac')),$$req->param('ssid'),$$req->param('uip'),$$req->param('url'),undef,undef);
+}
+
+=item getAcceptForm
+
+Creates the form that should be given to the client device to trigger a reauthentication.
+
+=cut
+
+sub getAcceptForm {
+    my ( $self, $mac , $destination_url, $cgi_session) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->debug("[$mac] Creating web release form");
+
+    my $client_ip = $cgi_session->param("ecwp-original-param-uip");
+    my $controller_ip = $self->{_ip};
+
+    my $html_form = qq[
+        <form name="weblogin_form" action="http://$controller_ip:9997/login" method="POST">
+          <input type="text" name="ip" value="$client_ip" />
+          <input type="text" name="username" value="$mac" />
+          <input type="text" name="password" value="$mac"/>
+          <input type="submit">
+        </form>
+
+        <script language="JavaScript" type="text/javascript">
+        window.setTimeout('document.weblogin_form.submit();', 1000);
+        </script>
+    ];
+
+    $logger->debug("Generated the following html form : ".$html_form);
+    return $html_form;
 }
 
 =back
