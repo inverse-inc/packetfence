@@ -134,7 +134,6 @@ Get a new token from paypal
 
 sub get_token {
     my ($self)        = @_;
-    my $response_body = '';
     my $curl          = $self->curl;
     $self->_set_body($curl, "grant_type=client_credentials");
     $self->_set_url($curl, "v1/oauth2/token");
