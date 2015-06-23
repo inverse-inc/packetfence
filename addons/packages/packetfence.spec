@@ -211,7 +211,7 @@ Requires: perl(Config::General), perl(Catalyst::Plugin::StackTrace)
 Requires: perl(Catalyst::Plugin::Session), perl(Catalyst::Plugin::Session::Store::File)
 Requires: perl(Catalyst::Plugin::Session::State::Cookie)
 Requires: perl(Catalyst::Plugin::I18N)
-Requires: perl(Catalyst::View::TT)
+Requires: perl(Catalyst::View::TT) >= 0.42
 Requires: perl(Catalyst::View::JSON), perl(Log::Log4perl::Catalyst)
 Requires: perl(Catalyst::Plugin::Authentication)
 Requires: perl(Catalyst::Authentication::Credential::HTTP)
