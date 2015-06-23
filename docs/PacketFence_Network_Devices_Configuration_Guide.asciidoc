@@ -2181,7 +2181,7 @@ Radius configuration
 ----
 RS G8052(config)# radius-server primary-host 192.168.1.5
 RS G8052(config)# radius-server enable
-radius-server primary-host 192.168.1.5 key useStrongerSecret
+RS G8052(config)# radius-server primary-host 192.168.1.5 key useStrongerSecret
 ----
 
 802.1X (dot1x) configuration
