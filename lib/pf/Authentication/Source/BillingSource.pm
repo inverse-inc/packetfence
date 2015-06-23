@@ -35,6 +35,10 @@ has '+unique' => (default => 1);
 
 has 'currency' => (is => 'rw', default => 'USD');
 
+has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
+
+has 'test_mode' => (is => 'rw', isa => 'Bool', default => 1);
+
 =head2 available_attributes
 
 Allow to make a condition on the user's email address.
