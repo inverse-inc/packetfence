@@ -632,7 +632,6 @@ sub get_vlan_from_int {
     return;
 }
 
-
 sub log_of {
     my ($n, $base) = @_;
     return log($n)/log($base);

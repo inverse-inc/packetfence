@@ -48,7 +48,7 @@ BEGIN {
     get_internal_macs get_internal_info
     connection_type_to_str str_to_connection_type
     get_translatable_time trappable_mac
-    portal_hosts
+    portal_hosts get_interface_from_ip
   );
 }
 
@@ -369,6 +369,28 @@ sub portal_hosts {
     push @hosts, $management_network->{Tvip} if defined($management_network->{Tvip});
     push @hosts, $fqdn; 
     return @hosts;
+}
+
+=item get_interface_from_ip
+
+Return the interface name for the given ip
+
+=cut
+
+sub get_interface_from_ip {
+    my ($ip) = @_;
+    my $logger = get_logger();
+
+    foreach my $interface (@internal_nets) {
+        my $dev = $interface->tag("int");
+        my $int_ip = $interface->tag("vip") || $interface->tag("ip");
+        my $int_mask = $interface->tag("mask");
+        my $net_addr = NetAddr::IP->new($int_ip,$int_mask);
+        my $ip = new NetAddr::IP::Lite clean_ip($ip);
+        if ($net_addr->contains($ip)) {
+            return $dev;
+        }
+    }
 }
 
 =back

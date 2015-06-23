@@ -6,6 +6,7 @@ use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use pf::enforcement qw(reevaluate_access);
 use pf::config;
+use pf::config::util;
 use pf::log;
 use pf::fingerbank;
 use pf::util;
@@ -490,6 +491,18 @@ sub webNodeRegister : Private {
             $c->detach;
         }
         else{
+            my $inline = new pf::inline::custom();
+            if ($inline->isInlineIP($c->request->address)) {
+                my $vlan_filter = pf::vlan::filter->new;
+                my $interface_ip = $c->request->{'env'}->{'SERVER_ADDR'};
+                my $interface_vlan = get_vlan_from_int(get_interface_from_ip($interface_ip)) || $NO_VLAN;
+                my ($result,$role) = $vlan_filter->test('InlinePortalRegistration',$interface_ip, undef, $mac, $node, $INLINE, $c->stash->{info}->{pid}, undef, undef);
+                if ($result) {
+                    my $apiclient = pf::api::jsonrpcclient->new;
+                    $apiclient->notify('synchronize_locationlog',$interface_ip,$interface_ip,undef, $NO_PORT, $interface_vlan, $mac, $NO_VOIP, $INLINE);
+                    sleep(1); #Sleep a little to be sure that locationlog has been updated before trying to reevaluate
+                }
+            }
             reevaluate_access( $mac, 'manage_register' );
         }
     }

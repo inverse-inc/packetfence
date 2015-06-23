@@ -1,7 +1,10 @@
 # Vlan filter configuration
 # 
-# you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegister, InlineVlan, NodeInfoForAutoReg, IsPhone)
+# you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegister, InlineVlan, NodeInfoForAutoReg, IsPhone, InlineDhcpRequest, InlinePortalRegistration)
 # CAUTION: The IsPhone scope is only available on RADIUS based switches
+#
+# For these specific scopes (NormalVlan, RegistrationVlan, ViolationVlan, InlineVlan, NodeInfoForAutoReg, IsPhone) the role attribute must be a role defined in PacketFence
+# For these other scopes (AutoRegister, InlineDhcpRequest, InlinePortalRegistration) a value of 0 or 1 for the role can be returned
 #
 # Make a simple rule like this:
 #
@@ -52,6 +55,30 @@
 # scope = IsPhone
 # role = default
 #
+# This will update the locationlog only if the device_type is iPhone on Inline network (By default pfdhcplistener update the locationlog for all devices) so if it's not a iPhone then it will not update
+#
+#[notiphone]
+#filter = node_info
+#operator = match_not
+#attribute = device_type
+#value = iPhone
+#
+#[5:notiphone]
+#scope = InlineDhcpRequest
+#role = 1
+#
+#This will update the locationlog only if the device_type is iPhone at the end of the inline registration
+#
+#[iphone]
+#filter = node_info
+#operator = match
+#attribute = device_type
+#value = iPhone
+#
+#[6:iphone]
+#scope = InlinePortalRegistration
+#role = 1
+
 # It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is 
 # the default one and the ssid is OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday,
 # we return the role "nointernet" (which you will have configured in the switch configuration).
