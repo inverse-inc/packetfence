@@ -48,11 +48,11 @@ has_field 'price' => (
     required => 1,
 );
 
-=head2 timeout
+=head2 access_duration
 
 =cut
 
-has_field 'timeout' => (
+has_field 'access_duration' => (
    type => 'Duration',
    required => 1,
 );

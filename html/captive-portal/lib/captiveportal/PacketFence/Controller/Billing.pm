@@ -208,11 +208,11 @@ sub processTransaction : Private {
 
     # Grab additional infos about the node
     my %info;
-    my $timeout = normalize_time($tier->{'timeout'});
+    my $access_duration = normalize_time($tier->{'access_duration'});
     $info{'pid'}      = $pid;
     $info{'category'} = $tier->{'category'};
     $info{'unregdate'} =
-      POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $timeout));
+      POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
 
     if ($tier->{'usage_duration'}) {
         $info{'time_balance'} =
