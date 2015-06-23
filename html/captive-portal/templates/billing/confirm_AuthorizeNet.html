@@ -1,5 +1,9 @@
 [% INCLUDE header.html %]
 
+<div>
+    You are about to buy [% tier.description %] for [% tier.price %]
+</div>
+
 <form method="POST" action="https://test.authorize.net/gateway/transact.dll">
 <input type=hidden name="x_fp_hash" value="[% fp_hash %]">
 <input type=hidden name="x_fp_sequence" value="[% fp_sequence %]">
@@ -13,7 +17,7 @@
 <input type=hidden name=x_test_request value="Y" >
 <input type=hidden name="x_receipt_link_method" value="POST" >
 <input type=hidden name="x_receipt_link_text" value="Click here to get access" >
-<input type=hidden name="x_receipt_link_url" value="http://192.168.56.101:8080/billing/[% billing.id %]/verify" >
+<input type=hidden name="x_receipt_link_url" value="[% billing.verify_url %]" >
 </form>
 
 [% INCLUDE footer.html %]
