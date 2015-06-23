@@ -73,6 +73,17 @@ sub _fields_expanded {
     return qw(sources filter locale mandatory_fields custom_fields_authentication_sources allowed_devices provisioners scans);
 }
 
+=head2 _Section
+
+Exclude sections with spaces
+
+=cut
+
+sub _Sections {
+    my ($self) = @_;
+    return  grep { !/\s+/ } $self->cachedConfig->Sections();
+}
+
 __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
