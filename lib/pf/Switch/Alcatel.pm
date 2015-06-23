@@ -43,7 +43,6 @@ use pf::constants;
 use pf::config;
 use pf::node;
 use pf::util::radius qw(perform_disconnect);
-use pf::accounting qw(node_accounting_current_sessionid);
 
 =head1 SUBROUTINES
 
@@ -57,7 +56,6 @@ sub supportsWiredDot1x { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub isVoIPEnabled { return $_[0]->{_VoIPEnabled} }
 sub supportsRadiusVoip { return $TRUE; }
-# sub supportsRadiusVoip { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 
@@ -196,8 +194,6 @@ sub radiusDisconnect {
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/://g;
-        my $acctsessionid = node_accounting_current_sessionid($mac);
-        $logger->info("mac : $mac");
 
         # Standard Attributes
         my $attributes_ref = {
@@ -212,8 +208,6 @@ sub radiusDisconnect {
             %$attributes_ref,
         };
         $response = perform_disconnect($connection_info, $attributes_ref);
-        use Data::Dumper;
-        $logger->info("Disconnect reply : ".Dumper($response));
     } catch {
         chomp;
         $logger->warn("[$self->{'_ip'}] Unable to perform RADIUS Disconnect-Request: $_");
