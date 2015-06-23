@@ -1,4 +1,4 @@
-package pfappserver::Form::Authentication::Source::Mirapay;
+package pfappserver::Form::Config::Authentication::Source::Mirapay;
 
 =head1 NAME
 
@@ -16,6 +16,22 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source::Billing';
+
+has_field base_url => (
+    type => 'Text',
+    default => "https://staging.eigendev.com/MiraSecure/GetToken.php",
+    required => 1,
+);
+
+has_field shared_secret => (
+    type => 'Text',
+    required => 1,
+);
+
+has_field merchant_id => (
+    type => 'Text',
+    required => 1,
+);
 
 
 =head1 AUTHOR
