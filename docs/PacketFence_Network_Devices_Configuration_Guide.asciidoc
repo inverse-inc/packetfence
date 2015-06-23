@@ -2167,6 +2167,86 @@ interface GigabitEthernet0/0/8
 
 ----
 
+IBM
+~~
+
+RackSwitch G8052
+^^^^^^^^^^^^^^^^
+
+PacketFence supports only the 802.1x. It's tested and developped for the Firmware 7.9.11.0.
+
+Radius configuration
+++++++++++++++++++++
+
+----
+RS G8052(config)# radius-server primary-host 192.168.1.5
+RS G8052(config)# radius-server enable
+radius-server primary-host 192.168.1.5 key useStrongerSecret
+----
+
+802.1X (dot1x) configuration
+++++++++++++++++++++++++++++
+
+----
+RS G8052(config)# dot1x enable
+----
+
+SNMP configuration
+++++++++++++++++++
+
+----
+RS G8052(config)# snmp-server read-community packetfence
+RS G8052(config)# snmp-server write-community packetfence
+----
+
+Port configuration
+++++++++++++++++++
+
+----
+RS G8052(config)# configure termninal
+RS G8052(config)# interface port 1
+RS G8052(config-if)# dot1x mode auto
+RS G8052(config-if)# dot1x quiet-time 2
+RS G8052(config-if)# dot1x server-timeout 3
+RS G8052(config-if)# dot1x re-authenticate
+RS G8052(config-if)# dot1x re-authentication-interval 10800
+RS G8052(config-if)# dot1x vlan-assign
+RS G8052(config-if)# end
+----
+
+PacketFence configuration
++++++++++++++++++++++++++
+
+In order to configure the IBM RackSwitch G8052 switch module, go on the PacketFence admin web page under *Configuration->Switches->Add switch*
+
+Definition:
+
+ IP: This will be the IP of the IBM StackSwitch G8052 switch on the management network
+ Description: IBM StackSwitch G8052
+ Type: IBM RackSwitch G8052
+ Mode: Production
+ Deauthentication: SNMP
+ Dynamic Uplinks: Checked
+
+Roles:
+
+   Role by VLAN ID: checked
+   registration VLAN: 2
+   isolation VLAN: 3
+   default: 10
+
+Radius:
+
+   Secret Passphrase: useStrongerSecret
+
+Snmp:
+
+    SNMP Version: 2c
+    SNMP Read Community: packetfence
+    SNMP Write Community: packetfence
+   
+Click Save to add the switch
+
 Intel
 ~~~~~
 
