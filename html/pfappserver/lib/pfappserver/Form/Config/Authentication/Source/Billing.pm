@@ -22,6 +22,19 @@ has_field currency => (
     default => 'USD',
 );
 
+has_field 'create_local_account' => (
+    type => 'Toggle',
+    checkbox_value => 'yes',
+    unchecked_value => 'no',
+    label => 'Create Local Account',
+    default => pf::Authentication::Source::BillingSource->meta->get_attribute('create_local_account')->default,
+    tags => {
+        after_element => \&help,
+        help => 'Create a local account on the PacketFence system based on the account email address provided.',
+    },
+);
+
+
 # Form fields
 
 =head1 AUTHOR
