@@ -13,7 +13,7 @@ pf::ConfigStore::BillingTier;
 
 use Moo;
 use namespace::autoclean;
-use pf::ConfigStore::Authentication;
+use pf::ConfigStore::Profile;
 
 extends 'pf::ConfigStore::Group';
 
@@ -27,7 +27,7 @@ sub pfconfigNamespace {'config::Authentication'}
 
 =cut
 
-sub _buildCachedConfig { pf::ConfigStore::Authentication->new->cachedConfig() }
+sub _buildCachedConfig { pf::ConfigStore::Profile->new->cachedConfig() }
 
 __PACKAGE__->meta->make_immutable;
 

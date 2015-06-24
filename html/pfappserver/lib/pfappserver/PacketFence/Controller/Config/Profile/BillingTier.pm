@@ -1,8 +1,8 @@
-package pfappserver::PacketFence::Controller::Config::Authentication::Source::BillingTier;
+package pfappserver::PacketFence::Controller::Config::Profile::BillingTier;
 
 =head1 NAME
 
-pfappserver::Controller::Configuration::Authentication::Source::BillingTier - Catalyst Controller
+pfappserver::Controller::Configuration::Profile::BillingTier - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -21,13 +21,13 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud::Config';
     with 'pfappserver::Base::Controller::Crud::Config::Clone';
 }
-use pfappserver::PacketFence::Controller::Config::Authentication::Source;
+use pfappserver::PacketFence::Controller::Config::Profile;
 
 __PACKAGE__->config(
    action => {
        # Reconfigure the object action from pfappserver::Base::Controller::Crud
        # Configure access rights
-       parent => { Chained => '/', PathPart => 'config/authentication/source/billingtier', CaptureArgs => 1},
+       parent => { Chained => '/', PathPart => 'config/profile/billingtier', CaptureArgs => 1},
        object => { Chained => 'parent', CaptureArgs => 1 },
        list   => { AdminRole => 'USERS_SOURCES_READ', Args => 0, Chained => 'parent' },
        create => { AdminRole => 'USERS_SOURCES_CREATE', Args => 0, Chained => 'parent' },
@@ -38,15 +38,15 @@ __PACKAGE__->config(
    },
     action_args => {
         # Setting the global model and form for all actions
-        '*' => { model => "Config::Authentication::Source::BillingTier", form => "Config::Authentication::Source::BillingTier" },
+        '*' => { model => "Config::BillingTier", form => "Config::BillingTier" },
     },
 );
 
-sub parent :Chained('/') :PathPart('config/authentication/source/billingtier')  :CaptureArgs(1)  {
+sub parent :Chained('/') :PathPart('config/profile/billingtier')  :CaptureArgs(1)  {
     my ($self, $c, $source) = @_;
     my $old_model = $c->action->{model};
-    $c->action->{model} = 'Config::Authentication';
-    pfappserver::PacketFence::Controller::Config::Authentication::Source::object($self, $c, $source);
+    $c->action->{model} = 'Config::Profile';
+    pfappserver::PacketFence::Controller::Config::Profile::object($self, $c, $source);
     $c->action->{model} = $old_model;
 };
 

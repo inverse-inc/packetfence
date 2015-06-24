@@ -1,18 +1,18 @@
-package pfappserver::Controller::Config::Authentication::Source::BillingTier;
+package pfappserver::Controller::Config::Profile::BillingTier;
 
 =head1 NAME
 
-pfappserver::Controller::Config::Authentication::Source::BillingTier
+pfappserver::Controller::Config::Profile::BillingTier
 
 =head1 DESCRIPTION
 
-Place all customization for Controller::Config::Authentication::Source::BillingTier here
+Place all customization for Controller::Config::Profile::BillingTier here
 
 =cut
 
 use Moose;
 
-BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Authentication::Source::BillingTier'; }
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Profile::BillingTier'; }
 
 =head1 AUTHOR
 
