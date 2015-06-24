@@ -100,7 +100,7 @@ case "$1" in
         for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server; do
             
             if [ -e "/etc/init.d/"$service ] ; then
-                service $service stop  > /dev/null 2>&1
+                invoke-rc.d $service stop  > /dev/null 2>&1
                 if [ -e /etc/lsb-release ]; then
                     update-rc.d -f $service remove > /dev/null 2>&1
                 else
@@ -130,9 +130,9 @@ case "$1" in
         echo "Starting Packetfence Administration GUI..."
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
-        service packetfence-config restart
+        invoke-rc.d packetfence-config restart
         /usr/local/pf/bin/pfcmd configreload
-        service packetfence start httpd.admin
+        invoke-rc.d packetfence start httpd.admin
 
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
