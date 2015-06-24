@@ -1,4 +1,4 @@
-package pfappserver::Model::Config::Authentication::Source::BillingTier;
+package pfappserver::Model::Config::BillingTier;
 
 =head1 NAME
 
@@ -31,8 +31,8 @@ Configure the billing tier from the previously defined source
 
 sub ACCEPT_CONTEXT {
     my ($class,$c,@args) = @_;
-    my $source_id = $c->stash->{source}->{id};
-    my $group ="$source_id billing_tier";
+    my $profile_id = $c->stash->{item}->{id};
+    my $group ="$profile_id billing_tier";
     return $class->new(@args, configStore => pf::ConfigStore::BillingTier->new(group => $group));
 }
 

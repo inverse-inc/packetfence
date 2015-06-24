@@ -16,7 +16,6 @@ use warnings;
 use Moose;
 use pf::config qw($FALSE $TRUE $default_pid);
 use pf::Authentication::constants;
-use pf::Authentication::BillingTier;
 use pf::util;
 
 extends 'pf::Authentication::Source';
