@@ -2,6 +2,32 @@
 
 package pf::addons::cleaner;
 
+=head1 NAME
+
+pf::addons::cleaner
+
+=head1 SYNOPSIS
+
+ database-cleaner --table=<table> --date-field=<date-field> <other options>
+
+Options:
+
+  table                 | Name of the table to clean
+  date-field            | The date field to compare against for the expiration
+  older-than            | Delay of expiration of the entries in SQL syntax. Defaults to "1 MONTH".
+  run-limit             | Amount of rows to delete per run
+  wait-between          | Time to wait between runs
+  additionnal-condition | Additionnal SQL condition to add to the cleanup queries
+  seed                  | Add dummy data in radacct to test the script
+
+=head1 DESCRIPTION
+
+This module allows to perform a database cleanup that aims to not lock the tables for too much time.
+
+=cut
+
+
+
 use strict;
 use warnings;
 
@@ -11,6 +37,7 @@ use DBI;
 use Data::Dumper;
 use Getopt::Long;
 use pf::log;
+use Pod::Usage;
 
 BEGIN {
   use Log::Log4perl;
@@ -25,6 +52,11 @@ BEGIN {
   Log::Log4perl::init(\$log_conf);
 }
 
+=head2 new
+
+Create a new cleaner object
+
+=cut
 
 sub new {
     my ($class, %options) = @_;
@@ -46,6 +78,11 @@ sub new {
     return $self;
 }
 
+=head2 seed_data
+
+Seed fake data in the radacct table to test this script
+
+=cut
 sub seed_data {
     my ($self) = @_;
 
@@ -59,10 +96,16 @@ sub seed_data {
     }
 }
 
+=head2 clean
+
+Do the cleanup of the table based on the objects options
+
+=cut
+
 sub clean {
     my ($self) = @_;
-    my $TABLE = $self->{'table'} || die "Missing --table argument";
-    my $DATE_FIELD = $self->{'date-field'} || die "Missing --date-field argument";
+    my $TABLE = $self->{'table'} || die_with_help("Missing --table argument");
+    my $DATE_FIELD = $self->{'date-field'} || die_with_help("Missing --date-field argument");
     my $OLDER_THAN = $self->{'older-than'} || "1 MONTH";
     my $RUN_LIMIT = $self->{'run-limit'} || 500;
     my $WAIT_BETWEEN = $self->{'wait-between'} || 0.5;
@@ -87,23 +130,46 @@ sub clean {
     }
 }
 
-my %options = ();
-GetOptions (
-  \%options, 
-  "table=s",
-  "date-field=s",
-  "older-than=s",
-  "run-limit=i",
-  "wait-between=f",
-  "additionnal-condition=s",
-  "seed!",
-) || die "Invalid options passed.";
+=head2 die_with_help
 
-my $cleaner = pf::addons::cleaner->new(%options);
-if($cleaner->{seed}){
-    $cleaner->seed_data();
+Die with an error message and by showing the help
+
+=cut
+
+sub die_with_help {
+    my ($message) = @_;
+    print STDERR "$message\n";
+    pod2usage( -verbose => 1 );
 }
-$cleaner->clean();
 
+=head2 execute
 
+Main method/entry point of the script.
+
+=cut
+
+sub execute {
+    my %options = ();
+    GetOptions (
+      \%options, 
+      "h!",
+      "table=s",
+      "date-field=s",
+      "older-than=s",
+      "run-limit=i",
+      "wait-between=f",
+      "additionnal-condition=s",
+      "seed!",
+    ) || die_with_help("Invalid options");
+
+    die_with_help("Help : ") if($options{h});
+
+    my $cleaner = pf::addons::cleaner->new(%options);
+    if($cleaner->{seed}){
+        $cleaner->seed_data();
+    }
+    $cleaner->clean();
+}
+
+execute();
 
