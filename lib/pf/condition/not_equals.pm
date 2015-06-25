@@ -1,13 +1,13 @@
-package pf::condition::equals;
+package pf::condition::not_equals;
 =head1 NAME
 
-pf::condition::equals add documentation
+pf::condition::not_equals add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::condition::equals
+pf::condition::not_equals
 
 =cut
 
@@ -25,7 +25,7 @@ has value => (
 sub match {
     my ($self,$arg) = @_;
     return 0 if(!defined($arg));
-    return $arg eq $self->value;
+    return $arg ne $self->value;
 }
 
 =head1 AUTHOR
