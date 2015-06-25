@@ -131,7 +131,8 @@ case "$1" in
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
         invoke-rc.d packetfence-config restart
-        /usr/local/pf/bin/pfcmd configreload
+        # We probably need to have: invoke-rc.d packetfence reload config
+        #/usr/local/pf/bin/pfcmd configreload
         invoke-rc.d packetfence start httpd.admin
 
         echo Installation complete
