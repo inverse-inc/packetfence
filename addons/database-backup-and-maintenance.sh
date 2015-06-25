@@ -17,9 +17,10 @@
 
 NB_DAYS_TO_KEEP_DB=30
 NB_DAYS_TO_KEEP_FILES=30
-DB_USER='pf';
-DB_PWD='pf';
-DB_NAME='pf';
+DB_USER=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}');
+DB_PWD=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}');
+DB_NAME=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{db}');
+DB_HOST=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}');
 PF_DIRECTORY='/usr/local/pf/'
 PF_DIRECTORY_EXCLUDED='/usr/local/pf/logs'
 BACKUP_DIRECTORY='/root/backup/'
@@ -76,13 +77,13 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
         # loop through the tables and optimize them
         for TABLENAME in $TABLENAMES
         do
-            mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "OPTIMIZE TABLE $TABLENAME;"
+            mysql -h $DB_HOST -u $DB_USER -p$DB_PWD -D $DB_NAME -e "OPTIMIZE TABLE $TABLENAME;"
         done
     fi
 
     # dump the database, gzip and remove old files
     current_filename=$BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-`date +%F_%Hh%M`.sql
-    mysqldump --opt -h 127.0.0.1 -u $DB_USER -p$DB_PWD $DB_NAME > $current_filename && \
+    mysqldump --opt -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME > $current_filename && \
         gzip $current_filename && \
         find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
 
@@ -90,13 +91,10 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
     if [ `/bin/date +%d` -eq '01' ]; then
         # flushing old locationlog_archive records into sql files for archival then removing from database
         current_filename=$ARCHIVE_DIRECTORY/$ARCHIVE_DB_FILENAME-`date +%Y%m%d`.sql
-        mysqldump -u $DB_USER -p$DB_PWD $DB_NAME --tables locationlog_archive --skip-opt --no-create-info --quick --where='((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR),"%Y-%m-01"))' > $current_filename && \
+        mysqldump -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME --tables locationlog_archive --skip-opt --no-create-info --quick --where='((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR),"%Y-%m-01"))' > $current_filename && \
             gzip $current_filename && \
-            mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'LOCK TABLES locationlog_archive WRITE; DELETE FROM locationlog_archive WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR),"%Y-%m-01")); UNLOCK TABLES;'
+            mysql -h $DB_HOST -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'LOCK TABLES locationlog_archive WRITE; DELETE FROM locationlog_archive WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR),"%Y-%m-01")); UNLOCK TABLES;'
 
-        #Clean Accounting for previous year... if needed
-        mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'DELETE FROM radacct WHERE YEAR(acctstarttime) < YEAR(CURRENT_DATE());'
-        mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e 'DELETE FROM radacct_log WHERE YEAR(timestamp) < YEAR(CURRENT_DATE());'
     fi
 
     # Replicate the db backups between both servers
