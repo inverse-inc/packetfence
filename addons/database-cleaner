@@ -104,8 +104,8 @@ Do the cleanup of the table based on the objects options
 
 sub clean {
     my ($self) = @_;
-    my $TABLE = $self->{'table'} || die_with_help("Missing --table argument");
-    my $DATE_FIELD = $self->{'date-field'} || die_with_help("Missing --date-field argument");
+    my $TABLE = $self->{'table'} || die_with_help("Missing table argument");
+    my $DATE_FIELD = $self->{'date-field'} || die_with_help("Missing date-field argument");
     my $OLDER_THAN = $self->{'older-than'} || "1 MONTH";
     my $RUN_LIMIT = $self->{'run-limit'} || 500;
     my $WAIT_BETWEEN = $self->{'wait-between'} || 0.5;
