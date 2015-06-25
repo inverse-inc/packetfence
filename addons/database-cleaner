@@ -123,7 +123,7 @@ sub clean {
 
     my $i=0;
     for(my $i=1; $i<=$runs; $i++){
-        get_logger->info("Executing run $i");
+        get_logger->debug("Executing run $i");
         $sth = $self->{dbh}->prepare("delete from $TABLE where $DATE_FIELD < ( NOW() - INTERVAL $OLDER_THAN ) AND $ADDITIONNAL_CONDITIONS limit $RUN_LIMIT");
         $sth->execute();
         select(undef,undef,undef,$WAIT_BETWEEN);
