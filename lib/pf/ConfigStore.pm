@@ -43,6 +43,8 @@ has pfconfigNamespace => ( is => 'ro', default => sub {undef});
 
 has default_section => ( is => 'ro');
 
+has use_default_paramaters => (is => 'ro', default => sub { 1 } );
+
 
 =head1 METHODS
 
@@ -178,11 +180,11 @@ sub read {
     $id = $self->_formatId($id);
     if ( $config->SectionExists($id) ) {
         $data = {};
-        my @default_params = $config->Parameters($config->{default}) if exists $config->{default};
+        my @default_params = $config->Parameters($config->{default}) if exists $config->{default} && $self->use_default_paramaters;
         $data->{$idKey} = $id if defined $idKey;
-        foreach my $param (uniq $config->Parameters($id),@default_params) {
+        foreach my $param (uniq $config->Parameters($sectionId),@default_params) {
             my $val;
-            my @vals = $config->val($id, $param);
+            my @vals = $config->val($sectionId, $param);
             if (@vals == 1 ) {
                 $val = $vals[0];
             } else {
