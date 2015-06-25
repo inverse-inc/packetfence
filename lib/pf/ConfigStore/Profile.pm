@@ -17,6 +17,7 @@ use namespace::autoclean;
 use pf::file_paths;
 
 use pf::ConfigStore;
+use pf::ConfigStore::Group;
 
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ValidGenericID';
@@ -52,6 +53,8 @@ Clean up switch data
 sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
     $self->expand_list($profile, $self->_fields_expanded);
+    my $config = pf::ConfigStore::Group->new({group => "$id billing_tier", cachedConfig => $self->cachedConfig});
+    $profile->{billing_tier} = $config->readAll('id');
 }
 
 =head2 cleanupBeforeCommit
