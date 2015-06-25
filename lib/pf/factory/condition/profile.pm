@@ -49,8 +49,6 @@ sub instantiate {
     my ($class, @args) = @_;
     my $condition;
     my ($type,$data) = $class->getData(@args);
-    use Data::Dumper;
-    print Dumper($data);
     if ($data) {
         if($type eq 'key_couple'){
             my ($value1, $value2) = split(/-/, $data->{value});
