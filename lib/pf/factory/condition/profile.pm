@@ -26,15 +26,15 @@ my $DEFAULT_CONDITION = 'key';
 
 our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
     'network'         => {type => 'network',    key  => 'last_ip'},
-    'node_role'       => {type => 'key',        key  => 'category'},
-    'connection_type' => {type => 'key',        key  => 'last_connection_type'},
-    'port'            => {type => 'key',        key  => 'last_port'},
-    'realm'           => {type => 'key',        key  => 'realm'},
-    'ssid'            => {type => 'key',        key  => 'last_ssid'},
-    'switch'          => {type => 'key',        key  => 'last_switch'},
+    'node_role'       => {type => 'equals',        key  => 'category'},
+    'connection_type' => {type => 'equals',        key  => 'last_connection_type'},
+    'port'            => {type => 'equals',        key  => 'last_port'},
+    'realm'           => {type => 'equals',        key  => 'realm'},
+    'ssid'            => {type => 'equals',        key  => 'last_ssid'},
+    'switch'          => {type => 'equals',        key  => 'last_switch'},
     'switch_port'     => {type => 'key_couple', key1 => 'last_switch', key2 => 'last_port'},
-    'uri'             => {type => 'key',        key  => 'last_uri'},
-    'vlan'            => {type => 'key',        key  => 'last_vlan'},
+    'uri'             => {type => 'equals',        key  => 'last_uri'},
+    'vlan'            => {type => 'equals',        key  => 'last_vlan'},
 );
 
 sub modules {
@@ -47,13 +47,24 @@ sub modules {
 
 sub instantiate {
     my ($class, @args) = @_;
-    my $object;
+    my $condition;
     my ($type,$data) = $class->getData(@args);
+    use Data::Dumper;
+    print Dumper($data);
     if ($data) {
-        my $subclass = $class->getModuleName($type);
-        $object = $subclass->new($data);
+        if($type eq 'key_couple'){
+            my ($value1, $value2) = split(/-/, $data->{value});
+            my $cond1 = pf::condition::key->new(key => $data->{key1}, condition => pf::condition::equals->new(value => $value1));
+            my $cond2 = pf::condition::key->new(key => $data->{key2}, condition => pf::condition::equals->new(value => $value2));
+            my $cond_and = pf::condition::all->new(conditions => [$cond1, $cond2]);
+            return $cond_and;
+        }
+        else{
+            my $subclass = $class->getModuleName($type);
+            $condition = $subclass->new($data);
+            return pf::condition::key->new(key => $data->{key}, condition => $condition);
+        }
     }
-    return $object;
 }
 
 sub getModuleName {

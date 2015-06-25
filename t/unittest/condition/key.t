@@ -24,7 +24,7 @@ use Test::NoWarnings;
 
 use_ok("pf::condition::key");
 
-my $filter = new_ok ( "pf::condition::key", [profile => 'Test', value => 'test', type => 'test', key => 'test' ],"Test value based filter");
+my $filter = new_ok ( "pf::condition::key", [profile => 'Test', condition => pf::condition::equals->new(value => 'test'), type => 'test', key => 'test' ],"Test value based filter");
 
 ok($filter->match({ test => 'test'}),"filter matches");
 

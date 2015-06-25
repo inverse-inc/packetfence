@@ -1,49 +1,30 @@
-package pf::condition::network;
+package pf::condition::equals;
 =head1 NAME
 
-pf::condition::network - network filter for profiles
+pf::condition::equals add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::condition::network
+pf::condition::equals
 
 =cut
 
 use strict;
 use warnings;
 use Moose;
-extends 'pf::condition';
-use NetAddr::IP;
-use Scalar::Util 'blessed';
+extends qw(pf::condition);
 
-=head1 ATTRIBUTES
-
-=head2 value
-
-The IP network to match against
-
-=cut
-
-has 'value' => (
+has value => (
     is => 'ro',
+    required => 1,
+    isa  => 'Str',
 );
 
-
-=head1 METHODS
-
-=head2 match
-
-match the last ip to see if it is in defined network
-
-=cut
-
 sub match {
-    my ($self,$data) = @_;
-    my $ip = $data;
-    my $network = NetAddr::IP->new($self->value);
-    return  $network->contains(NetAddr::IP->new($ip));
+    my ($self,$arg) = @_;
+    return $arg eq $self->value;
 }
 
 =head1 AUTHOR

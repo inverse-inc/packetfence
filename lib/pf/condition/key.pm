@@ -22,17 +22,17 @@ has key => (
     isa  => 'Str',
 );
 
-has value => (
+has condition => (
     is => 'ro',
     required => 1,
-    isa  => 'Str',
+    isa => 'pf::condition',
 );
 
 sub match {
     my ($self,$arg) = @_;
     my $key = $self->key;
     return 0 unless exists $arg->{$key} && defined (my $value = $arg->{$key});
-    return $value eq $self->value;
+    return $self->condition->match($arg->{$key});
 }
 
 =head1 AUTHOR
