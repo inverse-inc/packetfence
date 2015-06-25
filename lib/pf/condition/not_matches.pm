@@ -1,13 +1,13 @@
-package pf::condition::equals;
+package pf::condition::not_matches;
 =head1 NAME
 
-pf::condition::equals add documentation
+pf::condition::not_matches add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::condition::equals
+pf::condition::not_matches
 
 =cut
 
@@ -16,7 +16,7 @@ use warnings;
 use Moose;
 extends qw(pf::condition);
 
-has value => (
+has regex => (
     is => 'ro',
     required => 1,
     isa  => 'Str',
@@ -24,8 +24,9 @@ has value => (
 
 sub match {
     my ($self,$arg) = @_;
+    my $regex = $self->regex;
     return 0 if(!defined($arg));
-    return $arg eq $self->value;
+    return $arg !~ /$regex/;
 }
 
 =head1 AUTHOR
