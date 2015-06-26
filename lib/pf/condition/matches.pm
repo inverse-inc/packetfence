@@ -16,7 +16,7 @@ use warnings;
 use Moose;
 extends qw(pf::condition);
 
-has regex => (
+has value => (
     is => 'ro',
     required => 1,
     isa  => 'Str',
@@ -24,7 +24,7 @@ has regex => (
 
 sub match {
     my ($self,$arg) = @_;
-    my $regex = $self->regex;
+    my $regex = $self->value;
     return 0 if(!defined($arg));
     return $arg =~ /$regex/;
 }

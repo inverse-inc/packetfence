@@ -22,7 +22,7 @@ use Test::NoWarnings;
 
 use_ok("pf::condition::key");
 
-my $filter = new_ok ( "pf::condition::matches", [regex => '^test.*'],"Test regex based filter");
+my $filter = new_ok ( "pf::condition::matches", [value => '^test.*'],"Test regex based filter");
 
 ok($filter->match('testing123'),"filter matches");
 
