@@ -23,6 +23,7 @@ use Log::Log4perl;
 use Readonly;
 use POSIX;
 use Time::HiRes qw(time);
+use pfconfig::cached_scalar;
 
 # Violation status constants
 #TODO port all hard-coded strings to these constants
@@ -33,6 +34,8 @@ Readonly::Scalar our $STATUS_OPEN => 'open';
 Readonly::Scalar our $STATUS_DELAYED => 'delayed';
 
 use constant VIOLATION => 'violation';
+
+tie our $VIOLATION_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'resource::ViolationFilterEngine';
 
 BEGIN {
     use Exporter ();

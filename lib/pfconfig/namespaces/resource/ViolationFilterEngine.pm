@@ -19,6 +19,7 @@ use pf::factory::condition::violation;
 use pf::condition::false;
 use pf::filter;
 use pf::filter_engine;
+use pf::util;
 
 use base 'pfconfig::namespaces::resource';
 
@@ -32,9 +33,8 @@ sub build {
     while (my ($violation, $violation_config) = each %Violations_Config) {
         my @conditions;
         my $violation_condition;
-        if(defined($violation_config->{trigger})){
+        if(isenabled($violation_config->{enabled}) && defined($violation_config->{trigger})){
             foreach my $trigger (split(',', $violation_config->{trigger})){
-                my ($type, $value) = split('::', $trigger); 
                 my $condition = pf::factory::condition::violation->instantiate($trigger);
                 push @conditions, $condition;
             }

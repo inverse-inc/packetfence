@@ -48,12 +48,26 @@ sub modules {
 
 sub instantiate {
     my ($class, @args) = @_;
-    my $condition;
-    my ($type,$data) = $class->getData(@args);
-    if ($data) {
-        my $subclass = $class->getModuleName($type);
-        $condition = $subclass->new($data);
-        return pf::condition::key->new(key => $data->{key}, condition => $condition);
+    my ($type, $data);
+    my $trigger = $args[0];
+    if($trigger =~ /\((.+)\)/){
+        my @triggers = split('&',$1);
+        my @conditions;
+        foreach my $sub_trigger (@triggers){
+            ($type,$data) = $class->getData($sub_trigger);
+            my $subclass = $class->getModuleName($type);
+            my $condition = $subclass->new($data);
+            push @conditions, pf::condition::key->new(key => $data->{key}, condition => $condition);
+        }
+        return pf::condition::all->new(conditions => \@conditions);
+    }
+    else {
+        ($type,$data) = $class->getData(@args);
+        if ($data) {
+            my $subclass = $class->getModuleName($type);
+            my $condition = $subclass->new($data);
+            return pf::condition::key->new(key => $data->{key}, condition => $condition);
+        }
     }
 }
 
