@@ -90,6 +90,7 @@ Readonly::Scalar our $CGI_EMAIL_ACTIVATION      => '/cgi-perl/email_activation.c
 Readonly::Scalar our $URL_SMS_ACTIVATION        => '/activate/sms';
 Readonly::Scalar our $URL_PREREGISTER           => '/preregister';
 Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
+Readonly::Scalar our $URL_BILLING_HOOK          => '/hook/billing/(.+)';
 
 # TODO: Temp... migration process. Should be kept since it breaks the portal on removal
 # dwuelfrath@inverse.ca - 2012.11.12
