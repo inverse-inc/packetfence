@@ -27,8 +27,7 @@ __PACKAGE__->config(
    action => {
        # Reconfigure the object action from pfappserver::Base::Controller::Crud
        # Configure access rights
-       parent => { Chained => '/', PathPart => 'config/profile/billingtier', CaptureArgs => 1},
-       object => { Chained => 'parent', CaptureArgs => 1 },
+       object => { Chained => 'parent', CaptureArgs => 1 , PathPart => '' },
        list   => { AdminRole => 'USERS_SOURCES_READ', Args => 0, Chained => 'parent' },
        create => { AdminRole => 'USERS_SOURCES_CREATE', Args => 0, Chained => 'parent' },
        view   => { AdminRole => 'USERS_SOURCES_READ', },
