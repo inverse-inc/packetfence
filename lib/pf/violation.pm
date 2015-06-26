@@ -538,12 +538,34 @@ sub info_for_violation_engine {
     # NEED TO HANDLE THE NEW TID
     my ($mac,$type,$tid) = @_;
     my $node_info = node_view($mac);
-    my ($device_result, $device) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
+    print "$type $tid";
+
+    my $devices = [];
+    my ($device_id);
+    if($type eq lc("device")){
+        $device_id = $tid;
+    }
+    else {
+        my ($device_result, $device) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
+        if(is_success($device_result)){
+            $device_id = $device->id
+        }
+    }
+    if(defined($device_id)){
+        my (undef,$device) = fingerbank::Model::Device->read($device_id,1);
+        $devices = $device->{parents_ids};
+        push @$devices, $device->{id};
+        @$devices = map {$_.""} @$devices;
+        use Data::Dumper; print Dumper($devices);
+    }
+
+
     my ($dhcp_fingerprint_result, $dhcp_fingerprint) = fingerbank::Model::DHCP_Fingerprint->find([{value => $node_info->{dhcp_fingerprint}}]);
     my ($dhcp_vendor_result, $dhcp_vendor) = fingerbank::Model::DHCP_Vendor->find([{value => $node_info->{dhcp_vendor}}]);
     my ($user_agent_result, $user_agent) = fingerbank::Model::User_Agent->find([{value => $node_info->{user_agent}}]);
+
     my $info = {
-      device_id => is_success($device_result) ? [$device->id.""] : undef,
+      device_id => $devices,
       dhcp_fingerprint_id => is_success($dhcp_fingerprint_result) ? $dhcp_fingerprint->id : undef,
       dhcp_vendor_id => is_success($dhcp_vendor_result) ? $dhcp_vendor->id : undef,
       mac => $mac,
