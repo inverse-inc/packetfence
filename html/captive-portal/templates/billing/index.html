@@ -94,7 +94,7 @@ document.observe("dom:loaded", function() {
   <div class="input">
     [% FOREACH billing IN billing_sources %]
     [% type = billing.type %]
-    <button id="billing_source_[% billing.id | html %]" name="source" type="submit" value="[% billing.id | html %]" class="btn disabled">[% i18n("Pay with ${type}") %] <img src="/content/images/[% type %].icon.png"></button>
+    <button id="billing_source_[% billing.id | html %]" name="source" type="submit" value="[% billing.id | html %]" class="btn disabled">[% i18n("Pay with ${type}") %]</button>
     [% END %]
   </div>
   [% END %]
