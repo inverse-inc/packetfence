@@ -24,6 +24,13 @@ use Readonly;
 use POSIX;
 use Time::HiRes qw(time);
 use pfconfig::cached_scalar;
+use pf::error qw(is_success is_error);
+use fingerbank::Model::Device;
+use fingerbank::Model::DHCP_Fingerprint;
+use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Model::User_Agent;
+use pf::log;
+
 
 # Violation status constants
 #TODO port all hard-coded strings to these constants
@@ -35,6 +42,8 @@ Readonly::Scalar our $STATUS_DELAYED => 'delayed';
 
 use constant VIOLATION => 'violation';
 
+use pf::factory::condition::violation;
+pf::factory::condition::violation->modules;
 tie our $VIOLATION_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'resource::ViolationFilterEngine';
 
 BEGIN {
@@ -525,6 +534,25 @@ sub violation_clear_errors { @ERRORS = (); }
 
 sub violation_last_errors { @ERRORS }
 
+sub info_for_violation_engine {
+    # NEED TO HANDLE THE NEW TID
+    my ($mac,$type,$tid) = @_;
+    my $node_info = node_view($mac);
+    my ($device_result, $device) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
+    my ($dhcp_fingerprint_result, $dhcp_fingerprint) = fingerbank::Model::DHCP_Fingerprint->find([{value => $node_info->{dhcp_fingerprint}}]);
+    my ($dhcp_vendor_result, $dhcp_vendor) = fingerbank::Model::DHCP_Vendor->find([{value => $node_info->{dhcp_vendor}}]);
+    my ($user_agent_result, $user_agent) = fingerbank::Model::User_Agent->find([{value => $node_info->{user_agent}}]);
+    my $info = {
+      device_id => is_success($device_result) ? [$device->id.""] : undef,
+      dhcp_fingerprint_id => is_success($dhcp_fingerprint_result) ? $dhcp_fingerprint->id : undef,
+      dhcp_vendor_id => is_success($dhcp_vendor_result) ? $dhcp_vendor->id : undef,
+      mac => $mac,
+      mac_vendor_id => 0, #CHANGE ME
+      user_agent_id => is_success($user_agent_result) ? $user_agent->id : undef,
+    };
+    return $info;
+}
+
 =item * violation_trigger
 
 Evaluates a candidate violation and if its valid, will add it to the node and trigger a VLAN change if required
@@ -554,15 +582,14 @@ sub violation_trigger {
         return 0;
     }
 
-    require pf::trigger;
-    my @trigger_info = pf::trigger::trigger_view_enable( $tid, $type );
-    if ( !scalar(@trigger_info) ) {
-        $logger->debug("violation not added, no trigger found for ${type}::${tid} or violation is disabled");
-        return 0;
-    }
+    my $info = info_for_violation_engine($mac,$type,$tid);
+    use Data::Dumper;
+    print Dumper($info);
+    my @vids = $VIOLATION_FILTER_ENGINE->match_all($info);
 
     my $addedViolation = 0;
-    foreach my $row (@trigger_info) {
+    foreach my $vid (@vids) {
+        my $row = class_view($vid);
         # if trigger row is not an hash reference, has no vid or its vid is non numeric, we report and skip
         if (ref($row) ne 'HASH' || !defined($row->{'vid'}) || $row->{'vid'} !~ /^\d+$/) {
             $logger->warn("Invalid violation / trigger configuration. Error on trigger ${type}::${tid}");
