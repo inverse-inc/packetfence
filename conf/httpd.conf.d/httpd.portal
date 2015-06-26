@@ -354,6 +354,10 @@ foreach my $interface ( uniq @internal_nets, @portal_ints ) {
              "/content" => {
                 "Allow" => "from all",
              },
+             "/hook/billing" => {
+               "SetHandler" => "modperl",
+               "PerlResponseHandler" => "pf::web::billinghook",
+             },
              @status_options,
              @allowed_from_all_options,
          ),
