@@ -16,7 +16,6 @@ use strict;
 use warnings;
 use Moose;
 extends qw(pf::filter_engine);
-use pf::node;
 use pf::filter;
 use pf::factory::condition::profile;
 use pf::condition::any;
@@ -52,12 +51,6 @@ sub BUILDARGS {
     return { filters => \@filters };
 }
 
-sub build_match_arg {
-    my ($self, $mac, $options) = @_;
-    my $node_info = node_view($mac) || {};
-    $node_info = {%$node_info, %$options};
-    return $node_info;
-}
 
 =head1 AUTHOR
 

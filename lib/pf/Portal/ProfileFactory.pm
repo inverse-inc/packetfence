@@ -46,7 +46,10 @@ sub instantiate {
         return $self->_from_profile($options->{'portal'});
     }
 
-    my $profile_name = $PROFILE_FILTER_ENGINE->match_first($mac, $options);
+    my $node_info = node_view($mac) || {};
+    $node_info = {%$node_info, %$options};
+
+    my $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info);
     $logger->trace("Instantiate profile $profile_name");
     return $self->_from_profile($profile_name);
 }
