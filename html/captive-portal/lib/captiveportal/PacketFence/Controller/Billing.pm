@@ -137,14 +137,15 @@ sub validate : Private {
     my $valid_name = ( pf::web::util::is_name_valid($first_name)
             && pf::web::util::is_name_valid($last_name) );
     my $valid_email = pf::web::util::is_email_valid($email);
-    $c->session(
+    my %temp = (
         "firstname" => $first_name,
         "lastname"  => $last_name,
         "email"     => $email,
         "login"     => $email,
         "tier"      => $tier,
     );
-    $c->stash(tier => $tier,);
+    $c->session(%temp);
+    $c->stash(%temp);
 }
 
 =head2 cancel
