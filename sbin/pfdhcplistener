@@ -390,8 +390,10 @@ sub parse_dhcp_request {
     if ($is_inline_vlan || grep ( { $_->{'gateway'} eq $dhcp->{'src_ip'} } @inline_nets)) {
         my $node_info = node_view($dhcp->{'chaddr'});
         my $filter = new pf::vlan::filter;
-        my ($result,$role) = $filter->test('InlineDhcpRequest',undef, undef, $dhcp->{'chaddr'}, $node_info, undef, undef, undef, undef);
-        if ($result) {
+        my $result = 0;
+        my $role = 0;
+        ($result,$role) = $filter->test('InlineDhcpRequest',undef, undef, $dhcp->{'chaddr'}, $node_info, undef, undef, undef, undef);
+        if (!$result) {
             $apiclient->notify('synchronize_locationlog',$interface_ip,$interface_ip,undef, $NO_PORT, $interface_vlan, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
             $accessControl->performInlineEnforcement($dhcp->{'chaddr'});
         }
