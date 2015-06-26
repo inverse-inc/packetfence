@@ -17,6 +17,7 @@ use Moose;
 use pf::config qw($FALSE $TRUE $default_pid);
 use pf::Authentication::constants;
 use pf::util;
+use pf::log;
 use HTTP::Status qw(is_success);
 use WWW::Curl::Easy;
 use JSON::XS;
@@ -24,6 +25,7 @@ use URI::Escape::XS qw(uri_escape);
 use List::Util qw(pairmap);
 
 extends 'pf::Authentication::Source::BillingSource';
+our $logger = get_logger;
 
 =head2 Attributes
 
@@ -228,28 +230,54 @@ sub subscribe_customer {
     my ($code, $data) = $self->_send_form($self->curl, "v1/customers", $object);
 }
 
+sub hook {
+    my ($self, $headers, $content) = @_;
+    my $object = decode_json $content;
+    my $type   = $object->{type};
+    $type =~ s/\./_/g;
+    my $handler = "handle_$type";
+    if ($self->can($handler)) {
+        my $status;
+        eval {
+            $status = $self->$handler($object);
+        };
+        if ($@) {
+            return 500;
+        }
+        return $status;
+    }
+    else {
+        $logger->warn("Unsupport type $type recieved");
+    }
+}
+
 sub handle_customer_created {
-	my ($self,@args) = @_;
+    my ($self, $object) = @_;
     return 200;
 }
 
 sub handle_customer_subscription_created {
-	my ($self,@args) = @_;
+    my ($self, $object) = @_;
     return 200;
 }
 
 sub handle_invoice_created {
-	my ($self,@args) = @_;
+    my ($self, $object) = @_;
     return 200;
 }
 
 sub handle_charge_succeeded {
-	my ($self,@args) = @_;
+    my ($self, $object) = @_;
     return 200;
 }
 
 sub handle_invoice_payment_succeeded {
-	my ($self,@args) = @_;
+    my ($self, $object) = @_;
+    return 200;
+}
+
+sub invoice_payment_failed {
+    my ($self, $object) = @_;
     return 200;
 }
 
