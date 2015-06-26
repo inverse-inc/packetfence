@@ -1,0 +1,23 @@
+<form name="portal" class="form-horizontal" method="post" action="[% c.uri_for(c.controller('Config::Profile').action_for('sort_items')) %]">
+  <table id="billingtiers" class="table table-sortable admin_ordered">
+    <thead>
+      <tr class="disabled">
+        <th class="hidden-phone"></th>
+        <th>[% l('Name') %]</th>
+        <th>[% l('Description') %]</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    [% FOREACH tier IN item.billing_tiers %]
+    <tr>
+        <td class="sort-handle hidden-phone">[% loop.index + 1 %]</td>
+        <td>
+            <a href="[% c.pf_hash_for(c.controller('Config::Profile::BillingTier').action_for('view'), [ id, tier.id ]) %]">[% tier.id | html %]</a>
+        </td>
+        <td>[% tier.description | html %]</td>
+    </tr>
+    [% END %]
+    </tbody>
+  </table>
+</form>
