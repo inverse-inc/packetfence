@@ -26,6 +26,7 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $violations_config_file;
     $self->{default_section} = "defaults";
+    $self->{child_resources} = [ 'resource::ViolationFilterEngine' ];
 }
 
 sub build_child {
