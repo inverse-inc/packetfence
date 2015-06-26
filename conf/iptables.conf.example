@@ -82,8 +82,6 @@
 -A input-internal-inline-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
 # DNS
 # allow unregistered users and isolated users to reach it for DNAT purposes but prevent registered ones
--A input-internal-inline-if --protocol tcp --match tcp --dport 53  --match mark --mark 0x3 --jump ACCEPT
--A input-internal-inline-if --protocol udp --match udp --dport 53  --match mark --mark 0x3 --jump ACCEPT
 -A input-internal-inline-if --protocol tcp --match tcp --dport 53  --match mark --mark 0x2 --jump ACCEPT
 -A input-internal-inline-if --protocol udp --match udp --dport 53  --match mark --mark 0x2 --jump ACCEPT
 -A input-internal-inline-if --protocol tcp --match tcp --dport 53  --match mark --mark 0x1 --jump DROP

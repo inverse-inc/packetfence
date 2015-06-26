@@ -19,10 +19,10 @@ use Log::Log4perl;
 use pf::constants;
 use pf::config;
 use pf::node qw(node_attributes);
-use pf::util;
 use pf::violation qw(violation_count_trap);
 use Try::Tiny;
 use NetAddr::IP;
+use pf::util;
 
 our $VERSION = 1.01;
 
@@ -57,7 +57,7 @@ sub get_technique {
     my $type;
     $type = "pf::ipset";
 
-    $logger->info("Instantiate a new iptables modification method. ". $type);
+    $logger->debug("Instantiate a new iptables modification method. ". $type);
     try {
         # try to import module and re-throw the error to catch if there's one
         eval "use $type";
@@ -119,15 +119,6 @@ sub fetchMarkForNode {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    # Violation first
-    my $open_violation_count = violation_count_trap($mac);
-    if ($open_violation_count != 0) {
-        $logger->info(
-            "[$mac] has $open_violation_count open violations(s) with action=trap; it needs to firewalled"
-        );
-        return $IPTABLES_MARK_ISOLATION;
-    }
-
     # looking at the node's registration status
     # at this point we don't care whether trapping.registration is enabled or not
     # we can do this because actual enforcement is done on startup by adding proper DNAT and forward ACCEPT
@@ -170,6 +161,7 @@ sub isInlineIP {
     return $FALSE;
 }
 
+ 
 =back
 
 =head1 AUTHOR

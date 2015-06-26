@@ -130,7 +130,7 @@ BEGIN {
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int
         @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @portal_ints
         @inline_enforcement_nets @vlan_enforcement_nets
-        $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
+        $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG
         %mark_type_to_str %mark_type
         $MAC $PORT $SSID $ALWAYS
         %Default_Config
@@ -344,19 +344,16 @@ $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
 # Ip mash marks
 # Warning: make sure to verify conf/iptables.conf for hard-coded marks if you change the marks here.
 Readonly::Scalar our $IPTABLES_MARK_REG => "1";
-Readonly::Scalar our $IPTABLES_MARK_ISOLATION => "2";
-Readonly::Scalar our $IPTABLES_MARK_UNREG => "3";
+Readonly::Scalar our $IPTABLES_MARK_UNREG => "2";
 
 %mark_type = (
     'Reg'   => $IPTABLES_MARK_REG,
-    'Isol' => $IPTABLES_MARK_ISOLATION,
-    'Unreg'          => $IPTABLES_MARK_UNREG,
+    'Unreg' => $IPTABLES_MARK_UNREG,
 );
 
 # Their string equivalent for database storage
 %mark_type_to_str = (
     $IPTABLES_MARK_REG => 'Reg',
-    $IPTABLES_MARK_ISOLATION => 'Isol',
     $IPTABLES_MARK_UNREG => 'Unreg',
 );
 

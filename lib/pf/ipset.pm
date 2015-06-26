@@ -74,14 +74,12 @@ sub iptables_generate {
             my @lines  = pf_run($cmd);
         }
 
-        foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
-            } else {
-                $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
-            }
-            my @lines  = pf_run($cmd);
+        if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+            $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+        } else {
+            $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
         }
+        my @lines  = pf_run($cmd);
 
     }
     # OAuth and passthrough
@@ -118,14 +116,12 @@ sub generate_mangle_rules {
     $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n";
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
-        foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src ";
-            } else {
-                $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src,src ";
-            }
-            $mangle_rules .= "--jump MARK --set-mark 0x$IPTABLES_MARK\n";
+        if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+            $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network src ";
+        } else {
+            $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network src,src ";
         }
+        $mangle_rules .= "--jump MARK --set-mark 0x$IPTABLES_MARK_REG\n";
     }
 
     # Build lookup table for MAC/IP mapping
@@ -150,30 +146,6 @@ sub generate_mangle_rules {
                     } else {
                         push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac");
                         push(@ops, "add PF-iL2_ID$row->{'category_id'}_$network $iplog");
-                    }
-                }
-            }
-        }
-    }
-
-    # mark all open violations
-    # TODO performance: only those whose's last connection_type is inline?
-    my @macarray = violation_view_open_uniq();
-    if ( $macarray[0] ) {
-        foreach my $row (@macarray) {
-            foreach my $network ( keys %ConfigNetworks ) {
-                next if ( !pf::config::is_network_type_inline($network) );
-                my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-                my $mac = $row->{'mac'};
-                my $iplog = $iplog_lookup{clean_mac($mac)};
-                if (defined $iplog) {
-                    my $ip = new NetAddr::IP::Lite clean_ip($iplog);
-                    if ($net_addr->contains($ip)) {
-                        if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog");
-                        } else {
-                            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog,$mac");
-                        }
                     }
                 }
             }
@@ -236,6 +208,8 @@ sub iptables_mark_node {
     my ( $self, $mac, $mark, $newip ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
+    return (1) if ($mark ne $IPTABLES_MARK_REG);
+
     foreach my $network ( keys %ConfigNetworks ) {
 
         next if ( !pf::config::is_network_type_inline($network) );
@@ -281,6 +255,8 @@ sub iptables_mark_node {
 sub iptables_unmark_node {
     my ( $self, $mac, $mark ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    return (1) if ($mark ne $IPTABLES_MARK_REG);
 
     my $ipset = $self->get_ip_from_ipset_by_mac($mac, $mark);
 
@@ -336,18 +312,16 @@ sub get_mangle_mark_for_mac {
             my $ip = new NetAddr::IP::Lite clean_ip($iplog);
 
             if ($net_addr->contains($ip)) {
-                foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-                    my $cmd;
-                    if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                        $cmd = "LANG=C sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog 2>&1";
-                    } else {
-                        $cmd = "LANG=C sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog,$mac 2>&1";
-                    }
-                    my @out = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
+                my $cmd;
+                if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                    $cmd = "LANG=C sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog 2>&1";
+                } else {
+                    $cmd = "LANG=C sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac 2>&1";
+                }
+                my @out = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
 
-                    if (defined($out[0]) && !($out[0] =~ m/NOT/i)) {
-                        return $IPTABLES_MARK;
-                    }
+                if (defined($out[0]) && !($out[0] =~ m/NOT/i)) {
+                    return $IPTABLES_MARK_REG;
                 }
             }
         } else {
@@ -367,6 +341,7 @@ Remove ip from ipset session
 sub ipset_remove_ip {
     my ( $self, $ip, $mark, $network) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    return (1) if ($mark ne $IPTABLES_MARK_REG);
     my ($cmd, $out);
     $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
     $out  = pf_run($cmd);
@@ -410,6 +385,7 @@ Fetches all the ip address from ipset by mac address
 sub get_ip_from_ipset_by_mac {
     my ( $self, $mac, $mark) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    return (1) if ($mark ne $IPTABLES_MARK_REG);
     my $session = {};
     my ($cmd, $out);
     foreach my $network ( keys %ConfigNetworks ) {

@@ -476,7 +476,10 @@ sub webNodeRegister : Private {
         my $switch;
         my $last_switch_id = $node->{last_switch};
         if( defined $last_switch_id ) {
-            $switch = pf::SwitchFactory->instantiate($last_switch_id);
+            my $inline = pf::inline->new();
+            if (!($inline->isInlineIP($last_switch_id))) {
+                $switch = pf::SwitchFactory->instantiate($last_switch_id);
+            }
         }
 
         if(defined($switch) && $switch && $switch->supportsWebFormRegistration){
@@ -491,7 +494,7 @@ sub webNodeRegister : Private {
             $c->detach;
         }
         else{
-            my $inline = new pf::inline::custom();
+            my $inline = pf::inline->new();
             if ($inline->isInlineIP($c->request->address)) {
                 my $vlan_filter = pf::vlan::filter->new;
                 my $interface_ip = $c->request->{'env'}->{'SERVER_ADDR'};

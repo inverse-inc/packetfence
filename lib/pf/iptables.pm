@@ -274,15 +274,11 @@ sub generate_inline_rules {
         my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
         $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
             . "--jump DNAT --to $gateway\n";
-        $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
-            . "--jump DNAT --to $gateway\n";
         if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
             $logger->info("Adding Proxy interception rules");
             foreach my $intercept_port ( split(',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
                 my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
                 $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
-                        . "--jump DNAT --to $gateway\n";
-                $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
                         . "--jump DNAT --to $gateway\n";
             }
         }
@@ -414,7 +410,7 @@ sub generate_inline_if_src_to_chain {
 
         # Every marked packet should be NATed
         # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
-        foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
+        foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG) {
             my @values = split(',', get_inline_snat_interface());
             foreach my $val (@values) {
                 foreach my $network ( keys %ConfigNetworks ) {
@@ -483,10 +479,6 @@ sub generate_nat_redirect_rules {
                     "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway\n";
             }
 
-            # Destination NAT to the portal on the ISOLATION mark
-            $rules .=
-                "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
-                "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump DNAT --to $gateway\n";
         }
 
     }
