@@ -4,7 +4,7 @@
     You are about to buy [% tier.description %] for [% tier.price %]
 </div>
 
-<form action="" method="POST" id="payment-form">
+<form action="[% billing.verify_url %]" method="POST" id="payment-form">
   <span class="payment-errors"></span>
 
   <div class="form-row">
@@ -29,6 +29,7 @@
     <span> / </span>
     <input type="text" size="4" data-stripe="exp-year"/>
   </div>
+  <input type="hidden" name="stripeToken" value=""/>
 
   <button type="submit">Submit Payment</button>
 </form>
@@ -37,7 +38,24 @@
 
 <script type="text/javascript">
   // This identifies your website in the createToken call below
+    function stripeResponseHandler(status, response) {
+        console.log(status,response);
+        if(response.error) {
+        }
+        else {
+            var token = response.id;
+            var form = $('payment-form');
+            var input = form["stripeToken"];
+            $(input).setValue(token);
+            form.submit();
+        }
+    };
     Stripe.setPublishableKey('[% billing.publishable_key %]');
+    $('payment-form').onsubmit = function(e) {
+        console.log(e);
+        Stripe.card.createToken(this, stripeResponseHandler);
+        return false;
+    };
       // ...
 </script>
 
