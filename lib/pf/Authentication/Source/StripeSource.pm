@@ -20,6 +20,8 @@ use pf::util;
 use HTTP::Status qw(is_success);
 use WWW::Curl::Easy;
 use JSON::XS;
+use URI::Escape::XS qw(uri_escape);
+use List::Util qw(pairmap);
 
 extends 'pf::Authentication::Source::BillingSource';
 
@@ -95,10 +97,42 @@ send json data
 
 sub _send_json {
     my ($self, $curl, $path, $object) = @_;
+    $curl->setopt(CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
     $self->_set_url($curl, $path);
     my $data = encode_json $object;
     $self->_set_body($curl, $data);
     return $self->_do_request($curl);
+}
+
+=head2 _send_form
+
+send form data
+
+=cut
+
+sub _send_form {
+    my ($self, $curl, $path, $object) = @_;
+    $self->_set_url($curl, $path);
+    my $data = encode_form($object);
+    $self->_set_body($curl, $data);
+    return $self->_do_request($curl);
+}
+
+sub encode_form {
+    my ($object) = @_;
+    return join ('&',pairmap { uri_escape($a) . "=" . uri_escape($b) } %$object);
+}
+
+=head2 _set_body
+
+Set the body for the curl object
+
+=cut
+
+sub _set_body {
+    my ($self, $curl, $data) = @_;
+    $curl->setopt(CURLOPT_POSTFIELDSIZE, length($data));
+    $curl->setopt(CURLOPT_POSTFIELDS,    $data);
 }
 
 =head2 _set_url
@@ -142,10 +176,6 @@ sub _do_request {
 
 sub prepare_payment {
     my ($self, $session, $tier, $params, $path) = @_;
-    my $token = $params->{stripeToken};
-    if( $self->style eq 'charge') {
-        $self->charge($tier,$token);
-    }
     return {};
 }
 
@@ -160,8 +190,9 @@ sub charge {
         amount   => int($tier->{price} * 100),
         currency => $self->currency,
         source   => $token,
+        description => $tier->{description},
     };
-    return $self->_send_json("v1/charges", $object);
+    my ($code,$data) = $self->_send_form($self->curl, "v1/charges", $object);
 }
 
 sub publishable_key {
@@ -174,13 +205,61 @@ sub secret_key {
     return $self->test_mode ? $self->test_secret_key : $self->live_secret_key;
 }
 
+sub verify {
+    my ($self, $session, $params, $path) = @_;
+    my $token = $params->{stripeToken};
+    my $style = $self->style;
+    my ($code, $response);
+    if ($style eq 'charge') {
+        ($code, $response) = $self->charge($session->{tier}, $token);
+    } elsif ($style eq 'subscription') {
+        ($code, $response) = $self->subscribe_customer($session->{email}, $session->{tier}, $token);
+    }
+}
+
+sub subscribe_customer {
+    my ($self, $user_id, $tier, $token) = @_;
+    my $object = {
+        plan   => $tier->{id},
+        source => $token,
+        email => $user_id,
+        description => $tier->{description},
+    };
+    my ($code, $data) = $self->_send_form($self->curl, "v1/customers", $object);
+}
+
+sub handle_customer_created {
+	my ($self,@args) = @_;
+    return 200;
+}
+
+sub handle_customer_subscription_created {
+	my ($self,@args) = @_;
+    return 200;
+}
+
+sub handle_invoice_created {
+	my ($self,@args) = @_;
+    return 200;
+}
+
+sub handle_charge_succeeded {
+	my ($self,@args) = @_;
+    return 200;
+}
+
+sub handle_invoice_payment_succeeded {
+	my ($self,@args) = @_;
+    return 200;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
@@ -202,4 +281,3 @@ USA.
 =cut
 
 1;
-
