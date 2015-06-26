@@ -11,7 +11,8 @@ to access Alcatel switches.
 
 =head1 STATUS
 
-Tested on Alcatel-Lucent OS 8.1.1.497.R01
+Tested on Alcatel-Lucent OS 6.6.5.63.R02 for OS6250 and OS6450
+Tested on Alcatel-Lucent OS 8.1.1.497.R01 for OS6860
 
 =head1 SUPPORTS
 

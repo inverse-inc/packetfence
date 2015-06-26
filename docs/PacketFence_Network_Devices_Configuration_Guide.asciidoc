@@ -355,10 +355,89 @@ To configure: use web interface to send the linkUp/linkDown traps to the PacketF
 Alcatel
 ~~~~~~~
 
-OS6250, OS6450, OS6860
-^^^^^^^^^^^^^^^^^^^^^^
+OS6250, OS6450 
+^^^^^^^^^^^^^^
 
-PacketFence supports these switches using 802.1x, Mac authentication and also supports VoIP.
+PacketFence supports this switch using 802.1x, Mac authentication and also supports VoIP.
+
+Global configuration
+++++++++++++++++++++
+
+First define any VLAN that you want to use on the switch.
+
+    vlan 2
+    vlan 5
+    vlan 20
+    vlan 100
+
+Next, configure the RADIUS server to be PacketFence
+
+    aaa radius-server "packetfence" host 192.168.1.5 key useStrongerSecret
+    aaa device-authentication mac packetfence
+    aaa device-authentication 802.1x packetfence
+
+You now need to configure a user profile (equivalent of a role) that will determine which VLAN is assigned to the device. In this case the profile names are 'unreg', 'employee' and 'guest'.
+
+    aaa user-network-profile name unreg vlan 2
+    aaa user-network-profile name guest vlan 5
+    aaa user-network-profile name employee vlan 20
+
+Next, configure the switch in PacketFence. In the case of this example, the uplink is port 1/1.
+ 
+    [192.168.1.10]
+    mode=production
+    description=alcatel
+    type=Alcatel
+    radiusSecret=useStrongerSecret
+    uplink_dynamic=0
+    uplink=1001
+    RoleMap=Y
+    VlanMap=N
+    registrationRole=unreg
+    isolationRole=unreg
+    defaultRole=employee
+    guestRole=guest
+
+802.1x
+++++++
+
+First, make sure you followed the steps above in 'Global configuration'
+
+You will need to configure the ports you want to do authentication on.
+
+    802.1x 1/2 
+    802.1x 1/2 supplicant policy authentication pass group-mobility block fail block
+    802.1x 1/2 non-supplicant policy authentication pass group-mobility block fail block
+
+Mac Authentication
+++++++++++++++++++
+
+First, make sure you followed the steps above in 'Global configuration' and '802.1x'
+
+Next configure the interface to bypass 802.1x authentication
+
+    802.1x 1/2 supplicant bypass enable
+
+VoIP
+++++
+
+PacketFence supports VoIP on Alcatel by having multiple devices using multiple untagged VLANs on the same port.
+
+First configure the user profile for voice. In this example it is only isolating it on another VLAN but any user profile attributes can be added to the profile.
+
+    aaa user-network-profile name voice vlan 3
+
+Next, make sure you enable VoIP in the switch configuration in PacketFence and configure the voiceRole.
+
+    [192.168.1.10]
+    VoIPEnabled=Y
+    voiceRole=voice
+
+
+OS6860
+^^^^^^
+
+PacketFence supports this switch using 802.1x, Mac authentication and also supports VoIP.
 
 NOTE: This documentation is made for Alcatel OS 8.1+. Lower versions do not support this configuration.
 
