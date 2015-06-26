@@ -1,4 +1,5 @@
 package pf::web::billinghook;
+
 =head1 NAME
 
 pf::web::billinghook add documentation
@@ -13,28 +14,62 @@ pf::web::billinghook
 
 use strict;
 use warnings;
-use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
+use Apache2::Const -compile => qw(
+    OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED
+    HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED
+    HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK
+    HTTP_INTERNAL_SERVER_ERROR
+);
 use Apache2::RequestIO();
 use Apache2::RequestRec();
+use pf::log;
+use pf::authentication qw(getAuthenticationSource);
+
+my $logger = get_logger();
 
 sub handler {
-    my ($r)     = @_;
-    my $source  = find_source_for_hook($r);
-    my $content = get_content($r);
-    my $status = $source->hook($r->headers_in, $content);
-    $r->status($status);
+    my ($r) = @_;
+    my $source = find_source_for_hook($r);
+    if ($source) {
+        my $content = get_content($r);
+        my $status = $source->hook($r->headers_in, $content);
+        $r->status($status);
+    }
     return Apache2::Const::OK;
 }
 
-sub get_content {
+sub find_source_for_hook {
     my ($r) = @_;
+    my $source;
+    my $url = $r->uri;
+    if ($url =~ m{/hook/billing/(.*)$}) {
+        my $source_id = $1;
+        $source = getAuthenticationSource($source_id);
+        if($source) {
+            if ($source->class ne 'billing') {
+                $logger->error("source $source_id was not a billing source");
+                $source = undef;
+            }
+            else {
+                $logger->debug("Found Billing source $source_id");
+            }
+        }
+        else {
+            $logger->error("Billing source $source_id was not found");
+        }
+    }
+    return $source;
+}
+
+sub get_content {
+    my ($r)     = @_;
     my $content = '';
-    my $offset = 0;
-    my $cnt = 0;
+    my $offset  = 0;
+    my $cnt     = 0;
     do {
-        $cnt = $r->read($content,8192,$offset);
+        $cnt = $r->read($content, 8192, $offset);
         $offset += $cnt;
-    } while($cnt == 8192);
+    } while ($cnt == 8192);
     return $content;
 }
 
