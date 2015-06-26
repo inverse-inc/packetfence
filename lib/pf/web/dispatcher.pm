@@ -121,6 +121,23 @@ sub handler {
         return Apache2::Const::OK;
     }
 
+    # Lost in inline
+    if (!($r->is_https)) {
+        my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+        my $inline = pf::inline->new();
+        if ($inline->isInlineIP($ip)) {
+            my $mac = pf::iplog::ip2mac($ip);
+            my $node_info = pf::node::node_view($mac);
+            if ($node_info->{'status'} eq 'reg') {
+                my $parsed_request = APR::URI->parse($r->pool, $r->uri);
+                $parsed_request->hostname($r->hostname);
+                $parsed_request->scheme('http');
+                $parsed_request->path($r->uri);
+                return proxy_redirect($r, $parsed_request->unparse);
+            }
+        }
+    }
+
     # fallback to a redirection: inject local redirection handler
     $r->handler('modperl');
     $r->set_handlers( PerlResponseHandler => \&redirect );
