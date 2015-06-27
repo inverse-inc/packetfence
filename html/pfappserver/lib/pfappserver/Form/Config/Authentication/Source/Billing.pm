@@ -34,6 +34,13 @@ has_field 'create_local_account' => (
     },
 );
 
+has_field test_mode => (
+    type => 'Checkbox',
+    checkbox_value => '1',
+    unchecked_value => '0',
+    default => 1,
+);
+
 
 # Form fields
 
