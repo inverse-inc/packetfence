@@ -15,15 +15,36 @@ pfappserver::Form::Authentication::Source::Stripe
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::Authentication::Source';
+extends 'pfappserver::Form::Config::Authentication::Source::Billing';
 
 # Form fields
-has_field 'always_allow' =>
-  (
-   type => 'Toggle',
-   checkbox_value => 'yes',
-   unchecked_value => 'no',
-  );
+has_field 'test_secret_key' => (
+    type => 'Text'
+);
+
+has_field 'test_publishable_key' => (
+    type => 'Text'
+);
+
+has_field 'live_secret_key' => (
+    type => 'Text',
+    required => 1
+);
+
+has_field 'live_publishable_key' => (
+    type => 'Text',
+    required => 1
+);
+
+has_field 'style' => (
+    type    => 'Select',
+    default => 'charge',
+    options => [{label => 'Charge', value => 'charge'}, {label => 'Subscription', value => 'subscription'}]
+);
+
+has_block definition => (
+    render_list => [qw(test_secret_key test_publishable_key live_secret_key live_publishable_key style test_mode)]
+);
 
 =head1 AUTHOR
 
