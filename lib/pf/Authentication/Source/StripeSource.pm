@@ -215,16 +215,17 @@ sub verify {
     if ($style eq 'charge') {
         ($code, $response) = $self->charge($session->{tier}, $token);
     } elsif ($style eq 'subscription') {
-        ($code, $response) = $self->subscribe_customer($session->{email}, $session->{tier}, $token);
+        ($code, $response) = $self->subscribe_customer($session, $session->{tier}, $token);
     }
 }
 
 sub subscribe_customer {
-    my ($self, $user_id, $tier, $token) = @_;
+    my ($self, $session, $tier, $token) = @_;
     my $object = {
         plan   => $tier->{id},
         source => $token,
-        email => $user_id,
+        email => $session->{email},
+        currency => $self->currency,
         description => $tier->{description},
     };
     my ($code, $data) = $self->_send_form($self->curl, "v1/customers", $object);
