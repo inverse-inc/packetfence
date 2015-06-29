@@ -23,7 +23,7 @@ sub factory_for {'pf::condition'};
 my $DEFAULT_CONDITION = 'key';
 
 our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
-    'accounting'      => {type => 'equals',        key  => 'data_used'},
+    'accounting'      => {type => 'equals',        key  => 'last_accounting_id'},
     'detect'          => {type => 'equals',        key  => 'last_detect_id'},
     'device'          => {type => 'includes',      key  => 'device_id'},
     'dhcp_fingerprint'=> {type => 'equals',        key  => 'dhcp_fingerprint_id'},
