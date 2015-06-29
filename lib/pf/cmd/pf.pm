@@ -1,7 +1,11 @@
 package pf::cmd::pf;
 =head1 NAME
 
-pf::cmd::pf add documentation
+pf::cmd::pf
+
+=head1 DESCRIPTION
+
+Handles internal PacketFence CLI commands called using 'pfcmd'
 
 =head1 SYNOPSIS
 
@@ -23,6 +27,7 @@ pfcmd <command> [options]
   locationhistorymac          | Switch/Port history
   locationhistoryswitch       | Switch/Port history
   networkconfig               | query/modify network configuration parameters
+  node                        | manipulate node entries
   portalprofileconfig         | query/modify portal profile configuration parameters
   reload                      | rebuild fingerprint or violations tables without restart
   service                     | start/stop/restart and get PF daemon status
