@@ -15,4 +15,4 @@ log4perl.appender.PFBANDWIDTHD.layout.ConversionPattern     = %d{MMM dd HH:mm:ss
 log4perl.appender.PFBANDWIDTHD.umask                        = 0002
 log4perl.appender.PFBANDWIDTHD.user                         = pf
 log4perl.appender.PFBANDWIDTHD.group                        = pf
-
+log4perl.appender.PFBANDWIDTHD.binmode                      = utf8

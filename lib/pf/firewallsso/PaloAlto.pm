@@ -54,6 +54,7 @@ sub action {
             $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&
             (grep $_ eq $node_info->{'category'}, @categories)
         ){
+            $timeout = ( $timeout / 60 );   # Palo Alto XML API expects a timeout in minutes
             my $message = <<"XML";
                 <uid-message>
                     <version>1.0</version>

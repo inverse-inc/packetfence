@@ -15,11 +15,6 @@
               [% ELSE %]
               <span class="label label-important">Test join fail![% item.join_output %]</span>
               [% END %]
-              [% IF item.ntlm_auth_status == 0 %]
-              <span class="label label-success">Test ntlm_auth success!</span>
-              [% ELSE %]
-              <span class="label label-important">Test ntlm_auth fail!</span>
-              [% END %]
             </td>
             <td>
               [%- IF can_access("DOMAIN_CREATE") %]
@@ -28,6 +23,28 @@
               [%- IF can_access("DOMAIN_UPDATE") %]
               <a class="rejoin_domain btn btn-mini btn-warning" href="[% c.uri_for(c.controller.action_for('rejoin'), [ item.id ]) %]">[% l('Rejoin') %]</a>
               [%- END %]
+
+
+
+            <div class="modal modal-large fade hide" id="modalDomainSetPassword-[% item.id %]">
+              <form action="[% c.uri_for(c.controller.action_for('set_password'), [ item.id ]) %]" method="POST">
+                <div class="modal-header">
+                  <a class="close" data-dismiss="modal">&times;</a>
+                  <h3>Please enter the password for the account : [% item.bind_dn %]</h3>
+                </div>
+
+                <div class="modal-body">
+                    <input type="password" name="password" value="">
+                </div><!--modal-body-->
+
+                <div class="modal-footer">
+                  <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+                  <input class="btn btn-primary" type="submit" value="Set password">
+                </div>
+              </form>
+            </div>
+
+
               [%- IF can_access("DOMAIN_DELETE") %]
               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
               [%- END %]

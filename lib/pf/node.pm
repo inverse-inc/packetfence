@@ -340,7 +340,7 @@ sub node_db_prepare {
     );
 
     $node_statements->{'nodes_registered_not_violators_sql'} = get_db_handle()->prepare(qq[
-        SELECT node.mac FROM node
+        SELECT node.mac, node.category_id FROM node
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status='open'
         WHERE node.status='reg' GROUP BY node.mac HAVING count(violation.mac)=0
     ]);
@@ -786,18 +786,28 @@ sub node_modify {
     # special handling for category to category_id conversion
     $existing->{'category_id'} = nodecategory_lookup($existing->{'category'});
     $existing->{'bypass_role_id'} = nodecategory_lookup($existing->{'bypass_role'});
+    my $old_role_id = $existing->{'category_id'};
     foreach my $item ( keys(%data) ) {
         $existing->{$item} = $data{$item};
     }
 
     # category handling
     # if category was updated, resolve it correctly
+    my $new_role_id;
     if (defined($data{'category'}) || defined($data{'category_id'})) {
        $existing->{'category_id'} = _node_category_handling(%data);
        if (defined($existing->{'category_id'}) && $existing->{'category_id'} == 0) {
            $logger->error("Unable to modify node because specified category doesn't exist");
            return (0);
        }
+        if ( defined($data{'category'}) && $data{'category'} ne '' ) {
+            $new_role_id = nodecategory_lookup($data{'category'});
+        } else {
+            $new_role_id = $data{'category_id'};
+        }
+        my $node_info = node_view($mac);
+        pf::ipset::iptables_update_set($mac, $old_role_id, $new_role_id) if ($node_info->{'last_connection_type'} eq $connection_type_to_str{$INLINE});
+
        # once the category conversion is complete, I delete the category entry to avoid complicating things
        delete $existing->{'category'} if defined($existing->{'category'});
     }
@@ -846,7 +856,6 @@ sub node_modify {
 sub node_register {
     my ( $mac, $pid, %info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $pf::StatsD::statsd->increment( called() . ".called" );
     $mac = lc($mac);
     my $auto_registered = 0;
 
@@ -902,35 +911,20 @@ sub node_register {
         $logger->error("modify of node $mac failed");
         return (0);
     }
+    $pf::StatsD::statsd->increment( called() . ".called" );
 
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
-    my $scan = $profile->findScan($mac,\%info);
-    if ($scan) {
-        if ( !$auto_registered ) {
-            # triggering a violation used to communicate the scan to the user
-            if ( isenabled($scan->{'registration'})) {
-                violation_add( $mac, $SCAN_VID );
-            } elsif (isenabled($scan->{'post_registration'})) {
-                violation_add( $mac, $POST_SCAN_VID );
-            }
+    my $scan = $profile->findScan($mac);
+    if (defined($scan)) {
+        # triggering a violation used to communicate the scan to the user
+        if ( isenabled($scan->{'registration'})) {
+            violation_add( $mac, $SCAN_VID );
         }
-
-        # if autoregister and it´s a EAP connection and scan dot1x is activated then we scan the node
-        if ( $auto_registered && defined($scan->{'dot1x'}) ) {
-            my @dot1x_type = split(',',$scan->{'dot1x_type'});
-            my %params = map { $_ => 1 } @dot1x_type;
-            if (defined($info{'eap_type'})) {
-                if (exists($params{$info{'eap_type'}})) {
-                    # triggering a violation used to communicate the scan to the user
-                    if ( isenabled($scan->{'registration'})) {
-                        violation_add( $mac, $SCAN_VID );
-                    } else {
-                        violation_add( $mac, $POST_SCAN_VID );
-                    }
-                }
-            }
+        if (isenabled($scan->{'post_registration'})) {
+                violation_add( $mac, $POST_SCAN_VID );
         }
     }
+
     return (1);
 }
 
@@ -943,6 +937,17 @@ sub node_deregister {
     $info{'regdate'}   = 0;
     $info{'unregdate'} = 0;
     $info{'lastskip'}  = 0;
+
+    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    if(my $provisioner = $profile->findProvisioner($mac)){
+        if(my $pki_provider = $provisioner->getPkiProvider() ){
+            if(isenabled($pki_provider->revoke_on_unregistration)){
+                my $node_info = node_view($mac);
+                my $cn = $pki_provider->user_cn($node_info);
+                $pki_provider->revoke($cn);
+            }
+        }
+    }
 
     if ( !node_modify( $mac, %info ) ) {
         $logger->error("unable to de-register node $mac");

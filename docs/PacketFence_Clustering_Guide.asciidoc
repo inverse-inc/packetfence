@@ -16,7 +16,8 @@ Assumptions
 * Both servers are identical copies for the network interfaces
 * Both servers are running CentOS 6
 * Both servers have access to the same layer 2 network on all their network interfaces
-* Both servers have an empty, unformatted partition for the database.
+* Both servers have an empty, unformatted partition for the database
+* Both servers hostname must be resolvable via a DNS resolution
 
 Installation
 ------------
@@ -262,7 +263,8 @@ Here we assume that the connection for the Heartbeat between the 2 servers is on
 
 Create `/etc/ha.d/haresources` with the following content:
 
-  pf1.example.com drbddisk::mysql Filesystem::/dev/drbd0::/var/lib/mysql::ext4 mysqld
+  pf1.example.com drbddisk::mysql Filesystem::/dev/drbd0::/var/lib/mysql::ext4 \ 
+  mysqld
 
 Create `/etc/ha.d/authkeys` with the following content:
 
@@ -318,6 +320,9 @@ In `conf/pf.conf` :
 ----
 [database]
 host=127.0.0.1
+
+[monitoring]
+db_host=127.0.0.1
 ....
 ----
 

@@ -15,4 +15,4 @@ log4perl.appender.PFDETECT.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X
 log4perl.appender.PFDETECT.umask                        = 0002
 log4perl.appender.PFDETECT.user                         = pf
 log4perl.appender.PFDETECT.group                        = pf
-
+log4perl.appender.PFDETECT.binmode                      = utf8

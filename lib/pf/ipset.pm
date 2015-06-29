@@ -24,6 +24,7 @@ use NetAddr::IP;
 use pf::class qw(class_view_all class_trappable);
 use pf::config;
 use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS_REGISTERED);
+use pf::nodecategory;
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::iplog;
@@ -57,22 +58,31 @@ sub iptables_generate {
     $self->iptables_flush_mangle;
     my $cmd = "LANG=C sudo ipset --destroy";
     my @lines = pf_run($cmd);
+    my @roles = pf::nodecategory::nodecategory_view_all;
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
         my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-        foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-            if ($IPSET_VERSION > 4) {
-                if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
-                } else {
-                    $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
-                }
-                my @lines  = pf_run($cmd);
+       
+        # Create an ipset for each PacketFence defined role in both inline L2 and L3 cases
+        # Using the role ID in the name instead of the role name due to ipset name length constraint (max32) 
+        foreach my $role ( @roles ) {
+            if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
+                $cmd = "LANG=C sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
             } else {
-                $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network macipmap --network $network/$inline_obj->{BITS} 2>&1";
-                my @lines  = pf_run($cmd);
+                $cmd = "LANG=C sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
             }
+            my @lines  = pf_run($cmd);
         }
+
+        foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
+            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+            } else {
+                $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
+            }
+            my @lines  = pf_run($cmd);
+        }
+
     }
     # OAuth and passthrough
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
@@ -81,12 +91,8 @@ sub iptables_generate {
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
     if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
-        if ($IPSET_VERSION > 4) {
-            $cmd = "LANG=C sudo ipset --create pfsession_passthrough hash:ip,port 2>&1";
-            my @lines  = pf_run($cmd);
-        } else {
-            $logger->warn("We do not support ipset lower than version 4");
-        }
+        $cmd = "LANG=C sudo ipset --create pfsession_passthrough hash:ip,port 2>&1";
+        my @lines  = pf_run($cmd);
     }
     $self->SUPER::iptables_generate();
 }
@@ -140,8 +146,10 @@ sub generate_mangle_rules {
                 if ($net_addr->contains($ip)) {
                     if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
                         push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog");
+                        push(@ops, "add PF-iL3_ID$row->{'category_id'}_$network $iplog");
                     } else {
                         push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac");
+                        push(@ops, "add PF-iL2_ID$row->{'category_id'}_$network $iplog");
                     }
                 }
             }
@@ -190,6 +198,39 @@ sub generate_mangle_rules {
     return $mangle_rules;
 }
 
+=item generate_mangle_postrouting_rules
+
+Generate iptables rules for the postrouting chain of the mangle table.
+
+Related to inline traffic shaping (classify)
+
+TODO: This should goes in the 'generate_mangle_rules' method but that last one should be redesigned... 2015.05.25 - dwuelfrath@inverse.ca
+
+=cut
+
+sub generate_mangle_postrouting_rules {
+    my ( $self ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $rules = '';
+
+    my @roles = pf::nodecategory::nodecategory_view_all;
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        next if ( !pf::config::is_network_type_inline($network) );
+        foreach my $role ( @roles ) {
+            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+            } else {
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+            }
+        }
+    }
+
+    return $rules;
+}
 
 sub iptables_mark_node {
     my ( $self, $mac, $mark, $newip ) = @_;
@@ -216,6 +257,18 @@ sub iptables_mark_node {
                 }
 
                 my @lines  = pf_run($cmd);
+
+                if ( $mark_type_to_str{$mark} eq "Reg" ) {
+                    my $node_info = pf::node::node_view($mac);
+                    my $role_id = $node_info->{'category_id'};
+                    if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                        $cmd = "LANG=C sudo ipset --add PF-iL3_ID$role_id\_$network $iplog 2>&1";
+                    } else {
+                        $cmd = "LANG=C sudo ipset --add PF-iL2_ID$role_id\_$network $iplog 2>&1";
+                    }
+                }
+
+                pf_run($cmd);
             }
         } else {
             $logger->error("Unable to mark mac $mac");
@@ -231,11 +284,22 @@ sub iptables_unmark_node {
 
     my $ipset = $self->get_ip_from_ipset_by_mac($mac, $mark);
 
+    my $node_info = pf::node::node_view($mac);
+    my $role_id = $node_info->{'category_id'};
+
     while ( my ($network, $iplist) = each(%$ipset) ) {
         if (defined($iplist)) {
             foreach my $IP ( split( ',', $iplist ) ) {
                 my $cmd = "LANG=C sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $IP 2>&1";
                 my @lines  = pf_run($cmd);
+
+                if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                    $cmd = "LANG=C sudo ipset del PF-iL3_ID$role_id\_$network $IP 2>&1";
+                } else {
+                    $cmd = "LANG=C sudo ipset del PF-iL2_ID$role_id\_$network $IP 2>&1";
+                }
+                pf_run($cmd);
+
                 $cmd = "LANG=C sudo /usr/sbin/conntrack -D -s $IP 2>&1";
                 pf_run($cmd);
                 $logger->info("Flushed connections for $IP.");
@@ -304,14 +368,13 @@ sub ipset_remove_ip {
     my ( $self, $ip, $mark, $network) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($cmd, $out);
-    if ($IPSET_VERSION > 4) {
-        $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
-        $out  = pf_run($cmd);
-    } else {
-        $cmd = "LANG=C sudo ipset -n --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
-        $out  = pf_run($cmd);
-    }
+    $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
+    $out  = pf_run($cmd);
     my @lines = split "\n+", $out;
+
+    my $mac = pf::iplog::ip2mac($ip);
+    my $node_info = pf::node::node_view($mac);
+    my $role_id = $node_info->{'category_id'};
 
     foreach my $line (@lines) {
 
@@ -323,6 +386,14 @@ sub ipset_remove_ip {
         if ($line =~ m/^\s* $ip , .* \s* $/ix) {
             $cmd = "LANG=C sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $ip 2>&1";
             $out = pf_run($cmd);
+
+            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                $cmd = "LANG=C sudo ipset --del PF-iL3_ID$role_id\_$network $ip 2>&1";
+            } else {
+                $cmd = "LANG=C sudo ipset --del PF-iL2_ID$role_id\_$network $ip 2>&1";
+            }
+            pf_run($cmd);
+
             $cmd = "LANG=C sudo /usr/sbin/conntrack -D -s $ip 2>&1";
             pf_run($cmd);
             $logger->info("Flushed connections for $ip.");
@@ -352,13 +423,8 @@ sub get_ip_from_ipset_by_mac {
                 $ip = $tmp_ip->addr;
             }
         } else {
-            if ($IPSET_VERSION > 4) {
-                $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
-                $out = pf_run($cmd);
-            } else {
-                $cmd = "LANG=C sudo ipset -n --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
-                $out =  pf_run($cmd);
-            }
+            $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
+            $out = pf_run($cmd);
             my @lines = split "\n+", $out;
 
             # ipv4 address in quad decimal
@@ -444,6 +510,32 @@ sub iptables_flush_mangle {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->info( "flushing iptables" );
     pf_run("/sbin/iptables -t mangle -F");
+}
+
+=item ipdates_update_set
+
+Update the set
+
+=cut
+
+sub iptables_update_set {
+    my ( $mac, $old, $new ) = @_;
+
+    my $ip = pf::iplog::mac2ip($mac);
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        next if ( !pf::config::is_network_type_inline($network) );
+
+        if ( defined($ip) ) {
+            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                pf_run("LANG=C sudo ipset del PF-iL3_ID$old\_$network $ip 2>&1");
+                pf_run("LANG=C sudo ipset add PF-iL3_ID$new\_$network $ip 2>&1");
+            } else {
+                pf_run("LANG=C sudo ipset del PF-iL2_ID$old\_$network $ip 2>&1");
+                pf_run("LANG=C sudo ipset add PF-iL2_ID$new\_$network $ip 2>&1");
+            }
+        }
+    }
 }
 
 

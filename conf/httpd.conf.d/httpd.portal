@@ -152,6 +152,7 @@ use pf::web::constants();
 use Tie::DxHash;
 use pf::services::manager::httpd();
 use Apache::SSLLookup;
+use List::MoreUtils qw(uniq);
 
 sub gen_conf {
     my %conf;
@@ -166,7 +167,7 @@ my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 my @internal_nets = @pf::config::internal_nets;
-my $host;
+my @portal_ints = @pf::config::portal_ints;
 my $vhost;
 
 $PidFile = $install_dir.'/var/run/httpd.portal.pid';
@@ -193,8 +194,8 @@ $Timeout = "5";
 $KeepAliveTimeout = "3";
 
 $MaxClients = pf::services::manager::httpd::calculate_max_clients(pf::services::manager::httpd::get_total_system_memory());
-$StartServers =  pf::services::manager::httpd::calculate_start_servers($MaxClients);
-$MinSpareServers = pf::services::manager::httpd::calculate_min_spare_servers($MaxClients);
+$StartServers = "4";
+$MinSpareServers = "2";
 
 if( pf::config::isenabled ($PfConfig->{services}{httpd_mod_qos})) {
     my $qos = $MaxClients * .7;
@@ -264,18 +265,23 @@ if ($allowed_from_all_urls) {
     );
 }
 
-foreach my $interface (@internal_nets) {
-    if (defined($interface->{'Tip'}) && $interface->{'Tip'} ne '') {
-        if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
-            $vhost = $interface->{'Tvip'};
-        } else {
-            $vhost = $interface->{'Tip'};
-       }
+# Generate vhosts for each interfaces configured accordingly (portal_ints)
+# internal_nets is kept for backward compatibility
+foreach my $interface ( uniq @internal_nets, @portal_ints ) {
+
+    # Handling virtual IP
+    if (defined($interface->{'Tvip'}) && $interface->{'Tvip'} ne '') {
+        $vhost = $interface->{'Tvip'};
+    } else {
+        $vhost = $interface->{'Tip'};
     }
+
     push (@Listen,$vhost.":80");
     push (@Listen,$vhost.":443");
     push (@NameVirtualHost,$vhost.":80");
     push (@NameVirtualHost,$vhost.":443");
+
+    # Unsecure captive-portal (http)
     push (@{ $VirtualHost{$vhost.":80"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
@@ -312,6 +318,8 @@ foreach my $interface (@internal_nets) {
              @allowed_from_all_options,
          ),
     ));
+
+    # Secure captive-portal (https)
     push (@{ $VirtualHost{$vhost.":443"} }, gen_conf(
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
@@ -353,105 +361,33 @@ foreach my $interface (@internal_nets) {
     ));
 }
 
+# VHOST for diagnostic purposes (mod_status)
 if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+    # Handling virtual IP
     if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
-        $host = $management_network->{'Tvip'};
+        $vhost = $management_network->{'Tvip'};
     } else {
-        $host = $management_network->{'Tip'};
+        $vhost = $management_network->{'Tip'};
     }
 
-    push (@Listen,$host.":80");
-    push (@Listen,$host.":443");
-    push (@NameVirtualHost,$host.":80");
-    push (@NameVirtualHost,$host.":443");
+    push (@Listen,$vhost.":".$PfConfig->{'ports'}{'httpd_portal_modstatus'});
+    push (@NameVirtualHost,$vhost.":".$PfConfig->{'ports'}{'httpd_portal_modstatus'});
 
-    push @{ $VirtualHost{$host.":80"} }, gen_conf(
-         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
-         Include => "${var_dir}/conf/captive-portal-common.conf",
-         AllowEncodedSlashes => "on",
-         Alias        => "/static ${install_dir}/html/captiveportal/root/static",
-         Alias        => "/common ${install_dir}/html/common",
-         PerlModule   => 'captiveportal',
-         PerlTransHandler => 'pf::web::dispatcher::custom',
-         Location     => gen_conf(
-             "/" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-             "/static" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'default-handler',
-             },
-             "/common" => {
-                 "Allow" => "from all",
-                 SetHandler => 'default-handler',
-             },
-             "/content" => {
-                "Allow" => "from all",
-             },
-             '~ "/|/status"' => {
-                "Allow"             => "from all",
-                SetHandler          => 'modperl',
-                PerlResponseHandler => 'captiveportal',
-             },
-             @allowed_from_all_options,
-             "/apache_status/" => {
-                 SetHandler => 'server-status',
-             },
-         ),
-    );
-    push @{ $VirtualHost{$host.":443"} }, gen_conf(
-         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-         DocumentRoot => "${install_dir}/html/captive-portal/lib",
-         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
-         Include => "${var_dir}/conf/captive-portal-common.conf",
-         AllowEncodedSlashes => "on",
-         Alias        => "/static ${install_dir}/html/captiveportal/root/static",
-         Alias        => "/common ${install_dir}/html/common",
-         PerlModule   => 'captiveportal',
-         PerlTransHandler => 'pf::web::dispatcher::custom',
-         Location     => gen_conf(
-             "/" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'modperl',
-                 PerlResponseHandler => 'captiveportal',
-             },
-             "/static" => {
-                 "Order" => "deny,allow",
-                 "Deny" => "from all",
-                 "Allow" => "from $routedNets $loadbalancersIp 127.0.0.1 ",
-                 SetHandler => 'default-handler',
-             },
-             "/common" => {
-                 "Allow" => "from all",
-                 SetHandler => 'default-handler',
-             },
-             "/content" => {
-                "Allow" => "from all",
-             },
-             '~ "/|/status"' => {
-                "Allow"             => "from all",
-                SetHandler          => 'modperl',
-                PerlResponseHandler => 'captiveportal',
-             },
-             @allowed_from_all_options,
-         ),
-         SSLEngine         => 'on',
-         SSLProxyEngine    => 'on',
-         Include           => "${var_dir}/conf/ssl-certificates.conf",
-    );
+    push (@{ $VirtualHost{$vhost.":".$PfConfig->{'ports'}{'httpd_portal_modstatus'}} }, gen_conf(
+        ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+        DocumentRoot => "${install_dir}/html/captive-portal/lib",
+        ErrorLog     => "${install_dir}/logs/httpd.portal.error",
+        CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+        Location     => {
+            "/modstatus" => {
+                SetHandler => 'server-status',
+            },
+        },
 
-} 
+        SSLEngine => 'on',
+        SSLProxyEngine    => 'on',
+        Include      => "${var_dir}/conf/ssl-certificates.conf",
+    ));
+}
 
 </Perl>

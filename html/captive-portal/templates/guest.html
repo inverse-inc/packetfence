@@ -23,46 +23,42 @@
             <input class="field" name="lastname" type="text" value="[% lastname | html %]" />
           </div>
 
+        [% skipFields = {firstname => undef, lastname => undef} %]
+        [% FOREACH field IN mandatory_fields %]
+        [%- NEXT IF skipFields.exists(field) -%]
           <div class="input">
-            <span>[% i18n("Company / Organization") %]</span>
-            <input class="field" name="organization" type="text" value="[% organization | html %]" /><br/>
-
-            <span>[% i18n("Phone number") %]</span>
-            <input class="field" name="phone" type="text" value="[% phone | html %]" />
-
-            [% IF sms_guest_allowed %]
+            [% IF (field == 'mobileprovider') %]
               <span>[% i18n("Phone Provider") %]</span>
               <select name="mobileprovider">
                 <option value="">[% i18n("Select your provider") %]</option>
                     [% FOREACH carrier IN sms_carriers %]<option value="[% carrier.id %]"[% IF mobileprovider == carrier.id %] selected[% END %]>[% carrier.name %]</option>
                     [% END %]
               </select>
-              [% IF email_guest_allowed || sponsored_guest_allowed %]
+              [% IF sms_guest_allowed %]
                 <em>Required to receive your access code by SMS</em>
               [% END %]
+            [% ELSIF (field == 'sponsor_email') %]
+              <span>[% i18n("Sponsor's email") %]</span>
+              <input class="field" name="[% field %]" type="text" value="[% sponsor_email | html %]" /><br/>
+              [% IF sponsored_guest_allowed %]
+                <em>Required for sponsored network access</em>
+              [% END %]
+            [% ELSIF (field == 'email') %]
+              <span>[% i18n("$field") %]</span>
+              <input class="field" name="[% field %]" type="text" value="[% email | html %]" /><br/>
+              [% IF email_guest_allowed %]
+                <em>Required for email network access</em>
+              [% END %]
+            [% ELSIF ( field == 'phone') %]
+              <span>[% i18n("$field") %]</span>
+              <input class="field" name="[% field %]" type="text" value="[% phone | html %]" /><br/>
+              [% IF sms_guest_allowed %]
+                <em>Required for SMS network access</em>
+              [% END %]
+            [% ELSE %]
+              <span>[% i18n("$field") %]</span>
+              <input class="field" name="[% field %]" type="text" value="[% field | html %]" /><br/>
             [% END %]
-
-            <span>[% i18n("Email") %]</span>
-            <input class="field" name="email" type="text" value="[% email | html %]" /><br/>
-          </div>
-
-          [% IF sponsored_guest_allowed %]
-          <div class="input">
-            <span>[% i18n("Sponsor's email") %]</span>
-            <input class="field" name="sponsor_email" type="text" value="[% sponsor_email | html %]" /><br/>
-            [% IF email_guest_allowed || sms_guest_allowed %]
-              <em>Required for sponsored network access only</em>
-            [% END %]
-          </div>
-          [% END %]
-          [% skipFields = {firstname => undef, lastname => undef, organization => undef, phone => undef, email => undef} %]
-          [% FOREACH field IN mandatory_fields %]
-          [%- NEXT IF skipFields.exists(field) -%]
-          [%- NEXT IF field == "mobileprovider" && sms_guest_allowed -%]
-          [%- NEXT IF field == "sponsor_email" && sponsored_guest_allowed  -%]
-          <div class="input">
-            <span>[% i18n(field_names.$field) %]</span>
-            <input class="field" name="[%field%]" type="text" value="" /><br/>
           </div>
           [% END %]
 

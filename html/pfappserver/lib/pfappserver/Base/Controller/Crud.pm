@@ -182,6 +182,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
     my $model = $self->getModel($c);
     my $itemKey = $model->itemKey;
     my $item = $c->stash->{$itemKey};
+    $c->log->info($c->stash->{current_form});
     my $form = $self->getForm($c);
     $form->process(init_object => $item);
     $c->stash(

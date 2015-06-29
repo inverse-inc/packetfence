@@ -24,7 +24,7 @@ use pf::node qw(node_attributes node_exist node_modify);
 use pf::Switch::constants;
 use pf::util;
 use pf::config::util;
-use pf::violation qw(violation_count_trap violation_exist_open violation_view_top violation_trigger);
+use pf::violation qw(violation_count_trap violation_exist_open violation_view_top violation_trigger violation_add);
 use pf::floatingdevice::custom;
 use pf::constants::scan qw($POST_SCAN_VID);
 use pf::authentication;
@@ -399,6 +399,15 @@ sub getNormalVlan {
         $logger->info("[$mac] Can't find provisioner");
     }
 
+    my $scan = $profile->findScan($mac,$node_info);
+    if (defined($scan) && isenabled($scan->{'post_registration'})) {
+        $logger->info("[$mac] Triggering scan check");
+        violation_add( $mac, $POST_SCAN_VID );
+    }
+    else{
+        $logger->info("[$mac] Can't find scan engine");
+    }
+
     $vlan = _check_bypass($mac, $node_info, $switch);
     if( $vlan ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
@@ -562,8 +571,9 @@ sub getNodeInfoForAutoReg {
 
     my $profile = pf::Portal::ProfileFactory->instantiate($mac,$options);
     my $filter = new pf::vlan::filter;
+    my $node_info = node_attributes($mac);
 
-    my ($result,$role) = $filter->test('NodeInfoForAutoReg',$switch, $switch_port, $mac, undef, $conn_type, $user_name, $ssid, $radius_request);
+    my ($result,$role) = $filter->test('NodeInfoForAutoReg',$switch, $switch_port, $mac, $node_info, $conn_type, $user_name, $ssid, $radius_request);
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (

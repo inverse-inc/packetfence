@@ -224,6 +224,11 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('INTERFACES_RE
     my $interfaces = $c->model('Interface')->get('all');
     my $types = $c->model('Enforcement')->getAvailableTypes($mechanism, $interface, $interfaces);
 
+    if ( $interface_ref->{$interface}->{'type'} =~ 'portal' ) {
+        $interface_ref->{$interface}->{'additional_listening_daemons'} = [ "portal" ];
+        $interface_ref->{$interface}->{'type'} =~ s/,portal//;
+    }
+
     # Build form
     my $form = pfappserver::Form::Interface->new(ctx => $c,
                                                  types => $types,
@@ -262,6 +267,15 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('INTERFACE
         else {
             # Update interface
             my $data = $form->value;
+
+            # Handling 'additional_listening_daemons' as an interface type if configured
+            if ( defined($data->{'additional_listening_daemons'}) && $data->{'additional_listening_daemons'} ne "" ) {
+                foreach ( @{$data->{'additional_listening_daemons'}} ) {
+                    $data->{'type'} .= ','.$_;
+                }
+                delete $data->{'additional_listening_daemons'};
+            }
+
             ($status, $result) = $c->model('Interface')->update($c->stash->{interface}, $data);
         }
         if (is_error($status)) {

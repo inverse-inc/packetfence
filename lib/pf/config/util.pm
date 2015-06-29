@@ -48,6 +48,7 @@ BEGIN {
     get_internal_macs get_internal_info
     connection_type_to_str str_to_connection_type
     get_translatable_time trappable_mac
+    portal_hosts
   );
 }
 
@@ -351,6 +352,23 @@ sub get_translatable_time {
    } elsif ($unit eq "Y") { return ("year", "years", $value);
    }
    return;
+}
+
+=head2 portal_hosts
+
+Returns the list of host and IP on which the portal is configured to listen
+
+=cut
+sub portal_hosts {
+    my @hosts;
+    foreach my $net (@internal_nets) {
+        push @hosts, $net->{Tip} if defined($net->{Tip});
+        push @hosts, $net->{Tvip} if defined($net->{Tvip});
+    }
+    push @hosts, $management_network->{Tip} if defined($management_network->{Tip});
+    push @hosts, $management_network->{Tvip} if defined($management_network->{Tvip});
+    push @hosts, $fqdn; 
+    return @hosts;
 }
 
 =back

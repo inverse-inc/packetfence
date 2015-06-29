@@ -279,6 +279,11 @@ aaa=7070
 #
 # Port of the packetfence status http interface listends on.
 pf_status=9191
+#
+# ports.httpd_portal_modstatus
+#
+# Port the mod_status for httpd.portal listens on.
+httpd_portal_modstatus=1444
 
 [scan]
 #
@@ -292,17 +297,6 @@ engine=none
 # If this option is enabled, the PF system will scan each host after
 # registration is complete.
 registration=disabled
-#
-# scan.dot1x
-#
-# If this option is enabled, the PF system will scan all the machines after a 802.1x
-# autoregister connection
-dot1x=disabled
-#
-#scan.dot1x_type
-#
-# List of the EAP-Type that pass into the scan engine
-dot1x_type=MS-CHAP-V2
 #
 # scan.duration
 #
@@ -1109,7 +1103,6 @@ statsd_host=localhost
 # monitoring.statsd_port
 #
 statsd_port=8125
-
 #
 # monitoring.graphite_host
 #

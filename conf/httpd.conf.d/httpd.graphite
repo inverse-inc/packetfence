@@ -1,128 +1,13 @@
-# Graphite Web Basic mod_wsgi vhost
-#
-# This is the main Apache server configuration file.  It contains the
-# configuration directives that give the server its instructions.
-# See <URL:http://httpd.apache.org/docs/2.2/> for detailed information.
-# In particular, see
-# <URL:http://httpd.apache.org/docs/2.2/mod/directives.html>
-# for a discussion of each configuration directive.
-#
-#
-# Do NOT simply read the instructions in here without understanding
-# what they do.  They're here only as hints or reminders.  If you are unsure
-# consult the online docs. You have been warned.  
-#
-# The configuration directives are grouped into three basic sections:
-#  1. Directives that control the operation of the Apache server process as a
-#     whole (the 'global environment').
-#  2. Directives that define the parameters of the 'main' or 'default' server,
-#     which responds to requests that aren't handled by a virtual host.
-#     These directives also provide default values for the settings
-#     of all virtual hosts.
-#  3. Settings for virtual hosts, which allow Web requests to be sent to
-#     different IP addresses or hostnames and have them handled by the
-#     same Apache server process.
-#
-# Configuration and logfile names: If the filenames you specify for many
-# of the server's control files begin with "/" (or "drive:/" for Win32), the
-# server will use that explicit path.  If the filenames do *not* begin
-# with "/", the value of ServerRoot is prepended -- so "logs/foo.log"
-# with ServerRoot set to "/etc/httpd" will be interpreted by the
-# server as "/etc/httpd/logs/foo.log".
-#
+# Graphite apache configuration file
 
-### Section 1: Global Environment
-#
-# The directives in this section affect the overall operation of Apache,
-# such as the number of concurrent requests it can handle or where it
-# can find its configuration files.
-#
-
-#
-# Don't give away too much information about all the subcomponents
-# we are running.  Comment out this line if you don't mind remote sites
-# finding out what major optional modules you are running
-ServerTokens OS
-
-#
-# PidFile: The file in which the server should record its process
-# identification number when it starts.  Note the PIDFILE variable in
-# /etc/sysconfig/httpd must be set appropriately if this location is
-# changed.
-#
-PidFile /usr/local/pf/var/run/httpd.graphite.pid
-
-#
-# Timeout: The number of seconds before receives and sends time out.
-#
-Timeout 30
-
-#
-# KeepAlive: Whether or not to allow persistent connections (more than
-# one request per connection). Set to "Off" to deactivate.
-#
-KeepAlive On
-
-#
-# MaxKeepAliveRequests: The maximum number of requests to allow
-# during a persistent connection. Set to 0 to allow an unlimited amount.
-# We recommend you leave this number high, for maximum performance.
-#
-MaxKeepAliveRequests 100
-
-#
-# KeepAliveTimeout: Number of seconds to wait for the next request from the
-# same client on the same connection.
-#
-KeepAliveTimeout 10
-
-##
-## Server-Pool Size Regulation (MPM specific)
-## 
-
-# prefork MPM
-# StartServers: number of server processes to start
-# MinSpareServers: minimum number of server processes which are kept spare
-# MaxSpareServers: maximum number of server processes which are kept spare
-# ServerLimit: maximum value for MaxClients for the lifetime of the server
-# MaxClients: maximum number of server processes allowed to start
-# MaxRequestsPerChild: maximum number of requests a server process serves
-<IfModule prefork.c>
-StartServers       4
-MinSpareServers    4
-MaxSpareServers   20
-ServerLimit      56
-MaxClients       56
-MaxRequestsPerChild  1000
-</IfModule>
-
-#
-# Listen: Allows you to bind Apache to specific IP addresses and/or
-# ports, in addition to the default. See also the <VirtualHost>
-# directive.
-#
-# Change this to Listen on specific IP addresses as shown below to 
-# prevent Apache from glomming onto all bound IP addresses (0.0.0.0)
-#
-#Listen 12.34.56.78:80
-Listen 9000
-
-#
-# Dynamic Shared Object (DSO) Support
-#
-# To be able to use the functionality of a module which was built as a DSO you
-# have to place corresponding `LoadModule' lines at this location so the
-# directives contained in it are actually available _before_ they are used.
-# Statically compiled modules (those listed by `httpd -l') do not need
-# to be loaded here.
-#
-# Example:
-# LoadModule foo_module modules/mod_foo.so
-#
-#
 #Debian specific
 <IfDefine debian>
-    LoadModule wsgi_module modules/mod_wsgi.so
+  <IfModule !mod_perl.c>
+    LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
+  </IfModule>
+  <IfModule !mod_wsgi.c>
+    LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so
+  </IfModule>
   <IfModule !mod_log_config.c>
     LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
   </IfModule>
@@ -148,7 +33,12 @@ Listen 9000
 
 #RHEL specific
 <IfDefine rhel>
+  <IfModule !mod_perl.c>
+    LoadModule perl_module modules/mod_perl.so
+  </IfModule>
+  <IfModule !mod_wsgi.c>
     LoadModule wsgi_module modules/mod_wsgi.so
+  </IfModule>
   <IfModule !mod_log_config.c>
     LoadModule log_config_module modules/mod_log_config.so
   </IfModule>
@@ -156,7 +46,7 @@ Listen 9000
     LoadModule headers_module modules/mod_headers.so
   </IfModule>
   <IfModule !mod_authz_host.c>
-    LoadModule authz_host_module modules/mod_authz_host.so                                                            
+    LoadModule authz_host_module modules/mod_authz_host.so
   </IfModule>
   <IfModule !mod_setenvif.c>
     LoadModule setenvif_module modules/mod_setenvif.so
@@ -172,399 +62,70 @@ Listen 9000
   </IfModule>
 </IfDefine>
 
-#
-# ExtendedStatus controls whether Apache will generate "full" status
-# information (ExtendedStatus On) or just basic information (ExtendedStatus
-# Off) when the "server-status" handler is called. The default is Off.
-#
-#ExtendedStatus On
 
-#
-# If you wish httpd to run as a different user or group, you must run
-# httpd as root initially and it will switch.  
-#
-# User/Group: The name (or #number) of the user/group to run httpd as.
-#  . On SCO (ODT 3) use "User nouser" and "Group nogroup".
-#  . On HPUX you may not be able to use shared memory as nobody, and the
-#    suggested workaround is to create a user www and use that user.
-#  NOTE that some kernels refuse to setgid(Group) or semctl(IPC_SET)
-#  when the value of (unsigned)Group is above 60000; 
-#  don't use Group #-1 on these systems!
-#
-User pf
-Group pf
+PerlSwitches -I/usr/local/pf/lib
 
-### Section 2: 'Main' server configuration
-#
-# The directives in this section set up the values used by the 'main'
-# server, which responds to any requests that aren't handled by a
-# <VirtualHost> definition.  These values also provide defaults for
-# any <VirtualHost> containers you may define later in the file.
-#
-# All of these directives may appear inside <VirtualHost> containers,
-# in which case these default settings will be overridden for the
-# virtual host being defined.
-#
+AcceptMutex posixsem
 
-#
-# ServerAdmin: Your address, where problems with the server should be
-# e-mailed.  This address appears on some server-generated pages, such
-# as error documents.  e.g. admin@your-domain.com
-#
-ServerAdmin root@localhost
-
-#
-# ServerName gives the name and port that the server uses to identify itself.
-# This can often be determined automatically, but we recommend you specify
-# it explicitly to prevent problems during startup.
-#
-# If this is not set to valid DNS name for your host, server-generated
-# redirections will not work.  See also the UseCanonicalName directive.
-#
-# If your host doesn't have a registered DNS name, enter its IP address here.
-# You will have to access it by its address anyway, and this will make 
-# redirections work in a sensible way.
-#
-#ServerName www.example.com:80
-
-#
-# UseCanonicalName: Determines how Apache constructs self-referencing 
-# URLs and the SERVER_NAME and SERVER_PORT variables.
-# When set "Off", Apache will use the Hostname and Port supplied
-# by the client.  When set "On", Apache will use the value of the
-# ServerName directive.
-#
-UseCanonicalName Off
-
-#
-# DocumentRoot: The directory out of which you will serve your
-# documents. By default, all requests are taken from this directory, but
-# symbolic links and aliases may be used to point to other locations.
-#
-DocumentRoot "/var/www/html"
-
-#
-# Each directory to which Apache has access can be configured with respect
-# to which services and features are allowed and/or disabled in that
-# directory (and its subdirectories). 
-#
-# First, we configure the "default" to be a very restrictive set of 
-# features.  
-#
-<Directory />
-    Options FollowSymLinks
-    AllowOverride None
-</Directory>
-
-#
-# Note that from this point forward you must specifically allow
-# particular features to be enabled - so if something's not working as
-# you might expect, make sure that you have specifically enabled it
-# below.
-#
-
-#
-# This should be changed to whatever you set DocumentRoot to.
-#
-<Directory "/var/www/html">
-
-#
-# Possible values for the Options directive are "None", "All",
-# or any combination of:
-#   Indexes Includes FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews
-#
-# Note that "MultiViews" must be named *explicitly* --- "Options All"
-# doesn't give it to you.
-#
-# The Options directive is both complicated and important.  Please see
-# http://httpd.apache.org/docs/2.2/mod/core.html#options
-# for more information.
-#
-    Options Indexes FollowSymLinks
-
-#
-# AllowOverride controls what directives may be placed in .htaccess files.
-# It can be "All", "None", or any combination of the keywords:
-#   Options FileInfo AuthConfig Limit
-#
-    AllowOverride None
-
-#
-# Controls who can get stuff from this server.
-#
-    Order allow,deny
-    Allow from all
-
-</Directory>
-
-#
-# UserDir: The name of the directory that is appended onto a user's home
-# directory if a ~user request is received.
-#
-# The path to the end user account 'public_html' directory must be
-# accessible to the webserver userid.  This usually means that ~userid
-# must have permissions of 711, ~userid/public_html must have permissions
-# of 755, and documents contained therein must be world-readable.
-# Otherwise, the client will only receive a "403 Forbidden" message.
-#
-# See also: http://httpd.apache.org/docs/misc/FAQ.html#forbidden
-#
-<IfModule mod_userdir.c>
-    #
-    # UserDir is disabled by default since it can confirm the presence
-    # of a username on the system (depending on home directory
-    # permissions).
-    #
-    UserDir disabled
-
-    #
-    # To enable requests to /~user/ to serve the user's public_html
-    # directory, remove the "UserDir disabled" line above, and uncomment
-    # the following line instead:
-    # 
-    #UserDir public_html
-
-</IfModule>
-
-#
-# Control access to UserDir directories.  The following is an example
-# for a site where these directories are restricted to read-only.
-#
-#<Directory /home/*/public_html>
-#    AllowOverride FileInfo AuthConfig Limit
-#    Options MultiViews Indexes SymLinksIfOwnerMatch IncludesNoExec
-#    <Limit GET POST OPTIONS>
-#        Order allow,deny
-#        Allow from all
-#    </Limit>
-#    <LimitExcept GET POST OPTIONS>
-#        Order deny,allow
-#        Deny from all
-#    </LimitExcept>
-#</Directory>
-
-#
-# AccessFileName: The name of the file to look for in each directory
-# for additional configuration directives.  See also the AllowOverride
-# directive.
-#
-AccessFileName .htaccess
-
-#
-# The following lines prevent .htaccess and .htpasswd files from being 
-# viewed by Web clients. 
-#
-<Files ~ "^\.ht">
-    Order allow,deny
-    Deny from all
-    Satisfy All
-</Files>
-
-#
-# TypesConfig describes where the mime.types file (or equivalent) is
-# to be found.
-#
 TypesConfig /etc/mime.types
 
-#
-# DefaultType is the default MIME type the server will use for a document
-# if it cannot otherwise determine one, such as from filename extensions.
-# If your server contains mostly text or HTML documents, "text/plain" is
-# a good value.  If most of your content is binary, such as applications
-# or images, you may want to use "application/octet-stream" instead to
-# keep browsers from trying to display binary files as though they are
-# text.
-#
-DefaultType text/plain
-
-#
-# The mod_mime_magic module allows the server to use various hints from the
-# contents of the file itself to determine its type.  The MIMEMagicFile
-# directive tells the module where the hint definitions are located.
-#
-<IfModule mod_mime_magic.c>
-#   MIMEMagicFile /usr/share/magic.mime
-    MIMEMagicFile conf/magic
-</IfModule>
-
-#
-# HostnameLookups: Log the names of clients or just their IP addresses
-# e.g., www.apache.org (on) or 204.62.129.132 (off).
-# The default is off because it'd be overall better for the net if people
-# had to knowingly turn this feature on, since enabling it means that
-# each client request will result in AT LEAST one lookup request to the
-# nameserver.
-#
-HostnameLookups Off
-
-#
-# EnableMMAP: Control whether memory-mapping is used to deliver
-# files (assuming that the underlying OS supports it).
-# The default is on; turn this off if you serve from NFS-mounted 
-# filesystems.  On some systems, turning it off (regardless of
-# filesystem) can improve performance; for details, please see
-# http://httpd.apache.org/docs/2.2/mod/core.html#enablemmap
-#
-#EnableMMAP off
-
-#
-# EnableSendfile: Control whether the sendfile kernel support is 
-# used to deliver files (assuming that the OS supports it). 
-# The default is on; turn this off if you serve from NFS-mounted 
-# filesystems.  Please see
-# http://httpd.apache.org/docs/2.2/mod/core.html#enablesendfile
-#
-#EnableSendfile off
-
-#
-# ErrorLog: The location of the error log file.
-# If you do not specify an ErrorLog directive within a <VirtualHost>
-# container, error messages relating to that virtual host will be
-# logged here.  If you *do* define an error logfile for a <VirtualHost>
-# container, that host's errors will be logged there and not here.
-#
-ErrorLog /usr/local/pf/logs/httpd.graphite.error
-
-#
-# LogLevel: Control the number of messages logged to the error_log.
-# Possible values include: debug, info, notice, warn, error, crit,
-# alert, emerg.
-#
-LogLevel warn
-
-#
-# The following directives define some format nicknames for use with
-# a CustomLog directive (see below).
-#
-LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
-LogFormat "%h %l %u %t \"%r\" %>s %b" common
-LogFormat "%{Referer}i -> %U" referer
-LogFormat "%{User-agent}i" agent
-
-# "combinedio" includes actual counts of actual bytes received (%I) and sent (%O); this
-# requires the mod_logio module to be loaded.
-#LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %I %O" combinedio
-
-#
-# The location and format of the access logfile (Common Logfile Format).
-# If you do not define any access logfiles within a <VirtualHost>
-# container, they will be logged here.  Contrariwise, if you *do*
-# define per-<VirtualHost> access logfiles, transactions will be
-# logged therein and *not* in this file.
-#
-#CustomLog logs/access_log common
-
-#
-# If you would like to have separate agent and referer logfiles, uncomment
-# the following directives.
-#
-#CustomLog logs/referer_log referer
-#CustomLog logs/agent_log agent
-
-#
-# For a single logfile with access, agent, and referer information
-# (Combined Logfile Format), use the following directive:
-#
-CustomLog /usr/local/pf/logs/httpd.graphite.log common
-
-#
-# Optionally add a line containing the server version and virtual host
-# name to server-generated pages (internal error documents, FTP directory
-# listings, mod_status and mod_info output etc., but not CGI generated
-# documents or custom error documents).
-# Set to "EMail" to also include a mailto: link to the ServerAdmin.
-# Set to one of:  On | Off | EMail
-#
-ServerSignature On
-
-#
-# Specify a default charset for all content served; this enables
-# interpretation of all content as UTF-8 by default.  To use the 
-# default browser choice (ISO-8859-1), or to allow the META tags
-# in HTML content to override this choice, comment out this
-# directive:
-#
-AddDefaultCharset UTF-8
-
-#
-# AddType allows you to add to or override the MIME configuration
-# file mime.types for specific file types.
-#
-#AddType application/x-tar .tgz
-
-#
-# AddEncoding allows you to have certain browsers uncompress
-# information on the fly. Note: Not all browsers support this.
-# Despite the name similarity, the following Add* directives have nothing
-# to do with the FancyIndexing customization directives above.
-#
-#AddEncoding x-compress .Z
-#AddEncoding x-gzip .gz .tgz
-
-# If the AddEncoding directives above are commented-out, then you
-# probably should define those extensions to indicate media types:
-#
-AddType application/x-compress .Z
-AddType application/x-gzip .gz .tgz
-
-#
-#   MIME-types for downloading Certificates and CRLs
-#
-AddType application/x-x509-ca-cert .crt
-AddType application/x-pkcs7-crl    .crl
-#
-# For type maps (negotiated resources):
-# (This is enabled by default to allow the Apache "It Worked" page
-#  to be distributed in multiple languages.)
-#
-AddHandler type-map var
-
-#
-# The following directives modify normal HTTP response behavior to
-# handle known problems with browser implementations.
-#
-BrowserMatch "Mozilla/2" nokeepalive
-BrowserMatch "MSIE 4\.0b2;" nokeepalive downgrade-1.0 force-response-1.0
-BrowserMatch "RealPlayer 4\.0" force-response-1.0
-BrowserMatch "Java/1\.0" force-response-1.0
-BrowserMatch "JDK/1\.0" force-response-1.0
-
-#
-# The following directive disables redirects on non-GET requests for
-# a directory that does not include the trailing slash.  This fixes a 
-# problem with Microsoft WebFolders which does not appropriately handle 
-# redirects for folders with DAV methods.
-# Same deal with Apple's DAV filesystem and Gnome VFS support for DAV.
-#
-BrowserMatch "Microsoft Data Access Internet Publishing Provider" redirect-carefully
-BrowserMatch "MS FrontPage" redirect-carefully
-BrowserMatch "^WebDrive" redirect-carefully
-BrowserMatch "^WebDAVFS/1.[0123]" redirect-carefully
-BrowserMatch "^gnome-vfs/1.0" redirect-carefully
-BrowserMatch "^XML Spy" redirect-carefully
-BrowserMatch "^Dreamweaver-WebDAV-SCM1" redirect-carefully
+<Perl>
+use pf::config qw();
 
 
-<VirtualHost *:9000>
+my $PfConfig = \%pf::config::Config;
+my $management_network = $pf::config::management_network;
+my $install_dir = $pf::config::install_dir;
+my $var_dir = $pf::config::var_dir;
+my $host;
 
-    ServerName graphite-web
-    DocumentRoot "/usr/share/graphite/webapp"
-    ErrorLog /usr/local/pf/logs/httpd.graphite.error
-    CustomLog /usr/local/pf/logs/httpd.graphite.log common
-    Alias /media/ "/usr/lib/python2.6/site-packages/django/contrib/admin/media/"
-    Alias /content/ "/usr/share/graphite/webapp/content/" 
+$PidFile = $install_dir.'/var/run/httpd.graphite.pid';
 
-    WSGIScriptAlias / /usr/share/graphite/graphite-web.wsgi
-    WSGIImportScript /usr/share/graphite/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
+$Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 
-    Header set Access-Control-Allow-Origin "*" 
-    <Location "/content/">
-        SetHandler None
-    </Location>
+$User = "pf";
+$Group = "pf";
 
-    <Location "/media/">
-        SetHandler None
-    </Location>
+if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fromaddr'} ne '') {
+    $ServerAdmin = $PfConfig->{'alerting'}{'fromaddr'};
+} else {
+    $ServerAdmin = "root\@".$PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'};
+}
 
-</VirtualHost>
+$ServerTokens = "Prod";
+$ServerSignature = "Off";
+$UseCanonicalName = "Off";
+$Timeout = "30";
 
+$KeepAliveTimeout = "10";
+$KeepAlive = "On";
+$MaxKeepAliveRequests = "100";
+
+$MaxClients = "2";
+$StartServers = "1";
+$MinSpareServers = "1";
+$MaxSpareServers = "1";
+
+$HostnameLookups = "off";
+$MaxRequestsPerChild = "1000";
+
+$Listen = "9000";
+
+$ErrorLog = $install_dir.'/logs/httpd.graphite.error';
+
+$NameVirtualHost => "*:9000";
+
+$WSGIPythonPath      => $install_dir.'/var/conf';
+
+push @{ $VirtualHost{"*:9000"} },
+    {
+        ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+        DocumentRoot        => $OS eq 'debian' ?  '/usr/share/graphite-web' : '/usr/share/graphite/webapp',
+        ErrorLog            => $install_dir.'/logs/httpd.graphite.error',
+        CustomLog           => $install_dir.'/logs/httpd.graphite.access combined',
+        WSGIScriptAlias     => '/ '.$install_dir.'/conf/httpd.conf.d/graphite-web.wsgi',
+        WSGIImportScript    => $install_dir."/conf/httpd.conf.d/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}",
+        Header              => 'set Access-Control-Allow-Origin "*"',
+    };
+
+</Perl>

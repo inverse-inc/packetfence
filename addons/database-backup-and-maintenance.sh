@@ -64,10 +64,9 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
     mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "INSERT INTO locationlog_archive SELECT * FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
     mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
 
-    # iplog cleanup: all the closed entries older than a month are moved to iplog_archive
-    # in order to keep iplog small
-    mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "INSERT INTO iplog_archive SELECT * FROM iplog WHERE (end_time <> '0000-00-00 00:00:00' AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
-    mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM iplog WHERE (end_time <> '0000-00-00 00:00:00' AND end_time < DATE_SUB(CURDATE(), INTERVAL 1 MONTH));"
+    # iplog cleanup: we move entries older that one week from iplog_history to iplog_archive
+    mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "INSERT INTO iplog_archive SELECT * FROM iplog_history WHERE end_time < DATE_SUB(CURDATE(), INTERVAL 1 WEEK);"
+    mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM iplog_history WHERE end_time < DATE_SUB(CURDATE(), INTERVAL 1 WEEK);"
 
     ## accounting cleanup. We keep only the last 2 months of acounting data to prevent those tables from getting to large.
     #mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM radacct WHERE acctstarttime <  ( NOW() - INTERVAL 2 MONTH ) ;"

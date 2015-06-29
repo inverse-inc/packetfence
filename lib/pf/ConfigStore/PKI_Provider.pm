@@ -1,33 +1,29 @@
-package pf::cmd::pf::fingerprint;
+package pf::ConfigStore::PKI_Provider;
+
 =head1 NAME
 
-pf::cmd::pf::fingerprint add documentation
-
-=head1 SYNOPSIS
-
-pfcmd fingerprint view <all|id>
-
-show DHCP Fingerprints stored in database
-
-examples:
-  pfcmd fingerprint view all
-  pfcmd fingerprint view 1,6,15,44,3,33
-
-
-=head1 DESCRIPTION
-
-pf::cmd::pf::fingerprint
+pf::ConfigStore::PKI_Provider
 
 =cut
 
-use strict;
-use warnings;
-use base qw(pf::cmd::subcmd);
-=head1 AUTHOR
+=head1 DESCRIPTION
 
-Inverse inc. <info@inverse.ca>
+pf::ConfigStore::PKI_Provider
 
-Minor parts of this file may have been contributed. See CREDITS.
+=cut
+
+use HTTP::Status qw(:constants is_error is_success);
+use Moo;
+use namespace::autoclean;
+use pf::file_paths;
+extends 'pf::ConfigStore';
+
+sub configFile { $pki_provider_config_file }
+
+sub pfconfigNamespace { 'config::PKI_Provider' }
+
+
+__PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
@@ -35,7 +31,7 @@ Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -53,4 +49,3 @@ USA.
 =cut
 
 1;
-

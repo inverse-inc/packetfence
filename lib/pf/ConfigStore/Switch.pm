@@ -138,6 +138,15 @@ sub cleanupAfterRead {
         $switch->{inlineTrigger} =
           [ map { _splitInlineTrigger($_) } @{ $switch->{inlineTrigger} } ];
     }
+
+    # Config::Inifiles expands the access lists into an array
+    # We put it back as a string so it works in the admin UI
+    foreach my $attr (keys %$switch){
+        if($attr =~ /AccessList$/ && ref($switch->{$attr}) eq 'ARRAY'){
+            $switch->{$attr} = join "\n", @{$switch->{$attr}};
+        }
+    }
+
 }
 
 sub _splitInlineTrigger {

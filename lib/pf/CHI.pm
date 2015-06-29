@@ -18,6 +18,7 @@ use base qw(CHI);
 use CHI::Driver::Memcached;
 use CHI::Driver::RawMemory;
 use CHI::Driver::File;
+use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver::.*Test|FastMmap)/;
 use Cache::Memcached;
 use Clone();
 use pf::file_paths;
@@ -30,6 +31,9 @@ use Scalar::Util qw(tainted reftype);
 use pf::log;
 use Log::Any::Adapter;
 Log::Any::Adapter->set('Log4perl');
+
+my @PRELOADED_CHI_DRIVERS;
+
 
 Hash::Merge::specify_behavior(
     {
@@ -196,8 +200,15 @@ sub CLONE {
     Cache::Memcached->disconnect_all;
 }
 
+sub preload_chi_drivers {
+    unless (@PRELOADED_CHI_DRIVERS) {
+        @PRELOADED_CHI_DRIVERS = __PACKAGE__->_preload_chi_drivers;
+    }
+}
+
 
 __PACKAGE__->config(chiConfigFromIniFile());
+__PACKAGE__->preload_chi_drivers();
 
 =head2 listify
 

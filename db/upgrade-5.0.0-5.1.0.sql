@@ -1,5 +1,5 @@
 --
--- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
+-- PacketFence SQL schema upgrade from 5.0.0 to 5.1.0
 --
 
 --
@@ -8,25 +8,13 @@
 
 SET @MAJOR_VERSION = 5;
 SET @MINOR_VERSION = 1;
-SET @PATCH_LEVEL = 0;
+SET @SUBMINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
 --
 
-SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @PATCH_LEVEL;
-
---
--- Table structure for table 'pf_version'
---
-
-CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY);
-
---
--- Updating to current version
---
-
-INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @PATCH_LEVEL));
+SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
 
 --
 -- Alter Class for external_command
@@ -46,12 +34,30 @@ VALUES
     (100120, 'Orange (CH)', '%s@orange.net', now()),
     (100121, 'Sunrise', '%s@gsm.sunrise.ch', now());
 
+--
+-- Add a column to radius_nas to order the nas list
+--
+
+ALTER TABLE radius_nas ADD start_ip INT UNSIGNED DEFAULT 0, ADD end_ip INT UNSIGNED DEFAULT 0, ADD range_length INT DEFAULT 0;
+
+--
+-- Table structure for table 'pf_version'
+--
+
+CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY);
+
+--
+-- Updating to current version
+--
+
+INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
 -- IMPORTANT: KEEP THIS AT THE BOTTOM OF THIS FILE.
 -- TO BE EXECUTED AFTER EVERYTHING ELSE.
 CREATE DATABASE pf_graphite;
 use pf_graphite;
 GRANT ALL PRIVILEGES ON `pf_graphite`.* TO 'pf'@'%';      
+GRANT ALL PRIVILEGES ON `pf_graphite`.* TO 'pf'@'localhost';
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;

@@ -15,7 +15,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2015-04-10 17:50+0000\n"
+"PO-Revision-Date: 2015-04-30 20:31+0000\n"
 "Last-Translator: Liliane Lewis Xerxenevsky <liliane@cpd.ufrgs.br>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/packetfence/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -62,10 +62,10 @@ msgid "Invalid login or password"
 msgstr "Usuário ou senha inválida"
 
 msgid "error: invalid page number"
-msgstr "Número de página inválida"
+msgstr "Número de página inválido"
 
 msgid "error: max re-enables reached"
-msgstr "O número de re-abilitações chegou ao máximo!"
+msgstr "Número de reativações chegou ao máximo!"
 
 msgid "error: not found in the database"
 msgstr "Seu computador não foi encontrado na base de dados do PacketFence. Por favor, reinicie seu computador para resolver este problema."
@@ -526,7 +526,7 @@ msgid "This username and password will be valid starting %s."
 msgstr "Esse nome de usuário e senha serão válidos a partir %s."
 
 msgid "Once authenticated the access will be valid for %d %s."
-msgstr "Uma vez autenticado o acesso será válido para %d %s."
+msgstr "Uma vez autenticado, o acesso será válido para %d %s."
 
 msgid ""
 "Guest successfully registered. An email with the username and password has "

@@ -25,12 +25,15 @@
 -A input-management-if --protocol tcp --match tcp --dport %%aaa_port%% --jump ACCEPT
 # PacketFence Status
 -A input-management-if --protocol tcp --match tcp --dport %%status_port%% --jump ACCEPT
+# httpd.portal modstatus
+-A input-management-if --protocol tcp --match tcp --dport %%httpd_portal_modstatus%% --jump ACCEPT
 # haproxy stats (uncomment if activating the haproxy dashboard)
 #-A input-management-if --protocol tcp --match tcp --dport 1025 --jump ACCEPT
 # GRAPHITE-WEB
 -A input-management-if --protocol tcp --match tcp --dport 9000 --jump ACCEPT
 # CARBON_CACHE
--A input-management-if --protocol tcp --match tcp --dport 2003 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 2004 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 7002 --jump ACCEPT
 
 # RADIUS
 -A input-management-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
@@ -46,11 +49,19 @@
 -A input-management-if --protocol tcp --match tcp --dport 9392 --jump ACCEPT
 # Nessus Administration Interface
 -A input-management-if --protocol tcp --match tcp --dport 8834 --jump ACCEPT
+# PacketFence-PKI
+# -A input-management-if --protocol tcp --match tcp --dport 9393 --jump ACCEPT
+# -A input-management-if --protocol tcp --match tcp --dport 9191 --jump ACCEPT
+
 # VRRP
 -A input-management-if -d 224.0.0.0/8 -j ACCEPT
 -A input-management-if -p vrrp -j ACCEPT
 # Mysql
 -A input-management-if --protocol tcp --match tcp --dport 3306 --jump ACCEPT
+
+:input-portal-if - [0:0]
+-A input-portal-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
+-A input-portal-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
 
 :input-internal-vlan-if - [0:0]
 # DNS
@@ -122,6 +133,8 @@ COMMIT
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
+:postrouting-int-inline-if - [0:0]
+%%mangle_postrouting_inline%%
 # These will redirect to the proper chains based on conf/pf.conf's configuration
 %%mangle_if_src_to_chain%%
 COMMIT

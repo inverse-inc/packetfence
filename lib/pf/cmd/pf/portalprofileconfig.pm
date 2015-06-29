@@ -13,7 +13,7 @@ pfcmd portalprofileconfig edit <ID> [assignments]
 
 pfcmd portalprofileconfig delete <ID>
 
-pfcmd portalprofileconfig clone <TO_ID> <FROM_IP> [assignments]
+pfcmd portalprofileconfig clone <TO_ID> <FROM_ID> [assignments]
 
 query/modify profiles.conf configuration file
 
@@ -30,9 +30,9 @@ use pf::ConfigStore::Profile;
 
 sub configStoreName { "pf::ConfigStore::Profile" }
 
-sub display_fields { qw(profile description logo billing_engine redirecturl always_use_redirecturl mandatory_fields locale) }
+sub display_fields { qw(id description logo billing_engine redirecturl always_use_redirecturl mandatory_fields locale) }
 
-sub idKey { 'profile' }
+sub idKey { 'id' }
 
 =head1 AUTHOR
 

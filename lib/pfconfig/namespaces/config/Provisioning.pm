@@ -42,10 +42,8 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(category oses) );
-    if ( exists $data->{oses} && defined $data->{oses} ) {
-        $data->{oses} = ref( $data->{oses} ) eq 'ARRAY' ? $data->{oses} : [ $data->{oses} ];
-    }
+    $self->expand_list( $data, qw(category) );
+    $data->{oses} = [ split /\n/, $data->{oses} || '' ]
 }
 
 =back

@@ -28,6 +28,9 @@ use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all);
 use Try::Tiny;
 use pf::file_paths;
+use NetAddr::IP;
+use Date::Parse;
+use Crypt::OpenSSL::X509;
 
 our ( %local_mac );
 
@@ -57,6 +60,8 @@ BEGIN {
         normalize_time
         search_hash
         is_prod_interface
+        valid_ip_range
+        cert_has_expired
     );
 }
 
@@ -746,16 +751,20 @@ sub pf_run {
     my $caller = ( caller(1) )[3] || basename($0);
     $caller =~ s/^(pf::\w+|main):://;
 
+    my $loggable_command = $command;
+    if(defined($options{log_strip})){
+        $loggable_command =~ s/$options{log_strip}/*obfuscated-information*/g; 
+    }
     # died with an OS problem
     if ($CHILD_ERROR == -1) {
-        $logger->warn("Problem trying to run command: $command called from $caller. OS Error: $exception");
+        $logger->warn("Problem trying to run command: $loggable_command called from $caller. OS Error: $exception");
 
     # died with a signal
     } elsif ($CHILD_ERROR & 127) {
         my $signal = ($CHILD_ERROR & 127);
         my $with_core = ($CHILD_ERROR & 128) ? 'with' : 'without';
         $logger->warn(
-            "Problem trying to run command: $command called from $caller. "
+            "Problem trying to run command: $loggable_command called from $caller. "
             . "Child died with signal $signal $with_core coredump."
         );
     # Non-zero exit code received
@@ -769,7 +778,7 @@ sub pf_run {
             return $result; # scalar context
         }
         $logger->warn(
-            "Problem trying to run command: $command called from $caller. "
+            "Problem trying to run command: $loggable_command called from $caller. "
             . "Child exited with non-zero value $exit_status"
         );
     }
@@ -876,10 +885,20 @@ sub valid_mac_or_ip {
         my ($mac) = clean_mac($mac_or_ip);
         return 1 if($mac && $mac !~ $NON_VALID_MAC_REGEX && $mac =~ $VALID_PF_MAC_REGEX);
     }
-    get_logger()->error("invalid MAC or IP: $mac_or_ip");
+    get_logger()->debug("invalid MAC or IP: $mac_or_ip");
     return 0;
 }
 
+=item valid_ip_range
+
+Test if it's an ip and it's range of ip address
+
+=cut
+
+sub valid_ip_range {
+    my ($ip) =@_;
+    return 1 if (defined(NetAddr::IP->new($ip)));
+}
 
 =item read_dir_recursive
 
@@ -977,6 +996,19 @@ sub is_prod_interface {
     } else {
         return $FALSE;
     }
+}
+
+=item cert_has_expired
+
+Will validate that a certificate has not expired
+
+=cut
+
+sub cert_has_expired {
+    my ($path) = @_;
+    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
+    my $expiration = str2time($cert->notAfter);
+    return time > $expiration;
 }
 
 =back

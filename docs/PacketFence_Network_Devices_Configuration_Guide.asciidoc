@@ -3193,8 +3193,8 @@ See the <<_motorola,Motorola RF Switches>> documentation.
 Cisco
 ~~~~~
 
-Aironet 1121, 1130, 1242, 1250
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Aironet 1121, 1130, 1242, 1250, 1600
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 CAUTION: With this equipment, the same VLAN cannot be shared between two SSIDs. Have this in mind in your design. For example, you need two isolation VLAN if you want to isolate hosts on the public and secure SSIDs.
 
@@ -3289,15 +3289,28 @@ dot11 ssid PacketFence-Public
 Configure the RADIUS server (we assume here that the FreeRADIUS server and the PacketFence server are located on the same box):
 
 ----
-radius-server host 192.168.0.10 auth-port 1812 acct-port 1813 key useStrongerSecret
+radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 key useStrongerSecret
 aaa group server radius rad_eap
-  server 192.168.0.10 auth-port 1812 acct-port 1813
+  server 192.168.1.5 auth-port 1812 acct-port 1813
 aaa authentication login eap_methods group rad_eap
 aaa group server radius rad_mac
-  server 192.168.0.10 auth-port 1812 acct-port 1813
+  server 192.168.1.5 auth-port 1812 acct-port 1813
 aaa authentication login mac_methods group rad_mac
 ----
 
+Aironet 1600
+^^^^^^^^^^^^
+
+CoA and radius:
+----
+radius-server attribute 32 include-in-access-req format %h
+radius-server vsa send accounting
+aaa server radius dynamic-author
+ client 192.168.1.5
+ server-key 7 useStrongerSecret
+ port 3799
+ auth-type all
+----
 
 Aironet (WDS)
 ^^^^^^^^^^^^^
@@ -3511,6 +3524,34 @@ Hostapd (software)
 
 To configure Hostapd software you can use the same configuration parameters above in the configuration file.
 
+Meraki
+~~~~~~
+
+In this section, we will cover the configuration of the Meraki controller to use Web authentication.
+
+CAUTION: There is currently no way to reevaluate the access of the device using PacketFence. This means that there is no real-time action when trying to isolate a device. The RADIUS reauthentication delay will determine the maximum response time of the access reevaluation.
+
+First create a new SSID and then edit its settings.
+
+Configure it as seen in the screenshot below.
+
+image::docs/images/meraki-radius-config.png[scaledwidth="100%",alt="RADIUS configuration"]
+
+NOTE: Make sure to configure your RADIUS server so it's accessible externally under a domain name or a public IP address. Replace `pf.domain.net` by what you will configure. The only port needed is 1812 in UDP. Refer to the Meraki documentation for more details.
+
+Next, just below, configure the options for the users access as shown in the screenshot below.
+
+image::docs/images/meraki-network-config.png[scaledwidth="100%",alt="Network configuration"]
+
+Where 192.168.1.5 is the IP address of your PacketFence server.
+
+NOTE: Make sure you select bridge mode so your users are not NATed through your AP. If you need the devices to be on another VLAN, modify the VLAN tagging of the SSID.
+
+Next go in *Wireless->Configure->Splash page*. Select the *Custom splash URL* and configure the URL pointing to your PacketFence server.
+
+image::docs/images/meraki-splash-config.png[scaledwidth="100%",alt="Splash page configuration"]
+
+NOTE: Even if you enabled the bridge mode on the access point, it will still send a NATed IP address during the initial HTTP request. To workaround this you will need to forward the DHCP traffic of the network your nodes are connected to so PacketFence has the proper IP information of the devices.
 
 Mikrotik
 ~~~~~~~~

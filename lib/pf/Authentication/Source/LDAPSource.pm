@@ -41,7 +41,7 @@ has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 has '_cached_connection' => (is => 'rw');
-has 'cache_match' => ( isa => 'Bool',       is => 'rw', default => 0 );
+has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 
 =head1 METHODS
 
@@ -303,20 +303,20 @@ sub match_in_subclass {
                scope => $self->{ 'scope'},
                attrs => ['dn']
               );
-            if ($result->is_error) {
-                $logger->error("[$self->{'id'}] Unable to execute search $filter from $value on $LDAPServer:$LDAPServerPort, we skip the condition (".$result->error.").");
-                next;
-            }
-            if ($result->count == 1) {
-                $entry_matches = 1;
-                $logger->debug("[$self->{'id'} $rule->{'id'}] Group $value has member $attribute ($dn)");
-                last if ($rule->match eq $Rules::ANY);
-            }
-            else {
+            if ($result->is_error || $result->count != 1) {
                 $entry_matches = 0;
+                $logger->error(
+                    "[$self->{'id'}] Unable to execute search $filter from $value on $LDAPServer:$LDAPServerPort, we skip the condition ("
+                      . $result->error . ").")
+                  if $result->is_error;
                 if ($rule->match eq $Rules::ALL) {
                     last;
                 }
+            }
+            else {
+                $entry_matches = 1;
+                $logger->debug("[$self->{'id'} $rule->{'id'}] Group $value has member $attribute ($dn)");
+                last if ($rule->match eq $Rules::ANY);
             }
         }
 

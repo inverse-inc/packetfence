@@ -30,10 +30,10 @@ has 'placeholders' => ( is => 'ro' );
 has_field 'id' =>
   (
    type => 'SwitchID',
-   label => 'IP Address/MAC Address',
+   label => 'IP Address/MAC Address/Range (CIDR)',
    accept => ['default'],
    required => 1,
-   messages => { required => 'Please specify the IP address/MAC address of the switch.' },
+   messages => { required => 'Please specify the IP address/MAC address/Range (CIDR) of the switch.' },
   );
 has_field 'description' =>
   (
@@ -162,8 +162,9 @@ has_block 'radius' =>
   );
 has_field 'radiusSecret' =>
   (
-   type => 'Text',
+   type => 'Password',
    label => 'Secret Passphrase',
+   password => 0,
   );
 
 ## SNMP
@@ -261,8 +262,9 @@ has_field 'SNMPAuthProtocolRead' =>
   );
 has_field 'SNMPAuthPasswordRead' =>
   (
-   type => 'Text',
+   type => 'Password',
    label => 'Auth Password Read',
+   password => 0,
   );
 has_field 'SNMPPrivProtocolRead' =>
   (
@@ -271,8 +273,9 @@ has_field 'SNMPPrivProtocolRead' =>
   );
 has_field 'SNMPPrivPasswordRead' =>
   (
-   type => 'Text',
+   type => 'Password',
    label => 'Priv Password Read',
+   password => 0,
   );
 has_field 'SNMPUserNameWrite' =>
   (
@@ -286,8 +289,9 @@ has_field 'SNMPAuthProtocolWrite' =>
   );
 has_field 'SNMPAuthPasswordWrite' =>
   (
-   type => 'Text',
+   type => 'Password',
    label => 'Auth Password Write',
+   password => 0,
   );
 has_field 'SNMPPrivProtocolWrite' =>
   (
@@ -296,8 +300,9 @@ has_field 'SNMPPrivProtocolWrite' =>
   );
 has_field 'SNMPPrivPasswordWrite' =>
   (
-   type => 'Text',
+   type => 'Password',
    label => 'Priv Password Write',
+   password => 0,
   );
 has_field 'SNMPVersionTrap' =>
   (
@@ -323,8 +328,9 @@ has_field 'SNMPAuthProtocolTrap' =>
   );
 has_field 'SNMPAuthPasswordTrap' =>
   (
-   type => 'Text',
+   type => 'Password',
    label => 'Auth Password Trap',
+   password => 0,
   );
 has_field 'SNMPPrivProtocolTrap' =>
   (
@@ -333,8 +339,9 @@ has_field 'SNMPPrivProtocolTrap' =>
   );
 has_field 'SNMPPrivPasswordTrap' =>
   (
-   type => 'Text',
+   type => 'Password',
    label => 'Priv Password Trap',
+   password => 0,
   );
 
 ## CLI
@@ -361,14 +368,16 @@ has_field 'cliUser' =>
   );
 has_field 'cliPwd' =>
   (
-   type => 'Text',
+   type => 'Password',
    label => 'Password',
+   password => 0,
   );
 
 has_field 'cliEnablePwd' =>
   (
-   type => 'Text',
+   type => 'Password',
    label => 'Enable Password',
+   password => 0,
   );
 
 ## Web Services
@@ -394,8 +403,9 @@ has_field 'wsUser' =>
   );
 has_field 'wsPwd' =>
   (
-   type => 'Text',
+   type => 'Password',
    label => 'Password',
+   password => 0,
   );
 
 has_field controllerIp =>
@@ -414,7 +424,7 @@ has_field controllerPort =>
     label => 'Controller Port',
     tags => {
         after_element => \&help_list,
-        help => 'Only for Wi-Fi, if the deauth request must be send to another device than the access point then set the ip of the controller'
+        help => 'For CoA request, if we have to send to another port'
     },
   );
 

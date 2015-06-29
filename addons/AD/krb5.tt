@@ -1,5 +1,5 @@
 [libdefaults]
-    default_realm = INVERSE.LOCAL
+    default_realm = [% default_domain %]
 
 # The following krb5.conf variables are only for MIT Kerberos.
     krb4_config = /etc/krb.conf

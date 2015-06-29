@@ -15,6 +15,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use pf::factory::provisioner;
+use pf::config;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -53,6 +54,23 @@ sub index :Path :Args(0) {
     $c->stash->{types} = [ sort grep {$_} map { /^pf::provisioner::(.*)/;$1  } @pf::factory::provisioner::MODULES];
     $c->forward('list');
 }
+
+before [qw(remove)] => sub {
+    my ($self, $c, @args) = @_;
+    # We check that it's not used by any portal profile
+    my $count = 0;
+    while (my ($id, $config) = each %Profiles_Config) {
+        $count ++ if ( $c->stash->{'id'} ~~ $config->{provisioners});
+    }
+
+    if ($count > 0) {
+        $c->response->status($STATUS::FORBIDDEN);
+        $c->stash->{status_msg} = "The provisioner is used by at least a Portal Profile.";
+        $c->stash->{current_view} = 'JSON';
+        $c->detach();
+    }
+
+};
 
 before [qw(clone view _processCreatePost update)] => sub {
     my ($self, $c, @args) = @_;

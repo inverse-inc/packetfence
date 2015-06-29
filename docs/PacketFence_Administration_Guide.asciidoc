@@ -261,7 +261,7 @@ RHEL / CentOS
 
 In order to use the PacketFence repository :
 
-  # rpm -Uvh http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1-1.el6.noarch.rpm
+  # rpm -Uvh http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1-2.centos6.noarch.rpm
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database
@@ -274,15 +274,11 @@ Once installed, the Web-based configuration interface will automatically be star
 Debian
 ^^^^^^
 
-You must enable non-free and backports repository:
+You must enable non-free repository:
 
 For non-free, edit the file `/etc/apt/source.list` and add non-free like that:
 
    deb http://debian.mirror.iweb.ca/debian/ wheezy main non-free
-
-For backports:
-
-   echo 'deb http://http.debian.net/debian wheezy-backports main' > /etc/apt/sources.list.d/wheezy-backports.list
 
 In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
 
@@ -298,10 +294,6 @@ server, DHCP server, RADIUS server) using:
 
 Ubuntu
 ^^^^^^
-
-You need to enable another repository for haproxy:
-
-   add-apt-repository ppa:vbernat/haproxy-1.5
 
 In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
 
@@ -524,6 +516,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * RADIUS
 * SMS
 * Sponsored Email
+* Twitter (OAuth 2)
 * Windows Live (OAuth 2)
 
 Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Users -> Sources* section. Alternatively (but not recommended), authentication sources, rules, conditions and actions can be configured from `conf/authentication.conf`.
@@ -607,7 +600,7 @@ The `/usr/local/pf/conf/switches.conf` configuration file contains a default sec
 and a switch section for each switch (managed by PacketFence) including:
 
 [options="compact"]
-* Switch IP
+* Switch IP/Mac/Range
 * Switch vendor/type
 * Switch uplink ports (trunks and non-managed IfIndex)
 * per-switch re-definition of the VLANs (if required)
@@ -791,6 +784,79 @@ This section presents the FreeRADIUS configuration steps. In some occasions, a R
 
 Option 1: Authentication against Active Directory (AD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+CAUTION: If you are using an Active/Active or Active/Passive cluster, please follow the instructions under 'Option 1b' since the instructions below do not currently work in a cluster.
+
+In order to have domain authentication working properly, you need to enable IP forwarding on your server. To do it permanently, look in the `/etc/sysctl.conf`, and set the following line:
+
+  # Controls IP packet forwarding
+  net.ipv4.ip_forward = 1
+
+Now execute `sysctl -p` to apply the configuration
+
+Next, go in the Administration interface under *Configuration -> Domains*.
+
+NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
+
+Click *Add Domain* and fill in the informations about your domain.
+
+image::docs/images/domain-add.png[scaledwidth="100%",alt="Adding a new domain"]
+
+Where :
+
+* *Identifier* is a unique identifier for your domain. It's purpose is only visual.
+* *Workgroup* is the workgroup of your domain in the old syntax (like NT4).
+* *DNS name of the domain* is the FQDN of your domain. The one that suffixes your account names.
+* *This server's name* is the name that the server's account will have in your Active Directory.
+* *DNS server* is the IP address of the DNS server of this domain. Make sure that the server you put there has the proper DNS entries for this domain.
+* *Username* is the username that will be used for binding to the server. This account must be a domain administrator. 
+* *Password* is the password for the username defined above.
+
+Troubleshooting
++++++++++++++++
+
+* In order to troubleshoot unsuccessful binds, please refer to the following file : `/chroots/<mydomain>/var/log/samba<mydomain>/log.winbindd`. Replace `<mydomain>` with the identifier you set in the domain configuration.
+
+* You can validate the domain bind using the following command : `chroot /chroots/<mydomain> wbinfo -u`
+
+* You can test the authentication process using the following command `chroot /chroots/<mydomain> ntlm_auth --username=administrator`
+
+NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additionnal troubleshooting
+
+Default domain configuration
+++++++++++++++++++++++++++++
+
+You should now define the domain you want to use as the default one by creating the following realm in *Configuration -> Realms*
+
+image::docs/images/domain-default-realm.png[scaledwidth="100%",alt="Adding the default realm"]
+
+Next, restart Packetfence in *Status -> Services*
+
+Multiple domains authentication
++++++++++++++++++++++++++++++++
+
+First configure your domains in *Configuration -> Domains*.
+
+Once they are configured, go in *Configuration -> Realms*.
+
+Create a new realm that matches the DNS name of your domain *AND* one that matches your workgroup. In the case of this example, it will be DOMAIN.NET and DOMAIN.
+
+image::docs/images/domain-add-realm.png[scaledwidth="100%",alt="Adding a new realm"]
+
+Where : 
+
+* *Realm* is either the DNS name (FQDN) of your domain or the workgroup
+* *Realm options* are any realm options that you want to add to the FreeRADIUS configuration
+* *Domain* is the domain which is associated to this realm
+
+*Now create the two other realms associated to your other domains.*
+
+You should now have the following realm configuration
+
+image::docs/images/domain-realms-index.png[scaledwidth="100%",alt="Realms"]
+
+Option 1b: Authentication against Active Directory (AD) in a cluster
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Samba / Kerberos / Winbind
 ++++++++++++++++++++++++++
@@ -1241,7 +1307,7 @@ For Android, you must allow passthroughs in your `pf.conf` configuration file:
 
   [trapping]
   passthrough=enabled
-  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com
+  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com
 
 Profile generation
 ^^^^^^^^^^^^^^^^^^
@@ -1613,7 +1679,7 @@ taggedVlan::
 OAuth2 Authentication
 ~~~~~~~~~~~~~~~~~~~~~
 
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live or Github account.
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter or Github account.
 
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
@@ -1632,7 +1698,7 @@ Google
 In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URI for the "Redirect URI"
 field : https://YOUR_PORTAL_HOSTNAME/oauth2/google.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
+You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/google).
 
 Also, add the following Authorized domains : *.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
 
@@ -1680,6 +1746,17 @@ Once you have your information, you need to configure the OAuth2 provider. This 
 Moreover, don't forget to add LinkedIn as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 Also, LinkedIn requires a 'state' parameter for the authorization URL. If you modify it, make sure to add it at the end of your URL.
+
+Twitter
+^^^^^^^
+To use Twitter, you also need an API code and a secret key which Twitter calls _consumer key_ and _consumer secret_. Obtain this information by creating an new application from your https://apps.twitter.com/[Twitter Apps Management page].  When you create your App, make sure you specify the following as the _Callback URL_
+https://YOUR_PORTAL_HOSTNAME/oauth2/twitter
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add Twitter as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 Windows Live
 ^^^^^^^^^^^^
@@ -2740,7 +2817,11 @@ These sensors work by capturing the packets at the lowest level possible on your
 Microsoft DHCP sensor
 ^^^^^^^^^^^^^^^^^^^^^
 
-You will first need to download and install WinPcap available from http://www.winpcap.org/install/
+You will first need to download and install 'WinPcap' available from http://www.winpcap.org/install/
+
+You will also need to download and install 'Microsoft Visual C++ 2010 Redistributable' available from http://www.microsoft.com/download/details.aspx?id=5555
+
+NOTE: You absolutely need to install the 32-bit version of 'Microsoft Visual C++ 2010 Redistributable' even if you are using a 64-bit operating system.
 
 Then get the remote sensor from Inverse's download website http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.exe
 

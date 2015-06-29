@@ -222,6 +222,21 @@ has_field 'mandatory_fields.contains' =>
     widget_wrapper => 'DynamicTableRow',
 );
 
+has_field 'custom_fields_authentication_sources' => (
+    type => 'Select',
+    multiple => 1,
+    do_label => 0,
+    options_method => \&options_custom_fields_authentication_sources,
+    element_class => ['chzn-select', 'input-xxlarge'],
+    element_attr => {
+        'data-placeholder' => 'Click to add a source.'
+    },
+    tags => {
+        after_element => \&help,
+        help => "Without any sources, configured Mandatory Fields won't be displayed",
+    },
+);
+
 =head2 reuse_dot1x_credentials
 
 =cut
@@ -403,6 +418,16 @@ sub options_mandatory_fields {
       work_phone title building_number apartment_number room_number
       custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5
       custom_field_6 custom_field_7 custom_field_8 custom_field_9);
+}
+
+=head2 options_custom_fields_authentication_sources
+
+Returns the list of sources to be displayed
+
+=cut
+
+sub options_custom_fields_authentication_sources {
+    return map { { value => $_->id, label => $_->id } } @{getAllAuthenticationSources()};
 }
 
 =head2 validate

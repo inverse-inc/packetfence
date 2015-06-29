@@ -23,6 +23,7 @@ use pf::factory::provisioner;
 use pf::factory::firewallsso;
 use pf::factory::profile::filter;
 use pf::factory::triggerParser;
+use pf::factory::pki_provider;
 use pf::Switch::constants;
 use pfappserver::PacketFence::Controller::Graph;
 use pfappserver::Model::Node;
@@ -51,6 +52,7 @@ Add a localizable sring to the list.
 sub add_string {
     my ($string, $source) = @_;
 
+    $string =~ s/(?<!\\)\"/\\\"/g; # escape double-quotes
     unless ($strings{$string}) {
         $strings{$string} = [];
     }
@@ -251,7 +253,7 @@ sub parse_conf {
         $description =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
         $description =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
         $description =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
-        $description =~ s/\"/\\\"/g;
+        $description =~ s/\n//g;
 
         return $description;
     }
@@ -280,7 +282,7 @@ sub parse_conf {
                 while (defined($line = <FILE>)) {
                     chomp $line;
                     last if ($line =~ m/^EOT$/);
-                    push(@desc, $line);
+                    push(@desc, $line) if (length $line);
                 }
             }
         }
@@ -373,6 +375,9 @@ sub extract_modules {
 
     @values = sort @pf::factory::profile::filter::MODULES;
     const('pf::filter', 'Portal Profile Filters', \@values);
+
+    @values = sort @pf::factory::pki_provider::MODULES;
+    const('pf::pki_provider', 'PKI Providers', \@values);
 
     @values = sort grep {$_} map { /^pf::firewallsso::(.*)/; $1 } @pf::factory::firewallsso::MODULES;
     const('pf::firewallsso', 'Firewall SSO', \@values);

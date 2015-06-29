@@ -12,6 +12,9 @@ Util to migrate existing OS Active Directory configuration into PacketFence and 
 
 use lib '/usr/local/pf/lib';
 
+use Term::ReadKey;
+use pf::file_paths;
+
 BEGIN {
   use Log::Log4perl;
   use pf::log();
@@ -38,14 +41,17 @@ chomp($SERVER);
 my $NAMESERVER = pf_run('grep nameserver /etc/resolv.conf | head -1 | awk \'{print $2}\'');
 chomp($NAMESERVER);
 
-print "CAUTION: The following information will end up in clear text in the PacketFence configuration files. We suggest you create another account to bind this server. This account needs to have the rights to bind a new server on the domain. \n";
+print "CAUTION: This account needs to have the rights to bind a new server on the domain. \n";
 print "What is the username to bind this server on the domain : ";
 my $user =  <STDIN>; 
 chomp ($user);
 
 print "Password: ";
+ReadMode('noecho');
 my $password =  <STDIN>; 
+ReadMode(0);
 chomp ($password);
+print "\n";
 
 print "What is this server's name in your Active Directory ? ";
 my $server_name = <STDIN>;
@@ -60,20 +66,25 @@ print "Configuring workgroup : '$WORKGROUP' \n";
 print "Configuring with AD server : '$SERVER' \n";
 print "Configuring with nameserver : '$NAMESERVER' \n";
 print "Configuring with user : '$user' \n";
-print "Configuring with password : '$password' \n";
 print "Configuring with server name : '$server_name' \n";
 
 print "Are these settings fine ? This is your last chance before the domain bind. (y/n)";
 my $confirm = <STDIN>;
 chomp($confirm);
 if($confirm eq 'y'){
+  pf_run('cp /etc/krb5.conf /etc/krb5.conf.pf_backup');
   pf::domain::regenerate_configuration();
   my $output = pf::domain::join_domain($WORKGROUP);
-  print "Done. If there were any issues joining the domain, you can now use the web interface to fix the issues (Configuration->Domains) \n"
+  # we remove the password after the configuration
+  $cs->update($WORKGROUP, { bind_pass => '' });
+  $cs->commit();
+  print "Done. If there were any issues joining the domain, you can now use the web interface to fix the issues (Configuration->Domains) \n";
 }
 else{
   print "Please re-run the script again or configure the domain directly through the admin UI in 'Configuration->Domain' \n";
 }
+
+pf_run("chown pf.pf $domain_config_file");
 
 =head1 AUTHOR
 

@@ -6,12 +6,14 @@ use pf::config;
 use constant LOOPBACK_IPV4 => '127.0.0.1';
 use pf::log;
 use pf::util;
+use pf::config::util;
 use pf::locationlog qw(locationlog_synchronize);
 use NetAddr::IP;
 use pf::Portal::ProfileFactory;
 use File::Spec::Functions qw(catdir);
 use pf::activation qw(view_by_code);
 use pf::web::constants;
+use URI::URL;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 
@@ -92,6 +94,12 @@ has destinationUrl => (
     lazy => 1,
 );
 
+has dispatcherSession => (
+    is      => 'rw',
+    builder => '_build_dispatcherSession',
+    lazy => 1,
+);
+
 has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
 
 sub ACCEPT_CONTEXT {
@@ -141,8 +149,18 @@ sub ACCEPT_CONTEXT {
 sub _build_destinationUrl {
     my ($self) = @_;
     my $url = $self->_destination_url;
+
     # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
-    if (!defined($url) || isenabled($self->profile->forceRedirectURL)) {
+    if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
+        return $self->profile->getRedirectURL;
+    }
+
+    my $host = URI::URL->new($url)->host();
+
+    my @portal_hosts = portal_hosts();
+    # if the destination URL points to the portal, we put the default URL of the portal profile
+    if ($host ~~ @portal_hosts) {
+        get_logger->info("Replacing destination URL since it points to the captive portal");
         return $self->profile->getRedirectURL;
     }
 
@@ -217,6 +235,20 @@ sub _build_profile {
     my $options =  $self->options;
     $options->{'last_ip'} = $self->clientIp;
     return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $options );
+}
+
+sub _build_dispatcherSession {
+    my ($self) = @_;
+    my $session = new pf::Portal::Session()->session;
+    my %session_data;
+    foreach my $key ($session->param) {
+        get_logger->debug("Adding session parameter from dispatcher session to Catalyst session : $key : ".$session->param($key));
+        $session_data{$key} = $session->param($key);
+    }
+    get_logger->info("External captive portal detected !") if($session_data{is_external_portal});
+
+    return \%session_data;
+    return 1;
 }
 
 sub templateIncludePath {

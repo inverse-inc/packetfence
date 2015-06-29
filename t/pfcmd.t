@@ -33,7 +33,7 @@ our (@output,@main_args,$tests);
 BEGIN {
     @output = `/usr/local/pf/bin/pfcmd.pl help`;
     foreach my $line (@output) {
-        if ($line =~ /^([^ ]+) +\|/) {
+        if ($line =~ /^ *([^ ]+) +\|/) {
             push @main_args, $1;
         }
     }
@@ -364,7 +364,7 @@ is_deeply(\%main::cmd,
 
 foreach my $help_arg (@main_args) {
     my @output = `/usr/local/pf/bin/pfcmd.pl help $help_arg 2>&1`;
-    like ( $output[0], qr/^Usage: pfcmd $help_arg/,
+    like ( join('',@output), qr/^Usage:\s*pfcmd $help_arg/s,
          "pfcmd $help_arg is documented" );
 }
 

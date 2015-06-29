@@ -15,4 +15,4 @@ log4perl.appender.PFDNS.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{pr
 log4perl.appender.PFDNS.umask                        = 0002
 log4perl.appender.PFDNS.user                         = pf
 log4perl.appender.PFDNS.group                        = pf
-
+log4perl.appender.PFDNS.binmode                      = utf8

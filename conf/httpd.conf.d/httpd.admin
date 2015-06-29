@@ -129,9 +129,9 @@ $UseCanonicalName = "Off";
 $Timeout = "50";
 $KeepAliveTimeout = "10";
 
-$MaxClients = "20";
+$MaxClients = "4";
 $StartServers = "2";
-$MinSpareServers = "6";
+$MinSpareServers = "1";
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 

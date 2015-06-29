@@ -1,6 +1,7 @@
 package captiveportal::PacketFence::Controller::WirelessProfile;
 use Moose;
 use namespace::autoclean;
+use File::Slurp qw(read_file);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 use pf::config;
@@ -27,13 +28,29 @@ sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $username = $c->session->{username} || '';
     my $mac = $c->portalSession->clientMac;
+    my $user_cache = $c->user_cache;
+    my $pki_session = $user_cache->get("pki_session");
+    unless ($pki_session) {
+        $pki_session = $c->session;
+    }
+    my $stash = $c->stash;
+    my $logger = $c->log;
     my $provisioner = $c->profile->findProvisioner($mac);
     $provisioner->authorize($mac) if (defined($provisioner));
+    my $profile_template = $provisioner->profile_template;
     $c->stash(
-        template     => 'wireless-profile.xml',
+        template     => $profile_template,
         current_view => 'MobileConfig',
         provisioner  => $provisioner,
-        username     => $username
+        username     => $username,
+        cert_content => $pki_session->{b64_cert},
+        cert_cn      => $pki_session->{certificate_cn},
+        for_windows  => ($provisioner->{type} eq 'windows'),
+        ca_cn        => $pki_session->{ca_cn},
+        server_cn    => $pki_session->{server_cn},
+        ca_content   => $pki_session->{ca_content},
+        passwcode    => $provisioner->{passcode},
+        reverse_fqdn => $reverse_fqdn,
     );
 }
 
@@ -41,7 +58,7 @@ sub profile_xml : Path('/profile.xml') : Args(0) {
     my ( $self, $c ) = @_;
     $c->stash->{filename} = 'profile.xml';
     $c->forward('index');
-}  
+}
 
 =head1 AUTHOR
 

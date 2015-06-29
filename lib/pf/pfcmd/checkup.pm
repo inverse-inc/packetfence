@@ -32,6 +32,8 @@ use pf::web::filter;
 use pfconfig::manager;
 use pfconfig::namespaces::config::Pf;
 use pf::version;
+use File::Slurp;
+use pf::file_paths;
 
 use lib $conf_dir;
 
@@ -139,6 +141,7 @@ sub sanity_check {
     vlan_filter_rules();
     apache_filter_rules();
     db_check_version();
+    valid_certs();
 
     return @problems;
 }
@@ -180,7 +183,7 @@ sub interfaces_defined {
             }
         }
 
-        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability)/;
+        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability|portal)/;
         if (defined($int_conf{'type'}) && $int_conf{'type'} !~ /$int_types/) {
             add_problem( $FATAL, "invalid network type $int_conf{'type'} for $interface" );
         }
@@ -371,16 +374,10 @@ Configuration validation of the network portion of the config
 
 sub network {
 
-    # make sure that networks.conf is not empty when services.dhcpd
+    # check that networks.conf is not empty when services.dhcpd
     # is enabled
     if (isenabled($Config{'services'}{'dhcpd'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
-        add_problem( $FATAL, "networks.conf cannot be empty when services.dhcpd is enabled" );
-    }
-
-    # make sure that networks.conf is not empty when services.named
-    # is enabled
-    if (isenabled($Config{'services'}{'named'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
-        add_problem( $FATAL, "networks.conf cannot be empty when services.named is enabled" );
+        add_problem( $WARN, "networks.conf is empty but services.dhcpd is enabled. Disable it to remove this warning." );
     }
 
     foreach my $network (keys %ConfigNetworks) {
@@ -849,7 +846,7 @@ sub switches {
             }
         }
         # check for valid switch IP
-        unless ( valid_mac_or_ip($section) ) {
+        unless ( valid_mac_or_ip($section) || valid_ip_range($section) ) {
             add_problem( $WARN, "switches.conf | Switch IP is invalid for switch $section" );
         }
 
@@ -1093,9 +1090,66 @@ Make sure the database schema matches the current version of PacketFence
 sub db_check_version {
     unless(pf::version::version_check_db()) {
         my $version = pf::version::version_get_current;
-        my $db_version = pf::version::version_get_last_db_version;
+        my $db_version = pf::version::version_get_last_db_version || 'unknown';
         add_problem ( $FATAL, "The PacketFence database schema version '$db_version' does not match the current installed version '$version'\nPlease refer to the UPGRADE guide on how to complete an upgrade of PacketFence\n" );
     }
+}
+
+=item valid_certs
+
+Make sure the certificates used by Apache and RADIUS are valid
+
+=cut
+
+sub valid_certs {
+    unless(-e "$generated_conf_dir/ssl-certificates.conf"){
+        add_problem($WARN, "Cannot detect Apache SSL configuration. Not validating the certificates.");
+        return;
+    }
+    unless(-e "$install_dir/raddb/eap.conf"){
+        add_problem($WARN, "Cannot detect RADIUS SSL configuration. Not validating the certificates.");
+        return;
+    }   
+
+
+    my $httpd_conf = read_file("$generated_conf_dir/ssl-certificates.conf");
+
+    my ($httpd_crt, $radius_crt);
+
+    if($httpd_conf =~ /SSLCertificateFile\s*(.*)\s*/){
+        $httpd_crt = $1;
+    }
+    else{
+        add_problem($WARN, "Cannot find the Apache certificate in your configuration.");
+    }
+
+    my $radius_conf = read_file("$install_dir/raddb/eap.conf");
+
+    if($radius_conf =~ /certificate_file =\s*(.*)\s*/){
+        $radius_crt = $1;
+    }
+    else{
+        add_problem($WARN, "Cannot find the FreeRADIUS certificate in your configuration.");
+    }
+
+    eval {
+        if(cert_has_expired($httpd_crt)){
+            add_problem($FATAL, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+        }
+    };
+    if($@){
+        add_problem($WARN, "Cannot open the following certificate $httpd_crt")
+    }
+
+    eval {
+        if(cert_has_expired($radius_crt)){
+            add_problem($FATAL, "The certificate used by FreeRADIUS ($radius_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+        }
+    };
+    if($@){
+        add_problem($WARN, "Cannot open the following certificate $radius_crt")
+    }
+
 }
 
 =back

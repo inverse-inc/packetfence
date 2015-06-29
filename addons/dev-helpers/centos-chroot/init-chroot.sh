@@ -9,15 +9,9 @@ BRANCH=devel
 git clone -b $BRANCH "$GIT_REPO" "$PFDIR"
 
 
-YUM="yum --enablerepo=packetfence --enablerepo=packetfence-devel -y"
-$YUM makecache
-echo installing the packetfence dependecies
-
-REPOQUERY="repoquery --queryformat=%{NAME} --enablerepo=packetfence --enablerepo=packetfence-devel -c /etc/yum.conf -C --pkgnarrow=all"
-
-rpm -q --requires --specfile $PFDIR/addons/packages/packetfence.spec | grep -v packetfence | perl -pi -e's/ +$//' | sort -u | xargs -d '\n' $REPOQUERY --whatprovides | sort -u | grep -v perl-LDAP | xargs $YUM install
-
 cd /chroot-tools
+
+bash install-packages-from-spec.sh
 
 cp -f my.cnf /etc/
 
@@ -40,6 +34,7 @@ make devel
 
 mysql -uroot pf < db/pf-schema.sql
 
-./bin/pfcmd configreload hard
+./sbin/pfconfig -d
 
+./bin/pfcmd configreload hard
 

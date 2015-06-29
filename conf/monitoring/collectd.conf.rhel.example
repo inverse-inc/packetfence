@@ -69,7 +69,7 @@ LoadPlugin write_graphite
 ##############################################################################
 <Plugin apache>
   <Instance "portal">
-    URL "http://%%management_ip%%/apache_status/?auto"
+    URL "https://%%management_ip%%:%%httpd_portal_modstatus_port%%/modstatus/?auto"
   </Instance>
 </Plugin>
 
@@ -110,7 +110,7 @@ LoadPlugin write_graphite
 
 <Plugin write_graphite>
   <Node "%%hostname%%">
-    Host "localhost"
+    Host "127.0.0.1"
     Port "2013"
     Protocol "tcp"
     LogSendErrors true

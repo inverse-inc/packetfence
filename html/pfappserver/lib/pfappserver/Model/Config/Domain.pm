@@ -51,10 +51,9 @@ sub status {
     my $info = $self->configStore->read($domain);
 
     my $chroot_path = pf::domain::chroot_path($domain);
-    my ($ntlm_auth_status, $ntlm_auth_output) = pf::domain::test_auth($domain);
     my ($join_status, $join_output) = pf::domain::test_join($domain);
   
-    return ($ntlm_auth_status, $ntlm_auth_output, $join_status, $join_output);
+    return ($join_status, $join_output);
 
 }
 

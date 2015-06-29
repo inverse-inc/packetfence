@@ -11,10 +11,8 @@ pfcmd <command> [options]
   cache                       | manage the cache subsystem
   checkup                     | perform a sanity checkup and report any problems
   class                       | view violation classes
-  config                      | query, set, or get help on pf.conf configuration paramaters
   configfiles                 | push or pull configfiles into/from database
   configreload                | reload the configution
-  fingerprint                 | view DHCP Fingerprints
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
   help                        | show help for pfcmd commands
   ifoctetshistorymac          | accounting history
@@ -28,6 +26,7 @@ pfcmd <command> [options]
   portalprofileconfig         | query/modify portal profile configuration parameters
   reload                      | rebuild fingerprint or violations tables without restart
   service                     | start/stop/restart and get PF daemon status
+  schedule                    | Nessus scan scheduling
   switchconfig                | query/modify switches.conf configuration parameters
   version                     | output version information
   violationconfig             | query/modify violations.conf configuration parameters

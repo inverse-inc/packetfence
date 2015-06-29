@@ -5,29 +5,43 @@ pf::cmd::pf::service add documentation
 
 =head1 SYNOPSIS
 
-pfcmd service <service> [start|stop|restart|status|watch]
+pfcmd service <service> [start|stop|restart|status|watch] [--ignore-checkup]
 
   stop/stop/restart specified service
   status returns PID of specified PF daemon or 0 if not running
   watch acts as a service watcher which can send email/restart the services
 
+  --ignore-checkup will start the requested services even if the checkup fails
+
 Services managed by PacketFence:
 
+  carbon-cache     | carbon-cache daemon
+  carbon-relay     | carbon-relay daemon
+  collectd         | collectd daemon
   dhcpd            | dhcpd daemon
-  httpd.webservices| Apache Webservices
+  haproxy          | haproxy daemon
+  httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin
   httpd.portal     | Apache Captive Portal
   httpd.proxy      | Apache Proxy Interception
+  httpd.webservices| Apache Webservices
+  iptables         | PacketFence firewall rules
+  keepalived       | Virtual IP management
+  memcached        | memcached daemon
   pf               | all services that should be running based on your config
+  pfbandwidthd     | A pf service to monitor bandwidth usages
   pfdetect         | PF snort alert parser
   pfdhcplistener   | PF DHCP monitoring daemon
   pfdns            | DNS daemon
   pfmon            | PF ARP monitoring daemon
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
+  radsniff3        | radsniff3 daemo
   snmptrapd        | SNMP trap receiver daemon
   snort            | Sourcefire Snort IDS
+  statsd           | statsd service
   suricata         | Suricata IDS
+  winbindd         | Winbind daemon
 
 watch
 
@@ -72,10 +86,14 @@ our %ACTION_MAP = (
     restart => \&restartService,
 );
 
+our $ignore_checkup = $FALSE;
+
 sub parseArgs {
     my ($self) = @_;
-    my ($service, $action) = $self->args;
+    my ($service, $action, $option) = $self->args;
     return 0 unless defined $service && defined $action && exists $ACTION_MAP{$action};
+    return 0 unless $service eq 'pf' || any { $_ eq $service} @pf::services::ALL_SERVICES;
+
     my @services;
     if ($service eq 'pf') {
         @services = @pf::services::ALL_SERVICES;
@@ -86,6 +104,7 @@ sub parseArgs {
     $self->{service}  = $service;
     $self->{services} = \@services;
     $self->{action}   = $action;
+    $ignore_checkup = $TRUE if(defined($option) && $option eq '--ignore-checkup');
     return 1;
 }
 
@@ -158,7 +177,7 @@ sub checkup {
 
     # if there is a fatal problem, exit with status 255
     foreach my $entry (@problems) {
-        if ($entry->{$pf::pfcmd::checkup::SEVERITY} eq $pf::pfcmd::checkup::FATAL) {
+        if (!$ignore_checkup && $entry->{$pf::pfcmd::checkup::SEVERITY} eq $pf::pfcmd::checkup::FATAL) {
             exit(255);
         }
     }

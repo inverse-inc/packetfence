@@ -35,9 +35,10 @@ sub generateConfig {
 
 sub generate_local_settings {
     my %tags;
-    $tags{'template'} = "$conf_dir/monitoring/local_settings.py";
+    $tags{'template'} = "$conf_dir/monitoring/local_settings.py.$OS";
     $tags{'conf_dir'} = "$install_dir/var/conf";
     $tags{'log_dir'}  = "$install_dir/logs";
+    $tags{'install_dir'}   = "$install_dir";
     $tags{'management_ip'}
         = defined( $management_network->tag('vip') )
         ? $management_network->tag('vip')
@@ -51,8 +52,7 @@ sub generate_local_settings {
     $tags{'db_port'}              = $Config{'monitoring'}{'db_port'};
     $tags{'db_user'}              = $Config{'database'}{'user'};
     $tags{'db_password'}          = $Config{'database'}{'pass'};
-    $tags{'carbon_hosts'}         = get_cluster_destinations()
-        // $tags{'graphite_host'} . ":9000, ";
+    $tags{'carbon_hosts'}         = get_cluster_destinations() // $tags{'graphite_host'} . ":9000, ";
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/local_settings.py" );
 }

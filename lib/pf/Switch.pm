@@ -78,12 +78,12 @@ Returns 1 if switch type supports web form registration (for release of the exte
 
 =cut
 
-sub supportsWebFormRegistration { 
+sub supportsWebFormRegistration {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     $logger->debug("Web form registration is not supported on switch type " . ref($this));
-    return $FALSE; 
+    return $FALSE;
 }
 
 =item supportsWiredMacAuth
@@ -839,7 +839,7 @@ sub getAccessListByName {
     # otherwise log and return undef
     $logger->warn("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $this->{_id});
     return;
- 
+
 }
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
@@ -1453,7 +1453,7 @@ Connects to the switch and configures the specified port to be RADIUS floating d
 =cut
 
 sub enableMABFloatingDevice {
-    my ($this, $ifIndex) = @_; 
+    my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->warn("Cannot enable floating device on $this->{ip} on $ifIndex because this function is not implemented");
 }
@@ -2774,6 +2774,10 @@ sub radiusDisconnect {
             LocalAddr => $management_network->tag('vip'),
         };
 
+        if (defined($self->{'_controllerPort'}) && $self->{'_controllerPort'} ne '') {
+            $connection_info->{'nas_port'} = $self->{'_controllerPort'};
+        }
+
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
@@ -2943,8 +2947,8 @@ sub wiredeauthTechniques {
 }
 
 sub synchronize_locationlog {
-    my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid, $stripped_user_name, $realm) = @_;
-    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid, $stripped_user_name, $realm);
+    my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm) = @_;
+    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm);
 }
 
 
@@ -3030,7 +3034,7 @@ sub parseSwitchIdFromRequest {
 
 Unimplemented base method meant to be overriden in switches that support SNMP trap based methods.
 
-=cut 
+=cut
 
 sub parseTrap {
     my $self   = shift;
@@ -3064,8 +3068,8 @@ sub disableMABByIfIndex {
     my ($self, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->error("This function is unimplemented.");
-    return 0; 
-} 
+    return 0;
+}
 
 =item enableMABByIfIndex
 
@@ -3077,7 +3081,7 @@ sub enableMABByIfIndex {
     my ($self, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->error("This function is unimplemented.");
-    return 0; 
+    return 0;
 }
 
 =back

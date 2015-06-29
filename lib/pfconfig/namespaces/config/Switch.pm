@@ -27,7 +27,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}            = $switches_config_file;
-    $self->{child_resources} = [ 'resource::default_switch', ];
+    $self->{child_resources} = [ 'resource::default_switch', 'resource::switches_ranges' ];
 }
 
 sub build_child {

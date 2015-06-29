@@ -10,9 +10,16 @@ use pf::util;
 use pf::locationlog;
 use pf::authentication;
 use HTML::Entities;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use pf::config;
+use pf::person qw(person_modify);
 
+our @PERSON_FIELDS = grep {
+    $_ ne 'pid'
+    && $_ ne 'notes'
+    && $_ ne 'portal'
+    && $_ ne 'source'
+} @pf::person::FIELDS;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -170,6 +177,7 @@ sub login : Local : Args(0) {
         $c->forward('validateLogin');
         $c->forward('enforceLoginRetryLimit');
         $c->forward('authenticationLogin');
+        $c->forward('validateMandatoryFields');
         $c->forward('postAuthentication');
         $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
         $c->forward( 'CaptivePortal' => 'endPortalSession' );
@@ -218,13 +226,18 @@ sub postAuthentication : Private {
     $pid = $default_pid if !defined $pid && $c->profile->noUsernameNeeded;
     $info->{pid} = $pid;
     $c->stash->{info} = $info;
+    # We make sure the person exists and assign it to the device
+    person_add($pid);
+    node_modify($portalSession->clientMac, (pid => $pid));
 
     $c->forward('setupMatchParams');
     $c->forward('setRole');
     $c->forward('setUnRegDate');
+    $c->log->info("Just finished seting the node up");
     $info->{source} = $source_id;
     $info->{portal} = $profile->getName;
     $c->forward('checkIfProvisionIsNeeded');
+    $c->log->info("Passed by the provisioning");
 }
 
 =head2 checkIfChainedAuth
@@ -309,6 +322,7 @@ sub setRole : Private {
     my $params = $c->stash->{matchParams};
     my $info = $c->stash->{info};
     my $pid = $info->{pid};
+    my $mac = $c->portalSession->clientMac;
     my $source_match = $session->{source_match} || $session->{source_id};
 
     # obtain node information provided by authentication module. We need to get the role (category here)
@@ -324,7 +338,10 @@ sub setRole : Private {
         $logger->info("Got no role for username \"$pid\"");
         $self->showError($c, "You do not have the permission to register a device with this username.");
     }
-
+    $c->stash(
+        role => $value,
+    );
+    node_modify($mac, (category => $value));
 }
 
 sub setUnRegDate : Private {
@@ -334,6 +351,7 @@ sub setUnRegDate : Private {
     my $params = $c->stash->{matchParams};
     my $info = $c->stash->{info};
     my $pid = $info->{pid};
+    my $mac = $c->portalSession->clientMac;
     my $source_match = $session->{source_match} || $session->{source_id};
     # If an access duration is defined, use it to compute the unregistration date;
     # otherwise, use the unregdate when defined.
@@ -363,6 +381,7 @@ sub setUnRegDate : Private {
 
     # We put the unregistration date in session since we may want to use it later in the flow
     $c->session->{unregdate} = $info->{unregdate};
+    node_modify($mac, (unregdate => $info->{unregdate}));
 }
 
 sub createLocalAccount : Private {
@@ -411,11 +430,18 @@ sub createLocalAccount : Private {
 sub checkIfProvisionIsNeeded : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
-    my $info = $c->stash->{info};
     my $mac = $portalSession->clientMac;
     my $profile = $c->profile;
     if (defined( my $provisioner = $profile->findProvisioner($mac))) {
-        if ($provisioner->authorize($mac) == 0) {
+        $c->log->info("Found provisioner " . $provisioner->id . " for $mac");
+        my $info = $c->stash->{info};
+        if($provisioner->getPkiProvider) {
+            $c->log->info("Detected PKI provider for $mac.");
+            $c->session->{info} = $c->stash->{info};
+            $c->response->redirect('/tlsprofile');
+            $c->detach();
+        }
+        elsif ($provisioner->authorize($mac) == 0) {
             $info->{status} = $pf::node::STATUS_PENDING;
             node_modify($mac, %$info);
             $c->stash(
@@ -500,7 +526,7 @@ sub authenticationLogin : Private {
         if ( defined($return) && $return == 1 ) {
             # save login into session
             $c->session(
-                "username"  => $username,
+                "username"  => $username // $default_pid,
                 "source_id" => $source_id,
                 "source_match" => $source_id,
             );
@@ -508,7 +534,6 @@ sub authenticationLogin : Private {
             $c->error($message);
         }
     }
-
 }
 
 =head2 getSources
@@ -544,6 +569,7 @@ sub showLogin : Private {
     my $guest_allowed =
       any { is_in_list( $_, $guestModes ) } $SELFREG_MODE_EMAIL,
       $SELFREG_MODE_SMS, $SELFREG_MODE_SPONSOR;
+    my @sources = $profile->getInternalSources;
     my $request = $c->request;
     if ( $c->has_errors ) {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
@@ -560,8 +586,22 @@ sub showLogin : Private {
         oauth2_facebook => is_in_list( $SELFREG_MODE_FACEBOOK, $guestModes ),
         oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
+        oauth2_twitter  => is_in_list( $SELFREG_MODE_TWITTER, $guestModes ),
         guest_allowed   => $guest_allowed,
     );
+
+    # TODO: Handle this differently on rework; for the moment, making sure everything is displayed...
+    # 2015.05.11 - dwuelfrath@inverse.ca
+    # Portal profile based custom fields
+    my @mandatory_fields;
+    my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
+    foreach ( @sources ) {
+        push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$_->{'id'}});
+    }
+    # Make sure mandatory fields are unique
+    @mandatory_fields = uniq @mandatory_fields;
+
+    $c->stash( mandatory_fields => \@mandatory_fields );
 }
 
 sub _clean_username {
@@ -573,6 +613,75 @@ sub _clean_username {
     $username =~ s/^\s+|\s+$//g ;
 
     return $username;
+}
+
+sub validationError {
+    my ( $self, $c, $error_code, @error_args ) = @_;
+    $c->stash->{'txt_validation_error'} =
+      i18n_format( $GUEST::ERRORS{$error_code}, @error_args );
+    utf8::decode($c->stash->{'txt_validation_error'});
+    $c->detach('showLogin');
+}
+
+sub validateMandatoryFields : Private {
+    my ( $self, $c ) = @_;
+    my $request = $c->request;
+    my $session = $c->session;
+    my $profile    = $c->profile;
+    my ( $error_code, @error_args );
+
+    # Portal profile based custom fields
+    my @mandatory_fields;
+    my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
+    push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$c->session->{source_id}});
+    # Make sure mandatory fields are unique
+    @mandatory_fields = uniq @mandatory_fields;
+
+    my %mandatory_fields = map { $_ => undef } @mandatory_fields;
+    my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
+
+    if (@missing_fields) {
+        $error_code = $GUEST::ERROR_MISSING_MANDATORY_FIELDS;
+        @error_args = ( join( ", ", map { i18n($_) } @missing_fields ) );
+    } elsif ( exists $mandatory_fields{email}
+              && !pf::web::util::is_email_valid( $request->param('email') ) ) {
+        $error_code = $GUEST::ERROR_ILLEGAL_EMAIL;
+    } elsif ( exists $mandatory_fields{phone}
+              && !pf::web::util::validate_phone_number( $request->param('phone') ) ) {
+        $error_code = $GUEST::ERROR_ILLEGAL_PHONE;
+    } elsif ( !length( $request->param("aup_signed") ) ) {
+        $error_code = $GUEST::ERROR_AUP_NOT_ACCEPTED;
+    }
+
+    if ( defined $error_code && $error_code != 0 ) {
+        $self->validationError( $c, $error_code, @error_args );
+    } else {
+        $c->forward('setupSession');
+        _update_person($session,$profile);
+    }
+}
+
+sub setupSession : Private {
+    my ( $self, $c ) = @_;
+    my $request = $c->request;
+    foreach my $field (@PERSON_FIELDS) {
+        $c->session->{$field} = $request->param($field);
+    }
+    my $phone = $request->param("phone");
+    $c->session->{telephone} =
+      pf::web::util::validate_phone_number( $phone );
+    $c->session->{phone} =
+      pf::web::util::validate_phone_number( $phone );
+}
+
+sub _update_person {
+  my ($session,$profile) = @_;
+  my @info = (
+      (map { my $v = $session->{$_}; defined $v ? ($_ => $session->{$_}) :() } @PERSON_FIELDS),
+      'portal'    => $profile->getName,
+      'source'    => $session->{source_id},
+  );
+  person_modify($session->{username}, @info);
 }
 
 =head1 AUTHOR

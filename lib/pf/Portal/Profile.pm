@@ -188,16 +188,59 @@ sub getSources {
 
 =item getMandatoryFields
 
-Returns the mandatory fields for the profile
+Returns the mandatory fields for the profile depending on the authentication sources configured
 
 =cut
 
 sub getMandatoryFields {
-    my ($self) = @_;
-    return $self->{'_mandatory_fields'};
+    my ( $self ) = @_;
+
+    my %mandatory_fields = ();
+
+    # Email self-registration requires some mandatory fields
+    $mandatory_fields{'email'} = [ 'email' ] if $self->getSourceByType('email') || $self->getSourceByTypeForChained('email');
+
+    # SMS self-registration requires some mandatory fields
+    $mandatory_fields{'sms'} = [ 'email', 'phone', 'mobileprovider' ] if $self->getSourceByType('sms') || $self->getSourceByTypeForChained('sms');
+
+    # Sponsor email self-registration requires some mandatory fields
+    $mandatory_fields{'sponsoremail'} = [ 'email', 'sponsor_email' ] if $self->getSourceByType('sponsoremail') || $self->getSourceByTypeForChained('sponsoremail');
+
+    # Temp array of mandatory fields to match current workflow
+    # TODO: Remove this with self-registration flow rework
+    # 2015.05.12 - dwuelfrath@inverse.ca
+    $mandatory_fields{'temp_current_portal'} = [ 'email', 'phone', 'mobileprovider', 'sponsor_email' ];
+
+    return \%mandatory_fields;
 }
 
 *mandatoryFields = \&getMandatoryFields;
+
+=item getCustomFields
+
+Returns the custom fields configured on the portal profile
+
+=cut
+
+sub getCustomFields {
+    my ( $self ) = @_;
+    return $self->{'_mandatory_fields'};
+}
+
+*customFields = \&getCustomFields;
+
+=item getCustomFieldsSources
+
+Returns which authentication sources are configured to use custom fields.
+
+=cut
+
+sub getCustomFieldsSources {
+    my ( $self ) = @_;
+    return $self->{'_custom_fields_authentication_sources'};
+}
+
+*customFieldsSources = \&getCustomFieldsSources;
 
 sub getProvisioners {
     my ($self) = @_;
@@ -441,7 +484,8 @@ sub findScan {
     my ($self, $mac, $node_attributes) = @_;
     my $logger = get_logger();
     $node_attributes ||= node_attributes($mac);
-    my ($fingerprint) = $node_attributes->{'device_type'};
+    my $device_type = $node_attributes->{'device_type'} || '';
+    my $fingerprint = pf::fingerbank::is_a($device_type);
     if (defined($self->getScans)) {
         foreach my $scan (split(',',$self->getScans)) {
             my $scan_config = $pf::config::ConfigScan{$scan};
@@ -464,7 +508,7 @@ sub findScan {
             }
         }
     }
-    return 0;
+    return undef;
 }
 
 =back

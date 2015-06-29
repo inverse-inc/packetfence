@@ -18,3 +18,4 @@ log4perl.appender.LOGFILE.layout.ConversionPattern      = %d{MMM dd HH:mm:ss} %X
 log4perl.appender.LOGFILE.umask                         = 0002
 log4perl.appender.LOGFILE.user                          = pf
 log4perl.appender.LOGFILE.group                         = pf
+log4perl.appender.LOGFILE.binmode                       = utf8

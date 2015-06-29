@@ -17,9 +17,15 @@ pf::cmd::pf::fixpermissions
 
 use strict;
 use warnings;
+
 use base qw(pf::cmd);
+
 use pf::file_paths;
+use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
+
+use fingerbank::FilePath;
+
 use File::Spec::Functions qw(catfile);
 
 sub parseArgs { 1 }
@@ -32,15 +38,30 @@ sub _run {
     chmod(06755,$pfcmd);
     chmod(0664, @stored_config_files);
     chmod(02775, $conf_dir, $var_dir, $log_dir);
+    _fingerbank();
     return $EXIT_SUCCESS;
 }
 
 sub _changeFilesToOwner {
     my ($user,@files) = @_;
     my ($login,$pass,$uid,$gid) = getpwnam($user);
-    my ($group, undef, undef, undef)= getgrgid($gid);
-    chown $uid,$gid,@files;
+    if(defined $uid && defined $gid) {
+        my ($group, undef, undef, undef)= getgrgid($gid);
+        chown $uid,$gid,@files;
+    }
+    else {
+        my $msg = "Problem getting group and user id for $user\n";
+        print STDERR $msg;
+        get_logger->error($msg);
+    }
 }
+
+sub _fingerbank {
+    _changeFilesToOwner('fingerbank', @fingerbank::FilePath::PATHS, @fingerbank::FilePath::FILES);
+    chmod(0664, @fingerbank::FilePath::FILES);
+    chmod(0775, @fingerbank::FilePath::PATHS, $fingerbank::FilePath::INSTALL_PATH . 'db/init_databases.pl');
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

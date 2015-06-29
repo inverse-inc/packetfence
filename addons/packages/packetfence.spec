@@ -134,7 +134,7 @@ Requires: perl(Digest::HMAC_MD5)
 # TODO: we should depend on perl modules not perl-libwww-perl package
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
 # LWP::Simple is one of them (required by inlined Net::MAC::Vendor and probably other stuff)
-Requires: perl-libwww-perl, perl(LWP::Simple), perl(LWP::Protocol::https)
+Requires: perl-libwww-perl > 6.02, perl(LWP::Simple), perl(LWP::Protocol::https)
 Requires: perl(List::MoreUtils)
 Requires: perl(Locale::gettext)
 Requires: perl(Log::Log4perl) >= 1.43
@@ -254,21 +254,23 @@ Requires: perl(Hash::Merge)
 Requires: perl(IO::Socket::INET6)
 Requires: perl(IO::Interface)
 Requires: perl(Time::Period)
-Requires: iproute >= 3.0.0, samba, krb5-workstation
+Requires: iproute >= 3.0.0, samba < 4, krb5-workstation
 # configuration-wizard
 Requires: iproute, vconfig
 # wmi
 Requires: wmi, perl(Net::WMIClient)
 
 # for dashboard
-Requires: Django14, python-django-tagging, pyparsing
+Requires: python-django, python-django-tagging, pyparsing
 Requires: MySQL-python
 Requires: python-carbon, python-whisper
-Requires: graphite-web
+Requires: graphite-web >= 0.9.12-25
 Requires: collectd >= 5.0, collectd-mysql, libcollectdclient, collectd-apache
-Requires: radsniff
+Requires: freeradius-radsniff >= 3.0.0
 Requires: node
 
+# pki
+Requires: perl(Crypt::SMIME)
 
 
 Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
@@ -286,7 +288,7 @@ Requires: mod_qos
 Requires: %{real_name}-config = %{ver}
 Requires: %{real_name}-pfcmd-suid = %{ver}
 Requires: haproxy >= 1.5, keepalived >= 1.2
-Requires: fingerbank >= 1.0.1
+Requires: fingerbank >= 1.0.3
 
 %description -n %{real_name}
 
@@ -400,6 +402,7 @@ done
 %{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
 # creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
@@ -427,6 +430,7 @@ cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/soh/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/AD/* $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -480,10 +484,15 @@ done
 curdir=`pwd`
 
 #pf-schema.sql symlinks to current schema
-if [ ! -e "$RPM_BUILD_ROOT/usr/local/pf/db/pf-schema.sql" ]; then
+if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf-schema.sql" ]; then
     cd $RPM_BUILD_ROOT/usr/local/pf/db
     VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
-    ln -s $VERSIONSQL ./pf-schema.sql
+    ln -f -s $VERSIONSQL ./pf-schema.sql
+fi
+if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf_graphite-schema.sql" ]; then
+    cd $RPM_BUILD_ROOT/usr/local/pf/db
+    VERSIONSQL=$(ls pf_graphite-schema-* |sort -r | head -1)
+    ln -f -s $VERSIONSQL ./pf_graphite-schema.sql
 fi
 
 #httpd.conf symlink
@@ -503,9 +512,7 @@ cd $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 ln -s ../sites-available/control-socket control-socket
 ln -s ../sites-available/default default
 ln -s ../sites-available/inner-tunnel inner-tunnel
-ln -s ../sites-available/packetfence packetfence
 ln -s ../sites-available/packetfence-soh packetfence-soh
-ln -s ../sites-available/packetfence-tunnel packetfence-tunnel
 ln -s ../sites-available/dynamic-clients dynamic-clients
 
 # Fingerbank symlinks
@@ -524,7 +531,7 @@ if ! /usr/bin/id pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
 fi
-/usr/sbin/usermod -aG fingerbank,apache,carbon pf
+/usr/sbin/usermod -aG wbpriv,fingerbank,apache,carbon pf
 
 if [ ! `id -u` = "0" ];
 then
@@ -576,7 +583,7 @@ if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
 fi
 
 
-for service in snortd httpd snmptrapd memcached
+for service in snortd httpd snmptrapd memcached portreserve
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
@@ -623,8 +630,8 @@ if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /de
   # Comment out entry from a previous version of PF (< 4.0)
   sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers
 fi
-if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/sbin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/radiusd.*/usr/sbin/snort.*/usr/sbin/suricata.*/usr/sbin/chroot.*/usr/local/pf/bin/pfcmd" /etc/sudoers > /dev/null  ) ; then
-  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd, /usr/sbin/snort, /usr/bin/suricata, /usr/sbin/chroot, /usr/local/pf/bin/pfcmd" >> /etc/sudoers
+if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/sbin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/radiusd.*/usr/sbin/snort.*/usr/sbin/suricata.*/usr/sbin/chroot.*/usr/local/pf/bin/pfcmd.*/usr/sbin/conntrack" /etc/sudoers > /dev/null  ) ; then
+  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd, /usr/sbin/snort, /usr/bin/suricata, /usr/sbin/chroot, /usr/local/pf/bin/pfcmd, /usr/sbin/conntrack" >> /etc/sudoers
 fi
 if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
   echo 'Defaults:pf !requiretty' >> /etc/sudoers
@@ -640,12 +647,14 @@ echo "Disabling SELinux..."
 setenforce 0
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
+# skip if this is an update
 #Starting Packetfence.
-echo "Starting Packetfence..."
+echo "Starting Packetfence Administration GUI..."
 #removing old cache
-rm -rf /usr/local/pf/var/cache/ 
+rm -rf /usr/local/pf/var/cache/
+/sbin/service packetfence-config restart 
 /usr/local/pf/bin/pfcmd configreload
-/sbin/service packetfence start
+/sbin/service packetfence start httpd.admin
 
 echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
@@ -737,6 +746,8 @@ fi
 %dir                    /usr/local/pf/addons
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.sh
+%dir                    /usr/local/pf/addons/AD/
+                        /usr/local/pf/addons/AD/*
 %dir                    /usr/local/pf/addons/captive-portal/
                         /usr/local/pf/addons/captive-portal/*
 %dir                    /usr/local/pf/addons/dev-helpers/
@@ -835,6 +846,8 @@ fi
 %config                 /usr/local/pf/conf/oui.txt
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
+%config(noreplace)      /usr/local/pf/conf/pki_provider.conf
+                        /usr/local/pf/conf/pki_provider.conf.example
 %config(noreplace)      /usr/local/pf/conf/provisioning.conf
                         /usr/local/pf/conf/provisioning.conf.example
 %dir			/usr/local/pf/conf/radiusd
@@ -850,6 +863,10 @@ fi
                         /usr/local/pf/conf/radiusd/radiusd.conf.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/sql.conf
                         /usr/local/pf/conf/radiusd/sql.conf.example
+%config(noreplace)	/usr/local/pf/conf/radiusd/packetfence
+                        /usr/local/pf/conf/radiusd/packetfence.example
+%config(noreplace)	/usr/local/pf/conf/radiusd/packetfence-tunnel
+                        /usr/local/pf/conf/radiusd/packetfence-tunnel.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
 %config(noreplace)      /usr/local/pf/conf/domain.conf
@@ -894,14 +911,16 @@ fi
 %dir                    /usr/local/pf/conf/monitoring
 %config(noreplace)      /usr/local/pf/conf/monitoring/carbon.conf
                         /usr/local/pf/conf/monitoring/carbon.conf.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/collectd.conf
-                        /usr/local/pf/conf/monitoring/collectd.conf.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/collectd.conf.rhel
+                        /usr/local/pf/conf/monitoring/collectd.conf.rhel.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/collectd.conf.debian
+                        /usr/local/pf/conf/monitoring/collectd.conf.debian.example
 %config(noreplace)      /usr/local/pf/conf/monitoring/dashboard.conf
                         /usr/local/pf/conf/monitoring/dashboard.conf.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/local_settings.py
-                        /usr/local/pf/conf/monitoring/local_settings.py.example
-%exclude                /usr/local/pf/conf/monitoring/local_settings.pyc
-%exclude                /usr/local/pf/conf/monitoring/local_settings.pyo
+%config(noreplace)      /usr/local/pf/conf/monitoring/local_settings.py.rhel
+                        /usr/local/pf/conf/monitoring/local_settings.py.rhel.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/local_settings.py.debian
+                        /usr/local/pf/conf/monitoring/local_settings.py.debian.example
 %config(noreplace)      /usr/local/pf/conf/monitoring/statsd_config.js
                         /usr/local/pf/conf/monitoring/statsd_config.js.example
 %config(noreplace)      /usr/local/pf/conf/monitoring/storage-schemas.conf
@@ -942,8 +961,8 @@ fi
                         /usr/local/pf/html/captive-portal/Changes
                         /usr/local/pf/html/captive-portal/Makefile.PL
                         /usr/local/pf/html/captive-portal/README
-%config(noreplace)      /usr/local/pf/html/captive-portal/captive_portal.conf
-                        /usr/local/pf/html/captive-portal/captive_portal.conf.example
+%config(noreplace)      /usr/local/pf/html/captive-portal/captiveportal.conf
+                        /usr/local/pf/html/captive-portal/captiveportal.conf.example
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/responsive.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
@@ -1089,9 +1108,7 @@ fi
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/example
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/inner-tunnel
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/originate-coa
-%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/packetfence
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/packetfence-soh
-%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/packetfence-tunnel
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/proxy-inner-tunnel
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/robust-proxy-accounting
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/soh
@@ -1147,6 +1164,13 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Thu Jun 18 2015 Inverse <info@inverse.ca> - 5.2.0-1
+- New release 5.2.0
+
+%changelog
+* Tue May 26 2015 Inverse <info@inverse.ca> - 5.1.0-1
+- New release 5.1.0
+
 * Fri May 01 2015 Inverse <info@inverse.ca> - 5.0.2-1
 - New release 5.0.2
 

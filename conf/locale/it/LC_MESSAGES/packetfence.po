@@ -9,11 +9,13 @@
 # Enrico Pasqualotto <pasqu@anche.no>, 2013
 # inverse <info@inverse.ca>, 2013
 # Mario Varelli <mvarelli@biologia.unipi.it>, 2009
+# Raffaele Riccelli <raffaele.riccelli@tiscali.it>, 2015
+# Vincenzo Valvano <vincenzo.valvano@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2015-03-05 20:55+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2015-05-11 15:52+0000\n"
+"Last-Translator: Raffaele Riccelli <raffaele.riccelli@tiscali.it>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/packetfence/language/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -53,10 +55,10 @@ msgstr "Modo non corretto!"
 
 # deprecated but kept for a couple of versions (until at least early 2013)
 msgid "error: invalid login or password"
-msgstr "Username o password sbagliata"
+msgstr "Nome utente o password errati"
 
 msgid "Invalid login or password"
-msgstr "Username o password sbagliata"
+msgstr "Nome utente o password errati"
 
 msgid "error: invalid page number"
 msgstr "Numero di pagina non valido"
@@ -65,7 +67,7 @@ msgid "error: max re-enables reached"
 msgstr "Hai raggiunto il numero massimo di riattivazioni della rete!"
 
 msgid "error: not found in the database"
-msgstr "Il tuo computer non e' stato trovato nel database di Packetfence, Riavvialo per risolvere il problema"
+msgstr "Il tuo computer non e' stato trovato nel database di Packetfence. Riavvialo per risolvere il problema."
 
 msgid "error: not trappable IP"
 msgstr "Accesso negato: Il tuo IP non risulta collegabile!"
@@ -81,7 +83,7 @@ msgid "Unable to validate credentials at the moment"
 msgstr "Non e' possibile verificare le credenziali al momento"
 
 msgid "error: something went wrong creating the guest"
-msgstr "C'è stato un problema con la creazione dell'account guest"
+msgstr "C'è stato un problema con la creazione dell'account guest."
 
 msgid "help: provide info"
 msgstr "Se hai domande in merito a questa pagina contatta l'amministratore di rete. Per favore fornisci le seguenti informazioni: "
@@ -99,7 +101,7 @@ msgid "Authentication"
 msgstr "Autenticazione"
 
 msgid "Wrong username or password."
-msgstr ""
+msgstr "Nome utente o password errati."
 
 msgid "or"
 msgstr "o"
@@ -108,10 +110,10 @@ msgid "Sign up"
 msgstr "Registrati"
 
 msgid "register: skip registration"
-msgstr "Rimanda la registrazione"
+msgstr "Salta la registrazione"
 
 msgid "release: enabling network"
-msgstr "Accesso in abilitazione"
+msgstr "Accesso alla rete in corso abilitazione"
 
 msgid "release: reopen browser"
 msgstr "Devi riavviare il tuo browser"
@@ -126,7 +128,7 @@ msgid "automatically refresh"
 msgstr "Questa pagina verrà ricaricata ogni %s secondi per veriicare lo stato della scansione"
 
 msgid "Acceptable Use Policy"
-msgstr "Regole di accesso alla rete"
+msgstr "Regole di uso della rete"
 
 msgid "Addresses"
 msgstr "Indirizzi"
@@ -199,15 +201,15 @@ msgid ""
 msgstr "segui il link all'interno per avere accesso alla rete nelle prossime 24 ore."
 
 msgid "Register by Email"
-msgstr "Registrazione con email"
+msgstr "Registrazione tramite email"
 
 msgid ""
 "If you choose to receive your access code <strong>by SMS</strong>, you will "
 "be able to enter it on the next page."
-msgstr "Se decidi di ricevere il tuo codice di accesso <strong>per SMS</strong> potrai inserirlo nella pagina successiva"
+msgstr "Se decidi di ricevere il tuo codice di accesso <strong>tramite SMS</strong> potrai inserirlo nella pagina successiva"
 
 msgid "Register by SMS"
-msgstr "Registrazione con SMS"
+msgstr "Registrazione tramite SMS"
 
 msgid "Password"
 msgstr "Password"
@@ -234,7 +236,7 @@ msgid "unreg"
 msgstr "non registrato"
 
 msgid "Username"
-msgstr "Username"
+msgstr "Nome utente"
 
 msgid "Violations"
 msgstr "Violazioni"
@@ -361,28 +363,28 @@ msgid "Firstname"
 msgstr "Nome"
 
 msgid "firstname"
-msgstr ""
+msgstr "nome"
 
 msgid "Lastname"
 msgstr "Cognome"
 
 msgid "lastname"
-msgstr ""
+msgstr "cognome"
 
 msgid "Company"
-msgstr ""
+msgstr "Azienda"
 
 msgid "Company / Organization"
-msgstr ""
+msgstr "Azienda / Organizzazione"
 
 msgid "organization"
-msgstr ""
+msgstr "azienda / organizzazione"
 
 msgid "Phone number"
 msgstr "Telefono"
 
 msgid "phone"
-msgstr ""
+msgstr "telefono"
 
 msgid "Phone Provider"
 msgstr "Operatore telefonico"
@@ -394,7 +396,7 @@ msgid "Email"
 msgstr "Email"
 
 msgid "email"
-msgstr ""
+msgstr "mail"
 
 msgid "Sponsor's email"
 msgstr ""
@@ -403,7 +405,7 @@ msgid "sponsor_email"
 msgstr ""
 
 msgid "Address"
-msgstr ""
+msgstr "Indirizzo"
 
 msgid "Arrival Date"
 msgstr "Data di arrivo"
@@ -415,7 +417,7 @@ msgid "Access Duration"
 msgstr "Durata dell'accesso"
 
 msgid "Notes"
-msgstr ""
+msgstr "Note"
 
 msgid "Send access code by email"
 msgstr "Invia il codice per mail"
@@ -471,13 +473,13 @@ msgid "Expected on %s"
 msgstr "Aspettato %s"
 
 msgid "Missing mandatory parameter or malformed entry."
-msgstr ""
+msgstr "Parametro obbligatorio mancante o valore non corretto."
 
 msgid "Usernames must only contain alphanumeric characters."
-msgstr ""
+msgstr "Il nome utente deve contenere solo caratteri alfanumerici."
 
 msgid "Access duration is not of an allowed value."
-msgstr ""
+msgstr "Valore della durata di accesso non consentito."
 
 msgid "Arrival date is not of expected format."
 msgstr "La data di arrivo non è nel formato corretto."
@@ -485,13 +487,13 @@ msgstr "La data di arrivo non è nel formato corretto."
 msgid ""
 "You can't register as a guest with a %s email address. Please register as a "
 "regular user using your email address instead."
-msgstr ""
+msgstr "Non è possibile registrarsi come ospite con la mail %. Per favore registrarsi come utente normale usando il proprio indirizzo mail."
 
 msgid "An error occured while sending the confirmation email."
-msgstr ""
+msgstr "Errore nell'invio della mail di conferma."
 
 msgid "An error occured while sending the PIN by SMS."
-msgstr ""
+msgstr "Errore nell'invio del PIN tramite SMS."
 
 msgid "The uploaded file was corrupted. Please try again."
 msgstr "Il file caricato è corrotto. Per cortesia riprova."
@@ -505,7 +507,7 @@ msgstr "Conferma Numero di Cellulare"
 msgid ""
 "Please enter the PIN code received on your mobile phone in order to gain "
 "access to the network."
-msgstr ""
+msgstr "Immettere il codice PIN ricevuto sul telefonino per avere accesso alla rete."
 
 msgid "PIN"
 msgstr "PIN"
@@ -520,7 +522,7 @@ msgid "Guest Access Code"
 msgstr "Codice Accesso Ospite"
 
 msgid "This username and password will be valid starting %s."
-msgstr ""
+msgstr "Nome utente e password saranno validi a partire da %s."
 
 msgid "Once authenticated the access will be valid for %d %s."
 msgstr ""
@@ -628,16 +630,16 @@ msgid "You have been detected running a rogue DHCP server. Please disable it."
 msgstr ""
 
 msgid "Vulnerability Scanning"
-msgstr ""
+msgstr "Scansione Vulnerabilità"
 
 msgid ""
 "Your system will be scanned for vulnerabilities before you are allowed to "
 "enter the network. Please click on the button below, this can take anywhere "
 "from a few seconds to a couple of minutes."
-msgstr ""
+msgstr "Il sistema verrà scansionato alla ricera di vulnerabilità prima di essere autorizzato all'ingresso sulla rete. Premi il bottone sotto. Questa operazione può durare da pochi secondi ad alcuni minuti."
 
 msgid "Malware found!"
-msgstr ""
+msgstr "Trovato Malware!"
 
 msgid ""
 "Your system has been found to be infected with malware. Due to the threat "
@@ -695,19 +697,19 @@ msgstr ""
 msgid ""
 "Your network access is currently being enabled. Once network connectivity is"
 " established you will be automatically redirected."
-msgstr ""
+msgstr "L'accesso alla rete è in fase di abilitazione. Appena la connessione verrà stabilita sarai rediretto automaticamente."
 
 msgid "Your network access is currently being enabled. Please wait..."
-msgstr ""
+msgstr "L'accesso alla rete è in fase di abilitazione. Attendere prego..."
 
 msgid "You must be authenticated to manage guests."
 msgstr ""
 
 msgid "This account is expired."
-msgstr ""
+msgstr "L'account è scaduto."
 
 msgid "This account is not yet activated."
-msgstr ""
+msgstr "L'account non è stato ancora attivato."
 
 msgid ""
 "Your network should be enabled within a minute or two. If it is not reboot "
@@ -715,10 +717,10 @@ msgid ""
 msgstr ""
 
 msgid "Invalid PIN"
-msgstr ""
+msgstr "PIN non valido"
 
 msgid "Username Prefix"
-msgstr ""
+msgstr "Prefisso per nome utente"
 
 msgid "Quantity"
 msgstr ""
@@ -754,13 +756,13 @@ msgid "Import file"
 msgstr ""
 
 msgid "Access to the guest network has been granted until %s."
-msgstr ""
+msgstr "L'accesso alla rete ospite è stato concesso fino a %s."
 
 msgid "Access to the guest network has been granted."
-msgstr ""
+msgstr "L'accesso alla rete ospite è stato concesso."
 
 msgid "Access to the guest network granted"
-msgstr ""
+msgstr "Accesso alla rete ospite concesso."
 
 msgid ""
 "Your XML configuration have been generated and is now ready to download.  "
@@ -786,7 +788,7 @@ msgid "Credit Card Verification Number"
 msgstr ""
 
 msgid "Continue"
-msgstr ""
+msgstr "Continua"
 
 msgid ""
 "An error occured while processing your payment. Incorrect credit card "
@@ -803,7 +805,7 @@ msgstr ""
 
 # SoH filters
 msgid "Filters"
-msgstr ""
+msgstr "Filtri"
 
 msgid ""
 "Define the filters which will apply to all NAP-capable clients that produce "
@@ -817,7 +819,7 @@ msgid "Do nothing"
 msgstr ""
 
 msgid "Accept"
-msgstr ""
+msgstr "Accetta"
 
 msgid "Reject"
 msgstr ""

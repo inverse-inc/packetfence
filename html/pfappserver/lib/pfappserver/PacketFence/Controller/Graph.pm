@@ -354,9 +354,9 @@ sub dashboard :Local :AdminRole('REPORTS') {
 
     $graphs = [
                {
-                'description' => 'Core Metrics',
-                'target' => 'group(alias(scaleToSeconds(stats.counters.*.pf_node_node_register.called.count,1),"End-Points registered"),
-                                   alias(scaleToSeconds(stats.counters.*.pf_node_node_deregister.called.count,1),"End-Points unregistered"))',
+                'description' => 'Registrations',
+                'target' => 'group(alias(scaleToSeconds(stats.counters.*.pf__node__node_register.called.count,1),"End-Points registered"),
+                                   alias(scaleToSeconds(stats.counters.*.pf__node__node_deregister.called.count,1),"End-Points unregistered"))',
                 'columns' => 2
                },
                {
@@ -365,55 +365,60 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 2
                },
                {
-                'description' => 'Total Access-Requests/s',
+                'description' => 'Available Memory',
+                'target' => 'groupByNode(*.memory.memory-{free,cached,buffered}, 0, "sumSeries") ',                   
+                'columns' => 2
+               },
+               {
+                'description' => 'Radius Total Access-Requests/s',
                 'vtitle' => 'requests',
                 'target' =>'alias(sum(*.radsniff-exchanged.radius_count-access_request.received),"Access-Requests")',
                 'columns' => 1
                },
                {
-                'description' => 'Access-Requests/s per server',
+                'description' => 'Radius Access-Requests/s per server',
                 'vtitle' => 'requests',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_request.received,0)',
                 'columns' => 1
                },
                {
-                'description' => 'Access-Accepts/s per server',
+                'description' => 'Radius Access-Accepts/s per server',
                 'vtitle' => 'replies',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_accept.received,0)',
                 'columns' => 2
                },
                {
-                'description' => 'Access-Rejects/s per server',
+                'description' => 'Radius Access-Rejects/s per server',
                 'vtitle' => 'replies',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_reject.received,0)',
                 'columns' => 2
                },
                {
-                'description' => 'Authorize calls/s',
-                'vtitle' => 'requests',
-                'target' => 'aliasByNode(scaleToSeconds(stats.timers.*.freeradius_main_authorize.timing.count,1),2)',
-                'columns' => 1
-               },
-               {
-                'description' => 'Webservices calls/s',
-                'vtitle' => 'requests',
-                'target' => 'aliasByNode(scaleToSeconds(stats.timers.*.freeradius_main_post_auth.timing.count,1),2)',
-                'columns' => 1
-               },
-               {
-                'description' => 'Webservices call timing',
+                'description' => 'Apache AAA call timing',
                 'vtitle' => 'ms',
-                'target' => 'aliasByNode(stats.timers.*.freeradius_main_post_auth.timing.mean_90,2)',
+                'target' => 'aliasByNode(stats.timers.*.freeradius__main__post_auth.timing.mean_90,2)',
                 'columns' => 1
                },
                {
-                'description' => 'Apache Portal Open Connections per server',
+                'description' => 'Apache AAA Open Connections per server',
+                'vtitle' => 'connections',
+                'target' => 'aliasByNode(*.apache-aaa.apache_connections,0)',
+                'columns' => 1
+               },
+               {
+                'description' => 'Portal Open Connections per server',
                 'vtitle' => 'connections',
                 'target' => 'aliasByNode(*.apache-portal.apache_connections,0)',
                 'columns' => 1
                },
+               {                                                                                                      
+                'description' => 'Apache Webservices Open Connections per server',
+                'vtitle' => 'connections',
+                'target' => 'aliasByNode(*.apache-webservices.apache_connections,0)',
+                'columns' => 1
+               },
                {
-                'description' => 'Average Access-Request Latency',
+                'description' => 'Radius Average Access-Request Latency',
                 'vtitle' => 'ms',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-access_request.smoothed,0)',
                 'columns' => 1
@@ -425,7 +430,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 1
                },
                {
-                'description' => 'Accounting requests received/s',
+                'description' => 'Radius Accounting requests received/s',
                 'vtitle' => 'requests',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-accounting_request.received,0)',
                 'columns' => 1
@@ -760,16 +765,6 @@ sub _generate_hosts {
     }
     map {  s/\./_/g } @hosts;
     return @hosts;
-}
-
-sub _generate_ratio_group {
-    my @group_members;
-    for my $host (_generate_hosts()) {
-        push @group_members,
-"scale(divideSeries($host.radsniff-exchanged.radius_count-access_accept.linked,$host.radsniff-exchanged.radius_count-access_reject.linked),100)";
-    }
-
-    return 'aliasByNode( group(' . join( ', ', @group_members ) . ') ,0)';
 }
 
 

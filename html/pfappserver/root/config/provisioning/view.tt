@@ -3,7 +3,7 @@
 [%ELSE%]
 [% SET action_url = c.req.uri %]
 [%END%]
-<form name="modalItem" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
+<form name="modalProvisioner" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
     <h3>[% IF item.id.defined %]<i>[% l('Provisioning Entry') %]</i> [% item.id %][% ELSE %][% l('New Provisioning Entry') %][% END %] <small>[% l(item.type) %]</small></h3>
@@ -14,21 +14,7 @@
     CALL form.field('id').type_attr('hidden');
     CALL form.field('id').do_label(0);
   END -%]
-
-    [% IF form.block('compliance').defined %]
-        <ul class="nav nav-tabs">
-            <li class="active" ><a href="#settings" data-toggle="tab">Settings</a></li>
-            <li><a href="#compliance" data-toggle="tab">Compliance</a></li>
-        </ul>
-
-        <div class="tab-content">
-            <div id="settings" class="tab-pane fade in active">[% form.block('definition').render %]</div>
-            <div id="compliance" class="tab-pane fade">[% form.block('compliance').render %]</div>
-        </div>
-    [% ELSE %]
-        [% form.block('definition').render %]
-    [% END %]
-
+    [% INCLUDE "config/provisioning/type/${item.type}.tt" %]
 
   </div><!--modal-body-->
 

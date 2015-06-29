@@ -30,9 +30,9 @@
 #
 #LOCAL_DATA_DIR = /opt/graphite/storage/whisper/
 
-STORAGE_DIR    = /var/lib/carbon/
-LOCAL_DATA_DIR = /var/lib/carbon/whisper/
-WHITELISTS_DIR = /var/lib/carbon/lists/
+STORAGE_DIR    = %%install_dir%%/var/graphite
+LOCAL_DATA_DIR = %%install_dir%%/var/graphite/whisper/
+#WHITELISTS_DIR = /var/lib/carbon/lists/
 CONF_DIR       = %%install_dir%%/conf/monitoring
 LOG_DIR        = %%install_dir%%/logs/
 PID_DIR        = %%install_dir%%/var/run/

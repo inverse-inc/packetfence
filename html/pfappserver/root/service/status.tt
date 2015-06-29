@@ -11,6 +11,13 @@
     </div>
 </div>
 <div>
+    <div class="form-actions">
+      <div class="pull-right">
+        <button type="submit" class="btn btn-danger" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'),['pf'])%]" data-target="#confirmStop" ><i class="icon-fixed-width icon-stop"></i> [% l('Stop All') %]</button>
+        <button type="submit" class="btn btn-success" data-href-background="[%c.uri_for(c.controller.action_for('start'),['pf'])%]"><i class="icon-fixed-width icon-play"></i> [% l('Start All') %]</button>
+        <button type="submit" class="btn btn-warning" data-href-background="[%c.uri_for(c.controller.action_for('restart'),['pf'])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart All') %]</button>
+      </div>
+    </div>
   <table class="table">
     <thead>
       <tr>

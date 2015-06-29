@@ -16,37 +16,27 @@
         </div>
       </div>
 
-      <h2>[% l('Domain')  %]</h2>
+      [% IF block_edit %]
+        <div class="alert alert-danger">
+          <h3>External configuration detected.</h3>
+          <p>Domain configuration external to PacketFence was detected. In order to manage your domain(s) using PacketFence, please run the migration script : /usr/local/pf/addons/AD/migrate.pl
+          <p>Once this step is completed, you will be able to access this page.</p>
+        </div>
+      [% ELSE %]
+        <h2>[% l('Domain')  %]</h2>
+        <h4 class="alert alert-warning">Make sure you configure IPv4 forwarding on your server before continuing. Refer to the PacketFence administration guide for details.</h4>
 
-      [% INCLUDE config/domain/list.tt %]
+        [% INCLUDE config/domain/list.tt %]
 
-      <div class="form-actions">
-      [%- IF can_access("DOMAIN_CREATE") %]
-        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Domain') %]</a>
-      [%- END %]
-        <a class="btn btn-default" id="refresh_domains" href="[% c.uri_for(c.controller.action_for('refresh_domains')) %]">[% l('Refresh domain configuration') %]</a>
-      </div>
+        <div class="form-actions">
+        [%- IF can_access("DOMAIN_CREATE") %]
+          <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Domain') %]</a>
+        [%- END %]
+          <a class="btn btn-default" id="refresh_domains" href="[% c.uri_for(c.controller.action_for('refresh_domains')) %]">[% l('Refresh domain configuration') %]</a>
+          
+        </div>
 
-<div class="modal modal-large fade hide" id="modalDomainWait" data-backdrop="static" data-keyboard="false">
-  <div class="modal-body">
-    <h3>The server is currently connecting to your Active directory</h3>
-    <div class="progress progress-info">
-      <div id="domainProgressBar" class="bar" style="width:1%"></div>
-    </div>
-  </div><!--modal-body-->
-</div>
+      [% END %]
 
-<div class="modal modal-large fade hide" id="modalDomainInfo">
-  <div class="modal-header">
-    <a class="close" data-dismiss="modal">&times;</a>
-    <h3></h3>
-  </div>
-
-  <div class="modal-body">
-
-  </div><!--modal-body-->
-
-  <div class="modal-footer">
-    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-  </div>
-</div>
+[% INCLUDE config/domain/modal_info.tt %]
+[% INCLUDE config/domain/modal_wait.tt %]

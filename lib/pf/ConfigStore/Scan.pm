@@ -19,6 +19,8 @@ extends 'pf::ConfigStore';
 
 sub configFile { $pf::file_paths::scan_config_file };
 
+sub pfconfigNamespace {'config::Scan'}
+
 =head2 cleanupAfterRead
 
 Clean up switch data

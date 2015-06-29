@@ -75,6 +75,7 @@ use constant {
 };
 
 use lib LIB_DIR;
+use pf::CHI;
 use pf::SwitchFactory;
 use pf::config;
 use pf::db;

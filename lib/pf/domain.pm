@@ -19,6 +19,8 @@ use pf::util;
 use pf::config;
 use pf::log;
 use pf::file_paths;
+use pf::constants::domain qw($SAMBA_CONF_PATH);
+use File::Slurp;
 
 # This is to create the templates for the domain info
 our $TT_OPTIONS = {ABSOLUTE => 1};
@@ -90,7 +92,7 @@ sub join_domain {
     regenerate_configuration();
 
     my $info = $ConfigDomain{$domain};
-    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
+    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
     $logger->info("domain join : ".$output);
 
     restart_winbinds();
@@ -130,7 +132,7 @@ sub unjoin_domain {
 
     my $info = $ConfigDomain{$domain};
     if($info){
-        my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U $info->{bind_dn}%$info->{bind_pass}");
+        my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
         $logger->info("domain leave : ".$output);
         $logger->info("netns deletion : ".run("/usr/bin/sudo /sbin/ip netns delete $domain"));
         return $output;
@@ -149,7 +151,9 @@ Generates the OS krb5.conf with all the domains configured in domain.conf
 
 sub generate_krb5_conf {
     my $logger = get_logger();
-    my $vars = {domains => \%ConfigDomain};
+    my @domains = keys %ConfigDomain; 
+    my $default_domain = $ConfigDomain{$domains[0]}->{dns_name};
+    my $vars = {domains => \%ConfigDomain, default_domain => $default_domain};
 
     pf_run("/usr/bin/sudo touch /etc/krb5.conf");
     pf_run("/usr/bin/sudo /bin/chown pf.pf /etc/krb5.conf");
@@ -223,6 +227,20 @@ sub regenerate_configuration {
     pf_run("/usr/bin/sudo /usr/local/pf/bin/pfcmd generatedomainconfig");
 }
 
+=item has_os_configuration 
+
+Detects whether or not this server had a non-PF configuration before
+Uses the samba configuration
+
+=cut
+
+sub has_os_configuration {
+    my $samba_conf = read_file($SAMBA_CONF_PATH);
+    if ( $samba_conf =~ /(\t){0,1}workgroup = (WORKGROUP|MYGROUP).*/ ) {
+        return $FALSE;
+    }
+    return $TRUE;
+}
 
 
 =head1 AUTHOR

@@ -17,4 +17,4 @@ log4perl.appender.PFSETVLAN.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %
 log4perl.appender.PFSETVLAN.umask                        = 0002
 log4perl.appender.PFSETVLAN.user                         = pf
 log4perl.appender.PFSETVLAN.group                        = pf
-
+log4perl.appender.PFSETVALN.binmode                      = utf8

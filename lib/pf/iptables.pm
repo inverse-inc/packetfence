@@ -47,7 +47,8 @@ use pf::ConfigStore::Domain;
 
 # This is the content that needs to match in the iptable rules for the service
 # to be considered as running
-Readonly our $FW_FILTER_INPUT_MGMT => 'input-management-if';
+Readonly our $FW_FILTER_INPUT_MGMT      => 'input-management-if';
+Readonly our $FW_FILTER_INPUT_PORTAL    => 'input-portal-if';
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -96,7 +97,7 @@ sub iptables_generate {
         'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
         'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '',
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
-        'domain_postrouting' => '',
+        'domain_postrouting' => '','mangle_postrouting_inline' => '',
     );
 
     # global substitution variables
@@ -104,6 +105,7 @@ sub iptables_generate {
     $tags{'webservices_port'} = $Config{'ports'}{'soap'};
     $tags{'aaa_port'} = $Config{'ports'}{'aaa'};
     $tags{'status_port'} = $Config{'ports'}{'pf_status'};
+    $tags{'httpd_portal_modstatus'} = $Config{'ports'}{'httpd_portal_modstatus'};
     # FILTER
     # per interface-type pointers to pre-defined chains
     $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();
@@ -116,7 +118,8 @@ sub iptables_generate {
 
         # MANGLE
         $tags{'mangle_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_MANGLE);
-        $tags{'mangle_prerouting_inline'} .= $self->generate_mangle_rules();
+        $tags{'mangle_prerouting_inline'} .= $self->generate_mangle_rules();                # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
+        $tags{'mangle_postrouting_inline'} .= $self->generate_mangle_postrouting_rules();   # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
 
         # NAT chain targets and redirections (other rules injected by generate_inline_rules)
         $tags{'nat_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_NAT);
@@ -200,6 +203,12 @@ sub generate_filter_if_src_to_chain {
         } else {
             $logger->warn("Didn't assign any firewall rules to interface $dev.");
         }
+    }
+
+    # 'portal' interfaces handling
+    foreach my $portal_interface ( @portal_ints ) {
+        my $dev = $portal_interface->tag("int");
+        $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_PORTAL\n";
     }
 
     # management interface handling
@@ -385,6 +394,17 @@ sub generate_inline_if_src_to_chain {
         if (is_type_inline($enforcement_type)) {
             # send everything from inline interfaces to the inline chain
             $rules .= "-A PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_INLINE\n";
+            $rules .= "-A POSTROUTING --out-interface $dev --jump $FW_POSTROUTING_INT_INLINE\n";
+        }
+    }
+
+    # POSTROUTING
+    if ( $table ne $FW_TABLE_NAT ) {
+        my @values = split(',', get_inline_snat_interface());
+        foreach my $val (@values) {
+           $rules .= "-A POSTROUTING --out-interface $val ";
+           $rules .= "--jump $FW_POSTROUTING_INT_INLINE";
+           $rules .= "\n";
         }
     }
 

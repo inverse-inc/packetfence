@@ -15,6 +15,7 @@ pf::ConfigStore::PF
 use Moo;
 use namespace::autoclean;
 use pf::config;
+use pf::config::cached;
 use pf::file_paths;
 
 extends 'pf::ConfigStore';
@@ -33,10 +34,18 @@ sub pfconfigNamespace {'config::Pf'}
 
 sub _buildCachedConfig {
     my ($self) = @_;
-    my $cached_pf_default_config = pf::config::cached->new(-file => $default_config_file);
-    my @args = (-file   => $config_file, -allowempty => 1, -import => $cached_pf_default_config);
-    my $file = pf::config::cached->new(@args);
-    return $file;
+    return pf::config::cached->new(
+        -file         => $config_file,
+        -allowempty   => 1,
+        -import       => pf::config::cached->new(-file => $default_config_file),
+        -onpostreload => [
+            'reload_pf_config' => sub {
+                my ($config) = @_;
+                $config->{imported}->ReadConfig;
+              }
+        ],
+
+    );
 }
 
 =item remove

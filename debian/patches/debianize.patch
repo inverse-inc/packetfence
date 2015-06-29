@@ -1,5 +1,5 @@
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index b4607fe..3180640 100644
+index e58e4de..83ebef0 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -579,7 +579,7 @@ haproxy_binary=/usr/sbin/haproxy
@@ -25,4 +25,13 @@ index b4607fe..3180640 100644
 +arp_binary=/usr/sbin/arp
  # 
  # services.carbon-cache_binary
+ # 
+@@ -614,7 +614,7 @@ carbon-relay_binary=/usr/bin/carbon-relay
+ # services.statsd_binary
+ # 
+ # Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
+-statsd_binary=/usr/bin/node
++statsd_binary=/usr/bin/nodejs
+ # 
+ # services.collectd_binary
  # 

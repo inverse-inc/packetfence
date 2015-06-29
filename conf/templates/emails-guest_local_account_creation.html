@@ -1,0 +1,46 @@
+<html>
+<head>
+  <style type="text/css">
+    [% INCLUDE emails.css %]
+  </style>
+</head>
+<body>
+<table class="body-wrap">
+  <tr>
+    <td></td>
+    <td class="container" width="600">
+      <div class="content">
+        <table class="main" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td class="content-wrap">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td class="content-block">
+                    <h1 class="aligncenter">User Account</h1>
+                     <p>Hi,</p>
+                     <p>Just to let you know that an user account has been created while registering your device. You may now want to use it for different features (devices registration, status page).</p>
+                     <p>Here are the info.</p>
+                     <p>Username: [% pid %]</br> Password: [% password %]</p>
+                     <p>If you have any questions regarding the registration process please contact support.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
+</table>
+<div class="footer">
+  <table width="100%">
+    <tr>
+      <td class="aligncenter content-block">
+        <p>-----</br></p>
+        <p>This is a post only E-mail, please do not reply.</p>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>

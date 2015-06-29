@@ -19,6 +19,7 @@
         'admin/config/domains',
         'admin/config/authentication',
         'admin/config/portal_profile',
+        'admin/config/provisioners',
         'admin/config/violations',
         'admin/config/soh',
         'admin/config/roles',
@@ -132,6 +133,9 @@ table.sources {
               [%- END %]
               [%- IF can_access("PROVISIONING_READ") %]
               [% list_entry('Config::Provisioning', 'index', 'Provisioners') %]
+              [%- END %]
+              [%- IF can_access("PKI_PROVIDER_READ") %]
+              [% list_entry('Config::PKI_Provider', 'index', 'PKI Providers') %]
               [%- END %]
               [%- END %]
               [%- IF can_access_any("REALM_READ", "DOMAIN_READ") %]

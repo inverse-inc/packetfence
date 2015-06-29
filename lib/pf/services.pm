@@ -29,7 +29,7 @@ use Module::Pluggable
   'search_path' => [qw(pf::services::manager)],
   'sub_name'    => 'managers',
   'require'     => 1,
-  'except'      => qr/^pf::services::manager::roles|^pf::services::manager::(httpd|submanager)$/,
+  'except'      => qr/^pf::services::manager::roles|^pf::services::manager::(httpd|submanager|winbindd_child)$/,
   ;
 
 

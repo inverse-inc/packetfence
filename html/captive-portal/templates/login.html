@@ -44,6 +44,9 @@ document.observe("dom:loaded", function() {
 
         [%# Error %]
         [% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
+        [% IF txt_validation_error.defined %]
+        <div class="error"><p>[% txt_validation_error %]</p></div>
+        [% END %]
 
         <form name="login" method="post" action="/authenticate">
           <input type="hidden" name="destination_url" value="[% destination_url %]" />
@@ -70,14 +73,21 @@ document.observe("dom:loaded", function() {
           <div class="input">
             <span>[% i18n("Password") %]</span><input class="field" name="password" type="password" />
           </div>
+
           [% END %]
-          
+          [% FOREACH field IN mandatory_fields %]
+          <div class="input">
+            <span>[% i18n("$field") %]</span>
+            <input class="field" name="[% field %]" type="text" value="[% field | html %]" /><br/>
+          </div>
+          [% END %]
+
           [%# submit %]
           <div class="input">
             <input type="submit" class="btn disabled" name="submit" value="[% i18n("Login") %]" />
           </div>
 
-          [% IF oauth2_google || oauth2_facebook || oauth2_github || oauth2_linkedin || oauth2_win_live %]
+          [% IF oauth2_google || oauth2_facebook || oauth2_github || oauth2_linkedin || oauth2_win_live || oauth2_twitter %]
           <div class="input">
             [% IF oauth2_google -%]
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
@@ -98,6 +108,10 @@ document.observe("dom:loaded", function() {
             [% IF oauth2_win_live -%]
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
             <a class="btn disabled" href="/oauth2/auth?provider=windowslive">[% i18n('Login with Windows Live account') %] <img src="/content/images/windowslive.icon.png"></a>
+            [% END %]         
+            [% IF oauth2_twitter -%]
+            <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
+            <a class="btn disabled" href="/oauth2/auth?provider=twitter">[% i18n('Login with Twitter account') %] <img src="/content/images/twitter.icon.png"></a>
             [% END %]         
           </div>
           [% END %]

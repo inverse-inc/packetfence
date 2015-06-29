@@ -81,6 +81,7 @@ sub index : Path : Args(0) {
 
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
+            $c->session->{source_match} = undef;
             $c->stash->{info}=\%info;
             $c->stash->{sms_pin} = $request->param_encoded("pin");  # We are putting the SMS PIN in stash to use it as a password in case we create a local account
             $c->forward('Authenticate' => 'postAuthentication');

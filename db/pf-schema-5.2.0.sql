@@ -3,26 +3,14 @@
 --
 
 SET @MAJOR_VERSION = 5;
-SET @MINOR_VERSION = 1;
-SET @PATCH_LEVEL = 0;
+SET @MINOR_VERSION = 2;
+SET @SUBMINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
 --
 
-SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @PATCH_LEVEL;
-
---
--- Table structure for table 'pf_version'
---
-
-CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY);
-
---
--- Updating to current version
---
-
-INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @PATCH_LEVEL));
+SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
 
 --
 -- Table structure for table `class`
@@ -292,6 +280,7 @@ CREATE TABLE `locationlog` (
   `port` varchar(8) NOT NULL default '',
   `vlan` varchar(50) default NULL,
   `connection_type` varchar(50) NOT NULL default '',
+  `connection_sub_type` varchar(50) default NULL,
   `dot1x_username` varchar(255) NOT NULL default '',
   `ssid` varchar(32) NOT NULL default '',
   `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -312,6 +301,7 @@ CREATE TABLE `locationlog_archive` (
   `port` varchar(8) NOT NULL default '',
   `vlan` varchar(50) default NULL,
   `connection_type` varchar(50) NOT NULL default '',
+  `connection_sub_type` varchar(50) default NULL,
   `dot1x_username` varchar(255) NOT NULL default '',
   `ssid` varchar(32) NOT NULL default '',
   `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -504,6 +494,9 @@ CREATE TABLE radius_nas (
   community varchar(50),
   description varchar(200) default 'RADIUS Client',
   config_timestamp BIGINT,
+  start_ip INT UNSIGNED DEFAULT 0,
+  end_ip INT UNSIGNED DEFAULT 0,
+  range_length INT DEFAULT 0,
   PRIMARY KEY nasname (nasname)
 ) ENGINE=InnoDB;
 
@@ -936,3 +929,15 @@ CREATE TABLE keyed (
   value LONGBLOB,
   PRIMARY KEY(id)
 ) ENGINE=InnoDB;
+
+--
+-- Table structure for table 'pf_version'
+--
+
+CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY);
+
+--
+-- Updating to current version
+--
+
+INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
