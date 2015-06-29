@@ -64,19 +64,21 @@ sub getPhonesLLDPAtIfIndex {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my @phones;
     if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch "
+        $logger->info( "VoIP not enabled on switch "
                 . $this->{_ip}
                 . ". getPhonesLLDPAtIfIndex will return empty list." );
         return @phones;
     }
     my $oid_lldpRemPortId           = '1.0.8802.1.1.2.1.4.1.1.7';
-    my $oid_lldpRemChassisIdSubtype = '1.0.8802.1.1.2.1.4.1.1.4';
+    my $oid_lldpRemChassisIdSubtype = '1.0.8802.1.1.2.1.4.1.1.12';
     if ( !$this->connectRead() ) {
         return @phones;
     }
-    $logger->trace(
+    $logger->debug(
         "SNMP get_next_request for lldpRemSysDesc: $oid_lldpRemChassisIdSubtype"
     );
+    # 
+    sleep(10);
     my $result = $this->{_sessionRead}
         ->get_table( -baseoid => $oid_lldpRemChassisIdSubtype );
     foreach my $oid ( keys %{$result} ) {
@@ -88,8 +90,9 @@ sub getPhonesLLDPAtIfIndex {
                 my $cache_lldpRemTimeMark     = $1;
                 my $cache_lldpRemLocalPortNum = $2;
                 my $cache_lldpRemIndex        = $3;
-                if ( $result->{$oid} =~ /5/i ) {
-                    $logger->trace(
+
+                if ( $this->getBitAtPosition(pack("C", hex($result->{$oid})), $SNMP::LLDP::TELEPHONE) ) {
+                    $logger->debug(
                         "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                     );
                     my $MACresult = $this->{_sessionRead}->get_request(
@@ -98,13 +101,8 @@ sub getPhonesLLDPAtIfIndex {
                         ]
                     );
                     if ($MACresult
-                        && (unpack(
-                                'H*',
-                                $MACresult->{
-                                    "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
-                                }
-                            )
-                            =~ /^([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})/i
+                        && ($MACresult->{"$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"}
+                            =~ /^0x([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})$/i
                         )
                         )
                     {
@@ -116,6 +114,7 @@ sub getPhonesLLDPAtIfIndex {
     }
     return @phones;
 }
+
 
 =head1 AUTHOR
 
