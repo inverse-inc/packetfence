@@ -132,8 +132,6 @@ sub processFingerbank :Private {
     my %fingerbank_query_args = (
         user_agent          => $user_agent,
         mac                 => $mac,
-        dhcp_fingerprint    => $node_attributes->{'dhcp_fingerprint'},
-        dhcp_vendor         => $node_attributes->{'dhcp_vendor'},
     );
 
     pf::fingerbank::process(\%fingerbank_query_args);
