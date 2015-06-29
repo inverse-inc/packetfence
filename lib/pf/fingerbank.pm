@@ -29,7 +29,7 @@ use pf::node qw(node_modify);
 
 use constant FINGERBANK_CACHE_EXPIRE => 300;    # Expires cache entry after 300s (5 minutes)
 
-our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
+our @fingerbank_based_violation_triggers = ('Device', @fingerbank::Constant::QUERY_PARAMETERS);
 
 =head1 METHODS
 
