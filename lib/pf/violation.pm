@@ -540,9 +540,11 @@ sub info_for_violation_engine {
     my $node_info = node_view($mac);
     print "$type $tid";
 
+    $type = lc($type);
+
     my $devices = [];
     my ($device_id);
-    if($type eq lc("device")){
+    if($type eq "device"){
         $device_id = $tid;
     }
     else {
@@ -556,22 +558,28 @@ sub info_for_violation_engine {
         $devices = $device->{parents_ids};
         push @$devices, $device->{id};
         @$devices = map {$_.""} @$devices;
-        use Data::Dumper; print Dumper($devices);
     }
 
 
     my ($dhcp_fingerprint_result, $dhcp_fingerprint) = fingerbank::Model::DHCP_Fingerprint->find([{value => $node_info->{dhcp_fingerprint}}]);
     my ($dhcp_vendor_result, $dhcp_vendor) = fingerbank::Model::DHCP_Vendor->find([{value => $node_info->{dhcp_vendor}}]);
     my ($user_agent_result, $user_agent) = fingerbank::Model::User_Agent->find([{value => $node_info->{user_agent}}]);
+    my ($mac_vendor) = pf::fingerbank::mac_vendor_from_mac($mac);
 
     my $info = {
       device_id => $devices,
       dhcp_fingerprint_id => is_success($dhcp_fingerprint_result) ? $dhcp_fingerprint->id : undef,
       dhcp_vendor_id => is_success($dhcp_vendor_result) ? $dhcp_vendor->id : undef,
       mac => $mac,
-      mac_vendor_id => 0, #CHANGE ME
+      mac_vendor_id => defined($mac_vendor) ? $mac_vendor->{id} : undef,
       user_agent_id => is_success($user_agent_result) ? $user_agent->id : undef,
     };
+
+    my $trigger_info = $pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$type};
+    if( $trigger_info->{type} ne 'includes' ){
+        $info->{$trigger_info->{key}} = $tid;
+    }
+
     return $info;
 }
 
@@ -605,8 +613,7 @@ sub violation_trigger {
     }
 
     my $info = info_for_violation_engine($mac,$type,$tid);
-    use Data::Dumper;
-    print Dumper($info);
+    use Data::Dumper; print Dumper($info);
     my @vids = $VIOLATION_FILTER_ENGINE->match_all($info);
 
     my $addedViolation = 0;
