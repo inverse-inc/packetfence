@@ -127,7 +127,6 @@ sub processFingerbank :Private {
     my $portalSession   = $c->portalSession;
     my $mac             = $portalSession->clientMac;
     my $user_agent      = $c->request->user_agent;
-    my $node_attributes = node_attributes($mac);
 
     my %fingerbank_query_args = (
         user_agent          => $user_agent,
