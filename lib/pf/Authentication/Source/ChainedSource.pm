@@ -101,6 +101,7 @@ Get the real authentication source object
 
 sub getAuthenticationSourceObject {
     my ($self) = @_;
+    require pf::authentication;
     return pf::authentication::getAuthenticationSource($self->authentication_source);
 }
 
@@ -113,6 +114,7 @@ Get the chained authentication source
 
 sub getChainedAuthenticationSourceObject {
     my ($self) = @_;
+    require pf::authentication;
     return pf::authentication::getAuthenticationSource($self->chained_authentication_source);
 }
 
