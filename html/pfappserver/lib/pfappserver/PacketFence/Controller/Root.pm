@@ -70,6 +70,9 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
+    if (defined($c->req->header('accept')) && $c->req->header('accept') eq 'application/json'){
+        $c->stash->{current_view} = 'JSON';
+    }
     if (scalar @{$c->error}) {
         for my $error ( @{ $c->error } ) {
             $c->log->error($error);
