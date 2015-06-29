@@ -9,6 +9,13 @@
 
   <div class="form-row">
     <label>
+      <span>Name</span>
+      <input type="text" size="20" data-stripe="name" />
+    </label>
+  </div>
+
+  <div class="form-row">
+    <label>
       <span>Card Number</span>
       <input type="text" size="20" data-stripe="number"/>
     </label>
@@ -52,7 +59,6 @@
     };
     Stripe.setPublishableKey('[% billing.publishable_key %]');
     $('payment-form').onsubmit = function(e) {
-        console.log(e);
         Stripe.card.createToken(this, stripeResponseHandler);
         return false;
     };
