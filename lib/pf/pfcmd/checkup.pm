@@ -183,7 +183,7 @@ sub interfaces_defined {
             }
         }
 
-        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability)/;
+        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability|portal)/;
         if (defined($int_conf{'type'}) && $int_conf{'type'} !~ /$int_types/) {
             add_problem( $FATAL, "invalid network type $int_conf{'type'} for $interface" );
         }
@@ -374,16 +374,10 @@ Configuration validation of the network portion of the config
 
 sub network {
 
-    # make sure that networks.conf is not empty when services.dhcpd
+    # check that networks.conf is not empty when services.dhcpd
     # is enabled
     if (isenabled($Config{'services'}{'dhcpd'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
-        add_problem( $FATAL, "networks.conf cannot be empty when services.dhcpd is enabled" );
-    }
-
-    # make sure that networks.conf is not empty when services.named
-    # is enabled
-    if (isenabled($Config{'services'}{'named'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
-        add_problem( $FATAL, "networks.conf cannot be empty when services.named is enabled" );
+        add_problem( $WARN, "networks.conf is empty but services.dhcpd is enabled. Disable it to remove this warning." );
     }
 
     foreach my $network (keys %ConfigNetworks) {

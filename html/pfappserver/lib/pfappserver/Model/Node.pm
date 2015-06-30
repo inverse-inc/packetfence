@@ -27,6 +27,7 @@ use pf::constants;
 use pf::config;
 use pf::error qw(is_error is_success);
 use pf::node;
+use pf::nodecategory;
 use pf::iplog;
 use pf::locationlog;
 use Log::Log4perl qw(get_logger);
@@ -727,10 +728,9 @@ sub bulkRegister {
     foreach my $mac (@macs) {
         my $node = node_attributes($mac);
         if ($node->{status} ne $pf::node::STATUS_REGISTERED) {
-            if (node_register($mac, $node->{pid}, %{$node})) {
-                reevaluate_access($mac, "node_modify");
-                $count++;
-            }
+            $node->{status} = $pf::node::STATUS_REGISTERED;
+            $self->update($mac,$node);
+            $count++;
         }
     }
     return ($STATUS::OK, ["[_1] node(s) were registered.",$count]);
@@ -746,10 +746,9 @@ sub bulkDeregister {
     foreach my $mac (@macs) {
         my $node = node_attributes($mac);
         if ($node->{status} ne $pf::node::STATUS_UNREGISTERED) {
-            if (node_deregister($mac, %{$node})) {
-                reevaluate_access($mac, "node_modify");
-                $count++;
-            }
+            $node->{status} = $pf::node::STATUS_UNREGISTERED;
+            $self->update($mac,$node);
+            $count++;
         }
     }
     return ($STATUS::OK, ["[_1] node(s) were deregistered.", $count]);
@@ -760,21 +759,19 @@ sub bulkDeregister {
 =cut
 
 sub bulkApplyRole {
-    my ($self, $role, @macs) = @_;
+    my ($self, $category_id, @macs) = @_;
     my $count = 0;
+    my $category = nodecategory_view($category_id);
+    my $name = $category->{name};
     foreach my $mac (@macs) {
         my $node = node_view($mac);
         my $old_category_id = $node->{category_id};
-        if (!defined($old_category_id) || $old_category_id != $role) {
+        if (!defined($old_category_id) || $old_category_id != $category_id) {
+            $node->{category_id} = $category_id;
+            $node->{category} = $name;
             # Role has changed
-            $node->{category_id} = $role;
-            if (node_modify($mac, %{$node})) {
-                $count++;
-                if (!defined($node->{last_dot1x_username}) || length($node->{last_dot1x_username}) == 0) {
-                    # The role has changed and is not currently using 802.1X
-                    reevaluate_access($mac, "node_modify");
-                }
-            }
+            $self->update($mac, $node);
+            $count++;
         }
     }
     return ($STATUS::OK, ["Role was changed for [_1] node(s)", $count]);
@@ -793,13 +790,8 @@ sub bulkApplyBypassRole {
         if (!defined($old_bypass_role_id) || $old_bypass_role_id != $role) {
             # Role has changed
             $node->{bypass_role_id} = $role;
-            if (node_modify($mac, %{$node})) {
-                $count++;
-                if (!defined($node->{last_dot1x_username}) || length($node->{last_dot1x_username}) == 0) {
-                    # The role has changed and is not currently using 802.1X
-                    reevaluate_access($mac, "node_modify");
-                }
-            }
+            $self->update($mac,$node);
+            $count++;
         }
     }
     return ($STATUS::OK, ["Bypass Role was changed for [_1] node(s)", $count]);

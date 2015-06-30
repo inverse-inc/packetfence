@@ -13,37 +13,61 @@ source /etc/rc.d/init.d/functions
 [ -x /usr/local/pf/bin/pfcmd ] || exit 1
 
 start() {
-  pfconfig
-	echo -n $"Starting PacketFence..."
-	IPSET=`command -v ipset`
-	if [ $IPSET ]; then
-		modprobe ip_set
-        #flush any previous ipset rules
-        /usr/sbin/ipset destroy
+	if [ -z ${1+x} ]; then
+		pfconfig
+		echo -n $"Starting PacketFence..."
+		IPSET=`command -v ipset`
+		if [ $IPSET ]; then
+			modprobe ip_set
+			#flush any previous ipset rules
+			/usr/sbin/ipset destroy
+		fi
+		/sbin/vconfig set_name_type DEV_PLUS_VID_NO_PAD
+		/usr/local/pf/bin/pfcmd service pf start
+		RETVAL=$?
+		echo
+		return $RETVAL
+        else
+		echo -n $"Starting $1"
+		/usr/local/pf/bin/pfcmd service $1 start;
+		RETVAL=$?
+		echo
+		return $RETVAL
 	fi
-	/sbin/vconfig set_name_type DEV_PLUS_VID_NO_PAD
-	/usr/local/pf/bin/pfcmd service pf start
-	RETVAL=$?
-	echo
-	return $RETVAL
 }
 
 stop() {
-  pfconfig
-	echo -n $"Shutting down PacketFence..."
-	/usr/local/pf/bin/pfcmd service pf stop
-	RETVAL=$?
-	echo
-	return $RETVAL
+        if [ -z ${1+x} ]; then
+		pfconfig
+		echo -n $"Shutting down PacketFence..."
+		/usr/local/pf/bin/pfcmd service pf stop
+		RETVAL=$?
+		echo
+		return $RETVAL
+        else
+		echo -n $"Shutting down $1"
+                /usr/local/pf/bin/pfcmd service $1 start;
+                RETVAL=$?
+                echo
+                return $RETVAL
+	fi
 }
 
 restart() {
-  pfconfig
-	echo -n $"Restarting PacketFence..."
-	/usr/local/pf/bin/pfcmd service pf restart
-	RETVAL=$?
-	echo
-	return $RETVAL
+        if [ -z ${1+x} ]; then
+		pfconfig
+		echo -n $"Restarting PacketFence..."
+		/usr/local/pf/bin/pfcmd service pf restart
+		RETVAL=$?
+		echo
+		return $RETVAL
+        else
+		echo -n $"Restarting $1"
+                /usr/local/pf/bin/pfcmd service $1 restart;
+                RETVAL=$?
+                echo
+                return $RETVAL
+	fi
 }
 
 pfconfig() {
@@ -57,16 +81,16 @@ pfconfig() {
 
 case "$1" in
   start)
-	start
+	start $2
 	;;
   stop)
-	stop
+	stop $2
 	;;
   restart)
-	restart
+	restart $2
 	;;
   status)
-  pfconfig
+	pfconfig
 	/usr/local/pf/bin/pfcmd service pf status
 	if [ ! -f /usr/local/pf/var/run/pfmon.pid ]; then
 		RETVAL=3

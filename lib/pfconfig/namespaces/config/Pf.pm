@@ -87,8 +87,8 @@ sub build_child {
                 $logger->debug("Reconfiguring interface $key with cluster information");
                 $Config{$key} = $config;
             }
-        } 
-    } 
+        }
+    }
     elsif(defined($self->{host_id})){
         $logger->warn("A host was defined for the config::Pf namespace but no cluster configuration was found. This is not a big issue but it's worth noting.")
     }
@@ -136,13 +136,11 @@ sub build_child {
         ];
     }
     $Config{network}{dhcp_filter_by_message_types}
-        = [ split( /\s*,\s*/, $Config{network}{dhcp_filter_by_message_types} || '' ) ],
+        = [ split( /\s*,\s*/, $Config{network}{dhcp_filter_by_message_types} || '' ) ];
 
-        return \%Config;
+    return \%Config;
 
 }
-
-=back
 
 =head1 AUTHOR
 

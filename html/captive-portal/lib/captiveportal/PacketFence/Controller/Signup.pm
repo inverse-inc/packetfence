@@ -112,7 +112,7 @@ sub index : Path : Args(0) {
     if ( $mode && $mode eq $pf::web::guest::GUEST_REGISTRATION ) {
         $c->forward('validateSelfRegistration');
         $c->forward('doSelfRegistration');
-    }
+    }  
     $c->forward('showSelfRegistrationPage');
 }
 
@@ -482,7 +482,6 @@ sub setupSelfRegistrationSession : Private {
     $c->session->{guest_pid} =
         $c->session->{ $Config{'guests_self_registration'}{'guest_pid'} };
 }
-
 
 =head2 validatePreregistration
 

@@ -226,13 +226,18 @@ sub postAuthentication : Private {
     $pid = $default_pid if !defined $pid && $c->profile->noUsernameNeeded;
     $info->{pid} = $pid;
     $c->stash->{info} = $info;
+    # We make sure the person exists and assign it to the device
+    person_add($pid);
+    node_modify($portalSession->clientMac, (pid => $pid));
 
     $c->forward('setupMatchParams');
     $c->forward('setRole');
     $c->forward('setUnRegDate');
+    $c->log->info("Just finished seting the node up");
     $info->{source} = $source_id;
     $info->{portal} = $profile->getName;
     $c->forward('checkIfProvisionIsNeeded');
+    $c->log->info("Passed by the provisioning");
 }
 
 =head2 checkIfChainedAuth
@@ -317,6 +322,7 @@ sub setRole : Private {
     my $params = $c->stash->{matchParams};
     my $info = $c->stash->{info};
     my $pid = $info->{pid};
+    my $mac = $c->portalSession->clientMac;
     my $source_match = $session->{source_match} || $session->{source_id};
 
     # obtain node information provided by authentication module. We need to get the role (category here)
@@ -332,7 +338,10 @@ sub setRole : Private {
         $logger->info("Got no role for username \"$pid\"");
         $self->showError($c, "You do not have the permission to register a device with this username.");
     }
-
+    $c->stash(
+        role => $value,
+    );
+    node_modify($mac, (category => $value));
 }
 
 sub setUnRegDate : Private {
@@ -342,6 +351,7 @@ sub setUnRegDate : Private {
     my $params = $c->stash->{matchParams};
     my $info = $c->stash->{info};
     my $pid = $info->{pid};
+    my $mac = $c->portalSession->clientMac;
     my $source_match = $session->{source_match} || $session->{source_id};
     # If an access duration is defined, use it to compute the unregistration date;
     # otherwise, use the unregdate when defined.
@@ -371,6 +381,7 @@ sub setUnRegDate : Private {
 
     # We put the unregistration date in session since we may want to use it later in the flow
     $c->session->{unregdate} = $info->{unregdate};
+    node_modify($mac, (unregdate => $info->{unregdate}));
 }
 
 sub createLocalAccount : Private {
@@ -419,11 +430,18 @@ sub createLocalAccount : Private {
 sub checkIfProvisionIsNeeded : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
-    my $info = $c->stash->{info};
     my $mac = $portalSession->clientMac;
     my $profile = $c->profile;
     if (defined( my $provisioner = $profile->findProvisioner($mac))) {
-        if ($provisioner->authorize($mac) == 0) {
+        $c->log->info("Found provisioner " . $provisioner->id . " for $mac");
+        my $info = $c->stash->{info};
+        if($provisioner->getPkiProvider) {
+            $c->log->info("Detected PKI provider for $mac.");
+            $c->session->{info} = $c->stash->{info};
+            $c->response->redirect('/tlsprofile');
+            $c->detach();
+        }
+        elsif ($provisioner->authorize($mac) == 0) {
             $info->{status} = $pf::node::STATUS_PENDING;
             node_modify($mac, %$info);
             $c->stash(
@@ -568,6 +586,7 @@ sub showLogin : Private {
         oauth2_facebook => is_in_list( $SELFREG_MODE_FACEBOOK, $guestModes ),
         oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
+        oauth2_twitter  => is_in_list( $SELFREG_MODE_TWITTER, $guestModes ),
         guest_allowed   => $guest_allowed,
     );
 

@@ -19,6 +19,7 @@ use pf::config;
 use pf::fingerbank;
 use Readonly;
 use pf::log;
+use pf::factory::pki_provider;
 use List::MoreUtils qw(any);
 
 =head1 Constants
@@ -103,6 +104,14 @@ Which violation should be raised when a device is not compliant
 
 has non_compliance_violation => (is => 'rw' );
 
+=head2 pki_provider
+
+The id of the pki provider
+
+=cut
+
+has pki_provider => (is => 'rw');
+
 =head1 METHODS
 
 =head2 _build_template
@@ -149,6 +158,7 @@ sub matchCategory {
     my $category = $self->category || [];
     my $node_cat = $node_attributes->{'category'};
 
+    get_logger->trace( sub { "Tring to match the role '$node_cat' against " . join(",", @$category) });
     # validating that the node is under the proper category for provisioner
     return @$category == 0 || any { $_ eq $node_cat } @$category;
 }
@@ -164,9 +174,14 @@ sub matchOS {
     # Get device type kind of device by querying Fingerbank
     my $os = pf::fingerbank::is_a($device_type);
 
-    #if if no oses are defined then it will match all the oses
+    get_logger->trace( sub { "Tring to match the OS '$os' against " . join(",", @oses) });
+    #if no oses are defined then it will match all the oses
+    return 1 if @oses == 0;
+    #if os is undef then fail
+    return 0 unless defined $os;
     local $_;
-    return @oses == 0 || any { $os eq $_ } @oses;
+    #verify os matches list
+    return any { $os =~ /\Q$_\E/ } @oses;
 }
 
 =head2 match
@@ -176,6 +191,17 @@ sub matchOS {
 sub match {
     my ($self, $os, $node_attributes) = @_;
     return $self->matchOS($os) && $self->matchCategory($node_attributes);
+}
+
+=head2 getPkiProvider
+
+=cut
+
+sub getPkiProvider {
+    my ($self) = @_;
+    my $pki_provider_id = $self->pki_provider;
+    return undef unless $pki_provider_id;
+    return pf::factory::pki_provider->new($pki_provider_id);
 }
 
 =head1 AUTHOR

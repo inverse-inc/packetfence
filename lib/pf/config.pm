@@ -70,6 +70,7 @@ use pf::constants::config qw(
   $SELFREG_MODE_GITHUB
   $SELFREG_MODE_LINKEDIN
   $SELFREG_MODE_WIN_LIVE
+  $SELFREG_MODE_TWITTER
   $SELFREG_MODE_NULL
   $SELFREG_MODE_CHAINED
   %NET_INLINE_TYPES
@@ -82,7 +83,7 @@ use pf::util;
 # Categorized by feature, pay attention when modifying
 our (
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
-    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets,
+    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @portal_ints,
     @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
 #pf.conf.default variables
     %Default_Config,
@@ -104,18 +105,20 @@ our (
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
-    $thread, $fqdn,
+    $thread, $fqdn, $reverse_fqdn,
     %CAPTIVE_PORTAL,
 #realm.conf
     %ConfigRealm,
 #provisioning.conf
     %ConfigProvisioning,
 #domain.conf
-    %ConfigDomain, 
+    %ConfigDomain,
 #scan.conf
     %ConfigScan,
 #wmi.conf
     %ConfigWmi,
+
+    %ConfigPKI_Provider,
 );
 
 BEGIN {
@@ -125,7 +128,7 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int
-        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network
+        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @portal_ints
         @inline_enforcement_nets @vlan_enforcement_nets
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         %mark_type_to_str %mark_type
@@ -135,7 +138,7 @@ BEGIN {
         %ConfigNetworks %ConfigOAuth
         %ConfigFloatingDevices
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
-        $WIPS_VID $thread $fqdn
+        $WIPS_VID $thread $fqdn $reverse_fqdn
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
         $NET_TYPE_INLINE $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3
@@ -146,7 +149,7 @@ BEGIN {
         %connection_group %connection_group_to_str
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
         $ROLE_API_LEVEL
-        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_NULL $SELFREG_MODE_CHAINED
+        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_CHAINED
         %CAPTIVE_PORTAL
         $HTTP $HTTPS
         normalize_time access_duration
@@ -160,10 +163,11 @@ BEGIN {
         %Doc_Config
         %ConfigRealm
         %ConfigProvisioning
-        %ConfigDomain 
+        %ConfigDomain
         $TRUE $FALSE $default_pid
         %ConfigScan
         %ConfigWmi
+        %ConfigPKI_Provider
     );
 }
 
@@ -177,6 +181,7 @@ if($cluster_enabled) {
     tie @listen_ints, 'pfconfig::cached_array', "interfaces::listen_ints($host_id)";
     tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets($host_id)";
     tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets($host_id)";
+    tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints($host_id)";
     tie @vlan_enforcement_nets, 'pfconfig::cached_array', "interfaces::vlan_enforcement_nets($host_id)";
     tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_network($host_id)";
     tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int($host_id)";
@@ -191,6 +196,7 @@ else {
     tie @listen_ints, 'pfconfig::cached_array', "interfaces::listen_ints";
     tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets";
     tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets";
+    tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints";
     tie @vlan_enforcement_nets, 'pfconfig::cached_array', "interfaces::vlan_enforcement_nets";
     tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_network";
     tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int";
@@ -203,6 +209,7 @@ tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
 
 tie %CAPTIVE_PORTAL, 'pfconfig::cached_hash', 'resource::CaptivePortal';
 tie $fqdn, 'pfconfig::cached_scalar', 'resource::fqdn';
+tie $reverse_fqdn, 'pfconfig::cached_scalar', 'resource::reverse_fqdn';
 
 tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
 tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
@@ -221,6 +228,8 @@ tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 tie %ConfigScan, 'pfconfig::cached_hash', 'config::Scan';
 
 tie %ConfigWmi, 'pfconfig::cached_hash', 'config::Wmi';
+
+tie %ConfigPKI_Provider, 'pfconfig::cached_hash', 'config::PKI_Provider';
 
 sub import {
     pf::config->export_to_level(1,@_);
@@ -859,7 +868,7 @@ sub configreload {
 
     require pf::SwitchFactory;
     require pf::freeradius;
-    pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig); 
+    pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig);
 
     return ;
 }

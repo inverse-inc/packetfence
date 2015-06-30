@@ -47,7 +47,8 @@ use pf::ConfigStore::Domain;
 
 # This is the content that needs to match in the iptable rules for the service
 # to be considered as running
-Readonly our $FW_FILTER_INPUT_MGMT => 'input-management-if';
+Readonly our $FW_FILTER_INPUT_MGMT      => 'input-management-if';
+Readonly our $FW_FILTER_INPUT_PORTAL    => 'input-portal-if';
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -96,7 +97,7 @@ sub iptables_generate {
         'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
         'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '',
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
-        'domain_postrouting' => '',
+        'domain_postrouting' => '','mangle_postrouting_inline' => '',
     );
 
     # global substitution variables
@@ -104,6 +105,7 @@ sub iptables_generate {
     $tags{'webservices_port'} = $Config{'ports'}{'soap'};
     $tags{'aaa_port'} = $Config{'ports'}{'aaa'};
     $tags{'status_port'} = $Config{'ports'}{'pf_status'};
+    $tags{'httpd_portal_modstatus'} = $Config{'ports'}{'httpd_portal_modstatus'};
     # FILTER
     # per interface-type pointers to pre-defined chains
     $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();
@@ -201,6 +203,12 @@ sub generate_filter_if_src_to_chain {
         } else {
             $logger->warn("Didn't assign any firewall rules to interface $dev.");
         }
+    }
+
+    # 'portal' interfaces handling
+    foreach my $portal_interface ( @portal_ints ) {
+        my $dev = $portal_interface->tag("int");
+        $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_PORTAL\n";
     }
 
     # management interface handling

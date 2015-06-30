@@ -21,6 +21,7 @@ use warnings;
 use base qw(pf::cmd);
 
 use pf::file_paths;
+use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 
 use fingerbank::FilePath;
@@ -44,8 +45,15 @@ sub _run {
 sub _changeFilesToOwner {
     my ($user,@files) = @_;
     my ($login,$pass,$uid,$gid) = getpwnam($user);
-    my ($group, undef, undef, undef)= getgrgid($gid);
-    chown $uid,$gid,@files;
+    if(defined $uid && defined $gid) {
+        my ($group, undef, undef, undef)= getgrgid($gid);
+        chown $uid,$gid,@files;
+    }
+    else {
+        my $msg = "Problem getting group and user id for $user\n";
+        print STDERR $msg;
+        get_logger->error($msg);
+    }
 }
 
 sub _fingerbank {

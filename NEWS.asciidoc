@@ -11,17 +11,47 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version X.Y.Z released on XXXX-YY-ZZ
+Version X.Y.Z released on xxxx-xx-xx
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
 
+
 Enhancements
 ++++++++++++
 
+
 Bug Fixes
 +++++++++
+
+Version 5.2.0 released on 2015-06-18
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Introducing support for the PacketFence PKI application to manage certificates and authenticate RADIUS using EAP-TLS. 
+* Twitter OAuth is now supported as an authentication source.
+* New 'portal' interface type to spawn a captive-portal instance on selected interface.
+* Traffic shaping support for Inline mode managed by an ipset session per devices role.
+* Support for OpenWrt 14.07 with hostapd.
+
+Enhancements
+++++++++++++
+
+* Specific vhost for httpd.portal diagnostics.
+* Added option to disable logging of sensitive information when failing to execute a command through pf_run.
+* Support for Meraki APs using web authentication on the cloud controller.
+* Passwords are now obfuscated in the Switch configuration.
+* Introduced new 'ports.httpd_portal_modstatus' configuration parameter to limit modstatus to a single virtual host.
+
+Bug Fixes
++++++++++
+* Allow the usage of an external monitoring database when using an Active/Active cluster.
+* Validate that a provisioner is not used before deleting it through the administration interface.
+* Stopped logging database password on schema import failure.
+* Fixed incorrect error message when an external portal authenticated device hits the unknown state.
 
 Version 5.1.0 released on 2015-05-25
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

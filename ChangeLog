@@ -1,3 +1,3511 @@
+commit e23ffa584488ddebabfdfab7b0b28d666ef1e2e5
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jun 18 13:44:32 2015 -0400
+
+    Debian packages will now stop services preinstallation.
+
+M	debian/packetfence.preinst
+
+commit 04e8507241c53842d1d192129cd86f67f9adb33c
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jun 18 13:12:00 2015 -0400
+
+    Update the UPGRADE prior to release 5.2.
+
+M	UPGRADE.asciidoc
+
+commit 045b4056f4ac6278d7f399d33254da5974579998
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jun 18 11:57:17 2015 -0400
+
+    Updated NEWS file
+
+M	NEWS.asciidoc
+
+commit 7d956fb89834e5d525d555d1d8e70f39cd5e7ce3
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jun 18 11:38:20 2015 -0400
+
+    Pulled latest translations from transifex.
+
+M	conf/locale/fr/LC_MESSAGES/packetfence.po
+M	html/pfappserver/lib/pfappserver/I18N/fr.po
+
+commit 9d5908783b59b3512407aca4dc469eb4667c9540
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jun 18 11:32:14 2015 -0400
+
+    Cosmetic changes to NEWS file.
+
+M	NEWS.asciidoc
+
+commit 16370d49fccdd215842f0adc25665c00e433ee09
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Jun 18 11:30:32 2015 -0400
+
+    Version bump of required Fingerbank
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit e3a92484ea398e05af35ed75f1780dc2df60ee37
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jun 18 10:53:25 2015 -0400
+
+    Updated changelogs prior to 5.2 release.
+
+M	addons/packages/packetfence.spec
+M	debian/changelog
+
+commit 5e46571cd2af9898040ab26d4a27dee52e78b0fe
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jun 18 10:48:12 2015 -0400
+
+    Renamed db schema prior to 5.2 release.
+
+A	db/pf-schema-5.2.0.sql
+D	db/pf-schema-X.Y.Z.sql
+
+commit 45c00c03ecc5cd474166b597a7390e5df352bc7f
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jun 18 10:43:16 2015 -0400
+
+    Preparing for 5.2 release.
+
+M	NEWS.asciidoc
+A	db/upgrade-5.1.0-5.2.0.sql
+D	db/upgrade-X.X.X-X.Y.Z.sql
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit ae9fbd323bb23d39790502f8cd06d61b14db3cef
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jun 18 10:15:35 2015 -0400
+
+    Added drop and recreate trigger for forgotten temporary_password trigger
+    in upgrade to 5.0.
+
+M	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit 61448fe9694c5375770bd55b5b94754d297475ae
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jun 18 10:07:50 2015 -0400
+
+    Minor corrections to spelling and formatting in PKI doc.
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit b37606aac8575ae1ab5e69d8fc78b5fd5c638777
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 18 09:51:07 2015 -0400
+
+    Import view_by_code in pf::Portal::Session
+
+M	lib/pf/Portal/Session.pm
+
+commit 13cf2ad52829897a7c8ce0d81def807a46dff13f
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jun 18 09:30:46 2015 -0400
+
+    Added password change reminder to PKI doc.
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit 6bbff81b49c683a7f26f4ec4beb75b385df94ed2
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jun 18 09:28:12 2015 -0400
+
+    Updated eap.conf with default values
+
+M	conf/radiusd/eap.conf.example
+
+commit dee5c69c16e1d10f55a53a260e7e46f98a901c7b
+Author: Durand Fabrice <oeufdure@gmail.com>
+Date:   Wed Jun 17 19:45:01 2015 -0400
+
+    10 years is 3650 days
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit 9ea66f3d32ffce9eedac5243caba31592b90303e
+Author: Durand Fabrice <oeufdure@gmail.com>
+Date:   Wed Jun 17 19:43:24 2015 -0400
+
+    Removed non-free repository in PKI documentation
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit d80d7e98ba7068d5f9605a115377c704b5706cfd
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Jun 17 16:02:13 2015 -0400
+
+    Added repository configuration for Debian/Ubuntu.
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit 90ca61d875dcdaafa70c0e12a2b65f581b5a5a9d
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jun 17 15:52:34 2015 -0400
+
+    wrong screenshot
+
+M	docs/images/packetfence-pki-myca.png
+
+commit ac7d6bf4fb8537d09fcc7d43d577fe81b974cc1f
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jun 17 15:47:25 2015 -0400
+
+    google instead of facebook
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit b518c9731baabb607605db4c9914c920db8203d5
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jun 17 15:41:55 2015 -0400
+
+    new screenshots
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+A	docs/images/packetfence-pki-client-profile.png
+M	docs/images/packetfence-pki-myca.png
+M	docs/images/packetfence-pki-myca2.png
+D	docs/images/packetfence-pki-radius-profile.png
+D	docs/images/packetfence-pki-radius-profile2.png
+M	docs/images/packetfence-pki-rest-api.png
+A	docs/images/packetfence-pki-server-profile.png
+
+commit 019f2554e9f07bda06199f1b62d86f3827252455
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Jun 17 15:33:39 2015 -0400
+
+    Fixed asccidoc.
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit 0101d3103734076166285c50ce3424653df25c26
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 17 15:31:48 2015 -0400
+
+    correct indent
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit 46b3cf9041ab2e4ba481c19447acc68977db02d5
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Jun 17 15:25:54 2015 -0400
+
+    Updated OSCP documentation.
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit 37d6c0a7a35e136527a424678f94cea5cd986a9a
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 17 15:08:14 2015 -0400
+
+    add *.gvt1.com to android passthrough doc
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit ba853b0c70c0e64e159d200e7dc7cf6836381330
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Jun 17 14:58:37 2015 -0400
+
+    Added back missing steps (1,2,3)
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit 3f96df62788bb67e20efe1a890a6f6a6ca7a3c20
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 17 14:58:39 2015 -0400
+
+    add provisioner note for multiple portal profiles
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit 725839b4f5fa83c826a92834f50156e1dfa0494d
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 17 14:40:33 2015 -0400
+
+    fix cert copipasth example
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit f33fdbe4e8f7bdbcdb7cd45e3a062fb15a347bdd
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Jun 17 14:39:35 2015 -0400
+
+    Minor improvements.
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit 057eebad10e955f174c13be14722978fd90ace8f
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 17 14:23:19 2015 -0400
+
+    create build for PKI guide
+
+M	Makefile
+A	docs/PacketFence_PKI_Quick_Install_Guide-docinfo.xml
+
+commit 5cc714cfa6237970b6344fdcd5c003c7bb2c86f7
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Jun 17 14:21:24 2015 -0400
+
+    Added OCSP documentation.
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit 4c3bde8cec3006c2d4600b36f613f5c185eda6c1
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jun 17 14:15:42 2015 -0400
+
+    Fixed modal-footer disappearing after the modal-body expands
+
+M	html/pfappserver/root/static/css/bootstrap.css
+M	html/pfappserver/root/static/css/bootstrap.min.css
+
+commit 09a5e754579bcf63eac15be38f7eca841c24681d
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Jun 17 13:59:52 2015 -0400
+
+    Improvements to PKI documentation.
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit d93c2c3eab3752b5733dd85ae8afceecab89c8d0
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Jun 17 13:30:52 2015 -0400
+
+    Spell check.
+
+M	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit ad415b53934d6f3d39abdcd643f338a193f19718
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 17 13:32:48 2015 -0400
+
+    Fix pf version in schema
+
+M	db/pf-schema-X.Y.Z.sql
+
+commit f2ee90725e7033904cf93318d42c0ba5ff1f4be0
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 17 13:23:26 2015 -0400
+
+    Rename pki guide
+
+D	docs/PacketFence_PKI_Guide.asciidoc
+A	docs/PacketFence_PKI_Quick_Install_Guide.asciidoc
+
+commit d0b0e7d189b246d866683d145b8a6ce0c2ce2de1
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Jun 17 12:12:15 2015 -0400
+
+    Rewrote PKI quick guide.
+    WIP, screenshots remain.
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 82800a2c795a39b451fd15f060dbb2c9aa9217e4
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Jun 17 11:55:17 2015 -0400
+
+    Start packetfence-config before trying to do a configreload
+
+M	addons/packages/packetfence.spec
+M	debian/packetfence.postinst
+
+commit 5f737d93ce56b2ecd1a7a234eeb43c605255e5d0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jun 17 11:42:10 2015 -0400
+
+    Fix formatting of list
+
+M	html/pfappserver/root/config/pki_provider/list.tt
+
+commit 5d14292f043512e20607987cb918f56706154a55
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Jun 17 10:50:10 2015 -0400
+
+    Start packetfence-config before trying to start httpd.admin
+
+M	addons/packages/packetfence.spec
+M	debian/packetfence.postinst
+
+commit 400770c83c6357004a81c24999d3eb4790b879fd
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jun 17 10:25:04 2015 -0400
+
+    Added additional validation for ca_cert_path and server_cert_path
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+A	html/pfappserver/lib/pfappserver/Form/Field/Path.pm
+
+commit 286fd77cd30a0acda3127a3d2b89bb01e3ff90a2
+Author: lzammit <lzammit@inverse.ca>
+Date:   Wed Jun 17 10:08:45 2015 -0400
+
+    Update packetfence.conffiles
+    
+    fix /usr/local/pf/html/captive-portal/captiveportal.conf
+
+M	debian/packetfence.conffiles
+
+commit 771b0c917e7b93fa958764c9a43d77132cac68d1
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 16 15:24:38 2015 -0400
+
+    Fixed logging
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+
+commit 9f6761bdefb6799d5fceccb3e361322ea75fe692
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 16 15:18:59 2015 -0400
+
+    Pass the node info into the user_cn instead of the mac
+
+M	lib/pf/node.pm
+
+commit 61730ff318970ea143f548302028f452a585bc27
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Jun 16 14:55:39 2015 -0400
+
+    iplog_history maintenance
+
+M	addons/database-backup-and-maintenance.sh
+
+commit 60025fe385281c9c6f2d40dc2f2883505735eb7a
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Jun 16 14:53:59 2015 -0400
+
+    Fixed syntax
+
+M	conf/iptables.conf.example
+M	conf/radiusd/eap.conf.example
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 45a27664957baecc8d86c00180e30870b5a9e288
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 16 13:37:18 2015 -0400
+
+    Call to wrong function
+
+M	lib/pf/ConfigStore/Pf.pm
+
+commit 504e82d0a84c85abda2e2bf0c740f8fc68491f6c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 16 13:29:10 2015 -0400
+
+    Remove double entry
+
+M	debian/packetfence.conffiles
+
+commit 99541beab0ae87c5903419a26311abdf1493e5c6
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Jun 16 13:11:56 2015 -0400
+
+    Check if device_type is defined and is not equals to ''
+
+M	lib/pf/fingerbank.pm
+
+commit c344b3cb0b37d8ba8c419fa8456006c03ce073dc
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Jun 16 11:59:08 2015 -0400
+
+    Include all from addons/AD/ in packaging
+
+M	addons/packages/packetfence.spec
+
+commit 30755a40484b35481b845ef4b80df9c597032d0d
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 16 11:51:04 2015 -0400
+
+    make sure person exists before modifying node
+    
+    fixes #702
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+
+commit 172e65f3ac3ea845af76cecd4ebcb080c5f65cae
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 15 14:52:39 2015 -0400
+
+    remove useless code
+
+M	lib/pf/pfcmd/checkup.pm
+
+commit bda7c5711911e690b9d9cbd969133f71b1ceb8b7
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 15 14:52:25 2015 -0400
+
+    warn on networks.conf empty + dhcpd enabled
+
+M	lib/pf/pfcmd/checkup.pm
+
+commit 05324ae9a8abdd1fe7ea4bc7237bfd18ad009111
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 16 10:45:05 2015 -0400
+
+    Rename the captiveportal configuration file to it's
+
+M	addons/packages/packetfence.spec
+M	debian/packetfence.conffiles
+D	html/captive-portal/captive_portal.conf.example
+A	html/captive-portal/captiveportal.conf.example
+M	html/captive-portal/lib/captiveportal.pm
+
+commit b8f3eefa2193c9fc5ce2f99f8b3456975386e033
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 15 17:22:01 2015 -0400
+
+    ReloadConfig pf.conf.default after reloading the pf.conf Fixes #696
+
+M	lib/pf/ConfigStore/Pf.pm
+
+commit c64a4cf63c4f9046b28686badfe34a907f30bddd
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 17:00:13 2015 -0400
+
+    typos, rework installing section order, add selinux
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit e5ea3d89d8f5a2768e30f9af68cbf1385b50aaf0
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 16:26:41 2015 -0400
+
+    sub category position, syntax
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 9ac04423b41c1745b1e67d6c351baace602d1855
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 16:21:22 2015 -0400
+
+    typos, openssl command
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 682ca8e71e905f3abefc013d4c6c63744aafad25
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 16:19:19 2015 -0400
+
+    typos
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit fcf7d7c6c92a5a8ce3bbfb2f26352aab3b08036a
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 16:12:49 2015 -0400
+
+    delete s&r mac address
+
+M	lib/pf/pki_provider.pm
+
+commit 5477ebace2dd5210302901e572f15350ddd2d51f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 15 16:02:55 2015 -0400
+
+    Fix No PKI Provider being defined outside of the table Fixes #701
+
+M	html/pfappserver/root/config/pki_provider/list.tt
+
+commit aed00bc8781f64e661fe2e6091dcef1f1205a365
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 15 15:55:53 2015 -0400
+
+    correct broadcast field in mobileconfig
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+
+commit b3d963ed28709af42f53a65d61bb7b8ba319ab2d
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 15 15:43:15 2015 -0400
+
+    touchup udp reflector doc
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit beccc7303a2cf0c5c107c3acbe3b8c0cb0459162
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 15:35:33 2015 -0400
+
+    remove # in front of the repo
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 8f22c7d06b6a0ce412a20423211e2b2d2fbd6831
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 15:29:17 2015 -0400
+
+    remove old screenshots
+
+D	docs/images/eaptls-example.png
+D	docs/images/eaptls-sign-example.png
+D	docs/images/myca.png
+D	docs/images/myca2.png
+D	docs/images/radius-profile.png
+D	docs/images/radius-profile1.png
+D	docs/images/radius-profile2.png
+D	docs/images/rest-api.png
+
+commit e37993781a3d134d2690bedb2dd92abfb83be9ed
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 15:26:26 2015 -0400
+
+    label images + fixs
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+A	docs/images/packetfence-pki-eaptls-example.png
+A	docs/images/packetfence-pki-eaptls-sign-example.png
+A	docs/images/packetfence-pki-myca.png
+A	docs/images/packetfence-pki-myca2.png
+A	docs/images/packetfence-pki-radius-profile.png
+A	docs/images/packetfence-pki-radius-profile2.png
+A	docs/images/packetfence-pki-rest-api.png
+
+commit 303f09f6ef61348a037cf756d9c32b42b5c9b408
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 15 15:20:31 2015 -0400
+
+    Match the change of api in fingerbank
+    
+    Fixes #592
+
+M	html/pfappserver/lib/pfappserver/Base/Model/Fingerbank.pm
+
+commit 2c145c67fbcd1e18f79a30985f7fe43e6f67752c
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 15:06:07 2015 -0400
+
+    fixs
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 396fc8bd0b1a258c5a661ac7da5fe675022d08ff
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 15 14:00:59 2015 -0400
+
+    Do not attempt to internationalize connection sub type
+    
+    Fixes #689
+
+M	html/pfappserver/root/node/view.tt
+
+commit 4f7733793eeb5e5484f4cb7cabd4c00728b39dc3
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 15 13:54:30 2015 -0400
+
+    make display name user friendlier
+
+M	html/captive-portal/templates/wireless-profile.xml
+
+commit 55911187c0c96adaaac3806a8e8ccd4460cb4989
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 13:49:35 2015 -0400
+
+    multiples fixes
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 35180832fa47ca1945184c71713350b464ca061c
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 13:40:45 2015 -0400
+
+    fix no console issue
+
+M	html/captive-portal/content/packetfence-windows-agent.exe
+
+commit 34bc841f32e7049390d71e12c7b3d9a92a053d2f
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jun 15 13:33:17 2015 -0400
+
+    Fixes startup in the wrong place.
+
+M	debian/packetfence.postinst
+
+commit e8f66a4992a2459722c9c3dd13794be02e121971
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jun 15 13:29:30 2015 -0400
+
+    Start httpd.admin (only) after installation.
+
+M	debian/packetfence.postinst
+
+commit 4cd013bb16b7c27be7c46992072b423ada85da59
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jun 15 13:01:36 2015 -0400
+
+    PacketFence will no longer try to start all services after upgrade or
+    install on RHEL/CentOS.
+
+M	addons/packages/packetfence.spec
+
+commit 89a636445d7d0185c9e2287341286fcd8141c2f4
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jun 15 11:41:08 2015 -0400
+
+    Updated packetfence-release rpm version in the documentation (new repo packetfence-extra)
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 6a34bea05ea5b4aa4c02b24e5475a0ffb2e975ec
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jun 15 11:05:03 2015 -0400
+
+    Removed DEBHELPER in packetfence.postinst
+
+M	debian/packetfence.postinst
+
+commit b0aaefbff4c8d2754c342af74b5f4d227c33fbcd
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 9 08:18:53 2015 -0400
+
+    check if cache wizardry stuff is blessed before calling a method on it
+
+M	lib/pf/config/cached.pm
+
+commit e9081b95cb5a99e9f49d3eab8db6c5cc6c4d321b
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 10:24:39 2015 -0400
+
+    agent fix
+
+M	html/captive-portal/content/packetfence-windows-agent.exe
+
+commit 1f50b292da619e7e2ffa8ad6d956d84061f6f318
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 15 10:22:57 2015 -0400
+
+    some typos/syntax
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 513c0a003780ec45d4d6b3e1fe025cdbfa24413b
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 15 08:04:12 2015 -0400
+
+    Update upgrade-X.X.X-X.Y.Z.sql
+
+M	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit 7b2affd3759269fd981d45b676c8ab26e328db26
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 15 08:03:43 2015 -0400
+
+    Update pf-release
+
+M	conf/pf-release
+
+commit 2b5feea9a43543a08aab0570a61d25f4cbf6637e
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 15 07:58:43 2015 -0400
+
+    Create general upgrade tips in upgrade guide
+
+M	UPGRADE.asciidoc
+
+commit 6d1c42fffa7f3b9fcea00f91f2a210a6ab6479fc
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 12 16:39:13 2015 -0400
+
+    Change URI of the rest API for packetfence-pki
+
+M	lib/pf/pki_provider/packetfence_pki.pm
+
+commit 143a088b582431189dfb20259eda02798114fd5d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jun 12 16:22:41 2015 -0400
+
+    Do not include pf::node in pf::pki_provider to avoid circular dependencies
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	lib/pf/pki_provider.pm
+
+commit f63d3e03ee25f3d8af53b4477d76e042e22f7793
+Author: lzammit <lzammit@inverse.ca>
+Date:   Fri Jun 12 15:56:05 2015 -0400
+
+    Update upgrade-X.X.X-X.Y.Z.sql
+    
+    Fix locationlog ALTER
+
+M	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit 5f44284ba23f6d94ebc00c48f07cff97c2249cbf
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jun 12 15:53:02 2015 -0400
+
+    Show all countries in a drop down list Fixes #674
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+A	html/pfappserver/lib/pfappserver/Form/Field/Country.pm
+
+commit c972c107a2b91551a8a5f98ceb0760e0f6c3af8e
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Jun 12 15:38:14 2015 -0400
+
+    Fix configurator check
+
+M	html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+
+commit dbeadb2295e886a0a10ee854d9b18a27fbc0911a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jun 12 15:28:49 2015 -0400
+
+    Fix issue where the modal will disappear after save the switch Fixes #687
+
+M	html/pfappserver/root/static/admin/config/switches.js
+
+commit e1d6337de7edb59c8cc3cf42590546be0ff01f30
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jun 12 15:15:45 2015 -0400
+
+    Fixed bulk (de)register not working after refactor #Fixes 691
+
+M	html/pfappserver/lib/pfappserver/Model/Node.pm
+
+commit da94a8824d4e24e4452df96e560b097e8b02fef2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jun 12 14:52:40 2015 -0400
+
+    Fix alerts no being shown after section not being reloaded
+    
+    Fixes #688
+
+M	html/pfappserver/root/static/js/node.js
+
+commit 8e18f2558a5400831c654788648599a62baa8b11
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 12 14:59:52 2015 -0400
+
+    Set the minimum version for graphite-web
+
+M	addons/packages/packetfence.spec
+
+commit bcc6cab679a360c3d6f50b6631ee1482738b7382
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 12 14:55:40 2015 -0400
+
+    added screenshot + path in the doc
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+A	docs/images/client-profile.png
+A	docs/images/client-profile2.png
+A	docs/images/myca.png
+A	docs/images/myca2.png
+A	docs/images/radius-profile.png
+M	docs/images/radius-profile2.png
+A	docs/images/rest-api.png
+
+commit 41a39bde493eda0f54f8e9003750f13d76256605
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 12 14:42:28 2015 -0400
+
+    more fixes
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 7cae66b212556ec2c3be83fb5470e7656ea05834
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Jun 12 14:37:43 2015 -0400
+
+    check that log_strip is defined
+
+M	lib/pf/util.pm
+
+commit 9bf568e26200ef807980dcdedc5fca2e83d47466
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 12 14:33:09 2015 -0400
+
+    syntax
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 3fca200d4d0f93479f7505f13007e234fc94da9a
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 12 14:31:36 2015 -0400
+
+    fixs
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 2ed090f676ca9c645d0a9814c382555f31eeef94
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Jun 12 14:07:09 2015 -0400
+
+    Me soo sexy
+
+M	html/pfappserver/root/interface/list.tt
+
+commit 7f7addc5d52893fed539433ad50002446a6052ea
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 12 13:07:39 2015 -0400
+
+    Open port for packetfence-pki administration
+    
+    Commented by default will explain in the pki-doc
+
+M	conf/iptables.conf.example
+
+commit 877d9d6a2d485305e260a462426e60b132c5e325
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 12 12:20:19 2015 -0400
+
+    Added libcrypt-smime-perl dep in debian packaging
+
+M	debian/control
+
+commit e77ef3ad0cbb4472fdf27354736e4d0ba94d2f9a
+Author: Sledge Hammer <jrouzier@inverse.ca>
+Date:   Fri Jun 12 12:04:29 2015 -0400
+
+    Updated NEWS file
+
+M	NEWS.asciidoc
+
+commit 8eb742a0b85e9222f3a9ce39d9397a4f406e8db7
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Jun 12 11:58:24 2015 -0400
+
+    Missing UPGRADE file instruction for 'portal' interface type in the case of webauth
+
+M	UPGRADE.asciidoc
+
+commit 7271e7f9b9e080bf7bb0dd25cf7947c925a3c802
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Jun 12 11:50:40 2015 -0400
+
+    quotemeta mysql stripping
+
+M	html/pfappserver/lib/pfappserver/Model/DB.pm
+
+commit 8cec17b52eeea0e805ae826836550af6518e4301
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Jun 12 09:58:14 2015 -0400
+
+    Handling portal subtype when read an interface from the gui
+
+M	html/pfappserver/lib/pfappserver/Model/Interface.pm
+
+commit 12d50a8c99b7d5ead7d6e0a70d319c4244fc24cb
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 12 09:05:29 2015 -0400
+
+    getVersion is switch modulw is mandatory
+
+M	lib/pf/Switch/Meraki/AP_http.pm
+
+commit 9b65bbf81a0d2cdc83e09fab9906d63eecb6ffed
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Jun 12 09:00:46 2015 -0400
+
+    Removing "uniqueness" in this very specific use case
+
+M	html/pfappserver/lib/pfappserver/Model/Interface.pm
+
+commit 504849f055f9f30ea128ea28ed2c56d139c8f247
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 12 08:36:54 2015 -0400
+
+    Send $node_info to vlan filter scope getNodeInfoForAutoReg
+
+M	lib/pf/vlan.pm
+
+commit ded57272a956b1cfaf5d9e0190ca163ce78f6d81
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Jun 11 16:51:31 2015 -0400
+
+    New interface configuration parameter for GUI only
+
+M	html/pfappserver/lib/pfappserver/Form/Interface.pm
+M	html/pfappserver/lib/pfappserver/PacketFence/Controller/Interface.pm
+M	html/pfappserver/root/interface/create.tt
+M	html/pfappserver/root/interface/view.tt
+
+commit 694f95793bd526a897e38af5eec101211bed6b97
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Jun 11 16:01:49 2015 -0400
+
+    Remove print statement
+
+M	lib/pf/ConfigStore/Switch.pm
+
+commit 0f451aee5c7623b926a5e453e4828623113ba6a7
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Jun 11 15:34:32 2015 -0400
+
+    Missing to allow use of multiple select fields
+
+M	html/pfappserver/root/static/js/interface.js
+
+commit 82b5bb61a0335325d4d810406a7f98cbda6c380e
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Jun 11 13:33:53 2015 -0400
+
+    Some syntax issue
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 4155f287375713b8ceaea55f574af089d9100142
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Jun 11 13:28:46 2015 -0400
+
+    File version was wrong
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit c91b0c489727dabfbcd30025f696aea302c64afc
+Author: whitx <aamacher@inverse.ca>
+Date:   Thu Jun 11 12:11:24 2015 -0400
+
+    Some change in preparation of the wizard rework
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 10dd23346e1c0fcdd8777dbb6d48505d2dd45953
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 11 11:10:07 2015 -0400
+
+    added statsd timing for multi domain module
+
+M	raddb/packetfence-multi-domain.pm
+
+commit 5a9e26742ce4c1d5feb1ea7b82cd067ef2bb1e96
+Author: Durand <fdurand@inverse.ca>
+Date:   Thu Jun 11 09:18:19 2015 -0400
+
+    Updated packetfence.spec with the correct lib
+
+M	addons/packages/packetfence.spec
+
+commit a5fb0125fe597b12b87786fa4840f1260c2c1dc6
+Author: Durand Fabrice <oeufdure@gmail.com>
+Date:   Thu Jun 11 07:20:43 2015 -0400
+
+    Fixed missing dep
+
+M	addons/packages/packetfence.spec
+
+commit b201d1e2ef7fbeed8fa9de715519d31cba75fd06
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 10 15:46:40 2015 -0400
+
+    fix domain join with password that has space(s)
+
+M	lib/pf/domain.pm
+
+commit 061ac3b24f8d6701355af133c6a20f68d6d67cfc
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 10 15:33:12 2015 -0400
+
+    fix event propagation in domain set password
+
+M	html/pfappserver/root/static/admin/config/domains.js
+
+commit 2c0a27b217931280d6ef4fe80d144e65b454e7a9
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Jun 10 15:24:16 2015 -0400
+
+    Change ntlm_auth call from raddb/mschap to be able to do machine auth
+
+M	raddb/modules/mschap
+
+commit 8e9b7e300456b982550fe116336cdfa5d4becea5
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 10 08:26:09 2015 -0400
+
+    add pki provider conf to debian packaging
+
+M	debian/packetfence.conffiles
+
+commit d8a64bcf747de99b544df2a39d1a315e3dbab4e8
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 10 08:24:58 2015 -0400
+
+    add pki provider conf to packaging
+
+M	addons/packages/packetfence.spec
+
+commit 1f727c57b0da1aeb9c99b113af823fced42d4d13
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 10 08:15:51 2015 -0400
+
+    Don't log root password on pf_run failure
+    
+    Seems obvious but yeah... we were doing it
+
+M	html/pfappserver/lib/pfappserver/Model/DB.pm
+M	lib/pf/util.pm
+
+commit 7a87629e058cbd9f4787cfacf3161d2b1631c263
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 9 10:35:36 2015 -0400
+
+    Include the role name when bulk applying role
+
+M	html/pfappserver/lib/pfappserver/Model/Node.pm
+
+commit 8a0b2b108d1f668b8a03c25fa605c1ed44c6902b
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 9 07:56:20 2015 -0400
+
+    Extract domain modals in templates
+
+M	html/pfappserver/root/config/domain/index.tt
+A	html/pfappserver/root/config/domain/modal_info.tt
+A	html/pfappserver/root/config/domain/modal_wait.tt
+
+commit 5479a84f270ed41d99cc0bf7ee4cbe7774eb5ab5
+Author: Durand Fabrice <oeufdure@gmail.com>
+Date:   Mon Jun 8 20:57:09 2015 -0400
+
+    Fixed wrong default port
+
+M	lib/pf/pki_provider/packetfence_pki.pm
+
+commit f833a9d35d0a78bed1c48785780db77954d8e19e
+Author: Durand Fabrice <oeufdure@gmail.com>
+Date:   Mon Jun 8 20:52:24 2015 -0400
+
+    Changed the default port of packetfence-pki from 9191 to 9393
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+
+commit b644e05a87a1bb86aa99e8f33ddc76340f88729d
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 8 17:06:34 2015 -0400
+
+    typos
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit f9df88596e8953ee00ae91476034bd262a31c2a4
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 8 17:04:51 2015 -0400
+
+    quick typos
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 9e4795b030348c3e59d4e6230e0626039ccbafa3
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 8 17:02:06 2015 -0400
+
+    Revert "added file that arnot supposed to be here"
+    
+    This reverts commit 86be6c5d76ced16e48f0d23fcf6ae98a299ef509.
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+D	raddb/sites-available/packetfence
+D	raddb/sites-available/packetfence-tunnel
+
+commit 86be6c5d76ced16e48f0d23fcf6ae98a299ef509
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 8 17:01:18 2015 -0400
+
+    quicks typos
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+A	raddb/sites-available/packetfence
+A	raddb/sites-available/packetfence-tunnel
+
+commit 28304b0d519ecf1cf9962c68df3e7b9ca86966c0
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 8 16:58:07 2015 -0400
+
+    added radius screen, typo and need explanations of all screenshots
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+A	docs/images/radius-profile1.png
+A	docs/images/radius-profile2.png
+
+commit 646a26f21005ffee750d1909351b9546118c609c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 8 16:19:05 2015 -0400
+
+    Refactor bulkRegister, bulkDeregister, bulkApplyRole and bulkApplyBypassRole to use update
+
+M	html/pfappserver/lib/pfappserver/Model/Node.pm
+
+commit 602a85d4363b76074c8d628e77813464e19ceb68
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Jun 8 13:17:52 2015 -0400
+
+    Check if undefined
+
+M	lib/pf/fingerbank.pm
+
+commit 7e19033ddbb8a634ebc422efc7a8802acd7e3d6e
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 8 11:11:55 2015 -0400
+
+    Sort modules and skip directories
+
+M	lib/pfconfig/manager.pm
+
+commit c39a91e6c29438ef8d9558ef40c4403378feabb7
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 8 10:56:17 2015 -0400
+
+    Fix syntax error in Makefile
+
+M	Makefile
+
+commit dd1e0fab7e8286eb26d3b0d95691e09eb43c2982
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 5 15:58:50 2015 -0400
+
+    syntax, fix doc
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 7d7010293f9c988a0c9ab429ff6a3d590820f130
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 5 15:49:20 2015 -0400
+
+    list syntax
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit c6362bffa4b7bd65f9a659576791024aedbd2644
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 5 15:48:00 2015 -0400
+
+    syntax
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 28d48e9ba3e4c526ac8f719789541a90ae5c1f62
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 5 15:20:55 2015 -0400
+
+    Force link creation if file already exist
+
+M	addons/packages/packetfence.spec
+M	debian/packetfence.postinst
+
+commit 66eb18b2996b0c3a161140bda5e9fac2d84cf971
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 5 15:16:53 2015 -0400
+
+    p12 mail, save ca
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit b86571a6e10337dae6991d9b2ac857222b49a3c1
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Jun 5 15:08:23 2015 -0400
+
+    rename windows-profile.xml to pf-profile.xml
+
+A	html/captive-portal/templates/pf-profile.xml
+D	html/captive-portal/templates/windows-profile.xml
+M	lib/pf/provisioner/android.pm
+M	lib/pf/provisioner/windows.pm
+
+commit 2de19e9c3847f95c9ed6d9be4884da6ce951dcb3
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Jun 5 15:06:38 2015 -0400
+
+    removed useless attributes from pf agent profile
+
+M	html/captive-portal/templates/windows-profile.xml
+
+commit d92335021ead686de2050d7c4816a6963c133ef9
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 5 12:12:00 2015 -0400
+
+    screenshot/doc provisioner NOT READY FOR REVIEW
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+A	docs/images/eaptls-example.png
+A	docs/images/eaptls-sign-example.png
+
+commit 7a7a6b438a8dde91edc85562327a72459db145d1
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Jun 5 11:29:44 2015 -0400
+
+    Add node to forward dhcp for meraki web auth
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	lib/pf/Switch/Meraki/AP_http.pm
+
+commit ef8049d0a29f284613f598b725a1e34ececb5c1c
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Jun 5 10:14:11 2015 -0400
+
+    Hide passwords value in Switch configuration
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+
+commit bb4a8ee51ed10abf7c12895350f53a03d506f9e1
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 5 09:41:24 2015 -0400
+
+    screenshot, docs
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+A	docs/images/packetfence-pki-provider.png
+A	docs/images/packetfence-pki-provider2.png
+
+commit e3b152f976f62fea59cc09ad19a635eae36baa7a
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 4 17:36:05 2015 -0400
+
+    only find .pm files in pfconfig list namespaces
+
+M	lib/pfconfig/manager.pm
+
+commit b594c8c42b6914a26de78d0c1e3ca457f395b38a
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Jun 4 17:14:53 2015 -0400
+
+    more docs/typos
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit bd1753d9125ef0c98c59b2c7dd9a918d04febf45
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Jun 4 16:27:08 2015 -0400
+
+    typos
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 08fc3f2f3d2c55ea60043d1fa49d8a6ace24b141
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Jun 4 16:30:59 2015 -0400
+
+    Add missing field type
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+
+commit d54d744c9ab0b5c8070f0f74ddb5ecd0b391fbcb
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Jun 4 16:11:55 2015 -0400
+
+    variables names, cleanup
+
+M	html/captive-portal/content/packetfence-windows-agent.exe
+
+commit 2fa6d1635bf5aff245e5274213f6fe061dc3fc07
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jun 4 16:00:54 2015 -0400
+
+    Initialise mangle_postrouting_inline to nothing
+
+M	lib/pf/iptables.pm
+
+commit 2e0b81bc88ca78de550331e00afdbdd47199a8fa
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 4 15:05:21 2015 -0400
+
+    Fix code style
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Oauth2.pm
+
+commit 275a709e34bc5a81d30bb69ec111a281009c1c4a
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 4 14:42:50 2015 -0400
+
+    Fix Provisioner OS detection
+
+M	lib/pfconfig/namespaces/config/Provisioning.pm
+
+commit a969b9db02fd2e6564880bf75fd2a81371ac8f09
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Jun 4 13:59:13 2015 -0400
+
+    import only usefull function instead of the whole module each time
+
+M	html/captive-portal/content/packetfence-windows-agent.exe
+
+commit 68027a28f6fabb6ffb30d101b25a228e7d24dba2
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 4 12:15:01 2015 -0400
+
+    news entry for f1f6ba18bedf768a6c145c895e8421805c612c22
+
+M	NEWS.asciidoc
+
+commit 2c28addadbda2f9ecb3aed29377b226bd9e49057
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 4 12:13:02 2015 -0400
+
+    Make sure provisioner is not removed if used
+
+M	html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Provisioning.pm
+
+commit 5bb04ba6c1dbd79bf39222ace1c8be6a159120de
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 4 11:35:07 2015 -0400
+
+    Don't force monitoring db to 127.0.0.1 in clusters
+    
+    Also added note in guide and upgrade to configure it
+    
+    fixes #619
+
+M	NEWS.asciidoc
+M	UPGRADE.asciidoc
+M	docs/PacketFence_Clustering_Guide.asciidoc
+M	lib/pf/services/manager/httpd_graphite.pm
+
+commit 542ce967f4f9c6d1207f25ccff363e8557320a5d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Jun 4 12:11:26 2015 -0400
+
+    If the module does not exists then do not show the full compile error
+
+M	lib/pf/cmd/subcmd.pm
+
+commit 1b9063bc8d2ad370229860f26a087a69a8aa4fa2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Jun 4 11:30:16 2015 -0400
+
+    Show error when a user is not found
+
+M	lib/pf/cmd/pf/fixpermissions.pm
+
+commit 3b195533653240d41ecdee13b1ba647623e4ec68
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Jun 4 11:25:26 2015 -0400
+
+    Remove support for signing the profile. Fixes #662
+
+M	html/pfappserver/root/config/provisioning/type/android.tt
+M	html/pfappserver/root/config/provisioning/type/windows.tt
+
+commit 5727158ecf94d09d998ed37738819353ed0517b1
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 4 11:05:28 2015 -0400
+
+    Check if in autoconfig before reevaluating access on unknownState
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/CaptivePortal.pm
+
+commit 10edc098f9f9c6360ca322c9a17571b24dbe5a11
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Jun 4 10:47:56 2015 -0400
+
+    Do not autoload the CHI Test modules
+
+M	lib/pf/CHI.pm
+
+commit ef5e3c4ae8702da505ee58389d859efbe4c9b63c
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Jun 4 10:32:19 2015 -0400
+
+    typo/syntax
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit eb96ddee8764b01c443bb332c32e5e5e0fd233cf
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 4 10:22:29 2015 -0400
+
+    changes to provisioning so it works with android agent
+
+M	html/captive-portal/templates/windows-profile.xml
+M	lib/pf/provisioner/android.pm
+
+commit e211bccd5348769ad60eaa3051f73f042f76604f
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Jun 4 10:15:30 2015 -0400
+
+    typoss
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit bb75ac51d08ecf456a53812913a76c147bdb3b33
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Jun 4 10:14:18 2015 -0400
+
+    typos
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit fc9b693ee6f0aa2a110b7752cf3e72529b4eabcf
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Jun 4 10:10:56 2015 -0400
+
+    Update profile location windows agent + typos/syntax
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+M	html/captive-portal/content/packetfence-windows-agent.exe
+
+commit 1f56887a4757ce9e463ff2223e050db8ab764c7c
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Jun 4 09:42:51 2015 -0400
+
+    fixes + new doc
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 4df8528ca1886c0f314cc0712ccc2fe996589c03
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 4 09:28:57 2015 -0400
+
+    Prompt user for e-mail if can't look it up in Source
+    
+    fixes #660
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/templates/pki.html
+M	lib/pf/pki_provider/packetfence_pki.pm
+
+commit d23ddb88b4e6886fa41d359426fb298574b2f367
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jun 3 16:49:38 2015 -0400
+
+    syntax/docs
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit b6ecc4173e17ca7bc01018819f6c2cabf9744da6
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jun 3 16:33:04 2015 -0400
+
+    more syntax
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit e1dc8cd07c8ad6e32116af18a60010b9b34b6abe
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jun 3 16:31:23 2015 -0400
+
+    doc syntax
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit dad8ff116fcabf3dce857624e5e046ad6656ffdf
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jun 3 16:27:01 2015 -0400
+
+    doc syntax
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit c0cd408d03bcc16253424cad4355db0e8dede0bd
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jun 3 16:25:19 2015 -0400
+
+    doc WIP
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 95db9f4e18d5f8083d6245b1f33aeadcc9df4cbe
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jun 3 16:02:02 2015 -0400
+
+    more docs and Upper case Won Windows provisioner
+
+M	docs/PacketFence_PKI_Guide.asciidoc
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+
+commit 88ef08a145b0463087c692dcff9c8791c8b6b93b
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 3 15:57:34 2015 -0400
+
+    Add possibility to revoke a cert when a node is unreged
+    
+    fixes #579
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+M	lib/pf/node.pm
+M	lib/pf/pki_provider.pm
+M	lib/pf/pki_provider/packetfence_pki.pm
+
+commit bb3357986dc70ea23ef97ca5f5a731f0b7ed9f9a
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jun 3 15:21:12 2015 -0400
+
+    inital doc WIP
+
+A	docs/PacketFence_PKI_Guide.asciidoc
+
+commit 3da3ba98700acca84142560fdfea14fc28165456
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jun 3 13:10:54 2015 -0400
+
+    update agent for fingerprint
+
+M	html/captive-portal/content/packetfence-windows-agent.exe
+
+commit 89b77076485ed7e94068c08f1671058d8a23d3ca
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jun 3 10:02:49 2015 -0400
+
+    typos
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+
+commit 8830ddb52225d85d1ee36d30e466c764e47bfd17
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jun 3 12:18:09 2015 -0400
+
+    Preload all CHI drivers
+
+M	addons/accounting.pl
+M	addons/recovery.pl
+M	lib/pf/CHI.pm
+M	sbin/pfsetvlan
+
+commit 912d62b0ba0534e3203810b13fbb53fce2e47130
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jun 3 11:03:56 2015 -0400
+
+    Change heading
+
+M	html/pfappserver/root/config/pki_provider/list.tt
+
+commit ae3a55d983894c8052d8b602fd731bffa8707581
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jun 3 11:02:17 2015 -0400
+
+    Made the link name in the admin plural instead of singular
+
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+M	html/pfappserver/root/admin/configuration.tt
+
+commit e6965232bd5dd04a8af7cd697128c63675ea9534
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jun 3 10:59:29 2015 -0400
+
+    Update missing translations
+
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+M	html/pfappserver/root/admin/configuration.tt
+
+commit ff7523aefab47ff4ed38a96a4a080e3cfad5c9ab
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jun 3 10:47:34 2015 -0400
+
+    Updated translations for the PKI Providers in the admin gui
+    
+    Move packetfence_pki to their own form
+
+M	html/pfappserver/lib/pfappserver/Base/Controller/Crud.pm
+D	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+A	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+M	html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/PKI_Provider.pm
+A	html/pfappserver/root/config/pki_provider/create_type.tt
+M	html/pfappserver/root/config/pki_provider/index.tt
+M	html/pfappserver/root/config/pki_provider/view.tt
+
+commit 0fd48f40fd4a667515b012f9c7d86edeba409008
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 2 17:30:57 2015 -0400
+
+    Use the broadcast flags to toggle HIDDEN_SSID
+
+M	html/captive-portal/templates/windows-profile.xml
+M	html/captive-portal/templates/wireless-profile.xml
+
+commit 73bb9a3a0d2efb43de4a535b7bfdcdbd3621bb50
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 3 08:59:37 2015 -0400
+
+    Add support for PacketFence PKI using https + model cleanup
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+M	lib/pf/pki_provider/packetfence_pki.pm
+
+commit fea5f58ee58807c63f114851e7de63281cd11f2a
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 3 08:48:23 2015 -0400
+
+    die if failed to aquire cert from pki
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit a0636382ebb6f0e06d7753f4da2e601ef8352704
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 3 08:27:25 2015 -0400
+
+    detach after unauthorized detection
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit e72f01fd3e7fac792915b52ad5af6ec9a8aff350
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 3 07:59:02 2015 -0400
+
+    Autogenerate a changeable cert pass + cleanup pki.html
+    
+    fixes #650
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/templates/pki.html
+
+commit deb577e3e2b2c59a1fd1524cb6e390d2903bb4f7
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jun 3 07:34:34 2015 -0400
+
+    cleanup pki profile stash
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit bff3aa4ba07f51e1ecf87a04d56e5219bd5ad36a
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 2 15:55:44 2015 -0400
+
+    add get_cert as a pki_provider method
+
+M	lib/pf/pki_provider.pm
+
+commit b6c4ca06b82a262d22cceaad4f039879707bbf90
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 2 15:54:24 2015 -0400
+
+    remove useless p12 creation + cleanup flow
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 657c9d75d4d60516c4de7945653e12d5b1438076
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 2 13:55:49 2015 -0400
+
+    Compute reverse DNS automagically for wireless profiles
+    
+    fixes #635
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+M	html/captive-portal/templates/windows-profile.xml
+M	html/captive-portal/templates/wireless-profile.xml
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+M	html/pfappserver/root/static/admin/config/provisioners.js
+M	lib/pf/config.pm
+M	lib/pf/provisioner/mobileconfig.pm
+A	lib/pfconfig/namespaces/resource/reverse_fqdn.pm
+
+commit 58a28d8be07a1fa79291267757aef3cd3de7c486
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 2 13:34:59 2015 -0400
+
+    Make TLS profile page refresh proof.
+    
+    partly fixes #638
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	lib/pf/web/constants.pm
+
+commit ce4923e3cd5cd559af70e7d29973713b2dcdd808
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 2 08:41:25 2015 -0400
+
+    Remove e-mail field from pki form
+
+M	html/captive-portal/templates/pki.html
+
+commit 55fb9268e53acb3bec3c1f192fc75f4d1a6bac73
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Tue Jun 2 13:47:34 2015 -0400
+
+    synthax fix
+
+M	docs/PacketFence_OpenWrt-Hostapd_Quick_Install_Guide.asciidoc
+
+commit 589275e9584fcf9b474aeb7d9559b0ff853cdca9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 2 11:56:43 2015 -0400
+
+    Rename pf::pki_provider::inverse to pf::pki_provider::packetfence_pki
+    Updated translations for pf::pki_provider
+    
+    Fixes #563
+
+M	addons/extract_i18n_strings.pl
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+D	lib/pf/pki_provider/inverse.pm
+A	lib/pf/pki_provider/packetfence_pki.pm
+
+commit 661e6ed70f43ba3a4d982b27d599acfc6fd45a5d
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Jun 2 11:39:16 2015 -0400
+
+    Fingerbank should log in it's own file...
+    fixes #623
+
+M	conf/log.conf.d/httpd.webservices.conf.example
+
+commit 6e129b1675c254fe6525e127cbaf41fe7d156872
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue Jun 2 10:05:48 2015 -0400
+
+    added help
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+
+commit c3cf7ea6976ec802bf119e640ecc42dfe9b070f7
+Author: Durand Fabrice <oeufdure@gmail.com>
+Date:   Tue Jun 2 08:51:51 2015 -0400
+
+    Allow multiples ip address in dns field
+
+M	html/pfappserver/lib/pfappserver/Form/Interface.pm
+
+commit ac135982a2106557934e6805dfbf4226383bbffc
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 2 08:37:46 2015 -0400
+
+    Rework setRole and setUnregDate so provisioner detection works
+    
+    fixes #564
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+
+commit a9eea9b5f9bedce4d3443bf5a1deb2242b2e4dc6
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 2 08:00:10 2015 -0400
+
+    Make PKI CN selectable (mac or username)
+    
+    fixes #583
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+M	lib/pf/pki_provider.pm
+
+commit bd89d050db3c05e1743b19fce7273e92ced31b20
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 1 16:52:25 2015 -0400
+
+    Fix issue where valid_from date will not be properly updated
+
+M	html/pfappserver/lib/pfappserver/Form/User/Create.pm
+
+commit 3e1b826d91c05b7b48ecb0e492f9ee4965830812
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 1 16:30:44 2015 -0400
+
+    file extension
+
+M	html/captive-portal/templates/provisioner/windows.html
+
+commit fe85112b987acdaade63ef9de74828bcde5f94ac
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 1 16:09:00 2015 -0400
+
+    Simplify the input toggle code.
+    Only display the Wifi key and Pki Provider when needed
+    
+    Fixes #634
+    Fixes #648
+
+M	html/pfappserver/root/static/admin/config/provisioners.js
+
+commit 7237f955ee40a2d9505c8dd9baae6356b1ccec71
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 1 15:50:02 2015 -0400
+
+    compute pki mail from source instead of prompt
+    
+    fixes #643
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 4941c9d9e411c4c7030d10227009073916188c87
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 1 15:36:21 2015 -0400
+
+    EVEN MORE CLEANUP ! But at least IOS profile works :)
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+M	html/captive-portal/templates/windows-profile.xml
+M	html/captive-portal/templates/wireless-profile.xml
+M	lib/pf/pki_provider/inverse.pm
+
+commit 8b27c8f48f5dbb6478ee24fdc41f67b33c72d1ad
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 1 14:24:00 2015 -0400
+
+    remove useless method
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+
+commit 34b7fb5b8a1b239ec64d1678eb58889098b94cb6
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 1 14:23:00 2015 -0400
+
+    rename variables in new profile
+
+M	html/captive-portal/templates/windows-profile.xml
+
+commit a73ec89f9cb5c985f19069cc5302022e11a15d1e
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 1 14:17:31 2015 -0400
+
+    moved cn computing to pki_provider
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	lib/pf/pki_provider.pm
+
+commit 578a08a918efa2dc1ef11068487c841c915b945b
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 1 13:53:36 2015 -0400
+
+    even more cleanup for ... the PKI
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+M	html/captive-portal/templates/wireless-profile.xml
+M	lib/pf/file_paths.pm
+
+commit d08e6cd5881f83180f6c0168e31f86f700cb3c8a
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 1 12:38:42 2015 -0400
+
+    more pki cleanup
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 6d9c3b81af41259ca9390f4ea9bba56fdcb42599
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 1 12:37:03 2015 -0400
+
+    started pki code cleanup
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	lib/pf/file_paths.pm
+
+commit dcede369f6808ed1d0b9380f5b9ff4883309fc0f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 1 14:18:32 2015 -0400
+
+    Made ca_cert and server_cert lazy
+
+M	lib/pf/pki_provider.pm
+
+commit e0ca8214a1423ef08851ef657f69aef9bdd23168
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 1 14:09:32 2015 -0400
+
+    Separate templates per provisioner
+    
+    Fixes #624
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+A	html/captive-portal/templates/windows-profile.xml
+M	lib/pf/provisioner/android.pm
+M	lib/pf/provisioner/mobileconfig.pm
+M	lib/pf/provisioner/windows.pm
+
+commit 2cf018e7b3084b8a477f309d694456e333441e9c
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jun 1 13:52:49 2015 -0400
+
+    Updated NEWSFILE from pull request #574
+
+M	NEWS.asciidoc
+
+commit 08aadfb56f88afa0fd8080b3d0e19ed91f65c841
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jun 1 13:35:39 2015 -0400
+
+    removed invalid network type in checkup for portal type
+
+M	lib/pf/pfcmd/checkup.pm
+
+commit 50f49c44b814f0301f162379b8ce733761b27540
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jun 1 13:34:02 2015 -0400
+
+    Don't generate networks.conf entry for portal type
+
+M	html/pfappserver/lib/pfappserver/Model/Interface.pm
+
+commit c158c16fc67246828384f4b5c9f9dc4a0cf51ee3
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jun 1 13:28:59 2015 -0400
+
+    Fixed syntax
+
+M	html/pfappserver/root/configurator/enforcement.tt
+
+commit 28a3ab46e1790c44177dcad433334a0aa233a626
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 1 13:24:39 2015 -0400
+
+    Refactor to use the certificate attributes from pki_provider class
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	lib/pf/pki_provider.pm
+
+commit 3e993953dfb47c2f195379bb02425c8bb60a6f70
+Author: Derek Wuelfrath <dwlfrth@users.noreply.github.com>
+Date:   Mon Jun 1 13:14:05 2015 -0400
+
+    Typo
+
+M	conf/documentation.conf
+
+commit 77a6ec83dfdb1832c67546607d6567b15e8387bf
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jun 1 13:06:56 2015 -0400
+
+    Added webauth enforcement in the configurator
+
+M	html/pfappserver/lib/pfappserver/Model/Enforcement.pm
+M	html/pfappserver/root/configurator/enforcement.tt
+M	html/pfappserver/root/static/configurator/common.css
+
+commit eb164b3a71a3c5a7e21be88afa54d881879b04d6
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 1 12:57:39 2015 -0400
+
+    Remove unused attributes
+
+M	lib/pf/provisioner/mobileconfig.pm
+
+commit 4c4e556f98fdf0c53ae41a4fbe0af324f77ec9a9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 1 12:54:21 2015 -0400
+
+    Move ca_cert to pki provider
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+A	lib/pf/pki_provider.pm
+M	lib/pf/pki_provider/inverse.pm
+
+commit af4532905cb0c604e6f2a99aa0375cd91eafa026
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 1 11:45:18 2015 -0400
+
+    Tab layout in signing
+    
+    Fixes #628
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+M	html/pfappserver/root/config/provisioning/type/android.tt
+M	html/pfappserver/root/config/provisioning/type/mobileconfig.tt
+M	html/pfappserver/root/config/provisioning/type/windows.tt
+
+commit 4e3979ed0d7fb6404629e80b8d86ffc31ff11493
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 1 11:12:24 2015 -0400
+
+    Customize opswat template
+
+M	html/pfappserver/root/config/provisioning/type/opswat.tt
+
+commit bef80562ab207d34d5f2ced691099fb26a8d207b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 1 11:02:27 2015 -0400
+
+    Move to using a template per provisioner
+
+A	html/pfappserver/root/config/provisioning/type/accept.tt
+A	html/pfappserver/root/config/provisioning/type/android.tt
+A	html/pfappserver/root/config/provisioning/type/deny.tt
+A	html/pfappserver/root/config/provisioning/type/ibm.tt
+A	html/pfappserver/root/config/provisioning/type/mobileconfig.tt
+A	html/pfappserver/root/config/provisioning/type/mobileiron.tt
+A	html/pfappserver/root/config/provisioning/type/opswat.tt
+A	html/pfappserver/root/config/provisioning/type/sepm.tt
+A	html/pfappserver/root/config/provisioning/type/symantec.tt
+A	html/pfappserver/root/config/provisioning/type/windows.tt
+M	html/pfappserver/root/config/provisioning/view.tt
+
+commit 1029d21c98f708ce12e8ed0c9721bcd5f492779c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 22 10:10:54 2015 -0400
+
+    Do not hard code the inverse type
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+M	lib/pf/factory/pki_provider.pm
+
+commit d676edb9a8597521924c3f10e0a56f949c95388a
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu May 21 14:16:44 2015 -0400
+
+    unecessary values
+
+M	html/captive-portal/templates/pki.html
+
+commit bab3a0028465d389af8ad4f07261f7b029525bf5
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu May 21 14:11:19 2015 -0400
+
+    typos and remove aup
+
+M	html/captive-portal/templates/pki.html
+
+commit 5430596e19fec25930a6d3b86ec311f9ed209198
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu May 21 13:54:04 2015 -0400
+
+    password field #562
+
+M	html/captive-portal/templates/pki.html
+
+commit 2b635f4d14719e1914ad2b18fb20f9c861aeb3dd
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue May 19 13:05:05 2015 -0400
+
+    fingerprint placement in template, agent update
+
+M	html/captive-portal/content/packetfence-windows-agent.exe
+M	html/captive-portal/templates/wireless-profile.xml
+
+commit 2a497d42dfc5ff5eb8a40cc433ad29b1f250addb
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue May 19 11:52:59 2015 -0400
+
+    text formulation, typos
+
+M	conf/locale/en/LC_MESSAGES/packetfence.po
+M	conf/locale/fr/LC_MESSAGES/packetfence.po
+
+commit 1f5c77e45afe590711a34e0ff5511a2294bcab4b
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri May 15 15:26:27 2015 -0400
+
+    default client.conf
+
+M	raddb/clients.conf
+
+commit 0b6d5c931bcd381ad2284a2f3662285d1b515a83
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri May 15 15:12:58 2015 -0400
+
+    removing useless module
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit ef37dd8c30bc18c6147a1b53c6196201008a941a
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri May 15 15:10:07 2015 -0400
+
+    removing radius server authentication from profile, + small fixs
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+M	html/captive-portal/templates/wireless-profile.xml
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+M	lib/pf/provisioner/mobileconfig.pm
+
+commit 3ddd437296532983199a1df220abe3a882de80b9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 15 12:25:29 2015 -0400
+
+    Rename ca_cert to additional_certs
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+M	lib/pf/provisioner/mobileconfig.pm
+
+commit 352949b0ea85042e8c923cd315b628d83f540142
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue May 12 11:29:09 2015 -0400
+
+    Show connection sub type for node
+
+M	html/pfappserver/root/node/view.tt
+
+commit 1a52c53eb59ad49bef109ae3806c076638af8f64
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue May 12 11:23:36 2015 -0400
+
+    Added check for undefined device type
+
+M	lib/pf/fingerbank.pm
+
+commit b03ec568a52c9176abfe85acab512c7de38496f2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue May 12 10:45:46 2015 -0400
+
+    Updated alter table for locationlog and locationlog_archive
+
+M	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit 6fd720a7dce21249f53d406dad0b8459f9b501ef
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue May 12 10:06:29 2015 -0400
+
+    Fixed deflation method
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+
+commit 8346a006d94391d7f56f7bd1898ac5256a57d4da
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 11 16:30:17 2015 -0400
+
+    Do not used hard coded values
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 033633bbde3d616f2a86fd7fab823e579342bfa5
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 11 16:29:38 2015 -0400
+
+    Added new file path for radius server cert
+
+M	lib/pf/file_paths.pm
+
+commit 9978487e2cc09d9887a81f5fb3f983e5c482b1cd
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 11 16:26:40 2015 -0400
+
+    Added the ca cert if defined
+
+M	lib/pf/provisioner/mobileconfig.pm
+
+commit 8c60e8ea110c0240d43f2bf6315caa4012f30b8e
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 11 14:07:33 2015 -0400
+
+    Update help for ca_cert, certificate, private_key
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+
+commit dce9ac4426bd7c5da802f0a7e19d31d578ef8a1f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 11 13:06:46 2015 -0400
+
+    Added inflate deflate method for text area
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+
+commit f63a9d4e9b480b4b0b49838c8043548909c1e7a7
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 11 12:14:48 2015 -0400
+
+    Fixed checkbox error for signing profile
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+
+commit d3ab67504da3d11b634304fd426e107805f7ddc5
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 11 11:38:14 2015 -0400
+
+    Added new field can_sign_profile
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+
+commit 57ddcf92d99f9c8b4dcf237b930bacdd3ee9a309
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 11 17:09:07 2015 -0400
+
+    Refactor to use new locationlog field sub connection type
+
+M	lib/pf/Switch.pm
+M	lib/pf/api.pm
+M	lib/pf/radius.pm
+M	sbin/pfsetvlan
+
+commit 05cfaf34d9f51121dad1de79a8472e6a10391730
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 11 17:07:48 2015 -0400
+
+    Added support for locationlog field connection_sub_type
+
+M	lib/pf/locationlog.pm
+
+commit a80026d0a5ef1c25e1bca65b07a512ec8665fc02
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 11 16:45:02 2015 -0400
+
+    Added field connection sub type to the locationlog table
+
+M	db/pf-schema-X.Y.Z.sql
+M	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit 76d7ff4bfd8b496e9a362cb7e99c126a3a9cac54
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 11 11:45:12 2015 -0400
+
+    Added new attribute subtype
+
+M	lib/pf/Connection.pm
+
+commit 9e2a48070b1d16b1dcdf99d73161281e06f15a68
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon May 11 10:25:03 2015 -0400
+
+    base64 Decode the signed content
+
+M	lib/pf/provisioner/mobileconfig.pm
+
+commit c980c5bc554f5c8ab8b4973d75171d367c28032d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 8 16:57:55 2015 -0400
+
+    Increase the size of the modal
+
+M	html/pfappserver/root/config/provisioning/index.tt
+
+commit b414bebe23e7135772cd39fc578a34bccf31f4ee
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 8 16:57:33 2015 -0400
+
+    Added new fields certificate and private_key
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+
+commit 81f8e66fa874ff94418f66f431c1ab51ac557e06
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 8 16:41:07 2015 -0400
+
+    Signing now happens in View::MobileConfig
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+
+commit 8c78d33aea782049ab82e8b9d1df8369618ba3bf
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 8 16:30:34 2015 -0400
+
+    Fixed compile error
+
+M	html/captive-portal/lib/captiveportal/PacketFence/View/MobileConfig.pm
+
+commit dcceb6fc11dc6a3cd2598e2bef84fae7eea4603f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 8 16:28:24 2015 -0400
+
+    The provisioner is now responsible for signing profiles
+
+M	html/captive-portal/lib/captiveportal/PacketFence/View/MobileConfig.pm
+
+commit 92d126a37959b2f1ab996fecf337d1a4b2d2d24f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 8 16:27:12 2015 -0400
+
+    Add support for signing profiles
+
+M	lib/pf/provisioner/mobileconfig.pm
+
+commit 1aa41156b7f805f461524219f789dda7d2ac72e8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 8 15:36:46 2015 -0400
+
+    Remove space at end of line
+
+M	addons/sign.sh
+
+commit 8350f48dbca84e07adc1c574d1244e5cc6c2aa7d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 7 11:17:06 2015 -0400
+
+    Updated translations for pki provider
+
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+
+commit 324ed52ee9c61351deb55c39de8c368498a29657
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 7 11:15:46 2015 -0400
+
+    Updated pod doc
+
+M	lib/pf/pki_provider/inverse.pm
+
+commit 385fe0a2991b436162279bb145142e6a57403a3c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 7 11:13:48 2015 -0400
+
+    Updated pod doc
+
+M	lib/pf/factory/pki_provider.pm
+
+commit dea7be8dc6e262e543d7c8291c7d7e8848879523
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 6 15:47:17 2015 -0400
+
+    Removed unused variable
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+
+commit 3bb963f23f01b0a60b6f49e8594436646699ece0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 6 15:42:39 2015 -0400
+
+    Added additional logging
+
+M	lib/pf/provisioner.pm
+
+commit 86ebd9d1153cec8b6d9396fdcb74ea011b95e26c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 6 15:21:28 2015 -0400
+
+    Updated pod doc
+
+M	lib/pf/provisioner.pm
+
+commit 6bf84c83fca187acc3d7ec551b94f7bb3a3a9010
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 6 15:04:20 2015 -0400
+
+    Updated pod doc
+
+M	lib/pf/factory/pki_provider.pm
+
+commit cc2f3075bd5b82480d6550d2f5714727dc61a5ef
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 6 15:02:22 2015 -0400
+
+    Updated pod doc
+
+M	html/pfappserver/lib/pfappserver/Model/Config/PKI_Provider.pm
+
+commit 14b56d104c6a1d1c63073dbbfa8b7296b5cfc43a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 6 14:44:10 2015 -0400
+
+    Fixed path pf the agent
+
+M	html/captive-portal/templates/provisioner/windows.html
+
+commit e46f2fb2696d8a2a3535192888796dd05db73222
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 6 14:42:50 2015 -0400
+
+    removed the aup
+
+M	html/captive-portal/templates/pki.html
+
+commit cf2bab321d240f09f403a38471d816a26cd8e575
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 6 14:42:18 2015 -0400
+
+    Do not repopulate the passwords
+
+M	html/captive-portal/templates/pki.html
+
+commit 0a935f0e9af58001ceb6817cdb5934f81434ff4c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 6 12:54:29 2015 -0400
+
+    Added additional validation
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit a6f80f50db654e82a848ef119a7c41b07d587fb2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 6 12:40:01 2015 -0400
+
+    Improving error handling for build_cert_p12 and get_cert and fix compile error
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit b6ea671dbeaace0cb53df8c24e50bb86d20354f9
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue May 5 10:54:51 2015 -0400
+
+    code cleaning
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 867be17de8324f0d572b81a48faaf7766d476797
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue May 5 10:44:52 2015 -0400
+
+    Use openssl lib instead of call system
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 3551f863cbbff2f89d24683718518c86d230487f
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue May 5 10:14:04 2015 -0400
+
+    use perl library insead of calling system
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 02e3573186551cb682bd350a5ca507eff75663d2
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon May 4 14:30:29 2015 -0400
+
+    dead code, fixs
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+
+commit 7c1753af767f3bdc95e4b85c8a21b8b36a9f1a9f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Sun May 3 20:47:09 2015 -0400
+
+    Fixed name of redirect controller
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+
+commit d8af32ee175ac6f48ff1bcbaf7745c6c1480094d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Sun May 3 20:46:16 2015 -0400
+
+    Updated Message id
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+
+commit 5fe0994f4286c959ef6a2dc1a29f6d4afcdf1ee5
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Sun May 3 16:09:56 2015 -0400
+
+    Added additional comments
+
+M	html/captive-portal/lib/captiveportal/PacketFence/View/MobileConfig.pm
+
+commit 2c9bcc726faa5ee6945d97d653a5e76931e86dd1
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Sun May 3 16:03:37 2015 -0400
+
+    Renamed variable to be more correct
+
+M	lib/pf/provisioner.pm
+
+commit 0b3e3ffc820b0a46f520017c7820904a37521b61
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Sun May 3 15:56:08 2015 -0400
+
+    Remove dummy data
+
+M	conf/pki_provider.conf.example
+
+commit 3f9c30fad46f71634496b9e5e71648547b990807
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon May 4 09:25:10 2015 -0400
+
+    Identation js, dead code and clients.conf is back
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/pfappserver/root/static/admin/config/provisioners.js
+A	raddb/clients.conf
+
+commit 22bc6c8699236870152050dfd78a670b634edc23
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri May 1 16:08:05 2015 -0400
+
+    rm clients.conf
+
+D	raddb/clients.conf
+
+commit 675c09f8bf08ebaea4dfd55d22dd9b24db064bfd
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri May 1 16:02:09 2015 -0400
+
+    typos, remove dead code
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+M	lib/pf/provisioner/mobileconfig.pm
+
+commit 7438362cdbe4c67ce13f495dc104293509bb1afd
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri May 1 15:52:14 2015 -0400
+
+    fix errors
+
+M	html/captive-portal/templates/provisioner/windows.html
+
+commit b796ca183a7a6f001da1427486cc4f5f622e4b06
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri May 1 15:49:34 2015 -0400
+
+    typos
+
+M	html/captive-portal/templates/pki.html
+
+commit d214db6bf0f8068d87cec385744ef62d0cfa18fe
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri May 1 15:47:40 2015 -0400
+
+    Added doc in methods of WirelessProfile
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+
+commit c24a8600c2a93de3b35fc3cd00216501a3cf389c
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri May 1 15:44:20 2015 -0400
+
+    Documentation method in TLSProfile
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 914a39ca2bbfb379bfc029dcf6107966c2ab48b0
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Apr 30 16:24:14 2015 -0400
+
+    Fix sign.sh, Agent updated, sign the profile for ios
+
+M	addons/sign.sh
+M	html/captive-portal/content/packetfence-windows-agent.exe
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+
+commit f959a1431aa594c4da53cc0d7c211dd43c435710
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Apr 29 14:56:26 2015 -0400
+
+    Added support for eaptls
+
+M	html/captive-portal/templates/wireless-profile.xml
+
+commit fbc30cbbb25e3a64dc9bf56110c4297a750dec10
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Apr 29 14:50:40 2015 -0400
+
+    Store the pki data into a mac session
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+
+commit eccf30e8c35257d4ec15a6add61b6e15ec733ef4
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue Apr 28 16:52:29 2015 -0400
+
+    Added additional logging
+
+M	html/captive-portal/lib/captiveportal/PacketFence/View/MobileConfig.pm
+
+commit e7c46fbeb6620cbf3b96136a2f1d13454769a117
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Apr 24 15:22:54 2015 -0400
+
+    Pass the proper values to get_cert
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 8b216ee6a609c6aeeda56d6068f65cad0839c7b2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 28 13:54:14 2015 -0400
+
+    Added password validation field
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/templates/pki.html
+
+commit fac6e489aa79a2e88499e55cee9c51e16953834e
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 28 10:43:52 2015 -0400
+
+    Hide the password field
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+
+commit 5347f82907b8e2803bf95d60a0dc976cb8bc5bb7
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Apr 23 16:34:29 2015 -0400
+
+    fixs, key for eaptls
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+M	html/captive-portal/templates/wireless-profile.xml
+
+commit 04f1e22117852e28b9ce384f4fee35a6636de689
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Apr 23 13:18:26 2015 -0400
+
+    Controler fix, template modif, sign profile
+
+A	addons/sign.sh
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+
+commit a414a5f4bd99e188aa1ba1a694a977a8313b1f23
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Apr 23 16:23:17 2015 -0400
+
+    Removed unused fields
+
+M	html/captive-portal/templates/pki.html
+
+commit 3ab3ed21fc29ae7fc3700e01c70a67daea0ab397
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Apr 23 15:16:53 2015 -0400
+
+    Prefill data in form
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 1d60992082ce063383d26576a83f39e275c23bc3
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Apr 23 14:41:24 2015 -0400
+
+    Remove pki section from pf.conf
+
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+
+commit e492be39ed3a12cbdf687fe9a608a518f0a22b1f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Apr 23 14:27:33 2015 -0400
+
+    Remove the use of pki section from pf.conf
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+M	lib/pfconfig/namespaces/config/Pf.pm
+
+commit da623ad0a83d74af84013bd6fe5f8874bbf22f4e
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Apr 23 10:47:33 2015 -0400
+
+    Accept a undef os for matching
+
+M	lib/pf/provisioner.pm
+M	t/unittest/provisioner.t
+
+commit fc9d04ec22daac3ee250f38f7041d588296604b4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 21 19:19:10 2015 -0400
+
+    Have the provisioner check for tls enrollment
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+
+commit e5e5ff032ec310510161d653edb84eb9f78161ec
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 21 16:27:31 2015 -0400
+
+    Move the pki attribute from pf::provisioner::mobileconfig to pf::provisioner
+
+M	lib/pf/provisioner.pm
+M	lib/pf/provisioner/mobileconfig.pm
+
+commit 4e82e50c4a48c22ffb16618d0ee9d06a54b8a1ba
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 21 16:12:49 2015 -0400
+
+    Removed dead code
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+
+commit 19a67781453bfb52022d3770c4ccd464274427c5
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 21 15:19:13 2015 -0400
+
+    Removed dead code
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 2677aff3212ad9c00788c9ff130b4dbd3fe15abb
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 21 15:17:29 2015 -0400
+
+    Rename ca_path to ca_cert and remove dead code
+
+M	lib/pf/provisioner/mobileconfig.pm
+
+commit 5792eb581eb48e0c62e2f26840cc82bfb4c81322
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 21 15:02:22 2015 -0400
+
+    Remove role
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+M	lib/pf/pki_provider/inverse.pm
+
+commit 2de6704b5c7886a86f3db294763dae589cb215b9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Apr 21 11:19:37 2015 -0400
+
+    Use the mac as the id and cn
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 54bc210f4eb72f0bd94bb80e1ac2f53a9c055923
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Apr 20 16:37:23 2015 -0400
+
+    Escape data before sending it
+
+M	lib/pf/pki_provider/inverse.pm
+
+commit 2f6f1f6236e84b85a1971f15ba6430450616dcea
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Apr 20 11:24:50 2015 -0400
+
+    Rename ca_path to ca_cert
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+
+commit 7fa9318abbb00471a982b7ec51f6fd596946794a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Apr 20 09:45:22 2015 -0400
+
+    Updated .gitignore
+
+M	.gitignore
+
+commit 3459ebcd4059690406629fe15d199ec52bdea943
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Apr 20 09:30:10 2015 -0400
+
+    Change the ca_path to ca_cert to allow the certificate of Authority to be stored in the config
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+
+commit 9f571e39916ed3e4ba0573166bdbc363bdc8bc33
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Apr 17 16:50:57 2015 -0400
+
+    Display the pki provider option
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+
+commit 586a7e067878940be3a343f62daaab3723e1fead
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Apr 17 16:49:01 2015 -0400
+
+    Added new field pki_provider
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+
+commit 2ec5bbaa479b3afa0b3eb16550212a24dbd8e9ca
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Apr 17 16:48:06 2015 -0400
+
+    Added Form fields for pki provider
+
+M	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+
+commit 2d826d3ac18c216ddd610a779821f3472ce3cb0b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Apr 16 17:20:51 2015 -0400
+
+    new module pf::factory::pki_provider
+
+A	lib/pf/factory/pki_provider.pm
+
+commit f1922f9c7b94ed924eba4ba260ce265fb9c57a89
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Apr 17 14:20:49 2015 -0400
+
+    Initial Work on configuration for conf/pki_provider.conf
+
+A	conf/pki_provider.conf.example
+A	html/pfappserver/lib/pfappserver/Controller/Config/PKI_Provider.pm
+A	html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider.pm
+A	html/pfappserver/lib/pfappserver/Model/Config/PKI_Provider.pm
+A	html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/PKI_Provider.pm
+M	html/pfappserver/root/admin/configuration.tt
+A	html/pfappserver/root/config/pki_provider/clone.tt
+A	html/pfappserver/root/config/pki_provider/create.tt
+A	html/pfappserver/root/config/pki_provider/index.tt
+A	html/pfappserver/root/config/pki_provider/list.tt
+A	html/pfappserver/root/config/pki_provider/view.tt
+A	lib/pf/ConfigStore/PKI_Provider.pm
+M	lib/pf/config.pm
+M	lib/pf/constants/admin_roles.pm
+M	lib/pf/file_paths.pm
+A	lib/pfconfig/namespaces/config/PKI_Provider.pm
+
+commit d76cbf2c780d6dbe78c43dd9c1b96ec732826095
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Apr 16 14:41:57 2015 -0400
+
+    renamed pf::pki_provider to pf::pki_provider::inverse
+
+D	lib/pf/pki_provider.pm
+A	lib/pf/pki_provider/inverse.pm
+
+commit 7d3d7ab60c5d057ec7009a44a31a98491cb7af61
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Apr 16 12:06:13 2015 -0400
+
+    Initial work on pf::pki_provider
+
+A	lib/pf/pki_provider.pm
+
+commit 5c850d906bc5beed44631b2a9c71d505a9d3f84e
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Apr 15 15:57:32 2015 -0400
+
+    username static
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit bda8a5fa01ff6171bf91e5bd6d09812bd90df2c0
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Apr 10 11:31:03 2015 -0400
+
+    added strings page/translation + using username as cn
+
+M	conf/locale/en/LC_MESSAGES/packetfence.po
+M	conf/locale/fr/LC_MESSAGES/packetfence.po
+M	html/captive-portal/content/packetfence-windows-agent.exe
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+M	html/captive-portal/templates/pki.html
+M	html/captive-portal/templates/provisioner/windows.html
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+
+commit 6011b2e5f932789f839bfff84815b64439e5ee82
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Apr 2 15:19:48 2015 -0400
+
+    remove hard code concerning role selection, new i18
+
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+
+commit 14a549790b87ff406a81a6fe5d7c0af285bf2851
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Apr 2 10:41:24 2015 -0400
+
+    added string for translation
+
+M	addons/extract_i18n_strings.pl
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/templates/pki.html
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+
+commit 0d5db8f15d154ef5861a0be1f2c17ba4a5705bfc
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Apr 1 15:38:44 2015 -0400
+
+    Bug fixs, Windows OK, IOS issue
+
+M	html/captive-portal/content/packetfence-windows-agent.exe
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+M	html/captive-portal/templates/pki.html
+M	html/captive-portal/templates/wireless-profile.xml
+M	lib/pf/provisioner/mobileconfig.pm
+M	raddb/clients.conf
+
+commit 4deba4f21f3552f68f31245cdc20a441c3ef5f9a
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Mar 30 13:34:34 2015 -0400
+
+    Multiple fixs
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+M	lib/pf/provisioner.pm
+
+commit 96ea5895e7e020e29bb45a22baac58e3413e1f18
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Mar 27 11:39:24 2015 -0400
+
+    Template os selection, code adjustement
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+M	html/captive-portal/templates/wireless-profile.xml
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+
+commit 76a6fc1b868dfbe893db29a2b76fe876e6e42db6
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Mar 18 16:41:39 2015 -0400
+
+    config issue + provisioner fix
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit e6f308ce09f395a4bcf84c89a2c1301f9b8fb50d
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Mar 12 16:03:30 2015 -0400
+
+    add ca_path
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+M	lib/pf/provisioner.pm
+M	lib/pf/provisioner/mobileconfig.pm
+
+commit fa150859c6ec9487b0e564c514cd74db161acbff
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Mar 9 16:18:17 2015 -0400
+
+    Role match fix
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/WirelessProfile.pm
+M	html/captive-portal/templates/wireless-profile.xml
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+M	lib/pf/provisioner/mobileconfig.pm
+
+commit 1da63bcec7c89478640510bba74c9ff77559e763
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Mar 6 16:29:38 2015 -0500
+
+    improve errors, add infos to session
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/templates/wireless-profile.xml
+
+commit 08e6e87056f6a2b6415fa97013ee220fae3635d8
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Mar 5 16:08:14 2015 -0500
+
+    multiple fix, slection of who's candidate by role
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/templates/pki.html
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+M	lib/pf/web/constants.pm
+
+commit c591b622007b26f0adf28a94c48c4d9b03ec380d
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Mar 5 10:51:58 2015 -0500
+
+    adding error handling
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit af150663695b75b21a95dbb27b9ff2f2fe53fa69
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Mar 4 12:58:02 2015 -0500
+
+    some errors handling
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit deaf20c16a7d89646768d24942b27dcf1b6074df
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Mar 4 11:50:50 2015 -0500
+
+    fix certs, parts of TLSProfile
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	raddb/certs/ca.cnf
+M	raddb/certs/server.cnf
+
+commit baca870691b0966e46f713abbef3e82cfdb03318
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Mar 4 11:46:02 2015 -0500
+
+    add email verification
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 5da64d41f665a344ece5377b971efed40d7ebb09
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Mar 4 10:53:33 2015 -0500
+
+    fix controller, template
+
+M	conf/documentation.conf
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+D	html/captive-portal/templates/eap-profile.html
+
+commit 79527c20b5c8a30e740bcecb505baa33f1b9ec77
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Mar 4 10:34:38 2015 -0500
+
+    fix conf.defaults
+
+M	conf/pf.conf.defaults
+
+commit 3079158d190e184ce4fc9a949c934e1681fc9698
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Mar 4 10:13:28 2015 -0500
+
+    coma fixs
+
+M	.gitignore
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit dfbd4d76c72c94df3dfe43338638b478b3f81c0d
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Mar 4 10:09:03 2015 -0500
+
+    js, lib fixes
+
+M	.gitignore
+M	html/pfappserver/root/static/admin/config/provisioners.js
+M	lib/pf/provisioner/mobileconfig.pm
+M	raddb/packetfence.pm
+
+commit 0938df5dbe131103cf6b26cae7721a445104cb6a
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Mar 4 09:36:44 2015 -0500
+
+    multiple fixs
+
+M	html/captive-portal/lib/captiveportal/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Signup.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/templates/pki.html
+M	html/captive-portal/templates/wireless-profile.xml
+
+commit 040e957d49032973e922ced64f453c28e935ce8b
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue Mar 3 16:35:48 2015 -0500
+
+    add data to provisioner from config/controller
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+
+commit 3ba83915ed40aa54f43976c0aaa29b72c3507436
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue Mar 3 10:20:26 2015 -0500
+
+    correct captiveportal.pm
+
+M	html/captive-portal/lib/captiveportal.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit e0fadcc1daae0f82c327381b5ad991adbdb92000
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue Mar 3 09:29:57 2015 -0500
+
+    remove pf.conf from branch
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+
+commit 901b94dbb26b840fbae70191e511c64de2788a67
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Mar 2 13:51:46 2015 -0500
+
+    added file path
+
+M	lib/pf/file_paths.pm
+
+commit b93fe62917a7478472114b80c786731f43e1b965
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Feb 26 13:53:38 2015 -0500
+
+    edit template, Controller, and conf
+
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+M	html/captive-portal/templates/pki.html
+M	lib/pfconfig/namespaces/config/Pf.pm
+
+commit 3beb1509320ef4b3ef8c184cb03fdc99a862a17f
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Feb 20 12:43:36 2015 -0500
+
+    Clean Update
+
+M	html/captive-portal/templates/wireless-profile.xml
+M	html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+M	html/pfappserver/root/admin/configuration.tt
+M	html/pfappserver/root/config/provisioning/index.tt
+M	html/pfappserver/root/config/provisioning/list.tt
+M	html/pfappserver/root/config/provisioning/view.tt
+A	html/pfappserver/root/static/admin/config/provisioners.js
+M	lib/pf/provisioner/mobileconfig.pm
+M	raddb/certs/ca.cnf
+M	raddb/certs/server.cnf
+M	raddb/packetfence.pm
+
+commit da21a6e9857406d5ac054827c4bf11dfdbcf41ab
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Feb 13 16:33:21 2015 -0500
+
+    removing TLScontroller link with signup
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Signup.pm
+
+commit 57c75eb8285a29dab0ce2172e36e54802600a239
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Feb 13 16:30:11 2015 -0500
+
+    Fixing form values requests
+
+M	html/captive-portal/lib/captiveportal.pm
+A	html/captive-portal/lib/captiveportal/Controller/TLSProfile.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Signup.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+A	html/captive-portal/templates/eap-profile.html
+M	html/captive-portal/templates/pki.html
+M	lib/pf/web/constants.pm
+
+commit 6d8a2faff0168076813f058b16bfac52f211bd5c
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Feb 12 14:07:05 2015 -0500
+
+    Implement pki
+
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Signup.pm
+A	html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+A	html/captive-portal/templates/pki.html
+M	html/pfappserver/lib/pfappserver/PacketFence/Controller/Configuration.pm
+M	html/pfappserver/root/admin/configuration.tt
+M	lib/pf/web/constants.pm
+M	lib/pfconfig/namespaces/config/Pf.pm
+
+commit 1646cb3790dc4021f10ee1279ba61dd41ae1ae8d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 29 15:49:46 2015 -0400
+
+    Use the default pid if the authenticated user is undef
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+
+commit b8496111936b8c8bb68d6905fb5e217a3942eddd
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 29 13:12:31 2015 -0400
+
+    Remove code introduced by a bad refactor job
+
+M	lib/pf/enforcement.pm
+
+commit 76f136d8c03c602131aaffb1b694cdb611c965ab
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri May 29 11:41:36 2015 -0400
+
+    Fix issue were when saving a switch the page will lose the current search
+
+M	html/pfappserver/root/config/switch/list.tt
+M	html/pfappserver/root/static/admin/config/switches.js
+
+commit fbde4c50262015e3d977e2366ee4d335fe84fb69
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu May 28 15:29:44 2015 -0400
+
+    Updated PacketFence_Inline_Deployment_Quick_Guide_ZEN with traffic shaping documentation.
+
+M	docs/PacketFence_Inline_Deployment_Quick_Guide_ZEN.asciidoc
+
+commit 3bb2bee620e7002687af7aa8d76c3b2fe0d003bf
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 28 15:24:12 2015 -0400
+
+    Added additional test cases where an ip can be mistaken for a mac
+
+M	t/SwitchFactory.t
+M	t/data/switches.conf
+
+commit 81dac11e1ec36b7bce715c84207e0b5a08f61611
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 28 15:20:00 2015 -0400
+
+    Fix issue where an ip address and also be reported as a mac address in the switch factory
+
+M	lib/pf/SwitchFactory.pm
+
+commit 160bf68ecf07a2b6fc5fdae2ffb1c45fdd5a450d
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu May 28 14:07:40 2015 -0400
+
+    Prettier
+
+M	lib/pf/iptables.pm
+
+commit 239c3f7c7829e896ade5479fc528ab84e145a632
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu May 28 11:47:10 2015 -0400
+
+    screens for meraki web auth
+
+A	docs/images/meraki-network-config.png
+A	docs/images/meraki-radius-config.png
+A	docs/images/meraki-splash-config.png
+
+commit 8e87beedc803a27cffac9a22ceaee183c29968f3
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 28 11:07:50 2015 -0400
+
+    Added additional use cases for SwitchFactory
+
+M	t/SwitchFactory.t
+
+commit be9fa5450f12ee03cbd13ebfd723f651ce16bb68
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 28 11:05:02 2015 -0400
+
+    Updated pod doc and updated display fields
+
+M	lib/pf/cmd/pf/switchconfig.pm
+
+commit 17992e52c99f92168d85787e9f5086bac635f52c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 28 11:03:40 2015 -0400
+
+    Updated pod doc and change profile to id
+
+M	lib/pf/cmd/pf/portalprofileconfig.pm
+
+commit 09752f207983c38d66908fcf0dc7b0ae3cfc7120
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 28 10:22:54 2015 -0400
+
+    Code cleanup and fix issue where if a entry is not found it will return an array ref that is undef
+
+M	lib/pf/base/cmd/config_store.pm
+
+commit d378d24b9400b8b3fed4b8ff8840a955d8eb964a
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Thu May 28 09:21:57 2015 -0400
+
+    fix typos
+
+M	docs/PacketFence_OpenWrt-Hostapd_Quick_Install_Guide.asciidoc
+
+commit 474751c5ec340a0ff8028e4849a3b863585ea0ae
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu May 28 09:20:41 2015 -0400
+
+    Applying POSTROUTING outside than NAT
+
+M	lib/pf/iptables.pm
+
+commit 7d3d4ff0fcee7b1495b27a36de133f42b123ba49
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu May 28 09:03:41 2015 -0400
+
+    Should match on destination too
+
+M	lib/pf/ipset.pm
+
+commit 419aec7b5a2cc29f04cec098d77372b1ee77402c
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Wed May 27 18:11:55 2015 -0400
+
+    Support OpenWrt 14.07 - Hostapd
+
+M	Makefile
+A	addons/hostapd/hostapd-12.09.sh
+A	addons/hostapd/hostapd-14.07.sh
+A	docs/PacketFence_OpenWrt-Hostapd_Quick_Install_Guide-docinfo.xml
+A	docs/PacketFence_OpenWrt-Hostapd_Quick_Install_Guide.asciidoc
+
+commit d987ddcd53cbc3a1228b8caf496f2417739c73e0
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed May 27 16:54:59 2015 -0400
+
+    MAC should not be in here
+
+M	lib/pf/ipset.pm
+
+commit 82c56d17897b8da6d98d55e8dca695b5df305f6b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 27 14:31:00 2015 -0400
+
+    Fix broken test when moving to the new framework
+
+M	t/pfcmd.t
+
+commit 6b6945e039007fa41255bf9569d4d4c67d1e8bc8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 27 14:30:02 2015 -0400
+
+    Have pfcmd help help display it's own help
+
+M	lib/pf/cmd/pf/help.pm
+
+commit 9cd1d93739e1b1cea8eedc3ae55bc21aa1114195
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed May 27 14:26:15 2015 -0400
+
+    adjustements to meraki doc
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	lib/pf/Switch/Meraki/AP_http.pm
+
+commit 738ade80cccc7aa848be4fe71082b555ebcef200
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 27 14:21:21 2015 -0400
+
+    Remove deprecated pfcmd fingerprint
+
+M	lib/pf/cmd/pf.pm
+D	lib/pf/cmd/pf/fingerprint.pm
+M	lib/pf/cmd/pf/help.pm
+
+commit 1bd6952e65b7e58c8445b64dba44b91f64f50afe
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 27 14:02:44 2015 -0400
+
+    Update pfcmd help
+
+M	lib/pf/cmd/pf/help.pm
+
+commit 1ed4eb8a9fb235fd9aee1fd1fef3953d545588e0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 27 14:01:27 2015 -0400
+
+    Update pfcmd help
+
+M	lib/pf/cmd/pf.pm
+
+commit 281963005bbc75f7a267485aa37ad581fca411ff
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 27 13:35:45 2015 -0400
+
+    Improve rule bin/pfcmd
+
+M	Makefile
+
+commit d51334c9a654ac0cbd3bdfdbe9eeb496e6af49dc
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed May 27 12:52:58 2015 -0400
+
+    Update socket path in pfconfig init script
+
+M	addons/pfconfig/pfconfig.init
+
+commit 01db443a9241c496bd24dc4638d3bae3151b0aac
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed May 27 11:37:52 2015 -0400
+
+    touchups to krb5 configuration
+    
+    fixes #606
+
+M	addons/AD/krb5.tt
+M	addons/AD/migrate.pl
+M	lib/pf/domain.pm
+
+commit 1cbdda6dee2e49270380b5826f4d9fd309e17b30
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed May 27 11:27:58 2015 -0400
+
+    Let's added back /usr/sbin/conntrack in sudoers
+
+M	addons/packages/packetfence.spec
+M	debian/packetfence.postinst
+
+commit eaaba3fbbe152f3e51277d63b4aeabbfd5d1e68c
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed May 27 11:10:13 2015 -0400
+
+    add is_external_portal management to management detection
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/CaptivePortal.pm
+M	lib/pf/web/externalportal.pm
+
+commit 1ad16214cd8d84d742be32dc8c2c48c83b85758e
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed May 27 11:09:55 2015 -0400
+
+    permit usage of dispatcher session values from catalyst
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Model/Portal/Session.pm
+
+commit 7f6f719a1411f503f64dbdcc38440d1becebe88b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue May 26 16:11:44 2015 -0400
+
+    Updated pfcmd help
+
+M	lib/pf/cmd/pf.pm
+
+commit 2b9245f3ed6716289dc99d0bf974d048387695b4
+Author: lzammit <lzammit@inverse.ca>
+Date:   Wed May 27 10:17:11 2015 -0400
+
+    Update unreg_node_locked_account.ps1
+    
+    Wrong -InstanceId
+
+M	addons/AD/unreg_node_locked_account.ps1
+
+commit ca61d971cfe2f53df11f8dddd3fdb9b3d71243dc
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed May 27 10:10:12 2015 -0400
+
+    Post 5.1 release procedure.
+
+M	NEWS.asciidoc
+M	UPGRADE.asciidoc
+M	conf/pf-release
+A	db/pf-schema-X.Y.Z.sql
+A	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit 0fd106057eb89c300cc8dc361bf023e5f9246c05
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed May 27 07:59:41 2015 -0400
+
+    add screens
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit a9140c42ce47cb74aa7a20826078884a47b1b1d9
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue May 26 21:03:51 2015 -0400
+
+    apache_status -> modstatus + configurable + outside
+
+M	conf/documentation.conf
+M	conf/httpd.conf.d/httpd.portal
+M	conf/iptables.conf.example
+M	conf/monitoring/collectd.conf.debian.example
+M	conf/monitoring/collectd.conf.rhel.example
+M	conf/pf.conf.defaults
+M	lib/pf/iptables.pm
+M	lib/pf/services/manager/collectd.pm
+
+commit a75bf2962213f71c43398a6c80ec0bc62ac71fec
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri May 22 15:18:14 2015 -0400
+
+    Missing iptables rules
+
+M	conf/iptables.conf.example
+M	lib/pf/iptables.pm
+
+commit bba8d4d6846b7e156d27b696b5a9f05483924a85
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri May 22 02:51:18 2015 -0400
+
+    Adjusted flow + document
+
+M	conf/httpd.conf.d/httpd.portal
+
+commit 80a74f25ddf8f36963ec09da4f15712a1a2c5f44
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri May 22 02:45:02 2015 -0400
+
+    No longer needed with 'portal' interface type
+    - If we need to run the portal on the management interface (webauth purpose per example), simply add the portal type
+
+M	conf/httpd.conf.d/httpd.portal
+
+commit 663f6960eae18487cd92e9b33522d9ac1babf3c7
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri May 22 02:41:18 2015 -0400
+
+    Missing in previous commit
+
+M	conf/httpd.conf.d/httpd.portal
+
+commit aa22992ec3c314b1c894d976aff9f882a251235e
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri May 22 02:30:56 2015 -0400
+
+    Introduced new configuration parameter for interfaces type
+    - Assign the 'portal' type to spawn a vhost on an interface
+
+M	conf/documentation.conf
+M	conf/httpd.conf.d/httpd.portal
+M	lib/pf/config.pm
+M	lib/pfconfig/namespaces/interfaces.pm
+A	lib/pfconfig/namespaces/interfaces/portal_ints.pm
+
+commit 902773102862dd273628faf798f72afdfe66b3ee
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue May 26 16:47:35 2015 -0400
+
+    added doc for meraki web auth
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 008aff1be39d2cf890696e3a51f2b2f4e8124c08
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue May 26 15:47:30 2015 -0400
+
+    Prepare for release
+
+M	ChangeLog
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+M	docs/docinfo.xml
+
 commit 663877079fef68faf3415d2c714db03b0a29f80c
 Author: Durand Fabrice <fdurand@inverse.ca>
 Date:   Tue May 26 15:41:03 2015 -0400
@@ -14,6 +3522,15 @@ Date:   Tue May 26 13:14:22 2015 -0400
 
 M	debian/packetfence.postinst
 M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 5522d6aa02c9605a90ed978a63fb9a6b439bfe34
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue May 26 15:16:26 2015 -0400
+
+    Add support for Meraki web auth
+
+A	lib/pf/Switch/Meraki/AP_http.pm
+M	lib/pf/web/constants.pm
 
 commit adb2acb15727a394255edbb7aedb6b7d684b9b39
 Author: Julien Semaan <jul.semaan@gmail.com>
@@ -114,6 +3631,15 @@ M	lib/pf/api.pm
 M	lib/pf/node.pm
 M	lib/pf/vlan.pm
 
+commit 067d7be2be2dcfb54ce87164bb37adcea444b3ce
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon May 25 17:37:59 2015 -0400
+
+    Handling role changing
+
+M	lib/pf/ipset.pm
+M	lib/pf/node.pm
+
 commit 52eef59530eca94311b752d99e35f7eab0db4f20
 Author: Julien Semaan <jul.semaan@gmail.com>
 Date:   Mon May 25 16:43:52 2015 -0400
@@ -181,6 +3707,22 @@ Date:   Mon May 25 15:03:11 2015 -0400
 M	lib/pf/Portal/Profile.pm
 M	lib/pf/node.pm
 
+commit 1fdf56b84c68ac2fe3c5f9d9780c7a024c788091
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon May 25 15:07:32 2015 -0400
+
+    Missing entry in iptables template
+
+M	conf/iptables.conf.example
+
+commit e534ff967519c446427383218a973c02fd009cd6
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon May 25 14:40:20 2015 -0400
+
+    Playing with nodes
+
+M	lib/pf/ipset.pm
+
 commit 2496aa4d041705ed3d178c1f1874ff995b44409a
 Author: Durand Fabrice <fdurand@inverse.ca>
 Date:   Mon May 25 14:33:56 2015 -0400
@@ -200,6 +3742,14 @@ Date:   Mon May 25 14:04:28 2015 -0400
 
 M	db/upgrade-5.0.0-5.1.0.sql
 
+commit a0738e2825333dc37d34f534f7c271cc089ccb00
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon May 25 12:24:30 2015 -0400
+
+    Modifying query to get the category id for classifying purposes
+
+M	lib/pf/node.pm
+
 commit 27f76a716bad71d1990a0fad14ab38dd4b3bfe1f
 Author: Durand Fabrice <fdurand@inverse.ca>
 Date:   Mon May 25 12:22:00 2015 -0400
@@ -207,6 +3757,15 @@ Date:   Mon May 25 12:22:00 2015 -0400
     Added new ipset path in sudoers (debian)
 
 M	debian/packetfence.postinst
+
+commit 4c619301a0ce6a483134bfb6c9c888f8a1b619d8
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon May 25 12:17:53 2015 -0400
+
+    iptables CLASSIFY based of the node role
+
+M	lib/pf/ipset.pm
+M	lib/pf/iptables.pm
 
 commit f805455be7949e35df3648e37ab273d0fc89844d
 Author: Louis Munro <lmunro@inverse.ca>
@@ -341,6 +3900,39 @@ Date:   Mon May 25 07:33:35 2015 -0400
     Add restart of the services in the upgrade guide
 
 M	UPGRADE.asciidoc
+
+commit 2ed6ba35de6a0081fcf9454b2be3d69bace09748
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Sun May 24 14:57:08 2015 -0400
+
+    Using role ID instead of role name due to ipset name length constraint
+
+M	lib/pf/ipset.pm
+
+commit 6f92841d57a5453440bed78148f0013ff87882f0
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Sun May 24 14:38:06 2015 -0400
+
+    Typo
+
+M	lib/pf/ipset.pm
+
+commit c56533502331a24214e7305d88b2ec61511dd3aa
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Sun May 24 14:23:19 2015 -0400
+
+    Create ipset sessions for each role in the case of inline l2 or l3
+
+M	lib/pf/ipset.pm
+
+commit 1bfae3432dcc29550d31c5005b4da50e6e1d0012
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Sun May 24 13:37:31 2015 -0400
+
+    No longer support old ipset versions
+
+M	lib/pf/config.pm
+M	lib/pf/ipset.pm
 
 commit 39572ab9644b2715a7a8c133f0144bcab395578e
 Author: Durand Fabrice <fdurand@inverse.ca>
@@ -3893,6 +7485,39 @@ Date:   Wed Apr 29 09:32:02 2015 -0400
 
 M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Root.pm
 
+commit 71a88ec8cc5bd633c6fcb8ed1666187b825d5d38
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Apr 29 09:02:00 2015 -0400
+
+    fix excess of vim wildness
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Oauth2.pm
+
+commit 8ed1acf4ffb39538cc8388ddc8bbfc6cfdc2417d
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Apr 29 09:01:35 2015 -0400
+
+    fix issues in twitter source
+
+M	lib/pf/Authentication/Source/TwitterSource.pm
+
+commit c73c7038950e5bcbb260746a58c854831b46b53f
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Apr 29 08:39:28 2015 -0400
+
+    rework details in twitter oauth
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Oauth2.pm
+M	lib/pf/Authentication/Source/TwitterSource.pm
+
+commit f1664ce16e5ad6a53af566541f68b679703d4ab3
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Apr 29 08:32:21 2015 -0400
+
+    fix twitter doc
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
 commit 0fefa77b910678b7f9f9080817bbf4ba4159b5ce
 Author: James Rouzier <jrouzier@inverse.ca>
 Date:   Tue Apr 28 13:20:06 2015 -0400
@@ -4015,6 +7640,30 @@ Date:   Tue Apr 28 09:37:57 2015 -0400
 
 M	addons/packages/packetfence.spec
 
+commit 319d8e0398bfcba72e29a24b3613026dadf681f9
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Apr 28 07:51:36 2015 -0400
+
+    fix bad copy/paste in twitter source form
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
+
+commit 4f1b4b89aa4499d1df9488f56559e6864715e4eb
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Apr 28 07:50:45 2015 -0400
+
+    added pod doc for twitter oauth source
+
+M	lib/pf/Authentication/Source/TwitterSource.pm
+
+commit fe5ff8dc723e42fa35534d39f63bd132a79d4b7e
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Apr 28 07:43:32 2015 -0400
+
+    Fix bad doc copy/paste
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
 commit 1a7110cf9aba3d7f1bcf1d410b3958f9bb586963
 Author: Durand Fabrice <fdurand@inverse.ca>
 Date:   Mon Apr 27 17:10:17 2015 -0400
@@ -4030,6 +7679,40 @@ Date:   Mon Apr 27 17:00:54 2015 -0400
     Typo
 
 M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit d523dd2b2fb391e43ffcf57b4ff4d5f63d5ca058
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Apr 27 16:02:06 2015 -0400
+
+    remove dead code
+
+M	lib/pf/Authentication/Source/TwitterSource.pm
+
+commit a1f383a7699fea97cb786c5a813ef38ec66b614f
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Apr 27 15:49:08 2015 -0400
+
+    added twitter oauth doc
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit f7276521be7c0e0fdcc28cabbb5a6079c75fa906
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Apr 27 15:33:32 2015 -0400
+
+    Added Oauth for twitter
+
+A	html/captive-portal/content/images/twitter.icon.png
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Oauth2.pm
+M	html/captive-portal/templates/login.html
+A	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
+A	html/pfappserver/root/authentication/source/type/Twitter.tt
+A	lib/pf/Authentication/Source/TwitterSource.pm
+M	lib/pf/config.pm
+M	lib/pf/constants/config.pm
+M	lib/pf/pfdns/constants.pm
+M	lib/pf/web/constants.pm
 
 commit edc3a1e6a07387efbcdcd1ee69deffc1d881ddda
 Author: James Rouzier <jrouzier@inverse.ca>

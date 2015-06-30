@@ -21,7 +21,7 @@ then it will build the associated object of the namespace
 
 =head1 USAGE
 
-In order to access the configuration namespaces : 
+In order to access the configuration namespaces :
 - Instanciate the object
 - Then call get_cache on a specific namespace in order to fetch it
 - The classes that build the namespaces are located in pfconfig::namespaces
@@ -103,7 +103,7 @@ sub add_namespace_to_overlay {
     my ($self, $namespace) = @_;
     my $logger = pfconfig::log::get_logger;
     $logger->info("We're doing namespace overlaying for $namespace");
-   
+
     my $namespaces = $self->{cache}->get('_namespace_overlay') || ();
 
     my $ns_index = first_index {$_ eq $namespace} @$namespaces;
@@ -352,7 +352,9 @@ sub list_namespaces {
     find(
         {   wanted => sub {
                 my $module = $_;
-                return if $module eq $namespace_dir;
+                #Ignore directories
+                return if -d $module;
+                return unless $module =~ /\.pm$/;
                 $module =~ s/$namespace_dir\///g;
                 $module =~ s/\.pm$//g;
                 $module =~ s/\//::/g;
@@ -365,6 +367,7 @@ sub list_namespaces {
         },
         $namespace_dir
     );
+    @modules = sort @modules;
     my $overlayed_namespaces = $self->{cache}->get('_namespace_overlay') || [];
     return (@modules, @$overlayed_namespaces);
 }
@@ -408,8 +411,6 @@ sub expire_all {
         }
     }
 }
-
-=back
 
 =head1 AUTHOR
 

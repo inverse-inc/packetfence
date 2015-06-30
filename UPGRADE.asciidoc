@@ -16,17 +16,9 @@ Once the additionnal steps are completed, make sure you restart packetfence-conf
   service packetfence-config restart
   service packetfence restart
 
-Upgrading from a version prior to X.Y.Z
----------------------------------------
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
-
-
-Upgrading from a version prior to 5.1.0
----------------------------------------
-
-Database schema update
-^^^^^^^^^^^^^^^^^^^^^^
+General Upgrade tips
+^^^^^^^^^^^^^^^^^^^^
 
 Before making any changes to your database, ensure that you have a backup.
 A complete database backup can be taken using this command:
@@ -34,6 +26,64 @@ A complete database backup can be taken using this command:
   mysqldump --opt -u root -p pf | gzip > /root/packetfence_db.sql.gz
 
 If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
+
+Taking a complete backup of your current installation is strongly recommended. 
+You can take a backup of the pf directory with the following command:
+
+  tar -C /usr/local -czf /root/packetfence.tar.gz pf 
+
+Please note that the sections below are cumulative. That is to say, if you are upgrading from version 4.3 to version 5.0 you must apply in order all changes in between the two versions, including database schema changes.
+
+Upgrading from a version prior to X.Y.Z
+---------------------------------------
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+
+
+Upgrading from a version prior to 5.2.0
+---------------------------------------
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+Multiple changes have been made to the database schema. You will need to update it accordingly.
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < db/upgrade-5.1.0-5.2.0.sql
+
+Database monitoring host
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you are using an Active/Active cluster, you will need to adjust the monitoring database host to point to your database as it is not forced anymore.
+
+In `conf/pf.conf` :
+
+----
+[monitoring]
+db_host=127.0.0.1
+----
+
+New 'portal' interface type
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you are using web-auth enforcement (external captive-portal), you might want (actually, you need otherwise it will no longer works!) to add the 'portal' type to the existing 'management' interface.
+
+In `conf/pf.conf` :
+
+----
+[interface eth42]
+type=management,portal
+----
+
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.2.0).
+
+Upgrading from a version prior to 5.1.0
+---------------------------------------
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
 
 Multiple changes have been made to the database schema. You will need to update it accordingly.
 

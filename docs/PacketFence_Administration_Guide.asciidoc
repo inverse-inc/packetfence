@@ -261,7 +261,7 @@ RHEL / CentOS
 
 In order to use the PacketFence repository :
 
-  # rpm -Uvh http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1-1.el6.noarch.rpm
+  # rpm -Uvh http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1-2.centos6.noarch.rpm
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database
@@ -516,6 +516,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * RADIUS
 * SMS
 * Sponsored Email
+* Twitter (OAuth 2)
 * Windows Live (OAuth 2)
 
 Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Users -> Sources* section. Alternatively (but not recommended), authentication sources, rules, conditions and actions can be configured from `conf/authentication.conf`.
@@ -1306,7 +1307,7 @@ For Android, you must allow passthroughs in your `pf.conf` configuration file:
 
   [trapping]
   passthrough=enabled
-  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com
+  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com
 
 Profile generation
 ^^^^^^^^^^^^^^^^^^
@@ -1678,7 +1679,7 @@ taggedVlan::
 OAuth2 Authentication
 ~~~~~~~~~~~~~~~~~~~~~
 
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live or Github account.
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter or Github account.
 
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
@@ -1697,7 +1698,7 @@ Google
 In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URI for the "Redirect URI"
 field : https://YOUR_PORTAL_HOSTNAME/oauth2/google.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/facebook).
+You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/google).
 
 Also, add the following Authorized domains : *.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
 
@@ -1745,6 +1746,17 @@ Once you have your information, you need to configure the OAuth2 provider. This 
 Moreover, don't forget to add LinkedIn as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 Also, LinkedIn requires a 'state' parameter for the authorization URL. If you modify it, make sure to add it at the end of your URL.
+
+Twitter
+^^^^^^^
+To use Twitter, you also need an API code and a secret key which Twitter calls _consumer key_ and _consumer secret_. Obtain this information by creating an new application from your https://apps.twitter.com/[Twitter Apps Management page].  When you create your App, make sure you specify the following as the _Callback URL_
+https://YOUR_PORTAL_HOSTNAME/oauth2/twitter
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add Twitter as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 Windows Live
 ^^^^^^^^^^^^
@@ -2805,7 +2817,11 @@ These sensors work by capturing the packets at the lowest level possible on your
 Microsoft DHCP sensor
 ^^^^^^^^^^^^^^^^^^^^^
 
-You will first need to download and install WinPcap available from http://www.winpcap.org/install/
+You will first need to download and install 'WinPcap' available from http://www.winpcap.org/install/
+
+You will also need to download and install 'Microsoft Visual C++ 2010 Redistributable' available from http://www.microsoft.com/download/details.aspx?id=5555
+
+NOTE: You absolutely need to install the 32-bit version of 'Microsoft Visual C++ 2010 Redistributable' even if you are using a 64-bit operating system.
 
 Then get the remote sensor from Inverse's download website http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.exe
 

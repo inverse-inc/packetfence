@@ -8,9 +8,15 @@ pfappserver::Form::Config::Provisioning - Web form for a switch
 
 =cut
 
+use pf::config;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
+
+has_field 'company' =>
+  (
+   type => 'Text',
+  );
 
 has_field 'ssid' =>
   (
@@ -18,16 +24,131 @@ has_field 'ssid' =>
    label => 'SSID',
   );
 
-has_field 'ca_cert_path' =>
+has_field 'broadcast' =>
   (
-   type  => 'Text',
-   label => 'Certificate',
+   type => 'Checkbox',
+   label => 'Broadcast network',
+   value => 'true',
+   default => 'yes',
+   checkbox_value => 'Y',
+   tags => { after_element => \&help,
+             help => 'Uncheck this box if you are using a hidden SSID' },
   );
+
+has_field 'security_type' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'Security type',
+   options_method => \&option_security,
+   element_class => ['chzn-deselect'],
+   tags => { after_element => \&help,
+             help => 'Select the type of security applied for your SSID' },
+  );
+
+has_field 'eap_type' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'EAP type',
+   options_method => \&options_eap_type,
+   element_class => ['chzn-deselect'],
+   tags => { after_element => \&help,
+             help => 'Select the EAP type of your SSID' },
+  );
+
+has_field 'passcode' =>
+  (
+   type => 'Text',
+   label => 'Wifi Key',
+  );
+
+has_field 'cert_chain' =>
+  (
+   type => 'TextArea',
+   element_class => ['input-xxlarge'],
+   inflate_default_method => \&filter_inflate ,
+   deflate_value_method => \&filter_deflate ,
+   label => 'The certificate chain for the signer certificate',
+   tags => { after_element => \&help,
+             help => 'The certificate chain of the signer certificate in pem format'},
+  );
+
+has_field 'certificate' =>
+  (
+   type => 'TextArea',
+   label => 'The certificate for signing profiles',
+   inflate_default_method => \&filter_inflate ,
+   deflate_value_method => \&filter_deflate ,
+   element_class => ['input-xxlarge'],
+   tags => { after_element => \&help,
+             help => 'The Certificate for signing in pem format'},
+  );
+
+has_field 'private_key' =>
+  (
+   type => 'TextArea',
+   element_class => ['input-xxlarge'],
+   inflate_default_method => \&filter_inflate ,
+   deflate_value_method => \&filter_deflate ,
+   label => 'The private key for signing profiles',
+   tags => { after_element => \&help,
+             help => 'The Private Key for signing in pem format'},
+  );
+
+has_field 'can_sign_profile' =>
+  (
+   type => 'Checkbox',
+   label => 'Sign Profile',
+   value => 0,
+   checkbox_value => 1,
+   tags => { after_element => \&help,
+             help => 'Check this box if you want the profiles signed' },
+  );
+
+sub filter_inflate {
+    my ($self, $value) = @_;
+    if(ref($value) eq 'ARRAY' ) {
+         return (join("\n",@{$value}));
+    }
+    return $value;
+}
+
+sub filter_deflate {
+    my ($self, $value) = @_;
+    return [split /\r?\n/,$value];
+}
+
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category ssid ca_cert_path) ],
+   render_list => [ qw(id description type category ssid broadcast eap_type security_type passcode pki_provider) ],
   );
+
+has_block signing =>
+  (
+   render_list => [ qw(can_sign_profile certificate private_key cert_chain) ],
+  );
+
+sub options_eap_type {
+    my $self = shift;
+    my @eap_types = ["25" => "PEAP",
+                     "13" => "EAP-TLS",
+                     "21" => "EAP-TTLS",
+                     ""   => "No EAP",
+                    ];
+    return @eap_types;
+}
+
+sub option_security {
+    my $self = shift;
+    my @security_type = ["None" => "Open",
+                         "WEP" => "WEP",
+                         "WPA" => "WPA",
+                         "WPA" => "WPA2",
+                        ];
+    return @security_type;
+}
 
 =head1 COPYRIGHT
 

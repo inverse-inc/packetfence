@@ -18,7 +18,7 @@
               <td><a href="[% c.uri_for(c.controller('Interface').action_for('view'), [i]) %]">[% interfaces.$i.name | html %]</a>[% IF interfaces.$i.vlan %] <span class="label">vlan [% interfaces.$i.vlan | html %]</span>[% END %]</td>
               <td>[% interfaces.$i.ipaddress | html %]</td>
               <td class="hidden-phone">[% interfaces.$i.netmask | html %]</td>
-              <td class="hidden-phone">[% l(interfaces.$i.type) %]</td>
+              <td class="hidden-phone">[% IF interfaces.$i.type.match('management') %][% l('management') %][% ELSE %][% l(interfaces.$i.type) %][% END %]</td>
               <td>
                 [% IF interfaces.$i.vlan -%]
                 [% IF can_access("INTERFACES_DELETE") %]<a class="btn btn-mini btn-danger" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('delete'), [i]) %]">[% l('Delete') %]</a>[% END %]

@@ -1,3 +1,8 @@
+# Ignore everything in this directory
+#*
+# Except this file
+!.gitignore
+
 # temporary files
 *.swp
 *.orig
@@ -29,6 +34,7 @@ raddb/sql.conf
 raddb/proxy.conf.inc
 raddb/clients.conf.inc
 conf/adminroles.conf
+conf/pki_provider.conf
 conf/authentication.conf
 conf/floating_network_device.conf
 conf/guest-managers.conf

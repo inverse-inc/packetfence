@@ -28,6 +28,7 @@ our %VALID_OAUTH_PROVIDERS = (
     github   => undef,
     windowslive => undef,
     linkedin => undef,
+    twitter => undef,
 );
 
 =head2 auth_provider
@@ -88,11 +89,19 @@ sub oauth2_client {
     } elsif (lc($provider) eq 'windowslive'){
         $type = pf::Authentication::Source::WindowsLiveSource->meta->get_attribute('type')->default;
         $token_scheme = "auth-header:Bearer";
+    } elsif (lc($provider) eq 'twitter'){
+        $type = pf::Authentication::Source::TwitterSource->meta->get_attribute('type')->default;
     }
 
     if ($type) {
         my $source = $portalSession->profile->getSourceByType($type);
         if ($source) {
+            # Twitter source is special, we need our homemade lib
+            # that's included in the source
+            if ($type eq 'Twitter'){
+                return $source;
+            }
+
             return Net::OAuth2::Profile::WebServer->new(
                 client_id => $source->{'client_id'},
                 client_secret => $source->{'client_secret'},
@@ -145,7 +154,15 @@ sub oauth2Result : Path : Args(1) {
     my $token;
 
     eval {
-        $token = $self->oauth2_client($c,$provider)->get_access_token($code);
+        if ($provider eq 'twitter') {
+            my $oauth_token = $request->query_params->{oauth_token};
+            my $oauth_verifier = $request->query_params->{oauth_verifier}; 
+            $logger->info("Got token $oauth_token and verifier $oauth_verifier to finish authorization with Twitter");
+            $token = $self->oauth2_client($c, $provider)->get_access_token($oauth_token, $oauth_verifier);
+        }
+        else{
+            $token = $self->oauth2_client($c,$provider)->get_access_token($code);
+        }
     };
 
     if ($@) {
@@ -159,58 +176,68 @@ sub oauth2Result : Path : Args(1) {
 
     my $type;
 
+    $provider = lc($provider);
     # Validate the token
-    if (lc($provider) eq 'facebook') {
+    if ($provider eq 'facebook') {
         $type =
           pf::Authentication::Source::FacebookSource->meta->get_attribute(
             'type')->default;
-    } elsif (lc($provider) eq 'github') {
+    } elsif ($provider eq 'github') {
         $type = pf::Authentication::Source::GithubSource->meta->get_attribute(
             'type')->default;
-    } elsif (lc($provider) eq 'google') {
+    } elsif ($provider eq 'google') {
         $type = pf::Authentication::Source::GoogleSource->meta->get_attribute(
             'type')->default;
-    } elsif (lc($provider) eq 'linkedin') {
+    } elsif ($provider eq 'linkedin') {
         $type = pf::Authentication::Source::LinkedInSource->meta->get_attribute(
             'type')->default;
-    } elsif (lc($provider) eq 'windowslive') {
+    } elsif ($provider eq 'windowslive') {
         $type = pf::Authentication::Source::WindowsLiveSource->meta->get_attribute(
+            'type')->default;
+    } elsif ($provider eq 'twitter') {
+        $type = pf::Authentication::Source::TwitterSource->meta->get_attribute(
             'type')->default;
     }
     
     my $source = $profile->getSourceByType($type);
     if ($source) { 
-        # request a JSON response
-        my $h = HTTP::Headers->new( 'x-li-format' => 'json' );
-        $response = $token->get($source->{'protected_resource_url'}, $h ); 
-        if ($response->is_success) {
-            if ($provider eq 'linkedin'){
-                # response is sent as "email@example.com" with quotes
-                $pid = $response->content() ;
-                # remove the quotes
-                $pid =~ s/"//g;
-            }
-            else{
-                # Grab JSON content
-                my $json      = new JSON;
-                my $json_text = $json->decode($response->content());
-                if ($provider eq 'google' || $provider eq 'facebook') {
-                    $pid = $json_text->{email};
-                } elsif ($provider eq 'windowslive'){
-                    $pid = $json_text->{emails}->{account};
-                } elsif ($provider eq 'github'){
-                    # github doesn't provide email by default
-                    $pid = $json_text->{login}.'@github';
+        # in twitter, the username comes with the access token through our homemade lib
+        if ($provider eq 'twitter') {
+            $pid = $token->{username}.'@twitter';
+        }
+        else {
+            # request a JSON response
+            my $h = HTTP::Headers->new( 'x-li-format' => 'json' );
+            $response = $token->get($source->{'protected_resource_url'}, $h ); 
+            if ($response->is_success) {
+                if ($provider eq 'linkedin'){
+                    # response is sent as "email@example.com" with quotes
+                    $pid = $response->content() ;
+                    # remove the quotes
+                    $pid =~ s/"//g;
                 }
-                $logger->info("OAuth2 successfull, register and release for username $pid");
-                $source->lookup_from_provider_info($pid, $json_text);
-            }         
-        } else {
-            $logger->info(
-                "OAuth2: failed to validate the token, redireting to login page"
-            );
-            $c->stash->{txt_auth_error} = i18n("OAuth2 Error: Failed to validate the token, please retry");
-            $c->detach(Authenticate => 'showLogin');
+                else{
+                    # Grab JSON content
+                    my $json      = new JSON;
+                    my $json_text = $json->decode($response->content());
+                    if ($provider eq 'google' || $provider eq 'facebook') {
+                        $pid = $json_text->{email};
+                    } elsif ($provider eq 'windowslive'){
+                        $pid = $json_text->{emails}->{account};
+                    } elsif ($provider eq 'github'){
+                        # github doesn't provide email by default
+                        $pid = $json_text->{login}.'@github';
+                    }
+                    $logger->info("OAuth2 successfull, register and release for username $pid");
+                    $source->lookup_from_provider_info($pid, $json_text);
+                }         
+            } else {
+                $logger->info(
+                    "OAuth2: failed to validate the token, redireting to login page"
+                );
+                $c->stash->{txt_auth_error} = i18n("OAuth2 Error: Failed to validate the token, please retry");
+                $c->detach(Authenticate => 'showLogin');
+            }
         }
 
         $c->session->{"username"} = $pid;

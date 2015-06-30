@@ -24,7 +24,7 @@ has_field 'valid_from' =>
   (
    type => 'DatePicker',
    required => 1,
-   default => DateTime->now->ymd(),
+   default_method => sub { DateTime->now->ymd() },
   );
 
 has_field 'expiration' =>

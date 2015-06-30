@@ -19,12 +19,13 @@ use namespace::autoclean;
 extends 'Catalyst::Model';
 
 # TODO: Should migrate theses into a database table with some flags for the mechanisms
-my @mechanisms           = qw/vlan inline option/;
+my @mechanisms           = qw/vlan inline option webauth/;
 # TODO once we display option we should move 'other' over to there
 my %types   = (
     vlan        => [ 'management', 'vlan-registration', 'vlan-isolation' ],
     inline      => [ 'management', 'inline', 'inlinel2', 'inlinel3' ], # inline is kept for backwards compat.
 #    option      => [ 'high-availability', 'dhcp-listener', 'monitor' ],
+    webauth     => ['management', 'portal'],
 );
 
 =head1 METHODS

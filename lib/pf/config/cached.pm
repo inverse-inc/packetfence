@@ -775,6 +775,7 @@ sub computeFromPath {
                 return 1 if $expire;
                 my $value = $_[0]->value;
                 return 1 unless $value;
+                return 1 unless (blessed($value));
                 my $control_file_timestamp = $value->{_control_file_timestamp} || 0;
                 return  controlFileExpired($control_file_timestamp) && $value->HasChanged();
             },

@@ -261,14 +261,16 @@ Requires: iproute, vconfig
 Requires: wmi, perl(Net::WMIClient)
 
 # for dashboard
-Requires: Django14, python-django-tagging, pyparsing
+Requires: python-django, python-django-tagging, pyparsing
 Requires: MySQL-python
 Requires: python-carbon, python-whisper
-Requires: graphite-web
+Requires: graphite-web >= 0.9.12-25
 Requires: collectd >= 5.0, collectd-mysql, libcollectdclient, collectd-apache
 Requires: freeradius-radsniff >= 3.0.0
 Requires: node
 
+# pki
+Requires: perl(Crypt::SMIME)
 
 
 Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
@@ -286,7 +288,7 @@ Requires: mod_qos
 Requires: %{real_name}-config = %{ver}
 Requires: %{real_name}-pfcmd-suid = %{ver}
 Requires: haproxy >= 1.5, keepalived >= 1.2
-Requires: fingerbank >= 1.0.2
+Requires: fingerbank >= 1.0.3
 
 %description -n %{real_name}
 
@@ -428,7 +430,7 @@ cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/soh/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/AD/*.tt $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
+cp -r addons/AD/* $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -485,12 +487,12 @@ curdir=`pwd`
 if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf-schema.sql" ]; then
     cd $RPM_BUILD_ROOT/usr/local/pf/db
     VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
-    ln -s $VERSIONSQL ./pf-schema.sql
+    ln -f -s $VERSIONSQL ./pf-schema.sql
 fi
 if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf_graphite-schema.sql" ]; then
     cd $RPM_BUILD_ROOT/usr/local/pf/db
     VERSIONSQL=$(ls pf_graphite-schema-* |sort -r | head -1)
-    ln -s $VERSIONSQL ./pf_graphite-schema.sql
+    ln -f -s $VERSIONSQL ./pf_graphite-schema.sql
 fi
 
 #httpd.conf symlink
@@ -646,18 +648,17 @@ setenforce 0
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
 # skip if this is an update
-if [ ! -e /usr/local/pf/conf/currently-at ]; then 
-    #Starting Packetfence.
-    echo "Starting Packetfence..."
-    #removing old cache
-    rm -rf /usr/local/pf/var/cache/ 
-    /usr/local/pf/bin/pfcmd configreload
-    /sbin/service packetfence start
+#Starting Packetfence.
+echo "Starting Packetfence Administration GUI..."
+#removing old cache
+rm -rf /usr/local/pf/var/cache/
+/sbin/service packetfence-config restart 
+/usr/local/pf/bin/pfcmd configreload
+/sbin/service packetfence start httpd.admin
 
-    echo Installation complete
-    echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
-    echo "  * Please stop your iptables service if you don't have access to configurator."
-fi
+echo Installation complete
+echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
+echo "  * Please stop your iptables service if you don't have access to configurator."
 
 %post -n %{real_name}-remote-snort-sensor
 echo "Adding PacketFence remote Snort Sensor startup script"
@@ -845,6 +846,8 @@ fi
 %config                 /usr/local/pf/conf/oui.txt
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
+%config(noreplace)      /usr/local/pf/conf/pki_provider.conf
+                        /usr/local/pf/conf/pki_provider.conf.example
 %config(noreplace)      /usr/local/pf/conf/provisioning.conf
                         /usr/local/pf/conf/provisioning.conf.example
 %dir			/usr/local/pf/conf/radiusd
@@ -958,8 +961,8 @@ fi
                         /usr/local/pf/html/captive-portal/Changes
                         /usr/local/pf/html/captive-portal/Makefile.PL
                         /usr/local/pf/html/captive-portal/README
-%config(noreplace)      /usr/local/pf/html/captive-portal/captive_portal.conf
-                        /usr/local/pf/html/captive-portal/captive_portal.conf.example
+%config(noreplace)      /usr/local/pf/html/captive-portal/captiveportal.conf
+                        /usr/local/pf/html/captive-portal/captiveportal.conf.example
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/responsive.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
@@ -1159,6 +1162,10 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/cmd.pl
 %exclude                /usr/local/pf/addons/pfconfig/README.asciidoc
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
+
+%changelog
+* Thu Jun 18 2015 Inverse <info@inverse.ca> - 5.2.0-1
+- New release 5.2.0
 
 %changelog
 * Tue May 26 2015 Inverse <info@inverse.ca> - 5.1.0-1

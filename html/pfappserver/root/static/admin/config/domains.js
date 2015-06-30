@@ -157,9 +157,9 @@ DomainView.prototype.setPassword = function(domain,callback) {
   var that = this;
   var modal = $('#modalDomainSetPassword-'+domain);
   var form = $('#modalDomainSetPassword-'+domain+' form');
-  form.submit(function(){
-    event.preventDefault();
-    console.log('great_success');
+  console.log(form[0]);
+  form.submit(function(evt){
+    evt.preventDefault();
     $.ajax({
         'url'   : form.attr('action'),
         'type'  : "POST",
@@ -174,6 +174,7 @@ DomainView.prototype.setPassword = function(domain,callback) {
             var status_msg = getStatusMsg(jqXHR);
             showError($('#section h2'), status_msg);
         });
+    return false;
   });
   modal.modal('show');
 }

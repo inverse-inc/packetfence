@@ -73,6 +73,7 @@ Readonly::Scalar our $URL_OAUTH2_GITHUB         => '/oauth2/github';
 Readonly::Scalar our $URL_OAUTH2_GOOGLE         => '/oauth2/google';
 Readonly::Scalar our $URL_OAUTH2_LINKEDIN       => '/oauth2/linkedin';
 Readonly::Scalar our $URL_OAUTH2_WIN_LIVE       => '/oauth2/windowslive';
+Readonly::Scalar our $URL_OAUTH2_TWITTER        => '/oauth2/twitter';
 Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
 Readonly::Scalar our $URL_RELEASE               => '/release';
 Readonly::Scalar our $URL_STATUS                => '/status';
@@ -100,7 +101,6 @@ Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
 Readonly::Scalar our $URL_DEVICE_REGISTRATION   => '/device-registration';
 
 # External Captive Portal detection constant
-Readonly::Scalar our $REQ_MERAKI                => 'node_mac';
 Readonly::Scalar our $REQ_CISCO                 => 'ap_mac';
 Readonly::Scalar our $REQ_MAC                   => 'mac';
 Readonly::Scalar our $REQ_ARUBA                 => 'apname';
@@ -110,11 +110,13 @@ Readonly::Scalar our $REQ_AEROHIVE              => 'RADIUS-NAS-IP';
 
 # External Captive Portal URL detection constant
 Readonly::Scalar our $EXT_URL_XIRRUS            => '^/Xirrus::AP_http';
+Readonly::Scalar our $EXT_URL_MERAKI            => '^/Meraki::AP_http';
 
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
 Readonly::Scalar our $URL_ANDROID_PROFILE  => '/profile.xml';
+Readonly::Scalar our $URL_TLS_GENERATION   => '/tlsprofile';
 
 =head2 Apache Config related
 

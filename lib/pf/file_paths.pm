@@ -22,7 +22,7 @@ use File::Spec::Functions;
 
 our (
     #Directories
-    $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, $generated_conf_dir, $var_dir,
+    $install_dir, $bin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir,
     $tt_compile_cache_dir, $pfconfig_cache_dir, $domains_chroot_dir,
 
     #Config files
@@ -64,6 +64,7 @@ our (
     $domain_config_file,
     $scan_config_file,
     $wmi_config_file,
+    $pki_provider_config_file,
 );
 
 BEGIN {
@@ -75,7 +76,7 @@ BEGIN {
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
-        $install_dir $bin_dir $conf_dir $lib_dir $log_dir $generated_conf_dir $var_dir
+        $install_dir $bin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir
         $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir
         $default_config_file $pf_default_file
         $config_file $pf_config_file
@@ -106,6 +107,7 @@ BEGIN {
         $domain_config_file
         $scan_config_file
         $wmi_config_file
+        $pki_provider_config_file
     );
 }
 
@@ -116,6 +118,7 @@ $bin_dir  = catdir( $install_dir,"bin" );
 $conf_dir = catdir( $install_dir,"conf" );
 $var_dir  = catdir( $install_dir,"var" );
 $lib_dir  = catdir( $install_dir,"lib" );
+$html_dir = catdir( $install_dir,"html" );
 $log_dir  = catdir( $install_dir,"logs" );
 $log_conf_dir  = catdir( $conf_dir,"log.conf.d" );
 
@@ -135,6 +138,7 @@ $pf_default_file = catfile($conf_dir, "pf.conf.defaults"); # TODO: Adjust. See $
 $chi_config_file = catfile($conf_dir, "chi.conf");
 $log_config_file = catfile($conf_dir, "log.conf");
 $provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
+$pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");
@@ -165,6 +169,8 @@ $wmi_config_file = catfile($conf_dir,"wmi.conf");
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
+$users_cert_dir = catdir( $html_dir, "captive-portal/certs");
+
 @log_files = map {catfile($log_dir, $_)}
   qw(
   httpd.admin.access httpd.admin.catalyst httpd.admin.error httpd.admin.log
@@ -187,6 +193,7 @@ $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
     $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file,
     $vlan_filters_config_file,$firewall_sso_config_file,$scan_config_file,
     $wmi_config_file,
+    $pki_provider_config_file,
 );
 
 

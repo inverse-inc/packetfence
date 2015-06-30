@@ -49,10 +49,12 @@ sub parseArgs {
             $cmd = $module;
         };
         if($@) {
-            if ($@ =~ /Compilation failed/) {
-                $self->{help_msg} = "module $module cannot be loaded\n$@\n";
+            my $path = $module . ".pm";
+            $path =~ s#::#/#g;
+            if ($@ =~ /Can't locate \Q$path\E/m) {
+                $self->{help_msg} = "unknown command $action\n";
             } else {
-                $self->{help_msg} = "unknown command $action\n$@\n";
+                $self->{help_msg} = "module $module cannot be loaded\n$@\n";
             }
             $cmd = $self->unknownActionCmd;
         } else {
