@@ -2217,7 +2217,7 @@ RS G8052(config-if)# end
 PacketFence configuration
 +++++++++++++++++++++++++
 
-In order to configure the IBM RackSwitch G8052 switch module, go on the PacketFence admin web page under *Configuration->Switches->Add switch*
+In order to configure the IBM RackSwitch G8052 switch module, go in the PacketFence administration interface under *Configuration->Switches->Add switch*
 
 Definition:
 
