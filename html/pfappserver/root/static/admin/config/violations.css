@@ -1,3 +1,11 @@
 #viewTriggers .control-group .btn, #viewTriggers .control-group select {
   margin-right:5px;
 }
+
+#editTrigger .control-group .btn, #editTrigger .control-group select {
+  margin-right:5px;
+}
+
+#triggerContainer {
+  display:none;
+}

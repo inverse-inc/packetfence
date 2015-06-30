@@ -33,10 +33,16 @@
 
       <div class="tab-pane fade" id="violationTriggers">
         <div id="viewTriggers">
+          <div id="triggerContainer">
           [% form.field('trigger').render | none %]
+          </div>
 
           [% FOREACH trigger IN splitted_triggers %]
             <div class="control-group">
+              <span class="triggerButtons">
+                <a class="btn pull-left" href="#editTrigger">Edit</a>
+                <a class="btn btn-danger pull-left" href="#deleteTrigger">Delete</a>
+              </span>
               <select multiple="multiple" class='chzn-select input-xxlarge'>
               [% FOREACH subtrigger IN trigger %]
                 <option value="[% subtrigger %]" selected="selected">
@@ -44,14 +50,12 @@
                 </option>
               [% END %]
               </select>
-              <a class="btn pull-left" href="#editTrigger">Edit</a>
-              <a class="btn btn-danger pull-left" href="#deleteTrigger">Delete</a>
             </div>
           [% END %]
         </div>
 
-        <div class="editTrigger">
-          [% form.field('sub_trigger').render %]
+        <div id="editTrigger" style="display:none">
+          <div id="editedTrigger"></div>
           <div class="control-group">
             <div class="controls">
               <select id="trigger_type" class="input-medium">
@@ -63,7 +67,6 @@
               <a id="add_trigger" class="btn" href="#addTrigger">[% l('Add') %]</a>
             </div>
           </div>
-
         </div>
 
       </div><!--tab-pane-->

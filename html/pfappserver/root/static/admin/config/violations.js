@@ -166,30 +166,6 @@ $(function() { // DOM ready
             command_group.fadeIn('fast');
     });
 
-    /* Modal Editor: add a trigger */
-    $('body').on('click', '[href="#addTrigger"]', function(event) {
-        event.preventDefault();
-        var tid =  $('#tid');
-        var id = tid.val();
-        var type_select = $('#trigger_type').find(':selected');
-        var type = type_select.val();
-        var type_name = type_select.text();
-        var value = type + "::" + id;
-        var name = type_name + "::" + id;
-        var select = $('#trigger');
-        var last = true;
-        tid.val('');
-        select.find('option').each(function() {
-            if ($(this).val() > value) {
-                $('<option value="' + value + '" selected="selected">' + name + '</option>').insertBefore(this);
-                last = false;
-                return false;
-            }
-        });
-        if (last)
-            select.append('<option value="' + value + '" selected="selected">' + name + '</option>');
-        select.trigger("liszt:updated");
-    });
 
     /* Modal Editor: save a violation */
     $('body').on('submit', 'form[name="violation"]', function(event) {
@@ -246,7 +222,6 @@ $(function() { // DOM ready
       return this
     };
 
-
     /* Modal Editor: remove a trigger */
     $('body').on('click', '[href="#deleteTrigger"]', function(event) {
         event.preventDefault();
@@ -254,6 +229,61 @@ $(function() { // DOM ready
         jthis.closest('.control-group').remove()
         violationsView.recompute_triggers();
         return false;
+    });
+
+    /* Modal Editor: edit a trigger */
+    $('body').on('click', '[href="#editTrigger"]', function(event) {
+        event.preventDefault();
+        var jthis = $(event.target);
+        $('#viewTriggers').slideUp(function(){
+          var triggers = jthis.closest('.control-group');
+          triggers.appendTo('#editedTrigger');
+          violationsView.previous_trigger_options = $('#editedTrigger .triggerButtons').html();
+          $('#editedTrigger .triggerButtons').html('<a href="#backEditTrigger" class="pull-left btn btn-default">Back</a>');
+          $('#editTrigger').slideDown();
+        });
+        
+        return false;
+    });
+
+    /* Modal Editor: back from edit a trigger */
+    $('body').on('click', '[href="#backEditTrigger"]', function(event) {
+        event.preventDefault();
+        var jthis = $(event.target);
+        $('#editTrigger').slideUp(function(){
+          var triggers = jthis.closest('.control-group');
+          triggers.find('.triggerButtons').html(violationsView.previous_trigger_options);
+          triggers.appendTo('#viewTriggers');
+          $('#viewTriggers').slideDown();
+        });
+        
+        return false;
+    });
+
+    /* Modal Editor: add a trigger */
+    $('body').on('click', '[href="#addTrigger"]', function(event) {
+        event.preventDefault();
+        var tid =  $('#tid');
+        var id = tid.val();
+        var type_select = $('#trigger_type').find(':selected');
+        var type = type_select.val();
+        var type_name = type_select.text();
+        var value = type + "::" + id;
+        var name = type_name + "::" + id;
+        var select = $('#editedTrigger select').first();
+        var last = true;
+        tid.val('');
+        select.find('option').each(function() {
+            if ($(this).val() > value) {
+                $('<option value="' + value + '" selected="selected">' + name + '</option>').insertBefore(this);
+                last = false;
+                return false;
+            }
+        });
+        if (last)
+            select.append('<option value="' + value + '" selected="selected">' + name + '</option>');
+        select.trigger("liszt:updated");
+        violationsView.recompute_triggers();
     });
 
 
