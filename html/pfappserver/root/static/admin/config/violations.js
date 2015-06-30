@@ -93,6 +93,10 @@ $(function() { // DOM ready
         return false;
     });
 
+    $('#section').on('change', '#viewTriggers select', function(){
+      violationsView.recompute_triggers();
+    });
+
     /* Delete a violation */
     $('#section').on('click', '[href*="/delete"]', function(e) {
         e.preventDefault();
@@ -242,4 +246,48 @@ $(function() { // DOM ready
       return this
     };
 
+
+    /* Modal Editor: remove a trigger */
+    $('body').on('click', '[href="#deleteTrigger"]', function(event) {
+        event.preventDefault();
+        var jthis = $(event.target);
+        jthis.closest('.control-group').remove()
+        violationsView.recompute_triggers();
+        return false;
+    });
+
+
 });
+
+var ViolationsView = function(){}
+
+ViolationsView.prototype.recompute_triggers = function() {
+  var grouped = {};
+  $('#viewTriggers select').find(':selected').each(function(){
+      var option = $(this);
+      var select = option.closest('select');
+      select.uniqueId();
+      if(!grouped[select.attr('id')]){
+        grouped[select.attr('id')] = []
+      }
+      grouped[select.attr('id')].push(option.val());
+  });
+
+  var triggers = [];
+  for(var key in grouped){
+    var trigger;
+    if(grouped[key].length > 1){
+      trigger = grouped[key].join('&');
+      trigger = "("+trigger+")";
+    }
+    else {
+      trigger = grouped[key][0]
+    }
+    triggers.push(trigger);
+  }
+
+  $('#trigger').val(triggers.join());
+
+}
+
+var violationsView = new ViolationsView();

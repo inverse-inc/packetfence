@@ -18,6 +18,7 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
+use pf::log;
 use pf::config;
 use pf::Switch::constants;
 use pf::factory::triggerParser;
@@ -80,7 +81,7 @@ sub begin :Private {
                        triggers => $triggers,
                        templates => $templates,
                       )
-             )
+             );
 }
 
 =head2 index
@@ -94,6 +95,24 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
+sub split_triggers {
+    my ($self,$triggers) = @_;
+    use Data::Dumper;
+    my @splitted_triggers = map {
+      my $trigger = $_;
+      if($trigger =~ /\((.+)\)/){
+        [split('&', $1)];
+      }
+      else {
+        [($trigger)];
+      }
+    } split ',', $triggers;
+
+    get_logger->info(Dumper(\@splitted_triggers));
+
+    return \@splitted_triggers;
+}
+
 =head2 after view
 
 =cut
@@ -101,7 +120,10 @@ sub index :Path :Args(0) {
 after view => sub {
     my ($self, $c, $id) = @_;
     if (!$c->stash->{action_uri}) {
+        use Data::Dumper;
         if ($c->stash->{item}) {
+            $c->stash->{splitted_triggers} = $self->split_triggers($c->stash->{item}->{trigger});
+            $c->log->info(Dumper($c->stash->{item}));
             $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
         } else {
             $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));

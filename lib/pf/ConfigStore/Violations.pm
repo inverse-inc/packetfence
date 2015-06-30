@@ -53,7 +53,9 @@ sub listTriggers {
     foreach my $violation ($cachedConfig->Sections()) {
         $trigger = $cachedConfig->val($violation, 'trigger');
         if (defined($trigger)) {
-            @triggers{$self->split_list($trigger)} = ();
+            my @violation_triggers = $self->split_list($trigger);
+            @triggers{@violation_triggers} = ();
+            
         }
     }
     return [sort keys %triggers];
@@ -128,7 +130,7 @@ Clean up violation
 
 sub cleanupAfterRead {
     my ($self, $id, $violation) = @_;
-    $self->expand_list($violation, qw(actions trigger whitelisted_categories));
+    $self->expand_list($violation, qw(actions whitelisted_categories));
     if ( exists $violation->{window} ) {
         $violation->{'window_dynamic'} = $violation->{window};
     }

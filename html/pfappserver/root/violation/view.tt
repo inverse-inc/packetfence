@@ -32,20 +32,40 @@
       </div><!-- tab-pane -->
 
       <div class="tab-pane fade" id="violationTriggers">
-        [% form.field('trigger').render | none %]
-        <div class="control-group">
-          <div class="controls">
-            <select id="trigger_type" class="input-medium">
-              [% FOREACH type IN trigger_types -%]
-              <option value="[% type | html %]">[% l(type) %]</option>
-              [% END -%]
-            </select>
-            <input id='tid' class="input-medium" type="text" placeholder="[% l('Enter the trigger ID') %]" autocomplete="off" data-provide="typeahead"/>
-            <a id="add_trigger" class="btn" href="#addTrigger">[% l('Add') %]</a>
+        <div id="viewTriggers">
+          [% form.field('trigger').render | none %]
+
+          [% FOREACH trigger IN splitted_triggers %]
+            <div class="control-group">
+              <select multiple="multiple" class='chzn-select input-xxlarge'>
+              [% FOREACH subtrigger IN trigger %]
+                <option value="[% subtrigger %]" selected="selected">
+                  [% subtrigger %]
+                </option>
+              [% END %]
+              </select>
+              <a class="btn pull-left" href="#editTrigger">Edit</a>
+              <a class="btn btn-danger pull-left" href="#deleteTrigger">Delete</a>
+            </div>
+          [% END %]
+        </div>
+
+        <div class="editTrigger">
+          [% form.field('sub_trigger').render %]
+          <div class="control-group">
+            <div class="controls">
+              <select id="trigger_type" class="input-medium">
+                [% FOREACH type IN trigger_types -%]
+                <option value="[% type | html %]">[% l(type) %]</option>
+                [% END -%]
+              </select>
+              <input id='tid' class="input-medium" type="text" placeholder="[% l('Enter the trigger ID') %]" autocomplete="off" data-provide="typeahead"/>
+              <a id="add_trigger" class="btn" href="#addTrigger">[% l('Add') %]</a>
+            </div>
           </div>
+
         </div>
-        <div class="control-group">
-        </div>
+
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="violationRemediation">

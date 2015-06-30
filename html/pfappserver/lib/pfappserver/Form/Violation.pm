@@ -17,6 +17,7 @@ with 'pfappserver::Base::Form::Role::Help';
 use HTTP::Status qw(:constants is_success);
 
 use pf::action;
+use pf::log;
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
@@ -104,13 +105,8 @@ has_field 'whitelisted_categories' =>
   );
 has_field 'trigger' =>
   (
-   type => 'Select',
-   multiple => 1,
-   label => 'Triggers',
-   element_class => ['chzn-select', 'input-xxlarge'],
-   element_attr => {'data-placeholder' => 'Click to add a trigger' },
-#   tags => { after_element => \&help,
-#             help => 'Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc.' },
+   label =>"Trigger",
+   type => 'TextArea',
   );
 has_field 'auto_enable' =>
   (
@@ -282,21 +278,6 @@ sub options_roles {
     my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
 
     return ('' => '', @roles);
-}
-
-=head2 options_trigger
-
-=cut
-
-sub options_trigger {
-    my $self = shift;
-
-    # $self->triggers comes from pfappserver::Model::Config::Violations->list_triggers
-    my @triggers = map {
-        my ($type, $tid) = split(/::/);
-        $_ => $self->_localize($type)."::$tid" } @{$self->form->triggers} if ($self->form->triggers);
-
-    return @triggers;
 }
 
 =head2 options_template
