@@ -177,8 +177,8 @@ sub read {
     my ($self, $id, $idKey ) = @_;
     my $data;
     my $config = $self->cachedConfig;
-    $id = $self->_formatId($id);
-    if ( $config->SectionExists($id) ) {
+    my $sectionId = $self->_formatId($id);
+    if ( $config->SectionExists($sectionId) ) {
         $data = {};
         my @default_params = $config->Parameters($config->{default}) if exists $config->{default} && $self->use_default_paramaters;
         $data->{$idKey} = $id if defined $idKey;
@@ -429,7 +429,7 @@ sub commitPfconfig {
         }
         else {
             my $manager = pfconfig::manager->new;
-            $manager->expire($self->pfconfigNamespace);            
+            $manager->expire($self->pfconfigNamespace);
         }
     }
     else{
