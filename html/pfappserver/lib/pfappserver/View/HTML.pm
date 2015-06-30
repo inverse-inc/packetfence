@@ -20,7 +20,6 @@ __PACKAGE__->config(
     PARSER => Template::AutoFilter::Parser->new,
     render_die => 1,
     expose_methods => [qw(can_access can_access_any can_access_group_any)],
-    COMPILE_DIR => $tt_compile_cache_dir
 );
 
 =head1 NAME
