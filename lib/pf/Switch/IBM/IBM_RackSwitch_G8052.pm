@@ -64,32 +64,6 @@ sub wiredeauthTechniques {
     }
 }
 
-=head2 returnRadiusAccessAccept
-
-Prepares the RADIUS Access-Accept reponse for the network device.
-
-Overrides the default implementation to add the dynamic acls
-
-=cut
-
-sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
-
-    # Inline Vs. VLAN enforcement
-    my $radius_reply_ref = {};
-    my $role = "";
-    if ( (!$wasInline || ($wasInline && $vlan != 0) ) && isenabled($self->{_VlanMap})) {
-        $radius_reply_ref = {
-            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-            'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $vlan,
-        };
-    }
-    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan and role $role");
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
-}
-
 =head2 _dot1xPortReauthenticate
 
 =cut
