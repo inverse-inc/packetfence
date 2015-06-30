@@ -2173,7 +2173,7 @@ IBM
 RackSwitch G8052
 ^^^^^^^^^^^^^^^^
 
-PacketFence supports only the 802.1x. It's tested and developped for the Firmware 7.9.11.0.
+PacketFence supports only 802.1x authentication. It has been tested on version 7.9.11.0.
 
 Radius configuration
 ++++++++++++++++++++
