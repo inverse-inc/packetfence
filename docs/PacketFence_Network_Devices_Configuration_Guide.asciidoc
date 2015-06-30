@@ -373,8 +373,8 @@ First define any VLAN that you want to use on the switch.
 Next, configure the RADIUS server to be PacketFence
 
     aaa radius-server "packetfence" host 192.168.1.5 key useStrongerSecret
-    aaa device-authentication mac packetfence
-    aaa device-authentication 802.1x packetfence
+    aaa authentication mac packetfence
+    aaa authentication 802.1x packetfence
 
 You now need to configure a user profile (equivalent of a role) that will determine which VLAN is assigned to the device. In this case the profile names are 'unreg', 'employee' and 'guest'.
 
@@ -405,7 +405,8 @@ First, make sure you followed the steps above in 'Global configuration'
 
 You will need to configure the ports you want to do authentication on.
 
-    802.1x 1/2 
+    vlan port mobile 1/2
+    vlan port 1/2 802.1x enable
     802.1x 1/2 supplicant policy authentication pass group-mobility block fail block
     802.1x 1/2 non-supplicant policy authentication pass group-mobility block fail block
 
@@ -455,6 +456,7 @@ Next, configure the RADIUS server to be PacketFence
 
     aaa radius-server "packetfence" host 192.168.1.5 key useStrongerSecret
     aaa device-authentication mac packetfence
+    aaa device-authentication 802.1x packetfence
 
 You now need to configure an edge profile (equivalent of a role) that will determine which VLAN is assigned to the device. In this case the profile names are 'unreg', 'employee' and 'guest'.
 
