@@ -210,8 +210,19 @@ log_result(int argc, char **argv, const struct arguments args, int status,
         asprintf(&log_msg, "%s %s ", tmpstr, argv[i]);
         i++;
     }
+
+    if ( status == SIGTERM) {
+        (void) 0; // no op
+    }
+    else if ( WIFEXITED(status) ) {
+        status =  WEXITSTATUS(status); 
+    } 
+    else { 
+        status = 1;
+    }
+
     syslog(args.level, "%s time: %g ms, status: %i, exiting pid: %i",
-           log_msg, elapsed, WEXITSTATUS(status), ppid);
+           log_msg, elapsed, status, ppid);
     closelog();
 }
 
@@ -390,5 +401,6 @@ char **argv, **envp;
     if (!arguments.nostatsd)
         send_statsd(arguments, status, elapsed);
 
-    exit(WEXITSTATUS(status));
+    if (WIFEXITED(status)) exit(WEXITSTATUS(status));
+    exit(1); // Just in case the child exited abnormally.
 }
