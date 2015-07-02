@@ -179,7 +179,10 @@ sub cancel : Chained('source') : Args(0) {
 
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
-    $c->stash->{profile} = $c->profile;
+    $c->stash(
+        profile => $c->profile,
+        template => 'billing/index.html',
+    );
 }
 
 sub processTransaction : Private {
