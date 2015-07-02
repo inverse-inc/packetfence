@@ -39,7 +39,7 @@ Catalyst Controller.
 
 sub begin : Private {
     my ($self, $c) = @_;
-    unless( $c->profile->isBillingEnabled ) {
+    unless( $c->profile->isBillingEnabled($c->session->{chained_source}) ) {
         $c->response->redirect("/captive-portal?destination_url=".uri_escape($c->portalSession->profile->getRedirectURL));
         $c->detach;
     }
@@ -55,7 +55,13 @@ The chained billing source
 sub source : Chained('/') : PathPart('billing') : CaptureArgs(1) {
     my ($self, $c, $source_id) = @_;
     my $profile = $c->profile;
-    my $billing = first {$_->id eq $source_id} $profile->getBillingSources;
+    my $billing;
+    if($c->session->{chained_source}) {
+        $billing = first {$_->id eq $source_id} $profile->getChainedBillingSources;
+    }
+    else {
+        $billing = first {$_->id eq $source_id} $profile->getBillingSources;
+    }
     unless ($billing) {
         $self->showError($c, "Invalid billing source for profile");
     }
@@ -179,7 +185,15 @@ sub cancel : Chained('source') : Args(0) {
 
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
+    my @billing_sources;
+    if($c->session->{chained_source}) {
+        @billing_sources = $c->profile->getChainedBillingSources;
+    }
+    else {
+        @billing_sources = $c->profile->getBillingSources;
+    }
     $c->stash(
+        billing_sources => \@billing_sources,
         profile => $c->profile,
         template => 'billing/index.html',
     );
