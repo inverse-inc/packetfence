@@ -271,7 +271,7 @@ Return the billing authentication sources objects for the profile
 
 sub getBillingSources {
     my ($self) = @_;
-    return $self->getSourcesByClass( 'billing' );
+    return $self->getSourcesByClass( 'billing' ), $self->getSourceByClassForChained('billing');
 }
 
 =item getSourcesByClass
@@ -321,6 +321,18 @@ sub getSourceByTypeForChained {
     return unless $type;
     $type = uc($type);
     return first {uc($_->{'type'}) eq $type} map { $_->getChainedAuthenticationSourceObject } grep { $_->type eq 'Chained' }  $self->getSourcesAsObjects;
+}
+
+=item getSourceByClassForChained
+
+Returns the source object for the requested source class for chained sources in the current captive portal profile.
+
+=cut
+
+sub getSourceByTypeForChained {
+    my ($self, $class) = @_;
+    return unless $class;
+    return grep {$_->class eq $class} map { $_->getChainedAuthenticationSourceObject } grep { $_->type eq 'Chained' }  $self->getSourcesAsObjects;
 }
 
 =item guestRegistrationOnly
