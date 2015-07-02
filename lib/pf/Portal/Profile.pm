@@ -329,7 +329,7 @@ Returns the source object for the requested source class for chained sources in 
 
 =cut
 
-sub getSourceByTypeForChained {
+sub getSourceByClassForChained {
     my ($self, $class) = @_;
     return unless $class;
     return grep {$_->class eq $class} map { $_->getChainedAuthenticationSourceObject } grep { $_->type eq 'Chained' }  $self->getSourcesAsObjects;
