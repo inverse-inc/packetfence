@@ -54,7 +54,7 @@ sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
     $self->expand_list($profile, $self->_fields_expanded);
     my $config = pf::ConfigStore::Group->new({group => "$id billing_tier", cachedConfig => $self->cachedConfig, use_default_paramaters => 0});
-    $profile->{billing_tier} = $config->readAll('id');
+    $profile->{billing_tiers} = $config->readAll('id');
 }
 
 =head2 cleanupBeforeCommit
