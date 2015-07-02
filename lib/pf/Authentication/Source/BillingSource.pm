@@ -14,7 +14,7 @@ pf::Authentication::Source::BillingSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($FALSE $TRUE $default_pid);
+use pf::config qw($FALSE $TRUE $default_pid $fqdn);
 use pf::Authentication::constants;
 use pf::util;
 
@@ -95,8 +95,8 @@ sub cancel_url {
 sub _build_base_path {
     my ($self) = @_;
     my $id     = $self->id;
-    #    my $base_path = "http://$fqdn/billing/$id";
-    my $base_path = "http://192.168.56.101:8080/billing/$id";
+    my $base_path = "http://$fqdn/billing/$id";
+#    my $base_path = "http://192.168.56.101:8080/billing/$id";
     return $base_path;
 }
 
