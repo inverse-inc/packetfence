@@ -89,7 +89,6 @@ document.observe("dom:loaded", function() {
     </div>
   </div>
 
-  [% SET billing_sources = profile.getBillingSources %] 
   [% IF billing_sources.size %]
   <div class="input">
     [% FOREACH billing IN billing_sources %]

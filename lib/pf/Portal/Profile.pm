@@ -263,7 +263,7 @@ sub getExclusiveSources {
     return $self->getSourcesByClass( 'exclusive' );
 }
 
-=head2 getBillingSources
+=item getBillingSources
 
 Return the billing authentication sources objects for the profile
 
@@ -271,7 +271,18 @@ Return the billing authentication sources objects for the profile
 
 sub getBillingSources {
     my ($self) = @_;
-    return $self->getSourcesByClass( 'billing' ), $self->getSourceByClassForChained('billing');
+    return $self->getSourcesByClass( 'billing' );
+}
+
+=item getChainedBillingSources
+
+Return the billing authentication sources objects for the profile
+
+=cut
+
+sub getChainedBillingSources {
+    my ($self) = @_;
+    return $self->getSourceByClassForChained('billing');
 }
 
 =item getSourcesByClass
@@ -569,7 +580,12 @@ sub findTier {
 }
 
 sub isBillingEnabled {
-    my ($self) = @_;
+    my ($self, $chained_source) = @_;
+    if(defined $chained_source) {
+        my ($chained) = grep { $_->id eq $chained_source }  $self->getSourcesAsObjects;
+        my $billing = pf::authentication::getAuthenticationSource($chained->chained_authentication_source);
+        return defined $billing && $billing->class eq 'billing';
+    }
     return 0 unless defined $self->{_tiers} && @{$self->{_tiers}} && scalar $self->getBillingSources;
     return 1;
 }

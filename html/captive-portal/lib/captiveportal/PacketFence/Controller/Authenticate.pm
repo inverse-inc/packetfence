@@ -263,6 +263,7 @@ sub checkIfChainedAuth : Private {
     my $source = getAuthenticationSource($source_id);
     #if not chained then leave
     return unless $source->type eq 'Chained';
+    $c->session->{chained_source} = $source_id;
     my $chainedSource = $source->getChainedAuthenticationSourceObject();
     if( $chainedSource && $self->isGuestSigned($c,$chainedSource)) {
         $self->setAllowedGuestModes($c,$chainedSource);
