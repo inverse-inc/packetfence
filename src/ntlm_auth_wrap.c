@@ -44,7 +44,6 @@ const char *argp_program_bug_address = "<info@inverse.ca>";
 
 // These have to be initialized early so they can be used in the signal handler.
 pid_t pid = 0 ; // initialize the child pid 
-int TIMEOUT = 199;
 
 /* Program documentation. */
 static char doc[] =
@@ -55,127 +54,127 @@ static char args_doc[] = "[arguments passed to ntlm_auth]";
 
 /* The options we understand. */
 static struct argp_option options[] = {
-	{"binary", 'b', "path", 0,
-	 "ntlm_auth binary path. Defaults to /usr/bin/ntlm_auth."},
-	{"host", 'h', "hostname or ip", 0,
-	 "StatsD host. Default is localhost."},
-	{"port", 'p', "port", 0, "StatsD port. Default is 8125."},
-	{"insecure", 'i', 0, 0, "Log insecure arguments such as the password."},
-	{"nostatsd", 's', 0, 0, "Don't send performance counters to statsd."},
-	{"noresolv", 'n', 0, 0, "Do not resolve value for host and port."},
-	{"log", 'l', 0, 0, "Send results to syslog."},
-	{"logfacility", 'f', "facility", 0,
-	 "Syslog facility. Default is local5."},
-	{"loglevel", 'd', "level", 0, "Syslog level. Default is info."},
-	{0}
+    {"binary", 'b', "path", 0,
+     "ntlm_auth binary path. Defaults to /usr/bin/ntlm_auth."},
+    {"host", 'h', "hostname or ip", 0,
+     "StatsD host. Default is localhost."},
+    {"port", 'p', "port", 0, "StatsD port. Default is 8125."},
+    {"insecure", 'i', 0, 0, "Log insecure arguments such as the password."},
+    {"nostatsd", 's', 0, 0, "Don't send performance counters to statsd."},
+    {"noresolv", 'n', 0, 0, "Do not resolve value for host and port."},
+    {"log", 'l', 0, 0, "Send results to syslog."},
+    {"logfacility", 'f', "facility", 0,
+     "Syslog facility. Default is local5."},
+    {"loglevel", 'd', "level", 0, "Syslog level. Default is info."},
+    {0}
 };
 
 /* Used by main to communicate with parse_opt. */
 struct arguments {
-	int insecure, nostatsd, noresolv, log, facility, level;
-	char *binary;
-	char *host;
-	char *port;
-	char *args[];		// Arguments to ntlm_auth itself
+    int insecure, nostatsd, noresolv, log, facility, level;
+    char *binary;
+    char *host;
+    char *port;
+    char *args[];       // Arguments to ntlm_auth itself
 };
 
 /* Parse a single option. */
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
-	/* Get the input argument from argp_parse, which we
-	   know is a pointer to our arguments structure. */
-	struct arguments *arguments = state->input;
+    /* Get the input argument from argp_parse, which we
+       know is a pointer to our arguments structure. */
+    struct arguments *arguments = state->input;
 
-	switch (key) {
-	case 'i':
-		arguments->insecure = 1;
-		break;
-	case 's':
-		arguments->nostatsd = 1;
-		break;
-	case 'n':
-		arguments->noresolv = 1;
-		break;
-	case 'l':
-		arguments->log = 1;
-		break;
-	case 'b':
-		arguments->binary = arg;
-		break;
-	case 'h':
-		arguments->host = arg;
-		break;
-	case 'p':
-		arguments->port = arg;
-		break;
-	case 'f':
-		if (strcasecmp(arg, "auth") == 0) {
-			arguments->facility = LOG_AUTHPRIV;
-		} else if (strcasecmp(arg, "authpriv") == 0) {
-			arguments->facility = LOG_AUTHPRIV;
-		} else if (strcasecmp(arg, "daemon") == 0) {
-			arguments->facility = LOG_DAEMON;
-		} else if (strcasecmp(arg, "user") == 0) {
-			arguments->facility = LOG_USER;
-		} else if (strcasecmp(arg, "local0") == 0) {
-			arguments->facility = LOG_LOCAL0;
-		} else if (strcasecmp(arg, "local1") == 0) {
-			arguments->facility = LOG_LOCAL1;
-		} else if (strcasecmp(arg, "local2") == 0) {
-			arguments->facility = LOG_LOCAL2;
-		} else if (strcasecmp(arg, "local3") == 0) {
-			arguments->facility = LOG_LOCAL3;
-		} else if (strcasecmp(arg, "local4") == 0) {
-			arguments->facility = LOG_LOCAL4;
-		} else if (strcasecmp(arg, "local5") == 0) {
-			arguments->facility = LOG_LOCAL5;
-		} else if (strcasecmp(arg, "local6") == 0) {
-			arguments->facility = LOG_LOCAL6;
-		} else if (strcasecmp(arg, "local7") == 0) {
-			arguments->facility = LOG_LOCAL7;
-		} else {
-			return ARGP_ERR_UNKNOWN;
-		}
-		break;
+    switch (key) {
+    case 'i':
+        arguments->insecure = 1;
+        break;
+    case 's':
+        arguments->nostatsd = 1;
+        break;
+    case 'n':
+        arguments->noresolv = 1;
+        break;
+    case 'l':
+        arguments->log = 1;
+        break;
+    case 'b':
+        arguments->binary = arg;
+        break;
+    case 'h':
+        arguments->host = arg;
+        break;
+    case 'p':
+        arguments->port = arg;
+        break;
+    case 'f':
+        if (strcasecmp(arg, "auth") == 0) {
+            arguments->facility = LOG_AUTHPRIV;
+        } else if (strcasecmp(arg, "authpriv") == 0) {
+            arguments->facility = LOG_AUTHPRIV;
+        } else if (strcasecmp(arg, "daemon") == 0) {
+            arguments->facility = LOG_DAEMON;
+        } else if (strcasecmp(arg, "user") == 0) {
+            arguments->facility = LOG_USER;
+        } else if (strcasecmp(arg, "local0") == 0) {
+            arguments->facility = LOG_LOCAL0;
+        } else if (strcasecmp(arg, "local1") == 0) {
+            arguments->facility = LOG_LOCAL1;
+        } else if (strcasecmp(arg, "local2") == 0) {
+            arguments->facility = LOG_LOCAL2;
+        } else if (strcasecmp(arg, "local3") == 0) {
+            arguments->facility = LOG_LOCAL3;
+        } else if (strcasecmp(arg, "local4") == 0) {
+            arguments->facility = LOG_LOCAL4;
+        } else if (strcasecmp(arg, "local5") == 0) {
+            arguments->facility = LOG_LOCAL5;
+        } else if (strcasecmp(arg, "local6") == 0) {
+            arguments->facility = LOG_LOCAL6;
+        } else if (strcasecmp(arg, "local7") == 0) {
+            arguments->facility = LOG_LOCAL7;
+        } else {
+            return ARGP_ERR_UNKNOWN;
+        }
+        break;
 
-	case 'd':
-		if (strcasecmp(arg, "debug") == 0) {
-			arguments->level = LOG_DEBUG;
-		} else if (strcasecmp(arg, "notice") == 0) {
-			arguments->level = LOG_NOTICE;
-		} else if (strcasecmp(arg, "info") == 0) {
-			arguments->level = LOG_INFO;
-		} else if (strcasecmp(arg, "warning") == 0) {
-			arguments->level = LOG_WARNING;
-		} else if (strcasecmp(arg, "error") == 0) {
-			arguments->level = LOG_ERR;
-		} else if (strcasecmp(arg, "critical") == 0) {
-			arguments->level = LOG_CRIT;
-		} else if (strcasecmp(arg, "alert") == 0) {
-			arguments->level = LOG_ALERT;
-		} else if (strcasecmp(arg, "emerg") == 0) {
-			arguments->level = LOG_ALERT;
-		} else {
-			return ARGP_ERR_UNKNOWN;
-		}
-		break;
+    case 'd':
+        if (strcasecmp(arg, "debug") == 0) {
+            arguments->level = LOG_DEBUG;
+        } else if (strcasecmp(arg, "notice") == 0) {
+            arguments->level = LOG_NOTICE;
+        } else if (strcasecmp(arg, "info") == 0) {
+            arguments->level = LOG_INFO;
+        } else if (strcasecmp(arg, "warning") == 0) {
+            arguments->level = LOG_WARNING;
+        } else if (strcasecmp(arg, "error") == 0) {
+            arguments->level = LOG_ERR;
+        } else if (strcasecmp(arg, "critical") == 0) {
+            arguments->level = LOG_CRIT;
+        } else if (strcasecmp(arg, "alert") == 0) {
+            arguments->level = LOG_ALERT;
+        } else if (strcasecmp(arg, "emerg") == 0) {
+            arguments->level = LOG_ALERT;
+        } else {
+            return ARGP_ERR_UNKNOWN;
+        }
+        break;
 
-	case ARGP_KEY_ARG:
-		if (state->arg_num >= 32)
-			/* Way too many arguments. */
-			argp_usage(state);
-		break;
+    case ARGP_KEY_ARG:
+        if (state->arg_num >= 32)
+            /* Way too many arguments. */
+            argp_usage(state);
+        break;
 
-	case ARGP_KEY_END:
-		if (state->arg_num < 2)
-			/* Not enough arguments. */
-			argp_usage(state);
-		break;
+    case ARGP_KEY_END:
+        if (state->arg_num < 2)
+            /* Not enough arguments. */
+            argp_usage(state);
+        break;
 
-	default:
-		return ARGP_ERR_UNKNOWN;
-	}
-	return 0;
+    default:
+        return ARGP_ERR_UNKNOWN;
+    }
+    return 0;
 }
 
 /* Our argp parser. */
@@ -184,95 +183,95 @@ static struct argp argp = { options, parse_opt, args_doc, doc };
 // send results to syslog
 void
 log_result(int argc, char **argv, const struct arguments args, int status,
-	   double elapsed, int ppid)
+       double elapsed, int ppid)
 {
-	openlog("radius-debug", LOG_PID, args.facility);
-	// build the log message
-	char *log_msg;
-	asprintf(&log_msg, "%s", args.binary);
+    openlog("radius-debug", LOG_PID, args.facility);
+    // build the log message
+    char *log_msg;
+    asprintf(&log_msg, "%s", args.binary);
 
-	// concatenate the command with all argv args separated by sep
+    // concatenate the command with all argv args separated by sep
     int i = 1; 
     while (i < argc ) {
-		// split the argument on = and check the first part to reject excluded args.
-		if (!args.insecure)
-			if ((strncmp
-			     (argv[i], "--password", strlen("--password")) == 0)
-			    ||
-			    (strncmp
-			     (argv[i], "--challenge", strlen("--challenge")) == 0)) 
+        // split the argument on = and check the first part to reject excluded args.
+        if (!args.insecure)
+            if ((strncmp
+                 (argv[i], "--password", strlen("--password")) == 0)
+                ||
+                (strncmp
+                 (argv[i], "--challenge", strlen("--challenge")) == 0)) 
             { 
-			    i=i+2; // will skip the next argument
+                i=i+2; // will skip the next argument
                 continue;
             }
 
-		char *tmpstr = log_msg;
-		log_msg = NULL;
-		asprintf(&log_msg, "%s %s ", tmpstr, argv[i]);
+        char *tmpstr = log_msg;
+        log_msg = NULL;
+        asprintf(&log_msg, "%s %s ", tmpstr, argv[i]);
         i++;
-	}
-	syslog(args.level, "%s time: %g ms, status: %i, exiting pid: %i",
-	       log_msg, elapsed, status, ppid);
-	closelog();
+    }
+    syslog(args.level, "%s time: %g ms, status: %i, exiting pid: %i",
+           log_msg, elapsed, WEXITSTATUS(status), ppid);
+    closelog();
 }
 
 // send to statsd 
 void send_statsd(const struct arguments args , int status, double elapsed)
 {
-	struct addrinfo *ailist;
-	struct addrinfo hint;
-	int sockfd, err;
-	memset(&hint, 0, sizeof(hint));
-	hint.ai_socktype = SOCK_DGRAM;
-	hint.ai_family = AF_INET;
-	if (args.noresolv)
-		hint.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
-	hint.ai_canonname = NULL;
-	hint.ai_addr = NULL;
-	hint.ai_next = NULL;
-	if ((err = getaddrinfo(args.host, args.port, &hint, &ailist)) != 0) {
-		sprintf("getaddrinfo error: %s", gai_strerror(err));
+    struct addrinfo *ailist;
+    struct addrinfo hint;
+    int sockfd, err;
+    memset(&hint, 0, sizeof(hint));
+    hint.ai_socktype = SOCK_DGRAM;
+    hint.ai_family = AF_INET;
+    if (args.noresolv)
+        hint.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
+    hint.ai_canonname = NULL;
+    hint.ai_addr = NULL;
+    hint.ai_next = NULL;
+    if ((err = getaddrinfo(args.host, args.port, &hint, &ailist)) != 0) {
+        sprintf("getaddrinfo error: %s", gai_strerror(err));
     } 
 
-	if ((sockfd = socket(ailist->ai_family, SOCK_DGRAM, 0)) < 0) {
-		err = errno;
-		fprintf(stderr, "cannot contact %s:%s: %s\n", args.host,
-			args.port, strerror(err));
+    if ((sockfd = socket(ailist->ai_family, SOCK_DGRAM, 0)) < 0) {
+        err = errno;
+        fprintf(stderr, "cannot contact %s:%s: %s\n", args.host,
+            args.port, strerror(err));
     }
 
-	connect(sockfd, ailist->ai_addr, ailist->ai_addrlen);
+//  connect(sockfd, ailist->ai_addr, ailist->ai_addrlen);
     char *buf;
     char hostname[MAX_STR_LENGTH];
     gethostname(hostname, sizeof(hostname));
 
     asprintf(&buf, "%s.ntlm_auth.time:%g|ms\n", hostname, elapsed);
 
-    send(sockfd, buf, strlen(buf), 0);
+    sendto(sockfd, buf, strlen(buf), 0, ailist->ai_addr, ailist->ai_addrlen);
 
     // increment counter if auth failed
     if (status == SIGTERM) {
         asprintf(&buf, "%s.ntlm_auth.timeout:1|c\n", hostname);
-        send(sockfd, buf, strlen(buf), 0);
+        sendto(sockfd, buf, strlen(buf), 0, ailist->ai_addr, ailist->ai_addrlen);
     } else if (status > 0) {
         asprintf(&buf, "%s.ntlm_auth.failures:1|c\n", hostname);
-        send(sockfd, buf, strlen(buf), 0);
+        sendto(sockfd, buf, strlen(buf), 0, ailist->ai_addr, ailist->ai_addrlen);
     }
 }
 
 double howlong(struct timeval t1)
 {
-	struct timeval end;
-	double elapsed;
-	gettimeofday(&end, NULL);
-	elapsed = (end.tv_sec - t1.tv_sec) * 1000.0;	// sec to ms
-	elapsed += (end.tv_usec - t1.tv_usec) / 1000.0;	// us to ms
+    struct timeval end;
+    double elapsed;
+    gettimeofday(&end, NULL);
+    elapsed = (end.tv_sec - t1.tv_sec) * 1000.0;    // sec to ms
+    elapsed += (end.tv_usec - t1.tv_usec) / 1000.0; // us to ms
 
-	return elapsed;
+    return elapsed;
 }
 
 void
 log_timeouts(int argc, char **argv, const struct arguments args,
-	     struct timeval start)
+         struct timeval start)
 {
     double elapsed;
     elapsed = howlong(start);
@@ -290,13 +289,13 @@ log_timeouts(int argc, char **argv, const struct arguments args,
 // If it isn't, well... too bad. We _exit anyway.
 static void handler(int sig)
 {
-	if (sig == SIGTERM) {
+    if (sig == SIGTERM) {
         if (pid == 0) _exit(SIGTERM); // we haven't forked yet or we are still in the child pre exec
-        kill(pid, SIGTERM);
+        kill(pid, SIGKILL);
         alarm(1) ; // wake us up in one second, giving us just enough time to finish logging 
-	}
+    }
     if (sig == SIGALRM ) { 
-        kill(pid, SIGTERM); // just in case we may have forked in the meantime
+        kill(pid, SIGKILL); // just in case we may have forked in the meantime
         _exit(SIGTERM); // we waited long enough
     }
 }
@@ -306,40 +305,40 @@ int argc;
 char **argv, **envp;
 {
 
-	/* Default values. */
-	struct arguments arguments;
-	arguments.insecure = 0;
-	arguments.nostatsd = 0;
-	arguments.noresolv = 0;
-	arguments.log = 0;
-	arguments.binary = "/usr/bin/ntlm_auth";
-	arguments.host = "localhost";
-	arguments.port = "8125";
-	arguments.facility = LOG_LOCAL5;
-	arguments.level = LOG_INFO;
-	/* Parse our arguments; every option seen by parse_opt will
-	   be reflected in arguments. */
-	argp_parse(&argp, argc, argv, 0, 0, &arguments);
+    /* Default values. */
+    struct arguments arguments;
+    arguments.insecure = 0;
+    arguments.nostatsd = 0;
+    arguments.noresolv = 0;
+    arguments.log = 0;
+    arguments.binary = "/usr/bin/ntlm_auth";
+    arguments.host = "localhost";
+    arguments.port = "8125";
+    arguments.facility = LOG_LOCAL5;
+    arguments.level = LOG_INFO;
+    /* Parse our arguments; every option seen by parse_opt will
+       be reflected in arguments. */
+    argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
-	struct timeval t1;
-	double elapsed;
-	gettimeofday(&t1, NULL);
+    struct timeval t1;
+    double elapsed;
+    gettimeofday(&t1, NULL);
 
-	// set the signal handler
-	struct sigaction sa;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
-	sa.sa_handler = handler;
-	if (sigaction(SIGTERM, &sa, NULL) == -1) {
-		fprintf(stderr,
-			"Error: could not register TERM signal handler. Exiting.");
-		exit(1);
-	}
-	if (sigaction(SIGALRM, &sa, NULL) == -1) {
-		fprintf(stderr,
-			"Error: could not register ALRM signal handler. Exiting.");
-		exit(1);
-	}
+    // set the signal handler
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sa.sa_handler = handler;
+    if (sigaction(SIGTERM, &sa, NULL) == -1) {
+        fprintf(stderr,
+            "Error: could not register TERM signal handler. Exiting.");
+        exit(1);
+    }
+    if (sigaction(SIGALRM, &sa, NULL) == -1) {
+        fprintf(stderr,
+            "Error: could not register ALRM signal handler. Exiting.");
+        exit(1);
+    }
 
     // Find the -- separator if any and reset the argv accordingly
     // so it does not get passed to the execed program.
@@ -359,36 +358,37 @@ char **argv, **envp;
         argc = argc - opt_end;
     }
 
-	// Fork a process, exec it and then wait for the exit.
-	pid_t  ppid;
-	ppid = getpid();
-	int status;
-	if ((pid = fork()) < 0) {
-		perror(argv[0]);
-		exit(1);
-	} else if (pid == 0) {	// child
-		execve(arguments.binary, argv, envp);
-		perror(argv[0]);
-		exit(127);
-	}
+    // Fork a process, exec it and then wait for the exit.
+    pid_t  ppid;
+    ppid = getpid();
+    int status;
+    if ((pid = fork()) < 0) {
+        perror(argv[0]);
+        exit(1);
+    } else if (pid == 0) {  // child
+        execve(arguments.binary, argv, envp);
+        perror(argv[0]);
+        exit(127);
+    }
     
-	if (waitpid(pid, &status, 0) != pid) {	// wait for child
+    if (waitpid(pid, &status, 0) != pid) {  // wait for child
         if (errno == EINTR) {  // we received a signal
+            wait(NULL); // reap to prevent zombies
             status = SIGTERM;
         }
         else {
-		    perror(argv[0]);
-		    exit(1);
+            perror(argv[0]);
+            exit(1);
         }
-	}
+    }
 
-	elapsed = howlong(t1);
+    elapsed = howlong(t1);
 
-	if (arguments.log)
-		log_result(argc, argv, arguments, status, elapsed, ppid);
-	// open socket to StatsD server and send message
-	if (!arguments.nostatsd)
-		send_statsd(arguments, status, elapsed);
+    if (arguments.log)
+        log_result(argc, argv, arguments, status, elapsed, ppid);
+    // open socket to StatsD server and send message
+    if (!arguments.nostatsd)
+        send_statsd(arguments, status, elapsed);
 
-	exit(WEXITSTATUS(status));
+    exit(WEXITSTATUS(status));
 }
