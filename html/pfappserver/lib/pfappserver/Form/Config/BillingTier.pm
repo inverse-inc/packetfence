@@ -1,4 +1,4 @@
-package pfappserver::Form::Config::Authentication::Source::BillingTier;
+package pfappserver::Form::Config::BillingTier;
 
 =head1 NAME
 
@@ -80,7 +80,7 @@ has_field 'destination_url' => (
 =cut
 
 has_block 'definition' => (
-    render_list => [qw(id description price timeout category destination_url)]
+    render_list => [qw(id description price access_duration category destination_url)]
 );
 
 =head1 COPYRIGHT
