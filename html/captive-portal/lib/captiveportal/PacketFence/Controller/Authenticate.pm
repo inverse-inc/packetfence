@@ -257,6 +257,9 @@ sub checkIfChainedAuth : Private {
         $self->setAllowedGuestModes($c,$chainedSource);
         $c->detach(Signup => 'showSelfRegistrationPage');
     }
+    elsif ($chainedSource->class eq 'billing') {
+        $c->detach(Billing => 'index');
+    }
 }
 
 our %GUEST_SOURCE_TYPES = (
