@@ -15,6 +15,10 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 use pf::Authentication::constants;
 
+
+has 'roles' => (
+    is => 'rw',
+);
 # Form select options
 
 =head2 id
@@ -62,8 +66,9 @@ has_field 'access_duration' => (
 =cut
 
 has_field 'category' => (
-    type => 'Text',
+    type => 'Select',
     required => 1,
+    label => 'Role',
 );
 
 =head2 destination_url
@@ -80,8 +85,23 @@ has_field 'destination_url' => (
 =cut
 
 has_block 'definition' => (
-    render_list => [qw(id description price access_duration category destination_url)]
+    render_list => [qw(description price access_duration category destination_url)]
 );
+
+sub options_category {
+    my $self = shift;
+
+    # $self->roles comes from pfappserver::Model::Roles
+    my @roles = map { $_->{name} => $_->{name} } @{$self->roles} if ($self->roles);
+
+    return (@roles);
+}
+
+sub ACCEPT_CONTEXT {
+    my ($self, $c, @args) = @_;
+    my ($status, $roles) = $c->model('Roles')->list();
+    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
+}
 
 =head1 COPYRIGHT
 
