@@ -402,5 +402,7 @@ char **argv, **envp;
         send_statsd(arguments, status, elapsed);
 
     if (WIFEXITED(status)) exit(WEXITSTATUS(status));
-    exit(1); // Just in case the child exited abnormally.
+    status == SIGTERM ? 
+        exit(SIGTERM) :
+        exit(1); // Just in case the child exited abnormally.
 }
